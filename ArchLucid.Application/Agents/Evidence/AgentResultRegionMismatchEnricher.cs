@@ -112,13 +112,28 @@ public sealed class AgentResultRegionMismatchEnricher : IAgentResultPostExecutio
         if (platform == RuntimePlatform.AzureOpenAi)
             return "Microsoft.CognitiveServices/accounts";
 
-        if (platform == RuntimePlatform.Unknown
-            && !string.IsNullOrWhiteSpace(resourceName)
-            && resourceName.Contains("openai", StringComparison.OrdinalIgnoreCase))
+        if (platform == RuntimePlatform.Unknown && !string.IsNullOrWhiteSpace(resourceName))
         {
-            return "Microsoft.CognitiveServices/accounts";
+            string? armHint = TryResolveRestrictedServiceHintFromResourceName(resourceName);
+
+            if (armHint is not null)
+                return armHint;
         }
 
         return platform.ToString();
+    }
+
+    private static string? TryResolveRestrictedServiceHintFromResourceName(string resourceName)
+    {
+        if (resourceName.Contains("openai", StringComparison.OrdinalIgnoreCase))
+            return "Microsoft.CognitiveServices/accounts";
+
+        if (resourceName.Contains("machine learning", StringComparison.OrdinalIgnoreCase)
+            || resourceName.Contains("machinelearning", StringComparison.OrdinalIgnoreCase))
+        {
+            return "Microsoft.MachineLearningServices/workspaces";
+        }
+
+        return null;
     }
 }

@@ -7803,14 +7803,19 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-agents
 
+2026-10-22 seed hunt (seed→hit): promoted ML region mismatch for unknown-platform services; consolidated name→ARM hint helper; regression `EnrichAsync_appends_warning_when_machine_learning_named_service_omits_runtime_platform_in_restricted_region`; 124 scoped Application.Tests.Agents tests passed.
+
+- [x] (proven) `AgentResultRegionMismatchEnricher.TryResolveRestrictedServiceHintFromResourceName` — Machine Learning–named services with `RuntimePlatform.Unknown` in `qatarcentral` never matched `Microsoft.MachineLearningServices/workspaces` restricted map — **hit 2026-10-22 seed hunt:** shared name-cue ARM hints (OpenAI + ML); regression above. [class:state-machine-gap]
+
+- (candidate) `AgentResultRegionMismatchEnricher` — generic services with no OpenAI/ML name tokens in restricted regions still skip warnings when `RuntimePlatform` omitted — locus: unknown platform without name cues; input: `AppService` workload in `qatarcentral` (likely valid-no-repro).
+- (candidate) `RepoFaithfulnessHarnessSummaryReader.TryReadLatestAsync` — omitted ratio keys deserialize as `0.0` — locus: DTO defaults; input: summary JSON missing ratios (verify importer `Failed` state is acceptable).
+- (candidate) `AgentModelCatalogFaithfulnessHarnessImporter.ImportForAliasAsync` — partial evaluation upsert on mid-loop recorder failure — locus: foreach without transaction; input: fault on second approved task type.
+
 2026-10-22 seed hunt (seed→hit): promoted region mismatch when OpenAI-named services omit `RuntimePlatform`; regression `EnrichAsync_appends_warning_when_openai_named_service_omits_runtime_platform_in_restricted_region`; 123 scoped Application.Tests.Agents tests passed.
 
 - [x] (proven) `AgentResultRegionMismatchEnricher.ResolveRegionValidationPlatformHint` — `RuntimePlatform.Unknown` with OpenAI-like `ServiceName` in `qatarcentral` skipped `Microsoft.CognitiveServices/accounts` restricted-region warnings — **hit 2026-10-22 seed hunt:** infer Cognitive Services ARM hint from resource name when platform omitted; regression above. [class:state-machine-gap]
 
-- (candidate) `RepoFaithfulnessHarnessSummaryReader.TryReadLatestAsync` — omitted ratio keys deserialize as `0.0` and import may record Failed evaluations for otherwise valid harness output — locus: DTO defaults; input: summary JSON missing `positiveReadinessSupportRatio` with positive `casesEvaluated`.
-- (candidate) `AgentModelCatalogFaithfulnessHarnessImporter.ImportForAliasAsync` — partial evaluation upsert when `RecordTaskEvaluationAsync` fails mid approved-task-type loop — locus: foreach without transaction; input: two approved task types with recorder fault on second (verify whether operator retry is acceptable).
-- (candidate) `AgentResultRegionMismatchEnricher` — Machine Learning workloads in restricted regions still miss warnings when platform and name omit ML cues — locus: platform hint table vs `RegionRestrictedServices` ML entry; input: `qatarcentral` with unnamed ML service.
-- (candidate) `FindingIacStubGenerator.ApplyRelationalMuteFlagsAsync` — relational mute flags skipped when `runId` is not GUID-shaped — locus: `Guid.TryParse` guard; input: production run ids (verify always `Guid` strings from `dbo.Runs`).
+- [x] (valid-no-repro) `AgentModelCatalogFaithfulnessHarnessImporter.ImportForAliasAsync` — partial evaluation upsert on mid-loop failure — **cheap-disproof 2026-10-22 seed hunt:** each `RecordTaskEvaluationAsync` upserts full catalog row; operator re-import is idempotent per task type; no cross-tenant harm from partial alias row.
 
 2026-10-22 seed hunt (seed→hit): promoted faithfulness harness import with non-finite support ratios; regression `Import_rejects_summary_when_support_ratios_are_not_finite`; 122 scoped Application.Tests.Agents tests passed.
 

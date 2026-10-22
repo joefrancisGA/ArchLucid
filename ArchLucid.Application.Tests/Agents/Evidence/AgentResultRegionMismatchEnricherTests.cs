@@ -58,6 +58,48 @@ public sealed class AgentResultRegionMismatchEnricherTests
     }
 
     [Fact]
+    public async Task EnrichAsync_appends_warning_when_machine_learning_named_service_omits_runtime_platform_in_restricted_region()
+    {
+        ArchitectureRequest request = new()
+        {
+            RequestId = "req",
+            Description = new string('x', 12),
+            SystemName = "Payments",
+            Constraints = ["region:qatarcentral"],
+        };
+
+        AgentTopologyProposal proposal = new()
+        {
+            AddedServices =
+            [
+                new ManifestService
+                {
+                    ServiceName = "Azure Machine Learning scoring",
+                    RuntimePlatform = RuntimePlatform.Unknown,
+                    AzureArmRegion = "qatarcentral",
+                },
+            ],
+        };
+
+        List<AgentResult> results =
+        [
+            new AgentResult
+            {
+                RunId = "run",
+                TaskId = "task",
+                AgentType = AgentType.Topology,
+                ProposedChanges = proposal,
+            },
+        ];
+
+        await _sut.EnrichAsync("run", request, new AgentEvidencePackage(), results, CancellationToken.None);
+
+        proposal.Warnings.Should().ContainSingle();
+        proposal.Warnings[0].Should().Contain("RegionMismatch");
+        proposal.Warnings[0].Should().Contain("Microsoft.MachineLearningServices/workspaces");
+    }
+
+    [Fact]
     public async Task EnrichAsync_appends_warning_when_azure_openai_region_is_restricted()
     {
         ArchitectureRequest request = new()
