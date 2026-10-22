@@ -11261,6 +11261,21 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: application-tenancy-lifecycle
 
+2026-10-22 seed hunt (seed→hit): promoted post-auth `HasActiveOwnedTrialAsync` case-sensitive `TrialStatus` check — lowercase/padded `active` rows bypassed `active_trial` packaging guard while `TrialLifecycleStatus.EqualsStatus` is used elsewhere; regression `CreateWorkspaceAsync_denies_when_owned_trial_active_status_differs_only_by_casing`; cheap-disproof closed five open `(candidate)` rows.
+
+- [x] (proven) `PostAuthWorkspaceBootstrapService.HasActiveOwnedTrialAsync` — lowercase `TrialStatus` not treated as active — **hit 2026-10-22 seed hunt:** `TrialLifecycleStatus.EqualsStatus` parity; regression `CreateWorkspaceAsync_denies_when_owned_trial_active_status_differs_only_by_casing`.
+- [x] (valid-no-repro) `TenantWorkspaceScopeGuard.RequireTenantAndWorkspaceAsync` — `Guid.Empty` tenant id — **cheap-disproof 2026-10-22:** fail-closed `TenantNotFound` before workspace probe; no scope-binding leak path in selected files.
+- [x] (valid-no-repro) `TrialLimitGate.GuardWriteAsync` — missing tenant row returns without throwing — **cheap-disproof 2026-10-22:** tenant-scope middleware and erasure gates precede mutating handlers; gate documents non-throw for missing catalog row.
+- [x] (invalid) `TenantProvisioningService.ProvisionAsync` — malformed `AdminEmail` at provision only — **cheap-disproof 2026-10-22:** post-auth `displayEmail` originates from verified OTP session, not raw client bypass.
+- [x] (valid-no-repro) `TrialTenantBootstrapService.TryBootstrapAfterPostAuthWorkspaceAsync` — `companyProfile` discarded — **cheap-disproof 2026-10-22:** post-auth path does not commit self-service trial metadata; industry vertical flows to onboarding URL only by design today.
+- [x] (valid-no-repro) `TenantCatalogMigrationOrchestrator.CompleteAsync` — pre-migration admin suspend preserved — **cheap-disproof 2026-10-22:** regression `CompleteAsync_preserves_admin_suspend_when_tenant_was_suspended_before_migration_start`.
+
+- [ ] (candidate) `TenantTrialFacade.GetTrialStatusAsync` — `TrialStatus` whitespace padding may affect display while gate uses `EqualsStatus` — locus: `BuildStatusResponse` reads raw `tenant.TrialStatus`; input: SQL row with ` active ` padding (reachability: trial status API).
+- [ ] (candidate) `TrialLimitGate.GuardDeleteAsync` — missing tenant row returns without throwing — locus: `tenant is null` ~81–82; input: stale scope after tenant purge (reachability: DELETE on tenant-scoped API).
+- [ ] (candidate) `TenantMigrationStatusService.GetForTenantAsync` — returns `InMigration=false` when tenant offboarded mid-migration — locus: `OffboardedUtc` short-circuit ~30–33; input: erasure during active catalog migration (reachability: status poll during quarantine).
+- [ ] (candidate) `TenantSlugNormalizer.FromName` — consecutive hyphen collapse differs from registration slug expectations — locus: hyphen dedupe loop ~20–25; input: organization name `A--B` vs `A-B` (reachability: self-service slug derivation).
+- [ ] (candidate) `TenantProvisioningService.ProvisionAsync` — slug collision from truncated distinct names — locus: `TenantSlugNormalizer.FromName` 100-char cap; input: two long names sharing first 100 slug chars (reachability: parallel provision race).
+
 2026-10-22 seed hunt (seed→hit): promoted post-auth unsupported `DataRegion` — `TenantProvisioningDataRegionPolicy.Validate` threw from `ProvisionAsync` on allowlist miss instead of a customer deny; validate normalized region before provision using `TenantProvisioningOptions`; regression `CreateWorkspaceAsync_denies_when_data_region_not_in_supported_list`; cheap-disproof closed five open `(candidate)` rows.
 
 - [x] (proven) `PostAuthWorkspaceBootstrapService.CreateWorkspaceAsync` — unsupported `DataRegion` surfaced as `ArgumentException` from provisioning — **hit 2026-10-22 seed hunt:** pre-provision allowlist validation; regression `CreateWorkspaceAsync_denies_when_data_region_not_in_supported_list`.
@@ -11269,12 +11284,6 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (valid-no-repro) `TenantSlugNormalizer.FromName` — slug truncated at 100 characters — **cheap-disproof 2026-10-22:** bounded slug column contract; collisions fail closed at SQL unique slug / duplicate-org handling.
 - [x] (invalid) `TrialLimitGate.GuardWriteAsync` — `Guid.Empty` tenant scope bypass — **cheap-disproof 2026-10-22:** platform/unscoped writes intentionally skip tenant metering gate.
 - [x] (valid-no-repro) `TenantMigrationVerificationProbe.RunAsync` — probe requires active write freeze — **cheap-disproof 2026-10-22:** orchestrator advances to verification only after migration suspend; probe guard is intentional.
-
-- [ ] (candidate) `TenantWorkspaceScopeGuard.RequireTenantAndWorkspaceAsync` — `Guid.Empty` tenant id yields `TenantNotFound` before workspace existence check — locus: `GetByIdAsync(scope.TenantId)` ~19; input: scope binding leak with empty tenant but non-empty workspace id on tenant-scoped API.
-- [ ] (candidate) `TrialLimitGate.GuardWriteAsync` — missing tenant row returns without throwing — locus: `tenant is null` early return ~37–38; input: stale JWT tenant id after hard delete before token expiry.
-- [ ] (candidate) `TenantProvisioningService.ProvisionAsync` — `AdminEmail` without `@` rejected only at provision, not post-auth mapper — locus: email guard ~62–63; input: post-auth create with malformed `displayEmail` if caller bypasses OTP normalization.
-- [ ] (candidate) `TrialTenantBootstrapService.TryBootstrapAfterPostAuthWorkspaceAsync` — `companyProfile` discarded (`_ = companyProfile`) — locus: method entry ~261; input: post-auth create with `IncludeDemoSeed` true and industry vertical set (profile never persisted without self-service trial commit).
-- [ ] (candidate) `TenantCatalogMigrationOrchestrator.CompleteAsync` — unsuspend only when `SuspendedUtc >= active.StartedUtc` — locus: suspend comparison ~148–150; input: tenant suspended before migration start retains suspend after successful complete.
 
 2026-10-22 seed hunt (seed→hit): promoted post-auth uncatalogued `IndustryVertical` — registration rejects via `RegistrationRequestBaselineValidator.IndustryVerticals` but `CreateWorkspaceAsync` accepted arbitrary labels into trial bootstrap; shared curated-list guard before provision; regression `CreateWorkspaceAsync_denies_when_industry_vertical_not_in_curated_list`; cheap-disproof closed four sibling `(candidate)` rows.
 
@@ -11354,11 +11363,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 139
-- **bugs-found:** 118
+- **hunts:** 140
+- **bugs-found:** 119
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — post-auth DataRegion allowlist customer deny
+- **last-bug:** 2026-10-22 — post-auth active trial status casing parity
 
 2026-10-21 seed hunt (seed-only): cheap-disproof on five settings/registration `(candidate)` rows; no hunt-ready promotion (`state-machine-gap` / `fail-open-validation` saturated); reseeded five new lenses.
 
