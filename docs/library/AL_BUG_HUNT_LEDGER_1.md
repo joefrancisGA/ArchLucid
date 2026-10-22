@@ -8712,6 +8712,26 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: architecture-intelligence-orchestrator
 
+2026-10-22 seed hunt (seed→hit): promoted form feed (`\u000c`) in source `Content` splitting `ContentHash` from LF; extended consolidated `UnicodeLineBreakScalars` in `NormalizeLineEndings`; regression `Build_matches_content_hash_when_source_content_uses_unicode_line_separators` (`\u000c`); cheap-disproof interior BOM, null `FramingAnswers`, and publish+continue pin-scope candidates; 101 scoped orchestrator/cache/manifest tests passed.
+
+- [x] (proven) `ClosedLoopReasoningSourceTextNormalizer.NormalizeLineEndings` — form feed (`\u000c`) split `ContentHash` from LF — **hit 2026-10-22 seed hunt:** added `\u000c` to `UnicodeLineBreakScalars`; regression above. [class:other]
+
+- [x] (invalid) `ClosedLoopReasoningSourceTextNormalizer.StripUtf8Bom` — interior UTF-8 BOM scalar in `Content` — **cheap-disproof 2026-10-22 seed hunt:** interior `\uFEFF` is meaningful content, not a leading BOM artifact; stripping would false-merge distinct uploads.
+
+- [x] (invalid) `ReviewCacheManifestBuilder.HashContent` — `FramingAnswers` null vs empty — **cheap-disproof 2026-10-22 seed hunt:** `ClosedLoopReasoningRequest.FramingAnswers` setter coalesces via `ContractCollectionDefaults.CoalesceDictionary`; default field is non-null empty dict.
+
+- [x] (valid-no-repro) `ClosedLoopArchitectureReasoningOrchestrator.RunContinueFromExistingReviewAsync` — `PublishToProduct=true` skips `TryGet` but holds dual-manifest pin — **cheap-disproof 2026-10-22 seed hunt:** publish path intentionally bypasses non-publish cache hits while pins protect in-flight continue work (mirrors full-run `PublishToProduct` gate).
+
+- (candidate) `ReviewResultCache.TryEvictOldestUnpinnedEntry` — equal `CreatedUtc` timestamps make eviction order depend on `ConcurrentDictionary` enumeration — locus: `ReviewResultCache.Eviction.cs`; input: >128 `Set` calls under one frozen `TimeProvider` tick; wrong outcome: nondeterministic retention.
+
+- (candidate) `ClosedLoopReasoningSourceTextNormalizer.NormalizeLineEndings` — next-line (`\u0084`) and other rare C0 breaks not yet in `UnicodeLineBreakScalars` — locus: shared scalar loop; input: audit remaining C0 controls vs consolidated batch (avoid one-off hits).
+
+- (candidate) `ReviewCacheManifestBuilder.HashContent` — `SourceTexts` with null `Content` vs empty string after normalize — locus: `Normalize` whitespace collapse; input: attachment with `Content: null`; wrong outcome: verify hash parity with empty body.
+
+- (candidate) `ReviewResultCache.InvalidateForRun` — deferred tombstone flush when last pin releases under concurrent `Set` — locus: `FlushDeferredInvalidations`; input: pin scope dispose racing new `Set` for same run id.
+
+- (candidate) `ClosedLoopArchitectureReasoningOrchestrator.RunAsync` — blank `RunId` generates new GUID per call so manifest `runid=` segment never enables coalesce across anonymous retries — locus: `RunAsync` run id assignment; input: two requests omitting `RunId` with identical attachments; wrong outcome: duplicate live reviews (verify product contract expects new run).
+
 2026-10-22 seed hunt (seed-only): re-read orchestrator, review cache, and manifest hashing paths; cheap-disproof closed stale duplicate normalization candidates (`+` vs `%20`, NBSP priorities, vertical tab, framing-key NFC) and Turkish compatibility priority folding; deferred form-feed (`\u000c`) line-break parity to a consolidated `UnicodeLineBreakScalars` batch (picker saturated `other`); seeded five follow-on candidates; 100 scoped orchestrator/cache/manifest tests passed.
 
 - [x] (invalid) `ClosedLoopDeclaredPrioritiesNormalizer` — duplicate priorities differing only by Turkish compatibility case folding (`I`/`ı`) — **cheap-disproof 2026-10-22 seed hunt:** grouping uses `StringComparer.OrdinalIgnoreCase` (invariant), not culture-specific Turkish rules; OpenAPI priority tokens are ASCII labels in practice.
@@ -8724,15 +8744,15 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 - [x] (valid-no-repro) `ClosedLoopFramingAnswersNormalizer` — framing keys NFC vs NFD — **cheap-disproof 2026-10-22 seed hunt:** duplicate of 2026-10-22 row; regression `Build_matches_content_hash_when_framing_key_differs_only_by_unicode_normalization_form`.
 
-- (candidate) `ClosedLoopReasoningSourceTextNormalizer.NormalizeLineEndings` — form feed (`\u000c`) in uploaded `Content` may split `ContentHash` from LF — locus: `UnicodeLineBreakScalars`; input: `line\u000cline` vs `line\nline`; wrong outcome: cache miss; consolidate with other C0 breaks (picker saturated `other`, no one-off fix).
+- [x] (proven) `ClosedLoopReasoningSourceTextNormalizer.NormalizeLineEndings` — form feed (`\u000c`) — **hit 2026-10-22 seed hunt:** see seed→hit row above.
 
 - (candidate) `ReviewResultCache.TryEvictOldestUnpinnedEntry` — equal `CreatedUtc` timestamps make eviction order depend on `ConcurrentDictionary` enumeration — locus: `ReviewResultCache.Eviction.cs`; input: >128 `Set` calls under one frozen `TimeProvider` tick; wrong outcome: nondeterministic retention.
 
-- (candidate) `ClosedLoopReasoningSourceTextNormalizer.StripUtf8Bom` — interior UTF-8 BOM scalar (`\uFEFF`) in `Content` is not stripped — locus: BOM removal runs once at index 0 only; input: `body\uFEFFtail` vs `bodytail`; wrong outcome: cache miss for equivalent paste payloads.
+- [x] (invalid) `ClosedLoopReasoningSourceTextNormalizer.StripUtf8Bom` — interior UTF-8 BOM — **cheap-disproof 2026-10-22 seed hunt:** see seed→hit row above.
 
-- (candidate) `ReviewCacheManifestBuilder.HashContent` — `FramingAnswers` null vs empty dictionary may diverge if a caller bypasses contract defaults — locus: `ClosedLoopFramingAnswersNormalizer.Normalize` null guard; input: deserialized request with `FramingAnswers: null`; wrong outcome: exception vs empty framing segment (verify OpenAPI always materializes empty dict).
+- [x] (invalid) `ReviewCacheManifestBuilder.HashContent` — `FramingAnswers` null vs empty — **cheap-disproof 2026-10-22 seed hunt:** see seed→hit row above.
 
-- (candidate) `ClosedLoopArchitectureReasoningOrchestrator.RunContinueFromExistingReviewAsync` — `PublishToProduct=true` skips pre-flight `TryGet` but still acquires dual-manifest `PinScope` — locus: `ClosedLoopArchitectureReasoningOrchestrator.Cache.cs`; input: continue with publish enabled and warm continue manifest; wrong outcome: pin held without cache reuse (verify intentional publish path).
+- [x] (valid-no-repro) `ClosedLoopArchitectureReasoningOrchestrator.RunContinueFromExistingReviewAsync` — publish path pin without `TryGet` — **cheap-disproof 2026-10-22 seed hunt:** see seed→hit row above.
 
 2026-10-22 seed hunt (seed→hit): promoted declared priorities NFC vs NFD splitting `DeclaredPrioritiesHash`; `ClosedLoopDeclaredPrioritiesNormalizer` now applies `NormalizationForm.FormC`; regression `Build_matches_declared_priorities_hash_when_priority_differs_only_by_unicode_normalization_form`; closed `+` vs `%20` and NBSP priority candidates; 100 scoped orchestrator/cache/manifest tests passed.
 
@@ -8795,11 +8815,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** closed-loop orchestrator; review result cache; architecture intelligence
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.cs; ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.Cache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewResultCache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewCacheManifestBuilder.cs
 - **test-filter:** FullyQualifiedName~ClosedLoopArchitectureReasoningOrchestrator|FullyQualifiedName~ReviewResultCache|FullyQualifiedName~ReviewCacheManifestBuilder
-- **hunts:** 47
-- **bugs-found:** 26
+- **hunts:** 48
+- **bugs-found:** 27
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — declared priorities Unicode normalization in cache hash
+- **last-bug:** 2026-10-22 — form feed line break in review-cache content hash
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
