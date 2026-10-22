@@ -43,6 +43,8 @@ function shouldHumanizeTokenOAuthErrorCode(normalizedErrorCode: string): boolean
     case "invalid_request":
     case "redirect_uri_mismatch":
     case "unauthorized_client":
+    case "unsupported_grant_type":
+    case "unsupported_response_type":
     case "invalid_scope":
     case "server_error":
     case "temporarily_unavailable":
@@ -76,21 +78,17 @@ export function isOAuthRefreshTokenRejectedError(error: unknown): boolean {
   }
 
   const message = error.message.toLowerCase();
+  const snakeCaseOAuthTokens = message.match(/\b[a-z][a-z0-9]*(?:_[a-z0-9]+)+\b/g);
 
-  return (
-    message.includes("access_denied") ||
-    message.includes("consent_required") ||
-    message.includes("expired_token") ||
-    message.includes("interaction_required") ||
-    message.includes("invalid_client") ||
-    message.includes("invalid_grant") ||
-    message.includes("invalid_request") ||
-    message.includes("invalid_scope") ||
-    message.includes("invalid_token") ||
-    message.includes("login_required") ||
-    message.includes("redirect_uri_mismatch") ||
-    message.includes("unauthorized_client")
-  );
+  if (snakeCaseOAuthTokens) {
+    for (const token of snakeCaseOAuthTokens) {
+      if (shouldClearBffSessionForOAuthTokenErrorCode(token)) {
+        return true;
+      }
+    }
+  }
+
+  return false;
 }
 
 function readOAuthErrorString(value: unknown): string {

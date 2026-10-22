@@ -165,6 +165,46 @@ describe("refreshAccessToken", () => {
     expect(sessionStorage.getItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY)).toBe("1");
   });
 
+  it("humanizes unsupported_response_type authorization code exchange errors instead of raw snake_case", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: false,
+      status: 400,
+      text: async () => JSON.stringify({ error: "unsupported_response_type" }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      }),
+    ).rejects.toThrow(/Sign-in did not finish \(unsupported response type\)/i);
+  });
+
+  it("humanizes unsupported_grant_type authorization code exchange errors instead of raw snake_case", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: false,
+      status: 400,
+      text: async () => JSON.stringify({ error: "unsupported_grant_type" }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      }),
+    ).rejects.toThrow(/Sign-in did not finish \(unsupported grant type\)/i);
+  });
+
   it("humanizes redirect_uri_mismatch authorization code exchange errors instead of raw snake_case", async () => {
     const fetchMock = vi.fn(async () => ({
       ok: false,
@@ -613,6 +653,84 @@ describe("refreshAccessToken", () => {
     expect(isOAuthRefreshTokenRejectedError(caught)).toBe(true);
     expect((caught as OAuthTokenEndpointError).normalizedErrorCode).toBe("expired_token");
     expect((caught as OAuthTokenEndpointError).message).not.toContain("expired_token");
+  });
+
+  it("classifies legacy Error messages that embed readable snake_case OAuth codes for BFF session clearing", () => {
+    expect(isOAuthRefreshTokenRejectedError(new Error("unsupported_grant_type"))).toBe(true);
+    expect(isOAuthRefreshTokenRejectedError(new Error("unsupported_response_type"))).toBe(true);
+    expect(isOAuthRefreshTokenRejectedError(new Error("token refresh failed: invalid_grant"))).toBe(
+      true,
+    );
+    expect(
+      isOAuthRefreshTokenRejectedError(new Error("token refresh failed: unsupported_grant_type")),
+    ).toBe(true);
+  });
+
+  it("does not classify legacy Error messages that embed transient snake_case OAuth codes", () => {
+    expect(isOAuthRefreshTokenRejectedError(new Error("server_error"))).toBe(false);
+    expect(isOAuthRefreshTokenRejectedError(new Error("temporarily_unavailable"))).toBe(false);
+  });
+
+  it("does not classify legacy Error messages with only humanized copy and no snake_case codes", () => {
+    expect(
+      isOAuthRefreshTokenRejectedError(
+        new Error("Your identity provider reported a temporary error. Wait a minute and try signing in again."),
+      ),
+    ).toBe(false);
+  });
+
+  it("classifies unsupported_response_type refresh failures via readable OAuth code policy", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: false,
+      status: 400,
+      text: async () => JSON.stringify({ error: "unsupported_response_type" }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    let caught: unknown;
+
+    try {
+      await refreshAccessToken({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        refreshToken: "rt",
+      });
+    } catch (error) {
+      caught = error;
+    }
+
+    expect(caught).toBeInstanceOf(OAuthTokenEndpointError);
+    expect(isOAuthRefreshTokenRejectedError(caught)).toBe(true);
+    expect((caught as OAuthTokenEndpointError).normalizedErrorCode).toBe("unsupported_response_type");
+    expect((caught as OAuthTokenEndpointError).message).not.toContain("unsupported_response_type");
+  });
+
+  it("classifies humanized unsupported_grant_type refresh failures for BFF session clearing", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: false,
+      status: 400,
+      text: async () => JSON.stringify({ error: "unsupported_grant_type" }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    let caught: unknown;
+
+    try {
+      await refreshAccessToken({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        refreshToken: "rt",
+      });
+    } catch (error) {
+      caught = error;
+    }
+
+    expect(caught).toBeInstanceOf(OAuthTokenEndpointError);
+    expect((caught as OAuthTokenEndpointError).normalizedErrorCode).toBe("unsupported_grant_type");
+    expect(isOAuthRefreshTokenRejectedError(caught)).toBe(true);
+    expect((caught as OAuthTokenEndpointError).message).not.toContain("unsupported_grant_type");
   });
 
   it("does not classify humanized server_error refresh failures as permanent rejection", async () => {
