@@ -14,6 +14,48 @@ public sealed class ProvenanceSnapshotRevisionHasherTests
     private static readonly Guid BundleId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
 
     [Fact]
+    public void Compute_changes_when_findings_snapshot_run_id_differs_but_findings_snapshot_id_and_payload_are_unchanged()
+    {
+        ProvenanceBuildInput baseline = CreateInput([], findings: [CreateSampleFinding()]);
+        ProvenanceBuildInput updated = CreateInput([], findings: [CreateSampleFinding()]);
+        updated.Findings.RunId = Guid.Parse("33333333-3333-3333-3333-333333333333");
+
+        ProvenanceSnapshotRevisionHasher.Compute(baseline, BundleId)
+            .Should().NotBe(ProvenanceSnapshotRevisionHasher.Compute(updated, BundleId));
+    }
+
+    [Fact]
+    public void Compute_unchanged_when_only_finding_severity_changes()
+    {
+        Finding baselineFinding = CreateSampleFinding();
+        Finding updatedFinding = CreateSampleFinding();
+        baselineFinding.Severity = FindingSeverity.Warning;
+        updatedFinding.Severity = FindingSeverity.Critical;
+
+        ProvenanceSnapshotRevisionHasher.Compute(CreateInput([], findings: [baselineFinding]), BundleId)
+            .Should().Be(ProvenanceSnapshotRevisionHasher.Compute(CreateInput([], findings: [updatedFinding]), BundleId));
+    }
+
+    [Fact]
+    public void Compute_changes_when_graph_edge_is_added_but_node_fingerprint_is_unchanged()
+    {
+        GraphNode node = new() { NodeId = "node-a", NodeType = "Resource", Label = "A" };
+        GraphEdge edge = new()
+        {
+            EdgeId = "edge-1",
+            FromNodeId = "node-a",
+            ToNodeId = "node-b",
+            EdgeType = "ConnectsTo",
+        };
+
+        ProvenanceBuildInput withoutEdge = CreateInput([], graphNodes: [node]);
+        ProvenanceBuildInput withEdge = CreateInput([], graphNodes: [node], graphEdges: [edge]);
+
+        ProvenanceSnapshotRevisionHasher.Compute(withoutEdge, BundleId)
+            .Should().NotBe(ProvenanceSnapshotRevisionHasher.Compute(withEdge, BundleId));
+    }
+
+    [Fact]
     public void Compute_changes_when_manifest_hash_changes_but_manifest_id_is_unchanged()
     {
         ProvenanceBuildInput baseline = CreateInput([]);
