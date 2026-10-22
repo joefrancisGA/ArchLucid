@@ -52,6 +52,18 @@
 - [ ] (candidate) `HostedAzureInventoryLogicAppConnectionCollector` - collection failure rows vs ZIP warning codes - locus: operator visibility (reachability: hosted diagram package).
 - [ ] (candidate) `GcpWorkloadIdentityCredentialFactory.NormalizeAudience` - http audience downgrade - locus: audience normalization (reachability: WIF config).
 - [ ] (candidate) `HostedAwsExtractorClient` - max pagination without collection warning in ZIP - locus: parity with Azure partial warnings (reachability: hosted AWS ZIP).
+2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed invalid_state authorize-query UX (existing parity) and saturated readOAuthJsonErrorDescription ZWJ multiply-encoded glue (existing parity); regression documents BFF refresh 496 parity (client + route opaque 496) and soft-hyphen object-replacement replacement-character-only access_token rejection (existing parity); scoped vitest 777/777.
+
+- [x] (invalid) humanizeAuthorizeCallbackError - invalid_state authorize-query copy - **cheap-disproof 2026-10-22:** existing readable default-branch UX parity test.
+- [x] (valid-no-repro) refreshBffSessionCookie - refresh 496 shouldClearSession false - **regression 2026-10-22:** client soft-fail plus BFF route opaque 496 without cookie clear.
+- [x] (valid-no-repro) exchangeAuthorizationCode - access_token JSON string soft-hyphen object-replacement and replacement-character-only skips authorize retry marker - **cheap-disproof 2026-10-22:** existing normalizeTokenString strip parity test.
+- [x] (invalid) readOAuthJsonErrorDescription - multiply-encoded %252B with ZWJ glue - **cheap-disproof 2026-10-22:** existing saturated JSON encoding class test.
+
+- [ ] (candidate) humanizeAuthorizeCallbackError - state_mismatch authorize-query copy - locus: default branch UX.
+- [ ] (candidate) refreshBffSessionCookie - refresh 497 shouldClearSession false - locus: transient refresh parity.
+- [ ] (candidate) exchangeAuthorizationCode - access_token JSON string soft-hyphen object-replacement and variation-selector-16-only skips authorize retry marker - locus: literal whitespace token shape.
+- [ ] (candidate) decodeOAuthErrorDescription - multiply-encoded %252B with ZWJ glue - locus: saturated encoding class.
+
 2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed state_mismatch authorize-query UX (existing parity) and saturated decodeOAuthErrorDescription ZWJ multiply-encoded glue (existing parity); regression documents BFF refresh 495 parity (client + route opaque 495) and object-replacement replacement-character variation-selector-16-only access_token rejection; scoped vitest 775/775.
 
 - [x] (invalid) humanizeAuthorizeCallbackError - state_mismatch authorize-query copy - **cheap-disproof 2026-10-22:** existing readable default-branch UX parity test.
