@@ -185,6 +185,10 @@ export function FindingInspectWhyMattersSection({
         <p className={cn("m-0 mt-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
           Decision rule was not stored.
         </p>
+      ) : payload.decisionRuleId.trim().length === 0 ? (
+        <p className={cn("m-0 mt-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+          Decision rule was stored empty.
+        </p>
       ) : null}
     </section>
   );

@@ -15,4 +15,22 @@ public sealed class AzureInventoryDefenderBandContextReadModel
         get;
         init;
     } = [];
+
+    public IReadOnlyList<AzureInventoryDefenderAssessmentReadModel> DefenderAssessments
+    {
+        get;
+        init;
+    } = [];
+
+    public IReadOnlyList<AzureInventoryDefenderScoreControlReadModel> DefenderScoreControls
+    {
+        get;
+        init;
+    } = [];
+
+    public IReadOnlyList<AzureInventoryDefenderResourceRefReadModel> Resources
+    {
+        get;
+        init;
+    } = [];
 }

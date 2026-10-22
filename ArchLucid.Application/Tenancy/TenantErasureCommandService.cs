@@ -196,6 +196,15 @@ public sealed class TenantErasureCommandService(
         if (tenantBeforeRestoreAudit.OffboardedUtc is not null)
             return true;
 
+        TenantRecord? tenantBeforeRestoreAuditAppend =
+            await _tenantRepository.GetByIdAsync(tenantId, cancellationToken);
+
+        if (tenantBeforeRestoreAuditAppend is null)
+            return false;
+
+        if (tenantBeforeRestoreAuditAppend.OffboardedUtc is not null)
+            return true;
+
         await AppendPlatformAuditAsync(
             AuditEventTypes.TenantErasureQuarantineRestored,
             tenantId,
@@ -293,6 +302,30 @@ public sealed class TenantErasureCommandService(
             return true;
 
         if (tenantBeforeSetAudit.LegalHoldUntilUtc is null && afterSet.LegalHoldUntilUtc is not null)
+            return true;
+
+        TenantRecord? tenantBeforeSetAuditAppend =
+            await _tenantRepository.GetByIdAsync(tenantId, cancellationToken);
+
+        if (tenantBeforeSetAuditAppend is null)
+            return false;
+
+        if (tenantBeforeSetAuditAppend.OffboardedUtc is null && tenant.OffboardedUtc is not null)
+            return true;
+
+        if (tenantBeforeSetAuditAppend.LegalHoldUntilUtc is null && afterSet.LegalHoldUntilUtc is not null)
+            return true;
+
+        TenantRecord? tenantImmediatelyBeforeSetHoldAuditAppend =
+            await _tenantRepository.GetByIdAsync(tenantId, cancellationToken);
+
+        if (tenantImmediatelyBeforeSetHoldAuditAppend is null)
+            return false;
+
+        if (tenantImmediatelyBeforeSetHoldAuditAppend.OffboardedUtc is null && tenant.OffboardedUtc is not null)
+            return true;
+
+        if (tenantImmediatelyBeforeSetHoldAuditAppend.LegalHoldUntilUtc is null && afterSet.LegalHoldUntilUtc is not null)
             return true;
 
         await AppendPlatformAuditAsync(
@@ -463,6 +496,18 @@ public sealed class TenantErasureCommandService(
             return true;
 
         if (tenantBeforeClearAudit.LegalHoldUntilUtc is not null)
+            return true;
+
+        TenantRecord? tenantBeforeClearAuditAppend =
+            await _tenantRepository.GetByIdAsync(tenantId, cancellationToken);
+
+        if (tenantBeforeClearAuditAppend is null)
+            return false;
+
+        if (tenantBeforeClearAuditAppend.OffboardedUtc is not null)
+            return true;
+
+        if (tenantBeforeClearAuditAppend.LegalHoldUntilUtc is not null)
             return true;
 
         await AppendPlatformAuditAsync(
