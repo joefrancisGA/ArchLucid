@@ -706,14 +706,14 @@ describe("refreshAccessToken", () => {
     expect(sessionStorage.getItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY)).toBe("1");
   });
 
-  it("marks authorize callback failed when authorization code exchange returns a variation-selector-6-only access_token", async () => {
+  it("marks authorize callback failed when authorization code exchange returns a variation-selector-5-only access_token", async () => {
     sessionStorage.clear();
 
     vi.stubGlobal(
       "fetch",
       vi.fn(async () => ({
         ok: true,
-        text: async () => JSON.stringify({ access_token: "\uFE05" }),
+        text: async () => JSON.stringify({ access_token: "\uFE04" }),
       })),
     );
 
@@ -730,14 +730,14 @@ describe("refreshAccessToken", () => {
     expect(sessionStorage.getItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY)).toBe("1");
   });
 
-  it("marks authorize callback failed when authorization code exchange returns a variation-selector-5-only access_token", async () => {
+  it("marks authorize callback failed when authorization code exchange returns a variation-selector-6-only access_token", async () => {
     sessionStorage.clear();
 
     vi.stubGlobal(
       "fetch",
       vi.fn(async () => ({
         ok: true,
-        text: async () => JSON.stringify({ access_token: "\uFE04" }),
+        text: async () => JSON.stringify({ access_token: "\uFE05" }),
       })),
     );
 
