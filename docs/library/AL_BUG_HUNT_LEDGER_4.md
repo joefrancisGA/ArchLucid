@@ -12470,19 +12470,24 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 129
-- **bugs-found:** 124
+- **hunts:** 130
+- **bugs-found:** 125
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — cost projection used unknown platform for padded topology Category
+- **last-bug:** 2026-10-22 — declaration actor materializer ignored padded trustOrigin property
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-22 seed hunt (seed→hit): cheap-disproved `GraphTopologyInfrastructureCostNodes` padded `runtimePlatform` candidate (`ReadProperty` already trims property bag values before `Enum.TryParse`; regression `EnrichFromTopologyAsync_matches_vm_projection_when_runtime_platform_property_has_surrounding_whitespace`); promoted `DeclarationIdentityActorMaterializer.ResolveTrustOrigin` padded `trustOrigin` candidate; proved terraform/arm identity seeds called `Enum.TryParse` on raw `trustOrigin` property tokens, defaulting padded `External` declarations to `Internal`; trim `trustOrigin` and `anonymous` before parse; regression `MaterializeFromNodes_honors_trustOrigin_when_property_has_surrounding_whitespace`; seeded `ResolveTrustOrigin` padded `anonymous=true` follow-on; 435 KnowledgeGraph + 136 Provenance scoped tests passed.
+
+- [x] (valid-no-repro) `GraphTopologyInfrastructureCostNodes.ResolveRuntimePlatform` — padded `runtimePlatform` property — **cheap-disproof 2026-10-22 seed hunt:** `ReadProperty` trim; regression above.
+- [x] (proven) `DeclarationIdentityActorMaterializer.ResolveTrustOrigin` — padded `trustOrigin` property ignored explicit external origin — **hit 2026-10-22 seed hunt (seed→hit):** trim before `Enum.TryParse`; regression above.
+
+- [ ] (candidate) `DeclarationIdentityActorMaterializer.ResolveTrustOrigin` — padded `anonymous` property may miss `PublicAnonymous` classification — locus: anonymous truthy gate; input: terraform identity with `anonymous` `" true "`; wrong outcome: actor materialized as `Internal` instead of `PublicAnonymous`.
 
 2026-10-22 seed hunt (seed→hit): cheap-disproved declaration materializer padded `Category` candidate (`DeclarationExistingNodeResolver.TryReadProperty` already trims property values before datastore category gates; regressions `Materialize_emits_data_flow_path_when_datastore_category_has_surrounding_whitespace` and `Materialize_connects_subnet_to_datastore_when_category_has_surrounding_whitespace`); promoted `CostConstraintProjectedSpendEnricher` padded `GraphNode.Category` candidate; proved `ResolveRuntimePlatform` compared raw `topologyNode.Category` strings, mapping padded compute nodes to `Unknown` ($25 illustrative) instead of `Vm` ($120); trim category before platform inference and cost-query row materialization; regression `EnrichFromTopologyAsync_matches_compute_projection_when_topology_category_has_surrounding_whitespace`; seeded `GraphTopologyInfrastructureCostNodes` explicit `runtimePlatform` property padding follow-on; 433 KnowledgeGraph + 136 Provenance scoped tests passed.
 
 - [x] (valid-no-repro) `DeclarationIdentityPathEdgeMaterializer` / `DeclarationSegmentationPathEdgeMaterializer` — padded `category` property on data/storage nodes — **cheap-disproof 2026-10-22 seed hunt:** `TryReadProperty` trim; contract regressions above.
 - [x] (proven) `CostConstraintProjectedSpendEnricher` / `GraphTopologyInfrastructureCostNodes` — padded `GraphNode.Category` mis-resolved runtime platform — **hit 2026-10-22 seed hunt (seed→hit):** trim category; regression above.
-
-- [ ] (candidate) `GraphTopologyInfrastructureCostNodes.ResolveRuntimePlatform` — padded `runtimePlatform` property may still fall through to category inference incorrectly — locus: `ReadProperty` + `Enum.TryParse`; input: topology node with padded explicit platform token; wrong outcome: illustrative cost tier diverges from trimmed platform parse.
 
 2026-10-22 seed hunt (seed→hit): promoted `TopologySensitivityClassifier` padded `Category` candidate; proved `Classify` compared raw `category` property strings to well-known topology categories, downgrading identity/data/storage nodes with surrounding whitespace to `Internal`; trim category before tier branches; regressions `Classify_identity_category_with_surrounding_whitespace_returns_identity` and `Classify_data_category_with_surrounding_whitespace_returns_data_bearing`; seeded declaration materializer padded `Category` data/storage gate follow-on; 430 KnowledgeGraph + 136 Provenance scoped tests passed.
 
