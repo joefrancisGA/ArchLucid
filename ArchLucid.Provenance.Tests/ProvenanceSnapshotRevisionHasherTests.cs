@@ -14,6 +14,60 @@ public sealed class ProvenanceSnapshotRevisionHasherTests
     private static readonly Guid BundleId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
 
     [Fact]
+    public void Compute_unchanged_when_manifest_hash_differs_only_by_surrounding_whitespace()
+    {
+        ProvenanceBuildInput baseline = CreateInput([], manifestHash: "manifest-hash-v1");
+        ProvenanceBuildInput updated = CreateInput([], manifestHash: "  manifest-hash-v1  ");
+
+        ProvenanceSnapshotRevisionHasher.Compute(baseline, BundleId)
+            .Should().Be(ProvenanceSnapshotRevisionHasher.Compute(updated, BundleId));
+    }
+
+    [Fact]
+    public void Compute_unchanged_when_artifact_content_hash_differs_only_by_surrounding_whitespace()
+    {
+        Guid artifactId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
+
+        SynthesizedArtifact baseline = new()
+        {
+            ArtifactId = artifactId,
+            ArtifactType = "doc",
+            Name = "overview.md",
+            Format = "md",
+            Content = "v1",
+            ContentHash = "hash-v1",
+        };
+
+        SynthesizedArtifact updated = new()
+        {
+            ArtifactId = artifactId,
+            ArtifactType = "doc",
+            Name = "overview.md",
+            Format = "md",
+            Content = "v1",
+            ContentHash = "  hash-v1  ",
+        };
+
+        ProvenanceSnapshotRevisionHasher.Compute(CreateInput([baseline]), BundleId)
+            .Should().Be(ProvenanceSnapshotRevisionHasher.Compute(CreateInput([updated]), BundleId));
+    }
+
+    [Fact]
+    public void Compute_unchanged_when_only_rule_audit_trace_tenant_id_changes()
+    {
+        ProvenanceBuildInput baseline = CreateInput([], ["rule-a"]);
+        ProvenanceBuildInput updated = CreateInput([], ["rule-a"]);
+
+        RuleAuditTraceDto baselineTrace = (RuleAuditTraceDto)baseline.DecisionTrace;
+        RuleAuditTraceDto updatedTrace = (RuleAuditTraceDto)updated.DecisionTrace;
+        baselineTrace.RuleAudit.TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+        updatedTrace.RuleAudit.TenantId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
+
+        ProvenanceSnapshotRevisionHasher.Compute(baseline, BundleId)
+            .Should().Be(ProvenanceSnapshotRevisionHasher.Compute(updated, BundleId));
+    }
+
+    [Fact]
     public void Compute_changes_when_rule_audit_trace_run_id_differs_but_decision_trace_id_and_applied_rules_are_unchanged()
     {
         ProvenanceBuildInput baseline = CreateInput([], ["rule-a"]);

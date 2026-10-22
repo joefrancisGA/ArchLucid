@@ -23,7 +23,7 @@ public static class ProvenanceSnapshotRevisionHasher
         Guid graphSnapshotId = input.Graph.GraphSnapshotId;
         string graphFingerprint = ComputeGraphFingerprint(input.Graph);
         Guid manifestId = input.Manifest.ManifestId;
-        string manifestHash = input.Manifest.ManifestHash ?? string.Empty;
+        string manifestHash = (input.Manifest.ManifestHash ?? string.Empty).Trim();
         string manifestDecisionsFingerprint = ComputeManifestDecisionsFingerprint(input.Manifest);
         Guid decisionTraceId = ResolveDecisionTraceId(input.DecisionTrace);
         Guid traceRunId = ResolveTraceRunId(input.DecisionTrace);
@@ -167,7 +167,9 @@ public static class ProvenanceSnapshotRevisionHasher
                 string artifactType = (artifact.ArtifactType ?? string.Empty).Trim();
                 string format = (artifact.Format ?? string.Empty).Trim();
 
-                return $"{artifact.ArtifactId:N}|{artifact.ContentHash ?? string.Empty}|{contributingDecisionIds}|{name}|{artifactType}|{format}";
+                string contentHash = (artifact.ContentHash ?? string.Empty).Trim();
+
+                return $"{artifact.ArtifactId:N}|{contentHash}|{contributingDecisionIds}|{name}|{artifactType}|{format}";
             });
 
         return string.Join(";", parts);
