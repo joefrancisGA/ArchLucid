@@ -22,7 +22,8 @@ public static class ReviewCacheLedgerFingerprint
                      .Where(static item => item is not null)
                      .OrderBy(item => item.Role)
                      .ThenBy(item => NormalizeTechnologyName(item.TechnologyName), StringComparer.Ordinal)
-                     .ThenBy(item => item.ProviderFamily))
+                     .ThenBy(item => item.ProviderFamily)
+                     .ThenBy(item => NormalizeEvidenceRef(item.EvidenceRef), StringComparer.Ordinal))
         {
             builder.Append(entry.Role.ToString()).Append('|');
             builder.Append(NormalizeTechnologyName(entry.TechnologyName)).Append('|');

@@ -533,6 +533,37 @@ public sealed class ReviewCacheManifestBuilderTests
     }
 
     [Fact]
+    public void Build_matches_content_hash_when_ledger_entries_with_equal_sort_keys_differ_only_by_list_order()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "run-ledger-ref-order";
+
+        TechnologyLedgerEntry evidenceB = CreateLedgerEntry(request.RunId, evidenceRef: "evidence:b");
+        TechnologyLedgerEntry evidenceA = CreateLedgerEntry(request.RunId, evidenceRef: "evidence:a");
+
+        ReviewCacheManifestBuilder.Build(request, null, [evidenceB, evidenceA]).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(request, null, [evidenceA, evidenceB]).ContentHash);
+    }
+
+    [Fact]
+    public void Build_matches_content_hash_when_ledger_evidence_refs_differ_only_by_padding_that_changes_sort_order()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "run-ledger-ref-sort-padding";
+
+        TechnologyLedgerEntry leadingSpaceBeta = CreateLedgerEntry(request.RunId, evidenceRef: " beta");
+        TechnologyLedgerEntry alpha = CreateLedgerEntry(request.RunId, evidenceRef: "Alpha");
+
+        TechnologyLedgerEntry trimmedBeta = CreateLedgerEntry(request.RunId, evidenceRef: "beta");
+        TechnologyLedgerEntry alphaTrimmed = CreateLedgerEntry(request.RunId, evidenceRef: "Alpha");
+
+        ReviewCacheManifestBuilder.Build(request, null, [leadingSpaceBeta, alpha]).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(request, null, [alphaTrimmed, trimmedBeta]).ContentHash);
+    }
+
+    [Fact]
     public void Build_matches_content_hash_when_ledger_technology_names_differ_only_by_padding_that_changes_sort_order()
     {
         ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
