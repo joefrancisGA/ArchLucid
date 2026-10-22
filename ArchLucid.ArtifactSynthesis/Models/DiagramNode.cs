@@ -201,6 +201,13 @@ public class DiagramNode
         set;
     }
 
+    /// <summary>Stored public IP address when the public IP card is hidden (NR-21).</summary>
+    public string? HiddenPublicIpAddress
+    {
+        get;
+        set;
+    }
+
     /// <summary>
     ///     Synthetic Executive rollup ("+N more …") kept in Mermaid for the Nodes outline, but omitted from painted canvases.
     /// </summary>

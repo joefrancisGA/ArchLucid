@@ -700,6 +700,18 @@ try
     [object[]]$policyAssignmentRows = @()
     [object[]]$diagnosticSettingRows = @()
     [object[]]$defenderSummaryRows = @()
+    [object[]]$defenderPricingRows = @()
+    [object[]]$defenderScoreControlRows = @()
+    [object[]]$defenderAssessmentRows = @()
+    [object[]]$defenderAssessmentCountRows = @()
+    [object[]]$defenderSecurityContactRows = @()
+    [object[]]$defenderGovernanceRows = @()
+    [object[]]$defenderComplianceStandardRows = @()
+    [object[]]$defenderComplianceControlRows = @()
+    [object[]]$defenderAlertRows = @()
+    [object[]]$defenderAttackPathRows = @()
+    [object[]]$defenderVulnerabilityCountRows = @()
+    [object[]]$defenderVulnerabilityFindingRows = @()
     [object[]]$adfLinkedServiceRows = @()
     [object[]]$adfDatasetRows = @()
     [object[]]$adfPipelineFlowRows = @()
@@ -870,6 +882,49 @@ try
         [object[]]$defenderSummaryRows = @(Get-ArchLucidAzureDefenderSummaryCompanionRows `
             -SubscriptionId $SubscriptionId `
             -ManagementGroupId $ManagementGroupId)
+        [object]$defenderCompanion = Get-ArchLucidAzureDefenderCompanionBundle `
+            -SubscriptionId $SubscriptionId `
+            -ManagementGroupId $ManagementGroupId `
+            -InventoryResources @($resources)
+        $defenderPricingRows = @($defenderCompanion.pricings)
+        $defenderScoreControlRows = @($defenderCompanion.scoreControls)
+        $defenderAssessmentRows = @($defenderCompanion.assessments)
+        $defenderAssessmentCountRows = @($defenderCompanion.assessmentCounts)
+        $defenderSecurityContactRows = @($defenderCompanion.securityContacts)
+        foreach ($defenderWarning in @($defenderCompanion.warnings))
+        {
+            if (-not [string]::IsNullOrWhiteSpace($defenderWarning))
+            {
+                Add-ArchLucidExtractorWarning `
+                    -Telemetry $telemetry `
+                    -Step SecurityInventory `
+                    -Message $defenderWarning `
+                    -Context @{ scope = $scopeDescriptor }
+            }
+        }
+        [object]$defenderFollowOn = Get-ArchLucidAzureDefenderFollowOnBundle `
+            -SubscriptionId $SubscriptionId `
+            -ManagementGroupId $ManagementGroupId `
+            -Pricings @($defenderPricingRows) `
+            -Assessments @($defenderAssessmentRows)
+        $defenderGovernanceRows = @($defenderFollowOn.governance)
+        $defenderComplianceStandardRows = @($defenderFollowOn.complianceStandards)
+        $defenderComplianceControlRows = @($defenderFollowOn.complianceControls)
+        $defenderAlertRows = @($defenderFollowOn.alerts)
+        $defenderAttackPathRows = @($defenderFollowOn.attackPaths)
+        $defenderVulnerabilityCountRows = @($defenderFollowOn.vulnerabilityCounts)
+        $defenderVulnerabilityFindingRows = @($defenderFollowOn.vulnerabilityFindings)
+        foreach ($defenderWarning in @($defenderFollowOn.warnings))
+        {
+            if (-not [string]::IsNullOrWhiteSpace($defenderWarning))
+            {
+                Add-ArchLucidExtractorWarning `
+                    -Telemetry $telemetry `
+                    -Step SecurityInventory `
+                    -Message $defenderWarning `
+                    -Context @{ scope = $scopeDescriptor }
+            }
+        }
         [object[]]$adfLinkedServiceRows = @(Get-ArchLucidAzureAdfLinkedServiceCompanionRows -InventoryResources @($resources))
         [object[]]$adfDatasetRows = @(Get-ArchLucidAzureAdfDatasetCompanionRows -InventoryResources @($resources))
         [object[]]$adfDataflowRows = @(Get-ArchLucidAzureAdfDataflowCompanionRows `
@@ -925,6 +980,18 @@ try
         Write-Utf8NoBom (Join-Path $staging "policy-assignments.json") (ConvertTo-ArchLucidJsonArray -Items $policyAssignmentRows)
         Write-Utf8NoBom (Join-Path $staging "diagnostic-settings.json") (ConvertTo-ArchLucidJsonArray -Items $diagnosticSettingRows)
         Write-Utf8NoBom (Join-Path $staging "defender-summary.json") (ConvertTo-ArchLucidJsonArray -Items $defenderSummaryRows)
+        Write-Utf8NoBom (Join-Path $staging "defender-pricings.json") (ConvertTo-ArchLucidJsonArray -Items $defenderPricingRows)
+        Write-Utf8NoBom (Join-Path $staging "defender-score-controls.json") (ConvertTo-ArchLucidJsonArray -Items $defenderScoreControlRows)
+        Write-Utf8NoBom (Join-Path $staging "defender-assessments.json") (ConvertTo-ArchLucidJsonArray -Items $defenderAssessmentRows)
+        Write-Utf8NoBom (Join-Path $staging "defender-assessment-counts.json") (ConvertTo-ArchLucidJsonArray -Items $defenderAssessmentCountRows)
+        Write-Utf8NoBom (Join-Path $staging "defender-security-contacts.json") (ConvertTo-ArchLucidJsonArray -Items $defenderSecurityContactRows)
+        Write-Utf8NoBom (Join-Path $staging "defender-governance.json") (ConvertTo-ArchLucidJsonArray -Items $defenderGovernanceRows)
+        Write-Utf8NoBom (Join-Path $staging "defender-compliance-standards.json") (ConvertTo-ArchLucidJsonArray -Items $defenderComplianceStandardRows)
+        Write-Utf8NoBom (Join-Path $staging "defender-compliance-controls.json") (ConvertTo-ArchLucidJsonArray -Items $defenderComplianceControlRows)
+        Write-Utf8NoBom (Join-Path $staging "defender-alerts.json") (ConvertTo-ArchLucidJsonArray -Items $defenderAlertRows)
+        Write-Utf8NoBom (Join-Path $staging "defender-attack-paths.json") (ConvertTo-ArchLucidJsonArray -Items $defenderAttackPathRows)
+        Write-Utf8NoBom (Join-Path $staging "defender-vulnerability-counts.json") (ConvertTo-ArchLucidJsonArray -Items $defenderVulnerabilityCountRows)
+        Write-Utf8NoBom (Join-Path $staging "defender-vulnerability-findings.json") (ConvertTo-ArchLucidJsonArray -Items $defenderVulnerabilityFindingRows)
         Write-Utf8NoBom (Join-Path $staging "adf-linked-services.json") (ConvertTo-ArchLucidJsonArray -Items $adfLinkedServiceRows)
         Write-Utf8NoBom (Join-Path $staging "adf-datasets.json") (ConvertTo-ArchLucidJsonArray -Items $adfDatasetRows)
         Write-Utf8NoBom (Join-Path $staging "adf-pipeline-flows.json") (ConvertTo-ArchLucidJsonArray -Items $adfPipelineFlowRows)
@@ -993,6 +1060,18 @@ try
         Write-Utf8NoBom (Join-Path $staging "policy-assignments.json") (ConvertTo-ArchLucidJsonArray -Items $policyAssignmentRows)
         Write-Utf8NoBom (Join-Path $staging "diagnostic-settings.json") (ConvertTo-ArchLucidJsonArray -Items $diagnosticSettingRows)
         Write-Utf8NoBom (Join-Path $staging "defender-summary.json") (ConvertTo-ArchLucidJsonArray -Items $defenderSummaryRows)
+        Write-Utf8NoBom (Join-Path $staging "defender-pricings.json") (ConvertTo-ArchLucidJsonArray -Items $defenderPricingRows)
+        Write-Utf8NoBom (Join-Path $staging "defender-score-controls.json") (ConvertTo-ArchLucidJsonArray -Items $defenderScoreControlRows)
+        Write-Utf8NoBom (Join-Path $staging "defender-assessments.json") (ConvertTo-ArchLucidJsonArray -Items $defenderAssessmentRows)
+        Write-Utf8NoBom (Join-Path $staging "defender-assessment-counts.json") (ConvertTo-ArchLucidJsonArray -Items $defenderAssessmentCountRows)
+        Write-Utf8NoBom (Join-Path $staging "defender-security-contacts.json") (ConvertTo-ArchLucidJsonArray -Items $defenderSecurityContactRows)
+        Write-Utf8NoBom (Join-Path $staging "defender-governance.json") (ConvertTo-ArchLucidJsonArray -Items $defenderGovernanceRows)
+        Write-Utf8NoBom (Join-Path $staging "defender-compliance-standards.json") (ConvertTo-ArchLucidJsonArray -Items $defenderComplianceStandardRows)
+        Write-Utf8NoBom (Join-Path $staging "defender-compliance-controls.json") (ConvertTo-ArchLucidJsonArray -Items $defenderComplianceControlRows)
+        Write-Utf8NoBom (Join-Path $staging "defender-alerts.json") (ConvertTo-ArchLucidJsonArray -Items $defenderAlertRows)
+        Write-Utf8NoBom (Join-Path $staging "defender-attack-paths.json") (ConvertTo-ArchLucidJsonArray -Items $defenderAttackPathRows)
+        Write-Utf8NoBom (Join-Path $staging "defender-vulnerability-counts.json") (ConvertTo-ArchLucidJsonArray -Items $defenderVulnerabilityCountRows)
+        Write-Utf8NoBom (Join-Path $staging "defender-vulnerability-findings.json") (ConvertTo-ArchLucidJsonArray -Items $defenderVulnerabilityFindingRows)
         Write-Utf8NoBom (Join-Path $staging "adf-linked-services.json") (ConvertTo-ArchLucidJsonArray -Items $adfLinkedServiceRows)
         Write-Utf8NoBom (Join-Path $staging "adf-datasets.json") (ConvertTo-ArchLucidJsonArray -Items $adfDatasetRows)
         Write-Utf8NoBom (Join-Path $staging "adf-pipeline-flows.json") (ConvertTo-ArchLucidJsonArray -Items $adfPipelineFlowRows)

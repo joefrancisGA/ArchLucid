@@ -154,6 +154,14 @@ public sealed class TenantProvisioningService(
             return BuildErasureQuarantineProvisionResult(tenantId, workspaceId, projectId);
         }
 
+        TenantRecord? tenantBeforePolicyPackSeed =
+            await _tenantRepository.GetByIdAsync(tenantId, ct).ConfigureAwait(false);
+
+        if (IsErasureQuarantine(tenantBeforePolicyPackSeed))
+        {
+            return BuildErasureQuarantineProvisionResult(tenantId, workspaceId, projectId);
+        }
+
         await _defaultPolicyPackSeeder.EnsureDefaultPolicyPacksAsync(tenantId, workspaceId, projectId, ct)
             .ConfigureAwait(false);
 
@@ -161,6 +169,14 @@ public sealed class TenantProvisioningService(
             await _tenantRepository.GetByIdAsync(tenantId, ct).ConfigureAwait(false);
 
         if (IsErasureQuarantine(tenantBeforeNavSettings))
+        {
+            return BuildErasureQuarantineProvisionResult(tenantId, workspaceId, projectId);
+        }
+
+        TenantRecord? tenantBeforeNavSettingsUpsert =
+            await _tenantRepository.GetByIdAsync(tenantId, ct).ConfigureAwait(false);
+
+        if (IsErasureQuarantine(tenantBeforeNavSettingsUpsert))
         {
             return BuildErasureQuarantineProvisionResult(tenantId, workspaceId, projectId);
         }
@@ -179,6 +195,14 @@ public sealed class TenantProvisioningService(
 
         if (request.FirstTouch is not null)
         {
+            TenantRecord? tenantBeforeFirstTouchPersist =
+                await _tenantRepository.GetByIdAsync(tenantId, ct).ConfigureAwait(false);
+
+            if (IsErasureQuarantine(tenantBeforeFirstTouchPersist))
+            {
+                return BuildErasureQuarantineProvisionResult(tenantId, workspaceId, projectId);
+            }
+
             await _marketingAttributionService.PersistFirstTouchIfPresentAsync(tenantId, request.FirstTouch, ct)
                 .ConfigureAwait(false);
         }
@@ -187,6 +211,14 @@ public sealed class TenantProvisioningService(
             await _tenantRepository.GetByIdAsync(tenantId, ct).ConfigureAwait(false);
 
         if (IsErasureQuarantine(tenantBeforeProvisionedAudit))
+        {
+            return BuildErasureQuarantineProvisionResult(tenantId, workspaceId, projectId);
+        }
+
+        TenantRecord? tenantBeforeProvisionedAuditAppend =
+            await _tenantRepository.GetByIdAsync(tenantId, ct).ConfigureAwait(false);
+
+        if (IsErasureQuarantine(tenantBeforeProvisionedAuditAppend))
         {
             return BuildErasureQuarantineProvisionResult(tenantId, workspaceId, projectId);
         }

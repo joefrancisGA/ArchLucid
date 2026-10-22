@@ -94,7 +94,8 @@ public static class DiagramNodeHumanCaptionFactory
 
         if (node.HasPublicInternetExposure)
         {
-            combined = $"{combined} · {InventoryDiagramRelationshipLabelTexts.PublicExposureCaption}";
+            combined =
+                $"{combined} · {InventoryDiagramRelationshipLabelTexts.FormatHiddenPublicIpCaption(node.HiddenPublicIpAddress)}";
         }
 
         if (node.ConnectionState == InventoryDiagramConnectionState.Orphaned
@@ -105,7 +106,7 @@ public static class DiagramNodeHumanCaptionFactory
         else if (node.ConnectionState == InventoryDiagramConnectionState.Used)
         {
             combined = string.IsNullOrWhiteSpace(node.ConnectionStateMessage)
-                ? $"{combined} · In use off the diagram"
+                ? $"{combined} · In use off the diagram. Off-diagram use was not stored."
                 : $"{combined} · In use off the diagram: {node.ConnectionStateMessage.Trim()}";
         }
         else if (node.ConnectionState == InventoryDiagramConnectionState.Unconnected)
