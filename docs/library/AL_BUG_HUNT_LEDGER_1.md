@@ -7803,6 +7803,15 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-agents
 
+2026-10-22 seed hunt (seed→hit): promoted IaC stub markdown-fence normalization; regression `GenerateAndPersistStubsForRunAsync_does_not_duplicate_disclaimer_when_llm_wraps_bicep_in_markdown_fence`; 137 scoped Application.Tests.Agents tests passed.
+
+- [x] (proven) `FindingIacStubGenerator.EnsureDisclaimerLine` — LLM completions wrapped in markdown fences did not start with the disclaimer line so a second disclaimer was prepended — **hit 2026-10-22 seed hunt:** `NormalizeLlmStubBody` strips optional fences before disclaimer detection. [class:state-machine-gap]
+
+- (candidate) `AgentCuratedEvidenceProposer` — enricher ordering vs structural post-process — engineering hardening only.
+- (candidate) `AgentResultRegionMismatchEnricher` — restricted-region warnings without name/platform cues — design gap.
+- (candidate) `EvidenceProposalPromoter.BuildCatalogEntryId` — homoglyph title slug collisions — no reachability citation yet.
+- (candidate) `ReviewRunEngineProvenanceAggregator.Aggregate` — `TotalOutputTokens` sums completion plus reasoning twice via separate loops — verify parity tests before promoting.
+
 2026-10-22 seed hunt (seed→hit): promoted curated-evidence text field normalization; regressions `TryParseValid_WhenTitleHasSurroundingWhitespace_returns_trimmed_payload` and `NormalizeResponse_trims_surrounding_whitespace_on_text_fields`; 136 scoped Application.Tests.Agents tests passed.
 
 - [x] (proven) `ProposedEvidencePayloadValidator.TryParseValid` — padded `title`/`description`/`rationale` passed substantive-text guards but persisted verbatim into tenant catalog on promotion — **hit 2026-10-22 seed hunt:** `ProposedEvidencePayloadNormalizer.NormalizeTextFields` shared by validator and proposer. [class:fail-open-validation]
@@ -7940,11 +7949,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** application agents; agent handlers wiring
 - **paths:** ArchLucid.Application/Agents/
 - **test-filter:** FullyQualifiedName~Application.Tests.Agents
-- **hunts:** 58
-- **bugs-found:** 54
+- **hunts:** 59
+- **bugs-found:** 55
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — curated-evidence payload text normalization
+- **last-bug:** 2026-10-22 — IaC stub fence stripping before disclaimer
 
 2026-09-27 seed hunt (seed→hit): proved `TopologyProposalConsensusMerger.Merge` threw when `RequiredControls` was null on topology dual-model proposals (`AgentProposalStructuralPostProcessor` does not initialize controls for `AgentType.Topology`); fixed by null-coalescing in control intersection and disagreement counts; regression `Merge_when_required_controls_is_null_does_not_throw`; 92 scoped Application.Tests.Agents tests passed.
 
