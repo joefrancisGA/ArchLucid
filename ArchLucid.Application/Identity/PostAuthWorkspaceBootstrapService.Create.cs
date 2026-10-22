@@ -62,6 +62,18 @@ public sealed partial class PostAuthWorkspaceBootstrapService
                     "industry_vertical_invalid"));
         }
 
+        string dataRegionKey = TenantProvisioningDataRegionPolicy.NormalizeRequest(request.DataRegion);
+
+        try
+        {
+            TenantProvisioningDataRegionPolicy.Validate(dataRegionKey, _tenantProvisioningOptions.CurrentValue);
+        }
+        catch (ArgumentException ex)
+        {
+            return AuthValidationResultMapper.ToPostAuthCreateWorkspaceDeny(
+                AuthValidationResult.Invalid(ex.Message, "data_region_invalid"));
+        }
+
         IReadOnlyList<WorkspaceMembershipRecord> activeMemberships =
             await PostAuthBootstrapSupport.ListActiveMembershipsAsync(_memberships, platformUserId, cancellationToken)
                 .ConfigureAwait(false);
@@ -151,7 +163,7 @@ public sealed partial class PostAuthWorkspaceBootstrapService
                 Name = organizationName,
                 AdminEmail = displayEmail,
                 Tier = TenantTier.Standard,
-                DataRegion = request.DataRegion ?? TenantDataRegions.Default,
+                DataRegion = dataRegionKey,
                 WorkspaceDisplayName = workspaceName,
                 AuditActorOverride = displayEmail
             },
