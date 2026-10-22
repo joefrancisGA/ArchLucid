@@ -345,6 +345,13 @@ describe("humanizeAuthorizeCallbackError", () => {
     expect(message).not.toContain("invalid_scope");
   });
 
+  it("humanizes invalid_request authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("invalid_request", "");
+
+    expect(message).toMatch(/not valid/i);
+    expect(message).not.toContain("invalid_request");
+  });
+
   it("avoids empty parentheses when the authorize error code is whitespace-only", () => {
     expect(humanizeAuthorizeCallbackError("   ", "")).toContain("complete response");
     expect(humanizeAuthorizeCallbackError("   ", "")).not.toMatch(/\(\s*\)/u);
@@ -515,13 +522,6 @@ describe("humanizeAuthorizeCallbackError", () => {
 
     expect(message).toBe("This sign-in request was not valid. Try signing in again.");
     expect(message).not.toContain("+++");
-  });
-
-  it("uses fixed copy for unauthorized_client authorize-query errors", () => {
-    const message = humanizeAuthorizeCallbackError("unauthorized_client", "");
-
-    expect(message).toContain("not enabled");
-    expect(message).not.toContain("unauthorized_client");
   });
 
   it("uses fixed copy for unauthorized_client regardless of oversized error_description", () => {

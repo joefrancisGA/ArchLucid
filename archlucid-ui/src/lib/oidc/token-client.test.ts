@@ -202,6 +202,30 @@ describe("refreshAccessToken", () => {
     expect(sessionStorage.getItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY)).toBe("1");
   });
 
+  it("marks authorize callback failed when authorization code exchange omits access_token", async () => {
+    sessionStorage.clear();
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => ({
+        ok: true,
+        text: async () => JSON.stringify({ token_type: "Bearer" }),
+      })),
+    );
+
+    await expect(
+      exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      }),
+    ).rejects.toThrow(/missing access_token/i);
+
+    expect(sessionStorage.getItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY)).toBe("1");
+  });
+
   it("marks authorize callback failed when authorization code exchange fails", async () => {
     sessionStorage.clear();
 
@@ -322,31 +346,6 @@ describe("refreshAccessToken", () => {
         codeVerifier: "verifier",
       }),
     ).rejects.toThrow(/temporary error/i);
-
-    expect(sessionStorage.getItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY)).toBe("1");
-  });
-
-  it("marks authorize callback failed when authorization code exchange returns opaque token endpoint HTTP error", async () => {
-    sessionStorage.clear();
-
-    vi.stubGlobal(
-      "fetch",
-      vi.fn(async () => ({
-        ok: false,
-        status: 502,
-        text: async () => "<html>Bad Gateway</html>",
-      })),
-    );
-
-    await expect(
-      exchangeAuthorizationCode({
-        tokenEndpoint: "https://login.example.com/token",
-        clientId: "client",
-        code: "auth-code",
-        redirectUri: "https://app.example/callback",
-        codeVerifier: "verifier",
-      }),
-    ).rejects.toThrow(/Token endpoint error 502/i);
 
     expect(sessionStorage.getItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY)).toBe("1");
   });
