@@ -94,6 +94,7 @@ export async function initiateOidcRedirect(returnUrl?: string): Promise<void> {
   storePkceState(state, verifier, nonce, "primary");
 
   let storedReturnUrlThisAttempt = false;
+  let consumedAuthorizeCallbackRetry = false;
   const preservingAuthorizeCallbackRetry = hasAuthorizeCallbackFailedRetry();
 
   if (returnUrl !== undefined && isSafeReturnPath(returnUrl)) {
@@ -101,7 +102,7 @@ export async function initiateOidcRedirect(returnUrl?: string): Promise<void> {
     storedReturnUrlThisAttempt = true;
 
     if (shouldConsumeAuthorizeRetryForReturnUrl(returnUrl)) {
-      consumeAuthorizeCallbackFailedRetry();
+      consumedAuthorizeCallbackRetry = consumeAuthorizeCallbackFailedRetry();
     }
   } else if (readPkceState("google") === null) {
     if (!preservingAuthorizeCallbackRetry) {
@@ -116,7 +117,9 @@ export async function initiateOidcRedirect(returnUrl?: string): Promise<void> {
   } catch (error) {
     clearPkceState("primary");
 
-    if (storedReturnUrlThisAttempt) {
+    if (storedReturnUrlThisAttempt && preservingAuthorizeCallbackRetry && !consumedAuthorizeCallbackRetry) {
+      markAuthorizeCallbackFailed();
+    } else if (storedReturnUrlThisAttempt) {
       clearPostSignInReturnUrl();
     } else if (preservingAuthorizeCallbackRetry) {
       markAuthorizeCallbackFailed();
@@ -169,6 +172,7 @@ export async function initiateSupplementalOidcRedirect(
   storePkceState(state, verifier, nonce, "google");
 
   let storedReturnUrlThisAttempt = false;
+  let consumedAuthorizeCallbackRetry = false;
   const preservingAuthorizeCallbackRetry = hasAuthorizeCallbackFailedRetry();
 
   if (returnUrl !== undefined && isSafeReturnPath(returnUrl)) {
@@ -176,7 +180,7 @@ export async function initiateSupplementalOidcRedirect(
     storedReturnUrlThisAttempt = true;
 
     if (shouldConsumeAuthorizeRetryForReturnUrl(returnUrl)) {
-      consumeAuthorizeCallbackFailedRetry();
+      consumedAuthorizeCallbackRetry = consumeAuthorizeCallbackFailedRetry();
     }
   } else if (readPkceState("primary") === null) {
     if (!preservingAuthorizeCallbackRetry) {
@@ -191,7 +195,9 @@ export async function initiateSupplementalOidcRedirect(
   } catch (error) {
     clearPkceState("google");
 
-    if (storedReturnUrlThisAttempt) {
+    if (storedReturnUrlThisAttempt && preservingAuthorizeCallbackRetry && !consumedAuthorizeCallbackRetry) {
+      markAuthorizeCallbackFailed();
+    } else if (storedReturnUrlThisAttempt) {
       clearPostSignInReturnUrl();
     } else if (preservingAuthorizeCallbackRetry) {
       markAuthorizeCallbackFailed();
