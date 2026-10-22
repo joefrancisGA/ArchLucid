@@ -32,7 +32,9 @@ import {
   quickDecisionWorkItemSeverityLabel,
 } from "@/lib/quick-decision-finding-links";
 import {
+  findingHasMissingEvidenceRefCount,
   findingHasNoSourceEvidence,
+  findingHasStoredZeroEvidenceRefCount,
   humanReviewStatusDisplay,
   severityBadgeLabel,
   severityKindFromNumericValue,
@@ -113,7 +115,19 @@ export function QuickDecisionSummaryFindingRow({
           showReason
         />
         <FindingSemanticSupportBandChip finding={finding} showReason />
-        {findingHasNoSourceEvidence(finding) ? (
+        {findingHasMissingEvidenceRefCount(finding) ? (
+          <StatusTag
+            kind="neutral"
+            label="Evidence ref count was not stored"
+            data-testid={`finding-evidence-ref-count-missing-${finding.findingId}`}
+          />
+        ) : findingHasStoredZeroEvidenceRefCount(finding) ? (
+          <StatusTag
+            kind="neutral"
+            label="Evidence refs were stored as zero"
+            data-testid={`finding-evidence-ref-count-zero-${finding.findingId}`}
+          />
+        ) : findingHasNoSourceEvidence(finding) ? (
           <StatusTag
             kind="needs-attention"
             label="Evidence gap"
@@ -236,6 +250,13 @@ export function QuickDecisionSummaryFindingRow({
       <FindingPolicyEvidenceCitationLinks model={citationModel} compact className="mt-2" />
       {finding.evidenceRefSnippets !== undefined && finding.evidenceRefSnippets.length > 0 ? (
         <FindingEvidenceRefSnippets snippets={finding.evidenceRefSnippets} />
+      ) : (evidenceRefCount ?? 0) > 0 ? (
+        <p
+          className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid={`finding-evidence-ref-snippets-missing-${finding.findingId}`}
+        >
+          Evidence ref excerpts were not stored.
+        </p>
       ) : null}
       {(finding.insightDensityScore !== null && finding.insightDensityScore !== undefined) ||
       (finding.whyThisIsNotGeneric !== null &&

@@ -170,6 +170,16 @@ export function findingHasNoSourceEvidence(finding: QuickDecisionFinding): boole
   return !hasRefCount && !hasSnippets && !hasPolicyRule;
 }
 
+/** True when the API stored an explicit zero evidence-ref count (distinct from a missing count). */
+export function findingHasStoredZeroEvidenceRefCount(finding: QuickDecisionFinding): boolean {
+  return finding.evidenceRefCount === 0;
+}
+
+/** True when no evidence-ref count was stored on the finding or explainability row. */
+export function findingHasMissingEvidenceRefCount(finding: QuickDecisionFinding): boolean {
+  return finding.evidenceRefCount === null || finding.evidenceRefCount === undefined;
+}
+
 /** Highest severity first, then original finding order. Policy violations precede advisory notes. */
 export function sortQuickDecisionFindings(findings: readonly QuickDecisionFinding[]): QuickDecisionFinding[] {
   return [...findings].sort((a, b) => {

@@ -102,14 +102,32 @@ public sealed class DiagramForestCanvasLabelContext
             }
         }
         bool suppressResourceGroupCaption = _suppressResourceGroupCaptionNodeIds.Contains(node.NodeId);
-        IReadOnlyList<string> resourceGroupLines = suppressResourceGroupCaption
-            || string.IsNullOrWhiteSpace(caption.ResourceGroupCaption)
-            ? []
-            : DiagramInventoryNodeCanvasLabelFormatter.FormatLines(
+        IReadOnlyList<string> resourceGroupLines;
+
+        if (suppressResourceGroupCaption)
+        {
+            resourceGroupLines = [];
+        }
+        else if (node.IncludeResourceGroupInCaption && string.IsNullOrWhiteSpace(caption.ResourceGroupCaption))
+        {
+            resourceGroupLines = DiagramInventoryNodeCanvasLabelFormatter.FormatLines(
+                DiagramNodeHumanCaptionFactory.ResourceGroupNotStoredCaption,
+                _peerResourceGroupNames,
+                _options,
+                textColumnMaxWidth);
+        }
+        else if (string.IsNullOrWhiteSpace(caption.ResourceGroupCaption))
+        {
+            resourceGroupLines = [];
+        }
+        else
+        {
+            resourceGroupLines = DiagramInventoryNodeCanvasLabelFormatter.FormatLines(
                 caption.ResourceGroupCaption,
                 _peerResourceGroupNames,
                 _options,
                 textColumnMaxWidth);
+        }
         int longestLineChars = nameLines
             .Concat(resourceGroupLines)
             .Select(line => line.Length)

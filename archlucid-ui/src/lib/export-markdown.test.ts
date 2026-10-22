@@ -268,6 +268,25 @@ describe("formatGoldenManifestMarkdown", () => {
     expect(storedEmpty).not.toContain("Datastore id was not stored.");
     expect(storedEmpty).not.toContain("Decision id was not stored.");
     expect(storedEmpty).not.toContain("Selected option was not stored.");
+    expect(storedEmpty).toContain("Preferences were stored as an empty list.");
+  });
+
+  it("distinguishes null versus empty cost notes, risks, and warnings", () => {
+    const omitted = formatGoldenManifestMarkdown({
+      cost: { notes: null, costRisks: null },
+      warnings: null,
+    });
+    const storedEmpty = formatGoldenManifestMarkdown({
+      cost: { notes: [], costRisks: [] },
+      warnings: [],
+    });
+
+    expect(omitted).toContain("Cost notes were not stored.");
+    expect(omitted).toContain("Cost risks were not stored.");
+    expect(omitted).toContain("Warnings were not stored.");
+    expect(storedEmpty).toContain("Cost notes were stored as an empty list.");
+    expect(storedEmpty).toContain("Cost risks were stored as an empty list.");
+    expect(storedEmpty).toContain("Warnings were stored as an empty list.");
   });
 
   it("reports omitted policy-at-commit counts while preserving zero", () => {

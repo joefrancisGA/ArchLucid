@@ -155,7 +155,7 @@ export function SponsorExportsSection({
     return first !== undefined
       ? {
           runId: first.runId,
-          manifestVersion: first.goldenManifestId?.trim() || first.currentManifestVersion?.trim() || first.runId,
+          manifestVersion: first.goldenManifestId?.trim() || first.currentManifestVersion?.trim() || "",
         }
       : null;
   }, [runsQuery.data]);
@@ -177,6 +177,11 @@ export function SponsorExportsSection({
       <RoiSponsorExportVocabularyRail currentSurfaceId="sponsor-dashboard" />
       <ArtifactPreviewSponsorExportVocabularyRail currentSurfaceId="sponsor-export" />
       <SponsorExportSendHonestyStrip testIdPrefix="sponsor-dashboard-exports" />
+      {sponsorDocx === null && runsQuery.data !== undefined ? (
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="sponsor-exports-target-line">
+          Sponsor export target was not stored. Commit a review to unlock DOCX and one-pager downloads.
+        </p>
+      ) : null}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {sponsorDocx !== null ? (
           <SponsorExportOutputCard
@@ -243,6 +248,25 @@ export function SponsorExportsSection({
             primaryDownloadBusy={onePagerDownloadBusy}
             testId="sponsor-exports-one-pager-download"
           />
+        ) : runsQuery.data !== undefined ? (
+          <>
+            <SponsorExportOutputCard
+              title={v.sponsorExportsDocxTitle}
+              description={v.sponsorExportsDocxDescription}
+              locked
+              previewActionLabel={v.sponsorExportsPreviewSampleAction}
+              previewHref={ARCHITECTURE_SCORECARD_PATH}
+              testId="sponsor-exports-docx-download"
+            />
+            <SponsorExportOutputCard
+              title="Sponsor one-pager (PDF)"
+              description="Executive summary PDF from a finalized review."
+              locked
+              previewActionLabel={v.sponsorExportsPreviewSampleAction}
+              previewHref={ARCHITECTURE_SCORECARD_PATH}
+              testId="sponsor-exports-one-pager-download"
+            />
+          </>
         ) : null}
         <SponsorExportOutputCard
           title={v.sponsorExportsScorecardTitle}
