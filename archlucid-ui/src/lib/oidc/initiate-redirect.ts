@@ -57,6 +57,27 @@ function clearAbandonedPostSignInReturnUrl(): void {
   clearPostSignInReturnUrl();
 }
 
+/** Purges unsafe stored return paths and restores idle-desk backup when authorize retry is pending. */
+function preparePostSignInReturnUrlForSignInStart(): void {
+  readPostSignInReturnUrl();
+
+  if (!hasAuthorizeCallbackFailedRetry()) {
+    return;
+  }
+
+  if (readPostSignInReturnUrl() !== null) {
+    return;
+  }
+
+  const idle = readIdleDeskRestorePayload();
+
+  if (idle === null) {
+    return;
+  }
+
+  storePostSignInReturnUrl(idle.returnPath);
+}
+
 function shouldConsumeAuthorizeRetryForReturnUrl(returnUrl: string): boolean {
   const normalizedNew = normalizeOidcConfigurationString(returnUrl);
   const prior = readPostSignInReturnUrl();
@@ -100,8 +121,7 @@ function handleInitiateDiscoveryFailure(options: {
  *   unsafe values are dropped by `storePostSignInReturnUrl`, not rejected here).
  */
 export async function initiateOidcRedirect(returnUrl?: string): Promise<void> {
-  // Drop poisoned sessionStorage return paths before PKCE/redirect (safe paths are unchanged).
-  readPostSignInReturnUrl();
+  preparePostSignInReturnUrlForSignInStart();
 
   const authority = getOidcAuthority();
   const clientId = getOidcClientId();
@@ -180,7 +200,7 @@ export async function initiateSupplementalOidcRedirect(
     throw new Error("Unsupported supplemental identity provider.");
   }
 
-  readPostSignInReturnUrl();
+  preparePostSignInReturnUrlForSignInStart();
 
   const authority = getGoogleOidcAuthority();
   const clientId = getGoogleOidcClientId();
