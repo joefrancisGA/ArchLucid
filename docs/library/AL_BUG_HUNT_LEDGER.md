@@ -14,6 +14,19 @@ eadPostSignInReturnUrl instead of raw getItem - **cheap-disproof 2026-10-22:** i
 - [ ] (candidate) isOAuthRefreshTokenRejectedError - slow_down on refresh grant - locus: transient classifier; input: BFF 503 path.
 - [ ] (candidate) decodeOAuthErrorDescription - multiply-encoded %252B with pictograph glue - locus: saturated encoding class.
 - [ ] (candidate) exchangeAuthorizationCode - uthorization_pending marks authorize retry on code exchange - locus: device-flow parity.
+2026-10-22 seed hunt (seed->hit): `application-tenancy-lifecycle` - promoted hunt-ready from seed re-read `TenantCatalogMigrationOrchestrator.RunVerificationAsync` - catalog migration verification platform audit appended after `MarkVerificationResultAsync` using only the post-mark tenant read, so erasure offboard between that read and audit could emit `TenantCatalogMigrationVerificationPassed`/`Failed` for quarantined tenants; pre-audit `GetByIdAsync` guard; regression `RunVerificationAsync_returns_in_erasure_quarantine_without_passed_audit_when_offboard_completes_after_mark_before_audit`; scoped `FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration` filter 248/248.
+
+- [x] (proven) `TenantCatalogMigrationOrchestrator.RunVerificationAsync` - offboard after mark before verification audit - **hit 2026-10-22 seed hunt:** pre-audit re-read; regression above.
+- [x] (valid-no-repro) `RunVerificationAsync` - offboard after probe before mark - **cheap-disproof 2026-10-22:** existing regression on trunk.
+- [x] (valid-no-repro) `TrialLifecycleTransitionEngine.TryEmitAuditAsync` - offboard after workspace lookup - **cheap-disproof 2026-10-22:** hit earlier same day on trunk.
+- [x] (invalid) `TenantMigrationProjectionRefreshService` - offboard mid cache invalidation - **cheap-disproof 2026-10-22:** orchestrator guards around refresh.
+- [x] (valid-no-repro) `TenantCatalogMigrationOrchestrator.CompleteAsync` - offboard after repository complete - **cheap-disproof 2026-10-22:** existing regression on trunk.
+
+- [ ] (candidate) `RunVerificationAsync` - offboard after verification audit before returning Applied - locus: post-audit read (reachability: saturated; audit already appended).
+- [ ] (candidate) `TenantErasureCommandService.TryApproveErasureAsync` - restore quarantine between approve atomic and audit - locus: beforeApproveAudit read (reachability: erasure command).
+- [ ] (candidate) `TenantDeletionService.DeleteTenantAsync` - legal hold activated after sql purge before platform audit - locus: RevalidateTenantForHardPurgeAsync (reachability: admin delete job).
+- [ ] (candidate) `TenantTrialIdentityHandoffStage.LinkEntraAsync` - offboard after directory audit before identity link - locus: existing tests (reachability: saturated).
+- [ ] (candidate) `TenantCatalogMigrationOrchestrator.AcknowledgeCatalogAttachDetachAsync` - offboard after stage update before attach audit - locus: existing regression (reachability: saturated).
 
 2026-10-22 seed hunt (seed->hit): ui-oidc - promoted hunt-ready consumePostSignInReturnUrl - tampered unsafe return URLs returned null but still cleared OIDC_AUTHORIZE_CALLBACK_FAILED_KEY, dropping authorize-retry state needed for a follow-up sign-in; only clear retry marker when a safe return path is consumed; parity regressions supplemental Google discovery failure during authorize-callback retry without returnUrl and authorize error_description percent-plus with regional-indicator flag emoji; scoped vitest 429/429.
 

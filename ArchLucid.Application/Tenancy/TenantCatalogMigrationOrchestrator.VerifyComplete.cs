@@ -68,6 +68,12 @@ public sealed partial class TenantCatalogMigrationOrchestrator
         if (tenantAfterProbe?.OffboardedUtc is not null)
             return (TenantCatalogMigrationCommandOutcome.InErasureQuarantine, probe);
 
+        TenantRecord? tenantBeforeVerificationAudit =
+            await _tenantRepository.GetByIdAsync(tenantId, cancellationToken).ConfigureAwait(false);
+
+        if (tenantBeforeVerificationAudit?.OffboardedUtc is not null)
+            return (TenantCatalogMigrationCommandOutcome.InErasureQuarantine, probe);
+
         string auditType = probe.Passed
             ? AuditEventTypes.TenantCatalogMigrationVerificationPassed
             : AuditEventTypes.TenantCatalogMigrationVerificationFailed;
