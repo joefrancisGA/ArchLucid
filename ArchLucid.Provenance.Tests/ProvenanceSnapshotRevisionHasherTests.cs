@@ -14,6 +14,55 @@ public sealed class ProvenanceSnapshotRevisionHasherTests
     private static readonly Guid BundleId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
 
     [Fact]
+    public void Compute_changes_when_manifest_graph_snapshot_id_differs_but_manifest_id_hash_and_graph_topology_are_unchanged()
+    {
+        GraphNode node = new() { NodeId = "node-a", NodeType = "Resource", Label = "A" };
+        Guid graphSnapshotId = Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff");
+
+        ProvenanceBuildInput baseline = CreateInput([], graphNodes: [node]);
+        ProvenanceBuildInput updated = CreateInput([], graphNodes: [node]);
+        baseline.Manifest.GraphSnapshotId = graphSnapshotId;
+        updated.Manifest.GraphSnapshotId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+        baseline.Graph.GraphSnapshotId = graphSnapshotId;
+        updated.Graph.GraphSnapshotId = graphSnapshotId;
+
+        ProvenanceSnapshotRevisionHasher.Compute(baseline, BundleId)
+            .Should().NotBe(ProvenanceSnapshotRevisionHasher.Compute(updated, BundleId));
+    }
+
+    [Fact]
+    public void Compute_changes_when_manifest_findings_snapshot_id_differs_but_manifest_id_hash_and_findings_payload_are_unchanged()
+    {
+        Finding finding = CreateSampleFinding();
+
+        ProvenanceBuildInput baseline = CreateInput([], findings: [finding]);
+        ProvenanceBuildInput updated = CreateInput([], findings: [finding]);
+        Guid findingsSnapshotId = baseline.Findings.FindingsSnapshotId;
+        baseline.Manifest.FindingsSnapshotId = findingsSnapshotId;
+        updated.Manifest.FindingsSnapshotId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+
+        ProvenanceSnapshotRevisionHasher.Compute(baseline, BundleId)
+            .Should().NotBe(ProvenanceSnapshotRevisionHasher.Compute(updated, BundleId));
+    }
+
+    [Fact]
+    public void Compute_changes_when_graph_context_snapshot_id_differs_but_graph_snapshot_id_and_nodes_are_unchanged()
+    {
+        GraphNode node = new() { NodeId = "node-a", NodeType = "Resource", Label = "A" };
+        Guid graphSnapshotId = Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff");
+
+        ProvenanceBuildInput baseline = CreateInput([], graphNodes: [node]);
+        ProvenanceBuildInput updated = CreateInput([], graphNodes: [node]);
+        baseline.Graph.GraphSnapshotId = graphSnapshotId;
+        updated.Graph.GraphSnapshotId = graphSnapshotId;
+        baseline.Graph.ContextSnapshotId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
+        updated.Graph.ContextSnapshotId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+
+        ProvenanceSnapshotRevisionHasher.Compute(baseline, BundleId)
+            .Should().NotBe(ProvenanceSnapshotRevisionHasher.Compute(updated, BundleId));
+    }
+
+    [Fact]
     public void Compute_changes_when_findings_header_graph_snapshot_id_differs_but_graph_snapshot_id_and_nodes_are_unchanged()
     {
         GraphNode node = new() { NodeId = "node-a", NodeType = "Resource", Label = "A" };
@@ -789,6 +838,7 @@ public sealed class ProvenanceSnapshotRevisionHasherTests
             Graph = new GraphSnapshot
             {
                 GraphSnapshotId = graphSnapshotId,
+                ContextSnapshotId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
                 RunId = RunId,
                 Nodes = graphNodes is null ? [] : [.. graphNodes],
                 Edges = graphEdges is null ? [] : [.. graphEdges],
@@ -797,6 +847,8 @@ public sealed class ProvenanceSnapshotRevisionHasherTests
             {
                 ManifestId = manifestId,
                 RunId = RunId,
+                GraphSnapshotId = graphSnapshotId,
+                FindingsSnapshotId = findingsSnapshotId,
                 ManifestHash = manifestHash ?? "mh",
                 Decisions = decisions is null ? [] : [.. decisions],
             },
