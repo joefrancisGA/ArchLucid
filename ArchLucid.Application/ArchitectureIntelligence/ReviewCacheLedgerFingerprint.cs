@@ -21,7 +21,7 @@ public static class ReviewCacheLedgerFingerprint
         foreach (TechnologyLedgerEntry entry in ledgerEntries
                      .Where(static item => item is not null)
                      .OrderBy(item => item.Role)
-                     .ThenBy(item => item.TechnologyName, StringComparer.Ordinal)
+                     .ThenBy(item => NormalizeTechnologyName(item.TechnologyName), StringComparer.Ordinal)
                      .ThenBy(item => item.ProviderFamily))
         {
             builder.Append(entry.Role.ToString()).Append('|');

@@ -533,6 +533,29 @@ public sealed class ReviewCacheManifestBuilderTests
     }
 
     [Fact]
+    public void Build_matches_content_hash_when_ledger_technology_names_differ_only_by_padding_that_changes_sort_order()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "run-ledger-sort-padding";
+
+        TechnologyLedgerEntry leadingSpaceBeta = CreateLedgerEntry(request.RunId, evidenceRef: null);
+        leadingSpaceBeta.TechnologyName = " beta";
+        leadingSpaceBeta.ProviderFamily = ArchLucid.Contracts.Common.CloudProvider.Aws;
+
+        TechnologyLedgerEntry alpha = CreateLedgerEntry(request.RunId, evidenceRef: null);
+        alpha.TechnologyName = "Alpha";
+        alpha.ProviderFamily = ArchLucid.Contracts.Common.CloudProvider.Azure;
+
+        TechnologyLedgerEntry trimmedBeta = CreateLedgerEntry(request.RunId, evidenceRef: null);
+        trimmedBeta.TechnologyName = "beta";
+        trimmedBeta.ProviderFamily = ArchLucid.Contracts.Common.CloudProvider.Aws;
+
+        ReviewCacheManifestBuilder.Build(request, null, [leadingSpaceBeta, alpha]).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(request, null, [alpha, trimmedBeta]).ContentHash);
+    }
+
+    [Fact]
     public void Build_matches_content_hash_when_ledger_technology_name_is_null_vs_empty_string()
     {
         ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
