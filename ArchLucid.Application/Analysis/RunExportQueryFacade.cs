@@ -235,6 +235,12 @@ public sealed class RunExportQueryFacade(
         if (guardOutcome is not null)
             return new ExportReplayQueryResult { Outcome = guardOutcome.Value, MissingId = record.RunId };
 
+        ExportRecordLoadOutcome? lifecycleOutcome =
+            await TryEnsureExportRunLifecycleCompleteAsync(record.RunId, cancellationToken);
+
+        if (lifecycleOutcome is not null)
+            return new ExportReplayQueryResult { Outcome = lifecycleOutcome.Value, MissingId = record.RunId };
+
         await EnsureCareerAllowsExportRecordMetadataOrThrowAsync(record.RunId, cancellationToken);
 
 
