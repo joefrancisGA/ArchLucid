@@ -6691,6 +6691,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-22 seed hunt (seed→hit): `ComparisonsController` drift routes did not map `CareerArtifactExportBlockedException` while comparison replay routes did, so drift analyze/report returned unhandled errors when `ComparisonReplayService.AnalyzeDriftAsync` blocked simulator-rehearsal metadata reads; map career posture blocks on `POST`/`GET` comparison drift endpoints; regression `CompareQuality_AnalyzeComparisonDrift_returns_career_blocked_problem_when_posture_blocks_metadata_read`; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` filter 49/49.
+
+- [x] (proven) `ComparisonsController.AnalyzeComparisonDrift` / `GetComparisonDriftReport` - drift endpoints omitted `CareerArtifactExportBlockedException` mapping present on comparison replay routes - **hit 2026-10-22 seed hunt:** `CareerArtifactBlockedProblem` on drift paths; regression above.
+
 2026-10-22 seed hunt (seed-only): `application-analysis` — re-read `ArchLucid.Application/Analysis/` export/compare/replay surfaces after lifecycle/career/sealed-manifest parity fixes; no hunt-ready product defect; cheap-disproof closed four re-seeded `(candidate)` rows; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` filter 49/49.
 
 - [x] (valid-no-repro) `ConsultingDocxExportWhitelabelPrefill.ApplyMissingFromPriorExportsAsync` - reads prior export rows without `IRunExportCareerPostureGate` - **cheap-disproof 2026-10-22:** whitelabel hint copy only; consulting DOCX route enforces sealed-manifest and export completeness before `BuildAsync` returns bytes.
@@ -6783,10 +6787,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
 - **hunts:** 65
-- **bugs-found:** 61
-- **consecutive-dry-hunts:** 1
+- **bugs-found:** 62
+- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — export history skipped sealed-manifest hash guard
+- **last-bug:** 2026-10-22 — comparison drift routes omitted career posture problem mapping
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
