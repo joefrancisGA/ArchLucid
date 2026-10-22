@@ -12470,18 +12470,23 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 128
-- **bugs-found:** 123
+- **hunts:** 129
+- **bugs-found:** 124
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — topology sensitivity classifier ignored padded category property
+- **last-bug:** 2026-10-22 — cost projection used unknown platform for padded topology Category
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-22 seed hunt (seed→hit): cheap-disproved declaration materializer padded `Category` candidate (`DeclarationExistingNodeResolver.TryReadProperty` already trims property values before datastore category gates; regressions `Materialize_emits_data_flow_path_when_datastore_category_has_surrounding_whitespace` and `Materialize_connects_subnet_to_datastore_when_category_has_surrounding_whitespace`); promoted `CostConstraintProjectedSpendEnricher` padded `GraphNode.Category` candidate; proved `ResolveRuntimePlatform` compared raw `topologyNode.Category` strings, mapping padded compute nodes to `Unknown` ($25 illustrative) instead of `Vm` ($120); trim category before platform inference and cost-query row materialization; regression `EnrichFromTopologyAsync_matches_compute_projection_when_topology_category_has_surrounding_whitespace`; seeded `GraphTopologyInfrastructureCostNodes` explicit `runtimePlatform` property padding follow-on; 433 KnowledgeGraph + 136 Provenance scoped tests passed.
+
+- [x] (valid-no-repro) `DeclarationIdentityPathEdgeMaterializer` / `DeclarationSegmentationPathEdgeMaterializer` — padded `category` property on data/storage nodes — **cheap-disproof 2026-10-22 seed hunt:** `TryReadProperty` trim; contract regressions above.
+- [x] (proven) `CostConstraintProjectedSpendEnricher` / `GraphTopologyInfrastructureCostNodes` — padded `GraphNode.Category` mis-resolved runtime platform — **hit 2026-10-22 seed hunt (seed→hit):** trim category; regression above.
+
+- [ ] (candidate) `GraphTopologyInfrastructureCostNodes.ResolveRuntimePlatform` — padded `runtimePlatform` property may still fall through to category inference incorrectly — locus: `ReadProperty` + `Enum.TryParse`; input: topology node with padded explicit platform token; wrong outcome: illustrative cost tier diverges from trimmed platform parse.
 
 2026-10-22 seed hunt (seed→hit): promoted `TopologySensitivityClassifier` padded `Category` candidate; proved `Classify` compared raw `category` property strings to well-known topology categories, downgrading identity/data/storage nodes with surrounding whitespace to `Internal`; trim category before tier branches; regressions `Classify_identity_category_with_surrounding_whitespace_returns_identity` and `Classify_data_category_with_surrounding_whitespace_returns_data_bearing`; seeded declaration materializer padded `Category` data/storage gate follow-on; 430 KnowledgeGraph + 136 Provenance scoped tests passed.
 
 - [x] (proven) `TopologySensitivityClassifier` — padded topology `Category` mis-classified sensitivity — **hit 2026-10-22 seed hunt (seed→hit):** trim category property; regressions above.
-
-- [ ] (candidate) `DeclarationIdentityPathEdgeMaterializer` / `DeclarationSegmentationPathEdgeMaterializer` — padded `Category` on data/storage nodes may skip sensitive path edges — locus: data/storage category equality; input: declaration object with padded category; wrong outcome: missing materialized sensitivity/path edges.
 
 2026-10-22 seed hunt (seed→hit): promoted `HeuristicNetworkSubnetEdgeInferenceRule` padded network `Label` candidate; proved `ShouldInferNetworkContainsSubnet` compared subnet labels against raw `network.Label` when multiple networks competed, so containment heuristics missed subnets whose labels embedded the trimmed network name; trim network label before substring match; regression `InferEdges_heuristic_network_subnet_rule_matches_label_substring_when_network_label_has_surrounding_whitespace`; seeded `TopologySensitivityClassifier` padded `Category` parity follow-on; 428 KnowledgeGraph + 136 Provenance scoped tests passed.
 
