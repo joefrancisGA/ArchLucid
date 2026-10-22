@@ -91,8 +91,9 @@ describe("decodeOAuthErrorDescription", () => {
     expect(decodeOAuthErrorDescription("Scope%20mismatch")).toBe("Scope mismatch");
   });
 
-  it("decodes percent-encoded plus signs in authorize error descriptions", () => {
+  it("decodes percent-encoded plus in authorize error descriptions", () => {
     expect(decodeOAuthErrorDescription("Policy%2Bdenied")).toBe("Policy denied");
+    expect(decodeOAuthErrorDescription("Policy%252Bdenied")).toBe("Policy denied");
   });
 
   it("decodes doubly percent-encoded authorize error descriptions", () => {
