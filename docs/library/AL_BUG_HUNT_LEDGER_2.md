@@ -11261,6 +11261,14 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: application-tenancy-lifecycle
 
+2026-10-22 seed hunt (seed-only): cheap-disproof closed five narrative `(candidate)` rows (LinkEntra lowercase active conflict, TrialLimitGate deleted casing, usage snapshot with null `TrialStatus`, org-name Unicode normalization, migration verification stage/offboard race); no hunt-ready promotion (`other` / `state-machine-gap` saturated); added five new `(candidate)` rows under **Hypotheses**.
+
+- [x] (invalid) `TenantTrialFacade.LinkEntraAsync` — conflict message when status is lowercase `active` vs converted — **cheap-disproof 2026-10-22:** `EqualsStatus` guard; regression `LinkEntraAsync_when_trial_status_is_lowercase_active_returns_conflict`.
+- [x] (invalid) `TrialLimitGate.GuardWriteAsync` — `Deleted` status comparison without `EqualsStatus` — **cheap-disproof 2026-10-22:** line 46 uses `EqualsStatus`; #1249 lifecycle casing parity shipped earlier.
+- [x] (valid-no-repro) `TenantUsageStatusService.BuildAsync` — trial seat counts when `TrialStatus` null but limits set — **cheap-disproof 2026-10-22:** bootstrap/provision commits status with limits; null status is commercial/legacy rows where trial metering is intentionally absent.
+- [x] (valid-no-repro) `TenantOrganizationDuplicateDetector.NormalizeOrganizationName` — Unicode normalization vs SQL upper invariant — **cheap-disproof 2026-10-22:** duplicate detection aligns with SQL Server case-insensitive collation on organization name; NFC/NFKD bypass is a schema/policy change, not an application-tenancy-lifecycle defect in this zone.
+- [x] (valid-no-repro) `TenantCatalogMigrationOrchestrator.RunVerificationAsync` — stage advance before offboard re-read — **cheap-disproof 2026-10-22:** post-`UpdateStageAsync` and pre-probe `OffboardedUtc` re-reads return `InErasureQuarantine`; intentional retry semantics for failed verification (#1859).
+
 2026-10-22 seed hunt (seed→hit): promoted `TenantTrialFacade.GetTrialStatusAsync` returning raw padded/lowercase `TrialStatus` in DTO while lifecycle math uses `EqualsStatus`; canonical label via `FormatTrialStatusForDisplay`; regression `GetTrialStatusAsync_returns_canonical_active_label_when_status_is_padded_or_lowercase`; cheap-disproof closed five open `(candidate)` rows.
 
 - [x] (proven) `TenantTrialFacade.BuildStatusResponse` — non-canonical `TrialStatus` echoed to clients — **hit 2026-10-22 seed hunt:** `FormatTrialStatusForDisplay`; regression `GetTrialStatusAsync_returns_canonical_active_label_when_status_is_padded_or_lowercase`.
@@ -11269,12 +11277,6 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (valid-no-repro) `TenantSlugNormalizer.FromName` — hyphen dedupe for `A--B` — **cheap-disproof 2026-10-22:** `FromName_produces_expected_slug` / deterministic normalization; not a duplicate-org bypass.
 - [x] (valid-no-repro) `TenantProvisioningService.ProvisionAsync` — truncated slug collision — **cheap-disproof 2026-10-22:** unique slug constraint + `IsDuplicateOrganization` race replay path.
 - [x] (invalid) `PostAuthWorkspaceBootstrapService.HasActiveOwnedTrialAsync` — membership role casing — **cheap-disproof 2026-10-22:** workspace memberships persist canonical `ArchLucidRoles` constants from invitation/bootstrap writers only.
-
-- [ ] (candidate) `TenantTrialFacade.LinkEntraAsync` — conflict message when status is lowercase `active` vs converted — locus: pre-convert guard ~128–136; input: directory bind attempt on import row storing `active` (reachability: identity handoff API).
-- [ ] (candidate) `TrialLimitGate.GuardWriteAsync` — `Deleted` status comparison without `EqualsStatus` on all branches — locus: `TrialLifecycleStatus.Deleted` check ~46; input: lowercase `deleted` trial row (reachability: mutating API on terminal lifecycle).
-- [ ] (candidate) `TenantUsageStatusService.BuildAsync` — trial seat counts when `TrialStatus` null but limits set — locus: usage snapshot assembly; input: partially provisioned tenant row (reachability: packaging limit evaluator).
-- [ ] (candidate) `TenantOrganizationDuplicateDetector.NormalizeOrganizationName` — Unicode normalization vs SQL upper invariant — locus: `ToUpperInvariant` only; input: organization names differing only by composite Unicode forms (reachability: self-service duplicate hint).
-- [ ] (candidate) `TenantCatalogMigrationOrchestrator.RunVerificationAsync` — stage advance before suspend re-read — locus: `UpdateStageAsync` ~38–40; input: concurrent offboard between stage bump and probe (reachability: migration verification command).
 
 2026-10-22 seed hunt (seed→hit): promoted post-auth `HasActiveOwnedTrialAsync` case-sensitive `TrialStatus` check — lowercase/padded `active` rows bypassed `active_trial` packaging guard while `TrialLifecycleStatus.EqualsStatus` is used elsewhere; regression `CreateWorkspaceAsync_denies_when_owned_trial_active_status_differs_only_by_casing`; cheap-disproof closed five open `(candidate)` rows.
 
@@ -11372,7 +11374,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 141
+- **hunts:** 142
 - **bugs-found:** 120
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-22
@@ -11409,10 +11411,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 120
+- **hunts:** 121
 - **bugs-found:** 105
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-13
+- **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-13 — Trial conversion mark on quarantined tenant after conversion metrics
 
 2026-10-13 seed hunt (seed→hit): reseeded trial conversion post-metrics mark window; proved `MarkTrialConvertedAsync` when offboard followed conversion metrics; pre-mark tenant re-read; regression `ConvertTrialAsync_returns_success_without_mark_when_offboard_completes_after_conversion_metrics_before_mark`; 227 scoped tenancy tests passed.
@@ -11788,6 +11790,12 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 2026-10-03 thorough hunt (dry): cheap-disproved both candidate rows: Dapper unsuspend updates do not return a transition miss for an already-unsuspended tenant because the SQL lacks a `SuspendedUtc IS NOT NULL` predicate; concurrent catalog migration inserts are protected by the production filtered unique index `UX_TenantCatalogMigrations_Tenant_Active`. 128 focused tenancy tests passed; no failing repro.
 
 ### Hypotheses
+
+- [ ] (candidate) `TenantUsageStatusService.BuildAsync` — calendar-expired `Active` trial still reports `IsTrial=true` before scheduler advances status — locus: `isTrial` ~30; input: past `TrialExpiresUtc` with `Active`; reachability: tenant usage status API / packaging evaluator.
+- [ ] (candidate) `CommercialPackagingTierResolver.ResolveCommercialTierLabel` — `Expired` lifecycle tenants infer Team/Professional from trial seat/workspace counts — locus: no post-active freeze ~25; input: `Expired` + high `TrialSeatsUsed`; reachability: `TenantUsageStatusService.BuildAsync`.
+- [ ] (candidate) `TrialLifecyclePolicy.ComputeDaysRemainingForStatusDisplay` — unrecognized `TrialStatus` literals still emit active-window countdown — locus: `ResolveStatusDeadline` default ~78; input: legacy label + `TrialExpiresUtc`; reachability: `GET /v1/tenant/trial-status`.
+- [ ] (candidate) `WorkspacePackagingLimitEvaluator.EvaluateAdditionalWorkspaceForTenantAsync` — null usage snapshot allows additional workspace — locus: `snapshot is null` ~50; input: tenant row missing at read time; reachability: additional-workspace packaging check.
+- [ ] (candidate) `TrialLimitGate.GuardDeleteAsync` — lowercase `deleted` lifecycle label skips delete freeze — locus: `GuardDeleteAsync` ~90–92; input: `TrialStatus=deleted`; reachability: HTTP DELETE on terminal lifecycle (parity with `GuardWriteAsync` deleted branch).
 
 - [x] (invalid) Suspend leaves mutating API paths active for the tenant — retired: `TenantSuspendCommandService` persists suspend state; mutating-path enforcement lives in API middleware/filters outside this folder
 - [x] (invalid) Migration copies rows without rewriting tenant id on child tables — retired: `TenantCatalogMigrationOrchestrator` coordinates suspend/projection refresh/verification; no catalog row-copy logic in `ArchLucid.Application/Tenancy/`
