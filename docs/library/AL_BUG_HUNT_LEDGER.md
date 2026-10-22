@@ -1,3 +1,15 @@
+2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed invalid_password authorize-query UX (existing parity) and saturated readOAuthJsonErrorDescription ZWNJ glue; regression documents BFF refresh 472 parity and variation-selector-11-only access_token rejection; scoped vitest 642/642.
+
+- [x] (invalid) humanizeAuthorizeCallbackError - invalid_password authorize-query copy - **cheap-disproof 2026-10-22:** existing readable default-branch UX parity test.
+- [x] (valid-no-repro) refreshBffSessionCookie - refresh 472 shouldClearSession false - **regression 2026-10-22:** transient refresh soft-fail without cookie clear.
+- [x] (valid-no-repro) exchangeAuthorizationCode - access_token JSON string variation-selector-11-only skips authorize retry marker - **regression 2026-10-22:** variation-selector strip parity (U+FE0A).
+- [x] (invalid) readOAuthJsonErrorDescription - multiply-encoded %252B with ZWNJ glue - **cheap-disproof 2026-10-22:** saturated JSON encoding class.
+
+- [ ] (candidate) humanizeAuthorizeCallbackError - invalid_username authorize-query copy - locus: default branch UX.
+- [ ] (candidate) refreshBffSessionCookie - refresh 473 shouldClearSession false - locus: transient refresh parity.
+- [ ] (candidate) exchangeAuthorizationCode - access_token JSON string variation-selector-10-only skips authorize retry marker - locus: literal whitespace token shape.
+- [ ] (candidate) decodeOAuthErrorDescription - multiply-encoded %252B with ZWNJ glue - locus: saturated encoding class.
+
 2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed invalid_credentials authorize-query UX (existing parity) and saturated decodeOAuthErrorDescription narrow-no-break-space glue; regression documents BFF refresh 471 parity and variation-selector-12-only access_token rejection; scoped vitest 640/640.
 
 - [x] (invalid) humanizeAuthorizeCallbackError - invalid_credentials authorize-query copy - **cheap-disproof 2026-10-22:** existing readable default-branch UX parity test.
@@ -47,30 +59,6 @@
 - [ ] (candidate) decodeOAuthErrorDescription - multiply-encoded %252B with thin-space glue - locus: saturated encoding class.
 
 2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed session_expired authorize-query UX (existing parity), variation-selector-16-only access_token (U+FE0F parity), BFF refresh 467 parity, and saturated decodeOAuthErrorDescription hair-space glue; scoped vitest 632/632.
-2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed invalid_grant authorize-query UX (existing parity), BFF refresh 468 parity (client + route opaque 468), figure-space-only access_token exchange (existing parity), and saturated decodeOAuthErrorDescription figure-space multiply-encoded glue; scoped vitest 706/706.
-
-- [x] (invalid) humanizeAuthorizeCallbackError - invalid_grant authorize-query copy - **cheap-disproof 2026-10-22:** existing readable default-branch UX parity test.
-- [x] (valid-no-repro) refreshBffSessionCookie - refresh 468 shouldClearSession false - **regression 2026-10-22:** client soft-fail plus BFF route opaque 468 without cookie clear.
-- [x] (invalid) exchangeAuthorizationCode - access_token JSON string figure-space-only skips authorize retry marker - **cheap-disproof 2026-10-22:** existing token-client regression.
-- [x] (invalid) decodeOAuthErrorDescription - multiply-encoded %252B with figure-space glue - **cheap-disproof 2026-10-22:** saturated encoding class.
-
-- [ ] (candidate) humanizeAuthorizeCallbackError - invalid_grant_challenge authorize-query copy - locus: default branch UX.
-- [ ] (candidate) refreshBffSessionCookie - refresh 469 shouldClearSession false - locus: transient refresh parity.
-- [ ] (candidate) exchangeAuthorizationCode - access_token JSON string ogham-space-only skips authorize retry marker - locus: literal whitespace token shape.
-- [ ] (candidate) readOAuthJsonErrorDescription - multiply-encoded %252B with figure-space glue - locus: saturated JSON encoding class.
-2026-10-22 seed hunt (seed->hit): `application-tenancy-lifecycle` - promoted hunt-ready from seed re-read `TenantProvisioningService.ProvisionAsync` - tenant provisioned audit appended after `tenantBeforeProvisionedAudit` without a final re-read, so erasure offboard between that read and audit could emit `TenantProvisioned` for quarantined tenants after policy packs and nav settings; pre-append `GetByIdAsync` quarantine guard (`tenantBeforeProvisionedAuditAppend`); regression `ProvisionAsync_returns_without_platform_audit_when_offboard_completes_after_tenant_before_provisioned_audit_read_before_audit`; scoped tenancy filter 278/278.
-
-- [x] (proven) `ProvisionAsync` - offboard after tenantBeforeProvisionedAudit read before provisioned audit - **hit 2026-10-22 seed hunt:** `tenantBeforeProvisionedAuditAppend` re-read + quarantine guard; regression above.
-- [x] (valid-no-repro) `ProvisionAsync` - offboard after nav settings before marketing persist - **cheap-disproof 2026-10-22:** existing five-read regression on trunk.
-- [x] (valid-no-repro) `ProvisionAsync` - offboard after workspace insert before policy seed - **cheap-disproof 2026-10-22:** existing three-read regression on trunk.
-- [x] (valid-no-repro) `LinkEntraAsync` - offboard after tenantBeforeIdentityAudit read - **cheap-disproof 2026-10-22:** hit earlier same day on trunk.
-
-- [ ] (candidate) `TrialLifecycleTransitionEngine` - offboard between audit and expiration metric - locus: post-audit superseded read (reachability: saturated).
-- [ ] (candidate) `TenantProvisioningService` - offboard after tenantBeforeProvisionAudit read before policy seed - locus: earlier provision checkpoint (reachability: provision path).
-- [ ] (candidate) `TenantErasureCommandService` - consolidate pre-append audit re-read helpers - locus: refactor batch (not hunt-ready defect).
-- [ ] (candidate) `DeleteTenantAsync` - further pre-append read stacking - locus: defer to helper refactor (reachability: low).
-
-2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed session_expired authorize-query UX (existing parity), BFF refresh 467 parity (client + route opaque 467), and saturated decodeOAuthErrorDescription hair-space multiply-encoded glue; regression documents authorize-retry is marked when authorization code exchange returns variation-selector-16-only or ogham-space-only access_token; scoped vitest 703/703.
 
 - [x] (invalid) humanizeAuthorizeCallbackError - session_expired authorize-query copy - **cheap-disproof 2026-10-22:** existing readable default-branch UX parity test.
 - [x] (valid-no-repro) refreshBffSessionCookie - refresh 467 shouldClearSession false - **regression 2026-10-22:** transient refresh soft-fail without cookie clear.
