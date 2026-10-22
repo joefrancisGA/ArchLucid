@@ -122,6 +122,11 @@ function collapseAccidentalLatinZwnjGlue(text: string): string {
 
 const MAX_OAUTH_PERCENT_DECODE_PASSES = 3;
 
+/** True when the string carries OAuth-style percent-encoded plus (`%2B`, including multiply-encoded `%252B`). */
+function includesPercentEncodedPlus(value: string): boolean {
+  return /%(?:25)*2[bB]/i.test(value);
+}
+
 /** Some IdPs over-encode `error_description` (proxy chains); decode until stable, capped, without breaking literal `%` copy. */
 function decodeRepeatedPercentEncoding(value: string): string {
   let current = value;
@@ -141,15 +146,6 @@ function decodeRepeatedPercentEncoding(value: string): string {
   }
 
   return current;
-}
-
-/** When IdPs percent-encode `+` in token JSON, collapse decoded plus without treating literal `+` as space. */
-function collapseDecodedPlusFromPercentEncoding(source: string, decoded: string): string {
-  if (!decoded.includes("+") || decoded === source || !source.includes("%")) {
-    return decoded;
-  }
-
-  return decoded.replace(/\+/g, " ");
 }
 
 export function collapseOAuthErrorDescriptionLineBreaks(text: string): string {
@@ -206,7 +202,7 @@ export function decodeOAuthErrorDescription(encoded: string | null | undefined):
 /**
  * RFC 6749 token JSON carries plain-text `error_description` (not query encoding).
  * Tolerate mistaken %-escapes from some IdPs; on decode failure keep the raw string.
- * Does not treat literal `+` as space; when the JSON still carries `%2B` escapes, decode then collapse plus.
+ * Does not treat literal `+` as space; mistaken `%2B` escapes in JSON are collapsed after decode.
  */
 export function readOAuthJsonErrorDescription(value: string): string {
   const collapsed = collapseOAuthErrorDescriptionLineBreaks(value.trim());
@@ -215,14 +211,17 @@ export function readOAuthJsonErrorDescription(value: string): string {
     return "";
   }
 
+  const percentEncodedPlus = includesPercentEncodedPlus(collapsed);
   let decoded: string;
 
   try {
-    const percentDecoded = decodeRepeatedPercentEncoding(collapsed);
+    decoded = decodeRepeatedPercentEncoding(collapsed);
 
-    decoded = collapseOAuthErrorDescriptionLineBreaks(
-      collapseDecodedPlusFromPercentEncoding(collapsed, percentDecoded),
-    );
+    if (percentEncodedPlus) {
+      decoded = decoded.replace(/\+/g, " ");
+    }
+
+    decoded = collapseOAuthErrorDescriptionLineBreaks(decoded);
   } catch {
     decoded = collapsed;
   }
