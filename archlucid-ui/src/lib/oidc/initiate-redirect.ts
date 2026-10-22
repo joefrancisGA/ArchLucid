@@ -22,6 +22,7 @@ import {
   consumeAuthorizeCallbackFailedRetry,
   hasAuthorizeCallbackFailedRetry,
   markAuthorizeCallbackFailed,
+  readAuthorizeRetryReturnPathSnapshot,
   readPkceState,
   readPostSignInReturnUrl,
   storePkceState,
@@ -66,6 +67,14 @@ function preparePostSignInReturnUrlForSignInStart(): void {
   }
 
   if (readPostSignInReturnUrl() !== null) {
+    return;
+  }
+
+  const retryReturnPath = readAuthorizeRetryReturnPathSnapshot();
+
+  if (retryReturnPath !== null) {
+    storePostSignInReturnUrl(retryReturnPath);
+
     return;
   }
 

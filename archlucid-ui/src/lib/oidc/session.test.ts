@@ -22,6 +22,7 @@ import {
   OIDC_EXPIRES_AT_MS_KEY,
   OIDC_ID_TOKEN_KEY,
   OIDC_AUTHORIZE_CALLBACK_FAILED_KEY,
+  OIDC_AUTHORIZE_RETRY_RETURN_PATH_KEY,
   OIDC_POST_SIGN_IN_RETURN_URL_KEY,
   OIDC_REFRESH_TOKEN_KEY,
   OIDC_USER_SUBJECT_KEY,
@@ -134,6 +135,13 @@ describe("storePostSignInReturnUrl / consumePostSignInReturnUrl", () => {
     expect(consumePostSignInReturnUrl()).toBeNull();
     expect(sessionStorage.getItem(OIDC_POST_SIGN_IN_RETURN_URL_KEY)).toBeNull();
     expect(sessionStorage.getItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY)).toBe("1");
+  });
+
+  it("captures safe post-sign-in return path when authorize callback retry is marked", () => {
+    storePostSignInReturnUrl("/architecture/reviews/run-snapshot");
+    markAuthorizeCallbackFailed();
+
+    expect(sessionStorage.getItem(OIDC_AUTHORIZE_RETRY_RETURN_PATH_KEY)).toBe("/architecture/reviews/run-snapshot");
   });
 });
 

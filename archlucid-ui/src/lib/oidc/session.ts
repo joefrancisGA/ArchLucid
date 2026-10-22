@@ -17,6 +17,7 @@ import {
   OIDC_NONCE_KEY,
   OIDC_OAUTH_STATE_KEY,
   OIDC_AUTHORIZE_CALLBACK_FAILED_KEY,
+  OIDC_AUTHORIZE_RETRY_RETURN_PATH_KEY,
   OIDC_POST_SIGN_IN_RETURN_URL_KEY,
   OIDC_REFRESH_TOKEN_KEY,
   OIDC_USER_SUBJECT_KEY,
@@ -425,6 +426,42 @@ export function readPostSignInReturnUrl(): string | null {
 export function clearPostSignInReturnUrl(): void {
   sessionStorage.removeItem(OIDC_POST_SIGN_IN_RETURN_URL_KEY);
   sessionStorage.removeItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY);
+  sessionStorage.removeItem(OIDC_AUTHORIZE_RETRY_RETURN_PATH_KEY);
+}
+
+function snapshotAuthorizeRetryReturnPath(): void {
+  const url = readSessionKey(OIDC_POST_SIGN_IN_RETURN_URL_KEY);
+
+  if (url === null) {
+    return;
+  }
+
+  const normalized = normalizeOidcConfigurationString(url);
+
+  if (!isSafeReturnPath(normalized)) {
+    return;
+  }
+
+  sessionStorage.setItem(OIDC_AUTHORIZE_RETRY_RETURN_PATH_KEY, normalized);
+}
+
+/** Reads the safe return path captured when authorize callback retry was marked. */
+export function readAuthorizeRetryReturnPathSnapshot(): string | null {
+  const url = readSessionKey(OIDC_AUTHORIZE_RETRY_RETURN_PATH_KEY);
+
+  if (url === null) {
+    return null;
+  }
+
+  const normalized = normalizeOidcConfigurationString(url);
+
+  if (!isSafeReturnPath(normalized)) {
+    sessionStorage.removeItem(OIDC_AUTHORIZE_RETRY_RETURN_PATH_KEY);
+
+    return null;
+  }
+
+  return normalized;
 }
 
 /** Marks that the authorize callback returned an OAuth error so a retry keeps the stored return URL. */
@@ -433,6 +470,7 @@ export function markAuthorizeCallbackFailed(): void {
     return;
   }
 
+  snapshotAuthorizeRetryReturnPath();
   sessionStorage.setItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY, "1");
 }
 
@@ -456,6 +494,7 @@ export function consumeAuthorizeCallbackFailedRetry(): boolean {
   const pending = sessionStorage.getItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY) === "1";
 
   sessionStorage.removeItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY);
+  sessionStorage.removeItem(OIDC_AUTHORIZE_RETRY_RETURN_PATH_KEY);
 
   return pending;
 }
@@ -471,6 +510,7 @@ export function consumePostSignInReturnUrl(): string | null {
 
   if (url === null) {
     sessionStorage.removeItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY);
+    sessionStorage.removeItem(OIDC_AUTHORIZE_RETRY_RETURN_PATH_KEY);
 
     return null;
   }
@@ -482,6 +522,7 @@ export function consumePostSignInReturnUrl(): string | null {
   }
 
   sessionStorage.removeItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY);
+  sessionStorage.removeItem(OIDC_AUTHORIZE_RETRY_RETURN_PATH_KEY);
 
   return normalized;
 }
