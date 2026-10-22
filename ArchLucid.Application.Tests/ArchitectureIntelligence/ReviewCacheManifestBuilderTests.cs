@@ -2668,6 +2668,160 @@ public sealed class ReviewCacheManifestBuilderTests
     }
 
     [Fact]
+    public void Build_matches_content_hash_when_baseline_element_description_differs_only_by_casing()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "run-model-element-description-casing";
+
+        ArchitectureKnowledgeModel lower = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements =
+            [
+                new ArchitectureModelElement { ElementId = "el-1", Name = "API", Description = "public http api" },
+            ],
+        };
+
+        ArchitectureKnowledgeModel upper = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements =
+            [
+                new ArchitectureModelElement { ElementId = "el-1", Name = "API", Description = "Public HTTP API" },
+            ],
+        };
+
+        ReviewCacheManifestBuilder.Build(request, lower).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(request, upper).ContentHash);
+    }
+
+    [Fact]
+    public void Build_matches_content_hash_when_baseline_element_property_value_differs_only_by_casing()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "run-model-property-value-casing";
+
+        ArchitectureKnowledgeModel lower = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "el-1",
+                    Name = "API",
+                    Properties = new Dictionary<string, string> { ["env"] = "production" },
+                },
+            ],
+        };
+
+        ArchitectureKnowledgeModel upper = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "el-1",
+                    Name = "API",
+                    Properties = new Dictionary<string, string> { ["env"] = "Production" },
+                },
+            ],
+        };
+
+        ReviewCacheManifestBuilder.Build(request, lower).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(request, upper).ContentHash);
+    }
+
+    [Fact]
+    public void Build_matches_content_hash_when_baseline_element_property_key_differs_only_by_casing()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "run-model-property-key-casing";
+
+        ArchitectureKnowledgeModel lower = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "el-1",
+                    Name = "API",
+                    Properties = new Dictionary<string, string> { ["environment"] = "prod" },
+                },
+            ],
+        };
+
+        ArchitectureKnowledgeModel upper = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "el-1",
+                    Name = "API",
+                    Properties = new Dictionary<string, string> { ["Environment"] = "prod" },
+                },
+            ],
+        };
+
+        ReviewCacheManifestBuilder.Build(request, lower).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(request, upper).ContentHash);
+    }
+
+    [Fact]
+    public void Build_matches_content_hash_when_baseline_element_provenance_notes_differs_only_by_casing()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "run-model-provenance-notes-casing";
+
+        ArchitectureKnowledgeModel lower = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "el-1",
+                    Name = "API",
+                    Provenance = new ClaimProvenance { Notes = "cited from runbook" },
+                },
+            ],
+        };
+
+        ArchitectureKnowledgeModel upper = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "el-1",
+                    Name = "API",
+                    Provenance = new ClaimProvenance { Notes = "Cited From Runbook" },
+                },
+            ],
+        };
+
+        ReviewCacheManifestBuilder.Build(request, lower).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(request, upper).ContentHash);
+    }
+
+    [Fact]
     public void Build_matches_content_hash_when_source_content_differs_only_by_consecutive_spaces()
     {
         ClosedLoopReasoningRequest single = CreateRequest("Claims intake for architects.");

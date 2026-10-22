@@ -133,10 +133,10 @@ public static class GraphSnapshotCanonicalFingerprint
             return string.Empty;
 
         IEnumerable<string> parts = knowledgeModel.DeclaredPriorities
-            .Select(static priority => NormalizeFingerprintText(priority))
+            .Select(static priority => NormalizeLabelForFingerprint(priority))
             .Where(static priority => priority.Length > 0)
-            .GroupBy(static priority => priority, StringComparer.OrdinalIgnoreCase)
-            .OrderBy(static group => group.Key, StringComparer.OrdinalIgnoreCase)
+            .GroupBy(static priority => priority, StringComparer.Ordinal)
+            .OrderBy(static group => group.Key, StringComparer.Ordinal)
             .Select(static group => group.OrderBy(static priority => priority, StringComparer.Ordinal).First());
 
         return string.Join(",", parts);
@@ -223,11 +223,11 @@ public static class GraphSnapshotCanonicalFingerprint
 
         IEnumerable<string> propertyParts = (element.Properties ?? [])
             .Select(static pair => (
-                Key: NormalizeFingerprintText(pair.Key),
-                Value: NormalizeFingerprintText(pair.Value)))
+                Key: NormalizeLabelForFingerprint(pair.Key),
+                Value: NormalizeLabelForFingerprint(pair.Value)))
             .Where(static pair => pair.Key.Length > 0)
-            .GroupBy(static pair => pair.Key, StringComparer.OrdinalIgnoreCase)
-            .OrderBy(static group => group.Key, StringComparer.OrdinalIgnoreCase)
+            .GroupBy(static pair => pair.Key, StringComparer.Ordinal)
+            .OrderBy(static group => group.Key, StringComparer.Ordinal)
             .Select(static group => group.OrderBy(static pair => pair.Value, StringComparer.Ordinal).First())
             .Select(static pair => $"{pair.Key}={pair.Value}");
 
@@ -269,7 +269,7 @@ public static class GraphSnapshotCanonicalFingerprint
                 NormalizeElementIdForFingerprint(provenance.PassageLocator.ArtifactId),
                 provenance.PassageLocator.StartOffset?.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? string.Empty,
                 provenance.PassageLocator.EndOffset?.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? string.Empty,
-                NormalizeFingerprintText(provenance.PassageLocator.Quote));
+                NormalizeLabelForFingerprint(provenance.PassageLocator.Quote));
 
         return string.Join(
             ":",
@@ -277,7 +277,7 @@ public static class GraphSnapshotCanonicalFingerprint
             provenance.SupportStatus.ToString(),
             provenance.Confidence.ToString(System.Globalization.CultureInfo.InvariantCulture),
             NormalizeElementIdForFingerprint(provenance.SourceArtifactId),
-            NormalizeFingerprintText(provenance.Notes),
+            NormalizeLabelForFingerprint(provenance.Notes),
             locator);
     }
 }
