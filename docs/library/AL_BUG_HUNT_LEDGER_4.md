@@ -12470,7 +12470,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 261
+- **hunts:** 262
 - **bugs-found:** 179
 - **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-22 — fully empty overlay merge returned base graph without warning normalization
@@ -12813,7 +12813,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - [x] (proven) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — whitespace-only overlay property values persisted on merged edges — **hit 2026-10-22 seed hunt (seed→hit):** skip whitespace-only values; regression above.
 
-- [ ] (candidate) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — whitespace-only overlay property values may persist on appended inventory nodes — locus: `NormalizeOverlayPropertyBag` value branch; input: overlay node with well-formed key and whitespace-only value; wrong outcome: merged node retains empty or padding-only property values.
+2026-10-22 seed hunt (valid-no-repro): promoted `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` whitespace-only overlay node property value candidate; proved hunt 261 value skip in `NormalizeOverlayPropertyBag` already applies to `NormalizeOverlayNode` append path; regression `Merge_skips_whitespace_only_overlay_property_values_when_appending_inventory_node`; seeded `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` appended inventory overlay nodes with null `Properties` may throw follow-on; 555 KnowledgeGraph + 170 Provenance scoped tests passed.
+
+- [x] (valid-no-repro) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — whitespace-only overlay node property values persisted — **cheap-disproof 2026-10-22 seed hunt:** shared value skip from hunt 261; regression above.
+
+- [ ] (candidate) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — appended inventory overlay nodes with null `Properties` may throw — locus: `NormalizeOverlayNode` null property bag branch; input: overlay topology node with `Properties = null`; wrong outcome: `NullReferenceException` during merge append.
 
 2026-10-22 seed hunt (seed→hit): promoted `StructuredDiagramGraphMerger` padded diagram property-key coalesce candidate; proved duplicate node/edge metadata coalesce indexed raw `property.Key`, so a later compile with surrounding-whitespace keys left parallel bag entries and `GraphNodePropertyReader` could return stale source-evidence values; trim keys before skip/coalesce (parity with `GraphNodeFactory.NormalizePropertyBag`); regression `Merge_coalesces_node_properties_when_incoming_property_keys_differ_only_by_surrounding_whitespace`; seeded diagram edge metadata padded-key coalesce regression follow-on; 468 KnowledgeGraph + 170 Provenance scoped tests passed.
 
