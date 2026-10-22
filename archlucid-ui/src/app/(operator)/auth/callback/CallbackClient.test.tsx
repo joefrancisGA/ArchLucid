@@ -57,7 +57,7 @@ import { CallbackClient } from "@/app/(operator)/auth/callback/CallbackClient";
 import { AUTH_CALLBACK_ACCESS_HEADING } from "@/lib/auth/access-request-copy";
 import { AUTH_CALLBACK_PAGE_TITLE } from "@/lib/auth/auth-callback-page-copy";
 import { loadDiscoveryDocument } from "@/lib/oidc/discovery";
-import { getGoogleOidcClientId } from "@/lib/oidc/config";
+import { assertOidcSignInConfig, getGoogleOidcClientId } from "@/lib/oidc/config";
 import { consumePkceState, markAuthorizeCallbackFailed } from "@/lib/oidc/session";
 import { exchangeAuthorizationCode } from "@/lib/oidc/token-client";
 
@@ -147,6 +147,27 @@ describe("CallbackClient", () => {
     });
 
     expect(markAuthorizeCallbackFailed).not.toHaveBeenCalled();
+  });
+
+  it("marks authorize callback failed when sign-in config is invalid but the IdP returned an authorization code", async () => {
+    vi.mocked(assertOidcSignInConfig).mockReturnValueOnce({
+      ok: false,
+      message: "OIDC is not configured.",
+    });
+
+    searchParamsMock.value = new URLSearchParams({
+      code: "auth-code",
+      state: "state-value",
+    });
+
+    render(<CallbackClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("auth-callback-access-panel")).toBeInTheDocument();
+    });
+
+    expect(markAuthorizeCallbackFailed).toHaveBeenCalledTimes(1);
+    expect(consumePkceState).not.toHaveBeenCalled();
   });
 
   it("marks authorize callback failed when the IdP returns an OAuth error", async () => {

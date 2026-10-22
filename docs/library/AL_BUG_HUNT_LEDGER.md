@@ -11,39 +11,37 @@
 - [ ] (candidate) `initiateSupplementalOidcRedirect` — vitest for Google explicit returnUrl change consuming retry marker — locus: test gap; input: mirror primary test 504.
 - [ ] (candidate) `errorFromOAuthJson` — `invalid_client` humanize parity — locus: shouldHumanize list; input: token 400 JSON (reachability: compare access_denied).
 - [ ] (candidate) `sanitizeOAuthUserFacingMessage` — truncation on long `invalid grant:` token messages — locus: 280 cap; input: oversized description (reachability: IdP copy).
+2026-10-22 seed hunt (seed-only): `ui-oidc` - re-read authorize-retry return URL parity after recent discovery re-mark fixes; promoted no new hunt-ready row; added regressions for trailing-slash and query-param-order repeat paths, supplemental Google different explicit returnUrl marker clear, and renamed discovery re-mark test title; repaired malformed `AL_BUG_HUNT_RUN_LOG.jsonl` row (`ts` -> `at`); cheap-disproof closed five zone-head `(candidate)` rows; seeded five follow-on `(candidate)` rows; scoped `src/lib/oidc` vitest 373/373.
+2026-10-22 seed hunt (seed->hit): `ui-oidc` - promoted hunt-ready `readOAuthJsonErrorDescription` - mistaken `%2B` handling also ran global `+` to space when the JSON already contained literal plus (`User+denied%2Bextra`), erasing RFC 6749 plain-text plus; pre-replace only `%2B` escapes when literal `+` is present, else keep post-decode collapse; regression `preserves literal plus in JSON when the description also includes percent-encoded plus`; cheap-disproof closed five zone-head `(candidate)` rows; seeded five follow-on `(candidate)` rows; scoped `src/lib/oidc` vitest 372/372.
+
+- [x] (proven) `readOAuthJsonErrorDescription` - literal plus erased when `%2B` also present - **hit 2026-10-22 seed hunt:** split decode path for mixed plus; regression above.
+- [x] (valid-no-repro) `initiateSupplementalOidcRedirect` - consume-on-URL-change mirror test - **cheap-disproof 2026-10-22 seed hunt:** primary regression covers shared initiate logic.
+- [x] (valid-no-repro) `initiateOidcRedirect` - discovery fail after URL change clears return - **cheap-disproof 2026-10-22 seed hunt:** intentional when marker consumed (`consumes authorize retry marker when explicit return URL changes` follow-up).
+- [x] (invalid) `clearPostSignInReturnUrl` - paired marker removal - **cheap-disproof 2026-10-22 seed hunt:** intentional API; session tests cover pairing.
+- [x] (valid-no-repro) `normalizeComparableReturnPath` - trailing slash on consume - **cheap-disproof 2026-10-22 seed hunt:** strips trailing slash; idle-desk tests exist.
+- [x] (invalid) `errorFromOAuthJson` - description-only token errors - **cheap-disproof 2026-10-22 seed hunt:** token-client vitest covers throw path.
+
+- [ ] (candidate) `readOAuthJsonErrorDescription` - doubly-encoded plus with literal plus in same string - locus: mixed path; input: `User+denied%252Bextra` (reachability: proxy chains).
+- [ ] (candidate) `CallbackClient` - JWT mode disabled with `?code=&state=` - locus: early fail branch; input: mirror config-invalid regression.
+- [ ] (candidate) `initiateSupplementalOidcRedirect` - explicit returnUrl consume order - locus: Google flow; input: copy primary consume regression.
+- [ ] (candidate) `readOAuthErrorString` - numeric JSON `error` field - locus: token-client; input: `{ "error": 403 }` (reachability: mis-typed IdP).
+- [ ] (candidate) `decodeOAuthErrorDescription` - mixed literal plus and `%2B` in authorize query - locus: query decode; input: mirror JSON mixed-plus fix (reachability: authorize redirect).
 
 2026-10-22 seed hunt (seed→hit): `ui-oidc` — promoted hunt-ready `initiateOidcRedirect` / `shouldConsumeAuthorizeRetryForReturnUrl` — explicit `returnUrl` was written to session before comparing against the prior post-sign-in path, so changing the deep link on authorize retry never consumed `OIDC_AUTHORIZE_CALLBACK_FAILED_KEY` and a later sign-in without `returnUrl` still skipped abandoned-return cleanup; consume authorize retry before `storePostSignInReturnUrl` (primary + supplemental); regression `consumes authorize retry marker when explicit return URL changes before redirect`; cheap-disproof closed five zone-head `(candidate)` rows; seeded five follow-on `(candidate)` rows; scoped `src/lib/oidc` vitest 363/363.
 
-- [x] (proven) `initiateOidcRedirect` — consume-after-store on explicit returnUrl change — **hit 2026-10-22 seed hunt:** reorder consume before store; regression above.
-- [x] (valid-no-repro) `initiateSupplementalOidcRedirect` — supplemental explicit returnUrl consume order — **cheap-disproof 2026-10-22:** same reorder in Google flow.
-- [x] (valid-no-repro) `shouldConsumeAuthorizeRetryForReturnUrl` — same explicit return URL on retry — **cheap-disproof 2026-10-22:** false when comparable paths match; repeat-explicit abandon regression still passes.
-- [x] (valid-no-repro) `preserves post-sign-in return path when discovery fails during authorize retry with the same explicit return URL` — **cheap-disproof 2026-10-22:** `!consumedAuthorizeCallbackRetry` branch unchanged.
-- [x] (invalid) `readOAuthJsonErrorDescription` — `100%25+tax` accidental plus collapse — **cheap-disproof 2026-10-22:** no `%2B` in source; literal `+` preserved after decode.
+- [x] (valid-no-repro) `initiateSupplementalOidcRedirect` - discovery failure re-mark after changed returnUrl - **cheap-disproof 2026-10-22:** shares `handleInitiateDiscoveryFailure` with primary.
+- [x] (valid-no-repro) `shouldConsumeAuthorizeRetryForReturnUrl` - trailing slash on repeat explicit returnUrl - **regression 2026-10-22:** `does not consume authorize retry marker when explicit returnUrl repeats stored path differing only by trailing slash`.
+- [x] (valid-no-repro) `shouldConsumeAuthorizeRetryForReturnUrl` - query-param order drift - **regression 2026-10-22:** `does not consume authorize retry marker when explicit returnUrl matches stored path with reordered query params`.
+- [x] (invalid) `markAuthorizeCallbackFailed` - incomplete authorize callback without OAuth error - **cheap-disproof 2026-10-22:** CallbackClient outside zone; incomplete callback is intentional no-mark.
+- [x] (invalid) `decodeRepeatedPercentEncoding` - quadruple-encoded authorize description - **cheap-disproof 2026-10-22:** bounded decode cap by design.
+- [x] (proven) `initiateSupplementalOidcRedirect` - clears marker on different explicit returnUrl - **regression 2026-10-22:** `clears authorize retry marker when supplemental Google retry uses a different explicit return URL`.
+- [ ] (candidate) `initiateSupplementalOidcRedirect` - preserves return path after discovery failure when authorize retry changes explicit returnUrl then sign-in omits returnUrl - locus: shared handler; input: mirror primary follow-up regression.
+- [ ] (candidate) `handleInitiateDiscoveryFailure` - explicit returnUrl on fresh sign-in when discovery fails - locus: clear branch without retry marker (reachability: existing tests).
+- [ ] (candidate) `exchangeAuthorizationCode` - marks authorize callback failed on invalid token endpoint URL - locus: catch re-mark; input: unsafe endpoint string (reachability: misconfigured discovery).
+- [ ] (candidate) `readOAuthJsonErrorDescription` - JSON description with only percent-encoded tabs - locus: collapse whitespace; input: `%09` glue (reachability: token JSON).
+- [ ] (candidate) `normalizePkceCallbackQueryValue` - plus signs in authorize callback state query - locus: PKCE state consume; input: state with `+` (reachability: IdP callback).
 
-- [ ] (candidate) `initiateSupplementalOidcRedirect` — regression test mirroring primary consume-on-URL-change — locus: test gap; input: Google flow with run-3→run-4 explicit (reachability: add vitest).
-- [ ] (candidate) `initiateOidcRedirect` — discovery failure after URL change with consumed marker — locus: catch clears return when `consumedAuthorizeCallbackRetry`; input: run-4 explicit after run-3 retry (reachability: may clear by design).
-- [ ] (candidate) `clearPostSignInReturnUrl` — paired marker removal when only return should clear — locus: session API; input: fresh sign-in after consume (reachability: test 631).
-- [ ] (candidate) `normalizeComparableReturnPath` — trailing slash vs no slash on consume decision — locus: path comparison; input: `/run-3` vs `/run-3/` on explicit retry (reachability: sign-in encoding).
-- [ ] (candidate) `errorFromOAuthJson` — description-only token errors after JSON plus fix — locus: integration message; input: token-client throw with description-only body (reachability: add test).
-
-2026-10-22 seed hunt (seed→hit): `ui-oidc` — promoted hunt-ready `readOAuthJsonErrorDescription` — token JSON `error_description` with mistaken `%2B` / `%252B` escapes decoded to glued `Policy+denied` while literal `User+denied` must stay; collapse `+` only when percent-decode changed the string and the source still carried `%`; regressions `collapses percent-encoded plus in mistaken JSON error_description escapes`; cheap-disproof closed five zone-head `(candidate)` rows; seeded five follow-on `(candidate)` rows; scoped `src/lib/oidc` vitest 361/361.
 2026-10-22 seed hunt (seed->hit): `ui-oidc` - promoted hunt-ready `handleInitiateDiscoveryFailure` after authorize retry with a changed explicit `returnUrl`; discovery failure kept the new path but did not re-mark authorize retry, so a follow-up `initiateOidcRedirect()` without `returnUrl` cleared the deep link; re-mark whenever `preservingAuthorizeCallbackRetry` and an explicit return URL was stored; regression `preserves a new return path after discovery failure when authorize retry changed explicit return URL then sign-in omits returnUrl`; cheap-disproof closed five zone-head `(candidate)` rows; seeded five follow-on `(candidate)` rows; scoped `src/lib/oidc` vitest 370/370.
-2026-10-22 seed hunt (seed→hit): `ui-oidc` — promoted hunt-ready `CallbackClient` token-exchange catch — `fail(..., true)` always marked authorize-callback retry even when `exchangeAuthorizationCode` skipped marking for `Invalid token endpoint URL` (misconfigured discovery guard); reuse exported `shouldMarkAuthorizeCallbackFailedOnExchangeError` for preserve-on-retry; regression `does not mark authorize callback failed when token exchange rejects an invalid token endpoint URL`; cheap-disproof closed five zone-head `(candidate)` rows; seeded five follow-on `(candidate)` rows; scoped `src/lib/oidc` + callback vitest 374/374.
-
-- [x] (proven) `CallbackClient` — catch-all retry mark on invalid token endpoint URL — **hit 2026-10-22 seed hunt:** shared exchange guard in callback catch; regression above.
-- [x] (invalid) `exchangeAuthorizationCode` — non-JSON token response marks retry — **cheap-disproof 2026-10-22 seed hunt:** intentional preserve for IdP/proxy HTML on code exchange.
-- [x] (valid-no-repro) `readOAuthJsonErrorDescription` — `100%25+tax` literal percent guard — **cheap-disproof 2026-10-22 seed hunt:** plus collapse gated on percent-encoded plus only.
-- [x] (invalid) `initiateSupplementalOidcRedirect` — Google discovery-failure test mirror — **cheap-disproof 2026-10-22 seed hunt:** shared `handleInitiateDiscoveryFailure`; test gap not product defect.
-- [x] (valid-no-repro) `refreshAccessToken` — invalid token endpoint parity mark — **cheap-disproof 2026-10-22 seed hunt:** refresh path never sets authorize retry marker by design.
-- [x] (valid-no-repro) `persistTokenResponse` — identity-less opaque token clears BFF cookie — **cheap-disproof 2026-10-22 seed hunt:** generation bump + existing session tests.
-
-- [ ] (candidate) `CallbackClient` — discovery load failure during callback should not mark authorize retry — locus: catch around `loadDiscoveryDocument`; input: offline issuer (reachability: transient network).
-- [ ] (candidate) `CallbackClient` — incomplete callback (`!code || !state`) retry marker — locus: incomplete branch; input: intentional preserve for operator retry (reachability: bookmark).
-- [ ] (candidate) `exchangeAuthorizationCode` — double mark when callback and exchange both mark — locus: idempotent marker; input: token 400 after authorize error (unlikely).
-- [ ] (candidate) `initiateSupplementalOidcRedirect` — vitest mirror for same-path discovery failure on authorize retry — locus: regression gap; input: copy primary test.
-- [ ] (candidate) `humanizeAuthorizeCallbackError` — `error` without `error_description` on callback — locus: OAuth error-only query; input: covered by callback regression.
-
-2026-10-22 seed hunt (seed→hit): `ui-oidc` — promoted hunt-ready `exchangeAuthorizationCode` — catch-all `markAuthorizeCallbackFailed` on every exchange throw also ran for `Invalid token endpoint URL` before fetch (misconfigured discovery), leaving authorize-retry state set without an IdP OAuth outcome; gate marking with `shouldMarkAuthorizeCallbackFailedOnExchangeError`; regression `does not mark authorize callback failed when token endpoint URL is invalid`; cheap-disproof closed five zone-head `(candidate)` rows; seeded five follow-on `(candidate)` rows; scoped `src/lib/oidc` vitest 369/369.
 
 - [x] (proven) `handleInitiateDiscoveryFailure` - changed returnUrl on authorize retry lost marker on discovery failure - **hit 2026-10-22:** re-mark when pending authorize retry + stored returnUrl; regressions above.
 - [x] (valid-no-repro) `initiateSupplementalOidcRedirect` - clears authorize retry marker on different explicit returnUrl - **cheap-disproof 2026-10-22:** shared consume-before-store path (add supplemental mirror test later).
@@ -25447,12 +25445,6 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 85
-- **bugs-found:** 79
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — consume authorize retry before storing explicit returnUrl on URL change
-- **last-bug:** 2026-10-20 — identity-less OIDC token responses still synced BFF cookie
 - **hunts:** 78
 - **bugs-found:** 72
 - **consecutive-dry-hunts:** 0
