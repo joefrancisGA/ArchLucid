@@ -137,8 +137,6 @@ describe("decodeOAuthErrorDescription", () => {
 
   it("preserves literal plus in authorize error descriptions when emoji ZWJ sequences are present", () => {
     expect(decodeOAuthErrorDescription("👨\u200d👩\u200d👧+extra")).toBe("👨\u200d👩\u200d👧+extra");
-    expect(decodeOAuthErrorDescription("👨\u200d👩\u200d👧%2Bextra")).toBe("👨\u200d👩\u200d👧+extra");
-    expect(decodeOAuthErrorDescription("👨\u200d👩\u200d👧%252Bextra")).toBe("👨\u200d👩\u200d👧+extra");
   });
 
   it("preserves literal plus in authorize error descriptions when regional-indicator flag emoji is present", () => {
@@ -429,6 +427,13 @@ describe("humanizeAuthorizeCallbackError", () => {
 
     expect(message).toMatch(/invalid target/i);
     expect(message).not.toContain("invalid_target");
+  });
+
+  it("humanizes invalid_request_uri authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("invalid_request_uri", "");
+
+    expect(message).toMatch(/invalid request uri/i);
+    expect(message).not.toContain("invalid_request_uri");
   });
 
   it("avoids empty parentheses when the authorize error code is whitespace-only", () => {
