@@ -7803,11 +7803,32 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-agents
 
+2026-10-22 seed hunt (seed-only): re-read `ArchLucid.Application/Agents/` after provenance applicator hit; cheap-disproof on coordination (out-of-zone), promoter trim sibling, reasoning-only cost slices, selection provenance defaults; 129 scoped Application.Tests.Agents tests passed.
+
+- [x] (invalid) `ArchitectureRunAuthorityCoordination.PatchAuthorityRunHeaderAsync` — padded alias skipped registry `TryGet` before applicator — **cheap-disproof 2026-10-22 seed hunt:** locus is `Runs/Coordination/` (outside zone `paths`); applicator normalizes alias id when reached.
+
+- [x] (invalid) `EvidenceProposalPromoter.PromoteAsync` — padded `resultId` misses proposal lookup — **cheap-disproof 2026-10-22 seed hunt:** padded segment fails lookup; saturated defect class `other` — defer to shared route-id normalizer, not another one-off trim.
+
+- [x] (valid-no-repro) `AgentExecutionTraceRunLlmCostAggregator.Compute` — reasoning-only traces skip USD accumulation — **cheap-disproof 2026-10-22 seed hunt:** `Compute_ReasoningTokensOnlyTrace_StillAccumulatesCost` and related TB-196 regressions.
+
+- [x] (invalid) `ReviewRunEngineSelectionProvenanceBuilder.Build` — null `TaskEvaluations` on registry entry — **cheap-disproof 2026-10-22 seed hunt:** `AgentModelAliasRegistryEntry.TaskEvaluations` defaults to `[]`.
+
+- (candidate) `ProposedEvidencePayloadValidator.TryParseValid` — JSON `type` with surrounding ASCII spaces fails `IsSupportedType` while text fields validate — locus: `IsSupportedType`; input: `"type":" Policy"` in persisted `ProposedEvidenceJson`; wrong outcome: promotion rejects valid operator intent; reachability: manual/SQL catalog edits, not `AgentCuratedEvidenceProposer` path.
+- (candidate) `DefaultAgentExecutorResolver.Resolve` — padded known execution mode throws `Unknown execution mode` — locus: `KnownModes.Contains(executionMode)` without normalize; input: `" Current "`; reachability: cite replay/run-create source of `executionMode` before promoting.
+- (candidate) `AgentCuratedEvidenceProposer.NormalizeResponse` vs `ProposedEvidencePayloadValidator` — duplicate `IsSupportedType` helpers may diverge on edge `type` strings — locus: both private `IsSupportedType`; input: whitespace-padded type token from LLM JSON.
+- (candidate) `AgentCuratedEvidenceProposer` — enricher ordering vs structural post-process — engineering hardening; brief-grounded service drop before consensus.
+
+2026-10-22 seed hunt (seed→hit): promoted run engine provenance applicator alias trim; regression `TryApplyFromEffectiveAliasId_trims_surrounding_whitespace_on_alias_id`; 129 scoped Application.Tests.Agents tests passed.
+
+- [x] (proven) `RunEngineProvenanceApplicator.TryApplyFromEffectiveAliasId` — padded `effectiveModelAliasId` skipped alias registry lookup and left `EngineProvenanceJson` unset — **hit 2026-10-22 seed hunt:** trim before `TryGet`/`Build`; regression above. [class:state-machine-gap]
+
+- [x] (invalid) `AdminAgentModelCatalogController` — padded `taskType` route segment — **cheap-disproof 2026-10-22 seed hunt:** `AgentModelCatalogEvaluationRecorder` already `taskType.Trim()` before evaluation upsert.
+
 2026-10-22 seed hunt (seed→hit): promoted catalog evaluation recorder alias trim (admin record path); regression `RecordTaskEvaluationAsync_trims_surrounding_whitespace_on_alias_id`; 128 scoped Application.Tests.Agents tests passed.
 
 - [x] (proven) `AgentModelCatalogEvaluationRecorder.RecordTaskEvaluationAsync` — direct `POST …/evaluations/{taskType}/record` with padded route `aliasId` missed catalog row — **hit 2026-10-22 seed hunt:** normalize alias id at recorder entry (shared with harness import caller); regression above. [class:fail-open-validation]
 
-- (candidate) `AdminAgentModelCatalogController` — route `taskType` segment not trimmed before recorder — locus: controller vs recorder; input: padded task type path segment.
+- [x] (invalid) `AdminAgentModelCatalogController` — padded `taskType` route segment — **cheap-disproof 2026-10-22 seed hunt:** recorder trims `taskType` at entry.
 - (candidate) `AgentCuratedEvidenceProposer` — enricher ordering vs structural post-process — engineering hardening.
 - (candidate) `RunToolInvocationForensicsBuilder.BuildFromTraces` — first-row null duration — by design for single-trace runs.
 - (candidate) `ReviewRunEngineSelectionProvenanceBuilder.Build` — `TaskEvaluations` null on registry entry — defaults to empty list on `AgentModelAliasRegistryEntry`.
@@ -7883,11 +7904,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** application agents; agent handlers wiring
 - **paths:** ArchLucid.Application/Agents/
 - **test-filter:** FullyQualifiedName~Application.Tests.Agents
-- **hunts:** 52
-- **bugs-found:** 49
+- **hunts:** 54
+- **bugs-found:** 50
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — catalog evaluation recorder trims padded alias ids
+- **last-bug:** 2026-10-22 — run engine provenance applicator trims padded alias ids
 
 2026-09-27 seed hunt (seed→hit): proved `TopologyProposalConsensusMerger.Merge` threw when `RequiredControls` was null on topology dual-model proposals (`AgentProposalStructuralPostProcessor` does not initialize controls for `AgentType.Topology`); fixed by null-coalescing in control intersection and disagreement counts; regression `Merge_when_required_controls_is_null_does_not_throw`; 92 scoped Application.Tests.Agents tests passed.
 
