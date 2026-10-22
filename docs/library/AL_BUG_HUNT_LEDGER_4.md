@@ -12470,20 +12470,25 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 68
-- **bugs-found:** 59
+- **hunts:** 69
+- **bugs-found:** 60
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — manifest decision title omitted from provenance revision fingerprint
+- **last-bug:** 2026-10-22 — artifact display name omitted from provenance revision fingerprint
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-22 seed hunt (seed→hit): reseeded artifact fingerprint surface; proved `ComputeArtifactsFingerprint` keyed only artifact id, content hash, and contributing decisions, so renamed artifacts under stable `ArtifactId` and `ContentHash` left `ProvenanceGraphAccessService` serving stale artifact node names; include normalized name, artifact type, and format parity with `ProvenanceBuilder`; regression `Compute_changes_when_artifact_name_changes_but_artifact_id_and_content_hash_are_unchanged`; cheap-disproved manifest `SelectedOption`/`Rationale` drift (`ProvenanceBuilder` exposes only title and category on decision nodes) with `Compute_unchanged_when_only_manifest_decision_selected_option_changes`; closed edge-type candidate as already covered by graph fingerprint with `Compute_changes_when_graph_edge_type_changes_but_endpoints_are_unchanged`; seeded graph node type/category fingerprint follow-on; 379 KnowledgeGraph + 77 Provenance scoped tests passed.
+
+- [x] (proven) `ProvenanceSnapshotRevisionHasher.ComputeArtifactsFingerprint` — artifact `Name` changes did not change revision fingerprint when artifact id and content hash were unchanged — **hit 2026-10-22 seed hunt (seed→hit):** name, artifact type, and format in artifacts fingerprint; regression above.
+- [x] (invalid) `ProvenanceSnapshotRevisionHasher.ComputeManifestDecisionsFingerprint` — `SelectedOption` / `Rationale` changes under stable decision id and title — **cheap-disproof 2026-10-22 seed hunt:** not materialized on provenance decision nodes; regression above.
+- [x] (invalid) `ProvenanceSnapshotRevisionHasher.ComputeGraphFingerprint` — `EdgeType` changes under stable endpoints — **cheap-disproof 2026-10-22 seed hunt:** edge type already in graph fingerprint; regression above.
+
+- [ ] (candidate) `ProvenanceSnapshotRevisionHasher.ComputeGraphFingerprint` — graph node `NodeType` / `Category` changes may not change revision fingerprint when node id and label are unchanged — locus: node part of graph fingerprint; input: relabeled resource class under stable snapshot id; wrong outcome: stale provenance graph node metadata.
 
 2026-10-22 seed hunt (seed→hit): promoted manifest decision title candidate; proved `ComputeManifestDecisionsFingerprint` keyed only decision id and `SupportingFindingIds`, so in-place decision renames under stable `ManifestId` left `ProvenanceGraphAccessService` serving stale decision node names; include normalized title and category; regression `Compute_changes_when_manifest_decision_title_changes_but_manifest_id_and_supporting_findings_are_unchanged`; cheap-disproved graph edge label drift as non-material to provenance (`ProvenanceBuilder` does not materialize graph edges); regression `Compute_unchanged_when_only_graph_edge_label_changes`; seeded manifest selected-option and graph edge-type fingerprint follow-ons; 379 KnowledgeGraph + 74 Provenance scoped tests passed.
 
 - [x] (proven) `ProvenanceSnapshotRevisionHasher.ComputeManifestDecisionsFingerprint` — manifest decision `Title` changes did not change revision fingerprint when decision id and supporting findings were unchanged — **hit 2026-10-22 seed hunt (seed→hit):** title and category in manifest decisions fingerprint; regression above.
 - [x] (invalid) `ProvenanceSnapshotRevisionHasher.ComputeGraphFingerprint` — graph edge `Label` changes under stable snapshot id — **cheap-disproof 2026-10-22 seed hunt:** `ProvenanceBuilder` never reads `Graph.Edges`; edge labels are not buyer-visible provenance metadata today; regression above documents intentional omission.
-
-- [ ] (candidate) `ProvenanceSnapshotRevisionHasher.ComputeManifestDecisionsFingerprint` — `SelectedOption` / `Rationale` changes may not change revision fingerprint when decision id and title are unchanged — locus: manifest decisions fingerprint; input: decision option swap under stable manifest hash; wrong outcome: stale provenance decision detail.
-- [ ] (candidate) `ProvenanceSnapshotRevisionHasher.ComputeGraphFingerprint` — `EdgeType` string changes (not casing-only) may not change revision fingerprint when endpoints are unchanged — locus: edge part of graph fingerprint; input: edge reclassification under stable snapshot id; wrong outcome: stale topology class in downstream graph analytics (not provenance graph today).
 
 2026-10-22 seed hunt (seed→hit): promoted graph-label fingerprint candidate; proved `ComputeGraphFingerprint` keyed only node ids, so in-place relabel under stable `GraphSnapshotId` left `ProvenanceGraphAccessService` serving stale graph node display names; include normalized `Label` per node id; regression `Compute_changes_when_graph_node_label_changes_but_graph_snapshot_id_and_node_ids_are_unchanged`. Promoted binding dedup candidate; proved `StructuredDiagramGraphMerger.Merge` accumulated duplicate canonical bindings so `ApplyBindingsToGraphNodes` last-wins overwrote `SourceEvidenceItemId` with a later document id; dedupe bindings by canonical/diagram source/graph node key with first-wins evidence; regression `Merge_deduplicates_canonical_bindings_when_multiple_documents_bind_the_same_inventory_node`; 379 KnowledgeGraph + 72 Provenance scoped tests passed.
 

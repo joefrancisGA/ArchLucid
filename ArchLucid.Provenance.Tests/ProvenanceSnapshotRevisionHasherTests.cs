@@ -276,6 +276,91 @@ public sealed class ProvenanceSnapshotRevisionHasherTests
     }
 
     [Fact]
+    public void Compute_changes_when_artifact_name_changes_but_artifact_id_and_content_hash_are_unchanged()
+    {
+        Guid artifactId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
+
+        SynthesizedArtifact baseline = new()
+        {
+            ArtifactId = artifactId,
+            ArtifactType = "doc",
+            Name = "overview-v1.md",
+            Format = "md",
+            Content = "v1",
+            ContentHash = "hash-v1",
+        };
+
+        SynthesizedArtifact updated = new()
+        {
+            ArtifactId = artifactId,
+            ArtifactType = "doc",
+            Name = "overview-v2.md",
+            Format = "md",
+            Content = "v1",
+            ContentHash = "hash-v1",
+        };
+
+        ProvenanceSnapshotRevisionHasher.Compute(CreateInput([baseline]), BundleId)
+            .Should().NotBe(ProvenanceSnapshotRevisionHasher.Compute(CreateInput([updated]), BundleId));
+    }
+
+    [Fact]
+    public void Compute_unchanged_when_only_manifest_decision_selected_option_changes()
+    {
+        ResolvedArchitectureDecision baselineDecision = new()
+        {
+            DecisionId = "dec-1",
+            Category = "arch",
+            Title = "Decision",
+            SelectedOption = "option-a",
+            Rationale = "r",
+            SupportingFindingIds = ["find-a"],
+        };
+
+        ResolvedArchitectureDecision updatedDecision = new()
+        {
+            DecisionId = "dec-1",
+            Category = "arch",
+            Title = "Decision",
+            SelectedOption = "option-b",
+            Rationale = "different rationale",
+            SupportingFindingIds = ["find-a"],
+        };
+
+        ProvenanceBuildInput baseline = CreateInput([], manifestHash: "stale-hash", decisions: [baselineDecision]);
+        ProvenanceBuildInput updated = CreateInput([], manifestHash: "stale-hash", decisions: [updatedDecision]);
+
+        ProvenanceSnapshotRevisionHasher.Compute(baseline, BundleId)
+            .Should().Be(ProvenanceSnapshotRevisionHasher.Compute(updated, BundleId));
+    }
+
+    [Fact]
+    public void Compute_changes_when_graph_edge_type_changes_but_endpoints_are_unchanged()
+    {
+        GraphEdge baselineEdge = new()
+        {
+            EdgeId = "edge-1",
+            FromNodeId = "node-a",
+            ToNodeId = "node-b",
+            EdgeType = "ConnectsTo",
+        };
+
+        GraphEdge updatedEdge = new()
+        {
+            EdgeId = "edge-1",
+            FromNodeId = "node-a",
+            ToNodeId = "node-b",
+            EdgeType = "Contains",
+        };
+
+        ProvenanceBuildInput baseline = CreateInput([], graphEdges: [baselineEdge]);
+        ProvenanceBuildInput updated = CreateInput([], graphEdges: [updatedEdge]);
+
+        ProvenanceSnapshotRevisionHasher.Compute(baseline, BundleId)
+            .Should().NotBe(ProvenanceSnapshotRevisionHasher.Compute(updated, BundleId));
+    }
+
+    [Fact]
     public void Compute_changes_when_contributing_decision_ids_change_but_content_hash_is_unchanged()
     {
         Guid artifactId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");

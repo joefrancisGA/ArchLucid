@@ -160,7 +160,11 @@ public static class ProvenanceSnapshotRevisionHasher
                         .Distinct(StringComparer.OrdinalIgnoreCase)
                         .OrderBy(static decisionId => decisionId, StringComparer.OrdinalIgnoreCase));
 
-                return $"{artifact.ArtifactId:N}|{artifact.ContentHash ?? string.Empty}|{contributingDecisionIds}";
+                string name = (artifact.Name ?? string.Empty).Trim();
+                string artifactType = (artifact.ArtifactType ?? string.Empty).Trim();
+                string format = (artifact.Format ?? string.Empty).Trim();
+
+                return $"{artifact.ArtifactId:N}|{artifact.ContentHash ?? string.Empty}|{contributingDecisionIds}|{name}|{artifactType}|{format}";
             });
 
         return string.Join(";", parts);
