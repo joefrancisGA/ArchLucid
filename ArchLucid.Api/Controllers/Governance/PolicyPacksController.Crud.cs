@@ -49,10 +49,10 @@ public sealed partial class PolicyPacksController
             result = await _httpFacade.CreatePackAsync(
                 new PolicyPackCreateBody
                 {
-                    Name = request.Name,
-                    Description = request.Description,
+                    Name = request.Name.Trim(),
+                    Description = request.Description.Trim(),
                     PackType = request.PackType,
-                    InitialContentJson = request.InitialContentJson,
+                    InitialContentJson = request.InitialContentJson.Trim(),
                 },
                 ct).ConfigureAwait(false);
         }
@@ -111,7 +111,7 @@ public sealed partial class PolicyPacksController
                 new PolicyPackPublishBody
                 {
                     Version = normalizedVersion.Value,
-                    ContentJson = request.ContentJson,
+                    ContentJson = request.ContentJson.Trim(),
                 },
                 ct).ConfigureAwait(false);
         }

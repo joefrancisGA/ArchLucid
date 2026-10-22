@@ -68,7 +68,7 @@ function Build-AlBugCloudPrompt {
     return @"
 ArchLucid /al-bug cloud hunt
 
-Read and follow .cursor/commands/al-bug.md end-to-end (Phases 0-4). This is the canonical workflow — do not substitute a shorter generic bug hunt.
+Read and follow .cursor/skills/al-bug/workflow.md end-to-end (Phases 0-4). This is the canonical workflow — do not substitute a shorter generic bug hunt.
 
 $modeLine
 Target branch: $Branch (push commits here; workOnCurrentBranch is enabled).

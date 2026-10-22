@@ -22,19 +22,19 @@ import {
   consumeAuthorizeCallbackFailedRetry,
   hasAuthorizeCallbackFailedRetry,
   markAuthorizeCallbackFailed,
+  readAuthorizeRetryReturnPathSnapshot,
   readPkceState,
   readPostSignInReturnUrl,
   storePkceState,
   storePostSignInReturnUrl,
 } from "@/lib/oidc/session";
-import { OIDC_POST_SIGN_IN_RETURN_URL_KEY } from "@/lib/oidc/storage-keys";
 
 function clearAbandonedPostSignInReturnUrl(): void {
   if (typeof sessionStorage === "undefined") {
     return;
   }
 
-  const current = sessionStorage.getItem(OIDC_POST_SIGN_IN_RETURN_URL_KEY);
+  const current = readPostSignInReturnUrl();
 
   if (current === null) {
     return;
@@ -43,21 +43,48 @@ function clearAbandonedPostSignInReturnUrl(): void {
   const idle = readIdleDeskRestorePayload();
 
   if (idle !== null) {
-    const currentNormalized = normalizeOidcConfigurationString(current);
-    const currentComparable = normalizeComparableReturnPath(currentNormalized);
+    const currentComparable = normalizeComparableReturnPath(current);
     const idleComparable = normalizeComparableReturnPath(idle.returnPath);
 
     if (
       currentComparable !== null &&
       idleComparable !== null &&
-      currentComparable === idleComparable &&
-      isSafeReturnPath(currentNormalized)
+      currentComparable === idleComparable
     ) {
       return;
     }
   }
 
   clearPostSignInReturnUrl();
+}
+
+/** Purges unsafe stored return paths and restores idle-desk backup when authorize retry is pending. */
+function preparePostSignInReturnUrlForSignInStart(): void {
+  readPostSignInReturnUrl();
+
+  if (!hasAuthorizeCallbackFailedRetry()) {
+    return;
+  }
+
+  if (readPostSignInReturnUrl() !== null) {
+    return;
+  }
+
+  const retryReturnPath = readAuthorizeRetryReturnPathSnapshot();
+
+  if (retryReturnPath !== null) {
+    storePostSignInReturnUrl(retryReturnPath);
+
+    return;
+  }
+
+  const idle = readIdleDeskRestorePayload();
+
+  if (idle === null) {
+    return;
+  }
+
+  storePostSignInReturnUrl(idle.returnPath);
 }
 
 function shouldConsumeAuthorizeRetryForReturnUrl(returnUrl: string): boolean {
@@ -103,6 +130,8 @@ function handleInitiateDiscoveryFailure(options: {
  *   unsafe values are dropped by `storePostSignInReturnUrl`, not rejected here).
  */
 export async function initiateOidcRedirect(returnUrl?: string): Promise<void> {
+  preparePostSignInReturnUrlForSignInStart();
+
   const authority = getOidcAuthority();
   const clientId = getOidcClientId();
   const redirectUri = getOidcRedirectUri();
@@ -179,6 +208,8 @@ export async function initiateSupplementalOidcRedirect(
   if (provider !== "google") {
     throw new Error("Unsupported supplemental identity provider.");
   }
+
+  preparePostSignInReturnUrlForSignInStart();
 
   const authority = getGoogleOidcAuthority();
   const clientId = getGoogleOidcClientId();

@@ -16,7 +16,8 @@ public sealed class AuditEvidenceSelectorRegistry : IAuditEvidenceSelectorRegist
         LoggingAuditEvidenceSelector loggingSelector,
         GovernanceAuditEvidenceSelector governanceSelector,
         PostureAuditEvidenceSelector postureSelector,
-        ResilienceAuditEvidenceSelector resilienceSelector)
+        ResilienceAuditEvidenceSelector resilienceSelector,
+        DefenderAuditEvidenceSelector defenderSelector)
     {
         ArgumentNullException.ThrowIfNull(inventorySelector);
         ArgumentNullException.ThrowIfNull(identitySelector);
@@ -27,6 +28,7 @@ public sealed class AuditEvidenceSelectorRegistry : IAuditEvidenceSelectorRegist
         ArgumentNullException.ThrowIfNull(governanceSelector);
         ArgumentNullException.ThrowIfNull(postureSelector);
         ArgumentNullException.ThrowIfNull(resilienceSelector);
+        ArgumentNullException.ThrowIfNull(defenderSelector);
 
         IAuditEvidenceSelector[] selectors =
         [
@@ -39,6 +41,7 @@ public sealed class AuditEvidenceSelectorRegistry : IAuditEvidenceSelectorRegist
             governanceSelector,
             postureSelector,
             resilienceSelector,
+            defenderSelector,
         ];
 
         _selectorsByType = selectors
