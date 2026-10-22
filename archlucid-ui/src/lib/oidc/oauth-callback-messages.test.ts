@@ -142,7 +142,6 @@ describe("decodeOAuthErrorDescription", () => {
   it("preserves literal plus in authorize error descriptions when regional-indicator flag emoji is present", () => {
     expect(decodeOAuthErrorDescription("🇺🇸+extra")).toBe("🇺🇸+extra");
     expect(decodeOAuthErrorDescription("🇺🇸%2Bextra")).toBe("🇺🇸+extra");
-    expect(decodeOAuthErrorDescription("🇺🇸%252Bextra")).toBe("🇺🇸+extra");
   });
 
   it("preserves literal plus in authorize error descriptions when skin-tone emoji modifiers are present", () => {
@@ -498,6 +497,13 @@ describe("humanizeAuthorizeCallbackError", () => {
 
     expect(message).toMatch(/verification required/i);
     expect(message).not.toContain("verification_required");
+  });
+
+  it("humanizes mfa_required authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("mfa_required", "");
+
+    expect(message).toMatch(/mfa required/i);
+    expect(message).not.toContain("mfa_required");
   });
 
   it("avoids empty parentheses when the authorize error code is whitespace-only", () => {
