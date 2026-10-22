@@ -597,6 +597,13 @@ describe("humanizeAuthorizeCallbackError", () => {
     expect(message).not.toContain("invalid_authentication");
   });
 
+  it("humanizes authentication_required authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("authentication_required", "");
+
+    expect(message).toMatch(/authentication required/i);
+    expect(message).not.toContain("authentication_required");
+  });
+
   it("avoids empty parentheses when the authorize error code is whitespace-only", () => {
     expect(humanizeAuthorizeCallbackError("   ", "")).toContain("complete response");
     expect(humanizeAuthorizeCallbackError("   ", "")).not.toMatch(/\(\s*\)/u);
