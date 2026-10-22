@@ -238,6 +238,7 @@ export function persistTokenResponse(tokens: OidcTokenResponse): void {
 
   if (typeof sessionStorage !== "undefined") {
     sessionStorage.removeItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY);
+    sessionStorage.removeItem(OIDC_AUTHORIZE_RETRY_RETURN_PATH_KEY);
   }
 
   const identityHintsAfterPersist = readOidcIdentityHintsSnapshot();

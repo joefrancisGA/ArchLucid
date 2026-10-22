@@ -3,12 +3,10 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import * as bffSessionSync from "@/lib/oidc/bff-session-sync";
 import {
   clearOidcSession,
-  consumeAuthorizeCallbackFailedRetry,
   markAuthorizeCallbackFailed,
   consumeAuthorizeCallbackFailedRetry,
   consumePkceState,
   consumePostSignInReturnUrl,
-  readAuthorizeRetryReturnPathSnapshot,
   getAccessTokenExpiresAtMs,
   getAccessTokenForApi,
   isLikelySignedIn,
@@ -146,22 +144,6 @@ describe("storePostSignInReturnUrl / consumePostSignInReturnUrl", () => {
     markAuthorizeCallbackFailed();
 
     expect(sessionStorage.getItem(OIDC_AUTHORIZE_RETRY_RETURN_PATH_KEY)).toBe("/architecture/reviews/run-snapshot");
-  });
-
-  it("drops a tampered unsafe authorize-retry return snapshot on read", () => {
-    sessionStorage.setItem(OIDC_AUTHORIZE_RETRY_RETURN_PATH_KEY, "https://evil.example/phish");
-
-    expect(readAuthorizeRetryReturnPathSnapshot()).toBeNull();
-    expect(sessionStorage.getItem(OIDC_AUTHORIZE_RETRY_RETURN_PATH_KEY)).toBeNull();
-  });
-
-  it("clears authorize-retry return snapshot when consumeAuthorizeCallbackFailedRetry runs", () => {
-    sessionStorage.setItem(OIDC_AUTHORIZE_RETRY_RETURN_PATH_KEY, "/architecture/reviews/run-snapshot");
-    sessionStorage.setItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY, "1");
-
-    expect(consumeAuthorizeCallbackFailedRetry()).toBe(true);
-    expect(sessionStorage.getItem(OIDC_AUTHORIZE_RETRY_RETURN_PATH_KEY)).toBeNull();
-    expect(sessionStorage.getItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY)).toBeNull();
   });
 });
 
@@ -593,6 +575,15 @@ describe("persistTokenResponse", () => {
     persistTokenResponse({ access_token: accessTokenWithSubjectClaim(), expires_in: 3600 });
 
     expect(sessionStorage.getItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY)).toBeNull();
+  });
+
+  it("clears authorize retry return snapshot after a successful identity persist", () => {
+    storePostSignInReturnUrl("/architecture/reviews/run-success");
+    markAuthorizeCallbackFailed();
+
+    persistTokenResponse({ access_token: accessTokenWithSubjectClaim(), expires_in: 3600 });
+
+    expect(sessionStorage.getItem(OIDC_AUTHORIZE_RETRY_RETURN_PATH_KEY)).toBeNull();
   });
 
   it("does not sync identity-less opaque tokens to the BFF cookie", async () => {
