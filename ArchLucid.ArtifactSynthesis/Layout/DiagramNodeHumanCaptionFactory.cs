@@ -62,7 +62,7 @@ public static class DiagramNodeHumanCaptionFactory
                 return "App Service";
             }
 
-            return "Site kind was not stored.";
+            return $"Site kind {siteKind} has no reviewer label.";
         }
 
         return DiagramArmTypeFriendlyName.TryFormat(node.ArmResourceType);
@@ -90,6 +90,14 @@ public static class DiagramNodeHumanCaptionFactory
         if (node.ParentAttachmentDetails.Count > 0)
         {
             combined = $"{combined} · {string.Join(" · ", node.ParentAttachmentDetails)}";
+        }
+
+        if (node.HasPrivateEndpointAccess)
+        {
+            string privateEndpointCaption = string.IsNullOrWhiteSpace(node.PrivateEndpointAccessName)
+                ? "Private endpoint name was not stored."
+                : node.PrivateEndpointAccessName.Trim();
+            combined = $"{combined} · {privateEndpointCaption}";
         }
 
         if (node.HasPublicInternetExposure)

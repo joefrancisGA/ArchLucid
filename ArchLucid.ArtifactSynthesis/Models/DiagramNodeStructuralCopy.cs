@@ -39,6 +39,7 @@ public static class DiagramNodeStructuralCopy
             ArmResourceGroup = source.ArmResourceGroup,
             IncludeResourceGroupInCaption = source.IncludeResourceGroupInCaption,
             HasPrivateEndpointAccess = source.HasPrivateEndpointAccess,
+            PrivateEndpointAccessName = source.PrivateEndpointAccessName,
             HasPublicInternetExposure = source.HasPublicInternetExposure,
             HiddenPublicIpAddress = source.HiddenPublicIpAddress,
             IsExecutiveOverflow = source.IsExecutiveOverflow,
