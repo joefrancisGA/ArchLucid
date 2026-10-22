@@ -20,6 +20,7 @@ import {
   clearPkceState,
   clearPostSignInReturnUrl,
   consumeAuthorizeCallbackFailedRetry,
+  markAuthorizeCallbackFailed,
   readPkceState,
   storePkceState,
   storePostSignInReturnUrl,
@@ -97,10 +98,10 @@ export async function initiateOidcRedirect(returnUrl?: string): Promise<void> {
 
     if (storedReturnUrlThisAttempt) {
       clearPostSignInReturnUrl();
+    } else if (preservingAuthorizeCallbackRetry) {
+      markAuthorizeCallbackFailed();
     } else if (readPkceState("google") === null) {
-      if (!preservingAuthorizeCallbackRetry) {
-        clearAbandonedPostSignInReturnUrl();
-      }
+      clearAbandonedPostSignInReturnUrl();
     }
 
     throw error;
@@ -168,10 +169,10 @@ export async function initiateSupplementalOidcRedirect(
 
     if (storedReturnUrlThisAttempt) {
       clearPostSignInReturnUrl();
+    } else if (preservingAuthorizeCallbackRetry) {
+      markAuthorizeCallbackFailed();
     } else if (readPkceState("primary") === null) {
-      if (!preservingAuthorizeCallbackRetry) {
-        clearAbandonedPostSignInReturnUrl();
-      }
+      clearAbandonedPostSignInReturnUrl();
     }
 
     throw error;

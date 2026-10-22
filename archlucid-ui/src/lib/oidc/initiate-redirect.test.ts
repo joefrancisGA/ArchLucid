@@ -479,6 +479,7 @@ describe("initiate redirect PKCE isolation", () => {
 
     await expect(initiateOidcRedirect()).rejects.toThrow("discovery unavailable");
     expect(sessionStorage.getItem(OIDC_POST_SIGN_IN_RETURN_URL_KEY)).toBe("/architecture/reviews/run-3");
+    expect(sessionStorage.getItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY)).toBe("1");
   });
 
   it("clears stale post-sign-in return path when primary redirect succeeds without a return URL", async () => {
@@ -687,33 +688,6 @@ describe("initiate redirect PKCE isolation", () => {
 
     expect(sessionStorage.getItem(OIDC_POST_SIGN_IN_RETURN_URL_KEY)).toBeNull();
     expect(assignMock).toHaveBeenCalled();
-  });
-
-  it("preserves post-sign-in return path when discovery fails after an authorize callback retry", async () => {
-    sessionStorage.setItem(OIDC_POST_SIGN_IN_RETURN_URL_KEY, "/architecture/reviews/run-retry");
-    sessionStorage.setItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY, "1");
-
-    vi.doMock("@/lib/oidc/config", () => ({
-      getOidcAuthority: () => "https://issuer.example",
-      getOidcClientId: () => "client-id",
-      getOidcRedirectUri: () => "https://app.example/auth/callback",
-      getOidcScopes: () => "openid",
-    }));
-    vi.doMock("@/lib/oidc/pkce", () => ({
-      createPkcePair: vi.fn(async () => ({ verifier: "verifier", challenge: "challenge" })),
-      randomOpaqueState: vi.fn(() => "state"),
-    }));
-    vi.doMock("@/lib/oidc/discovery", () => ({
-      loadDiscoveryDocument: vi.fn(async () => {
-        throw new Error("discovery unavailable");
-      }),
-    }));
-
-    const { initiateOidcRedirect } = await import("@/lib/oidc/initiate-redirect");
-
-    await expect(initiateOidcRedirect()).rejects.toThrow("discovery unavailable");
-    expect(sessionStorage.getItem(OIDC_POST_SIGN_IN_RETURN_URL_KEY)).toBe("/architecture/reviews/run-retry");
-    expect(sessionStorage.getItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY)).toBe("1");
   });
 
   it("clears stale post-sign-in return when primary OIDC starts without a return URL after abandoning Google PKCE", async () => {
