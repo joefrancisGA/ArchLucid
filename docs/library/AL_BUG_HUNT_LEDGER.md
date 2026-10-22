@@ -10,6 +10,17 @@
 - [ ] (candidate) `HostedAzureInventoryLogicAppConnectionCollector` - collection failure rows vs ZIP warning codes - locus: operator visibility (reachability: hosted diagram package).
 - [ ] (candidate) `GcpWorkloadIdentityCredentialFactory.NormalizeAudience` - http audience downgrade - locus: audience normalization (reachability: WIF config).
 - [ ] (candidate) `HostedAwsExtractorClient` - max pagination without collection warning in ZIP - locus: parity with Azure partial warnings (reachability: hosted AWS ZIP).
+2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed state_mismatch authorize-query UX (existing parity) and saturated decodeOAuthErrorDescription ZWJ multiply-encoded glue (existing parity); regression documents BFF refresh 495 parity (client + route opaque 495) and object-replacement replacement-character variation-selector-16-only access_token rejection; scoped vitest 775/775.
+
+- [x] (invalid) humanizeAuthorizeCallbackError - state_mismatch authorize-query copy - **cheap-disproof 2026-10-22:** existing readable default-branch UX parity test.
+- [x] (valid-no-repro) refreshBffSessionCookie - refresh 495 shouldClearSession false - **regression 2026-10-22:** client soft-fail plus BFF route opaque 495 without cookie clear.
+- [x] (valid-no-repro) exchangeAuthorizationCode - access_token JSON string object-replacement replacement-character and variation-selector-16-only skips authorize retry marker - **regression 2026-10-22:** normalizeTokenString strip parity for combined invisible tokens.
+- [x] (invalid) decodeOAuthErrorDescription - multiply-encoded %252B with ZWJ glue - **cheap-disproof 2026-10-22:** existing saturated encoding class test.
+
+- [ ] (candidate) humanizeAuthorizeCallbackError - invalid_state authorize-query copy - locus: default branch UX.
+- [ ] (candidate) refreshBffSessionCookie - refresh 496 shouldClearSession false - locus: transient refresh parity.
+- [ ] (candidate) exchangeAuthorizationCode - access_token JSON string soft-hyphen object-replacement and replacement-character-only skips authorize retry marker - locus: literal whitespace token shape.
+- [ ] (candidate) readOAuthJsonErrorDescription - multiply-encoded %252B with ZWJ glue - locus: saturated JSON encoding class.
 
 2026-10-22 seed hunt (seed->hit): `core-configuration-summary` - promoted hunt-ready from seed re-read `ConfigurationEmbeddedCredentialMaterialDetector.IsPairDelimiter` - vertical tab (ASCII VT, `\v`) between connection-string style pairs was not a pair boundary, so `Server=prod\vPassword=secret` leaked in admin config summary effective values; delimiter parity with form-feed/tab/newline; regression `Resolve_redacts_embedded_credential_material_when_password_pair_is_vertical_tab_delimited`; scoped `FullyQualifiedName~Configuration` 1137/1137.
 
