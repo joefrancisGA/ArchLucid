@@ -696,6 +696,42 @@ public sealed class ProvenanceSnapshotRevisionHasherTests
     }
 
     [Fact]
+    public void Compute_unchanged_when_findings_list_ids_differing_only_by_surrounding_whitespace()
+    {
+        Finding canonicalRow = CreateSampleFinding();
+        canonicalRow.FindingId = "find-1";
+        canonicalRow.Title = "Baseline title";
+
+        Finding paddedRow = CreateSampleFinding();
+        paddedRow.FindingId = "  find-1  ";
+        paddedRow.Title = "Baseline title";
+
+        ProvenanceBuildInput single = CreateInput([], findings: [canonicalRow]);
+        ProvenanceBuildInput duplicate = CreateInput([], findings: [canonicalRow, paddedRow]);
+
+        ProvenanceSnapshotRevisionHasher.Compute(single, BundleId)
+            .Should().Be(ProvenanceSnapshotRevisionHasher.Compute(duplicate, BundleId));
+    }
+
+    [Fact]
+    public void Compute_changes_when_later_row_has_padded_finding_id_and_different_title()
+    {
+        Finding firstRow = CreateSampleFinding();
+        firstRow.FindingId = "find-1";
+        firstRow.Title = "Original title";
+
+        Finding paddedAmendment = CreateSampleFinding();
+        paddedAmendment.FindingId = "  FIND-1  ";
+        paddedAmendment.Title = "Renamed title";
+
+        ProvenanceBuildInput baseline = CreateInput([], findings: [firstRow]);
+        ProvenanceBuildInput updated = CreateInput([], findings: [firstRow, paddedAmendment]);
+
+        ProvenanceSnapshotRevisionHasher.Compute(baseline, BundleId)
+            .Should().NotBe(ProvenanceSnapshotRevisionHasher.Compute(updated, BundleId));
+    }
+
+    [Fact]
     public void Compute_unchanged_when_later_case_variant_finding_row_omits_agent_execution_trace_id()
     {
         Finding firstRow = CreateSampleFinding();

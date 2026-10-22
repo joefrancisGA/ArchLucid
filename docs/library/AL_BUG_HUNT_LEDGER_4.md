@@ -12470,18 +12470,22 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 163
+- **hunts:** 164
 - **bugs-found:** 149
 - **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-22 — graph node property reader returned padded property values
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
+2026-10-22 seed hunt (valid-no-repro): promoted `ProvenanceSnapshotRevisionHasher.ComputeFindingsFingerprint` padded `FindingId` group-key candidate; proved findings fingerprint `GroupBy` already trims `FindingId` before case-insensitive grouping (parity with `ProvenanceBuilder.NormalizeId`); regressions `Compute_unchanged_when_findings_list_ids_differing_only_by_surrounding_whitespace` and `Compute_changes_when_later_row_has_padded_finding_id_and_different_title`; seeded `ComputeGraphFingerprint` padded `NodeId` group-key parity follow-on; 465 KnowledgeGraph + 153 Provenance scoped tests passed.
+
+- [x] (valid-no-repro) `ProvenanceSnapshotRevisionHasher.ComputeFindingsFingerprint` — padded `FindingId` split fingerprint groups — **cheap-disproof 2026-10-22 seed hunt:** trim on `GroupBy` key; regressions above.
+
+- [ ] (candidate) `ProvenanceSnapshotRevisionHasher.ComputeGraphFingerprint` — padded graph `NodeId` tokens may fingerprint as distinct node groups — locus: graph node `GroupBy` key trim; input: two nodes whose ids differ only by surrounding whitespace; wrong outcome: duplicate revision groups and stale cache semantics.
+
 2026-10-22 seed hunt (valid-no-repro): promoted `ProvenanceSnapshotRevisionHasher.ComputeManifestDecisionsFingerprint` padded `DecisionId` group-key candidate; proved manifest decision fingerprint `GroupBy` already trims `DecisionId` before case-insensitive grouping (parity with `ProvenanceBuilder.NormalizeId`); regressions `Compute_unchanged_when_manifest_lists_decision_ids_differing_only_by_surrounding_whitespace` and `Compute_changes_when_later_row_has_padded_decision_id_and_different_title`; seeded `ComputeFindingsFingerprint` padded `FindingId` group-key parity follow-on; 465 KnowledgeGraph + 151 Provenance scoped tests passed.
 
 - [x] (valid-no-repro) `ProvenanceSnapshotRevisionHasher.ComputeManifestDecisionsFingerprint` — padded `DecisionId` split fingerprint groups — **cheap-disproof 2026-10-22 seed hunt:** trim on `GroupBy` key; regressions above.
-
-- [ ] (candidate) `ProvenanceSnapshotRevisionHasher.ComputeFindingsFingerprint` — padded `FindingId` tokens may fingerprint as distinct groups — locus: findings `GroupBy` key trim; input: two findings whose ids differ only by surrounding whitespace; wrong outcome: duplicate revision groups and stale cache semantics.
 
 2026-10-22 seed hunt (valid-no-repro): promoted `ProvenanceSnapshotRevisionHasher.ComputeManifestDecisionsFingerprint` case-variant duplicate manifest decision candidate; proved `SelectLastNonEmptyManifestDecisionField` already last-wins title/category per case-insensitive `DecisionId` group (parity with findings fingerprint); regressions `Compute_changes_when_later_case_variant_manifest_decision_row_has_different_title` and `Compute_changes_when_later_case_variant_manifest_decision_row_has_different_category`; seeded manifest `DecisionId` surrounding-whitespace group-key parity follow-on; 465 KnowledgeGraph + 149 Provenance scoped tests passed.
 
