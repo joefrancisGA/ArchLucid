@@ -122,8 +122,10 @@ public static class StructuredDiagramCompiledGraphBinder
 
             if (!string.IsNullOrWhiteSpace(binding.SourceEvidenceItemId))
             {
-                target.Properties[StructuredDiagramGraphPropertyKeys.SourceEvidenceItemId] =
-                    binding.SourceEvidenceItemId.Trim();
+                StructuredDiagramGraphCanonicalPropertyWriter.WriteString(
+                    target.Properties,
+                    StructuredDiagramGraphPropertyKeys.SourceEvidenceItemId,
+                    binding.SourceEvidenceItemId.Trim());
             }
         }
     }

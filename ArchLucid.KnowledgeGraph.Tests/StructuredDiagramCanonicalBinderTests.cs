@@ -683,6 +683,66 @@ public sealed class StructuredDiagramCanonicalBinderTests
             .Be("diagram-node:api");
     }
 
+    [Fact]
+    public void ApplyBindingsToGraphNodes_collapses_padded_source_evidence_alias_when_stamping_bind_metadata()
+    {
+        const string EvidenceItemId = "doc-bind-evidence-fresh";
+        string paddedEvidenceKey = $"  {StructuredDiagramGraphPropertyKeys.SourceEvidenceItemId}  ";
+        GraphNode inventoryNode = CreateTopologyNode(
+            "obj-api-1",
+            "API Gateway",
+            new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                [paddedEvidenceKey] = "stale-doc-evidence",
+            });
+
+        ArchitectureDiagramToGraphCompiler compiler = new();
+        StructuredDiagramGraphCompileResult compileResult = compiler.Compile(
+            new ArchitectureDiagramModelRecord
+            {
+                Nodes =
+                [
+                    new ArchitectureDiagramNodeRecord
+                    {
+                        Id = "api",
+                        Label = "API Gateway",
+                        Kind = ArchitectureDiagramNodeKinds.System,
+                        Provenance = ArchitectureDiagramProvenanceKinds.Inferred,
+                    },
+                ],
+                ExtractionMethod = DiagramExtractionMethods.StructuredParse,
+                SourceEvidenceItemId = EvidenceItemId,
+            },
+            CreateCompileOptions());
+
+        StructuredDiagramGraphCompileResult bound = StructuredDiagramCompiledGraphBinder.BindToCanonicalNodes(
+            compileResult,
+            [inventoryNode]);
+
+        StructuredDiagramCompiledGraphBinder.ApplyBindingsToGraphNodes(
+            [inventoryNode],
+            bound.CanonicalBindings);
+
+        inventoryNode.Properties.Keys
+            .Count(key => string.Equals(
+                key.Trim(),
+                StructuredDiagramGraphPropertyKeys.SourceEvidenceItemId,
+                StringComparison.OrdinalIgnoreCase))
+            .Should()
+            .Be(1);
+
+        GraphNodePropertyReader.TryGetPropertyValue(
+                inventoryNode.Properties,
+                StructuredDiagramGraphPropertyKeys.SourceEvidenceItemId,
+                out string? evidenceItemId)
+            .Should()
+            .BeTrue();
+        evidenceItemId.Should().Be(EvidenceItemId);
+        inventoryNode.Properties[StructuredDiagramGraphPropertyKeys.SourceEvidenceItemId]
+            .Should()
+            .Be(EvidenceItemId);
+    }
+
     private static GraphNode CreateTopologyNode(
         string nodeId,
         string label,
