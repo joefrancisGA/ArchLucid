@@ -192320,7 +192320,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 62
+- **hunts:** 63
 - **bugs-found:** 56
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-22
@@ -192625,6 +192625,22 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [ ] (candidate) `EndToEndReplayComparisonExportService` — markdown/HTML export bodies may duplicate interpretation notes when stored report already includes sponsor section — locus: export formatters; input: E2E report with pre-rendered interpretation notes; wrong outcome: duplicate headings in replay export; reachability: E2E comparison replay markdown (verify against 2026-08-26 proven duplicate notes hit).
 - [ ] (candidate) `TerraformGitHubPrService` — GitHub API failure returns `TerraformPrCreationResult` with raw exception message in `Error` field — locus: PR creation catch paths; input: GitHub 403 from expired PAT in `TerraformGitHubPr` options; wrong outcome: operator-visible token hint in error string; reachability: Terraform advisory GitHub PR automation config path.
 - [ ] (candidate) `ConsultingDocxExportSealedReceiptGuard.EnsureVerifiedOrThrowAsync` — consulting DOCX export host calls sealed receipt guard but standard `DocxArchitectureAnalysisExportService` path may omit same guard — locus: consulting vs standard DOCX export entry; input: unsealed run consulting DOCX export; wrong outcome: standard DOCX exports while consulting blocked; reachability: analysis export type switch in API hosts.
+
+2026-10-22 seed hunt #62 (seed→hit): proved export-diff comparison drift analyze skipped `IRunExportCareerPostureGate` while artifact/regenerate replay blocked simulator-rehearsal metadata reads; gate drift analyze before regenerate; regression `AnalyzeDriftAsync_export_diff_throws_when_career_posture_blocks_metadata_read`; cheap-disproof closed four sibling candidates; seeded five follow-on `(candidate)` rows; 49 scoped ArchitectureAnalysis/CompareQuality + ComparisonReplay drift tests passed.
+
+- [x] (valid-no-repro) `ComparisonReplayService.RegenerateExportDiffAsync` internal regenerate — **cheap-disproof 2026-10-22 seed hunt #63:** all call sites (`ReplayExportDiffAsync`, `AnalyzeDriftExportDiffAsync`) run career posture gate before `RegenerateExportDiffAsync`.
+- [x] (valid-no-repro) `ComparisonsApplicationService.TryReplayAsync` career mapping — **cheap-disproof 2026-10-22 seed hunt #63:** `ComparisonsController.Replay` catches `CareerArtifactExportBlockedException` to OpenAPI 409; application service delegates to gated `ComparisonReplayService`.
+- [x] (invalid) `EndToEndReplayComparisonExportService` duplicate interpretation notes — **cheap-disproof 2026-10-22 seed hunt #63:** duplicate sponsor interpretation notes proven and fixed 2026-08-26 seed hunt #6; not a fresh mechanism.
+- [x] (invalid) `TerraformGitHubPrService` raw GitHub errors in result DTO — **cheap-disproof 2026-10-22 seed hunt #63:** service throws on HTTP/Git failures; `TerraformPrCreationResult` has no `Error` field and PAT is never logged.
+- [ ] (candidate) `ConsultingDocxExportSealedReceiptGuard.EnsureVerifiedOrThrowAsync` — consulting DOCX export host calls sealed receipt guard but standard `DocxArchitectureAnalysisExportService` path may omit same guard — locus: consulting vs standard DOCX export entry; input: unsealed run consulting DOCX export; wrong outcome: standard DOCX exports while consulting blocked; reachability: analysis export type switch in API hosts.
+
+2026-10-22 seed hunt #63 (seed-only): cheap-disproof closed five follow-on `(candidate)` rows from seed hunt #62; re-read comparison replay layering, DOCX sealed receipt guards, and Terraform GitHub PR service; no hunt-ready promotion; seeded five follow-on `(candidate)` rows; 45 scoped ArchitectureAnalysis/CompareQuality tests passed.
+
+- [ ] (candidate) `ComparisonReplayCostEstimator.TryEstimateAsync` — estimates export-diff replay cost from payload JSON without invoking `IRunExportCareerPostureGate` on anchored run ids — locus: cost estimator entry; input: simulator-rehearsal export-diff comparison record; wrong outcome: cost estimate returned while replay blocked; reachability: comparison replay cost estimate API (verify parity with drift analyze fix).
+- [ ] (candidate) `RunExportQueryFacade.CompareExportRecordsAsync` — compares export records after career gate but `ExportRecordDiffService.Compare` does not re-check career when diff invoked from comparison regenerate internals — locus: facade vs `RegenerateExportDiffAsync`; input: career-blocked run id on only one side of export compare; wrong outcome: diff still computed; reachability: `GET` export record compare (verify gate covers both run ids).
+- [ ] (candidate) `MarkdownEndToEndReplayComparisonSummaryFormatter` — sponsor interpretation notes section may render when `InterpretationNotes` empty but `SynergyNotes` populated — locus: summary formatter branches; input: E2E report with synergy-only notes; wrong outcome: blank interpretation heading; reachability: comparison summary markdown replay.
+- [ ] (candidate) `GraphAzureInventoryReconciliationAnalyzer` vs `GraphGcpInventoryReconciliationAnalyzer` — Azure inventory id normalization may disagree with GCP URI canonicalization on cross-cloud compare exports — locus: reconciliation analyzers; input: multi-cloud inventory reconciliation export; wrong outcome: false missing-resource signals; reachability: architecture analysis inventory reconciliation warnings in compare exports.
+- [ ] (candidate) `PersistedAnalysisExportRequest` rehydrate — `CompareManifestVersion` trimmed on read but `CompareRunId` left raw in JSON rehydrate path — locus: `AnalysisExportRequestRehydrator`; input: persisted export with padded compare run id; wrong outcome: replay regenerates with non-canonical compare id; reachability: export replay rehydrate (`ExportReplayService`).
 
 
 ## Zone: application-pilots
