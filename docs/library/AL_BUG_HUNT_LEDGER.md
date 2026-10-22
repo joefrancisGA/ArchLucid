@@ -1,3 +1,15 @@
+2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed session_expired authorize-query UX, BFF refresh 440 parity, and saturated readOAuthJsonErrorDescription pictograph glue; regression documents authorize-retry is marked when authorization code exchange returns CRLF-only access_token; scoped vitest 554/554.
+
+- [x] (invalid) humanizeAuthorizeCallbackError - session_expired authorize-query copy - **cheap-disproof 2026-10-22:** readable default-branch UX parity test.
+- [x] (valid-no-repro) refreshBffSessionCookie - refresh 440 shouldClearSession false - **regression 2026-10-22:** transient refresh soft-fail without cookie clear.
+- [x] (valid-no-repro) exchangeAuthorizationCode - access_token JSON string CRLF-only skips authorize retry marker - **regression 2026-10-22:** CRLF-only tokens reject exchange and set retry marker.
+- [x] (invalid) readOAuthJsonErrorDescription - multiply-encoded %252B with pictograph glue - **cheap-disproof 2026-10-22:** saturated JSON encoding class.
+
+- [ ] (candidate) humanizeAuthorizeCallbackError - invalid_code authorize-query copy - locus: default branch UX.
+- [ ] (candidate) refreshBffSessionCookie - refresh 441 shouldClearSession false - locus: transient refresh parity.
+- [ ] (candidate) exchangeAuthorizationCode - access_token JSON string form-feed-only skips authorize retry marker - locus: literal whitespace token shape.
+- [ ] (candidate) decodeOAuthErrorDescription - multiply-encoded %252B with emoji ZWJ sequence glue - locus: saturated encoding class.
+
 2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed server_error authorize-query UX, BFF refresh 439 parity, and saturated decodeOAuthErrorDescription pictograph glue; regression documents authorize-retry is marked when authorization code exchange returns carriage-return-only access_token; scoped vitest 551/551.
 
 - [x] (invalid) humanizeAuthorizeCallbackError - server_error authorize-query copy - **cheap-disproof 2026-10-22:** readable fixed-branch UX parity test.

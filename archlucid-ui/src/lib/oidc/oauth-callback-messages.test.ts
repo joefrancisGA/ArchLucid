@@ -513,6 +513,13 @@ describe("humanizeAuthorizeCallbackError", () => {
     expect(message).not.toContain("server_error");
   });
 
+  it("humanizes session_expired authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("session_expired", "");
+
+    expect(message).toMatch(/session expired/i);
+    expect(message).not.toContain("session_expired");
+  });
+
   it("avoids empty parentheses when the authorize error code is whitespace-only", () => {
     expect(humanizeAuthorizeCallbackError("   ", "")).toContain("complete response");
     expect(humanizeAuthorizeCallbackError("   ", "")).not.toMatch(/\(\s*\)/u);
