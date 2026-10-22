@@ -8712,6 +8712,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: architecture-intelligence-orchestrator
 
+2026-10-22 seed hunt (seed→hit): promoted path-shaped **ledger technology names** splitting `ledgerfp` on `\` vs `/`; `ReviewCacheLedgerFingerprint.NormalizeTechnologyName` now applies `NormalizeReviewCachePathLikeToken`; regression `Build_matches_content_hash_when_ledger_technology_name_differs_only_by_backslash_vs_forward_slash_in_path`; cheap-disproof regressions for request priority/framing `..` and `./` segments, client run-id `..` collapse, resolved run-id path slashes, continue coalesce run-id path slashes, and cache invalidation across path-shaped run ids; 347 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `ReviewCacheLedgerFingerprint` — path-shaped technology names split ledger fingerprint — **hit 2026-10-22 seed hunt:** path canonicalization on `TechnologyName`; regression above.
+
 2026-10-22 seed hunt (seed→hit): promoted path-shaped **client run ids** splitting `ContentHash` (and continue-coalesce keys) on `\` vs `/`; `ClosedLoopRunIdComparer.Normalize` now applies `NormalizeReviewCachePathLikeToken` before hyphen stripping; regression `Build_matches_content_hash_when_client_run_id_differs_only_by_backslash_vs_forward_slash_in_path`; cheap-disproof `Build_matches_content_hash_when_request_framing_answer_key_differs_only_by_leading_dot_slash`; 333 scoped orchestrator/cache/manifest/continue-flight tests passed.
 
 - [x] (proven) `ClosedLoopRunIdComparer` — path-shaped run ids split cache hash — **hit 2026-10-22 seed hunt:** path canonicalization in run-id normalize; regression above.
