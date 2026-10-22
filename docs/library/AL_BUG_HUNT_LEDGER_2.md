@@ -2842,6 +2842,14 @@
 
 ## Zone: scim-users
 
+2026-10-22 thorough hunt #16 (dry): cheap-disproof closed five regression-backed `(candidate)` rows (invalid string `active` PATCH; POST reactivates directory-removed `externalId`; DELETE seat compensation on persistence failure; tombstoned `externalId` PATCH conflict; User `members[…]` PATCH returns `notImplemented`); no failing repro; five replacement `(candidate)` rows; scoped `ScimUsers` tests not run (Defender WIP compile).
+
+- [x] (invalid) `ScimUsersController.PatchAsync` — non-boolean `active` string — **cheap-disproof 2026-10-22 #16:** `ReadActive` rejects; regression `PatchAsync_replace_active_invalid_string_throws`.
+- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — POST after directory DELETE — **cheap-disproof 2026-10-22 #16:** `ReactivateRemovedUserAsync`; regression `CreateAsync_after_directory_remove_reactivates_same_external_id` (2026-08-25 proven fix).
+- [x] (valid-no-repro) `ScimUsersController.DeleteAsync` — seat restore on deactivate failure — **cheap-disproof 2026-10-22 #16:** compensating increment in `DeactivateAsync` catch; regression `DeactivateAsync_restores_seat_when_persistence_fails`.
+- [x] (invalid) `ScimUsersController.PatchAsync` — tombstoned `externalId` claim — **cheap-disproof 2026-10-22 #16:** `EnsureExternalIdNotUsedByAnotherUserAsync`; regression `PatchAsync_tombstoned_external_id_throws_conflict`.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `members[value eq "…"]` on User — **cheap-disproof 2026-10-22 #16:** `notImplemented` by design; regression `Valid_guid_member_path_on_user_throws_not_implemented`.
+
 2026-10-22 thorough hunt #15 (dry): cheap-disproof closed five regression-backed `(candidate)` rows (`externalId` filter case-exact by design; duplicate `userName` create returns conflict; required `userName` remove returns `mutability`; duplicate `externalId` PUT returns conflict; `active eq "false"` and and/or precedence covered by parser regressions); no failing repro; five replacement `(candidate)` rows; scoped `ScimUsers` tests not run (Defender WIP compile).
 
 - [x] (valid-no-repro) `ScimUsersController.ListAsync` — `externalId` filter case-exact — **cheap-disproof 2026-10-22 #15:** RFC 7643 case-exact `externalId`; regression `ListAsync_external_id_filter_matches_case_exact_per_rfc7643`.
@@ -2991,9 +2999,9 @@
 - **aliases:** scim; entra provisioning users
 - **paths:** ArchLucid.Api/Controllers/Scim/ScimUsersController.cs
 - **test-filter:** FullyQualifiedName~ScimUsers
-- **hunts:** 49
+- **hunts:** 50
 - **bugs-found:** 22
-- **consecutive-dry-hunts:** 15
+- **consecutive-dry-hunts:** 16
 - **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-22 — SCIM POST/PUT/PATCH mapped canceled JSON reads to invalidSyntax 400
 - **related-pd-tb:** none
@@ -3180,11 +3188,17 @@
 - [x] (invalid) `ScimUsersController.ReplaceAsync` — duplicate `externalId` — **cheap-disproof 2026-10-22 #15:** 409 pre-check.
 - [x] (valid-no-repro) `ScimUsersController.ListAsync` — `active`/`and`/`or` filter — **cheap-disproof 2026-10-22 #15:** parser regressions.
 
-- [ ] (candidate) `ScimUsersController.PatchAsync` — replace `active` with non-boolean string — locus: patch flat-map → `ReadActive`; input: regression `PatchAsync_replace_active_invalid_string_throws` (`invalidValue`).
-- [ ] (candidate) `ScimUsersController.CreateAsync` — POST after directory DELETE same `externalId` — locus: `ReactivateRemovedUserAsync`; input: regression `CreateAsync_after_directory_remove_reactivates_same_external_id`.
-- [ ] (candidate) `ScimUsersController.DeleteAsync` — seat restored when deactivate fails — locus: `DeactivateAsync` catch compensating increment; input: regression `DeactivateAsync_restores_seat_when_persistence_fails`.
-- [ ] (candidate) `ScimUsersController.PatchAsync` — claim tombstoned `externalId` — locus: `EnsureExternalIdNotUsedByAnotherUserAsync`; input: regression `PatchAsync_tombstoned_external_id_throws_conflict`.
-- [ ] (candidate) `ScimUsersController.PatchAsync` — complex `members[value eq "..."]` on User — locus: `ScimPatchOpEvaluator` / `ScimPatchValuePathParser`; input: `notImplemented` 501 for user resources per `Valid_guid_member_path_on_user_throws_not_implemented`.
+- [x] (invalid) `ScimUsersController.PatchAsync` — invalid `active` string — **cheap-disproof 2026-10-22 #16:** `invalidValue` regression.
+- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — reactivate after DELETE — **cheap-disproof 2026-10-22 #16:** proven reactivation path.
+- [x] (valid-no-repro) `ScimUsersController.DeleteAsync` — seat compensate on failure — **cheap-disproof 2026-10-22 #16:** proven compensating increment.
+- [x] (invalid) `ScimUsersController.PatchAsync` — tombstoned `externalId` — **cheap-disproof 2026-10-22 #16:** conflict regression.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — User `members[…]` — **cheap-disproof 2026-10-22 #16:** `notImplemented` 501.
+
+- [ ] (candidate) `ScimUsersController.ReplaceAsync` — PUT claims tombstoned `externalId` — locus: `EnsureExternalIdNotUsedByAnotherUserAsync`; input: regression `ReplaceAsync_tombstoned_external_id_throws_conflict`.
+- [ ] (candidate) `ScimUsersController.CreateAsync` — whitespace-padded `externalId` duplicate — locus: `ParseUser` trim; input: regression `CreateAsync_trimmed_external_id_conflicts_with_existing_user`.
+- [ ] (candidate) `ScimUsersController.PatchAsync` — `remove` on required `externalId` — locus: required-attribute guard; input: regression `PatchAsync_remove_externalId_rejects_required_attribute` (`mutability`).
+- [ ] (candidate) `ScimUsersController.ListAsync` — directory-removed users omitted from list/filter — locus: repository excludes `DirectoryRemovedUtc`; input: regression `ListAsync_external_id_filter_excludes_directory_removed_users`.
+- [ ] (candidate) `ScimUsersController.CreateAsync` / `ReplaceAsync` / `PatchAsync` — canceled body read during JSON deserialize — locus: `OperationCanceledException` rethrow; input: `ScimUsersControllerCancellationTests` / 2026-10-22 proven OCE→`invalidSyntax` fix for non-cancel faults only.
 
 - [x] (proven) `ScimUserService.CreateAsync` / `PatchAsync` / `ScimUsersController` — a second live user with the same `userName` and a different `externalId` was stored, including case-only names — **hit 2026-10-09 seed hunt:** live `userName` lookup returns `uniqueness`. Regressions `CreateAsync_duplicate_user_name_throws_conflict` and `PatchAsync_replace_userName_to_another_users_name_throws_conflict`.
 - [x] (proven) `ScimFilterParser.ParseFilter` / `ScimUsersController.ListAsync` — ungrouped `or` before `and` was parsed left-to-right, so an active user matching only the left comparison was omitted — **hit 2026-10-09 seed hunt:** `not` over `and` over `or` per RFC 7644 §3.4.2.2. Regressions `ListAsync_filter_gives_and_precedence_over_or`, `Parse_or_binds_looser_than_and`, and `Parse_not_binds_tighter_than_and`.
