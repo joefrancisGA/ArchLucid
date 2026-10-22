@@ -5492,6 +5492,114 @@ public sealed class ReviewCacheManifestBuilderTests
     }
 
     [Fact]
+    public void Build_matches_tenant_configuration_hash_when_tenant_slug_differs_only_by_backslash_vs_forward_slash()
+    {
+        ClosedLoopReasoningRequest forwardSlash = CreateRequest("Architecture note.");
+        forwardSlash.TenantId = "tenants/acme/reviews";
+
+        ClosedLoopReasoningRequest backslash = CreateRequest("Architecture note.");
+        backslash.TenantId = "tenants\\acme\\reviews";
+
+        ReviewCacheManifestBuilder.Build(forwardSlash).TenantConfigurationHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(backslash).TenantConfigurationHash);
+    }
+
+    [Fact]
+    public void Build_matches_tenant_configuration_hash_when_workspace_slug_differs_only_by_dot_dot_slash_segment()
+    {
+        ClosedLoopReasoningRequest collapsed = CreateRequest("Architecture note.");
+        collapsed.WorkspaceId = "teams/reviews";
+
+        ClosedLoopReasoningRequest withDotDot = CreateRequest("Architecture note.");
+        withDotDot.WorkspaceId = "teams/architecture/../reviews";
+
+        ReviewCacheManifestBuilder.Build(collapsed).TenantConfigurationHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(withDotDot).TenantConfigurationHash);
+    }
+
+    [Fact]
+    public void Build_matches_tenant_configuration_hash_when_project_slug_differs_only_by_leading_dot_slash()
+    {
+        ClosedLoopReasoningRequest bare = CreateRequest("Architecture note.");
+        bare.ProjectId = "programs/cloud/migration";
+
+        ClosedLoopReasoningRequest dotSlash = CreateRequest("Architecture note.");
+        dotSlash.ProjectId = "./programs/cloud/migration";
+
+        ReviewCacheManifestBuilder.Build(bare).TenantConfigurationHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(dotSlash).TenantConfigurationHash);
+    }
+
+    [Fact]
+    public void Build_matches_content_hash_when_baseline_model_tenant_id_differs_only_by_dot_dot_slash_segment()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "run-model-tenant-dotdot";
+
+        ArchitectureKnowledgeModel collapsed = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            TenantId = "tenants/acme",
+            Elements = [new ArchitectureModelElement { ElementId = "el-1", Name = "API" }],
+        };
+
+        ArchitectureKnowledgeModel withDotDot = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            TenantId = "tenants/org/../acme",
+            Elements = [new ArchitectureModelElement { ElementId = "el-1", Name = "API" }],
+        };
+
+        ReviewCacheManifestBuilder.Build(request, collapsed).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(request, withDotDot).ContentHash);
+    }
+
+    [Fact]
+    public void Build_matches_content_hash_when_baseline_element_id_differs_only_by_leading_slash()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "run-model-element-id-leading-slash";
+
+        ArchitectureKnowledgeModel bare = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements = [new ArchitectureModelElement { ElementId = "graph/api-gateway", Name = "API" }],
+        };
+
+        ArchitectureKnowledgeModel leadingSlash = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements = [new ArchitectureModelElement { ElementId = "/graph/api-gateway", Name = "API" }],
+        };
+
+        ReviewCacheManifestBuilder.Build(request, bare).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(request, leadingSlash).ContentHash);
+    }
+
+    [Fact]
+    public void Build_matches_content_hash_when_model_alias_id_differs_only_by_backslash_vs_forward_slash_in_path()
+    {
+        ClosedLoopReasoningRequest forwardSlash = CreateRequest("Architecture note.");
+        forwardSlash.ModelAliasId = "models/architecture/review";
+
+        ClosedLoopReasoningRequest backslash = CreateRequest("Architecture note.");
+        backslash.ModelAliasId = "models\\architecture\\review";
+
+        ReviewCacheManifestBuilder.Build(forwardSlash).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(backslash).ContentHash);
+    }
+
+    [Fact]
     public void Build_matches_content_hash_when_baseline_related_element_ids_differ_only_by_leading_slash()
     {
         ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");

@@ -8712,6 +8712,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: architecture-intelligence-orchestrator
 
+2026-10-22 seed hunt (seed→hit): promoted path-shaped `ModelAliasId` splitting review-cache `ContentHash` on separator drift; `ClosedLoopModelAliasIdNormalizer.NormalizeForHash` applies `NormalizeReviewCachePathLikeToken`; regression `Build_matches_content_hash_when_model_alias_id_differs_only_by_backslash_vs_forward_slash_in_path`; cheap-disproof regressions for request tenant/workspace/project scope `..` and `./` drift plus baseline tenant and element-id leading-slash equivalence; 312 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `ClosedLoopModelAliasIdNormalizer.NormalizeForHash` — path-shaped alias ids split `ContentHash` — **hit 2026-10-22 seed hunt:** path token on alias segment; regression above.
+
 2026-10-22 seed hunt (seed→hit): promoted path-shaped tenant/workspace/project scope slugs and baseline model `TenantId` splitting review-cache `TenantConfigurationHash`/`modelfp`; `ClosedLoopScopeIdHashNormalizer` applies `NormalizeReviewCachePathLikeToken` for non-GUID slugs and review-cache `modelfp` tenant header uses artifact reference normalization; regressions `Build_matches_tenant_configuration_hash_when_workspace_slug_differs_only_by_backslash_vs_forward_slash`, `Build_matches_tenant_configuration_hash_when_project_slug_differs_only_by_backslash_vs_forward_slash`, and `Build_matches_content_hash_when_baseline_model_tenant_id_differs_only_by_backslash_vs_forward_slash_in_path_slug`; cheap-disproof regressions for element-id `..` segments and leading-slash related ids; 306 scoped orchestrator/cache/manifest/continue-flight tests passed.
 
 - [x] (proven) `ClosedLoopScopeIdHashNormalizer.Normalize` / `ComputeReviewCacheKnowledgeModelFingerprint` — path-shaped scope and tenant slugs split cache hash — **hit 2026-10-22 seed hunt:** path token on scope ids + tenant header; regressions above.

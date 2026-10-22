@@ -1,3 +1,5 @@
+using ArchLucid.Core.Persistence.Graph;
+
 namespace ArchLucid.Application.ArchitectureIntelligence;
 
 internal static class ClosedLoopModelAliasIdNormalizer
@@ -24,7 +26,7 @@ internal static class ClosedLoopModelAliasIdNormalizer
 
         string normalized = CollapseInteriorAsciiSpaces(NormalizeUnicodeSpaces(modelAliasId.Trim()));
 
-        return normalized.ToLowerInvariant();
+        return GraphSnapshotCanonicalFingerprint.NormalizeReviewCachePathLikeToken(normalized.ToLowerInvariant());
     }
 
     private static string NormalizeUnicodeSpaces(string value) =>
