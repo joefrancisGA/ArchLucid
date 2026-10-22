@@ -745,6 +745,83 @@ public sealed class TenantCatalogMigrationOrchestratorTests
     }
 
     [Fact]
+    public async Task RunProjectionRefreshAsync_returns_in_erasure_quarantine_without_refresh_audit_when_offboard_completes_after_tenant_before_refresh_audit_read_before_audit()
+    {
+        InMemoryTenantCatalogMigrationRepository migrations = new();
+        FakeTimeProvider clock = new(new DateTimeOffset(2026, 10, 22, 5, 5, 0, TimeSpan.Zero));
+        Guid migrationId = Guid.NewGuid();
+        await migrations.InsertAsync(
+            new TenantCatalogMigrationRecord
+            {
+                MigrationId = migrationId,
+                TenantId = TenantId,
+                CorrelationId = "corr-offboard-refresh-pre-append-audit",
+                Stage = TenantCatalogMigrationStage.CatalogAttachDetach,
+                StartedUtc = clock.GetUtcNow().AddHours(-1),
+            },
+            CancellationToken.None);
+
+        TenantRecord activeTenant = new()
+        {
+            Id = TenantId,
+            Name = "Acme",
+            Slug = "acme",
+            Tier = TenantTier.Standard,
+            DataRegion = TenantDataRegions.Default,
+            CreatedUtc = clock.GetUtcNow().AddDays(-1),
+        };
+
+        TenantRecord offboarded = new()
+        {
+            Id = TenantId,
+            Name = "Acme",
+            Slug = "acme",
+            Tier = TenantTier.Standard,
+            DataRegion = TenantDataRegions.Default,
+            CreatedUtc = clock.GetUtcNow().AddDays(-1),
+            OffboardedUtc = clock.GetUtcNow(),
+            ErasureEligibleUtc = clock.GetUtcNow().AddDays(30),
+        };
+
+        Mock<ITenantRepository> tenants = new(MockBehavior.Strict);
+        tenants
+            .SetupSequence(t => t.GetByIdAsync(TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(activeTenant)
+            .ReturnsAsync(activeTenant)
+            .ReturnsAsync(activeTenant)
+            .ReturnsAsync(activeTenant)
+            .ReturnsAsync(activeTenant)
+            .ReturnsAsync(activeTenant)
+            .ReturnsAsync(offboarded);
+
+        Mock<IPlatformAuditRepository> audit = new(MockBehavior.Strict);
+        TenantSuspendCommandService suspend = new(tenants.Object, audit.Object, clock);
+        TenantCatalogMigrationOrchestrator sut = new(
+            migrations,
+            tenants.Object,
+            suspend,
+            CreateDefaultProjectionRefresh(),
+            CreateDefaultVerificationProbe(),
+            audit.Object,
+            clock);
+
+        (TenantCatalogMigrationCommandOutcome outcome, TenantMigrationProjectionRefreshResult? refresh) =
+            await sut.RunProjectionRefreshAsync(TenantId, WorkspaceId, ProjectId, "admin", "Admin", CancellationToken.None);
+
+        Assert.Equal(TenantCatalogMigrationCommandOutcome.InErasureQuarantine, outcome);
+        Assert.NotNull(refresh);
+
+        TenantCatalogMigrationRecord? record =
+            await migrations.GetActiveByTenantIdAsync(TenantId, CancellationToken.None);
+        Assert.Equal(TenantCatalogMigrationStage.ProjectionRefresh, record?.Stage);
+        audit.Verify(
+            a => a.AppendAsync(
+                It.Is<PlatformAuditEvent>(e => e.EventType == AuditEventTypes.TenantCatalogMigrationProjectionRefreshCompleted),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task RunVerificationAsync_returns_wrong_stage_before_projection_refresh_succeeds()
     {
         InMemoryTenantCatalogMigrationRepository migrations = new();
