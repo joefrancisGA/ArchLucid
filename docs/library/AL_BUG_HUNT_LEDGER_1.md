@@ -8712,6 +8712,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: architecture-intelligence-orchestrator
 
+2026-10-22 seed hunt (seed→hit): promoted path-shaped **request** framing-answer keys splitting `ContentHash` on `\` vs `/` while model keys were already canonicalized; `ClosedLoopFramingAnswersNormalizer.NormalizeFramingKey` now applies `NormalizeReviewCachePathLikeToken` without case folding (request keys stay case-sensitive per contract); regression `Build_matches_content_hash_when_request_framing_answer_key_differs_only_by_backslash_vs_forward_slash_in_path`; 331 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `ClosedLoopFramingAnswersNormalizer` — request framing keys path separator drift split cache hash — **hit 2026-10-22 seed hunt:** path canonicalization on keys; regression above.
+
 2026-10-22 seed hunt (seed→hit): promoted path-shaped declared priorities, framing keys, and element name/description splitting review-cache hash on separator drift; `FormatDeclaredPriorities`, `FormatFramingAnswers`, element labels, and `ClosedLoopDeclaredPrioritiesNormalizer` now canonicalize path separators; regressions `Build_matches_content_hash_when_baseline_model_declared_priorities_differ_only_by_backslash_vs_forward_slash_in_path`, `Build_matches_declared_priorities_hash_when_request_priorities_differ_only_by_backslash_vs_forward_slash_in_path`, `Build_matches_content_hash_when_baseline_model_framing_answer_key_differs_only_by_backslash_vs_forward_slash_in_path`, `Build_matches_content_hash_when_baseline_element_name_differs_only_by_backslash_vs_forward_slash_in_path`, and `Build_matches_content_hash_when_baseline_element_description_differs_only_by_backslash_vs_forward_slash_in_path`; 330 scoped orchestrator/cache/manifest/continue-flight tests passed.
 
 - [x] (proven) `GraphSnapshotCanonicalFingerprint` / `ClosedLoopDeclaredPrioritiesNormalizer` — path-shaped priorities and element labels split cache hash — **hit 2026-10-22 seed hunt:** artifact/path normalization on priorities, framing keys, name, and description; regressions above.
