@@ -12470,7 +12470,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 265
+- **hunts:** 266
 - **bugs-found:** 179
 - **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-22 — fully empty overlay merge returned base graph without warning normalization
@@ -12829,7 +12829,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - [x] (valid-no-repro) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — all-whitespace overlay node property bag threw or dropped node — **cheap-disproof 2026-10-22 seed hunt:** skip rules yield empty bag; regression above.
 
-- [ ] (candidate) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — overlay edge whose property bag contains only whitespace keys and values may throw or fail to append — locus: `NormalizeOverlayPropertyBag` skip rules on edge append; input: overlay edge with degenerate all-whitespace property entries; wrong outcome: merge throws or inventory edge dropped.
+2026-10-22 seed hunt (valid-no-repro): promoted `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` all-whitespace overlay edge property bag candidate; proved edge append shares node property skip rules so degenerate bags normalize to `[]` while directed edge still appends when endpoints exist; regression `Merge_appends_inventory_overlay_edge_when_property_bag_contains_only_whitespace_entries`; seeded `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` relationship rows with whitespace-only `RelationshipType` may mint edges follow-on; 559 KnowledgeGraph + 170 Provenance scoped tests passed.
+
+- [x] (valid-no-repro) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — all-whitespace overlay edge property bag threw or dropped edge — **cheap-disproof 2026-10-22 seed hunt:** skip rules yield empty bag; regression above.
+
+- [ ] (candidate) `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` — relationship rows with whitespace-only `RelationshipType` may mint edges with padded or empty types — locus: relationship edge type normalization before dedupe; input: inventory relationship whose type is surrounding whitespace only; wrong outcome: overlay mints edge with raw whitespace `EdgeType` or throws.
 
 2026-10-22 seed hunt (seed→hit): promoted `StructuredDiagramGraphMerger` padded diagram property-key coalesce candidate; proved duplicate node/edge metadata coalesce indexed raw `property.Key`, so a later compile with surrounding-whitespace keys left parallel bag entries and `GraphNodePropertyReader` could return stale source-evidence values; trim keys before skip/coalesce (parity with `GraphNodeFactory.NormalizePropertyBag`); regression `Merge_coalesces_node_properties_when_incoming_property_keys_differ_only_by_surrounding_whitespace`; seeded diagram edge metadata padded-key coalesce regression follow-on; 468 KnowledgeGraph + 170 Provenance scoped tests passed.
 
