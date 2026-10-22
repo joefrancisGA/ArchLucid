@@ -96,6 +96,11 @@ describe("readOAuthJsonErrorDescription", () => {
     expect(readOAuthJsonErrorDescription("👍🏻%2Bextra")).toBe("👍🏻+extra");
     expect(readOAuthJsonErrorDescription("Policy%20denied%2Bextra")).toBe("Policy denied+extra");
   });
+
+  it("preserves percent-decoded plus in JSON when literal plus and percent-encoded plus mix with pictograph glue", () => {
+    expect(readOAuthJsonErrorDescription("User+denied%2B🏷️")).toBe("User+denied+🏷️");
+    expect(readOAuthJsonErrorDescription("Policy%2B🏷️+extra")).toBe("Policy+🏷️+extra");
+  });
 });
 
 describe("decodeOAuthErrorDescription", () => {

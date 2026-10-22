@@ -273,15 +273,17 @@ export function readOAuthJsonErrorDescription(value: string): string {
       decoded = shouldPreserveLiteralPlusInAuthorizeDescription(fullyDecoded)
         ? fullyDecoded
         : decodeRepeatedPercentEncoding(collapsed.replace(/%(?:25)*2[bB]/gi, " "));
+
+      decoded = collapseOAuthErrorDescriptionLineBreaks(decoded);
     } else {
       decoded = decodeRepeatedPercentEncoding(collapsed);
 
       if (percentEncodedPlus && !literalPlusInSource && !shouldPreserveLiteralPlusInAuthorizeDescription(decoded)) {
         decoded = decoded.replace(/\+/g, " ");
       }
-    }
 
-    decoded = collapseOAuthErrorDescriptionLineBreaks(decoded);
+      decoded = collapseOAuthErrorDescriptionLineBreaks(decoded);
+    }
   } catch {
     decoded = collapsed;
   }
