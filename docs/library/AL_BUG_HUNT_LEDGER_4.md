@@ -12470,18 +12470,22 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 166
+- **hunts:** 167
 - **bugs-found:** 149
 - **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-22 — graph node property reader returned padded property values
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
+2026-10-22 seed hunt (valid-no-repro): promoted `ProvenanceSnapshotRevisionHasher.Compute` padded `ManifestHash` / `RuleSetId` candidate; proved revision `Compute` already trims both manifest scalars before canonical string composition; existing regressions `Compute_unchanged_when_manifest_rule_set_id_differs_only_by_surrounding_whitespace` and `Compute_unchanged_when_manifest_hash_differs_only_by_surrounding_whitespace`; seeded `ComputeAppliedRuleIdsFingerprint` padded applied-rule-id token parity follow-on; 465 KnowledgeGraph + 157 Provenance scoped tests passed.
+
+- [x] (valid-no-repro) `ProvenanceSnapshotRevisionHasher.Compute` — padded `ManifestHash` or `RuleSetId` bypassed revision trim — **cheap-disproof 2026-10-22 seed hunt:** trim before canonical string; regressions above.
+
+- [ ] (candidate) `ProvenanceSnapshotRevisionHasher.ComputeAppliedRuleIdsFingerprint` — padded applied rule id tokens may fingerprint as distinct entries — locus: rule id trim in trace fingerprint; input: `AppliedRuleIds` entries with surrounding whitespace; wrong outcome: stale revision hash when only padding differs.
+
 2026-10-22 seed hunt (valid-no-repro): promoted `ProvenanceSnapshotRevisionHasher.ComputeGraphFingerprint` padded edge endpoint candidate; proved graph fingerprint edge segments already trim `FromNodeId`, `ToNodeId`, and `EdgeType` before `Distinct`; regressions `Compute_unchanged_when_graph_edge_endpoints_differ_only_by_surrounding_whitespace` and `Compute_unchanged_when_graph_lists_parallel_edges_whose_endpoints_differ_only_by_surrounding_whitespace`; seeded revision canonical `manifestHash` / `manifestRuleSetId` surrounding-whitespace parity follow-on; 465 KnowledgeGraph + 157 Provenance scoped tests passed.
 
 - [x] (valid-no-repro) `ProvenanceSnapshotRevisionHasher.ComputeGraphFingerprint` — padded edge endpoints split fingerprint segments — **cheap-disproof 2026-10-22 seed hunt:** trim on edge fingerprint tokens; regressions above.
-
-- [ ] (candidate) `ProvenanceSnapshotRevisionHasher.Compute` — padded `ManifestHash` or `RuleSetId` may bypass revision canonical trim — locus: manifest scalar trim before canonical string; input: manifest hash or rule set id with surrounding whitespace; wrong outcome: stale `ProvenanceGraphAccessService` cache hits when only padding differs.
 
 2026-10-22 seed hunt (valid-no-repro): promoted `ProvenanceSnapshotRevisionHasher.ComputeGraphFingerprint` padded `NodeId` group-key candidate; proved graph fingerprint node `GroupBy` already trims `NodeId` before case-insensitive grouping; regressions `Compute_unchanged_when_graph_lists_node_ids_differing_only_by_surrounding_whitespace` and `Compute_changes_when_later_row_has_padded_node_id_and_different_label`; seeded graph fingerprint padded edge endpoint id parity follow-on; 465 KnowledgeGraph + 155 Provenance scoped tests passed.
 
