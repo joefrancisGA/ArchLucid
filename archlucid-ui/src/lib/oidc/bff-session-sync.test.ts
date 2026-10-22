@@ -290,6 +290,20 @@ describe("refreshBffSessionCookie (LK-06 P2)", () => {
     expect(result).toEqual({ ok: false, shouldClearSession: false });
   });
 
+  it("sets shouldClearSession when the refresh route returns 401", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => ({
+        ok: false,
+        status: 401,
+      })),
+    );
+
+    const result = await refreshBffSessionCookie();
+
+    expect(result).toEqual({ ok: false, shouldClearSession: true });
+  });
+
   it("accepts refresh responses whose expires_at_ms is in the future", async () => {
     const futureMs = Date.now() + 3_600_000;
 
