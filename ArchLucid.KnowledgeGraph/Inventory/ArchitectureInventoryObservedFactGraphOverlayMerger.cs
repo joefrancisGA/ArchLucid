@@ -83,11 +83,6 @@ public static class ArchitectureInventoryObservedFactGraphOverlayMerger
         IReadOnlyList<string> baseWarnings,
         IReadOnlyList<string> overlayWarnings)
     {
-        if (overlayWarnings.Count == 0)
-        {
-            return [.. baseWarnings];
-        }
-
         HashSet<string> seen = new(StringComparer.OrdinalIgnoreCase);
         List<string> merged = [];
 

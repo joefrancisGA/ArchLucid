@@ -12470,10 +12470,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 221
-- **bugs-found:** 175
+- **hunts:** 222
+- **bugs-found:** 176
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — inventory overlay merge duplicated case-variant warnings
+- **last-bug:** 2026-10-22 — overlay merge skipped base warning trim when overlay warnings empty
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -12653,7 +12653,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - [x] (proven) `ArchitectureInventoryObservedFactGraphOverlayMerger.MergeWarnings` — case-variant base/overlay warnings duplicated on merge — **hit 2026-10-22 seed hunt (seed→hit):** case-insensitive warning dedupe keys; regression above.
 
-- [ ] (candidate) `ArchitectureInventoryObservedFactGraphOverlayMerger.MergeWarnings` — base graph warnings returned verbatim when overlay warnings list is empty — locus: early return before `MergeWarnings` normalization; input: base warnings with padding or case duplicates only; wrong outcome: merged graph warnings skip trim/dedupe.
+2026-10-22 seed hunt (seed→hit): promoted `ArchitectureInventoryObservedFactGraphOverlayMerger.MergeWarnings` empty overlay warning list candidate; proved `MergeWarnings` returned base warnings verbatim when `overlayWarnings.Count == 0`, skipping trim and case-insensitive dedupe on padded or case-variant base-only duplicates; always run base warnings through the shared merge loop; regression `Merge_normalizes_base_warnings_when_overlay_warning_list_is_empty`; seeded `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` fully empty overlay early return leaves base warnings unnormalized follow-on; 514 KnowledgeGraph + 170 Provenance scoped tests passed.
+
+- [x] (proven) `ArchitectureInventoryObservedFactGraphOverlayMerger.MergeWarnings` — base warnings skipped trim/dedupe when overlay warning list empty — **hit 2026-10-22 seed hunt (seed→hit):** remove empty-overlay early return; regression above.
+
+- [ ] (candidate) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — fully empty inventory overlay short-circuit returns base graph without normalizing base warnings — locus: top-level empty overlay `return baseGraph`; input: overlay has no nodes, edges, or warnings but base warnings carry padding or case duplicates; wrong outcome: merged graph is base graph reference with unnormalized warnings.
 
 2026-10-22 seed hunt (seed→hit): promoted `StructuredDiagramGraphMerger` padded diagram property-key coalesce candidate; proved duplicate node/edge metadata coalesce indexed raw `property.Key`, so a later compile with surrounding-whitespace keys left parallel bag entries and `GraphNodePropertyReader` could return stale source-evidence values; trim keys before skip/coalesce (parity with `GraphNodeFactory.NormalizePropertyBag`); regression `Merge_coalesces_node_properties_when_incoming_property_keys_differ_only_by_surrounding_whitespace`; seeded diagram edge metadata padded-key coalesce regression follow-on; 468 KnowledgeGraph + 170 Provenance scoped tests passed.
 
