@@ -1,4 +1,17 @@
 2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed invalid_saml_response authorize-query UX, BFF refresh 449 parity, and saturated decodeOAuthErrorDescription ideographic-space glue; regression documents authorize-retry is marked when authorization code exchange returns figure-space-only access_token; scoped vitest 581/581.
+2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed invalid_saml_assertion authorize-query UX, BFF refresh 450 parity (client + route opaque 450), and saturated readOAuthJsonErrorDescription ideographic-space multiply-encoded glue; regression documents authorize-retry marking when authorization code exchange returns punctuation-space-only access_token; scoped vitest 639/639.
+
+- [x] (invalid) humanizeAuthorizeCallbackError - invalid_saml_assertion authorize-query copy - **cheap-disproof 2026-10-22:** readable default-branch UX parity test.
+- [x] (valid-no-repro) refreshBffSessionCookie - refresh 450 shouldClearSession false - **regression 2026-10-22:** client soft-fail plus BFF route opaque 450 without cookie clear.
+- [x] (valid-no-repro) exchangeAuthorizationCode - access_token JSON string punctuation-space-only skips authorize retry marker - **regression 2026-10-22:** punctuation-space-only tokens reject exchange and set retry marker.
+- [x] (invalid) readOAuthJsonErrorDescription - multiply-encoded %252B with ideographic-space glue - **cheap-disproof 2026-10-22:** saturated JSON encoding class.
+
+- [ ] (candidate) humanizeAuthorizeCallbackError - invalid_saml_metadata authorize-query copy - locus: default branch UX.
+- [ ] (candidate) refreshBffSessionCookie - refresh 451 shouldClearSession false - locus: transient refresh parity.
+- [ ] (candidate) exchangeAuthorizationCode - access_token JSON string four-per-em-space-only skips authorize retry marker - locus: literal whitespace token shape.
+- [ ] (candidate) decodeOAuthErrorDescription - multiply-encoded %252B with figure-space glue - locus: saturated encoding class.
+
+2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed invalid_saml_response authorize-query UX, BFF refresh 449 parity (client + route opaque 449), and saturated decodeOAuthErrorDescription ideographic-space multiply-encoded glue; regression documents authorize-retry marking when authorization code exchange returns figure-space-only access_token; scoped vitest 635/635.
 
 - [x] (invalid) humanizeAuthorizeCallbackError - invalid_saml_response authorize-query copy - **cheap-disproof 2026-10-22:** readable default-branch UX parity test.
 - [x] (valid-no-repro) refreshBffSessionCookie - refresh 449 shouldClearSession false - **regression 2026-10-22:** transient refresh soft-fail without cookie clear.
