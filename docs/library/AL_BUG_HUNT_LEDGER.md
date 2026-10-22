@@ -26145,6 +26145,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ## Zone: ui-oidc
 
 - **id:** ui-oidc
+- **hunts:** 92
 - **status:** open
 - **impact:** high
 - **aliases:** oidc authority; sign-in routing; OIDC host
