@@ -11,6 +11,40 @@ namespace ArchLucid.KnowledgeGraph.Tests;
 public sealed class ArchitectureDiagramToGraphCompilerTests
 {
     [Fact]
+    public void Compile_trims_diagram_record_id_when_minting_diagram_node_graph_id()
+    {
+        ArchitectureDiagramModelRecord model = new()
+        {
+            Nodes =
+            [
+                new ArchitectureDiagramNodeRecord
+                {
+                    Id = "  sql  ",
+                    Label = "SQL",
+                    Kind = ArchitectureDiagramNodeKinds.System,
+                    Provenance = ArchitectureDiagramProvenanceKinds.Inferred,
+                },
+            ],
+            ExtractionMethod = DiagramExtractionMethods.StructuredParse,
+        };
+
+        ArchitectureDiagramToGraphCompiler compiler = new();
+        StructuredDiagramGraphCompileResult result = compiler.Compile(
+            model,
+            new StructuredDiagramGraphCompileOptions
+            {
+                RunId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                ContextSnapshotId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+                GraphSnapshotId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
+                CreatedUtc = DateTime.Parse("2026-01-01T00:00:00Z"),
+            });
+
+        GraphNode sqlNode = result.Snapshot.Nodes.Should().ContainSingle().Subject;
+        sqlNode.NodeId.Should().Be("diagram-node:sql");
+        sqlNode.SourceId.Should().Be("sql");
+    }
+
+    [Fact]
     public void Compile_maps_label_only_nodes_with_structured_parse_inference_not_observed_fact()
     {
         ArchitectureDiagramModelRecord model = new()
