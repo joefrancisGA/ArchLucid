@@ -11261,6 +11261,21 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: application-tenancy-lifecycle
 
+2026-10-22 seed hunt (seed→hit): promoted `TenantTrialFacade.GetTrialStatusAsync` returning raw padded/lowercase `TrialStatus` in DTO while lifecycle math uses `EqualsStatus`; canonical label via `FormatTrialStatusForDisplay`; regression `GetTrialStatusAsync_returns_canonical_active_label_when_status_is_padded_or_lowercase`; cheap-disproof closed five open `(candidate)` rows.
+
+- [x] (proven) `TenantTrialFacade.BuildStatusResponse` — non-canonical `TrialStatus` echoed to clients — **hit 2026-10-22 seed hunt:** `FormatTrialStatusForDisplay`; regression `GetTrialStatusAsync_returns_canonical_active_label_when_status_is_padded_or_lowercase`.
+- [x] (valid-no-repro) `TrialLimitGate.GuardDeleteAsync` — missing tenant row no-throw — **cheap-disproof 2026-10-22:** same contract as write gate; erasure/scope middleware precedes DELETE handlers.
+- [x] (valid-no-repro) `TenantMigrationStatusService.GetForTenantAsync` — `InMigration=false` when offboarded — **cheap-disproof 2026-10-22:** intentional hide of migration banner during erasure quarantine.
+- [x] (valid-no-repro) `TenantSlugNormalizer.FromName` — hyphen dedupe for `A--B` — **cheap-disproof 2026-10-22:** `FromName_produces_expected_slug` / deterministic normalization; not a duplicate-org bypass.
+- [x] (valid-no-repro) `TenantProvisioningService.ProvisionAsync` — truncated slug collision — **cheap-disproof 2026-10-22:** unique slug constraint + `IsDuplicateOrganization` race replay path.
+- [x] (invalid) `PostAuthWorkspaceBootstrapService.HasActiveOwnedTrialAsync` — membership role casing — **cheap-disproof 2026-10-22:** workspace memberships persist canonical `ArchLucidRoles` constants from invitation/bootstrap writers only.
+
+- [ ] (candidate) `TenantTrialFacade.LinkEntraAsync` — conflict message when status is lowercase `active` vs converted — locus: pre-convert guard ~128–136; input: directory bind attempt on import row storing `active` (reachability: identity handoff API).
+- [ ] (candidate) `TrialLimitGate.GuardWriteAsync` — `Deleted` status comparison without `EqualsStatus` on all branches — locus: `TrialLifecycleStatus.Deleted` check ~46; input: lowercase `deleted` trial row (reachability: mutating API on terminal lifecycle).
+- [ ] (candidate) `TenantUsageStatusService.BuildAsync` — trial seat counts when `TrialStatus` null but limits set — locus: usage snapshot assembly; input: partially provisioned tenant row (reachability: packaging limit evaluator).
+- [ ] (candidate) `TenantOrganizationDuplicateDetector.NormalizeOrganizationName` — Unicode normalization vs SQL upper invariant — locus: `ToUpperInvariant` only; input: organization names differing only by composite Unicode forms (reachability: self-service duplicate hint).
+- [ ] (candidate) `TenantCatalogMigrationOrchestrator.RunVerificationAsync` — stage advance before suspend re-read — locus: `UpdateStageAsync` ~38–40; input: concurrent offboard between stage bump and probe (reachability: migration verification command).
+
 2026-10-22 seed hunt (seed→hit): promoted post-auth `HasActiveOwnedTrialAsync` case-sensitive `TrialStatus` check — lowercase/padded `active` rows bypassed `active_trial` packaging guard while `TrialLifecycleStatus.EqualsStatus` is used elsewhere; regression `CreateWorkspaceAsync_denies_when_owned_trial_active_status_differs_only_by_casing`; cheap-disproof closed five open `(candidate)` rows.
 
 - [x] (proven) `PostAuthWorkspaceBootstrapService.HasActiveOwnedTrialAsync` — lowercase `TrialStatus` not treated as active — **hit 2026-10-22 seed hunt:** `TrialLifecycleStatus.EqualsStatus` parity; regression `CreateWorkspaceAsync_denies_when_owned_trial_active_status_differs_only_by_casing`.
@@ -11269,12 +11284,6 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (invalid) `TenantProvisioningService.ProvisionAsync` — malformed `AdminEmail` at provision only — **cheap-disproof 2026-10-22:** post-auth `displayEmail` originates from verified OTP session, not raw client bypass.
 - [x] (valid-no-repro) `TrialTenantBootstrapService.TryBootstrapAfterPostAuthWorkspaceAsync` — `companyProfile` discarded — **cheap-disproof 2026-10-22:** post-auth path does not commit self-service trial metadata; industry vertical flows to onboarding URL only by design today.
 - [x] (valid-no-repro) `TenantCatalogMigrationOrchestrator.CompleteAsync` — pre-migration admin suspend preserved — **cheap-disproof 2026-10-22:** regression `CompleteAsync_preserves_admin_suspend_when_tenant_was_suspended_before_migration_start`.
-
-- [ ] (candidate) `TenantTrialFacade.GetTrialStatusAsync` — `TrialStatus` whitespace padding may affect display while gate uses `EqualsStatus` — locus: `BuildStatusResponse` reads raw `tenant.TrialStatus`; input: SQL row with ` active ` padding (reachability: trial status API).
-- [ ] (candidate) `TrialLimitGate.GuardDeleteAsync` — missing tenant row returns without throwing — locus: `tenant is null` ~81–82; input: stale scope after tenant purge (reachability: DELETE on tenant-scoped API).
-- [ ] (candidate) `TenantMigrationStatusService.GetForTenantAsync` — returns `InMigration=false` when tenant offboarded mid-migration — locus: `OffboardedUtc` short-circuit ~30–33; input: erasure during active catalog migration (reachability: status poll during quarantine).
-- [ ] (candidate) `TenantSlugNormalizer.FromName` — consecutive hyphen collapse differs from registration slug expectations — locus: hyphen dedupe loop ~20–25; input: organization name `A--B` vs `A-B` (reachability: self-service slug derivation).
-- [ ] (candidate) `TenantProvisioningService.ProvisionAsync` — slug collision from truncated distinct names — locus: `TenantSlugNormalizer.FromName` 100-char cap; input: two long names sharing first 100 slug chars (reachability: parallel provision race).
 
 2026-10-22 seed hunt (seed→hit): promoted post-auth unsupported `DataRegion` — `TenantProvisioningDataRegionPolicy.Validate` threw from `ProvisionAsync` on allowlist miss instead of a customer deny; validate normalized region before provision using `TenantProvisioningOptions`; regression `CreateWorkspaceAsync_denies_when_data_region_not_in_supported_list`; cheap-disproof closed five open `(candidate)` rows.
 
@@ -11363,11 +11372,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 140
-- **bugs-found:** 119
+- **hunts:** 141
+- **bugs-found:** 120
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — post-auth active trial status casing parity
+- **last-bug:** 2026-10-22 — trial status API canonical labels
 
 2026-10-21 seed hunt (seed-only): cheap-disproof on five settings/registration `(candidate)` rows; no hunt-ready promotion (`state-machine-gap` / `fail-open-validation` saturated); reseeded five new lenses.
 
