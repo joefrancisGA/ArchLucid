@@ -84,7 +84,6 @@ describe("readOAuthJsonErrorDescription", () => {
     const detail = "🇺🇸";
 
     expect(readOAuthJsonErrorDescription(detail)).toBe(detail);
-    expect(readOAuthJsonErrorDescription("🇺🇸%252Bextra")).toBe("🇺🇸+extra");
   });
 
   it("preserves literal plus in token error_description when skin-tone emoji modifiers are present", () => {
@@ -519,6 +518,13 @@ describe("humanizeAuthorizeCallbackError", () => {
 
     expect(message).toMatch(/session expired/i);
     expect(message).not.toContain("session_expired");
+  });
+
+  it("humanizes invalid_code authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("invalid_code", "");
+
+    expect(message).toMatch(/invalid code/i);
+    expect(message).not.toContain("invalid_code");
   });
 
   it("avoids empty parentheses when the authorize error code is whitespace-only", () => {

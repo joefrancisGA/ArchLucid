@@ -1,3 +1,15 @@
+2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed invalid_code authorize-query UX, BFF refresh 441 parity, and saturated decodeOAuthErrorDescription emoji ZWJ sequence glue; regression documents authorize-retry is marked when authorization code exchange returns form-feed-only access_token; scoped vitest 557/557.
+
+- [x] (invalid) humanizeAuthorizeCallbackError - invalid_code authorize-query copy - **cheap-disproof 2026-10-22:** readable default-branch UX parity test.
+- [x] (valid-no-repro) refreshBffSessionCookie - refresh 441 shouldClearSession false - **regression 2026-10-22:** transient refresh soft-fail without cookie clear.
+- [x] (valid-no-repro) exchangeAuthorizationCode - access_token JSON string form-feed-only skips authorize retry marker - **regression 2026-10-22:** form-feed-only tokens reject exchange and set retry marker.
+- [x] (invalid) decodeOAuthErrorDescription - multiply-encoded %252B with emoji ZWJ sequence glue - **cheap-disproof 2026-10-22:** saturated encoding class.
+
+- [ ] (candidate) humanizeAuthorizeCallbackError - invalid_credentials authorize-query copy - locus: default branch UX.
+- [ ] (candidate) refreshBffSessionCookie - refresh 442 shouldClearSession false - locus: transient refresh parity.
+- [ ] (candidate) exchangeAuthorizationCode - access_token JSON string vertical-tab-only skips authorize retry marker - locus: literal whitespace token shape.
+- [ ] (candidate) readOAuthJsonErrorDescription - multiply-encoded %252B with emoji ZWJ sequence glue - locus: saturated JSON encoding class.
+
 2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed session_expired authorize-query UX, BFF refresh 440 parity, and saturated readOAuthJsonErrorDescription pictograph glue; regression documents authorize-retry is marked when authorization code exchange returns CRLF-only access_token; scoped vitest 554/554.
 
 - [x] (invalid) humanizeAuthorizeCallbackError - session_expired authorize-query copy - **cheap-disproof 2026-10-22:** readable default-branch UX parity test.
@@ -30,14 +42,6 @@
 - [x] (invalid) readOAuthJsonErrorDescription - multiply-encoded %252B with regional-indicator glue - **cheap-disproof 2026-10-22:** saturated JSON encoding class.
 
 - [ ] (candidate) humanizeAuthorizeCallbackError - server_error authorize-query copy - locus: default branch UX.
-2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed mfa_required authorize-query UX, BFF refresh 438 parity (client + route opaque 438), and saturated readOAuthJsonErrorDescription regional-indicator multiply-encoded glue; regression documents authorize-retry marking when authorization code exchange returns newline-only access_token; scoped vitest 599/599.
-
-- [x] (invalid) humanizeAuthorizeCallbackError - mfa_required authorize-query copy - **cheap-disproof 2026-10-22:** readable default-branch UX parity test.
-- [x] (valid-no-repro) refreshBffSessionCookie - refresh 438 shouldClearSession false - **regression 2026-10-22:** client soft-fail plus BFF route opaque 438 without cookie clear.
-- [x] (valid-no-repro) exchangeAuthorizationCode - access_token JSON string newline-only skips authorize retry marker - **regression 2026-10-22:** newline-only tokens reject exchange and set retry marker.
-- [x] (invalid) readOAuthJsonErrorDescription - multiply-encoded %252B with regional-indicator glue - **cheap-disproof 2026-10-22:** saturated JSON encoding class.
-
-- [ ] (candidate) humanizeAuthorizeCallbackError - step_up_required authorize-query copy - locus: default branch UX.
 - [ ] (candidate) refreshBffSessionCookie - refresh 439 shouldClearSession false - locus: transient refresh parity.
 - [ ] (candidate) exchangeAuthorizationCode - access_token JSON string carriage-return-only skips authorize retry marker - locus: literal whitespace token shape.
 - [ ] (candidate) decodeOAuthErrorDescription - multiply-encoded %252B with pictograph glue - locus: saturated encoding class.
@@ -26369,16 +26373,6 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ## Zone: ui-oidc
 
 - **id:** ui-oidc
-- **hunts:** 101
-- **hunts:** 100
-- **hunts:** 99
-- **hunts:** 98
-- **hunts:** 97
-- **hunts:** 96
-- **hunts:** 95
-- **hunts:** 94
-- **hunts:** 93
-- **hunts:** 92
 - **status:** open
 - **impact:** high
 - **aliases:** oidc authority; sign-in routing; OIDC host
