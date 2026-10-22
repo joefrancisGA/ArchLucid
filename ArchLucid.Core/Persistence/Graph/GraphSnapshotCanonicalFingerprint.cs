@@ -259,15 +259,29 @@ public static class GraphSnapshotCanonicalFingerprint
 
     private static string FormatPassageOffsetToken(int? startOffset, int? endOffset, bool isStart)
     {
-        int? offset = isStart ? startOffset : endOffset;
+        if (isStart)
+        {
+            if (startOffset is null)
+            {
+                if (endOffset is null or 0)
+                    return string.Empty;
 
-        if (offset is null)
+                return "0";
+            }
+
+            if (startOffset is 0 && endOffset is 0)
+                return string.Empty;
+
+            return startOffset.Value.ToString(System.Globalization.CultureInfo.InvariantCulture);
+        }
+
+        if (endOffset is null)
             return string.Empty;
 
         if (startOffset is 0 && endOffset is 0)
             return string.Empty;
 
-        return offset.Value.ToString(System.Globalization.CultureInfo.InvariantCulture);
+        return endOffset.Value.ToString(System.Globalization.CultureInfo.InvariantCulture);
     }
 
     private static string FormatElementProvenance(ClaimProvenance? provenance)

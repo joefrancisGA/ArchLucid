@@ -3021,6 +3021,62 @@ public sealed class ReviewCacheManifestBuilderTests
     }
 
     [Fact]
+    public void Build_matches_content_hash_when_baseline_element_provenance_passage_start_is_null_vs_zero_with_end_offset()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "run-model-passage-start-null-zero";
+
+        ArchitectureKnowledgeModel nullStart = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "el-1",
+                    Name = "API",
+                    Provenance = new ClaimProvenance
+                    {
+                        PassageLocator = new SourcePassageLocator
+                        {
+                            ArtifactId = "artifact-1",
+                            EndOffset = 42,
+                        },
+                    },
+                },
+            ],
+        };
+
+        ArchitectureKnowledgeModel zeroStart = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "el-1",
+                    Name = "API",
+                    Provenance = new ClaimProvenance
+                    {
+                        PassageLocator = new SourcePassageLocator
+                        {
+                            ArtifactId = "artifact-1",
+                            StartOffset = 0,
+                            EndOffset = 42,
+                        },
+                    },
+                },
+            ],
+        };
+
+        ReviewCacheManifestBuilder.Build(request, nullStart).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(request, zeroStart).ContentHash);
+    }
+
+    [Fact]
     public void Build_changes_content_hash_when_source_content_differs_only_by_casing()
     {
         ClosedLoopReasoningRequest lower = CreateRequest("public api gateway");
