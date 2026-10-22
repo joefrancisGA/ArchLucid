@@ -1,3 +1,4 @@
+2026-10-22 seed hunt (seed-only): `ui-oidc` - no hunt-ready product defect after opaque-400 classifier hit; cheap-disproof closed legacy substring session-clear claims for bare `Token endpoint error 401` and `403` throws; parity regressions `returns 503 without clearing BFF session cookies when refreshAccessToken throws opaque token endpoint error 401` and `403`; scoped `src/lib/oidc` + BFF refresh route vitest 439/439.
 2026-10-22 seed hunt (seed→hit): `ui-oidc` — promoted hunt-ready `shouldClearSessionOnRefreshFailure` / BFF refresh route — malformed token JSON that yields bare `Token endpoint error 400` (no parseable OAuth fields) cleared HttpOnly cookies via legacy `message.includes("token endpoint error 400")` substring; classify only via `isOAuthRefreshTokenRejectedError`; regression `returns 503 without clearing BFF session cookies when refreshAccessToken throws opaque token endpoint error 400`; scoped oidc + BFF refresh route vitest 437/437.
 
 - [x] (proven) `shouldClearSessionOnRefreshFailure` — opaque 400 without OAuth JSON — **hit 2026-10-22 seed hunt:** classifier-only clear policy; regression above.
@@ -25734,9 +25735,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 82
+- **hunts:** 85
 - **bugs-found:** 76
-- **hunts:** 84
+- **hunts:** 85
 - **bugs-found:** 77
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-22
@@ -25751,7 +25752,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **hunts:** 78
 - **bugs-found:** 72
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-21
+- **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-21 � stale BFF ok refresh blocked after same-identity persist retoken
 - **related-pd-tb:** none
 - **code-changed-since:** yes
