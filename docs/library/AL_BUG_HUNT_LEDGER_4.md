@@ -12470,19 +12470,23 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 81
-- **bugs-found:** 76
+- **hunts:** 82
+- **bugs-found:** 77
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — structured diagram merge keeps latest node type metadata
+- **last-bug:** 2026-10-22 — structured diagram merge keeps latest node properties and reasoning
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-22 seed hunt (seed→hit): promoted structured diagram node properties/reasoning merge candidate; proved duplicate-node coalesce refreshed labels and typing but left the first document's `Properties` and `ReasoningTrace`, so a later asserted diagram document compiling the same node id kept stale source-evidence and inference metadata; merge last-wins property keys and reasoning trace on duplicate node id; regression `Merge_uses_latest_diagram_properties_and_reasoning_when_multiple_documents_compile_the_same_node_id`; seeded duplicate parallel edge `Properties`/`ReasoningTrace` coalesce follow-on; 382 KnowledgeGraph + 99 Provenance scoped tests passed.
+
+- [x] (proven) `StructuredDiagramGraphMerger.Merge` — cross-document merge kept the first node `Properties` / `ReasoningTrace` when later documents compiled richer diagram metadata for the same `NodeId` — **hit 2026-10-22 seed hunt (seed→hit):** last-wins property keys and reasoning trace on duplicate node id; regression above.
+
+- [ ] (candidate) `StructuredDiagramGraphMerger.Merge` — cross-document merge may keep the first edge `Properties` or `ReasoningTrace` when later documents compile the same directed edge with refined metadata — locus: directed-edge dedup; input: two documents sharing endpoints and edge type; wrong outcome: stale edge inference metadata on multi-document merge.
 
 2026-10-22 seed hunt (seed→hit): promoted structured diagram node typing merge candidate; proved duplicate-node coalesce updated labels only, so a later document reclassifying the same diagram node id (for example `system` → `user`) left the merged graph on the first `NodeType`; extend coalesce with last non-empty `NodeType` and `Category`; regression `Merge_uses_latest_diagram_node_type_when_multiple_documents_compile_the_same_node_id`; cheap-disproved standalone `Category` drift on structured diagram compile path (`ArchitectureDiagramToGraphCompiler` does not populate `Category` today); seeded duplicate-node `Properties`/`ReasoningTrace` coalesce follow-on; 381 KnowledgeGraph + 99 Provenance scoped tests passed.
 
 - [x] (proven) `StructuredDiagramGraphMerger.Merge` — cross-document merge kept the first `NodeType` when later documents shared the same `NodeId` with refined diagram kind metadata — **hit 2026-10-22 seed hunt (seed→hit):** last non-empty node type (and category when present) on duplicate node id; regression above.
 - [x] (invalid) `StructuredDiagramGraphMerger.Merge` — `Category` drift on structured diagram compile — **cheap-disproof 2026-10-22 seed hunt:** diagram compiler does not set `Category`; coalesce hook added for future populated categories.
-
-- [ ] (candidate) `StructuredDiagramGraphMerger.Merge` — cross-document merge may keep the first node `Properties` or `ReasoningTrace` when later documents compile richer diagram metadata for the same `NodeId` — locus: duplicate node coalesce; input: two documents sharing a diagram node id; wrong outcome: stale inference metadata on multi-document merge.
 
 2026-10-22 seed hunt (seed→hit): promoted structured diagram node label merge candidate; proved `StructuredDiagramGraphMerger.Merge` used `nodesById.TryAdd`, so a later diagram document compiling the same `NodeId` with an updated display label was dropped and multi-document merges kept a stale first label; coalesce duplicate node ids with last non-empty label; regression `Merge_uses_latest_diagram_label_when_multiple_documents_compile_the_same_node_id`; seeded cross-document `NodeType`/`Category` coalesce follow-on; 380 KnowledgeGraph + 99 Provenance scoped tests passed.
 
