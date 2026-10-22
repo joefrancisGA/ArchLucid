@@ -12470,7 +12470,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 232
+- **hunts:** 233
 - **bugs-found:** 177
 - **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-22 — fully empty overlay merge returned base graph without warning normalization
@@ -12697,7 +12697,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - [x] (invalid) `StructuredDiagramGraphMerger.Merge` — null `contextSnapshot` should return empty merge — **cheap-disproof 2026-10-22 seed hunt:** null snapshot is contract violation; `ArgumentNullException` is correct; regression above.
 
-- [ ] (candidate) `StructuredDiagramGraphMerger` — null `IArchitectureDiagramToGraphCompiler` may allow merge to proceed with null compiler — locus: constructor null guard; input: null compiler dependency; wrong outcome: merge throws `NullReferenceException` on first compile instead of failing fast at construction.
+2026-10-22 seed hunt (valid-no-repro): promoted `StructuredDiagramGraphMerger` null compiler constructor candidate; proved primary constructor assigns `compiler ?? throw new ArgumentNullException(nameof(compiler))`, failing fast at construction rather than on first `Compile` call; regression `Constructor_throws_when_compiler_is_null`; seeded `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` null `baseGraph` or `inventoryOverlay` throws before merge work follow-on; 525 KnowledgeGraph + 170 Provenance scoped tests passed.
+
+- [x] (valid-no-repro) `StructuredDiagramGraphMerger` — null compiler deferred failure to first compile — **cheap-disproof 2026-10-22 seed hunt:** constructor `ArgumentNullException`; regression above.
+
+- [ ] (candidate) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — null `baseGraph` or `inventoryOverlay` may return without throwing — locus: `ArgumentNullException.ThrowIfNull` guards; input: null overlay or base snapshot; wrong outcome: merge degrades instead of failing fast.
 
 2026-10-22 seed hunt (seed→hit): promoted `StructuredDiagramGraphMerger` padded diagram property-key coalesce candidate; proved duplicate node/edge metadata coalesce indexed raw `property.Key`, so a later compile with surrounding-whitespace keys left parallel bag entries and `GraphNodePropertyReader` could return stale source-evidence values; trim keys before skip/coalesce (parity with `GraphNodeFactory.NormalizePropertyBag`); regression `Merge_coalesces_node_properties_when_incoming_property_keys_differ_only_by_surrounding_whitespace`; seeded diagram edge metadata padded-key coalesce regression follow-on; 468 KnowledgeGraph + 170 Provenance scoped tests passed.
 
