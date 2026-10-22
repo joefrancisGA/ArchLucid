@@ -8712,6 +8712,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: architecture-intelligence-orchestrator
 
+2026-10-22 seed hunt (seed→hit): promoted duplicate normalized `RelatedElementIds`/`SourcePassageIds` and NBSP-vs-space in source `Content` splitting review-cache hash; id lists now `Distinct` after normalization; `NormalizeUnicodeSpaces` maps NBSP to ASCII space; regressions `Build_matches_content_hash_when_baseline_related_element_ids_include_duplicates_after_normalization`, `Build_matches_content_hash_when_baseline_source_passage_ids_include_duplicates_after_normalization`, and `Build_matches_content_hash_when_source_content_differs_only_by_nbsp_vs_space`; 167 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `GraphSnapshotCanonicalFingerprint.FormatKnowledgeModelElementFingerprint` — duplicate related/passage ids split `modelfp` — **hit 2026-10-22 seed hunt:** `Distinct` on normalized id lists; regressions above.
+- [x] (proven) `ClosedLoopReasoningSourceTextNormalizer` — NBSP vs space in `Content` split `ContentHash` — **hit 2026-10-22 seed hunt:** `NormalizeUnicodeSpaces`; regression above.
+
 2026-10-22 seed hunt (seed→hit): promoted duplicate baseline elements whose `ElementId` normalizes to the same token splitting review-cache `modelfp`, plus `DEL`/`ZWSP` line-break scalars in source `Content`; `SelectCanonicalKnowledgeModelElements` dedupes by normalized id; `UnicodeLineBreakScalars` extended; regressions `Build_matches_content_hash_when_baseline_elements_include_duplicate_normalized_element_ids` and expanded `Build_matches_content_hash_when_source_content_uses_unicode_line_separators`; 164 scoped orchestrator/cache/manifest/continue-flight tests passed.
 
 - [x] (proven) `GraphSnapshotCanonicalFingerprint.ComputeReviewCacheKnowledgeModelFingerprint` — duplicate padded `ElementId` rows split `modelfp` — **hit 2026-10-22 seed hunt:** canonical element selection; regression above.
@@ -9143,11 +9148,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** closed-loop orchestrator; review result cache; architecture intelligence
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.cs; ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.Cache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewResultCache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewCacheManifestBuilder.cs
 - **test-filter:** FullyQualifiedName~ClosedLoopArchitectureReasoningOrchestrator|FullyQualifiedName~ReviewResultCache|FullyQualifiedName~ReviewCacheManifestBuilder
-- **hunts:** 73
-- **bugs-found:** 51
+- **hunts:** 75
+- **bugs-found:** 55
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — source file name NFC and remaining C0 line breaks in review-cache hash
+- **last-bug:** 2026-10-22 — duplicate related/passage ids and NBSP in review-cache hash
 - **related-pd-tb:** none
 - **code-changed-since:** no
 

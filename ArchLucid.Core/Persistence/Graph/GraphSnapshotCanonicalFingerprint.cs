@@ -182,6 +182,7 @@ public static class GraphSnapshotCanonicalFingerprint
             (element.RelatedElementIds ?? [])
                 .Select(static id => NormalizeFingerprintText(id))
                 .Where(static id => id.Length > 0)
+                .Distinct(StringComparer.Ordinal)
                 .OrderBy(static id => id, StringComparer.Ordinal));
 
         IEnumerable<string> propertyParts = (element.Properties ?? [])
@@ -194,6 +195,7 @@ public static class GraphSnapshotCanonicalFingerprint
             (element.SourcePassageIds ?? [])
                 .Select(static id => NormalizeFingerprintText(id))
                 .Where(static id => id.Length > 0)
+                .Distinct(StringComparer.Ordinal)
                 .OrderBy(static id => id, StringComparer.Ordinal));
 
         string name = NormalizeFingerprintText(element.Name);

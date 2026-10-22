@@ -189,6 +189,47 @@ public sealed class ReviewCacheManifestBuilderTests
     }
 
     [Fact]
+    public void Build_matches_content_hash_when_baseline_related_element_ids_include_duplicates_after_normalization()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "run-model-related-id-dedupe";
+
+        ArchitectureKnowledgeModel duplicateRelated = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "el-1",
+                    Name = "API",
+                    RelatedElementIds = ["el-2", "el-2", "  el-2  "],
+                },
+            ],
+        };
+
+        ArchitectureKnowledgeModel canonicalRelated = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "el-1",
+                    Name = "API",
+                    RelatedElementIds = ["el-2"],
+                },
+            ],
+        };
+
+        ReviewCacheManifestBuilder.Build(request, duplicateRelated).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(request, canonicalRelated).ContentHash);
+    }
+
+    [Fact]
     public void Build_matches_content_hash_when_baseline_related_element_ids_differ_only_by_surrounding_whitespace()
     {
         ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
@@ -227,6 +268,47 @@ public sealed class ReviewCacheManifestBuilderTests
         ReviewCacheManifestBuilder.Build(request, paddedRelated).ContentHash
             .Should()
             .Be(ReviewCacheManifestBuilder.Build(request, trimmedRelated).ContentHash);
+    }
+
+    [Fact]
+    public void Build_matches_content_hash_when_baseline_source_passage_ids_include_duplicates_after_normalization()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "run-model-passage-id-dedupe";
+
+        ArchitectureKnowledgeModel duplicatePassages = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "el-1",
+                    Name = "API",
+                    SourcePassageIds = ["passage-1", "passage-1", "  passage-1  "],
+                },
+            ],
+        };
+
+        ArchitectureKnowledgeModel canonicalPassages = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "el-1",
+                    Name = "API",
+                    SourcePassageIds = ["passage-1"],
+                },
+            ],
+        };
+
+        ReviewCacheManifestBuilder.Build(request, duplicatePassages).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(request, canonicalPassages).ContentHash);
     }
 
     [Fact]
@@ -1386,6 +1468,17 @@ public sealed class ReviewCacheManifestBuilderTests
         ReviewCacheManifestBuilder.Build(nullContent).ContentHash
             .Should()
             .Be(ReviewCacheManifestBuilder.Build(emptyContent).ContentHash);
+    }
+
+    [Fact]
+    public void Build_matches_content_hash_when_source_content_differs_only_by_nbsp_vs_space()
+    {
+        ClosedLoopReasoningRequest spaced = CreateRequest("Claims intake for architects.");
+        ClosedLoopReasoningRequest nbsp = CreateRequest("Claims\u00A0intake for architects.");
+
+        ReviewCacheManifestBuilder.Build(spaced).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(nbsp).ContentHash);
     }
 
     [Fact]

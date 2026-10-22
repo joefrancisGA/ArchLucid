@@ -24,7 +24,8 @@ internal static class ClosedLoopReasoningSourceTextNormalizer
             // Normalize platform line endings so equivalent uploaded documents share a cache key.
             Content = string.IsNullOrWhiteSpace(source.Content)
                 ? string.Empty
-                : StripInvisibleFormatCharacters(StripUtf8Bom(NormalizeLineEndings(source.Content.Trim()))),
+                : StripInvisibleFormatCharacters(
+                    NormalizeUnicodeSpaces(StripUtf8Bom(NormalizeLineEndings(source.Content.Trim())))),
         };
     }
 
@@ -136,6 +137,14 @@ internal static class ClosedLoopReasoningSourceTextNormalizer
             return content[1..];
 
         return content;
+    }
+
+    private static string NormalizeUnicodeSpaces(string content)
+    {
+        if (content.Length == 0)
+            return content;
+
+        return content.Replace('\u00a0', ' ');
     }
 
     private static string StripInvisibleFormatCharacters(string content)
