@@ -2472,6 +2472,40 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
+- **id:** ui-oidc
+- **status:** open
+- **impact:** high
+- **aliases:** oidc authority; sign-in routing; OIDC host
+- **paths:** archlucid-ui/src/lib/oidc/
+- **test-filter:** oidc-authority|oidc
+- **hunts:** 87
+- **bugs-found:** 73
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-22
+- **last-bug:** 2026-10-22 — post-sign-in return URL leaked smuggled vertical-tab path after safe-path check
+- **related-pd-tb:** none
+- **code-changed-since:** yes
+
+2026-10-22 seed hunt (seed-only, pass 8): cheap-disproved five open `(candidate)` rows from pass 7; regression locks tampered post-sign-in read canonicalization, empty-object token body, display-string control collapse, and BFF refresh `499` soft-fail; no hunt-ready row promoted; seeded five follow-on `(candidate)` rows; focused OIDC suite passed 749/749; no production code changed.
+
+- [x] (invalid) `humanizeAuthorizeCallbackError` — `org_internal` authorize callback query — **cheap-disproof 2026-10-22 seed hunt pass 8:** existing regression `humanizes org_internal authorize callback errors with readable copy`.
+- [x] (valid-no-repro) `readPostSignInReturnUrl` — tampered post-sign-in return key with vertical-tab interior — **cheap-disproof 2026-10-22 seed hunt pass 8:** `canonicalSafeReturnPath` on read; regression `returns a control-stripped post-sign-in return path on read when session storage was tampered`.
+- [x] (valid-no-repro) `token-client.postTokenForm` — HTTP 200 body is JSON empty object `{}` — **cheap-disproof 2026-10-22 seed hunt pass 8:** missing `access_token`; regression `throws when a successful token response body is an empty JSON object`.
+- [x] (valid-no-repro) `normalizeOidcDisplayString` — vertical-tab interior in signed-in display name — **cheap-disproof 2026-10-22 seed hunt pass 8:** control-char collapse; regression `collapses vertical-tab control characters in OIDC display copy`.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route returns opaque HTTP `499` — **cheap-disproof 2026-10-22 seed hunt pass 8:** non-401/403 soft-fail parity; regression `soft-fails refresh without clearing session when the refresh route returns 499`.
+
+- [ ] (candidate) `humanizeAuthorizeCallbackError` — `registration_not_supported` on authorize callback query — locus: `humanizeAuthorizeCallbackError` default branch; input: SPA callback `?error=registration_not_supported` without description.
+- [ ] (candidate) `refreshBffSessionCookie` — refresh route returns opaque HTTP `497` without clearing session — locus: `refreshBffSessionCookie` soft-fail parity; input: BFF refresh proxy surfaces `497` like existing 494–496 locks.
+- [ ] (candidate) `refreshBffSessionCookie` — refresh route returns opaque HTTP `498` without clearing session — locus: `refreshBffSessionCookie` soft-fail parity; input: BFF refresh proxy surfaces `498` like existing 494–497 locks.
+- [ ] (candidate) `readOAuthJsonErrorDescription` — em-dash-only (`U+2014`) JSON `error_description` — locus: readable-detail guard; input: token-endpoint OAuth JSON `"\\u2014\\u2014"`.
+- [ ] (candidate) `decodeOAuthErrorDescription` — em-dash-only percent-encoded authorize `error_description` — locus: `decodeOAuthErrorDescription`; input: callback `?error_description=%E2%80%94`.
+
+- [x] (invalid) `humanizeAuthorizeCallbackError` — `org_internal` authorize callback query — **closed 2026-10-22 seed hunt pass 8** (see pass-8 row above).
+- [x] (valid-no-repro) `readPostSignInReturnUrl` — tampered post-sign-in vertical-tab return key — **closed 2026-10-22 seed hunt pass 8** (see pass-8 row above).
+- [x] (valid-no-repro) `token-client.postTokenForm` — HTTP 200 JSON empty object `{}` — **closed 2026-10-22 seed hunt pass 8** (see pass-8 row above).
+- [x] (valid-no-repro) `normalizeOidcDisplayString` — vertical-tab in display name — **closed 2026-10-22 seed hunt pass 8** (see pass-8 row above).
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh opaque HTTP `499` — **closed 2026-10-22 seed hunt pass 8** (see pass-8 row above).
+
 2026-10-22 seed hunt (seed-only, pass 7): cheap-disproved five open `(candidate)` rows from pass 6; regression locks six-per-em-space JSON/authorize `error_description` guards, JSON `null` token body, and tampered authorize-retry snapshot read; no hunt-ready row promoted; seeded five follow-on `(candidate)` rows; focused OIDC suite passed 745/745; no production code changed.
 
 - [x] (invalid) `humanizeAuthorizeCallbackError` — `invalid_grant` authorize callback query — **cheap-disproof 2026-10-22 seed hunt pass 7:** existing regression `humanizes invalid_grant authorize callback errors with readable copy`.
@@ -2480,11 +2514,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `token-client.postTokenForm` — HTTP 200 body is JSON literal `null` — **cheap-disproof 2026-10-22 seed hunt pass 7:** falsy root fails closed; regression `throws when a successful token response body is JSON null`.
 - [x] (valid-no-repro) `readAuthorizeRetryReturnPathSnapshot` — tampered authorize-retry snapshot with vertical-tab interior — **cheap-disproof 2026-10-22 seed hunt pass 7:** `canonicalSafeReturnPath` on read; regression `returns a control-stripped authorize retry snapshot when the retry key was tampered`.
 
-- [ ] (candidate) `humanizeAuthorizeCallbackError` — `org_internal` on authorize callback query — locus: `humanizeAuthorizeCallbackError` default branch; input: SPA callback `?error=org_internal` without description.
-- [ ] (candidate) `readPostSignInReturnUrl` — tampered post-sign-in return key with vertical-tab interior — locus: `readPostSignInReturnUrl`; input: session `OIDC_POST_SIGN_IN_RETURN_URL_KEY` set to `/desk\u000B/reviews` without `storePostSignInReturnUrl`.
-- [ ] (candidate) `token-client.postTokenForm` — HTTP 200 body is JSON empty object `{}` — locus: `parseOidcTokenResponse`; input: misconfigured IdP returns `{}` with 200.
-- [ ] (candidate) `normalizeOidcDisplayString` — vertical-tab (`U+000B`) interior in signed-in display name — locus: `normalizeOidcDisplayString`; input: id_token `name` claim copied with `/desk\u000B/reviews` style smuggling before session display read.
-- [ ] (candidate) `refreshBffSessionCookie` — refresh route returns opaque HTTP `499` without clearing session — locus: `refreshBffSessionCookie` soft-fail parity; input: BFF refresh proxy surfaces vendor-specific `499` like existing 494–498 locks.
+- [x] (invalid) `humanizeAuthorizeCallbackError` — `org_internal` on authorize callback query — **closed 2026-10-22 seed hunt pass 8** (see pass-8 row above).
+- [x] (valid-no-repro) `readPostSignInReturnUrl` — tampered post-sign-in return key with vertical-tab interior — **closed 2026-10-22 seed hunt pass 8** (see pass-8 row above).
+- [x] (valid-no-repro) `token-client.postTokenForm` — HTTP 200 body is JSON empty object `{}` — **closed 2026-10-22 seed hunt pass 8** (see pass-8 row above).
+- [x] (valid-no-repro) `normalizeOidcDisplayString` — vertical-tab (`U+000B`) interior in signed-in display name — **closed 2026-10-22 seed hunt pass 8** (see pass-8 row above).
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route returns opaque HTTP `499` without clearing session — **closed 2026-10-22 seed hunt pass 8** (see pass-8 row above).
 
 - [x] (invalid) `humanizeAuthorizeCallbackError` — `invalid_grant` authorize callback query — **closed 2026-10-22 seed hunt pass 7** (see pass-7 row above).
 - [x] (valid-no-repro) `readOAuthJsonErrorDescription` — six-per-em-space-only JSON `error_description` — **closed 2026-10-22 seed hunt pass 7** (see pass-7 row above).

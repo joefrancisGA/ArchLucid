@@ -19,6 +19,10 @@ describe("normalizeOidcDisplayString", () => {
     expect(normalizeOidcDisplayString("می\u200cخواهم")).toBe("می\u200cخواهم");
     expect(normalizeOidcDisplayString("👨\u200d👩\u200d👧")).toBe("👨\u200d👩\u200d👧");
   });
+
+  it("collapses vertical-tab control characters in OIDC display copy", () => {
+    expect(normalizeOidcDisplayString("Desk\u000BUser")).toBe("Desk User");
+  });
 });
 
 describe("readOAuthJsonErrorDescription", () => {

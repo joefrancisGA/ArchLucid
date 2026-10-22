@@ -100,6 +100,13 @@ describe("storePostSignInReturnUrl / consumePostSignInReturnUrl", () => {
     expect(consumePostSignInReturnUrl()).toBe("/desk/reviews");
   });
 
+  it("returns a control-stripped post-sign-in return path on read when session storage was tampered", () => {
+    sessionStorage.setItem(OIDC_POST_SIGN_IN_RETURN_URL_KEY, "/desk\u000B/reviews");
+
+    expect(readPostSignInReturnUrl()).toBe("/desk/reviews");
+    expect(sessionStorage.getItem(OIDC_POST_SIGN_IN_RETURN_URL_KEY)).toBe("/desk\u000B/reviews");
+  });
+
   it("persists a control-stripped post-sign-in return path when store receives smuggled control characters", () => {
     storePostSignInReturnUrl("/desk\u000B/reviews");
 
