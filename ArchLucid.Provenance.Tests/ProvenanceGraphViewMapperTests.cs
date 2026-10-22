@@ -49,6 +49,29 @@ public sealed class ProvenanceGraphViewMapperTests
     }
 
     [Fact]
+    public void ToViewModel_MapsNodes_Trims_surrounding_whitespace_on_label()
+    {
+        Guid nodeId = Guid.NewGuid();
+        DecisionProvenanceGraph graph = new()
+        {
+            Nodes =
+            [
+                new ProvenanceNode
+                {
+                    Id = nodeId,
+                    Name = "  Node A  ",
+                    Type = ProvenanceNodeType.Decision,
+                    ReferenceId = "ref",
+                },
+            ],
+        };
+
+        GraphViewModel vm = ProvenanceGraphViewMapper.ToViewModel(graph);
+
+        vm.Nodes.Should().ContainSingle().Which.Label.Should().Be("Node A");
+    }
+
+    [Fact]
     public void ToViewModel_MapsNodes_WithMetadataAndTypes()
     {
         Guid nodeId = Guid.Parse("a1b2c3d4-e5f6-7890-abcd-ef1234567890");

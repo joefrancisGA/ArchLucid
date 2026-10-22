@@ -15,7 +15,7 @@ public static class ProvenanceGraphViewMapper
                 .Select(n => new GraphNodeVm
                 {
                     Id = n.Id.ToString("D"),
-                    Label = n.Name,
+                    Label = string.IsNullOrWhiteSpace(n.Name) ? n.Name ?? string.Empty : n.Name.Trim(),
                     Type = n.Type.ToString(),
                     AgentExecutionTraceId = n.AgentExecutionTraceId,
                     Metadata = n.Metadata is { Count: > 0 } metadata
