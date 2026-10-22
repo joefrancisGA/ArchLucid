@@ -29,9 +29,14 @@ vi.mock("@/lib/oidc/discovery", () => ({
   })),
 }));
 
-vi.mock("@/lib/oidc/token-client", () => ({
-  exchangeAuthorizationCode: vi.fn(),
-}));
+vi.mock("@/lib/oidc/token-client", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/oidc/token-client")>();
+
+  return {
+    ...actual,
+    exchangeAuthorizationCode: vi.fn(),
+  };
+});
 
 vi.mock("@/lib/oidc/session", () => ({
   consumePkceState: vi.fn(),
@@ -117,6 +122,31 @@ describe("CallbackClient", () => {
     });
 
     expect(loadDiscoveryDocument).toHaveBeenCalledWith("https://accounts.google.com");
+  });
+
+  it("does not mark authorize callback failed when token exchange rejects an invalid token endpoint URL", async () => {
+    searchParamsMock.value = new URLSearchParams({
+      code: "auth-code",
+      state: "state-value",
+    });
+
+    vi.mocked(consumePkceState).mockReturnValueOnce({
+      state: "state-value",
+      codeVerifier: "verifier",
+      nonce: "nonce",
+      flow: "primary",
+    });
+    vi.mocked(exchangeAuthorizationCode).mockRejectedValueOnce(
+      new Error("Invalid token endpoint URL"),
+    );
+
+    render(<CallbackClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("auth-callback-access-panel")).toBeInTheDocument();
+    });
+
+    expect(markAuthorizeCallbackFailed).not.toHaveBeenCalled();
   });
 
   it("marks authorize callback failed when the IdP returns an OAuth error", async () => {

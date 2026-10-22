@@ -196,7 +196,7 @@ function parseOidcTokenResponse(parsed: unknown): OidcTokenResponse {
   };
 }
 
-function shouldMarkAuthorizeCallbackFailedOnExchangeError(error: unknown): boolean {
+export function shouldMarkAuthorizeCallbackFailedOnExchangeError(error: unknown): boolean {
   if (!(error instanceof Error)) {
     return true;
   }
