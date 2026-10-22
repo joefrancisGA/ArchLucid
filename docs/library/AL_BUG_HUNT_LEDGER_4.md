@@ -12470,18 +12470,22 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 126
-- **bugs-found:** 121
+- **hunts:** 127
+- **bugs-found:** 122
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — heuristic network/subnet rule excluded networks when Category was padded
+- **last-bug:** 2026-10-22 — heuristic network/subnet label substring match ignored padded network Label
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-22 seed hunt (seed→hit): promoted `HeuristicNetworkSubnetEdgeInferenceRule` padded network `Label` candidate; proved `ShouldInferNetworkContainsSubnet` compared subnet labels against raw `network.Label` when multiple networks competed, so containment heuristics missed subnets whose labels embedded the trimmed network name; trim network label before substring match; regression `InferEdges_heuristic_network_subnet_rule_matches_label_substring_when_network_label_has_surrounding_whitespace`; seeded `TopologySensitivityClassifier` padded `Category` parity follow-on; 428 KnowledgeGraph + 136 Provenance scoped tests passed.
+
+- [x] (proven) `HeuristicNetworkSubnetEdgeInferenceRule` — padded network `Label` broke label-substring containment with multiple networks — **hit 2026-10-22 seed hunt (seed→hit):** trim network label before compare; regression above.
+
+- [ ] (candidate) `TopologySensitivityClassifier` — padded topology `Category` may mis-classify sensitivity when category carries surrounding whitespace — locus: category equality branches; input: topology node with padded `Category` for identity/data/storage; wrong outcome: incorrect sensitivity tier vs trim-normalized inventory categories.
 
 2026-10-22 seed hunt (seed→hit): promoted `HeuristicNetworkSubnetEdgeInferenceRule` padded `Category` candidate; proved network bucket filter used literal `Category` equality against `GraphTopologyCategories.Network`, excluding topology nodes whose category carried surrounding whitespace from heuristic subnet containment when only one network was present; trim-normalized category comparison; regression `InferEdges_heuristic_network_subnet_rule_includes_network_when_category_has_surrounding_whitespace`; seeded padded network `Label` substring containment follow-on when multiple networks compete; 427 KnowledgeGraph + 136 Provenance scoped tests passed.
 
 - [x] (proven) `HeuristicNetworkSubnetEdgeInferenceRule` — padded `Category` value excluded network nodes from heuristic subnet containment — **hit 2026-10-22 seed hunt (seed→hit):** trim-normalized category filter; regression above.
-
-- [ ] (candidate) `HeuristicNetworkSubnetEdgeInferenceRule` — padded network `Label` may break label-substring containment when multiple networks exist — locus: `ShouldInferNetworkContainsSubnet` netLabel compare; input: two networks and subnet label embedding trimmed network name; wrong outcome: missing heuristic containment edge for the padded-label network.
 
 2026-10-22 seed hunt (seed→hit): cheap-disproved heuristic network/subnet padded-network-id candidate (`network.NodeId.Trim()` parent match plus regression `InferEdges_heuristic_network_subnet_rule_matches_parentNodeId_when_network_node_id_has_surrounding_whitespace`); promoted `DefaultGraphEdgeInferer` topology classification candidate; proved inferrer bucketed `TopologyNodes` / `SecurityNodes` with literal `NodeType` equality, excluding resources whose `NodeType` carried surrounding whitespace from targeted `Protects` inference; trim-normalized node-type classification; regression `InferEdges_security_protection_rule_matches_topology_resource_when_node_type_has_surrounding_whitespace`; seeded padded `Category` on network heuristic follow-on; 426 KnowledgeGraph + 136 Provenance scoped tests passed.
 
