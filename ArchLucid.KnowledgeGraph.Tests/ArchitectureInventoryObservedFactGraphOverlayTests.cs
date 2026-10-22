@@ -2346,6 +2346,59 @@ public sealed class ArchitectureInventoryObservedFactGraphOverlayTests
     }
 
     [Fact]
+    public void Merge_deduplicates_overlay_edge_property_keys_differing_only_by_case_when_appending_inventory_edge()
+    {
+        const string NodeA = "node-a";
+        const string NodeB = "node-b";
+        const string SourceEvidenceId = "evidence-42";
+        const string CanonicalPropertyKey = "sourceEvidenceItemId";
+        const string CaseVariantPropertyKey = "SourceEvidenceItemId";
+
+        GraphSnapshot baseGraph = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = ContextSnapshotId,
+            RunId = RunId,
+            Nodes =
+            [
+                new GraphNode { NodeId = NodeA, NodeType = GraphNodeTypes.TopologyResource, Label = "A" },
+                new GraphNode { NodeId = NodeB, NodeType = GraphNodeTypes.TopologyResource, Label = "B" },
+            ],
+            Edges = [],
+        };
+
+        GraphSnapshot overlay = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = ContextSnapshotId,
+            RunId = RunId,
+            Nodes = [],
+            Edges =
+            [
+                new GraphEdge
+                {
+                    EdgeId = "overlay-edge",
+                    FromNodeId = NodeA,
+                    ToNodeId = NodeB,
+                    EdgeType = GraphEdgeTypes.ConnectsTo,
+                    Properties = new Dictionary<string, string>(StringComparer.Ordinal)
+                    {
+                        [CanonicalPropertyKey] = SourceEvidenceId,
+                        [CaseVariantPropertyKey] = SourceEvidenceId,
+                    },
+                },
+            ],
+        };
+
+        GraphSnapshot merged = ArchitectureInventoryObservedFactGraphOverlayMerger.Merge(baseGraph, overlay);
+
+        GraphEdge edge = merged.Edges.Should().ContainSingle().Subject;
+        edge.Properties.Should().HaveCount(1);
+        edge.Properties[CanonicalPropertyKey].Should().Be(SourceEvidenceId);
+        edge.Properties[CaseVariantPropertyKey].Should().Be(SourceEvidenceId);
+    }
+
+    [Fact]
     public void Merge_throws_when_overlay_edge_property_keys_differ_only_by_case_and_values_conflict()
     {
         const string NodeA = "node-a";
