@@ -137,7 +137,14 @@ public static class ArchitectureDiagramCanonicalObjectMapper
                 connectedTargetsBySource[sourceObjectId] = targets;
             }
 
-            targets.Add($"obj-{targetObjectId}");
+            string targetToken = $"obj-{targetObjectId}";
+
+            if (!string.IsNullOrWhiteSpace(edge.Label))
+            {
+                targetToken += $"|{Uri.EscapeDataString(edge.Label.Trim())}";
+            }
+
+            targets.Add(targetToken);
         }
 
         if (connectedTargetsBySource.Count == 0)

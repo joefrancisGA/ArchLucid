@@ -40,6 +40,7 @@ public sealed class StructuredDiagramCanonicalModelReconstructorTests
                     Id = "e1",
                     SourceId = "api",
                     TargetId = "db",
+                    Label = "HTTPS data flow",
                     Provenance = ArchitectureDiagramProvenanceKinds.Asserted,
                 },
             ],
@@ -61,7 +62,8 @@ public sealed class StructuredDiagramCanonicalModelReconstructorTests
         model.Nodes.Should().HaveCount(2);
         model.Edges.Should().ContainSingle(edge =>
             edge.SourceId == "api"
-            && edge.TargetId == "db");
+            && edge.TargetId == "db"
+            && edge.Label == "HTTPS data flow");
         model.ExtractionMethod.Should().Be(DiagramExtractionMethods.StructuredParse);
     }
 

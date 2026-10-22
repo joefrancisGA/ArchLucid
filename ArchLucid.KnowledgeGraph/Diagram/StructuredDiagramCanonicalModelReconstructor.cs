@@ -192,7 +192,8 @@ public static class StructuredDiagramCanonicalModelReconstructor
 
             foreach (string targetToken in connectedRaw.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
             {
-                string objectId = StripObjPrefix(targetToken);
+                (string objectToken, string? edgeLabel) = ParseConnectedTargetToken(targetToken);
+                string objectId = StripObjPrefix(objectToken);
 
                 if (!diagramNodeIdByObjectId.TryGetValue(objectId, out string? targetDiagramNodeId))
                 {
@@ -204,12 +205,33 @@ public static class StructuredDiagramCanonicalModelReconstructor
                     Id = $"edge-{edgeIndex++}",
                     SourceId = sourceDiagramNodeId,
                     TargetId = targetDiagramNodeId,
+                    Label = edgeLabel ?? string.Empty,
                     Provenance = ReadProvenance(source),
                 });
             }
         }
 
         return edges;
+    }
+
+    private static (string ObjectToken, string? EdgeLabel) ParseConnectedTargetToken(string targetToken)
+    {
+        int separatorIndex = targetToken.IndexOf('|');
+
+        if (separatorIndex < 0)
+        {
+            return (targetToken, null);
+        }
+
+        string objectToken = targetToken[..separatorIndex];
+        string encodedLabel = targetToken[(separatorIndex + 1)..];
+
+        if (string.IsNullOrWhiteSpace(encodedLabel))
+        {
+            return (objectToken, null);
+        }
+
+        return (objectToken, Uri.UnescapeDataString(encodedLabel));
     }
 
     private static string StripObjPrefix(string graphNodeOrObjectToken)
