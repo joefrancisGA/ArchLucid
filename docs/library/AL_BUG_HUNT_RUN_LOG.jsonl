@@ -6039,3 +6039,4 @@
 {"at":"2026-10-22T00:46:11.9223057Z","zoneId":"ui-oidc","outcome":"hit","productLine":"archlucid-shared"}
 {"outcome":"hit","zoneId":"ui-oidc","productLine":"archlucid-shared","at":"2026-10-22T00:44:28.9030816Z"}
 {"at":"2026-10-22T00:45:04.6491902Z","zoneId":"ui-oidc","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-22T00:46:19.8457816Z","zoneId":"ui-oidc","outcome":"hit","productLine":"archlucid-shared","paths":["archlucid-ui/src/lib/oidc/"]}
