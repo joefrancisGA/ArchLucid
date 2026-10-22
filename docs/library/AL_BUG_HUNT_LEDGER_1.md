@@ -8712,6 +8712,28 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: architecture-intelligence-orchestrator
 
+2026-10-22 seed hunt (seed→hit): promoted null element in `SourceTexts` list causing `ArgumentNullException` during manifest `ContentHash` build; `HashContent` now skips null attachments before normalize; regression `Build_ignores_null_source_text_entries_when_hashing_content`; cheap-disproof duplicate-list order (dedupe by normalized triple), padded `InvalidateForRun`, publish in-flight partition, and golden-flag attachment rows; 117 scoped tests passed.
+
+- [x] (proven) `ReviewCacheManifestBuilder.HashContent` — null `SourceTexts` entry threw before hash — **hit 2026-10-22 seed hunt:** filter null list elements before `Normalize`; regression above.
+
+- [x] (valid-no-repro) `ReviewCacheManifestBuilder.HashContent` — duplicate attachments separated by other files — **cheap-disproof 2026-10-22 seed hunt:** distinct normalized rows remain in hash by design; regression `Build_matches_content_hash_when_duplicate_source_texts_normalize_to_identical_rows` covers identical duplicates.
+
+- [x] (valid-no-repro) `ReviewResultCache.InvalidateForRun` — padded run id — **cheap-disproof 2026-10-22 seed hunt:** `InvalidateForRun_removes_entries_for_matching_run_id_regardless_of_guid_format` and `NormalizeRequired` trim/canonicalize run ids.
+
+- [x] (valid-no-repro) `ReviewResultCache.CoalesceAsync` — publish vs analysis in-flight partition — **cheap-disproof 2026-10-22 seed hunt:** regression `CoalesceAsync_does_not_share_flight_across_publish_intent`.
+
+- [x] (valid-no-repro) `ReviewCacheManifestBuilder.HashContent` — `UseGoldenFixture` with attachments — **cheap-disproof 2026-10-22 seed hunt:** regression `Build_changes_hash_when_golden_fixture_flag_changes`; golden flag and source bodies both intentionally hashed.
+
+- (candidate) `ClosedLoopReasoningSourceTextNormalizer.NormalizeLineEndings` — consolidated C0/C1 line-break audit (picker saturated `other`; batch only).
+
+- (candidate) `ClosedLoopArchitectureReasoningOrchestrator.RunAsync` — null `SourceTexts` entry should be rejected at API validation before manifest build — locus: controller/model binding; input: verify HTTP 400 vs in-app skip parity.
+
+- (candidate) `ReviewResultCache.Set` — tombstoned run id checked after clone but before lock re-check race — locus: `Set` double tombstone gate; input: concurrent invalidate + set same run.
+
+- (candidate) `ReviewCacheManifestBuilder.BuildWithResolvedRunId` — resolved run id not trimmed when caller passes padded id — locus: `NormalizeRequired` on resolved path; input: continue path run id padding.
+
+- (candidate) `ClosedLoopFramingAnswersNormalizer` — dictionary iteration order with equivalent keys pre-normalize — locus: pairs list before group; input: JSON object key order with casing duplicates.
+
 2026-10-22 seed hunt (seed-only): re-read continue coalesce tenant segment, scope `ProjectId`, and framing whitespace-only answers; cheap-disproof closed `ProjectId` null vs empty, continue tenant padding, framing whitespace-only vs omitted, and prior tombstone/continue-route rows; no new hunt-ready normalization scalar (picker saturated `other`); 116 scoped tests passed.
 
 - [x] (valid-no-repro) `ReviewCacheManifestBuilder.HashTenantConfiguration` — `ProjectId` null vs empty — **cheap-disproof 2026-10-22 seed hunt:** regression `Build_matches_tenant_configuration_hash_when_project_is_null_vs_empty_string`.
@@ -8728,13 +8750,13 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 - (candidate) `ClosedLoopReasoningSourceTextNormalizer.NormalizeLineEndings` — consolidated C0/C1 line-break audit (picker saturated `other`; batch only).
 
-- (candidate) `ReviewCacheManifestBuilder.HashContent` — duplicate `SourceTexts` rows identical after normalize but distinct object references in list order before `GroupBy` — locus: dedupe `First()` tie; input: verify stable hash when duplicates are adjacent vs separated.
+- [x] (valid-no-repro) `ReviewCacheManifestBuilder.HashContent` — duplicate `SourceTexts` list order — **cheap-disproof 2026-10-22 seed hunt:** see seed→hit row above.
 
-- (candidate) `ReviewResultCache.InvalidateForRun` — run id with surrounding whitespace vs canonical tombstone set — locus: `ClosedLoopRunIdNormalizer.NormalizeRequired`; input: invalidate with padded GUID string.
+- [x] (valid-no-repro) `ReviewResultCache.InvalidateForRun` — padded run id — **cheap-disproof 2026-10-22 seed hunt:** see seed→hit row above.
 
-- (candidate) `ClosedLoopArchitectureReasoningOrchestrator.RunAsync` — `PublishToProduct` true stores to cache with publish partition while analysis `TryGet` uses non-publish in-flight key — locus: `ReviewCacheKeyBuilder.BuildInFlight`; input: verify no cross-partition false hit.
+- [x] (valid-no-repro) `ClosedLoopArchitectureReasoningOrchestrator.RunAsync` — publish in-flight partition — **cheap-disproof 2026-10-22 seed hunt:** see seed→hit row above.
 
-- (candidate) `ReviewCacheManifestBuilder.HashContent` — `golden=1` with non-empty `SourceTexts` still in hash — locus: `UseGoldenFixture` flag; input: client sends golden flag plus attachments (verify intended cache key).
+- [x] (valid-no-repro) `ReviewCacheManifestBuilder.HashContent` — golden flag with attachments — **cheap-disproof 2026-10-22 seed hunt:** see seed→hit row above.
 
 2026-10-22 seed hunt (seed-only): re-read manifest hashing, cache coalesce, and normalizers; cheap-disproof closed open candidates (`ContentType` null/whitespace, `WorkspaceId` null/empty/padding, whitespace-only declared priority row, coalesce publish-strip, conflicting framing casing); deferred remaining C0 line-break batch (picker saturated `other`); added valid-no-repro guard tests; 113 scoped orchestrator/cache/manifest/framing tests passed.
 
@@ -8927,11 +8949,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** closed-loop orchestrator; review result cache; architecture intelligence
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.cs; ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.Cache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewResultCache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewCacheManifestBuilder.cs
 - **test-filter:** FullyQualifiedName~ClosedLoopArchitectureReasoningOrchestrator|FullyQualifiedName~ReviewResultCache|FullyQualifiedName~ReviewCacheManifestBuilder
-- **hunts:** 53
-- **bugs-found:** 30
+- **hunts:** 54
+- **bugs-found:** 31
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — next-line Unicode break in review-cache content hash
+- **last-bug:** 2026-10-22 — null source text entries in review-cache manifest hash
 - **related-pd-tb:** none
 - **code-changed-since:** no
 

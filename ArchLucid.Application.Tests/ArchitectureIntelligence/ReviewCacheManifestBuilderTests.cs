@@ -488,6 +488,28 @@ public sealed class ReviewCacheManifestBuilderTests
     }
 
     [Fact]
+    public void Build_ignores_null_source_text_entries_when_hashing_content()
+    {
+        ClosedLoopReasoningRequest withNullEntry = CreateRequest("ignored");
+        withNullEntry.SourceTexts =
+        [
+            null!,
+            new ClosedLoopReasoningSourceText
+            {
+                FileName = "arch.md",
+                ContentType = "text/markdown",
+                Content = "Same body.",
+            },
+        ];
+
+        ClosedLoopReasoningRequest single = CreateRequest("Same body.");
+
+        ReviewCacheManifestBuilder.Build(withNullEntry).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(single).ContentHash);
+    }
+
+    [Fact]
     public void Build_matches_content_hash_when_source_content_is_null_vs_empty_string()
     {
         ClosedLoopReasoningRequest nullContent = CreateRequest("ignored");
