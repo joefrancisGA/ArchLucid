@@ -47,6 +47,18 @@
 - [ ] (candidate) readOAuthJsonErrorDescription - multiply-encoded %252B with ZWJ glue - locus: saturated JSON encoding class.
 
 2026-10-22 seed hunt (seed-only): `application-analysis` - no hunt-ready product defect; cheap-disproof closed dashed-run-id export history and career-gate-on-history candidates; `RunExportRecordRepository.GetByRunIdAsync` already uses `RunExportRecordRunIdSql.LookupKeys`; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` filter 45/45.
+2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed invalid_authentication authorize-query UX (existing parity) and saturated readOAuthJsonErrorDescription ZWJ multiply-encoded glue (existing parity); regression documents BFF refresh 480 parity (client + route opaque 480) and variation-selector-3-only access_token rejection; scoped vitest 737/737.
+
+- [x] (invalid) humanizeAuthorizeCallbackError - invalid_authentication authorize-query copy - **cheap-disproof 2026-10-22:** existing readable default-branch UX parity test.
+- [x] (valid-no-repro) refreshBffSessionCookie - refresh 480 shouldClearSession false - **regression 2026-10-22:** client soft-fail plus BFF route opaque 480 without cookie clear.
+- [x] (valid-no-repro) exchangeAuthorizationCode - access_token JSON string variation-selector-3-only skips authorize retry marker - **regression 2026-10-22:** variation-selector strip parity (U+FE02).
+- [x] (invalid) readOAuthJsonErrorDescription - multiply-encoded %252B with ZWJ glue - **cheap-disproof 2026-10-22:** existing saturated JSON encoding class test.
+
+- [ ] (candidate) humanizeAuthorizeCallbackError - invalid_client authorize-query copy - locus: default branch UX.
+- [ ] (candidate) refreshBffSessionCookie - refresh 481 shouldClearSession false - locus: transient refresh parity.
+- [ ] (candidate) exchangeAuthorizationCode - access_token JSON string variation-selector-2-only skips authorize retry marker - locus: literal whitespace token shape.
+- [ ] (candidate) decodeOAuthErrorDescription - multiply-encoded %252B with thin-space glue - locus: saturated encoding class.
+﻿2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed nonce_replay authorize-query UX (existing parity), soft-hyphen object-replacement replacement-character variation-selector-16-only token (duplicate regression), and saturated decodeOAuthErrorDescription ZWJ multiply-encoded glue (existing parity); regression documents BFF refresh 495 parity (client + route opaque 495); scoped vitest 237/237.
 2026-10-22 seed hunt (seed->hit): `persistence-billing-stripe` - promoted hunt-ready `StripeWalletGateway.ChargeRefillAsync` / `LlmTenantWalletRefillStage.TryAutoRefillAsync` - off-session confirm returning `processing` (or `requires_capture`) dropped the payment intent id on `StripeWalletChargeResult.Failed`, logged `LlmWalletRefillFailed`, and allowed a second auto-refill charge while the first intent could still settle via webhook; return `StripeWalletChargeResult.AwaitingCompletion` and queue pending refill credit without failure audit; regression `TryAutoRefillAsync_defers_credit_without_second_charge_when_stripe_returns_processing_payment_intent`; scoped guard 3/3 + wallet filter 2/2 (`RunAnalyzers=false`).
 
 - [x] (proven) `StripeWalletGateway` / `LlmTenantWalletRefillStage` - `processing` payment intent treated as hard refill failure - **hit 2026-10-22 seed hunt:** `AwaitingCompletion` + pending credit queue; regression above.
