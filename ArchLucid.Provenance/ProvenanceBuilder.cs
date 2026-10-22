@@ -76,7 +76,7 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
                 {
                     Type = ProvenanceNodeType.Decision,
                     ReferenceId = NormalizeId(d.DecisionId),
-                    Name = d.Title,
+                    Name = ResolveDecisionDisplayTitle(d),
                     Metadata = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
                     {
                         ["category"] = d.Category
@@ -271,6 +271,13 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
             return string.IsNullOrWhiteSpace(finding.Title) ? findingId : finding.Title.Trim();
         }
 
+        static string ResolveDecisionDisplayTitle(ResolvedArchitectureDecision decision)
+        {
+            string decisionId = NormalizeId(decision.DecisionId);
+
+            return string.IsNullOrWhiteSpace(decision.Title) ? decisionId : decision.Title.Trim();
+        }
+
         Guid AddNode(string key, ProvenanceNode node)
         {
             if (nodeMap.TryGetValue(key, out Guid existingId))
@@ -325,7 +332,8 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
         {
             if (existingNode.Type != incomingNode.Type
                 || (existingNode.Type != ProvenanceNodeType.GraphNode
-                    && existingNode.Type != ProvenanceNodeType.Finding))
+                    && existingNode.Type != ProvenanceNodeType.Finding
+                    && existingNode.Type != ProvenanceNodeType.Decision))
             {
                 return false;
             }
