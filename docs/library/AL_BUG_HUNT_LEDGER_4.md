@@ -12470,12 +12470,18 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 154
+- **hunts:** 155
 - **bugs-found:** 147
 - **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-22 — graph node factory kept padded property-bag keys
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-22 seed hunt (valid-no-repro): promoted `StructuredDiagramGraphMerger` duplicate-edge top-level `ProvenanceKind` / `DeclaredConnectionId` coalesce candidate; proved `ArchitectureDiagramToGraphCompiler` never assigns schema-v1 top-level edge fields (provenance lives in `structuredDiagram.provenanceKind` properties coalesced by `CoalesceDiagramEdgeMetadata`); regression `Merge_does_not_populate_schema_v1_top_level_provenance_kind_or_declared_connection_id_on_structured_diagram_edges`; seeded `GraphNodePropertyReader` padded property-bag key lookup follow-on; 456 KnowledgeGraph + 148 Provenance scoped tests passed.
+
+- [x] (valid-no-repro) `StructuredDiagramGraphMerger.Merge` — duplicate directed-edge coalesce may not refresh top-level `GraphEdge.ProvenanceKind` or `DeclaredConnectionId` — **cheap-disproof 2026-10-22 seed hunt:** structured diagram compile omits top-level fields; regression above.
+
+- [ ] (candidate) `GraphNodePropertyReader.TryGetPropertyValue` — padded property-bag keys may miss trim-normalized lookup keys — locus: key equality loop; input: properties bag key with surrounding whitespace and canonical lookup key; wrong outcome: topology sensitivity and declaration matchers miss values on deserialized or legacy graph nodes.
 
 2026-10-22 seed hunt (seed→hit): promoted `GraphNodeFactory` padded property-bag key candidate; proved `NormalizePropertyBag` trimmed values but copied raw property keys, so padded keys like `"  principalId  "` missed `GraphNodePropertyReader` / `DeclarationExistingNodeResolver` lookups and failed to populate `Category` from padded `"  category  "` keys; trim keys on normalize and reject trim-colliding values; regression `CreateNode_trims_surrounding_whitespace_on_property_bag_keys`; seeded `StructuredDiagramGraphMerger` stale edge `ProvenanceKind` / `DeclaredConnectionId` on directed-pair coalesce follow-on; 455 KnowledgeGraph + 148 Provenance scoped tests passed.
 
@@ -12775,7 +12781,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (proven) `StructuredDiagramGraphMerger.Merge` — duplicate directed-edge coalesce kept the first `EdgeId` when later documents compiled the same edge with a different diagram edge id — **hit 2026-10-22 seed hunt (seed→hit):** last-wins `EdgeId` on coalesce; regression above.
 - [x] (invalid) `StructuredDiagramGraphMerger.Merge` — duplicate directed-edge coalesce may not refresh `InferenceSource` — **cheap-disproof 2026-10-22 seed hunt:** diagram compile path uses a single inference source for equivalent `ConnectsTo` edges.
 
-- [ ] (candidate) `StructuredDiagramGraphMerger.Merge` — duplicate directed-edge coalesce may not refresh top-level `GraphEdge.ProvenanceKind` or `DeclaredConnectionId` when later documents compile richer schema-v1 edge metadata — locus: directed-edge dedup; input: two documents sharing endpoints; wrong outcome: stale additive edge fields on multi-document merge.
+- [x] (invalid) `StructuredDiagramGraphMerger.Merge` — duplicate directed-edge coalesce may not refresh top-level `GraphEdge.ProvenanceKind` or `DeclaredConnectionId` when later documents compile richer schema-v1 edge metadata — **cheap-disproof 2026-10-22 seed hunt:** diagram compile path does not populate those fields; regression `Merge_does_not_populate_schema_v1_top_level_provenance_kind_or_declared_connection_id_on_structured_diagram_edges`.
 
 2026-10-22 seed hunt (seed→hit): promoted per-edge provenance reconstruct candidate; proved `StructuredDiagramCanonicalModelReconstructor.ReconstructEdges` copied `Provenance` from the source node, flattening inferred edges between asserted nodes to asserted after canonical round-trip; persist edge provenance as a third connectivity token segment and decode on reconstruct; regression `ReconstructModels_preserves_inferred_edge_provenance_between_asserted_nodes`; seeded duplicate-edge `InferenceSource` coalesce on merge follow-on; 386 KnowledgeGraph + 99 Provenance scoped tests passed.
 

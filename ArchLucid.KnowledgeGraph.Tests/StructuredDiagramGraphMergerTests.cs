@@ -2,6 +2,7 @@ using ArchLucid.ContextIngestion.Mapping;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Persistence.Context;
 using ArchLucid.Contracts.Persistence.Graph;
+using ArchLucid.KnowledgeGraph;
 using ArchLucid.KnowledgeGraph.Diagram;
 using ArchLucid.KnowledgeGraph.Models;
 
@@ -1368,6 +1369,104 @@ public sealed class StructuredDiagramGraphMergerTests
             binding.CanonicalGraphNodeId == "obj-sql-inv-1"
             && binding.DiagramSourceId == "sql"
             && binding.DiagramGraphNodeId == "diagram-node:sql");
+    }
+
+    [Fact]
+    public void Merge_does_not_populate_schema_v1_top_level_provenance_kind_or_declared_connection_id_on_structured_diagram_edges()
+    {
+        ArchitectureDiagramModelRecord inferredTopology = new()
+        {
+            Nodes =
+            [
+                new ArchitectureDiagramNodeRecord
+                {
+                    Id = "api",
+                    Label = "API Gateway",
+                    Kind = ArchitectureDiagramNodeKinds.System,
+                    Provenance = ArchitectureDiagramProvenanceKinds.Asserted,
+                },
+                new ArchitectureDiagramNodeRecord
+                {
+                    Id = "db",
+                    Label = "SQL Database",
+                    Kind = ArchitectureDiagramNodeKinds.System,
+                    Provenance = ArchitectureDiagramProvenanceKinds.Asserted,
+                },
+            ],
+            Edges =
+            [
+                new ArchitectureDiagramEdgeRecord
+                {
+                    Id = "e1",
+                    SourceId = "api",
+                    TargetId = "db",
+                    Provenance = ArchitectureDiagramProvenanceKinds.Inferred,
+                },
+            ],
+            ExtractionMethod = DiagramExtractionMethods.StructuredParse,
+        };
+
+        ArchitectureDiagramModelRecord assertedTopology = new()
+        {
+            Nodes =
+            [
+                new ArchitectureDiagramNodeRecord
+                {
+                    Id = "api",
+                    Label = "API Gateway",
+                    Kind = ArchitectureDiagramNodeKinds.System,
+                    Provenance = ArchitectureDiagramProvenanceKinds.Asserted,
+                },
+                new ArchitectureDiagramNodeRecord
+                {
+                    Id = "db",
+                    Label = "SQL Database",
+                    Kind = ArchitectureDiagramNodeKinds.System,
+                    Provenance = ArchitectureDiagramProvenanceKinds.Asserted,
+                },
+            ],
+            Edges =
+            [
+                new ArchitectureDiagramEdgeRecord
+                {
+                    Id = "e1",
+                    SourceId = "api",
+                    TargetId = "db",
+                    Provenance = ArchitectureDiagramProvenanceKinds.Asserted,
+                },
+            ],
+            ExtractionMethod = DiagramExtractionMethods.StructuredParse,
+        };
+
+        List<CanonicalObject> canonicalObjects = [];
+        canonicalObjects.AddRange(
+            ArchitectureDiagramCanonicalObjectMapper.Map(inferredTopology, "doc-schema-v1-a", labelOnlyInferenceConfidence: 0.5));
+        canonicalObjects.AddRange(
+            ArchitectureDiagramCanonicalObjectMapper.Map(assertedTopology, "doc-schema-v1-b", labelOnlyInferenceConfidence: 0.5));
+
+        ContextSnapshot snapshot = new()
+        {
+            SnapshotId = Guid.Parse("cccccccc-dddd-eeee-ffff-111111111111"),
+            RunId = Guid.Parse("66666666-7777-8888-9999-aaaaaaaaaaaa"),
+            ProjectId = "project-schema-v1-edge-fields",
+            CanonicalObjects = canonicalObjects,
+        };
+
+        StructuredDiagramGraphMerger merger = GraphMaterializationTestHelpers.CreateStructuredDiagramGraphMerger();
+        StructuredDiagramGraphMergeResult result = merger.Merge(snapshot, []);
+
+        GraphEdge merged = result.Edges
+            .Should()
+            .ContainSingle(edge =>
+                edge.EdgeType == GraphEdgeTypes.ConnectsTo
+                && edge.FromNodeId == "diagram-node:api"
+                && edge.ToNodeId == "diagram-node:db")
+            .Subject;
+
+        merged.ProvenanceKind.Should().BeNull();
+        merged.DeclaredConnectionId.Should().BeNull();
+        merged.InferenceSource.Should().Be(GraphEdgeInferenceSources.StructuredParse);
+        merged.Properties.Should().ContainKey(StructuredDiagramGraphPropertyKeys.ProvenanceKind);
     }
 
     private sealed class PaddedCanonicalBindingDedupeTestCompiler : IArchitectureDiagramToGraphCompiler
