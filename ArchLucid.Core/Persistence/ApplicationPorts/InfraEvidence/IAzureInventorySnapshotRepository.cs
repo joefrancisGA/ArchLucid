@@ -323,6 +323,48 @@ public sealed class AzureInventorySnapshotMaterializeWriteRequest
         get;
         init;
     } = [];
+
+    public IReadOnlyList<AzureInventoryDefenderGovernanceAssignmentWrite> DefenderGovernanceAssignments
+    {
+        get;
+        init;
+    } = [];
+
+    public IReadOnlyList<AzureInventoryDefenderComplianceStandardWrite> DefenderComplianceStandards
+    {
+        get;
+        init;
+    } = [];
+
+    public IReadOnlyList<AzureInventoryDefenderComplianceControlWrite> DefenderComplianceControls
+    {
+        get;
+        init;
+    } = [];
+
+    public IReadOnlyList<AzureInventoryDefenderAlertWrite> DefenderAlerts
+    {
+        get;
+        init;
+    } = [];
+
+    public IReadOnlyList<AzureInventoryDefenderAttackPathWrite> DefenderAttackPaths
+    {
+        get;
+        init;
+    } = [];
+
+    public IReadOnlyList<AzureInventoryDefenderVulnerabilityCountWrite> DefenderVulnerabilityCounts
+    {
+        get;
+        init;
+    } = [];
+
+    public IReadOnlyList<AzureInventoryDefenderVulnerabilityFindingWrite> DefenderVulnerabilityFindings
+    {
+        get;
+        init;
+    } = [];
 }
 
 public sealed class AzureInventoryResourcePropertyWrite

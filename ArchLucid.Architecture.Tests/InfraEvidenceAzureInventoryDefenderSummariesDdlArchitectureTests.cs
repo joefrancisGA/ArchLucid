@@ -91,6 +91,13 @@ public sealed class InfraEvidenceAzureInventoryDefenderSummariesDdlArchitectureT
             "dbo.AzureInventoryDefenderAssessments",
             "dbo.AzureInventoryDefenderAssessmentCounts",
             "dbo.AzureInventoryDefenderSecurityContacts",
+            "dbo.AzureInventoryDefenderGovernanceAssignments",
+            "dbo.AzureInventoryDefenderComplianceStandards",
+            "dbo.AzureInventoryDefenderComplianceControls",
+            "dbo.AzureInventoryDefenderAlerts",
+            "dbo.AzureInventoryDefenderAttackPaths",
+            "dbo.AzureInventoryDefenderVulnerabilityCounts",
+            "dbo.AzureInventoryDefenderVulnerabilityFindings",
         ];
 
         foreach (string tableName in requiredTables)

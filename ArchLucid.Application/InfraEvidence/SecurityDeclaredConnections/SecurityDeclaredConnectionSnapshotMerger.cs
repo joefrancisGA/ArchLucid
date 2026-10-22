@@ -94,6 +94,13 @@ public static class SecurityDeclaredConnectionSnapshotMerger
             DefenderAssessments = snapshot.DefenderAssessments,
             DefenderAssessmentCounts = snapshot.DefenderAssessmentCounts,
             DefenderSecurityContacts = snapshot.DefenderSecurityContacts,
+            DefenderGovernanceAssignments = snapshot.DefenderGovernanceAssignments,
+            DefenderComplianceStandards = snapshot.DefenderComplianceStandards,
+            DefenderComplianceControls = snapshot.DefenderComplianceControls,
+            DefenderAlerts = snapshot.DefenderAlerts,
+            DefenderAttackPaths = snapshot.DefenderAttackPaths,
+            DefenderVulnerabilityCounts = snapshot.DefenderVulnerabilityCounts,
+            DefenderVulnerabilityFindings = snapshot.DefenderVulnerabilityFindings,
         };
     }
 
