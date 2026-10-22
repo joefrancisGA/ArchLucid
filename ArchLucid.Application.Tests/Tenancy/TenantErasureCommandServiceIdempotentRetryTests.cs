@@ -1,3 +1,5 @@
+using System.Collections.Concurrent;
+
 using ArchLucid.Application.Tenancy;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
@@ -735,11 +737,13 @@ public sealed class TenantErasureCommandServiceIdempotentRetryTests
             CancellationToken.None);
 
         int auditAppends = 0;
+        ConcurrentBag<Guid> auditEventIds = [];
         Mock<IPlatformAuditRepository> audit = new();
         audit.Setup(a => a.AppendAsync(It.IsAny<PlatformAuditEvent>(), It.IsAny<CancellationToken>()))
-            .Returns(() =>
+            .Returns<PlatformAuditEvent, CancellationToken>((auditEvent, _) =>
             {
                 Interlocked.Increment(ref auditAppends);
+                auditEventIds.Add(auditEvent.EventId);
                 return Task.CompletedTask;
             });
 
@@ -758,7 +762,9 @@ public sealed class TenantErasureCommandServiceIdempotentRetryTests
                 .ToArray());
 
         outcomes.Should().OnlyContain(result => result);
-        auditAppends.Should().Be(1);
+        auditAppends.Should().BeGreaterThan(0);
+        auditEventIds.Should().NotBeEmpty();
+        auditEventIds.Distinct().Should().ContainSingle();
     }
 
     [Fact]
@@ -1559,8 +1565,69 @@ public sealed class TenantErasureCommandServiceIdempotentRetryTests
             .BeTrue();
 
         audit.Verify(
-            a => a.AppendAsync(It.IsAny<PlatformAuditEvent>(), It.IsAny<CancellationToken>()),
-            Times.Never);
+            a => a.AppendAsync(
+                It.Is<PlatformAuditEvent>(e => e.EventType == AuditEventTypes.TenantErasureApproved),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task TryApproveErasureAsync_retries_failed_audit_with_same_event_id_when_approval_marker_already_set()
+    {
+        Guid tenantId = Guid.NewGuid();
+        DateTimeOffset now = new(2026, 10, 22, 12, 0, 0, TimeSpan.Zero);
+        FakeTimeProvider clock = new(now);
+        InMemoryTenantRepository tenants = new();
+        await tenants.InsertTenantAsync(
+            tenantId,
+            "Erase Org",
+            "erase-org-" + Guid.NewGuid().ToString("N")[..8],
+            TenantTier.Standard,
+            null,
+            TenantDataRegions.Default,
+            CancellationToken.None);
+        await tenants.TryStartTenantErasureOffboardAsync(
+            tenantId,
+            now.AddDays(-1),
+            now.AddDays(29),
+            CancellationToken.None);
+
+        Mock<IPlatformAuditRepository> audit = new();
+        List<Guid> auditEventIds = [];
+        audit.Setup(a => a.AppendAsync(It.IsAny<PlatformAuditEvent>(), It.IsAny<CancellationToken>()))
+            .Callback<PlatformAuditEvent, CancellationToken>((auditEvent, _) => auditEventIds.Add(auditEvent.EventId))
+            .Returns(() => auditEventIds.Count == 1
+                ? Task.FromException(new InvalidOperationException("Audit storage unavailable."))
+                : Task.CompletedTask);
+
+        Mock<IOptionsMonitor<TenantErasurePurgeOptions>> options = new();
+        options.Setup(o => o.CurrentValue).Returns(new TenantErasurePurgeOptions());
+
+        TenantErasureCommandService sut = new(
+            tenants,
+            audit.Object,
+            clock,
+            options.Object);
+
+        await Assert.ThrowsAsync<InvalidOperationException>(() => sut.TryApproveErasureAsync(
+            tenantId,
+            "admin@example.com",
+            "Admin",
+            "corr",
+            CancellationToken.None));
+        (await tenants.GetByIdAsync(tenantId, CancellationToken.None))!.TenantErasureApprovedUtc.Should().NotBeNull();
+
+        (await sut.TryApproveErasureAsync(tenantId, "admin@example.com", "Admin", "corr", CancellationToken.None))
+            .Should()
+            .BeTrue();
+
+        audit.Verify(
+            a => a.AppendAsync(
+                It.Is<PlatformAuditEvent>(e => e.EventType == AuditEventTypes.TenantErasureApproved),
+                It.IsAny<CancellationToken>()),
+            Times.Exactly(2));
+        auditEventIds.Should().HaveCount(2);
+        auditEventIds[1].Should().Be(auditEventIds[0]);
     }
 
     [Fact]

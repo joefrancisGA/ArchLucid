@@ -1457,3 +1457,5 @@
 {"at":"2026-10-22T23:45:00.0000000Z","zoneId":"api-governance-tenancy-controllers","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Exceptions.cs","ArchLucid.Api/Controllers/Governance/GovernanceController.ApprovalRequests.Batch.cs","ArchLucid.Api/Controllers/Tenancy/TenantBaselineController.Get.cs"]}
 {"at":"2026-10-22T23:55:00.0000000Z","zoneId":"api-governance-tenancy-controllers","outcome":"seed-only","productLine":"archlucid-shared","paths":["docs/library/AL_BUG_HUNT_LEDGER_2.md"],"refresh":true}
 {"at":"2026-10-22T21:08:28.1941350Z","zoneId":"api-governance-tenancy-controllers","outcome":"seed-only","productLine":"archlucid-shared"}
+{"at":"2026-10-22T21:30:00.0000000Z","zoneId":"tenant-erasure","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/Tenancy/TenantErasureCommandService.cs","ArchLucid.Application.Tests/Tenancy/TenantErasureCommandServiceIdempotentRetryTests.cs"]}
+{"at":"2026-10-22T21:28:50.4844260Z","zoneId":"tenant-erasure","outcome":"hit","productLine":"archlucid-shared"}

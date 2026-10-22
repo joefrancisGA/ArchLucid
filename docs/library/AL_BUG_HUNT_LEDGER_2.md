@@ -1029,6 +1029,14 @@
 2026-09-10 seed hunt #1541 (seed→hit): reseeded auth-return-path after #1531; proved remaining slash and dot homoglyph bypasses; 58 scoped AuthSignInReturnPathGuard tests passed.
 
 ## Zone: tenant-erasure
+- [x] (proven) `TenantErasureCommandService.TryApproveErasureAsync` — operator retry after approval marker was persisted but `TenantErasureApproved` audit append failed returned success without healing the audit (unlike offboard deterministic audit retry) — **hit 2026-10-22 seed hunt (seed→hit):** `CreateApproveAuditEventId` + `TryAppendApproveAuditAfterApprovedMarkerAsync`; regressions `TryApproveErasureAsync_retries_failed_audit_with_same_event_id_when_approval_marker_already_set`, concurrent test asserts single deterministic event id.
+
+- [x] (valid-no-repro) `TenantErasureCommandService.TryRestoreQuarantineAsync` — failed `TenantErasureQuarantineRestored` audit append on operator retry may return success without healing when `OffboardedUtc` is already null — **cheap-disproof 2026-10-22 seed hunt:** retry path requires `OffboardedUtc` still set until restore completes; successful restore clears marker before audit append, matching existing restore idempotency tests.
+- [x] (valid-no-repro) `TenantErasureCommandService.TryClearLegalHoldAsync` — failed legal-hold clear audit on retry when hold already cleared — **cheap-disproof 2026-10-22 seed hunt:** approve audit gap class; clear-hold retry returns early when hold absent and does not re-enter append without a persisted hold transition in this zone.
+- [x] (invalid) `TenantErasureQuarantineMiddleware.Skip` — `/v1/tenant/erasure-request` prefix may match `/v1/tenant/erasure` allowlist — **cheap-disproof 2026-10-22 seed hunt:** `PathString.StartsWithSegments` requires segment boundary; `/v1/tenant/erasure-request` stays blocked during quarantine.
+- [x] (valid-no-repro) `TenantErasureCommandService.TrySetLegalHoldAsync` — concurrent legal-hold losers after atomic miss may skip audit append while winner appends — **cheap-disproof 2026-10-22 seed hunt:** losers hit `IsIdenticalLegalHoldRetry` by design; existing concurrent legal-hold test expects one append.
+- [x] (valid-no-repro) `TenantErasureQuarantineMiddleware.InvokeAsync` — `TenantErasureRequestedUtc` exactly equal to `utcNow` may fail closed on the same tick as scheduled quarantine starts — **cheap-disproof 2026-10-22 seed hunt:** `<= utcNow` is intentional scheduled-quarantine closure per `TenantErasureEligibility.IsTenantLoginBlocked`.
+
 - [x] (proven) `TenantErasureCommandService.TryOffboardTenantAsync` — `TenantErasureOffboarded` audit after quarantine restore between pre-audit read and append — **hit 2026-10-21 seed hunt lane C:** immediate pre-append re-read; regression above.
 
 
@@ -1111,17 +1119,19 @@
 
 2026-10-12 thorough hunt (dry): `tenant-erasure` — cheap-disproved the two invalid path-normalization hypotheses and rechecked the three valid-no-repro command/side-effect hypotheses; no reachable bypass or lifecycle defect was found. The Application and API TenantErasure suites were blocked before execution by unrelated compile errors in `AzureInventorySecurityEdgeMaterializer.cs` (`unmappedRoles` and `warnings`). No production or regression code changed.
 
+2026-10-22 seed hunt (seed→hit): `tenant-erasure` — promoted approve audit-retry gap; deterministic `TenantErasureApproved` event id + retry append when approval marker already set; 49 Application + 33 Api scoped `TenantErasure` tests passed.
+
 - **id:** tenant-erasure
 - **status:** open
 - **impact:** high
 - **aliases:** tenant delete; erasure; quarantine middleware
 - **paths:** ArchLucid.Application/Tenancy/TenantErasureCommandService.cs; ArchLucid.Api/Middleware/TenantErasureQuarantineMiddleware.cs
 - **test-filter:** FullyQualifiedName~TenantErasure
-- **hunts:** 272
-- **bugs-found:** 493
+- **hunts:** 273
+- **bugs-found:** 494
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-14
-- **last-bug:** 2026-10-14 — path traversal bypassed erasure quarantine via /v1/admin allowlist
+- **last-hunt:** 2026-10-22
+- **last-bug:** 2026-10-22 — approve erasure safe-retry skipped audit healing after failed append
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
