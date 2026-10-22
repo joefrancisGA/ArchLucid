@@ -12470,8 +12470,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 259
-- **bugs-found:** 177
+- **hunts:** 260
+- **bugs-found:** 178
 - **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-22 — fully empty overlay merge returned base graph without warning normalization
 - **related-pd-tb:** none
@@ -12805,7 +12805,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - [x] (valid-no-repro) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — padded overlay property values threw on trim-equal keys — **cheap-disproof 2026-10-22 seed hunt:** value trim before compare; regression above.
 
-- [ ] (candidate) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — whitespace-only distinct overlay property keys may both persist on merged nodes — locus: `NormalizeOverlayPropertyBag` key branch for `IsNullOrWhiteSpace`; input: overlay node property bag with `""` and `"   "` keys; wrong outcome: duplicate whitespace keys retained or unstable merge throw.
+2026-10-22 seed hunt (seed→hit): promoted `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` whitespace-only overlay property key candidate; proved `NormalizeOverlayPropertyBag` previously retained distinct `""` and `"   "` keys because whitespace keys were not trimmed or skipped; skip whitespace-only keys before trim/coalesce (parity with `GraphNodePropertyReader`); regression `Merge_skips_whitespace_only_overlay_property_keys_when_appending_inventory_node`; seeded `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` whitespace-only overlay property values may still persist on merged edges follow-on; 553 KnowledgeGraph + 170 Provenance scoped tests passed.
+
+- [x] (proven) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — whitespace-only overlay property keys persisted on merged nodes — **hit 2026-10-22 seed hunt (seed→hit):** skip whitespace-only keys; regression above.
+
+- [ ] (candidate) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — whitespace-only overlay property values may persist on appended inventory edges — locus: `NormalizeOverlayPropertyBag` value branch; input: overlay edge with well-formed key and whitespace-only value; wrong outcome: merged edge retains empty or padding-only property values.
 
 2026-10-22 seed hunt (seed→hit): promoted `StructuredDiagramGraphMerger` padded diagram property-key coalesce candidate; proved duplicate node/edge metadata coalesce indexed raw `property.Key`, so a later compile with surrounding-whitespace keys left parallel bag entries and `GraphNodePropertyReader` could return stale source-evidence values; trim keys before skip/coalesce (parity with `GraphNodeFactory.NormalizePropertyBag`); regression `Merge_coalesces_node_properties_when_incoming_property_keys_differ_only_by_surrounding_whitespace`; seeded diagram edge metadata padded-key coalesce regression follow-on; 468 KnowledgeGraph + 170 Provenance scoped tests passed.
 

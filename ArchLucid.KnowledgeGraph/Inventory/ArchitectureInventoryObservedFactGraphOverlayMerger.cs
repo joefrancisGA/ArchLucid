@@ -154,7 +154,12 @@ public static class ArchitectureInventoryObservedFactGraphOverlayMerger
 
         foreach (KeyValuePair<string, string> entry in properties)
         {
-            string key = string.IsNullOrWhiteSpace(entry.Key) ? entry.Key : entry.Key.Trim();
+            if (string.IsNullOrWhiteSpace(entry.Key))
+            {
+                continue;
+            }
+
+            string key = entry.Key.Trim();
             string value = string.IsNullOrWhiteSpace(entry.Value)
                 ? entry.Value
                 : entry.Value.Trim();
