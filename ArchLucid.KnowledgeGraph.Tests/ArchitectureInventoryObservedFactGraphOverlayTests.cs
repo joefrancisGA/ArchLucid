@@ -286,6 +286,47 @@ public sealed class ArchitectureInventoryObservedFactGraphOverlayTests
     }
 
     [Fact]
+    public void BuildOverlay_stamps_resource_type_label_when_arm_resource_id_ends_with_slash()
+    {
+        const string armIdWithTrailingSlash =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Sql/servers/sql-a/";
+        const string resourceType = "Microsoft.Sql/servers";
+
+        AzureInventorySnapshotDetailReadModel snapshot = new()
+        {
+            Header = new AzureInventorySnapshotRecord
+            {
+                SnapshotId = SnapshotId,
+                TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                CreatedUtc = new DateTime(2026, 7, 18, 12, 0, 0, DateTimeKind.Utc),
+            },
+            Resources =
+            [
+                new AzureInventoryResourceRecord
+                {
+                    ResourceRowId = Guid.Parse("12121212-1212-1212-1212-121212121212"),
+                    SnapshotId = SnapshotId,
+                    TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                    AzureResourceId = armIdWithTrailingSlash,
+                    ResourceType = resourceType,
+                    ResourceGroup = "rg",
+                    SubscriptionId = "sub",
+                },
+            ],
+            Relationships = [],
+        };
+
+        GraphSnapshot overlay = ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay(
+            snapshot,
+            RunId,
+            ContextSnapshotId);
+
+        GraphNode node = overlay.Nodes.Should().ContainSingle().Subject;
+        node.Label.Should().Be(resourceType);
+        node.Properties["arm.id"].Should().Be(ArmResourceIdNormalizer.Normalize(armIdWithTrailingSlash));
+    }
+
+    [Fact]
     public void BuildOverlay_returns_no_edges_when_relationships_exist_but_resources_list_is_empty()
     {
         const string fromResourceId =
