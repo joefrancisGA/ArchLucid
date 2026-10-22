@@ -12470,7 +12470,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 211
+- **hunts:** 212
 - **bugs-found:** 172
 - **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-22 — post-overlay rebind deduped parallel edges separately when EdgeType differed only by whitespace
@@ -12613,7 +12613,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - [x] (valid-no-repro) `ArchitectureDiagramToGraphCompiler` — padded diagram edge endpoints dropped connectivity on compile — **cheap-disproof 2026-10-22 seed hunt:** trim on edge endpoint lookup; regression above.
 
-- [ ] (candidate) `ArchitectureDiagramToGraphCompiler` — compiled diagram edges may mint padded `diagram-edge:*` ids when edge record `Id` carries surrounding whitespace — locus: `EdgeId = $"diagram-edge:{edge.Id.Trim()}"` parity check; input: diagram edge record id padded; wrong outcome: stored edge id retains padding tokens (or duplicate edges when ids differ only by padding).
+2026-10-22 seed hunt (valid-no-repro): promoted `ArchitectureDiagramToGraphCompiler` padded diagram edge record `Id` on `diagram-edge:*` mint candidate; proved compile already uses `edge.Id.Trim()` for `EdgeId` mint and `BuildEdgeProperties` diagram edge metadata; regression `Compile_trims_diagram_edge_record_id_when_minting_diagram_edge_graph_id`; seeded `ArchitectureDiagramToGraphCompiler` padded diagram edge `Label` on compiled edge output follow-on; 504 KnowledgeGraph + 170 Provenance scoped tests passed.
+
+- [x] (valid-no-repro) `ArchitectureDiagramToGraphCompiler` — compiled diagram edges minted padded `diagram-edge:*` ids — **cheap-disproof 2026-10-22 seed hunt:** trim on edge id mint; regression above.
+
+- [ ] (candidate) `ArchitectureDiagramToGraphCompiler` — compiled diagram edges may retain padded `Label` values when edge record labels carry surrounding whitespace — locus: edge label assignment without trim; input: diagram edge label padded; wrong outcome: graph edge labels display padding tokens.
 
 2026-10-22 seed hunt (seed→hit): promoted `StructuredDiagramGraphMerger` padded diagram property-key coalesce candidate; proved duplicate node/edge metadata coalesce indexed raw `property.Key`, so a later compile with surrounding-whitespace keys left parallel bag entries and `GraphNodePropertyReader` could return stale source-evidence values; trim keys before skip/coalesce (parity with `GraphNodeFactory.NormalizePropertyBag`); regression `Merge_coalesces_node_properties_when_incoming_property_keys_differ_only_by_surrounding_whitespace`; seeded diagram edge metadata padded-key coalesce regression follow-on; 468 KnowledgeGraph + 170 Provenance scoped tests passed.
 

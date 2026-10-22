@@ -274,6 +274,48 @@ public sealed class ArchitectureDiagramToGraphCompilerTests
     }
 
     [Fact]
+    public void Compile_trims_diagram_edge_record_id_when_minting_diagram_edge_graph_id()
+    {
+        ArchitectureDiagramModelRecord model = new()
+        {
+            Nodes =
+            [
+                new ArchitectureDiagramNodeRecord
+                {
+                    Id = "api",
+                    Label = "API",
+                    Kind = ArchitectureDiagramNodeKinds.System,
+                },
+                new ArchitectureDiagramNodeRecord
+                {
+                    Id = "sql",
+                    Label = "SQL",
+                    Kind = ArchitectureDiagramNodeKinds.System,
+                },
+            ],
+            Edges =
+            [
+                new ArchitectureDiagramEdgeRecord
+                {
+                    Id = "  e1  ",
+                    SourceId = "api",
+                    TargetId = "sql",
+                    Label = "reads",
+                },
+            ],
+            ExtractionMethod = DiagramExtractionMethods.StructuredParse,
+        };
+
+        StructuredDiagramGraphCompileResult result = new ArchitectureDiagramToGraphCompiler().Compile(
+            model,
+            CreateDefaultCompileOptions());
+
+        GraphEdge edge = result.Snapshot.Edges.Should().ContainSingle().Subject;
+        edge.EdgeId.Should().Be("diagram-edge:e1");
+        edge.Properties[StructuredDiagramGraphPropertyKeys.DiagramEdgeId].Should().Be("e1");
+    }
+
+    [Fact]
     public void Compile_retains_edge_when_source_and_target_ids_have_surrounding_whitespace()
     {
         ArchitectureDiagramModelRecord model = new()
