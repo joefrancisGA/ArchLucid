@@ -8712,6 +8712,12 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: architecture-intelligence-orchestrator
 
+2026-10-22 seed hunt (seed→hit): promoted NBSP/consecutive-space drift in request `DeclaredPriorities`, attachment file names, and ledger technology labels splitting review-cache hash; `ClosedLoopDeclaredPrioritiesNormalizer`, `NormalizeFileNameForHash`, and `ReviewCacheLedgerFingerprint` now collapse interior ASCII spaces after unicode-space normalize; regressions `Build_matches_declared_priorities_hash_when_priority_differs_only_by_nbsp_vs_space`, `Build_matches_declared_priorities_hash_when_priority_differs_only_by_consecutive_spaces`, `Build_matches_content_hash_when_file_name_differs_only_by_consecutive_spaces`, and `Build_matches_content_hash_when_ledger_technology_name_differs_only_by_consecutive_spaces`; 187 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `ClosedLoopDeclaredPrioritiesNormalizer` — NBSP and double spaces in request priorities split `DeclaredPrioritiesHash`/`ContentHash` — **hit 2026-10-22 seed hunt:** unicode space + collapse; regressions above.
+- [x] (proven) `ClosedLoopReasoningSourceTextNormalizer.NormalizeFileNameForHash` — consecutive spaces in paths split `ContentHash` — **hit 2026-10-22 seed hunt:** collapse on collapsed path; regression above.
+- [x] (proven) `ReviewCacheLedgerFingerprint.NormalizeTechnologyName` — consecutive spaces in ledger labels split `ledgerfp` — **hit 2026-10-22 seed hunt:** collapse after unicode normalize; regression above.
+
 2026-10-22 seed hunt (seed→hit): promoted NBSP/consecutive-space drift in request framing answers, `ModelAliasId`, and baseline property values splitting review-cache hash; `ClosedLoopFramingAnswersNormalizer` and `ClosedLoopModelAliasIdNormalizer` now unicode-space + collapse ASCII runs; `NormalizeFingerprintText` collapses interior spaces for modelfp tokens; regressions `Build_matches_content_hash_when_framing_answer_key_differs_only_by_nbsp_vs_space`, `Build_matches_content_hash_when_framing_answer_value_differs_only_by_consecutive_spaces`, `Build_matches_content_hash_when_model_alias_id_differs_only_by_nbsp_vs_space`, `Build_matches_content_hash_when_baseline_element_property_value_differs_only_by_consecutive_spaces`, and `Build_matches_content_hash_when_ledger_evidence_ref_differs_only_by_nbsp_vs_space`; 183 scoped orchestrator/cache/manifest/continue-flight tests passed.
 
 - [x] (proven) `ClosedLoopFramingAnswersNormalizer` — NBSP keys and double spaces in framing values split `ContentHash` — **hit 2026-10-22 seed hunt:** unicode space + collapse; regressions above.
@@ -9172,11 +9178,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** closed-loop orchestrator; review result cache; architecture intelligence
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.cs; ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.Cache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewResultCache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewCacheManifestBuilder.cs
 - **test-filter:** FullyQualifiedName~ClosedLoopArchitectureReasoningOrchestrator|FullyQualifiedName~ReviewResultCache|FullyQualifiedName~ReviewCacheManifestBuilder
-- **hunts:** 78
-- **bugs-found:** 61
+- **hunts:** 79
+- **bugs-found:** 64
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — ledger technology NBSP and consecutive spaces in review-cache hash
+- **last-bug:** 2026-10-22 — framing answers, model alias, and property whitespace in review-cache hash
 - **related-pd-tb:** none
 - **code-changed-since:** no
 

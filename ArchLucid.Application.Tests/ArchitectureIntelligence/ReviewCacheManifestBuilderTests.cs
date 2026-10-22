@@ -1729,6 +1729,85 @@ public sealed class ReviewCacheManifestBuilderTests
     }
 
     [Fact]
+    public void Build_matches_declared_priorities_hash_when_priority_differs_only_by_nbsp_vs_space()
+    {
+        ClosedLoopReasoningRequest spaced = CreateRequest("Architecture note.");
+        spaced.DeclaredPriorities = ["Cost Optimization"];
+
+        ClosedLoopReasoningRequest nbsp = CreateRequest("Architecture note.");
+        nbsp.DeclaredPriorities = ["Cost\u00A0Optimization"];
+
+        ReviewCacheManifestBuilder.Build(spaced).DeclaredPrioritiesHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(nbsp).DeclaredPrioritiesHash);
+
+        ReviewCacheManifestBuilder.Build(spaced).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(nbsp).ContentHash);
+    }
+
+    [Fact]
+    public void Build_matches_declared_priorities_hash_when_priority_differs_only_by_consecutive_spaces()
+    {
+        ClosedLoopReasoningRequest single = CreateRequest("Architecture note.");
+        single.DeclaredPriorities = ["Cost Optimization"];
+
+        ClosedLoopReasoningRequest doubleSpaced = CreateRequest("Architecture note.");
+        doubleSpaced.DeclaredPriorities = ["Cost  Optimization"];
+
+        ReviewCacheManifestBuilder.Build(single).DeclaredPrioritiesHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(doubleSpaced).DeclaredPrioritiesHash);
+    }
+
+    [Fact]
+    public void Build_matches_content_hash_when_file_name_differs_only_by_consecutive_spaces()
+    {
+        ClosedLoopReasoningRequest single = CreateRequest("Same body.");
+        single.SourceTexts =
+        [
+            new ClosedLoopReasoningSourceText
+            {
+                FileName = "docs/arch note.md",
+                ContentType = "text/markdown",
+                Content = "Same body.",
+            },
+        ];
+
+        ClosedLoopReasoningRequest doubleSpaced = CreateRequest("ignored");
+        doubleSpaced.SourceTexts =
+        [
+            new ClosedLoopReasoningSourceText
+            {
+                FileName = "docs/arch  note.md",
+                ContentType = "text/markdown",
+                Content = "Same body.",
+            },
+        ];
+
+        ReviewCacheManifestBuilder.Build(single).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(doubleSpaced).ContentHash);
+    }
+
+    [Fact]
+    public void Build_matches_content_hash_when_ledger_technology_name_differs_only_by_consecutive_spaces()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "run-ledger-tech-spaces";
+
+        TechnologyLedgerEntry single = CreateLedgerEntry(request.RunId, evidenceRef: null);
+        single.TechnologyName = "Azure SQL";
+
+        TechnologyLedgerEntry doubleSpaced = CreateLedgerEntry(request.RunId, evidenceRef: null);
+        doubleSpaced.TechnologyName = "Azure  SQL";
+
+        ReviewCacheManifestBuilder.Build(request, null, [single]).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(request, null, [doubleSpaced]).ContentHash);
+    }
+
+    [Fact]
     public void Build_matches_content_hash_when_framing_answer_key_differs_only_by_nbsp_vs_space()
     {
         ClosedLoopReasoningRequest spaced = CreateRequest("Architecture note.");
