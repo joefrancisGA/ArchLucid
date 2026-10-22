@@ -96,7 +96,8 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
                     Name = ResolveArtifactDisplayName(a),
                     Metadata = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
                     {
-                        ["artifactType"] = a.ArtifactType, ["format"] = a.Format
+                        ["artifactType"] = NormalizeProvenanceMetadataValue(a.ArtifactType),
+                        ["format"] = NormalizeProvenanceMetadataValue(a.Format),
                     }
                 });
 
