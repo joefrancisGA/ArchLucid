@@ -74,6 +74,13 @@ describe("storePostSignInReturnUrl / consumePostSignInReturnUrl", () => {
     expect(consumePostSignInReturnUrl()).toBeNull();
   });
 
+  it("drops a zero-width-only legacy post-sign-in return path on read without consuming it", () => {
+    sessionStorage.setItem(OIDC_POST_SIGN_IN_RETURN_URL_KEY, "\u200b\u200b");
+
+    expect(readPostSignInReturnUrl()).toBeNull();
+    expect(sessionStorage.getItem(OIDC_POST_SIGN_IN_RETURN_URL_KEY)).toBeNull();
+  });
+
   it("does not store a protocol-relative URL", () => {
     storePostSignInReturnUrl("//evil.example");
 

@@ -1,3 +1,4 @@
+2026-10-22 seed hunt (seed-only): `ui-oidc` - no hunt-ready product defect; cheap-disproof closed zone-head `(candidate)` rows (zero-width-only return path already purged on read/consume, `slow_down` code exchange already marks authorize retry, opaque 408/502 BFF refresh transient policy); parity regressions `readPostSignInReturnUrl` zero-width-only purge, `exchangeAuthorizationCode` slow_down authorize-retry marker, and BFF refresh route opaque 408/502 without cookie clear; scoped `src/lib/oidc` + BFF refresh route vitest 445/445.
 2026-10-22 seed hunt (seed->hit): ui-oidc - promoted hunt-ready consumePostSignInReturnUrl - tampered unsafe return URLs returned null but still cleared OIDC_AUTHORIZE_CALLBACK_FAILED_KEY, dropping authorize-retry state needed for a follow-up sign-in; only clear retry marker when a safe return path is consumed; parity regressions supplemental Google discovery failure during authorize-callback retry without returnUrl and authorize error_description percent-plus with regional-indicator flag emoji; scoped vitest 429/429.
 
 - [x] (proven) consumePostSignInReturnUrl - cleared authorize retry marker on unsafe return URL - **hit 2026-10-22:** keep marker when consume rejects unsafe path; regression keeps authorize retry marker when consume rejects a tampered unsafe return URL.
@@ -25766,7 +25767,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 83
+- **hunts:** 86
 - **bugs-found:** 76
 - **consecutive-dry-hunts:** 0
 2026-10-22 seed hunt (seed-only): `ui-oidc` - no new hunt-ready defect after cheap-disproof of BFF `OAuthTokenEndpointError` / refresh classifier candidates; added parity regressions for supplemental Google discovery re-mark follow-up, non-JWT empty callback retry marker, and `shouldMarkAuthorizeCallbackFailedOnExchangeError` with `OAuthTokenEndpointError`; repaired canonical `at` timestamps in `AL_BUG_HUNT_RUN_LOG.jsonl`; restored `token-client.test.ts` suite after accidental truncation in prior push; scoped `src/lib/oidc` vitest 408/408.
