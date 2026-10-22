@@ -428,6 +428,66 @@ public sealed class ReviewCacheManifestBuilderTests
     }
 
     [Fact]
+    public void Build_matches_content_hash_when_source_file_name_is_null_vs_empty_string()
+    {
+        ClosedLoopReasoningRequest nullFileName = CreateRequest("Same body.");
+        nullFileName.SourceTexts =
+        [
+            new ClosedLoopReasoningSourceText
+            {
+                FileName = null!,
+                ContentType = "text/markdown",
+                Content = "Same body.",
+            },
+        ];
+
+        ClosedLoopReasoningRequest emptyFileName = CreateRequest("Same body.");
+        emptyFileName.SourceTexts =
+        [
+            new ClosedLoopReasoningSourceText
+            {
+                FileName = string.Empty,
+                ContentType = "text/markdown",
+                Content = "Same body.",
+            },
+        ];
+
+        ReviewCacheManifestBuilder.Build(nullFileName).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(emptyFileName).ContentHash);
+    }
+
+    [Fact]
+    public void Build_matches_content_hash_when_source_content_is_whitespace_only_vs_empty_string()
+    {
+        ClosedLoopReasoningRequest whitespaceOnly = CreateRequest("ignored");
+        whitespaceOnly.SourceTexts =
+        [
+            new ClosedLoopReasoningSourceText
+            {
+                FileName = "arch.md",
+                ContentType = "text/markdown",
+                Content = "   \u00a0\t  ",
+            },
+        ];
+
+        ClosedLoopReasoningRequest emptyContent = CreateRequest("ignored");
+        emptyContent.SourceTexts =
+        [
+            new ClosedLoopReasoningSourceText
+            {
+                FileName = "arch.md",
+                ContentType = "text/markdown",
+                Content = string.Empty,
+            },
+        ];
+
+        ReviewCacheManifestBuilder.Build(whitespaceOnly).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(emptyContent).ContentHash);
+    }
+
+    [Fact]
     public void Build_matches_content_hash_when_source_content_is_null_vs_empty_string()
     {
         ClosedLoopReasoningRequest nullContent = CreateRequest("ignored");
@@ -474,6 +534,7 @@ public sealed class ReviewCacheManifestBuilderTests
     [InlineData("\u0085")]
     [InlineData("\u000b")]
     [InlineData("\u000c")]
+    [InlineData("\u0084")]
     public void Build_matches_content_hash_when_source_content_uses_unicode_line_separators(
         string lineSeparator)
     {
