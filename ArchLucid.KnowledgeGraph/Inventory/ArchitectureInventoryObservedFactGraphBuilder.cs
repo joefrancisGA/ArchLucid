@@ -97,6 +97,12 @@ public static class ArchitectureInventoryObservedFactGraphBuilder
             }
 
             string relationshipType = (relationship.RelationshipType ?? string.Empty).Trim();
+
+            if (relationshipType.Length == 0)
+            {
+                continue;
+            }
+
             string edgeKey = $"{fromNodeId}|{toNodeId}|{relationshipType}";
 
             if (!edgeKeys.Add(edgeKey))

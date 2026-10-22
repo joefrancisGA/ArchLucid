@@ -12470,8 +12470,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 266
-- **bugs-found:** 179
+- **hunts:** 267
+- **bugs-found:** 180
 - **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-22 — fully empty overlay merge returned base graph without warning normalization
 - **related-pd-tb:** none
@@ -12833,7 +12833,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - [x] (valid-no-repro) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — all-whitespace overlay edge property bag threw or dropped edge — **cheap-disproof 2026-10-22 seed hunt:** skip rules yield empty bag; regression above.
 
-- [ ] (candidate) `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` — relationship rows with whitespace-only `RelationshipType` may mint edges with padded or empty types — locus: relationship edge type normalization before dedupe; input: inventory relationship whose type is surrounding whitespace only; wrong outcome: overlay mints edge with raw whitespace `EdgeType` or throws.
+2026-10-22 seed hunt (seed→hit): promoted `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` whitespace-only `RelationshipType` candidate; proved relationship loop trimmed types but still minted edges when trim yielded empty `EdgeType`; skip relationships whose normalized type length is zero (parity with empty ARM resource skip); regression `BuildOverlay_skips_relationships_when_relationship_type_normalizes_to_empty`; seeded `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` null `RelationshipType` rows may mint empty-type edges follow-on; 560 KnowledgeGraph + 170 Provenance scoped tests passed.
+
+- [x] (proven) `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` — whitespace-only `RelationshipType` minted empty-type edges — **hit 2026-10-22 seed hunt (seed→hit):** skip empty normalized type; regression above.
+
+- [ ] (candidate) `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` — relationship rows with null `RelationshipType` may mint empty-type edges — locus: relationship type trim fallback; input: inventory relationship with null type and valid endpoints; wrong outcome: overlay mints edge with empty `EdgeType`.
 
 2026-10-22 seed hunt (seed→hit): promoted `StructuredDiagramGraphMerger` padded diagram property-key coalesce candidate; proved duplicate node/edge metadata coalesce indexed raw `property.Key`, so a later compile with surrounding-whitespace keys left parallel bag entries and `GraphNodePropertyReader` could return stale source-evidence values; trim keys before skip/coalesce (parity with `GraphNodeFactory.NormalizePropertyBag`); regression `Merge_coalesces_node_properties_when_incoming_property_keys_differ_only_by_surrounding_whitespace`; seeded diagram edge metadata padded-key coalesce regression follow-on; 468 KnowledgeGraph + 170 Provenance scoped tests passed.
 
