@@ -1,3 +1,15 @@
+2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed state_mismatch authorize-query UX (existing parity) and saturated decodeOAuthErrorDescription ZWJ multiply-encoded glue (existing parity); regression documents BFF refresh 501 parity (client + route opaque 501) and soft-hyphen replacement-character variation-selector-16-only access_token rejection (existing parity); scoped vitest 787/787.
+
+- [x] (invalid) humanizeAuthorizeCallbackError - state_mismatch authorize-query copy - **cheap-disproof 2026-10-22:** existing readable default-branch UX parity test.
+- [x] (valid-no-repro) refreshBffSessionCookie - refresh 501 shouldClearSession false - **regression 2026-10-22:** client soft-fail plus BFF route opaque 501 without cookie clear.
+- [x] (valid-no-repro) exchangeAuthorizationCode - access_token JSON string soft-hyphen replacement-character and variation-selector-16-only skips authorize retry marker - **cheap-disproof 2026-10-22:** existing normalizeTokenString strip parity test.
+- [x] (invalid) decodeOAuthErrorDescription - multiply-encoded %252B with ZWJ glue - **cheap-disproof 2026-10-22:** existing saturated encoding class test.
+
+- [ ] (candidate) humanizeAuthorizeCallbackError - invalid_state authorize-query copy - locus: default branch UX.
+- [ ] (candidate) refreshBffSessionCookie - refresh 502 shouldClearSession false - locus: transient refresh parity.
+- [ ] (candidate) exchangeAuthorizationCode - access_token JSON string soft-hyphen and object-replacement-only skips authorize retry marker - locus: literal whitespace token shape.
+- [ ] (candidate) readOAuthJsonErrorDescription - multiply-encoded %252B with ZWJ glue - locus: saturated JSON encoding class.
+
 2026-10-22 seed hunt (seed->hit): `api-policy-packs` - promoted hunt-ready from seed re-read `CreatePolicyPackRequestValidator` / `PublishPolicyPackVersionRequestValidator` - whitespace-only `InitialContentJson` / `ContentJson` passed `NotEmpty` + `BeValidJson` (whitespace treated as valid) and reached `Create`/`Publish`; require `BeRequiredTextAfterTrim` for both JSON fields; controller forwards trimmed JSON; regressions `Whitespace_only_initial_content_json_fails`, `Whitespace_only_content_json_fails`, `Publish_forwards_trimmed_content_json_to_facade`; scoped controller + validator tests 117/117.
 
 - [x] (proven) `Create`/`Publish` required JSON fields - whitespace-only content passes validation - **hit 2026-10-22 seed hunt:** `BeRequiredTextAfterTrim` + trimmed forward; regressions above.
