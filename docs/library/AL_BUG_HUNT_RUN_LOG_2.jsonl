@@ -1448,3 +1448,4 @@
 {"at":"2026-10-22T21:20:00.0000000Z","zoneId":"finding-inspect-sql","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Persistence/Findings/FindingInspectReadModelMapper.cs","ArchLucid.Persistence/Findings/FindingInspectReadRepositoryCore.cs","ArchLucid.Persistence.Tests/Findings/FindingInspectReadModelMapperTests.cs"]}
 {"at":"2026-10-22T20:39:25.6719511Z","zoneId":"finding-inspect-sql","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-22T21:35:00.0000000Z","zoneId":"email-otp-auth","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Api/Controllers/Auth/EmailOtpAuthController.cs","ArchLucid.Application/Identity/EmailOtpAuthService.cs"]}
+{"at":"2026-10-22T21:45:00.0000000Z","zoneId":"api-governance-tenancy-controllers","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Api/Controllers/Governance","ArchLucid.Api/Controllers/Tenancy"]}
