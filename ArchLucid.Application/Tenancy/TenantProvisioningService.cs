@@ -195,6 +195,14 @@ public sealed class TenantProvisioningService(
 
         if (request.FirstTouch is not null)
         {
+            TenantRecord? tenantBeforeFirstTouchPersist =
+                await _tenantRepository.GetByIdAsync(tenantId, ct).ConfigureAwait(false);
+
+            if (IsErasureQuarantine(tenantBeforeFirstTouchPersist))
+            {
+                return BuildErasureQuarantineProvisionResult(tenantId, workspaceId, projectId);
+            }
+
             await _marketingAttributionService.PersistFirstTouchIfPresentAsync(tenantId, request.FirstTouch, ct)
                 .ConfigureAwait(false);
         }
