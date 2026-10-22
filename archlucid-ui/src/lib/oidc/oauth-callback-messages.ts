@@ -143,6 +143,15 @@ function decodeRepeatedPercentEncoding(value: string): string {
   return current;
 }
 
+/** When IdPs percent-encode `+` in token JSON, collapse decoded plus without treating literal `+` as space. */
+function collapseDecodedPlusFromPercentEncoding(source: string, decoded: string): string {
+  if (!decoded.includes("+") || decoded === source || !source.includes("%")) {
+    return decoded;
+  }
+
+  return decoded.replace(/\+/g, " ");
+}
+
 export function collapseOAuthErrorDescriptionLineBreaks(text: string): string {
   return collapseAccidentalLatinZwnjGlue(text)
     .replace(OIDC_DISPLAY_GLUE_FORMAT_CHARS, " ")
@@ -197,7 +206,7 @@ export function decodeOAuthErrorDescription(encoded: string | null | undefined):
 /**
  * RFC 6749 token JSON carries plain-text `error_description` (not query encoding).
  * Tolerate mistaken %-escapes from some IdPs; on decode failure keep the raw string.
- * Does not treat `+` as space (unlike authorize-callback query decoding).
+ * Does not treat literal `+` as space; when the JSON still carries `%2B` escapes, decode then collapse plus.
  */
 export function readOAuthJsonErrorDescription(value: string): string {
   const collapsed = collapseOAuthErrorDescriptionLineBreaks(value.trim());
@@ -209,7 +218,11 @@ export function readOAuthJsonErrorDescription(value: string): string {
   let decoded: string;
 
   try {
-    decoded = collapseOAuthErrorDescriptionLineBreaks(decodeRepeatedPercentEncoding(collapsed));
+    const percentDecoded = decodeRepeatedPercentEncoding(collapsed);
+
+    decoded = collapseOAuthErrorDescriptionLineBreaks(
+      collapseDecodedPlusFromPercentEncoding(collapsed, percentDecoded),
+    );
   } catch {
     decoded = collapsed;
   }

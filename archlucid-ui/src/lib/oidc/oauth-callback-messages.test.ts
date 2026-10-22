@@ -31,6 +31,11 @@ describe("readOAuthJsonErrorDescription", () => {
     expect(readOAuthJsonErrorDescription("User+denied")).toBe("User+denied");
   });
 
+  it("collapses percent-encoded plus in mistaken JSON error_description escapes", () => {
+    expect(readOAuthJsonErrorDescription("Policy%2Bdenied")).toBe("Policy denied");
+    expect(readOAuthJsonErrorDescription("Policy%252Bdenied")).toBe("Policy denied");
+  });
+
   it("still decodes valid percent-escapes when IdPs send them in JSON", () => {
     expect(readOAuthJsonErrorDescription("User%20denied")).toBe("User denied");
   });
