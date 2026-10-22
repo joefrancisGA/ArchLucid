@@ -14,6 +14,63 @@ public sealed class ProvenanceSnapshotRevisionHasherTests
     private static readonly Guid BundleId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
 
     [Fact]
+    public void Compute_changes_when_findings_header_graph_snapshot_id_differs_but_graph_snapshot_id_and_nodes_are_unchanged()
+    {
+        GraphNode node = new() { NodeId = "node-a", NodeType = "Resource", Label = "A" };
+        Guid graphSnapshotId = Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff");
+
+        ProvenanceBuildInput baseline = CreateInput([], graphNodes: [node]);
+        ProvenanceBuildInput updated = CreateInput([], graphNodes: [node]);
+        baseline.Findings.GraphSnapshotId = graphSnapshotId;
+        updated.Findings.GraphSnapshotId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+        baseline.Graph.GraphSnapshotId = graphSnapshotId;
+        updated.Graph.GraphSnapshotId = graphSnapshotId;
+
+        ProvenanceSnapshotRevisionHasher.Compute(baseline, BundleId)
+            .Should().NotBe(ProvenanceSnapshotRevisionHasher.Compute(updated, BundleId));
+    }
+
+    [Fact]
+    public void Compute_unchanged_when_duplicate_parallel_graph_edge_is_removed()
+    {
+        GraphEdge edge = new()
+        {
+            EdgeId = "edge-1",
+            FromNodeId = "node-a",
+            ToNodeId = "node-b",
+            EdgeType = "ConnectsTo",
+        };
+
+        GraphEdge duplicateEdge = new()
+        {
+            EdgeId = "edge-2",
+            FromNodeId = "node-a",
+            ToNodeId = "node-b",
+            EdgeType = "ConnectsTo",
+        };
+
+        ProvenanceBuildInput withDuplicate = CreateInput([], graphEdges: [edge, duplicateEdge]);
+        ProvenanceBuildInput withSingle = CreateInput([], graphEdges: [edge]);
+
+        ProvenanceSnapshotRevisionHasher.Compute(withDuplicate, BundleId)
+            .Should().Be(ProvenanceSnapshotRevisionHasher.Compute(withSingle, BundleId));
+    }
+
+    [Fact]
+    public void Compute_unchanged_when_only_graph_schema_version_changes()
+    {
+        GraphNode node = new() { NodeId = "node-a", NodeType = "Resource", Label = "A" };
+
+        ProvenanceBuildInput baseline = CreateInput([], graphNodes: [node]);
+        ProvenanceBuildInput updated = CreateInput([], graphNodes: [node]);
+        baseline.Graph.SchemaVersion = 1;
+        updated.Graph.SchemaVersion = 2;
+
+        ProvenanceSnapshotRevisionHasher.Compute(baseline, BundleId)
+            .Should().Be(ProvenanceSnapshotRevisionHasher.Compute(updated, BundleId));
+    }
+
+    [Fact]
     public void Compute_unchanged_when_manifest_hash_differs_only_by_surrounding_whitespace()
     {
         ProvenanceBuildInput baseline = CreateInput([], manifestHash: "manifest-hash-v1");

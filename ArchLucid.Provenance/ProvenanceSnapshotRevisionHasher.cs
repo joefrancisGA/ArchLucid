@@ -19,6 +19,7 @@ public static class ProvenanceSnapshotRevisionHasher
         ArgumentNullException.ThrowIfNull(input);
 
         Guid findingsSnapshotId = input.Findings.FindingsSnapshotId;
+        Guid findingsGraphSnapshotId = input.Findings.GraphSnapshotId;
         string findingsFingerprint = ComputeFindingsFingerprint(input.Findings);
         Guid graphSnapshotId = input.Graph.GraphSnapshotId;
         string graphFingerprint = ComputeGraphFingerprint(input.Graph);
@@ -33,7 +34,7 @@ public static class ProvenanceSnapshotRevisionHasher
 
         string canonical =
             FormattableString.Invariant(
-                $"{input.RunId:D}|{input.Findings.RunId:D}|{input.Graph.RunId:D}|{input.Manifest.RunId:D}|{traceRunId:D}|{findingsSnapshotId:D}|{findingsFingerprint}|{graphSnapshotId:D}|{graphFingerprint}|{manifestId:D}|{manifestHash}|{manifestDecisionsFingerprint}|{decisionTraceId:D}|{appliedRuleIdsFingerprint}|{bundleId:D}|{artifactsFingerprint}");
+                $"{input.RunId:D}|{input.Findings.RunId:D}|{input.Graph.RunId:D}|{input.Manifest.RunId:D}|{traceRunId:D}|{findingsSnapshotId:D}|{findingsGraphSnapshotId:D}|{findingsFingerprint}|{graphSnapshotId:D}|{graphFingerprint}|{manifestId:D}|{manifestHash}|{manifestDecisionsFingerprint}|{decisionTraceId:D}|{appliedRuleIdsFingerprint}|{bundleId:D}|{artifactsFingerprint}");
 
         byte[] hash = SHA256.HashData(Encoding.UTF8.GetBytes(canonical));
 
@@ -66,6 +67,7 @@ public static class ProvenanceSnapshotRevisionHasher
         IEnumerable<string> edgeParts = graph.Edges
             .Select(static edge =>
                 $"{edge.FromNodeId.Trim()}|{edge.ToNodeId.Trim()}|{edge.EdgeType}")
+            .Distinct(StringComparer.OrdinalIgnoreCase)
             .OrderBy(static part => part, StringComparer.OrdinalIgnoreCase);
 
         string edges = string.Join(";", edgeParts);

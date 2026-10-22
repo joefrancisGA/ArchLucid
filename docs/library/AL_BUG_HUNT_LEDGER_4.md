@@ -12470,20 +12470,26 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 73
-- **bugs-found:** 64
+- **hunts:** 74
+- **bugs-found:** 66
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — padded manifest/artifact hash strings spuriously busted provenance revision
+- **last-bug:** 2026-10-22 — findings graph snapshot linkage + duplicate edge churn in revision fingerprint
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-22 seed hunt (seed→hit): promoted findings header graph snapshot linkage candidate; proved `ProvenanceSnapshotRevisionHasher.Compute` omitted `FindingsSnapshot.GraphSnapshotId`, so findings header re-linking under stable attached graph snapshot id and topology left `ProvenanceGraphAccessService` serving a cache hit; include findings graph snapshot id in canonical string; regression `Compute_changes_when_findings_header_graph_snapshot_id_differs_but_graph_snapshot_id_and_nodes_are_unchanged`. Promoted duplicate parallel edge candidate; proved `ComputeGraphFingerprint` counted duplicate `ConnectsTo` rows so deduplicating edges in the materialized graph changed the revision fingerprint without affecting provenance graph shape; dedupe directed edge keys before ordering; regression `Compute_unchanged_when_duplicate_parallel_graph_edge_is_removed`; cheap-disproved graph `SchemaVersion`-only drift with `Compute_unchanged_when_only_graph_schema_version_changes`; seeded manifest snapshot linkage ids and graph context snapshot id follow-ons; 379 KnowledgeGraph + 90 Provenance scoped tests passed.
+
+- [x] (proven) `ProvenanceSnapshotRevisionHasher.Compute` — `FindingsSnapshot.GraphSnapshotId` drift did not change revision fingerprint when graph snapshot id and topology were unchanged — **hit 2026-10-22 seed hunt (seed→hit):** include findings graph snapshot id in canonical string; regression above.
+- [x] (proven) `ProvenanceSnapshotRevisionHasher.ComputeGraphFingerprint` — duplicate parallel graph edges inflated the fingerprint without affecting provenance graph shape — **hit 2026-10-22 seed hunt (seed→hit):** distinct directed edge keys; regression above.
+- [x] (invalid) `ProvenanceSnapshotRevisionHasher.ComputeGraphFingerprint` — graph `SchemaVersion` changes under stable topology — **cheap-disproof 2026-10-22 seed hunt:** schema version not materialized on provenance graph nodes; regression above.
+
+- [ ] (candidate) `ProvenanceSnapshotRevisionHasher.Compute` — `Manifest.GraphSnapshotId` / `FindingsSnapshotId` on manifest may drift without changing manifest hash or decisions fingerprint — locus: canonical revision string; input: manifest header re-linked under stable manifest id; wrong outcome: stale cross-artifact linkage metadata.
+- [ ] (candidate) `ProvenanceSnapshotRevisionHasher.ComputeGraphFingerprint` — graph `ContextSnapshotId` changes may not change revision fingerprint when node and edge payloads are unchanged — locus: graph fingerprint; input: context snapshot repair under stable graph snapshot id; wrong outcome: stale graph provenance context metadata.
 
 2026-10-22 seed hunt (seed→hit): promoted manifest hash trim candidate; proved `ProvenanceSnapshotRevisionHasher.Compute` compared raw `Manifest.ManifestHash` and artifact `ContentHash` strings, so persistence or transport padding around otherwise identical hashes changed the revision fingerprint and forced `ProvenanceGraphAccessService` rebuild fallbacks; trim hash segments before canonicalization; regressions `Compute_unchanged_when_manifest_hash_differs_only_by_surrounding_whitespace` and `Compute_unchanged_when_artifact_content_hash_differs_only_by_surrounding_whitespace`; cheap-disproved trace tenant/workspace/project drift with `Compute_unchanged_when_only_rule_audit_trace_tenant_id_changes`; seeded graph schema version and findings-graph snapshot linkage follow-ons; 379 KnowledgeGraph + 87 Provenance scoped tests passed.
 
 - [x] (proven) `ProvenanceSnapshotRevisionHasher.Compute` — `Manifest.ManifestHash` / artifact `ContentHash` padding changed revision fingerprint without semantic payload change — **hit 2026-10-22 seed hunt (seed→hit):** trim hash fields in canonical string; regressions above.
 - [x] (invalid) `RuleAuditTracePayload` tenant/workspace/project scope drift under stable decision trace id — **cheap-disproof 2026-10-22 seed hunt:** scope ids are not materialized on provenance nodes; regression above.
-
-- [ ] (candidate) `ProvenanceSnapshotRevisionHasher.ComputeGraphFingerprint` — duplicate parallel graph edges may inflate the fingerprint without affecting provenance graph shape — locus: edge list serialization; input: duplicate `ConnectsTo` rows under stable node fingerprint; wrong outcome: spurious rebuild churn (not stale lineage).
-- [ ] (candidate) `FindingsSnapshot.GraphSnapshotId` drift may not change revision fingerprint when graph snapshot id and topology are unchanged — locus: canonical revision string; input: findings header re-linked to another graph snapshot id; wrong outcome: stale cross-snapshot linkage metadata if surfaced to buyers.
 
 2026-10-22 seed hunt (seed→hit): reseeded authority-trace linkage; proved `ProvenanceSnapshotRevisionHasher.Compute` omitted `RuleAuditTracePayload.RunId`, so a trace re-linked to another run under the same `DecisionTraceId` and applied rules left `ProvenanceGraphAccessService` serving a cache hit; include trace run id in canonical string; regression `Compute_changes_when_rule_audit_trace_run_id_differs_but_decision_trace_id_and_applied_rules_are_unchanged`; cheap-disproved finding `EngineType` drift with `Compute_unchanged_when_only_finding_engine_type_changes`; closed partial child run-id collision candidate because each facet run id already participates in the canonical tuple with `Compute_changes_when_graph_snapshot_run_id_differs_but_graph_snapshot_id_and_nodes_are_unchanged`; seeded manifest hash trim and trace tenant scope follow-ons; 379 KnowledgeGraph + 84 Provenance scoped tests passed.
 
