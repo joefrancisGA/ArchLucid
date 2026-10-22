@@ -147,9 +147,10 @@ public sealed class AgentCuratedEvidenceProposer(
             if (!ProposedEvidenceTextValidation.HasSubstantiveText(payload.Rationale))
                 return null;
 
-            if (!IsSupportedType(payload.Type))
+            if (!ProposedEvidenceSupportedTypes.IsSupported(payload.Type))
                 return null;
 
+            payload.Type = payload.Type.Trim();
             return JsonSerializer.Serialize(payload, JsonOptions);
         }
         catch (JsonException)
@@ -158,9 +159,4 @@ public sealed class AgentCuratedEvidenceProposer(
         }
     }
 
-    private static bool IsSupportedType(string? type) =>
-        !string.IsNullOrWhiteSpace(type)
-        && (type.Equals("Policy", StringComparison.OrdinalIgnoreCase)
-            || type.Equals("Pattern", StringComparison.OrdinalIgnoreCase)
-            || type.Equals("Service", StringComparison.OrdinalIgnoreCase));
 }
