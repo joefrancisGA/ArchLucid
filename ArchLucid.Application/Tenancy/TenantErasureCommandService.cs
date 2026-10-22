@@ -386,6 +386,15 @@ public sealed class TenantErasureCommandService(
         if (tenantBeforeApproveAudit.OffboardedUtc is null)
             return true;
 
+        TenantRecord? tenantBeforeApproveAuditAppend =
+            await _tenantRepository.GetByIdAsync(tenantId, cancellationToken);
+
+        if (tenantBeforeApproveAuditAppend is null)
+            return false;
+
+        if (tenantBeforeApproveAuditAppend.OffboardedUtc is null)
+            return true;
+
         await AppendPlatformAuditAsync(
             AuditEventTypes.TenantErasureApproved,
             tenantId,
