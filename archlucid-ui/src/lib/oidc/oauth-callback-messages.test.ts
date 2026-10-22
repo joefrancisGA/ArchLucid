@@ -639,6 +639,13 @@ describe("humanizeAuthorizeCallbackError", () => {
     expect(message).not.toContain("code_challenge_required");
   });
 
+  it("humanizes pkce_verification_failed authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("pkce_verification_failed", "");
+
+    expect(message).toMatch(/pkce verification failed/i);
+    expect(message).not.toContain("pkce_verification_failed");
+  });
+
   it("avoids empty parentheses when the authorize error code is whitespace-only", () => {
     expect(humanizeAuthorizeCallbackError("   ", "")).toContain("complete response");
     expect(humanizeAuthorizeCallbackError("   ", "")).not.toMatch(/\(\s*\)/u);

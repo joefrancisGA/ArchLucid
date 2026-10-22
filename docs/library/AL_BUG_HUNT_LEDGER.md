@@ -1,3 +1,15 @@
+2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed pkce_verification_failed authorize-query UX, BFF refresh 459 parity, and saturated decodeOAuthErrorDescription hair-space glue; regression documents authorize-retry is marked when authorization code exchange returns zero-width-non-joiner-only access_token; scoped vitest 610/610.
+
+- [x] (invalid) humanizeAuthorizeCallbackError - pkce_verification_failed authorize-query copy - **cheap-disproof 2026-10-22:** readable default-branch UX parity test.
+- [x] (valid-no-repro) refreshBffSessionCookie - refresh 459 shouldClearSession false - **regression 2026-10-22:** transient refresh soft-fail without cookie clear.
+- [x] (valid-no-repro) exchangeAuthorizationCode - access_token JSON string zero-width-non-joiner-only skips authorize retry marker - **regression 2026-10-22:** zero-width-non-joiner-only tokens reject exchange and set retry marker.
+- [x] (invalid) decodeOAuthErrorDescription - multiply-encoded %252B with hair-space glue - **cheap-disproof 2026-10-22:** saturated encoding class.
+
+- [ ] (candidate) humanizeAuthorizeCallbackError - invalid_code_verifier authorize-query copy - locus: default branch UX.
+- [ ] (candidate) refreshBffSessionCookie - refresh 460 shouldClearSession false - locus: transient refresh parity.
+- [ ] (candidate) exchangeAuthorizationCode - access_token JSON string zero-width-joiner-only skips authorize retry marker - locus: literal whitespace token shape.
+- [ ] (candidate) readOAuthJsonErrorDescription - multiply-encoded %252B with hair-space glue - locus: saturated JSON encoding class.
+
 2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed code_challenge_required authorize-query UX, BFF refresh 458 parity, and saturated readOAuthJsonErrorDescription narrow-no-break-space glue; regression documents authorize-retry is marked when authorization code exchange returns zero-width-space-only access_token; scoped vitest 607/607.
 
 - [x] (invalid) humanizeAuthorizeCallbackError - code_challenge_required authorize-query copy - **cheap-disproof 2026-10-22:** readable default-branch UX parity test.
