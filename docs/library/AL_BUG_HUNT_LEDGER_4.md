@@ -12470,12 +12470,19 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 88
-- **bugs-found:** 83
+- **hunts:** 89
+- **bugs-found:** 84
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — case-variant finding rows last-win revision fingerprint and provenance nodes
+- **last-bug:** 2026-10-22 — case-variant graph node rows last-win revision fingerprint
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-22 seed hunt (seed→hit): promoted case-variant graph node fingerprint candidate; proved `ComputeGraphFingerprint` used `group.First()` for duplicate `NodeId` rows that differed only by casing, so a later relabel on `NODE-A` after `node-a` did not bust `ProvenanceGraphAccessService` revision cache; last-wins node label/type/category per case-insensitive node id group (parity with findings fingerprint); regression `Compute_changes_when_later_case_variant_graph_node_has_different_label` and `Build_uses_last_graph_node_label_when_snapshot_lists_case_variant_node_ids`; closed manifest decision case-variant candidate as already last-wins with regression `Compute_changes_when_later_case_variant_manifest_decision_row_has_different_title`; seeded duplicate artifact bundle row last-wins name follow-on; 387 KnowledgeGraph + 104 Provenance scoped tests passed.
+
+- [x] (proven) `ProvenanceSnapshotRevisionHasher.ComputeGraphFingerprint` — first case-insensitive duplicate graph node row hid later label amendments — **hit 2026-10-22 seed hunt (seed→hit):** `group.Last()` representative; regressions above.
+- [x] (valid-no-repro) `ProvenanceSnapshotRevisionHasher.ComputeManifestDecisionsFingerprint` — case-variant manifest decision title drift — **cheap-disproof 2026-10-22 seed hunt:** already last-wins via `group.Last()` from prior findings hit; regression `Compute_changes_when_later_case_variant_manifest_decision_row_has_different_title`.
+
+- [ ] (candidate) `ProvenanceSnapshotRevisionHasher.ComputeArtifactsFingerprint` — duplicate `ArtifactId` rows in the input bundle may hide later name/format amendments when list order appends a second row — locus: artifact distinct projection; input: two artifacts with same id; wrong outcome: stale revision fingerprint vs renamed artifact metadata.
 
 2026-10-22 seed hunt (seed→hit): promoted case-variant findings fingerprint candidate; proved `ComputeFindingsFingerprint` and `ProvenanceBuilder.AddNode` used the first case-insensitive duplicate finding row, so a later `FIND-1` amendment after `find-1` left `ProvenanceGraphAccessService` cache hits and stale finding node titles/trace metadata; last-wins scalar fields per case-insensitive finding group in the fingerprint and on duplicate node keys; regressions `Compute_changes_when_later_case_variant_finding_row_has_different_agent_execution_trace_id` and `Build_uses_last_finding_title_when_findings_list_case_variant_ids`; aligned manifest decision fingerprint grouping with last-wins title/category; cheap-disproved duplicate-edge top-level `ProvenanceKind` / `DeclaredConnectionId` merge coalesce (`ArchitectureDiagramToGraphCompiler` stores provenance in edge properties only); seeded case-variant manifest decision fingerprint follow-on; 387 KnowledgeGraph + 101 Provenance scoped tests passed.
 
