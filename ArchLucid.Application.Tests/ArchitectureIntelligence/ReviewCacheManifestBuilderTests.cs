@@ -51,6 +51,63 @@ public sealed class ReviewCacheManifestBuilderTests
     }
 
     [Fact]
+    public void Build_matches_content_hash_when_baseline_model_tenant_id_differs_only_by_surrounding_whitespace()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "run-model-tenant-trim";
+
+        ArchitectureKnowledgeModel paddedTenant = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            TenantId = "  tenant-cache  ",
+            Elements = [new ArchitectureModelElement { ElementId = "el-1", Name = "API" }],
+        };
+
+        ArchitectureKnowledgeModel trimmedTenant = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            TenantId = "tenant-cache",
+            Elements = [new ArchitectureModelElement { ElementId = "el-1", Name = "API" }],
+        };
+
+        ReviewCacheManifestBuilder.Build(request, paddedTenant).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(request, trimmedTenant).ContentHash);
+    }
+
+    [Fact]
+    public void Build_matches_content_hash_when_baseline_model_framing_answer_differs_only_by_unicode_normalization_form()
+    {
+        const string nfcAnswer = "Secure claims intake with Caf\u00E9.";
+        const string nfdAnswer = "Secure claims intake with Cafe\u0301.";
+
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "run-model-framing-unicode";
+
+        ArchitectureKnowledgeModel nfcModel = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            FramingAnswers = new Dictionary<string, string> { ["business-outcome"] = nfcAnswer },
+            Elements = [new ArchitectureModelElement { ElementId = "el-1", Name = "API" }],
+        };
+
+        ArchitectureKnowledgeModel nfdModel = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            FramingAnswers = new Dictionary<string, string> { ["business-outcome"] = nfdAnswer },
+            Elements = [new ArchitectureModelElement { ElementId = "el-1", Name = "API" }],
+        };
+
+        ReviewCacheManifestBuilder.Build(request, nfcModel).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(request, nfdModel).ContentHash);
+    }
+
+    [Fact]
     public void Build_matches_content_hash_when_baseline_element_name_differs_only_by_surrounding_whitespace()
     {
         ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");

@@ -1,4 +1,6 @@
-﻿using ArchLucid.Contracts.ArchitectureIntelligence;
+﻿using System.Text;
+
+using ArchLucid.Contracts.ArchitectureIntelligence;
 using ArchLucid.Contracts.Persistence.Context;
 
 namespace ArchLucid.Core.Persistence.Graph;
@@ -118,7 +120,7 @@ public static class GraphSnapshotCanonicalFingerprint
         return string.Join(
             "\n",
             [
-                knowledgeModel.TenantId ?? string.Empty,
+                NormalizeFingerprintText(knowledgeModel.TenantId),
                 knowledgeModel.SchemaVersion.ToString(),
                 knowledgeModel.IsProvisionalSynthesis ? "provisional" : "complete",
                 FormatFramingAnswers(knowledgeModel),
@@ -147,9 +149,17 @@ public static class GraphSnapshotCanonicalFingerprint
 
         IEnumerable<string> parts = knowledgeModel.FramingAnswers
             .OrderBy(static pair => pair.Key, StringComparer.OrdinalIgnoreCase)
-            .Select(static pair => $"{pair.Key}={pair.Value}");
+            .Select(static pair => $"{NormalizeFingerprintText(pair.Key)}={NormalizeFingerprintText(pair.Value)}");
 
         return string.Join(",", parts);
+    }
+
+    private static string NormalizeFingerprintText(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return string.Empty;
+
+        return value.Trim().Normalize(NormalizationForm.FormC);
     }
 
     private static string FormatKnowledgeModelElementFingerprint(ArchitectureModelElement element)
