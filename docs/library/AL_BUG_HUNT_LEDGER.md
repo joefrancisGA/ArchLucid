@@ -25254,6 +25254,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) `initiateOidcRedirect` — stale post-sign-in return path survived successful redirect without returnUrl — **hit 2026-10-22 seed hunt:** clear when no parallel Google PKCE; regression above.
 
+2026-10-22 seed hunt (seed→hit): `ui-oidc` — promoted hunt-ready `initiateOidcRedirect` empty `returnUrl` — primary redirect with `returnUrl=""` did not store a safe path but also skipped stale-return cleanup because only `undefined` triggered `clearPostSignInReturnUrl`; clear whenever no safe return URL is stored and the other PKCE flow is not pending (primary + supplemental); regression `clears stale post-sign-in return path when primary redirect gets an empty return URL`; scoped `src/lib/oidc` vitest 320/320.
+
+- [x] (proven) `initiateOidcRedirect` — empty-string returnUrl left stale `OIDC_POST_SIGN_IN_RETURN_URL_KEY` — **hit 2026-10-22 seed hunt:** clear on any non-stored return URL; regression above.
+
 ## Zone: ui-oidc
 
 - **id:** ui-oidc
