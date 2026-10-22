@@ -19,6 +19,18 @@ export const EXTRACT_UPLOAD_LINKED_REVIEW_NOT_STORED = "Linked review was not st
 
 export const EXTRACT_UPLOAD_LINKED_REVIEW_STORED_EMPTY = "Linked review was stored empty." as const;
 
+export const EXTRACT_UPLOAD_ACTOR_NOT_STORED = "Actor was not stored." as const;
+
+export const EXTRACT_UPLOAD_ACTOR_STORED_EMPTY = "Actor was stored empty." as const;
+
+export function formatExtractUploadAcceptedActorLabel(actorLabel: string): string {
+  if (actorLabel.trim().length === 0) {
+    return EXTRACT_UPLOAD_ACTOR_STORED_EMPTY;
+  }
+
+  return actorLabel;
+}
+
 export function formatExtractUploadAcceptedFileLabel(fileLabel: string | null | undefined): string {
   if (fileLabel === null || fileLabel === undefined) {
     return EXTRACT_UPLOAD_FILE_NAME_NOT_STORED;

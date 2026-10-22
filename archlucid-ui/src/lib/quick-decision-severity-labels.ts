@@ -33,7 +33,7 @@ export function severityBadgeLabel(severityValue: number | null | undefined): st
     case 0:
       return "Info";
     default:
-      return Number.isFinite(severityValue) ? String(severityValue) : "Severity unknown";
+      return "Severity label was not stored.";
   }
 }
 

@@ -74,6 +74,8 @@ export function QuickDecisionSummaryFindingRow({
   const reviewStatus = humanReviewStatusDisplay(finding.humanReviewStatus);
   const owner = finding.assignedToUserId?.trim() ?? "";
   const workspaceCardMode = props.workspaceCardMode === true;
+  const findingTitleDisplay =
+    finding.title.trim().length > 0 ? finding.title : "Finding title was not stored.";
 
   const rowBody = (
     <>
@@ -99,6 +101,8 @@ export function QuickDecisionSummaryFindingRow({
         ) : null}
         {finding.confidenceLevel === "High" || finding.confidenceLevel === "Medium" || finding.confidenceLevel === "Low" ? (
           <FindingConfidenceBadge level={finding.confidenceLevel} />
+        ) : finding.confidenceLevel === null || finding.confidenceLevel === undefined ? (
+          <StatusTag kind="neutral" label="Confidence was not stored." className="shrink-0" />
         ) : null}
         <AiOutputGovernanceLabel findingId={finding.findingId} />
         <FindingTrustChip finding={finding} />
@@ -127,11 +131,11 @@ export function QuickDecisionSummaryFindingRow({
         {!workspaceCardMode ? (
           <Link href={href} prefetch={false} className={cn(OPERATOR_LINK.nav, "min-w-0 flex-1")}>
             <span className="sr-only">Finding {finding.findingId}: </span>
-            {finding.title}
+            {findingTitleDisplay}
           </Link>
         ) : (
           <span className={cn("min-w-0 flex-1 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-            {finding.title}
+            {findingTitleDisplay}
           </span>
         )}
         {viewEvidenceHref !== null ? (
