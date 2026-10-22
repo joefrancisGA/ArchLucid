@@ -1,5 +1,6 @@
 using ArchLucid.Contracts.Persistence.Graph;
 using ArchLucid.Core.InfraEvidence;
+using ArchLucid.KnowledgeGraph;
 using ArchLucid.KnowledgeGraph.Diagram;
 using ArchLucid.KnowledgeGraph.Inventory;
 using ArchLucid.Persistence.InfraEvidence;
@@ -39,6 +40,100 @@ public sealed class ArchitectureInventoryObservedFactGraphOverlayTests
             .Should().Be("/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Sql/servers/pay-sql-prod");
         resourceNode.SourceType.Should().Be(ArchitectureInventoryGraphSourceTypes.AzureInventorySnapshot);
         resourceNode.NodeId.Should().Be(CloudResourceId.ToString("D"));
+    }
+
+    [Fact]
+    public void BuildOverlay_emits_single_canonical_provenance_kind_key_on_resource_nodes_and_edges()
+    {
+        const string fromResourceId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet-prod";
+        const string toResourceId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/subnets/subnet-prod";
+
+        AzureInventorySnapshotDetailReadModel snapshot = new()
+        {
+            Header = new AzureInventorySnapshotRecord
+            {
+                SnapshotId = SnapshotId,
+                TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                CreatedUtc = new DateTime(2026, 7, 18, 12, 0, 0, DateTimeKind.Utc),
+            },
+            Resources =
+            [
+                new AzureInventoryResourceRecord
+                {
+                    ResourceRowId = Guid.Parse("99999999-9999-9999-9999-999999999999"),
+                    SnapshotId = SnapshotId,
+                    TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                    AzureResourceId = fromResourceId,
+                    ResourceType = "Microsoft.Network/virtualNetworks",
+                    ResourceGroup = "rg",
+                    SubscriptionId = "sub",
+                },
+                new AzureInventoryResourceRecord
+                {
+                    ResourceRowId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaab"),
+                    SnapshotId = SnapshotId,
+                    TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                    AzureResourceId = toResourceId,
+                    ResourceType = "Microsoft.Network/subnets",
+                    ResourceGroup = "rg",
+                    SubscriptionId = "sub",
+                },
+            ],
+            Relationships =
+            [
+                new AzureInventoryResourceRelationshipReadModel
+                {
+                    FromAzureResourceId = fromResourceId,
+                    ToAzureResourceId = toResourceId,
+                    RelationshipType = GraphEdgeTypes.ContainsResource,
+                },
+            ],
+        };
+
+        GraphSnapshot overlay = ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay(
+            snapshot,
+            RunId,
+            ContextSnapshotId);
+
+        foreach (GraphNode node in overlay.Nodes)
+        {
+            node.Properties.Keys
+                .Count(key => string.Equals(
+                    key.Trim(),
+                    StructuredDiagramGraphPropertyKeys.ProvenanceKind,
+                    StringComparison.OrdinalIgnoreCase))
+                .Should()
+                .Be(1);
+
+            GraphNodePropertyReader.TryGetPropertyValue(
+                    node.Properties,
+                    StructuredDiagramGraphPropertyKeys.ProvenanceKind,
+                    out string? provenanceKind)
+                .Should()
+                .BeTrue();
+            provenanceKind.Should().Be(StructuredDiagramGraphProvenanceKinds.ObservedFact);
+        }
+
+        foreach (GraphEdge edge in overlay.Edges)
+        {
+            edge.Properties.Keys
+                .Count(key => string.Equals(
+                    key.Trim(),
+                    StructuredDiagramGraphPropertyKeys.ProvenanceKind,
+                    StringComparison.OrdinalIgnoreCase))
+                .Should()
+                .Be(1);
+
+            GraphNodePropertyReader.TryGetPropertyValue(
+                    edge.Properties,
+                    StructuredDiagramGraphPropertyKeys.ProvenanceKind,
+                    out string? provenanceKind)
+                .Should()
+                .BeTrue();
+            provenanceKind.Should().Be(StructuredDiagramGraphProvenanceKinds.ObservedFact);
+        }
     }
 
     [Fact]

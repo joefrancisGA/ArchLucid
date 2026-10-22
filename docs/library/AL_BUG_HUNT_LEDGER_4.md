@@ -12470,7 +12470,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 184
+- **hunts:** 185
 - **bugs-found:** 156
 - **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-22 — canonical bind stamp left padded source-evidence alias keys on inventory nodes
@@ -12505,7 +12505,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - [x] (proven) `StructuredDiagramCompiledGraphBinder.ApplyBindingsToGraphNodes` — padded `SourceEvidenceItemId` alias keys remained after bind citation stamp — **hit 2026-10-22 seed hunt (seed→hit):** canonical property writer; regression above.
 
-- [ ] (candidate) `ArchitectureInventoryObservedFactGraphBuilder` — observed-fact overlay may stamp structured-diagram properties without removing padded alias keys — locus: inventory overlay node property assignment; input: overlay target carries padded provenance or confidence keys; wrong outcome: duplicate structured-diagram metadata after observed-fact stamp.
+2026-10-22 seed hunt (valid-no-repro): promoted `ArchitectureInventoryObservedFactGraphBuilder` padded structured-diagram property-key stamp candidate; proved `BuildOverlay` mints fresh `GraphNode` / `GraphEdge` property bags per inventory row and assigns canonical `ProvenanceKind` on empty dictionaries, so padded alias keys are unreachable on the builder path (padded-key hazards on inventory nodes are handled by `StructuredDiagramCompiledGraphBinder.ApplyBindingsToGraphNodes` hunts 181–184); regression `BuildOverlay_emits_single_canonical_provenance_kind_key_on_resource_nodes_and_edges`; seeded `ArchitectureInventoryObservedFactGraphOverlayDiagramRebinder` padded inventory `ProvenanceKind` classification lookup follow-on; 476 KnowledgeGraph + 170 Provenance scoped tests passed.
+
+- [x] (valid-no-repro) `ArchitectureInventoryObservedFactGraphBuilder` — padded alias keys beside observed-fact structured-diagram stamps — **cheap-disproof 2026-10-22 seed hunt:** builder path only writes new nodes; regression above.
+
+- [ ] (candidate) `ArchitectureInventoryObservedFactGraphOverlayDiagramRebinder.IsInventoryObservedFact` — padded `ProvenanceKind` or `inventory.snapshotId` property keys may misclassify inventory overlay nodes — locus: observed-fact inventory node gate; input: overlay node carries padded classification keys; wrong outcome: leftover diagram nodes skip post-overlay rebind.
 
 2026-10-22 seed hunt (seed→hit): promoted `StructuredDiagramGraphMerger` padded diagram property-key coalesce candidate; proved duplicate node/edge metadata coalesce indexed raw `property.Key`, so a later compile with surrounding-whitespace keys left parallel bag entries and `GraphNodePropertyReader` could return stale source-evidence values; trim keys before skip/coalesce (parity with `GraphNodeFactory.NormalizePropertyBag`); regression `Merge_coalesces_node_properties_when_incoming_property_keys_differ_only_by_surrounding_whitespace`; seeded diagram edge metadata padded-key coalesce regression follow-on; 468 KnowledgeGraph + 170 Provenance scoped tests passed.
 
