@@ -1,4 +1,20 @@
-2026-10-22 seed hunt (seed-only): `ui-oidc` - no hunt-ready product defect; cheap-disproof closed zone-head `(candidate)` rows (zero-width-only return path already purged on read/consume, `slow_down` code exchange already marks authorize retry, opaque 408/502 BFF refresh transient policy); parity regressions `readPostSignInReturnUrl` zero-width-only purge, `exchangeAuthorizationCode` slow_down authorize-retry marker, and BFF refresh route opaque 408/502 without cookie clear; scoped `src/lib/oidc` + BFF refresh route vitest 445/445.
+2026-10-22 seed hunt (seed-only): ui-oidc - no new hunt-ready product defect; cheap-disproof closed zone-head (candidate) rows (
+eadPostSignInReturnUrl already purges unsafe/ZWSP-only keys on read, clearAbandonedPostSignInReturnUrl intentional raw getItem for idle desk, UX-only humanize copy); parity regressions zero-width-only return URL read/consume authorize-retry policy and slow_down code-exchange authorize-retry marking; scoped vitest 432/432.
+
+- [x] (valid-no-repro) 
+eadPostSignInReturnUrl - purge zero-width-only return paths on read - **cheap-disproof 2026-10-22:** same unsafe-path purge; regression drops a zero-width-only return URL from sessionStorage on read without clearing authorize retry marker.
+- [x] (valid-no-repro) consumePostSignInReturnUrl - zero-width-only return URL retry marker - **regression 2026-10-22:** mirrors unsafe consume policy.
+- [x] (valid-no-repro) exchangeAuthorizationCode - slow_down marks authorize retry - **regression 2026-10-22:** parity with other transient OAuth codes on code exchange.
+- [x] (invalid) clearAbandonedPostSignInReturnUrl - use 
+eadPostSignInReturnUrl instead of raw getItem - **cheap-disproof 2026-10-22:** idle desk comparable-path branch needs raw stored value before purge.
+- [x] (invalid) humanizeAuthorizeCallbackError - dedicated redirect URI mismatch admin copy - **cheap-disproof 2026-10-22:** UX-only.
+
+- [ ] (candidate) consumeAuthorizeCallbackFailedRetry - interaction with unsafe consume without successful navigation - locus: session policy docs.
+- [ ] (candidate) initiateOidcRedirect - clear poisoned return URL via readPostSignInReturnUrl on sign-in start - locus: proactive purge before PKCE.
+- [ ] (candidate) isOAuthRefreshTokenRejectedError - slow_down on refresh grant - locus: transient classifier; input: BFF 503 path.
+- [ ] (candidate) decodeOAuthErrorDescription - multiply-encoded %252B with pictograph glue - locus: saturated encoding class.
+- [ ] (candidate) exchangeAuthorizationCode - uthorization_pending marks authorize retry on code exchange - locus: device-flow parity.
+
 2026-10-22 seed hunt (seed->hit): ui-oidc - promoted hunt-ready consumePostSignInReturnUrl - tampered unsafe return URLs returned null but still cleared OIDC_AUTHORIZE_CALLBACK_FAILED_KEY, dropping authorize-retry state needed for a follow-up sign-in; only clear retry marker when a safe return path is consumed; parity regressions supplemental Google discovery failure during authorize-callback retry without returnUrl and authorize error_description percent-plus with regional-indicator flag emoji; scoped vitest 429/429.
 
 - [x] (proven) consumePostSignInReturnUrl - cleared authorize retry marker on unsafe return URL - **hit 2026-10-22:** keep marker when consume rejects unsafe path; regression keeps authorize retry marker when consume rejects a tampered unsafe return URL.
@@ -25767,7 +25783,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 86
+- **hunts:** 83
 - **bugs-found:** 76
 - **consecutive-dry-hunts:** 0
 2026-10-22 seed hunt (seed-only): `ui-oidc` - no new hunt-ready defect after cheap-disproof of BFF `OAuthTokenEndpointError` / refresh classifier candidates; added parity regressions for supplemental Google discovery re-mark follow-up, non-JWT empty callback retry marker, and `shouldMarkAuthorizeCallbackFailedOnExchangeError` with `OAuthTokenEndpointError`; repaired canonical `at` timestamps in `AL_BUG_HUNT_RUN_LOG.jsonl`; restored `token-client.test.ts` suite after accidental truncation in prior push; scoped `src/lib/oidc` vitest 408/408.
