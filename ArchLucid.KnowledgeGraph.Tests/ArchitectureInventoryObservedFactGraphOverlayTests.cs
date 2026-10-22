@@ -22,6 +22,17 @@ public sealed class ArchitectureInventoryObservedFactGraphOverlayTests
     private static readonly Guid ContextSnapshotId = Guid.Parse("33333333-3333-3333-3333-333333333333");
 
     [Fact]
+    public void BuildOverlay_throws_when_inventory_snapshot_is_null()
+    {
+        Action act = () => ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay(
+            null!,
+            RunId,
+            ContextSnapshotId);
+
+        act.Should().Throw<ArgumentNullException>().WithParameterName("snapshot");
+    }
+
+    [Fact]
     public void BuildOverlay_boundFixture_emitsObservedFactNodesWithCloudResourceId()
     {
         AzureInventorySnapshotDetailReadModel snapshot = CreateSnapshotFixture();
