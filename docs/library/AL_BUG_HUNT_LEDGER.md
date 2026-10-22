@@ -25291,11 +25291,21 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) `CallbackClient` — PKCE mismatch and token-exchange failures dropped return on retry — **hit 2026-10-22 seed hunt:** `preserveReturnOnRetry` on operator-recoverable callback failures; regression above.
 
-- [ ] (candidate) `CallbackClient` — configuration failures (`assertOidcSignInConfig`) intentionally omit authorize-failure marker — locus: `fail` default; input: missing env on callback deep link (reachability: mis-deployed beta).
-- [ ] (candidate) `consumePostSignInReturnUrl` — unsafe path stripped at consume time after authorize failure retry succeeds — locus: `isSafeReturnPath`; input: return URL mutated in storage (defense in depth only).
-- [ ] (candidate) `initiateSupplementalOidcRedirect` — Google discovery failure clears return when primary PKCE slot repopulated mid-await — locus: discovery catch branch; input: race between flows (timing).
-- [ ] (candidate) `jwt-payload` — `pickDisplayNameFromPayload` prefers `name` over `preferred_username` when both present — locus: claim precedence; input: IdP emits both (display preference).
-- [ ] (candidate) `refreshAccessToken` — token client omits `redirect_uri` on refresh grant (RFC OK) but some IdPs require it — locus: `token-client.ts`; input: misconfigured IdP (deployment).
+- [x] (valid-no-repro) `CallbackClient` — configuration failures omit authorize-retry marker — **cheap-disproof 2026-10-22 seed hunt:** intentional; broken env requires operator fix before return restore matters.
+- [x] (valid-no-repro) `consumePostSignInReturnUrl` — unsafe path at consume — **cheap-disproof 2026-10-22 seed hunt:** `isSafeReturnPath` defense in depth; no reachable writer of unsafe paths.
+- [x] (invalid) `initiateSupplementalOidcRedirect` — discovery race with primary PKCE — **cheap-disproof 2026-10-22 seed hunt:** timing race not reproducible in unit zone; catch uses same preserved-retry flag.
+- [x] (invalid) `pickDisplayNameFromPayload` — claim precedence — **cheap-disproof 2026-10-22 seed hunt:** intentional display-name ordering; not a defect.
+- [x] (invalid) `refreshAccessToken` — missing `redirect_uri` — **cheap-disproof 2026-10-22 seed hunt:** deployment/IdP configuration; RFC 6749 refresh grant.
+
+2026-10-22 seed hunt (seed→hit): `ui-oidc` — promoted hunt-ready `initiateOidcRedirect` discovery failure after authorize callback retry — `consumeAuthorizeCallbackFailedRetry` skipped stale-return cleanup at sign-in start but the discovery `catch` called it again after the marker was already consumed, clearing the preserved post-sign-in return path; track `preservedReturnForAuthorizeRetry`, skip abandoned cleanup in `catch`, and re-arm `markAuthorizeCallbackFailed` for another retry; regression `preserves post-sign-in return path when discovery fails after an authorize callback retry`; scoped `src/lib/oidc` vitest 336/336.
+
+- [x] (proven) `initiateOidcRedirect` — discovery failure cleared return after authorize callback retry — **hit 2026-10-22 seed hunt:** preserved-retry flag + re-arm marker; regression above.
+
+- [ ] (candidate) `initiateSupplementalOidcRedirect` — supplemental discovery failure after authorize retry — locus: same preserved-retry path as primary; input: Google discovery throws after callback error (parity covered by shared pattern).
+- [ ] (candidate) `storePostSignInReturnUrl` — does not canonicalize query order before storage — locus: return URL writer; input: session-expired link with unsorted query (idle-desk pairing handles compare).
+- [ ] (candidate) `assertOidcSignInConfig` — callback deep link with missing env fails without authorize-retry marker — locus: `CallbackClient` `fail` default; input: mis-deployed beta (intentional).
+- [ ] (candidate) `exchangeAuthorizationCode` — `code` query trimming vs IdP literal match — locus: `normalizeTokenString`; input: leading/trailing only (interior ZWSP stripped).
+- [ ] (candidate) `getAccessTokenExpiresAtMs` — returns 0 when identity hints exist but expiry key missing — locus: `hasOidcSessionIdentityHints`; input: partial sessionStorage corruption.
 
 ## Zone: ui-oidc
 
@@ -25305,11 +25315,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 89
-- **bugs-found:** 82
+- **hunts:** 90
+- **bugs-found:** 83
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — callback PKCE mismatch dropped return on retry
+- **last-bug:** 2026-10-22 — discovery failure cleared return after authorize retry
 - **hunts:** 78
 - **bugs-found:** 72
 - **consecutive-dry-hunts:** 0
