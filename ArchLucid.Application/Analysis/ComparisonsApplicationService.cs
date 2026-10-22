@@ -68,6 +68,18 @@ public sealed partial class ComparisonsApplicationService(
         LoadScopedComparisonRecordAsync(comparisonRecordId, ct);
 
     /// <inheritdoc />
+    public async Task<ComparisonRecord?> TryGetScopedRecordForArtifactReadAsync(string comparisonRecordId, CancellationToken ct)
+    {
+        ComparisonRecord? record = await LoadScopedComparisonRecordAsync(comparisonRecordId, ct);
+
+        if (record is null)
+            return null;
+
+        await _comparisonReplayService.EnsureArtifactReplayAccessAllowedAsync(record, ct);
+        return record;
+    }
+
+    /// <inheritdoc />
     public async Task<ComparisonHistorySearchResult> SearchAsync(
         ComparisonHistorySearchCriteria criteria,
         CancellationToken ct)

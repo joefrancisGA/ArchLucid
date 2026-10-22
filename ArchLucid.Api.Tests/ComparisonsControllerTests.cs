@@ -138,6 +138,9 @@ public sealed class ComparisonsControllerTests
         replayService
             .Setup(s => s.AnalyzeDriftAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new DriftAnalysisResult { Summary = "ok" });
+        replayService
+            .Setup(s => s.EnsureArtifactReplayAccessAllowedAsync(It.IsAny<ComparisonRecord>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
 
         Mock<ICompareRunsApplicationFacade> compareRunsFacade = new();
 
@@ -516,7 +519,7 @@ public sealed class ComparisonsControllerTests
     {
         Mock<IComparisonReplayService> replayService = new();
         replayService
-            .Setup(s => s.ReplayAsync(It.IsAny<Application.Analysis.ReplayComparisonRequest>(), It.IsAny<CancellationToken>()))
+            .Setup(s => s.EnsureArtifactReplayAccessAllowedAsync(It.IsAny<ComparisonRecord>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new CareerArtifactExportBlockedException(
                 SimulatorCareerHonestyPresenter.SimulatorRehearsalBlockedMessage,
                 CareerArtifactCompletenessValidator.SimulatorRehearsalCode));
@@ -525,6 +528,24 @@ public sealed class ComparisonsControllerTests
             comparisonReplayService: replayService.Object);
 
         IActionResult action = await controller.GetComparisonSummary(ComparisonId, CancellationToken.None);
+
+        action.Should().BeOfType<ObjectResult>().Which.StatusCode.Should().Be(StatusCodes.Status409Conflict);
+    }
+
+    [Fact]
+    public async Task CompareQuality_GetComparisonRecord_returns_career_blocked_problem_when_posture_blocks_metadata_read()
+    {
+        Mock<IComparisonReplayService> replayService = new();
+        replayService
+            .Setup(s => s.EnsureArtifactReplayAccessAllowedAsync(It.IsAny<ComparisonRecord>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new CareerArtifactExportBlockedException(
+                SimulatorCareerHonestyPresenter.SimulatorRehearsalBlockedMessage,
+                CareerArtifactCompletenessValidator.SimulatorRehearsalCode));
+
+        ComparisonsController controller = CreateControllerWithScopedComparison(
+            comparisonReplayService: replayService.Object);
+
+        IActionResult action = await controller.GetComparisonRecord(ComparisonId, CancellationToken.None);
 
         action.Should().BeOfType<ObjectResult>().Which.StatusCode.Should().Be(StatusCodes.Status409Conflict);
     }
