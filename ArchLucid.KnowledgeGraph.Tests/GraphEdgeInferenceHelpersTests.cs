@@ -36,4 +36,19 @@ public sealed class GraphEdgeInferenceHelpersTests
         deduped.Should().ContainSingle();
         deduped[0].Weight.Should().Be(2d);
     }
+
+    [Fact]
+    public void CreateEdge_trims_surrounding_whitespace_on_endpoints()
+    {
+        GraphEdge edge = GraphEdgeInferenceHelpers.CreateEdge(
+            "  sec-1  ",
+            "  res-a  ",
+            GraphEdgeTypes.Protects,
+            "protects",
+            1d,
+            GraphEdgeInferenceSources.SecurityTargeted);
+
+        edge.FromNodeId.Should().Be("sec-1");
+        edge.ToNodeId.Should().Be("res-a");
+    }
 }

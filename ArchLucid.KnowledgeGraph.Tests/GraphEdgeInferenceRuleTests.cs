@@ -98,6 +98,36 @@ public sealed class GraphEdgeInferenceRuleTests
     }
 
     [Fact]
+    public void InferEdges_security_protection_rule_matches_when_protected_topology_list_has_surrounding_whitespace()
+    {
+        ContextSnapshot snapshot = BuildSnapshot();
+        GraphNode resource = new()
+        {
+            NodeId = "res-a",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "a",
+        };
+        GraphNode security = new()
+        {
+            NodeId = "sec-1",
+            NodeType = GraphNodeTypes.SecurityBaseline,
+            Label = "baseline",
+            Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                [CanonicalGraphPropertyKeys.ProtectedTopologyNodeIds] = "  res-a  ",
+            },
+        };
+
+        IReadOnlyList<GraphEdge> edges = _sut.InferEdges(snapshot, [resource, security]);
+
+        edges.Should().ContainSingle(e =>
+            e.EdgeType == GraphEdgeTypes.Protects
+            && e.FromNodeId == "sec-1"
+            && e.ToNodeId == "res-a"
+            && e.InferenceSource == GraphEdgeInferenceSources.SecurityTargeted);
+    }
+
+    [Fact]
     public void InferEdges_explicit_parent_child_rule_honors_parentNodeId_when_property_has_surrounding_whitespace()
     {
         ContextSnapshot snapshot = BuildSnapshot();

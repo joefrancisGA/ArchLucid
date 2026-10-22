@@ -15,8 +15,8 @@ internal static class GraphEdgeInferenceHelpers
         return new GraphEdge
         {
             EdgeId = Guid.NewGuid().ToString("N"),
-            FromNodeId = fromNodeId,
-            ToNodeId = toNodeId,
+            FromNodeId = fromNodeId.Trim(),
+            ToNodeId = toNodeId.Trim(),
             EdgeType = edgeType,
             Label = label,
             Weight = weight,
