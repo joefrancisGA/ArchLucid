@@ -305,4 +305,58 @@ public sealed class CompareQualityComparisonsApplicationServiceTests
 
         await act.Should().ThrowAsync<CareerArtifactExportBlockedException>();
     }
+
+    [Fact]
+    public async Task CompareQuality_TryEstimateReplayCostAsync_throws_when_career_posture_blocks_metadata_read()
+    {
+        const string runId = "ffffffffffffffffffffffffffffffff";
+        InMemoryComparisonRecordRepository comparisonRecords = new();
+        await comparisonRecords.CreateAsync(
+            new ComparisonRecord
+            {
+                ComparisonRecordId = "cmp-cost-estimate",
+                ComparisonType = ComparisonTypes.ExportRecordDiff,
+                LeftRunId = runId,
+                RightRunId = "10101010101010101010101010101010",
+                PayloadJson = "{}",
+                CreatedUtc = DateTime.UtcNow,
+            },
+            CancellationToken.None);
+
+        Mock<IRunDetailQueryService> runDetail = new();
+        runDetail
+            .Setup(s => s.GetRunDetailAsync(runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchitectureRunDetail { Run = new() { RunId = runId } });
+
+        Mock<IComparisonReplayService> replay = new();
+        replay
+            .Setup(s => s.EnsureArtifactReplayAccessAllowedAsync(It.IsAny<ComparisonRecord>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new CareerArtifactExportBlockedException(
+                SimulatorCareerHonestyPresenter.SimulatorRehearsalBlockedMessage,
+                CareerArtifactCompletenessValidator.SimulatorRehearsalCode));
+
+        Mock<IComparisonReplayCostEstimator> estimator = new();
+
+        ComparisonsApplicationService sut = new(
+            runDetail.Object,
+            new Mock<IRunExportRecordRepository>().Object,
+            comparisonRecords,
+            replay.Object,
+            new Mock<ICompareRunsApplicationFacade>().Object,
+            estimator.Object,
+            new Mock<IDriftReportFormatter>().Object,
+            new DriftReportDocxExport());
+
+        Func<Task> act = () => sut.TryEstimateReplayCostAsync(
+            "cmp-cost-estimate",
+            format: "markdown",
+            replayMode: "artifact",
+            persistReplay: false,
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<CareerArtifactExportBlockedException>();
+        estimator.Verify(
+            e => e.TryEstimateAsync(It.IsAny<string>(), It.IsAny<string?>(), It.IsAny<string?>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
 }

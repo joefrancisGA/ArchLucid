@@ -62,6 +62,10 @@ public sealed partial class ComparisonsController
         {
             return MapComparisonReplaySealedManifestConflict(ex);
         }
+        catch (CareerArtifactExportBlockedException ex)
+        {
+            return this.CareerArtifactBlockedProblem(ex.Message, ex.BlockReasonCode);
+        }
     }
 
     // idempotency-posture: operator-documented-safe-retry
