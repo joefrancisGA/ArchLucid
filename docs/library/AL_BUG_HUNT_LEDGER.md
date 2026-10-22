@@ -12,6 +12,20 @@
 - [ ] (candidate) refreshBffSessionCookie - refresh 425 shouldClearSession false - locus: proxy transient policy.
 
 2026-10-22 seed hunt (seed-only): `ui-oidc` - no hunt-ready product defect; repaired malformed `AL_BUG_HUNT_RUN_LOG.jsonl` rows using `zone` instead of `zoneId`; cheap-disproof closed saturated encoding and authorize-retry snapshot policy candidates; parity regressions `readAuthorizeRetryReturnPathSnapshot` unsafe tamper purge, `consumeAuthorizeCallbackFailedRetry` clears retry snapshot, and BFF client refresh HTTP 429 without `shouldClearSession`; scoped vitest 465/465.
+2026-10-22 seed hunt (seed->hit): `application-tenancy-lifecycle` - promoted hunt-ready from seed re-read `TenantErasureCommandService.TryClearLegalHoldAsync` - legal hold cleared platform audit appended after pre-audit hold check without erasure quarantine re-read, so offboard between that read and audit could emit `TenantErasureLegalHoldCleared` for quarantined tenants; pre-audit `GetByIdAsync` offboard guard; regression `TryClearLegalHoldAsync_returns_success_without_audit_when_offboard_completes_after_pre_audit_read_before_audit`; fix `al-bug-pick-zone.ps1` if-statement parse error for run-log zone alias; scoped tenancy filter 252/252.
+
+- [x] (proven) `TryClearLegalHoldAsync` - offboard after pre-audit read before clear audit - **hit 2026-10-22 seed hunt:** pre-audit re-read; regression above.
+- [x] (valid-no-repro) `CompleteAsync` - offboard after pre-audit read before completed audit - **cheap-disproof 2026-10-22:** hit earlier same day on trunk.
+- [x] (valid-no-repro) `TrySetLegalHoldAsync` - quarantine restored after post-set read - **cheap-disproof 2026-10-22:** existing regression on trunk.
+- [x] (invalid) `TenantDeletionService.DeleteTenantAsync` - legal hold after sql purge before platform audit - **cheap-disproof 2026-10-22:** purge already completed; approval-cleared skip covered.
+- [x] (valid-no-repro) `al-bug-pick-zone.ps1` - PowerShell if parse on zone alias branch - **hit 2026-10-22:** parenthesized `-not` expression.
+
+- [ ] (candidate) `TenantDeletionService.DeleteTenantAsync` - legal hold activated between revalidate and blob purge - locus: mid-destructive revalidate (reachability: admin delete job).
+- [ ] (candidate) `TryApproveErasureAsync` - offboard after pre-approve audit read before approve audit - locus: beforeApproveAudit parity (reachability: erasure command).
+- [ ] (candidate) `TryRestoreQuarantineAsync` - offboard after restore before restore audit - locus: existing race tests (reachability: saturated).
+- [ ] (candidate) `TrialLifecycleTransitionEngine` - offboard between audit and expiration metric - locus: post-audit superseded read (reachability: saturated).
+- [ ] (candidate) `TenantCatalogMigrationOrchestrator.StartAsync` - offboard after insert before started audit - locus: existing regression (reachability: saturated).
+
 2026-10-22 seed hunt (seed->hit): ui-oidc - authorize retry rehydration after unsafe return purge preferred stale idle-desk backup over the active post-sign-in return path captured at callback failure; snapshot safe return when marking authorize retry and prefer snapshot before idle-desk fallback; supplemental Google parity regression; scoped vitest 443/443.
 
 - [x] (proven) preparePostSignInReturnUrlForSignInStart - stale idle-desk overwrites authorize retry return - **hit 2026-10-22:** OIDC_AUTHORIZE_RETRY_RETURN_PATH_KEY snapshot on markAuthorizeCallbackFailed; rehydrate prefers snapshot before idle desk.

@@ -270,7 +270,15 @@ public sealed class TenantErasureCommandServiceIdempotentRetryTests
         DateTimeOffset holdUntil = now.AddDays(14);
         FakeTimeProvider clock = new(now);
         TenantRecord withHold = TenantWithLegalHold(tenantId, now, holdUntil);
-        TenantRecord cleared = OffboardedTenant(tenantId, now);
+        TenantRecord cleared = new()
+        {
+            Id = tenantId,
+            Name = "Acme",
+            Slug = "acme",
+            Tier = TenantTier.Standard,
+            DataRegion = TenantDataRegions.Default,
+            CreatedUtc = now.AddDays(-1),
+        };
         TaskCompletionSource<bool> bothReadsCompleted =
             new(TaskCreationOptions.RunContinuationsAsynchronously);
         int reads = 0;
@@ -401,6 +409,58 @@ public sealed class TenantErasureCommandServiceIdempotentRetryTests
 
         audit.Verify(
             a => a.AppendAsync(It.IsAny<PlatformAuditEvent>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task TryClearLegalHoldAsync_returns_success_without_audit_when_offboard_completes_after_pre_audit_read_before_audit()
+    {
+        Guid tenantId = Guid.NewGuid();
+        DateTimeOffset now = new(2026, 10, 14, 14, 0, 0, TimeSpan.Zero);
+        DateTimeOffset holdUntil = now.AddDays(14);
+        FakeTimeProvider clock = new(now);
+        TenantRecord withHold = TenantWithLegalHold(tenantId, now, holdUntil);
+        TenantRecord holdCleared = new()
+        {
+            Id = tenantId,
+            Name = "Acme",
+            Slug = "acme",
+            Tier = TenantTier.Standard,
+            DataRegion = TenantDataRegions.Default,
+            CreatedUtc = now.AddDays(-1),
+        };
+        TenantRecord offboarded = OffboardedTenant(tenantId, now);
+
+        Mock<ITenantRepository> tenants = new(MockBehavior.Strict);
+        tenants
+            .SetupSequence(t => t.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(withHold)
+            .ReturnsAsync(holdCleared)
+            .ReturnsAsync(holdCleared)
+            .ReturnsAsync(offboarded);
+        tenants
+            .Setup(t => t.TryClearTenantErasureLegalHoldAsync(tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+
+        Mock<IPlatformAuditRepository> audit = new(MockBehavior.Strict);
+
+        Mock<IOptionsMonitor<TenantErasurePurgeOptions>> options = new();
+        options.Setup(o => o.CurrentValue).Returns(new TenantErasurePurgeOptions());
+
+        TenantErasureCommandService sut = new(
+            tenants.Object,
+            audit.Object,
+            clock,
+            options.Object);
+
+        (await sut.TryClearLegalHoldAsync(tenantId, "counsel@example.com", "Counsel", "corr", CancellationToken.None))
+            .Should()
+            .BeTrue();
+
+        audit.Verify(
+            a => a.AppendAsync(
+                It.Is<PlatformAuditEvent>(e => e.EventType == AuditEventTypes.TenantErasureLegalHoldCleared),
+                It.IsAny<CancellationToken>()),
             Times.Never);
     }
 
