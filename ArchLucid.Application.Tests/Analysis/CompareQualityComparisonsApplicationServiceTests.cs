@@ -359,4 +359,51 @@ public sealed class CompareQualityComparisonsApplicationServiceTests
             e => e.TryEstimateAsync(It.IsAny<string>(), It.IsAny<string?>(), It.IsAny<string?>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()),
             Times.Never);
     }
+
+    [Fact]
+    public async Task CompareQuality_TryBuildBatchReplayZipAsync_rethrows_verification_failure_instead_of_batch_all_failed()
+    {
+        const string runId = "12121212121212121212121212121212";
+        Mock<IComparisonRecordRepository> comparisons = new();
+        comparisons
+            .Setup(r => r.GetByIdAsync("cmp-verify", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new ComparisonRecord
+                {
+                    ComparisonRecordId = "cmp-verify",
+                    LeftRunId = runId,
+                    ComparisonType = ComparisonTypes.ExportRecordDiff,
+                    CreatedUtc = DateTime.UtcNow,
+                });
+
+        Mock<IRunDetailQueryService> runDetail = new();
+        runDetail
+            .Setup(s => s.GetRunDetailAsync(runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchitectureRunDetail { Run = new() { RunId = runId } });
+
+        Mock<IComparisonReplayService> replay = new();
+        replay
+            .Setup(s => s.ReplayAsync(It.IsAny<ReplayComparisonRequest>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new ComparisonVerificationFailedException("drift detected"));
+
+        ComparisonsApplicationService sut = new(
+            runDetail.Object,
+            new Mock<IRunExportRecordRepository>().Object,
+            comparisons.Object,
+            replay.Object,
+            new Mock<ICompareRunsApplicationFacade>().Object,
+            new Mock<IComparisonReplayCostEstimator>().Object,
+            new Mock<IDriftReportFormatter>().Object,
+            new DriftReportDocxExport());
+
+        Func<Task> act = () => sut.TryBuildBatchReplayZipAsync(
+            ["cmp-verify"],
+            format: "markdown",
+            replayMode: "verify",
+            profile: null,
+            persistReplay: false,
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<ComparisonVerificationFailedException>();
+    }
 }

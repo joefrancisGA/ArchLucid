@@ -123,6 +123,10 @@ public sealed partial class ComparisonsApplicationService
             {
                 throw;
             }
+            catch (ComparisonVerificationFailedException)
+            {
+                throw;
+            }
             catch (Exception ex)
             {
                 failed.Add(

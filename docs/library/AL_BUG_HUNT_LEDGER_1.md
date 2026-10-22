@@ -6691,6 +6691,15 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-22 seed hunt (seed→hit): `ComparisonsApplicationService.TryBuildBatchReplayZipAsync` swallowed `ComparisonVerificationFailedException` in its per-id failure loop, so verify-mode batch replay returned null and `ReplayComparisonsBatch` responded HTTP 422 `BatchReplayAllFailed` instead of HTTP 422 comparison verification problem with drift extensions; rethrow verification failures and map on batch route; regression `CompareQuality_TryBuildBatchReplayZipAsync_rethrows_verification_failure_instead_of_batch_all_failed`; scoped application filter 54/54.
+
+- [x] (proven) `ComparisonsApplicationService.TryBuildBatchReplayZipAsync` - batch verify replay swallowed `ComparisonVerificationFailedException` while single replay surfaced verification drift problems - **hit 2026-10-22 seed hunt:** rethrow after career/conflict parity; batch controller maps verification problem; regression above.
+
+- [ ] (candidate) `ComparisonsController.GetRunComparisonHistory` - returns comparison rows with `PayloadJson` without per-record artifact-read gates - locus: `GET /v1/architecture/run/{runId}/comparisons`; reachability: history list for rehearsal-blocked anchor runs (audit surface vs artifact read).
+- [ ] (candidate) `ComparisonsApplicationService.TryReplayAsync` - relies on `ComparisonReplayService.ReplayAsync` for gates without `EnsureArtifactReplayAccessAllowedAsync` at facade entry - locus: POST replay when manifest guard ordering differs; reachability: regression-only unless facade bypass added.
+- [ ] (candidate) `ComparisonReplayService.RegenerateEndToEndAsync` - lifecycle guard without career gate on inner regenerate path - locus: private regenerate helper; reachability: callers must gate before invoke (audit call graph).
+- [ ] (candidate) `ExportReplayService.ReplayAsync` - regenerate path uses completeness gate but not `IRunExportCareerPostureGate` on query facade reads - locus: export replay vs `RunExportQueryFacade` parity; reachability: already complementary per 2026-10-22 cheap-disproof unless new route added.
+
 2026-10-22 seed hunt (seed→hit): `ComparisonsApplicationService.TryEstimateReplayCostAsync` returned replay cost estimates after tenant scope load only while replay routes enforced lifecycle/career gates; call `EnsureArtifactReplayAccessAllowedAsync` before sizing; map career blocks on `GET` replay cost estimate; regressions `CompareQuality_TryEstimateReplayCostAsync_throws_when_career_posture_blocks_metadata_read` and `CompareQuality_GetComparisonReplayCostEstimate_returns_career_blocked_problem_when_posture_blocks_metadata_read`; scoped application filter 53/53.
 
 - [x] (proven) `ComparisonReplayCostEstimator.TryEstimateAsync` / `TryEstimateReplayCostAsync` - replay cost preflight omitted artifact-read career/lifecycle gates - **hit 2026-10-22 seed hunt:** gate in application service before estimator; API career mapping; regressions above.
@@ -6809,11 +6818,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 69
-- **bugs-found:** 67
+- **hunts:** 70
+- **bugs-found:** 68
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — replay cost estimate omitted artifact-read career gate
+- **last-bug:** 2026-10-22 — batch verify replay swallowed comparison verification failures
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
