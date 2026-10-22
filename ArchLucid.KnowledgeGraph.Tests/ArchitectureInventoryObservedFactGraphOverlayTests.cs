@@ -514,6 +514,61 @@ public sealed class ArchitectureInventoryObservedFactGraphOverlayTests
     }
 
     [Fact]
+    public void Merge_normalizes_padded_edge_endpoints_when_appending_inventory_overlay_edge()
+    {
+        const string NodeA = "node-a";
+        const string NodeB = "node-b";
+
+        GraphSnapshot baseGraph = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = ContextSnapshotId,
+            RunId = RunId,
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = NodeA,
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "A",
+                },
+                new GraphNode
+                {
+                    NodeId = NodeB,
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "B",
+                },
+            ],
+            Edges = [],
+        };
+
+        GraphSnapshot overlay = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = ContextSnapshotId,
+            RunId = RunId,
+            Nodes = [],
+            Edges =
+            [
+                new GraphEdge
+                {
+                    EdgeId = "overlay-edge",
+                    FromNodeId = $"  {NodeA}  ",
+                    ToNodeId = $"  {NodeB}  ",
+                    EdgeType = GraphEdgeTypes.ConnectsTo,
+                },
+            ],
+        };
+
+        GraphSnapshot merged = ArchitectureInventoryObservedFactGraphOverlayMerger.Merge(baseGraph, overlay);
+
+        merged.Edges.Should().ContainSingle(edge =>
+            edge.FromNodeId == NodeA
+            && edge.ToNodeId == NodeB
+            && edge.EdgeType == GraphEdgeTypes.ConnectsTo);
+    }
+
+    [Fact]
     public void Merge_normalizes_padded_edge_type_when_appending_inventory_overlay_edge()
     {
         const string NodeA = "node-a";
