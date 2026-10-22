@@ -8712,6 +8712,15 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: architecture-intelligence-orchestrator
 
+2026-10-22 seed hunt (seed→hit): promoted NFC vs NFD `SourceTexts.FileName` and remaining C0 controls (`U+0001`–`U+001F`, including tab) in `Content` splitting review-cache `ContentHash`; `NormalizeFileNameForHash` now FormC-canonicalizes collapsed paths; `NormalizeLineEndings` maps `U+0001`–`U+001F` to LF after prior scalar/C1 passes; regressions `Build_matches_content_hash_when_file_name_differs_only_by_unicode_normalization_form` and expanded `Build_matches_content_hash_when_source_content_uses_unicode_line_separators`; 160 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `ClosedLoopReasoningSourceTextNormalizer.NormalizeFileNameForHash` — NFC vs NFD file names split `ContentHash` — **hit 2026-10-22 seed hunt:** FormC after path collapse; regression above.
+- [x] (proven) `ClosedLoopReasoningSourceTextNormalizer.NormalizeLineEndings` — C0 `\\u0001` / `\\u0009` controls split `ContentHash` — **hit 2026-10-22 seed hunt:** `U+0001`–`U+001F` loop; theory regression above.
+
+- (candidate) `ReviewCacheLedgerFingerprint.Compute` — ledger `ProviderFamily` tie-break when technology names normalize equal — locus: sort chain; input: duplicate-normalized names across provider families.
+
+- (candidate) `GraphSnapshotCanonicalFingerprint.FormatKnowledgeModelElementFingerprint` — duplicate normalized element ids collapse vs distinct rows — locus: element list; input: padded ids mapping to same canonical id.
+
 2026-10-22 seed hunt (seed→hit): promoted remaining C1 control scalars (`U+0080`–`U+009F`) in uploaded source `Content` splitting review-cache `ContentHash`; `NormalizeLineEndings` now maps the C1 block to LF after explicit scalar pass; expanded regression `Build_matches_content_hash_when_source_content_uses_unicode_line_separators`; regression `Build_matches_content_hash_when_baseline_element_provenance_passage_quote_differs_only_by_unicode_normalization_form` documents provenance quote FormC parity; 157 scoped orchestrator/cache/manifest/continue-flight tests passed.
 
 - [x] (proven) `ClosedLoopReasoningSourceTextNormalizer.NormalizeLineEndings` — C1 `\\u0080`–`\\u009f` controls split `ContentHash` — **hit 2026-10-22 seed hunt:** C1 loop; theory regression above.
@@ -9128,11 +9137,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** closed-loop orchestrator; review result cache; architecture intelligence
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.cs; ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.Cache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewResultCache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewCacheManifestBuilder.cs
 - **test-filter:** FullyQualifiedName~ClosedLoopArchitectureReasoningOrchestrator|FullyQualifiedName~ReviewResultCache|FullyQualifiedName~ReviewCacheManifestBuilder
-- **hunts:** 71
-- **bugs-found:** 48
+- **hunts:** 73
+- **bugs-found:** 51
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — C0 control line breaks in review-cache source content hash
+- **last-bug:** 2026-10-22 — source file name NFC and remaining C0 line breaks in review-cache hash
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -9362,4 +9371,13 @@ ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recomm
 - [x] (invalid) `SanitizeForStorage` strips `PublishBlocked` and breaks blocked-rerun cache hits — **cheap-disproof 2026-09-09 seed hunt #1438:** publish-block metadata preserved for storage since hunt #1226; regression `SanitizeForStorage_preserves_publish_block_metadata`.
 - [x] (invalid) `ReviewResultCache.Set` silently drops inserts when cache is full with only pinned entries — **cheap-disproof 2026-09-09 seed hunt #1438:** `MaxDistinctPinnedStorageKeys` (64) < `MaxEntries` (128) keeps unpinned eviction available; regression `Set_inserts_when_cache_at_max_entries_because_all_pinned_state_is_unreachable`.
 
-2026-09-09 seed hunt #1438 (seed-only): reseeded architecture-intelligence-orchestrator after #1316 dry strea
+2026-09-09 seed hunt #1438 (seed-only): reseeded architecture-intelligence-orchestrator after #1316 dry streak; cheap-disproof closed continue-flight key partition, workspace cache busting, sanitize publish-block strip, and all-pinned Set drop candidates; 64 scoped orchestrator/cache tests passed.
+
+2026-09-07 seed hunt #1226 (hit): reseeded orchestrator/cache manifest paths; proved review cache hits stripped publish-block truth for blocked analysis reruns.
+2026-09-07 thorough hunt #1218 (hit): proved pin-cap saturation skipped review cache read/write; disproved remaining cache-cap and continue-manifest partition candidates.
+2026-09-07 seed hunt #1197 (hit): reseeded publish-stage storage manifest paths; proved blocked full reruns with existing run id missed review cache due to baseline fingerprint mismatch.
+2026-09-07 thorough hunt #1195 (hit): proved continue-from-existing review-cache skip and manifest baseline mismatch.
+
+2026-09-07 seed hunt #1173 (hit): reseeded closed-loop orchestrator/cache manifest paths; proved client RunId missing from cache content hash caused concurrent coalesce to skip follower persistence.
+
+---

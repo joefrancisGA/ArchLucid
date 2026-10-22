@@ -1360,6 +1360,8 @@ public sealed class ReviewCacheManifestBuilderTests
     [InlineData("\u0086")]
     [InlineData("\u0087")]
     [InlineData("\u0088")]
+    [InlineData("\u0009")]
+    [InlineData("\u0001")]
     public void Build_matches_content_hash_when_source_content_uses_unicode_line_separators(
         string lineSeparator)
     {
@@ -1550,6 +1552,39 @@ public sealed class ReviewCacheManifestBuilderTests
         ReviewCacheManifestBuilder.Build(lower).ContentHash
             .Should()
             .Be(ReviewCacheManifestBuilder.Build(upper).ContentHash);
+    }
+
+    [Fact]
+    public void Build_matches_content_hash_when_file_name_differs_only_by_unicode_normalization_form()
+    {
+        const string nfcFileName = "docs/Caf\u00E9.md";
+        const string nfdFileName = "docs/Cafe\u0301.md";
+
+        ClosedLoopReasoningRequest nfc = CreateRequest("Same body.");
+        nfc.SourceTexts =
+        [
+            new ClosedLoopReasoningSourceText
+            {
+                FileName = nfcFileName,
+                ContentType = "text/markdown",
+                Content = "Same body.",
+            },
+        ];
+
+        ClosedLoopReasoningRequest nfd = CreateRequest("ignored");
+        nfd.SourceTexts =
+        [
+            new ClosedLoopReasoningSourceText
+            {
+                FileName = nfdFileName,
+                ContentType = "text/markdown",
+                Content = "Same body.",
+            },
+        ];
+
+        ReviewCacheManifestBuilder.Build(nfc).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(nfd).ContentHash);
     }
 
     [Fact]

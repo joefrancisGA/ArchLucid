@@ -1,3 +1,4 @@
+using System.Text;
 using ArchLucid.ContextIngestion;
 using ArchLucid.Contracts.ArchitectureIntelligence;
 
@@ -52,7 +53,12 @@ internal static class ClosedLoopReasoningSourceTextNormalizer
         while (fileName.EndsWith('/') && fileName.Length > 1)
             fileName = fileName[..^1];
 
-        return CollapseParentPathSegments(fileName);
+        string collapsed = CollapseParentPathSegments(fileName);
+
+        if (collapsed.Length == 0)
+            return collapsed;
+
+        return collapsed.Normalize(NormalizationForm.FormC);
     }
 
     private static string CollapseParentPathSegments(string fileName)
@@ -112,6 +118,9 @@ internal static class ClosedLoopReasoningSourceTextNormalizer
 
         for (int c1Control = 0x80; c1Control <= 0x9F; c1Control++)
             content = content.Replace((char)c1Control, '\n');
+
+        for (int c0Control = 0x01; c0Control <= 0x1F; c0Control++)
+            content = content.Replace((char)c0Control, '\n');
 
         return content;
     }
