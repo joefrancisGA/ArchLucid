@@ -1,3 +1,17 @@
+2026-10-22 seed hunt (seed->hit): `application-tenancy-lifecycle` - promoted hunt-ready from seed re-read `TenantCatalogMigrationOrchestrator.RunProjectionRefreshAsync` - projection refresh completed platform audit appended after stage advance using only the post-update tenant read, so erasure offboard between that read and audit could emit `TenantCatalogMigrationProjectionRefreshCompleted` for quarantined tenants; pre-audit `GetByIdAsync` guard; regression `RunProjectionRefreshAsync_returns_in_erasure_quarantine_without_refresh_audit_when_offboard_completes_after_stage_update_before_audit`; scoped tenancy filter 249/249.
+
+- [x] (proven) `RunProjectionRefreshAsync` - offboard after stage update before refresh audit - **hit 2026-10-22 seed hunt:** pre-audit re-read; regression above.
+- [x] (valid-no-repro) `RunVerificationAsync` - offboard after mark before verification audit - **cheap-disproof 2026-10-22:** hit earlier same day on trunk.
+- [x] (valid-no-repro) `AcknowledgeCatalogAttachDetachAsync` - offboard after stage update before attach audit - **cheap-disproof 2026-10-22:** existing regression on trunk.
+- [x] (invalid) `TenantMigrationProjectionRefreshService` - offboard mid cache invalidation - **cheap-disproof 2026-10-22:** orchestrator guards around refresh call.
+- [x] (valid-no-repro) `CompleteAsync` - offboard after repository complete before completed audit - **cheap-disproof 2026-10-22:** existing regression on trunk.
+
+- [ ] (candidate) `AcknowledgeCatalogAttachDetachAsync` - offboard after post-update read before attach audit - locus: pre-audit read parity (reachability: migration acknowledge).
+- [ ] (candidate) `CompleteAsync` - offboard after pre-audit read before completed audit - locus: pre-audit read (reachability: migration complete).
+- [ ] (candidate) `TenantDeletionService.DeleteTenantAsync` - legal hold activated after sql purge before platform audit - locus: post-purge revalidate (reachability: admin delete job).
+- [ ] (candidate) `RunVerificationAsync` - offboard after failed probe mark before failed audit - locus: shared pre-audit guard (reachability: saturated).
+- [ ] (candidate) `TenantErasureCommandService.TrySetLegalHoldAsync` - quarantine restored after set before legal-hold audit - locus: beforeSetAudit read (reachability: erasure command).
+
 2026-10-22 seed hunt (seed->hit): ui-oidc - promoted hunt-ready initiateOidcRedirect / initiateSupplementalOidcRedirect - poisoned unsafe return URLs in sessionStorage survived authorize-retry sign-in starts without an explicit 
 eturnUrl because only 
 eadPostSignInReturnUrl on explicit paths purged them; purge invalid stored paths at sign-in start via 
