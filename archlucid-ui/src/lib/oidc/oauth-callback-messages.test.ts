@@ -112,6 +112,14 @@ describe("decodeOAuthErrorDescription", () => {
     expect(decodeOAuthErrorDescription(mixed)).toBe("User denied+extra");
   });
 
+  it("preserves literal plus in authorize error descriptions when zero-width glue separates words", () => {
+    expect(decodeOAuthErrorDescription("User\u200bdenied+extra")).toBe("User denied+extra");
+  });
+
+  it("preserves literal plus in authorize error descriptions when ZWNJ glue separates words", () => {
+    expect(decodeOAuthErrorDescription("Policy\u200cdenied+extra")).toBe("Policy denied+extra");
+  });
+
   it("decodes doubly percent-encoded authorize error descriptions", () => {
     expect(decodeOAuthErrorDescription("User%2520denied")).toBe("User denied");
   });
