@@ -272,13 +272,24 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
             if (nodeMap.TryGetValue(key, out Guid existingId))
             {
                 ProvenanceNode existingNode = result.Nodes.First(n => n.Id == existingId);
-                existingNode.Name = node.Name;
-                existingNode.ReferenceId = node.ReferenceId;
-                existingNode.AgentExecutionTraceId = node.AgentExecutionTraceId;
+
+                if (!string.IsNullOrWhiteSpace(node.Name))
+                    existingNode.Name = node.Name;
+
+                if (!string.IsNullOrWhiteSpace(node.ReferenceId))
+                    existingNode.ReferenceId = node.ReferenceId;
+
+                if (!string.IsNullOrWhiteSpace(node.AgentExecutionTraceId))
+                {
+                    existingNode.AgentExecutionTraceId = node.AgentExecutionTraceId;
+                    existingNode.Metadata[ProvenanceMetadataKeys.AgentExecutionTraceId] =
+                        node.AgentExecutionTraceId;
+                }
 
                 foreach (KeyValuePair<string, string> entry in node.Metadata)
                 {
-                    existingNode.Metadata[entry.Key] = entry.Value;
+                    if (!string.IsNullOrWhiteSpace(entry.Value))
+                        existingNode.Metadata[entry.Key] = entry.Value;
                 }
 
                 return existingId;

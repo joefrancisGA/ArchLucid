@@ -126,8 +126,6 @@ public static class ProvenanceSnapshotRevisionHasher
             .OrderBy(group => group.Key, StringComparer.OrdinalIgnoreCase)
             .Select(group =>
             {
-                Finding representative = group.Last();
-
                 string relatedNodeIds = string.Join(
                     ",",
                     group.SelectMany(finding => finding.RelatedNodeIds)
@@ -136,10 +134,13 @@ public static class ProvenanceSnapshotRevisionHasher
                         .Distinct(StringComparer.OrdinalIgnoreCase)
                         .OrderBy(static nodeId => nodeId, StringComparer.OrdinalIgnoreCase));
 
-                string title = (representative.Title ?? string.Empty).Trim();
-                string findingType = (representative.FindingType ?? string.Empty).Trim();
-                string category = (representative.Category ?? string.Empty).Trim();
-                string agentExecutionTraceId = ResolveAgentExecutionTraceId(representative);
+                string title = SelectLastNonEmptyFindingField(group, static finding => finding.Title);
+                string findingType = SelectLastNonEmptyFindingField(group, static finding => finding.FindingType);
+                string category = SelectLastNonEmptyFindingField(group, static finding => finding.Category);
+                string agentExecutionTraceId = group
+                    .Select(ResolveAgentExecutionTraceId)
+                    .Where(static traceId => traceId.Length > 0)
+                    .LastOrDefault() ?? string.Empty;
 
                 return $"{group.Key}|{relatedNodeIds}|{title}|{findingType}|{category}|{agentExecutionTraceId}";
             });
@@ -153,6 +154,16 @@ public static class ProvenanceSnapshotRevisionHasher
             return finding.AgentExecutionTraceId.Trim();
 
         return finding.Trace?.SourceAgentExecutionTraceId?.Trim() ?? string.Empty;
+    }
+
+    private static string SelectLastNonEmptyFindingField(
+        IGrouping<string, Finding> group,
+        Func<Finding, string?> selector)
+    {
+        return group
+            .Select(selector)
+            .Select(static value => (value ?? string.Empty).Trim())
+            .LastOrDefault(static value => value.Length > 0) ?? string.Empty;
     }
 
     private static string ComputeArtifactsFingerprint(IReadOnlyList<SynthesizedArtifact> artifacts)
