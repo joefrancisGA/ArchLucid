@@ -1,3 +1,17 @@
+2026-10-22 seed hunt (seed→hit): `ui-oidc` — promoted hunt-ready `errorFromOAuthJson` / `shouldHumanizeTokenOAuthErrorCode` — token endpoint JSON `invalid_client` on authorization code exchange surfaced raw `invalid_client` in `CallbackClient` while other standard OAuth codes already humanized; add `invalid_client` to the humanize allowlist; regression `humanizes invalid_client authorization code exchange errors instead of raw snake_case`; cheap-disproof closed five zone-head `(candidate)` rows; seeded five follow-on `(candidate)` rows; scoped `src/lib/oidc` vitest 372/372.
+
+- [x] (proven) `errorFromOAuthJson` — raw `invalid_client` on code exchange — **hit 2026-10-22 seed hunt:** `invalid_client` in `shouldHumanizeTokenOAuthErrorCode`; regression above.
+- [x] (valid-no-repro) `invalid_grant` humanize parity — **cheap-disproof 2026-10-22:** prior hit; same allowlist pattern.
+- [x] (valid-no-repro) `unauthorized_client` — **cheap-disproof 2026-10-22:** distinct code with dedicated humanize copy; not confused with `invalid_client`.
+- [x] (invalid) `readOAuthJsonErrorDescription` — `User+denied%252Bextra` — **cheap-disproof 2026-10-22:** mixed literal plus + doubly-encoded plus decodes correctly.
+- [x] (invalid) `shouldPreservePostSignInReturnForCallbackQuery` — `?code=&state=` — **cheap-disproof 2026-10-22:** empty strings do not preserve; CallbackClient tests cover config-invalid with code.
+
+- [ ] (candidate) `humanizeAuthorizeCallbackError` — dedicated `invalid_client` copy (client auth failed) — locus: switch case; input: differentiate from `unauthorized_client` (reachability: IdP misconfig).
+- [ ] (candidate) `CallbackClient` — JWT mode disabled with incomplete callback query — locus: preserveReturnForQuery; input: code-only without state (reachability: add test).
+- [ ] (candidate) `exchangeAuthorizationCode` — `invalid_client` with `error_description` — locus: humanize default branch; input: description appended (reachability: token 401 JSON).
+- [ ] (candidate) `persistTokenResponse` — fractional `expires_in` wall-clock flake — locus: session.test timing; input: tightened range assertion (reachability: test-only).
+- [ ] (candidate) `shouldMarkAuthorizeCallbackFailedOnExchangeError` — non-JSON token body — locus: readOAuthError fallback; input: HTML 502 (reachability: proxy).
+
 2026-10-22 seed hunt (seed→hit): `ui-oidc` — promoted hunt-ready `errorFromOAuthJson` / `shouldHumanizeTokenOAuthErrorCode` — token endpoint JSON `invalid_grant` on authorization code exchange surfaced raw `invalid_grant` in `CallbackClient` while `access_denied` already used `humanizeAuthorizeCallbackError`; add `invalid_grant` to the humanize allowlist; regressions `humanizes invalid_grant authorization code exchange errors like access_denied` and updated exchange marker test; cheap-disproof closed five zone-head `(candidate)` rows; seeded five follow-on `(candidate)` rows; scoped `src/lib/oidc` vitest 368/368.
 
 - [x] (proven) `errorFromOAuthJson` — raw `invalid_grant` on code exchange — **hit 2026-10-22 seed hunt:** `invalid_grant` in `shouldHumanizeTokenOAuthErrorCode`; regressions above.
