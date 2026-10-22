@@ -1,5 +1,6 @@
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Persistence.Graph;
+using ArchLucid.KnowledgeGraph;
 using ArchLucid.KnowledgeGraph.Diagram;
 
 using FluentAssertions;
@@ -110,6 +111,56 @@ public sealed class ArchitectureDiagramToGraphCompilerTests
             .Should().Be(StructuredDiagramGraphProvenanceKinds.DeterministicInference);
         apiNode.Properties[StructuredDiagramGraphPropertyKeys.ProvenanceKind]
             .Should().NotBe(StructuredDiagramGraphProvenanceKinds.ObservedFact);
+    }
+
+    [Fact]
+    public void Compile_asserted_connects_to_edge_uses_structured_parse_inference_source()
+    {
+        ArchitectureDiagramModelRecord model = new()
+        {
+            Nodes =
+            [
+                new ArchitectureDiagramNodeRecord
+                {
+                    Id = "api",
+                    Label = "API",
+                    Kind = ArchitectureDiagramNodeKinds.System,
+                    Provenance = ArchitectureDiagramProvenanceKinds.Asserted,
+                },
+                new ArchitectureDiagramNodeRecord
+                {
+                    Id = "db",
+                    Label = "SQL",
+                    Kind = ArchitectureDiagramNodeKinds.System,
+                    Provenance = ArchitectureDiagramProvenanceKinds.Asserted,
+                },
+            ],
+            Edges =
+            [
+                new ArchitectureDiagramEdgeRecord
+                {
+                    Id = "e1",
+                    SourceId = "api",
+                    TargetId = "db",
+                    Provenance = ArchitectureDiagramProvenanceKinds.Asserted,
+                },
+            ],
+            ExtractionMethod = DiagramExtractionMethods.StructuredParse,
+        };
+
+        ArchitectureDiagramToGraphCompiler compiler = new();
+        StructuredDiagramGraphCompileResult result = compiler.Compile(
+            model,
+            new StructuredDiagramGraphCompileOptions
+            {
+                RunId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                ContextSnapshotId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+                GraphSnapshotId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
+                CreatedUtc = DateTime.Parse("2026-01-01T00:00:00Z"),
+            });
+
+        GraphEdge edge = result.Snapshot.Edges.Should().ContainSingle().Subject;
+        edge.InferenceSource.Should().Be(GraphEdgeInferenceSources.StructuredParse);
     }
 
     [Fact]

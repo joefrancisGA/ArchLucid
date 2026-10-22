@@ -332,6 +332,7 @@ public sealed class StructuredDiagramGraphMergerTests
         merged.Properties[StructuredDiagramGraphPropertyKeys.SourceEvidenceItemId].Should().Be("doc-edge-b");
         merged.Properties[StructuredDiagramGraphPropertyKeys.InferenceConfidence].Should().Be("1");
         merged.ReasoningTrace.Should().Contain("asserted diagram source");
+        merged.InferenceSource.Should().Be(GraphEdgeInferenceSources.StructuredParse);
     }
 
     [Fact]

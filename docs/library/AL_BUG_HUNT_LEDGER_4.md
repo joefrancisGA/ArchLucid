@@ -12470,12 +12470,18 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 156
+- **hunts:** 157
 - **bugs-found:** 148
 - **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-22 — graph node property reader missed padded property keys
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-22 seed hunt (valid-no-repro): promoted `StructuredDiagramGraphMerger` duplicate-edge `InferenceSource` coalesce candidate; proved `ArchitectureDiagramToGraphCompiler` always assigns `GraphEdgeInferenceSources.StructuredParse` for diagram `ConnectsTo` rows (inferred and asserted), so multi-document merge never observes differing inference sources on the reachable path; regressions `Compile_asserted_connects_to_edge_uses_structured_parse_inference_source` and `InferenceSource` assertion on `Merge_uses_latest_diagram_edge_properties_and_reasoning_when_multiple_documents_share_equivalent_endpoints`; seeded `GraphNodePropertyReader` padded property-bag **values** on read follow-on; 460 KnowledgeGraph + 148 Provenance scoped tests passed.
+
+- [x] (valid-no-repro) `StructuredDiagramGraphMerger.Merge` — duplicate directed-edge coalesce may not refresh `InferenceSource` — **cheap-disproof 2026-10-22 seed hunt:** structured diagram compile uses a single inference source; regressions above.
+
+- [ ] (candidate) `GraphNodePropertyReader.TryGetPropertyValue` — padded property-bag values may surface without trim on read — locus: value return; input: property value with surrounding whitespace; wrong outcome: downstream equality gates that compare raw tokens diverge from trim-normalized materializers when callers omit `.Trim()`.
 
 2026-10-22 seed hunt (seed→hit): promoted `GraphNodePropertyReader` padded property-bag key candidate; proved `TryGetPropertyValue` compared raw dictionary keys to canonical lookup tokens, so legacy/deserialized nodes with padded keys like `"  category  "` missed topology sensitivity and declaration matcher reads; trim keys on both sides of case-insensitive equality; regressions `TryGetPropertyValue_resolves_value_when_property_key_has_surrounding_whitespace`, `TryGetPropertyValue_resolves_value_when_lookup_key_has_surrounding_whitespace`, and `Classify_when_category_property_key_has_surrounding_whitespace_returns_identity`; seeded `StructuredDiagramGraphMerger` duplicate-edge `InferenceSource` coalesce follow-on; 459 KnowledgeGraph + 148 Provenance scoped tests passed.
 
@@ -12789,7 +12795,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - [x] (proven) `StructuredDiagramCanonicalModelReconstructor.ReconstructEdges` — edge `Provenance` copied from source node flattened mixed asserted/inferred edge metadata — **hit 2026-10-22 seed hunt (seed→hit):** provenance segment on connectivity tokens; regression above.
 
-- [ ] (candidate) `StructuredDiagramGraphMerger.Merge` — duplicate directed-edge coalesce may not refresh `InferenceSource` when later documents compile the same edge with different inference metadata — locus: directed-edge dedup; input: two documents sharing endpoints; wrong outcome: stale edge inference source on multi-document merge.
+- [x] (invalid) `StructuredDiagramGraphMerger.Merge` — duplicate directed-edge coalesce may not refresh `InferenceSource` when later documents compile the same edge with different inference metadata — **cheap-disproof 2026-10-22 seed hunt:** diagram compile path always emits `StructuredParse`; regressions `Compile_asserted_connects_to_edge_uses_structured_parse_inference_source` and merge properties coalesce assertion.
 
 2026-10-22 seed hunt (seed→hit): promoted canonical edge label persistence candidate; proved `ArchitectureDiagramCanonicalObjectMapper` stored only `connectedToNodeIds` without captions and `StructuredDiagramCanonicalModelReconstructor` rebuilt edges without `Label`, so multi-document merges could not surface buyer-visible edge labels even after merge coalesce; encode optional labels on connectivity tokens and decode on reconstruct; regressions in `StructuredDiagramCanonicalModelReconstructorTests.ReconstructModels_groups_by_document_and_rebuilds_edges` and `Merge_uses_latest_diagram_edge_label_when_multiple_documents_share_equivalent_endpoints`; seeded per-edge provenance on reconstruct follow-on; 385 KnowledgeGraph + 99 Provenance scoped tests passed.
 
