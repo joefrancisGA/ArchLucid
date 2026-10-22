@@ -12470,18 +12470,22 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 82
-- **bugs-found:** 77
+- **hunts:** 83
+- **bugs-found:** 78
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — structured diagram merge keeps latest node properties and reasoning
+- **last-bug:** 2026-10-22 — structured diagram merge keeps latest edge properties and reasoning
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-22 seed hunt (seed→hit): promoted structured diagram edge properties/reasoning merge candidate; proved directed-edge dedup skipped later parallel `ConnectsTo` rows entirely, so a later asserted document compiling the same endpoints kept the first edge's source-evidence and inference metadata; coalesce duplicate directed edges with last-wins property keys and reasoning trace; regression `Merge_uses_latest_diagram_edge_properties_and_reasoning_when_multiple_documents_share_equivalent_endpoints`; seeded duplicate parallel edge `Label`/`Weight` coalesce follow-on; 383 KnowledgeGraph + 99 Provenance scoped tests passed.
+
+- [x] (proven) `StructuredDiagramGraphMerger.Merge` — cross-document merge kept the first edge `Properties` / `ReasoningTrace` when later documents compiled the same directed edge with refined metadata — **hit 2026-10-22 seed hunt (seed→hit):** last-wins property keys and reasoning trace on duplicate directed edge; regression above.
+
+- [ ] (candidate) `StructuredDiagramGraphMerger.Merge` — cross-document merge may keep the first edge `Label` or `Weight` when later documents compile the same directed edge with refined display metadata — locus: directed-edge dedup; input: two documents sharing endpoints and edge type; wrong outcome: stale edge display metadata on multi-document merge.
 
 2026-10-22 seed hunt (seed→hit): promoted structured diagram node properties/reasoning merge candidate; proved duplicate-node coalesce refreshed labels and typing but left the first document's `Properties` and `ReasoningTrace`, so a later asserted diagram document compiling the same node id kept stale source-evidence and inference metadata; merge last-wins property keys and reasoning trace on duplicate node id; regression `Merge_uses_latest_diagram_properties_and_reasoning_when_multiple_documents_compile_the_same_node_id`; seeded duplicate parallel edge `Properties`/`ReasoningTrace` coalesce follow-on; 382 KnowledgeGraph + 99 Provenance scoped tests passed.
 
 - [x] (proven) `StructuredDiagramGraphMerger.Merge` — cross-document merge kept the first node `Properties` / `ReasoningTrace` when later documents compiled richer diagram metadata for the same `NodeId` — **hit 2026-10-22 seed hunt (seed→hit):** last-wins property keys and reasoning trace on duplicate node id; regression above.
-
-- [ ] (candidate) `StructuredDiagramGraphMerger.Merge` — cross-document merge may keep the first edge `Properties` or `ReasoningTrace` when later documents compile the same directed edge with refined metadata — locus: directed-edge dedup; input: two documents sharing endpoints and edge type; wrong outcome: stale edge inference metadata on multi-document merge.
 
 2026-10-22 seed hunt (seed→hit): promoted structured diagram node typing merge candidate; proved duplicate-node coalesce updated labels only, so a later document reclassifying the same diagram node id (for example `system` → `user`) left the merged graph on the first `NodeType`; extend coalesce with last non-empty `NodeType` and `Category`; regression `Merge_uses_latest_diagram_node_type_when_multiple_documents_compile_the_same_node_id`; cheap-disproved standalone `Category` drift on structured diagram compile path (`ArchitectureDiagramToGraphCompiler` does not populate `Category` today); seeded duplicate-node `Properties`/`ReasoningTrace` coalesce follow-on; 381 KnowledgeGraph + 99 Provenance scoped tests passed.
 
