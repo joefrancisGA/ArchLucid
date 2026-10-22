@@ -6691,6 +6691,18 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-22 seed hunt (seed-only): `application-analysis` - no hunt-ready product defect; cheap-disproof closed four zone-head `(candidate)` rows on comparison history/cost-estimate career-gate reads; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` filter 45/45.
+
+- [x] (valid-no-repro) `ComparisonsApplicationService.TryListByRunIdAsync` - lists comparison records after run scope check only - **cheap-disproof 2026-10-22:** persisted comparison history is tenant-scoped; career metadata gate applies on export/replay mutation paths fixed 2026-10-21.
+- [x] (valid-no-repro) `ComparisonsApplicationService.SearchAsync` - returns `SummaryMarkdown` without career metadata gate - **cheap-disproof 2026-10-22:** search reads stored comparison artifacts; blocking reads would diverge from audit/history surfaces without a cited trust-boundary harm.
+- [x] (valid-no-repro) `ComparisonReplayCostEstimator.TryEstimateAsync` - estimates replay cost from stored payload without career posture gate - **cheap-disproof 2026-10-22:** estimator scores payload size/shape only; does not regenerate export bodies or bypass replay gates.
+- [x] (invalid) `ComparisonReplayService.EnsureCareerAllowsExportRecordMetadataOrThrowAsync` - whitespace-only anchor run id skips gate - **cheap-disproof 2026-10-22:** whitespace anchors are not persisted on current write paths; empty parse is intentional no-op before replay throws on missing payload.
+
+- [ ] (candidate) `ComparisonsApplicationService.TryListByExportRecordIdAsync` - lists comparisons anchored on export record id after export scope load only (reachable input: export record for simulator-rehearsal run with persisted comparison summaries).
+- [ ] (candidate) `CompareRunsApplicationFacade` - end-to-end run pair compare loads run details without `IRunExportCareerPostureGate` (reachable input: `POST` compare-runs for rehearsal-blocked export posture).
+- [ ] (candidate) `ExportReplayService.ReplayAsync` - uses `CareerArtifactExportCompletenessGate` while export query paths use `IRunExportCareerPostureGate` (reachable input: sample-workspace export replay vs metadata read on same run).
+- [ ] (candidate) `ComparisonAuditService.RecordReplayOfAsync` - clones comparison payload into a new record without re-validating career posture (reachable input: `PersistReplay` after successful gated replay).
+
 2026-10-22 seed hunt (seed-only): `application-analysis` - no hunt-ready product defect; cheap-disproof closed four zone-head `(candidate)` rows on comparison/export career-gate edge cases (null anchor run ids, regenerate-only gate, non-GUID export run id, missing hydrate locus); scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` filter 45/45.
 
 - [x] (valid-no-repro) `ComparisonReplayService.ReplayExportDiffAsync` - career gate uses comparison `LeftRunId`/`RightRunId` only when export record ids are present - **cheap-disproof 2026-10-22:** `RecordExportDiffAsync` and compare paths always persist canonical run ids from export records; null-anchor replay is not reachable on current write paths.
@@ -6728,7 +6740,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 61
+- **hunts:** 62
 - **bugs-found:** 57
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-22
