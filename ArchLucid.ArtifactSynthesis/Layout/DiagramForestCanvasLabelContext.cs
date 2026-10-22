@@ -87,9 +87,20 @@ public sealed class DiagramForestCanvasLabelContext
         IReadOnlyList<string> dataFlowDetailLines = _isDataFlow
             ? BuildDataFlowDetailLines(node, dataFlowTypeLine)
             : [];
-        string? dataFlowRollupInvitationLine = _isDataFlow && node.IsDataFlowRollup
-            ? $"Click to list the {node.DataFlowRollupMemberIds.Count}"
-            : null;
+        string? dataFlowRollupInvitationLine = null;
+
+        if (_isDataFlow && node.IsDataFlowRollup)
+        {
+            if (node.DataFlowRollupMemberIds.Count == 0)
+            {
+                dataFlowRollupInvitationLine = "Rollup members were not stored.";
+            }
+            else
+            {
+                dataFlowRollupInvitationLine =
+                    $"Click to list the {node.DataFlowRollupMemberIds.Count} resources in this rollup.";
+            }
+        }
         bool suppressResourceGroupCaption = _suppressResourceGroupCaptionNodeIds.Contains(node.NodeId);
         IReadOnlyList<string> resourceGroupLines = suppressResourceGroupCaption
             || string.IsNullOrWhiteSpace(caption.ResourceGroupCaption)
@@ -164,6 +175,11 @@ public sealed class DiagramForestCanvasLabelContext
     private static string FormatExternalFactoriesLine(IReadOnlyList<string> factoryNames)
     {
         List<string> ordered = OrderDistinctTrimmed(factoryNames);
+
+        if (ordered.Count == 0)
+        {
+            return "Factory name was stored empty.";
+        }
 
         if (ordered.Count <= 3)
         {
@@ -242,6 +258,9 @@ public sealed class DiagramForestCanvasLabelContext
             lines.Add($"Factory {node.ExternalFactoryName.Trim()}");
         }
 
+        bool hasStoredHost = node.ExternalTargetHosts.Count > 0
+            || !string.IsNullOrWhiteSpace(node.ExternalTargetHost);
+
         if (node.ExternalTargetHosts.Count > 0)
         {
             lines.Add(FormatExternalTargetHostsLine(node.ExternalTargetHosts));
@@ -250,8 +269,16 @@ public sealed class DiagramForestCanvasLabelContext
         {
             lines.Add(node.ExternalTargetHost.Trim());
         }
+        else if (node.ExternalHostInKeyVault)
+        {
+            lines.Add("Host name was not stored. The host is in Key Vault.");
+        }
+        else
+        {
+            lines.Add("Linked service host was not stored.");
+        }
 
-        if (node.ExternalHostInKeyVault)
+        if (node.ExternalHostInKeyVault && hasStoredHost)
         {
             lines.Add("Host in Key Vault");
         }
@@ -263,6 +290,10 @@ public sealed class DiagramForestCanvasLabelContext
         else if (!string.IsNullOrWhiteSpace(node.ExternalIntegrationRuntime))
         {
             lines.Add($"Runtime {node.ExternalIntegrationRuntime.Trim()}");
+        }
+        else
+        {
+            lines.Add("Integration runtime was not stored.");
         }
 
         return lines;

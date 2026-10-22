@@ -122,4 +122,10 @@ describe("buyerFacingReviewLinkLabelFromRunId", () => {
   it("uses omission copy when run id is blank", () => {
     expect(buyerFacingReviewLinkLabelFromRunId("   ")).toBe("Review id was not stored.");
   });
+
+  it("does not use the raw run id as the review title on the ask strip", () => {
+    expect(buyerFacingReviewLinkLabelFromRunId("run-248324")).toBe(
+      "Review title is not on this strip. Review id: run-248324.",
+    );
+  });
 });

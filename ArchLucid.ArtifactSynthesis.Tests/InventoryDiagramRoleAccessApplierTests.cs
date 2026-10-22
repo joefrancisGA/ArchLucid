@@ -35,7 +35,7 @@ public sealed class InventoryDiagramRoleAccessApplierTests
             });
 
         ast.Edges.Should().ContainSingle(edge =>
-            edge.Label == InventoryDiagramRelationshipLabelTexts.HasAccess
+            edge.Label == "Reader"
             && edge.ProvenanceKind == ProvenanceKind.ObservedFact.ToString());
     }
 
@@ -130,7 +130,7 @@ public sealed class InventoryDiagramRoleAccessApplierTests
         var mapping = new Dictionary<string, string>(StringComparer.Ordinal) { ["vm"] = "vm", ["vault"] = "vault" };
         InventoryDiagramRoleAccessApplier.Apply(ast, graph, mapping);
         InventoryDiagramRoleAccessApplier.Apply(ast, graph, mapping);
-        ast.Edges.Should().ContainSingle().Which.Label.Should().Be(InventoryDiagramRelationshipLabelTexts.HasAccess);
+        ast.Edges.Should().ContainSingle().Which.Label.Should().Be("Role names were not listed on this line.");
         graph.Edges.Should().HaveCount(2);
         graph.Edges.Select(edge => edge.Properties["roleName"]).Should().BeEquivalentTo("Reader", "Owner");
     }

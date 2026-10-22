@@ -2,10 +2,15 @@ using System.Text.Json;
 
 using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Exports;
+using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Metadata;
+using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.CareerArtifacts;
+using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Decisioning.Services;
 using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Queries;
 
 using FluentAssertions;
@@ -439,7 +444,15 @@ public sealed class ComparisonReplayServiceTests
         DriftAnalysisResult expected = new() { DriftDetected = false, Summary = "ok" };
         Mock<IComparisonDriftAnalyzer> drift = new();
         drift.Setup(d => d.Analyze(It.IsAny<object>(), It.IsAny<object>())).Returns(expected);
-        ComparisonReplayService sut = CreateSut(comparisonRepo: repo.Object, e2eBuild: build.Object, driftAnalyzer: drift.Object);
+        ManifestHashService manifestHashService = new();
+        Mock<IAuthorityQueryService> authority = new();
+        SetupSealedManifestForRuns(authority, manifestHashService, report.LeftRunId, report.RightRunId);
+        ComparisonReplayService sut = CreateSut(
+            comparisonRepo: repo.Object,
+            e2eBuild: build.Object,
+            driftAnalyzer: drift.Object,
+            authorityQuery: authority.Object,
+            manifestHash: manifestHashService);
 
         DriftAnalysisResult result = await sut.AnalyzeDriftAsync("drift-e2e", CancellationToken.None);
 
@@ -464,15 +477,97 @@ public sealed class ComparisonReplayServiceTests
         DriftAnalysisResult expected = new() { DriftDetected = true, Summary = "changed" };
         Mock<IComparisonDriftAnalyzer> drift = new();
         drift.Setup(d => d.Analyze(It.IsAny<object>(), It.IsAny<object>())).Returns(expected);
+        ManifestHashService manifestHashService = new();
+        Mock<IAuthorityQueryService> authority = new();
+        SetupSealedManifestForRuns(authority, manifestHashService, diff.LeftRunId, diff.RightRunId);
         ComparisonReplayService sut = CreateSut(
             comparisonRepo: repo.Object,
             runExports: exports.Object,
             diffService: diffService.Object,
-            driftAnalyzer: drift.Object);
+            driftAnalyzer: drift.Object,
+            authorityQuery: authority.Object,
+            manifestHash: manifestHashService);
 
         DriftAnalysisResult result = await sut.AnalyzeDriftAsync("drift-diff", CancellationToken.None);
 
         result.Should().BeSameAs(expected);
+    }
+
+    [Fact]
+    public async Task AnalyzeDriftAsync_end_to_end_throws_when_career_posture_blocks_metadata_read()
+    {
+        EndToEndReplayComparisonReport report = SampleEndToEndReport();
+        ComparisonRecord record = EndToEndRecord("drift-career-e2e", report);
+        Mock<IComparisonRecordRepository> repo = SetupRepo(record);
+        Guid leftRunGuid = Guid.Parse(report.LeftRunId);
+        Mock<IRunExportCareerPostureGate> careerGate = new();
+        careerGate
+            .Setup(g => g.EnsureAllowsExportRecordMetadataOrThrowAsync(
+                leftRunGuid,
+                It.IsAny<ScopeContext>(),
+                It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new CareerArtifactExportBlockedException(
+                SimulatorCareerHonestyPresenter.SimulatorRehearsalBlockedMessage,
+                CareerArtifactCompletenessValidator.SimulatorRehearsalCode));
+        Mock<IEndToEndReplayComparisonService> build = new();
+        build.Setup(b => b.BuildAsync(report.LeftRunId, report.RightRunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(report);
+        ManifestHashService manifestHashService = new();
+        Mock<IAuthorityQueryService> authority = new();
+        SetupSealedManifestForRuns(authority, manifestHashService, report.LeftRunId, report.RightRunId);
+        Mock<IComparisonDriftAnalyzer> drift = new();
+        ComparisonReplayService sut = CreateSut(
+            comparisonRepo: repo.Object,
+            e2eBuild: build.Object,
+            driftAnalyzer: drift.Object,
+            authorityQuery: authority.Object,
+            manifestHash: manifestHashService,
+            careerGate: careerGate.Object);
+
+        Func<Task> act = () => sut.AnalyzeDriftAsync("drift-career-e2e", CancellationToken.None);
+
+        await act.Should().ThrowAsync<CareerArtifactExportBlockedException>();
+        build.Verify(b => b.BuildAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
+        drift.Verify(d => d.Analyze(It.IsAny<object>(), It.IsAny<object>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task AnalyzeDriftAsync_export_diff_throws_when_career_posture_blocks_metadata_read()
+    {
+        ExportRecordDiffResult diff = SampleExportDiff();
+        ComparisonRecord record = ExportDiffRecord("drift-career-diff", diff);
+        Mock<IComparisonRecordRepository> repo = SetupRepo(record);
+        Guid leftRunGuid = Guid.Parse(diff.LeftRunId);
+        Mock<IRunExportCareerPostureGate> careerGate = new();
+        careerGate
+            .Setup(g => g.EnsureAllowsExportRecordMetadataOrThrowAsync(
+                leftRunGuid,
+                It.IsAny<ScopeContext>(),
+                It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new CareerArtifactExportBlockedException(
+                SimulatorCareerHonestyPresenter.SimulatorRehearsalBlockedMessage,
+                CareerArtifactCompletenessValidator.SimulatorRehearsalCode));
+        RunExportRecord left = new() { ExportRecordId = diff.LeftExportRecordId, RunId = diff.LeftRunId };
+        RunExportRecord right = new() { ExportRecordId = diff.RightExportRecordId, RunId = diff.RightRunId };
+        Mock<IRunExportRecordRepository> exports = new();
+        exports.Setup(r => r.GetByIdAsync(left.ExportRecordId, It.IsAny<CancellationToken>())).ReturnsAsync(left);
+        exports.Setup(r => r.GetByIdAsync(right.ExportRecordId, It.IsAny<CancellationToken>())).ReturnsAsync(right);
+        ManifestHashService manifestHashService = new();
+        Mock<IAuthorityQueryService> authority = new();
+        SetupSealedManifestForRuns(authority, manifestHashService, diff.LeftRunId, diff.RightRunId);
+        Mock<IComparisonDriftAnalyzer> drift = new();
+        ComparisonReplayService sut = CreateSut(
+            comparisonRepo: repo.Object,
+            runExports: exports.Object,
+            driftAnalyzer: drift.Object,
+            authorityQuery: authority.Object,
+            manifestHash: manifestHashService,
+            careerGate: careerGate.Object);
+
+        Func<Task> act = () => sut.AnalyzeDriftAsync("drift-career-diff", CancellationToken.None);
+
+        await act.Should().ThrowAsync<CareerArtifactExportBlockedException>();
+        drift.Verify(d => d.Analyze(It.IsAny<object>(), It.IsAny<object>()), Times.Never);
     }
 
     [Fact]
@@ -596,5 +691,32 @@ public sealed class ComparisonReplayServiceTests
         drift.Setup(d => d.Analyze(It.IsAny<object>(), It.IsAny<object>())).Returns(NoDrift());
 
         return drift.Object;
+    }
+
+    private static void SetupSealedManifestForRuns(
+        Mock<IAuthorityQueryService> authority,
+        IManifestHashService manifestHashService,
+        params string[] runIds)
+    {
+        foreach (string runId in runIds)
+        {
+            Guid guid = Guid.Parse(runId);
+            ManifestDocument manifest = new()
+            {
+                RunId = guid,
+                TenantId = Guid.Empty,
+                WorkspaceId = Guid.Empty,
+                ProjectId = Guid.Empty,
+                ManifestId = Guid.NewGuid(),
+            };
+            manifest.ManifestHash = manifestHashService.ComputeHash(manifest);
+            authority
+                .Setup(a => a.GetRunDetailForManifestCompareAsync(It.IsAny<ScopeContext>(), guid, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new RunDetailDto
+                {
+                    Run = new RunRecord { RunId = guid },
+                    GoldenManifest = manifest,
+                });
+        }
     }
 }

@@ -1,3 +1,4 @@
+using ArchLucid.Api.Models;
 using ArchLucid.Api.Models.Coverage;
 using ArchLucid.Api.Validation;
 using ArchLucid.Core.Configuration.Summary;
@@ -99,6 +100,42 @@ public sealed class ApiRequestNullCollectionElementsGuardTests
         ApiRequestNullCollectionElementsGuard.ContainsNullCollectionElement(request).Should().BeFalse();
     }
 
+    [Fact]
+    public void ContainsNullCollectionElement_returns_true_for_null_dictionary_value_on_non_nullable_value_type()
+    {
+        PolicyPackDryRunRequest request = new();
+        request.ProposedThresholds["threshold"] = null!;
+
+        ApiRequestNullCollectionElementsGuard.ContainsNullCollectionElement(request).Should().BeTrue();
+    }
+
+    [Fact]
+    public void ContainsNullCollectionElement_allows_null_dictionary_value_when_value_type_is_nullable()
+    {
+        NullableDictionaryValueRequest request = new()
+        {
+            Metadata = new Dictionary<string, string?> { ["k"] = null },
+        };
+
+        ApiRequestNullCollectionElementsGuard.ContainsNullCollectionElement(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void ContainsNullCollectionElement_returns_true_for_null_string_in_nested_list_collection()
+    {
+        NestedStringListRequest request = new()
+        {
+            Buckets = [new List<string> { "ok", null! }],
+        };
+
+        ApiRequestNullCollectionElementsGuard.ContainsNullCollectionElement(request).Should().BeTrue();
+    }
+
+    private sealed class NestedStringListRequest
+    {
+        public List<List<string>> Buckets { get; set; } = [];
+    }
+
     private sealed class NullableStringListRequest
     {
         public List<string?> Tags { get; set; } = [];
@@ -117,5 +154,10 @@ public sealed class ApiRequestNullCollectionElementsGuardTests
     private sealed class NullableCollectionPropertyRequest
     {
         public List<string>? Tags { get; set; }
+    }
+
+    private sealed class NullableDictionaryValueRequest
+    {
+        public Dictionary<string, string?> Metadata { get; set; } = new();
     }
 }

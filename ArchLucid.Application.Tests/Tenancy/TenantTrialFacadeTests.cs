@@ -89,6 +89,55 @@ public sealed class TenantTrialFacadeTests
         result.Status!.DaysRemaining.Should().Be(expectedDays);
     }
 
+    [Fact]
+    public async Task GetTrialStatusAsync_returns_canonical_active_label_when_status_is_padded_or_lowercase()
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.Parse("aaaaaaaa-1111-2222-3333-444444444444"),
+            WorkspaceId = Guid.Parse("bbbbbbbb-1111-2222-3333-555555555555"),
+            ProjectId = Guid.Parse("cccccccc-1111-2222-3333-666666666666"),
+        };
+
+        DateTimeOffset expires = DateTimeOffset.Parse("2026-12-01T00:00:00Z", CultureInfo.InvariantCulture);
+        TenantRecord tenant = new()
+        {
+            Id = scope.TenantId,
+            Name = "t",
+            Slug = "t",
+            Tier = TenantTier.Standard,
+            CreatedUtc = TimeProvider.System.GetUtcNow(),
+            TrialRunsUsed = 0,
+            TrialSeatsUsed = 0,
+            TrialStatus = " active ",
+            TrialExpiresUtc = expires,
+        };
+
+        Mock<ITenantRepository> tenants = new();
+        tenants.Setup(t => t.GetByIdAsync(scope.TenantId, It.IsAny<CancellationToken>())).ReturnsAsync(tenant);
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(scope);
+
+        Mock<IOptionsMonitor<TrialLifecycleSchedulerOptions>> schedulerOpts = new();
+        schedulerOpts.Setup(o => o.CurrentValue).Returns(new TrialLifecycleSchedulerOptions());
+
+        TenantTrialFacade facade = TenantTrialFacadeTestSupport.Create(
+            tenants.Object,
+            scopeProvider.Object,
+            audit: Mock.Of<Core.Audit.IAuditService>(),
+            gate: Mock.Of<IBillingTrialConversionGate>(),
+            trialUsers: Mock.Of<ITrialIdentityUserRepository>(),
+            trialAbuseRepository: Mock.Of<ISelfServiceTrialAbuseRepository>(),
+            schedulerOpts.Object,
+            timeProvider: new FixedUtcTimeProvider(DateTimeOffset.Parse("2026-10-01T00:00:00Z", CultureInfo.InvariantCulture)));
+
+        TenantTrialStatusQueryResult result = await facade.GetTrialStatusAsync(CancellationToken.None);
+
+        result.Outcome.Should().Be(TenantTrialHttpOutcome.Success);
+        result.Status!.Status.Should().Be(TrialLifecycleStatus.Active);
+    }
+
     [SkippableFact]
     public async Task GetTrialStatusAsync_sets_identity_handoff_pending_when_converted_status_differs_only_by_casing()
     {
