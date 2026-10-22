@@ -129,6 +129,25 @@ public sealed class GraphValidatorTests
         act.Should().NotThrow();
     }
 
+    [Fact]
+    public void Validate_EdgeWithSurroundingWhitespaceOnEndpoints_DoesNotThrow()
+    {
+        GraphNode a = ValidNode("a");
+        GraphNode b = ValidNode("b");
+        GraphSnapshot snapshot = BuildSnapshot(a, b);
+        snapshot.Edges.Add(new GraphEdge
+        {
+            EdgeId = "e1",
+            FromNodeId = "  a  ",
+            ToNodeId = " b ",
+            EdgeType = GraphEdgeTypes.Contains,
+        });
+
+        Action act = () => _sut.Validate(snapshot);
+
+        act.Should().NotThrow();
+    }
+
     private static GraphSnapshot BuildSnapshot(params GraphNode[] nodes)
     {
         GraphSnapshot snapshot = new()

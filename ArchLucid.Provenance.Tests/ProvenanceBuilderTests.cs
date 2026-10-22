@@ -1349,6 +1349,50 @@ public sealed class ProvenanceBuilderTests
     }
 
     [Fact]
+    public void Build_trims_surrounding_whitespace_on_finding_and_decision_display_titles()
+    {
+        Finding finding = new()
+        {
+            FindingId = "find-1",
+            FindingType = "t",
+            Category = "c",
+            EngineType = "e",
+            Severity = FindingSeverity.Info,
+            Title = "  Finding title  ",
+            Rationale = "r",
+        };
+
+        ResolvedArchitectureDecision decision = new()
+        {
+            DecisionId = "dec-1",
+            Category = "c",
+            Title = "  Decision title  ",
+            SelectedOption = "opt",
+            Rationale = "why",
+            SupportingFindingIds = [],
+        };
+
+        ProvenanceBuilder sut = new();
+        DecisionProvenanceGraph graph = sut.Build(new ProvenanceBuildInput
+        {
+            RunId = RunId,
+            Findings = new FindingsSnapshot { Findings = [finding] },
+            Graph = new GraphSnapshot { Nodes = [] },
+            Manifest = new ManifestDocument
+            {
+                ManifestId = ManifestId,
+                ManifestHash = "h",
+                Decisions = [decision],
+            },
+            DecisionTrace = RuleAuditTraceDto.From(new RuleAuditTracePayload { AppliedRuleIds = [] }),
+            Artifacts = [],
+        });
+
+        graph.Nodes.Should().Contain(n => n.Type == ProvenanceNodeType.Finding && n.Name == "Finding title");
+        graph.Nodes.Should().Contain(n => n.Type == ProvenanceNodeType.Decision && n.Name == "Decision title");
+    }
+
+    [Fact]
     public void Build_trims_surrounding_whitespace_on_graph_node_display_name()
     {
         GraphNode node = new()

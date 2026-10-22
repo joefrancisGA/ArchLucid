@@ -12470,19 +12470,24 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 112
-- **bugs-found:** 107
+- **hunts:** 113
+- **bugs-found:** 108
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — padded graph node labels reached provenance display names
+- **last-bug:** 2026-10-22 — GraphValidator rejected padded edge endpoints
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-22 seed hunt (seed→hit): cheap-disproved finding/decision padded title candidate (`ResolveFindingDisplayTitle` / `ResolveDecisionDisplayTitle` already trim; regression `Build_trims_surrounding_whitespace_on_finding_and_decision_display_titles`); promoted graph validator edge endpoint trim candidate; proved `GraphValidator` indexed raw `NodeId` values while edges could carry surrounding whitespace on `FromNodeId`/`ToNodeId`, falsely failing validation despite matching topology nodes; trim endpoints and node id set keys; regression `Validate_EdgeWithSurroundingWhitespaceOnEndpoints_DoesNotThrow`; seeded graph validator case-variant duplicate node id follow-on; 405 KnowledgeGraph + 131 Provenance scoped tests passed.
+
+- [x] (valid-no-repro) `ProvenanceBuilder` — padded finding/decision display titles — **cheap-disproof 2026-10-22 seed hunt:** display title resolvers trim; regression above.
+- [x] (proven) `GraphValidator.Validate` — padded graph edge endpoints fail node membership — **hit 2026-10-22 seed hunt (seed→hit):** trim on endpoint lookup; regression above.
+
+- [ ] (candidate) `GraphValidator.Validate` — duplicate node ids differing only by surrounding whitespace may both pass node id checks — locus: node id set construction; input: two nodes `a` and ` a `; wrong outcome: duplicate topology nodes accepted without error.
 
 2026-10-22 seed hunt (seed→hit): cheap-disproved context edge weight κ-merge candidate (`CoalesceGraphEdgeFromContext` already applies `Math.Max` on weight when model edge has a label; regression `Merge_enriches_model_edge_weight_from_context_when_model_edge_already_has_label`); promoted graph node display label trim candidate; proved `ProvenanceBuilder` copied surrounding whitespace from `GraphNode.Label` into buyer-visible graph node names while metadata fields were normalized; `ResolveGraphNodeDisplayName`; regression `Build_trims_surrounding_whitespace_on_graph_node_display_name`; seeded finding/decision title trim parity audit follow-on; 404 KnowledgeGraph + 130 Provenance scoped tests passed.
 
 - [x] (valid-no-repro) `GraphSnapshotKnowledgeModelMerger.Merge` — context edge weight ignored when model edge has label — **cheap-disproof 2026-10-22 seed hunt:** `Math.Max` in `CoalesceGraphEdgeFromContext`; regression above.
 - [x] (proven) `ProvenanceBuilder` — padded `GraphNode.Label` in graph node display names — **hit 2026-10-22 seed hunt (seed→hit):** trim on display name; regression above.
-
-- [ ] (candidate) `ProvenanceBuilder` — finding/decision display titles may still retain surrounding whitespace when titles are non-empty — locus: `ResolveFindingDisplayTitle` / `ResolveDecisionDisplayTitle`; input: padded title string; wrong outcome: buyer-visible padded titles in provenance graph.
 
 2026-10-22 seed hunt (seed→hit): promoted manifest hash metadata whitespace candidate; proved manifest provenance nodes copied padded or whitespace-only `ManifestHash` into metadata while `ProvenanceSnapshotRevisionHasher` already trimmed hashes for revision fingerprints; `NormalizeProvenanceMetadataValue` on manifest hash metadata; regressions `Build_normalizes_manifest_hash_metadata` and `Build_normalizes_whitespace_only_manifest_hash_metadata_to_empty`; seeded graph κ-merge context edge weight enrichment follow-on; 403 KnowledgeGraph + 129 Provenance scoped tests passed.
 

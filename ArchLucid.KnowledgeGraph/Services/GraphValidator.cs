@@ -9,7 +9,11 @@ public class GraphValidator : IGraphValidator
     {
         ArgumentNullException.ThrowIfNull(snapshot);
 
-        HashSet<string> nodeIds = new(snapshot.Nodes.Select(x => x.NodeId), StringComparer.OrdinalIgnoreCase);
+        HashSet<string> nodeIds = new(
+            snapshot.Nodes
+                .Select(static node => (node.NodeId ?? string.Empty).Trim())
+                .Where(static nodeId => nodeId.Length > 0),
+            StringComparer.OrdinalIgnoreCase);
 
         foreach (GraphNode node in snapshot.Nodes)
         {
@@ -25,10 +29,13 @@ public class GraphValidator : IGraphValidator
             if (string.IsNullOrWhiteSpace(edge.EdgeType))
                 throw new InvalidOperationException("Graph edge EdgeType is required.");
 
-            if (!nodeIds.Contains(edge.FromNodeId))
+            string fromNodeId = (edge.FromNodeId ?? string.Empty).Trim();
+            string toNodeId = (edge.ToNodeId ?? string.Empty).Trim();
+
+            if (!nodeIds.Contains(fromNodeId))
                 throw new InvalidOperationException($"Graph edge source node '{edge.FromNodeId}' does not exist.");
 
-            if (!nodeIds.Contains(edge.ToNodeId))
+            if (!nodeIds.Contains(toNodeId))
                 throw new InvalidOperationException($"Graph edge target node '{edge.ToNodeId}' does not exist.");
         }
     }
