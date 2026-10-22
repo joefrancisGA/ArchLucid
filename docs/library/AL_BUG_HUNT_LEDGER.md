@@ -5877,6 +5877,8 @@
 - **bugs-found:** 55
 - **hunts:** 80
 - **last-hunt:** 2026-10-21
+- **hunts:** 80
+- **last-hunt:** 2026-10-21
 - **bugs-found:** 74
 - **consecutive-dry-hunts:** 2
 - **last-bug:** 2026-10-20 � Tenant value report DOCX omitted artifact-text sanitization
