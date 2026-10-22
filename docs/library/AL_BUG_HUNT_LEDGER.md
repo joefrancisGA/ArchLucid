@@ -58,6 +58,17 @@
 - [ ] (candidate) refreshBffSessionCookie - refresh 469 shouldClearSession false - locus: transient refresh parity.
 - [ ] (candidate) exchangeAuthorizationCode - access_token JSON string ogham-space-only skips authorize retry marker - locus: literal whitespace token shape.
 - [ ] (candidate) readOAuthJsonErrorDescription - multiply-encoded %252B with figure-space glue - locus: saturated JSON encoding class.
+2026-10-22 seed hunt (seed->hit): `application-tenancy-lifecycle` - promoted hunt-ready from seed re-read `TenantProvisioningService.ProvisionAsync` - tenant provisioned audit appended after `tenantBeforeProvisionedAudit` without a final re-read, so erasure offboard between that read and audit could emit `TenantProvisioned` for quarantined tenants after policy packs and nav settings; pre-append `GetByIdAsync` quarantine guard (`tenantBeforeProvisionedAuditAppend`); regression `ProvisionAsync_returns_without_platform_audit_when_offboard_completes_after_tenant_before_provisioned_audit_read_before_audit`; scoped tenancy filter 278/278.
+
+- [x] (proven) `ProvisionAsync` - offboard after tenantBeforeProvisionedAudit read before provisioned audit - **hit 2026-10-22 seed hunt:** `tenantBeforeProvisionedAuditAppend` re-read + quarantine guard; regression above.
+- [x] (valid-no-repro) `ProvisionAsync` - offboard after nav settings before marketing persist - **cheap-disproof 2026-10-22:** existing five-read regression on trunk.
+- [x] (valid-no-repro) `ProvisionAsync` - offboard after workspace insert before policy seed - **cheap-disproof 2026-10-22:** existing three-read regression on trunk.
+- [x] (valid-no-repro) `LinkEntraAsync` - offboard after tenantBeforeIdentityAudit read - **cheap-disproof 2026-10-22:** hit earlier same day on trunk.
+
+- [ ] (candidate) `TrialLifecycleTransitionEngine` - offboard between audit and expiration metric - locus: post-audit superseded read (reachability: saturated).
+- [ ] (candidate) `TenantProvisioningService` - offboard after tenantBeforeProvisionAudit read before policy seed - locus: earlier provision checkpoint (reachability: provision path).
+- [ ] (candidate) `TenantErasureCommandService` - consolidate pre-append audit re-read helpers - locus: refactor batch (not hunt-ready defect).
+- [ ] (candidate) `DeleteTenantAsync` - further pre-append read stacking - locus: defer to helper refactor (reachability: low).
 
 2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed session_expired authorize-query UX (existing parity), BFF refresh 467 parity (client + route opaque 467), and saturated decodeOAuthErrorDescription hair-space multiply-encoded glue; regression documents authorize-retry is marked when authorization code exchange returns variation-selector-16-only or ogham-space-only access_token; scoped vitest 703/703.
 
