@@ -1017,6 +1017,58 @@ public sealed class ProvenanceSnapshotRevisionHasherTests
     }
 
     [Fact]
+    public void Compute_unchanged_when_graph_edge_endpoints_differ_only_by_surrounding_whitespace()
+    {
+        GraphEdge baselineEdge = new()
+        {
+            EdgeId = "edge-1",
+            FromNodeId = "node-a",
+            ToNodeId = "node-b",
+            EdgeType = "ConnectsTo",
+        };
+
+        GraphEdge updatedEdge = new()
+        {
+            EdgeId = "edge-2",
+            FromNodeId = "  node-a  ",
+            ToNodeId = "  node-b  ",
+            EdgeType = "ConnectsTo",
+        };
+
+        ProvenanceBuildInput baseline = CreateInput([], graphEdges: [baselineEdge]);
+        ProvenanceBuildInput updated = CreateInput([], graphEdges: [updatedEdge]);
+
+        ProvenanceSnapshotRevisionHasher.Compute(baseline, BundleId)
+            .Should().Be(ProvenanceSnapshotRevisionHasher.Compute(updated, BundleId));
+    }
+
+    [Fact]
+    public void Compute_unchanged_when_graph_lists_parallel_edges_whose_endpoints_differ_only_by_surrounding_whitespace()
+    {
+        GraphEdge canonicalEdge = new()
+        {
+            EdgeId = "edge-1",
+            FromNodeId = "node-a",
+            ToNodeId = "node-b",
+            EdgeType = "ConnectsTo",
+        };
+
+        GraphEdge paddedEdge = new()
+        {
+            EdgeId = "edge-2",
+            FromNodeId = "  NODE-A  ",
+            ToNodeId = "  NODE-B  ",
+            EdgeType = "ConnectsTo",
+        };
+
+        ProvenanceBuildInput single = CreateInput([], graphEdges: [canonicalEdge]);
+        ProvenanceBuildInput duplicate = CreateInput([], graphEdges: [canonicalEdge, paddedEdge]);
+
+        ProvenanceSnapshotRevisionHasher.Compute(single, BundleId)
+            .Should().Be(ProvenanceSnapshotRevisionHasher.Compute(duplicate, BundleId));
+    }
+
+    [Fact]
     public void Compute_unchanged_when_graph_node_type_differs_only_by_surrounding_whitespace()
     {
         GraphNode baselineNode = new()
