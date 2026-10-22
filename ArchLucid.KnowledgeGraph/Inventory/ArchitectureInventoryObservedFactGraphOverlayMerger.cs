@@ -161,8 +161,13 @@ public static class ArchitectureInventoryObservedFactGraphOverlayMerger
 
             string key = entry.Key.Trim();
             string value = string.IsNullOrWhiteSpace(entry.Value)
-                ? entry.Value
+                ? string.Empty
                 : entry.Value.Trim();
+
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                continue;
+            }
 
             if (normalized.TryGetValue(key, out string? existing)
                 && !string.Equals(existing, value, StringComparison.Ordinal))
