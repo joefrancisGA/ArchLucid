@@ -11573,6 +11573,8 @@
 
 ## Zone: api-policy-packs
 
+2026-10-22 thorough hunt #44 (dry): cheap-disproof closed three open `(candidate)` rows (`SimulateBulk` duplicate `runIds` double-evaluate / `RequestedRunCount` slot mismatch, `Validate` warnings omitted on HTTP 200, `GetEffective` missing sealed-manifest guard on read); `PolicyPackWorkflowFacade.TrySimulateBulkAsync` deduplicates with `Distinct` before evaluation and sets `RequestedRunCount` from distinct ids (`TrySimulateBulkAsync_reports_distinct_requested_run_count_when_run_ids_are_duplicated`); `Validate` returns `PolicyPackContentValidationResponse.Issues` including warnings on HTTP 200 by contract (`PolicyPackContentAuthoringValidationServiceTests`); effective reads intentionally omit mutation sealed-manifest preflight (proven catalog/assignment guard parity on mutators); seeded three follow-on `(candidate)` rows; scoped `PolicyPacksController` filter not run on this host.
+
 2026-10-22 thorough hunt (hit): promoted `PolicyPacksController.Simulate` empty `ProposedPolicyPackId` candidate; proved `PolicyPackSimulateRequestValidator` allowed `Guid.Empty` while audit/dry-run labeling treats non-null ids as real pack references; reject empty guid when optional field is present; regression `Empty_proposed_policy_pack_id_fails`; cheap-disproof closed `Create` packType drift (`CreatePolicyPackRequestValidator` + `ValidPackTypes`), `Validate` JsonElement null slots (`ContractCollectionDefaults` + invalid JSON paths), `ExplainPack` not-found (`ResourceNotFound` branch at ~117–122), and `Publish` `ValidationFailed` mapping (already mapped ~135–140); scoped `PolicyPacksController` filter run blocked on this host (shell/disk).
 
 2026-10-22 seed hunt (seed-only): re-read policy-pack controller partials after `PolicyPackSemVerVersion` structural normalization (publish/assign/promote/get-version share `Parse`); cheap-disproof closed padded-semver forwarding (class closed 2026-10-21 + `PolicyPacksControllerVersionNormalizationMatrixTests`), simulate run-id forwarding (proven 2026-10-03), and bulk blank-slot semantics (valid-no-repro 2026-10-09); no hunt-ready promotion (`other` saturated); added five new `(candidate)` rows; scoped tests not run on this checkout (Application compile blocked).
@@ -11592,11 +11594,11 @@
 - **aliases:** policy packs controller; split from api-governance-tenancy-controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/PolicyPacksController.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Assignment.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Mutate.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Effective.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Hub.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Versions.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Crud.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Simulate.cs
 - **test-filter:** FullyQualifiedName~PolicyPacksController
-- **hunts:** 43
+- **hunts:** 44
 - **bugs-found:** 22
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 - trim AgentModelTiers AgentTypeTiers keys after configuration bind
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-10-22
+- **last-bug:** 2026-10-22 — simulate accepted empty `proposedPolicyPackId` optional guid
 - **last-bug:** 2026-10-21 - trim AgentModelTiers AgentTypeTiers keys after configuration bind
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -11614,9 +11616,9 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** policy packs controller; split from api-governance-tenancy-controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/PolicyPacksController.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Assignment.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Mutate.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Effective.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Hub.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Versions.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Crud.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Simulate.cs
 - **test-filter:** FullyQualifiedName~PolicyPacksController
-- **hunts:** 43
+- **hunts:** 44
 - **bugs-found:** 22
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-22 — simulate accepted empty `proposedPolicyPackId` optional guid
 - **related-pd-tb:** none
@@ -11654,9 +11656,13 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (proven) `PolicyPacksController.Simulate` — `ProposedPolicyPackId` accepts `Guid.Empty` — **hit 2026-10-22 thorough hunt:** optional `00000000-0000-0000-0000-000000000000` passed FluentValidation and reached dry-run audit labeling; reject empty guid when provided; regression `Empty_proposed_policy_pack_id_fails`.
 - [x] (invalid) `PolicyPacksController.Publish` — unmapped `ValidationFailed` — **cheap-disproof 2026-10-22 thorough hunt:** `Publish` maps `ValidationFailed` to HTTP 400 (~135–140); republish guard proven 2026-10-07.
 
-- [ ] (candidate) `PolicyPacksController.SimulateBulk` — `runIds` containing duplicate normalized ids may double-evaluate the same run while `RequestedRunCount` reflects submitted slots only.
-- [ ] (candidate) `PolicyPacksController.Validate` — `ValidateContentAsync` success may return HTTP 200 with validation warnings omitted when structural deserialize passes but semantic validator flags issues only in workflow layer.
-- [ ] (candidate) `PolicyPacksController.GetEffectiveForWorkspace` — scoped effective read may not apply the same sealed-manifest posture guard as mutation routes when workspace scope is implied from route defaults.
+- [x] (invalid) `PolicyPacksController.SimulateBulk` — duplicate normalized `runIds` double-evaluate while `RequestedRunCount` counts submitted slots — **cheap-disproof 2026-10-22 hunt #44:** `TrySimulateBulkAsync` applies `Distinct(StringComparer.OrdinalIgnoreCase)` before dry-run evaluation; `RequestedRunCount` tracks distinct nonblank ids; Application regressions `TrySimulateBulkAsync_reports_distinct_requested_run_count_when_run_ids_are_duplicated` and `TrySimulateBulkAsync_deduplicates_padded_run_ids_before_evaluation`.
+- [x] (invalid) `PolicyPacksController.Validate` — HTTP 200 omits semantic validation warnings — **cheap-disproof 2026-10-22 hunt #44:** `PolicyPackContentAuthoringValidationService` populates `Issues` (warnings + errors); controller returns full `PolicyPackContentValidationResponse` on success; `Valid` is false only when an error-kind issue exists.
+- [x] (invalid) `PolicyPacksController.GetEffective` / `GetEffectiveForWorkspace` — effective read lacks mutation sealed-manifest guard — **cheap-disproof 2026-10-22 hunt #44:** read endpoints intentionally skip `EnsurePolicyPackMutationSealedManifestAllowedAsync`; catalog/assignment mutations retain guard + 409 mapping (proven 2026-10-02).
+
+- [ ] (candidate) `PolicyPacksController.SimulateBulk` / `EnsurePolicyPackSimulateBulkRunIdsSealedManifestAllowedAsync` — duplicate normalized `runIds` in the controller list may run per-run sealed-manifest preflight twice before the workflow deduplicates evaluation (wasted authority lookups, not a double-evaluate wrong outcome).
+- [ ] (candidate) `PolicyPacksController.GetPageBundle` — hub bundle aggregates list/effective/merged content in one response; a partial facade failure on one slice might still return HTTP 200 if outcome mapping is asymmetric across bundled calls.
+- [ ] (candidate) `PolicyPacksController.ListWorkspaceSelection` — workspace selection list may show enabled rows for platform packs that the effective resolver skips when `IPlatformBundledPolicyPackAvailability` is inactive (parity with assign/enable inactive-pack guards).
 
 - [x] (proven) `PolicyPacksController.GetVersion` — an OpenAPI route parameter with surrounding whitespace, such as `1.0.0%20`, passed `ValidatePackVersion` because validation trims for semver checks but was forwarded untrimmed to `GetVersionAsync`, so a valid version lookup could return not-found — **hit 2026-10-10 seed hunt:** forward `packVersion.Trim()` after validation; regression `GetVersion_forwards_trimmed_pack_version_to_facade`.
 - [x] (proven) `PolicyPacksController.PromoteCatalogEntry` — an OpenAPI catalog-promotion body with surrounding whitespace in its optional semver, such as `" 1.0.0 "`, passed trimmed validation but was forwarded untrimmed to the facade — **hit 2026-10-10 seed hunt:** forward `request.Version?.Trim()` after validation; regression `PromoteCatalogEntry_forwards_trimmed_optional_version_to_facade`.
