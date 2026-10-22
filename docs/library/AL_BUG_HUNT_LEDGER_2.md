@@ -2842,6 +2842,14 @@
 
 ## Zone: scim-users
 
+2026-10-22 thorough hunt #34 (dry): cheap-disproof closed five `(candidate)` rows (`externalId ne` case-exact `Ordinal` compare per RFC 7643; `replace displayName` JSON `null` clears via `ResolvePatchDisplayName`; `userName gt ""` matches all non-null names via `LexGreater`; flat `add` on `displayName` via `Add_inserts_value`/`ApplyFlat`; unknown `nickName` filter → `invalidFilter` hunt #21 class); no failing repro; five replacement `(candidate)` rows; scoped `ScimUsers` tests not run (Application.Tests merge conflicts).
+
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `externalId ne` — **cheap-disproof 2026-10-22 #34:** `ne` + case-exact `externalId` in `Compare`.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `displayName` JSON `null` — **cheap-disproof 2026-10-22 #34:** `ResolvePatchDisplayName` maps null to empty string (parity with remove).
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `userName gt ""` — **cheap-disproof 2026-10-22 #34:** any non-null userName lexicographically greater than empty.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `add` `displayName` — **cheap-disproof 2026-10-22 #34:** flat add assigns key; regression `Add_inserts_value`.
+- [x] (invalid) `ScimUsersController.ListAsync` — `nickName` filter — **cheap-disproof 2026-10-22 #34:** hunt #21; SQL translator / in-memory conservative handling → `invalidFilter` or no match.
+
 2026-10-22 thorough hunt #33 (dry): cheap-disproof closed five `(candidate)` rows (PATCH path `Active` uses case-insensitive flat map; `displayName pr` hunt #24 class; `remove displayName` intentional with regression `PatchAsync_remove_displayName_clears_display_name`; `id eq` GUID filter case-insensitive per `StringComparisonFor`; inactive reactivate then PATCH `active:true` uses normal `TransitionSeatAsync` seat increment); no failing repro; five replacement `(candidate)` rows; scoped `ScimUsers` tests not run (Application.Tests merge conflicts).
 
 - [x] (valid-no-repro) `ScimUsersController.PatchAsync` — path casing `Active` — **cheap-disproof 2026-10-22 #33:** `ApplyFlat` dictionary `OrdinalIgnoreCase`.
@@ -3135,9 +3143,9 @@
 - **aliases:** scim; entra provisioning users
 - **paths:** ArchLucid.Api/Controllers/Scim/ScimUsersController.cs
 - **test-filter:** FullyQualifiedName~ScimUsers
-- **hunts:** 67
+- **hunts:** 68
 - **bugs-found:** 23
-- **consecutive-dry-hunts:** 12
+- **consecutive-dry-hunts:** 13
 - **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-22 — SCIM PATCH remove on active returned silent no-op instead of mutability
 - **related-pd-tb:** none
@@ -3432,11 +3440,17 @@
 - [x] (valid-no-repro) `ScimUsersController.ListAsync` — uppercase `id eq` — **cheap-disproof 2026-10-22 #33:** CI compare on `id` filter.
 - [x] (valid-no-repro) `ScimUsersController` — enable after inactive reactivate — **cheap-disproof 2026-10-22 #33:** standard seat transition.
 
-- [ ] (candidate) `ScimUsersController.ListAsync` — `externalId ne` — locus: `Compare` `ne` with case-exact `externalId`; input: exclude one id from tenant list.
-- [ ] (candidate) `ScimUsersController.PatchAsync` — `replace` `displayName` with JSON `null` — locus: `ResolvePatchDisplayName` `JsonValueKind.Null`; input: Entra null clear vs remove.
-- [ ] (candidate) `ScimUsersController.ListAsync` — `userName gt ""` — locus: `LexGreater` with empty right-hand side; input: all non-null userNames pass.
-- [ ] (candidate) `ScimUsersController.PatchAsync` — `add` op on missing `displayName` — locus: flat `add` assigns optional field; input: first-time display name via add.
-- [ ] (candidate) `ScimUsersController.ListAsync` — filter on unknown attribute `nickName` — locus: `GetString` null / SQL `ColumnSql` throw; input: conservative no-match vs `invalidFilter`.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `externalId ne` — **cheap-disproof 2026-10-22 #34:** case-exact `ne`.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `displayName` null replace — **cheap-disproof 2026-10-22 #34:** null → empty via resolver.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `userName gt ""` — **cheap-disproof 2026-10-22 #34:** broad lex filter.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `add displayName` — **cheap-disproof 2026-10-22 #34:** flat add path.
+- [x] (invalid) `ScimUsersController.ListAsync` — `nickName` filter — **cheap-disproof 2026-10-22 #34:** hunt #21 unknown attribute.
+
+- [ ] (candidate) `ScimUsersController.ListAsync` — `startIndex=1` first page — locus: RFC 7644 1-based `startIndex` normalization in `ListAsync`; input: default pagination omits no first user.
+- [ ] (candidate) `ScimUsersController.PatchAsync` — `replace` `active` with string `"false"` — locus: `ReadActive` `bool.TryParse`; input: Entra string boolean PATCH.
+- [ ] (candidate) `ScimUsersController.ListAsync` — `userName eq` and `active eq false` grouped with parentheses — locus: parser grouping; input: `(userName eq "x") and (active eq false)`.
+- [ ] (candidate) `ScimUsersController.PatchAsync` — `replace` on path with surrounding whitespace — locus: `path.Trim()` in `ApplyOne`; input: `" path ": "active"`.
+- [ ] (candidate) `ScimUsersController.CreateAsync` — trimmed `userName` on POST — locus: `ReadRequiredString` trim; input: leading/trailing spaces in `userName`.
 
 - [x] (proven) `ScimUserService.CreateAsync` / `PatchAsync` / `ScimUsersController` — a second live user with the same `userName` and a different `externalId` was stored, including case-only names — **hit 2026-10-09 seed hunt:** live `userName` lookup returns `uniqueness`. Regressions `CreateAsync_duplicate_user_name_throws_conflict` and `PatchAsync_replace_userName_to_another_users_name_throws_conflict`.
 - [x] (proven) `ScimFilterParser.ParseFilter` / `ScimUsersController.ListAsync` — ungrouped `or` before `and` was parsed left-to-right, so an active user matching only the left comparison was omitted — **hit 2026-10-09 seed hunt:** `not` over `and` over `or` per RFC 7644 §3.4.2.2. Regressions `ListAsync_filter_gives_and_precedence_over_or`, `Parse_or_binds_looser_than_and`, and `Parse_not_binds_tighter_than_and`.
