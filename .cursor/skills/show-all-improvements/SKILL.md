@@ -1,4 +1,10 @@
 ---
+name: show-all-improvements
+description: Show all improvements (read-only ranked queue)
+disable-model-invocation: true
+---
+
+---
 description: List all Cursor-shippable backlog/assessment improvements in ship-next priority order (read-only)
 ---
 

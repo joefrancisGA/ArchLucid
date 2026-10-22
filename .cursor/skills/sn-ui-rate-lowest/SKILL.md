@@ -1,4 +1,10 @@
 ---
+name: sn-ui-rate-lowest
+description: SecureNow lowest UX routes (`/sn-ui-rate-lowest`)
+disable-model-invocation: true
+---
+
+---
 description: Rate SecureNow routes with the lowest scored UX in the owner workbook
 ---
 

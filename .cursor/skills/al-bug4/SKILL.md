@@ -1,4 +1,10 @@
 ---
+name: al-bug4
+description: /al-bug4 — zone set 4
+disable-model-invocation: true
+---
+
+---
 description: Hunt one defect in zone set 4 and push to bugsmash-4
 ---
 

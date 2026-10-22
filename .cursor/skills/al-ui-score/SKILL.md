@@ -1,4 +1,10 @@
 ---
+name: al-ui-score
+description: Set UI route score (`/al-ui-score`)
+disable-model-invocation: true
+---
+
+---
 description: Set an ArchLucid UI route Evidence score by table ID and re-sort the traffic estimates table
 ---
 

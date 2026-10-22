@@ -1,4 +1,10 @@
 ---
+name: ship-next-improvement
+description: Ship next improvement (single pass)
+disable-model-invocation: true
+---
+
+---
 description: Preview then ship one P0/P1 backlog or assessment item, rescore, stop when queue exhausted, or refresh assessment on request
 ---
 
