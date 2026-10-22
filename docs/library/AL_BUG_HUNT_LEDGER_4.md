@@ -12470,7 +12470,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 247
+- **hunts:** 248
 - **bugs-found:** 177
 - **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-22 — fully empty overlay merge returned base graph without warning normalization
@@ -12757,7 +12757,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - [x] (valid-no-repro) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — case-variant overlay `EdgeType` rows both appended — **cheap-disproof 2026-10-22 seed hunt:** case-insensitive `edgeKeys`; regression above.
 
-- [ ] (candidate) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — duplicate overlay edges with case-variant endpoint node ids may both append — locus: `BuildEdgeKey` + `edgeKeys` comparer; input: two overlay edges whose `FromNodeId`/`ToNodeId` differ only by casing; wrong outcome: duplicate parallel edges after single merge.
+2026-10-22 seed hunt (valid-no-repro): promoted `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` case-variant overlay endpoint node id candidate; proved `BuildEdgeKey` plus case-insensitive `edgeKeys` treats endpoint casing variants as one directed key; regression `Merge_skips_second_overlay_edge_when_endpoint_node_ids_differ_only_by_case`; seeded `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` duplicate overlay nodes whose `NodeId` differs only by casing follow-on; 541 KnowledgeGraph + 170 Provenance scoped tests passed.
+
+- [x] (valid-no-repro) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — case-variant overlay endpoint ids produced duplicate edges — **cheap-disproof 2026-10-22 seed hunt:** case-insensitive directed keys; regression above.
+
+- [ ] (candidate) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — duplicate overlay nodes with case-variant `NodeId` may both append — locus: `existingNodeIds` comparer; input: two overlay nodes whose ids differ only by casing; wrong outcome: duplicate merged nodes after single merge.
 
 2026-10-22 seed hunt (seed→hit): promoted `StructuredDiagramGraphMerger` padded diagram property-key coalesce candidate; proved duplicate node/edge metadata coalesce indexed raw `property.Key`, so a later compile with surrounding-whitespace keys left parallel bag entries and `GraphNodePropertyReader` could return stale source-evidence values; trim keys before skip/coalesce (parity with `GraphNodeFactory.NormalizePropertyBag`); regression `Merge_coalesces_node_properties_when_incoming_property_keys_differ_only_by_surrounding_whitespace`; seeded diagram edge metadata padded-key coalesce regression follow-on; 468 KnowledgeGraph + 170 Provenance scoped tests passed.
 
