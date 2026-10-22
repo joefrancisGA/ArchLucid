@@ -148,6 +148,35 @@ describe("POST /api/auth/bff-session/refresh", () => {
     expect(response.headers.get("set-cookie")).toBeNull();
   });
 
+  it("returns 503 without clearing BFF session cookies when refreshAccessToken throws humanized temporarily_unavailable", async () => {
+    const issueResult = createBffSessionCookieValue({
+      accessToken: "access-token",
+      expiresAtMs: Date.now() + 3_600_000,
+      refreshToken: "refresh-token",
+      workingMode: true,
+    });
+
+    refreshAccessTokenMock.mockRejectedValue(
+      new OAuthTokenEndpointError(
+        "Your identity provider reported a temporary error. Wait a minute and try signing in again.",
+        "temporarily_unavailable",
+      ),
+    );
+
+    const req = new NextRequest("http://localhost/api/auth/bff-session/refresh", {
+      method: "POST",
+      headers: {
+        cookie: `${BFF_SESSION_COOKIE_NAME}=${issueResult?.sessionCookieValue ?? ""}`,
+        [BFF_CSRF_HEADER]: issueResult?.csrfToken ?? "",
+      },
+    });
+
+    const response = await POST(req);
+
+    expect(response.status).toBe(503);
+    expect(response.headers.get("set-cookie")).toBeNull();
+  });
+
   it("clears BFF session cookies when refreshAccessToken throws humanized unauthorized_client", async () => {
     const issueResult = createBffSessionCookieValue({
       accessToken: "access-token",
