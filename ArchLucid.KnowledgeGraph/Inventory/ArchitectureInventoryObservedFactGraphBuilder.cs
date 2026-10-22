@@ -149,10 +149,10 @@ public static class ArchitectureInventoryObservedFactGraphBuilder
 
         if (lastSlash >= 0 && lastSlash < armId.Length - 1)
         {
-            return armId[(lastSlash + 1)..];
+            return armId[(lastSlash + 1)..].Trim();
         }
 
-        return resource.ResourceType;
+        return (resource.ResourceType ?? string.Empty).Trim();
     }
 
 }

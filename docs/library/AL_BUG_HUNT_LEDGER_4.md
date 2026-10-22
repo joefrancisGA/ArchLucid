@@ -12470,8 +12470,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 203
-- **bugs-found:** 167
+- **hunts:** 204
+- **bugs-found:** 168
 - **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-22 — post-overlay rebind deduped parallel edges separately when EdgeType differed only by whitespace
 - **related-pd-tb:** none
@@ -12581,7 +12581,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - [x] (proven) `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` — minted nodes retained padded `ResourceType` on `arm.type` — **hit 2026-10-22 seed hunt (seed→hit):** trim resource type on mint; regression above.
 
-- [ ] (candidate) `ArchitectureInventoryObservedFactGraphBuilder.ResolveLabel` — minted overlay node labels may retain surrounding whitespace from ARM name segments — locus: label resolution takes the substring after the final `/` without trim; input: ARM resource id whose name segment carries padding; wrong outcome: graph node labels display padded resource names.
+2026-10-22 seed hunt (seed→hit): promoted `ArchitectureInventoryObservedFactGraphBuilder.ResolveLabel` padded ARM name segment candidate; proved label resolution returned the substring after the final `/` without trim (and fell back to raw `ResourceType`), so overlay node labels could display surrounding whitespace; trim name segment and resource-type fallback; regression `BuildOverlay_stamps_trimmed_label_from_arm_name_segment_when_name_has_surrounding_whitespace`; seeded `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` inventory overlay warning concatenation padded warning tokens follow-on; 496 KnowledgeGraph + 170 Provenance scoped tests passed.
+
+- [x] (proven) `ArchitectureInventoryObservedFactGraphBuilder.ResolveLabel` — minted overlay node labels retained padded ARM name segments — **hit 2026-10-22 seed hunt (seed→hit):** trim label resolution; regression above.
+
+- [ ] (candidate) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — inventory overlay warnings appended to merged graph may retain padded warning tokens — locus: warning list merge copies overlay warning strings without normalization; input: overlay snapshot carries warnings with surrounding whitespace; wrong outcome: merged graph warning rows preserve padding-only differences as distinct entries.
 
 2026-10-22 seed hunt (seed→hit): promoted `StructuredDiagramGraphMerger` padded diagram property-key coalesce candidate; proved duplicate node/edge metadata coalesce indexed raw `property.Key`, so a later compile with surrounding-whitespace keys left parallel bag entries and `GraphNodePropertyReader` could return stale source-evidence values; trim keys before skip/coalesce (parity with `GraphNodeFactory.NormalizePropertyBag`); regression `Merge_coalesces_node_properties_when_incoming_property_keys_differ_only_by_surrounding_whitespace`; seeded diagram edge metadata padded-key coalesce regression follow-on; 468 KnowledgeGraph + 170 Provenance scoped tests passed.
 
