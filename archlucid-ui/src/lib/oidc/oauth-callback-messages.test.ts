@@ -148,6 +148,8 @@ describe("decodeOAuthErrorDescription", () => {
 
   it("preserves literal plus in authorize error descriptions when skin-tone emoji modifiers are present", () => {
     expect(decodeOAuthErrorDescription("👍🏻+extra")).toBe("👍🏻+extra");
+    expect(decodeOAuthErrorDescription("👍🏻%2Bextra")).toBe("👍🏻+extra");
+    expect(decodeOAuthErrorDescription("👍🏻%252Bextra")).toBe("👍🏻+extra");
     expect(decodeOAuthErrorDescription("👋🏽+denied")).toBe("👋🏽+denied");
   });
 
@@ -478,6 +480,13 @@ describe("humanizeAuthorizeCallbackError", () => {
 
     expect(message).toMatch(/invalid dpop proof/i);
     expect(message).not.toContain("invalid_dpop_proof");
+  });
+
+  it("humanizes use_second_factor authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("use_second_factor", "");
+
+    expect(message).toMatch(/use second factor/i);
+    expect(message).not.toContain("use_second_factor");
   });
 
   it("avoids empty parentheses when the authorize error code is whitespace-only", () => {
