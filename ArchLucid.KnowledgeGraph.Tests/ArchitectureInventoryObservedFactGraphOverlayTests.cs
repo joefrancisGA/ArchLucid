@@ -275,6 +275,48 @@ public sealed class ArchitectureInventoryObservedFactGraphOverlayTests
     }
 
     [Fact]
+    public void BuildOverlay_uses_hashed_node_id_when_cloud_resource_id_is_absent()
+    {
+        const string armId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet-prod";
+
+        AzureInventorySnapshotDetailReadModel snapshot = new()
+        {
+            Header = new AzureInventorySnapshotRecord
+            {
+                SnapshotId = SnapshotId,
+                TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                CreatedUtc = new DateTime(2026, 7, 18, 12, 0, 0, DateTimeKind.Utc),
+            },
+            Resources =
+            [
+                new AzureInventoryResourceRecord
+                {
+                    ResourceRowId = Guid.Parse("77777777-7777-7777-7777-777777777777"),
+                    SnapshotId = SnapshotId,
+                    TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                    CloudResourceId = null,
+                    AzureResourceId = armId,
+                    ResourceType = "Microsoft.Network/virtualNetworks",
+                    ResourceGroup = "rg",
+                    SubscriptionId = "sub",
+                },
+            ],
+            Relationships = [],
+        };
+
+        GraphSnapshot overlay = ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay(
+            snapshot,
+            RunId,
+            ContextSnapshotId);
+
+        GraphNode node = overlay.Nodes.Should().ContainSingle().Subject;
+        node.NodeId.Should().Be(ArchitectureInventoryGraphNodeIdResolver.ResolveFromArmResourceId(armId));
+        node.NodeId.Should().StartWith("n_");
+        node.NodeId.Should().NotContain("/");
+    }
+
+    [Fact]
     public void BuildOverlay_boundFixture_emitsObservedFactNodesWithCloudResourceId()
     {
         AzureInventorySnapshotDetailReadModel snapshot = CreateSnapshotFixture();

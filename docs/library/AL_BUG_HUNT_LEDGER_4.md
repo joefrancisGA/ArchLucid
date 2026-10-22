@@ -12470,7 +12470,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 242
+- **hunts:** 243
 - **bugs-found:** 177
 - **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-22 — fully empty overlay merge returned base graph without warning normalization
@@ -12737,7 +12737,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - [x] (valid-no-repro) `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` — cloud-resource-id-only rows threw or minted unstable ids — **cheap-disproof 2026-10-22 seed hunt:** ARM required before `ResolveNodeId`; regressions above.
 
-- [ ] (candidate) `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` — ARM-only resource rows without `CloudResourceId` may throw or mint padded ARM tokens as node ids — locus: `ResolveNodeId` hash fallback; input: resource with valid ARM id and null cloud guid; wrong outcome: overlay mint fails or uses raw ARM string as `NodeId`.
+2026-10-22 seed hunt (valid-no-repro): promoted `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` ARM-only hash node id candidate; proved when `CloudResourceId` is absent `ResolveNodeId` delegates to `ArchitectureInventoryGraphNodeIdResolver.ResolveFromArmResourceId`, minting stable `n_` hash ids instead of raw ARM strings; regression `BuildOverlay_uses_hashed_node_id_when_cloud_resource_id_is_absent`; seeded `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` inventory overlay node with padded `NodeId` on append dedupe follow-on audit; 536 KnowledgeGraph + 170 Provenance scoped tests passed.
+
+- [x] (valid-no-repro) `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` — ARM-only rows threw or used raw ARM as `NodeId` — **cheap-disproof 2026-10-22 seed hunt:** hashed fallback; regression above.
+
+- [ ] (candidate) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — appended inventory overlay nodes with padded `NodeId` may bypass `existingNodeIds` membership — locus: `NormalizeNodeId` on overlay node append vs base graph membership; input: base graph node id trim-equal to padded overlay `NodeId`; wrong outcome: duplicate inventory nodes after merge.
 
 2026-10-22 seed hunt (seed→hit): promoted `StructuredDiagramGraphMerger` padded diagram property-key coalesce candidate; proved duplicate node/edge metadata coalesce indexed raw `property.Key`, so a later compile with surrounding-whitespace keys left parallel bag entries and `GraphNodePropertyReader` could return stale source-evidence values; trim keys before skip/coalesce (parity with `GraphNodeFactory.NormalizePropertyBag`); regression `Merge_coalesces_node_properties_when_incoming_property_keys_differ_only_by_surrounding_whitespace`; seeded diagram edge metadata padded-key coalesce regression follow-on; 468 KnowledgeGraph + 170 Provenance scoped tests passed.
 
