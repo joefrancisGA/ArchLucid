@@ -7803,6 +7803,15 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-agents
 
+2026-10-22 seed hunt (seed→hit): promoted catalog evaluation recorder alias trim (admin record path); regression `RecordTaskEvaluationAsync_trims_surrounding_whitespace_on_alias_id`; 128 scoped Application.Tests.Agents tests passed.
+
+- [x] (proven) `AgentModelCatalogEvaluationRecorder.RecordTaskEvaluationAsync` — direct `POST …/evaluations/{taskType}/record` with padded route `aliasId` missed catalog row — **hit 2026-10-22 seed hunt:** normalize alias id at recorder entry (shared with harness import caller); regression above. [class:fail-open-validation]
+
+- [candidate) `AdminAgentModelCatalogController` — route `taskType` segment not trimmed before recorder — locus: controller vs recorder; input: padded task type path segment.
+- (candidate) `AgentCuratedEvidenceProposer` — enricher ordering vs structural post-process — engineering hardening.
+- (candidate) `RunToolInvocationForensicsBuilder.BuildFromTraces` — first-row null duration — by design for single-trace runs.
+- (candidate) `ReviewRunEngineSelectionProvenanceBuilder.Build` — `TaskEvaluations` null on registry entry — defaults to empty list on `AgentModelAliasRegistryEntry`.
+
 2026-10-22 seed hunt (seed→hit): promoted faithfulness import alias id trim; regression `Import_trims_surrounding_whitespace_on_alias_id`; 127 scoped Application.Tests.Agents tests passed.
 
 - [x] (proven) `AgentModelCatalogFaithfulnessHarnessImporter.ImportForAliasAsync` — padded `aliasId` from admin route lookup missed catalog row and returned 404 — **hit 2026-10-22 seed hunt:** trim alias and actor ids before repository/recorder calls; regression above. [class:fail-open-validation]
