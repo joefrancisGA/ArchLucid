@@ -1,3 +1,7 @@
+2026-10-22 seed hunt (seed->hit): `api-policy-packs` - promoted hunt-ready from seed re-read `PublishPolicyPackVersionRequestValidator` / `AssignPolicyPackRequestValidator` - FluentValidation `MaximumLength(50)` counted untrimmed `Version` padding so reachable publish/assign bodies with valid semver after trim (e.g. 46 spaces + `1.0.0`, raw length 51) returned HTTP 400 while promote/get-version already accepted the same normalized label; drop raw max-length rule and rely on `PolicyPackSemVerVersion.TryParse` trim semantics; regressions `Publish_accepts_padded_version_when_trimmed_label_is_within_limit` and `Validate_passes_when_version_padding_makes_raw_length_exceed_50_but_trimmed_semver_is_valid`; scoped `PolicyPacksController` filter 100/100.
+
+- [x] (proven) `PublishPolicyPackVersionRequestValidator` / `AssignPolicyPackRequestValidator` - raw `MaximumLength(50)` vs trimmed semver - **hit 2026-10-22 seed hunt:** align publish/assign with promote/get-version trimmed max length; regressions above.
+
 2026-10-22 seed hunt (seed->hit): `cloud-extractors` - promoted hunt-ready from seed re-read `AwsResourceExplorerQueryString.ResolveForRegion` - hosted AWS Resource Explorer search used commercial `arn:aws:*` for AWS ISO/ISOB/ISOE/ISOF regions, so isolated-partition accounts returned empty inventory; map `us-isob-`, `us-isof-`, `eu-isoe-`, and `us-iso-` region prefixes to matching partition wildcards; regressions `CollectAsync_uses_iso_b_partition_query_for_us_isob_region` and `CollectAsync_uses_iso_partition_query_for_us_iso_region`; scoped extractor filter 299/299 (Application 87 + Integrations.AzureExtractor 212).
 
 - [x] (proven) `AwsResourceExplorerQueryString.ResolveForRegion` - ISO partition ARN wildcard - **hit 2026-10-22 seed hunt:** partition-specific `arn:aws-iso*:*` queries; regressions above.
@@ -69784,10 +69788,10 @@ heap-disproved mermaid typed-topology candidate.
 - **aliases:** policy packs controller; split from api-governance-tenancy-controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/PolicyPacksController.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Assignment.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Mutate.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Effective.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Hub.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Versions.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Crud.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Simulate.cs
 - **test-filter:** FullyQualifiedName~PolicyPacksController
-- **hunts:** 43
-- **bugs-found:** 22
+- **hunts:** 44
+- **bugs-found:** 23
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-21
+- **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-21 - trim AgentModelTiers AgentTypeTiers keys after configuration bind
 - **last-bug:** 2026-10-21 - trim AgentModelTiers AgentTypeTiers keys after configuration bind
 - **related-pd-tb:** none
