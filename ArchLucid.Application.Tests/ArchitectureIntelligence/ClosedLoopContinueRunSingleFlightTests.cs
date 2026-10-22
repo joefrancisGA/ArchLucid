@@ -70,6 +70,33 @@ public sealed class ClosedLoopContinueRunSingleFlightTests
     }
 
     [Fact]
+    public void BuildCoalesceKey_matches_when_run_id_differs_only_by_backslash_vs_forward_slash_in_path()
+    {
+        ClosedLoopReasoningRequest request = CreateContinueRequest();
+        request.RunId = "tenants/acme/runs/42";
+
+        ReviewCacheDependencyManifest manifest =
+            ReviewCacheManifestBuilder.BuildContinueFromExistingRunCoalesceManifest(
+                request,
+                "tenant-continue-flight",
+                "tenants/acme/runs/42");
+
+        string forwardSlash = ClosedLoopContinueRunSingleFlight.BuildCoalesceKey(
+            "tenant-continue-flight",
+            "tenants/acme/runs/42",
+            manifest,
+            publishToProduct: false);
+
+        string backslash = ClosedLoopContinueRunSingleFlight.BuildCoalesceKey(
+            "tenant-continue-flight",
+            "tenants\\acme\\runs\\42",
+            manifest,
+            publishToProduct: false);
+
+        forwardSlash.Should().Be(backslash);
+    }
+
+    [Fact]
     public void BuildCoalesceKey_matches_when_tenant_differs_only_by_guid_hex_letter_casing()
     {
         const string runId = "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb";

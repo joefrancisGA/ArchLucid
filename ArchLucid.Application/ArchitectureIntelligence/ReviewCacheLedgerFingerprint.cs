@@ -54,7 +54,7 @@ public static class ReviewCacheLedgerFingerprint
 
         string normalized = CollapseInteriorAsciiSpaces(NormalizeUnicodeSpaces(technologyName.Trim())).Normalize(NormalizationForm.FormC);
 
-        return normalized.ToLowerInvariant();
+        return GraphSnapshotCanonicalFingerprint.NormalizeReviewCachePathLikeToken(normalized.ToLowerInvariant());
     }
 
     private static string NormalizeEvidenceRef(string? evidenceRef)

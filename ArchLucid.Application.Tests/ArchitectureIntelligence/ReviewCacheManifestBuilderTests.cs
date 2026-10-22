@@ -1850,6 +1850,17 @@ public sealed class ReviewCacheManifestBuilderTests
     }
 
     [Fact]
+    public void BuildWithResolvedRunId_matches_content_hash_when_resolved_run_id_differs_only_by_backslash_vs_forward_slash_in_path()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "tenants/acme/runs/42";
+
+        ReviewCacheManifestBuilder.BuildWithResolvedRunId(request, "tenants/acme/runs/42").ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.BuildWithResolvedRunId(request, "tenants\\acme\\runs\\42").ContentHash);
+    }
+
+    [Fact]
     public void Build_ignores_null_source_text_entries_when_hashing_content()
     {
         ClosedLoopReasoningRequest withNullEntry = CreateRequest("ignored");
@@ -6011,6 +6022,73 @@ public sealed class ReviewCacheManifestBuilderTests
     }
 
     [Fact]
+    public void Build_matches_declared_priorities_hash_when_request_priorities_differ_only_by_leading_dot_slash()
+    {
+        ClosedLoopReasoningRequest dotted = CreateRequest("Architecture note.");
+        dotted.DeclaredPriorities = ["./goals/cost/performance"];
+
+        ClosedLoopReasoningRequest plain = CreateRequest("Architecture note.");
+        plain.DeclaredPriorities = ["goals/cost/performance"];
+
+        ReviewCacheManifestBuilder.Build(dotted).DeclaredPrioritiesHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(plain).DeclaredPrioritiesHash);
+    }
+
+    [Fact]
+    public void Build_matches_declared_priorities_hash_when_request_priorities_differ_only_by_dot_dot_slash_segment()
+    {
+        ClosedLoopReasoningRequest dotted = CreateRequest("Architecture note.");
+        dotted.DeclaredPriorities = ["goals/acme/../cost/performance"];
+
+        ClosedLoopReasoningRequest collapsed = CreateRequest("Architecture note.");
+        collapsed.DeclaredPriorities = ["goals/cost/performance"];
+
+        ReviewCacheManifestBuilder.Build(dotted).DeclaredPrioritiesHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(collapsed).DeclaredPrioritiesHash);
+    }
+
+    [Fact]
+    public void Build_matches_content_hash_when_request_framing_answer_key_differs_only_by_dot_dot_slash_segment()
+    {
+        ClosedLoopReasoningRequest dotted = CreateRequest("Architecture note.");
+        dotted.FramingAnswers = new Dictionary<string, string> { ["questions/acme/../cost/driver"] = "optimize" };
+
+        ClosedLoopReasoningRequest collapsed = CreateRequest("Architecture note.");
+        collapsed.FramingAnswers = new Dictionary<string, string> { ["questions/cost/driver"] = "optimize" };
+
+        ReviewCacheManifestBuilder.Build(dotted).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(collapsed).ContentHash);
+    }
+
+    [Fact]
+    public void Build_matches_content_hash_when_baseline_model_declared_priorities_differ_only_by_dot_dot_slash_segment()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "run-model-priority-dot-dot";
+
+        ArchitectureKnowledgeModel dotted = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            DeclaredPriorities = ["goals/acme/../cost/performance"],
+        };
+
+        ArchitectureKnowledgeModel collapsed = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            DeclaredPriorities = ["goals/cost/performance"],
+        };
+
+        ReviewCacheManifestBuilder.Build(request, dotted).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(request, collapsed).ContentHash);
+    }
+
+    [Fact]
     public void Build_matches_content_hash_when_baseline_model_framing_answer_key_differs_only_by_backslash_vs_forward_slash_in_path()
     {
         ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
@@ -7286,6 +7364,20 @@ public sealed class ReviewCacheManifestBuilderTests
     }
 
     [Fact]
+    public void Build_matches_content_hash_when_client_run_id_differs_only_by_dot_dot_slash_segment()
+    {
+        ClosedLoopReasoningRequest dotted = CreateRequest("Architecture note.");
+        dotted.RunId = "tenants/acme/runs/../reviews/42";
+
+        ClosedLoopReasoningRequest collapsed = CreateRequest("Architecture note.");
+        collapsed.RunId = "tenants/acme/reviews/42";
+
+        ReviewCacheManifestBuilder.Build(dotted).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(collapsed).ContentHash);
+    }
+
+    [Fact]
     public void Build_matches_content_hash_when_request_framing_answer_key_differs_only_by_leading_dot_slash()
     {
         ClosedLoopReasoningRequest dotted = CreateRequest("Architecture note.");
@@ -7462,6 +7554,23 @@ public sealed class ReviewCacheManifestBuilderTests
         ReviewCacheManifestBuilder.Build(request, null, [entry, entry]).ContentHash
             .Should()
             .Be(ReviewCacheManifestBuilder.Build(request, null, [entry]).ContentHash);
+    }
+
+    [Fact]
+    public void Build_matches_content_hash_when_ledger_technology_name_differs_only_by_backslash_vs_forward_slash_in_path()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "run-ledger-technology-path-backslash";
+
+        TechnologyLedgerEntry forwardSlash = CreateLedgerEntry(request.RunId, evidenceRef: "evidence:shared");
+        forwardSlash.TechnologyName = "docs/architecture/overview.md";
+
+        TechnologyLedgerEntry backslash = CreateLedgerEntry(request.RunId, evidenceRef: "evidence:shared");
+        backslash.TechnologyName = "docs\\architecture\\overview.md";
+
+        ReviewCacheManifestBuilder.Build(request, null, [forwardSlash]).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(request, null, [backslash]).ContentHash);
     }
 
     [Fact]

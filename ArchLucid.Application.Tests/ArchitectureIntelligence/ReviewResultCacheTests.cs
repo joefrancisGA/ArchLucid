@@ -354,6 +354,22 @@ public sealed class ReviewResultCacheTests
     }
 
     [Fact]
+    public void InvalidateForRun_removes_entries_when_invalidate_run_id_differs_only_by_backslash_vs_forward_slash_in_path()
+    {
+        ReviewResultCache cache = new();
+        ReviewCacheDependencyManifest manifest = new() { ContentHash = "hash-run-path-invalidated" };
+
+        cache.Set(
+            manifest,
+            new ClosedLoopReasoningResult { RunId = "tenants/acme/runs/42" });
+        cache.TryGet(manifest, out ClosedLoopReasoningResult? _).Should().BeTrue();
+
+        cache.InvalidateForRun("tenants\\acme\\runs\\42");
+
+        cache.TryGet(manifest, out ClosedLoopReasoningResult? _).Should().BeFalse();
+    }
+
+    [Fact]
     public async Task CoalesceAsync_does_not_pin_storage_key_without_outer_pin_scope()
     {
         ReviewResultCache cache = new();
