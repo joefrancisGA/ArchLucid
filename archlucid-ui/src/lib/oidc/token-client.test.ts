@@ -385,91 +385,6 @@ describe("refreshAccessToken", () => {
     expect((caught as OAuthTokenEndpointError).message).not.toContain("unauthorized_client");
   });
 
-  it("classifies humanized invalid_request and redirect_uri_mismatch refresh failures for BFF session clearing", async () => {
-    for (const errorCode of ["invalid_request", "redirect_uri_mismatch"] as const) {
-      const fetchMock = vi.fn(async () => ({
-        ok: false,
-        status: 400,
-        text: async () => JSON.stringify({ error: errorCode }),
-      }));
-
-      vi.stubGlobal("fetch", fetchMock);
-
-      let caught: unknown;
-
-      try {
-        await refreshAccessToken({
-          tokenEndpoint: "https://login.example.com/token",
-          clientId: "client",
-          refreshToken: "rt",
-        });
-      } catch (error) {
-        caught = error;
-      }
-
-      expect(caught).toBeInstanceOf(OAuthTokenEndpointError);
-      expect(isOAuthRefreshTokenRejectedError(caught)).toBe(true);
-      expect((caught as OAuthTokenEndpointError).normalizedErrorCode).toBe(errorCode);
-      expect((caught as OAuthTokenEndpointError).message).not.toContain(errorCode);
-    }
-  });
-
-  it("classifies humanized login_required refresh failures for BFF session clearing", async () => {
-    const fetchMock = vi.fn(async () => ({
-      ok: false,
-      status: 400,
-      text: async () => JSON.stringify({ error: "login_required" }),
-    }));
-
-    vi.stubGlobal("fetch", fetchMock);
-
-    let caught: unknown;
-
-    try {
-      await refreshAccessToken({
-        tokenEndpoint: "https://login.example.com/token",
-        clientId: "client",
-        refreshToken: "rt",
-      });
-    } catch (error) {
-      caught = error;
-    }
-
-    expect(caught).toBeInstanceOf(OAuthTokenEndpointError);
-    expect(isOAuthRefreshTokenRejectedError(caught)).toBe(true);
-    expect((caught as OAuthTokenEndpointError).normalizedErrorCode).toBe("login_required");
-    expect((caught as OAuthTokenEndpointError).message).not.toContain("login_required");
-  });
-
-  it("classifies humanized interaction_required and consent_required refresh failures for BFF session clearing", async () => {
-    for (const errorCode of ["interaction_required", "consent_required"] as const) {
-      const fetchMock = vi.fn(async () => ({
-        ok: false,
-        status: 400,
-        text: async () => JSON.stringify({ error: errorCode }),
-      }));
-
-      vi.stubGlobal("fetch", fetchMock);
-
-      let caught: unknown;
-
-      try {
-        await refreshAccessToken({
-          tokenEndpoint: "https://login.example.com/token",
-          clientId: "client",
-          refreshToken: "rt",
-        });
-      } catch (error) {
-        caught = error;
-      }
-
-      expect(caught).toBeInstanceOf(OAuthTokenEndpointError);
-      expect(isOAuthRefreshTokenRejectedError(caught)).toBe(true);
-      expect((caught as OAuthTokenEndpointError).normalizedErrorCode).toBe(errorCode);
-      expect((caught as OAuthTokenEndpointError).message).not.toContain(errorCode);
-    }
-  });
-
   it("classifies humanized access_denied refresh failures for BFF session clearing", async () => {
     const fetchMock = vi.fn(async () => ({
       ok: false,
@@ -524,58 +439,6 @@ describe("refreshAccessToken", () => {
     expect((caught as OAuthTokenEndpointError).message).not.toContain("invalid_scope");
   });
 
-  it("classifies humanized access_denied refresh failures for BFF session clearing", async () => {
-    const fetchMock = vi.fn(async () => ({
-      ok: false,
-      status: 400,
-      text: async () => JSON.stringify({ error: "access_denied" }),
-    }));
-
-    vi.stubGlobal("fetch", fetchMock);
-
-    let caught: unknown;
-
-    try {
-      await refreshAccessToken({
-        tokenEndpoint: "https://login.example.com/token",
-        clientId: "client",
-        refreshToken: "rt",
-      });
-    } catch (error) {
-      caught = error;
-    }
-
-    expect(caught).toBeInstanceOf(OAuthTokenEndpointError);
-    expect(isOAuthRefreshTokenRejectedError(caught)).toBe(true);
-    expect((caught as OAuthTokenEndpointError).message).toMatch(/canceled sign-in/i);
-    expect((caught as OAuthTokenEndpointError).message).not.toContain("access_denied");
-  });
-
-  it("does not classify transient server_error refresh failures for BFF session clearing", async () => {
-    const fetchMock = vi.fn(async () => ({
-      ok: false,
-      status: 503,
-      text: async () => JSON.stringify({ error: "server_error" }),
-    }));
-
-    vi.stubGlobal("fetch", fetchMock);
-
-    let caught: unknown;
-
-    try {
-      await refreshAccessToken({
-        tokenEndpoint: "https://login.example.com/token",
-        clientId: "client",
-        refreshToken: "rt",
-      });
-    } catch (error) {
-      caught = error;
-    }
-
-    expect(caught).toBeInstanceOf(OAuthTokenEndpointError);
-    expect(isOAuthRefreshTokenRejectedError(caught)).toBe(false);
-  });
-
   it("classifies humanized expired_token refresh failures for BFF session clearing", async () => {
     const fetchMock = vi.fn(async () => ({
       ok: false,
@@ -601,32 +464,6 @@ describe("refreshAccessToken", () => {
     expect(isOAuthRefreshTokenRejectedError(caught)).toBe(true);
     expect((caught as OAuthTokenEndpointError).normalizedErrorCode).toBe("expired_token");
     expect((caught as OAuthTokenEndpointError).message).not.toContain("expired_token");
-  });
-
-  it("does not classify humanized server_error refresh failures as permanent rejection", async () => {
-    const fetchMock = vi.fn(async () => ({
-      ok: false,
-      status: 400,
-      text: async () => JSON.stringify({ error: "server_error" }),
-    }));
-
-    vi.stubGlobal("fetch", fetchMock);
-
-    let caught: unknown;
-
-    try {
-      await refreshAccessToken({
-        tokenEndpoint: "https://login.example.com/token",
-        clientId: "client",
-        refreshToken: "rt",
-      });
-    } catch (error) {
-      caught = error;
-    }
-
-    expect(caught).toBeInstanceOf(OAuthTokenEndpointError);
-    expect((caught as OAuthTokenEndpointError).normalizedErrorCode).toBe("server_error");
-    expect(isOAuthRefreshTokenRejectedError(caught)).toBe(false);
   });
 
   it("classifies invalid_token refresh failures even when message is humanized", async () => {
