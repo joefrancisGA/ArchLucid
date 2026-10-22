@@ -8712,6 +8712,15 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: architecture-intelligence-orchestrator
 
+2026-10-22 seed hunt (seed→hit): promoted C0 control line-break scalars (`NUL`, `GS`, `RS`, plus `FS`/`US`) in uploaded source `Content` splitting review-cache `ContentHash`; extended `ClosedLoopReasoningSourceTextNormalizer.UnicodeLineBreakScalars`; expanded regression `Build_matches_content_hash_when_source_content_uses_unicode_line_separators`; added modelfp regressions for passage-locator artifact trim and whitespace-only element ids; 149 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `ClosedLoopReasoningSourceTextNormalizer.NormalizeLineEndings` — C0 `\\u0000` / `\\u001d` / `\\u001e` line breaks split `ContentHash` — **hit 2026-10-22 seed hunt:** consolidated C0 scalar batch; theory regression above.
+- [x] (valid-no-repro) `ReviewResultCache.CoalesceAsync` — follower publish leak when publish intent false — **cheap-disproof 2026-10-22 seed hunt:** `ReviewResultCache.Eviction` passes `stripCoalescedFollowerPublishLeaks: !publishToProduct`; coordinator regressions `CoalesceAsync_analysis_follower_strips_publish_block_from_blocked_leader` and `CoalesceAsync_does_not_share_flight_across_publish_intent`.
+
+- (candidate) `ClosedLoopReasoningSourceTextNormalizer.NormalizeLineEndings` — remaining C1 controls (`\\u0080`–`\\u009f` except covered scalars) — locus: `UnicodeLineBreakScalars`; input: pasted legacy document exports.
+
+- (candidate) `GraphSnapshotCanonicalFingerprint.FormatElementProvenance` — NFC vs NFD passage `Quote` — locus: provenance segment; input: decomposed Unicode in citation quotes.
+
 2026-10-22 seed hunt (seed→hit): promoted baseline model `DeclaredPriorities` case-duplicate lists splitting review-cache `modelfp`; `FormatDeclaredPriorities` now case-dedupes like `ClosedLoopDeclaredPrioritiesNormalizer` after FormC trim; regression `Build_matches_content_hash_when_baseline_model_declared_priorities_differ_only_by_casing` plus coverage for padded priorities and NFC provenance notes; 144 scoped orchestrator/cache/manifest/continue-flight tests passed.
 
 - [x] (proven) `GraphSnapshotCanonicalFingerprint.FormatDeclaredPriorities` — `Security`/`security` duplicate baseline priorities split `modelfp` — **hit 2026-10-22 seed hunt:** case-insensitive group + ordinal tie-break; regression above.
@@ -9114,11 +9123,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** closed-loop orchestrator; review result cache; architecture intelligence
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.cs; ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.Cache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewResultCache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewCacheManifestBuilder.cs
 - **test-filter:** FullyQualifiedName~ClosedLoopArchitectureReasoningOrchestrator|FullyQualifiedName~ReviewResultCache|FullyQualifiedName~ReviewCacheManifestBuilder
-- **hunts:** 69
-- **bugs-found:** 46
+- **hunts:** 70
+- **bugs-found:** 47
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — baseline declared priorities and provenance artifact id in review-cache modelfp
+- **last-bug:** 2026-10-22 — baseline declared priority case duplicates in review-cache modelfp
 - **related-pd-tb:** none
 - **code-changed-since:** no
 

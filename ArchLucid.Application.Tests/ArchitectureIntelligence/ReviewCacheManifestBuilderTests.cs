@@ -437,6 +437,78 @@ public sealed class ReviewCacheManifestBuilderTests
     }
 
     [Fact]
+    public void Build_matches_content_hash_when_baseline_element_provenance_passage_locator_artifact_id_differs_only_by_surrounding_whitespace()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "run-model-passage-artifact-trim";
+
+        ArchitectureKnowledgeModel padded = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "el-1",
+                    Name = "API",
+                    Provenance = new ClaimProvenance
+                    {
+                        PassageLocator = new SourcePassageLocator { ArtifactId = "  artifact-1  " },
+                    },
+                },
+            ],
+        };
+
+        ArchitectureKnowledgeModel trimmed = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "el-1",
+                    Name = "API",
+                    Provenance = new ClaimProvenance
+                    {
+                        PassageLocator = new SourcePassageLocator { ArtifactId = "artifact-1" },
+                    },
+                },
+            ],
+        };
+
+        ReviewCacheManifestBuilder.Build(request, padded).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(request, trimmed).ContentHash);
+    }
+
+    [Fact]
+    public void Build_matches_content_hash_when_baseline_element_id_is_whitespace_only_vs_empty_string()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "run-model-element-id-whitespace";
+
+        ArchitectureKnowledgeModel whitespaceId = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements = [new ArchitectureModelElement { ElementId = "   ", Name = "API" }],
+        };
+
+        ArchitectureKnowledgeModel emptyId = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements = [new ArchitectureModelElement { ElementId = string.Empty, Name = "API" }],
+        };
+
+        ReviewCacheManifestBuilder.Build(request, whitespaceId).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(request, emptyId).ContentHash);
+    }
+
+    [Fact]
     public void Build_matches_content_hash_when_baseline_element_provenance_source_artifact_id_differs_only_by_surrounding_whitespace()
     {
         ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
@@ -1222,6 +1294,9 @@ public sealed class ReviewCacheManifestBuilderTests
     }
 
     [Theory]
+    [InlineData("\u0000")]
+    [InlineData("\u001e")]
+    [InlineData("\u001d")]
     [InlineData("\u2028")]
     [InlineData("\u2029")]
     [InlineData("\u0085")]

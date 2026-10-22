@@ -88,7 +88,20 @@ internal static class ClosedLoopReasoningSourceTextNormalizer
     }
 
     private static ReadOnlySpan<char> UnicodeLineBreakScalars =>
-        ['\r', '\u000b', '\u000c', '\u0084', '\u0085', '\u2028', '\u2029'];
+    [
+        '\0',
+        '\u000b',
+        '\u000c',
+        '\r',
+        '\u001c',
+        '\u001d',
+        '\u001e',
+        '\u001f',
+        '\u0084',
+        '\u0085',
+        '\u2028',
+        '\u2029',
+    ];
 
     private static string NormalizeLineEndings(string content)
     {
