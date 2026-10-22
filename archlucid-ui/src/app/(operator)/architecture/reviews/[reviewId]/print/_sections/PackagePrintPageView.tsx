@@ -30,6 +30,8 @@ import {
   REVIEW_MEETING_CAPTURE_DISCLAIMER,
   hasReviewMeetingCapture,
   buildReviewMeetingCaptureMetaParts,
+  formatReviewMeetingCaptureAnswerLine,
+  formatReviewMeetingCaptureQuestionLine,
 } from "@/lib/reviews/review-meeting-capture-export";
 import {
   PACKAGE_PRINT_BACK_LABEL,
@@ -209,9 +211,11 @@ export function PackagePrintPageView(props: PackagePrintPageViewProps): React.JS
               return (
               <li key={`${entry.questionLabel}:${entry.answer}`} className="space-y-1">
                 <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-                  {entry.questionLabel}
+                  {formatReviewMeetingCaptureQuestionLine(entry.questionLabel)}
                 </p>
-                <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{entry.answer}</p>
+                <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+                  {formatReviewMeetingCaptureAnswerLine(entry.answer)}
+                </p>
                 {meetingCaptureMeta.length > 0 ? (
                   <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                     {meetingCaptureMeta.join(" · ")}
