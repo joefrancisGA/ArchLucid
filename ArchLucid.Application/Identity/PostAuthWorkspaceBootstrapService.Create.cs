@@ -241,7 +241,9 @@ public sealed partial class PostAuthWorkspaceBootstrapService
             null,
             null,
             request.IndustryVertical.Trim(),
-            request.IndustryVerticalOther?.Trim());
+            string.Equals(request.IndustryVertical, "Other", StringComparison.Ordinal)
+                ? request.IndustryVerticalOther?.Trim()
+                : null);
     }
 
     private static string BuildOnboardingPath(string? industryVertical) =>

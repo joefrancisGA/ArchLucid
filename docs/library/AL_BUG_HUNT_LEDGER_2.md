@@ -11261,6 +11261,20 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: application-tenancy-lifecycle
 
+2026-10-22 seed hunt (seed→hit): promoted `PostAuthWorkspaceBootstrapService.BuildCompanyProfile` — stray `IndustryVerticalOther` flowed into post-auth trial bootstrap when vertical was not `Other` (registration path already nulls it); parity guard in `BuildCompanyProfile`; regression `CreateWorkspaceAsync_strips_industry_vertical_other_when_vertical_is_not_other`; cheap-disproof closed four sibling `(candidate)` rows; scoped post-auth + org-detector tests passed.
+
+- [x] (proven) `PostAuthWorkspaceBootstrapService.BuildCompanyProfile` — `IndustryVerticalOther` persisted when vertical not `Other` — **hit 2026-10-22 seed hunt:** null other unless vertical is `Other`; regression `CreateWorkspaceAsync_strips_industry_vertical_other_when_vertical_is_not_other`.
+- [x] (valid-no-repro) `TenantMigrationVerificationProbe.RunAsync` — probe runs when tenant suspended but not offboarded — **cheap-disproof 2026-10-22:** orchestrator quarantine re-reads precede probe; suspend is expected during migration verification window.
+- [x] (valid-no-repro) `TenantDeletionService.DeleteTenantAsync` — platform audit skipped when approval cleared after SQL purge — **cheap-disproof 2026-10-22:** documented intentional skip in existing regression.
+- [x] (valid-no-repro) `TrialLifecycleTransitionEngine.TryAdvanceTenantAsync` — stale workspace link for transition audit — **cheap-disproof 2026-10-22:** `[state-machine-gap]` saturated; workspace-missing audit skip already proven (`TryAdvanceTenantAsync_skips_transition_audit_when_workspace_link_missing_before_audit`).
+- [x] (valid-no-repro) `TenantOrganizationDuplicateDetector.IsDuplicateOrganization` — `IX_` only on outer exception — **regression 2026-10-22:** `IsDuplicateOrganization_detects_ix_index_name_on_outer_exception_message`.
+
+- [ ] (candidate) `PostAuthWorkspaceBootstrapService.BuildCompanyProfile` — `IndustryVerticalOther` required when vertical is `Other` but empty — locus: trim-only mapping; input: post-auth create with `IndustryVertical=Other` and blank other (reachability: `PostAuthBootstrapController` + validator parity).
+- [ ] (candidate) `TenantTrialFacade.GetTrialStatusAsync` — lowercase `trialStatus` display vs policy transitions — locus: status normalization; input: tenant row with non-canonical casing (reachability: trial status API).
+- [ ] (candidate) `TenantUsageStatusService.BuildAsync` — workspace count includes offboarded tenant workspaces — locus: membership filter; input: admin usage snapshot for suspended-not-offboarded tenant (reachability: usage status service callers).
+- [ ] (candidate) `TrialSignupBaselineReviewCycleCapture` — negative hours rejected at capture vs commit — locus: hours validation split; input: baseline capture with `-1` hours (reachability: self-service registration).
+- [ ] (candidate) `TenantAgentOutputQualityGateModeService.SetAsync` — invalid mode string rejected at API but not at service — locus: `SetAsync` write path; input: admin settings with unknown mode token (reachability: tenant settings controller).
+
 2026-10-22 seed hunt (seed-only): closed five open `(candidate)` rows with regressions/cheap-disproof (duplicate-org inner exception, registration `IndustryVerticalOther` guard, migration status error cleared on successful verify mark, no-op retrieval drainer by design, seat cap enforced at repository); no hunt-ready promotion (`state-machine-gap` saturated); scoped tenancy migration/org-detector + registration tests passed.
 
 - [x] (valid-no-repro) `TenantOrganizationDuplicateDetector.IsDuplicateOrganization` — nested inner exception without SQL unique-key detector — **regression 2026-10-22:** `IsDuplicateOrganization_detects_duplicate_text_on_inner_exception_only`.
@@ -11269,11 +11283,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (valid-no-repro) `NoOpTenantMigrationRetrievalOutboxDrainer.ProcessPendingBatchAsync` — silent no-op during migration — **cheap-disproof 2026-10-22:** intentional host fallback; catalog migration does not require retrieval drain in Application layer alone.
 - [x] (valid-no-repro) `TrialSeatAccountant.TryReserveSeatAsync` — seat used counter increments when tenant already at limit — **cheap-disproof 2026-10-22:** `TryReserveSeatAsync_lowercase_active_trial_enforces_seat_cap` throws `SeatsExceeded` on third principal; repository owns atomic claim.
 
-- [ ] (candidate) `PostAuthWorkspaceBootstrapService.BuildCompanyProfile` — `IndustryVerticalOther` trimmed when vertical not `Other` — locus: `PostAuthCreateWorkspaceRequest` mapping ~233–244; input: post-auth workspace create with stray other field (reachability: `PostAuthBootstrapController`).
-- [ ] (candidate) `TenantMigrationVerificationProbe.RunAsync` — probe runs when tenant suspended but not offboarded — locus: suspend predicate vs erasure quarantine; input: migration verification while `SuspendedUtc` set (reachability: orchestrator `RunVerificationAsync`).
-- [ ] (candidate) `TenantDeletionService.DeleteTenantAsync` — SQL purge succeeds but platform audit skipped when approval row cleared mid-flight — locus: post-purge approval re-read; input: erasure approval revoked after SQL delete (reachability: existing regression documents skip).
-- [ ] (candidate) `TrialLifecycleTransitionEngine.TryAdvanceTenantAsync` — transition audit uses stale `workspace` link when workspace deleted between reads — locus: `GetFirstWorkspaceAsync` then delayed audit; input: workspace removed after transition record (reachability: scheduler tick).
-- [ ] (candidate) `TenantOrganizationDuplicateDetector.IsDuplicateOrganization` — false negative when duplicate signal only in `IX_` index name on outer exception without inner walk — locus: `IX_` substring heuristic ~32; input: wrapped SQL exception with index name only on outer message (reachability: registration catch).
+- [x] (proven) `PostAuthWorkspaceBootstrapService.BuildCompanyProfile` — stray `IndustryVerticalOther` when vertical not `Other` — **hit 2026-10-22 seed hunt:** see zone header.
+- [x] (valid-no-repro) `TenantMigrationVerificationProbe.RunAsync` — probe while suspended — **closed 2026-10-22 seed hunt:** see zone header.
+- [x] (valid-no-repro) `TenantDeletionService.DeleteTenantAsync` — audit skip after purge — **closed 2026-10-22 seed hunt:** see zone header.
+- [x] (valid-no-repro) `TrialLifecycleTransitionEngine.TryAdvanceTenantAsync` — stale workspace for audit — **closed 2026-10-22 seed hunt:** see zone header.
+- [x] (valid-no-repro) `TenantOrganizationDuplicateDetector.IsDuplicateOrganization` — `IX_` on outer — **closed 2026-10-22 seed hunt:** see zone header.
 
 2026-10-22 seed hunt (seed-only): `[state-machine-gap]` saturated — no hunt-ready promotion; cheap-disproof closed five open `(candidate)` rows (projection refresh stage gate, preseed enqueue re-read, seat middleware ordering, slug homoglyph stripping, data-region validate path); added `TrialLifecyclePolicy` regressions for converted/unknown status and missing expiry display; scoped `TrialLifecyclePolicyTests` 10/10.
 
@@ -11303,11 +11317,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 135
-- **bugs-found:** 114
+- **hunts:** 136
+- **bugs-found:** 115
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-21 - trial welcome preseed IndustryVerticalOther
+- **last-bug:** 2026-10-22 — post-auth trial bootstrap IndustryVerticalOther parity
 
 2026-10-21 seed hunt (seed-only): cheap-disproof on five settings/registration `(candidate)` rows; no hunt-ready promotion (`state-machine-gap` / `fail-open-validation` saturated); reseeded five new lenses.
 
