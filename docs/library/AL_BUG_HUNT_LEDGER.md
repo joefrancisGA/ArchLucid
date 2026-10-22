@@ -1,3 +1,17 @@
+2026-10-22 seed hunt (seed→hit): `ui-oidc` — promoted hunt-ready `initiateOidcRedirect` / `shouldConsumeAuthorizeRetryForReturnUrl` — explicit `returnUrl` was written to session before comparing against the prior post-sign-in path, so changing the deep link on authorize retry never consumed `OIDC_AUTHORIZE_CALLBACK_FAILED_KEY` and a later sign-in without `returnUrl` still skipped abandoned-return cleanup; consume authorize retry before `storePostSignInReturnUrl` (primary + supplemental); regression `consumes authorize retry marker when explicit return URL changes before redirect`; cheap-disproof closed five zone-head `(candidate)` rows; seeded five follow-on `(candidate)` rows; scoped `src/lib/oidc` vitest 363/363.
+
+- [x] (proven) `initiateOidcRedirect` — consume-after-store on explicit returnUrl change — **hit 2026-10-22 seed hunt:** reorder consume before store; regression above.
+- [x] (valid-no-repro) `initiateSupplementalOidcRedirect` — supplemental explicit returnUrl consume order — **cheap-disproof 2026-10-22:** same reorder in Google flow.
+- [x] (valid-no-repro) `shouldConsumeAuthorizeRetryForReturnUrl` — same explicit return URL on retry — **cheap-disproof 2026-10-22:** false when comparable paths match; repeat-explicit abandon regression still passes.
+- [x] (valid-no-repro) `preserves post-sign-in return path when discovery fails during authorize retry with the same explicit return URL` — **cheap-disproof 2026-10-22:** `!consumedAuthorizeCallbackRetry` branch unchanged.
+- [x] (invalid) `readOAuthJsonErrorDescription` — `100%25+tax` accidental plus collapse — **cheap-disproof 2026-10-22:** no `%2B` in source; literal `+` preserved after decode.
+
+- [ ] (candidate) `initiateSupplementalOidcRedirect` — regression test mirroring primary consume-on-URL-change — locus: test gap; input: Google flow with run-3→run-4 explicit (reachability: add vitest).
+- [ ] (candidate) `initiateOidcRedirect` — discovery failure after URL change with consumed marker — locus: catch clears return when `consumedAuthorizeCallbackRetry`; input: run-4 explicit after run-3 retry (reachability: may clear by design).
+- [ ] (candidate) `clearPostSignInReturnUrl` — paired marker removal when only return should clear — locus: session API; input: fresh sign-in after consume (reachability: test 631).
+- [ ] (candidate) `normalizeComparableReturnPath` — trailing slash vs no slash on consume decision — locus: path comparison; input: `/run-3` vs `/run-3/` on explicit retry (reachability: sign-in encoding).
+- [ ] (candidate) `errorFromOAuthJson` — description-only token errors after JSON plus fix — locus: integration message; input: token-client throw with description-only body (reachability: add test).
+
 2026-10-22 seed hunt (seed→hit): `ui-oidc` — promoted hunt-ready `readOAuthJsonErrorDescription` — token JSON `error_description` with mistaken `%2B` / `%252B` escapes decoded to glued `Policy+denied` while literal `User+denied` must stay; collapse `+` only when percent-decode changed the string and the source still carried `%`; regressions `collapses percent-encoded plus in mistaken JSON error_description escapes`; cheap-disproof closed five zone-head `(candidate)` rows; seeded five follow-on `(candidate)` rows; scoped `src/lib/oidc` vitest 361/361.
 
 - [x] (proven) `readOAuthJsonErrorDescription` — percent-encoded plus in token JSON descriptions — **hit 2026-10-22 seed hunt:** `collapseDecodedPlusFromPercentEncoding`; regressions above.
@@ -25392,13 +25406,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 84
-- **bugs-found:** 78
-- **hunts:** 78
-- **bugs-found:** 72
+- **hunts:** 85
+- **bugs-found:** 79
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-20
-- **last-bug:** 2026-10-22 — percent-encoded plus in token JSON error_description
+- **last-hunt:** 2026-10-22
+- **last-bug:** 2026-10-22 — consume authorize retry before storing explicit returnUrl on URL change
 - **last-bug:** 2026-10-20 — identity-less OIDC token responses still synced BFF cookie
 
 - **id:** ui-oidc
