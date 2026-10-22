@@ -84,6 +84,8 @@ public sealed class RunExportQueryFacade(
             };
         }
 
+        await EnsureCareerAllowsExportRecordMetadataOrThrowAsync(runId, cancellationToken);
+
         IReadOnlyList<RunExportRecord> records = await _runExportRecordRepository.GetByRunIdAsync(runId, cancellationToken);
         return new RunExportHistoryQueryResult { Outcome = ExportRecordLoadOutcome.Success, Exports = records.ToList() };
     }
