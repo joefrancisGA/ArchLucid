@@ -1,4 +1,19 @@
 2026-10-22 seed hunt (seed-only): `ui-oidc` - no hunt-ready product defect; cheap-disproof closed zone-head `(candidate)` rows (transient `server_error` code exchange still preserves authorize-retry marking by design, JSON skin-tone plus already preserved, unsafe returnUrl during retry intentionally ignored); stabilized flaky `ensureAccessTokenFresh` wall-clock race with frozen `Date.now`; parity regressions for JSON skin-tone literal plus, and `exchangeAuthorizationCode` marks retry on transient `server_error`; scoped `src/lib/oidc` + callback vitest 421/421.
+2026-10-22 seed hunt (seed→hit): `ui-oidc` — promoted hunt-ready `decodeOAuthErrorDescription` / `shouldPreserveLiteralPlusInAuthorizeDescription` — presentation emoji pictographs (`🏷️`, `⚠️`) with literal `+` collapsed the plus because only ZWJ/regional/skin-tone/keycap glue was recognized; preserve when `\p{Extended_Pictographic}` is present; regression `preserves literal plus in authorize error descriptions when presentation emoji pictographs are present`; scoped `src/lib/oidc` vitest 410/410.
+
+- [x] (proven) `decodeOAuthErrorDescription` — tag sequences plus literal plus — **hit 2026-10-22 seed hunt:** `Extended_Pictographic` guard; regression above.
+- [x] (valid-no-repro) `shouldMarkAuthorizeCallbackFailedOnExchangeError` — transient `server_error` on code exchange — **cheap-disproof 2026-10-22:** marks retry for all OAuth outcomes except invalid token URL.
+- [x] (valid-no-repro) BFF refresh route — `temporarily_unavailable` 503 without cookie clear — **cheap-disproof 2026-10-22:** transient classifier + route parity on trunk.
+- [x] (invalid) `normalizeOAuthErrorCode` — keycap emoji in `error` field — **cheap-disproof 2026-10-22:** rare IdP paste.
+- [x] (invalid) `OAuthTokenEndpointError` — HTTP status for logging — **cheap-disproof 2026-10-22:** enhancement.
+
+- [ ] (candidate) `decodeOAuthErrorDescription` — lone pictograph without FE0F plus literal plus — locus: mixed-plus guard; input: `🏷+extra` (reachability: authorize query).
+- [ ] (candidate) `isReadableOAuthErrorDetail` — pictographic-only authorize detail — locus: readable gate (reachability: callback copy).
+- [ ] (candidate) `initiateOidcRedirect` — discovery failure after retry marker without returnUrl — locus: sessionStorage (reachability: initiate-redirect.test).
+- [ ] (candidate) `exchangeAuthorizationCode` — skip mark for `temporarily_unavailable` exchange JSON — locus: refresh transient parity (reachability: token endpoint).
+- [ ] (candidate) `humanizeAuthorizeCallbackError` — dedicated `temporarily_unavailable` admin copy — locus: UX switch (reachability: default humanize).
+
+2026-10-22 seed hunt (seed→hit): `ui-oidc` — promoted hunt-ready `decodeOAuthErrorDescription` / `shouldPreserveLiteralPlusInAuthorizeDescription` — keycap emoji (`#️⃣`, `1️⃣`) with literal `+` collapsed the plus because U+20E3 keycap sequences lack ZWJ, regional indicators, and Fitzpatrick modifiers; preserve when combining enclosing keycap (U+20E3) is present; regression `preserves literal plus in authorize error descriptions when keycap emoji sequences are present`; scoped `src/lib/oidc` vitest 409/409.
 
 - [x] (valid-no-repro) `shouldMarkAuthorizeCallbackFailedOnExchangeError` - skip mark for transient `server_error` on code exchange - **cheap-disproof 2026-10-22:** preserve-return retry is intentional; regression `marks authorize callback failed when authorization code exchange returns transient server_error`.
 - [x] (valid-no-repro) `decodeOAuthErrorDescription` - skin-tone modifier plus literal plus - **cheap-disproof 2026-10-22:** authorize path covered; JSON parity regression added.
@@ -5860,6 +5875,9 @@
 - **hunts:** 68
 - **last-hunt:** 2026-10-21
 - **bugs-found:** 55
+- **hunts:** 80
+- **last-hunt:** 2026-10-21
+- **bugs-found:** 74
 - **consecutive-dry-hunts:** 2
 - **last-bug:** 2026-10-20 � Tenant value report DOCX omitted artifact-text sanitization
 - **related-pd-tb:** none
@@ -16702,7 +16720,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** identity provider; idp activation
 - **paths:** ArchLucid.Api/Controllers/Admin/IdentityProviderConfigurationController.cs; ArchLucid.Api/Services/Admin/IdentityProviderActivationService.cs
 - **test-filter:** FullyQualifiedName~IdentityProviderActivationServiceTests
-- **hunts:** 78
+- **hunts:** 80
 - **bugs-found:** 55
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-21
@@ -25647,11 +25665,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 78
-- **bugs-found:** 72
+- **hunts:** 80
+- **bugs-found:** 74
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-20
-- **last-bug:** 2026-10-20 � identity-less OIDC token responses still synced BFF cookie
+- **last-hunt:** 2026-10-22
+- **last-bug:** 2026-10-22 — presentation emoji pictograph plus preservation in authorize error_description
 
 - **id:** ui-oidc
 - **status:** open
@@ -25809,8 +25827,8 @@ esolveRpLogoutUrlFromBffSession � empty JSON 200 treated as missing logout URL
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 77
-- **bugs-found:** 71
+- **hunts:** 80
+- **bugs-found:** 74
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-16
 - **last-bug:** 2026-10-16 � hex/octal/binary epoch-ms hint literals in session and BFF refresh

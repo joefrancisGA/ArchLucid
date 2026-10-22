@@ -138,6 +138,16 @@ describe("decodeOAuthErrorDescription", () => {
     expect(decodeOAuthErrorDescription("👋🏽+denied")).toBe("👋🏽+denied");
   });
 
+  it("preserves literal plus in authorize error descriptions when keycap emoji sequences are present", () => {
+    expect(decodeOAuthErrorDescription("#️⃣+extra")).toBe("#️⃣+extra");
+    expect(decodeOAuthErrorDescription("1️⃣+step")).toBe("1️⃣+step");
+  });
+
+  it("preserves literal plus in authorize error descriptions when presentation emoji pictographs are present", () => {
+    expect(decodeOAuthErrorDescription("🏷️+extra")).toBe("🏷️+extra");
+    expect(decodeOAuthErrorDescription("⚠️+note")).toBe("⚠️+note");
+  });
+
   it("decodes doubly percent-encoded authorize error descriptions", () => {
     expect(decodeOAuthErrorDescription("User%2520denied")).toBe("User denied");
   });

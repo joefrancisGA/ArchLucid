@@ -160,6 +160,11 @@ function shouldPreserveLiteralPlusInAuthorizeDescription(decoded: string): boole
     return true;
   }
 
+  // Presentation emoji (🏷️, ⚠️) and other pictographs without the glue signals above.
+  if (/\p{Extended_Pictographic}/u.test(decoded)) {
+    return true;
+  }
+
   return /(?<=[A-Za-z0-9])[\u200c\u200d](?=[A-Za-z0-9+])/u.test(decoded);
 }
 
