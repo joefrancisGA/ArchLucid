@@ -8712,6 +8712,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: architecture-intelligence-orchestrator
 
+2026-10-22 seed hunt (seed→hit): promoted path-shaped element property values splitting review-cache `modelfp` on separator drift; property bag values now use `NormalizeArtifactReferenceForFingerprint`; regression `Build_matches_content_hash_when_baseline_element_property_value_differs_only_by_backslash_vs_forward_slash_in_path`; cheap-disproof regressions for model-alias `..`/`./` drift, tenant/workspace/project scope path drift, and request attachment `..` segments; 319 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `GraphSnapshotCanonicalFingerprint.FormatKnowledgeModelElementFingerprint` — property value path separators split `modelfp` — **hit 2026-10-22 seed hunt:** artifact reference normalization on property values; regression above.
+
 2026-10-22 seed hunt (seed→hit): promoted path-shaped `ModelAliasId` splitting review-cache `ContentHash` on separator drift; `ClosedLoopModelAliasIdNormalizer.NormalizeForHash` applies `NormalizeReviewCachePathLikeToken`; regression `Build_matches_content_hash_when_model_alias_id_differs_only_by_backslash_vs_forward_slash_in_path`; cheap-disproof regressions for request tenant/workspace/project scope `..` and `./` drift plus baseline tenant and element-id leading-slash equivalence; 312 scoped orchestrator/cache/manifest/continue-flight tests passed.
 
 - [x] (proven) `ClosedLoopModelAliasIdNormalizer.NormalizeForHash` — path-shaped alias ids split `ContentHash` — **hit 2026-10-22 seed hunt:** path token on alias segment; regression above.
