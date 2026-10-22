@@ -264,11 +264,10 @@ export type ClearOidcSessionOptions = {
 };
 
 export function clearOidcSession(options?: ClearOidcSessionOptions): void {
-  const hadSignedInIdentity = hasOidcSessionIdentityHints();
   refreshSessionGeneration += 1;
   refreshInFlight = null;
   clearInfraEvidenceAskTranscriptStorage();
-  const keysToClear = [
+  removeOidcKeys([
     OIDC_ACCESS_TOKEN_KEY,
     OIDC_REFRESH_TOKEN_KEY,
     OIDC_EXPIRES_AT_MS_KEY,
@@ -281,13 +280,9 @@ export function clearOidcSession(options?: ClearOidcSessionOptions): void {
     OIDC_GOOGLE_OAUTH_STATE_KEY,
     OIDC_GOOGLE_CODE_VERIFIER_KEY,
     OIDC_GOOGLE_NONCE_KEY,
-  ];
-
-  if (hadSignedInIdentity) {
-    keysToClear.push(OIDC_POST_SIGN_IN_RETURN_URL_KEY, OIDC_AUTHORIZE_CALLBACK_FAILED_KEY);
-  }
-
-  removeOidcKeys(keysToClear);
+    OIDC_POST_SIGN_IN_RETURN_URL_KEY,
+    OIDC_AUTHORIZE_CALLBACK_FAILED_KEY,
+  ]);
   clearCachedColorModePreference();
   void clearBffSessionCookie();
 
@@ -415,6 +410,15 @@ export function markAuthorizeCallbackFailed(): void {
   }
 
   sessionStorage.setItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY, "1");
+}
+
+/** True when the authorize callback set a retry marker that should keep the stored return URL. */
+export function hasAuthorizeCallbackFailedRetry(): boolean {
+  if (typeof sessionStorage === "undefined") {
+    return false;
+  }
+
+  return sessionStorage.getItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY) === "1";
 }
 
 /**

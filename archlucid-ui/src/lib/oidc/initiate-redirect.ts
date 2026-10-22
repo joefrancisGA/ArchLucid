@@ -20,6 +20,7 @@ import {
   clearPkceState,
   clearPostSignInReturnUrl,
   consumeAuthorizeCallbackFailedRetry,
+  hasAuthorizeCallbackFailedRetry,
   markAuthorizeCallbackFailed,
   readPkceState,
   storePkceState,
@@ -78,11 +79,12 @@ export async function initiateOidcRedirect(returnUrl?: string): Promise<void> {
   storePkceState(state, verifier, nonce, "primary");
 
   let storedReturnUrlThisAttempt = false;
-  const preservingAuthorizeCallbackRetry = consumeAuthorizeCallbackFailedRetry();
+  const preservingAuthorizeCallbackRetry = hasAuthorizeCallbackFailedRetry();
 
   if (returnUrl !== undefined && isSafeReturnPath(returnUrl)) {
     storePostSignInReturnUrl(returnUrl);
     storedReturnUrlThisAttempt = true;
+    consumeAuthorizeCallbackFailedRetry();
   } else if (readPkceState("google") === null) {
     if (!preservingAuthorizeCallbackRetry) {
       clearAbandonedPostSignInReturnUrl();
@@ -149,11 +151,12 @@ export async function initiateSupplementalOidcRedirect(
   storePkceState(state, verifier, nonce, "google");
 
   let storedReturnUrlThisAttempt = false;
-  const preservingAuthorizeCallbackRetry = consumeAuthorizeCallbackFailedRetry();
+  const preservingAuthorizeCallbackRetry = hasAuthorizeCallbackFailedRetry();
 
   if (returnUrl !== undefined && isSafeReturnPath(returnUrl)) {
     storePostSignInReturnUrl(returnUrl);
     storedReturnUrlThisAttempt = true;
+    consumeAuthorizeCallbackFailedRetry();
   } else if (readPkceState("primary") === null) {
     if (!preservingAuthorizeCallbackRetry) {
       clearAbandonedPostSignInReturnUrl();
