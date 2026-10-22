@@ -12,21 +12,6 @@
 - [ ] (candidate) refreshBffSessionCookie - refresh 429 shouldClearSession false - locus: proxy transient policy.
 
 ï»¿2026-10-22 seed hunt (seed-only): `application-tenancy-lifecycle` - no hunt-ready product defect; cheap-disproof closed zone-head `(candidate)` erasure-race rows (regressions already on trunk); scoped tenancy filter 248/248.
-2026-10-22 seed hunt (seed->hit): `application-tenancy-lifecycle` - promoted hunt-ready from seed re-read `TenantCatalogMigrationOrchestrator.CompleteAsync` - migration completed platform audit appended after unsuspend path using only the pre-audit tenant read, so erasure offboard between that read and audit could emit `TenantCatalogMigrationCompleted` for quarantined tenants; pre-audit `GetByIdAsync` guard before completed audit; regression `CompleteAsync_returns_in_erasure_quarantine_without_completed_audit_when_offboard_completes_after_pre_audit_read_before_audit`; normalize legacy run-log `zone` alias in picker/stats readers; scoped tenancy filter 251/251.
-
-- [x] (proven) `CompleteAsync` - offboard after pre-audit read before completed audit - **hit 2026-10-22 seed hunt:** pre-completed-audit re-read; regression above.
-- [x] (valid-no-repro) `AcknowledgeCatalogAttachDetachAsync` - offboard after stage update before attach audit - **cheap-disproof 2026-10-22:** hit earlier same day on trunk.
-- [x] (valid-no-repro) `RunProjectionRefreshAsync` - offboard after stage update before refresh audit - **cheap-disproof 2026-10-22:** hit earlier same day on trunk.
-- [x] (valid-no-repro) `AL_BUG_HUNT_RUN_LOG.jsonl` - `zone` alias breaks picker - **hit 2026-10-22:** read-time `zoneId` normalization in picker/stats scripts.
-- [x] (invalid) `TenantDeletionService.DeleteTenantAsync` - legal hold after sql purge before audit - **cheap-disproof 2026-10-22:** destructive purge already completed; audit skip on approval clear covered.
-
-- [ ] (candidate) `TenantDeletionService.DeleteTenantAsync` - legal hold activated after revalidate before blob purge - locus: RevalidateTenantForHardPurgeAsync (reachability: admin delete job).
-- [ ] (candidate) `TenantErasureCommandService.TrySetLegalHoldAsync` - quarantine restored after set before legal-hold audit - locus: beforeSetAudit read (reachability: erasure command).
-- [ ] (candidate) `TenantErasureCommandService.TryClearLegalHoldAsync` - offboard after clear before clear audit - locus: beforeClearAudit read (reachability: erasure command).
-- [ ] (candidate) `TrialLifecycleTransitionEngine` - offboard between audit and expiration metric on non-deleted transition - locus: post-audit superseded read (reachability: saturated).
-- [ ] (candidate) `TenantProvisioningService.ProvisionAsync` - offboard after nav settings before marketing touch - locus: existing race tests (reachability: saturated).
-
-﻿2026-10-22 seed hunt (seed-only): `application-tenancy-lifecycle` - no hunt-ready product defect; cheap-disproof closed zone-head `(candidate)` erasure-race rows (regressions already on trunk); scoped tenancy filter 248/248.
 
 - [x] (valid-no-repro) `TrialLifecycleTransitionEngine` - offboard between audit and expiration metric - **cheap-disproof 2026-10-22:** metric skip regression on trunk.
 - [x] (valid-no-repro) `TenantErasureCommandService.TryApproveErasureAsync` - quarantine restore between approve atomic and audit - **cheap-disproof 2026-10-22:** post-approve read before audit on trunk.
@@ -39,7 +24,6 @@
 - [ ] (candidate) `TenantMigrationProjectionRefreshService.RefreshAsync` - cache invalidation without offboard gate - locus: orchestrator wraps calls.
 - [ ] (candidate) `TrialTenantBootstrapService` - duplicate quarantine read before failure metric - locus: redundant guard only.
 - [ ] (candidate) `TenantTrialIdentityHandoffStage.LinkEntraAsync` - audit uses parameter tenant id - locus: same id as re-read row.
-2026-10-22 seed hunt (seed-only): `ui-oidc` - no hunt-ready product defect; removed duplicate/malformed `AL_BUG_HUNT_RUN_LOG.jsonl` rows (`zone` vs `zoneId`) blocking picker; cheap-disproof closed saturated encoding/UX candidates; parity regressions supplemental Google idle-desk rehydrate after tampered return purge, BFF client refresh HTTP 504 without `shouldClearSession`, and BFF route opaque `Token endpoint error 504`; scoped vitest 463/463.
 2026-10-22 seed hunt (seed->hit): ui-oidc - tampered unsafe post-sign-in return URLs during authorize retry were purged at sign-in start without restoring the operator return path when idle-desk backup existed; rehydrate safe return from idle desk when retry is pending and storage is empty after purge; scoped vitest 440/440.
 
 - [x] (proven) initiateOidcRedirect - tampered unsafe return during authorize retry loses return path - **hit 2026-10-22:** preparePostSignInReturnUrlForSignInStart rehydrates idle-desk return path after purge when authorize retry is pending.
@@ -25885,7 +25869,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 90
+- **hunts:** 87
 - **hunts:** 89
 - **bugs-found:** 78
 - **consecutive-dry-hunts:** 0

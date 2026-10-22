@@ -285,7 +285,11 @@ export function clearOidcSession(options?: ClearOidcSessionOptions): void {
   ];
 
   if (hadSignedInIdentity) {
-    keysToClear.push(OIDC_POST_SIGN_IN_RETURN_URL_KEY, OIDC_AUTHORIZE_CALLBACK_FAILED_KEY);
+    keysToClear.push(
+      OIDC_POST_SIGN_IN_RETURN_URL_KEY,
+      OIDC_AUTHORIZE_CALLBACK_FAILED_KEY,
+      OIDC_AUTHORIZE_RETRY_RETURN_PATH_KEY,
+    );
   }
 
   removeOidcKeys(keysToClear);

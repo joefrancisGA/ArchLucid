@@ -4,12 +4,14 @@ import * as bffSessionSync from "@/lib/oidc/bff-session-sync";
 import {
   clearOidcSession,
   markAuthorizeCallbackFailed,
+  consumeAuthorizeCallbackFailedRetry,
   consumePkceState,
   consumePostSignInReturnUrl,
   getAccessTokenExpiresAtMs,
   getAccessTokenForApi,
   isLikelySignedIn,
   persistTokenResponse,
+  readAuthorizeRetryReturnPathSnapshot,
   readPostSignInReturnUrl,
   readSignedInDisplayName,
   readSignedInUserSubject,
@@ -863,6 +865,32 @@ describe("clearOidcSession", () => {
     clearOidcSession();
 
     expect(sessionStorage.getItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY)).toBeNull();
+  });
+
+  it("clears authorize retry return snapshot when clearing a signed-in session", () => {
+    sessionStorage.setItem(OIDC_USER_SUBJECT_KEY, "user-123");
+    storePostSignInReturnUrl("/architecture/reviews/stale-snapshot");
+    markAuthorizeCallbackFailed();
+    clearOidcSession();
+
+    expect(sessionStorage.getItem(OIDC_AUTHORIZE_RETRY_RETURN_PATH_KEY)).toBeNull();
+  });
+
+  it("drops a tampered unsafe authorize retry return snapshot without clearing the retry marker", () => {
+    sessionStorage.setItem(OIDC_AUTHORIZE_RETRY_RETURN_PATH_KEY, "https://evil.example/phish");
+    sessionStorage.setItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY, "1");
+
+    expect(readAuthorizeRetryReturnPathSnapshot()).toBeNull();
+    expect(sessionStorage.getItem(OIDC_AUTHORIZE_RETRY_RETURN_PATH_KEY)).toBeNull();
+    expect(sessionStorage.getItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY)).toBe("1");
+  });
+
+  it("clears authorize retry return snapshot when authorize retry marker is consumed", () => {
+    storePostSignInReturnUrl("/architecture/reviews/run-consume");
+    markAuthorizeCallbackFailed();
+
+    expect(consumeAuthorizeCallbackFailedRetry()).toBe(true);
+    expect(sessionStorage.getItem(OIDC_AUTHORIZE_RETRY_RETURN_PATH_KEY)).toBeNull();
   });
 
   it("preserves authorize-callback retry marker when clearing without signed-in identity", () => {
