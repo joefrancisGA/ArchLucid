@@ -1,3 +1,16 @@
+2026-10-22 seed hunt (seed-only): `ui-oidc` - no hunt-ready product defect; repaired `al-bug-pick-zone.ps1` PowerShell parser error on run-log `zoneId` backfill and removed duplicate `zone` keys from malformed run-log rows; cheap-disproof closed slow_down authorize UX and intentional retry-snapshot policy candidates; parity regressions BFF refresh HTTP 425 and opaque token endpoint 425 without cookie clear, absent post-sign-in snapshot on `markAuthorizeCallbackFailed`, and unsafe consume retaining authorize-retry snapshot; scoped `src/lib/oidc` + BFF refresh route vitest 476/476.
+
+- [x] (invalid) humanizeAuthorizeCallbackError - slow_down authorize-query copy - **cheap-disproof 2026-10-22:** readable-code default UX; not a security defect.
+- [x] (valid-no-repro) markAuthorizeCallbackFailed - refresh snapshot when post-sign-in empty - **cheap-disproof 2026-10-22:** snapshot skipped when no safe post-sign-in URL.
+- [x] (valid-no-repro) consumePostSignInReturnUrl - unsafe consume retains retry snapshot - **regression 2026-10-22:** intentional rehydrate policy preserves snapshot + retry marker.
+- [x] (valid-no-repro) refreshBffSessionCookie - refresh 425 shouldClearSession false - **regression 2026-10-22:** non-401/403 refresh failures soft-fail without cookie clear.
+- [x] (invalid) decodeOAuthErrorDescription - multiply-encoded %252B with pictograph glue - **cheap-disproof 2026-10-22:** saturated encoding class on trunk.
+
+- [ ] (candidate) humanizeAuthorizeCallbackError - authorization_pending authorize-query copy - locus: default branch UX.
+- [ ] (candidate) refreshBffSessionCookie - refresh 408 shouldClearSession false - locus: route maps opaque 408 to 503.
+- [ ] (candidate) exchangeAuthorizationCode - server_error marks authorize retry - locus: transient exchange policy.
+- [ ] (candidate) readOAuthJsonErrorDescription - multiply-encoded %252B with ZWJ glue - locus: saturated encoding class.
+
 2026-10-22 seed hunt (seed->hit): ui-oidc - clearOidcSession with signed-in identity left authorize-retry return snapshot in sessionStorage after clearing retry marker, so a later retry could rehydrate a stale path; clear snapshot with signed-in session clear; parity regressions for tampered snapshot read, consumeAuthorizeCallbackFailedRetry snapshot clear, and BFF refresh 429 shouldClearSession false; scoped vitest 449/449.
 
 - [x] (proven) clearOidcSession - orphan authorize retry return snapshot after signed-in clear - **hit 2026-10-22:** clear OIDC_AUTHORIZE_RETRY_RETURN_PATH_KEY when clearing signed-in session retry state.
@@ -25883,6 +25896,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
+- **hunts:** 81
 - **hunts:** 87
 - **hunts:** 91
 - **hunts:** 89

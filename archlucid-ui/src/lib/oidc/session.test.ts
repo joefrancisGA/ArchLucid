@@ -5,7 +5,6 @@ import {
   clearOidcSession,
   consumeAuthorizeCallbackFailedRetry,
   markAuthorizeCallbackFailed,
-  consumeAuthorizeCallbackFailedRetry,
   consumePkceState,
   consumePostSignInReturnUrl,
   readAuthorizeRetryReturnPathSnapshot,
@@ -13,7 +12,6 @@ import {
   getAccessTokenForApi,
   isLikelySignedIn,
   persistTokenResponse,
-  readAuthorizeRetryReturnPathSnapshot,
   readPostSignInReturnUrl,
   readSignedInDisplayName,
   readSignedInUserSubject,
@@ -138,6 +136,25 @@ describe("storePostSignInReturnUrl / consumePostSignInReturnUrl", () => {
 
     expect(consumePostSignInReturnUrl()).toBeNull();
     expect(sessionStorage.getItem(OIDC_POST_SIGN_IN_RETURN_URL_KEY)).toBeNull();
+    expect(sessionStorage.getItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY)).toBe("1");
+  });
+
+  it("keeps authorize-retry return snapshot when consume rejects a tampered unsafe return URL", () => {
+    sessionStorage.setItem(OIDC_POST_SIGN_IN_RETURN_URL_KEY, "https://evil.example/phish");
+    sessionStorage.setItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY, "1");
+    sessionStorage.setItem(OIDC_AUTHORIZE_RETRY_RETURN_PATH_KEY, "/architecture/reviews/safe-snapshot");
+
+    expect(consumePostSignInReturnUrl()).toBeNull();
+    expect(sessionStorage.getItem(OIDC_AUTHORIZE_RETRY_RETURN_PATH_KEY)).toBe(
+      "/architecture/reviews/safe-snapshot",
+    );
+    expect(sessionStorage.getItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY)).toBe("1");
+  });
+
+  it("does not write authorize-retry return snapshot when post-sign-in URL is absent", () => {
+    markAuthorizeCallbackFailed();
+
+    expect(sessionStorage.getItem(OIDC_AUTHORIZE_RETRY_RETURN_PATH_KEY)).toBeNull();
     expect(sessionStorage.getItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY)).toBe("1");
   });
 
