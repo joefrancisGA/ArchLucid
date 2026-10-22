@@ -12470,19 +12470,25 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 70
-- **bugs-found:** 61
+- **hunts:** 71
+- **bugs-found:** 62
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — graph node type/category omitted from provenance revision fingerprint
+- **last-bug:** 2026-10-22 — child snapshot RunId omitted from provenance revision fingerprint
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-22 seed hunt (seed→hit): reseeded revision canonical string; proved `ProvenanceSnapshotRevisionHasher.Compute` keyed `RunId` only at the build-input root, so a findings snapshot re-linked to another run under the same `FindingsSnapshotId` and payload left `ProvenanceGraphAccessService` serving a cache hit; include findings/graph/manifest `RunId` fields in the canonical string; regression `Compute_changes_when_findings_snapshot_run_id_differs_but_findings_snapshot_id_and_payload_are_unchanged`; cheap-disproved finding severity drift (`ProvenanceBuilder` omits severity) with `Compute_unchanged_when_only_finding_severity_changes`; closed access-service edge-topology candidate because graph edge payload is already in `ComputeGraphFingerprint` with `Compute_changes_when_graph_edge_is_added_but_node_fingerprint_is_unchanged`; seeded manifest/graph run-id mismatch and finding engine-type follow-ons; 379 KnowledgeGraph + 81 Provenance scoped tests passed.
+
+- [x] (proven) `ProvenanceSnapshotRevisionHasher.Compute` — child snapshot `RunId` drift did not change revision fingerprint when snapshot ids and payloads were unchanged — **hit 2026-10-22 seed hunt (seed→hit):** include findings, graph, and manifest run ids in canonical string; regression above.
+- [x] (invalid) `ProvenanceSnapshotRevisionHasher.ComputeFindingsFingerprint` — `FindingSeverity` changes under stable finding display fields — **cheap-disproof 2026-10-22 seed hunt:** severity not materialized on provenance finding nodes; regression above.
+- [x] (invalid) `ProvenanceGraphAccessService` — edge-only graph mutation under stable snapshot ids — **cheap-disproof 2026-10-22 seed hunt:** `ComputeGraphFingerprint` already includes edge topology; regression above.
+
+- [ ] (candidate) `ProvenanceSnapshotRevisionHasher.Compute` — mismatched `Graph.RunId` or `Manifest.RunId` vs build-input `RunId` may still collide when only one child run id is corrected — locus: canonical run-id tuple; input: partial run-id repair on one snapshot facet; wrong outcome: stale cache until all three child ids align.
+- [ ] (candidate) `ProvenanceSnapshotRevisionHasher.ComputeFindingsFingerprint` — `EngineType` changes may not change revision fingerprint when other finding display fields are unchanged — locus: findings fingerprint; input: engine-type-only amendment; wrong outcome: stale provenance if engine type becomes buyer-visible on finding nodes.
 
 2026-10-22 seed hunt (seed→hit): promoted graph node metadata fingerprint candidate; proved `ComputeGraphFingerprint` included node id and label only, so `NodeType` / `Category` changes under stable `GraphSnapshotId` left `ProvenanceGraphAccessService` serving stale provenance graph node metadata; extend node fingerprint with normalized node type and category parity with `ProvenanceBuilder`; regression `Compute_changes_when_graph_node_type_changes_but_node_id_and_label_are_unchanged`; seeded finding severity and manifest rationale fingerprint follow-ons; 379 KnowledgeGraph + 78 Provenance scoped tests passed.
 
 - [x] (proven) `ProvenanceSnapshotRevisionHasher.ComputeGraphFingerprint` — graph node `NodeType` / `Category` changes did not change revision fingerprint when node id and label were unchanged — **hit 2026-10-22 seed hunt (seed→hit):** node type and category in graph node fingerprint; regression above.
-
-- [ ] (candidate) `ProvenanceSnapshotRevisionHasher.ComputeFindingsFingerprint` — `FindingSeverity` changes may not change revision fingerprint when finding display fields are unchanged — locus: findings fingerprint; input: severity-only amendment under stable finding id; wrong outcome: stale provenance if severity were buyer-visible (verify `ProvenanceBuilder` consumption first).
-- [ ] (candidate) `ProvenanceGraphAccessService` — revision match may skip rebuild when stored graph node count matches but edge topology differs — locus: access service cache gate vs `ComputeGraphFingerprint`; input: edge-only mutation under stable ids; wrong outcome: stale provenance edges (defense-in-depth if fingerprint already covers edges).
 
 2026-10-22 seed hunt (seed→hit): reseeded artifact fingerprint surface; proved `ComputeArtifactsFingerprint` keyed only artifact id, content hash, and contributing decisions, so renamed artifacts under stable `ArtifactId` and `ContentHash` left `ProvenanceGraphAccessService` serving stale artifact node names; include normalized name, artifact type, and format parity with `ProvenanceBuilder`; regression `Compute_changes_when_artifact_name_changes_but_artifact_id_and_content_hash_are_unchanged`; cheap-disproved manifest `SelectedOption`/`Rationale` drift (`ProvenanceBuilder` exposes only title and category on decision nodes) with `Compute_unchanged_when_only_manifest_decision_selected_option_changes`; closed edge-type candidate as already covered by graph fingerprint with `Compute_changes_when_graph_edge_type_changes_but_endpoints_are_unchanged`; seeded graph node type/category fingerprint follow-on; 379 KnowledgeGraph + 77 Provenance scoped tests passed.
 
