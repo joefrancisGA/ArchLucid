@@ -21,6 +21,17 @@
 - [ ] (candidate) refreshBffSessionCookie - refresh 465 shouldClearSession false - locus: transient refresh parity.
 - [ ] (candidate) exchangeAuthorizationCode - access_token JSON string replacement-character-only skips authorize retry marker - locus: literal whitespace token shape.
 - [ ] (candidate) decodeOAuthErrorDescription - multiply-encoded %252B with hair-space glue - locus: saturated encoding class.
+2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed invalid_nonce authorize-query UX, BFF refresh 464 parity (client + route opaque 464), and saturated readOAuthJsonErrorDescription narrow-no-break-space multiply-encoded glue; regression documents authorize-retry is not marked when authorization code exchange accepts object-replacement-character-only access_token; scoped vitest 692/692.
+
+- [x] (invalid) humanizeAuthorizeCallbackError - invalid_nonce authorize-query copy - **cheap-disproof 2026-10-22:** readable default-branch UX parity test.
+- [x] (valid-no-repro) refreshBffSessionCookie - refresh 464 shouldClearSession false - **regression 2026-10-22:** client soft-fail plus BFF route opaque 464 without cookie clear.
+- [x] (valid-no-repro) exchangeAuthorizationCode - access_token JSON string object-replacement-character-only skips authorize retry marker - **regression 2026-10-22:** replacement-character-only tokens normalize without failed marker.
+- [x] (invalid) readOAuthJsonErrorDescription - multiply-encoded %252B with narrow-no-break-space glue - **cheap-disproof 2026-10-22:** saturated JSON encoding class.
+
+- [ ] (candidate) humanizeAuthorizeCallbackError - nonce_expired authorize-query copy - locus: default branch UX.
+- [ ] (candidate) refreshBffSessionCookie - refresh 465 shouldClearSession false - locus: transient refresh parity.
+- [ ] (candidate) exchangeAuthorizationCode - access_token JSON string ogham-space-only skips authorize retry marker - locus: literal whitespace token shape.
+- [ ] (candidate) decodeOAuthErrorDescription - multiply-encoded %252B with figure-space glue - locus: saturated encoding class.
 
 2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed invalid_state authorize-query UX, BFF refresh 463 parity, and saturated decodeOAuthErrorDescription narrow-no-break-space glue; regression documents authorize-retry is marked when authorization code exchange returns word-joiner-only access_token; scoped vitest 622/622.
 
