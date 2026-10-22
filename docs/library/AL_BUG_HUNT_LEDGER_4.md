@@ -12470,18 +12470,22 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 85
-- **bugs-found:** 80
+- **hunts:** 86
+- **bugs-found:** 81
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — diagram edge labels persist through canonical round-trip
+- **last-bug:** 2026-10-22 — diagram edge provenance persists through canonical round-trip
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-22 seed hunt (seed→hit): promoted per-edge provenance reconstruct candidate; proved `StructuredDiagramCanonicalModelReconstructor.ReconstructEdges` copied `Provenance` from the source node, flattening inferred edges between asserted nodes to asserted after canonical round-trip; persist edge provenance as a third connectivity token segment and decode on reconstruct; regression `ReconstructModels_preserves_inferred_edge_provenance_between_asserted_nodes`; seeded duplicate-edge `InferenceSource` coalesce on merge follow-on; 386 KnowledgeGraph + 99 Provenance scoped tests passed.
+
+- [x] (proven) `StructuredDiagramCanonicalModelReconstructor.ReconstructEdges` — edge `Provenance` copied from source node flattened mixed asserted/inferred edge metadata — **hit 2026-10-22 seed hunt (seed→hit):** provenance segment on connectivity tokens; regression above.
+
+- [ ] (candidate) `StructuredDiagramGraphMerger.Merge` — duplicate directed-edge coalesce may not refresh `InferenceSource` when later documents compile the same edge with different inference metadata — locus: directed-edge dedup; input: two documents sharing endpoints; wrong outcome: stale edge inference source on multi-document merge.
 
 2026-10-22 seed hunt (seed→hit): promoted canonical edge label persistence candidate; proved `ArchitectureDiagramCanonicalObjectMapper` stored only `connectedToNodeIds` without captions and `StructuredDiagramCanonicalModelReconstructor` rebuilt edges without `Label`, so multi-document merges could not surface buyer-visible edge labels even after merge coalesce; encode optional labels on connectivity tokens and decode on reconstruct; regressions in `StructuredDiagramCanonicalModelReconstructorTests.ReconstructModels_groups_by_document_and_rebuilds_edges` and `Merge_uses_latest_diagram_edge_label_when_multiple_documents_share_equivalent_endpoints`; seeded per-edge provenance on reconstruct follow-on; 385 KnowledgeGraph + 99 Provenance scoped tests passed.
 
 - [x] (proven) `ArchitectureDiagramCanonicalObjectMapper` / `StructuredDiagramCanonicalModelReconstructor` — diagram edge `Label` dropped on canonical round-trip — **hit 2026-10-22 seed hunt (seed→hit):** label suffix on connectivity tokens; regressions above.
-
-- [ ] (candidate) `StructuredDiagramCanonicalModelReconstructor.ReconstructEdges` — edge `Provenance` is copied from the source node, not the original diagram edge record, so mixed asserted/inferred edge provenance within one document may be flattened — locus: edge reconstruction; input: diagram with inferred edge between asserted nodes; wrong outcome: incorrect edge provenance metadata after reconstruct.
 
 2026-10-22 seed hunt (seed→hit): promoted structured diagram edge label/weight merge candidate; proved duplicate-edge coalesce refreshed properties and reasoning but left the first edge `Weight`, so a later asserted document compiling the same directed edge kept stale inference strength; apply last-wins `Weight` (and non-empty `Label` when present) on duplicate directed edge; regression `Merge_uses_latest_diagram_edge_weight_when_multiple_documents_share_equivalent_endpoints`; cheap-disproved edge `Label` drift on canonical round-trip (`ArchitectureDiagramCanonicalObjectMapper` / `StructuredDiagramCanonicalModelReconstructor` do not persist diagram edge labels today); seeded canonical edge-label persistence follow-on; 384 KnowledgeGraph + 99 Provenance scoped tests passed.
 
