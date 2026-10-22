@@ -2842,6 +2842,302 @@
 
 ## Zone: scim-users
 
+2026-10-22 thorough hunt #43 (hit): PATCH/PUT/POST/DELETE compensated enterprise seats when audit `LogAsync` failed after the user row was already persisted, drifting seat counts from stored `active` flags; gate seat rollback on whether the repository mutation completed (`userRowUpdated` / `userInserted` / `userDeactivated`); regressions `PatchAsync_does_not_compensate_seat_when_audit_log_fails_after_successful_patch` and `ReplaceAsync_does_not_compensate_seat_when_audit_log_fails_after_successful_replace`; cheap-disproof closed three sibling `(candidate)` rows (`externalId` JSON `null` and numeric POST `userName` → `invalidValue`; `userName eq ""` filter matches no stored users); scoped `ScimUsers` tests not run (Analyzers RS1034 on checkout).
+
+- [x] (proven) `ScimUsersController.PatchAsync` / `ScimUserService.PatchAsync` — audit failure after `_users.PatchAsync` rolled back seats while user stayed active — **hit 2026-10-22 #43:** compensate only when `!userRowUpdated`; regression `PatchAsync_does_not_compensate_seat_when_audit_log_fails_after_successful_patch`.
+- [x] (proven) `ScimUsersController.ReplaceAsync` — post-persist `LogAsync` failure compensated seat — **hit 2026-10-22 #43:** same `userRowUpdated` gate; regression `ReplaceAsync_does_not_compensate_seat_when_audit_log_fails_after_successful_replace`.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `externalId` JSON `null` — **cheap-disproof 2026-10-22 #43:** `ReadPatchRequiredString` non-string guard.
+- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — POST numeric `userName` — **cheap-disproof 2026-10-22 #43:** `ReadRequiredString` kind guard (hunt #8 class).
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `userName eq ""` — **cheap-disproof 2026-10-22 #43:** no non-empty user rows store empty `userName`.
+
+2026-10-22 thorough hunt #42 (dry): cheap-disproof closed five `(candidate)` rows (POST whitespace `userName` → `ReadRequiredString` `IsNullOrWhiteSpace`; PATCH seat rollback when role-override audit fails before persist — shared `catch`/`CompensateSeatTransitionAsync`; omitted/whitespace `filter` → `ScimFilterParser.Parse` returns null AST unfiltered list; PATCH `userName` JSON `null` → `ReadPatchRequiredString` non-string `invalidValue`; DELETE seat restore on persist failure — proven saturated `DeactivateAsync_restores_seat_when_persistence_fails`); no failing repro; five replacement `(candidate)` rows; scoped `ScimUsers` tests not run (Application.Tests merge conflicts).
+
+- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — whitespace-only `userName` — **cheap-disproof 2026-10-22 #42:** `ReadRequiredString` rejects whitespace before trim.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — audit failure before persist — **cheap-disproof 2026-10-22 #42:** `catch` compensates seat transition (~66–70).
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — empty/whitespace `filter` — **cheap-disproof 2026-10-22 #42:** `Parse` returns null; list all live users (RFC omission).
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `userName` JSON `null` — **cheap-disproof 2026-10-22 #42:** `ReadPatchRequiredString` `ValueKind != String` → `invalidValue`.
+- [x] (invalid) `ScimUsersController.DeactivateAsync` — seat restore on failure — **cheap-disproof 2026-10-22 #42:** state-machine-gap saturated; proven regression.
+
+2026-10-22 thorough hunt #41 (dry): cheap-disproof closed five `(candidate)` rows (PATCH persistence failure seat rollback via `catch`/`CompensateSeatTransitionAsync` sibling to Replace/DELETE; POST `userName` `""` → `ScimUserResourceParser.ReadRequiredString`; PATCH empty `externalId` → `PatchAsync_replace_externalId_whitespace_only_throws`; unbalanced-paren filter → `ScimFilterParseException`/`Expected ')'` hunt #24 malformed class; PATCH `remove` `userName` → proven `PatchAsync_remove_userName_rejects_required_attribute`); no failing repro; five replacement `(candidate)` rows; scoped `ScimUsers` tests not run (Application.Tests merge conflicts).
+
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — seat compensate on persist failure — **cheap-disproof 2026-10-22 #41:** `catch` invokes `CompensateSeatTransitionAsync` (~66–70); parity Replace/DELETE proven regressions.
+- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — POST `userName` `""` — **cheap-disproof 2026-10-22 #41:** `ReadRequiredString` → `invalidValue` must be non-empty.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — empty `externalId` — **cheap-disproof 2026-10-22 #41:** `ReadPatchRequiredString`; regression `PatchAsync_replace_externalId_whitespace_only_throws`.
+- [x] (invalid) `ScimUsersController.ListAsync` — unbalanced parentheses — **cheap-disproof 2026-10-22 #41:** malformed filter class hunt #24; `Expected ')'` → `invalidFilter`.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `remove` `userName` — **cheap-disproof 2026-10-22 #41:** proven hunt #9 `mutability`; regression `PatchAsync_remove_userName_rejects_required_attribute`.
+
+2026-10-22 thorough hunt #40 (dry): cheap-disproof closed five `(candidate)` rows (PATCH empty `userName` → `ReadPatchRequiredString`/`PatchAsync_replace_userName_whitespace_only_throws`; unclosed filter quote hunt #24 `invalidFilter`; PUT seat compensate proven `ReplaceAsync_compensates_seat_when_persistence_fails_after_activation`; create seat compensate proven `CreateAsync_releases_reserved_seat_when_insert_fails`; PATCH `remove` `externalId` hunt #9 `mutability`); no failing repro; five replacement `(candidate)` rows; scoped `ScimUsers` tests not run (Application.Tests merge conflicts).
+
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — empty `userName` — **cheap-disproof 2026-10-22 #40:** `ReadPatchRequiredString` rejects `IsNullOrWhiteSpace`; regression `PatchAsync_replace_userName_whitespace_only_throws`.
+- [x] (invalid) `ScimUsersController.ListAsync` — unclosed filter quote — **cheap-disproof 2026-10-22 #40:** duplicate hunt #24; `ScimFilterParseException` → `invalidFilter`.
+- [x] (valid-no-repro) `ScimUsersController.ReplaceAsync` — seat compensate on failure — **cheap-disproof 2026-10-22 #40:** proven 2026-08-24 `CompensateSeatTransitionAsync`.
+- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — seat compensate on insert failure — **cheap-disproof 2026-10-22 #40:** proven 2026-08-24 `CreateAsync_releases_reserved_seat_when_insert_fails`.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `remove` `externalId` — **cheap-disproof 2026-10-22 #40:** proven hunt #9 `PatchAsync_remove_externalId_rejects_required_attribute`.
+
+2026-10-22 thorough hunt #39 (dry): cheap-disproof closed five `(candidate)` rows (`Guid.Empty` GET 404 hunt #4; `and` filter via `ScimAndNode`; PATCH whitespace `externalId` → `PatchAsync_replace_externalId_whitespace_only_throws`; seat cap hunt #13; `emails[…].value` alias hunt #21 integration); no failing repro; five replacement `(candidate)` rows; scoped `ScimUsers` tests not run (Application.Tests merge conflicts).
+
+- [x] (invalid) `ScimUsersController.GetAsync` — `Guid.Empty` — **cheap-disproof 2026-10-22 #39:** duplicate hunt #4; repository miss → 404.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `and` filter — **cheap-disproof 2026-10-22 #39:** `ScimAndNode` intersection in evaluator/SQL.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — whitespace `externalId` — **cheap-disproof 2026-10-22 #39:** `ReadPatchRequiredString` → `invalidValue`.
+- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — seat limit — **cheap-disproof 2026-10-22 #39:** hunt #13 `ScimSeatLimitExceededException` → 403.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — emails alias filter — **cheap-disproof 2026-10-22 #39:** hunt #21 integration test.
+
+2026-10-22 thorough hunt #38 (dry): cheap-disproof closed five `(candidate)` rows (negative `count` hunt #8 regression; PATCH numeric `userName` → `PatchAsync_replace_userName_non_string_throws`; `or` union via `ScimOrNode`; second DELETE 404 proven `DeactivateAsync_throws_not_found_when_user_already_directory_removed`; `add` `active` via `Add_inserts_value`/`ReadActive`); no failing repro; five replacement `(candidate)` rows; scoped `ScimUsers` tests not run (Application.Tests merge conflicts).
+
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — negative `count` — **cheap-disproof 2026-10-22 #38:** duplicate hunt #8; `ListAsync_negative_count_clamped_to_empty_page`.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — numeric `userName` — **cheap-disproof 2026-10-22 #38:** regression `PatchAsync_replace_userName_non_string_throws`.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `userName eq` `or` — **cheap-disproof 2026-10-22 #38:** `ScimOrNode` disjunction in evaluator/SQL.
+- [x] (valid-no-repro) `ScimUsersController.DeactivateAsync` — repeat DELETE — **cheap-disproof 2026-10-22 #38:** proven 2026-08-25 notFound guard.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `add` `active` — **cheap-disproof 2026-10-22 #38:** flat add + `ReadActive` (hunt #23 `add` class).
+
+2026-10-22 thorough hunt #37 (dry): cheap-disproof closed five `(candidate)` rows (`count=0` empty page hunt #6 regression; missing PATCH `value` → `invalidValue` `Missing_value_on_replace_throws`; filter literal spaces compared without auto-trim—intentional; PUT `active` string via `ScimUserResourceParser.ReadActive`; remove unknown flat key no-op on persist hunt #29 class); no failing repro; five replacement `(candidate)` rows; scoped `ScimUsers` tests not run (Application.Tests merge conflicts).
+
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `count=0` — **cheap-disproof 2026-10-22 #37:** duplicate hunt #6; `ListAsync_count_zero_returns_empty_page_with_total_results`.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `replace` without `value` — **cheap-disproof 2026-10-22 #37:** `Missing_value_on_replace_throws`.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — spaced `userName eq` literal — **cheap-disproof 2026-10-22 #37:** lexer preserves literal; compare to stored trimmed `userName` only matches when equal.
+- [x] (valid-no-repro) `ScimUsersController.ReplaceAsync` — `active` string `"true"` — **cheap-disproof 2026-10-22 #37:** `ReadActive` `bool.TryParse` on PUT (hunt #35 PATCH class).
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `remove` unknown attribute — **cheap-disproof 2026-10-22 #37:** hunt #29; non-core keys not persisted.
+
+2026-10-22 thorough hunt #36 (dry): cheap-disproof closed five `(candidate)` rows (`count` capped at 200 in service + repository `Math.Clamp`; unsupported PATCH `op` → `invalidSyntax`; `active eq "FALSE"` via `bool.TryParse` in `ScimActiveFilterLiteralParser`; PATCH `active` string `"True"` same `ReadActive` path as hunt #35; tombstoned rows excluded before filter per regression `ListAsync_external_id_filter_excludes_directory_removed_users`); no failing repro; five replacement `(candidate)` rows; scoped `ScimUsers` tests not run (Application.Tests merge conflicts).
+
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `count` > 200 — **cheap-disproof 2026-10-22 #36:** `Math.Clamp(count, 0, 200)` at service and repo layers.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `op: "move"` — **cheap-disproof 2026-10-22 #36:** `ApplyOne` `Unsupported op` → `invalidSyntax`.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `active eq "FALSE"` — **cheap-disproof 2026-10-22 #36:** `bool.TryParse` is case-insensitive (hunt #29 `"True"` class).
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `active` string `"True"` — **cheap-disproof 2026-10-22 #36:** PATCH `ReadActive` string arm (hunt #35 `"false"`).
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — tombstone before filter — **cheap-disproof 2026-10-22 #36:** regression `ListAsync_external_id_filter_excludes_directory_removed_users` (#1755).
+
+2026-10-22 thorough hunt #35 (dry): cheap-disproof closed five `(candidate)` rows (`startIndex=1` → offset 0 in repository list; PATCH `active` string `"false"` via `ReadActive` `bool.TryParse`; parenthesized `and` filter via `Parse_deep_parentheses`/grouping; PATCH path trim in `ApplyOne`/`ScimPatchValuePathParser`; POST `userName` trimmed in `ReadRequiredString`); no failing repro; five replacement `(candidate)` rows; scoped `ScimUsers` tests not run (Application.Tests merge conflicts).
+
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `startIndex=1` — **cheap-disproof 2026-10-22 #35:** 1-based index; `offset = startIndex - 1`; regressions `ListAsync_normalizes_start_index_below_one`.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `active` string `"false"` — **cheap-disproof 2026-10-22 #35:** `ReadActive` `JsonValueKind.String` + `bool.TryParse`.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — parenthesized `and` — **cheap-disproof 2026-10-22 #35:** `ScimFilterParser` grouping; `Parse_deep_parentheses`.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — path whitespace — **cheap-disproof 2026-10-22 #35:** `path.Trim()` before flat key assignment.
+- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — padded `userName` — **cheap-disproof 2026-10-22 #35:** required string trim on ingest (intentional normalization).
+
+2026-10-22 thorough hunt #34 (dry): cheap-disproof closed five `(candidate)` rows (`externalId ne` case-exact `Ordinal` compare per RFC 7643; `replace displayName` JSON `null` clears via `ResolvePatchDisplayName`; `userName gt ""` matches all non-null names via `LexGreater`; flat `add` on `displayName` via `Add_inserts_value`/`ApplyFlat`; unknown `nickName` filter → `invalidFilter` hunt #21 class); no failing repro; five replacement `(candidate)` rows; scoped `ScimUsers` tests not run (Application.Tests merge conflicts).
+
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `externalId ne` — **cheap-disproof 2026-10-22 #34:** `ne` + case-exact `externalId` in `Compare`.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `displayName` JSON `null` — **cheap-disproof 2026-10-22 #34:** `ResolvePatchDisplayName` maps null to empty string (parity with remove).
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `userName gt ""` — **cheap-disproof 2026-10-22 #34:** any non-null userName lexicographically greater than empty.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `add` `displayName` — **cheap-disproof 2026-10-22 #34:** flat add assigns key; regression `Add_inserts_value`.
+- [x] (invalid) `ScimUsersController.ListAsync` — `nickName` filter — **cheap-disproof 2026-10-22 #34:** hunt #21; SQL translator / in-memory conservative handling → `invalidFilter` or no match.
+
+2026-10-22 thorough hunt #33 (dry): cheap-disproof closed five `(candidate)` rows (PATCH path `Active` uses case-insensitive flat map; `displayName pr` hunt #24 class; `remove displayName` intentional with regression `PatchAsync_remove_displayName_clears_display_name`; `id eq` GUID filter case-insensitive per `StringComparisonFor`; inactive reactivate then PATCH `active:true` uses normal `TransitionSeatAsync` seat increment); no failing repro; five replacement `(candidate)` rows; scoped `ScimUsers` tests not run (Application.Tests merge conflicts).
+
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — path casing `Active` — **cheap-disproof 2026-10-22 #33:** `ApplyFlat` dictionary `OrdinalIgnoreCase`.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `displayName pr` — **cheap-disproof 2026-10-22 #33:** duplicate hunt #24; null `DisplayName` omitted.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `remove displayName` — **cheap-disproof 2026-10-22 #33:** clears to empty by design; regression `PatchAsync_remove_displayName_clears_display_name`.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `id eq` uppercase GUID — **cheap-disproof 2026-10-22 #33:** `id` filter uses case-insensitive string compare (not `externalId` case-exact).
+- [x] (valid-no-repro) `ScimUsersController.CreateAsync` / `PatchAsync` — enable after inactive reactivate — **cheap-disproof 2026-10-22 #33:** seat increment on `false→true` transition; cap → `ScimSeatLimitExceededException`.
+
+2026-10-22 thorough hunt #32 (dry): cheap-disproof closed five `(candidate)` rows (PATCH `REPLACE` op accepted via `OrdinalIgnoreCase`; `active pr` always present via synthetic `GetString` bool strings; `userName co ""` broad filter sibling to hunt #28 `sw ""`; PUT omitted `externalId` defaults to `userName` per docs/parser by design; tombstone reactivate with `active: false` skips seat in `ReactivateRemovedUserAsync`); no failing repro; five replacement `(candidate)` rows; scoped `ScimUsers` tests not run (Application.Tests merge conflicts).
+
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — uppercase `REPLACE` — **cheap-disproof 2026-10-22 #32:** `ApplyOne` case-insensitive op name check.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `active pr` — **cheap-disproof 2026-10-22 #32:** `GetString("active")` never null; matches all live users.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `userName co ""` — **cheap-disproof 2026-10-22 #32:** empty `Contains` matches all (hunt #28 `sw ""` class).
+- [x] (valid-no-repro) `ScimUsersController.ReplaceAsync` — omitted `externalId` — **cheap-disproof 2026-10-22 #32:** `ScimUserResourceParser` default documented in `SCIM_ENTRA_ID_SETUP.md`.
+- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — reactivate inactive — **cheap-disproof 2026-10-22 #32:** `ReactivateRemovedUserAsync` seat only when `active` true.
+
+2026-10-22 thorough hunt #31 (dry): cheap-disproof closed five `(candidate)` rows (`not (active eq true)` via `ScimNotNode` + `CompareActive`/`TryParseEqualityOperand`; duplicate PATCH `replace` on same path last-wins per `Sequential_ops_apply_in_order`; inactive create skips seat increment per hunt #27; GET after PUT soft-disable intentional—`DirectoryRemovedUtc` null; escaped quote in filter literal per hunt #29 `ReadQuotedString`); no failing repro; five replacement `(candidate)` rows; scoped `ScimUsers` tests not run (Application.Tests merge conflicts).
+
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `not (active eq true)` — **cheap-disproof 2026-10-22 #31:** `ScimFilterInMemoryEvaluator` negates `CompareActive`; parser `Parse_active_eq_true` / `Parse_not`.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — two `replace` on same path — **cheap-disproof 2026-10-22 #31:** `ApplyFlat` sequential overwrite; regression `Sequential_ops_apply_in_order`.
+- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — `userName` + `active: false` — **cheap-disproof 2026-10-22 #31:** seat increment only when `active` (hunt #27).
+- [x] (valid-no-repro) `ScimUsersController.GetAsync` — GET after PUT `active: false` — **cheap-disproof 2026-10-22 #31:** soft-disable retains row; tombstone only on DELETE.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — escaped quote in `userName eq` — **cheap-disproof 2026-10-22 #31:** duplicate of hunt #29; `ReadQuotedString` backslash escape.
+
+2026-10-22 thorough hunt #30 (dry): cheap-disproof closed five `(candidate)` rows (PATCH case-only `userName` self-skips conflict via `exceptUserId` + case-insensitive `GetByUserNameAsync`; `not (userName eq)` via `ScimNotNode` in list filter evaluator/SQL `NOT`; minimal POST `userName`-only defaults `externalId` and `active: true` in `ScimUserResourceParser`; empty `Operations` no-op per hunt #6/#8; PUT `active: false` deactivates via `TransitionSeatAsync` without tombstone—parity with PATCH soft-disable); no failing repro; five replacement `(candidate)` rows; scoped `ScimUsers` tests not run (Application.Tests merge conflicts).
+
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — case-only `userName` replace — **cheap-disproof 2026-10-22 #30:** `EnsureUserNameNotUsedByAnotherLiveUserAsync` skips same id; may persist new casing (RFC case-insensitive match).
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `not (userName eq "x")` — **cheap-disproof 2026-10-22 #30:** `ScimFilterInMemoryEvaluator` / `SqlScimUserFilterTranslator` `NOT`; parser regression `not (userName eq "x")`.
+- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — minimal POST only `userName` — **cheap-disproof 2026-10-22 #30:** `externalId` defaults to `userName`; omitted `active` → true; integration `Post_users_accepts_entra_style_payload`.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `Operations: []` — **cheap-disproof 2026-10-22 #30:** duplicate of hunt #6/#8; `ApplyFlat` zero-op loop.
+- [x] (valid-no-repro) `ScimUsersController.ReplaceAsync` — PUT `active: false` on active user — **cheap-disproof 2026-10-22 #30:** `TransitionSeatAsync` decrement; row stays live (Entra soft-disable ≠ DELETE tombstone).
+
+2026-10-22 thorough hunt #29 (dry): cheap-disproof closed five `(candidate)` rows (`active eq "True"` via case-insensitive `bool.TryParse`; PATCH unknown flat keys not persisted—only core fields read; seat cap → 403 `mutability` proven class; PUT re-activate runs `TransitionSeatAsync` increment with compensate on failure; filter lexer uses simple backslash escape not `\\u` JSON); no failing repro; five replacement `(candidate)` rows; scoped `ScimUsers` tests not run (Application.Tests merge conflicts).
+
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `active eq "True"` — **cheap-disproof 2026-10-22 #29:** `ScimActiveFilterLiteralParser` / `bool.TryParse` accepts Pascal case.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — unknown attribute key — **cheap-disproof 2026-10-22 #29:** `PatchAsync` reads only `userName`/`externalId`/`displayName`/`active`; extra flat keys ignored on write.
+- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — seat cap — **cheap-disproof 2026-10-22 #29:** `ScimSeatLimitExceededException` → HTTP 403 `mutability` (hunt #13).
+- [x] (valid-no-repro) `ScimUsersController.ReplaceAsync` — inactive→active PUT — **cheap-disproof 2026-10-22 #29:** intentional seat transition + compensate path (2026-08-24 proven).
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — escaped filter literal — **cheap-disproof 2026-10-22 #29:** `ReadQuotedString` single-char escape; no JSON `\\u` unescape (consistent parse/compare).
+
+2026-10-22 thorough hunt #28 (dry): cheap-disproof closed five `(candidate)` rows (PATCH same `active` → `TransitionSeatAsync` no-op; `userName sw ""` matches all via `StartsWith` empty string; PUT/PATCH `userName` collision → proven conflict path; unknown id GET → 404; bulk no-op PATCH ops are O(n) loop without defect class); no failing repro; five replacement `(candidate)` rows; scoped `ScimUsers` tests not run (Application.Tests merge conflicts).
+
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — same `active` — **cheap-disproof 2026-10-22 #28:** `wasActive == willBeActive` early return in `TransitionSeatAsync`.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `userName sw ""` — **cheap-disproof 2026-10-22 #28:** empty suffix `StartsWith` matches every userName (broad filter, not SQL injection).
+- [x] (valid-no-repro) `ScimUsersController.ReplaceAsync` — `userName` taken — **cheap-disproof 2026-10-22 #28:** `EnsureUserNameNotUsedByAnotherLiveUserAsync` → 409; regressions on duplicate `userName`.
+- [x] (invalid) `ScimUsersController.GetAsync` — unknown id — **cheap-disproof 2026-10-22 #28:** null → 404 `notFound` (hunt #12 DELETE unknown parity).
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — many no-op ops — **cheap-disproof 2026-10-22 #28:** no correctness defect; performance not in scope without repro.
+
+2026-10-22 thorough hunt #27 (dry): cheap-disproof closed five `(candidate)` rows (idempotent PATCH `externalId` self-skip; `active ne true` via `CompareActive`/`SqlScimUserFilterTranslator` `ne`; inactive create skips seat increment; bracket PATCH paths rejected by `ParseForUserFlatPatchPath`; huge `startIndex` yields empty page via `Skip` without throw); no failing repro; five replacement `(candidate)` rows; scoped `ScimUsers` tests not run (Application.Tests merge conflicts).
+
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — same `externalId` — **cheap-disproof 2026-10-22 #27:** `other.Id != userId` guard (mirror #24).
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `active ne true` — **cheap-disproof 2026-10-22 #27:** active `ne` in in-memory `CompareActive` and SQL translator.
+- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — `active: false` — **cheap-disproof 2026-10-22 #27:** seat increment only when `active` true (hunt #9).
+- [x] (invalid) `ScimUsersController.PatchAsync` — bracket path — **cheap-disproof 2026-10-22 #27:** `notImplemented`/`invalidPath` from `ParseForUserFlatPatchPath`.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `startIndex` very large — **cheap-disproof 2026-10-22 #27:** offset `Skip` returns empty items; stable `totalResults` (hunt #10).
+
+2026-10-22 thorough hunt #26 (dry): cheap-disproof closed five `(candidate)` rows (`active eq "false"` via `bool.TryParse` in `ScimActiveFilterLiteralParser`; PATCH same `displayName` is benign no-op with audit; POST after DELETE reactivates per proven regression; `userName eq` with `%` uses `EqualitySql` not `LIKE`; DELETE tombstone hides GET via `DirectoryRemovedUtc`); no failing repro; five replacement `(candidate)` rows; scoped `ScimUsers` tests not run (Application.Tests merge conflicts).
+
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `active eq "false"` — **cheap-disproof 2026-10-22 #26:** `TryParseEqualityOperand` accepts bool strings; used in `ListAsync_filter_gives_and_precedence_over_or`.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — same `displayName` — **cheap-disproof 2026-10-22 #26:** idempotent replace persists same value; audit on update is intentional.
+- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — reactivate `externalId` — **cheap-disproof 2026-10-22 #26:** proven `CreateAsync_after_directory_remove_reactivates_same_external_id`.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `userName eq` with `%` — **cheap-disproof 2026-10-22 #26:** `eq` binds literal via `=` / case-insensitive equality, not `co` wildcard expansion.
+- [x] (valid-no-repro) `ScimUsersController.DeleteAsync` / `GetAsync` — tombstone GET 404 — **cheap-disproof 2026-10-22 #26:** `GetAsync` filters `DirectoryRemovedUtc`; hunt #11 parity.
+
+2026-10-22 thorough hunt #25 (dry): cheap-disproof closed five `(candidate)` rows (`active eq "0"` via `ScimActiveFilterLiteralParser` mirror of `"1"`; `externalId gt` uses `OrderedCompareSql` on SQL / `LexGreater` in-memory; PATCH same `userName` self-skips in `EnsureUserNameNotUsedByAnotherLiveUserAsync`; omitted/blank `filter` → `Parse` null full list; PUT displayName-only leaves `active` unchanged so `TransitionSeatAsync` no-ops); no failing repro; five replacement `(candidate)` rows; scoped `ScimUsers` tests not run (Application.Tests merge conflicts).
+
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `active eq "0"` — **cheap-disproof 2026-10-22 #25:** `"0"` → false in `ScimActiveFilterLiteralParser`; parity `ListAsync_active_eq_numeric_one_returns_only_active_users` for `"1"`.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `externalId gt` — **cheap-disproof 2026-10-22 #25:** string ordered compare on case-exact `externalId`; SQL `OrderedCompareSql` / in-memory `LexGreater`.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — same `userName` — **cheap-disproof 2026-10-22 #25:** `exceptUserId` self-skip in `EnsureUserNameNotUsedByAnotherLiveUserAsync`.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — omitted/empty `filter` — **cheap-disproof 2026-10-22 #25:** `ScimFilterParser.Parse` null/whitespace → unfiltered list (hunt #5).
+- [x] (valid-no-repro) `ScimUsersController.ReplaceAsync` — displayName-only PUT — **cheap-disproof 2026-10-22 #25:** `TransitionSeatAsync` returns when `wasActive == willBeActive`.
+
+2026-10-22 thorough hunt #24 (dry): cheap-disproof closed five `(candidate)` rows (`active eq "1"` via `ScimActiveFilterLiteralParser` + `ListAsync_active_eq_numeric_one_returns_only_active_users`; `displayName pr` excludes null optional field; PATCH same `externalId` skips self in `EnsureExternalIdNotUsedByAnotherUserAsync`; malformed filter → `ScimFilterParseException` / `invalidFilter`; POST without `schemas` still parses core User attributes); no failing repro; five replacement `(candidate)` rows; scoped `ScimUsers` tests not run (Application.Tests merge conflicts).
+
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `active eq "1"` — **cheap-disproof 2026-10-22 #24:** literal parser accepts `"1"`; regression `ListAsync_active_eq_numeric_one_returns_only_active_users`.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `displayName pr` — **cheap-disproof 2026-10-22 #24:** `ScimPresentNode` requires `GetString` non-null; null `DisplayName` rows omitted.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — unchanged `externalId` — **cheap-disproof 2026-10-22 #24:** conflict only when `other.Id != userId`.
+- [x] (invalid) `ScimUsersController.ListAsync` — unclosed filter — **cheap-disproof 2026-10-22 #24:** `Unterminated string literal` → `invalidFilter` (hunt #13 malformed filter class).
+- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — missing `schemas` — **cheap-disproof 2026-10-22 #24:** `ParseUser` does not require `schemas`; Entra includes them but core fields suffice for create.
+
+2026-10-22 thorough hunt #23 (dry): cheap-disproof closed five `(candidate)` rows (`active eq true` unquoted parsed; `userName ne` in evaluator/SQL; POST `active: null` → `invalidValue` not default-active; PATCH `add` on `userName` still runs live-name conflict pre-check; `externalId ew` suffix operator in parser/evaluator); no failing repro; five replacement `(candidate)` rows; scoped `ScimUsers` tests not run (Application.Tests merge conflicts).
+
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `active eq true` unquoted — **cheap-disproof 2026-10-22 #23:** `ScimFilterParser.Parse_active_eq_true`; `ScimActiveFilterLiteralParser` on compare.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `userName ne` — **cheap-disproof 2026-10-22 #23:** `ne` in `ScimFilterInMemoryEvaluator` / SQL translator; parser `Parse_ne`.
+- [x] (invalid) `ScimUsersController.CreateAsync` — POST `active: null` — **cheap-disproof 2026-10-22 #23:** `ScimUserResourceParser.ReadActive` default arm → `invalidValue` (not silent default true).
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `add` on existing `userName` — **cheap-disproof 2026-10-22 #23:** flat `add` assigns then `EnsureUserNameNotUsedByAnotherLiveUserAsync`; parity `Add_inserts_value` / hunt #13.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `externalId ew` — **cheap-disproof 2026-10-22 #23:** parser `Parse_co_sw_ew`; `EndsWith` in in-memory evaluator.
+
+2026-10-22 thorough hunt #22 (dry): cheap-disproof closed five `(candidate)` rows (PATCH `active` JSON `null` → `ReadActive` `invalidValue`; `externalId sw` supported in in-memory/SQL translators; `id eq` list filter uses `Id.ToString("D")` parity; PUT omit `active` defaults true via `ScimUserResourceParser`; `displayName eq ""` does not match null optional field); no failing repro; five replacement `(candidate)` rows; scoped `ScimUsers` tests not run (Application.Tests merge conflicts).
+
+- [x] (invalid) `ScimUsersController.PatchAsync` — replace `active` with JSON `null` — **cheap-disproof 2026-10-22 #22:** `ReadActive` `JsonValueKind.Null` → `invalidValue` default arm (not fallback retain).
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `externalId sw` prefix — **cheap-disproof 2026-10-22 #22:** `ScimFilterInMemoryEvaluator` `sw` / SQL `LIKE`; parser `userName sw`.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `id eq "{guid}"` — **cheap-disproof 2026-10-22 #22:** `GetString` maps `id` to `user.Id` canonical `D` format; list filter is intentional GET alternative.
+- [x] (valid-no-repro) `ScimUsersController.ReplaceAsync` — PUT omits `active` — **cheap-disproof 2026-10-22 #22:** missing property → `ReadActive` returns true; full-replace contract (Entra supplies `active` when deactivating).
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `displayName eq ""` — **cheap-disproof 2026-10-22 #22:** null `DisplayName` does not equal empty string in `eq` compare; empty stored value matches only when persisted empty.
+
+2026-10-22 thorough hunt #21 (hit): PATCH `remove` on `active` dropped the flat-map key and `ReadActive` fell back to the stored value (silent no-op) instead of `mutability` like `userName`/`externalId`; `RejectRemovedRequiredAttribute` now guards `active`; regression `PatchAsync_remove_active_rejects_required_attribute`; cheap-disproof closed four sibling `(candidate)` rows (unknown `nickName` → SQL `invalidFilter`; `userName co` substring in `ScimFilterInMemoryEvaluator`; numeric `active: 0` proven; Entra `emails[…]` alias integration-tested); scoped `ScimUsers` tests not run (merge conflicts in unrelated Application.Tests files).
+
+- [x] (invalid) `ScimUsersController.ListAsync` — unknown `nickName` filter — **cheap-disproof 2026-10-22 #21:** `SqlScimUserFilterTranslator.ColumnSql` throws → controller `invalidFilter`; in-memory path returns no matches (conservative).
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `userName co "corp"` — **cheap-disproof 2026-10-22 #21:** `ScimFilterInMemoryEvaluator` `co` operator; parser regression `userName co "corp"`.
+- [x] (proven) `ScimUserService.PatchAsync` — `remove` on `active` — **hit 2026-10-22 #21:** required-attribute remove must not silently retain via `ReadActive` fallback; regression `PatchAsync_remove_active_rejects_required_attribute`.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — numeric `active: 0` — **cheap-disproof 2026-10-22 #21:** proven 2026-10-05; regression `PatchAsync_replace_active_numeric_zero_deactivates_user`.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `emails[type eq "work"].value` alias — **cheap-disproof 2026-10-22 #21:** maps to `UserName`; integration `Get_users_filter_emails_work_value_eq_entra_literal_returns_single_resource`.
+
+2026-10-22 thorough hunt #20 (dry): cheap-disproof closed five regression-backed `(candidate)` rows (`externalId` case-variant create is RFC case-exact by design; `or`/`and` precedence proven; whitespace-only `userName` PATCH `invalidValue`; whitespace-only `displayName` PATCH clears; `userName pr` presence is supported in parser and SQL `IS NOT NULL` — prior row mis-stated `eq`+`pr`); no failing repro; five replacement `(candidate)` rows; scoped `ScimUsers` tests not run (Defender WIP compile).
+
+- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — `externalId` case-only variant — **cheap-disproof 2026-10-22 #20:** per-tenant case-exact `externalId` equality; regression `CreateAsync_external_id_case_variant_does_not_conflict_with_existing_user`.
+- [x] (valid-no-repro) `ScimFilterParser` / `ScimUsersController.ListAsync` — `or` looser than `and` — **cheap-disproof 2026-10-22 #20:** RFC 7644 precedence; regression `Parse_or_binds_looser_than_and` (proven 2026-10-09).
+- [x] (invalid) `ScimUsersController.PatchAsync` — whitespace-only `userName` — **cheap-disproof 2026-10-22 #20:** `invalidValue`; regression `PatchAsync_replace_userName_whitespace_only_throws`.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — whitespace-only `displayName` — **cheap-disproof 2026-10-22 #20:** clears optional field; regression `PatchAsync_replace_displayName_whitespace_only_clears_display_name`.
+- [x] (invalid) `ScimUsersController.ListAsync` — `userName pr` presence — **cheap-disproof 2026-10-22 #20:** `ScimPresentNode` + `SqlScimUserFilterTranslator` `IS NOT NULL`; regression `Parse_not_and_combo` (not unsupported `invalidFilter`).
+
+2026-10-22 thorough hunt #19 (dry): cheap-disproof closed five regression-backed `(candidate)` rows (create seat release on insert failure; optional `displayName` remove clears; filter `not`/`and` precedence proven; non-string `displayName` PATCH `invalidValue`; live duplicate `externalId` → conflict/reactivate path); no failing repro; five replacement `(candidate)` rows; scoped `ScimUsers` tests not run (Defender WIP compile).
+
+- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — seat release on insert failure — **cheap-disproof 2026-10-22 #19:** catch decrements seat; regression `CreateAsync_releases_reserved_seat_when_insert_fails` (2026-08-24 proven fix).
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `remove` on `displayName` — **cheap-disproof 2026-10-22 #19:** flat remove clears optional attribute; regression `PatchAsync_remove_displayName_clears_display_name`.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `not` over `and` — **cheap-disproof 2026-10-22 #19:** `ScimFilterParser` precedence; regressions `Parse_not_binds_tighter_than_and` / `ListAsync_filter_gives_and_precedence_over_or` (2026-10-09 proven fix).
+- [x] (invalid) `ScimUsersController.PatchAsync` — non-string `displayName` — **cheap-disproof 2026-10-22 #19:** `invalidValue`; regression `PatchAsync_replace_displayName_non_string_throws`.
+- [x] (invalid) `ScimUsersController.CreateAsync` — duplicate live `externalId` — **cheap-disproof 2026-10-22 #19:** `GetByExternalIdAsync` → `ScimConflictException` when `DirectoryRemovedUtc` null; reactivate path when tombstoned (not a second live row).
+
+2026-10-22 thorough hunt #18 (dry): cheap-disproof closed five regression-backed `(candidate)` rows (PUT seat compensation on persistence failure; PATCH `active:false` idempotent seat decrement; second DELETE 404 on tombstone; invalid User `members[…]` path `invalidPath`; parser trim `externalId` collision unit); no failing repro; five replacement `(candidate)` rows; scoped `ScimUsers` tests not run (Defender WIP compile).
+
+- [x] (valid-no-repro) `ScimUsersController.ReplaceAsync` — seat compensate on replace failure — **cheap-disproof 2026-10-22 #18:** `CompensateSeatTransitionAsync`; regression `ReplaceAsync_compensates_seat_when_persistence_fails_after_activation` (2026-08-24 proven fix).
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `active:false` when already inactive — **cheap-disproof 2026-10-22 #18:** `TransitionSeatAsync` no-op when `wasActive == willBeActive`; regression `PatchAsync_active_false_on_already_inactive_user_does_not_decrement_seats_again`.
+- [x] (valid-no-repro) `ScimUsersController.DeleteAsync` — repeat DELETE on tombstone — **cheap-disproof 2026-10-22 #18:** `DirectoryRemovedUtc` guard; regression `DeactivateAsync_throws_not_found_when_user_already_directory_removed` (2026-08-25 proven fix).
+- [x] (invalid) `ScimUsersController.PatchAsync` — invalid `members[value eq "x"]` — **cheap-disproof 2026-10-22 #18:** `invalidPath`; regression `Invalid_member_filter_value_throws_invalid_path`.
+- [x] (valid-no-repro) `ScimUserResourceParser` / `CreateAsync` — trim `externalId` collision — **cheap-disproof 2026-10-22 #18:** unit `ScimUserResourceParser_trimmed_external_id_collides_with_existing_trimmed_value` aligns with create conflict path.
+
+2026-10-22 thorough hunt #17 (dry): cheap-disproof closed five regression-backed `(candidate)` rows (tombstoned `externalId` on PUT/PATCH conflicts; trimmed `externalId` duplicate detection; required `externalId` remove `mutability`; list/filter skips directory-removed users; deserialize `OperationCanceledException` propagates on POST); no failing repro; five replacement `(candidate)` rows; scoped `ScimUsers` tests not run (Defender WIP compile).
+
+- [x] (invalid) `ScimUsersController.ReplaceAsync` — tombstoned `externalId` on PUT — **cheap-disproof 2026-10-22 #17:** `EnsureExternalIdNotUsedByAnotherUserAsync`; regression `ReplaceAsync_tombstoned_external_id_throws_conflict` (2026-09-03 proven fix).
+- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — padded `externalId` duplicate — **cheap-disproof 2026-10-22 #17:** trim on parse; regression `CreateAsync_trimmed_external_id_conflicts_with_existing_user` (2026-08-24 proven fix).
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `remove` on `externalId` — **cheap-disproof 2026-10-22 #17:** `mutability`; regression `PatchAsync_remove_externalId_rejects_required_attribute`.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — omit directory-removed — **cheap-disproof 2026-10-22 #17:** `DirectoryRemovedUtc` excluded; regression `ListAsync_external_id_filter_excludes_directory_removed_users`.
+- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — canceled JSON deserialize — **cheap-disproof 2026-10-22 #17:** `OperationCanceledException` rethrow ~86–88; regression `CreateAsync_propagates_operation_canceled_during_json_deserialize` (non-OCE faults remain `invalidSyntax` per 2026-10-22 hit).
+
+2026-10-22 thorough hunt #16 (dry): cheap-disproof closed five regression-backed `(candidate)` rows (invalid string `active` PATCH; POST reactivates directory-removed `externalId`; DELETE seat compensation on persistence failure; tombstoned `externalId` PATCH conflict; User `members[…]` PATCH returns `notImplemented`); no failing repro; five replacement `(candidate)` rows; scoped `ScimUsers` tests not run (Defender WIP compile).
+
+- [x] (invalid) `ScimUsersController.PatchAsync` — non-boolean `active` string — **cheap-disproof 2026-10-22 #16:** `ReadActive` rejects; regression `PatchAsync_replace_active_invalid_string_throws`.
+- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — POST after directory DELETE — **cheap-disproof 2026-10-22 #16:** `ReactivateRemovedUserAsync`; regression `CreateAsync_after_directory_remove_reactivates_same_external_id` (2026-08-25 proven fix).
+- [x] (valid-no-repro) `ScimUsersController.DeleteAsync` — seat restore on deactivate failure — **cheap-disproof 2026-10-22 #16:** compensating increment in `DeactivateAsync` catch; regression `DeactivateAsync_restores_seat_when_persistence_fails`.
+- [x] (invalid) `ScimUsersController.PatchAsync` — tombstoned `externalId` claim — **cheap-disproof 2026-10-22 #16:** `EnsureExternalIdNotUsedByAnotherUserAsync`; regression `PatchAsync_tombstoned_external_id_throws_conflict`.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `members[value eq "…"]` on User — **cheap-disproof 2026-10-22 #16:** `notImplemented` by design; regression `Valid_guid_member_path_on_user_throws_not_implemented`.
+
+2026-10-22 thorough hunt #15 (dry): cheap-disproof closed five regression-backed `(candidate)` rows (`externalId` filter case-exact by design; duplicate `userName` create returns conflict; required `userName` remove returns `mutability`; duplicate `externalId` PUT returns conflict; `active eq "false"` and and/or precedence covered by parser regressions); no failing repro; five replacement `(candidate)` rows; scoped `ScimUsers` tests not run (Defender WIP compile).
+
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `externalId` filter case-exact — **cheap-disproof 2026-10-22 #15:** RFC 7643 case-exact `externalId`; regression `ListAsync_external_id_filter_matches_case_exact_per_rfc7643`.
+- [x] (invalid) `ScimUsersController.CreateAsync` — duplicate `userName` — **cheap-disproof 2026-10-22 #15:** `EnsureUserNameNotUsedByAnotherLiveUserAsync`; regression `CreateAsync_duplicate_user_name_throws_conflict` (proven-class behavior holds).
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `remove` on `userName` — **cheap-disproof 2026-10-22 #15:** required-attribute `mutability`; regression `PatchAsync_remove_userName_rejects_required_attribute` (2026-10-09 proven fix).
+- [x] (invalid) `ScimUsersController.ReplaceAsync` — duplicate `externalId` — **cheap-disproof 2026-10-22 #15:** pre-check conflict; regression `ReplaceAsync_duplicate_external_id_throws_conflict` (2026-08-24 proven fix).
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `active eq "false"` / and-or — **cheap-disproof 2026-10-22 #15:** `ScimActiveFilterLiteralParser.TryParseEqualityOperand`; regression `ListAsync_filter_gives_and_precedence_over_or`.
+
+2026-10-22 thorough hunt #14 (dry): cheap-disproof closed five picker `(candidate)` rows (trimmed `userName` on create; case-insensitive PATCH paths via `OrdinalIgnoreCase` flat map; PUT re-activation seat cap via `TransitionSeatAsync`; duplicate `userName` PATCH blocked with regression; `userName` list filter case-insensitivity with regression); no failing repro; five replacement `(candidate)` rows; scoped `ScimUsers` tests not run (Defender WIP compile).
+
+- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — padded `userName` — **cheap-disproof 2026-10-22 #14:** `ReadRequiredString` trims; `EnsureUserNameNotUsedByAnotherLiveUserAsync` uses trimmed value; intentional normalization.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — path case `DISPLAYNAME` — **cheap-disproof 2026-10-22 #14:** `BuildFlatMap` / `ApplyFlat` use `StringComparer.OrdinalIgnoreCase`; no duplicate keys.
+- [x] (valid-no-repro) `ScimUsersController.ReplaceAsync` — seat cap on re-activate — **cheap-disproof 2026-10-22 #14:** `TransitionSeatAsync` ~119–123 increments seat; failure → `ScimSeatLimitExceededException` → 403.
+- [x] (invalid) `ScimUsersController.PatchAsync` — duplicate `userName` replace — **cheap-disproof 2026-10-22 #14:** conflict pre-check; regression `PatchAsync_replace_userName_to_another_users_name_throws_conflict` (behavior correct).
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `userName` filter case — **cheap-disproof 2026-10-22 #14:** regression `ListAsync_userName_filter_matches_case_insensitive`.
+
+2026-10-22 thorough hunt #13 (dry): cheap-disproof closed five picker `(candidate)` rows (malformed list `filter` → `invalidFilter`; PATCH `replace` without `value` → `invalidValue` per `Missing_value_on_replace_throws`; cross-tenant GET id misses tenant scope → 404; seat exhaustion → `ScimSeatLimitExceededException` / 403 `mutability`; flat PATCH `add` overwrites existing keys like `replace` per `Add_inserts_value`); no failing repro; five replacement `(candidate)` rows; scoped `ScimUsers` tests not run (Defender WIP compile).
+
+- [x] (invalid) `ScimUsersController.ListAsync` — malformed `filter` — **cheap-disproof 2026-10-22 #13:** `ScimFilterParser.Parse` throws; controller ~51–54 maps `invalidFilter` (fail-closed, not a defect).
+- [x] (invalid) `ScimUsersController.PatchAsync` — `replace` without `value` — **cheap-disproof 2026-10-22 #13:** `ApplyOne` ~47–48 `invalidValue`; regression `Missing_value_on_replace_throws`.
+- [x] (invalid) `ScimUsersController.GetAsync` — cross-tenant user id — **cheap-disproof 2026-10-22 #13:** `GetByIdAsync` requires matching `TenantId`; miss → null → 404 `notFound`.
+- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — seat limit exceeded — **cheap-disproof 2026-10-22 #13:** `TryIncrementEnterpriseScimSeatAsync` false → `ScimSeatLimitExceededException`; controller ~106–108 → 403 `mutability`.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `add` on existing attribute — **cheap-disproof 2026-10-22 #13:** flat map `add`/`replace` both assign key; `Add_inserts_value` regression.
+
+2026-10-22 thorough hunt #12 (dry): cheap-disproof closed five picker `(candidate)` rows (missing `userName` property → `invalidValue`; PATCH op without `op` → `invalidSyntax`; `count=201` clamps to 200 via `Math.Clamp`; `"True"` string `active` accepted by `bool.TryParse`; DELETE unknown id → `ScimNotFoundException` not 204); no failing repro; five replacement `(candidate)` rows; scoped `ScimUsers` tests not run (Defender WIP compile).
+
+- [x] (invalid) `ScimUsersController.CreateAsync` — missing `userName` property — **cheap-disproof 2026-10-22 #12:** `ReadRequiredString` ~21–22 → `invalidValue`.
+- [x] (invalid) `ScimUsersController.PatchAsync` — operation missing `op` — **cheap-disproof 2026-10-22 #12:** `ApplyOne` ~28–29 → `invalidSyntax`.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `count=201` — **cheap-disproof 2026-10-22 #12:** `Math.Clamp(count, 0, 200)` then `Take`; max page 200, no off-by-one past clamp.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `active` `"True"` — **cheap-disproof 2026-10-22 #12:** `bool.TryParse` is case-insensitive for Boolean strings.
+- [x] (valid-no-repro) `ScimUsersController.DeleteAsync` — unknown user id — **cheap-disproof 2026-10-22 #12:** `DeactivateAsync` ~129 `GetByIdAsync` miss → `ScimNotFoundException`; controller 404.
+
+2026-10-22 thorough hunt #11 (dry): cheap-disproof closed five picker `(candidate)` rows (GET hides directory-removed users via `GetAsync` null → 404; string `active` literals parsed in `ReadActive`; empty `userName` → `invalidValue`; `count=200` honored by single service clamp; PATCH on tombstone throws `ScimNotFoundException` like PUT); no failing repro; five replacement `(candidate)` rows; scoped `ScimUsers` tests not run (Defender WIP compile).
+
+- [x] (valid-no-repro) `ScimUsersController.GetAsync` — GET tombstoned user — **cheap-disproof 2026-10-22 #11:** `GetAsync` ~28–29 filters `DirectoryRemovedUtc`; controller 404 `notFound` (parity `DeactivateAsync_throws_not_found_when_user_already_directory_removed`).
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `active` string `"false"` — **cheap-disproof 2026-10-22 #11:** `ReadActive` ~44–46 `bool.TryParse` on string literals; provisioner compatibility.
+- [x] (invalid) `ScimUsersController.CreateAsync` — empty `userName` — **cheap-disproof 2026-10-22 #11:** `ReadRequiredString` ~23–24 whitespace trim → `invalidValue`.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `count=200` cap — **cheap-disproof 2026-10-22 #11:** only `ScimUserService.ListAsync` clamps; controller forwards query; no double-clamp defect.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — PATCH tombstoned user — **cheap-disproof 2026-10-22 #11:** `PatchAsync` ~18–20 `DirectoryRemovedUtc` → `ScimNotFoundException`; controller `notFound`.
+
+2026-10-22 thorough hunt #10 (dry): cheap-disproof closed five picker `(candidate)` rows (non-string `displayName` → `invalidValue`; uppercase PATCH `op` accepted via `OrdinalIgnoreCase`; directory-removed PUT throws `ScimNotFoundException` → 404; `startIndex` past end yields empty page with stable `totalResults`; PATCH `remove` ignores extraneous `value`); no failing repro; five replacement `(candidate)` rows; scoped `ScimUsers` tests not run (Defender WIP compile).
+
+- [x] (invalid) `ScimUsersController.CreateAsync` — `displayName` number — **cheap-disproof 2026-10-22 #10:** `ReadOptionalString` ~33 → `invalidValue`; PATCH parity `PatchAsync_replace_displayName_non_string_throws`.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — uppercase `REPLACE` — **cheap-disproof 2026-10-22 #10:** `ApplyOne` uses `OrdinalIgnoreCase` for `add`/`replace`/`remove`.
+- [x] (valid-no-repro) `ScimUsersController.ReplaceAsync` — PUT on directory-removed user — **cheap-disproof 2026-10-22 #10:** `ReplaceAsync` ~97–98 `DirectoryRemovedUtc` → `ScimNotFoundException`; controller maps `notFound` (parity GET via `GetAsync` ~28–29).
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `startIndex` beyond total — **cheap-disproof 2026-10-22 #10:** repository `Skip(offset).Take(count)` returns empty items; `total` unchanged (RFC 7644 list response).
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `remove` with extra `value` — **cheap-disproof 2026-10-22 #10:** `ApplyOne` remove branch returns before reading `value`; regression `PatchAsync_remove_displayName_clears_display_name`.
+
+2026-10-22 thorough hunt #9 (dry): cheap-disproof closed five picker `(candidate)` rows (unsupported PATCH `op` → `invalidSyntax`; inactive create correctly skips seat increment; whitespace `userName` on PUT → `invalidValue`; empty PATCH `path` → `invalidPath`; omitted `externalId` defaults to trimmed `userName` for duplicate checks per RFC/Entra minimal POST); no failing repro; five replacement `(candidate)` rows; scoped `ScimUsers` tests not run (Defender WIP compile).
+
+- [x] (invalid) `ScimUsersController.PatchAsync` — unsupported `op` (`copy`) — **cheap-disproof 2026-10-22 #9:** `ScimPatchOpEvaluator.ApplyOne` ~45–46 → `invalidSyntax`.
+- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — `active: false` — **cheap-disproof 2026-10-22 #9:** `CreateAsync` only calls `TryIncrementEnterpriseScimSeatAsync` when `active` is true (~60–68); inactive provisioners should not consume seats.
+- [x] (invalid) `ScimUsersController.ReplaceAsync` — whitespace-only `userName` — **cheap-disproof 2026-10-22 #9:** `ReadRequiredString` rejects whitespace after trim → `invalidValue` (PATCH parity in `PatchAsync_replace_userName_whitespace_only_throws`).
+- [x] (invalid) `ScimUsersController.PatchAsync` — empty `path` — **cheap-disproof 2026-10-22 #9:** `ApplyOne` ~35–37 → `invalidPath` “Empty path.”
+- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — omitted `externalId` — **cheap-disproof 2026-10-22 #9:** `ParseUser` ~15 sets `externalId` from trimmed `userName`; `GetByExternalIdAsync` conflict path is intentional.
+
+2026-10-22 thorough hunt #8 (dry): cheap-disproof closed five picker `(candidate)` rows (PATCH missing `path` returns `invalidPath`; `userName: null` fails `ReadRequiredString`; omitted `active` defaults true and reserves seat when active per `CreateAsync`; negative `count` clamped with regression `ListAsync_negative_count_clamped_to_empty_page`; `null` operation entry fails `ApplyOne` object guard); no failing repro; five replacement `(candidate)` rows; scoped `ScimUsers` tests not run (Defender WIP compile).
+
+- [x] (invalid) `ScimUsersController.PatchAsync` — operation missing `path` — **cheap-disproof 2026-10-22 #8:** `ScimPatchOpEvaluator.ApplyOne` ~31–32 → `invalidPath`.
+- [x] (invalid) `ScimUsersController.ReplaceAsync` — `userName` JSON `null` — **cheap-disproof 2026-10-22 #8:** `ReadRequiredString` requires string kind → `invalidValue`.
+- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — omit `active` — **cheap-disproof 2026-10-22 #8:** `ReadActive` defaults `true`; `CreateAsync` increments seat when `active` (~60–68); intended provisioning default.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — negative `count` — **cheap-disproof 2026-10-22 #8:** `Math.Clamp(count, 0, 200)`; regression `ListAsync_negative_count_clamped_to_empty_page`.
+- [x] (invalid) `ScimUsersController.PatchAsync` — `Operations` contains `null` — **cheap-disproof 2026-10-22 #8:** `ApplyOne` ~26–27 non-object → `invalidSyntax`.
+
+2026-10-22 thorough hunt #7 (dry): cheap-disproof closed five picker `(candidate)` rows (JSON `null` POST root fails `ParseUser` non-object `invalidSyntax`; negative `startIndex` matches #6 paging clamp; missing `userName` on PUT returns `invalidValue`; PATCH string root fails `ApplyFlat` object guard; numeric `active` on create is intentional `ReadActive` coercion for provisioner literals); no failing repro; five replacement `(candidate)` rows; scoped `ScimUsers` tests not run (Defender WIP compile).
+
+- [x] (invalid) `ScimUsersController.CreateAsync` — JSON `null` root — **cheap-disproof 2026-10-22 #7:** deserialized `JsonElement` with `ValueKind.Null` → `ParseUser` `invalidSyntax` (non-object).
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — negative `startIndex` — **cheap-disproof 2026-10-22 #7:** controller and `ScimUserService.ListAsync` clamp to `1`; same semantics as `startIndex=0` (#6).
+- [x] (invalid) `ScimUsersController.ReplaceAsync` — PUT missing `userName` — **cheap-disproof 2026-10-22 #7:** `ReadRequiredString` → `invalidValue` “Missing or invalid 'userName'.”
+- [x] (invalid) `ScimUsersController.PatchAsync` — JSON string root — **cheap-disproof 2026-10-22 #7:** `ScimPatchOpEvaluator.ApplyFlat` requires object body → `invalidSyntax`.
+- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — numeric `active` `0`/`1` — **cheap-disproof 2026-10-22 #7:** `ReadActive` `JsonValueKind.Number` maps non-zero to true; aligns with `ScimActiveFilterLiteralParser` provisioner literals.
+
 2026-10-22 thorough hunt #6 (dry): cheap-disproof closed five picker `(candidate)` rows (`startIndex=0` and negative indices normalize to RFC 1-based paging in controller and `ScimUserService.ListAsync`; JSON number/boolean POST roots fail `ParseUser` non-object `invalidSyntax`; empty `Operations` array is intentional no-op PATCH; PUT patch envelope fails `ParseUser` required User shape; `count=0` empty page covered by `ListAsync_count_zero_returns_empty_page_with_total_results`); no failing repro; five replacement `(candidate)` rows; scoped `ScimUsers` tests not run (Defender WIP compile).
 
 - [x] (valid-no-repro) `ScimUsersController.ListAsync` — `startIndex=0` vs default — **cheap-disproof 2026-10-22 #6:** lines 39–40 clamp `< 1` to `1`; service `Math.Max(1, startIndex)`; list response uses normalized index per RFC 7644 §3.4.2.2.
@@ -2919,11 +3215,11 @@
 - **aliases:** scim; entra provisioning users
 - **paths:** ArchLucid.Api/Controllers/Scim/ScimUsersController.cs
 - **test-filter:** FullyQualifiedName~ScimUsers
-- **hunts:** 40
-- **bugs-found:** 22
-- **consecutive-dry-hunts:** 6
+- **hunts:** 77
+- **bugs-found:** 24
+- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — SCIM POST/PUT/PATCH mapped canceled JSON reads to invalidSyntax 400
+- **last-bug:** 2026-10-22 — SCIM seat compensate ran after audit log failed post-persist
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -3054,11 +3350,233 @@
 - [x] (invalid) `ScimUsersController.ReplaceAsync` — patch envelope on PUT — **cheap-disproof 2026-10-22 #6:** `ParseUser` rejects non-User resource.
 - [x] (valid-no-repro) `ScimUsersController.ListAsync` — `count=0` — **cheap-disproof 2026-10-22 #6:** service clamp + existing unit regression.
 
-- [ ] (candidate) `ScimUsersController.CreateAsync` — POST JSON literal `null` root — locus: `JsonSerializer.DeserializeAsync<JsonElement>` then `ParseUser` ~9–10; input: body `null` (expect `invalidSyntax` via non-object guard).
-- [ ] (candidate) `ScimUsersController.ListAsync` — negative `startIndex` (e.g. `?startIndex=-5`) — locus: controller `< 1` clamp ~39–40 and `ScimUserService.ListAsync` `Math.Max(1, startIndex)`; input: same first page as `startIndex=1`.
-- [ ] (candidate) `ScimUsersController.ReplaceAsync` — PUT User object missing `userName` — locus: `ScimUserResourceParser.ReadRequiredString`; input: `{"active":true}` only (expect `invalidValue`).
-- [ ] (candidate) `ScimUsersController.PatchAsync` — PATCH JSON string root — locus: `ScimPatchOpEvaluator.ApplyFlat` ~14–15; input: `"not-an-object"` body (expect `invalidSyntax`).
-- [ ] (candidate) `ScimUsersController.CreateAsync` — POST User with `active` as JSON number `0`/`1` — locus: `ReadActive` ~42–47; input: numeric active accepted vs strict boolean-only clients.
+- [x] (invalid) `ScimUsersController.CreateAsync` — JSON `null` root — **cheap-disproof 2026-10-22 #7:** `ParseUser` non-object `invalidSyntax`.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — negative `startIndex` — **cheap-disproof 2026-10-22 #7:** paging clamp to `1`.
+- [x] (invalid) `ScimUsersController.ReplaceAsync` — missing `userName` on PUT — **cheap-disproof 2026-10-22 #7:** `ReadRequiredString` `invalidValue`.
+- [x] (invalid) `ScimUsersController.PatchAsync` — string PATCH root — **cheap-disproof 2026-10-22 #7:** `ApplyFlat` object guard.
+- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — numeric `active` — **cheap-disproof 2026-10-22 #7:** intentional `ReadActive` number coercion.
+
+- [x] (invalid) `ScimUsersController.PatchAsync` — missing `path` — **cheap-disproof 2026-10-22 #8:** `invalidPath`.
+- [x] (invalid) `ScimUsersController.ReplaceAsync` — `userName: null` — **cheap-disproof 2026-10-22 #8:** `invalidValue`.
+- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — omitted `active` — **cheap-disproof 2026-10-22 #8:** default active + seat path.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — negative `count` — **cheap-disproof 2026-10-22 #8:** clamp + unit regression.
+- [x] (invalid) `ScimUsersController.PatchAsync` — `null` in `Operations` — **cheap-disproof 2026-10-22 #8:** `invalidSyntax`.
+
+- [x] (invalid) `ScimUsersController.PatchAsync` — unsupported `op` — **cheap-disproof 2026-10-22 #9:** `invalidSyntax`.
+- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — `active: false` seat skip — **cheap-disproof 2026-10-22 #9:** no seat increment when inactive.
+- [x] (invalid) `ScimUsersController.ReplaceAsync` — whitespace `userName` — **cheap-disproof 2026-10-22 #9:** `invalidValue`.
+- [x] (invalid) `ScimUsersController.PatchAsync` — empty `path` — **cheap-disproof 2026-10-22 #9:** `invalidPath`.
+- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — default `externalId` — **cheap-disproof 2026-10-22 #9:** `userName` fallback by design.
+
+- [x] (invalid) `ScimUsersController.CreateAsync` — numeric `displayName` — **cheap-disproof 2026-10-22 #10:** `invalidValue`.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — uppercase `op` — **cheap-disproof 2026-10-22 #10:** case-insensitive ops by design.
+- [x] (valid-no-repro) `ScimUsersController.ReplaceAsync` — PUT tombstoned user — **cheap-disproof 2026-10-22 #10:** `notFound` parity with GET.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — past-end `startIndex` — **cheap-disproof 2026-10-22 #10:** empty page + stable total.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `remove` + `value` — **cheap-disproof 2026-10-22 #10:** value ignored on remove.
+
+- [x] (valid-no-repro) `ScimUsersController.GetAsync` — GET tombstoned user — **cheap-disproof 2026-10-22 #11:** 404 `notFound`.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — string `active` — **cheap-disproof 2026-10-22 #11:** `ReadActive` string parse.
+- [x] (invalid) `ScimUsersController.CreateAsync` — empty `userName` — **cheap-disproof 2026-10-22 #11:** `invalidValue`.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `count=200` — **cheap-disproof 2026-10-22 #11:** service-only clamp.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — PATCH tombstone — **cheap-disproof 2026-10-22 #11:** `notFound`.
+
+- [x] (invalid) `ScimUsersController.CreateAsync` — missing `userName` — **cheap-disproof 2026-10-22 #12:** `invalidValue`.
+- [x] (invalid) `ScimUsersController.PatchAsync` — missing `op` — **cheap-disproof 2026-10-22 #12:** `invalidSyntax`.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `count=201` — **cheap-disproof 2026-10-22 #12:** clamp to 200.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `"True"` active — **cheap-disproof 2026-10-22 #12:** case-insensitive parse.
+- [x] (valid-no-repro) `ScimUsersController.DeleteAsync` — unknown id — **cheap-disproof 2026-10-22 #12:** 404 not 204.
+
+- [x] (invalid) `ScimUsersController.ListAsync` — malformed `filter` — **cheap-disproof 2026-10-22 #13:** `invalidFilter`.
+- [x] (invalid) `ScimUsersController.PatchAsync` — `replace` without `value` — **cheap-disproof 2026-10-22 #13:** `invalidValue`.
+- [x] (invalid) `ScimUsersController.GetAsync` — cross-tenant id — **cheap-disproof 2026-10-22 #13:** tenant-scoped lookup.
+- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — seat exhausted — **cheap-disproof 2026-10-22 #13:** 403 `mutability`.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `add` overwrites — **cheap-disproof 2026-10-22 #13:** flat PATCH semantics.
+
+- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — padded `userName` — **cheap-disproof 2026-10-22 #14:** trim + conflict on trimmed value.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — path case variance — **cheap-disproof 2026-10-22 #14:** `OrdinalIgnoreCase` flat map.
+- [x] (valid-no-repro) `ScimUsersController.ReplaceAsync` — re-activate seat cap — **cheap-disproof 2026-10-22 #14:** `TransitionSeatAsync` 403 path.
+- [x] (invalid) `ScimUsersController.PatchAsync` — duplicate `userName` — **cheap-disproof 2026-10-22 #14:** regression proves 409 `uniqueness`.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `userName` filter case — **cheap-disproof 2026-10-22 #14:** existing regression.
+
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `externalId` case-exact filter — **cheap-disproof 2026-10-22 #15:** RFC + regression.
+- [x] (invalid) `ScimUsersController.CreateAsync` — duplicate `userName` — **cheap-disproof 2026-10-22 #15:** conflict path holds.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — required `userName` remove — **cheap-disproof 2026-10-22 #15:** `mutability`.
+- [x] (invalid) `ScimUsersController.ReplaceAsync` — duplicate `externalId` — **cheap-disproof 2026-10-22 #15:** 409 pre-check.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `active`/`and`/`or` filter — **cheap-disproof 2026-10-22 #15:** parser regressions.
+
+- [x] (invalid) `ScimUsersController.PatchAsync` — invalid `active` string — **cheap-disproof 2026-10-22 #16:** `invalidValue` regression.
+- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — reactivate after DELETE — **cheap-disproof 2026-10-22 #16:** proven reactivation path.
+- [x] (valid-no-repro) `ScimUsersController.DeleteAsync` — seat compensate on failure — **cheap-disproof 2026-10-22 #16:** proven compensating increment.
+- [x] (invalid) `ScimUsersController.PatchAsync` — tombstoned `externalId` — **cheap-disproof 2026-10-22 #16:** conflict regression.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — User `members[…]` — **cheap-disproof 2026-10-22 #16:** `notImplemented` 501.
+
+- [x] (invalid) `ScimUsersController.ReplaceAsync` — tombstoned `externalId` PUT — **cheap-disproof 2026-10-22 #17:** conflict regression.
+- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — trimmed `externalId` — **cheap-disproof 2026-10-22 #17:** proven trim duplicate path.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `externalId` remove — **cheap-disproof 2026-10-22 #17:** `mutability`.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — directory-removed omitted — **cheap-disproof 2026-10-22 #17:** list regression.
+- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — deserialize cancel — **cheap-disproof 2026-10-22 #17:** OCE propagates.
+
+- [x] (valid-no-repro) `ScimUsersController.ReplaceAsync` — seat compensate — **cheap-disproof 2026-10-22 #18:** proven regression.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — inactive `active:false` — **cheap-disproof 2026-10-22 #18:** no double decrement.
+- [x] (valid-no-repro) `ScimUsersController.DeleteAsync` — second DELETE — **cheap-disproof 2026-10-22 #18:** `notFound`.
+- [x] (invalid) `ScimUsersController.PatchAsync` — bad `members[…]` path — **cheap-disproof 2026-10-22 #18:** `invalidPath`.
+- [x] (valid-no-repro) `ScimUserResourceParser` — trim collision — **cheap-disproof 2026-10-22 #18:** parser unit.
+
+- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — seat on insert fail — **cheap-disproof 2026-10-22 #19:** decrement regression.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — remove `displayName` — **cheap-disproof 2026-10-22 #19:** clears optional field.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `not`/`and` — **cheap-disproof 2026-10-22 #19:** parser precedence proven.
+- [x] (invalid) `ScimUsersController.PatchAsync` — bad `displayName` type — **cheap-disproof 2026-10-22 #19:** `invalidValue`.
+- [x] (invalid) `ScimUsersController.CreateAsync` — duplicate `externalId` — **cheap-disproof 2026-10-22 #19:** conflict or reactivate, not duplicate live insert.
+
+- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — `externalId` case variant — **cheap-disproof 2026-10-22 #20:** RFC case-exact; regression-backed.
+- [x] (valid-no-repro) `ScimFilterParser` — `or`/`and` precedence — **cheap-disproof 2026-10-22 #20:** proven-class behavior.
+- [x] (invalid) `ScimUsersController.PatchAsync` — whitespace `userName` — **cheap-disproof 2026-10-22 #20:** `invalidValue`.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — whitespace `displayName` — **cheap-disproof 2026-10-22 #20:** clears display name.
+- [x] (invalid) `ScimUsersController.ListAsync` — `userName pr` — **cheap-disproof 2026-10-22 #20:** presence supported; not `invalidFilter`.
+
+- [x] (invalid) `ScimUsersController.ListAsync` — `nickName` filter — **cheap-disproof 2026-10-22 #21:** SQL `invalidFilter`.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `userName co` — **cheap-disproof 2026-10-22 #21:** evaluator supports `co`.
+- [x] (proven) `ScimUsersController.PatchAsync` — remove `active` — **hit 2026-10-22 #21:** `mutability` guard added.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `active: 0` — **cheap-disproof 2026-10-22 #21:** proven regression.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — emails work alias — **cheap-disproof 2026-10-22 #21:** Entra integration test.
+
+- [x] (invalid) `ScimUsersController.PatchAsync` — `active` JSON `null` — **cheap-disproof 2026-10-22 #22:** `invalidValue`.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `externalId sw` — **cheap-disproof 2026-10-22 #22:** `sw` operator implemented.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `id eq` filter — **cheap-disproof 2026-10-22 #22:** `id` attribute path supported.
+- [x] (valid-no-repro) `ScimUsersController.ReplaceAsync` — omitted `active` — **cheap-disproof 2026-10-22 #22:** defaults true by design.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `displayName eq ""` — **cheap-disproof 2026-10-22 #22:** null vs empty semantics.
+
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `active eq true` — **cheap-disproof 2026-10-22 #23:** parser + literal parser.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `userName ne` — **cheap-disproof 2026-10-22 #23:** `ne` supported.
+- [x] (invalid) `ScimUsersController.CreateAsync` — `active: null` — **cheap-disproof 2026-10-22 #23:** `invalidValue`.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `add` on `userName` — **cheap-disproof 2026-10-22 #23:** conflict pre-check after flat map.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `externalId ew` — **cheap-disproof 2026-10-22 #23:** `ew` operator implemented.
+
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `active eq "1"` — **cheap-disproof 2026-10-22 #24:** regression `ListAsync_active_eq_numeric_one_returns_only_active_users`.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `displayName pr` — **cheap-disproof 2026-10-22 #24:** null display names excluded.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — same `externalId` — **cheap-disproof 2026-10-22 #24:** self-skip in conflict guard.
+- [x] (invalid) `ScimUsersController.ListAsync` — bad filter grammar — **cheap-disproof 2026-10-22 #24:** `invalidFilter`.
+- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — no `schemas` — **cheap-disproof 2026-10-22 #24:** not required for `ParseUser`.
+
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `active eq "0"` — **cheap-disproof 2026-10-22 #25:** literal parser `"0"` → false.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `externalId gt` — **cheap-disproof 2026-10-22 #25:** ordered compare supported.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — same `userName` — **cheap-disproof 2026-10-22 #25:** self-skip conflict guard.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — empty/omitted filter — **cheap-disproof 2026-10-22 #25:** `Parse` null → full list.
+- [x] (valid-no-repro) `ScimUsersController.ReplaceAsync` — displayName-only — **cheap-disproof 2026-10-22 #25:** no seat transition when active unchanged.
+
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `active eq "false"` — **cheap-disproof 2026-10-22 #26:** bool string literal parser (also #15).
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — same `displayName` — **cheap-disproof 2026-10-22 #26:** idempotent no-op OK.
+- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — reactivate POST — **cheap-disproof 2026-10-22 #26:** proven reactivate path.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `%` in `eq` literal — **cheap-disproof 2026-10-22 #26:** equality not LIKE.
+- [x] (valid-no-repro) `ScimUsersController.DeleteAsync` — GET after DELETE — **cheap-disproof 2026-10-22 #26:** tombstone 404.
+
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — same `externalId` — **cheap-disproof 2026-10-22 #27:** self-skip.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `active ne true` — **cheap-disproof 2026-10-22 #27:** `ne` supported on active.
+- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — inactive create — **cheap-disproof 2026-10-22 #27:** no seat reserve.
+- [x] (invalid) `ScimUsersController.PatchAsync` — bracket path — **cheap-disproof 2026-10-22 #27:** flat-path only.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — huge `startIndex` — **cheap-disproof 2026-10-22 #27:** empty page.
+
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — same `active` — **cheap-disproof 2026-10-22 #28:** seat transition no-op.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `userName sw ""` — **cheap-disproof 2026-10-22 #28:** empty prefix matches all.
+- [x] (valid-no-repro) `ScimUsersController.ReplaceAsync` — duplicate `userName` — **cheap-disproof 2026-10-22 #28:** conflict path proven.
+- [x] (invalid) `ScimUsersController.GetAsync` — unknown id — **cheap-disproof 2026-10-22 #28:** 404 notFound.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — bulk no-op ops — **cheap-disproof 2026-10-22 #28:** no correctness bug.
+
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `active eq "True"` — **cheap-disproof 2026-10-22 #29:** bool string parse.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — unknown flat key — **cheap-disproof 2026-10-22 #29:** not persisted.
+- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — seat cap — **cheap-disproof 2026-10-22 #29:** 403 mutability.
+- [x] (valid-no-repro) `ScimUsersController.ReplaceAsync` — re-activate PUT — **cheap-disproof 2026-10-22 #29:** seat transition by design.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — filter escapes — **cheap-disproof 2026-10-22 #29:** SCIM filter lexer semantics.
+
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — case-only `userName` replace — **cheap-disproof 2026-10-22 #30:** self-skip + case-insensitive lookup (hunt #25 same-`userName` class).
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `not (userName eq "x")` — **cheap-disproof 2026-10-22 #30:** `ScimNotNode` evaluator/SQL `NOT`.
+- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — minimal POST only `userName` — **cheap-disproof 2026-10-22 #30:** `ScimUserResourceParser` defaults.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `Operations` array empty — **cheap-disproof 2026-10-22 #30:** hunt #6/#8 `ApplyFlat` no-op.
+- [x] (valid-no-repro) `ScimUsersController.ReplaceAsync` — PUT `active: false` — **cheap-disproof 2026-10-22 #30:** soft-disable seat transition; not tombstone.
+
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `not (active eq true)` — **cheap-disproof 2026-10-22 #31:** `ScimNotNode` + `CompareActive`.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — duplicate `replace` same path — **cheap-disproof 2026-10-22 #31:** sequential last-wins.
+- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — inactive minimal POST — **cheap-disproof 2026-10-22 #31:** no seat when `active: false`.
+- [x] (valid-no-repro) `ScimUsersController.GetAsync` — GET after soft-disable PUT — **cheap-disproof 2026-10-22 #31:** by design vs DELETE tombstone.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — escaped quote in filter — **cheap-disproof 2026-10-22 #31:** hunt #29 class.
+
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — uppercase `REPLACE` — **cheap-disproof 2026-10-22 #32:** case-insensitive `op`.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `active pr` — **cheap-disproof 2026-10-22 #32:** synthetic active string always present.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `userName co ""` — **cheap-disproof 2026-10-22 #32:** empty substring filter.
+- [x] (valid-no-repro) `ScimUsersController.ReplaceAsync` — omitted `externalId` — **cheap-disproof 2026-10-22 #32:** parser default to `userName`.
+- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — inactive reactivate — **cheap-disproof 2026-10-22 #32:** no seat when `active: false`.
+
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — path `Active` casing — **cheap-disproof 2026-10-22 #33:** case-insensitive flat map keys.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `displayName pr` — **cheap-disproof 2026-10-22 #33:** hunt #24.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `remove displayName` — **cheap-disproof 2026-10-22 #33:** regression-backed clear-to-empty.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — uppercase `id eq` — **cheap-disproof 2026-10-22 #33:** CI compare on `id` filter.
+- [x] (valid-no-repro) `ScimUsersController` — enable after inactive reactivate — **cheap-disproof 2026-10-22 #33:** standard seat transition.
+
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `externalId ne` — **cheap-disproof 2026-10-22 #34:** case-exact `ne`.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `displayName` null replace — **cheap-disproof 2026-10-22 #34:** null → empty via resolver.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `userName gt ""` — **cheap-disproof 2026-10-22 #34:** broad lex filter.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `add displayName` — **cheap-disproof 2026-10-22 #34:** flat add path.
+- [x] (invalid) `ScimUsersController.ListAsync` — `nickName` filter — **cheap-disproof 2026-10-22 #34:** hunt #21 unknown attribute.
+
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `startIndex=1` — **cheap-disproof 2026-10-22 #35:** 1-based pagination contract.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — string `"false"` active — **cheap-disproof 2026-10-22 #35:** `ReadActive` string arm.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — parenthesized filter — **cheap-disproof 2026-10-22 #35:** parser grouping tests.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — whitespace path — **cheap-disproof 2026-10-22 #35:** trim before key.
+- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — trim `userName` — **cheap-disproof 2026-10-22 #35:** `ReadRequiredString` trim.
+
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `count` > 200 — **cheap-disproof 2026-10-22 #36:** clamp at 200.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — unsupported `op` — **cheap-disproof 2026-10-22 #36:** `invalidSyntax`.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `active eq "FALSE"` — **cheap-disproof 2026-10-22 #36:** case-insensitive `bool.TryParse`.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `active` `"True"` — **cheap-disproof 2026-10-22 #36:** `ReadActive` string parse.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — tombstone exclusion — **cheap-disproof 2026-10-22 #36:** #1755 regression.
+
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `count=0` — **cheap-disproof 2026-10-22 #37:** hunt #6 regression.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — missing `value` — **cheap-disproof 2026-10-22 #37:** `invalidValue`.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — spaced filter literal — **cheap-disproof 2026-10-22 #37:** exact literal compare.
+- [x] (valid-no-repro) `ScimUsersController.ReplaceAsync` — string `active` — **cheap-disproof 2026-10-22 #37:** parser `ReadActive`.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — remove unknown key — **cheap-disproof 2026-10-22 #37:** hunt #29.
+
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — negative `count` — **cheap-disproof 2026-10-22 #38:** hunt #8 regression.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — numeric `userName` — **cheap-disproof 2026-10-22 #38:** type guard regression.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `or` filter — **cheap-disproof 2026-10-22 #38:** `ScimOrNode`.
+- [x] (valid-no-repro) `ScimUsersController.DeactivateAsync` — second DELETE — **cheap-disproof 2026-10-22 #38:** proven notFound.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `add active` — **cheap-disproof 2026-10-22 #38:** flat add path.
+
+- [x] (invalid) `ScimUsersController.GetAsync` — `Guid.Empty` — **cheap-disproof 2026-10-22 #39:** hunt #4.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `and` filter — **cheap-disproof 2026-10-22 #39:** `ScimAndNode`.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — whitespace `externalId` — **cheap-disproof 2026-10-22 #39:** type/whitespace guard.
+- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — seat cap — **cheap-disproof 2026-10-22 #39:** hunt #13.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — emails alias — **cheap-disproof 2026-10-22 #39:** hunt #21.
+
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — empty `userName` — **cheap-disproof 2026-10-22 #40:** `ReadPatchRequiredString`.
+- [x] (invalid) `ScimUsersController.ListAsync` — unclosed filter quote — **cheap-disproof 2026-10-22 #40:** hunt #24.
+- [x] (valid-no-repro) `ScimUsersController.ReplaceAsync` — seat compensate — **cheap-disproof 2026-10-22 #40:** proven regression.
+- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — insert seat compensate — **cheap-disproof 2026-10-22 #40:** proven regression.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `remove` `externalId` — **cheap-disproof 2026-10-22 #40:** hunt #9 `mutability`.
+
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — persist failure seat compensate — **cheap-disproof 2026-10-22 #41:** `CompensateSeatTransitionAsync` in `catch`.
+- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — POST empty `userName` — **cheap-disproof 2026-10-22 #41:** `ReadRequiredString`.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — empty `externalId` — **cheap-disproof 2026-10-22 #41:** whitespace regression.
+- [x] (invalid) `ScimUsersController.ListAsync` — unbalanced parens — **cheap-disproof 2026-10-22 #41:** hunt #24 malformed filter.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `remove` `userName` — **cheap-disproof 2026-10-22 #41:** proven mutability.
+
+- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — whitespace `userName` — **cheap-disproof 2026-10-22 #42:** `ReadRequiredString`.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — audit fail before persist — **cheap-disproof 2026-10-22 #42:** seat `catch` compensate.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — empty `filter` — **cheap-disproof 2026-10-22 #42:** null AST.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `userName` JSON `null` — **cheap-disproof 2026-10-22 #42:** `ReadPatchRequiredString`.
+- [x] (invalid) `ScimUsersController.DeactivateAsync` — seat restore — **cheap-disproof 2026-10-22 #42:** proven saturated.
+
+- [x] (proven) `ScimUsersController.PatchAsync` — post-persist audit failure seat drift — **hit 2026-10-22 #43.**
+- [x] (proven) `ScimUsersController.ReplaceAsync` — post-persist audit failure seat drift — **hit 2026-10-22 #43.**
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `externalId` JSON `null` — **cheap-disproof 2026-10-22 #43.**
+- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — numeric `userName` — **cheap-disproof 2026-10-22 #43.**
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `userName eq ""` — **cheap-disproof 2026-10-22 #43.**
+
+- [ ] (candidate) `ScimUsersController.CreateAsync` — audit `LogAsync` failure after successful `InsertAsync` must not release reserved seat — locus: `CreateAsync` `userInserted` gate; input: sibling #43 PATCH/REPLACE regressions.
+- [ ] (candidate) `ScimUsersController.DeactivateAsync` — audit failure after successful `DeactivateAsync` must not restore seat — locus: `userDeactivated` gate; input: parity create/patch fix.
+- [ ] (candidate) `ScimUsersController.PatchAsync` — `replace` `displayName` JSON `null` clears field — locus: `ResolvePatchDisplayName`; input: hunt #34 intentional clear.
+- [ ] (candidate) `ScimUsersController.ListAsync` — `meta.lastModified` filter unsupported — locus: SQL translator; input: `invalidFilter` hunt #21 class.
+- [ ] (candidate) `ScimUsersController.PatchAsync` — `replace` `active` with JSON string `"1"` — locus: `ReadActive`; input: bool parse vs numeric `1` parity.
 
 - [x] (proven) `ScimUserService.CreateAsync` / `PatchAsync` / `ScimUsersController` — a second live user with the same `userName` and a different `externalId` was stored, including case-only names — **hit 2026-10-09 seed hunt:** live `userName` lookup returns `uniqueness`. Regressions `CreateAsync_duplicate_user_name_throws_conflict` and `PatchAsync_replace_userName_to_another_users_name_throws_conflict`.
 - [x] (proven) `ScimFilterParser.ParseFilter` / `ScimUsersController.ListAsync` — ungrouped `or` before `and` was parsed left-to-right, so an active user matching only the left comparison was omitted — **hit 2026-10-09 seed hunt:** `not` over `and` over `or` per RFC 7644 §3.4.2.2. Regressions `ListAsync_filter_gives_and_precedence_over_or`, `Parse_or_binds_looser_than_and`, and `Parse_not_binds_tighter_than_and`.
