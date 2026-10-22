@@ -6691,6 +6691,15 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-22 seed hunt (seed→hit): `ComparisonReplayService` end-to-end and export-diff replay/drift paths evaluated `IRunExportCareerPostureGate` before `EnsureRunPairLifecycleCompleteOrThrowAsync`, so artifact replay could surface career blocks (or formatted output) while export metadata reads short-circuit incomplete lifecycle first; run lifecycle completeness before career on all comparison replay/drift entry points; regression `CompareQuality_ReplayAsync_end_to_end_artifact_throws_conflict_when_lifecycle_incomplete_before_career_gate`; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` filter 48/48.
+
+- [x] (proven) `ComparisonReplayService.ReplayEndToEndAsync` / `ReplayExportDiffAsync` - comparison artifact replay skipped lifecycle completeness while evaluating career posture first - **hit 2026-10-22 seed hunt:** lifecycle-then-career on replay and drift paths; regression above.
+
+- [x] (valid-no-repro) `ComparisonsApplicationService.TryListByRunIdAsync` - lists comparison records for a run after `GetRunDetailAsync` scope check only - **cheap-disproof 2026-10-22:** tenant-scoped comparison history; career gate on replay/export mutations.
+- [x] (valid-no-repro) `ComparisonsApplicationService.SearchAsync` - returns comparison `SummaryMarkdown` without career metadata gate - **cheap-disproof 2026-10-22:** stored artifact search; no export-metadata trust boundary cited.
+- [x] (valid-no-repro) `ComparisonReplayCostEstimator.TryEstimateAsync` - estimates replay cost without career posture gate - **cheap-disproof 2026-10-22:** preflight sizing only; does not emit gated export bodies.
+- [x] (invalid) `ComparisonReplayService.EnsureCareerAllowsExportRecordMetadataOrThrowAsync` - non-GUID anchor run id skips gate via early return - **cheap-disproof 2026-10-22:** whitespace/non-GUID anchors are not persisted on write paths.
+
 2026-10-22 seed hunt (seed→hit): `RunExportQueryFacade.ReplayExportAsync` invoked `IRunExportCareerPostureGate` before authority lifecycle completeness while `GetExportRecordAsync` short-circuited incomplete lifecycle runs; align replay with lifecycle-then-career ordering; regression `CompareQuality_ReplayExportAsync_returns_lineage_unverified_when_lifecycle_incomplete_before_career_gate`; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` filter 47/47.
 
 - [x] (proven) `RunExportQueryFacade.ReplayExportAsync` - export replay evaluated career posture before lifecycle completeness while single-export read blocked incomplete lifecycle first - **hit 2026-10-22 seed hunt:** lifecycle guard before career gate on replay; regression above.
@@ -6768,10 +6777,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
 - **hunts:** 64
-- **bugs-found:** 59
+- **bugs-found:** 60
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — export replay evaluated career gate before lifecycle completeness
+- **last-bug:** 2026-10-22 — comparison replay evaluated career gate before lifecycle completeness
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 

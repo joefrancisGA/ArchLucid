@@ -116,6 +116,7 @@ public sealed class ComparisonReplayService(
 
     private async Task<DriftAnalysisResult> AnalyzeDriftEndToEndAsync(ComparisonRecord record, CancellationToken cancellationToken)
     {
+        await EnsureRunPairLifecycleCompleteOrThrowAsync(record.LeftRunId ?? string.Empty, record.RightRunId ?? string.Empty, cancellationToken);
         await EnsureCareerAllowsExportRecordMetadataOrThrowAsync(record.LeftRunId ?? string.Empty, cancellationToken);
         await EnsureCareerAllowsExportRecordMetadataOrThrowAsync(record.RightRunId ?? string.Empty, cancellationToken);
 
@@ -128,6 +129,7 @@ public sealed class ComparisonReplayService(
 
     private async Task<DriftAnalysisResult> AnalyzeDriftExportDiffAsync(ComparisonRecord record, CancellationToken cancellationToken)
     {
+        await EnsureRunPairLifecycleCompleteOrThrowAsync(record.LeftRunId ?? string.Empty, record.RightRunId ?? string.Empty, cancellationToken);
         await EnsureCareerAllowsExportRecordMetadataOrThrowAsync(record.LeftRunId ?? string.Empty, cancellationToken);
         await EnsureCareerAllowsExportRecordMetadataOrThrowAsync(record.RightRunId ?? string.Empty, cancellationToken);
 
@@ -141,6 +143,7 @@ public sealed class ComparisonReplayService(
     private async Task<ReplayComparisonResult> ReplayEndToEndAsync(ComparisonRecord record, string format, string profile, ComparisonReplayMode mode,
         CancellationToken cancellationToken)
     {
+        await EnsureRunPairLifecycleCompleteOrThrowAsync(record.LeftRunId ?? string.Empty, record.RightRunId ?? string.Empty, cancellationToken);
         await EnsureCareerAllowsExportRecordMetadataOrThrowAsync(record.LeftRunId ?? string.Empty, cancellationToken);
         await EnsureCareerAllowsExportRecordMetadataOrThrowAsync(record.RightRunId ?? string.Empty, cancellationToken);
 
@@ -279,6 +282,7 @@ public sealed class ComparisonReplayService(
     private async Task<ReplayComparisonResult> ReplayExportDiffAsync(ComparisonRecord record, string format, ComparisonReplayMode mode,
         CancellationToken cancellationToken)
     {
+        await EnsureRunPairLifecycleCompleteOrThrowAsync(record.LeftRunId ?? string.Empty, record.RightRunId ?? string.Empty, cancellationToken);
         await EnsureCareerAllowsExportRecordMetadataOrThrowAsync(record.LeftRunId ?? string.Empty, cancellationToken);
         await EnsureCareerAllowsExportRecordMetadataOrThrowAsync(record.RightRunId ?? string.Empty, cancellationToken);
 
