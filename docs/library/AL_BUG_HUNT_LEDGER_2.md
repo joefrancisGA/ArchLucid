@@ -1808,6 +1808,17 @@
 
 ## Zone: finding-inspect-sql
 
+2026-10-22 seed hunt #94 (seed-only): cheap-disproof closed four open `(candidate)` rows; `MapDispositionPointerProjection_*` scoped tests passed (15); no hunt-ready promotion; seeded three follow-on `(candidate)` rows.
+
+- [x] (valid-no-repro) `MapDispositionPointerProjection` partial disposition metadata — **cheap-disproof 2026-10-22 seed #94:** regression `MapDispositionPointerProjection_returns_null_disposition_for_invalid_raw_when_row_present` keeps pointer ids/timestamps when enum parse fails; saturated `state-machine-gap`.
+- [x] (valid-no-repro) `RiskExceptions` `SYSUTCDATETIME()` vs row UTC — **cheap-disproof 2026-10-22 seed #94:** active waiver count is point-in-time SQL clock; disposition timestamps are stored values; no mixed contract bug in these files.
+- [x] (valid-no-repro) `ResolveRuleFields` silent `JsonException` fallback — **cheap-disproof 2026-10-22 seed #94:** intentional trace-text fallback when JSON corrupt (#667 / #1238 siblings); no inspect audit requirement in read path.
+- [x] (valid-no-repro) `MapInspectResponse` raw confidence scores — **cheap-disproof 2026-10-22 seed #94:** relational scores are persisted analytics fields; enum bucket parsed separately; no API contract caps in repository layer.
+
+- [ ] (candidate) `BuildInspectResponse` / disposition projection — omit `LatestDispositionRowVersionBase64` when `LatestDisposition` is null but pointer row exists (ETag/concurrency hint without resolved enum).
+- [ ] (candidate) `FindingInspectReadSql.FollowUpBatch` — related-node `ORDER BY frn.SortOrder` only; duplicate sort orders prevented by PK but deleted-node gaps may reorder evidence vs ingest order (documented schema).
+- [ ] (candidate) `TryParsePayloadJson` — returns null on `JsonException` without distinguishing empty string column from corrupt JSON before `ResolveTypedPayloadForInspect` metadata fallback (#1238 path).
+
 2026-10-22 seed hunt #93 (seed-only): cheap-disproof closed four open `(candidate)` rows; scoped `FindingInspectReadModelMapperTests.ParseDisposition_parses_after_leading_invisible_format_characters` passed; no hunt-ready promotion; seeded four follow-on `(candidate)` rows.
 
 - [x] (valid-no-repro) `DispositionRow` whitespace-only `Disposition` with pointer timestamps — **cheap-disproof 2026-10-22 seed #93:** `MapDispositionPointerProjection` + `ParseDisposition`; saturated `state-machine-gap` class.
@@ -1815,22 +1826,12 @@
 - [x] (valid-no-repro) `FilterNonBlankTrimmedStrings` embedded format chars — **cheap-disproof 2026-10-22 seed #93:** intentional inspect display contract (ledger 2026-10-05); enum tokens use separate `NormalizeInspectEnumToken`.
 - [x] (valid-no-repro) `GetInspectAsync` cancel between grid readers — **cheap-disproof 2026-10-22 seed #93:** single `QueryMultipleAsync` round-trip; token applies to the batch command, not per result set.
 
-- [ ] (candidate) `MapDispositionPointerProjection` — `hasDispositionRow` true when SQL returns a row but `ParseDisposition` yields null (whitespace/invisible disposition token) while `OccurredAtUtc` / `RevisitDueUtc` still surface (UI partial disposition state).
-- [ ] (candidate) `FindingInspectReadSql.FollowUpBatch` — `RiskExceptions` count uses `SYSUTCDATETIME()` while disposition timestamps are row-stored UTC (clock skew edge for waiver-active flag at boundary).
-- [ ] (candidate) `ResolveRuleFields` — `JsonException` on corrupt `AppliedRuleIdsJson` falls through to trace text without audit signal (silent fallback vs corrupt payload metadata fallback on #1238).
-- [ ] (candidate) `DapperFindingInspectReadRepository.MapInspectResponse` — `ConfidenceScore` / `EvaluationConfidenceScore` numeric columns pass through without range validation while enum/score buckets are parsed separately.
-
 2026-10-22 seed hunt #92 (seed-only): re-read audit/disposition SQL tests and typed-payload parity paths; cheap-disproof closed four open `(candidate)` rows; no hunt-ready promotion; seeded four follow-on `(candidate)` rows; scoped inspect filter not run on this host.
 
 - [x] (invalid) `FollowUpBatch` audit subquery omits `FindingId` — **cheap-disproof 2026-10-22 seed #92:** inspect surfaces latest run-level `AuthorityCommittedChainPersisted` anchor by design; regression `FollowUpBatch_audit_event_scoped_by_run_without_finding_records_join` plus tenant/workspace/project + `RunId` scope.
 - [x] (valid-no-repro) `RemediationDueUtc` — `ToUtcDateTimeOffset` assumes UTC storage — **cheap-disproof 2026-10-22 seed #92:** `datetime2` columns are persisted UTC; `SpecifyKind(Utc)` matches repository convention elsewhere on inspect dates.
 - [x] (invalid) `ResolveTypedPayloadForInspectRead` — metadata `whyThisMatters` parity SQL vs in-memory when `includeTypedPayload` false — **cheap-disproof 2026-10-22 seed #92:** both paths call `BuildMetadataTypedPayload(title, rationale)` without the corrupt-payload flag; in-memory corrupt fallback uses `includeWhyThisMattersWhenTitleMissing: true` matching `ResolveTypedPayloadForInspect` (#1238).
 - [x] (valid-no-repro) `TryParseEvaluationConfidenceLevel` null vs `ParseFindingSeverity` throw — **cheap-disproof 2026-10-22 seed #92:** optional evaluation bucket is soft-fail; severity is required governance enum with explicit invalid-data throw (documented contract tests).
-
-- [ ] (candidate) `DapperFindingInspectReadRepository` — `QuerySingleOrDefaultAsync<DispositionRow>` may materialize a disposition join row when SQL returns whitespace-only `Disposition` while pointer timestamps are still populated (saturated `state-machine-gap` sibling).
-- [ ] (candidate) `FindingInspectReadSql.MainInspectWithTypedPayload` — `LEFT JOIN dbo.DecisioningTraces` binds run decision trace only; a finding-level override trace (if introduced) would not surface on inspect without SQL change.
-- [ ] (candidate) `FilterNonBlankTrimmedStrings` — drops embedded format-character strings entirely rather than stripping leading/trailing format chars (display contract vs enum-token normalization asymmetry).
-- [ ] (candidate) `GetInspectAsync` — cancellation token passed to `QueryMultipleAsync` but not between grid readers (long-running batch could continue after caller cancel — operational edge).
 
 2026-10-22 seed hunt #91 (seed-only): re-read disposition join, rule-field resolution, and main inspect SQL; cheap-disproof closed four open `(candidate)` rows; no hunt-ready promotion (`state-machine-gap` saturated); seeded four follow-on `(candidate)` rows; scoped inspect filter not run on this host.
 
@@ -1866,7 +1867,7 @@
 - **aliases:** finding inspect; dapper inspect read
 - **paths:** ArchLucid.Persistence/Findings/DapperFindingInspectReadRepository.cs; ArchLucid.Persistence/Findings/FindingInspectReadModelMapper.cs; ArchLucid.Persistence/Sql/FindingInspectReadSql.cs
 - **test-filter:** FullyQualifiedName~FindingInspectReadModelMapperTests|FullyQualifiedName~FindingInspectReadSqlTests|FullyQualifiedName~FindingInspectReadRepositoryCoreTests|FullyQualifiedName~FindingInspectEndpointTests
-- **hunts:** 92
+- **hunts:** 94
 - **bugs-found:** 27
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-22
