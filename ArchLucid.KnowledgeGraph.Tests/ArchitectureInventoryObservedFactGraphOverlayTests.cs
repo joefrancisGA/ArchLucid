@@ -449,6 +449,71 @@ public sealed class ArchitectureInventoryObservedFactGraphOverlayTests
     }
 
     [Fact]
+    public void Merge_deduplicates_parallel_edges_when_edge_type_differs_only_by_surrounding_whitespace()
+    {
+        const string NodeA = "node-a";
+        const string NodeB = "node-b";
+        string paddedEdgeType = $"  {GraphEdgeTypes.ConnectsTo}  ";
+
+        GraphSnapshot baseGraph = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = ContextSnapshotId,
+            RunId = RunId,
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = NodeA,
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "A",
+                },
+                new GraphNode
+                {
+                    NodeId = NodeB,
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "B",
+                },
+            ],
+            Edges =
+            [
+                new GraphEdge
+                {
+                    EdgeId = "base-edge",
+                    FromNodeId = NodeA,
+                    ToNodeId = NodeB,
+                    EdgeType = GraphEdgeTypes.ConnectsTo,
+                },
+            ],
+        };
+
+        GraphSnapshot overlay = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = ContextSnapshotId,
+            RunId = RunId,
+            Nodes = [],
+            Edges =
+            [
+                new GraphEdge
+                {
+                    EdgeId = "overlay-edge",
+                    FromNodeId = NodeA,
+                    ToNodeId = NodeB,
+                    EdgeType = paddedEdgeType,
+                },
+            ],
+        };
+
+        GraphSnapshot merged = ArchitectureInventoryObservedFactGraphOverlayMerger.Merge(baseGraph, overlay);
+
+        merged.Edges.Should().ContainSingle(edge =>
+            edge.FromNodeId == NodeA
+            && edge.ToNodeId == NodeB
+            && edge.EdgeType == GraphEdgeTypes.ConnectsTo);
+    }
+
+    [Fact]
     public void Merge_boundOverlay_addsInventoryNodesWithoutReplacingExistingNodes()
     {
         GraphSnapshot baseGraph = new()
