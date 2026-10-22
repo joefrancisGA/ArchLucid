@@ -1273,6 +1273,33 @@ public sealed class ProvenanceBuilderTests
     }
 
     [Fact]
+    public void Build_normalizes_whitespace_only_graph_node_category_and_node_type_in_metadata()
+    {
+        GraphNode node = new()
+        {
+            NodeId = "node-a",
+            NodeType = "   ",
+            Label = "API",
+            Category = "   ",
+        };
+
+        ProvenanceBuilder sut = new();
+        DecisionProvenanceGraph graph = sut.Build(new ProvenanceBuildInput
+        {
+            RunId = RunId,
+            Findings = new FindingsSnapshot { Findings = [] },
+            Graph = new GraphSnapshot { Nodes = [node] },
+            Manifest = new ManifestDocument { ManifestId = ManifestId, ManifestHash = "h", Decisions = [] },
+            DecisionTrace = RuleAuditTraceDto.From(new RuleAuditTracePayload { AppliedRuleIds = [] }),
+            Artifacts = [],
+        });
+
+        ProvenanceNode graphNode = graph.Nodes.Should().ContainSingle(n => n.Type == ProvenanceNodeType.GraphNode).Subject;
+        graphNode.Metadata["category"].Should().BeEmpty();
+        graphNode.Metadata["nodeType"].Should().BeEmpty();
+    }
+
+    [Fact]
     public void Build_uses_finding_id_when_title_is_whitespace_only()
     {
         Finding finding = new()

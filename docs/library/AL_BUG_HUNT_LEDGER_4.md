@@ -12470,19 +12470,24 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 108
-- **bugs-found:** 103
+- **hunts:** 109
+- **bugs-found:** 104
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — graph κ merge dropped context labels on colliding model edges/nodes
+- **last-bug:** 2026-10-22 — whitespace-only graph node metadata leaked into provenance
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-22 seed hunt (seed→hit): cheap-disproved context category κ-merge candidate (`CoalesceGraphNodeFromContext` already fills empty model categories when labels are populated; regression `Merge_enriches_model_node_category_from_context_when_model_label_is_populated`); promoted provenance graph-node metadata whitespace candidate; proved `ProvenanceBuilder` copied whitespace-only `GraphNode.Category` and `NodeType` into buyer-visible provenance metadata; `NormalizeProvenanceMetadataValue` on graph/finding/decision metadata emission; regression `Build_normalizes_whitespace_only_graph_node_category_and_node_type_in_metadata`; seeded artifact metadata whitespace follow-on; 403 KnowledgeGraph + 126 Provenance scoped tests passed.
+
+- [x] (valid-no-repro) `GraphSnapshotKnowledgeModelMerger.Merge` — context category ignored when model label populated — **cheap-disproof 2026-10-22 seed hunt:** sparse context category coalesce; regression above.
+- [x] (proven) `ProvenanceBuilder` — whitespace-only graph node `Category` / `NodeType` in provenance metadata — **hit 2026-10-22 seed hunt (seed→hit):** metadata normalization; regression above.
+
+- [ ] (candidate) `ProvenanceBuilder` — artifact provenance metadata may copy whitespace-only `ArtifactType` or `Format` without normalization — locus: artifact `AddNode` metadata; input: whitespace `Format`; wrong outcome: misleading artifact metadata in provenance graph.
 
 2026-10-22 seed hunt (seed→hit): cheap-disproved rule whitespace candidate (`DistinctAppliedRuleIds` already filters blank ids; regression `Build_ignores_blank_applied_rule_ids_when_emitting_rule_nodes`); promoted graph snapshot κ-merge sparse model row candidate; proved `GraphSnapshotKnowledgeModelMerger` skipped context edges/nodes that collided with model identity keys so unlabeled model rows never inherited context labels; context-aware sparse coalesce for colliding nodes and edges without overwriting model edge ids or node types; regressions `Merge_enriches_model_edge_label_from_context_when_model_edge_is_unlabeled` and `Merge_enriches_model_node_label_from_context_when_model_node_is_unlabeled`; seeded context category enrichment on sparse model nodes follow-on; 402 KnowledgeGraph + 125 Provenance scoped tests passed.
 
 - [x] (invalid) `ProvenanceBuilder` — whitespace-only `AppliedRuleIds` emit empty rule nodes — **cheap-disproof 2026-10-22 seed hunt:** `DistinctAppliedRuleIds` filters trimmed blanks; regression above.
 - [x] (proven) `GraphSnapshotKnowledgeModelMerger.Merge` — context graph labels dropped on model identity collision — **hit 2026-10-22 seed hunt (seed→hit):** sparse context coalesce on colliding keys; regressions above.
-
-- [ ] (candidate) `GraphSnapshotKnowledgeModelMerger.Merge` — sparse model `Category` on colliding nodes may still ignore context category when model label is already populated — locus: `CoalesceGraphNodeFromContext`; input: model node with label but empty category; wrong outcome: missing category after κ merge.
 
 2026-10-22 seed hunt (seed→hit): promoted artifact whitespace name candidate; proved synthesized artifact provenance nodes copied whitespace-only `Name` without `ArtifactId` (`N` format) fallback and sparse duplicate bundle rows could replace buyer-visible names without an artifact-aware downgrade guard; `ResolveArtifactDisplayName` plus artifact node in name-downgrade skip; regressions `Build_uses_artifact_id_when_name_is_whitespace_only` and `Build_preserves_artifact_name_when_later_duplicate_row_has_whitespace_only_name`; seeded rule node whitespace id follow-on; 400 KnowledgeGraph + 125 Provenance scoped tests passed.
 

@@ -460,6 +460,46 @@ public sealed class GraphSnapshotKnowledgeModelMergerTests
     }
 
     [Fact]
+    public void Merge_enriches_model_node_category_from_context_when_model_label_is_populated()
+    {
+        GraphSnapshot contextGraph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "shared",
+                    NodeType = "context",
+                    Label = "context-shared",
+                    Category = "network",
+                },
+            ],
+        };
+
+        GraphSnapshot modelGraph = new()
+        {
+            GraphSnapshotId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "shared",
+                    NodeType = "model",
+                    Label = "model-shared",
+                    Category = string.Empty,
+                },
+            ],
+        };
+
+        GraphSnapshot merged = GraphSnapshotKnowledgeModelMerger.Merge(contextGraph, modelGraph);
+
+        merged.Nodes.Should().ContainSingle(node =>
+            node.NodeId == "shared"
+            && node.Label == "model-shared"
+            && node.Category == "network");
+    }
+
+    [Fact]
     public void HasAny_is_true_only_for_projectable_element_kinds()
     {
         ArchitectureKnowledgeModel empty = new() { ModelId = "m", Elements = [] };

@@ -49,7 +49,8 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
                     Name = string.IsNullOrWhiteSpace(n.Label) ? n.NodeId : n.Label,
                     Metadata = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
                     {
-                        ["nodeType"] = n.NodeType, ["category"] = n.Category ?? ""
+                        ["nodeType"] = NormalizeProvenanceMetadataValue(n.NodeType),
+                        ["category"] = NormalizeProvenanceMetadataValue(n.Category),
                     }
                 });
 
@@ -79,7 +80,7 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
                     Name = ResolveDecisionDisplayTitle(d),
                     Metadata = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
                     {
-                        ["category"] = d.Category
+                        ["category"] = NormalizeProvenanceMetadataValue(d.Category),
                     }
                 });
 
@@ -234,8 +235,8 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
         {
             Dictionary<string, string> metadata = new(StringComparer.OrdinalIgnoreCase)
             {
-                ["findingType"] = finding.FindingType,
-                ["category"] = finding.Category
+                ["findingType"] = NormalizeProvenanceMetadataValue(finding.FindingType),
+                ["category"] = NormalizeProvenanceMetadataValue(finding.Category),
             };
 
             string? agentTraceId = ResolveAgentExecutionTraceId(finding);
@@ -328,6 +329,9 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
         }
 
         static string NormalizeId(string id) => id.Trim();
+
+        static string NormalizeProvenanceMetadataValue(string? value) =>
+            string.IsNullOrWhiteSpace(value) ? string.Empty : value.Trim();
 
         static IEnumerable<string> DistinctAppliedRuleIds(IEnumerable<string> appliedRuleIds) =>
             appliedRuleIds
