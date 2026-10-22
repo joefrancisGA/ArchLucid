@@ -1,3 +1,17 @@
+2026-10-22 seed hunt (seed->hit): `ui-oidc` - promoted hunt-ready `isOAuthRefreshTokenRejectedError` - refresh grant JSON `unauthorized_client` humanized without snake_case in `Error.message` so BFF refresh returned 503 instead of clearing HttpOnly cookies (same classifier gap as `invalid_client`); add `unauthorized_client` to `OAUTH_REFRESH_REJECTION_ERROR_CODES`; regressions `classifies humanized unauthorized_client refresh failures for BFF session clearing` and BFF route humanized unauthorized_client cookie clear; cheap-disproof closed five zone-head `(candidate)` rows; seeded five follow-on `(candidate)` rows; scoped token-client + BFF refresh route vitest 58/58.
+
+- [x] (proven) `isOAuthRefreshTokenRejectedError` - humanized refresh `unauthorized_client` skipped BFF session clear - **hit 2026-10-22 seed hunt:** classifier set extended; regressions above.
+- [x] (valid-no-repro) `invalid_client` / `invalid_grant` / `invalid_token` classifier - **cheap-disproof 2026-10-22:** prior hits; set membership unchanged for those codes.
+- [x] (invalid) `readOAuthError` - attach `response.status` on `OAuthTokenEndpointError` - **cheap-disproof 2026-10-22:** enhancement; substring fallback still keys 400/401 today.
+- [x] (valid-no-repro) `decodeOAuthErrorDescription` - flag emoji plus literal plus - **cheap-disproof 2026-10-22:** prior hit on trunk; Regional_Indicator guard landed.
+- [x] (invalid) `shouldMarkAuthorizeCallbackFailedOnExchangeError` - treat `OAuthTokenEndpointError` specially - **cheap-disproof 2026-10-22:** OAuth exchange failures should mark authorize retry.
+
+- [ ] (candidate) `isOAuthRefreshTokenRejectedError` - `expired_token` on refresh grant - locus: classifier set; input: IdP returns expired refresh (reachability: raw message today).
+- [ ] (candidate) `shouldHumanizeTokenOAuthErrorCode` - `expired_token` on token JSON - locus: allowlist gap; input: CallbackClient raw snake_case (reachability: authorize default humanizes).
+- [ ] (candidate) `OAuthTokenEndpointError` - HTTP status for non-JSON proxy 502 vs JSON OAuth - locus: `readOAuthError`; input: corporate proxy (reachability: session clear policy).
+- [ ] (candidate) `isOAuthRefreshTokenRejectedError` - `invalid_scope` on refresh grant - locus: classifier set; input: mis-scoped refresh token (reachability: humanized fixed copy).
+- [ ] (candidate) `refreshBffSessionCookie` - ensureAccessTokenFresh on humanized unauthorized_client 401 - locus: client sync; input: server now clears (reachability: add client test).
+
 2026-10-22 seed hunt (seed→hit): `ui-oidc` — promoted hunt-ready `isOAuthRefreshTokenRejectedError` — refresh grant JSON `invalid_client` humanized without snake_case in `Error.message` so BFF refresh returned 503 instead of clearing HttpOnly cookies (same gap as prior `invalid_grant` classifier); add `invalid_client` to `OAUTH_REFRESH_REJECTION_ERROR_CODES`; regressions `classifies humanized invalid_client refresh failures for BFF session clearing` and BFF route humanized invalid_client cookie clear; cheap-disproof closed five zone-head `(candidate)` rows; seeded five follow-on `(candidate)` rows; scoped `src/lib/oidc` + BFF refresh route vitest 386/386.
 
 - [x] (proven) `isOAuthRefreshTokenRejectedError` — humanized refresh `invalid_client` skipped BFF session clear — **hit 2026-10-22 seed hunt:** classifier set extended; regressions above.
