@@ -10,7 +10,9 @@ import {
 import { buildAuthorizeUrl } from "@/lib/oidc/build-authorize-url";
 import { loadDiscoveryDocument } from "@/lib/oidc/discovery";
 import { createPkcePair, randomOpaqueState } from "@/lib/oidc/pkce";
+import { readIdleDeskRestorePayload } from "@/lib/auth/idle-desk-restore";
 import { isSafeReturnPath } from "@/lib/navigation/safe-return-path";
+import { normalizeOidcConfigurationString } from "@/lib/oidc/oauth-callback-messages";
 import {
   clearPkceState,
   clearPostSignInReturnUrl,
@@ -18,6 +20,37 @@ import {
   storePkceState,
   storePostSignInReturnUrl,
 } from "@/lib/oidc/session";
+import { OIDC_POST_SIGN_IN_RETURN_URL_KEY } from "@/lib/oidc/storage-keys";
+
+function clearAbandonedPostSignInReturnUrl(): void {
+  if (typeof sessionStorage === "undefined") {
+    return;
+  }
+
+  const current = sessionStorage.getItem(OIDC_POST_SIGN_IN_RETURN_URL_KEY);
+
+  if (current === null) {
+    return;
+  }
+
+  const idle = readIdleDeskRestorePayload();
+
+  if (idle !== null) {
+    const currentNormalized = normalizeOidcConfigurationString(current);
+    const idleNormalized = normalizeOidcConfigurationString(idle.returnPath);
+
+    if (
+      currentNormalized.length > 0 &&
+      idleNormalized.length > 0 &&
+      currentNormalized === idleNormalized &&
+      isSafeReturnPath(currentNormalized)
+    ) {
+      return;
+    }
+  }
+
+  clearPostSignInReturnUrl();
+}
 
 /**
  * Builds the IdP authorization URL and navigates the browser to it.
@@ -44,7 +77,7 @@ export async function initiateOidcRedirect(returnUrl?: string): Promise<void> {
     storePostSignInReturnUrl(returnUrl);
     storedReturnUrlThisAttempt = true;
   } else if (readPkceState("google") === null) {
-    clearPostSignInReturnUrl();
+    clearAbandonedPostSignInReturnUrl();
   }
 
   let doc;
@@ -54,8 +87,10 @@ export async function initiateOidcRedirect(returnUrl?: string): Promise<void> {
   } catch (error) {
     clearPkceState("primary");
 
-    if (storedReturnUrlThisAttempt || readPkceState("google") === null) {
+    if (storedReturnUrlThisAttempt) {
       clearPostSignInReturnUrl();
+    } else if (readPkceState("google") === null) {
+      clearAbandonedPostSignInReturnUrl();
     }
 
     throw error;
@@ -108,7 +143,7 @@ export async function initiateSupplementalOidcRedirect(
     storePostSignInReturnUrl(returnUrl);
     storedReturnUrlThisAttempt = true;
   } else if (readPkceState("primary") === null) {
-    clearPostSignInReturnUrl();
+    clearAbandonedPostSignInReturnUrl();
   }
 
   let doc;
@@ -118,8 +153,10 @@ export async function initiateSupplementalOidcRedirect(
   } catch (error) {
     clearPkceState("google");
 
-    if (storedReturnUrlThisAttempt || readPkceState("primary") === null) {
+    if (storedReturnUrlThisAttempt) {
       clearPostSignInReturnUrl();
+    } else if (readPkceState("primary") === null) {
+      clearAbandonedPostSignInReturnUrl();
     }
 
     throw error;

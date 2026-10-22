@@ -25266,6 +25266,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) `initiateOidcRedirect` — orphaned Google PKCE blocked stale post-sign-in return cleanup — **hit 2026-10-22 seed hunt:** clear opposing PKCE before store; regression above.
 
+2026-10-22 seed hunt (seed→hit): `ui-oidc` — promoted hunt-ready `initiateOidcRedirect` idle-desk return pairing — stale-return cleanup on sign-in without `returnUrl` also cleared `OIDC_POST_SIGN_IN_RETURN_URL_KEY` written by `persistIdleDeskRestoreBeforeSessionClear`, so session-expired re-auth dropped the desk return path before callback `consumePostSignInReturnUrl`; `clearAbandonedPostSignInReturnUrl` skips clear when the stored path matches idle-desk restore payload; regression `preserves idle-desk restore return path when primary redirect starts without a return URL`; scoped `src/lib/oidc` vitest 323/323.
+
+- [x] (proven) `initiateOidcRedirect` — idle-desk restore return cleared as stale on sign-in without returnUrl — **hit 2026-10-22 seed hunt:** preserve when OIDC key matches idle restore returnPath; regression above.
+
 ## Zone: ui-oidc
 
 - **id:** ui-oidc
@@ -25274,11 +25278,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 81
-- **bugs-found:** 75
+- **hunts:** 82
+- **bugs-found:** 76
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — orphaned Google PKCE blocked stale return cleanup
+- **last-bug:** 2026-10-22 — idle-desk restore return cleared as stale
 
 - **id:** ui-oidc
 - **status:** open
