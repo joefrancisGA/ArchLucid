@@ -24,8 +24,9 @@ public static class GraphSnapshotKnowledgeModelMerger
         {
             string normalizedNodeId = NormalizeNodeId(contextNode.NodeId);
 
-            if (mergedNodeByNormalizedId.ContainsKey(normalizedNodeId))
+            if (mergedNodeByNormalizedId.TryGetValue(normalizedNodeId, out GraphNode? existingNode))
             {
+                CoalesceGraphNodeFromContext(existingNode, NormalizeNodeIdWhitespace(contextNode));
                 continue;
             }
 
@@ -48,8 +49,9 @@ public static class GraphSnapshotKnowledgeModelMerger
             GraphEdge canonicalEdge = CanonicalizeEdgeEndpoints(contextEdge, canonicalNodeIdByNormalized);
             string key = BuildEdgeKey(canonicalEdge.FromNodeId, canonicalEdge.ToNodeId, canonicalEdge.EdgeType);
 
-            if (mergedEdgeByKey.ContainsKey(key))
+            if (mergedEdgeByKey.TryGetValue(key, out GraphEdge? existingEdge))
             {
+                CoalesceGraphEdgeFromContext(existingEdge, canonicalEdge);
                 continue;
             }
 
@@ -108,6 +110,19 @@ public static class GraphSnapshotKnowledgeModelMerger
         }
     }
 
+    private static void CoalesceGraphNodeFromContext(GraphNode existing, GraphNode incoming)
+    {
+        if (string.IsNullOrWhiteSpace(existing.Label) && !string.IsNullOrWhiteSpace(incoming.Label))
+        {
+            existing.Label = incoming.Label;
+        }
+
+        if (string.IsNullOrWhiteSpace(existing.Category) && !string.IsNullOrWhiteSpace(incoming.Category))
+        {
+            existing.Category = incoming.Category;
+        }
+    }
+
     private static void AddOrCoalesceEdge(
         List<GraphEdge> mergedEdges,
         Dictionary<string, GraphEdge> mergedEdgeByKey,
@@ -135,6 +150,16 @@ public static class GraphSnapshotKnowledgeModelMerger
         if (!string.IsNullOrWhiteSpace(incoming.EdgeId))
         {
             existing.EdgeId = incoming.EdgeId;
+        }
+
+        existing.Weight = Math.Max(existing.Weight, incoming.Weight);
+    }
+
+    private static void CoalesceGraphEdgeFromContext(GraphEdge existing, GraphEdge incoming)
+    {
+        if (string.IsNullOrWhiteSpace(existing.Label) && !string.IsNullOrWhiteSpace(incoming.Label))
+        {
+            existing.Label = incoming.Label;
         }
 
         existing.Weight = Math.Max(existing.Weight, incoming.Weight);
