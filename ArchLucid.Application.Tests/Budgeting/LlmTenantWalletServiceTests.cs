@@ -902,6 +902,85 @@ public sealed class LlmTenantWalletServiceTests
     }
 
     [SkippableFact]
+    public async Task TryAutoRefillAsync_defers_credit_without_second_charge_when_stripe_returns_processing_payment_intent()
+    {
+        InMemoryLlmTenantWalletRepository repository = new();
+        Guid tenantId = Guid.NewGuid();
+
+        await repository.GetOrCreateAsync(tenantId, CancellationToken.None);
+        await repository.UpdateSettingsAsync(
+            new LlmTenantWalletUpdateSettingsRequest
+            {
+                TenantId = tenantId,
+                AutoReplenishEnabled = true,
+                MonthlyCapUsd = 100m,
+                StripeCustomerId = "cus_test",
+                StripePaymentMethodId = "pm_test",
+            },
+            CancellationToken.None);
+
+        await repository.TryCreditRefillAsync(
+            tenantId,
+            5m,
+            Guid.NewGuid(),
+            null,
+            int.Parse(TimeProvider.System.GetUtcNow().UtcDateTime.ToString("yyyyMM")),
+            [],
+            cancellationToken: CancellationToken.None);
+
+        int chargeCalls = 0;
+        Mock<IStripeWalletGateway> stripe = new();
+        stripe
+            .Setup(s => s.ChargeRefillAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<decimal>(),
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()))
+            .Returns(() =>
+            {
+                Interlocked.Increment(ref chargeCalls);
+
+                return Task.FromResult(StripeWalletChargeResult.AwaitingCompletion("pi_processing", "processing"));
+            });
+
+        Mock<IAuditService> audit = new();
+        audit.Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+
+        LlmWalletSettlementQueue queue = new();
+        LlmTenantWalletService service = CreateService(repository, stripe.Object, queue, auditService: audit.Object);
+
+        bool first = await service.TryAutoRefillAsync(tenantId, Guid.NewGuid(), CancellationToken.None);
+        first.Should().BeFalse();
+        chargeCalls.Should().Be(1);
+
+        queue.Reader.TryRead(out LlmWalletSettlementWorkItem queued).Should().BeTrue();
+        queued.Kind.Should().Be(LlmWalletSettlementKind.RefillCredit);
+        queued.StripePaymentIntentId.Should().Be("pi_processing");
+
+        audit.Verify(
+            a => a.LogAsync(
+                It.Is<AuditEvent>(e => e.EventType == AuditEventTypes.LlmWalletRefillFailed),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+
+        bool webhookCredited = await service.ApplyWebhookPaymentIntentSucceededAsync(
+            tenantId,
+            "pi_processing",
+            50m,
+            Guid.NewGuid(),
+            CancellationToken.None);
+
+        webhookCredited.Should().BeTrue();
+
+        bool second = await service.TryAutoRefillAsync(tenantId, Guid.NewGuid(), CancellationToken.None);
+        second.Should().BeTrue();
+        chargeCalls.Should().Be(1);
+        (await service.GetWalletAsync(tenantId, CancellationToken.None)).BalanceUsd.Should().Be(55m);
+    }
+
+    [SkippableFact]
     public async Task TryAuthorizeOverageSpendAsync_enqueues_auto_refill_when_debit_drops_balance_below_trigger_threshold()
     {
         InMemoryLlmTenantWalletRepository repository = new();
@@ -1252,11 +1331,13 @@ public sealed class LlmTenantWalletServiceTests
         LlmWalletSettlementQueue? queue = null,
         TimeProvider? timeProvider = null,
         IStripeWalletPaymentIdentifierGuard? stripePaymentIdentifierGuard = null,
-        IStripeLinkedCustomerResolver? stripeLinkedCustomerResolver = null)
+        IStripeLinkedCustomerResolver? stripeLinkedCustomerResolver = null,
+        IAuditService? auditService = null)
     {
         LlmWalletSettlementQueue settlementQueue = queue ?? new LlmWalletSettlementQueue();
         Mock<IAuditService> audit = new();
         audit.Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+        IAuditService resolvedAudit = auditService ?? audit.Object;
 
         TimeProvider resolvedTimeProvider = timeProvider ?? TimeProvider.System;
         IStripeWalletPaymentIdentifierGuard guard = stripePaymentIdentifierGuard ?? new AllowAllStripeWalletPaymentIdentifierGuard();
@@ -1266,7 +1347,7 @@ public sealed class LlmTenantWalletServiceTests
             repository,
             stripeGateway,
             guard,
-            audit.Object,
+            resolvedAudit,
             resolvedTimeProvider,
             settlementQueue,
             NullLogger<LlmTenantWalletRefillStage>.Instance);
