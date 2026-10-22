@@ -2842,6 +2842,14 @@
 
 ## Zone: scim-users
 
+2026-10-22 thorough hunt #43 (hit): PATCH/PUT/POST/DELETE compensated enterprise seats when audit `LogAsync` failed after the user row was already persisted, drifting seat counts from stored `active` flags; gate seat rollback on whether the repository mutation completed (`userRowUpdated` / `userInserted` / `userDeactivated`); regressions `PatchAsync_does_not_compensate_seat_when_audit_log_fails_after_successful_patch` and `ReplaceAsync_does_not_compensate_seat_when_audit_log_fails_after_successful_replace`; cheap-disproof closed three sibling `(candidate)` rows (`externalId` JSON `null` and numeric POST `userName` → `invalidValue`; `userName eq ""` filter matches no stored users); scoped `ScimUsers` tests not run (Analyzers RS1034 on checkout).
+
+- [x] (proven) `ScimUsersController.PatchAsync` / `ScimUserService.PatchAsync` — audit failure after `_users.PatchAsync` rolled back seats while user stayed active — **hit 2026-10-22 #43:** compensate only when `!userRowUpdated`; regression `PatchAsync_does_not_compensate_seat_when_audit_log_fails_after_successful_patch`.
+- [x] (proven) `ScimUsersController.ReplaceAsync` — post-persist `LogAsync` failure compensated seat — **hit 2026-10-22 #43:** same `userRowUpdated` gate; regression `ReplaceAsync_does_not_compensate_seat_when_audit_log_fails_after_successful_replace`.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `externalId` JSON `null` — **cheap-disproof 2026-10-22 #43:** `ReadPatchRequiredString` non-string guard.
+- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — POST numeric `userName` — **cheap-disproof 2026-10-22 #43:** `ReadRequiredString` kind guard (hunt #8 class).
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `userName eq ""` — **cheap-disproof 2026-10-22 #43:** no non-empty user rows store empty `userName`.
+
 2026-10-22 thorough hunt #42 (dry): cheap-disproof closed five `(candidate)` rows (POST whitespace `userName` → `ReadRequiredString` `IsNullOrWhiteSpace`; PATCH seat rollback when role-override audit fails before persist — shared `catch`/`CompensateSeatTransitionAsync`; omitted/whitespace `filter` → `ScimFilterParser.Parse` returns null AST unfiltered list; PATCH `userName` JSON `null` → `ReadPatchRequiredString` non-string `invalidValue`; DELETE seat restore on persist failure — proven saturated `DeactivateAsync_restores_seat_when_persistence_fails`); no failing repro; five replacement `(candidate)` rows; scoped `ScimUsers` tests not run (Application.Tests merge conflicts).
 
 - [x] (valid-no-repro) `ScimUsersController.CreateAsync` — whitespace-only `userName` — **cheap-disproof 2026-10-22 #42:** `ReadRequiredString` rejects whitespace before trim.
@@ -3207,11 +3215,11 @@
 - **aliases:** scim; entra provisioning users
 - **paths:** ArchLucid.Api/Controllers/Scim/ScimUsersController.cs
 - **test-filter:** FullyQualifiedName~ScimUsers
-- **hunts:** 76
-- **bugs-found:** 23
-- **consecutive-dry-hunts:** 21
+- **hunts:** 77
+- **bugs-found:** 24
+- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — SCIM PATCH remove on active returned silent no-op instead of mutability
+- **last-bug:** 2026-10-22 — SCIM seat compensate ran after audit log failed post-persist
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -3558,11 +3566,17 @@
 - [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `userName` JSON `null` — **cheap-disproof 2026-10-22 #42:** `ReadPatchRequiredString`.
 - [x] (invalid) `ScimUsersController.DeactivateAsync` — seat restore — **cheap-disproof 2026-10-22 #42:** proven saturated.
 
-- [ ] (candidate) `ScimUsersController.PatchAsync` — `LogAsync` failure after successful `_users.PatchAsync` runs `CompensateSeatTransitionAsync` while row stays updated — locus: `PatchAndSeats.cs` try order ~63–68; input: infra/audit fault after persist (seat vs active drift).
-- [ ] (candidate) `ScimUsersController.ReplaceAsync` — same post-persist audit `LogAsync` failure compensates seat — locus: `ScimUserService.Crud.cs` ~115–120; input: sibling PATCH ordering.
-- [ ] (candidate) `ScimUsersController.PatchAsync` — `replace` `externalId` with JSON `null` — locus: `ReadPatchRequiredString`; input: `invalidValue` parity `userName` null.
-- [ ] (candidate) `ScimUsersController.CreateAsync` — POST `userName` JSON number — locus: `ReadRequiredString` kind guard; input: hunt #8 `userName: null` class.
-- [ ] (candidate) `ScimUsersController.ListAsync` — `userName eq ""` filter literal — locus: `ScimFilterInMemoryEvaluator` compare empty string; input: matches users with empty userName if any (expect none stored).
+- [x] (proven) `ScimUsersController.PatchAsync` — post-persist audit failure seat drift — **hit 2026-10-22 #43.**
+- [x] (proven) `ScimUsersController.ReplaceAsync` — post-persist audit failure seat drift — **hit 2026-10-22 #43.**
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `externalId` JSON `null` — **cheap-disproof 2026-10-22 #43.**
+- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — numeric `userName` — **cheap-disproof 2026-10-22 #43.**
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `userName eq ""` — **cheap-disproof 2026-10-22 #43.**
+
+- [ ] (candidate) `ScimUsersController.CreateAsync` — audit `LogAsync` failure after successful `InsertAsync` must not release reserved seat — locus: `CreateAsync` `userInserted` gate; input: sibling #43 PATCH/REPLACE regressions.
+- [ ] (candidate) `ScimUsersController.DeactivateAsync` — audit failure after successful `DeactivateAsync` must not restore seat — locus: `userDeactivated` gate; input: parity create/patch fix.
+- [ ] (candidate) `ScimUsersController.PatchAsync` — `replace` `displayName` JSON `null` clears field — locus: `ResolvePatchDisplayName`; input: hunt #34 intentional clear.
+- [ ] (candidate) `ScimUsersController.ListAsync` — `meta.lastModified` filter unsupported — locus: SQL translator; input: `invalidFilter` hunt #21 class.
+- [ ] (candidate) `ScimUsersController.PatchAsync` — `replace` `active` with JSON string `"1"` — locus: `ReadActive`; input: bool parse vs numeric `1` parity.
 
 - [x] (proven) `ScimUserService.CreateAsync` / `PatchAsync` / `ScimUsersController` — a second live user with the same `userName` and a different `externalId` was stored, including case-only names — **hit 2026-10-09 seed hunt:** live `userName` lookup returns `uniqueness`. Regressions `CreateAsync_duplicate_user_name_throws_conflict` and `PatchAsync_replace_userName_to_another_users_name_throws_conflict`.
 - [x] (proven) `ScimFilterParser.ParseFilter` / `ScimUsersController.ListAsync` — ungrouped `or` before `and` was parsed left-to-right, so an active user matching only the left comparison was omitted — **hit 2026-10-09 seed hunt:** `not` over `and` over `or` per RFC 7644 §3.4.2.2. Regressions `ListAsync_filter_gives_and_precedence_over_or`, `Parse_or_binds_looser_than_and`, and `Parse_not_binds_tighter_than_and`.

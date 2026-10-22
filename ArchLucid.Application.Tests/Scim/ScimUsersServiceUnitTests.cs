@@ -292,6 +292,97 @@ public sealed class ScimUsersServiceUnitTests
     }
 
     [Fact]
+    public async Task PatchAsync_does_not_compensate_seat_when_audit_log_fails_after_successful_patch()
+    {
+        Guid tenantId = Guid.NewGuid();
+        InMemoryScimUserRepository users = new();
+        Mock<ITenantRepository> tenants = new();
+        ScimUserRecord existing = await users.InsertAsync(
+            tenantId,
+            "ext-1",
+            "alice@example.com",
+            null,
+            false,
+            null,
+            ScimResolvedRoleOrigin.Unknown,
+            CancellationToken.None);
+
+        tenants
+            .Setup(t => t.TryIncrementEnterpriseScimSeatAsync(tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+
+        Mock<IAuditService> audit = new();
+        audit
+            .Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("simulated audit failure"));
+
+        ScimUserService sut = CreateService(users, tenants.Object, audit.Object);
+
+        using JsonDocument patch = JsonDocument.Parse(
+            """
+            {
+              "schemas": ["urn:ietf:params:scim:api:messages:2.0:PatchOp"],
+              "Operations": [{ "op": "replace", "path": "active", "value": true }]
+            }
+            """);
+
+        Func<Task> act = () => sut.PatchAsync(tenantId, existing.Id, patch.RootElement, CancellationToken.None);
+
+        await act.Should().ThrowAsync<InvalidOperationException>();
+
+        (await users.GetByIdAsync(tenantId, existing.Id, CancellationToken.None))!.Active.Should().BeTrue();
+        tenants.Verify(
+            t => t.DecrementEnterpriseScimSeatAsync(tenantId, It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task ReplaceAsync_does_not_compensate_seat_when_audit_log_fails_after_successful_replace()
+    {
+        Guid tenantId = Guid.NewGuid();
+        InMemoryScimUserRepository users = new();
+        Mock<ITenantRepository> tenants = new();
+        ScimUserRecord existing = await users.InsertAsync(
+            tenantId,
+            "ext-1",
+            "alice@example.com",
+            null,
+            false,
+            null,
+            ScimResolvedRoleOrigin.Unknown,
+            CancellationToken.None);
+
+        tenants
+            .Setup(t => t.TryIncrementEnterpriseScimSeatAsync(tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+
+        Mock<IAuditService> audit = new();
+        audit
+            .Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("simulated audit failure"));
+
+        ScimUserService sut = CreateService(users, tenants.Object, audit.Object);
+
+        using JsonDocument body = JsonDocument.Parse(
+            """
+            {
+              "userName": "alice@example.com",
+              "externalId": "ext-1",
+              "active": true
+            }
+            """);
+
+        Func<Task> act = () => sut.ReplaceAsync(tenantId, existing.Id, body.RootElement, CancellationToken.None);
+
+        await act.Should().ThrowAsync<InvalidOperationException>();
+
+        (await users.GetByIdAsync(tenantId, existing.Id, CancellationToken.None))!.Active.Should().BeTrue();
+        tenants.Verify(
+            t => t.DecrementEnterpriseScimSeatAsync(tenantId, It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task DeactivateAsync_restores_seat_when_persistence_fails()
     {
         Guid tenantId = Guid.NewGuid();
@@ -1351,21 +1442,21 @@ public sealed class ScimUsersServiceUnitTests
 
     private static ScimUserService CreateService(IScimUserRepository users, ITenantRepository tenants)
     {
+        return CreateService(users, tenants, Mock.Of<IAuditService>());
+    }
+
+    private static ScimUserService CreateService(IScimUserRepository users, ITenantRepository tenants, IAuditService audit)
+    {
         return new ScimUserService(
             users,
             tenants,
             new GroupToRoleMapper(Options.Create(new ScimOptions())),
-            Mock.Of<IAuditService>(),
+            audit,
             NullLogger<ScimUserService>.Instance);
     }
 
     private static ScimUserService CreateService(Mock<IScimUserRepository> users, Mock<ITenantRepository> tenants)
     {
-        return new ScimUserService(
-            users.Object,
-            tenants.Object,
-            new GroupToRoleMapper(Options.Create(new ScimOptions())),
-            Mock.Of<IAuditService>(),
-            NullLogger<ScimUserService>.Instance);
+        return CreateService(users.Object, tenants.Object, Mock.Of<IAuditService>());
     }
 }
