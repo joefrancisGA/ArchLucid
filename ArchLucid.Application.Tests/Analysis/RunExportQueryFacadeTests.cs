@@ -269,13 +269,80 @@ public sealed class RunExportQueryFacadeTests
         result.Record.Should().BeNull();
     }
 
+    [Fact]
+    public async Task CompareQuality_ReplayExportAsync_returns_lineage_unverified_when_lifecycle_incomplete_before_career_gate()
+    {
+        Guid runGuid = Guid.Parse(RunId);
+        RunExportRecord record = CreateExportRecord();
+        ArchitectureRunDetail scopedDetail = CreateScopedRunDetail();
+        RunDetailDto authorityDetail = CreateAuthorityDetailWithInProgressLifecycle(runGuid);
+
+        Mock<IRunDetailQueryService> runDetails = new();
+        runDetails
+            .Setup(r => r.GetRunDetailAsync(RunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(scopedDetail);
+
+        Mock<IRunExportRecordRepository> exportRecords = new();
+        exportRecords
+            .Setup(r => r.GetByIdAsync(ExportRecordId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(record);
+
+        ArchLucid.Decisioning.Services.ManifestHashService manifestHashService = new();
+        Mock<IAuthorityQueryService> authority = new();
+        SealedExportReceiptTestSupport.ConfigureVerifiedSealedExport(authority, runGuid, manifestHashService);
+        authority
+            .Setup(a => a.GetRunDetailAsync(It.IsAny<ScopeContext>(), runGuid, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(authorityDetail);
+
+        Mock<IRunExportCareerPostureGate> careerGate = new();
+        careerGate
+            .Setup(g => g.EnsureAllowsExportRecordMetadataOrThrowAsync(
+                runGuid,
+                It.IsAny<ScopeContext>(),
+                It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new CareerArtifactExportBlockedException(
+                SimulatorCareerHonestyPresenter.SimulatorRehearsalBlockedMessage,
+                CareerArtifactCompletenessValidator.SimulatorRehearsalCode));
+
+        Mock<IExportReplayService> exportReplay = new();
+        exportReplay
+            .Setup(r => r.ReplayAsync(It.IsAny<ReplayExportRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ReplayExportResult { ExportRecordId = ExportRecordId, RunId = RunId });
+
+        RunExportQueryFacade sut = CreateFacade(
+            runDetails,
+            exportRecords,
+            authority,
+            manifestHashService,
+            careerGate,
+            exportReplayService: exportReplay);
+
+        ExportReplayQueryResult result = await sut.ReplayExportAsync(
+            ExportRecordId,
+            new ReplayExportRequest { ExportRecordId = ExportRecordId },
+            CancellationToken.None);
+
+        result.Outcome.Should().Be(ExportRecordLoadOutcome.LineageUnverified);
+        result.MissingId.Should().Be(RunId);
+        careerGate.Verify(
+            g => g.EnsureAllowsExportRecordMetadataOrThrowAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<ScopeContext>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+        exportReplay.Verify(
+            r => r.ReplayAsync(It.IsAny<ReplayExportRequest>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
     private static RunExportQueryFacade CreateFacade(
         Mock<IRunDetailQueryService> runDetails,
         Mock<IRunExportRecordRepository>? exportRecords = null,
         Mock<IAuthorityQueryService>? authority = null,
         IManifestHashService? manifestHashService = null,
         Mock<IRunExportCareerPostureGate>? careerGate = null,
-        Mock<IExportRecordDiffService>? exportRecordDiffService = null)
+        Mock<IExportRecordDiffService>? exportRecordDiffService = null,
+        Mock<IExportReplayService>? exportReplayService = null)
     {
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(new ScopeContext());
@@ -284,7 +351,7 @@ public sealed class RunExportQueryFacadeTests
             runDetails.Object,
             (exportRecords ?? new Mock<IRunExportRecordRepository>()).Object,
             Mock.Of<IComparisonAuditService>(),
-            Mock.Of<IExportReplayService>(),
+            (exportReplayService ?? new Mock<IExportReplayService>()).Object,
             (exportRecordDiffService ?? new Mock<IExportRecordDiffService>()).Object,
             Mock.Of<IExportRecordDiffSummaryFormatter>(),
             Mock.Of<IAuditService>(),
