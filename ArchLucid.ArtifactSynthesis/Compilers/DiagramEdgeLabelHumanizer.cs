@@ -92,7 +92,7 @@ internal static class DiagramEdgeLabelHumanizer
 
         if (string.Equals(inferenceSource, GraphEdgeInferenceSources.InventoryDiagnosticSettingStorage, StringComparison.OrdinalIgnoreCase))
         {
-            return string.Equals(label, "Diagnostic setting names", StringComparison.OrdinalIgnoreCase);
+            return string.Equals(label, "Diagnostic setting name was not stored.", StringComparison.OrdinalIgnoreCase);
         }
 
         return false;
@@ -132,7 +132,7 @@ internal static class DiagramEdgeLabelHumanizer
                 GraphEdgeInferenceSources.InventoryDiagnosticSettingStorage,
                 StringComparison.OrdinalIgnoreCase))
         {
-            return "Diagnostic setting names";
+            return "Diagnostic setting name was not stored.";
         }
 
         if (TryResolveCatalogDiagramLabel(edgeType, inferenceSource, out string catalogLabel))
@@ -284,7 +284,7 @@ internal static class DiagramEdgeLabelHumanizer
 
         if (string.Equals(baseSource, GraphEdgeInferenceSources.InventoryDiagnosticDestination, StringComparison.OrdinalIgnoreCase))
         {
-            label = $"Diagnostic setting names {qualifier}";
+            label = $"Sends diagnostics to {qualifier.Trim()}.";
 
             return true;
         }
@@ -429,7 +429,7 @@ internal static class DiagramEdgeLabelHumanizer
         if (string.Equals(value, GraphEdgeInferenceSources.InventoryDiagnosticSettingStorage, StringComparison.OrdinalIgnoreCase)
             || string.Equals(value, AzureInventoryRelationshipAssociationTypes.DiagnosticSettingToStorage, StringComparison.OrdinalIgnoreCase))
         {
-            humanized = "Diagnostic setting names";
+            humanized = "Diagnostic setting name was not stored.";
 
             return true;
         }
@@ -437,7 +437,7 @@ internal static class DiagramEdgeLabelHumanizer
         if (string.Equals(value, GraphEdgeInferenceSources.InventoryDiagnosticDestination, StringComparison.OrdinalIgnoreCase)
             || string.Equals(value, AzureInventoryRelationshipAssociationTypes.DiagnosticToDestination, StringComparison.OrdinalIgnoreCase))
         {
-            humanized = "Diagnostic setting names";
+            humanized = "Diagnostic setting name was not stored.";
 
             return true;
         }
