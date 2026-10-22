@@ -193260,9 +193260,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** marketplace billing; checkout mutation; billing application layer
 - **paths:** ArchLucid.Application/Billing/
 - **test-filter:** FullyQualifiedName~Marketplace|FullyQualifiedName~BillingCheckout|FullyQualifiedName~TenantLlmCostReporting
-- **hunts:** 47
+- **hunts:** 48
 - **bugs-found:** 23
-- **consecutive-dry-hunts:** 4
+- **consecutive-dry-hunts:** 5
 - **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-21 ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¯ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¿ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â½ fleet COGS missing-rate when only global input rate configured
 - **related-pd-tb:** none
@@ -193366,11 +193366,19 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 
 2026-10-22 thorough hunt (dry): `application-billing-logic` — pass 4 — cheap-disproof closed five pass-3 seed (candidate) rows (zero quantity, null checkout seats, CostBasisLabel ternary, fleet blocks when monitoring off, integration messageId shape); no hunt-ready rows; 47 scoped billing tests passed; consecutive dry hunts 4 while zone remains cooling; seeded five follow-on (candidate) rows.
-- [ ] (candidate) `AdminFleetLlmCogsService.CostRatesConfigured` — returns false when `Billing:LlmCostEstimation:Enabled=false` even if per-deployment USD rates are configured — locus: `!options.Enabled` guard; input: fleet COGS dashboard with estimation disabled in config.
-- [ ] (candidate) `AdminFleetLlmCogsService.ClassifyRisk` — `GrossMarginRiskLabel` can read `warn` from `pressureUsd >= warningAtUsd` while `HardCapUtilizationFraction` is null when hard cap is zero — locus: `ClassifyRisk` pressure branch before utilization check; input: fleet row with included warn threshold but disabled hard cap math.
-- [ ] (candidate) `MarketplaceChangePlanWebhookMutationHandler.HandleAsync` — defers with `DeferredGaDisabled` when `BillingPlanMutationPolicy.WebhookPlanMutationsEnabled` is false even if `Billing:Provider` is Stripe (ChangePlan still used for tier sync) — locus: first guard vs Stripe parity tests; input: Stripe-hosted tenant `ChangePlan` when only GA flag is off (verify `Stripe_provider_applies_change_plan_when_azure_marketplace_ga_disabled`).
-- [ ] (candidate) `TenantLlmCostReportingService.BuildDashboardAsync` — clamps `days` to 1–90 but does not re-fetch top runs when `days` changes within range — locus: `RankAsync` invocation uses fixed `maxRunsToScan: 12`; input: dashboard poll with different `days` query (verify top-run window is independent by design).
-- [ ] (candidate) `BillingCheckoutFacade.GetSubscriptionStatusAsync` — returns `Status` from ledger for non-subscribed rows without normalizing unknown lifecycle strings for display — locus: `Status = snapshot.Status`; input: `Pending`/`Canceled` checkout rows (verify intentional lifecycle surfacing vs corruption).
+- [x] (valid-no-repro) `AdminFleetLlmCogsService.CostRatesConfigured` — returns false when `Billing:LlmCostEstimation:Enabled=false` even if per-deployment USD rates are configured — **cheap-disproof 2026-10-22 thorough hunt pass 5:** fleet `missing-cost-rates` is tied to estimation being active; disabled estimation intentionally reports rates not configured.
+- [x] (valid-no-repro) `AdminFleetLlmCogsService.ClassifyRisk` — `GrossMarginRiskLabel` can read `warn` from `pressureUsd >= warningAtUsd` while `HardCapUtilizationFraction` is null when hard cap is zero — **cheap-disproof 2026-10-22 thorough hunt pass 5:** included-allowance warn USD is evaluated before utilization ratio; `BuildDashboardAsync_marks_warn_when_pressure_exceeds_included_warn_threshold_before_hard_cap_utilization` documents pressure-first warn.
+- [x] (invalid) `MarketplaceChangePlanWebhookMutationHandler.HandleAsync` — defers with `DeferredGaDisabled` when `BillingPlanMutationPolicy.WebhookPlanMutationsEnabled` is false even if `Billing:Provider` is Stripe — **cheap-disproof 2026-10-22 thorough hunt pass 5:** `BillingPlanMutationPolicy.WebhookPlanMutationsEnabled` is true for Stripe; regression `Stripe_provider_applies_change_plan_when_azure_marketplace_ga_disabled`.
+- [x] (valid-no-repro) `TenantLlmCostReportingService.BuildDashboardAsync` — clamps `days` to 1–90 but does not re-fetch top runs when `days` changes within range — **cheap-disproof 2026-10-22 thorough hunt pass 5:** Top Runs panel is a bounded recent-run ranker (`maxRunsToScan: 12`), independent of daily chart `days` window by design.
+- [x] (valid-no-repro) `BillingCheckoutFacade.GetSubscriptionStatusAsync` — returns `Status` from ledger for non-subscribed rows without normalizing unknown lifecycle strings for display — **cheap-disproof 2026-10-22 thorough hunt pass 5:** `Pending`/`Canceled` lifecycle strings are intentionally surfaced while `HasSubscription` is false (`GetSubscriptionStatusAsync_pending_checkout_reports_no_subscription`).
+
+
+2026-10-22 thorough hunt (dry): `application-billing-logic` — pass 5 — cheap-disproof closed five pass-4 seed (candidate) rows (estimation Enabled guard, fleet pressure warn without utilization, Stripe ChangePlan policy, top-runs vs days, subscription status display); no hunt-ready rows; 47 scoped billing tests passed; consecutive dry hunts 5; seeded five follow-on (candidate) rows.
+- [ ] (candidate) `MarketplaceChangeQuantityWebhookMutationHandler.HandleAsync` — gates only on `AzureMarketplace.GaEnabled` while sibling `ChangePlan` honors `BillingPlanMutationPolicy.WebhookPlanMutationsEnabled` — locus: GA guard vs policy helper; input: Stripe tenant `ChangeQuantity` when GA flag false (verify no Stripe quantity dispatch path exists).
+- [ ] (candidate) `BillingCheckoutFacade.CreateCheckoutSessionAsync` — `BillingCheckoutInitiated` audit is written before provider validation of seat/workspace clamps — locus: audit before `CreateCheckoutSessionAsync` provider call; input: checkout that fails at provider with invalid seat metadata.
+- [ ] (candidate) `TenantLlmCostReportingService.BuildDashboardAsync` — `ByWorkspaceProject` row sets `PromptTokens`/`CompletionTokens` to zero while month pressure is nonzero — locus: breakdown row initializer; input: tenant dashboard with settled month pressure.
+- [ ] (candidate) `AdminFleetLlmCogsService.BuildDashboardAsync` — `MissingRateTenantCount` increments per row sharing one global `CostRatesConfigured` boolean — locus: dashboard aggregate counters; input: fleet with estimation disabled shows all tenants as missing rates.
+- [ ] (candidate) `BillingCheckoutFacade.TestMarketplaceWebhookAsync` — uses the same `actorUserName` for `ActorUserId` and `ActorUserName` audit fields — locus: `LogAsync` payload; input: operator dry-run probe (verify API always supplies distinct id vs display name).
 
 
 - **id:** application-billing-logic
