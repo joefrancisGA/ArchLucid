@@ -509,6 +509,56 @@ public sealed class ReviewCacheManifestBuilderTests
     }
 
     [Fact]
+    public void Build_matches_content_hash_when_baseline_element_provenance_passage_quote_differs_only_by_unicode_normalization_form()
+    {
+        const string nfcQuote = "Claims Caf\u00E9 intake.";
+        const string nfdQuote = "Claims Cafe\u0301 intake.";
+
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "run-model-passage-quote-unicode";
+
+        ArchitectureKnowledgeModel nfcModel = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "el-1",
+                    Name = "API",
+                    Provenance = new ClaimProvenance
+                    {
+                        PassageLocator = new SourcePassageLocator { Quote = nfcQuote },
+                    },
+                },
+            ],
+        };
+
+        ArchitectureKnowledgeModel nfdModel = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "el-1",
+                    Name = "API",
+                    Provenance = new ClaimProvenance
+                    {
+                        PassageLocator = new SourcePassageLocator { Quote = nfdQuote },
+                    },
+                },
+            ],
+        };
+
+        ReviewCacheManifestBuilder.Build(request, nfcModel).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(request, nfdModel).ContentHash);
+    }
+
+    [Fact]
     public void Build_matches_content_hash_when_baseline_element_provenance_source_artifact_id_differs_only_by_surrounding_whitespace()
     {
         ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
@@ -1303,6 +1353,13 @@ public sealed class ReviewCacheManifestBuilderTests
     [InlineData("\u000b")]
     [InlineData("\u000c")]
     [InlineData("\u0084")]
+    [InlineData("\u0080")]
+    [InlineData("\u0081")]
+    [InlineData("\u0082")]
+    [InlineData("\u0083")]
+    [InlineData("\u0086")]
+    [InlineData("\u0087")]
+    [InlineData("\u0088")]
     public void Build_matches_content_hash_when_source_content_uses_unicode_line_separators(
         string lineSeparator)
     {

@@ -110,6 +110,9 @@ internal static class ClosedLoopReasoningSourceTextNormalizer
         foreach (char lineBreak in UnicodeLineBreakScalars)
             content = content.Replace(lineBreak, '\n');
 
+        for (int c1Control = 0x80; c1Control <= 0x9F; c1Control++)
+            content = content.Replace((char)c1Control, '\n');
+
         return content;
     }
 
