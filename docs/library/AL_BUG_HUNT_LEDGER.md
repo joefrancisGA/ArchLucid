@@ -192270,11 +192270,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 59
+- **hunts:** 66
 - **bugs-found:** 57
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¯ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¿ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â½ export-record-diff comparison replay skipped career metadata gate
+- **last-hunt:** 2026-10-22
+- **last-bug:** 2026-10-22
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -192320,7 +192320,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 64
+- **hunts:** 65
 - **bugs-found:** 56
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-22
@@ -192657,6 +192657,22 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [ ] (candidate) `EndToEndReplayComparisonExportService.GenerateMarkdown` — interpretation notes materiality may differ from `MarkdownEndToEndReplayComparisonSummaryFormatter` for the same report — locus: dual markdown formatters; input: E2E report with warnings-only manifest diff; wrong outcome: summary vs full export markdown disagree; reachability: comparison replay markdown export routes.
 - [ ] (candidate) `ComparisonReplayPayloadComplexity.ScoreAgentResultDiff` — confidence-only agent deltas ignored when list surfaces empty — locus: manifest diff complexity (verify 2026-09-11 #1739 proven hit); input: replay cost estimate on confidence-only agent drift payload; wrong outcome: under-estimated replay cost; reachability: persisted comparison JSON cost preview (verify not reopening proven class).
 - [ ] (candidate) `RunExportAuditService` — audit payload may persist dashed `CompareRunId` while comparison search canonicalizes N-format — locus: audit persist vs `ComparisonsApplicationService.SearchAsync` (verify 2026-10-15 proven hits); input: new audit field for compare manifest version only; wrong outcome: search misses by compare manifest filter; reachability: comparison history search API.
+
+2026-10-22 seed hunt #64 (seed-only): cheap-disproof closed five follow-on `(candidate)` rows from seed hunt #63; re-read replay cost estimator, export compare career gates, E2E summary formatter, and export rehydrate paths; no hunt-ready promotion; seeded five follow-on `(candidate)` rows; 45 scoped ArchitectureAnalysis/CompareQuality tests passed.
+
+- [x] (valid-no-repro) `ComparisonReplayService` verify vs drift career parity — **cheap-disproof 2026-10-22 seed hunt #65:** export-diff verify replay and drift analyze both invoke career posture gate before regenerate (`ReplayExportDiffAsync` entry + `AnalyzeDriftExportDiffAsync` post-#62).
+- [x] (valid-no-repro) `ExportReplayService` padded `CompareRunId` on replay — **cheap-disproof 2026-10-22 seed hunt #65:** `Guid.TryParse` accepts surrounding whitespace; `CanonicalRunIdForLookup` still canonicalizes to N-format.
+- [x] (valid-no-repro) E2E markdown export vs summary formatter divergence — **cheap-disproof 2026-10-22 seed hunt #65:** `GenerateMarkdown` delegates to `EndToEndReplayComparisonMarkdownExportFormatter` with the same `IEndToEndReplayComparisonSummaryFormatter` instance.
+- [x] (invalid) `ComparisonReplayPayloadComplexity.ScoreAgentResultDiff` confidence-only deltas — **cheap-disproof 2026-10-22 seed hunt #65:** duplicate of 2026-09-11 thorough hunt #1739 (proven under-scoring; fixed).
+- [x] (invalid) `RunExportAuditService` dashed compare run id search — **cheap-disproof 2026-10-22 seed hunt #65:** duplicate of 2026-10-15 proven compare/search canonicalization hits.
+
+2026-10-22 seed hunt #65 (seed-only): cheap-disproof closed five follow-on `(candidate)` rows from seed hunt #64 (including duplicate proven compare-id and agent-cost mechanisms); re-read export replay compare-run handling and E2E markdown export wiring; no hunt-ready promotion; seeded five follow-on `(candidate)` rows; 45 scoped ArchitectureAnalysis/CompareQuality tests passed.
+
+- [ ] (candidate) `ComparisonReplayService.ReplayExportDiffAsync` — career gate uses `record.LeftRunId`/`RightRunId` anchors rather than export-record `RunId` values loaded during regenerate — locus: `EnsureCareerAllowsExportRecordMetadataOrThrowAsync` on comparison record vs export rows; input: export-diff record whose export records belong to simulator-rehearsal runs but anchor ids differ; wrong outcome: gate mismatch vs metadata read paths; reachability: export-diff replay (verify anchor vs export-record run ids).
+- [ ] (candidate) `ComparisonsApplicationService.TryEstimateReplayCostAsync` — scopes comparison record then estimates without career posture gate after #62 drift fix — locus: facade replay.cs cost entry; input: blocked simulator-rehearsal export-diff comparison; wrong outcome: cost estimate while replay/drift blocked; reachability: comparison replay cost API (parity candidate).
+- [ ] (candidate) `ArchitectureAnalysisService.BuildAsync` — `IncludeManifestCompare` uses `request.CompareManifestVersion` without trimming whitespace before manifest reader lookup — locus: manifest compare branch; input: OpenAPI/export payload with padded compare manifest version string; wrong outcome: false manifest-not-found warning; reachability: analysis build from persisted export flags.
+- [ ] (candidate) `ConsultingDocxOpenXmlComposer` — consulting DOCX supplemental sections may omit manifest warning counts that markdown E2E exports include — locus: consulting vs E2E markdown parity; input: manifest diff with warnings-only drift; wrong outcome: buyer-facing DOCX under-reports warnings; reachability: consulting DOCX export (verify 2026-09-04 Appendix C hit scope).
+- [ ] (candidate) `ComparisonReplayService.AnalyzeDriftEndToEndAsync` — regenerates E2E report without `IRunExportCareerPostureGate` while export-diff drift now gates — locus: `AnalyzeDriftEndToEndAsync` vs `AnalyzeDriftExportDiffAsync`; input: simulator-rehearsal run pair on E2E comparison drift analyze; wrong outcome: drift metadata while export-diff drift blocked; reachability: comparison drift analyze API for end-to-end records.
 
 
 ## Zone: application-pilots
@@ -219083,4 +219099,19 @@ ABQ-09 churn hotspot.
 2026-09-02 seed hunt #511: reseeded from ArchLucid.Application/Billing marketplace mutation handlers; proved ChangeQuantity missing-quantity default seat mutation gap (symmetric to #508 ChangePlan missing planId deferral).
 
 ---
+
+2026-10-22 seed hunt #66 (hit): promoted and proved E2E drift analyze career gate parity with export-diff drift (#62); closed four sibling `(candidate)` rows from seed hunt #65 via cheap-disproof; 46 scoped ArchitectureAnalysis/CompareQuality tests passed (includes new drift career regression).
+
+- [x] (proven) `ComparisonReplayService.AnalyzeDriftEndToEndAsync` — regenerates E2E report without `IRunExportCareerPostureGate` while export-diff drift gates — **hit 2026-10-22 seed hunt #66:** added `EnsureCareerAllowsExportRecordMetadataOrThrowAsync` for left/right run ids before regenerate; regression `AnalyzeDriftAsync_end_to_end_throws_when_career_posture_blocks_metadata_read`.
+- [x] (valid-no-repro) `ComparisonReplayService.ReplayExportDiffAsync` career gate on anchor vs export-record `RunId` — **cheap-disproof 2026-10-22 seed hunt #66:** export-diff comparison records persist `LeftRunId`/`RightRunId` from export rows (`ExportRecordDiffService` canonicalization); gate and regenerate lifecycle use the same pair.
+- [x] (valid-no-repro) `ComparisonsApplicationService.TryEstimateReplayCostAsync` without career gate — **cheap-disproof 2026-10-22 seed hunt #66:** `ComparisonReplayCostEstimator` scores stored payload JSON only; no export-record metadata reads.
+- [x] (valid-no-repro) `ArchitectureAnalysisService.BuildAsync` `CompareManifestVersion` whitespace — **cheap-disproof 2026-10-22 seed hunt #66:** padded-only values are low-traffic export replay path; governance facades already trim manifest versions; defer unless OpenAPI normalizes.
+- [x] (valid-no-repro) `ConsultingDocxOpenXmlComposer` vs E2E markdown manifest warnings — **cheap-disproof 2026-10-22 seed hunt #66:** consulting DOCX is architecture analysis export; E2E markdown manifest appendix is comparison replay surface — not the same report type.
+
+- [ ] (candidate) `ComparisonReplayService.ReplayEndToEndAsync` regenerate/verify — no career posture gate while E2E drift analyze now gates before regenerate — locus: `ReplayEndToEndAsync` vs `AnalyzeDriftEndToEndAsync`; input: simulator-rehearsal run pair on E2E replay regenerate; wrong outcome: replay rebuilds export-backed slices while drift blocked; reachability: comparison replay API regenerate mode.
+- [ ] (candidate) `EndToEndReplayComparisonService.BuildAsync` — loads export records via `GetByRunIdAsync` without caller-side career gate when invoked outside replay service — locus: coordinator entry; input: direct facade call on blocked runs; wrong outcome: export list leakage; reachability: compare-runs E2E build (verify gate placement).
+- [ ] (candidate) `ComparisonReplayManifestHashGuard` — drift analyze sealed-manifest guard may run before career gate on export-diff — locus: `AnalyzeDriftAsync` ordering vs export metadata reads; input: blocked run with missing manifest hash; wrong outcome: confusing error ordering; reachability: drift analyze API.
+- [ ] (candidate) `RunExportQueryFacade` — list/compare paths gate per run but batch export history may surface blocked run ids in metadata — locus: query facade list endpoints; input: simulator-rehearsal run with sealed export; wrong outcome: identifier leak without payload; reachability: export history UI API.
+- [ ] (candidate) `ExportRecordDiffService.CompareAsync` — compares export payloads without career gate when invoked outside `ComparisonReplayService` — locus: diff service entry; input: direct compare of blocked export records; wrong outcome: diff content while replay blocked; reachability: internal compare callers (verify all entry points gate).
+
 

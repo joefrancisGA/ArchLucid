@@ -494,6 +494,44 @@ public sealed class ComparisonReplayServiceTests
     }
 
     [Fact]
+    public async Task AnalyzeDriftAsync_end_to_end_throws_when_career_posture_blocks_metadata_read()
+    {
+        EndToEndReplayComparisonReport report = SampleEndToEndReport();
+        ComparisonRecord record = EndToEndRecord("drift-career-e2e", report);
+        Mock<IComparisonRecordRepository> repo = SetupRepo(record);
+        Guid leftRunGuid = Guid.Parse(report.LeftRunId);
+        Mock<IRunExportCareerPostureGate> careerGate = new();
+        careerGate
+            .Setup(g => g.EnsureAllowsExportRecordMetadataOrThrowAsync(
+                leftRunGuid,
+                It.IsAny<ScopeContext>(),
+                It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new CareerArtifactExportBlockedException(
+                SimulatorCareerHonestyPresenter.SimulatorRehearsalBlockedMessage,
+                CareerArtifactCompletenessValidator.SimulatorRehearsalCode));
+        Mock<IEndToEndReplayComparisonService> build = new();
+        build.Setup(b => b.BuildAsync(report.LeftRunId, report.RightRunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(report);
+        ManifestHashService manifestHashService = new();
+        Mock<IAuthorityQueryService> authority = new();
+        SetupSealedManifestForRuns(authority, manifestHashService, report.LeftRunId, report.RightRunId);
+        Mock<IComparisonDriftAnalyzer> drift = new();
+        ComparisonReplayService sut = CreateSut(
+            comparisonRepo: repo.Object,
+            e2eBuild: build.Object,
+            driftAnalyzer: drift.Object,
+            authorityQuery: authority.Object,
+            manifestHash: manifestHashService,
+            careerGate: careerGate.Object);
+
+        Func<Task> act = () => sut.AnalyzeDriftAsync("drift-career-e2e", CancellationToken.None);
+
+        await act.Should().ThrowAsync<CareerArtifactExportBlockedException>();
+        build.Verify(b => b.BuildAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
+        drift.Verify(d => d.Analyze(It.IsAny<object>(), It.IsAny<object>()), Times.Never);
+    }
+
+    [Fact]
     public async Task AnalyzeDriftAsync_export_diff_throws_when_career_posture_blocks_metadata_read()
     {
         ExportRecordDiffResult diff = SampleExportDiff();

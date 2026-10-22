@@ -116,6 +116,9 @@ public sealed class ComparisonReplayService(
 
     private async Task<DriftAnalysisResult> AnalyzeDriftEndToEndAsync(ComparisonRecord record, CancellationToken cancellationToken)
     {
+        await EnsureCareerAllowsExportRecordMetadataOrThrowAsync(record.LeftRunId ?? string.Empty, cancellationToken);
+        await EnsureCareerAllowsExportRecordMetadataOrThrowAsync(record.RightRunId ?? string.Empty, cancellationToken);
+
         EndToEndReplayComparisonReport stored = ComparisonRecordPayloadRehydrator.RehydrateEndToEnd(record) ??
                                                 throw new InvalidOperationException(
                                                     $"Comparison record '{record.ComparisonRecordId}' did not contain a valid end-to-end payload.");
