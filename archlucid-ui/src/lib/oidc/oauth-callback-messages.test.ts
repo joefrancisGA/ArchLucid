@@ -100,6 +100,7 @@ describe("readOAuthJsonErrorDescription", () => {
     expect(readOAuthJsonErrorDescription("Policy%20denied%2Bextra")).toBe("Policy denied+extra");
     expect(readOAuthJsonErrorDescription("User+denied%2B👍🏻")).toBe("User+denied+👍🏻");
     expect(readOAuthJsonErrorDescription("Policy\u3000denied%252Bextra")).toBe("Policy denied+extra");
+    expect(readOAuthJsonErrorDescription("Policy\u2007denied%252Bextra")).toBe("Policy denied+extra");
   });
 });
 
@@ -597,6 +598,13 @@ describe("humanizeAuthorizeCallbackError", () => {
 
     expect(message).toMatch(/invalid saml metadata/i);
     expect(message).not.toContain("invalid_saml_metadata");
+  });
+
+  it("humanizes invalid_saml_relay_state authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("invalid_saml_relay_state", "");
+
+    expect(message).toMatch(/invalid saml relay state/i);
+    expect(message).not.toContain("invalid_saml_relay_state");
   });
 
   it("avoids empty parentheses when the authorize error code is whitespace-only", () => {
