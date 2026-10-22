@@ -44,7 +44,9 @@ public class DefaultGraphEdgeInferer : IGraphEdgeInferer
             RequirementNodes = nodes
                 .Where(x => string.Equals(x.NodeType, GraphNodeTypes.Requirement, StringComparison.OrdinalIgnoreCase))
                 .ToList(),
-            NodeById = nodes.ToDictionary(n => n.NodeId, StringComparer.OrdinalIgnoreCase),
+            NodeById = nodes
+                .GroupBy(static node => node.NodeId.Trim(), StringComparer.OrdinalIgnoreCase)
+                .ToDictionary(static group => group.Key, static group => group.First(), StringComparer.OrdinalIgnoreCase),
         };
 
         foreach (IGraphEdgeInferenceRule rule in Rules)

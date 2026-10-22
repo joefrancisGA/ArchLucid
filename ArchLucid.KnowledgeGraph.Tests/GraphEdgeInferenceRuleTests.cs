@@ -308,6 +308,66 @@ public sealed class GraphEdgeInferenceRuleTests
     }
 
     [Fact]
+    public void InferEdges_topology_relationship_rule_resolves_connects_to_target_when_property_token_has_surrounding_whitespace()
+    {
+        ContextSnapshot snapshot = BuildSnapshot();
+        GraphNode source = new()
+        {
+            NodeId = "net-1",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "vnet",
+            Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["connectedToNodeIds"] = "  peer-1  ",
+            },
+        };
+        GraphNode peer = new()
+        {
+            NodeId = "peer-1",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "peer-vnet",
+        };
+
+        IReadOnlyList<GraphEdge> edges = _sut.InferEdges(snapshot, [source, peer]);
+
+        edges.Should().ContainSingle(e =>
+            e.FromNodeId == "net-1"
+            && e.ToNodeId == "peer-1"
+            && e.EdgeType == GraphEdgeTypes.ConnectsTo
+            && e.InferenceSource == GraphEdgeInferenceSources.TopologyConnectsTo);
+    }
+
+    [Fact]
+    public void InferEdges_explicit_parent_child_rule_honors_parentNodeId_when_parent_node_id_has_surrounding_whitespace()
+    {
+        ContextSnapshot snapshot = BuildSnapshot();
+        GraphNode parent = new()
+        {
+            NodeId = "  parent-1  ",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "vnet",
+        };
+        GraphNode child = new()
+        {
+            NodeId = "child-1",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "subnet-a",
+            Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["parentNodeId"] = "parent-1",
+            },
+        };
+
+        IReadOnlyList<GraphEdge> edges = _sut.InferEdges(snapshot, [parent, child]);
+
+        edges.Should().ContainSingle(e =>
+            e.FromNodeId == "parent-1"
+            && e.ToNodeId == "child-1"
+            && e.EdgeType == GraphEdgeTypes.ContainsResource
+            && e.InferenceSource == GraphEdgeInferenceSources.ExplicitParentChild);
+    }
+
+    [Fact]
     public void InferEdges_topology_relationship_rule_uses_canonical_target_node_id_when_connected_to_property_differs_only_by_case()
     {
         ContextSnapshot snapshot = BuildSnapshot();
