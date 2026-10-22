@@ -4277,6 +4277,14 @@
 
 ## Zone: api-key-auth
 
+2026-10-22 thorough hunt #11 (dry): cheap-disproof closed five picker `(candidate)` rows (bypass returns before `X-Api-Key` extract — intentional dev open mode ~56–71; `GetSnapshot` exposes `DevelopmentBypassAll` for operator diagnostics ~22; `HasConfiguredKeyMaterial` via masker duplicate invisible-only proven class; header `provided` normalized in `ExtractProvidedApiKey` before `ConstantTimeKeyEquals` — symmetric; `Guid.Empty` scope ids skip claims — regression `When_empty_guid_scope_ids_do_not_emit_scope_claims`); no failing repro; five replacement `(candidate)` rows; scoped ApiKey tests not run.
+
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler` — bypass ignores `X-Api-Key` — **cheap-disproof 2026-10-22 #11:** `!enabled && developmentBypassAll` path ~56–71 precedes header read ~74–80.
+- [x] (valid-no-repro) `AdminApiKeySettingsService.GetSnapshot` — exposes bypass flag — **cheap-disproof 2026-10-22 #11:** intentional admin visibility of misconfiguration risk ~19–25.
+- [x] (invalid) `AdminApiKeySettingsService.HasConfiguredKeyMaterial` — masker alignment — **cheap-disproof 2026-10-22 #11:** duplicate BOM/ZWSP/tab proven snapshot/handler alignment hits.
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler` — normalize before constant-time compare — **cheap-disproof 2026-10-22 #11:** `provided` normalized ~151–154; config segments ~210–212; hex fold only on long ascii-hex.
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler` — empty Guid scope claims — **cheap-disproof 2026-10-22 #11:** `tenant_id` emitted only when non-empty Guid ~255–256; existing regression.
+
 2026-10-22 thorough hunt #10 (dry): cheap-disproof closed five picker `(candidate)` rows (dev bypass uses `BuildSyntheticAdminClaims` without scope claims — intentional local open admin ~69–71; short mask segments `****` only — `ApiKeyMaterialMaskerTests.MaskCommaSeparatedSegments_masks_each_segment`; legacy `RotateKeyIdAsync` always replace — documented operator route; rotation audit JSON excludes plaintext — `Rotate_replace_returns_plaintext_once_without_logging_in_audit_payload`; shared material both slots expired returns admin-expired first — duplicate hunt #5 ~117–119); no failing repro; five replacement `(candidate)` rows; scoped ApiKey tests not run.
 
 - [x] (valid-no-repro) `ApiKeyAuthenticationHandler` — bypass omits scope claims — **cheap-disproof 2026-10-22 #10:** `BuildSyntheticAdminClaims` ~267–277; bypass never calls `BuildApiKeyClaims`; `When_enabled_false_and_bypass_true_in_development_returns_success_without_header`.
@@ -4379,9 +4387,9 @@
 - **aliases:** API key auth; admin API key settings
 - **paths:** ArchLucid.Api/Authentication/ApiKeyAuthenticationHandler.cs; ArchLucid.Api/Services/Admin/AdminApiKeySettingsService.cs; ArchLucid.Api/Controllers/Admin/AdminApiKeySettingsController.cs
 - **test-filter:** FullyQualifiedName~ApiKeyAuthentication|FullyQualifiedName~AdminApiKeySettings
-- **hunts:** 90
+- **hunts:** 91
 - **bugs-found:** 23
-- **consecutive-dry-hunts:** 10
+- **consecutive-dry-hunts:** 11
 - **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-20 — hex API key material rejected when config/header casing differed
 - **related-pd-tb:** none
@@ -4469,11 +4477,11 @@
 - [x] (invalid) `ApiKeyMaterialNormalizer` — embedded BOM — **cheap-disproof 2026-10-22 #8.**
 - [x] (valid-no-repro) `ApiKeyAuthenticationHandler` — blank test actor — **cheap-disproof 2026-10-22 #8.**
 
-- [ ] (candidate) `ApiKeyAuthenticationHandler` — `DevelopmentBypassAll` succeeds without reading `X-Api-Key` — locus: bypass branch ~56–71 before header extract; input: invalid header plus bypass in Development.
-- [ ] (candidate) `AdminApiKeySettingsService.GetSnapshot` — surfaces `DevelopmentBypassAll` to admin GET — locus: `GetSnapshot` ~19–25; input: operator visibility when misconfiguration risk exists.
-- [ ] (candidate) `AdminApiKeySettingsService.HasConfiguredKeyMaterial` — configured when masker returns segments after normalize — locus: `MaskCommaSeparatedSegments` ~87–88; input: invisible-only slot rows (proven BOM/ZWSP class alignment).
-- [ ] (candidate) `ApiKeyAuthenticationHandler` — `ConstantTimeKeyEquals` applies only after normalize on config segments — locus: `MatchesAnyCommaSeparatedKey` ~210–212; input: non-hex shared secrets under 32 chars (no hex fold path).
-- [ ] (candidate) `ApiKeyAuthenticationHandler` — `Guid.Empty` scope ids on real admin key omit scope claims — locus: `BuildApiKeyClaims` ~255–262; input: `When_empty_guid_scope_ids_do_not_emit_scope_claims`.
+- [ ] (candidate) `ApiKeyAuthenticationHandler` — `AllowTestActorHeaders` with bypass still overrides display name — locus: `BuildSuccessTicket` ~128–131; input: `When_development_bypass_and_allow_test_actor_headers_overrides_display_name`.
+- [ ] (candidate) `AdminApiKeySettingsService.Rotate` — `ParseSlot` accepts `ReadOnly`/`Admin` case-insensitive — locus: `ParseSlot` ~90–100; input: body slot `"readonly"` rotation issues append/replace material.
+- [ ] (candidate) `ApiKeyAuthenticationHandler` — `IsKeyExpired` uses `TimeProvider` not `DateTime.UtcNow` — locus: `IsKeyExpired` ~239–240; input: frozen clock boundary regressions `When_admin_key_expiry_is_exactly_now_returns_failure`.
+- [ ] (candidate) `AdminApiKeySettingsController` — rotation audit includes `configPath` not secret material — locus: `CreateRotationAuditEvent` data ~63–68; input: audit search must not surface `PlaintextKey` (hunt #10 class).
+- [ ] (candidate) `ApiKeyMaterialGenerator.GenerateHexKey` — rotation issues 64-char lowercase hex — locus: generator used by `Rotate` ~34; input: pairs with hex normalizer hit 2026-10-20 (intentional contract).
 
 - [x] (proven) `AdminApiKeySettingsController.RotateKeyIdAsync` — legacy route audit JSON used the raw `keyId` while `AdminApiKeySettingsService.ParseSlot` canonicalized whitespace and casing for the response — **hit 2026-10-11 thorough hunt:** audit `keyId` now uses `response.Slot`; regression `RotateKeyIdAsync_persisted_audit_uses_canonical_slot_for_padded_route_value`.
 
