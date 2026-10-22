@@ -73,7 +73,7 @@ public static class ProvenanceSnapshotRevisionHasher
 
         IEnumerable<string> edgeParts = graph.Edges
             .Select(static edge =>
-                $"{edge.FromNodeId.Trim()}|{edge.ToNodeId.Trim()}|{edge.EdgeType}")
+                $"{edge.FromNodeId.Trim()}|{edge.ToNodeId.Trim()}|{(edge.EdgeType ?? string.Empty).Trim()}")
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .OrderBy(static part => part, StringComparer.OrdinalIgnoreCase);
 

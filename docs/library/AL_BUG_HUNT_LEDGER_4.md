@@ -12470,18 +12470,23 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 116
-- **bugs-found:** 111
+- **hunts:** 117
+- **bugs-found:** 112
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — GraphValidator accepted duplicate directed edges
+- **last-bug:** 2026-10-22 — graph fingerprint ignored padded EdgeType values
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-22 seed hunt (seed→hit): cheap-disproved padded `GetNodesByType` candidate (`NormalizeGraphField` already trims stored and lookup types; regression `GetNodesByType_resolves_nodes_when_stored_node_type_has_surrounding_whitespace`); promoted graph revision fingerprint edge-type trim candidate; proved `ComputeGraphFingerprint` trimmed edge endpoints but hashed raw `EdgeType` strings, forcing `ProvenanceGraphAccessService` cache misses when edge types differed only by padding; trim edge types in fingerprint segments; regression `Compute_unchanged_when_graph_edge_type_differs_only_by_surrounding_whitespace`; seeded graph node type fingerprint trim parity follow-on; 413 KnowledgeGraph + 132 Provenance scoped tests passed.
+
+- [x] (valid-no-repro) `GraphSnapshotExtensions.GetNodesByType` — padded stored `NodeType` — **cheap-disproof 2026-10-22 seed hunt:** `NormalizeGraphField`; regression above.
+- [x] (proven) `ProvenanceSnapshotRevisionHasher.ComputeGraphFingerprint` — padded `EdgeType` changed revision fingerprint — **hit 2026-10-22 seed hunt (seed→hit):** trim edge type in fingerprint; regression above.
+
+- [ ] (candidate) `ProvenanceSnapshotRevisionHasher.ComputeGraphFingerprint` — padded `NodeType` / `Category` on graph nodes may still change fingerprint when only surrounding whitespace differs — locus: node fingerprint fields; input: node with padded `NodeType`; wrong outcome: revision cache miss without semantic graph change.
 
 2026-10-22 seed hunt (seed→hit): promoted duplicate normalized directed edge candidate; proved `GraphValidator` validated edge endpoints individually but allowed multiple edges sharing the same trim/case-insensitive directed key (including padding-only variants), diverging from κ-merge and revision fingerprint dedupe semantics; reject duplicate directed edge groups before membership checks; regressions `Validate_DuplicateDirectedEdgesWithSameNormalizedEndpointsAndType_ThrowsInvalidOperationException` and `Validate_DuplicateDirectedEdgesDifferingOnlyByEdgeTypePadding_ThrowsInvalidOperationException`; seeded graph snapshot extension duplicate node type padding follow-on; 412 KnowledgeGraph + 131 Provenance scoped tests passed.
 
 - [x] (proven) `GraphValidator.Validate` — duplicate directed edges after endpoint/type normalization — **hit 2026-10-22 seed hunt (seed→hit):** directed edge key duplicate guard; regressions above.
-
-- [ ] (candidate) `GraphSnapshotExtensions.GetNodesByType` — padded stored `NodeType` values may not match trimmed lookup type when only leading/trailing spaces differ on the node row — locus: `GetNodesByType`; input: node `NodeType` of ` Service `; wrong outcome: type filter misses topology nodes.
 
 2026-10-22 seed hunt (seed→hit): cheap-disproved whitespace-only `EdgeType` validator candidate (`IsNullOrWhiteSpace` already rejects; regression `Validate_EdgeWithWhitespaceOnlyEdgeType_ThrowsInvalidOperationException`); promoted graph snapshot extension edge-type trim candidate; proved `GraphSnapshotExtensions` matched `EdgeType` literally while endpoints were normalized, so padded stored edge types dropped RAG/decisioning neighbor expansion; normalize graph fields on edge type filters (and node type lookup parity); regressions `GetOutgoingTargets_resolves_target_when_edge_type_has_surrounding_whitespace` and `GetEdgesByType_resolves_edges_when_stored_edge_type_has_surrounding_whitespace`; seeded duplicate normalized directed edge key follow-on; 410 KnowledgeGraph + 131 Provenance scoped tests passed.
 

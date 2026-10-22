@@ -90,6 +90,21 @@ public sealed class GraphSnapshotExtensionsTests
     }
 
     [Fact]
+    public void GetNodesByType_resolves_nodes_when_stored_node_type_has_surrounding_whitespace()
+    {
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode { NodeId = "a", NodeType = " Service ", Label = "svc" },
+            ],
+        };
+
+        graph.GetNodesByType("Service").Should().ContainSingle()
+            .Which.NodeId.Should().Be("a");
+    }
+
+    [Fact]
     public void GetEdgesByType_resolves_edges_when_stored_edge_type_has_surrounding_whitespace()
     {
         GraphSnapshot graph = new()

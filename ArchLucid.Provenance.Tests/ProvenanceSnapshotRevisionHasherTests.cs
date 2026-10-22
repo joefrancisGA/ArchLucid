@@ -839,6 +839,32 @@ public sealed class ProvenanceSnapshotRevisionHasherTests
     }
 
     [Fact]
+    public void Compute_unchanged_when_graph_edge_type_differs_only_by_surrounding_whitespace()
+    {
+        GraphEdge baselineEdge = new()
+        {
+            EdgeId = "edge-1",
+            FromNodeId = "node-a",
+            ToNodeId = "node-b",
+            EdgeType = "ConnectsTo",
+        };
+
+        GraphEdge updatedEdge = new()
+        {
+            EdgeId = "edge-1",
+            FromNodeId = "node-a",
+            ToNodeId = "node-b",
+            EdgeType = "  ConnectsTo  ",
+        };
+
+        ProvenanceBuildInput baseline = CreateInput([], graphEdges: [baselineEdge]);
+        ProvenanceBuildInput updated = CreateInput([], graphEdges: [updatedEdge]);
+
+        ProvenanceSnapshotRevisionHasher.Compute(baseline, BundleId)
+            .Should().Be(ProvenanceSnapshotRevisionHasher.Compute(updated, BundleId));
+    }
+
+    [Fact]
     public void Compute_changes_when_contributing_decision_ids_change_but_content_hash_is_unchanged()
     {
         Guid artifactId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
