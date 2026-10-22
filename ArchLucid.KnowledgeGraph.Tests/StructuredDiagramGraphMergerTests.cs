@@ -15,6 +15,24 @@ namespace ArchLucid.KnowledgeGraph.Tests;
 public sealed class StructuredDiagramGraphMergerTests
 {
     [Fact]
+    public void Merge_throws_when_bind_targets_is_null()
+    {
+        ContextSnapshot snapshot = new()
+        {
+            SnapshotId = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeede"),
+            RunId = Guid.Parse("11111111-2222-3333-4444-555555555564"),
+            ProjectId = "project-null-bind-targets",
+            CanonicalObjects = [],
+        };
+
+        StructuredDiagramGraphMerger merger = GraphMaterializationTestHelpers.CreateStructuredDiagramGraphMerger();
+
+        Action act = () => merger.Merge(snapshot, null!);
+
+        act.Should().Throw<ArgumentNullException>();
+    }
+
+    [Fact]
     public void Merge_returns_empty_result_when_context_snapshot_has_no_structured_diagram_documents()
     {
         ContextSnapshot snapshot = new()
