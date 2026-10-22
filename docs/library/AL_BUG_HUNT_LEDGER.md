@@ -1,3 +1,15 @@
+2026-10-22 seed hunt (seed-only): `ui-oidc` - no hunt-ready product defect; cheap-disproof closed invalid_request authorize-query UX, refresh 415 parity, and saturated readOAuthJsonErrorDescription skin-tone glue; parity regressions BFF refresh HTTP 416 and opaque token endpoint 416 without cookie clear, and code exchange JSON without access_token marks authorize retry; scoped `src/lib/oidc` + BFF refresh route vitest 516/516.
+
+- [x] (invalid) humanizeAuthorizeCallbackError - invalid_request authorize-query copy - **cheap-disproof 2026-10-22:** bounded invalid-request UX tests on trunk.
+- [x] (valid-no-repro) refreshBffSessionCookie - refresh 415 shouldClearSession false - **cheap-disproof 2026-10-22:** client + route opaque 415 regressions on trunk.
+- [x] (valid-no-repro) exchangeAuthorizationCode - missing access_token marks authorize retry - **regression 2026-10-22:** malformed success JSON still preserves return-path retry marker.
+- [x] (invalid) readOAuthJsonErrorDescription - multiply-encoded %252B with skin-tone modifier glue - **cheap-disproof 2026-10-22:** saturated JSON encoding class on trunk.
+
+- [ ] (candidate) humanizeAuthorizeCallbackError - access_denied authorize-query copy - locus: fixed-branch UX.
+- [ ] (candidate) refreshBffSessionCookie - refresh 417 shouldClearSession false - locus: proxy transient policy.
+- [ ] (candidate) exchangeAuthorizationCode - invalid token endpoint URL skips authorize retry marker - locus: misconfiguration policy.
+- [ ] (candidate) decodeOAuthErrorDescription - multiply-encoded %252B skin-tone glue - locus: saturated encoding class.
+
 2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed invalid_scope authorize-query UX, BFF refresh 414 parity, and saturated decodeOAuthErrorDescription skin-tone glue; regression documents authorize-retry marking after non-JSON token success bodies during code exchange (parse failure still preserves return-path retry); scoped vitest 481/481.
 
 - [x] (invalid) humanizeAuthorizeCallbackError - invalid_scope authorize-query copy - **cheap-disproof 2026-10-22:** fixed permissions UX parity test.
@@ -26077,6 +26089,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
+- **hunts:** 88
 - **hunts:** 87
 - **hunts:** 86
 - **hunts:** 85
