@@ -21,6 +21,19 @@
 - [ ] (candidate) refreshBffSessionCookie - refresh 436 shouldClearSession false - locus: transient refresh parity.
 - [ ] (candidate) exchangeAuthorizationCode - access_token JSON string whitespace-only skips authorize retry marker - locus: literal whitespace token shape.
 - [ ] (candidate) readOAuthJsonErrorDescription - multiply-encoded %252B with skin-tone modifier glue - locus: saturated JSON encoding class.
+2026-10-22 seed hunt (seed->hit): `application-tenancy-lifecycle` - promoted hunt-ready from seed re-read `TenantErasureCommandService.TryClearLegalHoldAsync` - legal hold cleared platform audit appended after two pre-audit tenant reads without a final re-read, so hold re-applied between `tenantBeforeClearAudit` and audit could emit `TenantErasureLegalHoldCleared` while a hold is active again; pre-append `GetByIdAsync` hold-reapplied and offboard guards; regression `TryClearLegalHoldAsync_returns_success_without_audit_when_legal_hold_reapplied_after_tenant_before_clear_audit_read_before_audit`; scoped tenancy filter 264/264.
+
+- [x] (proven) `TryClearLegalHoldAsync` - hold re-applied after tenantBeforeClearAudit read before clear audit - **hit 2026-10-22 seed hunt:** fifth pre-append re-read + hold guard; regression above.
+- [x] (valid-no-repro) `TryClearLegalHoldAsync` - hold re-applied after pre-clear audit read - **cheap-disproof 2026-10-22:** existing four-read regression on trunk.
+- [x] (valid-no-repro) `DeleteTenantAsync` - active legal hold after pre-deletion audit append read - **cheap-disproof 2026-10-22:** hit earlier same day on trunk.
+- [x] (valid-no-repro) `TryClearLegalHoldAsync` - offboard after pre-clear audit read - **cheap-disproof 2026-10-22:** existing regression on trunk.
+- [x] (invalid) `TryClearLegalHoldAsync` - hold already cleared on entry - **cheap-disproof 2026-10-22:** idempotent true without audit by design.
+
+- [ ] (candidate) `TrySetLegalHoldAsync` - hold cleared after tenantBeforeSetAudit read before set audit - locus: fifth pre-append read gap (reachability: erasure command).
+- [ ] (candidate) `TrySetLegalHoldAsync` - quarantine restored after tenantBeforeSetAudit read - locus: saturated set-hold path (reachability: erasure command).
+- [ ] (candidate) `DeleteTenantAsync` - erasure approval cleared after fourth pre-append read - locus: saturated deletion path (reachability: admin delete job).
+- [ ] (candidate) `TrialLifecycleTransitionEngine` - offboard between audit and expiration metric - locus: post-audit superseded read (reachability: saturated).
+- [ ] (candidate) `TenantCatalogMigrationOrchestrator.StartAsync` - offboard after insert before started audit - locus: existing regression (reachability: saturated).
 
 2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed invalid_dpop_proof authorize-query UX, BFF refresh 434 parity, and saturated readOAuthJsonErrorDescription ZWJ glue; regression documents authorize-retry is not marked when authorization code exchange returns empty-array-string access_token; scoped vitest 537/537.
 
