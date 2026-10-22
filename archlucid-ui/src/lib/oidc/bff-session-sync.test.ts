@@ -1564,6 +1564,34 @@ describe("refreshBffSessionCookie (LK-06 P2)", () => {
     expect(result).toEqual({ ok: false, shouldClearSession: false });
   });
 
+  it("soft-fails refresh without clearing session when the refresh route returns 497", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => ({
+        ok: false,
+        status: 497,
+      })),
+    );
+
+    const result = await refreshBffSessionCookie();
+
+    expect(result).toEqual({ ok: false, shouldClearSession: false });
+  });
+
+  it("soft-fails refresh without clearing session when the refresh route returns 498", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => ({
+        ok: false,
+        status: 498,
+      })),
+    );
+
+    const result = await refreshBffSessionCookie();
+
+    expect(result).toEqual({ ok: false, shouldClearSession: false });
+  });
+
   it("soft-fails refresh without clearing session when the refresh route returns 499", async () => {
     vi.stubGlobal(
       "fetch",

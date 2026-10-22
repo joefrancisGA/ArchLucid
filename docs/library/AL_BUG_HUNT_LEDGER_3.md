@@ -2486,6 +2486,40 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
+- **id:** ui-oidc
+- **status:** open
+- **impact:** high
+- **aliases:** oidc authority; sign-in routing; OIDC host
+- **paths:** archlucid-ui/src/lib/oidc/
+- **test-filter:** oidc-authority|oidc
+- **hunts:** 88
+- **bugs-found:** 73
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-22
+- **last-bug:** 2026-10-22 — post-sign-in return URL leaked smuggled vertical-tab path after safe-path check
+- **related-pd-tb:** none
+- **code-changed-since:** yes
+
+2026-10-22 seed hunt (seed-only, pass 9): cheap-disproved five open `(candidate)` rows from pass 8; regression locks BFF refresh `497`/`498` soft-fail parity and em-dash-only JSON/authorize `error_description` guards; no hunt-ready row promoted; seeded five follow-on `(candidate)` rows; focused OIDC suite passed 718/718; no production code changed.
+
+- [x] (invalid) `humanizeAuthorizeCallbackError` — `registration_not_supported` authorize callback query — **cheap-disproof 2026-10-22 seed hunt pass 9:** existing regression `humanizes registration_not_supported authorize callback errors with readable copy`.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route returns opaque HTTP `497` — **cheap-disproof 2026-10-22 seed hunt pass 9:** non-401/403 soft-fail; regression `soft-fails refresh without clearing session when the refresh route returns 497`.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route returns opaque HTTP `498` — **cheap-disproof 2026-10-22 seed hunt pass 9:** regression `soft-fails refresh without clearing session when the refresh route returns 498`.
+- [x] (valid-no-repro) `readOAuthJsonErrorDescription` — em-dash-only (`U+2014`) JSON `error_description` — **cheap-disproof 2026-10-22 seed hunt pass 9:** readable-detail guard; regression `returns empty for em-dash-only token-endpoint JSON error_description values`.
+- [x] (valid-no-repro) `decodeOAuthErrorDescription` — em-dash-only percent-encoded authorize `error_description` — **cheap-disproof 2026-10-22 seed hunt pass 9:** regression `returns empty for em-dash-only percent-encoded error descriptions`.
+
+- [ ] (candidate) `humanizeAuthorizeCallbackError` — `admin_consent_required` on authorize callback query — locus: `humanizeAuthorizeCallbackError` default branch; input: SPA callback `?error=admin_consent_required` without description.
+- [ ] (candidate) `readOAuthJsonErrorDescription` — en-dash-only (`U+2013`) JSON `error_description` — locus: readable-detail guard; input: token-endpoint OAuth JSON `"\\u2013\\u2013"`.
+- [ ] (candidate) `decodeOAuthErrorDescription` — en-dash-only percent-encoded authorize `error_description` — locus: `decodeOAuthErrorDescription`; input: callback `?error_description=%E2%80%93`.
+- [ ] (candidate) `token-client.postTokenForm` — HTTP 200 body is JSON string root — locus: `parseOidcTokenResponse`; input: misconfigured IdP returns `"not-a-token-response"` with 200.
+- [ ] (candidate) `refreshBffSessionCookie` — refresh route returns HTTP `500` without clearing session — locus: `refreshBffSessionCookie` soft-fail parity; input: BFF refresh proxy surfaces transient `500` like existing opaque-status locks.
+
+- [x] (invalid) `humanizeAuthorizeCallbackError` — `registration_not_supported` authorize callback query — **closed 2026-10-22 seed hunt pass 9** (see pass-9 row above).
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh opaque HTTP `497` — **closed 2026-10-22 seed hunt pass 9** (see pass-9 row above).
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh opaque HTTP `498` — **closed 2026-10-22 seed hunt pass 9** (see pass-9 row above).
+- [x] (valid-no-repro) `readOAuthJsonErrorDescription` — em-dash-only JSON `error_description` — **closed 2026-10-22 seed hunt pass 9** (see pass-9 row above).
+- [x] (valid-no-repro) `decodeOAuthErrorDescription` — em-dash-only percent-encoded `error_description` — **closed 2026-10-22 seed hunt pass 9** (see pass-9 row above).
+
 2026-10-22 seed hunt (seed-only, pass 8): cheap-disproved five open `(candidate)` rows from pass 7; regression locks tampered post-sign-in read canonicalization, empty-object token body, display-string control collapse, and BFF refresh `499` soft-fail; no hunt-ready row promoted; seeded five follow-on `(candidate)` rows; focused OIDC suite passed 749/749; no production code changed.
 
 - [x] (invalid) `humanizeAuthorizeCallbackError` — `org_internal` authorize callback query — **cheap-disproof 2026-10-22 seed hunt pass 8:** existing regression `humanizes org_internal authorize callback errors with readable copy`.
@@ -2494,11 +2528,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `normalizeOidcDisplayString` — vertical-tab interior in signed-in display name — **cheap-disproof 2026-10-22 seed hunt pass 8:** control-char collapse; regression `collapses vertical-tab control characters in OIDC display copy`.
 - [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route returns opaque HTTP `499` — **cheap-disproof 2026-10-22 seed hunt pass 8:** non-401/403 soft-fail parity; regression `soft-fails refresh without clearing session when the refresh route returns 499`.
 
-- [ ] (candidate) `humanizeAuthorizeCallbackError` — `registration_not_supported` on authorize callback query — locus: `humanizeAuthorizeCallbackError` default branch; input: SPA callback `?error=registration_not_supported` without description.
-- [ ] (candidate) `refreshBffSessionCookie` — refresh route returns opaque HTTP `497` without clearing session — locus: `refreshBffSessionCookie` soft-fail parity; input: BFF refresh proxy surfaces `497` like existing 494–496 locks.
-- [ ] (candidate) `refreshBffSessionCookie` — refresh route returns opaque HTTP `498` without clearing session — locus: `refreshBffSessionCookie` soft-fail parity; input: BFF refresh proxy surfaces `498` like existing 494–497 locks.
-- [ ] (candidate) `readOAuthJsonErrorDescription` — em-dash-only (`U+2014`) JSON `error_description` — locus: readable-detail guard; input: token-endpoint OAuth JSON `"\\u2014\\u2014"`.
-- [ ] (candidate) `decodeOAuthErrorDescription` — em-dash-only percent-encoded authorize `error_description` — locus: `decodeOAuthErrorDescription`; input: callback `?error_description=%E2%80%94`.
+- [x] (invalid) `humanizeAuthorizeCallbackError` — `registration_not_supported` on authorize callback query — **closed 2026-10-22 seed hunt pass 9** (see pass-9 row above).
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route returns opaque HTTP `497` without clearing session — **closed 2026-10-22 seed hunt pass 9** (see pass-9 row above).
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route returns opaque HTTP `498` without clearing session — **closed 2026-10-22 seed hunt pass 9** (see pass-9 row above).
+- [x] (valid-no-repro) `readOAuthJsonErrorDescription` — em-dash-only (`U+2014`) JSON `error_description` — **closed 2026-10-22 seed hunt pass 9** (see pass-9 row above).
+- [x] (valid-no-repro) `decodeOAuthErrorDescription` — em-dash-only percent-encoded authorize `error_description` — **closed 2026-10-22 seed hunt pass 9** (see pass-9 row above).
 
 - [x] (invalid) `humanizeAuthorizeCallbackError` — `org_internal` authorize callback query — **closed 2026-10-22 seed hunt pass 8** (see pass-8 row above).
 - [x] (valid-no-repro) `readPostSignInReturnUrl` — tampered post-sign-in vertical-tab return key — **closed 2026-10-22 seed hunt pass 8** (see pass-8 row above).
