@@ -256,6 +256,37 @@ describe("refreshAccessToken", () => {
     expect(message).not.toMatch(/403: true/i);
   });
 
+  it("uses fixed consent_required copy from token JSON even when error_description is present", async () => {
+    const oversized = `${"Policy ".repeat(80)}end`;
+    const fetchMock = vi.fn(async () => ({
+      ok: false,
+      status: 400,
+      text: async () =>
+        JSON.stringify({
+          error: "consent_required",
+          error_description: oversized,
+        }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    let message = "";
+
+    try {
+      await refreshAccessToken({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        refreshToken: "rt",
+      });
+    } catch (error) {
+      message = error instanceof Error ? error.message : String(error);
+    }
+
+    expect(message).toContain("administrator consent");
+    expect(message).not.toContain("Policy");
+    expect(message.length).toBeLessThanOrEqual(280);
+  });
+
   it("humanizes standard OAuth error codes from token endpoint JSON like authorize callbacks", async () => {
     const fetchMock = vi.fn(async () => ({
       ok: false,

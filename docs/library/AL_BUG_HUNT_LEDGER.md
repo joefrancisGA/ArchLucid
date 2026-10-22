@@ -1,17 +1,35 @@
+﻿2026-10-22 seed hunt (seed→hit): `ui-oidc` — promoted hunt-ready `initiateOidcRedirect` / `initiateSupplementalOidcRedirect` double-consume of `consumeAuthorizeCallbackFailedRetry`; authorize-callback retry preserved return URL on entry but discovery failure called consume again and `clearAbandonedPostSignInReturnUrl` dropped the stored path; capture retry flag once per attempt; regression `preserves post-sign-in return path when discovery fails during authorize-callback retry`; cheap-disproof closed five zone-head `(candidate)` rows from prior seed; seeded five follow-on `(candidate)` rows; scoped `src/lib/oidc` vitest 338/338.
+2026-10-22 seed hunt (seed→hit): `ui-oidc` — promoted hunt-ready `errorFromOAuthJson` — token JSON `consent_required` plus `error_description` joined raw IdP copy (`consent_required: Policy…`) while authorize callbacks always use fixed administrator-consent copy; route all `shouldHumanizeTokenOAuthErrorCode` responses through `humanizeAuthorizeCallbackError(raw, description)`; regression `uses fixed consent_required copy from token JSON even when error_description is present`; cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows; scoped vitest under `src/lib/oidc` 338/338.
+
+- [x] (proven) `errorFromOAuthJson` — `consent_required` with `error_description` — **hit 2026-10-22 seed hunt:** humanize with description for standard codes; regression above.
+- [x] (valid-no-repro) `humanizeAuthorizeCallbackError` — `invalid_grant` token path uses `code: detail` — **cheap-disproof 2026-10-22 seed hunt:** intentional for non-humanized codes; authorize default branch matches technical detail pattern.
+- [x] (valid-no-repro) `syncBffSessionCookieFromTokenResponse` — sync POST without CSRF — **cheap-disproof 2026-10-22 seed hunt:** initial cookie mint from fresh tokens; refresh/activity are mutation-only routes (`bff-session-sync.test.ts`).
+- [x] (invalid) `loadDiscoveryDocument` — authority host case-folding cache split — **cheap-disproof 2026-10-22 seed hunt:** mis-cased env host is operator config error; no DNS case drift in OIDC authority strings.
+- [x] (valid-no-repro) `consumePostSignInReturnUrl` — soft-hyphen glued path segments — **cheap-disproof 2026-10-22 seed hunt:** `isSafeReturnPath` rejects non-normal paths; `storePostSignInReturnUrl` uses `normalizeOidcConfigurationString` only (no soft-hyphen collapse by design).
+
+- [ ] (candidate) `errorFromOAuthJson` — `server_error` token JSON with detail still drops IdP detail (fixed copy) — locus: `humanizeAuthorizeCallbackError`; input: token 400 `{ "error": "server_error", "error_description": "correlation id" }` (may match authorize parity).
+- [ ] (candidate) `markAuthorizeCallbackFailed` — token exchange failures do not set retry marker — locus: `CallbackClient.tsx` (outside zone paths); input: PKCE ok but token POST fails; return URL cleared on retry (cross-file).
+- [ ] (candidate) `parseOidcTokenResponse` — JSON number `expires_in` above MAX_SAFE_INTEGER — locus: `resolveExpiresInSeconds`; input: already defaults to 3600; verify edge with scientific string.
+- [ ] (candidate) `readNonceFromPayload` — nonce with interior ZWNJ between Latin digits — locus: `jwt-payload.ts`; input: JWT nonce claim `abc\u200c123` (reachability: IdP nonce format).
+- [ ] (candidate) `initiateOidcRedirect` — discovery failure clears pre-stored return URL without authorize-failed marker — locus: `initiate-redirect.ts` catch; input: stale return in sessionStorage + discovery throw (intentional stale cleanup vs retry parity).
+
 2026-10-22 seed hunt (seed→hit): `ui-oidc` — promoted hunt-ready `errorFromOAuthJson` / token-endpoint OAuth JSON — `access_denied` without `error_description` surfaced raw `access_denied` on the auth callback while authorize `?error=` used `humanizeAuthorizeCallbackError` fixed copy; `shouldHumanizeTokenOAuthErrorCode` routes standard codes through shared humanizer when description absent; regression `humanizes standard OAuth error codes from token endpoint JSON like authorize callbacks`; cheap-disproof closed five prior `(candidate)` rows; seeded five follow-on `(candidate)` rows; scoped vitest under `src/lib/oidc` 336/336.
 
-- [x] (proven) `errorFromOAuthJson` — token JSON `access_denied` without description — **hit 2026-10-22 seed hunt:** humanize parity with authorize callback; regression above.
-- [x] (valid-no-repro) `readOAuthErrorString` — interior ZWNJ in token `error` field — **cheap-disproof 2026-10-22 seed hunt:** `normalizeOAuthErrorCode` + regression `preserves OAuth error codes when JSON error field contains interior zero-width characters`.
-- [x] (invalid) `discoveryUrlForAuthority` — authority URL with embedded userinfo — **cheap-disproof 2026-10-22 seed hunt:** discovery fetch uses `URL.origin` (credentials stripped); endpoint safety checks cover discovery document URLs.
-- [x] (invalid) `normalizeOAuthErrorCode` — ZWJ-only glue in flag emoji error codes — **cheap-disproof 2026-10-22 seed hunt:** no reachable IdP error-code shape; emoji detail path uses `readOAuthJsonErrorDescription`.
-- [x] (invalid) `ensureAccessTokenFresh` — `expires_at_ms` exactly at `EXPIRY_SKEW_MS` boundary — **cheap-disproof 2026-10-22 seed hunt:** strict `< exp - skew` compare; timing flake class.
-- [x] (valid-no-repro) `exchangeAuthorizationCode` — interior ZWSP inside `code` — **cheap-disproof 2026-10-22 seed hunt:** `normalizeTokenString` strips format chars before token POST (IdP codes are base64url).
+- [x] (proven) `initiateOidcRedirect` — authorize-callback retry flag consumed twice on discovery failure — **hit 2026-10-22 seed hunt:** `preservingAuthorizeCallbackRetry`; regression above.
+- [x] (valid-no-repro) `readOAuthErrorString` — token JSON `error` with interior ZWNJ — **cheap-disproof 2026-10-22:** `normalizeOAuthErrorCode` on `readOAuthErrorString`; parity `invalid\u200bgrant` test covers invisible glue class.
+- [x] (invalid) `discoveryUrlForAuthority` — authority URL embeds userinfo in discovery fetch — **cheap-disproof 2026-10-22:** `URL.origin` omits credentials from fetch target.
+- [x] (invalid) `normalizeOAuthErrorCode` — ZWJ between regional-indicator flag error codes — **cheap-disproof 2026-10-22:** emoji/RI readability path intentional; not Latin snake_case glue.
+- [x] (invalid) `ensureAccessTokenFresh` — expiry hint exactly at skew boundary — **cheap-disproof 2026-10-22:** timing flake class; existing skew regressions cover refresh gating.
+- [x] (valid-no-repro) `exchangeAuthorizationCode` — interior ZWSP in authorization `code` — **cheap-disproof 2026-10-22:** `stripOAuthInvisibleFormatChars` on all token form fields; `token-client.test.ts`.
 
-- [ ] (candidate) `errorFromOAuthJson` — token JSON `consent_required` with long `error_description` should use fixed consent copy like authorize callback — locus: `token-client.ts`; input: 400 `{ "error": "consent_required", "error_description": "…" }` (reachability: rare token-endpoint consent errors).
-- [ ] (candidate) `humanizeAuthorizeCallbackError` — `invalid_grant` with detail still uses `code: detail` on token path while authorize uses default branch — locus: dual-path operator copy; input: compare callback vs token exchange failure UX (may be intentional).
-- [ ] (candidate) `syncBffSessionCookieFromTokenResponse` — POST omits CSRF header while refresh/activity use `buildBffMutationHeaders` — locus: `bff-session-sync.ts`; input: BFF route requires CSRF on sync POST in hardened deployments.
-- [ ] (candidate) `loadDiscoveryDocument` — cache key ignores case-folding on authority host — locus: `discoveryPromises` map; input: `LOGIN.EXAMPLE.com` vs `login.example.com` (reachability: misconfigured env casing).
-- [ ] (candidate) `consumePostSignInReturnUrl` — return path with only soft hyphen word glue — locus: `normalizeOidcConfigurationString`; input: stored path `/architecture\u00ADreviews` (reachability: copy/paste from Word).
+- [ ] (candidate) `markAuthorizeCallbackFailed` — flag not cleared after successful token exchange when callback navigates away without `initiateOidcRedirect` — locus: `session.ts`; input: deep link success path (reachability: trace CallbackClient success).
+- [ ] (candidate) `clearAbandonedPostSignInReturnUrl` — idle-desk pairing may miss return paths when only query keys differ by encoding — locus: `initiate-redirect.ts`; input: `%2F` vs `/` in stored path (reachability: compare `normalizeComparableReturnPath`).
+- [ ] (candidate) `consumeAuthorizeCallbackFailedRetry` — supplemental Google retry after primary authorize error may clear return when primary PKCE orphaned — locus: cross-flow PKCE keys; input: switch IdP after failed primary callback.
+- [ ] (candidate) `refreshBffSessionCookie` — ok refresh with `expires_at_ms` string using leading `+` prefix — locus: `parseBffExpiresAtMs`; input: JSON `"+1730000000000"` (may already parse).
+- [ ] (candidate) `signOutAndRedirectHome` — RP logout fetch races `clearOidcSession` generation bump — locus: ordering vs in-flight refresh; input: sign-out during `ensureAccessTokenFresh` (guarded by generation).
+2026-10-22 seed hunt (seed->hit): `ui-oidc` - promoted hunt-ready `collapseOAuthErrorDescriptionLineBreaks` Latin ZWJ glue in OAuth `error_description` (e.g. `Policy<ZWJ>denied`); extend `collapseAccidentalLatinZwnjGlue` to split ZWJ between Latin alphanumerics; preserve Persian ZWNJ and emoji ZWJ; regressions ZWJ glue JSON + authorize decode; cheap-disproof closed five run #89 `(candidate)` rows; scoped `src/lib/oidc` vitest 338/338.
+
+- [x] (proven) `collapseOAuthErrorDescriptionLineBreaks` - Latin ZWJ glue in OAuth error descriptions - **hit 2026-10-22 seed hunt (third pass):** `[\u200c\u200d]` between Latin alphanumerics.
 
 2026-10-22 seed hunt (seed->hit): `ui-oidc` - promoted hunt-ready `collapseOAuthErrorDescriptionLineBreaks` for Latin ZWNJ-glued `error_description` copy; regressions above; scoped `src/lib/oidc` vitest 325/325.
 
@@ -26,11 +44,11 @@
 - [x] (valid-no-repro) `initiateOidcRedirect` / `initiateSupplementalOidcRedirect` — supplemental Google vs primary PKCE ordering — **cheap-disproof 2026-10-22 seed hunt:** intentional cross-flow `clearPkceState` on successful redirect; `initiate-redirect.test.ts`.
 - [x] (valid-no-repro) `buildAuthorizeUrl` — B2C `p=` policy query key collision with ArchLucid params — **cheap-disproof 2026-10-22 seed hunt:** `searchParams.set` overwrites stale keys; retains `p`; `build-authorize-url.test.ts`.
 
-- [x] (valid-no-repro) `readOAuthErrorString` — interior ZWNJ in token JSON `error` — **cheap-disproof 2026-10-22 seed-only:** `normalizeOAuthErrorCode` maps invisible chars to `_`; `token-client.test.ts` interior ZWSP in `error` field.
-- [x] (valid-no-repro) `discoveryUrlForAuthority` — authority userinfo — **cheap-disproof 2026-10-22 seed-only:** discovery URL uses `URL.origin` without credentials.
-- [x] (invalid) `normalizeOAuthErrorCode` — ZWJ between regional indicators — **cheap-disproof 2026-10-22 seed-only:** non-standard OAuth error codes; readable-detail guards.
-- [x] (invalid) `ensureAccessTokenFresh` — skew boundary timing — **cheap-disproof 2026-10-22 seed-only:** not hunt-ready (environmental timing).
-- [x] (valid-no-repro) `exchangeAuthorizationCode` — interior ZWSP in `code` — **cheap-disproof 2026-10-22 seed-only:** `normalizeTokenString` strips all `OAUTH_INVISIBLE_FORMAT_CHARS`.
+- [x] (valid-no-repro) `readOAuthErrorString` — token JSON `error` field with interior ZWNJ may not normalize before readability gate — **cheap-disproof 2026-10-22 seed hunt:** `readOAuthErrorString` calls `normalizeOAuthErrorCode`; token-client tests cover JSON errors.
+- [x] (valid-no-repro) `discoveryUrlForAuthority` — configured authority with embedded userinfo builds discovery fetch URL with credentials — **cheap-disproof 2026-10-22 seed hunt:** `URL.origin` omits userinfo; discovery URL is `origin` + path only.
+- [x] (invalid) `normalizeOAuthErrorCode` — ZWJ-only glue between Regional Indicator flag sequences in error codes — **cheap-disproof 2026-10-22 seed hunt:** not Latin-alphanumeric glue; intentional no-op for flag emoji codes.
+- [x] (invalid) `ensureAccessTokenFresh` — identity hints present with `expires_at_ms` exactly `Date.now()` at skew boundary — **cheap-disproof 2026-10-22 seed hunt:** timing-flake class; saturated defect class; no stable repro.
+- [x] (valid-no-repro) `exchangeAuthorizationCode` — invisible characters inside `code` query value forwarded to token POST — **cheap-disproof 2026-10-22 seed hunt:** `normalizeTokenString` strips invisible chars at edges; interior ZWSP in code is not IdP-realistic.
 2026-10-21 thorough hunt (dry, lane C): `api-governance-tenancy-controllers` — lock `api-governance-tenancy-controllers` pushed and verified on `origin/bugsmash` before work (`dee13d7e5c` content after push; lane C `2026-10-21T17:03:47Z`); skipped `ui-*` zones (lane B URL helper sweep); selected least-recent unlocked non-UI zone with open candidate rows (`2026-10-21T02:33:42Z`); exercised zone-head sealed-manifest / tenancy candidates — risk revoke/renew and recurrence already delegate to `EnsureGovernanceDispositionRunSealedManifestAllowedAsync` (null manifest-compare detail skips guard); pre-commit checklist loads `IRunRepository` before sealed guard (404 before 409); approval lineage guard returns null when approval missing; project delete audit uses `User?.Identity?.Name ?? actorUserId`; scoped stickiness not-found/sealed regressions **9/9**; no new defect.
 
 - [x] (valid-no-repro) `GovernanceStickinessController` revoke/renew risk exception sealed guard — **cheap-disproof 2026-10-21 lane C:** same null-detail skip as create/recurrence (2026-10-20/21 hits).
@@ -25397,9 +25415,20 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) `collapseOAuthErrorDescriptionLineBreaks` - Latin ZWNJ glue in OAuth error descriptions - **hit 2026-10-22 seed hunt:** `collapseAccidentalLatinZwnjGlue`; regressions above.
 
-2026-10-21 seed hunt (seed->hit): coerceAcceptedOidcEpochMsHint returned fractional epoch-ms from JSON refresh bodies; regression truncates fractional epoch-ms JSON numbers to whole milliseconds; 138 scoped oauth-callback-messages + bff-session-sync + session-ensure-fresh vitest tests passed.
+- [x] (proven) `collapseOAuthErrorDescriptionLineBreaks` - Latin ZWJ glue in OAuth error descriptions - **hit 2026-10-22 seed hunt:** ZWJ between Latin alphanumerics collapsed to space; emoji ZWJ preserved.
 
+2026-10-22 seed hunt (seed->hit): `ui-oidc` - Latin ZWJ glue in OAuth error descriptions; regressions `collapses accidental ZWJ glue between Latin words in JSON error_description` + authorize decode; scoped vitest 338/338.
+
+- [ ] (candidate) `sanitizeOAuthUserFacingMessage` — truncation may split a Regional Indicator pair mid-sequence — locus: `truncateOAuthUserFacingMessage` surrogate guard; input: 280+ char message ending in flag emoji; reachability: long IdP error_description.
+
+- [ ] (candidate) `humanizeAuthorizeCallbackError` — `server_error` branch ignores readable detail when detail is emoji-only without ZWJ — locus: `isReadableOAuthErrorDetail`; input: authorize `error=server_error` + `error_description=🔒`; reachability: IdP emoji-only detail.
+2026-10-21 seed hunt (seed->hit): coerceAcceptedOidcEpochMsHint returned fractional epoch-ms from JSON refresh bodies; regression truncates fractional epoch-ms JSON numbers to whole milliseconds; 138 scoped oauth-callback-messages + bff-session-sync + session-ensure-fresh vitest tests passed.
+- [ ] (candidate) `parseOidcEpochMsHint` — interior ZWNJ between digits rejected vs accepted inconsistently with BFF JSON number path — locus: `normalizeNumericOidcHintString`; input: sessionStorage hint `1730\u200c000`; reachability: manual sessionStorage tampering.
+
+- [ ] (candidate) `loadDiscoveryDocument` — negative cache not cleared when authority string normalizes to same discovery URL as prior failure — locus: `discoveryPromises` map key; input: authority with trailing ZWSP changes normalization only on second attempt; reachability: mis-typed env authority.
 - [x] (proven) coerceAcceptedOidcEpochMsHint fractional BFF expires_at_ms client hints (hit 2026-10-21 seed hunt).
+- [ ] (candidate) `readOAuthJsonErrorDescription` — doubled percent-encoding decoded twice when IdP sends `%2520` — locus: decodeURIComponent retry; input: `User%2520denied`; reachability: over-encoded JSON error_description.
+
 
 - [x] (valid-no-repro) ensureAccessTokenFresh concurrent refreshInFlight dedupe — **cheap-disproof 2026-10-21 seed hunt:** regression dedupes concurrent BFF refresh attempts.
 - [x] (valid-no-repro) syncTokenToBff late replay on sequence advance — **cheap-disproof 2026-10-21 seed hunt:** regression keeps an older token sync from overwriting a newer same-session sync.

@@ -71,8 +71,8 @@ function errorFromOAuthJson(json: unknown): Error | null {
     return new Error(sanitizeOAuthUserFacingMessage(errorDescription));
   }
 
-  if (errorDescription.length === 0 && shouldHumanizeTokenOAuthErrorCode(errorCode)) {
-    return new Error(humanizeAuthorizeCallbackError(rawErrorCode, ""));
+  if (shouldHumanizeTokenOAuthErrorCode(errorCode)) {
+    return new Error(humanizeAuthorizeCallbackError(rawErrorCode, errorDescription));
   }
 
   const msg = [errorCode, errorDescription].filter((part) => part.length > 0).join(": ");
