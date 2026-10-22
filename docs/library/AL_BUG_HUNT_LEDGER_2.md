@@ -2842,6 +2842,14 @@
 
 ## Zone: scim-users
 
+2026-10-22 thorough hunt #23 (dry): cheap-disproof closed five `(candidate)` rows (`active eq true` unquoted parsed; `userName ne` in evaluator/SQL; POST `active: null` → `invalidValue` not default-active; PATCH `add` on `userName` still runs live-name conflict pre-check; `externalId ew` suffix operator in parser/evaluator); no failing repro; five replacement `(candidate)` rows; scoped `ScimUsers` tests not run (Application.Tests merge conflicts).
+
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `active eq true` unquoted — **cheap-disproof 2026-10-22 #23:** `ScimFilterParser.Parse_active_eq_true`; `ScimActiveFilterLiteralParser` on compare.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `userName ne` — **cheap-disproof 2026-10-22 #23:** `ne` in `ScimFilterInMemoryEvaluator` / SQL translator; parser `Parse_ne`.
+- [x] (invalid) `ScimUsersController.CreateAsync` — POST `active: null` — **cheap-disproof 2026-10-22 #23:** `ScimUserResourceParser.ReadActive` default arm → `invalidValue` (not silent default true).
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `add` on existing `userName` — **cheap-disproof 2026-10-22 #23:** flat `add` assigns then `EnsureUserNameNotUsedByAnotherLiveUserAsync`; parity `Add_inserts_value` / hunt #13.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `externalId ew` — **cheap-disproof 2026-10-22 #23:** parser `Parse_co_sw_ew`; `EndsWith` in in-memory evaluator.
+
 2026-10-22 thorough hunt #22 (dry): cheap-disproof closed five `(candidate)` rows (PATCH `active` JSON `null` → `ReadActive` `invalidValue`; `externalId sw` supported in in-memory/SQL translators; `id eq` list filter uses `Id.ToString("D")` parity; PUT omit `active` defaults true via `ScimUserResourceParser`; `displayName eq ""` does not match null optional field); no failing repro; five replacement `(candidate)` rows; scoped `ScimUsers` tests not run (Application.Tests merge conflicts).
 
 - [x] (invalid) `ScimUsersController.PatchAsync` — replace `active` with JSON `null` — **cheap-disproof 2026-10-22 #22:** `ReadActive` `JsonValueKind.Null` → `invalidValue` default arm (not fallback retain).
@@ -3047,9 +3055,9 @@
 - **aliases:** scim; entra provisioning users
 - **paths:** ArchLucid.Api/Controllers/Scim/ScimUsersController.cs
 - **test-filter:** FullyQualifiedName~ScimUsers
-- **hunts:** 56
+- **hunts:** 57
 - **bugs-found:** 23
-- **consecutive-dry-hunts:** 1
+- **consecutive-dry-hunts:** 2
 - **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-22 — SCIM PATCH remove on active returned silent no-op instead of mutability
 - **related-pd-tb:** none
@@ -3278,11 +3286,17 @@
 - [x] (valid-no-repro) `ScimUsersController.ReplaceAsync` — omitted `active` — **cheap-disproof 2026-10-22 #22:** defaults true by design.
 - [x] (valid-no-repro) `ScimUsersController.ListAsync` — `displayName eq ""` — **cheap-disproof 2026-10-22 #22:** null vs empty semantics.
 
-- [ ] (candidate) `ScimUsersController.ListAsync` — `active eq true` unquoted boolean filter — locus: `ScimFilterParser` / `ScimActiveFilterLiteralParser`; input: Entra sends `active eq true` without string quotes.
-- [ ] (candidate) `ScimUsersController.ListAsync` — `userName ne "ghost@contoso.com"` — locus: `ne` operator in `ScimFilterInMemoryEvaluator` / SQL translator; input: exclusion filter returns all other live users in tenant.
-- [ ] (candidate) `ScimUsersController.CreateAsync` — POST body `active: null` — locus: `ScimUserResourceParser.ReadActive`; input: JSON null must not coerce to default-active create.
-- [ ] (candidate) `ScimUsersController.PatchAsync` — `add` on existing `userName` — locus: flat-map `add` overwrites per `Add_inserts_value`; input: verify conflict pre-check still runs after overwrite.
-- [ ] (candidate) `ScimUsersController.ListAsync` — `externalId ew "-suffix"` suffix filter — locus: `ew` operator; input: parser `ew` token + list page matches suffix only.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `active eq true` — **cheap-disproof 2026-10-22 #23:** parser + literal parser.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `userName ne` — **cheap-disproof 2026-10-22 #23:** `ne` supported.
+- [x] (invalid) `ScimUsersController.CreateAsync` — `active: null` — **cheap-disproof 2026-10-22 #23:** `invalidValue`.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `add` on `userName` — **cheap-disproof 2026-10-22 #23:** conflict pre-check after flat map.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `externalId ew` — **cheap-disproof 2026-10-22 #23:** `ew` operator implemented.
+
+- [ ] (candidate) `ScimUsersController.ListAsync` — `active eq "1"` string literal — locus: `ScimActiveFilterLiteralParser.TryParseEqualityOperand`; input: regression `ListAsync_active_eq_string_one` / Entra numeric-string active probes.
+- [ ] (candidate) `ScimUsersController.ListAsync` — `displayName pr` on users with null `displayName` — locus: `ScimPresentNode` + `GetString`; input: optional attribute presence vs SQL `IS NOT NULL` on nullable column.
+- [ ] (candidate) `ScimUsersController.PatchAsync` — `replace` `externalId` to unchanged value — locus: `EnsureExternalIdNotUsedByAnotherUserAsync` self-skip; input: idempotent PATCH must not 409 against same user.
+- [ ] (candidate) `ScimUsersController.ListAsync` — unclosed filter string — locus: `ScimFilterParser.Parse`; input: malformed filter → HTTP 400 `invalidFilter` (not 500).
+- [ ] (candidate) `ScimUsersController.CreateAsync` — POST without `schemas` array — locus: controller/body validation before `ParseUser`; input: Entra minimal payloads still include schemas; verify fail-closed or accepted.
 
 - [x] (proven) `ScimUserService.CreateAsync` / `PatchAsync` / `ScimUsersController` — a second live user with the same `userName` and a different `externalId` was stored, including case-only names — **hit 2026-10-09 seed hunt:** live `userName` lookup returns `uniqueness`. Regressions `CreateAsync_duplicate_user_name_throws_conflict` and `PatchAsync_replace_userName_to_another_users_name_throws_conflict`.
 - [x] (proven) `ScimFilterParser.ParseFilter` / `ScimUsersController.ListAsync` — ungrouped `or` before `and` was parsed left-to-right, so an active user matching only the left comparison was omitted — **hit 2026-10-09 seed hunt:** `not` over `and` over `or` per RFC 7644 §3.4.2.2. Regressions `ListAsync_filter_gives_and_precedence_over_or`, `Parse_or_binds_looser_than_and`, and `Parse_not_binds_tighter_than_and`.
