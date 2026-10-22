@@ -8712,6 +8712,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: architecture-intelligence-orchestrator
 
+2026-10-22 seed hunt (seed→hit): promoted Unicode division/fullwidth slash drift splitting `modelfp`; `NormalizeReviewCachePathLikeToken` now maps U+2215 and U+FF0F to `/` before path canonicalization; regression `Build_matches_content_hash_when_baseline_element_provenance_passage_artifact_id_differs_only_by_unicode_division_slash`; cheap-disproof regressions for percent-encoded backslashes, tenant/framing-key percent slashes, duplicate percent-encoded framing keys, double-encoded slashes, and cache invalidation across percent-encoded run ids; 360 scoped orchestrator/cache/manifest/continue-flight tests and 10 KnowledgeGraph fingerprint tests passed.
+
+- [x] (proven) `GraphSnapshotCanonicalFingerprint` — Unicode slash scalars split review-cache fingerprints — **hit 2026-10-22 seed hunt:** `NormalizeUnicodeSlashScalars`; regression above.
+
 2026-10-22 seed hunt (seed→hit): promoted percent-encoded slash drift (`%2F` vs `/`) splitting `ledgerfp` and `modelfp`; `GraphSnapshotCanonicalFingerprint.NormalizeReviewCachePathLikeToken` now decodes percent-encoded path tokens before separator canonicalization; regressions `Build_matches_content_hash_when_ledger_evidence_ref_differs_only_by_percent_encoded_slash` and `Build_matches_content_hash_when_baseline_element_provenance_passage_artifact_id_differs_only_by_percent_encoded_slash`; cheap-disproof regressions for ledger technology `./` and `..` segments plus framing-key/value `..` segments; 353 scoped orchestrator/cache/manifest/continue-flight tests and 10 KnowledgeGraph fingerprint tests passed.
 
 - [x] (proven) `GraphSnapshotCanonicalFingerprint` / `ReviewCacheLedgerFingerprint` — percent-encoded path slashes split review-cache fingerprints — **hit 2026-10-22 seed hunt:** `DecodePercentEncodedPathTokens` in path canonicalization; regressions above.
