@@ -12470,7 +12470,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 213
+- **hunts:** 214
 - **bugs-found:** 172
 - **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-22 — post-overlay rebind deduped parallel edges separately when EdgeType differed only by whitespace
@@ -12621,7 +12621,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - [x] (valid-no-repro) `ArchitectureDiagramToGraphCompiler` — compiled diagram edges retained padded `Label` values — **cheap-disproof 2026-10-22 seed hunt:** trim on edge label assign; regression above.
 
-- [ ] (candidate) `ArchitectureDiagramToGraphCompiler` — compiled diagram nodes may retain padded `Label` values when node record labels carry surrounding whitespace — locus: node label assignment uses `node.Label.Trim()` only when label non-empty else `node.Id.Trim()`; input: diagram node label padded; wrong outcome: graph node labels display padding tokens.
+2026-10-22 seed hunt (valid-no-repro): promoted `ArchitectureDiagramToGraphCompiler` padded diagram node `Label` on compiled node output candidate; proved compile already assigns `node.Label.Trim()` when the diagram node label is non-whitespace (and falls back to `node.Id.Trim()` when empty); regression `Compile_trims_diagram_node_label_when_node_record_label_has_surrounding_whitespace`; seeded `ArchitectureDiagramToGraphCompiler` whitespace-only diagram node label falls back to trimmed id follow-on; 506 KnowledgeGraph + 170 Provenance scoped tests passed.
+
+- [x] (valid-no-repro) `ArchitectureDiagramToGraphCompiler` — compiled diagram nodes retained padded `Label` values — **cheap-disproof 2026-10-22 seed hunt:** trim on node label assign; regression above.
+
+- [ ] (candidate) `ArchitectureDiagramToGraphCompiler` — compiled diagram nodes may use untrimmed `Id` fallback labels when node record label is whitespace-only — locus: `string.IsNullOrWhiteSpace(node.Label) ? node.Id.Trim() : node.Label.Trim()`; input: diagram node label is spaces while id is padded; wrong outcome: fallback label retains id padding tokens.
 
 2026-10-22 seed hunt (seed→hit): promoted `StructuredDiagramGraphMerger` padded diagram property-key coalesce candidate; proved duplicate node/edge metadata coalesce indexed raw `property.Key`, so a later compile with surrounding-whitespace keys left parallel bag entries and `GraphNodePropertyReader` could return stale source-evidence values; trim keys before skip/coalesce (parity with `GraphNodeFactory.NormalizePropertyBag`); regression `Merge_coalesces_node_properties_when_incoming_property_keys_differ_only_by_surrounding_whitespace`; seeded diagram edge metadata padded-key coalesce regression follow-on; 468 KnowledgeGraph + 170 Provenance scoped tests passed.
 

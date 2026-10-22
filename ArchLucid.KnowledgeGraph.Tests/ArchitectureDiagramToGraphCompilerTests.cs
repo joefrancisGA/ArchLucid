@@ -274,6 +274,31 @@ public sealed class ArchitectureDiagramToGraphCompilerTests
     }
 
     [Fact]
+    public void Compile_trims_diagram_node_label_when_node_record_label_has_surrounding_whitespace()
+    {
+        ArchitectureDiagramModelRecord model = new()
+        {
+            Nodes =
+            [
+                new ArchitectureDiagramNodeRecord
+                {
+                    Id = "sql",
+                    Label = "  SQL Database  ",
+                    Kind = ArchitectureDiagramNodeKinds.System,
+                    Provenance = ArchitectureDiagramProvenanceKinds.Inferred,
+                },
+            ],
+            ExtractionMethod = DiagramExtractionMethods.StructuredParse,
+        };
+
+        StructuredDiagramGraphCompileResult result = new ArchitectureDiagramToGraphCompiler().Compile(
+            model,
+            CreateDefaultCompileOptions());
+
+        result.Snapshot.Nodes.Should().ContainSingle(node => node.Label == "SQL Database");
+    }
+
+    [Fact]
     public void Compile_trims_diagram_edge_label_when_edge_record_label_has_surrounding_whitespace()
     {
         ArchitectureDiagramModelRecord model = new()
