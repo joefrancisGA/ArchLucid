@@ -12470,12 +12470,19 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 87
-- **bugs-found:** 82
+- **hunts:** 88
+- **bugs-found:** 83
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — diagram edge id persists through canonical round-trip and merge coalesce
+- **last-bug:** 2026-10-22 — case-variant finding rows last-win revision fingerprint and provenance nodes
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-22 seed hunt (seed→hit): promoted case-variant findings fingerprint candidate; proved `ComputeFindingsFingerprint` and `ProvenanceBuilder.AddNode` used the first case-insensitive duplicate finding row, so a later `FIND-1` amendment after `find-1` left `ProvenanceGraphAccessService` cache hits and stale finding node titles/trace metadata; last-wins scalar fields per case-insensitive finding group in the fingerprint and on duplicate node keys; regressions `Compute_changes_when_later_case_variant_finding_row_has_different_agent_execution_trace_id` and `Build_uses_last_finding_title_when_findings_list_case_variant_ids`; aligned manifest decision fingerprint grouping with last-wins title/category; cheap-disproved duplicate-edge top-level `ProvenanceKind` / `DeclaredConnectionId` merge coalesce (`ArchitectureDiagramToGraphCompiler` stores provenance in edge properties only); seeded case-variant manifest decision fingerprint follow-on; 387 KnowledgeGraph + 101 Provenance scoped tests passed.
+
+- [x] (proven) `ProvenanceSnapshotRevisionHasher.ComputeFindingsFingerprint` / `ProvenanceBuilder.AddNode` — first case-insensitive duplicate finding row hid later trace/title amendments — **hit 2026-10-22 seed hunt (seed→hit):** last-wins per finding id group; regressions above.
+- [x] (invalid) `StructuredDiagramGraphMerger.Merge` — duplicate directed-edge coalesce may not refresh top-level `GraphEdge.ProvenanceKind` or `DeclaredConnectionId` — **cheap-disproof 2026-10-22 seed hunt:** diagram compile path does not populate those schema-v1 fields on `GraphEdge`.
+
+- [ ] (candidate) `ProvenanceSnapshotRevisionHasher.ComputeManifestDecisionsFingerprint` — first case-insensitive duplicate manifest decision row may hide later title/category amendments when list order appends a case variant — locus: manifest decisions group representative; input: two decisions differing only by `DecisionId` casing; wrong outcome: stale revision fingerprint vs buyer-visible decision rename on later row.
 
 2026-10-22 seed hunt (seed→hit): promoted duplicate-edge `EdgeId` coalesce candidate; proved connectivity tokens omitted diagram edge `Id`, so reconstruction synthesized `edge-0` and `StructuredDiagramGraphMerger` kept the first `EdgeId` when later documents recompiled the same directed edge with different buyer edge ids; encode edge id as a fourth connectivity segment, decode on reconstruct, and last-wins `EdgeId` on merge coalesce; regression `Merge_uses_latest_diagram_edge_id_when_multiple_documents_share_equivalent_endpoints` and `ReconstructModels_groups_by_document_and_rebuilds_edges` id assertion; cheap-disproved duplicate-edge `InferenceSource` coalesce (`ArchitectureDiagramToGraphCompiler` always sets `GraphEdgeInferenceSources.StructuredParse` for diagram `ConnectsTo` rows); seeded duplicate-edge top-level `ProvenanceKind` / `DeclaredConnectionId` coalesce follow-on; 387 KnowledgeGraph + 99 Provenance scoped tests passed.
 
