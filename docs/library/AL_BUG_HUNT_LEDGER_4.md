@@ -12470,7 +12470,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 239
+- **hunts:** 240
 - **bugs-found:** 177
 - **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-22 — fully empty overlay merge returned base graph without warning normalization
@@ -12725,7 +12725,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - [x] (valid-no-repro) `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` — trim/case ARM duplicates minted parallel overlay nodes — **cheap-disproof 2026-10-22 seed hunt:** normalized ARM dedupe; regressions above.
 
-- [ ] (candidate) `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` — duplicate inventory relationship rows with identical normalized endpoints and type may mint parallel overlay edges — locus: `edgeKeys` dedupe; input: two relationship rows differing only by padding on ARM endpoints or relationship type; wrong outcome: overlay contains duplicate edges for one logical link.
+2026-10-22 seed hunt (valid-no-repro): promoted `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` duplicate parallel relationship row candidate; proved normalized endpoint lookup plus trimmed `relationshipType` in `edgeKeys` dedupes padding-only and case-variant duplicates (type regressions from prior hunts; new endpoint-padding duplicate regression); regressions `BuildOverlay_deduplicates_relationships_when_relationship_type_differs_only_by_surrounding_whitespace`, `BuildOverlay_deduplicates_relationships_when_relationship_type_differs_only_by_case`, and `BuildOverlay_deduplicates_relationships_when_endpoints_differ_only_by_surrounding_whitespace`; seeded `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` empty normalized ARM id resource rows skipped before mint follow-on; 532 KnowledgeGraph + 170 Provenance scoped tests passed.
+
+- [x] (valid-no-repro) `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` — duplicate relationship rows minted parallel edges — **cheap-disproof 2026-10-22 seed hunt:** `edgeKeys` dedupe after normalize; regressions above.
+
+- [ ] (candidate) `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` — inventory resource rows with empty normalized ARM id may mint placeholder overlay nodes — locus: `normalizedArmId.Length == 0` skip; input: resource row with whitespace-only `AzureResourceId`; wrong outcome: overlay contains node with empty citations.
 
 2026-10-22 seed hunt (seed→hit): promoted `StructuredDiagramGraphMerger` padded diagram property-key coalesce candidate; proved duplicate node/edge metadata coalesce indexed raw `property.Key`, so a later compile with surrounding-whitespace keys left parallel bag entries and `GraphNodePropertyReader` could return stale source-evidence values; trim keys before skip/coalesce (parity with `GraphNodeFactory.NormalizePropertyBag`); regression `Merge_coalesces_node_properties_when_incoming_property_keys_differ_only_by_surrounding_whitespace`; seeded diagram edge metadata padded-key coalesce regression follow-on; 468 KnowledgeGraph + 170 Provenance scoped tests passed.
 
