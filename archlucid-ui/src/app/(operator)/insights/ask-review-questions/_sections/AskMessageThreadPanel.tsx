@@ -56,6 +56,18 @@ export type AskMessageThreadPanelProps = {
   isFinalizedReview?: boolean;
 };
 
+function formatAskUserTurnContent(content: string): string {
+  if (content.length === 0) {
+    return "Question was not stored.";
+  }
+
+  if (content.trim().length === 0) {
+    return "Question was stored empty.";
+  }
+
+  return content;
+}
+
 function askMessageRoleLabel(role: string, buyerPolishedShell: boolean): string {
   if (!buyerPolishedShell) {
     return role;
@@ -248,7 +260,7 @@ export function AskMessageThreadPanel(props: AskMessageThreadPanelProps) {
                 </>
               ) : (
                 <p className={cn("m-0 whitespace-pre-wrap text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-                  {message.content}
+                  {formatAskUserTurnContent(message.content)}
                 </p>
               )}
             </CardContent>

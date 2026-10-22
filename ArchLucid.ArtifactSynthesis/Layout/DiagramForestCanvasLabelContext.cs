@@ -194,6 +194,11 @@ public sealed class DiagramForestCanvasLabelContext
     {
         List<string> ordered = OrderDistinctTrimmed(factoryNames);
 
+        if (ordered.Count == 0)
+        {
+            return "Factory name was stored empty.";
+        }
+
         if (ordered.Count <= 3)
         {
             return $"Factories {string.Join(", ", ordered)}";
@@ -271,6 +276,9 @@ public sealed class DiagramForestCanvasLabelContext
             lines.Add($"Factory {node.ExternalFactoryName.Trim()}");
         }
 
+        bool hasStoredHost = node.ExternalTargetHosts.Count > 0
+            || !string.IsNullOrWhiteSpace(node.ExternalTargetHost);
+
         if (node.ExternalTargetHosts.Count > 0)
         {
             lines.Add(FormatExternalTargetHostsLine(node.ExternalTargetHosts));
@@ -279,8 +287,16 @@ public sealed class DiagramForestCanvasLabelContext
         {
             lines.Add(node.ExternalTargetHost.Trim());
         }
+        else if (node.ExternalHostInKeyVault)
+        {
+            lines.Add("Host name was not stored. The host is in Key Vault.");
+        }
+        else
+        {
+            lines.Add("Linked service host was not stored.");
+        }
 
-        if (node.ExternalHostInKeyVault)
+        if (node.ExternalHostInKeyVault && hasStoredHost)
         {
             lines.Add("Host in Key Vault");
         }
@@ -292,6 +308,10 @@ public sealed class DiagramForestCanvasLabelContext
         else if (!string.IsNullOrWhiteSpace(node.ExternalIntegrationRuntime))
         {
             lines.Add($"Runtime {node.ExternalIntegrationRuntime.Trim()}");
+        }
+        else
+        {
+            lines.Add("Integration runtime was not stored.");
         }
 
         return lines;

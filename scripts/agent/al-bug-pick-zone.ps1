@@ -307,7 +307,12 @@ function Read-AlBugHuntRunLog {
 
             Get-RunLogEntryIsoTimestamp -Entry $entry -SourceLineNumber $lineNumber -SourcePath $Path | Out-Null
 
+<<<<<<< HEAD
             if ((-not (Test-JsonEntryHasProperty -InputObject $entry -PropertyName 'zoneId')) -and (Test-JsonEntryHasProperty -InputObject $entry -PropertyName 'zone')) {
+=======
+            if ((-not (Test-JsonEntryHasProperty -InputObject $entry -PropertyName 'zoneId')) -and
+                (Test-JsonEntryHasProperty -InputObject $entry -PropertyName 'zone')) {
+>>>>>>> 208d39523a84a0c3fe6e8e8dc08e0f3bae404bd9
                 $entry | Add-Member -NotePropertyName zoneId -NotePropertyValue ([string]$entry.zone) -Force
             }
 

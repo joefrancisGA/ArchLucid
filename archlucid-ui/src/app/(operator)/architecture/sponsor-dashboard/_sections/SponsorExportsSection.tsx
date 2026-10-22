@@ -144,6 +144,11 @@ export function SponsorExportsSection({
   const [docxDownloadBusy, setDocxDownloadBusy] = useState(false);
   const [onePagerDownloadBusy, setOnePagerDownloadBusy] = useState(false);
 
+  const finalizedReviewsLoadBlocked =
+    runsQuery.isPending || runsQuery.isError;
+  const finalizedReviewsBlockedMessage =
+    "Finalized reviews could not be loaded, so the report download is not listed.";
+
   const sponsorDocx = useMemo((): SponsorDocxTarget | null => {
     if (runsQuery.data === undefined) {
       return null;
@@ -182,11 +187,19 @@ export function SponsorExportsSection({
           Sponsor export target was not stored. Commit a review to unlock DOCX and one-pager downloads.
         </p>
       ) : null}
+      {finalizedReviewsLoadBlocked ? (
+        <p
+          className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="sponsor-exports-finalized-reviews-blocked"
+        >
+          {finalizedReviewsBlockedMessage}
+        </p>
+      ) : null}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {sponsorDocx !== null ? (
+        {sponsorDocx !== null && !finalizedReviewsLoadBlocked ? (
           <SponsorExportOutputCard
             title={v.sponsorExportsDocxTitle}
-            description={v.sponsorExportsDocxDescription}
+            description={`${v.sponsorExportsDocxDescription} This download uses the first finalized review in this workspace (${sponsorDocx.runId}).`}
             locked={
               runCollateralSealedManifestCopyBlockedReason({
                 runId: sponsorDocx.runId,
@@ -216,10 +229,10 @@ export function SponsorExportsSection({
             testId="sponsor-exports-docx-download"
           />
         ) : null}
-        {sponsorDocx !== null ? (
+        {sponsorDocx !== null && !finalizedReviewsLoadBlocked ? (
           <SponsorExportOutputCard
             title="Sponsor one-pager (PDF)"
-            description="Executive summary PDF from a finalized review."
+            description={`Executive summary PDF from a finalized review. This download uses the first finalized review in this workspace (${sponsorDocx.runId}).`}
             locked={
               runCollateralSealedManifestCopyBlockedReason({
                 runId: sponsorDocx.runId,

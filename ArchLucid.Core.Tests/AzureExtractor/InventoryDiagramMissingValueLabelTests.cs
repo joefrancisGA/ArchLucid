@@ -25,6 +25,20 @@ public sealed class InventoryDiagramMissingValueLabelTests
     }
 
     [Fact]
+    public void EvidenceCurrency_uses_not_stored_for_non_matching_reference_token()
+    {
+        InventoryDiagramEvidenceCurrency? currency =
+            InventoryDiagramEvidenceCurrencyLabels.ResolveFromSourceEvidenceReference(
+                "azure-inventory-snapshot:2026-01-01");
+
+        currency.Should().BeNull();
+        InventoryDiagramEvidenceCurrencyLabels
+            .Format(currency, "peering")
+            .Should()
+            .Be("Evidence currency was not stored · peering");
+    }
+
+    [Fact]
     public void RouteOutline_uses_explicit_missing_prefix_for_none_next_hop()
     {
         InventoryDiagramRouteOutlineSentenceFormatter

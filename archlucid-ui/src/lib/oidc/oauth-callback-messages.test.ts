@@ -222,6 +222,8 @@ describe("decodeOAuthErrorDescription", () => {
 
   it("preserves literal plus in authorize error descriptions when emoji ZWJ sequences are present", () => {
     expect(decodeOAuthErrorDescription("👨\u200d👩\u200d👧+extra")).toBe("👨\u200d👩\u200d👧+extra");
+    expect(decodeOAuthErrorDescription("👨\u200d👩\u200d👧%2Bextra")).toBe("👨\u200d👩\u200d👧+extra");
+    expect(decodeOAuthErrorDescription("👨\u200d👩\u200d👧%252Bextra")).toBe("👨\u200d👩\u200d👧+extra");
   });
 
   it("preserves literal plus in authorize error descriptions when regional-indicator flag emoji is present", () => {

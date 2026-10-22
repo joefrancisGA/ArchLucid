@@ -32,8 +32,12 @@ import {
   quickDecisionWorkItemSeverityLabel,
 } from "@/lib/quick-decision-finding-links";
 import {
-  findingHasMissingEvidenceRefCount,
+  formatQuickDecisionFindingOwnerDisplay,
+  isKnownQuickDecisionConfidenceLevel,
+} from "@/lib/findings/quick-decision-finding-display";
+import {
   findingHasNoSourceEvidence,
+  findingHasMissingEvidenceRefCount,
   findingHasStoredZeroEvidenceRefCount,
   humanReviewStatusDisplay,
   severityBadgeLabel,
@@ -74,7 +78,7 @@ export function QuickDecisionSummaryFindingRow({
   const { evidenceRefCount, viewEvidenceHref } = buildQuickDecisionFindingEvidenceLinks(props.runId, finding);
   const citationModel = buildFindingPolicyEvidenceCitationsFromQuickDecision(props.runId, finding);
   const reviewStatus = humanReviewStatusDisplay(finding.humanReviewStatus);
-  const owner = finding.assignedToUserId?.trim() ?? "";
+  const ownerDisplay = formatQuickDecisionFindingOwnerDisplay(finding.assignedToUserId);
   const workspaceCardMode = props.workspaceCardMode === true;
   const findingTitleDisplay =
     finding.title.trim().length > 0 ? finding.title : "Finding title was not stored.";
@@ -101,11 +105,9 @@ export function QuickDecisionSummaryFindingRow({
         {showTierBadge ? (
           <StatusTag kind="neutral" label={findingEnforcementTierLabel(finding.enforcementTier)} className="shrink-0" />
         ) : null}
-        {finding.confidenceLevel === "High" || finding.confidenceLevel === "Medium" || finding.confidenceLevel === "Low" ? (
+        {isKnownQuickDecisionConfidenceLevel(finding.confidenceLevel) ? (
           <FindingConfidenceBadge level={finding.confidenceLevel} />
-        ) : (
-          <StatusTag kind="neutral" label="Confidence level was not stored." className="shrink-0" />
-        )}
+        ) : null}
         <AiOutputGovernanceLabel findingId={finding.findingId} />
         <FindingTrustChip finding={finding} />
         <FindingClassificationChip
@@ -244,7 +246,7 @@ export function QuickDecisionSummaryFindingRow({
           data-testid={`finding-owner-${finding.findingId}`}
         >
           <span className="font-semibold text-neutral-700 dark:text-neutral-300">Owner: </span>
-          {owner.length > 0 ? owner : "Owner was not stored."}
+          {ownerDisplay}
         </p>
       ) : null}
       <FindingPolicyEvidenceCitationLinks model={citationModel} compact className="mt-2" />

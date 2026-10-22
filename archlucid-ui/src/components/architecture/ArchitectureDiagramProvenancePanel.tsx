@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 
 import { StatusTag } from "@/components/ui/status-tag";
 import {
+  ARCHITECTURE_DIAGRAM_REVIEW_ID_NOT_STORED_EVIDENCE_LINK,
   buildArchitectureDiagramEdgeProvenanceDetail,
   buildArchitectureDiagramNodeProvenanceDetail,
   listSelectableArchitectureDiagramElements,
@@ -129,6 +130,13 @@ export function ArchitectureDiagramProvenancePanel(props: ArchitectureDiagramPro
               <Link className={OPERATOR_LINK.inline} href={detail.sourceHref} data-testid="architecture-diagram-provenance-source-link">
                 Open source evidence
               </Link>
+            </p>
+          ) : detail.provenanceClass === "evidence-backed" ? (
+            <p
+              className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="architecture-diagram-provenance-missing-review-id"
+            >
+              {ARCHITECTURE_DIAGRAM_REVIEW_ID_NOT_STORED_EVIDENCE_LINK}
             </p>
           ) : detail.provenanceClass === "inferred" ? (
             <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>

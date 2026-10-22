@@ -2,8 +2,11 @@ import { buyerFindingSeverityDisplayLabel } from "@/lib/buyer/buyer-finding-seve
 import { describe, expect, it } from "vitest";
 
 describe("buyerFindingSeverityDisplayLabel", () => {
-  it("normalizes PHI showcase finding to High", () => {
-    expect(buyerFindingSeverityDisplayLabel("Warning", "sensitive-data-minimization-risk")).toBe("High");
+  it("labels missing severity without pending or showcase override", () => {
+    expect(buyerFindingSeverityDisplayLabel(null)).toBe("Severity was not stored.");
+    expect(buyerFindingSeverityDisplayLabel("   ", "sensitive-data-minimization-risk")).toBe(
+      "Severity was not stored.",
+    );
   });
 
   it("preserves stored warning labels", () => {
