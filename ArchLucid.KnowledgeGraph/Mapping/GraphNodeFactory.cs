@@ -30,11 +30,12 @@ public class GraphNodeFactory : IGraphNodeFactory
         properties.TryGetValue("category", out string? category);
 
         string objectId = item.ObjectId.Trim();
+        string nodeType = item.ObjectType.Trim();
 
         return new GraphNode
         {
             NodeId = $"obj-{objectId}",
-            NodeType = item.ObjectType,
+            NodeType = nodeType,
             Label = item.Name.Trim(),
             Category = string.IsNullOrWhiteSpace(category) ? category : category.Trim(),
             SourceType = item.SourceType,

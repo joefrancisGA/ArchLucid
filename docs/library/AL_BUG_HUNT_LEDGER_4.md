@@ -12470,18 +12470,22 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 150
-- **bugs-found:** 143
+- **hunts:** 151
+- **bugs-found:** 144
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — graph node factory kept padded category property values
+- **last-bug:** 2026-10-22 — graph node factory kept padded canonical object types
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-22 seed hunt (seed→hit): promoted `GraphNodeFactory` padded `ObjectType` candidate; proved `CreateNode` copied raw `CanonicalObject.ObjectType` onto `GraphNode.NodeType`, breaking parity with trim-normalized `DefaultGraphEdgeInferer` node-type bucket gates; trim object type on assign; regression `CreateNode_trims_surrounding_whitespace_on_object_type_when_building_node_type`; seeded `GraphNodeFactory` padded property-bag string values on `GraphNode.Properties` follow-on; 452 KnowledgeGraph + 148 Provenance scoped tests passed.
+
+- [x] (proven) `GraphNodeFactory.CreateNode` — padded canonical `ObjectType` on graph `NodeType` — **hit 2026-10-22 seed hunt (seed→hit):** trim node type; regression above.
+
+- [ ] (candidate) `GraphNodeFactory.CreateNode` — padded property-bag string values may persist in `GraphNode.Properties` without trim — locus: properties dictionary copy; input: canonical properties with surrounding whitespace on identity keys; wrong outcome: declaration resolver and materializer property reads diverge from trim-normalized gates.
 
 2026-10-22 seed hunt (seed→hit): promoted `GraphNodeFactory` padded `category` property candidate; proved `CreateNode` copied raw properties-bag `category` onto `GraphNode.Category`, breaking parity with trim-normalized topology sensitivity and materializer category gates; trim non-empty category on assign; regression `CreateNode_trims_surrounding_whitespace_on_category_property_when_building_category`; seeded `GraphNodeFactory` padded `ObjectType` materialization follow-on; 451 KnowledgeGraph + 148 Provenance scoped tests passed.
 
 - [x] (proven) `GraphNodeFactory.CreateNode` — padded `category` property on graph `Category` — **hit 2026-10-22 seed hunt (seed→hit):** trim category; regression above.
-
-- [ ] (candidate) `GraphNodeFactory.CreateNode` — padded canonical `ObjectType` may surface on graph node without trim — locus: `NodeType` assign; input: `CanonicalObject.ObjectType` with surrounding whitespace; wrong outcome: node-type bucket filters diverge from trim-normalized inferrer gates.
 
 2026-10-22 seed hunt (seed→hit): promoted `GraphNodeFactory` padded canonical `Name` candidate; proved `CreateNode` copied raw `CanonicalObject.Name` into graph `Label`, breaking parity with diagram bind matcher trim and display-name identity checks when ingestion tokens carried surrounding whitespace; trim name on label assign; regression `CreateNode_trims_surrounding_whitespace_on_name_when_building_label`; seeded `GraphNodeFactory` padded `category` property materialization follow-on; 450 KnowledgeGraph + 148 Provenance scoped tests passed.
 

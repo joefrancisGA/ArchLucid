@@ -63,6 +63,16 @@ public sealed class GraphNodeFactoryTests
     }
 
     [Fact]
+    public void CreateNode_trims_surrounding_whitespace_on_object_type_when_building_node_type()
+    {
+        CanonicalObject item = BuildItem(objectType: $"  {GraphNodeTypes.TopologyResource}  ");
+
+        GraphNode node = _sut.CreateNode(item);
+
+        node.NodeType.Should().Be(GraphNodeTypes.TopologyResource);
+    }
+
+    [Fact]
     public void CreateNode_SetsLabelFromName()
     {
         CanonicalObject item = BuildItem(name: "My Resource");
