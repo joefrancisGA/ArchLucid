@@ -115,9 +115,9 @@ export function parseOidcEpochMsHint(value: string): number {
   return coerceAcceptedOidcEpochMsHint(parsed);
 }
 
-/** ZWNJ between Latin tokens is usually accidental paste glue; keep ZWNJ inside Persian/Arabic copy. */
+/** ZWNJ/ZWJ between Latin tokens is usually accidental paste glue; keep joiners inside Persian/Arabic copy and emoji. */
 function collapseAccidentalLatinZwnjGlue(text: string): string {
-  return text.replace(/(?<=[A-Za-z0-9])\u200c(?=[A-Za-z0-9])/gu, " ");
+  return text.replace(/(?<=[A-Za-z0-9])[\u200c\u200d](?=[A-Za-z0-9])/gu, " ");
 }
 
 export function collapseOAuthErrorDescriptionLineBreaks(text: string): string {

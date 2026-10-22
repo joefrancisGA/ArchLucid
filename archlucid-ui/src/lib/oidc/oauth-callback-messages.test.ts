@@ -43,6 +43,10 @@ describe("readOAuthJsonErrorDescription", () => {
     expect(readOAuthJsonErrorDescription("Policy\u200cdenied")).toBe("Policy denied");
   });
 
+  it("collapses accidental ZWJ glue between Latin words in JSON error_description", () => {
+    expect(readOAuthJsonErrorDescription("Policy\u200ddenied")).toBe("Policy denied");
+  });
+
   it("decodes percent-encoded newlines in JSON error_description", () => {
     expect(readOAuthJsonErrorDescription("line1%0Aline2")).toBe("line1 line2");
   });
@@ -96,6 +100,10 @@ describe("decodeOAuthErrorDescription", () => {
 
   it("collapses accidental ZWNJ glue between Latin words in authorize error descriptions", () => {
     expect(decodeOAuthErrorDescription("Policy\u200cdenied")).toBe("Policy denied");
+  });
+
+  it("collapses accidental ZWJ glue between Latin words in authorize error descriptions", () => {
+    expect(decodeOAuthErrorDescription("Policy\u200ddenied")).toBe("Policy denied");
   });
 
   it("preserves regional-indicator flag emoji in authorize error descriptions", () => {
