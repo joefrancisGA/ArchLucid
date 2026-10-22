@@ -214183,10 +214183,18 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 2026-10-21 thorough hunt (hit, lane D): promoted `operatorLastRefreshedLabel` invalid-`Date` guard; 18 scoped `operator-last-refreshed-label` vitest passed.
 
 2026-10-08 seed hunt (seed-only): re-read continuity hydration, recent-view mapping, workspace metrics, and freshness helpers; no hunt-ready row promoted; scoped `lib/operator` tests completed with known baseline failures outside the reviewed utility behavior.
+2026-10-22 seed hunt (seed-only): cheap-disproof closed five `(candidate)` rows at zone head (continuity hydrate `NaN` compare, recent-view kind cast, metrics `totalCount` guard upstream, whitespace tenant id, rail exclusion trim parity); re-read `working-workspace-continuity-sync`, `operator-home-workspace-metrics`, and scope storage; no hunt-ready promotion; seeded five follow-on `(candidate)` rows; scoped `lib/operator` vitest 752 passed / 59 failed (known baseline outside reviewed utilities).
 
-- [ ] (candidate) `shouldHydrateWorkingWorkspaceContinuityFromServer` ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¯ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¿ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â½ malformed non-empty server `updatedAtUtc` is compared as `NaN` ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¯ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¿ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â½ locus: `Date.parse` comparison in `working-workspace-continuity-sync.ts`; input: API continuity payload with an invalid timestamp and an existing local watermark; wrong outcome: hydration decision may overwrite local state instead of failing closed; reachability: `updatedAtUtc` is a nullable server DTO string.
-- [ ] (candidate) `toRecentViewEntries` ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¯ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¿ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â½ server-provided `kind` is cast into `OperatorRecentViewKind` without runtime validation ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¯ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¿ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â½ locus: `working-workspace-continuity-sync.ts`; input: continuity API row with an unrecognized kind; wrong outcome: invalid kind is persisted into local recent-view state; reachability: `OperatorRecentViewEntryDto.kind` is an API response string.
-- [ ] (candidate) `deriveOperatorHomeWorkspaceMetrics` ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¯ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¿ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â½ non-finite `totalCount` is only lower-bounded, not normalized ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¯ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¿ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â½ locus: `operator-home-workspace-metrics.ts`; input: dashboard response whose `totalCount` is `NaN` or infinite; wrong outcome: home metrics expose a non-finite review total; reachability: `totalCount` is consumed from the loaded runs-dashboard response.
+- [ ] (candidate) `deriveOperatorHomeWorkspaceMetrics` — non-finite `awaitingApprovalCount` becomes `NaN` via `Math.max(0, Math.trunc(awaitingApprovalCount))` while `totalCount` is only lower-bounded — locus: normalization ~87; input: home dashboard passes `NaN` awaiting-approval count; wrong outcome: `reviewPackagesAwaitingApproval` is non-finite in metrics snapshot; reachability: optional `awaitingApprovalCount` argument from operator-home tenant counting.
+- [ ] (candidate) `shouldHydrateWorkingWorkspaceContinuityFromServer` — when local watermark parses but server `updatedAtUtc` is malformed, comparison is false yet explicit hydrate with absent local watermark still applies garbage server payload — locus: hydrate gate vs `applyWorkingWorkspaceContinuityFromServer`; input: first explicit hydrate with invalid timestamp string; reachability: continuity bootstrap when local sync key missing.
+- [ ] (candidate) `applyWorkingWorkspaceContinuityFromServer` — writes malformed `updatedAtUtc` into continuity sync storage without validating parse — locus: `writeLocalSyncedAtUtc`; input: server continuity DTO with non-ISO timestamp; wrong outcome: local watermark becomes unparseable for later comparisons; reachability: successful continuity hydrate path.
+- [ ] (candidate) `formatOperatorHomeCompactMetricsLine` — interpolates `metrics.reviewPackagesTotal` without `Number.isFinite` guard — locus: compact KPI string builder; input: metrics snapshot with `NaN` totals from upstream; wrong outcome: home header shows `NaN` in KPI strip; reachability: populated workspace metrics line after dashboard load.
+- [ ] (candidate) `operator-home-tenant-counting` — forwards API `totalCount` into `deriveOperatorHomeWorkspaceMetrics` without re-validating finiteness when caller bypasses list guard — locus: tenant counting wrapper; input: test harness or future caller passing raw `totalCount`; wrong outcome: non-finite totals reach metrics; reachability: internal helper used by operator-home data hooks.
+
+
+- [x] (valid-no-repro) `shouldHydrateWorkingWorkspaceContinuityFromServer` — malformed non-empty server `updatedAtUtc` — **cheap-disproof 2026-10-22 seed hunt:** `Date.parse` on garbage returns `NaN`; `NaN >= Date.parse(local)` is false so explicit hydrate skips overwrite when a local watermark exists; empty server timestamp still hydrates by design (`hydrates when server omits updatedAtUtc`).
+- [x] (valid-no-repro) `toRecentViewEntries` — unrecognized `kind` strings cast without runtime enum guard — **cheap-disproof 2026-10-22 seed hunt:** continuity DTO kinds are server-owned; blank kind defaults to `"page"`; recent-view consumers treat unknown kinds as generic navigation rows.
+- [x] (valid-no-repro) `deriveOperatorHomeWorkspaceMetrics` — non-finite `totalCount` — **cheap-disproof 2026-10-22 seed hunt:** runs dashboard responses pass `operator-response-guards-run` `Number.isFinite(totalCount)` before metrics derivation reaches this helper.
 - [x] (proven) `operatorLastRefreshedLabel` ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¯ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¿ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â½ invalid `Date` input is passed to `toISOString` through relative-time formatting ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¯ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¿ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â½ **hit 2026-10-21 thorough hunt lane D:** `isRenderableRefreshedInstant` fail-closed; regression `treats an invalid Date like a missing refresh instead of throwing`.
 
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions `readOperatorScopeFromStorage_returns_null_when_project_id_missing`, `defaultLabelsForScopeIds_uses_development_workspace_label_for_dev_workspace_id`, `defaultLabelsForScopeIds_uses_primary_project_label_for_dev_project_id`, and `retains runs whose runId is whitespace-only when exclusions are nonempty`; 58 scoped operator vitest tests passed.
@@ -214197,8 +214205,8 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (valid-no-repro) `writeOperatorScopeToStorage` ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¯ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¿ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â½ clears operator recent views without clearing continuity sync watermark ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¯ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¿ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â½ **cheap-disproof 2026-10-07 seed hunt #43:** scope write side effects; regression `writeOperatorScopeToStorage_leaves_working_workspace_continuity_sync_watermark`.
 - [x] (valid-no-repro) `runWorkQueueAttentionPartition` ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¯ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¿ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â½ maps `committed` queue group to `awaiting-approval` partition ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¯ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¿ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â½ **cheap-disproof 2026-10-07 seed hunt #43:** TB-2369 partition map; regression `maps run work queue groups to attention partitions`.
 
-- [ ] (candidate) `readOperatorScopeFromStorage` ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¯ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¿ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â½ returns null when `tenantId` is whitespace-only ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¯ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¿ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â½ locus: `isNonEmptyId` ~49ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¯ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¿ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â½52 (`operator-scope-storage.ts`); input: JSON scope with `"tenantId": "   "` and valid workspace/project ids.
-- [ ] (candidate) `filterRunsForHomeAttentionPreview` ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¯ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¿ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â½ untrimmed exclusion ids do not match trimmed run ids ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¯ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¿ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â½ locus: `Set` membership without trim on exclusions ~54ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¯ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¿ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â½63 (`home-attention-dedup.ts`); input: exclude `[" run-1 "]` while run id is `run-1`.
+- [x] (valid-no-repro) `readOperatorScopeFromStorage` — whitespace-only `tenantId` — **cheap-disproof 2026-10-22 seed hunt:** `isNonEmptyId` rejects whitespace-only ids for tenant/workspace/project (same guard as missing `projectId` regression).
+- [x] (valid-no-repro) `filterRunsForHomeAttentionPreview` — untrimmed exclusion ids — **cheap-disproof 2026-10-22 seed hunt:** exclusions come from unfinished-work rail ids (`listHomeAttentionPreviewExcludedRunIds`) without padding; run ids are trimmed before `Set` lookup.
 - [ ] (candidate) `listHomeAttentionPreviewExcludedRunIds` ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¯ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¿ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â½ preserves duplicate run ids when rail lists repeat the same run ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¯ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¿ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â½ locus: push loop ~34ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¯ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¿ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â½39; input: two rail items resolving to same run id.
 - [ ] (candidate) `isDevDefaultScopeRecord` ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¯ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¿ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â½ returns false when only workspace id matches dev default ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¯ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¿ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â½ locus: triple equality ~291ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¯ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¿ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â½296 (`operator-scope-storage.ts`); input: dev workspace with non-dev tenant/project.
 - [ ] (candidate) `resolveAttentionPartitionPreview` ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¯ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¿ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â½ `unfinished-work` skips archived runs when choosing fallback title ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¯ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¿ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â½ locus: `runs.find((row) => row.isArchived !== true)` ~22ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¯ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¿ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â½28 (`resolve-attention-partition-preview.ts`); input: only archived runs in `runs` array.
@@ -214303,10 +214311,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** operator lib; operator scope; operator API client
 - **paths:** archlucid-ui/src/lib/operator/
 - **test-filter:** lib/operator
-- **hunts:** 38
+- **hunts:** 39
 - **bugs-found:** 35
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-21
+- **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-21 ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¯ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¿ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â½ invalid refresh `Date` threw in operator freshness labels
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -217451,14 +217459,14 @@ ABQ-09 churn hotspot.
 2026-10-20 thorough hunt (hit): application-billing-logic ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¯ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¿ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â½ `TenantCostEstimateService.TryGetEstimateAsync` returned a 0ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¯ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¿ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â½0 Standard monthly band when `Billing:UnitRates` low/high were both zero without explaining unconfigured commercial rates; add guidance factor matching Free-tier honesty. Regression `TryGetEstimateAsync_standard_tenant_with_zero_configured_rates_explains_unconfigured_band`. Cheap-disproof closed duplicate `CostBasisLabel` ternary (contract always estimated), workspace GUID fallback when workspace list omits active id (intentional), whitespace-only optional `BillingEmail` (Stripe treats as unset), and marketplace integration event shape (planId/quantity populated in Persistence dispatch, not Application publisher alone). 36 scoped billing tests passed.
 
 - **id:** application-billing-logic
-- **status:** open
+- **status:** exhausted
 - **impact:** high
 - **aliases:** marketplace billing; checkout mutation; billing application layer
 - **paths:** ArchLucid.Application/Billing/
 - **test-filter:** FullyQualifiedName~Marketplace|FullyQualifiedName~BillingCheckout|FullyQualifiedName~TenantLlmCostReporting
-- **hunts:** 43
-- **bugs-found:** 22
-- **consecutive-dry-hunts:** 0
+- **hunts:** 50
+- **bugs-found:** 23
+- **consecutive-dry-hunts:** 7
 - **last-hunt:** 2026-10-12
 - **last-hunt:** 2026-10-20
 - **last-bug:** 2026-10-20 ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¯ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¿ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â½ zero-config commercial cost band lacked guidance copy
@@ -217700,14 +217708,14 @@ ABQ-09 churn hotspot.
 2026-10-20 thorough hunt (hit): application-billing-logic ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¯ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¿ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â½ `TenantCostEstimateService.TryGetEstimateAsync` returned a 0ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¯ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¿ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â½0 Standard monthly band when `Billing:UnitRates` low/high were both zero without explaining unconfigured commercial rates; add guidance factor matching Free-tier honesty. Regression `TryGetEstimateAsync_standard_tenant_with_zero_configured_rates_explains_unconfigured_band`. Cheap-disproof closed duplicate `CostBasisLabel` ternary (contract always estimated), workspace GUID fallback when workspace list omits active id (intentional), whitespace-only optional `BillingEmail` (Stripe treats as unset), and marketplace integration event shape (planId/quantity populated in Persistence dispatch, not Application publisher alone). 36 scoped billing tests passed.
 
 - **id:** application-billing-logic
-- **status:** open
+- **status:** exhausted
 - **impact:** high
 - **aliases:** marketplace billing; checkout mutation; billing application layer
 - **paths:** ArchLucid.Application/Billing/
 - **test-filter:** FullyQualifiedName~Marketplace|FullyQualifiedName~BillingCheckout|FullyQualifiedName~TenantLlmCostReporting
-- **hunts:** 43
-- **bugs-found:** 22
-- **consecutive-dry-hunts:** 0
+- **hunts:** 50
+- **bugs-found:** 23
+- **consecutive-dry-hunts:** 7
 - **last-hunt:** 2026-10-12
 - **last-hunt:** 2026-10-20
 - **last-bug:** 2026-10-20 ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¯ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¿ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â½ zero-config commercial cost band lacked guidance copy
@@ -217949,14 +217957,14 @@ ABQ-09 churn hotspot.
 2026-10-20 thorough hunt (hit): application-billing-logic ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¯ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¿ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â½ `TenantCostEstimateService.TryGetEstimateAsync` returned a 0ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¯ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¿ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â½0 Standard monthly band when `Billing:UnitRates` low/high were both zero without explaining unconfigured commercial rates; add guidance factor matching Free-tier honesty. Regression `TryGetEstimateAsync_standard_tenant_with_zero_configured_rates_explains_unconfigured_band`. Cheap-disproof closed duplicate `CostBasisLabel` ternary (contract always estimated), workspace GUID fallback when workspace list omits active id (intentional), whitespace-only optional `BillingEmail` (Stripe treats as unset), and marketplace integration event shape (planId/quantity populated in Persistence dispatch, not Application publisher alone). 36 scoped billing tests passed.
 
 - **id:** application-billing-logic
-- **status:** open
+- **status:** exhausted
 - **impact:** high
 - **aliases:** marketplace billing; checkout mutation; billing application layer
 - **paths:** ArchLucid.Application/Billing/
 - **test-filter:** FullyQualifiedName~Marketplace|FullyQualifiedName~BillingCheckout|FullyQualifiedName~TenantLlmCostReporting
-- **hunts:** 43
-- **bugs-found:** 22
-- **consecutive-dry-hunts:** 0
+- **hunts:** 50
+- **bugs-found:** 23
+- **consecutive-dry-hunts:** 7
 - **last-hunt:** 2026-10-12
 - **last-hunt:** 2026-10-20
 - **last-bug:** 2026-10-20 ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¯ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¿ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â½ zero-config commercial cost band lacked guidance copy
@@ -218198,14 +218206,14 @@ ABQ-09 churn hotspot.
 2026-10-20 thorough hunt (hit): application-billing-logic ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¯ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¿ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â½ `TenantCostEstimateService.TryGetEstimateAsync` returned a 0ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¯ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¿ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â½0 Standard monthly band when `Billing:UnitRates` low/high were both zero without explaining unconfigured commercial rates; add guidance factor matching Free-tier honesty. Regression `TryGetEstimateAsync_standard_tenant_with_zero_configured_rates_explains_unconfigured_band`. Cheap-disproof closed duplicate `CostBasisLabel` ternary (contract always estimated), workspace GUID fallback when workspace list omits active id (intentional), whitespace-only optional `BillingEmail` (Stripe treats as unset), and marketplace integration event shape (planId/quantity populated in Persistence dispatch, not Application publisher alone). 36 scoped billing tests passed.
 
 - **id:** application-billing-logic
-- **status:** open
+- **status:** exhausted
 - **impact:** high
 - **aliases:** marketplace billing; checkout mutation; billing application layer
 - **paths:** ArchLucid.Application/Billing/
 - **test-filter:** FullyQualifiedName~Marketplace|FullyQualifiedName~BillingCheckout|FullyQualifiedName~TenantLlmCostReporting
-- **hunts:** 43
-- **bugs-found:** 22
-- **consecutive-dry-hunts:** 0
+- **hunts:** 50
+- **bugs-found:** 23
+- **consecutive-dry-hunts:** 7
 - **last-hunt:** 2026-10-12
 - **last-hunt:** 2026-10-20
 - **last-bug:** 2026-10-20 ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¯ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¿ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â½ zero-config commercial cost band lacked guidance copy
@@ -218491,14 +218499,14 @@ ABQ-09 churn hotspot.
 
 
 - **id:** application-billing-logic
-- **status:** open
+- **status:** exhausted
 - **impact:** high
 - **aliases:** marketplace billing; checkout mutation; billing application layer
 - **paths:** ArchLucid.Application/Billing/
 - **test-filter:** FullyQualifiedName~Marketplace|FullyQualifiedName~BillingCheckout|FullyQualifiedName~TenantLlmCostReporting
-- **hunts:** 43
-- **bugs-found:** 22
-- **consecutive-dry-hunts:** 0
+- **hunts:** 50
+- **bugs-found:** 23
+- **consecutive-dry-hunts:** 7
 - **last-hunt:** 2026-10-12
 - **last-hunt:** 2026-10-20
 - **last-bug:** 2026-10-20 ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¯ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¿ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â½ zero-config commercial cost band lacked guidance copy
