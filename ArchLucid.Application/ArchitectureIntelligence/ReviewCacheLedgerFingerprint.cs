@@ -38,10 +38,10 @@ public static class ReviewCacheLedgerFingerprint
 
     private static string NormalizeTechnologyName(string? technologyName)
     {
-        if (string.IsNullOrEmpty(technologyName))
+        if (string.IsNullOrWhiteSpace(technologyName))
             return string.Empty;
 
-        return technologyName.Normalize(NormalizationForm.FormC);
+        return technologyName.Trim().Normalize(NormalizationForm.FormC);
     }
 
     private static string NormalizeEvidenceRef(string? evidenceRef)

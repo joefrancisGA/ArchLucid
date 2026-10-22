@@ -499,6 +499,40 @@ public sealed class ReviewCacheManifestBuilderTests
     }
 
     [Fact]
+    public void Build_matches_content_hash_when_ledger_technology_name_is_whitespace_only_vs_empty_string()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "run-ledger-ws-name";
+
+        TechnologyLedgerEntry whitespaceName = CreateLedgerEntry(request.RunId, evidenceRef: null);
+        whitespaceName.TechnologyName = "   \t  ";
+
+        TechnologyLedgerEntry emptyName = CreateLedgerEntry(request.RunId, evidenceRef: null);
+        emptyName.TechnologyName = string.Empty;
+
+        ReviewCacheManifestBuilder.Build(request, null, [whitespaceName]).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(request, null, [emptyName]).ContentHash);
+    }
+
+    [Fact]
+    public void Build_matches_content_hash_when_ledger_technology_name_differs_only_by_surrounding_whitespace()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "run-ledger-trim-name";
+
+        TechnologyLedgerEntry padded = CreateLedgerEntry(request.RunId, evidenceRef: null);
+        padded.TechnologyName = "  Microsoft Azure  ";
+
+        TechnologyLedgerEntry trimmed = CreateLedgerEntry(request.RunId, evidenceRef: null);
+        trimmed.TechnologyName = "Microsoft Azure";
+
+        ReviewCacheManifestBuilder.Build(request, null, [padded]).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(request, null, [trimmed]).ContentHash);
+    }
+
+    [Fact]
     public void Build_matches_content_hash_when_ledger_technology_name_is_null_vs_empty_string()
     {
         ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");

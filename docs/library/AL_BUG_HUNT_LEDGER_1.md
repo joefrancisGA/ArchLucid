@@ -8712,6 +8712,20 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: architecture-intelligence-orchestrator
 
+2026-10-22 seed hunt (seed→hit): promoted whitespace-only and padded ledger `TechnologyName` splitting review-cache `ContentHash` from empty/trimmed names; `ReviewCacheLedgerFingerprint.NormalizeTechnologyName` now treats whitespace-only as empty and trims before NFC; regressions `Build_matches_content_hash_when_ledger_technology_name_is_whitespace_only_vs_empty_string` and `Build_matches_content_hash_when_ledger_technology_name_differs_only_by_surrounding_whitespace`; 129 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `ReviewCacheLedgerFingerprint.Compute` — whitespace-only or padded `TechnologyName` split `ledgerfp` — **hit 2026-10-22 seed hunt:** `NormalizeTechnologyName` whitespace + trim + FormC; regressions above.
+
+- (candidate) `ReviewCacheLedgerFingerprint.Compute` — ledger entry sort uses raw `TechnologyName` before normalize — locus: `OrderBy` vs hashed token; input: two rows differing only by padding (verify duplicate-line behavior).
+
+- (candidate) `ClosedLoopReasoningSourceTextNormalizer.NormalizeLineEndings` — consolidated C0/C1 line-break audit (picker saturated `other`; batch only).
+
+- (candidate) `ReviewCacheModelFingerprint.Compute` — baseline model string fields with whitespace-only vs empty — locus: model fingerprint serializer; input: sparse `ArchitectureKnowledgeModel` from loader.
+
+- (candidate) `ReviewCacheManifestBuilder.HashPriorities` — duplicate declared priorities differing only by surrounding whitespace — locus: `ClosedLoopDeclaredPrioritiesNormalizer`; input: OpenAPI priorities array.
+
+- (candidate) `ReviewResultCache.CoalesceAsync` — follower receives leader with mismatched `PublishBlocked` when publish intent false — locus: `stripCoalescedFollowerPublishLeaks`; input: blocked leader + analysis follower (verify existing regressions exhaust).
+
 2026-10-22 seed hunt (seed→hit): promoted whitespace-only ledger `EvidenceRef` splitting review-cache `ContentHash` from empty ref; `ReviewCacheLedgerFingerprint` now treats whitespace-only refs as empty and trims substantive refs; regressions `Build_matches_content_hash_when_ledger_evidence_ref_is_null_vs_empty_string` and `Build_matches_content_hash_when_ledger_evidence_ref_is_whitespace_only_vs_empty_string`; cheap-disproof continue coalesce tenant partition and schema-version storage key partition; guard regressions `BuildCoalesceKey_differs_when_tenant_id_changes` and `TryGet_misses_when_manifest_schema_version_differs_from_stored_entry`; 127 scoped orchestrator/cache/manifest/continue-flight tests passed.
 
 - [x] (proven) `ReviewCacheLedgerFingerprint.Compute` — whitespace-only `EvidenceRef` split `ledgerfp` from null/empty — **hit 2026-10-22 seed hunt:** `NormalizeEvidenceRef`; regressions above.
@@ -8985,11 +8999,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** closed-loop orchestrator; review result cache; architecture intelligence
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.cs; ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.Cache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewResultCache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewCacheManifestBuilder.cs
 - **test-filter:** FullyQualifiedName~ClosedLoopArchitectureReasoningOrchestrator|FullyQualifiedName~ReviewResultCache|FullyQualifiedName~ReviewCacheManifestBuilder
-- **hunts:** 57
-- **bugs-found:** 33
+- **hunts:** 58
+- **bugs-found:** 34
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — whitespace-only ledger evidence ref in review-cache manifest hash
+- **last-bug:** 2026-10-22 — padded/whitespace ledger technology name in review-cache manifest hash
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
