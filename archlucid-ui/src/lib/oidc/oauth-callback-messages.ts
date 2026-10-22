@@ -155,6 +155,16 @@ function shouldPreserveLiteralPlusInAuthorizeDescription(decoded: string): boole
     return true;
   }
 
+  // Keycap emoji (#️⃣, 1️⃣) uses U+FE0F + U+20E3 without ZWJ or Fitzpatrick modifiers.
+  if (/\u20e3/u.test(decoded)) {
+    return true;
+  }
+
+  // Presentation emoji (🏷️, ⚠️) and other pictographs without the glue signals above.
+  if (/\p{Extended_Pictographic}/u.test(decoded)) {
+    return true;
+  }
+
   return /(?<=[A-Za-z0-9])[\u200c\u200d](?=[A-Za-z0-9+])/u.test(decoded);
 }
 
@@ -257,18 +267,23 @@ export function readOAuthJsonErrorDescription(value: string): string {
   let decoded: string;
 
   try {
-    const decodeSource =
-      percentEncodedPlus && literalPlusInSource
-        ? collapsed.replace(/%(?:25)*2[bB]/gi, " ")
-        : collapsed;
+    if (percentEncodedPlus && literalPlusInSource) {
+      const fullyDecoded = decodeRepeatedPercentEncoding(collapsed);
 
-    decoded = decodeRepeatedPercentEncoding(decodeSource);
+      decoded = shouldPreserveLiteralPlusInAuthorizeDescription(fullyDecoded)
+        ? fullyDecoded
+        : decodeRepeatedPercentEncoding(collapsed.replace(/%(?:25)*2[bB]/gi, " "));
 
-    if (percentEncodedPlus && !literalPlusInSource) {
-      decoded = decoded.replace(/\+/g, " ");
+      decoded = collapseOAuthErrorDescriptionLineBreaks(decoded);
+    } else {
+      decoded = decodeRepeatedPercentEncoding(collapsed);
+
+      if (percentEncodedPlus && !literalPlusInSource && !shouldPreserveLiteralPlusInAuthorizeDescription(decoded)) {
+        decoded = decoded.replace(/\+/g, " ");
+      }
+
+      decoded = collapseOAuthErrorDescriptionLineBreaks(decoded);
     }
-
-    decoded = collapseOAuthErrorDescriptionLineBreaks(decoded);
   } catch {
     decoded = collapsed;
   }

@@ -14,7 +14,12 @@ public static class InventoryDiagramRouteOutlineSentenceFormatter
 
         if (nextHopType.Equals("Internet", StringComparison.OrdinalIgnoreCase))
         {
-            return "Outbound internet is sent directly";
+            if (string.IsNullOrWhiteSpace(route.AddressPrefix))
+            {
+                return "Address prefix was not stored. Next hop type is Internet.";
+            }
+
+            return $"Traffic to {addressPrefix} is sent directly to the internet.";
         }
 
         if (nextHopType.Equals("None", StringComparison.OrdinalIgnoreCase))
@@ -38,7 +43,11 @@ public static class InventoryDiagramRouteOutlineSentenceFormatter
 
             if (RequiresResolvableNextHop(route))
             {
-                return "route next hop does not resolve";
+                string hopTypeLabel = string.IsNullOrWhiteSpace(nextHopType)
+                    ? "Next hop type was not stored"
+                    : nextHopType;
+
+                return $"Next hop name was not stored for {hopTypeLabel} on {addressPrefix}.";
             }
 
             return null;

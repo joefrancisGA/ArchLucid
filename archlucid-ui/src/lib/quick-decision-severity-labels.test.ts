@@ -9,7 +9,7 @@ import {
 
 describe("quick-decision-severity-labels", () => {
   it("keeps a missing severity unclassified instead of treating it as Info", () => {
-    expect(severityBadgeLabel(null)).toBe("Severity was not stored");
+    expect(severityBadgeLabel(null)).toBe("Severity label was not stored.");
     expect(severityKindFromNumericValue(null)).toBe("unknown");
     expect(hasFindingSeverityAtLeast(null, 0)).toBe(false);
   });
@@ -19,7 +19,8 @@ describe("quick-decision-severity-labels", () => {
     expect(compareFindingSeverity(0, null, "ascending")).toBe(-1);
   });
 
-  it("shows stored finite severities outside the named bands", () => {
-    expect(severityBadgeLabel(4)).toBe("4");
+  it("labels severities outside the named bands as not stored", () => {
+    expect(severityBadgeLabel(4)).toBe("Severity label was not stored.");
+    expect(severityBadgeLabel(Number.NaN)).toBe("Severity label was not stored.");
   });
 });

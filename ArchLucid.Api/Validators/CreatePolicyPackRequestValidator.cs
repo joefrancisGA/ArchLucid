@@ -17,13 +17,22 @@ public sealed class CreatePolicyPackRequestValidator : AbstractValidator<CreateP
     public CreatePolicyPackRequestValidator()
     {
         RuleFor(x => x.Name)
-            .NotEmpty()
-            .MaximumLength(300);
+            .Must(PolicyPackRequestValidationRules.BeRequiredTextAfterTrim)
+            .WithMessage("Name is required.")
+            .Must(name => PolicyPackRequestValidationRules.BeWithinTrimmedMaxLength(
+                name,
+                PolicyPackRequestValidationRules.PackNameMaxLength))
+            .WithMessage(
+                $"Name must be at most {PolicyPackRequestValidationRules.PackNameMaxLength} characters.");
 
         RuleFor(x => x.Description)
             .Must(description => description.Length == 0 || description.Trim().Length > 0)
             .WithMessage("Description cannot be empty or whitespace.")
-            .MaximumLength(20_000);
+            .Must(description => PolicyPackRequestValidationRules.BeWithinTrimmedMaxLength(
+                description,
+                PolicyPackRequestValidationRules.PackDescriptionMaxLength))
+            .WithMessage(
+                $"Description must be at most {PolicyPackRequestValidationRules.PackDescriptionMaxLength} characters.");
 
         RuleFor(x => x.PackType)
             .NotEmpty()
@@ -32,7 +41,7 @@ public sealed class CreatePolicyPackRequestValidator : AbstractValidator<CreateP
                 "PackType must be one of: TenantCustom, WorkspaceCustom, ProjectCustom.");
 
         RuleFor(x => x.InitialContentJson)
-            .NotEmpty()
+            .Must(PolicyPackRequestValidationRules.BeRequiredTextAfterTrim)
             .WithMessage("InitialContentJson is required.")
             .Must(PolicyPackRequestValidationRules.BeValidJson)
             .WithMessage("InitialContentJson must be valid JSON.");

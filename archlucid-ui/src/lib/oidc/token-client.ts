@@ -46,16 +46,25 @@ function shouldHumanizeTokenOAuthErrorCode(normalizedErrorCode: string): boolean
     case "unsupported_grant_type":
     case "unsupported_response_type":
     case "unsupported_token_type":
+    case "insufficient_scope":
     case "invalid_scope":
     case "server_error":
     case "temporarily_unavailable":
+    case "authorization_pending":
+    case "slow_down":
       return true;
     default:
       return false;
   }
 }
 
-const OAUTH_TRANSIENT_TOKEN_ERROR_CODES = new Set(["server_error", "temporarily_unavailable"]);
+const OAUTH_TRANSIENT_TOKEN_ERROR_CODES = new Set([
+  "server_error",
+  "temporarily_unavailable",
+  // RFC 8628 device authorization grant — polling/backoff, not refresh-token revocation.
+  "authorization_pending",
+  "slow_down",
+]);
 
 function shouldClearBffSessionForOAuthTokenErrorCode(normalizedErrorCode: string): boolean {
   if (OAUTH_TRANSIENT_TOKEN_ERROR_CODES.has(normalizedErrorCode)) {
@@ -214,7 +223,10 @@ async function postTokenForm(
 }
 
 function normalizeTokenString(value: string): string {
-  return stripOAuthInvisibleFormatChars(value.trim()).trim();
+  // Soft hyphens, variation selectors, and Unicode replacement glyphs are copy/paste artifacts, not bearer token material.
+  return stripOAuthInvisibleFormatChars(
+    value.replace(/[\u00AD\uFE00-\uFE0F\uFFFC\uFFFD]/gu, "").trim(),
+  ).trim();
 }
 
 function normalizeOptionalTokenString(value: unknown): string | undefined {

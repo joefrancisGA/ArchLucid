@@ -10,8 +10,15 @@ export type SecurityEvidencePathHop = {
   cloudResourceId: string | null;
 };
 
+export const SECURITY_EVIDENCE_PATH_NODE_NAME_NOT_STORED = "Node name was not stored." as const;
+
 export function securityEvidencePathHopNodeName(label: string): string {
   const trimmed = label.trim();
+
+  if (trimmed.length === 0) {
+    return SECURITY_EVIDENCE_PATH_NODE_NAME_NOT_STORED;
+  }
+
   const lastSegment = trimmed.split("/").filter((segment) => segment.length > 0).at(-1);
 
   return lastSegment ?? trimmed;

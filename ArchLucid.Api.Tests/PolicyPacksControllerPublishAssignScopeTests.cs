@@ -59,6 +59,36 @@ public sealed class PolicyPacksControllerPublishAssignScopeTests
     }
 
     [Fact]
+    public async Task Publish_forwards_trimmed_content_json_to_facade()
+    {
+        Guid packId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+
+        Mock<IPolicyPackHttpFacade> httpFacade = new(MockBehavior.Strict);
+        httpFacade
+            .Setup(f => f.PublishVersionAsync(
+                packId,
+                It.Is<PolicyPackPublishBody>(body =>
+                    body.Version == "2.0.0"
+                    && body.ContentJson == """{"complianceRuleIds":[]}"""),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(PolicyPackHttpResult<PolicyPackVersion>.Success(
+                new PolicyPackVersion { PolicyPackId = packId, Version = "2.0.0" }));
+
+        PolicyPacksController sut = PolicyPacksControllerTestSupport.CreateController(httpFacade);
+
+        PublishPolicyPackVersionRequest request = new()
+        {
+            Version = "2.0.0",
+            ContentJson = """  {"complianceRuleIds":[]}  """,
+        };
+
+        IActionResult result = await sut.Publish(packId, request, CancellationToken.None);
+
+        result.Should().BeOfType<OkObjectResult>();
+        httpFacade.VerifyAll();
+    }
+
+    [Fact]
     public async Task Publish_forwards_trimmed_version_to_facade()
     {
         Guid packId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");

@@ -631,8 +631,9 @@ describe("ensureAccessTokenFresh (LK-06 P2 BFF refresh)", () => {
 
   it("allows stale ok refresh to update expiry when persist repeats unchanged identity hints", async () => {
     let releaseRefresh: (() => void) | undefined;
-    const expiredHintMs = Date.now();
-    const refreshedMs = Date.now() + 3_600_000;
+    const expiredHintMs = 1_700_000_000_000;
+    const refreshedMs = expiredHintMs + 3_600_000;
+    const nowSpy = vi.spyOn(Date, "now").mockReturnValue(expiredHintMs);
 
     vi.mocked(bffSessionSync.refreshBffSessionCookie).mockImplementation(
       () =>
@@ -666,6 +667,8 @@ describe("ensureAccessTokenFresh (LK-06 P2 BFF refresh)", () => {
 
     expect(appliedMs).toBeGreaterThan(expiredHintMs);
     expect(Math.abs(appliedMs - refreshedMs)).toBeLessThanOrEqual(2);
+
+    nowSpy.mockRestore();
   });
 
   it("does not clear a replacement sign-in when a pre-sign-out BFF refresh is rejected after identity is restored", async () => {

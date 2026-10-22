@@ -87,9 +87,20 @@ public sealed class DiagramForestCanvasLabelContext
         IReadOnlyList<string> dataFlowDetailLines = _isDataFlow
             ? BuildDataFlowDetailLines(node, dataFlowTypeLine)
             : [];
-        string? dataFlowRollupInvitationLine = _isDataFlow && node.IsDataFlowRollup
-            ? $"Click to list the {node.DataFlowRollupMemberIds.Count}"
-            : null;
+        string? dataFlowRollupInvitationLine = null;
+
+        if (_isDataFlow && node.IsDataFlowRollup)
+        {
+            if (node.DataFlowRollupMemberIds.Count == 0)
+            {
+                dataFlowRollupInvitationLine = "Rollup members were not stored.";
+            }
+            else
+            {
+                dataFlowRollupInvitationLine =
+                    $"Click to list the {node.DataFlowRollupMemberIds.Count} resources in this rollup.";
+            }
+        }
         bool suppressResourceGroupCaption = _suppressResourceGroupCaptionNodeIds.Contains(node.NodeId);
         IReadOnlyList<string> resourceGroupLines = suppressResourceGroupCaption
             || string.IsNullOrWhiteSpace(caption.ResourceGroupCaption)

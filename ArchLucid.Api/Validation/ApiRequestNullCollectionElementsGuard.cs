@@ -97,7 +97,65 @@ public static class ApiRequestNullCollectionElementsGuard
                 return true;
             }
 
+            if (TryVisitDictionaryEntryValue(element, owningProperty, visited, out bool entryInvalid))
+            {
+                if (entryInvalid)
+                    return true;
+
+                continue;
+            }
+
             if (VisitObject(element, visited))
+                return true;
+        }
+
+        return false;
+    }
+
+    private static bool TryVisitDictionaryEntryValue(
+        object element,
+        PropertyInfo owningProperty,
+        HashSet<object> visited,
+        out bool entryInvalid)
+    {
+        entryInvalid = false;
+        Type elementType = element.GetType();
+
+        if (!elementType.IsGenericType || elementType.GetGenericTypeDefinition() != typeof(KeyValuePair<,>))
+            return false;
+
+        PropertyInfo? valueProperty = elementType.GetProperty(
+            nameof(KeyValuePair<object, object>.Value),
+            BindingFlags.Instance | BindingFlags.Public);
+
+        if (valueProperty is null)
+            return true;
+
+        object? entryValue = valueProperty.GetValue(element);
+
+        if (entryValue is null)
+        {
+            entryInvalid = !DictionaryValueAllowsNull(owningProperty);
+
+            return true;
+        }
+
+        entryInvalid = VisitObject(entryValue, visited);
+
+        return true;
+    }
+
+    private static bool DictionaryValueAllowsNull(PropertyInfo dictionaryProperty)
+    {
+        NullabilityInfo nullability = NullabilityContext.Create(dictionaryProperty);
+
+        if (nullability.GenericTypeArguments.Length >= 2)
+            return AllowsNullProperty(nullability.GenericTypeArguments[1]);
+
+        foreach (NullabilityInfo genericArgument in nullability.GenericTypeArguments)
+        {
+
+            if (genericArgument.ReadState == NullabilityState.Nullable)
                 return true;
         }
 
