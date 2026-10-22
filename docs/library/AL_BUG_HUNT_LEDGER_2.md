@@ -262,18 +262,26 @@
 
 ## Zone: email-otp-auth
 
+2026-10-22 seed hunt #95 (seed→hit): promoted `(candidate)` whitespace-only `Role`; proved `VerifyAsync` success path reached `IssueAccessToken` with `Role = "   "` and `LocalTrialJwtIssuer` throws instead of returning 401 (parity with #93 `DisplayEmail`); fail-closed with `string.IsNullOrWhiteSpace(result.Role)`; regression `VerifyAsync_rejects_success_result_with_whitespace_only_role`; cheap-disproof closed four sibling `(candidate)` rows; 16 `EmailOtpAuthController*` API tests passed. Private beta: invited operators who complete email OTP verify no longer hit an unhandled 500 when a corrupted success payload would have carried a blank role claim.
+
+- [x] (proven) `EmailOtpAuthController.VerifyAsync` — whitespace-only `Role` before JWT issue — **hit 2026-10-22 seed #95:** `string.IsNullOrWhiteSpace(result.Role)`; regression `VerifyAsync_rejects_success_result_with_whitespace_only_role`.
+- [x] (valid-no-repro) `EmailOtpVerifyFlow.ExecuteAsync` — ignored `TryNormalize` on challenge email — **cheap-disproof 2026-10-22 seed #95:** insert path normalizes; controller rejects empty/whitespace display email and role on success.
+- [x] (invalid) `EmailOtpRequestFlow` / `EmailOtpVerifyFlow` — invitation token not trimmed before hash — **cheap-disproof 2026-10-22 seed #95:** tokens are opaque secrets; client must send the exact token; whitespace padding is user error, not an auth bypass.
+- [x] (invalid) `EmailOtpAuthController.RequestChallengeAsync` — empty-string `Email` without HTTP 400 — **cheap-disproof 2026-10-22 seed #95:** anti-enumeration neutral response via `EmailOtpRequestFlow` (~61); same as invalid address.
+- [x] (valid-no-repro) `EmailOtpAuthController.RequestChallengeAsync` — `ClientIp` without forwarded headers — **cheap-disproof 2026-10-22 seed #95:** deployment uses consistent `RemoteIpAddress` for store and limit; forwarded-header policy is host configuration, not demonstrated defect in these files.
+
+- [ ] (candidate) `EmailOtpAuthController.VerifyAsync` — no guard when `result.Role` is empty string while `Succeeded` is true — locus: success guard ~111–117; input: service returns `Role=""` (default struct) with success flag.
+- [ ] (candidate) `EmailOtpVerifyFlow.ExecuteAsync` — `TryNormalize` failure after challenge completion still proceeds to identity lookup — locus: ~77–82; input: defense-in-depth if persistence invariant breaks.
+- [ ] (candidate) `EmailOtpAuthController.VerifyAsync` — `InvitationToken` on verify body forwarded without trim parity with challenge request — locus: ~107; input: padded invitation token on verify only.
+- [ ] (candidate) `EmailOtpRequestFlow.ExecuteAsync` — notifier `CancellationToken` passed through may cancel delivery after persistence — locus: ~189–193; input: covered by delivery-failure cleanup hit 2026-10-10; regression watch.
+- [ ] (candidate) `EmailOtpAuthController.VerifyAsync` — `AuthVersion` `Guid.Empty` omits claim in JWT while response still succeeds — locus: `LocalTrialJwtIssuer` ~76–78; input: legacy user row with empty auth version at first OTP sign-in.
+
 2026-10-22 seed hunt #94 (seed-only): re-read `EmailOtpAuthController` and `EmailOtpAuthService` request/verify paths; cheap-disproof closed four open `(candidate)` rows; no hunt-ready promotion; seeded five follow-on `(candidate)` rows; 46 `EmailOtpAuthServiceTests` + 15 `EmailOtpAuthController*` API tests passed.
 
 - [x] (valid-no-repro) `EmailOtpAuthController.VerifyAsync` — shared problem message for null body vs missing code — **cheap-disproof 2026-10-22 seed #94:** intentional validation surface; regressions `VerifyAsync_returns_bad_request_when_body_is_null` and `VerifyAsync_returns_bad_request_when_code_is_whitespace_only`.
 - [x] (valid-no-repro) `EmailOtpAuthController.RequestChallengeAsync` — `ClientIp` IPv6-mapped IPv4 normalization — **cheap-disproof 2026-10-22 seed #94:** `RemoteIpAddress.ToString()` and `EmailOtpRequestMetadataHasher.HashOptional` use the same string for store and `AuthRateLimitHelper` compare; no split-key bypass demonstrated in-zone.
 - [x] (valid-no-repro) `EmailOtpVerifyFlow.ExecuteAsync` — blank `displayEmail` from corrupted `NormalizedEmail` — **cheap-disproof 2026-10-22 seed #94:** challenges are inserted only after `IdentityEmailNormalizer.TryNormalize` in `EmailOtpRequestFlow`; controller fail-closes whitespace `DisplayEmail` on success (#93).
 - [x] (valid-no-repro) `EmailOtpAuthController.VerifyAsync` — `InvitationId` echoed without controller re-validation — **cheap-disproof 2026-10-22 seed #94:** invitation acceptance and id binding occur in `EmailOtpVerifyFlow`; HTTP layer maps trusted service result only.
-
-- [ ] (candidate) `EmailOtpVerifyFlow.ExecuteAsync` — `IdentityEmailNormalizer.TryNormalize` return value ignored when rehydrating display email from `completion.Challenge.NormalizedEmail` — locus: ~77–82; input: hypothetical corrupted challenge row (defense-in-depth vs controller #93).
-- [ ] (candidate) `EmailOtpAuthController.VerifyAsync` — no `string.IsNullOrWhiteSpace(result.Role)` guard before `IssueAccessToken` — locus: ~141–148; input: corrupted success result with whitespace-only role yields `ArgumentException` instead of 401.
-- [ ] (candidate) `EmailOtpRequestFlow.ResolveInvitationIdAsync` / `EmailOtpVerifyFlow.TryAcceptInvitationAsync` — invitation token hashed without surrounding whitespace trim — locus: `EmailOtpInvitationTokenHasher.Hash(invitationToken)`; input: challenge and verify requests with the same token padded differently.
-- [ ] (candidate) `EmailOtpAuthController.RequestChallengeAsync` — empty-string `Email` (non-null) reaches service and returns neutral message without HTTP 400 — locus: `body?.Email is null` only ~53–56; input: `Email=""` vs invalid address handling in `EmailOtpRequestFlow`.
-- [ ] (candidate) `EmailOtpAuthController.RequestChallengeAsync` — `ClientIp` taken only from `Connection.RemoteIpAddress` with no forwarded-client header — locus: ~64; input: OTP challenge behind reverse proxy where per-IP rate limits see the proxy address only.
 
 2026-10-22 seed hunt #93 (seed→hit, `-Refresh`): promoted `(candidate)` whitespace-only `DisplayEmail`; proved `VerifyAsync` null-only guard allowed `Succeeded` + whitespace `DisplayEmail` to reach `IssueAccessToken` (parity gap with empty `PlatformUserId` guard); fail-closed with `string.IsNullOrWhiteSpace`; regression `VerifyAsync_rejects_success_result_with_whitespace_only_display_email`; cheap-disproof closed four sibling `(candidate)` rows; scoped OTP tests not run on this host.
 
@@ -306,7 +314,7 @@
 
 2026-10-09 seed hunt (seed-only): repeated the selected controller/service review and focused test inventory; no fresh reachable mechanism-backed candidate emerged and no hypothesis was promoted. The exact scoped test run was blocked again by unrelated `ARCH002` in `ArchLucid.Core/Auth/Saml/SamlMetadataDiscoveryParser.cs`.
 
-**Hunts:** 56 · **Bugs found:** 16 · **Consecutive dry hunts:** 0
+**Hunts:** 57 · **Bugs found:** 17 · **Consecutive dry hunts:** 0
 
 2026-10-08 thorough hunt (hit): proved that a successful OTP result with `PlatformUserId = Guid.Empty` passed the controller's null-only guard and issued a token for the empty identity; added a fail-closed guard and regression; 1 API regression, 41 service tests, and 3 concurrency tests passed.
 

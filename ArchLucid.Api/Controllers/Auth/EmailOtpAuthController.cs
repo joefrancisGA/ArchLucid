@@ -111,7 +111,8 @@ public sealed class EmailOtpAuthController(
         if (!result.Succeeded ||
             result.PlatformUserId is null ||
             result.PlatformUserId == Guid.Empty ||
-            string.IsNullOrWhiteSpace(result.DisplayEmail))
+            string.IsNullOrWhiteSpace(result.DisplayEmail) ||
+            string.IsNullOrWhiteSpace(result.Role))
         {
             return Unauthorized();
         }
