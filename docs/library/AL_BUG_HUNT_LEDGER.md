@@ -11,11 +11,11 @@
 - [x] (valid-no-repro) `initiateOidcRedirect` / `initiateSupplementalOidcRedirect` — supplemental Google vs primary PKCE ordering — **cheap-disproof 2026-10-22 seed hunt:** intentional cross-flow `clearPkceState` on successful redirect; `initiate-redirect.test.ts`.
 - [x] (valid-no-repro) `buildAuthorizeUrl` — B2C `p=` policy query key collision with ArchLucid params — **cheap-disproof 2026-10-22 seed hunt:** `searchParams.set` overwrites stale keys; retains `p`; `build-authorize-url.test.ts`.
 
-- [ ] (candidate) `readOAuthErrorString` — token JSON `error` field with interior ZWNJ may not normalize before readability gate — locus: `token-client.ts`; input: token endpoint `{ "error": "invalid\u200cgrant" }` (reachability: IdP mis-encoded JSON).
-- [ ] (candidate) `discoveryUrlForAuthority` — configured authority with embedded userinfo builds discovery fetch URL with credentials — locus: `discovery.ts`; input: `NEXT_PUBLIC_OIDC_AUTHORITY=https://user:pass@idp.example` (reachability: misconfiguration).
-- [ ] (candidate) `normalizeOAuthErrorCode` — ZWJ-only glue between Regional Indicator flag sequences in error codes — locus: error code normalization; input: flag emoji error codes from IdP (may be intentional no-op).
-- [ ] (candidate) `ensureAccessTokenFresh` — identity hints present with `expires_at_ms` exactly `Date.now()` at skew boundary — locus: `EXPIRY_SKEW_MS` compare; input: refresh fires once per tick at boundary (timing flake class).
-- [ ] (candidate) `exchangeAuthorizationCode` — invisible characters inside `code` query value forwarded to token POST — locus: `trimTokenFormParams`; input: callback `code` with ZWSP interior (reachability: IdP never emits; strip at edges only today).
+- [x] (valid-no-repro) `readOAuthErrorString` — interior ZWNJ in token JSON `error` — **cheap-disproof 2026-10-22 seed-only:** `normalizeOAuthErrorCode` maps invisible chars to `_`; `token-client.test.ts` interior ZWSP in `error` field.
+- [x] (valid-no-repro) `discoveryUrlForAuthority` — authority userinfo — **cheap-disproof 2026-10-22 seed-only:** discovery URL uses `URL.origin` without credentials.
+- [x] (invalid) `normalizeOAuthErrorCode` — ZWJ between regional indicators — **cheap-disproof 2026-10-22 seed-only:** non-standard OAuth error codes; readable-detail guards.
+- [x] (invalid) `ensureAccessTokenFresh` — skew boundary timing — **cheap-disproof 2026-10-22 seed-only:** not hunt-ready (environmental timing).
+- [x] (valid-no-repro) `exchangeAuthorizationCode` — interior ZWSP in `code` — **cheap-disproof 2026-10-22 seed-only:** `normalizeTokenString` strips all `OAUTH_INVISIBLE_FORMAT_CHARS`.
 2026-10-21 thorough hunt (dry, lane C): `api-governance-tenancy-controllers` — lock `api-governance-tenancy-controllers` pushed and verified on `origin/bugsmash` before work (`dee13d7e5c` content after push; lane C `2026-10-21T17:03:47Z`); skipped `ui-*` zones (lane B URL helper sweep); selected least-recent unlocked non-UI zone with open candidate rows (`2026-10-21T02:33:42Z`); exercised zone-head sealed-manifest / tenancy candidates — risk revoke/renew and recurrence already delegate to `EnsureGovernanceDispositionRunSealedManifestAllowedAsync` (null manifest-compare detail skips guard); pre-commit checklist loads `IRunRepository` before sealed guard (404 before 409); approval lineage guard returns null when approval missing; project delete audit uses `User?.Identity?.Name ?? actorUserId`; scoped stickiness not-found/sealed regressions **9/9**; no new defect.
 
 - [x] (valid-no-repro) `GovernanceStickinessController` revoke/renew risk exception sealed guard — **cheap-disproof 2026-10-21 lane C:** same null-detail skip as create/recurrence (2026-10-20/21 hits).
@@ -25301,11 +25301,19 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) `initiateOidcRedirect` — discovery failure cleared return after authorize callback retry — **hit 2026-10-22 seed hunt:** preserved-retry flag + re-arm marker; regression above.
 
-- [ ] (candidate) `initiateSupplementalOidcRedirect` — supplemental discovery failure after authorize retry — locus: same preserved-retry path as primary; input: Google discovery throws after callback error (parity covered by shared pattern).
-- [ ] (candidate) `storePostSignInReturnUrl` — does not canonicalize query order before storage — locus: return URL writer; input: session-expired link with unsorted query (idle-desk pairing handles compare).
-- [ ] (candidate) `assertOidcSignInConfig` — callback deep link with missing env fails without authorize-retry marker — locus: `CallbackClient` `fail` default; input: mis-deployed beta (intentional).
-- [ ] (candidate) `exchangeAuthorizationCode` — `code` query trimming vs IdP literal match — locus: `normalizeTokenString`; input: leading/trailing only (interior ZWSP stripped).
-- [ ] (candidate) `getAccessTokenExpiresAtMs` — returns 0 when identity hints exist but expiry key missing — locus: `hasOidcSessionIdentityHints`; input: partial sessionStorage corruption.
+- [x] (valid-no-repro) `initiateSupplementalOidcRedirect` — supplemental discovery failure after authorize retry — **cheap-disproof 2026-10-22 seed-only:** shares `preservedReturnForAuthorizeRetry` + re-arm with primary.
+- [x] (valid-no-repro) `storePostSignInReturnUrl` — query order at store — **cheap-disproof 2026-10-22 seed-only:** `normalizeComparableReturnPath` at compare/cleanup time.
+- [x] (valid-no-repro) `assertOidcSignInConfig` — callback without retry marker — **cheap-disproof 2026-10-22 seed-only:** intentional misconfiguration path.
+- [x] (valid-no-repro) `exchangeAuthorizationCode` — code trim — **cheap-disproof 2026-10-22 seed-only:** full-string invisible strip + trim in `postTokenForm`.
+- [x] (valid-no-repro) `getAccessTokenExpiresAtMs` — identity without expiry key — **cheap-disproof 2026-10-22 seed-only:** `session.test.ts` returns 0 when hint missing; refresh treats as expired.
+
+2026-10-22 seed hunt (seed-only): `ui-oidc` — re-read authorize-retry preservation, token-client normalization, and session hint boundaries after the 2026-10-22 callback/discovery hit cluster; no new row met hunt-ready bar for a distinct defect (further retry-marker tweaks would duplicate saturated return-path class); cheap-disproof closed ten open `(candidate)` rows; seeded five follow-on `(candidate)` rows; scoped `src/lib/oidc` vitest 332/332.
+
+- [ ] (candidate) `clearOidcSession` — does not remove `OIDC_AUTHORIZE_CALLBACK_FAILED_KEY` so sign-out may leave a stale retry marker — locus: `removeOidcKeys` list; input: sign-out after callback error then later marketing sign-in without `returnUrl` (reachability: sessionStorage survives until tab close).
+- [ ] (candidate) `consumePostSignInReturnUrl` — does not clear authorize-failure marker on successful callback — locus: single-use return consume; input: success path leaves marker until next `initiateOidcRedirect` (may be harmless).
+- [ ] (candidate) `humanizeAuthorizeCallbackError` — `temporarily_unavailable` with empty description vs BFF outage copy — locus: error switch; input: IdP maintenance during callback (copy-only).
+- [ ] (candidate) `parseOidcTokenResponse` — spread preserves pre-normalized `expires_in` when record also has string form — locus: object spread order; input: duplicate keys in malformed JSON (reachability: fuzz).
+- [ ] (candidate) `loadDiscoveryDocument` — failed fetch deletes cache entry but concurrent callers may still await the same rejected promise — locus: `discoveryPromises.delete`; input: parallel discovery during outage (transient).
 
 ## Zone: ui-oidc
 
@@ -25315,9 +25323,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 90
+- **hunts:** 91
 - **bugs-found:** 83
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-22 — discovery failure cleared return after authorize retry
 - **hunts:** 78
