@@ -1,5 +1,6 @@
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Persistence.DecisionTraces;
+using ArchLucid.Core.Manifest;
 using ArchLucid.Decisioning.Models;
 
 using FluentAssertions;
@@ -28,6 +29,36 @@ public sealed class ProvenanceSnapshotRevisionHasherTests
     {
         ProvenanceBuildInput baseline = CreateInput([], ["rule-a"]);
         ProvenanceBuildInput updated = CreateInput([], ["rule-a", "rule-b"]);
+
+        ProvenanceSnapshotRevisionHasher.Compute(baseline, BundleId)
+            .Should().NotBe(ProvenanceSnapshotRevisionHasher.Compute(updated, BundleId));
+    }
+
+    [Fact]
+    public void Compute_changes_when_supporting_finding_ids_change_but_manifest_hash_is_unchanged()
+    {
+        ResolvedArchitectureDecision baselineDecision = new()
+        {
+            DecisionId = "dec-1",
+            Category = "arch",
+            Title = "Decision",
+            SelectedOption = "a",
+            Rationale = "r",
+            SupportingFindingIds = ["find-a"],
+        };
+
+        ResolvedArchitectureDecision updatedDecision = new()
+        {
+            DecisionId = "dec-1",
+            Category = "arch",
+            Title = "Decision",
+            SelectedOption = "a",
+            Rationale = "r",
+            SupportingFindingIds = ["find-a", "find-b"],
+        };
+
+        ProvenanceBuildInput baseline = CreateInput([], manifestHash: "stale-hash", decisions: [baselineDecision]);
+        ProvenanceBuildInput updated = CreateInput([], manifestHash: "stale-hash", decisions: [updatedDecision]);
 
         ProvenanceSnapshotRevisionHasher.Compute(baseline, BundleId)
             .Should().NotBe(ProvenanceSnapshotRevisionHasher.Compute(updated, BundleId));
@@ -231,7 +262,9 @@ public sealed class ProvenanceSnapshotRevisionHasherTests
     private static ProvenanceBuildInput CreateInput(
         IReadOnlyList<SynthesizedArtifact> artifacts,
         IReadOnlyList<string>? appliedRuleIds = null,
-        IReadOnlyList<Finding>? findings = null)
+        IReadOnlyList<Finding>? findings = null,
+        string? manifestHash = null,
+        IReadOnlyList<ResolvedArchitectureDecision>? decisions = null)
     {
         Guid findingsSnapshotId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
         Guid graphSnapshotId = Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff");
@@ -267,8 +300,8 @@ public sealed class ProvenanceSnapshotRevisionHasherTests
             {
                 ManifestId = manifestId,
                 RunId = RunId,
-                ManifestHash = "mh",
-                Decisions = [],
+                ManifestHash = manifestHash ?? "mh",
+                Decisions = decisions is null ? [] : [.. decisions],
             },
             DecisionTrace = RuleAuditTraceDto.From(tracePayload),
             Artifacts = artifacts,

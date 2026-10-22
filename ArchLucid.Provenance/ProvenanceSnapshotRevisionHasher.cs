@@ -4,6 +4,8 @@ using System.Text;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Persistence.DecisionTraces;
 using ArchLucid.Core.Artifacts;
+using ArchLucid.Core.Manifest;
+using ArchLucid.Decisioning.Models;
 
 namespace ArchLucid.Provenance;
 
@@ -22,6 +24,7 @@ public static class ProvenanceSnapshotRevisionHasher
         Guid graphSnapshotId = input.Graph.GraphSnapshotId;
         Guid manifestId = input.Manifest.ManifestId;
         string manifestHash = input.Manifest.ManifestHash ?? string.Empty;
+        string manifestDecisionsFingerprint = ComputeManifestDecisionsFingerprint(input.Manifest);
         Guid decisionTraceId = ResolveDecisionTraceId(input.DecisionTrace);
         string appliedRuleIdsFingerprint = ComputeAppliedRuleIdsFingerprint(input.DecisionTrace);
         Guid bundleId = artifactBundleId ?? Guid.Empty;
@@ -29,11 +32,37 @@ public static class ProvenanceSnapshotRevisionHasher
 
         string canonical =
             FormattableString.Invariant(
-                $"{input.RunId:D}|{findingsSnapshotId:D}|{findingsFingerprint}|{graphSnapshotId:D}|{manifestId:D}|{manifestHash}|{decisionTraceId:D}|{appliedRuleIdsFingerprint}|{bundleId:D}|{artifactsFingerprint}");
+                $"{input.RunId:D}|{findingsSnapshotId:D}|{findingsFingerprint}|{graphSnapshotId:D}|{manifestId:D}|{manifestHash}|{manifestDecisionsFingerprint}|{decisionTraceId:D}|{appliedRuleIdsFingerprint}|{bundleId:D}|{artifactsFingerprint}");
 
         byte[] hash = SHA256.HashData(Encoding.UTF8.GetBytes(canonical));
 
         return Convert.ToHexString(hash).ToLowerInvariant();
+    }
+
+    private static string ComputeManifestDecisionsFingerprint(ManifestDocument manifest)
+    {
+        if (manifest.Decisions.Count == 0)
+            return string.Empty;
+
+        IEnumerable<string> parts = manifest.Decisions
+            .GroupBy(
+                decision => (decision.DecisionId ?? string.Empty).Trim(),
+                StringComparer.OrdinalIgnoreCase)
+            .OrderBy(group => group.Key, StringComparer.OrdinalIgnoreCase)
+            .Select(group =>
+            {
+                string supportingFindingIds = string.Join(
+                    ",",
+                    group.SelectMany(decision => decision.SupportingFindingIds)
+                        .Select(static findingId => findingId.Trim())
+                        .Where(static findingId => findingId.Length > 0)
+                        .Distinct(StringComparer.OrdinalIgnoreCase)
+                        .OrderBy(static findingId => findingId, StringComparer.OrdinalIgnoreCase));
+
+                return $"{group.Key}|{supportingFindingIds}";
+            });
+
+        return string.Join(";", parts);
     }
 
     private static string ComputeFindingsFingerprint(FindingsSnapshot findings)
