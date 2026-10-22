@@ -72,6 +72,10 @@ describe("readOAuthJsonErrorDescription", () => {
     expect(readOAuthJsonErrorDescription("line1\r\nline2")).toBe("line1 line2");
   });
 
+  it("returns empty for nbsp-only token-endpoint JSON error_description values", () => {
+    expect(readOAuthJsonErrorDescription("\u00a0\u00a0")).toBe("");
+  });
+
   it("preserves ZWNJ in Persian token error_description copy", () => {
     const detail = "دسترسی\u200cرد";
 
@@ -554,6 +558,13 @@ describe("humanizeAuthorizeCallbackError", () => {
 
     expect(message).toMatch(/session expired/i);
     expect(message).not.toContain("session_expired");
+  });
+
+  it("humanizes login_timeout authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("login_timeout", "");
+
+    expect(message).toMatch(/login timeout/i);
+    expect(message).not.toContain("login_timeout");
   });
 
   it("humanizes invalid_code authorize callback errors with readable copy", () => {
