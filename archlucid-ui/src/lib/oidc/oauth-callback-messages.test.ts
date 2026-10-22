@@ -506,6 +506,13 @@ describe("humanizeAuthorizeCallbackError", () => {
     expect(message).not.toContain("mfa_required");
   });
 
+  it("humanizes server_error authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("server_error", "");
+
+    expect(message).toMatch(/temporary error/i);
+    expect(message).not.toContain("server_error");
+  });
+
   it("avoids empty parentheses when the authorize error code is whitespace-only", () => {
     expect(humanizeAuthorizeCallbackError("   ", "")).toContain("complete response");
     expect(humanizeAuthorizeCallbackError("   ", "")).not.toMatch(/\(\s*\)/u);
