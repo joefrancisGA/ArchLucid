@@ -137,6 +137,8 @@ describe("decodeOAuthErrorDescription", () => {
 
   it("preserves literal plus in authorize error descriptions when emoji ZWJ sequences are present", () => {
     expect(decodeOAuthErrorDescription("👨\u200d👩\u200d👧+extra")).toBe("👨\u200d👩\u200d👧+extra");
+    expect(decodeOAuthErrorDescription("👨\u200d👩\u200d👧%2Bextra")).toBe("👨\u200d👩\u200d👧+extra");
+    expect(decodeOAuthErrorDescription("👨\u200d👩\u200d👧%252Bextra")).toBe("👨\u200d👩\u200d👧+extra");
   });
 
   it("preserves literal plus in authorize error descriptions when regional-indicator flag emoji is present", () => {
@@ -412,6 +414,13 @@ describe("humanizeAuthorizeCallbackError", () => {
 
     expect(message).toMatch(/account selection required/i);
     expect(message).not.toContain("account_selection_required");
+  });
+
+  it("humanizes registration_not_supported authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("registration_not_supported", "");
+
+    expect(message).toMatch(/registration not supported/i);
+    expect(message).not.toContain("registration_not_supported");
   });
 
   it("avoids empty parentheses when the authorize error code is whitespace-only", () => {

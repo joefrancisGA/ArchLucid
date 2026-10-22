@@ -1,3 +1,15 @@
+2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed registration_not_supported authorize-query UX, BFF refresh 424 parity (client + route opaque 423-424), and saturated decodeOAuthErrorDescription ZWJ multiply-encoded glue; regression documents authorize-retry is not marked when authorization code exchange returns access_token JSON string zero; scoped vitest 550/550.
+
+- [x] (invalid) humanizeAuthorizeCallbackError - registration_not_supported authorize-query copy - **cheap-disproof 2026-10-22:** readable default-branch UX parity test.
+- [x] (valid-no-repro) refreshBffSessionCookie - refresh 424 shouldClearSession false - **regression 2026-10-22:** client soft-fail plus BFF route opaque 423-424 without cookie clear.
+- [x] (valid-no-repro) exchangeAuthorizationCode - access_token JSON string zero skips authorize retry marker - **regression 2026-10-22:** single-character digit string tokens are valid (retry marker not set).
+- [x] (invalid) decodeOAuthErrorDescription - multiply-encoded %252B with ZWJ glue - **cheap-disproof 2026-10-22:** saturated encoding class.
+
+- [ ] (candidate) humanizeAuthorizeCallbackError - user_cancelled authorize-query copy - locus: default branch UX.
+- [ ] (candidate) refreshBffSessionCookie - refresh 425 shouldClearSession false - locus: transient refresh parity (route may exist).
+- [ ] (candidate) exchangeAuthorizationCode - access_token JSON string boolean skips authorize retry marker - locus: string true/false token shape.
+- [ ] (candidate) readOAuthJsonErrorDescription - multiply-encoded %252B with ZWJ glue - locus: saturated JSON encoding class.
+
 2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed account_selection_required authorize-query UX, BFF refresh 423 parity, and saturated readOAuthJsonErrorDescription pictograph glue; regression documents authorize-retry is not marked when authorization code exchange returns numeric-string access_token; scoped vitest 508/508.
 
 - [x] (invalid) humanizeAuthorizeCallbackError - account_selection_required authorize-query copy - **cheap-disproof 2026-10-22:** readable default-branch UX parity test.
@@ -26179,6 +26191,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ## Zone: ui-oidc
 
 - **id:** ui-oidc
+- **hunts:** 94
 - **hunts:** 93
 - **hunts:** 92
 - **status:** open
