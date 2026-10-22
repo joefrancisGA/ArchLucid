@@ -3179,6 +3179,146 @@ public sealed class GetOnlyHostedAzureArmReadClientTests
         Assert.Equal(connectorId, workspace.Properties[AzureInventoryDatabricksAccessConnector.IdPropertyKey]);
     }
 
+    [Fact]
+    public async Task CollectSubscriptionDefenderCompanionsAsync_maps_plans_controls_assessments_and_contacts()
+    {
+        const string subscriptionId = "11111111-1111-1111-1111-111111111111";
+        string storageId = $"/subscriptions/{subscriptionId}/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1";
+
+        HttpMessageHandler handler = new RecordingHandler((request, _) =>
+        {
+            string path = request.RequestUri?.AbsolutePath ?? string.Empty;
+            string body = path switch
+            {
+                _ when path.Contains("/pricings", StringComparison.Ordinal) =>
+                    """
+                    {"value":[{"name":"StorageAccounts","properties":{"pricingTier":"Free","extensions":[{"name":"OnUploadMalwareScanning","isEnabled":"True"}]}}]}
+                    """,
+                _ when path.Contains("/secureScoreControls", StringComparison.Ordinal) =>
+                    """
+                    {"value":[{"name":"EnableMfa","properties":{"displayName":"MFA","score":{"current":2,"max":10,"percentage":0.2},"weight":4,"unhealthyResourceCount":3,"healthyResourceCount":1}}]}
+                    """,
+                _ when path.Contains("/secureScores", StringComparison.Ordinal) =>
+                    """
+                    {"value":[{"name":"ascScore","properties":{"score":{"percentage":0.4}}}]}
+                    """,
+                _ when path.Contains("/assessments", StringComparison.Ordinal) =>
+                    "{\"value\":[{\"name\":\"key-1\",\"properties\":{\"displayName\":\"Storage should be private\",\"status\":{\"code\":\"Unhealthy\",\"cause\":\"public\"},\"metadata\":{\"severity\":\"High\",\"categories\":[\"Data\"]},\"resourceDetails\":{\"id\":\"" + storageId + "\"}}},{\"name\":\"key-1\",\"properties\":{\"displayName\":\"Storage should be private\",\"status\":{\"code\":\"Healthy\"},\"metadata\":{\"severity\":\"High\"},\"resourceDetails\":{\"id\":\"" + storageId + "\"}}}]}",
+                _ when path.Contains("/securityContacts", StringComparison.Ordinal) =>
+                    """
+                    {"value":[{"name":"default","properties":{"emails":"soc@contoso.com","phone":"555-0100","alertNotifications":{"state":"On","minimalSeverity":"High"},"notificationsByRole":{"roles":["Owner"]}}}]}
+                    """,
+                _ => """{"value":[]}""",
+            };
+
+            return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(body),
+            });
+        });
+
+        GetOnlyHostedAzureArmReadClient client = new(new HttpClient(handler), NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+        HostedAzureDefenderCompanionCollectResult result = await client.CollectSubscriptionDefenderCompanionsAsync(
+            "token-abc",
+            subscriptionId,
+            CancellationToken.None);
+
+        HostedAzureArmDefenderPricingRecord pricing = Assert.Single(result.Pricings);
+        Assert.Equal("Free", pricing.Tier);
+        Assert.Equal("OnUploadMalwareScanning=true", pricing.Extensions);
+        HostedAzureArmDefenderScoreControlRecord control = Assert.Single(result.ScoreControls);
+        Assert.Equal(20, control.Percentage);
+        Assert.Equal(3, control.UnhealthyResourceCount);
+        HostedAzureArmDefenderAssessmentRecord assessment = Assert.Single(result.Assessments);
+        Assert.Equal(storageId.ToLowerInvariant(), assessment.ResourceId);
+        Assert.Equal("High", assessment.Severity);
+        HostedAzureArmDefenderAssessmentCountRecord count = Assert.Single(result.AssessmentCounts);
+        Assert.Equal(1, count.HealthyCount);
+        Assert.Equal(1, count.UnhealthyCount);
+        HostedAzureArmDefenderSecurityContactRecord contact = Assert.Single(result.SecurityContacts);
+        Assert.Equal("Collected", contact.CollectionStatus);
+        Assert.Equal("soc@contoso.com", contact.Emails);
+        Assert.DoesNotContain("555-0100", contact.Emails, StringComparison.Ordinal);
+        Assert.True(contact.AlertsToAdmins);
+        Assert.DoesNotContain(result.Warnings, warning => warning.Contains("555-0100", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void DefenderPlanCoverageWarnings_names_a_free_plan_when_that_resource_type_is_present()
+    {
+        const string subscriptionId = "11111111-1111-1111-1111-111111111111";
+        IReadOnlyList<string> warnings = DefenderPlanCoverageWarnings.Create(
+            [
+                new HostedAzureArmDefenderPricingRecord
+                {
+                    SubscriptionId = subscriptionId,
+                    PricingName = "StorageAccounts",
+                    Tier = "Free",
+                },
+                new HostedAzureArmDefenderPricingRecord
+                {
+                    SubscriptionId = subscriptionId,
+                    PricingName = "VirtualMachines",
+                    Tier = "Free",
+                },
+            ],
+            [
+                new HostedAzureArmResourceRecord(
+                    "Microsoft.Storage/storageAccounts",
+                    $"/subscriptions/{subscriptionId}/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1",
+                    "sa1",
+                    "eastus",
+                    null,
+                    null,
+                    new Dictionary<string, object?>()),
+            ]);
+
+        Assert.Equal(["defender-plan-off:StorageAccounts"], warnings);
+    }
+
+    [Fact]
+    public async Task CollectSubscriptionDefenderCompanionsAsync_http_403_does_not_throw()
+    {
+        HttpMessageHandler handler = new RecordingHandler((_, _) =>
+            Task.FromResult(new HttpResponseMessage(HttpStatusCode.Forbidden)));
+        GetOnlyHostedAzureArmReadClient client = new(new HttpClient(handler), NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+
+        HostedAzureDefenderCompanionCollectResult result = await client.CollectSubscriptionDefenderCompanionsAsync(
+            "token-abc",
+            "11111111-1111-1111-1111-111111111111",
+            CancellationToken.None);
+
+        Assert.Empty(result.Pricings);
+        Assert.Empty(result.Assessments);
+        Assert.Equal("Unavailable", Assert.Single(result.SecurityContacts).CollectionStatus);
+        Assert.Contains(result.Warnings, warning => warning.Contains("defender-security-contacts-not-collected", StringComparison.Ordinal));
+        Assert.DoesNotContain(result.Warnings, warning => warning.Contains("defender-security-contact-missing", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task CollectSubscriptionDefenderCompanionsAsync_rejects_cross_subscription_next_link()
+    {
+        const string subscriptionId = "11111111-1111-1111-1111-111111111111";
+        int calls = 0;
+        HttpMessageHandler handler = new RecordingHandler((_, _) =>
+        {
+            calls++;
+            string body = calls == 1
+                ? "{\"value\":[{\"name\":\"VirtualMachines\",\"properties\":{\"pricingTier\":\"Standard\"}}],\"nextLink\":\"https://management.azure.com/subscriptions/22222222-2222-2222-2222-222222222222/providers/Microsoft.Security/pricings?api-version=2024-01-01\"}"
+                : """{"value":[]}""";
+            return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(body) });
+        });
+
+        GetOnlyHostedAzureArmReadClient client = new(new HttpClient(handler), NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+        HostedAzureDefenderCompanionCollectResult result = await client.CollectSubscriptionDefenderCompanionsAsync(
+            "token-abc",
+            subscriptionId,
+            CancellationToken.None);
+
+        Assert.Equal(1, calls);
+        Assert.Contains(result.Warnings, warning => warning.Contains("defender-companions-rejected-next-link", StringComparison.Ordinal));
+    }
+
     private sealed class RecordingHandler(Func<HttpRequestMessage, CancellationToken, Task<HttpResponseMessage>> responder)
         : HttpMessageHandler
     {

@@ -498,6 +498,24 @@ export async function ensureAccessTokenFresh(): Promise<void> {
             hasOidcSessionIdentityHints() &&
             !oidcIdentityHintsChanged(identityHintsAtRefreshStart, identityHintsNow)
           ) {
+            const currentExpiresAtHintMs = getExpiresAtMs();
+
+            // A pre-persist refresh may disagree with callback persist that moved the client hint.
+            if (expiresAtHintAtStart !== currentExpiresAtHintMs) {
+              const hintMovedForward = currentExpiresAtHintMs > expiresAtHintAtStart;
+              const hintMovedBackward = currentExpiresAtHintMs < expiresAtHintAtStart;
+
+              // After persist extends the hint, only accept a BFF ok refresh that matches it exactly.
+              if (hintMovedForward && result.expiresAtMs !== currentExpiresAtHintMs) {
+                return;
+              }
+
+              // After persist shortens the hint, reject a stale longer BFF expiry.
+              if (hintMovedBackward && result.expiresAtMs > currentExpiresAtHintMs) {
+                return;
+              }
+            }
+
             sessionStorage.setItem(OIDC_EXPIRES_AT_MS_KEY, String(result.expiresAtMs));
           }
 

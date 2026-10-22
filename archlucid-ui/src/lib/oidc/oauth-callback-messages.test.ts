@@ -1,9 +1,11 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  coerceAcceptedOidcEpochMsHint,
   decodeOAuthErrorDescription,
   humanizeAuthorizeCallbackError,
   normalizeOidcDisplayString,
+  parseOidcEpochMsHint,
   readOAuthJsonErrorDescription,
   sanitizeOAuthUserFacingMessage,
 } from "@/lib/oidc/oauth-callback-messages";
@@ -454,5 +456,14 @@ describe("humanizeAuthorizeCallbackError", () => {
 
     expect(message).toBe("Sign-in stopped: Tenant blocked extra");
     expect(message).not.toMatch(/\r|\n/u);
+  });
+});
+
+describe("coerceAcceptedOidcEpochMsHint", () => {
+  it("truncates fractional epoch-ms JSON numbers to whole milliseconds", () => {
+    const truncated = Date.now() + 3_600_000;
+
+    expect(coerceAcceptedOidcEpochMsHint(truncated + 0.75)).toBe(truncated);
+    expect(parseOidcEpochMsHint(`${truncated}.25`)).toBe(truncated);
   });
 });

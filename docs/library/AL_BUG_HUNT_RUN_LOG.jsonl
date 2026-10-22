@@ -6007,6 +6007,10 @@
 {"at":"2026-10-21T18:18:46.0992256Z","zoneId":"application-billing-logic","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/Billing/"]}
 {"at":"2026-10-21T18:18:04.7087264Z","zoneId":"application-tenancy-lifecycle","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/Tenancy/"]}
 {"at":"2026-10-21T18:19:14.9975579Z","zoneId":"application-tenancy-lifecycle","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/Tenancy/"]}
+{"at":"2026-10-21T22:07:24.7282458Z","zoneId":"ui-oidc","outcome":"hit","productLine":"archlucid-shared","paths":["archlucid-ui/src/lib/oidc/"]}
+{"at":"2026-10-21T22:19:46.0397165Z","zoneId":"ui-oidc","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-21T22:25:44.8541281Z","zoneId":"ui-oidc","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-21T22:36:46.0271986Z","zoneId":"ui-oidc","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-21T18:36:12.7953305Z","zoneId":"api-governance-stickiness","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-21T18:45:52.5972390Z","zoneId":"email-otp-auth","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-21T18:59:14.8449426Z","zoneId":"api-policy-packs","outcome":"hit","productLine":"archlucid-shared"}
