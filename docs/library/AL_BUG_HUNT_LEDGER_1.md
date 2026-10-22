@@ -8712,6 +8712,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: architecture-intelligence-orchestrator
 
+2026-10-22 seed hunt (seed→hit): promoted `RelatedElementIds` / `SourcePassageIds` casing splitting review-cache `modelfp`; related and passage id lists now use `NormalizeElementIdForFingerprint`; regressions `Build_matches_content_hash_when_baseline_related_element_ids_differ_only_by_casing`, `Build_matches_content_hash_when_baseline_related_element_ids_include_duplicates_differing_only_by_casing`, and `Build_matches_content_hash_when_baseline_source_passage_ids_differ_only_by_casing`; 209 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `GraphSnapshotCanonicalFingerprint.FormatKnowledgeModelElementFingerprint` — related/passage id casing split `modelfp` — **hit 2026-10-22 seed hunt:** lowercase canonical ids in cross-ref lists; regressions above.
+
 2026-10-22 seed hunt (seed→hit): promoted baseline `ElementId` casing and duplicate case-variant rows splitting review-cache `modelfp`; `GraphSnapshotCanonicalFingerprint` now lowercases normalized element ids for grouping and fingerprint tokens; regressions `Build_matches_content_hash_when_baseline_element_ids_differ_only_by_casing`, `Build_matches_content_hash_when_baseline_elements_include_duplicate_element_ids_differing_only_by_casing`, and `Build_matches_content_hash_when_baseline_duplicate_element_ids_differ_only_by_provenance_notes_list_order`; 206 scoped orchestrator/cache/manifest/continue-flight tests passed.
 
 - [x] (proven) `GraphSnapshotCanonicalFingerprint.SelectCanonicalKnowledgeModelElements` — `el-1` vs `EL-1` treated as distinct element ids in `modelfp` — **hit 2026-10-22 seed hunt:** `NormalizeElementIdForFingerprint`; regressions above.
@@ -9205,11 +9209,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** closed-loop orchestrator; review result cache; architecture intelligence
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.cs; ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.Cache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewResultCache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewCacheManifestBuilder.cs
 - **test-filter:** FullyQualifiedName~ClosedLoopArchitectureReasoningOrchestrator|FullyQualifiedName~ReviewResultCache|FullyQualifiedName~ReviewCacheManifestBuilder
-- **hunts:** 86
-- **bugs-found:** 74
+- **hunts:** 87
+- **bugs-found:** 75
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — baseline element id casing in review-cache modelfp
+- **last-bug:** 2026-10-22 — related/passage id casing in review-cache modelfp
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
