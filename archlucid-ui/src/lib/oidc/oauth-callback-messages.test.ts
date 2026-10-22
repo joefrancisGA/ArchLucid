@@ -90,6 +90,11 @@ describe("readOAuthJsonErrorDescription", () => {
     expect(readOAuthJsonErrorDescription("👍🏻+extra")).toBe("👍🏻+extra");
     expect(readOAuthJsonErrorDescription("👋🏽+denied")).toBe("👋🏽+denied");
   });
+
+  it("preserves percent-decoded plus in JSON when authorize mixed-plus glue applies", () => {
+    expect(readOAuthJsonErrorDescription("👍🏻%2Bextra")).toBe("👍🏻+extra");
+    expect(readOAuthJsonErrorDescription("Policy%20denied%2Bextra")).toBe("Policy denied+extra");
+  });
 });
 
 describe("decodeOAuthErrorDescription", () => {

@@ -274,7 +274,7 @@ export function readOAuthJsonErrorDescription(value: string): string {
 
     decoded = decodeRepeatedPercentEncoding(decodeSource);
 
-    if (percentEncodedPlus && !literalPlusInSource) {
+    if (percentEncodedPlus && !literalPlusInSource && !shouldPreserveLiteralPlusInAuthorizeDescription(decoded)) {
       decoded = decoded.replace(/\+/g, " ");
     }
 
