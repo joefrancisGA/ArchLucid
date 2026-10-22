@@ -21,6 +21,19 @@
 - [ ] (candidate) refreshBffSessionCookie - refresh 447 shouldClearSession false - locus: transient refresh parity.
 - [ ] (candidate) exchangeAuthorizationCode - access_token JSON string medium-mathematical-space-only skips authorize retry marker - locus: literal whitespace token shape.
 - [ ] (candidate) decodeOAuthErrorDescription - multiply-encoded %252B with narrow-no-break-space glue - locus: saturated encoding class.
+2026-10-22 seed hunt (seed->hit): `application-tenancy-lifecycle` - promoted hunt-ready from seed re-read `TenantDeletionService.DeleteTenantAsync` - `TenantDataDeleted` platform audit appended after five post-purge tenant reads without a final re-read, so an active erasure legal hold activated between `tenantBeforePlatformDeletionAuditAppend` and audit could still emit deletion audit after destructive purge; sixth pre-append `GetByIdAsync` with approval and legal-hold skip; regression `DeleteTenantAsync_returns_without_platform_audit_when_active_legal_hold_set_after_platform_deletion_audit_append_read_before_audit`; scoped tenancy filter 268/268.
+
+- [x] (proven) `DeleteTenantAsync` - active legal hold after platformDeletionAuditAppend read before audit - **hit 2026-10-22 seed hunt:** sixth pre-append re-read + hold guard; regression above.
+- [x] (valid-no-repro) `DeleteTenantAsync` - erasure approval cleared after platformDeletionAuditAppend read - **cheap-disproof 2026-10-22:** hit earlier same day on trunk.
+- [x] (valid-no-repro) `DeleteTenantAsync` - active legal hold after pre-deletion audit append read - **cheap-disproof 2026-10-22:** hit earlier same day on trunk.
+- [x] (valid-no-repro) `DeleteTenantAsync` - erasure approval cleared after immediatelyBeforeDeletionAuditAppend read - **cheap-disproof 2026-10-22:** hit earlier same day on trunk.
+- [x] (invalid) `DeleteTenantAsync` - legal hold before blob purge throws - **cheap-disproof 2026-10-22:** revalidate throws before destructive work.
+
+- [ ] (candidate) `DeleteTenantAsync` - erasure approval cleared after sixth pre-append read - locus: seventh-read gap (reachability: low).
+- [ ] (candidate) `TrialLifecycleTransitionEngine` - offboard between audit and expiration metric - locus: post-audit superseded read (reachability: saturated).
+- [ ] (candidate) `TenantCatalogMigrationOrchestrator` - offboard after stage update before audit - locus: saturated migration path (reachability: saturated).
+- [ ] (candidate) `TenantErasureCommandService` - consolidate pre-append audit re-read helpers - locus: refactor batch (not hunt-ready defect).
+- [ ] (candidate) `TrySetLegalHoldAsync` - quarantine restored after immediatelyBeforeSetHoldAuditAppend read - locus: seventh-read gap (reachability: low).
 
 2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed invalid_client_id authorize-query UX, BFF refresh 445 parity, and saturated decodeOAuthErrorDescription hair-space glue; regression documents authorize-retry is marked when authorization code exchange returns hair-space-only access_token; scoped vitest 569/569.
 
