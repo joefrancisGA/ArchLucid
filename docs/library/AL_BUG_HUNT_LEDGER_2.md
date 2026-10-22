@@ -3680,16 +3680,29 @@
 
 ## Zone: api-key-auth
 
+2026-10-22 thorough hunt (dry): cheap-disproof closed ten open `(candidate)` rows (shared admin/reader material uses admin-first precedence with expired-admin reader fallback per `When_shared_key_admin_expired_but_reader_slot_still_valid_authenticates_as_reader`; normalizer stripping is intentional symmetric paste hygiene with prior proven hits; comma segments are documented rotation delimiters; append rotate omitting expiry metadata is operator deployment contract; rotation audit cancellation aborts before `Ok(response)`; stale comma segments survive append by design; legacy `keyId` audit canonicalization already proven; empty slot reload fails closed with generic invalid key; `DateTimeOffset` expiry uses instant comparison in `IsKeyExpired`); no failing repro; five replacement `(candidate)` rows; scoped ApiKey tests not run (Defender WIP compile).
+
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler` — identical `AdminKey`/`ReadOnlyKey` grants admin — **cheap-disproof 2026-10-22:** intentional precedence; shared-key expiry fallback tested.
+- [x] (invalid) `ApiKeyMaterialNormalizer` — stripping widens secret equivalence — **cheap-disproof 2026-10-22:** symmetric normalize on config + header; prior proven paste-artifact fixes.
+- [x] (valid-no-repro) `MatchesAnyCommaSeparatedKey` — comma inside literal secret — **cheap-disproof 2026-10-22:** comma is rotation delimiter by design (`MatchesAnyCommaSeparatedKey` remarks).
+- [x] (valid-no-repro) `AdminApiKeySettingsService.Rotate` — append response omits expiry — **cheap-disproof 2026-10-22:** deployment operator updates `*ExpiresAt` separately; not a handler bug.
+- [x] (valid-no-repro) `AdminApiKeySettingsController` — cancel between rotate and audit — **cheap-disproof 2026-10-22:** `Rotate` then `LogAsync` then `Ok`; cancel before audit returns no plaintext to client.
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler` — duplicate shared-secret admin-wins row — **cheap-disproof 2026-10-22:** duplicate of first candidate.
+- [x] (valid-no-repro) `AdminApiKeySettingsService.Rotate` — append preserves legacy comma segments — **cheap-disproof 2026-10-22:** zero-downtime rotation contract; `InvalidatePrevious` replaces.
+- [x] (invalid) `AdminApiKeySettingsController.RotateKeyIdAsync` — raw `keyId` in audit — **cheap-disproof 2026-10-22:** audit uses `response.Slot` (proven 2026-10-11 / revalidated 2026-10-20).
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler` — reload to empty normalized slot — **cheap-disproof 2026-10-22:** fail-closed `Invalid API key` during misconfiguration.
+- [x] (valid-no-repro) `AdminApiKeySettingsService.GetSnapshot` — non-UTC expiry offset display — **cheap-disproof 2026-10-22:** `DateTimeOffset` instant compare in `IsKeyExpired`; snapshot passes bound value through.
+
 2026-10-20 thorough hunt (hit): `api-key-auth` — promoted hunt-ready `ApiKeyMaterialNormalizer` hex casing; uppercase hex in `Authentication:ApiKey:AdminKey` with lowercase `X-Api-Key` failed `ConstantTimeKeyEquals` while rotation issues lowercase hex; `IsAsciiHexKeyMaterial` + lowercase fold for long hex-only segments; regressions `When_admin_key_config_and_header_differ_only_by_hex_casing_still_authenticates`, `Normalize_lowercases_ascii_hex_key_material`, `Normalize_preserves_case_for_non_hex_key_material`; cheap-disproof closed stale `(candidate)` legacy audit `keyId` row (fixed 2026-10-11); 73 scoped ApiKey auth/settings unit tests passed (2 SQL endpoint tests blocked — no SQL Server in cloud VM).
 
 - [x] (proven) `ApiKeyMaterialNormalizer` — hex-only key material compared case-sensitively — **hit 2026-10-20 thorough hunt lane B:** uppercase deployment hex with lowercase header rejected valid admin auth; lowercase fold for ascii-hex segments ≥32 chars; `ApiKeyAuthenticationHandlerTests.When_admin_key_config_and_header_differ_only_by_hex_casing_still_authenticates` + `ApiKeyMaterialNormalizerTests`.
 - [x] (invalid) `AdminApiKeySettingsController.RotateKeyIdAsync` — legacy route audit `keyId` noncanonical — **cheap-disproof 2026-10-20 thorough hunt lane B:** `response.Slot` already written to audit JSON; regression `RotateKeyIdAsync_persisted_audit_uses_canonical_slot_for_padded_route_value` (2026-10-11).
 
-- (candidate) `ApiKeyAuthenticationHandler.HandleAuthenticateAsync` — identical `AdminKey` and `ReadOnlyKey` with both slots non-expired grants admin permissions — locus: admin branch precedes reader; input: misconfigured Key Vault with same material in both slots (may be intentional overlap semantics).
-- (candidate) `AdminApiKeySettingsService.Rotate` — append rotation omits expiry metadata in response — locus: `AdminApiKeyRotateResponse`; input: operator append-rotates without updating `*ExpiresAt` fields.
-- (candidate) `MatchesAnyCommaSeparatedKey` — comma in literal secret cannot authenticate as one value — locus: comma splits config segments; input: operator provisions comma-containing secret (documented rotation delimiter).
-- (candidate) `ApiKeyAuthenticationHandler` — configuration reload to empty normalized slot fails all requests without distinct misconfiguration signal — locus: `CurrentValue` + `MatchesAnyCommaSeparatedKey`; input: transient empty `AdminKey` during reload.
-- (candidate) `AdminApiKeySettingsController` — cancellation between `Rotate` and audit after client disconnect — locus: synchronous rotate then cancellable audit; input: aborted HTTP request (no key returned to client when audit throws).
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler` — identical admin/reader material — **cheap-disproof 2026-10-22 thorough hunt.**
+- [x] (valid-no-repro) `AdminApiKeySettingsService.Rotate` — append omits expiry metadata — **cheap-disproof 2026-10-22 thorough hunt.**
+- [x] (valid-no-repro) `MatchesAnyCommaSeparatedKey` — comma literal secret — **cheap-disproof 2026-10-22 thorough hunt.**
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler` — empty slot reload — **cheap-disproof 2026-10-22 thorough hunt.**
+- [x] (valid-no-repro) `AdminApiKeySettingsController` — rotation cancel before audit — **cheap-disproof 2026-10-22 thorough hunt.**
 
 - **id:** api-key-auth
 - **status:** open
@@ -3697,10 +3710,10 @@
 - **aliases:** API key auth; admin API key settings
 - **paths:** ArchLucid.Api/Authentication/ApiKeyAuthenticationHandler.cs; ArchLucid.Api/Services/Admin/AdminApiKeySettingsService.cs; ArchLucid.Api/Controllers/Admin/AdminApiKeySettingsController.cs
 - **test-filter:** FullyQualifiedName~ApiKeyAuthentication|FullyQualifiedName~AdminApiKeySettings
-- **hunts:** 80
+- **hunts:** 81
 - **bugs-found:** 23
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-20
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-20 — hex API key material rejected when config/header casing differed
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -3739,21 +3752,27 @@
 
 2026-10-10 seed hunt (seed-only): re-read shared-slot precedence, comma-delimited rotation material, append rotation, cancellation, expiry, and the admin settings routes. Existing coverage establishes shared-key admin precedence with expired-admin read-only fallback; no fresh hunt-ready row met the full reachability and wrong-outcome bar. No production code changed. The focused API test command was blocked before execution by unrelated `IActorContext` compile errors in `TenantTrialControllerTests`.
 
-- [ ] (candidate) `ApiKeyAuthenticationHandler.HandleAuthenticateAsync` — if deployment configuration assigns the same material to `AdminKey` and `ReadOnlyKey`, the first matching branch grants the admin permission set rather than rejecting the ambiguous configuration or selecting the least-privileged role — locus: `matchesAdmin` is evaluated before `matchesReader`; input: a Key Vault or app-configuration deployment with identical non-empty values in both slots and an inbound `X-Api-Key` using that material.
-- [ ] (candidate) `ApiKeyMaterialNormalizer.Normalize` — stripping control/format characters makes a configured key containing such a character authenticate with the visually cleaned inbound value, creating an equivalence class broader than the operator’s exact secret — locus: `RemoveInvisibleKeyMaterialChars` is applied to both config segments and headers; input: an operator-provided `Authentication:ApiKey:AdminKey` value containing a control or format character and a request header from a normal HTTP client.
-- [ ] (candidate) `ApiKeyAuthenticationHandler.MatchesAnyCommaSeparatedKey` — a comma in configured key material is always treated as a rotation delimiter, so a deployment that provisions a literal comma-containing secret cannot authenticate that secret as one value — locus: every comma terminates a segment before normalization; input: a Key Vault/app-configuration API key containing a comma, followed by an `X-Api-Key` header containing the same value.
-- [ ] (candidate) `AdminApiKeySettingsService.Rotate` — non-invalidating rotation returns an append suffix without carrying expiry metadata, so an operator applying the returned deployment material may leave the newly generated key governed by an old slot expiry — locus: `AdminApiKeyRotateResponse` contains `AppendConfigSuffix` but no replacement expiry; input: an admin settings request with an existing configured key and an expiry timestamp, followed by applying the response through deployment configuration.
-- [ ] (candidate) `AdminApiKeySettingsController.LogRotationAuditAsync` — cancellation after material generation but before audit persistence can return no rotation response while the request has already crossed the controller’s issuance boundary, leaving a material-issuance operation without an audit row — locus: the service generates the plaintext before the cancellable audit call; input: an HTTP client disconnect/cancellation during `POST /v1/admin/settings/api-keys/rotate` or the legacy key-id route.
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler.HandleAuthenticateAsync` — shared admin/reader material precedence — **cheap-disproof 2026-10-22 thorough hunt.**
+- [x] (invalid) `ApiKeyMaterialNormalizer.Normalize` — stripping broadens equivalence — **cheap-disproof 2026-10-22 thorough hunt:** intentional symmetric normalization.
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler.MatchesAnyCommaSeparatedKey` — comma in secret — **cheap-disproof 2026-10-22 thorough hunt.**
+- [x] (valid-no-repro) `AdminApiKeySettingsService.Rotate` — append without expiry metadata — **cheap-disproof 2026-10-22 thorough hunt.**
+- [x] (valid-no-repro) `AdminApiKeySettingsController` — cancellation after `Rotate` before audit — **cheap-disproof 2026-10-22 thorough hunt.**
+
+- [ ] (candidate) `ApiKeyAuthenticationHandler.HandleAuthenticateAsync` — `Enabled=true` with both `AdminKey` and `ReadOnlyKey` unconfigured returns generic `Invalid API key` rather than an operator-visible misconfiguration message — locus: `MatchesAnyCommaSeparatedKey` false branches ~85–125; input: deployment with keys cleared while auth remains enabled.
+- [ ] (candidate) `AdminApiKeySettingsService.Rotate` — append rotation when `current` ends with a trailing comma produces a double-comma config suffix — locus: `AppendConfigSuffix = $",{plaintextKey}"` ~71; input: malformed `AdminKey` value `key1,` before append rotate.
+- [ ] (candidate) `ApiKeyAuthenticationHandler.ExtractProvidedApiKey` — first duplicate `X-Api-Key` header that normalizes empty skips to later values — locus: ~146–155; input: invisible-only first header + valid second header (regression exists; verify no controller-layer regression).
+- [ ] (candidate) `ApiKeyAuthenticationHandler.HandleAuthenticateAsync` — key matches expired admin segment but valid reader segment in comma-separated `AdminKey` only — locus: `matchesAdmin` whole-slot match + expiry ~88–119; input: `old,current` admin material with only `current` expired (verify fail-closed message).
+- [ ] (candidate) `AdminApiKeySettingsService.GetSnapshot` — `HasConfiguredKeyMaterial` uses masker segments while handler ignores segments that normalize empty — locus: `BuildSlot` vs `MatchesAnyCommaSeparatedKey`; input: slot with only invisible paste segment (prior BOM/ZWSP hits; hunt remaining format classes).
 
 - [x] (proven) `AdminApiKeySettingsController.RotateKeyIdAsync` — legacy route audit JSON used the raw `keyId` while `AdminApiKeySettingsService.ParseSlot` canonicalized whitespace and casing for the response — **hit 2026-10-11 thorough hunt:** audit `keyId` now uses `response.Slot`; regression `RotateKeyIdAsync_persisted_audit_uses_canonical_slot_for_padded_route_value`.
 
 2026-10-09 seed hunt (seed-only): re-read the selected API-key handler, admin service/controller, and focused tests; no new reachable mechanism-backed candidate emerged and no hypothesis was promoted. The focused API test run was blocked by unrelated `ARCH002` in `ArchLucid.Core/Auth/Saml/SamlMetadataDiscoveryParser.cs`.
 
-- [ ] (candidate) `ApiKeyAuthenticationHandler.HandleAuthenticateAsync` — when the same secret is configured in both `AdminKey` and `ReadOnlyKey`, the admin branch wins and grants admin permissions to a key intended for read-only use — locus: ordered `matchesAdmin` before `matchesReader` branches; input: identical `Authentication:ApiKey:AdminKey` and `ReadOnlyKey` configuration.
-- [ ] (candidate) `AdminApiKeySettingsService.Rotate` — append rotation preserves the full raw configured key string, so a stale or malformed comma-separated segment can survive every non-invalidating rotation and continue affecting authentication — locus: `AppendConfigSuffix` built from `current`; input: operator rotates through the admin settings endpoint with an existing multi-segment key configuration.
-- [ ] (candidate) `AdminApiKeySettingsController.RotateKeyIdAsync` — the legacy route records the unbounded route `keyId` in audit JSON even when slot parsing rejects it, creating an audit-shape difference from the validated rotate route — locus: audit payload uses raw `keyId` after `Rotate`; input: attacker-controlled invalid `keyId` path segment on `/admin/apikeys/{keyId}/rotate`.
-- [ ] (candidate) `ApiKeyAuthenticationHandler.HandleAuthenticateAsync` — configuration reload can observe `Enabled=true` with an empty or normalized-empty key slot and fail all requests without distinguishing an operator-visible misconfiguration from invalid credentials — locus: `CurrentValue` read followed by key matching; input: Key Vault/app-configuration reload that temporarily publishes an empty `AdminKey` or `ReadOnlyKey`.
-- [ ] (candidate) `AdminApiKeySettingsService.GetSnapshot` — expiration metadata is returned without normalizing or validating its offset, so a configuration value representing the same instant with a non-UTC offset may display inconsistently with the handler’s UTC comparison — locus: `BuildSlot` passes `expiresAtUtc` through unchanged; input: JSON/config binding of an offset `DateTimeOffset` expiry from deployment configuration.
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler` — shared secret admin-wins duplicate — **cheap-disproof 2026-10-22 thorough hunt.**
+- [x] (valid-no-repro) `AdminApiKeySettingsService.Rotate` — append preserves comma segments — **cheap-disproof 2026-10-22 thorough hunt.**
+- [x] (invalid) `AdminApiKeySettingsController.RotateKeyIdAsync` — raw `keyId` audit — **cheap-disproof 2026-10-22 thorough hunt.**
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler` — empty slot on reload — **cheap-disproof 2026-10-22 thorough hunt.**
+- [x] (valid-no-repro) `AdminApiKeySettingsService.GetSnapshot` — expiry offset display — **cheap-disproof 2026-10-22 thorough hunt.**
 
 2026-10-05 seed hunt (seed→hit): embedded Unicode line separator (U+2028) in configured key material broke auth while admin snapshot still showed configured; strip `LineSeparator`/`ParagraphSeparator` in `ApiKeyMaterialNormalizer`; regressions `When_admin_key_config_has_embedded_line_separator_still_authenticates`, `Normalize_strips_embedded_line_separator_from_key_material`, `GetSnapshot_treats_line_separator_only_readonly_slot_as_unconfigured`; 69 scoped unit tests passed (2 endpoint tests failed — no SQL Server in cloud VM).
 
