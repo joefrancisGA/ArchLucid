@@ -84,6 +84,7 @@ describe("readOAuthJsonErrorDescription", () => {
     const detail = "🇺🇸";
 
     expect(readOAuthJsonErrorDescription(detail)).toBe(detail);
+    expect(readOAuthJsonErrorDescription("🇺🇸%252Bextra")).toBe("🇺🇸+extra");
   });
 
   it("preserves literal plus in token error_description when skin-tone emoji modifiers are present", () => {
