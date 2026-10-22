@@ -1,3 +1,15 @@
+2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed verification_required authorize-query UX, BFF refresh 437 parity (client + route opaque 436-437), and saturated decodeOAuthErrorDescription regional-indicator multiply-encoded glue; regression documents authorize-retry marking when authorization code exchange returns tab-only access_token; scoped vitest 594/594.
+
+- [x] (invalid) humanizeAuthorizeCallbackError - verification_required authorize-query copy - **cheap-disproof 2026-10-22:** readable default-branch UX parity test.
+- [x] (valid-no-repro) refreshBffSessionCookie - refresh 437 shouldClearSession false - **regression 2026-10-22:** client soft-fail plus BFF route opaque 436-437 without cookie clear.
+- [x] (valid-no-repro) exchangeAuthorizationCode - access_token JSON string tab-only skips authorize retry marker - **regression 2026-10-22:** tab-only tokens reject exchange and set retry marker (parity with whitespace-only).
+- [x] (invalid) decodeOAuthErrorDescription - multiply-encoded %252B with regional-indicator glue - **cheap-disproof 2026-10-22:** saturated encoding class.
+
+- [ ] (candidate) humanizeAuthorizeCallbackError - mfa_required authorize-query copy - locus: default branch UX.
+- [ ] (candidate) refreshBffSessionCookie - refresh 438 shouldClearSession false - locus: transient refresh parity.
+- [ ] (candidate) exchangeAuthorizationCode - access_token JSON string newline-only skips authorize retry marker - locus: literal whitespace token shape.
+- [ ] (candidate) readOAuthJsonErrorDescription - multiply-encoded %252B with regional-indicator glue - locus: saturated JSON encoding class.
+
 2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed user_cancelled authorize-query UX, BFF refresh 436 parity, and saturated readOAuthJsonErrorDescription skin-tone modifier glue; regression documents authorize-retry is marked when authorization code exchange returns whitespace-only access_token (existing parity test); scoped vitest 542/542.
 
 - [x] (invalid) humanizeAuthorizeCallbackError - user_cancelled authorize-query copy - **cheap-disproof 2026-10-22:** readable default-branch UX parity test.
@@ -26337,6 +26349,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ## Zone: ui-oidc
 
 - **id:** ui-oidc
+- **hunts:** 100
 - **hunts:** 99
 - **hunts:** 98
 - **hunts:** 97
