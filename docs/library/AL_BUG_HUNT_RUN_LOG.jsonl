@@ -6034,12 +6034,7 @@
 {"at":"2026-10-22T00:45:04.6491902Z","zoneId":"ui-oidc","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-22T00:50:01.6232598Z","zoneId":"ui-oidc","outcome":"hit","productLine":"archlucid-shared"}
 {"outcome":"hit","zoneId":"ui-oidc","productLine":"archlucid-shared","at":"2026-10-22T00:52:10.7750002Z"}
-{"at":"2026-10-22T00:54:24.9760328Z","zoneId":"ui-oidc","outcome":"hit","productLine":"archlucid-shared"}
-{"at":"2026-10-22T00:56:08.5989605Z","zoneId":"ui-oidc","outcome":"hit","productLine":"archlucid-shared"}
-{"at":"2026-10-22T00:57:55.6533650Z","zoneId":"ui-oidc","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-22T00:54:33.6204876Z","zoneId":"ui-oidc","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-22T00:54:58.0934928Z","zoneId":"ui-oidc","outcome":"hit","productLine":"archlucid-shared"}
-{"at":"2026-10-22T00:59:37.4779972Z","zoneId":"ui-oidc","outcome":"hit","productLine":"archlucid-shared"}
-{"at":"2026-10-22T01:01:38.3321098Z","zoneId":"ui-oidc","outcome":"hit","productLine":"archlucid-shared"}
-{"at":"2026-10-22T01:01:34.4764515Z","zoneId":"ui-oidc","outcome":"hit","productLine":"archlucid-shared"}
-{"at":"2026-10-22T01:03:25.7536761Z","zoneId":"ui-oidc","outcome":"hit","productLine":"archlucid-shared"}
+{"outcome":"hit","zoneId":"ui-oidc","productLine":"archlucid-shared","at":"2026-10-22T00:59:13.3483370Z"}
+{"at":"2026-10-22T01:03:12.4266105Z","zoneId":"ui-oidc","outcome":"hit","productLine":"archlucid-shared"}

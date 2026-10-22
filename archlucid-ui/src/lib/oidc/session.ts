@@ -403,6 +403,19 @@ export function storePostSignInReturnUrl(url: string): void {
   }
 }
 
+/** Reads the stored post-sign-in return URL without clearing it (safe paths only). */
+export function readPostSignInReturnUrl(): string | null {
+  const url = readSessionKey(OIDC_POST_SIGN_IN_RETURN_URL_KEY);
+
+  if (url === null) {
+    return null;
+  }
+
+  const normalized = normalizeOidcConfigurationString(url);
+
+  return isSafeReturnPath(normalized) ? normalized : null;
+}
+
 export function clearPostSignInReturnUrl(): void {
   sessionStorage.removeItem(OIDC_POST_SIGN_IN_RETURN_URL_KEY);
   sessionStorage.removeItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY);
