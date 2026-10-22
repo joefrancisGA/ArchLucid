@@ -30,6 +30,7 @@ export class OAuthTokenEndpointError extends Error {
 }
 
 const OAUTH_REFRESH_REJECTION_ERROR_CODES = new Set([
+  "expired_token",
   "invalid_client",
   "invalid_grant",
   "invalid_token",
@@ -52,6 +53,7 @@ export function isOAuthRefreshTokenRejectedError(error: unknown): boolean {
   const message = error.message.toLowerCase();
 
   return (
+    message.includes("expired_token") ||
     message.includes("invalid_client") ||
     message.includes("invalid_grant") ||
     message.includes("invalid_token") ||
@@ -69,6 +71,7 @@ function shouldHumanizeTokenOAuthErrorCode(normalizedErrorCode: string): boolean
     case "invalid_client":
     case "invalid_grant":
     case "invalid_token":
+    case "expired_token":
     case "invalid_request":
     case "redirect_uri_mismatch":
     case "unauthorized_client":
