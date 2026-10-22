@@ -8712,6 +8712,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: architecture-intelligence-orchestrator
 
+2026-10-22 seed hunt (seed→hit): promoted path-shaped **client run ids** splitting `ContentHash` (and continue-coalesce keys) on `\` vs `/`; `ClosedLoopRunIdComparer.Normalize` now applies `NormalizeReviewCachePathLikeToken` before hyphen stripping; regression `Build_matches_content_hash_when_client_run_id_differs_only_by_backslash_vs_forward_slash_in_path`; cheap-disproof `Build_matches_content_hash_when_request_framing_answer_key_differs_only_by_leading_dot_slash`; 333 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `ClosedLoopRunIdComparer` — path-shaped run ids split cache hash — **hit 2026-10-22 seed hunt:** path canonicalization in run-id normalize; regression above.
+
 2026-10-22 seed hunt (seed→hit): promoted path-shaped **request** framing-answer keys splitting `ContentHash` on `\` vs `/` while model keys were already canonicalized; `ClosedLoopFramingAnswersNormalizer.NormalizeFramingKey` now applies `NormalizeReviewCachePathLikeToken` without case folding (request keys stay case-sensitive per contract); regression `Build_matches_content_hash_when_request_framing_answer_key_differs_only_by_backslash_vs_forward_slash_in_path`; 331 scoped orchestrator/cache/manifest/continue-flight tests passed.
 
 - [x] (proven) `ClosedLoopFramingAnswersNormalizer` — request framing keys path separator drift split cache hash — **hit 2026-10-22 seed hunt:** path canonicalization on keys; regression above.
