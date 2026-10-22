@@ -279,6 +279,102 @@ public sealed class StructuredDiagramGraphMergerTests
     }
 
     [Fact]
+    public void Merge_uses_latest_diagram_edge_weight_when_multiple_documents_share_equivalent_endpoints()
+    {
+        ArchitectureDiagramModelRecord inferredTopology = new()
+        {
+            Nodes =
+            [
+                new ArchitectureDiagramNodeRecord
+                {
+                    Id = "api",
+                    Label = "API Gateway",
+                    Kind = ArchitectureDiagramNodeKinds.System,
+                    Provenance = ArchitectureDiagramProvenanceKinds.Inferred,
+                },
+                new ArchitectureDiagramNodeRecord
+                {
+                    Id = "db",
+                    Label = "SQL Database",
+                    Kind = ArchitectureDiagramNodeKinds.System,
+                    Provenance = ArchitectureDiagramProvenanceKinds.Inferred,
+                },
+            ],
+            Edges =
+            [
+                new ArchitectureDiagramEdgeRecord
+                {
+                    Id = "e1",
+                    SourceId = "api",
+                    TargetId = "db",
+                    Provenance = ArchitectureDiagramProvenanceKinds.Inferred,
+                },
+            ],
+            ExtractionMethod = DiagramExtractionMethods.StructuredParse,
+        };
+
+        ArchitectureDiagramModelRecord assertedTopology = new()
+        {
+            Nodes =
+            [
+                new ArchitectureDiagramNodeRecord
+                {
+                    Id = "api",
+                    Label = "API Gateway",
+                    Kind = ArchitectureDiagramNodeKinds.System,
+                    Provenance = ArchitectureDiagramProvenanceKinds.Asserted,
+                },
+                new ArchitectureDiagramNodeRecord
+                {
+                    Id = "db",
+                    Label = "SQL Database",
+                    Kind = ArchitectureDiagramNodeKinds.System,
+                    Provenance = ArchitectureDiagramProvenanceKinds.Asserted,
+                },
+            ],
+            Edges =
+            [
+                new ArchitectureDiagramEdgeRecord
+                {
+                    Id = "e1",
+                    SourceId = "api",
+                    TargetId = "db",
+                    Provenance = ArchitectureDiagramProvenanceKinds.Asserted,
+                },
+            ],
+            ExtractionMethod = DiagramExtractionMethods.StructuredParse,
+        };
+
+        List<CanonicalObject> canonicalObjects = [];
+        canonicalObjects.AddRange(
+            ArchitectureDiagramCanonicalObjectMapper.Map(inferredTopology, "doc-edge-weight-a", labelOnlyInferenceConfidence: 0.5));
+        canonicalObjects.AddRange(
+            ArchitectureDiagramCanonicalObjectMapper.Map(assertedTopology, "doc-edge-weight-b", labelOnlyInferenceConfidence: 0.5));
+
+        ContextSnapshot snapshot = new()
+        {
+            SnapshotId = Guid.Parse("ffffffff-0000-1111-2222-333333333333"),
+            RunId = Guid.Parse("66666666-7777-8888-9999-aaaaaaaaaaaa"),
+            ProjectId = "project-edge-weight-merge",
+            CanonicalObjects = canonicalObjects,
+        };
+
+        StructuredDiagramGraphMerger merger = GraphMaterializationTestHelpers.CreateStructuredDiagramGraphMerger();
+        StructuredDiagramGraphMergeResult result = merger.Merge(snapshot, []);
+
+        GraphEdge merged = result.Edges
+            .Should()
+            .ContainSingle(edge =>
+                edge.EdgeType == GraphEdgeTypes.ConnectsTo
+                && edge.FromNodeId == "diagram-node:api"
+                && edge.ToNodeId == "diagram-node:db")
+            .Subject;
+
+        merged.Weight.Should().Be(1d);
+        merged.Properties[StructuredDiagramGraphPropertyKeys.SourceEvidenceItemId].Should().Be("doc-edge-weight-b");
+    }
+
+    [Fact]
     public void Merge_deduplicates_connects_to_edges_when_multiple_documents_share_equivalent_endpoints()
     {
         ArchitectureDiagramModelRecord sharedTopology = new()
