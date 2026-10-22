@@ -12470,19 +12470,23 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 120
-- **bugs-found:** 115
+- **hunts:** 121
+- **bugs-found:** 116
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — ProvenanceBuilder threw on null graph/findings/decision collections
+- **last-bug:** 2026-10-22 — graph delta extractor treated padded node ids as add/remove churn
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-22 seed hunt (seed→hit): promoted `ArchitectureKnowledgeModelGraphDeltaExtractor` padded node-id candidate (prior invalid rows cited no production caller but the helper is zone-owned and unit-reproducible); proved `ExtractGraphDelta` built ordinal untrimmed node-id sets, emitting false Added entries when after-snapshot ids differed only by surrounding whitespace and mis-classifying case-variant `NodeType` values; trim/case-insensitive node-id sets, null-coalesce node lists, case-insensitive `InferElementKind`, and trim `FromGraphNodeId`; regressions `ExtractGraphDelta_emits_no_entries_when_node_ids_differ_only_by_surrounding_whitespace` and `ExtractGraphDelta_classifies_trust_boundary_when_node_type_differs_only_by_case`; seeded `SecurityProtectionEdgeInferenceRule` padded protected-node target token follow-on; 417 KnowledgeGraph + 136 Provenance scoped tests passed.
+
+- [x] (proven) `ArchitectureKnowledgeModelGraphDeltaExtractor.ExtractGraphDelta` — padded / case-variant node ids and node types caused spurious diff noise — **hit 2026-10-22 seed hunt (seed→hit):** normalized node-id sets and element-kind inference; regressions above.
+
+- [ ] (candidate) `SecurityProtectionEdgeInferenceRule` — `ProtectedTopologyNodeIds` target tokens with surrounding whitespace may still emit `Protects` edges with padded `ToNodeId` endpoints — locus: protection inference; input: security baseline listing `" res-a "`; wrong outcome: neighbor expansion and provenance graph edges reference unpadded topology ids inconsistently.
 
 2026-10-22 seed hunt (seed→hit): cheap-disproved `DefaultGraphBuilder.BuildAsync` padded merge candidate (`GraphEdgeInferenceHelpers.Deduplicate` trim keys now collapse inferrer + materializer padding-only duplicates; regression `Deduplicate_merges_edges_when_endpoints_and_type_differ_only_by_surrounding_whitespace`); promoted `ProvenanceBuilder` null collection candidate; proved `Build` dereferenced `graph.Nodes`, `findings.Findings`, and `manifest.Decisions` without null-coalesce (parity gap vs `GraphSnapshotKnowledgeModelMerger` and `ProvenanceGraphViewMapper` after projection-cache JSON with explicit null lists); null-coalesce before iteration and guard `AppliedRuleIds`; regressions `Build_treats_null_graph_nodes_findings_and_manifest_decisions_as_empty` and `Build_succeeds_when_graph_snapshot_projection_has_null_node_list`; seeded `ArchitectureKnowledgeModelGraphDeltaExtractor` padded node-id diff follow-on; 415 KnowledgeGraph + 136 Provenance scoped tests passed.
 
 - [x] (valid-no-repro) `DefaultGraphBuilder.BuildAsync` — padded inferrer/materializer edge merge — **cheap-disproof 2026-10-22 seed hunt:** `GraphEdgeInferenceHelpers.Deduplicate` trim keys; regression above.
 - [x] (proven) `ProvenanceBuilder.Build` — null `GraphSnapshot.Nodes` / `FindingsSnapshot.Findings` / `ManifestDocument.Decisions` caused `NullReferenceException` — **hit 2026-10-22 seed hunt (seed→hit):** null-coalesce collections; regressions above.
-
-- [ ] (candidate) `ArchitectureKnowledgeModelGraphDeltaExtractor.ExtractGraphDelta` — ordinal untrimmed `NodeId` sets emit spurious Added/Removed entries when ids differ only by surrounding whitespace — locus: delta extraction; input: before/after snapshots with padding-only node id drift; wrong outcome: false-positive model diff noise.
 
 2026-10-22 seed hunt (seed→hit): promoted `GraphEdgeInferenceHelpers.Deduplicate` whitespace key candidate (prior inferrer-path cheap-disproofs did not cover merged inferrer + materializer edge lists); proved dedupe grouped on raw `FromNodeId` / `ToNodeId` / `EdgeType`, leaving parallel edges that differed only by padding; normalize endpoints and edge type in dedupe keys; regression `Deduplicate_merges_edges_when_endpoints_and_type_differ_only_by_surrounding_whitespace`; exposed helper to `ArchLucid.KnowledgeGraph.Tests` via `InternalsVisibleTo`; seeded `DefaultGraphBuilder` inferrer/materializer edge-list merge padding follow-on; 415 KnowledgeGraph + 134 Provenance scoped tests passed.
 
