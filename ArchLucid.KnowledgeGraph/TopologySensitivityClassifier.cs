@@ -18,7 +18,7 @@ public static class TopologySensitivityClassifier
         }
 
         string category = GraphNodePropertyReader.TryGetPropertyValue(properties, "category", out string? categoryRaw)
-            ? categoryRaw ?? string.Empty
+            ? (categoryRaw ?? string.Empty).Trim()
             : string.Empty;
 
         if (string.Equals(category, GraphTopologyCategories.Identity, StringComparison.OrdinalIgnoreCase))
