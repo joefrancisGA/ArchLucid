@@ -1,6 +1,7 @@
 using System.Text;
 using ArchLucid.ContextIngestion;
 using ArchLucid.Contracts.ArchitectureIntelligence;
+using ArchLucid.Core.Persistence.Graph;
 
 namespace ArchLucid.Application.ArchitectureIntelligence;
 
@@ -39,6 +40,7 @@ internal static class ClosedLoopReasoningSourceTextNormalizer
             return fileName;
 
         fileName = DecodePercentEncodedFileNameTokens(fileName);
+        fileName = GraphSnapshotCanonicalFingerprint.NormalizeReviewCacheUnicodeSlashScalars(fileName);
         fileName = fileName.Replace('\\', '/');
 
         while (fileName.StartsWith("./", StringComparison.Ordinal))

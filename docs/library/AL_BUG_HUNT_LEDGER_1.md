@@ -8712,6 +8712,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: architecture-intelligence-orchestrator
 
+2026-10-22 seed hunt (seed→hit): promoted Unicode slash drift in **source file names** splitting `ContentHash` while `modelfp` already canonicalized Unicode slashes; `ClosedLoopReasoningSourceTextNormalizer` now applies `NormalizeReviewCacheUnicodeSlashScalars`; regressions `Build_matches_content_hash_when_file_name_differs_only_by_unicode_division_slash` and `Build_matches_content_hash_when_file_name_differs_only_by_fullwidth_slash`; cheap-disproof regressions for ledger evidence and passage `SectionPath` Unicode slashes; 364 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `ClosedLoopReasoningSourceTextNormalizer` — Unicode slash file names split content hash — **hit 2026-10-22 seed hunt:** shared Unicode slash scalar normalization; regressions above.
+
 2026-10-22 seed hunt (seed→hit): promoted Unicode division/fullwidth slash drift splitting `modelfp`; `NormalizeReviewCachePathLikeToken` now maps U+2215 and U+FF0F to `/` before path canonicalization; regression `Build_matches_content_hash_when_baseline_element_provenance_passage_artifact_id_differs_only_by_unicode_division_slash`; cheap-disproof regressions for percent-encoded backslashes, tenant/framing-key percent slashes, duplicate percent-encoded framing keys, double-encoded slashes, and cache invalidation across percent-encoded run ids; 360 scoped orchestrator/cache/manifest/continue-flight tests and 10 KnowledgeGraph fingerprint tests passed.
 
 - [x] (proven) `GraphSnapshotCanonicalFingerprint` — Unicode slash scalars split review-cache fingerprints — **hit 2026-10-22 seed hunt:** `NormalizeUnicodeSlashScalars`; regression above.

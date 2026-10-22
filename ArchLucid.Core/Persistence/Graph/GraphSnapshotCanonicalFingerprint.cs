@@ -264,6 +264,12 @@ public static class GraphSnapshotCanonicalFingerprint
         NormalizePathLikeFingerprintToken(NormalizeElementIdForFingerprint(value));
 
     /// <summary>
+    ///     Maps Unicode slash lookalikes to ASCII <c>/</c> for review-cache path tokens and source file names.
+    /// </summary>
+    public static string NormalizeReviewCacheUnicodeSlashScalars(string value) =>
+        NormalizeUnicodeSlashScalars(value);
+
+    /// <summary>
     ///     Canonicalizes slash-separated reference tokens for review-cache fingerprints after label/id normalization.
     /// </summary>
     public static string NormalizeReviewCachePathLikeToken(string normalizedToken)
