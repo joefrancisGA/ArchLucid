@@ -82,6 +82,16 @@ public sealed class StructuredDiagramGraphMerger(IArchitectureDiagramToGraphComp
                         existing.Label = node.Label;
                     }
 
+                    if (!string.IsNullOrWhiteSpace(node.NodeType))
+                    {
+                        existing.NodeType = node.NodeType;
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(node.Category))
+                    {
+                        existing.Category = node.Category;
+                    }
+
                     continue;
                 }
 

@@ -69,6 +69,63 @@ public sealed class StructuredDiagramGraphMergerTests
     }
 
     [Fact]
+    public void Merge_uses_latest_diagram_node_type_when_multiple_documents_compile_the_same_node_id()
+    {
+        ArchitectureDiagramModelRecord firstDocument = new()
+        {
+            Nodes =
+            [
+                new ArchitectureDiagramNodeRecord
+                {
+                    Id = "actor",
+                    Label = "Operator",
+                    Kind = ArchitectureDiagramNodeKinds.System,
+                    Provenance = ArchitectureDiagramProvenanceKinds.Asserted,
+                },
+            ],
+            ExtractionMethod = DiagramExtractionMethods.StructuredParse,
+        };
+
+        ArchitectureDiagramModelRecord secondDocument = new()
+        {
+            Nodes =
+            [
+                new ArchitectureDiagramNodeRecord
+                {
+                    Id = "actor",
+                    Label = "Operator",
+                    Kind = ArchitectureDiagramNodeKinds.User,
+                    Provenance = ArchitectureDiagramProvenanceKinds.Asserted,
+                },
+            ],
+            ExtractionMethod = DiagramExtractionMethods.StructuredParse,
+        };
+
+        List<CanonicalObject> canonicalObjects = [];
+        canonicalObjects.AddRange(
+            ArchitectureDiagramCanonicalObjectMapper.Map(firstDocument, "doc-type-a", labelOnlyInferenceConfidence: 0.5));
+        canonicalObjects.AddRange(
+            ArchitectureDiagramCanonicalObjectMapper.Map(secondDocument, "doc-type-b", labelOnlyInferenceConfidence: 0.5));
+
+        ContextSnapshot snapshot = new()
+        {
+            SnapshotId = Guid.Parse("cccccccc-dddd-eeee-ffff-000000000001"),
+            RunId = Guid.Parse("33333333-4444-5555-6666-777777777777"),
+            ProjectId = "project-node-type-merge",
+            CanonicalObjects = canonicalObjects,
+        };
+
+        StructuredDiagramGraphMerger merger = GraphMaterializationTestHelpers.CreateStructuredDiagramGraphMerger();
+        StructuredDiagramGraphMergeResult result = merger.Merge(snapshot, []);
+
+        result.Nodes
+            .Should()
+            .ContainSingle(node =>
+                node.NodeId == "diagram-node:actor"
+                && node.NodeType == GraphNodeTypes.Actor);
+    }
+
+    [Fact]
     public void Merge_deduplicates_connects_to_edges_when_multiple_documents_share_equivalent_endpoints()
     {
         ArchitectureDiagramModelRecord sharedTopology = new()
