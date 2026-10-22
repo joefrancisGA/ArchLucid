@@ -2,6 +2,7 @@ using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Persistence.DecisionTraces;
 using ArchLucid.Core.Manifest;
 using ArchLucid.Decisioning.Models;
+using ArchLucid.KnowledgeGraph;
 
 using FluentAssertions;
 
@@ -200,6 +201,72 @@ public sealed class ProvenanceSnapshotRevisionHasherTests
             FromNodeId = "node-a",
             ToNodeId = "node-b",
             EdgeType = "ConnectsTo",
+        };
+
+        ProvenanceBuildInput baseline = CreateInput([], graphEdges: [baselineEdge]);
+        ProvenanceBuildInput updated = CreateInput([], graphEdges: [updatedEdge]);
+
+        ProvenanceSnapshotRevisionHasher.Compute(baseline, BundleId)
+            .Should().Be(ProvenanceSnapshotRevisionHasher.Compute(updated, BundleId));
+    }
+
+    [Fact]
+    public void Compute_unchanged_when_only_graph_edge_properties_change()
+    {
+        GraphEdge baselineEdge = new()
+        {
+            EdgeId = "edge-1",
+            FromNodeId = "node-a",
+            ToNodeId = "node-b",
+            EdgeType = "ConnectsTo",
+            Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["diagram.sourceEvidence"] = "doc-a",
+            },
+        };
+
+        GraphEdge updatedEdge = new()
+        {
+            EdgeId = "edge-1",
+            FromNodeId = "node-a",
+            ToNodeId = "node-b",
+            EdgeType = "ConnectsTo",
+            Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["diagram.sourceEvidence"] = "doc-b",
+            },
+        };
+
+        ProvenanceBuildInput baseline = CreateInput([], graphEdges: [baselineEdge]);
+        ProvenanceBuildInput updated = CreateInput([], graphEdges: [updatedEdge]);
+
+        ProvenanceSnapshotRevisionHasher.Compute(baseline, BundleId)
+            .Should().Be(ProvenanceSnapshotRevisionHasher.Compute(updated, BundleId));
+    }
+
+    [Fact]
+    public void Compute_unchanged_when_only_graph_edge_inference_metadata_changes()
+    {
+        GraphEdge baselineEdge = new()
+        {
+            EdgeId = "edge-1",
+            FromNodeId = "node-a",
+            ToNodeId = "node-b",
+            EdgeType = "ConnectsTo",
+            InferenceSource = GraphEdgeInferenceSources.StructuredParse,
+            ReasoningTrace = "first trace",
+            Weight = 0.5,
+        };
+
+        GraphEdge updatedEdge = new()
+        {
+            EdgeId = "edge-1",
+            FromNodeId = "node-a",
+            ToNodeId = "node-b",
+            EdgeType = "ConnectsTo",
+            InferenceSource = GraphEdgeInferenceSources.TopologyConnectsTo,
+            ReasoningTrace = "second trace",
+            Weight = 1.0,
         };
 
         ProvenanceBuildInput baseline = CreateInput([], graphEdges: [baselineEdge]);

@@ -1710,6 +1710,75 @@ public sealed class ProvenanceBuilderTests
     }
 
     [Fact]
+    public void Build_produces_same_provenance_graph_when_only_graph_edge_metadata_differs()
+    {
+        GraphNode node = new()
+        {
+            NodeId = "node-a",
+            NodeType = "Service",
+            Label = "API",
+            Category = "network",
+        };
+
+        GraphEdge baselineEdge = new()
+        {
+            EdgeId = "edge-1",
+            FromNodeId = "node-a",
+            ToNodeId = "node-b",
+            EdgeType = "ConnectsTo",
+            Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["diagram.sourceEvidence"] = "doc-a",
+            },
+            ReasoningTrace = "baseline",
+        };
+
+        GraphEdge updatedEdge = new()
+        {
+            EdgeId = "edge-2",
+            FromNodeId = "node-a",
+            ToNodeId = "node-b",
+            EdgeType = "ConnectsTo",
+            Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["diagram.sourceEvidence"] = "doc-b",
+            },
+            ReasoningTrace = "updated",
+        };
+
+        ProvenanceBuilder sut = new();
+        DecisionProvenanceGraph baselineGraph = sut.Build(new ProvenanceBuildInput
+        {
+            RunId = RunId,
+            Findings = new FindingsSnapshot { Findings = [] },
+            Graph = new GraphSnapshot { Nodes = [node], Edges = [baselineEdge] },
+            Manifest = new ManifestDocument { ManifestId = ManifestId, ManifestHash = "h", Decisions = [] },
+            DecisionTrace = RuleAuditTraceDto.From(new RuleAuditTracePayload { AppliedRuleIds = [] }),
+            Artifacts = [],
+        });
+
+        DecisionProvenanceGraph updatedGraph = sut.Build(new ProvenanceBuildInput
+        {
+            RunId = RunId,
+            Findings = new FindingsSnapshot { Findings = [] },
+            Graph = new GraphSnapshot { Nodes = [node], Edges = [updatedEdge] },
+            Manifest = new ManifestDocument { ManifestId = ManifestId, ManifestHash = "h", Decisions = [] },
+            DecisionTrace = RuleAuditTraceDto.From(new RuleAuditTracePayload { AppliedRuleIds = [] }),
+            Artifacts = [],
+        });
+
+        baselineGraph.Nodes.Should().HaveCount(updatedGraph.Nodes.Count);
+        baselineGraph.Edges.Should().HaveCount(updatedGraph.Edges.Count);
+
+        ProvenanceNode baselineGraphNode = baselineGraph.Nodes.Should().ContainSingle(n => n.Type == ProvenanceNodeType.GraphNode).Subject;
+        ProvenanceNode updatedGraphNode = updatedGraph.Nodes.Should().ContainSingle(n => n.Type == ProvenanceNodeType.GraphNode).Subject;
+
+        updatedGraphNode.Name.Should().Be(baselineGraphNode.Name);
+        updatedGraphNode.Metadata.Should().BeEquivalentTo(baselineGraphNode.Metadata);
+        updatedGraph.Edges.Select(e => e.Type).Should().Equal(baselineGraph.Edges.Select(e => e.Type));
+    }
+
+    [Fact]
     public void Build_normalizes_whitespace_only_graph_node_category_and_node_type_in_metadata()
     {
         GraphNode node = new()
