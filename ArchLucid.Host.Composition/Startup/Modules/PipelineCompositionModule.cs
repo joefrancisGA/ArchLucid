@@ -92,7 +92,9 @@ public static class PipelineCompositionModule
         {
             client.Timeout = TimeSpan.FromMinutes(5);
         })
-            .ConfigureArchLucidOutboundSocketsHandler(OutboundHttpSocketsHandlerProfile.ExternalIntegration);
+            .ConfigureArchLucidOutboundSocketsHandler(
+                OutboundHttpSocketsHandlerProfile.ExternalIntegration,
+                rejectPrivateNetworkConnectEndpoints: true);
         services.AddScoped<IRunExportBlobPushService, RunExportBlobPushService>();
         services.AddScoped<IRunExportAuthorityMaterialLoader, RunExportAuthorityMaterialLoader>();
         services.AddScoped<IRunExportPackageBuilder, RunExportPackageBuilder>();

@@ -5252,13 +5252,15 @@
 - **aliases:** tenant export; run export; export SSRF
 - **paths:** ArchLucid.Application/Exports/; ArchLucid.Api/Controllers/Authority/ExportsController.cs; ArchLucid.Api/Controllers/Authority/ArchitectureExportController.cs; ArchLucid.Api/Controllers/Authority/RunsExportController.cs; ArchLucid.Core/Security/AllowedRunExportBlobDestinationUrlPolicy.cs
 - **test-filter:** FullyQualifiedName~ArchitectureReviewExport|FullyQualifiedName~ExportsController|FullyQualifiedName~AllowedRunExportBlobDestinationUrlPolicy
-- **hunts:** 945
-- **bugs-found:** 59
+- **hunts:** 946
+- **bugs-found:** 60
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — blob SAS host allowed IPv4 literal as storage account label before Azure suffix
+- **last-bug:** 2026-10-22 — run export blob push HttpClient omitted connect-time private-network guard after DNS pre-check
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-22 thorough hunt (hit): promoted `RunExportBlobPushService` DNS-rebind gap candidate; proved `RunExportBlobPush` `HttpClient` registered without `rejectPrivateNetworkConnectEndpoints` while `PushAsync` DNS-validates then `PutAsync` re-resolves; aligned with TB-274 integration clients by wiring `OutboundHttpsConnectGuard` on the named client; regression `RunExportBlobPush_http_client_wires_private_network_connect_guard`; cheap-disproof closed compare-summary persist vs career ordering (`EnsureCareerAllowsExportRecordMetadataOrThrowAsync` runs before `CompareAsync`) and `ArchitectureReviewExportService` sibling routes (`RunsExportController.Export` maps `CareerArtifactExportBlockedException`; `ArchitectureExportController` only exposes `ExportRunSummary`); 30 scoped export tests passed (Application + Api + Core + composition guard test).
 
 2026-10-22 thorough hunt (hit): promoted `AllowedRunExportBlobDestinationUrlPolicy` blob-account-label candidate; proved `https://127.0.0.1.blob.core.windows.net/...` passed sync allowlist because only the full host was checked while the account label is a forbidden loopback literal; reject forbidden literals on extracted account labels for both Azure blob host suffixes; regression `TryGetRejectionReason_WhenIpv4LiteralIsBlobAccountLabel_Rejects`; cheap-disproof closed compare diff malformed-GUID guard order, metadata replay lifecycle 409 parity, and IDN-only bypass; 29 scoped export tests passed (Application + Api + Core).
 
@@ -7228,9 +7230,13 @@
 - [x] (invalid) `ExportsController.ReplayExportRecordMetadata` — metadata replay missing lifecycle 409 parity — **cheap-disproof 2026-10-22 thorough hunt:** controller maps `LineageUnverified` to `MapExportReplaySealedManifestConflict` on metadata replay; lifecycle regression uses same outcome after replay facade fix.
 - [x] (proven) `AllowedRunExportBlobDestinationUrlPolicy` — IPv4 literal storage account label before `.blob.core.windows.net` bypassed sync host checks — **hit 2026-10-22 thorough hunt:** `127.0.0.1.blob.core.windows.net` was allowed because suffix matched while account label is a forbidden loopback literal; extract account label and apply `PrivateNetworkAddressGuard` before allowlist; regression `TryGetRejectionReason_WhenIpv4LiteralIsBlobAccountLabel_Rejects`.
 
-- [ ] (candidate) `RunExportBlobPushService` — DNS resolution validation and `HttpClient.PutAsync` are separate steps; hostname rebinding between validate and PUT may still reach a private address unless the client pins resolved endpoints.
-- [ ] (candidate) `ExportsController.CompareExportRecordsSummary` — persist path records comparison audit before client receives 409 when career gate throws after diff formatting (ordering vs `CompareExportRecords` GET).
-- [ ] (candidate) `ArchitectureReviewExportService` — markdown/HTML export routes beyond `ExportRunSummary` may omit career-block HTTP mapping on sibling controller actions.
+- [x] (proven) `RunExportBlobPushService` — DNS pre-check and `HttpClient.PutAsync` without connect-time guard — **hit 2026-10-22 thorough hunt:** `RunExportBlobPush` client omitted `rejectPrivateNetworkConnectEndpoints` while other integration outbound clients wire `OutboundHttpsConnectGuard`; enabled connect-time private-network rejection on the named client; regression `RunExportBlobPush_http_client_wires_private_network_connect_guard`.
+- [x] (invalid) `ExportsController.CompareExportRecordsSummary` — persist path audits before career 409 — **cheap-disproof 2026-10-22 thorough hunt:** `CompareExportRecordsSummaryAsync` invokes career gates before `CompareAsync` and audit persistence; hypothesis misread guard order.
+- [x] (invalid) `ArchitectureReviewExportService` — sibling routes missing career HTTP mapping — **cheap-disproof 2026-10-22 thorough hunt:** review docx/pdf/html export is `RunsExportController.Export` with `CareerArtifactExportBlockedException` mapping; `ArchitectureExportController` has only `ExportRunSummary`.
+
+- [ ] (candidate) `RunExportBlobPushService` — connect guard blocks private addresses at TCP time but does not pin first DNS resolution to the same addresses validated by `TryGetRejectionReasonAfterDnsResolveAsync` (full TOCTOU closure).
+- [ ] (candidate) `ExportsController.CompareExportRecordsSummary` — `persist=true` writes comparison audit even when downstream formatter throws after career gates pass (unexpected exception surfaces 500 with partial audit).
+- [ ] (candidate) `AllowedRunExportBlobDestinationUrlPolicy` — percent-encoded dot separators or mixed-case account labels in blob host may evade account-label extraction while still passing suffix checks.
 
 - [x] (valid-no-repro) `ClosedLoopArchitectureReasoningOrchestrator.RunAsync` / `ReviewCacheManifestBuilder.Build` — entry-time fingerprint snapshot — **closed 2026-10-05 thorough hunt (architecture-intelligence-orchestrator zone).**
 - [x] (valid-no-repro) `ReviewResultCache.PinScope` / composite pin cap — **closed 2026-10-05 thorough hunt (architecture-intelligence-orchestrator zone).**
