@@ -12,6 +12,20 @@
 - [ ] (candidate) `clearOidcSession` — display-name-only hint treated as signed-in for return-url clear — locus: `hasOidcSessionIdentityHints`; input: legacy display without sub; reachability: intentional product choice vs bug.
 - [ ] (candidate) `pulseOidcSessionKeepalive` — unauthorized pulse during failed callback — locus: `clearOidcSession` without identity; input: BFF 401 with stored return (reachability: keepalive hook).
 - [ ] (candidate) `initiateOidcRedirect` — retry marker preserved but user starts sign-in without `returnUrl` — locus: skip `clearAbandonedPostSignInReturnUrl`; input: manual navigation after OAuth error (may be intentional).
+2026-10-22 seed hunt (seed→hit): `ui-oidc` — promoted hunt-ready `normalizeOAuthErrorCode` — authorize `?error=access%255fdenied` (doubly percent-encoded underscore) stopped after one `decodeURIComponent` pass and missed the `access_denied` humanized handler, surfacing generic `(access%5fdenied)` copy; route error codes through bounded `decodeRepeatedPercentEncoding` like `error_description`; regression `maps doubly percent-encoded underscores in authorize error codes to standard handlers`; cheap-disproof closed five zone-head `(candidate)` rows; seeded five follow-on `(candidate)` rows; scoped `src/lib/oidc` vitest 354/354.
+
+- [x] (proven) `normalizeOAuthErrorCode` — doubly-encoded `%255f` in authorize error codes — **hit 2026-10-22 seed hunt:** multi-pass percent decode before collapse; regression above.
+- [x] (valid-no-repro) `decodeRepeatedPercentEncoding` — four-pass `%25252520` chains — **cheap-disproof 2026-10-22 seed hunt:** three-pass cap matches description path; quad chain still decodes to `%20` not space (proxy edge).
+- [x] (valid-no-repro) `storePostSignInReturnUrl` — encoded query `?` in path — **cheap-disproof 2026-10-22 seed hunt:** `isSafeReturnPath` rejects encoded-slash/query storage shapes.
+- [x] (valid-no-repro) `errorFromOAuthJson` — numeric `error` field — **cheap-disproof 2026-10-22 seed hunt:** non-string `error` yields empty code; description-only branch unchanged.
+- [x] (valid-no-repro) `getAccessTokenExpiresAtMs` — whitespace-only `expires_at_ms` — **cheap-disproof 2026-10-22 seed hunt:** `parseOidcEpochMsHint` returns NaN → consumer `0`; `isLikelySignedIn` false without identity.
+- [x] (invalid) `loadDiscoveryDocument` — authority trailing dot — **cheap-disproof 2026-10-22 seed hunt:** mis-typed DNS config; fetch may fail without wrong auth mapping.
+
+- [ ] (candidate) `normalizeOAuthErrorCode` — triply-encoded space in authorize `error` (`access%252520denied`) — locus: multi-pass decode + collapse; input: space glue not underscore; reachability: IdP double-encodes whole code.
+- [ ] (candidate) `readOAuthErrorString` — token JSON `error` doubly-encoded `%255f` — locus: same normalizer; input: `{ "error": "access%255fdenied" }`; reachability: token endpoint mirrors authorize encoding.
+- [ ] (candidate) `initiateSupplementalOidcRedirect` — discovery failure during authorize-callback retry — locus: `preservingAuthorizeCallbackRetry`; input: mirror primary regression for Google supplemental (reachability: add parity test if missing).
+- [ ] (candidate) `clearOidcSession` — display-name-only identity clears return on sign-out — locus: `hasOidcSessionIdentityHints`; input: display without subject; reachability: legacy hint storage.
+- [ ] (candidate) `initiateOidcRedirect` — retry marker consumed but stale return should clear on deliberate fresh sign-in — locus: `clearAbandonedPostSignInReturnUrl` gating; input: user clears marker manually (no API); reachability: product UX edge.
 
 2026-10-22 seed hunt (seed→hit): `ui-oidc` — promoted hunt-ready `decodeRepeatedPercentEncoding` — triply percent-encoded spaces in OAuth `error_description` (`User%252520denied`) still showed `User%20denied` after two decode passes; raise cap to three passes (unchanged stable-break behavior); regressions `decodes triply percent-encoded spaces in JSON error_description` + authorize decode path; cheap-disproof closed five zone-head `(candidate)` rows; seeded five follow-on `(candidate)` rows; scoped `src/lib/oidc` vitest 346/346.
 
