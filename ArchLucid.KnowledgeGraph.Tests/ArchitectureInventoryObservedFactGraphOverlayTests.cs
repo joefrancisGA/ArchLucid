@@ -273,6 +273,56 @@ public sealed class ArchitectureInventoryObservedFactGraphOverlayTests
     }
 
     [Fact]
+    public void Merge_appends_inventory_overlay_edge_when_endpoints_have_surrounding_whitespace_matching_base_nodes()
+    {
+        const string NodeA = "node-a";
+        const string NodeB = "node-b";
+
+        GraphSnapshot baseGraph = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = ContextSnapshotId,
+            RunId = RunId,
+            Nodes =
+            [
+                new GraphNode { NodeId = NodeA, NodeType = GraphNodeTypes.TopologyResource, Label = "A" },
+                new GraphNode { NodeId = NodeB, NodeType = GraphNodeTypes.TopologyResource, Label = "B" },
+            ],
+            Edges = [],
+        };
+
+        GraphSnapshot overlay = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = ContextSnapshotId,
+            RunId = RunId,
+            Nodes =
+            [
+                new GraphNode { NodeId = $"  {NodeA}  ", NodeType = GraphNodeTypes.TopologyResource, Label = "A dup" },
+                new GraphNode { NodeId = $"  {NodeB}  ", NodeType = GraphNodeTypes.TopologyResource, Label = "B dup" },
+            ],
+            Edges =
+            [
+                new GraphEdge
+                {
+                    EdgeId = "overlay-edge",
+                    FromNodeId = $"  {NodeA}  ",
+                    ToNodeId = $"  {NodeB}  ",
+                    EdgeType = GraphEdgeTypes.ContainsResource,
+                },
+            ],
+        };
+
+        GraphSnapshot merged = ArchitectureInventoryObservedFactGraphOverlayMerger.Merge(baseGraph, overlay);
+
+        merged.Nodes.Should().HaveCount(2);
+        merged.Edges.Should().ContainSingle(edge =>
+            edge.FromNodeId == NodeA
+            && edge.ToNodeId == NodeB
+            && edge.EdgeType == GraphEdgeTypes.ContainsResource);
+    }
+
+    [Fact]
     public void Merge_skips_inventory_edge_when_directed_key_differs_only_by_edge_type_padding()
     {
         const string fromNodeId = "node-a";
