@@ -110,7 +110,7 @@ public static class StructuredDiagramCompiledGraphBinder
             target.Properties[StructuredDiagramGraphPropertyKeys.BoundDiagramGraphNodeId] = binding.DiagramGraphNodeId;
             target.Properties[StructuredDiagramGraphPropertyKeys.ProvenanceKind] =
                 StructuredDiagramGraphProvenanceKinds.ObservedFact;
-            target.Properties[StructuredDiagramGraphPropertyKeys.InferenceConfidence] = "1";
+            StructuredDiagramGraphInferenceConfidenceWriter.Write(target.Properties, 1d);
 
             if (!string.IsNullOrWhiteSpace(binding.SourceEvidenceItemId))
             {

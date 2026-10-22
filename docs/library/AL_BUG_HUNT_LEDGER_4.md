@@ -12470,10 +12470,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 180
-- **bugs-found:** 152
+- **hunts:** 181
+- **bugs-found:** 153
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — diagram merge left legacy padded inference-confidence keys beside canonical entries after coalesce
+- **last-bug:** 2026-10-22 — canonical bind stamp left padded inference-confidence alias keys on inventory nodes
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -12489,7 +12489,15 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - [x] (proven) `StructuredDiagramGraphMerger.WriteInferenceConfidence` — legacy padded `InferenceConfidence` key remained after coalesce — **hit 2026-10-22 seed hunt (seed→hit):** remove alias keys before canonical write; regression above.
 
-- [ ] (candidate) `StructuredDiagramCompiledGraphBinder` — property stamp may leave padded `InferenceConfidence` alias keys on bound diagram nodes — locus: binder confidence assignment; input: bound node carries padded confidence key from compile; wrong outcome: duplicate confidence entries after bind stamp.
+2026-10-22 seed hunt (seed→hit): promoted `StructuredDiagramCompiledGraphBinder` padded inference-confidence bind-stamp candidate; proved `ApplyBindingsToGraphNodes` assigned the canonical confidence key without removing trim-equivalent aliases on the inventory target, leaving stale padded entries beside the bind stamp; shared `StructuredDiagramGraphInferenceConfidenceWriter` with merger coalesce; regression `ApplyBindingsToGraphNodes_collapses_padded_inference_confidence_alias_when_stamping_bind_metadata`; seeded `ApplyBindingsToGraphNodes` padded `ProvenanceKind` alias cleanup on observed-fact stamp follow-on; 472 KnowledgeGraph + 170 Provenance scoped tests passed.
+
+- [x] (proven) `StructuredDiagramCompiledGraphBinder.ApplyBindingsToGraphNodes` — padded `InferenceConfidence` alias keys remained after bind stamp — **hit 2026-10-22 seed hunt (seed→hit):** shared alias cleanup writer; regression above.
+
+- [ ] (candidate) `StructuredDiagramCompiledGraphBinder.ApplyBindingsToGraphNodes` — padded `ProvenanceKind` property key on inventory node may duplicate observed-fact stamps — locus: provenance kind assignment; input: target node carries padded provenance key before bind; wrong outcome: parallel provenance-kind entries after stamp.
+
+2026-10-22 seed hunt (seed→hit): promoted `StructuredDiagramGraphMerger.WriteInferenceConfidence` legacy padded confidence key cleanup candidate; proved `WriteInferenceConfidence` appended the canonical key without removing trim-equivalent aliases, so a padded legacy entry could remain with a stale value while the canonical key held `Math.Max` confidence and `GraphNodePropertyReader` could return the wrong token depending on enumeration order; remove all inference-confidence alias keys before write; regression `Merge_collapses_legacy_padded_inference_confidence_key_after_coalesce`; seeded `StructuredDiagramCompiledGraphBinder` padded inference-confidence key stamp parity follow-on; 471 KnowledgeGraph + 170 Provenance scoped tests passed.
+
+- [x] (proven) `StructuredDiagramGraphMerger.WriteInferenceConfidence` — legacy padded `InferenceConfidence` key remained after coalesce — **hit 2026-10-22 seed hunt (seed→hit):** remove alias keys before canonical write; regression above.
 
 2026-10-22 seed hunt (seed→hit): promoted `StructuredDiagramGraphMerger` padded diagram property-key coalesce candidate; proved duplicate node/edge metadata coalesce indexed raw `property.Key`, so a later compile with surrounding-whitespace keys left parallel bag entries and `GraphNodePropertyReader` could return stale source-evidence values; trim keys before skip/coalesce (parity with `GraphNodeFactory.NormalizePropertyBag`); regression `Merge_coalesces_node_properties_when_incoming_property_keys_differ_only_by_surrounding_whitespace`; seeded diagram edge metadata padded-key coalesce regression follow-on; 468 KnowledgeGraph + 170 Provenance scoped tests passed.
 

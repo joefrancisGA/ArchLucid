@@ -492,6 +492,62 @@ public sealed class StructuredDiagramCanonicalBinderTests
             && edge.EdgeType == GraphEdgeTypes.ConnectsTo);
     }
 
+    [Fact]
+    public void ApplyBindingsToGraphNodes_collapses_padded_inference_confidence_alias_when_stamping_bind_metadata()
+    {
+        string paddedConfidenceKey = $"  {StructuredDiagramGraphPropertyKeys.InferenceConfidence}  ";
+        GraphNode inventoryNode = CreateTopologyNode(
+            "obj-api-1",
+            "API Gateway",
+            new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                [paddedConfidenceKey] = "0.5",
+            });
+
+        ArchitectureDiagramToGraphCompiler compiler = new();
+        StructuredDiagramGraphCompileResult compileResult = compiler.Compile(
+            new ArchitectureDiagramModelRecord
+            {
+                Nodes =
+                [
+                    new ArchitectureDiagramNodeRecord
+                    {
+                        Id = "api",
+                        Label = "API Gateway",
+                        Kind = ArchitectureDiagramNodeKinds.System,
+                        Provenance = ArchitectureDiagramProvenanceKinds.Inferred,
+                    },
+                ],
+                ExtractionMethod = DiagramExtractionMethods.StructuredParse,
+            },
+            CreateCompileOptions());
+
+        StructuredDiagramGraphCompileResult bound = StructuredDiagramCompiledGraphBinder.BindToCanonicalNodes(
+            compileResult,
+            [inventoryNode]);
+
+        StructuredDiagramCompiledGraphBinder.ApplyBindingsToGraphNodes(
+            [inventoryNode],
+            bound.CanonicalBindings);
+
+        inventoryNode.Properties.Keys
+            .Count(key => string.Equals(
+                key.Trim(),
+                StructuredDiagramGraphPropertyKeys.InferenceConfidence,
+                StringComparison.OrdinalIgnoreCase))
+            .Should()
+            .Be(1);
+
+        GraphNodePropertyReader.TryGetPropertyValue(
+                inventoryNode.Properties,
+                StructuredDiagramGraphPropertyKeys.InferenceConfidence,
+                out string? confidence)
+            .Should()
+            .BeTrue();
+        confidence.Should().Be("1");
+        inventoryNode.Properties[StructuredDiagramGraphPropertyKeys.InferenceConfidence].Should().Be("1");
+    }
+
     private static GraphNode CreateTopologyNode(
         string nodeId,
         string label,
