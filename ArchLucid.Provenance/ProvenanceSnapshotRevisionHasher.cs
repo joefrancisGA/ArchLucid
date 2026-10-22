@@ -64,10 +64,9 @@ public static class ProvenanceSnapshotRevisionHasher
                 .OrderBy(static group => group.Key, StringComparer.OrdinalIgnoreCase)
                 .Select(static group =>
                 {
-                    GraphNode representative = group.Last();
-                    string label = (representative.Label ?? string.Empty).Trim();
-                    string nodeType = (representative.NodeType ?? string.Empty).Trim();
-                    string category = (representative.Category ?? string.Empty).Trim();
+                    string label = SelectLastNonEmptyGraphField(group, static node => node.Label);
+                    string nodeType = SelectLastNonEmptyGraphField(group, static node => node.NodeType);
+                    string category = SelectLastNonEmptyGraphField(group, static node => node.Category);
 
                     return $"{group.Key}|{label}|{nodeType}|{category}";
                 }));
@@ -159,6 +158,16 @@ public static class ProvenanceSnapshotRevisionHasher
     private static string SelectLastNonEmptyFindingField(
         IGrouping<string, Finding> group,
         Func<Finding, string?> selector)
+    {
+        return group
+            .Select(selector)
+            .Select(static value => (value ?? string.Empty).Trim())
+            .LastOrDefault(static value => value.Length > 0) ?? string.Empty;
+    }
+
+    private static string SelectLastNonEmptyGraphField(
+        IGrouping<string, GraphNode> group,
+        Func<GraphNode, string?> selector)
     {
         return group
             .Select(selector)

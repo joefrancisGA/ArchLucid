@@ -273,8 +273,11 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
             {
                 ProvenanceNode existingNode = result.Nodes.First(n => n.Id == existingId);
 
-                if (!string.IsNullOrWhiteSpace(node.Name))
+                if (!string.IsNullOrWhiteSpace(node.Name)
+                    && !ShouldSkipGraphNodeNameDowngrade(existingNode, node))
+                {
                     existingNode.Name = node.Name;
+                }
 
                 if (!string.IsNullOrWhiteSpace(node.ReferenceId))
                     existingNode.ReferenceId = node.ReferenceId;
@@ -307,5 +310,33 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
         }
 
         static string NormalizeId(string id) => id.Trim();
+
+        static bool ShouldSkipGraphNodeNameDowngrade(ProvenanceNode existingNode, ProvenanceNode incomingNode)
+        {
+            if (existingNode.Type != ProvenanceNodeType.GraphNode
+                || incomingNode.Type != ProvenanceNodeType.GraphNode)
+            {
+                return false;
+            }
+
+            if (string.IsNullOrWhiteSpace(existingNode.Name)
+                || string.IsNullOrWhiteSpace(incomingNode.Name)
+                || string.IsNullOrWhiteSpace(incomingNode.ReferenceId))
+            {
+                return false;
+            }
+
+            bool incomingNameIsReferenceId = string.Equals(
+                incomingNode.Name,
+                incomingNode.ReferenceId,
+                StringComparison.OrdinalIgnoreCase);
+
+            bool existingNameIsReferenceId = string.Equals(
+                existingNode.Name,
+                existingNode.ReferenceId,
+                StringComparison.OrdinalIgnoreCase);
+
+            return incomingNameIsReferenceId && !existingNameIsReferenceId;
+        }
     }
 }

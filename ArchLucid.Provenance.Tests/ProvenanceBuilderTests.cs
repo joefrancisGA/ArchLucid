@@ -614,6 +614,39 @@ public sealed class ProvenanceBuilderTests
     }
 
     [Fact]
+    public void Build_preserves_graph_node_label_when_later_case_variant_row_omits_label()
+    {
+        GraphNode firstRow = new()
+        {
+            NodeId = "node-a",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "API Gateway",
+        };
+
+        GraphNode secondRow = new()
+        {
+            NodeId = "NODE-A",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = string.Empty,
+        };
+
+        ProvenanceBuilder sut = new();
+        DecisionProvenanceGraph graph = sut.Build(new ProvenanceBuildInput
+        {
+            RunId = RunId,
+            Findings = new FindingsSnapshot { Findings = [] },
+            Graph = new GraphSnapshot { Nodes = [firstRow, secondRow] },
+            Manifest = new ManifestDocument { ManifestId = ManifestId, ManifestHash = "h", Decisions = [] },
+            DecisionTrace = RuleAuditTraceDto.From(new RuleAuditTracePayload { AppliedRuleIds = [] }),
+            Artifacts = [],
+        });
+
+        graph.Nodes
+            .Should()
+            .ContainSingle(n => n.Type == ProvenanceNodeType.GraphNode && n.Name == "API Gateway");
+    }
+
+    [Fact]
     public void Build_uses_last_graph_node_label_when_snapshot_lists_case_variant_node_ids()
     {
         GraphNode firstRow = new()
