@@ -6260,3 +6260,4 @@
 {"at":"2026-10-22T11:10:44.2477257Z","zoneId":"application-analysis","outcome":"seed-only","productLine":"archlucid-shared"}
 {"at":"2026-10-22T11:16:52.5443885Z","zoneId":"application-analysis","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-22T11:18:25.499Z","zoneId":"application-analysis","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-22T06:42:30.8257001Z","zoneId":"ui-oidc","outcome":"seed-only","productLine":"archlucid-shared"}
