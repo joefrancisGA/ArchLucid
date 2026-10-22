@@ -12470,19 +12470,23 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 100
-- **bugs-found:** 95
+- **hunts:** 101
+- **bugs-found:** 96
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — diagram subgraph labels upgrade when a later canonical row supplies diagramSubgraphLabel
+- **last-bug:** 2026-10-22 — duplicate diagram connectivity rows coalesce instead of emitting parallel sparse edges
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-22 seed hunt (seed→hit): promoted duplicate connectivity edge row candidate; proved `ReconstructEdges` appended a second `ArchitectureDiagramEdgeRecord` when a sparse duplicate canonical source row repeated the same `connectedToNodeIds` edge id without caption segments, yielding parallel edges and an empty-label duplicate; coalesce edges by source/target/id with last non-empty label and provenance; regression `ReconstructDocuments_preserves_edge_label_when_later_sparse_row_repeats_same_connectivity`; seeded provenance revision hasher sparse decision trace follow-on; 396 KnowledgeGraph + 116 Provenance scoped tests passed.
+
+- [x] (proven) `StructuredDiagramCanonicalModelReconstructor.ReconstructEdges` — sparse duplicate connectivity rows emitted parallel empty-label edges — **hit 2026-10-22 seed hunt (seed→hit):** per-document edge coalesce; regression above.
+
+- [ ] (candidate) `ProvenanceSnapshotRevisionHasher.ComputeAppliedRuleIdsFingerprint` — duplicate rule-audit trace rows may reorder `AppliedRuleIds` when later sparse rows omit rule ids — locus: trace fingerprint; input: two traces same run with second row sparse; wrong outcome: revision fingerprint drift without semantic change.
 
 2026-10-22 seed hunt (seed→hit): promoted diagram subgraph sparse label candidate; proved subgraph dictionary first-wins insert kept the id fallback label when a later canonical row in the same document supplied `diagramSubgraphLabel`; upgrade existing subgraph labels when a later row carries non-empty label text; regressions `ReconstructDocuments_upgrades_subgraph_label_when_later_row_supplies_diagram_subgraph_label` and `ReconstructDocuments_preserves_subgraph_label_when_later_row_omits_diagram_subgraph_label`; seeded duplicate canonical edge row sparse label follow-on; 395 KnowledgeGraph + 116 Provenance scoped tests passed.
 
 - [x] (proven) `StructuredDiagramCanonicalModelReconstructor` — first-wins subgraph insert blocked later `diagramSubgraphLabel` upgrades — **hit 2026-10-22 seed hunt (seed→hit):** merge non-empty subgraph labels on duplicate subgraph id; regressions above.
 - [x] (valid-no-repro) `StructuredDiagramCanonicalModelReconstructor` — later sparse row clears subgraph label — **cheap-disproof 2026-10-22 seed hunt:** first-wins labeled subgraph retained; regression above.
-
-- [ ] (candidate) `StructuredDiagramCanonicalModelReconstructor.ReconstructEdges` — duplicate connectivity rows within one document may drop later edge `Label` or provenance token when a sparse repeat omits caption segments — locus: edge list append; input: two canonical objects encode the same directed edge with second row sparse; wrong outcome: buyer-visible edge label cleared on reconstruct.
 
 2026-10-22 seed hunt (seed→hit): promoted duplicate canonical node row candidate; proved `ReconstructSingleDocument` appended a second `ArchitectureDiagramNodeRecord` for the same `diagramNodeId` when bundle ingestion repeated a node object with sparse `text`/`Name`, leaving an empty-label duplicate that survived into compile/merge; coalesce duplicate diagram node ids per document with last non-empty label/kind/provenance/subgraph fields; regression `ReconstructDocuments_preserves_label_when_later_sparse_row_repeats_diagram_node_id`; seeded diagram subgraph sparse label follow-on; 393 KnowledgeGraph + 116 Provenance scoped tests passed.
 
