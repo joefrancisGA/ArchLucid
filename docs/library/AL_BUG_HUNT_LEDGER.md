@@ -12,6 +12,21 @@
 - [ ] (candidate) refreshBffSessionCookie - refresh 429 shouldClearSession false - locus: proxy transient policy.
 
 ï»¿2026-10-22 seed hunt (seed-only): `application-tenancy-lifecycle` - no hunt-ready product defect; cheap-disproof closed zone-head `(candidate)` erasure-race rows (regressions already on trunk); scoped tenancy filter 248/248.
+2026-10-22 seed hunt (seed->hit): `application-tenancy-lifecycle` - promoted hunt-ready from seed re-read `TenantCatalogMigrationOrchestrator.CompleteAsync` - migration completed platform audit appended after unsuspend path using only the pre-audit tenant read, so erasure offboard between that read and audit could emit `TenantCatalogMigrationCompleted` for quarantined tenants; pre-audit `GetByIdAsync` guard before completed audit; regression `CompleteAsync_returns_in_erasure_quarantine_without_completed_audit_when_offboard_completes_after_pre_audit_read_before_audit`; normalize legacy run-log `zone` alias in picker/stats readers; scoped tenancy filter 251/251.
+
+- [x] (proven) `CompleteAsync` - offboard after pre-audit read before completed audit - **hit 2026-10-22 seed hunt:** pre-completed-audit re-read; regression above.
+- [x] (valid-no-repro) `AcknowledgeCatalogAttachDetachAsync` - offboard after stage update before attach audit - **cheap-disproof 2026-10-22:** hit earlier same day on trunk.
+- [x] (valid-no-repro) `RunProjectionRefreshAsync` - offboard after stage update before refresh audit - **cheap-disproof 2026-10-22:** hit earlier same day on trunk.
+- [x] (valid-no-repro) `AL_BUG_HUNT_RUN_LOG.jsonl` - `zone` alias breaks picker - **hit 2026-10-22:** read-time `zoneId` normalization in picker/stats scripts.
+- [x] (invalid) `TenantDeletionService.DeleteTenantAsync` - legal hold after sql purge before audit - **cheap-disproof 2026-10-22:** destructive purge already completed; audit skip on approval clear covered.
+
+- [ ] (candidate) `TenantDeletionService.DeleteTenantAsync` - legal hold activated after revalidate before blob purge - locus: RevalidateTenantForHardPurgeAsync (reachability: admin delete job).
+- [ ] (candidate) `TenantErasureCommandService.TrySetLegalHoldAsync` - quarantine restored after set before legal-hold audit - locus: beforeSetAudit read (reachability: erasure command).
+- [ ] (candidate) `TenantErasureCommandService.TryClearLegalHoldAsync` - offboard after clear before clear audit - locus: beforeClearAudit read (reachability: erasure command).
+- [ ] (candidate) `TrialLifecycleTransitionEngine` - offboard between audit and expiration metric on non-deleted transition - locus: post-audit superseded read (reachability: saturated).
+- [ ] (candidate) `TenantProvisioningService.ProvisionAsync` - offboard after nav settings before marketing touch - locus: existing race tests (reachability: saturated).
+
+﻿2026-10-22 seed hunt (seed-only): `application-tenancy-lifecycle` - no hunt-ready product defect; cheap-disproof closed zone-head `(candidate)` erasure-race rows (regressions already on trunk); scoped tenancy filter 248/248.
 
 - [x] (valid-no-repro) `TrialLifecycleTransitionEngine` - offboard between audit and expiration metric - **cheap-disproof 2026-10-22:** metric skip regression on trunk.
 - [x] (valid-no-repro) `TenantErasureCommandService.TryApproveErasureAsync` - quarantine restore between approve atomic and audit - **cheap-disproof 2026-10-22:** post-approve read before audit on trunk.
