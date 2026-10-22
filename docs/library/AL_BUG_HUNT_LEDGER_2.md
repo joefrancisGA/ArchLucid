@@ -2842,6 +2842,14 @@
 
 ## Zone: scim-users
 
+2026-10-22 thorough hunt #29 (dry): cheap-disproof closed five `(candidate)` rows (`active eq "True"` via case-insensitive `bool.TryParse`; PATCH unknown flat keys not persisted—only core fields read; seat cap → 403 `mutability` proven class; PUT re-activate runs `TransitionSeatAsync` increment with compensate on failure; filter lexer uses simple backslash escape not `\\u` JSON); no failing repro; five replacement `(candidate)` rows; scoped `ScimUsers` tests not run (Application.Tests merge conflicts).
+
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `active eq "True"` — **cheap-disproof 2026-10-22 #29:** `ScimActiveFilterLiteralParser` / `bool.TryParse` accepts Pascal case.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — unknown attribute key — **cheap-disproof 2026-10-22 #29:** `PatchAsync` reads only `userName`/`externalId`/`displayName`/`active`; extra flat keys ignored on write.
+- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — seat cap — **cheap-disproof 2026-10-22 #29:** `ScimSeatLimitExceededException` → HTTP 403 `mutability` (hunt #13).
+- [x] (valid-no-repro) `ScimUsersController.ReplaceAsync` — inactive→active PUT — **cheap-disproof 2026-10-22 #29:** intentional seat transition + compensate path (2026-08-24 proven).
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — escaped filter literal — **cheap-disproof 2026-10-22 #29:** `ReadQuotedString` single-char escape; no JSON `\\u` unescape (consistent parse/compare).
+
 2026-10-22 thorough hunt #28 (dry): cheap-disproof closed five `(candidate)` rows (PATCH same `active` → `TransitionSeatAsync` no-op; `userName sw ""` matches all via `StartsWith` empty string; PUT/PATCH `userName` collision → proven conflict path; unknown id GET → 404; bulk no-op PATCH ops are O(n) loop without defect class); no failing repro; five replacement `(candidate)` rows; scoped `ScimUsers` tests not run (Application.Tests merge conflicts).
 
 - [x] (valid-no-repro) `ScimUsersController.PatchAsync` — same `active` — **cheap-disproof 2026-10-22 #28:** `wasActive == willBeActive` early return in `TransitionSeatAsync`.
@@ -3095,9 +3103,9 @@
 - **aliases:** scim; entra provisioning users
 - **paths:** ArchLucid.Api/Controllers/Scim/ScimUsersController.cs
 - **test-filter:** FullyQualifiedName~ScimUsers
-- **hunts:** 62
+- **hunts:** 63
 - **bugs-found:** 23
-- **consecutive-dry-hunts:** 7
+- **consecutive-dry-hunts:** 8
 - **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-22 — SCIM PATCH remove on active returned silent no-op instead of mutability
 - **related-pd-tb:** none
@@ -3362,11 +3370,17 @@
 - [x] (invalid) `ScimUsersController.GetAsync` — unknown id — **cheap-disproof 2026-10-22 #28:** 404 notFound.
 - [x] (valid-no-repro) `ScimUsersController.PatchAsync` — bulk no-op ops — **cheap-disproof 2026-10-22 #28:** no correctness bug.
 
-- [ ] (candidate) `ScimUsersController.ListAsync` — `active eq "True"` mixed case string — locus: `ScimActiveFilterLiteralParser` / `bool.TryParse`; input: Entra sends Pascal-case boolean strings in filters.
-- [ ] (candidate) `ScimUsersController.PatchAsync` — `replace` on unknown flat attribute key — locus: flat map adds arbitrary keys; input: non-schema keys ignored on persist vs rejected.
-- [ ] (candidate) `ScimUsersController.CreateAsync` — enterprise seat limit with `active: true` — locus: `ScimSeatLimitExceededException` → 403; input: hunt #13 seat cap mapping (proven-class).
-- [ ] (candidate) `ScimUsersController.ReplaceAsync` — PUT on inactive user with `active: true` — locus: `TransitionSeatAsync` re-activation; input: seat increment when raising inactive→active (proven compensate path).
-- [ ] (candidate) `ScimUsersController.ListAsync` — filter with Unicode escape in `userName` literal — locus: `ScimFilterParser` string lexer; input: parser unescape vs stored userName equality.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `active eq "True"` — **cheap-disproof 2026-10-22 #29:** bool string parse.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — unknown flat key — **cheap-disproof 2026-10-22 #29:** not persisted.
+- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — seat cap — **cheap-disproof 2026-10-22 #29:** 403 mutability.
+- [x] (valid-no-repro) `ScimUsersController.ReplaceAsync` — re-activate PUT — **cheap-disproof 2026-10-22 #29:** seat transition by design.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — filter escapes — **cheap-disproof 2026-10-22 #29:** SCIM filter lexer semantics.
+
+- [ ] (candidate) `ScimUsersController.PatchAsync` — `replace` `userName` with only case change — locus: `EnsureUserNameNotUsedByAnotherLiveUserAsync` + case-insensitive live lookup; input: idempotent case fold vs conflict (RFC `userName` case-insensitive storage).
+- [ ] (candidate) `ScimUsersController.ListAsync` — `not (userName eq "x")` — locus: `ScimNotNode` evaluation; input: complement excludes single user from tenant list.
+- [ ] (candidate) `ScimUsersController.CreateAsync` — minimal POST only `userName` — locus: `externalId` defaults to `userName`; input: Entra minimal body regression path.
+- [ ] (candidate) `ScimUsersController.PatchAsync` — `Operations` array empty — locus: `ApplyFlat` no-op; input: hunt #8 empty operations (valid-no-repro).
+- [ ] (candidate) `ScimUsersController.ReplaceAsync` — PUT with `active: false` on active user — locus: seat decrement via `TransitionSeatAsync`; input: deprovision without DELETE tombstone (PATCH `active:false` parity).
 
 - [x] (proven) `ScimUserService.CreateAsync` / `PatchAsync` / `ScimUsersController` — a second live user with the same `userName` and a different `externalId` was stored, including case-only names — **hit 2026-10-09 seed hunt:** live `userName` lookup returns `uniqueness`. Regressions `CreateAsync_duplicate_user_name_throws_conflict` and `PatchAsync_replace_userName_to_another_users_name_throws_conflict`.
 - [x] (proven) `ScimFilterParser.ParseFilter` / `ScimUsersController.ListAsync` — ungrouped `or` before `and` was parsed left-to-right, so an active user matching only the left comparison was omitted — **hit 2026-10-09 seed hunt:** `not` over `and` over `or` per RFC 7644 §3.4.2.2. Regressions `ListAsync_filter_gives_and_precedence_over_or`, `Parse_or_binds_looser_than_and`, and `Parse_not_binds_tighter_than_and`.
