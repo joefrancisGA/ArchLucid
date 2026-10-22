@@ -43,6 +43,31 @@ public sealed class ArchitectureInventoryObservedFactGraphOverlayTests
     }
 
     [Fact]
+    public void BuildOverlay_mints_nodes_and_edges_without_padded_property_bag_keys()
+    {
+        GraphSnapshot overlay = ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay(
+            CreateSnapshotFixture(),
+            RunId,
+            ContextSnapshotId);
+
+        foreach (GraphNode node in overlay.Nodes)
+        {
+            foreach (string key in node.Properties.Keys)
+            {
+                key.Should().Be(key.Trim());
+            }
+        }
+
+        foreach (GraphEdge edge in overlay.Edges)
+        {
+            foreach (string key in edge.Properties.Keys)
+            {
+                key.Should().Be(key.Trim());
+            }
+        }
+    }
+
+    [Fact]
     public void BuildOverlay_emits_single_canonical_provenance_kind_key_on_resource_nodes_and_edges()
     {
         const string fromResourceId =

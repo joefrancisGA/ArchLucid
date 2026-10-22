@@ -12470,7 +12470,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 196
+- **hunts:** 197
 - **bugs-found:** 163
 - **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-22 — post-overlay rebind deduped parallel edges separately when EdgeType differed only by whitespace
@@ -12553,7 +12553,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - [x] (proven) `ArchitectureInventoryObservedFactGraphOverlayMerger.NormalizeOverlayEdge` — appended inventory edges retained padded property-bag keys — **hit 2026-10-22 seed hunt (seed→hit):** trim property keys on overlay edge append; regression above.
 
-- [ ] (candidate) `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` — minted inventory overlay graph nodes or edges may carry padded property-bag keys before merge normalization — locus: observed-fact overlay materialization; input: snapshot metadata keys with surrounding whitespace; wrong outcome: overlay consumers see duplicate logical keys before `ArchitectureInventoryObservedFactGraphOverlayMerger` normalizes on append.
+2026-10-22 seed hunt (valid-no-repro): promoted `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` padded property-bag keys on minted overlay rows candidate; proved overlay materialization assigns only canonical literal property keys (`StructuredDiagramGraphPropertyKeys.ProvenanceKind`, `arm.id`, `cloudResourceId`, etc.) and does not copy arbitrary snapshot metadata bags, so padded keys cannot enter overlay property bags at mint time; regression `BuildOverlay_mints_nodes_and_edges_without_padded_property_bag_keys`; seeded `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` padded `RelationshipType` on minted overlay edges follow-on; 489 KnowledgeGraph + 170 Provenance scoped tests passed.
+
+- [x] (valid-no-repro) `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` — minted overlay rows carried padded property-bag keys — **cheap-disproof 2026-10-22 seed hunt:** canonical literal keys only; regression above.
+
+- [ ] (candidate) `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` — minted inventory overlay edges may retain padded `RelationshipType` on `EdgeType` and dedupe keys — locus: relationship projection uses raw `RelationshipType` without trim; input: snapshot relationships whose type differs only by surrounding whitespace; wrong outcome: duplicate overlay edges or padded edge types before merge normalization.
 
 2026-10-22 seed hunt (seed→hit): promoted `StructuredDiagramGraphMerger` padded diagram property-key coalesce candidate; proved duplicate node/edge metadata coalesce indexed raw `property.Key`, so a later compile with surrounding-whitespace keys left parallel bag entries and `GraphNodePropertyReader` could return stale source-evidence values; trim keys before skip/coalesce (parity with `GraphNodeFactory.NormalizePropertyBag`); regression `Merge_coalesces_node_properties_when_incoming_property_keys_differ_only_by_surrounding_whitespace`; seeded diagram edge metadata padded-key coalesce regression follow-on; 468 KnowledgeGraph + 170 Provenance scoped tests passed.
 
