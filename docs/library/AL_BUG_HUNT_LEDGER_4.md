@@ -12470,8 +12470,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 200
-- **bugs-found:** 164
+- **hunts:** 201
+- **bugs-found:** 165
 - **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-22 — post-overlay rebind deduped parallel edges separately when EdgeType differed only by whitespace
 - **related-pd-tb:** none
@@ -12569,7 +12569,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - [x] (valid-no-repro) `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` — trim-equal ARM ids minted duplicate overlay nodes — **cheap-disproof 2026-10-22 seed hunt:** normalized ARM dedupe; regression above.
 
-- [ ] (candidate) `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` — winning duplicate resource row may stamp padded `arm.id` / `armResourceId` / `SourceId` values on minted overlay nodes — locus: node materialization copies raw `resource.AzureResourceId` into citation properties while dedupe keys normalized ARM ids; input: padded ARM resource row wins `OrderBy` before trim-equal duplicate is skipped; wrong outcome: overlay nodes carry surrounding-whitespace ARM citation values.
+2026-10-22 seed hunt (seed→hit): promoted `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` padded ARM citation values on winning resource row candidate; proved node materialization copied raw `resource.AzureResourceId` into `SourceId` and ARM citation properties while dedupe keyed normalized ARM ids, so a padded row that sorts first could stamp surrounding-whitespace citations; stamp `normalizedArmId` on `SourceId`, `arm.id`, `armResourceId`, and `azureResourceId`, and normalize `arm.parentId`; regression `BuildOverlay_stamps_normalized_arm_citations_when_winning_resource_row_has_surrounding_whitespace_on_azure_resource_id`; seeded `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` padded `ResourceGroup`/`SubscriptionId` scalar fields on minted overlay nodes follow-on; 493 KnowledgeGraph + 170 Provenance scoped tests passed.
+
+- [x] (proven) `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` — winning resource row stamped padded ARM citations — **hit 2026-10-22 seed hunt (seed→hit):** normalized ARM citations on mint; regression above.
+
+- [ ] (candidate) `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` — minted overlay nodes may retain padded `ResourceGroup` / `SubscriptionId` scalar fields on property bags — locus: `arm.resourceGroup` / `arm.subscriptionId` copy raw snapshot strings without trim; input: resource row carries surrounding whitespace on group or subscription ids; wrong outcome: citation metadata bags retain padding tokens.
 
 2026-10-22 seed hunt (seed→hit): promoted `StructuredDiagramGraphMerger` padded diagram property-key coalesce candidate; proved duplicate node/edge metadata coalesce indexed raw `property.Key`, so a later compile with surrounding-whitespace keys left parallel bag entries and `GraphNodePropertyReader` could return stale source-evidence values; trim keys before skip/coalesce (parity with `GraphNodeFactory.NormalizePropertyBag`); regression `Merge_coalesces_node_properties_when_incoming_property_keys_differ_only_by_surrounding_whitespace`; seeded diagram edge metadata padded-key coalesce regression follow-on; 468 KnowledgeGraph + 170 Provenance scoped tests passed.
 

@@ -43,15 +43,15 @@ public static class ArchitectureInventoryObservedFactGraphBuilder
                 Label = ResolveLabel(resource),
                 Category = AzureInventoryTopologyCategory.Resolve(resource.ResourceType),
                 SourceType = ArchitectureInventoryGraphSourceTypes.AzureInventorySnapshot,
-                SourceId = resource.AzureResourceId,
+                SourceId = normalizedArmId,
             };
 
             node.Properties[StructuredDiagramGraphPropertyKeys.ProvenanceKind] =
                 StructuredDiagramGraphProvenanceKinds.ObservedFact;
-            node.Properties["arm.id"] = resource.AzureResourceId;
+            node.Properties["arm.id"] = normalizedArmId;
             // Product-shaped citation keys used by FindingEvidenceRefs / AS-018 bind matching.
-            node.Properties["armResourceId"] = resource.AzureResourceId;
-            node.Properties["azureResourceId"] = resource.AzureResourceId;
+            node.Properties["armResourceId"] = normalizedArmId;
+            node.Properties["azureResourceId"] = normalizedArmId;
             node.Properties["arm.type"] = resource.ResourceType;
             node.Properties["inventory.snapshotId"] = snapshot.Header.SnapshotId.ToString("D");
 
@@ -67,7 +67,7 @@ public static class ArchitectureInventoryObservedFactGraphBuilder
 
             if (!string.IsNullOrWhiteSpace(resource.ParentResourceId))
             {
-                node.Properties["arm.parentId"] = resource.ParentResourceId;
+                node.Properties["arm.parentId"] = ArmResourceIdNormalizer.Normalize(resource.ParentResourceId);
             }
 
             if (resource.CloudResourceId.HasValue)

@@ -37,7 +37,8 @@ public sealed class ArchitectureInventoryObservedFactGraphOverlayTests
         resourceNode.Properties[StructuredDiagramGraphPropertyKeys.ProvenanceKind]
             .Should().Be(StructuredDiagramGraphProvenanceKinds.ObservedFact);
         resourceNode.Properties["armResourceId"]
-            .Should().Be("/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Sql/servers/pay-sql-prod");
+            .Should().Be(ArmResourceIdNormalizer.Normalize(
+                "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Sql/servers/pay-sql-prod"));
         resourceNode.SourceType.Should().Be(ArchitectureInventoryGraphSourceTypes.AzureInventorySnapshot);
         resourceNode.NodeId.Should().Be(CloudResourceId.ToString("D"));
     }
@@ -449,6 +450,60 @@ public sealed class ArchitectureInventoryObservedFactGraphOverlayTests
         GraphSnapshot merged = ArchitectureInventoryObservedFactGraphOverlayMerger.Merge(baseGraph, overlay);
 
         merged.Edges.Should().ContainSingle();
+    }
+
+    [Fact]
+    public void BuildOverlay_stamps_normalized_arm_citations_when_winning_resource_row_has_surrounding_whitespace_on_azure_resource_id()
+    {
+        const string armIdCanonical =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet-prod";
+        string paddedArmId = $"  {armIdCanonical}  ";
+        string expectedCitation = ArmResourceIdNormalizer.Normalize(armIdCanonical);
+
+        AzureInventorySnapshotDetailReadModel snapshot = new()
+        {
+            Header = new AzureInventorySnapshotRecord
+            {
+                SnapshotId = SnapshotId,
+                TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                CreatedUtc = new DateTime(2026, 7, 18, 12, 0, 0, DateTimeKind.Utc),
+            },
+            Resources =
+            [
+                new AzureInventoryResourceRecord
+                {
+                    ResourceRowId = Guid.Parse("66666666-6666-6666-6666-666666666666"),
+                    SnapshotId = SnapshotId,
+                    TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                    AzureResourceId = paddedArmId,
+                    ResourceType = "Microsoft.Network/virtualNetworks",
+                    ResourceGroup = "rg",
+                    SubscriptionId = "sub",
+                },
+                new AzureInventoryResourceRecord
+                {
+                    ResourceRowId = Guid.Parse("55555555-5555-5555-5555-555555555555"),
+                    SnapshotId = SnapshotId,
+                    TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                    AzureResourceId = armIdCanonical,
+                    ResourceType = "Microsoft.Network/virtualNetworks",
+                    ResourceGroup = "rg",
+                    SubscriptionId = "sub",
+                },
+            ],
+            Relationships = [],
+        };
+
+        GraphSnapshot overlay = ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay(
+            snapshot,
+            RunId,
+            ContextSnapshotId);
+
+        GraphNode node = overlay.Nodes.Should().ContainSingle().Subject;
+        node.SourceId.Should().Be(expectedCitation);
+        node.Properties["arm.id"].Should().Be(expectedCitation);
+        node.Properties["armResourceId"].Should().Be(expectedCitation);
+        node.Properties["azureResourceId"].Should().Be(expectedCitation);
     }
 
     [Fact]
