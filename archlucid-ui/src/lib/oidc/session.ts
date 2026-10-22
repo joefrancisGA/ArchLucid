@@ -277,6 +277,7 @@ export function clearOidcSession(options?: ClearOidcSessionOptions): void {
     OIDC_GOOGLE_CODE_VERIFIER_KEY,
     OIDC_GOOGLE_NONCE_KEY,
     OIDC_POST_SIGN_IN_RETURN_URL_KEY,
+    OIDC_AUTHORIZE_CALLBACK_FAILED_KEY,
   ]);
   clearCachedColorModePreference();
   void clearBffSessionCookie();
@@ -395,6 +396,7 @@ export function storePostSignInReturnUrl(url: string): void {
 
 export function clearPostSignInReturnUrl(): void {
   sessionStorage.removeItem(OIDC_POST_SIGN_IN_RETURN_URL_KEY);
+  sessionStorage.removeItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY);
 }
 
 /** Marks that the authorize callback returned an OAuth error so a retry keeps the stored return URL. */
@@ -429,6 +431,7 @@ export function consumePostSignInReturnUrl(): string | null {
   const url = readSessionKey(OIDC_POST_SIGN_IN_RETURN_URL_KEY);
 
   sessionStorage.removeItem(OIDC_POST_SIGN_IN_RETURN_URL_KEY);
+  sessionStorage.removeItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY);
 
   if (url === null) {
     return null;

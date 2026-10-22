@@ -25324,11 +25324,21 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-10-22 seed hunt (seed-only): `ui-oidc` — re-read authorize-retry preservation, token-client normalization, and session hint boundaries after the 2026-10-22 callback/discovery hit cluster; no new row met hunt-ready bar for a distinct defect (further retry-marker tweaks would duplicate saturated return-path class); cheap-disproof closed ten open `(candidate)` rows; seeded five follow-on `(candidate)` rows; scoped `src/lib/oidc` vitest 332/332.
 
-- [ ] (candidate) `clearOidcSession` — does not remove `OIDC_AUTHORIZE_CALLBACK_FAILED_KEY` so sign-out may leave a stale retry marker — locus: `removeOidcKeys` list; input: sign-out after callback error then later marketing sign-in without `returnUrl` (reachability: sessionStorage survives until tab close).
-- [ ] (candidate) `consumePostSignInReturnUrl` — does not clear authorize-failure marker on successful callback — locus: single-use return consume; input: success path leaves marker until next `initiateOidcRedirect` (may be harmless).
-- [ ] (candidate) `humanizeAuthorizeCallbackError` — `temporarily_unavailable` with empty description vs BFF outage copy — locus: error switch; input: IdP maintenance during callback (copy-only).
-- [ ] (candidate) `parseOidcTokenResponse` — spread preserves pre-normalized `expires_in` when record also has string form — locus: object spread order; input: duplicate keys in malformed JSON (reachability: fuzz).
-- [ ] (candidate) `loadDiscoveryDocument` — failed fetch deletes cache entry but concurrent callers may still await the same rejected promise — locus: `discoveryPromises.delete`; input: parallel discovery during outage (transient).
+- [x] (proven) `clearOidcSession` — authorize-retry marker survived sign-out — **hit 2026-10-22 seed hunt:** see zone-head hit row.
+- [x] (valid-no-repro) `consumePostSignInReturnUrl` — marker on success — **cheap-disproof 2026-10-22 seed hunt:** success consume now clears `OIDC_AUTHORIZE_CALLBACK_FAILED_KEY`.
+- [x] (invalid) `humanizeAuthorizeCallbackError` — temporarily_unavailable copy — **cheap-disproof 2026-10-22 seed hunt:** copy-only; token path now humanizes via shared helper.
+- [x] (valid-no-repro) `parseOidcTokenResponse` — spread `expires_in` — **cheap-disproof 2026-10-22 seed hunt:** `resolveExpiresInSeconds` applied after spread in `parseOidcTokenResponse`.
+- [x] (invalid) `loadDiscoveryDocument` — concurrent rejected promise — **cheap-disproof 2026-10-22 seed hunt:** `discovery.test.ts` retries after transient failure; environmental concurrency.
+
+2026-10-22 seed hunt (seed→hit): `ui-oidc` — promoted hunt-ready `clearOidcSession` / authorize-retry marker — sign-out left `OIDC_AUTHORIZE_CALLBACK_FAILED_KEY` set after an authorize callback error, so a later sign-in without `returnUrl` still skipped stale-return cleanup and preserved an abandoned deep link; clear the marker in `clearOidcSession`, `clearPostSignInReturnUrl`, and `consumePostSignInReturnUrl`; regressions `clears a pending authorize-callback retry marker` and `clears stale post-sign-in return after sign-out even when authorize callback retry was pending`; scoped `src/lib/oidc` vitest 335/335.
+
+- [x] (proven) `clearOidcSession` — stale authorize-retry marker survived sign-out — **hit 2026-10-22 seed hunt:** remove `OIDC_AUTHORIZE_CALLBACK_FAILED_KEY` with session cleanup; regressions above.
+
+- [ ] (candidate) `markAuthorizeCallbackFailed` — no TTL so marker survives until consumed across unrelated sign-in cycles in a long-lived tab — locus: sessionStorage marker; input: callback error then days idle (sign-out now clears).
+- [ ] (candidate) `errorFromOAuthJson` — humanize path uses raw `error` string while message join uses normalized code — locus: `token-client.ts`; input: IdP emits mixed-case `error` with description (reachability: copy consistency).
+- [ ] (candidate) `refreshBffSessionCookie` — ok refresh with missing `expires_at_ms` returns soft-fail without session clear — locus: parse branch; input: empty JSON body on 200 (BFF contract).
+- [ ] (candidate) `buildAuthorizeUrl` — `scope` parameter not deduplicated when env already includes `openid` twice — locus: trim only; input: misconfigured scopes env (deployment).
+- [ ] (candidate) `decodeJwtPayload` — malformed base64 padding returns null display hints — locus: jwt decode; input: truncated id_token (expected null).
 
 ## Zone: ui-oidc
 
@@ -25338,11 +25348,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 91
-- **bugs-found:** 83
-- **consecutive-dry-hunts:** 1
+- **hunts:** 92
+- **bugs-found:** 84
+- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — discovery failure cleared return after authorize retry
+- **last-bug:** 2026-10-22 — authorize-retry marker survived sign-out
 - **hunts:** 78
 - **bugs-found:** 72
 - **consecutive-dry-hunts:** 0

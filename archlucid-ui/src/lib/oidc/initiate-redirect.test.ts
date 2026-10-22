@@ -18,7 +18,7 @@ import {
   clearOperatorScopeStorage,
   writeOperatorScopeToStorage,
 } from "@/lib/operator/operator-scope-storage";
-import { readPkceState, storePkceState } from "@/lib/oidc/session";
+import { clearOidcSession, markAuthorizeCallbackFailed, readPkceState, storePkceState } from "@/lib/oidc/session";
 
 function mockOidcConfigWithRedirectUri(): void {
   vi.doMock("@/lib/oidc/config", async (importOriginal) => {
@@ -623,6 +623,44 @@ describe("initiate redirect PKCE isolation", () => {
       initiateSupplementalOidcRedirect("google", "/architecture/reviews/google-attempt"),
     ).rejects.toThrow("google discovery unavailable");
     expect(sessionStorage.getItem(OIDC_POST_SIGN_IN_RETURN_URL_KEY)).toBeNull();
+  });
+
+  it("clears stale post-sign-in return after sign-out even when authorize callback retry was pending", async () => {
+    sessionStorage.setItem(OIDC_POST_SIGN_IN_RETURN_URL_KEY, "/stale-review");
+    markAuthorizeCallbackFailed();
+    clearOidcSession();
+    sessionStorage.setItem(OIDC_POST_SIGN_IN_RETURN_URL_KEY, "/stale-review");
+
+    const assignMock = vi.fn();
+    vi.stubGlobal("location", { assign: assignMock });
+
+    vi.doMock("@/lib/oidc/config", () => ({
+      getOidcAuthority: () => "https://issuer.example",
+      getOidcClientId: () => "client-id",
+      getOidcRedirectUri: () => "https://app.example/auth/callback",
+      getOidcScopes: () => "openid",
+    }));
+    vi.doMock("@/lib/oidc/pkce", () => ({
+      createPkcePair: vi.fn(async () => ({ verifier: "verifier", challenge: "challenge" })),
+      randomOpaqueState: vi.fn(() => "state"),
+    }));
+    vi.doMock("@/lib/oidc/discovery", () => ({
+      loadDiscoveryDocument: vi.fn(async () => ({
+        issuer: "https://issuer.example",
+        authorization_endpoint: "https://issuer.example/authorize",
+        token_endpoint: "https://issuer.example/token",
+      })),
+    }));
+    vi.doMock("@/lib/oidc/build-authorize-url", () => ({
+      buildAuthorizeUrl: vi.fn(() => "https://issuer.example/authorize?state=state"),
+    }));
+
+    const { initiateOidcRedirect } = await import("@/lib/oidc/initiate-redirect");
+
+    await initiateOidcRedirect();
+
+    expect(sessionStorage.getItem(OIDC_POST_SIGN_IN_RETURN_URL_KEY)).toBeNull();
+    expect(assignMock).toHaveBeenCalled();
   });
 
   it("preserves post-sign-in return path when discovery fails after an authorize callback retry", async () => {

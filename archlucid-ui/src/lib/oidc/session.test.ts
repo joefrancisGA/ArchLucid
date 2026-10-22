@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import * as bffSessionSync from "@/lib/oidc/bff-session-sync";
 import {
   clearOidcSession,
+  markAuthorizeCallbackFailed,
   consumePkceState,
   consumePostSignInReturnUrl,
   getAccessTokenExpiresAtMs,
@@ -19,6 +20,7 @@ import {
   OIDC_DISPLAY_NAME_KEY,
   OIDC_EXPIRES_AT_MS_KEY,
   OIDC_ID_TOKEN_KEY,
+  OIDC_AUTHORIZE_CALLBACK_FAILED_KEY,
   OIDC_POST_SIGN_IN_RETURN_URL_KEY,
   OIDC_REFRESH_TOKEN_KEY,
   OIDC_USER_SUBJECT_KEY,
@@ -774,6 +776,13 @@ describe("clearOidcSession", () => {
     clearOidcSession();
 
     expect(consumePostSignInReturnUrl()).toBeNull();
+  });
+
+  it("clears a pending authorize-callback retry marker", () => {
+    markAuthorizeCallbackFailed();
+    clearOidcSession();
+
+    expect(sessionStorage.getItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY)).toBeNull();
   });
 
   it("broadcasts auth-cleared by default (LW-083)", () => {
