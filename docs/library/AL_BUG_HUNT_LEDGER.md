@@ -1,3 +1,15 @@
+2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed saturated decodeOAuthErrorDescription pictograph glue and BFF refresh 502 parity; Google supplemental sign-in parity regressions for poisoned unsafe URL purge and authorize-retry snapshot vs idle-desk during retry; temporarily_unavailable authorize-query UX parity; scoped vitest 465/465.
+
+- [x] (invalid) decodeOAuthErrorDescription - multiply-encoded %252B with pictograph glue - **cheap-disproof 2026-10-22:** saturated encoding class; no reachable issuer authorize-query shape.
+- [x] (invalid) humanizeAuthorizeCallbackError - temporarily_unavailable authorize-query copy - **cheap-disproof 2026-10-22:** fixed temporary-error UX; not a defect.
+- [x] (valid-no-repro) refreshBffSessionCookie - refresh 502 shouldClearSession false - **cheap-disproof 2026-10-22:** existing client regression on trunk.
+- [x] (valid-no-repro) initiateSupplementalOidcRedirect - poisoned unsafe return URL during authorize retry - **regression 2026-10-22:** preparePostSignInReturnUrlForSignInStart purge + snapshot/idle rehydrate parity with primary initiate.
+
+- [ ] (candidate) humanizeAuthorizeCallbackError - login_required authorize-query copy - locus: default branch UX.
+- [ ] (candidate) refreshBffSessionCookie - refresh 504 shouldClearSession false - locus: transient refresh parity.
+- [ ] (candidate) initiateOidcRedirect - poisoned unsafe URL with in-flight Google PKCE state - locus: clearAbandoned skipped when google pkce present.
+- [ ] (candidate) readOAuthJsonErrorDescription - multiply-encoded %252B with pictograph glue - locus: saturated JSON encoding class.
+
 2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed saturated encoding (%252B+ZWJ glue), transient token exchange retry policy (server_error, authorization_pending), BFF refresh 408 client parity, slow_down authorize-query UX, and clearAbandoned vs prepare helper during authorize retry; regression preserves authorize-retry snapshot on re-mark without post-sign-in URL; scoped vitest 460/460.
 
 - [x] (invalid) readOAuthJsonErrorDescription - multiply-encoded %252B with ZWJ glue - **cheap-disproof 2026-10-22:** constructed literal; no reachable issuer JSON shape on trunk.
@@ -12,31 +24,6 @@
 - [ ] (candidate) humanizeAuthorizeCallbackError - temporarily_unavailable authorize-query copy - locus: default branch UX.
 - [ ] (candidate) refreshBffSessionCookie - refresh 502 shouldClearSession false - locus: transient refresh parity.
 - [ ] (candidate) initiateSupplementalOidcRedirect - poisoned unsafe return URL during authorize retry - locus: Google supplemental sign-in parity.
-2026-10-22 seed hunt (seed->hit): `application-tenancy-lifecycle` - promoted hunt-ready from seed re-read `TenantErasureCommandService.TrySetLegalHoldAsync` - legal hold set platform audit appended after pre-audit quarantine check using only one tenant read, so quarantine restore between that read and audit could emit `TenantErasureLegalHoldSet` for non-quarantined tenants when `requireErasureQuarantine` is true; pre-set-audit `GetByIdAsync` offboard guard; regression `TrySetLegalHoldAsync_returns_success_without_audit_when_quarantine_restored_after_pre_set_audit_read_before_audit_with_quarantine_required`; scoped tenancy filter 255/255.
-
-- [x] (proven) `TrySetLegalHoldAsync` - quarantine restored after pre-set audit read before set audit - **hit 2026-10-22 seed hunt:** pre-set-audit re-read; regression above.
-- [x] (valid-no-repro) `TryApproveErasureAsync` - quarantine restored after pre-approve audit read - **cheap-disproof 2026-10-22:** hit earlier same day on trunk.
-- [x] (valid-no-repro) `TrySetLegalHoldAsync` - quarantine restored on beforeSetAudit read - **cheap-disproof 2026-10-22:** existing three-read regression on trunk.
-- [x] (invalid) `DeleteTenantAsync` - legal hold between revalidate and blob purge - **cheap-disproof 2026-10-22:** revalidate throws before blobs when hold present.
-- [x] (valid-no-repro) `TryClearLegalHoldAsync` - offboard after pre-audit read - **cheap-disproof 2026-10-22:** hit earlier same day on trunk.
-
-- [ ] (candidate) `TrySetLegalHoldAsync` - legal hold cleared after pre-set audit read before set audit (platform operator) - locus: hold-cleared race parity (reachability: erasure command).
-- [ ] (candidate) `DeleteTenantAsync` - legal hold activated between revalidate and blob purge - locus: mid-destructive revalidate (reachability: admin delete job).
-- [ ] (candidate) `TrialLifecycleTransitionEngine` - offboard between audit and expiration metric - locus: post-audit superseded read (reachability: saturated).
-- [ ] (candidate) `TenantErasureCommandService.TryRestoreQuarantineAsync` - offboard after restore before restore audit - locus: existing race tests (reachability: saturated).
-- [ ] (candidate) `TenantCatalogMigrationOrchestrator.StartAsync` - offboard after insert before started audit - locus: existing regression (reachability: saturated).
-2026-10-22 seed hunt (seed-only): `ui-oidc` - no hunt-ready product defect; cheap-disproof closed temporarily_unavailable fixed authorize copy, slow_down code-exchange retry policy, and encoding candidate; parity regressions BFF refresh HTTP 412 and opaque token endpoint 412 without cookie clear, and idle-desk rehydrate when authorize-retry snapshot is unsafe; scoped `src/lib/oidc` + BFF refresh route vitest 489/489.
-
-- [x] (invalid) humanizeAuthorizeCallbackError - temporarily_unavailable authorize-query copy - **cheap-disproof 2026-10-22:** dedicated fixed-branch UX; not a security defect.
-- [x] (valid-no-repro) refreshBffSessionCookie - refresh 412 shouldClearSession false - **regression 2026-10-22:** non-401/403 refresh failures soft-fail without cookie clear.
-- [x] (valid-no-repro) exchangeAuthorizationCode - slow_down marks authorize retry - **cheap-disproof 2026-10-22:** `token-client.test.ts` marks retry on transient slow_down exchange.
-- [x] (valid-no-repro) preparePostSignInReturnUrlForSignInStart - idle desk when snapshot unsafe - **regression 2026-10-22:** unsafe snapshot purged then idle-desk path restored at sign-in start.
-- [x] (invalid) readOAuthJsonErrorDescription - multiply-encoded %252B with ZWJ glue - **cheap-disproof 2026-10-22:** saturated encoding class on trunk.
-
-- [ ] (candidate) humanizeAuthorizeCallbackError - invalid_scope authorize-query copy - locus: fixed-branch UX.
-- [ ] (candidate) refreshBffSessionCookie - refresh 413 shouldClearSession false - locus: proxy transient policy.
-- [ ] (candidate) exchangeAuthorizationCode - temporarily_unavailable marks authorize retry - locus: transient exchange policy.
-- [ ] (candidate) readPostSignInReturnUrl - backslash-prefixed path purge during retry - locus: tamper defense parity.
 
 2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; closed head candidates via cheap-disproof and parity regressions (authorization_pending authorize-query UX, clearOidcSession preserves retry snapshot without identity, ZWSP-only authorize-retry snapshot purge, BFF refresh HTTP 410 soft-fail, initiate rehydrate after unsafe consume + tampered post-sign-in URL); deduped duplicate BFF 425 test; scoped vitest 458/458.
 
@@ -26006,9 +25993,6 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 84
-- **hunts:** 83
-- **hunts:** 82
 - **hunts:** 81
 - **hunts:** 87
 - **hunts:** 91
