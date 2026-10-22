@@ -200,5 +200,24 @@ describe("CallbackClient", () => {
     expect(screen.getByRole("link", { name: "Try again" })).toHaveAttribute("href", "/auth/signin");
     expect(screen.getByTestId("fatal-page-report-problem-row")).toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "Back to sign in" })).toBeNull();
+    expect(markAuthorizeCallbackFailed).toHaveBeenCalledTimes(1);
+  });
+
+  it("marks authorize callback failed when sign-in config is invalid and the callback query is empty", async () => {
+    vi.mocked(assertOidcSignInConfig).mockReturnValueOnce({
+      ok: false,
+      message: "OIDC is not configured.",
+    });
+
+    searchParamsMock.value = new URLSearchParams();
+
+    render(<CallbackClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("auth-callback-access-panel")).toBeInTheDocument();
+    });
+
+    expect(markAuthorizeCallbackFailed).toHaveBeenCalledTimes(1);
+    expect(consumePkceState).not.toHaveBeenCalled();
   });
 });

@@ -66,7 +66,7 @@ function shouldPreservePostSignInReturnForCallbackQuery(params: {
   }
 
   if (!code || !state) {
-    return Boolean(code || state);
+    return true;
   }
 
   return false;
