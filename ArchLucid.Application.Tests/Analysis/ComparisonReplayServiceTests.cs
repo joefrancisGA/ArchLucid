@@ -330,6 +330,41 @@ public sealed class ComparisonReplayServiceTests
     }
 
     [Fact]
+    public async Task ReplayAsync_end_to_end_artifact_throws_when_career_posture_blocks_metadata_read()
+    {
+        EndToEndReplayComparisonReport report = SampleEndToEndReport();
+        ComparisonRecord record = EndToEndRecord("e2e-career-artifact", report);
+        Mock<IComparisonRecordRepository> repo = SetupRepo(record);
+        Guid leftRunGuid = Guid.Parse(report.LeftRunId);
+        Mock<IRunExportCareerPostureGate> careerGate = new();
+        careerGate
+            .Setup(g => g.EnsureAllowsExportRecordMetadataOrThrowAsync(
+                leftRunGuid,
+                It.IsAny<ScopeContext>(),
+                It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new CareerArtifactExportBlockedException(
+                SimulatorCareerHonestyPresenter.SimulatorRehearsalBlockedMessage,
+                CareerArtifactCompletenessValidator.SimulatorRehearsalCode));
+        Mock<IEndToEndReplayComparisonExportService> export = new();
+        ManifestHashService manifestHashService = new();
+        Mock<IAuthorityQueryService> authority = new();
+        SetupSealedManifestForRuns(authority, manifestHashService, report.LeftRunId, report.RightRunId);
+        ComparisonReplayService sut = CreateSut(
+            comparisonRepo: repo.Object,
+            e2eExport: export.Object,
+            authorityQuery: authority.Object,
+            manifestHash: manifestHashService,
+            careerGate: careerGate.Object);
+
+        Func<Task> act = () => sut.ReplayAsync(
+            new ReplayComparisonRequest { ComparisonRecordId = "e2e-career-artifact", ReplayMode = "artifact" },
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<CareerArtifactExportBlockedException>();
+        export.Verify(e => e.GenerateMarkdown(It.IsAny<EndToEndReplayComparisonReport>(), It.IsAny<string?>()), Times.Never);
+    }
+
+    [Fact]
     public async Task ReplayAsync_export_diff_regenerate()
     {
         ExportRecordDiffResult stored = SampleExportDiff();
