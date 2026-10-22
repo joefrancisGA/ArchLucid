@@ -4,7 +4,6 @@ using System.Text;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Persistence.DecisionTraces;
 using ArchLucid.Core.Artifacts;
-using ArchLucid.Core.Manifest;
 using ArchLucid.Decisioning.Models;
 
 namespace ArchLucid.Provenance;

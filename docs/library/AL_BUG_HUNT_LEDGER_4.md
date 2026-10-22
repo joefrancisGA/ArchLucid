@@ -12470,10 +12470,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 60
-- **bugs-found:** 51
+- **hunts:** 61
+- **bugs-found:** 52
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 - provenance revision hash ignored findings related-node linkage
+- **last-bug:** 2026-10-22 - provenance revision hash ignored manifest decision supporting-finding linkage
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -12485,7 +12485,12 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - [x] (proven) `ProvenanceSnapshotRevisionHasher.Compute` — findings `RelatedNodeIds` changes did not change revision fingerprint when `FindingsSnapshotId` was unchanged — **hit 2026-10-22 seed hunt (seed→hit):** `ComputeFindingsFingerprint` with normalized finding id and related-node lists; regression above.
 
-- [ ] (candidate) `ProvenanceSnapshotRevisionHasher.Compute` — manifest `SupportingFindingIds` on decisions may not change revision fingerprint when `ManifestId` and `ManifestHash` are unchanged — locus: canonical revision string; input: decision support linkage amendment without manifest re-hash; wrong outcome: stale `SupportedBy` edges.
+2026-10-22 seed hunt (seed→hit): promoted manifest decision linkage candidate; proved `ProvenanceSnapshotRevisionHasher.Compute` omitted manifest decision `SupportingFindingIds` from the canonical fingerprint, so a stale or placeholder `ManifestHash` left `ProvenanceGraphAccessService` serving stale `SupportedBy` edges; regression `Compute_changes_when_supporting_finding_ids_change_but_manifest_hash_is_unchanged`; 377 KnowledgeGraph + 64 Provenance scoped tests passed.
+
+- [x] (proven) `ProvenanceSnapshotRevisionHasher.Compute` — manifest `SupportingFindingIds` changes did not change revision fingerprint when `ManifestHash` was unchanged — **hit 2026-10-22 seed hunt (seed→hit):** `ComputeManifestDecisionsFingerprint`; regression above.
+- [x] (valid-no-repro) `ProvenanceSnapshotRevisionHasher.Compute` — manifest `SupportingFindingIds` when `ManifestHash` is authoritative — **cheap-disproof 2026-10-22 seed hunt:** `ManifestHashService` canonical projection already sorts and hashes `SupportingFindingIds`; fingerprint is defense-in-depth for empty/stale hash rows, not a substitute when hash is current.
+
+- [ ] (candidate) `ProvenanceSnapshotRevisionHasher.Compute` — graph node or edge payload changes may not change revision fingerprint when `GraphSnapshotId` is unchanged — locus: canonical revision string; input: in-place graph mutation under stable snapshot id; wrong outcome: stale graph-influence provenance.
 
 2026-10-22 seed hunt (seed→hit): promoted revision-hasher candidates; proved `ProvenanceSnapshotRevisionHasher.Compute` omitted `Manifest.ManifestHash` and normalized `AppliedRuleIds` from the canonical fingerprint so `ProvenanceGraphAccessService` could reuse a stored snapshot after manifest refresh or rule-list amendment under the same ids; regressions `Compute_changes_when_manifest_hash_changes_but_manifest_id_is_unchanged` and `Compute_changes_when_applied_rule_ids_change_but_decision_trace_id_is_unchanged`; 377 KnowledgeGraph + 61 Provenance scoped tests passed.
 
