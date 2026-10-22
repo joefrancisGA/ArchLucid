@@ -112,6 +112,10 @@ describe("readOAuthJsonErrorDescription", () => {
     expect(readOAuthJsonErrorDescription("\u2026\u2026")).toBe("");
   });
 
+  it("returns empty for middle-dot-only token-endpoint JSON error_description values", () => {
+    expect(readOAuthJsonErrorDescription("\u00b7\u00b7")).toBe("");
+  });
+
   it("preserves ZWNJ in Persian token error_description copy", () => {
     const detail = "دسترسی\u200cرد";
 
@@ -327,6 +331,10 @@ describe("decodeOAuthErrorDescription", () => {
 
   it("returns empty for ellipsis-only percent-encoded error descriptions", () => {
     expect(decodeOAuthErrorDescription("%E2%80%A6")).toBe("");
+  });
+
+  it("returns empty for middle-dot-only percent-encoded error descriptions", () => {
+    expect(decodeOAuthErrorDescription("%C2%B7")).toBe("");
   });
 
   it("returns empty for percent-encoded punctuation-only error descriptions", () => {
@@ -584,6 +592,13 @@ describe("humanizeAuthorizeCallbackError", () => {
 
     expect(message).toMatch(/request not supported/i);
     expect(message).not.toContain("request_not_supported");
+  });
+
+  it("humanizes unsupported_response_type authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("unsupported_response_type", "");
+
+    expect(message).toMatch(/unsupported response type/i);
+    expect(message).not.toContain("unsupported_response_type");
   });
 
   it("humanizes request_uri_too_long authorize callback errors with readable copy", () => {

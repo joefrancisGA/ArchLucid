@@ -26,6 +26,9 @@ import {
   OIDC_ID_TOKEN_KEY,
   OIDC_AUTHORIZE_CALLBACK_FAILED_KEY,
   OIDC_AUTHORIZE_RETRY_RETURN_PATH_KEY,
+  OIDC_CODE_VERIFIER_KEY,
+  OIDC_NONCE_KEY,
+  OIDC_OAUTH_STATE_KEY,
   OIDC_POST_SIGN_IN_RETURN_URL_KEY,
   OIDC_REFRESH_TOKEN_KEY,
   OIDC_USER_SUBJECT_KEY,
@@ -906,6 +909,15 @@ describe("consumePkceState", () => {
       nonce: "primary-nonce",
       flow: "primary",
     });
+  });
+
+  it("rejects PKCE consume when tampered session state contains interior vertical-tab control characters", () => {
+    sessionStorage.setItem(OIDC_OAUTH_STATE_KEY, "desk\u000Bstate");
+    sessionStorage.setItem(OIDC_CODE_VERIFIER_KEY, "primary-verifier");
+    sessionStorage.setItem(OIDC_NONCE_KEY, "primary-nonce");
+
+    expect(consumePkceState("deskstate")).toBeNull();
+    expect(consumePkceState("desk-state")).toBeNull();
   });
 });
 
