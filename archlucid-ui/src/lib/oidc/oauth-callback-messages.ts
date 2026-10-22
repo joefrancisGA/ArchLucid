@@ -91,7 +91,7 @@ export function coerceAcceptedOidcEpochMsHint(parsed: number): number {
     return Number.NaN;
   }
 
-  return parsed;
+  return truncatedEpochMs;
 }
 
 /** Parses epoch-ms hints from sessionStorage or BFF refresh JSON; rejects hex/binary/octal literals. */

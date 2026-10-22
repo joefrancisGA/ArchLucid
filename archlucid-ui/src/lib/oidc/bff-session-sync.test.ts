@@ -319,7 +319,7 @@ describe("refreshBffSessionCookie (LK-06 P2)", () => {
 
     const result = await refreshBffSessionCookie();
 
-    expect(result).toEqual({ ok: true, expiresAtMs: futureMs });
+    expect(result).toEqual({ ok: true, expiresAtMs: Math.trunc(futureMs) });
   });
 
   it("accepts refresh responses whose expires_at_ms string has zero-width padding", async () => {
