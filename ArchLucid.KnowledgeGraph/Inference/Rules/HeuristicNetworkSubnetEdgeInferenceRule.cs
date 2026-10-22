@@ -44,8 +44,8 @@ internal sealed class HeuristicNetworkSubnetEdgeInferenceRule : IGraphEdgeInfere
         if (networkCount == 1)
             return true;
 
-        string netLabel = network.Label;
-        if (string.IsNullOrWhiteSpace(netLabel) || netLabel.Length < 3)
+        string netLabel = (network.Label ?? string.Empty).Trim();
+        if (netLabel.Length < 3)
             return false;
 
         return subnet.Label.Contains(netLabel, StringComparison.OrdinalIgnoreCase);

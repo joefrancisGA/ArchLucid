@@ -405,6 +405,43 @@ public sealed class GraphEdgeInferenceRuleTests
     }
 
     [Fact]
+    public void InferEdges_heuristic_network_subnet_rule_matches_label_substring_when_network_label_has_surrounding_whitespace()
+    {
+        ContextSnapshot snapshot = BuildSnapshot();
+        GraphNode networkEast = new()
+        {
+            NodeId = "net-a",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "  vnet-east  ",
+            Category = GraphTopologyCategories.Network,
+        };
+        GraphNode networkWest = new()
+        {
+            NodeId = "net-b",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "vnet-west",
+            Category = GraphTopologyCategories.Network,
+        };
+        GraphNode subnet = new()
+        {
+            NodeId = "subnet-1",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "subnet-vnet-east-tier",
+        };
+
+        IReadOnlyList<GraphEdge> edges = _sut.InferEdges(snapshot, [networkEast, networkWest, subnet]);
+
+        edges.Should().Contain(e =>
+            e.InferenceSource == GraphEdgeInferenceSources.HeuristicNetworkSubnet
+            && e.FromNodeId == "net-a"
+            && e.ToNodeId == "subnet-1"
+            && e.EdgeType == GraphEdgeTypes.ContainsResource);
+        edges.Should().NotContain(e =>
+            e.InferenceSource == GraphEdgeInferenceSources.HeuristicNetworkSubnet
+            && e.FromNodeId == "net-b");
+    }
+
+    [Fact]
     public void InferEdges_heuristic_network_subnet_rule_includes_network_when_category_has_surrounding_whitespace()
     {
         ContextSnapshot snapshot = BuildSnapshot();
