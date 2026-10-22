@@ -147,6 +147,32 @@ describe("refreshAccessToken", () => {
         ),
       ),
     ).toBe(true);
+    expect(shouldMarkAuthorizeCallbackFailedOnExchangeError(new Error("Token endpoint error 502"))).toBe(true);
+  });
+
+  it("marks authorize callback failed when authorization code exchange returns an opaque HTTP error body", async () => {
+    sessionStorage.clear();
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => ({
+        ok: false,
+        status: 502,
+        text: async () => "<html><body>gateway failure</body></html>",
+      })),
+    );
+
+    await expect(
+      exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      }),
+    ).rejects.toThrow(/Token endpoint error 502/i);
+
+    expect(sessionStorage.getItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY)).toBe("1");
   });
 
   it("marks authorize callback failed when authorization code exchange fails", async () => {
