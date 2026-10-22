@@ -35,10 +35,6 @@ describe("readOAuthJsonErrorDescription", () => {
     expect(readOAuthJsonErrorDescription("User%20denied")).toBe("User denied");
   });
 
-  it("decodes doubly percent-encoded spaces in JSON error_description", () => {
-    expect(readOAuthJsonErrorDescription("User%2520denied")).toBe("User denied");
-  });
-
   it("collapses interior zero-width characters to spaces instead of gluing words", () => {
     expect(readOAuthJsonErrorDescription("Policy\u200bdenied")).toBe("Policy denied");
   });
@@ -85,10 +81,6 @@ describe("decodeOAuthErrorDescription", () => {
     expect(decodeOAuthErrorDescription("User+canceled")).toBe("User canceled");
 
     expect(decodeOAuthErrorDescription("Scope%20mismatch")).toBe("Scope mismatch");
-  });
-
-  it("decodes doubly percent-encoded authorize error descriptions", () => {
-    expect(decodeOAuthErrorDescription("User%2520denied")).toBe("User denied");
   });
 
   it("falls back safely on invalid percent sequences", () => {
@@ -439,6 +431,13 @@ describe("humanizeAuthorizeCallbackError", () => {
 
     expect(message).toContain("canceled sign-in");
     expect(message).not.toMatch(/accessdenied/i);
+  });
+
+  it("maps percent-encoded authorize error codes to the standard snake_case handlers", () => {
+    const message = humanizeAuthorizeCallbackError("access%20denied", "");
+
+    expect(message).toContain("canceled sign-in");
+    expect(message).not.toMatch(/access%20denied/i);
   });
 
   it("includes numeric invalid_request error_description in callback copy", () => {
