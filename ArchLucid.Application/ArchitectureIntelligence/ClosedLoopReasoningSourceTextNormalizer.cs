@@ -87,14 +87,17 @@ internal static class ClosedLoopReasoningSourceTextNormalizer
         return string.Join('/', segments);
     }
 
+    private static ReadOnlySpan<char> UnicodeLineBreakScalars =>
+        ['\r', '\u000b', '\u0085', '\u2028', '\u2029'];
+
     private static string NormalizeLineEndings(string content)
     {
-        return content
-            .Replace("\r\n", "\n")
-            .Replace('\r', '\n')
-            .Replace('\u2028', '\n')
-            .Replace('\u2029', '\n')
-            .Replace('\u0085', '\n');
+        content = content.Replace("\r\n", "\n");
+
+        foreach (char lineBreak in UnicodeLineBreakScalars)
+            content = content.Replace(lineBreak, '\n');
+
+        return content;
     }
 
     private static string StripUtf8Bom(string content)

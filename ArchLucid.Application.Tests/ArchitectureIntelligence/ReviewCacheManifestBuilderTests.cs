@@ -455,6 +455,7 @@ public sealed class ReviewCacheManifestBuilderTests
     [InlineData("\u2028")]
     [InlineData("\u2029")]
     [InlineData("\u0085")]
+    [InlineData("\u000b")]
     public void Build_matches_content_hash_when_source_content_uses_unicode_line_separators(
         string lineSeparator)
     {
@@ -800,6 +801,29 @@ public sealed class ReviewCacheManifestBuilderTests
         nfdRequest.FramingAnswers = new Dictionary<string, string>(StringComparer.Ordinal)
         {
             ["outcome"] = nfdAnswer,
+        };
+
+        ReviewCacheManifestBuilder.Build(nfcRequest).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(nfdRequest).ContentHash);
+    }
+
+    [Fact]
+    public void Build_matches_content_hash_when_framing_key_differs_only_by_unicode_normalization_form()
+    {
+        const string nfcKey = "caf\u00E9-scope";
+        const string nfdKey = "cafe\u0301-scope";
+
+        ClosedLoopReasoningRequest nfcRequest = CreateRequest("Architecture note.");
+        nfcRequest.FramingAnswers = new Dictionary<string, string>(StringComparer.Ordinal)
+        {
+            [nfcKey] = "Secure intake",
+        };
+
+        ClosedLoopReasoningRequest nfdRequest = CreateRequest("Architecture note.");
+        nfdRequest.FramingAnswers = new Dictionary<string, string>(StringComparer.Ordinal)
+        {
+            [nfdKey] = "Secure intake",
         };
 
         ReviewCacheManifestBuilder.Build(nfcRequest).ContentHash
