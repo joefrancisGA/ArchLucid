@@ -95,6 +95,28 @@ public sealed class PostAuthBootstrapServiceTests
     }
 
     [Fact]
+    public async Task CreateWorkspaceAsync_denies_when_industry_vertical_not_in_curated_list()
+    {
+        (PostAuthBootstrapService sut, Guid userId, _, _) = CreateSut();
+
+        PostAuthCreateWorkspaceResult result = await sut.CreateWorkspaceAsync(
+            userId,
+            "new@example.com",
+            "new@example.com",
+            new PostAuthCreateWorkspaceRequest
+            {
+                WorkspaceName = "Invalid Vertical Workspace",
+                OrganizationName = "Invalid Org",
+                TermsAccepted = true,
+                IndustryVertical = "Defense",
+            },
+            CancellationToken.None);
+
+        Assert.False(result.Succeeded);
+        Assert.Contains("curated list", result.CustomerMessage, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
     public async Task CreateWorkspaceAsync_denies_when_other_vertical_without_other_specification()
     {
         (PostAuthBootstrapService sut, Guid userId, _, _) = CreateSut();

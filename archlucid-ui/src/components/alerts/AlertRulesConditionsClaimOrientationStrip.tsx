@@ -1,1 +1,0 @@
-export { AlertRulesConditionsSourcesOrientationStrip as AlertRulesConditionsClaimOrientationStrip } from "./AlertRulesConditionsSourcesOrientationStrip";

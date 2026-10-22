@@ -53,6 +53,15 @@ public sealed partial class PostAuthWorkspaceBootstrapService
                     "industry_vertical_other_required"));
         }
 
+        if (request.IndustryVertical is { } industryVertical
+            && !RegistrationRequestBaselineValidator.IndustryVerticals.Contains(industryVertical))
+        {
+            return AuthValidationResultMapper.ToPostAuthCreateWorkspaceDeny(
+                AuthValidationResult.Invalid(
+                    "IndustryVertical is not in the curated list.",
+                    "industry_vertical_invalid"));
+        }
+
         IReadOnlyList<WorkspaceMembershipRecord> activeMemberships =
             await PostAuthBootstrapSupport.ListActiveMembershipsAsync(_memberships, platformUserId, cancellationToken)
                 .ConfigureAwait(false);

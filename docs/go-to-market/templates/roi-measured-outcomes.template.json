@@ -1,9 +1,0 @@
-{
-  "schema": "archlucid.roi-measured-outcomes.v1",
-  "runId": "",
-  "measurementKind": "observed",
-  "sourceArtifact": "",
-  "reviewCycleHours": null,
-  "architectHoursPerReview": null,
-  "evidenceAssemblyHours": null
-}

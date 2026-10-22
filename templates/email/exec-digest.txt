@@ -1,7 +1,0 @@
-Weekly sponsor digest from {{ProductName}}.
-{{WeekLabel}}
-
-Open dashboard: {{DashboardUrl}}
-Sponsor run: {{SponsorValueReportUrl}}
-
-Unsubscribe: {{UnsubscribeUrl}}

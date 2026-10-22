@@ -1,9 +1,0 @@
-flowchart TB
-  GL["gitleaks"] --> Lanes["ci-path-lanes"]
-  Lanes --> Fast["dotnet-fast-core"]
-  Fast --> OpenAPI["openapi-contract-snapshot"]
-  Fast --> Inj["ci-agent-prompt-injection-regression"]
-  Fast --> TfPriv["terraform-validate-private"]
-  Fast --> TfPub["terraform-validate-public"]
-  OpenAPI --> Full["dotnet-full-regression shards"]
-  Inj --> Full

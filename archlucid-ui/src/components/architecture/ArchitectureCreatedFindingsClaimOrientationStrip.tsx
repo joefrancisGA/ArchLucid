@@ -1,1 +1,0 @@
-export { ArchitectureCreatedFindingsSourcesOrientationStrip as ArchitectureCreatedFindingsClaimOrientationStrip } from "./ArchitectureCreatedFindingsSourcesOrientationStrip";

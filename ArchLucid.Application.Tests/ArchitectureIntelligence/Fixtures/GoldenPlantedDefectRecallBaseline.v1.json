@@ -1,6 +1,0 @@
-{
-  "fixtureId": "golden-incomplete",
-  "minimumPlantedDefectRecall": 0.25,
-  "matchingMethod": "heuristic-title-pattern",
-  "notes": "Raise minimumPlantedDefectRecall only when golden title-pattern matching improves; not a semantic accuracy claim."
-}

@@ -1,1 +1,0 @@
-export { ArchitectureCreatedGovernanceSourcesOrientationStrip as ArchitectureCreatedGovernanceClaimOrientationStrip } from "./ArchitectureCreatedGovernanceSourcesOrientationStrip";

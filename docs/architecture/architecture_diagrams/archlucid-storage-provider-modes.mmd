@@ -1,9 +1,0 @@
-flowchart TB
-  MODE{"ArchLucid:StorageProvider"}
-  MODE -->|InMemory| IM["Dev / tests<br/>never queues authority"]
-  MODE -->|Sql| SQL["Production path"]
-  SQL --> TOPO{"SqlTopology:Mode"}
-  TOPO -->|SystemWithPerTenantCatalogs| OK["Hosted SaaS required"]
-  TOPO -->|SingleCatalog| DEV["CI / local only<br/>fail-closed in prod-like"]
-  SQL --> COSMOS["Cosmos graph optional outbox"]
-  IM --> SIM["Simulator-friendly"]

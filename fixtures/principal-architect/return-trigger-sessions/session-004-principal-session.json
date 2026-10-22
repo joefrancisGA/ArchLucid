@@ -1,9 +1,0 @@
-{
-  "schema": "archlucid.principal-architect-session.v1",
-  "sessionId": "pa-session-004",
-  "sessionUtc": "2026-06-03T16:00:00Z",
-  "cohortLabel": "first-session-cohort",
-  "participantLabel": "participant-d",
-  "reuseIntent": "maybe",
-  "notes": "Requested follow-up on governance rework scenario."
-}

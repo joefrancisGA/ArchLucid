@@ -11261,6 +11261,20 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: application-tenancy-lifecycle
 
+2026-10-22 seed hunt (seed→hit): promoted post-auth uncatalogued `IndustryVertical` — registration rejects via `RegistrationRequestBaselineValidator.IndustryVerticals` but `CreateWorkspaceAsync` accepted arbitrary labels into trial bootstrap; shared curated-list guard before provision; regression `CreateWorkspaceAsync_denies_when_industry_vertical_not_in_curated_list`; cheap-disproof closed four sibling `(candidate)` rows.
+
+- [x] (proven) `PostAuthWorkspaceBootstrapService.CreateWorkspaceAsync` — uncatalogued `IndustryVertical` accepted — **hit 2026-10-22 seed hunt:** `RegistrationRequestBaselineValidator.IndustryVerticals` parity; regression `CreateWorkspaceAsync_denies_when_industry_vertical_not_in_curated_list`.
+- [x] (valid-no-repro) `TenantWorkOwnershipDeletePolicyService.SetAllowCreatorDeleteOwnedWorkAsync` — writer without admin at service — **cheap-disproof 2026-10-22:** tenant settings mutations authorized at API/controller layer; service is tenant-scoped upsert only.
+- [x] (valid-no-repro) `TenantMigrationStatusService.GetForTenantAsync` — `MaintenanceMessage` during suspended migration — **cheap-disproof 2026-10-22:** intentional operator visibility during active migration (not erasure quarantine).
+- [x] (invalid) `TrialLifecycleAdvancement` — mismatched from/to statuses — **cheap-disproof 2026-10-22:** only constructed by `TrialLifecyclePolicy`; no external attacker input path.
+- [x] (valid-no-repro) `TenantProvisioningService.ProvisionAsync` — `DataRegion` mismatch on idempotent retry — **cheap-disproof 2026-10-22:** `WasAlreadyProvisioned` conflict path does not re-run bootstrap (`BuildAlreadyProvisionedResultAsync` ledger #1247).
+
+- [ ] (candidate) `PostAuthWorkspaceBootstrapService.CreateWorkspaceAsync` — `CompanySize` band not validated on post-auth path — locus: no `AllowedCompanySizes` check; input: post-auth create with unknown company size (reachability: optional profile fields on workspace create).
+- [ ] (candidate) `TenantSuspendCommandService.TrySuspendAsync` — idempotent suspend when already suspended returns before audit — locus: `AlreadyInDesiredState` early return; input: double admin suspend (reachability: admin API).
+- [ ] (candidate) `TenantSlugNormalizer.FromName` — slug truncated at 100 chars mid-token — locus: `slug[..100].TrimEnd('-')`; input: 101-char alphanumeric name (reachability: registration slug derivation).
+- [ ] (candidate) `TrialLimitGate.GuardWriteAsync` — `Guid.Empty` tenant scope bypass — locus: early return ~32–33; input: missing tenant scope on mutating call (reachability: internal scope binding).
+- [ ] (candidate) `TenantMigrationVerificationProbe.RunAsync` — fails when `SuspendedUtc` null — locus: write-freeze guard ~42–45; input: verification invoked before suspend (reachability: orchestrator stage ordering).
+
 2026-10-22 seed hunt (seed→hit): promoted post-auth `IndustryVertical=Other` without `IndustryVerticalOther` — self-service registration rejects via `RegistrationRequestBaselineValidator` but `CreateWorkspaceAsync` provisioned and bootstrapped; added deny guard before provision; regression `CreateWorkspaceAsync_denies_when_other_vertical_without_other_specification`; cheap-disproof closed four sibling `(candidate)` rows.
 
 - [x] (proven) `PostAuthWorkspaceBootstrapService.CreateWorkspaceAsync` — `IndustryVertical=Other` with blank `IndustryVerticalOther` accepted — **hit 2026-10-22 seed hunt:** registration parity validation before provision; regression `CreateWorkspaceAsync_denies_when_other_vertical_without_other_specification`.
@@ -11269,11 +11283,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (valid-no-repro) `TrialSignupBaselineReviewCycleCapture` — negative baseline hours — **cheap-disproof 2026-10-22:** `RegistrationRequestBaselineValidator` rejects `<= 0` before capture reaches commit (`BaselineReviewCycleHours must be greater than 0`).
 - [x] (valid-no-repro) `TenantAgentOutputQualityGateModeService.SetAsync` — invalid mode string at service layer — **cheap-disproof 2026-10-22:** `SetAsync` accepts typed `AgentOutputQualityGateMode` enum only; string parsing is `GetAsync` read path.
 
-- [ ] (candidate) `PostAuthWorkspaceBootstrapService.CreateWorkspaceAsync` — uncatalogued `IndustryVertical` string accepted — locus: no curated list check (registration uses `IndustryVerticals`); input: post-auth create with unknown vertical label (reachability: `PostAuthBootstrapController`).
-- [ ] (candidate) `TenantWorkOwnershipDeletePolicyService.SetAllowCreatorDeleteOwnedWorkAsync` — toggle without tenant admin role re-check at service — locus: `SetAsync` upsert only; input: settings API caller with writer role only (reachability: tenant settings controller authz).
-- [ ] (candidate) `TenantMigrationStatusService.GetForTenantAsync` — `MaintenanceMessage` exposed while tenant suspended mid-migration — locus: snapshot maps `active.MaintenanceMessage`; input: operator message set during scope-freeze (reachability: migration status API).
-- [ ] (candidate) `TrialLifecycleAdvancement` record — public ctor allows mismatched from/to statuses — locus: struct-like record without invariant; input: test-only malformed advancement passed to audit emitter (reachability: internal scheduler only).
-- [ ] (candidate) `TenantProvisioningService.ProvisionAsync` — `DataRegion` on request not re-validated against tenant row on idempotent retry — locus: `WasAlreadyProvisioned` path; input: reprovision same slug with different region (reachability: registration conflict flow).
+- [x] (proven) `PostAuthWorkspaceBootstrapService.CreateWorkspaceAsync` — uncatalogued `IndustryVertical` — **hit 2026-10-22 seed hunt:** see zone header.
+- [x] (valid-no-repro) `TenantWorkOwnershipDeletePolicyService` — admin role at service — **closed 2026-10-22 seed hunt:** see zone header.
+- [x] (valid-no-repro) `TenantMigrationStatusService` — maintenance message visibility — **closed 2026-10-22 seed hunt:** see zone header.
+- [x] (invalid) `TrialLifecycleAdvancement` — mismatched statuses — **closed 2026-10-22 seed hunt:** see zone header.
+- [x] (valid-no-repro) `TenantProvisioningService.ProvisionAsync` — data region on idempotent retry — **closed 2026-10-22 seed hunt:** see zone header.
 
 2026-10-22 seed hunt (seed→hit): promoted `PostAuthWorkspaceBootstrapService.BuildCompanyProfile` — stray `IndustryVerticalOther` flowed into post-auth trial bootstrap when vertical was not `Other` (registration path already nulls it); parity guard in `BuildCompanyProfile`; regression `CreateWorkspaceAsync_strips_industry_vertical_other_when_vertical_is_not_other`; cheap-disproof closed four sibling `(candidate)` rows; scoped post-auth + org-detector tests passed.
 
@@ -11283,11 +11297,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (valid-no-repro) `TrialLifecycleTransitionEngine.TryAdvanceTenantAsync` — stale workspace link for transition audit — **cheap-disproof 2026-10-22:** `[state-machine-gap]` saturated; workspace-missing audit skip already proven (`TryAdvanceTenantAsync_skips_transition_audit_when_workspace_link_missing_before_audit`).
 - [x] (valid-no-repro) `TenantOrganizationDuplicateDetector.IsDuplicateOrganization` — `IX_` only on outer exception — **regression 2026-10-22:** `IsDuplicateOrganization_detects_ix_index_name_on_outer_exception_message`.
 
-- [ ] (candidate) `PostAuthWorkspaceBootstrapService.BuildCompanyProfile` — `IndustryVerticalOther` required when vertical is `Other` but empty — locus: trim-only mapping; input: post-auth create with `IndustryVertical=Other` and blank other (reachability: `PostAuthBootstrapController` + validator parity).
-- [ ] (candidate) `TenantTrialFacade.GetTrialStatusAsync` — lowercase `trialStatus` display vs policy transitions — locus: status normalization; input: tenant row with non-canonical casing (reachability: trial status API).
-- [ ] (candidate) `TenantUsageStatusService.BuildAsync` — workspace count includes offboarded tenant workspaces — locus: membership filter; input: admin usage snapshot for suspended-not-offboarded tenant (reachability: usage status service callers).
-- [ ] (candidate) `TrialSignupBaselineReviewCycleCapture` — negative hours rejected at capture vs commit — locus: hours validation split; input: baseline capture with `-1` hours (reachability: self-service registration).
-- [ ] (candidate) `TenantAgentOutputQualityGateModeService.SetAsync` — invalid mode string rejected at API but not at service — locus: `SetAsync` write path; input: admin settings with unknown mode token (reachability: tenant settings controller).
+- [x] (proven) `PostAuthWorkspaceBootstrapService.CreateWorkspaceAsync` — `Other` vertical without other specification — **hit 2026-10-22 seed hunt:** see zone header.
+- [x] (valid-no-repro) `TenantTrialFacade.GetTrialStatusAsync` — lowercase `trialStatus` — **closed 2026-10-22 seed hunt:** see zone header.
+- [x] (valid-no-repro) `TenantUsageStatusService.BuildAsync` — offboarded workspace count — **closed 2026-10-22 seed hunt:** see zone header.
+- [x] (valid-no-repro) `TrialSignupBaselineReviewCycleCapture` — negative baseline hours — **closed 2026-10-22 seed hunt:** see zone header.
+- [x] (valid-no-repro) `TenantAgentOutputQualityGateModeService.SetAsync` — invalid mode at service — **closed 2026-10-22 seed hunt:** see zone header.
 
 2026-10-22 seed hunt (seed-only): closed five open `(candidate)` rows with regressions/cheap-disproof (duplicate-org inner exception, registration `IndustryVerticalOther` guard, migration status error cleared on successful verify mark, no-op retrieval drainer by design, seat cap enforced at repository); no hunt-ready promotion (`state-machine-gap` saturated); scoped tenancy migration/org-detector + registration tests passed.
 
@@ -11331,11 +11345,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 136
-- **bugs-found:** 115
+- **hunts:** 138
+- **bugs-found:** 117
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — post-auth trial bootstrap IndustryVerticalOther parity
+- **last-bug:** 2026-10-22 — post-auth IndustryVertical curated-list parity
 
 2026-10-21 seed hunt (seed-only): cheap-disproof on five settings/registration `(candidate)` rows; no hunt-ready promotion (`state-machine-gap` / `fail-open-validation` saturated); reseeded five new lenses.
 
