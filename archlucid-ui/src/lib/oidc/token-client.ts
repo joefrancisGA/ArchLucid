@@ -31,11 +31,14 @@ export class OAuthTokenEndpointError extends Error {
 
 const OAUTH_REFRESH_REJECTION_ERROR_CODES = new Set([
   "access_denied",
+  "consent_required",
   "expired_token",
+  "interaction_required",
   "invalid_client",
   "invalid_grant",
   "invalid_scope",
   "invalid_token",
+  "login_required",
   "unauthorized_client",
 ]);
 
@@ -56,11 +59,14 @@ export function isOAuthRefreshTokenRejectedError(error: unknown): boolean {
 
   return (
     message.includes("access_denied") ||
+    message.includes("consent_required") ||
     message.includes("expired_token") ||
+    message.includes("interaction_required") ||
     message.includes("invalid_client") ||
     message.includes("invalid_grant") ||
     message.includes("invalid_scope") ||
     message.includes("invalid_token") ||
+    message.includes("login_required") ||
     message.includes("unauthorized_client")
   );
 }

@@ -1,3 +1,17 @@
+2026-10-22 seed hunt (seed->hit): `ui-oidc` - promoted hunt-ready `isOAuthRefreshTokenRejectedError` - refresh grant JSON `login_required`, `interaction_required`, and `consent_required` humanized without snake_case so BFF refresh returned 503 and `refreshBffSessionCookie` left `shouldClearSession` false (retry loop); add interactive-step codes to `OAUTH_REFRESH_REJECTION_ERROR_CODES`; regressions `classifies humanized login_required refresh failures for BFF session clearing`, combined interaction/consent classifier test, and BFF route humanized login_required cookie clear; cheap-disproof closed five zone-head `(candidate)` rows; seeded five follow-on `(candidate)` rows; scoped token-client + BFF refresh route vitest 70/70.
+
+- [x] (proven) `isOAuthRefreshTokenRejectedError` - humanized `login_required` / `interaction_required` / `consent_required` on refresh - **hit 2026-10-22 seed hunt:** classifier set; regressions above.
+- [x] (valid-no-repro) `isOAuthRefreshTokenRejectedError` - `access_denied` on refresh - **cheap-disproof 2026-10-22:** prior hit same run series.
+- [x] (invalid) `OAuthTokenEndpointError` - attach HTTP status for proxy 502 HTML - **cheap-disproof 2026-10-22:** enhancement; transient substring policy unchanged.
+- [x] (valid-no-repro) `bff-session-sync` - ensureAccessTokenFresh on 401 - **cheap-disproof 2026-10-22:** client already sets shouldClearSession on 401; server fix enables path.
+- [x] (invalid) `readOAuthJsonErrorDescription` - flag plus JSON mixed path - **cheap-disproof 2026-10-22:** saturated encoding class.
+
+- [ ] (candidate) `isOAuthRefreshTokenRejectedError` - `server_error` / `temporarily_unavailable` on refresh - locus: classifier vs transient 503 policy (reachability: humanized copy).
+- [ ] (candidate) `OAuthTokenEndpointError` - attach HTTP status for non-JSON token errors - locus: `readOAuthError`; input: proxy HTML (reachability: distinguish 502).
+- [ ] (candidate) `shouldClearSessionOnRefreshFailure` - document permanent-rejection code set parity - locus: route comment; input: drift guard (reachability: docs).
+- [ ] (candidate) `bff-session-sync.test` - refresh 401 sets shouldClearSession for login_required integration - locus: fetch mock; input: end-to-end client (reachability: route test covers server).
+- [ ] (candidate) `exchangeAuthorizationCode` - login_required on code exchange marks authorize retry - locus: exchange catch; input: already marks OAuth failures (reachability: callback).
+
 2026-10-22 seed hunt (seed->hit): `ui-oidc` - promoted hunt-ready `isOAuthRefreshTokenRejectedError` - refresh grant JSON `access_denied` humanized without snake_case in `Error.message` so BFF refresh returned 503 instead of clearing HttpOnly cookies (same classifier gap as other refresh rejection codes); add `access_denied` to `OAUTH_REFRESH_REJECTION_ERROR_CODES`; regressions `classifies humanized access_denied refresh failures for BFF session clearing` and BFF route humanized access_denied cookie clear; cheap-disproof closed five zone-head `(candidate)` rows; seeded five follow-on `(candidate)` rows; scoped token-client + BFF refresh route vitest 67/67.
 
 - [x] (proven) `isOAuthRefreshTokenRejectedError` - humanized refresh `access_denied` skipped BFF session clear - **hit 2026-10-22 seed hunt:** classifier set extended; regressions above.

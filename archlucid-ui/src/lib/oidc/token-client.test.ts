@@ -385,6 +385,62 @@ describe("refreshAccessToken", () => {
     expect((caught as OAuthTokenEndpointError).message).not.toContain("unauthorized_client");
   });
 
+  it("classifies humanized login_required refresh failures for BFF session clearing", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: false,
+      status: 400,
+      text: async () => JSON.stringify({ error: "login_required" }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    let caught: unknown;
+
+    try {
+      await refreshAccessToken({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        refreshToken: "rt",
+      });
+    } catch (error) {
+      caught = error;
+    }
+
+    expect(caught).toBeInstanceOf(OAuthTokenEndpointError);
+    expect(isOAuthRefreshTokenRejectedError(caught)).toBe(true);
+    expect((caught as OAuthTokenEndpointError).normalizedErrorCode).toBe("login_required");
+    expect((caught as OAuthTokenEndpointError).message).not.toContain("login_required");
+  });
+
+  it("classifies humanized interaction_required and consent_required refresh failures for BFF session clearing", async () => {
+    for (const errorCode of ["interaction_required", "consent_required"] as const) {
+      const fetchMock = vi.fn(async () => ({
+        ok: false,
+        status: 400,
+        text: async () => JSON.stringify({ error: errorCode }),
+      }));
+
+      vi.stubGlobal("fetch", fetchMock);
+
+      let caught: unknown;
+
+      try {
+        await refreshAccessToken({
+          tokenEndpoint: "https://login.example.com/token",
+          clientId: "client",
+          refreshToken: "rt",
+        });
+      } catch (error) {
+        caught = error;
+      }
+
+      expect(caught).toBeInstanceOf(OAuthTokenEndpointError);
+      expect(isOAuthRefreshTokenRejectedError(caught)).toBe(true);
+      expect((caught as OAuthTokenEndpointError).normalizedErrorCode).toBe(errorCode);
+      expect((caught as OAuthTokenEndpointError).message).not.toContain(errorCode);
+    }
+  });
+
   it("classifies humanized access_denied refresh failures for BFF session clearing", async () => {
     const fetchMock = vi.fn(async () => ({
       ok: false,
