@@ -7139,13 +7139,29 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** buyer proof pack; board pack; pilot artifacts
 - **paths:** ArchLucid.Application/Pilots/
 - **test-filter:** FullyQualifiedName~BuyerProofPack|FullyQualifiedName~BoardPack
-- **hunts:** 49
-- **bugs-found:** 34
+- **hunts:** 50
+- **bugs-found:** 35
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-20
-- **last-bug:** 2026-10-15 — pilot value report markdown summary metrics when zero runs load under truncation
+- **last-hunt:** 2026-10-22
+- **last-bug:** 2026-10-22 — pilot value report zero findings when run details never load (non-truncated)
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-22 thorough hunt (hit): promoted `RunDetailSampleLoadedNoRows` without requiring `RunDetailsTruncated` so committed runs with failed detail projection do not read as tenant-wide zero findings; regression `Format_when_committed_runs_exist_but_no_run_details_loaded_does_not_emit_zero_findings_as_tenant_total`; cheap-disproved five picker candidates; 68 scoped BuyerProofPack/BoardPack/PilotValueReport tests passed.
+
+- [x] (proven) `PilotValueReportMarkdownFormatter.RunDetailSampleLoadedNoRows` — `Total findings | 0` when `TotalRunsCommitted > 0` but timeline empty and `RunDetailsTruncated` false — **hit 2026-10-22 thorough hunt:** treat any zero-loaded detail sample as not computed; regression above. [class:state-machine-gap]
+
+- [x] (valid-no-repro) `PilotValueReportMarkdownFormatter` — Summary `Recommendations generated (audit)` when `RunDetailsTruncated` with empty timeline — **cheap-disproof 2026-10-22 thorough hunt:** audit window totals remain tenant-wide by design; regression `Format_when_audit_export_truncated_with_empty_timeline_still_surfaces_comparison_drift_count`.
+
+- [x] (valid-no-repro) `PilotValueReportMarkdownFormatter` — metadata `Committed runs` when `CommittedRunsInventoryTruncated` below keyset cap — **cheap-disproof 2026-10-22 thorough hunt:** boolean flags inventory keyset stop; count qualification is independent of numeric relation to `RunDetailCap`; regression `Format_when_committed_run_inventory_truncated_qualifies_total_runs_committed_as_partial_inventory`.
+
+- [x] (valid-no-repro) `BuyerProofPackArtifactSummaryBuilder` — compact summary `TotalFindings` when `auditRowCountTruncated` true — **cheap-disproof 2026-10-22 thorough hunt:** compact summary has no total-findings rollup; audit cap lives in first-value computed deltas; regression `Build_when_audit_row_count_truncated_does_not_echo_cap_in_compact_summary`.
+
+- [x] (valid-no-repro) `FirstValueReportDeltasSectionFormatter` — governed-finding coverage when `auditRowCountTruncated` true — **cheap-disproof 2026-10-22 thorough hunt:** coverage rows come from agent/snapshot findings; audit cap disclosed on audit metric row only; regression `AppendComputedDeltasSection_when_audit_rows_truncated_discloses_cap_in_audit_metric_row`.
+
+- [x] (valid-no-repro) `RecentPilotRunDeltasService.GetRecentDeltasAsync` — tie-break when `CreatedUtc` matches — **cheap-disproof 2026-10-22 thorough hunt:** sorts `CompletedUtc ?? CreatedUtc` then `RunId` descending; regression `GetRecentDeltasAsync_WhenSortKeysTie_OrdersByRunIdDescendingSoPanelOrderIsStable`.
+
+- (candidate) `PilotValueReportMarkdownFormatter` — `Agent types were not stored` when committed runs exist but detail projection returns no rows and `RunDetailsTruncated` is false — locus: empty `UniqueAgentTypes` branch; input: same shape as zero-load findings hit without truncation flag.
 
 2026-10-11 thorough hunt (dry): cheap-disproved five picker candidates: findings-by-severity presence is intentionally true for a resolved zero-row slice; LLM call counts carry a separate unresolved attestation flag; buyer-proof ZIP generation fails closed at each artifact boundary; `ExecDigestComposer` already trims configured operator URL slashes; and boolean parsing accepts canonical strings while rejecting malformed values. No hunt-ready row or failing repro; 29 scoped BuyerProofPack/BoardPack tests passed.
 
@@ -7256,11 +7272,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - [x] (valid-no-repro) `BoardPackPdfBuilder` — header copy when digest week clamped but value section period label still shows full quarter bounds — **cheap-disproof 2026-10-15 seed hunt:** cover explicitly documents digest week inside quarter vs full-quarter value metrics (`BuildPdfAsync` preamble); regression `DigestWeekInsideQuarter_keeps_digest_week_inside_requested_window`.
 - [x] (valid-no-repro) `BuyerProofPackDeltasJsonFormatter` — null property emission on buyer ZIP JSON — **cheap-disproof 2026-10-15 seed hunt:** `ContractJson.CamelCaseIgnoreNullCompact` (parity with 2026-10-14 `llmCallCount` hit); regression `Serialize_does_not_emit_explicit_null_properties_on_buyer_zip_json`.
 - [x] (valid-no-repro) `PilotValueReportMarkdownFormatter` — `Comparison / drift detections` when `AuditExportTruncated` and zero timeline rows — **cheap-disproof 2026-10-15 seed hunt:** audit-derived Summary metrics remain tenant-wide; run-detail empty sample must not suppress them; regression `Format_when_audit_export_truncated_with_empty_timeline_still_surfaces_comparison_drift_count`.
-- [ ] (candidate) `PilotValueReportMarkdownFormatter` — Summary `Recommendations generated (audit)` when `RunDetailsTruncated` with empty timeline (audit totals vs zero loaded run-detail sample).
-- [ ] (candidate) `PilotValueReportMarkdownFormatter` — metadata `Committed runs` row when `CommittedRunsInventoryTruncated` true but `TotalRunsCommitted` is below inventory keyset cap (boolean-only truncation disclosure).
-- [ ] (candidate) `BuyerProofPackArtifactSummaryBuilder` — compact summary `TotalFindings` when per-run deltas carry `auditRowCountTruncated` true (artifact summary vs first-value audit cap).
-- [ ] (candidate) `FirstValueReportDeltasSectionFormatter` — governed-finding coverage row when `auditRowCountTruncated` true (coverage percent vs capped audit row fetch).
-- [ ] (candidate) `RecentPilotRunDeltasService.GetRecentDeltasAsync` — panel ordering when two committed runs share identical `CreatedUtc` (tie-break stability for sponsor recent-deltas API).
+- [x] (valid-no-repro) `PilotValueReportMarkdownFormatter` — Summary `Recommendations generated (audit)` when `RunDetailsTruncated` with empty timeline (audit totals vs zero loaded run-detail sample) — **cheap-disproof 2026-10-22 thorough hunt:** see ledger row above (audit totals tenant-wide).
+- [x] (valid-no-repro) `PilotValueReportMarkdownFormatter` — metadata `Committed runs` row when `CommittedRunsInventoryTruncated` true but `TotalRunsCommitted` is below inventory keyset cap (boolean-only truncation disclosure) — **cheap-disproof 2026-10-22 thorough hunt:** see ledger row above.
+- [x] (valid-no-repro) `BuyerProofPackArtifactSummaryBuilder` — compact summary `TotalFindings` when per-run deltas carry `auditRowCountTruncated` true (artifact summary vs first-value audit cap) — **cheap-disproof 2026-10-22 thorough hunt:** see ledger row above.
+- [x] (valid-no-repro) `FirstValueReportDeltasSectionFormatter` — governed-finding coverage row when `auditRowCountTruncated` true (coverage percent vs capped audit row fetch) — **cheap-disproof 2026-10-22 thorough hunt:** see ledger row above.
+- [x] (valid-no-repro) `RecentPilotRunDeltasService.GetRecentDeltasAsync` — panel ordering when two committed runs share identical `CreatedUtc` (tie-break stability for sponsor recent-deltas API) — **cheap-disproof 2026-10-22 thorough hunt:** see ledger row above.
 - [x] (valid-no-repro) `SponsorOnePagerPdfBuilder.RenderComputedDeltasTable` — unresolved LLM PDF row — **cheap-disproof 2026-10-14 seed hunt:** `FormatLlmCallCount` emits `(not attested — execution trace query failed)` when `LlmCallCountResolved` is false (parity with `FirstValueReportDeltasSectionFormatter`); gap is PDF text-extraction regression lock only.
 - [x] (valid-no-repro) `PilotOutcomeSummaryService.GetTrailing30DaysAsync` — workspace switch stale cache — **cheap-disproof 2026-10-14 seed hunt:** cache key includes `TenantId`, `WorkspaceId`, and `ProjectId`; different workspace yields different entry (ledger invalid row on pack builders already notes pattern).
 - [x] (invalid) `TenantMeasuredRoiService.GetAsync` — 90-day double-count — **cheap-disproof 2026-10-14 seed hunt:** service wraps `WhyArchLucidSnapshotService` + cost estimate only; no run window rollup or `fromUtc` clamp in this type (`PilotValueReportService` owns 90-day window clamp).

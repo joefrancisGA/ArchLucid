@@ -194,7 +194,7 @@ public sealed class PilotValueReportMarkdownFormatter(ExportFormatterService exp
     }
 
     private static bool RunDetailSampleLoadedNoRows(PilotValueReport report) =>
-        report.RunDetailsTruncated && report.CommittedRunsTimeline.Count == 0 && report.TotalRunsCommitted > 0;
+        report.CommittedRunsTimeline.Count == 0 && report.TotalRunsCommitted > 0;
 
     private static string PartialRunDetailSampleFragment(int runDetailCap) =>
         FormattableString.Invariant($"(partial run-detail sample: newest {runDetailCap} committed runs by CreatedUtc)");

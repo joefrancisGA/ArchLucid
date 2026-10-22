@@ -168,6 +168,28 @@ public sealed class PilotValueReportMarkdownFormatterTests
     }
 
     [Fact]
+    public void Format_when_committed_runs_exist_but_no_run_details_loaded_does_not_emit_zero_findings_as_tenant_total()
+    {
+        PilotValueReportMarkdownFormatter sut = new(new ExportFormatterService());
+        DateTime from = new(2026, 4, 1, 0, 0, 0, DateTimeKind.Utc);
+        PilotValueReport report = new()
+        {
+            TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+            FromUtc = from,
+            ToUtc = from.AddDays(30),
+            TotalRunsCommitted = 3,
+            TotalFindings = 0,
+            RunDetailsTruncated = false,
+            CommittedRunsTimeline = [],
+        };
+
+        string markdown = sut.Format(report);
+
+        markdown.Should().Contain("not computed — no committed runs loaded for detail");
+        markdown.Should().NotContain("| Total findings | 0 |");
+    }
+
+    [Fact]
     public void Format_when_run_details_truncated_with_empty_timeline_does_not_label_positive_findings_as_partial_sample()
     {
         PilotValueReportMarkdownFormatter sut = new(new ExportFormatterService());
