@@ -120,6 +120,29 @@ function collapseAccidentalLatinZwnjGlue(text: string): string {
   return text.replace(/(?<=[A-Za-z0-9])[\u200c\u200d](?=[A-Za-z0-9])/gu, " ");
 }
 
+const MAX_OAUTH_PERCENT_DECODE_PASSES = 2;
+
+/** Some IdPs double-encode `error_description`; decode at most twice without breaking literal `%` copy. */
+function decodeRepeatedPercentEncoding(value: string): string {
+  let current = value;
+
+  for (let pass = 0; pass < MAX_OAUTH_PERCENT_DECODE_PASSES; pass += 1) {
+    try {
+      const next = decodeURIComponent(current);
+
+      if (next === current) {
+        break;
+      }
+
+      current = next;
+    } catch {
+      break;
+    }
+  }
+
+  return current;
+}
+
 export function collapseOAuthErrorDescriptionLineBreaks(text: string): string {
   return collapseAccidentalLatinZwnjGlue(text)
     .replace(OIDC_DISPLAY_GLUE_FORMAT_CHARS, " ")
@@ -158,7 +181,9 @@ export function decodeOAuthErrorDescription(encoded: string | null | undefined):
   let decoded: string;
 
   try {
-    decoded = collapseOAuthErrorDescriptionLineBreaks(decodeURIComponent(trimmed.replace(/\+/g, " ")));
+    decoded = collapseOAuthErrorDescriptionLineBreaks(
+      decodeRepeatedPercentEncoding(trimmed.replace(/\+/g, " ")),
+    );
   } catch {
     decoded = collapseOAuthErrorDescriptionLineBreaks(trimmed.replace(/\+/g, " "));
   }
@@ -181,7 +206,7 @@ export function readOAuthJsonErrorDescription(value: string): string {
   let decoded: string;
 
   try {
-    decoded = collapseOAuthErrorDescriptionLineBreaks(decodeURIComponent(collapsed));
+    decoded = collapseOAuthErrorDescriptionLineBreaks(decodeRepeatedPercentEncoding(collapsed));
   } catch {
     decoded = collapsed;
   }
