@@ -1851,3 +1851,4 @@
 {"at":"2026-10-22T15:13:01.2866701Z","zoneId":"application-analysis","outcome":"seed-only","productLine":"archlucid-shared"}
 {"at":"2026-10-22T15:16:54.6199348Z","zoneId":"application-analysis","outcome":"seed-only","productLine":"archlucid-shared"}
 {"at":"2026-10-22T15:20:49.9887765Z","zoneId":"application-analysis","outcome":"seed-only","productLine":"archlucid-shared"}
+{"at":"2026-10-22T15:29:21.4161931Z","zoneId":"application-agents","outcome":"hit","productLine":"archlucid-shared"}
