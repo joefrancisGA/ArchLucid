@@ -11,6 +11,7 @@
 - [ ] (candidate) humanizeAuthorizeCallbackError - authorization_pending authorize-query copy - locus: default branch UX.
 - [ ] (candidate) refreshBffSessionCookie - refresh 408 shouldClearSession false - locus: route maps opaque 408 to 503.
 
+2026-10-22 seed hunt (seed-only): `ui-oidc` - no hunt-ready product defect; cheap-disproof closed zone-head `(candidate)` rows (safe return preserved by `preserves post-sign-in return path when a prior authorize retry reached the IdP but was abandoned`, clearAbandoned idle-desk branch intentional, multiply-encoded `%252B` saturated); parity regressions supplemental Google poisoned-return purge during authorize retry, BFF client refresh 502 without `shouldClearSession`, and BFF refresh route opaque `Token endpoint error 404`; scoped `src/lib/oidc` + BFF refresh route vitest 453/453.
 2026-10-22 seed hunt (seed->hit): ui-oidc - promoted hunt-ready initiateOidcRedirect / initiateSupplementalOidcRedirect - poisoned unsafe return URLs in sessionStorage survived authorize-retry sign-in starts without an explicit 
 eturnUrl because only 
 eadPostSignInReturnUrl on explicit paths purged them; purge invalid stored paths at sign-in start via 
@@ -25816,7 +25817,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 87
+- **hunts:** 88
 - **bugs-found:** 78
 - **consecutive-dry-hunts:** 0
 2026-10-22 seed hunt (seed-only): `ui-oidc` - no new hunt-ready defect after cheap-disproof of BFF `OAuthTokenEndpointError` / refresh classifier candidates; added parity regressions for supplemental Google discovery re-mark follow-up, non-JWT empty callback retry marker, and `shouldMarkAuthorizeCallbackFailedOnExchangeError` with `OAuthTokenEndpointError`; repaired canonical `at` timestamps in `AL_BUG_HUNT_RUN_LOG.jsonl`; restored `token-client.test.ts` suite after accidental truncation in prior push; scoped `src/lib/oidc` vitest 408/408.
