@@ -149,6 +149,81 @@ public sealed class ArchitectureDiagramToGraphCompilerTests
     }
 
     [Fact]
+    public void Compile_retains_edge_when_source_id_differs_only_by_case()
+    {
+        ArchitectureDiagramModelRecord model = new()
+        {
+            Nodes =
+            [
+                new ArchitectureDiagramNodeRecord
+                {
+                    Id = "api",
+                    Label = "API",
+                    Kind = ArchitectureDiagramNodeKinds.System,
+                },
+                new ArchitectureDiagramNodeRecord
+                {
+                    Id = "sql",
+                    Label = "SQL",
+                    Kind = ArchitectureDiagramNodeKinds.System,
+                },
+            ],
+            Edges =
+            [
+                new ArchitectureDiagramEdgeRecord
+                {
+                    Id = "e1",
+                    SourceId = "API",
+                    TargetId = "sql",
+                    Label = "reads",
+                },
+            ],
+            ExtractionMethod = DiagramExtractionMethods.StructuredParse,
+        };
+
+        StructuredDiagramGraphCompileResult result = new ArchitectureDiagramToGraphCompiler().Compile(
+            model,
+            CreateDefaultCompileOptions());
+
+        result.Snapshot.Edges.Should().ContainSingle(edge => edge.EdgeType == GraphEdgeTypes.ConnectsTo);
+    }
+
+    [Fact]
+    public void Compile_emits_contains_edge_and_subgraph_metadata_when_subgraph_id_differs_only_by_case()
+    {
+        ArchitectureDiagramModelRecord model = new()
+        {
+            Subgraphs =
+            [
+                new ArchitectureDiagramSubgraphRecord
+                {
+                    Id = "corp",
+                    Label = "Corporate network",
+                },
+            ],
+            Nodes =
+            [
+                new ArchitectureDiagramNodeRecord
+                {
+                    Id = "api",
+                    Label = "API",
+                    SubgraphId = "CORP",
+                },
+            ],
+            ExtractionMethod = DiagramExtractionMethods.StructuredParse,
+        };
+
+        StructuredDiagramGraphCompileResult result = new ArchitectureDiagramToGraphCompiler().Compile(
+            model,
+            CreateDefaultCompileOptions());
+
+        result.Snapshot.Edges.Should().ContainSingle(edge => edge.EdgeType == GraphEdgeTypes.Contains);
+        GraphNode apiNode = result.Snapshot.Nodes.Single(node => node.SourceId == "api");
+        apiNode.Properties[StructuredDiagramGraphPropertyKeys.TrustBoundaryLabel]
+            .Should().Be("Corporate network");
+    }
+
+    [Fact]
     public void Compile_corporate_network_subgraph_tags_member_nodes_as_trust_boundary()
     {
         ArchitectureDiagramModelRecord model = new()
@@ -342,5 +417,16 @@ public sealed class ArchitectureDiagramToGraphCompilerTests
         result.Warnings.Should().BeEmpty();
         result.Snapshot.Nodes.Should().BeEmpty();
         result.Snapshot.Edges.Should().BeEmpty();
+    }
+
+    private static StructuredDiagramGraphCompileOptions CreateDefaultCompileOptions()
+    {
+        return new StructuredDiagramGraphCompileOptions
+        {
+            RunId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+            ContextSnapshotId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+            GraphSnapshotId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
+            CreatedUtc = DateTime.Parse("2026-01-01T00:00:00Z"),
+        };
     }
 }

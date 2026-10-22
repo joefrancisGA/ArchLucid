@@ -12470,12 +12470,19 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 56
-- **bugs-found:** 47
-- **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 - trim AgentModelTiers AgentTypeTiers keys after configuration bind
+- **hunts:** 57
+- **bugs-found:** 48
+- **last-hunt:** 2026-10-22
+- **last-bug:** 2026-10-22 - structured diagram compile dropped edges and subgraph containment on case-variant ids
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-22 seed hunt (seed→hit): reseeded diagram compile paths; proved `ArchitectureDiagramToGraphCompiler` used ordinal `nodeIdMap` / subgraph membership so edges with `SourceId` casing drift were skipped and trust-boundary `Contains` edges plus subgraph metadata were omitted when `SubgraphId` differed only by case; aligned `ArchitectureDiagramModelValidator` id sets with case-insensitive membership checks; regressions in `ArchitectureDiagramToGraphCompilerTests` and `TryValidate_accepts_edge_and_subgraph_references_when_ids_differ_only_by_case`; 377 KnowledgeGraph + 59 Provenance scoped tests passed.
+
+- [x] (proven) `ArchitectureDiagramToGraphCompiler.Compile` — ordinal diagram id maps dropped `ConnectsTo` edges and trust-boundary containment when node, edge, or subgraph ids differed only by case — **hit 2026-10-22 seed hunt (seed→hit):** case-insensitive `nodeIdMap`, subgraph contexts, and membership comparison; validator parity in `ArchitectureDiagramModelValidator`; regressions `Compile_retains_edge_when_source_id_differs_only_by_case`, `Compile_emits_contains_edge_and_subgraph_metadata_when_subgraph_id_differs_only_by_case`.
+
+- [ ] (candidate) `ProvenanceSnapshotRevisionHasher.Compute` — `ManifestHash` changes may not change revision fingerprint when `ManifestId` is unchanged — locus: canonical revision string in `ProvenanceSnapshotRevisionHasher.cs`; input: manifest content refresh under stable manifest id; wrong outcome: `ProvenanceGraphAccessService` serves stale provenance snapshot.
+- [ ] (candidate) `ProvenanceSnapshotRevisionHasher.Compute` — `AppliedRuleIds` growth may not change revision fingerprint when `DecisionTraceId` is unchanged — locus: same hasher; input: amended rule-audit trace; wrong outcome: stale `TriggeredByRule` edges after rebuild gate.
 
 2026-10-21 seed hunt (seed→hit): `InMemoryGraphSnapshotRepository.SaveAsync` evicted `_store.Keys.First()` on capacity overflow, so a newer graph snapshot saved earliest for a context could be removed while a later save with older `CreatedUtc` remained; `GetLatestByContextSnapshotIdAsync` then returned the stale row. Eviction now drops the snapshot with minimum `CreatedUtc` (then `GraphSnapshotId`). Regression `GetLatestByContextSnapshotIdAsync_after_capacity_eviction_retains_newer_snapshot_for_context`; 6 in-memory repository + 58 Provenance scoped tests passed.
 

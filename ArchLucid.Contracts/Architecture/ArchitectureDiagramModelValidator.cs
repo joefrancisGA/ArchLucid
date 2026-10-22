@@ -15,7 +15,7 @@ public static class ArchitectureDiagramModelValidator
             return false;
         }
 
-        HashSet<string> subgraphIds = new(StringComparer.Ordinal);
+        HashSet<string> subgraphIds = new(StringComparer.OrdinalIgnoreCase);
 
         foreach (ArchitectureDiagramSubgraphRecord subgraph in model.Subgraphs)
         {
@@ -42,7 +42,7 @@ public static class ArchitectureDiagramModelValidator
             }
         }
 
-        HashSet<string> nodeIds = new(StringComparer.Ordinal);
+        HashSet<string> nodeIds = new(StringComparer.OrdinalIgnoreCase);
 
         foreach (ArchitectureDiagramNodeRecord node in model.Nodes)
         {
