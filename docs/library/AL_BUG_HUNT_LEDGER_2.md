@@ -4277,6 +4277,14 @@
 
 ## Zone: api-key-auth
 
+2026-10-22 thorough hunt #9 (dry): cheap-disproof closed five picker `(candidate)` rows (`BuildSyntheticAdminClaims` bypass duplicate hunt #3 + `AuthSafetyGuard`/`AuthenticationRules` startup guards; `ApiKeyMaterialMasker` suffix-only reveal intentional operator UI; `IOptionsMonitor` reload duplicate hunt #4 regression; rotation `ExplicitActor` duplicate 2026-10-09 proven hit; identical admin/reader material admin-first duplicate hunt #2); no failing repro; five replacement `(candidate)` rows; scoped ApiKey tests not run.
+
+- [x] (invalid) `ApiKeyAuthenticationHandler` — synthetic admin bypass claims — **cheap-disproof 2026-10-22 #9:** duplicate hunt #3; non-Production opt-in ~64–67; `BuildSyntheticAdminClaims` ~267–277.
+- [x] (valid-no-repro) `AdminApiKeySettingsService.GetSnapshot` — masked segments never echo plaintext — **cheap-disproof 2026-10-22 #9:** `MaskSegment` returns `****` + last four only ~40–49.
+- [x] (invalid) `ApiKeyAuthenticationHandler` — options monitor reload — **cheap-disproof 2026-10-22 #9:** duplicate hunt #4; `When_api_key_options_monitor_advances_old_material_fails_and_new_succeeds`.
+- [x] (invalid) `AdminApiKeySettingsController` — rotation audit `ExplicitActor` — **cheap-disproof 2026-10-22 #9:** `CreateRotationAuditEvent` sets `ExplicitActor=true` ~122; proven 2026-10-09.
+- [x] (invalid) `ApiKeyAuthenticationHandler` — identical admin/reader material admin wins — **cheap-disproof 2026-10-22 #9:** duplicate hunt #2; admin branch ~88–104 precedes reader.
+
 2026-10-22 thorough hunt #8 (dry): cheap-disproof closed five picker `(candidate)` rows (wrong key → generic `Invalid API key` ~125 by design; admin `replay:comparisons` permission in `BuildApiKeyClaims`; append rotate `,{key}` suffix for comma-separated config; embedded BOM/ZWSP normalizer — proven 2026-09-26/28 hits; blank test-actor header no-op ~172–173); no failing repro; five replacement `(candidate)` rows; scoped ApiKey tests not run.
 
 - [x] (valid-no-repro) `ApiKeyAuthenticationHandler` — wrong key message — **cheap-disproof 2026-10-22 #8:** non-enumerating `Invalid API key` fail-closed.
@@ -4363,9 +4371,9 @@
 - **aliases:** API key auth; admin API key settings
 - **paths:** ArchLucid.Api/Authentication/ApiKeyAuthenticationHandler.cs; ArchLucid.Api/Services/Admin/AdminApiKeySettingsService.cs; ArchLucid.Api/Controllers/Admin/AdminApiKeySettingsController.cs
 - **test-filter:** FullyQualifiedName~ApiKeyAuthentication|FullyQualifiedName~AdminApiKeySettings
-- **hunts:** 88
+- **hunts:** 89
 - **bugs-found:** 23
-- **consecutive-dry-hunts:** 8
+- **consecutive-dry-hunts:** 9
 - **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-20 — hex API key material rejected when config/header casing differed
 - **related-pd-tb:** none
@@ -4453,11 +4461,11 @@
 - [x] (invalid) `ApiKeyMaterialNormalizer` — embedded BOM — **cheap-disproof 2026-10-22 #8.**
 - [x] (valid-no-repro) `ApiKeyAuthenticationHandler` — blank test actor — **cheap-disproof 2026-10-22 #8.**
 
-- [ ] (candidate) `ApiKeyAuthenticationHandler` — synthetic admin bypass claims — locus: `BuildSyntheticAdminClaims`; input: `DevelopmentBypassAll` non-Production only (hunt #3 class).
-- [ ] (candidate) `AdminApiKeySettingsService.GetSnapshot` — masked segments never echo plaintext — locus: `ApiKeyMaterialMasker`; input: intentional operator UI.
-- [ ] (candidate) `ApiKeyAuthenticationHandler` — `options_monitor_advances` reload — locus: `IOptionsMonitor`; input: proven `When_api_key_options_monitor_advances_old_material_fails_and_new_succeeds`.
-- [ ] (candidate) `AdminApiKeySettingsController` — rotation audit `ExplicitActor` for API key principal — locus: `LogRotationAuditAsync`; input: proven 2026-10-09 hit.
-- [ ] (candidate) `ApiKeyAuthenticationHandler` — identical admin/reader material admin wins — locus: admin-before-reader ~88–106; input: intentional precedence (hunt #2).
+- [ ] (candidate) `ApiKeyAuthenticationHandler` — `DevelopmentBypassAll` omits `tenant_id`/`workspace_id`/`project_id` claims — locus: `BuildSyntheticAdminClaims` vs `BuildApiKeyClaims` ~255–262; input: dev bypass with scoped options configured (regression `When_development_bypass_all_does_not_emit_tenant_scope_claims`).
+- [ ] (candidate) `ApiKeyMaterialMasker.MaskSegment` — short segments (&lt;9 chars) mask to `****` with no suffix — locus: `MinLengthToRevealSuffix` ~7–47; input: non-hex short operator test keys in snapshot UI.
+- [ ] (candidate) `AdminApiKeySettingsController.RotateKeyIdAsync` — legacy route always `InvalidatePrevious=true` — locus: `Rotate` request ~85; input: `POST /v1/admin/apikeys/Admin/rotate` vs body rotate append mode.
+- [ ] (candidate) `AdminApiKeySettingsController.RotateAsync` — settings rotate audit omits plaintext key — locus: audit JSON ~63–68; input: verify `PlaintextKey` never lands in `DataJson` (security contract).
+- [ ] (candidate) `ApiKeyAuthenticationHandler` — reader match when admin material matches but admin expired uses reader-expired message if reader also expired — locus: failure ordering ~117–123; input: shared key both slots expired (precedence vs hunt #5).
 
 - [x] (proven) `AdminApiKeySettingsController.RotateKeyIdAsync` — legacy route audit JSON used the raw `keyId` while `AdminApiKeySettingsService.ParseSlot` canonicalized whitespace and casing for the response — **hit 2026-10-11 thorough hunt:** audit `keyId` now uses `response.Slot`; regression `RotateKeyIdAsync_persisted_audit_uses_canonical_slot_for_padded_route_value`.
 
