@@ -182,6 +182,103 @@ public sealed class StructuredDiagramGraphMergerTests
     }
 
     [Fact]
+    public void Merge_uses_latest_diagram_edge_properties_and_reasoning_when_multiple_documents_share_equivalent_endpoints()
+    {
+        ArchitectureDiagramModelRecord inferredTopology = new()
+        {
+            Nodes =
+            [
+                new ArchitectureDiagramNodeRecord
+                {
+                    Id = "api",
+                    Label = "API Gateway",
+                    Kind = ArchitectureDiagramNodeKinds.System,
+                    Provenance = ArchitectureDiagramProvenanceKinds.Asserted,
+                },
+                new ArchitectureDiagramNodeRecord
+                {
+                    Id = "db",
+                    Label = "SQL Database",
+                    Kind = ArchitectureDiagramNodeKinds.System,
+                    Provenance = ArchitectureDiagramProvenanceKinds.Asserted,
+                },
+            ],
+            Edges =
+            [
+                new ArchitectureDiagramEdgeRecord
+                {
+                    Id = "e1",
+                    SourceId = "api",
+                    TargetId = "db",
+                    Provenance = ArchitectureDiagramProvenanceKinds.Inferred,
+                },
+            ],
+            ExtractionMethod = DiagramExtractionMethods.StructuredParse,
+        };
+
+        ArchitectureDiagramModelRecord assertedTopology = new()
+        {
+            Nodes =
+            [
+                new ArchitectureDiagramNodeRecord
+                {
+                    Id = "api",
+                    Label = "API Gateway",
+                    Kind = ArchitectureDiagramNodeKinds.System,
+                    Provenance = ArchitectureDiagramProvenanceKinds.Asserted,
+                },
+                new ArchitectureDiagramNodeRecord
+                {
+                    Id = "db",
+                    Label = "SQL Database",
+                    Kind = ArchitectureDiagramNodeKinds.System,
+                    Provenance = ArchitectureDiagramProvenanceKinds.Asserted,
+                },
+            ],
+            Edges =
+            [
+                new ArchitectureDiagramEdgeRecord
+                {
+                    Id = "e1",
+                    SourceId = "api",
+                    TargetId = "db",
+                    Provenance = ArchitectureDiagramProvenanceKinds.Asserted,
+                },
+            ],
+            ExtractionMethod = DiagramExtractionMethods.StructuredParse,
+        };
+
+        List<CanonicalObject> canonicalObjects = [];
+        canonicalObjects.AddRange(
+            ArchitectureDiagramCanonicalObjectMapper.Map(inferredTopology, "doc-edge-a", labelOnlyInferenceConfidence: 0.5));
+        canonicalObjects.AddRange(
+            ArchitectureDiagramCanonicalObjectMapper.Map(assertedTopology, "doc-edge-b", labelOnlyInferenceConfidence: 0.5));
+
+        ContextSnapshot snapshot = new()
+        {
+            SnapshotId = Guid.Parse("eeeeeeee-ffff-0000-1111-222222222222"),
+            RunId = Guid.Parse("55555555-6666-7777-8888-999999999999"),
+            ProjectId = "project-edge-properties-merge",
+            CanonicalObjects = canonicalObjects,
+        };
+
+        StructuredDiagramGraphMerger merger = GraphMaterializationTestHelpers.CreateStructuredDiagramGraphMerger();
+        StructuredDiagramGraphMergeResult result = merger.Merge(snapshot, []);
+
+        GraphEdge merged = result.Edges
+            .Should()
+            .ContainSingle(edge =>
+                edge.EdgeType == GraphEdgeTypes.ConnectsTo
+                && edge.FromNodeId == "diagram-node:api"
+                && edge.ToNodeId == "diagram-node:db")
+            .Subject;
+
+        merged.Properties[StructuredDiagramGraphPropertyKeys.SourceEvidenceItemId].Should().Be("doc-edge-b");
+        merged.Properties[StructuredDiagramGraphPropertyKeys.InferenceConfidence].Should().Be("1");
+        merged.ReasoningTrace.Should().Contain("asserted diagram source");
+    }
+
+    [Fact]
     public void Merge_deduplicates_connects_to_edges_when_multiple_documents_share_equivalent_endpoints()
     {
         ArchitectureDiagramModelRecord sharedTopology = new()

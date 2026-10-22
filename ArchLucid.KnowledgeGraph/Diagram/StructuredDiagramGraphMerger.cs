@@ -28,8 +28,7 @@ public sealed class StructuredDiagramGraphMerger(IArchitectureDiagramToGraphComp
         }
 
         Dictionary<string, GraphNode> nodesById = new(StringComparer.OrdinalIgnoreCase);
-        List<GraphEdge> edges = [];
-        HashSet<string> mergedDirectedPairs = new(StringComparer.OrdinalIgnoreCase);
+        Dictionary<string, GraphEdge> edgesByDirectedPair = new(StringComparer.OrdinalIgnoreCase);
         List<string> warnings = [];
         List<StructuredDiagramCanonicalBinding> bindings = [];
         HashSet<string> mergedBindingKeys = new(StringComparer.OrdinalIgnoreCase);
@@ -115,19 +114,32 @@ public sealed class StructuredDiagramGraphMerger(IArchitectureDiagramToGraphComp
             {
                 string directedPairKey = $"{edge.FromNodeId}|{edge.ToNodeId}|{edge.EdgeType}";
 
-                if (!mergedDirectedPairs.Add(directedPairKey))
+                if (edgesByDirectedPair.TryGetValue(directedPairKey, out GraphEdge? existingEdge))
                 {
+                    if (edge.Properties.Count > 0)
+                    {
+                        foreach (KeyValuePair<string, string> property in edge.Properties)
+                        {
+                            existingEdge.Properties[property.Key] = property.Value;
+                        }
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(edge.ReasoningTrace))
+                    {
+                        existingEdge.ReasoningTrace = edge.ReasoningTrace;
+                    }
+
                     continue;
                 }
 
-                edges.Add(edge);
+                edgesByDirectedPair[directedPairKey] = edge;
             }
         }
 
         return new StructuredDiagramGraphMergeResult
         {
             Nodes = nodesById.Values.ToList(),
-            Edges = edges,
+            Edges = edgesByDirectedPair.Values.ToList(),
             Warnings = warnings,
             CanonicalBindings = bindings,
         };
