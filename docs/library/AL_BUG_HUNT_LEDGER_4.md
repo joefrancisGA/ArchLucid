@@ -12470,7 +12470,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 216
+- **hunts:** 217
 - **bugs-found:** 172
 - **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-22 — post-overlay rebind deduped parallel edges separately when EdgeType differed only by whitespace
@@ -12633,7 +12633,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - [x] (valid-no-repro) `ArchitectureDiagramToGraphCompiler` — trust-boundary label nodes retained padded `TrustBoundaryLabels` — **cheap-disproof 2026-10-22 seed hunt:** trim on trust-boundary label assign; regression above.
 
-- [ ] (candidate) `ArchitectureDiagramToGraphCompiler` — corporate subgraph trust-boundary metadata may retain padded subgraph `Label` values — locus: `BuildTrustBoundarySubgraphProperties` / member node `TrustBoundaryLabel` stamp; input: subgraph label carries surrounding whitespace; wrong outcome: member topology nodes inherit padded trust-boundary label metadata.
+2026-10-22 seed hunt (valid-no-repro): promoted `ArchitectureDiagramToGraphCompiler` padded corporate subgraph `Label` on trust-boundary metadata candidate; proved `BuildSubgraphContexts` resolves labels via `StructuredDiagramTrustBoundaryClassifier.ResolveSubgraphLabel`, which trims subgraph labels before member `TrustBoundaryLabel` / `DiagramSubgraphLabel` stamps; regression `Compile_trims_corporate_subgraph_label_on_member_trust_boundary_metadata_when_subgraph_label_has_surrounding_whitespace`; seeded `StructuredDiagramGraphMerger` padded incoming compile warning string coalesce follow-on; 509 KnowledgeGraph + 170 Provenance scoped tests passed.
+
+- [x] (valid-no-repro) `ArchitectureDiagramToGraphCompiler` — corporate subgraph labels retained padding on member trust-boundary metadata — **cheap-disproof 2026-10-22 seed hunt:** trim in `ResolveSubgraphLabel`; regression above.
+
+- [ ] (candidate) `StructuredDiagramGraphMerger.Merge` — merged compile warnings may retain padded warning tokens from incoming compile results — locus: warning list coalesce on multi-document merge; input: later compile warnings carry surrounding whitespace; wrong outcome: merged graph warnings preserve padding-only duplicates.
 
 2026-10-22 seed hunt (seed→hit): promoted `StructuredDiagramGraphMerger` padded diagram property-key coalesce candidate; proved duplicate node/edge metadata coalesce indexed raw `property.Key`, so a later compile with surrounding-whitespace keys left parallel bag entries and `GraphNodePropertyReader` could return stale source-evidence values; trim keys before skip/coalesce (parity with `GraphNodeFactory.NormalizePropertyBag`); regression `Merge_coalesces_node_properties_when_incoming_property_keys_differ_only_by_surrounding_whitespace`; seeded diagram edge metadata padded-key coalesce regression follow-on; 468 KnowledgeGraph + 170 Provenance scoped tests passed.
 

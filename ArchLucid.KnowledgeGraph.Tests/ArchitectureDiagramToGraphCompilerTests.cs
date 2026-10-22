@@ -541,6 +541,42 @@ public sealed class ArchitectureDiagramToGraphCompilerTests
     }
 
     [Fact]
+    public void Compile_trims_corporate_subgraph_label_on_member_trust_boundary_metadata_when_subgraph_label_has_surrounding_whitespace()
+    {
+        ArchitectureDiagramModelRecord model = new()
+        {
+            Subgraphs =
+            [
+                new ArchitectureDiagramSubgraphRecord
+                {
+                    Id = "corp",
+                    Label = "  Corporate network  ",
+                },
+            ],
+            Nodes =
+            [
+                new ArchitectureDiagramNodeRecord
+                {
+                    Id = "api",
+                    Label = "API",
+                    SubgraphId = "corp",
+                },
+            ],
+            ExtractionMethod = DiagramExtractionMethods.StructuredParse,
+        };
+
+        StructuredDiagramGraphCompileResult result = new ArchitectureDiagramToGraphCompiler().Compile(
+            model,
+            CreateDefaultCompileOptions());
+
+        GraphNode apiNode = result.Snapshot.Nodes.Single(node => node.SourceId == "api");
+        apiNode.Properties[StructuredDiagramGraphPropertyKeys.TrustBoundaryLabel]
+            .Should().Be("Corporate network");
+        apiNode.Properties[StructuredDiagramGraphPropertyKeys.DiagramSubgraphLabel]
+            .Should().Be("Corporate network");
+    }
+
+    [Fact]
     public void Compile_corporate_network_subgraph_tags_member_nodes_as_trust_boundary()
     {
         ArchitectureDiagramModelRecord model = new()
