@@ -1,3 +1,11 @@
+2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed invalid_client_secret authorize-query UX (existing parity) and saturated decodeOAuthErrorDescription ZWJ multiply-encoded glue; regression documents BFF refresh 475 parity (client + route opaque 475) and variation-selector-8-only access_token rejection; scoped vitest 724/724.
+
+- [x] (invalid) humanizeAuthorizeCallbackError - invalid_client_secret authorize-query copy - **cheap-disproof 2026-10-22:** existing readable default-branch UX parity test.
+- [x] (valid-no-repro) refreshBffSessionCookie - refresh 475 shouldClearSession false - **regression 2026-10-22:** client soft-fail plus BFF route opaque 475 without cookie clear.
+- [x] (valid-no-repro) exchangeAuthorizationCode - access_token JSON string variation-selector-8-only skips authorize retry marker - **regression 2026-10-22:** variation-selector strip parity (U+FE07).
+- [x] (invalid) decodeOAuthErrorDescription - multiply-encoded %252B with ZWJ glue - **cheap-disproof 2026-10-22:** saturated encoding class.
+
+- [ ] (candidate) humanizeAuthorizeCallbackError - invalid_client authorize-query copy - locus: default branch UX.
 ﻿2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed state_mismatch authorize-query UX (existing parity) and saturated decodeOAuthErrorDescription ZWJ multiply-encoded glue (existing parity); regression documents BFF refresh 507 parity (client opaque-sequence plus route opaque 507) and soft-hyphen replacement-character-only access_token rejection (existing parity); scoped vitest 796/796.
 ﻿2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed invalid_state authorize-query UX (existing parity) and saturated readOAuthJsonErrorDescription ZWJ multiply-encoded glue (existing parity); regression documents BFF refresh 508 parity (client opaque-sequence plus route opaque 508) and soft-hyphen object-replacement-only access_token rejection (existing parity); scoped vitest 798/798.
 
