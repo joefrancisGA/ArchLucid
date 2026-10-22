@@ -96,9 +96,9 @@ public static class ArchitectureInventoryObservedFactGraphOverlayMerger
             SourceType = node.SourceType,
             SourceId = node.SourceId,
             ReasoningTrace = node.ReasoningTrace,
-            Properties = node.Properties is null
+            Properties = node.Properties is null || node.Properties.Count == 0
                 ? []
-                : new Dictionary<string, string>(node.Properties, StringComparer.Ordinal),
+                : NormalizeOverlayPropertyBag(node.Properties),
         };
 
     private static GraphEdge NormalizeOverlayEdge(GraphEdge edge) =>
@@ -118,4 +118,28 @@ public static class ArchitectureInventoryObservedFactGraphOverlayMerger
                 ? []
                 : new Dictionary<string, string>(edge.Properties, StringComparer.Ordinal),
         };
+
+    private static Dictionary<string, string> NormalizeOverlayPropertyBag(IReadOnlyDictionary<string, string> properties)
+    {
+        Dictionary<string, string> normalized = new(StringComparer.OrdinalIgnoreCase);
+
+        foreach (KeyValuePair<string, string> entry in properties)
+        {
+            string key = string.IsNullOrWhiteSpace(entry.Key) ? entry.Key : entry.Key.Trim();
+            string value = string.IsNullOrWhiteSpace(entry.Value)
+                ? entry.Value
+                : entry.Value.Trim();
+
+            if (normalized.TryGetValue(key, out string? existing)
+                && !string.Equals(existing, value, StringComparison.Ordinal))
+            {
+                throw new ArgumentException(
+                    "Inventory overlay node properties contain duplicate keys that collide under ordinal case-insensitive comparison.");
+            }
+
+            normalized[key] = value;
+        }
+
+        return normalized;
+    }
 }
