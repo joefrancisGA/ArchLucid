@@ -126,7 +126,11 @@ export function collapseOAuthErrorDescriptionLineBreaks(text: string): string {
 
 /** Normalizes OAuth `error` codes from authorize query params or token JSON (collapse glue characters, snake_case). */
 export function normalizeOAuthErrorCode(value: string): string {
-  const collapsed = collapseOAuthErrorDescriptionLineBreaks(value.trim());
+  const tokenized = value
+    .trim()
+    .replace(OAUTH_INVISIBLE_FORMAT_CHARS, "_")
+    .replace(/[\u0000-\u001F\u007F\u2028\u2029\u0085\u00AD]/gu, "_");
+  const collapsed = collapseOAuthErrorDescriptionLineBreaks(tokenized);
 
   return collapsed
     .replace(/\s+/gu, "_")

@@ -410,6 +410,13 @@ describe("humanizeAuthorizeCallbackError", () => {
     expect(message.length).toBeLessThanOrEqual(280);
   });
 
+  it("maps authorize error codes with ZWNJ glue to the standard snake_case handlers", () => {
+    const message = humanizeAuthorizeCallbackError("access\u200cdenied", "");
+
+    expect(message).toContain("canceled sign-in");
+    expect(message).not.toMatch(/accessdenied/i);
+  });
+
   it("includes numeric invalid_request error_description in callback copy", () => {
     const message = humanizeAuthorizeCallbackError("invalid_request", "403");
 
