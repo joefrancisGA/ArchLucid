@@ -6175,14 +6175,5 @@
 {"at":"2026-10-22T05:49:44.661Z","zoneId":"ui-oidc","outcome":"seed-only","productLine":"archlucid-shared"}
 {"at":"2026-10-22T05:51:25.178Z","zoneId":"ui-oidc","outcome":"seed-only","productLine":"archlucid-shared"}
 {"at":"2026-10-22T05:53:10.517Z","zoneId":"ui-oidc","outcome":"seed-only","productLine":"archlucid-shared"}
-{"at":"2026-10-22T05:21:09.3908257Z","zoneId":"application-tenancy-lifecycle","outcome":"hit","productLine":"archlucid-shared"}
-{"at":"2026-10-22T05:15:38.7845599Z","zoneId":"ui-oidc","outcome":"seed-only","productLine":"archlucid-shared"}
-{"at":"2026-10-22T05:20:23.5036557Z","zoneId":"ui-oidc","outcome":"seed-only","productLine":"archlucid-shared"}
-{"at":"2026-10-22T05:25:10.2995016Z","zoneId":"ui-oidc","outcome":"seed-only","productLine":"archlucid-shared"}
-{"at":"2026-10-22T05:29:34.1303134Z","zoneId":"ui-oidc","outcome":"seed-only","productLine":"archlucid-shared"}
-{"at":"2026-10-22T05:33:35.4034519Z","zoneId":"ui-oidc","outcome":"seed-only","productLine":"archlucid-shared"}
-{"at":"2026-10-22T05:37:22.3427849Z","zoneId":"ui-oidc","outcome":"seed-only","productLine":"archlucid-shared"}
-{"at":"2026-10-22T05:43:01.3585921Z","zoneId":"ui-oidc","outcome":"seed-only","productLine":"archlucid-shared"}
-{"at":"2026-10-22T05:47:50.0231350Z","zoneId":"ui-oidc","outcome":"seed-only","productLine":"archlucid-shared"}
-{"at":"2026-10-22T05:52:45.9714093Z","zoneId":"ui-oidc","outcome":"seed-only","productLine":"archlucid-shared"}
-{"at":"2026-10-22T05:54:18.1575760Z","zoneId":"application-tenancy-lifecycle","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-22T05:54:51.533Z","zoneId":"ui-oidc","outcome":"seed-only","productLine":"archlucid-shared"}
+{"at":"2026-10-22T05:56:27.842Z","zoneId":"ui-oidc","outcome":"seed-only","productLine":"archlucid-shared"}
