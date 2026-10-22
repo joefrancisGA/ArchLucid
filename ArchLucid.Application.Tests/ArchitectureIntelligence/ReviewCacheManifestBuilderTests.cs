@@ -488,6 +488,44 @@ public sealed class ReviewCacheManifestBuilderTests
     }
 
     [Fact]
+    public void Build_ignores_null_technology_ledger_entries_when_hashing_content()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "run-ledger-null-slot";
+
+        TechnologyLedgerEntry entry = new()
+        {
+            RunId = request.RunId,
+            Role = TechnologyLedgerRole.CloudPlatform,
+            TechnologyName = "Azure",
+            ProviderFamily = ArchLucid.Contracts.Common.CloudProvider.Azure,
+            Status = TechnologyLedgerStatus.Chosen,
+            Source = TechnologyLedgerSource.User,
+        };
+
+        ReviewCacheManifestBuilder.Build(request, null, [null!, entry]).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(request, null, [entry]).ContentHash);
+    }
+
+    [Fact]
+    public void BuildWithResolvedRunId_matches_content_hash_when_resolved_run_id_differs_only_by_surrounding_whitespace()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+
+        ReviewCacheManifestBuilder.BuildWithResolvedRunId(
+                request,
+                "  aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa  ")
+            .ContentHash
+            .Should()
+            .Be(
+                ReviewCacheManifestBuilder.BuildWithResolvedRunId(
+                    request,
+                    "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa").ContentHash);
+    }
+
+    [Fact]
     public void Build_ignores_null_source_text_entries_when_hashing_content()
     {
         ClosedLoopReasoningRequest withNullEntry = CreateRequest("ignored");

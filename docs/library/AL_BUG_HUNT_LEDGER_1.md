@@ -8712,6 +8712,28 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: architecture-intelligence-orchestrator
 
+2026-10-22 seed hunt (seed→hit): promoted null element in `technologyLedgerEntries` list causing `NullReferenceException` during `ledgerfp` computation; `ReviewCacheLedgerFingerprint.Compute` now skips null entries; regression `Build_ignores_null_technology_ledger_entries_when_hashing_content`; cheap-disproof padded `BuildWithResolvedRunId` and prior API-validation/tombstone/framing-order rows; guard regression for padded resolved run id; 119 scoped tests passed.
+
+- [x] (proven) `ReviewCacheLedgerFingerprint.Compute` — null ledger entry in list threw during ordered fingerprint — **hit 2026-10-22 seed hunt:** filter null entries before sort/hash; regression above.
+
+- [x] (valid-no-repro) `ReviewCacheManifestBuilder.BuildWithResolvedRunId` — padded resolved run id — **cheap-disproof 2026-10-22 seed hunt:** regression `BuildWithResolvedRunId_matches_content_hash_when_resolved_run_id_differs_only_by_surrounding_whitespace`.
+
+- [x] (invalid) `ClosedLoopArchitectureReasoningOrchestrator.RunAsync` — API should reject null `SourceTexts` before manifest — **cheap-disproof 2026-10-22 seed hunt:** in-app skip in `HashContent` is intentional defense-in-depth; API validation is separate layer (not a cache hash defect).
+
+- [x] (valid-no-repro) `ReviewResultCache.Set` — tombstone race — **cheap-disproof 2026-10-22 seed hunt:** `Set` re-checks tombstone under `_evictionLock`; no repro without concurrent stress harness in zone tests.
+
+- [x] (valid-no-repro) `ClosedLoopFramingAnswersNormalizer` — JSON key order with casing duplicates — **cheap-disproof 2026-10-22 seed hunt:** ignore-case merge yields stable normalized dictionary regardless of insertion order.
+
+- (candidate) `ClosedLoopReasoningSourceTextNormalizer.NormalizeLineEndings` — consolidated C0/C1 line-break audit (picker saturated `other`; batch only).
+
+- (candidate) `ReviewCacheLedgerFingerprint.Compute` — null `TechnologyName` on entry — locus: `NormalizeTechnologyName`; input: sparse ledger row with null name (verify empty token).
+
+- (candidate) `ReviewCacheManifestBuilder.HashContent` — null `baselineKnowledgeModel` vs empty model fingerprint — locus: `ReviewCacheModelFingerprint.Compute`; input: run id present with null baseline.
+
+- (candidate) `ClosedLoopContinueRunSingleFlight` — coalesce key uses manifest content hash only — locus: tenant in continue outer hash; input: verify tenant move cannot false-share continue coalesce.
+
+- (candidate) `ReviewResultCache.TryGet` — manifest `SchemaVersion` mismatch still returns entry — locus: storage key builder; input: version bump without cache clear.
+
 2026-10-22 seed hunt (seed→hit): promoted null element in `SourceTexts` list causing `ArgumentNullException` during manifest `ContentHash` build; `HashContent` now skips null attachments before normalize; regression `Build_ignores_null_source_text_entries_when_hashing_content`; cheap-disproof duplicate-list order (dedupe by normalized triple), padded `InvalidateForRun`, publish in-flight partition, and golden-flag attachment rows; 117 scoped tests passed.
 
 - [x] (proven) `ReviewCacheManifestBuilder.HashContent` — null `SourceTexts` entry threw before hash — **hit 2026-10-22 seed hunt:** filter null list elements before `Normalize`; regression above.
@@ -8726,13 +8748,13 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 - (candidate) `ClosedLoopReasoningSourceTextNormalizer.NormalizeLineEndings` — consolidated C0/C1 line-break audit (picker saturated `other`; batch only).
 
-- (candidate) `ClosedLoopArchitectureReasoningOrchestrator.RunAsync` — null `SourceTexts` entry should be rejected at API validation before manifest build — locus: controller/model binding; input: verify HTTP 400 vs in-app skip parity.
+- [x] (invalid) `ClosedLoopArchitectureReasoningOrchestrator.RunAsync` — API reject null `SourceTexts` — **cheap-disproof 2026-10-22 seed hunt:** see seed→hit row above.
 
-- (candidate) `ReviewResultCache.Set` — tombstoned run id checked after clone but before lock re-check race — locus: `Set` double tombstone gate; input: concurrent invalidate + set same run.
+- [x] (valid-no-repro) `ReviewResultCache.Set` — tombstone race — **cheap-disproof 2026-10-22 seed hunt:** see seed→hit row above.
 
-- (candidate) `ReviewCacheManifestBuilder.BuildWithResolvedRunId` — resolved run id not trimmed when caller passes padded id — locus: `NormalizeRequired` on resolved path; input: continue path run id padding.
+- [x] (valid-no-repro) `ReviewCacheManifestBuilder.BuildWithResolvedRunId` — padded resolved run id — **cheap-disproof 2026-10-22 seed hunt:** see seed→hit row above.
 
-- (candidate) `ClosedLoopFramingAnswersNormalizer` — dictionary iteration order with equivalent keys pre-normalize — locus: pairs list before group; input: JSON object key order with casing duplicates.
+- [x] (valid-no-repro) `ClosedLoopFramingAnswersNormalizer` — JSON key order — **cheap-disproof 2026-10-22 seed hunt:** see seed→hit row above.
 
 2026-10-22 seed hunt (seed-only): re-read continue coalesce tenant segment, scope `ProjectId`, and framing whitespace-only answers; cheap-disproof closed `ProjectId` null vs empty, continue tenant padding, framing whitespace-only vs omitted, and prior tombstone/continue-route rows; no new hunt-ready normalization scalar (picker saturated `other`); 116 scoped tests passed.
 
@@ -8949,11 +8971,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** closed-loop orchestrator; review result cache; architecture intelligence
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.cs; ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.Cache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewResultCache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewCacheManifestBuilder.cs
 - **test-filter:** FullyQualifiedName~ClosedLoopArchitectureReasoningOrchestrator|FullyQualifiedName~ReviewResultCache|FullyQualifiedName~ReviewCacheManifestBuilder
-- **hunts:** 54
-- **bugs-found:** 31
+- **hunts:** 55
+- **bugs-found:** 32
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — null source text entries in review-cache manifest hash
+- **last-bug:** 2026-10-22 — null technology ledger entries in review-cache manifest hash
 - **related-pd-tb:** none
 - **code-changed-since:** no
 

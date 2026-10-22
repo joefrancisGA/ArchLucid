@@ -19,6 +19,7 @@ public static class ReviewCacheLedgerFingerprint
         StringBuilder builder = new();
 
         foreach (TechnologyLedgerEntry entry in ledgerEntries
+                     .Where(static item => item is not null)
                      .OrderBy(item => item.Role)
                      .ThenBy(item => item.TechnologyName, StringComparer.Ordinal)
                      .ThenBy(item => item.ProviderFamily))
