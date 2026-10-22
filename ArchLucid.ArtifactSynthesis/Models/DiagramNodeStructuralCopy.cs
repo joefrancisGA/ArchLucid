@@ -40,6 +40,7 @@ public static class DiagramNodeStructuralCopy
             IncludeResourceGroupInCaption = source.IncludeResourceGroupInCaption,
             HasPrivateEndpointAccess = source.HasPrivateEndpointAccess,
             HasPublicInternetExposure = source.HasPublicInternetExposure,
+            HiddenPublicIpAddress = source.HiddenPublicIpAddress,
             IsExecutiveOverflow = source.IsExecutiveOverflow,
             IsUnresolvedPolicyOutlineOnly = source.IsUnresolvedPolicyOutlineOnly,
             ParentAttachmentDetails = source.ParentAttachmentDetails.ToList(),

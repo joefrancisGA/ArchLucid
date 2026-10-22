@@ -94,7 +94,8 @@ public static class DiagramNodeHumanCaptionFactory
 
         if (node.HasPublicInternetExposure)
         {
-            combined = $"{combined} · {InventoryDiagramRelationshipLabelTexts.PublicExposureCaption}";
+            combined =
+                $"{combined} · {InventoryDiagramRelationshipLabelTexts.FormatHiddenPublicIpCaption(node.HiddenPublicIpAddress)}";
         }
 
         if (node.ConnectionState == InventoryDiagramConnectionState.Orphaned

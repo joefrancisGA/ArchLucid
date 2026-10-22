@@ -547,7 +547,10 @@ public static class AzureInventorySecurityEdgeMaterializer
     {
         if (resource.ResourceType.Contains("privateEndpoints", StringComparison.OrdinalIgnoreCase))
         {
-            if (resource.Properties.TryGetValue("privateLinkServiceConnectionState.status", out _))
+            if (resource.Properties.ContainsKey("privateLinkServiceConnectionState.status")
+                || resource.Properties.Keys.Any(key =>
+                    key.Contains("privateLinkServiceConnectionState", StringComparison.OrdinalIgnoreCase)
+                    && key.Contains("status", StringComparison.OrdinalIgnoreCase)))
             {
                 string? targetResourceId = TryReadLinkedResourceId(resource.Properties, "privateLinkServiceId");
 

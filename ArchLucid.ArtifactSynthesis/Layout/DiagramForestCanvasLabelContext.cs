@@ -275,6 +275,10 @@ public sealed class DiagramForestCanvasLabelContext
         {
             lines.Add($"Runtime {node.ExternalIntegrationRuntime.Trim()}");
         }
+        else
+        {
+            lines.Add("Integration runtime was not stored.");
+        }
 
         return lines;
     }

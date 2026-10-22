@@ -23,6 +23,26 @@ export const EXTRACT_UPLOAD_ACTOR_NOT_STORED = "Actor was not stored." as const;
 
 export const EXTRACT_UPLOAD_ACTOR_STORED_EMPTY = "Actor was stored empty." as const;
 
+export const EXTRACT_UPLOAD_PACKAGE_ID_NOT_STORED = "Upload id was not stored." as const;
+
+export const EXTRACT_UPLOAD_PACKAGE_ID_STORED_EMPTY = "Upload id was stored empty." as const;
+
+export function formatExtractUploadAcceptedPackageId(packageId: string): string {
+  if (packageId.length === 0) {
+    return EXTRACT_UPLOAD_PACKAGE_ID_NOT_STORED;
+  }
+
+  if (packageId.trim().length === 0) {
+    return EXTRACT_UPLOAD_PACKAGE_ID_STORED_EMPTY;
+  }
+
+  return packageId;
+}
+
+export function extractUploadPackageIdIsCopyable(packageId: string): boolean {
+  return packageId.trim().length > 0;
+}
+
 export function formatExtractUploadAcceptedActorLabel(actorLabel: string): string {
   if (actorLabel.trim().length === 0) {
     return EXTRACT_UPLOAD_ACTOR_STORED_EMPTY;

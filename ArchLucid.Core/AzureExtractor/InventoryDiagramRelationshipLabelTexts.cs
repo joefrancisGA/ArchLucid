@@ -9,6 +9,45 @@ public static class InventoryDiagramRelationshipLabelTexts
 
     public const string PublicExposureCaption = "Public IP is attached; its card is hidden on this diagram.";
 
+    public const string PublicIpAddressNotStored = "Public IP address was not stored.";
+
+    public const string PrivateEndpointConnectionStatusNotStored =
+        "Private endpoint connection status was not stored.";
+
+    public static string FormatHiddenPublicIpCaption(string? ipAddress)
+    {
+        if (string.IsNullOrWhiteSpace(ipAddress))
+        {
+            return $"{PublicExposureCaption} {PublicIpAddressNotStored}";
+        }
+
+        return $"{PublicExposureCaption} {ipAddress.Trim()}";
+    }
+
+    public static string FormatPrivateEndpointConnectionLabel(string? connectionStatus)
+    {
+        if (string.IsNullOrWhiteSpace(connectionStatus))
+        {
+            return PrivateEndpointConnectionStatusNotStored;
+        }
+
+        string status = connectionStatus.Trim();
+
+        if (status.Equals("Approved", StringComparison.OrdinalIgnoreCase))
+        {
+            return $"{PrivateAccess} · {status}";
+        }
+
+        if (status.Equals("Rejected", StringComparison.OrdinalIgnoreCase)
+            || status.Equals("Disconnected", StringComparison.OrdinalIgnoreCase)
+            || status.Equals("Pending", StringComparison.OrdinalIgnoreCase))
+        {
+            return $"Private endpoint connection: {status}";
+        }
+
+        return $"Private endpoint connection: {status}";
+    }
+
     public const string Peered = "Peered";
 
     public const string SendsTrafficTo = "Sends traffic to";
