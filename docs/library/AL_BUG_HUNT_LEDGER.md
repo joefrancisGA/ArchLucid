@@ -1,3 +1,7 @@
+2026-10-22 seed hunt (seed->hit): `api-policy-packs` - promoted hunt-ready from seed re-read `PolicyPackSimulateRequestValidator` + `PolicyPacksController.Simulate` - FluentValidation `MaximumLength(64)` on raw `RunId` rejected padded bodies after `ValidateGovernanceRunId` already accepted the trimmed governance run id (parity with single-simulate nbsp/trim forwarding); drop redundant raw max-length rule; regression `Simulate_accepts_run_id_when_padding_makes_raw_length_exceed_64_but_trimmed_id_is_valid`; scoped `PolicyPacksController` filter 101/101.
+
+- [x] (proven) `PolicyPackSimulateRequestValidator` - raw `MaximumLength(64)` on `RunId` - **hit 2026-10-22 seed hunt:** controller trim validation is authoritative; regression above.
+
 2026-10-22 seed hunt (seed->hit): `api-policy-packs` - promoted hunt-ready from seed re-read `PublishPolicyPackVersionRequestValidator` / `AssignPolicyPackRequestValidator` - FluentValidation `MaximumLength(50)` counted untrimmed `Version` padding so reachable publish/assign bodies with valid semver after trim (e.g. 46 spaces + `1.0.0`, raw length 51) returned HTTP 400 while promote/get-version already accepted the same normalized label; drop raw max-length rule and rely on `PolicyPackSemVerVersion.TryParse` trim semantics; regressions `Publish_accepts_padded_version_when_trimmed_label_is_within_limit` and `Validate_passes_when_version_padding_makes_raw_length_exceed_50_but_trimmed_semver_is_valid`; scoped `PolicyPacksController` filter 100/100.
 
 - [x] (proven) `PublishPolicyPackVersionRequestValidator` / `AssignPolicyPackRequestValidator` - raw `MaximumLength(50)` vs trimmed semver - **hit 2026-10-22 seed hunt:** align publish/assign with promote/get-version trimmed max length; regressions above.
@@ -69788,8 +69792,8 @@ heap-disproved mermaid typed-topology candidate.
 - **aliases:** policy packs controller; split from api-governance-tenancy-controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/PolicyPacksController.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Assignment.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Mutate.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Effective.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Hub.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Versions.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Crud.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Simulate.cs
 - **test-filter:** FullyQualifiedName~PolicyPacksController
-- **hunts:** 44
-- **bugs-found:** 23
+- **hunts:** 45
+- **bugs-found:** 24
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-21 - trim AgentModelTiers AgentTypeTiers keys after configuration bind
