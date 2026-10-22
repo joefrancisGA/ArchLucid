@@ -970,6 +970,38 @@ public sealed class ProvenanceSnapshotRevisionHasherTests
     }
 
     [Fact]
+    public void Compute_unchanged_when_later_duplicate_artifact_row_omits_name()
+    {
+        Guid artifactId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
+
+        SynthesizedArtifact firstRow = new()
+        {
+            ArtifactId = artifactId,
+            ArtifactType = "doc",
+            Name = "overview.md",
+            Format = "md",
+            Content = "v1",
+            ContentHash = "hash-v1",
+        };
+
+        SynthesizedArtifact secondRow = new()
+        {
+            ArtifactId = artifactId,
+            ArtifactType = "doc",
+            Name = string.Empty,
+            Format = "md",
+            Content = "v1",
+            ContentHash = "hash-v1",
+        };
+
+        ProvenanceBuildInput baseline = CreateInput([firstRow]);
+        ProvenanceBuildInput updated = CreateInput([firstRow, secondRow]);
+
+        ProvenanceSnapshotRevisionHasher.Compute(baseline, BundleId)
+            .Should().Be(ProvenanceSnapshotRevisionHasher.Compute(updated, BundleId));
+    }
+
+    [Fact]
     public void Compute_changes_when_later_duplicate_artifact_row_adds_contributing_decision_id()
     {
         Guid artifactId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");

@@ -84,7 +84,7 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
                 });
 
 
-        foreach (SynthesizedArtifact a in DistinctArtifacts())
+        foreach (SynthesizedArtifact a in artifacts)
 
             AddNode(
                 $"artifact:{a.ArtifactId:N}",
@@ -229,11 +229,6 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
         }
 
         return result;
-
-        IEnumerable<SynthesizedArtifact> DistinctArtifacts() =>
-            artifacts
-                .GroupBy(static artifact => artifact.ArtifactId)
-                .Select(static group => ProvenanceSnapshotRevisionHasher.SelectRevisionArtifactRepresentative(group));
 
         ProvenanceNode CreateFindingNode(Finding finding)
         {

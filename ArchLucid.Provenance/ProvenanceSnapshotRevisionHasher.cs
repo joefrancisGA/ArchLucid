@@ -183,6 +183,16 @@ public static class ProvenanceSnapshotRevisionHasher
             .LastOrDefault(static value => value.Length > 0) ?? string.Empty;
     }
 
+    private static string SelectLastNonEmptyArtifactField(
+        IGrouping<Guid, SynthesizedArtifact> group,
+        Func<SynthesizedArtifact, string?> selector)
+    {
+        return group
+            .Select(selector)
+            .Select(static value => (value ?? string.Empty).Trim())
+            .LastOrDefault(static value => value.Length > 0) ?? string.Empty;
+    }
+
     private static string ComputeArtifactsFingerprint(IReadOnlyList<SynthesizedArtifact> artifacts)
     {
         if (artifacts.Count == 0)
@@ -203,9 +213,9 @@ public static class ProvenanceSnapshotRevisionHasher
                         .Distinct(StringComparer.OrdinalIgnoreCase)
                         .OrderBy(static decisionId => decisionId, StringComparer.OrdinalIgnoreCase));
 
-                string name = (representative.Name ?? string.Empty).Trim();
-                string artifactType = (representative.ArtifactType ?? string.Empty).Trim();
-                string format = (representative.Format ?? string.Empty).Trim();
+                string name = SelectLastNonEmptyArtifactField(group, static artifact => artifact.Name);
+                string artifactType = SelectLastNonEmptyArtifactField(group, static artifact => artifact.ArtifactType);
+                string format = SelectLastNonEmptyArtifactField(group, static artifact => artifact.Format);
 
                 string contentHash = (representative.ContentHash ?? string.Empty).Trim();
 
