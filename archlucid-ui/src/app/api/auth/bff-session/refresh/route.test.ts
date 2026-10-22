@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { POST } from "@/app/api/auth/bff-session/refresh/route";
+import { OAuthTokenEndpointError } from "@/lib/oidc/token-client";
 import {
   BFF_SESSION_COOKIE_NAME,
   createBffSessionCookieValue,
@@ -20,9 +21,14 @@ vi.mock("@/lib/oidc/discovery", () => ({
   loadDiscoveryDocument: (...args: unknown[]) => loadDiscoveryDocumentMock(...args),
 }));
 
-vi.mock("@/lib/oidc/token-client", () => ({
-  refreshAccessToken: (...args: unknown[]) => refreshAccessTokenMock(...args),
-}));
+vi.mock("@/lib/oidc/token-client", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/oidc/token-client")>();
+
+  return {
+    ...actual,
+    refreshAccessToken: (...args: unknown[]) => refreshAccessTokenMock(...args),
+  };
+});
 
 describe("POST /api/auth/bff-session/refresh", () => {
   beforeEach(() => {
@@ -97,6 +103,36 @@ describe("POST /api/auth/bff-session/refresh", () => {
     });
 
     refreshAccessTokenMock.mockRejectedValue(new Error("token endpoint error 400: invalid_grant"));
+
+    const req = new NextRequest("http://localhost/api/auth/bff-session/refresh", {
+      method: "POST",
+      headers: {
+        cookie: `${BFF_SESSION_COOKIE_NAME}=${issueResult?.sessionCookieValue ?? ""}`,
+        [BFF_CSRF_HEADER]: issueResult?.csrfToken ?? "",
+      },
+    });
+
+    const response = await POST(req);
+
+    expect(response.status).toBe(401);
+    expect(response.headers.get("set-cookie")).toContain("archlucid-bff-session=");
+    expect(response.headers.get("set-cookie")).toContain("Max-Age=0");
+  });
+
+  it("clears BFF session cookies when refreshAccessToken throws humanized invalid_grant", async () => {
+    const issueResult = createBffSessionCookieValue({
+      accessToken: "access-token",
+      expiresAtMs: Date.now() + 3_600_000,
+      refreshToken: "refresh-token",
+      workingMode: true,
+    });
+
+    refreshAccessTokenMock.mockRejectedValue(
+      new OAuthTokenEndpointError(
+        "Sign-in did not finish (invalid grant). Try again, or contact support if this persists.",
+        "invalid_grant",
+      ),
+    );
 
     const req = new NextRequest("http://localhost/api/auth/bff-session/refresh", {
       method: "POST",

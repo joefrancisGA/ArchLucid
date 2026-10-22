@@ -1,7 +1,12 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { OIDC_AUTHORIZE_CALLBACK_FAILED_KEY } from "@/lib/oidc/storage-keys";
-import { exchangeAuthorizationCode, refreshAccessToken } from "@/lib/oidc/token-client";
+import {
+  exchangeAuthorizationCode,
+  isOAuthRefreshTokenRejectedError,
+  OAuthTokenEndpointError,
+  refreshAccessToken,
+} from "@/lib/oidc/token-client";
 
 describe("refreshAccessToken", () => {
   afterEach(() => {
@@ -232,6 +237,58 @@ describe("refreshAccessToken", () => {
     ).rejects.toThrow(/Sign-in did not finish \(invalid grant\)/i);
 
     expect(sessionStorage.getItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY)).toBeNull();
+  });
+
+  it("classifies humanized invalid_grant refresh failures for BFF session clearing", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: false,
+      status: 400,
+      text: async () => JSON.stringify({ error: "invalid_grant" }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    let caught: unknown;
+
+    try {
+      await refreshAccessToken({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        refreshToken: "rt",
+      });
+    } catch (error) {
+      caught = error;
+    }
+
+    expect(caught).toBeInstanceOf(OAuthTokenEndpointError);
+    expect(isOAuthRefreshTokenRejectedError(caught)).toBe(true);
+    expect((caught as OAuthTokenEndpointError).message).not.toContain("invalid_grant");
+  });
+
+  it("classifies invalid_token refresh failures even when message is humanized", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: false,
+      status: 400,
+      text: async () => JSON.stringify({ error: "invalid_token" }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    let caught: unknown;
+
+    try {
+      await refreshAccessToken({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        refreshToken: "rt",
+      });
+    } catch (error) {
+      caught = error;
+    }
+
+    expect(caught).toBeInstanceOf(OAuthTokenEndpointError);
+    expect((caught as OAuthTokenEndpointError).normalizedErrorCode).toBe("invalid_token");
+    expect(isOAuthRefreshTokenRejectedError(caught)).toBe(true);
   });
 
   it("posts authorization code grants to token endpoints that include required query parameters (B2C policy)", async () => {

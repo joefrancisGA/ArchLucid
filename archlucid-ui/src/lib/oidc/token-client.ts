@@ -18,6 +18,37 @@ export type OidcTokenResponse = {
   scope?: string;
 };
 
+/** Token-endpoint OAuth failure with normalized `error` code for server-side session policy. */
+export class OAuthTokenEndpointError extends Error {
+  readonly normalizedErrorCode: string;
+
+  constructor(message: string, normalizedErrorCode: string) {
+    super(message);
+    this.name = "OAuthTokenEndpointError";
+    this.normalizedErrorCode = normalizedErrorCode;
+  }
+}
+
+const OAUTH_REFRESH_REJECTION_ERROR_CODES = new Set(["invalid_grant", "invalid_token"]);
+
+/**
+ * True when the IdP rejected a refresh-token grant and the BFF session should be cleared.
+ * Humanized operator copy no longer embeds snake_case codes in `Error.message`.
+ */
+export function isOAuthRefreshTokenRejectedError(error: unknown): boolean {
+  if (error instanceof OAuthTokenEndpointError) {
+    return OAUTH_REFRESH_REJECTION_ERROR_CODES.has(error.normalizedErrorCode);
+  }
+
+  if (!(error instanceof Error)) {
+    return false;
+  }
+
+  const message = error.message.toLowerCase();
+
+  return message.includes("invalid_grant") || message.includes("invalid_token");
+}
+
 /** OAuth error codes that share fixed authorize-callback operator copy when description is absent. */
 function shouldHumanizeTokenOAuthErrorCode(normalizedErrorCode: string): boolean {
   switch (normalizedErrorCode) {
@@ -75,12 +106,15 @@ function errorFromOAuthJson(json: unknown): Error | null {
   }
 
   if (shouldHumanizeTokenOAuthErrorCode(errorCode)) {
-    return new Error(humanizeAuthorizeCallbackError(rawErrorCode, errorDescription));
+    return new OAuthTokenEndpointError(
+      humanizeAuthorizeCallbackError(rawErrorCode, errorDescription),
+      errorCode,
+    );
   }
 
   const msg = [errorCode, errorDescription].filter((part) => part.length > 0).join(": ");
 
-  return new Error(sanitizeOAuthUserFacingMessage(msg));
+  return new OAuthTokenEndpointError(sanitizeOAuthUserFacingMessage(msg), errorCode);
 }
 
 async function readOAuthError(res: Response, bodyText: string): Promise<Error> {

@@ -1,3 +1,17 @@
+2026-10-22 seed hunt (seed→hit): `ui-oidc` — promoted hunt-ready `errorFromOAuthJson` / BFF refresh session policy — humanized `invalid_grant` token errors removed snake_case from `Error.message` so BFF `shouldClearSessionOnRefreshFailure` no longer cleared HttpOnly cookies (503 transient instead of 401); throw `OAuthTokenEndpointError` with `normalizedErrorCode` and export `isOAuthRefreshTokenRejectedError`; regressions `classifies humanized invalid_grant refresh failures for BFF session clearing` and BFF route humanized invalid_grant cookie clear; cheap-disproof closed five zone-head `(candidate)` rows; seeded five follow-on `(candidate)` rows; scoped `src/lib/oidc` + BFF refresh route vitest 380/380.
+
+- [x] (proven) `errorFromOAuthJson` / `isOAuthRefreshTokenRejectedError` — humanized refresh `invalid_grant` skipped BFF session clear — **hit 2026-10-22 seed hunt:** `OAuthTokenEndpointError`; route uses classifier; regressions above.
+- [x] (valid-no-repro) `shouldHumanizeTokenOAuthErrorCode` — `invalid_token` allowlist — **cheap-disproof 2026-10-22:** `OAuthTokenEndpointError` carries code without allowlist entry; classifier handles `invalid_token`.
+- [x] (valid-no-repro) `exchangeAuthorizationCode` — `redirect_uri_mismatch` + description — **cheap-disproof 2026-10-22:** default humanize branch already appends IdP description.
+- [x] (invalid) `humanizeAuthorizeCallbackError` — dedicated redirect URI mismatch copy — **cheap-disproof 2026-10-22:** UX-only; no wrong security/session outcome.
+- [x] (invalid) `readOAuthJsonErrorDescription` — `%2B`-only literal percent — **cheap-disproof 2026-10-22:** saturated encoding class; recent hits cover mixed plus/space.
+
+- [ ] (candidate) `OAuthTokenEndpointError` — attach HTTP status from token POST for proxy 401 vs 400 policy — locus: `readOAuthError`; input: non-JSON 401 body (reachability: corporate proxy).
+- [ ] (candidate) `isOAuthRefreshTokenRejectedError` — `invalid_client` on refresh grant — locus: classifier set; input: misconfigured confidential client on refresh (reachability: IdP misconfig).
+- [ ] (candidate) `exchangeAuthorizationCode` — `OAuthTokenEndpointError` preserves code for logging — locus: thrown error type; input: Sentry/buyer-safe wrapper (reachability: callback catch).
+- [ ] (candidate) `refreshBffSessionCookie` — client trusts 401 from BFF refresh route — locus: `bff-session-sync.ts`; input: humanized invalid_grant path (reachability: `ensureAccessTokenFresh`).
+- [ ] (candidate) `shouldMarkAuthorizeCallbackFailedOnExchangeError` — recognize `OAuthTokenEndpointError` — locus: exchange catch; input: invalid token URL vs OAuth failure (reachability: callback).
+
 2026-10-22 seed hunt (seed→hit): `ui-oidc` — promoted hunt-ready `errorFromOAuthJson` / `shouldHumanizeTokenOAuthErrorCode` — token endpoint JSON `redirect_uri_mismatch` on authorization code exchange surfaced raw `redirect_uri_mismatch` in `CallbackClient`; add `redirect_uri_mismatch` to the humanize allowlist; regression `humanizes redirect_uri_mismatch authorization code exchange errors instead of raw snake_case`; cheap-disproof closed five zone-head `(candidate)` rows; seeded five follow-on `(candidate)` rows; scoped `src/lib/oidc` vitest 374/374.
 
 - [x] (proven) `errorFromOAuthJson` — raw `redirect_uri_mismatch` on code exchange — **hit 2026-10-22 seed hunt:** allowlist entry; regression above.
