@@ -1622,6 +1622,47 @@ public sealed class StructuredDiagramGraphMergerTests
     }
 
     [Fact]
+    public void Merge_retains_distinct_compile_warnings_when_every_document_compile_snapshot_is_empty()
+    {
+        ArchitectureDiagramModelRecord diagramModel = new()
+        {
+            Nodes =
+            [
+                new ArchitectureDiagramNodeRecord
+                {
+                    Id = "api",
+                    Label = "API",
+                    Kind = ArchitectureDiagramNodeKinds.System,
+                    Provenance = ArchitectureDiagramProvenanceKinds.Asserted,
+                },
+            ],
+            ExtractionMethod = DiagramExtractionMethods.StructuredParse,
+        };
+
+        List<CanonicalObject> canonicalObjects = [];
+        canonicalObjects.AddRange(
+            ArchitectureDiagramCanonicalObjectMapper.Map(diagramModel, "doc-warn-only-a", labelOnlyInferenceConfidence: 0.5));
+        canonicalObjects.AddRange(
+            ArchitectureDiagramCanonicalObjectMapper.Map(diagramModel, "doc-warn-only-b", labelOnlyInferenceConfidence: 0.5));
+
+        ContextSnapshot snapshot = new()
+        {
+            SnapshotId = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeed7"),
+            RunId = Guid.Parse("11111111-2222-3333-4444-55555555555d"),
+            ProjectId = "project-warnings-only-merge",
+            CanonicalObjects = canonicalObjects,
+        };
+
+        StructuredDiagramGraphMerger merger =
+            new StructuredDiagramGraphMerger(new WarningsOnlyEmptySnapshotTestCompiler());
+        StructuredDiagramGraphMergeResult result = merger.Merge(snapshot, []);
+
+        result.Nodes.Should().BeEmpty();
+        result.Edges.Should().BeEmpty();
+        result.Warnings.Should().Equal("diagram compile notice A", "diagram compile notice B");
+    }
+
+    [Fact]
     public void Merge_deduplicates_canonical_bindings_when_canonical_graph_node_id_differs_only_by_surrounding_whitespace()
     {
         ArchitectureDiagramModelRecord diagramModel = new()
@@ -1759,6 +1800,25 @@ public sealed class StructuredDiagramGraphMergerTests
         merged.DeclaredConnectionId.Should().BeNull();
         merged.InferenceSource.Should().Be(GraphEdgeInferenceSources.StructuredParse);
         merged.Properties.Should().ContainKey(StructuredDiagramGraphPropertyKeys.ProvenanceKind);
+    }
+
+    private sealed class WarningsOnlyEmptySnapshotTestCompiler : IArchitectureDiagramToGraphCompiler
+    {
+        private int compileCount;
+
+        public StructuredDiagramGraphCompileResult Compile(
+            ArchitectureDiagramModelRecord model,
+            StructuredDiagramGraphCompileOptions options)
+        {
+            compileCount++;
+            string warning = compileCount == 1 ? "diagram compile notice A" : "diagram compile notice B";
+
+            return new StructuredDiagramGraphCompileResult
+            {
+                Warnings = [warning],
+                Snapshot = new GraphSnapshot(),
+            };
+        }
     }
 
     private sealed class PaddedDuplicateCompileWarningTestCompiler : IArchitectureDiagramToGraphCompiler
