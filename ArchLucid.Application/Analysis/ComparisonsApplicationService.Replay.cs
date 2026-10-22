@@ -33,6 +33,8 @@ public sealed partial class ComparisonsApplicationService
         if (record is null)
             return null;
 
+        await _comparisonReplayService.EnsureArtifactReplayAccessAllowedAsync(record, ct);
+
         if (!string.IsNullOrWhiteSpace(record.SummaryMarkdown))
         {
             return new ReplayComparisonResult

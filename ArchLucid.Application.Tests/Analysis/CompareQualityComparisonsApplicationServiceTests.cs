@@ -214,4 +214,51 @@ public sealed class CompareQualityComparisonsApplicationServiceTests
 
         await act.Should().ThrowAsync<CareerArtifactExportBlockedException>();
     }
+
+    [Fact]
+    public async Task CompareQuality_TryReplaySummaryMarkdownAsync_applies_career_gate_when_summary_markdown_is_already_stored()
+    {
+        const string runId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb";
+        InMemoryComparisonRecordRepository comparisonRecords = new();
+        await comparisonRecords.CreateAsync(
+            new ComparisonRecord
+            {
+                ComparisonRecordId = "cmp-stored-summary",
+                ComparisonType = ComparisonTypes.ExportRecordDiff,
+                LeftRunId = runId,
+                RightRunId = "cccccccccccccccccccccccccccccccc",
+                SummaryMarkdown = "## Stored summary",
+                CreatedUtc = DateTime.UtcNow,
+            },
+            CancellationToken.None);
+
+        Mock<IRunDetailQueryService> runDetail = new();
+        runDetail
+            .Setup(s => s.GetRunDetailAsync(runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchitectureRunDetail { Run = new() { RunId = runId } });
+
+        Mock<IComparisonReplayService> replay = new();
+        replay
+            .Setup(s => s.EnsureArtifactReplayAccessAllowedAsync(It.IsAny<ComparisonRecord>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new CareerArtifactExportBlockedException(
+                SimulatorCareerHonestyPresenter.SimulatorRehearsalBlockedMessage,
+                CareerArtifactCompletenessValidator.SimulatorRehearsalCode));
+
+        ComparisonsApplicationService sut = new(
+            runDetail.Object,
+            new Mock<IRunExportRecordRepository>().Object,
+            comparisonRecords,
+            replay.Object,
+            new Mock<ICompareRunsApplicationFacade>().Object,
+            new Mock<IComparisonReplayCostEstimator>().Object,
+            new Mock<IDriftReportFormatter>().Object,
+            new DriftReportDocxExport());
+
+        Func<Task> act = () => sut.TryReplaySummaryMarkdownAsync("cmp-stored-summary", CancellationToken.None);
+
+        await act.Should().ThrowAsync<CareerArtifactExportBlockedException>();
+        replay.Verify(
+            s => s.ReplayAsync(It.IsAny<ReplayComparisonRequest>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
 }

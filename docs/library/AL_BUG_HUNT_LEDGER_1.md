@@ -6691,6 +6691,15 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-22 seed hunt (seed→hit): `ComparisonsApplicationService.TryReplaySummaryMarkdownAsync` returned persisted `SummaryMarkdown` without lifecycle/career gates while artifact replay enforced both on the same anchor runs; call `EnsureArtifactReplayAccessAllowedAsync` before the stored-summary fast path; regression `CompareQuality_TryReplaySummaryMarkdownAsync_applies_career_gate_when_summary_markdown_is_already_stored`; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` filter 51/51.
+
+- [x] (proven) `ComparisonsApplicationService.TryReplaySummaryMarkdownAsync` - stored comparison summary bypassed career posture and lifecycle gates applied on artifact replay - **hit 2026-10-22 seed hunt:** shared `EnsureArtifactReplayAccessAllowedAsync` on summary fast path; regression above.
+
+- [ ] (candidate) `ComparisonsController.GetComparisonRecord` - returns full `ComparisonRecord` payload without career posture gate while replay routes block simulator-rehearsal metadata reads - locus: `GET /v1/planning/comparisons/{id}`; reachability: export-diff comparison anchored on rehearsal-incomplete runs.
+- [ ] (candidate) `ComparisonsApplicationService.TryReplaySummaryMarkdownAsync` - stored summary fast path still skips sealed-manifest hash verification performed on `ReplayAsync` entry - locus: summary GET after controller sealed guard only; reachability: mismatch between controller guard and replay service guard ordering.
+- [ ] (candidate) `ComparisonReplayCostEstimator.TryEstimateAsync` - sizes replay without invoking `EnsureArtifactReplayAccessAllowedAsync` - locus: `GET` comparison replay cost estimate; reachability: preflight for blocked runs still returns estimate bytes.
+- [ ] (candidate) `RunExportQueryFacade.LoadScopedExportRecordAsync` - tenant scope load for export compare pairs without lifecycle short-circuit before pair guard chain - locus: `LoadPairAsync`; reachability: incomplete lifecycle run id on one side of export compare.
+
 2026-10-22 seed hunt (seed→hit): `ComparisonsApplicationService.TryBuildBatchReplayZipAsync` caught `CareerArtifactExportBlockedException` in its per-id failure loop (unlike `ConflictException`), so batch replay returned null and `ReplayComparisonsBatch` responded HTTP 422 `BatchReplayAllFailed` instead of HTTP 409 career block; rethrow career posture blocks; regression `CompareQuality_TryBuildBatchReplayZipAsync_throws_career_posture_block_instead_of_swallowing_as_total_failure`; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` filter 50/50.
 
 - [x] (proven) `ComparisonsApplicationService.TryBuildBatchReplayZipAsync` - batch comparison replay swallowed `CareerArtifactExportBlockedException` while the batch controller mapped it to `CareerArtifactBlockedProblem` - **hit 2026-10-22 seed hunt:** rethrow after `ConflictException` parity; regression above.
@@ -6794,11 +6803,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 66
-- **bugs-found:** 64
+- **hunts:** 67
+- **bugs-found:** 65
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — batch comparison replay swallowed career posture blocks as total failure
+- **last-bug:** 2026-10-22 — stored comparison summary bypassed career posture gate
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
