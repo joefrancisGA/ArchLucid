@@ -1628,6 +1628,33 @@ public sealed class ProvenanceBuilderTests
     }
 
     [Fact]
+    public void Build_trims_padded_graph_node_type_and_category_in_metadata()
+    {
+        GraphNode node = new()
+        {
+            NodeId = "node-a",
+            NodeType = "  Service  ",
+            Label = "API Gateway",
+            Category = "  network  ",
+        };
+
+        ProvenanceBuilder sut = new();
+        DecisionProvenanceGraph graph = sut.Build(new ProvenanceBuildInput
+        {
+            RunId = RunId,
+            Findings = new FindingsSnapshot { Findings = [] },
+            Graph = new GraphSnapshot { Nodes = [node] },
+            Manifest = new ManifestDocument { ManifestId = ManifestId, ManifestHash = "h", Decisions = [] },
+            DecisionTrace = RuleAuditTraceDto.From(new RuleAuditTracePayload { AppliedRuleIds = [] }),
+            Artifacts = [],
+        });
+
+        ProvenanceNode graphNode = graph.Nodes.Should().ContainSingle(n => n.Type == ProvenanceNodeType.GraphNode).Subject;
+        graphNode.Metadata["nodeType"].Should().Be("Service");
+        graphNode.Metadata["category"].Should().Be("network");
+    }
+
+    [Fact]
     public void Build_normalizes_whitespace_only_graph_node_category_and_node_type_in_metadata()
     {
         GraphNode node = new()

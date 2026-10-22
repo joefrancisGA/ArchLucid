@@ -12470,18 +12470,22 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 171
+- **hunts:** 172
 - **bugs-found:** 149
 - **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-22 — graph node property reader returned padded property values
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
+2026-10-22 seed hunt (valid-no-repro): promoted `ProvenanceBuilder` padded graph node display-metadata candidate; proved graph nodes already trim `Label` via `ResolveGraphNodeDisplayName` and `nodeType`/`category` via `NormalizeProvenanceMetadataValue`; regressions `Build_trims_surrounding_whitespace_on_graph_node_display_name` and `Build_trims_padded_graph_node_type_and_category_in_metadata`; seeded `ProvenanceSnapshotRevisionHasher.ComputeGraphFingerprint` edge-id omission revision-cache follow-on; 465 KnowledgeGraph + 164 Provenance scoped tests passed.
+
+- [x] (valid-no-repro) `ProvenanceBuilder` — padded graph node `Label` / `NodeType` / `Category` emitted distinct graph provenance node metadata — **cheap-disproof 2026-10-22 seed hunt:** trim on display name and metadata normalization; regressions above.
+
+- [ ] (candidate) `ProvenanceSnapshotRevisionHasher.ComputeGraphFingerprint` — `EdgeId`-only changes may not bust revision fingerprint when directed endpoints and type are unchanged — locus: edge fingerprint segment uses `from|to|type` only; input: graph edges differing only by `EdgeId`; wrong outcome: `ProvenanceGraphAccessService` cache hit when diagram edge identity amendments should refresh revision.
+
 2026-10-22 seed hunt (valid-no-repro): promoted `ProvenanceBuilder` padded artifact display-metadata candidate; proved artifact nodes already trim `Name` via `ResolveArtifactDisplayName` and `artifactType`/`format` via `NormalizeProvenanceMetadataValue` (duplicate merge path trims via `ProvenanceNodeCoalesce`); regression `Build_trims_padded_artifact_name_type_and_format_on_initial_projection`; seeded `ProvenanceBuilder` padded graph node `Label` / `NodeType` / `Category` projection parity follow-on; 465 KnowledgeGraph + 163 Provenance scoped tests passed.
 
 - [x] (valid-no-repro) `ProvenanceBuilder` — padded artifact `Name` / `ArtifactType` / `Format` emitted distinct artifact node metadata — **cheap-disproof 2026-10-22 seed hunt:** trim on display name and metadata normalization; regression above.
-
-- [ ] (candidate) `ProvenanceBuilder` — padded graph node `Label` / `NodeType` / `Category` may emit distinct graph provenance node metadata — locus: `ResolveGraphNodeDisplayName` and graph node metadata projection; input: `GraphSnapshot` nodes with surrounding whitespace on display fields; wrong outcome: provenance graph node labels diverge when only padding differs.
 
 2026-10-22 seed hunt (valid-no-repro): promoted `ProvenanceSnapshotRevisionHasher.ComputeArtifactsFingerprint` padded artifact `Name` / `ArtifactType` / `Format` candidate; proved artifact fingerprint scalars already trim via `SelectLastNonEmptyArtifactField` before canonical segment composition; regression `Compute_unchanged_when_artifact_display_fields_differ_only_by_surrounding_whitespace`; seeded `ProvenanceBuilder` padded artifact display-name parity follow-on; 465 KnowledgeGraph + 162 Provenance scoped tests passed.
 
