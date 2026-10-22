@@ -4277,6 +4277,14 @@
 
 ## Zone: api-key-auth
 
+2026-10-22 thorough hunt #8 (dry): cheap-disproof closed five picker `(candidate)` rows (wrong key → generic `Invalid API key` ~125 by design; admin `replay:comparisons` permission in `BuildApiKeyClaims`; append rotate `,{key}` suffix for comma-separated config; embedded BOM/ZWSP normalizer — proven 2026-09-26/28 hits; blank test-actor header no-op ~172–173); no failing repro; five replacement `(candidate)` rows; scoped ApiKey tests not run.
+
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler` — wrong key message — **cheap-disproof 2026-10-22 #8:** non-enumerating `Invalid API key` fail-closed.
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler` — admin replay permission — **cheap-disproof 2026-10-22 #8:** intentional admin claim bundle ~94–99.
+- [x] (valid-no-repro) `AdminApiKeySettingsService.Rotate` — append leading comma — **cheap-disproof 2026-10-22 #8:** `AppendConfigSuffix` rotation contract ~71.
+- [x] (invalid) `ApiKeyMaterialNormalizer` — embedded BOM — **cheap-disproof 2026-10-22 #8:** duplicate proven invisible-character class.
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler` — empty test-actor header — **cheap-disproof 2026-10-22 #8:** `overrideName.Length == 0` returns unchanged claims.
+
 2026-10-22 thorough hunt #7 (dry): cheap-disproof closed five picker `(candidate)` rows (`AllowTestActorHeaders` in Production throws by design ~43–46; distinct reader key when admin expired authenticates via reader branch; comma-separated second segment — `When_enabled_true_and_comma_separated_admin_keys_either_segment_authenticates`; `InvalidatePrevious=true` replace response; missing `X-Api-Key` — `When_enabled_true_and_header_is_blank_returns_missing_failure`); no failing repro; five replacement `(candidate)` rows; scoped ApiKey tests not run.
 
 - [x] (valid-no-repro) `ApiKeyAuthenticationHandler` — test actor headers in Production — **cheap-disproof 2026-10-22 #7:** `InvalidOperationException` guard (intentional fail-fast).
@@ -4355,9 +4363,9 @@
 - **aliases:** API key auth; admin API key settings
 - **paths:** ArchLucid.Api/Authentication/ApiKeyAuthenticationHandler.cs; ArchLucid.Api/Services/Admin/AdminApiKeySettingsService.cs; ArchLucid.Api/Controllers/Admin/AdminApiKeySettingsController.cs
 - **test-filter:** FullyQualifiedName~ApiKeyAuthentication|FullyQualifiedName~AdminApiKeySettings
-- **hunts:** 87
+- **hunts:** 88
 - **bugs-found:** 23
-- **consecutive-dry-hunts:** 7
+- **consecutive-dry-hunts:** 8
 - **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-20 — hex API key material rejected when config/header casing differed
 - **related-pd-tb:** none
@@ -4439,11 +4447,17 @@
 - [x] (valid-no-repro) `AdminApiKeySettingsService.Rotate` — invalidate previous — **cheap-disproof 2026-10-22 #7.**
 - [x] (valid-no-repro) `ApiKeyAuthenticationHandler` — missing header — **cheap-disproof 2026-10-22 #7.**
 
-- [ ] (candidate) `ApiKeyAuthenticationHandler` — wrong key returns generic `Invalid API key` — locus: ~125; input: intentional non-enumerating failure.
-- [ ] (candidate) `ApiKeyAuthenticationHandler` — admin permissions include `replay:comparisons` — locus: `BuildApiKeyClaims` admin ~94–99; input: intentional admin capability set.
-- [ ] (candidate) `AdminApiKeySettingsService.Rotate` — append suffix `AppendConfigSuffix` leading comma — locus: ~71; input: operator merges with existing comma-separated config.
-- [ ] (candidate) `ApiKeyMaterialNormalizer` — strips embedded BOM in segment middle — locus: normalizer; input: proven 2026-09-26/2026-09-28 hits.
-- [ ] (candidate) `ApiKeyAuthenticationHandler` — `AllowTestActorHeaders` empty override header skipped — locus: `ApplyTestActorHeaderOverrides` ~172–173; input: no-op when blank.
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler` — wrong key — **cheap-disproof 2026-10-22 #8.**
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler` — admin permissions — **cheap-disproof 2026-10-22 #8.**
+- [x] (valid-no-repro) `AdminApiKeySettingsService.Rotate` — append comma — **cheap-disproof 2026-10-22 #8.**
+- [x] (invalid) `ApiKeyMaterialNormalizer` — embedded BOM — **cheap-disproof 2026-10-22 #8.**
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler` — blank test actor — **cheap-disproof 2026-10-22 #8.**
+
+- [ ] (candidate) `ApiKeyAuthenticationHandler` — synthetic admin bypass claims — locus: `BuildSyntheticAdminClaims`; input: `DevelopmentBypassAll` non-Production only (hunt #3 class).
+- [ ] (candidate) `AdminApiKeySettingsService.GetSnapshot` — masked segments never echo plaintext — locus: `ApiKeyMaterialMasker`; input: intentional operator UI.
+- [ ] (candidate) `ApiKeyAuthenticationHandler` — `options_monitor_advances` reload — locus: `IOptionsMonitor`; input: proven `When_api_key_options_monitor_advances_old_material_fails_and_new_succeeds`.
+- [ ] (candidate) `AdminApiKeySettingsController` — rotation audit `ExplicitActor` for API key principal — locus: `LogRotationAuditAsync`; input: proven 2026-10-09 hit.
+- [ ] (candidate) `ApiKeyAuthenticationHandler` — identical admin/reader material admin wins — locus: admin-before-reader ~88–106; input: intentional precedence (hunt #2).
 
 - [x] (proven) `AdminApiKeySettingsController.RotateKeyIdAsync` — legacy route audit JSON used the raw `keyId` while `AdminApiKeySettingsService.ParseSlot` canonicalized whitespace and casing for the response — **hit 2026-10-11 thorough hunt:** audit `keyId` now uses `response.Slot`; regression `RotateKeyIdAsync_persisted_audit_uses_canonical_slot_for_padded_route_value`.
 
