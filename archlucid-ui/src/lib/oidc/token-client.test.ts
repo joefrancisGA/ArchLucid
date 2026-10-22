@@ -346,7 +346,7 @@ describe("refreshAccessToken", () => {
     expect(sessionStorage.getItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY)).toBe("1");
   });
 
-  it("does not mark authorize callback failed when authorization code exchange returns a soft-hyphen-only access_token", async () => {
+  it("marks authorize callback failed when authorization code exchange returns a soft-hyphen-only access_token", async () => {
     sessionStorage.clear();
 
     vi.stubGlobal(
@@ -357,16 +357,17 @@ describe("refreshAccessToken", () => {
       })),
     );
 
-    const result = await exchangeAuthorizationCode({
-      tokenEndpoint: "https://login.example.com/token",
-      clientId: "client",
-      code: "auth-code",
-      redirectUri: "https://app.example/callback",
-      codeVerifier: "verifier",
-    });
+    await expect(
+      exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      }),
+    ).rejects.toThrow(/missing access_token/i);
 
-    expect(result.access_token).toBe("\u00ad");
-    expect(sessionStorage.getItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY)).toBeNull();
+    expect(sessionStorage.getItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY)).toBe("1");
   });
 
   it("marks authorize callback failed when authorization code exchange returns a tab-only access_token", async () => {
