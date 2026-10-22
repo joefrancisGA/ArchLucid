@@ -1,4 +1,8 @@
-﻿2026-10-22 seed hunt (seed→hit): `ui-oidc` — picker `ui-oidc` after 51 commits since 2026-10-16; promoted hunt-ready `normalizeOAuthErrorCode` — authorize `?error=access` + ZWNJ + `denied` skipped `access_denied` handler and surfaced generic `(accessdenied)` copy; map invisible format characters to `_` before snake_case collapse; regression `maps authorize error codes with ZWNJ glue to the standard snake_case handlers`; cheap-disproof closed five run #88 `(candidate)` rows; seeded five follow-on `(candidate)` rows; scoped vitest under `src/lib/oidc` 323/323.
+2026-10-22 seed hunt (seed->hit): `ui-oidc` - promoted hunt-ready `collapseOAuthErrorDescriptionLineBreaks` for Latin ZWNJ-glued `error_description` copy; regressions above; scoped `src/lib/oidc` vitest 325/325.
+
+- [x] (proven) `collapseOAuthErrorDescriptionLineBreaks` - Latin ZWNJ glue in OAuth error descriptions - **hit 2026-10-22 seed hunt (second pass):** `collapseAccidentalLatinZwnjGlue`.
+
+2026-10-22 seed hunt (seed→hit): `ui-oidc` — picker `ui-oidc` after 51 commits since 2026-10-16; promoted hunt-ready `normalizeOAuthErrorCode` — authorize `?error=access` + ZWNJ + `denied` skipped `access_denied` handler and surfaced generic `(accessdenied)` copy; map invisible format characters to `_` before snake_case collapse; regression `maps authorize error codes with ZWNJ glue to the standard snake_case handlers`; cheap-disproof closed five run #88 `(candidate)` rows; seeded five follow-on `(candidate)` rows; scoped vitest under `src/lib/oidc` 323/323.
 
 - [x] (proven) `normalizeOAuthErrorCode` / `humanizeAuthorizeCallbackError` — ZWNJ-split OAuth error codes missed `access_denied` handler — **hit 2026-10-22 seed hunt:** invisible chars → `_` before collapse; regression above.
 - [x] (valid-no-repro) `refreshBffSessionCookie` — plus-prefixed `expires_at_ms` string on ok refresh — **cheap-disproof 2026-10-22 seed hunt:** `parseOidcEpochMsHint` accepts decimal `+` prefix via `Number()`; no soft-fail on valid future epoch.
@@ -7,11 +11,11 @@
 - [x] (valid-no-repro) `initiateOidcRedirect` / `initiateSupplementalOidcRedirect` — supplemental Google vs primary PKCE ordering — **cheap-disproof 2026-10-22 seed hunt:** intentional cross-flow `clearPkceState` on successful redirect; `initiate-redirect.test.ts`.
 - [x] (valid-no-repro) `buildAuthorizeUrl` — B2C `p=` policy query key collision with ArchLucid params — **cheap-disproof 2026-10-22 seed hunt:** `searchParams.set` overwrites stale keys; retains `p`; `build-authorize-url.test.ts`.
 
-- [x] (valid-no-repro) `readOAuthErrorString` — interior ZWNJ in token JSON `error` — **cheap-disproof 2026-10-22 seed hunt:** `readOAuthErrorString` calls `normalizeOAuthErrorCode` (same path as authorize query).
-- [x] (valid-no-repro) `discoveryUrlForAuthority` — authority userinfo — **cheap-disproof 2026-10-22 seed hunt:** discovery URL uses `parsed.origin`, which omits embedded credentials from the fetch target.
-- [x] (invalid) `normalizeOAuthErrorCode` — ZWJ between regional indicators — **cheap-disproof 2026-10-22 seed hunt:** emoji error codes are not standard OAuth `error` values; readable-detail guards apply.
-- [x] (invalid) `ensureAccessTokenFresh` — skew boundary timing — **cheap-disproof 2026-10-22 seed hunt:** not hunt-ready (timing flake / environmental).
-- [x] (valid-no-repro) `exchangeAuthorizationCode` — interior ZWSP in `code` — **cheap-disproof 2026-10-22 seed hunt:** `trimTokenFormParams` uses `stripOAuthInvisibleFormatChars` on the full code string.
+- [ ] (candidate) `readOAuthErrorString` — token JSON `error` field with interior ZWNJ may not normalize before readability gate — locus: `token-client.ts`; input: token endpoint `{ "error": "invalid\u200cgrant" }` (reachability: IdP mis-encoded JSON).
+- [ ] (candidate) `discoveryUrlForAuthority` — configured authority with embedded userinfo builds discovery fetch URL with credentials — locus: `discovery.ts`; input: `NEXT_PUBLIC_OIDC_AUTHORITY=https://user:pass@idp.example` (reachability: misconfiguration).
+- [ ] (candidate) `normalizeOAuthErrorCode` — ZWJ-only glue between Regional Indicator flag sequences in error codes — locus: error code normalization; input: flag emoji error codes from IdP (may be intentional no-op).
+- [ ] (candidate) `ensureAccessTokenFresh` — identity hints present with `expires_at_ms` exactly `Date.now()` at skew boundary — locus: `EXPIRY_SKEW_MS` compare; input: refresh fires once per tick at boundary (timing flake class).
+- [ ] (candidate) `exchangeAuthorizationCode` — invisible characters inside `code` query value forwarded to token POST — locus: `trimTokenFormParams`; input: callback `code` with ZWSP interior (reachability: IdP never emits; strip at edges only today).
 2026-10-21 thorough hunt (dry, lane C): `api-governance-tenancy-controllers` — lock `api-governance-tenancy-controllers` pushed and verified on `origin/bugsmash` before work (`dee13d7e5c` content after push; lane C `2026-10-21T17:03:47Z`); skipped `ui-*` zones (lane B URL helper sweep); selected least-recent unlocked non-UI zone with open candidate rows (`2026-10-21T02:33:42Z`); exercised zone-head sealed-manifest / tenancy candidates — risk revoke/renew and recurrence already delegate to `EnsureGovernanceDispositionRunSealedManifestAllowedAsync` (null manifest-compare detail skips guard); pre-commit checklist loads `IRunRepository` before sealed guard (404 before 409); approval lineage guard returns null when approval missing; project delete audit uses `User?.Identity?.Name ?? actorUserId`; scoped stickiness not-found/sealed regressions **9/9**; no new defect.
 
 - [x] (valid-no-repro) `GovernanceStickinessController` revoke/renew risk exception sealed guard — **cheap-disproof 2026-10-21 lane C:** same null-detail skip as create/recurrence (2026-10-20/21 hits).
@@ -25217,72 +25221,6 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-12 seed hunt #1923 (seed-only): reseeded retrieval; scoped retrieval/indexing tests passed; no new hunt-ready defect proven this pass.
 ---
 
-2026-10-22 seed hunt (seed→hit): `ui-oidc` — promoted hunt-ready `initiateOidcRedirect` stale return path — successful primary OIDC redirect without `returnUrl` left `OIDC_POST_SIGN_IN_RETURN_URL_KEY` from a prior session-expiry sign-in, so callback `consumePostSignInReturnUrl` sent operators back to an abandoned deep link; clear stale return paths when a new redirect starts without an explicit safe return URL (preserve when the other PKCE flow is still pending); regression `clears stale post-sign-in return path when primary redirect succeeds without a return URL`; scoped `src/lib/oidc` vitest 319/319.
-
-- [x] (proven) `initiateOidcRedirect` — stale post-sign-in return path survived successful redirect without returnUrl — **hit 2026-10-22 seed hunt:** clear when no parallel Google PKCE; regression above.
-
-2026-10-22 seed hunt (seed→hit): `ui-oidc` — promoted hunt-ready `initiateOidcRedirect` empty `returnUrl` — primary redirect with `returnUrl=""` did not store a safe path but also skipped stale-return cleanup because only `undefined` triggered `clearPostSignInReturnUrl`; clear whenever no safe return URL is stored and the other PKCE flow is not pending (primary + supplemental); regression `clears stale post-sign-in return path when primary redirect gets an empty return URL`; scoped `src/lib/oidc` vitest 320/320.
-
-- [x] (proven) `initiateOidcRedirect` — empty-string returnUrl left stale `OIDC_POST_SIGN_IN_RETURN_URL_KEY` — **hit 2026-10-22 seed hunt:** clear on any non-stored return URL; regression above.
-
-2026-10-22 seed hunt (seed→hit): `ui-oidc` — promoted hunt-ready `initiateSupplementalOidcRedirect` discovery failure stale return — failed Google discovery without a new safe return URL left `OIDC_POST_SIGN_IN_RETURN_URL_KEY` from a prior session-expiry sign-in when no primary PKCE was pending (primary `initiateOidcRedirect` already cleared on equivalent failure); supplemental error path now clears when `readPkceState("primary") === null`; regression `clears a stale return path when supplemental Google discovery fails without primary PKCE pending`; scoped `src/lib/oidc` vitest 321/321.
-
-- [x] (proven) `initiateSupplementalOidcRedirect` — discovery failure preserved stale post-sign-in return without primary PKCE — **hit 2026-10-22 seed hunt:** symmetry with primary discovery error cleanup; regression above.
-
-2026-10-22 seed hunt (seed→hit): `ui-oidc` — promoted hunt-ready `initiateOidcRedirect` orphaned Google PKCE — stale `OIDC_POST_SIGN_IN_RETURN_URL_KEY` from session expiry survived primary sign-in without `returnUrl` when abandoned supplemental Google PKCE remained in sessionStorage because stale-return cleanup required the other flow's PKCE slot to be empty; starting primary now clears supplemental PKCE (and supplemental clears primary) before storing new state so switching IdPs abandons the other flow; regressions `clears stale post-sign-in return when primary redirect starts without a return URL while orphaned Google PKCE remains` and updated cross-flow discovery-failure tests; scoped `src/lib/oidc` vitest 322/322.
-
-- [x] (proven) `initiateOidcRedirect` — orphaned Google PKCE blocked stale post-sign-in return cleanup — **hit 2026-10-22 seed hunt:** clear opposing PKCE before store; regression above.
-
-2026-10-22 seed hunt (seed→hit): `ui-oidc` — promoted hunt-ready `initiateOidcRedirect` idle-desk return pairing — stale-return cleanup on sign-in without `returnUrl` also cleared `OIDC_POST_SIGN_IN_RETURN_URL_KEY` written by `persistIdleDeskRestoreBeforeSessionClear`, so session-expired re-auth dropped the desk return path before callback `consumePostSignInReturnUrl`; `clearAbandonedPostSignInReturnUrl` skips clear when the stored path matches idle-desk restore payload; regression `preserves idle-desk restore return path when primary redirect starts without a return URL`; scoped `src/lib/oidc` vitest 323/323.
-
-- [x] (proven) `initiateOidcRedirect` — idle-desk restore return cleared as stale on sign-in without returnUrl — **hit 2026-10-22 seed hunt:** preserve when OIDC key matches idle restore returnPath; regression above.
-
-2026-10-22 seed hunt (seed→hit): `ui-oidc` — promoted hunt-ready `clearAbandonedPostSignInReturnUrl` trailing-slash drift — idle-desk restore `returnPath` and `OIDC_POST_SIGN_IN_RETURN_URL_KEY` compared with raw string equality after configuration-string normalize, so `/architecture/reviews/run-1` vs `/architecture/reviews/run-1/` cleared the paired hint on sign-in without `returnUrl`; compare via `normalizeComparableReturnPath` with trailing-slash collapse on pathname; regression `preserves idle-desk restore return path when session hint differs only by a trailing slash`; scoped `src/lib/oidc` + idle-desk vitest 334/334.
-
-- [x] (proven) `clearAbandonedPostSignInReturnUrl` — idle-desk return path mismatch on trailing slash — **hit 2026-10-22 seed hunt:** comparable path equality; regression above.
-
-2026-10-22 seed hunt (seed→hit): `ui-oidc` — promoted hunt-ready `clearAbandonedPostSignInReturnUrl` scope-less idle restore — `persistIdleDeskRestoreBeforeSessionClear` wrote `OIDC_POST_SIGN_IN_RETURN_URL_KEY` but skipped localStorage when operator scope was missing, so `readIdleDeskRestorePayload` returned null and stale-return cleanup cleared the desk return on sign-in without `returnUrl`; persist return-only idle payload (`scope: null`) and skip scope restore when absent; regressions `persists return path without localStorage scope when operator scope is missing` and `preserves idle-desk restore return path when operator scope is missing before session clear`; scoped oidc + idle-desk vitest 340/340.
-
-- [x] (proven) `clearAbandonedPostSignInReturnUrl` — scope-less idle restore return cleared as stale — **hit 2026-10-22 seed hunt:** return-only idle payload; regressions above.
-
-2026-10-22 seed hunt (seed→hit): `ui-oidc` — promoted hunt-ready `clearAbandonedPostSignInReturnUrl` query order drift — idle-desk restore `returnPath` and `OIDC_POST_SIGN_IN_RETURN_URL_KEY` compared raw pathname+search strings, so reordered query params (e.g. `?runId=abc&reviewTab=findings` vs `?reviewTab=findings&runId=abc`) failed pairing and stale-return cleanup cleared the desk hint; `normalizeComparableReturnPath` now sorts query keys and normalizes trailing slashes; regressions `treats query parameter order and trailing slashes as equivalent` and `preserves idle-desk restore return path when session hint query order differs`; scoped oidc + idle-desk vitest 339/339.
-
-- [x] (proven) `clearAbandonedPostSignInReturnUrl` — idle-desk return query order mismatch — **hit 2026-10-22 seed hunt:** canonical comparable paths; regressions above.
-
-2026-10-22 seed hunt (seed-only): `ui-oidc` — re-read `clearAbandonedPostSignInReturnUrl`, BFF refresh races, discovery cache, and token-client error paths after the 2026-10-22 return-hint hit cluster; promoted no hunt-ready row; cheap-disproof closed five open `(candidate)` rows (401-after-persist guard, identity-before-expiry persist, optional discovery logout URL, HTML token JSON boundary, empty RP logout JSON); seeded five new `(candidate)` rows; scoped `src/lib/oidc` vitest 326/326.
-
-- [x] (valid-no-repro) `ensureAccessTokenFresh` — rejected BFF refresh after persist moved expiry hint — **cheap-disproof 2026-10-22 seed hunt:** `does not clear a fresh sign-in when a pre-sign-in BFF refresh is rejected`.
-- [x] (valid-no-repro) `persistNonSensitiveSessionHints` — expiry hint before identity validation — **cheap-disproof 2026-10-22 seed hunt:** drops `OIDC_EXPIRES_AT_MS_KEY` when `hasOidcSessionIdentityHints()` is false after hint writes.
-- [x] (invalid) `loadDiscoveryDocument` — cached doc when optional logout URL invalid — **cheap-disproof 2026-10-22 seed hunt:** `end_session_endpoint` is optional; authorize/token endpoints still validated.
-- [x] (valid-no-repro) `postTokenForm` — HTML 200 token body — **cheap-disproof 2026-10-22 seed hunt:** throws `Token response was not valid JSON` without echoing proxy HTML (`token-client.test.ts`).
-- [x] (valid-no-repro) `resolveRpLogoutUrlFromBffSession` — empty JSON url — **cheap-disproof 2026-10-22 seed hunt:** returns null when `url` missing/blank; sign-out falls back to authority logout.
-
-
-- [x] (valid-no-repro) `refreshBffSessionCookie` — non-401/403 error responses set `shouldClearSession` false — **cheap-disproof 2026-10-22 seed hunt:** intentional best-effort refresh; 500 does not imply revoked session.
-- [x] (valid-no-repro) `exchangeAuthorizationCode` — `redirect_uri` must match initiate-time `getOidcRedirectUri()` after env trim — **cheap-disproof 2026-10-22 seed hunt:** `getOidcRedirectUri` normalizes via `normalizeOidcConfigurationString` at read time; env does not change mid-tab.
-- [x] (valid-no-repro) `loadDiscoveryDocument` — authority keys differing only by default-scheme injection share cache — **cheap-disproof 2026-10-22 seed hunt:** cache key is canonical `discoveryUrlForAuthority` URL; scheme-less authorities prefix `https://`.
-- [x] (valid-no-repro) `signOutAndRedirectHome` — `clearOidcSession` drops `OIDC_POST_SIGN_IN_RETURN_URL_KEY` before RP logout navigation — **cheap-disproof 2026-10-22 seed hunt:** intentional discard of pending return on explicit sign-out.
-
-2026-10-22 seed hunt (seed→hit): `ui-oidc` — promoted hunt-ready `consumePkceState` / authorize callback `?error=` — IdP `access_denied` returned before PKCE was consumed so a sign-in retry without `returnUrl` cleared the stored post-sign-in return path; callback now consumes matching PKCE and marks authorize failure, and `initiateOidcRedirect` preserves the return URL on that retry; regressions `consumes PKCE and marks authorize failure when the IdP returns an OAuth error` and `preserves post-sign-in return path when retrying after an authorize callback OAuth error`; scoped `src/lib/oidc` + `CallbackClient` vitest 331/331.
-
-- [x] (proven) `consumePkceState` — authorize callback `?error=` left PKCE until next initiate and dropped return on retry — **hit 2026-10-22 seed hunt:** `markAuthorizeCallbackFailed` + `consumeAuthorizeCallbackFailedRetry`; regressions above.
-
-
-- [x] (valid-no-repro) `ensureAccessTokenFresh` — rejected refresh with malformed `expires_at_ms` — **cheap-disproof 2026-10-22 seed hunt:** intentional soft-fail without session clear when refresh body is not 401/403.
-- [x] (invalid) `buildAuthorizeUrl` — `response_mode` not pinned — **cheap-disproof 2026-10-22 seed hunt:** authorization code + PKCE flow requires query `code`; fragment mode is out of scope for this SPA.
-- [x] (valid-no-repro) `pulseBffSessionActivity` — non-401 errors return `ignored` — **cheap-disproof 2026-10-22 seed hunt:** best-effort keepalive; client idle UX still runs.
-- [x] (valid-no-repro) `getOidcPostLogoutRedirectUri` — relative env override — **cheap-disproof 2026-10-22 seed hunt:** deployment must register absolute post-logout URIs; relative `/` is normalized same-origin when window exists.
-
-2026-10-22 seed hunt (seed→hit): `ui-oidc` — promoted hunt-ready `CallbackClient` incomplete authorize callback — `?state=` without `code` failed before `consumePkceState`, so PKCE lingered and a `/auth/signin` retry without `returnUrl` cleared the post-sign-in return path; incomplete callbacks now consume matching PKCE (when `state` is present), call `markAuthorizeCallbackFailed`, and reuse the authorize-error retry preserve path; regressions `consumes PKCE and marks authorize failure when the callback is missing the authorization code` and `preserves post-sign-in return path when retrying after an incomplete authorize callback`; scoped `src/lib/oidc` + `CallbackClient` vitest 334/334.
-
-- [x] (proven) `CallbackClient` — incomplete callback left PKCE and dropped return on retry — **hit 2026-10-22 seed hunt:** parity with OAuth `?error=` cleanup; regressions above.
-
-- [ ] (candidate) `CallbackClient` — callback with `code` but missing `state` cannot consume PKCE yet still marks authorize failure — locus: incomplete branch; input: truncated redirect drops `state`; reachability: proxy strips query param.
-- [ ] (candidate) `readOAuthJsonErrorDescription` — token JSON `error_description` with soft hyphen word breaks may collapse differently than authorize query copy — locus: `oauth-callback-messages.ts`; input: `error_description` with `\u00AD` (reachability: token endpoint JSON).
-- [ ] (candidate) `getOidcRedirectUri` — window-less SSR path returns empty redirect URI while client path uses `window.location.origin` — locus: `config.ts`; input: initiate called during SSR guard (reachability: no production caller).
-- [ ] (candidate) `randomOpaqueState` — 16-byte state entropy vs dual-flow storage collision — locus: `pkce.ts`; input: misconfigured parallel flows (documented invalid).
-- [ ] (candidate) `clearOidcSession` — void `clearBffSessionCookie` vs in-flight `syncTokenToBff` — locus: sign-out ordering; input: sign-out during token persist (covered by generation guards).
-
 ## Zone: ui-oidc
 
 - **id:** ui-oidc
@@ -25291,11 +25229,6 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 88
-- **bugs-found:** 81
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — incomplete authorize callback dropped return on retry
 - **hunts:** 78
 - **bugs-found:** 72
 - **consecutive-dry-hunts:** 0
@@ -25334,6 +25267,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-10-22 seed hunt (seed->hit): `ui-oidc` - promoted hunt-ready `normalizeOAuthErrorCode` - authorize callback `error` values with ZWNJ (U+200C) between snake_case tokens (e.g. `access<ZWNJ>denied`) stripped the joiner without inserting a separator, so `humanizeAuthorizeCallbackError` missed the `access_denied` branch and showed generic copy; map invisible format characters to `_` before snake_case normalization; regression `maps authorize error codes with ZWNJ glue to the standard snake_case handlers`; scoped `src/lib/oidc` vitest 323/323.
 
 - [x] (proven) `normalizeOAuthErrorCode` - ZWNJ-glued authorize error codes missed standard handlers - **hit 2026-10-22 seed hunt:** invisible chars become `_` separators; regression above.
+
+
+2026-10-22 seed hunt (seed->hit): `ui-oidc` - promoted hunt-ready `collapseOAuthErrorDescriptionLineBreaks` - Latin OAuth `error_description` with accidental ZWNJ between ASCII tokens (e.g. `Policy<ZWNJ>denied`) stayed glued while ZWSP glue already collapsed; collapse ZWNJ only between Latin alphanumerics; preserve Persian ZWNJ; regressions `collapses accidental ZWNJ glue between Latin words in JSON error_description` + authorize decode path; scoped `src/lib/oidc` vitest 325/325.
+
+- [x] (proven) `collapseOAuthErrorDescriptionLineBreaks` - Latin ZWNJ glue in OAuth error descriptions - **hit 2026-10-22 seed hunt:** `collapseAccidentalLatinZwnjGlue`; regressions above.
 
 2026-10-21 seed hunt (seed->hit): coerceAcceptedOidcEpochMsHint returned fractional epoch-ms from JSON refresh bodies; regression truncates fractional epoch-ms JSON numbers to whole milliseconds; 138 scoped oauth-callback-messages + bff-session-sync + session-ensure-fresh vitest tests passed.
 
