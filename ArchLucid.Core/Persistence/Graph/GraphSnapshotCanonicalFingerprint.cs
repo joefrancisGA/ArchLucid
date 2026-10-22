@@ -148,8 +148,18 @@ public static class GraphSnapshotCanonicalFingerprint
             return string.Empty;
 
         IEnumerable<string> parts = knowledgeModel.FramingAnswers
-            .OrderBy(static pair => pair.Key, StringComparer.OrdinalIgnoreCase)
-            .Select(static pair => $"{NormalizeFingerprintText(pair.Key)}={NormalizeFingerprintText(pair.Value)}");
+            .Select(static pair => (
+                Key: NormalizeLabelForFingerprint(pair.Key),
+                Value: NormalizeLabelForFingerprint(pair.Value)))
+            .Where(static pair => pair.Key.Length > 0)
+            .GroupBy(static pair => pair.Key, StringComparer.Ordinal)
+            .OrderBy(static group => group.Key, StringComparer.Ordinal)
+            .Select(static group =>
+            {
+                string value = group.OrderBy(static pair => pair.Value, StringComparer.Ordinal).First().Value;
+
+                return $"{group.Key}={value}";
+            });
 
         return string.Join(",", parts);
     }
@@ -163,6 +173,13 @@ public static class GraphSnapshotCanonicalFingerprint
     }
 
     private static string NormalizeElementIdForFingerprint(string? value)
+    {
+        string normalized = NormalizeFingerprintText(value);
+
+        return normalized.Length == 0 ? normalized : normalized.ToLowerInvariant();
+    }
+
+    private static string NormalizeLabelForFingerprint(string? value)
     {
         string normalized = NormalizeFingerprintText(value);
 
@@ -223,8 +240,8 @@ public static class GraphSnapshotCanonicalFingerprint
                 .Distinct(StringComparer.Ordinal)
                 .OrderBy(static id => id, StringComparer.Ordinal));
 
-        string name = NormalizeFingerprintText(element.Name);
-        string description = NormalizeFingerprintText(element.Description);
+        string name = NormalizeLabelForFingerprint(element.Name);
+        string description = NormalizeLabelForFingerprint(element.Description);
 
         return string.Join(
             "|",

@@ -2589,6 +2589,85 @@ public sealed class ReviewCacheManifestBuilderTests
     }
 
     [Fact]
+    public void Build_matches_content_hash_when_baseline_model_framing_answer_key_differs_only_by_casing()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "run-model-framing-key-casing";
+
+        ArchitectureKnowledgeModel lower = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            FramingAnswers = new Dictionary<string, string> { ["business-outcome"] = "Secure intake." },
+            Elements = [new ArchitectureModelElement { ElementId = "el-1", Name = "API" }],
+        };
+
+        ArchitectureKnowledgeModel upper = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            FramingAnswers = new Dictionary<string, string> { ["Business-Outcome"] = "Secure intake." },
+            Elements = [new ArchitectureModelElement { ElementId = "el-1", Name = "API" }],
+        };
+
+        ReviewCacheManifestBuilder.Build(request, lower).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(request, upper).ContentHash);
+    }
+
+    [Fact]
+    public void Build_matches_content_hash_when_baseline_model_framing_answer_value_differs_only_by_casing()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "run-model-framing-value-casing";
+
+        ArchitectureKnowledgeModel lower = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            FramingAnswers = new Dictionary<string, string> { ["business-outcome"] = "secure intake." },
+            Elements = [new ArchitectureModelElement { ElementId = "el-1", Name = "API" }],
+        };
+
+        ArchitectureKnowledgeModel upper = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            FramingAnswers = new Dictionary<string, string> { ["business-outcome"] = "Secure Intake." },
+            Elements = [new ArchitectureModelElement { ElementId = "el-1", Name = "API" }],
+        };
+
+        ReviewCacheManifestBuilder.Build(request, lower).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(request, upper).ContentHash);
+    }
+
+    [Fact]
+    public void Build_matches_content_hash_when_baseline_element_name_differs_only_by_casing()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "run-model-element-name-casing";
+
+        ArchitectureKnowledgeModel lower = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements = [new ArchitectureModelElement { ElementId = "el-1", Name = "api gateway" }],
+        };
+
+        ArchitectureKnowledgeModel upper = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements = [new ArchitectureModelElement { ElementId = "el-1", Name = "API Gateway" }],
+        };
+
+        ReviewCacheManifestBuilder.Build(request, lower).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(request, upper).ContentHash);
+    }
+
+    [Fact]
     public void Build_matches_content_hash_when_source_content_differs_only_by_consecutive_spaces()
     {
         ClosedLoopReasoningRequest single = CreateRequest("Claims intake for architects.");
