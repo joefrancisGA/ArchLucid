@@ -1,3 +1,16 @@
+2026-10-22 seed hunt (seed->hit): `cloud-extractors` - promoted hunt-ready from seed re-read `AwsResourceExplorerQueryString.ResolveForRegion` - hosted AWS Resource Explorer search used commercial `arn:aws:*` for AWS ISO/ISOB/ISOE/ISOF regions, so isolated-partition accounts returned empty inventory; map `us-isob-`, `us-isof-`, `eu-isoe-`, and `us-iso-` region prefixes to matching partition wildcards; regressions `CollectAsync_uses_iso_b_partition_query_for_us_isob_region` and `CollectAsync_uses_iso_partition_query_for_us_iso_region`; scoped extractor filter 299/299 (Application 87 + Integrations.AzureExtractor 212).
+
+- [x] (proven) `AwsResourceExplorerQueryString.ResolveForRegion` - ISO partition ARN wildcard - **hit 2026-10-22 seed hunt:** partition-specific `arn:aws-iso*:*` queries; regressions above.
+- [x] (valid-no-repro) `AwsResourceExplorerQueryString` - GovCloud and China partitions - **cheap-disproof 2026-10-22:** existing collector tests on trunk.
+- [x] (valid-no-repro) `ListChildJsonElementsAsync` - partial child enumeration warnings - **cheap-disproof 2026-10-22:** lane B fix and diagram enrichment tests on trunk.
+- [x] (invalid) `GcpAssetInventoryCollector` - silent max page cap without partial flag - **cheap-disproof 2026-10-22:** documented retain-at-cap behavior with tests.
+
+- [ ] (candidate) `ListChildJsonElementsAsync` - redundant probe GET before pagination - locus: double ARM round-trip (reachability: hosted child collectors).
+- [ ] (candidate) `AwsResourceExplorerQueryString` - future partition additions - locus: partition table maintenance (reachability: new AWS isolated regions).
+- [ ] (candidate) `HostedAzureInventoryLogicAppConnectionCollector` - collection failure rows vs ZIP warning codes - locus: operator visibility (reachability: hosted diagram package).
+- [ ] (candidate) `GcpWorkloadIdentityCredentialFactory.NormalizeAudience` - http audience downgrade - locus: audience normalization (reachability: WIF config).
+- [ ] (candidate) `HostedAwsExtractorClient` - max pagination without collection warning in ZIP - locus: parity with Azure partial warnings (reachability: hosted AWS ZIP).
+
 2026-10-22 seed hunt (seed->hit): `core-configuration-summary` - promoted hunt-ready from seed re-read `ConfigurationEmbeddedCredentialMaterialDetector.IsPairDelimiter` - vertical tab (ASCII VT, `\v`) between connection-string style pairs was not a pair boundary, so `Server=prod\vPassword=secret` leaked in admin config summary effective values; delimiter parity with form-feed/tab/newline; regression `Resolve_redacts_embedded_credential_material_when_password_pair_is_vertical_tab_delimited`; scoped `FullyQualifiedName~Configuration` 1137/1137.
 
 - [x] (proven) `ConfigurationEmbeddedCredentialMaterialDetector` - vertical tab delimiter before credential key - **hit 2026-10-22 seed hunt:** `IsPairDelimiter` includes `\v`; regression above.
@@ -67374,10 +67387,10 @@ heap-disproved mermaid typed-topology candidate.
 - **hunts:** 147
 - **bugs-found:** 93
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-21
+- **last-hunt:** 2026-10-22
 
 2026-10-21 seed hunt (seed?hit): cloud-extractors ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¯ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¿ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â½ Paas child listings dropped PartialCollection via ListChildJsonElementsAsync; fixed with ListChildResourcesWithStatusAsync and partial-child-enumeration warnings; regression CollectAsync_warns_when_sql_database_list_is_partially_collected.
-- **last-bug:** 2026-10-20 ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¯ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¿ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â½ Child ARM listing partial enumeration omitted completeness warnings
+- **last-bug:** 2026-10-22 - AWS ISO partition Resource Explorer query
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -67633,11 +67646,11 @@ heap-disproved mermaid typed-topology candidate.
 - **aliases:** aws extractor; gcp extractor; azure extractor
 - **paths:** ArchLucid.Integrations.AwsExtractor/; ArchLucid.Integrations.GcpExtractor/; ArchLucid.Integrations.AzureExtractor/
 - **test-filter:** FullyQualifiedName~AwsExtractor|FullyQualifiedName~GcpExtractor|FullyQualifiedName~AzureExtractor
-- **hunts:** 146
-- **bugs-found:** 92
+- **hunts:** 147
+- **bugs-found:** 93
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-20
-- **last-bug:** 2026-10-20 ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¯ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¿ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â½ Child ARM listing partial enumeration omitted completeness warnings
+- **last-hunt:** 2026-10-22
+- **last-bug:** 2026-10-22 - AWS ISO partition Resource Explorer query
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -115226,10 +115239,10 @@ heap-disproved mermaid typed-topology candidate.
 - **hunts:** 147
 - **bugs-found:** 93
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-21
+- **last-hunt:** 2026-10-22
 
 2026-10-21 seed hunt (seed?hit): cloud-extractors ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¯ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¿ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â½ Paas child listings dropped PartialCollection via ListChildJsonElementsAsync; fixed with ListChildResourcesWithStatusAsync and partial-child-enumeration warnings; regression CollectAsync_warns_when_sql_database_list_is_partially_collected.
-- **last-bug:** 2026-10-20 ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¯ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¿ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â½ Child ARM listing partial enumeration omitted completeness warnings
+- **last-bug:** 2026-10-22 - AWS ISO partition Resource Explorer query
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -115485,11 +115498,11 @@ heap-disproved mermaid typed-topology candidate.
 - **aliases:** aws extractor; gcp extractor; azure extractor
 - **paths:** ArchLucid.Integrations.AwsExtractor/; ArchLucid.Integrations.GcpExtractor/; ArchLucid.Integrations.AzureExtractor/
 - **test-filter:** FullyQualifiedName~AwsExtractor|FullyQualifiedName~GcpExtractor|FullyQualifiedName~AzureExtractor
-- **hunts:** 146
-- **bugs-found:** 92
+- **hunts:** 147
+- **bugs-found:** 93
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-20
-- **last-bug:** 2026-10-20 ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¯ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¿ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â½ Child ARM listing partial enumeration omitted completeness warnings
+- **last-hunt:** 2026-10-22
+- **last-bug:** 2026-10-22 - AWS ISO partition Resource Explorer query
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -163076,10 +163089,10 @@ heap-disproved mermaid typed-topology candidate.
 - **hunts:** 147
 - **bugs-found:** 93
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-21
+- **last-hunt:** 2026-10-22
 
 2026-10-21 seed hunt (seed?hit): cloud-extractors ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¯ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¿ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â½ Paas child listings dropped PartialCollection via ListChildJsonElementsAsync; fixed with ListChildResourcesWithStatusAsync and partial-child-enumeration warnings; regression CollectAsync_warns_when_sql_database_list_is_partially_collected.
-- **last-bug:** 2026-10-20 ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¯ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¿ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â½ Child ARM listing partial enumeration omitted completeness warnings
+- **last-bug:** 2026-10-22 - AWS ISO partition Resource Explorer query
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -163335,11 +163348,11 @@ heap-disproved mermaid typed-topology candidate.
 - **aliases:** aws extractor; gcp extractor; azure extractor
 - **paths:** ArchLucid.Integrations.AwsExtractor/; ArchLucid.Integrations.GcpExtractor/; ArchLucid.Integrations.AzureExtractor/
 - **test-filter:** FullyQualifiedName~AwsExtractor|FullyQualifiedName~GcpExtractor|FullyQualifiedName~AzureExtractor
-- **hunts:** 146
-- **bugs-found:** 92
+- **hunts:** 147
+- **bugs-found:** 93
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-20
-- **last-bug:** 2026-10-20 ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¯ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¿ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â½ Child ARM listing partial enumeration omitted completeness warnings
+- **last-hunt:** 2026-10-22
+- **last-bug:** 2026-10-22 - AWS ISO partition Resource Explorer query
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -210979,10 +210992,10 @@ heap-disproved mermaid typed-topology candidate.
 - **hunts:** 147
 - **bugs-found:** 93
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-21
+- **last-hunt:** 2026-10-22
 
 2026-10-21 seed hunt (seed?hit): cloud-extractors ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¯ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¿ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â½ Paas child listings dropped PartialCollection via ListChildJsonElementsAsync; fixed with ListChildResourcesWithStatusAsync and partial-child-enumeration warnings; regression CollectAsync_warns_when_sql_database_list_is_partially_collected.
-- **last-bug:** 2026-10-20 ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¯ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¿ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â½ Child ARM listing partial enumeration omitted completeness warnings
+- **last-bug:** 2026-10-22 - AWS ISO partition Resource Explorer query
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -211238,11 +211251,11 @@ heap-disproved mermaid typed-topology candidate.
 - **aliases:** aws extractor; gcp extractor; azure extractor
 - **paths:** ArchLucid.Integrations.AwsExtractor/; ArchLucid.Integrations.GcpExtractor/; ArchLucid.Integrations.AzureExtractor/
 - **test-filter:** FullyQualifiedName~AwsExtractor|FullyQualifiedName~GcpExtractor|FullyQualifiedName~AzureExtractor
-- **hunts:** 146
-- **bugs-found:** 92
+- **hunts:** 147
+- **bugs-found:** 93
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-20
-- **last-bug:** 2026-10-20 ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¯ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¿ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â½ Child ARM listing partial enumeration omitted completeness warnings
+- **last-hunt:** 2026-10-22
+- **last-bug:** 2026-10-22 - AWS ISO partition Resource Explorer query
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
