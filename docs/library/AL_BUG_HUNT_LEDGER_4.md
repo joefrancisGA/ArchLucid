@@ -12470,8 +12470,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 190
-- **bugs-found:** 159
+- **hunts:** 191
+- **bugs-found:** 160
 - **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-22 — post-overlay rebind deduped parallel edges separately when EdgeType differed only by whitespace
 - **related-pd-tb:** none
@@ -12529,11 +12529,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - [x] (valid-no-repro) `ArchitectureInventoryObservedFactGraphOverlayMerger.BuildEdgeKey` — padded `EdgeType` duplicated parallel edges on overlay merge — **cheap-disproof 2026-10-22 seed hunt:** trim on dedupe key; regression above.
 
-- [ ] (candidate) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — newly appended inventory overlay edges may retain padded `EdgeType` tokens on the merged graph row — locus: `mergedEdges.Add(inventoryEdge)` without output normalization; input: overlay-only edge carries padded type; wrong outcome: merged graph stores unpadded-canonical mismatch on edge type field.
+2026-10-22 seed hunt (seed→hit): promoted `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` padded `EdgeType` on appended overlay edge output candidate; proved overlay merge appended inventory edges by reference without normalizing `EdgeType` (or endpoints), so overlay-only rows could persist surrounding-whitespace type tokens despite trim-aware dedupe keys; emit normalized overlay edges via `NormalizeOverlayEdge`; regression `Merge_normalizes_padded_edge_type_when_appending_inventory_overlay_edge`; seeded `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` padded overlay edge endpoint normalization on append follow-on; 483 KnowledgeGraph + 170 Provenance scoped tests passed.
 
-2026-10-22 seed hunt (seed→hit): promoted `ArchitectureInventoryObservedFactGraphOverlayDiagramRebinder.RemapEdges` padded `EdgeType` dedupe-key candidate; proved parallel-edge dedupe keyed raw `EdgeType` tokens so inventory and remapped diagram edges with padding-only type differences survived as duplicate connectivity rows; trim edge type before dedupe key composition and stored edge rows; regression `Rebind_deduplicates_parallel_edges_when_edge_type_differs_only_by_surrounding_whitespace_after_remap`; seeded `ArchitectureInventoryObservedFactGraphOverlayMerger.BuildEdgeKey` padded `EdgeType` dedupe follow-on; 481 KnowledgeGraph + 170 Provenance scoped tests passed.
+- [x] (proven) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — appended inventory overlay edges retained padded `EdgeType` — **hit 2026-10-22 seed hunt (seed→hit):** normalize overlay edge on append; regression above.
 
-- [x] (proven) `ArchitectureInventoryObservedFactGraphOverlayDiagramRebinder.RemapEdges` — padded `EdgeType` bypassed parallel-edge dedupe after rebind — **hit 2026-10-22 seed hunt (seed→hit):** trim edge type on dedupe key and output; regression above.
+- [ ] (candidate) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — appended inventory overlay edges may retain padded `FromNodeId` / `ToNodeId` when overlay introduces new connectivity — locus: endpoint normalization parity on append; input: overlay-only edge endpoints carry surrounding whitespace; wrong outcome: merged graph edge endpoints do not match trim-normalized node ids.
 
 2026-10-22 seed hunt (seed→hit): promoted `StructuredDiagramGraphMerger` padded diagram property-key coalesce candidate; proved duplicate node/edge metadata coalesce indexed raw `property.Key`, so a later compile with surrounding-whitespace keys left parallel bag entries and `GraphNodePropertyReader` could return stale source-evidence values; trim keys before skip/coalesce (parity with `GraphNodeFactory.NormalizePropertyBag`); regression `Merge_coalesces_node_properties_when_incoming_property_keys_differ_only_by_surrounding_whitespace`; seeded diagram edge metadata padded-key coalesce regression follow-on; 468 KnowledgeGraph + 170 Provenance scoped tests passed.
 

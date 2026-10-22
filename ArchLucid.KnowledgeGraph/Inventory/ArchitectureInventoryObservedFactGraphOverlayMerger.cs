@@ -58,7 +58,7 @@ public static class ArchitectureInventoryObservedFactGraphOverlayMerger
                 continue;
             }
 
-            mergedEdges.Add(inventoryEdge);
+            mergedEdges.Add(NormalizeOverlayEdge(inventoryEdge));
         }
 
         List<string> warnings = inventoryOverlay.Warnings.Count == 0
@@ -81,5 +81,25 @@ public static class ArchitectureInventoryObservedFactGraphOverlayMerger
     private static string NormalizeNodeId(string nodeId) => nodeId.Trim();
 
     private static string BuildEdgeKey(GraphEdge edge) =>
-        $"{NormalizeNodeId(edge.FromNodeId)}|{NormalizeNodeId(edge.ToNodeId)}|{(edge.EdgeType ?? string.Empty).Trim()}";
+        $"{NormalizeNodeId(edge.FromNodeId)}|{NormalizeNodeId(edge.ToNodeId)}|{NormalizeEdgeType(edge.EdgeType)}";
+
+    private static string NormalizeEdgeType(string? edgeType) => (edgeType ?? string.Empty).Trim();
+
+    private static GraphEdge NormalizeOverlayEdge(GraphEdge edge) =>
+        new()
+        {
+            EdgeId = edge.EdgeId,
+            FromNodeId = NormalizeNodeId(edge.FromNodeId),
+            ToNodeId = NormalizeNodeId(edge.ToNodeId),
+            EdgeType = NormalizeEdgeType(edge.EdgeType),
+            Label = edge.Label,
+            Weight = edge.Weight,
+            InferenceSource = edge.InferenceSource,
+            ProvenanceKind = edge.ProvenanceKind,
+            DeclaredConnectionId = edge.DeclaredConnectionId,
+            ReasoningTrace = edge.ReasoningTrace,
+            Properties = edge.Properties is null
+                ? []
+                : new Dictionary<string, string>(edge.Properties, StringComparer.Ordinal),
+        };
 }
