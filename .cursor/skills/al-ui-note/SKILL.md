@@ -1,4 +1,10 @@
 ---
+name: al-ui-note
+description: Set UI route note (`/al-ui-note`)
+disable-model-invocation: true
+---
+
+---
 description: Add or replace Notes for an ArchLucid UI route by table ID
 ---
 

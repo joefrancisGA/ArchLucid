@@ -1,6 +1,6 @@
----
-description: Hunt a real code defect with a failing repro, fix it with tests, and push to bugsmash
----
+# Bug hunt workflow (canonical)
+
+Prefer zone-set entry points **`/1`**–**`/4`** or **`/al-bug1`**–**`/al-bug4`**. Unscoped **`/al-bug`** is deprecated; this file is the shared workflow body.
 
 # Bug hunt, fix, ship (`/al-bug`)
 
@@ -386,8 +386,8 @@ Copy the **total** and **per-product-line** bugs found / dry runs from the `-Rol
 ## Canonical files
 
 - `docs/architecture/AL_BUG_QUALITY_COMPOSER_PROMPTS.md` — Composer set **ABQ-01–45** (01–35 shipped; paste **36–45** one `.cursor/prompts/al-bug-quality-NN-*.md` per session; do not implement quality reforms by running `/al-bug`)
-- `.cursor/commands/al-bug.md` — this workflow
-- `.cursor/skills/al-bug/SKILL.md` — skill pointer + hunt heuristics
+- `.cursor/skills/al-bug/workflow.md` — this workflow (canonical)
+- `.cursor/skills/al-bug/SKILL.md` — deprecated `/al-bug` entry (`user-invocable: false`)
 - `docs/library/AL_BUG_HUNT_LEDGER.md` — set catalog and historical diary
 - `docs/library/AL_BUG_HUNT_LEDGER_1.md` through `AL_BUG_HUNT_LEDGER_4.md` — zone bodies for `/al-bug1` through `/al-bug4`
 - `docs/library/AL_BUG_HUNT_RUN_LOG.jsonl` — unscoped `/al-bug` outcome log

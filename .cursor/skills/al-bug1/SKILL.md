@@ -1,10 +1,12 @@
 ---
-description: Hunt one defect in zone set 1 and push to bugsmash-1
+name: al-bug1
+description: Hunt one defect in zone set 1 and push to bugsmash-1 (/al-bug1, alias /1)
+disable-model-invocation: true
 ---
 
-# /al-bug1 — zone set 1
+# /al-bug1 — zone set 1 (`/1`)
 
-Follow `.cursor/commands/al-bug.md` with these bindings. They replace `bugsmash`, the index ledger, and the shared run log for this invocation.
+Follow `.cursor/skills/al-bug/workflow.md` with these bindings. They replace `bugsmash`, the index ledger, and the shared run log for this invocation.
 
 | Binding | Value |
 | --- | --- |

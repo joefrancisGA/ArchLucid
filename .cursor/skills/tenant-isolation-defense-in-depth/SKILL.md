@@ -1,10 +1,10 @@
 ---
+name: tenant-isolation-defense-in-depth
 description: >-
   Tenant isolation architecture reviews — production uses database-per-tenant
   (SystemWithPerTenantCatalogs) with layered app/HTTP/CI controls; SQL RLS is
   explicitly rejected per ADR 0037. Use when assessing architecture, security,
   tenancy, cross-tenant risk, or "should we add RLS?"
-alwaysApply: false
 ---
 
 # Tenant isolation — do not reopen RLS without a new ADR

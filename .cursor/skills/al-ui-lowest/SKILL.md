@@ -1,4 +1,10 @@
 ---
+name: al-ui-lowest
+description: Lowest UX scores (`/al-ui-lowest`)
+disable-model-invocation: true
+---
+
+---
 description: List the lowest UX-scored buyer-facing UI routes from the owner traffic workbook
 ---
 

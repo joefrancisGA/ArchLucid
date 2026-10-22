@@ -1,11 +1,11 @@
 ---
+name: assessment-scope-v1_1
 description: >-
   Dual-score readiness rubric — V1.1 headline excludes SOC 2 CPA attestation,
   signed design partner, owner-output GTM assets/cohorts, public extension/plugin SDK,
   MCP-as-V1.1-only, third-party plugin marketplace, assistive-technology user testing
   as a headline gate, sales-engineer-led LLM onboarding as a hosted-SaaS gate for
   `(A)`, and similar out-of-scope items; penalize `(A)` only on in-contract gates.
-alwaysApply: false
 ---
 
 # ArchLucid assessment scope — headline V1.1 vs procurement realism

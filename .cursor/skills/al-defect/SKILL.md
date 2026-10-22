@@ -1,4 +1,10 @@
 ---
+name: al-defect
+description: Report a production defect (`/al-defect`)
+disable-model-invocation: true
+---
+
+---
 description: Log a production defect report, investigate it, and escalate/fix only if genuinely still broken
 ---
 

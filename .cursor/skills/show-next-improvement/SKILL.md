@@ -1,4 +1,10 @@
 ---
+name: show-next-improvement
+description: Show next improvement (read-only preview)
+disable-model-invocation: true
+---
+
+---
 description: Preview which backlog or assessment item ship-next-improvement would pick next (read-only)
 ---
 

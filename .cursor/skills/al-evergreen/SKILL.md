@@ -1,4 +1,10 @@
 ---
+name: al-evergreen
+description: /al-evergreen — keep the trunk evergreen
+disable-model-invocation: true
+---
+
+---
 description: Repair a red build (trunk gate, scheduled workflow, bugsmash or Dependabot branch) and get it green again without weakening any gate
 ---
 
