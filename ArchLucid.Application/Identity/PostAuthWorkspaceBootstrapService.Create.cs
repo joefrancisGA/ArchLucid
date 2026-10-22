@@ -44,6 +44,15 @@ public sealed partial class PostAuthWorkspaceBootstrapService
                 AuthValidationResult.Invalid("Organization name must be at most 200 characters."));
         }
 
+        if (string.Equals(request.IndustryVertical, "Other", StringComparison.Ordinal)
+            && string.IsNullOrWhiteSpace(request.IndustryVerticalOther))
+        {
+            return AuthValidationResultMapper.ToPostAuthCreateWorkspaceDeny(
+                AuthValidationResult.Invalid(
+                    "IndustryVerticalOther is required when IndustryVertical is Other.",
+                    "industry_vertical_other_required"));
+        }
+
         IReadOnlyList<WorkspaceMembershipRecord> activeMemberships =
             await PostAuthBootstrapSupport.ListActiveMembershipsAsync(_memberships, platformUserId, cancellationToken)
                 .ConfigureAwait(false);

@@ -95,6 +95,29 @@ public sealed class PostAuthBootstrapServiceTests
     }
 
     [Fact]
+    public async Task CreateWorkspaceAsync_denies_when_other_vertical_without_other_specification()
+    {
+        (PostAuthBootstrapService sut, Guid userId, _, _) = CreateSut();
+
+        PostAuthCreateWorkspaceResult result = await sut.CreateWorkspaceAsync(
+            userId,
+            "new@example.com",
+            "new@example.com",
+            new PostAuthCreateWorkspaceRequest
+            {
+                WorkspaceName = "Other Vertical Workspace",
+                OrganizationName = "Other Org",
+                TermsAccepted = true,
+                IndustryVertical = "Other",
+                IndustryVerticalOther = "   ",
+            },
+            CancellationToken.None);
+
+        Assert.False(result.Succeeded);
+        Assert.Contains("IndustryVerticalOther is required", result.CustomerMessage, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public async Task CreateWorkspaceAsync_denies_without_terms()
     {
         (PostAuthBootstrapService sut, Guid userId, _, _) = CreateSut();
