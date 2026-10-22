@@ -59,7 +59,7 @@ internal static class ClosedLoopReasoningSourceTextNormalizer
         if (collapsed.Length == 0)
             return collapsed;
 
-        return collapsed.Normalize(NormalizationForm.FormC);
+        return NormalizeUnicodeSpaces(collapsed).Normalize(NormalizationForm.FormC);
     }
 
     private static string CollapseParentPathSegments(string fileName)

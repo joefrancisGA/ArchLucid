@@ -353,6 +353,81 @@ public sealed class ReviewCacheManifestBuilderTests
     }
 
     [Fact]
+    public void Build_matches_content_hash_when_baseline_element_properties_include_duplicate_keys_after_normalization()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "run-model-property-key-dedupe";
+
+        ArchitectureKnowledgeModel duplicateKeys = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "el-1",
+                    Name = "API",
+                    Properties = new Dictionary<string, string>
+                    {
+                        ["  env  "] = "prod",
+                        ["env"] = "prod",
+                    },
+                },
+            ],
+        };
+
+        ArchitectureKnowledgeModel canonicalKeys = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "el-1",
+                    Name = "API",
+                    Properties = new Dictionary<string, string> { ["env"] = "prod" },
+                },
+            ],
+        };
+
+        ReviewCacheManifestBuilder.Build(request, duplicateKeys).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(request, canonicalKeys).ContentHash);
+    }
+
+    [Fact]
+    public void Build_matches_content_hash_when_file_name_differs_only_by_nbsp_vs_space()
+    {
+        ClosedLoopReasoningRequest spaced = CreateRequest("Same body.");
+        spaced.SourceTexts =
+        [
+            new ClosedLoopReasoningSourceText
+            {
+                FileName = "docs/arch note.md",
+                ContentType = "text/markdown",
+                Content = "Same body.",
+            },
+        ];
+
+        ClosedLoopReasoningRequest nbsp = CreateRequest("ignored");
+        nbsp.SourceTexts =
+        [
+            new ClosedLoopReasoningSourceText
+            {
+                FileName = "docs/arch\u00A0note.md",
+                ContentType = "text/markdown",
+                Content = "Same body.",
+            },
+        ];
+
+        ReviewCacheManifestBuilder.Build(spaced).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(nbsp).ContentHash);
+    }
+
+    [Fact]
     public void Build_matches_content_hash_when_baseline_element_property_value_differs_only_by_surrounding_whitespace()
     {
         ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");

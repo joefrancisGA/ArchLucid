@@ -186,8 +186,14 @@ public static class GraphSnapshotCanonicalFingerprint
                 .OrderBy(static id => id, StringComparer.Ordinal));
 
         IEnumerable<string> propertyParts = (element.Properties ?? [])
-            .OrderBy(static pair => pair.Key, StringComparer.OrdinalIgnoreCase)
-            .Select(static pair => $"{NormalizeFingerprintText(pair.Key)}={NormalizeFingerprintText(pair.Value)}");
+            .Select(static pair => (
+                Key: NormalizeFingerprintText(pair.Key),
+                Value: NormalizeFingerprintText(pair.Value)))
+            .Where(static pair => pair.Key.Length > 0)
+            .GroupBy(static pair => pair.Key, StringComparer.OrdinalIgnoreCase)
+            .OrderBy(static group => group.Key, StringComparer.OrdinalIgnoreCase)
+            .Select(static group => group.OrderBy(static pair => pair.Value, StringComparer.Ordinal).First())
+            .Select(static pair => $"{pair.Key}={pair.Value}");
 
         string properties = string.Join(",", propertyParts);
         string passages = string.Join(
