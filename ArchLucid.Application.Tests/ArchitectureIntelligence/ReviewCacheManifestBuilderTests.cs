@@ -1729,6 +1729,92 @@ public sealed class ReviewCacheManifestBuilderTests
     }
 
     [Fact]
+    public void Build_matches_content_hash_when_baseline_duplicate_element_ids_differ_only_by_kind_list_order()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "run-model-duplicate-element-kind";
+
+        ArchitectureKnowledgeModel serviceFirst = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements =
+            [
+                new ArchitectureModelElement { ElementId = "el-1", Name = "API", Kind = ArchitectureElementKind.Component },
+                new ArchitectureModelElement { ElementId = "el-1", Name = "API", Kind = ArchitectureElementKind.Interface },
+            ],
+        };
+
+        ArchitectureKnowledgeModel apiFirst = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements =
+            [
+                new ArchitectureModelElement { ElementId = "el-1", Name = "API", Kind = ArchitectureElementKind.Interface },
+                new ArchitectureModelElement { ElementId = "el-1", Name = "API", Kind = ArchitectureElementKind.Component },
+            ],
+        };
+
+        ReviewCacheManifestBuilder.Build(request, serviceFirst).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(request, apiFirst).ContentHash);
+    }
+
+    [Fact]
+    public void Build_matches_content_hash_when_baseline_duplicate_element_ids_differ_only_by_property_bag_list_order()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "run-model-duplicate-element-properties";
+
+        ArchitectureKnowledgeModel firstWins = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "el-1",
+                    Name = "API",
+                    Properties = new Dictionary<string, string> { ["env"] = "prod" },
+                },
+                new ArchitectureModelElement
+                {
+                    ElementId = "el-1",
+                    Name = "API",
+                    Properties = new Dictionary<string, string> { ["env"] = "staging" },
+                },
+            ],
+        };
+
+        ArchitectureKnowledgeModel secondWins = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "el-1",
+                    Name = "API",
+                    Properties = new Dictionary<string, string> { ["env"] = "staging" },
+                },
+                new ArchitectureModelElement
+                {
+                    ElementId = "el-1",
+                    Name = "API",
+                    Properties = new Dictionary<string, string> { ["env"] = "prod" },
+                },
+            ],
+        };
+
+        ReviewCacheManifestBuilder.Build(request, firstWins).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(request, secondWins).ContentHash);
+    }
+
+    [Fact]
     public void Build_matches_content_hash_when_baseline_duplicate_element_ids_differ_only_by_extraction_confidence_list_order()
     {
         ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
