@@ -264,10 +264,11 @@ export type ClearOidcSessionOptions = {
 };
 
 export function clearOidcSession(options?: ClearOidcSessionOptions): void {
+  const hadSignedInIdentity = hasOidcSessionIdentityHints();
   refreshSessionGeneration += 1;
   refreshInFlight = null;
   clearInfraEvidenceAskTranscriptStorage();
-  removeOidcKeys([
+  const keysToClear = [
     OIDC_ACCESS_TOKEN_KEY,
     OIDC_REFRESH_TOKEN_KEY,
     OIDC_EXPIRES_AT_MS_KEY,
@@ -280,9 +281,13 @@ export function clearOidcSession(options?: ClearOidcSessionOptions): void {
     OIDC_GOOGLE_OAUTH_STATE_KEY,
     OIDC_GOOGLE_CODE_VERIFIER_KEY,
     OIDC_GOOGLE_NONCE_KEY,
-    OIDC_POST_SIGN_IN_RETURN_URL_KEY,
-    OIDC_AUTHORIZE_CALLBACK_FAILED_KEY,
-  ]);
+  ];
+
+  if (hadSignedInIdentity) {
+    keysToClear.push(OIDC_POST_SIGN_IN_RETURN_URL_KEY, OIDC_AUTHORIZE_CALLBACK_FAILED_KEY);
+  }
+
+  removeOidcKeys(keysToClear);
   clearCachedColorModePreference();
   void clearBffSessionCookie();
 

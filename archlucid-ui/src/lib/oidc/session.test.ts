@@ -787,18 +787,34 @@ describe("clearOidcSession", () => {
     vi.unstubAllGlobals();
   });
 
-  it("clears a stored post-sign-in return URL", () => {
+  it("clears a stored post-sign-in return URL when signed-in identity was present", () => {
+    sessionStorage.setItem(OIDC_USER_SUBJECT_KEY, "user-123");
     storePostSignInReturnUrl("/architecture/reviews/123");
     clearOidcSession();
 
     expect(consumePostSignInReturnUrl()).toBeNull();
   });
 
-  it("clears a pending authorize-callback retry marker", () => {
+  it("preserves post-sign-in return URL when clearing without signed-in identity", () => {
+    storePostSignInReturnUrl("/architecture/reviews/123");
+    clearOidcSession();
+
+    expect(consumePostSignInReturnUrl()).toBe("/architecture/reviews/123");
+  });
+
+  it("clears a pending authorize-callback retry marker when signed-in identity was present", () => {
+    sessionStorage.setItem(OIDC_USER_SUBJECT_KEY, "user-123");
     markAuthorizeCallbackFailed();
     clearOidcSession();
 
     expect(sessionStorage.getItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY)).toBeNull();
+  });
+
+  it("preserves authorize-callback retry marker when clearing without signed-in identity", () => {
+    markAuthorizeCallbackFailed();
+    clearOidcSession();
+
+    expect(sessionStorage.getItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY)).toBe("1");
   });
 
   it("broadcasts auth-cleared by default (LW-083)", () => {
