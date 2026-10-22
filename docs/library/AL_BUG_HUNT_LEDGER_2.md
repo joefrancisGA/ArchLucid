@@ -4277,6 +4277,14 @@
 
 ## Zone: api-key-auth
 
+2026-10-22 thorough hunt #7 (dry): cheap-disproof closed five picker `(candidate)` rows (`AllowTestActorHeaders` in Production throws by design ~43–46; distinct reader key when admin expired authenticates via reader branch; comma-separated second segment — `When_enabled_true_and_comma_separated_admin_keys_either_segment_authenticates`; `InvalidatePrevious=true` replace response; missing `X-Api-Key` — `When_enabled_true_and_header_is_blank_returns_missing_failure`); no failing repro; five replacement `(candidate)` rows; scoped ApiKey tests not run.
+
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler` — test actor headers in Production — **cheap-disproof 2026-10-22 #7:** `InvalidOperationException` guard (intentional fail-fast).
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler` — expired admin, distinct reader key — **cheap-disproof 2026-10-22 #7:** reader path ~106–114 when admin expired; shared-key regression sibling.
+- [x] (valid-no-repro) `MatchesAnyCommaSeparatedKey` — second segment match — **cheap-disproof 2026-10-22 #7:** rotation delimiter scan; either-segment regressions.
+- [x] (valid-no-repro) `AdminApiKeySettingsService.Rotate` — invalidate previous replace — **cheap-disproof 2026-10-22 #7:** `DeploymentAction=Replace`; omits append suffix by design.
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler` — missing header — **cheap-disproof 2026-10-22 #7:** fail-closed; blank/missing header regression.
+
 2026-10-22 thorough hunt #6 (dry): cheap-disproof closed five picker `(candidate)` rows (reader-only expired slot → `When_read_only_key_expiry_is_exactly_now_returns_failure`; `Enabled=false` without bypass → fail-closed config tests; unconfigured snapshot still exposes bound `ExpiresAtUtc` — operator metadata; rotation lowercase hex paired with normalizer fold hit 2026-10-20; reader claims omit commit/run — least-privilege by design); no failing repro; five replacement `(candidate)` rows; scoped ApiKey tests not run.
 
 - [x] (valid-no-repro) `ApiKeyAuthenticationHandler` — reader slot expired — **cheap-disproof 2026-10-22 #6:** dedicated reader-expired message ~121–123; regression `When_read_only_key_expiry_is_exactly_now_returns_failure`.
@@ -4347,9 +4355,9 @@
 - **aliases:** API key auth; admin API key settings
 - **paths:** ArchLucid.Api/Authentication/ApiKeyAuthenticationHandler.cs; ArchLucid.Api/Services/Admin/AdminApiKeySettingsService.cs; ArchLucid.Api/Controllers/Admin/AdminApiKeySettingsController.cs
 - **test-filter:** FullyQualifiedName~ApiKeyAuthentication|FullyQualifiedName~AdminApiKeySettings
-- **hunts:** 86
+- **hunts:** 87
 - **bugs-found:** 23
-- **consecutive-dry-hunts:** 6
+- **consecutive-dry-hunts:** 7
 - **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-20 — hex API key material rejected when config/header casing differed
 - **related-pd-tb:** none
@@ -4425,11 +4433,17 @@
 - [x] (invalid) `ApiKeyMaterialGenerator.GenerateHexKey` — lowercase hex — **cheap-disproof 2026-10-22 #6.**
 - [x] (valid-no-repro) `ApiKeyAuthenticationHandler` — reader permissions — **cheap-disproof 2026-10-22 #6.**
 
-- [ ] (candidate) `ApiKeyAuthenticationHandler` — `AllowTestActorHeaders` in Production throws — locus: ~43–46; input: startup guard + handler `InvalidOperationException`.
-- [ ] (candidate) `ApiKeyAuthenticationHandler` — admin key expired but reader key valid and distinct — locus: admin branch skipped then reader ~106–114; input: `When_admin_key_expired_but_reader_valid` class (distinct keys).
-- [ ] (candidate) `MatchesAnyCommaSeparatedKey` — provided key matches second comma segment only — locus: rotation delimiter scan; input: zero-downtime append contract.
-- [ ] (candidate) `AdminApiKeySettingsService.Rotate` — `InvalidatePrevious=true` omits prior segments in response — locus: replace deployment action; input: intentional full replace.
-- [ ] (candidate) `ApiKeyAuthenticationHandler` — missing `X-Api-Key` when enabled — locus: ~74–75; input: fail-closed missing header (proven class).
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler` — Production test actor guard — **cheap-disproof 2026-10-22 #7.**
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler` — distinct reader when admin expired — **cheap-disproof 2026-10-22 #7.**
+- [x] (valid-no-repro) `MatchesAnyCommaSeparatedKey` — second segment — **cheap-disproof 2026-10-22 #7.**
+- [x] (valid-no-repro) `AdminApiKeySettingsService.Rotate` — invalidate previous — **cheap-disproof 2026-10-22 #7.**
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler` — missing header — **cheap-disproof 2026-10-22 #7.**
+
+- [ ] (candidate) `ApiKeyAuthenticationHandler` — wrong key returns generic `Invalid API key` — locus: ~125; input: intentional non-enumerating failure.
+- [ ] (candidate) `ApiKeyAuthenticationHandler` — admin permissions include `replay:comparisons` — locus: `BuildApiKeyClaims` admin ~94–99; input: intentional admin capability set.
+- [ ] (candidate) `AdminApiKeySettingsService.Rotate` — append suffix `AppendConfigSuffix` leading comma — locus: ~71; input: operator merges with existing comma-separated config.
+- [ ] (candidate) `ApiKeyMaterialNormalizer` — strips embedded BOM in segment middle — locus: normalizer; input: proven 2026-09-26/2026-09-28 hits.
+- [ ] (candidate) `ApiKeyAuthenticationHandler` — `AllowTestActorHeaders` empty override header skipped — locus: `ApplyTestActorHeaderOverrides` ~172–173; input: no-op when blank.
 
 - [x] (proven) `AdminApiKeySettingsController.RotateKeyIdAsync` — legacy route audit JSON used the raw `keyId` while `AdminApiKeySettingsService.ParseSlot` canonicalized whitespace and casing for the response — **hit 2026-10-11 thorough hunt:** audit `keyId` now uses `response.Slot`; regression `RotateKeyIdAsync_persisted_audit_uses_canonical_slot_for_padded_route_value`.
 
