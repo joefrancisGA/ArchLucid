@@ -257,6 +257,60 @@ public static class GraphSnapshotCanonicalFingerprint
             properties);
     }
 
+    private static string NormalizeSectionPathForFingerprint(string? value)
+    {
+        string normalized = NormalizeLabelForFingerprint(value);
+
+        if (normalized.Length == 0)
+            return normalized;
+
+        string path = normalized.Replace('\\', '/');
+
+        while (path.Contains("//", StringComparison.Ordinal))
+            path = path.Replace("//", "/", StringComparison.Ordinal);
+
+        while (path.Contains("/./", StringComparison.Ordinal))
+            path = path.Replace("/./", "/", StringComparison.Ordinal);
+
+        while (path.StartsWith("./", StringComparison.Ordinal))
+            path = path[2..];
+
+        while (path.StartsWith('/'))
+            path = path[1..];
+
+        while (path.EndsWith('/') && path.Length > 0)
+            path = path[..^1];
+
+        return CollapseParentPathSegments(path);
+    }
+
+    private static string CollapseParentPathSegments(string path)
+    {
+        if (path.Length == 0)
+            return path;
+
+        string[] rawSegments = path.Split('/');
+        List<string> segments = [];
+
+        foreach (string segment in rawSegments)
+        {
+            if (segment.Length == 0 || string.Equals(segment, ".", StringComparison.Ordinal))
+                continue;
+
+            if (string.Equals(segment, "..", StringComparison.Ordinal))
+            {
+                if (segments.Count > 0)
+                    segments.RemoveAt(segments.Count - 1);
+
+                continue;
+            }
+
+            segments.Add(segment);
+        }
+
+        return segments.Count == 0 ? string.Empty : string.Join('/', segments);
+    }
+
     private static string FormatPassageLocatorFingerprint(SourcePassageLocator? passageLocator)
     {
         if (passageLocator is null)
@@ -272,7 +326,7 @@ public static class GraphSnapshotCanonicalFingerprint
             passageLocator.EndOffset,
             isStart: false);
         string quote = NormalizeLabelForFingerprint(passageLocator.Quote);
-        string sectionPath = NormalizeLabelForFingerprint(passageLocator.SectionPath);
+        string sectionPath = NormalizeSectionPathForFingerprint(passageLocator.SectionPath);
 
         if (artifactId.Length == 0 &&
             startOffset.Length == 0 &&
