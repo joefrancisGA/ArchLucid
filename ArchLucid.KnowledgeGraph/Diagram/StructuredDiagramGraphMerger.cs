@@ -31,6 +31,7 @@ public sealed class StructuredDiagramGraphMerger(IArchitectureDiagramToGraphComp
 
         Dictionary<string, GraphNode> nodesById = new(StringComparer.OrdinalIgnoreCase);
         Dictionary<string, GraphEdge> edgesByDirectedPair = new(StringComparer.OrdinalIgnoreCase);
+        HashSet<string> warningKeys = new(StringComparer.Ordinal);
         List<string> warnings = [];
         List<StructuredDiagramCanonicalBinding> bindings = [];
         HashSet<string> mergedBindingKeys = new(StringComparer.OrdinalIgnoreCase);
@@ -51,10 +52,7 @@ public sealed class StructuredDiagramGraphMerger(IArchitectureDiagramToGraphComp
 
             compileResult = StructuredDiagramCompiledGraphBinder.BindToCanonicalNodes(compileResult, bindTargets);
 
-            if (compileResult.Warnings.Count > 0)
-            {
-                warnings.AddRange(compileResult.Warnings);
-            }
+            AddCompileWarnings(warnings, warningKeys, compileResult.Warnings);
 
             foreach (StructuredDiagramCanonicalBinding binding in compileResult.CanonicalBindings)
             {
@@ -224,6 +222,26 @@ public sealed class StructuredDiagramGraphMerger(IArchitectureDiagramToGraphComp
         $"{binding.CanonicalGraphNodeId.Trim()}|{binding.DiagramSourceId.Trim()}|{binding.DiagramGraphNodeId.Trim()}";
 
     private static string NormalizeNodeIdKey(string nodeId) => nodeId.Trim();
+
+    private static void AddCompileWarnings(
+        List<string> warnings,
+        HashSet<string> warningKeys,
+        IReadOnlyList<string> compileWarnings)
+    {
+        foreach (string warning in compileWarnings)
+        {
+            string normalized = NormalizeWarning(warning);
+
+            if (normalized.Length == 0 || !warningKeys.Add(normalized))
+            {
+                continue;
+            }
+
+            warnings.Add(normalized);
+        }
+    }
+
+    private static string NormalizeWarning(string? warning) => (warning ?? string.Empty).Trim();
 
     private static string BuildDirectedPairKey(GraphEdge edge) =>
         $"{edge.FromNodeId.Trim()}|{edge.ToNodeId.Trim()}|{(edge.EdgeType ?? string.Empty).Trim()}";
