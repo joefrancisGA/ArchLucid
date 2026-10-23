@@ -8936,11 +8936,19 @@
 
 2026-10-23 seed hunt (seed-only #6): cheap-disproof closed five open `(candidate)` rows; two regressions; 4 scoped tests passed on full tree (`RunAnalyzers=false`).
 
-- [ ] (candidate) `RunsController.CreateRunBatch` — missing `Idempotency-Key` on replay of prior batch — locus: no stored fingerprint; input: retry same payload without header.
-- [ ] (candidate) `AdminAgentModelCatalogController.RecordEvaluation` — `EvidenceJson` null vs omitted — locus: recorder forward; input: `{}` evaluation body.
-- [ ] (candidate) `RunCoverageController.GetAcknowledgedCoverage` — unknown `runId` vs sealed-manifest guard order — locus: `EnsureSealedManifestReadAllowedAsync`; input: random GUID.
-- [ ] (candidate) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `TenantId` filter with empty guid — locus: diagnostics request forward; input: `00000000-0000-0000-0000-000000000000`.
-- [ ] (candidate) `RunsController.ChatIntake` — null body vs empty `RawText` — locus: `ValidateDraftFreeText`; input: `{ "rawText": "" }`.
+- [x] (invalid) `RunsController.CreateRunBatch` — missing `Idempotency-Key` on replay of prior batch — **cheap-disproof 2026-10-23 seed hunt #7:** without header, idempotency state is null; each POST is a new batch — not a replay defect.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvidenceJson` null vs omitted — **cheap-disproof 2026-10-23 seed hunt #7:** controller forwards `request.EvidenceJson` to recorder; null/omitted is optional evidence by contract (no size guard in zone scope).
+- [x] (valid-no-repro) `RunCoverageController.GetAcknowledgedCoverage` — unknown `runId` vs sealed-manifest guard order — **cheap-disproof 2026-10-23 seed hunt #7:** guard no-ops when `GetRunDetailAsync` returns null manifest; `GetAsync` maps missing run to HTTP 404.
+- [x] (invalid) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `TenantId` filter with empty guid — **cheap-disproof 2026-10-23 seed hunt #7:** bulk retry uses ambient `scope.TenantId`, not `request.TenantId` (2026-08-24 cross-tenant fix).
+- [x] (valid-no-repro) `RunsController.ChatIntake` — null body vs empty `RawText` — **cheap-disproof 2026-10-23 seed hunt #7:** `ValidateDraftFreeText` rejects whitespace/empty with `{field} is required`; regression `ChatIntake_returns_bad_request_when_raw_text_is_empty_string`; vendored `RunsController.Intake.cs`.
+
+2026-10-23 seed hunt (seed-only #7): cheap-disproof closed five open `(candidate)` rows; one regression; 1 scoped test passed on full tree (`RunAnalyzers=false`).
+
+- [ ] (candidate) `RunsController.CreateRunBatch` — batch exceeds `BatchCreateRunMaxItems` — locus: count guard; input: 101st item.
+- [ ] (candidate) `AdminAgentModelCatalogController.RecordEvaluation` — missing `EvaluationState` property — locus: default null string; input: `{}` without state key.
+- [ ] (candidate) `RunCoverageController.PutAcknowledgedCoverage` — null request body — locus: body required guard; input: empty PUT.
+- [ ] (candidate) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `EventType` whitespace-only filter — locus: forward to repository; input: `"   "`.
+- [ ] (candidate) `RunsController.ChatIntake` — null body — locus: `Request body is required`; input: missing JSON body.
 
 2026-10-23 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows from prior reseed; no new hunt-ready promotion (Rephrase null `Items` already shipped on `bugsmash-2` 01857d53eb); seeded five follow-on `(candidate)` rows; 12 scoped RunsController draft/explain + RunCoverage acknowledgement tests passed.
 
@@ -8960,9 +8968,9 @@
 - **aliases:** authority controllers; admin controllers
 - **paths:** ArchLucid.Api/Controllers/Authority/; ArchLucid.Api/Controllers/Admin/
 - **test-filter:** FullyQualifiedName~AuthorityController|FullyQualifiedName~AdminController
-- **hunts:** 70
+- **hunts:** 71
 - **bugs-found:** 58
-- **consecutive-dry-hunts:** 4
+- **consecutive-dry-hunts:** 5
 - **last-hunt:** 2026-10-23
 - **last-bug:** 2026-10-23 — rephrase clarification null item in items array caused 500 instead of validation
 - **related-pd-tb:** none
