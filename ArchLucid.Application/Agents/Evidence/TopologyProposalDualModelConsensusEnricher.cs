@@ -167,6 +167,9 @@ public sealed class TopologyProposalDualModelConsensusEnricher(
 
             foreach (ManifestRelationship relationship in relationships)
             {
+                if (relationship is null)
+                    continue;
+
                 if (TopologyProposalRelationshipEndpointIndex.RelationshipEndpointsAreKnown(relationship, endpointKeys))
                     pruned.Add(relationship);
             }

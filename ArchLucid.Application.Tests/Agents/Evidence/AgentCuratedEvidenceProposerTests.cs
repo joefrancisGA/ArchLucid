@@ -47,6 +47,33 @@ public sealed class AgentCuratedEvidenceProposerTests
     }
 
     [Fact]
+    public void BuildUserPrompt_tolerates_null_string_entries_in_claims_and_evidence_refs()
+    {
+        ArchitectureRequest request = new()
+        {
+            RequestId = "req",
+            Description = new string('x', 12),
+            SystemName = "Payments",
+        };
+
+        AgentResult result = new()
+        {
+            RunId = "run",
+            TaskId = "task",
+            AgentType = AgentType.Topology,
+            Claims = [null!, "Encrypt data at rest"],
+            EvidenceRefs = [null!, "ref-1"],
+        };
+
+        Func<string> act = () =>
+            AgentCuratedEvidenceProposer.BuildUserPrompt("run", request, new AgentEvidencePackage(), result);
+
+        act.Should().NotThrow();
+        act().Should().Contain("Encrypt data at rest");
+        act().Should().Contain("ref-1");
+    }
+
+    [Fact]
     public void BuildUserPrompt_skips_null_catalog_entries_when_serializing_existing_catalog()
     {
         ArchitectureRequest request = new()
