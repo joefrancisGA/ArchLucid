@@ -27,6 +27,9 @@ public sealed class AgentResultRegionMismatchEnricher : IAgentResultPostExecutio
 
         foreach (AgentResult result in results)
         {
+            if (result is null)
+                continue;
+
             AgentTopologyProposal? proposal = result.ProposedChanges;
 
             if (proposal is null)
