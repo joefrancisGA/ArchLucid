@@ -8716,6 +8716,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: architecture-intelligence-orchestrator
 
+2026-10-23 seed hunt (seed→hit): promoted pipe and comma segment-separator drift splitting `ContentHash` (`docs|architecture/...`, `docs,architecture/...`); extended `ReviewCacheAlternatePathSeparators` with `|` and `,`; regression `Build_matches_content_hash_when_file_name_differs_only_by_pipe_between_segments` and `Build_matches_content_hash_when_file_name_differs_only_by_comma_between_segments`; cheap-disproof regression `Build_matches_content_hash_when_file_name_differs_only_by_percent_encoded_semicolon_between_segments`; 405 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `GraphSnapshotCanonicalFingerprint` — pipe and comma alternate path separators split path canonicalization — **hit 2026-10-23 seed hunt:** extended alternate separator set; regressions above.
+
 2026-10-23 seed hunt (seed→hit): promoted narrow no-break space, ideographic space, and semicolon segment-separator drift splitting `ContentHash` (`docs\u202farchitecture/...`, `docs\u3000architecture/...`, `docs;architecture/...`); generalized `NormalizeReviewCacheAlternatePathSeparators` with dotless-tail guard (extends hunt #126 NBSP rule); regressions `Build_matches_content_hash_when_file_name_differs_only_by_narrow_no_break_space_between_segments_without_slash`, `Build_matches_content_hash_when_file_name_differs_only_by_ideographic_space_between_segments_without_slash`, and `Build_matches_content_hash_when_file_name_differs_only_by_semicolon_between_segments`; 402 scoped orchestrator/cache/manifest/continue-flight tests passed.
 
 - [x] (proven) `GraphSnapshotCanonicalFingerprint` — Unicode space and semicolon alternate path separators split path canonicalization — **hit 2026-10-23 seed hunt:** `ReviewCacheAlternatePathSeparators`; regressions above.
