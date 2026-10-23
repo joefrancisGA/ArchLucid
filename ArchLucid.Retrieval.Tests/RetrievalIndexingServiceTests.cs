@@ -795,6 +795,73 @@ public sealed class RetrievalIndexingServiceTests
     }
 
     [Fact]
+    public async Task IndexDocumentsAsync_when_content_shrinks_removes_stale_chunks_when_catalog_understates_during_shrink_branch()
+    {
+        Mock<IEmbeddingService> embeddings = new();
+        embeddings
+            .Setup(e => e.EmbedManyAsync(It.IsAny<IReadOnlyList<string>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((IReadOnlyList<string> texts, CancellationToken _) =>
+                texts.Select(_ => new float[4]).ToList());
+
+        Mock<IOptionsMonitor<RetrievalEmbeddingCapOptions>> caps = new();
+        caps.Setup(m => m.CurrentValue).Returns(new RetrievalEmbeddingCapOptions { MaxTextsPerEmbeddingRequest = 16 });
+
+        Mock<IEmbeddingModelIdentity> identity = new();
+        identity.SetupGet(i => i.ModelId).Returns("test-model");
+        identity.SetupGet(i => i.ExpectedDimension).Returns(4);
+
+        InMemoryVectorIndex index = new();
+        InMemoryRetrievalDocumentIndexCatalog catalog = new();
+        RetrievalIndexingService sut = CreateSut(
+            embeddings.Object,
+            identity.Object,
+            index,
+            catalog,
+            caps.Object);
+
+        const string documentId = "d-catalog-understate-shrink-branch";
+        RetrievalDocument longDoc = new()
+        {
+            DocumentId = documentId,
+            TenantId = TenantId,
+            WorkspaceId = WorkspaceId,
+            ProjectId = ProjectId,
+            CorpusKind = CorpusKind.Conversation,
+            Content = new string('x', 5200),
+            ContentHash = "HASH-LONG",
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+        };
+
+        await sut.IndexDocumentsAsync([longDoc], CancellationToken.None);
+
+        int liveChunkCount = index.GetEmbeddingMetadata()!.ChunkCount;
+        liveChunkCount.Should().BeGreaterThan(3);
+        catalog.TryGet(documentId, out RetrievalDocumentIndexState? priorState).Should().BeTrue();
+
+        catalog.RecordIndexed(
+            longDoc,
+            priorState!.ChunkingFingerprint,
+            priorState.LastIndexedUtc,
+            indexedChunkCount: 3);
+
+        RetrievalDocument shortDoc = new()
+        {
+            DocumentId = documentId,
+            TenantId = TenantId,
+            WorkspaceId = WorkspaceId,
+            ProjectId = ProjectId,
+            CorpusKind = CorpusKind.Conversation,
+            Content = new string('y', 100),
+            ContentHash = "HASH-SHORT",
+            CreatedUtc = longDoc.CreatedUtc,
+        };
+
+        await sut.IndexDocumentsAsync([shortDoc], CancellationToken.None);
+
+        index.GetEmbeddingMetadata()!.ChunkCount.Should().Be(1);
+    }
+
+    [Fact]
     public async Task IndexDocumentsAsync_when_content_shrinks_removes_stale_higher_ordinal_chunks()
     {
         Mock<IEmbeddingService> embeddings = new();

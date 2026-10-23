@@ -191,31 +191,18 @@ public sealed class RetrievalIndexingService(
             {
                 ct.ThrowIfCancellationRequested();
 
-                if (!_indexCatalog.TryGet(doc.DocumentId, out RetrievalDocumentIndexState? prior))
+                if (!_indexCatalog.TryGet(doc.DocumentId, out RetrievalDocumentIndexState? prior)
+                    || split.Count == 0)
                     continue;
 
-                if (prior.IndexedChunkCount > split.Count)
-                {
-                    List<string> staleChunkIds = [];
-
-                    for (int ordinal = split.Count; ordinal < prior.IndexedChunkCount; ordinal++)
-                        staleChunkIds.Add($"{doc.DocumentId}-chunk-{ordinal}");
-
-                    await _vectorIndex.RemoveChunkIdsAsync(staleChunkIds, ct).ConfigureAwait(false);
-                    continue;
-                }
-
-                if (split.Count == 0)
-                    continue;
-
-                // Catalog IndexedChunkCount can understate live vectors; sweep higher ordinals after upsert.
+                // Catalog IndexedChunkCount can understate live vectors; always sweep higher ordinals after upsert.
                 int sweepExclusive = split.Count + Math.Max(prior.IndexedChunkCount, split.Count) + 16;
-                List<string> understatedStaleChunkIds = [];
+                List<string> staleChunkIds = [];
 
                 for (int ordinal = split.Count; ordinal < sweepExclusive; ordinal++)
-                    understatedStaleChunkIds.Add($"{doc.DocumentId}-chunk-{ordinal}");
+                    staleChunkIds.Add($"{doc.DocumentId}-chunk-{ordinal}");
 
-                await _vectorIndex.RemoveChunkIdsAsync(understatedStaleChunkIds, ct).ConfigureAwait(false);
+                await _vectorIndex.RemoveChunkIdsAsync(staleChunkIds, ct).ConfigureAwait(false);
             }
         }
 
