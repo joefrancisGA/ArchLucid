@@ -7859,6 +7859,14 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-agents
 
+2026-10-23 seed hunt (seed→hit): promoted null elements in `AddedServices`/`AddedDatastores` crashing region-mismatch enricher before region warnings; `AgentResultRegionMismatchEnricher` now skips null service/datastore entries; regressions `EnrichAsync_skips_null_added_service_entries` and `EnrichAsync_skips_null_added_datastore_entries`; 155 scoped Application.Tests.Agents tests passed.
+
+- [x] (proven) `AgentResultRegionMismatchEnricher.EnrichAsync` — null service/datastore list entries aborted region validation — **hit 2026-10-23 seed hunt:** null guards in topology collection loops; regressions above. [class:fail-open-validation]
+
+2026-10-23 seed hunt (seed→hit): promoted null elements in `AgentResult.Findings` crashing curated-evidence proposal (`Any(HasTypedEmission)` before emission gate); `AgentCuratedEvidenceProposer` now skips null findings when gating and serializing typed findings; regression `BuildUserPrompt_skips_null_finding_entries_when_building_typed_summary`; 153 scoped Application.Tests.Agents tests passed.
+
+- [x] (proven) `AgentCuratedEvidenceProposer.TryProposeEvidenceJsonAsync` / `BuildUserPrompt` — null finding list entries aborted curated-evidence LLM path — **hit 2026-10-23 seed hunt:** null guards before typed-emission checks; regression above. [class:fail-open-validation]
+
 2026-10-23 seed hunt (seed-only): cheap-disproof closed faithfulness harness readiness vs floor threshold candidates; regressions `Import_records_failed_evaluation_when_readiness_is_strictly_below_floor` and `Import_records_evaluated_when_readiness_equals_floor`; no production change; 152 scoped Application.Tests.Agents tests passed.
 
 - [x] (valid-no-repro) `AgentModelCatalogFaithfulnessHarnessImporter.ImportForAliasAsync` — readiness strictly below `FloorMinSupportRatio` should record `Failed` — **cheap-disproof 2026-10-23 seed hunt:** `>=` ternary; regression `Import_records_failed_evaluation_when_readiness_is_strictly_below_floor`.
@@ -8111,11 +8119,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** application agents; agent handlers wiring
 - **paths:** ArchLucid.Application/Agents/
 - **test-filter:** FullyQualifiedName~Application.Tests.Agents
-- **hunts:** 73
-- **bugs-found:** 66
+- **hunts:** 75
+- **bugs-found:** 68
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-23
-- **last-bug:** 2026-10-23 — null finding entries crash IaC stub clone path
+- **last-bug:** 2026-10-23 — null service/datastore entries crash region-mismatch enricher
 
 2026-09-27 seed hunt (seed→hit): proved `TopologyProposalConsensusMerger.Merge` threw when `RequiredControls` was null on topology dual-model proposals (`AgentProposalStructuralPostProcessor` does not initialize controls for `AgentType.Topology`); fixed by null-coalescing in control intersection and disagreement counts; regression `Merge_when_required_controls_is_null_does_not_throw`; 92 scoped Application.Tests.Agents tests passed.
 
