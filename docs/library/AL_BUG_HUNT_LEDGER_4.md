@@ -6666,16 +6666,23 @@ Split from retired `archlucid-core` (ABQ-08).
 2026-10-21 seed hunt (seed->hit): promoted AgentPromptCatalogOptions.Versions whitespace keys; CachedAgentSystemPromptCatalog resolves AgentTypeKeys without trimming dictionary keys; AgentPromptCatalogOptionsNormalizePostConfigure + host registration; regression PostConfigure_trims_agent_prompt_version_keys_from_configuration_binding; cheap-disproof closed JSON null array (Resolve_redacts_json_effective_values_when_json_array_contains_null_then_password_pair) and SaaS WhenProduction (catalog Production-only); 1 AgentPromptCatalog test passed (RunAnalyzers=false).
 
 ## Zone: core-configuration-summary
+2026-10-23 seed hunt #50 (seed->hit): promoted open `(candidate)` NBSP (`U+00A0`) pair-delimiter gap; `Password=` after NBSP was not a pair boundary so config summary effective values leaked connection-string secrets; extended `IsPairDelimiter` with `\u00A0`; regression `Resolve_redacts_embedded_credential_material_when_password_pair_is_nbsp_delimited`; cheap-disproof closed four sibling candidates (NEL/PS delimiter parity regressions, Azure OpenAI path LS host normalization, ARCHLUCID_ENVIRONMENT LS padding via `Trim()`); seeded five follow-on `(candidate)` rows; scoped credential/normalizer/WhenProduction tests 29/29 (`RunAnalyzers=false`).
+
+- [x] (proven) `ConfigurationEmbeddedCredentialMaterialDetector.IsPairDelimiter` — NBSP (`U+00A0`) between credential pairs not treated as pair boundary — **hit 2026-10-23 seed hunt #50:** add `\u00A0` to delimiter set; regression `Resolve_redacts_embedded_credential_material_when_password_pair_is_nbsp_delimited`. [class:fail-open-validation]
+- [x] (valid-no-repro) `ConfigurationEmbeddedCredentialMaterialDetector` — Unicode paragraph separator (`U+2029`) between pairs — **cheap-disproof 2026-10-23 seed hunt #50:** already in delimiter set since hunt #49; regression `Resolve_redacts_embedded_credential_material_when_password_pair_is_paragraph_separator_delimited`.
+- [x] (valid-no-repro) `ConfigurationEmbeddedCredentialMaterialDetector` — NEL (`U+0085`) between pairs — **cheap-disproof 2026-10-23 seed hunt #50:** delimiter parity since hunt #49; regression `Resolve_redacts_embedded_credential_material_when_password_pair_is_nel_delimited`.
+- [x] (valid-no-repro) `AzureOpenAiEndpointNormalizer` — Unicode line separator in path segment — **cheap-disproof 2026-10-23 seed hunt #50:** `Uri` authority parsing ignores path LS; regression `NormalizeForChatCompletions_preserves_classic_openai_host_when_path_contains_unicode_line_separator`.
+- [x] (valid-no-repro) `ConfigurationKeyRequirement.WhenProduction` — `ARCHLUCID_ENVIRONMENT` with trailing Unicode line separator — **cheap-disproof 2026-10-23 seed hunt #50:** `archLucidEnv.Trim()` strips LS; regression `ConfigurationKeyRequirement_WhenProduction_treats_archlucid_environment_with_unicode_line_separator_padding_as_production`.
+
+- [ ] (candidate) `ConfigurationEmbeddedCredentialMaterialDetector` — thin space (`U+2009`) between credential pairs — locus: `IsPairDelimiter`; input: `Server=prod\u2009Password=secret`; wrong outcome: config summary leak; reachability: copy/paste from word processors into connection strings.
+- [ ] (candidate) `ConfigurationEmbeddedCredentialMaterialDetector` — narrow no-break space (`U+202F`) between pairs — locus: `IsPairDelimiter`; input: `Server=prod\u202FPassword=secret`; wrong outcome: leak in effective values.
+- [ ] (candidate) `ConfigurationSensitiveConfigValueScanner` — JSON string element with NBSP-delimited `password=` pair inside array — locus: `JsonValueKind.String` branch; input: `["Server=prod\u00A0Password=secret"]`; wrong outcome: verify redaction after NBSP delimiter fix propagates.
+- [ ] (candidate) `ConfigurationEffectiveValueResolver.Resolve` — surrogate-pair emoji at truncation boundary (`maxLength` 256) — locus: high-surrogate trim at cut index (`ConfigurationEffectiveValueResolver.cs` ~38-39); input: scalar value with emoji ending exactly at byte 256 boundary; wrong outcome: unpaired surrogate in GET config-summary display.
+- [ ] (candidate) `ConfigurationEmbeddedCredentialMaterialDetector` — `SharedAccessKey=` pair after Unicode byte-order mark (`U+FEFF`) prefix — locus: `ContainsEmbeddedCredentialMaterial` trim start; input: `\uFEFFEndpoint=sb://x;SharedAccessKey=secret`; wrong outcome: BOM prevents pair-boundary scan at index 0.
+
 2026-10-22 seed hunt #49 (seed->hit): promoted Unicode line-separator (`U+2028`) delimiter gap in `ConfigurationEmbeddedCredentialMaterialDetector.IsPairDelimiter`; `Password=` pair after LS was not a pair boundary so config summary effective values leaked ADO.NET secrets; regression `Resolve_redacts_embedded_credential_material_when_password_pair_is_unicode_line_separator_delimited`; cheap-disproof closed five stale dictionary-trim candidates; 1138 scoped Configuration tests passed.
 
 - [x] (proven) `ConfigurationEmbeddedCredentialMaterialDetector.IsPairDelimiter` — `Password=` pair after Unicode line separator (`U+2028`) not treated as pair boundary — **hit 2026-10-22 seed hunt #49:** extend delimiter set with NEL/LS/PS (`U+0085`, `U+2028`, `U+2029`); regression above. [class:fail-open-validation]
-
-
-- [ ] (candidate) `ConfigurationEmbeddedCredentialMaterialDetector` — NBSP (`U+00A0`) between credential pairs may not act as pair delimiter — locus: `IsPairBoundaryBeforeIndex`; input: `Server=prod Password=secret`; wrong outcome: leak in config summary; reachability: admin effective values.
-- [ ] (candidate) `ConfigurationEmbeddedCredentialMaterialDetector` — Unicode paragraph separator (`U+2029`) between pairs after LS fix — locus: delimiter parity; input: `Server=prod Password=secret`; wrong outcome: verify redaction (may be fixed by #49).
-- [ ] (candidate) `ConfigurationEmbeddedCredentialMaterialDetector` — NEL (`U+0085`) between pairs — locus: delimiter parity; input: `Server=prodPassword=secret`; wrong outcome: verify redaction (may be fixed by #49).
-- [ ] (candidate) `AzureOpenAiEndpointNormalizer` — endpoint with Unicode line separator in path segment — locus: host parsing; input: `https://resource.openai.azure.com/openai deployments`; wrong outcome: malformed Uri normalization; reachability: AzureOpenAI endpoint bind.
-- [ ] (candidate) `ConfigurationKeyRequirement` — `WhenProduction` with `ARCHLUCID_ENVIRONMENT` value containing Unicode line separator after trim — locus: production detection; input: `Production `; wrong outcome: false non-production required-key skip; reachability: startup validation.
 
 
 2026-10-21 seed hunt (seed->hit): promoted ConfigurationEmbeddedCredentialMaterialDetector form-feed delimiter parity; password= pair after \f bypassed IsPairDelimiter so config summary effective values leaked ADO.NET secrets; regression Resolve_redacts_embedded_credential_material_when_password_pair_is_form_feed_delimited; cheap-disproof closed ACS Email NBSP padding (Trim), QuickScan staging doc divergence, fragment-only trailing-slash claim, LlmCost whitespace-only deployment key; 22 matrix tests passed (RunAnalyzers=false).
@@ -6710,11 +6717,11 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** configuration summary; config paths; split from archlucid-core
 - **paths:** ArchLucid.Core/Configuration/
 - **test-filter:** FullyQualifiedName~Configuration
-- **hunts:** 66
-- **bugs-found:** 48
+- **hunts:** 67
+- **bugs-found:** 49
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 - form-feed delimiter parity for embedded credential redaction
+- **last-hunt:** 2026-10-23
+- **last-bug:** 2026-10-23 — NBSP delimiter parity for embedded credential redaction
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
