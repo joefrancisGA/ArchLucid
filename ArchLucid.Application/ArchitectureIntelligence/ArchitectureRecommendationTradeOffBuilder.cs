@@ -202,7 +202,7 @@ internal static class ArchitectureRecommendationTradeOffBuilder
     private static bool IsCostTokenInSpacedModifierPhrase(string priority) =>
         Regex.IsMatch(
             priority,
-            @"\bCost\s+(optimized|optimization|optimizing|effective|efficiency|efficient|conscious|control|controls|containment)\b",
+            @"\bCost\s+(optimized|optimization|optimizing|effective|efficiency|efficient|conscious|control|controls|containment|savings?|reduction|reducing)\b",
             RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     private static bool TryResolveDeclaredPairPrecedence(
