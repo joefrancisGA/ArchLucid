@@ -44,6 +44,16 @@ public sealed class CollectionRunIngestService(
 
         CollectionRun collectionRun = CreateRun(scope, manifest, zipHash);
 
+        if (!IsImportableManifestStatus(manifest.Status))
+        {
+            collectionRun = WithStatus(
+                collectionRun,
+                CollectionRunStatus.Rejected,
+                "Collection manifest is not in an importable terminal status.");
+            await _collectionRunRepository.UpsertAsync(collectionRun, cancellationToken);
+            return collectionRun;
+        }
+
         if (manifest.TenantId is Guid manifestTenantId && manifestTenantId != scope.TenantId)
         {
             collectionRun = WithStatus(collectionRun, CollectionRunStatus.Rejected, "Collection manifest tenant does not match the current scope.");
@@ -175,4 +185,8 @@ public sealed class CollectionRunIngestService(
             : Enum.TryParse(status, ignoreCase: true, out CollectionRunStatus parsed)
                 ? parsed
                 : CollectionRunStatus.Failed;
+
+    private static bool IsImportableManifestStatus(string status) =>
+        status.Equals("Succeeded", StringComparison.OrdinalIgnoreCase) ||
+        status.Equals("Partial", StringComparison.OrdinalIgnoreCase);
 }
