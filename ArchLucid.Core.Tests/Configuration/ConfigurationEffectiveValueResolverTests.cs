@@ -448,6 +448,23 @@ public sealed class ConfigurationEffectiveValueResolverTests
     }
 
     [Fact]
+    public void Resolve_redacts_json_effective_values_when_json_array_string_uses_nbsp_delimited_password_pair()
+    {
+        const string configPath = "ArchLucid:SomeFeature:Settings";
+        string element = "Server=prod" + '\u00A0' + "Password=secret";
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = $"[\"{element}\"]",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(configuration, configPath, isSet: true);
+
+        value.Should().Be("***");
+    }
+
+    [Fact]
     public void Resolve_redacts_plain_scalar_connection_string_effective_values()
     {
         const string configPath = "ArchLucid:SomeFeature:Settings";
