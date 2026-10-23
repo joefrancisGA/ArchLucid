@@ -68,7 +68,7 @@ public sealed partial class InMemoryValueReportJobQueue
 
                     JobEntry failed = new(request, JobPhase.Failed, null, fileName, persistError);
                     _jobs[jobId] = failed;
-                    TryWriteDistributedState(jobId, failed);
+                    PublishDistributedTerminalStateOrClearStalePending(jobId, failed);
                 }
             }
         }
@@ -79,7 +79,7 @@ public sealed partial class InMemoryValueReportJobQueue
             ValueReportJobRequest req = existing?.Request ?? request;
             JobEntry failed = new(req, JobPhase.Failed, null, null, ex.Message);
             _jobs[jobId] = failed;
-            TryWriteDistributedState(jobId, failed);
+            PublishDistributedTerminalStateOrClearStalePending(jobId, failed);
         }
     }
 }

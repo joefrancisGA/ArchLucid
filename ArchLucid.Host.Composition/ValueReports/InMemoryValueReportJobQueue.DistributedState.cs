@@ -50,6 +50,25 @@ public sealed partial class InMemoryValueReportJobQueue
         }
     }
 
+    private void PublishDistributedTerminalStateOrClearStalePending(Guid jobId, JobEntry terminal)
+    {
+        if (!TryWriteDistributedState(jobId, terminal))
+            TryRemoveDistributedState(jobId);
+    }
+
+    private void TryRemoveDistributedState(Guid jobId)
+    {
+        try
+        {
+            _pollStateCache.Remove(GetCacheKey(jobId));
+        }
+        catch (Exception ex)
+        {
+            if (_logger.IsEnabled(LogLevel.Warning))
+                _logger.LogWarning(ex, "Failed to remove value report job {JobId} from distributed cache.", jobId);
+        }
+    }
+
     private JobEntry? TryReadDistributedState(Guid jobId)
     {
         try

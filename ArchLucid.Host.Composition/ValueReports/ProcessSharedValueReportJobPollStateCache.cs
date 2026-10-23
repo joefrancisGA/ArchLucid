@@ -49,6 +49,13 @@ public sealed class ProcessSharedValueReportJobPollStateCache : IValueReportJobP
         return entry.Payload;
     }
 
+    public void Remove(string key)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(key);
+
+        _entries.TryRemove(key, out _);
+    }
+
     private static DateTimeOffset ResolveExpiresAtUtc(DistributedCacheEntryOptions options)
     {
         if (options.AbsoluteExpirationRelativeToNow is TimeSpan relative)

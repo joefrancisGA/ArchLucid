@@ -23,7 +23,7 @@ public sealed partial class InMemoryValueReportJobQueue
 
             JobEntry failed = new(request, JobPhase.Failed, null, null, persistError);
             _jobs[jobId] = failed;
-            TryWriteDistributedState(jobId, failed);
+            PublishDistributedTerminalStateOrClearStalePending(jobId, failed);
 
             return jobId;
         }
