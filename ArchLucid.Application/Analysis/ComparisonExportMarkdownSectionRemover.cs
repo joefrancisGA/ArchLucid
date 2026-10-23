@@ -65,7 +65,11 @@ internal static class ComparisonExportMarkdownSectionRemover
 
     private static string NormalizeHeadingLine(string line)
     {
-        string normalized = line.Replace('\u00A0', ' ').Replace('\u2007', ' ').Trim();
+        string normalized = line
+            .Replace('\u00A0', ' ')
+            .Replace('\u2007', ' ')
+            .Replace('\u2009', ' ')
+            .Trim();
 
         while (normalized.Contains("  ", StringComparison.Ordinal))
             normalized = normalized.Replace("  ", " ", StringComparison.Ordinal);

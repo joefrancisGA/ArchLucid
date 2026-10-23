@@ -108,6 +108,34 @@ public sealed class RunExportAuditServiceTests
     }
 
     [Fact]
+    public async Task RecordFailureAsync_trims_surrounding_whitespace_on_metadata_before_audit()
+    {
+        Mock<IRunExportRecordRepository> repo = new();
+        Mock<IAuditService> audit = new();
+        RunExportAuditService sut = new(repo.Object, audit.Object, NullLogger<RunExportAuditService>.Instance);
+        const string runId = "deadbeefdeadbeefdeadbeefdeadbeef";
+
+        await sut.RecordFailureAsync(
+            $"  {runId}  ",
+            "  analysis-report-docx  ",
+            "  docx  ",
+            "  export failed  ",
+            CancellationToken.None);
+
+        audit.Verify(
+            a => a.LogAsync(
+                It.Is<AuditEvent>(e =>
+                    e.EventType == AuditEventTypes.RunExportFailed &&
+                    e.RunId == Guid.ParseExact(runId, "N") &&
+                    e.DataJson.Contains($"\"runId\":\"{runId}\"", StringComparison.Ordinal) &&
+                    e.DataJson.Contains("\"exportType\":\"analysis-report-docx\"", StringComparison.Ordinal) &&
+                    e.DataJson.Contains("\"format\":\"docx\"", StringComparison.Ordinal) &&
+                    e.DataJson.Contains("\"errorMessage\":\"export failed\"", StringComparison.Ordinal)),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
     public async Task RecordFailureAsync_LogsExportFailedAudit()
     {
         Mock<IRunExportRecordRepository> repo = new();

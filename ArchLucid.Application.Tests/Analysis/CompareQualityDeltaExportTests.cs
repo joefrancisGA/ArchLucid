@@ -95,6 +95,17 @@ public sealed class CompareQualityDeltaExportTests
     }
 
     [Fact]
+    public void RemoveMarkdownSection_strips_compare_quality_delta_when_heading_uses_thin_space_after_hashes()
+    {
+        string markdown = "intro\n##\u2009Compare Quality Delta\n| Metric | Before | After |\n\n## Warnings\n";
+
+        string result = CompareQualityDeltaExportFormatter.RemoveMarkdownSection(markdown);
+
+        result.Should().NotContain("Compare Quality Delta");
+        result.Should().Contain("## Warnings");
+    }
+
+    [Fact]
     public void RemoveMarkdownSection_strips_compare_quality_delta_when_heading_uses_figure_space_after_hashes()
     {
         string markdown = "intro\n##\u2007Compare Quality Delta\n| Metric | Before | After |\n\n## Warnings\n";

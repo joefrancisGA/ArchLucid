@@ -103,6 +103,19 @@ public sealed class RunExportAuditService(
 
     public async Task RecordFailureAsync(string runId, string exportType, string format, string errorMessage, CancellationToken cancellationToken = default)
     {
+        ArgumentNullException.ThrowIfNull(runId);
+        ArgumentNullException.ThrowIfNull(exportType);
+        ArgumentNullException.ThrowIfNull(format);
+        ArgumentNullException.ThrowIfNull(errorMessage);
+        runId = runId.Trim();
+        exportType = exportType.Trim();
+        format = format.Trim();
+        errorMessage = errorMessage.Trim();
+        ArgumentException.ThrowIfNullOrWhiteSpace(runId);
+        ArgumentException.ThrowIfNullOrWhiteSpace(exportType);
+        ArgumentException.ThrowIfNullOrWhiteSpace(format);
+        ArgumentException.ThrowIfNullOrWhiteSpace(errorMessage);
+
         Guid? auditRunId = TryParseRunGuid(runId);
         DateTime occurredUtc = TimeProvider.System.UtcNowDateTime();
         await _auditService.LogAsync(
