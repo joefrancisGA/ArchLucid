@@ -59,9 +59,7 @@ function mapFindingSummaryRowToQuickDecision(
   }
 
   const title = typeof row.title === "string" ? row.title.trim() : "";
-  const category = typeof row.category === "string" ? row.category.trim() : "";
-  const message =
-    title.length > 0 ? title : category.length > 0 ? category : "Finding title was not stored.";
+  const message = title.length > 0 ? title : "Finding title was not stored.";
   const policyRuleId =
     typeof row.policyRuleId === "string" && row.policyRuleId.trim().length > 0
       ? row.policyRuleId.trim()
