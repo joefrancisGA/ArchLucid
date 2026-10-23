@@ -1,3 +1,5 @@
+using System.Globalization;
+
 using ArchLucid.Capabilities.Cost;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.KnowledgeGraph;
@@ -88,6 +90,57 @@ public sealed class CostPolicyExpectationFindingEngineTests
 
         findings.Should().ContainSingle();
         findings[0].Title.Should().StartWith("Cost constraint:");
+    }
+
+    [Fact]
+    public async Task Cost_constraint_no_spurious_policy_cap_when_invariant_max_monthly_cost_under_non_invariant_culture()
+    {
+        CultureInfo previousCulture = CultureInfo.CurrentCulture;
+        CultureInfo.CurrentCulture = new CultureInfo("fr-FR");
+
+        try
+        {
+            GraphSnapshot graph = new()
+            {
+                Nodes =
+                [
+                    new GraphNode
+                    {
+                        NodeId = "context-1",
+                        NodeType = GraphNodeTypes.ContextSnapshot,
+                        Label = "scope",
+                        Properties = new()
+                        {
+                            [ContextGraphPropertyKeys.PolicyCostRequireBudgetCap] = "true",
+                        },
+                    },
+                    new GraphNode
+                    {
+                        NodeId = "topo-1",
+                        NodeType = GraphNodeTypes.TopologyResource,
+                        Label = "app",
+                        Category = GraphTopologyCategories.Compute,
+                        Properties = new(),
+                    },
+                    new GraphNode
+                    {
+                        NodeId = "cost-1",
+                        NodeType = "CostConstraint",
+                        Label = "budget",
+                        Properties = new() { ["maxMonthlyCost"] = "5000.50" },
+                    },
+                ],
+            };
+
+            IReadOnlyList<Finding> findings = await _constraintEngine.AnalyzeAsync(graph, null, CancellationToken.None);
+
+            findings.Should().ContainSingle();
+            findings[0].Title.Should().StartWith("Cost constraint:");
+        }
+        finally
+        {
+            CultureInfo.CurrentCulture = previousCulture;
+        }
     }
 
     [Fact]

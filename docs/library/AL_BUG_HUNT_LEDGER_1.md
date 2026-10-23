@@ -8358,21 +8358,30 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: capabilities-cost-mcp
 
+2026-10-23 seed hunt (seed→hit): promoted `PolicyExpectationCostGraphReader.GraphHasParseableBudgetCap` current-culture `decimal.TryParse` vs invariant graph materialization; under `fr-FR` an invariant `maxMonthlyCost` (`5000.50`) satisfied `CostConstraintFindingEngine` but failed the policy-cap probe, emitting a spurious “Policy requires a monthly budget cap” alongside the constraint finding; fixed with invariant parse in `GraphHasParseableBudgetCap`; regression `Cost_constraint_no_spurious_policy_cap_when_invariant_max_monthly_cost_under_non_invariant_culture`; 21 scoped `Capabilities.Cost` + 4 MCP retrieval tests passed.
+
+- [ ] (candidate) `RetrievalTools.SearchAsync` — `QueryText` not validated when callers bypass HTTP controller — locus: `SearchAsync` before `RetrievalQuery`; input: empty or whitespace query from direct tool invocation.
+- [ ] (candidate) `CostBreachFindingEngine.TryCreateBreachFinding` — trace `Notes` format spend with `:C0` under thread culture while payload decimals are invariant-parsed — locus: `ExplainabilityTrace.Notes`; input: non-invariant `CurrentCulture` on breach finding emission.
+- [ ] (candidate) `RetrievalTools.SearchAsync` — corpus filter over-fetch capped at 25 — locus: `searchTopK = 25` when `CorpusKindFilter` set; input: `AzureRetailPrice` hit ranks 26th in blended search results.
+- [ ] (candidate) `CostConstraintFindingEngine.AnalyzeAsync` — unparseable `maxMonthlyCost` still emits Info constraint finding while `CostBreachFindingEngine` skips the node — locus: per-node emit without cap guard; input: malformed `maxMonthlyCost` with valid impact bounds.
+- [ ] (candidate) `RetrievalTools.PriorDecisionSearchAsync` — `IncludePlatformCorpora = false` excludes platform prior-manifest hits that tenant-scoped search might still return — locus: `request with { IncludePlatformCorpora = false }`; input: prior decision indexed only in platform corpus.
+
 - **id:** capabilities-cost-mcp
 - **status:** open
 - **impact:** medium
 - **aliases:** capabilities cost; MCP server; cost estimation
 - **paths:** ArchLucid.Capabilities.Cost/; ArchLucid.Mcp/
 - **test-filter:** FullyQualifiedName~Capabilities.Cost|FullyQualifiedName~Mcp
-- **hunts:** 4
-- **bugs-found:** 2
+- **hunts:** 5
+- **bugs-found:** 3
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 — invariant-culture cost graph decimal parsing
+- **last-hunt:** 2026-10-23
+- **last-bug:** 2026-10-23 — policy budget-cap probe used current-culture decimal parse
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 
 
+- [x] (proven) `PolicyExpectationCostGraphReader.GraphHasParseableBudgetCap` / `CostConstraintFindingEngine` — invariant `maxMonthlyCost` on graph nodes treated as missing under non-invariant thread culture, emitting spurious policy-required-cap finding — **hit 2026-10-23 seed hunt:** invariant `decimal.TryParse` in `GraphHasParseableBudgetCap`; regression `Cost_constraint_no_spurious_policy_cap_when_invariant_max_monthly_cost_under_non_invariant_culture`.
 - [x] (proven) `CostBreachFindingEngine` / `CostConstraintFindingEngine` — graph cost properties persisted with invariant culture were parsed with current-culture `decimal.TryParse`, skipping breach/constraint findings on hosts using non-invariant cultures — **hit 2026-10-21 seed hunt lane B:** `CostGraphDecimalParser`; regression `AnalyzeAsync_parses_invariant_graph_decimals_under_non_invariant_thread_culture`.
 
 ### Hypotheses

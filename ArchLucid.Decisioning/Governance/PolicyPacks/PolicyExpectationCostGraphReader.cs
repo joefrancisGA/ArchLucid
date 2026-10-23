@@ -1,3 +1,5 @@
+using System.Globalization;
+
 using ArchLucid.Contracts.Findings;
 using ArchLucid.KnowledgeGraph;
 using ArchLucid.KnowledgeGraph.Models;
@@ -67,7 +69,11 @@ public static class PolicyExpectationCostGraphReader
         continue;
 
       if (node.Properties.TryGetValue("maxMonthlyCost", out string? maxCostRaw)
-          && decimal.TryParse(maxCostRaw, out _))
+          && decimal.TryParse(
+              maxCostRaw,
+              NumberStyles.Number,
+              CultureInfo.InvariantCulture,
+              out _))
       {
         return true;
       }
