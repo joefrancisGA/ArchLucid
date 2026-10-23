@@ -5292,13 +5292,26 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** recommendation engine; alternatives
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationEngine.cs; ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationTradeOffBuilder.cs
 - **test-filter:** FullyQualifiedName~ArchitectureRecommendationAlternativesTests|FullyQualifiedName~ArchitectureRecommendationProposedChangeTests
-- **hunts:** 72
+- **hunts:** 73
 - **last-hunt:** 2026-10-23
-- **bugs-found:** 28
+- **bugs-found:** 30
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-23 — Unicode hyphen in Cost‑effective bypassed compound guard
+- **last-bug:** 2026-10-23 — later `Cost over Security` lost to generic Security mention; `cost optimized` prose selected Cost
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-23 seed hunt (seed→hit): promoted `TryResolveDeclaredPairPrecedence` so explicit `over`/`before` between a trade-off pair wins over generic dimension mentions in earlier priority strings (e.g. `Cost over Security` after `Security focus`); promoted spaced Cost modifier phrases (`cost optimized`, etc.) not selecting Cost when Security is also named; regressions `BuildRecommendations_prefers_cost_first_when_later_priority_explicitly_says_cost_over_security`, `BuildRecommendations_prefers_security_first_when_priority_is_cost_optimized_security_rollout`; cheap-disproof closed three sibling `(candidate)` rows; seeded five follow-on rows; scoped Alternatives/ProposedChange/TradeOff tests 67/67.
+
+- [ ] (candidate) `ArchitectureRecommendationTradeOffBuilder.TryResolveDeclaredPairPrecedence` — conflicting explicit pair statements in one string (e.g. `Security over Cost, Cost over Security`) — input: comma-joined priorities; reachability: pasted sponsor bullets; wrong outcome: last clause wins without validation.
+- [ ] (candidate) `ArchitectureRecommendationTradeOffBuilder.DeclaredPriorityPrefersDimension` — `cost control` and `cost containment` still select Cost dimension — input: modifier prose with Security goal; reachability: operator framing; wrong outcome: balanced Security/Cost.
+- [ ] (candidate) `ArchitectureRecommendationTradeOffBuilder.ApplyTradeOffs` — Security plus DataArchitecture actionable findings produce no trade-off object — input: mixed-dimension review package; contract gap only unless product requires all pairs.
+- [ ] (candidate) `ArchitectureRecommendationTradeOffBuilder.TryAddTradeOff` — Reliability/Security trade-off ignores explicit pair precedence when only Reliability/Cost pair appears in priorities — input: priorities name `Reliability over Security` but findings are Security+Cost; reachability: mismatched pair text.
+- [ ] (candidate) `ArchitectureRecommendationTradeOffBuilder.BuildResolutionRationale` — explicit pair precedence still emits “No declared priority selected” when generic mentions were overridden — input: `Security focus` plus `Cost over Security`; reachability: rationale copy on trade-off object.
+
+- [x] (proven) `ArchitectureRecommendationTradeOffBuilder.BuildPreferredResolution` — generic Security mention plus later `Cost over Security` balanced — **hit 2026-10-23 seed hunt:** `TryResolveDeclaredPairPrecedence`; regression `BuildRecommendations_prefers_cost_first_when_later_priority_explicitly_says_cost_over_security`.
+- [x] (proven) `ArchitectureRecommendationTradeOffBuilder.DeclaredPriorityPrefersDimension` — `cost optimized security rollout` selected Cost — **hit 2026-10-23 seed hunt:** `IsCostTokenInSpacedModifierPhrase`; regression `BuildRecommendations_prefers_security_first_when_priority_is_cost_optimized_security_rollout`.
+- [x] (invalid) `ArchitectureRecommendationEngine.CreateRecommendation` — `Dependencies` duplicates priorities per row — **cheap-disproof 2026-10-23 seed hunt:** intentional snapshot of declared priorities on each recommendation for closed-loop export.
+- [x] (invalid) `ArchitectureRecommendationTradeOffBuilder.TryAddTradeOff` — trade-off only on first dimension row — **cheap-disproof 2026-10-23 seed hunt:** trade-off attaches to primary dimension recommendation per pair contract (#69 regressions).
 
 2026-10-23 seed hunt (seed→hit): promoted Unicode hyphen (U+2011) in `Cost‑effective` bypassing the ASCII-only `Cost-` compound guard so Security/Cost trade-offs balanced incorrectly; extended `IsCostTokenInHyphenatedCompoundAdjective` to treat common dash punctuation like ASCII hyphen; regression `BuildRecommendations_prefers_security_first_when_priority_uses_unicode_hyphen_in_cost_effective`; cheap-disproof closed four sibling `(candidate)` rows; seeded five follow-on rows; scoped Alternatives/ProposedChange/TradeOff tests 65/65.
 
