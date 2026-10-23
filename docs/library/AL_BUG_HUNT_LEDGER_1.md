@@ -8382,17 +8382,19 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: capabilities-cost-mcp
 
+2026-10-23 seed hunt (seed→hit): promoted `CostGraphDecimalParser.TryParse` and `PolicyExpectationCostGraphReader.GraphHasParseableBudgetCap` failing on `maxMonthlyCost` with leading Unicode whitespace (e.g. NBSP from pasted exports), skipping breach findings and emitting spurious policy-required-cap warnings; fixed with `Trim()` before invariant parse; regressions `AnalyzeAsync_parses_max_monthly_cost_with_leading_nbsp`, `Cost_constraint_no_spurious_policy_cap_when_max_monthly_cost_has_leading_nbsp`; cheap-disproof closed five open `(candidate)` rows; seeded five follow-on rows; 25 scoped `Capabilities.Cost` + 4 MCP retrieval tests passed.
+
 2026-10-23 seed hunt (seed→hit): promoted `CostConstraintFindingEngine` `costRisk` severity mapping without trimming padded graph values; `costRisk` of `" high "` downgraded to Info and left padded text on the payload; fixed with `Trim()` before high-risk classification; regression `AnalyzeAsync_treats_padded_high_cost_risk_as_warning_severity`; cheap-disproof closed five open `(candidate)` rows; seeded five follow-on rows; 23 scoped `Capabilities.Cost` + 4 MCP retrieval tests passed.
 
 2026-10-23 seed hunt (seed→hit): promoted `CostBreachFindingEngine` / `CostConstraintFindingEngine` explainability `Notes` using thread-culture `:C0` while graph amounts are invariant USD; under `fr-FR` breach traces showed locale currency formatting instead of USD/month labels; fixed with `CostGraphDecimalParser.FormatUsdPerMonth` (`en-US`); regression `AnalyzeAsync_formats_trace_notes_in_usd_under_non_invariant_thread_culture`; cheap-disproof closed four sibling `(candidate)` rows; seeded five follow-on rows; 22 scoped `Capabilities.Cost` + 4 MCP retrieval tests passed.
 
 2026-10-23 seed hunt (seed→hit): promoted `PolicyExpectationCostGraphReader.GraphHasParseableBudgetCap` current-culture `decimal.TryParse` vs invariant graph materialization; under `fr-FR` an invariant `maxMonthlyCost` (`5000.50`) satisfied `CostConstraintFindingEngine` but failed the policy-cap probe, emitting a spurious “Policy requires a monthly budget cap” alongside the constraint finding; fixed with invariant parse in `GraphHasParseableBudgetCap`; regression `Cost_constraint_no_spurious_policy_cap_when_invariant_max_monthly_cost_under_non_invariant_culture`; 21 scoped `Capabilities.Cost` + 4 MCP retrieval tests passed.
 
-- [ ] (candidate) `CostBreachFindingEngine.ResolveProjectedMonthlySpend` — prefers `projectedMonthlySpendUsd` below cap even when `projectedImpactUsdUpperBound` exceeds cap — locus: resolution order; input: topology enricher triple with point estimate under cap and upper band above cap.
-- [ ] (candidate) `RetrievalTools.SearchAsync` — `Snippet` hard-truncates at 400 characters with no ellipsis marker — locus: `h.Text[..400]`; input: long policy-pack chunk returned to MCP clients.
-- [ ] (candidate) `CostGraphDecimalParser.TryParse` — does not reject thousand-separator formatted invariant strings (`5,000.00`) from hand-edited graph exports — locus: `NumberStyles.Number` parse; input: CSV-exported `maxMonthlyCost` on `CostConstraint` node.
-- [ ] (candidate) `RetrievalTools.PolicyPackSearchAsync` — forces `IncludePlatformCorpora = true` so tenant-only policy pack isolation cannot be requested through the dedicated MCP tool — locus: `request with { IncludePlatformCorpora = true }`; input: tenant overlay expecting tenant corpus only.
-- [ ] (candidate) `CostConstraintFindingEngine.CreatePolicyRequiredCapFinding` — `RelatedNodeIds` caps topology sample at five nodes, omitting additional workload resources from explainability trace — locus: `.Take(5)`; input: large topology graphs under `policyCostRequireBudgetCap`.
+- [ ] (candidate) `CostBreachFindingEngine.TryCreateBreachFinding` — `budgetName` graph property not trimmed before payload emission — locus: `BudgetName = budgetName ?? node.Label`; input: padded `budgetName` from imported graph JSON.
+- [ ] (candidate) `CostConstraintFindingEngine.AnalyzeAsync` — `confidenceReasoning` copied verbatim with no length guard before finding emission — locus: payload `ConfidenceReasoning`; input: oversized reasoning string on cost constraint node.
+- [ ] (candidate) `RetrievalTools.SearchAsync` — `h.Text` null would throw when building `Snippet` — locus: `h.Text.Length`; input: retrieval hit with null `Text` from indexer defect.
+- [ ] (candidate) `CostBreachFindingEngine.ResolveProjectedMonthlySpend` — prefers `projectedMonthlySpendUsd` below cap even when `projectedImpactUsdUpperBound` exceeds cap — locus: resolution order; input: topology enricher band above cap with point estimate under cap.
+- [ ] (candidate) `RetrievalMcpToolHit.Score` — passes through raw retrieval score without clamping to a display range for MCP consumers — locus: `Score = h.Score`; input: negative or NaN score from vector index.
 
 - **id:** capabilities-cost-mcp
 - **status:** open
@@ -8400,15 +8402,21 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** capabilities cost; MCP server; cost estimation
 - **paths:** ArchLucid.Capabilities.Cost/; ArchLucid.Mcp/
 - **test-filter:** FullyQualifiedName~Capabilities.Cost|FullyQualifiedName~Mcp
-- **hunts:** 7
-- **bugs-found:** 5
+- **hunts:** 8
+- **bugs-found:** 6
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-23
-- **last-bug:** 2026-10-23 — padded `costRisk` graph values missed Warning severity
+- **last-bug:** 2026-10-23 — NBSP-prefixed `maxMonthlyCost` failed invariant parse
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
 
+- [x] (proven) `CostGraphDecimalParser.TryParse` / `PolicyExpectationCostGraphReader.GraphHasParseableBudgetCap` — leading Unicode whitespace on `maxMonthlyCost` broke invariant parse — **hit 2026-10-23 seed hunt:** `Trim()` before parse; regressions `AnalyzeAsync_parses_max_monthly_cost_with_leading_nbsp`, `Cost_constraint_no_spurious_policy_cap_when_max_monthly_cost_has_leading_nbsp`.
+- [x] (valid-no-repro) `CostBreachFindingEngine.ResolveProjectedMonthlySpend` — upper bound above cap ignored when point estimate below cap — **cheap-disproof 2026-10-23 seed hunt:** intentional precedence; regression `AnalyzeAsync_prefers_projected_monthly_spend_over_impact_bounds`.
+- [x] (invalid) `RetrievalTools.SearchAsync` — snippet truncation without ellipsis — **cheap-disproof 2026-10-23 seed hunt:** fixed 400-character MCP snippet contract.
+- [x] (valid-no-repro) `CostGraphDecimalParser.TryParse` — invariant thousand separators (`5,000.00`) — **cheap-disproof 2026-10-23 seed hunt:** `NumberStyles.Number` with invariant culture accepts grouped decimals; NBSP trim was the reachable parse failure.
+- [x] (valid-no-repro) `RetrievalTools.PolicyPackSearchAsync` — always includes platform corpora — **cheap-disproof 2026-10-23 seed hunt:** policy-pack MCP tool contract requires platform packs plus tenant overlays.
+- [x] (valid-no-repro) `CostConstraintFindingEngine.CreatePolicyRequiredCapFinding` — `RelatedNodeIds` capped at five topology nodes — **cheap-disproof 2026-10-23 seed hunt:** intentional explainability sample size for policy-required-cap finding.
 - [x] (proven) `CostConstraintFindingEngine.AnalyzeAsync` — padded `costRisk` graph property values not trimmed before high-risk severity mapping — **hit 2026-10-23 seed hunt:** `costRisk.Trim()` before classification; regression `AnalyzeAsync_treats_padded_high_cost_risk_as_warning_severity`.
 - [x] (invalid) `RetrievalTools.SearchAsync` — `Snippet` truncation without ellipsis — **cheap-disproof 2026-10-23 seed hunt:** fixed 400-character MCP snippet contract; ellipsis is UX polish not a wrong retrieval outcome.
 - [x] (valid-no-repro) `CostBreachFindingEngine.ResolveProjectedMonthlySpend` — lower-bound fallback understates breach — **cheap-disproof 2026-10-23 seed hunt:** intentional point-estimate precedence; regression `AnalyzeAsync_prefers_projected_monthly_spend_over_impact_bounds`.
