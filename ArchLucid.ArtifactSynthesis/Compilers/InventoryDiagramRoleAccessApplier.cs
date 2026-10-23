@@ -22,6 +22,8 @@ internal static class InventoryDiagramRoleAccessApplier
             .GroupBy(node => node.NodeId, StringComparer.Ordinal)
             .ToDictionary(group => group.Key, group => group.First(), StringComparer.Ordinal);
 
+        List<(string SourceDiagramNodeId, string TargetDiagramNodeId, string RoleName)> pairGrants = new();
+
         foreach (GraphEdge edge in graph.Edges.Where(IsRoleAssignmentEdge))
         {
             string? sourceDiagramNodeId = ResolveDiagramNodeId(edge.FromNodeId, graphToDiagramNodeId, diagramNodesById);
@@ -41,11 +43,20 @@ internal static class InventoryDiagramRoleAccessApplier
                 continue;
             }
 
+            pairGrants.Add((sourceDiagramNodeId, targetDiagramNodeId, roleName));
+        }
+
+        foreach (IGrouping<(string SourceDiagramNodeId, string TargetDiagramNodeId), (string SourceDiagramNodeId, string TargetDiagramNodeId, string RoleName)> group in pairGrants.GroupBy(grant => (grant.SourceDiagramNodeId, grant.TargetDiagramNodeId)))
+        {
+            string sourceDiagramNodeId = group.Key.SourceDiagramNodeId;
+            string targetDiagramNodeId = group.Key.TargetDiagramNodeId;
+            string accessLabel = ResolveResourcePairAccessLabel(group.Select(grant => grant.RoleName).ToList());
+
             InventoryDiagramRelationshipEdgeHelper.ReplaceOrAddDirectedEdge(
                 ast,
                 sourceDiagramNodeId,
                 targetDiagramNodeId,
-                InventoryDiagramRelationshipLabelTexts.HasAccess,
+                accessLabel,
                 GraphEdgeInferenceSources.InventoryRbacAssignment,
                 ProvenanceKind.ObservedFact.ToString());
 
@@ -54,7 +65,7 @@ internal static class InventoryDiagramRoleAccessApplier
                 !candidate.IsLayoutOnly
                 && candidate.FromNodeId == sourceDiagramNodeId
                 && candidate.ToNodeId == targetDiagramNodeId
-                && candidate.Label == InventoryDiagramRelationshipLabelTexts.HasAccess);
+                && candidate.InferenceSource == GraphEdgeInferenceSources.InventoryRbacAssignment);
             ast.Edges.RemoveAll(candidate =>
                 !ReferenceEquals(candidate, accessEdge)
                 && !candidate.IsLayoutOnly
@@ -62,6 +73,26 @@ internal static class InventoryDiagramRoleAccessApplier
                 && candidate.ToNodeId == targetDiagramNodeId
                 && candidate.InferenceSource == GraphEdgeInferenceSources.InventoryRbacAssignment);
         }
+    }
+
+    private static string ResolveResourcePairAccessLabel(IReadOnlyList<string> roleNames)
+    {
+        if (roleNames.Count > 1)
+        {
+            HashSet<string> distinctRoleNames = new(StringComparer.OrdinalIgnoreCase);
+
+            foreach (string roleName in roleNames)
+            {
+                distinctRoleNames.Add(roleName.Trim());
+            }
+
+            if (distinctRoleNames.Count > 1)
+            {
+                return "Role names were not listed on this line.";
+            }
+        }
+
+        return roleNames[0];
     }
 
     private static bool IsRoleAssignmentEdge(GraphEdge edge)
@@ -125,7 +156,7 @@ internal static class InventoryDiagramRoleAccessApplier
         string normalizedScope = ArmResourceIdNormalizer.Normalize(scope);
         string sentence = normalizedScope.Contains("/resourceGroups/", StringComparison.OrdinalIgnoreCase)
             ? $"Has {roleName} on resource group {ReadResourceName(normalizedScope)}"
-            : $"Has {roleName} on this subscription";
+            : $"Has {roleName} on subscription {ReadSubscriptionId(normalizedScope)}";
 
         if (!sourceNode.UnresolvedRelationshipDetails.Contains(sentence, StringComparer.Ordinal))
         {
@@ -174,5 +205,28 @@ internal static class InventoryDiagramRoleAccessApplier
         return lastSlash >= 0 && lastSlash < scope.Length - 1
             ? scope[(lastSlash + 1)..]
             : scope;
+    }
+
+    private static string ReadSubscriptionId(string scope)
+    {
+        const string prefix = "/subscriptions/";
+
+        if (!scope.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
+        {
+            return "Subscription id was not stored.";
+        }
+
+        int end = scope.IndexOf('/', prefix.Length);
+
+        if (end < 0)
+        {
+            string trailing = scope[prefix.Length..].Trim();
+
+            return trailing.Length > 0 ? trailing : "Subscription id was not stored.";
+        }
+
+        string subscriptionId = scope[prefix.Length..end].Trim();
+
+        return subscriptionId.Length > 0 ? subscriptionId : "Subscription id was not stored.";
     }
 }

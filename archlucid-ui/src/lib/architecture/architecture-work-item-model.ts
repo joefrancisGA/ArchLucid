@@ -1,6 +1,7 @@
 import type { WorkItemClipboardFormat } from "@/lib/copy-finding-as-work-item";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 import { severityBadgeLabel } from "@/lib/quick-decision-summary-derive";
+import { formatQuickDecisionRecommendedAction } from "@/lib/quick-decision-finding-links";
 import { compareFindingSeverity } from "@/lib/quick-decision-severity-labels";
 
 export type ArchitectureWorkItemFindingLine = {
@@ -70,10 +71,7 @@ function mapFindingLines(findings: readonly QuickDecisionFinding[]): Architectur
     title:
       finding.title.trim().length > 0 ? finding.title.trim() : "Finding title was not stored.",
     severityLabel: severityBadgeLabel(finding.severityValue),
-    recommendedAction:
-      finding.recommendation.trim().length > 0
-        ? finding.recommendation.trim()
-        : "No recommended action recorded for this finding.",
+    recommendedAction: formatQuickDecisionRecommendedAction(finding.recommendation),
   }));
 }
 

@@ -100,7 +100,7 @@ public sealed class InventoryDiagramOrphanedStateApplierTests
         storage.ConnectionState.Should().Be(InventoryDiagramConnectionState.Unconnected);
 
         DiagramNodeHumanCaption caption = DiagramNodeHumanCaptionFactory.Create(storage);
-        caption.CombinedPlainText.Should().Contain("Stands alone");
+        caption.CombinedPlainText.Should().Contain("No diagram link was stored.");
     }
 
     [Fact]

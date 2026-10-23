@@ -28,7 +28,10 @@ export function WizardPackagePreview(props: WizardPackagePreviewProps) {
         Your review will include
       </h3>
       <p className={cn("m-0 mb-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-        Architecture review: <span className="font-medium">{props.systemName.trim() || "Untitled"}</span>
+        Architecture review:{" "}
+        <span className="font-medium">
+          {props.systemName.trim().length > 0 ? props.systemName.trim() : "System name was not stored."}
+        </span>
       </p>
       <ul className="m-0 list-disc space-y-1 pl-5 text-neutral-700 dark:text-neutral-300">
         {items.map((item) => (

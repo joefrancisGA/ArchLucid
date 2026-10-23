@@ -189,16 +189,6 @@ export function deriveRunDetailEvidenceInventory(input: {
     const snippets = finding.evidenceRefSnippets ?? [];
 
     if (snippets.length === 0 && (finding.evidenceRefCount ?? 0) > 0) {
-      addInventoryRow(
-        map,
-        `__finding-record-${finding.findingId}`,
-        "Evidence on finding record",
-        "Persisted citation",
-        "citation",
-        null,
-        finding.findingId,
-      );
-
       continue;
     }
 

@@ -1,11 +1,7 @@
 import { formatFindingHumanReviewStatusLabel } from "@/lib/findings/finding-human-review-display";
 import { coerceComplianceRuleKey } from "@/lib/policy/policy-pack-rule-key-prefix-catalog";
 import { normalizeFindingSemanticSupportBand } from "@/lib/findings/semantic-support-band-presentation";
-import { isDemoRunIdEligibleForStaticFallback } from "@/lib/operator/operator-static-demo";
-import {
-  SHOWCASE_STATIC_DEMO_MANIFEST_ID,
-  SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID,
-} from "@/lib/showcase-static-demo";
+import { SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID } from "@/lib/showcase-static-demo";
 import { signedRecordDetailPath } from "@/lib/signed-records-paths";
 import type {
   ArchitectureDecisionRegisterEntry,
@@ -24,7 +20,9 @@ import {
   GOVERNANCE_QUEUE_DECISION_TITLE_NOT_STORED,
   GOVERNANCE_QUEUE_FINDING_STATUS_NOT_STORED,
   GOVERNANCE_QUEUE_FINDING_TITLE_NOT_STORED,
+  GOVERNANCE_QUEUE_CATEGORY_NOT_STORED,
   GOVERNANCE_QUEUE_REVIEW_NAME_NOT_STORED,
+  GOVERNANCE_QUEUE_REVIEW_TITLE_NOT_STORED,
   GOVERNANCE_QUEUE_RULE_ID_NOT_STORED,
   GOVERNANCE_QUEUE_SEVERITY_NOT_STORED,
 } from "@/components/governance/findings/governance-findings-row-omission-copy";
@@ -35,7 +33,7 @@ function resolveGovernanceQueueReviewLabel(systemName: string, runId: string): s
   }
 
   if (runId.length > 0) {
-    return runId;
+    return GOVERNANCE_QUEUE_REVIEW_TITLE_NOT_STORED;
   }
 
   return GOVERNANCE_QUEUE_REVIEW_NAME_NOT_STORED;
@@ -153,13 +151,14 @@ export function traceRowsForRun(run: RunSummary, traces: FindingTraceConfidenceD
     .map((t) => {
       const findingId = t.findingId.trim();
       const titleRaw = (t.findingTitle ?? "").trim();
-      const manifestRaw = isDemoRunIdEligibleForStaticFallback(run.runId)
-        ? SHOWCASE_STATIC_DEMO_MANIFEST_ID
-        : "";
-
+      const manifestRaw =
+        typeof (t as { manifestId?: string | null }).manifestId === "string"
+          ? (t as { manifestId?: string | null }).manifestId!.trim()
+          : "";
       const ruleHint = (t.ruleId ?? "").trim();
       const runDescription = (run.description ?? "").trim();
-      const runLabel = runDescription.length > 0 ? runDescription : run.runId;
+      const runLabel =
+        runDescription.length > 0 ? runDescription : GOVERNANCE_QUEUE_REVIEW_TITLE_NOT_STORED;
 
       return {
         runId: run.runId,
@@ -168,7 +167,7 @@ export function traceRowsForRun(run: RunSummary, traces: FindingTraceConfidenceD
         findingId,
         title: titleRaw.length > 0 ? titleRaw : GOVERNANCE_QUEUE_FINDING_TITLE_NOT_STORED,
         severity: GOVERNANCE_QUEUE_SEVERITY_NOT_STORED,
-        category: ruleHint.length > 0 ? ruleHint.replace(/;/g, ", ") : GOVERNANCE_QUEUE_RULE_ID_NOT_STORED,
+        category: GOVERNANCE_QUEUE_CATEGORY_NOT_STORED,
         status: GOVERNANCE_QUEUE_FINDING_STATUS_NOT_STORED,
         recommended:
           ruleHint.length > 0

@@ -71,7 +71,7 @@ describe("architecture-work-item-model", () => {
     });
 
     expect(preview.priority).toBe("Priority was not stored.");
-    expect(preview.findingsIncluded[0]?.severityLabel).toBe("Severity was not stored");
+    expect(preview.findingsIncluded[0]?.severityLabel).toBe("Severity label was not stored.");
     expect(pickNativeCreateFindingId([missingSeverity, finding({ findingId: "f-low", severityValue: 0 })])).toBe(
       "f-low",
     );

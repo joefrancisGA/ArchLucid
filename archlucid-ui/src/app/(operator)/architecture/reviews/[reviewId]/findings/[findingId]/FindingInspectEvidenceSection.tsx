@@ -34,8 +34,23 @@ export type FindingInspectEvidenceSectionProps = {
   readonly citationModel?: FindingPolicyEvidenceCitationModel | null;
 };
 
+const FINDING_INSPECT_EVIDENCE_EXCERPT_NOT_STORED = "Evidence excerpt was not stored." as const;
+const FINDING_INSPECT_EVIDENCE_EXCERPT_STORED_EMPTY = "Evidence excerpt was stored empty." as const;
+
 function evidenceCitationTitle(row: FindingInspectEvidence): string {
-  const excerpt = row.excerpt?.trim() ?? "";
+  if (row.excerpt === null || row.excerpt === undefined) {
+    return FINDING_INSPECT_EVIDENCE_EXCERPT_NOT_STORED;
+  }
+
+  if (row.excerpt.length === 0) {
+    return FINDING_INSPECT_EVIDENCE_EXCERPT_STORED_EMPTY;
+  }
+
+  const excerpt = row.excerpt.trim();
+
+  if (excerpt.length === 0) {
+    return FINDING_INSPECT_EVIDENCE_EXCERPT_STORED_EMPTY;
+  }
 
   if (excerpt.length > 0) {
     const firstClause = excerpt.split(/[.—]/)[0]?.trim() ?? excerpt;
@@ -47,13 +62,7 @@ function evidenceCitationTitle(row: FindingInspectEvidence): string {
     return excerpt.length > 80 ? `${excerpt.slice(0, 77)}…` : excerpt;
   }
 
-  const artifact = row.artifactId?.trim() ?? "";
-
-  if (artifact.length > 0) {
-    return artifact.replace(/-/g, " ");
-  }
-
-  return "Evidence excerpt was not stored.";
+  return FINDING_INSPECT_EVIDENCE_EXCERPT_NOT_STORED;
 }
 
 const FINDING_INSPECT_EVIDENCE_LINK_NOT_STORED = "Evidence link was not stored." as const;

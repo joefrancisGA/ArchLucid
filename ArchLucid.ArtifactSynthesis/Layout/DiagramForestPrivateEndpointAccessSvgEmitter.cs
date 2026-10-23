@@ -24,7 +24,8 @@ public static class DiagramForestPrivateEndpointAccessSvgEmitter
         XNamespace svgNamespace,
         double x,
         double contentTop,
-        double contentHeight)
+        double contentHeight,
+        string? privateEndpointAccessName = null)
     {
         ArgumentNullException.ThrowIfNull(svgNamespace);
 
@@ -32,12 +33,15 @@ public static class DiagramForestPrivateEndpointAccessSvgEmitter
         double lockY = centerY - (LockSize / 2.0);
         double arrowX = x + LockSize + LockArrowGap;
         double arrowY = centerY - (ArrowHeight / 2.0);
+        string lockTitle = string.IsNullOrWhiteSpace(privateEndpointAccessName)
+            ? "Private endpoint name was not stored."
+            : $"Private endpoint {privateEndpointAccessName.Trim()}";
 
         XElement group = new(
             svgNamespace + "g",
             new XAttribute("class", "private-endpoint-access"),
             new XAttribute("aria-hidden", "true"));
-        group.Add(new XElement(svgNamespace + "title", "Private endpoint access"));
+        group.Add(new XElement(svgNamespace + "title", lockTitle));
         group.Add(EmitLock(svgNamespace, x, lockY));
         group.Add(EmitArrow(svgNamespace, arrowX, arrowY));
 

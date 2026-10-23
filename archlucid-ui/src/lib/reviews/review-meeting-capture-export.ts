@@ -11,6 +11,17 @@ export const PACKAGE_PRINT_MEETING_CAPTURE_HEADING = REVIEW_PRESENTER_ASSERTED_C
 
 export const PACKAGE_PRINT_MEETING_CAPTURE_SECTION_ID = "package-print-meeting-capture" as const;
 
+export const REVIEW_MEETING_CAPTURE_QUESTION_NOT_STORED = "Question was not stored." as const;
+export const REVIEW_MEETING_CAPTURE_ANSWER_NOT_STORED = "Answer was not stored." as const;
+
+export function formatReviewMeetingCaptureQuestionLabel(questionLabel: string): string {
+  return questionLabel.trim().length > 0 ? questionLabel : REVIEW_MEETING_CAPTURE_QUESTION_NOT_STORED;
+}
+
+export function formatReviewMeetingCaptureAnswer(answer: string): string {
+  return answer.trim().length > 0 ? answer : REVIEW_MEETING_CAPTURE_ANSWER_NOT_STORED;
+}
+
 export type ReviewMeetingCaptureEntry = {
   readonly questionLabel: string;
   readonly answer: string;
@@ -42,6 +53,24 @@ export function buildReviewMeetingCaptureMetaParts(
 }
 
 /** Strips the presenter answer key prefix (`answer.`) for human-readable export labels. */
+export function formatReviewMeetingCaptureQuestionLine(questionLabel: string): string {
+  const key = presenterAssertedQuestionLabel(questionLabel);
+
+  return `Question text was not stored. Key: ${key}.`;
+}
+
+export function formatReviewMeetingCaptureAnswerLine(answer: string): string {
+  if (answer.length === 0) {
+    return "Answer was stored empty.";
+  }
+
+  if (answer.trim().length === 0) {
+    return "Answer was stored empty.";
+  }
+
+  return answer;
+}
+
 export function presenterAssertedQuestionLabel(key: string): string {
   const trimmed = key.trim();
 
@@ -97,8 +126,8 @@ export function formatReviewMeetingCapturePlainText(
   const lines: string[] = [REVIEW_MEETING_CAPTURE_DISCLAIMER, ""];
 
   for (const entry of entries) {
-    lines.push(`Q: ${entry.questionLabel}`);
-    lines.push(`A: ${entry.answer}`);
+    lines.push(`Q: ${formatReviewMeetingCaptureQuestionLabel(entry.questionLabel)}`);
+    lines.push(`A: ${formatReviewMeetingCaptureAnswer(entry.answer)}`);
 
     const metaParts = buildReviewMeetingCaptureMetaParts(entry);
 

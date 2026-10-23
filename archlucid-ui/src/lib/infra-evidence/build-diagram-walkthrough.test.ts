@@ -51,7 +51,9 @@ describe("buildDiagramWalkthrough", () => {
     });
 
     expect(summary).toContain("1 observed, 1 declared, 1 inferred");
-    expect(summary).toContain("Relationships that are not observed are not inventory links.");
+    expect(summary).toContain(
+      "Declared, probable, and inferred relationships are on this inventory diagram.",
+    );
     expect(summary).not.toContain("visible relationships");
   });
 });
