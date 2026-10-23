@@ -40,6 +40,7 @@ public static class ArchitectureInventoryObservedFactGraphOverlayMerger
                     TryValidateOverlayNodeAgreement(inventoryNode, retainedNode);
                     TryMergeOverlayNodePropertyBackfillFromDuplicateRow(inventoryNode, retainedNode);
                     TryMergeOverlayNodeLabelBackfillFromDuplicateRow(inventoryNode, retainedNode);
+                    TryMergeOverlayNodeCategoryBackfillFromDuplicateRow(inventoryNode, retainedNode);
                 }
 
                 continue;
@@ -393,7 +394,7 @@ public static class ArchitectureInventoryObservedFactGraphOverlayMerger
         GraphNode incomingNode,
         GraphNode retainedNode)
     {
-        string? backfillLabel = ResolveOverlayLabelBackfillFromDuplicateRow(
+        string? backfillLabel = ResolveOverlayTrimmedScalarBackfillFromDuplicateRow(
             incomingNode.Label,
             retainedNode.Label);
 
@@ -403,11 +404,25 @@ public static class ArchitectureInventoryObservedFactGraphOverlayMerger
         }
     }
 
+    private static void TryMergeOverlayNodeCategoryBackfillFromDuplicateRow(
+        GraphNode incomingNode,
+        GraphNode retainedNode)
+    {
+        string? backfillCategory = ResolveOverlayTrimmedScalarBackfillFromDuplicateRow(
+            incomingNode.Category,
+            retainedNode.Category);
+
+        if (backfillCategory is not null)
+        {
+            retainedNode.Category = backfillCategory;
+        }
+    }
+
     private static void TryMergeOverlayEdgeLabelBackfillFromDuplicateRow(
         GraphEdge incomingEdge,
         GraphEdge retainedEdge)
     {
-        string? backfillLabel = ResolveOverlayLabelBackfillFromDuplicateRow(
+        string? backfillLabel = ResolveOverlayTrimmedScalarBackfillFromDuplicateRow(
             incomingEdge.Label,
             retainedEdge.Label);
 
@@ -417,23 +432,25 @@ public static class ArchitectureInventoryObservedFactGraphOverlayMerger
         }
     }
 
-    private static string? ResolveOverlayLabelBackfillFromDuplicateRow(string? incomingLabel, string? retainedLabel)
+    private static string? ResolveOverlayTrimmedScalarBackfillFromDuplicateRow(
+        string? incomingValue,
+        string? retainedValue)
     {
-        string normalizedIncomingLabel = (incomingLabel ?? string.Empty).Trim();
+        string normalizedIncomingValue = (incomingValue ?? string.Empty).Trim();
 
-        if (normalizedIncomingLabel.Length == 0)
+        if (normalizedIncomingValue.Length == 0)
         {
             return null;
         }
 
-        string normalizedRetainedLabel = (retainedLabel ?? string.Empty).Trim();
+        string normalizedRetainedValue = (retainedValue ?? string.Empty).Trim();
 
-        if (normalizedRetainedLabel.Length > 0)
+        if (normalizedRetainedValue.Length > 0)
         {
             return null;
         }
 
-        return normalizedIncomingLabel;
+        return normalizedIncomingValue;
     }
 
     private static void TryMergeOverlayEdgePropertyBackfillFromDuplicateRow(
