@@ -5292,13 +5292,26 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** recommendation engine; alternatives
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationEngine.cs; ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationTradeOffBuilder.cs
 - **test-filter:** FullyQualifiedName~ArchitectureRecommendationAlternativesTests|FullyQualifiedName~ArchitectureRecommendationProposedChangeTests
-- **hunts:** 70
-- **last-hunt:** 2026-10-12
-- **bugs-found:** 26
+- **hunts:** 71
+- **last-hunt:** 2026-10-23
+- **bugs-found:** 27
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-21 — explicit Security over Cost priority balanced trade-off incorrectly
+- **last-bug:** 2026-10-23 — Cost-effective compound priority falsely balanced Security/Cost trade-off
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-23 seed hunt (seed→hit): promoted `DeclaredPriorityPrefersDimension` treating hyphenated `Cost-*` compound adjectives (e.g. `Cost-effective security program`) as not selecting the Cost dimension so Security-only sponsor framing resolves Security/Cost trade-offs correctly; regression `BuildRecommendations_prefers_security_first_when_priority_is_cost_effective_security_program`; cheap-disproof closed four sibling `(candidate)` rows; seeded five follow-on rows; scoped Alternatives/ProposedChange/TradeOff tests 62/62.
+
+- [ ] (candidate) `ArchitectureRecommendationTradeOffBuilder.DeclaredPriorityPrefersDimension` — `cost-conscious` and `cost-optimized` phrases still select Cost via standalone token match — input: hyphenated cost modifiers without explicit `over`/`before`; reachability: operator framing; wrong outcome: Cost-first trade-off when phrase qualifies another dimension goal.
+- [ ] (candidate) `ArchitectureRecommendationTradeOffBuilder.DeclaredPriorityPrefersDimension` — Unicode hyphen (U+2011) in `Cost‑effective` bypasses ASCII `Cost-` compound guard — input: pasted Word typography; reachability: declared priority text; wrong outcome: balanced Security/Cost when Security-weighted program text intended.
+- [ ] (candidate) `ArchitectureRecommendationTradeOffBuilder.ApplyTradeOffs` — Security plus DataArchitecture actionable findings produce no trade-off object — input: mixed-dimension review package; contract gap only unless product requires all pairs.
+- [ ] (candidate) `ArchitectureRecommendationTradeOffBuilder.TryAddTradeOff` — `FindRecommendationForTradeOff` falls back to first recommendation for a dimension when actionable finding titles diverge from `Problem` — input: multiple actionable findings per dimension with distinct titles; reachability: duplicate specialist rows in one review.
+- [ ] (candidate) `ArchitectureRecommendationTradeOffBuilder.BuildPreferredResolution` — when both dimensions prefer via separate priority strings, resolution uses last-listed dimension only — input: `["Security-first", "Cost-first"]`; reachability: multi-line sponsor priorities; wrong outcome: second string wins without explicit precedence syntax.
+
+- [x] (proven) `ArchitectureRecommendationTradeOffBuilder.DeclaredPriorityPrefersDimension` — `Cost-effective security program` matched both Cost and Security and balanced — **hit 2026-10-23 seed hunt:** ignore `Cost-` hyphenated compound adjectives; regression `BuildRecommendations_prefers_security_first_when_priority_is_cost_effective_security_program`.
+- [x] (invalid) `ClosedLoopDeclaredPrioritiesNormalizer.Normalize` — alphabetical order on `ArchitectureRecommendation.Dependencies` — **cheap-disproof 2026-10-23 seed hunt:** `BuildRecommendations` copies declared priorities verbatim; normalizer applies only to closed-loop snapshot/cache paths.
+- [x] (invalid) `ArchitectureRecommendationEngine.BuildRecommendations` — bypasses `ClosedLoopReviewStage` provisional gating — **cheap-disproof 2026-10-23 seed hunt:** engine is a pure builder; review stage owns provisional downgrade before recommendations surface.
+- [x] (valid-no-repro) `ArchitectureRecommendationTradeOffBuilder.TryAddTradeOff` — `FindRecommendationForTradeOff` first-match fallback — **cheap-disproof 2026-10-23 seed hunt:** `Problem` is always `finding.Title` for engine-built rows; title match succeeds before fallback.
 
 2026-10-12 seed hunt (seed-only): repeated the selected engine/trade-off source reread and focused test attempt; no new source-backed mechanism or reachable wrong outcome was distinct from the retained bounded candidates. The selected test run again stopped before discovery on unrelated missing `unmappedRoles` and `warnings` members in `AzureInventorySecurityEdgeMaterializer.cs`; no production or regression code changed.
 
@@ -5315,12 +5328,6 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 2026-10-11 seed hunt (seed-only): re-read the selected recommendation engine and trade-off builder after the explicit-priority negation fixes; upstream provisional gating prevents the strongest model-state concern from being reachable as a wrong outcome, and the selected contract does not require every dimension pair to receive a trade-off. The exact Alternatives/ProposedChange filter passed 45/45; retained two bounded candidates and made no production or regression code change.
 
 2026-10-21 seed hunt (seed→hit, lane C): promoted explicit `over`/`before` declared-priority precedence for security/cost/reliability trade-offs; scoped Alternatives/ProposedChange/TradeOff tests 61/61; no further promotion in same run.
-
-- [ ] (candidate) `ArchitectureRecommendationTradeOffBuilder.DeclaredPriorityPrefersDimension` — compound priorities such as `Cost-effective security program` still match both `Cost` and `Security` tokens and balance — input: single freeform priority mentioning both dimensions without `over`/`before`; reachability: operator framing text; wrong outcome: balanced resolution when sponsor intent may be security-weighted.
-- [ ] (candidate) `ClosedLoopDeclaredPrioritiesNormalizer.Normalize` — alphabetical ordering of distinct priority strings changes display order on `ArchitectureRecommendation.Dependencies` — input: `["Security focus", "Cost control"]`; wrong outcome: dependencies list shows Cost before Security; reachability: snapshot normalization before closed-loop execution.
-- [ ] (candidate) `ArchitectureRecommendationTradeOffBuilder.ApplyTradeOffs` — Security plus DataArchitecture actionable findings produce no trade-off object — input: mixed-dimension review package; contract gap only unless product requires all pairs.
-- [ ] (candidate) `ArchitectureRecommendationEngine.BuildRecommendations` — direct engine callers bypass `ClosedLoopReviewStage` provisional gating — input: provisional model with Fail findings; upstream stage normally downgrades; contract-dependent.
-- [ ] (candidate) `ArchitectureRecommendationTradeOffBuilder.TryAddTradeOff` — `FindRecommendationForTradeOff` falls back to first recommendation for a dimension when titles diverge — input: multiple actionable findings per dimension with distinct titles; reachability: duplicate specialist rows in one review.
 
 2026-10-11 seed hunt (seed→hit): `ArchitectureRecommendationTradeOffBuilder` treated the reachable operator priority `Security is not a priority for phase one` as Security-first because postpositive negation was not recognized; added generalized `is not`/`isn't` priority and prioritization matching; regression `BuildRecommendations_balances_security_cost_trade_off_when_priority_says_security_is_not_a_priority`; the exact Alternatives/ProposedChange filter passed 45/45 and the TradeOffBuilder suite passed 14/14.
 
@@ -8382,6 +8389,8 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: capabilities-cost-mcp
 
+2026-10-23 seed hunt (dry): cheap-disproof closed five open `(candidate)` rows (strict boolean stamp contract, whitespace `costRisk` maps to `unknown`, MCP `TopK` clamp, breach spend precedence, policy finding topology sample); no production change; seeded five follow-on rows; 31 scoped `Capabilities.Cost` + 7 MCP retrieval tests passed.
+
 2026-10-23 seed hunt (seed→hit): promoted `PolicyExpectationCostGraphReader.RequiresBudgetCap` treating padded `" true "` as false so policy-required-cap findings were skipped; fixed with `Trim()` before boolean parse; regression `Cost_constraint_emits_policy_required_cap_when_require_flag_has_surrounding_whitespace`; cheap-disproof closed five open `(candidate)` rows; seeded five follow-on rows; 31 scoped `Capabilities.Cost` + 7 MCP retrieval tests passed.
 
 2026-10-23 seed hunt (seed→hit): promoted padded `node.Label` in cost breach/constraint finding titles; titles now use `ResolveBudgetDisplayName` label fallback with trim; regressions `AnalyzeAsync_trims_padded_label_in_breach_title`, `AnalyzeAsync_trims_padded_label_in_constraint_title`; cheap-disproof closed four open `(candidate)` rows including mixed-case corpus filter (`OrdinalIgnoreCase`); seeded five follow-on rows; 30 scoped `Capabilities.Cost` + 7 MCP retrieval tests passed.
@@ -8398,11 +8407,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 2026-10-23 seed hunt (seed→hit): promoted `PolicyExpectationCostGraphReader.GraphHasParseableBudgetCap` current-culture `decimal.TryParse` vs invariant graph materialization; under `fr-FR` an invariant `maxMonthlyCost` (`5000.50`) satisfied `CostConstraintFindingEngine` but failed the policy-cap probe, emitting a spurious “Policy requires a monthly budget cap” alongside the constraint finding; fixed with invariant parse in `GraphHasParseableBudgetCap`; regression `Cost_constraint_no_spurious_policy_cap_when_invariant_max_monthly_cost_under_non_invariant_culture`; 21 scoped `Capabilities.Cost` + 4 MCP retrieval tests passed.
 
-- [ ] (candidate) `PolicyExpectationCostGraphReader.RequiresBudgetCap` — non-`true` truthy strings (`yes`, `1`) ignored instead of failing closed — locus: strict `"true"` equality; input: mis-stamped policy overlay boolean strings.
-- [ ] (candidate) `CostConstraintFindingEngine.AnalyzeAsync` — whitespace-only `costRisk` becomes `unknown` without a distinct finding note — locus: `normalizedCostRisk` null; input: `costRisk` of `"   "` on graph node.
-- [ ] (candidate) `RetrievalTools.SearchAsync` — zero `TopK` clamps to 1 instead of rejecting — locus: `Math.Clamp(request.TopK, 1, 25)`; input: `TopK = 0` on MCP request.
-- [ ] (candidate) `CostBreachFindingEngine.ResolveProjectedMonthlySpend` — point estimate precedence over upper bound — locus: resolution order; input: enricher band above cap with point estimate under cap.
-- [ ] (candidate) `CostConstraintFindingEngine.CreatePolicyRequiredCapFinding` — related topology sample not sorted by node id — locus: `.Take(5)` on enumeration order; input: large topology under policy-required-cap.
+- [ ] (candidate) `RetrievalTools.SearchAsync` — `ChunkId` not projected onto `RetrievalMcpToolHit` so MCP clients cannot correlate chunks — locus: hit mapper fields; input: clients expecting chunk-level citations.
+- [ ] (candidate) `CostGraphDecimalParser.TryParse` — negative `maxMonthlyCost` strings parse successfully and may produce nonsensical breach math — locus: invariant decimal parse without sign guard; input: `-100` on cost constraint node.
+- [ ] (candidate) `RetrievalTools.PriorDecisionSearchAsync` — cannot include platform corpora even when prior manifest indexed only in platform scope — locus: forced `IncludePlatformCorpora = false`; input: cross-tenant prior lookup experiment.
+- [ ] (candidate) `CostConstraintFindingEngine.AnalyzeAsync` — `costRisk` value `HIGH` (all caps) without trim beyond `OrdinalIgnoreCase` — locus: severity mapping; input: uppercase risk stamp from legacy graph exporter.
+- [ ] (candidate) `RetrievalTools.SearchAsync` — `TopK` above 25 silently truncated without surfacing clamp to caller — locus: `Math.Clamp(request.TopK, 1, 25)`; input: MCP request `TopK = 50`.
 
 - **id:** capabilities-cost-mcp
 - **status:** open
@@ -8410,15 +8419,20 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** capabilities cost; MCP server; cost estimation
 - **paths:** ArchLucid.Capabilities.Cost/; ArchLucid.Mcp/
 - **test-filter:** FullyQualifiedName~Capabilities.Cost|FullyQualifiedName~Mcp
-- **hunts:** 12
+- **hunts:** 13
 - **bugs-found:** 10
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-23
 - **last-bug:** 2026-10-23 — padded policyCostRequireBudgetCap flag ignored
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
 
+- [x] (invalid) `PolicyExpectationCostGraphReader.RequiresBudgetCap` — accepts `yes`/`1` truthy strings — **cheap-disproof 2026-10-23 seed hunt (dry):** context snapshot stamps use strict `"true"`/`"false"` strings per policy overlay contract.
+- [x] (valid-no-repro) `CostConstraintFindingEngine.AnalyzeAsync` — whitespace-only `costRisk` without distinct note — **cheap-disproof 2026-10-23 seed hunt (dry):** `normalizedCostRisk` null yields payload `unknown` and Info severity; regression `AnalyzeAsync_treats_padded_high_cost_risk_as_warning_severity`.
+- [x] (valid-no-repro) `RetrievalTools.SearchAsync` — `TopK = 0` clamps to 1 — **cheap-disproof 2026-10-23 seed hunt (dry):** `Math.Clamp(request.TopK, 1, 25)` MCP contract.
+- [x] (valid-no-repro) `CostBreachFindingEngine.ResolveProjectedMonthlySpend` — point estimate precedence — **cheap-disproof 2026-10-23 seed hunt (dry):** regression `AnalyzeAsync_prefers_projected_monthly_spend_over_impact_bounds`.
+- [x] (valid-no-repro) `CostConstraintFindingEngine.CreatePolicyRequiredCapFinding` — unsorted topology sample — **cheap-disproof 2026-10-23 seed hunt (dry):** explainability sample only; regression `Cost_constraint_emits_policy_required_cap_when_stamped_and_no_cap_node`.
 - [x] (proven) `PolicyExpectationCostGraphReader.RequiresBudgetCap` — padded `policyCostRequireBudgetCap` value not trimmed before `"true"` check — **hit 2026-10-23 seed hunt:** `Trim()` before boolean parse; regression `Cost_constraint_emits_policy_required_cap_when_require_flag_has_surrounding_whitespace`.
 - [x] (valid-no-repro) `CostConstraintFindingEngine.AnalyzeAsync` — whitespace-only `costRisk` — **cheap-disproof 2026-10-23 seed hunt:** maps to `unknown` Info severity by design; titles do not embed risk level.
 - [x] (valid-no-repro) `RetrievalTools.SearchAsync` — `TopK = 0` clamps to 1 — **cheap-disproof 2026-10-23 seed hunt:** intentional MCP clamp contract.
