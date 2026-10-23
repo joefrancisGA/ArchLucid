@@ -6868,6 +6868,25 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-23 seed hunt (seed→hit): proved comparison search and in-memory paging filters used exact `LeftExportRecordId`/`RightExportRecordId` equality while list-by-export had gained trim parity, so padded export filters missed legacy padded anchors (skip and cursor search included); aligned `ComparisonRecordSearchPredicateBuilder` SQL with `LTRIM(RTRIM(...))` and `ComparisonRecordRepositoryCore.FilterInMemory` with `ComparisonExportRecordIdLookup`; regression `CompareQuality_SearchAsync_finds_records_when_left_export_filter_is_padded_and_stored_anchor_has_padding`; cheap-disproof closed three follow-on `(candidate)` rows; seeded five follow-on rows; scoped application-analysis filter 58/58. Private beta: comparison search by export id matches padded query parameters and stored anchors.
+
+- [ ] (candidate) `ComparisonsApplicationService.SearchAsync` — passes raw `LeftExportRecordId` criteria without normalizing before repository — locus: application boundary; input: verify trim only at persistence (documented) vs duplicate normalizer.
+- [ ] (candidate) `ComparisonHistorySearchCriteria` validator — does not reject whitespace-only export id strings before search — locus: API validation; input: `leftExportRecordId=%20%20`.
+- [ ] (candidate) `RunExportRecordRepository.GetByIdAsync` — persistence trim at SQL layer for export records — locus: cross-tenant id lookup; input: padded export record primary key.
+- [ ] (candidate) `ExportsController.GetExportRecord` — 404 problem detail echoes untrimmed route token — locus: client diagnostics; input: padded id after normalization miss.
+- [ ] (candidate) `CompareQualityDeltaExportFormatter.RemoveMarkdownSection` — heading match sensitive to Unicode space before `## Compare Quality Delta` — locus: PDF/DOCX delta re-append; input: NBSP-prefixed heading line.
+
+- [x] (proven) `ComparisonRecordSearchPredicateBuilder` / `ComparisonRecordRepositoryCore.FilterInMemory` — padded export id search filters missed padded stored anchors — **hit 2026-10-23 seed hunt:** shared `ComparisonExportRecordIdLookup`; regression `CompareQuality_SearchAsync_finds_records_when_left_export_filter_is_padded_and_stored_anchor_has_padding`.
+- [x] (valid-no-repro) `ComparisonRecordRepository.SearchByCursorAsync` — separate trim gap from skip search — **cheap-disproof 2026-10-23 seed hunt:** cursor paging reuses `AppendFilters` and `FilterInMemory`; fixed with same hunt.
+- [x] (invalid) `RunExportRecordRepository.GetByIdAsync` — SQL trim for export primary keys — **cheap-disproof 2026-10-23 seed hunt:** application/API layers normalize before lookup this hunt series; persistence key trim deferred unless repro at SQL layer.
+- [x] (valid-no-repro) `ExportsController.GetExportRecord` — 404 echoes padded route token — **cheap-disproof 2026-10-23 seed hunt:** diagnostic-only; successful paths normalize before load.
+
+- [ ] (candidate) `ComparisonRecordSearchPredicateBuilder` — search filters on `LeftExportRecordId` without trim parity — locus: comparison search API; input: padded export id query parameter.
+- [ ] (candidate) `ComparisonRecordRepository.SearchByCursorAsync` — cursor search export filters omit trim — locus: paged comparison history; input: padded export anchor filter.
+- [ ] (candidate) `RunExportRecordRepository.GetByIdAsync` — persistence trim at SQL layer for export records — locus: cross-tenant id lookup; input: padded export record primary key.
+- [ ] (candidate) `ExportsController.GetExportRecord` — 404 problem detail echoes untrimmed route token — locus: client diagnostics; input: padded id after normalization miss.
+- [ ] (candidate) `CompareQualityDeltaExportFormatter.RemoveMarkdownSection` — heading match sensitive to Unicode space before `## Compare Quality Delta` — locus: PDF/DOCX delta re-append; input: NBSP-prefixed heading line.
+
 2026-10-23 seed hunt (seed→hit): proved `GetByExportRecordIdAsync` used ordinal equality on stored comparison anchors, so rows persisted with padded `LeftExportRecordId`/`RightExportRecordId` were invisible to trimmed list-by-export queries after the application-layer normalizer fix; added `ComparisonExportRecordIdLookup` with trim-aware in-memory matching and `LTRIM(RTRIM(...))` SQL predicates; `ComparisonAuditService.RecordExportDiffAsync` now trims anchors on persist; regressions `GetByExportRecordIdAsync_matches_when_stored_anchor_has_surrounding_whitespace` and `RecordExportDiffAsync_trims_surrounding_whitespace_on_export_record_anchors`; cheap-disproof closed three follow-on `(candidate)` rows; seeded five follow-on rows; scoped application-analysis filter 57/57. Private beta: comparison history by export id finds legacy padded anchors and new diffs store canonical ids.
 
 - [ ] (candidate) `ComparisonRecordSearchPredicateBuilder` — search filters on `LeftExportRecordId` without trim parity — locus: comparison search API; input: padded export id query parameter.
@@ -6881,12 +6900,6 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - [x] (invalid) `ComparisonReplayService.EnsureArtifactReplayAccessAllowedCoreAsync` — artifact replay loads export ids without trim — **cheap-disproof 2026-10-23 seed hunt:** career/lifecycle gates use canonical `LeftRunId`/`RightRunId` on export-diff records; export id trim handled at regenerate/manifest guard layers.
 - [x] (valid-no-repro) `RunExportQueryFacade.ReplayExportAsync` — mismatched route vs body export id without audit — **cheap-disproof 2026-10-23 seed hunt:** intentional not-found; audit reserved for mutating replay record paths.
 - [x] (invalid) `CompareQualityDeltaExportFormatter` — whitespace-only summary tail omits delta section — **cheap-disproof 2026-10-23 seed hunt:** `RemoveMarkdownSection` keys on exact `## Compare Quality Delta` heading; trailing spaces before heading do not hide section.
-
-- [ ] (candidate) `ComparisonRecordRepository.GetByExportRecordIdAsync` — SQL lookup without trim when persisted comparison rows store padded export anchors — locus: persistence query; input: legacy row with padded `LeftExportRecordId`.
-- [ ] (candidate) `ExportsController.GetExportRecord` — route id trimmed at facade but response echoes padded route token in 404 problem detail — locus: problem detail `MissingId`; input: padded id not found after trim.
-- [ ] (candidate) `ComparisonReplayService.EnsureArtifactReplayAccessAllowedCoreAsync` — export-diff artifact mode still loads export ids without trim from comparison record — locus: career gate preload; input: artifact replay with padded anchors.
-- [ ] (candidate) `RunExportQueryFacade.ReplayExportAsync` — mismatched route vs body export id returns not-found without audit signal — locus: defense-in-depth logging; input: programmatic replay with divergent ids.
-- [ ] (candidate) `CompareQualityDeltaExportFormatter` — delta section omitted when formatter receives whitespace-only summary tail — locus: markdown section trim; input: summary ending in spaces before `## Compare Quality Delta`.
 
 2026-10-23 seed hunt (seed→hit): proved API sealed-manifest pre-checks and comparison export-diff replay paths queried export records without trimming, so padded ids skipped `EnsureSealedManifestReadAllowedForExportRecordAsync` (fail-open) or failed regenerate replay before diff; extended `RunExportRecordIdNormalizer` to `ExportsController` / `ComparisonsController` sealed guards, `ComparisonReplayManifestHashGuard`, `ComparisonReplayService.RegenerateExportDiffAsync`, and `ComparisonsApplicationService.TryListByExportRecordIdAsync`; regressions `GetExportRecord_returns_409_when_lineage_unverified_for_padded_export_record_id`, `ReplayAsync_export_diff_regenerate_trims_padded_export_record_ids_before_lookup`, and `CompareQuality_TryListByExportRecordIdAsync_lists_records_when_query_uses_padded_export_record_id`; cheap-disproof closed two follow-on `(candidate)` rows; seeded five follow-on rows; scoped application-analysis filter 56/56. Private beta: padded export record ids no longer bypass sealed-manifest read guards or break comparison history by export id.
 
@@ -7072,11 +7085,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 78
-- **bugs-found:** 73
+- **hunts:** 79
+- **bugs-found:** 74
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-23
-- **last-bug:** 2026-10-23 — padded export record ids bypassed sealed-manifest API guards
+- **last-bug:** 2026-10-23 — padded comparison export anchors broke list-by-export queries
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
