@@ -967,6 +967,13 @@ internal static partial class RunExplanationAggregateJsonReader
             && TryReadFiniteDouble(item) is double ratioAlias
             && (ratioAlias > 1 || ratioAlias == 1))
         {
+            if (item.ValueKind == JsonValueKind.String
+                && item.GetString() is { } raw
+                && raw.IndexOf('%', StringComparison.Ordinal) >= 0)
+            {
+                return false;
+            }
+
             return true;
         }
 
@@ -1404,9 +1411,6 @@ internal static partial class RunExplanationAggregateJsonReader
             return true;
         }
 
-        if (ObjectHasCaseInsensitiveProperty(jsonElement, "text"))
-            return false;
-
         if (TryGetPropertyCaseInsensitivePreferLastNonEmpty(jsonElement, "id", out JsonElement idElement)
             && TryReadNonEmptyTextToken(idElement, out string? id)
             && !string.IsNullOrWhiteSpace(id))
@@ -1431,24 +1435,39 @@ internal static partial class RunExplanationAggregateJsonReader
     private static bool ReasoningArrayEntryObjectHasExtractableContent(JsonElement jsonElement) =>
         ProseListObjectAliasHasExtractableContent(jsonElement);
 
-    internal static string? TryReadProseListObjectStringProperty(JsonElement jsonElement)
+    internal static string? TryReadProseListObjectStringProperty(
+        JsonElement jsonElement,
+        bool blankTextWithIdIsPoison = true)
     {
+        string? readableText = null;
+
         if (TryGetPropertyCaseInsensitivePreferLastNonEmpty(jsonElement, "text", out JsonElement textElement)
             && TryReadNonEmptyTextToken(textElement, out string? text)
             && !string.IsNullOrWhiteSpace(text))
         {
-            return text.Trim();
+            readableText = text.Trim();
         }
 
-        if (ObjectHasCaseInsensitiveProperty(jsonElement, "text"))
-            return null;
+        string? readableId = null;
 
         if (TryGetPropertyCaseInsensitivePreferLastNonEmpty(jsonElement, "id", out JsonElement idElement)
             && TryReadNonEmptyTextToken(idElement, out string? id)
             && !string.IsNullOrWhiteSpace(id))
         {
-            return id.Trim();
+            readableId = id.Trim();
         }
+
+        if (readableText is not null)
+            return readableText;
+
+        if (blankTextWithIdIsPoison
+            && ObjectHasCaseInsensitiveProperty(jsonElement, "text"))
+        {
+            return null;
+        }
+
+        if (readableId is not null)
+            return readableId;
 
         return null;
     }

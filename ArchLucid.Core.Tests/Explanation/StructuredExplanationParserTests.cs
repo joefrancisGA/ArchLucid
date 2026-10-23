@@ -207,6 +207,73 @@ public sealed class StructuredExplanationParserTests
     }
 
     [Fact]
+    public void TryNormalizeStructuredJson_coerces_percent_suffixed_confidence_with_trailing_whitespace()
+    {
+        const string json = """{"reasoning":"Main","confidence":"85% "}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.Confidence.Should().Be(0.85m);
+    }
+
+    [Fact]
+    public void TryNormalizeStructuredJson_coerces_percent_suffixed_confidence_in_sole_element_array()
+    {
+        const string json = """{"reasoning":"Main","confidence":["75% "]}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.Confidence.Should().Be(0.75m);
+    }
+
+    [Fact]
+    public void TryNormalizeStructuredJson_coerces_percent_suffixed_confidence_with_interior_space_before_percent()
+    {
+        const string json = """{"reasoning":"Main","confidence":"75 %"}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.Confidence.Should().Be(0.75m);
+    }
+
+    [Fact]
+    public void TryNormalizeStructuredJson_uses_non_empty_reasoning_when_later_case_variant_is_id_only_object_without_text_key()
+    {
+        const string json = """{"reasoning":"Recovered explanation","Reasoning":{"id":"provider-paragraph-id"}}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.Reasoning.Should().Be("Recovered explanation");
+    }
+
+    [Fact]
+    public void TryNormalizeStructuredJson_maps_scalar_alternatives_considered_id_when_text_property_is_whitespace_only()
+    {
+        const string json =
+            """{"reasoning":"Main","alternativesConsidered":{"text":"   ","id":"Rejected monolith path."}}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.AlternativesConsidered.Should().Equal("Rejected monolith path.");
+    }
+
+    [Fact]
+    public void TryNormalizeStructuredJson_keeps_supported_schema_version_when_later_duplicate_is_unsupported()
+    {
+        const string json = """{"schemaVersion":2,"reasoning":"Main","SCHEMAVERSION":99}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.SchemaVersion.Should().Be(2);
+    }
+
+    [Fact]
     public void TryNormalizeStructuredJson_coerces_string_encoded_schema_version()
     {
         const string json = """{"schemaVersion":"2","reasoning":"Main"}""";
@@ -450,6 +517,29 @@ public sealed class StructuredExplanationParserTests
 
         ok.Should().BeTrue();
         s!.EvidenceRefs.Should().Equal("dec-1");
+    }
+
+    [Fact]
+    public void TryNormalizeStructuredJson_maps_object_shaped_reasoning_id_when_text_property_is_whitespace_only()
+    {
+        const string json = """{"reasoning":{"text":"   ","id":"Recovered explanation body."}}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.Reasoning.Should().Be("Recovered explanation body.");
+    }
+
+    [Fact]
+    public void TryNormalizeStructuredJson_maps_scalar_caveats_id_when_text_property_is_whitespace_only()
+    {
+        const string json =
+            """{"reasoning":"Main","caveats":{"text":"   ","id":"Latency risk on peak traffic."}}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.Caveats.Should().Equal("Latency risk on peak traffic.");
     }
 
     [Fact]
