@@ -8815,6 +8815,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: architecture-intelligence-orchestrator
 
+2026-10-23 seed hunt (seed→hit): promoted hash and question-mark segment-separator drift splitting `ContentHash` (`docs#architecture/overview.md`, `docs?architecture/overview.md` vs slash form) while preserving trailing `#fragment` and `?query` stripping; `NormalizeReviewCacheHashAndQuerySeparatorsBeforeUrlAffixStrip` maps `#` / U+FF03 and `?` / U+FF1F to `/` only when a further `/` follows (dotless-tail guard); regressions `Build_matches_content_hash_when_file_name_differs_only_by_hash_between_segments`, `Build_matches_content_hash_when_file_name_differs_only_by_question_mark_between_segments`, `Build_matches_content_hash_when_file_name_differs_only_by_question_mark_between_segments_and_query_suffix`, and dotted-segment guard tests; cheap-disproof regressions for `%23`, `%3F`, and fullwidth hash; 465 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `GraphSnapshotCanonicalFingerprint` — hash and question-mark alternate path separators before URL affix strip split path canonicalization — **hit 2026-10-23 seed hunt:** pre-strip `#` / U+FF03 and `?` / U+FF1F with following-slash guard; regressions above.
+
 2026-10-23 seed hunt (seed→hit): promoted dollar, asterisk, and grave-accent segment-separator drift splitting `ContentHash` (`docs$architecture/overview.md`, `docs*architecture/overview.md`, ``docs`architecture/overview.md`` vs slash form); extended `ReviewCacheAlternatePathSeparators` with `$` / U+FF04, `*` / U+FF0A, and `` ` `` / U+FF40 using dotless-tail guard; regressions `Build_matches_content_hash_when_file_name_differs_only_by_dollar_sign_between_segments`, `Build_matches_content_hash_when_file_name_differs_only_by_asterisk_between_segments`, `Build_matches_content_hash_when_file_name_differs_only_by_grave_accent_between_segments`, and dotted-segment guard tests; cheap-disproof regressions for `%24`, `%2A`, `%60`, and fullwidth variants; 457 scoped orchestrator/cache/manifest/continue-flight tests passed.
 
 - [x] (proven) `GraphSnapshotCanonicalFingerprint` — dollar, asterisk, and grave-accent alternate path separators split path canonicalization — **hit 2026-10-23 seed hunt:** `$` / U+FF04, `*` / U+FF0A, and grave / U+FF40 in alternate separator set; regressions above.
@@ -9537,11 +9541,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** closed-loop orchestrator; review result cache; architecture intelligence
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.cs; ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.Cache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewResultCache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewCacheManifestBuilder.cs
 - **test-filter:** FullyQualifiedName~ClosedLoopArchitectureReasoningOrchestrator|FullyQualifiedName~ReviewResultCache|FullyQualifiedName~ReviewCacheManifestBuilder
-- **hunts:** 101
-- **bugs-found:** 88
+- **hunts:** 102
+- **bugs-found:** 89
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-23
-- **last-bug:** 2026-10-23 — dollar, asterisk, and grave-accent alternate path separators split review-cache `ContentHash`
+- **last-bug:** 2026-10-23 — hash and question-mark path separators before URL affix strip split review-cache `ContentHash`
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
