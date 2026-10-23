@@ -83,6 +83,7 @@ public static class ArchitectureInventoryObservedFactGraphOverlayMerger
                     TryValidateOverlayEdgeAgreement(inventoryEdge, retainedEdge);
                     TryMergeOverlayEdgePropertyBackfillFromDuplicateRow(inventoryEdge, retainedEdge);
                     TryMergeOverlayEdgeLabelBackfillFromDuplicateRow(inventoryEdge, retainedEdge);
+                    TryMergeOverlayEdgeReasoningTraceBackfillFromDuplicateRow(inventoryEdge, retainedEdge);
                 }
 
                 continue;
@@ -489,6 +490,20 @@ public static class ArchitectureInventoryObservedFactGraphOverlayMerger
         if (backfillLabel is not null)
         {
             retainedEdge.Label = backfillLabel;
+        }
+    }
+
+    private static void TryMergeOverlayEdgeReasoningTraceBackfillFromDuplicateRow(
+        GraphEdge incomingEdge,
+        GraphEdge retainedEdge)
+    {
+        string? backfillReasoningTrace = ResolveOverlayTrimmedScalarBackfillFromDuplicateRow(
+            incomingEdge.ReasoningTrace,
+            retainedEdge.ReasoningTrace);
+
+        if (backfillReasoningTrace is not null)
+        {
+            retainedEdge.ReasoningTrace = backfillReasoningTrace;
         }
     }
 
