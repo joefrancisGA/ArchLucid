@@ -57,10 +57,11 @@ public sealed partial class ComparisonsApplicationService(
         string exportRecordId,
         CancellationToken ct)
     {
-        if (await LoadScopedExportRecordAsync(exportRecordId, ct) is null)
+        string normalizedExportRecordId = RunExportRecordIdNormalizer.NormalizeRequired(exportRecordId);
+        if (await LoadScopedExportRecordAsync(normalizedExportRecordId, ct) is null)
             return null;
 
-        return await _comparisonRecordRepository.GetByExportRecordIdAsync(exportRecordId, ct);
+        return await _comparisonRecordRepository.GetByExportRecordIdAsync(normalizedExportRecordId, ct);
     }
 
     /// <inheritdoc />
@@ -172,7 +173,8 @@ public sealed partial class ComparisonsApplicationService(
         string exportRecordId,
         CancellationToken cancellationToken)
     {
-        RunExportRecord? export = await _runExportRecordRepository.GetByIdAsync(exportRecordId, cancellationToken);
+        string normalizedExportRecordId = RunExportRecordIdNormalizer.NormalizeRequired(exportRecordId);
+        RunExportRecord? export = await _runExportRecordRepository.GetByIdAsync(normalizedExportRecordId, cancellationToken);
 
         if (export is null)
             return null;

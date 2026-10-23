@@ -6868,13 +6868,19 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
-2026-10-23 seed hunt (seed→hit): proved architecture export replay and scoped export reads queried `IRunExportRecordRepository` with unpadded ids, so copy-pasted export record ids with surrounding whitespace returned not-found and blocked regenerate replay (including `CareerArtifactExportCompletenessGate`) despite valid rows; added `RunExportRecordIdNormalizer` trim parity in `ExportReplayService.ReplayAsync` and `RunExportQueryFacade` (compare pair loads, single-record read, replay route alignment); regressions `ReplayAsync_trims_surrounding_whitespace_on_export_record_id_before_lookup` and `CompareQuality_GetExportRecordAsync_trims_padded_export_record_id_before_lookup`; cheap-disproof closed four sibling `(candidate)` rows; seeded five follow-on rows; scoped application-analysis filter 55/55. Private beta: review export replay/compare tolerates padded export record ids from UI copy-paste.
+2026-10-23 seed hunt (seed→hit): proved API sealed-manifest pre-checks and comparison export-diff replay paths queried export records without trimming, so padded ids skipped `EnsureSealedManifestReadAllowedForExportRecordAsync` (fail-open) or failed regenerate replay before diff; extended `RunExportRecordIdNormalizer` to `ExportsController` / `ComparisonsController` sealed guards, `ComparisonReplayManifestHashGuard`, `ComparisonReplayService.RegenerateExportDiffAsync`, and `ComparisonsApplicationService.TryListByExportRecordIdAsync`; regressions `GetExportRecord_returns_409_when_lineage_unverified_for_padded_export_record_id`, `ReplayAsync_export_diff_regenerate_trims_padded_export_record_ids_before_lookup`, and `CompareQuality_TryListByExportRecordIdAsync_lists_records_when_query_uses_padded_export_record_id`; cheap-disproof closed two follow-on `(candidate)` rows; seeded five follow-on rows; scoped application-analysis filter 56/56. Private beta: padded export record ids no longer bypass sealed-manifest read guards or break comparison history by export id.
 
-- [ ] (candidate) `ExportsController.SealedManifestGuard` — `EnsureSealedManifestReadAllowedForExportRecordAsync` skips sealed guard when padded export record id misses repository lookup — locus: trim parity at API guard; input: `GET` export with leading/trailing whitespace on route id.
-- [ ] (candidate) `ComparisonReplayService.ReplayExportDiffAsync` — left/right export record ids not trimmed before `GetByIdAsync` — locus: export-diff regenerate; input: comparison record with padded `LeftExportRecordId`.
-- [ ] (candidate) `ComparisonsApplicationService.LoadScopedExportRecordAsync` — export anchor scope load without trim — locus: comparison history by export id; input: dashed/padded export record route id.
-- [ ] (candidate) `RunExportQueryFacade.ReplayExportAsync` — mismatched route vs body export id after normalization returns not-found without audit signal — locus: defense-in-depth logging; input: programmatic replay with divergent ids.
+- [ ] (candidate) `ComparisonRecordRepository.GetByExportRecordIdAsync` — SQL lookup without trim when persisted comparison rows store padded export anchors — locus: persistence query; input: legacy row with padded `LeftExportRecordId`.
+- [ ] (candidate) `ExportsController.GetExportRecord` — route id trimmed at facade but response echoes padded route token in 404 problem detail — locus: problem detail `MissingId`; input: padded id not found after trim.
+- [ ] (candidate) `ComparisonReplayService.EnsureArtifactReplayAccessAllowedCoreAsync` — export-diff artifact mode still loads export ids without trim from comparison record — locus: career gate preload; input: artifact replay with padded anchors.
+- [ ] (candidate) `RunExportQueryFacade.ReplayExportAsync` — mismatched route vs body export id returns not-found without audit signal — locus: defense-in-depth logging; input: programmatic replay with divergent ids.
 - [ ] (candidate) `CompareQualityDeltaExportFormatter` — delta section omitted when formatter receives whitespace-only summary tail — locus: markdown section trim; input: summary ending in spaces before `## Compare Quality Delta`.
+
+- [x] (proven) `ExportsController` / `ComparisonsController` sealed export guards — padded export record ids skipped sealed-manifest verification — **hit 2026-10-23 seed hunt:** `RunExportRecordIdNormalizer` at API guard; regression `GetExportRecord_returns_409_when_lineage_unverified_for_padded_export_record_id`.
+- [x] (proven) `ComparisonReplayService` / `ComparisonReplayManifestHashGuard` — padded export record ids on export-diff replay — **hit 2026-10-23 seed hunt:** trim before `GetByIdAsync`; regressions `ReplayAsync_export_diff_regenerate_trims_padded_export_record_ids_before_lookup` and `CompareQuality_TryListByExportRecordIdAsync_lists_records_when_query_uses_padded_export_record_id`.
+- [x] (proven) `ComparisonsApplicationService.LoadScopedExportRecordAsync` — export-anchored comparison scope load without trim — **hit 2026-10-23 seed hunt:** shared `RunExportRecordIdNormalizer` with list-by-export query alignment.
+
+2026-10-23 seed hunt (seed→hit): proved architecture export replay and scoped export reads queried `IRunExportRecordRepository` with unpadded ids, so copy-pasted export record ids with surrounding whitespace returned not-found and blocked regenerate replay (including `CareerArtifactExportCompletenessGate`) despite valid rows; added `RunExportRecordIdNormalizer` trim parity in `ExportReplayService.ReplayAsync` and `RunExportQueryFacade` (compare pair loads, single-record read, replay route alignment); regressions `ReplayAsync_trims_surrounding_whitespace_on_export_record_id_before_lookup` and `CompareQuality_GetExportRecordAsync_trims_padded_export_record_id_before_lookup`; cheap-disproof closed four sibling `(candidate)` rows; seeded five follow-on rows; scoped application-analysis filter 55/55. Private beta: review export replay/compare tolerates padded export record ids from UI copy-paste.
 
 - [x] (proven) `ExportReplayService.ReplayAsync` / `RunExportQueryFacade` — whitespace-padded export record ids missed repository lookup — **hit 2026-10-23 seed hunt:** `RunExportRecordIdNormalizer`; regressions `ReplayAsync_trims_surrounding_whitespace_on_export_record_id_before_lookup` and `CompareQuality_GetExportRecordAsync_trims_padded_export_record_id_before_lookup`.
 - [x] (invalid) `ExportReplayService.ReplayAsync` — regenerate mode skips completeness gate when export record ids are whitespace-padded — **cheap-disproof 2026-10-23 seed hunt:** padded ids failed lookup before replay; trim restores completeness gate (not a bypass).
@@ -7046,11 +7052,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 77
-- **bugs-found:** 72
+- **hunts:** 78
+- **bugs-found:** 73
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-23
-- **last-bug:** 2026-10-23 — padded export record ids broke replay and scoped export reads
+- **last-bug:** 2026-10-23 — padded export record ids bypassed sealed-manifest API guards
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
