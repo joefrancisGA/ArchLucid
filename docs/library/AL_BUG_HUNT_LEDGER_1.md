@@ -8716,6 +8716,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: architecture-intelligence-orchestrator
 
+2026-10-23 seed hunt (seed→hit): promoted fullwidth semicolon, comma, and vertical line segment-separator drift splitting `ContentHash` (`docs\uFF1Barchitecture/...`, `docs\uFF0Carchitecture/...`, `docs\uFF5Carchitecture/...`); extended `ReviewCacheAlternatePathSeparators` with U+FF1B, U+FF0C, and U+FF5C; cheap-disproof regression `Build_matches_content_hash_when_file_name_differs_only_by_percent_encoded_pipe_between_segments`; 409 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `GraphSnapshotCanonicalFingerprint` — fullwidth punctuation alternate path separators split path canonicalization — **hit 2026-10-23 seed hunt:** fullwidth `;` `,` `|` in alternate separator set; regressions above.
+
 2026-10-23 seed hunt (seed→hit): promoted pipe and comma segment-separator drift splitting `ContentHash` (`docs|architecture/...`, `docs,architecture/...`); extended `ReviewCacheAlternatePathSeparators` with `|` and `,`; regression `Build_matches_content_hash_when_file_name_differs_only_by_pipe_between_segments` and `Build_matches_content_hash_when_file_name_differs_only_by_comma_between_segments`; cheap-disproof regression `Build_matches_content_hash_when_file_name_differs_only_by_percent_encoded_semicolon_between_segments`; 405 scoped orchestrator/cache/manifest/continue-flight tests passed.
 
 - [x] (proven) `GraphSnapshotCanonicalFingerprint` — pipe and comma alternate path separators split path canonicalization — **hit 2026-10-23 seed hunt:** extended alternate separator set; regressions above.
