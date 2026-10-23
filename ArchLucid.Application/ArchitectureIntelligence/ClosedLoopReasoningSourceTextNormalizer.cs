@@ -126,20 +126,4 @@ internal static class ClosedLoopReasoningSourceTextNormalizer
             .Replace("\ufeff", string.Empty, StringComparison.Ordinal);
     }
 
-    private static string DecodePercentEncodedFileNameTokens(string fileName)
-    {
-        string decoded = fileName;
-
-        while (decoded.Contains('%', StringComparison.Ordinal))
-        {
-            string next = Uri.UnescapeDataString(decoded);
-
-            if (string.Equals(next, decoded, StringComparison.Ordinal))
-                break;
-
-            decoded = next;
-        }
-
-        return decoded;
-    }
 }
