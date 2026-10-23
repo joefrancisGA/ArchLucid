@@ -34,6 +34,9 @@ public static class AgentArchitectureFindingEmissionGate
 
             foreach (ArchitectureFinding finding in findings)
             {
+                if (finding is null)
+                    continue;
+
                 if (HasTypedEmission(finding))
                 {
                     retained.Add(finding);

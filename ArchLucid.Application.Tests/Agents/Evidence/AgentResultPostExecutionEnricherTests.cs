@@ -161,6 +161,37 @@ public sealed class AgentResultPostExecutionEnricherTests
     }
 
     [Fact]
+    public async Task EnrichAsync_skips_null_finding_entries_when_withholding_prose_findings()
+    {
+        AgentResult result = new()
+        {
+            AgentType = AgentType.Compliance,
+            Findings =
+            [
+                null!,
+                new ArchitectureFinding
+                {
+                    Classification = FindingClassification.DecisionGradeFinding,
+                    Message = "Prose only",
+                },
+            ],
+        };
+
+        CompositeAgentResultPostExecutionEnricher sut = new([new AgentArchitectureFindingEmissionEnricher()]);
+
+        await sut.EnrichAsync(
+            "run-1",
+            new ArchitectureRequest { RequestId = "req-1", Description = new string('x', 12) },
+            new AgentEvidencePackage(),
+            [result],
+            CancellationToken.None);
+
+        result.Findings.Should().BeEmpty();
+        result.WithheldFindings.Should().ContainSingle();
+        result.WithheldFindings[0].Reason.Should().Be(WithheldFindingReasons.ProseOnlyEmission);
+    }
+
+    [Fact]
     public async Task EnrichAsync_withholds_prose_findings_when_deserialized_withheld_findings_is_null()
     {
         const string json =
