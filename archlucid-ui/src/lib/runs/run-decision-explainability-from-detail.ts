@@ -121,7 +121,7 @@ export function resolveRunDecisionExplainabilityFromDetail(
 
           return {
             pipeline: readString(record.pipeline) ?? "Pipeline was not stored.",
-            decisionId: readString(record.decisionId) ?? "unknown",
+            decisionId: readString(record.decisionId) ?? "Decision id was not stored.",
             category: readString(record.category) ?? "Category not returned",
             title: readString(record.title) ?? "Decision title was not stored.",
             selectedOption: readString(record.selectedOption) ?? "Selected option not returned",
@@ -151,7 +151,7 @@ export function resolveRunDecisionExplainabilityFromDetail(
 
           return {
             pipeline: readString(record.pipeline) ?? "Pipeline was not stored.",
-            decisionId: readString(record.decisionId) ?? "unknown",
+            decisionId: readString(record.decisionId) ?? "Decision id was not stored.",
             topic: readString(record.topic) ?? "Decision topic was not stored.",
             selectedOptionId: readString(record.selectedOptionId),
             rationale: readString(record.rationale) ?? "Decision rationale was not stored.",
@@ -199,7 +199,7 @@ export function resolveRunDecisionExplainabilityFromDetail(
     const promptRefsWire = record.promptRefs;
 
     authorityRuleAudit = {
-      pipeline: readString(record.pipeline) ?? "authority",
+      pipeline: readString(record.pipeline) ?? "Pipeline was not stored.",
       decisionTraceId: readGuid(record.decisionTraceId),
       ruleSetId: readString(record.ruleSetId) ?? "Rule set id not returned",
       ruleSetVersion: readString(record.ruleSetVersion) ?? "Rule set version not returned",

@@ -41,18 +41,19 @@ public static class DiagramEdgeVisualKindResolver
             return DiagramEdgeVisualKind.Unclassified;
         }
 
+        if (!string.IsNullOrWhiteSpace(inferenceSource)
+            && !inferenceSource.StartsWith("inventory-", StringComparison.OrdinalIgnoreCase)
+            && !inferenceSource.StartsWith("topology-", StringComparison.OrdinalIgnoreCase))
+        {
+            return DiagramEdgeVisualKind.Unclassified;
+        }
+
         return DiagramEdgeVisualKind.Observed;
     }
 
     public static bool IsDeclared(string? provenanceKind, string? inferenceSource)
     {
         if (string.Equals(provenanceKind, "HumanAssertion", StringComparison.OrdinalIgnoreCase))
-        {
-            return true;
-        }
-
-        if (string.Equals(provenanceKind, "DeterministicInference", StringComparison.OrdinalIgnoreCase)
-            && IsAppSettingsHostInferenceSource(inferenceSource))
         {
             return true;
         }

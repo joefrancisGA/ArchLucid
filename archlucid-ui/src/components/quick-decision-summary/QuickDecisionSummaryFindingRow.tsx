@@ -32,6 +32,7 @@ import {
   quickDecisionWorkItemSeverityLabel,
 } from "@/lib/quick-decision-finding-links";
 import {
+  formatQuickDecisionConfidenceWorkspaceLabel,
   formatQuickDecisionFindingOwnerDisplay,
   isKnownQuickDecisionConfidenceLevel,
 } from "@/lib/findings/quick-decision-finding-display";
@@ -115,7 +116,11 @@ export function QuickDecisionSummaryFindingRow({
         ) : null}
         {isKnownQuickDecisionConfidenceLevel(finding.confidenceLevel) ? (
           <FindingConfidenceBadge level={finding.confidenceLevel} />
-        ) : null}
+        ) : (
+          <span className="text-al-text-secondary text-sm">
+            {formatQuickDecisionConfidenceWorkspaceLabel(finding.confidenceLevel)}
+          </span>
+        )}
         <AiOutputGovernanceLabel findingId={finding.findingId} />
         <FindingTrustChip finding={finding} />
         <FindingClassificationChip

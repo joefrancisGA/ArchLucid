@@ -20,6 +20,7 @@ import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-
 import { resolveQuickDecisionFindingInspectHref } from "@/lib/findings/finding-evidence-navigation";
 import { INSIGHT_DENSITY_TYPED_ENGINE_HONESTY_LINE } from "@/lib/findings/insight-density-band";
 import { FINDING_CLASSIFICATION_DECISION_GRADE } from "@/lib/findings/review-detail-findings-classification-band";
+import { formatQuickDecisionConfidenceWorkspaceLabel } from "@/lib/findings/quick-decision-finding-display";
 import { buildQuickDecisionFindingEvidenceLinks } from "@/lib/quick-decision-finding-links";
 import {
   humanReviewStatusDisplay,
@@ -136,7 +137,9 @@ export function RunDetailFindingsDenseTableRow(props: RunDetailFindingsDenseTabl
         finding.confidenceLevel === "Low" ? (
           <FindingConfidenceBadge level={finding.confidenceLevel} />
         ) : (
-          <span className="text-al-text-secondary">Confidence was not stored</span>
+          <span className="text-al-text-secondary">
+            {formatQuickDecisionConfidenceWorkspaceLabel(finding.confidenceLevel)}
+          </span>
         )}
       </EnterpriseTableCell>
       <EnterpriseTableCell className="w-[7rem] align-top">
