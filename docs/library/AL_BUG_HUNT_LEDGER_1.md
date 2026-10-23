@@ -8815,15 +8815,22 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: architecture-intelligence-orchestrator
 
+2026-10-23 seed hunt (seed-only): cheap-disproof closed five `(candidate)` rows from hunt #167; no production change; 499 scoped orchestrator/cache/manifest/continue-flight tests passed plus `ClosedLoopReasoningRequestSnapshotTests.Capture_coalesces_null_framing_answers_assignment_to_empty_dictionary`.
+
+- [x] (valid-no-repro) `ReviewResultCache.InvalidateForRun` — tombstone FIFO when all entries pinned — **cheap-disproof 2026-10-23 seed hunt:** `AddTombstonedRunId_skips_fifo_drop_when_tombstone_has_pinned_entries` documents intentional cap behavior.
+- [x] (valid-no-repro) `ReviewCacheManifestBuilder.HashContent` — null `FramingAnswers` vs empty map — **cheap-disproof 2026-10-23 seed hunt:** `ContractCollectionDefaults.CoalesceDictionary` on setter; regression `Capture_coalesces_null_framing_answers_assignment_to_empty_dictionary`.
+- [x] (valid-no-repro) `ClosedLoopArchitectureReasoningOrchestrator.RunAsync` — null vs empty technology ledger — **cheap-disproof 2026-10-23 seed hunt:** `Build_matches_content_hash_when_technology_ledger_is_null_vs_empty_list`.
+- [x] (valid-no-repro) `ReviewResultCache.TryGet` — pinned expiry refresh via `TimeProvider` — **cheap-disproof 2026-10-23 seed hunt:** `TryGet_returns_pinned_expired_entry_and_refreshes_ttl`.
+- [x] (valid-no-repro) `ReviewCacheManifestBuilder.BuildContinueFromExistingRunCoalesceManifest` — continue tenant whitespace — **cheap-disproof 2026-10-23 seed hunt:** `BuildContinueFromExistingRunCoalesceManifest_matches_hash_when_tenant_differs_only_by_surrounding_whitespace`.
+- [ ] (candidate) `ReviewResultCache.CoalesceAsync` — leader completion after follower queued when manifest `ContentHash` collides but `ReuseReason` differs — locus: `ReviewSingleFlightCoordinator`; input: parallel `CoalesceAsync` with distinct reuse metadata strings.
+- [ ] (candidate) `ClosedLoopCacheHitPublishGuard.SanitizeForStorage` — blocked publish rerun leaves follower `PublishBlock` flags aligned with leader sanitize — locus: `CoalesceAsync` follower path; input: re-read existing analysis-follower regressions before promotion.
+- [ ] (candidate) `ReviewCacheKeyBuilder.Build` — storage partition omits `DeclaredPrioritiesHash` when priorities normalize to empty but hash still differs on whitespace-only priority rows — locus: `HashPriorities`; input: priorities list of whitespace-only strings vs empty.
+- [ ] (candidate) `ClosedLoopArchitectureReasoningOrchestrator.RunAsync` — `PublishToProduct` true skips `TryGet` but still writes `Set` with unsanitized publish fields — locus: `CoalesceReviewCacheMissAsync`; input: publish path with prior blocked analysis artifact.
+- [ ] (candidate) `ReviewResultCache.Set` — re-entry after `UnpinStorageKey` on deferred invalidation does not clear tombstone before insert — locus: `RemoveTombstonedRunId`; input: invalidate while pinned then unpin and set same run id.
+
 2026-10-23 seed hunt (seed-only): paused single-scalar list-marker separator expansion after the white/triangular bullet hit; cheap-disproof regression `Build_changes_content_hash_when_file_name_differs_only_by_bullet_operator_between_segments` documents bullet operator U+2219 still splits `ContentHash` pending a consolidated separator-table batch; re-read orchestrator continue-coalesce, `ReviewResultCache` tombstone/pin eviction, and manifest hash paths; no hunt-ready row promoted; seeded five mechanism-backed `(candidate)` rows below; 499 scoped orchestrator/cache/manifest/continue-flight tests passed.
 
 - [x] (invalid) `GraphSnapshotCanonicalFingerprint` — add next list-marker scalar without consolidating `ReviewCacheAlternatePathSeparators` — **cheap-disproof 2026-10-23 seed hunt:** U+2219 still diverges; defer scalar-by-scalar imports.
-- [ ] (candidate) `ReviewResultCache.InvalidateForRun` — tombstone FIFO cannot drop oldest deferred run when every cache entry for that run stays pinned — locus: `TryDropOldestTombstoneWithoutPinnedEntries`; input: pinned storage keys at cap with shared run id.
-- [ ] (candidate) `ReviewCacheManifestBuilder.HashContent` — null `FramingAnswers` on request vs empty map after snapshot capture — locus: `ClosedLoopFramingAnswersNormalizer.Normalize`; input: continue request omitting framing answers.
-- [ ] (candidate) `ClosedLoopArchitectureReasoningOrchestrator.RunAsync` — `ledgerfp` differs when persistence returns null vs empty ledger list for same run id — locus: `ReviewCacheLedgerFingerprint.Compute`; input: `TryLoadLedgerEntriesAsync` null vs `[]`.
-- [ ] (candidate) `ReviewResultCache.TryGet` — pinned entry past `ExpiresUtc` refresh depends on `TimeProvider` injection — locus: expiry extension branch; input: fake clock past TTL with active pin scope.
-- [ ] (candidate) `ReviewCacheManifestBuilder.BuildContinueFromExistingRunCoalesceManifest` — continue outer hash includes raw tenant id before `ClosedLoopTenantIdNormalizer` — locus: `Sha256Hex($"continue|{normalizedTenantId}|...")`; input: tenant surrounding whitespace on continue manifest only.
-
 2026-10-23 seed hunt (seed→hit): promoted white-bullet and triangular-bullet segment-separator drift splitting `ContentHash` (`docs◦architecture/overview.md`, `docs‣architecture/overview.md` vs slash form); extended `ReviewCacheAlternatePathSeparators` with U+25E6 and U+2023 using dotless-tail guard; regressions `Build_matches_content_hash_when_file_name_differs_only_by_white_bullet_between_segments`, `Build_matches_content_hash_when_file_name_differs_only_by_triangular_bullet_between_segments`, and `Build_changes_content_hash_when_file_name_differs_only_by_white_bullet_before_dotted_segment_name`; cheap-disproof regressions for `%E2%97%A6` and `%E2%80%A3`; 498 scoped orchestrator/cache/manifest/continue-flight tests passed.
 
 - [x] (proven) `GraphSnapshotCanonicalFingerprint` — white-bullet and triangular-bullet alternate path separators split path canonicalization — **hit 2026-10-23 seed hunt:** U+25E6 / U+2023 in alternate separator set; regressions above.
@@ -9576,9 +9583,9 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** closed-loop orchestrator; review result cache; architecture intelligence
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.cs; ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.Cache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewResultCache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewCacheManifestBuilder.cs
 - **test-filter:** FullyQualifiedName~ClosedLoopArchitectureReasoningOrchestrator|FullyQualifiedName~ReviewResultCache|FullyQualifiedName~ReviewCacheManifestBuilder
-- **hunts:** 109
+- **hunts:** 110
 - **bugs-found:** 95
-- **consecutive-dry-hunts:** 1
+- **consecutive-dry-hunts:** 2
 - **last-hunt:** 2026-10-23
 - **last-bug:** 2026-10-23 — white-bullet and triangular-bullet alternate path separators split review-cache `ContentHash`
 - **related-pd-tb:** none
