@@ -12470,10 +12470,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 299
-- **bugs-found:** 201
+- **hunts:** 300
+- **bugs-found:** 202
 - **last-hunt:** 2026-10-23
-- **last-bug:** 2026-10-23 — overlay merge silently skipped duplicate nodes with conflicting property-bag values
+- **last-bug:** 2026-10-23 — overlay merge silently skipped duplicate nodes with conflicting ReasoningTrace
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -12965,7 +12965,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - [x] (proven) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — duplicate overlay nodes with conflicting property-bag values kept first property bag silently — **hit 2026-10-23 seed hunt (seed→hit):** property-bag agreement guard on overlay node dedupe; regressions above.
 
-- [ ] (candidate) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — duplicate appended inventory overlay nodes with conflicting `ReasoningTrace` may keep first row reasoning trace — locus: overlay node append dedupe on normalized `NodeId` without reasoning-trace validation; input: two overlay nodes with trim-equal ids but different non-empty `ReasoningTrace` values; wrong outcome: merged graph retains first node reasoning trace without surfacing disagreement.
+2026-10-23 seed hunt (seed→hit): promoted `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` duplicate overlay nodes with conflicting `ReasoningTrace` candidate; proved overlay node dedupe validated scalar fields and property bags but skipped later rows without comparing `ReasoningTrace`, leaving the first reasoning trace authoritative; added `TryValidateOverlayNodeReasoningTraceAgreement`; regressions `Merge_throws_when_overlay_duplicate_nodes_disagree_on_reasoning_trace` and `Merge_coalesces_overlay_duplicate_node_reasoning_traces_when_reasoning_traces_differ_only_by_casing`; seeded `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` duplicate overlay edges with conflicting `EdgeId` on the same directed key follow-on; 611 KnowledgeGraph + 170 Provenance scoped tests passed.
+
+- [x] (proven) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — duplicate overlay nodes with conflicting `ReasoningTrace` kept first reasoning trace silently — **hit 2026-10-23 seed hunt (seed→hit):** reasoning-trace agreement guard on overlay node dedupe; regressions above.
+
+- [ ] (candidate) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — duplicate appended inventory overlay edges with conflicting `EdgeId` on the same directed key may keep first row edge id — locus: overlay edge append dedupe on directed key without edge-id validation; input: two overlay edges with trim-equal directed keys but different non-empty `EdgeId` values; wrong outcome: merged graph retains first edge id without surfacing disagreement.
 
 2026-10-22 seed hunt (seed→hit): promoted `StructuredDiagramGraphMerger` padded diagram property-key coalesce candidate; proved duplicate node/edge metadata coalesce indexed raw `property.Key`, so a later compile with surrounding-whitespace keys left parallel bag entries and `GraphNodePropertyReader` could return stale source-evidence values; trim keys before skip/coalesce (parity with `GraphNodeFactory.NormalizePropertyBag`); regression `Merge_coalesces_node_properties_when_incoming_property_keys_differ_only_by_surrounding_whitespace`; seeded diagram edge metadata padded-key coalesce regression follow-on; 468 KnowledgeGraph + 170 Provenance scoped tests passed.
 
