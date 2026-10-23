@@ -14654,12 +14654,14 @@ heap-disproved mermaid typed-topology candidate.
 - **aliases:** host composition; DI registration; startup modules
 - **paths:** ArchLucid.Host.Composition/
 - **test-filter:** FullyQualifiedName~Host.Composition|FullyQualifiedName~ServiceCollectionExtensions
-- **hunts:** 90
-- **bugs-found:** 74
+- **hunts:** 91
+- **bugs-found:** 75
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-23
-- **last-bug:** 2026-10-23 — stale distributed completed hid local pending poll
+- **last-bug:** 2026-10-23 — shutdown usage flush skipped trailing batches
 - **code-changed-since:** yes
+
+2026-10-23 thorough hunt (seed→hit): proved `ApiRequestUsageEventBatchFlushHostedService.FlushPendingAsync` returned after the first failed persist during `StopAsync`, leaving later dequeued usage events without a shutdown persist attempt when `ApiRequestBatchMaxSize` was 1; drain remaining batches on shutdown only; regression `StopAsync_attempts_persist_for_all_dequeued_batches_when_an_earlier_batch_fails`; cheap-disproof closed four sibling `(candidate)` rows; scoped metering flush tests 5 passed (`RunAnalyzers=false`).
 
 2026-10-23 thorough hunt (seed→hit): proved `PreferDistributedPollState` preferred stale distributed `Completed` without bytes over in-flight local `Pending`, surfacing missing-document failure while the job still ran; only prefer distributed completed when bytes exist; regressions `TryPoll_keeps_local_pending_when_distributed_completed_has_no_document_bytes` and `TryPoll_prefers_distributed_completed_bytes_when_local_is_pending`; cheap-disproof closed four sibling `(candidate)` rows; scoped poll-state tests 29 passed (`RunAnalyzers=false`).
 
@@ -14994,11 +14996,17 @@ heap-disproved mermaid typed-topology candidate.
 - [x] (valid-no-repro) `CollectionRunIngestService.IngestAsync` — running manifest rejects without import — **cheap-disproof 2026-10-23 thorough hunt #90:** regression `RunningManifestRejectsWithoutImport`.
 - [x] (valid-no-repro) `PollingCollectionRunDiscovery.DiscoverAsync` — list manifests failure returns zero — **cheap-disproof 2026-10-23 thorough hunt #90:** intentional swallow; storage errors do not abort host (ADR-0103 polling).
 
-- [ ] (candidate) `InMemoryValueReportJobQueue.RunJob` — persist failure drops in-memory docx — locus: terminal write; input: cache write fail; wrong outcome: intentional persist error.
-- [ ] (candidate) `InMemoryValueReportJobQueue.TryPoll` — local pending overridden by distributed failed — locus: merge; input: in-flight + stale failed; wrong outcome: intentional (hunt #76).
-- [ ] (candidate) `InMemoryValueReportJobQueue.Enqueue` — prune terminal locals before new job — locus: `PruneTerminalLocalJobs`; input: prior terminal; wrong outcome: hunt #73.
-- [ ] (candidate) `AzureBlobCollectionRunArtifactReader.ReadArtifactAsync` — missing blob returns null artifact — locus: download; input: 404; wrong outcome: hunt #82.
+- [x] (proven) `ApiRequestUsageEventBatchFlushHostedService.StopAsync` — early return skipped later shutdown batches — **hit 2026-10-23 thorough hunt #91:** `FlushPendingAsync` drains remaining batches after persist failure only on shutdown; regression `StopAsync_attempts_persist_for_all_dequeued_batches_when_an_earlier_batch_fails`.
+- [x] (valid-no-repro) `InMemoryValueReportJobQueue.TryPoll` — local pending overridden by distributed failed — **cheap-disproof 2026-10-23 thorough hunt #91:** regression `TryPoll_prefers_distributed_terminal_state_over_local_pending` (hunt #76).
+- [x] (valid-no-repro) `InMemoryValueReportJobQueue.Enqueue` — prune terminal locals before new job — **cheap-disproof 2026-10-23 thorough hunt #91:** regression `InMemoryValueReportJobQueue_prunes_terminal_local_jobs_on_enqueue_but_keeps_distributed_poll_state` (hunt #73).
+- [x] (valid-no-repro) `AzureBlobCollectionRunArtifactReader.ReadArtifactAsync` — missing blob returns null artifact — **cheap-disproof 2026-10-23 thorough hunt #91:** regression `ReadArtifactAsync_returns_null_when_manifest_package_path_is_missing`.
+- [x] (valid-no-repro) `InMemoryValueReportJobQueue.RunJob` — persist failure drops in-memory docx — **cheap-disproof 2026-10-23 thorough hunt #91:** intentional persist-error poll copy (hunt #70).
+
 - [ ] (candidate) `ValueReportJobPollStateCacheRegistrar.Register` — wraps redis when probe resolves — locus: registration; input: redis config; wrong outcome: hunt #85.
+- [ ] (candidate) `InMemoryValueReportJobQueue.TryPoll` — local failed not overridden by distributed pending — locus: merge; input: stale failed + pending; wrong outcome: hunt #88.
+- [ ] (candidate) `ProcessSharedValueReportJobPollStateCache.Get` — expired entry removed on read — locus: TTL; input: expired key; wrong outcome: inline prune.
+- [ ] (candidate) `ApiRequestUsageEventBatchFlushHostedService.ExecuteAsync` — timer flush stops after first failed batch — locus: `FlushPendingAsync`; input: persist throw; wrong outcome: intentional retry next tick.
+- [ ] (candidate) `PollingCollectionRunDiscovery.DiscoverAsync` — read artifact exception skips manifest — locus: catch; input: storage throw; wrong outcome: hunt #81.
 
 
 2026-10-09 seed hunt (seed→hit): failed usage flush returned events through `Enqueue`, which drops them when metering is disabled. Already-accepted events now use `Requeue`. Regression `StopAsync_keeps_dequeued_usage_events_when_persist_fails_after_metering_disabled` failed first.
