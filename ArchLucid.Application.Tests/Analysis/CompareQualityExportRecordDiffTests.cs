@@ -74,6 +74,62 @@ public sealed class CompareQualityExportRecordDiffTests
     }
 
     [Fact]
+    public void CompareQuality_export_record_diff_ignores_padding_only_file_name_on_top_level_columns()
+    {
+        ExportRecordDiffService sut = new();
+        RunExportRecord left = new()
+        {
+            ExportRecordId = "left",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = "ArchitectureAnalysis",
+            Format = "Markdown",
+            FileName = "  report.md  ",
+            AnalysisRequestJson = """{"includeManifest":true}""",
+        };
+        RunExportRecord right = new()
+        {
+            ExportRecordId = "right",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = "ArchitectureAnalysis",
+            Format = "Markdown",
+            FileName = "report.md",
+            AnalysisRequestJson = """{"includeManifest":true}""",
+        };
+
+        ExportRecordDiffResult result = sut.Compare(left, right);
+
+        result.ChangedTopLevelFields.Should().NotContain("FileName");
+    }
+
+    [Fact]
+    public void CompareQuality_export_record_diff_ignores_padding_only_audience_in_rehydrated_requests()
+    {
+        ExportRecordDiffService sut = new();
+        RunExportRecord left = new()
+        {
+            ExportRecordId = "left",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = "ArchitectureAnalysis",
+            Format = "Markdown",
+            FileName = "a.md",
+            AnalysisRequestJson = """{"audience":"  sponsor  "}""",
+        };
+        RunExportRecord right = new()
+        {
+            ExportRecordId = "right",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = "ArchitectureAnalysis",
+            Format = "Markdown",
+            FileName = "a.md",
+            AnalysisRequestJson = """{"audience":"sponsor"}""",
+        };
+
+        ExportRecordDiffResult result = sut.Compare(left, right);
+
+        result.RequestDiff.ChangedValues.Should().NotContain("Audience");
+    }
+
+    [Fact]
     public void CompareQuality_export_record_diff_ignores_padding_only_compare_manifest_version_on_top_level_columns()
     {
         ExportRecordDiffService sut = new();

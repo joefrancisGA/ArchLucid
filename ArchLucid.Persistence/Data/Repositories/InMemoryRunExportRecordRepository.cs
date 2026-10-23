@@ -26,6 +26,7 @@ public sealed class InMemoryRunExportRecordRepository : IRunExportRecordReposito
         RunExportRecord stored = Clone(record);
         stored.ExportRecordId = ComparisonExportRecordIdLookup.NormalizeLookupKey(stored.ExportRecordId);
         stored.RunId = stored.RunId.Trim();
+        RunExportRecordPersistNormalizer.TrimOptionalStringColumns(stored);
 
         lock (_gate)
         {

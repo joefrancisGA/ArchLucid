@@ -91,10 +91,6 @@ internal static class ComparisonExportMarkdownSectionRemover
         if (candidate == ' ')
             return false;
 
-        return char.GetUnicodeCategory(candidate) switch
-        {
-            UnicodeCategory.SpaceSeparator or UnicodeCategory.LineSeparator or UnicodeCategory.ParagraphSeparator => true,
-            _ => false,
-        };
+        return char.IsWhiteSpace(candidate);
     }
 }

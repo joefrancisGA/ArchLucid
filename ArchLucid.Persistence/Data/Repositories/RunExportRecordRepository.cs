@@ -125,21 +125,29 @@ public sealed class RunExportRecordRepository(IDbConnectionFactory connectionFac
         string normalizedExportRecordId = ComparisonExportRecordIdLookup.NormalizeLookupKey(record.ExportRecordId);
         string normalizedRunId = record.RunId.Trim();
 
+        RunExportRecord persistRecord;
+
         if (string.Equals(record.ExportRecordId, normalizedExportRecordId, StringComparison.Ordinal)
             && string.Equals(record.RunId, normalizedRunId, StringComparison.Ordinal))
         {
-            return record;
+            persistRecord = record;
+        }
+        else
+        {
+            string json = JsonSerializer.Serialize(record, ContractJson.Default);
+            RunExportRecord? copy = JsonSerializer.Deserialize<RunExportRecord>(json, ContractJson.Default);
+
+            if (copy is null)
+                throw new InvalidOperationException("RunExportRecord clone for persist produced null.");
+
+            copy.ExportRecordId = normalizedExportRecordId;
+            copy.RunId = normalizedRunId;
+            persistRecord = copy;
         }
 
-        string json = JsonSerializer.Serialize(record, ContractJson.Default);
-        RunExportRecord? copy = JsonSerializer.Deserialize<RunExportRecord>(json, ContractJson.Default);
+        RunExportRecordPersistNormalizer.TrimOptionalStringColumns(persistRecord);
 
-        if (copy is null)
-            throw new InvalidOperationException("RunExportRecord clone for persist produced null.");
-
-        copy.ExportRecordId = normalizedExportRecordId;
-        copy.RunId = normalizedRunId;
-        return copy;
+        return persistRecord;
     }
 
     public async Task<IReadOnlyList<RunExportRecord>> GetByRunIdAsync(

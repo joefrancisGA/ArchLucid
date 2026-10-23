@@ -70,7 +70,7 @@ public sealed class ExportRecordDiffService : IExportRecordDiffService
     {
         AddIfChanged(result.ChangedTopLevelFields, "ExportType", left.ExportType, right.ExportType);
         AddIfChanged(result.ChangedTopLevelFields, "Format", left.Format, right.Format);
-        AddIfChanged(result.ChangedTopLevelFields, "FileName", left.FileName, right.FileName);
+        AddIfChangedTrimmed(result.ChangedTopLevelFields, "FileName", left.FileName, right.FileName);
         AddIfChangedTrimmed(result.ChangedTopLevelFields, "TemplateProfile", left.TemplateProfile, right.TemplateProfile);
         AddIfChangedTrimmed(result.ChangedTopLevelFields, "TemplateProfileDisplayName", left.TemplateProfileDisplayName,
             right.TemplateProfileDisplayName);
@@ -105,8 +105,8 @@ public sealed class ExportRecordDiffService : IExportRecordDiffService
         if (left is null || right is null)
             return diff;
 
-        AddIfChanged(diff.ChangedValues, "TemplateProfile", left.TemplateProfile, right.TemplateProfile);
-        AddIfChanged(diff.ChangedValues, "Audience", left.Audience, right.Audience);
+        AddIfChangedTrimmed(diff.ChangedValues, "TemplateProfile", left.TemplateProfile, right.TemplateProfile);
+        AddIfChangedTrimmed(diff.ChangedValues, "Audience", left.Audience, right.Audience);
 
         AddIfChanged(diff.ChangedFlags, "ExternalDelivery", left.ExternalDelivery, right.ExternalDelivery);
         AddIfChanged(diff.ChangedFlags, "ExecutiveFriendly", left.ExecutiveFriendly, right.ExecutiveFriendly);
@@ -131,7 +131,7 @@ public sealed class ExportRecordDiffService : IExportRecordDiffService
 
         AddIfChanged(diff.ChangedValues, "DeterminismIterations", left.DeterminismIterations,
             right.DeterminismIterations);
-        AddIfChanged(diff.ChangedValues, "CompareManifestVersion", left.CompareManifestVersion,
+        AddIfChangedTrimmed(diff.ChangedValues, "CompareManifestVersion", left.CompareManifestVersion,
             right.CompareManifestVersion);
         AddRunIdIfChanged(diff.ChangedValues, "CompareRunId", left.CompareRunId, right.CompareRunId);
 

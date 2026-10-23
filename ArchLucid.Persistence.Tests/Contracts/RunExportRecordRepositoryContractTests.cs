@@ -83,6 +83,26 @@ public abstract class RunExportRecordRepositoryContractTests
     }
 
     [SkippableFact]
+    public async Task Create_trims_compare_manifest_version_on_persist()
+    {
+        SkipIfSqlServerUnavailable();
+        IRunExportRecordRepository repo = CreateRepository();
+        string runId = Guid.NewGuid().ToString("N");
+        string requestId = "req-exp-cmpver-trim-" + Guid.NewGuid().ToString("N");
+        await PrepareRunAsync(requestId, runId, CancellationToken.None);
+        string exportId = "exp-" + Guid.NewGuid().ToString("N");
+        RunExportRecord record = NewRecord(exportId, runId, new DateTime(2026, 4, 4, 12, 0, 0, DateTimeKind.Utc));
+        record.CompareManifestVersion = "  v5  ";
+
+        await repo.CreateAsync(record, CancellationToken.None);
+
+        RunExportRecord? loaded = await repo.GetByIdAsync(exportId, CancellationToken.None);
+
+        loaded.Should().NotBeNull();
+        loaded!.CompareManifestVersion.Should().Be("v5");
+    }
+
+    [SkippableFact]
     public async Task GetById_matches_when_lookup_id_has_surrounding_whitespace()
     {
         SkipIfSqlServerUnavailable();
