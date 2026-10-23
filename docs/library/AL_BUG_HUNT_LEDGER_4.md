@@ -12470,10 +12470,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 318
-- **bugs-found:** 220
+- **hunts:** 319
+- **bugs-found:** 221
 - **last-hunt:** 2026-10-23
-- **last-bug:** 2026-10-23 — overlay merge skipped duplicate nodes colliding with base graph without backfill
+- **last-bug:** 2026-10-23 — base-graph node collisions skipped overlay duplicate label agreement
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -13041,7 +13041,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - [x] (proven) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — duplicate overlay nodes sharing a base-graph node id discarded later overlay rows without backfill — **hit 2026-10-23 seed hunt (seed→hit):** base-graph parity for duplicate overlay node backfill; regression above.
 
-- [ ] (candidate) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — base-graph node collisions skip `TryValidateOverlayNodeAgreement`, so multiple overlay rows with conflicting non-empty labels for the same base `NodeId` may backfill without surfacing disagreement — locus: agreement guard omitted when `baseNodeIds` contains the normalized id; input: base node plus overlay duplicate rows whose labels disagree; wrong outcome: merged node keeps a backfilled label without failing closed.
+2026-10-23 seed hunt (seed→hit): promoted `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` base-graph node collisions skipping overlay duplicate agreement candidate; proved hunt 318 omitted `TryValidateOverlayNodeAgreement` when `baseNodeIds` contained the normalized id, so a base node plus overlay duplicate rows with conflicting non-empty labels backfilled the first label without failing closed on the second row; run node agreement starting on the second overlay duplicate row for base-graph ids (first row may enrich base metadata without overlay-vs-base agreement) while retaining hunt 318 backfill; regression `Merge_throws_when_overlay_duplicate_nodes_disagree_on_label_for_base_graph_node_id`; seeded `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` base-graph edge collisions may allow conflicting overlay duplicate labels without agreement follow-on; 631 KnowledgeGraph + 170 Provenance scoped tests passed.
+
+- [x] (proven) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — base-graph node collisions skipped overlay duplicate label agreement — **hit 2026-10-23 seed hunt (seed→hit):** overlay-duplicate agreement from second base-graph overlay row; regression above.
+
+- [ ] (candidate) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — base-graph edge collisions skip `TryValidateOverlayEdgeAgreement`, so multiple overlay rows with conflicting non-empty labels for the same base directed key may backfill without surfacing disagreement — locus: agreement guard omitted when `baseEdgeKeys` contains the edge key; input: base edge plus overlay duplicate rows whose labels disagree; wrong outcome: merged edge keeps a backfilled label without failing closed.
 
 2026-10-22 seed hunt (seed→hit): promoted `StructuredDiagramGraphMerger` padded diagram property-key coalesce candidate; proved duplicate node/edge metadata coalesce indexed raw `property.Key`, so a later compile with surrounding-whitespace keys left parallel bag entries and `GraphNodePropertyReader` could return stale source-evidence values; trim keys before skip/coalesce (parity with `GraphNodeFactory.NormalizePropertyBag`); regression `Merge_coalesces_node_properties_when_incoming_property_keys_differ_only_by_surrounding_whitespace`; seeded diagram edge metadata padded-key coalesce regression follow-on; 468 KnowledgeGraph + 170 Provenance scoped tests passed.
 

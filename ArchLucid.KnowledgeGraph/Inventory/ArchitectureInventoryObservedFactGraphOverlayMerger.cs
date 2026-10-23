@@ -23,6 +23,9 @@ public static class ArchitectureInventoryObservedFactGraphOverlayMerger
 
         List<GraphNode> mergedNodes = [.. baseGraph.Nodes];
 
+        HashSet<string> baseGraphNodeIdsWithOverlayDuplicateRowSeen =
+            new(StringComparer.OrdinalIgnoreCase);
+
         foreach (GraphNode inventoryNode in inventoryOverlay.Nodes)
         {
             string normalizedInventoryNodeId = NormalizeNodeId(inventoryNode.NodeId);
@@ -35,7 +38,11 @@ public static class ArchitectureInventoryObservedFactGraphOverlayMerger
                         normalizedInventoryNodeId,
                         StringComparison.OrdinalIgnoreCase));
 
-                if (!baseNodeIds.Contains(normalizedInventoryNodeId))
+                bool isBaseGraphNode = baseNodeIds.Contains(normalizedInventoryNodeId);
+                bool shouldValidateOverlayDuplicateAgreement = !isBaseGraphNode
+                    || baseGraphNodeIdsWithOverlayDuplicateRowSeen.Contains(normalizedInventoryNodeId);
+
+                if (shouldValidateOverlayDuplicateAgreement)
                 {
                     TryValidateOverlayNodeAgreement(inventoryNode, retainedNode);
                 }
@@ -47,6 +54,11 @@ public static class ArchitectureInventoryObservedFactGraphOverlayMerger
                 TryMergeOverlayNodeSourceTypeBackfillFromDuplicateRow(inventoryNode, retainedNode);
                 TryMergeOverlayNodeTypeBackfillFromDuplicateRow(inventoryNode, retainedNode);
                 TryMergeOverlayNodeReasoningTraceBackfillFromDuplicateRow(inventoryNode, retainedNode);
+
+                if (isBaseGraphNode)
+                {
+                    baseGraphNodeIdsWithOverlayDuplicateRowSeen.Add(normalizedInventoryNodeId);
+                }
 
                 continue;
             }
