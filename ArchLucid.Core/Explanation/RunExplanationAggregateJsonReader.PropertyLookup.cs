@@ -967,6 +967,13 @@ internal static partial class RunExplanationAggregateJsonReader
             && TryReadFiniteDouble(item) is double ratioAlias
             && (ratioAlias > 1 || ratioAlias == 1))
         {
+            if (item.ValueKind == JsonValueKind.String
+                && item.GetString() is { } raw
+                && raw.IndexOf('%', StringComparison.Ordinal) >= 0)
+            {
+                return false;
+            }
+
             return true;
         }
 

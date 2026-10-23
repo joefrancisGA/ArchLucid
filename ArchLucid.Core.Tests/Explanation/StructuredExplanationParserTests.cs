@@ -218,6 +218,39 @@ public sealed class StructuredExplanationParserTests
     }
 
     [Fact]
+    public void TryNormalizeStructuredJson_coerces_percent_suffixed_confidence_in_sole_element_array()
+    {
+        const string json = """{"reasoning":"Main","confidence":["75% "]}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.Confidence.Should().Be(0.75m);
+    }
+
+    [Fact]
+    public void TryNormalizeStructuredJson_coerces_percent_suffixed_confidence_with_interior_space_before_percent()
+    {
+        const string json = """{"reasoning":"Main","confidence":"75 %"}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.Confidence.Should().Be(0.75m);
+    }
+
+    [Fact]
+    public void TryNormalizeStructuredJson_uses_non_empty_reasoning_when_later_case_variant_is_id_only_object_without_text_key()
+    {
+        const string json = """{"reasoning":"Recovered explanation","Reasoning":{"id":"provider-paragraph-id"}}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.Reasoning.Should().Be("Recovered explanation");
+    }
+
+    [Fact]
     public void TryNormalizeStructuredJson_maps_scalar_alternatives_considered_id_when_text_property_is_whitespace_only()
     {
         const string json =

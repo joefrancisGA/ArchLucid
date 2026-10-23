@@ -66,6 +66,66 @@ public sealed class RunExplanationConfidenceCalloutBuilderTests
     }
 
     [Fact]
+    public void FromAggregateJson_scales_percent_suffixed_faithfulness_support_ratio_with_interior_space_before_percent()
+    {
+        RunExplanationConfidenceSignals? signals = RunExplanationConfidenceCalloutBuilder.FromAggregateJson(
+            """
+            {
+              "faithfulnessSupportRatio": "75 %",
+              "citations": 1
+            }
+            """);
+
+        signals.Should().NotBeNull();
+        signals!.FaithfulnessSupportRatio.Should().Be(0.75);
+    }
+
+    [Fact]
+    public void FromAggregateJson_scales_percent_suffixed_faithfulness_support_ratio_with_leading_space_before_digits()
+    {
+        RunExplanationConfidenceSignals? signals = RunExplanationConfidenceCalloutBuilder.FromAggregateJson(
+            """
+            {
+              "faithfulnessSupportRatio": " 75%",
+              "citations": 1
+            }
+            """);
+
+        signals.Should().NotBeNull();
+        signals!.FaithfulnessSupportRatio.Should().Be(0.75);
+    }
+
+    [Fact]
+    public void FromAggregateJson_scales_percent_suffixed_faithfulness_support_ratio_in_sole_element_array()
+    {
+        RunExplanationConfidenceSignals? signals = RunExplanationConfidenceCalloutBuilder.FromAggregateJson(
+            """
+            {
+              "faithfulnessSupportRatio": ["55%"],
+              "citations": 1
+            }
+            """);
+
+        signals.Should().NotBeNull();
+        signals!.FaithfulnessSupportRatio.Should().Be(0.55);
+    }
+
+    [Fact]
+    public void FromAggregateJson_scales_percent_suffixed_faithfulness_support_ratio_at_one_hundred_in_array()
+    {
+        RunExplanationConfidenceSignals? signals = RunExplanationConfidenceCalloutBuilder.FromAggregateJson(
+            """
+            {
+              "faithfulnessSupportRatio": ["100%"],
+              "citations": 1
+            }
+            """);
+
+        signals.Should().NotBeNull();
+        signals!.FaithfulnessSupportRatio.Should().Be(1.0);
+    }
+
+    [Fact]
     public void FromAggregateJson_maps_string_encoded_deterministic_fallback_flag()
     {
         RunExplanationConfidenceSignals? signals = RunExplanationConfidenceCalloutBuilder.FromAggregateJson(
