@@ -233,6 +233,7 @@ public static class ArchitectureInventoryObservedFactGraphOverlayMerger
     {
         TryValidateOverlayEdgeLabelAgreement(incomingEdge, retainedEdge);
         TryValidateOverlayEdgeWeightAgreement(incomingEdge, retainedEdge);
+        TryValidateOverlayEdgeInferenceSourceAgreement(incomingEdge, retainedEdge);
     }
 
     private static void TryValidateOverlayEdgeLabelAgreement(GraphEdge incomingEdge, GraphEdge retainedEdge)
@@ -265,6 +266,23 @@ public static class ArchitectureInventoryObservedFactGraphOverlayMerger
 
     private static bool OverlayEdgeWeightsAgree(double incomingWeight, double retainedWeight) =>
         Math.Abs(incomingWeight - retainedWeight) <= 1e-9;
+
+    private static void TryValidateOverlayEdgeInferenceSourceAgreement(GraphEdge incomingEdge, GraphEdge retainedEdge)
+    {
+        string incomingInferenceSource = (incomingEdge.InferenceSource ?? string.Empty).Trim();
+        string retainedInferenceSource = (retainedEdge.InferenceSource ?? string.Empty).Trim();
+
+        if (incomingInferenceSource.Length == 0 || retainedInferenceSource.Length == 0)
+        {
+            return;
+        }
+
+        if (!string.Equals(retainedInferenceSource, incomingInferenceSource, StringComparison.OrdinalIgnoreCase))
+        {
+            throw new ArgumentException(
+                "Inventory overlay duplicate edges disagree on InferenceSource for the same directed edge key.");
+        }
+    }
 
     private static string BuildEdgeKey(GraphEdge edge) =>
         $"{NormalizeNodeId(edge.FromNodeId)}|{NormalizeNodeId(edge.ToNodeId)}|{NormalizeEdgeType(edge.EdgeType)}";
