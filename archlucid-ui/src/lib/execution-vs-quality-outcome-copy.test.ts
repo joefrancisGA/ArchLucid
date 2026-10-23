@@ -51,6 +51,16 @@ describe("execution-vs-quality-outcome-copy (TB-965)", () => {
     expect(copy.remediation.toLowerCase()).not.toContain("intake fields");
   });
 
+  it("does not claim before-first-stage when completedStages is omitted (P-05)", () => {
+    const sentence = plainLanguageFailureCauseSentence({
+      failureClass: "invalidOperation",
+      reasonCode: "NoScheduledAgentTasks",
+    });
+
+    expect(sentence).toContain("Assessment stage count was not stored.");
+    expect(sentence.toLowerCase()).not.toContain("before the first assessment stage");
+  });
+
   it("keeps buyer what-failed copy to one processing-stopped sentence without speculative scheduling jargon", () => {
     const sentence = plainLanguageFailureCauseSentence({
       failureClass: "invalidOperation",
