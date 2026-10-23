@@ -23,7 +23,8 @@ describe("buildDiagramWalkthrough", () => {
 
     expect(summary).toContain("11");
     expect(summary).toContain("6");
-    expect(summary).toContain("5 connected components");
+    expect(summary).toContain("separate diagram groups");
+    expect(summary).not.toContain("connected");
     expect(summary).not.toMatch(/\/subscriptions\//u);
   });
 
@@ -37,7 +38,7 @@ describe("buildDiagramWalkthrough", () => {
       edges: [{ from: "a", to: "b", label: null, source: "observed", declaredConnectionId: null }],
     });
 
-    expect(summary).toContain("2 connected components");
+    expect(summary).toContain("2 separate diagram groups");
   });
 
   it("splits relationship counts by evidence source", () => {

@@ -66,15 +66,23 @@ public sealed class DiagramEdgeVisualKindResolverTests
     }
 
     [Fact]
-    public void From_deterministic_inference_app_setting_host_returns_declared()
+    public void From_deterministic_inference_app_setting_host_returns_inferred()
     {
         DiagramEdgeVisualKindResolver.From("DeterministicInference", GraphEdgeInferenceSources.InventoryHostnameInferredTarget)
             .Should()
-            .Be(DiagramEdgeVisualKind.Declared);
+            .Be(DiagramEdgeVisualKind.Inferred);
 
         DiagramEdgeVisualKindResolver.From("DeterministicInference", GraphEdgeInferenceSources.InventoryStorageHostRef)
             .Should()
-            .Be(DiagramEdgeVisualKind.Declared);
+            .Be(DiagramEdgeVisualKind.Inferred);
+    }
+
+    [Fact]
+    public void From_blank_provenance_and_unknown_inference_returns_unclassified()
+    {
+        DiagramEdgeVisualKindResolver.From(null, "not-a-known-source")
+            .Should()
+            .Be(DiagramEdgeVisualKind.Unclassified);
     }
 
     [Fact]
