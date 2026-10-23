@@ -86,8 +86,11 @@ public sealed class ExportRecordDiffService : IExportRecordDiffService
         AddIfChanged(result.ChangedTopLevelFields, "IncludedSummary", left.IncludedSummary, right.IncludedSummary);
         AddIfChanged(result.ChangedTopLevelFields, "IncludedDeterminismCheck", left.IncludedDeterminismCheck,
             right.IncludedDeterminismCheck);
-        AddIfChanged(result.ChangedTopLevelFields, "DeterminismIterations", left.DeterminismIterations,
-            right.DeterminismIterations);
+        AddIfChanged(
+            result.ChangedTopLevelFields,
+            "DeterminismIterations",
+            NormalizeDeterminismIterationsColumn(left.DeterminismIterations),
+            NormalizeDeterminismIterationsColumn(right.DeterminismIterations));
         AddIfChanged(result.ChangedTopLevelFields, "IncludedManifestCompare", left.IncludedManifestCompare,
             right.IncludedManifestCompare);
         AddIfChangedTrimmed(result.ChangedTopLevelFields, "CompareManifestVersion", left.CompareManifestVersion,
@@ -138,6 +141,9 @@ public sealed class ExportRecordDiffService : IExportRecordDiffService
 
         return diff;
     }
+
+    private static int? NormalizeDeterminismIterationsColumn(int? value) =>
+        value is null or 0 ? null : value;
 
     private static bool RunIdsEquivalent(string left, string right) =>
         GovernanceRunIdNormalizer.AreEquivalent(left, right);

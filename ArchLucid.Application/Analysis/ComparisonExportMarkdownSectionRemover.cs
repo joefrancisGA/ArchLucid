@@ -60,10 +60,13 @@ internal static class ComparisonExportMarkdownSectionRemover
 
     private static bool LineMatchesHeading(ReadOnlySpan<char> trimmedLine, string heading)
     {
-        if (trimmedLine.Equals(heading.AsSpan(), StringComparison.Ordinal))
+        if (trimmedLine.Equals(heading.AsSpan(), StringComparison.OrdinalIgnoreCase))
             return true;
 
-        return string.Equals(NormalizeHeadingLine(trimmedLine.ToString()), heading, StringComparison.Ordinal);
+        return string.Equals(
+            NormalizeHeadingLine(trimmedLine.ToString()),
+            heading,
+            StringComparison.OrdinalIgnoreCase);
     }
 
     private static string NormalizeHeadingLine(string line)

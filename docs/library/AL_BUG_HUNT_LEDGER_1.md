@@ -6868,13 +6868,21 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
-2026-10-23 seed hunt (seed→hit): proved `RunExportAuditService` serialized nulled whitelabel fields as explicit JSON nulls because `JsonSerializer` omitted `WhenWritingNull`, legacy `RunExportRecord` rows could retain padded `ExportRecordId` values after read, and compare-quality heading normalization did not apply compatibility `FormC` after invisible-char stripping; omit null optional properties on audit serialize, trim export record ids in `NormalizeLoadedRecord`, NFC-normalize heading lines; regressions `RecordAsync_nulls_whitespace_only_whitelabel_firm_in_serialized_analysis_request` (asserts omitted key), `GetById_trims_legacy_padded_optional_columns_on_read` (export id trim), and `NormalizeLoadedRecord_trims_export_record_id_and_required_string_columns`; cheap-disproof closed required-column null-coalesce probe (`ExportType`/`Format`/`FileName` still trim-only on load), and `DeterminismIterations` column vs request int skew (denormalized ints compared with value equality; no string padding path); seeded five follow-on rows; scoped application-analysis filter 111/111. Private beta: leaner stored analysis JSON without null whitelabel noise; export metadata reads canonical export ids; comparison headings normalize to composed form.
+2026-10-23 seed hunt (seed→hit): proved `RunExportAuditService` persisted pretty-printed analysis request JSON with `WriteIndented`, `ExportRecordDiffService` flagged `DeterminismIterations` when legacy rows stored null denormalized columns beside zero-valued peers, and `ComparisonExportMarkdownSectionRemover` required exact heading casing so mixed-case delta headings survived stripping; persist compact analysis JSON, treat null/zero determinism iteration columns as equivalent, case-insensitive heading match after normalization; regressions `RecordAsync_persists_compact_analysis_request_json_without_indentation`, `CompareQuality_export_record_diff_treats_null_and_zero_determinism_iterations_as_equivalent_on_top_level_columns`, and `RemoveMarkdownSection_strips_compare_quality_delta_when_heading_uses_mixed_case`; cheap-disproof closed padded compare export ids (`LoadPairAsync` already uses `RunExportRecordIdNormalizer`) and `OptionalExportMetadataStringNormalizer` on required `FileName` (invalid — required columns use `Trim()` only); seeded five follow-on rows; scoped application-analysis filter 114/114. Private beta: smaller stored export analysis payloads; export compares ignore null-vs-zero determinism iteration drift; comparison exports strip mixed-case delta headings.
 
-- [ ] (candidate) `RunExportAuditService` — `WriteIndented` true inflates stored analysis JSON size — locus: audit storage; input: production compact serialize.
-- [ ] (candidate) `ExportRecordDiffService` — top-level `DeterminismIterations` null vs request default 0 false diff — locus: denormalized column drift; input: legacy row missing column with JSON zero.
-- [ ] (candidate) `ComparisonExportMarkdownSectionRemover` — case-insensitive heading match for delta section — locus: heading casing; input: `## compare quality delta`.
-- [ ] (candidate) `RunExportQueryFacade` — compare export ids not normalized before repository lookup — locus: compare API; input: padded left/right export record id query params.
-- [ ] (candidate) `OptionalExportMetadataStringNormalizer` — does not trim required `FileName` on RunExportRecord — locus: helper scope; input: verify required columns stay separate (invalid).
+- [ ] (candidate) `ExportRecordDiffService.CompareRequests` — request-level `DeterminismIterations` zero vs default when check disabled — locus: request diff; input: omitted vs explicit zero in JSON.
+- [ ] (candidate) `RunExportAuditService` — compact JSON harder to eyeball in SQL debugging — locus: operability; input: intentional tradeoff (invalid probe).
+- [ ] (candidate) `ComparisonExportMarkdownSectionRemover` — fullwidth Latin letters in heading spoof — locus: homoglyph casing; input: fullwidth `COMPARE`.
+- [ ] (candidate) `ExportRecordDiffService` — `IncludedDeterminismCheck` null vs false top-level drift — locus: nullable bool columns; input: legacy null column.
+- [ ] (candidate) `RunExportQueryFacade.GetExportRecordAsync` — padded export id on entry only normalized in compare path — locus: single-record read; input: verify parity with `NormalizeRequired` on get.
+
+- [x] (proven) `RunExportAuditService` — indented analysis request JSON on persist — **hit 2026-10-23 seed hunt:** compact `AnalysisRequestPersistJsonOptions`; regression `RecordAsync_persists_compact_analysis_request_json_without_indentation`.
+- [x] (proven) `ExportRecordDiffService.CompareTopLevel` — null vs zero `DeterminismIterations` — **hit 2026-10-23 seed hunt:** `NormalizeDeterminismIterationsColumn`; regression `CompareQuality_export_record_diff_treats_null_and_zero_determinism_iterations_as_equivalent_on_top_level_columns`.
+- [x] (proven) `ComparisonExportMarkdownSectionRemover` — mixed-case heading — **hit 2026-10-23 seed hunt:** `OrdinalIgnoreCase` match; regression `RemoveMarkdownSection_strips_compare_quality_delta_when_heading_uses_mixed_case`.
+- [x] (valid-no-repro) `RunExportQueryFacade.LoadPairAsync` — padded export record ids — **cheap-disproof 2026-10-23 seed hunt:** `RunExportRecordIdNormalizer.NormalizeRequired` before load.
+- [x] (invalid) `OptionalExportMetadataStringNormalizer` — required `FileName` — **cheap-disproof 2026-10-23 seed hunt:** helper scoped to optional metadata only.
+
+2026-10-23 seed hunt (seed→hit): proved `RunExportAuditService` serialized nulled whitelabel fields as explicit JSON nulls because `JsonSerializer` omitted `WhenWritingNull`, legacy `RunExportRecord` rows could retain padded `ExportRecordId` values after read, and compare-quality heading normalization did not apply compatibility `FormC` after invisible-char stripping; omit null optional properties on audit serialize, trim export record ids in `NormalizeLoadedRecord`, NFC-normalize heading lines; regressions `RecordAsync_nulls_whitespace_only_whitelabel_firm_in_serialized_analysis_request` (asserts omitted key), `GetById_trims_legacy_padded_optional_columns_on_read` (export id trim), and `NormalizeLoadedRecord_trims_export_record_id_and_required_string_columns`; cheap-disproof closed required-column null-coalesce probe (`ExportType`/`Format`/`FileName` still trim-only on load), and `DeterminismIterations` column vs request int skew (denormalized ints compared with value equality; no string padding path); seeded five follow-on rows; scoped application-analysis filter 111/111. Private beta: leaner stored analysis JSON without null whitelabel noise; export metadata reads canonical export ids; comparison headings normalize to composed form.
 
 - [x] (proven) `RunExportAuditService` — null whitelabel JSON keys emitted — **hit 2026-10-23 seed hunt:** `JsonIgnoreCondition.WhenWritingNull`; regression extends `RecordAsync_nulls_whitespace_only_whitelabel_firm_in_serialized_analysis_request`.
 - [x] (proven) `RunExportRecordPersistNormalizer` — padded `ExportRecordId` on read — **hit 2026-10-23 seed hunt:** `ComparisonExportRecordIdLookup.NormalizeLookupKey`; regressions `NormalizeLoadedRecord_trims_export_record_id_and_required_string_columns` and `GetById_trims_legacy_padded_optional_columns_on_read`.
@@ -7226,11 +7234,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 99
-- **bugs-found:** 94
+- **hunts:** 101
+- **bugs-found:** 96
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-23
-- **last-bug:** 2026-10-23 — Contracts optional-string normalize and Mn heading strip
+- **last-bug:** 2026-10-23 — compact audit JSON, determinism null/zero, case-insensitive headings
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 

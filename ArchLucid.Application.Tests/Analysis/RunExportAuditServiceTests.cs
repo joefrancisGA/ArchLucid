@@ -120,6 +120,40 @@ public sealed class RunExportAuditServiceTests
     }
 
     [Fact]
+    public async Task RecordAsync_persists_compact_analysis_request_json_without_indentation()
+    {
+        Mock<IRunExportRecordRepository> repo = new();
+        RunExportRecord? captured = null;
+        repo
+            .Setup(r => r.CreateAsync(It.IsAny<RunExportRecord>(), It.IsAny<CancellationToken>()))
+            .Callback<RunExportRecord, CancellationToken>((record, _) => captured = record)
+            .Returns(Task.CompletedTask);
+
+        RunExportAuditService sut = new(
+            repo.Object,
+            Mock.Of<IAuditService>(),
+            NullLogger<RunExportAuditService>.Instance);
+
+        await sut.RecordAsync(
+            "deadbeefdeadbeefdeadbeefdeadbeef",
+            "analysis-report-docx",
+            "docx",
+            "report.docx",
+            null,
+            null,
+            false,
+            null,
+            null,
+            analysisRequest: new PersistedAnalysisExportRequest { IncludeEvidence = true },
+            emitArchitectureDocxExportGeneratedAudit: false,
+            cancellationToken: CancellationToken.None);
+
+        captured.Should().NotBeNull();
+        captured!.AnalysisRequestJson.Should().NotContain("\n");
+        captured.AnalysisRequestJson.Should().Contain("includeEvidence");
+    }
+
+    [Fact]
     public async Task RecordAsync_nulls_whitespace_only_whitelabel_firm_in_serialized_analysis_request()
     {
         Mock<IRunExportRecordRepository> repo = new();

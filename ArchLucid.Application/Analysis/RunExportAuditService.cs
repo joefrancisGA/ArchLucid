@@ -20,9 +20,8 @@ public sealed class RunExportAuditService(
     IAuditService auditService,
     ILogger<RunExportAuditService> logger) : IRunExportAuditService
 {
-    private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
+    private static readonly JsonSerializerOptions AnalysisRequestPersistJsonOptions = new(JsonSerializerDefaults.Web)
     {
-        WriteIndented = true,
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
     };
     private readonly IRunExportRecordRepository _repository = repository ?? throw new ArgumentNullException(nameof(repository));
@@ -65,7 +64,9 @@ public sealed class RunExportAuditService(
             ResolutionReason = resolutionReason,
             ManifestVersion = manifestVersion,
             Notes = notes,
-            AnalysisRequestJson = analysisRequest is null ? null : JsonSerializer.Serialize(analysisRequest, JsonOptions),
+            AnalysisRequestJson = analysisRequest is null
+                ? null
+                : JsonSerializer.Serialize(analysisRequest, AnalysisRequestPersistJsonOptions),
             IncludedEvidence = analysisRequest?.IncludeEvidence,
             IncludedExecutionTraces = analysisRequest?.IncludeExecutionTraces,
             IncludedManifest = analysisRequest?.IncludeManifest,
