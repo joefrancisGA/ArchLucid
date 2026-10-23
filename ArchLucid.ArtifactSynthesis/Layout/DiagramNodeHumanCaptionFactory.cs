@@ -109,13 +109,13 @@ public static class DiagramNodeHumanCaptionFactory
         if (node.ConnectionState == InventoryDiagramConnectionState.Orphaned
             && !string.IsNullOrWhiteSpace(node.ConnectionStateMessage))
         {
-            combined = $"{combined} · Missing a required link: {node.ConnectionStateMessage.Trim()}";
+            combined = $"{combined} · No stored association: {node.ConnectionStateMessage.Trim()}.";
         }
         else if (node.ConnectionState == InventoryDiagramConnectionState.Used)
         {
             combined = string.IsNullOrWhiteSpace(node.ConnectionStateMessage)
-                ? $"{combined} · In use off the diagram. Off-diagram use was not stored."
-                : $"{combined} · In use off the diagram: {node.ConnectionStateMessage.Trim()}";
+                ? $"{combined} · Off-diagram reference was not stored."
+                : $"{combined} · Referenced off this diagram: {node.ConnectionStateMessage.Trim()}.";
         }
         else if (node.ConnectionState == InventoryDiagramConnectionState.Unconnected)
         {
