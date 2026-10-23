@@ -12470,7 +12470,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 320
+- **hunts:** 321
 - **bugs-found:** 222
 - **last-hunt:** 2026-10-23
 - **last-bug:** 2026-10-23 — base-graph edge collisions skipped overlay duplicate label agreement
@@ -13049,7 +13049,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - [x] (proven) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — base-graph edge collisions skipped overlay duplicate label agreement — **hit 2026-10-23 seed hunt (seed→hit):** overlay-duplicate agreement from second base-graph overlay row; regression above.
 
-- [ ] (candidate) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — first overlay-only duplicate node row may skip agreement when the retained node was just appended from an earlier overlay row in the same merge pass — locus: `existingNodeIds` updates after append but `baseNodeIds` does not include overlay-appended ids, so the second overlay duplicate should always validate; input: two overlay rows with the same normalized id where the first row is newly appended; wrong outcome: if agreement were skipped, conflicting labels could backfill silently (cheap-disproof / guard regression candidate).
+2026-10-23 seed hunt (valid-no-repro): promoted overlay-only duplicate node agreement guard candidate; proved `shouldValidateOverlayDuplicateAgreement` is always true when `!baseNodeIds.Contains(normalizedInventoryNodeId)`, so the second overlay row for a newly appended id always runs `TryValidateOverlayNodeAgreement` before backfill; regression `Merge_throws_when_overlay_duplicate_nodes_disagree_on_label` (first row appends, second duplicate throws on label conflict); seeded `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` overlay-only duplicate edge rows after first overlay append may skip agreement on the second row follow-on; 632 KnowledgeGraph + 170 Provenance scoped tests passed.
+
+- [x] (valid-no-repro) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — overlay-only duplicate node rows skip agreement after first overlay append — **cheap-disproof 2026-10-23 seed hunt:** `isBaseGraphNode` false forces validation on every duplicate overlay node row; regression above.
+
+- [ ] (candidate) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — overlay-only duplicate edge rows after the first overlay append may skip agreement on the second row — locus: `shouldValidateOverlayDuplicateAgreement` when `!baseEdgeKeys.Contains(edgeKey)`; input: two overlay edges with the same directed key where the first row is newly appended; wrong outcome: conflicting labels backfill silently (cheap-disproof / guard regression candidate).
 
 2026-10-22 seed hunt (seed→hit): promoted `StructuredDiagramGraphMerger` padded diagram property-key coalesce candidate; proved duplicate node/edge metadata coalesce indexed raw `property.Key`, so a later compile with surrounding-whitespace keys left parallel bag entries and `GraphNodePropertyReader` could return stale source-evidence values; trim keys before skip/coalesce (parity with `GraphNodeFactory.NormalizePropertyBag`); regression `Merge_coalesces_node_properties_when_incoming_property_keys_differ_only_by_surrounding_whitespace`; seeded diagram edge metadata padded-key coalesce regression follow-on; 468 KnowledgeGraph + 170 Provenance scoped tests passed.
 
