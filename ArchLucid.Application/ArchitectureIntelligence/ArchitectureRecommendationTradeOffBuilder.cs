@@ -196,7 +196,8 @@ internal static class ArchitectureRecommendationTradeOffBuilder
                 || IsCostTokenInPrepositionalCostPhrase(priority)
                 || IsCostTokenInCostCenterPhrase(priority)
                 || IsCostTokenInQualifiedCostNounPhrase(priority)
-                || IsCostTokenInPerQualifierCostPhrase(priority)))
+                || IsCostTokenInPerQualifierCostPhrase(priority)
+                || IsCostTokenInMultiWordQualifiedCostPhrase(priority)))
         {
             return false;
         }
@@ -238,6 +239,12 @@ internal static class ArchitectureRecommendationTradeOffBuilder
         Regex.IsMatch(
             priority,
             @"\bper\s+\w+\s+cost\b",
+            RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    private static bool IsCostTokenInMultiWordQualifiedCostPhrase(string priority) =>
+        Regex.IsMatch(
+            priority,
+            @"\b(?:fully\s+loaded|total\s+landed)\s+cost\b",
             RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     private static bool TryResolveDeclaredPairPrecedence(
