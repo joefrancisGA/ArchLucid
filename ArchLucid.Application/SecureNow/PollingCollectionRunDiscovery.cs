@@ -1,3 +1,7 @@
+using ArchLucid.Core.SecureNow;
+
+using Azure;
+
 namespace ArchLucid.Application.SecureNow;
 
 public sealed class PollingCollectionRunDiscovery(
@@ -12,19 +16,54 @@ public sealed class PollingCollectionRunDiscovery(
 
     public async Task<int> DiscoverAsync(CancellationToken cancellationToken = default)
     {
-        IReadOnlyList<CollectionRunManifest> manifests =
-            await _artifactReader.ListManifestsAsync(cancellationToken);
+        IReadOnlyList<CollectionRunManifest> manifests;
+
+        try
+        {
+            manifests = await _artifactReader.ListManifestsAsync(cancellationToken);
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
+        catch (Exception)
+        {
+            return 0;
+        }
+
         int imported = 0;
 
         foreach (CollectionRunManifest manifest in manifests)
         {
-            CollectionRunArtifact? artifact =
-                await _artifactReader.ReadArtifactAsync(manifest, cancellationToken);
-            if (artifact is null)
+            CollectionRunArtifact? artifact;
+
+            try
+            {
+                artifact = await _artifactReader.ReadArtifactAsync(manifest, cancellationToken);
+            }
+            catch (RequestFailedException)
+            {
+                continue;
+            }
+
+            if (artifact is null || artifact.ZipBytes.Length == 0)
                 continue;
 
-            await _ingestService.IngestAsync(artifact, cancellationToken);
-            imported++;
+            try
+            {
+                CollectionRun run = await _ingestService.IngestAsync(artifact, cancellationToken);
+
+                if (run.Status == CollectionRunStatus.Imported)
+                    imported++;
+            }
+            catch (OperationCanceledException)
+            {
+                throw;
+            }
+            catch (Exception)
+            {
+                continue;
+            }
         }
 
         return imported;
