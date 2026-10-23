@@ -285,7 +285,7 @@ public static class GraphSnapshotCanonicalFingerprint
 
         string path = NormalizeUnicodeDotScalars(
                 NormalizeUnicodeSlashScalars(
-                    NormalizeReviewCacheNbspPathSeparators(
+                    NormalizeReviewCacheAlternatePathSeparators(
                         NormalizeReviewCachePathLineBreakScalars(
                             DecodePercentEncodedPathTokens(
                                 ReplaceIsolatedPlusWithPathSeparator(normalizedToken))))))
@@ -347,23 +347,46 @@ public static class GraphSnapshotCanonicalFingerprint
         return normalized;
     }
 
+    private static ReadOnlySpan<char> ReviewCacheAlternatePathSeparators =>
+    [
+        '\u00a0',
+        '\u202f',
+        '\u3000',
+        ';',
+    ];
+
     /// <summary>
-    ///     When a path token already contains <c>/</c>, treat narrow no-break space as a segment separator
-    ///     (e.g. <c>docs\u00a0architecture/overview.md</c>) without rewriting NBSP inside file-name segments
-    ///     (e.g. <c>arch\u00a0note.md</c>).
+    ///     When a path token already contains <c>/</c>, map common alternate separators to <c>/</c>
+    ///     when they sit between dotless segment names (e.g. <c>docs\u00a0architecture/overview.md</c>)
+    ///     without rewriting separators inside file-name segments (e.g. <c>arch\u00a0note.md</c>).
     /// </summary>
-    private static string NormalizeReviewCacheNbspPathSeparators(string value)
+    private static string NormalizeReviewCacheAlternatePathSeparators(string value)
     {
-        if (!value.Contains('\u00a0', StringComparison.Ordinal) || !value.Contains('/', StringComparison.Ordinal))
+        if (!value.Contains('/', StringComparison.Ordinal))
             return value;
 
+        string normalized = value;
+
+        foreach (char separator in ReviewCacheAlternatePathSeparators)
+        {
+            if (!normalized.Contains(separator))
+                continue;
+
+            normalized = ReplaceAlternatePathSeparatorWhenDotlessTail(normalized, separator);
+        }
+
+        return normalized;
+    }
+
+    private static string ReplaceAlternatePathSeparatorWhenDotlessTail(string value, char separator)
+    {
         StringBuilder builder = new(value.Length);
 
         for (int index = 0; index < value.Length; index++)
         {
             char current = value[index];
 
-            if (current != '\u00a0')
+            if (current != separator)
             {
                 builder.Append(current);
                 continue;
@@ -374,7 +397,7 @@ public static class GraphSnapshotCanonicalFingerprint
             int tailEnd = slashIndex < 0 ? value.Length : slashIndex;
             ReadOnlySpan<char> tail = value.AsSpan(tailStart, tailEnd - tailStart);
 
-            builder.Append(tail.Contains('.') ? '\u00a0' : '/');
+            builder.Append(tail.Contains('.') ? separator : '/');
         }
 
         return builder.ToString();
