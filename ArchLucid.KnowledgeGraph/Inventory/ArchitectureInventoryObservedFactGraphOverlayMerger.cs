@@ -38,6 +38,7 @@ public static class ArchitectureInventoryObservedFactGraphOverlayMerger
                             StringComparison.OrdinalIgnoreCase));
 
                     TryValidateOverlayNodeAgreement(inventoryNode, retainedNode);
+                    TryMergeOverlayNodePropertyBackfillFromDuplicateRow(inventoryNode, retainedNode);
                 }
 
                 continue;
@@ -377,31 +378,49 @@ public static class ArchitectureInventoryObservedFactGraphOverlayMerger
         }
     }
 
+    private static void TryMergeOverlayNodePropertyBackfillFromDuplicateRow(
+        GraphNode incomingNode,
+        GraphNode retainedNode)
+    {
+        retainedNode.Properties = MergeOverlayPropertyBackfillFromDuplicateRow(
+            incomingNode.Properties,
+            retainedNode.Properties);
+    }
+
     private static void TryMergeOverlayEdgePropertyBackfillFromDuplicateRow(
         GraphEdge incomingEdge,
         GraphEdge retainedEdge)
     {
-        Dictionary<string, string> incomingProperties = NormalizeOverlayPropertyBagOrEmpty(incomingEdge.Properties);
+        retainedEdge.Properties = MergeOverlayPropertyBackfillFromDuplicateRow(
+            incomingEdge.Properties,
+            retainedEdge.Properties);
+    }
 
-        if (incomingProperties.Count == 0)
+    private static Dictionary<string, string> MergeOverlayPropertyBackfillFromDuplicateRow(
+        IReadOnlyDictionary<string, string>? incomingProperties,
+        IReadOnlyDictionary<string, string>? retainedProperties)
+    {
+        Dictionary<string, string> normalizedIncomingProperties = NormalizeOverlayPropertyBagOrEmpty(incomingProperties);
+
+        if (normalizedIncomingProperties.Count == 0)
         {
-            return;
+            return NormalizeOverlayPropertyBagOrEmpty(retainedProperties);
         }
 
-        Dictionary<string, string> retainedProperties = NormalizeOverlayPropertyBagOrEmpty(retainedEdge.Properties);
+        Dictionary<string, string> normalizedRetainedProperties = NormalizeOverlayPropertyBagOrEmpty(retainedProperties);
 
-        foreach (KeyValuePair<string, string> entry in incomingProperties)
+        foreach (KeyValuePair<string, string> entry in normalizedIncomingProperties)
         {
-            if (retainedProperties.TryGetValue(entry.Key, out string? existingValue)
+            if (normalizedRetainedProperties.TryGetValue(entry.Key, out string? existingValue)
                 && existingValue.Length > 0)
             {
                 continue;
             }
 
-            retainedProperties[entry.Key] = entry.Value;
+            normalizedRetainedProperties[entry.Key] = entry.Value;
         }
 
-        retainedEdge.Properties = retainedProperties;
+        return normalizedRetainedProperties;
     }
 
     private static void TryValidateOverlayNodePropertyBagAgreement(GraphNode incomingNode, GraphNode retainedNode) =>

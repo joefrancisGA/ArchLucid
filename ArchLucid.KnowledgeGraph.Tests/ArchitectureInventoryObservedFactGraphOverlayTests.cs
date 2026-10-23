@@ -2631,6 +2631,64 @@ public sealed class ArchitectureInventoryObservedFactGraphOverlayTests
     }
 
     [Fact]
+    public void Merge_backfills_overlay_duplicate_node_properties_from_second_row_when_first_row_omits_property_key()
+    {
+        const string canonicalNodeId = "inventory-node-property-backfill";
+
+        GraphSnapshot baseGraph = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = ContextSnapshotId,
+            RunId = RunId,
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "context-node",
+                    NodeType = GraphNodeTypes.ContextSnapshot,
+                    Label = "Context",
+                },
+            ],
+            Edges = [],
+        };
+
+        GraphSnapshot overlay = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = ContextSnapshotId,
+            RunId = RunId,
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = canonicalNodeId,
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "SQL",
+                },
+                new GraphNode
+                {
+                    NodeId = canonicalNodeId,
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "SQL",
+                    Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        [StructuredDiagramGraphPropertyKeys.ProvenanceKind] =
+                            StructuredDiagramGraphProvenanceKinds.ObservedFact,
+                    },
+                },
+            ],
+            Edges = [],
+        };
+
+        GraphSnapshot merged = ArchitectureInventoryObservedFactGraphOverlayMerger.Merge(baseGraph, overlay);
+
+        merged.Nodes.Should().HaveCount(2);
+        merged.Nodes.Single(node => string.Equals(node.NodeId, canonicalNodeId, StringComparison.OrdinalIgnoreCase))
+            .Properties[StructuredDiagramGraphPropertyKeys.ProvenanceKind]
+            .Should().Be(StructuredDiagramGraphProvenanceKinds.ObservedFact);
+    }
+
+    [Fact]
     public void Merge_throws_when_overlay_duplicate_nodes_disagree_on_reasoning_trace()
     {
         const string canonicalNodeId = "inventory-node-reasoning-conflict";
