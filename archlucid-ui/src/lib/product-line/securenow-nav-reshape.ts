@@ -46,6 +46,7 @@ import {
   INTEGRATIONS_TEAMS_PATH,
 } from "@/lib/integrations-nav-paths";
 import { SECURENOW_COLLECTION_AGENT_PATH } from "@/lib/product-line/securenow-collection-agent-route";
+import { SECURENOW_DATA_SOURCES_HOME_ROWS } from "@/lib/product-line/securenow-data-sources-home-copy";
 import { resolveSecureNowPageHeading } from "@/lib/product-line/securenow-page-heading";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import type { NavGroupConfig, NavLinkItem } from "@/lib/nav-config.types";
@@ -113,12 +114,8 @@ export const SECURENOW_COMPLIANCE_NAV_HREFS: readonly string[] = [
   AUDIT_EVIDENCE_LINEAGE_LOOKUP_PATH,
 ];
 
-export const SECURENOW_DATA_SOURCES_NAV_HREFS: readonly string[] = [
-  CLOUD_CONNECTIONS_PATH,
-  GOVERNANCE_INFRASTRUCTURE_DECLARED_CONNECTIONS_PATH,
-  ADMINISTRATION_CONNECTION_STATUS_PATH,
-  GOVERNANCE_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH,
-];
+export const SECURENOW_DATA_SOURCES_NAV_HREFS: readonly string[] =
+  SECURENOW_DATA_SOURCES_HOME_ROWS.map((row) => row.href);
 
 export const SECURENOW_COLLECTION_AGENT_NAV_LINK: NavLinkItem = {
   href: SECURENOW_COLLECTION_AGENT_PATH,
@@ -231,6 +228,63 @@ function remapSecureNowSecurityNavLink(link: NavLinkItem): NavLinkItem {
     ...link,
     href: remappedHref,
   };
+}
+
+function resolveSecureNowDataSourceSourceHref(catalogHref: string): string {
+  for (const [governanceHref, secureHref] of Object.entries(
+    SECURENOW_INFRASTRUCTURE_NAV_HREF_BY_GOVERNANCE_HREF,
+  )) {
+    if (secureHref === catalogHref) {
+      return governanceHref;
+    }
+  }
+
+  return catalogHref;
+}
+
+function pickSecureNowDataSourceNavLink(
+  linksByHref: ReadonlyMap<string, NavLinkItem>,
+  catalogHref: string,
+): NavLinkItem | undefined {
+  if (catalogHref === SECURENOW_COLLECTION_AGENT_PATH) {
+    return linksByHref.get(catalogHref) ?? SECURENOW_COLLECTION_AGENT_NAV_LINK;
+  }
+
+  const sourceHref = resolveSecureNowDataSourceSourceHref(catalogHref);
+  const link = linksByHref.get(sourceHref) ?? linksByHref.get(catalogHref);
+
+  if (link === undefined) {
+    return undefined;
+  }
+
+  if (
+    link.href === GOVERNANCE_INFRASTRUCTURE_DECLARED_CONNECTIONS_PATH ||
+    link.href === GOVERNANCE_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH
+  ) {
+    return remapSecureNowInfrastructureNavLink(link);
+  }
+
+  if (link.href === CLOUD_CONNECTIONS_PATH) {
+    return applySecureNowIntegrationNavLinkLabels([link])[0];
+  }
+
+  return link;
+}
+
+function buildSecureNowDataSourceNavLinks(
+  linksByHref: ReadonlyMap<string, NavLinkItem>,
+): NavLinkItem[] {
+  const links: NavLinkItem[] = [];
+
+  for (const row of SECURENOW_DATA_SOURCES_HOME_ROWS) {
+    const link = pickSecureNowDataSourceNavLink(linksByHref, row.href);
+
+    if (link !== undefined) {
+      links.push(link);
+    }
+  }
+
+  return links;
 }
 
 function remapSecureNowInfrastructureNavLink(link: NavLinkItem): NavLinkItem {
@@ -374,17 +428,7 @@ export function reshapeNavGroupsForSecureNow(
     );
   }
 
-  const dataSourceLinks = [
-    SECURENOW_COLLECTION_AGENT_NAV_LINK,
-    ...applySecureNowIntegrationNavLinkLabels(
-      pickNavLinks(linksByHref, [CLOUD_CONNECTIONS_PATH]),
-    ),
-    ...pickNavLinks(linksByHref, SECURENOW_DATA_SOURCES_NAV_HREFS.slice(1)).map((link) =>
-      link.href === ADMINISTRATION_CONNECTION_STATUS_PATH
-        ? link
-        : remapSecureNowInfrastructureNavLink(link),
-    ),
-  ];
+  const dataSourceLinks = buildSecureNowDataSourceNavLinks(linksByHref);
 
   if (dataSourceLinks.length > 0) {
     reshaped.push(
