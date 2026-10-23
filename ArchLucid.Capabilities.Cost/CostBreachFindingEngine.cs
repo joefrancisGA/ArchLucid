@@ -53,6 +53,7 @@ public sealed class CostBreachFindingEngine : IFindingEngine
             return null;
 
         node.Properties.TryGetValue("budgetName", out string? budgetName);
+        string resolvedBudgetName = ResolveBudgetDisplayName(node, budgetName);
         node.Properties.TryGetValue("projectedImpactUsdLowerBound", out string? lowerBoundRaw);
         node.Properties.TryGetValue("projectedImpactUsdUpperBound", out string? upperBoundRaw);
 
@@ -76,7 +77,7 @@ public sealed class CostBreachFindingEngine : IFindingEngine
             PayloadType = nameof(CostBreachFindingPayload),
             Payload = new CostBreachFindingPayload
             {
-                BudgetName = budgetName ?? node.Label,
+                BudgetName = resolvedBudgetName,
                 MaxMonthlyCost = maxMonthlyCost,
                 ProjectedMonthlySpendUsd = spend,
                 BreachAmountUsd = breachAmount,
@@ -136,4 +137,15 @@ public sealed class CostBreachFindingEngine : IFindingEngine
 
     private static decimal? TryParseDecimal(string? raw) =>
         CostGraphDecimalParser.TryParse(raw, out decimal value) ? value : null;
+
+    private static string ResolveBudgetDisplayName(GraphNode node, string? budgetName)
+    {
+        if (!string.IsNullOrWhiteSpace(budgetName))
+            return budgetName.Trim();
+
+        if (!string.IsNullOrWhiteSpace(node.Label))
+            return node.Label.Trim();
+
+        return node.NodeId;
+    }
 }

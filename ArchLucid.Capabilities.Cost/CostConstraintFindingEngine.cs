@@ -30,6 +30,7 @@ public sealed class CostConstraintFindingEngine : IFindingEngine
         foreach (GraphNode node in costNodes)
         {
             node.Properties.TryGetValue("budgetName", out string? budgetName);
+            string resolvedBudgetName = ResolveBudgetDisplayName(node, budgetName);
             node.Properties.TryGetValue("maxMonthlyCost", out string? maxCostStr);
             node.Properties.TryGetValue("costRisk", out string? costRisk);
             string? normalizedCostRisk = string.IsNullOrWhiteSpace(costRisk) ? null : costRisk.Trim();
@@ -70,7 +71,7 @@ public sealed class CostConstraintFindingEngine : IFindingEngine
                 Payload =
                     new CostConstraintFindingPayload
                     {
-                        BudgetName = budgetName ?? node.Label,
+                        BudgetName = resolvedBudgetName,
                         MaxMonthlyCost = maxMonthly,
                         CostRisk = normalizedCostRisk ?? "unknown",
                         ProjectedImpactUsdLowerBound = lowerBound,
@@ -111,6 +112,17 @@ public sealed class CostConstraintFindingEngine : IFindingEngine
         }
 
         return Task.FromResult<IReadOnlyList<Finding>>(findings);
+    }
+
+    private static string ResolveBudgetDisplayName(GraphNode node, string? budgetName)
+    {
+        if (!string.IsNullOrWhiteSpace(budgetName))
+            return budgetName.Trim();
+
+        if (!string.IsNullOrWhiteSpace(node.Label))
+            return node.Label.Trim();
+
+        return node.NodeId;
     }
 
     private static Finding CreatePolicyRequiredCapFinding(GraphSnapshot graphSnapshot)

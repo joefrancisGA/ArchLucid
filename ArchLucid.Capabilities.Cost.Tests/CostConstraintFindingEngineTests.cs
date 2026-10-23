@@ -125,6 +125,31 @@ public sealed class CostConstraintFindingEngineTests
     }
 
     [Fact]
+    public async Task AnalyzeAsync_trims_padded_budget_name_on_constraint_payload()
+    {
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "c3",
+                    NodeType = "CostConstraint",
+                    Label = "from-label-only",
+                    Properties = new Dictionary<string, string> { ["budgetName"] = " Tenant A " }
+                }
+            ],
+            Edges = []
+        };
+
+        IReadOnlyList<Finding> findings = await _sut.AnalyzeAsync(graph, null, CancellationToken.None);
+
+        CostConstraintFindingPayload payload = findings.Should().ContainSingle().Subject.Payload
+            .Should().BeOfType<CostConstraintFindingPayload>().Subject;
+        payload.BudgetName.Should().Be("Tenant A");
+    }
+
+    [Fact]
     public async Task AnalyzeAsync_FallsBackBudgetName_ToLabel_WhenBudgetNameAbsent()
     {
         GraphSnapshot graph = new()
