@@ -197,7 +197,8 @@ internal static class ArchitectureRecommendationTradeOffBuilder
                 || IsCostTokenInCostCenterPhrase(priority)
                 || IsCostTokenInQualifiedCostNounPhrase(priority)
                 || IsCostTokenInPerQualifierCostPhrase(priority)
-                || IsCostTokenInMultiWordQualifiedCostPhrase(priority)))
+                || IsCostTokenInMultiWordQualifiedCostPhrase(priority)
+                || IsCostTokenInCostOfDimensionGoalPhrase(priority)))
         {
             return false;
         }
@@ -245,6 +246,12 @@ internal static class ArchitectureRecommendationTradeOffBuilder
         Regex.IsMatch(
             priority,
             @"\b(?:fully\s+loaded|total\s+landed)\s+cost\b",
+            RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    private static bool IsCostTokenInCostOfDimensionGoalPhrase(string priority) =>
+        Regex.IsMatch(
+            priority,
+            @"\bcost\s+of\s+(?:security|reliability|operations|compliance)\b",
             RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     private static bool TryResolveDeclaredPairPrecedence(
