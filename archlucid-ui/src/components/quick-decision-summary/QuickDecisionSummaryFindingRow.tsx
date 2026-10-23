@@ -49,6 +49,14 @@ import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/
 
 import type { QuickDecisionSummaryProps } from "./types";
 
+function formatQuickDecisionEvaluationScoreLine(score: number): string {
+  if (score > 1) {
+    return `Evaluation score was stored as ${score}. Recorded as a 0–100 value, not a fraction.`;
+  }
+
+  return `Evaluation score was stored as ${score}. Recorded as a 0–1 fraction, not a 0–100 count.`;
+}
+
 type QuickDecisionSummaryFindingRowProps = {
   readonly props: QuickDecisionSummaryProps;
   readonly finding: QuickDecisionFinding;
@@ -227,7 +235,7 @@ export function QuickDecisionSummaryFindingRow({
       finding.evaluationConfidenceScore !== undefined &&
       Number.isFinite(finding.evaluationConfidenceScore) ? (
         <p className={cn("m-0 mt-0.5 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-          Evaluation score {Math.round(finding.evaluationConfidenceScore)}
+          {formatQuickDecisionEvaluationScoreLine(finding.evaluationConfidenceScore)}
         </p>
       ) : finding.evaluationConfidenceScore === null || finding.evaluationConfidenceScore === undefined ? (
         <p className={cn("m-0 mt-0.5 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
