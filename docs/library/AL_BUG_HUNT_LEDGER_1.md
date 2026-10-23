@@ -8716,6 +8716,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: architecture-intelligence-orchestrator
 
+2026-10-23 seed hunt (seed→hit): promoted line-break scalars between path segments splitting `ContentHash` (`docs\narchitecture/overview.md` vs `docs/architecture/overview.md`); `GraphSnapshotCanonicalFingerprint.NormalizeReviewCachePathLineBreakScalars` maps guard-aligned line-break scalars to `/` before percent decoding; regressions `Build_matches_content_hash_when_file_name_differs_only_by_line_feed_vs_slash_between_segments` and `Build_changes_content_hash_when_file_name_differs_only_by_interior_line_feed_in_segment`; 391 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `GraphSnapshotCanonicalFingerprint` / `ClosedLoopReasoningSourceTextNormalizer` — line-break scalars between path segments split path canonicalization — **hit 2026-10-23 seed hunt:** `NormalizeReviewCachePathLineBreakScalars`; regressions above.
+
 2026-10-23 seed hunt (seed→hit): promoted isolated `+` path-separator drift splitting `ContentHash` (`docs+architecture/overview.md` vs `docs/architecture/overview.md`); `GraphSnapshotCanonicalFingerprint.ReplaceIsolatedPlusWithPathSeparator` maps lone `+` to `/` before percent decoding so `%2B` literals stay intact; regression `Build_matches_content_hash_when_file_name_differs_only_by_plus_sign_vs_encoded_space_before_slash`; cheap-disproof regressions for tab-padded slashes, interior tab in element ids, triple-slash and leading `//` file names, and spaced run-id/tenant/ledger evidence refs; 389 scoped orchestrator/cache/manifest/continue-flight tests passed.
 
 - [x] (proven) `GraphSnapshotCanonicalFingerprint` / `ClosedLoopReasoningSourceTextNormalizer` — isolated `+` split path canonicalization — **hit 2026-10-23 seed hunt:** pre-decode lone `+`→`/` (preserves `++` and `%2B`); regression above.

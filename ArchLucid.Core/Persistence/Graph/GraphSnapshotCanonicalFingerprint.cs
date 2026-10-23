@@ -285,7 +285,9 @@ public static class GraphSnapshotCanonicalFingerprint
 
         string path = NormalizeUnicodeDotScalars(
                 NormalizeUnicodeSlashScalars(
-                    DecodePercentEncodedPathTokens(ReplaceIsolatedPlusWithPathSeparator(normalizedToken))))
+                    DecodePercentEncodedPathTokens(
+                        NormalizeReviewCachePathLineBreakScalars(
+                            ReplaceIsolatedPlusWithPathSeparator(normalizedToken)))))
             .Replace('\\', '/');
 
         while (path.Contains("//", StringComparison.Ordinal))
@@ -308,6 +310,40 @@ public static class GraphSnapshotCanonicalFingerprint
 
     private static string NormalizePathLikeFingerprintToken(string normalizedToken) =>
         NormalizeReviewCachePathLikeToken(normalizedToken);
+
+    // Keep aligned with ClosedLoopReasoningSourceTextNormalizer.UnicodeLineBreakScalars for path tokens.
+    private static ReadOnlySpan<char> ReviewCachePathLineBreakScalars =>
+    [
+        '\0',
+        '\u000b',
+        '\u000c',
+        '\r',
+        '\u001c',
+        '\u001d',
+        '\u001e',
+        '\u001f',
+        '\u0084',
+        '\u0085',
+        '\u007f',
+        '\u200b',
+        '\u2028',
+        '\u2029',
+    ];
+
+    private static string NormalizeReviewCachePathLineBreakScalars(string value)
+    {
+        if (value.Length == 0)
+            return value;
+
+        string normalized = value.Replace("\r\n", "/", StringComparison.Ordinal);
+
+        foreach (char lineBreak in ReviewCachePathLineBreakScalars)
+            normalized = normalized.Replace(lineBreak, '/');
+
+        normalized = normalized.Replace('\n', '/');
+
+        return normalized;
+    }
 
     private static string ReplaceIsolatedPlusWithPathSeparator(string value)
     {
