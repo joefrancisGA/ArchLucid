@@ -14,9 +14,9 @@ export function buildReviewDefensibilityStripProps(
     }
 
     return {
-      assertedCount: 0,
-      inferredCount: 0,
-      skippedCount: 0,
+      assertedCount: null,
+      inferredCount: null,
+      skippedCount: null,
       criticAbsent: true,
       verdictKind: null,
     };
@@ -25,9 +25,10 @@ export function buildReviewDefensibilityStripProps(
   const trail = feasibilityVerdict.transparencyTrail;
 
   return {
-    assertedCount: trail?.asserted.length ?? 0,
-    inferredCount: trail?.inferred.length ?? 0,
-    skippedCount: countSkippedMustQuestions(trail),
+    assertedCount: trail === null || trail === undefined ? null : trail.asserted.length,
+    inferredCount: trail === null || trail === undefined ? null : trail.inferred.length,
+    skippedCount:
+      trail === null || trail === undefined ? null : countSkippedMustQuestions(trail),
     criticAbsent,
     verdictKind: feasibilityVerdictKindLabel(feasibilityVerdict.kind),
   };
