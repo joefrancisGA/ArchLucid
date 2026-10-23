@@ -63,15 +63,20 @@ public sealed class RetrievalTools(IRetrievalQueryService queryService)
 
         return filtered
             .Take(requestedTopK)
-            .Select(static h => new RetrievalMcpToolHit
+            .Select(static h =>
             {
-                DocumentId = h.DocumentId,
-                CorpusKind = h.CorpusKind,
-                SourceType = h.SourceType,
-                SourceId = h.SourceId,
-                Title = h.Title,
-                Snippet = h.Text.Length > 400 ? h.Text[..400] : h.Text,
-                Score = h.Score
+                string text = h.Text ?? string.Empty;
+
+                return new RetrievalMcpToolHit
+                {
+                    DocumentId = h.DocumentId ?? string.Empty,
+                    CorpusKind = h.CorpusKind ?? string.Empty,
+                    SourceType = h.SourceType ?? string.Empty,
+                    SourceId = h.SourceId ?? string.Empty,
+                    Title = h.Title ?? string.Empty,
+                    Snippet = text.Length > 400 ? text[..400] : text,
+                    Score = h.Score
+                };
             })
             .ToList();
     }

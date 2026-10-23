@@ -92,6 +92,13 @@ public sealed class ComparisonReplayService(
         return result;
     }
 
+    /// <inheritdoc />
+    public Task EnsureArtifactReplayAccessAllowedAsync(ComparisonRecord record, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(record);
+        return EnsureArtifactReplayAccessAllowedCoreAsync(record, cancellationToken);
+    }
+
     public async Task<DriftAnalysisResult> AnalyzeDriftAsync(string comparisonRecordId, CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(comparisonRecordId);
@@ -114,10 +121,19 @@ public sealed class ComparisonReplayService(
         };
     }
 
-    private async Task<DriftAnalysisResult> AnalyzeDriftEndToEndAsync(ComparisonRecord record, CancellationToken cancellationToken)
+    private async Task EnsureArtifactReplayAccessAllowedCoreAsync(ComparisonRecord record, CancellationToken cancellationToken)
     {
+        await EnsureRunPairLifecycleCompleteOrThrowAsync(
+            record.LeftRunId ?? string.Empty,
+            record.RightRunId ?? string.Empty,
+            cancellationToken);
         await EnsureCareerAllowsExportRecordMetadataOrThrowAsync(record.LeftRunId ?? string.Empty, cancellationToken);
         await EnsureCareerAllowsExportRecordMetadataOrThrowAsync(record.RightRunId ?? string.Empty, cancellationToken);
+    }
+
+    private async Task<DriftAnalysisResult> AnalyzeDriftEndToEndAsync(ComparisonRecord record, CancellationToken cancellationToken)
+    {
+        await EnsureArtifactReplayAccessAllowedCoreAsync(record, cancellationToken);
 
         EndToEndReplayComparisonReport stored = ComparisonRecordPayloadRehydrator.RehydrateEndToEnd(record) ??
                                                 throw new InvalidOperationException(
@@ -128,8 +144,7 @@ public sealed class ComparisonReplayService(
 
     private async Task<DriftAnalysisResult> AnalyzeDriftExportDiffAsync(ComparisonRecord record, CancellationToken cancellationToken)
     {
-        await EnsureCareerAllowsExportRecordMetadataOrThrowAsync(record.LeftRunId ?? string.Empty, cancellationToken);
-        await EnsureCareerAllowsExportRecordMetadataOrThrowAsync(record.RightRunId ?? string.Empty, cancellationToken);
+        await EnsureArtifactReplayAccessAllowedCoreAsync(record, cancellationToken);
 
         ExportRecordDiffResult stored = ComparisonRecordPayloadRehydrator.RehydrateExportDiff(record) ??
                                         throw new InvalidOperationException(
@@ -141,6 +156,8 @@ public sealed class ComparisonReplayService(
     private async Task<ReplayComparisonResult> ReplayEndToEndAsync(ComparisonRecord record, string format, string profile, ComparisonReplayMode mode,
         CancellationToken cancellationToken)
     {
+        await EnsureArtifactReplayAccessAllowedCoreAsync(record, cancellationToken);
+
         EndToEndReplayComparisonReport report;
         switch (mode)
         {
@@ -276,8 +293,7 @@ public sealed class ComparisonReplayService(
     private async Task<ReplayComparisonResult> ReplayExportDiffAsync(ComparisonRecord record, string format, ComparisonReplayMode mode,
         CancellationToken cancellationToken)
     {
-        await EnsureCareerAllowsExportRecordMetadataOrThrowAsync(record.LeftRunId ?? string.Empty, cancellationToken);
-        await EnsureCareerAllowsExportRecordMetadataOrThrowAsync(record.RightRunId ?? string.Empty, cancellationToken);
+        await EnsureArtifactReplayAccessAllowedCoreAsync(record, cancellationToken);
 
         ExportRecordDiffResult diff;
         switch (mode)

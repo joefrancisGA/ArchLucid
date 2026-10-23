@@ -206,7 +206,7 @@ public sealed class TenantScopedQueryScopeBindingAnalyzer : DiagnosticAnalyzer
             if (statement is not ExpressionStatementSyntax { Expression: AssignmentExpressionSyntax assignment })
                 continue;
 
-            if (assignment.OperatorToken.Kind() != SyntaxKind.EqualsToken)
+            if (!assignment.OperatorToken.IsKind(SyntaxKind.EqualsToken))
                 continue;
 
             if (assignment.Left is not IdentifierNameSyntax leftIdentifier)
