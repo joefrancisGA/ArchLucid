@@ -8815,6 +8815,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: architecture-intelligence-orchestrator
 
+2026-10-23 seed hunt (seed→hit): promoted figure-dash and horizontal-bar segment-separator drift splitting `ContentHash` (`docs‒architecture/overview.md`, `docs―architecture/overview.md` vs slash form); extended `ReviewCacheAlternatePathSeparators` with U+2012 and U+2015 using dotless-tail guard; regressions `Build_matches_content_hash_when_file_name_differs_only_by_figure_dash_between_segments`, `Build_matches_content_hash_when_file_name_differs_only_by_horizontal_bar_between_segments`, and `Build_changes_content_hash_when_file_name_differs_only_by_figure_dash_before_dotted_segment_name`; cheap-disproof regressions for `%E2%80%92` and `%E2%80%95`; 483 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `GraphSnapshotCanonicalFingerprint` — figure-dash and horizontal-bar alternate path separators split path canonicalization — **hit 2026-10-23 seed hunt:** U+2012 / U+2015 in alternate separator set; regressions above.
+
 2026-10-23 seed hunt (seed→hit): promoted Unicode hyphen and minus-sign segment-separator drift splitting `ContentHash` (`docs−architecture/overview.md`, `docs‐architecture/overview.md` vs slash form) without mapping ASCII `-` kebab segments; extended `ReviewCacheAlternatePathSeparators` with U+2010 and U+2212 using dotless-tail guard; regressions `Build_matches_content_hash_when_file_name_differs_only_by_unicode_minus_sign_between_segments`, `Build_matches_content_hash_when_file_name_differs_only_by_unicode_hyphen_between_segments`, and `Build_changes_content_hash_when_file_name_differs_only_by_unicode_minus_sign_before_dotted_segment_name`; cheap-disproof regressions for `%E2%88%92`, `%E2%80%90`, and `Build_changes_content_hash_when_file_name_differs_only_by_ascii_hyphen_kebab_segment_vs_slash`; 478 scoped orchestrator/cache/manifest/continue-flight tests passed.
 
 - [x] (proven) `GraphSnapshotCanonicalFingerprint` — Unicode hyphen and minus-sign alternate path separators split path canonicalization — **hit 2026-10-23 seed hunt:** U+2010 / U+2212 in alternate separator set; regressions above.
@@ -9550,11 +9554,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** closed-loop orchestrator; review result cache; architecture intelligence
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.cs; ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.Cache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewResultCache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewCacheManifestBuilder.cs
 - **test-filter:** FullyQualifiedName~ClosedLoopArchitectureReasoningOrchestrator|FullyQualifiedName~ReviewResultCache|FullyQualifiedName~ReviewCacheManifestBuilder
-- **hunts:** 104
-- **bugs-found:** 91
+- **hunts:** 105
+- **bugs-found:** 92
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-23
-- **last-bug:** 2026-10-23 — Unicode hyphen and minus-sign alternate path separators split review-cache `ContentHash`
+- **last-bug:** 2026-10-23 — figure-dash and horizontal-bar alternate path separators split review-cache `ContentHash`
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
