@@ -12470,10 +12470,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 301
-- **bugs-found:** 203
+- **hunts:** 302
+- **bugs-found:** 204
 - **last-hunt:** 2026-10-23
-- **last-bug:** 2026-10-23 — overlay merge silently skipped duplicate edges with conflicting EdgeId
+- **last-bug:** 2026-10-23 — overlay merge skipped duplicate edges without backfilling property keys from later rows
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -12973,7 +12973,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - [x] (proven) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — duplicate overlay edges with conflicting `EdgeId` kept first edge id silently — **hit 2026-10-23 seed hunt (seed→hit):** edge-id agreement guard on overlay dedupe; regressions above.
 
-- [ ] (candidate) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — duplicate overlay edges where the second row adds property keys without scalar conflicts may still hide metadata drift — locus: overlay edge dedupe skips later rows without merging property bags when values are backfill-only; input: first edge omits a property key the second edge supplies on the same directed key; wrong outcome: merged graph never gains the second-row property entry (parity gap vs duplicate-node property backfill expectations).
+2026-10-23 seed hunt (seed→hit): promoted `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` duplicate overlay edges where the second row adds property keys without scalar conflicts candidate; proved overlay edge dedupe validated agreement but discarded later rows without merging backfill-only property keys, leaving the first edge bag incomplete; added `TryMergeOverlayEdgePropertyBackfillFromDuplicateRow` after duplicate-edge agreement checks; regression `Merge_backfills_overlay_duplicate_edge_properties_from_second_row_when_first_row_omits_property_key`; seeded `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` duplicate overlay nodes where the second row adds property keys without scalar conflicts follow-on; 614 KnowledgeGraph + 170 Provenance scoped tests passed.
+
+- [x] (proven) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — duplicate overlay edges dropped backfill-only property keys from later rows — **hit 2026-10-23 seed hunt (seed→hit):** property backfill on duplicate overlay edge dedupe; regression above.
+
+- [ ] (candidate) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — duplicate overlay nodes where the second row adds property keys without scalar conflicts may still hide metadata drift — locus: overlay node dedupe skips later rows without merging property bags when values are backfill-only; input: first node omits a property key the second node supplies on the same normalized `NodeId`; wrong outcome: merged graph never gains the second-row property entry.
 
 2026-10-22 seed hunt (seed→hit): promoted `StructuredDiagramGraphMerger` padded diagram property-key coalesce candidate; proved duplicate node/edge metadata coalesce indexed raw `property.Key`, so a later compile with surrounding-whitespace keys left parallel bag entries and `GraphNodePropertyReader` could return stale source-evidence values; trim keys before skip/coalesce (parity with `GraphNodeFactory.NormalizePropertyBag`); regression `Merge_coalesces_node_properties_when_incoming_property_keys_differ_only_by_surrounding_whitespace`; seeded diagram edge metadata padded-key coalesce regression follow-on; 468 KnowledgeGraph + 170 Provenance scoped tests passed.
 

@@ -74,6 +74,7 @@ public static class ArchitectureInventoryObservedFactGraphOverlayMerger
                         string.Equals(BuildEdgeKey(edge), edgeKey, StringComparison.OrdinalIgnoreCase));
 
                     TryValidateOverlayEdgeAgreement(inventoryEdge, retainedEdge);
+                    TryMergeOverlayEdgePropertyBackfillFromDuplicateRow(inventoryEdge, retainedEdge);
                 }
 
                 continue;
@@ -374,6 +375,33 @@ public static class ArchitectureInventoryObservedFactGraphOverlayMerger
             throw new ArgumentException(
                 "Inventory overlay duplicate edges disagree on EdgeId for the same directed edge key.");
         }
+    }
+
+    private static void TryMergeOverlayEdgePropertyBackfillFromDuplicateRow(
+        GraphEdge incomingEdge,
+        GraphEdge retainedEdge)
+    {
+        Dictionary<string, string> incomingProperties = NormalizeOverlayPropertyBagOrEmpty(incomingEdge.Properties);
+
+        if (incomingProperties.Count == 0)
+        {
+            return;
+        }
+
+        Dictionary<string, string> retainedProperties = NormalizeOverlayPropertyBagOrEmpty(retainedEdge.Properties);
+
+        foreach (KeyValuePair<string, string> entry in incomingProperties)
+        {
+            if (retainedProperties.TryGetValue(entry.Key, out string? existingValue)
+                && existingValue.Length > 0)
+            {
+                continue;
+            }
+
+            retainedProperties[entry.Key] = entry.Value;
+        }
+
+        retainedEdge.Properties = retainedProperties;
     }
 
     private static void TryValidateOverlayNodePropertyBagAgreement(GraphNode incomingNode, GraphNode retainedNode) =>
