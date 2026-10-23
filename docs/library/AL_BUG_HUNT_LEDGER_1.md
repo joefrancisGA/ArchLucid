@@ -7268,13 +7268,20 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-pilots
 
-2026-10-23 seed hunt (seed→hit): promoted committed-runs section header still claiming sample loaded when `RunDetailSampleLoadedNoRows` and `RunDetailsTruncated` false; header now shows `0 of {TotalRunsCommitted}` loaded for detail; regression extended on `Format_when_committed_runs_exist_but_no_run_details_loaded_does_not_emit_zero_findings_as_tenant_total`; cheap-disproof closed four sibling `(candidate)` rows; seeded five follow-on rows; 69 scoped BuyerProofPack/BoardPack/PilotValueReport tests passed.
+2026-10-23 seed hunt (seed→hit): promoted metadata `Committed runs` count reading as full inventory when `RunDetailSampleLoadedNoRows`; metadata row now qualifies `(0 loaded for detail in partial sample)`; regression extended on `Format_when_committed_runs_exist_but_no_run_details_loaded_does_not_emit_zero_findings_as_tenant_total`; cheap-disproof closed four sibling `(candidate)` rows; seeded five follow-on rows; 69 scoped BuyerProofPack/BoardPack/PilotValueReport tests passed.
 
-- [ ] (candidate) `PilotValueReportMarkdownFormatter` — metadata `Committed runs` count when `RunDetailSampleLoadedNoRows` — locus: report metadata table; input: positive `TotalRunsCommitted` with empty timeline; wrong outcome: reads as full inventory without qualification.
+- [ ] (candidate) `PilotValueReportMarkdownFormatter` — metadata `Committed runs` when both inventory truncated and `RunDetailSampleLoadedNoRows` — locus: metadata precedence between inventory and detail-sample qualifiers; input: truncated inventory with zero detail rows; wrong outcome: only one qualifier shown.
 - [ ] (candidate) `PilotValueReportMarkdownFormatter` — governance Summary rows when `RunDetailSampleLoadedNoRows` — locus: approvals/rejections without scope note; input: empty timeline with tenant-wide audit totals; wrong outcome: mixed scope without footnote.
-- [ ] (candidate) `PilotValueReportService` — `TotalFindings` non-zero when every detail fetch fails — locus: severity rollup loop; input: committed run ids with null `GetRunDetailForRoiAsync`; wrong outcome: stale non-zero totals on report DTO.
-- [ ] (candidate) `BuyerProofPackDeltasJsonFormatter` — `isDemoTenant` serialization vs limitations banner — locus: JSON field naming; input: demo tenant export; wrong outcome: consumers miss demo flag.
-- [ ] (candidate) `BoardPackPdfBuilder` — override window shorter than seven days yields zero-length digest week — locus: `DigestWeekInsideQuarter` clamp; input: two-day board-pack window.
+- [ ] (candidate) `PilotValueReportMarkdownFormatter` — `Comparison / drift detections` when `RunDetailSampleLoadedNoRows` — locus: Summary audit row; input: positive drift count with empty timeline; wrong outcome: appears run-scoped without audit-scope note.
+- [ ] (candidate) `BuyerProofPackCommitGuard` — non-canonical boolean strings for `isDemoTenant` — locus: `TryParseJsonBoolean`; input: `"true "` padded JSON; wrong outcome: false demo warning on pack build.
+- [ ] (candidate) `BoardPackQuarterWindow.DigestWeekInsideQuarter` — sub-day override window — locus: digest clamp; input: 12-hour board-pack window; wrong outcome: `weekEndUtc` not after `weekStartUtc`.
+
+- [x] (proven) `PilotValueReportMarkdownFormatter` — metadata `Committed runs` when `RunDetailSampleLoadedNoRows` — **hit 2026-10-23 seed hunt:** detail-sample qualifier on metadata row; regression `Format_when_committed_runs_exist_but_no_run_details_loaded_does_not_emit_zero_findings_as_tenant_total`.
+- [x] (valid-no-repro) `PilotValueReportService` — `TotalFindings` non-zero when every detail fetch fails — **cheap-disproof 2026-10-23 seed hunt:** severities rollup only on successful detail loads; formatter not-computed path for summary findings.
+- [x] (invalid) `BuyerProofPackDeltasJsonFormatter` — `isDemoTenant` vs limitations banner — **cheap-disproof 2026-10-23 seed hunt:** camelCase API contract field; limitations use shared `cautionWarning` from commit guard.
+- [x] (valid-no-repro) `BoardPackPdfBuilder` — short override window digest length — **cheap-disproof 2026-10-23 seed hunt:** clamp keeps `weekEndUtc` after `weekStartUtc`; regression `DigestWeekInsideQuarter_keeps_digest_week_inside_requested_window`.
+
+2026-10-23 seed hunt (seed→hit): promoted committed-runs section header still claiming sample loaded when `RunDetailSampleLoadedNoRows` and `RunDetailsTruncated` false; header now shows `0 of {TotalRunsCommitted}` loaded for detail; regression extended on `Format_when_committed_runs_exist_but_no_run_details_loaded_does_not_emit_zero_findings_as_tenant_total`; cheap-disproof closed four sibling `(candidate)` rows; seeded five follow-on rows; 69 scoped BuyerProofPack/BoardPack/PilotValueReport tests passed.
 
 - [x] (proven) `PilotValueReportMarkdownFormatter` — committed-runs header when `RunDetailSampleLoadedNoRows` — **hit 2026-10-23 seed hunt:** `0 of {total}` header; regression `Format_when_committed_runs_exist_but_no_run_details_loaded_does_not_emit_zero_findings_as_tenant_total`.
 - [x] (valid-no-repro) `PilotValueReportMarkdownFormatter` — `Recommendations generated (audit)` when `RunDetailSampleLoadedNoRows` — **cheap-disproof 2026-10-23 seed hunt:** audit-window totals remain tenant-wide by design; regression `Format_when_audit_export_truncated_with_empty_timeline_still_surfaces_comparison_drift_count`.
@@ -7298,11 +7305,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** buyer proof pack; board pack; pilot artifacts
 - **paths:** ArchLucid.Application/Pilots/
 - **test-filter:** FullyQualifiedName~BuyerProofPack|FullyQualifiedName~BoardPack
-- **hunts:** 53
-- **bugs-found:** 38
+- **hunts:** 54
+- **bugs-found:** 39
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-23
-- **last-bug:** 2026-10-23 — committed-runs header claimed sample loaded when none were
+- **last-bug:** 2026-10-23 — metadata committed-runs count without detail-load qualifier
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 

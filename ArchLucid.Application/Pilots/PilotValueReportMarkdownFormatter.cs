@@ -29,7 +29,13 @@ public sealed class PilotValueReportMarkdownFormatter(ExportFormatterService exp
         sb.AppendLine(
             CultureInfo.InvariantCulture,
             $"| Window (UTC) | `{_exportFormatter.FormatIso8601Utc(r.FromUtc)}` inclusive → `{_exportFormatter.FormatIso8601Utc(r.ToUtc)}` exclusive |");
-        if (r.CommittedRunsInventoryTruncated)
+        if (RunDetailSampleLoadedNoRows(r))
+        {
+            sb.AppendLine(
+                CultureInfo.InvariantCulture,
+                $"| Committed runs | {r.TotalRunsCommitted} (0 loaded for detail in partial sample) |");
+        }
+        else if (r.CommittedRunsInventoryTruncated)
         {
             sb.AppendLine(
                 CultureInfo.InvariantCulture,

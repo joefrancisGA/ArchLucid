@@ -195,6 +195,9 @@ public sealed class PilotValueReportMarkdownFormatterTests
         markdown.Should().NotContain("| Critical | 0 |");
         markdown.Should().Contain("## Committed runs (0 of 3 in-window committed runs loaded for detail)");
         markdown.Should().NotContain("## Committed runs (sample loaded for detail)");
+        markdown.Should().Contain(
+            "| Committed runs | 3 (0 loaded for detail in partial sample) |");
+        markdown.Should().NotContain("| Committed runs | 3 |");
     }
 
     [Fact]
@@ -435,6 +438,16 @@ public sealed class PilotValueReportMarkdownFormatterTests
             ToUtc = from.AddDays(30),
             TotalRunsCommitted = 12_000,
             CommittedRunsInventoryTruncated = true,
+            CommittedRunsTimeline =
+            [
+                new PilotValueReportRunTimelinePoint
+                {
+                    RunId = "run-1",
+                    CreatedUtc = from,
+                    CommittedUtc = from.AddHours(1),
+                    SystemName = "alpha",
+                },
+            ],
         };
 
         string markdown = sut.Format(report);
