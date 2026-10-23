@@ -88,6 +88,7 @@ public sealed class RunExportQueryFacade(
 
     public async Task<ScopedExportRecordLoadResult> GetExportRecordAsync(string exportRecordId, CancellationToken cancellationToken = default)
     {
+        exportRecordId = RunExportRecordIdNormalizer.NormalizeRequired(exportRecordId);
         RunExportRecord? record = await LoadScopedExportRecordAsync(exportRecordId, cancellationToken);
 
         if (record is null)
@@ -222,6 +223,21 @@ public sealed class RunExportQueryFacade(
     public async Task<ExportReplayQueryResult> ReplayExportAsync(string exportRecordId, ReplayExportRequest request, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(request);
+        exportRecordId = RunExportRecordIdNormalizer.NormalizeRequired(exportRecordId);
+        if (!string.IsNullOrWhiteSpace(request.ExportRecordId))
+        {
+            string normalizedRequestId = RunExportRecordIdNormalizer.NormalizeRequired(request.ExportRecordId);
+            if (!string.Equals(exportRecordId, normalizedRequestId, StringComparison.OrdinalIgnoreCase))
+            {
+                return new ExportReplayQueryResult
+                {
+                    Outcome = ExportRecordLoadOutcome.ExportRecordNotFound,
+                    MissingId = exportRecordId,
+                };
+            }
+        }
+
+        request.ExportRecordId = exportRecordId;
         RunExportRecord? record = await LoadScopedExportRecordAsync(exportRecordId, cancellationToken);
 
         if (record is null)
@@ -273,6 +289,9 @@ public sealed class RunExportQueryFacade(
 
         if (string.IsNullOrWhiteSpace(rightExportRecordId))
             return (ExportRecordLoadOutcome.RightIdRequired, null, null, null);
+
+        leftExportRecordId = RunExportRecordIdNormalizer.NormalizeRequired(leftExportRecordId);
+        rightExportRecordId = RunExportRecordIdNormalizer.NormalizeRequired(rightExportRecordId);
 
         RunExportRecord? left = await LoadScopedExportRecordAsync(leftExportRecordId, cancellationToken);
 

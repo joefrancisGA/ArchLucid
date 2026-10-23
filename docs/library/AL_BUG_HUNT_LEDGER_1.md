@@ -6868,13 +6868,22 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
-2026-10-23 seed hunt (seed→hit): completed token-boundary migration for remaining `DeclarationInventoryContradictionThreeWayGate` key classifiers (`storageencrypted`, `defaultaction`, `networkacl`, `privileged`, etc.); interior substrings like `restorageencrypted`, `antidefaultaction`, and `unprivileged` no longer suppress pack×declaration×inventory contradictions; regressions for encryption, network-isolation, and workload-isolation interior segments; cheap-disproof closed two replay/compare `(candidate)` rows; seeded five non-gate follow-on rows; scoped application-analysis filter 90/90. Private beta: multi-cloud declaration-vs-inventory contradiction coverage no longer skips mismatches on unrelated compound Terraform keys that merely embed security tokens.
+2026-10-23 seed hunt (seed→hit): proved architecture export replay and scoped export reads queried `IRunExportRecordRepository` with unpadded ids, so copy-pasted export record ids with surrounding whitespace returned not-found and blocked regenerate replay (including `CareerArtifactExportCompletenessGate`) despite valid rows; added `RunExportRecordIdNormalizer` trim parity in `ExportReplayService.ReplayAsync` and `RunExportQueryFacade` (compare pair loads, single-record read, replay route alignment); regressions `ReplayAsync_trims_surrounding_whitespace_on_export_record_id_before_lookup` and `CompareQuality_GetExportRecordAsync_trims_padded_export_record_id_before_lookup`; cheap-disproof closed four sibling `(candidate)` rows; seeded five follow-on rows; scoped application-analysis filter 55/55. Private beta: review export replay/compare tolerates padded export record ids from UI copy-paste.
 
-- [ ] (candidate) `DeclarationInventorySecurityPropertyValueComparer` — normalized value equality may treat JSON property order as significant — locus: declaration/inventory value compare; input: equivalent JSON objects with reordered keys.
-- [ ] (candidate) `RunExportLineageVerifier` — lineage verification short-circuits on first mismatch without recording which export record failed — locus: verifier aggregation; input: history with multiple exports where only the oldest row drifts.
-- [ ] (candidate) `ExportReplayService.ReplayAsync` — regenerate mode may skip completeness gate when export record ids are whitespace-padded — locus: trim parity on record ids; input: replay request with padded GUID text.
-- [ ] (candidate) `CompareQualityDeltaExportFormatter` — delta export omits zero deltas when both sides null — locus: formatter empty-state; input: compare-quality export with incomplete knowledge on one anchor only.
-- [ ] (candidate) `TerraformGitHubPrService` — PR title/body truncation may drop required run id suffix — locus: GitHub API payload limits; input: long architecture run title with embedded run id.
+- [ ] (candidate) `ExportsController.SealedManifestGuard` — `EnsureSealedManifestReadAllowedForExportRecordAsync` skips sealed guard when padded export record id misses repository lookup — locus: trim parity at API guard; input: `GET` export with leading/trailing whitespace on route id.
+- [ ] (candidate) `ComparisonReplayService.ReplayExportDiffAsync` — left/right export record ids not trimmed before `GetByIdAsync` — locus: export-diff regenerate; input: comparison record with padded `LeftExportRecordId`.
+- [ ] (candidate) `ComparisonsApplicationService.LoadScopedExportRecordAsync` — export anchor scope load without trim — locus: comparison history by export id; input: dashed/padded export record route id.
+- [ ] (candidate) `RunExportQueryFacade.ReplayExportAsync` — mismatched route vs body export id after normalization returns not-found without audit signal — locus: defense-in-depth logging; input: programmatic replay with divergent ids.
+- [ ] (candidate) `CompareQualityDeltaExportFormatter` — delta section omitted when formatter receives whitespace-only summary tail — locus: markdown section trim; input: summary ending in spaces before `## Compare Quality Delta`.
+
+- [x] (proven) `ExportReplayService.ReplayAsync` / `RunExportQueryFacade` — whitespace-padded export record ids missed repository lookup — **hit 2026-10-23 seed hunt:** `RunExportRecordIdNormalizer`; regressions `ReplayAsync_trims_surrounding_whitespace_on_export_record_id_before_lookup` and `CompareQuality_GetExportRecordAsync_trims_padded_export_record_id_before_lookup`.
+- [x] (invalid) `ExportReplayService.ReplayAsync` — regenerate mode skips completeness gate when export record ids are whitespace-padded — **cheap-disproof 2026-10-23 seed hunt:** padded ids failed lookup before replay; trim restores completeness gate (not a bypass).
+- [x] (valid-no-repro) `DeclarationInventorySecurityPropertyValueComparer` — JSON property order treated as significant — **cheap-disproof 2026-10-23 seed hunt:** string token normalize only; no JSON object equality branch.
+- [x] (valid-no-repro) `RunExportLineageVerifier` — lineage verification short-circuits on first mismatch without recording which export failed — **cheap-disproof 2026-10-23 seed hunt:** run-level manifest attestation; per-export drift handled via sealed-hash guards on reads.
+- [x] (invalid) `CompareQualityDeltaExportFormatter` — delta export omits zero deltas when both sides null — **cheap-disproof 2026-10-23 seed hunt:** intentional empty-state; prior PDF/DOCX delta fallback hunts cover omission policy.
+- [x] (valid-no-repro) `TerraformGitHubPrService` — PR title/body truncation drops required run id suffix — **cheap-disproof 2026-10-23 seed hunt:** existing truncation tests retain run id token; no new repro.
+
+2026-10-23 seed hunt (seed→hit): completed token-boundary migration for remaining `DeclarationInventoryContradictionThreeWayGate` key classifiers (`storageencrypted`, `defaultaction`, `networkacl`, `privileged`, etc.); interior substrings like `restorageencrypted`, `antidefaultaction`, and `unprivileged` no longer suppress pack×declaration×inventory contradictions; regressions for encryption, network-isolation, and workload-isolation interior segments; cheap-disproof closed two replay/compare `(candidate)` rows; seeded five non-gate follow-on rows; scoped application-analysis filter 90/90. Private beta: multi-cloud declaration-vs-inventory contradiction coverage no longer skips mismatches on unrelated compound Terraform keys that merely embed security tokens.
 
 - [x] (proven) `DeclarationInventoryContradictionThreeWayGate.IsEncryptionKey` / `IsNetworkIsolationKey` / `IsWorkloadIsolationKey` — raw `Contains` on security tokens in declaration keys — **hit 2026-10-23 seed hunt:** shared `DeclarationKeyContainsSecurityToken` for all classifiers; regressions `DeclarationClaimsSecureControl_returns_false_when_storageencrypted_token_is_embedded_inside_unrelated_key_segment`, `DeclarationClaimsSecureControl_returns_false_when_defaultaction_token_is_embedded_inside_unrelated_key_segment`, and `DeclarationClaimsSecureControl_returns_false_when_privileged_token_is_embedded_inside_unrelated_key_segment`.
 - [x] (valid-no-repro) `PolicyDeclarationInventoryContradictionFindingEngine` — unknown sentinel values — **cheap-disproof 2026-10-23 seed hunt:** prior pass; gate returns false for non-boolean normalized tokens.
@@ -7037,11 +7046,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 76
-- **bugs-found:** 71
+- **hunts:** 77
+- **bugs-found:** 72
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-23
-- **last-bug:** 2026-10-23 — remaining declaration key classifiers used raw Contains on security tokens
+- **last-bug:** 2026-10-23 — padded export record ids broke replay and scoped export reads
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
