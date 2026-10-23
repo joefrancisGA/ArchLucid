@@ -10015,11 +10015,17 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (valid-no-repro) `TryGetPropertyCaseInsensitivePreferLastNonEmpty` — trailing `["1"]` duplicate — **cheap-disproof 2026-10-23 thorough hunt #101:** regression `FromAggregateJson_uses_non_empty_faithfulness_ratio_when_later_duplicate_is_one_in_array`.
 - [x] (invalid) `TryReadFiniteDouble` — junk after `%` (`" 80% note"`) — **cheap-disproof 2026-10-23 thorough hunt #101:** no producer contract; conservative reject preferred.
 
-- [ ] (candidate) `TryReadAggregateRatioFromArrayItems` — sole numeric array `[0.95]` vs duplicate zero-alias — locus: poison; input: single-element unit ratio array; wrong outcome: parity with scalar.
-- [ ] (candidate) `TryReadStructuredConfidence` — nested confidence `[["75%"]]` — locus: array unwrap; input: double-wrapped percent; wrong outcome: null confidence.
-- [ ] (candidate) `RatioArrayItemIsDuplicateAliasPoison` — string `"100"` without percent in sole array — locus: poison; input: `["100"]`; wrong outcome: normalize vs poison.
-- [ ] (candidate) `RunExplanationAggregateJsonReader.TryReadFiniteDouble` — plus-prefixed percent `"+75%"` — locus: parse; input: signed percent string; wrong outcome: null ratio.
-- [ ] (candidate) `TryGetPropertyCaseInsensitivePreferLastNonEmpty` — trailing `faithfulnessSupportRatio` `["100%"]` duplicate — locus: array emptiness; input: ratio then percent array; wrong outcome: hunt #100 family.
+- [x] (proven) `TryReadAggregateRatioFromArrayItems` — sole `["100"]` faithfulness array returned null — **hit 2026-10-23 thorough hunt #102:** sole poison bypass for normalized values > 1; regression `FromAggregateJson_maps_whole_number_string_faithfulness_in_sole_element_array`.
+- [x] (valid-no-repro) `TryReadAggregateRatioFromArrayItems` — sole `[0.95]` decimal array — **cheap-disproof 2026-10-23 thorough hunt #102:** regression `FromAggregateJson_maps_unit_faithfulness_support_ratio_in_sole_element_decimal_array`.
+- [x] (valid-no-repro) `TryReadStructuredConfidence` — nested `[["75%"]]` confidence — **cheap-disproof 2026-10-23 thorough hunt #102:** regression `TryNormalizeStructuredJson_coerces_percent_suffixed_confidence_in_nested_array`.
+- [x] (valid-no-repro) `TryReadFiniteDouble` — plus-prefixed `"+75%"` confidence — **cheap-disproof 2026-10-23 thorough hunt #102:** regression `TryNormalizeStructuredJson_coerces_plus_prefixed_percent_confidence`.
+- [x] (valid-no-repro) `TryGetPropertyCaseInsensitivePreferLastNonEmpty` — trailing `["100%"]` duplicate — **cheap-disproof 2026-10-23 thorough hunt #102:** regression `FromAggregateJson_uses_non_empty_faithfulness_ratio_when_later_duplicate_is_hundred_percent_array`.
+
+- [ ] (candidate) `TryReadAggregateRatioFromArrayItems` — sole `[55]` without percent vs `["55%"]` — locus: sole poison bypass; input: whole-number array; wrong outcome: normalize vs reject.
+- [ ] (candidate) `TryReadStructuredConfidence` — confidence array with boolean `true` sole element — locus: reject booleans; input: `{"confidence":[true]}`; wrong outcome: null confidence.
+- [ ] (candidate) `RatioArrayItemIsDuplicateAliasPoison` — JSON number `100` in duplicate trailing array — locus: poison; input: `0.55` then `[100]`; wrong outcome: keep earlier ratio.
+- [ ] (candidate) `RunExplanationAggregateJsonReader.TryReadFiniteDouble` — underscore-separated percent — locus: parse; input: `"75_%"`; wrong outcome: reject.
+- [ ] (candidate) `TryGetPropertyCaseInsensitivePreferLastNonEmpty` — trailing `faithfulnessSupportRatio` `["100"]` duplicate without percent — locus: array emptiness; input: ratio then `["100"]`; wrong outcome: hunt #102 family.
 
 2026-10-09 seed hunt (seed-only): re-read aggregate property lookup, scalar coercion, structured list/reasoning normalization, and confidence disposition paths after the preceding parser fixes; no distinct candidate met the full reachability and wrong-outcome bar. Added two candidates for duplicate aggregate keys and negative numeric structured evidence references. The scoped RunExplanation suite passed 46 tests.
 
