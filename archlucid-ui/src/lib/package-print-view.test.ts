@@ -51,7 +51,7 @@ describe("package-print-view (TB-2205)", () => {
   it("resolves status and presentation for a finalized package", () => {
     const presentation = buildPackagePrintPresentation(summary());
 
-    expect(resolvePackagePrintStatusLabel(summary())).toBe("Active");
+    expect(resolvePackagePrintStatusLabel(summary())).toBe("Finalized. Governance warnings were stored.");
     expect(presentation.title).toBe("Payments edge");
     expect(presentation.findingsSummary).toContain("3 findings");
     expect(presentation.findingsSummary).toContain("1 warning");
