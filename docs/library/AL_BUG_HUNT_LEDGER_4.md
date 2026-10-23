@@ -12470,7 +12470,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 279
+- **hunts:** 280
 - **bugs-found:** 182
 - **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-22 — fully empty overlay merge returned base graph without warning normalization
@@ -12885,7 +12885,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - [x] (valid-no-repro) `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` — padded `ParentResourceId` stamped raw `arm.parentId` — **cheap-disproof 2026-10-23 seed hunt:** normalized parent stamp; regression above.
 
-- [ ] (candidate) `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` — duplicate resource rows differing only by `ParentResourceId` casing may stamp divergent `arm.parentId` — locus: first winning resource row property bag; input: two rows with same normalized ARM id and case-variant parent ids; wrong outcome: duplicate nodes or inconsistent `arm.parentId` on winning row.
+2026-10-23 seed hunt (valid-no-repro): promoted `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` duplicate resource rows with case-variant `ParentResourceId` candidate; proved normalized ARM dedupe suppresses the second row and the winning row stamps `arm.parentId` via `ArmResourceIdNormalizer.Normalize`, so casing-only parent variants collapse to one citation; regression `BuildOverlay_deduplicates_resources_and_stamps_normalized_parent_when_parent_resource_id_differs_only_by_case`; seeded `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` duplicate rows where losing row alone carries `ParentResourceId` may omit `arm.parentId` follow-on; 572 KnowledgeGraph + 170 Provenance scoped tests passed.
+
+- [x] (valid-no-repro) `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` — duplicate resource rows with case-variant `ParentResourceId` stamped divergent `arm.parentId` — **cheap-disproof 2026-10-23 seed hunt:** ARM dedupe plus normalized parent stamp; regression above.
+
+- [ ] (candidate) `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` — duplicate normalized ARM resource rows where only the losing row carries `ParentResourceId` may omit `arm.parentId` — locus: first winning resource row after `OrderBy` dedupe; input: two case- or padding-variant ARM rows where the lexicographically first row omits parent and the duplicate row includes parent; wrong outcome: overlay node lacks `arm.parentId` despite duplicate row parent citation.
 
 2026-10-22 seed hunt (seed→hit): promoted `StructuredDiagramGraphMerger` padded diagram property-key coalesce candidate; proved duplicate node/edge metadata coalesce indexed raw `property.Key`, so a later compile with surrounding-whitespace keys left parallel bag entries and `GraphNodePropertyReader` could return stale source-evidence values; trim keys before skip/coalesce (parity with `GraphNodeFactory.NormalizePropertyBag`); regression `Merge_coalesces_node_properties_when_incoming_property_keys_differ_only_by_surrounding_whitespace`; seeded diagram edge metadata padded-key coalesce regression follow-on; 468 KnowledgeGraph + 170 Provenance scoped tests passed.
 

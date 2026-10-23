@@ -2603,6 +2603,62 @@ public sealed class ArchitectureInventoryObservedFactGraphOverlayTests
     }
 
     [Fact]
+    public void BuildOverlay_deduplicates_resources_and_stamps_normalized_parent_when_parent_resource_id_differs_only_by_case()
+    {
+        const string armIdLower =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet-prod";
+        const string armIdUpper =
+            "/subscriptions/SUB/resourceGroups/RG/providers/Microsoft.Network/virtualNetworks/VNET-PROD";
+        const string parentArmIdLower =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/parent-vnet";
+        string parentArmIdUpper = parentArmIdLower.ToUpperInvariant();
+
+        AzureInventorySnapshotDetailReadModel snapshot = new()
+        {
+            Header = new AzureInventorySnapshotRecord
+            {
+                SnapshotId = SnapshotId,
+                TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                CreatedUtc = new DateTime(2026, 7, 18, 12, 0, 0, DateTimeKind.Utc),
+            },
+            Resources =
+            [
+                new AzureInventoryResourceRecord
+                {
+                    ResourceRowId = Guid.Parse("77777777-7777-7777-7777-777777777777"),
+                    SnapshotId = SnapshotId,
+                    TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                    AzureResourceId = armIdLower,
+                    ResourceType = "Microsoft.Network/virtualNetworks",
+                    ResourceGroup = "rg",
+                    SubscriptionId = "sub",
+                    ParentResourceId = parentArmIdLower,
+                },
+                new AzureInventoryResourceRecord
+                {
+                    ResourceRowId = Guid.Parse("88888888-8888-8888-8888-888888888888"),
+                    SnapshotId = SnapshotId,
+                    TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                    AzureResourceId = armIdUpper,
+                    ResourceType = "Microsoft.Network/virtualNetworks",
+                    ResourceGroup = "rg",
+                    SubscriptionId = "sub",
+                    ParentResourceId = parentArmIdUpper,
+                },
+            ],
+            Relationships = [],
+        };
+
+        GraphSnapshot overlay = ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay(
+            snapshot,
+            RunId,
+            ContextSnapshotId);
+
+        GraphNode node = overlay.Nodes.Should().ContainSingle().Subject;
+        node.Properties["arm.parentId"].Should().Be(ArmResourceIdNormalizer.Normalize(parentArmIdLower));
+    }
+
+    [Fact]
     public void BuildOverlay_stamps_normalized_arm_citations_when_winning_resource_row_has_surrounding_whitespace_on_azure_resource_id()
     {
         const string armIdCanonical =
