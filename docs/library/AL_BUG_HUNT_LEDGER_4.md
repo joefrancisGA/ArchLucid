@@ -14654,12 +14654,14 @@ heap-disproved mermaid typed-topology candidate.
 - **aliases:** host composition; DI registration; startup modules
 - **paths:** ArchLucid.Host.Composition/
 - **test-filter:** FullyQualifiedName~Host.Composition|FullyQualifiedName~ServiceCollectionExtensions
-- **hunts:** 72
-- **bugs-found:** 56
+- **hunts:** 73
+- **bugs-found:** 57
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-23
-- **last-bug:** 2026-10-23 — process-shared value-report poll cache retained expired entries
+- **last-bug:** 2026-10-23 — in-memory value report job dictionary retained terminal entries
 - **code-changed-since:** yes
+
+2026-10-23 thorough hunt (seed→hit): proved `InMemoryValueReportJobQueue` retained terminal `Completed`/`Failed` entries in local `_jobs` across subsequent enqueues, growing memory on busy replicas while distributed poll state remained authoritative; prune terminal local jobs on `Enqueue`; regression `InMemoryValueReportJobQueue_prunes_terminal_local_jobs_on_enqueue_but_keeps_distributed_poll_state`; cheap-disproof closed four sibling `(candidate)` rows; seeded five follow-on `(candidate)` rows; scoped value-report queue test passed (`RunAnalyzers=false`).
 
 2026-10-23 thorough hunt (seed→hit): proved `ProcessSharedValueReportJobPollStateCache` retained expired poll-state entries until a `Get` touched each key, so long-running hosts without Redis could grow memory without bound; prune expired entries on `Set`; regression `Set_prunes_expired_entries_without_get`; cheap-disproof closed four sibling `(candidate)` rows; seeded five follow-on `(candidate)` rows; scoped poll-state + discovery cancel tests 10 passed (`RunAnalyzers=false`).
 
@@ -14850,11 +14852,17 @@ heap-disproved mermaid typed-topology candidate.
 - [x] (valid-no-repro) `PollingCollectionRunDiscovery.DiscoverAsync` — `OperationCanceledException` swallowed by outer list catch — **cheap-disproof 2026-10-23 thorough hunt #72:** dedicated `OperationCanceledException` catch rethrows before generic handler; regression `DiscoverAsync_propagates_operation_canceled_when_list_manifests_is_canceled`.
 - [x] (proven) `ProcessSharedValueReportJobPollStateCache` — expired entries removed only on `Get` — **hit 2026-10-23 thorough hunt #72:** prune expired keys on `Set`; regression `Set_prunes_expired_entries_without_get`.
 
-- [ ] (candidate) `DistributedCacheValueReportJobPollStateCache` — relies on underlying cache TTL without local expiry enforcement on `Get` — locus: pass-through `Get`; input: Redis key expired server-side; wrong outcome: stale poll state until Redis eviction.
-- [ ] (candidate) `InMemoryValueReportJobQueue.TryPoll` — local `_jobs` entry retained after terminal state for unbounded job ids — locus: `ConcurrentDictionary` without eviction; input: high-volume async exports on one replica; wrong outcome: memory growth (distinct from poll-state cache).
-- [ ] (candidate) `CollectionRunIngestService.IngestAsync` — `Partial` manifest without `packageSha256` accepts any zip hash — locus: `IsManifestHashValid` empty hash branch; input: Partial run with tampered zip; wrong outcome: import without hash attestation.
-- [ ] (candidate) `AzureBlobCollectionRunArtifactReader.ReadManifestAsync` — non-`RequestFailedException` download errors return null — locus: broad catch; input: timeout wrapped as generic `Exception`; wrong outcome: manifest omitted from list without storage signal.
-- [ ] (candidate) `ValueReportJobPollStateCacheRegistrar` — opens dedicated `RedisCache` when probe string resolves but shared `IDistributedCache` registration fails later — locus: factory branch order; input: misordered composition modules; wrong outcome: split poll-state backing stores.
+- [x] (valid-no-repro) `DistributedCacheValueReportJobPollStateCache` — relies on underlying cache TTL without local expiry enforcement on `Get` — **cheap-disproof 2026-10-23 thorough hunt #73:** distributed cache entries use `AbsoluteExpirationRelativeToNow` two-hour TTL from `TryWriteDistributedState`; Redis/memory backends enforce expiry on read.
+- [x] (proven) `InMemoryValueReportJobQueue` — local `_jobs` retained terminal entries without bound — **hit 2026-10-23 thorough hunt #73:** `PruneTerminalLocalJobs` on `Enqueue`; regression `InMemoryValueReportJobQueue_prunes_terminal_local_jobs_on_enqueue_but_keeps_distributed_poll_state`.
+- [x] (valid-no-repro) `CollectionRunIngestService.IngestAsync` — `Partial` manifest without `packageSha256` accepts any zip hash — **cheap-disproof 2026-10-23 thorough hunt #73:** ADR-0103 rejects hash *mismatch*; absent hash still computes SHA256 from bytes for dedupe; tightening would be a product policy change not a composition defect.
+- [x] (valid-no-repro) `AzureBlobCollectionRunArtifactReader.ReadManifestAsync` — non-`RequestFailedException` download errors return null — **cheap-disproof 2026-10-23 thorough hunt #73:** intentional skip from hunt #67; listing continues with partial results.
+- [x] (valid-no-repro) `ValueReportJobPollStateCacheRegistrar` — opens dedicated `RedisCache` when probe string resolves but shared `IDistributedCache` registration fails later — **cheap-disproof 2026-10-23 thorough hunt #73:** factory prefers registered `IDistributedCache` first (hunt #41); dedicated Redis only when no shared cache exists.
+
+- [ ] (candidate) `InMemoryValueReportJobQueue.TryPoll` — pending local job removed when distributed state missing on peer — locus: local `_jobs` before distributed read; input: enqueue replica crash after pending write; wrong outcome: stale pending forever on surviving replica.
+- [ ] (candidate) `PollingCollectionRunDiscovery.DiscoverAsync` — duplicate `RunId` manifests in one list both call ingest — locus: foreach manifests; input: two blobs same `runId`; wrong outcome: redundant ingest work.
+- [ ] (candidate) `CollectionRunIngestService.IngestAsync` — manifest `tenantId` null skips tenant gate — locus: `manifest.TenantId is Guid`; input: missing tenant field; wrong outcome: import under ambient scope without manifest attestation.
+- [ ] (candidate) `AzureBlobCollectionRunArtifactReader.ParseManifestContent` — `finishedUtc` before `startedUtc` still lists manifest — locus: no ordering validation; input: inverted timestamps; wrong outcome: ingest with inconsistent timeline.
+- [ ] (candidate) `GraphProjectionCacheInvalidationSubscriberHostedService` — channel unbounded growth if Redis publishes faster than handler — locus: `Channel.CreateUnbounded`; input: flood invalidation messages; wrong outcome: memory pressure.
 
 
 2026-10-09 seed hunt (seed→hit): failed usage flush returned events through `Enqueue`, which drops them when metering is disabled. Already-accepted events now use `Requeue`. Regression `StopAsync_keeps_dequeued_usage_events_when_persist_fails_after_metering_disabled` failed first.
