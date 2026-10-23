@@ -140,6 +140,60 @@ public sealed class InMemoryValueReportJobQueueDistributedPollStateTests
     }
 
     [Fact]
+    public void TryPoll_reports_failure_when_distributed_state_cache_read_throws()
+    {
+        ServiceCollection services = BuildValueReportJobServices();
+        ThrowOnGetPollStateCache pollStateCache = new();
+        services.AddSingleton<IValueReportJobPollStateCache>(pollStateCache);
+        ServiceProvider provider = services.BuildServiceProvider();
+        IServiceScopeFactory scopeFactory = provider.GetRequiredService<IServiceScopeFactory>();
+
+        InMemoryValueReportJobQueue pollInstance =
+            new(scopeFactory, pollStateCache, NullLogger<InMemoryValueReportJobQueue>.Instance);
+
+        Guid tenantId = Guid.NewGuid();
+        Guid jobId = Guid.NewGuid();
+
+        ValueReportJobPollResult poll = pollInstance.TryPoll(jobId, tenantId);
+
+        poll.Found.Should().BeTrue();
+        poll.Completed.Should().BeFalse();
+        poll.ErrorMessage.Should().NotBeNullOrWhiteSpace();
+    }
+
+    [Fact]
+    public void TryPoll_reports_failure_when_distributed_state_has_inverted_report_window()
+    {
+        ServiceCollection services = BuildValueReportJobServices();
+        DictionaryPollStateCache pollStateCache = new();
+        services.AddSingleton<IValueReportJobPollStateCache>(pollStateCache);
+        ServiceProvider provider = services.BuildServiceProvider();
+        IServiceScopeFactory scopeFactory = provider.GetRequiredService<IServiceScopeFactory>();
+
+        InMemoryValueReportJobQueue pollInstance =
+            new(scopeFactory, pollStateCache, NullLogger<InMemoryValueReportJobQueue>.Instance);
+
+        Guid tenantId = Guid.NewGuid();
+        Guid workspaceId = Guid.NewGuid();
+        Guid projectId = Guid.NewGuid();
+        Guid jobId = Guid.NewGuid();
+        DateTimeOffset from = DateTimeOffset.UtcNow;
+        DateTimeOffset to = DateTimeOffset.UtcNow.AddDays(-7);
+
+        pollStateCache.Set(
+            $"archlucid:value-report-job:{jobId:N}",
+            System.Text.Encoding.UTF8.GetBytes(
+                $$"""{"tenantId":"{{tenantId}}","workspaceId":"{{workspaceId}}","projectId":"{{projectId}}","fromUtcInclusive":"{{from:O}}","toUtcExclusive":"{{to:O}}","phase":"Pending"}"""),
+            new DistributedCacheEntryOptions());
+
+        ValueReportJobPollResult poll = pollInstance.TryPoll(jobId, tenantId);
+
+        poll.Found.Should().BeTrue();
+        poll.Completed.Should().BeFalse();
+        poll.ErrorMessage.Should().NotBeNullOrWhiteSpace();
+    }
+
+    [Fact]
     public void TryPoll_reports_failure_when_distributed_state_payload_is_invalid_json()
     {
         ServiceCollection services = BuildValueReportJobServices();
@@ -677,6 +731,20 @@ public sealed class InMemoryValueReportJobQueueDistributedPollStateTests
         services.AddSingleton(audit.Object);
 
         return services;
+    }
+
+    private sealed class ThrowOnGetPollStateCache : IValueReportJobPollStateCache
+    {
+        public void Set(string key, byte[] payload, DistributedCacheEntryOptions options)
+        {
+        }
+
+        public byte[]? Get(string key) =>
+            throw new InvalidOperationException("Simulated distributed cache read failure.");
+
+        public void Remove(string key)
+        {
+        }
     }
 
     private sealed class DictionaryPollStateCache : IValueReportJobPollStateCache

@@ -14654,12 +14654,14 @@ heap-disproved mermaid typed-topology candidate.
 - **aliases:** host composition; DI registration; startup modules
 - **paths:** ArchLucid.Host.Composition/
 - **test-filter:** FullyQualifiedName~Host.Composition|FullyQualifiedName~ServiceCollectionExtensions
-- **hunts:** 83
-- **bugs-found:** 67
+- **hunts:** 84
+- **bugs-found:** 68
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-23
-- **last-bug:** 2026-10-23 — poll JSON missing report window masqueraded as pending
+- **last-bug:** 2026-10-23 — distributed poll cache read errors reported not-found
 - **code-changed-since:** yes
+
+2026-10-23 thorough hunt (seed→hit): proved `TryReadDistributedState` returned not-found when `IValueReportJobPollStateCache.Get` threw (non-JSON failures were not corrupt); treat cache read failures as corrupt payload and propagate cancel; regression `TryPoll_reports_failure_when_distributed_state_cache_read_throws`; cheap-disproof closed four sibling `(candidate)` rows; regressions `TryPoll_reports_failure_when_distributed_state_has_inverted_report_window` and `DiscoverAsync_propagates_operation_canceled_when_ingest_is_canceled`; scoped poll-state tests 19 passed (`RunAnalyzers=false`).
 
 2026-10-23 thorough hunt (seed→hit): proved distributed poll JSON with scope ids but missing/default `fromUtcInclusive`/`toUtcExclusive` (or inverted window) deserialized as pending instead of corrupt state; treat invalid report window as corrupt payload; regressions `TryPoll_reports_failure_when_distributed_state_json_missing_report_window` and `TryPoll_reports_failure_when_distributed_state_json_missing_project_id`; cheap-disproof closed four sibling `(candidate)` rows; regression `DiscoverAsync_propagates_operation_canceled_when_read_artifact_is_canceled`; scoped poll-state tests 17 passed (`RunAnalyzers=false`).
 
@@ -14938,11 +14940,17 @@ heap-disproved mermaid typed-topology candidate.
 - [x] (valid-no-repro) `ProcessSharedValueReportJobPollStateCache.Get` — expired entry lazy removal — **cheap-disproof 2026-10-23 thorough hunt #83:** `Set` prunes expired entries (hunt #72); `Get` lazy expiry is second-chance cleanup.
 - [x] (valid-no-repro) `CollectionRunIngestService.IngestAsync` — duplicate zip hash new `runId` marks imported without snapshot — **cheap-disproof 2026-10-23 thorough hunt #83:** `ExistingHashDoesNotImportAgain` in `CollectionRunIngestServiceTests`; intentional hash idempotency.
 
+- [x] (proven) `InMemoryValueReportJobQueue.TryPoll` — distributed cache `Get` throw reported not-found — **hit 2026-10-23 thorough hunt #84:** non-JSON read failures are corrupt payload; regression `TryPoll_reports_failure_when_distributed_state_cache_read_throws`.
+- [x] (valid-no-repro) `InMemoryValueReportJobQueue.TryPoll` — inverted report window in otherwise valid JSON — **cheap-disproof 2026-10-23 thorough hunt #84:** regression `TryPoll_reports_failure_when_distributed_state_has_inverted_report_window` (hunt #83 gate).
+- [x] (valid-no-repro) `PollingCollectionRunDiscovery.DiscoverAsync` — cancel during per-manifest ingest propagates — **cheap-disproof 2026-10-23 thorough hunt #84:** regression `DiscoverAsync_propagates_operation_canceled_when_ingest_is_canceled`.
+- [x] (valid-no-repro) `AzureBlobCollectionRunArtifactReader.ListManifestsAsync` — `OperationCanceledException` during enumeration propagates — **cheap-disproof 2026-10-23 thorough hunt #84:** only `RequestFailedException` is caught; cancel is not swallowed.
+- [x] (valid-no-repro) `InMemoryValueReportJobQueue.Enqueue` — failed pending distributed write returns failed job id without starting work — **cheap-disproof 2026-10-23 thorough hunt #84:** regression `TryPoll_on_peer_instance_reports_failure_when_pending_state_cannot_be_persisted` (hunt #62).
+
 - [ ] (candidate) `ValueReportJobPollStateCacheRegistrar.Register` — Redis probe opens dedicated client when shared cache missing — locus: factory; input: misconfigured redis; wrong outcome: documented fallback.
-- [ ] (candidate) `InMemoryValueReportJobQueue.TryPoll` — inverted report window in otherwise valid JSON — locus: window gate; input: `from >= to`; wrong outcome: corrupt (hunt #83).
-- [ ] (candidate) `PollingCollectionRunDiscovery.DiscoverAsync` — cancel during per-manifest ingest propagates — locus: ingest catch; input: canceled token; wrong outcome: intentional (hunt #72).
-- [ ] (candidate) `AzureBlobCollectionRunArtifactReader.ListManifestsAsync` — `OperationCanceledException` during enumeration propagates — locus: list loop; input: canceled token; wrong outcome: intentional.
-- [ ] (candidate) `InMemoryValueReportJobQueue.Enqueue` — failed pending distributed write returns failed job id without starting work — locus: enqueue; input: cache write failure; wrong outcome: intentional (hunt #62).
+- [ ] (candidate) `InMemoryValueReportJobQueue.TryPoll` — `OperationCanceledException` during distributed cache read propagates — locus: `TryReadDistributedState`; input: canceled token; wrong outcome: intentional (hunt #84).
+- [ ] (candidate) `PollingCollectionRunDiscovery.DiscoverAsync` — cancel during list manifests propagates — locus: outer list; input: canceled token; wrong outcome: intentional (hunt #72).
+- [ ] (candidate) `ProcessSharedValueReportJobPollStateCache.Remove` — remove missing key is silent — locus: `TryRemove`; input: unknown key; wrong outcome: idempotent.
+- [ ] (candidate) `CollectionRunIngestService.IngestAsync` — `Rejected` run re-ingest after corrected manifest — locus: upsert; input: same `runId`; wrong outcome: retry semantics (hunt #79).
 
 
 2026-10-09 seed hunt (seed→hit): failed usage flush returned events through `Enqueue`, which drops them when metering is disabled. Already-accepted events now use `Requeue`. Regression `StopAsync_keeps_dequeued_usage_events_when_persist_fails_after_metering_disabled` failed first.

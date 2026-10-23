@@ -135,6 +135,10 @@ public sealed partial class InMemoryValueReportJobQueue
                 new JobEntry(request, phase, bytes, state.FileName, state.ErrorMessage),
                 false);
         }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
         catch (JsonException ex)
         {
             if (_logger.IsEnabled(LogLevel.Warning))
@@ -147,7 +151,7 @@ public sealed partial class InMemoryValueReportJobQueue
             if (_logger.IsEnabled(LogLevel.Warning))
                 _logger.LogWarning(ex, "Failed to read value report job {JobId} from distributed cache.", jobId);
 
-            return new DistributedStateReadResult(null, false);
+            return new DistributedStateReadResult(null, true);
         }
     }
 

@@ -849,6 +849,79 @@ public sealed class PollingCollectionRunDiscoveryTests
     }
 
     [Fact]
+    public async Task DiscoverAsync_propagates_operation_canceled_when_ingest_is_canceled()
+    {
+        using CancellationTokenSource cts = new();
+        cts.Cancel();
+
+        Guid tenantId = Guid.NewGuid();
+        CollectionRunManifest manifest = new()
+        {
+            RunId = Guid.NewGuid(),
+            AgentVersion = "1.0",
+            StartedUtc = DateTime.UtcNow,
+            Status = "Succeeded",
+            TenantId = tenantId,
+            ZipPath = "runs/a/package.zip",
+            SchemaVersion = AzureExtractorPackageZipValidator.SupportedSchemaVersion,
+        };
+
+        CollectionRunArtifact artifact = new()
+        {
+            Manifest = manifest,
+            ZipBytes = [0x50, 0x4B, 0x03, 0x04],
+        };
+
+        Mock<ICollectionRunArtifactReader> reader = new();
+        reader
+            .Setup(r => r.ListManifestsAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync([manifest]);
+        reader
+            .Setup(r => r.ReadArtifactAsync(manifest, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(artifact);
+
+        Mock<ICollectionRunRepository> repository = new();
+        repository
+            .Setup(r => r.GetAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((CollectionRun?)null);
+        repository
+            .Setup(r => r.HasImportedHashAsync(It.IsAny<ScopeContext>(), It.IsAny<byte[]>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
+
+        Mock<IAzureExtractorIngestService> azureIngest = new();
+        azureIngest
+            .Setup(i => i.IngestZipBytesAsync(
+                It.IsAny<byte[]>(),
+                It.IsAny<string>(),
+                It.IsAny<Guid?>(),
+                It.IsAny<CancellationToken>(),
+                It.IsAny<string?>(),
+                It.IsAny<long>()))
+            .ThrowsAsync(new OperationCanceledException(cts.Token));
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider
+            .Setup(p => p.GetCurrentScope())
+            .Returns(new ScopeContext
+            {
+                TenantId = tenantId,
+                WorkspaceId = Guid.NewGuid(),
+                ProjectId = Guid.NewGuid(),
+            });
+
+        CollectionRunIngestService ingest = new(
+            repository.Object,
+            azureIngest.Object,
+            scopeProvider.Object);
+
+        PollingCollectionRunDiscovery discovery = new(reader.Object, ingest);
+
+        Func<Task> act = () => discovery.DiscoverAsync(cts.Token);
+
+        await act.Should().ThrowAsync<OperationCanceledException>();
+    }
+
+    [Fact]
     public async Task DiscoverAsync_propagates_operation_canceled_when_read_artifact_is_canceled()
     {
         using CancellationTokenSource cts = new();
