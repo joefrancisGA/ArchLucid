@@ -54,6 +54,20 @@ public sealed class AzureBlobCollectionRunArtifactReaderTests
     }
 
     [Fact]
+    public void ParseManifestContent_parses_numeric_schemaVersion()
+    {
+        Guid runId = Guid.Parse("11111111-2222-3333-4444-555555555555");
+        CollectionRunManifest? manifest = AzureBlobCollectionRunArtifactReader.ParseManifestContent(
+            BinaryData.FromString(
+                $$"""
+                  {"runId":"{{runId}}","startedUtc":"2026-01-01T12:00:00Z","schemaVersion":1,"status":"Succeeded"}
+                  """));
+
+        manifest.Should().NotBeNull();
+        manifest!.SchemaVersion.Should().Be(1);
+    }
+
+    [Fact]
     public void ParseManifestContent_returns_null_when_json_is_invalid()
     {
         CollectionRunManifest? manifest = AzureBlobCollectionRunArtifactReader.ParseManifestContent(

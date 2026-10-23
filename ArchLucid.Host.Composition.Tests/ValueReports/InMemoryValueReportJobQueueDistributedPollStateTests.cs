@@ -165,6 +165,54 @@ public sealed class InMemoryValueReportJobQueueDistributedPollStateTests
     }
 
     [Fact]
+    public async Task TryPoll_prefers_distributed_terminal_state_over_local_pending()
+    {
+        TaskCompletionSource<byte[]> renderGate = new();
+        ServiceCollection services = BuildValueReportJobServices();
+        Mock<IValueReportRenderer> renderer = new();
+        renderer
+            .Setup(r => r.RenderAsync(It.IsAny<ValueReportSnapshot>(), It.IsAny<CancellationToken>()))
+            .Returns(renderGate.Task);
+        services.AddSingleton(renderer.Object);
+
+        DictionaryPollStateCache pollStateCache = new();
+        services.AddSingleton<IValueReportJobPollStateCache>(pollStateCache);
+        ServiceProvider provider = services.BuildServiceProvider();
+        IServiceScopeFactory scopeFactory = provider.GetRequiredService<IServiceScopeFactory>();
+
+        InMemoryValueReportJobQueue instance =
+            new(scopeFactory, pollStateCache, NullLogger<InMemoryValueReportJobQueue>.Instance);
+
+        Guid tenantId = Guid.NewGuid();
+        Guid workspaceId = Guid.NewGuid();
+        Guid projectId = Guid.NewGuid();
+        DateTimeOffset from = DateTimeOffset.UtcNow.AddDays(-7);
+        DateTimeOffset to = DateTimeOffset.UtcNow;
+        ValueReportJobRequest request = new(tenantId, workspaceId, projectId, from, to);
+
+        Guid jobId = instance.Enqueue(request);
+
+        string payload =
+            $$"""
+              {"tenantId":"{{tenantId}}","workspaceId":"{{workspaceId}}","projectId":"{{projectId}}","fromUtcInclusive":"{{from:O}}","toUtcExclusive":"{{to:O}}","phase":"Failed","bytesBase64":null,"fileName":null,"errorMessage":"Distributed terminal failure."}
+              """;
+
+        pollStateCache.Set(
+            $"archlucid:value-report-job:{jobId:N}",
+            System.Text.Encoding.UTF8.GetBytes(payload),
+            new DistributedCacheEntryOptions());
+
+        ValueReportJobPollResult poll = instance.TryPoll(jobId, tenantId);
+
+        poll.Found.Should().BeTrue();
+        poll.Completed.Should().BeFalse();
+        poll.ErrorMessage.Should().Contain("Distributed terminal failure");
+
+        renderGate.SetResult([0x50, 0x4B, 0x03, 0x04]);
+        await Task.Delay(50);
+    }
+
+    [Fact]
     public void TryPoll_reports_failure_copy_when_distributed_failed_state_has_no_error_message()
     {
         ServiceCollection services = BuildValueReportJobServices();

@@ -44,12 +44,20 @@ public sealed partial class InMemoryValueReportJobQueue(
 
     public ValueReportJobPollResult TryPoll(Guid jobId, Guid scopedTenantId)
     {
-        if (!_jobs.TryGetValue(jobId, out JobEntry? entry))
+        _jobs.TryGetValue(jobId, out JobEntry? entry);
+        JobEntry? distributed = TryReadDistributedState(jobId);
+
+        if (entry is null)
         {
-            entry = TryReadDistributedState(jobId);
+            entry = distributed;
 
             if (entry is null)
                 return new ValueReportJobPollResult(false, false, null, null, null);
+        }
+        else if (entry.Phase == JobPhase.Pending &&
+                 distributed is { Phase: JobPhase.Completed or JobPhase.Failed })
+        {
+            entry = distributed;
         }
 
         if (entry.Request.TenantId != scopedTenantId)
