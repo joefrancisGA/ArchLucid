@@ -7859,6 +7859,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-agents
 
+2026-10-23 seed hunt (seed→hit): consolidated null-slot guards on agent read paths — null `AgentExecutionTrace` rows aborted LLM cost aggregation and provenance token/prompt derivation; null catalog rows aborted curated-evidence prompt serialization; regressions `Aggregate_skips_null_trace_entries_when_summing_reasoning_tokens` and `BuildUserPrompt_skips_null_catalog_entries_when_serializing_existing_catalog`; 158 scoped Application.Tests.Agents tests passed.
+
+- [x] (proven) `AgentExecutionTraceRunLlmCostAggregator.Compute` / `ReviewRunEngineProvenanceAggregator.Aggregate` / `AgentCuratedEvidenceProposer.BuildUserPrompt` — null trace and evidence-catalog list entries aborted run summary and curated-evidence paths — **hit 2026-10-23 seed hunt:** skip null traces before projection and null catalog entries before serialize; regressions above. [class:fail-open-validation]
+
 2026-10-23 seed hunt (seed→hit): promoted null elements in `AgentEvidencePackage.Policies` crashing run engine provenance aggregation (`policy.Title` in `DerivePolicyPackVersion`); `ReviewRunEngineProvenanceAggregator` now skips null policy entries before title projection; regression `Aggregate_skips_null_policy_entries_when_deriving_policy_pack_version`; 156 scoped Application.Tests.Agents tests passed.
 
 - [x] (proven) `ReviewRunEngineProvenanceAggregator.DerivePolicyPackVersion` — null policy list entries aborted provenance aggregation — **hit 2026-10-23 seed hunt:** null guard before title select; regression above. [class:fail-open-validation]
@@ -8123,11 +8127,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** application agents; agent handlers wiring
 - **paths:** ArchLucid.Application/Agents/
 - **test-filter:** FullyQualifiedName~Application.Tests.Agents
-- **hunts:** 76
-- **bugs-found:** 69
+- **hunts:** 77
+- **bugs-found:** 70
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-23
-- **last-bug:** 2026-10-23 — null policy entries crash engine provenance aggregation
+- **last-bug:** 2026-10-23 — null trace/catalog slots crash provenance and curated-evidence prompts
 
 2026-09-27 seed hunt (seed→hit): proved `TopologyProposalConsensusMerger.Merge` threw when `RequiredControls` was null on topology dual-model proposals (`AgentProposalStructuralPostProcessor` does not initialize controls for `AgentType.Topology`); fixed by null-coalescing in control intersection and disagreement counts; regression `Merge_when_required_controls_is_null_does_not_throw`; 92 scoped Application.Tests.Agents tests passed.
 
