@@ -8815,6 +8815,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: architecture-intelligence-orchestrator
 
+2026-10-23 seed hunt (seed→hit): promoted equals-sign segment-separator drift splitting `ContentHash` (`docs=architecture/overview.md` vs slash form); extended `ReviewCacheAlternatePathSeparators` with `=` and U+FF1D using dotless-tail guard; regressions `Build_matches_content_hash_when_file_name_differs_only_by_equals_sign_between_segments`, `Build_matches_content_hash_when_file_name_differs_only_by_fullwidth_equals_between_segments`, and `Build_changes_content_hash_when_file_name_differs_only_by_equals_before_dotted_segment_name`; cheap-disproof regressions for `%3D` between segments and `https://user@example.com/...` authority paths; 429 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `GraphSnapshotCanonicalFingerprint` — equals alternate path separator split path canonicalization — **hit 2026-10-23 seed hunt:** `=` / U+FF1D in alternate separator set; regressions above.
+- [x] (valid-no-repro) `GraphSnapshotCanonicalFingerprint` — `https` URL with userinfo prefix — **cheap-disproof 2026-10-23 seed hunt:** `Uri.AbsolutePath` strips userinfo; regression `Build_matches_content_hash_when_file_name_differs_only_by_https_url_with_userinfo_prefix`.
+
 2026-10-23 seed hunt (seed-only): cheap-disproof closed IPv6-literal protocol-relative URL and percent-encoded colon segment drift after colon-separator hit; regressions `Build_matches_content_hash_when_file_name_differs_only_by_ipv6_literal_protocol_relative_url` and `Build_matches_content_hash_when_file_name_differs_only_by_percent_encoded_colon_between_segments`; no production change; 430 scoped orchestrator/cache/manifest/continue-flight tests passed.
 
 - [x] (valid-no-repro) `GraphSnapshotCanonicalFingerprint` — IPv6-literal protocol-relative `//[::1]/...` path drift — **cheap-disproof 2026-10-23 seed hunt:** existing `TryStripProtocolRelativeAuthorityPath` + percent decode; regression above.
@@ -9520,13 +9525,13 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** closed-loop orchestrator; review result cache; architecture intelligence
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.cs; ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.Cache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewResultCache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewCacheManifestBuilder.cs
 - **test-filter:** FullyQualifiedName~ClosedLoopArchitectureReasoningOrchestrator|FullyQualifiedName~ReviewResultCache|FullyQualifiedName~ReviewCacheManifestBuilder
-- **hunts:** 97
-- **bugs-found:** 84
-- **consecutive-dry-hunts:** 1
+- **hunts:** 98
+- **bugs-found:** 85
+- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-23
-- **last-bug:** 2026-10-22 — passage locator null end vs zero end with start offset in review-cache modelfp
+- **last-bug:** 2026-10-23 — equals-sign alternate path separator split review-cache `ContentHash`
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 
 2026-09-07 seed hunt #1173 (hit): reseeded closed-loop orchestrator/cache manifest paths; proved client RunId missing from cache content hash caused concurrent coalesce to skip follower persistence.
 
