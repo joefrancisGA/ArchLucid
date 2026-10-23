@@ -8716,6 +8716,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: architecture-intelligence-orchestrator
 
+2026-10-23 seed hunt (seed→hit): promoted colon segment-separator drift splitting `ContentHash` (`docs:architecture/overview.md` vs slash form); extended `ReviewCacheAlternatePathSeparators` with `:` and U+FF1A using dotless-tail guard; regressions `Build_matches_content_hash_when_file_name_differs_only_by_colon_between_segments` and `Build_changes_content_hash_when_file_name_differs_only_by_colon_before_dotted_segment_name`; cheap-disproof regressions for fully percent-encoded https, percent-encoded protocol-relative, IP-literal `//127.0.0.1/...`, and explicit-port https URLs; 428 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `GraphSnapshotCanonicalFingerprint` — colon alternate path separator split path canonicalization — **hit 2026-10-23 seed hunt:** `:` / U+FF1A in alternate separator set; regressions above.
+
 2026-10-23 seed hunt (seed→hit): promoted protocol-relative `//host/...` URL drift splitting `ContentHash` (`//example.com/docs/architecture/overview.md` vs slash form); `TryStripProtocolRelativeAuthorityPath` resolves `//authority/...` via synthetic `https:` only when authority contains `.` or `:` so `//docs/...` path paste stays unchanged; cheap-disproof regression `Build_matches_content_hash_when_file_name_differs_only_by_http_url_with_authority_prefix`; regression `Build_matches_content_hash_when_file_name_differs_only_by_protocol_relative_url_with_authority_prefix`; 422 scoped orchestrator/cache/manifest/continue-flight tests passed.
 
 - [x] (proven) `GraphSnapshotCanonicalFingerprint` — protocol-relative URL authority prefix split path canonicalization — **hit 2026-10-23 seed hunt:** `TryStripProtocolRelativeAuthorityPath`; regressions above.
