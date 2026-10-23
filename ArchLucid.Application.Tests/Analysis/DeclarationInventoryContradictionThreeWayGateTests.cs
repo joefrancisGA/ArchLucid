@@ -104,6 +104,38 @@ public sealed class DeclarationInventoryContradictionThreeWayGateTests
     }
 
     [Fact]
+    public void DeclarationClaimsSecureControl_returns_false_when_public_token_is_embedded_inside_republic_key_segment()
+    {
+        DeclarationInventoryContradictionMismatch mismatch = new(
+            "node-1",
+            "storage",
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/st",
+            "tf.corporateRepublicNetworkAccess",
+            "false",
+            "true",
+            "Azure",
+            "data-protection");
+
+        DeclarationInventoryContradictionThreeWayGate.DeclarationClaimsSecureControl(mismatch).Should().BeFalse();
+    }
+
+    [Fact]
+    public void DeclarationClaimsSecureControl_returns_true_when_camel_case_public_segment_disables_access()
+    {
+        DeclarationInventoryContradictionMismatch mismatch = new(
+            "node-1",
+            "storage",
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/st",
+            "tf.allowPublicNetworkAccess",
+            "Disabled",
+            "Enabled",
+            "Azure",
+            "data-protection");
+
+        DeclarationInventoryContradictionThreeWayGate.DeclarationClaimsSecureControl(mismatch).Should().BeTrue();
+    }
+
+    [Fact]
     public void DeclarationClaimsSecureControl_returns_false_for_unknown_declaration_key()
     {
         DeclarationInventoryContradictionMismatch mismatch = new(

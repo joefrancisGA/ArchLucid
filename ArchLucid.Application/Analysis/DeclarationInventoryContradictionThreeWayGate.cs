@@ -49,8 +49,44 @@ public static class DeclarationInventoryContradictionThreeWayGate
     }
 
     private static bool IsPublicExposureKey(string declarationKey) =>
-        declarationKey.Contains("public", StringComparison.OrdinalIgnoreCase)
-        || declarationKey.Contains("blob", StringComparison.OrdinalIgnoreCase);
+        DeclarationKeyContainsSecurityToken(declarationKey, "public")
+        || DeclarationKeyContainsSecurityToken(declarationKey, "blob");
+
+    private static bool DeclarationKeyContainsSecurityToken(string declarationKey, string token)
+    {
+        if (string.IsNullOrEmpty(declarationKey) || string.IsNullOrEmpty(token))
+            return false;
+
+        for (int index = 0; index <= declarationKey.Length - token.Length; index++)
+        {
+            if (!declarationKey.AsSpan(index, token.Length).Equals(token, StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            if (!IsDeclarationKeySecurityTokenStart(declarationKey, index))
+                continue;
+
+            return true;
+        }
+
+        return false;
+    }
+
+    private static bool IsDeclarationKeySecurityTokenStart(string declarationKey, int tokenStartIndex)
+    {
+        if (tokenStartIndex == 0)
+            return true;
+
+        char previous = declarationKey[tokenStartIndex - 1];
+        char current = declarationKey[tokenStartIndex];
+
+        if (previous is '.' or '_' or '-')
+            return true;
+
+        if (char.IsAsciiLetterLower(previous) && char.IsAsciiLetterUpper(current))
+            return true;
+
+        return !char.IsAsciiLetter(previous);
+    }
 
     private static bool IsTransportSecurityKey(string declarationKey) =>
         declarationKey.Contains("https", StringComparison.OrdinalIgnoreCase)

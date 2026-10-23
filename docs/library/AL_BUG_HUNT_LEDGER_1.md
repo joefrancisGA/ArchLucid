@@ -6868,17 +6868,25 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-23 seed hunt (seed→hit): proved `DeclarationInventoryContradictionThreeWayGate.IsPublicExposureKey` used raw `Contains("public")` on declaration keys, so `corporateRepublic*` keys falsely classified as public-exposure declarations and suppressed pack×declaration×inventory contradictions; fixed with camelCase/dot/underscore token-boundary matching; regressions `DeclarationClaimsSecureControl_returns_false_when_public_token_is_embedded_inside_republic_key_segment` and `DeclarationClaimsSecureControl_returns_true_when_camel_case_public_segment_disables_access`; cheap-disproof closed four open `(candidate)` rows; seeded five follow-on rows; scoped application-analysis filter 85/85. Private beta: declaration-vs-inventory contradiction findings no longer skip mismatches solely because a Terraform key embeds `public` inside `republic`.
+
+- [ ] (candidate) `DeclarationInventoryContradictionThreeWayGate.IsTransportSecurityKey` — `https`/`tls`/`ssl` substring matching on declaration keys may false-positive on unrelated tokens (e.g. `nonTlsStorage`) — locus: transport key classifier; input: declaration key from multi-cloud inventory packs.
+- [ ] (candidate) `DeclarationInventoryContradictionThreeWayGate.IsNetworkIsolationKey` — `defaultaction` substring may match non-ACL configuration keys — locus: network isolation classifier; input: App Gateway or Front Door policy keys.
+- [ ] (candidate) `PolicyDeclarationInventoryContradictionFindingEngine` — mismatches filtered when `DeclarationClaimsSecureControl` is false may still emit when declaration value is unknown sentinel — locus: three-way gate vs finding emission; input: declaration value `unknown` with secure-sounding key.
+- [ ] (candidate) `CompareQualityDeltaCalculator.ComputeUncoveredMandatoryRequirements` — functional requirement count uses all elements while coverage metric may exclude muted kinds — locus: uncovered mandatory delta; input: compare-quality pair with requirement elements lacking design coverage on one side only.
+- [ ] (candidate) `ComparisonsApplicationService.TryBuildBatchReplayZipAsync` — generic `Exception` catch still wraps non-terminal failures as per-id batch manifest failures — locus: failure loop; input: batch replay with one comparison missing scoped tenant row.
+
+- [x] (invalid) `ComparisonReplayService.RegenerateExportDiffAsync` — regenerate export-diff omits inner career gate — **cheap-disproof 2026-10-23 seed hunt:** public replay paths gate before private regenerate helpers.
+- [x] (valid-no-repro) `RunExportLineageVerifier.VerifyAsync` — `LineageUnverified` outcome vs career throw asymmetry — **cheap-disproof 2026-10-23 seed hunt:** intentional enum for history listing vs exception on blocked metadata reads.
+- [x] (valid-no-repro) `CompareQualityDeltaCalculator.Build` — null knowledge model without error detail — **cheap-disproof 2026-10-23 seed hunt:** intentional null for incomplete inputs; calculator tests cover behavior.
+- [x] (valid-no-repro) `ConsultingDocxExportSealedReceiptGuard` — sealed receipt ordering vs `RunExportSealedManifestHashGuard` — **cheap-disproof 2026-10-23 seed hunt:** consulting route invokes receipt guard at export synthesis boundary; query facade uses manifest hash guard on reads.
+
 2026-10-22 seed hunt (seed-only): `application-analysis` — cheap-disproof closed four audit `(candidate)` rows (batch artifact pin skip, export replay duplicate guards, manifest hash artifact mode, batch passthrough consolidation); no failing repro; recommend consolidating batch terminal-exception passthrough in a dedicated engineering pass (not shipped this hunt); scoped filter 54/54.
 
 - [x] (valid-no-repro) `ComparisonBatchReplayPinInventoryGuard` - E2E batch `artifact` mode skips pin/inventory guard - **cheap-disproof 2026-10-22:** mirrors single-replay artifact mode (rehydrate stored payload; pin/inventory required only for regenerate/verify).
 - [x] (valid-no-repro) `ExportReplayService.ReplayAsync` - duplicate lifecycle/sealed-manifest checks after facade pre-checks - **cheap-disproof 2026-10-22:** defense-in-depth; ordering matches facade (lineage/career then service completeness).
 - [x] (valid-no-repro) `ComparisonReplayManifestHashGuard` - sealed-hash verification skipped for `artifact` replay mode in service - **cheap-disproof 2026-10-22:** intentional; HTTP routes still run sealed guards and artifact replay does not regenerate from live runs.
 - [x] (valid-no-repro) `TryBuildBatchReplayZipAsync` - ad-hoc passthrough catches for terminal exceptions - **cheap-disproof 2026-10-22:** `ConflictException`, `CareerArtifactExportBlockedException`, and `ComparisonVerificationFailedException` already rethrown; consolidation is engineering hardening only.
-
-- [ ] (candidate) `ComparisonReplayService.RegenerateExportDiffAsync` - regenerate export-diff runs lifecycle on export-record `RunId` pair without career re-check inside helper - locus: private regenerate; reachability: internal-only; outer `EnsureArtifactReplayAccessAllowedCoreAsync` covers public entry points.
-- [ ] (candidate) `RunExportLineageVerifier.VerifyAsync` - lineage mismatch returns `LineageUnverified` outcome while career gate throws on metadata reads - locus: export history vs single-record read asymmetry; reachability: `GET` export history after lineage fix (intentional outcome enum vs exception).
-- [ ] (candidate) `CompareQualityDeltaCalculator.Build` - null knowledge model returns null without surfacing which side is missing - locus: compare-quality delta; reachability: partial compare-quality inputs (covered by existing calculator tests).
-- [ ] (candidate) `ConsultingDocxExportSealedReceiptGuard` - consulting DOCX export sealed receipt check ordering vs `RunExportSealedManifestHashGuard` on query paths - locus: consulting export synthesis; reachability: `POST` consulting DOCX export on committed run with receipt drift.
 
 2026-10-22 seed hunt (seed-only): `application-analysis` — cheap-disproof closed four open `(candidate)` rows on PATCH response, cost-estimator cache, export replay completeness, and batch pin-inventory conflict passthrough; no failing repro promoted (deferred further artifact-read gate expansions while 14d `other` class saturated); seeded four follow-on mechanism rows; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` filter 54/54.
 
@@ -7016,11 +7024,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 73
-- **bugs-found:** 68
+- **hunts:** 74
+- **bugs-found:** 69
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — batch verify replay swallowed comparison verification failures
+- **last-hunt:** 2026-10-23
+- **last-bug:** 2026-10-23 — `republic` declaration keys misclassified as public exposure
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
