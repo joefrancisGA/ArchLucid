@@ -12470,10 +12470,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 312
-- **bugs-found:** 214
+- **hunts:** 313
+- **bugs-found:** 215
 - **last-hunt:** 2026-10-23
-- **last-bug:** 2026-10-23 — overlay merge skipped duplicate edges without backfilling InferenceSource from later rows
+- **last-bug:** 2026-10-23 — overlay merge skipped duplicate edges without backfilling ProvenanceKind from later rows
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -13017,7 +13017,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - [x] (proven) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — duplicate overlay edges with omitted first-row `InferenceSource` kept empty inference source when later row supplied one — **hit 2026-10-23 seed hunt (seed→hit):** inference-source backfill on duplicate overlay edge dedupe; regression above.
 
-- [ ] (candidate) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — duplicate overlay edges where the second row supplies `ProvenanceKind` when the first row omits provenance kind may keep an empty provenance kind — locus: overlay edge dedupe validates provenance kind agreement but skips later rows without scalar backfill when the retained provenance kind is empty; input: first edge has blank or missing `ProvenanceKind` and second duplicate overlay edge supplies a non-empty provenance kind; wrong outcome: merged graph retains empty provenance kind without adopting the second row.
+2026-10-23 seed hunt (seed→hit): promoted `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` duplicate overlay edges where the second row supplies `ProvenanceKind` when the first row omits provenance kind candidate; proved overlay edge dedupe validated provenance kind agreement but never backfilled a non-empty provenance kind from a later duplicate row when the retained provenance kind was empty or whitespace-only; added `TryMergeOverlayEdgeProvenanceKindBackfillFromDuplicateRow` via `ResolveOverlayTrimmedScalarBackfillFromDuplicateRow`; regression `Merge_backfills_overlay_duplicate_edge_provenance_kind_from_second_row_when_first_row_omits_provenance_kind`; seeded `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` duplicate overlay edges where the second row backfills scalar `DeclaredConnectionId` when the first row omits declared connection id follow-on; 625 KnowledgeGraph + 170 Provenance scoped tests passed.
+
+- [x] (proven) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — duplicate overlay edges with omitted first-row `ProvenanceKind` kept empty provenance kind when later row supplied one — **hit 2026-10-23 seed hunt (seed→hit):** provenance-kind backfill on duplicate overlay edge dedupe; regression above.
+
+- [ ] (candidate) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — duplicate overlay edges where the second row supplies `DeclaredConnectionId` when the first row omits declared connection id may keep an empty declared connection id — locus: overlay edge dedupe validates declared connection id agreement but skips later rows without scalar backfill when the retained declared connection id is empty; input: first edge has blank or missing `DeclaredConnectionId` and second duplicate overlay edge supplies a non-empty declared connection id; wrong outcome: merged graph retains empty declared connection id without adopting the second row.
 
 2026-10-22 seed hunt (seed→hit): promoted `StructuredDiagramGraphMerger` padded diagram property-key coalesce candidate; proved duplicate node/edge metadata coalesce indexed raw `property.Key`, so a later compile with surrounding-whitespace keys left parallel bag entries and `GraphNodePropertyReader` could return stale source-evidence values; trim keys before skip/coalesce (parity with `GraphNodeFactory.NormalizePropertyBag`); regression `Merge_coalesces_node_properties_when_incoming_property_keys_differ_only_by_surrounding_whitespace`; seeded diagram edge metadata padded-key coalesce regression follow-on; 468 KnowledgeGraph + 170 Provenance scoped tests passed.
 
