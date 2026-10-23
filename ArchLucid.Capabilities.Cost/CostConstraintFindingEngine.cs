@@ -63,7 +63,7 @@ public sealed class CostConstraintFindingEngine : IFindingEngine
                 Severity = string.Equals(normalizedCostRisk, "high", StringComparison.OrdinalIgnoreCase)
                     ? FindingSeverity.Warning
                     : FindingSeverity.Info,
-                Title = $"Cost constraint: {node.Label}",
+                Title = $"Cost constraint: {ResolveBudgetDisplayName(node, budgetName: null)}",
                 Rationale = "A cost constraint node was found and should constrain architecture choices.",
                 RelatedNodeIds = [node.NodeId],
                 ProjectedImpactUsd = maxMonthly,

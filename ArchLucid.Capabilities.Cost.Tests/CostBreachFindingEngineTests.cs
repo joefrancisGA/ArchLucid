@@ -132,6 +132,32 @@ public sealed class CostBreachFindingEngineTests
     }
 
     [Fact]
+    public async Task AnalyzeAsync_trims_padded_label_in_breach_title()
+    {
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "c1",
+                    NodeType = "CostConstraint",
+                    Label = " prod-budget ",
+                    Properties = new Dictionary<string, string>
+                    {
+                        ["maxMonthlyCost"] = "5000",
+                        ["projectedImpactUsdUpperBound"] = "6200",
+                    }
+                }
+            ]
+        };
+
+        IReadOnlyList<Finding> findings = await _sut.AnalyzeAsync(graph, null, CancellationToken.None);
+
+        findings.Should().ContainSingle().Subject.Title.Should().Be("Monthly cost breach: prod-budget");
+    }
+
+    [Fact]
     public async Task AnalyzeAsync_parses_invariant_graph_decimals_under_non_invariant_thread_culture()
     {
         CultureInfo previousCulture = CultureInfo.CurrentCulture;

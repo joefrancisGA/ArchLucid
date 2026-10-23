@@ -150,6 +150,29 @@ public sealed class CostConstraintFindingEngineTests
     }
 
     [Fact]
+    public async Task AnalyzeAsync_trims_padded_label_in_constraint_title()
+    {
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "c3",
+                    NodeType = "CostConstraint",
+                    Label = " tenant-a ",
+                    Properties = []
+                }
+            ],
+            Edges = []
+        };
+
+        IReadOnlyList<Finding> findings = await _sut.AnalyzeAsync(graph, null, CancellationToken.None);
+
+        findings.Should().ContainSingle().Subject.Title.Should().Be("Cost constraint: tenant-a");
+    }
+
+    [Fact]
     public async Task AnalyzeAsync_FallsBackBudgetName_ToLabel_WhenBudgetNameAbsent()
     {
         GraphSnapshot graph = new()

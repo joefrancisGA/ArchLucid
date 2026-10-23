@@ -69,7 +69,7 @@ public sealed class CostBreachFindingEngine : IFindingEngine
             Category = "Cost",
             EngineType = "cost-breach",
             Severity = severity,
-            Title = $"Monthly cost breach: {node.Label}",
+            Title = $"Monthly cost breach: {ResolveBudgetDisplayName(node, budgetName: null)}",
             Rationale =
                 "Projected monthly spend exceeds the declared budget cap from the cost constraint node.",
             RelatedNodeIds = [node.NodeId],
