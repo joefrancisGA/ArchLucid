@@ -122,15 +122,7 @@ internal static class ConfigurationEmbeddedCredentialMaterialDetector
         if (index == 0)
             return true;
 
-        int boundaryIndex = index;
-
-        while (boundaryIndex > 0 && trimmed[boundaryIndex - 1] == ' ')
-            boundaryIndex--;
-
-        if (boundaryIndex == 0)
-            return true;
-
-        char previous = trimmed[boundaryIndex - 1];
+        char previous = trimmed[index - 1];
 
         if (IsPairDelimiter(previous))
             return true;
@@ -138,19 +130,19 @@ internal static class ConfigurationEmbeddedCredentialMaterialDetector
         if (previous != ':')
             return false;
 
-        if (boundaryIndex >= 3 && trimmed.Slice(boundaryIndex - 3, 3).Equals("://".AsSpan(), StringComparison.Ordinal))
+        if (index >= 3 && trimmed.Slice(index - 3, 3).Equals("://".AsSpan(), StringComparison.Ordinal))
             return false;
 
         return true;
     }
 
     private static bool IsPairDelimiter(char character) =>
-        character is ';' or ',' or '|' or '&' or '\r' or '\n' or '\t' or '\f' or '\v'
+        character is ';' or ',' or '|' or '&' or ' ' or '\r' or '\n' or '\t' or '\f' or '\v'
         or '\u00A0' or '\u00AD' or '\u1680' or '\u180E' or '\u2000' or '\u2001' or '\u2002' or '\u2003' or '\u2004'
         or '\u2005' or '\u2006' or '\u2007' or '\u2008' or '\u2009' or '\u200A' or '\u200B' or '\u200C' or '\u200D'
         or '\u200E' or '\u200F' or '\u2011' or '\u2012' or '\u2013' or '\u2014' or '\u2015' or '\u202A' or '\u202B'
         or '\u202C' or '\u202D' or '\u202E' or '\u202F' or '\u205F' or '\u2060' or '\u2066' or '\u2067' or '\u2068'
-        or '\u2069' or '\u206A' or '\u3000' or '\uFE63' or '\uFF0D'
+        or '\u2069' or '\u206A' or '\u206B' or '\u206C' or '\u206E' or '\u206F' or '\u3000' or '\uFE63' or '\uFF0D'
         or '\u2212' or '\u2215' or '\u0085' or '\u2028' or '\u2029';
 
     private static bool TryMatchCredentialKeyValuePairAt(ReadOnlySpan<char> trimmed, int index)
