@@ -744,6 +744,46 @@ public sealed class ScimBearerAuthenticationHandlerTests
     }
 
     [Fact]
+    public async Task HandleAuthenticateAsync_fails_when_bearer_scheme_is_glued_to_token_without_separating_whitespace()
+    {
+        Mock<IScimBearerTokenAuthenticator> authenticator = new();
+
+        DefaultHttpContext http = new();
+        http.Request.Headers.Authorization = $"Bearer{ValidToken}";
+
+        ScimBearerAuthenticationHandlerTestDouble handler = CreateHandler(authenticator.Object, http);
+
+        AuthenticateResult result = await handler.InvokeHandleAuthenticateAsync();
+
+        result.Succeeded.Should().BeFalse();
+        authenticator.Verify(
+            a => a.TryAuthenticateAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task HandleAuthenticateAsync_fails_when_comma_in_authorization_value_splits_bearer_token_material()
+    {
+        Mock<IScimBearerTokenAuthenticator> authenticator = new();
+        authenticator
+            .Setup(a => a.TryAuthenticateAsync("archlucid_scim.public.secret", It.IsAny<CancellationToken>()))
+            .ReturnsAsync((ScimBearerAuthenticationResult?)null);
+
+        DefaultHttpContext http = new();
+        http.Request.Headers.Authorization = "Bearer archlucid_scim.public.secret,extra";
+
+        ScimBearerAuthenticationHandlerTestDouble handler = CreateHandler(authenticator.Object, http);
+
+        AuthenticateResult result = await handler.InvokeHandleAuthenticateAsync();
+
+        result.Succeeded.Should().BeFalse();
+        result.Failure?.Message.Should().Contain("mixes Bearer");
+        authenticator.Verify(
+            a => a.TryAuthenticateAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task HandleAuthenticateAsync_fails_when_zero_width_space_prefixes_bearer_token_material()
     {
         string tokenWithZwsp = "\u200B" + ValidToken;
