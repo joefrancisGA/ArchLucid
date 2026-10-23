@@ -331,8 +331,7 @@ public static class AgentProposalStructuralPostProcessor
 
         if (applyHttpsRule
             && rules.RequiresHttps
-            && normalizedEndpoint.Contains("http", StringComparison.OrdinalIgnoreCase)
-            && !normalizedEndpoint.Contains("https", StringComparison.OrdinalIgnoreCase))
+            && EndpointNameSuggestsPlainHttp(normalizedEndpoint))
         {
             reason = "contradicts confirmed HTTPS constraint";
             return true;
@@ -356,11 +355,26 @@ public static class AgentProposalStructuralPostProcessor
     }
 
     private static bool EndpointSuggestsMissingEncryptionAtRest(string endpointName) =>
-        endpointName.Contains("plaintext", StringComparison.OrdinalIgnoreCase)
-        || endpointName.Contains("unencrypted", StringComparison.OrdinalIgnoreCase);
+        PlaintextTokenInEndpointNameRegex.IsMatch(endpointName)
+        || UnencryptedTokenInEndpointNameRegex.IsMatch(endpointName);
+
+    private static bool EndpointNameSuggestsPlainHttp(string endpointName) =>
+        PlainHttpTokenInEndpointNameRegex.IsMatch(endpointName);
 
     private static bool EndpointNameSuggestsPublicExposure(string endpointName) =>
         PublicTokenInEndpointNameRegex.IsMatch(endpointName);
+
+    private static readonly Regex PlainHttpTokenInEndpointNameRegex = new(
+        @"\bhttp\b(?!s\b)",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Compiled);
+
+    private static readonly Regex PlaintextTokenInEndpointNameRegex = new(
+        @"\bplaintext\b",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Compiled);
+
+    private static readonly Regex UnencryptedTokenInEndpointNameRegex = new(
+        @"\bunencrypted\b",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Compiled);
 
     private static readonly Regex PublicTokenInEndpointNameRegex = new(
         @"\bpublic\b",
