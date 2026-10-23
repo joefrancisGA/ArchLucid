@@ -4218,6 +4218,20 @@
 
 ## Zone: saml-jwt-bearer
 
+2026-10-23 seed hunt #16 (seed-only): cheap-disproof closed five open `(candidate)` rows (form-feed-only Bearer placeholder segment, comma-folded duplicate token dedupe, garbage `auth_time` blocks `iat` fallback, trial JWT `authVersion` claim emission, cookie auth type SAML no-op); regression `HandleAuthenticateAsync_succeeds_when_form_feed_only_bearer_segment_precedes_valid_comma_folded_credential`; reseeded five follow-on `(candidate)` rows; `ScimBearerAuthenticationHandlerTests` 42/42; no handler change.
+
+- [x] (valid-no-repro) `ScimBearerAuthenticationHandler` — `Bearer` segment with only form-feed whitespace after scheme before comma — **cheap-disproof 2026-10-23 seed hunt #16:** empty-token skip; regression `HandleAuthenticateAsync_succeeds_when_form_feed_only_bearer_segment_precedes_valid_comma_folded_credential`.
+- [x] (valid-no-repro) `ScimBearerAuthenticationHandler` — duplicate Bearer token in comma-folded header dedupes before authenticator — **cheap-disproof 2026-10-23 seed hunt #16:** `distinctTokens`; regression `HandleAuthenticateAsync_succeeds_when_duplicate_bearer_credentials_are_comma_folded_in_one_header`.
+- [x] (valid-no-repro) `RecentAuthenticationEvaluator` — unparseable `auth_time` with fresh `iat` still fails when every auth_time garbage — **cheap-disproof 2026-10-23 seed hunt #16:** regression `HasRecentAuthentication_returns_false_when_every_auth_time_claim_is_unparseable_even_with_fresh_iat` on full tree.
+- [x] (valid-no-repro) `LocalTrialJwtIssuer` — `authVersion` stamp emitted when caller supplies Guid — **cheap-disproof 2026-10-23 seed hunt #16:** regression `IssueAccessToken_emits_auth_version_claim_when_caller_supplies_guid` on full tree.
+- [x] (valid-no-repro) `ArchLucidSamlInboundClaimsNormalizer` — `IsSaml2AuthenticatedIdentity` false for cookie auth type — **cheap-disproof 2026-10-23 seed hunt #16:** regression `Apply_when_cookie_authentication_type_is_noop` on full tree.
+
+- [ ] (candidate) `ScimBearerAuthenticationHandler` — vertical-tab-only Bearer placeholder before comma-folded valid token — locus: empty-token skip; input: `Bearer\v, Bearer valid`.
+- [ ] (candidate) `ScimBearerAuthenticationHandler` — `Authorization` header with only Bearer scheme and comma — locus: empty segment; input: `Bearer, Bearer valid`.
+- [ ] (candidate) `RecentAuthenticationEvaluator` — stale `iat` when `auth_time` absent — locus: `HasRecentAuthentication`; input: iat two hours ago only.
+- [ ] (candidate) `LocalTrialJwtIssuer` — empty Guid `authVersion` omitted from JWT — locus: `version != Guid.Empty`; input: `Guid.Empty`.
+- [ ] (candidate) `PlatformUserAuthVersionValidator` — rejects platform user when auth-version claim missing on local issuer — locus: fail-closed; input: null stamp + Guid sub.
+
 2026-10-23 seed hunt #15 (seed-only): cheap-disproof closed five open `(candidate)` rows (NBSP after `Bearer`, revoked then valid separate `Authorization` values, `iat` fallback without `auth_time`, non-local issuer skips auth-version enforcement, non-GUID tenant scope not promoted); regression `HandleAuthenticateAsync_succeeds_when_narrow_no_break_space_follows_bearer_scheme`; reseeded five follow-on `(candidate)` rows; `ScimBearerAuthenticationHandlerTests` 41/41; no handler change.
 
 - [x] (valid-no-repro) `ScimBearerAuthenticationHandler` — `Bearer` segment uses narrow no-break space (U+00A0) after scheme — **cheap-disproof 2026-10-23 seed hunt #15:** `char.IsWhiteSpace`; regression `HandleAuthenticateAsync_succeeds_when_narrow_no_break_space_follows_bearer_scheme`.
@@ -4225,12 +4239,6 @@
 - [x] (valid-no-repro) `RecentAuthenticationEvaluator` — missing `auth_time` falls back to latest `iat` — **cheap-disproof 2026-10-23 seed hunt #15:** regression `HasRecentAuthentication_returns_true_when_later_iat_is_fresh_among_multiple_values_without_auth_time` on full tree.
 - [x] (valid-no-repro) `PlatformUserAuthVersionValidator` — stale auth-version on non-local issuer skipped — **cheap-disproof 2026-10-23 seed hunt #15:** regression `ValidateAsync_skips_non_local_issuer_tokens` on full tree (stale stamp ignored).
 - [x] (valid-no-repro) `ArchLucidSamlInboundClaimsNormalizer` — non-GUID tenant scope source not promoted — **cheap-disproof 2026-10-23 seed hunt #15:** regression `Apply_skips_non_guid_scope_values_when_promoting_tenant_workspace_project` on full tree.
-
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — `Bearer` segment with only form-feed whitespace after scheme before comma — locus: empty-token skip; input: `Bearer\f, Bearer valid`.
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — duplicate Bearer token in comma-folded header dedupes before authenticator — locus: `distinctTokens`; input: same token twice comma-separated.
-- [ ] (candidate) `RecentAuthenticationEvaluator` — unparseable `auth_time` with fresh `iat` still fails when every auth_time garbage — locus: no fallback when auth_time claims exist; input: garbage auth_time + fresh iat.
-- [ ] (candidate) `LocalTrialJwtIssuer` — `authVersion` stamp emitted when caller supplies Guid — locus: optional claim; input: explicit auth version on issue.
-- [ ] (candidate) `ArchLucidSamlInboundClaimsNormalizer` — `IsSaml2AuthenticatedIdentity` false for cookie auth type — locus: authentication type gate; input: `Cookies` identity with role source.
 
 2026-10-23 seed hunt #14 (seed-only): cheap-disproof closed five open `(candidate)` rows (glued `Bearer` scheme, comma splitting token material, latest of multiple `auth_time` claims, default trial JWT lifetime when override omitted, duplicate inbound role strings); regressions `HandleAuthenticateAsync_fails_when_bearer_scheme_is_glued_to_token_without_separating_whitespace`, `HandleAuthenticateAsync_fails_when_comma_in_authorization_value_splits_bearer_token_material`, plus full-tree `TryGetAuthenticationInstant_returns_latest_auth_time_when_multiple_claims_are_present`, `IssueAccessToken_uses_local_identity_lifetime_when_caller_omits_minutes`, `Apply_does_not_duplicate_role_surface_claims_when_inbound_source_emits_identical_role_twice`; reseeded five follow-on `(candidate)` rows; `ScimBearerAuthenticationHandlerTests` 40/40; no handler change.
 
@@ -4367,7 +4375,7 @@
 - **aliases:** SAML; trial JWT; SCIM bearer; OIDC auth stack
 - **paths:** ArchLucid.Api/Auth/; ArchLucid.Core/Auth/Saml/
 - **test-filter:** FullyQualifiedName~Saml|FullyQualifiedName~LocalTrialJwt|FullyQualifiedName~ScimBearer
-- **hunts:** 42
+- **hunts:** 43
 - **bugs-found:** 31
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-23
