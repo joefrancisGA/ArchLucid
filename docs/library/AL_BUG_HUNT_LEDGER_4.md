@@ -14654,12 +14654,14 @@ heap-disproved mermaid typed-topology candidate.
 - **aliases:** host composition; DI registration; startup modules
 - **paths:** ArchLucid.Host.Composition/
 - **test-filter:** FullyQualifiedName~Host.Composition|FullyQualifiedName~ServiceCollectionExtensions
-- **hunts:** 84
-- **bugs-found:** 68
+- **hunts:** 85
+- **bugs-found:** 69
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-23
-- **last-bug:** 2026-10-23 — distributed poll cache read errors reported not-found
+- **last-bug:** 2026-10-23 — stale local completed hid distributed pending poll
 - **code-changed-since:** yes
+
+2026-10-23 thorough hunt (seed→hit): proved `PreferDistributedPollState` kept corrupt local `Completed` without bytes over distributed `Pending`, surfacing missing-document failure while the job was still in progress on a peer; prefer distributed pending when local completed lacks bytes; regression `TryPoll_prefers_distributed_pending_when_local_completed_has_no_document_bytes`; cheap-disproof closed four sibling `(candidate)` rows; regressions `TryPoll_propagates_operation_canceled_when_distributed_cache_read_is_canceled`, `Register_wraps_redis_cache_when_probe_resolves_without_shared_IDistributedCache`, and `Remove_missing_key_does_not_throw`; scoped value-report composition tests 27 passed (`RunAnalyzers=false`).
 
 2026-10-23 thorough hunt (seed→hit): proved `TryReadDistributedState` returned not-found when `IValueReportJobPollStateCache.Get` threw (non-JSON failures were not corrupt); treat cache read failures as corrupt payload and propagate cancel; regression `TryPoll_reports_failure_when_distributed_state_cache_read_throws`; cheap-disproof closed four sibling `(candidate)` rows; regressions `TryPoll_reports_failure_when_distributed_state_has_inverted_report_window` and `DiscoverAsync_propagates_operation_canceled_when_ingest_is_canceled`; scoped poll-state tests 19 passed (`RunAnalyzers=false`).
 
@@ -14946,11 +14948,17 @@ heap-disproved mermaid typed-topology candidate.
 - [x] (valid-no-repro) `AzureBlobCollectionRunArtifactReader.ListManifestsAsync` — `OperationCanceledException` during enumeration propagates — **cheap-disproof 2026-10-23 thorough hunt #84:** only `RequestFailedException` is caught; cancel is not swallowed.
 - [x] (valid-no-repro) `InMemoryValueReportJobQueue.Enqueue` — failed pending distributed write returns failed job id without starting work — **cheap-disproof 2026-10-23 thorough hunt #84:** regression `TryPoll_on_peer_instance_reports_failure_when_pending_state_cannot_be_persisted` (hunt #62).
 
-- [ ] (candidate) `ValueReportJobPollStateCacheRegistrar.Register` — Redis probe opens dedicated client when shared cache missing — locus: factory; input: misconfigured redis; wrong outcome: documented fallback.
-- [ ] (candidate) `InMemoryValueReportJobQueue.TryPoll` — `OperationCanceledException` during distributed cache read propagates — locus: `TryReadDistributedState`; input: canceled token; wrong outcome: intentional (hunt #84).
-- [ ] (candidate) `PollingCollectionRunDiscovery.DiscoverAsync` — cancel during list manifests propagates — locus: outer list; input: canceled token; wrong outcome: intentional (hunt #72).
-- [ ] (candidate) `ProcessSharedValueReportJobPollStateCache.Remove` — remove missing key is silent — locus: `TryRemove`; input: unknown key; wrong outcome: idempotent.
+- [x] (proven) `InMemoryValueReportJobQueue.TryPoll` — local completed without bytes overrode distributed pending — **hit 2026-10-23 thorough hunt #85:** `PreferDistributedPollState` prefers distributed `Pending` when local `Completed` lacks bytes; regression `TryPoll_prefers_distributed_pending_when_local_completed_has_no_document_bytes`.
+- [x] (valid-no-repro) `ValueReportJobPollStateCacheRegistrar.Register` — Redis probe opens dedicated client when shared cache missing — **cheap-disproof 2026-10-23 thorough hunt #85:** regression `Register_wraps_redis_cache_when_probe_resolves_without_shared_IDistributedCache`; shared `IDistributedCache` still preferred when registered (hunt #41).
+- [x] (valid-no-repro) `InMemoryValueReportJobQueue.TryPoll` — `OperationCanceledException` during distributed cache read propagates — **cheap-disproof 2026-10-23 thorough hunt #85:** regression `TryPoll_propagates_operation_canceled_when_distributed_cache_read_is_canceled` (hunt #84).
+- [x] (valid-no-repro) `PollingCollectionRunDiscovery.DiscoverAsync` — cancel during list manifests propagates — **cheap-disproof 2026-10-23 thorough hunt #85:** regression `DiscoverAsync_propagates_operation_canceled_when_list_manifests_is_canceled` (hunt #72).
+- [x] (valid-no-repro) `ProcessSharedValueReportJobPollStateCache.Remove` — remove missing key is silent — **cheap-disproof 2026-10-23 thorough hunt #85:** regression `Remove_missing_key_does_not_throw`.
+
 - [ ] (candidate) `CollectionRunIngestService.IngestAsync` — `Rejected` run re-ingest after corrected manifest — locus: upsert; input: same `runId`; wrong outcome: retry semantics (hunt #79).
+- [ ] (candidate) `InMemoryValueReportJobQueue.TryPoll` — local completed with bytes not overridden by distributed pending — locus: merge order; input: valid local bytes; wrong outcome: intentional (hunt #77).
+- [ ] (candidate) `PollingCollectionRunDiscovery.DiscoverAsync` — cancel during ingest propagates — locus: ingest catch; input: canceled token; wrong outcome: intentional (hunt #84).
+- [ ] (candidate) `InMemoryValueReportJobQueue.Enqueue` — prune terminal local jobs before enqueue — locus: `PruneTerminalLocalJobs`; input: prior terminal job; wrong outcome: intentional memory bound (hunt #73).
+- [ ] (candidate) `AzureBlobCollectionRunArtifactReader.ReadArtifactAsync` — cancellation during package download propagates — locus: download catch; input: canceled token; wrong outcome: intentional (hunt #81).
 
 
 2026-10-09 seed hunt (seed→hit): failed usage flush returned events through `Enqueue`, which drops them when metering is disabled. Already-accepted events now use `Requeue`. Regression `StopAsync_keeps_dequeued_usage_events_when_persist_fails_after_metering_disabled` failed first.
