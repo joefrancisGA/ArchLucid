@@ -4218,6 +4218,20 @@
 
 ## Zone: saml-jwt-bearer
 
+2026-10-23 seed hunt #6 (seed→hit): promoted `ScimBearerAuthenticationHandler` double-space-joined `Authorization` value (revoked Bearer then valid Bearer without comma delimiter); `ExpandWhitespaceJoinedBearerSegment` splits on `\s{2,}(?=Bearer\s)`; regression `HandleAuthenticateAsync_succeeds_when_double_space_separated_header_lists_revoked_token_before_valid_one`; cheap-disproof closed four open `(candidate)` rows; reseeded five follow-on `(candidate)` rows; `ScimBearerAuthenticationHandlerTests` 22/22. Private beta: SCIM Bearer provisioning succeeds when a proxy joins revoked and valid Bearer credentials with multiple ASCII spaces instead of an explicit delimiter.
+
+- [x] (proven) `ScimBearerAuthenticationHandler.TryParseBearerCredentials` — double-space-separated revoked then valid Bearer in one segment — **hit 2026-10-23 seed hunt #6:** single segment `Bearer revoked  Bearer valid` never reached second credential; regression `HandleAuthenticateAsync_succeeds_when_double_space_separated_header_lists_revoked_token_before_valid_one`.
+- [x] (valid-no-repro) `ScimBearerAuthenticationHandler` — three comma-separated Bearer credentials — **cheap-disproof 2026-10-23 seed hunt #6:** `MaxBearerCredentialsPerRequest` is 2; regression `HandleAuthenticateAsync_fails_when_more_than_two_bearer_credentials_are_present`.
+- [x] (valid-no-repro) `ScimBearerAuthenticationHandler` — `Digest` then `Bearer` in folded header — **cheap-disproof 2026-10-23 seed hunt #6:** mix guard; regression `HandleAuthenticateAsync_fails_when_comma_folded_header_mixes_digest_and_bearer_schemes`.
+- [x] (valid-no-repro) `LocalTrialJwtIssuer` — negative `accessTokenLifetimeMinutes` — **cheap-disproof 2026-10-23 seed hunt #6:** `Math.Clamp(configuredMinutes, 5, 24 * 60)` before `AddMinutes`.
+- [x] (valid-no-repro) `ArchLucidSamlInboundClaimsNormalizer` — `Admin` vs `admin` role casing — **cheap-disproof 2026-10-23 seed hunt #6:** `HasClaim("roles", roleValue)` is case-sensitive; both values may coexist by design.
+
+- [ ] (candidate) `ScimBearerAuthenticationHandler` — single space between two Bearer credentials in one segment — locus: whitespace join regex requires `\s{2,}`; input: `Bearer a Bearer b`; reachability: intentional no-split to avoid breaking token interior spaces.
+- [ ] (candidate) `ScimBearerAuthenticationHandler` — `Bearer` token value containing two consecutive spaces — locus: expand pass; input: secret with `  ` interior; reachability: format grammar disallows.
+- [ ] (candidate) `ScimBearerAuthenticationHandler` — HTTP/2 pseudo-header duplication of `Authorization` with three values — locus: `StringValues` loop; input: triple header list; wrong outcome: too-many guard.
+- [ ] (candidate) `RecentAuthenticationEvaluator` — `maxAgeMinutes` of zero clamps to one minute minimum — locus: `Math.Clamp(maxAgeMinutes, 1, 60)`; input: caller passes `0`.
+- [ ] (candidate) `PlatformUserAuthVersionValidator` — mismatched auth-version GUID returns false without leaking user existence — locus: `GetByIdAsync` null vs version mismatch; observability only.
+
 2026-10-23 seed hunt #5 (seed→hit): promoted `ScimBearerAuthenticationHandler` NUL `\0` between folded Bearer credentials; extended `SplitAuthorizationCredentialSegments` with `\0`; regression `HandleAuthenticateAsync_succeeds_when_nul_separated_header_lists_revoked_token_before_valid_one`; cheap-disproof closed four open `(candidate)` rows; reseeded five follow-on `(candidate)` rows; `ScimBearerAuthenticationHandlerTests` 20/20. Private beta: SCIM Bearer provisioning succeeds when a proxy NUL-joins revoked and valid Bearer credentials in one `Authorization` value.
 
 - [x] (proven) `ScimBearerAuthenticationHandler.TryParseBearerCredentials` — NUL-separated revoked then valid Bearer — **hit 2026-10-23 seed hunt #5:** split omitted `\0`; regression `HandleAuthenticateAsync_succeeds_when_nul_separated_header_lists_revoked_token_before_valid_one`.
@@ -4225,12 +4239,6 @@
 - [x] (valid-no-repro) `ScimBearerAuthenticationHandler` — UTF-8 BOM before second comma-folded segment — **cheap-disproof 2026-10-23 seed hunt #5:** per-segment `TrimStart('\uFEFF')`; regression `HandleAuthenticateAsync_succeeds_when_second_segment_is_prefixed_with_utf8_bom_after_comma`.
 - [x] (invalid) `ScimBearerAuthenticationHandler` — Bearer token material containing comma — **cheap-disproof 2026-10-23 seed hunt #5:** `archlucid_scim.*` grammar forbids commas in secret segment.
 - [x] (valid-no-repro) `RecentAuthenticationEvaluator` — fractional `auth_time` string — **cheap-disproof 2026-10-23 seed hunt #5:** `long.TryParse` rejects decimals; regression `HasRecentAuthentication_returns_false_when_auth_time_is_present_but_unparseable`.
-
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — multiple ASCII spaces between credentials without delimiter — locus: single-segment parse; input: `Bearer a  Bearer b`; reachability: collapsed proxy whitespace.
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — three comma segments with only two distinct token values — locus: `MaxBearerCredentialsPerRequest`; input: `Bearer t, Bearer t, Bearer u`.
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — `Digest` scheme segment before Bearer in folded header — locus: mix guard; input: `Digest x, Bearer y`.
-- [ ] (candidate) `LocalTrialJwtIssuer` — negative `accessTokenLifetimeMinutes` clamps to minimum — locus: `Math.Clamp`; input: `-1` from caller.
-- [ ] (candidate) `ArchLucidSamlInboundClaimsNormalizer` — duplicate `roles` values differing only by case — locus: `HasClaim` case sensitivity; input: `Admin` vs `admin`.
 
 2026-10-23 seed hunt #4 (seed→hit): promoted `ScimBearerAuthenticationHandler` form-feed `\f` between folded Bearer credentials; extended `SplitAuthorizationCredentialSegments` with `\f`; regression `HandleAuthenticateAsync_succeeds_when_form_feed_separated_header_lists_revoked_token_before_valid_one`; cheap-disproof closed four `(candidate)` rows; `ScimBearerAuthenticationHandlerTests` 17/17. Private beta: SCIM Bearer provisioning succeeds when legacy proxies join credentials with form-feed separators.
 
