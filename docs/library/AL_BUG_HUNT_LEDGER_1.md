@@ -7411,6 +7411,14 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: agent-runtime-evaluation
 
+2026-10-23 thorough hunt (hit): promoted `AgentOutputTraceRejectionSummaryBuilder.BuildPublicRejectionSummary` omitting `quality_gate_threshold_reject` when reject was driven only by calibrated confidence; pass `calibratedConfidence` into summary gate re-check; extended regression on `ComputeQualityGateAcceptedForConfidenceAsync_returns_false_when_calibrated_confidence_below_semantic_reject_floor`; cheap-disproved stale picker duplicate rows (already closed 2026-10-22); seeded five mechanism-backed `(candidate)` rows below; 229 scoped Evaluation tests passed.
+
+- [ ] (candidate) `AgentOutputQualityGate.ResolveRejectReasonCategory` — `ClassifyThresholdFailure` uses `OverallSemanticScore` when `evaluationReason` is `quality_gate_threshold_reject` but reject used calibrated confidence — locus: `ClassifyThresholdFailure`; input: calibrated semantic reject with high raw semantic score.
+- [ ] (candidate) `AgentOutputTraceRejectionSummaryBuilder.BuildPublicRejectionSummary` — PilotStrict `pilot_semantic_score_below_floor` compares uncalibrated `OverallSemanticScore` — locus: PilotStrict semantic floor branch; input: calibrated reject with raw semantic above `PilotStrictMinSemanticScore`.
+- [ ] (candidate) `AgentOutputTraceQualityEvaluator.TryEvaluateTraceAsyncCore` — `ApplyJudgeHeuristicDisagreementElevation` runs after gate evaluate and may upgrade outcome without updating rejection summary parts — locus: post-gate elevation; input: disagreement elevation to Rejected after summary-eligible path.
+- [ ] (candidate) `CompositeAgentOutputSemanticEvaluator` — calibrated confidence pipeline may diverge from `OverallSemanticScore` surfaced on `AgentOutputSemanticScore` for sponsor read paths — locus: composite vs heuristic score merge; input: enrichment task with low calibrated overlay.
+- [ ] (candidate) `RunAgentOutputPilotEvidenceAggregator` — `WouldPilotStrictBlockSponsorEvidenceAsync` mirrors gate without asserting rejection summary tokens match recorder — locus: sponsor gate vs trace evaluator parity; input: calibrated-only semantic reject trace.
+
 2026-10-22 thorough hunt (hit): promoted `AgentOutputQualityGate.ResolveRejectReasonCategory` mis-mapping `finding_citation_coverage_below_floor` to structural telemetry; regression `ResolveRejectReasonCategory_maps_finding_citation_coverage_below_floor_to_semantic`; cheap-disproved saturated JSON-casing and scalar-coercion picker rows; 229 scoped Evaluation tests passed.
 
 - [x] (proven) `AgentOutputQualityGate.ResolveRejectReasonCategory` — PilotStrict finding-citation reject token lacked `citations` substring so category fell through to structural — **hit 2026-10-22 thorough hunt:** match `citation_coverage` reason token; regression above. [class:state-machine-gap]
@@ -7449,7 +7457,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 - [x] (valid-no-repro) `AgentOutputLlmSemanticJudge.TryParseJudgeResponse` — out-of-range `overallQuality` clamped — **cheap-disproof 2026-10-22 thorough hunt:** values outside `[0,1]` return null before clamp; saturated score-validation class.
 
-- (candidate) `AgentOutputTraceRejectionSummaryBuilder.BuildPublicRejectionSummary` — recomputes `qualityGate.Evaluate` without calibrated confidence so threshold token may be omitted when only calibrated reject applies — locus: summary builder; input: reject after calibration pipeline lowers confidence below floor.
+- [x] (proven) `AgentOutputTraceRejectionSummaryBuilder.BuildPublicRejectionSummary` — recomputes `qualityGate.Evaluate` without calibrated confidence so threshold token may be omitted when only calibrated reject applies — **hit 2026-10-23 thorough hunt:** forward `calibratedConfidence` into summary gate re-check; regression extended on `ComputeQualityGateAcceptedForConfidenceAsync_returns_false_when_calibrated_confidence_below_semantic_reject_floor`. [class:state-machine-gap]
 
 2026-10-12 seed hunt (seed-only): re-read the structured parser, aggregate scalar/property readers, confidence/citation callouts, and focused explanation tests. No fresh candidate reached the same-run failing-repro bar; the focused `RunExplanation` filter was blocked before discovery on both attempts by unrelated `AzureInventorySecurityEdgeMaterializer.cs` compile errors. Seeded three bounded scalar-coercion candidates; no production or regression code changed.
 
@@ -7511,11 +7519,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** agent evaluation; evaluation runner
 - **paths:** ArchLucid.AgentRuntime/Evaluation/
 - **test-filter:** FullyQualifiedName~Evaluation
-- **hunts:** 54
-- **bugs-found:** 33
+- **hunts:** 55
+- **bugs-found:** 34
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — quality-gate reject telemetry for finding citation coverage
+- **last-hunt:** 2026-10-23
+- **last-bug:** 2026-10-23 — rejection summary omitted calibrated-confidence threshold token
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
