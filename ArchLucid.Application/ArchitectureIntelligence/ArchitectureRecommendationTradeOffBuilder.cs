@@ -85,8 +85,23 @@ internal static class ArchitectureRecommendationTradeOffBuilder
             ?? throw new InvalidOperationException(
                 $"No recommendation exists for trade-off dimensions {firstDimension} and {secondDimension}.");
 
-        bool prefersFirst = PriorityListPrefersDimension(declaredPriorities, firstDimension);
-        bool prefersSecond = PriorityListPrefersDimension(declaredPriorities, secondDimension);
+        bool prefersFirst;
+        bool prefersSecond;
+        if (TryResolveDeclaredPairPrecedence(
+                declaredPriorities,
+                firstDimension,
+                secondDimension,
+                out bool explicitPrefersFirstDimension))
+        {
+            prefersFirst = explicitPrefersFirstDimension;
+            prefersSecond = !explicitPrefersFirstDimension;
+        }
+        else
+        {
+            prefersFirst = PriorityListPrefersDimension(declaredPriorities, firstDimension);
+            prefersSecond = PriorityListPrefersDimension(declaredPriorities, secondDimension);
+        }
+
         string preferredResolution = BuildPreferredResolution(
             prefersFirst,
             prefersSecond,
@@ -175,12 +190,63 @@ internal static class ArchitectureRecommendationTradeOffBuilder
             return false;
 
         if (dimensionToken.Equals("Cost", StringComparison.OrdinalIgnoreCase)
-            && IsCostTokenInHyphenatedCompoundAdjective(priority))
+            && (IsCostTokenInHyphenatedCompoundAdjective(priority)
+                || IsCostTokenInSpacedModifierPhrase(priority)))
         {
             return false;
         }
 
         return true;
+    }
+
+    private static bool IsCostTokenInSpacedModifierPhrase(string priority) =>
+        Regex.IsMatch(
+            priority,
+            @"\bCost\s+(optimized|optimization|optimizing|effective|efficiency|efficient|conscious)\b",
+            RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    private static bool TryResolveDeclaredPairPrecedence(
+        IReadOnlyList<string> declaredPriorities,
+        QualityDimension firstDimension,
+        QualityDimension secondDimension,
+        out bool prefersFirstDimension)
+    {
+        prefersFirstDimension = false;
+        bool found = false;
+        string firstToken = firstDimension.ToString();
+        string secondToken = secondDimension.ToString();
+
+        foreach (string priority in declaredPriorities)
+        {
+            if (string.IsNullOrWhiteSpace(priority))
+                continue;
+
+            Match? match = ExplicitDimensionOverDimensionPattern().Match(priority);
+
+            if (!match.Success)
+                match = ExplicitDimensionBeforeDimensionPattern().Match(priority);
+
+            if (!match.Success)
+                continue;
+
+            string left = match.Groups[1].Value;
+            string right = match.Groups[2].Value;
+
+            if (left.Equals(firstToken, StringComparison.OrdinalIgnoreCase)
+                && right.Equals(secondToken, StringComparison.OrdinalIgnoreCase))
+            {
+                prefersFirstDimension = true;
+                found = true;
+            }
+            else if (left.Equals(secondToken, StringComparison.OrdinalIgnoreCase)
+                && right.Equals(firstToken, StringComparison.OrdinalIgnoreCase))
+            {
+                prefersFirstDimension = false;
+                found = true;
+            }
+        }
+
+        return found;
     }
 
     private static bool IsCostTokenInHyphenatedCompoundAdjective(string priority)
