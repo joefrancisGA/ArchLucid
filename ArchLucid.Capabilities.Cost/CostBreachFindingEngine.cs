@@ -103,9 +103,9 @@ public sealed class CostBreachFindingEngine : IFindingEngine
                 ],
                 Notes =
                 [
-                    $"Budget cap: {maxMonthlyCost:C0}/mo",
-                    $"Projected spend: {spend:C0}/mo",
-                    $"Breach amount: {breachAmount:C0}/mo"
+                    $"Budget cap: {CostGraphDecimalParser.FormatUsdPerMonth(maxMonthlyCost)}",
+                    $"Projected spend: {CostGraphDecimalParser.FormatUsdPerMonth(spend)}",
+                    $"Breach amount: {CostGraphDecimalParser.FormatUsdPerMonth(breachAmount)}"
                 ]
             }
         };

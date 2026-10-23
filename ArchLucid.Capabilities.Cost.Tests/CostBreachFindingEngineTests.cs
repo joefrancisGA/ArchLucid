@@ -142,4 +142,43 @@ public sealed class CostBreachFindingEngineTests
             CultureInfo.CurrentCulture = previousCulture;
         }
     }
+
+    [Fact]
+    public async Task AnalyzeAsync_formats_trace_notes_in_usd_under_non_invariant_thread_culture()
+    {
+        CultureInfo previousCulture = CultureInfo.CurrentCulture;
+        CultureInfo.CurrentCulture = new CultureInfo("fr-FR");
+
+        try
+        {
+            GraphSnapshot graph = new()
+            {
+                Nodes =
+                [
+                    new GraphNode
+                    {
+                        NodeId = "c1",
+                        NodeType = "CostConstraint",
+                        Label = "prod-budget",
+                        Properties = new Dictionary<string, string>
+                        {
+                            ["maxMonthlyCost"] = "5000",
+                            ["projectedImpactUsdUpperBound"] = "6200",
+                        }
+                    }
+                ]
+            };
+
+            IReadOnlyList<Finding> findings = await _sut.AnalyzeAsync(graph, null, CancellationToken.None);
+
+            Finding finding = findings.Should().ContainSingle().Subject;
+            finding.Trace!.Notes.Should().Contain("Budget cap: $5,000/mo");
+            finding.Trace.Notes.Should().Contain("Projected spend: $6,200/mo");
+            finding.Trace.Notes.Should().Contain("Breach amount: $1,200/mo");
+        }
+        finally
+        {
+            CultureInfo.CurrentCulture = previousCulture;
+        }
+    }
 }

@@ -95,7 +95,7 @@ public sealed class CostConstraintFindingEngine : IFindingEngine
                     Notes =
                     [
                         maxMonthly.HasValue
-                            ? $"Budget cap: {maxMonthly.Value:C0}/mo"
+                            ? $"Budget cap: {CostGraphDecimalParser.FormatUsdPerMonth(maxMonthly.Value)}"
                             : "No explicit budget cap."
                     ]
                 }
