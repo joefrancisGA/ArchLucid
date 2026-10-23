@@ -105,8 +105,8 @@ public static class InventoryDiagramRelationshipLabelTexts
     public static string FormatSendsTrafficToBackend(int? backendPort)
     {
         return backendPort is null
-            ? "Sends traffic to this backend. Backend port was not stored."
-            : $"Sends traffic to this backend on port {backendPort.Value}.";
+            ? "Configured backend pool member. Backend port was not stored."
+            : $"Configured backend pool member on port {backendPort.Value}.";
     }
 
     public static string FormatBackendOffCanvasOutline(string backendName)

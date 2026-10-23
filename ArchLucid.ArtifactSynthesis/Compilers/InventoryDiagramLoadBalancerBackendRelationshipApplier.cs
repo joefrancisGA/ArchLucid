@@ -86,7 +86,7 @@ internal static class InventoryDiagramLoadBalancerBackendRelationshipApplier
                     backendDiagramNodeId,
                     label,
                     GraphEdgeInferenceSources.InventoryLbBackend,
-                    ProvenanceKind.ObservedFact.ToString());
+                    ProvenanceKind.DerivedFact.ToString());
             }
         }
     }
