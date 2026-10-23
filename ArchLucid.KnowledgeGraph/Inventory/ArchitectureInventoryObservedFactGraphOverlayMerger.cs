@@ -76,6 +76,9 @@ public static class ArchitectureInventoryObservedFactGraphOverlayMerger
 
         List<GraphEdge> mergedEdges = [.. baseGraph.Edges];
 
+        HashSet<string> baseGraphEdgeKeysWithOverlayDuplicateRowSeen =
+            new(StringComparer.OrdinalIgnoreCase);
+
         foreach (GraphEdge inventoryEdge in inventoryOverlay.Edges)
         {
             if (!existingNodeIds.Contains(NormalizeNodeId(inventoryEdge.FromNodeId))
@@ -91,7 +94,11 @@ public static class ArchitectureInventoryObservedFactGraphOverlayMerger
                 GraphEdge retainedEdge = mergedEdges.First(edge =>
                     string.Equals(BuildEdgeKey(edge), edgeKey, StringComparison.OrdinalIgnoreCase));
 
-                if (!baseEdgeKeys.Contains(edgeKey))
+                bool isBaseGraphEdge = baseEdgeKeys.Contains(edgeKey);
+                bool shouldValidateOverlayDuplicateAgreement = !isBaseGraphEdge
+                    || baseGraphEdgeKeysWithOverlayDuplicateRowSeen.Contains(edgeKey);
+
+                if (shouldValidateOverlayDuplicateAgreement)
                 {
                     TryValidateOverlayEdgeAgreement(inventoryEdge, retainedEdge);
                 }
@@ -104,6 +111,11 @@ public static class ArchitectureInventoryObservedFactGraphOverlayMerger
                 TryMergeOverlayEdgeDeclaredConnectionIdBackfillFromDuplicateRow(inventoryEdge, retainedEdge);
                 TryMergeOverlayEdgeEdgeIdBackfillFromDuplicateRow(inventoryEdge, retainedEdge);
                 TryMergeOverlayEdgeWeightBackfillFromDuplicateRow(inventoryEdge, retainedEdge);
+
+                if (isBaseGraphEdge)
+                {
+                    baseGraphEdgeKeysWithOverlayDuplicateRowSeen.Add(edgeKey);
+                }
 
                 continue;
             }
