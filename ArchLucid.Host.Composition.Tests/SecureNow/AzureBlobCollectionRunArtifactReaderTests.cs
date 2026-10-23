@@ -53,6 +53,21 @@ public sealed class AzureBlobCollectionRunArtifactReaderTests
         artifact.Should().BeNull();
     }
 
+    [Fact]
+    public async Task ReadManifestAsync_returns_null_when_manifest_blob_download_fails()
+    {
+        AzureBlobCollectionRunArtifactReader reader = CreateReader();
+        BlobContainerClient container = InvokeContainer(reader);
+
+        CollectionRunManifest? manifest = await InvokeReadManifestAsync(
+            reader,
+            container,
+            "runs/missing/run-manifest.json",
+            CancellationToken.None);
+
+        manifest.Should().BeNull();
+    }
+
     private static AzureBlobCollectionRunArtifactReader CreateReader(string? prefix = "runs/", string? containerName = "securenow-collection")
     {
         BlobServiceClient blobServiceClient = new(
@@ -86,5 +101,21 @@ public sealed class AzureBlobCollectionRunArtifactReaderTests
             ?? throw new InvalidOperationException("Container not found.");
 
         return (BlobContainerClient)method.Invoke(reader, null)!;
+    }
+
+    private static Task<CollectionRunManifest?> InvokeReadManifestAsync(
+        AzureBlobCollectionRunArtifactReader reader,
+        BlobContainerClient container,
+        string blobName,
+        CancellationToken cancellationToken)
+    {
+        MethodInfo method = typeof(AzureBlobCollectionRunArtifactReader).GetMethod(
+            "ReadManifestAsync",
+            BindingFlags.Static | BindingFlags.NonPublic)
+            ?? throw new InvalidOperationException("ReadManifestAsync not found.");
+
+        return (Task<CollectionRunManifest?>)method.Invoke(
+            null,
+            [container, blobName, cancellationToken])!;
     }
 }

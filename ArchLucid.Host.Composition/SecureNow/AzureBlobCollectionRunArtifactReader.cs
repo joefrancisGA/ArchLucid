@@ -26,18 +26,25 @@ public sealed class AzureBlobCollectionRunArtifactReader(
         BlobContainerClient container = Container();
         List<CollectionRunManifest> manifests = [];
 
-        await foreach (BlobItem blob in container.GetBlobsAsync(
-                           traits: BlobTraits.None,
-                           states: BlobStates.None,
-                           prefix: ManifestPrefix(),
-                           cancellationToken: cancellationToken))
+        try
         {
-            if (!blob.Name.EndsWith("/run-manifest.json", StringComparison.OrdinalIgnoreCase))
-                continue;
+            await foreach (BlobItem blob in container.GetBlobsAsync(
+                               traits: BlobTraits.None,
+                               states: BlobStates.None,
+                               prefix: ManifestPrefix(),
+                               cancellationToken: cancellationToken))
+            {
+                if (!blob.Name.EndsWith("/run-manifest.json", StringComparison.OrdinalIgnoreCase))
+                    continue;
 
-            CollectionRunManifest? manifest = await ReadManifestAsync(container, blob.Name, cancellationToken);
-            if (manifest is not null)
-                manifests.Add(manifest);
+                CollectionRunManifest? manifest = await ReadManifestAsync(container, blob.Name, cancellationToken);
+                if (manifest is not null)
+                    manifests.Add(manifest);
+            }
+        }
+        catch (RequestFailedException)
+        {
+            return manifests;
         }
 
         return manifests;
@@ -93,7 +100,22 @@ public sealed class AzureBlobCollectionRunArtifactReader(
         CancellationToken cancellationToken)
     {
         BlobClient blob = container.GetBlobClient(blobName);
-        BinaryData content = (await blob.DownloadContentAsync(cancellationToken)).Value.Content;
+
+        BinaryData content;
+
+        try
+        {
+            content = (await blob.DownloadContentAsync(cancellationToken)).Value.Content;
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
+        catch (Exception)
+        {
+            return null;
+        }
+
         using JsonDocument document = JsonDocument.Parse(content);
         JsonElement root = document.RootElement;
 
