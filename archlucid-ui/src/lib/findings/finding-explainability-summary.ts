@@ -11,6 +11,8 @@ export type FindingSeverityInspectCopy = {
   suggestedNext: string;
 };
 
+const NEXT_STEP_NOT_STORED_WITH_SEVERITY = "A next step was not stored with this severity label.";
+
 export function findingSeverityAudienceCopy(severityRaw: string): FindingSeverityInspectCopy {
   const trimmed = severityRaw.trim();
 
@@ -18,52 +20,9 @@ export function findingSeverityAudienceCopy(severityRaw: string): FindingSeverit
     return { meaningForOperators: "", suggestedNext: "" };
   }
 
-  const lowered = trimmed.toLowerCase();
-
-  if (lowered.includes("critical") || lowered.includes(" blocker") || lowered === "blocking") {
-    return {
-      meaningForOperators:
-        "Highest urgency — this signals material delivery, compliance, or security risk if it is left unaddressed.",
-      suggestedNext:
-        "Get an explicit owner decision (fix it, grant a time-bound waiver, or accept the residual risk) before rollout.",
-    };
-  }
-
-  if (lowered.includes("high")) {
-    return {
-      meaningForOperators:
-        "Elevated urgency — this is likely to affect a rollout decision or stakeholder trust if it goes unexplained.",
-      suggestedNext:
-        "Confirm it with the owning team soon, and rank it against the other findings rather than shelving it.",
-    };
-  }
-
-  if (lowered.includes("medium") || lowered.includes("moderate")) {
-    return {
-      meaningForOperators:
-        "Normal planning priority — a real gap, but not one that should stop work today.",
-      suggestedNext:
-        "Schedule the fix, or write down why you are accepting it, while the context is still fresh.",
-    };
-  }
-
-  if (
-    lowered.includes("low")
-    || lowered.includes("info")
-    || lowered.includes("informational")
-    || lowered.includes("minor")
-  ) {
-    return {
-      meaningForOperators:
-        "Low urgency — an improvement opportunity rather than a risk that needs attention now.",
-      suggestedNext:
-        "Handle it with the rest of your backlog cleanup, unless another decision is waiting on it.",
-    };
-  }
-
   return {
-    meaningForOperators: `This review reported severity "${trimmed}", which is outside the standard scale.`,
-    suggestedNext: "Compare it against the other findings — relative order tells you more than the label does.",
+    meaningForOperators: `Stored severity is ${trimmed}.`,
+    suggestedNext: NEXT_STEP_NOT_STORED_WITH_SEVERITY,
   };
 }
 
@@ -74,19 +33,7 @@ export function findingTraceCompletenessPlainEnglish(ratioPct: number): string {
     return "Unavailable — this review did not record a completeness score.";
   }
 
-  if (r >= 90) {
-    return "Strong — most trace fields used for explainability were populated.";
-  }
-
-  if (r >= 60) {
-    return "Moderate — core trace fields exist; some optional detail was not captured.";
-  }
-
-  if (r >= 30) {
-    return "Thin — read the technical audit below before relying on this finding on its own.";
-  }
-
-  return "Minimal — sparse trace fields; use as a prompt to inspect evidence, not as a settled conclusion.";
+  return "Trace field fill was stored. It does not confirm the finding.";
 }
 
 /** Operator-facing policy rule id from explainability payloads (unspecified → honesty). */
@@ -234,19 +181,11 @@ function traceDimensionClause(missingCount: number): string {
 }
 
 function confidenceLeadIn(label: string | null): string {
-  if (label === "High") {
-    return "The conclusion is well corroborated:";
+  if (label === "High" || label === "Medium" || label === "Low") {
+    return `Stored confidence is ${label}.`;
   }
 
-  if (label === "Medium") {
-    return "The conclusion is partly corroborated:";
-  }
-
-  if (label === "Low") {
-    return "The conclusion is stated clearly, but weakly corroborated:";
-  }
-
-  return "This review did not score confidence for the finding:";
+  return "Confidence was not stored.";
 }
 
 /**
