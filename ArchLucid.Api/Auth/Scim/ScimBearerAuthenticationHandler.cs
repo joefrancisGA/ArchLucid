@@ -136,7 +136,7 @@ internal class ScimBearerAuthenticationHandler(
     }
 
     private static IEnumerable<string> SplitAuthorizationCredentialSegments(string headerValue) =>
-        headerValue.Split([',', ';', '|', '\v', '\f', '\n', '\r'], StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+        headerValue.Split([',', ';', '|', '\v', '\f', '\0', '\n', '\r'], StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
 
     private static bool TryReadBearerCredentialSegment(string segment, out string bearerToken)
     {
