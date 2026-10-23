@@ -1131,6 +1131,11 @@
 - [x] (valid-no-repro) `AzureInventoryVnetCustomDnsIndex.AppendDnsServersFromJsonArray` — numeric JSON elements skipped — **cheap-disproof 2026-10-23 seed hunt #108:** numeric octet, packed uint32, and object-shaped elements covered by `AzureInventoryVnetCustomDnsIndexTests`.
 - [x] (valid-no-repro) `AzureInventoryPrivateEndpointDnsJoinIndex.BuildComputeToVnetMap` — VNet ARM ids not normalized — **cheap-disproof 2026-10-23 seed hunt #108:** `ArmResourceIdNormalizer.Normalize` applied on assignment.
 - [x] (valid-no-repro) `AzureInventoryReachabilityEdgeControlIndex.Build` — AGW/Front Door relationship ids not normalized — **cheap-disproof 2026-10-23 seed hunt #108:** `FromAzureResourceId` / `ToAzureResourceId` normalized at ingest.
+- [ ] (candidate) `AzureInventoryAdfLinkedServiceTargetResolver` — Managed Redis `redis.azure.net` private-link alias list — locus: `WithPrivateLinkAlias`; input: ADF linked service pointing at `*.redis.azure.net`; wrong outcome: dependency target host omitted vs legacy cache domain.
+- [ ] (candidate) `AzureInventoryAppSettingHostConnectionStringParser.ServiceBusEndpointRegex` — `amqps://` Service Bus connection strings — locus: `AppendServiceBusHost`; input: AMQP TLS endpoint URI; wrong outcome: no host row when only `amqps://` form is stored.
+- [ ] (candidate) `InventoryDiagramConnectionPostureCatalog` — `app-settings-hosts-container-apps-env-missing` completeness copy — locus: warning code to diagram posture resolver; input: container app env host collection warning on enrichment row; wrong outcome: generic unknown posture instead of catalog sentence.
+- [ ] (candidate) `AzureInventoryReachabilityEdgeControlIndex.RouteTableRequiresUnmodeledEdgeControl` — explicit routes without next hop suppress routes JSON — locus: `ExplicitRoutesSpecifyNextHop`; input: address-only explicit flattened routes plus appliance `routes` JSON; wrong outcome: JSON next hop ignored.
+- [ ] (candidate) `AzureInventoryRouteTableRouteParser.CollectExplicitRouteIndexes` — non-numeric route row keys — locus: index extraction; input: `inventory.policy.routefoo` flattened keys from hosted extract; wrong outcome: route dropped when suffix is not numeric.
 
 
 - [x] (proven-stale) `HostedAzureArmChildCollectionReadResult` — **closed 2026-10-21 lane C:** trunk lane B partial propagation.
