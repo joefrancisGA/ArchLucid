@@ -192,7 +192,8 @@ internal static class ArchitectureRecommendationTradeOffBuilder
         if (dimensionToken.Equals("Cost", StringComparison.OrdinalIgnoreCase)
             && (IsCostTokenInHyphenatedCompoundAdjective(priority)
                 || IsCostTokenInSpacedModifierPhrase(priority)
-                || IsCostTokenInEconomyModifierPhrase(priority)))
+                || IsCostTokenInEconomyModifierPhrase(priority)
+                || IsCostTokenInAtCostPhrase(priority)))
         {
             return false;
         }
@@ -210,6 +211,12 @@ internal static class ArchitectureRecommendationTradeOffBuilder
         Regex.IsMatch(
             priority,
             @"\b(?:low|minimal|reduced|cheaper)\s+cost\b",
+            RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    private static bool IsCostTokenInAtCostPhrase(string priority) =>
+        Regex.IsMatch(
+            priority,
+            @"\bat\s+cost\b",
             RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     private static bool TryResolveDeclaredPairPrecedence(
