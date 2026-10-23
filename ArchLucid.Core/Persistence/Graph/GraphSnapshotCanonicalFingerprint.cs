@@ -393,6 +393,8 @@ public static class GraphSnapshotCanonicalFingerprint
         '\u25CF',
         '\u25AA',
         '\u2043',
+        '\u25E6',
+        '\u2023',
     ];
 
     private static string StripReviewCachePathUrlAffixes(string value)
