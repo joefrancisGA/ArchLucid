@@ -85,7 +85,8 @@ public sealed class FindingIacStubGenerator(
             foreach (ArchitectureFinding finding in updatedResult.Findings ?? [])
             {
 
-                if (finding.IsMuted
+                if (finding is null
+                    || finding.IsMuted
                     || !HasEvidenceReferences(finding)
                     || !AgentArchitectureFindingEmissionGate.HasTypedEmission(finding))
                     continue;
