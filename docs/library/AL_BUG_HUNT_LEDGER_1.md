@@ -8815,6 +8815,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: architecture-intelligence-orchestrator
 
+2026-10-23 seed hunt (seed→hit): promoted white-bullet and triangular-bullet segment-separator drift splitting `ContentHash` (`docs◦architecture/overview.md`, `docs‣architecture/overview.md` vs slash form); extended `ReviewCacheAlternatePathSeparators` with U+25E6 and U+2023 using dotless-tail guard; regressions `Build_matches_content_hash_when_file_name_differs_only_by_white_bullet_between_segments`, `Build_matches_content_hash_when_file_name_differs_only_by_triangular_bullet_between_segments`, and `Build_changes_content_hash_when_file_name_differs_only_by_white_bullet_before_dotted_segment_name`; cheap-disproof regressions for `%E2%97%A6` and `%E2%80%A3`; 498 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `GraphSnapshotCanonicalFingerprint` — white-bullet and triangular-bullet alternate path separators split path canonicalization — **hit 2026-10-23 seed hunt:** U+25E6 / U+2023 in alternate separator set; regressions above.
+
 2026-10-23 seed hunt (seed→hit): promoted black-small-square and hyphen-bullet segment-separator drift splitting `ContentHash` (`docs▪architecture/overview.md`, `docs⁃architecture/overview.md` vs slash form); extended `ReviewCacheAlternatePathSeparators` with U+25AA and U+2043 using dotless-tail guard; regressions `Build_matches_content_hash_when_file_name_differs_only_by_black_small_square_between_segments`, `Build_matches_content_hash_when_file_name_differs_only_by_hyphen_bullet_between_segments`, and `Build_changes_content_hash_when_file_name_differs_only_by_black_small_square_before_dotted_segment_name`; cheap-disproof regressions for `%E2%96%AA` and `%E2%81%83`; 493 scoped orchestrator/cache/manifest/continue-flight tests passed.
 
 - [x] (proven) `GraphSnapshotCanonicalFingerprint` — black-small-square and hyphen-bullet alternate path separators split path canonicalization — **hit 2026-10-23 seed hunt:** U+25AA / U+2043 in alternate separator set; regressions above.
@@ -9563,11 +9567,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** closed-loop orchestrator; review result cache; architecture intelligence
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.cs; ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.Cache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewResultCache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewCacheManifestBuilder.cs
 - **test-filter:** FullyQualifiedName~ClosedLoopArchitectureReasoningOrchestrator|FullyQualifiedName~ReviewResultCache|FullyQualifiedName~ReviewCacheManifestBuilder
-- **hunts:** 107
-- **bugs-found:** 94
+- **hunts:** 108
+- **bugs-found:** 95
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-23
-- **last-bug:** 2026-10-23 — black-small-square and hyphen-bullet alternate path separators split review-cache `ContentHash`
+- **last-bug:** 2026-10-23 — white-bullet and triangular-bullet alternate path separators split review-cache `ContentHash`
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
