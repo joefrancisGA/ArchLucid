@@ -630,6 +630,101 @@ public sealed class RetrievalIndexingServiceTests
     }
 
     [Fact]
+    public async Task IndexDocumentsAsync_when_content_shrinks_removes_orphan_higher_ordinal_chunks_without_catalog_entry()
+    {
+        Mock<IEmbeddingService> embeddings = new();
+        embeddings
+            .Setup(e => e.EmbedManyAsync(It.IsAny<IReadOnlyList<string>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((IReadOnlyList<string> texts, CancellationToken _) =>
+                texts.Select(_ => new float[4]).ToList());
+
+        Mock<IOptionsMonitor<RetrievalEmbeddingCapOptions>> caps = new();
+        caps.Setup(m => m.CurrentValue).Returns(new RetrievalEmbeddingCapOptions { MaxTextsPerEmbeddingRequest = 16 });
+
+        Mock<IOptionsMonitor<RetrievalChunkingOptions>> chunking = new();
+        chunking.Setup(m => m.CurrentValue).Returns(new RetrievalChunkingOptions { Strategy = RetrievalChunkingStrategy.Simple });
+
+        Mock<IEmbeddingModelIdentity> identity = new();
+        identity.SetupGet(i => i.ModelId).Returns("test-model");
+        identity.SetupGet(i => i.ExpectedDimension).Returns(4);
+
+        InMemoryVectorIndex index = new(CreateMatchingScopeProvider());
+        InMemoryRetrievalDocumentIndexCatalog catalog = new();
+
+        const string documentId = "d-orphan-shrink";
+        await index.UpsertChunksAsync(
+            [
+                new RetrievalChunk
+                {
+                    ChunkId = $"{documentId}-chunk-0",
+                    DocumentId = documentId,
+                    TenantId = TenantId,
+                    WorkspaceId = WorkspaceId,
+                    ProjectId = ProjectId,
+                    SourceType = "Test",
+                    SourceId = documentId,
+                    Title = "orphan-0",
+                    Text = "stale chunk zero",
+                    ChunkOrdinal = 0,
+                    Embedding = [1f, 0f, 0f, 0f],
+                    EmbeddingModelId = "test-model",
+                    EmbeddingDimension = 4,
+                },
+                new RetrievalChunk
+                {
+                    ChunkId = $"{documentId}-chunk-1",
+                    DocumentId = documentId,
+                    TenantId = TenantId,
+                    WorkspaceId = WorkspaceId,
+                    ProjectId = ProjectId,
+                    SourceType = "Test",
+                    SourceId = documentId,
+                    Title = "orphan-1",
+                    Text = "stale chunk one must be removed",
+                    ChunkOrdinal = 1,
+                    Embedding = [0f, 1f, 0f, 0f],
+                    EmbeddingModelId = "test-model",
+                    EmbeddingDimension = 4,
+                },
+            ],
+            CancellationToken.None);
+
+        index.GetEmbeddingMetadata()!.ChunkCount.Should().Be(2);
+        catalog.TryGet(documentId, out _).Should().BeFalse();
+
+        RetrievalIndexingService sut = new(
+            new SimpleTextChunker(),
+            new StructureAwareTextChunker(),
+            new PolicyPackChunker(),
+            new PriorManifestChunker(),
+            embeddings.Object,
+            identity.Object,
+            index,
+            catalog,
+            caps.Object,
+            chunking.Object,
+            CreateMatchingScopeProvider());
+
+        RetrievalDocument shrunkDoc = new()
+        {
+            DocumentId = documentId,
+            TenantId = TenantId,
+            WorkspaceId = WorkspaceId,
+            ProjectId = ProjectId,
+            CorpusKind = CorpusKind.Conversation,
+            Content = "short text that fits in one chunk",
+            ContentHash = "HASH-SHRINK",
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+        };
+
+        await sut.IndexDocumentsAsync([shrunkDoc], CancellationToken.None);
+
+        index.GetEmbeddingMetadata()!.ChunkCount.Should().Be(1, "higher ordinals must be removed when catalog is missing");
+        catalog.TryGet(documentId, out RetrievalDocumentIndexState? state).Should().BeTrue();
+        state!.IndexedChunkCount.Should().Be(1);
+    }
+
+    [Fact]
     public async Task IndexDocumentsAsync_when_content_shrinks_removes_stale_higher_ordinal_chunks()
     {
         Mock<IEmbeddingService> embeddings = new();

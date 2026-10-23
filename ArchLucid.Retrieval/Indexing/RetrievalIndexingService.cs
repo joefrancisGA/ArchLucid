@@ -169,6 +169,22 @@ public sealed class RetrievalIndexingService(
 
         if (chunks.Count > 0)
         {
+            foreach ((RetrievalDocument doc, _, _) in work)
+            {
+                ct.ThrowIfCancellationRequested();
+
+                if (_indexCatalog.TryGet(doc.DocumentId, out _))
+                    continue;
+
+                // Replace document vectors wholesale when the catalog has no row (index/catalog drift).
+                await _vectorIndex.RemoveChunksForDocumentAsync(
+                    doc.DocumentId,
+                    doc.TenantId,
+                    doc.WorkspaceId,
+                    doc.ProjectId,
+                    ct).ConfigureAwait(false);
+            }
+
             await _vectorIndex.UpsertChunksAsync(chunks, ct).ConfigureAwait(false);
 
             foreach ((RetrievalDocument doc, IReadOnlyList<string> split, _) in work)
