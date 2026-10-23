@@ -65,6 +65,13 @@ public sealed partial class RunsController
 
         foreach (ClarificationAnswerRephraseItem item in input.Items)
         {
+            if (item is null)
+            {
+                return this.BadRequestProblem(
+                    "Each clarification item is required.",
+                    ProblemTypes.ValidationFailed);
+            }
+
             if (string.IsNullOrWhiteSpace(item.QuestionKey))
                 return this.BadRequestProblem("Each item must include QuestionKey.", ProblemTypes.ValidationFailed);
             if (string.IsNullOrWhiteSpace(item.QuestionPrompt) || item.QuestionPrompt.Trim().Length < 10)

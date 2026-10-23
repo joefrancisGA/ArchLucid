@@ -222,6 +222,27 @@ public sealed class RunsControllerTests
     }
 
     [Fact]
+    public async Task RephraseClarificationAnswers_returns_bad_request_when_items_collection_contains_null_element()
+    {
+        Mock<IArchitectureRequestIntakeFacade> intakeFacade = new();
+
+        RunsController controller = CreateController();
+
+        RephraseClarificationAnswersInput input = new()
+        {
+            Items = [null!],
+        };
+
+        IActionResult action = await controller.RephraseClarificationAnswers(input, intakeFacade.Object, CancellationToken.None);
+
+        ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
+        bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        intakeFacade.Verify(
+            static f => f.RephraseClarificationAnswersAsync(It.IsAny<RephraseClarificationAnswersInput>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task RephraseClarificationAnswers_returns_bad_request_when_question_prompt_exceeds_chat_intake_max_length()
     {
         Mock<IArchitectureRequestIntakeFacade> intakeFacade = new();

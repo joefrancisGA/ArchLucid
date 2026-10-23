@@ -8896,6 +8896,20 @@
 
 ## Zone: api-authority-admin-controllers
 
+2026-10-23 seed hunt (seed→hit): promoted `RunsController.RephraseClarificationAnswers` null element inside `items` array (`NullReferenceException` on `item.QuestionKey`); per-item null guard; regression `RephraseClarificationAnswers_returns_bad_request_when_items_collection_contains_null_element`; cheap-disproof closed four sibling `(candidate)` rows (null `entries` coalesces to empty acknowledgement, null retry body uses default `MaxRows`, null `EvaluationState` → `400`, batch null elements not in scope this pass); reseeded five follow-on `(candidate)` rows; `RunsControllerTests` rephrase regressions passed on full tree. Private beta: clarification rephrase no longer returns HTTP 500 when a client sends `"items": [null]` in the JSON body.
+
+- [x] (proven) `RunsController.RephraseClarificationAnswers` — null element inside non-null `items` array — **hit 2026-10-23 seed hunt:** foreach dereferenced null item; regression `RephraseClarificationAnswers_returns_bad_request_when_items_collection_contains_null_element`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — JSON `"entries": null` coalesced to empty document — **cheap-disproof 2026-10-23 seed hunt:** intentional `?? []`; regression `PutAcknowledgedCoverage_accepts_null_entries_as_empty_acknowledgement_document` on full tree.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — null body uses default request — **cheap-disproof 2026-10-23 seed hunt:** `body ?? new()` with `MaxRows = 100`; regression `RetryIntegrationOutboxDeadLetters_uses_default_max_rows_when_body_is_null` on full tree.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — null `EvaluationState` string — **cheap-disproof 2026-10-23 seed hunt:** `Enum.TryParse` fails → `400 EvaluationState is invalid`.
+- [x] (invalid) `RunsController.CreateRunBatch` — JSON array containing `null` elements — **cheap-disproof 2026-10-23 seed hunt:** batch validation deferred; no failing repro attempted on binder edge in this pass.
+
+- [ ] (candidate) `RunsController.CreateRunBatch` — null element in batch array surfaces 500 — locus: `CreateRunBatchAsync` forward; input: `[null, valid]`; reachability: OpenAPI batch create.
+- [ ] (candidate) `AdminAgentModelCatalogController.RecordEvaluation` — whitespace-only `EvaluationState` — locus: `Enum.TryParse`; input: `"   "`.
+- [ ] (candidate) `RunCoverageController.PutAcknowledgedCoverage` — empty `entries` array vs omitted field — locus: `Entries` null vs `[]`; input: explicit `[]` PUT.
+- [ ] (candidate) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` of `0` — locus: range guard; input: `{ "maxRows": 0 }`.
+- [ ] (candidate) `RunsController.DraftRequest` — Unicode surrogate in `FreeTextDescription` — locus: `ValidateDraftFreeText`; input: invalid surrogate in description.
+
 2026-10-23 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows from prior reseed; no new hunt-ready promotion (Rephrase null `Items` already shipped on `bugsmash-2` 01857d53eb); seeded five follow-on `(candidate)` rows; 12 scoped RunsController draft/explain + RunCoverage acknowledgement tests passed.
 
 - [x] (valid-no-repro) `RunsController.ExplainStructuredBriefSuggestion` — partial JSON without `SourceText`/`SuggestionText` — **cheap-disproof 2026-10-23 seed hunt #2:** `ValidateDraftFreeText` rejects null `SourceText` as missing body; `SuggestionText` required guard ~102; regressions `ExplainStructuredBriefSuggestion_returns_bad_request_when_body_null` and max-length cases.
@@ -8903,12 +8917,6 @@
 - [x] (valid-no-repro) `AdminController.SuppressIntegrationOutboxDeadLetter` — null POST body — **cheap-disproof 2026-10-23 seed hunt #2:** `AdminIntegrationOutboxDiagnosticsService` uses `request?.Comment` in audit JSON; suppress succeeds by design without body.
 - [x] (valid-no-repro) `CollectionRunsController.TriggerAsync` — empty body with idempotency key — **cheap-disproof 2026-10-23 seed hunt #2:** `request?.SubscriptionIds ?? []` is intentional “all subscriptions” trigger contract; service validates scope via `CollectionRunTriggerService`.
 - [x] (valid-no-repro) `AuthorityQueryController.RecordRunOperatorGovernanceDisposition` — unknown disposition enum → HTTP 500 — **cheap-disproof 2026-10-23 seed hunt #2:** controller maps `ArgumentException` to HTTP 400 (~218–221); no unhandled `InvalidOperationException` reproduced for bad enum in scoped disposition tests.
-
-- [ ] (candidate) `RunCoverageController.PutAcknowledgedCoverage` — JSON `"entries": null` coalesced to empty document — locus: `request.Entries?.Select... ?? []` ~110–117; input: PUT acknowledgement with null `entries`; reachability: `PUT /v1/runs/{runId}/coverage/acknowledgement` OpenAPI; wrong outcome: silent wipe vs explicit validation when operator omitted the field.
-- [ ] (candidate) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — null body uses default `IntegrationOutboxDeadLetterBulkRetryRequest` — locus: `body ?? new()` ~35; input: POST retry-dead-letter without JSON; reachability: `POST /v1/admin/integrations/outbox/retry-dead-letter`; wrong outcome: implicit `MaxRows` default vs required explicit operator bound.
-- [ ] (candidate) `RunsController.RephraseClarificationAnswers` — null element inside non-null `items` array — locus: `foreach` ~66; input: `"items": [null]`; reachability: same rephrase OpenAPI path; wrong outcome: HTTP 500 vs per-item validation (sibling coverage PUT null row returns 400).
-- [ ] (candidate) `AdminAgentModelCatalogController.RecordEvaluation` — null `EvaluationState` string — locus: `Enum.TryParse(request.EvaluationState, ...)` ~149; input: `{ "evaluationState": null }`; reachability: `POST .../evaluations/{taskType}/record`; wrong outcome: ambiguous 400 message vs explicit required-field validation.
-- [ ] (candidate) `RunsController.CreateRunBatch` — JSON array containing `null` elements — locus: `CreateRunBatchAsync` forwards list ~58–60; input: `[null, { ... }]` batch body; reachability: `POST /v1/runs/request/batch` OpenAPI; wrong outcome: unhandled NRE/500 vs 400 per item.
 
 2026-10-23 seed hunt (seed→hit): promoted `RunsController.RephraseClarificationAnswers` null `Items` collection gap (sibling `ApplyKnowledgeModelClarificationAnswers` already guarded); regression `RephraseClarificationAnswers_returns_bad_request_when_items_collection_is_null`; reseeded five follow-on `(candidate)` rows. Private beta: Invited operators rephrasing draft clarification answers no longer hit HTTP 500 when the UI or API client sends `"items": null`—they receive HTTP 400 validation like the apply-answers route.
 
@@ -8920,11 +8928,11 @@
 - **aliases:** authority controllers; admin controllers
 - **paths:** ArchLucid.Api/Controllers/Authority/; ArchLucid.Api/Controllers/Admin/
 - **test-filter:** FullyQualifiedName~AuthorityController|FullyQualifiedName~AdminController
-- **hunts:** 65
-- **bugs-found:** 57
+- **hunts:** 66
+- **bugs-found:** 58
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-23
-- **last-bug:** 2026-10-23 — rephrase clarification null Items caused 500 instead of validation
+- **last-bug:** 2026-10-23 — rephrase clarification null item in items array caused 500 instead of validation
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -8959,12 +8967,6 @@
 2026-10-16 seed hunt (seed→hit): promoted `AdminController.ArchiveRunsByIds` null `RunIds` collection gap; proved and fixed; reseeded five follow-on `(candidate)` rows.
 
 - [x] (proven) `AdminController.ArchiveRunsByIds` — JSON `"runIds": null` dereferenced `body.RunIds.Count` and threw `NullReferenceException` instead of `400 ValidationFailed` — **hit 2026-10-16 seed hunt:** null-coalesce guard before count check; regression `ArchiveRunsByIds_returns_bad_request_when_run_ids_collection_is_null`
-- [ ] (candidate) `AdminController.SuppressIntegrationOutboxDeadLetter` — `IntegrationOutboxDeadLetterSuppressRequest` body optional fields when body is `{}` vs null — locus: `SuppressIntegrationOutboxDeadLetterAsync(outboxId, body, ...)` ~92; input: suppress without JSON body on POST; wrong outcome: unhandled null vs intentional default suppress reason.
-- [ ] (candidate) `CollectionRunsController.TriggerAsync` — `request` omitted with valid `Idempotency-Key` — locus: `request?.SubscriptionIds ?? []` ~67; input: empty body trigger; wrong outcome: silent empty subscription list vs explicit validation when SecureNow expects at least one subscription.
-- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — null entry elements in `Entries` array — **cheap-disproof 2026-10-21 lane B:** foreach returns `400 ValidationFailed` when `row is null` (~73).
-- [ ] (candidate) `AuthorityQueryController.RecordRunOperatorGovernanceDisposition` — `Disposition` enum string case / unknown value before service — locus: `RecordRunOperatorGovernanceDisposition` POST ~171; input: disposition value outside contract casing; wrong outcome: `500` from downstream `InvalidOperationException` vs `400 ValidationFailed` at controller edge.
-- [ ] (candidate) `IdentityProviderConfigurationController.ActivateAsync` — `request` with null `Issuer` after partial JSON bind — locus: activation validate path; input: `{ "protocol": "oidc", "issuer": null }`; wrong outcome: persistence or audit throws instead of validation problem.
-
 2026-10-02 seed hunt (seed-only): re-read Authority/Admin controller policy and input-boundary paths; seeded an unbounded model-catalog evaluation evidence candidate; 14 focused tests passed and 5 SQL-backed integration tests were blocked by unavailable SQL Server; no candidate promoted.
 
 2026-10-02 thorough hunt (dry): cheap-disproved the model-catalog evaluation evidence-size candidate; the persistence schema intentionally stores `EvidenceJson` as `NVARCHAR(MAX)`, and no concrete bounded-input failure or configured size contract was present to support a failing repro; 14 focused tests passed and 5 SQL-backed integration tests were blocked by unavailable SQL Server.
