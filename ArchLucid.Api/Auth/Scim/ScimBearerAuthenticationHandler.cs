@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using System.Text.Encodings.Web;
+using System.Text.RegularExpressions;
 
 using ArchLucid.Application.Scim.Tokens;
 using ArchLucid.Core.Authorization;
@@ -19,6 +20,10 @@ internal class ScimBearerAuthenticationHandler(
 {
     /// <summary>Max Bearer credentials honored per request (HTTP combination + comma folding).</summary>
     internal const int MaxBearerCredentialsPerRequest = 2;
+
+    private static readonly Regex WhitespaceJoinedBearerCredentialSplit = new(
+        @"\s{2,}(?=Bearer\s)",
+        RegexOptions.CultureInvariant | RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
     private readonly IScimBearerTokenAuthenticator _authenticator =
         authenticator ?? throw new ArgumentNullException(nameof(authenticator));
@@ -96,7 +101,7 @@ internal class ScimBearerAuthenticationHandler(
             // HTTP field combination can fold duplicate Authorization values into one comma-separated header.
             // Some gateways join multiple Bearer lines with LF, semicolons, pipes, vertical tabs, or form feeds instead of a comma.
 
-            foreach (string segment in SplitAuthorizationCredentialSegments(headerValue))
+            foreach (string segment in EnumerateCredentialSegments(headerValue))
             {
                 string normalizedSegment = segment.TrimStart('\uFEFF');
 
@@ -133,6 +138,35 @@ internal class ScimBearerAuthenticationHandler(
         }
 
         return new AuthorizationBearerParseResult(tokens, null);
+    }
+
+    private static IEnumerable<string> EnumerateCredentialSegments(string headerValue)
+    {
+        foreach (string segment in SplitAuthorizationCredentialSegments(headerValue))
+        {
+            foreach (string piece in ExpandWhitespaceJoinedBearerSegment(segment))
+                yield return piece;
+        }
+    }
+
+    private static IEnumerable<string> ExpandWhitespaceJoinedBearerSegment(string segment)
+    {
+        string[] parts = WhitespaceJoinedBearerCredentialSplit.Split(segment);
+
+        if (parts.Length <= 1)
+            return [segment];
+
+        List<string> trimmed = [];
+
+        foreach (string part in parts)
+        {
+            string value = part.Trim();
+
+            if (value.Length > 0)
+                trimmed.Add(value);
+        }
+
+        return trimmed.Count <= 1 ? [segment] : trimmed;
     }
 
     private static IEnumerable<string> SplitAuthorizationCredentialSegments(string headerValue) =>
