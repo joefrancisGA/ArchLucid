@@ -163,7 +163,14 @@ public static class ArchitectureInventoryObservedFactGraphBuilder
             }
         }
 
-        return (resource.ResourceType ?? string.Empty).Trim();
+        string resourceTypeLabel = (resource.ResourceType ?? string.Empty).Trim();
+
+        if (resourceTypeLabel.Length > 0)
+        {
+            return resourceTypeLabel;
+        }
+
+        return armId.Trim();
     }
 
 }
