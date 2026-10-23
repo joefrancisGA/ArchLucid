@@ -370,8 +370,12 @@ public static class GraphSnapshotCanonicalFingerprint
         if (value.Length == 0)
             return value;
 
-        if (value.StartsWith("http://", StringComparison.OrdinalIgnoreCase)
-            || value.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
+        if (TryStripProtocolRelativeAuthorityPath(ref value))
+        {
+            // Authority-bearing //host/... URLs normalized to AbsolutePath.
+        }
+        else if (value.StartsWith("http://", StringComparison.OrdinalIgnoreCase)
+                 || value.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
         {
             if (Uri.TryCreate(value, UriKind.Absolute, out Uri? absoluteUri) && absoluteUri.IsAbsoluteUri)
                 value = absoluteUri.AbsolutePath;
@@ -394,6 +398,28 @@ public static class GraphSnapshotCanonicalFingerprint
             value = value[..cutIndex];
 
         return value;
+    }
+
+    private static bool TryStripProtocolRelativeAuthorityPath(ref string value)
+    {
+        if (!value.StartsWith("//", StringComparison.Ordinal) || value.StartsWith("///", StringComparison.Ordinal))
+            return false;
+
+        int authorityEnd = value.IndexOf('/', 2);
+
+        ReadOnlySpan<char> authority = authorityEnd < 0
+            ? value.AsSpan(2)
+            : value.AsSpan(2, authorityEnd - 2);
+
+        if (authority.IsEmpty || (!authority.Contains('.') && !authority.Contains(':')))
+            return false;
+
+        if (!Uri.TryCreate("https:" + value, UriKind.Absolute, out Uri? absoluteUri) || !absoluteUri.IsAbsoluteUri)
+            return false;
+
+        value = absoluteUri.AbsolutePath;
+
+        return true;
     }
 
     /// <summary>

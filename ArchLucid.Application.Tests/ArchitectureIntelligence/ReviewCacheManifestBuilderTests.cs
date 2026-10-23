@@ -8856,6 +8856,66 @@ public sealed class ReviewCacheManifestBuilderTests
     }
 
     [Fact]
+    public void Build_matches_content_hash_when_file_name_differs_only_by_http_url_with_authority_prefix()
+    {
+        ClosedLoopReasoningRequest plain = CreateRequest("Same body.");
+        plain.SourceTexts =
+        [
+            new ClosedLoopReasoningSourceText
+            {
+                FileName = "docs/architecture/overview.md",
+                ContentType = "text/markdown",
+                Content = "Same body.",
+            },
+        ];
+
+        ClosedLoopReasoningRequest http = CreateRequest("Same body.");
+        http.SourceTexts =
+        [
+            new ClosedLoopReasoningSourceText
+            {
+                FileName = "http://example.com/docs/architecture/overview.md",
+                ContentType = "text/markdown",
+                Content = "Same body.",
+            },
+        ];
+
+        ReviewCacheManifestBuilder.Build(plain).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(http).ContentHash);
+    }
+
+    [Fact]
+    public void Build_matches_content_hash_when_file_name_differs_only_by_protocol_relative_url_with_authority_prefix()
+    {
+        ClosedLoopReasoningRequest plain = CreateRequest("Same body.");
+        plain.SourceTexts =
+        [
+            new ClosedLoopReasoningSourceText
+            {
+                FileName = "docs/architecture/overview.md",
+                ContentType = "text/markdown",
+                Content = "Same body.",
+            },
+        ];
+
+        ClosedLoopReasoningRequest protocolRelative = CreateRequest("Same body.");
+        protocolRelative.SourceTexts =
+        [
+            new ClosedLoopReasoningSourceText
+            {
+                FileName = "//example.com/docs/architecture/overview.md",
+                ContentType = "text/markdown",
+                Content = "Same body.",
+            },
+        ];
+
+        ReviewCacheManifestBuilder.Build(plain).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(protocolRelative).ContentHash);
+    }
+
+    [Fact]
     public void Build_matches_content_hash_when_file_name_differs_only_by_triple_slash_segment()
     {
         ClosedLoopReasoningRequest single = CreateRequest("Same body.");
