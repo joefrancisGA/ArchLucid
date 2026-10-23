@@ -14654,12 +14654,14 @@ heap-disproved mermaid typed-topology candidate.
 - **aliases:** host composition; DI registration; startup modules
 - **paths:** ArchLucid.Host.Composition/
 - **test-filter:** FullyQualifiedName~Host.Composition|FullyQualifiedName~ServiceCollectionExtensions
-- **hunts:** 94
-- **bugs-found:** 78
+- **hunts:** 95
+- **bugs-found:** 79
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-23
-- **last-bug:** 2026-10-23 — corrupt distributed poll hid local failed error
+- **last-bug:** 2026-10-23 — corrupt distributed poll hid local completed copy
 - **code-changed-since:** yes
+
+2026-10-23 thorough hunt (seed→hit): proved corrupt distributed poll merged generic `Failed` over local `Completed` without bytes, hiding missing-document copy; keep any local entry when distributed read is corrupt-only; regression `TryPoll_keeps_local_completed_missing_document_message_when_distributed_state_is_corrupt`; cheap-disproof closed four sibling `(candidate)` rows; scoped poll-state tests 31 passed (`RunAnalyzers=false`).
 
 2026-10-23 thorough hunt (seed→hit): proved corrupt distributed poll merged generic `Failed` over terminal local `Failed` with enqueue persist error copy; skip corrupt merge when local is failed; regression `TryPoll_keeps_local_failed_error_when_distributed_state_is_corrupt`; cheap-disproof closed four sibling `(candidate)` rows; scoped poll-state tests 30 passed (`RunAnalyzers=false`).
 
@@ -15026,11 +15028,17 @@ heap-disproved mermaid typed-topology candidate.
 - [x] (valid-no-repro) `ProcessSharedValueReportJobPollStateCache.Set` — prune expired on write — **cheap-disproof 2026-10-23 thorough hunt #94:** regression `Set_prunes_expired_entries_without_get` (hunt #74).
 - [x] (valid-no-repro) `PollingCollectionRunDiscovery.DiscoverAsync` — empty zip skipped — **cheap-disproof 2026-10-23 thorough hunt #94:** regression `DiscoverAsync_tries_later_duplicate_runId_when_earlier_manifest_has_empty_zip` (hunt #80).
 
+- [x] (proven) `InMemoryValueReportJobQueue.TryPoll` — corrupt distributed overrode local `Completed` without bytes — **hit 2026-10-23 thorough hunt #95:** keep local entry when distributed is corrupt-only; regression `TryPoll_keeps_local_completed_missing_document_message_when_distributed_state_is_corrupt`.
+- [x] (valid-no-repro) `InMemoryValueReportJobQueue.TryPoll` — corrupt skipped when local completed has bytes — **cheap-disproof 2026-10-23 thorough hunt #95:** regression `TryPoll_keeps_local_completed_bytes_when_distributed_state_is_corrupt` (hunt #86).
+- [x] (valid-no-repro) `InMemoryValueReportJobQueue.TryPoll` — corrupt skipped when local pending — **cheap-disproof 2026-10-23 thorough hunt #95:** regression `TryPoll_keeps_local_pending_when_distributed_state_is_corrupt` (hunt #93).
+- [x] (valid-no-repro) `InMemoryValueReportJobQueue.TryPoll` — distributed cache read throws — **cheap-disproof 2026-10-23 thorough hunt #95:** regression `TryPoll_reports_failure_when_distributed_state_cache_read_throws` (hunt #75).
+- [x] (valid-no-repro) `InMemoryValueReportJobQueue.Enqueue` — failed pending persist returns failed job id — **cheap-disproof 2026-10-23 thorough hunt #95:** regression `TryPoll_on_peer_instance_reports_failure_when_pending_state_cannot_be_persisted` (hunt #70).
+
 - [ ] (candidate) `AzureBlobCollectionRunArtifactReader.ListManifestsAsync` — partial list on storage error — locus: catch; input: `RequestFailedException`; wrong outcome: intentional.
-- [ ] (candidate) `InMemoryValueReportJobQueue.TryPoll` — corrupt skipped when local completed has bytes — locus: corrupt merge; input: bytes + corrupt; wrong outcome: hunt #86.
-- [ ] (candidate) `InMemoryValueReportJobQueue.TryPoll` — corrupt skipped when local pending — locus: corrupt merge; input: pending + corrupt; wrong outcome: hunt #93.
-- [ ] (candidate) `InMemoryValueReportJobQueue.TryPoll` — distributed cache read throws — locus: `TryReadDistributedState`; input: throw; wrong outcome: hunt #75.
-- [ ] (candidate) `InMemoryValueReportJobQueue.Enqueue` — failed pending persist returns failed job id — locus: enqueue catch; input: cache down; wrong outcome: hunt #70.
+- [ ] (candidate) `InMemoryValueReportJobQueue.TryPoll` — corrupt-only when no local entry — locus: null local; input: corrupt; wrong outcome: hunt #75.
+- [ ] (candidate) `InMemoryValueReportJobQueue.TryPoll` — local failed skipped on corrupt — locus: corrupt merge; input: failed + corrupt; wrong outcome: hunt #94.
+- [ ] (candidate) `PollingCollectionRunDiscovery.DiscoverAsync` — null artifact skipped — locus: null check; input: missing blob; wrong outcome: hunt #82.
+- [ ] (candidate) `ApiRequestUsageEventBatchFlushHostedService.FlushPendingAsync` — timer flush requeues tail on failure — locus: snapshot; input: mid-batch fail; wrong outcome: hunt #92.
 
 
 2026-10-09 seed hunt (seed→hit): failed usage flush returned events through `Enqueue`, which drops them when metering is disabled. Already-accepted events now use `Requeue`. Regression `StopAsync_keeps_dequeued_usage_events_when_persist_fails_after_metering_disabled` failed first.
