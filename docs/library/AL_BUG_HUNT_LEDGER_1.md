@@ -5292,21 +5292,28 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** recommendation engine; alternatives
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationEngine.cs; ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationTradeOffBuilder.cs
 - **test-filter:** FullyQualifiedName~ArchitectureRecommendationAlternativesTests|FullyQualifiedName~ArchitectureRecommendationProposedChangeTests
-- **hunts:** 73
+- **hunts:** 74
 - **last-hunt:** 2026-10-23
-- **bugs-found:** 30
+- **bugs-found:** 31
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-23 — later `Cost over Security` lost to generic Security mention; `cost optimized` prose selected Cost
+- **last-bug:** 2026-10-23 — `cost control` prose falsely selected Cost dimension
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
-2026-10-23 seed hunt (seed→hit): promoted `TryResolveDeclaredPairPrecedence` so explicit `over`/`before` between a trade-off pair wins over generic dimension mentions in earlier priority strings (e.g. `Cost over Security` after `Security focus`); promoted spaced Cost modifier phrases (`cost optimized`, etc.) not selecting Cost when Security is also named; regressions `BuildRecommendations_prefers_cost_first_when_later_priority_explicitly_says_cost_over_security`, `BuildRecommendations_prefers_security_first_when_priority_is_cost_optimized_security_rollout`; cheap-disproof closed three sibling `(candidate)` rows; seeded five follow-on rows; scoped Alternatives/ProposedChange/TradeOff tests 67/67.
+2026-10-23 seed hunt (seed→hit): promoted spaced Cost modifier phrases `cost control` / `cost containment` still selecting Cost alongside Security and balancing Security/Cost trade-offs; extended `IsCostTokenInSpacedModifierPhrase`; regression `BuildRecommendations_prefers_security_first_when_priority_is_cost_control_security_uplift`; cheap-disproof closed four sibling `(candidate)` rows; seeded five follow-on rows; scoped Alternatives/ProposedChange/TradeOff tests 70/70.
 
-- [ ] (candidate) `ArchitectureRecommendationTradeOffBuilder.TryResolveDeclaredPairPrecedence` — conflicting explicit pair statements in one string (e.g. `Security over Cost, Cost over Security`) — input: comma-joined priorities; reachability: pasted sponsor bullets; wrong outcome: last clause wins without validation.
-- [ ] (candidate) `ArchitectureRecommendationTradeOffBuilder.DeclaredPriorityPrefersDimension` — `cost control` and `cost containment` still select Cost dimension — input: modifier prose with Security goal; reachability: operator framing; wrong outcome: balanced Security/Cost.
+- [ ] (candidate) `ArchitectureRecommendationTradeOffBuilder.TryResolveDeclaredPairPrecedence` — multiple explicit pair matches in one priority string only honor the first match — input: comma-joined `Security over Cost, Cost over Security`; reachability: pasted sponsor bullets; wrong outcome: later clause ignored without surfacing ambiguity.
+- [ ] (candidate) `ArchitectureRecommendationTradeOffBuilder.DeclaredPriorityPrefersDimension` — `cost savings` and `cost reduction` still select Cost — input: modifier prose with Security goal; reachability: operator framing; wrong outcome: balanced Security/Cost.
 - [ ] (candidate) `ArchitectureRecommendationTradeOffBuilder.ApplyTradeOffs` — Security plus DataArchitecture actionable findings produce no trade-off object — input: mixed-dimension review package; contract gap only unless product requires all pairs.
-- [ ] (candidate) `ArchitectureRecommendationTradeOffBuilder.TryAddTradeOff` — Reliability/Security trade-off ignores explicit pair precedence when only Reliability/Cost pair appears in priorities — input: priorities name `Reliability over Security` but findings are Security+Cost; reachability: mismatched pair text.
-- [ ] (candidate) `ArchitectureRecommendationTradeOffBuilder.BuildResolutionRationale` — explicit pair precedence still emits “No declared priority selected” when generic mentions were overridden — input: `Security focus` plus `Cost over Security`; reachability: rationale copy on trade-off object.
+- [ ] (candidate) `ArchitectureRecommendationTradeOffBuilder.DeclaredPriorityPrefersDimension` — `Cost` in `Costa Rica security program` after compound guard regressions — input: geography phrase; reachability: regional rollout priorities; wrong outcome: Cost-first trade-off.
+- [ ] (candidate) `ArchitectureRecommendationTradeOffBuilder.TryResolveDeclaredPairPrecedence` — `before` syntax not symmetric with `over` when dimensions reversed in text — input: `Security before Cost` vs `Cost before Security` on same finding pair; reachability: sponsor templates.
+
+- [x] (proven) `ArchitectureRecommendationTradeOffBuilder.DeclaredPriorityPrefersDimension` — `cost control` / `cost containment` select Cost — **hit 2026-10-23 seed hunt:** spaced modifier list extended; regression `BuildRecommendations_prefers_security_first_when_priority_is_cost_control_security_uplift`.
+- [x] (valid-no-repro) `ArchitectureRecommendationTradeOffBuilder.TryResolveDeclaredPairPrecedence` — comma-joined conflicting clauses last wins — **cheap-disproof 2026-10-23 seed hunt:** first `over`/`before` match in string wins; regression `BuildRecommendations_prefers_security_first_when_comma_joined_priority_lists_security_over_cost_first`.
+- [x] (valid-no-repro) `ArchitectureRecommendationTradeOffBuilder.BuildResolutionRationale` — generic override rationale — **cheap-disproof 2026-10-23 seed hunt:** explicit pair sets prefers flags; regression `BuildRecommendations_uses_declared_priority_rationale_when_explicit_pair_overrides_generic_mentions`.
+- [x] (invalid) `ArchitectureRecommendationTradeOffBuilder.TryAddTradeOff` — `Reliability over Security` text on Security+Cost findings — **cheap-disproof 2026-10-23 seed hunt:** pair precedence applies only to the active trade-off dimension pair.
+
+2026-10-23 seed hunt (seed→hit): promoted `TryResolveDeclaredPairPrecedence` so explicit `over`/`before` between a trade-off pair wins over generic dimension mentions in earlier priority strings (e.g. `Cost over Security` after `Security focus`); promoted spaced Cost modifier phrases (`cost optimized`, etc.) not selecting Cost when Security is also named; regressions `BuildRecommendations_prefers_cost_first_when_later_priority_explicitly_says_cost_over_security`, `BuildRecommendations_prefers_security_first_when_priority_is_cost_optimized_security_rollout`; cheap-disproof closed three sibling `(candidate)` rows; seeded five follow-on rows; scoped Alternatives/ProposedChange/TradeOff tests 67/67.
 
 - [x] (proven) `ArchitectureRecommendationTradeOffBuilder.BuildPreferredResolution` — generic Security mention plus later `Cost over Security` balanced — **hit 2026-10-23 seed hunt:** `TryResolveDeclaredPairPrecedence`; regression `BuildRecommendations_prefers_cost_first_when_later_priority_explicitly_says_cost_over_security`.
 - [x] (proven) `ArchitectureRecommendationTradeOffBuilder.DeclaredPriorityPrefersDimension` — `cost optimized security rollout` selected Cost — **hit 2026-10-23 seed hunt:** `IsCostTokenInSpacedModifierPhrase`; regression `BuildRecommendations_prefers_security_first_when_priority_is_cost_optimized_security_rollout`.
