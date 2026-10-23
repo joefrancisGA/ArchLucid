@@ -275,6 +275,42 @@ public sealed class InMemoryValueReportJobQueueDistributedPollStateTests
     }
 
     [Fact]
+    public void TryPoll_keeps_local_failed_error_when_distributed_state_is_corrupt()
+    {
+        ServiceCollection services = BuildValueReportJobServices();
+        DictionaryPollStateCache pollStateCache = new();
+        services.AddSingleton<IValueReportJobPollStateCache>(pollStateCache);
+        ServiceProvider provider = services.BuildServiceProvider();
+        IServiceScopeFactory scopeFactory = provider.GetRequiredService<IServiceScopeFactory>();
+
+        InMemoryValueReportJobQueue queue =
+            new(scopeFactory, pollStateCache, NullLogger<InMemoryValueReportJobQueue>.Instance);
+
+        Guid tenantId = Guid.NewGuid();
+        Guid workspaceId = Guid.NewGuid();
+        Guid projectId = Guid.NewGuid();
+        Guid jobId = Guid.NewGuid();
+        DateTimeOffset from = DateTimeOffset.UtcNow.AddDays(-7);
+        DateTimeOffset to = DateTimeOffset.UtcNow;
+        ValueReportJobRequest request = new(tenantId, workspaceId, projectId, from, to);
+        const string localError =
+            "Value report job could not be enqueued for cross-instance polling because poll state could not be persisted — retry the async export.";
+
+        ReplaceLocalJobEntry(queue, jobId, request, "Failed", null, null, localError);
+
+        pollStateCache.Set(
+            $"archlucid:value-report-job:{jobId:N}",
+            System.Text.Encoding.UTF8.GetBytes("{not-valid-json"),
+            new DistributedCacheEntryOptions());
+
+        ValueReportJobPollResult poll = queue.TryPoll(jobId, tenantId);
+
+        poll.Found.Should().BeTrue();
+        poll.Completed.Should().BeFalse();
+        poll.ErrorMessage.Should().Be(localError);
+    }
+
+    [Fact]
     public void TryPoll_reports_failure_when_distributed_state_has_unknown_phase()
     {
         ServiceCollection services = BuildValueReportJobServices();

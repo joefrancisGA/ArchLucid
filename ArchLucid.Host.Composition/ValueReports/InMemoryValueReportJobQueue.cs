@@ -79,7 +79,7 @@ public sealed partial class InMemoryValueReportJobQueue(
         }
         else if (distributedRead.CorruptPayload &&
                  entry is not { Phase: JobPhase.Completed, Bytes: { Length: > 0 } } &&
-                 entry.Phase is not JobPhase.Pending)
+                 entry.Phase is not JobPhase.Pending and not JobPhase.Failed)
         {
             entry = PreferDistributedPollState(entry, CreateCorruptDistributedFailureEntry(entry.Request));
         }
