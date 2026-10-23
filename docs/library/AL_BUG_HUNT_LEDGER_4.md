@@ -861,17 +861,19 @@
 - **aliases:** retrieval indexing; embedding; pricing retrieval
 - **paths:** ArchLucid.Retrieval/
 - **test-filter:** FullyQualifiedName~Retrieval|FullyQualifiedName~Indexing
-- **hunts:** 73
+- **hunts:** 74
 - **last-hunt:** 2026-10-23
-- **bugs-found:** 33
+- **bugs-found:** 34
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-23 — empty reindex orphan vectors without catalog row
+- **last-bug:** 2026-10-23 — orphan shrink chunks without catalog row
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
 2026-09-12 seed hunt #2172 (seed-only): reseeded retrieval with `-Hint retrieval`; no new hunt-ready rows.
 
 2026-10-23 thorough hunt #104 (hit): proved `IndexDocumentsAsync` skipped vector deletion on whitespace-only reindex when the document index catalog had no row, leaving searchable orphan chunks after index/catalog drift; empty-document cleanup now always calls `RemoveChunksForDocumentAsync`; regression `IndexDocumentsAsync_when_content_chunks_to_empty_removes_orphan_vectors_without_catalog_entry`; cheap-disproved the seven picker candidates; 373 scoped retrieval/indexing tests passed.
+
+2026-10-23 seed hunt #105 (seed→hit): promoted catalog-miss shrink cleanup; proved higher-ordinal orphan chunks survived reindex when `IndexedChunkCount` cleanup was gated on `_indexCatalog.TryGet`; remove document vectors before upsert when the catalog has no row; regression `IndexDocumentsAsync_when_content_shrinks_removes_orphan_higher_ordinal_chunks_without_catalog_entry`; seeded five follow-up candidates; 374 scoped retrieval/indexing tests passed.
 
 ### Hypotheses
 - [x] (invalid) `SimpleTextChunker.Chunk` / `StructureAwareTextChunker.Chunk` — non-positive `maxChars` — **cheap-disproof 2026-10-21 thorough hunt:** only internal chunkers invoke `ITextChunker` with positive defaults; no configuration path supplies non-positive sizes.
@@ -882,6 +884,12 @@
 - [x] (valid-no-repro) `RetrievalDocumentBuilder.BuildForFindings` — reorder missing ids — **cheap-disproof 2026-10-21 thorough hunt:** `BuildForFindings_missing_finding_id_uses_emitted_ordinal_not_raw_list_index`.
 - [x] (valid-no-repro) `AzureSearchTenantScopeFilterBuilder.BuildScopeFilter` — empty assigned policy packs still allow non-PolicyPack platform corpora — **cheap-disproof 2026-10-21 thorough hunt:** intentional per `SearchAsync_IncludePlatformCorpora_StillReturnsNonPolicyPackPlatformCorpus` and filter tests.
 - [x] (proven) `RetrievalIndexingService.IndexDocumentsAsync` — empty reindex with no catalog row left orphan vectors searchable — **hit 2026-10-23 thorough hunt #104:** gated delete on `TryGet`; fixed by always removing document chunks on empty reindex; regression `IndexDocumentsAsync_when_content_chunks_to_empty_removes_orphan_vectors_without_catalog_entry`.
+- [x] (proven) `RetrievalIndexingService.IndexDocumentsAsync` — content shrink with no catalog row left higher-ordinal orphan chunks — **hit 2026-10-23 seed hunt #105:** stale ordinal cleanup required catalog `IndexedChunkCount`; fixed by `RemoveChunksForDocumentAsync` before upsert when `TryGet` is false; regression `IndexDocumentsAsync_when_content_shrinks_removes_orphan_higher_ordinal_chunks_without_catalog_entry`.
+- [ ] (candidate) `RetrievalIndexingService.IndexDocumentsAsync` — catalog row understates `IndexedChunkCount` vs live index — locus: post-upsert ordinal cleanup; input: catalog `IndexedChunkCount=1` with three searchable ordinals; wrong outcome: stale ordinals remain after shrink to one chunk.
+- [ ] (candidate) `RetrievalIndexingService.ShouldSkipUnchangedDocument` — matching `ContentHash` with whitespace-only `Content` — locus: skip guard; input: same hash as prior full content but body is whitespace; wrong outcome: skip leaves prior chunks searchable.
+- [ ] (candidate) `RetrievalQueryService.ResolveQueryPlanAsync` — `AllowedPolicyPackRulePackIds` mutation on reused query — locus: plan resolution; input: second search after tenant pack assignment changes; wrong outcome: stale pack filter (regression exists; verify no re-open).
+- [ ] (candidate) `IterativeRetrievalLoop.MergeHits` — critique retry with duplicate chunk ids across passes — locus: merge; input: same `ChunkId` lower score then higher; wrong outcome: keep lower score (regression exists; sibling path audit).
+- [ ] (candidate) `ManifestChunkSummarizer.TrimHitsToSafeTokenLimit` — tie-break when multiple hits share minimum score — locus: trim loop; input: budget exceeded with equal lowest scores; wrong outcome: nondeterministic context drop.
 - [x] (valid-no-repro) `RetrievalIndexingService` — empty-document catalog after cleanup failure — **cheap-disproof 2026-10-23 thorough hunt #104:** failed cleanup leaves catalog unchanged with prior vectors; no wrong catalog-after-success path.
 - [x] (valid-no-repro) `CachingEmbeddingService.EmbedManyAsync` — mixed blank/nonblank batch cardinality — **cheap-disproof 2026-10-23 thorough hunt #104:** cardinality guard and chunkers remove blanks before dispatch (see 2026-10-21 row).
 - [x] (valid-no-repro) `RetrievalDocumentBuilder.BuildForFindings` — reorder missing finding ids — **cheap-disproof 2026-10-23 thorough hunt #104:** `BuildForFindings_missing_finding_id_uses_emitted_ordinal_not_raw_list_index`.
