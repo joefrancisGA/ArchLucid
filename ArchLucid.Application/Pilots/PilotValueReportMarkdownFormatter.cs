@@ -172,7 +172,17 @@ public sealed class PilotValueReportMarkdownFormatter(ExportFormatterService exp
         }
         sb.AppendLine();
 
-        if (r.RunDetailsTruncated)
+        if (RunDetailSampleLoadedNoRows(r))
+        {
+            string committedRunsHeading = r.RunDetailsTruncated
+                ? FormattableString.Invariant(
+                    $"## Committed runs (sample: 0 of {r.TotalRunsCommitted} in-window committed runs loaded for detail)")
+                : FormattableString.Invariant(
+                    $"## Committed runs (0 of {r.TotalRunsCommitted} in-window committed runs loaded for detail)");
+
+            sb.AppendLine(committedRunsHeading);
+        }
+        else if (r.RunDetailsTruncated)
         {
             sb.AppendLine(
                 CultureInfo.InvariantCulture,

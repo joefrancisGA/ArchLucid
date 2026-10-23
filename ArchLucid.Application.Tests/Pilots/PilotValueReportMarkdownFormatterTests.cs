@@ -193,6 +193,8 @@ public sealed class PilotValueReportMarkdownFormatterTests
         markdown.Should().Contain(
             "| Avg pipeline completion | not computed — no committed runs loaded for detail in the partial sample |");
         markdown.Should().NotContain("| Critical | 0 |");
+        markdown.Should().Contain("## Committed runs (0 of 3 in-window committed runs loaded for detail)");
+        markdown.Should().NotContain("## Committed runs (sample loaded for detail)");
     }
 
     [Fact]

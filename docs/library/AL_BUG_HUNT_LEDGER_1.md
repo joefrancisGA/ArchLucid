@@ -7268,13 +7268,21 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-pilots
 
-2026-10-23 seed hunt (seed→hit): promoted `RunDetailSampleLoadedNoRows` gaps for avg pipeline completion and findings-by-severity table still emitting numeric/zero cells; aligned Summary avg and severity table with not-computed banner; regressions extended on `Format_when_committed_runs_exist_but_no_run_details_loaded_does_not_emit_zero_findings_as_tenant_total` and `Format_when_committed_runs_exist_but_no_run_details_loaded_omits_severity_table_even_when_buckets_nonzero`; cheap-disproof closed three sibling `(candidate)` rows; seeded five follow-on rows; 69 scoped BuyerProofPack/BoardPack/PilotValueReport tests passed.
+2026-10-23 seed hunt (seed→hit): promoted committed-runs section header still claiming sample loaded when `RunDetailSampleLoadedNoRows` and `RunDetailsTruncated` false; header now shows `0 of {TotalRunsCommitted}` loaded for detail; regression extended on `Format_when_committed_runs_exist_but_no_run_details_loaded_does_not_emit_zero_findings_as_tenant_total`; cheap-disproof closed four sibling `(candidate)` rows; seeded five follow-on rows; 69 scoped BuyerProofPack/BoardPack/PilotValueReport tests passed.
 
-- [ ] (candidate) `PilotValueReportMarkdownFormatter` — `Recommendations generated (audit)` reads tenant-wide when `RunDetailSampleLoadedNoRows` — locus: Summary audit row without detail-sample guard; input: positive `TotalRecommendationsProduced` with empty timeline and `TotalRunsCommitted > 0`.
-- [ ] (candidate) `PilotValueReportMarkdownFormatter` — committed-runs timeline header counts when `RunDetailSampleLoadedNoRows` — locus: `Committed runs (sample:` section; input: `TotalRunsCommitted > 0` with zero loaded timeline rows.
-- [ ] (candidate) `PilotValueReportService` — stale `FindingsBySeverity` aggregates when detail projection returns no rows — locus: report assembly before formatter; input: committed runs with failed per-run detail fetch.
-- [ ] (candidate) `BuyerProofPackBuilder.TryBuildZipAsync` — `pack-manifest.json` `demoDataWarning` key name vs limitations copy — locus: manifest schema vs markdown heading; input: sample-run pack export.
-- [ ] (candidate) `BoardPackPdfBuilder` — quarter window digest clamp bypass when digest week equals window boundary — locus: `BoardPackQuarterWindow`; input: single-week board-pack period on ISO week edge.
+- [ ] (candidate) `PilotValueReportMarkdownFormatter` — metadata `Committed runs` count when `RunDetailSampleLoadedNoRows` — locus: report metadata table; input: positive `TotalRunsCommitted` with empty timeline; wrong outcome: reads as full inventory without qualification.
+- [ ] (candidate) `PilotValueReportMarkdownFormatter` — governance Summary rows when `RunDetailSampleLoadedNoRows` — locus: approvals/rejections without scope note; input: empty timeline with tenant-wide audit totals; wrong outcome: mixed scope without footnote.
+- [ ] (candidate) `PilotValueReportService` — `TotalFindings` non-zero when every detail fetch fails — locus: severity rollup loop; input: committed run ids with null `GetRunDetailForRoiAsync`; wrong outcome: stale non-zero totals on report DTO.
+- [ ] (candidate) `BuyerProofPackDeltasJsonFormatter` — `isDemoTenant` serialization vs limitations banner — locus: JSON field naming; input: demo tenant export; wrong outcome: consumers miss demo flag.
+- [ ] (candidate) `BoardPackPdfBuilder` — override window shorter than seven days yields zero-length digest week — locus: `DigestWeekInsideQuarter` clamp; input: two-day board-pack window.
+
+- [x] (proven) `PilotValueReportMarkdownFormatter` — committed-runs header when `RunDetailSampleLoadedNoRows` — **hit 2026-10-23 seed hunt:** `0 of {total}` header; regression `Format_when_committed_runs_exist_but_no_run_details_loaded_does_not_emit_zero_findings_as_tenant_total`.
+- [x] (valid-no-repro) `PilotValueReportMarkdownFormatter` — `Recommendations generated (audit)` when `RunDetailSampleLoadedNoRows` — **cheap-disproof 2026-10-23 seed hunt:** audit-window totals remain tenant-wide by design; regression `Format_when_audit_export_truncated_with_empty_timeline_still_surfaces_comparison_drift_count`.
+- [x] (valid-no-repro) `PilotValueReportService` — stale `FindingsBySeverity` when detail projection empty — **cheap-disproof 2026-10-23 seed hunt:** severities start empty and formatter omits table when `RunDetailSampleLoadedNoRows`; regression `Format_when_committed_runs_exist_but_no_run_details_loaded_omits_severity_table_even_when_buckets_nonzero`.
+- [x] (invalid) `BuyerProofPackBuilder.TryBuildZipAsync` — manifest `demoDataWarning` key vs limitations copy — **cheap-disproof 2026-10-23 seed hunt:** intentional schema field name; shared caution flag on limitations.
+- [x] (valid-no-repro) `BoardPackPdfBuilder` — digest week on window boundary — **cheap-disproof 2026-10-23 seed hunt:** clamp covered; regression `DigestWeekInsideQuarter_keeps_digest_week_inside_requested_window`.
+
+2026-10-23 seed hunt (seed→hit): promoted `RunDetailSampleLoadedNoRows` gaps for avg pipeline completion and findings-by-severity table still emitting numeric/zero cells; aligned Summary avg and severity table with not-computed banner; regressions extended on `Format_when_committed_runs_exist_but_no_run_details_loaded_does_not_emit_zero_findings_as_tenant_total` and `Format_when_committed_runs_exist_but_no_run_details_loaded_omits_severity_table_even_when_buckets_nonzero`; cheap-disproof closed three sibling `(candidate)` rows; seeded five follow-on rows; 69 scoped BuyerProofPack/BoardPack/PilotValueReport tests passed.
 
 - [x] (proven) `PilotValueReportMarkdownFormatter` — `Avg pipeline completion` numeric when `RunDetailSampleLoadedNoRows` — **hit 2026-10-23 seed hunt:** not-computed avg cell; regression `Format_when_committed_runs_exist_but_no_run_details_loaded_does_not_emit_zero_findings_as_tenant_total`.
 - [x] (proven) `PilotValueReportMarkdownFormatter` — severity table after not-computed banner — **hit 2026-10-23 seed hunt:** omit severity table when `RunDetailSampleLoadedNoRows`; regression `Format_when_committed_runs_exist_but_no_run_details_loaded_omits_severity_table_even_when_buckets_nonzero`.
@@ -7290,11 +7298,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** buyer proof pack; board pack; pilot artifacts
 - **paths:** ArchLucid.Application/Pilots/
 - **test-filter:** FullyQualifiedName~BuyerProofPack|FullyQualifiedName~BoardPack
-- **hunts:** 52
-- **bugs-found:** 37
+- **hunts:** 53
+- **bugs-found:** 38
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-23
-- **last-bug:** 2026-10-23 — pilot value report avg/severity rows when no run details load
+- **last-bug:** 2026-10-23 — committed-runs header claimed sample loaded when none were
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
