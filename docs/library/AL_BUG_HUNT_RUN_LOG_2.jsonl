@@ -1364,4 +1364,3 @@
 {"at":"2026-10-21T19:47:00.0730490Z","zoneId":"tenant-erasure","outcome":"hit","productLine":"archlucid-shared","paths":["@(ArchLucid.Application/Tenancy/TenantErasureCommandService.cs)"]}
 {"at":"2026-10-21T20:11:20.3700291Z","zoneId":"api-tenancy-workspaces","outcome":"seed-only","productLine":"archlucid-shared"}
 {"at":"2026-10-21T20:22:54.2690475Z","zoneId":"saml-jwt-bearer","outcome":"seed-only","productLine":"archlucid-shared"}
-{"at":"2026-10-23T21:43:52.6645663Z","zoneId":"api-authority-admin-controllers","outcome":"hit","productLine":"archlucid-shared","paths":["@(ArchLucid.Api/Controllers/Authority/RunsController.Intake.DraftSync.cs,ArchLucid.Api.Tests/RunsControllerTests.cs)"]}

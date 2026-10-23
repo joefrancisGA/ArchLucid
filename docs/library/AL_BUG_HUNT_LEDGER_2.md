@@ -8758,14 +8758,23 @@
 
 ## Zone: api-authority-admin-controllers
 
+2026-10-23 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows from prior reseed; no new hunt-ready promotion (Rephrase null `Items` already shipped on `bugsmash-2` 01857d53eb); seeded five follow-on `(candidate)` rows; 12 scoped RunsController draft/explain + RunCoverage acknowledgement tests passed.
+
+- [x] (valid-no-repro) `RunsController.ExplainStructuredBriefSuggestion` — partial JSON without `SourceText`/`SuggestionText` — **cheap-disproof 2026-10-23 seed hunt #2:** `ValidateDraftFreeText` rejects null `SourceText` as missing body; `SuggestionText` required guard ~102; regressions `ExplainStructuredBriefSuggestion_returns_bad_request_when_body_null` and max-length cases.
+- [x] (valid-no-repro) `RunsController.DraftRequest` — `{}` body with null `FreeTextDescription` — **cheap-disproof 2026-10-23 seed hunt #2:** `ValidateDraftFreeText(null)` returns HTTP 400 before `DraftAsync`; regression `DraftRequest_returns_bad_request_when_body_null` / too-short description cases.
+- [x] (valid-no-repro) `AdminController.SuppressIntegrationOutboxDeadLetter` — null POST body — **cheap-disproof 2026-10-23 seed hunt #2:** `AdminIntegrationOutboxDiagnosticsService` uses `request?.Comment` in audit JSON; suppress succeeds by design without body.
+- [x] (valid-no-repro) `CollectionRunsController.TriggerAsync` — empty body with idempotency key — **cheap-disproof 2026-10-23 seed hunt #2:** `request?.SubscriptionIds ?? []` is intentional “all subscriptions” trigger contract; service validates scope via `CollectionRunTriggerService`.
+- [x] (valid-no-repro) `AuthorityQueryController.RecordRunOperatorGovernanceDisposition` — unknown disposition enum → HTTP 500 — **cheap-disproof 2026-10-23 seed hunt #2:** controller maps `ArgumentException` to HTTP 400 (~218–221); no unhandled `InvalidOperationException` reproduced for bad enum in scoped disposition tests.
+
+- [ ] (candidate) `RunCoverageController.PutAcknowledgedCoverage` — JSON `"entries": null` coalesced to empty document — locus: `request.Entries?.Select... ?? []` ~110–117; input: PUT acknowledgement with null `entries`; reachability: `PUT /v1/runs/{runId}/coverage/acknowledgement` OpenAPI; wrong outcome: silent wipe vs explicit validation when operator omitted the field.
+- [ ] (candidate) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — null body uses default `IntegrationOutboxDeadLetterBulkRetryRequest` — locus: `body ?? new()` ~35; input: POST retry-dead-letter without JSON; reachability: `POST /v1/admin/integrations/outbox/retry-dead-letter`; wrong outcome: implicit `MaxRows` default vs required explicit operator bound.
+- [ ] (candidate) `RunsController.RephraseClarificationAnswers` — null element inside non-null `items` array — locus: `foreach` ~66; input: `"items": [null]`; reachability: same rephrase OpenAPI path; wrong outcome: HTTP 500 vs per-item validation (sibling coverage PUT null row returns 400).
+- [ ] (candidate) `AdminAgentModelCatalogController.RecordEvaluation` — null `EvaluationState` string — locus: `Enum.TryParse(request.EvaluationState, ...)` ~149; input: `{ "evaluationState": null }`; reachability: `POST .../evaluations/{taskType}/record`; wrong outcome: ambiguous 400 message vs explicit required-field validation.
+- [ ] (candidate) `RunsController.CreateRunBatch` — JSON array containing `null` elements — locus: `CreateRunBatchAsync` forwards list ~58–60; input: `[null, { ... }]` batch body; reachability: `POST /v1/runs/request/batch` OpenAPI; wrong outcome: unhandled NRE/500 vs 400 per item.
+
 2026-10-23 seed hunt (seed→hit): promoted `RunsController.RephraseClarificationAnswers` null `Items` collection gap (sibling `ApplyKnowledgeModelClarificationAnswers` already guarded); regression `RephraseClarificationAnswers_returns_bad_request_when_items_collection_is_null`; reseeded five follow-on `(candidate)` rows. Private beta: Invited operators rephrasing draft clarification answers no longer hit HTTP 500 when the UI or API client sends `"items": null`—they receive HTTP 400 validation like the apply-answers route.
 
 - [x] (proven) `RunsController.RephraseClarificationAnswers` — JSON `"items": null` dereferenced `input.Items.Count` and threw `NullReferenceException` instead of `400 ValidationFailed` — **hit 2026-10-23 seed hunt:** null guard before count check (parity with `ReviewClarificationQuestionsController.ApplyKnowledgeModelClarificationAnswers`); regression `RephraseClarificationAnswers_returns_bad_request_when_items_collection_is_null`
-- [ ] (candidate) `RunsController.ExplainStructuredBriefSuggestion` — null `SourceText` or `SuggestionText` after partial JSON bind — locus: `ValidateDraftFreeText` on nullable fields ~explain action; input: `{ "suggestionKind": "Constraint" }` without text fields; reachability: `POST /v1/runs/request/draft/suggestion/explain` OpenAPI.
-- [ ] (candidate) `RunsController.DraftRequest` — null `FreeTextDescription` passes `ValidateDraftFreeText` then calls `DraftAsync` with non-null assertion — locus: `DraftRequest` ~27–31; input: `{}` body; reachability: advisory draft intake on operator workspace.
-- [ ] (candidate) `AdminController.SuppressIntegrationOutboxDeadLetter` — `IntegrationOutboxDeadLetterSuppressRequest` body optional fields when body is `{}` vs null — locus: `SuppressIntegrationOutboxDeadLetterAsync(outboxId, body, ...)` ~92; input: suppress without JSON body on POST; wrong outcome: unhandled null vs intentional default suppress reason.
-- [ ] (candidate) `CollectionRunsController.TriggerAsync` — `request` omitted with valid `Idempotency-Key` — locus: `request?.SubscriptionIds ?? []` ~67; input: empty body trigger; wrong outcome: silent empty subscription list vs explicit validation when SecureNow expects at least one subscription.
-- [ ] (candidate) `AuthorityQueryController.RecordRunOperatorGovernanceDisposition` — `Disposition` enum string case / unknown value before service — locus: `RecordRunOperatorGovernanceDisposition` POST ~171; input: disposition value outside contract casing; wrong outcome: `500` from downstream `InvalidOperationException` vs `400 ValidationFailed` at controller edge.
 
 - **id:** api-authority-admin-controllers
 - **status:** open
@@ -8773,7 +8782,7 @@
 - **aliases:** authority controllers; admin controllers
 - **paths:** ArchLucid.Api/Controllers/Authority/; ArchLucid.Api/Controllers/Admin/
 - **test-filter:** FullyQualifiedName~AuthorityController|FullyQualifiedName~AdminController
-- **hunts:** 64
+- **hunts:** 65
 - **bugs-found:** 57
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-23
