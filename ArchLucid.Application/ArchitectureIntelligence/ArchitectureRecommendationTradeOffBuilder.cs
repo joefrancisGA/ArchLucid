@@ -193,7 +193,8 @@ internal static class ArchitectureRecommendationTradeOffBuilder
             && (IsCostTokenInHyphenatedCompoundAdjective(priority)
                 || IsCostTokenInSpacedModifierPhrase(priority)
                 || IsCostTokenInEconomyModifierPhrase(priority)
-                || IsCostTokenInAtCostPhrase(priority)))
+                || IsCostTokenInPrepositionalCostPhrase(priority)
+                || IsCostTokenInCostCenterPhrase(priority)))
         {
             return false;
         }
@@ -213,10 +214,16 @@ internal static class ArchitectureRecommendationTradeOffBuilder
             @"\b(?:low|minimal|reduced|cheaper)\s+cost\b",
             RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
-    private static bool IsCostTokenInAtCostPhrase(string priority) =>
+    private static bool IsCostTokenInPrepositionalCostPhrase(string priority) =>
         Regex.IsMatch(
             priority,
-            @"\bat\s+cost\b",
+            @"\b(?:at|for|on)\s+cost\b",
+            RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    private static bool IsCostTokenInCostCenterPhrase(string priority) =>
+        Regex.IsMatch(
+            priority,
+            @"\bcost\s+center\b",
             RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     private static bool TryResolveDeclaredPairPrecedence(
