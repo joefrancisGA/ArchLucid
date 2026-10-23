@@ -9747,13 +9747,15 @@ Split from retired `archlucid-core` (ABQ-08). Parser coercion / synonym / casing
 
 - [x] (proven) `RunExplanationAggregateJsonReader.TryReadEvidenceRefObjectStringProperty` — object-shaped `evidenceRefs` with whitespace-only `text` and readable `id` dropped the ref when `text` key was present — **hit 2026-10-21 seed hunt:** independent `text`/`id` resolution; regression `TryNormalizeStructuredJson_maps_object_shaped_evidence_ref_id_when_text_property_is_whitespace_only`.
 
-- **hunts:** 77
-- **bugs-found:** 53
+- **hunts:** 78
+- **bugs-found:** 54
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-23
-- **last-bug:** 2026-10-23 — sole faithfulness array [1] dropped as alias poison
+- **last-bug:** 2026-10-23 — sole faithfulness array ["100"] dropped as alias poison
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-23 thorough hunt (seed→hit): proved sole-element `faithfulnessSupportRatio` arrays with whole-number percent strings without `%` (e.g. `["100"]`) returned null while `["100%"]` worked; extended sole-array poison bypass to normalized values > 1; regression `FromAggregateJson_maps_whole_number_string_faithfulness_in_sole_element_array`; cheap-disproof closed four sibling candidates; scoped RunExplanation + parser tests 322 passed (`RunAnalyzers=false`).
 
 2026-10-23 thorough hunt (seed→hit): proved sole-element `faithfulnessSupportRatio` arrays with unit ratio `[1]` or `["1"]` returned null while scalar `1` mapped to `1.0` because duplicate-alias poison skipped the only entry; honor sole poisoned unit-one tokens in `TryReadAggregateRatioFromArrayItems`; regressions `FromAggregateJson_maps_unit_faithfulness_support_ratio_in_sole_element_array` and `FromAggregateJson_maps_string_one_faithfulness_support_ratio_in_sole_element_array`; cheap-disproof closed four sibling candidates; scoped RunExplanation + parser tests 317 passed (`RunAnalyzers=false`).
 
