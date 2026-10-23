@@ -35,6 +35,48 @@ public sealed class AzureBlobCollectionRunArtifactReaderTests
         container.Name.Should().Be("securenow-collection");
     }
 
+    [Fact]
+    public async Task ReadArtifactAsync_returns_null_when_manifest_package_path_is_missing()
+    {
+        AzureBlobCollectionRunArtifactReader reader = CreateReader();
+        CollectionRunManifest manifest = new()
+        {
+            RunId = Guid.NewGuid(),
+            AgentVersion = "1.0",
+            StartedUtc = DateTime.UtcNow,
+            Status = "Succeeded",
+            ZipPath = null,
+        };
+
+        CollectionRunArtifact? artifact = await reader.ReadArtifactAsync(manifest, CancellationToken.None);
+
+        artifact.Should().BeNull();
+    }
+
+    [Fact]
+    public void ParseManifestContent_returns_null_when_json_is_invalid()
+    {
+        CollectionRunManifest? manifest = AzureBlobCollectionRunArtifactReader.ParseManifestContent(
+            BinaryData.FromString("{not-valid-json"));
+
+        manifest.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task ReadManifestAsync_returns_null_when_manifest_blob_download_fails()
+    {
+        AzureBlobCollectionRunArtifactReader reader = CreateReader();
+        BlobContainerClient container = InvokeContainer(reader);
+
+        CollectionRunManifest? manifest = await InvokeReadManifestAsync(
+            reader,
+            container,
+            "runs/missing/run-manifest.json",
+            CancellationToken.None);
+
+        manifest.Should().BeNull();
+    }
+
     private static AzureBlobCollectionRunArtifactReader CreateReader(string? prefix = "runs/", string? containerName = "securenow-collection")
     {
         BlobServiceClient blobServiceClient = new(
@@ -68,5 +110,21 @@ public sealed class AzureBlobCollectionRunArtifactReaderTests
             ?? throw new InvalidOperationException("Container not found.");
 
         return (BlobContainerClient)method.Invoke(reader, null)!;
+    }
+
+    private static Task<CollectionRunManifest?> InvokeReadManifestAsync(
+        AzureBlobCollectionRunArtifactReader reader,
+        BlobContainerClient container,
+        string blobName,
+        CancellationToken cancellationToken)
+    {
+        MethodInfo method = typeof(AzureBlobCollectionRunArtifactReader).GetMethod(
+            "ReadManifestAsync",
+            BindingFlags.Static | BindingFlags.NonPublic)
+            ?? throw new InvalidOperationException("ReadManifestAsync not found.");
+
+        return (Task<CollectionRunManifest?>)method.Invoke(
+            null,
+            [container, blobName, cancellationToken])!;
     }
 }
