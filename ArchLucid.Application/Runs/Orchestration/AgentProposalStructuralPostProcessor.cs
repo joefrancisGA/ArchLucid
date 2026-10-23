@@ -47,7 +47,7 @@ public static class AgentProposalStructuralPostProcessor
             return [];
 
         if (!ProposalDeclaresEndpoints(proposal))
-            return [.. relationships];
+            return CopyNonNullRelationships(relationships);
 
         HashSet<string> declaredEndpointKeys = TopologyProposalRelationshipEndpointIndex.CollectKnownEndpointKeys(
             proposal.AddedServices ?? [],
@@ -374,5 +374,18 @@ public static class AgentProposalStructuralPostProcessor
         return ArchitectureRequestBriefGroundingRules.FromConfirmedBriefEntries(
             confirmedConstraints,
             confirmedCapabilities);
+    }
+
+    private static List<ManifestRelationship> CopyNonNullRelationships(IReadOnlyList<ManifestRelationship> relationships)
+    {
+        List<ManifestRelationship> copy = [];
+
+        foreach (ManifestRelationship relationship in relationships)
+        {
+            if (relationship is not null)
+                copy.Add(relationship);
+        }
+
+        return copy;
     }
 }

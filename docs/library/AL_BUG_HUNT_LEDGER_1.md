@@ -4211,6 +4211,20 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: storage-vs-data-category
 
+2026-10-23 seed hunt (seed→hit): promoted JSON-null `addedRelationships` elements retained on relationship-only proposals when endpoint validation keys were empty; `CopyNonNullRelationships` on fast paths in post-processor and consistency gate; regressions `ApplyToProposal_skips_null_added_relationship_entry_for_relationship_only_proposal`, `ApplyToResults_skips_null_added_relationship_entry_for_relationship_only_proposal`, `ApplyToProposal_skips_null_added_datastore_entry_from_deserialized_proposal`; cheap-disproof closed two stale `(candidate)` rows; seeded five follow-on rows; scoped tests 37/37. Private beta: multi-agent execute batches with sparse relationship-only JSON no longer carry null edges that could crash later merge/graph steps for invited pilot runs.
+
+- [ ] (candidate) `CrossAgentProposalConsistencyGate.FilterRelationshipOnlyProposals` — null relationship retained when batch declares endpoints but validation keys empty — locus: early return vs batch-declared path; input: relationship-only proposal after topology agent registered batch keys.
+- [ ] (candidate) `AgentProposalStructuralPostProcessor.ApplyBriefGrounding` — null relationship survives grounding prune when relationship-only — locus: `PruneRelationshipsAfterGroundingDrops`; input: brief grounding with null relationship element.
+- [ ] (candidate) `CrossAgentProposalConsistencyGate.ClaimRequiredControls` — JSON-null control string element — locus: required-controls loop; input: `requiredControls: [null]`.
+- [ ] (candidate) `AgentProposalStructuralPostProcessor.DedupeRequiredControls` — whitespace-only control duplicates non-empty control — locus: trim/dedupe; input: `" HTTPS "` vs `"HTTPS"`.
+- [ ] (candidate) `CrossAgentProposalConsistencyGate.ApplyToResults` — JSON-null `ProposedChanges` on non-null `AgentResult` — locus: ordering before null proposal skip; input: execute payload with empty proposed-changes object deserialized as null.
+
+- [x] (proven) `AgentProposalStructuralPostProcessor.FilterRelationships` — JSON-null relationship on relationship-only proposal — **hit 2026-10-23 seed hunt:** `CopyNonNullRelationships`; regression `ApplyToProposal_skips_null_added_relationship_entry_for_relationship_only_proposal`.
+- [x] (proven) `CrossAgentProposalConsistencyGate.FilterRelationshipOnlyProposals` — JSON-null relationship on relationship-only proposal — **hit 2026-10-23 seed hunt:** `CopyNonNullRelationships`; regression `ApplyToResults_skips_null_added_relationship_entry_for_relationship_only_proposal`.
+- [x] (valid-no-repro) `AgentProposalStructuralPostProcessor.DedupeDatastores` — JSON-null datastore entry — **cheap-disproof 2026-10-23 seed hunt:** element guard; regression `ApplyToProposal_skips_null_added_datastore_entry_from_deserialized_proposal`.
+- [x] (valid-no-repro) `AgentProposalStructuralPostProcessor.FilterRelationships` — JSON-null relationship when proposal declares endpoints — **cheap-disproof 2026-10-23 seed hunt:** foreach skip (#21 lane C class).
+- [x] (valid-no-repro) `CrossAgentProposalConsistencyGate.CollectDeclaredBatchEndpointKeys` — null service/datastore entries — **cheap-disproof 2026-10-23 seed hunt:** element guards (#21 lane C).
+
 2026-10-21 thorough hunt (hit, lane C): JSON-null `addedServices` elements and null `AgentResult` entries no longer abort structural post-processing or cross-agent consistency merge; Application scoped filter 34/34.
 
 - **id:** storage-vs-data-category
@@ -4219,11 +4233,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** storage vs data; structural post-processor; consistency gate
 - **paths:** ArchLucid.Application/Runs/Orchestration/AgentProposalStructuralPostProcessor.cs; ArchLucid.Application/Runs/Orchestration/CrossAgentProposalConsistencyGate.cs
 - **test-filter:** FullyQualifiedName~AgentProposalStructuralPostProcessorTests|FullyQualifiedName~CrossAgentProposalConsistencyGateTests
-- **hunts:** 13
-- **bugs-found:** 1
+- **hunts:** 14
+- **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 — JSON-null proposal collection elements aborted post-execute merge
+- **last-hunt:** 2026-10-23
+- **last-bug:** 2026-10-23 — JSON-null relationship elements on relationship-only proposals
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
