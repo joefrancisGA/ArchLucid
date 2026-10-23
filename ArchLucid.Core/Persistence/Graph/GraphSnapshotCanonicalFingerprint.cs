@@ -287,8 +287,9 @@ public static class GraphSnapshotCanonicalFingerprint
                 NormalizeUnicodeSlashScalars(
                     NormalizeReviewCacheAlternatePathSeparators(
                         NormalizeReviewCachePathLineBreakScalars(
-                            DecodePercentEncodedPathTokens(
-                                ReplaceIsolatedPlusWithPathSeparator(normalizedToken))))))
+                            StripReviewCachePathUrlAffixes(
+                                DecodePercentEncodedPathTokens(
+                                    ReplaceIsolatedPlusWithPathSeparator(normalizedToken)))))))
             .Replace('\\', '/');
 
         while (path.Contains("//", StringComparison.Ordinal))
@@ -360,7 +361,33 @@ public static class GraphSnapshotCanonicalFingerprint
         '\uFF5C',
         '&',
         '\uFF06',
+        '>',
     ];
+
+    private static string StripReviewCachePathUrlAffixes(string value)
+    {
+        if (value.Length == 0)
+            return value;
+
+        const string fileScheme = "file://";
+
+        if (value.StartsWith(fileScheme, StringComparison.OrdinalIgnoreCase))
+            value = value[fileScheme.Length..];
+
+        int queryIndex = value.IndexOf('?', StringComparison.Ordinal);
+        int fragmentIndex = value.IndexOf('#', StringComparison.Ordinal);
+
+        int cutIndex = queryIndex >= 0 && fragmentIndex >= 0
+            ? Math.Min(queryIndex, fragmentIndex)
+            : queryIndex >= 0
+                ? queryIndex
+                : fragmentIndex;
+
+        if (cutIndex >= 0)
+            value = value[..cutIndex];
+
+        return value;
+    }
 
     /// <summary>
     ///     When a path token already contains <c>/</c>, map common alternate separators to <c>/</c>
