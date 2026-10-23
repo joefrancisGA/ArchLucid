@@ -1763,3 +1763,5 @@
 {"at":"2026-10-23T14:06:13.2816310Z","zoneId":"knowledge-graph-provenance","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-10-23T14:20:16.7032072Z","zoneId":"core-configuration-summary","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-23T14:26:21.7374205Z","zoneId":"host-composition","outcome":"dry","productLine":"archlucid-shared"}
+{"at":"2026-10-23T14:31:23.5101809Z","zoneId":"host-composition","outcome":"hit","productLine":"archlucid-shared","severity":"medium","defectClass":"state-machine-gap"}
+{"at":"2026-10-23T14:34:43.6406111Z","zoneId":"host-composition","outcome":"hit","productLine":"archlucid-shared","severity":"medium","defectClass":"state-machine-gap"}
