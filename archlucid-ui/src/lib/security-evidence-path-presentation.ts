@@ -46,7 +46,7 @@ export function formatSecurityEvidencePathConfidenceBandLabel(band: string | nul
   const trimmed = band?.trim() ?? "";
 
   if (trimmed.length === 0) {
-    return "Not recorded";
+    return "Confidence band was not stored.";
   }
 
   return PATH_CONFIDENCE_BAND_LABELS[trimmed] ?? trimmed;
@@ -56,7 +56,7 @@ export function formatSecurityEvidenceProvenanceKindLabel(kind: string | null | 
   const trimmed = kind?.trim() ?? "";
 
   if (trimmed.length === 0) {
-    return "Not recorded";
+    return "Provenance kind was not stored.";
   }
 
   return PROVENANCE_KIND_LABELS[trimmed] ?? trimmed;

@@ -90,7 +90,7 @@ describe("review-meeting-capture-export (PC-09 optional)", () => {
     ]);
 
     expect(text).toContain(REVIEW_MEETING_CAPTURE_DISCLAIMER);
-    expect(text).toContain("Q: latency");
+    expect(text).toContain("Q: Question text was not stored. Key: latency.");
     expect(text).toContain("A: Yes");
     expect(text).toContain("Room");
   });
@@ -113,7 +113,7 @@ describe("review-meeting-capture-export (PC-09 optional)", () => {
       },
     ]);
 
-    expect(text).toContain("Q: Question was not stored.");
+    expect(text).toContain("Q: Question text was not stored. Key: .");
     expect(text).toContain("A: Answer was not stored.");
   });
 });

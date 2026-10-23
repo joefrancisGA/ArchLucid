@@ -96,20 +96,13 @@ function PathHopsTable(props: {
   )?.hopOrdinal;
 
   const bandMeaning = (band: string): string | null => {
-    switch (band) {
-      case "Confirmed":
-        return "The evidence for this hop is confirmed.";
-      case "HighlyLikely":
-        return "The evidence for this hop is highly likely.";
-      case "Probable":
-        return "The evidence for this hop is probable.";
-      case "Possible":
-        return "The control plane allows this hop. No traffic was seen.";
-      case "InsufficientEvidence":
-        return "This hop does not have enough evidence.";
-      default:
-        return null;
+    const label = formatSecurityEvidencePathConfidenceBandLabel(band);
+
+    if (label === "Confidence band was not stored.") {
+      return null;
     }
+
+    return `Stored confidence band is ${label}. An observed flow was not stored.`;
   };
 
   return (
@@ -258,7 +251,7 @@ function PathConfidenceWhy(props: { readonly band: string }): React.JSX.Element 
   const message =
     props.band === "InsufficientEvidence"
       ? "This result stays open because the cited evidence does not support a stronger band."
-      : "The control plane allows this path. No observed traffic is claimed.";
+      : `Stored confidence band is ${formatSecurityEvidencePathConfidenceBandLabel(props.band)}. An observed flow was not stored.`;
 
   return (
     <details className="text-sm" data-testid="security-evidence-path-confidence-why">
@@ -389,9 +382,9 @@ function RecommendedActionSection(props: {
     {
       label: "Evidence",
       value:
-        props.path.weakestHop?.reason?.trim() ||
-        props.path.hops[0]?.evidenceReference?.trim() ||
-        "Not cited.",
+        props.path.weakestHop?.reason?.trim() && props.path.weakestHop.reason.trim().length > 0
+          ? props.path.weakestHop.reason.trim()
+          : "Weakest-hop reason was not stored.",
     },
     {
       label: "Consequence",
@@ -405,11 +398,11 @@ function RecommendedActionSection(props: {
         "Proposed change was not stored.",
     },
     {
-      label: "Owner",
+      label: "Routing display name",
       value:
         firstRoute?.displayName?.trim() && firstRoute.displayName.trim().length > 0
           ? firstRoute.displayName.trim()
-          : "Owner was not stored.",
+          : "Routing display name was not stored.",
     },
     {
       label: "How to check",
