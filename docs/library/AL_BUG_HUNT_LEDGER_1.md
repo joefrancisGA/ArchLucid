@@ -4211,13 +4211,21 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: storage-vs-data-category
 
+2026-10-23 seed hunt (seed→hit): proved brief grounding HTTPS and encryption-at-rest heuristics used raw `Contains` on endpoint names (`chromhttp-bridge`, `nonplaintext-archive`); fixed with `\bhttp\b(?!s\b)`, `\bplaintext\b`, and `\bunencrypted\b` token matchers; regressions `ApplyBriefGrounding_preserves_chromhttp_service_name_when_https_required` and `ApplyBriefGrounding_preserves_nonplaintext_datastore_when_encryption_at_rest_required`; cheap-disproof closed three follow-on `(candidate)` rows; seeded five follow-on rows; scoped post-processor, consistency-gate, and brief-grounding tests 46/46. Private beta: HTTPS and encryption-at-rest brief grounding no longer strips topology nodes whose names embed `http` or `plaintext` only as interior substrings.
+
+- [ ] (candidate) `TryDescribeBriefGroundingDrop` — `unencrypted` token boundary may still drop names like `preunencrypted-vault` if future regex loosens — locus: encryption token matcher; input: padded legacy endpoint naming from eval corpus.
+- [ ] (candidate) `PruneRelationshipsAfterGroundingDrops` — external endpoint id on one relationship end may retain edge when grounded service removed on other end if ids differ only by casing — locus: declared vs retained key sets; input: brief drop with ARM casing drift on `ServiceId`.
+- [ ] (candidate) `CrossAgentProposalConsistencyGate.ClaimServices` — duplicate rename-alias services from two agents may double-register claimed keys before relationship filter — locus: alias acceptance path; input: cost then compliance proposals renaming same `ServiceId`.
+- [ ] (candidate) `AgentProposalStructuralPostProcessor.FilterRelationships` — relationship-only proposal after post-processor may still carry edges pruned by consistency gate when batch order differs from merge-gate expectation — locus: ordering between enrichers; input: compliance before topology in unsorted execute payload (gate sorts by agent type).
+- [ ] (candidate) `BuildBriefGroundingRules` — JSON-null element inside `Constraints` list is ignored but empty-string entries may still activate rules if sentinel check regresses — locus: `IsConfirmedBriefEntry`; input: constraint list with `""` between confirmed entries.
+
 2026-10-23 seed hunt (seed→hit): proved `TryDescribeBriefGroundingDrop` used raw `Contains("public")` on endpoint names, so private-networking briefs dropped services like `republic-ledger-api`; fixed with `\bpublic\b` token matching; regression `ApplyBriefGrounding_preserves_republic_service_name_when_private_networking_required`; cheap-disproof closed five stale JSON-null / whitespace `(candidate)` rows; seeded five follow-on rows; scoped post-processor, consistency-gate, and brief-grounding tests 44/44. Private beta: execute batches with confirmed private-networking briefs no longer strip legitimate topology nodes whose names embed `public` as a substring.
 
-- [ ] (candidate) `TryDescribeBriefGroundingDrop` — HTTPS rule `Contains("http")` without scheme boundary may drop endpoint names embedding `http` (e.g. `chromhttp-bridge`) — locus: HTTPS substring guard; input: confirmed HTTPS brief with non-URL service name.
-- [ ] (candidate) `EndpointSuggestsMissingEncryptionAtRest` — `plaintext` substring inside unrelated tokens (`nonplaintext-store`) — locus: encryption-at-rest name heuristic; input: confirmed encryption capability brief.
-- [ ] (candidate) `PruneRelationshipsAfterGroundingDrops` — relationship whose `SourceId`/`TargetId` is whitespace-only may bypass drop detection vs trimmed manifest keys — locus: `DeclaredEndpointKeySetContains` trim parity; input: brief grounding drop with padded endpoint ids on edges.
-- [ ] (candidate) `CrossAgentProposalConsistencyGate.FilterRelationshipOnlyProposals` — both batch endpoints declared but `RelationshipEndpointsAreKnown` false may drop deferred inventoried edges when validation keys omit rename aliases — locus: validation key union; input: cost relationship-only follow-up after topology rename alias in same batch.
-- [ ] (candidate) `DedupeRequiredControls` — non-Compliance agents may emit duplicate `requiredControls` that post-processor never dedupes before persistence — locus: `ApplyToProposal` agent-type guard; input: topology proposal JSON with repeated control strings.
+- [x] (proven) `TryDescribeBriefGroundingDrop` — HTTPS `Contains("http")` dropped `chromhttp-*` service names — **hit 2026-10-23 seed hunt:** `\bhttp\b(?!s\b)` token matcher; regression `ApplyBriefGrounding_preserves_chromhttp_service_name_when_https_required`.
+- [x] (proven) `EndpointSuggestsMissingEncryptionAtRest` — `plaintext` substring dropped `nonplaintext-*` datastores — **hit 2026-10-23 seed hunt:** `\bplaintext\b` / `\bunencrypted\b` token matchers; regression `ApplyBriefGrounding_preserves_nonplaintext_datastore_when_encryption_at_rest_required`.
+- [x] (valid-no-repro) `PruneRelationshipsAfterGroundingDrops` — whitespace-only relationship endpoint ids — **cheap-disproof 2026-10-23 seed hunt:** `DeclaredEndpointKeySetContains` treats whitespace ids as undeclared; edges retained only when external ids unchanged.
+- [x] (valid-no-repro) `CrossAgentProposalConsistencyGate.FilterRelationshipOnlyProposals` — rename alias validation keys — **cheap-disproof 2026-10-23 seed hunt:** regression `ApplyToResults_preserves_topology_relationship_only_follow_up_when_rename_aliases_are_declared_later_in_batch`.
+- [x] (invalid) `DedupeRequiredControls` — topology duplicate `requiredControls` — **cheap-disproof 2026-10-23 seed hunt:** dedupe intentionally limited to Compliance/Critic agents; cross-agent `ClaimRequiredControls` dedupes batch-wide.
 
 2026-10-23 seed hunt (seed→hit): promoted JSON-null `addedRelationships` elements retained on relationship-only proposals when endpoint validation keys were empty; `CopyNonNullRelationships` on fast paths in post-processor and consistency gate; regressions `ApplyToProposal_skips_null_added_relationship_entry_for_relationship_only_proposal`, `ApplyToResults_skips_null_added_relationship_entry_for_relationship_only_proposal`, `ApplyToProposal_skips_null_added_datastore_entry_from_deserialized_proposal`; cheap-disproof closed two stale `(candidate)` rows; seeded five follow-on rows; scoped tests 37/37. Private beta: multi-agent execute batches with sparse relationship-only JSON no longer carry null edges that could crash later merge/graph steps for invited pilot runs.
 
@@ -4242,11 +4250,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** storage vs data; structural post-processor; consistency gate
 - **paths:** ArchLucid.Application/Runs/Orchestration/AgentProposalStructuralPostProcessor.cs; ArchLucid.Application/Runs/Orchestration/CrossAgentProposalConsistencyGate.cs
 - **test-filter:** FullyQualifiedName~AgentProposalStructuralPostProcessorTests|FullyQualifiedName~CrossAgentProposalConsistencyGateTests
-- **hunts:** 15
-- **bugs-found:** 3
+- **hunts:** 16
+- **bugs-found:** 4
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-23
-- **last-bug:** 2026-10-23 — brief grounding `public` substring false drop on endpoint names
+- **last-bug:** 2026-10-23 — brief grounding `http` / `plaintext` substring false drops
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
