@@ -9747,13 +9747,15 @@ Split from retired `archlucid-core` (ABQ-08). Parser coercion / synonym / casing
 
 - [x] (proven) `RunExplanationAggregateJsonReader.TryReadEvidenceRefObjectStringProperty` — object-shaped `evidenceRefs` with whitespace-only `text` and readable `id` dropped the ref when `text` key was present — **hit 2026-10-21 seed hunt:** independent `text`/`id` resolution; regression `TryNormalizeStructuredJson_maps_object_shaped_evidence_ref_id_when_text_property_is_whitespace_only`.
 
-- **hunts:** 73
-- **bugs-found:** 49
+- **hunts:** 74
+- **bugs-found:** 50
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 - trim AgentModelTiers AgentTypeTiers keys after configuration bind
+- **last-hunt:** 2026-10-23
+- **last-bug:** 2026-10-23 — prose list object dropped id when text property was whitespace-only
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-23 thorough hunt (seed→hit): proved scalar object-shaped `reasoning`/`caveats` with whitespace-only `text` and readable `id` failed normalize while evidence-ref scalar already accepted `id`; `TryReadProseListObjectStringProperty` now mirrors evidence-ref id fallback when poison mode is off; regressions `TryNormalizeStructuredJson_maps_object_shaped_reasoning_id_when_text_property_is_whitespace_only` and `TryNormalizeStructuredJson_maps_scalar_caveats_id_when_text_property_is_whitespace_only`; cheap-disproof closed duplicate fractional-reasoning candidate; scoped RunExplanation tests 214 passed (`RunAnalyzers=false`).
 
 2026-09-27 seed hunt (seed→hit): reseeded core-explanation-json after numeric citation fix; proved empty `{}` citation objects and scalar object citations counted as one citation for sponsor disposition while structured `evidenceRefs` drops object entries without `id`/`text`; fixed with `CountCitationObject` parity on array and scalar object shapes; regression `FromAggregateJson_treats_empty_object_citation_entries_as_zero_for_disposition`; 76 Core Explanation + 3 Application RunExplanation tests passed.
 
@@ -9974,9 +9976,21 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (proven) `RunExplanationAggregateJsonReader.TryReadWholeNumber` — out-of-range numeric whole-number counts (`1e20`) passed the finite/integer checks and cast to `int.MaxValue`, allowing malformed explanation counts through; **hit 2026-10-10 seed hunt:** require `numeric <= int.MaxValue` before conversion; regression `FromAggregateJson_ignores_out_of_range_numeric_whole_number_counts`.
 - [x] (proven) `RunExplanationAggregateJsonReader.TryReadBooleanScalarValue` — out-of-range numeric whole-number fallback flags such as `deterministicFallbackUsed: 1e20` were accepted as `true` (finite whole doubles lacked `int.MaxValue` bounds unlike `TryReadWholeNumber`) — **hit 2026-10-14 seed hunt:** bound boolean numeric coercion before non-zero coercion; regression `RunExplanation_FromAggregateJson_ignores_out_of_range_numeric_deterministic_fallback_alias`.
 - [x] (proven) `RunExplanationAggregateJsonReader.TryReadBooleanScalarValue` — negative numeric whole-number fallback flags such as `deterministicFallbackUsed: -1` were accepted as `true` via non-zero `int32` coercion — **hit 2026-10-14 seed hunt:** reject negative JSON numbers before boolean coercion; regression `RunExplanation_FromAggregateJson_ignores_negative_numeric_deterministic_fallback_alias`.
-- [ ] (candidate) `RunExplanationAggregateJsonReader.TryReadNonEmptyTextToken` — a numeric floating-point token such as `{"reasoning":[1.5]}` is preserved as text while whole-number compatibility tokens are normalized; the canonical explanation schema requires strings and no producer fixture establishes fractional numeric reasoning, so retain pending provider-contract evidence.
+- [x] (invalid) `RunExplanationAggregateJsonReader.TryReadNonEmptyTextToken` — fractional numeric reasoning preserved as text — **cheap-disproof 2026-10-23 thorough hunt #98:** fractional JSON numbers are rejected (duplicate of 2026-10-21 lane C); mechanism premise false.
 - [x] (invalid) `RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitive` — duplicate case-insensitive aggregate properties use the first occurrence, so conflicting duplicate `citations` or `faithfulnessSupportRatio` fields from an LLM payload may produce a different disposition than the final JSON value — **cheap-disproof 2026-10-09 thorough hunt:** the scoped producer/schema files define no duplicate-key contract or required last-value semantics; no reachable wrong outcome is established.
 - [x] (valid-no-repro) `StructuredExplanationParser.TryReadNonEmptyTextToken` — negative numeric `evidenceRefs` are normalized into provenance strings even though numeric citation/count fields reject negative values — **cheap-disproof 2026-10-09 thorough hunt:** structured evidence references remain opaque strings, and no reachable downstream path in the zone interprets `-1` as valid provenance or produces user-visible evidence; no failing repro.
+
+- [x] (proven) `RunExplanationAggregateJsonReader.TryReadProseListObjectStringProperty` — whitespace-only `text` with readable `id` dropped scalar prose list entries — **hit 2026-10-23 thorough hunt #98:** id fallback when poison mode off; regressions `TryNormalizeStructuredJson_maps_object_shaped_reasoning_id_when_text_property_is_whitespace_only` and `TryNormalizeStructuredJson_maps_scalar_caveats_id_when_text_property_is_whitespace_only`.
+- [x] (valid-no-repro) `TryReadProseListObjectStringProperty` — in-array blank `text` + `id` poison shape — **cheap-disproof 2026-10-23 thorough hunt #98:** regression `TryNormalizeStructuredJson_ignores_caveats_array_entries_with_blank_text_and_id_only_poison_shape`.
+- [x] (valid-no-repro) `TryReadNonEmptyTextToken` — fractional reasoning array entries — **cheap-disproof 2026-10-23 thorough hunt #98:** entries skipped; regression `TryNormalizeStructuredJson_ignores_fractional_numeric_evidence_ref_entries` parity.
+- [x] (valid-no-repro) `TryGetPropertyCaseInsensitivePreferLastNonEmpty` — duplicate aggregate keys last-value — **cheap-disproof 2026-10-23 thorough hunt #98:** invalid row 2026-10-09; no contract.
+- [x] (valid-no-repro) `RunExplanationConfidenceCalloutBuilder.FromAggregateJson` — malformed aggregate throws — **cheap-disproof 2026-10-23 thorough hunt #98:** regression `FromAggregateJson_returns_null_for_malformed_json`.
+
+- [ ] (candidate) `TryReadProseListObjectStringProperty` — scalar `alternativesConsidered` object with whitespace `text` and readable `id` — locus: prose reader poison flag; input: `{"text":"   ","id":"alt-a"}`; wrong outcome: dropped vs id fallback parity with caveats.
+- [ ] (candidate) `StructuredExplanationParser.TryReadStructuredConfidence` — percent string with trailing space after `%` — locus: `TryReadFiniteDouble`; input: `"85% "`; wrong outcome: null confidence.
+- [ ] (candidate) `RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitivePreferLastNonEmpty` — trailing unsupported `schemaVersion` hides earlier supported version — locus: poison alias; input: `schemaVersion` 2 then 99; wrong outcome: version 1 default.
+- [ ] (candidate) `CollectReasoningParts` — nested array with sole fractional numeric entry — locus: `TryReadNonEmptyTextToken`; input: `[[1.5]]`; wrong outcome: silent drop vs partial prose.
+- [ ] (candidate) `TryReadEvidenceRefObjectStringProperty` — both readable `text` and `id` returns id only — locus: merge order; input: object with both; wrong outcome: intentional id preference.
 
 2026-10-09 seed hunt (seed-only): re-read aggregate property lookup, scalar coercion, structured list/reasoning normalization, and confidence disposition paths after the preceding parser fixes; no distinct candidate met the full reachability and wrong-outcome bar. Added two candidates for duplicate aggregate keys and negative numeric structured evidence references. The scoped RunExplanation suite passed 46 tests.
 

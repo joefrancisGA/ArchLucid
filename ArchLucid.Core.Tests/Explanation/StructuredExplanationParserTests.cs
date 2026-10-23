@@ -453,6 +453,29 @@ public sealed class StructuredExplanationParserTests
     }
 
     [Fact]
+    public void TryNormalizeStructuredJson_maps_object_shaped_reasoning_id_when_text_property_is_whitespace_only()
+    {
+        const string json = """{"reasoning":{"text":"   ","id":"Recovered explanation body."}}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.Reasoning.Should().Be("Recovered explanation body.");
+    }
+
+    [Fact]
+    public void TryNormalizeStructuredJson_maps_scalar_caveats_id_when_text_property_is_whitespace_only()
+    {
+        const string json =
+            """{"reasoning":"Main","caveats":{"text":"   ","id":"Latency risk on peak traffic."}}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.Caveats.Should().Equal("Latency risk on peak traffic.");
+    }
+
+    [Fact]
     public void TryNormalizeStructuredJson_coerces_string_array_reasoning()
     {
         const string json =
