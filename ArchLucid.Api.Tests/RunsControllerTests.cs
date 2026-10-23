@@ -535,6 +535,23 @@ public sealed class RunsControllerTests
     }
 
     [Fact]
+    public async Task ChatIntake_returns_bad_request_when_body_is_null()
+    {
+        Mock<IArchitectureRequestIntakeFacade> intakeFacade = new();
+
+        RunsController controller = CreateController();
+
+        IActionResult action = await controller.ChatIntake(null, intakeFacade.Object, CancellationToken.None);
+
+        ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
+        bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+
+        intakeFacade.Verify(
+            static f => f.ParseChatIntakeAsync(It.IsAny<ChatIntakeRequest>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task ChatIntake_returns_bad_request_when_raw_text_is_empty_string()
     {
         Mock<IArchitectureRequestIntakeFacade> intakeFacade = new();

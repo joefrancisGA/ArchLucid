@@ -8944,11 +8944,19 @@
 
 2026-10-23 seed hunt (seed-only #7): cheap-disproof closed five open `(candidate)` rows; one regression; 1 scoped test passed on full tree (`RunAnalyzers=false`).
 
-- [ ] (candidate) `RunsController.CreateRunBatch` — batch exceeds `BatchCreateRunMaxItems` — locus: count guard; input: 101st item.
-- [ ] (candidate) `AdminAgentModelCatalogController.RecordEvaluation` — missing `EvaluationState` property — locus: default null string; input: `{}` without state key.
-- [ ] (candidate) `RunCoverageController.PutAcknowledgedCoverage` — null request body — locus: body required guard; input: empty PUT.
-- [ ] (candidate) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `EventType` whitespace-only filter — locus: forward to repository; input: `"   "`.
-- [ ] (candidate) `RunsController.ChatIntake` — null body — locus: `Request body is required`; input: missing JSON body.
+- [x] (valid-no-repro) `RunsController.CreateRunBatch` — batch exceeds `BatchCreateRunMaxItems` — **cheap-disproof 2026-10-23 seed hunt #8:** `requests.Count > BatchCreateRunMaxItems` returns HTTP 400 before orchestration (master `RunsController.Create.Batch.cs`).
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — missing `EvaluationState` property — **cheap-disproof 2026-10-23 seed hunt #8:** omitted/null `EvaluationState` fails `Enum.TryParse` → HTTP 400 `EvaluationState is invalid`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — null request body — **cheap-disproof 2026-10-23 seed hunt #8:** `request is null` → HTTP 400 `Request body is required` before service call.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `EventType` whitespace-only filter — **cheap-disproof 2026-10-23 seed hunt #8:** optional filter forwarded to repository; whitespace matches no rows — no unhandled error path.
+- [x] (valid-no-repro) `RunsController.ChatIntake` — null body — **cheap-disproof 2026-10-23 seed hunt #8:** null body guard before `ValidateDraftFreeText`; regression `ChatIntake_returns_bad_request_when_body_is_null`.
+
+2026-10-23 seed hunt (seed-only #8): cheap-disproof closed five open `(candidate)` rows; one regression; 2 scoped ChatIntake tests passed on full tree (`RunAnalyzers=false`). Picker still selected this zone despite seed-only streak (stale zone metadata block).
+
+- [ ] (candidate) `RunsController.CreateRunBatch` — zero-length batch array `[]` — locus: empty collection guard; input: `POST` with `[]`.
+- [ ] (candidate) `AdminAgentModelCatalogController.RecordEvaluation` — empty `taskType` route segment — locus: recorder lookup; input: whitespace task type.
+- [ ] (candidate) `RunCoverageController.PatchRunCoveragePack` — null request body — locus: body required guard; input: PATCH without JSON.
+- [ ] (candidate) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` exactly `500` — locus: upper inclusive bound; input: boundary acceptance.
+- [ ] (candidate) `RunsController.DraftRequestAsync` — null `FreeTextDescription` parity with sync `DraftRequest` — locus: `ValidateDraftFreeText`; input: async draft route.
 
 2026-10-23 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows from prior reseed; no new hunt-ready promotion (Rephrase null `Items` already shipped on `bugsmash-2` 01857d53eb); seeded five follow-on `(candidate)` rows; 12 scoped RunsController draft/explain + RunCoverage acknowledgement tests passed.
 
@@ -8968,9 +8976,9 @@
 - **aliases:** authority controllers; admin controllers
 - **paths:** ArchLucid.Api/Controllers/Authority/; ArchLucid.Api/Controllers/Admin/
 - **test-filter:** FullyQualifiedName~AuthorityController|FullyQualifiedName~AdminController
-- **hunts:** 71
+- **hunts:** 72
 - **bugs-found:** 58
-- **consecutive-dry-hunts:** 5
+- **consecutive-dry-hunts:** 6
 - **last-hunt:** 2026-10-23
 - **last-bug:** 2026-10-23 — rephrase clarification null item in items array caused 500 instead of validation
 - **related-pd-tb:** none
