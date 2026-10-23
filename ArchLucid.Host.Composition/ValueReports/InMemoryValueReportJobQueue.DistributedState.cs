@@ -85,7 +85,10 @@ public sealed partial class InMemoryValueReportJobQueue
             if (state is null ||
                 state.TenantId == Guid.Empty ||
                 state.WorkspaceId == Guid.Empty ||
-                state.ProjectId == Guid.Empty)
+                state.ProjectId == Guid.Empty ||
+                state.FromUtcInclusive == default ||
+                state.ToUtcExclusive == default ||
+                state.FromUtcInclusive >= state.ToUtcExclusive)
                 return new DistributedStateReadResult(null, true);
 
             ValueReportJobRequest request = new(
