@@ -7110,11 +7110,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 84
-- **bugs-found:** 79
+- **hunts:** 85
+- **bugs-found:** 80
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-23
-- **last-bug:** 2026-10-23 — NBSP verdict chrome heading broke HTML strip
+- **last-bug:** 2026-10-23 — padded export audit metadata and unicode heading spaces
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
