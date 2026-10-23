@@ -171,8 +171,23 @@ internal static class ArchitectureRecommendationTradeOffBuilder
         if (TryResolveExplicitDimensionPrecedence(priority, dimensionToken, out bool explicitPrefers))
             return explicitPrefers;
 
-        return CreateDimensionWordPattern(dimensionToken).IsMatch(priority);
+        if (!CreateDimensionWordPattern(dimensionToken).IsMatch(priority))
+            return false;
+
+        if (dimensionToken.Equals("Cost", StringComparison.OrdinalIgnoreCase)
+            && IsCostTokenInHyphenatedCompoundAdjective(priority))
+        {
+            return false;
+        }
+
+        return true;
     }
+
+    private static bool IsCostTokenInHyphenatedCompoundAdjective(string priority) =>
+        Regex.IsMatch(
+            priority,
+            @"\bCost-(?=[\p{L}\p{N}])",
+            RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     private static bool TryResolveExplicitDimensionPrecedence(
         string priority,
