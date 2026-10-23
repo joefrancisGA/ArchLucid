@@ -7859,6 +7859,20 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-agents
 
+2026-10-23 seed hunt (seed-only): re-read Agents/ after read-path consolidation hit; cheap-disproof closed stale `(candidate)` rows (dual-model secondary tier, faithfulness floor boundary, whitespace-only policy titles, structured forensics preference); regression `Aggregate_policy_pack_version_null_when_policy_titles_are_whitespace_only`; seeded five follow-on `(candidate)` rows; no production change; 159 scoped Application.Tests.Agents tests passed.
+
+- [x] (invalid) `TopologyProposalDualModelConsensusEnricher.EnrichAsync` — secondary tier disallowed by workspace engine set — **cheap-disproof 2026-10-23 seed hunt:** secondary invoker returns null; enricher logs and skips merge (see 2026-10-22 seed hunt).
+- [x] (valid-no-repro) `AgentModelCatalogFaithfulnessHarnessImporter.ImportForAliasAsync` — readiness strictly below floor should record `Failed` — **cheap-disproof 2026-10-23 seed hunt:** regressions `Import_records_failed_evaluation_when_readiness_is_strictly_below_floor` / `Import_records_evaluated_when_readiness_equals_floor`.
+- [x] (valid-no-repro) `ReviewRunEngineProvenanceAggregator.DerivePolicyPackVersion` — whitespace-only policy titles kept in pack version — **cheap-disproof 2026-10-23 seed hunt:** `Where(!string.IsNullOrWhiteSpace(title))` drops blank titles; regression `Aggregate_policy_pack_version_null_when_policy_titles_are_whitespace_only`.
+- [x] (valid-no-repro) `RunToolInvocationForensicsBuilder.Build` — structured ledger preferred when trace list empty — **cheap-disproof 2026-10-23 seed hunt:** by design TB-110 structured path; regression `Build_prefers_structured_ledger_when_rows_exist`.
+- [x] (invalid) `FindingIacStubGenerator.NormalizeLlmStubBody` — UTF-8 BOM before disclaimer may still duplicate — **cheap-disproof 2026-10-23 seed hunt:** proven-class `TrimStart('\uFEFF')`; regression `GenerateAndPersistStubsForRunAsync_strips_utf8_bom_before_disclaimer_check`.
+
+- (candidate) `TopologyProposalDualModelConsensusEnricher.PruneSiblingRelationshipsToConsensusTopology` — null `AddedRelationships` entries can throw in `RelationshipEndpointsAreKnown` — locus: sibling prune loop ~168; input: compliance proposal with `[null, valid]` relationship rows after JSON deserialize.
+- (candidate) `AgentExecutionTraceRunLlmCostAggregator.Compute` (slice overload) — null `AgentExecutionTraceLlmCostSlice` elements NRE in projection — locus: `slices.Select` ~49; input: persisted slice list containing a null slot.
+- (candidate) `AgentCuratedEvidenceProposer.BuildUserPrompt` — null strings inside `Claims`/`EvidenceRefs` lists may render ambiguous prompt lines — locus: `string.Join` on `result.Claims` ~113; input: claims list with null element alongside substantive claim.
+- (candidate) `PromptVariantStatsService.GetStatsAsync` — null `PromptVariantStatsRow` entries from repository may throw when projecting variant stats — locus: `rows.Select` ~22; input: repository returns list with null row.
+- (candidate) `ReviewRunEngineProvenanceMerger` — merging provenance when one side has whitespace-only `PromptPackVersion` may preserve noise — locus: merge compare; input: verify trim parity with aggregator (read before promoting).
+
 2026-10-23 seed hunt (seed→hit): consolidated null-slot guards on agent read paths — null `AgentExecutionTrace` rows aborted LLM cost aggregation and provenance token/prompt derivation; null catalog rows aborted curated-evidence prompt serialization; regressions `Aggregate_skips_null_trace_entries_when_summing_reasoning_tokens` and `BuildUserPrompt_skips_null_catalog_entries_when_serializing_existing_catalog`; 158 scoped Application.Tests.Agents tests passed.
 
 - [x] (proven) `AgentExecutionTraceRunLlmCostAggregator.Compute` / `ReviewRunEngineProvenanceAggregator.Aggregate` / `AgentCuratedEvidenceProposer.BuildUserPrompt` — null trace and evidence-catalog list entries aborted run summary and curated-evidence paths — **hit 2026-10-23 seed hunt:** skip null traces before projection and null catalog entries before serialize; regressions above. [class:fail-open-validation]
@@ -8127,7 +8141,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** application agents; agent handlers wiring
 - **paths:** ArchLucid.Application/Agents/
 - **test-filter:** FullyQualifiedName~Application.Tests.Agents
-- **hunts:** 77
+- **hunts:** 78
 - **bugs-found:** 70
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-23
