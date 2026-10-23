@@ -41,6 +41,25 @@ public sealed class AnalysisExportRequestRehydratorTests
     }
 
     [Fact]
+    public void Rehydrate_trims_padded_compare_run_id_and_whitelabel_strings_from_stored_json()
+    {
+        const string compareRunId = "cccccccccccccccccccccccccccccccc";
+        RunExportRecord record = new()
+        {
+            ExportRecordId = "e1",
+            AnalysisRequestJson =
+                $$"""{"compareRunId":"  {{compareRunId}}  ","reviewBoardWhitelabelFirmDisplayName":"  Contoso Advisory  ","reviewBoardWhitelabelLogoBlobReference":"  blob://logo  "}""",
+        };
+
+        PersistedAnalysisExportRequest? result = AnalysisExportRequestRehydrator.Rehydrate(record);
+
+        result.Should().NotBeNull();
+        result!.CompareRunId.Should().Be(compareRunId);
+        result.ReviewBoardWhitelabelFirmDisplayName.Should().Be("Contoso Advisory");
+        result.ReviewBoardWhitelabelLogoBlobReference.Should().Be("blob://logo");
+    }
+
+    [Fact]
     public void Rehydrate_corrupt_json_throws_InvalidOperationException()
     {
         RunExportRecord record = new() { ExportRecordId = "broken", AnalysisRequestJson = "{bad" };

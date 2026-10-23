@@ -6,7 +6,7 @@ namespace ArchLucid.Application.Analysis;
 internal static class ComparisonExportMarkdownSectionRemover
 {
     private static readonly char[] UnicodeSpaceSubstitutes =
-        ['\u00A0', '\u2003', '\u2007', '\u2009', '\u200A', '\u202F', '\u205F'];
+        ['\u00A0', '\u2003', '\u2007', '\u2009', '\u200A', '\u202F', '\u205F', '\u3000'];
 
     internal static string RemoveSection(string markdown, string heading)
     {
