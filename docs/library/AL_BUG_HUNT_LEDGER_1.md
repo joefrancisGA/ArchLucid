@@ -7859,15 +7859,17 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-agents
 
+2026-10-23 seed hunt (seed→hit): promoted four seeded null-slot candidates in one consolidation pass — trace-derived tool forensics, confidence isotonic knots, registered handler discovery, and dual-model sibling endpoint harvest; cheap-disproof closed all-null trace provider kind (existing `nonNullTraces` branch); regressions `Build_skips_null_trace_entries`, `BuildIsotonicKnots_skips_null_sample_rows`, `ListHandlers_skips_null_handler_entries`, `EnrichAsync_skips_null_sibling_service_entries_when_pruning_sibling_proposals`, and `Aggregate_provider_kind_is_azure_openai_when_all_trace_slots_are_null`; 169 scoped Application.Tests.Agents tests passed.
+
+- [x] (proven) `RunToolInvocationForensicsBuilder.BuildFromTraces` — null trace list entries aborted forensics projection — **hit 2026-10-23 seed hunt:** filter before sort/iterate; regression above. [class:fail-open-validation]
+- [x] (proven) `AgentConfidenceCalibrator.BuildIsotonicKnots` — null calibration sample rows aborted knot build — **hit 2026-10-23 seed hunt:** filter before order/bin; regression above. [class:fail-open-validation]
+- [x] (proven) `RegisteredAgentHandlersInspector.ListHandlers` — null handler entries aborted discovery — **hit 2026-10-23 seed hunt:** filter before order; regression above. [class:fail-open-validation]
+- [x] (proven) `TopologyProposalDualModelConsensusEnricher` — null sibling service/datastore entries aborted endpoint harvest — **hit 2026-10-23 seed hunt:** shared `CollectKnownEndpointKeys` filter; regression above. [class:fail-open-validation]
+- [x] (valid-no-repro) `ReviewRunEngineProvenanceAggregator.DeriveProviderKind` — all-null trace list mislabels provider — **cheap-disproof 2026-10-23 seed hunt:** returns `azure-openai` when no material traces; regression above.
+
 2026-10-23 seed hunt (seed-only): re-read Agents/ after prompt-variant stats hit; zone saturated on fail-open-validation null list slots — no new hunt-ready row promoted; cheap-disproof closed padded model execution profile override (`AgentModelExecutionProfileParser` trim via resolver); regression `ResolveForRunCreate_applies_padded_valid_override`; seeded five mechanism-backed `(candidate)` rows; no production change; 164 scoped Application.Tests.Agents tests passed.
 
 - [x] (valid-no-repro) `ModelExecutionProfileResolver.ResolveForRunCreateAsync` — padded `ModelExecutionProfileOverride` rejected as invalid — **cheap-disproof 2026-10-23 seed hunt:** parser trims before `TryParse`; regression `ResolveForRunCreate_applies_padded_valid_override`.
-
-- (candidate) `RunToolInvocationForensicsBuilder.BuildFromTraces` — null `AgentExecutionTrace` list entries NRE during `OrderBy`/`foreach` — locus: trace-derived forensics ~9–17; input: persisted trace list with JSON-null slot.
-- (candidate) `AgentConfidenceCalibrator.BuildIsotonicKnots` — null calibration sample rows NRE on `RawConfidence` — locus: binning loop ~91; input: sample list containing null after deserialize.
-- (candidate) `RegisteredAgentHandlersInspector.ListHandlers` — null handler in injected `IEnumerable` NRE on `AgentTypeKey` — locus: handler loop ~64; input: DI collection with null handler registration.
-- (candidate) `TopologyProposalDualModelConsensusEnricher` — null `ManifestService`/`ManifestDatastore` on sibling proposals NRE in `CollectKnownEndpointKeys` — locus: sibling endpoint harvest ~159; input: critic proposal with null topology node alongside valid relationship.
-- (candidate) `ReviewRunEngineProvenanceAggregator.DeriveProviderKind` — traces containing only null entries after non-empty list count — locus: `nonNullTraces.Count == 0` branch; input: verify provider kind when all trace slots are null.
 
 2026-10-23 seed hunt (seed→hit): promoted `PromptVariantStatsService` candidate — null `PromptVariantStatsRow` entries from repository crashed variant stats projection; service now skips null rows before mapping; regression `GetStatsAsync_skips_null_repository_rows`; 163 scoped Application.Tests.Agents tests passed.
 
@@ -8156,11 +8158,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** application agents; agent handlers wiring
 - **paths:** ArchLucid.Application/Agents/
 - **test-filter:** FullyQualifiedName~Application.Tests.Agents
-- **hunts:** 81
-- **bugs-found:** 72
+- **hunts:** 82
+- **bugs-found:** 73
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-23
-- **last-bug:** 2026-10-23 — null prompt variant stats rows crash GetStatsAsync
+- **last-bug:** 2026-10-23 — null slots crash forensics, calibration, handlers, consensus harvest
 
 2026-09-27 seed hunt (seed→hit): proved `TopologyProposalConsensusMerger.Merge` threw when `RequiredControls` was null on topology dual-model proposals (`AgentProposalStructuralPostProcessor` does not initialize controls for `AgentType.Topology`); fixed by null-coalescing in control intersection and disagreement counts; regression `Merge_when_required_controls_is_null_does_not_throw`; 92 scoped Application.Tests.Agents tests passed.
 
