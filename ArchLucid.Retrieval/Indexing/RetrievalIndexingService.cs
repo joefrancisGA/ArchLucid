@@ -191,8 +191,10 @@ public sealed class RetrievalIndexingService(
             {
                 ct.ThrowIfCancellationRequested();
 
-                if (_indexCatalog.TryGet(doc.DocumentId, out RetrievalDocumentIndexState? prior)
-                    && prior.IndexedChunkCount > split.Count)
+                if (!_indexCatalog.TryGet(doc.DocumentId, out RetrievalDocumentIndexState? prior))
+                    continue;
+
+                if (prior.IndexedChunkCount > split.Count)
                 {
                     List<string> staleChunkIds = [];
 
@@ -200,7 +202,20 @@ public sealed class RetrievalIndexingService(
                         staleChunkIds.Add($"{doc.DocumentId}-chunk-{ordinal}");
 
                     await _vectorIndex.RemoveChunkIdsAsync(staleChunkIds, ct).ConfigureAwait(false);
+                    continue;
                 }
+
+                if (split.Count == 0)
+                    continue;
+
+                // Catalog IndexedChunkCount can understate live vectors; sweep higher ordinals after upsert.
+                int sweepExclusive = split.Count + Math.Max(prior.IndexedChunkCount, split.Count) + 16;
+                List<string> understatedStaleChunkIds = [];
+
+                for (int ordinal = split.Count; ordinal < sweepExclusive; ordinal++)
+                    understatedStaleChunkIds.Add($"{doc.DocumentId}-chunk-{ordinal}");
+
+                await _vectorIndex.RemoveChunkIdsAsync(understatedStaleChunkIds, ct).ConfigureAwait(false);
             }
         }
 
