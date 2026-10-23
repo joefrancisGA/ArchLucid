@@ -14654,12 +14654,14 @@ heap-disproved mermaid typed-topology candidate.
 - **aliases:** host composition; DI registration; startup modules
 - **paths:** ArchLucid.Host.Composition/
 - **test-filter:** FullyQualifiedName~Host.Composition|FullyQualifiedName~ServiceCollectionExtensions
-- **hunts:** 81
-- **bugs-found:** 65
+- **hunts:** 82
+- **bugs-found:** 66
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-23
-- **last-bug:** 2026-10-23 — poll state JSON without tenant id reported not-found
+- **last-bug:** 2026-10-23 — poll JSON missing workspace/project scope masqueraded as pending
 - **code-changed-since:** yes
+
+2026-10-23 thorough hunt (seed→hit): proved distributed poll JSON with `tenantId` but missing `workspaceId`/`projectId` deserialized as in-progress pending instead of corrupt state (hunt #81 only gated `tenantId`); treat empty scope ids as corrupt payload; regression `TryPoll_reports_failure_when_distributed_state_json_missing_workspace_id`; cheap-disproof closed four sibling `(candidate)` rows; seeded five follow-on `(candidate)` rows; scoped `InMemoryValueReportJobQueueDistributedPollStateTests` 15 passed (`RunAnalyzers=false`).
 
 2026-10-23 thorough hunt (seed→hit): proved `InMemoryValueReportJobQueue.TryPoll` returned not-found when distributed poll JSON deserialized without `tenantId` (empty guid) because tenant scope ran before corrupt handling; treat missing tenant as corrupt payload; `AzureBlobCollectionRunArtifactReader.ReadArtifactAsync` now returns null on non-cancellation download errors; regression `TryPoll_reports_failure_when_distributed_state_json_missing_tenant_id`; cheap-disproof closed four sibling `(candidate)` rows; seeded five follow-on `(candidate)` rows; scoped poll-state + reader tests 14 passed (`RunAnalyzers=false`).
 
@@ -14922,11 +14924,17 @@ heap-disproved mermaid typed-topology candidate.
 - [x] (proven) `AzureBlobCollectionRunArtifactReader.ReadArtifactAsync` — non-storage download errors propagated — **hit 2026-10-23 thorough hunt #81:** return null on non-cancellation download failures; existing reader tests pass.
 - [x] (valid-no-repro) `ProcessSharedValueReportJobPollStateCache` — corrupt JSON in shared cache same as distributed path — **cheap-disproof 2026-10-23 thorough hunt #81:** queue `TryReadDistributedState` handles bytes from any `IValueReportJobPollStateCache` implementation (hunt #80/#81).
 
-- [ ] (candidate) `CollectionRunIngestService.IngestAsync` — empty `packageSha256` accepts any zip bytes — locus: hash gate; input: missing hash; wrong outcome: intentional ADR-0103.
-- [ ] (candidate) `InMemoryValueReportJobQueue.TryPoll` — valid JSON with wrong tenant still returns not-found — locus: tenant gate; input: cross-tenant payload; wrong outcome: intentional isolation.
-- [ ] (candidate) `PollingCollectionRunDiscovery.DiscoverAsync` — cancel during ingest propagates and stops batch — locus: ingest catch; input: `OperationCanceledException`; wrong outcome: intentional.
-- [ ] (candidate) `AzureBlobCollectionRunArtifactReader.ListManifestsAsync` — partial list on enumeration `RequestFailedException` — locus: catch; input: storage blip; wrong outcome: resilience (hunt #67).
+- [x] (proven) `InMemoryValueReportJobQueue.TryPoll` — poll JSON missing `workspaceId`/`projectId` reported pending — **hit 2026-10-23 thorough hunt #82:** empty scope guids are corrupt payload; regression `TryPoll_reports_failure_when_distributed_state_json_missing_workspace_id`.
+- [x] (valid-no-repro) `CollectionRunIngestService.IngestAsync` — empty `packageSha256` accepts any zip bytes — **cheap-disproof 2026-10-23 thorough hunt #82:** ADR-0103 hash mismatch only; absent hash computes SHA256 from bytes (`CollectionRunIngestServiceTests`).
+- [x] (valid-no-repro) `InMemoryValueReportJobQueue.TryPoll` — valid JSON with wrong tenant still returns not-found — **cheap-disproof 2026-10-23 thorough hunt #82:** regression `TryPoll_returns_not_found_when_distributed_state_tenant_does_not_match_scoped_poll`; intentional tenant isolation.
+- [x] (valid-no-repro) `PollingCollectionRunDiscovery.DiscoverAsync` — cancel during ingest propagates and stops batch — **cheap-disproof 2026-10-23 thorough hunt #82:** `OperationCanceledException` rethrow in ingest loop (hunt #72); regression `DiscoverAsync_propagates_operation_canceled_when_list_manifests_is_canceled`.
+- [x] (valid-no-repro) `AzureBlobCollectionRunArtifactReader.ListManifestsAsync` — partial list on enumeration `RequestFailedException` — **cheap-disproof 2026-10-23 thorough hunt #82:** intentional resilience (hunt #67); returns manifests collected before failure.
+
 - [ ] (candidate) `ValueReportJobPollStateCacheRegistrar.Register` — Redis probe opens dedicated client when shared cache missing — locus: factory; input: misconfigured redis; wrong outcome: documented fallback.
+- [ ] (candidate) `InMemoryValueReportJobQueue.TryPoll` — corrupt payload with only `tenantId` and `workspaceId` missing `projectId` — locus: scope guids; input: partial JSON; wrong outcome: corrupt (hunt #82).
+- [ ] (candidate) `PollingCollectionRunDiscovery.DiscoverAsync` — cancel during `ReadArtifactAsync` propagates — locus: read catch; input: canceled token; wrong outcome: intentional.
+- [ ] (candidate) `ProcessSharedValueReportJobPollStateCache.Get` — expired entry lazy removal — locus: get path; input: TTL elapsed; wrong outcome: prune on set (hunt #72).
+- [ ] (candidate) `CollectionRunIngestService.IngestAsync` — duplicate zip hash new `runId` marks imported without snapshot — locus: `HasImportedHashAsync`; input: hash dedupe; wrong outcome: intentional idempotency.
 
 
 2026-10-09 seed hunt (seed→hit): failed usage flush returned events through `Enqueue`, which drops them when metering is disabled. Already-accepted events now use `Requeue`. Regression `StopAsync_keeps_dequeued_usage_events_when_persist_fails_after_metering_disabled` failed first.

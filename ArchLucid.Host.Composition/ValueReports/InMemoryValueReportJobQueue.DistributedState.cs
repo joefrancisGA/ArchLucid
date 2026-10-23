@@ -82,7 +82,10 @@ public sealed partial class InMemoryValueReportJobQueue
 
             DistributedJobState? state = JsonSerializer.Deserialize<DistributedJobState>(payload, SerializerOptions);
 
-            if (state is null || state.TenantId == Guid.Empty)
+            if (state is null ||
+                state.TenantId == Guid.Empty ||
+                state.WorkspaceId == Guid.Empty ||
+                state.ProjectId == Guid.Empty)
                 return new DistributedStateReadResult(null, true);
 
             ValueReportJobRequest request = new(
