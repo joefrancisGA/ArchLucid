@@ -14654,12 +14654,14 @@ heap-disproved mermaid typed-topology candidate.
 - **aliases:** host composition; DI registration; startup modules
 - **paths:** ArchLucid.Host.Composition/
 - **test-filter:** FullyQualifiedName~Host.Composition|FullyQualifiedName~ServiceCollectionExtensions
-- **hunts:** 82
-- **bugs-found:** 66
+- **hunts:** 83
+- **bugs-found:** 67
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-23
-- **last-bug:** 2026-10-23 — poll JSON missing workspace/project scope masqueraded as pending
+- **last-bug:** 2026-10-23 — poll JSON missing report window masqueraded as pending
 - **code-changed-since:** yes
+
+2026-10-23 thorough hunt (seed→hit): proved distributed poll JSON with scope ids but missing/default `fromUtcInclusive`/`toUtcExclusive` (or inverted window) deserialized as pending instead of corrupt state; treat invalid report window as corrupt payload; regressions `TryPoll_reports_failure_when_distributed_state_json_missing_report_window` and `TryPoll_reports_failure_when_distributed_state_json_missing_project_id`; cheap-disproof closed four sibling `(candidate)` rows; regression `DiscoverAsync_propagates_operation_canceled_when_read_artifact_is_canceled`; scoped poll-state tests 17 passed (`RunAnalyzers=false`).
 
 2026-10-23 thorough hunt (seed→hit): proved distributed poll JSON with `tenantId` but missing `workspaceId`/`projectId` deserialized as in-progress pending instead of corrupt state (hunt #81 only gated `tenantId`); treat empty scope ids as corrupt payload; regression `TryPoll_reports_failure_when_distributed_state_json_missing_workspace_id`; cheap-disproof closed four sibling `(candidate)` rows; seeded five follow-on `(candidate)` rows; scoped `InMemoryValueReportJobQueueDistributedPollStateTests` 15 passed (`RunAnalyzers=false`).
 
@@ -14930,11 +14932,17 @@ heap-disproved mermaid typed-topology candidate.
 - [x] (valid-no-repro) `PollingCollectionRunDiscovery.DiscoverAsync` — cancel during ingest propagates and stops batch — **cheap-disproof 2026-10-23 thorough hunt #82:** `OperationCanceledException` rethrow in ingest loop (hunt #72); regression `DiscoverAsync_propagates_operation_canceled_when_list_manifests_is_canceled`.
 - [x] (valid-no-repro) `AzureBlobCollectionRunArtifactReader.ListManifestsAsync` — partial list on enumeration `RequestFailedException` — **cheap-disproof 2026-10-23 thorough hunt #82:** intentional resilience (hunt #67); returns manifests collected before failure.
 
+- [x] (proven) `InMemoryValueReportJobQueue.TryPoll` — poll JSON missing report window reported pending — **hit 2026-10-23 thorough hunt #83:** default or inverted `fromUtcInclusive`/`toUtcExclusive` is corrupt; regression `TryPoll_reports_failure_when_distributed_state_json_missing_report_window`.
+- [x] (valid-no-repro) `InMemoryValueReportJobQueue.TryPoll` — corrupt payload with only `tenantId` and `workspaceId` missing `projectId` — **cheap-disproof 2026-10-23 thorough hunt #83:** regression `TryPoll_reports_failure_when_distributed_state_json_missing_project_id` (hunt #82 guard).
+- [x] (valid-no-repro) `PollingCollectionRunDiscovery.DiscoverAsync` — cancel during `ReadArtifactAsync` propagates — **cheap-disproof 2026-10-23 thorough hunt #83:** regression `DiscoverAsync_propagates_operation_canceled_when_read_artifact_is_canceled`.
+- [x] (valid-no-repro) `ProcessSharedValueReportJobPollStateCache.Get` — expired entry lazy removal — **cheap-disproof 2026-10-23 thorough hunt #83:** `Set` prunes expired entries (hunt #72); `Get` lazy expiry is second-chance cleanup.
+- [x] (valid-no-repro) `CollectionRunIngestService.IngestAsync` — duplicate zip hash new `runId` marks imported without snapshot — **cheap-disproof 2026-10-23 thorough hunt #83:** `ExistingHashDoesNotImportAgain` in `CollectionRunIngestServiceTests`; intentional hash idempotency.
+
 - [ ] (candidate) `ValueReportJobPollStateCacheRegistrar.Register` — Redis probe opens dedicated client when shared cache missing — locus: factory; input: misconfigured redis; wrong outcome: documented fallback.
-- [ ] (candidate) `InMemoryValueReportJobQueue.TryPoll` — corrupt payload with only `tenantId` and `workspaceId` missing `projectId` — locus: scope guids; input: partial JSON; wrong outcome: corrupt (hunt #82).
-- [ ] (candidate) `PollingCollectionRunDiscovery.DiscoverAsync` — cancel during `ReadArtifactAsync` propagates — locus: read catch; input: canceled token; wrong outcome: intentional.
-- [ ] (candidate) `ProcessSharedValueReportJobPollStateCache.Get` — expired entry lazy removal — locus: get path; input: TTL elapsed; wrong outcome: prune on set (hunt #72).
-- [ ] (candidate) `CollectionRunIngestService.IngestAsync` — duplicate zip hash new `runId` marks imported without snapshot — locus: `HasImportedHashAsync`; input: hash dedupe; wrong outcome: intentional idempotency.
+- [ ] (candidate) `InMemoryValueReportJobQueue.TryPoll` — inverted report window in otherwise valid JSON — locus: window gate; input: `from >= to`; wrong outcome: corrupt (hunt #83).
+- [ ] (candidate) `PollingCollectionRunDiscovery.DiscoverAsync` — cancel during per-manifest ingest propagates — locus: ingest catch; input: canceled token; wrong outcome: intentional (hunt #72).
+- [ ] (candidate) `AzureBlobCollectionRunArtifactReader.ListManifestsAsync` — `OperationCanceledException` during enumeration propagates — locus: list loop; input: canceled token; wrong outcome: intentional.
+- [ ] (candidate) `InMemoryValueReportJobQueue.Enqueue` — failed pending distributed write returns failed job id without starting work — locus: enqueue; input: cache write failure; wrong outcome: intentional (hunt #62).
 
 
 2026-10-09 seed hunt (seed→hit): failed usage flush returned events through `Enqueue`, which drops them when metering is disabled. Already-accepted events now use `Requeue`. Regression `StopAsync_keeps_dequeued_usage_events_when_persist_fails_after_metering_disabled` failed first.
