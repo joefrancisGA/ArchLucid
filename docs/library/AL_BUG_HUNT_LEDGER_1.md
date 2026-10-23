@@ -5681,10 +5681,12 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: extraction-router
 
+2026-10-23 thorough hunt (hit): proved markdown bold `**owner**` RACI labels still matched as prose ownership tokens when `unowned` appeared elsewhere, falsely emitting Unowned component; fixed by treating `*` as ownership label delimiter (same class as backticks and quotes); matrix regression `markdown-bold-owner`; 82 scoped DifficultyBasedExtractionRouter tests passed. Private beta: architecture-intelligence extraction on pasted runbooks and workshop notes no longer invents operational-ownership gaps from emphasized RACI column headers.
+
 2026-10-23 thorough hunt (hit): promoted spaced lifecycle synonyms `as is` / `to be` (hyphenated forms already recognized); dual-lifecycle transition and ambiguous classification now use bounded phrase markers; regressions `Extract_tags_spaced_as_is_and_to_be_elements_with_lifecycle_scope`, `Classify_returns_ambiguous_for_spaced_as_is_and_to_be_prose`, and `Classify_does_not_treat_gas_is_substring_as_spaced_as_is_marker`; cheap-disproved proven-stale email-domain `owner` picker row; seeded five mechanism-backed `(candidate)` rows below; 81 scoped DifficultyBasedExtractionRouter tests passed.
 
+- [ ] (candidate) `FindBoundedOwnershipMarkerIndex` — markdown strikethrough `~~owner~~` label with separate `unowned` mention — locus: ownership delimiter set excludes `~`; input: runbook prose using strikethrough role labels.
 - [ ] (candidate) `ContainsDualLifecycleMarkers` — negated lifecycle prose (`not to be deployed` with separate `as is` section) may still classify ambiguous — locus: phrase markers without negation guard; input: architecture source with explicit negation before `to be`.
-- [ ] (candidate) `FindBoundedOwnershipMarkerIndex` — markdown bold `**owner**` label with separate `unowned` mention — locus: ownership delimiter set; input: runbook prose using bold RACI labels.
 - [ ] (candidate) `FindBoundedOwnershipMarkerIndex` — HTML-escaped `&lt;owner&gt;` element text with `unowned` elsewhere — locus: angle-bracket delimiter vs entity encoding; input: pasted HTML architecture notes.
 - [ ] (candidate) `LooksStructured` — markdown pipe tables with regulatory markers may classify `StructuredParse` before human-review signals when table rows precede GDPR text — locus: `Classify` ordering vs `LooksStructured`; input: two-row pipe table plus trailing compliance paragraph.
 - [ ] (candidate) `InferLifecycleScopeForIndex` — spaced `to be` boundary shares phrase matcher with `to be deployed` scheduling prose — locus: target-state boundary index; input: component line after `to be deployed next quarter` header.
@@ -5703,6 +5705,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - [x] (proven) `as-is`/`to-be` lifecycle token matching — substring inside `as-isolated` triggered ambiguous classification and false dual-lifecycle transition — **hit 2026-09-26 seed hunt (seed→hit):** `Contains` on token markers matched interior substrings; fixed with alphanumeric boundary guards in `ContainsTokenMarker` and `FindTokenMarkerIndex`; regressions `Classify_does_not_treat_as_isolated_substring_as_lifecycle_marker` and `Extract_does_not_emit_transition_for_as_isolated_substring_with_target_state`.
 - [x] (proven) `ContainsPhraseMarker` / lifecycle boundaries — multi-word lifecycle phrases and bare `contradict` matched interior substrings (`recurrent state`, `contradictory`) — **hit 2026-09-26 seed hunt (seed→hit):** after token-boundary fix for `as-is`/`to-be`, phrase markers still used raw `Contains`; fixed with shared `FindBoundedMarkerIndex` and `ContainsContradictMarker`; regressions `Classify_does_not_treat_recurrent_state_substring_as_current_state_marker`, `Classify_does_not_treat_contradictory_substring_as_contradict_marker`, `Extract_does_not_emit_transition_for_recurrent_state_substring_with_target_state`, and `Extract_does_not_emit_contradiction_for_contradictory_substring`.
 - [x] (proven) `RequiresHumanReview` / `Extract` signal heuristics — regulatory markers and extract triggers used raw `Contains` (`phi` in `Delphi`, `public api` in `republic api`, `RTO` in `CARTOON`) — **hit 2026-09-26 seed hunt (seed→hit):** bounded `ContainsHumanReviewMarker` with plural fallback for single-token markers; `Extract` aligned to phrase/token boundary helpers; regressions `Classify_does_not_treat_delphi_substring_as_phi_marker`, `Classify_returns_human_review_for_regulations_plural`, `Extract_does_not_stamp_public_api_substring_in_republic_as_interface`, and `Extract_does_not_emit_recovery_objective_for_rto_substring_in_cartoon`.
+- [x] (proven) `FindBoundedOwnershipMarkerIndex` — markdown bold `**owner**` RACI labels matched `owner` as a bounded ownership token while a separate `unowned` mention was present, emitting a false operational-ownership gap; fixed by treating `*` as ownership label delimiters; matrix regression `markdown-bold-owner`.
 - [x] (proven) `FindBoundedOwnershipMarkerIndex` — XML-like `<owner>` element tags in architecture source prose matched `owner` as a bounded ownership token while a separate `unowned` mention was present, emitting a false operational-ownership gap; fixed by treating `<`/`>` as ownership label delimiters; matrix regression `xml-owner-element`.
 - [x] (proven) `FindBoundedMarkerIndex` / `IsValidMarkerStartBoundary` — email-domain `owner` label false match via `@` start boundary — **hit 2026-10-20 thorough hunt (lane C):** regression `Extract_does_not_emit_ownership_gap_for_email_domain_owner_label_with_unowned`.
 
@@ -5738,11 +5741,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** extraction router; difficulty router
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/DifficultyBasedExtractionRouter.cs; ArchLucid.Application/ArchitectureIntelligence/DifficultyBasedExtractionRouter.Classify.cs; ArchLucid.Application/ArchitectureIntelligence/DifficultyBasedExtractionRouter.Extract.cs; ArchLucid.Application/ArchitectureIntelligence/DifficultyBasedExtractionRouter.LifecycleHelpers.cs
 - **test-filter:** FullyQualifiedName~DifficultyBasedExtractionRouterTests
-- **hunts:** 40
-- **bugs-found:** 21
+- **hunts:** 41
+- **bugs-found:** 22
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-23
-- **last-bug:** 2026-10-23 — spaced `as is` / `to be` lifecycle synonyms ignored
+- **last-bug:** 2026-10-23 — markdown bold `**owner**` false ownership token
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
