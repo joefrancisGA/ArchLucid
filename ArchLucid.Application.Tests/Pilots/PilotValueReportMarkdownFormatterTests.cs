@@ -187,6 +187,9 @@ public sealed class PilotValueReportMarkdownFormatterTests
 
         markdown.Should().Contain("not computed — no committed runs loaded for detail");
         markdown.Should().NotContain("| Total findings | 0 |");
+        markdown.Should().Contain(
+            "Agent types were not computed — no committed runs loaded for detail in the partial sample.");
+        markdown.Should().NotContain("Agent types were not stored.");
     }
 
     [Fact]

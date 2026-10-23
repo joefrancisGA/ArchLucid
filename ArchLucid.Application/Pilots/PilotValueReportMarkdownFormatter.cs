@@ -145,7 +145,12 @@ public sealed class PilotValueReportMarkdownFormatter(ExportFormatterService exp
 
         if (r.UniqueAgentTypes.Count == 0)
         {
-            if (r.RunDetailsTruncated)
+            if (RunDetailSampleLoadedNoRows(r))
+            {
+                sb.AppendLine(
+                    "Agent types were not computed — no committed runs loaded for detail in the partial sample.");
+            }
+            else if (r.RunDetailsTruncated)
             {
                 sb.AppendLine(
                     CultureInfo.InvariantCulture,

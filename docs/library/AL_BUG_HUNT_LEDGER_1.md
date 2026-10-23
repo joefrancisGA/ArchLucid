@@ -7133,17 +7133,25 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-pilots
 
+2026-10-23 seed hunt (seed→hit): promoted open `(candidate)` for empty `UniqueAgentTypes` when `RunDetailSampleLoadedNoRows` and `RunDetailsTruncated` false; aligned agent-types copy with findings not-computed path; extended regression `Format_when_committed_runs_exist_but_no_run_details_loaded_does_not_emit_zero_findings_as_tenant_total`; seeded five mechanism-backed `(candidate)` rows below; 68 scoped BuyerProofPack/BoardPack/PilotValueReport tests passed.
+
+- [ ] (candidate) `PilotValueReportMarkdownFormatter` — `Avg pipeline completion` still formats numeric average when `RunDetailSampleLoadedNoRows` — locus: Summary avg cell without `RunDetailSampleLoadedNoRows` guard; input: positive `AveragePipelineCompletionSeconds` with empty timeline and `TotalRunsCommitted > 0`.
+- [ ] (candidate) `PilotValueReportMarkdownFormatter` — severity table lists zero counts after not-computed banner when detail sample empty — locus: `Findings by severity` rows after `RunDetailSampleLoadedNoRows` note; input: non-zero `FindingsBySeverity` with zero loaded timeline rows.
+- [ ] (candidate) `BuyerProofPackBuilder.TryBuildZipAsync` — manifest caution vs limitations markdown divergence on `isDemoTenant` only — locus: `cautionWarning` vs `BuyerProofPackLimitationsMarkdown`; input: demo tenant without `isSampleRun`.
+- [ ] (candidate) `BoardPackSealedExportReceiptGuard` — receipt hash mismatch vs missing receipt error surfaces — locus: guard branch ordering; input: export with tampered sealed manifest receipt on board-pack PDF path.
+- [ ] (candidate) `PilotValueReportService` — empty `UniqueAgentTypes` when all detail loads fail without setting `RunDetailsTruncated` — locus: detail projection loop; input: committed run ids present but per-run detail fetch returns empty.
+
 - **id:** application-pilots
 - **status:** open
 - **impact:** medium
 - **aliases:** buyer proof pack; board pack; pilot artifacts
 - **paths:** ArchLucid.Application/Pilots/
 - **test-filter:** FullyQualifiedName~BuyerProofPack|FullyQualifiedName~BoardPack
-- **hunts:** 50
-- **bugs-found:** 35
+- **hunts:** 51
+- **bugs-found:** 36
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — pilot value report zero findings when run details never load (non-truncated)
+- **last-hunt:** 2026-10-23
+- **last-bug:** 2026-10-23 — pilot value report agent types “not stored” when no run details load
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -7161,7 +7169,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 - [x] (valid-no-repro) `RecentPilotRunDeltasService.GetRecentDeltasAsync` — tie-break when `CreatedUtc` matches — **cheap-disproof 2026-10-22 thorough hunt:** sorts `CompletedUtc ?? CreatedUtc` then `RunId` descending; regression `GetRecentDeltasAsync_WhenSortKeysTie_OrdersByRunIdDescendingSoPanelOrderIsStable`.
 
-- (candidate) `PilotValueReportMarkdownFormatter` — `Agent types were not stored` when committed runs exist but detail projection returns no rows and `RunDetailsTruncated` is false — locus: empty `UniqueAgentTypes` branch; input: same shape as zero-load findings hit without truncation flag.
+- [x] (proven) `PilotValueReportMarkdownFormatter` — `Agent types were not stored` when committed runs exist but detail projection returns no rows and `RunDetailsTruncated` is false — **hit 2026-10-23 seed hunt:** `RunDetailSampleLoadedNoRows` branch for empty `UniqueAgentTypes`; regression extended on `Format_when_committed_runs_exist_but_no_run_details_loaded_does_not_emit_zero_findings_as_tenant_total`. [class:state-machine-gap]
 
 2026-10-11 thorough hunt (dry): cheap-disproved five picker candidates: findings-by-severity presence is intentionally true for a resolved zero-row slice; LLM call counts carry a separate unresolved attestation flag; buyer-proof ZIP generation fails closed at each artifact boundary; `ExecDigestComposer` already trims configured operator URL slashes; and boolean parsing accepts canonical strings while rejecting malformed values. No hunt-ready row or failing repro; 29 scoped BuyerProofPack/BoardPack tests passed.
 
