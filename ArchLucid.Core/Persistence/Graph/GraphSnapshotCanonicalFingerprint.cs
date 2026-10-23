@@ -288,8 +288,9 @@ public static class GraphSnapshotCanonicalFingerprint
                     NormalizeReviewCacheAlternatePathSeparators(
                         NormalizeReviewCachePathLineBreakScalars(
                             StripReviewCachePathUrlAffixes(
-                                DecodePercentEncodedPathTokens(
-                                    ReplaceIsolatedPlusWithPathSeparator(normalizedToken)))))))
+                                NormalizeReviewCacheHashAndQuerySeparatorsBeforeUrlAffixStrip(
+                                    DecodePercentEncodedPathTokens(
+                                        ReplaceIsolatedPlusWithPathSeparator(normalizedToken))))))))
             .Replace('\\', '/');
 
         while (path.Contains("//", StringComparison.Ordinal))
@@ -445,6 +446,32 @@ public static class GraphSnapshotCanonicalFingerprint
     ///     when they sit between dotless segment names (e.g. <c>docs\u00a0architecture/overview.md</c>)
     ///     without rewriting separators inside file-name segments (e.g. <c>arch\u00a0note.md</c>).
     /// </summary>
+    private static string NormalizeReviewCacheHashAndQuerySeparatorsBeforeUrlAffixStrip(string value)
+    {
+        if (!value.Contains('/', StringComparison.Ordinal))
+            return value;
+
+        string normalized = value;
+
+        foreach (char separator in ReviewCacheHashAndQuerySeparatorsBeforeUrlAffixStrip)
+        {
+            if (!normalized.Contains(separator))
+                continue;
+
+            normalized = ReplaceAlternatePathSeparatorWhenDotlessTailWithFollowingSlash(normalized, separator);
+        }
+
+        return normalized;
+    }
+
+    private static ReadOnlySpan<char> ReviewCacheHashAndQuerySeparatorsBeforeUrlAffixStrip =>
+    [
+        '#',
+        '\uFF03',
+        '?',
+        '\uFF1F',
+    ];
+
     private static string NormalizeReviewCacheAlternatePathSeparators(string value)
     {
         if (!value.Contains('/', StringComparison.Ordinal))
@@ -461,6 +488,38 @@ public static class GraphSnapshotCanonicalFingerprint
         }
 
         return normalized;
+    }
+
+    private static string ReplaceAlternatePathSeparatorWhenDotlessTailWithFollowingSlash(string value, char separator)
+    {
+        StringBuilder builder = new(value.Length);
+
+        for (int index = 0; index < value.Length; index++)
+        {
+            char current = value[index];
+
+            if (current != separator)
+            {
+                builder.Append(current);
+                continue;
+            }
+
+            int tailStart = index + 1;
+            int slashIndex = value.IndexOf('/', tailStart);
+
+            if (slashIndex < 0)
+            {
+                builder.Append(current);
+                continue;
+            }
+
+            int tailEnd = slashIndex;
+            ReadOnlySpan<char> tail = value.AsSpan(tailStart, tailEnd - tailStart);
+
+            builder.Append(tail.Contains('.') ? separator : '/');
+        }
+
+        return builder.ToString();
     }
 
     private static string ReplaceAlternatePathSeparatorWhenDotlessTail(string value, char separator)
