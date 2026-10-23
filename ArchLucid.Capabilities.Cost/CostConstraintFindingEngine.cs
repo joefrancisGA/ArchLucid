@@ -32,6 +32,7 @@ public sealed class CostConstraintFindingEngine : IFindingEngine
             node.Properties.TryGetValue("budgetName", out string? budgetName);
             node.Properties.TryGetValue("maxMonthlyCost", out string? maxCostStr);
             node.Properties.TryGetValue("costRisk", out string? costRisk);
+            string? normalizedCostRisk = string.IsNullOrWhiteSpace(costRisk) ? null : costRisk.Trim();
 
             node.Properties.TryGetValue("projectedImpactUsdLowerBound", out string? lowerBoundStr);
             node.Properties.TryGetValue("projectedImpactUsdUpperBound", out string? upperBoundStr);
@@ -58,7 +59,7 @@ public sealed class CostConstraintFindingEngine : IFindingEngine
                 FindingType = "CostConstraintFinding",
                 Category = Category,
                 EngineType = EngineType,
-                Severity = string.Equals(costRisk, "high", StringComparison.OrdinalIgnoreCase)
+                Severity = string.Equals(normalizedCostRisk, "high", StringComparison.OrdinalIgnoreCase)
                     ? FindingSeverity.Warning
                     : FindingSeverity.Info,
                 Title = $"Cost constraint: {node.Label}",
@@ -71,7 +72,7 @@ public sealed class CostConstraintFindingEngine : IFindingEngine
                     {
                         BudgetName = budgetName ?? node.Label,
                         MaxMonthlyCost = maxMonthly,
-                        CostRisk = costRisk ?? "unknown",
+                        CostRisk = normalizedCostRisk ?? "unknown",
                         ProjectedImpactUsdLowerBound = lowerBound,
                         ProjectedImpactUsdUpperBound = upperBound,
                         ConfidenceReasoning = confidenceReasoning
@@ -81,7 +82,7 @@ public sealed class CostConstraintFindingEngine : IFindingEngine
                     GraphNodeIdsExamined = [node.NodeId],
                     RulesApplied = ["cost-constraint-surface"],
                     DecisionsTaken = ["Emitted cost constraint finding from graph node."],
-                    AlternativePathsConsidered = string.Equals(costRisk, "high", StringComparison.OrdinalIgnoreCase)
+                    AlternativePathsConsidered = string.Equals(normalizedCostRisk, "high", StringComparison.OrdinalIgnoreCase)
                         ?
                         [
                             "Use reserved capacity or commitment discounts to lower effective monthly spend.",

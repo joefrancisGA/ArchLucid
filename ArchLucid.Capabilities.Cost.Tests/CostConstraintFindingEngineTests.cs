@@ -34,6 +34,34 @@ public sealed class CostConstraintFindingEngineTests
     }
 
     [Fact]
+    public async Task AnalyzeAsync_treats_padded_high_cost_risk_as_warning_severity()
+    {
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "c-padded",
+                    NodeType = "CostConstraint",
+                    Label = "prod-budget",
+                    Properties = new Dictionary<string, string>
+                    {
+                        ["costRisk"] = " high ",
+                    }
+                }
+            ],
+        };
+
+        IReadOnlyList<Finding> findings = await _sut.AnalyzeAsync(graph, null, CancellationToken.None);
+
+        Finding finding = findings.Should().ContainSingle().Subject;
+        finding.Severity.Should().Be(FindingSeverity.Warning);
+        CostConstraintFindingPayload payload = finding.Payload.Should().BeOfType<CostConstraintFindingPayload>().Subject;
+        payload.CostRisk.Should().Be("high");
+    }
+
+    [Fact]
     public async Task AnalyzeAsync_MapsHighCostRisk_ToWarningSeverity_WithHighSpendAlternatives()
     {
         GraphSnapshot graph = new()
