@@ -6705,6 +6705,20 @@ Split from retired `archlucid-core` (ABQ-08).
 2026-10-21 seed hunt (seed->hit): promoted AgentPromptCatalogOptions.Versions whitespace keys; CachedAgentSystemPromptCatalog resolves AgentTypeKeys without trimming dictionary keys; AgentPromptCatalogOptionsNormalizePostConfigure + host registration; regression PostConfigure_trims_agent_prompt_version_keys_from_configuration_binding; cheap-disproof closed JSON null array (Resolve_redacts_json_effective_values_when_json_array_contains_null_then_password_pair) and SaaS WhenProduction (catalog Production-only); 1 AgentPromptCatalog test passed (RunAnalyzers=false).
 
 ## Zone: core-configuration-summary
+2026-10-23 seed hunt #119 (seed→hit): promoted open `(candidate)` `U+206D` pair-delimiter gap; `Password=` after activate arabic form shaping mark was not a pair boundary so config summary effective values leaked ADO.NET secrets; extended `IsPairDelimiter` with `\u206D`; regression `Resolve_redacts_embedded_credential_material_when_password_pair_is_activate_arabic_form_shaping_mark_delimited`; cheap-disproof closed consolidate refactor row (`invalid`), tab-before-`AccountKey` (`Resolve_redacts_embedded_credential_material_when_account_key_pair_is_tab_delimited`), JSON number-then-password array (`Resolve_redacts_json_effective_values_when_json_array_contains_number_then_password_pair`), and Azure OpenAI interior space (`endpoint.Trim()` only trims ends; no host-parse bug on `https://foo.openai.azure.com /openai` without further repro); seeded five non-delimiter `(candidate)` rows; 76 matrix + JSON spot tests passed (`RunAnalyzers=false`).
+
+- [x] (proven) `ConfigurationEmbeddedCredentialMaterialDetector.IsPairDelimiter` — activate arabic form shaping (`U+206D`) between credential pairs — **hit 2026-10-23 seed hunt #119:** add `\u206D`; regression `Resolve_redacts_embedded_credential_material_when_password_pair_is_activate_arabic_form_shaping_mark_delimited`. [class:fail-open-validation]
+- [x] (invalid) `ConfigurationEmbeddedCredentialMaterialDetector` — consolidate `IsPairDelimiter` into category scan — **cheap-disproof 2026-10-23 seed hunt #119:** engineering refactor to reduce duplicate hunts; not a reachable leak without a missed code point.
+- [x] (valid-no-repro) `ConfigurationSensitiveConfigValueScanner` — JSON number element adjacent to string credential pair — **cheap-disproof 2026-10-23 seed hunt #119:** array walk redacts when any string element matches; regression `Resolve_redacts_json_effective_values_when_json_array_contains_number_then_password_pair`.
+- [x] (valid-no-repro) `ConfigurationEmbeddedCredentialMaterialDetector` — `AccountKey=` pair separated by ascii tab — **cheap-disproof 2026-10-23 seed hunt #119:** `\t` already in delimiter set; regression `Resolve_redacts_embedded_credential_material_when_account_key_pair_is_tab_delimited`.
+- [x] (valid-no-repro) `AzureOpenAiEndpointNormalizer` — endpoint with interior ascii space before path — **cheap-disproof 2026-10-23 seed hunt #119:** no evidence of host upgrade/normalization on interior space without failing normalizer test; defer unless buyer reports malformed endpoint binding.
+
+- [ ] (candidate) `ConfigurationEmbeddedCredentialMaterialDetector` — backslash (`U+005C`) between credential pairs — locus: `IsPairDelimiter`; input: `Server=prod\u005CPassword=secret`; wrong outcome: config summary leak when Windows-style line continuation paste uses backslash.
+- [ ] (candidate) `ConfigurationSensitiveConfigValueScanner` — JSON object property value with embedded `SharedAccessKey=` — locus: `JsonValueKind.Object` recursion; input: `{"conn":"Endpoint=x;SharedAccessKey=secret"}`; wrong outcome: verify object string values redact (may already hold).
+- [ ] (candidate) `ConfigurationEmbeddedCredentialMaterialDetector` — `ClientSecret=` pair after URL-encoded space (`%20`) in query-only config value — locus: percent-decoding before scan; input: `redirect=https://x?ClientSecret%3Dabc`; wrong outcome: leak if scan is literal-only.
+- [ ] (candidate) `ConfigurationKeyRequirement.WhenProduction` — `DOTNET_ENVIRONMENT` value `Production` with trailing ascii tab — locus: environment read + `Trim()`; input: bound `Production\t`; wrong outcome: WhenProduction keys optional (may already trim).
+- [ ] (candidate) `ConfigurationEffectiveValueResolver.Resolve` — effective value is only whitespace between trim and empty check — locus: `IsNullOrWhiteSpace` after sensitive path; input: `"   "` on non-sensitive path; wrong outcome: returns spaces instead of null (display hygiene).
+
 2026-10-23 seed hunt #118 (seed→hit): promoted five open `(candidate)` bidi digit-shaping and ascii space pair-delimiter gaps (`U+206B`, `U+206C`, `U+206E`, `U+206F`, `U+0020`); `Password=` after pasted formatting or plain spaces was not a pair boundary (`IsPairBoundaryBeforeIndex` rewound ascii spaces) so config summary effective values leaked ADO.NET secrets; extended `IsPairDelimiter` and fixed ascii-space boundary rewind; matrix regressions `Resolve_redacts_embedded_credential_material_when_password_pair_is_inhibit_arabic_form_shaping_delimited`, `_activate_arabic_form_shaping_delimited`, `_activate_national_digit_shapes_delimited`, `_activate_nominal_digit_shapes_delimited`, and `_ascii_space_delimited`; seeded five follow-on `(candidate)` rows (delimiter consolidation + non-credential scan); 74 `ConfigurationEmbeddedCredentialRedactionMatrixTests` passed (`RunAnalyzers=false`).
 
 - [x] (proven) `ConfigurationEmbeddedCredentialMaterialDetector.IsPairDelimiter` — inhibit arabic form shaping (`U+206B`) between credential pairs — **hit 2026-10-23 seed hunt #118:** add `\u206B`; regression `Resolve_redacts_embedded_credential_material_when_password_pair_is_inhibit_arabic_form_shaping_delimited`. [class:fail-open-validation]
@@ -6712,12 +6726,6 @@ Split from retired `archlucid-core` (ABQ-08).
 - [x] (proven) `ConfigurationEmbeddedCredentialMaterialDetector.IsPairDelimiter` — activate national digit shapes (`U+206E`) between pairs — **hit 2026-10-23 seed hunt #118:** add `\u206E`; regression `Resolve_redacts_embedded_credential_material_when_password_pair_is_activate_national_digit_shapes_delimited`. [class:fail-open-validation]
 - [x] (proven) `ConfigurationEmbeddedCredentialMaterialDetector.IsPairDelimiter` — activate nominal digit shapes (`U+206F`) between pairs — **hit 2026-10-23 seed hunt #118:** add `\u206F`; regression `Resolve_redacts_embedded_credential_material_when_password_pair_is_activate_nominal_digit_shapes_delimited`. [class:fail-open-validation]
 - [x] (proven) `ConfigurationEmbeddedCredentialMaterialDetector.IsPairDelimiter` / `IsPairBoundaryBeforeIndex` — ascii space (`U+0020`) between pairs — **hit 2026-10-23 seed hunt #118:** add `' '` to delimiter set and stop rewinding pair boundaries over ascii spaces before key scan; regression `Resolve_redacts_embedded_credential_material_when_password_pair_is_ascii_space_delimited`. [class:fail-open-validation]
-
-- [ ] (candidate) `ConfigurationEmbeddedCredentialMaterialDetector` — activate arabic form shaping (`U+206D`) between credential pairs — locus: `IsPairDelimiter`; input: `Server=prod\u206DPassword=secret`; wrong outcome: config summary leak.
-- [ ] (candidate) `ConfigurationEmbeddedCredentialMaterialDetector` — consolidate `IsPairDelimiter` into `UnicodeCategory.Format` / `SpaceSeparator` scan — locus: `IsPairDelimiter`; wrong outcome: duplicate one-off code-point rows; reachability: saturated delimiter lane after hunt #118.
-- [ ] (candidate) `ConfigurationSensitiveConfigValueScanner` — JSON number element adjacent to string credential pair — locus: array enumeration; input: `[42,"Password=secret"]`; wrong outcome: verify redaction (may already hold).
-- [ ] (candidate) `ConfigurationEmbeddedCredentialMaterialDetector` — `AccountKey=` pair separated only by ascii tab (`U+0009`) — locus: `IsPairDelimiter`; input: `Endpoint=x;AccountKey=secret` with tab before `AccountKey` — wrong outcome: leak (tab already delimiter; cheap-disproof candidate).
-- [ ] (candidate) `AzureOpenAiEndpointNormalizer` — endpoint value with trailing ascii space before path — locus: trim before host parse; input: `https://foo.openai.azure.com /openai`; wrong outcome: mis-normalized host (non-delimiter class).
 
 2026-10-23 seed hunt #117 (seed→hit): promoted five open `(candidate)` bidi isolate pair-delimiter gaps (`U+2066`–`U+206A`); `Password=` after pasted isolate formatting was not a pair boundary so config summary effective values leaked ADO.NET secrets; extended `IsPairDelimiter`; matrix regressions `Resolve_redacts_embedded_credential_material_when_password_pair_is_left_to_right_isolate_delimited`, `_right_to_left_isolate_delimited`, `_first_strong_isolate_delimited`, `_pop_directional_isolate_delimited`, and `_inhibit_symmetric_swapping_delimited`; seeded five follow-on bidi-digit `(candidate)` rows; 69 `ConfigurationEmbeddedCredentialRedactionMatrixTests` passed (`RunAnalyzers=false`).
 
@@ -6836,11 +6844,11 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** configuration summary; config paths; split from archlucid-core
 - **paths:** ArchLucid.Core/Configuration/
 - **test-filter:** FullyQualifiedName~Configuration
-- **hunts:** 77
-- **bugs-found:** 59
+- **hunts:** 78
+- **bugs-found:** 60
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-23
-- **last-bug:** 2026-10-23 — bidi digit-shaping and ascii space delimiter parity for embedded credential redaction
+- **last-bug:** 2026-10-23 — U+206D delimiter parity for embedded credential redaction
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 

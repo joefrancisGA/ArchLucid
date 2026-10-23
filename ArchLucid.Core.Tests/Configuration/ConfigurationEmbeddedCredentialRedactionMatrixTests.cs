@@ -387,6 +387,20 @@ public sealed class ConfigurationEmbeddedCredentialRedactionMatrixTests
     }
 
     [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_password_pair_is_activate_arabic_form_shaping_mark_delimited()
+    {
+        string effectiveValue = "Server=prod" + '\u206D' + "Password=secret";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_account_key_pair_is_tab_delimited()
+    {
+        string effectiveValue = "Endpoint=x" + '\t' + "AccountKey=secret";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
     public void Resolve_redacts_embedded_credential_material_when_password_pair_is_activate_national_digit_shapes_delimited()
     {
         string effectiveValue = "Server=prod" + '\u206E' + "Password=secret";
