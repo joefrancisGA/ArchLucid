@@ -14654,12 +14654,16 @@ heap-disproved mermaid typed-topology candidate.
 - **aliases:** host composition; DI registration; startup modules
 - **paths:** ArchLucid.Host.Composition/
 - **test-filter:** FullyQualifiedName~Host.Composition|FullyQualifiedName~ServiceCollectionExtensions
-- **hunts:** 67
-- **bugs-found:** 49
+- **hunts:** 69
+- **bugs-found:** 53
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-23
-- **last-bug:** 2026-10-23 — collection manifest listing aborted on blob read failures
+- **last-bug:** 2026-10-23 — value report job completed with empty renderer output
 - **code-changed-since:** yes
+
+2026-10-23 thorough hunt (seed→hit): proved `InMemoryValueReportJobQueue.RunJobAsync` marked jobs `Completed` when `IValueReportRenderer.RenderAsync` returned an empty byte array; fail before audit when rendered docx is empty; regression `InMemoryValueReportJobQueue_fails_job_when_renderer_returns_empty_docx`; cheap-disproof closed four sibling `(candidate)` rows; seeded five follow-on `(candidate)` rows; scoped value-report + discovery tests 16 passed (`RunAnalyzers=false`).
+
+2026-10-23 thorough hunt (seed→hit): proved corrupt `run-manifest.json` aborted listing via `JsonDocument.Parse`, `Completed` poll state without document bytes reported success, and `ListManifestsAsync` exceptions bubbled to discovery; skip invalid JSON manifests, fail poll when completed bytes missing, discovery returns zero on list failure; regressions `ParseManifestContent_returns_null_when_json_is_invalid`, `TryPoll_reports_failure_when_distributed_completed_state_has_no_document_bytes`, `DiscoverAsync_returns_zero_when_list_manifests_throws`; cheap-disproof closed two sibling `(candidate)` rows; seeded five follow-on `(candidate)` rows; scoped discovery + reader + poll tests 17 passed (`RunAnalyzers=false`).
 
 2026-10-23 thorough hunt (seed→hit): proved `AzureBlobCollectionRunArtifactReader.ListManifestsAsync`/`ReadManifestAsync` threw when a single `run-manifest.json` blob could not be downloaded and could abort listing; skip unreadable manifest blobs and return partial list when enumeration fails; regression `ReadManifestAsync_returns_null_when_manifest_blob_download_fails`; cheap-disproof closed four sibling `(candidate)` rows; seeded five follow-on `(candidate)` rows; scoped `AzureBlobCollectionRunArtifactReaderTests` 4 passed (`RunAnalyzers=false`).
 
@@ -14809,11 +14813,23 @@ heap-disproved mermaid typed-topology candidate.
 - [x] (invalid) `ValueReportJobPollStateCacheRegistrar` — dedicated Redis not disposed — **cheap-disproof 2026-10-23 thorough hunt #67:** singleton factory lifetime matches host process; no reachable leak repro without host teardown harness.
 - [x] (valid-no-repro) `InMemoryValueReportJobQueue.RunJobAsync` — raw `ex.Message` on poll — **cheap-disproof 2026-10-23 thorough hunt #67:** async export is tenant-admin scoped; detailed failure copy aids support; distributed corrupt payloads already sanitized in hunt #66.
 
-- [ ] (candidate) `AzureBlobCollectionRunArtifactReader.ReadManifestAsync` — invalid JSON in manifest blob throws — locus: `JsonDocument.Parse` (`AzureBlobCollectionRunArtifactReader.cs`); input: corrupt `run-manifest.json`; wrong outcome: listing aborts for remaining blobs.
-- [ ] (candidate) `PollingCollectionRunDiscovery.DiscoverAsync` — `ListManifestsAsync` exception aborts discovery — locus: `await _artifactReader.ListManifestsAsync` (`PollingCollectionRunDiscovery.cs`); input: storage outage before enumeration returns; wrong outcome: zero imports without partial manifest list.
-- [ ] (candidate) `InMemoryValueReportJobQueue.TryPoll` — completed distributed state with null bytes returns completed with null doc — locus: `JobPhase.Completed` branch (`InMemoryValueReportJobQueue.cs`); input: completed phase without `bytesBase64`.
-- [ ] (candidate) `GraphProjectionCacheInvalidationSubscriberHostedService` — `ExecuteAsync` does not observe `stoppingToken` while blocked on `queue.ReadAsync` — locus: subscriber loop; input: shutdown during Redis read; wrong outcome: slow stop.
-- [ ] (candidate) `ApiRequestUsageEventBatchFlushHostedService` — `PersistOrReturnAsync` returns false without requeue on non-cancel failure path — locus: `TryPersistBatchAsync` false branch; input: verify requeue semantics on persist false (read-only audit).
+- [x] (proven) `AzureBlobCollectionRunArtifactReader.ReadManifestAsync` — invalid JSON in manifest blob threw — **hit 2026-10-23 thorough hunt #68:** `ParseManifestContent` returns null on `JsonException`; regression `ParseManifestContent_returns_null_when_json_is_invalid`.
+- [x] (proven) `PollingCollectionRunDiscovery.DiscoverAsync` — `ListManifestsAsync` exception aborted discovery — **hit 2026-10-23 thorough hunt #68:** discovery catches list failures and returns zero imported; regression `DiscoverAsync_returns_zero_when_list_manifests_throws` (reader still returns partial lists when enumeration fails mid-scan per hunt #67).
+- [x] (proven) `InMemoryValueReportJobQueue.TryPoll` — completed state without bytes reported success — **hit 2026-10-23 thorough hunt #68:** completed poll without document bytes surfaces failure copy; regression `TryPoll_reports_failure_when_distributed_completed_state_has_no_document_bytes`.
+- [x] (valid-no-repro) `GraphProjectionCacheInvalidationSubscriberHostedService` — shutdown while blocked on Redis read — **cheap-disproof 2026-10-23 thorough hunt #68:** `queue.ReadAsync(stoppingToken)` participates in cooperative cancellation.
+- [x] (valid-no-repro) `ApiRequestUsageEventBatchFlushHostedService` — persist false without requeue — **cheap-disproof 2026-10-23 thorough hunt #68:** `PersistOrReturnAsync` calls `ReturnBatchToBuffer` when `TryPersistBatchAsync` returns false; regression `StopAsync_keeps_dequeued_usage_events_when_batch_persist_fails`.
+
+- [x] (valid-no-repro) `AzureBlobCollectionRunArtifactReader.ParseManifestContent` — manifest missing required fields returns null without audit — **cheap-disproof 2026-10-23 thorough hunt #69:** partial manifests are intentionally omitted at list time; discovery cannot ingest without `runId`/`startedUtc`.
+- [x] (valid-no-repro) `InMemoryValueReportJobQueue.TryPoll` — completed state with zero-length byte array — **cheap-disproof 2026-10-23 thorough hunt #69:** `entry.Bytes is { Length: > 0 }` treats empty arrays like missing document bytes (hunt #68); correct operator copy.
+- [x] (valid-no-repro) `PollingCollectionRunDiscovery.DiscoverAsync` — swallowed list failure returns zero without distinguishing outage — **cheap-disproof 2026-10-23 thorough hunt #69:** intentional guard from hunt #68; reader partial-list behavior covers mid-scan failures; total outage surfaces as zero imports until storage recovers.
+- [x] (valid-no-repro) `ValueReportJobPollStateCacheRegistrar` — `RedisCache` connection string from health probe resolver — **cheap-disproof 2026-10-23 thorough hunt #69:** poll state prefers registered `IDistributedCache`; health-probe alignment fixed in hunts #41–#44; read-only replica misconfig is deployment/ops not composition logic.
+- [x] (proven) `InMemoryValueReportJobQueue.RunJobAsync` — success path did not verify rendered docx non-empty — **hit 2026-10-23 thorough hunt #69:** empty renderer output now fails before `ValueReportGenerated` audit; regression `InMemoryValueReportJobQueue_fails_job_when_renderer_returns_empty_docx`.
+
+- [ ] (candidate) `PollingCollectionRunDiscovery.DiscoverAsync` — zero-length package zip still increments import count — locus: `imported++` after `IngestAsync`; input: `ReadArtifactAsync` returns empty `ZipBytes`; wrong outcome: discovery reports success without artifact payload.
+- [ ] (candidate) `AzureBlobCollectionRunArtifactReader.ReadArtifactAsync` — successful download of empty blob returns artifact with zero-length zip — locus: `bytes.ToArray()` without length guard; input: empty package blob; wrong outcome: ingest invoked on empty archive.
+- [ ] (candidate) `InMemoryValueReportJobQueue.RunJobAsync` — `ValueReportBuilder.BuildAsync` cancellation not observed — locus: `CancellationToken.None` passed to builder/renderer; input: host shutdown during async export; wrong outcome: job continues after drain signal.
+- [ ] (candidate) `InMemoryValueReportJobQueue.TryPoll` — distributed `Completed` with whitespace-only `fileName` — locus: completed branch returns `entry.FileName`; input: corrupt poll JSON with `"fileName":"   "`; wrong outcome: download filename unusable.
+- [ ] (candidate) `ApiRequestUsageEventBatchFlushHostedService` — timer tick races `StopAsync` dequeue — locus: flush loop vs shutdown; input: SIGTERM during `TryPersistBatchAsync`; wrong outcome: duplicate or dropped usage events.
 
 
 2026-10-09 seed hunt (seed→hit): failed usage flush returned events through `Enqueue`, which drops them when metering is disabled. Already-accepted events now use `Requeue`. Regression `StopAsync_keeps_dequeued_usage_events_when_persist_fails_after_metering_disabled` failed first.

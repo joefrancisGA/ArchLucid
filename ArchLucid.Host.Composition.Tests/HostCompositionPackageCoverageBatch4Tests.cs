@@ -88,6 +88,75 @@ public sealed class HostCompositionPackageCoverageBatch4Tests
     }
 
     [Fact]
+    public async Task InMemoryValueReportJobQueue_fails_job_when_renderer_returns_empty_docx()
+    {
+        ServiceCollection services = new();
+        Mock<IValueReportMetricsReader> metrics = new();
+        metrics
+            .Setup(m => m.ReadAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<DateTimeOffset>(),
+                It.IsAny<DateTimeOffset>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ValueReportRawMetrics([], 1, 1, 0, 0, 0, 0, null, null, null, null, 0, null, null, null));
+        services.AddSingleton(metrics.Object);
+        services.AddSingleton<IOptionsMonitor<ValueReportComputationOptions>>(
+            new TestOptionsMonitor<ValueReportComputationOptions>(new ValueReportComputationOptions()));
+        services.AddSingleton<ValueReportBuilder>();
+        Mock<IValueReportRenderer> renderer = new();
+        renderer
+            .Setup(r => r.RenderAsync(It.IsAny<ValueReportSnapshot>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Array.Empty<byte>());
+        services.AddSingleton(renderer.Object);
+        Mock<IAuditService> audit = new();
+        audit.Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+        services.AddSingleton(audit.Object);
+        services.AddDistributedMemoryCache();
+        services.AddSingleton<IValueReportJobPollStateCache>(static sp =>
+            new DistributedCacheValueReportJobPollStateCache(sp.GetRequiredService<IDistributedCache>()));
+        ServiceProvider provider = services.BuildServiceProvider();
+        IServiceScopeFactory scopeFactory = provider.GetRequiredService<IServiceScopeFactory>();
+        InMemoryValueReportJobQueue sut = new(
+            scopeFactory,
+            provider.GetRequiredService<IValueReportJobPollStateCache>(),
+            NullLogger<InMemoryValueReportJobQueue>.Instance);
+        Guid tenantId = Guid.NewGuid();
+        ValueReportJobRequest request = new(
+            tenantId,
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            DateTimeOffset.UtcNow.AddDays(-7),
+            DateTimeOffset.UtcNow);
+
+        Guid jobId = sut.Enqueue(request);
+
+        ValueReportJobPollResult? terminal = null;
+
+        for (int attempt = 0; attempt < 40; attempt++)
+        {
+            ValueReportJobPollResult poll = sut.TryPoll(jobId, tenantId);
+
+            if (poll.Found && poll.ErrorMessage is not null)
+            {
+                terminal = poll;
+                break;
+            }
+
+            await Task.Delay(25);
+        }
+
+        terminal.Should().NotBeNull();
+        terminal!.Found.Should().BeTrue();
+        terminal.Completed.Should().BeFalse();
+        terminal.ErrorMessage.Should().Contain("document is unavailable");
+        audit.Verify(
+            a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
     public void InMemoryValueReportJobQueue_poll_returns_not_found_for_wrong_tenant()
     {
         ServiceCollection services = new();

@@ -44,6 +44,14 @@ public sealed partial class InMemoryValueReportJobQueue
                 string fileName =
                     $"ArchLucid-value-report-{request.TenantId:N}-{request.FromUtcInclusive:yyyyMMdd}-{request.ToUtcExclusive:yyyyMMdd}.docx";
 
+                if (docx.Length == 0)
+                {
+                    JobEntry failed = new(request, JobPhase.Failed, null, fileName, MissingCompletedDocumentErrorMessage);
+                    _jobs[jobId] = failed;
+                    PublishDistributedTerminalStateOrClearStalePending(jobId, failed);
+                    return;
+                }
+
                 await audit.LogAsync(
                     new AuditEvent
                     {
