@@ -26,6 +26,8 @@ describe("FindingDetailDecisionSummary", () => {
     expect(screen.getByLabelText("Severity: High")).toBeTruthy();
     expect(screen.getByText("Accepted with monitoring")).toBeTruthy();
     expect(screen.getByText("Non-blocking for package approval")).toBeTruthy();
+    expect(screen.getByText("Recommended action")).toBeTruthy();
+    expect(screen.getByText("Remediation due")).toBeTruthy();
     expect(screen.getByText("Weekly exception monitoring")).toBeTruthy();
     expect(screen.getByText("Q3 2026")).toBeTruthy();
     expect(screen.getByText("Claims architecture lead")).toBeTruthy();

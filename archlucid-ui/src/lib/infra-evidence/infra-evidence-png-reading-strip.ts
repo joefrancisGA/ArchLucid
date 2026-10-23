@@ -95,7 +95,7 @@ function pngDependencyNeighborhoodScopeLine(seedLabel: string | null | undefined
     return INFRA_EVIDENCE_PNG_DEPENDENCY_NEIGHBORHOOD_SCOPE_NOT_STORED;
   }
 
-  return `Scope: dependency neighborhood from ${trimmed}.`;
+  return `Scope: neighbors of ${trimmed} on cited lines.`;
 }
 
 function hasStoredObservedFactEdges(outline: InfraEvidenceMermaidOutline | null | undefined): boolean {

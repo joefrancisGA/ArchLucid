@@ -29,10 +29,6 @@ const ARCHITECTURE_BRIEF_KEY = "__architecture-brief__";
 function inferEvidenceKind(sourceName: string): string {
   const lower = sourceName.toLowerCase();
 
-  if (lower.includes("inventory") || lower.endsWith(".zip")) {
-    return "Cloud inventory";
-  }
-
   if (lower.includes(".bicep") || lower.includes(".tf") || lower.includes("terraform")) {
     return "Infrastructure as code";
   }

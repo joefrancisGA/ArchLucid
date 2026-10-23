@@ -254,13 +254,13 @@ export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_NODES_DISCLOSURE_LABEL =
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_EDGES_DISCLOSURE_LABEL = "Edges" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_CONNECTED_SECTION =
-  "Connected on the diagram" as const;
+  "Has a line on this diagram" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_USED_SECTION =
-  "In use off the diagram" as const;
+  "Referenced off this diagram" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_ORPHANED_SECTION =
-  "Missing a required link" as const;
+  "No stored association" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNCONNECTED_SECTION =
   "No diagram link was stored." as const;

@@ -174,6 +174,18 @@ describe("infra-evidence-png-reading-strip", () => {
     expect(lines).toContain("Dependency neighborhood starting resource was not stored.");
   });
 
+  it("labels dependency neighborhood scope without depends-on wording", () => {
+    const lines = buildInfraEvidencePngReadingStripLines({
+      mode: "dependencyNeighborhood",
+      outline: { nodes: [], edges: [] },
+      completenessWarnings: [],
+      dependencyNeighborhoodSeedLabel: "app-gateway",
+    });
+
+    expect(lines).toContain("Scope: neighbors of app-gateway on cited lines.");
+    expect(lines.join("\n")).not.toMatch(/depends on|dependency neighborhood from/i);
+  });
+
   it("labels a missing snapshot line without inventing a capture time", () => {
     const lines = buildInfraEvidencePngReadingStripLines({
       mode: "network",
