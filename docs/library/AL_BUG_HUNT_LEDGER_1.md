@@ -6868,13 +6868,20 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
-2026-10-23 seed hunt (seed→hit): proved trim-aware export diff and `RunExportRecordPersistNormalizer` left whitespace-only optional strings as empty `""` while other rows stored `null`, so `Notes` and other optional metadata falsely differed across otherwise equivalent exports; coalesce whitespace-only optional strings to `null` at persist/read and in `AddIfChangedTrimmed`; regressions `CompareQuality_export_record_diff_treats_whitespace_only_notes_as_equivalent_to_null` and `NormalizeLoadedRecord_nulls_whitespace_only_optional_strings`; cheap-disproof closed `RecordJson` diff surface (column not compared), diff summary not echoing note bodies (formatter lists changed field names only; intentional), `TemplateProfile` column vs JSON padding (`CompareQuality_export_record_diff_ignores_padding_only_template_profile_column_when_json_matches`), and ZWJ heading variant (`RemoveMarkdownSection_strips_compare_quality_delta_when_heading_embeds_zero_width_joiner_mid_line` — format-char strip); seeded five follow-on rows; scoped application-analysis filter 105/105. Private beta: export compares treat blank-padded optional metadata as absent; stored export rows normalize whitespace-only notes to null.
+2026-10-23 seed hunt (seed→hit): proved `PersistedAnalysisExportRequestMetadata.TrimOptionalStrings` only trimmed rehydrated JSON strings so whitespace-only `Audience` stayed `""` while export diff null-coalesced optional columns, `RunExportAuditService.RecordAsync` forwarded whitespace-only `notes` before repository normalize, and `ComparisonExportMarkdownSectionRemover` ignored variation selectors (`\uFE00`) embedded in delta headings; centralize `NormalizeOptionalString` for rehydrate, audit write, and diff compare; extend invisible heading removal to variation-selector range; regressions `Rehydrate_nulls_whitespace_only_audience_in_stored_json`, `CompareQuality_export_record_diff_treats_whitespace_only_audience_as_equivalent_to_null_in_requests`, `RecordAsync_nulls_whitespace_only_notes_before_persist`, and `RemoveMarkdownSection_strips_compare_quality_delta_when_heading_embeds_variation_selector_mid_line`; cheap-disproof closed `WasAutoSelected` trim probe (bool column; invalid); seeded five follow-on rows; scoped application-analysis filter 108/108. Private beta: export audit/rehydrate/diff agree that blank optional metadata is absent; comparison exports strip variation-selector heading spoofing.
 
-- [ ] (candidate) `PersistedAnalysisExportRequestMetadata.TrimOptionalStrings` — whitespace-only audience becomes empty string not null — locus: rehydrate; input: `"audience":"   "` in JSON.
-- [ ] (candidate) `ExportRecordDiffService.CompareTopLevel` — `WasAutoSelected` not trim-relevant but nullable bool columns — locus: diff flags; input: N/A (invalid probe).
-- [ ] (candidate) `RunExportAuditService.RecordAsync` — notes parameter whitespace-only stored before normalizer — locus: audit write; input: notes `"   "` (verify null after create).
-- [ ] (candidate) `ComparisonExportMarkdownSectionRemover` — variation selector `\uFE00` inside heading — locus: VS in heading; input: VS between words.
-- [ ] (candidate) `ExportRecordDiffService` — `NormalizeOptionalString` not shared with rehydrate metadata trim — locus: duplicate normalization logic; input: consolidate helper.
+- [ ] (candidate) `RunExportRecordPersistNormalizer` — duplicate `NullIfWhiteSpace` vs `PersistedAnalysisExportRequestMetadata.NormalizeOptionalString` — locus: cross-layer consolidation; input: share helper in Contracts.
+- [ ] (candidate) `ComparisonExportMarkdownSectionRemover` — combining diacritic `\u0301` after heading letter — locus: Mn category; input: decomposed accent in heading.
+- [ ] (candidate) `ExportRecordDiffService.CompareRequests` — whitespace-only `TemplateProfile` in JSON vs absent field — locus: request diff; input: `"templateProfile":"   "` vs omitted key.
+- [ ] (candidate) `RunExportAuditService.RecordAsync` — whitelabel strings whitespace-only in nested request — locus: audit serialize; input: padded firm display name in analysis request only.
+- [ ] (candidate) `MarkdownExportRecordDiffSummaryFormatter` — should list `Notes` under changed values with redaction — locus: summary UX; input: intentional omission (invalid probe).
+
+- [x] (proven) `PersistedAnalysisExportRequestMetadata` / `ExportRecordDiffService` — duplicate optional-string normalization — **hit 2026-10-23 seed hunt:** shared `NormalizeOptionalString`; regressions `Rehydrate_nulls_whitespace_only_audience_in_stored_json` and `CompareQuality_export_record_diff_treats_whitespace_only_audience_as_equivalent_to_null_in_requests`.
+- [x] (proven) `RunExportAuditService.RecordAsync` — whitespace-only notes — **hit 2026-10-23 seed hunt:** `NormalizeOptionalString` on write; regression `RecordAsync_nulls_whitespace_only_notes_before_persist`.
+- [x] (proven) `ComparisonExportMarkdownSectionRemover` — variation selector in heading — **hit 2026-10-23 seed hunt:** `\uFE00`–`\uFE0F` strip; regression `RemoveMarkdownSection_strips_compare_quality_delta_when_heading_embeds_variation_selector_mid_line`.
+- [x] (invalid) `ExportRecordDiffService.CompareTopLevel` — `WasAutoSelected` trim — **cheap-disproof 2026-10-23 seed hunt:** non-string bool field; not trim-relevant.
+
+2026-10-23 seed hunt (seed→hit): proved trim-aware export diff and `RunExportRecordPersistNormalizer` left whitespace-only optional strings as empty `""` while other rows stored `null`, so `Notes` and other optional metadata falsely differed across otherwise equivalent exports; coalesce whitespace-only optional strings to `null` at persist/read and in `AddIfChangedTrimmed`; regressions `CompareQuality_export_record_diff_treats_whitespace_only_notes_as_equivalent_to_null` and `NormalizeLoadedRecord_nulls_whitespace_only_optional_strings`; cheap-disproof closed `RecordJson` diff surface (column not compared), diff summary not echoing note bodies (formatter lists changed field names only; intentional), `TemplateProfile` column vs JSON padding (`CompareQuality_export_record_diff_ignores_padding_only_template_profile_column_when_json_matches`), and ZWJ heading variant (`RemoveMarkdownSection_strips_compare_quality_delta_when_heading_embeds_zero_width_joiner_mid_line` — format-char strip); seeded five follow-on rows; scoped application-analysis filter 105/105. Private beta: export compares treat blank-padded optional metadata as absent; stored export rows normalize whitespace-only notes to null.
 
 - [x] (proven) `ExportRecordDiffService` / `RunExportRecordPersistNormalizer` — whitespace-only optional strings vs null — **hit 2026-10-23 seed hunt:** `NullIfWhiteSpace` / `NormalizeOptionalString`; regressions `CompareQuality_export_record_diff_treats_whitespace_only_notes_as_equivalent_to_null` and `NormalizeLoadedRecord_nulls_whitespace_only_optional_strings`.
 - [x] (invalid) `ExportRecordDiffService.CompareTopLevel` — `RecordJson` padding diff — **cheap-disproof 2026-10-23 seed hunt:** `RecordJson` not in compare surface.
@@ -7203,11 +7210,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 97
-- **bugs-found:** 92
+- **hunts:** 98
+- **bugs-found:** 93
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-23
-- **last-bug:** 2026-10-23 — whitespace-only optional export metadata coalesced to null
+- **last-bug:** 2026-10-23 — shared optional-string normalize and VS heading strip
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 

@@ -120,6 +120,40 @@ public sealed class RunExportAuditServiceTests
     }
 
     [Fact]
+    public async Task RecordAsync_nulls_whitespace_only_notes_before_persist()
+    {
+        Mock<IRunExportRecordRepository> repo = new();
+        RunExportRecord? captured = null;
+        repo
+            .Setup(r => r.CreateAsync(It.IsAny<RunExportRecord>(), It.IsAny<CancellationToken>()))
+            .Callback<RunExportRecord, CancellationToken>((record, _) => captured = record)
+            .Returns(Task.CompletedTask);
+
+        RunExportAuditService sut = new(
+            repo.Object,
+            Mock.Of<IAuditService>(),
+            NullLogger<RunExportAuditService>.Instance);
+
+        await sut.RecordAsync(
+            "deadbeefdeadbeefdeadbeefdeadbeef",
+            "analysis-report-docx",
+            "docx",
+            "report.docx",
+            "executive-summary",
+            null,
+            false,
+            null,
+            null,
+            analysisRequest: null,
+            notes: "   ",
+            emitArchitectureDocxExportGeneratedAudit: false,
+            cancellationToken: CancellationToken.None);
+
+        captured.Should().NotBeNull();
+        captured!.Notes.Should().BeNull();
+    }
+
+    [Fact]
     public async Task RecordAsync_trims_surrounding_whitespace_on_optional_display_name_resolution_and_manifest_version()
     {
         Mock<IRunExportRecordRepository> repo = new();

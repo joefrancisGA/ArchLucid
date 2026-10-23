@@ -41,11 +41,11 @@ public sealed class RunExportAuditService(
         ArgumentException.ThrowIfNullOrWhiteSpace(exportType);
         ArgumentException.ThrowIfNullOrWhiteSpace(format);
         ArgumentException.ThrowIfNullOrWhiteSpace(fileName);
-        templateProfile = templateProfile?.Trim();
-        templateProfileDisplayName = templateProfileDisplayName?.Trim();
-        resolutionReason = resolutionReason?.Trim();
-        manifestVersion = manifestVersion?.Trim();
-        notes = notes?.Trim();
+        templateProfile = PersistedAnalysisExportRequestMetadata.NormalizeOptionalString(templateProfile);
+        templateProfileDisplayName = PersistedAnalysisExportRequestMetadata.NormalizeOptionalString(templateProfileDisplayName);
+        resolutionReason = PersistedAnalysisExportRequestMetadata.NormalizeOptionalString(resolutionReason);
+        manifestVersion = PersistedAnalysisExportRequestMetadata.NormalizeOptionalString(manifestVersion);
+        notes = PersistedAnalysisExportRequestMetadata.NormalizeOptionalString(notes);
         PersistedAnalysisExportRequestMetadata.TrimOptionalStrings(analysisRequest);
         RunExportRecord record = new()
         {

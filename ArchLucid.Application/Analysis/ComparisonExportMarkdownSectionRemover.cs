@@ -91,8 +91,16 @@ internal static class ComparisonExportMarkdownSectionRemover
         return normalized;
     }
 
-    private static bool ShouldRemoveInvisibleFormatting(char candidate) =>
-        candidate == '\uFEFF' || char.GetUnicodeCategory(candidate) == UnicodeCategory.Format;
+    private static bool ShouldRemoveInvisibleFormatting(char candidate)
+    {
+        if (candidate == '\uFEFF')
+            return true;
+
+        if (candidate is >= '\uFE00' and <= '\uFE0F')
+            return true;
+
+        return char.GetUnicodeCategory(candidate) == UnicodeCategory.Format;
+    }
 
     private static bool ShouldSubstituteWithAsciiSpace(char candidate)
     {

@@ -76,6 +76,21 @@ public sealed class AnalysisExportRequestRehydratorTests
     }
 
     [Fact]
+    public void Rehydrate_nulls_whitespace_only_audience_in_stored_json()
+    {
+        RunExportRecord record = new()
+        {
+            ExportRecordId = "e1",
+            AnalysisRequestJson = """{"audience":"   "}""",
+        };
+
+        PersistedAnalysisExportRequest? result = AnalysisExportRequestRehydrator.Rehydrate(record);
+
+        result.Should().NotBeNull();
+        result!.Audience.Should().BeNull();
+    }
+
+    [Fact]
     public void Rehydrate_deserializes_determinism_iterations_from_json_number_token()
     {
         RunExportRecord record = new()

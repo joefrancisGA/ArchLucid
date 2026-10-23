@@ -5,18 +5,27 @@ namespace ArchLucid.Application.Analysis;
 /// </summary>
 internal static class PersistedAnalysisExportRequestMetadata
 {
+    internal static string? NormalizeOptionalString(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return null;
+
+        return value.Trim();
+    }
+
     internal static void TrimOptionalStrings(PersistedAnalysisExportRequest? request)
     {
         if (request is null)
             return;
 
-        request.CompareRunId = request.CompareRunId?.Trim();
-        request.CompareManifestVersion = request.CompareManifestVersion?.Trim();
-        request.TemplateProfile = request.TemplateProfile?.Trim();
-        request.Audience = request.Audience?.Trim();
-        request.ReviewBoardWhitelabelFirmDisplayName = request.ReviewBoardWhitelabelFirmDisplayName?.Trim();
-        request.ReviewBoardWhitelabelClientEngagementTitle = request.ReviewBoardWhitelabelClientEngagementTitle?.Trim();
-        request.ReviewBoardWhitelabelLogoBlobReference = request.ReviewBoardWhitelabelLogoBlobReference?.Trim();
-        request.ReviewBoardWhitelabelFooterAttribution = request.ReviewBoardWhitelabelFooterAttribution?.Trim();
+        request.CompareRunId = NormalizeOptionalString(request.CompareRunId);
+        request.CompareManifestVersion = NormalizeOptionalString(request.CompareManifestVersion);
+        request.TemplateProfile = NormalizeOptionalString(request.TemplateProfile);
+        request.Audience = NormalizeOptionalString(request.Audience);
+        request.ReviewBoardWhitelabelFirmDisplayName = NormalizeOptionalString(request.ReviewBoardWhitelabelFirmDisplayName);
+        request.ReviewBoardWhitelabelClientEngagementTitle =
+            NormalizeOptionalString(request.ReviewBoardWhitelabelClientEngagementTitle);
+        request.ReviewBoardWhitelabelLogoBlobReference = NormalizeOptionalString(request.ReviewBoardWhitelabelLogoBlobReference);
+        request.ReviewBoardWhitelabelFooterAttribution = NormalizeOptionalString(request.ReviewBoardWhitelabelFooterAttribution);
     }
 }

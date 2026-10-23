@@ -279,6 +279,34 @@ public sealed class CompareQualityExportRecordDiffTests
     }
 
     [Fact]
+    public void CompareQuality_export_record_diff_treats_whitespace_only_audience_as_equivalent_to_null_in_requests()
+    {
+        ExportRecordDiffService sut = new();
+        RunExportRecord left = new()
+        {
+            ExportRecordId = "left",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = "ArchitectureAnalysis",
+            Format = "Markdown",
+            FileName = "a.md",
+            AnalysisRequestJson = """{"audience":"   "}""",
+        };
+        RunExportRecord right = new()
+        {
+            ExportRecordId = "right",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = "ArchitectureAnalysis",
+            Format = "Markdown",
+            FileName = "a.md",
+            AnalysisRequestJson = """{}""",
+        };
+
+        ExportRecordDiffResult result = sut.Compare(left, right);
+
+        result.RequestDiff.ChangedValues.Should().NotContain("Audience");
+    }
+
+    [Fact]
     public void CompareQuality_export_record_diff_ignores_padding_only_audience_in_rehydrated_requests()
     {
         ExportRecordDiffService sut = new();
