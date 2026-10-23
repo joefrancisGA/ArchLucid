@@ -26,7 +26,7 @@ public sealed class PollingCollectionRunDiscovery(
             {
                 artifact = await _artifactReader.ReadArtifactAsync(manifest, cancellationToken);
             }
-            catch (RequestFailedException ex) when (ex.Status == 404)
+            catch (RequestFailedException)
             {
                 continue;
             }

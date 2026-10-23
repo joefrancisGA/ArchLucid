@@ -2,6 +2,7 @@ using System.Text.Json;
 
 using ArchLucid.Application.SecureNow;
 
+using Azure;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 

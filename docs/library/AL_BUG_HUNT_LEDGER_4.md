@@ -14654,12 +14654,14 @@ heap-disproved mermaid typed-topology candidate.
 - **aliases:** host composition; DI registration; startup modules
 - **paths:** ArchLucid.Host.Composition/
 - **test-filter:** FullyQualifiedName~Host.Composition|FullyQualifiedName~ServiceCollectionExtensions
-- **hunts:** 63
-- **bugs-found:** 41
+- **hunts:** 64
+- **bugs-found:** 42
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-23
-- **last-bug:** 2026-10-23 — value report stale pending poll state when terminal write fails
+- **last-bug:** 2026-10-23 — collection discovery aborted on missing package blob
 - **code-changed-since:** yes
+
+2026-10-23 thorough hunt (seed→hit): proved `PollingCollectionRunDiscovery` and `AzureBlobCollectionRunArtifactReader` propagated blob 404 as an exception and aborted discovery for remaining manifests; skip missing package blobs (reader returns null; discovery catches 404); regression `DiscoverAsync_continues_when_missing_package_blob_returns_not_found`; cheap-disproof closed four sibling `(candidate)` rows; seeded five follow-on `(candidate)` rows; scoped `PollingCollectionRunDiscoveryTests` 2 passed (`RunAnalyzers=false`).
 
 2026-10-23 thorough hunt (seed→hit): proved `InMemoryValueReportJobQueue` left stale distributed `Pending` poll state when completed and failed `TryWriteDistributedState` both failed, so peer replicas polled in-progress forever; clear distributed poll state when terminal persistence fails; regression `TryPoll_on_peer_instance_does_not_stay_pending_when_terminal_poll_state_cannot_be_persisted`; cheap-disproof closed four sibling `(candidate)` rows; seeded five follow-on `(candidate)` rows; scoped `InMemoryValueReportJobQueueDistributedPollStateTests` 3 passed (`RunAnalyzers=false`).
 
@@ -14777,11 +14779,17 @@ heap-disproved mermaid typed-topology candidate.
 - [x] (valid-no-repro) `AzureBlobCollectionRunArtifactReader.ListManifestsAsync` — manifest with valid `runId` but missing `startedUtc` omitted from list — **cheap-disproof 2026-10-23 thorough hunt #63:** `ReadManifestAsync` requires parseable `startedUtc` before listing; partial manifests are intentionally ignored at discovery time.
 - [x] (valid-no-repro) `RedisGraphProjectionCacheInvalidationBroadcaster.PublishInvalidation` — publish failure swallowed — **cheap-disproof 2026-10-23 thorough hunt #63:** pub/sub is a best-effort invalidation hint; peers fall back to TTL and explicit cache keys; logging warning is intentional to avoid failing commits.
 
-- [ ] (candidate) `InMemoryValueReportJobQueue.TryPoll` — peer replica polls not-found after terminal distributed state is cleared — locus: `TryRemoveDistributedState` after failed terminal write (`InMemoryValueReportJobQueue.DistributedState.cs`); input: distributed cache accepts pending but rejects terminal writes; wrong outcome: load-balanced client cannot distinguish cleared stale state from unknown job id.
-- [ ] (candidate) `ValueReportJobPollStateCacheRegistrar` — dedicated Redis poll-state connection diverges from shared `IDistributedCache` — locus: `ValueReportJobPollStateCacheRegistrar.cs`; input: value-report poll Redis down while graph projection Redis healthy; wrong outcome: async export poll fails while other caches work.
-- [ ] (candidate) `GraphProjectionCacheInvalidationSubscriberHostedService` — subscriber never unsubscribes on multiplexer reconnect — locus: `ExecuteAsync` finally block (`GraphProjectionCacheInvalidationSubscriberHostedService.cs` ~65-69); input: Redis connection blip during host lifetime; wrong outcome: duplicate invalidation handlers or missed evictions.
-- [ ] (candidate) `AzureBlobCollectionRunArtifactReader.ReadArtifactAsync` — manifest `packageBlobPath` points at missing blob — locus: download path after `ListManifestsAsync`; input: manifest references deleted zip blob; wrong outcome: discovery throws instead of recording rejected collection run.
-- [ ] (candidate) `InMemoryValueReportJobQueue.TryPoll` — tenant mismatch returns not-found without audit — locus: `entry.Request.TenantId != scopedTenantId` (`InMemoryValueReportJobQueue.cs` ~37-38); input: cross-tenant poll of leaked job id; wrong outcome: indistinguishable from unknown job (may be intentional).
+- [x] (valid-no-repro) `InMemoryValueReportJobQueue.TryPoll` — peer replica polls not-found after terminal distributed state is cleared — **cheap-disproof 2026-10-23 thorough hunt #64:** intentional tradeoff from hunt #63 (stale pending vs not-found); enqueue replica still surfaces terminal failure locally.
+- [x] (valid-no-repro) `ValueReportJobPollStateCacheRegistrar` — dedicated Redis poll-state connection diverges from shared `IDistributedCache` — **cheap-disproof 2026-10-23 thorough hunt #64:** registrar prefers registered `IDistributedCache`; regression `Register_wraps_existing_IDistributedCache_instead_of_opening_separate_redis`.
+- [x] (valid-no-repro) `GraphProjectionCacheInvalidationSubscriberHostedService` — subscriber reconnect handling — **cheap-disproof 2026-10-23 thorough hunt #64:** `IConnectionMultiplexer` reconnects internally; hosted service lifetime `finally` unsubscribes on shutdown; no duplicate handler registration in product code.
+- [x] (proven) `AzureBlobCollectionRunArtifactReader.ReadArtifactAsync` / `PollingCollectionRunDiscovery.DiscoverAsync` — missing `packageBlobPath` blob aborted discovery — **hit 2026-10-23 thorough hunt #64:** treat blob 404 as skip (rejected-row ingest still requires artifact bytes); regression `DiscoverAsync_continues_when_missing_package_blob_returns_not_found`.
+- [x] (valid-no-repro) `InMemoryValueReportJobQueue.TryPoll` — tenant mismatch returns not-found without audit — **cheap-disproof 2026-10-23 thorough hunt #64:** intentional anti-enumeration; regression `InMemoryValueReportJobQueue_poll_returns_not_found_for_wrong_tenant`.
+
+- [ ] (candidate) `PollingCollectionRunDiscovery.DiscoverAsync` — missing package blob skipped without `CollectionRun` rejected row — locus: `continue` after 404/null artifact (`PollingCollectionRunDiscovery.cs`); input: manifest lists zip path that was deleted; wrong outcome: operator sees no collection-run record (same class as empty `packageBlobPath`).
+- [ ] (candidate) `AzureBlobCollectionRunArtifactReader.ReadArtifactAsync` — non-404 download failures still throw — locus: `DownloadToAsync` (`AzureBlobCollectionRunArtifactReader.cs`); input: storage account 403/timeout on package blob; wrong outcome: discovery aborts entire batch.
+- [ ] (candidate) `InMemoryValueReportJobQueue.TryPoll` — distributed `Failed` payload with empty `errorMessage` — locus: `TryReadDistributedState` phase parse (`InMemoryValueReportJobQueue.DistributedState.cs`); input: corrupted cache JSON; wrong outcome: poll returns found with null error copy.
+- [ ] (candidate) `ValueReportJobPollStateCacheRegistrar` — falls back to dedicated Redis when `IDistributedCache` is process-local memory — locus: `Register` factory (`ValueReportJobPollStateCacheRegistrar.cs`); input: multi-replica Api without shared Redis; wrong outcome: poll state not shared across replicas (documented fallback).
+- [ ] (candidate) `HostedCloudExtractorCompositionModule` — `ICollectionRunDiscovery` still unused at runtime — locus: `AddScoped<ICollectionRunDiscovery, PollingCollectionRunDiscovery>()`; input: split deployment expecting worker-only discovery; wrong outcome: no hosted poller invokes `DiscoverAsync` yet.
 
 
 2026-10-09 seed hunt (seed→hit): failed usage flush returned events through `Enqueue`, which drops them when metering is disabled. Already-accepted events now use `Requeue`. Regression `StopAsync_keeps_dequeued_usage_events_when_persist_fails_after_metering_disabled` failed first.

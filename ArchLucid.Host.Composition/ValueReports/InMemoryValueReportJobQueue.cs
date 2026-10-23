@@ -24,6 +24,9 @@ public sealed partial class InMemoryValueReportJobQueue(
 
     private readonly ConcurrentDictionary<Guid, JobEntry> _jobs = new();
 
+    private const string UnknownFailedJobErrorMessage =
+        "Value report job failed — retry the async export or contact support if the problem persists.";
+
     public ValueReportJobPollResult TryPoll(Guid jobId, Guid scopedTenantId)
     {
         if (!_jobs.TryGetValue(jobId, out JobEntry? entry))
@@ -41,7 +44,12 @@ public sealed partial class InMemoryValueReportJobQueue(
         {
             JobPhase.Pending => new ValueReportJobPollResult(true, false, null, entry.FileName, null),
             JobPhase.Completed => new ValueReportJobPollResult(true, true, entry.Bytes, entry.FileName, null),
-            JobPhase.Failed => new ValueReportJobPollResult(true, false, null, entry.FileName, entry.ErrorMessage),
+            JobPhase.Failed => new ValueReportJobPollResult(
+                true,
+                false,
+                null,
+                entry.FileName,
+                string.IsNullOrWhiteSpace(entry.ErrorMessage) ? UnknownFailedJobErrorMessage : entry.ErrorMessage),
             _ => new ValueReportJobPollResult(true, false, null, null, "Unknown job phase.")
         };
     }
