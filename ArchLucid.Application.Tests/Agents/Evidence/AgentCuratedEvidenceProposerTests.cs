@@ -47,6 +47,41 @@ public sealed class AgentCuratedEvidenceProposerTests
     }
 
     [Fact]
+    public void BuildUserPrompt_skips_null_catalog_entries_when_serializing_existing_catalog()
+    {
+        ArchitectureRequest request = new()
+        {
+            RequestId = "req",
+            Description = new string('x', 12),
+            SystemName = "Payments",
+        };
+
+        AgentEvidencePackage evidence = new()
+        {
+            Policies =
+            [
+                null!,
+                new PolicyEvidence { PolicyId = "p1", Title = "Retention" },
+            ],
+            Patterns = [null!],
+            ServiceCatalog = [null!],
+        };
+
+        AgentResult result = new()
+        {
+            RunId = "run",
+            TaskId = "task",
+            AgentType = AgentType.Topology,
+            Findings = [],
+        };
+
+        Func<string> act = () => AgentCuratedEvidenceProposer.BuildUserPrompt("run", request, evidence, result);
+
+        act.Should().NotThrow();
+        act().Should().Contain("Retention");
+    }
+
+    [Fact]
     public void BuildUserPrompt_skips_null_finding_entries_when_building_typed_summary()
     {
         ArchitectureRequest request = new()

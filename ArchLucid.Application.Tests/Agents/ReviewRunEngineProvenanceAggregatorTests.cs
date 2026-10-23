@@ -113,6 +113,28 @@ public sealed class ReviewRunEngineProvenanceAggregatorTests
     }
 
     [Fact]
+    public void Aggregate_skips_null_trace_entries_when_summing_reasoning_tokens()
+    {
+        RunRecord run = BuildRun(StructuralExecutionMode.Real);
+        AgentEvidencePackage evidence = BuildEvidence(includePolicies: false);
+        List<AgentExecutionTrace> traces =
+        [
+            null!,
+            BuildTrace("gpt-4o-arch", reasoningTokens: 40),
+        ];
+
+        Func<ReviewRunEngineProvenance> act = () => ReviewRunEngineProvenanceAggregator.Aggregate(
+            traces,
+            evidence,
+            run,
+            findingsSnapshot: null,
+            CreateCostEstimator());
+
+        act.Should().NotThrow();
+        act().TotalOutputTokens.Should().Be(40);
+    }
+
+    [Fact]
     public void Aggregate_skips_null_policy_entries_when_deriving_policy_pack_version()
     {
         RunRecord run = BuildRun(StructuralExecutionMode.Real);

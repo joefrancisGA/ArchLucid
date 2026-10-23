@@ -90,9 +90,18 @@ public sealed class AgentCuratedEvidenceProposer(
         string catalogSummary = JsonSerializer.Serialize(
             new
             {
-                policies = (evidence.Policies ?? []).Select(p => new { p.PolicyId, p.Title }).Take(20),
-                patterns = (evidence.Patterns ?? []).Select(p => new { p.PatternId, p.Name }).Take(20),
-                services = (evidence.ServiceCatalog ?? []).Select(s => new { s.ServiceId, s.ServiceName }).Take(20),
+                policies = (evidence.Policies ?? [])
+                    .Where(static entry => entry is not null)
+                    .Select(p => new { p.PolicyId, p.Title })
+                    .Take(20),
+                patterns = (evidence.Patterns ?? [])
+                    .Where(static entry => entry is not null)
+                    .Select(p => new { p.PatternId, p.Name })
+                    .Take(20),
+                services = (evidence.ServiceCatalog ?? [])
+                    .Where(static entry => entry is not null)
+                    .Select(s => new { s.ServiceId, s.ServiceName })
+                    .Take(20),
             },
             JsonOptions);
 
