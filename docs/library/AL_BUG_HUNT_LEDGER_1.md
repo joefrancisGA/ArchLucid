@@ -5540,6 +5540,14 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: extraction-router
 
+2026-10-23 thorough hunt (hit): promoted spaced lifecycle synonyms `as is` / `to be` (hyphenated forms already recognized); dual-lifecycle transition and ambiguous classification now use bounded phrase markers; regressions `Extract_tags_spaced_as_is_and_to_be_elements_with_lifecycle_scope`, `Classify_returns_ambiguous_for_spaced_as_is_and_to_be_prose`, and `Classify_does_not_treat_gas_is_substring_as_spaced_as_is_marker`; cheap-disproved proven-stale email-domain `owner` picker row; seeded five mechanism-backed `(candidate)` rows below; 81 scoped DifficultyBasedExtractionRouter tests passed.
+
+- [ ] (candidate) `ContainsDualLifecycleMarkers` — negated lifecycle prose (`not to be deployed` with separate `as is` section) may still classify ambiguous — locus: phrase markers without negation guard; input: architecture source with explicit negation before `to be`.
+- [ ] (candidate) `FindBoundedOwnershipMarkerIndex` — markdown bold `**owner**` label with separate `unowned` mention — locus: ownership delimiter set; input: runbook prose using bold RACI labels.
+- [ ] (candidate) `FindBoundedOwnershipMarkerIndex` — HTML-escaped `&lt;owner&gt;` element text with `unowned` elsewhere — locus: angle-bracket delimiter vs entity encoding; input: pasted HTML architecture notes.
+- [ ] (candidate) `LooksStructured` — markdown pipe tables with regulatory markers may classify `StructuredParse` before human-review signals when table rows precede GDPR text — locus: `Classify` ordering vs `LooksStructured`; input: two-row pipe table plus trailing compliance paragraph.
+- [ ] (candidate) `InferLifecycleScopeForIndex` — spaced `to be` boundary shares phrase matcher with `to be deployed` scheduling prose — locus: target-state boundary index; input: component line after `to be deployed next quarter` header.
+
 2026-10-21 thorough hunt (hit, lane C): XML `<owner>` element tags no longer count as prose ownership tokens when `unowned` appears elsewhere; angle brackets added to ownership label delimiters; ownership boundary matrix case `xml-owner-element`; DifficultyBasedExtractionRouter filter 78/78.
 
 2026-10-20 thorough hunt (hit): email domain `owner` false token via `@` start boundary; regression `Extract_does_not_emit_ownership_gap_for_email_domain_owner_label_with_unowned`; 33 scoped router tests passed (`RunAnalyzers=false`).
@@ -5589,11 +5597,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** extraction router; difficulty router
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/DifficultyBasedExtractionRouter.cs; ArchLucid.Application/ArchitectureIntelligence/DifficultyBasedExtractionRouter.Classify.cs; ArchLucid.Application/ArchitectureIntelligence/DifficultyBasedExtractionRouter.Extract.cs; ArchLucid.Application/ArchitectureIntelligence/DifficultyBasedExtractionRouter.LifecycleHelpers.cs
 - **test-filter:** FullyQualifiedName~DifficultyBasedExtractionRouterTests
-- **hunts:** 39
-- **bugs-found:** 20
-- **consecutive-dry-hunts:** 2
-- **last-hunt:** 2026-10-12
-- **last-bug:** 2026-09-27 — DNS/path dot false positive for `owner` token
+- **hunts:** 40
+- **bugs-found:** 21
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-23
+- **last-bug:** 2026-10-23 — spaced `as is` / `to be` lifecycle synonyms ignored
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
