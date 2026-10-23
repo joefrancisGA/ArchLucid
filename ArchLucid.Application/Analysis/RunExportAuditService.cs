@@ -41,6 +41,8 @@ public sealed class RunExportAuditService(
         ArgumentException.ThrowIfNullOrWhiteSpace(exportType);
         ArgumentException.ThrowIfNullOrWhiteSpace(format);
         ArgumentException.ThrowIfNullOrWhiteSpace(fileName);
+        templateProfile = templateProfile?.Trim();
+        notes = notes?.Trim();
         RunExportRecord record = new()
         {
             ExportRecordId = Guid.NewGuid().ToString("N"),

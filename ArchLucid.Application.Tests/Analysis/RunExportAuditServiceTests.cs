@@ -83,6 +83,41 @@ public sealed class RunExportAuditServiceTests
     }
 
     [Fact]
+    public async Task RecordAsync_trims_surrounding_whitespace_on_optional_template_profile_and_notes()
+    {
+        Mock<IRunExportRecordRepository> repo = new();
+        RunExportRecord? captured = null;
+        repo
+            .Setup(r => r.CreateAsync(It.IsAny<RunExportRecord>(), It.IsAny<CancellationToken>()))
+            .Callback<RunExportRecord, CancellationToken>((record, _) => captured = record)
+            .Returns(Task.CompletedTask);
+
+        RunExportAuditService sut = new(
+            repo.Object,
+            Mock.Of<IAuditService>(),
+            NullLogger<RunExportAuditService>.Instance);
+
+        await sut.RecordAsync(
+            "deadbeefdeadbeefdeadbeefdeadbeef",
+            "analysis-report-docx",
+            "docx",
+            "report.docx",
+            "  executive-summary  ",
+            null,
+            false,
+            null,
+            null,
+            analysisRequest: null,
+            notes: "  operator note  ",
+            emitArchitectureDocxExportGeneratedAudit: false,
+            cancellationToken: CancellationToken.None);
+
+        captured.Should().NotBeNull();
+        captured!.TemplateProfile.Should().Be("executive-summary");
+        captured.Notes.Should().Be("operator note");
+    }
+
+    [Fact]
     public async Task RecordAsync_WhenEmitAuditFalse_SkipsDurableDocxExportRow()
     {
         Mock<IRunExportRecordRepository> repo = new();

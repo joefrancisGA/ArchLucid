@@ -67,6 +67,7 @@ internal static class ComparisonExportMarkdownSectionRemover
     {
         string normalized = line
             .Replace('\u00A0', ' ')
+            .Replace('\u2003', ' ')
             .Replace('\u2007', ' ')
             .Replace('\u2009', ' ')
             .Trim();

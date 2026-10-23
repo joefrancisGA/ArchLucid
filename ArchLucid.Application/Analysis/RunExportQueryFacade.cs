@@ -50,6 +50,11 @@ public sealed class RunExportQueryFacade(
 
     public async Task<RunExportHistoryQueryResult> GetRunExportHistoryAsync(string runId, CancellationToken cancellationToken = default)
     {
+        if (string.IsNullOrWhiteSpace(runId))
+            return new RunExportHistoryQueryResult { Outcome = ExportRecordLoadOutcome.RunNotFound, MissingRunId = runId };
+
+        runId = runId.Trim();
+
         if (!AuthorityRunIdentifier.TryParse(runId, out _))
             return new RunExportHistoryQueryResult { Outcome = ExportRecordLoadOutcome.RunNotFound, MissingRunId = runId };
 

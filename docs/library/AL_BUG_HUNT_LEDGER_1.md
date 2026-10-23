@@ -6868,13 +6868,21 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
-2026-10-23 seed hunt (seed→hit): proved `RunExportAuditService.RecordFailureAsync` logged padded `runId`/`exportType`/`format` in `RunExportFailed` audit JSON (and could not resolve `RunId` on the event) while success-path `RecordAsync` had gained trim parity, and `ComparisonExportMarkdownSectionRemover` ignored thin-space (`\u2009`) heading prefixes; trim failure-path metadata before audit serialization and extend heading normalization; regressions `RecordFailureAsync_trims_surrounding_whitespace_on_metadata_before_audit` and `RemoveMarkdownSection_strips_compare_quality_delta_when_heading_uses_thin_space_after_hashes`; cheap-disproof closed `RunExportRecordRepository.GetByRunIdAsync` dashed-vs-N gap (`RunExportRecordRunIdSql.LookupKeys` already covers query/run-id formats) and trailing-NBSP heading (line trim + normalizer); seeded five follow-on rows; scoped application-analysis filter 74/74. Private beta: failed export audits and comparison export stripping stay consistent when operators paste padded ids or unicode-space headings.
+2026-10-23 seed hunt (seed→hit): proved `RunExportQueryFacade.GetRunExportHistoryAsync` rejected padded canonical run ids at `AuthorityRunIdentifier.TryParse` before export history load while single-export reads and repository list-by-run had gained trim parity, `RunExportAuditService.RecordAsync` left padded optional `templateProfile`/`notes` on persisted audit rows, and `ComparisonExportMarkdownSectionRemover` ignored em-space (`\u2003`) heading prefixes; trim run id after whitespace-only early return, trim optional audit fields, extend heading normalization; regressions `CompareQuality_GetRunExportHistoryAsync_trims_padded_run_id_before_history_load`, `RecordAsync_trims_surrounding_whitespace_on_optional_template_profile_and_notes`, and `RemoveMarkdownSection_strips_compare_quality_delta_when_heading_uses_em_space_after_hashes`; cheap-disproof closed markdown-only detailed export strip parity and trailing-thin-space verdict heading (shared normalizer); seeded five follow-on rows; scoped application-analysis filter 77/77 (`ArchitectureAnalysis|CompareQuality|CompareVerdictChrome|RunExportAudit`). Private beta: export history by run id and export audit metadata tolerate padded route tokens and unicode-space comparison headings.
 
-- [ ] (candidate) `EndToEndReplayComparisonMarkdownExportFormatter` — detailed markdown never strips/re-appends compare-quality or verdict chrome like HTML — locus: markdown parity; input: summary with duplicate-prone sections.
-- [ ] (candidate) `RunExportAuditService.RecordAsync` — does not trim optional `templateProfile` / `notes` before persist — locus: export audit metadata; input: padded template profile string.
-- [ ] (candidate) `ComparisonExportMarkdownSectionRemover` — em space `\u2003` in headings not normalized — locus: unicode space variants; input: em-space-prefixed heading line.
-- [ ] (candidate) `RunExportQueryFacade.ListExportsForRunAsync` — does not trim `runId` before `GetByRunIdAsync` — locus: export history API; input: padded run id route.
-- [ ] (candidate) `CompareVerdictChromeExportFormatter.RemoveMarkdownSection` — trailing NBSP-only suffix on heading line — locus: markdown tail; input: heading with trailing thin space only.
+- [ ] (candidate) `RunExportAuditService.RecordAsync` — does not trim optional `templateProfileDisplayName` / `resolutionReason` / `manifestVersion` — locus: export audit metadata; input: padded display name string.
+- [ ] (candidate) `ComparisonExportMarkdownSectionRemover` — hair space `\u200A` in headings not normalized — locus: unicode space variants; input: hair-space-prefixed heading line.
+- [ ] (candidate) `RunExportQueryFacade.GetExportRecordAsync` — does not trim `runId` on guard paths when record carries padded `RunId` — locus: scoped export read; input: stored padded run id on export row.
+- [ ] (candidate) `RunExportAuditService.RecordFailureAsync` — does not trim optional `notes` before failure audit — locus: failed export audit; input: padded notes on failure path.
+- [ ] (candidate) `CompareVerdictChromeExportFormatter.RemoveMarkdownSection` — narrow no-break space `\u202F` in headings not normalized — locus: unicode space variants; input: NNBSP-prefixed heading line.
+
+- [x] (proven) `RunExportQueryFacade.GetRunExportHistoryAsync` — padded run id returned RunNotFound before history load — **hit 2026-10-23 seed hunt:** trim after whitespace-only guard; regression `CompareQuality_GetRunExportHistoryAsync_trims_padded_run_id_before_history_load`.
+- [x] (proven) `RunExportAuditService.RecordAsync` — optional `templateProfile` / `notes` trim — **hit 2026-10-23 seed hunt:** trim before persist; regression `RecordAsync_trims_surrounding_whitespace_on_optional_template_profile_and_notes`.
+- [x] (proven) `ComparisonExportMarkdownSectionRemover` — em-space heading prefix — **hit 2026-10-23 seed hunt:** `\u2003` in `NormalizeHeadingLine`; regression `RemoveMarkdownSection_strips_compare_quality_delta_when_heading_uses_em_space_after_hashes`.
+- [x] (valid-no-repro) `EndToEndReplayComparisonMarkdownExportFormatter` — detailed markdown strip/re-append parity — **cheap-disproof 2026-10-23 seed hunt:** markdown embeds summary once; HTML/PDF/DOCX own strip/re-append.
+- [x] (valid-no-repro) `CompareVerdictChromeExportFormatter.RemoveMarkdownSection` — trailing thin-space-only suffix — **cheap-disproof 2026-10-23 seed hunt:** `NormalizeHeadingLine` trims line ends after space normalization.
+
+2026-10-23 seed hunt (seed→hit): proved `RunExportAuditService.RecordFailureAsync` logged padded `runId`/`exportType`/`format` in `RunExportFailed` audit JSON (and could not resolve `RunId` on the event) while success-path `RecordAsync` had gained trim parity, and `ComparisonExportMarkdownSectionRemover` ignored thin-space (`\u2009`) heading prefixes; trim failure-path metadata before audit serialization and extend heading normalization; regressions `RecordFailureAsync_trims_surrounding_whitespace_on_metadata_before_audit` and `RemoveMarkdownSection_strips_compare_quality_delta_when_heading_uses_thin_space_after_hashes`; cheap-disproof closed `RunExportRecordRepository.GetByRunIdAsync` dashed-vs-N gap (`RunExportRecordRunIdSql.LookupKeys` already covers query/run-id formats) and trailing-NBSP heading (line trim + normalizer); seeded five follow-on rows; scoped application-analysis filter 74/74. Private beta: failed export audits and comparison export stripping stay consistent when operators paste padded ids or unicode-space headings.
 
 - [x] (proven) `RunExportAuditService.RecordFailureAsync` — unpadded-trim failure audit metadata — **hit 2026-10-23 seed hunt:** trim before `RunExportFailed` audit; regression `RecordFailureAsync_trims_surrounding_whitespace_on_metadata_before_audit`.
 - [x] (proven) `ComparisonExportMarkdownSectionRemover` — thin-space heading prefix — **hit 2026-10-23 seed hunt:** `\u2009` in `NormalizeHeadingLine`; regression `RemoveMarkdownSection_strips_compare_quality_delta_when_heading_uses_thin_space_after_hashes`.
@@ -6882,12 +6890,6 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - [x] (valid-no-repro) `CompareVerdictChromeExportFormatter.RemoveMarkdownSection` — trailing NBSP on heading — **cheap-disproof 2026-10-23 seed hunt:** `NormalizeHeadingLine` trims line ends after NBSP replacement.
 
 2026-10-23 seed hunt (seed→hit): proved `RunExportAuditService.RecordAsync` forwarded padded `runId`/`exportType`/`format`/`fileName` into persisted export audit rows while repository create had gained trim parity, and `ComparisonExportMarkdownSectionRemover` ignored figure-space heading variants while in-memory `_byRunId` kept legacy padded dictionary keys after canonical creates; trim audit metadata at record time, normalize `\u2007` in heading lines, migrate padded run-id buckets on create; regressions `RecordAsync_trims_surrounding_whitespace_on_metadata_before_persist`, `RemoveMarkdownSection_strips_compare_quality_delta_when_heading_uses_figure_space_after_hashes`, `RemoveMarkdownSection_strips_compare_quality_delta_when_heading_uses_interior_nbsp`, and `CreateAsync_migrates_legacy_padded_run_id_dictionary_key_to_trimmed_key`; cheap-disproof closed interior NBSP verdict heading (covered by shared normalizer) and markdown-only duplicate row; seeded five follow-on rows; scoped application-analysis filter 72/72 (`ArchitectureAnalysis|CompareQuality|CompareVerdictChrome|RunExportAudit`). Private beta: export audit rows and comparison export strip tolerate padded metadata and unicode space headings.
-
-- [ ] (candidate) `EndToEndReplayComparisonMarkdownExportFormatter` — detailed markdown never strips/re-appends compare-quality or verdict chrome like HTML — locus: markdown parity; input: summary with duplicate-prone sections.
-- [ ] (candidate) `RunExportAuditService.RecordFailureAsync` — does not trim `runId` / `exportType` / `format` before failure audit — locus: failed export audit; input: padded run id on failure path.
-- [ ] (candidate) `ComparisonExportMarkdownSectionRemover` — thin space `\u2009` in headings not normalized — locus: unicode space variants; input: thin-space-prefixed heading line.
-- [ ] (candidate) `RunExportRecordRepository.GetByRunIdAsync` — does not canonicalize dashed vs N run id in SQL trim path — locus: cross-format run id list; input: dashed query vs N stored (verify LookupKeys parity).
-- [ ] (candidate) `CompareVerdictChromeExportFormatter.RemoveMarkdownSection` — combined heading with trailing spaces before strip — locus: markdown tail; input: heading line with trailing NBSP.
 
 - [x] (proven) `RunExportAuditService.RecordAsync` — unpadded-trim export metadata on audit persist — **hit 2026-10-23 seed hunt:** trim before `RunExportRecord` construction; regression `RecordAsync_trims_surrounding_whitespace_on_metadata_before_persist`.
 - [x] (proven) `ComparisonExportMarkdownSectionRemover` — figure-space and interior NBSP headings — **hit 2026-10-23 seed hunt:** `NormalizeHeadingLine`; regressions `RemoveMarkdownSection_strips_compare_quality_delta_when_heading_uses_figure_space_after_hashes` and `RemoveMarkdownSection_strips_compare_quality_delta_when_heading_uses_interior_nbsp`.
@@ -7123,11 +7125,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 86
-- **bugs-found:** 81
+- **hunts:** 87
+- **bugs-found:** 82
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-23
-- **last-bug:** 2026-10-23 — padded export failure audits and thin-space heading strip
+- **last-bug:** 2026-10-23 — padded export history run id and optional audit field trim
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
