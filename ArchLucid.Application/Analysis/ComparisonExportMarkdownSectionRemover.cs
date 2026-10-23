@@ -1,3 +1,5 @@
+using System.Globalization;
+
 namespace ArchLucid.Application.Analysis;
 
 /// <summary>
@@ -5,9 +7,6 @@ namespace ArchLucid.Application.Analysis;
 /// </summary>
 internal static class ComparisonExportMarkdownSectionRemover
 {
-    private static readonly char[] UnicodeSpaceSubstitutes =
-        ['\u00A0', '\u2003', '\u2007', '\u2009', '\u200A', '\u202F', '\u205F', '\u3000'];
-
     internal static string RemoveSection(string markdown, string heading)
     {
         ArgumentNullException.ThrowIfNull(markdown);
@@ -68,16 +67,25 @@ internal static class ComparisonExportMarkdownSectionRemover
 
     private static string NormalizeHeadingLine(string line)
     {
-        string normalized = line;
+        if (line.Length == 0)
+            return line;
 
-        foreach (char substitute in UnicodeSpaceSubstitutes)
-            normalized = normalized.Replace(substitute, ' ');
+        char[] buffer = new char[line.Length];
 
-        normalized = normalized.Trim();
+        for (int i = 0; i < line.Length; i++)
+        {
+            char candidate = line[i];
+            buffer[i] = IsUnicodeSpaceSeparatorExceptAsciiSpace(candidate) ? ' ' : candidate;
+        }
+
+        string normalized = new string(buffer).Trim();
 
         while (normalized.Contains("  ", StringComparison.Ordinal))
             normalized = normalized.Replace("  ", " ", StringComparison.Ordinal);
 
         return normalized;
     }
+
+    private static bool IsUnicodeSpaceSeparatorExceptAsciiSpace(char candidate) =>
+        candidate != ' ' && char.GetUnicodeCategory(candidate) == UnicodeCategory.SpaceSeparator;
 }

@@ -41,6 +41,22 @@ public sealed class AnalysisExportRequestRehydratorTests
     }
 
     [Fact]
+    public void Rehydrate_trims_padded_footer_attribution_when_other_whitelabel_fields_are_absent()
+    {
+        RunExportRecord record = new()
+        {
+            ExportRecordId = "e1",
+            AnalysisRequestJson =
+                """{"reviewBoardWhitelabelFooterAttribution":"  Prepared by Contoso  "}""",
+        };
+
+        PersistedAnalysisExportRequest? result = AnalysisExportRequestRehydrator.Rehydrate(record);
+
+        result.Should().NotBeNull();
+        result!.ReviewBoardWhitelabelFooterAttribution.Should().Be("Prepared by Contoso");
+    }
+
+    [Fact]
     public void Rehydrate_trims_padded_compare_run_id_and_whitelabel_strings_from_stored_json()
     {
         const string compareRunId = "cccccccccccccccccccccccccccccccc";

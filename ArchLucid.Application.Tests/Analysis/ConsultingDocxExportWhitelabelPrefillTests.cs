@@ -71,6 +71,36 @@ public sealed class ConsultingDocxExportWhitelabelPrefillTests
     }
 
     [Fact]
+    public async Task ApplyMissingFromPriorExportsAsync_copies_trimmed_firm_when_stored_json_has_padding()
+    {
+        InMemoryRunExportRecordRepository repository = new();
+        const string runId = "dddddddddddddddddddddddddddddddd";
+
+        await repository.CreateAsync(
+            new RunExportRecord
+            {
+                ExportRecordId = Guid.NewGuid().ToString("N"),
+                RunId = runId,
+                ExportType = "ArchitectureAnalysis",
+                Format = "Markdown",
+                FileName = "seed.md",
+                AnalysisRequestJson =
+                    """{"reviewBoardWhitelabelFirmDisplayName":"  Padded Firm Name  "}""",
+            },
+            CancellationToken.None);
+
+        ConsultingDocxWhitelabelHints hints = new();
+
+        await ConsultingDocxExportWhitelabelPrefill.ApplyMissingFromPriorExportsAsync(
+            runId,
+            hints,
+            repository,
+            CancellationToken.None);
+
+        hints.FirmDisplayName.Should().Be("Padded Firm Name");
+    }
+
+    [Fact]
     public async Task ApplyMissingFromPriorExportsAsync_leaves_existing_firm_display_name_unchanged()
     {
         InMemoryRunExportRecordRepository repository = new();
