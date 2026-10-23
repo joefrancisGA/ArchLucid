@@ -233,6 +233,41 @@ public sealed class ConfigurationEmbeddedCredentialRedactionMatrixTests
     }
 
     [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_password_pair_is_en_dash_delimited()
+    {
+        string effectiveValue = "Server=prod" + '\u2013' + "Password=secret";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_password_pair_is_em_dash_delimited()
+    {
+        string effectiveValue = "Server=prod" + '\u2014' + "Password=secret";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_password_pair_is_horizontal_bar_delimited()
+    {
+        string effectiveValue = "Server=prod" + '\u2015' + "Password=secret";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_password_pair_is_minus_sign_delimited()
+    {
+        string effectiveValue = "Server=prod" + '\u2212' + "Password=secret";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_password_pair_is_word_joiner_delimited()
+    {
+        string effectiveValue = "Server=prod" + '\u2060' + "Password=secret";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
     public void Resolve_redacts_embedded_credential_material_when_password_pair_is_nel_delimited()
     {
         string effectiveValue = "Server=prod" + '\u0085' + "Password=secret";

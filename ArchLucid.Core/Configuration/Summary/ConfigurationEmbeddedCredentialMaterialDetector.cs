@@ -148,8 +148,8 @@ internal static class ConfigurationEmbeddedCredentialMaterialDetector
         character is ';' or ',' or '|' or '&' or '\r' or '\n' or '\t' or '\f' or '\v'
         or '\u00A0' or '\u00AD' or '\u1680' or '\u180E' or '\u2000' or '\u2001' or '\u2002' or '\u2003' or '\u2004'
         or '\u2005' or '\u2006' or '\u2007' or '\u2008' or '\u2009' or '\u200A' or '\u200B' or '\u200C' or '\u200D'
-        or '\u2011' or '\u2012' or '\u202F' or '\u205F' or '\u3000'
-        or '\u0085' or '\u2028' or '\u2029';
+        or '\u2011' or '\u2012' or '\u2013' or '\u2014' or '\u2015' or '\u202F' or '\u205F' or '\u2060' or '\u3000'
+        or '\u2212' or '\u0085' or '\u2028' or '\u2029';
 
     private static bool TryMatchCredentialKeyValuePairAt(ReadOnlySpan<char> trimmed, int index)
     {
