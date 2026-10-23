@@ -77,12 +77,6 @@ public sealed partial class InMemoryValueReportJobQueue(
         {
             entry = PreferDistributedPollState(entry, distributed);
         }
-        else if (distributedRead.CorruptPayload &&
-                 entry is not { Phase: JobPhase.Completed, Bytes: { Length: > 0 } } &&
-                 entry.Phase is not JobPhase.Pending and not JobPhase.Failed)
-        {
-            entry = PreferDistributedPollState(entry, CreateCorruptDistributedFailureEntry(entry.Request));
-        }
 
         if (entry.Request.TenantId != scopedTenantId)
             return new ValueReportJobPollResult(false, false, null, null, null);
