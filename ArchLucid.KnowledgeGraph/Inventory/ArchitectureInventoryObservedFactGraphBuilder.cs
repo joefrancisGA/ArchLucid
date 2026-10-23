@@ -20,6 +20,7 @@ public static class ArchitectureInventoryObservedFactGraphBuilder
         snapshot = AzureInventoryVisibleSnapshotProjection.Apply(snapshot);
 
         Dictionary<string, string> nodeIdByArmId = new(StringComparer.OrdinalIgnoreCase);
+        Dictionary<string, GraphNode> nodeByNormalizedArmId = new(StringComparer.Ordinal);
         HashSet<string> seenNormalizedArmIds = new(StringComparer.Ordinal);
         List<GraphNode> nodes = [];
 
@@ -28,8 +29,14 @@ public static class ArchitectureInventoryObservedFactGraphBuilder
         {
             string normalizedArmId = ArmResourceIdNormalizer.Normalize(resource.AzureResourceId);
 
-            if (normalizedArmId.Length == 0 || !seenNormalizedArmIds.Add(normalizedArmId))
+            if (normalizedArmId.Length == 0)
             {
+                continue;
+            }
+
+            if (!seenNormalizedArmIds.Add(normalizedArmId))
+            {
+                TryBackfillParentResourceIdFromDuplicateRow(resource, normalizedArmId, nodeByNormalizedArmId);
                 continue;
             }
 
@@ -77,6 +84,7 @@ public static class ArchitectureInventoryObservedFactGraphBuilder
             }
 
             nodes.Add(node);
+            nodeByNormalizedArmId[normalizedArmId] = node;
         }
 
         List<GraphEdge> edges = [];
@@ -171,6 +179,21 @@ public static class ArchitectureInventoryObservedFactGraphBuilder
         }
 
         return armId.Trim();
+    }
+
+    private static void TryBackfillParentResourceIdFromDuplicateRow(
+        AzureInventoryResourceRecord resource,
+        string normalizedArmId,
+        Dictionary<string, GraphNode> nodeByNormalizedArmId)
+    {
+        if (string.IsNullOrWhiteSpace(resource.ParentResourceId)
+            || !nodeByNormalizedArmId.TryGetValue(normalizedArmId, out GraphNode? node)
+            || node.Properties.ContainsKey("arm.parentId"))
+        {
+            return;
+        }
+
+        node.Properties["arm.parentId"] = ArmResourceIdNormalizer.Normalize(resource.ParentResourceId);
     }
 
 }

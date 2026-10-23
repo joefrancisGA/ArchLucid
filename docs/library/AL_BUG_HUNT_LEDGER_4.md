@@ -12470,10 +12470,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 280
-- **bugs-found:** 182
-- **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — fully empty overlay merge returned base graph without warning normalization
+- **hunts:** 281
+- **bugs-found:** 183
+- **last-hunt:** 2026-10-23
+- **last-bug:** 2026-10-23 — duplicate ARM rows omitted parent citation when only losing row carried ParentResourceId
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -12889,7 +12889,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - [x] (valid-no-repro) `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` — duplicate resource rows with case-variant `ParentResourceId` stamped divergent `arm.parentId` — **cheap-disproof 2026-10-23 seed hunt:** ARM dedupe plus normalized parent stamp; regression above.
 
-- [ ] (candidate) `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` — duplicate normalized ARM resource rows where only the losing row carries `ParentResourceId` may omit `arm.parentId` — locus: first winning resource row after `OrderBy` dedupe; input: two case- or padding-variant ARM rows where the lexicographically first row omits parent and the duplicate row includes parent; wrong outcome: overlay node lacks `arm.parentId` despite duplicate row parent citation.
+2026-10-23 seed hunt (seed→hit): promoted `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` duplicate ARM rows where only the losing row carries `ParentResourceId` candidate; proved first-wins dedupe skipped later rows without backfilling `arm.parentId` when the winning row omitted parent; backfill normalized parent from duplicate rows when the minted node lacks `arm.parentId`; regression `BuildOverlay_backfills_parent_resource_id_from_duplicate_row_when_winning_row_omits_parent`; seeded `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` duplicate rows with conflicting `ParentResourceId` values may keep winning row parent only follow-on; 573 KnowledgeGraph + 170 Provenance scoped tests passed.
+
+- [x] (proven) `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` — duplicate ARM rows omitted `arm.parentId` when only losing row carried parent — **hit 2026-10-23 seed hunt (seed→hit):** backfill parent from duplicate row; regression above.
+
+- [ ] (candidate) `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` — duplicate normalized ARM resource rows with conflicting non-empty `ParentResourceId` values may keep a semantically wrong parent when the lexicographically first row wins — locus: first-wins parent stamp without merge policy; input: two ARM-duplicate rows whose normalized parent ids differ; wrong outcome: overlay retains first row parent and ignores the duplicate row parent citation.
 
 2026-10-22 seed hunt (seed→hit): promoted `StructuredDiagramGraphMerger` padded diagram property-key coalesce candidate; proved duplicate node/edge metadata coalesce indexed raw `property.Key`, so a later compile with surrounding-whitespace keys left parallel bag entries and `GraphNodePropertyReader` could return stale source-evidence values; trim keys before skip/coalesce (parity with `GraphNodeFactory.NormalizePropertyBag`); regression `Merge_coalesces_node_properties_when_incoming_property_keys_differ_only_by_surrounding_whitespace`; seeded diagram edge metadata padded-key coalesce regression follow-on; 468 KnowledgeGraph + 170 Provenance scoped tests passed.
 
