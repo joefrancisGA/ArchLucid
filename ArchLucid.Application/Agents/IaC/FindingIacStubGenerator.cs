@@ -65,7 +65,13 @@ public sealed class FindingIacStubGenerator(
         if (existingResults.Count == 0)
             return;
 
-        List<AgentResult> results = existingResults.Select(CloneResult).ToList();
+        List<AgentResult> results = existingResults
+            .Where(static result => result is not null)
+            .Select(CloneResult)
+            .ToList();
+
+        if (results.Count == 0)
+            return;
         await ApplyRelationalMuteFlagsAsync(scope, runId, results, cancellationToken).ConfigureAwait(false);
 
         List<AgentResult> updatedResults = [];

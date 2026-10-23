@@ -685,6 +685,66 @@ public sealed class FindingIacStubGeneratorTests
     }
 
     [Fact]
+    public async Task GenerateAndPersistStubsForRunAsync_skips_null_result_entries()
+    {
+        AgentResult retained = new()
+        {
+            ResultId = "result-1",
+            TaskId = "task-1",
+            RunId = "run-1",
+            AgentType = AgentType.Topology,
+            Findings =
+            [
+                new ArchitectureFinding
+                {
+                    SourceAgent = AgentType.Topology,
+                    FindingId = "finding-1",
+                    Message = "Use private endpoints.",
+                    Category = "Network",
+                    Severity = FindingSeverity.Warning,
+                    EvidenceRefs = [TypedEmissionArmRef],
+                },
+            ],
+        };
+
+        Mock<IAgentCompletionClient> completionClient = new();
+        completionClient
+            .Setup(c => c.CompleteJsonAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                null,
+                null,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync("resource storage 'Microsoft.Storage/storageAccounts@2023-01-01' = {}");
+
+        Mock<IAgentResultRepository> resultRepository = new();
+        resultRepository
+            .Setup(r => r.GetByRunIdAsync(It.IsAny<ScopeContext>(), "run-1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync([null!, retained]);
+
+        string? persistedJson = null;
+        Mock<IAgentResultEnrichmentRepository> enrichmentRepository = new();
+        enrichmentRepository
+            .Setup(r => r.UpsertEnrichedResultJsonAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .Callback<string, string, CancellationToken>((_, json, _) => persistedJson = json)
+            .Returns(Task.CompletedTask);
+
+        FindingIacStubGenerator sut = CreateSut(
+            completionClient.Object,
+            resultRepository.Object,
+            enrichmentRepository.Object);
+
+        await sut.GenerateAndPersistStubsForRunAsync("run-1", CancellationToken.None);
+
+        persistedJson.Should().NotBeNullOrWhiteSpace();
+        AgentResult? persisted = JsonSerializer.Deserialize<AgentResult>(persistedJson!, ContractJson.Default);
+        persisted!.Findings.Single().IacStub.Should().NotBeNullOrWhiteSpace();
+    }
+
+    [Fact]
     public async Task GenerateAndPersistStubsForRunAsync_tolerates_null_findings_and_evidence_refs_on_deserialized_rows()
     {
         AgentResult result = new()
