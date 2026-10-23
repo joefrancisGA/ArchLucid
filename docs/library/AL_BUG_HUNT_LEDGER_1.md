@@ -8546,6 +8546,19 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: run-execute-ownership
 
+2026-10-23 seed hunt (seed-only): cheap-disproof closed five `(candidate)` rows from hunt #171; refreshed concurrent acquire regression `AcquireAsync_when_concurrent_acquires_only_one_invokes_repository` for `TryAdmit`-before-SQL admission; re-read selective owned-core demotion and release holder resolution; seeded five mechanism-backed `(candidate)` rows below; 78 scoped ownership/orchestrator tests passed.
+
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseService.AcquireAsync` — concurrent local admission vs SQL rollback — **cheap-disproof 2026-10-23 seed hunt:** loser rejected at `TryAdmit` before repository; regression `AcquireAsync_when_concurrent_acquires_only_one_invokes_repository` (replaces hung post-SQL `TryAdd` scenario).
+- [x] (valid-no-repro) `ArchitectureRunExecuteOrchestrator.ExecuteRunAsync` — duplicated pre-acquire eligibility reads — **cheap-disproof 2026-10-23 seed hunt:** intentional fail-closed guard; `ExecuteRunAsync_does_not_acquire_ownership_when_run_deleted_immediately_before_acquire`.
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseRenewalScope.DisposeAsync` — hung renewal delays `finally` release — **cheap-disproof 2026-10-23 seed hunt:** `RenewAsync` honors linked cancellation; prior dispose thorough row (2026-10-06).
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseService.ResolveHolderInstanceId` — release without local pin — **cheap-disproof 2026-10-23 seed hunt:** acquire failure clears pin before release path; successful execute retains pin through `ReleaseAsync_when_process_instance_id_rotates_after_acquire_releases_original_holder`.
+- [x] (valid-no-repro) `ArchitectureRunExecuteOrchestrator.ExecuteSelectiveRunOwnedCoreAsync` — delete before demotion on stale snapshot — **cheap-disproof 2026-10-23 seed hunt:** demotion reloads persisted header and ignores snapshot (`TryDemoteReadyForCommitBeforeSelectiveExecuteAsync_demotes_when_live_header_is_ready_for_commit_even_if_stale_snapshot_was_not`).
+- [ ] (candidate) `RunExecuteOwnershipLeaseService.AcquireAsync` — post-SQL drain re-check rolls back with `TryReleaseAsync` but winner may still observe cancelled token — locus: drain gate after repository success; input: drain begins during in-flight `TryAcquireOrRenewAsync`.
+- [ ] (candidate) `ArchitectureRunExecuteOrchestrator.ExecuteSelectiveRunAsync` — triple `EnsureSelectiveExecuteStillEligibleAsync` loop vs single full-run double-check — locus: selective pre-acquire; input: schedule cleared after first validation only.
+- [ ] (candidate) `RunExecuteOwnershipLeaseRenewalScope.RunRenewalLoopAsync` — unexpected renewal exception cancels linked execute even when SQL lease TTL still valid — locus: generic `catch (Exception)`; input: transient storage fault on first heartbeat.
+- [ ] (candidate) `RunExecuteOwnershipLeaseService.ReleaseAllHeldByThisInstanceAsync` — `Clear()` local registry before verifying repository bulk release count — locus: shutdown drain; input: partial `ReleaseAllHeldByInstanceAsync` failure after some rows deleted.
+- [ ] (candidate) `ArchitectureRunExecuteOrchestrator` — `EnsureExecuteOwnershipAcquiredLocally` throws after `AcquireAsync` no-op when ownership disabled mid-request — locus: options flip; input: `Enabled` false between `IsEnabled` check and acquire (re-verify 2026-10-06 hits).
+
 2026-10-23 seed hunt (seed-only): cheap-disproof closed five `(candidate)` rows from hunt #170; regressions `ExecuteRunAsync_when_release_throws_in_finally_after_agent_failure_throws_release_exception` and `ExecuteSelectiveRunAsync_when_agent_execute_cancelled_releases_lease_with_non_cancellable_token`; re-read drain gate admission and renewal conflict handling; seeded five mechanism-backed `(candidate)` rows below; 77 scoped ownership/orchestrator tests passed (concurrent acquire hang test excluded; see hunt #170).
 
 - [x] (invalid) `ArchitectureRunExecuteOrchestrator.ExecuteRunAsync` — `ReleaseAsync` in `finally` suppresses agent fault — **cheap-disproof 2026-10-23 seed hunt:** dual-failure edge only; regression documents release exception surfaces when both fail.
@@ -8553,11 +8566,6 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - [x] (valid-no-repro) `RunExecuteOwnershipLeaseRenewalScope.RunRenewalLoopAsync` — `ConflictException` on renew — **cheap-disproof 2026-10-23 seed hunt:** intentional TB-943 cancel-on-lease-loss; `BeginRenewalScope_cancels_linked_execute_token_when_renewal_loses_lease`.
 - [x] (valid-no-repro) `ArchitectureRunExecuteOrchestrator.ExecuteSelectiveRunAsync` — post-acquire cancel skips `finally` release — **cheap-disproof 2026-10-23 seed hunt:** `ExecuteSelectiveRunAsync_when_agent_execute_cancelled_releases_lease_with_non_cancellable_token` mirrors full-run release ordering.
 - [x] (valid-no-repro) `RunExecuteOwnershipLeaseService.RenewAsync` — renew without local pin — **cheap-disproof 2026-10-23 seed hunt:** `RenewAsync_does_not_invoke_repository_without_local_acquire_pin`.
-- [ ] (candidate) `RunExecuteOwnershipLeaseService.AcquireAsync` — `TryAdd` local pin failure after SQL success rolls back via `TryReleaseAsync` but concurrent waiter may observe transient peer conflict — locus: post-repository `TryAdd`; input: parallel acquire on one replica (re-verify `AcquireAsync_when_concurrent_repository_success_and_tryadd_loses_rolls_back_sql_lease` under CI blame-hang).
-- [ ] (candidate) `ArchitectureRunExecuteOrchestrator.ExecuteRunAsync` — duplicated `EnsureExecuteRunEligibleBeforeOwnershipAcquireAsync` calls admit extra scope reads without distinct failure mode — locus: full-run pre-acquire loop; input: run status flip between identical checks.
-- [ ] (candidate) `RunExecuteOwnershipLeaseRenewalScope.DisposeAsync` — renewal task await after cancel may delay orchestrator `finally` `ReleaseAsync` when repository ignores cancellation — locus: `DisposeAsync` await `_renewalTask`; input: hung `RenewAsync` on shutdown path.
-- [ ] (candidate) `RunExecuteOwnershipLeaseService` — `ResolveHolderInstanceId` falls back to current process id when local pin missing at release — locus: `ReleaseAsync`; input: release after partial acquire failure cleared pin but SQL row remains.
-- [ ] (candidate) `ArchitectureRunExecuteOrchestrator.ExecuteSelectiveRunOwnedCoreAsync` — ReadyForCommit demotion reload uses live header but forced-task delete ordering may run before demotion on stale snapshot — locus: selective owned core; input: commit transition between demotion read and delete prep.
 
 2026-10-23 seed hunt (seed-only): cheap-disproof closed five stale open `(candidate)` rows; regression `ReleaseAllHeldByThisInstanceAsync_propagates_repository_exceptions` documents shutdown drain does not swallow bulk-release faults as a zero count; re-read orchestrator `finally` release ordering and renewal-scope dispose; seeded five mechanism-backed `(candidate)` rows below; 75 scoped ownership/orchestrator tests passed (`AcquireAsync_when_concurrent_repository_success_and_tryadd_loses_rolls_back_sql_lease` hung under 3m blame-hang on this VM; excluded from filter).
 
@@ -8575,9 +8583,9 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** run execute lease; execute ownership; orchestration ownership
 - **paths:** ArchLucid.Application/Runs/Orchestration/ArchitectureRunExecuteOrchestrator.cs; ArchLucid.Application/Runs/ExecuteOwnership/RunExecuteOwnershipLeaseService.cs; ArchLucid.Application/Runs/ExecuteOwnership/RunExecuteOwnershipLeaseRenewalScope.cs
 - **test-filter:** FullyQualifiedName~RunExecuteOwnership|FullyQualifiedName~ArchitectureRunExecuteOrchestrator
-- **hunts:** 61
+- **hunts:** 62
 - **bugs-found:** 28
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 3
 - **last-hunt:** 2026-10-23
 - **last-bug:** 2026-10-21 - trim AgentModelTiers AgentTypeTiers keys after configuration bind
 - **code-changed-since:** yes
