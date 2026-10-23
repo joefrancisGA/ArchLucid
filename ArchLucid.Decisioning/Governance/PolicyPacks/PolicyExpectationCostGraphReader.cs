@@ -20,10 +20,11 @@ public static class PolicyExpectationCostGraphReader
     if (contextNode is null)
       return false;
 
-    if (!contextNode.Properties.TryGetValue(ContextGraphPropertyKeys.PolicyCostRequireBudgetCap, out string? raw))
+    if (!contextNode.Properties.TryGetValue(ContextGraphPropertyKeys.PolicyCostRequireBudgetCap, out string? raw)
+        || string.IsNullOrWhiteSpace(raw))
       return false;
 
-    return raw.Equals("true", StringComparison.OrdinalIgnoreCase);
+    return raw.Trim().Equals("true", StringComparison.OrdinalIgnoreCase);
   }
 
   public static FindingSeverity? ResolveBreachSeverityOverride(GraphSnapshot graphSnapshot)

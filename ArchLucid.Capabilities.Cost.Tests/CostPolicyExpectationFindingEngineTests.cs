@@ -17,6 +17,39 @@ public sealed class CostPolicyExpectationFindingEngineTests
     private readonly CostBreachFindingEngine _breachEngine = new();
 
     [Fact]
+    public async Task Cost_constraint_emits_policy_required_cap_when_require_flag_has_surrounding_whitespace()
+    {
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "context-1",
+                    NodeType = GraphNodeTypes.ContextSnapshot,
+                    Label = "scope",
+                    Properties = new()
+                    {
+                        [ContextGraphPropertyKeys.PolicyCostRequireBudgetCap] = " true ",
+                    },
+                },
+                new GraphNode
+                {
+                    NodeId = "topo-1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "app",
+                    Category = GraphTopologyCategories.Compute,
+                    Properties = new(),
+                },
+            ],
+        };
+
+        IReadOnlyList<Finding> findings = await _constraintEngine.AnalyzeAsync(graph, null, CancellationToken.None);
+
+        findings.Should().ContainSingle().Subject.Title.Should().Be("Policy requires a monthly budget cap");
+    }
+
+    [Fact]
     public async Task Cost_constraint_emits_policy_required_cap_when_stamped_and_no_cap_node()
     {
         GraphSnapshot graph = new()
