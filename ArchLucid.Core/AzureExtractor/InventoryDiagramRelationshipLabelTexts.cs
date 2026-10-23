@@ -114,11 +114,75 @@ public static class InventoryDiagramRelationshipLabelTexts
         return $"Peering to {remoteVirtualNetworkName.Trim()} is connected. The remote network is not on this diagram.";
     }
 
+    public const string BackendPoolMembershipConfiguredObservedTrafficNotStored =
+        "Backend pool membership is configured. Observed traffic was not stored.";
+
+    public const string PipelineDatasetConfiguredReadObservedReadNotStored =
+        "Pipeline dataset is configured to read. An observed read was not stored.";
+
+    public const string PipelineDatasetConfiguredWriteObservedWriteNotStored =
+        "Pipeline dataset is configured to write. An observed write was not stored.";
+
+    public const string EventSubscriptionNamesDestinationObservedDeliveryNotStored =
+        "Event subscription names this destination. Observed delivery was not stored.";
+
+    public const string CaptureConfiguredObservedCaptureNotStored =
+        "Capture is configured. Observed capture was not stored.";
+
+    public const string PrivateEndpointTargetStoredReachabilityNotObserved =
+        "Private endpoint target was stored. Reachability was not observed.";
+
+    public const string DiagnosticSettingNameNotStoredLogDeliveryNotObserved =
+        "Diagnostic setting name was not stored. Log delivery was not observed.";
+
+    public const string DiagnosticSettingNamesNotListedLogDeliveryNotObserved =
+        "Diagnostic setting names were not listed on this line. Log delivery was not observed.";
+
+    public const string ImageReferenceStoredImagePullNotObserved =
+        "Image reference was stored. An image pull was not observed.";
+
+    public const string RoleAssignmentObservedUseNotStoredSuffix = "Observed use was not stored.";
+
+    public const string DiagnosticSettingStorageNamesNotListedQualifier = "names-not-listed";
+
+    public static string FormatBackendPoolMembershipConfigured(int? backendPort)
+    {
+        if (backendPort is null)
+        {
+            return BackendPoolMembershipConfiguredObservedTrafficNotStored;
+        }
+
+        return $"Backend pool membership is configured on port {backendPort.Value}. Observed traffic was not stored.";
+    }
+
     public static string FormatSendsTrafficToBackend(int? backendPort)
     {
-        return backendPort is null
-            ? "Sends traffic to this backend. Backend port was not stored."
-            : $"Sends traffic to this backend on port {backendPort.Value}.";
+        return FormatBackendPoolMembershipConfigured(backendPort);
+    }
+
+    public static string FormatDiagnosticSettingStorageLabel(string? settingName)
+    {
+        if (string.IsNullOrWhiteSpace(settingName))
+        {
+            return DiagnosticSettingNameNotStoredLogDeliveryNotObserved;
+        }
+
+        if (string.Equals(
+                settingName.Trim(),
+                DiagnosticSettingStorageNamesNotListedQualifier,
+                StringComparison.OrdinalIgnoreCase))
+        {
+            return DiagnosticSettingNamesNotListedLogDeliveryNotObserved;
+        }
+
+        return $"{settingName.Trim()}. Log delivery was not observed.";
+    }
+
+    public static string FormatRoleAssignmentAccessLabel(string roleName)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(roleName);
+
+        return $"Role assignment: {roleName.Trim()}. {RoleAssignmentObservedUseNotStoredSuffix}";
     }
 
     public static string FormatBackendOffCanvasOutline(string backendName)

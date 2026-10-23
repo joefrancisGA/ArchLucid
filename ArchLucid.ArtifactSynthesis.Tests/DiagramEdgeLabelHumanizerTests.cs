@@ -41,12 +41,12 @@ public sealed class DiagramEdgeLabelHumanizerTests
     [InlineData(AzureInventoryRelationshipAssociationTypes.NicToSubnet, "in")]
     [InlineData(AzureInventoryRelationshipAssociationTypes.AdfLinkedService, "Linked service")]
     [InlineData(GraphEdgeInferenceSources.InventoryLogicAppConnection, "API connection")]
-    [InlineData(GraphEdgeInferenceSources.InventoryDiagnosticSettingStorage, "Diagnostic setting name was not stored.")]
-    [InlineData(AzureInventoryRelationshipAssociationTypes.AdfLinkedServiceInferred, "likely · in")]
-    [InlineData(AzureInventoryRelationshipAssociationTypes.AdfReadsFrom, "Reads from")]
-    [InlineData(AzureInventoryRelationshipAssociationTypes.AdfWritesTo, "Writes to")]
-    [InlineData(GraphEdgeInferenceSources.InventoryAdfReadsFrom, "Reads from")]
-    [InlineData(GraphEdgeInferenceSources.InventoryAdfWritesTo, "Writes to")]
+    [InlineData(GraphEdgeInferenceSources.InventoryDiagnosticSettingStorage, InventoryDiagramRelationshipLabelTexts.DiagnosticSettingNameNotStoredLogDeliveryNotObserved)]
+    [InlineData(AzureInventoryRelationshipAssociationTypes.AdfLinkedServiceInferred, "No stored link; hostname or linked-service text was inferred.")]
+    [InlineData(AzureInventoryRelationshipAssociationTypes.AdfReadsFrom, InventoryDiagramRelationshipLabelTexts.PipelineDatasetConfiguredReadObservedReadNotStored)]
+    [InlineData(AzureInventoryRelationshipAssociationTypes.AdfWritesTo, InventoryDiagramRelationshipLabelTexts.PipelineDatasetConfiguredWriteObservedWriteNotStored)]
+    [InlineData(GraphEdgeInferenceSources.InventoryAdfReadsFrom, InventoryDiagramRelationshipLabelTexts.PipelineDatasetConfiguredReadObservedReadNotStored)]
+    [InlineData(GraphEdgeInferenceSources.InventoryAdfWritesTo, InventoryDiagramRelationshipLabelTexts.PipelineDatasetConfiguredWriteObservedWriteNotStored)]
     [InlineData(GraphEdgeInferenceSources.InventoryServiceConnectorLink, InventoryDiagramRelationshipLabelTexts.ServiceConnectorConfiguredLabel)]
     [InlineData(GraphEdgeInferenceSources.InventoryHostnameInferredTarget, InventoryDiagramRelationshipLabelTexts.HostnameInferredTargetLabel)]
     public void HumanizeLabel_maps_inventory_association_and_inference_aliases(string alias, string expected)
@@ -108,19 +108,32 @@ public sealed class DiagramEdgeLabelHumanizerTests
                     GraphEdgeInferenceSources.InventoryEventHubCapture,
                     "orders"))
             .Should()
-            .Be("orders · Captures to");
+            .Be($"orders · {InventoryDiagramRelationshipLabelTexts.CaptureConfiguredObservedCaptureNotStored}");
+    }
+
+    [Fact]
+    public void ResolveDisplayLabel_maps_qualified_diagnostic_storage_setting_name()
+    {
+        DiagramEdgeLabelHumanizer.ResolveDisplayLabel(
+                null,
+                null,
+                GraphEdgeInferenceSources.WithQualifier(
+                    GraphEdgeInferenceSources.InventoryDiagnosticSettingStorage,
+                    "diag-storage"))
+            .Should()
+            .Be("diag-storage. Log delivery was not observed.");
     }
 
     [Theory]
-    [InlineData(AzureInventoryRelationshipAssociationTypes.DiagnosticToDestination, "Diagnostic setting name was not stored.")]
-    [InlineData(GraphEdgeInferenceSources.InventoryDiagnosticDestination, "Diagnostic setting name was not stored.")]
-    [InlineData(AzureInventoryRelationshipAssociationTypes.DiagnosticSettingToStorage, "Diagnostic setting name was not stored.")]
+    [InlineData(AzureInventoryRelationshipAssociationTypes.DiagnosticToDestination, InventoryDiagramRelationshipLabelTexts.DiagnosticSettingNameNotStoredLogDeliveryNotObserved)]
+    [InlineData(GraphEdgeInferenceSources.InventoryDiagnosticDestination, InventoryDiagramRelationshipLabelTexts.DiagnosticSettingNameNotStoredLogDeliveryNotObserved)]
+    [InlineData(AzureInventoryRelationshipAssociationTypes.DiagnosticSettingToStorage, InventoryDiagramRelationshipLabelTexts.DiagnosticSettingNameNotStoredLogDeliveryNotObserved)]
     [InlineData(AzureInventoryRelationshipAssociationTypes.AppAuthorizedAccess, InventoryDiagramRelationshipLabelTexts.AppAuthorizedAccessLabel)]
-    [InlineData(GraphEdgeTypes.MayAccess, InventoryDiagramRelationshipLabelTexts.AppAuthorizedAccessLabel)]
-    [InlineData(AzureInventoryRelationshipAssociationTypes.EventGridToDestination, "Routes events to")]
+    [InlineData(GraphEdgeTypes.MayAccess, "may access")]
+    [InlineData(AzureInventoryRelationshipAssociationTypes.EventGridToDestination, InventoryDiagramRelationshipLabelTexts.EventSubscriptionNamesDestinationObservedDeliveryNotStored)]
     [InlineData(AzureInventoryRelationshipAssociationTypes.AdfTriggerSource, "Triggers")]
     [InlineData(AzureInventoryRelationshipAssociationTypes.AdfIntegrationRuntime, "Runs on")]
-    [InlineData(AzureInventoryRelationshipAssociationTypes.EventHubCapture, "Captures to")]
+    [InlineData(AzureInventoryRelationshipAssociationTypes.EventHubCapture, InventoryDiagramRelationshipLabelTexts.CaptureConfiguredObservedCaptureNotStored)]
     [InlineData(AzureInventoryRelationshipAssociationTypes.AvdSessionHostToVm, "AVD session host")]
     public void HumanizeLabel_maps_diagram_enrichment_association_aliases(string alias, string expected)
     {
