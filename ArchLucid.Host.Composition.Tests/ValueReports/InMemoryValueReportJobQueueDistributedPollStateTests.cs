@@ -593,6 +593,53 @@ public sealed class InMemoryValueReportJobQueueDistributedPollStateTests
     }
 
     [Fact]
+    public void TryPoll_prefers_distributed_completed_bytes_when_local_is_failed()
+    {
+        ServiceCollection services = BuildValueReportJobServices();
+        DictionaryPollStateCache pollStateCache = new();
+        services.AddSingleton<IValueReportJobPollStateCache>(pollStateCache);
+        ServiceProvider provider = services.BuildServiceProvider();
+        IServiceScopeFactory scopeFactory = provider.GetRequiredService<IServiceScopeFactory>();
+
+        InMemoryValueReportJobQueue instance =
+            new(scopeFactory, pollStateCache, NullLogger<InMemoryValueReportJobQueue>.Instance);
+
+        Guid tenantId = Guid.NewGuid();
+        Guid workspaceId = Guid.NewGuid();
+        Guid projectId = Guid.NewGuid();
+        Guid jobId = Guid.NewGuid();
+        DateTimeOffset from = DateTimeOffset.UtcNow.AddDays(-7);
+        DateTimeOffset to = DateTimeOffset.UtcNow;
+        ValueReportJobRequest request = new(tenantId, workspaceId, projectId, from, to);
+        byte[] docxBytes = [0x50, 0x4B, 0x03, 0x04];
+
+        ReplaceLocalJobEntry(
+            instance,
+            jobId,
+            request,
+            "Failed",
+            null,
+            "report.docx",
+            "Stale local failure after distributed completion.");
+
+        string payload =
+            $$"""
+              {"tenantId":"{{tenantId}}","workspaceId":"{{workspaceId}}","projectId":"{{projectId}}","fromUtcInclusive":"{{from:O}}","toUtcExclusive":"{{to:O}}","phase":"Completed","bytesBase64":"{{Convert.ToBase64String(docxBytes)}}","fileName":"report.docx","errorMessage":null}
+              """;
+
+        pollStateCache.Set(
+            $"archlucid:value-report-job:{jobId:N}",
+            System.Text.Encoding.UTF8.GetBytes(payload),
+            new DistributedCacheEntryOptions());
+
+        ValueReportJobPollResult poll = instance.TryPoll(jobId, tenantId);
+
+        poll.Found.Should().BeTrue();
+        poll.Completed.Should().BeTrue();
+        poll.DocxBytes.Should().Equal(docxBytes);
+    }
+
+    [Fact]
     public void TryPoll_prefers_distributed_failure_when_local_completed_has_no_document_bytes()
     {
         ServiceCollection services = BuildValueReportJobServices();
