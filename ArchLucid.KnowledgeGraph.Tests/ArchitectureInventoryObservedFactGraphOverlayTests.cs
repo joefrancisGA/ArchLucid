@@ -2361,6 +2361,44 @@ public sealed class ArchitectureInventoryObservedFactGraphOverlayTests
     }
 
     [Fact]
+    public void BuildOverlay_stamps_trimmed_arm_id_label_when_name_segment_and_resource_type_are_whitespace_only()
+    {
+        const string armIdWithWhitespaceNameSegment =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Sql/servers/   ";
+
+        AzureInventorySnapshotDetailReadModel snapshot = new()
+        {
+            Header = new AzureInventorySnapshotRecord
+            {
+                SnapshotId = SnapshotId,
+                TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                CreatedUtc = new DateTime(2026, 7, 18, 12, 0, 0, DateTimeKind.Utc),
+            },
+            Resources =
+            [
+                new AzureInventoryResourceRecord
+                {
+                    ResourceRowId = Guid.Parse("17171717-1717-1717-1717-171717171717"),
+                    SnapshotId = SnapshotId,
+                    TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                    AzureResourceId = armIdWithWhitespaceNameSegment,
+                    ResourceType = "   ",
+                    ResourceGroup = "rg",
+                    SubscriptionId = "sub",
+                },
+            ],
+            Relationships = [],
+        };
+
+        GraphSnapshot overlay = ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay(
+            snapshot,
+            RunId,
+            ContextSnapshotId);
+
+        overlay.Nodes.Should().ContainSingle().Which.Label.Should().Be(armIdWithWhitespaceNameSegment.Trim());
+    }
+
+    [Fact]
     public void BuildOverlay_stamps_trimmed_resource_type_on_arm_type_and_resolves_topology_category()
     {
         const string armId =
