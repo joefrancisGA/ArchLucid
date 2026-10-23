@@ -12470,10 +12470,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 317
-- **bugs-found:** 219
+- **hunts:** 318
+- **bugs-found:** 220
 - **last-hunt:** 2026-10-23
-- **last-bug:** 2026-10-23 — overlay merge skipped duplicate edges colliding with base graph without backfill
+- **last-bug:** 2026-10-23 — overlay merge skipped duplicate nodes colliding with base graph without backfill
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -13037,7 +13037,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - [x] (proven) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — duplicate overlay edges sharing a base-graph directed key discarded later overlay rows without backfill — **hit 2026-10-23 seed hunt (seed→hit):** base-graph parity for duplicate overlay edge backfill; regression above.
 
-- [ ] (candidate) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — duplicate overlay nodes that share a `NodeId` with the base graph may discard later overlay rows without merging overlay-only scalar or property backfill — locus: duplicate-node handling runs backfill only when `!baseNodeIds.Contains(normalizedInventoryNodeId)`; input: base graph already has a node id and overlay lists multiple rows for the same id; wrong outcome: later overlay rows are skipped entirely without enriching the merged node.
+2026-10-23 seed hunt (seed→hit): promoted `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` duplicate overlay nodes that share a `NodeId` with the base graph candidate; proved duplicate-node scalar/property backfill ran only when `!baseNodeIds.Contains(normalizedInventoryNodeId)`, so overlay rows colliding with an existing base-graph node were skipped without enriching the retained base node; always run backfill on node-id collisions and keep strict `TryValidateOverlayNodeAgreement` only for overlay-only duplicate ids (base-graph collisions still backfill without failing on mismatched overlay metadata); regression `Merge_backfills_overlay_duplicate_node_label_into_base_graph_node_when_multiple_overlay_rows_share_base_node_id`; seeded `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` base-graph node collisions that skip agreement may allow conflicting overlay duplicate labels without surfacing disagreement follow-on; 630 KnowledgeGraph + 170 Provenance scoped tests passed.
+
+- [x] (proven) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — duplicate overlay nodes sharing a base-graph node id discarded later overlay rows without backfill — **hit 2026-10-23 seed hunt (seed→hit):** base-graph parity for duplicate overlay node backfill; regression above.
+
+- [ ] (candidate) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — base-graph node collisions skip `TryValidateOverlayNodeAgreement`, so multiple overlay rows with conflicting non-empty labels for the same base `NodeId` may backfill without surfacing disagreement — locus: agreement guard omitted when `baseNodeIds` contains the normalized id; input: base node plus overlay duplicate rows whose labels disagree; wrong outcome: merged node keeps a backfilled label without failing closed.
 
 2026-10-22 seed hunt (seed→hit): promoted `StructuredDiagramGraphMerger` padded diagram property-key coalesce candidate; proved duplicate node/edge metadata coalesce indexed raw `property.Key`, so a later compile with surrounding-whitespace keys left parallel bag entries and `GraphNodePropertyReader` could return stale source-evidence values; trim keys before skip/coalesce (parity with `GraphNodeFactory.NormalizePropertyBag`); regression `Merge_coalesces_node_properties_when_incoming_property_keys_differ_only_by_surrounding_whitespace`; seeded diagram edge metadata padded-key coalesce regression follow-on; 468 KnowledgeGraph + 170 Provenance scoped tests passed.
 

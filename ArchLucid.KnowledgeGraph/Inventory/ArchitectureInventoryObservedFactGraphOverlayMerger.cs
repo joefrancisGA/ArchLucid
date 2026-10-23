@@ -29,23 +29,24 @@ public static class ArchitectureInventoryObservedFactGraphOverlayMerger
 
             if (existingNodeIds.Contains(normalizedInventoryNodeId))
             {
+                GraphNode retainedNode = mergedNodes.First(node =>
+                    string.Equals(
+                        NormalizeNodeId(node.NodeId),
+                        normalizedInventoryNodeId,
+                        StringComparison.OrdinalIgnoreCase));
+
                 if (!baseNodeIds.Contains(normalizedInventoryNodeId))
                 {
-                    GraphNode retainedNode = mergedNodes.First(node =>
-                        string.Equals(
-                            NormalizeNodeId(node.NodeId),
-                            normalizedInventoryNodeId,
-                            StringComparison.OrdinalIgnoreCase));
-
                     TryValidateOverlayNodeAgreement(inventoryNode, retainedNode);
-                    TryMergeOverlayNodePropertyBackfillFromDuplicateRow(inventoryNode, retainedNode);
-                    TryMergeOverlayNodeLabelBackfillFromDuplicateRow(inventoryNode, retainedNode);
-                    TryMergeOverlayNodeCategoryBackfillFromDuplicateRow(inventoryNode, retainedNode);
-                    TryMergeOverlayNodeSourceIdBackfillFromDuplicateRow(inventoryNode, retainedNode);
-                    TryMergeOverlayNodeSourceTypeBackfillFromDuplicateRow(inventoryNode, retainedNode);
-                    TryMergeOverlayNodeTypeBackfillFromDuplicateRow(inventoryNode, retainedNode);
-                    TryMergeOverlayNodeReasoningTraceBackfillFromDuplicateRow(inventoryNode, retainedNode);
                 }
+
+                TryMergeOverlayNodePropertyBackfillFromDuplicateRow(inventoryNode, retainedNode);
+                TryMergeOverlayNodeLabelBackfillFromDuplicateRow(inventoryNode, retainedNode);
+                TryMergeOverlayNodeCategoryBackfillFromDuplicateRow(inventoryNode, retainedNode);
+                TryMergeOverlayNodeSourceIdBackfillFromDuplicateRow(inventoryNode, retainedNode);
+                TryMergeOverlayNodeSourceTypeBackfillFromDuplicateRow(inventoryNode, retainedNode);
+                TryMergeOverlayNodeTypeBackfillFromDuplicateRow(inventoryNode, retainedNode);
+                TryMergeOverlayNodeReasoningTraceBackfillFromDuplicateRow(inventoryNode, retainedNode);
 
                 continue;
             }
