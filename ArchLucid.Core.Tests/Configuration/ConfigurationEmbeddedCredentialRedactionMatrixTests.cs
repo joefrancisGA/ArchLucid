@@ -268,6 +268,41 @@ public sealed class ConfigurationEmbeddedCredentialRedactionMatrixTests
     }
 
     [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_password_pair_is_left_to_right_mark_delimited()
+    {
+        string effectiveValue = "Server=prod" + '\u200E' + "Password=secret";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_password_pair_is_right_to_left_mark_delimited()
+    {
+        string effectiveValue = "Server=prod" + '\u200F' + "Password=secret";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_password_pair_is_fullwidth_hyphen_minus_delimited()
+    {
+        string effectiveValue = "Server=prod" + '\uFF0D' + "Password=secret";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_password_pair_is_small_hyphen_minus_delimited()
+    {
+        string effectiveValue = "Server=prod" + '\uFE63' + "Password=secret";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_password_pair_is_division_slash_delimited()
+    {
+        string effectiveValue = "Server=prod" + '\u2215' + "Password=secret";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
     public void Resolve_redacts_embedded_credential_material_when_password_pair_is_nel_delimited()
     {
         string effectiveValue = "Server=prod" + '\u0085' + "Password=secret";
