@@ -113,6 +113,32 @@ public sealed class ReviewRunEngineProvenanceAggregatorTests
     }
 
     [Fact]
+    public void Aggregate_policy_pack_version_null_when_policy_titles_are_whitespace_only()
+    {
+        RunRecord run = BuildRun(StructuralExecutionMode.Real);
+        AgentEvidencePackage evidence = new()
+        {
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            RequestId = "req-1",
+            Policies =
+            [
+                new PolicyEvidence { PolicyId = "blank", Title = "   " },
+            ],
+        };
+
+        List<AgentExecutionTrace> traces = [BuildTrace("gpt-4o-arch", inputTokens: 10, outputTokens: 5)];
+
+        ReviewRunEngineProvenance provenance = ReviewRunEngineProvenanceAggregator.Aggregate(
+            traces,
+            evidence,
+            run,
+            findingsSnapshot: null,
+            CreateCostEstimator());
+
+        provenance.PolicyPackVersion.Should().BeNull();
+    }
+
+    [Fact]
     public void Aggregate_skips_null_trace_entries_when_summing_reasoning_tokens()
     {
         RunRecord run = BuildRun(StructuralExecutionMode.Real);
