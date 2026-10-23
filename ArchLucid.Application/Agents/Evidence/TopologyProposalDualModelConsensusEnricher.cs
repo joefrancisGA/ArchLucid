@@ -54,7 +54,8 @@ public sealed class TopologyProposalDualModelConsensusEnricher(
             return;
 
         AgentResult? topologyResult = results.FirstOrDefault(static result =>
-            AgentResultEnvelopeAgentTypeResolver.ResolveAgentType(result) is AgentType.Topology);
+            result is not null
+            && AgentResultEnvelopeAgentTypeResolver.ResolveAgentType(result) is AgentType.Topology);
 
         if (topologyResult is null || topologyResult.ProposedChanges is not AgentTopologyProposal primaryProposal)
             return;
@@ -139,6 +140,9 @@ public sealed class TopologyProposalDualModelConsensusEnricher(
 
         foreach (AgentResult result in results)
         {
+            if (result is null)
+                continue;
+
             if (AgentResultEnvelopeAgentTypeResolver.ResolveAgentType(result) is AgentType.Topology)
                 continue;
 
