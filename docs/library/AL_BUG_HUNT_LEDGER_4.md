@@ -15008,7 +15008,7 @@ heap-disproved mermaid typed-topology candidate.
 - [x] (valid-no-repro) `ApiRequestUsageEventBatchFlushHostedService.ExecuteAsync` — timer flush stops after first failed batch — **cheap-disproof 2026-10-23 thorough hunt #92:** remainder requeued from flush snapshot when `drainRemainingAfterBatchFailure` is false.
 - [x] (valid-no-repro) `ValueReportJobPollStateCacheRegistrar.Register` — wraps redis when probe resolves — **cheap-disproof 2026-10-23 thorough hunt #92:** regression `Register_wraps_redis_cache_when_probe_resolves_without_shared_IDistributedCache` (hunt #85).
 - [x] (valid-no-repro) `ProcessSharedValueReportJobPollStateCache.Get` — expired entry removed on read — **cheap-disproof 2026-10-23 thorough hunt #92:** `Get` removes expired keys inline; `Set_prunes_expired_entries_without_get`.
-- [x] (valid-no-repro) `PollingCollectionRunDiscovery.DiscoverAsync` — read artifact exception skips manifest — **cheap-disproof 2026-10-23 thorough hunt #92:** regression `DiscoverAsync_continues_when_read_artifact_throws` (hunt #81).
+- [x] (valid-no-repro) `PollingCollectionRunDiscovery.DiscoverAsync` — read artifact exception skips manifest — **cheap-disproof 2026-10-23 thorough hunt #92:** regression `DiscoverAsync_continues_when_read_artifact_throws_for_one_manifest` (hunt #81).
 
 - [ ] (candidate) `InMemoryValueReportJobQueue.TryPoll` — local failed not overridden by distributed pending — locus: merge; input: stale failed + pending; wrong outcome: hunt #88.
 - [ ] (candidate) `InMemoryValueReportJobQueue.TryPoll` — corrupt distributed skipped when local completed has bytes — locus: corrupt merge; input: corrupt + bytes; wrong outcome: hunt #86.
