@@ -6868,13 +6868,20 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
-2026-10-23 seed hunt (seed→hit): proved `IRunExportRecordRepository.CreateAsync` persisted padded `ExportRecordId` values (and `RecordJson`) while read paths had gained trim parity, so new exports could reintroduce padded primary keys and the in-memory store could hold duplicate run-list rows for padding-only id differences; trim on persist in `RunExportRecordRepository` / `InMemoryRunExportRecordRepository` with list dedupe on normalized export id; regressions `Create_trims_export_record_id_on_persist` and `CreateAsync_replaces_run_list_entry_when_only_export_id_padding_differs`; cheap-disproof closed `ComparisonHistorySearchCriteria` right-filter cursor gap via regression `CompareQuality_SearchAsync_passes_trimmed_right_export_record_filters_to_repository_cursor_path`; seeded five follow-on rows; scoped application-analysis filter 59/59. Private beta: new export audit rows store canonical export record ids.
+2026-10-23 seed hunt (seed→hit): proved `GetByRunIdAsync` missed export rows when `RunId` was padded in storage or dictionary keys while callers passed canonical ids, and `CompareQualityDeltaExportFormatter.RemoveMarkdownSection` used exact `IndexOf` so `##\u00A0Compare Quality Delta` summary headings survived stripping and duplicated compare-quality sections in HTML/PDF/DOCX detailed exports; SQL `LTRIM(RTRIM(RunId))` filter, in-memory run-id bucket matching via `RunExportRecordRunIdSql`, trim `RunId` on persist, NBSP-tolerant heading line match; regressions `GetByRunId_finds_exports_when_stored_run_id_has_surrounding_whitespace`, `RemoveMarkdownSection_strips_compare_quality_delta_when_heading_uses_nbsp_after_hashes`, `GenerateHtml_detailed_profile_includes_compare_quality_delta_once_when_summary_uses_nbsp_heading`, and `ApplyMissingFromPriorExportsAsync_finds_prior_export_when_run_id_query_is_padded`; cheap-disproof closed mis-aimed consulting prefill export-id row and diagnostic 404 echo; seeded five follow-on rows; scoped application-analysis filter 61/61. Private beta: export history by run id and comparison HTML exports tolerate padded run ids and NBSP-prefixed delta headings.
 
-- [ ] (candidate) `RunExportRecordRepository.GetByRunIdAsync` — SQL does not trim `RunId` when legacy rows store padded run ids on export records — locus: export history list; input: padded `RunId` column.
-- [ ] (candidate) `ExportsController.GetExportRecord` — 404 problem detail echoes untrimmed route token — locus: client diagnostics; input: padded id after normalization miss.
-- [ ] (candidate) `CompareQualityDeltaExportFormatter.RemoveMarkdownSection` — heading match sensitive to Unicode space inside `## Compare Quality Delta` — locus: PDF/DOCX delta re-append; input: NBSP between `##` and title.
+- [ ] (candidate) `EndToEndReplayComparisonMarkdownExportFormatter` — detailed markdown embeds summary compare-quality delta without `RemoveMarkdownSection` strip — locus: markdown-only duplicate risk; input: summary with NBSP heading.
 - [ ] (candidate) `RunExportAuditService.RecordAsync` — does not trim `fileName` / `exportType` before persist — locus: export audit metadata; input: leading whitespace in file name.
-- [ ] (candidate) `ConsultingDocxExportWhitelabelPrefill` — loads export record by id without normalizer when prefill omits trim — locus: consulting DOCX export; input: padded export id query.
+- [ ] (candidate) `RunExportQueryFacade.GetExportRecordAsync` — echoes padded `MissingId` on not-found when route id unpadded — locus: problem detail; input: padded export id 404.
+- [ ] (candidate) `CompareVerdictChromeExportFormatter.RemoveMarkdownSection` — same NBSP heading gap as compare-quality formatter — locus: verdict chrome HTML/PDF strip; input: NBSP after `##`.
+- [ ] (candidate) `InMemoryRunExportRecordRepository` — `_byRunId` dictionary retains legacy padded keys after trim-on-create — locus: dev in-memory migration; input: mixed padded/canonical keys in one process.
+
+- [x] (proven) `RunExportRecordRepository.GetByRunIdAsync` / `InMemoryRunExportRecordRepository.GetByRunIdAsync` — padded stored run ids missed list-by-run — **hit 2026-10-23 seed hunt:** trim on persist + SQL/in-memory lookup parity; regression `GetByRunId_finds_exports_when_stored_run_id_has_surrounding_whitespace`.
+- [x] (proven) `CompareQualityDeltaExportFormatter.RemoveMarkdownSection` — NBSP inside compare-quality heading prevented strip — **hit 2026-10-23 seed hunt:** line-normalized heading match; regressions `RemoveMarkdownSection_strips_compare_quality_delta_when_heading_uses_nbsp_after_hashes` and `GenerateHtml_detailed_profile_includes_compare_quality_delta_once_when_summary_uses_nbsp_heading`.
+- [x] (valid-no-repro) `ConsultingDocxExportWhitelabelPrefill` — export id prefill without normalizer — **cheap-disproof 2026-10-23 seed hunt:** uses `GetByRunIdAsync` only; regression `ApplyMissingFromPriorExportsAsync_finds_prior_export_when_run_id_query_is_padded`.
+- [x] (valid-no-repro) `ExportsController.GetExportRecord` — 404 echoes untrimmed route token — **cheap-disproof 2026-10-23 seed hunt:** diagnostic-only; prior hunts documented successful-path normalization.
+
+2026-10-23 seed hunt (seed→hit): proved `IRunExportRecordRepository.CreateAsync` persisted padded `ExportRecordId` values (and `RecordJson`) while read paths had gained trim parity, so new exports could reintroduce padded primary keys and the in-memory store could hold duplicate run-list rows for padding-only id differences; trim on persist in `RunExportRecordRepository` / `InMemoryRunExportRecordRepository` with list dedupe on normalized export id; regressions `Create_trims_export_record_id_on_persist` and `CreateAsync_replaces_run_list_entry_when_only_export_id_padding_differs`; cheap-disproof closed `ComparisonHistorySearchCriteria` right-filter cursor gap via regression `CompareQuality_SearchAsync_passes_trimmed_right_export_record_filters_to_repository_cursor_path`; seeded five follow-on rows; scoped application-analysis filter 59/59. Private beta: new export audit rows store canonical export record ids.
 
 - [x] (proven) `RunExportRecordRepository.CreateAsync` / `InMemoryRunExportRecordRepository.CreateAsync` — padded export ids on insert — **hit 2026-10-23 seed hunt:** `ComparisonExportRecordIdLookup` on persist; regressions `Create_trims_export_record_id_on_persist` and `CreateAsync_replaces_run_list_entry_when_only_export_id_padding_differs`.
 - [x] (valid-no-repro) `ComparisonHistorySearchCriteria` OpenAPI binding — whitespace-only `rightExportRecordId` on cursor search — **cheap-disproof 2026-10-23 seed hunt:** `NormalizeExportRecordIdFilterOrNull` already applies to right filter; regression `CompareQuality_SearchAsync_passes_trimmed_right_export_record_filters_to_repository_cursor_path`.
@@ -7090,11 +7097,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 81
-- **bugs-found:** 76
+- **hunts:** 83
+- **bugs-found:** 78
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-23
-- **last-bug:** 2026-10-23 — padded export record primary keys broke scoped export lookup
+- **last-bug:** 2026-10-23 — padded run id export list and NBSP compare-quality heading strip
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 

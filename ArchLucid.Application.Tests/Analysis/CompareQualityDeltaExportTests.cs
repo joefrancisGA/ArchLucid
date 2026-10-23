@@ -83,6 +83,17 @@ public sealed class CompareQualityDeltaExportTests
         markdown.Should().Contain("| 5 | 6 |");
     }
 
+    [Fact]
+    public void RemoveMarkdownSection_strips_compare_quality_delta_when_heading_uses_nbsp_after_hashes()
+    {
+        string markdown = "intro\n##\u00A0Compare Quality Delta\n| Metric | Before | After |\n\n## Warnings\nnote\n";
+
+        string result = CompareQualityDeltaExportFormatter.RemoveMarkdownSection(markdown);
+
+        result.Should().NotContain("Compare Quality Delta");
+        result.Should().Contain("## Warnings");
+    }
+
     [SkippableFact]
     public void GenerateMarkdown_detailed_profile_includes_compare_quality_delta_once_with_default_summary_formatter()
     {
@@ -98,6 +109,28 @@ public sealed class CompareQualityDeltaExportTests
 
         markdown.Split("## Compare Quality Delta", StringSplitOptions.None).Length.Should().Be(2,
             "detailed exports embed the summary formatter, which already surfaces compare quality delta");
+    }
+
+    [SkippableFact]
+    public void GenerateHtml_detailed_profile_includes_compare_quality_delta_once_when_summary_uses_nbsp_heading()
+    {
+        Mock<IEndToEndReplayComparisonSummaryFormatter> formatter = new();
+        formatter
+            .Setup(f => f.FormatMarkdown(It.IsAny<EndToEndReplayComparisonReport>()))
+            .Returns("## Summary\n##\u00A0Compare Quality Delta\n| Metric | Before | After |\n| --- | --- | --- |\n| x | 1 | 2 |");
+
+        EndToEndReplayComparisonExportService sut = new(formatter.Object);
+        EndToEndReplayComparisonReport report = new()
+        {
+            LeftRunId = "left",
+            RightRunId = "right",
+            CompareQualityDelta = SampleDelta(),
+        };
+
+        string html = sut.GenerateHtml(report, EndToEndComparisonExportProfile.Detailed);
+
+        html.Split("<h2>Compare Quality Delta</h2>", StringSplitOptions.None).Length.Should().Be(2,
+            "NBSP-prefixed summary headings must still be stripped before HTML re-appends compare quality delta");
     }
 
     [SkippableFact]

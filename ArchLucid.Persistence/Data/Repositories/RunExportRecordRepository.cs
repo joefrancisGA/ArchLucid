@@ -123,9 +123,13 @@ public sealed class RunExportRecordRepository(IDbConnectionFactory connectionFac
     private static RunExportRecord NormalizeExportRecordForPersist(RunExportRecord record)
     {
         string normalizedExportRecordId = ComparisonExportRecordIdLookup.NormalizeLookupKey(record.ExportRecordId);
+        string normalizedRunId = record.RunId.Trim();
 
-        if (string.Equals(record.ExportRecordId, normalizedExportRecordId, StringComparison.Ordinal))
+        if (string.Equals(record.ExportRecordId, normalizedExportRecordId, StringComparison.Ordinal)
+            && string.Equals(record.RunId, normalizedRunId, StringComparison.Ordinal))
+        {
             return record;
+        }
 
         string json = JsonSerializer.Serialize(record, ContractJson.Default);
         RunExportRecord? copy = JsonSerializer.Deserialize<RunExportRecord>(json, ContractJson.Default);
@@ -134,6 +138,7 @@ public sealed class RunExportRecordRepository(IDbConnectionFactory connectionFac
             throw new InvalidOperationException("RunExportRecord clone for persist produced null.");
 
         copy.ExportRecordId = normalizedExportRecordId;
+        copy.RunId = normalizedRunId;
         return copy;
     }
 
@@ -148,7 +153,7 @@ public sealed class RunExportRecordRepository(IDbConnectionFactory connectionFac
         string sql = $"""
                       SELECT RecordJson
                       FROM RunExportRecords
-                      WHERE RunId IN @RunIds
+                      WHERE LTRIM(RTRIM(RunId)) IN @RunIds
                       ORDER BY CreatedUtc DESC
                       {SqlPagingSyntax.FirstRowsOnly(500)};
                       """;
