@@ -14654,12 +14654,14 @@ heap-disproved mermaid typed-topology candidate.
 - **aliases:** host composition; DI registration; startup modules
 - **paths:** ArchLucid.Host.Composition/
 - **test-filter:** FullyQualifiedName~Host.Composition|FullyQualifiedName~ServiceCollectionExtensions
-- **hunts:** 74
-- **bugs-found:** 58
+- **hunts:** 75
+- **bugs-found:** 59
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-23
-- **last-bug:** 2026-10-23 — collection ingest skipped manifest tenant attestation
+- **last-bug:** 2026-10-23 — value report poll stuck on local pending over distributed terminal
 - **code-changed-since:** yes
+
+2026-10-23 thorough hunt (seed→hit): proved `InMemoryValueReportJobQueue.TryPoll` always preferred local `Pending` over distributed `Failed`/`Completed` terminal state on the enqueue replica; merge distributed terminal state when local entry is still pending; regression `TryPoll_prefers_distributed_terminal_state_over_local_pending`; cheap-disproof closed four sibling `(candidate)` rows; seeded five follow-on `(candidate)` rows; scoped poll + reader tests 2 passed (`RunAnalyzers=false`).
 
 2026-10-23 thorough hunt (seed→hit): proved `CollectionRunIngestService.IngestAsync` imported packages when manifest `tenantId` was absent because the tenant gate only ran when `TenantId` was present; reject missing tenant identifier before scope match (ADR-0103); regression `ManifestWithoutTenantIdRejectsWithoutImport`; cheap-disproof closed four sibling `(candidate)` rows; seeded five follow-on `(candidate)` rows; scoped SecureNow ingest + discovery tests 14 passed (`RunAnalyzers=false`).
 
@@ -14866,11 +14868,17 @@ heap-disproved mermaid typed-topology candidate.
 - [x] (valid-no-repro) `AzureBlobCollectionRunArtifactReader.ParseManifestContent` — `finishedUtc` before `startedUtc` still lists manifest — **cheap-disproof 2026-10-23 thorough hunt #74:** inverted timestamps are operator/runbook data quality issues; ingest still records manifest timestamps on the `CollectionRun` row for diagnosis.
 - [x] (invalid) `GraphProjectionCacheInvalidationSubscriberHostedService` — channel unbounded growth if Redis publishes faster than handler — **cheap-disproof 2026-10-23 thorough hunt #74:** subscriber uses StackExchange.Redis `ChannelMessageQueue.ReadAsync`, not `Channel.CreateUnbounded`.
 
-- [ ] (candidate) `CollectionRunIngestService.IngestAsync` — manifest `tenantId` present but mismatched workspace/project not validated — locus: tenant-only gate; input: manifest tenant matches but wrong workspace in blob path; wrong outcome: import under ambient workspace scope.
-- [ ] (candidate) `InMemoryValueReportJobQueue.TryPoll` — prefers stale local `Pending` over newer distributed terminal state — locus: `_jobs` before `TryReadDistributedState`; input: local pending + distributed `Failed`; wrong outcome: never surfaces terminal failure on enqueue replica.
-- [ ] (candidate) `PollingCollectionRunDiscovery.DiscoverAsync` — `Failed` terminal manifest with zip still skipped by status gate — locus: `IsImportableManifestStatus`; input: failed run with diagnostic zip; wrong outcome: forensic package never ingested (may be correct).
-- [ ] (candidate) `AzureBlobCollectionRunArtifactReader.ParseManifestContent` — `schemaVersion` numeric string from JSON number coercion — locus: `GetInt`/`GetString`; input: manifest with JSON number schemaVersion; wrong outcome: wrong schema parsed.
-- [ ] (candidate) `DistributedCacheValueReportJobPollStateCache.Remove` — pass-through remove when key missing is silent — locus: `IDistributedCache.Remove`; input: stale job id cleanup; wrong outcome: no signal (expected no-op).
+- [x] (valid-no-repro) `CollectionRunIngestService.IngestAsync` — manifest `tenantId` present but mismatched workspace/project not validated — **cheap-disproof 2026-10-23 thorough hunt #75:** ADR-0103 handoff contract attests tenant in manifest; workspace/project scope is ambient discovery context and blob container isolation.
+- [x] (proven) `InMemoryValueReportJobQueue.TryPoll` — prefers stale local `Pending` over newer distributed terminal state — **hit 2026-10-23 thorough hunt #75:** distributed terminal state wins when local is pending; regression `TryPoll_prefers_distributed_terminal_state_over_local_pending`.
+- [x] (valid-no-repro) `PollingCollectionRunDiscovery.DiscoverAsync` — `Failed` terminal manifest with zip still skipped by status gate — **cheap-disproof 2026-10-23 thorough hunt #75:** non-importable `Failed` runs are intentional (hunt #71); diagnostic zip remains in customer blob storage.
+- [x] (valid-no-repro) `AzureBlobCollectionRunArtifactReader.ParseManifestContent` — `schemaVersion` numeric JSON number coercion — **cheap-disproof 2026-10-23 thorough hunt #75:** `GetString`/`GetInt` handle JSON numbers; regression `ParseManifestContent_parses_numeric_schemaVersion`.
+- [x] (valid-no-repro) `DistributedCacheValueReportJobPollStateCache.Remove` — pass-through remove when key missing is silent — **cheap-disproof 2026-10-23 thorough hunt #75:** `IDistributedCache.Remove` is idempotent by design.
+
+- [ ] (candidate) `InMemoryValueReportJobQueue.TryPoll` — local terminal `Completed` not refreshed when distributed state has newer failure — locus: local-before-distributed for non-pending; input: corrupt local completed bytes + distributed failed; wrong outcome: serves bad local completed.
+- [ ] (candidate) `InMemoryValueReportJobQueue.RunJobAsync` — unhandled exception after partial `TryWriteDistributedState` success — locus: `RunJobAsync` catch; input: audit throws after completed write; wrong outcome: duplicate terminal states.
+- [ ] (candidate) `CollectionRunIngestService.IngestAsync` — `HasImportedHashAsync` true but different `runId` — locus: hash dedupe; input: two manifests same zip hash; wrong outcome: second run not linked (may be correct dedupe).
+- [ ] (candidate) `AzureBlobCollectionRunArtifactReader.ListManifestsAsync` — prefix filter omits manifests outside `runs/` layout — locus: `ManifestPrefix`; input: custom prefix config; wrong outcome: zero discovery (configuration).
+- [ ] (candidate) `ApiRequestUsageEventBatchFlushHostedService` — `ReturnBatchToBuffer` order not preserved under concurrency — locus: requeue loop; input: parallel API requests during flush; wrong outcome: usage event ordering (if relevant).
 
 
 2026-10-09 seed hunt (seed→hit): failed usage flush returned events through `Enqueue`, which drops them when metering is disabled. Already-accepted events now use `Requeue`. Regression `StopAsync_keeps_dequeued_usage_events_when_persist_fails_after_metering_disabled` failed first.
