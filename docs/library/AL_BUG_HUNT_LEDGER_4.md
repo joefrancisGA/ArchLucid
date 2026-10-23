@@ -861,15 +861,17 @@
 - **aliases:** retrieval indexing; embedding; pricing retrieval
 - **paths:** ArchLucid.Retrieval/
 - **test-filter:** FullyQualifiedName~Retrieval|FullyQualifiedName~Indexing
-- **hunts:** 72
-- **last-hunt:** 2026-10-21
-- **bugs-found:** 32
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-10-11 — zero export limit and blank policy-pack identity
+- **hunts:** 73
+- **last-hunt:** 2026-10-23
+- **bugs-found:** 33
+- **consecutive-dry-hunts:** 0
+- **last-bug:** 2026-10-23 — empty reindex orphan vectors without catalog row
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
 2026-09-12 seed hunt #2172 (seed-only): reseeded retrieval with `-Hint retrieval`; no new hunt-ready rows.
+
+2026-10-23 thorough hunt #104 (hit): proved `IndexDocumentsAsync` skipped vector deletion on whitespace-only reindex when the document index catalog had no row, leaving searchable orphan chunks after index/catalog drift; empty-document cleanup now always calls `RemoveChunksForDocumentAsync`; regression `IndexDocumentsAsync_when_content_chunks_to_empty_removes_orphan_vectors_without_catalog_entry`; cheap-disproved the seven picker candidates; 373 scoped retrieval/indexing tests passed.
 
 ### Hypotheses
 - [x] (invalid) `SimpleTextChunker.Chunk` / `StructureAwareTextChunker.Chunk` — non-positive `maxChars` — **cheap-disproof 2026-10-21 thorough hunt:** only internal chunkers invoke `ITextChunker` with positive defaults; no configuration path supplies non-positive sizes.
@@ -879,6 +881,13 @@
 - [x] (valid-no-repro) `CachingEmbeddingService.EmbedManyAsync` — embedding cardinality — **cheap-disproof 2026-10-21 thorough hunt:** cardinality guard shipped in CachingEmbeddingServiceTests.
 - [x] (valid-no-repro) `RetrievalDocumentBuilder.BuildForFindings` — reorder missing ids — **cheap-disproof 2026-10-21 thorough hunt:** `BuildForFindings_missing_finding_id_uses_emitted_ordinal_not_raw_list_index`.
 - [x] (valid-no-repro) `AzureSearchTenantScopeFilterBuilder.BuildScopeFilter` — empty assigned policy packs still allow non-PolicyPack platform corpora — **cheap-disproof 2026-10-21 thorough hunt:** intentional per `SearchAsync_IncludePlatformCorpora_StillReturnsNonPolicyPackPlatformCorpus` and filter tests.
+- [x] (proven) `RetrievalIndexingService.IndexDocumentsAsync` — empty reindex with no catalog row left orphan vectors searchable — **hit 2026-10-23 thorough hunt #104:** gated delete on `TryGet`; fixed by always removing document chunks on empty reindex; regression `IndexDocumentsAsync_when_content_chunks_to_empty_removes_orphan_vectors_without_catalog_entry`.
+- [x] (valid-no-repro) `RetrievalIndexingService` — empty-document catalog after cleanup failure — **cheap-disproof 2026-10-23 thorough hunt #104:** failed cleanup leaves catalog unchanged with prior vectors; no wrong catalog-after-success path.
+- [x] (valid-no-repro) `CachingEmbeddingService.EmbedManyAsync` — mixed blank/nonblank batch cardinality — **cheap-disproof 2026-10-23 thorough hunt #104:** cardinality guard and chunkers remove blanks before dispatch (see 2026-10-21 row).
+- [x] (valid-no-repro) `RetrievalDocumentBuilder.BuildForFindings` — reorder missing finding ids — **cheap-disproof 2026-10-23 thorough hunt #104:** `BuildForFindings_missing_finding_id_uses_emitted_ordinal_not_raw_list_index`.
+- [x] (valid-no-repro) `AzureAiSearchVectorIndex.RemoveChunkIdsAsync` — chunk-id cleanup without ambient scope — **cheap-disproof 2026-10-23 thorough hunt #104:** stale ids are document-scoped ordinals from indexing; no established cross-tenant collision contract.
+- [x] (valid-no-repro) `InMemoryVectorIndex.RemoveChunksForDocumentAsync` — ignores cancellation during delete — **cheap-disproof 2026-10-23 thorough hunt #104:** dev/test index; synchronous delete; no reachable abandoned-operation wrong outcome.
+- [x] (valid-no-repro) `RetrievalDocumentBuilder.BuildForArtifacts` — duplicate `ArtifactId` in one batch — **cheap-disproof 2026-10-23 thorough hunt #104:** `BuildForArtifacts_collapses_duplicate_artifact_ids_to_last_entry`.
 
 - [x] (proven) `StructureAwareTextChunker` treated any three-backtick line inside a longer fenced block as a closing delimiter — **hit 2026-10-10 seed hunt:** a reachable four-backtick manifest/artifact code block containing a three-backtick line was split into unwrapped chunks; closure now requires at least the opener's fence length; regression `Chunk_preserves_four_backtick_fence_when_body_contains_three_backticks`.
 - [x] (valid-no-repro) `CachingEmbeddingService.EmbedManyAsync` converts nullable/blank batch entries to empty strings before delegating, so an embedding provider that filters blank inputs could return fewer vectors than the original batch — **cheap-disproof 2026-10-11 thorough hunt:** scoped chunkers remove blank chunks before dispatch; no reachable mixed batch with blank entries was established.
@@ -984,13 +993,14 @@
 - [x] (proven) `RetrievalDocumentBuilder.BuildForManifest` generated a new random decision id when a manifest decision had no id, so repeated indexing of the same manifest created duplicate decision document ids; **hit 2026-10-10 seed hunt:** use `generated-{manifestId}-{decisionIndex}` for missing IDs; regression `BuildForManifest_missing_decision_id_is_stable_across_rebuilds`.
 - [x] (proven) `RetrievalQueryService.ResolveQueryPlanAsync` mutated `AllowedPolicyPackRulePackIds` while resolving platform corpora, so a reused query object retained assignment state across calls with changed scope — **hit 2026-10-10 seed hunt:** keep policy-pack resolution local to the search plan and pass the resolved IDs through search retries; regression `SearchAsync_re_resolves_policy_packs_when_reusing_query_after_scope_change`.
 - [x] (proven) `RetrievalDocumentBuilder.BuildForFindings` generated a new random finding id when a finding had no id, so repeated indexing of the same findings snapshot created duplicate finding document ids — **hit 2026-10-10 seed hunt:** use `generated-{runId}-{findingIndex}` for missing IDs; regression `BuildForFindings_missing_finding_id_is_stable_across_rebuilds`.
-- [ ] (candidate) `AzureSearchTenantScopeFilterBuilder.BuildScopeFilter` emits platform-corpus clauses alongside tenant scope, so an empty assigned policy-pack set may still expose non-policy platform documents where callers expect no platform results.
-- [ ] (candidate) `RetrievalIndexingService` records empty-document catalog state after vector cleanup, so a cleanup failure may leave catalog freshness inconsistent with the still-present vectors.
-- [ ] (candidate) `CachingEmbeddingService.EmbedManyAsync` maps inner vectors positionally without checking cardinality, so a reachable mixed blank/nonblank batch can index past the returned vectors after a provider filters blank inputs.
-- [ ] (candidate) `RetrievalDocumentBuilder.BuildForFindings` uses list position for missing finding IDs, so reordering a findings snapshot between retries can assign a prior finding's document identity to a different finding.
-- [ ] (candidate) `AzureAiSearchVectorIndex.RemoveChunkIdsAsync` forwards stale chunk IDs without an ambient-scope check, so a reachable cleanup input containing a colliding chunk ID could delete a vector outside the current tenant scope.
-- [ ] (candidate) `InMemoryVectorIndex.RemoveChunksForDocumentAsync` ignores cancellation while mutating stored chunks, so cancellation arriving during a reachable retry can still complete destructive cleanup after the indexing operation is abandoned.
-- [ ] (candidate) `RetrievalDocumentBuilder.BuildForArtifacts` emits one document per artifact without duplicate-ID detection, so a reachable artifact retry list containing the same `ArtifactId` twice can silently overwrite one artifact's vector during upsert.
+- [x] (valid-no-repro) `AzureSearchTenantScopeFilterBuilder.BuildScopeFilter` emits platform-corpus clauses alongside tenant scope when assigned policy packs are empty — **cheap-disproof 2026-10-23 thorough hunt #104:** intentional non-PolicyPack platform exposure when `IncludePlatformCorpora` is on; see filter and search tests.
+- [x] (proven) `RetrievalIndexingService.IndexDocumentsAsync` — empty reindex with no catalog row left orphan vectors — **hit 2026-10-23 thorough hunt #104:** regression `IndexDocumentsAsync_when_content_chunks_to_empty_removes_orphan_vectors_without_catalog_entry`.
+- [x] (valid-no-repro) `RetrievalIndexingService` records empty-document catalog state after vector cleanup — **cheap-disproof 2026-10-23 thorough hunt #104:** cleanup failure preserves prior catalog; no inconsistent catalog-on-failure path.
+- [x] (valid-no-repro) `CachingEmbeddingService.EmbedManyAsync` maps inner vectors without cardinality guard — **cheap-disproof 2026-10-23 thorough hunt #104:** `EmbedManyAsync_throws_when_inner_returns_fewer_vectors_than_miss_texts`.
+- [x] (valid-no-repro) `RetrievalDocumentBuilder.BuildForFindings` uses list position for missing finding IDs — **cheap-disproof 2026-10-23 thorough hunt #104:** emitted-ordinal stability tests.
+- [x] (valid-no-repro) `AzureAiSearchVectorIndex.RemoveChunkIdsAsync` forwards stale chunk IDs without ambient-scope check — **cheap-disproof 2026-10-23 thorough hunt #104:** document-scoped chunk id contract.
+- [x] (valid-no-repro) `InMemoryVectorIndex.RemoveChunksForDocumentAsync` ignores cancellation — **cheap-disproof 2026-10-23 thorough hunt #104:** dev/test synchronous delete; no established wrong outcome.
+- [x] (valid-no-repro) `RetrievalDocumentBuilder.BuildForArtifacts` duplicate `ArtifactId` — **cheap-disproof 2026-10-23 thorough hunt #104:** `BuildForArtifacts_collapses_duplicate_artifact_ids_to_last_entry`.
 
 2026-10-03 seed hunt (seed-only): repeated the selected retrieval indexing, scope validation, Azure Search filtering, and in-memory catalog review; no new reachable mechanism-backed candidate emerged; 351 focused tests passed.
 
