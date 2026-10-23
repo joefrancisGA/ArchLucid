@@ -21,15 +21,17 @@ function decisionConfidenceEncodingNote(confidence: number): string {
 }
 
 /** Labels confidence with encoding so 1.0 is not confused with 100 points (UU-425). */
+export const DECISION_CONFIDENCE_NOT_STORED_LABEL = "Decision confidence was not stored." as const;
+
 export function formatRecordedDecisionConfidence(confidence: number | null): string {
   if (confidence === null || !Number.isFinite(confidence)) {
-    return "Not recorded";
+    return DECISION_CONFIDENCE_NOT_STORED_LABEL;
   }
 
   const percent = normalizeDecisionConfidencePercent(confidence);
 
   if (percent === null) {
-    return "Not recorded";
+    return DECISION_CONFIDENCE_NOT_STORED_LABEL;
   }
 
   return `${percent}% (${decisionConfidenceEncodingNote(confidence)})`;

@@ -92,7 +92,7 @@ function resolveCareerExportHonestyInput(
     hostAgentExecutionMode: honestyOptions?.hostAgentExecutionMode ?? null,
     hostQualityGateMode: honestyOptions?.hostQualityGateMode ?? null,
     aggregateQualityGateOutcome: honestyOptions?.aggregateQualityGateOutcome ?? null,
-    catalogAdvisoryEngineFailureCount: honestyOptions?.catalogAdvisoryEngineFailureCount ?? 0,
+    catalogAdvisoryEngineFailureCount: honestyOptions?.catalogAdvisoryEngineFailureCount ?? null,
     contextSnapshot: honestyOptions?.contextSnapshot ?? null,
     architectureInventoryBound: honestyOptions?.architectureInventoryBound ?? null,
     architectureInventorySnapshotCapturedUtc:

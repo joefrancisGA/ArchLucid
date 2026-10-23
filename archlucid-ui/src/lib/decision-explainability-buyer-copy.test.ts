@@ -35,4 +35,8 @@ describe("decision-explainability-buyer-copy", () => {
   it("labels fraction-encoded confidence", () => {
     expect(formatRecordedDecisionConfidence(0.42)).toBe("42% (recorded as a 0–1 fraction)");
   });
+
+  it("labels omitted decision confidence", () => {
+    expect(formatRecordedDecisionConfidence(null)).toBe("Decision confidence was not stored.");
+  });
 });
