@@ -192,15 +192,13 @@ public sealed class RetrievalIndexingService(
         {
             ct.ThrowIfCancellationRequested();
 
-            if (_indexCatalog.TryGet(doc.DocumentId, out _))
-            {
-                await _vectorIndex.RemoveChunksForDocumentAsync(
-                    doc.DocumentId,
-                    doc.TenantId,
-                    doc.WorkspaceId,
-                    doc.ProjectId,
-                    ct).ConfigureAwait(false);
-            }
+            // Remove even when the catalog has no row (index/catalog drift or partial prior failures).
+            await _vectorIndex.RemoveChunksForDocumentAsync(
+                doc.DocumentId,
+                doc.TenantId,
+                doc.WorkspaceId,
+                doc.ProjectId,
+                ct).ConfigureAwait(false);
 
             _indexCatalog.RecordIndexed(doc, fingerprint, indexedUtc, indexedChunkCount: 0);
             ArchLucidInstrumentation.RecordRetrievalIndexDocumentReindexed();
