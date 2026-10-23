@@ -7859,14 +7859,16 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-agents
 
+2026-10-23 seed hunt (seed→hit): promoted `PromptVariantStatsService` candidate — null `PromptVariantStatsRow` entries from repository crashed variant stats projection; service now skips null rows before mapping; regression `GetStatsAsync_skips_null_repository_rows`; 163 scoped Application.Tests.Agents tests passed.
+
+- [x] (proven) `PromptVariantStatsService.GetStatsAsync` — null stats row list entries aborted prompt variant API — **hit 2026-10-23 seed hunt:** null guard before `Select`; regression above. [class:fail-open-validation]
+
 2026-10-23 seed hunt (seed→hit): promoted seeded candidates — null `AddedRelationships` entries crashing dual-model sibling prune and null `AgentExecutionTraceLlmCostSlice` rows crashing slice cost aggregation; cheap-disproof closed null `Claims`/`EvidenceRefs` strings (`string.Join` tolerant) and `ReviewRunEngineProvenanceMerger` prompt-pack trim (merger only copies alias/snapshots); regressions `EnrichAsync_skips_null_relationship_entries_when_pruning_sibling_proposals`, `Compute_skips_null_slice_entries`, and `BuildUserPrompt_tolerates_null_string_entries_in_claims_and_evidence_refs`; 162 scoped Application.Tests.Agents tests passed.
 
 - [x] (proven) `TopologyProposalDualModelConsensusEnricher.PruneSiblingRelationshipsToConsensusTopology` — null relationship list entries aborted consensus prune — **hit 2026-10-23 seed hunt:** null guard before endpoint validation; regression above. [class:fail-open-validation]
 - [x] (proven) `AgentExecutionTraceRunLlmCostAggregator.Compute` (slice overload) — null slice list entries aborted cost projection — **hit 2026-10-23 seed hunt:** skip null slices before `Select`; regression above. [class:fail-open-validation]
 - [x] (invalid) `AgentCuratedEvidenceProposer.BuildUserPrompt` — null strings in `Claims`/`EvidenceRefs` break prompt build — **cheap-disproof 2026-10-23 seed hunt:** `string.Join` omits null slots; regression `BuildUserPrompt_tolerates_null_string_entries_in_claims_and_evidence_refs`.
 - [x] (invalid) `ReviewRunEngineProvenanceMerger.MergeSelectionWithExecution` — whitespace-only `PromptPackVersion` preserved on merge — **cheap-disproof 2026-10-23 seed hunt:** merger does not combine prompt/policy pack fields; execution provenance wins unchanged.
-
-- (candidate) `PromptVariantStatsService.GetStatsAsync` — null `PromptVariantStatsRow` entries from repository may throw when projecting variant stats — locus: `rows.Select` ~22; input: repository returns list with null row.
 
 2026-10-23 seed hunt (seed-only): re-read Agents/ after read-path consolidation hit; cheap-disproof closed stale `(candidate)` rows (dual-model secondary tier, faithfulness floor boundary, whitespace-only policy titles, structured forensics preference); regression `Aggregate_policy_pack_version_null_when_policy_titles_are_whitespace_only`; seeded five follow-on `(candidate)` rows; no production change; 159 scoped Application.Tests.Agents tests passed.
 
@@ -8144,11 +8146,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** application agents; agent handlers wiring
 - **paths:** ArchLucid.Application/Agents/
 - **test-filter:** FullyQualifiedName~Application.Tests.Agents
-- **hunts:** 79
-- **bugs-found:** 71
+- **hunts:** 80
+- **bugs-found:** 72
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-23
-- **last-bug:** 2026-10-23 — null relationship/slice slots crash consensus prune and cost aggregation
+- **last-bug:** 2026-10-23 — null prompt variant stats rows crash GetStatsAsync
 
 2026-09-27 seed hunt (seed→hit): proved `TopologyProposalConsensusMerger.Merge` threw when `RequiredControls` was null on topology dual-model proposals (`AgentProposalStructuralPostProcessor` does not initialize controls for `AgentType.Topology`); fixed by null-coalescing in control intersection and disagreement counts; regression `Merge_when_required_controls_is_null_does_not_throw`; 92 scoped Application.Tests.Agents tests passed.
 
