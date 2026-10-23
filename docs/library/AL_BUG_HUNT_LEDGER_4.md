@@ -12470,10 +12470,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 292
-- **bugs-found:** 194
+- **hunts:** 293
+- **bugs-found:** 195
 - **last-hunt:** 2026-10-23
-- **last-bug:** 2026-10-23 — overlay merge silently skipped duplicate edges with conflicting Label
+- **last-bug:** 2026-10-23 — overlay merge silently skipped duplicate edges with conflicting Weight
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -12937,7 +12937,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - [x] (proven) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — duplicate overlay edges with conflicting `Label` kept first edge label silently — **hit 2026-10-23 seed hunt (seed→hit):** edge label agreement guard on overlay dedupe; regressions above.
 
-- [ ] (candidate) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — duplicate appended inventory overlay edges with conflicting `Weight` on the same directed key may keep first row weight — locus: overlay edge append dedupe on directed key without weight validation; input: two overlay edges with trim-equal directed keys but different `Weight` values; wrong outcome: merged graph retains first edge weight without surfacing disagreement.
+2026-10-23 seed hunt (seed→hit): promoted `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` duplicate overlay edges with conflicting `Weight` on the same directed key candidate; proved overlay edge dedupe validated `Label` but skipped later rows without comparing `Weight`, leaving the first edge weight authoritative; extended `TryValidateOverlayEdgeAgreement` with numeric weight checks; regressions `Merge_throws_when_overlay_duplicate_edges_disagree_on_weight` and `Merge_skips_second_overlay_edge_when_duplicate_edges_share_the_same_weight`; seeded `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` duplicate overlay edges with conflicting `InferenceSource` on the same directed key follow-on; 597 KnowledgeGraph + 170 Provenance scoped tests passed.
+
+- [x] (proven) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — duplicate overlay edges with conflicting `Weight` kept first edge weight silently — **hit 2026-10-23 seed hunt (seed→hit):** edge weight agreement guard on overlay dedupe; regressions above.
+
+- [ ] (candidate) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — duplicate appended inventory overlay edges with conflicting `InferenceSource` on the same directed key may keep first row inference source — locus: overlay edge append dedupe on directed key without inference-source validation; input: two overlay edges with trim-equal directed keys but different non-empty `InferenceSource` values; wrong outcome: merged graph retains first edge inference source without surfacing disagreement.
 
 2026-10-22 seed hunt (seed→hit): promoted `StructuredDiagramGraphMerger` padded diagram property-key coalesce candidate; proved duplicate node/edge metadata coalesce indexed raw `property.Key`, so a later compile with surrounding-whitespace keys left parallel bag entries and `GraphNodePropertyReader` could return stale source-evidence values; trim keys before skip/coalesce (parity with `GraphNodeFactory.NormalizePropertyBag`); regression `Merge_coalesces_node_properties_when_incoming_property_keys_differ_only_by_surrounding_whitespace`; seeded diagram edge metadata padded-key coalesce regression follow-on; 468 KnowledgeGraph + 170 Provenance scoped tests passed.
 

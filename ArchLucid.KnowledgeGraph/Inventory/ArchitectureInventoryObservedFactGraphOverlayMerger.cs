@@ -73,7 +73,7 @@ public static class ArchitectureInventoryObservedFactGraphOverlayMerger
                     GraphEdge retainedEdge = mergedEdges.First(edge =>
                         string.Equals(BuildEdgeKey(edge), edgeKey, StringComparison.OrdinalIgnoreCase));
 
-                    TryValidateOverlayEdgeLabelAgreement(inventoryEdge, retainedEdge);
+                    TryValidateOverlayEdgeAgreement(inventoryEdge, retainedEdge);
                 }
 
                 continue;
@@ -229,6 +229,12 @@ public static class ArchitectureInventoryObservedFactGraphOverlayMerger
         }
     }
 
+    private static void TryValidateOverlayEdgeAgreement(GraphEdge incomingEdge, GraphEdge retainedEdge)
+    {
+        TryValidateOverlayEdgeLabelAgreement(incomingEdge, retainedEdge);
+        TryValidateOverlayEdgeWeightAgreement(incomingEdge, retainedEdge);
+    }
+
     private static void TryValidateOverlayEdgeLabelAgreement(GraphEdge incomingEdge, GraphEdge retainedEdge)
     {
         string incomingLabel = (incomingEdge.Label ?? string.Empty).Trim();
@@ -245,6 +251,20 @@ public static class ArchitectureInventoryObservedFactGraphOverlayMerger
                 "Inventory overlay duplicate edges disagree on Label for the same directed edge key.");
         }
     }
+
+    private static void TryValidateOverlayEdgeWeightAgreement(GraphEdge incomingEdge, GraphEdge retainedEdge)
+    {
+        if (OverlayEdgeWeightsAgree(incomingEdge.Weight, retainedEdge.Weight))
+        {
+            return;
+        }
+
+        throw new ArgumentException(
+            "Inventory overlay duplicate edges disagree on Weight for the same directed edge key.");
+    }
+
+    private static bool OverlayEdgeWeightsAgree(double incomingWeight, double retainedWeight) =>
+        Math.Abs(incomingWeight - retainedWeight) <= 1e-9;
 
     private static string BuildEdgeKey(GraphEdge edge) =>
         $"{NormalizeNodeId(edge.FromNodeId)}|{NormalizeNodeId(edge.ToNodeId)}|{NormalizeEdgeType(edge.EdgeType)}";
