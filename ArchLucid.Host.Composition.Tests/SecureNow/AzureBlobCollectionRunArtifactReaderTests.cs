@@ -54,6 +54,15 @@ public sealed class AzureBlobCollectionRunArtifactReaderTests
     }
 
     [Fact]
+    public void ParseManifestContent_returns_null_when_json_is_invalid()
+    {
+        CollectionRunManifest? manifest = AzureBlobCollectionRunArtifactReader.ParseManifestContent(
+            BinaryData.FromString("{not-valid-json"));
+
+        manifest.Should().BeNull();
+    }
+
+    [Fact]
     public async Task ReadManifestAsync_returns_null_when_manifest_blob_download_fails()
     {
         AzureBlobCollectionRunArtifactReader reader = CreateReader();

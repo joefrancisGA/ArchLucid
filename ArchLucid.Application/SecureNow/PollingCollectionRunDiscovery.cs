@@ -14,8 +14,21 @@ public sealed class PollingCollectionRunDiscovery(
 
     public async Task<int> DiscoverAsync(CancellationToken cancellationToken = default)
     {
-        IReadOnlyList<CollectionRunManifest> manifests =
-            await _artifactReader.ListManifestsAsync(cancellationToken);
+        IReadOnlyList<CollectionRunManifest> manifests;
+
+        try
+        {
+            manifests = await _artifactReader.ListManifestsAsync(cancellationToken);
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
+        catch (Exception)
+        {
+            return 0;
+        }
+
         int imported = 0;
 
         foreach (CollectionRunManifest manifest in manifests)

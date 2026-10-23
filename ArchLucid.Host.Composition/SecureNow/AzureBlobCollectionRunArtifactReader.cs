@@ -116,39 +116,51 @@ public sealed class AzureBlobCollectionRunArtifactReader(
             return null;
         }
 
-        using JsonDocument document = JsonDocument.Parse(content);
-        JsonElement root = document.RootElement;
+        return ParseManifestContent(content);
+    }
 
-        if (!Guid.TryParse(GetString(root, "runId"), out Guid runId))
-            return null;
-
-        if (!DateTime.TryParse(GetString(root, "startedUtc"), out DateTime startedUtc))
-            return null;
-
-        string[] subscriptions = root.TryGetProperty("subscriptions", out JsonElement subscriptionElement) &&
-                                  subscriptionElement.ValueKind == JsonValueKind.Array
-            ? subscriptionElement.EnumerateArray()
-                .Where(static item => item.ValueKind == JsonValueKind.String)
-                .Select(static item => item.GetString()!)
-                .ToArray()
-            : [];
-
-        return new CollectionRunManifest
+    internal static CollectionRunManifest? ParseManifestContent(BinaryData content)
+    {
+        try
         {
-            RunId = runId,
-            TenantId = Guid.TryParse(GetString(root, "tenantId"), out Guid tenantId) ? tenantId : null,
-            AgentVersion = GetString(root, "agentVersion") ?? "unknown",
-            StartedUtc = startedUtc.ToUniversalTime(),
-            FinishedUtc = DateTime.TryParse(GetString(root, "finishedUtc"), out DateTime finishedUtc)
-                ? finishedUtc.ToUniversalTime()
-                : null,
-            Status = GetString(root, "status") ?? "Failed",
-            SubscriptionsCovered = subscriptions,
-            ErrorSummary = GetString(root, "errorSummary"),
-            ZipPath = GetString(root, "packageBlobPath"),
-            ZipSha256 = GetString(root, "packageSha256"),
-            SchemaVersion = GetInt(root, "schemaVersion"),
-        };
+            using JsonDocument document = JsonDocument.Parse(content);
+            JsonElement root = document.RootElement;
+
+            if (!Guid.TryParse(GetString(root, "runId"), out Guid runId))
+                return null;
+
+            if (!DateTime.TryParse(GetString(root, "startedUtc"), out DateTime startedUtc))
+                return null;
+
+            string[] subscriptions = root.TryGetProperty("subscriptions", out JsonElement subscriptionElement) &&
+                                      subscriptionElement.ValueKind == JsonValueKind.Array
+                ? subscriptionElement.EnumerateArray()
+                    .Where(static item => item.ValueKind == JsonValueKind.String)
+                    .Select(static item => item.GetString()!)
+                    .ToArray()
+                : [];
+
+            return new CollectionRunManifest
+            {
+                RunId = runId,
+                TenantId = Guid.TryParse(GetString(root, "tenantId"), out Guid tenantId) ? tenantId : null,
+                AgentVersion = GetString(root, "agentVersion") ?? "unknown",
+                StartedUtc = startedUtc.ToUniversalTime(),
+                FinishedUtc = DateTime.TryParse(GetString(root, "finishedUtc"), out DateTime finishedUtc)
+                    ? finishedUtc.ToUniversalTime()
+                    : null,
+                Status = GetString(root, "status") ?? "Failed",
+                SubscriptionsCovered = subscriptions,
+                ErrorSummary = GetString(root, "errorSummary"),
+                ZipPath = GetString(root, "packageBlobPath"),
+                ZipSha256 = GetString(root, "packageSha256"),
+                SchemaVersion = GetInt(root, "schemaVersion"),
+            };
+        }
+        catch (JsonException)
+        {
+            return null;
+        }
     }
 
     private static string? GetString(JsonElement root, string propertyName)

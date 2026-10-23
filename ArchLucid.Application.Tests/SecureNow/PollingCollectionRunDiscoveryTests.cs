@@ -311,4 +311,28 @@ public sealed class PollingCollectionRunDiscoveryTests
         imported.Should().Be(1);
         azureIngest.Invocations.Count.Should().Be(2);
     }
+
+    [Fact]
+    public async Task DiscoverAsync_returns_zero_when_list_manifests_throws()
+    {
+        Mock<ICollectionRunArtifactReader> reader = new();
+        reader
+            .Setup(r => r.ListManifestsAsync(It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("Simulated storage list failure."));
+
+        Mock<ICollectionRunRepository> repository = new(MockBehavior.Strict);
+        Mock<IAzureExtractorIngestService> azureIngest = new(MockBehavior.Strict);
+        Mock<IScopeContextProvider> scopeProvider = new(MockBehavior.Strict);
+
+        CollectionRunIngestService ingest = new(
+            repository.Object,
+            azureIngest.Object,
+            scopeProvider.Object);
+
+        PollingCollectionRunDiscovery discovery = new(reader.Object, ingest);
+
+        int imported = await discovery.DiscoverAsync(CancellationToken.None);
+
+        imported.Should().Be(0);
+    }
 }
