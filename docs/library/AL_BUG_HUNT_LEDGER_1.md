@@ -6868,13 +6868,20 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
-2026-10-23 seed hunt (seed→hit): proved `DeclarationInventoryContradictionThreeWayGate.IsPublicExposureKey` used raw `Contains("public")` on declaration keys, so `corporateRepublic*` keys falsely classified as public-exposure declarations and suppressed pack×declaration×inventory contradictions; fixed with camelCase/dot/underscore token-boundary matching; regressions `DeclarationClaimsSecureControl_returns_false_when_public_token_is_embedded_inside_republic_key_segment` and `DeclarationClaimsSecureControl_returns_true_when_camel_case_public_segment_disables_access`; cheap-disproof closed four open `(candidate)` rows; seeded five follow-on rows; scoped application-analysis filter 85/85. Private beta: declaration-vs-inventory contradiction findings no longer skip mismatches solely because a Terraform key embeds `public` inside `republic`.
+2026-10-23 seed hunt (seed→hit): proved `IsTransportSecurityKey` used raw `Contains` for `https`/`tls`/`ssl`, so keys like `netlsPipeline` and `rehttpsRedirect` falsely counted as transport-security declarations; aligned transport classifiers with `DeclarationKeyContainsSecurityToken`; regressions `DeclarationClaimsSecureControl_returns_false_when_tls_token_is_embedded_inside_unrelated_key_segment` and `DeclarationClaimsSecureControl_returns_false_when_https_token_is_embedded_inside_unrelated_key_segment`; cheap-disproof closed four follow-on `(candidate)` rows; seeded five follow-on rows; scoped application-analysis filter 87/87. Private beta: declaration-vs-inventory contradiction analysis no longer treats interior `tls`/`https` substrings in unrelated key segments as HTTPS/TLS controls.
 
-- [ ] (candidate) `DeclarationInventoryContradictionThreeWayGate.IsTransportSecurityKey` — `https`/`tls`/`ssl` substring matching on declaration keys may false-positive on unrelated tokens (e.g. `nonTlsStorage`) — locus: transport key classifier; input: declaration key from multi-cloud inventory packs.
+- [ ] (candidate) `DeclarationInventoryContradictionThreeWayGate.IsEncryptionKey` — `storageencrypted` substring may match unrelated compound keys — locus: encryption classifier; input: inventory pack keys embedding `storageencrypted` without camelCase boundary.
 - [ ] (candidate) `DeclarationInventoryContradictionThreeWayGate.IsNetworkIsolationKey` — `defaultaction` substring may match non-ACL configuration keys — locus: network isolation classifier; input: App Gateway or Front Door policy keys.
 - [ ] (candidate) `PolicyDeclarationInventoryContradictionFindingEngine` — mismatches filtered when `DeclarationClaimsSecureControl` is false may still emit when declaration value is unknown sentinel — locus: three-way gate vs finding emission; input: declaration value `unknown` with secure-sounding key.
 - [ ] (candidate) `CompareQualityDeltaCalculator.ComputeUncoveredMandatoryRequirements` — functional requirement count uses all elements while coverage metric may exclude muted kinds — locus: uncovered mandatory delta; input: compare-quality pair with requirement elements lacking design coverage on one side only.
 - [ ] (candidate) `ComparisonsApplicationService.TryBuildBatchReplayZipAsync` — generic `Exception` catch still wraps non-terminal failures as per-id batch manifest failures — locus: failure loop; input: batch replay with one comparison missing scoped tenant row.
+
+- [x] (proven) `DeclarationInventoryContradictionThreeWayGate.IsTransportSecurityKey` — interior `tls`/`https` substrings in declaration keys — **hit 2026-10-23 seed hunt:** shared `DeclarationKeyContainsSecurityToken`; regressions `DeclarationClaimsSecureControl_returns_false_when_tls_token_is_embedded_inside_unrelated_key_segment` and `DeclarationClaimsSecureControl_returns_false_when_https_token_is_embedded_inside_unrelated_key_segment`.
+
+2026-10-23 seed hunt (seed→hit): proved `DeclarationInventoryContradictionThreeWayGate.IsPublicExposureKey` used raw `Contains("public")` on declaration keys, so `corporateRepublic*` keys falsely classified as public-exposure declarations and suppressed pack×declaration×inventory contradictions; fixed with camelCase/dot/underscore token-boundary matching; regressions `DeclarationClaimsSecureControl_returns_false_when_public_token_is_embedded_inside_republic_key_segment` and `DeclarationClaimsSecureControl_returns_true_when_camel_case_public_segment_disables_access`; cheap-disproof closed four open `(candidate)` rows; seeded five follow-on rows; scoped application-analysis filter 85/85. Private beta: declaration-vs-inventory contradiction findings no longer skip mismatches solely because a Terraform key embeds `public` inside `republic`.
+- [x] (valid-no-repro) `PolicyDeclarationInventoryContradictionFindingEngine` — unknown sentinel declaration values — **cheap-disproof 2026-10-23 seed hunt:** `NormalizeSecurityToken` leaves non-boolean tokens non-matching; gate returns false for unknown keys/values.
+- [x] (valid-no-repro) `CompareQualityDeltaCalculator.ComputeUncoveredMandatoryRequirements` — muted requirement kinds — **cheap-disproof 2026-10-23 seed hunt:** findings list already excludes muted items before metrics; requirement elements counted from knowledge model only.
+- [x] (valid-no-repro) `ComparisonsApplicationService.TryBuildBatchReplayZipAsync` — generic exception wrapping — **cheap-disproof 2026-10-23 seed hunt:** terminal exceptions rethrown; per-id failures intentional for partial batch success semantics.
 
 - [x] (invalid) `ComparisonReplayService.RegenerateExportDiffAsync` — regenerate export-diff omits inner career gate — **cheap-disproof 2026-10-23 seed hunt:** public replay paths gate before private regenerate helpers.
 - [x] (valid-no-repro) `RunExportLineageVerifier.VerifyAsync` — `LineageUnverified` outcome vs career throw asymmetry — **cheap-disproof 2026-10-23 seed hunt:** intentional enum for history listing vs exception on blocked metadata reads.
@@ -7024,11 +7031,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 74
-- **bugs-found:** 69
+- **hunts:** 75
+- **bugs-found:** 70
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-23
-- **last-bug:** 2026-10-23 — `republic` declaration keys misclassified as public exposure
+- **last-bug:** 2026-10-23 — transport declaration keys misclassified via interior tls/https substrings
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
