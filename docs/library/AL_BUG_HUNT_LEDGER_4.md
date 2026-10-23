@@ -14654,12 +14654,14 @@ heap-disproved mermaid typed-topology candidate.
 - **aliases:** host composition; DI registration; startup modules
 - **paths:** ArchLucid.Host.Composition/
 - **test-filter:** FullyQualifiedName~Host.Composition|FullyQualifiedName~ServiceCollectionExtensions
-- **hunts:** 69
-- **bugs-found:** 53
+- **hunts:** 70
+- **bugs-found:** 54
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-23
-- **last-bug:** 2026-10-23 — value report job completed with empty renderer output
+- **last-bug:** 2026-10-23 — collection discovery counted non-imported ingests as imported
 - **code-changed-since:** yes
+
+2026-10-23 thorough hunt (seed→hit): proved `PollingCollectionRunDiscovery.DiscoverAsync` incremented `imported` after any non-throwing `IngestAsync` (including rejected runs and empty zips) and `AzureBlobCollectionRunArtifactReader.ReadArtifactAsync` returned zero-length package blobs as artifacts; count only `CollectionRunStatus.Imported`, skip empty `ZipBytes`, reader returns null for empty downloads; regressions `DiscoverAsync_does_not_count_empty_package_zip_as_imported`, `DiscoverAsync_does_not_increment_import_count_when_ingest_returns_rejected_status`; cheap-disproof closed three sibling `(candidate)` rows; seeded five follow-on `(candidate)` rows; scoped `PollingCollectionRunDiscoveryTests` 7 passed (`RunAnalyzers=false`).
 
 2026-10-23 thorough hunt (seed→hit): proved `InMemoryValueReportJobQueue.RunJobAsync` marked jobs `Completed` when `IValueReportRenderer.RenderAsync` returned an empty byte array; fail before audit when rendered docx is empty; regression `InMemoryValueReportJobQueue_fails_job_when_renderer_returns_empty_docx`; cheap-disproof closed four sibling `(candidate)` rows; seeded five follow-on `(candidate)` rows; scoped value-report + discovery tests 16 passed (`RunAnalyzers=false`).
 
@@ -14825,11 +14827,17 @@ heap-disproved mermaid typed-topology candidate.
 - [x] (valid-no-repro) `ValueReportJobPollStateCacheRegistrar` — `RedisCache` connection string from health probe resolver — **cheap-disproof 2026-10-23 thorough hunt #69:** poll state prefers registered `IDistributedCache`; health-probe alignment fixed in hunts #41–#44; read-only replica misconfig is deployment/ops not composition logic.
 - [x] (proven) `InMemoryValueReportJobQueue.RunJobAsync` — success path did not verify rendered docx non-empty — **hit 2026-10-23 thorough hunt #69:** empty renderer output now fails before `ValueReportGenerated` audit; regression `InMemoryValueReportJobQueue_fails_job_when_renderer_returns_empty_docx`.
 
-- [ ] (candidate) `PollingCollectionRunDiscovery.DiscoverAsync` — zero-length package zip still increments import count — locus: `imported++` after `IngestAsync`; input: `ReadArtifactAsync` returns empty `ZipBytes`; wrong outcome: discovery reports success without artifact payload.
-- [ ] (candidate) `AzureBlobCollectionRunArtifactReader.ReadArtifactAsync` — successful download of empty blob returns artifact with zero-length zip — locus: `bytes.ToArray()` without length guard; input: empty package blob; wrong outcome: ingest invoked on empty archive.
-- [ ] (candidate) `InMemoryValueReportJobQueue.RunJobAsync` — `ValueReportBuilder.BuildAsync` cancellation not observed — locus: `CancellationToken.None` passed to builder/renderer; input: host shutdown during async export; wrong outcome: job continues after drain signal.
-- [ ] (candidate) `InMemoryValueReportJobQueue.TryPoll` — distributed `Completed` with whitespace-only `fileName` — locus: completed branch returns `entry.FileName`; input: corrupt poll JSON with `"fileName":"   "`; wrong outcome: download filename unusable.
-- [ ] (candidate) `ApiRequestUsageEventBatchFlushHostedService` — timer tick races `StopAsync` dequeue — locus: flush loop vs shutdown; input: SIGTERM during `TryPersistBatchAsync`; wrong outcome: duplicate or dropped usage events.
+- [x] (proven) `PollingCollectionRunDiscovery.DiscoverAsync` — zero-length package zip still incremented import count — **hit 2026-10-23 thorough hunt #70:** skip empty `ZipBytes` and count only `CollectionRunStatus.Imported`; regression `DiscoverAsync_does_not_count_empty_package_zip_as_imported`.
+- [x] (proven) `AzureBlobCollectionRunArtifactReader.ReadArtifactAsync` — successful download of empty blob returned artifact with zero-length zip — **hit 2026-10-23 thorough hunt #70:** empty package blobs return null like missing blobs.
+- [x] (valid-no-repro) `InMemoryValueReportJobQueue.RunJobAsync` — `ValueReportBuilder.BuildAsync` cancellation not observed — **cheap-disproof 2026-10-23 thorough hunt #70:** in-memory queue is fire-and-forget from `Enqueue`; graceful shutdown for async exports is not wired on this path (documented tradeoff with distributed poll state).
+- [x] (valid-no-repro) `InMemoryValueReportJobQueue.TryPoll` — distributed `Completed` with whitespace-only `fileName` — **cheap-disproof 2026-10-23 thorough hunt #70:** corrupt poll filenames require invalid cross-replica state; completed bytes guard from hunt #68/#69 covers the high-impact failure mode.
+- [x] (valid-no-repro) `ApiRequestUsageEventBatchFlushHostedService` — timer tick races `StopAsync` dequeue — **cheap-disproof 2026-10-23 thorough hunt #70:** `StopAsync` drains buffer after final flush attempt; failed persist requeues via `ReturnBatchToBuffer`; regressions in `ApiRequestUsageEventBatchFlushHostedServiceTests` cover shutdown paths.
+
+- [ ] (candidate) `PollingCollectionRunDiscovery.DiscoverAsync` — `PartiallySucceeded` manifest status still ingests when zip present — locus: `CollectionRunIngestService.ParseStatus`; input: manifest `status` Partial with valid zip; wrong outcome: import count or run status mismatch.
+- [ ] (candidate) `CollectionRunIngestService.IngestAsync` — hash mismatch creates rejected row but discovery continues — locus: `IsManifestHashValid`; input: manifest `zipSha256` does not match bytes; wrong outcome: operator sees rejected rows without discovery metric signal.
+- [ ] (candidate) `InMemoryValueReportJobQueue.TryPoll` — distributed `Failed` with non-empty `bytesBase64` — locus: failed branch ignores bytes; input: corrupt terminal state includes document bytes; wrong outcome: client cannot download partial artifact.
+- [ ] (candidate) `AzureBlobCollectionRunArtifactReader.ListManifestsAsync` — `RequestFailedException` during enumeration returns partial list silently — locus: catch in list loop; input: mid-scan storage throttle; wrong outcome: operator unaware manifests were skipped.
+- [ ] (candidate) `ValueReportJobPollStateCacheRegistrar` — memory `IDistributedCache` used when Redis connection string invalid — locus: factory fallback; input: malformed Redis string with hot-path cache disabled; wrong outcome: cross-replica poll state split-brain.
 
 
 2026-10-09 seed hunt (seed→hit): failed usage flush returned events through `Enqueue`, which drops them when metering is disabled. Already-accepted events now use `Requeue`. Regression `StopAsync_keeps_dequeued_usage_events_when_persist_fails_after_metering_disabled` failed first.

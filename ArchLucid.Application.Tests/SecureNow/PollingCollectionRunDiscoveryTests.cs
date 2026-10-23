@@ -313,6 +313,109 @@ public sealed class PollingCollectionRunDiscoveryTests
     }
 
     [Fact]
+    public async Task DiscoverAsync_does_not_count_empty_package_zip_as_imported()
+    {
+        CollectionRunManifest manifest = new()
+        {
+            RunId = Guid.NewGuid(),
+            AgentVersion = "1.0",
+            StartedUtc = DateTime.UtcNow,
+            Status = "Succeeded",
+            ZipPath = "runs/empty/package.zip",
+            SchemaVersion = AzureExtractorPackageZipValidator.SupportedSchemaVersion,
+        };
+
+        CollectionRunArtifact emptyArtifact = new()
+        {
+            Manifest = manifest,
+            ZipBytes = [],
+        };
+
+        Mock<ICollectionRunArtifactReader> reader = new();
+        reader
+            .Setup(r => r.ListManifestsAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync([manifest]);
+        reader
+            .Setup(r => r.ReadArtifactAsync(manifest, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(emptyArtifact);
+
+        Mock<ICollectionRunRepository> repository = new(MockBehavior.Strict);
+        Mock<IAzureExtractorIngestService> azureIngest = new(MockBehavior.Strict);
+        Mock<IScopeContextProvider> scopeProvider = new(MockBehavior.Strict);
+
+        CollectionRunIngestService ingest = new(
+            repository.Object,
+            azureIngest.Object,
+            scopeProvider.Object);
+
+        PollingCollectionRunDiscovery discovery = new(reader.Object, ingest);
+
+        int imported = await discovery.DiscoverAsync(CancellationToken.None);
+
+        imported.Should().Be(0);
+        azureIngest.Invocations.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task DiscoverAsync_does_not_increment_import_count_when_ingest_returns_rejected_status()
+    {
+        CollectionRunManifest rejected = new()
+        {
+            RunId = Guid.NewGuid(),
+            AgentVersion = "1.0",
+            StartedUtc = DateTime.UtcNow,
+            Status = "Succeeded",
+            ZipPath = "runs/bad-schema/package.zip",
+            SchemaVersion = -1,
+        };
+
+        CollectionRunArtifact artifact = new()
+        {
+            Manifest = rejected,
+            ZipBytes = [0x50, 0x4B, 0x03, 0x04],
+        };
+
+        Mock<ICollectionRunArtifactReader> reader = new();
+        reader
+            .Setup(r => r.ListManifestsAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync([rejected]);
+        reader
+            .Setup(r => r.ReadArtifactAsync(rejected, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(artifact);
+
+        Mock<ICollectionRunRepository> repository = new();
+        repository
+            .Setup(r => r.GetAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((CollectionRun?)null);
+        repository
+            .Setup(r => r.UpsertAsync(It.IsAny<CollectionRun>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IAzureExtractorIngestService> azureIngest = new(MockBehavior.Strict);
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider
+            .Setup(p => p.GetCurrentScope())
+            .Returns(new ScopeContext
+            {
+                TenantId = Guid.NewGuid(),
+                WorkspaceId = Guid.NewGuid(),
+                ProjectId = Guid.NewGuid(),
+            });
+
+        CollectionRunIngestService ingest = new(
+            repository.Object,
+            azureIngest.Object,
+            scopeProvider.Object);
+
+        PollingCollectionRunDiscovery discovery = new(reader.Object, ingest);
+
+        int imported = await discovery.DiscoverAsync(CancellationToken.None);
+
+        imported.Should().Be(0);
+        azureIngest.Invocations.Should().BeEmpty();
+    }
+
+    [Fact]
     public async Task DiscoverAsync_returns_zero_when_list_manifests_throws()
     {
         Mock<ICollectionRunArtifactReader> reader = new();

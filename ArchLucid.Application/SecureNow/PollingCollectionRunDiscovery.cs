@@ -1,3 +1,5 @@
+using ArchLucid.Core.SecureNow;
+
 using Azure;
 
 namespace ArchLucid.Application.SecureNow;
@@ -44,12 +46,15 @@ public sealed class PollingCollectionRunDiscovery(
                 continue;
             }
 
-            if (artifact is null)
+            if (artifact is null || artifact.ZipBytes.Length == 0)
                 continue;
 
             try
             {
-                await _ingestService.IngestAsync(artifact, cancellationToken);
+                CollectionRun run = await _ingestService.IngestAsync(artifact, cancellationToken);
+
+                if (run.Status == CollectionRunStatus.Imported)
+                    imported++;
             }
             catch (OperationCanceledException)
             {
@@ -59,8 +64,6 @@ public sealed class PollingCollectionRunDiscovery(
             {
                 continue;
             }
-
-            imported++;
         }
 
         return imported;
