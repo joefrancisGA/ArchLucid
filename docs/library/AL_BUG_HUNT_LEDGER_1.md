@@ -8716,6 +8716,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: architecture-intelligence-orchestrator
 
+2026-10-23 seed hunt (seed→hit): promoted protocol-relative `//host/...` URL drift splitting `ContentHash` (`//example.com/docs/architecture/overview.md` vs slash form); `TryStripProtocolRelativeAuthorityPath` resolves `//authority/...` via synthetic `https:` only when authority contains `.` or `:` so `//docs/...` path paste stays unchanged; cheap-disproof regression `Build_matches_content_hash_when_file_name_differs_only_by_http_url_with_authority_prefix`; regression `Build_matches_content_hash_when_file_name_differs_only_by_protocol_relative_url_with_authority_prefix`; 422 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `GraphSnapshotCanonicalFingerprint` — protocol-relative URL authority prefix split path canonicalization — **hit 2026-10-23 seed hunt:** `TryStripProtocolRelativeAuthorityPath`; regressions above.
+
 2026-10-23 seed hunt (seed→hit): promoted `https://` authority-prefixed paths splitting `ContentHash` (`https://example.com/docs/architecture/overview.md` vs slash form); `StripReviewCachePathUrlAffixes` now takes `Uri.AbsolutePath` for `http`/`https` only (keeps literal `file://` strip); fullwidth greater-than U+FF1E added to alternate separators; regressions `Build_matches_content_hash_when_file_name_differs_only_by_https_url_with_authority_prefix` and `Build_matches_content_hash_when_file_name_differs_only_by_fullwidth_greater_than_between_segments`; cheap-disproof `Build_matches_content_hash_when_file_name_differs_only_by_percent_encoded_file_uri_scheme`; 420 scoped orchestrator/cache/manifest/continue-flight tests passed.
 
 - [x] (proven) `GraphSnapshotCanonicalFingerprint` — `https` authority prefix and fullwidth `>` split path canonicalization — **hit 2026-10-23 seed hunt:** `Uri.AbsolutePath` for http(s); U+FF1E in alternate separator set; regressions above.
