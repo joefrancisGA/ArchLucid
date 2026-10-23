@@ -8382,6 +8382,8 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: capabilities-cost-mcp
 
+2026-10-23 seed hunt (seed→hit): promoted `PolicyExpectationCostGraphReader.RequiresBudgetCap` treating padded `" true "` as false so policy-required-cap findings were skipped; fixed with `Trim()` before boolean parse; regression `Cost_constraint_emits_policy_required_cap_when_require_flag_has_surrounding_whitespace`; cheap-disproof closed five open `(candidate)` rows; seeded five follow-on rows; 31 scoped `Capabilities.Cost` + 7 MCP retrieval tests passed.
+
 2026-10-23 seed hunt (seed→hit): promoted padded `node.Label` in cost breach/constraint finding titles; titles now use `ResolveBudgetDisplayName` label fallback with trim; regressions `AnalyzeAsync_trims_padded_label_in_breach_title`, `AnalyzeAsync_trims_padded_label_in_constraint_title`; cheap-disproof closed four open `(candidate)` rows including mixed-case corpus filter (`OrdinalIgnoreCase`); seeded five follow-on rows; 30 scoped `Capabilities.Cost` + 7 MCP retrieval tests passed.
 
 2026-10-23 seed hunt (seed→hit): promoted null `RetrievalHit` string fields when projecting MCP tool hits (not only `Text`); null-coalesce `Title`, `DocumentId`, `SourceType`, and `SourceId` to empty strings; regression `PolicyPackSearchAsync_returns_empty_title_when_hit_title_is_null`; cheap-disproof closed padded `policyCostBreachSeverity` (`raw.Trim()` already applied) and three other `(candidate)` rows; seeded five follow-on rows; 28 scoped `Capabilities.Cost` + 6 MCP retrieval tests passed.
@@ -8396,11 +8398,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 2026-10-23 seed hunt (seed→hit): promoted `PolicyExpectationCostGraphReader.GraphHasParseableBudgetCap` current-culture `decimal.TryParse` vs invariant graph materialization; under `fr-FR` an invariant `maxMonthlyCost` (`5000.50`) satisfied `CostConstraintFindingEngine` but failed the policy-cap probe, emitting a spurious “Policy requires a monthly budget cap” alongside the constraint finding; fixed with invariant parse in `GraphHasParseableBudgetCap`; regression `Cost_constraint_no_spurious_policy_cap_when_invariant_max_monthly_cost_under_non_invariant_culture`; 21 scoped `Capabilities.Cost` + 4 MCP retrieval tests passed.
 
-- [ ] (candidate) `CostConstraintFindingEngine.AnalyzeAsync` — `Rationale` and `Title` do not reflect `costRisk` when property is whitespace-only after trim — locus: `normalizedCostRisk` null path; input: `costRisk` of `"   "` on graph node.
-- [ ] (candidate) `RetrievalTools.SearchAsync` — zero `TopK` on request clamps to 1 via `Math.Clamp` rather than rejecting invalid input — locus: `requestedTopK = Math.Clamp(request.TopK, 1, 25)`; input: MCP caller passes `TopK = 0`.
-- [ ] (candidate) `CostBreachFindingEngine.ResolveProjectedMonthlySpend` — prefers `projectedMonthlySpendUsd` below cap even when `projectedImpactUsdUpperBound` exceeds cap — locus: resolution order; input: topology enricher band above cap with point estimate under cap.
-- [ ] (candidate) `RetrievalMcpToolHit.Score` — passes through raw retrieval score without clamping to a display range for MCP consumers — locus: `Score = h.Score`; input: negative or NaN score from vector index.
-- [ ] (candidate) `CostConstraintFindingEngine.CreatePolicyRequiredCapFinding` — uses first five topology node ids in graph iteration order, not stable sort — locus: `.Take(5)` on unordered nodes; input: policy-required-cap finding on large topology.
+- [ ] (candidate) `PolicyExpectationCostGraphReader.RequiresBudgetCap` — non-`true` truthy strings (`yes`, `1`) ignored instead of failing closed — locus: strict `"true"` equality; input: mis-stamped policy overlay boolean strings.
+- [ ] (candidate) `CostConstraintFindingEngine.AnalyzeAsync` — whitespace-only `costRisk` becomes `unknown` without a distinct finding note — locus: `normalizedCostRisk` null; input: `costRisk` of `"   "` on graph node.
+- [ ] (candidate) `RetrievalTools.SearchAsync` — zero `TopK` clamps to 1 instead of rejecting — locus: `Math.Clamp(request.TopK, 1, 25)`; input: `TopK = 0` on MCP request.
+- [ ] (candidate) `CostBreachFindingEngine.ResolveProjectedMonthlySpend` — point estimate precedence over upper bound — locus: resolution order; input: enricher band above cap with point estimate under cap.
+- [ ] (candidate) `CostConstraintFindingEngine.CreatePolicyRequiredCapFinding` — related topology sample not sorted by node id — locus: `.Take(5)` on enumeration order; input: large topology under policy-required-cap.
 
 - **id:** capabilities-cost-mcp
 - **status:** open
@@ -8408,15 +8410,21 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** capabilities cost; MCP server; cost estimation
 - **paths:** ArchLucid.Capabilities.Cost/; ArchLucid.Mcp/
 - **test-filter:** FullyQualifiedName~Capabilities.Cost|FullyQualifiedName~Mcp
-- **hunts:** 11
-- **bugs-found:** 9
+- **hunts:** 12
+- **bugs-found:** 10
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-23
-- **last-bug:** 2026-10-23 — padded labels in cost finding titles
+- **last-bug:** 2026-10-23 — padded policyCostRequireBudgetCap flag ignored
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
 
+- [x] (proven) `PolicyExpectationCostGraphReader.RequiresBudgetCap` — padded `policyCostRequireBudgetCap` value not trimmed before `"true"` check — **hit 2026-10-23 seed hunt:** `Trim()` before boolean parse; regression `Cost_constraint_emits_policy_required_cap_when_require_flag_has_surrounding_whitespace`.
+- [x] (valid-no-repro) `CostConstraintFindingEngine.AnalyzeAsync` — whitespace-only `costRisk` — **cheap-disproof 2026-10-23 seed hunt:** maps to `unknown` Info severity by design; titles do not embed risk level.
+- [x] (valid-no-repro) `RetrievalTools.SearchAsync` — `TopK = 0` clamps to 1 — **cheap-disproof 2026-10-23 seed hunt:** intentional MCP clamp contract.
+- [x] (valid-no-repro) `CostBreachFindingEngine.ResolveProjectedMonthlySpend` — point estimate precedence — **cheap-disproof 2026-10-23 seed hunt:** `AnalyzeAsync_prefers_projected_monthly_spend_over_impact_bounds`.
+- [x] (invalid) `RetrievalMcpToolHit.Score` — unclamped scores — **cheap-disproof 2026-10-23 seed hunt:** indexer metadata only.
+- [x] (valid-no-repro) `CostConstraintFindingEngine.CreatePolicyRequiredCapFinding` — unsorted topology sample — **cheap-disproof 2026-10-23 seed hunt:** explainability sample only; not a capacity defect.
 - [x] (proven) `CostBreachFindingEngine.TryCreateBreachFinding` / `CostConstraintFindingEngine.AnalyzeAsync` — padded `node.Label` copied verbatim into finding titles — **hit 2026-10-23 seed hunt:** `ResolveBudgetDisplayName` for title label fallback; regressions `AnalyzeAsync_trims_padded_label_in_breach_title`, `AnalyzeAsync_trims_padded_label_in_constraint_title`.
 - [x] (valid-no-repro) `RetrievalTools.SearchAsync` — mixed-case `CorpusKind` on hits — **cheap-disproof 2026-10-23 seed hunt:** post-filter uses `OrdinalIgnoreCase`; regression `PriceRowLookupAsync_matches_corpus_kind_with_mixed_case_labels`.
 - [x] (valid-no-repro) `CostConstraintFindingEngine.AnalyzeAsync` — unbounded `confidenceReasoning` — **cheap-disproof 2026-10-23 seed hunt:** materializers own bounded reasoning; no engine truncation contract.
