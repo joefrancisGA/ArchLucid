@@ -8716,6 +8716,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: architecture-intelligence-orchestrator
 
+2026-10-23 seed hunt (seed→hit): promoted ampersand segment-separator drift splitting `ContentHash` (`docs&architecture/...`); extended `ReviewCacheAlternatePathSeparators` with `&` and U+FF06; regression `Build_matches_content_hash_when_file_name_differs_only_by_ampersand_between_segments` and cheap-disproof `Build_matches_content_hash_when_file_name_differs_only_by_percent_encoded_ampersand_between_segments`; cheap-disproof regressions for `%2C` and `%E3%80%80` between segments (decode + existing comma/ideographic rules); 413 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `GraphSnapshotCanonicalFingerprint` — ampersand alternate path separator split path canonicalization — **hit 2026-10-23 seed hunt:** `&` / U+FF06 in alternate separator set; regression above.
+
 2026-10-23 seed hunt (seed→hit): promoted fullwidth semicolon, comma, and vertical line segment-separator drift splitting `ContentHash` (`docs\uFF1Barchitecture/...`, `docs\uFF0Carchitecture/...`, `docs\uFF5Carchitecture/...`); extended `ReviewCacheAlternatePathSeparators` with U+FF1B, U+FF0C, and U+FF5C; cheap-disproof regression `Build_matches_content_hash_when_file_name_differs_only_by_percent_encoded_pipe_between_segments`; 409 scoped orchestrator/cache/manifest/continue-flight tests passed.
 
 - [x] (proven) `GraphSnapshotCanonicalFingerprint` — fullwidth punctuation alternate path separators split path canonicalization — **hit 2026-10-23 seed hunt:** fullwidth `;` `,` `|` in alternate separator set; regressions above.
