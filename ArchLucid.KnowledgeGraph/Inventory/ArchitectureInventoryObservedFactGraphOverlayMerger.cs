@@ -129,6 +129,7 @@ public static class ArchitectureInventoryObservedFactGraphOverlayMerger
     {
         TryValidateOverlayNodeLabelAgreement(incomingNode, retainedNode);
         TryValidateOverlayNodeCategoryAgreement(incomingNode, retainedNode);
+        TryValidateOverlayNodeTypeAgreement(incomingNode, retainedNode);
     }
 
     private static void TryValidateOverlayNodeLabelAgreement(GraphNode incomingNode, GraphNode retainedNode)
@@ -162,6 +163,23 @@ public static class ArchitectureInventoryObservedFactGraphOverlayMerger
         {
             throw new ArgumentException(
                 "Inventory overlay duplicate nodes disagree on Category for the same normalized NodeId.");
+        }
+    }
+
+    private static void TryValidateOverlayNodeTypeAgreement(GraphNode incomingNode, GraphNode retainedNode)
+    {
+        string incomingNodeType = (incomingNode.NodeType ?? string.Empty).Trim();
+        string retainedNodeType = (retainedNode.NodeType ?? string.Empty).Trim();
+
+        if (incomingNodeType.Length == 0 || retainedNodeType.Length == 0)
+        {
+            return;
+        }
+
+        if (!string.Equals(retainedNodeType, incomingNodeType, StringComparison.OrdinalIgnoreCase))
+        {
+            throw new ArgumentException(
+                "Inventory overlay duplicate nodes disagree on NodeType for the same normalized NodeId.");
         }
     }
 

@@ -12470,10 +12470,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 288
-- **bugs-found:** 190
+- **hunts:** 289
+- **bugs-found:** 191
 - **last-hunt:** 2026-10-23
-- **last-bug:** 2026-10-23 — overlay merge silently skipped duplicate nodes with conflicting Category
+- **last-bug:** 2026-10-23 — overlay merge silently skipped duplicate nodes with conflicting NodeType
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -12921,7 +12921,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - [x] (proven) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — duplicate overlay nodes with conflicting `Category` kept first category silently — **hit 2026-10-23 seed hunt (seed→hit):** category agreement guard on overlay dedupe; regressions above.
 
-- [ ] (candidate) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — duplicate appended inventory overlay nodes with conflicting `NodeType` may keep first row node type — locus: overlay node append dedupe on `NodeId` without node-type validation; input: two overlay nodes with trim-equal ids but different `NodeType` values; wrong outcome: merged graph retains first node type without surfacing disagreement.
+2026-10-23 seed hunt (seed→hit): promoted `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` duplicate overlay nodes with conflicting `NodeType` candidate; proved overlay dedupe validated label and category but retained the first `NodeType` when later overlay rows disagreed; extended `TryValidateOverlayNodeAgreement` with case-insensitive node-type checks; regressions `Merge_throws_when_overlay_duplicate_nodes_disagree_on_node_type` and `Merge_coalesces_overlay_duplicate_node_types_when_node_types_differ_only_by_casing`; seeded `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` overlay duplicate nodes with conflicting `SourceId` follow-on; 589 KnowledgeGraph + 170 Provenance scoped tests passed.
+
+- [x] (proven) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — duplicate overlay nodes with conflicting `NodeType` kept first node type silently — **hit 2026-10-23 seed hunt (seed→hit):** node-type agreement guard on overlay dedupe; regressions above.
+
+- [ ] (candidate) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — duplicate appended inventory overlay nodes with conflicting `SourceId` may keep first row source citation — locus: overlay node append dedupe on `NodeId` without source-id validation; input: two overlay nodes with trim-equal ids but different `SourceId` values; wrong outcome: merged graph retains first source id without surfacing disagreement.
 
 2026-10-22 seed hunt (seed→hit): promoted `StructuredDiagramGraphMerger` padded diagram property-key coalesce candidate; proved duplicate node/edge metadata coalesce indexed raw `property.Key`, so a later compile with surrounding-whitespace keys left parallel bag entries and `GraphNodePropertyReader` could return stale source-evidence values; trim keys before skip/coalesce (parity with `GraphNodeFactory.NormalizePropertyBag`); regression `Merge_coalesces_node_properties_when_incoming_property_keys_differ_only_by_surrounding_whitespace`; seeded diagram edge metadata padded-key coalesce regression follow-on; 468 KnowledgeGraph + 170 Provenance scoped tests passed.
 
