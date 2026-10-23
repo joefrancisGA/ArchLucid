@@ -12470,10 +12470,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 314
-- **bugs-found:** 216
+- **hunts:** 315
+- **bugs-found:** 217
 - **last-hunt:** 2026-10-23
-- **last-bug:** 2026-10-23 — overlay merge skipped duplicate edges without backfilling DeclaredConnectionId from later rows
+- **last-bug:** 2026-10-23 — overlay merge skipped duplicate edges without backfilling EdgeId from later rows
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -13025,7 +13025,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - [x] (proven) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — duplicate overlay edges with omitted first-row `DeclaredConnectionId` kept empty declared connection id when later row supplied one — **hit 2026-10-23 seed hunt (seed→hit):** declared-connection-id backfill on duplicate overlay edge dedupe; regression above.
 
-- [ ] (candidate) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — duplicate overlay edges where the second row supplies `EdgeId` when the first row omits edge id may keep an empty edge id — locus: overlay edge dedupe validates edge id agreement but skips later rows without scalar backfill when the retained edge id is empty; input: first edge has blank or missing `EdgeId` and second duplicate overlay edge supplies a non-empty edge id; wrong outcome: merged graph retains empty edge id without adopting the second row.
+2026-10-23 seed hunt (seed→hit): promoted `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` duplicate overlay edges where the second row supplies `EdgeId` when the first row omits edge id candidate; proved overlay edge dedupe validated edge id agreement but never backfilled a non-empty edge id from a later duplicate row when the retained edge id was empty or whitespace-only; added `TryMergeOverlayEdgeEdgeIdBackfillFromDuplicateRow` via `ResolveOverlayTrimmedScalarBackfillFromDuplicateRow`; regression `Merge_backfills_overlay_duplicate_edge_edge_id_from_second_row_when_first_row_omits_edge_id`; seeded `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` duplicate overlay edges where the second row backfills scalar `Weight` when the first row omits weight follow-on; 627 KnowledgeGraph + 170 Provenance scoped tests passed.
+
+- [x] (proven) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — duplicate overlay edges with omitted first-row `EdgeId` kept empty edge id when later row supplied one — **hit 2026-10-23 seed hunt (seed→hit):** edge-id backfill on duplicate overlay edge dedupe; regression above.
+
+- [ ] (candidate) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — duplicate overlay edges where the second row supplies `Weight` when the first row omits weight may keep default zero weight — locus: overlay edge dedupe validates weight agreement with epsilon equality but never backfills a non-zero weight from a later duplicate row when the retained weight is zero; input: first edge has default `Weight` and second duplicate overlay edge supplies a non-zero weight; wrong outcome: merged graph retains zero weight without adopting the second row (or throws before backfill).
 
 2026-10-22 seed hunt (seed→hit): promoted `StructuredDiagramGraphMerger` padded diagram property-key coalesce candidate; proved duplicate node/edge metadata coalesce indexed raw `property.Key`, so a later compile with surrounding-whitespace keys left parallel bag entries and `GraphNodePropertyReader` could return stale source-evidence values; trim keys before skip/coalesce (parity with `GraphNodeFactory.NormalizePropertyBag`); regression `Merge_coalesces_node_properties_when_incoming_property_keys_differ_only_by_surrounding_whitespace`; seeded diagram edge metadata padded-key coalesce regression follow-on; 468 KnowledgeGraph + 170 Provenance scoped tests passed.
 

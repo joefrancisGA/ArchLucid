@@ -87,6 +87,7 @@ public static class ArchitectureInventoryObservedFactGraphOverlayMerger
                     TryMergeOverlayEdgeInferenceSourceBackfillFromDuplicateRow(inventoryEdge, retainedEdge);
                     TryMergeOverlayEdgeProvenanceKindBackfillFromDuplicateRow(inventoryEdge, retainedEdge);
                     TryMergeOverlayEdgeDeclaredConnectionIdBackfillFromDuplicateRow(inventoryEdge, retainedEdge);
+                    TryMergeOverlayEdgeEdgeIdBackfillFromDuplicateRow(inventoryEdge, retainedEdge);
                 }
 
                 continue;
@@ -549,6 +550,20 @@ public static class ArchitectureInventoryObservedFactGraphOverlayMerger
         if (backfillDeclaredConnectionId is not null)
         {
             retainedEdge.DeclaredConnectionId = backfillDeclaredConnectionId;
+        }
+    }
+
+    private static void TryMergeOverlayEdgeEdgeIdBackfillFromDuplicateRow(
+        GraphEdge incomingEdge,
+        GraphEdge retainedEdge)
+    {
+        string? backfillEdgeId = ResolveOverlayTrimmedScalarBackfillFromDuplicateRow(
+            incomingEdge.EdgeId,
+            retainedEdge.EdgeId);
+
+        if (backfillEdgeId is not null)
+        {
+            retainedEdge.EdgeId = backfillEdgeId;
         }
     }
 
