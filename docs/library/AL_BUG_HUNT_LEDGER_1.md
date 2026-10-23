@@ -5292,21 +5292,28 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** recommendation engine; alternatives
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationEngine.cs; ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationTradeOffBuilder.cs
 - **test-filter:** FullyQualifiedName~ArchitectureRecommendationAlternativesTests|FullyQualifiedName~ArchitectureRecommendationProposedChangeTests
-- **hunts:** 78
+- **hunts:** 79
 - **last-hunt:** 2026-10-23
-- **bugs-found:** 37
+- **bugs-found:** 39
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-23 — `for cost` / `cost center` prose falsely selected Cost
+- **last-bug:** 2026-10-23 — `unit cost` / `total cost` prose falsely selected Cost
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
-2026-10-23 seed hunt (seed→hit): promoted `for`/`on` prepositional cost phrasing and `cost center` organizational noun still selecting Cost alongside Security; renamed guard to `IsCostTokenInPrepositionalCostPhrase` (`at|for|on` + cost) and added `IsCostTokenInCostCenterPhrase`; regressions `BuildRecommendations_prefers_security_first_when_priority_is_for_cost_security_program`, `BuildRecommendations_prefers_security_first_when_priority_is_cost_center_security_program`; cheap-disproof closed three sibling `(candidate)` rows; seeded five follow-on rows; scoped Alternatives/ProposedChange/TradeOff tests 81/81.
+2026-10-23 seed hunt (seed→hit): promoted qualified cost noun phrases (`unit cost`, `total cost`, etc.) still selecting Cost alongside Security; added `IsCostTokenInQualifiedCostNounPhrase`; regressions `BuildRecommendations_prefers_security_first_when_priority_is_unit_cost_security_program`, `BuildRecommendations_prefers_security_first_when_priority_is_total_cost_security_program`; cheap-disproof closed three sibling `(candidate)` rows; seeded five follow-on rows; scoped Alternatives/ProposedChange/TradeOff tests 84/84.
 
 - [ ] (candidate) `ArchitectureRecommendationTradeOffBuilder.TryResolveDeclaredPairPrecedence` — multiple explicit pair matches in one priority string only honor the first match — input: comma-joined `Security over Cost, Cost over Security`; reachability: pasted sponsor bullets; wrong outcome: later clause ignored without surfacing ambiguity.
-- [ ] (candidate) `ArchitectureRecommendationTradeOffBuilder.DeclaredPriorityPrefersDimension` — `unit cost security` selects Cost via compound noun — input: manufacturing-style phrasing; reachability: sponsor prose; wrong outcome: balanced Security/Cost.
+- [ ] (candidate) `ArchitectureRecommendationTradeOffBuilder.DeclaredPriorityPrefersDimension` — `per user cost security` selects Cost — input: `per` + cost phrasing; reachability: sponsor prose; wrong outcome: balanced Security/Cost.
 - [ ] (candidate) `ArchitectureRecommendationTradeOffBuilder.ApplyTradeOffs` — Security plus DataArchitecture actionable findings produce no trade-off object — input: mixed-dimension review package; contract gap only unless product requires all pairs.
-- [ ] (candidate) `ArchitectureRecommendationTradeOffBuilder.DeclaredPriorityPrefersDimension` — `total cost security program` selects Cost — input: adjective+noun cost phrase; reachability: finance framing; wrong outcome: balanced Security/Cost.
-- [ ] (candidate) `ArchitectureRecommendationTradeOffBuilder.TryResolveDeclaredPairPrecedence` — later explicit pair in separate list entries ignored when middle entry is unrelated prose — input: three-bullet sponsor list with noise between pair statements.
+- [ ] (candidate) `ArchitectureRecommendationTradeOffBuilder.DeclaredPriorityPrefersDimension` — bare `Cost` in isolation still selects dimension when paired only with Reliability findings — input: `Cost` priority with Security+Cost findings; reachability: minimal sponsor text.
+- [ ] (candidate) `ArchitectureRecommendationTradeOffBuilder.TryResolveDeclaredPairPrecedence` — explicit pair in non-final list entry overridden by later generic Security mention — input: `Cost over Security` then `Security uplift`; reachability: reordering bullets.
+
+- [x] (proven) `ArchitectureRecommendationTradeOffBuilder.DeclaredPriorityPrefersDimension` — `unit cost security` selects Cost — **hit 2026-10-23 seed hunt:** `IsCostTokenInQualifiedCostNounPhrase`; regression `BuildRecommendations_prefers_security_first_when_priority_is_unit_cost_security_program`.
+- [x] (proven) `ArchitectureRecommendationTradeOffBuilder.DeclaredPriorityPrefersDimension` — `total cost security program` selects Cost — **hit 2026-10-23 seed hunt:** qualified noun list includes `total`; regression `BuildRecommendations_prefers_security_first_when_priority_is_total_cost_security_program`.
+- [x] (valid-no-repro) `ArchitectureRecommendationTradeOffBuilder.TryResolveDeclaredPairPrecedence` — explicit pair after unrelated bullets — **cheap-disproof 2026-10-23 seed hunt:** last matching explicit pair wins across list; regression `BuildRecommendations_prefers_cost_first_when_explicit_pair_follows_unrelated_priority_bullets`.
+- [x] (invalid) `ArchitectureRecommendationTradeOffBuilder.ApplyTradeOffs` — Security plus DataArchitecture trade-off — **cheap-disproof 2026-10-23 seed hunt:** dimension pair matrix contract unchanged.
+
+2026-10-23 seed hunt (seed→hit): promoted `for`/`on` prepositional cost phrasing and `cost center` organizational noun still selecting Cost alongside Security; renamed guard to `IsCostTokenInPrepositionalCostPhrase` (`at|for|on` + cost) and added `IsCostTokenInCostCenterPhrase`; regressions `BuildRecommendations_prefers_security_first_when_priority_is_for_cost_security_program`, `BuildRecommendations_prefers_security_first_when_priority_is_cost_center_security_program`; cheap-disproof closed three sibling `(candidate)` rows; seeded five follow-on rows; scoped Alternatives/ProposedChange/TradeOff tests 81/81.
 
 - [x] (proven) `ArchitectureRecommendationTradeOffBuilder.DeclaredPriorityPrefersDimension` — `for cost` / `on cost` prepositions select Cost — **hit 2026-10-23 seed hunt:** `IsCostTokenInPrepositionalCostPhrase`; regression `BuildRecommendations_prefers_security_first_when_priority_is_for_cost_security_program` (covers `at`/`on` via shared guard).
 - [x] (proven) `ArchitectureRecommendationTradeOffBuilder.DeclaredPriorityPrefersDimension` — `cost center security program` selects Cost — **hit 2026-10-23 seed hunt:** `IsCostTokenInCostCenterPhrase`; regression `BuildRecommendations_prefers_security_first_when_priority_is_cost_center_security_program`.
