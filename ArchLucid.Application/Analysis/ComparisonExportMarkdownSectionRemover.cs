@@ -75,7 +75,7 @@ internal static class ComparisonExportMarkdownSectionRemover
         for (int i = 0; i < line.Length; i++)
         {
             char candidate = line[i];
-            buffer[i] = IsUnicodeSpaceSeparatorExceptAsciiSpace(candidate) ? ' ' : candidate;
+            buffer[i] = ShouldSubstituteWithAsciiSpace(candidate) ? ' ' : candidate;
         }
 
         string normalized = new string(buffer).Trim();
@@ -86,6 +86,15 @@ internal static class ComparisonExportMarkdownSectionRemover
         return normalized;
     }
 
-    private static bool IsUnicodeSpaceSeparatorExceptAsciiSpace(char candidate) =>
-        candidate != ' ' && char.GetUnicodeCategory(candidate) == UnicodeCategory.SpaceSeparator;
+    private static bool ShouldSubstituteWithAsciiSpace(char candidate)
+    {
+        if (candidate == ' ')
+            return false;
+
+        return char.GetUnicodeCategory(candidate) switch
+        {
+            UnicodeCategory.SpaceSeparator or UnicodeCategory.LineSeparator or UnicodeCategory.ParagraphSeparator => true,
+            _ => false,
+        };
+    }
 }

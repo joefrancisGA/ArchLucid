@@ -74,6 +74,69 @@ public sealed class CompareQualityExportRecordDiffTests
     }
 
     [Fact]
+    public void CompareQuality_export_record_diff_ignores_padding_only_compare_manifest_version_on_top_level_columns()
+    {
+        ExportRecordDiffService sut = new();
+        RunExportRecord left = new()
+        {
+            ExportRecordId = "left",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = "ArchitectureAnalysis",
+            Format = "Markdown",
+            FileName = "a.md",
+            CompareManifestVersion = "  v2  ",
+            AnalysisRequestJson = """{"includeManifestCompare":true,"compareManifestVersion":"v2"}""",
+        };
+        RunExportRecord right = new()
+        {
+            ExportRecordId = "right",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = "ArchitectureAnalysis",
+            Format = "Markdown",
+            FileName = "a.md",
+            CompareManifestVersion = "v2",
+            AnalysisRequestJson = """{"includeManifestCompare":true,"compareManifestVersion":"v2"}""",
+        };
+
+        ExportRecordDiffResult result = sut.Compare(left, right);
+
+        result.ChangedTopLevelFields.Should().NotContain("CompareManifestVersion");
+    }
+
+    [Fact]
+    public void CompareQuality_export_record_diff_ignores_padding_only_compare_run_id_on_top_level_columns()
+    {
+        const string compareRunId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb";
+        ExportRecordDiffService sut = new();
+        RunExportRecord left = new()
+        {
+            ExportRecordId = "left",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = "ArchitectureAnalysis",
+            Format = "Markdown",
+            FileName = "a.md",
+            CompareRunId = $"  {compareRunId}  ",
+            AnalysisRequestJson =
+                $$"""{"includeAgentResultCompare":true,"compareRunId":"{{compareRunId}}"}""",
+        };
+        RunExportRecord right = new()
+        {
+            ExportRecordId = "right",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = "ArchitectureAnalysis",
+            Format = "Markdown",
+            FileName = "a.md",
+            CompareRunId = compareRunId,
+            AnalysisRequestJson =
+                $$"""{"includeAgentResultCompare":true,"compareRunId":"{{compareRunId}}"}""",
+        };
+
+        ExportRecordDiffResult result = sut.Compare(left, right);
+
+        result.ChangedTopLevelFields.Should().NotContain("CompareRunId");
+    }
+
+    [Fact]
     public void CompareQuality_export_record_diff_ignores_padding_only_compare_run_id_differences_in_stored_json()
     {
         const string compareRunId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb";

@@ -101,6 +101,35 @@ public sealed class ConsultingDocxExportWhitelabelPrefillTests
     }
 
     [Fact]
+    public async Task ApplyMissingFromPriorExportsAsync_skips_prior_row_when_firm_name_is_whitespace_only_after_trim()
+    {
+        InMemoryRunExportRecordRepository repository = new();
+        const string runId = "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee";
+
+        await repository.CreateAsync(
+            new RunExportRecord
+            {
+                ExportRecordId = Guid.NewGuid().ToString("N"),
+                RunId = runId,
+                ExportType = "ArchitectureAnalysis",
+                Format = "Markdown",
+                FileName = "seed.md",
+                AnalysisRequestJson = """{"reviewBoardWhitelabelFirmDisplayName":"   "}""",
+            },
+            CancellationToken.None);
+
+        ConsultingDocxWhitelabelHints hints = new();
+
+        await ConsultingDocxExportWhitelabelPrefill.ApplyMissingFromPriorExportsAsync(
+            runId,
+            hints,
+            repository,
+            CancellationToken.None);
+
+        hints.FirmDisplayName.Should().BeNull();
+    }
+
+    [Fact]
     public async Task ApplyMissingFromPriorExportsAsync_leaves_existing_firm_display_name_unchanged()
     {
         InMemoryRunExportRecordRepository repository = new();

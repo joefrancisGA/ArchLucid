@@ -198,6 +198,40 @@ public sealed class RunExportAuditServiceTests
     }
 
     [Fact]
+    public async Task RecordAsync_trims_compare_manifest_version_when_emit_audit_false()
+    {
+        Mock<IRunExportRecordRepository> repo = new();
+        RunExportRecord? captured = null;
+        repo
+            .Setup(r => r.CreateAsync(It.IsAny<RunExportRecord>(), It.IsAny<CancellationToken>()))
+            .Callback<RunExportRecord, CancellationToken>((record, _) => captured = record)
+            .Returns(Task.CompletedTask);
+
+        RunExportAuditService sut = new(
+            repo.Object,
+            Mock.Of<IAuditService>(),
+            NullLogger<RunExportAuditService>.Instance);
+
+        await sut.RecordAsync(
+            "deadbeefdeadbeefdeadbeefdeadbeef",
+            "analysis-report-docx",
+            "docx",
+            "report.docx",
+            null,
+            null,
+            false,
+            null,
+            null,
+            analysisRequest: new PersistedAnalysisExportRequest { CompareManifestVersion = "  v9  " },
+            emitArchitectureDocxExportGeneratedAudit: false,
+            cancellationToken: CancellationToken.None);
+
+        captured.Should().NotBeNull();
+        captured!.CompareManifestVersion.Should().Be("v9");
+        captured.AnalysisRequestJson.Should().Contain("\"v9\"");
+    }
+
+    [Fact]
     public async Task RecordAsync_WhenEmitAuditFalse_SkipsDurableDocxExportRow()
     {
         Mock<IRunExportRecordRepository> repo = new();

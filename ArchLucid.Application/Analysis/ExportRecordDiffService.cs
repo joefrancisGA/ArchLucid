@@ -71,12 +71,12 @@ public sealed class ExportRecordDiffService : IExportRecordDiffService
         AddIfChanged(result.ChangedTopLevelFields, "ExportType", left.ExportType, right.ExportType);
         AddIfChanged(result.ChangedTopLevelFields, "Format", left.Format, right.Format);
         AddIfChanged(result.ChangedTopLevelFields, "FileName", left.FileName, right.FileName);
-        AddIfChanged(result.ChangedTopLevelFields, "TemplateProfile", left.TemplateProfile, right.TemplateProfile);
-        AddIfChanged(result.ChangedTopLevelFields, "TemplateProfileDisplayName", left.TemplateProfileDisplayName,
+        AddIfChangedTrimmed(result.ChangedTopLevelFields, "TemplateProfile", left.TemplateProfile, right.TemplateProfile);
+        AddIfChangedTrimmed(result.ChangedTopLevelFields, "TemplateProfileDisplayName", left.TemplateProfileDisplayName,
             right.TemplateProfileDisplayName);
         AddIfChanged(result.ChangedTopLevelFields, "WasAutoSelected", left.WasAutoSelected, right.WasAutoSelected);
-        AddIfChanged(result.ChangedTopLevelFields, "ResolutionReason", left.ResolutionReason, right.ResolutionReason);
-        AddIfChanged(result.ChangedTopLevelFields, "ManifestVersion", left.ManifestVersion, right.ManifestVersion);
+        AddIfChangedTrimmed(result.ChangedTopLevelFields, "ResolutionReason", left.ResolutionReason, right.ResolutionReason);
+        AddIfChangedTrimmed(result.ChangedTopLevelFields, "ManifestVersion", left.ManifestVersion, right.ManifestVersion);
         AddIfChanged(result.ChangedTopLevelFields, "IncludedEvidence", left.IncludedEvidence, right.IncludedEvidence);
         AddIfChanged(result.ChangedTopLevelFields, "IncludedExecutionTraces", left.IncludedExecutionTraces,
             right.IncludedExecutionTraces);
@@ -89,7 +89,7 @@ public sealed class ExportRecordDiffService : IExportRecordDiffService
             right.DeterminismIterations);
         AddIfChanged(result.ChangedTopLevelFields, "IncludedManifestCompare", left.IncludedManifestCompare,
             right.IncludedManifestCompare);
-        AddIfChanged(result.ChangedTopLevelFields, "CompareManifestVersion", left.CompareManifestVersion,
+        AddIfChangedTrimmed(result.ChangedTopLevelFields, "CompareManifestVersion", left.CompareManifestVersion,
             right.CompareManifestVersion);
         AddIfChanged(result.ChangedTopLevelFields, "IncludedAgentResultCompare", left.IncludedAgentResultCompare,
             right.IncludedAgentResultCompare);
@@ -155,6 +155,13 @@ public sealed class ExportRecordDiffService : IExportRecordDiffService
         if (!RunIdsEquivalent(left, right))
             target.Add(fieldName);
     }
+
+    private static void AddIfChangedTrimmed(
+        List<string> target,
+        string fieldName,
+        string? left,
+        string? right) =>
+        AddIfChanged(target, fieldName, left?.Trim(), right?.Trim());
 
     private static void AddIfChanged<T>(
         List<string> target,
