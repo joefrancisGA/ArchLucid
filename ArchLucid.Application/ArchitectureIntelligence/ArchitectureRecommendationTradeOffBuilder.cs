@@ -195,7 +195,8 @@ internal static class ArchitectureRecommendationTradeOffBuilder
                 || IsCostTokenInEconomyModifierPhrase(priority)
                 || IsCostTokenInPrepositionalCostPhrase(priority)
                 || IsCostTokenInCostCenterPhrase(priority)
-                || IsCostTokenInQualifiedCostNounPhrase(priority)))
+                || IsCostTokenInQualifiedCostNounPhrase(priority)
+                || IsCostTokenInPerQualifierCostPhrase(priority)))
         {
             return false;
         }
@@ -231,6 +232,12 @@ internal static class ArchitectureRecommendationTradeOffBuilder
         Regex.IsMatch(
             priority,
             @"\b(?:unit|total|marginal|average)\s+cost\b",
+            RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    private static bool IsCostTokenInPerQualifierCostPhrase(string priority) =>
+        Regex.IsMatch(
+            priority,
+            @"\bper\s+\w+\s+cost\b",
             RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     private static bool TryResolveDeclaredPairPrecedence(
