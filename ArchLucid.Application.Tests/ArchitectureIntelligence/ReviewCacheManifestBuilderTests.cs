@@ -7187,6 +7187,96 @@ public sealed class ReviewCacheManifestBuilderTests
     }
 
     [Fact]
+    public void Build_matches_content_hash_when_file_name_differs_only_by_big_reverse_solidus_slash()
+    {
+        ClosedLoopReasoningRequest ascii = CreateRequest("Same body.");
+        ascii.SourceTexts =
+        [
+            new ClosedLoopReasoningSourceText
+            {
+                FileName = "docs/architecture/overview.md",
+                ContentType = "text/markdown",
+                Content = "Same body.",
+            },
+        ];
+
+        ClosedLoopReasoningRequest bigReverse = CreateRequest("Same body.");
+        bigReverse.SourceTexts =
+        [
+            new ClosedLoopReasoningSourceText
+            {
+                FileName = "docs\u29F9architecture\u29F9overview.md",
+                ContentType = "text/markdown",
+                Content = "Same body.",
+            },
+        ];
+
+        ReviewCacheManifestBuilder.Build(ascii).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(bigReverse).ContentHash);
+    }
+
+    [Fact]
+    public void Build_matches_content_hash_when_file_name_differs_only_by_mathematical_rising_diagonal_slash()
+    {
+        ClosedLoopReasoningRequest ascii = CreateRequest("Same body.");
+        ascii.SourceTexts =
+        [
+            new ClosedLoopReasoningSourceText
+            {
+                FileName = "docs/architecture/overview.md",
+                ContentType = "text/markdown",
+                Content = "Same body.",
+            },
+        ];
+
+        ClosedLoopReasoningRequest risingDiagonal = CreateRequest("Same body.");
+        risingDiagonal.SourceTexts =
+        [
+            new ClosedLoopReasoningSourceText
+            {
+                FileName = "docs\u27CBarchitecture\u27CBoverview.md",
+                ContentType = "text/markdown",
+                Content = "Same body.",
+            },
+        ];
+
+        ReviewCacheManifestBuilder.Build(ascii).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(risingDiagonal).ContentHash);
+    }
+
+    [Fact]
+    public void Build_matches_content_hash_when_file_name_differs_only_by_halfwidth_ideographic_full_stop_parent_segment()
+    {
+        ClosedLoopReasoningRequest ascii = CreateRequest("Same body.");
+        ascii.SourceTexts =
+        [
+            new ClosedLoopReasoningSourceText
+            {
+                FileName = "docs/acme/../reviews/overview.md",
+                ContentType = "text/markdown",
+                Content = "Same body.",
+            },
+        ];
+
+        ClosedLoopReasoningRequest homoglyph = CreateRequest("Same body.");
+        homoglyph.SourceTexts =
+        [
+            new ClosedLoopReasoningSourceText
+            {
+                FileName = "docs/acme/\uFF61\uFF61/reviews/overview.md",
+                ContentType = "text/markdown",
+                Content = "Same body.",
+            },
+        ];
+
+        ReviewCacheManifestBuilder.Build(ascii).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(homoglyph).ContentHash);
+    }
+
+    [Fact]
     public void Build_matches_content_hash_when_file_name_differs_only_by_big_solidus_slash()
     {
         ClosedLoopReasoningRequest ascii = CreateRequest("Same body.");

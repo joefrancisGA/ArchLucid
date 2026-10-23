@@ -325,21 +325,82 @@ public static class GraphSnapshotCanonicalFingerprint
         return decoded;
     }
 
+    // Keep aligned with AuthSignInReturnPathGuard.IsSlashHomoglyph for review-cache path tokens.
+    private static ReadOnlySpan<char> ReviewCacheSlashHomoglyphs =>
+    [
+        '\u2044',
+        '\u2215',
+        '\u2216',
+        '\u2298',
+        '\u244A',
+        '\u2571',
+        '\u2572',
+        '\u27C8',
+        '\u27C9',
+        '\u27CB',
+        '\u27CD',
+        '\u29B8',
+        '\u29C4',
+        '\u29C5',
+        '\u29F4',
+        '\u29F5',
+        '\u29F6',
+        '\u29F7',
+        '\u29F8',
+        '\u29F9',
+        '\u29FA',
+        '\u2AFB',
+        '\u2AFD',
+        '\u2AFF',
+        '\u2E4A',
+        '\uFE68',
+        '\uFF0F',
+        '\uFF3C',
+    ];
+
+    // Keep aligned with AuthSignInReturnPathGuard.IsDotHomoglyph for review-cache parent segments.
+    private static ReadOnlySpan<char> ReviewCacheDotHomoglyphs =>
+    [
+        '\u00B7',
+        '\u0387',
+        '\u05C3',
+        '\u06D4',
+        '\u0701',
+        '\u0702',
+        '\u1362',
+        '\u1427',
+        '\u166E',
+        '\u16EB',
+        '\u1803',
+        '\u2024',
+        '\u2025',
+        '\u2027',
+        '\u2219',
+        '\u22C5',
+        '\u2981',
+        '\u2E30',
+        '\u2E31',
+        '\u2E33',
+        '\u3002',
+        '\u30FB',
+        '\uA78F',
+        '\uFE12',
+        '\uFE30',
+        '\uFE52',
+        '\uFF0E',
+        '\uFF61',
+        '\uFF65',
+    ];
+
     private static string NormalizeUnicodeSlashScalars(string value)
     {
         if (value.Length == 0)
             return value;
 
-        return value
-            .Replace('\u2044', '/')
-            .Replace('\u2215', '/')
-            .Replace('\u2216', '/')
-            .Replace('\u2571', '/')
-            .Replace('\u2572', '/')
-            .Replace('\u29F8', '/')
-            .Replace('\uFE68', '/')
-            .Replace('\uFF0F', '/')
-            .Replace('\uFF3C', '/');
+        foreach (char homoglyph in ReviewCacheSlashHomoglyphs)
+            value = value.Replace(homoglyph, '/');
+
+        return value;
     }
 
     private static string NormalizeUnicodeDotScalars(string value)
@@ -347,10 +408,10 @@ public static class GraphSnapshotCanonicalFingerprint
         if (value.Length == 0)
             return value;
 
-        return value
-            .Replace('\u3002', '.')
-            .Replace('\uFF0E', '.')
-            .Replace('\uFE52', '.');
+        foreach (char homoglyph in ReviewCacheDotHomoglyphs)
+            value = value.Replace(homoglyph, '.');
+
+        return value;
     }
 
     private static string CollapseParentPathSegments(string path)
