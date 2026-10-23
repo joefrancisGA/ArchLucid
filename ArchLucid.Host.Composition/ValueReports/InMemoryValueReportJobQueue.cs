@@ -30,6 +30,18 @@ public sealed partial class InMemoryValueReportJobQueue(
     private const string MissingCompletedDocumentErrorMessage =
         "Value report job completed but the document is unavailable — retry the async export.";
 
+    private void PruneTerminalLocalJobs()
+    {
+        foreach (Guid jobId in _jobs.Keys.ToArray())
+        {
+            if (_jobs.TryGetValue(jobId, out JobEntry? entry) &&
+                entry.Phase is JobPhase.Completed or JobPhase.Failed)
+            {
+                _jobs.TryRemove(jobId, out _);
+            }
+        }
+    }
+
     public ValueReportJobPollResult TryPoll(Guid jobId, Guid scopedTenantId)
     {
         if (!_jobs.TryGetValue(jobId, out JobEntry? entry))
