@@ -2683,6 +2683,60 @@ public sealed class ArchitectureInventoryObservedFactGraphOverlayTests
     }
 
     [Fact]
+    public void Merge_backfills_overlay_duplicate_node_reasoning_trace_from_second_row_when_first_row_omits_reasoning_trace()
+    {
+        const string canonicalNodeId = "inventory-node-reasoning-trace-backfill";
+
+        GraphSnapshot baseGraph = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = ContextSnapshotId,
+            RunId = RunId,
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "context-node",
+                    NodeType = GraphNodeTypes.ContextSnapshot,
+                    Label = "Context",
+                },
+            ],
+            Edges = [],
+        };
+
+        GraphSnapshot overlay = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = ContextSnapshotId,
+            RunId = RunId,
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = canonicalNodeId,
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "SQL",
+                    ReasoningTrace = "   ",
+                },
+                new GraphNode
+                {
+                    NodeId = canonicalNodeId,
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "SQL",
+                    ReasoningTrace = "inventory snapshot resource",
+                },
+            ],
+            Edges = [],
+        };
+
+        GraphSnapshot merged = ArchitectureInventoryObservedFactGraphOverlayMerger.Merge(baseGraph, overlay);
+
+        merged.Nodes.Should().HaveCount(2);
+        merged.Nodes.Single(node => string.Equals(node.NodeId, canonicalNodeId, StringComparison.OrdinalIgnoreCase))
+            .ReasoningTrace.Should().Be("inventory snapshot resource");
+    }
+
+    [Fact]
     public void Merge_backfills_overlay_duplicate_node_source_type_from_second_row_when_first_row_omits_source_type()
     {
         const string canonicalNodeId = "inventory-node-source-type-backfill";
