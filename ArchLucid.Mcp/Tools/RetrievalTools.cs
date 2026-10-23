@@ -69,11 +69,11 @@ public sealed class RetrievalTools(IRetrievalQueryService queryService)
 
                 return new RetrievalMcpToolHit
                 {
-                    DocumentId = h.DocumentId,
-                    CorpusKind = h.CorpusKind,
-                    SourceType = h.SourceType,
-                    SourceId = h.SourceId,
-                    Title = h.Title,
+                    DocumentId = h.DocumentId ?? string.Empty,
+                    CorpusKind = h.CorpusKind ?? string.Empty,
+                    SourceType = h.SourceType ?? string.Empty,
+                    SourceId = h.SourceId ?? string.Empty,
+                    Title = h.Title ?? string.Empty,
                     Snippet = text.Length > 400 ? text[..400] : text,
                     Score = h.Score
                 };

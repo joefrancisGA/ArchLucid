@@ -185,6 +185,42 @@ public sealed class CostPolicyExpectationFindingEngineTests
     }
 
     [Fact]
+    public async Task Cost_breach_uses_critical_severity_when_stamped_with_surrounding_whitespace()
+    {
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "context-1",
+                    NodeType = GraphNodeTypes.ContextSnapshot,
+                    Label = "scope",
+                    Properties = new()
+                    {
+                        [ContextGraphPropertyKeys.PolicyCostBreachSeverity] = " Critical ",
+                    },
+                },
+                new GraphNode
+                {
+                    NodeId = "cost-1",
+                    NodeType = "CostConstraint",
+                    Label = "budget",
+                    Properties = new()
+                    {
+                        ["maxMonthlyCost"] = "5000",
+                        ["projectedImpactUsdUpperBound"] = "6200",
+                    },
+                },
+            ],
+        };
+
+        IReadOnlyList<Finding> findings = await _breachEngine.AnalyzeAsync(graph, null, CancellationToken.None);
+
+        findings.Should().ContainSingle().Which.Severity.Should().Be(FindingSeverity.Critical);
+    }
+
+    [Fact]
     public async Task Cost_breach_uses_critical_severity_when_stamped()
     {
         GraphSnapshot graph = new()

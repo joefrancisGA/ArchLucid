@@ -107,6 +107,42 @@ public sealed class RetrievalToolsTests
     }
 
     [Fact]
+    public async Task PolicyPackSearchAsync_returns_empty_title_when_hit_title_is_null()
+    {
+        Mock<IRetrievalQueryService> queryService = new();
+        queryService
+            .Setup(q => q.SearchAsync(It.IsAny<RetrievalQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new RetrievalHit
+                {
+                    ChunkId = "chunk-1",
+                    DocumentId = "doc-1",
+                    Title = null!,
+                    Text = "policy baseline",
+                    Score = 0.9,
+                    CorpusKind = CorpusKind.PolicyPack.ToString(),
+                    SourceType = "Manifest",
+                    SourceId = "policy-1"
+                }
+            ]);
+
+        RetrievalTools sut = new(queryService.Object);
+        RetrievalMcpToolRequest request = new()
+        {
+            TenantId = TenantId,
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+            QueryText = "network baseline"
+        };
+
+        IReadOnlyList<RetrievalMcpToolHit> hits =
+            await sut.PolicyPackSearchAsync(request, CancellationToken.None);
+
+        hits.Should().ContainSingle().Subject.Title.Should().BeEmpty();
+    }
+
+    [Fact]
     public async Task PolicyPackSearchAsync_throws_when_tenant_id_missing()
     {
         RetrievalTools sut = new(Mock.Of<IRetrievalQueryService>());
