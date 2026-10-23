@@ -8716,6 +8716,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: architecture-intelligence-orchestrator
 
+2026-10-23 seed hunt (seed→hit): promoted pasted-URL path drift splitting `ContentHash` (`file://` prefix, `?query`, `#fragment`, and `>` between segments); `StripReviewCachePathUrlAffixes` after percent decode and `>` in `ReviewCacheAlternatePathSeparators`; regressions `Build_matches_content_hash_when_file_name_differs_only_by_greater_than_between_segments`, `Build_matches_content_hash_when_file_name_differs_only_by_file_uri_scheme_prefix`, `Build_matches_content_hash_when_file_name_differs_only_by_url_query_suffix`, and `Build_matches_content_hash_when_file_name_differs_only_by_url_fragment_suffix`; 417 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `GraphSnapshotCanonicalFingerprint` — URL affixes and `>` alternate separator split path canonicalization — **hit 2026-10-23 seed hunt:** `StripReviewCachePathUrlAffixes` + `>` in alternate separator set; regressions above.
+
 2026-10-23 seed hunt (seed→hit): promoted ampersand segment-separator drift splitting `ContentHash` (`docs&architecture/...`); extended `ReviewCacheAlternatePathSeparators` with `&` and U+FF06; regression `Build_matches_content_hash_when_file_name_differs_only_by_ampersand_between_segments` and cheap-disproof `Build_matches_content_hash_when_file_name_differs_only_by_percent_encoded_ampersand_between_segments`; cheap-disproof regressions for `%2C` and `%E3%80%80` between segments (decode + existing comma/ideographic rules); 413 scoped orchestrator/cache/manifest/continue-flight tests passed.
 
 - [x] (proven) `GraphSnapshotCanonicalFingerprint` — ampersand alternate path separator split path canonicalization — **hit 2026-10-23 seed hunt:** `&` / U+FF06 in alternate separator set; regression above.
