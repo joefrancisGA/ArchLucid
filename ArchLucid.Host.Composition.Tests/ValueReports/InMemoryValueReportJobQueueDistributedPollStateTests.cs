@@ -241,7 +241,7 @@ public sealed class InMemoryValueReportJobQueueDistributedPollStateTests
     }
 
     [Fact]
-    public void TryPoll_reports_failure_when_distributed_state_corrupt_and_local_job_is_pending()
+    public void TryPoll_keeps_local_pending_when_distributed_state_is_corrupt()
     {
         ServiceCollection services = BuildValueReportJobServices();
         DictionaryPollStateCache pollStateCache = new();
@@ -271,7 +271,7 @@ public sealed class InMemoryValueReportJobQueueDistributedPollStateTests
 
         poll.Found.Should().BeTrue();
         poll.Completed.Should().BeFalse();
-        poll.ErrorMessage.Should().NotBeNullOrWhiteSpace();
+        poll.ErrorMessage.Should().BeNull();
     }
 
     [Fact]
