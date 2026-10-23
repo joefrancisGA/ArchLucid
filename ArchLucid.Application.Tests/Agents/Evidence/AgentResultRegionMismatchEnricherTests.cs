@@ -262,6 +262,46 @@ public sealed class AgentResultRegionMismatchEnricherTests
     }
 
     [Fact]
+    public async Task EnrichAsync_uses_request_region_constraint_when_constraint_has_leading_whitespace_and_service_region_missing()
+    {
+        ArchitectureRequest request = new()
+        {
+            RequestId = "req",
+            Description = new string('x', 12),
+            SystemName = "Payments",
+            Constraints = [" region:qatarcentral"],
+        };
+
+        AgentTopologyProposal proposal = new()
+        {
+            AddedDatastores =
+            [
+                new ManifestDatastore
+                {
+                    RuntimePlatform = RuntimePlatform.AzureOpenAi,
+                },
+            ],
+        };
+
+        List<AgentResult> results =
+        [
+            new AgentResult
+            {
+                RunId = "run",
+                TaskId = "task",
+                AgentType = AgentType.Topology,
+                ProposedChanges = proposal,
+            },
+        ];
+
+        await _sut.EnrichAsync("run", request, new AgentEvidencePackage(), results, CancellationToken.None);
+
+        proposal.Warnings.Should().ContainSingle();
+        proposal.Warnings[0].Should().Contain("RegionMismatch");
+        proposal.Warnings[0].Should().Contain("qatarcentral");
+    }
+
+    [Fact]
     public async Task EnrichAsync_initializes_warnings_when_null_before_appending_region_mismatch()
     {
         ArchitectureRequest request = new()

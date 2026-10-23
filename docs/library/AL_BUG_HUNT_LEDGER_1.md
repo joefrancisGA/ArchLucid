@@ -7859,6 +7859,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-agents
 
+2026-10-23 seed hunt (seed→hit): promoted padded `region:` request constraints skipped by `StartsWith` so services without `AzureArmRegion` missed `RegionMismatch` warnings; `AgentResultRegionMismatchEnricher.ResolveRequestRegions` now trims each constraint before parsing; regression `EnrichAsync_uses_request_region_constraint_when_constraint_has_leading_whitespace_and_service_region_missing`; 140 scoped Application.Tests.Agents tests passed.
+
+- [x] (proven) `AgentResultRegionMismatchEnricher.ResolveRequestRegions` — leading whitespace on `region:` constraint skipped region parsing — **hit 2026-10-23 seed hunt:** `constraint.Trim()` before prefix check; regression above.
+
 2026-10-22 seed hunt (seed-only): re-read Agents/ after IaC BOM hit; cheap-disproof on stale BOM/provenance/forensics candidates; deferred padded `region:` constraint trim (saturated `other`); seeded three follow-on rows; 139 scoped Application.Tests.Agents tests passed.
 
 - [x] (invalid) `FindingIacStubGenerator.NormalizeLlmStubBody` — UTF-8 BOM before disclaimer may still duplicate — **cheap-disproof 2026-10-22 seed hunt:** proven-class hit `TrimStart('\uFEFF')` in prior run; regression `GenerateAndPersistStubsForRunAsync_strips_utf8_bom_before_disclaimer_check`.
@@ -7869,7 +7873,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 - [x] (valid-no-repro) `AgentModelCatalogFaithfulnessHarnessImporter.ImportForAliasAsync` — inclusive `>=` floor marks Evaluated at equality — **cheap-disproof 2026-10-22 seed hunt:** intentional operator threshold; import tests use ratios above floor with Evaluated expectation.
 
-- (candidate) `AgentResultRegionMismatchEnricher.ResolveRequestRegions` — leading whitespace on `region:` constraint skipped by `StartsWith` — locus: constraint loop; input: ` region:qatarcentral` when added service omits `AzureArmRegion` (consolidate trim helper before promoting; saturated `other`).
+- [x] (proven) `AgentResultRegionMismatchEnricher.ResolveRequestRegions` — leading whitespace on `region:` constraint skipped by `StartsWith` — **hit 2026-10-23 seed hunt:** see seed→hit row above.
 - (candidate) `TopologyProposalDualModelConsensusEnricher.EnrichAsync` — secondary tier disallowed by workspace engine set — verify invoker gate before promoting.
 - (candidate) `AgentModelCatalogFaithfulnessHarnessImporter.ImportForAliasAsync` — readiness strictly below floor should record Failed — locus: `evaluationState` ternary; input: `PositiveReadinessSupportRatio` just under `FloorMinSupportRatio` (no boundary test cited).
 

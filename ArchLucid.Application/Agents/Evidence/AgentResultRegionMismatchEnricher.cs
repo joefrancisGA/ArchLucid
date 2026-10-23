@@ -60,10 +60,12 @@ public sealed class AgentResultRegionMismatchEnricher : IAgentResultPostExecutio
 
         foreach (string constraint in request.Constraints ?? [])
         {
-            if (!constraint.StartsWith("region:", StringComparison.OrdinalIgnoreCase))
+            string trimmedConstraint = constraint.Trim();
+
+            if (!trimmedConstraint.StartsWith("region:", StringComparison.OrdinalIgnoreCase))
                 continue;
 
-            string[] parts = constraint.Split(':', 2, StringSplitOptions.TrimEntries);
+            string[] parts = trimmedConstraint.Split(':', 2, StringSplitOptions.TrimEntries);
 
             if (parts.Length == 2 && !string.IsNullOrWhiteSpace(parts[1]))
                 regions.Add(parts[1]);
