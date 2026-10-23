@@ -2922,6 +2922,116 @@ public sealed class ArchitectureInventoryObservedFactGraphOverlayTests
     }
 
     [Fact]
+    public void BuildOverlay_throws_when_duplicate_resource_rows_disagree_on_cloud_resource_id()
+    {
+        const string armIdLower =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet-prod";
+        const string armIdUpper =
+            "/subscriptions/SUB/resourceGroups/RG/providers/Microsoft.Network/virtualNetworks/VNET-PROD";
+        Guid cloudIdWinner = Guid.Parse("12121212-1212-1212-1212-121212121212");
+        Guid cloudIdDuplicate = Guid.Parse("13131313-1313-1313-1313-131313131313");
+
+        AzureInventorySnapshotDetailReadModel snapshot = new()
+        {
+            Header = new AzureInventorySnapshotRecord
+            {
+                SnapshotId = SnapshotId,
+                TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                CreatedUtc = new DateTime(2026, 7, 18, 12, 0, 0, DateTimeKind.Utc),
+            },
+            Resources =
+            [
+                new AzureInventoryResourceRecord
+                {
+                    ResourceRowId = Guid.Parse("14141414-1414-1414-1414-141414141414"),
+                    SnapshotId = SnapshotId,
+                    TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                    AzureResourceId = armIdUpper,
+                    ResourceType = "Microsoft.Network/virtualNetworks",
+                    ResourceGroup = "rg",
+                    SubscriptionId = "sub",
+                    CloudResourceId = cloudIdWinner,
+                },
+                new AzureInventoryResourceRecord
+                {
+                    ResourceRowId = Guid.Parse("15151515-1515-1515-1515-151515151515"),
+                    SnapshotId = SnapshotId,
+                    TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                    AzureResourceId = armIdLower,
+                    ResourceType = "Microsoft.Network/virtualNetworks",
+                    ResourceGroup = "rg",
+                    SubscriptionId = "sub",
+                    CloudResourceId = cloudIdDuplicate,
+                },
+            ],
+            Relationships = [],
+        };
+
+        Action act = () => ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay(
+            snapshot,
+            RunId,
+            ContextSnapshotId);
+
+        act.Should().Throw<ArgumentException>()
+            .WithMessage("*disagree on cloudResourceId*");
+    }
+
+    [Fact]
+    public void BuildOverlay_backfills_cloud_resource_id_property_from_duplicate_row_when_winning_row_omits_cloud_resource_id()
+    {
+        const string armIdLower =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet-prod";
+        const string armIdUpper =
+            "/subscriptions/SUB/resourceGroups/RG/providers/Microsoft.Network/virtualNetworks/VNET-PROD";
+        Guid cloudIdFromDuplicate = Guid.Parse("16161616-1616-1616-1616-161616161616");
+
+        AzureInventorySnapshotDetailReadModel snapshot = new()
+        {
+            Header = new AzureInventorySnapshotRecord
+            {
+                SnapshotId = SnapshotId,
+                TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                CreatedUtc = new DateTime(2026, 7, 18, 12, 0, 0, DateTimeKind.Utc),
+            },
+            Resources =
+            [
+                new AzureInventoryResourceRecord
+                {
+                    ResourceRowId = Guid.Parse("17171717-1717-1717-1717-171717171717"),
+                    SnapshotId = SnapshotId,
+                    TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                    AzureResourceId = armIdUpper,
+                    ResourceType = "Microsoft.Network/virtualNetworks",
+                    ResourceGroup = "rg",
+                    SubscriptionId = "sub",
+                    CloudResourceId = null,
+                },
+                new AzureInventoryResourceRecord
+                {
+                    ResourceRowId = Guid.Parse("18181818-1818-1818-1818-181818181818"),
+                    SnapshotId = SnapshotId,
+                    TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                    AzureResourceId = armIdLower,
+                    ResourceType = "Microsoft.Network/virtualNetworks",
+                    ResourceGroup = "rg",
+                    SubscriptionId = "sub",
+                    CloudResourceId = cloudIdFromDuplicate,
+                },
+            ],
+            Relationships = [],
+        };
+
+        GraphSnapshot overlay = ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay(
+            snapshot,
+            RunId,
+            ContextSnapshotId);
+
+        GraphNode node = overlay.Nodes.Should().ContainSingle().Subject;
+        node.Properties["cloudResourceId"].Should().Be(cloudIdFromDuplicate.ToString("D"));
+        node.NodeId.Should().NotBe(cloudIdFromDuplicate.ToString("D"));
+    }
+
+    [Fact]
     public void BuildOverlay_stamps_normalized_arm_citations_when_winning_resource_row_has_surrounding_whitespace_on_azure_resource_id()
     {
         const string armIdCanonical =

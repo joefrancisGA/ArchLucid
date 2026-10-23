@@ -200,6 +200,7 @@ public static class ArchitectureInventoryObservedFactGraphBuilder
             resource.SubscriptionId,
             "arm.subscriptionId");
         TryMergeParentResourceIdFromDuplicateRow(resource, node);
+        TryMergeCloudResourceIdFromDuplicateRow(resource, node);
     }
 
     private static void TryMergeTrimmedScalarProperty(
@@ -252,6 +253,38 @@ public static class ArchitectureInventoryObservedFactGraphBuilder
         }
 
         node.Properties["arm.parentId"] = incomingParentId;
+    }
+
+    private static void TryMergeCloudResourceIdFromDuplicateRow(
+        AzureInventoryResourceRecord resource,
+        GraphNode node)
+    {
+        if (!resource.CloudResourceId.HasValue)
+        {
+            return;
+        }
+
+        string incomingCloudResourceId = resource.CloudResourceId.Value.ToString("D");
+
+        if (Guid.TryParse(node.NodeId, out Guid nodeCloudResourceId)
+            && nodeCloudResourceId != resource.CloudResourceId.Value)
+        {
+            throw new ArgumentException(
+                "Inventory overlay duplicate resource rows disagree on cloudResourceId for the same normalized ARM resource id.");
+        }
+
+        if (node.Properties.TryGetValue("cloudResourceId", out string? existingCloudResourceId))
+        {
+            if (!string.Equals(existingCloudResourceId, incomingCloudResourceId, StringComparison.OrdinalIgnoreCase))
+            {
+                throw new ArgumentException(
+                    "Inventory overlay duplicate resource rows disagree on cloudResourceId for the same normalized ARM resource id.");
+            }
+
+            return;
+        }
+
+        node.Properties["cloudResourceId"] = incomingCloudResourceId;
     }
 
 }
