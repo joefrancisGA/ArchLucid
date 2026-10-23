@@ -2641,7 +2641,7 @@ public sealed class ArchitectureInventoryObservedFactGraphOverlayTests
                     FromNodeId = $"  {NodeA}  ",
                     ToNodeId = $"  {NodeB}  ",
                     EdgeType = $"  {GraphEdgeTypes.ConnectsTo}  ",
-                    Label = "second",
+                    Label = "first",
                 },
             ],
         };
@@ -2702,7 +2702,7 @@ public sealed class ArchitectureInventoryObservedFactGraphOverlayTests
                     FromNodeId = NodeA,
                     ToNodeId = NodeB,
                     EdgeType = alternateCaseEdgeType,
-                    Label = "second",
+                    Label = "first",
                 },
             ],
         };
@@ -2755,7 +2755,7 @@ public sealed class ArchitectureInventoryObservedFactGraphOverlayTests
                     FromNodeId = NodeA.ToUpperInvariant(),
                     ToNodeId = NodeB.ToUpperInvariant(),
                     EdgeType = GraphEdgeTypes.ConnectsTo,
-                    Label = "second",
+                    Label = "first",
                 },
             ],
         };
@@ -2766,6 +2766,109 @@ public sealed class ArchitectureInventoryObservedFactGraphOverlayTests
         edge.FromNodeId.Should().Be(NodeA);
         edge.ToNodeId.Should().Be(NodeB);
         edge.Label.Should().Be("first");
+    }
+
+    [Fact]
+    public void Merge_throws_when_overlay_duplicate_edges_disagree_on_label()
+    {
+        const string NodeA = "node-a";
+        const string NodeB = "node-b";
+
+        GraphSnapshot baseGraph = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = ContextSnapshotId,
+            RunId = RunId,
+            Nodes =
+            [
+                new GraphNode { NodeId = NodeA, NodeType = GraphNodeTypes.TopologyResource, Label = "A" },
+                new GraphNode { NodeId = NodeB, NodeType = GraphNodeTypes.TopologyResource, Label = "B" },
+            ],
+            Edges = [],
+        };
+
+        GraphSnapshot overlay = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = ContextSnapshotId,
+            RunId = RunId,
+            Nodes = [],
+            Edges =
+            [
+                new GraphEdge
+                {
+                    EdgeId = "overlay-edge-primary",
+                    FromNodeId = NodeA,
+                    ToNodeId = NodeB,
+                    EdgeType = GraphEdgeTypes.ConnectsTo,
+                    Label = "primary",
+                },
+                new GraphEdge
+                {
+                    EdgeId = "overlay-edge-duplicate",
+                    FromNodeId = NodeA,
+                    ToNodeId = NodeB,
+                    EdgeType = GraphEdgeTypes.ConnectsTo,
+                    Label = "duplicate",
+                },
+            ],
+        };
+
+        Action act = () => ArchitectureInventoryObservedFactGraphOverlayMerger.Merge(baseGraph, overlay);
+
+        act.Should().Throw<ArgumentException>()
+            .WithMessage("*disagree on Label*");
+    }
+
+    [Fact]
+    public void Merge_coalesces_overlay_duplicate_edge_labels_when_labels_differ_only_by_casing()
+    {
+        const string NodeA = "node-a";
+        const string NodeB = "node-b";
+
+        GraphSnapshot baseGraph = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = ContextSnapshotId,
+            RunId = RunId,
+            Nodes =
+            [
+                new GraphNode { NodeId = NodeA, NodeType = GraphNodeTypes.TopologyResource, Label = "A" },
+                new GraphNode { NodeId = NodeB, NodeType = GraphNodeTypes.TopologyResource, Label = "B" },
+            ],
+            Edges = [],
+        };
+
+        GraphSnapshot overlay = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = ContextSnapshotId,
+            RunId = RunId,
+            Nodes = [],
+            Edges =
+            [
+                new GraphEdge
+                {
+                    EdgeId = "overlay-edge-first",
+                    FromNodeId = NodeA,
+                    ToNodeId = NodeB,
+                    EdgeType = GraphEdgeTypes.ConnectsTo,
+                    Label = "CONNECTS",
+                },
+                new GraphEdge
+                {
+                    EdgeId = "overlay-edge-second",
+                    FromNodeId = NodeA,
+                    ToNodeId = NodeB,
+                    EdgeType = GraphEdgeTypes.ConnectsTo,
+                    Label = "connects",
+                },
+            ],
+        };
+
+        GraphSnapshot merged = ArchitectureInventoryObservedFactGraphOverlayMerger.Merge(baseGraph, overlay);
+
+        merged.Edges.Should().ContainSingle().Which.Label.Should().Be("CONNECTS");
     }
 
     [Fact]

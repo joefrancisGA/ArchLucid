@@ -48,9 +48,11 @@ public static class ArchitectureInventoryObservedFactGraphOverlayMerger
             existingNodeIds.Add(NormalizeNodeId(normalizedNode.NodeId));
         }
 
-        HashSet<string> edgeKeys = baseGraph.Edges
+        HashSet<string> baseEdgeKeys = baseGraph.Edges
             .Select(static edge => BuildEdgeKey(edge))
             .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+        HashSet<string> edgeKeys = new(baseEdgeKeys, StringComparer.OrdinalIgnoreCase);
 
         List<GraphEdge> mergedEdges = [.. baseGraph.Edges];
 
@@ -66,6 +68,14 @@ public static class ArchitectureInventoryObservedFactGraphOverlayMerger
 
             if (!edgeKeys.Add(edgeKey))
             {
+                if (!baseEdgeKeys.Contains(edgeKey))
+                {
+                    GraphEdge retainedEdge = mergedEdges.First(edge =>
+                        string.Equals(BuildEdgeKey(edge), edgeKey, StringComparison.OrdinalIgnoreCase));
+
+                    TryValidateOverlayEdgeLabelAgreement(inventoryEdge, retainedEdge);
+                }
+
                 continue;
             }
 
@@ -216,6 +226,23 @@ public static class ArchitectureInventoryObservedFactGraphOverlayMerger
         {
             throw new ArgumentException(
                 "Inventory overlay duplicate nodes disagree on SourceType for the same normalized NodeId.");
+        }
+    }
+
+    private static void TryValidateOverlayEdgeLabelAgreement(GraphEdge incomingEdge, GraphEdge retainedEdge)
+    {
+        string incomingLabel = (incomingEdge.Label ?? string.Empty).Trim();
+        string retainedLabel = (retainedEdge.Label ?? string.Empty).Trim();
+
+        if (incomingLabel.Length == 0 || retainedLabel.Length == 0)
+        {
+            return;
+        }
+
+        if (!string.Equals(retainedLabel, incomingLabel, StringComparison.OrdinalIgnoreCase))
+        {
+            throw new ArgumentException(
+                "Inventory overlay duplicate edges disagree on Label for the same directed edge key.");
         }
     }
 
