@@ -12470,10 +12470,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 282
-- **bugs-found:** 184
+- **hunts:** 283
+- **bugs-found:** 185
 - **last-hunt:** 2026-10-23
-- **last-bug:** 2026-10-23 — duplicate ARM rows silently kept conflicting arm.parentId from first row
+- **last-bug:** 2026-10-23 — duplicate ARM rows silently kept conflicting resource group / subscription id from first row
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -12897,7 +12897,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - [x] (proven) `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` — conflicting duplicate-row `ParentResourceId` kept first row parent silently — **hit 2026-10-23 seed hunt (seed→hit):** throw on normalized parent disagreement; regression above.
 
-- [ ] (candidate) `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` — duplicate normalized ARM resource rows with conflicting non-empty `ResourceGroup` or `SubscriptionId` may keep first row scalar stamps — locus: first-wins dedupe without scalar backfill or conflict guard; input: two ARM-duplicate rows whose trimmed resource group or subscription id differ; wrong outcome: overlay node retains lexicographically first row `arm.resourceGroup` / `arm.subscriptionId` without surfacing disagreement.
+2026-10-23 seed hunt (seed→hit): promoted `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` conflicting `ResourceGroup` / `SubscriptionId` on duplicate ARM rows candidate; proved duplicate-row handling only merged `ParentResourceId` and left first-wins `arm.resourceGroup` / `arm.subscriptionId` when later rows disagreed; extended `MergeDuplicateResourceRowScalars` with trim-aware backfill and case-insensitive disagreement throws (parity with hunt 282 parent guard); regressions `BuildOverlay_throws_when_duplicate_resource_rows_disagree_on_resource_group`, `BuildOverlay_throws_when_duplicate_resource_rows_disagree_on_subscription_id`, and `BuildOverlay_backfills_resource_group_from_duplicate_row_when_winning_row_omits_resource_group`; seeded `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` duplicate rows with conflicting `CloudResourceId` may keep first row cloud id stamp follow-on; 577 KnowledgeGraph + 170 Provenance scoped tests passed.
+
+- [x] (proven) `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` — conflicting duplicate-row `ResourceGroup` / `SubscriptionId` kept first row scalars silently — **hit 2026-10-23 seed hunt (seed→hit):** merge/backfill/throw on duplicate scalars; regressions above.
+
+- [ ] (candidate) `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` — duplicate normalized ARM resource rows with conflicting `CloudResourceId` may keep first row `cloudResourceId` stamp — locus: first-wins `ResolveNodeId` and property stamp; input: two ARM-duplicate rows whose cloud resource guids differ; wrong outcome: overlay node id and `cloudResourceId` property reflect only the lexicographically first row without surfacing disagreement.
 
 2026-10-22 seed hunt (seed→hit): promoted `StructuredDiagramGraphMerger` padded diagram property-key coalesce candidate; proved duplicate node/edge metadata coalesce indexed raw `property.Key`, so a later compile with surrounding-whitespace keys left parallel bag entries and `GraphNodePropertyReader` could return stale source-evidence values; trim keys before skip/coalesce (parity with `GraphNodeFactory.NormalizePropertyBag`); regression `Merge_coalesces_node_properties_when_incoming_property_keys_differ_only_by_surrounding_whitespace`; seeded diagram edge metadata padded-key coalesce regression follow-on; 468 KnowledgeGraph + 170 Provenance scoped tests passed.
 

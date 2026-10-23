@@ -36,7 +36,11 @@ public static class ArchitectureInventoryObservedFactGraphBuilder
 
             if (!seenNormalizedArmIds.Add(normalizedArmId))
             {
-                TryBackfillParentResourceIdFromDuplicateRow(resource, normalizedArmId, nodeByNormalizedArmId);
+                if (nodeByNormalizedArmId.TryGetValue(normalizedArmId, out GraphNode? duplicateTarget))
+                {
+                    MergeDuplicateResourceRowScalars(resource, duplicateTarget);
+                }
+
                 continue;
             }
 
@@ -181,13 +185,55 @@ public static class ArchitectureInventoryObservedFactGraphBuilder
         return armId.Trim();
     }
 
-    private static void TryBackfillParentResourceIdFromDuplicateRow(
+    private static void MergeDuplicateResourceRowScalars(
         AzureInventoryResourceRecord resource,
-        string normalizedArmId,
-        Dictionary<string, GraphNode> nodeByNormalizedArmId)
+        GraphNode node)
     {
-        if (string.IsNullOrWhiteSpace(resource.ParentResourceId)
-            || !nodeByNormalizedArmId.TryGetValue(normalizedArmId, out GraphNode? node))
+        TryMergeTrimmedScalarProperty(
+            node,
+            "arm.resourceGroup",
+            resource.ResourceGroup,
+            "arm.resourceGroup");
+        TryMergeTrimmedScalarProperty(
+            node,
+            "arm.subscriptionId",
+            resource.SubscriptionId,
+            "arm.subscriptionId");
+        TryMergeParentResourceIdFromDuplicateRow(resource, node);
+    }
+
+    private static void TryMergeTrimmedScalarProperty(
+        GraphNode node,
+        string propertyKey,
+        string? incomingRaw,
+        string disagreementLabel)
+    {
+        if (string.IsNullOrWhiteSpace(incomingRaw))
+        {
+            return;
+        }
+
+        string incoming = incomingRaw.Trim();
+
+        if (node.Properties.TryGetValue(propertyKey, out string? existing))
+        {
+            if (!string.Equals(existing, incoming, StringComparison.OrdinalIgnoreCase))
+            {
+                throw new ArgumentException(
+                    $"Inventory overlay duplicate resource rows disagree on {disagreementLabel} for the same normalized ARM resource id.");
+            }
+
+            return;
+        }
+
+        node.Properties[propertyKey] = incoming;
+    }
+
+    private static void TryMergeParentResourceIdFromDuplicateRow(
+        AzureInventoryResourceRecord resource,
+        GraphNode node)
+    {
+        if (string.IsNullOrWhiteSpace(resource.ParentResourceId))
         {
             return;
         }
