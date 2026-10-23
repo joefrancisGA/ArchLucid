@@ -15,6 +15,28 @@ namespace ArchLucid.Api.Tests.Admin;
 public sealed class AdminIntegrationsControllerTests
 {
     [Fact]
+    public async Task RetryIntegrationOutboxDeadLetters_uses_default_max_rows_when_body_is_empty_object()
+    {
+        Mock<IAdminDiagnosticsService> diagnostics = new();
+        diagnostics
+            .Setup(d => d.RetryIntegrationOutboxDeadLettersAsync(
+                It.Is<IntegrationOutboxDeadLetterBulkRetryRequest>(r => r.MaxRows == 100),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new IntegrationOutboxDeadLetterBulkRetryResponse());
+
+        AdminIntegrationsController controller = new(diagnostics.Object)
+        {
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
+        };
+
+        IActionResult result = await controller.RetryIntegrationOutboxDeadLetters(
+            new IntegrationOutboxDeadLetterBulkRetryRequest(),
+            CancellationToken.None);
+
+        result.Should().BeOfType<OkObjectResult>();
+    }
+
+    [Fact]
     public async Task RetryIntegrationOutboxDeadLetters_uses_default_max_rows_when_body_is_null()
     {
         Mock<IAdminDiagnosticsService> diagnostics = new();
