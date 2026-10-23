@@ -34,7 +34,19 @@ public sealed class PollingCollectionRunDiscovery(
             if (artifact is null)
                 continue;
 
-            await _ingestService.IngestAsync(artifact, cancellationToken);
+            try
+            {
+                await _ingestService.IngestAsync(artifact, cancellationToken);
+            }
+            catch (OperationCanceledException)
+            {
+                throw;
+            }
+            catch (Exception)
+            {
+                continue;
+            }
+
             imported++;
         }
 
