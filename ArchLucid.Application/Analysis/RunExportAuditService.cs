@@ -42,6 +42,9 @@ public sealed class RunExportAuditService(
         ArgumentException.ThrowIfNullOrWhiteSpace(format);
         ArgumentException.ThrowIfNullOrWhiteSpace(fileName);
         templateProfile = templateProfile?.Trim();
+        templateProfileDisplayName = templateProfileDisplayName?.Trim();
+        resolutionReason = resolutionReason?.Trim();
+        manifestVersion = manifestVersion?.Trim();
         notes = notes?.Trim();
         RunExportRecord record = new()
         {

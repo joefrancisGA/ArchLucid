@@ -70,6 +70,8 @@ internal static class ComparisonExportMarkdownSectionRemover
             .Replace('\u2003', ' ')
             .Replace('\u2007', ' ')
             .Replace('\u2009', ' ')
+            .Replace('\u200A', ' ')
+            .Replace('\u202F', ' ')
             .Trim();
 
         while (normalized.Contains("  ", StringComparison.Ordinal))

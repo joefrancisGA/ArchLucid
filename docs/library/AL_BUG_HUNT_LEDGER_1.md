@@ -6868,6 +6868,19 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-23 seed hunt (seed→hit): proved `RunExportQueryFacade.LoadScopedExportRecordAsync` scoped export reads via `GetRunDetailAsync(record.RunId)` without trimming legacy padded `RunId` values so trimmed run-detail queries missed valid export rows, `RunExportAuditService.RecordAsync` left padded optional `templateProfileDisplayName`/`resolutionReason`/`manifestVersion` on persisted audit metadata, and `ComparisonExportMarkdownSectionRemover` ignored hair-space (`\u200A`) and narrow no-break space (`\u202F`) heading prefixes; trim stored run id after repository load, trim remaining optional audit strings, extend heading normalization; regressions `CompareQuality_GetExportRecordAsync_loads_record_when_stored_run_id_has_surrounding_whitespace`, `RecordAsync_trims_surrounding_whitespace_on_optional_display_name_resolution_and_manifest_version`, `RemoveMarkdownSection_strips_compare_quality_delta_when_heading_uses_hair_space_after_hashes`, and `RemoveMarkdownSection_strips_compare_quality_delta_when_heading_uses_narrow_nbsp_after_hashes`; cheap-disproof closed `RecordFailureAsync` optional `notes` row (failure audit has no notes parameter); seeded five follow-on rows; scoped application-analysis filter 81/81. Private beta: export record reads and audit metadata tolerate legacy padded run ids and unicode-space comparison headings.
+
+- [ ] (candidate) `RunExportQueryFacade.CompareExportRecordsAsync` — does not trim padded `RunId` on loaded export records before guard paths — locus: compare export metadata; input: legacy padded run id on left/right export rows.
+- [ ] (candidate) `ComparisonExportMarkdownSectionRemover` — medium mathematical space `\u205F` in headings not normalized — locus: unicode space variants; input: MMSP-prefixed heading line.
+- [ ] (candidate) `RunExportAuditService.RecordAsync` — does not trim optional `compareRunId` inside serialized `analysisRequest` — locus: export audit JSON; input: padded compare run id on analysis request.
+- [ ] (candidate) `ExportReplayService.ReplayAsync` — does not trim padded `RunId` on preloaded export record before scope check — locus: export replay; input: stored padded run id on export row.
+- [ ] (candidate) `RunExportQueryFacade.ReplayExportAsync` — `MissingId` echoes padded `record.RunId` on guard failure — locus: replay error payload; input: legacy padded run id on stored export.
+
+- [x] (proven) `RunExportQueryFacade.LoadScopedExportRecordAsync` — padded stored `RunId` broke scoped export load — **hit 2026-10-23 seed hunt:** trim after `GetByIdAsync`; regression `CompareQuality_GetExportRecordAsync_loads_record_when_stored_run_id_has_surrounding_whitespace`.
+- [x] (proven) `RunExportAuditService.RecordAsync` — optional display name / resolution / manifest trim — **hit 2026-10-23 seed hunt:** trim before persist; regression `RecordAsync_trims_surrounding_whitespace_on_optional_display_name_resolution_and_manifest_version`.
+- [x] (proven) `ComparisonExportMarkdownSectionRemover` — hair-space and NNBSP heading prefixes — **hit 2026-10-23 seed hunt:** `\u200A`/`\u202F` in `NormalizeHeadingLine`; regressions `RemoveMarkdownSection_strips_compare_quality_delta_when_heading_uses_hair_space_after_hashes` and `RemoveMarkdownSection_strips_compare_quality_delta_when_heading_uses_narrow_nbsp_after_hashes`.
+- [x] (invalid) `RunExportAuditService.RecordFailureAsync` — optional `notes` trim — **cheap-disproof 2026-10-23 seed hunt:** `RecordFailureAsync` signature has no notes parameter.
+
 2026-10-23 seed hunt (seed→hit): proved `RunExportQueryFacade.GetRunExportHistoryAsync` rejected padded canonical run ids at `AuthorityRunIdentifier.TryParse` before export history load while single-export reads and repository list-by-run had gained trim parity, `RunExportAuditService.RecordAsync` left padded optional `templateProfile`/`notes` on persisted audit rows, and `ComparisonExportMarkdownSectionRemover` ignored em-space (`\u2003`) heading prefixes; trim run id after whitespace-only early return, trim optional audit fields, extend heading normalization; regressions `CompareQuality_GetRunExportHistoryAsync_trims_padded_run_id_before_history_load`, `RecordAsync_trims_surrounding_whitespace_on_optional_template_profile_and_notes`, and `RemoveMarkdownSection_strips_compare_quality_delta_when_heading_uses_em_space_after_hashes`; cheap-disproof closed markdown-only detailed export strip parity and trailing-thin-space verdict heading (shared normalizer); seeded five follow-on rows; scoped application-analysis filter 77/77 (`ArchitectureAnalysis|CompareQuality|CompareVerdictChrome|RunExportAudit`). Private beta: export history by run id and export audit metadata tolerate padded route tokens and unicode-space comparison headings.
 
 - [ ] (candidate) `RunExportAuditService.RecordAsync` — does not trim optional `templateProfileDisplayName` / `resolutionReason` / `manifestVersion` — locus: export audit metadata; input: padded display name string.
@@ -7125,11 +7138,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 87
-- **bugs-found:** 82
+- **hunts:** 88
+- **bugs-found:** 83
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-23
-- **last-bug:** 2026-10-23 — padded export history run id and optional audit field trim
+- **last-bug:** 2026-10-23 — padded stored run id on scoped export load and audit optional trim
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 

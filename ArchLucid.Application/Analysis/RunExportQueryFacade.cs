@@ -318,6 +318,8 @@ public sealed class RunExportQueryFacade(
 
         if (record is null)
             return null;
+
+        record.RunId = record.RunId.Trim();
         return await _runDetailQueryService.GetRunDetailAsync(record.RunId, cancellationToken) is null ? null : record;
     }
 
