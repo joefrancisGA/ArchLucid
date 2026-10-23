@@ -5175,12 +5175,6 @@
 
 - [x] (proven) `ScimBearerAuthenticationHandler` — literal space after `Bearer` only — **hit 2026-10-23 (shipped 2fa38ee):** `TryReadBearerCredentialSegment`; regression `HandleAuthenticateAsync_succeeds_when_bearer_scheme_uses_tab_separator`.
 
-- (candidate) `ScimBearerAuthenticationHandler` — separate `Authorization` header values (HTTP field combination) with revoked Bearer in first value and valid Bearer in second — locus: `TryParseBearerCredentials` multi-value loop; input: parity with comma-folded revoked-then-valid regression (verify explicit dual-header regression).
-- (candidate) `ScimBearerAuthenticationHandler` — comma-folded segment using `bearer` lowercase scheme prefix without space after scheme — locus: `StartsWith("Bearer ")` case-insensitive; input: proxy rewrites scheme casing.
-- (candidate) `ArchLucidSamlInboundClaimsNormalizer.PromoteSingleValueIfMissing` — IdP emits two scope source GUIDs differing only by format (N vs D) treated as ambiguous — locus: `Distinct(StringComparer.OrdinalIgnoreCase)` on string values not Guid-normalized; input: reachable duplicate attribute values on SAML assertion.
-- (candidate) `SamlMetadataValidUntilParser` — operational expiry ignores `KeyDescriptor` / signing cert `NotAfter` when entity `validUntil` is later — locus: `ResolveValidUntilAttribute`; input: metadata-only diagnostics not runtime auth bypass.
-- (candidate) `PlatformUserAuthVersionValidator` — non-Guid JWT `sub` skips auth-version stamp enforcement — locus: `Guid.TryParse(subject)` early return; input: intentional opaque CIAM subjects vs platform-user GUID contract.
-
 2026-10-21 thorough hunt (hit): `saml-jwt-bearer` — promoted comma-folded `Authorization` with revoked/invalid first Bearer segment and valid second segment (`ScimBearerAuthenticationHandler.TryEnumerateBearerTokens` stopped after first token); authenticate each parsed Bearer until `IScimBearerTokenAuthenticator` succeeds; regression `HandleAuthenticateAsync_succeeds_when_comma_folded_header_lists_revoked_token_before_valid_one`; cheap-disproof closed open `(candidate)` rows (SamlSpConfigurationDiagnostics “No root validUntil” copy is intentional when attribute absent; `RecentAuthenticationEvaluator` `iat` Integer64 without `auth_time` already honored via `long.TryParse` + `HasRecentAuthentication_returns_true_when_later_iat_is_fresh_among_multiple_values_without_auth_time`; duplicate `archlucid_auth_ver` not injectable on signed JWT principals; `SamlMetadataDiscoveryParser` multi-`EntityDescriptor` throw intentional); `ScimBearerAuthenticationHandlerTests` 3/3 + `ScimBearer` Application tests 2/2 + scoped SAML/JWT/SCIM Api filter 98 passed (4 SQL/integration baseline failures on Linux VM); seeded five follow-on `(candidate)` rows.
 
 2026-10-20 seed hunt (seed->hit): promoted ScimBearerAuthenticationHandler.TryReadBearerToken comma-folded Authorization header parse; regression HandleAuthenticateAsync_succeeds_when_duplicate_bearer_credentials_are_comma_folded_in_one_header; ScimBearerAuthenticationHandlerTests 2/2; seeded five follow-on (candidate) rows.
@@ -5191,23 +5185,17 @@
 - [x] (invalid) `PlatformUserAuthVersionJwtBearerPostConfigure` duplicate `archlucid_auth_ver` on constructed principals — **cheap-disproof 2026-10-21:** JWT pipeline supplies single claim; validator not reachable with attacker-injected duplicate on signed tokens.
 - [x] (invalid) `SamlMetadataDiscoveryParser` multi-`EntityDescriptor` federation throw — **cheap-disproof 2026-10-21:** intentional discovery guard; not a runtime auth bypass.
 
-- (candidate) `ScimBearerAuthenticationHandler` — comma-folded header lists non-Bearer credential before valid Bearer segment (proxy appends `Basic` then `Bearer`).
-- (candidate) `LocalTrialJwtIssuer` — trial access token `sub` without platform-user GUID still accepted when `JwtLocalIssuer` matches development bypass path.
-- (candidate) `ArchLucidSamlInboundClaimsNormalizer` — promotes workspace scope when inbound `tenant_id` source claim is empty string vs absent.
-- (candidate) `ScimBearerTokenAuthenticator` — revoked token row still authenticates when Argon verify uses wrong pepper version (migration window).
-- (candidate) `SamlMetadataValidUntilParser` — `validUntil` on `KeyDescriptor` ignored when entity-level attribute is later but signing cert `NotAfter` is earlier.
-
 - **id:** saml-jwt-bearer
 - **status:** open
 - **impact:** high
 - **aliases:** SAML; trial JWT; SCIM bearer; OIDC auth stack
 - **paths:** ArchLucid.Api/Auth/; ArchLucid.Core/Auth/Saml/
 - **test-filter:** FullyQualifiedName~Saml|FullyQualifiedName~LocalTrialJwt|FullyQualifiedName~ScimBearer
-- **hunts:** 27
-- **bugs-found:** 24
+- **hunts:** 29
+- **bugs-found:** 26
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-20
-- **last-bug:** 2026-10-21 — SCIM Bearer auth failed when comma-folded Authorization listed a revoked Bearer before a valid one
+- **last-hunt:** 2026-10-23
+- **last-bug:** 2026-10-23 — SCIM Bearer rejected UTF-8 BOM before Bearer scheme
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -9967,6 +9955,22 @@
 
 ## Zone: api-governance-tenancy-controllers
 
+2026-10-23 seed hunt #10 (seed→hit): promoted `CreateGovernancePreviewRequestValidator` — Fluent `Environment` enum check used raw body text so `" dev "` failed validation while `GovernancePreviewService.PreviewActivationAsync` trims via `GovernanceEnvironment.NormalizeAndValidate` (promotion/activation parity); trim before `GovernanceEnvironment.IsKnown`; regression `Environment_with_surrounding_whitespace_or_different_casing_passes`. Private beta: governance preview POST accepts the same padded environment slugs operators already send on promote/activate routes instead of a spurious 400.
+
+- [x] (proven) `GovernancePreviewController.Preview` — environment slug surrounding whitespace rejected at Fluent validator — **hit 2026-10-23 seed hunt #10:** `CreateGovernancePreviewRequestValidator` trims before `IsKnown`; regression `Environment_with_surrounding_whitespace_or_different_casing_passes`.
+
+- [x] (valid-no-repro) `GovernanceDispositionSealedManifestGuard.EnsureRunSealedManifestHashOrThrowAsync` — null `detail` 409 — **cheap-disproof 2026-10-23 seed hunt #10:** fail-closed for non-HTTP facade callers by design; stickiness HTTP skips null detail before sync helper.
+- [x] (valid-no-repro) `GovernanceController.MutationCorrections` — sealed vs 404 ordering — **cheap-disproof 2026-10-23 seed hunt #10:** `EnsureSealedManifestReadAllowedAsync` returns null when `detail` null; `GovernanceRunScope.RequireScopedRunIdAsync` → `RunNotFoundException` → 404.
+- [x] (valid-no-repro) `TenantCustomerSuccessController` feedback POST scope — **cheap-disproof 2026-10-23 seed hunt #10:** `TenantWorkspaceScopePreflight` + scoped run/finding lookups ~38–76.
+- [x] (valid-no-repro) `GovernanceStickinessController.RecordDisposition` — nullable body `RunId` — **cheap-disproof 2026-10-23 seed hunt #10:** `EnsureRunMatchesFindingAuthorityRun` when finding authority-bound.
+- [x] (valid-no-repro) `GovernancePreviewController.Preview` — run id trim before sealed guard — **cheap-disproof 2026-10-23 seed hunt #10:** `GovernanceRunIdHttpParser.TryParseFromBody` normalizes `body.RunId` before guard ~79–84.
+
+- [ ] (candidate) `CreateGovernanceEnvironmentComparisonRequestValidator` — source/target environment slug trim parity with `CompareEnvironmentsAsync` — locus: `CreateGovernanceEnvironmentComparisonRequestValidator.cs`; input: padded `" dev "` vs promotion routes.
+- [ ] (candidate) `CreateGovernanceActivationRequestValidator` — environment slug trim parity — locus: `CreateGovernanceActivationRequestValidator.cs`; input: same padded slug class as preview fix.
+- [ ] (candidate) `GovernanceController.GetApprovalRequestRationale` — sealed guard vs missing approval 404 — locus: `GovernanceController.Insights.cs` ~229–235; input: null `approval.RunId` skip path.
+- [ ] (candidate) `TenantWorkspacesController.ListRecycleBinAsync` — tenant preflight ordering vs `GetCurrentScope` first — locus: `RetentionPurge.cs` ~25–35; input: confirm 404 parity with other recycle routes.
+- [ ] (candidate) `GovernancePreCommitSimulationController.SimulateAsync` — synthetic count upper bound vs `int.MaxValue` edge — locus: `GovernancePreCommitSimulationController.cs` ~238–246; input: contract test for max boundary.
+
 2026-10-22 seed hunt #9 (seed-only, picker `-Refresh`): refresh did not deprioritize mega-zone; re-read create-risk sealed layering, customer-success health scope, dry-run validation order, workspace inventory row preference, and disposition guard null golden handling; cheap-disproof closed five open `(candidate)` rows (facade `CreateRiskExceptionAsync` still 409 via `runIdForGuard`; health-score uses `TenantWorkspaceScopePreflight` ~21–33; `DryRunPolicyPack` validates run ids before sealed guard ~162–200; recycle-bin `preferInactiveScopedInventoryRow: true` intentional ~65; null `GoldenManifest` throws `ConflictException` ~49–52 mapped to 409 ~42–49); no hunt-ready row promoted; five replacement `(candidate)` rows; scoped Governance/Tenancy controller tests not run.
 
 - [x] (valid-no-repro) `GovernanceStickinessController.CreateRiskException` — controller guard skips null `request.RunId` — **cheap-disproof 2026-10-22 seed hunt #9:** facade sealed guard ~33–43 returns 409.
@@ -9974,12 +9978,6 @@
 - [x] (valid-no-repro) `GovernanceController.DryRunPolicyPack` — validation ordering — **cheap-disproof 2026-10-22 seed hunt #9:** run id validation precedes sealed guard ~162–200.
 - [x] (valid-no-repro) `TenantWorkspacesController.ResolveScopedWorkspaceInventoryRow` — inactive row preference — **cheap-disproof 2026-10-22 seed hunt #9:** recycle-bin sets `preferInactiveScopedInventoryRow: true` by design.
 - [x] (valid-no-repro) `EnsureGovernanceDispositionRunSealedManifestAllowedAsync` — null golden — **cheap-disproof 2026-10-22 seed hunt #9:** `EnsureRunSealedManifestHashOrThrow` 409 when golden null ~49–52.
-
-- [ ] (candidate) `GovernanceDispositionSealedManifestGuard.EnsureRunSealedManifestHashOrThrowAsync` — null `detail` throws 409 not 404 — locus: `GovernanceDispositionSealedManifestGuard.cs` ~32–36; input: facade callers vs HTTP stickiness null-detail skip divergence.
-- [ ] (candidate) `GovernanceController.MutationCorrections` — correction POST sealed guard ordering — locus: `GovernanceController.MutationCorrections.cs`; input: missing run 404 vs 409.
-- [ ] (candidate) `TenantCustomerSuccessController` feedback POST — locus: `TenantCustomerSuccessController.Feedback.cs`; input: tenant scope on write path.
-- [ ] (candidate) `GovernanceStickinessController.RecordDisposition` — sealed guard on nullable `body.RunId` only — locus: `Dispositions.cs` ~81–83; input: finding-bound run omitted from body (revisit after `EnsureRunMatchesFindingAuthorityRun`).
-- [ ] (candidate) `GovernancePreviewController.Preview` — run id trim/normalization before sealed guard — locus: `GovernancePreviewController.cs` ~113; input: whitespace-padded run id reachability.
 
 2026-10-22 seed hunt #8 (seed-only): re-read risk-exception create/revoke guard layers, tenant baseline GET, and batch approval review entry; cheap-disproof closed five open `(candidate)` rows (`RenewRiskException` shares `EnsureRiskExceptionRunSealedManifestAllowedAsync` with revoke after `33ef2a457a`; Approve sealed-before-SoD intentional ~53–98; `TenantBaselineController.GetAsync` returns tenant-row baseline only ~20–26; `CreateRiskExceptionAsync` seals via `runIdForGuard = request.RunId ?? finding.RunId` ~33–43 when controller guard skips null `request.RunId`; `BatchReviewApprovalRequests` no longer applies scope posture controller guard—facade-only ~48–56 post-2026-10-20); no hunt-ready row promoted; five replacement `(candidate)` rows; scoped Governance/Tenancy controller tests not run.
 
