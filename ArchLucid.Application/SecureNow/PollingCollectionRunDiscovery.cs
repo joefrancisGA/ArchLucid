@@ -1,3 +1,5 @@
+using Azure;
+
 namespace ArchLucid.Application.SecureNow;
 
 public sealed class PollingCollectionRunDiscovery(
@@ -18,8 +20,17 @@ public sealed class PollingCollectionRunDiscovery(
 
         foreach (CollectionRunManifest manifest in manifests)
         {
-            CollectionRunArtifact? artifact =
-                await _artifactReader.ReadArtifactAsync(manifest, cancellationToken);
+            CollectionRunArtifact? artifact;
+
+            try
+            {
+                artifact = await _artifactReader.ReadArtifactAsync(manifest, cancellationToken);
+            }
+            catch (RequestFailedException ex) when (ex.Status == 404)
+            {
+                continue;
+            }
+
             if (artifact is null)
                 continue;
 

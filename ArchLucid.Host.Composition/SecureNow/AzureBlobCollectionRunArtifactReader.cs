@@ -53,7 +53,16 @@ public sealed class AzureBlobCollectionRunArtifactReader(
 
         BlobClient package = Container().GetBlobClient(manifest.ZipPath);
         MemoryStream bytes = new();
-        await package.DownloadToAsync(bytes, cancellationToken);
+
+        try
+        {
+            await package.DownloadToAsync(bytes, cancellationToken);
+        }
+        catch (RequestFailedException ex) when (ex.Status == 404)
+        {
+            return null;
+        }
+
         return new CollectionRunArtifact
         {
             Manifest = manifest,
