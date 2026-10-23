@@ -252,7 +252,7 @@ internal static class ArchitectureRecommendationTradeOffBuilder
     private static bool IsCostTokenInCostOfDimensionGoalPhrase(string priority) =>
         Regex.IsMatch(
             priority,
-            @"\bcost\s+of\s+(?:security|reliability|operations|compliance|ownership|delivery)\b",
+            @"\bcost\s+of\s+(?:security|reliability|operations|compliance|ownership|delivery|quality)\b",
             RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     private static bool IsCostTokenInPriceOfDimensionGoalPhrase(string priority) =>
