@@ -81,4 +81,28 @@ public sealed class AdminIntegrationsControllerTests
                 It.IsAny<CancellationToken>()),
             Times.Never);
     }
+
+    [Fact]
+    public async Task RetryIntegrationOutboxDeadLetters_returns_bad_request_when_max_rows_is_negative()
+    {
+        Mock<IAdminDiagnosticsService> diagnostics = new();
+
+        AdminIntegrationsController controller = new(diagnostics.Object)
+        {
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
+        };
+
+        IntegrationOutboxDeadLetterBulkRetryRequest body = new() { MaxRows = -1 };
+
+        IActionResult result = await controller.RetryIntegrationOutboxDeadLetters(body, CancellationToken.None);
+
+        ObjectResult bad = result.Should().BeOfType<ObjectResult>().Subject;
+        bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+
+        diagnostics.Verify(
+            static d => d.RetryIntegrationOutboxDeadLettersAsync(
+                It.IsAny<IntegrationOutboxDeadLetterBulkRetryRequest>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
 }

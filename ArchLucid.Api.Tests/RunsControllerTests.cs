@@ -447,6 +447,25 @@ public sealed class RunsControllerTests
     }
 
     [Fact]
+    public async Task ConnectorIntake_returns_bad_request_when_source_is_whitespace_only()
+    {
+        Mock<IArchitectureRequestIntakeFacade> intakeFacade = new();
+
+        RunsController controller = CreateController();
+
+        ConnectorIntakeRequest input = new() { Source = "   " };
+
+        IActionResult action = await controller.ConnectorIntake(input, intakeFacade.Object, CancellationToken.None);
+
+        ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
+        bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+
+        intakeFacade.Verify(
+            static f => f.ParseConnectorIntakeAsync(It.IsAny<ConnectorIntakeRequest>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task ConnectorIntake_returns_bad_request_when_description_contains_invalid_surrogate()
     {
         Mock<IArchitectureRequestIntakeFacade> intakeFacade = new();

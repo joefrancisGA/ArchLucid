@@ -8920,11 +8920,19 @@
 
 2026-10-23 seed hunt (seed-only #4): cheap-disproof closed five open `(candidate)` rows; two new AdminIntegrations + ChatIntake regressions; 4 scoped tests passed on full tree (`RunAnalyzers=false`).
 
-- [ ] (candidate) `RunsController.CreateRunBatch` — idempotency replay when batch item count changes but key reused — locus: `BatchCreateRunOutcome.IdempotencyKeyPayloadMismatch`; input: same key, different array length.
-- [ ] (candidate) `AdminAgentModelCatalogController.RecordEvaluation` — case-mixed enum string (`passed` vs `Passed`) — locus: `Enum.TryParse` ignoreCase; input: verify contract vs rejection.
-- [ ] (candidate) `RunCoverageController.PutAcknowledgedCoverage` — excluded row without `ExclusionReason` — locus: service `ValidateEntriesAsync`; input: `excluded: true` with null reason.
-- [ ] (candidate) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — negative `MaxRows` — locus: range guard; input: `{ "maxRows": -1 }`.
-- [ ] (candidate) `RunsController.ConnectorIntake` — `Source` whitespace-only vs missing — locus: `string.IsNullOrWhiteSpace(input.Source)`; input: `{ "source": "   " }`.
+- [x] (invalid) `RunsController.CreateRunBatch` — idempotency replay when batch item count changes but key reused — **cheap-disproof 2026-10-23 seed hunt #5:** `ArchitectureRunBatchCreateOrchestrator` returns `PayloadMismatch` when stored fingerprint differs; controller maps to HTTP 409 conflict by design.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — case-mixed enum string (`passed` vs `Passed`) — **cheap-disproof 2026-10-23 seed hunt #5:** `AgentModelEvaluationStateKind` has no `Passed` value; `Enum.TryParse` rejects → HTTP 400 (ignoreCase does not help unknown names).
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded row without `ExclusionReason` — **cheap-disproof 2026-10-23 seed hunt #5:** `ValidateEntriesAsync` throws `ArgumentException`; controller maps to HTTP 400 `ValidationFailed`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — negative `MaxRows` — **cheap-disproof 2026-10-23 seed hunt #5:** same `< 1 or > 500` guard; regression `RetryIntegrationOutboxDeadLetters_returns_bad_request_when_max_rows_is_negative`.
+- [x] (valid-no-repro) `RunsController.ConnectorIntake` — `Source` whitespace-only vs missing — **cheap-disproof 2026-10-23 seed hunt #5:** `IsNullOrWhiteSpace` guard; regression `ConnectorIntake_returns_bad_request_when_source_is_whitespace_only`.
+
+2026-10-23 seed hunt (seed-only #5): cheap-disproof closed five open `(candidate)` rows; two new regressions; 4 scoped tests passed on full tree (`RunAnalyzers=false`).
+
+- [ ] (candidate) `RunsController.CreateRunBatch` — empty idempotency key header skips fingerprint storage — locus: `BuildBatchCreateRunIdempotency`; input: batch POST without `Idempotency-Key`.
+- [ ] (candidate) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` `Evaluated` with wrong casing (`evaluated`) — locus: `Enum.TryParse` ignoreCase true; input: lowercase contract token.
+- [ ] (candidate) `RunCoverageController.PatchRunCoveragePack` — excluded patch without `ExclusionReason` — locus: patch validation vs bulk PUT parity.
+- [ ] (candidate) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` null on non-null body — locus: nullable int default; input: `{ }` JSON body.
+- [ ] (candidate) `RunsController.ConnectorIntake` — null body vs missing `Source` property — locus: required body guard; input: omit `source` key.
 
 2026-10-23 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows from prior reseed; no new hunt-ready promotion (Rephrase null `Items` already shipped on `bugsmash-2` 01857d53eb); seeded five follow-on `(candidate)` rows; 12 scoped RunsController draft/explain + RunCoverage acknowledgement tests passed.
 
@@ -8944,9 +8952,9 @@
 - **aliases:** authority controllers; admin controllers
 - **paths:** ArchLucid.Api/Controllers/Authority/; ArchLucid.Api/Controllers/Admin/
 - **test-filter:** FullyQualifiedName~AuthorityController|FullyQualifiedName~AdminController
-- **hunts:** 68
+- **hunts:** 69
 - **bugs-found:** 58
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 3
 - **last-hunt:** 2026-10-23
 - **last-bug:** 2026-10-23 — rephrase clarification null item in items array caused 500 instead of validation
 - **related-pd-tb:** none
