@@ -22,6 +22,9 @@ public static class AgentArchitectureFindingEmissionGate
 
         foreach (AgentResult result in results)
         {
+            if (result is null)
+                continue;
+
             if (result.Findings is not { Count: > 0 } findings)
                 continue;
 
