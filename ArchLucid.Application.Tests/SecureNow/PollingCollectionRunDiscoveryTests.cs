@@ -56,12 +56,14 @@ public sealed class PollingCollectionRunDiscoveryTests
     [Fact]
     public async Task DiscoverAsync_continues_when_missing_package_blob_returns_not_found()
     {
+        Guid tenantId = Guid.NewGuid();
         CollectionRunManifest missingPackage = new()
         {
             RunId = Guid.NewGuid(),
             AgentVersion = "1.0",
             StartedUtc = DateTime.UtcNow,
             Status = "Succeeded",
+            TenantId = tenantId,
             ZipPath = "runs/missing/package.zip",
         };
 
@@ -71,6 +73,7 @@ public sealed class PollingCollectionRunDiscoveryTests
             AgentVersion = "1.0",
             StartedUtc = DateTime.UtcNow,
             Status = "Succeeded",
+            TenantId = tenantId,
             ZipPath = "runs/ok/package.zip",
             SchemaVersion = AzureExtractorPackageZipValidator.SupportedSchemaVersion,
         };
@@ -119,7 +122,7 @@ public sealed class PollingCollectionRunDiscoveryTests
             .Setup(p => p.GetCurrentScope())
             .Returns(new ScopeContext
             {
-                TenantId = Guid.NewGuid(),
+                TenantId = tenantId,
                 WorkspaceId = Guid.NewGuid(),
                 ProjectId = Guid.NewGuid(),
             });
@@ -140,12 +143,14 @@ public sealed class PollingCollectionRunDiscoveryTests
     [Fact]
     public async Task DiscoverAsync_continues_when_package_blob_download_returns_storage_error()
     {
+        Guid tenantId = Guid.NewGuid();
         CollectionRunManifest unavailablePackage = new()
         {
             RunId = Guid.NewGuid(),
             AgentVersion = "1.0",
             StartedUtc = DateTime.UtcNow,
             Status = "Succeeded",
+            TenantId = tenantId,
             ZipPath = "runs/unavailable/package.zip",
         };
 
@@ -155,6 +160,7 @@ public sealed class PollingCollectionRunDiscoveryTests
             AgentVersion = "1.0",
             StartedUtc = DateTime.UtcNow,
             Status = "Succeeded",
+            TenantId = tenantId,
             ZipPath = "runs/ok/package.zip",
             SchemaVersion = AzureExtractorPackageZipValidator.SupportedSchemaVersion,
         };
@@ -203,7 +209,7 @@ public sealed class PollingCollectionRunDiscoveryTests
             .Setup(p => p.GetCurrentScope())
             .Returns(new ScopeContext
             {
-                TenantId = Guid.NewGuid(),
+                TenantId = tenantId,
                 WorkspaceId = Guid.NewGuid(),
                 ProjectId = Guid.NewGuid(),
             });
@@ -223,12 +229,14 @@ public sealed class PollingCollectionRunDiscoveryTests
     [Fact]
     public async Task DiscoverAsync_continues_when_ingest_throws_for_one_manifest()
     {
+        Guid tenantId = Guid.NewGuid();
         CollectionRunManifest failing = new()
         {
             RunId = Guid.NewGuid(),
             AgentVersion = "1.0",
             StartedUtc = DateTime.UtcNow,
             Status = "Succeeded",
+            TenantId = tenantId,
             ZipPath = "runs/fail/package.zip",
             SchemaVersion = AzureExtractorPackageZipValidator.SupportedSchemaVersion,
         };
@@ -239,6 +247,7 @@ public sealed class PollingCollectionRunDiscoveryTests
             AgentVersion = "1.0",
             StartedUtc = DateTime.UtcNow,
             Status = "Succeeded",
+            TenantId = tenantId,
             ZipPath = "runs/ok/package.zip",
             SchemaVersion = AzureExtractorPackageZipValidator.SupportedSchemaVersion,
         };
@@ -294,7 +303,7 @@ public sealed class PollingCollectionRunDiscoveryTests
             .Setup(p => p.GetCurrentScope())
             .Returns(new ScopeContext
             {
-                TenantId = Guid.NewGuid(),
+                TenantId = tenantId,
                 WorkspaceId = Guid.NewGuid(),
                 ProjectId = Guid.NewGuid(),
             });
@@ -418,12 +427,14 @@ public sealed class PollingCollectionRunDiscoveryTests
     [Fact]
     public async Task DiscoverAsync_does_not_increment_import_count_when_ingest_returns_rejected_status()
     {
+        Guid tenantId = Guid.NewGuid();
         CollectionRunManifest rejected = new()
         {
             RunId = Guid.NewGuid(),
             AgentVersion = "1.0",
             StartedUtc = DateTime.UtcNow,
             Status = "Succeeded",
+            TenantId = tenantId,
             ZipPath = "runs/bad-schema/package.zip",
             SchemaVersion = -1,
         };
@@ -456,7 +467,7 @@ public sealed class PollingCollectionRunDiscoveryTests
             .Setup(p => p.GetCurrentScope())
             .Returns(new ScopeContext
             {
-                TenantId = Guid.NewGuid(),
+                TenantId = tenantId,
                 WorkspaceId = Guid.NewGuid(),
                 ProjectId = Guid.NewGuid(),
             });

@@ -15,6 +15,8 @@ namespace ArchLucid.Application.Tests.SecureNow;
 [Trait("Suite", "Application")]
 public sealed class CollectionRunIngestServiceTests
 {
+    private static readonly Guid TestTenantId = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");
+
     [Fact]
     public async Task NewHashImportsOneSnapshot()
     {
@@ -59,6 +61,37 @@ public sealed class CollectionRunIngestServiceTests
                 null,
                 It.IsAny<long>()),
             Times.Never);
+    }
+
+    [Fact]
+    public async Task ManifestWithoutTenantIdRejectsWithoutImport()
+    {
+        Guid runId = Guid.NewGuid();
+        Mock<ICollectionRunRepository> repository = CreateRepository(false);
+        repository
+            .Setup(item => item.UpsertAsync(It.IsAny<CollectionRun>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+        Mock<IAzureExtractorIngestService> importer = new();
+        CollectionRunIngestService service = CreateService(repository, importer);
+
+        CollectionRunArtifact artifact = new()
+        {
+            Manifest = new CollectionRunManifest
+            {
+                RunId = runId,
+                AgentVersion = "test",
+                StartedUtc = DateTime.UtcNow,
+                Status = "Succeeded",
+                SchemaVersion = AzureExtractorPackageZipValidator.SupportedSchemaVersion,
+            },
+            ZipBytes = [1, 2, 3],
+        };
+
+        CollectionRun result = await service.IngestAsync(artifact);
+
+        result.Status.Should().Be(CollectionRunStatus.Rejected);
+        result.ErrorSummary.Should().Contain("tenant identifier");
+        importer.Invocations.Should().BeEmpty();
     }
 
     [Fact]
@@ -108,6 +141,7 @@ public sealed class CollectionRunIngestServiceTests
                 AgentVersion = "test",
                 StartedUtc = DateTime.UtcNow,
                 Status = "Succeeded",
+                TenantId = TestTenantId,
                 SchemaVersion = AzureExtractorPackageZipValidator.SupportedSchemaVersion + 1,
             },
             ZipBytes = [1, 2, 3],
@@ -136,6 +170,7 @@ public sealed class CollectionRunIngestServiceTests
                 AgentVersion = "test",
                 StartedUtc = DateTime.UtcNow,
                 Status = "Succeeded",
+                TenantId = TestTenantId,
                 SchemaVersion = AzureExtractorPackageZipValidator.SupportedSchemaVersion,
             },
             ZipBytes = [1, 2, 3],
@@ -177,7 +212,7 @@ public sealed class CollectionRunIngestServiceTests
             .Setup(item => item.GetCurrentScope())
             .Returns(new ScopeContext
             {
-                TenantId = Guid.NewGuid(),
+                TenantId = TestTenantId,
                 WorkspaceId = Guid.NewGuid(),
                 ProjectId = Guid.NewGuid(),
             });
