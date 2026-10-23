@@ -81,6 +81,10 @@ export function collectionRunStatusLabel(status: CollectionRun["status"]): strin
     return "Capture status was not stored.";
   }
 
+  if (status === "PartiallySucceeded") {
+    return "Partially succeeded. Collection did not finish.";
+  }
+
   return status;
 }
 

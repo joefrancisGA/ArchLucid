@@ -7,7 +7,7 @@ namespace ArchLucid.ArtifactSynthesis.Compilers;
 /// <summary>Labels observed workload-to-container-registry image relationships.</summary>
 internal static class InventoryDiagramContainerImageRelationshipApplier
 {
-    public const string Label = "Pulls image from";
+    public const string Label = "Image reference";
 
     public static void Apply(DiagramAst ast)
     {

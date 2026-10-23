@@ -31,5 +31,7 @@ public static class InventoryDiagramAvdResourceMapping
 
     public const string CollapsedBoundaryLabel = "Azure Virtual Desktop";
 
+    public const string HostPoolNameNotStored = "Host pool name was not stored.";
+
     public const string CollapsedBoundaryNodeIdPrefix = "avd-boundary-";
 }
