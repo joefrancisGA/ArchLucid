@@ -1809,3 +1809,4 @@
 {"at":"2026-10-23T18:02:58.2091585Z","zoneId":"retrieval","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-23T18:06:36.6166308Z","zoneId":"retrieval","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-23T18:11:28.7847030Z","zoneId":"archlucid-core","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-23T18:16:14.3152402Z","zoneId":"core-configuration-summary","outcome":"hit","productLine":"archlucid-shared"}

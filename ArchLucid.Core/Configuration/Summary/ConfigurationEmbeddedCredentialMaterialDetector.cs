@@ -146,7 +146,8 @@ internal static class ConfigurationEmbeddedCredentialMaterialDetector
 
     private static bool IsPairDelimiter(char character) =>
         character is ';' or ',' or '|' or '&' or '\r' or '\n' or '\t' or '\f' or '\v'
-        or '\u00A0' or '\u2009' or '\u202F' or '\u0085' or '\u2028' or '\u2029';
+        or '\u00A0' or '\u2002' or '\u2007' or '\u2008' or '\u2009' or '\u200A' or '\u202F' or '\u205F'
+        or '\u0085' or '\u2028' or '\u2029';
 
     private static bool TryMatchCredentialKeyValuePairAt(ReadOnlySpan<char> trimmed, int index)
     {

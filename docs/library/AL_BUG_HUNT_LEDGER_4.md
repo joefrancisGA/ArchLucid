@@ -6705,6 +6705,20 @@ Split from retired `archlucid-core` (ABQ-08).
 2026-10-21 seed hunt (seed->hit): promoted AgentPromptCatalogOptions.Versions whitespace keys; CachedAgentSystemPromptCatalog resolves AgentTypeKeys without trimming dictionary keys; AgentPromptCatalogOptionsNormalizePostConfigure + host registration; regression PostConfigure_trims_agent_prompt_version_keys_from_configuration_binding; cheap-disproof closed JSON null array (Resolve_redacts_json_effective_values_when_json_array_contains_null_then_password_pair) and SaaS WhenProduction (catalog Production-only); 1 AgentPromptCatalog test passed (RunAnalyzers=false).
 
 ## Zone: core-configuration-summary
+2026-10-23 seed hunt #110 (seed→hit): promoted five open `(candidate)` Unicode space pair-delimiter gaps (en, figure, punctuation, hair, medium mathematical spaces); `Password=` after typography spaces was not a pair boundary so config summary effective values leaked ADO.NET secrets; extended `IsPairDelimiter` with `\u2002`, `\u2007`, `\u2008`, `\u200A`, and `\u205F`; matrix regressions `Resolve_redacts_embedded_credential_material_when_password_pair_is_en_space_delimited`, `_figure_space_delimited`, `_punctuation_space_delimited`, `_hair_space_delimited`, and `_medium_mathematical_space_delimited`; seeded five follow-on typography-space `(candidate)` rows; 34 `ConfigurationEmbeddedCredentialRedactionMatrixTests` passed (`RunAnalyzers=false`).
+
+- [x] (proven) `ConfigurationEmbeddedCredentialMaterialDetector.IsPairDelimiter` — hair space (`U+200A`) between credential pairs — **hit 2026-10-23 seed hunt #110:** add `\u200A` to delimiter set; regression `Resolve_redacts_embedded_credential_material_when_password_pair_is_hair_space_delimited`. [class:fail-open-validation]
+- [x] (proven) `ConfigurationEmbeddedCredentialMaterialDetector.IsPairDelimiter` — figure space (`U+2007`) between pairs — **hit 2026-10-23 seed hunt #110:** add `\u2007`; regression `Resolve_redacts_embedded_credential_material_when_password_pair_is_figure_space_delimited`. [class:fail-open-validation]
+- [x] (proven) `ConfigurationEmbeddedCredentialMaterialDetector.IsPairDelimiter` — punctuation space (`U+2008`) between pairs — **hit 2026-10-23 seed hunt #110:** add `\u2008`; regression `Resolve_redacts_embedded_credential_material_when_password_pair_is_punctuation_space_delimited`. [class:fail-open-validation]
+- [x] (proven) `ConfigurationEmbeddedCredentialMaterialDetector.IsPairDelimiter` — medium mathematical space (`U+205F`) between pairs — **hit 2026-10-23 seed hunt #110:** add `\u205F`; regression `Resolve_redacts_embedded_credential_material_when_password_pair_is_medium_mathematical_space_delimited`. [class:fail-open-validation]
+- [x] (proven) `ConfigurationEmbeddedCredentialMaterialDetector.IsPairDelimiter` — en space (`U+2002`) between pairs — **hit 2026-10-23 seed hunt #110:** add `\u2002`; regression `Resolve_redacts_embedded_credential_material_when_password_pair_is_en_space_delimited`. [class:fail-open-validation]
+
+- [ ] (candidate) `ConfigurationEmbeddedCredentialMaterialDetector` — em space (`U+2003`) between credential pairs — locus: `IsPairDelimiter`; input: `Server=prod\u2003Password=secret`; wrong outcome: config summary leak.
+- [ ] (candidate) `ConfigurationEmbeddedCredentialMaterialDetector` — three-per-em space (`U+2004`) between pairs — locus: `IsPairDelimiter`; input: `Server=prod\u2004Password=secret`; wrong outcome: leak.
+- [ ] (candidate) `ConfigurationEmbeddedCredentialMaterialDetector` — four-per-em space (`U+2005`) between pairs — locus: `IsPairDelimiter`; input: `Server=prod\u2005Password=secret`; wrong outcome: leak.
+- [ ] (candidate) `ConfigurationEmbeddedCredentialMaterialDetector` — six-per-em space (`U+2006`) between pairs — locus: `IsPairDelimiter`; input: `Server=prod\u2006Password=secret`; wrong outcome: leak.
+- [ ] (candidate) `ConfigurationEmbeddedCredentialMaterialDetector` — ideographic space (`U+3000`) between pairs — locus: `IsPairDelimiter`; input: `Server=prod\u3000Password=secret`; wrong outcome: leak; reachability: CJK document paste into connection strings.
+
 2026-10-23 seed hunt #109 (seed→hit): promoted open `(candidate)` thin space (`U+2009`) and narrow no-break space (`U+202F`) pair-delimiter gaps; `Password=` after word-processor spaces was not a pair boundary so config summary effective values leaked ADO.NET secrets; extended `IsPairDelimiter` with `\u2009` and `\u202F`; regressions `Resolve_redacts_embedded_credential_material_when_password_pair_is_thin_space_delimited` and `Resolve_redacts_embedded_credential_material_when_password_pair_is_narrow_no_break_space_delimited`; cheap-disproof closed JSON-array NBSP string (`Resolve_redacts_json_effective_values_when_json_array_string_uses_nbsp_delimited_password_pair`), BOM prefix (`Trim()` strips `U+FEFF`), and surrogate truncation boundary (existing `Resolve_keeps_truncated_effective_value_well_formed_when_cut_splits_a_surrogate_pair`); seeded five follow-on Unicode space delimiter `(candidate)` rows; 30 matrix + JSON resolver spot tests passed (`RunAnalyzers=false`).
 
 - [x] (proven) `ConfigurationEmbeddedCredentialMaterialDetector.IsPairDelimiter` — thin space (`U+2009`) between credential pairs not treated as pair boundary — **hit 2026-10-23 seed hunt #109:** add `\u2009` to delimiter set; regression `Resolve_redacts_embedded_credential_material_when_password_pair_is_thin_space_delimited`. [class:fail-open-validation]
@@ -6712,12 +6726,6 @@ Split from retired `archlucid-core` (ABQ-08).
 - [x] (valid-no-repro) `ConfigurationSensitiveConfigValueScanner` — JSON string element with NBSP-delimited `password=` pair inside array — **cheap-disproof 2026-10-23 seed hunt #109:** `JsonValueKind.String` branch delegates to embedded detector; regression `Resolve_redacts_json_effective_values_when_json_array_string_uses_nbsp_delimited_password_pair`.
 - [x] (valid-no-repro) `ConfigurationEffectiveValueResolver.Resolve` — surrogate-pair emoji at truncation boundary (`maxLength` 256) — **cheap-disproof 2026-10-23 seed hunt #109:** high-surrogate backoff at cut index; regression `Resolve_keeps_truncated_effective_value_well_formed_when_cut_splits_a_surrogate_pair`.
 - [x] (valid-no-repro) `ConfigurationEmbeddedCredentialMaterialDetector` — `SharedAccessKey=` pair after Unicode byte-order mark (`U+FEFF`) prefix — **cheap-disproof 2026-10-23 seed hunt #109:** `ContainsEmbeddedCredentialMaterial` uses `Trim()` which strips BOM before pair scan.
-
-- [ ] (candidate) `ConfigurationEmbeddedCredentialMaterialDetector` — hair space (`U+200A`) between credential pairs — locus: `IsPairDelimiter`; input: `Server=prod\u200APassword=secret`; wrong outcome: config summary leak; reachability: typography from PDF/Word paste.
-- [ ] (candidate) `ConfigurationEmbeddedCredentialMaterialDetector` — figure space (`U+2007`) between pairs — locus: `IsPairDelimiter`; input: `Server=prod\u2007Password=secret`; wrong outcome: leak in effective values.
-- [ ] (candidate) `ConfigurationEmbeddedCredentialMaterialDetector` — punctuation space (`U+2008`) between pairs — locus: `IsPairDelimiter`; input: `Server=prod\u2008Password=secret`; wrong outcome: leak.
-- [ ] (candidate) `ConfigurationEmbeddedCredentialMaterialDetector` — medium mathematical space (`U+205F`) between pairs — locus: `IsPairDelimiter`; input: `Server=prod\u205FPassword=secret`; wrong outcome: leak.
-- [ ] (candidate) `ConfigurationEmbeddedCredentialMaterialDetector` — en space (`U+2002`) between pairs — locus: `IsPairDelimiter`; input: `Server=prod\u2002Password=secret`; wrong outcome: leak.
 
 2026-10-23 seed hunt #50 (seed->hit): promoted open `(candidate)` NBSP (`U+00A0`) pair-delimiter gap; `Password=` after NBSP was not a pair boundary so config summary effective values leaked connection-string secrets; extended `IsPairDelimiter` with `\u00A0`; regression `Resolve_redacts_embedded_credential_material_when_password_pair_is_nbsp_delimited`; cheap-disproof closed four sibling candidates (NEL/PS delimiter parity regressions, Azure OpenAI path LS host normalization, ARCHLUCID_ENVIRONMENT LS padding via `Trim()`); seeded five follow-on `(candidate)` rows; scoped credential/normalizer/WhenProduction tests 29/29 (`RunAnalyzers=false`).
 
@@ -6764,11 +6772,11 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** configuration summary; config paths; split from archlucid-core
 - **paths:** ArchLucid.Core/Configuration/
 - **test-filter:** FullyQualifiedName~Configuration
-- **hunts:** 68
-- **bugs-found:** 50
+- **hunts:** 69
+- **bugs-found:** 51
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-23
-- **last-bug:** 2026-10-23 — thin space and narrow no-break space delimiter parity for embedded credential redaction
+- **last-bug:** 2026-10-23 — Unicode typography space delimiter parity for embedded credential redaction
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
