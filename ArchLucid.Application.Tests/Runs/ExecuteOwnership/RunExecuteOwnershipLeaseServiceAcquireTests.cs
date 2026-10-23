@@ -59,65 +59,50 @@ public sealed class RunExecuteOwnershipLeaseServiceAcquireTests
     }
 
     [Fact]
-    public async Task AcquireAsync_when_concurrent_repository_success_and_tryadd_loses_rolls_back_sql_lease()
+    public async Task AcquireAsync_when_concurrent_acquires_only_one_invokes_repository()
     {
         Guid runId = Guid.NewGuid();
-        int inFlight = 0;
-        TaskCompletionSource repositoryGate = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        int repositoryCalls = 0;
+        TaskCompletionSource releaseWinner = new(TaskCreationOptions.RunContinuationsAsynchronously);
         Mock<IRunExecuteOwnershipLeaseRepository> leases = new();
         leases
             .Setup(l => l.TryAcquireOrRenewAsync(runId, "instance-a", 900, It.IsAny<CancellationToken>()))
             .Returns(async () =>
             {
-                if (Interlocked.Increment(ref inFlight) == 2)
-                {
-                    repositoryGate.TrySetResult();
-                }
-
-                await repositoryGate.Task;
+                Interlocked.Increment(ref repositoryCalls);
+                await releaseWinner.Task;
 
                 return true;
             });
-        leases
-            .Setup(l => l.TryReleaseAsync(runId, "instance-a", It.IsAny<CancellationToken>()))
-            .Returns(Task.CompletedTask);
 
         RunExecuteOwnershipLeaseService sut = CreateSut(leases);
 
-        Task firstAcquire = Task.Run(() => sut.AcquireAsync(runId, CancellationToken.None));
-        Task secondAcquire = Task.Run(() => sut.AcquireAsync(runId, CancellationToken.None));
+        Task winnerTask = Task.Run(() => sut.AcquireAsync(runId, CancellationToken.None));
+        await Task.Delay(50);
 
-        Exception? firstError = null;
-        Exception? secondError = null;
-
-        try
-        {
-            await firstAcquire;
-        }
-        catch (Exception ex)
-        {
-            firstError = ex;
-        }
+        ConflictException? loserError = null;
 
         try
         {
-            await secondAcquire;
+            await Task.Run(() => sut.AcquireAsync(runId, CancellationToken.None));
         }
-        catch (Exception ex)
+        catch (ConflictException ex)
         {
-            secondError = ex;
+            loserError = ex;
         }
 
-        (firstError is null ^ secondError is null).Should().BeTrue("exactly one concurrent acquire should win");
+        loserError.Should().NotBeNull();
+        loserError!.Message.Should().Contain("already in progress on this host instance");
 
-        ConflictException? conflict = (firstError ?? secondError) as ConflictException;
-        conflict.Should().NotBeNull();
-        conflict!.Message.Should().Contain("already in progress on this host instance");
+        releaseWinner.TrySetResult();
+        await winnerTask;
+
+        repositoryCalls.Should().Be(1);
 
         leases.Verify(
-            l => l.TryReleaseAsync(runId, "instance-a", It.IsAny<CancellationToken>()),
-            Times.Once,
-            "the losing acquire must roll back the repository row it claimed");
+            l => l.TryReleaseAsync(runId, It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            Times.Never,
+            "the losing acquire is rejected at local admission and never claims SQL");
     }
 
     [Fact]
