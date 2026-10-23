@@ -24,6 +24,33 @@ namespace ArchLucid.Host.Composition.Tests.ValueReports;
 public sealed class InMemoryValueReportJobQueueDistributedPollStateTests
 {
     [Fact]
+    public void TryPoll_reports_failure_when_distributed_state_json_missing_tenant_id()
+    {
+        ServiceCollection services = BuildValueReportJobServices();
+        DictionaryPollStateCache pollStateCache = new();
+        services.AddSingleton<IValueReportJobPollStateCache>(pollStateCache);
+        ServiceProvider provider = services.BuildServiceProvider();
+        IServiceScopeFactory scopeFactory = provider.GetRequiredService<IServiceScopeFactory>();
+
+        InMemoryValueReportJobQueue pollInstance =
+            new(scopeFactory, pollStateCache, NullLogger<InMemoryValueReportJobQueue>.Instance);
+
+        Guid tenantId = Guid.NewGuid();
+        Guid jobId = Guid.NewGuid();
+
+        pollStateCache.Set(
+            $"archlucid:value-report-job:{jobId:N}",
+            System.Text.Encoding.UTF8.GetBytes("""{"phase":"Pending"}"""),
+            new DistributedCacheEntryOptions());
+
+        ValueReportJobPollResult poll = pollInstance.TryPoll(jobId, tenantId);
+
+        poll.Found.Should().BeTrue();
+        poll.Completed.Should().BeFalse();
+        poll.ErrorMessage.Should().NotBeNullOrWhiteSpace();
+    }
+
+    [Fact]
     public void TryPoll_reports_failure_when_distributed_state_payload_is_invalid_json()
     {
         ServiceCollection services = BuildValueReportJobServices();
