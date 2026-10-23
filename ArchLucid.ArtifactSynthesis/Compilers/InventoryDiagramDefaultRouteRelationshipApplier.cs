@@ -98,26 +98,54 @@ internal static class InventoryDiagramDefaultRouteRelationshipApplier
             ? null
             : ReadResourceName(DiagramAstGraphNodeClassifier.ReadArmId(nextHopNode), nextHopNode.Label);
 
-        if (addressPrefix.Equals("0.0.0.0/0", StringComparison.Ordinal)
-            && AzureInventoryRouteTableRoutedThroughNextHopClassifier.IsEligibleNextHop(nextHopNode)
-            && !string.IsNullOrWhiteSpace(nextHopArmId)
-            && armIdToDiagramNodeId.TryGetValue(ArmResourceIdNormalizer.Normalize(nextHopArmId), out string? nextHopDiagramNodeId))
+        if (addressPrefix.Equals("0.0.0.0/0", StringComparison.Ordinal))
         {
-            InventoryDiagramRelationshipEdgeHelper.RemoveGenericEdgesBetween(
-                ast,
-                workloadDiagramNode.NodeId,
-                nextHopDiagramNodeId);
-            string edgeLabel = string.IsNullOrWhiteSpace(nextHopName)
-                ? "Routed through next hop (name was not stored)"
-                : InventoryDiagramRelationshipLabelTexts.FormatRoutedThrough(nextHopName);
+            if (AzureInventoryRouteTableRoutedThroughNextHopClassifier.IsEligibleNextHop(nextHopNode)
+                && !string.IsNullOrWhiteSpace(nextHopArmId)
+                && armIdToDiagramNodeId.TryGetValue(
+                    ArmResourceIdNormalizer.Normalize(nextHopArmId),
+                    out string? nextHopDiagramNodeId))
+            {
+                InventoryDiagramRelationshipEdgeHelper.RemoveGenericEdgesBetween(
+                    ast,
+                    workloadDiagramNode.NodeId,
+                    nextHopDiagramNodeId);
+                string edgeLabel = string.IsNullOrWhiteSpace(nextHopName)
+                    ? "Routed through next hop (name was not stored)"
+                    : InventoryDiagramRelationshipLabelTexts.FormatRoutedThrough(nextHopName);
 
-            InventoryDiagramRelationshipEdgeHelper.ReplaceOrAddDirectedEdge(
-                ast,
-                workloadDiagramNode.NodeId,
-                nextHopDiagramNodeId,
-                edgeLabel,
-                GraphEdgeInferenceSources.InventoryEffectiveRoutes,
-                ProvenanceKind.ObservedFact.ToString());
+                InventoryDiagramRelationshipEdgeHelper.ReplaceOrAddDirectedEdge(
+                    ast,
+                    workloadDiagramNode.NodeId,
+                    nextHopDiagramNodeId,
+                    edgeLabel,
+                    GraphEdgeInferenceSources.InventoryEffectiveRoutes,
+                    ProvenanceKind.ObservedFact.ToString());
+
+                return;
+            }
+
+            string? defaultRouteOutline = InventoryDiagramRouteOutlineSentenceFormatter.TryFormat(route, nextHopName);
+
+            if (!string.IsNullOrWhiteSpace(defaultRouteOutline))
+            {
+                if (!workloadDiagramNode.UnresolvedRelationshipDetails.Contains(defaultRouteOutline, StringComparer.Ordinal))
+                {
+                    workloadDiagramNode.UnresolvedRelationshipDetails.Add(defaultRouteOutline);
+                }
+
+                return;
+            }
+
+            const string defaultRouteNotDrawnSentence =
+                "Default route was stored but was not drawn on this diagram.";
+
+            if (!workloadDiagramNode.UnresolvedRelationshipDetails.Contains(
+                    defaultRouteNotDrawnSentence,
+                    StringComparer.Ordinal))
+            {
+                workloadDiagramNode.UnresolvedRelationshipDetails.Add(defaultRouteNotDrawnSentence);
+            }
 
             return;
         }

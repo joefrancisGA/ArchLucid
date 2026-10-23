@@ -23,6 +23,22 @@ function finding(partial: Partial<QuickDecisionFinding> & Pick<QuickDecisionFind
 }
 
 describe("run-detail-evidence-inventory", () => {
+  it("does not invent a persisted citation row when only evidence counts are stored", () => {
+    const items = deriveRunDetailEvidenceInventory({
+      findings: [
+        finding({
+          findingId: "f-count-only",
+          evidenceRefCount: 2,
+          evidenceRefSnippets: [],
+        }),
+      ],
+      runCreatedUtc: "2026-08-09T12:00:00Z",
+      submittedArchitecturePresent: false,
+    });
+
+    expect(items).toHaveLength(0);
+  });
+
   it("groups cited snippets and counts citing findings", () => {
     const items = deriveRunDetailEvidenceInventory({
       findings: [

@@ -61,10 +61,24 @@ internal static class InventoryDiagramLoadBalancerBackendRelationshipApplier
 
                 if (string.IsNullOrWhiteSpace(backendDiagramNodeId))
                 {
+                    DiagramNode? frontDiagramNode = ast.Nodes.FirstOrDefault(node =>
+                        string.Equals(node.NodeId, frontDiagramNodeId, StringComparison.Ordinal));
+
+                    if (frontDiagramNode is not null)
+                    {
+                        string backendName = ReadResourceName(backendTarget.TargetArmId);
+                        string outlineSentence = InventoryDiagramRelationshipLabelTexts.FormatBackendOffCanvasOutline(backendName);
+
+                        if (!frontDiagramNode.UnresolvedRelationshipDetails.Contains(outlineSentence, StringComparer.Ordinal))
+                        {
+                            frontDiagramNode.UnresolvedRelationshipDetails.Add(outlineSentence);
+                        }
+                    }
+
                     continue;
                 }
 
-                string label = InventoryDiagramRelationshipLabelTexts.FormatBackendPoolNames(backendTarget.RulePort);
+                string label = InventoryDiagramRelationshipLabelTexts.FormatSendsTrafficToBackend(backendTarget.RulePort);
                 InventoryDiagramRelationshipEdgeHelper.RemoveGenericEdgesBetween(ast, frontDiagramNodeId, backendDiagramNodeId);
                 InventoryDiagramRelationshipEdgeHelper.ReplaceOrAddDirectedEdge(
                     ast,
@@ -96,6 +110,18 @@ internal static class InventoryDiagramLoadBalancerBackendRelationshipApplier
         }
 
         return null;
+    }
+
+    private static string ReadResourceName(string armId)
+    {
+        int lastSlash = armId.LastIndexOf('/');
+
+        if (lastSlash < 0 || lastSlash >= armId.Length - 1)
+        {
+            return "Backend name was not stored.";
+        }
+
+        return armId[(lastSlash + 1)..];
     }
 
     private static Dictionary<string, string> BuildArmIdToDiagramNodeId(

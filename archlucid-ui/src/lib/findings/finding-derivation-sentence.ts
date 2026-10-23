@@ -4,6 +4,8 @@ import { firstRecommendationSentence, severityBadgeLabel, type QuickDecisionFind
 import type { GovernanceFindingQueueRow } from "@/app/(operator)/governance/findings/governance-finding-queue-row";
 
 export const FINDING_DERIVATION_NOT_AVAILABLE = "Derivation not available";
+export const FINDING_DERIVATION_NOT_STORED = "Derivation was not stored.";
+export const FINDING_DERIVATION_STORED_EMPTY = "Derivation was stored empty.";
 export const FINDING_DERIVATION_ASSEMBLED_PREFIX =
   "Assembled from stored rule and evidence fields, not a stored explanation.";
 export const FINDING_DERIVATION_ASSEMBLED_RULE_ONLY_PREFIX =
@@ -114,14 +116,20 @@ function assembledSentence(sentence: string, hasPositiveEvidenceRefs: boolean): 
 
 /** Builds one plain-language derivation sentence — never fabricates confidence when inputs are missing. */
 export function buildFindingDerivationSentence(input: FindingDerivationInput): FindingDerivationResult {
-  const reasoningSummary = nonEmpty(input.reasoningSummary);
+  if (input.reasoningSummary !== null && input.reasoningSummary !== undefined) {
+    const trimmedReasoning = input.reasoningSummary.trim();
 
-  if (reasoningSummary !== null) {
-    const sentence = firstRecommendationSentence(reasoningSummary);
+    if (trimmedReasoning.length === 0) {
+      return { sentence: FINDING_DERIVATION_STORED_EMPTY, synthesised: false };
+    }
+
+    const sentence = firstRecommendationSentence(trimmedReasoning);
 
     if (sentence.length > 0) {
       return { sentence, synthesised: false };
     }
+
+    return { sentence: FINDING_DERIVATION_STORED_EMPTY, synthesised: false };
   }
 
   const rulePhrase = resolveRulePhrase(input);
@@ -132,7 +140,7 @@ export function buildFindingDerivationSentence(input: FindingDerivationInput): F
   const positiveEvidenceRefs = (citedEvidenceRefCount(input) ?? 0) > 0;
 
   if (rulePhrase === null && categoryLead === null && evidence === null && traceConfidence === null) {
-    return { sentence: FINDING_DERIVATION_NOT_AVAILABLE, synthesised: false };
+    return { sentence: FINDING_DERIVATION_NOT_STORED, synthesised: false };
   }
 
   const severitySuffix =
@@ -168,7 +176,7 @@ export function buildFindingDerivationSentence(input: FindingDerivationInput): F
     );
   }
 
-  return { sentence: FINDING_DERIVATION_NOT_AVAILABLE, synthesised: false };
+  return { sentence: FINDING_DERIVATION_NOT_STORED, synthesised: false };
 }
 
 export function parseFindingWireDerivationFields(wireJson: string): FindingWireDerivationFields {

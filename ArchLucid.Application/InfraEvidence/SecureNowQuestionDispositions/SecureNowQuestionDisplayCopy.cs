@@ -41,20 +41,26 @@ internal static class SecureNowQuestionDisplayCopy
                 ResourceType = resourceType,
                 ResourceName = resourceName,
                 QuestionText = $"Is {resourceName} still needed?",
-                ReasonText = $"SecureNow could not find the parent {resourceName} requires.",
+                ReasonText = resourceName.Length > 0
+                    ? $"A parent for {resourceName} was not stored."
+                    : "Resource name was not stored. A parent was not stored.",
             };
         }
 
         if (string.Equals(question.QuestionKey, "unknown-evidence@v1", StringComparison.OrdinalIgnoreCase))
         {
-            string friendlyType = DiagramArmTypeFriendlyName.TryFormat(resourceType) ?? "This type";
+            string reasonSuffix = resourceType.Length > 0
+                ? $"{DiagramArmTypeFriendlyName.TryFormat(resourceType) ?? resourceType} is not treated as a shared service that can stand alone."
+                : "This resource is not treated as a shared service that can stand alone.";
+            string reasonPrefix = resourceType.Length > 0
+                ? $"SecureNow found no connection to or from {resourceName}."
+                : $"Resource type was not stored. SecureNow found no connection to or from {resourceName}.";
             return question with
             {
                 ResourceType = resourceType,
                 ResourceName = resourceName,
                 QuestionText = $"Should {resourceName} connect to a peer, or stand alone?",
-                ReasonText =
-                    $"SecureNow found no connection to or from {resourceName}. {friendlyType} is not treated as a shared service that can stand alone.",
+                ReasonText = $"{reasonPrefix} {reasonSuffix}",
             };
         }
 
