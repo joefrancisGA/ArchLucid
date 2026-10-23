@@ -8716,6 +8716,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: architecture-intelligence-orchestrator
 
+2026-10-23 seed hunt (seed→hit): promoted NBSP-as-segment-separator drift (`docs\u00a0architecture/overview.md`, `docs%C2%A0architecture/overview.md`) splitting `ContentHash` while preserving interior NBSP in file-name segments (`arch\u00a0note.md`); `NormalizeReviewCacheNbspPathSeparators` maps NBSP to `/` only when the path already contains `/` and the post-NBSP segment has no `.`; cheap-disproof regressions for `%0D` and `%250A` path separators; 399 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `GraphSnapshotCanonicalFingerprint` — NBSP between path segments split path canonicalization — **hit 2026-10-23 seed hunt:** conditional NBSP→`/`; regressions `Build_matches_content_hash_when_file_name_differs_only_by_narrow_nbsp_between_segments_without_slash` and `Build_matches_content_hash_when_file_name_differs_only_by_percent_encoded_nbsp_between_segments_without_slash`.
+
 2026-10-23 seed hunt (seed→hit): promoted tab path-separator drift (`docs\tarchitecture/...`, `docs%09architecture/...`) splitting `ContentHash`; added horizontal tab to `ReviewCachePathLineBreakScalars` so post-decode canonicalization maps tabs to `/`; regressions `Build_matches_content_hash_when_file_name_differs_only_by_tab_between_segments` and `Build_matches_content_hash_when_file_name_differs_only_by_percent_encoded_tab_between_segments`; 395 scoped orchestrator/cache/manifest/continue-flight tests passed.
 
 - [x] (proven) `GraphSnapshotCanonicalFingerprint` — tab and percent-encoded tab between path segments split path canonicalization — **hit 2026-10-23 seed hunt:** `\t` in line-break scalar set; regressions above.
