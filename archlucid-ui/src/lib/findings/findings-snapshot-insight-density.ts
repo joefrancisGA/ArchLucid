@@ -8,9 +8,11 @@ export type ChecklistCoverageItem = {
 };
 
 export type InsightDensityCurationCounts = {
-  readonly demotedToChecklistCount: number;
-  readonly retainedFindingCount: number;
+  readonly demotedToChecklistCount: number | null;
+  readonly retainedFindingCount: number | null;
 };
+
+export const INSIGHT_DENSITY_CURATION_COUNTS_NOT_STORED = "Curation counts were not stored." as const;
 
 export type FindingsSnapshotInsightDensityView = {
   readonly checklistCoverage: readonly ChecklistCoverageItem[];
@@ -110,17 +112,10 @@ export function resolveFindingsSnapshotInsightDensityView(detail: RunDetail): Fi
 
     if (demoted !== null || retained !== null) {
       curation = {
-        demotedToChecklistCount: demoted ?? checklistCoverage.length,
-        retainedFindingCount: retained ?? 0,
+        demotedToChecklistCount: demoted,
+        retainedFindingCount: retained,
       };
     }
-  }
-
-  if (curation === null && checklistCoverage.length > 0) {
-    curation = {
-      demotedToChecklistCount: checklistCoverage.length,
-      retainedFindingCount: 0,
-    };
   }
 
   return { checklistCoverage, curation };
@@ -155,6 +150,10 @@ const INSIGHT_DENSITY_TYPED_ENGINE_PROTECTED_LEAD =
 export function formatInsightDensityCurationMessage(curation: InsightDensityCurationCounts): string {
   const demoted = curation.demotedToChecklistCount;
   const retained = curation.retainedFindingCount;
+
+  if (demoted === null || retained === null) {
+    return INSIGHT_DENSITY_CURATION_COUNTS_NOT_STORED;
+  }
 
   if (demoted <= 0 && retained <= 0) {
     return "";

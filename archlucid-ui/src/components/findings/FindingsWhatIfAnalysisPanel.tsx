@@ -122,12 +122,13 @@ export function FindingsWhatIfAnalysisPanel(props: FindingsWhatIfAnalysisPanelPr
   );
 
   const selectedSavings = useMemo(() => {
-    if (!enabled)
+    if (!enabled) {
       return 0;
+    }
 
     return enriched
       .filter((row) => selectedIds.has(row.finding.findingId))
-      .reduce((sum, row) => sum + row.savingsUsd, 0);
+      .reduce((sum, row) => sum + (row.savingsUsd ?? 0), 0);
   }, [enabled, enriched, selectedIds]);
 
   const baseline = props.baselineAnnualCostUsd;
@@ -219,14 +220,26 @@ export function FindingsWhatIfAnalysisPanel(props: FindingsWhatIfAnalysisPanelPr
                 />
                 <span className="min-w-0 flex-1">
                   <span className="font-medium">{row.finding.title}</span>
-                  {row.savingsUsd > 0 ? (
+                  {row.savingsUsd === null ? (
+                    <span className={cn("ml-2 text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>
+                      Projected savings were not stored.
+                    </span>
+                  ) : row.savingsUsd > 0 ? (
                     <span className={cn("ml-2 text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>
                       −{formatUsd(row.savingsUsd)}
-                      {row.interval && (
+                      {row.interval ? (
                         <span className="ml-1 opacity-75">
-                          (Range: {row.interval.lower !== null ? formatUsd(row.interval.lower) : "?"} - {row.interval.upper !== null ? formatUsd(row.interval.upper) : "?"})
+                          (Range:{" "}
+                          {row.interval.lower !== null
+                            ? formatUsd(row.interval.lower)
+                            : "Lower bound was not stored."}{" "}
+                          -{" "}
+                          {row.interval.upper !== null
+                            ? formatUsd(row.interval.upper)
+                            : "Upper bound was not stored."}
+                          )
                         </span>
-                      )}
+                      ) : null}
                     </span>
                   ) : null}
                   {row.interval?.reasoning && (
