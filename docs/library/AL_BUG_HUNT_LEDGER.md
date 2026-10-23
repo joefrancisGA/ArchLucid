@@ -1,3 +1,15 @@
+2026-10-22 seed hunt (seed-only): `ui-oidc` - no hunt-ready product defect; cheap-disproof closed temporarily_unavailable fixed authorize copy, slow_down code-exchange retry policy, and encoding candidate; parity regressions BFF refresh HTTP 412 and opaque token endpoint 412 without cookie clear, and idle-desk rehydrate when authorize-retry snapshot is unsafe; scoped `src/lib/oidc` + BFF refresh route vitest 489/489.
+
+- [x] (invalid) humanizeAuthorizeCallbackError - temporarily_unavailable authorize-query copy - **cheap-disproof 2026-10-22:** dedicated fixed-branch UX; not a security defect.
+- [x] (valid-no-repro) refreshBffSessionCookie - refresh 412 shouldClearSession false - **regression 2026-10-22:** non-401/403 refresh failures soft-fail without cookie clear.
+- [x] (valid-no-repro) exchangeAuthorizationCode - slow_down marks authorize retry - **cheap-disproof 2026-10-22:** `token-client.test.ts` marks retry on transient slow_down exchange.
+- [x] (valid-no-repro) preparePostSignInReturnUrlForSignInStart - idle desk when snapshot unsafe - **regression 2026-10-22:** unsafe snapshot purged then idle-desk path restored at sign-in start.
+- [x] (invalid) readOAuthJsonErrorDescription - multiply-encoded %252B with ZWJ glue - **cheap-disproof 2026-10-22:** saturated encoding class on trunk.
+
+- [ ] (candidate) humanizeAuthorizeCallbackError - invalid_scope authorize-query copy - locus: fixed-branch UX.
+- [ ] (candidate) refreshBffSessionCookie - refresh 413 shouldClearSession false - locus: proxy transient policy.
+- [ ] (candidate) exchangeAuthorizationCode - temporarily_unavailable marks authorize retry - locus: transient exchange policy.
+- [ ] (candidate) readPostSignInReturnUrl - backslash-prefixed path purge during retry - locus: tamper defense parity.
 2026-10-22 seed hunt (seed→hit): `ui-oidc` — promoted hunt-ready `decodeOAuthErrorDescription` / `shouldPreserveLiteralPlusInAuthorizeDescription` — Fitzpatrick skin-tone emoji with literal `+` in authorize `error_description` collapsed the plus to space because the mixed-plus guard covered ZWJ and regional indicators only; treat `\p{Emoji_Modifier}` like other emoji glue; regression `preserves literal plus in authorize error descriptions when skin-tone emoji modifiers are present`; scoped `src/lib/oidc` vitest 412/412.
 
 - [x] (proven) `decodeOAuthErrorDescription` — skin-tone modifier plus literal plus — **hit 2026-10-22 seed hunt:** `Emoji_Modifier` guard; regression above.
@@ -27699,6 +27711,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
+- **hunts:** 84
+- **hunts:** 83
+- **hunts:** 82
 - **hunts:** 87
 - **hunts:** 81
 - **hunts:** 87
