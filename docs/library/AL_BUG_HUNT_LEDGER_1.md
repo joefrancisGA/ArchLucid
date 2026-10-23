@@ -8815,6 +8815,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: architecture-intelligence-orchestrator
 
+2026-10-23 seed hunt (seed→hit): promoted bullet and black-circle segment-separator drift splitting `ContentHash` (`docs•architecture/overview.md`, `docs●architecture/overview.md` vs slash form) without mapping underscore path segments; extended `ReviewCacheAlternatePathSeparators` with U+2022 and U+25CF using dotless-tail guard; regressions `Build_matches_content_hash_when_file_name_differs_only_by_bullet_between_segments`, `Build_matches_content_hash_when_file_name_differs_only_by_black_circle_between_segments`, and `Build_changes_content_hash_when_file_name_differs_only_by_bullet_before_dotted_segment_name`; cheap-disproof regressions for `%E2%80%A2` and `Build_changes_content_hash_when_file_name_differs_only_by_underscore_segment_vs_slash`; 488 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `GraphSnapshotCanonicalFingerprint` — bullet and black-circle alternate path separators split path canonicalization — **hit 2026-10-23 seed hunt:** U+2022 / U+25CF in alternate separator set; regressions above.
+- [x] (valid-no-repro) `GraphSnapshotCanonicalFingerprint` — underscore path segment vs slash — **cheap-disproof 2026-10-23 seed hunt:** `docs_architecture/overview.md` stays distinct from `docs/architecture/overview.md`; regression above.
+
 2026-10-23 seed hunt (seed→hit): promoted figure-dash and horizontal-bar segment-separator drift splitting `ContentHash` (`docs‒architecture/overview.md`, `docs―architecture/overview.md` vs slash form); extended `ReviewCacheAlternatePathSeparators` with U+2012 and U+2015 using dotless-tail guard; regressions `Build_matches_content_hash_when_file_name_differs_only_by_figure_dash_between_segments`, `Build_matches_content_hash_when_file_name_differs_only_by_horizontal_bar_between_segments`, and `Build_changes_content_hash_when_file_name_differs_only_by_figure_dash_before_dotted_segment_name`; cheap-disproof regressions for `%E2%80%92` and `%E2%80%95`; 483 scoped orchestrator/cache/manifest/continue-flight tests passed.
 
 - [x] (proven) `GraphSnapshotCanonicalFingerprint` — figure-dash and horizontal-bar alternate path separators split path canonicalization — **hit 2026-10-23 seed hunt:** U+2012 / U+2015 in alternate separator set; regressions above.
@@ -9554,11 +9559,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** closed-loop orchestrator; review result cache; architecture intelligence
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.cs; ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.Cache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewResultCache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewCacheManifestBuilder.cs
 - **test-filter:** FullyQualifiedName~ClosedLoopArchitectureReasoningOrchestrator|FullyQualifiedName~ReviewResultCache|FullyQualifiedName~ReviewCacheManifestBuilder
-- **hunts:** 105
-- **bugs-found:** 92
+- **hunts:** 106
+- **bugs-found:** 93
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-23
-- **last-bug:** 2026-10-23 — figure-dash and horizontal-bar alternate path separators split review-cache `ContentHash`
+- **last-bug:** 2026-10-23 — bullet and black-circle alternate path separators split review-cache `ContentHash`
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
