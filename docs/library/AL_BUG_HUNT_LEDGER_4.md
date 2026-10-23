@@ -12470,10 +12470,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 297
-- **bugs-found:** 199
+- **hunts:** 298
+- **bugs-found:** 200
 - **last-hunt:** 2026-10-23
-- **last-bug:** 2026-10-23 — overlay merge silently skipped duplicate edges with conflicting ReasoningTrace
+- **last-bug:** 2026-10-23 — overlay merge silently skipped duplicate edges with conflicting property-bag values
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -12957,7 +12957,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - [x] (proven) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — duplicate overlay edges with conflicting `ReasoningTrace` kept first reasoning trace silently — **hit 2026-10-23 seed hunt (seed→hit):** reasoning-trace agreement guard on overlay dedupe; regressions above.
 
-- [ ] (candidate) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — duplicate appended inventory overlay edges with conflicting property-bag values for the same normalized property key may keep first row values — locus: overlay edge append dedupe on directed key without property-bag agreement validation; input: two overlay edges with trim-equal directed keys but the same property key with different non-empty values; wrong outcome: merged graph retains first edge property bag without surfacing disagreement.
+2026-10-23 seed hunt (seed→hit): promoted `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` duplicate overlay edges with conflicting property-bag values for the same normalized property key candidate; proved overlay edge dedupe validated scalar fields but skipped later rows without comparing normalized `Properties`, leaving the first edge property bag authoritative; added `TryValidateOverlayEdgePropertyBagAgreement` using `NormalizeOverlayPropertyBag` parity; regressions `Merge_throws_when_overlay_duplicate_edges_disagree_on_property_bag_value` and `Merge_coalesces_overlay_duplicate_edge_property_values_when_property_values_differ_only_by_casing`; seeded `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` duplicate overlay nodes with conflicting property-bag values for the same normalized property key follow-on; 607 KnowledgeGraph + 170 Provenance scoped tests passed.
+
+- [x] (proven) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — duplicate overlay edges with conflicting property-bag values kept first property bag silently — **hit 2026-10-23 seed hunt (seed→hit):** property-bag agreement guard on overlay edge dedupe; regressions above.
+
+- [ ] (candidate) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — duplicate appended inventory overlay nodes with conflicting property-bag values for the same normalized property key may keep first row values — locus: overlay node append dedupe on normalized `NodeId` without property-bag agreement validation; input: two overlay nodes with trim-equal ids but the same property key with different non-empty values; wrong outcome: merged graph retains first node property bag without surfacing disagreement.
 
 2026-10-22 seed hunt (seed→hit): promoted `StructuredDiagramGraphMerger` padded diagram property-key coalesce candidate; proved duplicate node/edge metadata coalesce indexed raw `property.Key`, so a later compile with surrounding-whitespace keys left parallel bag entries and `GraphNodePropertyReader` could return stale source-evidence values; trim keys before skip/coalesce (parity with `GraphNodeFactory.NormalizePropertyBag`); regression `Merge_coalesces_node_properties_when_incoming_property_keys_differ_only_by_surrounding_whitespace`; seeded diagram edge metadata padded-key coalesce regression follow-on; 468 KnowledgeGraph + 170 Provenance scoped tests passed.
 

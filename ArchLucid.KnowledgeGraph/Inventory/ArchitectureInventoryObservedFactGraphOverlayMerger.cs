@@ -237,6 +237,7 @@ public static class ArchitectureInventoryObservedFactGraphOverlayMerger
         TryValidateOverlayEdgeProvenanceKindAgreement(incomingEdge, retainedEdge);
         TryValidateOverlayEdgeDeclaredConnectionIdAgreement(incomingEdge, retainedEdge);
         TryValidateOverlayEdgeReasoningTraceAgreement(incomingEdge, retainedEdge);
+        TryValidateOverlayEdgePropertyBagAgreement(incomingEdge, retainedEdge);
     }
 
     private static void TryValidateOverlayEdgeLabelAgreement(GraphEdge incomingEdge, GraphEdge retainedEdge)
@@ -336,6 +337,46 @@ public static class ArchitectureInventoryObservedFactGraphOverlayMerger
             throw new ArgumentException(
                 "Inventory overlay duplicate edges disagree on ReasoningTrace for the same directed edge key.");
         }
+    }
+
+    private static void TryValidateOverlayEdgePropertyBagAgreement(GraphEdge incomingEdge, GraphEdge retainedEdge)
+    {
+        Dictionary<string, string> incomingProperties = NormalizeOverlayPropertyBagOrEmpty(incomingEdge.Properties);
+        Dictionary<string, string> retainedProperties = NormalizeOverlayPropertyBagOrEmpty(retainedEdge.Properties);
+
+        HashSet<string> propertyKeys = new(incomingProperties.Keys, StringComparer.OrdinalIgnoreCase);
+        propertyKeys.UnionWith(retainedProperties.Keys);
+
+        foreach (string propertyKey in propertyKeys)
+        {
+            incomingProperties.TryGetValue(propertyKey, out string? incomingValue);
+            retainedProperties.TryGetValue(propertyKey, out string? retainedValue);
+
+            string normalizedIncomingValue = incomingValue ?? string.Empty;
+            string normalizedRetainedValue = retainedValue ?? string.Empty;
+
+            if (normalizedIncomingValue.Length == 0 || normalizedRetainedValue.Length == 0)
+            {
+                continue;
+            }
+
+            if (!string.Equals(normalizedRetainedValue, normalizedIncomingValue, StringComparison.OrdinalIgnoreCase))
+            {
+                throw new ArgumentException(
+                    $"Inventory overlay duplicate edges disagree on Properties for key '{propertyKey}' on the same directed edge key.");
+            }
+        }
+    }
+
+    private static Dictionary<string, string> NormalizeOverlayPropertyBagOrEmpty(
+        IReadOnlyDictionary<string, string>? properties)
+    {
+        if (properties is null || properties.Count == 0)
+        {
+            return new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        }
+
+        return NormalizeOverlayPropertyBag(properties);
     }
 
     private static string BuildEdgeKey(GraphEdge edge) =>
