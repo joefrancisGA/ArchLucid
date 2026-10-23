@@ -322,6 +322,190 @@ public sealed class PollingCollectionRunDiscoveryTests
     }
 
     [Fact]
+    public async Task DiscoverAsync_continues_when_read_artifact_throws_for_one_manifest()
+    {
+        Guid tenantId = Guid.NewGuid();
+        CollectionRunManifest failingRead = new()
+        {
+            RunId = Guid.NewGuid(),
+            AgentVersion = "1.0",
+            StartedUtc = DateTime.UtcNow,
+            Status = "Succeeded",
+            TenantId = tenantId,
+            ZipPath = "runs/fail-read/package.zip",
+            SchemaVersion = AzureExtractorPackageZipValidator.SupportedSchemaVersion,
+        };
+
+        CollectionRunManifest importable = new()
+        {
+            RunId = Guid.NewGuid(),
+            AgentVersion = "1.0",
+            StartedUtc = DateTime.UtcNow,
+            Status = "Succeeded",
+            TenantId = tenantId,
+            ZipPath = "runs/ok/package.zip",
+            SchemaVersion = AzureExtractorPackageZipValidator.SupportedSchemaVersion,
+        };
+
+        CollectionRunArtifact importableArtifact = new()
+        {
+            Manifest = importable,
+            ZipBytes = [0x50, 0x4B, 0x03, 0x04],
+        };
+
+        Mock<ICollectionRunArtifactReader> reader = new();
+        reader
+            .Setup(r => r.ListManifestsAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync([failingRead, importable]);
+        reader
+            .Setup(r => r.ReadArtifactAsync(failingRead, It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("Simulated artifact read failure."));
+        reader
+            .Setup(r => r.ReadArtifactAsync(importable, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(importableArtifact);
+
+        Mock<ICollectionRunRepository> repository = new();
+        repository
+            .Setup(r => r.GetAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((CollectionRun?)null);
+        repository
+            .Setup(r => r.HasImportedHashAsync(It.IsAny<ScopeContext>(), It.IsAny<byte[]>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
+        repository
+            .Setup(r => r.UpsertAsync(It.IsAny<CollectionRun>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IAzureExtractorIngestService> azureIngest = new();
+        azureIngest
+            .Setup(i => i.IngestZipBytesAsync(
+                It.IsAny<byte[]>(),
+                It.IsAny<string>(),
+                It.IsAny<Guid?>(),
+                It.IsAny<CancellationToken>(),
+                It.IsAny<string?>(),
+                It.IsAny<long>()))
+            .ReturnsAsync(new AzureExtractorIngestResult { Succeeded = true, SnapshotId = Guid.NewGuid() });
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider
+            .Setup(p => p.GetCurrentScope())
+            .Returns(new ScopeContext
+            {
+                TenantId = tenantId,
+                WorkspaceId = Guid.NewGuid(),
+                ProjectId = Guid.NewGuid(),
+            });
+
+        CollectionRunIngestService ingest = new(
+            repository.Object,
+            azureIngest.Object,
+            scopeProvider.Object);
+
+        PollingCollectionRunDiscovery discovery = new(reader.Object, ingest);
+
+        int imported = await discovery.DiscoverAsync(CancellationToken.None);
+
+        imported.Should().Be(1);
+        azureIngest.Invocations.Count.Should().Be(1);
+    }
+
+    [Fact]
+    public async Task DiscoverAsync_imports_later_duplicate_runId_after_first_manifest_rejected()
+    {
+        Guid tenantId = Guid.NewGuid();
+        Guid runId = Guid.NewGuid();
+        CollectionRunManifest rejectedFirst = new()
+        {
+            RunId = runId,
+            AgentVersion = "1.0",
+            StartedUtc = DateTime.UtcNow,
+            Status = "Succeeded",
+            TenantId = tenantId,
+            ZipPath = "runs/a/bad-hash.zip",
+            ZipSha256 = "0000000000000000000000000000000000000000000000000000000000000000",
+            SchemaVersion = AzureExtractorPackageZipValidator.SupportedSchemaVersion,
+        };
+
+        CollectionRunManifest validSecond = new()
+        {
+            RunId = runId,
+            AgentVersion = "1.0",
+            StartedUtc = DateTime.UtcNow,
+            Status = "Succeeded",
+            TenantId = tenantId,
+            ZipPath = "runs/b/package.zip",
+            SchemaVersion = AzureExtractorPackageZipValidator.SupportedSchemaVersion,
+        };
+
+        CollectionRunArtifact badArtifact = new()
+        {
+            Manifest = rejectedFirst,
+            ZipBytes = [0x50, 0x4B, 0x03, 0x04],
+        };
+
+        CollectionRunArtifact goodArtifact = new()
+        {
+            Manifest = validSecond,
+            ZipBytes = [0x50, 0x4B, 0x05, 0x06],
+        };
+
+        Mock<ICollectionRunArtifactReader> reader = new();
+        reader
+            .Setup(r => r.ListManifestsAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync([rejectedFirst, validSecond]);
+        reader
+            .Setup(r => r.ReadArtifactAsync(rejectedFirst, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(badArtifact);
+        reader
+            .Setup(r => r.ReadArtifactAsync(validSecond, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(goodArtifact);
+
+        Mock<ICollectionRunRepository> repository = new();
+        repository
+            .Setup(r => r.GetAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((CollectionRun?)null);
+        repository
+            .Setup(r => r.HasImportedHashAsync(It.IsAny<ScopeContext>(), It.IsAny<byte[]>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
+        repository
+            .Setup(r => r.UpsertAsync(It.IsAny<CollectionRun>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IAzureExtractorIngestService> azureIngest = new();
+        azureIngest
+            .Setup(i => i.IngestZipBytesAsync(
+                It.IsAny<byte[]>(),
+                It.IsAny<string>(),
+                It.IsAny<Guid?>(),
+                It.IsAny<CancellationToken>(),
+                It.IsAny<string?>(),
+                It.IsAny<long>()))
+            .ReturnsAsync(new AzureExtractorIngestResult { Succeeded = true, SnapshotId = Guid.NewGuid() });
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider
+            .Setup(p => p.GetCurrentScope())
+            .Returns(new ScopeContext
+            {
+                TenantId = tenantId,
+                WorkspaceId = Guid.NewGuid(),
+                ProjectId = Guid.NewGuid(),
+            });
+
+        CollectionRunIngestService ingest = new(
+            repository.Object,
+            azureIngest.Object,
+            scopeProvider.Object);
+
+        PollingCollectionRunDiscovery discovery = new(reader.Object, ingest);
+
+        int imported = await discovery.DiscoverAsync(CancellationToken.None);
+
+        imported.Should().Be(1);
+        azureIngest.Invocations.Count.Should().Be(1);
+    }
+
+    [Fact]
     public async Task DiscoverAsync_does_not_count_running_manifest_as_imported()
     {
         CollectionRunManifest running = new()

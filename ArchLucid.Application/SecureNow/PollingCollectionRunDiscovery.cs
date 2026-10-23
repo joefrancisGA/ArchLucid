@@ -45,7 +45,11 @@ public sealed class PollingCollectionRunDiscovery(
             {
                 artifact = await _artifactReader.ReadArtifactAsync(manifest, cancellationToken);
             }
-            catch (RequestFailedException)
+            catch (OperationCanceledException)
+            {
+                throw;
+            }
+            catch (Exception)
             {
                 continue;
             }

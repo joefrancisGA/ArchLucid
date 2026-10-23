@@ -14654,12 +14654,14 @@ heap-disproved mermaid typed-topology candidate.
 - **aliases:** host composition; DI registration; startup modules
 - **paths:** ArchLucid.Host.Composition/
 - **test-filter:** FullyQualifiedName~Host.Composition|FullyQualifiedName~ServiceCollectionExtensions
-- **hunts:** 78
-- **bugs-found:** 62
+- **hunts:** 79
+- **bugs-found:** 63
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-23
-- **last-bug:** 2026-10-23 — duplicate runId dedupe skipped later valid manifest after empty zip
+- **last-bug:** 2026-10-23 — discovery aborted when ReadArtifactAsync threw
 - **code-changed-since:** yes
+
+2026-10-23 thorough hunt (seed→hit): proved `PollingCollectionRunDiscovery.DiscoverAsync` aborted the batch when `ReadArtifactAsync` threw anything other than `RequestFailedException`, skipping remaining manifests; catch per-manifest read failures and propagate cancel only; regressions `DiscoverAsync_continues_when_read_artifact_throws_for_one_manifest` and `DiscoverAsync_imports_later_duplicate_runId_after_first_manifest_rejected`; cheap-disproof closed three sibling `(candidate)` rows; seeded five follow-on `(candidate)` rows; scoped `PollingCollectionRunDiscoveryTests` 13 passed (`RunAnalyzers=false`).
 
 2026-10-23 thorough hunt (seed→hit): proved hunt #77 `seenRunIds` dedupe at list entry skipped a later manifest with the same `runId` when an earlier duplicate had an empty zip; only skip further manifests after `Imported` in the batch; regression `DiscoverAsync_tries_later_duplicate_runId_when_earlier_manifest_has_empty_zip`; cheap-disproof closed four sibling `(candidate)` rows; seeded five follow-on `(candidate)` rows; scoped `PollingCollectionRunDiscoveryTests` 11 passed (`RunAnalyzers=false`).
 
@@ -14898,10 +14900,16 @@ heap-disproved mermaid typed-topology candidate.
 - [x] (valid-no-repro) `InMemoryValueReportJobQueue.TryPoll` — unknown job phase string maps to failed without clearing local pending — **cheap-disproof 2026-10-23 thorough hunt #78:** regression `TryPoll_reports_failure_when_distributed_state_has_unknown_phase`; failed poll copy is the supported contract.
 - [x] (valid-no-repro) `AzureBlobCollectionRunArtifactReader.ReadArtifactAsync` — whitespace-only `packageBlobPath` treated as missing — **cheap-disproof 2026-10-23 thorough hunt #78:** skip unreadable paths; discovery continues with remaining manifests.
 
-- [ ] (candidate) `PollingCollectionRunDiscovery.DiscoverAsync` — duplicate `runId` after first manifest rejected still attempts later row — locus: `importedRunIdsThisBatch`; input: rejected then succeeded duplicate; wrong outcome: may double-ingest attempt (bounded).
-- [ ] (candidate) `CollectionRunIngestService.IngestAsync` — `HasImportedHashAsync` short-circuit marks `Imported` without snapshot id — locus: hash dedupe branch; input: duplicate zip new `runId`; wrong outcome: intentional idempotency (hunt #76).
-- [ ] (candidate) `InMemoryValueReportJobQueue.TryPoll` — local pending retained when distributed returns failed for unknown phase — locus: merge order; input: corrupt then fixed state; wrong outcome: failed wins on read (hunt #75/#76).
-- [ ] (candidate) `AzureBlobCollectionRunArtifactReader.ListManifestsAsync` — duplicate blob names for same run manifest — locus: enumeration; input: two `run-manifest.json` paths; wrong outcome: duplicate list entries (discovery dedupe by runId after import).
+- [x] (proven) `PollingCollectionRunDiscovery.DiscoverAsync` — `ReadArtifactAsync` throw aborted remaining manifests — **hit 2026-10-23 thorough hunt #79:** per-manifest read catch (not only `RequestFailedException`); regression `DiscoverAsync_continues_when_read_artifact_throws_for_one_manifest`.
+- [x] (valid-no-repro) `PollingCollectionRunDiscovery.DiscoverAsync` — duplicate `runId` after first manifest rejected still attempts later row — **cheap-disproof 2026-10-23 thorough hunt #79:** regression `DiscoverAsync_imports_later_duplicate_runId_after_first_manifest_rejected`; bounded double attempt before `Imported`.
+- [x] (valid-no-repro) `CollectionRunIngestService.IngestAsync` — `HasImportedHashAsync` short-circuit marks `Imported` without snapshot id — **cheap-disproof 2026-10-23 thorough hunt #79:** ADR-0103 hash idempotency; discovery counts one `Imported` per batch runId (hunt #78).
+- [x] (valid-no-repro) `InMemoryValueReportJobQueue.TryPoll` — local pending retained when distributed returns failed for unknown phase — **cheap-disproof 2026-10-23 thorough hunt #79:** `PreferDistributedPollState` promotes distributed `Failed` over local `Pending` (hunts #75/#76).
+- [x] (valid-no-repro) `AzureBlobCollectionRunArtifactReader.ListManifestsAsync` — duplicate blob names for same run manifest — **cheap-disproof 2026-10-23 thorough hunt #79:** duplicate list entries are operator layout; discovery dedupes by `runId` after `Imported` (hunts #77/#78).
+
+- [ ] (candidate) `PollingCollectionRunDiscovery.DiscoverAsync` — `OperationCanceledException` during per-manifest ingest aborts batch — locus: ingest catch; input: cancel mid-ingest; wrong outcome: propagate cancel (intentional).
+- [ ] (candidate) `AzureBlobCollectionRunArtifactReader.ReadArtifactAsync` — non-`RequestFailedException` from download propagates to caller — locus: download catch; input: SDK throws `IOException`; wrong outcome: discovery now skips (hunt #79).
+- [ ] (candidate) `CollectionRunIngestService.IngestAsync` — malformed hex `packageSha256` rejects even when zip valid — locus: `IsManifestHashValid`; input: invalid hex; wrong outcome: rejected (correct).
+- [ ] (candidate) `InMemoryValueReportJobQueue.TryPoll` — distributed deserialize failure returns null and local pending continues — locus: `TryReadDistributedState`; input: corrupt JSON; wrong outcome: local state wins until terminal write.
 - [ ] (candidate) `ValueReportJobPollStateCacheRegistrar.Register` — no-op when cache already registered hides misconfigured second registrar — locus: early return; input: double module registration; wrong outcome: intentional idempotency.
 
 
