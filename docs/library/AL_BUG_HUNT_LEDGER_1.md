@@ -5292,21 +5292,29 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** recommendation engine; alternatives
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationEngine.cs; ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationTradeOffBuilder.cs
 - **test-filter:** FullyQualifiedName~ArchitectureRecommendationAlternativesTests|FullyQualifiedName~ArchitectureRecommendationProposedChangeTests
-- **hunts:** 85
+- **hunts:** 86
 - **last-hunt:** 2026-10-23
-- **bugs-found:** 48
+- **bugs-found:** 49
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-23 — `cost of security` prose falsely selected Cost dimension
+- **last-bug:** 2026-10-23 — `cost of ownership` prose falsely selected Cost dimension
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
-2026-10-23 seed hunt (seed→hit): promoted `cost of security` goal phrasing still selecting Cost alongside Security; added `IsCostTokenInCostOfDimensionGoalPhrase`; regression `BuildRecommendations_prefers_security_first_when_priority_is_cost_of_security_program`; cheap-disproof closed four sibling `(candidate)` rows; seeded five follow-on rows; scoped Alternatives/ProposedChange/TradeOff tests 102/102.
+2026-10-23 seed hunt (seed→hit): promoted `cost of ownership` goal phrasing still selecting Cost alongside Security; extended `IsCostTokenInCostOfDimensionGoalPhrase` with `ownership` and `delivery`; added `IsCostTokenInPriceOfDimensionGoalPhrase` for `price of <dimension>` modifiers when Cost also appears; regressions `BuildRecommendations_prefers_security_first_when_priority_is_cost_of_ownership_security_program`, `BuildRecommendations_prefers_reliability_first_when_priority_is_cost_of_reliability_program`, `BuildRecommendations_prefers_security_first_when_priority_is_price_of_security_program`, `BuildRecommendations_prefers_security_first_when_security_over_cost_precedes_security_hardening_bullet`; cheap-disproof closed five sibling `(candidate)` rows; seeded five follow-on rows; scoped Alternatives/ProposedChange/TradeOff tests 122/122.
 
-- [ ] (candidate) `ArchitectureRecommendationTradeOffBuilder.TryResolveDeclaredPairPrecedence` — multiple explicit pair matches in one priority string only honor the first match — input: comma-joined `Security over Cost, Cost over Security`; reachability: pasted sponsor bullets; wrong outcome: later clause ignored without surfacing ambiguity.
-- [ ] (candidate) `ArchitectureRecommendationTradeOffBuilder.DeclaredPriorityPrefersDimension` — `cost of reliability program` selects Cost — input: `cost of reliability` phrase; reachability: sponsor prose; wrong outcome: balanced Reliability/Cost when reliability also named.
+- [ ] (candidate) `ArchitectureRecommendationTradeOffBuilder.TryResolveExplicitDimensionPrecedence` — comma-joined conflicting explicit pairs in one priority string only honor the first `over`/`before` match — input: `Security over Cost, Cost over Security`; reachability: pasted sponsor bullets; wrong outcome: ambiguous sponsor intent without last-clause wins.
+- [ ] (candidate) `ArchitectureRecommendationTradeOffBuilder.DeclaredPriorityPrefersDimension` — `cost of quality` selects Cost — input: `cost of quality security program`; reachability: sponsor prose; wrong outcome: balanced Security/Cost when quality is modifier not dimension.
+- [ ] (candidate) `ArchitectureRecommendationTradeOffBuilder.DeclaredPriorityPrefersDimension` — `price of reliability` with separate `cost` mention selects Cost — input: `price of reliability; cost containment`; reachability: finance phrasing; wrong outcome: balanced Reliability/Cost.
 - [ ] (candidate) `ArchitectureRecommendationTradeOffBuilder.ApplyTradeOffs` — Security plus DataArchitecture actionable findings produce no trade-off object — input: mixed-dimension review package; contract gap only unless product requires all pairs.
-- [ ] (candidate) `ArchitectureRecommendationTradeOffBuilder.DeclaredPriorityPrefersDimension` — `price of security` selects Cost via synonym — input: price vs cost wording; reachability: sponsor prose; wrong outcome: balanced Security/Cost.
-- [ ] (candidate) `ArchitectureRecommendationTradeOffBuilder.TryResolveDeclaredPairPrecedence` — explicit pair in first entry lost when second entry repeats dimension word without pair syntax — input: `Security over Cost` then `Security hardening`.
+- [ ] (candidate) `ArchitectureRecommendationTradeOffBuilder.TryResolveDeclaredPairPrecedence` — three-entry list with middle non-pair clause between explicit Security/Cost pairs — input: `Cost over Security`, `reliability uplift`, `Security over Cost`; reachability: multi-bullet priorities; wrong outcome: first pair wins instead of last applicable pair.
+
+- [x] (proven) `ArchitectureRecommendationTradeOffBuilder.DeclaredPriorityPrefersDimension` — `cost of ownership security program` selects Cost — **hit 2026-10-23 seed hunt:** extended `IsCostTokenInCostOfDimensionGoalPhrase`; regression `BuildRecommendations_prefers_security_first_when_priority_is_cost_of_ownership_security_program`.
+- [x] (valid-no-repro) `ArchitectureRecommendationTradeOffBuilder.DeclaredPriorityPrefersDimension` — `cost of reliability program` selects Cost — **cheap-disproof 2026-10-23 seed hunt:** covered by `IsCostTokenInCostOfDimensionGoalPhrase` (#85); regression `BuildRecommendations_prefers_reliability_first_when_priority_is_cost_of_reliability_program`.
+- [x] (valid-no-repro) `ArchitectureRecommendationTradeOffBuilder.DeclaredPriorityPrefersDimension` — `price of security program` selects Cost — **cheap-disproof 2026-10-23 seed hunt:** no bare Cost token; regression `BuildRecommendations_prefers_security_first_when_priority_is_price_of_security_program`.
+- [x] (valid-no-repro) `ArchitectureRecommendationTradeOffBuilder.TryResolveDeclaredPairPrecedence` — `Security over Cost` then `Security hardening` — **cheap-disproof 2026-10-23 seed hunt:** explicit pair retained across list entries; regression `BuildRecommendations_prefers_security_first_when_security_over_cost_precedes_security_hardening_bullet`.
+- [x] (invalid) `ArchitectureRecommendationTradeOffBuilder.ApplyTradeOffs` — Security plus DataArchitecture trade-off — **cheap-disproof 2026-10-23 seed hunt:** dimension pair matrix contract unchanged.
+
+2026-10-23 seed hunt (seed→hit): promoted `cost of security` goal phrasing still selecting Cost alongside Security; added `IsCostTokenInCostOfDimensionGoalPhrase`; regression `BuildRecommendations_prefers_security_first_when_priority_is_cost_of_security_program`; cheap-disproof closed four sibling `(candidate)` rows; seeded five follow-on rows; scoped Alternatives/ProposedChange/TradeOff tests 102/102.
 
 - [x] (proven) `ArchitectureRecommendationTradeOffBuilder.DeclaredPriorityPrefersDimension` — `cost of security program` selects Cost — **hit 2026-10-23 seed hunt:** `IsCostTokenInCostOfDimensionGoalPhrase`; regression `BuildRecommendations_prefers_security_first_when_priority_is_cost_of_security_program`.
 - [x] (valid-no-repro) `ArchitectureRecommendationTradeOffBuilder.DeclaredPriorityPrefersDimension` — `total landed cost security` selects Cost — **cheap-disproof 2026-10-23 seed hunt:** covered by `IsCostTokenInMultiWordQualifiedCostPhrase` (#84); regression `BuildRecommendations_prefers_security_first_when_priority_is_total_landed_cost_security_program`.

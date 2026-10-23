@@ -198,7 +198,8 @@ internal static class ArchitectureRecommendationTradeOffBuilder
                 || IsCostTokenInQualifiedCostNounPhrase(priority)
                 || IsCostTokenInPerQualifierCostPhrase(priority)
                 || IsCostTokenInMultiWordQualifiedCostPhrase(priority)
-                || IsCostTokenInCostOfDimensionGoalPhrase(priority)))
+                || IsCostTokenInCostOfDimensionGoalPhrase(priority)
+                || IsCostTokenInPriceOfDimensionGoalPhrase(priority)))
         {
             return false;
         }
@@ -251,7 +252,13 @@ internal static class ArchitectureRecommendationTradeOffBuilder
     private static bool IsCostTokenInCostOfDimensionGoalPhrase(string priority) =>
         Regex.IsMatch(
             priority,
-            @"\bcost\s+of\s+(?:security|reliability|operations|compliance)\b",
+            @"\bcost\s+of\s+(?:security|reliability|operations|compliance|ownership|delivery)\b",
+            RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    private static bool IsCostTokenInPriceOfDimensionGoalPhrase(string priority) =>
+        Regex.IsMatch(
+            priority,
+            @"\bprice\s+of\s+(?:security|reliability|operations|compliance)\b",
             RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     private static bool TryResolveDeclaredPairPrecedence(
