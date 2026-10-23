@@ -6868,13 +6868,21 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
-2026-10-23 seed hunt (seed→hit): proved `ExportRecordDiffService.CompareTopLevel` omitted `Notes` while other optional string columns used trim-aware compare, so padding-only export-note drift would surface as false top-level changes once notes participate in export diffs; add `AddIfChangedTrimmed` for `Notes`; regressions `CompareQuality_export_record_diff_ignores_padding_only_notes_on_top_level_columns` and `CompareQuality_export_record_diff_reports_notes_when_values_differ_after_trim`; cheap-disproof closed soft-hyphen heading variant (`RemoveMarkdownSection_strips_compare_quality_delta_when_heading_embeds_soft_hyphen_mid_line` — `UnicodeCategory.Format` removal from hunt 95), whitespace-only persist type (`RunExportAuditService.RecordAsync` rejects after trim), padded determinism JSON string (`Rehydrate_deserializes_determinism_iterations_from_json_number_token`; numeric token not padded string), and list-by-run trim (`GetRunExportHistoryAsync` trims run id before lookup); seeded five follow-on rows; scoped application-analysis filter 102/102. Private beta: export record compares ignore padding-only notes metadata drift.
+2026-10-23 seed hunt (seed→hit): proved trim-aware export diff and `RunExportRecordPersistNormalizer` left whitespace-only optional strings as empty `""` while other rows stored `null`, so `Notes` and other optional metadata falsely differed across otherwise equivalent exports; coalesce whitespace-only optional strings to `null` at persist/read and in `AddIfChangedTrimmed`; regressions `CompareQuality_export_record_diff_treats_whitespace_only_notes_as_equivalent_to_null` and `NormalizeLoadedRecord_nulls_whitespace_only_optional_strings`; cheap-disproof closed `RecordJson` diff surface (column not compared), diff summary not echoing note bodies (formatter lists changed field names only; intentional), `TemplateProfile` column vs JSON padding (`CompareQuality_export_record_diff_ignores_padding_only_template_profile_column_when_json_matches`), and ZWJ heading variant (`RemoveMarkdownSection_strips_compare_quality_delta_when_heading_embeds_zero_width_joiner_mid_line` — format-char strip); seeded five follow-on rows; scoped application-analysis filter 105/105. Private beta: export compares treat blank-padded optional metadata as absent; stored export rows normalize whitespace-only notes to null.
 
-- [ ] (candidate) `ExportRecordDiffService.CompareTopLevel` — `RecordJson` padding-only differences if raw JSON column compared — locus: export diff; input: padded `RecordJson` on legacy row.
-- [ ] (candidate) `MarkdownExportRecordDiffSummaryFormatter` — does not echo `Notes` values when `Notes` changes — locus: diff summary UX; input: differing notes with empty changed-field list before hunt 96.
-- [ ] (candidate) `RunExportRecordPersistNormalizer` — null optional strings become null after trim on whitespace-only optional fields — locus: read normalize; input: `Notes` value `"   "`.
-- [ ] (candidate) `ComparisonExportMarkdownSectionRemover` — joiner control character `\u200D` inside heading — locus: ZWJ in heading text; input: ZWJ between words.
-- [ ] (candidate) `ExportRecordDiffService.CompareRequests` — `TemplateProfile` column vs JSON mismatch when only column padded — locus: top-level vs request diff; input: padded column with trimmed JSON.
+- [ ] (candidate) `PersistedAnalysisExportRequestMetadata.TrimOptionalStrings` — whitespace-only audience becomes empty string not null — locus: rehydrate; input: `"audience":"   "` in JSON.
+- [ ] (candidate) `ExportRecordDiffService.CompareTopLevel` — `WasAutoSelected` not trim-relevant but nullable bool columns — locus: diff flags; input: N/A (invalid probe).
+- [ ] (candidate) `RunExportAuditService.RecordAsync` — notes parameter whitespace-only stored before normalizer — locus: audit write; input: notes `"   "` (verify null after create).
+- [ ] (candidate) `ComparisonExportMarkdownSectionRemover` — variation selector `\uFE00` inside heading — locus: VS in heading; input: VS between words.
+- [ ] (candidate) `ExportRecordDiffService` — `NormalizeOptionalString` not shared with rehydrate metadata trim — locus: duplicate normalization logic; input: consolidate helper.
+
+- [x] (proven) `ExportRecordDiffService` / `RunExportRecordPersistNormalizer` — whitespace-only optional strings vs null — **hit 2026-10-23 seed hunt:** `NullIfWhiteSpace` / `NormalizeOptionalString`; regressions `CompareQuality_export_record_diff_treats_whitespace_only_notes_as_equivalent_to_null` and `NormalizeLoadedRecord_nulls_whitespace_only_optional_strings`.
+- [x] (invalid) `ExportRecordDiffService.CompareTopLevel` — `RecordJson` padding diff — **cheap-disproof 2026-10-23 seed hunt:** `RecordJson` not in compare surface.
+- [x] (invalid) `MarkdownExportRecordDiffSummaryFormatter` — missing note value echo — **cheap-disproof 2026-10-23 seed hunt:** summary lists changed field names by design.
+- [x] (valid-no-repro) `ExportRecordDiffService` — padded `TemplateProfile` column vs JSON — **cheap-disproof 2026-10-23 seed hunt:** trim-aware top-level and rehydrate paths; regression `CompareQuality_export_record_diff_ignores_padding_only_template_profile_column_when_json_matches`.
+- [x] (valid-no-repro) `ComparisonExportMarkdownSectionRemover` — ZWJ in heading — **cheap-disproof 2026-10-23 seed hunt:** format-char removal; regression `RemoveMarkdownSection_strips_compare_quality_delta_when_heading_embeds_zero_width_joiner_mid_line`.
+
+2026-10-23 seed hunt (seed→hit): proved `ExportRecordDiffService.CompareTopLevel` omitted `Notes` while other optional string columns used trim-aware compare, so padding-only export-note drift would surface as false top-level changes once notes participate in export diffs; add `AddIfChangedTrimmed` for `Notes`; regressions `CompareQuality_export_record_diff_ignores_padding_only_notes_on_top_level_columns` and `CompareQuality_export_record_diff_reports_notes_when_values_differ_after_trim`; cheap-disproof closed soft-hyphen heading variant (`RemoveMarkdownSection_strips_compare_quality_delta_when_heading_embeds_soft_hyphen_mid_line` — `UnicodeCategory.Format` removal from hunt 95), whitespace-only persist type (`RunExportAuditService.RecordAsync` rejects after trim), padded determinism JSON string (`Rehydrate_deserializes_determinism_iterations_from_json_number_token`; numeric token not padded string), and list-by-run trim (`GetRunExportHistoryAsync` trims run id before lookup); seeded five follow-on rows; scoped application-analysis filter 102/102. Private beta: export record compares ignore padding-only notes metadata drift.
 
 - [x] (proven) `ExportRecordDiffService.CompareTopLevel` — padded `Notes` false diff — **hit 2026-10-23 seed hunt:** `AddIfChangedTrimmed` for `Notes`; regressions `CompareQuality_export_record_diff_ignores_padding_only_notes_on_top_level_columns` and `CompareQuality_export_record_diff_reports_notes_when_values_differ_after_trim`.
 - [x] (valid-no-repro) `ComparisonExportMarkdownSectionRemover` — soft hyphen in heading — **cheap-disproof 2026-10-23 seed hunt:** format-char removal; regression `RemoveMarkdownSection_strips_compare_quality_delta_when_heading_embeds_soft_hyphen_mid_line`.
@@ -7195,11 +7203,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 95
-- **bugs-found:** 90
+- **hunts:** 97
+- **bugs-found:** 92
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-23
-- **last-bug:** 2026-10-23 — inline format-char stripping in comparison headings
+- **last-bug:** 2026-10-23 — whitespace-only optional export metadata coalesced to null
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 

@@ -19,12 +19,20 @@ internal static class RunExportRecordPersistNormalizer
         record.ExportType = record.ExportType.Trim();
         record.Format = record.Format.Trim();
         record.FileName = record.FileName.Trim();
-        record.TemplateProfile = record.TemplateProfile?.Trim();
-        record.TemplateProfileDisplayName = record.TemplateProfileDisplayName?.Trim();
-        record.ResolutionReason = record.ResolutionReason?.Trim();
-        record.ManifestVersion = record.ManifestVersion?.Trim();
-        record.Notes = record.Notes?.Trim();
-        record.CompareManifestVersion = record.CompareManifestVersion?.Trim();
-        record.CompareRunId = record.CompareRunId?.Trim();
+        record.TemplateProfile = NullIfWhiteSpace(record.TemplateProfile);
+        record.TemplateProfileDisplayName = NullIfWhiteSpace(record.TemplateProfileDisplayName);
+        record.ResolutionReason = NullIfWhiteSpace(record.ResolutionReason);
+        record.ManifestVersion = NullIfWhiteSpace(record.ManifestVersion);
+        record.Notes = NullIfWhiteSpace(record.Notes);
+        record.CompareManifestVersion = NullIfWhiteSpace(record.CompareManifestVersion);
+        record.CompareRunId = NullIfWhiteSpace(record.CompareRunId);
+    }
+
+    private static string? NullIfWhiteSpace(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return null;
+
+        return value.Trim();
     }
 }

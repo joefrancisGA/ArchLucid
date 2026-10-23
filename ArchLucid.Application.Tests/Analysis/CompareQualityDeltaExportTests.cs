@@ -172,6 +172,17 @@ public sealed class CompareQualityDeltaExportTests
     }
 
     [Fact]
+    public void RemoveMarkdownSection_strips_compare_quality_delta_when_heading_embeds_zero_width_joiner_mid_line()
+    {
+        string markdown = "intro\n## Compare\u200D Quality Delta\n| Metric | Before | After |\n\n## Warnings\n";
+
+        string result = CompareQualityDeltaExportFormatter.RemoveMarkdownSection(markdown);
+
+        result.Should().NotContain("Compare Quality Delta");
+        result.Should().Contain("## Warnings");
+    }
+
+    [Fact]
     public void RemoveMarkdownSection_strips_compare_quality_delta_when_heading_embeds_soft_hyphen_mid_line()
     {
         string markdown = "intro\n## Compare\u00AD Quality Delta\n| Metric | Before | After |\n\n## Warnings\n";

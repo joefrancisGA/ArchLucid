@@ -132,6 +132,36 @@ public sealed class CompareQualityExportRecordDiffTests
     }
 
     [Fact]
+    public void CompareQuality_export_record_diff_treats_whitespace_only_notes_as_equivalent_to_null()
+    {
+        ExportRecordDiffService sut = new();
+        RunExportRecord left = new()
+        {
+            ExportRecordId = "left",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = "ArchitectureAnalysis",
+            Format = "Markdown",
+            FileName = "a.md",
+            Notes = "   ",
+            AnalysisRequestJson = """{"includeManifest":true}""",
+        };
+        RunExportRecord right = new()
+        {
+            ExportRecordId = "right",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = "ArchitectureAnalysis",
+            Format = "Markdown",
+            FileName = "a.md",
+            Notes = null,
+            AnalysisRequestJson = """{"includeManifest":true}""",
+        };
+
+        ExportRecordDiffResult result = sut.Compare(left, right);
+
+        result.ChangedTopLevelFields.Should().NotContain("Notes");
+    }
+
+    [Fact]
     public void CompareQuality_export_record_diff_reports_notes_when_values_differ_after_trim()
     {
         ExportRecordDiffService sut = new();
@@ -215,6 +245,37 @@ public sealed class CompareQualityExportRecordDiffTests
         ExportRecordDiffResult result = sut.Compare(left, right);
 
         result.ChangedTopLevelFields.Should().NotContain("FileName");
+    }
+
+    [Fact]
+    public void CompareQuality_export_record_diff_ignores_padding_only_template_profile_column_when_json_matches()
+    {
+        ExportRecordDiffService sut = new();
+        RunExportRecord left = new()
+        {
+            ExportRecordId = "left",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = "ArchitectureAnalysis",
+            Format = "Markdown",
+            FileName = "a.md",
+            TemplateProfile = "  sponsor  ",
+            AnalysisRequestJson = """{"templateProfile":"sponsor"}""",
+        };
+        RunExportRecord right = new()
+        {
+            ExportRecordId = "right",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = "ArchitectureAnalysis",
+            Format = "Markdown",
+            FileName = "a.md",
+            TemplateProfile = "sponsor",
+            AnalysisRequestJson = """{"templateProfile":"sponsor"}""",
+        };
+
+        ExportRecordDiffResult result = sut.Compare(left, right);
+
+        result.ChangedTopLevelFields.Should().NotContain("TemplateProfile");
+        result.RequestDiff.ChangedValues.Should().NotContain("TemplateProfile");
     }
 
     [Fact]

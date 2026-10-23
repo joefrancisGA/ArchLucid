@@ -162,7 +162,15 @@ public sealed class ExportRecordDiffService : IExportRecordDiffService
         string fieldName,
         string? left,
         string? right) =>
-        AddIfChanged(target, fieldName, left?.Trim(), right?.Trim());
+        AddIfChanged(target, fieldName, NormalizeOptionalString(left), NormalizeOptionalString(right));
+
+    private static string? NormalizeOptionalString(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return null;
+
+        return value.Trim();
+    }
 
     private static void AddIfChanged<T>(
         List<string> target,

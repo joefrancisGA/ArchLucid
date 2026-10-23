@@ -27,4 +27,24 @@ public sealed class RunExportRecordPersistNormalizerTests
         record.FileName.Should().Be("report.md");
         record.CompareManifestVersion.Should().Be("v1");
     }
+
+    [Fact]
+    public void NormalizeLoadedRecord_nulls_whitespace_only_optional_strings()
+    {
+        RunExportRecord record = new()
+        {
+            ExportRecordId = "exp-2",
+            RunId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            ExportType = "ArchitectureAnalysis",
+            Format = "Markdown",
+            FileName = "report.md",
+            Notes = "   ",
+            TemplateProfile = "  ",
+        };
+
+        RunExportRecordPersistNormalizer.NormalizeLoadedRecord(record);
+
+        record.Notes.Should().BeNull();
+        record.TemplateProfile.Should().BeNull();
+    }
 }
