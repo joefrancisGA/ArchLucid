@@ -7859,6 +7859,12 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-agents
 
+2026-10-23 seed hunt (seed-only): cheap-disproof closed faithfulness harness readiness vs floor threshold candidates; regressions `Import_records_failed_evaluation_when_readiness_is_strictly_below_floor` and `Import_records_evaluated_when_readiness_equals_floor`; no production change; 152 scoped Application.Tests.Agents tests passed.
+
+- [x] (valid-no-repro) `AgentModelCatalogFaithfulnessHarnessImporter.ImportForAliasAsync` — readiness strictly below `FloorMinSupportRatio` should record `Failed` — **cheap-disproof 2026-10-23 seed hunt:** `>=` ternary; regression `Import_records_failed_evaluation_when_readiness_is_strictly_below_floor`.
+- [x] (valid-no-repro) `AgentModelCatalogFaithfulnessHarnessImporter.ImportForAliasAsync` — readiness equal to floor marks `Evaluated` — **cheap-disproof 2026-10-23 seed hunt:** inclusive `>=` bound; regression `Import_records_evaluated_when_readiness_equals_floor`.
+- [x] (invalid) `AgentModelCatalogFaithfulnessHarnessImporter.ImportForAliasAsync` — `evaluationState` uses `>=` so equal ratios mark Evaluated — **cheap-disproof 2026-10-23 seed hunt:** documented intentional inclusive floor; regression above.
+
 2026-10-23 seed hunt (seed→hit): promoted null elements in `AgentResult.Findings` crashing IaC stub clone (`EnsureFindingSourceAgents` before `finding.IsMuted` short-circuit); `AgentResultEnvelopeAgentTypeResolver` now skips null findings when resolving/backfilling `SourceAgent`; IaC loop guards null before property access; regression `GenerateAndPersistStubsForRunAsync_skips_null_finding_entries`; 150 scoped Application.Tests.Agents tests passed.
 
 - [x] (proven) `AgentResultEnvelopeAgentTypeResolver` / `FindingIacStubGenerator` — null finding list entries aborted stub clone — **hit 2026-10-23 seed hunt:** null guards in resolver finding loops and IaC iteration; regression above. [class:fail-open-validation]
@@ -8105,7 +8111,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** application agents; agent handlers wiring
 - **paths:** ArchLucid.Application/Agents/
 - **test-filter:** FullyQualifiedName~Application.Tests.Agents
-- **hunts:** 72
+- **hunts:** 73
 - **bugs-found:** 66
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-23
