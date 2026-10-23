@@ -379,6 +379,87 @@ public sealed class TopologyProposalDualModelConsensusCrossAgentOrderTests
     }
 
     [Fact]
+    public async Task EnrichAsync_skips_null_sibling_service_entries_when_pruning_sibling_proposals()
+    {
+        AgentTopologyProposal primaryTopology = new()
+        {
+            SourceAgent = AgentType.Topology,
+            AddedServices =
+            [
+                new ManifestService
+                {
+                    ServiceName = "api",
+                    ServiceId = "svc-api",
+                    ServiceType = ServiceType.Api,
+                    RuntimePlatform = RuntimePlatform.AppService,
+                },
+            ],
+        };
+
+        AgentTopologyProposal secondaryTopology = new()
+        {
+            SourceAgent = AgentType.Topology,
+            AddedServices = primaryTopology.AddedServices,
+        };
+
+        AgentTopologyProposal criticProposal = new()
+        {
+            SourceAgent = AgentType.Critic,
+            AddedServices =
+            [
+                null!,
+                new ManifestService
+                {
+                    ServiceName = "audit-log",
+                    ServiceId = "svc-audit-log",
+                    ServiceType = ServiceType.Worker,
+                    RuntimePlatform = RuntimePlatform.AppService,
+                },
+            ],
+            AddedRelationships =
+            [
+                new ManifestRelationship
+                {
+                    SourceId = "svc-audit-log",
+                    TargetId = "svc-api",
+                    RelationshipType = RelationshipType.Calls,
+                },
+            ],
+        };
+
+        List<AgentResult> results =
+        [
+            new AgentResult
+            {
+                RunId = "run-1",
+                TaskId = "topology-task",
+                AgentType = AgentType.Topology,
+                ProposedChanges = primaryTopology,
+            },
+            new AgentResult
+            {
+                RunId = "run-1",
+                TaskId = "critic-task",
+                AgentType = AgentType.Critic,
+                ProposedChanges = criticProposal,
+            },
+        ];
+
+        TopologyProposalDualModelConsensusEnricher consensus = CreateConsensusEnricher(secondaryTopology);
+
+        Func<Task> act = async () => await consensus.EnrichAsync(
+            "run-1",
+            new ArchitectureRequest { RequestId = "req", Description = new string('x', 12) },
+            new AgentEvidencePackage(),
+            results,
+            CancellationToken.None);
+
+        await act.Should().NotThrowAsync();
+        AgentTopologyProposal criticAfter = (AgentTopologyProposal)results[1].ProposedChanges!;
+        criticAfter.AddedRelationships.Should().ContainSingle();
+    }
+
+    [Fact]
     public async Task EnrichAsync_skips_null_relationship_entries_when_pruning_sibling_proposals()
     {
         AgentTopologyProposal primaryTopology = new()

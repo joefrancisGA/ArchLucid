@@ -134,9 +134,9 @@ public sealed class TopologyProposalDualModelConsensusEnricher(
         IReadOnlyList<AgentResult> results,
         AgentTopologyProposal mergedTopology)
     {
-        HashSet<string> mergedTopologyEndpointKeys = TopologyProposalRelationshipEndpointIndex.CollectKnownEndpointKeys(
-            mergedTopology.AddedServices ?? [],
-            mergedTopology.AddedDatastores ?? []);
+        HashSet<string> mergedTopologyEndpointKeys = CollectKnownEndpointKeys(
+            mergedTopology.AddedServices,
+            mergedTopology.AddedDatastores);
 
         foreach (AgentResult result in results)
         {
@@ -156,9 +156,9 @@ public sealed class TopologyProposalDualModelConsensusEnricher(
 
             HashSet<string> endpointKeys = new(mergedTopologyEndpointKeys, StringComparer.OrdinalIgnoreCase);
 
-            foreach (string siblingEndpointKey in TopologyProposalRelationshipEndpointIndex.CollectKnownEndpointKeys(
-                         proposal.AddedServices ?? [],
-                         proposal.AddedDatastores ?? []))
+            foreach (string siblingEndpointKey in CollectKnownEndpointKeys(
+                         proposal.AddedServices,
+                         proposal.AddedDatastores))
             {
                 endpointKeys.Add(siblingEndpointKey);
             }
@@ -177,4 +177,11 @@ public sealed class TopologyProposalDualModelConsensusEnricher(
             proposal.AddedRelationships = pruned;
         }
     }
+
+    private static HashSet<string> CollectKnownEndpointKeys(
+        IReadOnlyList<ManifestService>? services,
+        IReadOnlyList<ManifestDatastore>? datastores) =>
+        TopologyProposalRelationshipEndpointIndex.CollectKnownEndpointKeys(
+            (services ?? []).Where(static service => service is not null).ToList(),
+            (datastores ?? []).Where(static datastore => datastore is not null).ToList());
 }
