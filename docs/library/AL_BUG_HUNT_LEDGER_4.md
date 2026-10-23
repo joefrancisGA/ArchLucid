@@ -14654,12 +14654,14 @@ heap-disproved mermaid typed-topology candidate.
 - **aliases:** host composition; DI registration; startup modules
 - **paths:** ArchLucid.Host.Composition/
 - **test-filter:** FullyQualifiedName~Host.Composition|FullyQualifiedName~ServiceCollectionExtensions
-- **hunts:** 96
-- **bugs-found:** 80
+- **hunts:** 97
+- **bugs-found:** 81
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-23
-- **last-bug:** 2026-10-23 — canceled usage flush dropped snapshot tail
+- **last-bug:** 2026-10-23 — malformed distributed failed hid local pending poll
 - **code-changed-since:** yes
+
+2026-10-23 thorough hunt (seed→hit): proved malformed distributed `Failed` (invalid base64 / generic copy) overrode in-flight local `Pending`; prefer distributed failed only when error is authoritative terminal copy; regression `TryPoll_keeps_local_pending_when_distributed_completed_state_has_invalid_bytes_base64`; cheap-disproof closed four sibling `(candidate)` rows; scoped poll-state tests 32 passed (`RunAnalyzers=false`).
 
 2026-10-23 thorough hunt (seed→hit): proved `FlushPendingAsync` dropped later snapshot batches when `RecordBatchAsync` threw `OperationCanceledException`, losing usage events dequeued for the flush; requeue unprocessed snapshot tail on cancel; regression `StopAsync_requeues_unflushed_snapshot_tail_when_persist_is_canceled`; cheap-disproof closed four sibling `(candidate)` rows; scoped metering flush tests 7 passed (`RunAnalyzers=false`).
 
@@ -15042,11 +15044,17 @@ heap-disproved mermaid typed-topology candidate.
 - [x] (valid-no-repro) `PollingCollectionRunDiscovery.DiscoverAsync` — null artifact skipped — **cheap-disproof 2026-10-23 thorough hunt #96:** regression `ReadArtifactAsync_returns_null_when_manifest_package_path_is_missing` (hunt #82).
 - [x] (valid-no-repro) `AzureBlobCollectionRunArtifactReader.ListManifestsAsync` — partial list on storage error — **cheap-disproof 2026-10-23 thorough hunt #96:** intentional best-effort partial enumeration (ADR-0103).
 
-- [ ] (candidate) `InMemoryValueReportJobQueue.TryPoll` — invalid base64 completed maps to failed — locus: deserialize; input: bad bytes; wrong outcome: hunt #75.
-- [ ] (candidate) `InMemoryValueReportJobQueue.TryPoll` — tenant mismatch returns not found — locus: scope check; input: wrong tenant; wrong outcome: intentional.
-- [ ] (candidate) `InMemoryValueReportJobQueue.Enqueue` — prune terminal locals — locus: enqueue; input: prior job; wrong outcome: hunt #73.
+- [x] (proven) `InMemoryValueReportJobQueue.TryPoll` — malformed distributed `Failed` overrode local `Pending` — **hit 2026-10-23 thorough hunt #97:** prefer distributed failed only with authoritative error; regression `TryPoll_keeps_local_pending_when_distributed_completed_state_has_invalid_bytes_base64`.
+- [x] (valid-no-repro) `InMemoryValueReportJobQueue.TryPoll` — invalid base64 without local entry fails poll — **cheap-disproof 2026-10-23 thorough hunt #97:** regression `TryPoll_reports_failure_when_distributed_completed_state_has_invalid_bytes_base64` (hunt #75).
+- [x] (valid-no-repro) `InMemoryValueReportJobQueue.TryPoll` — tenant mismatch returns not found — **cheap-disproof 2026-10-23 thorough hunt #97:** regression `TryPoll_returns_not_found_when_distributed_state_tenant_does_not_match_scoped_poll`.
+- [x] (valid-no-repro) `InMemoryValueReportJobQueue.Enqueue` — prune terminal locals — **cheap-disproof 2026-10-23 thorough hunt #97:** regression `InMemoryValueReportJobQueue_prunes_terminal_local_jobs_on_enqueue_but_keeps_distributed_poll_state` (hunt #73).
+- [x] (valid-no-repro) `PollingCollectionRunDiscovery.DiscoverAsync` — operation canceled propagates — **cheap-disproof 2026-10-23 thorough hunt #97:** regression `DiscoverAsync_propagates_operation_canceled_when_ingest_is_canceled` (hunt #84).
+
 - [ ] (candidate) `ProcessSharedValueReportJobPollStateCache.Get` — expired key returns null — locus: TTL; input: expired; wrong outcome: inline remove.
-- [ ] (candidate) `PollingCollectionRunDiscovery.DiscoverAsync` — operation canceled propagates — locus: ingest; input: cancel; wrong outcome: hunt #84.
+- [ ] (candidate) `InMemoryValueReportJobQueue.TryPoll` — unknown phase maps to failed without local — locus: deserialize; input: bogus phase; wrong outcome: hunt #75.
+- [ ] (candidate) `InMemoryValueReportJobQueue.TryPoll` — authoritative distributed failed over pending — locus: merge; input: peer terminal; wrong outcome: hunt #76.
+- [ ] (candidate) `AzureBlobCollectionRunArtifactReader.ListManifestsAsync` — storage error partial list — locus: catch; input: 503; wrong outcome: intentional.
+- [ ] (candidate) `ApiRequestUsageEventBatchFlushHostedService.StopAsync` — cancel tail requeue — locus: snapshot; input: OCE; wrong outcome: hunt #96.
 
 
 2026-10-09 seed hunt (seed→hit): failed usage flush returned events through `Enqueue`, which drops them when metering is disabled. Already-accepted events now use `Requeue`. Regression `StopAsync_keeps_dequeued_usage_events_when_persist_fails_after_metering_disabled` failed first.
