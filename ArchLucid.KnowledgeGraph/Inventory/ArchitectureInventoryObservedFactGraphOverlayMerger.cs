@@ -236,6 +236,7 @@ public static class ArchitectureInventoryObservedFactGraphOverlayMerger
         TryValidateOverlayEdgeInferenceSourceAgreement(incomingEdge, retainedEdge);
         TryValidateOverlayEdgeProvenanceKindAgreement(incomingEdge, retainedEdge);
         TryValidateOverlayEdgeDeclaredConnectionIdAgreement(incomingEdge, retainedEdge);
+        TryValidateOverlayEdgeReasoningTraceAgreement(incomingEdge, retainedEdge);
     }
 
     private static void TryValidateOverlayEdgeLabelAgreement(GraphEdge incomingEdge, GraphEdge retainedEdge)
@@ -317,6 +318,23 @@ public static class ArchitectureInventoryObservedFactGraphOverlayMerger
         {
             throw new ArgumentException(
                 "Inventory overlay duplicate edges disagree on DeclaredConnectionId for the same directed edge key.");
+        }
+    }
+
+    private static void TryValidateOverlayEdgeReasoningTraceAgreement(GraphEdge incomingEdge, GraphEdge retainedEdge)
+    {
+        string incomingReasoningTrace = (incomingEdge.ReasoningTrace ?? string.Empty).Trim();
+        string retainedReasoningTrace = (retainedEdge.ReasoningTrace ?? string.Empty).Trim();
+
+        if (incomingReasoningTrace.Length == 0 || retainedReasoningTrace.Length == 0)
+        {
+            return;
+        }
+
+        if (!string.Equals(retainedReasoningTrace, incomingReasoningTrace, StringComparison.OrdinalIgnoreCase))
+        {
+            throw new ArgumentException(
+                "Inventory overlay duplicate edges disagree on ReasoningTrace for the same directed edge key.");
         }
     }
 
