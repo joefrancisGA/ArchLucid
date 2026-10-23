@@ -18,7 +18,7 @@ public sealed class DiagramEdgeLabelHumanizerTests
     [InlineData(GraphEdgeTypes.AppliesTo, "applies")]
     [InlineData(GraphEdgeTypes.RelatesTo, "relates to")]
     [InlineData(GraphEdgeTypes.DependsOn, "depends on")]
-    [InlineData(GraphEdgeTypes.Exposes, "exposes")]
+    [InlineData(GraphEdgeTypes.Exposes, "Public IP is attached.")]
     [InlineData(GraphEdgeTypes.HasRole, "has role")]
     [InlineData(GraphEdgeTypes.UsesIdentity, "uses")]
     [InlineData(GraphEdgeTypes.CanRead, "reads")]
@@ -26,7 +26,7 @@ public sealed class DiagramEdgeLabelHumanizerTests
     [InlineData(GraphEdgeTypes.CanAssume, "can assume")]
     [InlineData(GraphEdgeTypes.CanControlCode, "deploys code")]
     [InlineData(GraphEdgeTypes.RoutesTo, "routes to")]
-    [InlineData(GraphEdgeTypes.FederatesAs, "federates")]
+    [InlineData(GraphEdgeTypes.FederatesAs, "Federated credential is configured. This is not an observed sign-in.")]
     [InlineData(GraphEdgeTypes.MemberOf, "member of")]
     public void ResolveDisplayLabel_humanizes_known_graph_edge_types(string edgeType, string expected)
     {
@@ -42,7 +42,7 @@ public sealed class DiagramEdgeLabelHumanizerTests
     [InlineData(AzureInventoryRelationshipAssociationTypes.AdfLinkedService, "Linked service")]
     [InlineData(GraphEdgeInferenceSources.InventoryLogicAppConnection, "API connection")]
     [InlineData(GraphEdgeInferenceSources.InventoryDiagnosticSettingStorage, "Diagnostic setting name was not stored.")]
-    [InlineData(AzureInventoryRelationshipAssociationTypes.AdfLinkedServiceInferred, "likely · in")]
+    [InlineData(AzureInventoryRelationshipAssociationTypes.AdfLinkedServiceInferred, "No stored link yet; inferred from resource group.")]
     [InlineData(AzureInventoryRelationshipAssociationTypes.AdfReadsFrom, "Reads from")]
     [InlineData(AzureInventoryRelationshipAssociationTypes.AdfWritesTo, "Writes to")]
     [InlineData(GraphEdgeInferenceSources.InventoryAdfReadsFrom, "Reads from")]

@@ -88,7 +88,7 @@ internal static class DiagramRelationshipVerbCatalog
 
         if (normalized.Equals(GraphEdgeTypes.FederatesAs, StringComparison.OrdinalIgnoreCase))
         {
-            label = "federates";
+            label = "Federated credential is configured. This is not an observed sign-in.";
             return true;
         }
 
@@ -126,8 +126,13 @@ internal static class DiagramRelationshipVerbCatalog
 
         if (normalized.Equals(GraphEdgeInferenceSources.InventoryResourceGroupCollocation, StringComparison.OrdinalIgnoreCase)
             || normalized.Equals(GraphEdgeInferenceSources.InventoryAdfLinkedServiceInferred, StringComparison.OrdinalIgnoreCase)
-            || normalized.Equals(GraphEdgeInferenceSources.InventorySynapseLinkedServiceInferred, StringComparison.OrdinalIgnoreCase)
-            || normalized.Equals(GraphEdgeInferenceSources.InventoryAppKeyVaultRef, StringComparison.OrdinalIgnoreCase))
+            || normalized.Equals(GraphEdgeInferenceSources.InventorySynapseLinkedServiceInferred, StringComparison.OrdinalIgnoreCase))
+        {
+            label = InventoryDiagramLikelyRelationshipApplier.OutlineSentence;
+            return true;
+        }
+
+        if (normalized.Equals(GraphEdgeInferenceSources.InventoryAppKeyVaultRef, StringComparison.OrdinalIgnoreCase))
         {
             label = "likely · in";
             return true;

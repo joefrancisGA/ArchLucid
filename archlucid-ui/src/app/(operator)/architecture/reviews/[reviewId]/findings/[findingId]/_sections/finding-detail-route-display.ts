@@ -63,7 +63,7 @@ export function resolveFindingRiskOwnerLabel(
   const assigned = payload?.assignedToUserId?.trim() ?? "";
 
   if (assigned.length > 0) {
-    return assigned;
+    return `Risk owner name was not stored. Assignee id ${assigned}.`;
   }
 
   return RISK_OWNER_NOT_ASSIGNED;

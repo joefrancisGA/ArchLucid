@@ -549,7 +549,7 @@ internal static class DiagramEdgeLabelHumanizer
         if (string.Equals(value, GraphEdgeInferenceSources.InventoryPeReachableTarget, StringComparison.OrdinalIgnoreCase)
             || string.Equals(value, AzureInventoryRelationshipAssociationTypes.PeReachableTarget, StringComparison.OrdinalIgnoreCase))
         {
-            humanized = "Private network path";
+            humanized = InventoryDiagramRelationshipLabelTexts.PeReachableTargetInferredLabel;
 
             return true;
         }
@@ -622,7 +622,7 @@ internal static class DiagramEdgeLabelHumanizer
 
         if (string.Equals(value, GraphEdgeTypes.Exposes, StringComparison.OrdinalIgnoreCase))
         {
-            humanized = "exposes";
+            humanized = "Public IP is attached.";
 
             return true;
         }
@@ -692,7 +692,7 @@ internal static class DiagramEdgeLabelHumanizer
 
         if (string.Equals(value, GraphEdgeTypes.FederatesAs, StringComparison.OrdinalIgnoreCase))
         {
-            humanized = "federates";
+            humanized = "Federated credential is configured. This is not an observed sign-in.";
 
             return true;
         }

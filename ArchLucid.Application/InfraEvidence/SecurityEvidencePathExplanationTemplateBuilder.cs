@@ -105,9 +105,9 @@ internal static class SecurityEvidencePathExplanationTemplateBuilder
 
         if (!string.IsNullOrWhiteSpace(proposedChange))
         {
-            sentence.Append(" Change ");
+            sentence.Append(" Proposed change: ");
             sentence.Append(proposedChange.Trim());
-            sentence.Append(" will break the path with minimal operational risk.");
+            sentence.Append(". Effect on the path was not stored. Operational risk was not stored.");
         }
 
         if (!string.IsNullOrWhiteSpace(verify))
@@ -131,7 +131,7 @@ internal static class SecurityEvidencePathExplanationTemplateBuilder
         string? network,
         string? asset)
     {
-        sentence.Append("This configuration creates a path");
+        sentence.Append("Stored configuration links these resources. This is not observed traffic");
 
         if (!string.IsNullOrWhiteSpace(actor))
         {
@@ -273,7 +273,7 @@ internal static class SecurityEvidencePathExplanationTemplateBuilder
             return weakestHop.EvidenceReference.Trim();
         }
 
-        return "cited hop evidence on the next inventory snapshot";
+        return "hop evidence. Hop evidence reference was not stored.";
     }
 
     private static string HumanizePatternKey(string patternKey)

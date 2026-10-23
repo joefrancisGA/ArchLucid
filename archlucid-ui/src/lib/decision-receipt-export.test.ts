@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   buildDecisionReceiptDocument,
   DECISION_RECEIPT_COST_ESTIMATE_LABEL,
+  DECISION_RECEIPT_COST_FIGURES_NOT_STORED,
   DECISION_RECEIPT_SCHEMA_VERSION,
   isExportableDecisionVerdict,
   resolveDecisionReceiptExportBlockedReason,
@@ -33,6 +34,10 @@ describe("decisionReceiptExport", () => {
     expect(receipt.costStory.label).toBe(DECISION_RECEIPT_COST_ESTIMATE_LABEL);
     expect(receipt.verdict.kind).toBe("SoftInfeasible");
     expect(receipt.intake?.freeTextIntent).toBe("Build a workflow.");
+    expect(receipt.costStory.narrative).toBe(DECISION_RECEIPT_COST_FIGURES_NOT_STORED);
+    expect(receipt.costStory.sessionCostUsdEstimate).toBe(0);
+    expect(JSON.stringify(receipt)).not.toContain("25000");
+    expect(JSON.stringify(receipt)).not.toContain("2–4");
   });
 
   it("includes asserted vs inferred transparency trail on export (CD-07)", () => {
