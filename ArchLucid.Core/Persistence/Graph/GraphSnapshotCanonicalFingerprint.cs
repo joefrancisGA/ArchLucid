@@ -358,6 +358,8 @@ public static class GraphSnapshotCanonicalFingerprint
         '\uFF0C',
         '|',
         '\uFF5C',
+        '&',
+        '\uFF06',
     ];
 
     /// <summary>
