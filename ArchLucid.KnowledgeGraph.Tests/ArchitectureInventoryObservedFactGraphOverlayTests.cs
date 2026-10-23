@@ -2860,7 +2860,7 @@ public sealed class ArchitectureInventoryObservedFactGraphOverlayTests
             [
                 new GraphEdge
                 {
-                    EdgeId = "overlay-edge-first",
+                    EdgeId = "shared-overlay-edge-id",
                     FromNodeId = NodeA,
                     ToNodeId = NodeB,
                     EdgeType = GraphEdgeTypes.ConnectsTo,
@@ -2868,7 +2868,7 @@ public sealed class ArchitectureInventoryObservedFactGraphOverlayTests
                 },
                 new GraphEdge
                 {
-                    EdgeId = "overlay-edge-second",
+                    EdgeId = "shared-overlay-edge-id",
                     FromNodeId = $"  {NodeA}  ",
                     ToNodeId = $"  {NodeB}  ",
                     EdgeType = $"  {GraphEdgeTypes.ConnectsTo}  ",
@@ -2921,7 +2921,7 @@ public sealed class ArchitectureInventoryObservedFactGraphOverlayTests
             [
                 new GraphEdge
                 {
-                    EdgeId = "overlay-edge-first",
+                    EdgeId = "shared-overlay-edge-id",
                     FromNodeId = NodeA,
                     ToNodeId = NodeB,
                     EdgeType = GraphEdgeTypes.ConnectsTo,
@@ -2929,7 +2929,7 @@ public sealed class ArchitectureInventoryObservedFactGraphOverlayTests
                 },
                 new GraphEdge
                 {
-                    EdgeId = "overlay-edge-second",
+                    EdgeId = "shared-overlay-edge-id",
                     FromNodeId = NodeA,
                     ToNodeId = NodeB,
                     EdgeType = alternateCaseEdgeType,
@@ -2974,7 +2974,7 @@ public sealed class ArchitectureInventoryObservedFactGraphOverlayTests
             [
                 new GraphEdge
                 {
-                    EdgeId = "overlay-edge-first",
+                    EdgeId = "shared-overlay-edge-id",
                     FromNodeId = NodeA,
                     ToNodeId = NodeB,
                     EdgeType = GraphEdgeTypes.ConnectsTo,
@@ -2982,7 +2982,7 @@ public sealed class ArchitectureInventoryObservedFactGraphOverlayTests
                 },
                 new GraphEdge
                 {
-                    EdgeId = "overlay-edge-second",
+                    EdgeId = "shared-overlay-edge-id",
                     FromNodeId = NodeA.ToUpperInvariant(),
                     ToNodeId = NodeB.ToUpperInvariant(),
                     EdgeType = GraphEdgeTypes.ConnectsTo,
@@ -3028,7 +3028,7 @@ public sealed class ArchitectureInventoryObservedFactGraphOverlayTests
             [
                 new GraphEdge
                 {
-                    EdgeId = "overlay-edge-primary",
+                    EdgeId = "shared-overlay-edge-id",
                     FromNodeId = NodeA,
                     ToNodeId = NodeB,
                     EdgeType = GraphEdgeTypes.ConnectsTo,
@@ -3036,7 +3036,7 @@ public sealed class ArchitectureInventoryObservedFactGraphOverlayTests
                 },
                 new GraphEdge
                 {
-                    EdgeId = "overlay-edge-duplicate",
+                    EdgeId = "shared-overlay-edge-id",
                     FromNodeId = NodeA,
                     ToNodeId = NodeB,
                     EdgeType = GraphEdgeTypes.ConnectsTo,
@@ -3080,7 +3080,7 @@ public sealed class ArchitectureInventoryObservedFactGraphOverlayTests
             [
                 new GraphEdge
                 {
-                    EdgeId = "overlay-edge-first",
+                    EdgeId = "shared-overlay-edge-id",
                     FromNodeId = NodeA,
                     ToNodeId = NodeB,
                     EdgeType = GraphEdgeTypes.ConnectsTo,
@@ -3088,7 +3088,7 @@ public sealed class ArchitectureInventoryObservedFactGraphOverlayTests
                 },
                 new GraphEdge
                 {
-                    EdgeId = "overlay-edge-second",
+                    EdgeId = "shared-overlay-edge-id",
                     FromNodeId = NodeA,
                     ToNodeId = NodeB,
                     EdgeType = GraphEdgeTypes.ConnectsTo,
@@ -3131,7 +3131,7 @@ public sealed class ArchitectureInventoryObservedFactGraphOverlayTests
             [
                 new GraphEdge
                 {
-                    EdgeId = "overlay-edge-primary",
+                    EdgeId = "shared-overlay-edge-id",
                     FromNodeId = NodeA,
                     ToNodeId = NodeB,
                     EdgeType = GraphEdgeTypes.ConnectsTo,
@@ -3139,7 +3139,7 @@ public sealed class ArchitectureInventoryObservedFactGraphOverlayTests
                 },
                 new GraphEdge
                 {
-                    EdgeId = "overlay-edge-duplicate",
+                    EdgeId = "shared-overlay-edge-id",
                     FromNodeId = NodeA,
                     ToNodeId = NodeB,
                     EdgeType = GraphEdgeTypes.ConnectsTo,
@@ -3183,7 +3183,7 @@ public sealed class ArchitectureInventoryObservedFactGraphOverlayTests
             [
                 new GraphEdge
                 {
-                    EdgeId = "overlay-edge-first",
+                    EdgeId = "shared-overlay-edge-id",
                     FromNodeId = NodeA,
                     ToNodeId = NodeB,
                     EdgeType = GraphEdgeTypes.ConnectsTo,
@@ -3191,7 +3191,7 @@ public sealed class ArchitectureInventoryObservedFactGraphOverlayTests
                 },
                 new GraphEdge
                 {
-                    EdgeId = "overlay-edge-second",
+                    EdgeId = "shared-overlay-edge-id",
                     FromNodeId = NodeA,
                     ToNodeId = NodeB,
                     EdgeType = GraphEdgeTypes.ConnectsTo,
@@ -3234,7 +3234,7 @@ public sealed class ArchitectureInventoryObservedFactGraphOverlayTests
             [
                 new GraphEdge
                 {
-                    EdgeId = "overlay-edge-primary",
+                    EdgeId = "shared-overlay-edge-id",
                     FromNodeId = NodeA,
                     ToNodeId = NodeB,
                     EdgeType = GraphEdgeTypes.ConnectsTo,
@@ -3242,7 +3242,7 @@ public sealed class ArchitectureInventoryObservedFactGraphOverlayTests
                 },
                 new GraphEdge
                 {
-                    EdgeId = "overlay-edge-duplicate",
+                    EdgeId = "shared-overlay-edge-id",
                     FromNodeId = NodeA,
                     ToNodeId = NodeB,
                     EdgeType = GraphEdgeTypes.ConnectsTo,
@@ -3286,7 +3286,7 @@ public sealed class ArchitectureInventoryObservedFactGraphOverlayTests
             [
                 new GraphEdge
                 {
-                    EdgeId = "overlay-edge-first",
+                    EdgeId = "shared-overlay-edge-id",
                     FromNodeId = NodeA,
                     ToNodeId = NodeB,
                     EdgeType = GraphEdgeTypes.ConnectsTo,
@@ -3294,7 +3294,7 @@ public sealed class ArchitectureInventoryObservedFactGraphOverlayTests
                 },
                 new GraphEdge
                 {
-                    EdgeId = "overlay-edge-second",
+                    EdgeId = "shared-overlay-edge-id",
                     FromNodeId = NodeA,
                     ToNodeId = NodeB,
                     EdgeType = GraphEdgeTypes.ConnectsTo,
@@ -3338,7 +3338,7 @@ public sealed class ArchitectureInventoryObservedFactGraphOverlayTests
             [
                 new GraphEdge
                 {
-                    EdgeId = "overlay-edge-primary",
+                    EdgeId = "shared-overlay-edge-id",
                     FromNodeId = NodeA,
                     ToNodeId = NodeB,
                     EdgeType = GraphEdgeTypes.ConnectsTo,
@@ -3346,7 +3346,7 @@ public sealed class ArchitectureInventoryObservedFactGraphOverlayTests
                 },
                 new GraphEdge
                 {
-                    EdgeId = "overlay-edge-duplicate",
+                    EdgeId = "shared-overlay-edge-id",
                     FromNodeId = NodeA,
                     ToNodeId = NodeB,
                     EdgeType = GraphEdgeTypes.ConnectsTo,
@@ -3390,7 +3390,7 @@ public sealed class ArchitectureInventoryObservedFactGraphOverlayTests
             [
                 new GraphEdge
                 {
-                    EdgeId = "overlay-edge-first",
+                    EdgeId = "shared-overlay-edge-id",
                     FromNodeId = NodeA,
                     ToNodeId = NodeB,
                     EdgeType = GraphEdgeTypes.ConnectsTo,
@@ -3398,7 +3398,7 @@ public sealed class ArchitectureInventoryObservedFactGraphOverlayTests
                 },
                 new GraphEdge
                 {
-                    EdgeId = "overlay-edge-second",
+                    EdgeId = "shared-overlay-edge-id",
                     FromNodeId = NodeA,
                     ToNodeId = NodeB,
                     EdgeType = GraphEdgeTypes.ConnectsTo,
@@ -3442,7 +3442,7 @@ public sealed class ArchitectureInventoryObservedFactGraphOverlayTests
             [
                 new GraphEdge
                 {
-                    EdgeId = "overlay-edge-primary",
+                    EdgeId = "shared-overlay-edge-id",
                     FromNodeId = NodeA,
                     ToNodeId = NodeB,
                     EdgeType = GraphEdgeTypes.ConnectsTo,
@@ -3450,7 +3450,7 @@ public sealed class ArchitectureInventoryObservedFactGraphOverlayTests
                 },
                 new GraphEdge
                 {
-                    EdgeId = "overlay-edge-duplicate",
+                    EdgeId = "shared-overlay-edge-id",
                     FromNodeId = NodeA,
                     ToNodeId = NodeB,
                     EdgeType = GraphEdgeTypes.ConnectsTo,
@@ -3495,7 +3495,7 @@ public sealed class ArchitectureInventoryObservedFactGraphOverlayTests
             [
                 new GraphEdge
                 {
-                    EdgeId = "overlay-edge-first",
+                    EdgeId = "shared-overlay-edge-id",
                     FromNodeId = NodeA,
                     ToNodeId = NodeB,
                     EdgeType = GraphEdgeTypes.ConnectsTo,
@@ -3503,7 +3503,7 @@ public sealed class ArchitectureInventoryObservedFactGraphOverlayTests
                 },
                 new GraphEdge
                 {
-                    EdgeId = "overlay-edge-second",
+                    EdgeId = "shared-overlay-edge-id",
                     FromNodeId = NodeA,
                     ToNodeId = NodeB,
                     EdgeType = GraphEdgeTypes.ConnectsTo,
@@ -3547,7 +3547,7 @@ public sealed class ArchitectureInventoryObservedFactGraphOverlayTests
             [
                 new GraphEdge
                 {
-                    EdgeId = "overlay-edge-primary",
+                    EdgeId = "shared-overlay-edge-id",
                     FromNodeId = NodeA,
                     ToNodeId = NodeB,
                     EdgeType = GraphEdgeTypes.ConnectsTo,
@@ -3555,7 +3555,7 @@ public sealed class ArchitectureInventoryObservedFactGraphOverlayTests
                 },
                 new GraphEdge
                 {
-                    EdgeId = "overlay-edge-duplicate",
+                    EdgeId = "shared-overlay-edge-id",
                     FromNodeId = NodeA,
                     ToNodeId = NodeB,
                     EdgeType = GraphEdgeTypes.ConnectsTo,
@@ -3599,7 +3599,7 @@ public sealed class ArchitectureInventoryObservedFactGraphOverlayTests
             [
                 new GraphEdge
                 {
-                    EdgeId = "overlay-edge-first",
+                    EdgeId = "shared-overlay-edge-id",
                     FromNodeId = NodeA,
                     ToNodeId = NodeB,
                     EdgeType = GraphEdgeTypes.ConnectsTo,
@@ -3607,7 +3607,7 @@ public sealed class ArchitectureInventoryObservedFactGraphOverlayTests
                 },
                 new GraphEdge
                 {
-                    EdgeId = "overlay-edge-second",
+                    EdgeId = "shared-overlay-edge-id",
                     FromNodeId = NodeA,
                     ToNodeId = NodeB,
                     EdgeType = GraphEdgeTypes.ConnectsTo,
@@ -3651,7 +3651,7 @@ public sealed class ArchitectureInventoryObservedFactGraphOverlayTests
             [
                 new GraphEdge
                 {
-                    EdgeId = "overlay-edge-primary",
+                    EdgeId = "shared-overlay-edge-id",
                     FromNodeId = NodeA,
                     ToNodeId = NodeB,
                     EdgeType = GraphEdgeTypes.ConnectsTo,
@@ -3663,7 +3663,7 @@ public sealed class ArchitectureInventoryObservedFactGraphOverlayTests
                 },
                 new GraphEdge
                 {
-                    EdgeId = "overlay-edge-duplicate",
+                    EdgeId = "shared-overlay-edge-id",
                     FromNodeId = NodeA,
                     ToNodeId = NodeB,
                     EdgeType = GraphEdgeTypes.ConnectsTo,
@@ -3711,7 +3711,7 @@ public sealed class ArchitectureInventoryObservedFactGraphOverlayTests
             [
                 new GraphEdge
                 {
-                    EdgeId = "overlay-edge-first",
+                    EdgeId = "shared-overlay-edge-id",
                     FromNodeId = NodeA,
                     ToNodeId = NodeB,
                     EdgeType = GraphEdgeTypes.ConnectsTo,
@@ -3723,7 +3723,7 @@ public sealed class ArchitectureInventoryObservedFactGraphOverlayTests
                 },
                 new GraphEdge
                 {
-                    EdgeId = "overlay-edge-second",
+                    EdgeId = "shared-overlay-edge-id",
                     FromNodeId = NodeA,
                     ToNodeId = NodeB,
                     EdgeType = GraphEdgeTypes.ConnectsTo,
@@ -3740,6 +3740,106 @@ public sealed class ArchitectureInventoryObservedFactGraphOverlayTests
 
         merged.Edges.Should().ContainSingle().Which.Properties[StructuredDiagramGraphPropertyKeys.ProvenanceKind]
             .Should().Be(StructuredDiagramGraphProvenanceKinds.ObservedFact.ToUpperInvariant());
+    }
+
+    [Fact]
+    public void Merge_throws_when_overlay_duplicate_edges_disagree_on_edge_id()
+    {
+        const string NodeA = "node-a";
+        const string NodeB = "node-b";
+
+        GraphSnapshot baseGraph = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = ContextSnapshotId,
+            RunId = RunId,
+            Nodes =
+            [
+                new GraphNode { NodeId = NodeA, NodeType = GraphNodeTypes.TopologyResource, Label = "A" },
+                new GraphNode { NodeId = NodeB, NodeType = GraphNodeTypes.TopologyResource, Label = "B" },
+            ],
+            Edges = [],
+        };
+
+        GraphSnapshot overlay = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = ContextSnapshotId,
+            RunId = RunId,
+            Nodes = [],
+            Edges =
+            [
+                new GraphEdge
+                {
+                    EdgeId = "overlay-edge-id-primary",
+                    FromNodeId = NodeA,
+                    ToNodeId = NodeB,
+                    EdgeType = GraphEdgeTypes.ConnectsTo,
+                },
+                new GraphEdge
+                {
+                    EdgeId = "overlay-edge-id-duplicate",
+                    FromNodeId = NodeA,
+                    ToNodeId = NodeB,
+                    EdgeType = GraphEdgeTypes.ConnectsTo,
+                },
+            ],
+        };
+
+        Action act = () => ArchitectureInventoryObservedFactGraphOverlayMerger.Merge(baseGraph, overlay);
+
+        act.Should().Throw<ArgumentException>()
+            .WithMessage("*disagree on EdgeId*");
+    }
+
+    [Fact]
+    public void Merge_coalesces_overlay_duplicate_edge_ids_when_edge_ids_differ_only_by_casing()
+    {
+        const string NodeA = "node-a";
+        const string NodeB = "node-b";
+        const string EdgeId = "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee";
+
+        GraphSnapshot baseGraph = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = ContextSnapshotId,
+            RunId = RunId,
+            Nodes =
+            [
+                new GraphNode { NodeId = NodeA, NodeType = GraphNodeTypes.TopologyResource, Label = "A" },
+                new GraphNode { NodeId = NodeB, NodeType = GraphNodeTypes.TopologyResource, Label = "B" },
+            ],
+            Edges = [],
+        };
+
+        GraphSnapshot overlay = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = ContextSnapshotId,
+            RunId = RunId,
+            Nodes = [],
+            Edges =
+            [
+                new GraphEdge
+                {
+                    EdgeId = EdgeId.ToUpperInvariant(),
+                    FromNodeId = NodeA,
+                    ToNodeId = NodeB,
+                    EdgeType = GraphEdgeTypes.ConnectsTo,
+                },
+                new GraphEdge
+                {
+                    EdgeId = EdgeId.ToLowerInvariant(),
+                    FromNodeId = NodeA,
+                    ToNodeId = NodeB,
+                    EdgeType = GraphEdgeTypes.ConnectsTo,
+                },
+            ],
+        };
+
+        GraphSnapshot merged = ArchitectureInventoryObservedFactGraphOverlayMerger.Merge(baseGraph, overlay);
+
+        merged.Edges.Should().ContainSingle().Which.EdgeId.Should().Be(EdgeId.ToUpperInvariant());
     }
 
     [Fact]
