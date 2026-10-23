@@ -5292,21 +5292,28 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** recommendation engine; alternatives
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationEngine.cs; ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationTradeOffBuilder.cs
 - **test-filter:** FullyQualifiedName~ArchitectureRecommendationAlternativesTests|FullyQualifiedName~ArchitectureRecommendationProposedChangeTests
-- **hunts:** 74
+- **hunts:** 75
 - **last-hunt:** 2026-10-23
-- **bugs-found:** 31
+- **bugs-found:** 32
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-23 — `cost control` prose falsely selected Cost dimension
+- **last-bug:** 2026-10-23 — `cost savings` prose falsely selected Cost dimension
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
-2026-10-23 seed hunt (seed→hit): promoted spaced Cost modifier phrases `cost control` / `cost containment` still selecting Cost alongside Security and balancing Security/Cost trade-offs; extended `IsCostTokenInSpacedModifierPhrase`; regression `BuildRecommendations_prefers_security_first_when_priority_is_cost_control_security_uplift`; cheap-disproof closed four sibling `(candidate)` rows; seeded five follow-on rows; scoped Alternatives/ProposedChange/TradeOff tests 70/70.
+2026-10-23 seed hunt (seed→hit): promoted spaced Cost modifier phrases `cost savings` / `cost reduction` still selecting Cost alongside Security; extended `IsCostTokenInSpacedModifierPhrase`; regression `BuildRecommendations_prefers_security_first_when_priority_is_cost_savings_security_program`; cheap-disproof closed four sibling `(candidate)` rows; seeded five follow-on rows; scoped Alternatives/ProposedChange/TradeOff tests 72/72.
 
 - [ ] (candidate) `ArchitectureRecommendationTradeOffBuilder.TryResolveDeclaredPairPrecedence` — multiple explicit pair matches in one priority string only honor the first match — input: comma-joined `Security over Cost, Cost over Security`; reachability: pasted sponsor bullets; wrong outcome: later clause ignored without surfacing ambiguity.
-- [ ] (candidate) `ArchitectureRecommendationTradeOffBuilder.DeclaredPriorityPrefersDimension` — `cost savings` and `cost reduction` still select Cost — input: modifier prose with Security goal; reachability: operator framing; wrong outcome: balanced Security/Cost.
+- [ ] (candidate) `ArchitectureRecommendationTradeOffBuilder.DeclaredPriorityPrefersDimension` — `cost management` and `cost governance` still select Cost — input: modifier prose with Security goal; reachability: operator framing; wrong outcome: balanced Security/Cost.
 - [ ] (candidate) `ArchitectureRecommendationTradeOffBuilder.ApplyTradeOffs` — Security plus DataArchitecture actionable findings produce no trade-off object — input: mixed-dimension review package; contract gap only unless product requires all pairs.
-- [ ] (candidate) `ArchitectureRecommendationTradeOffBuilder.DeclaredPriorityPrefersDimension` — `Cost` in `Costa Rica security program` after compound guard regressions — input: geography phrase; reachability: regional rollout priorities; wrong outcome: Cost-first trade-off.
-- [ ] (candidate) `ArchitectureRecommendationTradeOffBuilder.TryResolveDeclaredPairPrecedence` — `before` syntax not symmetric with `over` when dimensions reversed in text — input: `Security before Cost` vs `Cost before Security` on same finding pair; reachability: sponsor templates.
+- [ ] (candidate) `ArchitectureRecommendationTradeOffBuilder.DeclaredPriorityPrefersDimension` — `low cost security program` selects Cost via `cost` substring in `low cost` — input: two-word cost modifier; reachability: sponsor prose; wrong outcome: balanced Security/Cost.
+- [ ] (candidate) `ArchitectureRecommendationTradeOffBuilder.TryResolveDeclaredPairPrecedence` — explicit pair in later list entry ignored when earlier entry has non-matching explicit pair text — input: `Reliability over Cost` then `Cost over Security` with Security+Cost findings; reachability: multi-bullet priorities.
+
+- [x] (proven) `ArchitectureRecommendationTradeOffBuilder.DeclaredPriorityPrefersDimension` — `cost savings` / `cost reduction` select Cost — **hit 2026-10-23 seed hunt:** spaced modifier list extended; regression `BuildRecommendations_prefers_security_first_when_priority_is_cost_savings_security_program`.
+- [x] (valid-no-repro) `ArchitectureRecommendationTradeOffBuilder.TryResolveDeclaredPairPrecedence` — `before` syntax asymmetry — **cheap-disproof 2026-10-23 seed hunt:** `Security before Cost` and `Cost before Security` both resolve via pair precedence; regression `BuildRecommendations_prefers_security_first_when_priority_says_security_before_cost` plus existing `BuildRecommendations_prefers_cost_first_when_priority_says_cost_before_security`.
+- [x] (valid-no-repro) `ArchitectureRecommendationTradeOffBuilder.DeclaredPriorityPrefersDimension` — `Costa Rica security program` selects Cost — **cheap-disproof 2026-10-23 seed hunt:** word-boundary guard; regression `BuildRecommendations_does_not_treat_costa_rica_priority_as_cost_first`.
+- [x] (invalid) `ArchitectureRecommendationTradeOffBuilder.ApplyTradeOffs` — Security plus DataArchitecture trade-off — **cheap-disproof 2026-10-23 seed hunt:** trade-off matrix covers Security/Cost/Reliability pairs only by contract.
+
+2026-10-23 seed hunt (seed→hit): promoted spaced Cost modifier phrases `cost control` / `cost containment` still selecting Cost alongside Security and balancing Security/Cost trade-offs; extended `IsCostTokenInSpacedModifierPhrase`; regression `BuildRecommendations_prefers_security_first_when_priority_is_cost_control_security_uplift`; cheap-disproof closed four sibling `(candidate)` rows; seeded five follow-on rows; scoped Alternatives/ProposedChange/TradeOff tests 70/70.
 
 - [x] (proven) `ArchitectureRecommendationTradeOffBuilder.DeclaredPriorityPrefersDimension` — `cost control` / `cost containment` select Cost — **hit 2026-10-23 seed hunt:** spaced modifier list extended; regression `BuildRecommendations_prefers_security_first_when_priority_is_cost_control_security_uplift`.
 - [x] (valid-no-repro) `ArchitectureRecommendationTradeOffBuilder.TryResolveDeclaredPairPrecedence` — comma-joined conflicting clauses last wins — **cheap-disproof 2026-10-23 seed hunt:** first `over`/`before` match in string wins; regression `BuildRecommendations_prefers_security_first_when_comma_joined_priority_lists_security_over_cost_first`.
