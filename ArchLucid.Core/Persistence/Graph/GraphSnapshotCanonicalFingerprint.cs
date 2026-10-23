@@ -362,6 +362,7 @@ public static class GraphSnapshotCanonicalFingerprint
         '&',
         '\uFF06',
         '>',
+        '\uFF1E',
     ];
 
     private static string StripReviewCachePathUrlAffixes(string value)
@@ -369,10 +370,16 @@ public static class GraphSnapshotCanonicalFingerprint
         if (value.Length == 0)
             return value;
 
-        const string fileScheme = "file://";
-
-        if (value.StartsWith(fileScheme, StringComparison.OrdinalIgnoreCase))
-            value = value[fileScheme.Length..];
+        if (value.StartsWith("http://", StringComparison.OrdinalIgnoreCase)
+            || value.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
+        {
+            if (Uri.TryCreate(value, UriKind.Absolute, out Uri? absoluteUri) && absoluteUri.IsAbsoluteUri)
+                value = absoluteUri.AbsolutePath;
+        }
+        else if (value.StartsWith("file://", StringComparison.OrdinalIgnoreCase))
+        {
+            value = value["file://".Length..];
+        }
 
         int queryIndex = value.IndexOf('?', StringComparison.Ordinal);
         int fragmentIndex = value.IndexOf('#', StringComparison.Ordinal);
