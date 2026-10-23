@@ -7859,6 +7859,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-agents
 
+2026-10-23 seed hunt (seed→hit): promoted null elements in agent `results` list crashing curated-evidence and finding-emission post-processors; `AgentResultPostExecutionEnricher` and `AgentArchitectureFindingEmissionGate.ApplyToResults` now skip null `AgentResult` entries; regressions `EnrichAsync_skips_null_result_entries_when_proposing_curated_evidence` and `EnrichAsync_skips_null_result_entries_when_withholding_prose_findings`; 145 scoped Application.Tests.Agents tests passed.
+
+- [x] (proven) `AgentResultPostExecutionEnricher` / `AgentArchitectureFindingEmissionGate` — null `AgentResult` list entries aborted post-execution enrichment — **hit 2026-10-23 seed hunt:** null guards in curated-evidence loop and emission gate; regressions above. [class:fail-open-validation]
+
 2026-10-23 seed hunt (seed→hit): promoted null elements in agent `results` list crashing `TopologyProposalDualModelConsensusEnricher` during topology row resolution (`FirstOrDefault` + sibling prune); enricher now skips null `AgentResult` entries; regression `EnrichAsync_skips_null_result_entries_when_resolving_topology_row`; 143 scoped Application.Tests.Agents tests passed.
 
 - [x] (proven) `TopologyProposalDualModelConsensusEnricher.EnrichAsync` — null `AgentResult` list entries aborted dual-model consensus — **hit 2026-10-23 seed hunt:** null guard in topology lookup and sibling prune loops; regression above. [class:fail-open-validation]
@@ -8081,11 +8085,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** application agents; agent handlers wiring
 - **paths:** ArchLucid.Application/Agents/
 - **test-filter:** FullyQualifiedName~Application.Tests.Agents
-- **hunts:** 66
-- **bugs-found:** 60
+- **hunts:** 67
+- **bugs-found:** 61
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-23
-- **last-bug:** 2026-10-23 — null agent result entries crash dual-model consensus enricher
+- **last-bug:** 2026-10-23 — null agent result entries crash curated-evidence and emission enrichers
 
 2026-09-27 seed hunt (seed→hit): proved `TopologyProposalConsensusMerger.Merge` threw when `RequiredControls` was null on topology dual-model proposals (`AgentProposalStructuralPostProcessor` does not initialize controls for `AgentType.Topology`); fixed by null-coalescing in control intersection and disagreement counts; regression `Merge_when_required_controls_is_null_does_not_throw`; 92 scoped Application.Tests.Agents tests passed.
 
