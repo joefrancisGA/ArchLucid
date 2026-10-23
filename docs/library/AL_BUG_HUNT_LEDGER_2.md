@@ -8904,11 +8904,19 @@
 - [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — null `EvaluationState` string — **cheap-disproof 2026-10-23 seed hunt:** `Enum.TryParse` fails → `400 EvaluationState is invalid`.
 - [x] (invalid) `RunsController.CreateRunBatch` — JSON array containing `null` elements — **cheap-disproof 2026-10-23 seed hunt:** batch validation deferred; no failing repro attempted on binder edge in this pass.
 
-- [ ] (candidate) `RunsController.CreateRunBatch` — null element in batch array surfaces 500 — locus: `CreateRunBatchAsync` forward; input: `[null, valid]`; reachability: OpenAPI batch create.
-- [ ] (candidate) `AdminAgentModelCatalogController.RecordEvaluation` — whitespace-only `EvaluationState` — locus: `Enum.TryParse`; input: `"   "`.
-- [ ] (candidate) `RunCoverageController.PutAcknowledgedCoverage` — empty `entries` array vs omitted field — locus: `Entries` null vs `[]`; input: explicit `[]` PUT.
-- [ ] (candidate) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` of `0` — locus: range guard; input: `{ "maxRows": 0 }`.
-- [ ] (candidate) `RunsController.DraftRequest` — Unicode surrogate in `FreeTextDescription` — locus: `ValidateDraftFreeText`; input: invalid surrogate in description.
+- [x] (invalid) `RunsController.CreateRunBatch` — null element in batch array surfaces 500 — **cheap-disproof 2026-10-23 seed hunt #3:** `ArchitectureRunBatchCreateOrchestrator.CreateItemAsync` returns `BatchCreateRunItemFailureKind.NullItem` per null slot; batch accepts 202 with per-item failure, not unhandled NRE.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — whitespace-only `EvaluationState` — **cheap-disproof 2026-10-23 seed hunt #3:** `Enum.TryParse` fails on `"   "` → HTTP 400 `EvaluationState is invalid` (same path as null state).
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — empty `entries` array vs omitted field — **cheap-disproof 2026-10-23 seed hunt #3:** explicit `[]` maps to empty acknowledgement document; distinct from `entries: null` coalesce (prior pass).
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` of `0` — **cheap-disproof 2026-10-23 seed hunt #3:** `request.MaxRows is < 1 or > 500` guard; regression `RetryIntegrationOutboxDeadLetters_returns_bad_request_when_max_rows_is_zero`.
+- [x] (proven) `RunsController.DraftRequest` — Unicode surrogate in `FreeTextDescription` — **cheap-disproof 2026-10-23 seed hunt #3:** already guarded; regression `DraftRequest_returns_bad_request_when_description_contains_invalid_surrogate`.
+
+2026-10-23 seed hunt (seed-only #3): cheap-disproof closed five open `(candidate)` rows from prior reseed; one new `AdminIntegrationsController` regression; 10 scoped RunsController rephrase/draft + AdminIntegrations tests passed on full tree (`RunAnalyzers=false`).
+
+- [ ] (candidate) `RunsController.CreateRunBatch` — batch with all-null items still records idempotency fingerprint — locus: `BuildBatchCreateRunIdempotency`; input: `[null, null]` with `Idempotency-Key`; reachability: OpenAPI batch create retry.
+- [ ] (candidate) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` numeric string outside enum — locus: `Enum.TryParse`; input: `"999"`.
+- [ ] (candidate) `RunCoverageController.PutAcknowledgedCoverage` — duplicate `PolicyPackId` entries in one PUT — locus: acknowledgement mapper; input: two rows same pack id.
+- [ ] (candidate) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` of `501` — locus: upper range guard; input: `{ "maxRows": 501 }`.
+- [ ] (candidate) `RunsController.ChatIntake` — invalid surrogate in free text vs sibling `DraftRequest` guard parity — locus: intake validation path; input: lone surrogate in chat body.
 
 2026-10-23 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows from prior reseed; no new hunt-ready promotion (Rephrase null `Items` already shipped on `bugsmash-2` 01857d53eb); seeded five follow-on `(candidate)` rows; 12 scoped RunsController draft/explain + RunCoverage acknowledgement tests passed.
 
@@ -8928,9 +8936,9 @@
 - **aliases:** authority controllers; admin controllers
 - **paths:** ArchLucid.Api/Controllers/Authority/; ArchLucid.Api/Controllers/Admin/
 - **test-filter:** FullyQualifiedName~AuthorityController|FullyQualifiedName~AdminController
-- **hunts:** 66
+- **hunts:** 67
 - **bugs-found:** 58
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-23
 - **last-bug:** 2026-10-23 — rephrase clarification null item in items array caused 500 instead of validation
 - **related-pd-tb:** none
