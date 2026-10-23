@@ -7859,6 +7859,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-agents
 
+2026-10-23 seed hunt (seed→hit): consolidated null `AgentResult` list slots at the composite post-execution enricher so registered children receive a compacted list (defense in depth after per-enricher guards #136–#141); regression `EnrichAsync_omits_null_result_entries_before_invoking_children`; 148 scoped Application.Tests.Agents tests passed.
+
+- [x] (proven) `CompositeAgentResultPostExecutionEnricher.EnrichAsync` — null list slots forwarded to child enrichers — **hit 2026-10-23 seed hunt:** compact non-null rows before invoking registered enrichers; regression above. [class:fail-open-validation]
+
 2026-10-23 seed hunt (seed→hit): promoted null elements in persisted run results crashing IaC stub generation (`CloneResult` during initial materialization); `FindingIacStubGenerator` now filters null rows before clone and returns when no rows remain; regression `GenerateAndPersistStubsForRunAsync_skips_null_result_entries`; 147 scoped Application.Tests.Agents tests passed.
 
 - [x] (proven) `FindingIacStubGenerator.GenerateAndPersistStubsForRunAsync` — null `AgentResult` list entries aborted stub generation — **hit 2026-10-23 seed hunt:** filter before `Select(CloneResult)`; regression above. [class:fail-open-validation]
@@ -8093,11 +8097,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** application agents; agent handlers wiring
 - **paths:** ArchLucid.Application/Agents/
 - **test-filter:** FullyQualifiedName~Application.Tests.Agents
-- **hunts:** 69
-- **bugs-found:** 63
+- **hunts:** 70
+- **bugs-found:** 64
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-23
-- **last-bug:** 2026-10-23 — null agent result entries crash IaC stub generation
+- **last-bug:** 2026-10-23 — composite post-execution enricher forwarded null result slots
 
 2026-09-27 seed hunt (seed→hit): proved `TopologyProposalConsensusMerger.Merge` threw when `RequiredControls` was null on topology dual-model proposals (`AgentProposalStructuralPostProcessor` does not initialize controls for `AgentType.Topology`); fixed by null-coalescing in control intersection and disagreement counts; regression `Merge_when_required_controls_is_null_does_not_throw`; 92 scoped Application.Tests.Agents tests passed.
 
