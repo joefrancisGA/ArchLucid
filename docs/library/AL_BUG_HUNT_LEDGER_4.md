@@ -12470,10 +12470,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 284
-- **bugs-found:** 186
+- **hunts:** 285
+- **bugs-found:** 187
 - **last-hunt:** 2026-10-23
-- **last-bug:** 2026-10-23 — duplicate ARM rows silently kept conflicting cloudResourceId from first row
+- **last-bug:** 2026-10-23 — duplicate ARM rows silently kept conflicting arm.type from first row
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -12905,7 +12905,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - [x] (proven) `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` — conflicting duplicate-row `CloudResourceId` kept first row cloud stamp silently — **hit 2026-10-23 seed hunt (seed→hit):** cloud id merge/backfill/throw; regressions above.
 
-- [ ] (candidate) `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` — duplicate normalized ARM resource rows with conflicting trimmed `ResourceType` may keep first row `arm.type` — locus: first-wins dedupe without `arm.type` merge policy; input: two ARM-duplicate rows whose trimmed resource types differ; wrong outcome: overlay node retains lexicographically first row `arm.type` and category resolution without surfacing disagreement.
+2026-10-23 seed hunt (seed→hit): promoted `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` conflicting trimmed `ResourceType` on duplicate ARM rows candidate; proved duplicate-row scalar merge ignored `arm.type` so semantically different types and stale topology categories could persist from the lexicographically first row; added `TryMergeResourceTypeFromDuplicateRow` with case-insensitive disagreement throws and backfill that refreshes `Category` when the winning row stamped an empty type; regressions `BuildOverlay_throws_when_duplicate_resource_rows_disagree_on_resource_type` and `BuildOverlay_backfills_arm_type_and_category_from_duplicate_row_when_winning_row_resource_type_is_empty`; seeded `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` duplicate rows whose `Label` differs only by `ResolveLabel` inputs follow-on; 581 KnowledgeGraph + 170 Provenance scoped tests passed.
+
+- [x] (proven) `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` — conflicting duplicate-row `ResourceType` kept first row `arm.type` silently — **hit 2026-10-23 seed hunt (seed→hit):** resource type merge/backfill/throw; regressions above.
+
+- [ ] (candidate) `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` — duplicate normalized ARM resource rows with differing `ResolveLabel` inputs may keep first row `Label` — locus: first-wins node mint without label merge; input: two ARM-duplicate rows whose name segment, resource type, or ARM id trim produce different labels; wrong outcome: overlay node label reflects only the lexicographically first row without surfacing disagreement.
 
 2026-10-22 seed hunt (seed→hit): promoted `StructuredDiagramGraphMerger` padded diagram property-key coalesce candidate; proved duplicate node/edge metadata coalesce indexed raw `property.Key`, so a later compile with surrounding-whitespace keys left parallel bag entries and `GraphNodePropertyReader` could return stale source-evidence values; trim keys before skip/coalesce (parity with `GraphNodeFactory.NormalizePropertyBag`); regression `Merge_coalesces_node_properties_when_incoming_property_keys_differ_only_by_surrounding_whitespace`; seeded diagram edge metadata padded-key coalesce regression follow-on; 468 KnowledgeGraph + 170 Provenance scoped tests passed.
 

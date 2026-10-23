@@ -199,6 +199,7 @@ public static class ArchitectureInventoryObservedFactGraphBuilder
             "arm.subscriptionId",
             resource.SubscriptionId,
             "arm.subscriptionId");
+        TryMergeResourceTypeFromDuplicateRow(resource, node);
         TryMergeParentResourceIdFromDuplicateRow(resource, node);
         TryMergeCloudResourceIdFromDuplicateRow(resource, node);
     }
@@ -228,6 +229,41 @@ public static class ArchitectureInventoryObservedFactGraphBuilder
         }
 
         node.Properties[propertyKey] = incoming;
+    }
+
+    private static void TryMergeResourceTypeFromDuplicateRow(
+        AzureInventoryResourceRecord resource,
+        GraphNode node)
+    {
+        string incomingResourceType = (resource.ResourceType ?? string.Empty).Trim();
+
+        if (incomingResourceType.Length == 0)
+        {
+            return;
+        }
+
+        if (node.Properties.TryGetValue("arm.type", out string? existingResourceType))
+        {
+            string existingTrimmed = existingResourceType.Trim();
+
+            if (existingTrimmed.Length == 0)
+            {
+                node.Properties["arm.type"] = incomingResourceType;
+                node.Category = AzureInventoryTopologyCategory.Resolve(incomingResourceType);
+                return;
+            }
+
+            if (!string.Equals(existingTrimmed, incomingResourceType, StringComparison.OrdinalIgnoreCase))
+            {
+                throw new ArgumentException(
+                    "Inventory overlay duplicate resource rows disagree on arm.type for the same normalized ARM resource id.");
+            }
+
+            return;
+        }
+
+        node.Properties["arm.type"] = incomingResourceType;
+        node.Category = AzureInventoryTopologyCategory.Resolve(incomingResourceType);
     }
 
     private static void TryMergeParentResourceIdFromDuplicateRow(
