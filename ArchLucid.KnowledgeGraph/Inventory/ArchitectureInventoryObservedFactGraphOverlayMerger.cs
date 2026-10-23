@@ -37,7 +37,7 @@ public static class ArchitectureInventoryObservedFactGraphOverlayMerger
                             normalizedInventoryNodeId,
                             StringComparison.OrdinalIgnoreCase));
 
-                    TryValidateOverlayNodeLabelAgreement(inventoryNode, retainedNode);
+                    TryValidateOverlayNodeAgreement(inventoryNode, retainedNode);
                 }
 
                 continue;
@@ -125,6 +125,12 @@ public static class ArchitectureInventoryObservedFactGraphOverlayMerger
 
     private static string NormalizeNodeId(string nodeId) => nodeId.Trim();
 
+    private static void TryValidateOverlayNodeAgreement(GraphNode incomingNode, GraphNode retainedNode)
+    {
+        TryValidateOverlayNodeLabelAgreement(incomingNode, retainedNode);
+        TryValidateOverlayNodeCategoryAgreement(incomingNode, retainedNode);
+    }
+
     private static void TryValidateOverlayNodeLabelAgreement(GraphNode incomingNode, GraphNode retainedNode)
     {
         string incomingLabel = (incomingNode.Label ?? string.Empty).Trim();
@@ -139,6 +145,23 @@ public static class ArchitectureInventoryObservedFactGraphOverlayMerger
         {
             throw new ArgumentException(
                 "Inventory overlay duplicate nodes disagree on Label for the same normalized NodeId.");
+        }
+    }
+
+    private static void TryValidateOverlayNodeCategoryAgreement(GraphNode incomingNode, GraphNode retainedNode)
+    {
+        string incomingCategory = (incomingNode.Category ?? string.Empty).Trim();
+        string retainedCategory = (retainedNode.Category ?? string.Empty).Trim();
+
+        if (incomingCategory.Length == 0 || retainedCategory.Length == 0)
+        {
+            return;
+        }
+
+        if (!string.Equals(retainedCategory, incomingCategory, StringComparison.OrdinalIgnoreCase))
+        {
+            throw new ArgumentException(
+                "Inventory overlay duplicate nodes disagree on Category for the same normalized NodeId.");
         }
     }
 
