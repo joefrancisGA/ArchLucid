@@ -1762,3 +1762,4 @@
 {"at":"2026-10-23T14:04:55.6470593Z","zoneId":"knowledge-graph-provenance","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-23T14:06:13.2816310Z","zoneId":"knowledge-graph-provenance","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-10-23T14:20:16.7032072Z","zoneId":"core-configuration-summary","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-23T14:26:21.7374205Z","zoneId":"host-composition","outcome":"dry","productLine":"archlucid-shared"}
