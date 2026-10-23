@@ -30,6 +30,16 @@ public sealed partial class InMemoryValueReportJobQueue(
     private const string MissingCompletedDocumentErrorMessage =
         "Value report job completed but the document is unavailable — retry the async export.";
 
+    private static JobEntry PreferDistributedPollState(JobEntry local, JobEntry distributed) =>
+        local.Phase switch
+        {
+            JobPhase.Pending when distributed.Phase is JobPhase.Completed or JobPhase.Failed => distributed,
+            JobPhase.Completed when distributed.Phase == JobPhase.Failed => distributed,
+            JobPhase.Completed when local.Bytes is not { Length: > 0 } &&
+                                    distributed is { Phase: JobPhase.Completed, Bytes: { Length: > 0 } } => distributed,
+            _ => local,
+        };
+
     private void PruneTerminalLocalJobs()
     {
         foreach (Guid jobId in _jobs.Keys.ToArray())
@@ -54,10 +64,9 @@ public sealed partial class InMemoryValueReportJobQueue(
             if (entry is null)
                 return new ValueReportJobPollResult(false, false, null, null, null);
         }
-        else if (entry.Phase == JobPhase.Pending &&
-                 distributed is { Phase: JobPhase.Completed or JobPhase.Failed })
+        else if (distributed is not null)
         {
-            entry = distributed;
+            entry = PreferDistributedPollState(entry, distributed);
         }
 
         if (entry.Request.TenantId != scopedTenantId)

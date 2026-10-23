@@ -1,3 +1,5 @@
+using System.Reflection;
+
 using ArchLucid.Application.Value;
 using ArchLucid.ArtifactSynthesis.Docx;
 using ArchLucid.Contracts.ValueReports;
@@ -162,6 +164,92 @@ public sealed class InMemoryValueReportJobQueueDistributedPollStateTests
         poll.Found.Should().BeTrue();
         poll.Completed.Should().BeFalse();
         poll.ErrorMessage.Should().Contain("document is unavailable");
+    }
+
+    [Fact]
+    public async Task TryPoll_prefers_distributed_completed_bytes_when_local_completed_has_no_document()
+    {
+        ServiceCollection services = BuildValueReportJobServices();
+        DictionaryPollStateCache pollStateCache = new();
+        services.AddSingleton<IValueReportJobPollStateCache>(pollStateCache);
+        ServiceProvider provider = services.BuildServiceProvider();
+        IServiceScopeFactory scopeFactory = provider.GetRequiredService<IServiceScopeFactory>();
+
+        InMemoryValueReportJobQueue instance =
+            new(scopeFactory, pollStateCache, NullLogger<InMemoryValueReportJobQueue>.Instance);
+
+        Guid tenantId = Guid.NewGuid();
+        Guid workspaceId = Guid.NewGuid();
+        Guid projectId = Guid.NewGuid();
+        DateTimeOffset from = DateTimeOffset.UtcNow.AddDays(-7);
+        DateTimeOffset to = DateTimeOffset.UtcNow;
+        ValueReportJobRequest request = new(tenantId, workspaceId, projectId, from, to);
+
+        Guid jobId = instance.Enqueue(request);
+
+        for (int attempt = 0; attempt < 40; attempt++)
+        {
+            ValueReportJobPollResult poll = instance.TryPoll(jobId, tenantId);
+
+            if (poll.Completed && poll.DocxBytes is not null)
+                break;
+
+            await Task.Delay(25);
+        }
+
+        ReplaceLocalJobBytes(instance, jobId, null);
+
+        ValueReportJobPollResult recovered = instance.TryPoll(jobId, tenantId);
+
+        recovered.Found.Should().BeTrue();
+        recovered.Completed.Should().BeTrue();
+        recovered.DocxBytes.Should().NotBeEmpty();
+    }
+
+    [Fact]
+    public void TryPoll_prefers_distributed_failure_when_local_completed_has_no_document_bytes()
+    {
+        ServiceCollection services = BuildValueReportJobServices();
+        DictionaryPollStateCache pollStateCache = new();
+        services.AddSingleton<IValueReportJobPollStateCache>(pollStateCache);
+        ServiceProvider provider = services.BuildServiceProvider();
+        IServiceScopeFactory scopeFactory = provider.GetRequiredService<IServiceScopeFactory>();
+
+        InMemoryValueReportJobQueue instance =
+            new(scopeFactory, pollStateCache, NullLogger<InMemoryValueReportJobQueue>.Instance);
+
+        Guid tenantId = Guid.NewGuid();
+        Guid workspaceId = Guid.NewGuid();
+        Guid projectId = Guid.NewGuid();
+        Guid jobId = Guid.NewGuid();
+        DateTimeOffset from = DateTimeOffset.UtcNow.AddDays(-7);
+        DateTimeOffset to = DateTimeOffset.UtcNow;
+        ValueReportJobRequest request = new(tenantId, workspaceId, projectId, from, to);
+
+        ReplaceLocalJobEntry(
+            instance,
+            jobId,
+            request,
+            "Completed",
+            null,
+            "report.docx",
+            null);
+
+        string payload =
+            $$"""
+              {"tenantId":"{{tenantId}}","workspaceId":"{{workspaceId}}","projectId":"{{projectId}}","fromUtcInclusive":"{{from:O}}","toUtcExclusive":"{{to:O}}","phase":"Failed","bytesBase64":null,"fileName":"report.docx","errorMessage":"Distributed failure after corrupt local state."}
+              """;
+
+        pollStateCache.Set(
+            $"archlucid:value-report-job:{jobId:N}",
+            System.Text.Encoding.UTF8.GetBytes(payload),
+            new DistributedCacheEntryOptions());
+
+        ValueReportJobPollResult poll = instance.TryPoll(jobId, tenantId);
+
+        poll.Found.Should().BeTrue();
+        poll.Completed.Should().BeFalse();
+        poll.ErrorMessage.Should().Contain("Distributed failure after corrupt local state");
     }
 
     [Fact]
@@ -517,6 +605,70 @@ public sealed class InMemoryValueReportJobQueueDistributedPollStateTests
         public byte[]? Get(string key) => _payloads.TryGetValue(key, out byte[]? payload) ? payload : null;
 
         public void Remove(string key) => _payloads.Remove(key);
+    }
+
+    private static void ReplaceLocalJobBytes(InMemoryValueReportJobQueue queue, Guid jobId, byte[]? bytes)
+    {
+        object jobs = GetJobsDictionary(queue);
+        object existing = GetJobEntry(jobs, jobId);
+        SetJobEntry(jobs, jobId, CreateJobEntryFromExisting(existing, bytes));
+    }
+
+    private static void ReplaceLocalJobEntry(
+        InMemoryValueReportJobQueue queue,
+        Guid jobId,
+        ValueReportJobRequest request,
+        string phaseName,
+        byte[]? bytes,
+        string? fileName,
+        string? errorMessage)
+    {
+        SetJobEntry(GetJobsDictionary(queue), jobId, CreateJobEntry(request, phaseName, bytes, fileName, errorMessage));
+    }
+
+    private static object GetJobsDictionary(InMemoryValueReportJobQueue queue)
+    {
+        FieldInfo field = typeof(InMemoryValueReportJobQueue).GetField(
+            "_jobs",
+            BindingFlags.Instance | BindingFlags.NonPublic)
+            ?? throw new InvalidOperationException("_jobs field not found.");
+
+        return field.GetValue(queue)!;
+    }
+
+    private static object GetJobEntry(object jobs, Guid jobId) =>
+        jobs.GetType().GetProperty("Item")!.GetValue(jobs, [jobId])
+        ?? throw new InvalidOperationException("Local job entry was not found.");
+
+    private static void SetJobEntry(object jobs, Guid jobId, object entry) =>
+        jobs.GetType().GetProperty("Item")!.SetValue(jobs, entry, [jobId]);
+
+    private static object CreateJobEntryFromExisting(object existing, byte[]? bytes)
+    {
+        Type entryType = existing.GetType();
+        ValueReportJobRequest request = (ValueReportJobRequest)entryType.GetProperty("Request")!.GetValue(existing)!;
+        object phase = entryType.GetProperty("Phase")!.GetValue(existing)!;
+        string? fileName = (string?)entryType.GetProperty("FileName")!.GetValue(existing);
+        string? errorMessage = (string?)entryType.GetProperty("ErrorMessage")!.GetValue(existing);
+
+        return Activator.CreateInstance(entryType, request, phase, bytes, fileName, errorMessage)!;
+    }
+
+    private static object CreateJobEntry(
+        ValueReportJobRequest request,
+        string phaseName,
+        byte[]? bytes,
+        string? fileName,
+        string? errorMessage)
+    {
+        Type queueType = typeof(InMemoryValueReportJobQueue);
+        Type entryType = queueType.GetNestedType("JobEntry", BindingFlags.NonPublic)
+            ?? throw new InvalidOperationException("JobEntry type not found.");
+        Type phaseType = queueType.GetNestedType("JobPhase", BindingFlags.NonPublic)
+            ?? throw new InvalidOperationException("JobPhase type not found.");
+        object phase = Enum.Parse(phaseType, phaseName);
+
+        return Activator.CreateInstance(entryType, request, phase, bytes, fileName, errorMessage)!;
     }
 
     private sealed class TestOptionsMonitor<T>(T value) : IOptionsMonitor<T>
