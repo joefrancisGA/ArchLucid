@@ -92,6 +92,8 @@ public sealed partial class ComparisonsApplicationService(
         int limit = criteria.Limit <= 0 ? Core.Pagination.PaginationDefaults.DefaultPageSize : criteria.Limit;
         string? leftRunIdFilter = CanonicalRunIdForLookupOrNull(criteria.LeftRunId);
         string? rightRunIdFilter = CanonicalRunIdForLookupOrNull(criteria.RightRunId);
+        string? leftExportRecordIdFilter = NormalizeExportRecordIdFilterOrNull(criteria.LeftExportRecordId);
+        string? rightExportRecordIdFilter = NormalizeExportRecordIdFilterOrNull(criteria.RightExportRecordId);
 
         IReadOnlyList<ComparisonRecord> records;
 
@@ -103,8 +105,8 @@ public sealed partial class ComparisonsApplicationService(
                 rightRunIdFilter,
                 criteria.CreatedFromUtc,
                 criteria.CreatedToUtc,
-                criteria.LeftExportRecordId,
-                criteria.RightExportRecordId,
+                leftExportRecordIdFilter,
+                rightExportRecordIdFilter,
                 criteria.Label,
                 criteria.Tags.ToList(),
                 criteria.SortBy,
@@ -122,8 +124,8 @@ public sealed partial class ComparisonsApplicationService(
                 rightRunIdFilter,
                 criteria.CreatedFromUtc,
                 criteria.CreatedToUtc,
-                criteria.LeftExportRecordId,
-                criteria.RightExportRecordId,
+                leftExportRecordIdFilter,
+                rightExportRecordIdFilter,
                 criteria.Label,
                 criteria.Tags.ToList(),
                 criteria.SortBy,
@@ -240,4 +242,9 @@ public sealed partial class ComparisonsApplicationService(
 
     private static string? CanonicalRunIdForLookupOrNull(string? runId) =>
         string.IsNullOrWhiteSpace(runId) ? runId : CanonicalRunIdForLookup(runId);
+
+    private static string? NormalizeExportRecordIdFilterOrNull(string? exportRecordId) =>
+        string.IsNullOrWhiteSpace(exportRecordId)
+            ? null
+            : RunExportRecordIdNormalizer.NormalizeRequired(exportRecordId);
 }

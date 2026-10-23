@@ -6868,24 +6868,24 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
-2026-10-23 seed hunt (seed→hit): proved comparison search and in-memory paging filters used exact `LeftExportRecordId`/`RightExportRecordId` equality while list-by-export had gained trim parity, so padded export filters missed legacy padded anchors (skip and cursor search included); aligned `ComparisonRecordSearchPredicateBuilder` SQL with `LTRIM(RTRIM(...))` and `ComparisonRecordRepositoryCore.FilterInMemory` with `ComparisonExportRecordIdLookup`; regression `CompareQuality_SearchAsync_finds_records_when_left_export_filter_is_padded_and_stored_anchor_has_padding`; cheap-disproof closed three follow-on `(candidate)` rows; seeded five follow-on rows; scoped application-analysis filter 58/58. Private beta: comparison search by export id matches padded query parameters and stored anchors.
+2026-10-23 seed hunt (seed→hit): proved legacy `RunExportRecords` rows could keep padded `ExportRecordId` primary keys so `IRunExportRecordRepository.GetByIdAsync` missed scoped export loads after trim-only callers, and `ComparisonsApplicationService.SearchAsync` forwarded raw padded export filters before repository/SQL trim; aligned persistence `GetByIdAsync` (`RunExportRecordRepository`, `InMemoryRunExportRecordRepository`) with `ComparisonExportRecordIdLookup` and application search with `NormalizeExportRecordIdFilterOrNull`; regressions `GetById_matches_when_stored_primary_key_has_surrounding_whitespace`, `GetById_matches_when_lookup_id_has_surrounding_whitespace`, and `CompareQuality_SearchAsync_passes_trimmed_export_record_filters_to_repository`; cheap-disproof closed three follow-on `(candidate)` rows; seeded five follow-on rows; scoped application-analysis filter 58/58. Private beta: export record lookup and comparison search tolerate padded export ids at persistence and application boundaries.
 
-- [ ] (candidate) `ComparisonsApplicationService.SearchAsync` — passes raw `LeftExportRecordId` criteria without normalizing before repository — locus: application boundary; input: verify trim only at persistence (documented) vs duplicate normalizer.
-- [ ] (candidate) `ComparisonHistorySearchCriteria` validator — does not reject whitespace-only export id strings before search — locus: API validation; input: `leftExportRecordId=%20%20`.
-- [ ] (candidate) `RunExportRecordRepository.GetByIdAsync` — persistence trim at SQL layer for export records — locus: cross-tenant id lookup; input: padded export record primary key.
+- [ ] (candidate) `RunExportRecordRepository.CreateAsync` — does not trim `ExportRecordId` on insert — locus: new export persistence; input: padded id from replay audit path.
+- [ ] (candidate) `InMemoryRunExportRecordRepository.CreateAsync` — padded vs trimmed duplicate keys in `_byExportId` — locus: dev/test in-memory store; input: two creates differing only by padding.
+- [ ] (candidate) `ComparisonHistorySearchCriteria` OpenAPI binding — whitespace-only `rightExportRecordId` not coerced before cursor search — locus: API model binding; input: `%20` right filter only.
 - [ ] (candidate) `ExportsController.GetExportRecord` — 404 problem detail echoes untrimmed route token — locus: client diagnostics; input: padded id after normalization miss.
 - [ ] (candidate) `CompareQualityDeltaExportFormatter.RemoveMarkdownSection` — heading match sensitive to Unicode space before `## Compare Quality Delta` — locus: PDF/DOCX delta re-append; input: NBSP-prefixed heading line.
+
+- [x] (proven) `RunExportRecordRepository.GetByIdAsync` / `InMemoryRunExportRecordRepository.GetByIdAsync` — padded primary keys missed trim-aware lookup — **hit 2026-10-23 seed hunt:** `ComparisonExportRecordIdLookup`; regressions `GetById_matches_when_stored_primary_key_has_surrounding_whitespace` and `GetById_matches_when_lookup_id_has_surrounding_whitespace`.
+- [x] (proven) `ComparisonsApplicationService.SearchAsync` — forwarded unpadded-trim export filters at application boundary — **hit 2026-10-23 seed hunt:** `NormalizeExportRecordIdFilterOrNull`; regression `CompareQuality_SearchAsync_passes_trimmed_export_record_filters_to_repository`.
+- [x] (valid-no-repro) `ComparisonHistorySearchCriteria` validator — whitespace-only export id strings — **cheap-disproof 2026-10-23 seed hunt:** application search coerces whitespace-only filters to `null` (no over-broad query).
+
+2026-10-23 seed hunt (seed→hit): proved comparison search and in-memory paging filters used exact `LeftExportRecordId`/`RightExportRecordId` equality while list-by-export had gained trim parity, so padded export filters missed legacy padded anchors (skip and cursor search included); aligned `ComparisonRecordSearchPredicateBuilder` SQL with `LTRIM(RTRIM(...))` and `ComparisonRecordRepositoryCore.FilterInMemory` with `ComparisonExportRecordIdLookup`; regression `CompareQuality_SearchAsync_finds_records_when_left_export_filter_is_padded_and_stored_anchor_has_padding`; cheap-disproof closed three follow-on `(candidate)` rows; seeded five follow-on rows; scoped application-analysis filter 57/57 (includes new search regression). Private beta: comparison search by export id matches padded query parameters and stored anchors.
 
 - [x] (proven) `ComparisonRecordSearchPredicateBuilder` / `ComparisonRecordRepositoryCore.FilterInMemory` — padded export id search filters missed padded stored anchors — **hit 2026-10-23 seed hunt:** shared `ComparisonExportRecordIdLookup`; regression `CompareQuality_SearchAsync_finds_records_when_left_export_filter_is_padded_and_stored_anchor_has_padding`.
 - [x] (valid-no-repro) `ComparisonRecordRepository.SearchByCursorAsync` — separate trim gap from skip search — **cheap-disproof 2026-10-23 seed hunt:** cursor paging reuses `AppendFilters` and `FilterInMemory`; fixed with same hunt.
 - [x] (invalid) `RunExportRecordRepository.GetByIdAsync` — SQL trim for export primary keys — **cheap-disproof 2026-10-23 seed hunt:** application/API layers normalize before lookup this hunt series; persistence key trim deferred unless repro at SQL layer.
 - [x] (valid-no-repro) `ExportsController.GetExportRecord` — 404 echoes padded route token — **cheap-disproof 2026-10-23 seed hunt:** diagnostic-only; successful paths normalize before load.
-
-- [ ] (candidate) `ComparisonRecordSearchPredicateBuilder` — search filters on `LeftExportRecordId` without trim parity — locus: comparison search API; input: padded export id query parameter.
-- [ ] (candidate) `ComparisonRecordRepository.SearchByCursorAsync` — cursor search export filters omit trim — locus: paged comparison history; input: padded export anchor filter.
-- [ ] (candidate) `RunExportRecordRepository.GetByIdAsync` — persistence trim at SQL layer for export records — locus: cross-tenant id lookup; input: padded export record primary key.
-- [ ] (candidate) `ExportsController.GetExportRecord` — 404 problem detail echoes untrimmed route token — locus: client diagnostics; input: padded id after normalization miss.
-- [ ] (candidate) `CompareQualityDeltaExportFormatter.RemoveMarkdownSection` — heading match sensitive to Unicode space before `## Compare Quality Delta` — locus: PDF/DOCX delta re-append; input: NBSP-prefixed heading line.
 
 2026-10-23 seed hunt (seed→hit): proved `GetByExportRecordIdAsync` used ordinal equality on stored comparison anchors, so rows persisted with padded `LeftExportRecordId`/`RightExportRecordId` were invisible to trimmed list-by-export queries after the application-layer normalizer fix; added `ComparisonExportRecordIdLookup` with trim-aware in-memory matching and `LTRIM(RTRIM(...))` SQL predicates; `ComparisonAuditService.RecordExportDiffAsync` now trims anchors on persist; regressions `GetByExportRecordIdAsync_matches_when_stored_anchor_has_surrounding_whitespace` and `RecordExportDiffAsync_trims_surrounding_whitespace_on_export_record_anchors`; cheap-disproof closed three follow-on `(candidate)` rows; seeded five follow-on rows; scoped application-analysis filter 57/57. Private beta: comparison history by export id finds legacy padded anchors and new diffs store canonical ids.
 
@@ -7085,11 +7085,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 79
-- **bugs-found:** 74
+- **hunts:** 81
+- **bugs-found:** 76
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-23
-- **last-bug:** 2026-10-23 — padded comparison export anchors broke list-by-export queries
+- **last-bug:** 2026-10-23 — padded export record primary keys broke scoped export lookup
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 

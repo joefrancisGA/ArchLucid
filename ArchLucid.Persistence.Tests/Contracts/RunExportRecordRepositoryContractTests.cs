@@ -47,6 +47,42 @@ public abstract class RunExportRecordRepositoryContractTests
     }
 
     [SkippableFact]
+    public async Task GetById_matches_when_stored_primary_key_has_surrounding_whitespace()
+    {
+        SkipIfSqlServerUnavailable();
+        IRunExportRecordRepository repo = CreateRepository();
+        string runId = Guid.NewGuid().ToString("N");
+        string requestId = "req-exp-pad-" + Guid.NewGuid().ToString("N");
+        await PrepareRunAsync(requestId, runId, CancellationToken.None);
+        string exportId = "exp-" + Guid.NewGuid().ToString("N");
+
+        await repo.CreateAsync(NewRecord($"  {exportId}  ", runId, new DateTime(2026, 4, 2, 12, 0, 0, DateTimeKind.Utc)), CancellationToken.None);
+
+        RunExportRecord? loaded = await repo.GetByIdAsync(exportId, CancellationToken.None);
+
+        loaded.Should().NotBeNull();
+        loaded!.ExportRecordId.Should().Be($"  {exportId}  ");
+    }
+
+    [SkippableFact]
+    public async Task GetById_matches_when_lookup_id_has_surrounding_whitespace()
+    {
+        SkipIfSqlServerUnavailable();
+        IRunExportRecordRepository repo = CreateRepository();
+        string runId = Guid.NewGuid().ToString("N");
+        string requestId = "req-exp-pad2-" + Guid.NewGuid().ToString("N");
+        await PrepareRunAsync(requestId, runId, CancellationToken.None);
+        string exportId = "exp-" + Guid.NewGuid().ToString("N");
+
+        await repo.CreateAsync(NewRecord(exportId, runId, new DateTime(2026, 4, 2, 13, 0, 0, DateTimeKind.Utc)), CancellationToken.None);
+
+        RunExportRecord? loaded = await repo.GetByIdAsync($"  {exportId}  ", CancellationToken.None);
+
+        loaded.Should().NotBeNull();
+        loaded!.ExportRecordId.Should().Be(exportId);
+    }
+
+    [SkippableFact]
     public async Task GetByRunId_orders_descending_by_CreatedUtc()
     {
         SkipIfSqlServerUnavailable();

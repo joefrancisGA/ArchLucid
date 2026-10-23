@@ -171,17 +171,18 @@ public sealed class RunExportRecordRepository(IDbConnectionFactory connectionFac
         string exportRecordId,
         CancellationToken cancellationToken = default)
     {
+        string normalizedExportRecordId = ComparisonExportRecordIdLookup.NormalizeLookupKey(exportRecordId);
         const string sql = """
                            SELECT RecordJson
                            FROM RunExportRecords
-                           WHERE ExportRecordId = @ExportRecordId;
+                           WHERE LTRIM(RTRIM(ExportRecordId)) = @ExportRecordId;
                            """;
 
         using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         string? json = await connection.QuerySingleOrDefaultAsync<string>(new CommandDefinition(
             sql,
-            new { ExportRecordId = exportRecordId },
+            new { ExportRecordId = normalizedExportRecordId },
             cancellationToken: cancellationToken));
 
         if (json is null)
@@ -195,7 +196,7 @@ public sealed class RunExportRecordRepository(IDbConnectionFactory connectionFac
         catch (JsonException ex)
         {
             throw new InvalidOperationException(
-                $"RunExportRecord JSON for '{exportRecordId}' could not be deserialized. " +
+                $"RunExportRecord JSON for '{normalizedExportRecordId}' could not be deserialized. " +
                 "The stored JSON may be corrupt or written by an incompatible schema version.", ex);
         }
 

@@ -82,10 +82,21 @@ public sealed class InMemoryRunExportRecordRepository : IRunExportRecordReposito
         CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        lock (_gate)
+        string normalizedExportRecordId = ComparisonExportRecordIdLookup.NormalizeLookupKey(exportRecordId);
 
-            return Task.FromResult(
-                _byExportId.TryGetValue(exportRecordId, out RunExportRecord? r) ? Clone(r) : null);
+        lock (_gate)
+        {
+            if (_byExportId.TryGetValue(normalizedExportRecordId, out RunExportRecord? direct))
+                return Task.FromResult<RunExportRecord?>(Clone(direct));
+
+            foreach (KeyValuePair<string, RunExportRecord> entry in _byExportId)
+            {
+                if (ComparisonExportRecordIdLookup.StoredValueMatchesLookup(entry.Key, normalizedExportRecordId))
+                    return Task.FromResult<RunExportRecord?>(Clone(entry.Value));
+            }
+
+            return Task.FromResult<RunExportRecord?>(null);
+        }
     }
 
     private static RunExportRecord Clone(RunExportRecord source)
