@@ -8815,6 +8815,19 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: architecture-intelligence-orchestrator
 
+2026-10-23 seed hunt (seed-only): cheap-disproof closed five `(candidate)` rows from hunt #168; regression `Set_reinserts_after_deferred_invalidation_unpin_clears_tombstone` documents deferred tombstone flush on unpin before re-`Set`; re-read single-flight leader abort, composite pin caps, and continue coalesce manifest paths; seeded five mechanism-backed `(candidate)` rows below; 500 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (valid-no-repro) `ReviewResultCache.CoalesceAsync` — leader completion when `CacheReuseReason` differs — **cheap-disproof 2026-10-23 seed hunt:** cache keys omit reuse metadata; followers inherit leader `CacheReuseReason` (`CoalesceAsync_concurrent_waiters_all_receive_cache_hit_metadata`).
+- [x] (valid-no-repro) `ClosedLoopCacheHitPublishGuard.SanitizeForStorage` — follower publish-block alignment — **cheap-disproof 2026-10-23 seed hunt:** `CoalesceAsync_analysis_follower_strips_publish_block_from_blocked_leader` and `stripCoalescedFollowerPublishLeaks: !publishToProduct` on coordinator path.
+- [x] (valid-no-repro) `ReviewCacheKeyBuilder.Build` — whitespace-only declared priorities — **cheap-disproof 2026-10-23 seed hunt:** `Build_matches_declared_priorities_hash_when_request_priorities_are_whitespace_only_vs_empty_list` and `Build_matches_content_hash_when_baseline_declared_priorities_are_whitespace_only_vs_empty_list`.
+- [x] (valid-no-repro) `ClosedLoopArchitectureReasoningOrchestrator.RunAsync` — publish path `Set` sanitization — **cheap-disproof 2026-10-23 seed hunt:** `ReviewResultCache.Set` always calls `ClosedLoopCacheHitPublishGuard.SanitizeForStorage`; publish cache writes go through `ClosedLoopPublishStage`.
+- [x] (valid-no-repro) `ReviewResultCache.Set` — tombstone before insert after unpin — **cheap-disproof 2026-10-23 seed hunt:** `FlushDeferredInvalidations` clears tombstone when pins drop; regression `Set_reinserts_after_deferred_invalidation_unpin_clears_tombstone`.
+- [ ] (candidate) `ReviewSingleFlightCoordinator.CoalesceAsync` — leader `OperationCanceledException` retries flight while follower still attached — locus: `ReviewCacheSingleFlightLeaderAbortedException` catch; input: cancel in-flight analysis coalesce then immediate follower `CoalesceAsync`.
+- [ ] (candidate) `ReviewResultCache.PinScope` — composite dual-manifest pin when distinct-key cap reached mid-scope — locus: `ReviewResultCacheCompositePinScope`; input: saturate `MaxDistinctPinnedStorageKeys` then acquire `PinScope(primary, secondary)`.
+- [ ] (candidate) `ClosedLoopContinueRunSingleFlight` — continue coalesce key when `ExistingRunId` differs only by GUID format — locus: `BuildCoalesceKey`; input: hyphenated vs compact run id on identical continue manifest.
+- [ ] (candidate) `ReviewCacheManifestBuilder.HashContent` — duplicate `SourceTexts` rows differing only by `FileType` casing after normalize — locus: attachment dedupe `GroupBy`; input: same path/content with `md` vs `MD` file type tokens.
+- [ ] (candidate) `ReviewResultCache.TryGet` — hit on storage key reserved via pin-without-entry then populated by concurrent `Set` — locus: `_pinReservationsWithoutCacheEntry`; input: `PinStorageKey` before first `Set` on manifest key.
+
 2026-10-23 seed hunt (seed-only): cheap-disproof closed five `(candidate)` rows from hunt #167; no production change; 499 scoped orchestrator/cache/manifest/continue-flight tests passed plus `ClosedLoopReasoningRequestSnapshotTests.Capture_coalesces_null_framing_answers_assignment_to_empty_dictionary`.
 
 - [x] (valid-no-repro) `ReviewResultCache.InvalidateForRun` — tombstone FIFO when all entries pinned — **cheap-disproof 2026-10-23 seed hunt:** `AddTombstonedRunId_skips_fifo_drop_when_tombstone_has_pinned_entries` documents intentional cap behavior.
@@ -8822,11 +8835,6 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - [x] (valid-no-repro) `ClosedLoopArchitectureReasoningOrchestrator.RunAsync` — null vs empty technology ledger — **cheap-disproof 2026-10-23 seed hunt:** `Build_matches_content_hash_when_technology_ledger_is_null_vs_empty_list`.
 - [x] (valid-no-repro) `ReviewResultCache.TryGet` — pinned expiry refresh via `TimeProvider` — **cheap-disproof 2026-10-23 seed hunt:** `TryGet_returns_pinned_expired_entry_and_refreshes_ttl`.
 - [x] (valid-no-repro) `ReviewCacheManifestBuilder.BuildContinueFromExistingRunCoalesceManifest` — continue tenant whitespace — **cheap-disproof 2026-10-23 seed hunt:** `BuildContinueFromExistingRunCoalesceManifest_matches_hash_when_tenant_differs_only_by_surrounding_whitespace`.
-- [ ] (candidate) `ReviewResultCache.CoalesceAsync` — leader completion after follower queued when manifest `ContentHash` collides but `ReuseReason` differs — locus: `ReviewSingleFlightCoordinator`; input: parallel `CoalesceAsync` with distinct reuse metadata strings.
-- [ ] (candidate) `ClosedLoopCacheHitPublishGuard.SanitizeForStorage` — blocked publish rerun leaves follower `PublishBlock` flags aligned with leader sanitize — locus: `CoalesceAsync` follower path; input: re-read existing analysis-follower regressions before promotion.
-- [ ] (candidate) `ReviewCacheKeyBuilder.Build` — storage partition omits `DeclaredPrioritiesHash` when priorities normalize to empty but hash still differs on whitespace-only priority rows — locus: `HashPriorities`; input: priorities list of whitespace-only strings vs empty.
-- [ ] (candidate) `ClosedLoopArchitectureReasoningOrchestrator.RunAsync` — `PublishToProduct` true skips `TryGet` but still writes `Set` with unsanitized publish fields — locus: `CoalesceReviewCacheMissAsync`; input: publish path with prior blocked analysis artifact.
-- [ ] (candidate) `ReviewResultCache.Set` — re-entry after `UnpinStorageKey` on deferred invalidation does not clear tombstone before insert — locus: `RemoveTombstonedRunId`; input: invalidate while pinned then unpin and set same run id.
 
 2026-10-23 seed hunt (seed-only): paused single-scalar list-marker separator expansion after the white/triangular bullet hit; cheap-disproof regression `Build_changes_content_hash_when_file_name_differs_only_by_bullet_operator_between_segments` documents bullet operator U+2219 still splits `ContentHash` pending a consolidated separator-table batch; re-read orchestrator continue-coalesce, `ReviewResultCache` tombstone/pin eviction, and manifest hash paths; no hunt-ready row promoted; seeded five mechanism-backed `(candidate)` rows below; 499 scoped orchestrator/cache/manifest/continue-flight tests passed.
 
@@ -9583,9 +9591,9 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** closed-loop orchestrator; review result cache; architecture intelligence
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.cs; ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.Cache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewResultCache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewCacheManifestBuilder.cs
 - **test-filter:** FullyQualifiedName~ClosedLoopArchitectureReasoningOrchestrator|FullyQualifiedName~ReviewResultCache|FullyQualifiedName~ReviewCacheManifestBuilder
-- **hunts:** 110
+- **hunts:** 111
 - **bugs-found:** 95
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 3
 - **last-hunt:** 2026-10-23
 - **last-bug:** 2026-10-23 — white-bullet and triangular-bullet alternate path separators split review-cache `ContentHash`
 - **related-pd-tb:** none
