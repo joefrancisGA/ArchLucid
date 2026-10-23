@@ -7859,6 +7859,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-agents
 
+2026-10-23 seed hunt (seed→hit): promoted null elements in persisted run results crashing confidence calibration (`ResolveAgentType` on null row); `AgentConfidenceCalibrationService` now skips null `AgentResult` entries; regression `ApplyCalibratedConfidenceForRunAsync_skips_null_result_entries`; 146 scoped Application.Tests.Agents tests passed.
+
+- [x] (proven) `AgentConfidenceCalibrationService.ApplyCalibratedConfidenceForRunAsync` — null `AgentResult` list entries aborted calibration — **hit 2026-10-23 seed hunt:** null guard before `ResolveAgentType`; regression above. [class:fail-open-validation]
+
 2026-10-23 seed hunt (seed→hit): promoted null elements in agent `results` list crashing curated-evidence and finding-emission post-processors; `AgentResultPostExecutionEnricher` and `AgentArchitectureFindingEmissionGate.ApplyToResults` now skip null `AgentResult` entries; regressions `EnrichAsync_skips_null_result_entries_when_proposing_curated_evidence` and `EnrichAsync_skips_null_result_entries_when_withholding_prose_findings`; 145 scoped Application.Tests.Agents tests passed.
 
 - [x] (proven) `AgentResultPostExecutionEnricher` / `AgentArchitectureFindingEmissionGate` — null `AgentResult` list entries aborted post-execution enrichment — **hit 2026-10-23 seed hunt:** null guards in curated-evidence loop and emission gate; regressions above. [class:fail-open-validation]
@@ -8085,11 +8089,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** application agents; agent handlers wiring
 - **paths:** ArchLucid.Application/Agents/
 - **test-filter:** FullyQualifiedName~Application.Tests.Agents
-- **hunts:** 67
-- **bugs-found:** 61
+- **hunts:** 68
+- **bugs-found:** 62
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-23
-- **last-bug:** 2026-10-23 — null agent result entries crash curated-evidence and emission enrichers
+- **last-bug:** 2026-10-23 — null agent result entries crash confidence calibration
 
 2026-09-27 seed hunt (seed→hit): proved `TopologyProposalConsensusMerger.Merge` threw when `RequiredControls` was null on topology dual-model proposals (`AgentProposalStructuralPostProcessor` does not initialize controls for `AgentType.Topology`); fixed by null-coalescing in control intersection and disagreement counts; regression `Merge_when_required_controls_is_null_does_not_throw`; 92 scoped Application.Tests.Agents tests passed.
 
