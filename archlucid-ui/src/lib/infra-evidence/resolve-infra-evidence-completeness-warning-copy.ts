@@ -462,8 +462,8 @@ export function resolveInfraEvidenceCompletenessWarningPresentation(
 
   return {
     code: trimmed,
-    title: "Inventory completeness note",
-    detail: trimmed,
+    title: "Collection warning has no reviewer sentence.",
+    detail: `Stored warning code: ${trimmed}.`,
   };
 }
 

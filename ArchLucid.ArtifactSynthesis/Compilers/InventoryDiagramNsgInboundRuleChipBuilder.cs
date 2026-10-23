@@ -13,72 +13,73 @@ internal static class InventoryDiagramNsgInboundRuleChipBuilder
         IReadOnlyList<AzureInventoryNsgSecurityRule> rules)
     {
         List<AzureInventoryNsgSecurityRule> inboundRules = rules
-            .Where(IsInboundRuleWithStoredAccessOrDirection)
+            .Where(IsInboundRule)
             .ToList();
-        int missingPriorityCount = inboundRules.Count(rule =>
-            !int.TryParse(rule.Priority, NumberStyles.Integer, CultureInfo.InvariantCulture, out _));
-        List<AzureInventoryNsgSecurityRule> inboundAllows = inboundRules
+
+        if (inboundRules.Count == 0)
+        {
+            return [];
+        }
+
+        List<AzureInventoryNsgSecurityRule> inboundWithPriority = inboundRules
             .Where(rule => int.TryParse(rule.Priority, NumberStyles.Integer, CultureInfo.InvariantCulture, out _))
             .OrderBy(rule => int.Parse(rule.Priority!, CultureInfo.InvariantCulture))
             .ThenBy(rule => rule.RuleName ?? string.Empty, StringComparer.Ordinal)
             .ToList();
 
-        if (inboundAllows.Count == 0 && missingPriorityCount == 0)
+        int inboundWithoutPriority = inboundRules.Count - inboundWithPriority.Count;
+
+        if (inboundWithPriority.Count == 0 && inboundWithoutPriority > 0)
         {
-            return [];
+            return
+            [
+                new DiagramNsgInboundRuleChip(
+                    $"Priority was not stored for {inboundWithoutPriority} inbound rules.",
+                    IsRisky: false),
+            ];
         }
 
         List<DiagramNsgInboundRuleChip> chips = [];
 
-        foreach (AzureInventoryNsgSecurityRule rule in inboundAllows.Take(MaxVisibleChips))
+        foreach (AzureInventoryNsgSecurityRule rule in inboundWithPriority.Take(MaxVisibleChips))
         {
             chips.Add(BuildChip(rule));
         }
 
-        int remainder = inboundAllows.Count - MaxVisibleChips;
+        int remainder = inboundWithPriority.Count - MaxVisibleChips;
 
         if (remainder > 0)
         {
             chips.Add(new DiagramNsgInboundRuleChip($"{remainder} more inbound rules", IsRisky: false));
         }
 
-        if (missingPriorityCount > 0)
+        if (inboundWithoutPriority > 0)
         {
             chips.Add(new DiagramNsgInboundRuleChip(
-                $"{missingPriorityCount} inbound rules are not listed because priority was not stored.",
+                $"Priority was not stored for {inboundWithoutPriority} inbound rules.",
                 IsRisky: false));
         }
 
         return chips;
     }
 
-    private static bool IsInboundRuleWithStoredAccessOrDirection(AzureInventoryNsgSecurityRule rule)
-    {
-        return string.Equals(rule.Direction, "Inbound", StringComparison.OrdinalIgnoreCase);
-    }
+    private static bool IsInboundRule(AzureInventoryNsgSecurityRule rule) =>
+        string.Equals(rule.Direction, "Inbound", StringComparison.OrdinalIgnoreCase);
 
     private static DiagramNsgInboundRuleChip BuildChip(AzureInventoryNsgSecurityRule rule)
     {
-        string port = FormatPort(rule);
+        string port = FormatPort(rule.DestinationPortRange);
         string protocol = FormatProtocol(rule.Protocol);
         string source = FormatSource(rule);
-        string missingLabel = string.Join(
-            " · ",
-            new[]
-            {
-                string.IsNullOrWhiteSpace(rule.Access)
-                    ? "Access was not stored"
-                    : string.Equals(rule.Access, "Allow", StringComparison.OrdinalIgnoreCase)
-                        ? null
-                        : $"Access: {rule.Access.Trim()}",
-                string.IsNullOrWhiteSpace(rule.Direction) ? "Direction was not stored" : null,
-            }.Where(static label => label is not null));
-        string ruleName = string.IsNullOrWhiteSpace(rule.RuleName)
-            ? "Rule name was not stored."
-            : rule.RuleName.Trim();
-        string text = string.IsNullOrWhiteSpace(missingLabel)
-            ? $"{ruleName} · in {port}/{protocol} · {source}"
-            : $"{ruleName} · {missingLabel} · in {port}/{protocol} · {source}";
+        string accessLabel = string.IsNullOrWhiteSpace(rule.Access)
+            ? "Access was not stored"
+            : string.Equals(rule.Access, "Allow", StringComparison.OrdinalIgnoreCase)
+                ? "Allow"
+                : $"Access: {rule.Access.Trim()}";
+        string? directionLabel = string.IsNullOrWhiteSpace(rule.Direction) ? "Direction was not stored" : null;
+        string text = directionLabel is null
+            ? $"{accessLabel} · in {port}/{protocol} · {source}"
+            : $"{accessLabel} · {directionLabel} · in {port}/{protocol} · {source}";
         bool risky = string.Equals(rule.Direction, "Inbound", StringComparison.OrdinalIgnoreCase)
             && string.Equals(rule.Access, "Allow", StringComparison.OrdinalIgnoreCase)
             && string.Equals(source, "Internet", StringComparison.Ordinal)
@@ -89,28 +90,13 @@ internal static class InventoryDiagramNsgInboundRuleChipBuilder
         return new DiagramNsgInboundRuleChip(text, risky);
     }
 
-    private static string FormatPort(AzureInventoryNsgSecurityRule rule)
+    private static string FormatPort(string? destinationPortRange)
     {
-        if (!string.IsNullOrWhiteSpace(rule.DestinationPortRange))
-        {
-            string trimmed = rule.DestinationPortRange.Trim();
-
-            return trimmed == "*"
-                ? "any"
-                : trimmed;
-        }
-
-        List<string> ranges = rule.DestinationPortRanges
-            .Where(range => !string.IsNullOrWhiteSpace(range))
-            .Select(range => range.Trim())
-            .ToList();
-
-        if (ranges.Count > 0)
-        {
-            return string.Join(", ", ranges);
-        }
-
-        return "Port was not stored";
+        return string.IsNullOrWhiteSpace(destinationPortRange)
+            ? "Port was not stored"
+            : destinationPortRange.Trim() == "*"
+            ? "any"
+            : destinationPortRange.Trim();
     }
 
     private static string FormatProtocol(string? protocol)
@@ -125,12 +111,10 @@ internal static class InventoryDiagramNsgInboundRuleChipBuilder
     private static string FormatSource(AzureInventoryNsgSecurityRule rule)
     {
         string? prefix = rule.SourceAddressPrefix;
-        int extraPrefixCount = 0;
 
         if (string.IsNullOrWhiteSpace(prefix) && rule.SourceAddressPrefixes.Count > 0)
         {
             prefix = rule.SourceAddressPrefixes[0];
-            extraPrefixCount = rule.SourceAddressPrefixes.Count - 1;
         }
 
         if (string.IsNullOrWhiteSpace(prefix))
@@ -144,14 +128,14 @@ internal static class InventoryDiagramNsgInboundRuleChipBuilder
             || prefix.Equals("Internet", StringComparison.OrdinalIgnoreCase)
             || prefix == "0.0.0.0/0")
         {
-            return extraPrefixCount > 0
-                ? $"Internet and {extraPrefixCount} other source prefixes"
-                : "Internet";
+            prefix = "Internet";
         }
 
-        if (extraPrefixCount > 0)
+        if (rule.SourceAddressPrefixes.Count > 1)
         {
-            return $"{prefix} and {extraPrefixCount} other source prefixes";
+            int extra = rule.SourceAddressPrefixes.Count - 1;
+
+            return $"{prefix}; {extra} other source prefixes were not listed on this chip.";
         }
 
         return prefix;
