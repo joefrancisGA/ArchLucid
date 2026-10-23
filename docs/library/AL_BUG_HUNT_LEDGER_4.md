@@ -9747,13 +9747,15 @@ Split from retired `archlucid-core` (ABQ-08). Parser coercion / synonym / casing
 
 - [x] (proven) `RunExplanationAggregateJsonReader.TryReadEvidenceRefObjectStringProperty` — object-shaped `evidenceRefs` with whitespace-only `text` and readable `id` dropped the ref when `text` key was present — **hit 2026-10-21 seed hunt:** independent `text`/`id` resolution; regression `TryNormalizeStructuredJson_maps_object_shaped_evidence_ref_id_when_text_property_is_whitespace_only`.
 
-- **hunts:** 75
-- **bugs-found:** 51
+- **hunts:** 76
+- **bugs-found:** 52
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-23
-- **last-bug:** 2026-10-23 — percent-suffixed confidence ignored trailing whitespace after %
+- **last-bug:** 2026-10-23 — percent faithfulness arrays treated as duplicate-alias poison
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-23 thorough hunt (seed→hit): proved sole-element `faithfulnessSupportRatio` arrays with percent strings (e.g. `["55%"]`, `["100%"]`) were skipped as duplicate-alias poison because `RatioArrayItemIsDuplicateAliasPoison` compared pre-normalized values > 1; exempt percent-suffixed strings; regressions `FromAggregateJson_scales_percent_suffixed_faithfulness_support_ratio_in_sole_element_array` and `FromAggregateJson_scales_percent_suffixed_faithfulness_support_ratio_at_one_hundred_in_array`; cheap-disproof closed four sibling candidates; scoped RunExplanation + parser tests 311 passed (`RunAnalyzers=false`).
 
 2026-10-23 thorough hunt (seed→hit): proved `TryReadFiniteDouble` rejected percent-suffixed confidence strings with trailing whitespace after `%` (e.g. `"85% "`) while `"85%"` parsed; strip percent suffix before trailing-space trim; regression `TryNormalizeStructuredJson_coerces_percent_suffixed_confidence_with_trailing_whitespace`; aligned `ProseListObjectAliasHasExtractableContent` with id fallback so object-shaped sole `reasoning` is not dropped at `PreferLastNonEmpty`; cheap-disproof closed four sibling candidates; scoped RunExplanation + parser tests 304 passed (`RunAnalyzers=false`).
 
@@ -9995,11 +9997,18 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (valid-no-repro) `CollectReasoningParts` — nested array sole fractional entry — **cheap-disproof 2026-10-23 thorough hunt #99:** normalize fails without prose; intentional drop.
 - [x] (valid-no-repro) `TryReadEvidenceRefObjectStringProperty` — prefers `id` when both `text` and `id` present — **cheap-disproof 2026-10-23 thorough hunt #99:** regression `TryNormalizeStructuredJson_prefers_id_over_text_on_object_shaped_evidence_ref`.
 
-- [ ] (candidate) `RunExplanationAggregateJsonReader.TryReadFiniteDouble` — faithfulness ratio percent with interior space (`"75 %"` ) — locus: percent strip; input: spaced percent token; wrong outcome: null ratio.
-- [ ] (candidate) `ProseListObjectAliasHasExtractableContent` — object with only whitespace `id` and missing `text` — locus: id reader; input: `{"id":"   "}`; wrong outcome: empty vs drop.
-- [ ] (candidate) `TryReadStructuredConfidence` — confidence array with sole `"75% "` string element — locus: array unwrap; input: `{"confidence":["75% "]}`; wrong outcome: null after fix gap.
-- [ ] (candidate) `TryGetPropertyCaseInsensitivePreferLastNonEmpty` — trailing `reasoning` object with only readable `id` duplicate — locus: scalar object poison; input: `REASONING` id-only object after string reasoning; wrong outcome: hunt #98 regression family.
-- [ ] (candidate) `RunExplanationAggregateJsonReader.NormalizeUnitRatio` — ratio exactly `100` vs `100.0` string — locus: percent scaling; input: `"100%"`; wrong outcome: 1.0 unit ratio.
+- [x] (proven) `RatioArrayItemIsDuplicateAliasPoison` — percent strings in faithfulness arrays skipped as numeric alias poison — **hit 2026-10-23 thorough hunt #100:** exempt `%`-suffixed strings from > 1 poison; regressions `FromAggregateJson_scales_percent_suffixed_faithfulness_support_ratio_in_sole_element_array` and `FromAggregateJson_scales_percent_suffixed_faithfulness_support_ratio_at_one_hundred_in_array`.
+- [x] (valid-no-repro) `TryReadFiniteDouble` — interior space before `%` (`"75 %"`) — **cheap-disproof 2026-10-23 thorough hunt #100:** regressions `FromAggregateJson_scales_percent_suffixed_faithfulness_support_ratio_with_interior_space_before_percent` and `TryNormalizeStructuredJson_coerces_percent_suffixed_confidence_with_interior_space_before_percent`.
+- [x] (valid-no-repro) `TryReadStructuredConfidence` — sole-element confidence array with `"75% "` — **cheap-disproof 2026-10-23 thorough hunt #100:** regression `TryNormalizeStructuredJson_coerces_percent_suffixed_confidence_in_sole_element_array`.
+- [x] (valid-no-repro) `TryGetPropertyCaseInsensitivePreferLastNonEmpty` — trailing id-only `REASONING` duplicate — **cheap-disproof 2026-10-23 thorough hunt #100:** regression `TryNormalizeStructuredJson_uses_non_empty_reasoning_when_later_case_variant_is_id_only_object_without_text_key`.
+- [x] (valid-no-repro) `NormalizeUnitRatio` — scalar `"100%"` unit ratio — **cheap-disproof 2026-10-23 thorough hunt #100:** scalar path already maps to `1.0`; array gap was hunt #100 hit.
+- [x] (valid-no-repro) `ProseListObjectAliasHasExtractableContent` — whitespace-only `id` — **cheap-disproof 2026-10-23 thorough hunt #100:** no readable id; intentional drop.
+
+- [ ] (candidate) `RatioArrayItemIsDuplicateAliasPoison` — numeric JSON `55` in faithfulness array vs `"55%"` — locus: poison predicate; input: `[55]`; wrong outcome: intentional poison vs percent exemption.
+- [ ] (candidate) `TryReadAggregateRatioFromArrayItems` — nested `[[ "55%" ]]` faithfulness arrays — locus: recursion; input: double-wrapped percent; wrong outcome: null ratio.
+- [ ] (candidate) `TryReadStructuredConfidence` — confidence array with interior-space percent `"75 %"` — locus: array unwrap; input: `{"confidence":["75 %"]}`; wrong outcome: null confidence.
+- [ ] (candidate) `RunExplanationAggregateJsonReader.TryReadFiniteDouble` — leading space inside percent token after `%` strip — locus: TrimEnd-only prefix; input: malformed `" 80% note"`; wrong outcome: parse vs reject.
+- [ ] (candidate) `TryGetPropertyCaseInsensitivePreferLastNonEmpty` — trailing `faithfulnessSupportRatio` percent array duplicate — locus: array poison; input: ratio then `["1"]`; wrong outcome: hunt #76 family.
 
 2026-10-09 seed hunt (seed-only): re-read aggregate property lookup, scalar coercion, structured list/reasoning normalization, and confidence disposition paths after the preceding parser fixes; no distinct candidate met the full reachability and wrong-outcome bar. Added two candidates for duplicate aggregate keys and negative numeric structured evidence references. The scoped RunExplanation suite passed 46 tests.
 
