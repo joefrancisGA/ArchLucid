@@ -20,7 +20,7 @@ export function buildDiagramWalkthrough(outline: InfraEvidenceMermaidOutline): s
   const notObservedSentence = outline.edges.some(
     (edge) => edge.source === "declared" || edge.source === "probable" || edge.source === "inferred",
   )
-    ? " Relationships that are not observed are not inventory links."
+    ? " Declared, probable, and inferred relationships are on this inventory diagram. They are not observed Azure connections."
     : "";
   const relationshipSummary = relationshipSourceSummary.length > 0
     ? ` ${edgeCount} relationships (${relationshipSourceSummary}).`

@@ -31,7 +31,16 @@ public static class InventoryDiagramRouteOutlineSentenceFormatter
 
         if (addressPrefix.Equals("0.0.0.0/0", StringComparison.Ordinal))
         {
-            return null;
+            return string.IsNullOrWhiteSpace(nextHopType)
+                ? "Default route 0.0.0.0/0 was not drawn. Next hop type was not stored."
+                : $"Default route 0.0.0.0/0 was not drawn. Next hop type is {nextHopType}.";
+        }
+
+        if (nextHopType.Equals("VnetLocal", StringComparison.OrdinalIgnoreCase))
+        {
+            return string.IsNullOrWhiteSpace(route.AddressPrefix)
+                ? "Address prefix was not stored. Next hop type is VnetLocal."
+                : $"Traffic to {addressPrefix} uses next hop type VnetLocal.";
         }
 
         if (string.IsNullOrWhiteSpace(resolvedNextHopName))

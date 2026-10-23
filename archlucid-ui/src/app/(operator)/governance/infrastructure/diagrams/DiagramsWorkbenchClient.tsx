@@ -304,6 +304,10 @@ const cnField =
   "rounded-md border border-neutral-200 bg-white px-3 py-2 dark:border-neutral-800 dark:bg-neutral-950";
 
 function resolveInfraDiagramsModeLabel(mode: string, fallbackKey: string, resourceGroupName: string): string {
+  if (mode.trim().length === 0) {
+    return "Diagram mode was stored empty.";
+  }
+
   if (isInfraDiagramsResourceGroupMode(mode)) {
     if (resourceGroupName.length > 0) {
       return `Resource group · ${resourceGroupName}`;
@@ -318,7 +322,7 @@ function resolveInfraDiagramsModeLabel(mode: string, fallbackKey: string, resour
 
   const option = INFRA_DIAGRAMS_MODE_OPTIONS.find((entry) => entry.value === mode);
 
-  return option?.label ?? mode;
+  return option?.label ?? `Diagram mode ${mode} has no reviewer label.`;
 }
 
 const INFRA_DIAGRAM_DATA_FLOW_READING_CARD_CAPTION_REST =
