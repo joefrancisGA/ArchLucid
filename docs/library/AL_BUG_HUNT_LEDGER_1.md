@@ -7859,6 +7859,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-agents
 
+2026-10-23 seed hunt (seed→hit): promoted null elements in `ArchitectureRequest.Constraints` crashing post-execution region enricher (`NullReferenceException` on `constraint.Trim()`); `ResolveRequestRegions` now skips null/whitespace constraint entries; regression `EnrichAsync_skips_null_constraint_entries_when_service_region_missing`; 141 scoped Application.Tests.Agents tests passed.
+
+- [x] (proven) `AgentResultRegionMismatchEnricher.ResolveRequestRegions` — null constraint list entries aborted enricher — **hit 2026-10-23 seed hunt:** `string.IsNullOrWhiteSpace(constraint)` guard before trim; regression above. [class:fail-open-validation]
+
 2026-10-23 seed hunt (seed→hit): promoted padded `region:` request constraints skipped by `StartsWith` so services without `AzureArmRegion` missed `RegionMismatch` warnings; `AgentResultRegionMismatchEnricher.ResolveRequestRegions` now trims each constraint before parsing; regression `EnrichAsync_uses_request_region_constraint_when_constraint_has_leading_whitespace_and_service_region_missing`; 140 scoped Application.Tests.Agents tests passed.
 
 - [x] (proven) `AgentResultRegionMismatchEnricher.ResolveRequestRegions` — leading whitespace on `region:` constraint skipped region parsing — **hit 2026-10-23 seed hunt:** `constraint.Trim()` before prefix check; regression above.
@@ -8069,11 +8073,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** application agents; agent handlers wiring
 - **paths:** ArchLucid.Application/Agents/
 - **test-filter:** FullyQualifiedName~Application.Tests.Agents
-- **hunts:** 63
-- **bugs-found:** 57
+- **hunts:** 64
+- **bugs-found:** 58
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — IaC stub UTF-8 BOM strip
+- **last-hunt:** 2026-10-23
+- **last-bug:** 2026-10-23 — null architecture constraint entries crash region enricher
 
 2026-09-27 seed hunt (seed→hit): proved `TopologyProposalConsensusMerger.Merge` threw when `RequiredControls` was null on topology dual-model proposals (`AgentProposalStructuralPostProcessor` does not initialize controls for `AgentType.Topology`); fixed by null-coalescing in control intersection and disagreement counts; regression `Merge_when_required_controls_is_null_does_not_throw`; 92 scoped Application.Tests.Agents tests passed.
 
