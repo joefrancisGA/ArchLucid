@@ -8712,6 +8712,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: architecture-intelligence-orchestrator
 
+2026-10-22 seed hunt (seed→hit): consolidated review-cache Unicode slash/dot homoglyph maps with `AuthSignInReturnPathGuard` (big-reverse solidus U+29F9, mathematical rising diagonal U+27CB, halfwidth ideographic parent U+FF61, and remaining guard-listed scalars) so path tokens stop splitting on one-off homoglyphs; regressions `Build_matches_content_hash_when_file_name_differs_only_by_big_reverse_solidus_slash`, `Build_matches_content_hash_when_file_name_differs_only_by_mathematical_rising_diagonal_slash`, and `Build_matches_content_hash_when_file_name_differs_only_by_halfwidth_ideographic_full_stop_parent_segment`; 378 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `GraphSnapshotCanonicalFingerprint` — incomplete Unicode homoglyph tables split path canonicalization — **hit 2026-10-22 seed hunt:** guard-aligned `ReviewCacheSlashHomoglyphs` / `ReviewCacheDotHomoglyphs`; regressions above.
+
 2026-10-22 seed hunt (seed→hit): promoted ideographic full-stop parent segments (U+3002) and big-solidus slash scalars (U+29F8) splitting `ContentHash`/`modelfp`; extended `NormalizeReviewCacheUnicodeDotScalars` and slash scalar mapping; regressions `Build_matches_content_hash_when_file_name_differs_only_by_ideographic_full_stop_parent_segment`, `Build_matches_content_hash_when_baseline_element_id_differs_only_by_ideographic_full_stop_parent_segment`, `Build_matches_content_hash_when_file_name_differs_only_by_big_solidus_slash`, and `Build_matches_content_hash_when_baseline_element_provenance_passage_artifact_id_differs_only_by_big_solidus_slash`; 375 scoped orchestrator/cache/manifest/continue-flight tests passed.
 
 - [x] (proven) `GraphSnapshotCanonicalFingerprint` / `ClosedLoopReasoningSourceTextNormalizer` — ideographic dot and big-solidus homoglyphs split path canonicalization — **hit 2026-10-22 seed hunt:** U+3002 and U+29F8 normalization; regressions above.
