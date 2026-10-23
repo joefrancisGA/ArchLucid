@@ -24,14 +24,49 @@ public sealed partial class InMemoryValueReportJobQueue(
 
     private readonly ConcurrentDictionary<Guid, JobEntry> _jobs = new();
 
+    private const string UnknownFailedJobErrorMessage =
+        "Value report job failed — retry the async export or contact support if the problem persists.";
+
+    private const string MissingCompletedDocumentErrorMessage =
+        "Value report job completed but the document is unavailable — retry the async export.";
+
+    private static JobEntry PreferDistributedPollState(JobEntry local, JobEntry distributed) =>
+        local.Phase switch
+        {
+            JobPhase.Pending when distributed.Phase is JobPhase.Completed or JobPhase.Failed => distributed,
+            JobPhase.Completed when distributed.Phase == JobPhase.Failed => distributed,
+            JobPhase.Completed when local.Bytes is not { Length: > 0 } &&
+                                    distributed is { Phase: JobPhase.Completed, Bytes: { Length: > 0 } } => distributed,
+            _ => local,
+        };
+
+    private void PruneTerminalLocalJobs()
+    {
+        foreach (Guid jobId in _jobs.Keys.ToArray())
+        {
+            if (_jobs.TryGetValue(jobId, out JobEntry? entry) &&
+                entry.Phase is JobPhase.Completed or JobPhase.Failed)
+            {
+                _jobs.TryRemove(jobId, out _);
+            }
+        }
+    }
+
     public ValueReportJobPollResult TryPoll(Guid jobId, Guid scopedTenantId)
     {
-        if (!_jobs.TryGetValue(jobId, out JobEntry? entry))
+        _jobs.TryGetValue(jobId, out JobEntry? entry);
+        JobEntry? distributed = TryReadDistributedState(jobId);
+
+        if (entry is null)
         {
-            entry = TryReadDistributedState(jobId);
+            entry = distributed;
 
             if (entry is null)
                 return new ValueReportJobPollResult(false, false, null, null, null);
+        }
+        else if (distributed is not null)
+        {
+            entry = PreferDistributedPollState(entry, distributed);
         }
 
         if (entry.Request.TenantId != scopedTenantId)
@@ -40,8 +75,16 @@ public sealed partial class InMemoryValueReportJobQueue(
         return entry.Phase switch
         {
             JobPhase.Pending => new ValueReportJobPollResult(true, false, null, entry.FileName, null),
-            JobPhase.Completed => new ValueReportJobPollResult(true, true, entry.Bytes, entry.FileName, null),
-            JobPhase.Failed => new ValueReportJobPollResult(true, false, null, entry.FileName, entry.ErrorMessage),
+            JobPhase.Completed when entry.Bytes is { Length: > 0 } =>
+                new ValueReportJobPollResult(true, true, entry.Bytes, entry.FileName, null),
+            JobPhase.Completed =>
+                new ValueReportJobPollResult(true, false, null, entry.FileName, MissingCompletedDocumentErrorMessage),
+            JobPhase.Failed => new ValueReportJobPollResult(
+                true,
+                false,
+                null,
+                entry.FileName,
+                string.IsNullOrWhiteSpace(entry.ErrorMessage) ? UnknownFailedJobErrorMessage : entry.ErrorMessage),
             _ => new ValueReportJobPollResult(true, false, null, null, "Unknown job phase.")
         };
     }

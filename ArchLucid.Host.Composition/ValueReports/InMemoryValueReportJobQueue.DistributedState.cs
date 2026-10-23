@@ -50,6 +50,25 @@ public sealed partial class InMemoryValueReportJobQueue
         }
     }
 
+    private void PublishDistributedTerminalStateOrClearStalePending(Guid jobId, JobEntry terminal)
+    {
+        if (!TryWriteDistributedState(jobId, terminal))
+            TryRemoveDistributedState(jobId);
+    }
+
+    private void TryRemoveDistributedState(Guid jobId)
+    {
+        try
+        {
+            _pollStateCache.Remove(GetCacheKey(jobId));
+        }
+        catch (Exception ex)
+        {
+            if (_logger.IsEnabled(LogLevel.Warning))
+                _logger.LogWarning(ex, "Failed to remove value report job {JobId} from distributed cache.", jobId);
+        }
+    }
+
     private JobEntry? TryReadDistributedState(Guid jobId)
     {
         try
@@ -71,13 +90,34 @@ public sealed partial class InMemoryValueReportJobQueue
                 state.FromUtcInclusive,
                 state.ToUtcExclusive);
 
-            JobPhase phase = Enum.TryParse<JobPhase>(state.Phase, ignoreCase: true, out JobPhase parsedPhase)
-                ? parsedPhase
-                : JobPhase.Pending;
+            if (!Enum.TryParse(state.Phase, ignoreCase: true, out JobPhase phase))
+            {
+                return new JobEntry(
+                    request,
+                    JobPhase.Failed,
+                    null,
+                    state.FileName,
+                    UnknownFailedJobErrorMessage);
+            }
 
-            byte[]? bytes = string.IsNullOrEmpty(state.BytesBase64)
-                ? null
-                : Convert.FromBase64String(state.BytesBase64);
+            byte[]? bytes = null;
+
+            if (!string.IsNullOrEmpty(state.BytesBase64))
+            {
+                try
+                {
+                    bytes = Convert.FromBase64String(state.BytesBase64);
+                }
+                catch (FormatException)
+                {
+                    return new JobEntry(
+                        request,
+                        JobPhase.Failed,
+                        null,
+                        state.FileName,
+                        UnknownFailedJobErrorMessage);
+                }
+            }
 
             return new JobEntry(request, phase, bytes, state.FileName, state.ErrorMessage);
         }
