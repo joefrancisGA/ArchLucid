@@ -231,7 +231,7 @@ internal static class ArchitectureRecommendationTradeOffBuilder
     private static bool IsCostTokenInQualifiedCostNounPhrase(string priority) =>
         Regex.IsMatch(
             priority,
-            @"\b(?:unit|total|marginal|average)\s+cost\b",
+            @"\b(?:unit|total|marginal|average|variable|incremental|fixed|direct)\s+cost\b",
             RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     private static bool IsCostTokenInPerQualifierCostPhrase(string priority) =>
