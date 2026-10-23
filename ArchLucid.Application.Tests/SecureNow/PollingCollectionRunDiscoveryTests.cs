@@ -475,6 +475,33 @@ public sealed class PollingCollectionRunDiscoveryTests
     }
 
     [Fact]
+    public async Task DiscoverAsync_propagates_operation_canceled_when_list_manifests_is_canceled()
+    {
+        using CancellationTokenSource cts = new();
+        cts.Cancel();
+
+        Mock<ICollectionRunArtifactReader> reader = new();
+        reader
+            .Setup(r => r.ListManifestsAsync(It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new OperationCanceledException(cts.Token));
+
+        Mock<ICollectionRunRepository> repository = new(MockBehavior.Strict);
+        Mock<IAzureExtractorIngestService> azureIngest = new(MockBehavior.Strict);
+        Mock<IScopeContextProvider> scopeProvider = new(MockBehavior.Strict);
+
+        CollectionRunIngestService ingest = new(
+            repository.Object,
+            azureIngest.Object,
+            scopeProvider.Object);
+
+        PollingCollectionRunDiscovery discovery = new(reader.Object, ingest);
+
+        Func<Task> act = () => discovery.DiscoverAsync(cts.Token);
+
+        await act.Should().ThrowAsync<OperationCanceledException>();
+    }
+
+    [Fact]
     public async Task DiscoverAsync_returns_zero_when_list_manifests_throws()
     {
         Mock<ICollectionRunArtifactReader> reader = new();

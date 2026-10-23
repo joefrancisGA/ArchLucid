@@ -94,6 +94,41 @@ public sealed class InMemoryValueReportJobQueueDistributedPollStateTests
     }
 
     [Fact]
+    public void TryPoll_returns_not_found_when_distributed_state_tenant_does_not_match_scoped_poll()
+    {
+        ServiceCollection services = BuildValueReportJobServices();
+        DictionaryPollStateCache pollStateCache = new();
+        services.AddSingleton<IValueReportJobPollStateCache>(pollStateCache);
+        ServiceProvider provider = services.BuildServiceProvider();
+        IServiceScopeFactory scopeFactory = provider.GetRequiredService<IServiceScopeFactory>();
+
+        InMemoryValueReportJobQueue pollInstance =
+            new(scopeFactory, pollStateCache, NullLogger<InMemoryValueReportJobQueue>.Instance);
+
+        Guid scopedTenantId = Guid.NewGuid();
+        Guid otherTenantId = Guid.NewGuid();
+        Guid jobId = Guid.NewGuid();
+        DateTimeOffset from = DateTimeOffset.UtcNow.AddDays(-7);
+        DateTimeOffset to = DateTimeOffset.UtcNow;
+
+        string payload =
+            $$"""
+              {"tenantId":"{{otherTenantId}}","workspaceId":"{{Guid.NewGuid()}}","projectId":"{{Guid.NewGuid()}}","fromUtcInclusive":"{{from:O}}","toUtcExclusive":"{{to:O}}","phase":"Completed","bytesBase64":"UEsDBBQ=","fileName":"report.docx","errorMessage":null}
+              """;
+
+        pollStateCache.Set(
+            $"archlucid:value-report-job:{jobId:N}",
+            System.Text.Encoding.UTF8.GetBytes(payload),
+            new DistributedCacheEntryOptions());
+
+        ValueReportJobPollResult poll = pollInstance.TryPoll(jobId, scopedTenantId);
+
+        poll.Found.Should().BeFalse();
+        poll.Completed.Should().BeFalse();
+        poll.DocxBytes.Should().BeNull();
+    }
+
+    [Fact]
     public void TryPoll_reports_failure_when_distributed_completed_state_has_no_document_bytes()
     {
         ServiceCollection services = BuildValueReportJobServices();
