@@ -88,7 +88,9 @@ public sealed class PilotValueReportMarkdownFormatter(ExportFormatterService exp
             sb.AppendLine(CultureInfo.InvariantCulture, $"| Total findings | {r.TotalFindings} |");
         }
 
-        string avgCompletionCell = FormatAvgSeconds(r.AveragePipelineCompletionSeconds);
+        string avgCompletionCell = RunDetailSampleLoadedNoRows(r)
+            ? "not computed — no committed runs loaded for detail in the partial sample"
+            : FormatAvgSeconds(r.AveragePipelineCompletionSeconds);
 
         if (r.RunDetailsTruncated && !RunDetailSampleLoadedNoRows(r))
             avgCompletionCell = $"{avgCompletionCell} {PartialRunDetailSampleFragment(r.RunDetailCap)}";
@@ -122,15 +124,18 @@ public sealed class PilotValueReportMarkdownFormatter(ExportFormatterService exp
             sb.AppendLine();
         }
 
-        _exportFormatter.AppendMarkdownTwoColumnTableStart(sb, "Severity", "Count");
-        sb.AppendLine(CultureInfo.InvariantCulture, $"| Critical | {r.FindingsBySeverity.Critical} |");
-        sb.AppendLine(CultureInfo.InvariantCulture, $"| High | {r.FindingsBySeverity.High} |");
-        sb.AppendLine(CultureInfo.InvariantCulture, $"| Medium | {r.FindingsBySeverity.Medium} |");
-        sb.AppendLine(CultureInfo.InvariantCulture, $"| Low | {r.FindingsBySeverity.Low} |");
-        sb.AppendLine(CultureInfo.InvariantCulture, $"| Info | {r.FindingsBySeverity.Info} |");
-        sb.AppendLine();
-        AppendSeverityNote(sb);
-        sb.AppendLine();
+        if (!RunDetailSampleLoadedNoRows(r))
+        {
+            _exportFormatter.AppendMarkdownTwoColumnTableStart(sb, "Severity", "Count");
+            sb.AppendLine(CultureInfo.InvariantCulture, $"| Critical | {r.FindingsBySeverity.Critical} |");
+            sb.AppendLine(CultureInfo.InvariantCulture, $"| High | {r.FindingsBySeverity.High} |");
+            sb.AppendLine(CultureInfo.InvariantCulture, $"| Medium | {r.FindingsBySeverity.Medium} |");
+            sb.AppendLine(CultureInfo.InvariantCulture, $"| Low | {r.FindingsBySeverity.Low} |");
+            sb.AppendLine(CultureInfo.InvariantCulture, $"| Info | {r.FindingsBySeverity.Info} |");
+            sb.AppendLine();
+            AppendSeverityNote(sb);
+            sb.AppendLine();
+        }
 
         sb.AppendLine("## Agent types observed");
         sb.AppendLine();

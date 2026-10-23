@@ -7268,13 +7268,21 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-pilots
 
-2026-10-23 seed hunt (seed→hit): promoted open `(candidate)` for empty `UniqueAgentTypes` when `RunDetailSampleLoadedNoRows` and `RunDetailsTruncated` false; aligned agent-types copy with findings not-computed path; extended regression `Format_when_committed_runs_exist_but_no_run_details_loaded_does_not_emit_zero_findings_as_tenant_total`; seeded five mechanism-backed `(candidate)` rows below; 68 scoped BuyerProofPack/BoardPack/PilotValueReport tests passed.
+2026-10-23 seed hunt (seed→hit): promoted `RunDetailSampleLoadedNoRows` gaps for avg pipeline completion and findings-by-severity table still emitting numeric/zero cells; aligned Summary avg and severity table with not-computed banner; regressions extended on `Format_when_committed_runs_exist_but_no_run_details_loaded_does_not_emit_zero_findings_as_tenant_total` and `Format_when_committed_runs_exist_but_no_run_details_loaded_omits_severity_table_even_when_buckets_nonzero`; cheap-disproof closed three sibling `(candidate)` rows; seeded five follow-on rows; 69 scoped BuyerProofPack/BoardPack/PilotValueReport tests passed.
 
-- [ ] (candidate) `PilotValueReportMarkdownFormatter` — `Avg pipeline completion` still formats numeric average when `RunDetailSampleLoadedNoRows` — locus: Summary avg cell without `RunDetailSampleLoadedNoRows` guard; input: positive `AveragePipelineCompletionSeconds` with empty timeline and `TotalRunsCommitted > 0`.
-- [ ] (candidate) `PilotValueReportMarkdownFormatter` — severity table lists zero counts after not-computed banner when detail sample empty — locus: `Findings by severity` rows after `RunDetailSampleLoadedNoRows` note; input: non-zero `FindingsBySeverity` with zero loaded timeline rows.
-- [ ] (candidate) `BuyerProofPackBuilder.TryBuildZipAsync` — manifest caution vs limitations markdown divergence on `isDemoTenant` only — locus: `cautionWarning` vs `BuyerProofPackLimitationsMarkdown`; input: demo tenant without `isSampleRun`.
-- [ ] (candidate) `BoardPackSealedExportReceiptGuard` — receipt hash mismatch vs missing receipt error surfaces — locus: guard branch ordering; input: export with tampered sealed manifest receipt on board-pack PDF path.
-- [ ] (candidate) `PilotValueReportService` — empty `UniqueAgentTypes` when all detail loads fail without setting `RunDetailsTruncated` — locus: detail projection loop; input: committed run ids present but per-run detail fetch returns empty.
+- [ ] (candidate) `PilotValueReportMarkdownFormatter` — `Recommendations generated (audit)` reads tenant-wide when `RunDetailSampleLoadedNoRows` — locus: Summary audit row without detail-sample guard; input: positive `TotalRecommendationsProduced` with empty timeline and `TotalRunsCommitted > 0`.
+- [ ] (candidate) `PilotValueReportMarkdownFormatter` — committed-runs timeline header counts when `RunDetailSampleLoadedNoRows` — locus: `Committed runs (sample:` section; input: `TotalRunsCommitted > 0` with zero loaded timeline rows.
+- [ ] (candidate) `PilotValueReportService` — stale `FindingsBySeverity` aggregates when detail projection returns no rows — locus: report assembly before formatter; input: committed runs with failed per-run detail fetch.
+- [ ] (candidate) `BuyerProofPackBuilder.TryBuildZipAsync` — `pack-manifest.json` `demoDataWarning` key name vs limitations copy — locus: manifest schema vs markdown heading; input: sample-run pack export.
+- [ ] (candidate) `BoardPackPdfBuilder` — quarter window digest clamp bypass when digest week equals window boundary — locus: `BoardPackQuarterWindow`; input: single-week board-pack period on ISO week edge.
+
+- [x] (proven) `PilotValueReportMarkdownFormatter` — `Avg pipeline completion` numeric when `RunDetailSampleLoadedNoRows` — **hit 2026-10-23 seed hunt:** not-computed avg cell; regression `Format_when_committed_runs_exist_but_no_run_details_loaded_does_not_emit_zero_findings_as_tenant_total`.
+- [x] (proven) `PilotValueReportMarkdownFormatter` — severity table after not-computed banner — **hit 2026-10-23 seed hunt:** omit severity table when `RunDetailSampleLoadedNoRows`; regression `Format_when_committed_runs_exist_but_no_run_details_loaded_omits_severity_table_even_when_buckets_nonzero`.
+- [x] (valid-no-repro) `BuyerProofPackBuilder.TryBuildZipAsync` — manifest vs limitations on demo tenant — **cheap-disproof 2026-10-23 seed hunt:** shared `cautionWarning` drives manifest and limitations; regression `TryBuildZipAsync_when_sample_run_sets_caution_warning_on_manifest_and_result`.
+- [x] (valid-no-repro) `BoardPackSealedExportReceiptGuard` — receipt hash mismatch ordering — **cheap-disproof 2026-10-23 seed hunt:** delegates to `ConsultingDocxExportSealedReceiptGuard`; existing sealed-receipt tests on consulting path.
+- [x] (valid-no-repro) `PilotValueReportService` — empty `UniqueAgentTypes` without truncation — **cheap-disproof 2026-10-23 seed hunt:** formatter handles empty types via `RunDetailSampleLoadedNoRows`; regression on `Format_when_committed_runs_exist_but_no_run_details_loaded_does_not_emit_zero_findings_as_tenant_total`.
+
+2026-10-23 seed hunt (seed→hit): promoted open `(candidate)` for empty `UniqueAgentTypes` when `RunDetailSampleLoadedNoRows` and `RunDetailsTruncated` false; aligned agent-types copy with findings not-computed path; extended regression `Format_when_committed_runs_exist_but_no_run_details_loaded_does_not_emit_zero_findings_as_tenant_total`; seeded five mechanism-backed `(candidate)` rows below; 68 scoped BuyerProofPack/BoardPack/PilotValueReport tests passed.
 
 - **id:** application-pilots
 - **status:** open
@@ -7282,11 +7290,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** buyer proof pack; board pack; pilot artifacts
 - **paths:** ArchLucid.Application/Pilots/
 - **test-filter:** FullyQualifiedName~BuyerProofPack|FullyQualifiedName~BoardPack
-- **hunts:** 51
-- **bugs-found:** 36
+- **hunts:** 52
+- **bugs-found:** 37
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-23
-- **last-bug:** 2026-10-23 — pilot value report agent types “not stored” when no run details load
+- **last-bug:** 2026-10-23 — pilot value report avg/severity rows when no run details load
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 

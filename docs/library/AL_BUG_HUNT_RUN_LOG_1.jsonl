@@ -2037,3 +2037,4 @@
 {"at":"2026-10-23T07:57:04.9668650Z","zoneId":"architecture-recommendation","outcome":"hit","productLine":"archlucid-shared","paths":["@(ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationTradeOffBuilder.cs)"],"defectClass":"other"}
 {"at":"2026-10-23T08:01:47.8049473Z","zoneId":"architecture-recommendation","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationTradeOffBuilder.cs"]}
 {"at":"2026-10-23T08:06:45.2622247Z","zoneId":"architecture-recommendation","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationTradeOffBuilder.cs"]}
+{"at":"2026-10-23T08:11:23.0693547Z","zoneId":"application-pilots","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/Pilots/PilotValueReportMarkdownFormatter.cs"]}
