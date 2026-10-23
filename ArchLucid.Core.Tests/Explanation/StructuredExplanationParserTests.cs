@@ -207,6 +207,40 @@ public sealed class StructuredExplanationParserTests
     }
 
     [Fact]
+    public void TryNormalizeStructuredJson_coerces_percent_suffixed_confidence_with_trailing_whitespace()
+    {
+        const string json = """{"reasoning":"Main","confidence":"85% "}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.Confidence.Should().Be(0.85m);
+    }
+
+    [Fact]
+    public void TryNormalizeStructuredJson_maps_scalar_alternatives_considered_id_when_text_property_is_whitespace_only()
+    {
+        const string json =
+            """{"reasoning":"Main","alternativesConsidered":{"text":"   ","id":"Rejected monolith path."}}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.AlternativesConsidered.Should().Equal("Rejected monolith path.");
+    }
+
+    [Fact]
+    public void TryNormalizeStructuredJson_keeps_supported_schema_version_when_later_duplicate_is_unsupported()
+    {
+        const string json = """{"schemaVersion":2,"reasoning":"Main","SCHEMAVERSION":99}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.SchemaVersion.Should().Be(2);
+    }
+
+    [Fact]
     public void TryNormalizeStructuredJson_coerces_string_encoded_schema_version()
     {
         const string json = """{"schemaVersion":"2","reasoning":"Main"}""";

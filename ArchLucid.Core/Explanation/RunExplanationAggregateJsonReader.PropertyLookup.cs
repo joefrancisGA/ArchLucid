@@ -1404,9 +1404,6 @@ internal static partial class RunExplanationAggregateJsonReader
             return true;
         }
 
-        if (ObjectHasCaseInsensitiveProperty(jsonElement, "text"))
-            return false;
-
         if (TryGetPropertyCaseInsensitivePreferLastNonEmpty(jsonElement, "id", out JsonElement idElement)
             && TryReadNonEmptyTextToken(idElement, out string? id)
             && !string.IsNullOrWhiteSpace(id))

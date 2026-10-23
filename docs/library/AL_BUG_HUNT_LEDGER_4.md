@@ -9747,13 +9747,15 @@ Split from retired `archlucid-core` (ABQ-08). Parser coercion / synonym / casing
 
 - [x] (proven) `RunExplanationAggregateJsonReader.TryReadEvidenceRefObjectStringProperty` — object-shaped `evidenceRefs` with whitespace-only `text` and readable `id` dropped the ref when `text` key was present — **hit 2026-10-21 seed hunt:** independent `text`/`id` resolution; regression `TryNormalizeStructuredJson_maps_object_shaped_evidence_ref_id_when_text_property_is_whitespace_only`.
 
-- **hunts:** 74
-- **bugs-found:** 50
+- **hunts:** 75
+- **bugs-found:** 51
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-23
-- **last-bug:** 2026-10-23 — prose list object dropped id when text property was whitespace-only
+- **last-bug:** 2026-10-23 — percent-suffixed confidence ignored trailing whitespace after %
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-23 thorough hunt (seed→hit): proved `TryReadFiniteDouble` rejected percent-suffixed confidence strings with trailing whitespace after `%` (e.g. `"85% "`) while `"85%"` parsed; strip percent suffix before trailing-space trim; regression `TryNormalizeStructuredJson_coerces_percent_suffixed_confidence_with_trailing_whitespace`; aligned `ProseListObjectAliasHasExtractableContent` with id fallback so object-shaped sole `reasoning` is not dropped at `PreferLastNonEmpty`; cheap-disproof closed four sibling candidates; scoped RunExplanation + parser tests 304 passed (`RunAnalyzers=false`).
 
 2026-10-23 thorough hunt (seed→hit): proved scalar object-shaped `reasoning`/`caveats` with whitespace-only `text` and readable `id` failed normalize while evidence-ref scalar already accepted `id`; `TryReadProseListObjectStringProperty` now mirrors evidence-ref id fallback when poison mode is off; regressions `TryNormalizeStructuredJson_maps_object_shaped_reasoning_id_when_text_property_is_whitespace_only` and `TryNormalizeStructuredJson_maps_scalar_caveats_id_when_text_property_is_whitespace_only`; cheap-disproof closed duplicate fractional-reasoning candidate; scoped RunExplanation tests 214 passed (`RunAnalyzers=false`).
 
@@ -9986,11 +9988,18 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (valid-no-repro) `TryGetPropertyCaseInsensitivePreferLastNonEmpty` — duplicate aggregate keys last-value — **cheap-disproof 2026-10-23 thorough hunt #98:** invalid row 2026-10-09; no contract.
 - [x] (valid-no-repro) `RunExplanationConfidenceCalloutBuilder.FromAggregateJson` — malformed aggregate throws — **cheap-disproof 2026-10-23 thorough hunt #98:** regression `FromAggregateJson_returns_null_for_malformed_json`.
 
-- [ ] (candidate) `TryReadProseListObjectStringProperty` — scalar `alternativesConsidered` object with whitespace `text` and readable `id` — locus: prose reader poison flag; input: `{"text":"   ","id":"alt-a"}`; wrong outcome: dropped vs id fallback parity with caveats.
-- [ ] (candidate) `StructuredExplanationParser.TryReadStructuredConfidence` — percent string with trailing space after `%` — locus: `TryReadFiniteDouble`; input: `"85% "`; wrong outcome: null confidence.
-- [ ] (candidate) `RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitivePreferLastNonEmpty` — trailing unsupported `schemaVersion` hides earlier supported version — locus: poison alias; input: `schemaVersion` 2 then 99; wrong outcome: version 1 default.
-- [ ] (candidate) `CollectReasoningParts` — nested array with sole fractional numeric entry — locus: `TryReadNonEmptyTextToken`; input: `[[1.5]]`; wrong outcome: silent drop vs partial prose.
-- [ ] (candidate) `TryReadEvidenceRefObjectStringProperty` — both readable `text` and `id` returns id only — locus: merge order; input: object with both; wrong outcome: intentional id preference.
+- [x] (proven) `RunExplanationAggregateJsonReader.TryReadFiniteDouble` — percent confidence with trailing space after `%` dropped — **hit 2026-10-23 thorough hunt #99:** parse text before `%` then trim; regression `TryNormalizeStructuredJson_coerces_percent_suffixed_confidence_with_trailing_whitespace`.
+- [x] (proven) `ProseListObjectAliasHasExtractableContent` — whitespace-only `text` hid readable `id` for sole object-shaped `reasoning` at `PreferLastNonEmpty` — **hit 2026-10-23 thorough hunt #99:** id counts as extractable content; regression `TryNormalizeStructuredJson_maps_object_shaped_reasoning_id_when_text_property_is_whitespace_only`.
+- [x] (valid-no-repro) `TryReadProseListObjectStringProperty` — scalar `alternativesConsidered` id fallback — **cheap-disproof 2026-10-23 thorough hunt #99:** regression `TryNormalizeStructuredJson_maps_scalar_alternatives_considered_id_when_text_property_is_whitespace_only` (hunt #98 path).
+- [x] (valid-no-repro) `TryGetPropertyCaseInsensitivePreferLastNonEmpty` — unsupported trailing `schemaVersion` duplicate — **cheap-disproof 2026-10-23 thorough hunt #99:** regression `TryNormalizeStructuredJson_keeps_supported_schema_version_when_later_duplicate_is_unsupported`.
+- [x] (valid-no-repro) `CollectReasoningParts` — nested array sole fractional entry — **cheap-disproof 2026-10-23 thorough hunt #99:** normalize fails without prose; intentional drop.
+- [x] (valid-no-repro) `TryReadEvidenceRefObjectStringProperty` — prefers `id` when both `text` and `id` present — **cheap-disproof 2026-10-23 thorough hunt #99:** regression `TryNormalizeStructuredJson_prefers_id_over_text_on_object_shaped_evidence_ref`.
+
+- [ ] (candidate) `RunExplanationAggregateJsonReader.TryReadFiniteDouble` — faithfulness ratio percent with interior space (`"75 %"` ) — locus: percent strip; input: spaced percent token; wrong outcome: null ratio.
+- [ ] (candidate) `ProseListObjectAliasHasExtractableContent` — object with only whitespace `id` and missing `text` — locus: id reader; input: `{"id":"   "}`; wrong outcome: empty vs drop.
+- [ ] (candidate) `TryReadStructuredConfidence` — confidence array with sole `"75% "` string element — locus: array unwrap; input: `{"confidence":["75% "]}`; wrong outcome: null after fix gap.
+- [ ] (candidate) `TryGetPropertyCaseInsensitivePreferLastNonEmpty` — trailing `reasoning` object with only readable `id` duplicate — locus: scalar object poison; input: `REASONING` id-only object after string reasoning; wrong outcome: hunt #98 regression family.
+- [ ] (candidate) `RunExplanationAggregateJsonReader.NormalizeUnitRatio` — ratio exactly `100` vs `100.0` string — locus: percent scaling; input: `"100%"`; wrong outcome: 1.0 unit ratio.
 
 2026-10-09 seed hunt (seed-only): re-read aggregate property lookup, scalar coercion, structured list/reasoning normalization, and confidence disposition paths after the preceding parser fixes; no distinct candidate met the full reachability and wrong-outcome bar. Added two candidates for duplicate aggregate keys and negative numeric structured evidence references. The scoped RunExplanation suite passed 46 tests.
 
