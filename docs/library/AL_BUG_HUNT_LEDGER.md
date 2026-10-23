@@ -1,3 +1,18 @@
+2026-10-22 seed hunt (seed→hit): `ui-oidc` — promoted hunt-ready `decodeOAuthErrorDescription` / `shouldPreserveLiteralPlusInAuthorizeDescription` — Fitzpatrick skin-tone emoji with literal `+` in authorize `error_description` collapsed the plus to space because the mixed-plus guard covered ZWJ and regional indicators only; treat `\p{Emoji_Modifier}` like other emoji glue; regression `preserves literal plus in authorize error descriptions when skin-tone emoji modifiers are present`; scoped `src/lib/oidc` vitest 412/412.
+
+- [x] (proven) `decodeOAuthErrorDescription` — skin-tone modifier plus literal plus — **hit 2026-10-22 seed hunt:** `Emoji_Modifier` guard; regression above.
+- [x] (valid-no-repro) `OAuthTokenEndpointError` — attach HTTP status from `readOAuthError` — **cheap-disproof 2026-10-22:** enhancement; proxy policy unchanged.
+- [x] (valid-no-repro) `initiateOidcRedirect` — unsafe explicit returnUrl during authorize retry — **cheap-disproof 2026-10-22:** `isSafeReturnPath` gate on trunk.
+- [x] (invalid) `exchangeAuthorizationCode` — CallbackClient shows humanized `login_required` — **cheap-disproof 2026-10-22:** integration gap not a defect.
+- [x] (valid-no-repro) `server_error` refresh — route 503 transient — **cheap-disproof 2026-10-22:** existing route tests.
+
+- [ ] (candidate) `decodeOAuthErrorDescription` — keycap emoji plus literal plus — locus: mixed-plus guard; input: `#️⃣+extra` (reachability: authorize query).
+- [ ] (candidate) `normalizeOAuthErrorCode` — skin-tone emoji in error code field — locus: normalize path; input: IdP paste (reachability: rare).
+- [ ] (candidate) `initiateOidcRedirect` — preserve returnUrl when discovery fails after retry marker — locus: sessionStorage; input: sign-in retry (reachability: initiate-redirect.test).
+- [ ] (candidate) `humanizeAuthorizeCallbackError` — hair-style emoji modifiers in description — locus: display copy; input: ZWJ vs modifier (reachability: authorize callback).
+- [ ] (candidate) `OAuthTokenEndpointError` — attach HTTP status for JSON OAuth on 502 — locus: readOAuthError; input: proxy (reachability: enhancement).
+
+2026-10-22 seed hunt (seed→hit): `ui-oidc` — promoted hunt-ready `errorFromOAuthJson` / `isOAuthRefreshTokenRejectedError` — token JSON with only `error_description` (or unreadable `error` padding) returned a plain `Error`, so BFF refresh returned 503 instead of clearing cookies; wrap description-only bodies in `OAuthTokenEndpointError` with `invalid_request`, extend `shouldClearBffSessionForOAuthTokenErrorCode` with `isReadableOAuthErrorCode`, and classify legacy snake_case tokens via regex; regressions `classifies description-only OAuth JSON refresh failures for BFF session clearing`, underscore-only error test + `unsupported_grant_type` refresh classifier, route legacy/structured tests; scoped `src/lib/oidc` + BFF refresh route vitest 415/415.
 ﻿2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed nonce_replay authorize-query UX (existing parity), soft-hyphen object-replacement replacement-character variation-selector-16-only token (duplicate regression), and saturated decodeOAuthErrorDescription ZWJ multiply-encoded glue (existing parity); regression documents BFF refresh 495 parity (client + route opaque 495); scoped vitest 237/237.
 ﻿2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed state_mismatch authorize-query UX (existing parity) and saturated decodeOAuthErrorDescription ZWJ multiply-encoded glue (existing parity); regression documents BFF refresh 507 parity (client opaque-sequence plus route opaque 507) and soft-hyphen replacement-character-only access_token rejection (existing parity); scoped vitest 796/796.
 ﻿2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed invalid_state authorize-query UX (existing parity) and saturated readOAuthJsonErrorDescription ZWJ multiply-encoded glue (existing parity); regression documents BFF refresh 508 parity (client opaque-sequence plus route opaque 508) and soft-hyphen object-replacement-only access_token rejection (existing parity); scoped vitest 798/798.
@@ -16536,6 +16551,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **hunts:** 35
 - **bugs-found:** 15
 - **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-22
+- **last-bug:** 2026-10-22 — skin-tone emoji plus preservation in authorize error_description
 - **last-hunt:** 2026-10-16
 - **last-bug:** 2026-10-14 ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¯ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¿ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â½ embedded CR/LF in weekLabel reached weekly Sponsor report template model
 - **related-pd-tb:** none
@@ -53206,6 +53223,8 @@ esolveRpLogoutUrlFromBffSession ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¯ÃƒÆ
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
+- **hunts:** 78
+- **bugs-found:** 72
 - **hunts:** 80
 - **bugs-found:** 74
 - **consecutive-dry-hunts:** 0
