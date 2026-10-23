@@ -55,7 +55,8 @@ public sealed class AgentCuratedEvidenceProposer(
         if (!_options.Enabled)
             return null;
 
-        if (!(result.Findings ?? []).Any(AgentArchitectureFindingEmissionGate.HasTypedEmission))
+        if (!(result.Findings ?? []).Any(static finding =>
+                finding is not null && AgentArchitectureFindingEmissionGate.HasTypedEmission(finding)))
             return null;
 
         string userPrompt = BuildUserPrompt(runId, request, evidence, result);
@@ -97,6 +98,7 @@ public sealed class AgentCuratedEvidenceProposer(
 
         string findingsSummary = JsonSerializer.Serialize(
             (result.Findings ?? [])
+                .Where(static finding => finding is not null)
                 .Where(AgentArchitectureFindingEmissionGate.HasTypedEmission)
                 .Select(f => new { Title = f.Message, f.Severity, f.Category })
                 .Take(12),

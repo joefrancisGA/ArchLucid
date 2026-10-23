@@ -47,6 +47,45 @@ public sealed class AgentCuratedEvidenceProposerTests
     }
 
     [Fact]
+    public void BuildUserPrompt_skips_null_finding_entries_when_building_typed_summary()
+    {
+        ArchitectureRequest request = new()
+        {
+            RequestId = "req",
+            Description = new string('x', 12),
+            SystemName = "Payments",
+        };
+
+        AgentResult result = new()
+        {
+            RunId = "run",
+            TaskId = "task",
+            AgentType = AgentType.Topology,
+            Findings =
+            [
+                null!,
+                new ArchitectureFinding
+                {
+                    SourceAgent = AgentType.Topology,
+                    FindingId = "finding-typed",
+                    Message = "Private endpoint required for storage.",
+                    Category = "Network",
+                    Severity = FindingSeverity.Warning,
+                    EvidenceRefs =
+                    [
+                        "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1",
+                    ],
+                },
+            ],
+        };
+
+        Func<string> act = () => AgentCuratedEvidenceProposer.BuildUserPrompt("run", request, new AgentEvidencePackage(), result);
+
+        act.Should().NotThrow();
+        act().Should().Contain("Private endpoint required for storage.");
+    }
+
+    [Fact]
     public void BuildUserPrompt_uses_finding_source_agent_when_envelope_agent_type_missing()
     {
         ArchitectureRequest request = new()
