@@ -13,7 +13,10 @@ export const ASK_REVIEW_UNCITED_RESPONSE_MARKER =
 export const ASK_REVIEW_STREAMING_PROVISIONAL_MARKER =
   "Provisional answer — not part of the Finalized review record until finalized." as const;
 
-export type AskReviewArtifactStatus = "finalized" | "draft" | "missing";
+export const ASK_REVIEW_ARTIFACT_STATUS_FINALIZED_LOADING =
+  "Finalized status has not loaded." as const;
+
+export type AskReviewArtifactStatus = "finalized" | "draft" | "missing" | "finalized-loading";
 
 export function resolveAskReviewArtifactStatus(input: {
   readonly runMissing: boolean;
@@ -21,6 +24,10 @@ export function resolveAskReviewArtifactStatus(input: {
 }): AskReviewArtifactStatus {
   if (input.runMissing) {
     return "missing";
+  }
+
+  if (input.isFinalized === undefined) {
+    return "finalized-loading";
   }
 
   if (input.isFinalized === false) {
@@ -38,6 +45,8 @@ export function askReviewArtifactStatusCopy(status: AskReviewArtifactStatus): st
       return ASK_REVIEW_ARTIFACT_STATUS_DRAFT;
     case "missing":
       return ASK_REVIEW_ARTIFACT_STATUS_MISSING;
+    case "finalized-loading":
+      return ASK_REVIEW_ARTIFACT_STATUS_FINALIZED_LOADING;
     default: {
       const exhaustive: never = status;
 
