@@ -555,6 +555,29 @@ public sealed class ReviewResultCacheTests
     }
 
     [Fact]
+    public void Set_reinserts_after_deferred_invalidation_unpin_clears_tombstone()
+    {
+        ReviewResultCache cache = new();
+        ReviewCacheDependencyManifest manifest = new() { ContentHash = "hash-reinsert-after-unpin" };
+        string storageKey = ReviewCacheKeyBuilder.Build(manifest);
+
+        cache.Set(
+            manifest,
+            new ClosedLoopReasoningResult { RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" });
+        cache.PinStorageKey(storageKey);
+
+        cache.InvalidateForRun("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+        cache.UnpinStorageKey(storageKey);
+
+        cache.Set(
+            manifest,
+            new ClosedLoopReasoningResult { RunId = "reinsert-run" });
+
+        cache.TryGet(manifest, out ClosedLoopReasoningResult? cached).Should().BeTrue();
+        cached!.RunId.Should().Be("reinsertrun");
+    }
+
+    [Fact]
     public void UnpinStorageKey_evicts_overflow_after_deferred_invalidations_flush()
     {
         ReviewResultCache cache = new();
