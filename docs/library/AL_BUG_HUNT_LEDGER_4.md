@@ -14654,12 +14654,14 @@ heap-disproved mermaid typed-topology candidate.
 - **aliases:** host composition; DI registration; startup modules
 - **paths:** ArchLucid.Host.Composition/
 - **test-filter:** FullyQualifiedName~Host.Composition|FullyQualifiedName~ServiceCollectionExtensions
-- **hunts:** 71
-- **bugs-found:** 55
+- **hunts:** 72
+- **bugs-found:** 56
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-23
-- **last-bug:** 2026-10-23 — non-terminal collection manifests ingested as snapshots
+- **last-bug:** 2026-10-23 — process-shared value-report poll cache retained expired entries
 - **code-changed-since:** yes
+
+2026-10-23 thorough hunt (seed→hit): proved `ProcessSharedValueReportJobPollStateCache` retained expired poll-state entries until a `Get` touched each key, so long-running hosts without Redis could grow memory without bound; prune expired entries on `Set`; regression `Set_prunes_expired_entries_without_get`; cheap-disproof closed four sibling `(candidate)` rows; seeded five follow-on `(candidate)` rows; scoped poll-state + discovery cancel tests 10 passed (`RunAnalyzers=false`).
 
 2026-10-23 thorough hunt (seed→hit): proved `CollectionRunIngestService.IngestAsync` imported packages for manifest `status` `Running` (and other non-terminal states) despite ADR-0103 terminal-only ingest; reject non-`Succeeded`/`Partial` manifests before zip import; regressions `RunningManifestRejectsWithoutImport` and `DiscoverAsync_does_not_count_running_manifest_as_imported`; cheap-disproof closed four sibling `(candidate)` rows; seeded five follow-on `(candidate)` rows; scoped SecureNow ingest + discovery tests 12 passed (`RunAnalyzers=false`).
 
@@ -14842,11 +14844,17 @@ heap-disproved mermaid typed-topology candidate.
 - [x] (valid-no-repro) `AzureBlobCollectionRunArtifactReader.ListManifestsAsync` — `RequestFailedException` during enumeration returns partial list silently — **cheap-disproof 2026-10-23 thorough hunt #71:** intentional resilience from hunt #67; discovery still processes listed manifests.
 - [x] (valid-no-repro) `ValueReportJobPollStateCacheRegistrar` — memory `IDistributedCache` used when Redis connection string invalid — **cheap-disproof 2026-10-23 thorough hunt #71:** documented single-process fallback; shared `IDistributedCache` registration remains preferred (hunts #41–#44).
 
-- [ ] (candidate) `CollectionRunIngestService.IngestAsync` — `Failed` manifest with valid zip still rejected at status gate — locus: `IsImportableManifestStatus`; input: terminal `Failed` with package bytes; wrong outcome: forensic zip not ingested (may be correct).
-- [ ] (candidate) `AzureBlobCollectionRunArtifactReader.ParseManifestContent` — missing `schemaVersion` defaults to 0 and fails ingest — locus: `GetInt`; input: manifest without schema field; wrong outcome: rejected after list.
-- [ ] (candidate) `InMemoryValueReportJobQueue.TryPoll` — distributed state with mismatched `tenantId` in payload vs request scope — locus: `TryReadDistributedState`; input: forged cache entry; wrong outcome: cross-tenant leak (should be not-found).
-- [ ] (candidate) `PollingCollectionRunDiscovery.DiscoverAsync` — `OperationCanceledException` swallowed by outer list catch — locus: catch `Exception` around `ListManifestsAsync`; input: cancel during list; wrong outcome: returns 0 instead of propagating cancel.
-- [ ] (candidate) `ProcessSharedValueReportJobPollStateCache` — expired entries removed only on `Get` — locus: `TryGetValue` expiry check; input: many expired keys never read; wrong outcome: unbounded memory growth.
+- [x] (valid-no-repro) `CollectionRunIngestService.IngestAsync` — `Failed` manifest with valid zip still rejected at status gate — **cheap-disproof 2026-10-23 thorough hunt #72:** ADR-0103 treats failed runs as non-importable; intentional terminal gate from hunt #71.
+- [x] (valid-no-repro) `AzureBlobCollectionRunArtifactReader.ParseManifestContent` — missing `schemaVersion` defaults to 0 and fails ingest — **cheap-disproof 2026-10-23 thorough hunt #72:** schema `0` fails supported-version check; manifests must publish explicit schema version.
+- [x] (valid-no-repro) `InMemoryValueReportJobQueue.TryPoll` — distributed state with mismatched `tenantId` in payload vs request scope — **cheap-disproof 2026-10-23 thorough hunt #72:** `TryPoll` returns not-found when scoped tenant mismatches distributed payload; regression `TryPoll_returns_not_found_when_distributed_state_tenant_does_not_match_scoped_poll`.
+- [x] (valid-no-repro) `PollingCollectionRunDiscovery.DiscoverAsync` — `OperationCanceledException` swallowed by outer list catch — **cheap-disproof 2026-10-23 thorough hunt #72:** dedicated `OperationCanceledException` catch rethrows before generic handler; regression `DiscoverAsync_propagates_operation_canceled_when_list_manifests_is_canceled`.
+- [x] (proven) `ProcessSharedValueReportJobPollStateCache` — expired entries removed only on `Get` — **hit 2026-10-23 thorough hunt #72:** prune expired keys on `Set`; regression `Set_prunes_expired_entries_without_get`.
+
+- [ ] (candidate) `DistributedCacheValueReportJobPollStateCache` — relies on underlying cache TTL without local expiry enforcement on `Get` — locus: pass-through `Get`; input: Redis key expired server-side; wrong outcome: stale poll state until Redis eviction.
+- [ ] (candidate) `InMemoryValueReportJobQueue.TryPoll` — local `_jobs` entry retained after terminal state for unbounded job ids — locus: `ConcurrentDictionary` without eviction; input: high-volume async exports on one replica; wrong outcome: memory growth (distinct from poll-state cache).
+- [ ] (candidate) `CollectionRunIngestService.IngestAsync` — `Partial` manifest without `packageSha256` accepts any zip hash — locus: `IsManifestHashValid` empty hash branch; input: Partial run with tampered zip; wrong outcome: import without hash attestation.
+- [ ] (candidate) `AzureBlobCollectionRunArtifactReader.ReadManifestAsync` — non-`RequestFailedException` download errors return null — locus: broad catch; input: timeout wrapped as generic `Exception`; wrong outcome: manifest omitted from list without storage signal.
+- [ ] (candidate) `ValueReportJobPollStateCacheRegistrar` — opens dedicated `RedisCache` when probe string resolves but shared `IDistributedCache` registration fails later — locus: factory branch order; input: misordered composition modules; wrong outcome: split poll-state backing stores.
 
 
 2026-10-09 seed hunt (seed→hit): failed usage flush returned events through `Enqueue`, which drops them when metering is disabled. Already-accepted events now use `Requeue`. Regression `StopAsync_keeps_dequeued_usage_events_when_persist_fails_after_metering_disabled` failed first.
