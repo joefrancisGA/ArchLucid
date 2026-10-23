@@ -34,9 +34,20 @@ public sealed class InMemoryRunExportRecordRepository : IRunExportRecordReposito
             if (!TryGetRunExportList(stored.RunId, out List<RunExportRecord>? existingList))
             {
                 existingList = [];
-                _byRunId[stored.RunId] = existingList;
+            }
+            else
+            {
+                foreach (string key in _byRunId.Keys.ToArray())
+                {
+                    if (_byRunId[key] == existingList
+                        && !string.Equals(key, stored.RunId, StringComparison.Ordinal))
+                    {
+                        _byRunId.Remove(key);
+                    }
+                }
             }
 
+            _byRunId[stored.RunId] = existingList!;
             List<RunExportRecord> list = existingList!;
 
             int existingIndex = list.FindIndex(

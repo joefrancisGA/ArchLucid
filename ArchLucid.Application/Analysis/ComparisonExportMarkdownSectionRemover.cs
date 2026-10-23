@@ -60,11 +60,16 @@ internal static class ComparisonExportMarkdownSectionRemover
         if (trimmedLine.Equals(heading.AsSpan(), StringComparison.Ordinal))
             return true;
 
-        string normalized = trimmedLine.ToString().Replace('\u00A0', ' ').Trim();
+        return string.Equals(NormalizeHeadingLine(trimmedLine.ToString()), heading, StringComparison.Ordinal);
+    }
+
+    private static string NormalizeHeadingLine(string line)
+    {
+        string normalized = line.Replace('\u00A0', ' ').Replace('\u2007', ' ').Trim();
 
         while (normalized.Contains("  ", StringComparison.Ordinal))
             normalized = normalized.Replace("  ", " ", StringComparison.Ordinal);
 
-        return string.Equals(normalized, heading, StringComparison.Ordinal);
+        return normalized;
     }
 }
