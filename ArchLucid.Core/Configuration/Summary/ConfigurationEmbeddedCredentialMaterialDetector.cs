@@ -44,23 +44,37 @@ internal static class ConfigurationEmbeddedCredentialMaterialDetector
         if (ContainsCredentialKeyValuePair(trimmed))
             return true;
 
+        return ContainsCredentialKeyValuePairAfterPercentDecoding(trimmed);
+    }
+
+    private static bool ContainsCredentialKeyValuePairAfterPercentDecoding(ReadOnlySpan<char> trimmed)
+    {
         if (!trimmed.Contains('%'))
             return false;
 
-        string decoded = Uri.UnescapeDataString(trimmed.ToString());
+        string current = trimmed.ToString();
 
-        if (string.Equals(decoded, trimmed.ToString(), StringComparison.Ordinal))
-            return false;
+        for (int pass = 0; pass < 3 && current.Contains('%'); pass++)
+        {
+            string decoded = Uri.UnescapeDataString(current);
 
-        ReadOnlySpan<char> decodedTrimmed = decoded.AsSpan().Trim();
+            if (string.Equals(decoded, current, StringComparison.Ordinal))
+                break;
 
-        if (decodedTrimmed.Length < 4)
-            return false;
+            current = decoded;
+            ReadOnlySpan<char> decodedTrimmed = current.AsSpan().Trim();
 
-        if (ContainsUrlUserInfoCredentials(decodedTrimmed))
-            return true;
+            if (decodedTrimmed.Length < 4)
+                continue;
 
-        return ContainsCredentialKeyValuePair(decodedTrimmed);
+            if (ContainsUrlUserInfoCredentials(decodedTrimmed))
+                return true;
+
+            if (ContainsCredentialKeyValuePair(decodedTrimmed))
+                return true;
+        }
+
+        return false;
     }
 
     private static bool ContainsUrlUserInfoCredentials(ReadOnlySpan<char> trimmed)
@@ -156,7 +170,7 @@ internal static class ConfigurationEmbeddedCredentialMaterialDetector
     }
 
     private static bool IsPairDelimiter(char character) =>
-        character is ';' or ',' or '|' or '&' or '?' or ' ' or '\\' or '\r' or '\n' or '\t' or '\f' or '\v'
+        character is ';' or ',' or '|' or '&' or '?' or '/' or ' ' or '\\' or '\r' or '\n' or '\t' or '\f' or '\v'
         or '\u00A0' or '\u00AD' or '\u1680' or '\u180E' or '\u2000' or '\u2001' or '\u2002' or '\u2003' or '\u2004'
         or '\u2005' or '\u2006' or '\u2007' or '\u2008' or '\u2009' or '\u200A' or '\u200B' or '\u200C' or '\u200D'
         or '\u200E' or '\u200F' or '\u2011' or '\u2012' or '\u2013' or '\u2014' or '\u2015' or '\u202A' or '\u202B'

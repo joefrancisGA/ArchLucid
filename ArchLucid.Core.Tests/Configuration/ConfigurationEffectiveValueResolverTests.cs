@@ -715,6 +715,39 @@ public sealed class ConfigurationEffectiveValueResolverTests
     }
 
     [Fact]
+    public void Resolve_truncates_bmp_effective_value_to_256_chars_plus_ellipsis_when_length_exceeds_bound()
+    {
+        const string configPath = "ArchLucid:SomeFeature:Settings";
+        string configured = new string('a', 257);
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = configured,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(configuration, configPath, isSet: true);
+
+        value.Should().Be(new string('a', 256) + "…");
+    }
+
+    [Fact]
+    public void Resolve_redacts_json_object_effective_values_when_nested_property_contains_password_pair()
+    {
+        const string configPath = "ArchLucid:SomeFeature:Settings";
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = """{"a":{"b":{"c":"Password=x"}}}""",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(configuration, configPath, isSet: true);
+
+        value.Should().Be("***");
+    }
+
+    [Fact]
     public void Resolve_preserves_non_credential_json_array_scalar_effective_values()
     {
         const string configPath = "ArchLucid:SomeFeature:Settings";

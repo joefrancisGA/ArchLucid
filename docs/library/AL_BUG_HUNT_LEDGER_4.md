@@ -6705,6 +6705,20 @@ Split from retired `archlucid-core` (ABQ-08).
 2026-10-21 seed hunt (seed->hit): promoted AgentPromptCatalogOptions.Versions whitespace keys; CachedAgentSystemPromptCatalog resolves AgentTypeKeys without trimming dictionary keys; AgentPromptCatalogOptionsNormalizePostConfigure + host registration; regression PostConfigure_trims_agent_prompt_version_keys_from_configuration_binding; cheap-disproof closed JSON null array (Resolve_redacts_json_effective_values_when_json_array_contains_null_then_password_pair) and SaaS WhenProduction (catalog Production-only); 1 AgentPromptCatalog test passed (RunAnalyzers=false).
 
 ## Zone: core-configuration-summary
+2026-10-23 seed hunt #121 (seed→hit): promoted five open `(candidate)` percent-encoding, slash-delimiter, nested JSON, and truncation rows; doubly percent-encoded `ClientSecret%253D` and path-like `Server=prod/Password=secret` paste leaked because decode was single-pass and `/` was not a pair delimiter; multi-pass `Uri.UnescapeDataString` (up to three passes) and `/` in `IsPairDelimiter`; regressions `Resolve_redacts_embedded_credential_material_when_client_secret_pair_is_doubly_percent_encoded_in_query`, `Resolve_redacts_embedded_credential_material_when_password_pair_is_slash_delimited`, and `Resolve_redacts_embedded_credential_material_when_client_secret_pair_is_percent_encoded_with_plus_in_secret`; cheap-disproof closed nested JSON object (`Resolve_redacts_json_object_effective_values_when_nested_property_contains_password_pair`) and 257-char BMP truncation (`Resolve_truncates_bmp_effective_value_to_256_chars_plus_ellipsis_when_length_exceeds_bound`); seeded five follow-on `(candidate)` rows; 85 scoped matrix + resolver spot tests passed (`RunAnalyzers=false`).
+
+- [x] (proven) `ConfigurationEmbeddedCredentialMaterialDetector.ContainsCredentialKeyValuePairAfterPercentDecoding` — doubly percent-encoded equals (`%253D`) — **hit 2026-10-23 seed hunt #121:** up to three decode passes; regression `Resolve_redacts_embedded_credential_material_when_client_secret_pair_is_doubly_percent_encoded_in_query`. [class:fail-open-validation]
+- [x] (proven) `ConfigurationEmbeddedCredentialMaterialDetector.IsPairDelimiter` — ascii slash (`/`) between credential pairs — **hit 2026-10-23 seed hunt #121:** add `/`; regression `Resolve_redacts_embedded_credential_material_when_password_pair_is_slash_delimited`. [class:fail-open-validation]
+- [x] (valid-no-repro) `ConfigurationEmbeddedCredentialMaterialDetector` — `+` form-encoding in query (`%2B` in secret tail) — **cheap-disproof 2026-10-23 seed hunt #121:** percent-decode path recognizes pair after decode; regression `Resolve_redacts_embedded_credential_material_when_client_secret_pair_is_percent_encoded_with_plus_in_secret`.
+- [x] (valid-no-repro) `ConfigurationSensitiveConfigValueScanner` — JSON nested object string three levels deep with `Password=` — **cheap-disproof 2026-10-23 seed hunt #121:** object recursion scans nested string values; regression `Resolve_redacts_json_object_effective_values_when_nested_property_contains_password_pair`.
+- [x] (valid-no-repro) `ConfigurationEffectiveValueResolver.Resolve` — effective value exactly 257 BMP chars without surrogate at cut — **cheap-disproof 2026-10-23 seed hunt #121:** 256 chars plus `…`; regression `Resolve_truncates_bmp_effective_value_to_256_chars_plus_ellipsis_when_length_exceeds_bound`.
+
+- [ ] (candidate) `ConfigurationEmbeddedCredentialMaterialDetector` — triply percent-encoded equals (`%25253D`) — locus: decode pass cap; input: `ClientSecret%25253Dabc`; wrong outcome: leak if cap too low.
+- [ ] (candidate) `ConfigurationEmbeddedCredentialMaterialDetector` — fullwidth solidus (`U+FF0F`) between pairs — locus: `IsPairDelimiter`; input: `Server=prod／Password=secret`; wrong outcome: leak (CJK path paste).
+- [ ] (candidate) `ConfigurationSensitiveConfigValueScanner` — JSON array of objects with embedded `ApiKey=` — locus: array element recursion; input: `[{"k":"ApiKey=x"}]`; wrong outcome: verify redaction.
+- [ ] (candidate) `ConfigurationEmbeddedCredentialMaterialDetector` — percent-encoded slash as pair delimiter (`%2F`) — locus: decode-before-scan; input: `Server=prod%2FPassword=secret`; wrong outcome: leak.
+- [ ] (candidate) `ConfigurationEffectiveValueResolver.Resolve` — JSON string effective value at exactly 256 BMP chars (no ellipsis) — locus: truncation boundary; input: 256-char benign string; wrong outcome: spurious ellipsis.
+
 2026-10-23 seed hunt #120 (seed→hit): promoted open `(candidate)` backslash pair-delimiter and percent-encoded `ClientSecret=` query gaps; `Password=` after backslash paste and `ClientSecret%3D` literals were not recognized so config summary effective values leaked ADO.NET secrets; extended `IsPairDelimiter` with `\`, `?`, and `&`, and added percent-decoded retry in `ContainsEmbeddedCredentialMaterial`; regressions `Resolve_redacts_embedded_credential_material_when_password_pair_is_backslash_delimited` and `Resolve_redacts_embedded_credential_material_when_client_secret_pair_is_percent_encoded_in_query`; cheap-disproof closed JSON `conn` object (`Resolve_redacts_json_object_effective_values_when_conn_property_contains_shared_access_key_pair`), `DOTNET_ENVIRONMENT` trailing tab (`ConfigurationKeyRequirement_WhenProduction_treats_dotnet_environment_with_trailing_tab_as_production`), and whitespace-only scalar (`Resolve_returns_null_when_scalar_effective_value_is_whitespace_only`); seeded five follow-on `(candidate)` rows; 81 scoped spot tests passed (`RunAnalyzers=false`).
 
 - [x] (proven) `ConfigurationEmbeddedCredentialMaterialDetector.IsPairDelimiter` — backslash (`U+005C`) between credential pairs — **hit 2026-10-23 seed hunt #120:** add `\`; regression `Resolve_redacts_embedded_credential_material_when_password_pair_is_backslash_delimited`. [class:fail-open-validation]
@@ -6712,12 +6726,6 @@ Split from retired `archlucid-core` (ABQ-08).
 - [x] (valid-no-repro) `ConfigurationSensitiveConfigValueScanner` — JSON object property value with embedded `SharedAccessKey=` — **cheap-disproof 2026-10-23 seed hunt #120:** object recursion scans string values; regression `Resolve_redacts_json_object_effective_values_when_conn_property_contains_shared_access_key_pair`.
 - [x] (valid-no-repro) `ConfigurationKeyRequirement.WhenProduction` — `DOTNET_ENVIRONMENT` with trailing ascii tab — **cheap-disproof 2026-10-23 seed hunt #120:** `env.Trim()` before compare; regression `ConfigurationKeyRequirement_WhenProduction_treats_dotnet_environment_with_trailing_tab_as_production`.
 - [x] (valid-no-repro) `ConfigurationEffectiveValueResolver.Resolve` — whitespace-only effective value — **cheap-disproof 2026-10-23 seed hunt #120:** `IsNullOrWhiteSpace` returns null; regression `Resolve_returns_null_when_scalar_effective_value_is_whitespace_only`.
-
-- [ ] (candidate) `ConfigurationEmbeddedCredentialMaterialDetector` — `+` form-encoding in query (`ClientSecret%3Dabc%2Bdef`) — locus: percent decode path; input: value with `%2B` in secret tail; wrong outcome: leak if decode incomplete.
-- [ ] (candidate) `ConfigurationEmbeddedCredentialMaterialDetector` — doubly percent-encoded equals (`%253D`) — locus: single-pass `Uri.UnescapeDataString`; input: `ClientSecret%253Dabc`; wrong outcome: leak.
-- [ ] (candidate) `ConfigurationSensitiveConfigValueScanner` — JSON nested object string three levels deep with `Password=` — locus: recursion depth; input: `{"a":{"b":{"c":"Password=x"}}}`; wrong outcome: verify redaction.
-- [ ] (candidate) `ConfigurationEmbeddedCredentialMaterialDetector` — credential pair separated by ascii slash `/` — locus: `IsPairDelimiter`; input: `Server=prod/Password=secret`; wrong outcome: leak (path-like paste).
-- [ ] (candidate) `ConfigurationEffectiveValueResolver.Resolve` — effective value exactly 257 BMP chars without surrogate at cut — locus: truncation; input: 257-char benign string; wrong outcome: ellipsis vs length (display bound).
 
 2026-10-23 seed hunt #119 (seed→hit): promoted open `(candidate)` `U+206D` pair-delimiter gap; `Password=` after activate arabic form shaping mark was not a pair boundary so config summary effective values leaked ADO.NET secrets; extended `IsPairDelimiter` with `\u206D`; regression `Resolve_redacts_embedded_credential_material_when_password_pair_is_activate_arabic_form_shaping_mark_delimited`; cheap-disproof closed consolidate refactor row (`invalid`), tab-before-`AccountKey` (`Resolve_redacts_embedded_credential_material_when_account_key_pair_is_tab_delimited`), JSON number-then-password array (`Resolve_redacts_json_effective_values_when_json_array_contains_number_then_password_pair`), and Azure OpenAI interior space (`endpoint.Trim()` only trims ends; no host-parse bug on `https://foo.openai.azure.com /openai` without further repro); seeded five non-delimiter `(candidate)` rows; 77 scoped matrix + JSON spot tests passed (`RunAnalyzers=false`).
 
@@ -6852,11 +6860,11 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** configuration summary; config paths; split from archlucid-core
 - **paths:** ArchLucid.Core/Configuration/
 - **test-filter:** FullyQualifiedName~Configuration
-- **hunts:** 79
-- **bugs-found:** 61
+- **hunts:** 80
+- **bugs-found:** 63
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-23
-- **last-bug:** 2026-10-23 — backslash delimiter and percent-encoded credential pair scan for config summary redaction
+- **last-bug:** 2026-10-23 — multi-pass percent decode and slash pair delimiter for config summary redaction
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 

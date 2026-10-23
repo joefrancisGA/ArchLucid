@@ -415,6 +415,27 @@ public sealed class ConfigurationEmbeddedCredentialRedactionMatrixTests
     }
 
     [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_client_secret_pair_is_doubly_percent_encoded_in_query()
+    {
+        const string effectiveValue = "redirect=https://x?ClientSecret%253Dabc";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_client_secret_pair_is_percent_encoded_with_plus_in_secret()
+    {
+        const string effectiveValue = "redirect=https://x?ClientSecret%3Dabc%2Bdef";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_password_pair_is_slash_delimited()
+    {
+        string effectiveValue = "Server=prod" + '/' + "Password=secret";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
     public void Resolve_redacts_embedded_credential_material_when_password_pair_is_activate_national_digit_shapes_delimited()
     {
         string effectiveValue = "Server=prod" + '\u206E' + "Password=secret";
