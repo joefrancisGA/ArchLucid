@@ -14654,12 +14654,14 @@ heap-disproved mermaid typed-topology candidate.
 - **aliases:** host composition; DI registration; startup modules
 - **paths:** ArchLucid.Host.Composition/
 - **test-filter:** FullyQualifiedName~Host.Composition|FullyQualifiedName~ServiceCollectionExtensions
-- **hunts:** 79
-- **bugs-found:** 63
+- **hunts:** 80
+- **bugs-found:** 64
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-23
-- **last-bug:** 2026-10-23 — discovery aborted when ReadArtifactAsync threw
+- **last-bug:** 2026-10-23 — corrupt value-report poll JSON reported not-found
 - **code-changed-since:** yes
+
+2026-10-23 thorough hunt (seed→hit): proved `InMemoryValueReportJobQueue.TryPoll` returned not-found when distributed poll cache held non-empty but invalid JSON, including while a local pending job still existed on the enqueue replica; surface corrupt payloads as failed poll copy; regressions `TryPoll_reports_failure_when_distributed_state_payload_is_invalid_json` and `TryPoll_reports_failure_when_distributed_state_corrupt_and_local_job_is_pending`; cheap-disproof closed four sibling `(candidate)` rows; seeded five follow-on `(candidate)` rows; scoped `InMemoryValueReportJobQueueDistributedPollStateTests` 13 passed (`RunAnalyzers=false`).
 
 2026-10-23 thorough hunt (seed→hit): proved `PollingCollectionRunDiscovery.DiscoverAsync` aborted the batch when `ReadArtifactAsync` threw anything other than `RequestFailedException`, skipping remaining manifests; catch per-manifest read failures and propagate cancel only; regressions `DiscoverAsync_continues_when_read_artifact_throws_for_one_manifest` and `DiscoverAsync_imports_later_duplicate_runId_after_first_manifest_rejected`; cheap-disproof closed three sibling `(candidate)` rows; seeded five follow-on `(candidate)` rows; scoped `PollingCollectionRunDiscoveryTests` 13 passed (`RunAnalyzers=false`).
 
@@ -14906,11 +14908,17 @@ heap-disproved mermaid typed-topology candidate.
 - [x] (valid-no-repro) `InMemoryValueReportJobQueue.TryPoll` — local pending retained when distributed returns failed for unknown phase — **cheap-disproof 2026-10-23 thorough hunt #79:** `PreferDistributedPollState` promotes distributed `Failed` over local `Pending` (hunts #75/#76).
 - [x] (valid-no-repro) `AzureBlobCollectionRunArtifactReader.ListManifestsAsync` — duplicate blob names for same run manifest — **cheap-disproof 2026-10-23 thorough hunt #79:** duplicate list entries are operator layout; discovery dedupes by `runId` after `Imported` (hunts #77/#78).
 
-- [ ] (candidate) `PollingCollectionRunDiscovery.DiscoverAsync` — `OperationCanceledException` during per-manifest ingest aborts batch — locus: ingest catch; input: cancel mid-ingest; wrong outcome: propagate cancel (intentional).
-- [ ] (candidate) `AzureBlobCollectionRunArtifactReader.ReadArtifactAsync` — non-`RequestFailedException` from download propagates to caller — locus: download catch; input: SDK throws `IOException`; wrong outcome: discovery now skips (hunt #79).
-- [ ] (candidate) `CollectionRunIngestService.IngestAsync` — malformed hex `packageSha256` rejects even when zip valid — locus: `IsManifestHashValid`; input: invalid hex; wrong outcome: rejected (correct).
-- [ ] (candidate) `InMemoryValueReportJobQueue.TryPoll` — distributed deserialize failure returns null and local pending continues — locus: `TryReadDistributedState`; input: corrupt JSON; wrong outcome: local state wins until terminal write.
-- [ ] (candidate) `ValueReportJobPollStateCacheRegistrar.Register` — no-op when cache already registered hides misconfigured second registrar — locus: early return; input: double module registration; wrong outcome: intentional idempotency.
+- [x] (proven) `InMemoryValueReportJobQueue.TryPoll` — invalid JSON distributed poll payload reported not-found — **hit 2026-10-23 thorough hunt #80:** treat corrupt cache payload as failed poll state; regressions `TryPoll_reports_failure_when_distributed_state_payload_is_invalid_json` and `TryPoll_reports_failure_when_distributed_state_corrupt_and_local_job_is_pending`.
+- [x] (valid-no-repro) `PollingCollectionRunDiscovery.DiscoverAsync` — `OperationCanceledException` during per-manifest ingest aborts batch — **cheap-disproof 2026-10-23 thorough hunt #80:** dedicated `OperationCanceledException` catch rethrows before generic ingest handler (hunt #72).
+- [x] (valid-no-repro) `AzureBlobCollectionRunArtifactReader.ReadArtifactAsync` — non-`RequestFailedException` from download propagates to caller — **cheap-disproof 2026-10-23 thorough hunt #80:** discovery skips per-manifest read failures (hunt #79); reader may still throw for direct callers.
+- [x] (valid-no-repro) `CollectionRunIngestService.IngestAsync` — malformed hex `packageSha256` rejects even when zip valid — **cheap-disproof 2026-10-23 thorough hunt #80:** `IsManifestHashValid` returns false on `FormatException`; ingest returns `Rejected`.
+- [x] (valid-no-repro) `ValueReportJobPollStateCacheRegistrar.Register` — no-op when cache already registered hides misconfigured second registrar — **cheap-disproof 2026-10-23 thorough hunt #80:** idempotent registrar; regression suite `ValueReportJobPollStateCacheRegistrarTests`.
+
+- [ ] (candidate) `InMemoryValueReportJobQueue.TryPoll` — corrupt distributed payload without local job skips tenant scope check — locus: corrupt branch; input: invalid JSON only; wrong outcome: failed copy without tenant match (hunt #80 tradeoff).
+- [ ] (candidate) `PollingCollectionRunDiscovery.DiscoverAsync` — `OperationCanceledException` during `ReadArtifactAsync` propagates — locus: read catch; input: cancel during download; wrong outcome: propagate (intentional).
+- [ ] (candidate) `AzureBlobCollectionRunArtifactReader.ReadArtifactAsync` — swallow non-storage download errors at reader — locus: download catch; input: `IOException`; wrong outcome: return null (defense in depth vs hunt #79).
+- [ ] (candidate) `ProcessSharedValueReportJobPollStateCache` — corrupt JSON in shared cache same as distributed path — locus: cache get; input: invalid bytes; wrong outcome: handled by queue read (hunt #80).
+- [ ] (candidate) `CollectionRunIngestService.IngestAsync` — empty `packageSha256` accepts any zip bytes — locus: hash gate; input: missing hash; wrong outcome: intentional ADR-0103.
 
 
 2026-10-09 seed hunt (seed→hit): failed usage flush returned events through `Enqueue`, which drops them when metering is disabled. Already-accepted events now use `Requeue`. Regression `StopAsync_keeps_dequeued_usage_events_when_persist_fails_after_metering_disabled` failed first.
