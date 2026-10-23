@@ -315,6 +315,7 @@ public static class GraphSnapshotCanonicalFingerprint
     private static ReadOnlySpan<char> ReviewCachePathLineBreakScalars =>
     [
         '\0',
+        '\t',
         '\u000b',
         '\u000c',
         '\r',
