@@ -195,6 +195,24 @@ public sealed class RunExecuteOwnershipLeaseServiceDrainTests
         released.Should().Be(2);
     }
 
+    [Fact]
+    public async Task ReleaseAllHeldByThisInstanceAsync_propagates_repository_exceptions()
+    {
+        Mock<IRunExecuteOwnershipLeaseRepository> leases = new();
+        leases
+            .Setup(l => l.ReleaseAllHeldByInstanceAsync("instance-a", It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("storage unavailable"));
+
+        Mock<IHostProcessInstanceId> instance = new();
+        instance.Setup(i => i.Value).Returns("instance-a");
+
+        RunExecuteOwnershipLeaseService sut = CreateSut(leases, new WorkerHostDrainGate(), instance);
+
+        Func<Task> act = () => sut.ReleaseAllHeldByThisInstanceAsync(CancellationToken.None);
+
+        await act.Should().ThrowAsync<InvalidOperationException>().WithMessage("*storage unavailable*");
+    }
+
     private static RunExecuteOwnershipLeaseService CreateSut(
         Mock<IRunExecuteOwnershipLeaseRepository> leases,
         IWorkerHostDrainGate drainGate,
