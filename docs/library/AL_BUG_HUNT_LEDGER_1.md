@@ -8546,6 +8546,19 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: run-execute-ownership
 
+2026-10-23 seed hunt (seed-only): cheap-disproof closed five `(candidate)` rows from hunt #172; regression `ReleaseAllHeldByThisInstanceAsync_when_repository_throws_preserves_local_acquire_pin` documents `_activeHolders.Clear()` runs only after successful bulk release; re-read drain rollback cancellation and disabled-ownership guard paths; seeded five mechanism-backed `(candidate)` rows below; 79 scoped ownership/orchestrator tests passed.
+
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseService.AcquireAsync` — post-SQL drain rollback vs cancelled caller token — **cheap-disproof 2026-10-23 seed hunt:** `AcquireAsync_when_drain_begins_during_repository_call_rolls_back_and_throws_conflict` and `AcquireAsync_when_drain_begins_after_acquire_rolls_back_sql_with_non_cancellable_release_when_caller_token_is_cancelled`.
+- [x] (valid-no-repro) `ArchitectureRunExecuteOrchestrator.ExecuteSelectiveRunAsync` — triple pre-acquire eligibility loop — **cheap-disproof 2026-10-23 seed hunt:** intentional race guards; `ExecuteSelectiveRunAsync_does_not_acquire_ownership_when_live_schedule_clears_after_final_eligibility_check` and related selective regressions.
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseRenewalScope.RunRenewalLoopAsync` — transient renewal fault cancels execute — **cheap-disproof 2026-10-23 seed hunt:** intentional TB-943; `BeginRenewalScope_cancels_linked_execute_token_when_renewal_throws_unexpected_error`.
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseService.ReleaseAllHeldByThisInstanceAsync` — premature `Clear()` on partial bulk release — **cheap-disproof 2026-10-23 seed hunt:** `Clear()` after successful foreach only; regression `ReleaseAllHeldByThisInstanceAsync_when_repository_throws_preserves_local_acquire_pin`.
+- [x] (valid-no-repro) `ArchitectureRunExecuteOrchestrator.EnsureExecuteOwnershipAcquiredLocally` — ownership disabled after `IsEnabled` check — **cheap-disproof 2026-10-23 seed hunt:** `ExecuteRunAsync_throws_conflict_when_ownership_not_held_locally_after_acquire` and `IsLocallyHoldingExecuteOwnership_is_false_when_acquire_no_ops_because_ownership_disabled`.
+- [ ] (candidate) `RunExecuteOwnershipLeaseService.AcquireAsync` — `TryAdmit` succeeds but repository `TryAcquireOrRenewAsync` throws after local pin set — locus: acquire `catch` removes pin; input: SQL fault after admission.
+- [ ] (candidate) `ArchitectureRunExecuteOrchestrator.ExecuteRunAsync` — ownership path uses linked `executeCancellation` while pre-acquire checks use caller token only — locus: `CancellationTokenSource.CreateLinkedTokenSource`; input: cooperative cancel during eligibility read before acquire.
+- [ ] (candidate) `RunExecuteOwnershipLeaseRenewalScope.TryBegin` — returns null when storage in-memory but orchestrator still entered ownership branch — locus: `BeginRenewalScope` no-op scope; input: in-memory integration tests vs SQL production path.
+- [ ] (candidate) `RunExecuteOwnershipLeaseService.ReleaseAsync` — clears local pin after `TryReleaseAsync` even when delete matched zero rows — locus: unconditional `TryRemove`; input: stale SQL row with rotated holder id (re-verify release pin tests).
+- [ ] (candidate) `ArchitectureRunExecuteOrchestrator.ExecuteSelectiveRunOwnedCoreAsync` — forced-task delete uses cancellation token that may already be linked-cancelled before demotion reload — locus: delete loop vs `TryDemoteReadyForCommitBeforeSelectiveExecuteAsync`; input: cancel during selective prep after acquire.
+
 2026-10-23 seed hunt (seed-only): cheap-disproof closed five `(candidate)` rows from hunt #171; refreshed concurrent acquire regression `AcquireAsync_when_concurrent_acquires_only_one_invokes_repository` for `TryAdmit`-before-SQL admission; re-read selective owned-core demotion and release holder resolution; seeded five mechanism-backed `(candidate)` rows below; 78 scoped ownership/orchestrator tests passed.
 
 - [x] (valid-no-repro) `RunExecuteOwnershipLeaseService.AcquireAsync` — concurrent local admission vs SQL rollback — **cheap-disproof 2026-10-23 seed hunt:** loser rejected at `TryAdmit` before repository; regression `AcquireAsync_when_concurrent_acquires_only_one_invokes_repository` (replaces hung post-SQL `TryAdd` scenario).
@@ -8553,11 +8566,6 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - [x] (valid-no-repro) `RunExecuteOwnershipLeaseRenewalScope.DisposeAsync` — hung renewal delays `finally` release — **cheap-disproof 2026-10-23 seed hunt:** `RenewAsync` honors linked cancellation; prior dispose thorough row (2026-10-06).
 - [x] (valid-no-repro) `RunExecuteOwnershipLeaseService.ResolveHolderInstanceId` — release without local pin — **cheap-disproof 2026-10-23 seed hunt:** acquire failure clears pin before release path; successful execute retains pin through `ReleaseAsync_when_process_instance_id_rotates_after_acquire_releases_original_holder`.
 - [x] (valid-no-repro) `ArchitectureRunExecuteOrchestrator.ExecuteSelectiveRunOwnedCoreAsync` — delete before demotion on stale snapshot — **cheap-disproof 2026-10-23 seed hunt:** demotion reloads persisted header and ignores snapshot (`TryDemoteReadyForCommitBeforeSelectiveExecuteAsync_demotes_when_live_header_is_ready_for_commit_even_if_stale_snapshot_was_not`).
-- [ ] (candidate) `RunExecuteOwnershipLeaseService.AcquireAsync` — post-SQL drain re-check rolls back with `TryReleaseAsync` but winner may still observe cancelled token — locus: drain gate after repository success; input: drain begins during in-flight `TryAcquireOrRenewAsync`.
-- [ ] (candidate) `ArchitectureRunExecuteOrchestrator.ExecuteSelectiveRunAsync` — triple `EnsureSelectiveExecuteStillEligibleAsync` loop vs single full-run double-check — locus: selective pre-acquire; input: schedule cleared after first validation only.
-- [ ] (candidate) `RunExecuteOwnershipLeaseRenewalScope.RunRenewalLoopAsync` — unexpected renewal exception cancels linked execute even when SQL lease TTL still valid — locus: generic `catch (Exception)`; input: transient storage fault on first heartbeat.
-- [ ] (candidate) `RunExecuteOwnershipLeaseService.ReleaseAllHeldByThisInstanceAsync` — `Clear()` local registry before verifying repository bulk release count — locus: shutdown drain; input: partial `ReleaseAllHeldByInstanceAsync` failure after some rows deleted.
-- [ ] (candidate) `ArchitectureRunExecuteOrchestrator` — `EnsureExecuteOwnershipAcquiredLocally` throws after `AcquireAsync` no-op when ownership disabled mid-request — locus: options flip; input: `Enabled` false between `IsEnabled` check and acquire (re-verify 2026-10-06 hits).
 
 2026-10-23 seed hunt (seed-only): cheap-disproof closed five `(candidate)` rows from hunt #170; regressions `ExecuteRunAsync_when_release_throws_in_finally_after_agent_failure_throws_release_exception` and `ExecuteSelectiveRunAsync_when_agent_execute_cancelled_releases_lease_with_non_cancellable_token`; re-read drain gate admission and renewal conflict handling; seeded five mechanism-backed `(candidate)` rows below; 77 scoped ownership/orchestrator tests passed (concurrent acquire hang test excluded; see hunt #170).
 
@@ -8583,9 +8591,9 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** run execute lease; execute ownership; orchestration ownership
 - **paths:** ArchLucid.Application/Runs/Orchestration/ArchitectureRunExecuteOrchestrator.cs; ArchLucid.Application/Runs/ExecuteOwnership/RunExecuteOwnershipLeaseService.cs; ArchLucid.Application/Runs/ExecuteOwnership/RunExecuteOwnershipLeaseRenewalScope.cs
 - **test-filter:** FullyQualifiedName~RunExecuteOwnership|FullyQualifiedName~ArchitectureRunExecuteOrchestrator
-- **hunts:** 62
+- **hunts:** 63
 - **bugs-found:** 28
-- **consecutive-dry-hunts:** 3
+- **consecutive-dry-hunts:** 4
 - **last-hunt:** 2026-10-23
 - **last-bug:** 2026-10-21 - trim AgentModelTiers AgentTypeTiers keys after configuration bind
 - **code-changed-since:** yes
