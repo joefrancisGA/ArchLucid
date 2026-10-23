@@ -14654,10 +14654,12 @@ heap-disproved mermaid typed-topology candidate.
 - **aliases:** host composition; DI registration; startup modules
 - **paths:** ArchLucid.Host.Composition/
 - **test-filter:** FullyQualifiedName~Host.Composition|FullyQualifiedName~ServiceCollectionExtensions
-- **hunts:** 60
+- **hunts:** 61
 - **bugs-found:** 39
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-21
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-10-23
+
+2026-10-23 thorough hunt (dry): cheap-disproof closed four open `(candidate)` rows below with falsify attempts and regressions; no failing repro or fix shipped; seeded five follow-on `(candidate)` rows; scoped host-composition + discovery tests 5 passed (`PollingCollectionRunDiscoveryTests`, `AzureBlobCollectionRunArtifactReaderTests`, `InMemoryValueReportJobQueueDistributedPollStateTests`; `RunAnalyzers=false`).
 
 2026-10-21 seed hunt (seed→hit): ApiRequestUsageEventBatchFlushHostedService outer disabled loop now flushes requeued API usage before idle delay; regression ExecuteAsync_flushes_requeued_events_when_metering_stays_disabled; 4 metering tests passed.
 - **last-bug:** 2026-10-20 — API usage flush skipped when metering disabled mid-run
@@ -14751,11 +14753,17 @@ heap-disproved mermaid typed-topology candidate.
 
 - [x] (proven) `AzureBlobCollectionRunArtifactReader.ManifestPrefix` / `Container` — null-bound `CollectionRunStorageOptions.Prefix` or `ContainerName` from configuration binding — **hit 2026-10-15 seed hunt:** null-safe defaults before trim/GetBlobContainerClient; regressions in `AzureBlobCollectionRunArtifactReaderTests`.
 
-- [ ] (candidate) `PollingCollectionRunDiscovery.DiscoverAsync` — manifests with missing `packageBlobPath` are skipped silently without ingest audit (reachable input: blob manifest JSON omitting package path).
+- [x] (valid-no-repro) `PollingCollectionRunDiscovery.DiscoverAsync` — manifests with missing `packageBlobPath` skipped without ingest — **cheap-disproof 2026-10-23 thorough hunt:** `ReadArtifactAsync` returns null when `ZipPath` empty; discovery intentionally skips incomplete manifests without calling ingest; regressions `DiscoverAsync_skips_ingest_when_artifact_reader_returns_null_for_manifest` and `ReadArtifactAsync_returns_null_when_manifest_package_path_is_missing`.
 - [x] (proven) `ApiRequestUsageEventBatchFlushHostedService.ExecuteAsync` — `MeteringOptions.Enabled` flips false during periodic flush — **hit 2026-10-20 seed hunt:** flush pending batch before breaking inner loop; regression `ExecuteAsync_flushes_buffered_events_when_metering_disabled_before_timer_tick`.
-- [ ] (candidate) `GraphProjectionCacheInvalidationSubscriberHostedService` — malformed pub/sub payload is ignored without metric (reachable input: invalid JSON on invalidate channel).
-- [ ] (candidate) `SqlStorageProviderRegistrar` `ICollectionRunArtifactReader` factory — `BlobServiceClient` missing uses empty reader even when collection storage section is configured (reachable input: SQL host without artifact blob URI).
-- [ ] (candidate) `InMemoryValueReportJobQueue` — distributed poll state write failure logs warning but local poll still succeeds with stale phase (reachable input: `IValueReportJobPollStateCache.Set` throws).
+- [x] (valid-no-repro) `GraphProjectionCacheInvalidationSubscriberHostedService` — malformed pub/sub payload ignored — **cheap-disproof 2026-10-23 thorough hunt:** `GraphProjectionCacheInvalidationMessageSerializer.Deserialize` returns null on bad JSON and subscriber continues (poison-message fail-safe); regression `GraphProjectionCacheInvalidationMessageSerializer_Deserialize_empty_or_bad_json_returns_null` in KnowledgeGraph tests.
+- [x] (valid-no-repro) `SqlStorageProviderRegistrar` `ICollectionRunArtifactReader` factory — `BlobServiceClient` missing uses `EmptyCollectionRunArtifactReader` — **cheap-disproof 2026-10-23 thorough hunt:** SQL hosts without blob client registration cannot read SecureNow collection artifacts; empty reader is intentional when artifact storage is not wired.
+- [x] (valid-no-repro) `InMemoryValueReportJobQueue` — distributed poll state write failure on completed job — **cheap-disproof 2026-10-23 thorough hunt:** `RunJobAsync` marks job `Failed` with operator copy when completed-state `TryWriteDistributedState` fails; regression `TryPoll_on_peer_instance_reports_failure_when_completed_state_cannot_be_persisted`.
+
+- [ ] (candidate) `PollingCollectionRunDiscovery.DiscoverAsync` — listed manifest with empty `packageBlobPath` never creates a `CollectionRun` rejected row — locus: `continue` when `ReadArtifactAsync` returns null (`PollingCollectionRunDiscovery.cs` ~23-24); input: blob `run-manifest.json` omitting `packageBlobPath`; wrong outcome: operator sees no collection-run record for a listed manifest.
+- [ ] (candidate) `AzureBlobCollectionRunArtifactReader.ListManifestsAsync` — invalid `runId` in manifest JSON is dropped without ingest audit — locus: `ReadManifestAsync` returns null (`AzureBlobCollectionRunArtifactReader.cs` ~90-91); input: malformed manifest blob under `runs/**/run-manifest.json`.
+- [ ] (candidate) `InMemoryValueReportJobQueue.Enqueue` — failed pending-state distributed write still starts `RunJobAsync` — locus: `TryWriteDistributedState` return value ignored on enqueue (`InMemoryValueReportJobQueue.Enqueue.cs` ~19); input: `IValueReportJobPollStateCache.Set` throws on pending write; wrong outcome: peer replica polls not-found while worker runs locally.
+- [ ] (candidate) `GraphProjectionCacheInvalidationSubscriberHostedService` — valid JSON with empty `graphSnapshotId` still evicts cache key — locus: `GraphSnapshotProjectionCacheKeys.Projection` after deserialize (`GraphProjectionCacheInvalidationSubscriberHostedService.cs` ~55-57); input: pub/sub payload with `graphSnapshotId: ""`.
+- [ ] (candidate) `HostedCloudExtractorCompositionModule` — `PollingCollectionRunDiscovery` registered on every hosting role without worker gate — locus: `services.AddScoped<ICollectionRunDiscovery, PollingCollectionRunDiscovery>()` (`HostedCloudExtractorCompositionModule.cs` ~108); input: split Api+Worker deployment where only Worker should poll collection blob manifests.
 
 
 2026-10-09 seed hunt (seed→hit): failed usage flush returned events through `Enqueue`, which drops them when metering is disabled. Already-accepted events now use `Requeue`. Regression `StopAsync_keeps_dequeued_usage_events_when_persist_fails_after_metering_disabled` failed first.

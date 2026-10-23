@@ -35,6 +35,24 @@ public sealed class AzureBlobCollectionRunArtifactReaderTests
         container.Name.Should().Be("securenow-collection");
     }
 
+    [Fact]
+    public async Task ReadArtifactAsync_returns_null_when_manifest_package_path_is_missing()
+    {
+        AzureBlobCollectionRunArtifactReader reader = CreateReader();
+        CollectionRunManifest manifest = new()
+        {
+            RunId = Guid.NewGuid(),
+            AgentVersion = "1.0",
+            StartedUtc = DateTime.UtcNow,
+            Status = "Succeeded",
+            ZipPath = null,
+        };
+
+        CollectionRunArtifact? artifact = await reader.ReadArtifactAsync(manifest, CancellationToken.None);
+
+        artifact.Should().BeNull();
+    }
+
     private static AzureBlobCollectionRunArtifactReader CreateReader(string? prefix = "runs/", string? containerName = "securenow-collection")
     {
         BlobServiceClient blobServiceClient = new(
