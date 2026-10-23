@@ -364,6 +364,20 @@ internal static class InventoryDiagramNodeRelationshipApplier
                 owner.NsgInboundRuleChips = chips.ToList();
             }
         }
+        else if (rules.Count > 0)
+        {
+            List<DiagramNsgInboundRuleChip> outboundOnlyChip =
+            [
+                new DiagramNsgInboundRuleChip(
+                    "Security rules were stored. No inbound rule was listed on this diagram.",
+                    IsRisky: false),
+            ];
+
+            foreach (DiagramNode owner in ast.Nodes.Where(node => ownerDiagramNodeIds.Contains(node.NodeId)))
+            {
+                owner.NsgInboundRuleChips = outboundOnlyChip;
+            }
+        }
 
         removedDiagramNodeIds.Add(nsgNode.NodeId);
         return true;
@@ -410,6 +424,11 @@ internal static class InventoryDiagramNodeRelationshipApplier
                     ArmResourceIdNormalizer.Normalize(action.TargetArmId),
                     out string? targetDiagramNodeId))
             {
+                string actionName = action.ActionName?.Trim() ?? string.Empty;
+                string detail = actionName.Length > 0
+                    ? $"Workflow action {actionName} target was not on this diagram."
+                    : "Workflow action name was not stored. The target was not on this diagram.";
+                workflowNode.UnresolvedRelationshipDetails.Add(detail);
                 continue;
             }
 
@@ -417,7 +436,11 @@ internal static class InventoryDiagramNodeRelationshipApplier
             {
                 FromNodeId = workflowDiagramNodeId,
                 ToNodeId = targetDiagramNodeId,
-                Label = InventoryDiagramEvidenceCurrencyLabels.Format(evidenceCurrency, action.ActionName),
+                Label = InventoryDiagramEvidenceCurrencyLabels.Format(
+                    evidenceCurrency,
+                    string.IsNullOrWhiteSpace(action.ActionName)
+                        ? "Action name was not stored."
+                        : action.ActionName),
                 ProvenanceKind = ProvenanceKind.ObservedFact.ToString(),
                 InferenceSource = GraphEdgeInferenceSources.InventoryWorkflowAction,
             });
@@ -719,13 +742,22 @@ internal static class InventoryDiagramNodeRelationshipApplier
 
     private static string ReadResourceName(string armId)
     {
+        if (string.IsNullOrWhiteSpace(armId))
+        {
+            return "Endpoint name was not stored";
+        }
+
         int lastSlash = armId.LastIndexOf('/');
 
         if (lastSlash < 0 || lastSlash >= armId.Length - 1)
         {
-            return MermaidIdSanitizer.Sanitize(armId);
+            string fallback = MermaidIdSanitizer.Sanitize(armId).Trim();
+
+            return fallback.Length > 0 ? fallback : "Endpoint name was not stored";
         }
 
-        return armId[(lastSlash + 1)..];
+        string name = armId[(lastSlash + 1)..].Trim();
+
+        return name.Length > 0 ? name : "Endpoint name was not stored";
     }
 }

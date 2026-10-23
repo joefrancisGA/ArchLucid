@@ -105,7 +105,7 @@ function formatSecureNowQuestionSourceLabel(source: string | null): string {
   const trimmed = source.trim();
 
   if (trimmed.length === 0) {
-    return "Question source was not stored.";
+    return "Question source was stored empty.";
   }
 
   if (trimmed === "InventoryEvidence") {
@@ -255,11 +255,18 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
     ? null
     : formatDiagramArmTypeFriendlyName(currentQuestion.resourceType) ?? "Resource type was not stored";
   const resourceTypeLabel = friendlyType ?? (currentQuestion != null ? "Resource type was not stored" : null);
-  const displayName = currentQuestion?.resourceName != null && currentQuestion.resourceName.trim().length > 0
-    ? normalizeSecureNowResourceNameForDisplay(currentQuestion.resourceName)
-    : "Resource name was not stored";
+  const displayName =
+    currentQuestion?.resourceName === null || currentQuestion?.resourceName === undefined
+      ? "Resource name was not stored."
+      : currentQuestion.resourceName.trim().length === 0
+        ? "Resource name was stored empty."
+        : normalizeSecureNowResourceNameForDisplay(currentQuestion.resourceName);
   const resourceIdMissing = currentQuestion?.resourceId === null || currentQuestion?.resourceId === undefined;
-  const resourceOnDiagram = currentQuestion == null || resourceIdMissing || outline == null
+  const resourceIdStoredEmpty =
+    currentQuestion?.resourceId !== null
+    && currentQuestion?.resourceId !== undefined
+    && currentQuestion.resourceId.trim().length === 0;
+  const resourceOnDiagram = currentQuestion == null || resourceIdMissing || resourceIdStoredEmpty || outline == null
     ? true
     : diagramOutlineIncludesFocusResource(outline, currentQuestion.resourceId);
   const inferredConnectionQuestion =
@@ -287,9 +294,11 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
               className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}
               data-testid="infra-diagrams-question-text"
             >
-              {currentQuestion.questionText.trim().length > 0
-                ? currentQuestion.questionText
-                : "Question text was not stored"}
+              {currentQuestion.questionText === null || currentQuestion.questionText === undefined
+                ? "Question text was not stored."
+                : currentQuestion.questionText.trim().length === 0
+                  ? "Question text was stored empty."
+                  : currentQuestion.questionText}
             </p>
           ) : null}
           {currentQuestion != null && isClosedSecureNowQuestionStatus(currentQuestion.status) ? (
@@ -319,7 +328,16 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
         </p>
       ) : null}
 
-      {currentQuestion != null && !resourceIdMissing && outline === null ? (
+      {currentQuestion != null && resourceIdStoredEmpty ? (
+        <p
+          className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          role="status"
+        >
+          Resource id was stored empty.
+        </p>
+      ) : null}
+
+      {currentQuestion != null && !resourceIdMissing && !resourceIdStoredEmpty && outline === null ? (
         <p
           className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
           data-testid="infra-diagrams-question-outline-not-loaded"
@@ -329,7 +347,7 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
         </p>
       ) : null}
 
-      {currentQuestion != null && !resourceIdMissing && outline != null && !resourceOnDiagram ? (
+      {currentQuestion != null && !resourceIdMissing && !resourceIdStoredEmpty && outline != null && !resourceOnDiagram ? (
         <p
           className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
           data-testid="infra-diagrams-question-off-diagram"

@@ -55,11 +55,18 @@ describe("SecureNow home outcome copy", () => {
   });
 
   it("uses sidebar labels for data-source rows", () => {
-    expect(SECURENOW_DATA_SOURCES_HOME_ROWS.map((row) => row.label)).toEqual([
-      SECURENOW_NAV_LABELS["/integrations/cloud-connections"],
-      SECURENOW_NAV_LABELS["/infrastructure/declared-connections"],
-      SECURENOW_NAV_LABELS["/infrastructure/manual-upload"],
+    expect(SECURENOW_DATA_SOURCES_HOME_ROWS.map((row) => row.href)).toEqual([
+      "/integrations/cloud-connections",
+      "/infrastructure/collection-agent",
+      "/infrastructure/declared-connections",
+      "/administration/connection-status",
+      "/infrastructure/manual-upload",
     ]);
+    expect(SECURENOW_DATA_SOURCES_HOME_ROWS.map((row) => row.label)).toEqual(
+      SECURENOW_DATA_SOURCES_HOME_ROWS.map((row) => SECURENOW_NAV_LABELS[row.href]),
+    );
+    expect(SECURENOW_DATA_SOURCES_HOME_ROWS.filter((row) => row.recommendedFirst)).toHaveLength(1);
+    expect(SECURENOW_DATA_SOURCES_HOME_ROWS[0]?.recommendedFirst).toBe(true);
   });
 
   it("leaves Architecture workbench labels on the operator names", () => {

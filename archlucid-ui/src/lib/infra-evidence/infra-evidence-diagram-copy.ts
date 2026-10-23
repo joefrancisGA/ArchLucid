@@ -32,6 +32,12 @@ export const INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED =
 export const INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED_HOSTNAME =
   "Dotted — inferred hostname (confirm in configuration)";
 
+export const INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED_LINKED_SERVICE =
+  "Dotted — linked-service text was inferred. A hostname was not stored.";
+
+export const INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED_LINKED_SERVICE_AND_AI =
+  "Dotted — linked-service text was inferred, and an AI inference is present. A hostname was not stored.";
+
 export const INFRA_EVIDENCE_DIAGRAM_LEGEND_APP_SETTINGS =
   "Dashed — named in app settings. This is not observed traffic.";
 
@@ -52,6 +58,12 @@ export const INFRA_EVIDENCE_DIAGRAM_LEGEND_HOSTNAME_FOOTNOTE =
 
 export const INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED_HOSTNAME_FOOTNOTE =
   INFRA_EVIDENCE_DIAGRAM_LEGEND_HOSTNAME_FOOTNOTE;
+
+export const INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED_LINKED_SERVICE_FOOTNOTE =
+  "Dotted linked-service edges are inferred from integration text. They are not observed connections.";
+
+export const INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED_LINKED_SERVICE_AND_AI_FOOTNOTE =
+  "Dotted linked-service and AI inference edges are inferred. They are not observed connections.";
 
 export const INFRA_EVIDENCE_DIAGRAM_LEGEND_APP_SETTINGS_FOOTNOTE =
   "Dashed app-settings edges name a configured host. They are not observed connections.";
