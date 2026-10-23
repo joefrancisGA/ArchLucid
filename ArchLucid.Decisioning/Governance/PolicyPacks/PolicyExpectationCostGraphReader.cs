@@ -69,8 +69,9 @@ public static class PolicyExpectationCostGraphReader
         continue;
 
       if (node.Properties.TryGetValue("maxMonthlyCost", out string? maxCostRaw)
+          && !string.IsNullOrWhiteSpace(maxCostRaw)
           && decimal.TryParse(
-              maxCostRaw,
+              maxCostRaw.Trim(),
               NumberStyles.Number,
               CultureInfo.InvariantCulture,
               out _))

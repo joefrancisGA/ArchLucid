@@ -21,8 +21,10 @@ internal static class CostGraphDecimalParser
             return false;
         }
 
+        string trimmed = raw.Trim();
+
         return decimal.TryParse(
-            raw,
+            trimmed,
             NumberStyles.Number,
             CultureInfo.InvariantCulture,
             out value);
