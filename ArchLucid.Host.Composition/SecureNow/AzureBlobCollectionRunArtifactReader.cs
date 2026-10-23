@@ -2,6 +2,7 @@ using System.Text.Json;
 
 using ArchLucid.Application.SecureNow;
 
+using Azure;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 
@@ -25,18 +26,25 @@ public sealed class AzureBlobCollectionRunArtifactReader(
         BlobContainerClient container = Container();
         List<CollectionRunManifest> manifests = [];
 
-        await foreach (BlobItem blob in container.GetBlobsAsync(
-                           traits: BlobTraits.None,
-                           states: BlobStates.None,
-                           prefix: ManifestPrefix(),
-                           cancellationToken: cancellationToken))
+        try
         {
-            if (!blob.Name.EndsWith("/run-manifest.json", StringComparison.OrdinalIgnoreCase))
-                continue;
+            await foreach (BlobItem blob in container.GetBlobsAsync(
+                               traits: BlobTraits.None,
+                               states: BlobStates.None,
+                               prefix: ManifestPrefix(),
+                               cancellationToken: cancellationToken))
+            {
+                if (!blob.Name.EndsWith("/run-manifest.json", StringComparison.OrdinalIgnoreCase))
+                    continue;
 
-            CollectionRunManifest? manifest = await ReadManifestAsync(container, blob.Name, cancellationToken);
-            if (manifest is not null)
-                manifests.Add(manifest);
+                CollectionRunManifest? manifest = await ReadManifestAsync(container, blob.Name, cancellationToken);
+                if (manifest is not null)
+                    manifests.Add(manifest);
+            }
+        }
+        catch (RequestFailedException)
+        {
+            return manifests;
         }
 
         return manifests;
@@ -53,7 +61,16 @@ public sealed class AzureBlobCollectionRunArtifactReader(
 
         BlobClient package = Container().GetBlobClient(manifest.ZipPath);
         MemoryStream bytes = new();
-        await package.DownloadToAsync(bytes, cancellationToken);
+
+        try
+        {
+            await package.DownloadToAsync(bytes, cancellationToken);
+        }
+        catch (RequestFailedException)
+        {
+            return null;
+        }
+
         return new CollectionRunArtifact
         {
             Manifest = manifest,
@@ -83,40 +100,67 @@ public sealed class AzureBlobCollectionRunArtifactReader(
         CancellationToken cancellationToken)
     {
         BlobClient blob = container.GetBlobClient(blobName);
-        BinaryData content = (await blob.DownloadContentAsync(cancellationToken)).Value.Content;
-        using JsonDocument document = JsonDocument.Parse(content);
-        JsonElement root = document.RootElement;
 
-        if (!Guid.TryParse(GetString(root, "runId"), out Guid runId))
-            return null;
+        BinaryData content;
 
-        if (!DateTime.TryParse(GetString(root, "startedUtc"), out DateTime startedUtc))
-            return null;
-
-        string[] subscriptions = root.TryGetProperty("subscriptions", out JsonElement subscriptionElement) &&
-                                  subscriptionElement.ValueKind == JsonValueKind.Array
-            ? subscriptionElement.EnumerateArray()
-                .Where(static item => item.ValueKind == JsonValueKind.String)
-                .Select(static item => item.GetString()!)
-                .ToArray()
-            : [];
-
-        return new CollectionRunManifest
+        try
         {
-            RunId = runId,
-            TenantId = Guid.TryParse(GetString(root, "tenantId"), out Guid tenantId) ? tenantId : null,
-            AgentVersion = GetString(root, "agentVersion") ?? "unknown",
-            StartedUtc = startedUtc.ToUniversalTime(),
-            FinishedUtc = DateTime.TryParse(GetString(root, "finishedUtc"), out DateTime finishedUtc)
-                ? finishedUtc.ToUniversalTime()
-                : null,
-            Status = GetString(root, "status") ?? "Failed",
-            SubscriptionsCovered = subscriptions,
-            ErrorSummary = GetString(root, "errorSummary"),
-            ZipPath = GetString(root, "packageBlobPath"),
-            ZipSha256 = GetString(root, "packageSha256"),
-            SchemaVersion = GetInt(root, "schemaVersion"),
-        };
+            content = (await blob.DownloadContentAsync(cancellationToken)).Value.Content;
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
+        catch (Exception)
+        {
+            return null;
+        }
+
+        return ParseManifestContent(content);
+    }
+
+    internal static CollectionRunManifest? ParseManifestContent(BinaryData content)
+    {
+        try
+        {
+            using JsonDocument document = JsonDocument.Parse(content);
+            JsonElement root = document.RootElement;
+
+            if (!Guid.TryParse(GetString(root, "runId"), out Guid runId))
+                return null;
+
+            if (!DateTime.TryParse(GetString(root, "startedUtc"), out DateTime startedUtc))
+                return null;
+
+            string[] subscriptions = root.TryGetProperty("subscriptions", out JsonElement subscriptionElement) &&
+                                      subscriptionElement.ValueKind == JsonValueKind.Array
+                ? subscriptionElement.EnumerateArray()
+                    .Where(static item => item.ValueKind == JsonValueKind.String)
+                    .Select(static item => item.GetString()!)
+                    .ToArray()
+                : [];
+
+            return new CollectionRunManifest
+            {
+                RunId = runId,
+                TenantId = Guid.TryParse(GetString(root, "tenantId"), out Guid tenantId) ? tenantId : null,
+                AgentVersion = GetString(root, "agentVersion") ?? "unknown",
+                StartedUtc = startedUtc.ToUniversalTime(),
+                FinishedUtc = DateTime.TryParse(GetString(root, "finishedUtc"), out DateTime finishedUtc)
+                    ? finishedUtc.ToUniversalTime()
+                    : null,
+                Status = GetString(root, "status") ?? "Failed",
+                SubscriptionsCovered = subscriptions,
+                ErrorSummary = GetString(root, "errorSummary"),
+                ZipPath = GetString(root, "packageBlobPath"),
+                ZipSha256 = GetString(root, "packageSha256"),
+                SchemaVersion = GetInt(root, "schemaVersion"),
+            };
+        }
+        catch (JsonException)
+        {
+            return null;
+        }
     }
 
     private static string? GetString(JsonElement root, string propertyName)
