@@ -10,18 +10,24 @@ export type AskCitationActionFollowUpsProps = {
   readonly chips: readonly AskCitationActionFollowUp[];
   /** When true and chips are empty, show an honest empty note instead of hiding the region. */
   readonly showHonestEmpty?: boolean;
+  readonly reviewId?: string;
 };
 
 /**
  * Post-answer deep-link chips for cited findings / evidence / disposition (TB-2219).
  */
 export function AskCitationActionFollowUps(props: AskCitationActionFollowUpsProps) {
-  const { chips, showHonestEmpty = false } = props;
+  const { chips, showHonestEmpty = false, reviewId } = props;
 
   if (chips.length === 0) {
     if (!showHonestEmpty) {
       return null;
     }
+
+    const emptyNote =
+      reviewId === undefined || reviewId.trim().length === 0
+        ? "Review id was not stored."
+        : "No linked finding, evidence, or decision to open from this answer.";
 
     return (
       <div
@@ -30,9 +36,7 @@ export function AskCitationActionFollowUps(props: AskCitationActionFollowUpsProp
         role="region"
         aria-label="Cited finding follow-ups"
       >
-        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-          No linked finding, evidence, or decision to open from this answer.
-        </p>
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{emptyNote}</p>
       </div>
     );
   }

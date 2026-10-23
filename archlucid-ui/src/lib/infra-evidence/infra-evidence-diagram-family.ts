@@ -19,10 +19,10 @@ export type InfraEvidenceDiagramFamily =
 export const INFRA_EVIDENCE_DIAGRAM_FAMILY_LABELS: Readonly<Record<InfraEvidenceDiagramFamily, string>> = {
   all: "All",
   DeclaredMovement: "Pipeline wiring",
-  AuthorizedAccess: "May access",
+  AuthorizedAccess: "Authorization may allow access",
   StructuralNetworkPath: "Private network path",
   AppSettingsHost: "From app settings",
-  InferredHostname: "Likely connected",
+  InferredHostname: "Inferred hostname. A stored link was not recorded.",
   HumanConfirmed: "Confirmed connection",
   ObservedRuntime: "Observed in logs",
 };
@@ -46,7 +46,9 @@ function resolveFamilyFromLabel(label: string): InfraEvidenceDiagramFamily | nul
   const normalized = label.trim().toLowerCase();
 
   if (
-    normalized.includes("may access")
+    normalized.includes("authorization may allow access")
+    || normalized.includes("sql principal authorization")
+    || normalized.includes("may access")
     || normalized.includes("may publish")
     || normalized.includes("may consume")
     || normalized.includes("may send")
@@ -59,12 +61,20 @@ function resolveFamilyFromLabel(label: string): InfraEvidenceDiagramFamily | nul
     return "StructuralNetworkPath";
   }
 
-  if (normalized.includes("from app settings")) {
+  if (normalized.includes("app setting hostname was inferred") || normalized.includes("from app settings")) {
     return "AppSettingsHost";
   }
 
-  if (normalized.includes("likely connected") || normalized.includes("hostname")) {
+  if (
+    normalized.includes("inferred hostname")
+    || normalized.includes("likely connected")
+    || normalized.includes("hostname")
+  ) {
     return "InferredHostname";
+  }
+
+  if (normalized.includes("service connector is configured")) {
+    return "DeclaredMovement";
   }
 
   if (normalized.includes("confirmed connection")) {

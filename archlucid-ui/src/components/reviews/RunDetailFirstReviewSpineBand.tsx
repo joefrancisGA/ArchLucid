@@ -55,7 +55,11 @@ export function RunDetailFirstReviewSpineBand(props: RunDetailFirstReviewSpineBa
         {summary.executionModeLabel !== null ? (
           <StatusTag
             kind="neutral"
-            label={`${summary.executionModeLabel} execution`}
+            label={
+              summary.executionModeLabel === "Execution mode was not stored"
+                ? summary.executionModeLabel
+                : `${summary.executionModeLabel} execution`
+            }
             data-testid="run-detail-first-review-spine-execution-mode"
           />
         ) : null}
@@ -119,11 +123,13 @@ export function RunDetailFirstReviewSpineBand(props: RunDetailFirstReviewSpineBa
                 Review findings
               </Link>
             </>
-          ) : null}
+          ) : (
+            <> Review id was not stored.</>
+          )}
         </p>
       ) : null}
 
-      {summary.topFindingTitle !== null ? (
+      {summary.showTopFindingRow ? (
         <p className={cn("m-0 mt-2 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)} data-testid="run-detail-first-review-spine-top-finding">
           <span className="font-semibold">
             {summary.topFindingPolicyMapped ? "Top policy-mapped finding:" : "Top finding:"}

@@ -244,7 +244,7 @@ export function AskMessageThreadPanel(props: AskMessageThreadPanelProps) {
                   <AskAssistantMessageBody
                     buyerPolishedLinks={buyerPolishedShell}
                     content={message.content}
-                    groundingLinks={askAssistantGroundingLinks ?? undefined}
+                    groundingLinks={askAssistantGroundingLinks ?? []}
                     reviewIdInScope={runId}
                   />
                   <AskCitedFindingsSemanticSupportBandFootnote
@@ -254,7 +254,8 @@ export function AskMessageThreadPanel(props: AskMessageThreadPanelProps) {
                   {showCitationActionsOnAnswer && message.messageId === citationHostMessageId ? (
                     <AskCitationActionFollowUps
                       chips={askCitationActionFollowUps}
-                      showHonestEmpty={showPostAssistantFollowUps && buyerPolishedShell}
+                      showHonestEmpty={showPostAssistantFollowUps}
+                      reviewId={runId}
                     />
                   ) : null}
                 </>
