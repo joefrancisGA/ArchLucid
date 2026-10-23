@@ -59,6 +59,115 @@ public sealed class ApiRequestUsageEventBatchFlushHostedServiceTests
     }
 
     [Fact]
+    public async Task StopAsync_does_not_spin_when_every_batch_persist_fails()
+    {
+        UsageEvent first = new()
+        {
+            TenantId = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"),
+            Kind = UsageMeterKind.ApiRequest,
+            Quantity = 1,
+            RecordedUtc = DateTimeOffset.Parse("2026-10-23T16:00:00Z"),
+            IdempotencyKey = "request-spin-1",
+        };
+
+        UsageEvent second = new()
+        {
+            TenantId = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"),
+            Kind = UsageMeterKind.ApiRequest,
+            Quantity = 1,
+            RecordedUtc = DateTimeOffset.Parse("2026-10-23T16:00:01Z"),
+            IdempotencyKey = "request-spin-2",
+        };
+
+        ServiceCollection services = new();
+        services.Configure<MeteringOptions>(options =>
+        {
+            options.Enabled = true;
+            options.ApiRequestBatchMaxSize = 1;
+        });
+        Mock<IUsageMeteringService> metering = new();
+        metering
+            .Setup(candidate => candidate.RecordBatchAsync(
+                It.IsAny<IReadOnlyList<UsageEvent>>(),
+                It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("usage store unavailable"));
+        services.AddSingleton(metering.Object);
+        ServiceProvider provider = services.BuildServiceProvider();
+        ApiRequestUsageEventBuffer buffer = new(provider.GetRequiredService<IOptionsMonitor<MeteringOptions>>());
+        buffer.Enqueue(first);
+        buffer.Enqueue(second);
+
+        ApiRequestUsageEventBatchFlushHostedService service = new(
+            buffer,
+            provider.GetRequiredService<IServiceScopeFactory>(),
+            provider.GetRequiredService<IOptionsMonitor<MeteringOptions>>(),
+            NullLogger<ApiRequestUsageEventBatchFlushHostedService>.Instance);
+
+        using CancellationTokenSource stopCts = new(TimeSpan.FromSeconds(2));
+        await service.StopAsync(stopCts.Token);
+
+        metering.Invocations.Count.Should().Be(2);
+    }
+
+    [Fact]
+    public async Task StopAsync_attempts_persist_for_all_dequeued_batches_when_an_earlier_batch_fails()
+    {
+        UsageEvent first = new()
+        {
+            TenantId = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"),
+            Kind = UsageMeterKind.ApiRequest,
+            Quantity = 1,
+            RecordedUtc = DateTimeOffset.Parse("2026-10-23T15:00:00Z"),
+            IdempotencyKey = "request-batch-1",
+        };
+
+        UsageEvent second = new()
+        {
+            TenantId = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"),
+            Kind = UsageMeterKind.ApiRequest,
+            Quantity = 1,
+            RecordedUtc = DateTimeOffset.Parse("2026-10-23T15:00:01Z"),
+            IdempotencyKey = "request-batch-2",
+        };
+
+        ServiceCollection services = new();
+        services.Configure<MeteringOptions>(options =>
+        {
+            options.Enabled = true;
+            options.ApiRequestBatchMaxSize = 1;
+        });
+        Mock<IUsageMeteringService> metering = new();
+        metering
+            .Setup(candidate => candidate.RecordBatchAsync(
+                It.IsAny<IReadOnlyList<UsageEvent>>(),
+                It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("usage store unavailable"));
+        services.AddSingleton(metering.Object);
+        ServiceProvider provider = services.BuildServiceProvider();
+        ApiRequestUsageEventBuffer buffer = new(provider.GetRequiredService<IOptionsMonitor<MeteringOptions>>());
+        buffer.Enqueue(first);
+        buffer.Enqueue(second);
+
+        ApiRequestUsageEventBatchFlushHostedService service = new(
+            buffer,
+            provider.GetRequiredService<IServiceScopeFactory>(),
+            provider.GetRequiredService<IOptionsMonitor<MeteringOptions>>(),
+            NullLogger<ApiRequestUsageEventBatchFlushHostedService>.Instance);
+
+        await service.StopAsync(CancellationToken.None);
+
+        metering.Verify(
+            candidate => candidate.RecordBatchAsync(
+                It.IsAny<IReadOnlyList<UsageEvent>>(),
+                It.IsAny<CancellationToken>()),
+            Times.Exactly(2));
+
+        buffer.TryDequeue(out UsageEvent? _).Should().BeTrue();
+        buffer.TryDequeue(out UsageEvent? _).Should().BeTrue();
+        buffer.TryDequeue(out UsageEvent? _).Should().BeFalse();
+    }
+
+    [Fact]
     public async Task ExecuteAsync_flushes_buffered_events_when_metering_disabled_before_timer_tick()
     {
         UsageEvent usageEvent = new()

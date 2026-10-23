@@ -71,6 +71,27 @@ public sealed class ConfigurationEmbeddedCredentialRedactionMatrixTests
         AssertRedacts(effectiveValue);
     }
 
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_password_pair_is_nbsp_delimited()
+    {
+        string effectiveValue = "Server=prod" + '\u00A0' + "Password=secret";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_password_pair_is_nel_delimited()
+    {
+        string effectiveValue = "Server=prod" + '\u0085' + "Password=secret";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_password_pair_is_paragraph_separator_delimited()
+    {
+        string effectiveValue = "Server=prod" + '\u2029' + "Password=secret";
+        AssertRedacts(effectiveValue);
+    }
+
     private static void AssertRedacts(string effectiveValue)
     {
         Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
