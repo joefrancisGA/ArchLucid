@@ -7123,11 +7123,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 85
-- **bugs-found:** 80
+- **hunts:** 86
+- **bugs-found:** 81
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-23
-- **last-bug:** 2026-10-23 — padded export audit metadata and unicode heading spaces
+- **last-bug:** 2026-10-23 — padded export failure audits and thin-space heading strip
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
