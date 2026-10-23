@@ -300,10 +300,13 @@ describe("parseInfraEvidenceMermaidOutline", () => {
     });
   });
 
-  it("maps provenance tokens to reviewer bands (P-03)", () => {
+  it("maps provenance tokens to reviewer bands (P-19)", () => {
     expect(formatInfraEvidenceOutlineProvenanceReviewerBand("ObservedFact")).toBe("Observed");
-    expect(formatInfraEvidenceOutlineProvenanceReviewerBand("DerivedFact")).toBe(
-      'Provenance "DerivedFact" has no reviewer band.',
+    expect(formatInfraEvidenceOutlineProvenanceReviewerBand("HumanAssertion")).toBe("Declared");
+    expect(formatInfraEvidenceOutlineProvenanceReviewerBand("DerivedFact")).toBe("Probable");
+    expect(formatInfraEvidenceOutlineProvenanceReviewerBand("DeterministicInference")).toBe("Inferred");
+    expect(formatInfraEvidenceOutlineProvenanceReviewerBand("NotAFact")).toBe(
+      'Provenance "NotAFact" has no reviewer band.',
     );
   });
 });
