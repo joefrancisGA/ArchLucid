@@ -12470,10 +12470,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 307
-- **bugs-found:** 209
+- **hunts:** 308
+- **bugs-found:** 210
 - **last-hunt:** 2026-10-23
-- **last-bug:** 2026-10-23 — overlay merge skipped duplicate nodes without backfilling SourceId from later rows
+- **last-bug:** 2026-10-23 — overlay merge skipped duplicate nodes without backfilling SourceType from later rows
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -12997,7 +12997,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - [x] (proven) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — duplicate overlay nodes with omitted first-row `SourceId` kept empty source id when later row supplied one — **hit 2026-10-23 seed hunt (seed→hit):** source-id backfill on duplicate overlay node dedupe; regression above.
 
-- [ ] (candidate) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — duplicate overlay nodes where the second row supplies `SourceType` when the first row omits source type may keep an empty source type — locus: overlay node dedupe skips later rows without scalar backfill when agreement guards treat empty source type as backfill-eligible; input: first node has blank or missing `SourceType` and second duplicate overlay node supplies a non-empty source type; wrong outcome: merged graph retains empty source type without adopting the second row.
+2026-10-23 seed hunt (seed→hit): promoted `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` duplicate overlay nodes where the second row supplies `SourceType` when the first row omits source type candidate; proved overlay node dedupe treated empty source types as agreement-skipped but never backfilled a non-empty source type from a later duplicate row; added `TryMergeOverlayNodeSourceTypeBackfillFromDuplicateRow` via `ResolveOverlayTrimmedScalarBackfillFromDuplicateRow`; regression `Merge_backfills_overlay_duplicate_node_source_type_from_second_row_when_first_row_omits_source_type`; seeded `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` duplicate overlay nodes where the second row backfills scalar `NodeType` when the first row omits node type follow-on; 620 KnowledgeGraph + 170 Provenance scoped tests passed.
+
+- [x] (proven) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — duplicate overlay nodes with omitted first-row `SourceType` kept empty source type when later row supplied one — **hit 2026-10-23 seed hunt (seed→hit):** source-type backfill on duplicate overlay node dedupe; regression above.
+
+- [ ] (candidate) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — duplicate overlay nodes where the second row supplies `NodeType` when the first row omits node type may keep an empty node type — locus: overlay node dedupe skips later rows without scalar backfill when agreement guards treat empty node type as backfill-eligible; input: first node has blank or missing `NodeType` and second duplicate overlay node supplies a non-empty node type; wrong outcome: merged graph retains empty node type without adopting the second row.
 
 2026-10-22 seed hunt (seed→hit): promoted `StructuredDiagramGraphMerger` padded diagram property-key coalesce candidate; proved duplicate node/edge metadata coalesce indexed raw `property.Key`, so a later compile with surrounding-whitespace keys left parallel bag entries and `GraphNodePropertyReader` could return stale source-evidence values; trim keys before skip/coalesce (parity with `GraphNodeFactory.NormalizePropertyBag`); regression `Merge_coalesces_node_properties_when_incoming_property_keys_differ_only_by_surrounding_whitespace`; seeded diagram edge metadata padded-key coalesce regression follow-on; 468 KnowledgeGraph + 170 Provenance scoped tests passed.
 
