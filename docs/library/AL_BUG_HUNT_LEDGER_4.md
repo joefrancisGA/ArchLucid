@@ -9747,13 +9747,15 @@ Split from retired `archlucid-core` (ABQ-08). Parser coercion / synonym / casing
 
 - [x] (proven) `RunExplanationAggregateJsonReader.TryReadEvidenceRefObjectStringProperty` — object-shaped `evidenceRefs` with whitespace-only `text` and readable `id` dropped the ref when `text` key was present — **hit 2026-10-21 seed hunt:** independent `text`/`id` resolution; regression `TryNormalizeStructuredJson_maps_object_shaped_evidence_ref_id_when_text_property_is_whitespace_only`.
 
-- **hunts:** 78
-- **bugs-found:** 54
+- **hunts:** 79
+- **bugs-found:** 55
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-23
-- **last-bug:** 2026-10-23 — sole faithfulness array ["100"] dropped as alias poison
+- **last-bug:** 2026-10-23 — structured confidence array rejected all multi-entry arrays
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-23 thorough hunt (seed→hit): proved structured `confidence` arrays with more than one entry (e.g. `[true, 0.75]`) returned null instead of skipping boolean entries; array reader now skips null/boolean elements and nested arrays like aggregate ratio parsing; regression `TryNormalizeStructuredJson_uses_finite_confidence_when_array_leads_with_boolean_entry`; cheap-disproof closed five sibling candidates; scoped RunExplanation + parser tests 335 passed (`RunAnalyzers=false`).
 
 2026-10-23 thorough hunt (seed→hit): proved sole-element `faithfulnessSupportRatio` arrays with whole-number percent strings without `%` (e.g. `["100"]`) returned null while `["100%"]` worked; extended sole-array poison bypass to normalized values > 1; regression `FromAggregateJson_maps_whole_number_string_faithfulness_in_sole_element_array`; cheap-disproof closed four sibling candidates; scoped RunExplanation + parser tests 322 passed (`RunAnalyzers=false`).
 
@@ -10021,11 +10023,17 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (valid-no-repro) `TryReadFiniteDouble` — plus-prefixed `"+75%"` confidence — **cheap-disproof 2026-10-23 thorough hunt #102:** regression `TryNormalizeStructuredJson_coerces_plus_prefixed_percent_confidence`.
 - [x] (valid-no-repro) `TryGetPropertyCaseInsensitivePreferLastNonEmpty` — trailing `["100%"]` duplicate — **cheap-disproof 2026-10-23 thorough hunt #102:** regression `FromAggregateJson_uses_non_empty_faithfulness_ratio_when_later_duplicate_is_hundred_percent_array`.
 
-- [ ] (candidate) `TryReadAggregateRatioFromArrayItems` — sole `[55]` without percent vs `["55%"]` — locus: sole poison bypass; input: whole-number array; wrong outcome: normalize vs reject.
-- [ ] (candidate) `TryReadStructuredConfidence` — confidence array with boolean `true` sole element — locus: reject booleans; input: `{"confidence":[true]}`; wrong outcome: null confidence.
-- [ ] (candidate) `RatioArrayItemIsDuplicateAliasPoison` — JSON number `100` in duplicate trailing array — locus: poison; input: `0.55` then `[100]`; wrong outcome: keep earlier ratio.
-- [ ] (candidate) `RunExplanationAggregateJsonReader.TryReadFiniteDouble` — underscore-separated percent — locus: parse; input: `"75_%"`; wrong outcome: reject.
-- [ ] (candidate) `TryGetPropertyCaseInsensitivePreferLastNonEmpty` — trailing `faithfulnessSupportRatio` `["100"]` duplicate without percent — locus: array emptiness; input: ratio then `["100"]`; wrong outcome: hunt #102 family.
+- [x] (proven) `TryReadStructuredConfidence` — multi-entry confidence arrays returned null — **hit 2026-10-23 thorough hunt #103:** skip boolean/null array entries; regression `TryNormalizeStructuredJson_uses_finite_confidence_when_array_leads_with_boolean_entry`.
+- [x] (valid-no-repro) `TryReadStructuredConfidence` — sole `[true]` confidence array — **cheap-disproof 2026-10-23 thorough hunt #103:** regressions `TryNormalizeStructuredJson_ignores_boolean_confidence_in_sole_element_array` and `FromAggregateJson_ignores_boolean_faithfulness_support_ratio_in_sole_element_array`.
+- [x] (valid-no-repro) `TryReadAggregateRatioFromArrayItems` — sole `[55]` without percent — **cheap-disproof 2026-10-23 thorough hunt #103:** regression `FromAggregateJson_maps_whole_number_faithfulness_in_sole_element_numeric_array_without_percent` (hunt #102 bypass).
+- [x] (valid-no-repro) `RatioArrayItemIsDuplicateAliasPoison` — duplicate trailing `[100]` / `["100"]` — **cheap-disproof 2026-10-23 thorough hunt #103:** regressions `FromAggregateJson_uses_non_empty_faithfulness_ratio_when_later_duplicate_is_hundred_in_numeric_array` and `FromAggregateJson_uses_non_empty_faithfulness_ratio_when_later_duplicate_is_hundred_string_array_without_percent`.
+- [x] (invalid) `TryReadFiniteDouble` — underscore percent `"75_%"` — **cheap-disproof 2026-10-23 thorough hunt #103:** regression `TryNormalizeStructuredJson_rejects_underscore_separated_percent_confidence`.
+
+- [ ] (candidate) `TryReadStructuredConfidenceFromArrayItems` — confidence array with two finite entries uses first only — locus: array scan; input: `[0.8, 0.9]`; wrong outcome: intentional first-win vs reject.
+- [ ] (candidate) `TryReadStructuredConfidence` — confidence array with leading null then value — locus: null skip; input: `[null, 0.75]`; wrong outcome: parse second entry.
+- [ ] (candidate) `TryReadAggregateRatioFromArrayItems` — faithfulness array `[true, 0.55]` — locus: poison skip; input: boolean then ratio; wrong outcome: aggregate parity with confidence fix.
+- [ ] (candidate) `TryNormalizeStructuredJson` — duplicate `CONFIDENCE` array with interior-space percent — locus: PreferLastNonEmpty; input: `0.8` then `["75 %"]`; wrong outcome: keep earlier confidence.
+- [ ] (candidate) `RunExplanationAggregateJsonReader.TryReadFiniteDouble` — thin-space before `%` — locus: parse; input: `"75\u2009%"`; wrong outcome: null vs scaled ratio.
 
 2026-10-09 seed hunt (seed-only): re-read aggregate property lookup, scalar coercion, structured list/reasoning normalization, and confidence disposition paths after the preceding parser fixes; no distinct candidate met the full reachability and wrong-outcome bar. Added two candidates for duplicate aggregate keys and negative numeric structured evidence references. The scoped RunExplanation suite passed 46 tests.
 
