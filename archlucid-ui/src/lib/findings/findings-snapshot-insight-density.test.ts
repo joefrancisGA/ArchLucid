@@ -74,6 +74,15 @@ describe("findings-snapshot-insight-density", () => {
     ).toBe(false);
   });
 
+  it("formatInsightDensityCurationMessage states when retained count was not stored", () => {
+    expect(
+      formatInsightDensityCurationMessage({
+        demotedToChecklistCount: 2,
+        retainedFindingCount: null,
+      }),
+    ).toBe("Retained finding count was not stored.");
+  });
+
   it("hasFindingsSnapshotInsightDensityContent is true for checklist rows or curation copy", () => {
     expect(
       hasFindingsSnapshotInsightDensityContent({
