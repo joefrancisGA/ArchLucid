@@ -219,6 +219,20 @@ public sealed class CorePackageCoverageBatchRc28bTests
         reason.Should().Contain("Production");
     }
 
+    [Fact]
+    public void ConfigurationKeyRequirement_WhenProduction_treats_archlucid_environment_with_unicode_line_separator_padding_as_production()
+    {
+        IConfiguration configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?> { ["ARCHLUCID_ENVIRONMENT"] = "Production" + '\u2028' })
+            .Build();
+        ConfigurationKeyEntry prod = new("s", "p", ["e"], null, "r", "d", ConfigKeyRequirementKind.WhenProduction);
+
+        ConfigurationKeyRequirement.IsKeyRequired(prod, configuration, aspNetCoreEnvironment: "Development", out string reason)
+            .Should()
+            .BeTrue();
+        reason.Should().Contain("Production");
+    }
+
     [Theory]
     [InlineData("AWS::EC2::Instance", RuntimePlatform.Ec2)]
     [InlineData("AWS::Lambda::Function", RuntimePlatform.Lambda)]
