@@ -1366,3 +1366,4 @@
 {"at":"2026-10-21T20:22:54.2690475Z","zoneId":"saml-jwt-bearer","outcome":"seed-only","productLine":"archlucid-shared"}
 {"at":"2026-10-23T21:43:52.6645663Z","zoneId":"api-authority-admin-controllers","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Api/Controllers/Authority/RunsController.Intake.DraftSync.cs","ArchLucid.Api.Tests/RunsControllerTests.cs"]}
 {"at":"2026-10-23T21:50:00.0000000Z","zoneId":"api-authority-admin-controllers","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Api/Controllers/Authority/","ArchLucid.Api/Controllers/Admin/"]}
+{"at":"2026-10-23T21:58:00.0000000Z","zoneId":"saml-jwt-bearer","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Api/Auth/Scim/ScimBearerAuthenticationHandler.cs","ArchLucid.Api.Tests/Scim/ScimBearerAuthenticationHandlerTests.cs"]}
