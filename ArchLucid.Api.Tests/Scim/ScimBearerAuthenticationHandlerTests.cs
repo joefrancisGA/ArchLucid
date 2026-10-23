@@ -548,6 +548,53 @@ public sealed class ScimBearerAuthenticationHandlerTests
     }
 
     [Fact]
+    public async Task HandleAuthenticateAsync_fails_when_single_space_joins_two_bearer_credentials_in_one_segment()
+    {
+        const string revokedToken = "archlucid_scim.revoked.secret";
+
+        Mock<IScimBearerTokenAuthenticator> authenticator = new();
+        authenticator
+            .Setup(a => a.TryAuthenticateAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((ScimBearerAuthenticationResult?)null);
+
+        DefaultHttpContext http = new();
+        http.Request.Headers.Authorization = $"Bearer {revokedToken} Bearer {ValidToken}";
+
+        ScimBearerAuthenticationHandlerTestDouble handler = CreateHandler(authenticator.Object, http);
+
+        AuthenticateResult result = await handler.InvokeHandleAuthenticateAsync();
+
+        result.Succeeded.Should().BeFalse();
+        authenticator.Verify(
+            a => a.TryAuthenticateAsync($"{revokedToken} Bearer {ValidToken}", It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task HandleAuthenticateAsync_fails_when_three_authorization_header_values_each_present_one_bearer_token()
+    {
+        Mock<IScimBearerTokenAuthenticator> authenticator = new();
+
+        DefaultHttpContext http = new();
+        http.Request.Headers.Authorization = new StringValues(
+        [
+            "Bearer one",
+            "Bearer two",
+            $"Bearer {ValidToken}",
+        ]);
+
+        ScimBearerAuthenticationHandlerTestDouble handler = CreateHandler(authenticator.Object, http);
+
+        AuthenticateResult result = await handler.InvokeHandleAuthenticateAsync();
+
+        result.Succeeded.Should().BeFalse();
+        result.Failure?.Message.Should().Contain("too many Bearer");
+        authenticator.Verify(
+            a => a.TryAuthenticateAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task HandleAuthenticateAsync_fails_when_comma_folded_header_mixes_digest_and_bearer_schemes()
     {
         Mock<IScimBearerTokenAuthenticator> authenticator = new();
