@@ -1111,20 +1111,26 @@
 - **status:** open
 - **impact:** high
 - **aliases:** core domain; security policies; tenancy models; retired mega-zone
-- **paths:** docs/library/AL_BUG_HUNT_LEDGER_4.md
+- **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 488
-- **last-hunt:** 2026-10-21
-- **bugs-found:** 3522
+- **hunts:** 489
+- **last-hunt:** 2026-10-23
+- **bugs-found:** 3523
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-21 — PostgreSQL Host= alias omitted from app-setting SQL host extraction
+- **last-bug:** 2026-10-23 — Azure Managed Redis redis.azure.net hostnames not parsed from app settings
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
 2026-09-30 seed hunt (seed-only): re-read the picked zone; it still exposes only the ledger path and no source-backed candidate or hunt-ready row, so no product hypothesis was invented.
 
+2026-10-23 seed hunt #108 (seed→hit): promoted Azure Managed Redis hostname parsing; `RedisCacheHostRegex` only matched `*.redis.cache.windows.net` so `*.redis.azure.net` app-setting connection strings produced no host row; extended regex; regression `ParseSettingValues_managed_redis_azure_net_hostname`; cheap-disproved stale duplicate candidates (DNS numeric elements, PE/AGW normalization at ingest); 27 scoped `AzureInventoryAppSettingHost` tests passed.
+
 ### Hypotheses
 - [x] (proven) `AzureInventoryAppSettingHostRedactor.TryParseSqlHost` — Npgsql `Host=` PostgreSQL connection strings on App Service settings omitted server hostname — **hit 2026-10-21 seed hunt (seed→hit):** extend SQL host regex with `Host=` alias; regression `TryParseSettingValue_extracts_sql_host_from_postgresql_host_alias`. [class:other]
+- [x] (proven) `AzureInventoryAppSettingHostConnectionStringParser.RedisCacheHostRegex` — Azure Managed Redis `*.redis.azure.net` hostnames omitted — **hit 2026-10-23 seed hunt #108:** regex only matched `*.redis.cache.windows.net`; regression `ParseSettingValues_managed_redis_azure_net_hostname`. [class:other]
+- [x] (valid-no-repro) `AzureInventoryVnetCustomDnsIndex.AppendDnsServersFromJsonArray` — numeric JSON elements skipped — **cheap-disproof 2026-10-23 seed hunt #108:** numeric octet, packed uint32, and object-shaped elements covered by `AzureInventoryVnetCustomDnsIndexTests`.
+- [x] (valid-no-repro) `AzureInventoryPrivateEndpointDnsJoinIndex.BuildComputeToVnetMap` — VNet ARM ids not normalized — **cheap-disproof 2026-10-23 seed hunt #108:** `ArmResourceIdNormalizer.Normalize` applied on assignment.
+- [x] (valid-no-repro) `AzureInventoryReachabilityEdgeControlIndex.Build` — AGW/Front Door relationship ids not normalized — **cheap-disproof 2026-10-23 seed hunt #108:** `FromAzureResourceId` / `ToAzureResourceId` normalized at ingest.
 
 
 - [x] (proven-stale) `HostedAzureArmChildCollectionReadResult` — **closed 2026-10-21 lane C:** trunk lane B partial propagation.
