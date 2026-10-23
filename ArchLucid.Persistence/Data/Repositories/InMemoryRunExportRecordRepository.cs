@@ -24,10 +24,11 @@ public sealed class InMemoryRunExportRecordRepository : IRunExportRecordReposito
             throw new ArgumentException("ExportRecordId is required.", nameof(record));
 
         RunExportRecord stored = Clone(record);
+        stored.ExportRecordId = ComparisonExportRecordIdLookup.NormalizeLookupKey(stored.ExportRecordId);
 
         lock (_gate)
         {
-            _byExportId[record.ExportRecordId] = stored;
+            _byExportId[stored.ExportRecordId] = stored;
 
             if (!_byRunId.TryGetValue(record.RunId, out List<RunExportRecord>? list))
             {
@@ -35,7 +36,13 @@ public sealed class InMemoryRunExportRecordRepository : IRunExportRecordReposito
                 _byRunId[record.RunId] = list;
             }
 
-            list.Add(stored);
+            int existingIndex = list.FindIndex(
+                r => ComparisonExportRecordIdLookup.StoredValueMatchesLookup(r.ExportRecordId, stored.ExportRecordId));
+
+            if (existingIndex >= 0)
+                list[existingIndex] = stored;
+            else
+                list.Add(stored);
         }
 
         return Task.CompletedTask;

@@ -61,7 +61,25 @@ public abstract class RunExportRecordRepositoryContractTests
         RunExportRecord? loaded = await repo.GetByIdAsync(exportId, CancellationToken.None);
 
         loaded.Should().NotBeNull();
-        loaded!.ExportRecordId.Should().Be($"  {exportId}  ");
+        loaded!.ExportRecordId.Should().Be(exportId);
+    }
+
+    [SkippableFact]
+    public async Task Create_trims_export_record_id_on_persist()
+    {
+        SkipIfSqlServerUnavailable();
+        IRunExportRecordRepository repo = CreateRepository();
+        string runId = Guid.NewGuid().ToString("N");
+        string requestId = "req-exp-create-trim-" + Guid.NewGuid().ToString("N");
+        await PrepareRunAsync(requestId, runId, CancellationToken.None);
+        string exportId = "exp-" + Guid.NewGuid().ToString("N");
+
+        await repo.CreateAsync(NewRecord($"  {exportId}  ", runId, new DateTime(2026, 4, 3, 12, 0, 0, DateTimeKind.Utc)), CancellationToken.None);
+
+        RunExportRecord? loaded = await repo.GetByIdAsync(exportId, CancellationToken.None);
+
+        loaded.Should().NotBeNull();
+        loaded!.ExportRecordId.Should().Be(exportId);
     }
 
     [SkippableFact]
