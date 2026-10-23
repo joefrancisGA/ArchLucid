@@ -84,6 +84,7 @@ public static class ArchitectureInventoryObservedFactGraphOverlayMerger
                     TryMergeOverlayEdgePropertyBackfillFromDuplicateRow(inventoryEdge, retainedEdge);
                     TryMergeOverlayEdgeLabelBackfillFromDuplicateRow(inventoryEdge, retainedEdge);
                     TryMergeOverlayEdgeReasoningTraceBackfillFromDuplicateRow(inventoryEdge, retainedEdge);
+                    TryMergeOverlayEdgeInferenceSourceBackfillFromDuplicateRow(inventoryEdge, retainedEdge);
                 }
 
                 continue;
@@ -504,6 +505,20 @@ public static class ArchitectureInventoryObservedFactGraphOverlayMerger
         if (backfillReasoningTrace is not null)
         {
             retainedEdge.ReasoningTrace = backfillReasoningTrace;
+        }
+    }
+
+    private static void TryMergeOverlayEdgeInferenceSourceBackfillFromDuplicateRow(
+        GraphEdge incomingEdge,
+        GraphEdge retainedEdge)
+    {
+        string? backfillInferenceSource = ResolveOverlayTrimmedScalarBackfillFromDuplicateRow(
+            incomingEdge.InferenceSource,
+            retainedEdge.InferenceSource);
+
+        if (backfillInferenceSource is not null)
+        {
+            retainedEdge.InferenceSource = backfillInferenceSource;
         }
     }
 
