@@ -5156,6 +5156,25 @@
 ---
 
 ## Zone: saml-jwt-bearer
+
+2026-10-23 seed hunt (seed→hit): proved `TryParseBearerCredentials` left a UTF-8 BOM before `Bearer` on the credential segment, so the scheme was misclassified as non-Bearer and SCIM auth failed; strip `\uFEFF` before `TryReadBearerCredentialSegment`; regression `HandleAuthenticateAsync_succeeds_when_bearer_scheme_is_prefixed_with_utf8_bom`; cheap-disproof closed five open `(candidate)` rows; push worktree `ScimBearerAuthenticationHandlerTests` passed. Private beta: SCIM Bearer auth tolerates BOM-prefixed Authorization values from misconfigured gateways.
+
+- [x] (proven) `ScimBearerAuthenticationHandler.TryParseBearerCredentials` — UTF-8 BOM before `Bearer` — **hit 2026-10-23 seed hunt:** `TrimStart('\uFEFF')` on comma-split segments; regression `HandleAuthenticateAsync_succeeds_when_bearer_scheme_is_prefixed_with_utf8_bom`.
+- [x] (valid-no-repro) `ScimBearerAuthenticationHandler` — separate `Authorization` values revoked then valid — **cheap-disproof 2026-10-23:** covered by `HandleAuthenticateAsync_succeeds_when_separate_authorization_headers_list_revoked_token_before_valid_one` (shipped 2fa38ee).
+- [x] (invalid) `ScimBearerAuthenticationHandler` — lowercase `bearer` glued to token without whitespace — **cheap-disproof 2026-10-23:** not valid HTTP auth scheme grammar.
+- [x] (valid-no-repro) `ArchLucidSamlInboundClaimsNormalizer` — N vs D scope GUID ambiguity — **cheap-disproof 2026-10-23:** requires exactly one non-empty distinct incoming value.
+- [x] (valid-no-repro) `SamlMetadataValidUntilParser` / `PlatformUserAuthVersionValidator` — **cheap-disproof 2026-10-23:** diagnostics / opaque-subject contract; not SCIM Bearer parse defects.
+
+- (candidate) `ScimBearerAuthenticationHandler` — comma-folded header lists non-Bearer credential before valid Bearer segment (proxy appends `Basic` then `Bearer`).
+- (candidate) `LocalTrialJwtIssuer` — trial access token `sub` without platform-user GUID still accepted when `JwtLocalIssuer` matches development bypass path.
+- (candidate) `ArchLucidSamlInboundClaimsNormalizer` — promotes workspace scope when inbound `tenant_id` source claim is empty string vs absent.
+- (candidate) `ScimBearerTokenAuthenticator` — revoked token row still authenticates when Argon verify uses wrong pepper version (migration window).
+- (candidate) `SamlMetadataValidUntilParser` — `validUntil` on `KeyDescriptor` ignored when entity-level attribute is later but signing cert `NotAfter` is earlier.
+
+2026-10-23 seed hunt (seed→hit, ledger catch-up): tab-separated `Bearer` scheme shipped on `bugsmash-2` @ 2fa38ee; ledger documents `TryReadBearerCredentialSegment` and regressions `HandleAuthenticateAsync_succeeds_when_bearer_scheme_uses_tab_separator`.
+
+- [x] (proven) `ScimBearerAuthenticationHandler` — literal space after `Bearer` only — **hit 2026-10-23 (shipped 2fa38ee):** `TryReadBearerCredentialSegment`; regression `HandleAuthenticateAsync_succeeds_when_bearer_scheme_uses_tab_separator`.
+
 - (candidate) `ScimBearerAuthenticationHandler` — separate `Authorization` header values (HTTP field combination) with revoked Bearer in first value and valid Bearer in second — locus: `TryParseBearerCredentials` multi-value loop; input: parity with comma-folded revoked-then-valid regression (verify explicit dual-header regression).
 - (candidate) `ScimBearerAuthenticationHandler` — comma-folded segment using `bearer` lowercase scheme prefix without space after scheme — locus: `StartsWith("Bearer ")` case-insensitive; input: proxy rewrites scheme casing.
 - (candidate) `ArchLucidSamlInboundClaimsNormalizer.PromoteSingleValueIfMissing` — IdP emits two scope source GUIDs differing only by format (N vs D) treated as ambiguous — locus: `Distinct(StringComparer.OrdinalIgnoreCase)` on string values not Guid-normalized; input: reachable duplicate attribute values on SAML assertion.

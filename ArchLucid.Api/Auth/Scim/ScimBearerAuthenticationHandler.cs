@@ -97,8 +97,9 @@ internal class ScimBearerAuthenticationHandler(
 
             foreach (string segment in headerValue.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries))
             {
+                string normalizedSegment = segment.TrimStart('\uFEFF');
 
-                if (TryReadBearerCredentialSegment(segment, out string bearerToken))
+                if (TryReadBearerCredentialSegment(normalizedSegment, out string bearerToken))
                 {
                     sawBearerCredential = true;
 

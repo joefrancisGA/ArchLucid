@@ -1481,3 +1481,4 @@
 {"at":"2026-10-23T13:31:52.9328923Z","zoneId":"finding-inspect-sql","outcome":"seed-only","productLine":"archlucid-shared"}
 {"at":"2026-10-23T16:40:06.8019675Z","zoneId":"application-governance-policy","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/Governance/GovernanceLineageService.cs","ArchLucid.Application.Tests/Governance/GovernanceLineageServiceTests.cs"]}
 {"at":"2026-10-23T21:06:33.4893254Z","zoneId":"saml-jwt-bearer","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Api/Auth/Scim/ScimBearerAuthenticationHandler.cs","ArchLucid.Api.Tests/Scim/ScimBearerAuthenticationHandlerTests.cs"]}
+{"at":"2026-10-23T21:12:03.7773869Z","zoneId":"saml-jwt-bearer","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Api/Auth/Scim/ScimBearerAuthenticationHandler.cs","ArchLucid.Api.Tests/Scim/ScimBearerAuthenticationHandlerTests.cs"]}

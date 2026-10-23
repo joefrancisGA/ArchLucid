@@ -140,6 +140,32 @@ public sealed class ScimBearerAuthenticationHandlerTests
     }
 
     [Fact]
+    public async Task HandleAuthenticateAsync_succeeds_when_bearer_scheme_is_prefixed_with_utf8_bom()
+    {
+        Mock<IScimBearerTokenAuthenticator> authenticator = new();
+        authenticator
+            .Setup(a => a.TryAuthenticateAsync(ValidToken, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new ScimBearerAuthenticationResult
+                {
+                    TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                    TokenRowId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+                });
+
+        DefaultHttpContext http = new();
+        http.Request.Headers.Authorization = $"\uFEFFBearer {ValidToken}";
+
+        ScimBearerAuthenticationHandlerTestDouble handler = CreateHandler(authenticator.Object, http);
+
+        AuthenticateResult result = await handler.InvokeHandleAuthenticateAsync();
+
+        result.Succeeded.Should().BeTrue();
+        authenticator.Verify(
+            a => a.TryAuthenticateAsync(ValidToken, It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
     public async Task HandleAuthenticateAsync_succeeds_when_separate_authorization_headers_list_revoked_token_before_valid_one()
     {
         const string revokedToken = "archlucid_scim.revoked.secret";
