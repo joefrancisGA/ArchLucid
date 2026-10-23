@@ -10535,6 +10535,246 @@ public sealed class ReviewCacheManifestBuilderTests
             .Be(ReviewCacheManifestBuilder.Build(userInfo).ContentHash);
     }
 
+    [Fact]
+    public void Build_changes_content_hash_when_file_name_differs_only_by_tilde_before_dotted_segment_name()
+    {
+        ClosedLoopReasoningRequest slash = CreateRequest("Same body.");
+        slash.SourceTexts =
+        [
+            new ClosedLoopReasoningSourceText
+            {
+                FileName = "docs/architecture/overview.md",
+                ContentType = "text/markdown",
+                Content = "Same body.",
+            },
+        ];
+
+        ClosedLoopReasoningRequest tildeBeforeDot = CreateRequest("Same body.");
+        tildeBeforeDot.SourceTexts =
+        [
+            new ClosedLoopReasoningSourceText
+            {
+                FileName = "docs~architecture.overview.md",
+                ContentType = "text/markdown",
+                Content = "Same body.",
+            },
+        ];
+
+        ReviewCacheManifestBuilder.Build(slash).ContentHash
+            .Should()
+            .NotBe(ReviewCacheManifestBuilder.Build(tildeBeforeDot).ContentHash);
+    }
+
+    [Fact]
+    public void Build_changes_content_hash_when_file_name_differs_only_by_caret_before_dotted_segment_name()
+    {
+        ClosedLoopReasoningRequest slash = CreateRequest("Same body.");
+        slash.SourceTexts =
+        [
+            new ClosedLoopReasoningSourceText
+            {
+                FileName = "docs/architecture/overview.md",
+                ContentType = "text/markdown",
+                Content = "Same body.",
+            },
+        ];
+
+        ClosedLoopReasoningRequest caretBeforeDot = CreateRequest("Same body.");
+        caretBeforeDot.SourceTexts =
+        [
+            new ClosedLoopReasoningSourceText
+            {
+                FileName = "docs^architecture.overview.md",
+                ContentType = "text/markdown",
+                Content = "Same body.",
+            },
+        ];
+
+        ReviewCacheManifestBuilder.Build(slash).ContentHash
+            .Should()
+            .NotBe(ReviewCacheManifestBuilder.Build(caretBeforeDot).ContentHash);
+    }
+
+    [Fact]
+    public void Build_matches_content_hash_when_file_name_differs_only_by_fullwidth_tilde_between_segments()
+    {
+        ClosedLoopReasoningRequest slash = CreateRequest("Same body.");
+        slash.SourceTexts =
+        [
+            new ClosedLoopReasoningSourceText
+            {
+                FileName = "docs/architecture/overview.md",
+                ContentType = "text/markdown",
+                Content = "Same body.",
+            },
+        ];
+
+        ClosedLoopReasoningRequest fullwidth = CreateRequest("Same body.");
+        fullwidth.SourceTexts =
+        [
+            new ClosedLoopReasoningSourceText
+            {
+                FileName = "docs\uFF5Earchitecture/overview.md",
+                ContentType = "text/markdown",
+                Content = "Same body.",
+            },
+        ];
+
+        ReviewCacheManifestBuilder.Build(slash).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(fullwidth).ContentHash);
+    }
+
+    [Fact]
+    public void Build_matches_content_hash_when_file_name_differs_only_by_percent_encoded_tilde_between_segments()
+    {
+        ClosedLoopReasoningRequest slash = CreateRequest("Same body.");
+        slash.SourceTexts =
+        [
+            new ClosedLoopReasoningSourceText
+            {
+                FileName = "docs/architecture/overview.md",
+                ContentType = "text/markdown",
+                Content = "Same body.",
+            },
+        ];
+
+        ClosedLoopReasoningRequest encoded = CreateRequest("Same body.");
+        encoded.SourceTexts =
+        [
+            new ClosedLoopReasoningSourceText
+            {
+                FileName = "docs%7Earchitecture/overview.md",
+                ContentType = "text/markdown",
+                Content = "Same body.",
+            },
+        ];
+
+        ReviewCacheManifestBuilder.Build(slash).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(encoded).ContentHash);
+    }
+
+    [Fact]
+    public void Build_matches_content_hash_when_file_name_differs_only_by_fullwidth_caret_between_segments()
+    {
+        ClosedLoopReasoningRequest slash = CreateRequest("Same body.");
+        slash.SourceTexts =
+        [
+            new ClosedLoopReasoningSourceText
+            {
+                FileName = "docs/architecture/overview.md",
+                ContentType = "text/markdown",
+                Content = "Same body.",
+            },
+        ];
+
+        ClosedLoopReasoningRequest fullwidth = CreateRequest("Same body.");
+        fullwidth.SourceTexts =
+        [
+            new ClosedLoopReasoningSourceText
+            {
+                FileName = "docs\uFF3Earchitecture/overview.md",
+                ContentType = "text/markdown",
+                Content = "Same body.",
+            },
+        ];
+
+        ReviewCacheManifestBuilder.Build(slash).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(fullwidth).ContentHash);
+    }
+
+    [Fact]
+    public void Build_matches_content_hash_when_file_name_differs_only_by_percent_encoded_caret_between_segments()
+    {
+        ClosedLoopReasoningRequest slash = CreateRequest("Same body.");
+        slash.SourceTexts =
+        [
+            new ClosedLoopReasoningSourceText
+            {
+                FileName = "docs/architecture/overview.md",
+                ContentType = "text/markdown",
+                Content = "Same body.",
+            },
+        ];
+
+        ClosedLoopReasoningRequest encoded = CreateRequest("Same body.");
+        encoded.SourceTexts =
+        [
+            new ClosedLoopReasoningSourceText
+            {
+                FileName = "docs%5Earchitecture/overview.md",
+                ContentType = "text/markdown",
+                Content = "Same body.",
+            },
+        ];
+
+        ReviewCacheManifestBuilder.Build(slash).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(encoded).ContentHash);
+    }
+
+    [Fact]
+    public void Build_matches_content_hash_when_file_name_differs_only_by_tilde_between_segments()
+    {
+        ClosedLoopReasoningRequest slash = CreateRequest("Same body.");
+        slash.SourceTexts =
+        [
+            new ClosedLoopReasoningSourceText
+            {
+                FileName = "docs/architecture/overview.md",
+                ContentType = "text/markdown",
+                Content = "Same body.",
+            },
+        ];
+
+        ClosedLoopReasoningRequest tilde = CreateRequest("Same body.");
+        tilde.SourceTexts =
+        [
+            new ClosedLoopReasoningSourceText
+            {
+                FileName = "docs~architecture/overview.md",
+                ContentType = "text/markdown",
+                Content = "Same body.",
+            },
+        ];
+
+        ReviewCacheManifestBuilder.Build(slash).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(tilde).ContentHash);
+    }
+
+    [Fact]
+    public void Build_matches_content_hash_when_file_name_differs_only_by_caret_between_segments()
+    {
+        ClosedLoopReasoningRequest slash = CreateRequest("Same body.");
+        slash.SourceTexts =
+        [
+            new ClosedLoopReasoningSourceText
+            {
+                FileName = "docs/architecture/overview.md",
+                ContentType = "text/markdown",
+                Content = "Same body.",
+            },
+        ];
+
+        ClosedLoopReasoningRequest caret = CreateRequest("Same body.");
+        caret.SourceTexts =
+        [
+            new ClosedLoopReasoningSourceText
+            {
+                FileName = "docs^architecture/overview.md",
+                ContentType = "text/markdown",
+                Content = "Same body.",
+            },
+        ];
+
+        ReviewCacheManifestBuilder.Build(slash).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(caret).ContentHash);
+    }
+
     private static ClosedLoopReasoningRequest CreateRequest(string content)
     {
         return new ClosedLoopReasoningRequest
