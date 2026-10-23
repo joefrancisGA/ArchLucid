@@ -7859,6 +7859,16 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-agents
 
+2026-10-23 seed hunt (seed-only): re-read Agents/ after consolidation hit #154; zone saturated on fail-open-validation null list slots — no hunt-ready row promoted; cheap-disproof closed padded `ModelAliasOverride` (`ReviewModelAliasResolver` trim before allowlist check); regression `ResolveForRunCreateAsync_applies_padded_model_alias_override`; seeded five mechanism-backed `(candidate)` rows; no production change; 170 scoped Application.Tests.Agents tests passed.
+
+- [x] (valid-no-repro) `ReviewModelAliasResolver.ResolveForRunCreateAsync` — padded model alias override rejected outside allowed set — **cheap-disproof 2026-10-23 seed hunt:** `requestedOverride.Trim()` before `IsAliasAllowed`; regression above.
+
+- (candidate) `RunToolInvocationForensicsBuilder.BuildFromStructured` — null `AgentToolInvocationRecord` list entries NRE during `OrderBy`/`Select` — locus: structured forensics ~12–16; input: structured ledger list with JSON-null slot.
+- (candidate) `ReviewRunEngineSelectionProvenanceBuilder.Build` — null `TaskEvaluations` entries NRE on `TaskType` projection — locus: snapshot `Select` ~21; input: catalog entry with null evaluation row.
+- (candidate) `AgentModelCatalogEvaluationRecorder.RecordTaskEvaluationAsync` — null elements in `existing.Evaluations` may break merge index — locus: evaluation list copy ~67; input: catalog row whose evaluations list contains null.
+- (candidate) `CompositeAgentResultPostExecutionEnricher.EnrichAsync` — null registered enricher in `_enrichers` NRE on `EnrichAsync` — locus: child loop ~29; input: DI collection containing null enricher.
+- (candidate) `AgentExecutionTraceRunLlmCostAggregator.BuildModelLabelFromDeployments` — null `modelDeploymentName` in fallback row set already skipped; verify parity when only whitespace names appear in measurable set — locus: deployment label builder ~144; input: mixed whitespace and named deployments.
+
 2026-10-23 seed hunt (seed→hit): promoted four seeded null-slot candidates in one consolidation pass — trace-derived tool forensics, confidence isotonic knots, registered handler discovery, and dual-model sibling endpoint harvest; cheap-disproof closed all-null trace provider kind (existing `nonNullTraces` branch); regressions `Build_skips_null_trace_entries`, `BuildIsotonicKnots_skips_null_sample_rows`, `ListHandlers_skips_null_handler_entries`, `EnrichAsync_skips_null_sibling_service_entries_when_pruning_sibling_proposals`, and `Aggregate_provider_kind_is_azure_openai_when_all_trace_slots_are_null`; 169 scoped Application.Tests.Agents tests passed.
 
 - [x] (proven) `RunToolInvocationForensicsBuilder.BuildFromTraces` — null trace list entries aborted forensics projection — **hit 2026-10-23 seed hunt:** filter before sort/iterate; regression above. [class:fail-open-validation]
@@ -8158,7 +8168,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** application agents; agent handlers wiring
 - **paths:** ArchLucid.Application/Agents/
 - **test-filter:** FullyQualifiedName~Application.Tests.Agents
-- **hunts:** 82
+- **hunts:** 83
 - **bugs-found:** 73
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-23
