@@ -12470,10 +12470,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 285
-- **bugs-found:** 187
+- **hunts:** 286
+- **bugs-found:** 188
 - **last-hunt:** 2026-10-23
-- **last-bug:** 2026-10-23 — duplicate ARM rows silently kept conflicting arm.type from first row
+- **last-bug:** 2026-10-23 — duplicate ARM rows silently kept conflicting Label from first row
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -12909,7 +12909,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - [x] (proven) `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` — conflicting duplicate-row `ResourceType` kept first row `arm.type` silently — **hit 2026-10-23 seed hunt (seed→hit):** resource type merge/backfill/throw; regressions above.
 
-- [ ] (candidate) `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` — duplicate normalized ARM resource rows with differing `ResolveLabel` inputs may keep first row `Label` — locus: first-wins node mint without label merge; input: two ARM-duplicate rows whose name segment, resource type, or ARM id trim produce different labels; wrong outcome: overlay node label reflects only the lexicographically first row without surfacing disagreement.
+2026-10-23 seed hunt (seed→hit): promoted `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` conflicting `ResolveLabel` inputs on duplicate ARM rows candidate; proved first-wins mint kept the lexicographically first `Label` while a trailing-slash duplicate row resolved a different label for the same normalized ARM id; added `TryMergeLabelFromDuplicateRow` with case-insensitive agreement checks and fail-closed throws; regressions `BuildOverlay_throws_when_duplicate_resource_rows_disagree_on_label` and `BuildOverlay_coalesces_label_when_duplicate_rows_differ_only_by_arm_id_casing`; seeded `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` duplicate inventory overlay nodes with conflicting `Label` on append follow-on; 583 KnowledgeGraph + 170 Provenance scoped tests passed.
+
+- [x] (proven) `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` — conflicting duplicate-row `Label` kept first row label silently — **hit 2026-10-23 seed hunt (seed→hit):** label merge/throw; regressions above.
+
+- [ ] (candidate) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — duplicate appended inventory overlay nodes with conflicting `Label` may both persist on base graph — locus: overlay node append dedupe keys on `NodeId` only; input: two overlay nodes with trim-equal ids but different `Label` values; wrong outcome: merged graph retains multiple topology nodes or ambiguous display labels for the same inventory identity.
 
 2026-10-22 seed hunt (seed→hit): promoted `StructuredDiagramGraphMerger` padded diagram property-key coalesce candidate; proved duplicate node/edge metadata coalesce indexed raw `property.Key`, so a later compile with surrounding-whitespace keys left parallel bag entries and `GraphNodePropertyReader` could return stale source-evidence values; trim keys before skip/coalesce (parity with `GraphNodeFactory.NormalizePropertyBag`); regression `Merge_coalesces_node_properties_when_incoming_property_keys_differ_only_by_surrounding_whitespace`; seeded diagram edge metadata padded-key coalesce regression follow-on; 468 KnowledgeGraph + 170 Provenance scoped tests passed.
 
