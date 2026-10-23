@@ -268,6 +268,25 @@ describe("formatGoldenManifestMarkdown", () => {
     expect(storedEmpty).not.toContain("Datastore id was not stored.");
     expect(storedEmpty).not.toContain("Decision id was not stored.");
     expect(storedEmpty).not.toContain("Selected option was not stored.");
+    expect(storedEmpty).toContain("Preferences were stored as an empty list.");
+  });
+
+  it("distinguishes null versus empty cost notes, risks, and warnings", () => {
+    const omitted = formatGoldenManifestMarkdown({
+      cost: { notes: null, costRisks: null },
+      warnings: null,
+    });
+    const storedEmpty = formatGoldenManifestMarkdown({
+      cost: { notes: [], costRisks: [] },
+      warnings: [],
+    });
+
+    expect(omitted).toContain("Cost notes were not stored.");
+    expect(omitted).toContain("Cost risks were not stored.");
+    expect(omitted).toContain("Warnings were not stored.");
+    expect(storedEmpty).toContain("Cost notes were stored as an empty list.");
+    expect(storedEmpty).toContain("Cost risks were stored as an empty list.");
+    expect(storedEmpty).toContain("Warnings were stored as an empty list.");
   });
 
   it("reports omitted policy-at-commit counts while preserving zero", () => {
@@ -496,6 +515,33 @@ describe("formatGoldenManifestMarkdown", () => {
     expect(formatGoldenManifestMarkdown(null, {
       manifestSummaryFallback: { ...base, operatorSummary: "" },
     })).toContain("Operator summary was stored empty.");
+    expect(formatGoldenManifestMarkdown(null, {
+      manifestSummaryFallback: { ...base, operatorSummary: "   " },
+    })).toContain("Operator summary was stored empty.");
+  });
+
+  it("labels non-finite summary counts in fallback export", () => {
+    const summary: ManifestSummary = {
+      manifestId: "m9",
+      runId: "r9",
+      createdUtc: "2026-01-01T00:00:00Z",
+      manifestHash: "hash",
+      ruleSetId: "p1",
+      ruleSetVersion: "2.0",
+      status: "Committed",
+      decisionCount: Number.NaN,
+      warningCount: Number.POSITIVE_INFINITY,
+      unresolvedIssueCount: undefined as unknown as number,
+      operatorSummary: "Summary",
+    };
+
+    const md = formatGoldenManifestMarkdown(null, { manifestSummaryFallback: summary });
+
+    expect(md).toContain("Decision count was not stored.");
+    expect(md).toContain("Warning count was not stored.");
+    expect(md).toContain("Unresolved issue count was not stored.");
+    expect(md).not.toContain("NaN");
+    expect(md).not.toContain("undefined");
   });
 
   it("labels blank summary metadata in fallback export", () => {

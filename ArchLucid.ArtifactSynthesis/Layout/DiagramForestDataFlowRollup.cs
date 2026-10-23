@@ -287,7 +287,9 @@ internal static class DiagramForestDataFlowRollup
 
         if (remainder > 0)
         {
-            chips.Add(new DiagramNsgInboundRuleChip($"+{remainder}", IsRisky: false));
+            chips.Add(new DiagramNsgInboundRuleChip(
+                $"{remainder} more inbound rules were not listed on this card.",
+                IsRisky: false));
         }
 
         return chips;

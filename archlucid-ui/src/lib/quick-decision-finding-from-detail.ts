@@ -116,7 +116,11 @@ export function quickDecisionFindingFromTraceRow(row: FindingTraceConfidenceDto,
 
   const titleRaw = typeof row.findingTitle === "string" ? row.findingTitle.trim() : "";
   const title = titleRaw.length > 0 ? titleRaw : "Finding title was not stored";
-  const recommendation = typeof row.traceConfidenceLabel === "string" ? row.traceConfidenceLabel.trim() : "";
+  const traceLabel =
+    typeof row.traceConfidenceLabel === "string" && row.traceConfidenceLabel.trim().length > 0
+      ? row.traceConfidenceLabel.trim()
+      : null;
+  const recommendation = "";
   const ruleIdRaw = typeof row.ruleId === "string" ? row.ruleId.trim() : "";
   let wireJson: string;
 
@@ -137,15 +141,12 @@ export function quickDecisionFindingFromTraceRow(row: FindingTraceConfidenceDto,
     recommendation,
     severityValue: severityValueFromTraceRow(row),
     findingOrder: order,
-    aiReasoning: { wireJson, reasoningTrace: recommendation },
+    aiReasoning: { wireJson, reasoningTrace: traceLabel ?? "" },
     isMuted: false,
     muteReason: null,
     confidenceLevel: normalizeConfidenceLevelFromWire(row.confidenceLevel),
     evaluationConfidenceScore: normalizeEvaluationConfidenceScore(row.evaluationConfidenceScore),
-    traceConfidenceLabel:
-      typeof row.traceConfidenceLabel === "string" && row.traceConfidenceLabel.trim().length > 0
-        ? row.traceConfidenceLabel.trim()
-        : null,
+    traceConfidenceLabel: traceLabel,
     evidenceRefCount,
     enforcementTier: "PolicyViolation",
     policyRuleId: ruleIdRaw.length > 0 ? ruleIdRaw : null,

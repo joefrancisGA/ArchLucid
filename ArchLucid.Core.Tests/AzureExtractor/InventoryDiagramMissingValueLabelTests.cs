@@ -25,6 +25,20 @@ public sealed class InventoryDiagramMissingValueLabelTests
     }
 
     [Fact]
+    public void EvidenceCurrency_uses_not_stored_for_non_matching_reference_token()
+    {
+        InventoryDiagramEvidenceCurrency? currency =
+            InventoryDiagramEvidenceCurrencyLabels.ResolveFromSourceEvidenceReference(
+                "azure-inventory-snapshot:2026-01-01");
+
+        currency.Should().BeNull();
+        InventoryDiagramEvidenceCurrencyLabels
+            .Format(currency, "peering")
+            .Should()
+            .Be("Evidence currency was not stored · peering");
+    }
+
+    [Fact]
     public void RouteOutline_uses_explicit_missing_prefix_for_none_next_hop()
     {
         InventoryDiagramRouteOutlineSentenceFormatter
@@ -82,5 +96,35 @@ public sealed class InventoryDiagramMissingValueLabelTests
                 resolvedNextHopName: null)
             .Should()
             .Be("Traffic to 0.0.0.0/1 is sent directly to the internet.");
+    }
+
+    [Fact]
+    public void RouteOutline_labels_missing_prefix_for_vnet_local_next_hop()
+    {
+        InventoryDiagramRouteOutlineSentenceFormatter
+            .TryFormat(
+                new AzureInventoryRouteTableRoute
+                {
+                    AddressPrefix = " ",
+                    NextHopType = "VnetLocal",
+                },
+                resolvedNextHopName: null)
+            .Should()
+            .Be("Address prefix was not stored. Next hop type is VnetLocal.");
+    }
+
+    [Fact]
+    public void RouteOutline_describes_vnet_local_next_hop_with_stored_prefix()
+    {
+        InventoryDiagramRouteOutlineSentenceFormatter
+            .TryFormat(
+                new AzureInventoryRouteTableRoute
+                {
+                    AddressPrefix = "10.0.0.0/16",
+                    NextHopType = "VnetLocal",
+                },
+                resolvedNextHopName: null)
+            .Should()
+            .Be("Traffic to 10.0.0.0/16 stays in the virtual network (VnetLocal).");
     }
 }

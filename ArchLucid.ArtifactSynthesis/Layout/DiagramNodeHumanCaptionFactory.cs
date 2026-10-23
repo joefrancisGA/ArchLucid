@@ -92,9 +92,18 @@ public static class DiagramNodeHumanCaptionFactory
             combined = $"{combined} · {string.Join(" · ", node.ParentAttachmentDetails)}";
         }
 
+        if (node.HasPrivateEndpointAccess)
+        {
+            string privateEndpointCaption = string.IsNullOrWhiteSpace(node.PrivateEndpointAccessName)
+                ? "Private endpoint name was not stored."
+                : node.PrivateEndpointAccessName.Trim();
+            combined = $"{combined} · {privateEndpointCaption}";
+        }
+
         if (node.HasPublicInternetExposure)
         {
-            combined = $"{combined} · {InventoryDiagramRelationshipLabelTexts.PublicExposureCaption}";
+            combined =
+                $"{combined} · {InventoryDiagramRelationshipLabelTexts.FormatHiddenPublicIpCaption(node.HiddenPublicIpAddress)}";
         }
 
         if (node.ConnectionState == InventoryDiagramConnectionState.Orphaned
@@ -110,7 +119,7 @@ public static class DiagramNodeHumanCaptionFactory
         }
         else if (node.ConnectionState == InventoryDiagramConnectionState.Unconnected)
         {
-            combined = $"{combined} · Stands alone";
+            combined = $"{combined} · No diagram link was stored.";
         }
         else if (node.ConnectionState == InventoryDiagramConnectionState.Unknown
             && node.UnresolvedRelationshipDetails.Count == 0)

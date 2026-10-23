@@ -2374,6 +2374,435 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
+- **id:** ui-oidc
+- **status:** open
+- **impact:** high
+- **aliases:** oidc authority; sign-in routing; OIDC host
+- **paths:** archlucid-ui/src/lib/oidc/
+- **test-filter:** oidc-authority|oidc
+- **hunts:** 80
+- **bugs-found:** 72
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-22
+- **last-bug:** 2026-10-21 — stale BFF ok refresh blocked after same-identity persist retoken
+- **related-pd-tb:** none
+- **code-changed-since:** yes
+
+- **id:** ui-oidc
+- **status:** open
+- **impact:** high
+- **aliases:** oidc authority; sign-in routing; OIDC host
+- **paths:** archlucid-ui/src/lib/oidc/
+- **test-filter:** oidc-authority|oidc
+- **hunts:** 81
+- **bugs-found:** 72
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-22
+- **last-bug:** 2026-10-21 — stale BFF ok refresh blocked after same-identity persist retoken
+- **related-pd-tb:** none
+- **code-changed-since:** yes
+
+- **id:** ui-oidc
+- **status:** open
+- **impact:** high
+- **aliases:** oidc authority; sign-in routing; OIDC host
+- **paths:** archlucid-ui/src/lib/oidc/
+- **test-filter:** oidc-authority|oidc
+- **hunts:** 82
+- **bugs-found:** 72
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-22
+- **last-bug:** 2026-10-21 — stale BFF ok refresh blocked after same-identity persist retoken
+- **related-pd-tb:** none
+- **code-changed-since:** yes
+
+- **id:** ui-oidc
+- **status:** open
+- **impact:** high
+- **aliases:** oidc authority; sign-in routing; OIDC host
+- **paths:** archlucid-ui/src/lib/oidc/
+- **test-filter:** oidc-authority|oidc
+- **hunts:** 83
+- **bugs-found:** 72
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-22
+- **last-bug:** 2026-10-21 — stale BFF ok refresh blocked after same-identity persist retoken
+- **related-pd-tb:** none
+- **code-changed-since:** yes
+
+- **id:** ui-oidc
+- **status:** open
+- **impact:** high
+- **aliases:** oidc authority; sign-in routing; OIDC host
+- **paths:** archlucid-ui/src/lib/oidc/
+- **test-filter:** oidc-authority|oidc
+- **hunts:** 84
+- **bugs-found:** 73
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-22
+- **last-bug:** 2026-10-22 — post-sign-in return URL leaked smuggled vertical-tab path after safe-path check
+- **related-pd-tb:** none
+- **code-changed-since:** yes
+
+- **id:** ui-oidc
+- **status:** open
+- **impact:** high
+- **aliases:** oidc authority; sign-in routing; OIDC host
+- **paths:** archlucid-ui/src/lib/oidc/
+- **test-filter:** oidc-authority|oidc
+- **hunts:** 85
+- **bugs-found:** 73
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-22
+- **last-bug:** 2026-10-22 — post-sign-in return URL leaked smuggled vertical-tab path after safe-path check
+- **related-pd-tb:** none
+- **code-changed-since:** yes
+
+- **id:** ui-oidc
+- **status:** open
+- **impact:** high
+- **aliases:** oidc authority; sign-in routing; OIDC host
+- **paths:** archlucid-ui/src/lib/oidc/
+- **test-filter:** oidc-authority|oidc
+- **hunts:** 86
+- **bugs-found:** 73
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-22
+- **last-bug:** 2026-10-22 — post-sign-in return URL leaked smuggled vertical-tab path after safe-path check
+- **related-pd-tb:** none
+- **code-changed-since:** yes
+
+- **id:** ui-oidc
+- **status:** open
+- **impact:** high
+- **aliases:** oidc authority; sign-in routing; OIDC host
+- **paths:** archlucid-ui/src/lib/oidc/
+- **test-filter:** oidc-authority|oidc
+- **hunts:** 87
+- **bugs-found:** 73
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-22
+- **last-bug:** 2026-10-22 — post-sign-in return URL leaked smuggled vertical-tab path after safe-path check
+- **related-pd-tb:** none
+- **code-changed-since:** yes
+
+- **id:** ui-oidc
+- **status:** open
+- **impact:** high
+- **aliases:** oidc authority; sign-in routing; OIDC host
+- **paths:** archlucid-ui/src/lib/oidc/
+- **test-filter:** oidc-authority|oidc
+- **hunts:** 88
+- **bugs-found:** 73
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-22
+- **last-bug:** 2026-10-22 — post-sign-in return URL leaked smuggled vertical-tab path after safe-path check
+- **related-pd-tb:** none
+- **code-changed-since:** yes
+
+- **id:** ui-oidc
+- **status:** open
+- **impact:** high
+- **aliases:** oidc authority; sign-in routing; OIDC host
+- **paths:** archlucid-ui/src/lib/oidc/
+- **test-filter:** oidc-authority|oidc
+- **hunts:** 89
+- **bugs-found:** 73
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-22
+- **last-bug:** 2026-10-22 — post-sign-in return URL leaked smuggled vertical-tab path after safe-path check
+- **related-pd-tb:** none
+- **code-changed-since:** yes
+
+- **id:** ui-oidc
+- **status:** open
+- **impact:** high
+- **aliases:** oidc authority; sign-in routing; OIDC host
+- **paths:** archlucid-ui/src/lib/oidc/
+- **test-filter:** oidc-authority|oidc
+- **hunts:** 90
+- **bugs-found:** 73
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-22
+- **last-bug:** 2026-10-22 — post-sign-in return URL leaked smuggled vertical-tab path after safe-path check
+- **related-pd-tb:** none
+- **code-changed-since:** yes
+
+- **id:** ui-oidc
+- **status:** open
+- **impact:** high
+- **aliases:** oidc authority; sign-in routing; OIDC host
+- **paths:** archlucid-ui/src/lib/oidc/
+- **test-filter:** oidc-authority|oidc
+- **hunts:** 91
+- **bugs-found:** 73
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-22
+- **last-bug:** 2026-10-22 — post-sign-in return URL leaked smuggled vertical-tab path after safe-path check
+- **related-pd-tb:** none
+- **code-changed-since:** yes
+
+- **id:** ui-oidc
+- **status:** open
+- **impact:** high
+- **aliases:** oidc authority; sign-in routing; OIDC host
+- **paths:** archlucid-ui/src/lib/oidc/
+- **test-filter:** oidc-authority|oidc
+- **hunts:** 92
+- **bugs-found:** 73
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-22
+- **last-bug:** 2026-10-22 — post-sign-in return URL leaked smuggled vertical-tab path after safe-path check
+- **related-pd-tb:** none
+- **code-changed-since:** yes
+
+2026-10-22 seed hunt (seed-only, pass 13): cheap-disproved five open `(candidate)` rows from pass 12; regression locks authorize `unsupported_response_type` humanization, middle-dot-only JSON/authorize `error_description` guards, JSON number-negative-one token body, and tampered-session PKCE consume with interior vertical-tab; no hunt-ready row promoted; seeded five follow-on `(candidate)` rows; focused OIDC suite passed 737/737; no production code changed.
+
+- [x] (invalid) `humanizeAuthorizeCallbackError` — `unsupported_response_type` on authorize callback query — **cheap-disproof 2026-10-22 seed hunt pass 13:** default-branch readable copy; regression `humanizes unsupported_response_type authorize callback errors with readable copy`.
+- [x] (valid-no-repro) `readOAuthJsonErrorDescription` — middle-dot-only (`U+00B7`) JSON `error_description` — **cheap-disproof 2026-10-22 seed hunt pass 13:** readable-detail guard; regression `returns empty for middle-dot-only token-endpoint JSON error_description values`.
+- [x] (valid-no-repro) `decodeOAuthErrorDescription` — middle-dot-only percent-encoded authorize `error_description` — **cheap-disproof 2026-10-22 seed hunt pass 13:** regression `returns empty for middle-dot-only percent-encoded error descriptions`.
+- [x] (valid-no-repro) `token-client.postTokenForm` — HTTP 200 body is JSON number `-1` — **cheap-disproof 2026-10-22 seed hunt pass 13:** non-object root fails closed; regression `throws when a successful token response body is the JSON number -1`.
+- [x] (valid-no-repro) `consumePkceState` — PKCE state value with vertical-tab interior — **cheap-disproof 2026-10-22 seed hunt pass 13:** tampered session state fails closed; regression `rejects PKCE consume when tampered session state contains interior vertical-tab control characters`.
+
+- [ ] (candidate) `readOAuthJsonErrorDescription` — multiplication-sign-only (`U+00D7`) JSON `error_description` — locus: readable-detail guard; input: token-endpoint OAuth JSON `"\\u00d7\\u00d7"`.
+- [ ] (candidate) `decodeOAuthErrorDescription` — multiplication-sign-only percent-encoded authorize `error_description` — locus: `decodeOAuthErrorDescription`; input: callback `?error_description=%C3%97`.
+- [ ] (candidate) `token-client.postTokenForm` — HTTP 200 body is JSON number `1` — locus: `parseOidcTokenResponse`; input: misconfigured IdP returns numeric positive root JSON with 200.
+- [ ] (candidate) `refreshBffSessionCookie` — refresh route returns HTTP `505` without clearing session — locus: BFF refresh soft-fail branch; input: same-origin refresh responds `505` while access token still present.
+- [ ] (candidate) `storePkceState` — PKCE `state` argument containing interior vertical-tab at store time — locus: `storePkceState`; input: sign-in initiation persists `desk\\u000Bstate` before authorize redirect.
+
+- [x] (invalid) `humanizeAuthorizeCallbackError` — `unsupported_response_type` on authorize callback query — **closed 2026-10-22 seed hunt pass 13** (see pass-13 row above).
+- [x] (valid-no-repro) `readOAuthJsonErrorDescription` — middle-dot-only JSON `error_description` — **closed 2026-10-22 seed hunt pass 13** (see pass-13 row above).
+- [x] (valid-no-repro) `decodeOAuthErrorDescription` — middle-dot-only percent-encoded `error_description` — **closed 2026-10-22 seed hunt pass 13** (see pass-13 row above).
+- [x] (valid-no-repro) `token-client.postTokenForm` — HTTP 200 JSON number `-1` — **closed 2026-10-22 seed hunt pass 13** (see pass-13 row above).
+- [x] (valid-no-repro) `consumePkceState` — PKCE state with vertical-tab interior — **closed 2026-10-22 seed hunt pass 13** (see pass-13 row above).
+
+2026-10-22 seed hunt (seed-only, pass 12): cheap-disproved five open `(candidate)` rows from pass 11; regression locks ellipsis-only JSON/authorize `error_description` guards, JSON number-zero token body, and `clearPostSignInReturnUrl` retry-marker cleanup; no hunt-ready row promoted; seeded five follow-on `(candidate)` rows; focused OIDC suite passed 732/732; no production code changed.
+
+- [x] (invalid) `humanizeAuthorizeCallbackError` — `request_not_supported` authorize callback query — **cheap-disproof 2026-10-22 seed hunt pass 12:** existing regression `humanizes request_not_supported authorize callback errors with readable copy`.
+- [x] (valid-no-repro) `readOAuthJsonErrorDescription` — ellipsis-only (`U+2026`) JSON `error_description` — **cheap-disproof 2026-10-22 seed hunt pass 12:** readable-detail guard; regression `returns empty for ellipsis-only token-endpoint JSON error_description values`.
+- [x] (valid-no-repro) `decodeOAuthErrorDescription` — ellipsis-only percent-encoded authorize `error_description` — **cheap-disproof 2026-10-22 seed hunt pass 12:** regression `returns empty for ellipsis-only percent-encoded error descriptions`.
+- [x] (valid-no-repro) `token-client.postTokenForm` — HTTP 200 body is JSON number `0` — **cheap-disproof 2026-10-22 seed hunt pass 12:** non-object root fails closed; regression `throws when a successful token response body is the JSON number 0`.
+- [x] (invalid) `clearPostSignInReturnUrl` — authorize-retry markers left set when post-sign-in URL already absent — **cheap-disproof 2026-10-22 seed hunt pass 12:** helper clears retry marker and snapshot; regression `clears authorize retry markers when clearing post-sign-in return URL without a stored path`.
+
+- [x] (invalid) `humanizeAuthorizeCallbackError` — `unsupported_response_type` on authorize callback query — **closed 2026-10-22 seed hunt pass 13** (see pass-13 row above).
+- [x] (valid-no-repro) `readOAuthJsonErrorDescription` — middle-dot-only (`U+00B7`) JSON `error_description` — **closed 2026-10-22 seed hunt pass 13** (see pass-13 row above).
+- [x] (valid-no-repro) `decodeOAuthErrorDescription` — middle-dot-only percent-encoded authorize `error_description` — **closed 2026-10-22 seed hunt pass 13** (see pass-13 row above).
+- [x] (valid-no-repro) `token-client.postTokenForm` — HTTP 200 body is JSON number `-1` — **closed 2026-10-22 seed hunt pass 13** (see pass-13 row above).
+- [x] (valid-no-repro) `consumePkceState` — PKCE state value with vertical-tab interior — **closed 2026-10-22 seed hunt pass 13** (see pass-13 row above).
+
+- [x] (invalid) `humanizeAuthorizeCallbackError` — `request_not_supported` authorize callback query — **closed 2026-10-22 seed hunt pass 12** (see pass-12 row above).
+- [x] (valid-no-repro) `readOAuthJsonErrorDescription` — ellipsis-only JSON `error_description` — **closed 2026-10-22 seed hunt pass 12** (see pass-12 row above).
+- [x] (valid-no-repro) `decodeOAuthErrorDescription` — ellipsis-only percent-encoded `error_description` — **closed 2026-10-22 seed hunt pass 12** (see pass-12 row above).
+- [x] (valid-no-repro) `token-client.postTokenForm` — HTTP 200 JSON number `0` — **closed 2026-10-22 seed hunt pass 12** (see pass-12 row above).
+- [x] (invalid) `clearPostSignInReturnUrl` — retry markers left when return URL absent — **closed 2026-10-22 seed hunt pass 12** (see pass-12 row above).
+
+2026-10-22 seed hunt (seed-only, pass 11): cheap-disproved five open `(candidate)` rows from pass 10; regression locks `acr_values_not_supported` authorize humanization, bullet-only JSON/authorize `error_description` guards, JSON `false` token body, and BFF refresh `501` soft-fail; no hunt-ready row promoted; seeded five follow-on `(candidate)` rows; focused OIDC suite passed 728/728; no production code changed.
+
+- [x] (invalid) `humanizeAuthorizeCallbackError` — `acr_values_not_supported` authorize callback query — **cheap-disproof 2026-10-22 seed hunt pass 11:** default-branch readable copy; regression `humanizes acr_values_not_supported authorize callback errors with readable copy`.
+- [x] (valid-no-repro) `readOAuthJsonErrorDescription` — bullet-only (`U+2022`) JSON `error_description` — **cheap-disproof 2026-10-22 seed hunt pass 11:** readable-detail guard; regression `returns empty for bullet-only token-endpoint JSON error_description values`.
+- [x] (valid-no-repro) `decodeOAuthErrorDescription` — bullet-only percent-encoded authorize `error_description` — **cheap-disproof 2026-10-22 seed hunt pass 11:** regression `returns empty for bullet-only percent-encoded error descriptions`.
+- [x] (valid-no-repro) `token-client.postTokenForm` — HTTP 200 body is JSON literal `false` — **cheap-disproof 2026-10-22 seed hunt pass 11:** non-object root fails closed; regression `throws when a successful token response body is the JSON literal false`.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route returns HTTP `501` without clearing session — **cheap-disproof 2026-10-22 seed hunt pass 11:** non-401/403 soft-fail; regression `soft-fails refresh without clearing session when the refresh route returns 501`.
+
+- [x] (invalid) `humanizeAuthorizeCallbackError` — `request_not_supported` on authorize callback query — **closed 2026-10-22 seed hunt pass 12** (see pass-12 row above).
+- [x] (valid-no-repro) `readOAuthJsonErrorDescription` — ellipsis-only (`U+2026`) JSON `error_description` — **closed 2026-10-22 seed hunt pass 12** (see pass-12 row above).
+- [x] (valid-no-repro) `decodeOAuthErrorDescription` — ellipsis-only percent-encoded authorize `error_description` — **closed 2026-10-22 seed hunt pass 12** (see pass-12 row above).
+- [x] (valid-no-repro) `token-client.postTokenForm` — HTTP 200 body is JSON number `0` — **closed 2026-10-22 seed hunt pass 12** (see pass-12 row above).
+- [x] (invalid) `clearPostSignInReturnUrl` — authorize-retry markers left set when post-sign-in URL already absent — **closed 2026-10-22 seed hunt pass 12** (see pass-12 row above).
+
+- [x] (invalid) `humanizeAuthorizeCallbackError` — `acr_values_not_supported` authorize callback query — **closed 2026-10-22 seed hunt pass 11** (see pass-11 row above).
+- [x] (valid-no-repro) `readOAuthJsonErrorDescription` — bullet-only JSON `error_description` — **closed 2026-10-22 seed hunt pass 11** (see pass-11 row above).
+- [x] (valid-no-repro) `decodeOAuthErrorDescription` — bullet-only percent-encoded `error_description` — **closed 2026-10-22 seed hunt pass 11** (see pass-11 row above).
+- [x] (valid-no-repro) `token-client.postTokenForm` — HTTP 200 JSON literal `false` — **closed 2026-10-22 seed hunt pass 11** (see pass-11 row above).
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh HTTP `501` — **closed 2026-10-22 seed hunt pass 11** (see pass-11 row above).
+
+2026-10-22 seed hunt (seed-only, pass 10): cheap-disproved five open `(candidate)` rows from pass 9; regression locks `admin_consent_required` authorize humanization, en-dash-only JSON/authorize `error_description` guards, JSON string-root token body, and BFF refresh `500` soft-fail; no hunt-ready row promoted; seeded five follow-on `(candidate)` rows; focused OIDC suite passed 723/723; no production code changed.
+
+- [x] (invalid) `humanizeAuthorizeCallbackError` — `admin_consent_required` authorize callback query — **cheap-disproof 2026-10-22 seed hunt pass 10:** default-branch readable copy; regression `humanizes admin_consent_required authorize callback errors with readable copy`.
+- [x] (valid-no-repro) `readOAuthJsonErrorDescription` — en-dash-only (`U+2013`) JSON `error_description` — **cheap-disproof 2026-10-22 seed hunt pass 10:** readable-detail guard; regression `returns empty for en-dash-only token-endpoint JSON error_description values`.
+- [x] (valid-no-repro) `decodeOAuthErrorDescription` — en-dash-only percent-encoded authorize `error_description` — **cheap-disproof 2026-10-22 seed hunt pass 10:** regression `returns empty for en-dash-only percent-encoded error descriptions`.
+- [x] (valid-no-repro) `token-client.postTokenForm` — HTTP 200 body is JSON string root — **cheap-disproof 2026-10-22 seed hunt pass 10:** non-object root fails closed; regression `throws when a successful token response body is a JSON string root`.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route returns HTTP `500` without clearing session — **cheap-disproof 2026-10-22 seed hunt pass 10:** non-401/403 soft-fail; regression `soft-fails refresh without clearing session when the refresh route returns 500`.
+
+- [x] (invalid) `humanizeAuthorizeCallbackError` — `acr_values_not_supported` on authorize callback query — **closed 2026-10-22 seed hunt pass 11** (see pass-11 row above).
+- [x] (valid-no-repro) `readOAuthJsonErrorDescription` — bullet-only (`U+2022`) JSON `error_description` — **closed 2026-10-22 seed hunt pass 11** (see pass-11 row above).
+- [x] (valid-no-repro) `decodeOAuthErrorDescription` — bullet-only percent-encoded authorize `error_description` — **closed 2026-10-22 seed hunt pass 11** (see pass-11 row above).
+- [x] (valid-no-repro) `token-client.postTokenForm` — HTTP 200 body is JSON literal `false` — **closed 2026-10-22 seed hunt pass 11** (see pass-11 row above).
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route returns HTTP `501` without clearing session — **closed 2026-10-22 seed hunt pass 11** (see pass-11 row above).
+
+- [x] (invalid) `humanizeAuthorizeCallbackError` — `admin_consent_required` authorize callback query — **closed 2026-10-22 seed hunt pass 10** (see pass-10 row above).
+- [x] (valid-no-repro) `readOAuthJsonErrorDescription` — en-dash-only JSON `error_description` — **closed 2026-10-22 seed hunt pass 10** (see pass-10 row above).
+- [x] (valid-no-repro) `decodeOAuthErrorDescription` — en-dash-only percent-encoded `error_description` — **closed 2026-10-22 seed hunt pass 10** (see pass-10 row above).
+- [x] (valid-no-repro) `token-client.postTokenForm` — HTTP 200 JSON string root — **closed 2026-10-22 seed hunt pass 10** (see pass-10 row above).
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh HTTP `500` — **closed 2026-10-22 seed hunt pass 10** (see pass-10 row above).
+
+2026-10-22 seed hunt (seed-only, pass 9): cheap-disproved five open `(candidate)` rows from pass 8; regression locks BFF refresh `497`/`498` soft-fail parity and em-dash-only JSON/authorize `error_description` guards; no hunt-ready row promoted; seeded five follow-on `(candidate)` rows; focused OIDC suite passed 718/718; no production code changed.
+
+- [x] (invalid) `humanizeAuthorizeCallbackError` — `registration_not_supported` authorize callback query — **cheap-disproof 2026-10-22 seed hunt pass 9:** existing regression `humanizes registration_not_supported authorize callback errors with readable copy`.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route returns opaque HTTP `497` — **cheap-disproof 2026-10-22 seed hunt pass 9:** non-401/403 soft-fail; regression `soft-fails refresh without clearing session when the refresh route returns 497`.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route returns opaque HTTP `498` — **cheap-disproof 2026-10-22 seed hunt pass 9:** regression `soft-fails refresh without clearing session when the refresh route returns 498`.
+- [x] (valid-no-repro) `readOAuthJsonErrorDescription` — em-dash-only (`U+2014`) JSON `error_description` — **cheap-disproof 2026-10-22 seed hunt pass 9:** readable-detail guard; regression `returns empty for em-dash-only token-endpoint JSON error_description values`.
+- [x] (valid-no-repro) `decodeOAuthErrorDescription` — em-dash-only percent-encoded authorize `error_description` — **cheap-disproof 2026-10-22 seed hunt pass 9:** regression `returns empty for em-dash-only percent-encoded error descriptions`.
+
+- [x] (invalid) `humanizeAuthorizeCallbackError` — `admin_consent_required` on authorize callback query — **closed 2026-10-22 seed hunt pass 10** (see pass-10 row above).
+- [x] (valid-no-repro) `readOAuthJsonErrorDescription` — en-dash-only (`U+2013`) JSON `error_description` — **closed 2026-10-22 seed hunt pass 10** (see pass-10 row above).
+- [x] (valid-no-repro) `decodeOAuthErrorDescription` — en-dash-only percent-encoded authorize `error_description` — **closed 2026-10-22 seed hunt pass 10** (see pass-10 row above).
+- [x] (valid-no-repro) `token-client.postTokenForm` — HTTP 200 body is JSON string root — **closed 2026-10-22 seed hunt pass 10** (see pass-10 row above).
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route returns HTTP `500` without clearing session — **closed 2026-10-22 seed hunt pass 10** (see pass-10 row above).
+
+- [x] (invalid) `humanizeAuthorizeCallbackError` — `registration_not_supported` authorize callback query — **closed 2026-10-22 seed hunt pass 9** (see pass-9 row above).
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh opaque HTTP `497` — **closed 2026-10-22 seed hunt pass 9** (see pass-9 row above).
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh opaque HTTP `498` — **closed 2026-10-22 seed hunt pass 9** (see pass-9 row above).
+- [x] (valid-no-repro) `readOAuthJsonErrorDescription` — em-dash-only JSON `error_description` — **closed 2026-10-22 seed hunt pass 9** (see pass-9 row above).
+- [x] (valid-no-repro) `decodeOAuthErrorDescription` — em-dash-only percent-encoded `error_description` — **closed 2026-10-22 seed hunt pass 9** (see pass-9 row above).
+
+2026-10-22 seed hunt (seed-only, pass 8): cheap-disproved five open `(candidate)` rows from pass 7; regression locks tampered post-sign-in read canonicalization, empty-object token body, display-string control collapse, and BFF refresh `499` soft-fail; no hunt-ready row promoted; seeded five follow-on `(candidate)` rows; focused OIDC suite passed 749/749; no production code changed.
+
+- [x] (invalid) `humanizeAuthorizeCallbackError` — `org_internal` authorize callback query — **cheap-disproof 2026-10-22 seed hunt pass 8:** existing regression `humanizes org_internal authorize callback errors with readable copy`.
+- [x] (valid-no-repro) `readPostSignInReturnUrl` — tampered post-sign-in return key with vertical-tab interior — **cheap-disproof 2026-10-22 seed hunt pass 8:** `canonicalSafeReturnPath` on read; regression `returns a control-stripped post-sign-in return path on read when session storage was tampered`.
+- [x] (valid-no-repro) `token-client.postTokenForm` — HTTP 200 body is JSON empty object `{}` — **cheap-disproof 2026-10-22 seed hunt pass 8:** missing `access_token`; regression `throws when a successful token response body is an empty JSON object`.
+- [x] (valid-no-repro) `normalizeOidcDisplayString` — vertical-tab interior in signed-in display name — **cheap-disproof 2026-10-22 seed hunt pass 8:** control-char collapse; regression `collapses vertical-tab control characters in OIDC display copy`.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route returns opaque HTTP `499` — **cheap-disproof 2026-10-22 seed hunt pass 8:** non-401/403 soft-fail parity; regression `soft-fails refresh without clearing session when the refresh route returns 499`.
+
+- [x] (invalid) `humanizeAuthorizeCallbackError` — `registration_not_supported` on authorize callback query — **closed 2026-10-22 seed hunt pass 9** (see pass-9 row above).
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route returns opaque HTTP `497` without clearing session — **closed 2026-10-22 seed hunt pass 9** (see pass-9 row above).
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route returns opaque HTTP `498` without clearing session — **closed 2026-10-22 seed hunt pass 9** (see pass-9 row above).
+- [x] (valid-no-repro) `readOAuthJsonErrorDescription` — em-dash-only (`U+2014`) JSON `error_description` — **closed 2026-10-22 seed hunt pass 9** (see pass-9 row above).
+- [x] (valid-no-repro) `decodeOAuthErrorDescription` — em-dash-only percent-encoded authorize `error_description` — **closed 2026-10-22 seed hunt pass 9** (see pass-9 row above).
+
+- [x] (invalid) `humanizeAuthorizeCallbackError` — `org_internal` authorize callback query — **closed 2026-10-22 seed hunt pass 8** (see pass-8 row above).
+- [x] (valid-no-repro) `readPostSignInReturnUrl` — tampered post-sign-in vertical-tab return key — **closed 2026-10-22 seed hunt pass 8** (see pass-8 row above).
+- [x] (valid-no-repro) `token-client.postTokenForm` — HTTP 200 JSON empty object `{}` — **closed 2026-10-22 seed hunt pass 8** (see pass-8 row above).
+- [x] (valid-no-repro) `normalizeOidcDisplayString` — vertical-tab in display name — **closed 2026-10-22 seed hunt pass 8** (see pass-8 row above).
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh opaque HTTP `499` — **closed 2026-10-22 seed hunt pass 8** (see pass-8 row above).
+
+2026-10-22 seed hunt (seed-only, pass 7): cheap-disproved five open `(candidate)` rows from pass 6; regression locks six-per-em-space JSON/authorize `error_description` guards, JSON `null` token body, and tampered authorize-retry snapshot read; no hunt-ready row promoted; seeded five follow-on `(candidate)` rows; focused OIDC suite passed 745/745; no production code changed.
+
+- [x] (invalid) `humanizeAuthorizeCallbackError` — `invalid_grant` authorize callback query — **cheap-disproof 2026-10-22 seed hunt pass 7:** existing regression `humanizes invalid_grant authorize callback errors with readable copy`.
+- [x] (valid-no-repro) `readOAuthJsonErrorDescription` — six-per-em-space-only (`U+2006`) JSON `error_description` — **cheap-disproof 2026-10-22 seed hunt pass 7:** readable-detail guard; regression `returns empty for six-per-em-space-only token-endpoint JSON error_description values`.
+- [x] (valid-no-repro) `decodeOAuthErrorDescription` — six-per-em-space-only percent-encoded authorize `error_description` — **cheap-disproof 2026-10-22 seed hunt pass 7:** regression `returns empty for six-per-em-space-only percent-encoded error descriptions`.
+- [x] (valid-no-repro) `token-client.postTokenForm` — HTTP 200 body is JSON literal `null` — **cheap-disproof 2026-10-22 seed hunt pass 7:** falsy root fails closed; regression `throws when a successful token response body is JSON null`.
+- [x] (valid-no-repro) `readAuthorizeRetryReturnPathSnapshot` — tampered authorize-retry snapshot with vertical-tab interior — **cheap-disproof 2026-10-22 seed hunt pass 7:** `canonicalSafeReturnPath` on read; regression `returns a control-stripped authorize retry snapshot when the retry key was tampered`.
+
+- [x] (invalid) `humanizeAuthorizeCallbackError` — `org_internal` on authorize callback query — **closed 2026-10-22 seed hunt pass 8** (see pass-8 row above).
+- [x] (valid-no-repro) `readPostSignInReturnUrl` — tampered post-sign-in return key with vertical-tab interior — **closed 2026-10-22 seed hunt pass 8** (see pass-8 row above).
+- [x] (valid-no-repro) `token-client.postTokenForm` — HTTP 200 body is JSON empty object `{}` — **closed 2026-10-22 seed hunt pass 8** (see pass-8 row above).
+- [x] (valid-no-repro) `normalizeOidcDisplayString` — vertical-tab (`U+000B`) interior in signed-in display name — **closed 2026-10-22 seed hunt pass 8** (see pass-8 row above).
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route returns opaque HTTP `499` without clearing session — **closed 2026-10-22 seed hunt pass 8** (see pass-8 row above).
+
+- [x] (invalid) `humanizeAuthorizeCallbackError` — `invalid_grant` authorize callback query — **closed 2026-10-22 seed hunt pass 7** (see pass-7 row above).
+- [x] (valid-no-repro) `readOAuthJsonErrorDescription` — six-per-em-space-only JSON `error_description` — **closed 2026-10-22 seed hunt pass 7** (see pass-7 row above).
+- [x] (valid-no-repro) `decodeOAuthErrorDescription` — six-per-em-space-only percent-encoded `error_description` — **closed 2026-10-22 seed hunt pass 7** (see pass-7 row above).
+- [x] (valid-no-repro) `token-client.postTokenForm` — HTTP 200 JSON literal `null` — **closed 2026-10-22 seed hunt pass 7** (see pass-7 row above).
+- [x] (valid-no-repro) `readAuthorizeRetryReturnPathSnapshot` — tampered retry snapshot vertical-tab — **closed 2026-10-22 seed hunt pass 7** (see pass-7 row above).
+
+2026-10-22 seed hunt (seed-only, pass 6): cheap-disproved five open `(candidate)` rows from pass 5; regression locks hair-space-only JSON/authorize `error_description` guards, empty-array token body, and authorize-retry snapshot canonicalization; no hunt-ready row promoted; seeded five follow-on `(candidate)` rows; focused OIDC suite passed 741/741; no production code changed.
+
+- [x] (invalid) `humanizeAuthorizeCallbackError` — `expired_token` authorize callback query — **cheap-disproof 2026-10-22 seed hunt pass 6:** existing regression `humanizes expired_token authorize callback errors with readable copy`.
+- [x] (valid-no-repro) `readOAuthJsonErrorDescription` — hair-space-only (`U+200A`) JSON `error_description` — **cheap-disproof 2026-10-22 seed hunt pass 6:** readable-detail guard; regression `returns empty for hair-space-only token-endpoint JSON error_description values`.
+- [x] (valid-no-repro) `decodeOAuthErrorDescription` — hair-space-only percent-encoded authorize `error_description` — **cheap-disproof 2026-10-22 seed hunt pass 6:** regression `returns empty for hair-space-only percent-encoded error descriptions`.
+- [x] (valid-no-repro) `token-client.postTokenForm` — HTTP 200 body is JSON empty array `[]` — **cheap-disproof 2026-10-22 seed hunt pass 6:** array root lacks `access_token`; regression `throws when a successful token response body is an empty JSON array`.
+- [x] (valid-no-repro) `markAuthorizeCallbackFailed` — authorize-retry snapshot when post-sign-in URL contains smuggled control characters — **cheap-disproof 2026-10-22 seed hunt pass 6:** `snapshotAuthorizeRetryReturnPath` uses `canonicalSafeReturnPath`; regression `captures a control-stripped authorize-retry snapshot when post-sign-in URL was tampered`.
+
+- [x] (invalid) `humanizeAuthorizeCallbackError` — `invalid_grant` on authorize callback query — **closed 2026-10-22 seed hunt pass 7** (see pass-7 row above).
+- [x] (valid-no-repro) `readOAuthJsonErrorDescription` — six-per-em-space-only (`U+2006`) JSON `error_description` — **closed 2026-10-22 seed hunt pass 7** (see pass-7 row above).
+- [x] (valid-no-repro) `decodeOAuthErrorDescription` — six-per-em-space-only percent-encoded authorize `error_description` — **closed 2026-10-22 seed hunt pass 7** (see pass-7 row above).
+- [x] (valid-no-repro) `token-client.postTokenForm` — HTTP 200 body is JSON literal `null` — **closed 2026-10-22 seed hunt pass 7** (see pass-7 row above).
+- [x] (valid-no-repro) `readAuthorizeRetryReturnPathSnapshot` — tampered authorize-retry snapshot key with vertical-tab interior — **closed 2026-10-22 seed hunt pass 7** (see pass-7 row above).
+
+- [x] (invalid) `humanizeAuthorizeCallbackError` — `expired_token` authorize callback query — **closed 2026-10-22 seed hunt pass 6** (see pass-6 row above).
+- [x] (valid-no-repro) `readOAuthJsonErrorDescription` — hair-space-only JSON `error_description` — **closed 2026-10-22 seed hunt pass 6** (see pass-6 row above).
+- [x] (valid-no-repro) `decodeOAuthErrorDescription` — hair-space-only percent-encoded `error_description` — **closed 2026-10-22 seed hunt pass 6** (see pass-6 row above).
+- [x] (valid-no-repro) `token-client.postTokenForm` — HTTP 200 JSON empty array `[]` — **closed 2026-10-22 seed hunt pass 6** (see pass-6 row above).
+- [x] (valid-no-repro) `markAuthorizeCallbackFailed` — authorize-retry snapshot with smuggled control characters — **closed 2026-10-22 seed hunt pass 6** (see pass-6 row above).
+
+2026-10-22 seed hunt (hit, pass 5): proved `consumePostSignInReturnUrl` returned control-smuggled paths that passed `isSafeReturnPath`; fixed via `canonicalSafeReturnPath` in navigation + OIDC session helpers; cheap-disproved four sibling pass-4 `(candidate)` rows; focused OIDC + safe-return-path suite passed 737/737.
+
+- [x] (proven) `consumePostSignInReturnUrl` — return path with vertical-tab (`U+000B`) interior — **2026-10-22 seed hunt pass 5:** `isSafeReturnPath` stripped controls for validation but readers returned raw session value; fix `canonicalSafeReturnPath` + session store/read/consume; regressions `returns a control-stripped safe post-sign-in return path when session storage was tampered` and `strips smuggled control characters from an otherwise safe path`.
+- [x] (invalid) `humanizeAuthorizeCallbackError` — `slow_down` authorize callback query — **cheap-disproof 2026-10-22 seed hunt pass 5:** existing regression `humanizes slow_down authorize callback errors with readable copy`.
+- [x] (valid-no-repro) `readOAuthJsonErrorDescription` — figure-space-only (`U+2007`) JSON `error_description` — **cheap-disproof 2026-10-22 seed hunt pass 5:** readable-detail guard; regression `returns empty for figure-space-only token-endpoint JSON error_description values`.
+- [x] (valid-no-repro) `decodeOAuthErrorDescription` — figure-space-only percent-encoded authorize `error_description` — **cheap-disproof 2026-10-22 seed hunt pass 5:** regression `returns empty for figure-space-only percent-encoded error descriptions`.
+- [x] (valid-no-repro) `token-client.postTokenForm` — HTTP 200 body is JSON number `42` — **cheap-disproof 2026-10-22 seed hunt pass 5:** non-object root fails closed; regression `throws when a successful token response body is the JSON number 42`.
+
+- [x] (invalid) `humanizeAuthorizeCallbackError` — `expired_token` on authorize callback query — **closed 2026-10-22 seed hunt pass 6** (see pass-6 row above).
+- [x] (valid-no-repro) `readOAuthJsonErrorDescription` — hair-space-only (`U+200A`) JSON `error_description` — **closed 2026-10-22 seed hunt pass 6** (see pass-6 row above).
+- [x] (valid-no-repro) `decodeOAuthErrorDescription` — hair-space-only percent-encoded authorize `error_description` — **closed 2026-10-22 seed hunt pass 6** (see pass-6 row above).
+- [x] (valid-no-repro) `token-client.postTokenForm` — HTTP 200 body is JSON empty array `[]` — **closed 2026-10-22 seed hunt pass 6** (see pass-6 row above).
+- [x] (valid-no-repro) `markAuthorizeCallbackFailed` — authorize-retry snapshot when post-sign-in URL contains smuggled control characters — **closed 2026-10-22 seed hunt pass 6** (see pass-6 row above).
+
+- [x] (proven) `consumePostSignInReturnUrl` — vertical-tab interior return path — **closed 2026-10-22 seed hunt pass 5** (see pass-5 row above).
+- [x] (invalid) `humanizeAuthorizeCallbackError` — `slow_down` authorize callback query — **closed 2026-10-22 seed hunt pass 5** (see pass-5 row above).
+- [x] (valid-no-repro) `readOAuthJsonErrorDescription` — figure-space-only JSON `error_description` — **closed 2026-10-22 seed hunt pass 5** (see pass-5 row above).
+- [x] (valid-no-repro) `decodeOAuthErrorDescription` — figure-space-only percent-encoded `error_description` — **closed 2026-10-22 seed hunt pass 5** (see pass-5 row above).
+- [x] (valid-no-repro) `token-client.postTokenForm` — HTTP 200 JSON number `42` — **closed 2026-10-22 seed hunt pass 5** (see pass-5 row above).
+
+2026-10-22 seed hunt (seed-only, pass 4): cheap-disproved five open `(candidate)` rows from pass 3; regression locks `humanizes device_code_expired authorize callback errors with readable copy`, thin-space-only JSON/authorize `error_description` guards, and `throws when a successful token response body is the JSON literal true`; no hunt-ready row promoted; seeded five follow-on `(candidate)` rows; focused OIDC suite passed 697/697; no production code changed.
+
+- [x] (invalid) `humanizeAuthorizeCallbackError` — `device_code_expired` authorize callback query — **cheap-disproof 2026-10-22 seed hunt pass 4:** default-branch readable copy; regression `humanizes device_code_expired authorize callback errors with readable copy`.
+- [x] (valid-no-repro) `readOAuthJsonErrorDescription` — thin-space-only (`U+202F`) JSON `error_description` — **cheap-disproof 2026-10-22 seed hunt pass 4:** `isReadableOAuthErrorDetail` after collapse; regression `returns empty for thin-space-only token-endpoint JSON error_description values`.
+- [x] (valid-no-repro) `decodeOAuthErrorDescription` — thin-space-only percent-encoded authorize `error_description` — **cheap-disproof 2026-10-22 seed hunt pass 4:** readable-detail guard; regression `returns empty for thin-space-only percent-encoded error descriptions`.
+- [x] (valid-no-repro) `token-client.postTokenForm` — HTTP 200 body is JSON literal `true` — **cheap-disproof 2026-10-22 seed hunt pass 4:** non-object parse fails closed; regression `throws when a successful token response body is the JSON literal true`.
+- [x] (invalid) `initiateOidcRedirect` — idle-desk return restored while authorize retry marker still set — **cheap-disproof 2026-10-22 seed hunt pass 4:** `preparePostSignInReturnUrlForSignInStart` prefers authorize-retry snapshot; regression `rehydrates idle-desk return path when authorize retry survives purging a tampered unsafe return URL`.
+
+- [x] (invalid) `humanizeAuthorizeCallbackError` — `slow_down` on authorize callback query — **closed 2026-10-22 seed hunt pass 5** (see pass-5 row above).
+- [x] (valid-no-repro) `readOAuthJsonErrorDescription` — figure-space-only (`U+2007`) JSON `error_description` — **closed 2026-10-22 seed hunt pass 5** (see pass-5 row above).
+- [x] (valid-no-repro) `decodeOAuthErrorDescription` — figure-space-only percent-encoded authorize `error_description` — **closed 2026-10-22 seed hunt pass 5** (see pass-5 row above).
+- [x] (valid-no-repro) `token-client.postTokenForm` — HTTP 200 body is JSON number `42` — **closed 2026-10-22 seed hunt pass 5** (see pass-5 row above).
+- [x] (proven) `consumePostSignInReturnUrl` — return path with vertical-tab (`U+000B`) interior — **closed 2026-10-22 seed hunt pass 5** (see pass-5 row above).
+
+- [x] (invalid) `humanizeAuthorizeCallbackError` — `device_code_expired` authorize callback query — **closed 2026-10-22 seed hunt pass 4** (see pass-4 row above).
+- [x] (valid-no-repro) `readOAuthJsonErrorDescription` — thin-space-only JSON `error_description` — **closed 2026-10-22 seed hunt pass 4** (see pass-4 row above).
+- [x] (valid-no-repro) `decodeOAuthErrorDescription` — thin-space-only percent-encoded `error_description` — **closed 2026-10-22 seed hunt pass 4** (see pass-4 row above).
+- [x] (valid-no-repro) `token-client.postTokenForm` — HTTP 200 JSON literal `true` — **closed 2026-10-22 seed hunt pass 4** (see pass-4 row above).
+- [x] (invalid) `initiateOidcRedirect` — idle-desk return while authorize retry marker set — **closed 2026-10-22 seed hunt pass 4** (see pass-4 row above).
+
+2026-10-22 seed hunt (seed-only, pass 3): cheap-disproved five open `(candidate)` rows from pass 2; regression locks `humanizes login_timeout authorize callback errors with readable copy` and `returns empty for nbsp-only token-endpoint JSON error_description values`; no hunt-ready row promoted; seeded five follow-on `(candidate)` rows; focused OIDC suite passed 693/693; no production code changed.
+
+- [x] (invalid) `humanizeAuthorizeCallbackError` — `login_timeout` authorize-query copy — **cheap-disproof 2026-10-22 seed hunt pass 3:** default-branch readable copy; regression `humanizes login_timeout authorize callback errors with readable copy`.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh `498` opaque `shouldClearSession` false — **cheap-disproof 2026-10-22 seed hunt pass 3:** non-401/403 soft-fail parity with 494–497 locks.
+- [x] (valid-no-repro) `readOAuthJsonErrorDescription` — NBSP-only JSON `error_description` — **cheap-disproof 2026-10-22 seed hunt pass 3:** `isReadableOAuthErrorDetail` after collapse; regression `returns empty for nbsp-only token-endpoint JSON error_description values`.
+- [x] (invalid) `getOidcPostLogoutRedirectUri` — protocol-relative env override — **cheap-disproof 2026-10-22 seed hunt pass 3:** helper has no in-zone caller on sign-out path (`signOutAndRedirectHome` uses BFF RP logout URL only).
+- [x] (invalid) `exchangeAuthorizationCode` — discovery `token_endpoint` with `#fragment` — **cheap-disproof 2026-10-22 seed hunt pass 3:** `isHttpOrHttpsUrl` rejects hash fragments at discovery parse; regression `rejects token endpoints that include a hash fragment`.
+
+- [x] (invalid) `humanizeAuthorizeCallbackError` — `device_code_expired` on authorize callback query — **closed 2026-10-22 seed hunt pass 4** (see pass-4 row above).
+- [x] (valid-no-repro) `readOAuthJsonErrorDescription` — thin-space-only (`U+202F`) JSON `error_description` — **closed 2026-10-22 seed hunt pass 4** (see pass-4 row above).
+- [x] (valid-no-repro) `decodeOAuthErrorDescription` — thin-space-only percent-encoded authorize `error_description` — **closed 2026-10-22 seed hunt pass 4** (see pass-4 row above).
+- [x] (valid-no-repro) `token-client.postTokenForm` — HTTP 200 body is JSON literal `true` — **closed 2026-10-22 seed hunt pass 4** (see pass-4 row above).
+- [x] (invalid) `initiateOidcRedirect` — idle-desk return restored while authorize retry marker still set — **closed 2026-10-22 seed hunt pass 4** (see pass-4 row above).
+
+- [x] (invalid) `humanizeAuthorizeCallbackError` — `login_timeout` authorize-query operator copy — **closed 2026-10-22 seed hunt pass 3** (see pass-3 row above).
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh `498` opaque status — **closed 2026-10-22 seed hunt pass 3** (see pass-3 row above).
+- [x] (invalid) `readOAuthJsonErrorDescription` — JSON `error_description` with only NBSP separators — **closed 2026-10-22 seed hunt pass 3** (see pass-3 row above).
+- [x] (invalid) `getOidcPostLogoutRedirectUri` — protocol-relative `//host/path` env override — **closed 2026-10-22 seed hunt pass 3** (see pass-3 row above).
+- [x] (invalid) `exchangeAuthorizationCode` — token endpoint URL with hash fragment — **closed 2026-10-22 seed hunt pass 3** (see pass-3 row above).
+
+2026-10-22 seed hunt (seed-only, pass 2): cheap-disproved five open `(candidate)` rows from pass 1; regression lock `collapses literal CRLF in JSON error_description for single-line token errors`; re-read authorize humanization gaps and BFF logout URL parsing; no hunt-ready row promoted; seeded five follow-on `(candidate)` rows; focused OIDC suite passed 691/691; no production code changed.
+
+- [x] (invalid) `humanizeAuthorizeCallbackError` — `session_expired` authorize-query copy — **cheap-disproof 2026-10-22 seed hunt pass 2:** default-branch readable copy; regression `humanizes session_expired authorize callback errors with readable copy`.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh `497` opaque `shouldClearSession` false — **cheap-disproof 2026-10-22 seed hunt pass 2:** non-401/403 statuses soft-fail; parity with 494–496 regression locks.
+- [x] (valid-no-repro) `readOAuthJsonErrorDescription` — literal CRLF inside token-endpoint JSON `error_description` — **cheap-disproof 2026-10-22 seed hunt pass 2:** `collapseOAuthErrorDescriptionLineBreaks`; regression `collapses literal CRLF in JSON error_description for single-line token errors`.
+- [x] (invalid) `ensureAccessTokenFresh` — auth-failure refresh after same-identity persist moved expiry hint — **cheap-disproof 2026-10-22 seed hunt pass 2:** intentional keep fresh sign-in; regression `does not clear a fresh sign-in when a pre-sign-in BFF refresh is rejected`.
+- [x] (valid-no-repro) `resolveRpLogoutUrlFromBffSession` — BFF JSON `url: null` vs missing `url` — **cheap-disproof 2026-10-22 seed hunt pass 2:** non-string `url` treated as absent; regression `returns null when the BFF logout-url payload is not a string`.
+
+- [x] (invalid) `humanizeAuthorizeCallbackError` — `login_timeout` authorize-query operator copy — **closed 2026-10-22 seed hunt pass 3** (see pass-3 row above).
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh `498` opaque status — **closed 2026-10-22 seed hunt pass 3** (see pass-3 row above).
+- [x] (valid-no-repro) `readOAuthJsonErrorDescription` — JSON NBSP-only `error_description` — **closed 2026-10-22 seed hunt pass 3** (see pass-3 row above).
+- [x] (invalid) `getOidcPostLogoutRedirectUri` — protocol-relative env override — **closed 2026-10-22 seed hunt pass 3** (see pass-3 row above).
+- [x] (invalid) `exchangeAuthorizationCode` — token endpoint URL with hash fragment — **closed 2026-10-22 seed hunt pass 3** (see pass-3 row above).
+
+2026-10-22 seed hunt (seed-only): re-read BFF refresh soft-fail parity, authorize-query humanization, and token-endpoint JSON error-description paths after bugsmash #5024–#5026 churn; cheap-disproved four open `(candidate)` rows; regression lock `soft-fails refresh without clearing session when the refresh route returns 496` (opaque token-endpoint parity with 494–495); focused OIDC suite passed 690/690; no production code changed.
+
+- [x] (invalid) `humanizeAuthorizeCallbackError` — `nonce_replay` authorize-query copy — **cheap-disproof 2026-10-22 seed hunt:** readable default-branch UX; regression `humanizes nonce_replay authorize callback errors with readable copy`.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh `495` `shouldClearSession` false — **cheap-disproof 2026-10-22 seed hunt:** transient opaque status; regression `soft-fails refresh without clearing session when the refresh route returns 495` plus BFF route `returns 503 without clearing BFF session cookies when refreshAccessToken throws opaque token endpoint error 495`.
+- [x] (invalid) `exchangeAuthorizationCode` — access_token JSON string soft-hyphen / object-replacement / variation-selector-16-only skips authorize retry marker — **cheap-disproof 2026-10-22 seed hunt:** duplicate of existing invisible-token authorize retry regressions in `token-client.test.ts`.
+- [x] (invalid) `decodeOAuthErrorDescription` — multiply-encoded `%252B` with ZWJ glue — **cheap-disproof 2026-10-22 seed hunt:** existing saturated percent-decode class coverage in `oauth-callback-messages.test.ts`.
+
+- [x] (invalid) `humanizeAuthorizeCallbackError` — `session_expired` authorize-query operator copy — **closed 2026-10-22 seed hunt pass 2** (see pass-2 row above).
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh `497` opaque status — **closed 2026-10-22 seed hunt pass 2** (see pass-2 row above).
+- [x] (valid-no-repro) `readOAuthJsonErrorDescription` — literal CRLF in JSON `error_description` — **closed 2026-10-22 seed hunt pass 2** (see pass-2 row above).
+- [x] (invalid) `ensureAccessTokenFresh` — auth-failure refresh after persist moved hint — **closed 2026-10-22 seed hunt pass 2** (see pass-2 row above).
+- [x] (valid-no-repro) `resolveRpLogoutUrlFromBffSession` — BFF JSON `url: null` vs missing key — **closed 2026-10-22 seed hunt pass 2** (see pass-2 row above).
+
 2026-10-15 thorough hunt (hit): proved discovery HTTP(S) endpoint validation accepted userinfo-bearing authorization URLs; proved BFF session sync omitted trim on refresh/id tokens; cheap-disproved unbounded `syncTokenToBff` replay during burst sign-ins; 79 scoped oidc vitest tests passed.
 
 2026-10-11 seed hunt (seed-only): re-read the latest concurrent BFF sync/replay, token normalization, discovery endpoint validation, and refresh-hint paths; no new row met the full hunt-ready bar for same-run repro. Seeded three bounded `(candidate)` rows; the focused OIDC suite passed 76/76. No production or regression code changed.
