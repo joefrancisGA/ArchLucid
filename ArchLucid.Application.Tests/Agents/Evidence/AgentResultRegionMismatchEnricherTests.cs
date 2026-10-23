@@ -420,6 +420,45 @@ public sealed class AgentResultRegionMismatchEnricherTests
     }
 
     [Fact]
+    public async Task EnrichAsync_skips_null_constraint_entries_when_service_region_missing()
+    {
+        ArchitectureRequest request = new()
+        {
+            RequestId = "req",
+            Description = new string('x', 12),
+            SystemName = "Payments",
+            Constraints = ["region:qatarcentral", null!],
+        };
+
+        AgentTopologyProposal proposal = new()
+        {
+            AddedServices =
+            [
+                new ManifestService
+                {
+                    RuntimePlatform = RuntimePlatform.AzureOpenAi,
+                },
+            ],
+        };
+
+        List<AgentResult> results =
+        [
+            new AgentResult
+            {
+                RunId = "run",
+                TaskId = "task",
+                AgentType = AgentType.Topology,
+                ProposedChanges = proposal,
+            },
+        ];
+
+        await _sut.EnrichAsync("run", request, new AgentEvidencePackage(), results, CancellationToken.None);
+
+        proposal.Warnings.Should().ContainSingle();
+        proposal.Warnings[0].Should().Contain("qatarcentral");
+    }
+
+    [Fact]
     public async Task EnrichAsync_skips_results_without_proposed_changes()
     {
         List<AgentResult> results =

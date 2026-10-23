@@ -60,6 +60,9 @@ public sealed class AgentResultRegionMismatchEnricher : IAgentResultPostExecutio
 
         foreach (string constraint in request.Constraints ?? [])
         {
+            if (string.IsNullOrWhiteSpace(constraint))
+                continue;
+
             string trimmedConstraint = constraint.Trim();
 
             if (!trimmedConstraint.StartsWith("region:", StringComparison.OrdinalIgnoreCase))
