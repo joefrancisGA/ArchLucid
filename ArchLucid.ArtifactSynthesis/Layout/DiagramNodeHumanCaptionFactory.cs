@@ -19,10 +19,10 @@ public static class DiagramNodeHumanCaptionFactory
 
             return linkedServiceType switch
             {
-                "AzureBlobStorage" or "AzureBlobFS" => "Blob link",
-                "AzureMySql" => "MySQL link",
-                "Sftp" => "SFTP link",
-                "HttpServer" or "Web" or "RestService" => "HTTP link",
+                "AzureBlobStorage" or "AzureBlobFS" => "Blob linked-service type",
+                "AzureMySql" => "MySQL linked-service type",
+                "Sftp" => "SFTP linked-service type",
+                "HttpServer" or "Web" or "RestService" => "HTTP linked-service type",
                 _ => $"Linked service type {linkedServiceType} has no reviewer label.",
             };
         }

@@ -11,22 +11,24 @@ import {
 } from "./finding-explainability-summary";
 
 describe("finding-explainability-summary", () => {
-  it("maps common severities to inspect-first posture", () => {
-    expect(findingSeverityAudienceCopy("Critical").meaningForOperators.length).toBeGreaterThan(20);
-    expect(findingSeverityAudienceCopy("High").suggestedNext.length).toBeGreaterThan(20);
-    expect(findingSeverityAudienceCopy("Medium").meaningForOperators).toContain("planning");
-    expect(findingSeverityAudienceCopy("Low").meaningForOperators).toContain("urgency");
-    expect(findingSeverityAudienceCopy("Informational").meaningForOperators).toContain("urgency");
-
-    expect(findingSeverityAudienceCopy("CustomSeverity").meaningForOperators).toContain("CustomSeverity");
-    expect(findingSeverityAudienceCopy("CustomSeverity").suggestedNext.length).toBeGreaterThan(20);
+  it("states stored severity without inventing rollout posture", () => {
+    expect(findingSeverityAudienceCopy("Critical").meaningForOperators).toBe("Stored severity is Critical.");
+    expect(findingSeverityAudienceCopy("High").suggestedNext).toBe(
+      "A next step was not stored with this severity label.",
+    );
+    expect(findingSeverityAudienceCopy("Medium").meaningForOperators).toBe("Stored severity is Medium.");
+    expect(findingSeverityAudienceCopy("CustomSeverity").meaningForOperators).toBe(
+      "Stored severity is CustomSeverity.",
+    );
   });
 
-  it("converts completeness ratios into plain-language guardrails", () => {
-    expect(findingTraceCompletenessPlainEnglish(95)).toContain("Strong");
-    expect(findingTraceCompletenessPlainEnglish(72)).toContain("Moderate");
-    expect(findingTraceCompletenessPlainEnglish(42)).toContain("Thin");
-    expect(findingTraceCompletenessPlainEnglish(15)).toContain("Minimal");
+  it("does not label trace field fill as strong or minimal", () => {
+    expect(findingTraceCompletenessPlainEnglish(95)).toBe(
+      "Trace field fill was stored. It does not confirm the finding.",
+    );
+    expect(findingTraceCompletenessPlainEnglish(15)).toBe(
+      "Trace field fill was stored. It does not confirm the finding.",
+    );
     expect(findingTraceCompletenessPlainEnglish(NaN)).toContain("Unavailable");
   });
 
@@ -159,7 +161,7 @@ describe("finding-explainability-summary", () => {
       });
 
       expect(explanation.label).toBe("Medium");
-      expect(explanation.reason).toContain("partly corroborated");
+      expect(explanation.reason).toContain("Stored confidence is Medium.");
       expect(explanation.reason).toContain("no supporting source was recorded");
       expect(explanation.reason).toContain("one part of the reasoning trace was left empty");
     });
@@ -172,7 +174,7 @@ describe("finding-explainability-summary", () => {
       });
 
       expect(explanation.label).toBeNull();
-      expect(explanation.reason).toContain("did not score confidence");
+      expect(explanation.reason).toContain("Confidence was not stored.");
     });
 
     it("does not claim zero sources when evidence was omitted", () => {

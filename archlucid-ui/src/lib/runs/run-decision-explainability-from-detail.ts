@@ -39,7 +39,7 @@ export type RunDecisionExplainabilityModel = {
     readonly topic: string;
     readonly selectedOptionId: string | null;
     readonly rationale: string;
-    readonly confidence: number;
+    readonly confidence: number | null;
     readonly supportingEvaluationIds: readonly string[];
     readonly opposingEvaluationIds: readonly string[];
   }[];
@@ -144,10 +144,6 @@ export function resolveRunDecisionExplainabilityFromDetail(
 
           const record = row as Record<string, unknown>;
           const confidence = readFiniteNumber(record.confidence);
-
-          if (confidence === null) {
-            return null;
-          }
 
           return {
             pipeline: readString(record.pipeline) ?? "Pipeline was not stored.",
