@@ -12470,10 +12470,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 315
-- **bugs-found:** 217
+- **hunts:** 316
+- **bugs-found:** 218
 - **last-hunt:** 2026-10-23
-- **last-bug:** 2026-10-23 — overlay merge skipped duplicate edges without backfilling EdgeId from later rows
+- **last-bug:** 2026-10-23 — overlay merge skipped duplicate edges without backfilling Weight from later rows
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -13029,7 +13029,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - [x] (proven) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — duplicate overlay edges with omitted first-row `EdgeId` kept empty edge id when later row supplied one — **hit 2026-10-23 seed hunt (seed→hit):** edge-id backfill on duplicate overlay edge dedupe; regression above.
 
-- [ ] (candidate) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — duplicate overlay edges where the second row supplies `Weight` when the first row omits weight may keep default zero weight — locus: overlay edge dedupe validates weight agreement with epsilon equality but never backfills a non-zero weight from a later duplicate row when the retained weight is zero; input: first edge has default `Weight` and second duplicate overlay edge supplies a non-zero weight; wrong outcome: merged graph retains zero weight without adopting the second row (or throws before backfill).
+2026-10-23 seed hunt (seed→hit): promoted `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` duplicate overlay edges where the second row supplies `Weight` when the first row omits weight candidate; proved overlay edge dedupe compared weights with epsilon equality so a zero-weight first row disagreed with a later non-zero duplicate row and threw before merge could adopt the weight (`GraphEdge.Weight` defaults to `1.0` when unset, so omission is represented as zero on duplicate overlay rows); treat zero weight as omitted in `TryValidateOverlayEdgeWeightAgreement` (parity with empty string scalars) and added `TryMergeOverlayEdgeWeightBackfillFromDuplicateRow` via `ResolveOverlayEdgeWeightBackfillFromDuplicateRow`; regression `Merge_backfills_overlay_duplicate_edge_weight_from_second_row_when_first_row_omits_weight`; seeded `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` duplicate overlay edges that collide with an existing base-graph directed key may skip overlay-only duplicate backfill follow-on; 628 KnowledgeGraph + 170 Provenance scoped tests passed.
+
+- [x] (proven) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — duplicate overlay edges with zero first-row `Weight` kept zero when later row supplied non-zero weight — **hit 2026-10-23 seed hunt (seed→hit):** weight agreement omission parity and weight backfill on duplicate overlay edge dedupe; regression above.
+
+- [ ] (candidate) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — duplicate overlay edges that share a directed key with the base graph may discard later overlay rows without merging overlay-only scalar or property backfill — locus: duplicate-edge handling runs backfill only when `!baseEdgeKeys.Contains(edgeKey)`; input: base graph already has a directed edge and overlay lists multiple rows for the same key; wrong outcome: later overlay rows are skipped entirely without enriching the merged edge.
 
 2026-10-22 seed hunt (seed→hit): promoted `StructuredDiagramGraphMerger` padded diagram property-key coalesce candidate; proved duplicate node/edge metadata coalesce indexed raw `property.Key`, so a later compile with surrounding-whitespace keys left parallel bag entries and `GraphNodePropertyReader` could return stale source-evidence values; trim keys before skip/coalesce (parity with `GraphNodeFactory.NormalizePropertyBag`); regression `Merge_coalesces_node_properties_when_incoming_property_keys_differ_only_by_surrounding_whitespace`; seeded diagram edge metadata padded-key coalesce regression follow-on; 468 KnowledgeGraph + 170 Provenance scoped tests passed.
 

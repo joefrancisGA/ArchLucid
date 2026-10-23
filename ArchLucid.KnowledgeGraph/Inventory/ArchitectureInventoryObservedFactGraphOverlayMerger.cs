@@ -88,6 +88,7 @@ public static class ArchitectureInventoryObservedFactGraphOverlayMerger
                     TryMergeOverlayEdgeProvenanceKindBackfillFromDuplicateRow(inventoryEdge, retainedEdge);
                     TryMergeOverlayEdgeDeclaredConnectionIdBackfillFromDuplicateRow(inventoryEdge, retainedEdge);
                     TryMergeOverlayEdgeEdgeIdBackfillFromDuplicateRow(inventoryEdge, retainedEdge);
+                    TryMergeOverlayEdgeWeightBackfillFromDuplicateRow(inventoryEdge, retainedEdge);
                 }
 
                 continue;
@@ -298,12 +299,20 @@ public static class ArchitectureInventoryObservedFactGraphOverlayMerger
             return;
         }
 
+        if (OverlayEdgeWeightIsOmitted(incomingEdge.Weight) || OverlayEdgeWeightIsOmitted(retainedEdge.Weight))
+        {
+            return;
+        }
+
         throw new ArgumentException(
             "Inventory overlay duplicate edges disagree on Weight for the same directed edge key.");
     }
 
     private static bool OverlayEdgeWeightsAgree(double incomingWeight, double retainedWeight) =>
         Math.Abs(incomingWeight - retainedWeight) <= 1e-9;
+
+    private static bool OverlayEdgeWeightIsOmitted(double weight) =>
+        Math.Abs(weight) <= 1e-9;
 
     private static void TryValidateOverlayEdgeInferenceSourceAgreement(GraphEdge incomingEdge, GraphEdge retainedEdge)
     {
@@ -565,6 +574,37 @@ public static class ArchitectureInventoryObservedFactGraphOverlayMerger
         {
             retainedEdge.EdgeId = backfillEdgeId;
         }
+    }
+
+    private static void TryMergeOverlayEdgeWeightBackfillFromDuplicateRow(
+        GraphEdge incomingEdge,
+        GraphEdge retainedEdge)
+    {
+        double? backfillWeight = ResolveOverlayEdgeWeightBackfillFromDuplicateRow(
+            incomingEdge.Weight,
+            retainedEdge.Weight);
+
+        if (backfillWeight is not null)
+        {
+            retainedEdge.Weight = backfillWeight.Value;
+        }
+    }
+
+    private static double? ResolveOverlayEdgeWeightBackfillFromDuplicateRow(
+        double incomingWeight,
+        double retainedWeight)
+    {
+        if (OverlayEdgeWeightIsOmitted(incomingWeight))
+        {
+            return null;
+        }
+
+        if (!OverlayEdgeWeightIsOmitted(retainedWeight))
+        {
+            return null;
+        }
+
+        return incomingWeight;
     }
 
     private static string? ResolveOverlayTrimmedScalarBackfillFromDuplicateRow(
