@@ -89,9 +89,9 @@ public static class DeclarationInventoryContradictionThreeWayGate
     }
 
     private static bool IsTransportSecurityKey(string declarationKey) =>
-        declarationKey.Contains("https", StringComparison.OrdinalIgnoreCase)
-        || declarationKey.Contains("tls", StringComparison.OrdinalIgnoreCase)
-        || (declarationKey.Contains("ssl", StringComparison.OrdinalIgnoreCase)
+        DeclarationKeyContainsSecurityToken(declarationKey, "https")
+        || DeclarationKeyContainsSecurityToken(declarationKey, "tls")
+        || (DeclarationKeyContainsSecurityToken(declarationKey, "ssl")
             && !declarationKey.Contains("storage", StringComparison.OrdinalIgnoreCase));
 
     private static bool IsEncryptionKey(string declarationKey) =>

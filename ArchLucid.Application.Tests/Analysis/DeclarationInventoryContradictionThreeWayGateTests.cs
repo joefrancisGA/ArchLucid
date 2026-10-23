@@ -136,6 +136,38 @@ public sealed class DeclarationInventoryContradictionThreeWayGateTests
     }
 
     [Fact]
+    public void DeclarationClaimsSecureControl_returns_false_when_tls_token_is_embedded_inside_unrelated_key_segment()
+    {
+        DeclarationInventoryContradictionMismatch mismatch = new(
+            "node-1",
+            "storage",
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/st",
+            "tf.netlsPipeline",
+            "true",
+            "false",
+            "Azure",
+            "transport-security");
+
+        DeclarationInventoryContradictionThreeWayGate.DeclarationClaimsSecureControl(mismatch).Should().BeFalse();
+    }
+
+    [Fact]
+    public void DeclarationClaimsSecureControl_returns_false_when_https_token_is_embedded_inside_unrelated_key_segment()
+    {
+        DeclarationInventoryContradictionMismatch mismatch = new(
+            "node-1",
+            "storage",
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/st",
+            "tf.rehttpsRedirect",
+            "true",
+            "false",
+            "Azure",
+            "transport-security");
+
+        DeclarationInventoryContradictionThreeWayGate.DeclarationClaimsSecureControl(mismatch).Should().BeFalse();
+    }
+
+    [Fact]
     public void DeclarationClaimsSecureControl_returns_false_for_unknown_declaration_key()
     {
         DeclarationInventoryContradictionMismatch mismatch = new(
