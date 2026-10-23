@@ -2010,3 +2010,4 @@
 {"at":"2026-10-23T05:34:28.6835226Z","zoneId":"capabilities-cost-mcp","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-23T05:39:10.6358055Z","zoneId":"application-pilots","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-23T05:44:03.8322238Z","zoneId":"agent-runtime-evaluation","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-23T05:51:41.2144956Z","zoneId":"extraction-router","outcome":"hit","productLine":"archlucid-shared"}
