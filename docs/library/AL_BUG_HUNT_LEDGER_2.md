@@ -4218,6 +4218,20 @@
 
 ## Zone: saml-jwt-bearer
 
+2026-10-23 seed hunt #2 (seed→hit): promoted `ScimBearerAuthenticationHandler` semicolon-joined `Authorization` value (revoked Bearer segment then valid Bearer in one header); extended `SplitAuthorizationCredentialSegments` with `;`; regression `HandleAuthenticateAsync_succeeds_when_semicolon_separated_header_lists_revoked_token_before_valid_one`; cheap-disproof closed five open `(candidate)` rows; reseeded five follow-on `(candidate)` rows; `ScimBearerAuthenticationHandlerTests` 11/11. Private beta: SCIM Bearer provisioning succeeds when a gateway joins multiple Bearer credentials with semicolon separators—not only commas or line breaks—after an earlier revoked segment.
+
+- [x] (proven) `ScimBearerAuthenticationHandler.TryParseBearerCredentials` — semicolon-separated revoked then valid Bearer in one header value — **hit 2026-10-23 seed hunt #2:** single segment `Bearer revoked; Bearer valid` never reached second credential; split includes `;`; regression `HandleAuthenticateAsync_succeeds_when_semicolon_separated_header_lists_revoked_token_before_valid_one`.
+- [x] (valid-no-repro) `ScimBearerAuthenticationHandler` — comma-folded `Basic` then `Bearer` — **cheap-disproof 2026-10-23 seed hunt #2:** regression `HandleAuthenticateAsync_fails_when_comma_folded_header_mixes_basic_and_bearer_schemes`; intentional fail-closed mix guard.
+- [x] (valid-no-repro) `LocalTrialJwtIssuer` — non-Guid `sub` on trial access token — **cheap-disproof 2026-10-23 seed hunt #2:** `IssueAccessToken` always emits `JwtRegisteredClaimNames.Sub` from `userId.ToString("D")`; opaque-sub bypass not reachable from issuer API.
+- [x] (valid-no-repro) `ArchLucidSamlInboundClaimsNormalizer` — empty-string inbound tenant scope source claim — **cheap-disproof 2026-10-23 seed hunt #2:** `PromoteSingleValueIfMissing` filters `v.Length > 0` before distinct count; empty attribute does not promote.
+- [x] (invalid) `ScimBearerTokenAuthenticator` — wrong Argon pepper version accepts revoked row — **cheap-disproof 2026-10-23 seed hunt #2:** single `ScimArgonSecretHasher.VerifySecret` path; no multi-pepper migration branch in authenticator.
+
+- [ ] (candidate) `ScimBearerAuthenticationHandler` — vertical tab `\v` between folded Bearer credentials in one header — locus: `SplitAuthorizationCredentialSegments`; input: `Bearer a\vBearer b`; reachability: exotic proxy header joiners.
+- [ ] (candidate) `ScimBearerAuthenticationHandler` — pipe `|` delimiter between Bearer credentials in one header — locus: segment split; input: `Bearer a | Bearer b`; reachability: custom API gateways.
+- [ ] (candidate) `ScimBearerAuthenticationHandler` — empty Bearer segment between valid credentials (`Bearer , Bearer token`) — locus: whitespace-only token skip; input: comma with empty first Bearer body; wrong outcome: skip vs fail entire header.
+- [ ] (candidate) `ArchLucidSamlInboundClaimsNormalizer` — multiple whitespace-only role source values prevent role promotion — locus: `PromoteIncomingRoleValues`; input: IdP sends blank role attribute rows.
+- [ ] (candidate) `LocalTrialJwtIssuer` — `accessTokenLifetimeMinutes` above clamp still honored when caller passes `int.MaxValue` — locus: `Math.Clamp(configuredMinutes, 5, 24 * 60)`; input: hostile controller passes huge lifetime.
+
 2026-10-23 seed hunt (seed→hit): promoted `ScimBearerAuthenticationHandler` newline-joined `Authorization` value (revoked Bearer line then valid Bearer line in one header); split credential segments on comma and line breaks before `TryReadBearerCredentialSegment`; regression `HandleAuthenticateAsync_succeeds_when_newline_separated_header_lists_revoked_token_before_valid_one`; cheap-disproof closed five open `(candidate)` rows at zone top; reseeded five follow-on `(candidate)` rows; `ScimBearerAuthenticationHandlerTests` 10/10. Private beta: Invited operators’ SCIM Bearer provisioning succeeds when a gateway folds multiple Bearer credentials into one `Authorization` value with LF separators—not only commas—after an earlier revoked segment on the JwtBearer pilot path.
 
 - [x] (proven) `ScimBearerAuthenticationHandler.TryParseBearerCredentials` — single `Authorization` header value with LF between revoked and valid Bearer lines treated as one credential — **hit 2026-10-23 seed hunt:** only comma split; malformed combined token never reached valid segment; `SplitAuthorizationCredentialSegments` splits `,`, `\n`, `\r`; regression `HandleAuthenticateAsync_succeeds_when_newline_separated_header_lists_revoked_token_before_valid_one`.
@@ -4226,12 +4240,6 @@
 - [x] (valid-no-repro) `ArchLucidSamlInboundClaimsNormalizer.PromoteSingleValueIfMissing` — duplicate tenant GUID N vs D formats — **cheap-disproof 2026-10-23 seed hunt #3:** `DeduplicateCanonicalGuidScopeClaim` normalizes parseable GUIDs to one value.
 - [x] (invalid) `SamlMetadataValidUntilParser` — signing cert `NotAfter` vs entity `validUntil` — **cheap-disproof 2026-10-23 seed hunt #3:** metadata diagnostics only; not runtime auth bypass.
 - [x] (invalid) `PlatformUserAuthVersionValidator` — non-Guid JWT `sub` skips auth-version enforcement — **cheap-disproof 2026-10-23 seed hunt #3:** intentional for opaque CIAM subjects outside platform-user GUID contract.
-
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — semicolon-separated Bearer credentials in one header (non-comma HTTP auth-param join) — locus: `SplitAuthorizationCredentialSegments`; input: `Bearer a; Bearer b`; reachability: misconfigured reverse proxies.
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — comma-folded header lists non-Bearer credential before valid Bearer segment (proxy appends `Basic` then `Bearer`).
-- [ ] (candidate) `LocalTrialJwtIssuer` — trial access token `sub` without platform-user GUID still accepted when `JwtLocalIssuer` matches development bypass path.
-- [ ] (candidate) `ArchLucidSamlInboundClaimsNormalizer` — promotes workspace scope when inbound `tenant_id` source claim is empty string vs absent.
-- [ ] (candidate) `ScimBearerTokenAuthenticator` — revoked token row still authenticates when Argon verify uses wrong pepper version (migration window).
 
 2026-10-21 thorough hunt (hit): `saml-jwt-bearer` — promoted comma-folded `Authorization` with revoked/invalid first Bearer segment and valid second segment (`ScimBearerAuthenticationHandler.TryEnumerateBearerTokens` stopped after first token); authenticate each parsed Bearer until `IScimBearerTokenAuthenticator` succeeds; regression `HandleAuthenticateAsync_succeeds_when_comma_folded_header_lists_revoked_token_before_valid_one`; cheap-disproof closed open `(candidate)` rows (SamlSpConfigurationDiagnostics “No root validUntil” copy is intentional when attribute absent; `RecentAuthenticationEvaluator` `iat` Integer64 without `auth_time` already honored via `long.TryParse` + `HasRecentAuthentication_returns_true_when_later_iat_is_fresh_among_multiple_values_without_auth_time`; duplicate `archlucid_auth_ver` not injectable on signed JWT principals; `SamlMetadataDiscoveryParser` multi-`EntityDescriptor` throw intentional); `ScimBearerAuthenticationHandlerTests` 3/3 + `ScimBearer` Application tests 2/2 + scoped SAML/JWT/SCIM Api filter 98 passed (4 SQL/integration baseline failures on Linux VM); seeded five follow-on `(candidate)` rows.
 
@@ -4255,11 +4263,11 @@
 - **aliases:** SAML; trial JWT; SCIM bearer; OIDC auth stack
 - **paths:** ArchLucid.Api/Auth/; ArchLucid.Core/Auth/Saml/
 - **test-filter:** FullyQualifiedName~Saml|FullyQualifiedName~LocalTrialJwt|FullyQualifiedName~ScimBearer
-- **hunts:** 27
-- **bugs-found:** 24
+- **hunts:** 29
+- **bugs-found:** 26
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-20
-- **last-bug:** 2026-10-21 — SCIM Bearer auth failed when comma-folded Authorization listed a revoked Bearer before a valid one
+- **last-hunt:** 2026-10-23
+- **last-bug:** 2026-10-23 — SCIM Bearer auth failed when semicolon-joined Authorization listed a revoked Bearer before a valid one
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 

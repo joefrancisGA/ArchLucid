@@ -94,7 +94,7 @@ internal class ScimBearerAuthenticationHandler(
             }
 
             // HTTP field combination can fold duplicate Authorization values into one comma-separated header.
-            // Some gateways join multiple Bearer lines with LF instead of a comma.
+            // Some gateways join multiple Bearer lines with LF or semicolons instead of a comma.
 
             foreach (string segment in SplitAuthorizationCredentialSegments(headerValue))
             {
@@ -136,7 +136,7 @@ internal class ScimBearerAuthenticationHandler(
     }
 
     private static IEnumerable<string> SplitAuthorizationCredentialSegments(string headerValue) =>
-        headerValue.Split([',', '\n', '\r'], StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+        headerValue.Split([',', ';', '\n', '\r'], StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
 
     private static bool TryReadBearerCredentialSegment(string segment, out string bearerToken)
     {
