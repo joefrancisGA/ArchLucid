@@ -8712,6 +8712,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: architecture-intelligence-orchestrator
 
+2026-10-23 seed hunt (seed→hit): promoted isolated `+` path-separator drift splitting `ContentHash` (`docs+architecture/overview.md` vs `docs/architecture/overview.md`); `GraphSnapshotCanonicalFingerprint.ReplaceIsolatedPlusWithPathSeparator` maps lone `+` to `/` before percent decoding so `%2B` literals stay intact; regression `Build_matches_content_hash_when_file_name_differs_only_by_plus_sign_vs_encoded_space_before_slash`; cheap-disproof regressions for tab-padded slashes, interior tab in element ids, triple-slash and leading `//` file names, and spaced run-id/tenant/ledger evidence refs; 389 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `GraphSnapshotCanonicalFingerprint` / `ClosedLoopReasoningSourceTextNormalizer` — isolated `+` split path canonicalization — **hit 2026-10-23 seed hunt:** pre-decode lone `+`→`/` (preserves `++` and `%2B`); regression above.
+
 2026-10-22 seed hunt (seed→hit): promoted whitespace-padded path separators splitting `ContentHash`/`modelfp` (`docs / architecture` vs `docs/architecture`); `CollapseParentPathSegments` now trims/normalizes each segment and source file names delegate to `NormalizeReviewCachePathLikeToken`; regressions `Build_matches_content_hash_when_file_name_differs_only_by_surrounding_whitespace_around_slashes` and `Build_matches_content_hash_when_baseline_element_id_differs_only_by_surrounding_whitespace_around_slashes`; 380 scoped orchestrator/cache/manifest/continue-flight tests passed.
 
 - [x] (proven) `GraphSnapshotCanonicalFingerprint` / `ClosedLoopReasoningSourceTextNormalizer` — whitespace around `/` split path canonicalization — **hit 2026-10-22 seed hunt:** segment trim in `CollapseParentPathSegments` + shared path token for file names; regressions above.

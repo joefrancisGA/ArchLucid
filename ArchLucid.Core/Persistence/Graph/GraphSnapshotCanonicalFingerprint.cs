@@ -284,7 +284,8 @@ public static class GraphSnapshotCanonicalFingerprint
             return normalizedToken;
 
         string path = NormalizeUnicodeDotScalars(
-                NormalizeUnicodeSlashScalars(DecodePercentEncodedPathTokens(normalizedToken)))
+                NormalizeUnicodeSlashScalars(
+                    DecodePercentEncodedPathTokens(ReplaceIsolatedPlusWithPathSeparator(normalizedToken))))
             .Replace('\\', '/');
 
         while (path.Contains("//", StringComparison.Ordinal))
@@ -307,6 +308,37 @@ public static class GraphSnapshotCanonicalFingerprint
 
     private static string NormalizePathLikeFingerprintToken(string normalizedToken) =>
         NormalizeReviewCachePathLikeToken(normalizedToken);
+
+    private static string ReplaceIsolatedPlusWithPathSeparator(string value)
+    {
+        if (!value.Contains('+', StringComparison.Ordinal))
+            return value;
+
+        StringBuilder builder = new(value.Length);
+
+        for (int index = 0; index < value.Length; index++)
+        {
+            char current = value[index];
+
+            if (current == '+' && !IsPlusInRun(value, index))
+                builder.Append('/');
+            else
+                builder.Append(current);
+        }
+
+        return builder.ToString();
+    }
+
+    private static bool IsPlusInRun(string value, int index)
+    {
+        if (value[index] != '+')
+            return false;
+
+        bool previousIsPlus = index > 0 && value[index - 1] == '+';
+        bool nextIsPlus = index + 1 < value.Length && value[index + 1] == '+';
+
+        return previousIsPlus || nextIsPlus;
+    }
 
     private static string DecodePercentEncodedPathTokens(string value)
     {
