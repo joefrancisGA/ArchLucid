@@ -6868,13 +6868,19 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
-2026-10-23 seed hunt (seed→hit): proved `GetByRunIdAsync` missed export rows when `RunId` was padded in storage or dictionary keys while callers passed canonical ids, and `CompareQualityDeltaExportFormatter.RemoveMarkdownSection` used exact `IndexOf` so `##\u00A0Compare Quality Delta` summary headings survived stripping and duplicated compare-quality sections in HTML/PDF/DOCX detailed exports; SQL `LTRIM(RTRIM(RunId))` filter, in-memory run-id bucket matching via `RunExportRecordRunIdSql`, trim `RunId` on persist, NBSP-tolerant heading line match; regressions `GetByRunId_finds_exports_when_stored_run_id_has_surrounding_whitespace`, `RemoveMarkdownSection_strips_compare_quality_delta_when_heading_uses_nbsp_after_hashes`, `GenerateHtml_detailed_profile_includes_compare_quality_delta_once_when_summary_uses_nbsp_heading`, and `ApplyMissingFromPriorExportsAsync_finds_prior_export_when_run_id_query_is_padded`; cheap-disproof closed mis-aimed consulting prefill export-id row and diagnostic 404 echo; seeded five follow-on rows; scoped application-analysis filter 61/61. Private beta: export history by run id and comparison HTML exports tolerate padded run ids and NBSP-prefixed delta headings.
+2026-10-23 seed hunt (seed→hit): proved `CompareVerdictChromeExportFormatter.RemoveMarkdownSection` still used exact `IndexOf`, so `##\u00A0Compare Verdict Chrome Delta` summary headings duplicated verdict chrome in HTML/PDF/DOCX detailed exports; extracted shared `ComparisonExportMarkdownSectionRemover` (also backing compare-quality strip) with NBSP-tolerant line matching; regressions `RemoveMarkdownSection_strips_verdict_chrome_when_heading_uses_nbsp_after_hashes` and `GenerateHtml_detailed_profile_includes_verdict_chrome_once_when_summary_uses_nbsp_heading`; cheap-disproof closed markdown-only duplicate, padded 404 `MissingId`, and in-memory legacy key migration rows; seeded five follow-on rows; scoped application-analysis filter 66/66 (includes CompareVerdictChrome export tests). Private beta: comparison HTML exports strip NBSP-prefixed verdict chrome headings before re-append.
 
-- [ ] (candidate) `EndToEndReplayComparisonMarkdownExportFormatter` — detailed markdown embeds summary compare-quality delta without `RemoveMarkdownSection` strip — locus: markdown-only duplicate risk; input: summary with NBSP heading.
+- [ ] (candidate) `EndToEndReplayComparisonMarkdownExportFormatter` — detailed markdown never strips/re-appends compare-quality or verdict chrome like HTML — locus: markdown parity; input: summary with duplicate-prone sections.
 - [ ] (candidate) `RunExportAuditService.RecordAsync` — does not trim `fileName` / `exportType` before persist — locus: export audit metadata; input: leading whitespace in file name.
-- [ ] (candidate) `RunExportQueryFacade.GetExportRecordAsync` — echoes padded `MissingId` on not-found when route id unpadded — locus: problem detail; input: padded export id 404.
-- [ ] (candidate) `CompareVerdictChromeExportFormatter.RemoveMarkdownSection` — same NBSP heading gap as compare-quality formatter — locus: verdict chrome HTML/PDF strip; input: NBSP after `##`.
+- [ ] (candidate) `CompareVerdictChromeExportFormatter.RemoveMarkdownSection` — interior NBSP between words in heading not normalized — locus: edge heading shapes; input: `## Compare\u00A0Verdict Chrome Delta`.
 - [ ] (candidate) `InMemoryRunExportRecordRepository` — `_byRunId` dictionary retains legacy padded keys after trim-on-create — locus: dev in-memory migration; input: mixed padded/canonical keys in one process.
+- [ ] (candidate) `ComparisonExportMarkdownSectionRemover` — does not treat `\u2007` figure space as whitespace in headings — locus: unicode space variants; input: figure-space-prefixed `##` line.
+
+- [x] (proven) `CompareVerdictChromeExportFormatter.RemoveMarkdownSection` — NBSP after `##` prevented verdict chrome strip — **hit 2026-10-23 seed hunt:** `ComparisonExportMarkdownSectionRemover`; regressions `RemoveMarkdownSection_strips_verdict_chrome_when_heading_uses_nbsp_after_hashes` and `GenerateHtml_detailed_profile_includes_verdict_chrome_once_when_summary_uses_nbsp_heading`.
+- [x] (valid-no-repro) `EndToEndReplayComparisonMarkdownExportFormatter` — compare-quality duplicate without strip — **cheap-disproof 2026-10-23 seed hunt:** detailed markdown embeds summary once and does not re-append delta sections (HTML/PDF/DOCX paths own strip/re-append).
+- [x] (valid-no-repro) `RunExportQueryFacade.GetExportRecordAsync` — padded `MissingId` on 404 — **cheap-disproof 2026-10-23 seed hunt:** `RunExportRecordIdNormalizer.NormalizeRequired` before `MissingId` assignment.
+
+2026-10-23 seed hunt (seed→hit): proved `GetByRunIdAsync` missed export rows when `RunId` was padded in storage or dictionary keys while callers passed canonical ids, and `CompareQualityDeltaExportFormatter.RemoveMarkdownSection` used exact `IndexOf` so `##\u00A0Compare Quality Delta` summary headings survived stripping and duplicated compare-quality sections in HTML/PDF/DOCX detailed exports; SQL `LTRIM(RTRIM(RunId))` filter, in-memory run-id bucket matching via `RunExportRecordRunIdSql`, trim `RunId` on persist, NBSP-tolerant heading line match; regressions `GetByRunId_finds_exports_when_stored_run_id_has_surrounding_whitespace`, `RemoveMarkdownSection_strips_compare_quality_delta_when_heading_uses_nbsp_after_hashes`, `GenerateHtml_detailed_profile_includes_compare_quality_delta_once_when_summary_uses_nbsp_heading`, and `ApplyMissingFromPriorExportsAsync_finds_prior_export_when_run_id_query_is_padded`; cheap-disproof closed mis-aimed consulting prefill export-id row and diagnostic 404 echo; seeded five follow-on rows; scoped application-analysis filter 61/61. Private beta: export history by run id and comparison HTML exports tolerate padded run ids and NBSP-prefixed delta headings.
 
 - [x] (proven) `RunExportRecordRepository.GetByRunIdAsync` / `InMemoryRunExportRecordRepository.GetByRunIdAsync` — padded stored run ids missed list-by-run — **hit 2026-10-23 seed hunt:** trim on persist + SQL/in-memory lookup parity; regression `GetByRunId_finds_exports_when_stored_run_id_has_surrounding_whitespace`.
 - [x] (proven) `CompareQualityDeltaExportFormatter.RemoveMarkdownSection` — NBSP inside compare-quality heading prevented strip — **hit 2026-10-23 seed hunt:** line-normalized heading match; regressions `RemoveMarkdownSection_strips_compare_quality_delta_when_heading_uses_nbsp_after_hashes` and `GenerateHtml_detailed_profile_includes_compare_quality_delta_once_when_summary_uses_nbsp_heading`.
@@ -7097,11 +7103,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 83
-- **bugs-found:** 78
+- **hunts:** 84
+- **bugs-found:** 79
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-23
-- **last-bug:** 2026-10-23 — padded run id export list and NBSP compare-quality heading strip
+- **last-bug:** 2026-10-23 — NBSP verdict chrome heading broke HTML strip
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
