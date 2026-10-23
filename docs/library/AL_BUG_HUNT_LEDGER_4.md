@@ -14654,12 +14654,14 @@ heap-disproved mermaid typed-topology candidate.
 - **aliases:** host composition; DI registration; startup modules
 - **paths:** ArchLucid.Host.Composition/
 - **test-filter:** FullyQualifiedName~Host.Composition|FullyQualifiedName~ServiceCollectionExtensions
-- **hunts:** 88
-- **bugs-found:** 72
+- **hunts:** 89
+- **bugs-found:** 73
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-23
-- **last-bug:** 2026-10-23 — stale local failed hid distributed terminal poll
+- **last-bug:** 2026-10-23 — stale distributed failed hid local completed docx
 - **code-changed-since:** yes
+
+2026-10-23 thorough hunt (seed→hit): proved `PreferDistributedPollState` preferred stale distributed `Failed` over local `Completed` with document bytes; only prefer distributed failure when local completed lacks bytes; regression `TryPoll_keeps_local_completed_bytes_when_distributed_is_failed`; cheap-disproof closed four sibling `(candidate)` rows; scoped poll-state tests 27 passed (`RunAnalyzers=false`).
 
 2026-10-23 thorough hunt (seed→hit): proved stale local `Failed` overrode distributed terminal `Completed` (no bytes) and `Failed` (peer error) on merge; prefer distributed completed/failed when local is failed; regressions `TryPoll_prefers_distributed_completed_when_local_is_failed_and_remote_has_no_document_bytes` and `TryPoll_prefers_distributed_failed_error_when_local_is_failed`; cheap-disproof closed three sibling `(candidate)` rows; scoped poll-state tests 26 passed (`RunAnalyzers=false`).
 
@@ -14978,11 +14980,17 @@ heap-disproved mermaid typed-topology candidate.
 - [x] (valid-no-repro) `CollectionRunIngestService.IngestAsync` — malformed manifest hex rejects import — **cheap-disproof 2026-10-23 thorough hunt #88:** regression `ManifestPackageHashMismatchRejectsWithoutImport` (`ZipSha256` non-hex).
 - [x] (valid-no-repro) `ApiRequestUsageEventBatchFlushHostedService` — persist failure requeues batch — **cheap-disproof 2026-10-23 thorough hunt #88:** regression `StopAsync_keeps_dequeued_usage_events_when_batch_persist_fails` (hunt #69).
 
-- [ ] (candidate) `InMemoryValueReportJobQueue.TryPoll` — local pending not overridden by distributed failed — locus: merge order; input: stale pending; wrong outcome: intentional until terminal.
-- [ ] (candidate) `InMemoryValueReportJobQueue.TryPoll` — local failed with bytes edge (impossible phase) — locus: merge; input: corrupt local; wrong outcome: guard.
-- [ ] (candidate) `PollingCollectionRunDiscovery.DiscoverAsync` — rejected ingest allows duplicate `runId` retry — locus: dedupe; input: rejected then valid; wrong outcome: hunt #79.
-- [ ] (candidate) `ProcessSharedValueReportJobPollStateCache` — prune expired entries on read — locus: TTL; input: stale key; wrong outcome: hunt #74.
-- [ ] (candidate) `InMemoryValueReportJobQueue.Enqueue` — distributed pending write failure surfaces failed poll — locus: enqueue catch; input: cache down; wrong outcome: intentional.
+- [x] (proven) `InMemoryValueReportJobQueue.TryPoll` — stale distributed `Failed` overrode local `Completed` bytes — **hit 2026-10-23 thorough hunt #89:** prefer distributed failed only when local completed has no bytes; regression `TryPoll_keeps_local_completed_bytes_when_distributed_is_failed`.
+- [x] (valid-no-repro) `InMemoryValueReportJobQueue.TryPoll` — local pending overridden by distributed failed — **cheap-disproof 2026-10-23 thorough hunt #89:** regression `TryPoll_prefers_distributed_terminal_state_over_local_pending` (hunt #76).
+- [x] (valid-no-repro) `PollingCollectionRunDiscovery.DiscoverAsync` — rejected ingest allows duplicate `runId` retry — **cheap-disproof 2026-10-23 thorough hunt #89:** regression `DiscoverAsync_imports_later_duplicate_runId_after_first_manifest_rejected` (hunt #79).
+- [x] (valid-no-repro) `ProcessSharedValueReportJobPollStateCache` — prune expired entries on write — **cheap-disproof 2026-10-23 thorough hunt #89:** regression `Set_prunes_expired_entries_without_get`; `Get` drops expired keys inline.
+- [x] (valid-no-repro) `InMemoryValueReportJobQueue.Enqueue` — distributed pending write failure surfaces failed poll — **cheap-disproof 2026-10-23 thorough hunt #89:** regression `TryPoll_on_peer_instance_reports_failure_when_pending_state_cannot_be_persisted` (hunt #70).
+
+- [ ] (candidate) `InMemoryValueReportJobQueue.TryPoll` — local failed not overridden by distributed pending — locus: merge order; input: stale failed + pending remote; wrong outcome: intentional (hunt #88).
+- [ ] (candidate) `InMemoryValueReportJobQueue.RunJob` — persist failure drops in-memory docx — locus: enqueue catch; input: cache write fail; wrong outcome: intentional persist error.
+- [ ] (candidate) `PollingCollectionRunDiscovery.DiscoverAsync` — list manifests failure returns zero — locus: catch; input: storage throw; wrong outcome: intentional swallow.
+- [ ] (candidate) `InMemoryValueReportJobQueue.TryPoll` — unknown phase in distributed JSON maps to failed — locus: deserialize; input: bad phase; wrong outcome: hunt #75.
+- [ ] (candidate) `CollectionRunIngestService.IngestAsync` — running manifest rejects without import — locus: status gate; input: Running; wrong outcome: `RunningManifestRejectsWithoutImport`.
 
 
 2026-10-09 seed hunt (seed→hit): failed usage flush returned events through `Enqueue`, which drops them when metering is disabled. Already-accepted events now use `Requeue`. Regression `StopAsync_keeps_dequeued_usage_events_when_persist_fails_after_metering_disabled` failed first.
