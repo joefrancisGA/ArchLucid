@@ -5292,21 +5292,28 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** recommendation engine; alternatives
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationEngine.cs; ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationTradeOffBuilder.cs
 - **test-filter:** FullyQualifiedName~ArchitectureRecommendationAlternativesTests|FullyQualifiedName~ArchitectureRecommendationProposedChangeTests
-- **hunts:** 83
+- **hunts:** 84
 - **last-hunt:** 2026-10-23
-- **bugs-found:** 46
+- **bugs-found:** 47
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-23 — `sunk cost` / `lifecycle cost` prose falsely selected Cost
+- **last-bug:** 2026-10-23 — `fully loaded cost` prose falsely selected Cost dimension
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
-2026-10-23 seed hunt (seed→hit): promoted `sunk cost` / `lifecycle cost` qualified noun phrases still selecting Cost alongside Security; extended `IsCostTokenInQualifiedCostNounPhrase`; regressions `BuildRecommendations_prefers_security_first_when_priority_is_sunk_cost_security_program`, `BuildRecommendations_prefers_security_first_when_priority_is_lifecycle_cost_security_program`; cheap-disproof closed three sibling `(candidate)` rows; seeded five follow-on rows; scoped Alternatives/ProposedChange/TradeOff tests 96/96.
+2026-10-23 seed hunt (seed→hit): promoted multi-word qualified cost phrase `fully loaded cost` still selecting Cost alongside Security; added `IsCostTokenInMultiWordQualifiedCostPhrase`; regression `BuildRecommendations_prefers_security_first_when_priority_is_fully_loaded_cost_security_program`; cheap-disproof closed four sibling `(candidate)` rows; seeded five follow-on rows; scoped Alternatives/ProposedChange/TradeOff tests 99/99.
 
 - [ ] (candidate) `ArchitectureRecommendationTradeOffBuilder.TryResolveDeclaredPairPrecedence` — multiple explicit pair matches in one priority string only honor the first match — input: comma-joined `Security over Cost, Cost over Security`; reachability: pasted sponsor bullets; wrong outcome: later clause ignored without surfacing ambiguity.
-- [ ] (candidate) `ArchitectureRecommendationTradeOffBuilder.DeclaredPriorityPrefersDimension` — `operating cost security` selects Cost — input: opex modifier; reachability: sponsor prose; wrong outcome: balanced Security/Cost (guard may already cover).
+- [ ] (candidate) `ArchitectureRecommendationTradeOffBuilder.DeclaredPriorityPrefersDimension` — `total landed cost security` selects Cost — input: multi-word landed-cost modifier; reachability: finance framing; wrong outcome: balanced Security/Cost (guard may already cover).
 - [ ] (candidate) `ArchitectureRecommendationTradeOffBuilder.ApplyTradeOffs` — Security plus DataArchitecture actionable findings produce no trade-off object — input: mixed-dimension review package; contract gap only unless product requires all pairs.
-- [ ] (candidate) `ArchitectureRecommendationTradeOffBuilder.DeclaredPriorityPrefersDimension` — `fully loaded cost security` selects Cost — input: multi-word cost modifier; reachability: finance framing; wrong outcome: balanced Security/Cost.
-- [ ] (candidate) `ArchitectureRecommendationTradeOffBuilder.TryResolveDeclaredPairPrecedence` — generic Reliability mention after explicit pair re-enters generic OR resolution — input: `Security over Cost` then `Reliability uplift` without explicit pair syntax.
+- [ ] (candidate) `ArchitectureRecommendationTradeOffBuilder.DeclaredPriorityPrefersDimension` — `cost of security program` selects Cost via `cost of` — input: prepositional phrase; reachability: sponsor prose; wrong outcome: balanced Security/Cost.
+- [ ] (candidate) `ArchitectureRecommendationTradeOffBuilder.TryResolveDeclaredPairPrecedence` — later generic Cost mention overrides earlier explicit `Security over Cost` when explicit scan finds no second pair — input: reorder bullets with trailing `Cost control`.
+
+- [x] (proven) `ArchitectureRecommendationTradeOffBuilder.DeclaredPriorityPrefersDimension` — `fully loaded cost security` selects Cost — **hit 2026-10-23 seed hunt:** `IsCostTokenInMultiWordQualifiedCostPhrase`; regression `BuildRecommendations_prefers_security_first_when_priority_is_fully_loaded_cost_security_program`.
+- [x] (valid-no-repro) `ArchitectureRecommendationTradeOffBuilder.DeclaredPriorityPrefersDimension` — `operating cost security` selects Cost — **cheap-disproof 2026-10-23 seed hunt:** `operating` in qualified noun list (#83); regression `BuildRecommendations_prefers_security_first_when_priority_is_operating_cost_security_program`.
+- [x] (valid-no-repro) `ArchitectureRecommendationTradeOffBuilder.TryResolveDeclaredPairPrecedence` — `Reliability uplift` after `Security over Cost` — **cheap-disproof 2026-10-23 seed hunt:** explicit pair path; regression `BuildRecommendations_prefers_security_first_when_security_over_cost_precedes_reliability_uplift`.
+- [x] (invalid) `ArchitectureRecommendationTradeOffBuilder.ApplyTradeOffs` — Security plus DataArchitecture trade-off — **cheap-disproof 2026-10-23 seed hunt:** dimension pair matrix contract unchanged.
+
+2026-10-23 seed hunt (seed→hit): promoted `sunk cost` / `lifecycle cost` qualified noun phrases still selecting Cost alongside Security; extended `IsCostTokenInQualifiedCostNounPhrase`; regressions `BuildRecommendations_prefers_security_first_when_priority_is_sunk_cost_security_program`, `BuildRecommendations_prefers_security_first_when_priority_is_lifecycle_cost_security_program`; cheap-disproof closed three sibling `(candidate)` rows; seeded five follow-on rows; scoped Alternatives/ProposedChange/TradeOff tests 96/96.
 
 - [x] (proven) `ArchitectureRecommendationTradeOffBuilder.DeclaredPriorityPrefersDimension` — `sunk cost security` selects Cost — **hit 2026-10-23 seed hunt:** qualified noun list extended; regression `BuildRecommendations_prefers_security_first_when_priority_is_sunk_cost_security_program`.
 - [x] (proven) `ArchitectureRecommendationTradeOffBuilder.DeclaredPriorityPrefersDimension` — `lifecycle cost security` selects Cost — **hit 2026-10-23 seed hunt:** qualified noun list extended; regression `BuildRecommendations_prefers_security_first_when_priority_is_lifecycle_cost_security_program`.
