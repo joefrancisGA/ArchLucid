@@ -155,9 +155,6 @@ public sealed partial class InMemoryValueReportJobQueue
         }
     }
 
-    private static JobEntry CreateCorruptDistributedFailureEntry(ValueReportJobRequest request) =>
-        new(request, JobPhase.Failed, null, null, UnknownFailedJobErrorMessage);
-
     private static string GetCacheKey(Guid jobId) => $"archlucid:value-report-job:{jobId:N}";
 
     private sealed record JobEntry(
