@@ -113,6 +113,38 @@ public sealed class ReviewRunEngineProvenanceAggregatorTests
     }
 
     [Fact]
+    public void Aggregate_skips_null_policy_entries_when_deriving_policy_pack_version()
+    {
+        RunRecord run = BuildRun(StructuralExecutionMode.Real);
+        AgentEvidencePackage evidence = new()
+        {
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            RequestId = "req-1",
+            Policies =
+            [
+                null!,
+                new PolicyEvidence
+                {
+                    PolicyId = "healthcare-claims",
+                    Title = "Healthcare Claims",
+                },
+            ],
+        };
+
+        List<AgentExecutionTrace> traces = [BuildTrace("gpt-4o-arch", inputTokens: 10, outputTokens: 5)];
+
+        Func<ReviewRunEngineProvenance> act = () => ReviewRunEngineProvenanceAggregator.Aggregate(
+            traces,
+            evidence,
+            run,
+            findingsSnapshot: null,
+            CreateCostEstimator());
+
+        act.Should().NotThrow();
+        act().PolicyPackVersion.Should().Be("Healthcare Claims");
+    }
+
+    [Fact]
     public void Aggregate_tolerates_null_policies_on_deserialized_evidence_package()
     {
         const string evidenceJson = """

@@ -108,6 +108,7 @@ public static class ReviewRunEngineProvenanceAggregator
             return null;
 
         IEnumerable<string> titles = (evidence.Policies ?? [])
+            .Where(static policy => policy is not null)
             .Select(static policy => policy.Title)
             .Where(static title => !string.IsNullOrWhiteSpace(title))
             .Select(static title => title.Trim())
