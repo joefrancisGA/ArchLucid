@@ -37,6 +37,9 @@ public sealed class AgentResultRegionMismatchEnricher : IAgentResultPostExecutio
 
             foreach (ManifestService service in proposal.AddedServices ?? [])
             {
+                if (service is null)
+                    continue;
+
                 AppendRegionWarnings(
                     proposal,
                     service.AzureArmRegion,
@@ -46,6 +49,9 @@ public sealed class AgentResultRegionMismatchEnricher : IAgentResultPostExecutio
 
             foreach (ManifestDatastore datastore in proposal.AddedDatastores ?? [])
             {
+                if (datastore is null)
+                    continue;
+
                 AppendRegionWarnings(
                     proposal,
                     datastore.AzureArmRegion,
