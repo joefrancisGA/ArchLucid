@@ -95,6 +95,39 @@ public sealed class CollectionRunIngestServiceTests
     }
 
     [Fact]
+    public async Task ManifestPackageHashMismatchRejectsWithoutImport()
+    {
+        Guid runId = Guid.NewGuid();
+        Mock<ICollectionRunRepository> repository = CreateRepository(false);
+        repository
+            .Setup(item => item.UpsertAsync(It.IsAny<CollectionRun>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+        Mock<IAzureExtractorIngestService> importer = new();
+        CollectionRunIngestService service = CreateService(repository, importer);
+
+        CollectionRunArtifact artifact = new()
+        {
+            Manifest = new CollectionRunManifest
+            {
+                RunId = runId,
+                AgentVersion = "test",
+                StartedUtc = DateTime.UtcNow,
+                Status = "Succeeded",
+                TenantId = TestTenantId,
+                ZipSha256 = new string('g', 64),
+                SchemaVersion = AzureExtractorPackageZipValidator.SupportedSchemaVersion,
+            },
+            ZipBytes = [0x50, 0x4B, 0x03, 0x04],
+        };
+
+        CollectionRun result = await service.IngestAsync(artifact);
+
+        result.Status.Should().Be(CollectionRunStatus.Rejected);
+        result.ErrorSummary.Should().Contain("hash");
+        importer.Invocations.Should().BeEmpty();
+    }
+
+    [Fact]
     public async Task RunningManifestRejectsWithoutImport()
     {
         Guid runId = Guid.NewGuid();
