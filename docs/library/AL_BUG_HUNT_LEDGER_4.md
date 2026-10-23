@@ -6705,6 +6705,20 @@ Split from retired `archlucid-core` (ABQ-08).
 2026-10-21 seed hunt (seed->hit): promoted AgentPromptCatalogOptions.Versions whitespace keys; CachedAgentSystemPromptCatalog resolves AgentTypeKeys without trimming dictionary keys; AgentPromptCatalogOptionsNormalizePostConfigure + host registration; regression PostConfigure_trims_agent_prompt_version_keys_from_configuration_binding; cheap-disproof closed JSON null array (Resolve_redacts_json_effective_values_when_json_array_contains_null_then_password_pair) and SaaS WhenProduction (catalog Production-only); 1 AgentPromptCatalog test passed (RunAnalyzers=false).
 
 ## Zone: core-configuration-summary
+2026-10-23 seed hunt #113 (seed→hit): promoted five open `(candidate)` dash and invisible-format pair-delimiter gaps (`U+2012`, `U+200C`, `U+200D`, `U+00AD`, `U+180E`); `Password=` after pasted separators was not a pair boundary so config summary effective values leaked ADO.NET secrets; extended `IsPairDelimiter`; matrix regressions `Resolve_redacts_embedded_credential_material_when_password_pair_is_figure_dash_delimited`, `_zero_width_non_joiner_delimited`, `_zero_width_joiner_delimited`, `_soft_hyphen_delimited`, and `_mongolian_vowel_separator_delimited`; seeded five follow-on dash `(candidate)` rows; `ConfigurationEmbeddedCredentialRedactionMatrixTests` passed (`RunAnalyzers=false`).
+
+- [x] (proven) `ConfigurationEmbeddedCredentialMaterialDetector.IsPairDelimiter` — figure dash (`U+2012`) between credential pairs — **hit 2026-10-23 seed hunt #113:** add `\u2012`; regression `Resolve_redacts_embedded_credential_material_when_password_pair_is_figure_dash_delimited`. [class:fail-open-validation]
+- [x] (proven) `ConfigurationEmbeddedCredentialMaterialDetector.IsPairDelimiter` — zero-width non-joiner (`U+200C`) between pairs — **hit 2026-10-23 seed hunt #113:** add `\u200C`; regression `Resolve_redacts_embedded_credential_material_when_password_pair_is_zero_width_non_joiner_delimited`. [class:fail-open-validation]
+- [x] (proven) `ConfigurationEmbeddedCredentialMaterialDetector.IsPairDelimiter` — zero-width joiner (`U+200D`) between pairs — **hit 2026-10-23 seed hunt #113:** add `\u200D`; regression `Resolve_redacts_embedded_credential_material_when_password_pair_is_zero_width_joiner_delimited`. [class:fail-open-validation]
+- [x] (proven) `ConfigurationEmbeddedCredentialMaterialDetector.IsPairDelimiter` — soft hyphen (`U+00AD`) between pairs — **hit 2026-10-23 seed hunt #113:** add `\u00AD`; regression `Resolve_redacts_embedded_credential_material_when_password_pair_is_soft_hyphen_delimited`. [class:fail-open-validation]
+- [x] (proven) `ConfigurationEmbeddedCredentialMaterialDetector.IsPairDelimiter` — mongolian vowel separator (`U+180E`) between pairs — **hit 2026-10-23 seed hunt #113:** add `\u180E`; regression `Resolve_redacts_embedded_credential_material_when_password_pair_is_mongolian_vowel_separator_delimited`. [class:fail-open-validation]
+
+- [ ] (candidate) `ConfigurationEmbeddedCredentialMaterialDetector` — en dash (`U+2013`) between credential pairs — locus: `IsPairDelimiter`; input: `Server=prod\u2013Password=secret`; wrong outcome: config summary leak.
+- [ ] (candidate) `ConfigurationEmbeddedCredentialMaterialDetector` — em dash (`U+2014`) between pairs — locus: `IsPairDelimiter`; input: `Server=prod\u2014Password=secret`; wrong outcome: leak.
+- [ ] (candidate) `ConfigurationEmbeddedCredentialMaterialDetector` — horizontal bar (`U+2015`) between pairs — locus: `IsPairDelimiter`; input: `Server=prod\u2015Password=secret`; wrong outcome: leak.
+- [ ] (candidate) `ConfigurationEmbeddedCredentialMaterialDetector` — minus sign (`U+2212`) between pairs — locus: `IsPairDelimiter`; input: `Server=prod\u2212Password=secret`; wrong outcome: leak.
+- [ ] (candidate) `ConfigurationEmbeddedCredentialMaterialDetector` — word joiner (`U+2060`) between pairs — locus: `IsPairDelimiter`; input: `Server=prod\u2060Password=secret`; wrong outcome: leak; reachability: invisible word-join paste between connection-string segments.
+
 2026-10-23 seed hunt #112 (seed→hit): promoted five open `(candidate)` quad, legacy, hyphen, and zero-width pair-delimiter gaps (`U+2000`, `U+2001`, `U+1680`, `U+2011`, `U+200B`); `Password=` after pasted separators was not a pair boundary so config summary effective values leaked ADO.NET secrets; extended `IsPairDelimiter`; matrix regressions `Resolve_redacts_embedded_credential_material_when_password_pair_is_en_quad_delimited`, `_em_quad_delimited`, `_ogham_space_mark_delimited`, `_narrow_no_break_hyphen_delimited`, and `_zero_width_space_delimited`; seeded five follow-on invisible/dash `(candidate)` rows; 44 `ConfigurationEmbeddedCredentialRedactionMatrixTests` passed (`RunAnalyzers=false`).
 
 - [x] (proven) `ConfigurationEmbeddedCredentialMaterialDetector.IsPairDelimiter` — en quad (`U+2000`) between credential pairs — **hit 2026-10-23 seed hunt #112:** add `\u2000`; regression `Resolve_redacts_embedded_credential_material_when_password_pair_is_en_quad_delimited`. [class:fail-open-validation]
@@ -6712,12 +6726,6 @@ Split from retired `archlucid-core` (ABQ-08).
 - [x] (proven) `ConfigurationEmbeddedCredentialMaterialDetector.IsPairDelimiter` — ogham space mark (`U+1680`) between pairs — **hit 2026-10-23 seed hunt #112:** add `\u1680`; regression `Resolve_redacts_embedded_credential_material_when_password_pair_is_ogham_space_mark_delimited`. [class:fail-open-validation]
 - [x] (proven) `ConfigurationEmbeddedCredentialMaterialDetector.IsPairDelimiter` — narrow no-break hyphen (`U+2011`) between pairs — **hit 2026-10-23 seed hunt #112:** add `\u2011`; regression `Resolve_redacts_embedded_credential_material_when_password_pair_is_narrow_no_break_hyphen_delimited`. [class:fail-open-validation]
 - [x] (proven) `ConfigurationEmbeddedCredentialMaterialDetector.IsPairDelimiter` — zero-width space (`U+200B`) between pairs — **hit 2026-10-23 seed hunt #112:** add `\u200B`; regression `Resolve_redacts_embedded_credential_material_when_password_pair_is_zero_width_space_delimited`. [class:fail-open-validation]
-
-- [ ] (candidate) `ConfigurationEmbeddedCredentialMaterialDetector` — figure dash (`U+2012`) between credential pairs — locus: `IsPairDelimiter`; input: `Server=prod\u2012Password=secret`; wrong outcome: config summary leak.
-- [ ] (candidate) `ConfigurationEmbeddedCredentialMaterialDetector` — zero-width non-joiner (`U+200C`) between pairs — locus: `IsPairDelimiter`; input: `Server=prod\u200CPassword=secret`; wrong outcome: leak.
-- [ ] (candidate) `ConfigurationEmbeddedCredentialMaterialDetector` — zero-width joiner (`U+200D`) between pairs — locus: `IsPairDelimiter`; input: `Server=prod\u200DPassword=secret`; wrong outcome: leak.
-- [ ] (candidate) `ConfigurationEmbeddedCredentialMaterialDetector` — soft hyphen (`U+00AD`) between pairs — locus: `IsPairDelimiter`; input: `Server=prod\u00ADPassword=secret`; wrong outcome: leak.
-- [ ] (candidate) `ConfigurationEmbeddedCredentialMaterialDetector` — mongolian vowel separator (`U+180E`) between pairs — locus: `IsPairDelimiter`; input: `Server=prod\u180EPassword=secret`; wrong outcome: leak.
 
 2026-10-23 seed hunt #111 (seed→hit): promoted five open `(candidate)` em-scale and ideographic space pair-delimiter gaps (`U+2003`–`U+2006`, `U+3000`); `Password=` after document typography was not a pair boundary so config summary effective values leaked ADO.NET secrets; extended `IsPairDelimiter`; matrix regressions `Resolve_redacts_embedded_credential_material_when_password_pair_is_em_space_delimited`, `_three_per_em_space_delimited`, `_four_per_em_space_delimited`, `_six_per_em_space_delimited`, and `_ideographic_space_delimited`; seeded five quad/legacy-space `(candidate)` rows; 39 `ConfigurationEmbeddedCredentialRedactionMatrixTests` passed (`RunAnalyzers=false`).
 
@@ -6788,11 +6796,11 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** configuration summary; config paths; split from archlucid-core
 - **paths:** ArchLucid.Core/Configuration/
 - **test-filter:** FullyQualifiedName~Configuration
-- **hunts:** 71
-- **bugs-found:** 53
+- **hunts:** 72
+- **bugs-found:** 54
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-23
-- **last-bug:** 2026-10-23 — quad, legacy, and invisible separator delimiter parity for embedded credential redaction
+- **last-bug:** 2026-10-23 — dash and invisible-format delimiter parity for embedded credential redaction
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
