@@ -95,32 +95,31 @@ public sealed class ApiRequestUsageEventBatchFlushHostedService(
     private async Task FlushPendingAsync(int maxBatchSize, CancellationToken ct, bool drainRemainingAfterBatchFailure)
     {
         int safeMax = Math.Clamp(maxBatchSize, 1, 500);
-        List<UsageEvent> batch = [];
+        List<UsageEvent> pending = [];
 
         while (_buffer.TryDequeue(out UsageEvent? usageEvent))
-        {
-            batch.Add(usageEvent);
+            pending.Add(usageEvent);
 
-            if (batch.Count >= safeMax)
+        if (pending.Count == 0)
+            return;
+
+        for (int index = 0; index < pending.Count; index += safeMax)
+        {
+            int count = Math.Min(safeMax, pending.Count - index);
+            List<UsageEvent> batch = pending.GetRange(index, count);
+
+            if (!await PersistOrReturnAsync(batch, ct).ConfigureAwait(false))
             {
-
-                if (!await PersistOrReturnAsync(batch, ct).ConfigureAwait(false))
+                if (!drainRemainingAfterBatchFailure)
                 {
-                    batch = [];
+                    int remainderStart = index + count;
 
-                    if (!drainRemainingAfterBatchFailure)
-                        return;
+                    if (remainderStart < pending.Count)
+                        ReturnBatchToBuffer(pending.GetRange(remainderStart, pending.Count - remainderStart));
 
-                    continue;
+                    return;
                 }
-
-                batch = [];
             }
-        }
-
-        if (batch.Count > 0)
-        {
-            await PersistOrReturnAsync(batch, ct).ConfigureAwait(false);
         }
     }
 
