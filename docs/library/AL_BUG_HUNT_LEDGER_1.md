@@ -8815,6 +8815,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: architecture-intelligence-orchestrator
 
+2026-10-23 seed hunt (seed→hit): promoted tilde and caret segment-separator drift splitting `ContentHash` (`docs~architecture/overview.md`, `docs^architecture/overview.md` vs slash form); extended `ReviewCacheAlternatePathSeparators` with `~` / U+FF5E and `^` / U+FF3E using dotless-tail guard; regressions `Build_matches_content_hash_when_file_name_differs_only_by_tilde_between_segments`, `Build_matches_content_hash_when_file_name_differs_only_by_caret_between_segments`, `Build_changes_content_hash_when_file_name_differs_only_by_tilde_before_dotted_segment_name`, and `Build_changes_content_hash_when_file_name_differs_only_by_caret_before_dotted_segment_name`; cheap-disproof regressions for `%7E`, `%5E`, and fullwidth variants; 445 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `GraphSnapshotCanonicalFingerprint` — tilde and caret alternate path separators split path canonicalization — **hit 2026-10-23 seed hunt:** `~` / U+FF5E and `^` / U+FF3E in alternate separator set; regressions above.
+
 2026-10-23 seed hunt (seed→hit): promoted exclamation and at-sign segment-separator drift splitting `ContentHash` (`docs!architecture/overview.md`, `docs@architecture/overview.md` vs slash form); extended `ReviewCacheAlternatePathSeparators` with `!` / U+FF01 and `@` / U+FF20 using dotless-tail guard; regressions `Build_matches_content_hash_when_file_name_differs_only_by_exclamation_between_segments`, `Build_matches_content_hash_when_file_name_differs_only_by_at_sign_between_segments`, `Build_changes_content_hash_when_file_name_differs_only_by_exclamation_before_dotted_segment_name`, and `Build_changes_content_hash_when_file_name_differs_only_by_at_sign_before_dotted_segment_name`; cheap-disproof regressions for `%21`, `%40`, and fullwidth variants; 437 scoped orchestrator/cache/manifest/continue-flight tests passed.
 
 - [x] (proven) `GraphSnapshotCanonicalFingerprint` — exclamation and at-sign alternate path separators split path canonicalization — **hit 2026-10-23 seed hunt:** `!` / U+FF01 and `@` / U+FF20 in alternate separator set; regressions above.
@@ -9529,11 +9533,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** closed-loop orchestrator; review result cache; architecture intelligence
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.cs; ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.Cache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewResultCache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewCacheManifestBuilder.cs
 - **test-filter:** FullyQualifiedName~ClosedLoopArchitectureReasoningOrchestrator|FullyQualifiedName~ReviewResultCache|FullyQualifiedName~ReviewCacheManifestBuilder
-- **hunts:** 99
-- **bugs-found:** 86
+- **hunts:** 100
+- **bugs-found:** 87
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-23
-- **last-bug:** 2026-10-23 — exclamation and at-sign alternate path separators split review-cache `ContentHash`
+- **last-bug:** 2026-10-23 — tilde and caret alternate path separators split review-cache `ContentHash`
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
