@@ -77,6 +77,7 @@ public sealed class ExportRecordDiffService : IExportRecordDiffService
         AddIfChanged(result.ChangedTopLevelFields, "WasAutoSelected", left.WasAutoSelected, right.WasAutoSelected);
         AddIfChangedTrimmed(result.ChangedTopLevelFields, "ResolutionReason", left.ResolutionReason, right.ResolutionReason);
         AddIfChangedTrimmed(result.ChangedTopLevelFields, "ManifestVersion", left.ManifestVersion, right.ManifestVersion);
+        AddIfChangedTrimmed(result.ChangedTopLevelFields, "Notes", left.Notes, right.Notes);
         AddIfChanged(result.ChangedTopLevelFields, "IncludedEvidence", left.IncludedEvidence, right.IncludedEvidence);
         AddIfChanged(result.ChangedTopLevelFields, "IncludedExecutionTraces", left.IncludedExecutionTraces,
             right.IncludedExecutionTraces);
