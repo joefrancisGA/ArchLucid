@@ -285,9 +285,10 @@ public static class GraphSnapshotCanonicalFingerprint
 
         string path = NormalizeUnicodeDotScalars(
                 NormalizeUnicodeSlashScalars(
-                    NormalizeReviewCachePathLineBreakScalars(
-                        DecodePercentEncodedPathTokens(
-                            ReplaceIsolatedPlusWithPathSeparator(normalizedToken)))))
+                    NormalizeReviewCacheNbspPathSeparators(
+                        NormalizeReviewCachePathLineBreakScalars(
+                            DecodePercentEncodedPathTokens(
+                                ReplaceIsolatedPlusWithPathSeparator(normalizedToken))))))
             .Replace('\\', '/');
 
         while (path.Contains("//", StringComparison.Ordinal))
@@ -344,6 +345,39 @@ public static class GraphSnapshotCanonicalFingerprint
         normalized = normalized.Replace('\n', '/');
 
         return normalized;
+    }
+
+    /// <summary>
+    ///     When a path token already contains <c>/</c>, treat narrow no-break space as a segment separator
+    ///     (e.g. <c>docs\u00a0architecture/overview.md</c>) without rewriting NBSP inside file-name segments
+    ///     (e.g. <c>arch\u00a0note.md</c>).
+    /// </summary>
+    private static string NormalizeReviewCacheNbspPathSeparators(string value)
+    {
+        if (!value.Contains('\u00a0', StringComparison.Ordinal) || !value.Contains('/', StringComparison.Ordinal))
+            return value;
+
+        StringBuilder builder = new(value.Length);
+
+        for (int index = 0; index < value.Length; index++)
+        {
+            char current = value[index];
+
+            if (current != '\u00a0')
+            {
+                builder.Append(current);
+                continue;
+            }
+
+            int tailStart = index + 1;
+            int slashIndex = value.IndexOf('/', tailStart);
+            int tailEnd = slashIndex < 0 ? value.Length : slashIndex;
+            ReadOnlySpan<char> tail = value.AsSpan(tailStart, tailEnd - tailStart);
+
+            builder.Append(tail.Contains('.') ? '\u00a0' : '/');
+        }
+
+        return builder.ToString();
     }
 
     private static string ReplaceIsolatedPlusWithPathSeparator(string value)
