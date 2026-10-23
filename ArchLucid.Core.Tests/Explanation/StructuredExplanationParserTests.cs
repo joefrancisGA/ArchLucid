@@ -240,6 +240,28 @@ public sealed class StructuredExplanationParserTests
     }
 
     [Fact]
+    public void TryNormalizeStructuredJson_coerces_percent_suffixed_confidence_in_nested_array()
+    {
+        const string json = """{"reasoning":"Main","confidence":[["75%"]]}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.Confidence.Should().Be(0.75m);
+    }
+
+    [Fact]
+    public void TryNormalizeStructuredJson_coerces_plus_prefixed_percent_confidence()
+    {
+        const string json = """{"reasoning":"Main","confidence":"+75%"}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.Confidence.Should().Be(0.75m);
+    }
+
+    [Fact]
     public void TryNormalizeStructuredJson_coerces_percent_suffixed_confidence_with_interior_space_before_percent()
     {
         const string json = """{"reasoning":"Main","confidence":"75 %"}""";

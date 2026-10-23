@@ -1259,11 +1259,12 @@ internal static partial class RunExplanationAggregateJsonReader
             if (RatioArrayItemIsDuplicateAliasPoison(item))
             {
                 if (nonNullEntryCount == 1
+                    && item.ValueKind is not (JsonValueKind.True or JsonValueKind.False)
                     && TryReadFiniteDouble(item) is double poisonedRatio
-                    && poisonedRatio == 1
-                    && NormalizeUnitRatio(poisonedRatio) is { } normalizedSoleUnitRatio)
+                    && (poisonedRatio == 1 || poisonedRatio > 1)
+                    && NormalizeUnitRatio(poisonedRatio) is { } normalizedSoleRatio)
                 {
-                    return normalizedSoleUnitRatio;
+                    return normalizedSoleRatio;
                 }
 
                 continue;

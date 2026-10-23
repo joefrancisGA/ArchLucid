@@ -187,6 +187,52 @@ public sealed class RunExplanationConfidenceCalloutBuilderTests
     }
 
     [Fact]
+    public void FromAggregateJson_maps_unit_faithfulness_support_ratio_in_sole_element_decimal_array()
+    {
+        RunExplanationConfidenceSignals? signals = RunExplanationConfidenceCalloutBuilder.FromAggregateJson(
+            """
+            {
+              "faithfulnessSupportRatio": [0.95],
+              "citations": 1
+            }
+            """);
+
+        signals.Should().NotBeNull();
+        signals!.FaithfulnessSupportRatio.Should().Be(0.95);
+    }
+
+    [Fact]
+    public void FromAggregateJson_maps_whole_number_string_faithfulness_in_sole_element_array()
+    {
+        RunExplanationConfidenceSignals? signals = RunExplanationConfidenceCalloutBuilder.FromAggregateJson(
+            """
+            {
+              "faithfulnessSupportRatio": ["100"],
+              "citations": 1
+            }
+            """);
+
+        signals.Should().NotBeNull();
+        signals!.FaithfulnessSupportRatio.Should().Be(1.0);
+    }
+
+    [Fact]
+    public void FromAggregateJson_uses_non_empty_faithfulness_ratio_when_later_duplicate_is_hundred_percent_array()
+    {
+        RunExplanationConfidenceSignals? signals = RunExplanationConfidenceCalloutBuilder.FromAggregateJson(
+            """
+            {
+              "faithfulnessSupportRatio": 0.55,
+              "FAITHFULNESSSUPPORTRATIO": ["100%"],
+              "citations": 1
+            }
+            """);
+
+        signals.Should().NotBeNull();
+        signals!.FaithfulnessSupportRatio.Should().Be(0.55);
+    }
+
+    [Fact]
     public void FromAggregateJson_ignores_numeric_whole_faithfulness_ratio_in_array_as_duplicate_alias_poison()
     {
         RunExplanationConfidenceSignals? signals = RunExplanationConfidenceCalloutBuilder.FromAggregateJson(
