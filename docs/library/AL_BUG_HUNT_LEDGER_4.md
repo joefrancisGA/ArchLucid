@@ -12470,10 +12470,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 295
-- **bugs-found:** 197
+- **hunts:** 296
+- **bugs-found:** 198
 - **last-hunt:** 2026-10-23
-- **last-bug:** 2026-10-23 — overlay merge silently skipped duplicate edges with conflicting ProvenanceKind
+- **last-bug:** 2026-10-23 — overlay merge silently skipped duplicate edges with conflicting DeclaredConnectionId
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -12949,7 +12949,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - [x] (proven) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — duplicate overlay edges with conflicting `ProvenanceKind` kept first provenance kind silently — **hit 2026-10-23 seed hunt (seed→hit):** provenance-kind agreement guard on overlay dedupe; regressions above.
 
-- [ ] (candidate) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — duplicate appended inventory overlay edges with conflicting `DeclaredConnectionId` on the same directed key may keep first row declared connection id — locus: overlay edge append dedupe on directed key without declared-connection-id validation; input: two overlay edges with trim-equal directed keys but different non-empty `DeclaredConnectionId` values; wrong outcome: merged graph retains first edge declared connection id without surfacing disagreement.
+2026-10-23 seed hunt (seed→hit): promoted `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` duplicate overlay edges with conflicting `DeclaredConnectionId` on the same directed key candidate; proved overlay edge dedupe validated label, weight, inference source, and provenance kind but skipped later rows without comparing `DeclaredConnectionId`, leaving the first declared connection id authoritative; extended `TryValidateOverlayEdgeAgreement` with case-insensitive declared-connection-id checks; regressions `Merge_throws_when_overlay_duplicate_edges_disagree_on_declared_connection_id` and `Merge_coalesces_overlay_duplicate_edge_declared_connection_ids_when_declared_connection_ids_differ_only_by_casing`; seeded `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` duplicate overlay edges with conflicting `ReasoningTrace` on the same directed key follow-on; 603 KnowledgeGraph + 170 Provenance scoped tests passed.
+
+- [x] (proven) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — duplicate overlay edges with conflicting `DeclaredConnectionId` kept first declared connection id silently — **hit 2026-10-23 seed hunt (seed→hit):** declared-connection-id agreement guard on overlay dedupe; regressions above.
+
+- [ ] (candidate) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — duplicate appended inventory overlay edges with conflicting `ReasoningTrace` on the same directed key may keep first row reasoning trace — locus: overlay edge append dedupe on directed key without reasoning-trace validation; input: two overlay edges with trim-equal directed keys but different non-empty `ReasoningTrace` values; wrong outcome: merged graph retains first edge reasoning trace without surfacing disagreement.
 
 2026-10-22 seed hunt (seed→hit): promoted `StructuredDiagramGraphMerger` padded diagram property-key coalesce candidate; proved duplicate node/edge metadata coalesce indexed raw `property.Key`, so a later compile with surrounding-whitespace keys left parallel bag entries and `GraphNodePropertyReader` could return stale source-evidence values; trim keys before skip/coalesce (parity with `GraphNodeFactory.NormalizePropertyBag`); regression `Merge_coalesces_node_properties_when_incoming_property_keys_differ_only_by_surrounding_whitespace`; seeded diagram edge metadata padded-key coalesce regression follow-on; 468 KnowledgeGraph + 170 Provenance scoped tests passed.
 
