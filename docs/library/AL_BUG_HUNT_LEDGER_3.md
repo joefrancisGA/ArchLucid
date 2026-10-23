@@ -2374,6 +2374,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
+2026-10-23 seed hunt (seed-only): re-read `session.ts` (`ensureAccessTokenFresh` hint/BFF parity, identity-less persist, token sync replay), `bff-session-sync.ts`, `initiate-redirect.ts`, `token-client.ts`, and `build-authorize-url.ts` after bugsmash churn; no open hypotheses; no row met hunt-ready bar for same-run repro (recent identity-less BFF sync and stale ok-refresh guards already regression-covered in `session.test.ts` / `session-ensure-fresh.test.ts`). Seeded five `(candidate)` rows below; scoped `src/lib/oidc` vitest 687/687 (`RunAnalyzers=false`).
+
+- [ ] (candidate) `ensureAccessTokenFresh` — in-flight BFF ok refresh after same-identity `persistTokenResponse` extended the client hint rejects `expires_at_ms` that is valid but not byte-equal to the recomputed hint — locus: `hintMovedForward` exact-match early return (`session.ts` ~626-628); input: callback persist updates `OIDC_EXPIRES_AT_MS_KEY` while a pre-persist refresh completes with server-rounded expiry.
+- [ ] (candidate) `refreshBffSessionCookie` — HTTP 200 refresh JSON missing or non-finite `expires_at_ms` leaves client expiry hint unchanged without clearing session — locus: `parseBffExpiresAtMs` soft-fail branch (`bff-session-sync.ts` ~129-137); input: BFF refresh succeeds after IdP omits expiry metadata in refresh response body.
+- [ ] (candidate) `initiateOidcRedirect` — authorize-callback retry restores post-sign-in path from `OIDC_AUTHORIZE_RETRY_RETURN_PATH_KEY` when the primary return URL key was cleared — locus: `preparePostSignInReturnUrlForSignInStart` (`initiate-redirect.ts` ~62-77); input: OAuth authorize error (`markAuthorizeCallbackFailed`) followed by `initiateOidcRedirect` without a new `returnUrl` argument.
+- [ ] (candidate) `exchangeAuthorizationCode` — token exchange failures other than `Invalid token endpoint URL` always call `markAuthorizeCallbackFailed` — locus: `shouldMarkAuthorizeCallbackFailedOnExchangeError` (`token-client.ts` ~277-307); input: transient `Token endpoint error 503` during code exchange after authorize succeeded.
+- [ ] (candidate) `buildAuthorizeUrl` — pre-existing query parameters on discovery `authorization_endpoint` are preserved when ArchLucid params are applied — locus: `new URL(params.doc.authorization_endpoint)` (`build-authorize-url.ts` ~17-28); input: discovery document whose authorize URL ships IdP-specific static query keys from tenant metadata.
+
 2026-10-15 thorough hunt (hit): proved discovery HTTP(S) endpoint validation accepted userinfo-bearing authorization URLs; proved BFF session sync omitted trim on refresh/id tokens; cheap-disproved unbounded `syncTokenToBff` replay during burst sign-ins; 79 scoped oidc vitest tests passed.
 
 2026-10-11 seed hunt (seed-only): re-read the latest concurrent BFF sync/replay, token normalization, discovery endpoint validation, and refresh-hint paths; no new row met the full hunt-ready bar for same-run repro. Seeded three bounded `(candidate)` rows; the focused OIDC suite passed 76/76. No production or regression code changed.
@@ -2436,10 +2444,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 77
+- **hunts:** 78
 - **bugs-found:** 71
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-16
+- **last-hunt:** 2026-10-23
 - **last-bug:** 2026-10-16 — hex/octal/binary epoch-ms hint literals in session and BFF refresh
 - **related-pd-tb:** none
 - **code-changed-since:** yes
