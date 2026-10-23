@@ -7859,6 +7859,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-agents
 
+2026-10-23 seed hunt (seed→hit): promoted null elements in `AgentEvidencePackage.Policies` crashing run engine provenance aggregation (`policy.Title` in `DerivePolicyPackVersion`); `ReviewRunEngineProvenanceAggregator` now skips null policy entries before title projection; regression `Aggregate_skips_null_policy_entries_when_deriving_policy_pack_version`; 156 scoped Application.Tests.Agents tests passed.
+
+- [x] (proven) `ReviewRunEngineProvenanceAggregator.DerivePolicyPackVersion` — null policy list entries aborted provenance aggregation — **hit 2026-10-23 seed hunt:** null guard before title select; regression above. [class:fail-open-validation]
+
 2026-10-23 seed hunt (seed→hit): promoted null elements in `AddedServices`/`AddedDatastores` crashing region-mismatch enricher before region warnings; `AgentResultRegionMismatchEnricher` now skips null service/datastore entries; regressions `EnrichAsync_skips_null_added_service_entries` and `EnrichAsync_skips_null_added_datastore_entries`; 155 scoped Application.Tests.Agents tests passed.
 
 - [x] (proven) `AgentResultRegionMismatchEnricher.EnrichAsync` — null service/datastore list entries aborted region validation — **hit 2026-10-23 seed hunt:** null guards in topology collection loops; regressions above. [class:fail-open-validation]
@@ -8119,11 +8123,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** application agents; agent handlers wiring
 - **paths:** ArchLucid.Application/Agents/
 - **test-filter:** FullyQualifiedName~Application.Tests.Agents
-- **hunts:** 75
-- **bugs-found:** 68
+- **hunts:** 76
+- **bugs-found:** 69
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-23
-- **last-bug:** 2026-10-23 — null service/datastore entries crash region-mismatch enricher
+- **last-bug:** 2026-10-23 — null policy entries crash engine provenance aggregation
 
 2026-09-27 seed hunt (seed→hit): proved `TopologyProposalConsensusMerger.Merge` threw when `RequiredControls` was null on topology dual-model proposals (`AgentProposalStructuralPostProcessor` does not initialize controls for `AgentType.Topology`); fixed by null-coalescing in control intersection and disagreement counts; regression `Merge_when_required_controls_is_null_does_not_throw`; 92 scoped Application.Tests.Agents tests passed.
 
