@@ -32,11 +32,11 @@ public sealed class PollingCollectionRunDiscovery(
         }
 
         int imported = 0;
-        HashSet<Guid> seenRunIds = new();
+        HashSet<Guid> importedRunIdsThisBatch = new();
 
         foreach (CollectionRunManifest manifest in manifests)
         {
-            if (!seenRunIds.Add(manifest.RunId))
+            if (importedRunIdsThisBatch.Contains(manifest.RunId))
                 continue;
 
             CollectionRunArtifact? artifact;
@@ -58,7 +58,10 @@ public sealed class PollingCollectionRunDiscovery(
                 CollectionRun run = await _ingestService.IngestAsync(artifact, cancellationToken);
 
                 if (run.Status == CollectionRunStatus.Imported)
+                {
                     imported++;
+                    importedRunIdsThisBatch.Add(manifest.RunId);
+                }
             }
             catch (OperationCanceledException)
             {
