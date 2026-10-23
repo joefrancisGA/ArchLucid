@@ -3,8 +3,7 @@ import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { BUYER_MANIFEST_TOP_RISK_CTA } from "@/lib/buyer/buyer-polish-copy";
-import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { ManifestSummary } from "@/types/authority";
 
 type ManifestDetailMonitoredRiskCardProps = {
@@ -43,48 +42,9 @@ export function ManifestDetailMonitoredRiskCard(props: ManifestDetailMonitoredRi
             : "Open the aggregate architecture review summary on review detail — per-finding links appear when trace confidence rows are available."}
         </p>
         {buyerPolishedLayout && primaryFindingHref ? (
-          <div className={cn("mt-3 space-y-3 rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-al-text-primary dark:border-amber-700/50 p-3", OPERATOR_TYPOGRAPHY.body)}>
-            <dl className={cn("m-0 grid gap-2 text-al-text-primary sm:grid-cols-2", OPERATOR_TYPOGRAPHY.body)}>
-              <div>
-                <dt className={OPERATOR_NAV_GROUP_LABEL}>
-                  Severity
-                </dt>
-                <dd className="m-0 mt-0.5">High</dd>
-              </div>
-              <div>
-                <dt className={OPERATOR_NAV_GROUP_LABEL}>
-                  Risk area
-                </dt>
-                <dd className="m-0 mt-0.5">PHI minimization</dd>
-              </div>
-              <div>
-                <dt className={OPERATOR_NAV_GROUP_LABEL}>
-                  Disposition
-                </dt>
-                <dd className="m-0 mt-0.5">Accepted with monitoring</dd>
-              </div>
-              <div>
-                <dt className={OPERATOR_NAV_GROUP_LABEL}>
-                  Blocking status
-                </dt>
-                <dd className="m-0 mt-0.5">Non-blocking</dd>
-              </div>
-            </dl>
-            <ul className={cn("m-0 list-none space-y-2 p-0 leading-snug text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-              <li>
-                <strong className="text-neutral-900 dark:text-neutral-100">Risk:</strong> expanded breach and audit
-                scope if minimization is understated.
-              </li>
-              <li>
-                <strong className="text-neutral-900 dark:text-neutral-100">Mitigation:</strong> classification at
-                ingress, adapter boundaries, retention controls tied to evidence in this package.
-              </li>
-              <li>
-                <strong className="text-neutral-900 dark:text-neutral-100">Validation:</strong> trace exception paths
-                and attachment volume through go-live monitoring.
-              </li>
-            </ul>
-          </div>
+          <p className={cn("m-0 mt-3 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+            Severity, disposition, and risk area were not loaded on this card.
+          </p>
         ) : null}
         <div className="mt-4">
           <Button variant="secondary" size="sm" asChild>
@@ -94,7 +54,7 @@ export function ManifestDetailMonitoredRiskCard(props: ManifestDetailMonitoredRi
               }
             >
               {primaryFindingHref
-                ? BUYER_MANIFEST_TOP_RISK_CTA
+                ? "Open the linked finding."
                 : buyerPolishedLayout
                   ? "View findings on review"
                   : "Open review findings"}

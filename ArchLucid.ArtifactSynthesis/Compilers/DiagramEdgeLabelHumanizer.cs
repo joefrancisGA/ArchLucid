@@ -283,14 +283,14 @@ internal static class DiagramEdgeLabelHumanizer
 
         if (string.Equals(baseSource, GraphEdgeInferenceSources.InventoryEventHubCapture, StringComparison.OrdinalIgnoreCase))
         {
-            label = $"{qualifier} · Captures to";
+            label = $"{qualifier} · Configured to capture to. This is not observed traffic.";
 
             return true;
         }
 
         if (string.Equals(baseSource, GraphEdgeInferenceSources.InventoryDiagnosticDestination, StringComparison.OrdinalIgnoreCase))
         {
-            label = $"Sends diagnostics to {qualifier.Trim()}.";
+            label = $"Diagnostic setting destination is {qualifier.Trim()}. This is not observed log delivery.";
 
             return true;
         }
@@ -419,7 +419,7 @@ internal static class DiagramEdgeLabelHumanizer
         if (string.Equals(value, GraphEdgeInferenceSources.InventoryAdfReadsFrom, StringComparison.OrdinalIgnoreCase)
             || string.Equals(value, AzureInventoryRelationshipAssociationTypes.AdfReadsFrom, StringComparison.OrdinalIgnoreCase))
         {
-            humanized = "Reads from";
+            humanized = "Pipeline is configured to read from. This is not observed traffic.";
 
             return true;
         }
@@ -427,7 +427,7 @@ internal static class DiagramEdgeLabelHumanizer
         if (string.Equals(value, GraphEdgeInferenceSources.InventoryAdfWritesTo, StringComparison.OrdinalIgnoreCase)
             || string.Equals(value, AzureInventoryRelationshipAssociationTypes.AdfWritesTo, StringComparison.OrdinalIgnoreCase))
         {
-            humanized = "Writes to";
+            humanized = "Pipeline is configured to write to. This is not observed traffic.";
 
             return true;
         }
@@ -509,7 +509,7 @@ internal static class DiagramEdgeLabelHumanizer
         if (string.Equals(value, GraphEdgeInferenceSources.InventorySynapseReadsFrom, StringComparison.OrdinalIgnoreCase)
             || string.Equals(value, AzureInventoryRelationshipAssociationTypes.SynapseReadsFrom, StringComparison.OrdinalIgnoreCase))
         {
-            humanized = "Reads from";
+            humanized = "Pipeline is configured to read from. This is not observed traffic.";
 
             return true;
         }
@@ -517,7 +517,7 @@ internal static class DiagramEdgeLabelHumanizer
         if (string.Equals(value, GraphEdgeInferenceSources.InventorySynapseWritesTo, StringComparison.OrdinalIgnoreCase)
             || string.Equals(value, AzureInventoryRelationshipAssociationTypes.SynapseWritesTo, StringComparison.OrdinalIgnoreCase))
         {
-            humanized = "Writes to";
+            humanized = "Pipeline is configured to write to. This is not observed traffic.";
 
             return true;
         }
@@ -525,7 +525,7 @@ internal static class DiagramEdgeLabelHumanizer
         if (string.Equals(value, GraphEdgeInferenceSources.InventoryAdfTriggerSource, StringComparison.OrdinalIgnoreCase)
             || string.Equals(value, AzureInventoryRelationshipAssociationTypes.AdfTriggerSource, StringComparison.OrdinalIgnoreCase))
         {
-            humanized = "Triggers";
+            humanized = "Trigger is configured. This is not an observed run.";
 
             return true;
         }
@@ -533,7 +533,7 @@ internal static class DiagramEdgeLabelHumanizer
         if (string.Equals(value, GraphEdgeInferenceSources.InventoryAdfIntegrationRuntime, StringComparison.OrdinalIgnoreCase)
             || string.Equals(value, AzureInventoryRelationshipAssociationTypes.AdfIntegrationRuntime, StringComparison.OrdinalIgnoreCase))
         {
-            humanized = "Runs on";
+            humanized = "Integration runtime in configuration. This is not an observed run.";
 
             return true;
         }

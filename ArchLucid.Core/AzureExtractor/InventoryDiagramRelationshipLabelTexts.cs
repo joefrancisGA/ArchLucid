@@ -5,7 +5,7 @@ public static class InventoryDiagramRelationshipLabelTexts
 {
     public const string HasAccess = "Has access";
 
-    public const string PrivateAccess = "Private access";
+    public const string PrivateAccess = "Private endpoint. This is not observed traffic.";
 
     public const string ServiceConnectorConfiguredLabel =
         "Service connector is configured. An observed connection was not stored.";
@@ -47,7 +47,7 @@ public static class InventoryDiagramRelationshipLabelTexts
 
         if (status.Equals("Approved", StringComparison.OrdinalIgnoreCase))
         {
-            return $"{PrivateAccess} · {status}";
+            return "Private endpoint connection: Approved.";
         }
 
         if (status.Equals("Rejected", StringComparison.OrdinalIgnoreCase)
@@ -70,7 +70,7 @@ public static class InventoryDiagramRelationshipLabelTexts
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(nextHopResourceName);
 
-        return $"Routed through {nextHopResourceName.Trim()}";
+        return $"Default route next hop is {nextHopResourceName.Trim()}. This is not observed traffic.";
     }
 
     public static string FormatSendsTrafficTo(int? backendPort)

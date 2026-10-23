@@ -86,15 +86,19 @@ export function formatSendableExportCoverMarkdown(input: SendableExportCoverInpu
   lines.push(
     runId.length > 0 ? `- **Review id:** \`${runId}\`` : "- **Review id:** Review id was not stored",
   );
+  const ruleSetId = summary?.ruleSetId?.trim() ?? "";
+  const ruleSetVersion = summary?.ruleSetVersion?.trim() ?? "";
+  const reviewStatus = summary?.status?.trim() ?? "";
+
   lines.push(
-    summary !== null
-      ? `- **Policy pack:** ${summary.ruleSetId} @ ${summary.ruleSetVersion}`
-      : "- **Policy pack:** Policy pack was not stored",
+    summary !== null && ruleSetId.length > 0 && ruleSetVersion.length > 0
+      ? `- **Policy pack:** ${ruleSetId} @ ${ruleSetVersion}`
+      : "- **Policy pack:** Policy pack was not stored.",
   );
   lines.push(
-    summary !== null
-      ? `- **Review record status:** ${summary.status}`
-      : "- **Review record status:** Review record status was not stored",
+    summary !== null && reviewStatus.length > 0
+      ? `- **Review record status:** ${reviewStatus}`
+      : "- **Review record status:** Review record status was not stored.",
   );
 
   if (feasibilityVerdict !== null) {

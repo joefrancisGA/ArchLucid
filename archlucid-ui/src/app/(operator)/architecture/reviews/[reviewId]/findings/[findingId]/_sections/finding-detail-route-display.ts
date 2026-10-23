@@ -198,7 +198,7 @@ export function buyerFindingDecisionPanelCopy(payload: FindingInspectPayload | n
     const status = findingInspectPrimaryLabels(payload).statusLabel;
 
     if (status !== null && status.trim().length > 0) {
-      return `Disposition: ${status}. See acceptance record below for recorded controls.`;
+      return `Disposition: ${status}.`;
     }
   }
 
@@ -208,7 +208,7 @@ export function buyerFindingDecisionPanelCopy(payload: FindingInspectPayload | n
     return "No disposition recorded for this finding.";
   }
 
-  return `Disposition: ${status}. See acceptance record below for recorded controls.`;
+  return `Disposition: ${status}.`;
 }
 
 /** Top-of-page decision impact line for buyer-polished finding detail. */

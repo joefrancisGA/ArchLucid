@@ -51,6 +51,7 @@ export type PackagePrintStatusLabel =
   | "Active"
   | "Awaiting approval"
   | "Finalized"
+  | "Finalized. Governance warnings were stored."
   | "Archived";
 
 /** Builds the dedicated print path for a review (`/architecture/reviews/{runId}/print`). */
@@ -122,7 +123,7 @@ export function resolvePackagePrintStatusLabel(summary: RunSummary): PackagePrin
 
   if (summary.hasGoldenManifest === true) {
     if (summary.hasGovernanceWarnings === true) {
-      return "Active";
+      return "Finalized. Governance warnings were stored.";
     }
 
     return "Finalized";
@@ -148,6 +149,7 @@ export function resolvePackagePrintStatusKind(status: PackagePrintStatusLabel): 
     case "Awaiting approval":
       return "needs-attention";
     case "Finalized":
+    case "Finalized. Governance warnings were stored.":
       return "approved";
     case "Archived":
       return "neutral";
