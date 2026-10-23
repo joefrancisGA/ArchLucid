@@ -33,6 +33,9 @@ public sealed class RunExecuteOwnershipLeaseServiceAcquireTests
 
         await act.Should().ThrowAsync<InvalidOperationException>()
             .WithMessage("simulated SQL timeout");
+
+        sut.IsLocallyHoldingExecuteOwnership(runId).Should().BeFalse(
+            "repository failure after TryAdmit must roll back local admission");
     }
 
     [Fact]
