@@ -6868,13 +6868,19 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
-2026-10-23 seed hunt (seed→hit): proved `IsTransportSecurityKey` used raw `Contains` for `https`/`tls`/`ssl`, so keys like `netlsPipeline` and `rehttpsRedirect` falsely counted as transport-security declarations; aligned transport classifiers with `DeclarationKeyContainsSecurityToken`; regressions `DeclarationClaimsSecureControl_returns_false_when_tls_token_is_embedded_inside_unrelated_key_segment` and `DeclarationClaimsSecureControl_returns_false_when_https_token_is_embedded_inside_unrelated_key_segment`; cheap-disproof closed four follow-on `(candidate)` rows; seeded five follow-on rows; scoped application-analysis filter 87/87. Private beta: declaration-vs-inventory contradiction analysis no longer treats interior `tls`/`https` substrings in unrelated key segments as HTTPS/TLS controls.
+2026-10-23 seed hunt (seed→hit): completed token-boundary migration for remaining `DeclarationInventoryContradictionThreeWayGate` key classifiers (`storageencrypted`, `defaultaction`, `networkacl`, `privileged`, etc.); interior substrings like `restorageencrypted`, `antidefaultaction`, and `unprivileged` no longer suppress pack×declaration×inventory contradictions; regressions for encryption, network-isolation, and workload-isolation interior segments; cheap-disproof closed two replay/compare `(candidate)` rows; seeded five non-gate follow-on rows; scoped application-analysis filter 90/90. Private beta: multi-cloud declaration-vs-inventory contradiction coverage no longer skips mismatches on unrelated compound Terraform keys that merely embed security tokens.
 
-- [ ] (candidate) `DeclarationInventoryContradictionThreeWayGate.IsEncryptionKey` — `storageencrypted` substring may match unrelated compound keys — locus: encryption classifier; input: inventory pack keys embedding `storageencrypted` without camelCase boundary.
-- [ ] (candidate) `DeclarationInventoryContradictionThreeWayGate.IsNetworkIsolationKey` — `defaultaction` substring may match non-ACL configuration keys — locus: network isolation classifier; input: App Gateway or Front Door policy keys.
-- [ ] (candidate) `PolicyDeclarationInventoryContradictionFindingEngine` — mismatches filtered when `DeclarationClaimsSecureControl` is false may still emit when declaration value is unknown sentinel — locus: three-way gate vs finding emission; input: declaration value `unknown` with secure-sounding key.
-- [ ] (candidate) `CompareQualityDeltaCalculator.ComputeUncoveredMandatoryRequirements` — functional requirement count uses all elements while coverage metric may exclude muted kinds — locus: uncovered mandatory delta; input: compare-quality pair with requirement elements lacking design coverage on one side only.
-- [ ] (candidate) `ComparisonsApplicationService.TryBuildBatchReplayZipAsync` — generic `Exception` catch still wraps non-terminal failures as per-id batch manifest failures — locus: failure loop; input: batch replay with one comparison missing scoped tenant row.
+- [ ] (candidate) `DeclarationInventorySecurityPropertyValueComparer` — normalized value equality may treat JSON property order as significant — locus: declaration/inventory value compare; input: equivalent JSON objects with reordered keys.
+- [ ] (candidate) `RunExportLineageVerifier` — lineage verification short-circuits on first mismatch without recording which export record failed — locus: verifier aggregation; input: history with multiple exports where only the oldest row drifts.
+- [ ] (candidate) `ExportReplayService.ReplayAsync` — regenerate mode may skip completeness gate when export record ids are whitespace-padded — locus: trim parity on record ids; input: replay request with padded GUID text.
+- [ ] (candidate) `CompareQualityDeltaExportFormatter` — delta export omits zero deltas when both sides null — locus: formatter empty-state; input: compare-quality export with incomplete knowledge on one anchor only.
+- [ ] (candidate) `TerraformGitHubPrService` — PR title/body truncation may drop required run id suffix — locus: GitHub API payload limits; input: long architecture run title with embedded run id.
+
+- [x] (proven) `DeclarationInventoryContradictionThreeWayGate.IsEncryptionKey` / `IsNetworkIsolationKey` / `IsWorkloadIsolationKey` — raw `Contains` on security tokens in declaration keys — **hit 2026-10-23 seed hunt:** shared `DeclarationKeyContainsSecurityToken` for all classifiers; regressions `DeclarationClaimsSecureControl_returns_false_when_storageencrypted_token_is_embedded_inside_unrelated_key_segment`, `DeclarationClaimsSecureControl_returns_false_when_defaultaction_token_is_embedded_inside_unrelated_key_segment`, and `DeclarationClaimsSecureControl_returns_false_when_privileged_token_is_embedded_inside_unrelated_key_segment`.
+- [x] (valid-no-repro) `PolicyDeclarationInventoryContradictionFindingEngine` — unknown sentinel values — **cheap-disproof 2026-10-23 seed hunt:** prior pass; gate returns false for non-boolean normalized tokens.
+- [x] (valid-no-repro) `CompareQualityDeltaCalculator.ComputeUncoveredMandatoryRequirements` — muted kinds — **cheap-disproof 2026-10-23 seed hunt:** prior pass; muted findings excluded before metrics.
+
+2026-10-23 seed hunt (seed→hit): proved `IsTransportSecurityKey` used raw `Contains` for `https`/`tls`/`ssl`, so keys like `netlsPipeline` and `rehttpsRedirect` falsely counted as transport-security declarations; aligned transport classifiers with `DeclarationKeyContainsSecurityToken`; regressions `DeclarationClaimsSecureControl_returns_false_when_tls_token_is_embedded_inside_unrelated_key_segment` and `DeclarationClaimsSecureControl_returns_false_when_https_token_is_embedded_inside_unrelated_key_segment`; cheap-disproof closed four follow-on `(candidate)` rows; seeded five follow-on rows; scoped application-analysis filter 87/87. Private beta: declaration-vs-inventory contradiction analysis no longer treats interior `tls`/`https` substrings in unrelated key segments as HTTPS/TLS controls.
 
 - [x] (proven) `DeclarationInventoryContradictionThreeWayGate.IsTransportSecurityKey` — interior `tls`/`https` substrings in declaration keys — **hit 2026-10-23 seed hunt:** shared `DeclarationKeyContainsSecurityToken`; regressions `DeclarationClaimsSecureControl_returns_false_when_tls_token_is_embedded_inside_unrelated_key_segment` and `DeclarationClaimsSecureControl_returns_false_when_https_token_is_embedded_inside_unrelated_key_segment`.
 
@@ -7031,11 +7037,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 75
-- **bugs-found:** 70
+- **hunts:** 76
+- **bugs-found:** 71
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-23
-- **last-bug:** 2026-10-23 — transport declaration keys misclassified via interior tls/https substrings
+- **last-bug:** 2026-10-23 — remaining declaration key classifiers used raw Contains on security tokens
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 

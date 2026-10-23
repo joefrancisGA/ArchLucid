@@ -168,6 +168,54 @@ public sealed class DeclarationInventoryContradictionThreeWayGateTests
     }
 
     [Fact]
+    public void DeclarationClaimsSecureControl_returns_false_when_storageencrypted_token_is_embedded_inside_unrelated_key_segment()
+    {
+        DeclarationInventoryContradictionMismatch mismatch = new(
+            "node-1",
+            "rds",
+            "arn:aws:rds:us-east-1:123456789012:db:pay-db",
+            "tf.restorageencryptedFlag",
+            "true",
+            "false",
+            "Aws",
+            "encryption");
+
+        DeclarationInventoryContradictionThreeWayGate.DeclarationClaimsSecureControl(mismatch).Should().BeFalse();
+    }
+
+    [Fact]
+    public void DeclarationClaimsSecureControl_returns_false_when_defaultaction_token_is_embedded_inside_unrelated_key_segment()
+    {
+        DeclarationInventoryContradictionMismatch mismatch = new(
+            "node-1",
+            "storage",
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/st",
+            "tf.antidefaultactionPolicy",
+            """{"defaultaction":"deny"}""",
+            "Allow",
+            "Azure",
+            "network-isolation");
+
+        DeclarationInventoryContradictionThreeWayGate.DeclarationClaimsSecureControl(mismatch).Should().BeFalse();
+    }
+
+    [Fact]
+    public void DeclarationClaimsSecureControl_returns_false_when_privileged_token_is_embedded_inside_unrelated_key_segment()
+    {
+        DeclarationInventoryContradictionMismatch mismatch = new(
+            "node-1",
+            "payment-api",
+            "apps/v1/namespaces/default/deployments/payment-api",
+            "k8s.unprivilegedContainer",
+            "false",
+            "true",
+            "Azure",
+            "workload-isolation");
+
+        DeclarationInventoryContradictionThreeWayGate.DeclarationClaimsSecureControl(mismatch).Should().BeFalse();
+    }
+
+    [Fact]
     public void DeclarationClaimsSecureControl_returns_false_for_unknown_declaration_key()
     {
         DeclarationInventoryContradictionMismatch mismatch = new(

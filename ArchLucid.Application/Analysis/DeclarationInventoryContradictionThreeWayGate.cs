@@ -95,23 +95,23 @@ public static class DeclarationInventoryContradictionThreeWayGate
             && !declarationKey.Contains("storage", StringComparison.OrdinalIgnoreCase));
 
     private static bool IsEncryptionKey(string declarationKey) =>
-        declarationKey.Contains("storageencrypted", StringComparison.OrdinalIgnoreCase)
-        || declarationKey.Contains("storage_encrypted", StringComparison.OrdinalIgnoreCase);
+        DeclarationKeyContainsSecurityToken(declarationKey, "storageencrypted")
+        || DeclarationKeyContainsSecurityToken(declarationKey, "storage_encrypted");
 
     private static bool IsNetworkIsolationKey(string declarationKey) =>
-        declarationKey.Contains("defaultaction", StringComparison.OrdinalIgnoreCase)
-        || declarationKey.Contains("default_action", StringComparison.OrdinalIgnoreCase)
+        DeclarationKeyContainsSecurityToken(declarationKey, "defaultaction")
+        || DeclarationKeyContainsSecurityToken(declarationKey, "default_action")
         || IsNetworkAclBlobKey(declarationKey);
 
     private static bool IsNetworkAclBlobKey(string declarationKey) =>
-        declarationKey.Contains("networkacl", StringComparison.OrdinalIgnoreCase)
-        || declarationKey.Contains("network_acl", StringComparison.OrdinalIgnoreCase)
-        || declarationKey.Contains("networkrules", StringComparison.OrdinalIgnoreCase);
+        DeclarationKeyContainsSecurityToken(declarationKey, "networkacl")
+        || DeclarationKeyContainsSecurityToken(declarationKey, "network_acl")
+        || DeclarationKeyContainsSecurityToken(declarationKey, "networkrules");
 
     private static bool IsWorkloadIsolationKey(string declarationKey) =>
-        declarationKey.Contains("privileged", StringComparison.OrdinalIgnoreCase)
-        || declarationKey.Contains("hostnetwork", StringComparison.OrdinalIgnoreCase)
-        || declarationKey.Contains("host_network", StringComparison.OrdinalIgnoreCase);
+        DeclarationKeyContainsSecurityToken(declarationKey, "privileged")
+        || DeclarationKeyContainsSecurityToken(declarationKey, "hostnetwork")
+        || DeclarationKeyContainsSecurityToken(declarationKey, "host_network");
 
     private static string NormalizeSecurityToken(string? value)
     {
