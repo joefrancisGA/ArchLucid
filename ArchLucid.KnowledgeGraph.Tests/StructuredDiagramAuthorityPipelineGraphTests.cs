@@ -154,6 +154,102 @@ public sealed class StructuredDiagramAuthorityPipelineGraphTests
     }
 
     [Fact]
+    public async Task BuildAsync_FullyBoundDiagramEdge_RemainsReachableViaGraphSnapshotNeighborExpansion()
+    {
+        const string armSqlId =
+            "/subscriptions/11111111-2222-3333-4444-555555555555/resourceGroups/pay/providers/Microsoft.Sql/servers/pay-sql";
+
+        CanonicalObject inventoryApi = new()
+        {
+            ObjectId = "api-inv-1",
+            ObjectType = GraphNodeTypes.TopologyResource,
+            Name = "API Gateway",
+            SourceType = "InfrastructureDeclaration",
+            SourceId = "decl-api",
+            Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase),
+        };
+
+        CanonicalObject inventorySql = new()
+        {
+            ObjectId = "sql-inv-1",
+            ObjectType = GraphNodeTypes.TopologyResource,
+            Name = "pay-sql",
+            SourceType = "InfrastructureDeclaration",
+            SourceId = "decl-sql",
+            Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["azureResourceId"] = armSqlId,
+            },
+        };
+
+        ArchitectureDiagramModelRecord diagramModel = new()
+        {
+            Nodes =
+            [
+                new ArchitectureDiagramNodeRecord
+                {
+                    Id = "api",
+                    Label = "API Gateway",
+                    Kind = ArchitectureDiagramNodeKinds.System,
+                    Provenance = ArchitectureDiagramProvenanceKinds.Inferred,
+                },
+                new ArchitectureDiagramNodeRecord
+                {
+                    Id = "sql",
+                    Label = armSqlId,
+                    Kind = ArchitectureDiagramNodeKinds.System,
+                    Provenance = ArchitectureDiagramProvenanceKinds.Inferred,
+                },
+            ],
+            Edges =
+            [
+                new ArchitectureDiagramEdgeRecord
+                {
+                    Id = "e1",
+                    SourceId = "api",
+                    TargetId = "sql",
+                    Provenance = ArchitectureDiagramProvenanceKinds.Inferred,
+                },
+            ],
+            ExtractionMethod = DiagramExtractionMethods.StructuredParse,
+        };
+
+        IReadOnlyList<CanonicalObject> diagramObjects = ArchitectureDiagramCanonicalObjectMapper.Map(
+            diagramModel,
+            "doc-bound-edge",
+            labelOnlyInferenceConfidence: 0.7);
+
+        DefaultGraphBuilder builder = GraphMaterializationTestHelpers.CreateDefaultGraphBuilder(
+            new GraphNodeFactory(),
+            new DefaultGraphEdgeInferer());
+
+        ContextSnapshot snapshot = new()
+        {
+            SnapshotId = Guid.Parse("eeeeeeee-ffff-0000-1111-222222222223"),
+            RunId = Guid.Parse("44444444-5555-6666-7777-888888888889"),
+            ProjectId = "project-bound-edge-neighbors",
+            CanonicalObjects = [inventoryApi, inventorySql, .. diagramObjects],
+        };
+
+        GraphBuildResult result = await builder.BuildAsync(snapshot, CancellationToken.None);
+
+        result.Edges.Should().ContainSingle(edge =>
+            edge.EdgeType == GraphEdgeTypes.ConnectsTo
+            && edge.FromNodeId == "obj-api-inv-1"
+            && edge.ToNodeId == "obj-sql-inv-1");
+
+        GraphSnapshot graph = new()
+        {
+            Nodes = result.Nodes,
+            Edges = result.Edges,
+        };
+
+        graph.GetOutgoingTargets("obj-api-inv-1", GraphEdgeTypes.ConnectsTo)
+            .Should()
+            .ContainSingle(node => node.NodeId == "obj-sql-inv-1");
+    }
+
+    [Fact]
     public async Task BuildAsync_DiagramLabelWithArmId_BindsToInventoryNodeInsteadOfDuplicateDiagramNode()
     {
         const string armSqlId =

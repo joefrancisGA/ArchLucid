@@ -7,6 +7,18 @@ public static class InventoryDiagramRelationshipLabelTexts
 
     public const string PrivateAccess = "Private endpoint. This is not observed traffic.";
 
+    public const string ServiceConnectorConfiguredLabel =
+        "Service connector is configured. An observed connection was not stored.";
+
+    public const string AppAuthorizedAccessLabel =
+        "Authorization may allow access. Observed use was not stored.";
+
+    public const string SqlPrincipalAuthorizedAccessLabel =
+        "SQL principal authorization may allow access. An observed query was not stored.";
+
+    public const string HostnameInferredTargetLabel =
+        "App setting hostname was inferred. A stored resource link was not stored.";
+
     public const string PublicExposureCaption = "Public IP is attached; its card is hidden on this diagram.";
 
     public const string PublicIpAddressNotStored = "Public IP address was not stored.";

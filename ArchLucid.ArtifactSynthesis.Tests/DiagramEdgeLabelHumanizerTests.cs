@@ -47,6 +47,8 @@ public sealed class DiagramEdgeLabelHumanizerTests
     [InlineData(AzureInventoryRelationshipAssociationTypes.AdfWritesTo, "Pipeline is configured to write to. This is not observed traffic.")]
     [InlineData(GraphEdgeInferenceSources.InventoryAdfReadsFrom, "Pipeline is configured to read from. This is not observed traffic.")]
     [InlineData(GraphEdgeInferenceSources.InventoryAdfWritesTo, "Pipeline is configured to write to. This is not observed traffic.")]
+    [InlineData(GraphEdgeInferenceSources.InventoryServiceConnectorLink, InventoryDiagramRelationshipLabelTexts.ServiceConnectorConfiguredLabel)]
+    [InlineData(GraphEdgeInferenceSources.InventoryHostnameInferredTarget, InventoryDiagramRelationshipLabelTexts.HostnameInferredTargetLabel)]
     public void HumanizeLabel_maps_inventory_association_and_inference_aliases(string alias, string expected)
     {
         DiagramEdgeLabelHumanizer.HumanizeLabel(alias).Should().Be(expected);
@@ -113,8 +115,8 @@ public sealed class DiagramEdgeLabelHumanizerTests
     [InlineData(AzureInventoryRelationshipAssociationTypes.DiagnosticToDestination, "Diagnostic setting name was not stored.")]
     [InlineData(GraphEdgeInferenceSources.InventoryDiagnosticDestination, "Diagnostic setting name was not stored.")]
     [InlineData(AzureInventoryRelationshipAssociationTypes.DiagnosticSettingToStorage, "Diagnostic setting name was not stored.")]
-    [InlineData(AzureInventoryRelationshipAssociationTypes.AppAuthorizedAccess, "May access")]
-    [InlineData(GraphEdgeTypes.MayAccess, "May access")]
+    [InlineData(AzureInventoryRelationshipAssociationTypes.AppAuthorizedAccess, InventoryDiagramRelationshipLabelTexts.AppAuthorizedAccessLabel)]
+    [InlineData(GraphEdgeTypes.MayAccess, InventoryDiagramRelationshipLabelTexts.AppAuthorizedAccessLabel)]
     [InlineData(AzureInventoryRelationshipAssociationTypes.EventGridToDestination, "Routes events to")]
     [InlineData(AzureInventoryRelationshipAssociationTypes.AdfTriggerSource, "Trigger is configured. This is not an observed run.")]
     [InlineData(AzureInventoryRelationshipAssociationTypes.AdfIntegrationRuntime, "Integration runtime in configuration. This is not an observed run.")]
