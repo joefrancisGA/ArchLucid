@@ -8716,6 +8716,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: architecture-intelligence-orchestrator
 
+2026-10-23 seed hunt (seed-only): cheap-disproof closed IPv6-literal protocol-relative URL and percent-encoded colon segment drift after colon-separator hit; regressions `Build_matches_content_hash_when_file_name_differs_only_by_ipv6_literal_protocol_relative_url` and `Build_matches_content_hash_when_file_name_differs_only_by_percent_encoded_colon_between_segments`; no production change; 430 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (valid-no-repro) `GraphSnapshotCanonicalFingerprint` — IPv6-literal protocol-relative `//[::1]/...` path drift — **cheap-disproof 2026-10-23 seed hunt:** existing `TryStripProtocolRelativeAuthorityPath` + percent decode; regression above.
+- [x] (valid-no-repro) `GraphSnapshotCanonicalFingerprint` — percent-encoded colon (`%3A`) between segments vs literal `/` — **cheap-disproof 2026-10-23 seed hunt:** decode then colon alternate-separator rules from colon hit; regression above.
+
 2026-10-23 seed hunt (seed→hit): promoted colon segment-separator drift splitting `ContentHash` (`docs:architecture/overview.md` vs slash form); extended `ReviewCacheAlternatePathSeparators` with `:` and U+FF1A using dotless-tail guard; regressions `Build_matches_content_hash_when_file_name_differs_only_by_colon_between_segments` and `Build_changes_content_hash_when_file_name_differs_only_by_colon_before_dotted_segment_name`; cheap-disproof regressions for fully percent-encoded https, percent-encoded protocol-relative, IP-literal `//127.0.0.1/...`, and explicit-port https URLs; 428 scoped orchestrator/cache/manifest/continue-flight tests passed.
 
 - [x] (proven) `GraphSnapshotCanonicalFingerprint` — colon alternate path separator split path canonicalization — **hit 2026-10-23 seed hunt:** `:` / U+FF1A in alternate separator set; regressions above.
@@ -9416,10 +9421,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** closed-loop orchestrator; review result cache; architecture intelligence
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.cs; ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.Cache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewResultCache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewCacheManifestBuilder.cs
 - **test-filter:** FullyQualifiedName~ClosedLoopArchitectureReasoningOrchestrator|FullyQualifiedName~ReviewResultCache|FullyQualifiedName~ReviewCacheManifestBuilder
-- **hunts:** 96
+- **hunts:** 97
 - **bugs-found:** 84
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-22
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-10-23
 - **last-bug:** 2026-10-22 — passage locator null end vs zero end with start offset in review-cache modelfp
 - **related-pd-tb:** none
 - **code-changed-since:** no
