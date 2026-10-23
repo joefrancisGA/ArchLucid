@@ -8382,6 +8382,8 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: capabilities-cost-mcp
 
+2026-10-23 seed hunt (seed→hit): promoted null `RetrievalHit` string fields when projecting MCP tool hits (not only `Text`); null-coalesce `Title`, `DocumentId`, `SourceType`, and `SourceId` to empty strings; regression `PolicyPackSearchAsync_returns_empty_title_when_hit_title_is_null`; cheap-disproof closed padded `policyCostBreachSeverity` (`raw.Trim()` already applied) and three other `(candidate)` rows; seeded five follow-on rows; 28 scoped `Capabilities.Cost` + 6 MCP retrieval tests passed.
+
 2026-10-23 seed hunt (seed→hit): promoted padded `budgetName` on cost breach/constraint payloads and null `RetrievalHit.Text` crashing MCP snippet mapping; fixed with `ResolveBudgetDisplayName` trim fallback and null-coalesced snippet text; regressions `AnalyzeAsync_trims_padded_budget_name_on_breach_payload`, `AnalyzeAsync_trims_padded_budget_name_on_constraint_payload`, `PolicyPackSearchAsync_returns_empty_snippet_when_hit_text_is_null`; cheap-disproof closed remaining `(candidate)` rows; seeded five follow-on rows; 27 scoped `Capabilities.Cost` + 5 MCP retrieval tests passed.
 
 2026-10-23 seed hunt (seed→hit): promoted `CostGraphDecimalParser.TryParse` and `PolicyExpectationCostGraphReader.GraphHasParseableBudgetCap` failing on `maxMonthlyCost` with leading Unicode whitespace (e.g. NBSP from pasted exports), skipping breach findings and emitting spurious policy-required-cap warnings; fixed with `Trim()` before invariant parse; regressions `AnalyzeAsync_parses_max_monthly_cost_with_leading_nbsp`, `Cost_constraint_no_spurious_policy_cap_when_max_monthly_cost_has_leading_nbsp`; cheap-disproof closed five open `(candidate)` rows; seeded five follow-on rows; 25 scoped `Capabilities.Cost` + 4 MCP retrieval tests passed.
@@ -8395,8 +8397,8 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - [ ] (candidate) `CostConstraintFindingEngine.AnalyzeAsync` — `confidenceReasoning` copied verbatim with no length guard before finding emission — locus: payload `ConfidenceReasoning`; input: oversized reasoning string on cost constraint node.
 - [ ] (candidate) `CostBreachFindingEngine.ResolveProjectedMonthlySpend` — prefers `projectedMonthlySpendUsd` below cap even when `projectedImpactUsdUpperBound` exceeds cap — locus: resolution order; input: topology enricher band above cap with point estimate under cap.
 - [ ] (candidate) `RetrievalMcpToolHit.Score` — passes through raw retrieval score without clamping to a display range for MCP consumers — locus: `Score = h.Score`; input: negative or NaN score from vector index.
-- [ ] (candidate) `RetrievalTools.SearchAsync` — `Title` null would throw when projecting MCP hits — locus: `Title = h.Title`; input: malformed retrieval hit from custom index adapter.
-- [ ] (candidate) `PolicyExpectationCostGraphReader.ResolveBreachSeverityOverride` — padded `policyCostBreachSeverity` stamp fails `Enum.TryParse` and silently drops tenant severity override — locus: context snapshot property parse; input: `" Critical "` stamped severity.
+- [ ] (candidate) `RetrievalTools.SearchAsync` — corpus kind filter uses `CorpusKind.ToString()` while indexer may emit different casing on `CorpusKind` property — locus: post-filter equality; input: mixed-case corpus kind labels from legacy index rows.
+- [ ] (candidate) `CostBreachFindingEngine.TryCreateBreachFinding` — `node.Label` not trimmed in breach `Title` when `budgetName` absent — locus: `Title = $"Monthly cost breach: {node.Label}"`; input: padded constraint label from graph import.
 
 - **id:** capabilities-cost-mcp
 - **status:** open
@@ -8404,15 +8406,20 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** capabilities cost; MCP server; cost estimation
 - **paths:** ArchLucid.Capabilities.Cost/; ArchLucid.Mcp/
 - **test-filter:** FullyQualifiedName~Capabilities.Cost|FullyQualifiedName~Mcp
-- **hunts:** 9
-- **bugs-found:** 7
+- **hunts:** 10
+- **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-23
-- **last-bug:** 2026-10-23 — padded budgetName and null retrieval snippet text
+- **last-bug:** 2026-10-23 — null retrieval hit strings on MCP projection
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
 
+- [x] (proven) `RetrievalTools.SearchAsync` — null `RetrievalHit.Title` (and related string fields) projected without null guards — **hit 2026-10-23 seed hunt:** null-coalesce string fields on MCP hit mapping; regression `PolicyPackSearchAsync_returns_empty_title_when_hit_title_is_null`.
+- [x] (valid-no-repro) `PolicyExpectationCostGraphReader.ResolveBreachSeverityOverride` — padded severity stamp — **cheap-disproof 2026-10-23 seed hunt:** `raw.Trim()` before `Enum.TryParse`; regression `Cost_breach_uses_critical_severity_when_stamped_with_surrounding_whitespace`.
+- [x] (valid-no-repro) `CostConstraintFindingEngine.AnalyzeAsync` — unbounded `confidenceReasoning` — **cheap-disproof 2026-10-23 seed hunt:** finding payload contract; materializers bound reasoning text.
+- [x] (valid-no-repro) `CostBreachFindingEngine.ResolveProjectedMonthlySpend` — point estimate vs upper bound — **cheap-disproof 2026-10-23 seed hunt:** `AnalyzeAsync_prefers_projected_monthly_spend_over_impact_bounds`.
+- [x] (invalid) `RetrievalMcpToolHit.Score` — unclamped scores — **cheap-disproof 2026-10-23 seed hunt:** indexer metadata only.
 - [x] (proven) `CostBreachFindingEngine.TryCreateBreachFinding` / `CostConstraintFindingEngine.AnalyzeAsync` — padded `budgetName` copied verbatim to payload — **hit 2026-10-23 seed hunt:** `ResolveBudgetDisplayName` trim with label/node-id fallback; regressions `AnalyzeAsync_trims_padded_budget_name_on_breach_payload`, `AnalyzeAsync_trims_padded_budget_name_on_constraint_payload`.
 - [x] (proven) `RetrievalTools.SearchAsync` — null `RetrievalHit.Text` caused `NullReferenceException` when building `Snippet` — **hit 2026-10-23 seed hunt:** null-coalesce to empty string before truncation; regression `PolicyPackSearchAsync_returns_empty_snippet_when_hit_text_is_null`.
 - [x] (valid-no-repro) `CostConstraintFindingEngine.AnalyzeAsync` — unbounded `confidenceReasoning` on payload — **cheap-disproof 2026-10-23 seed hunt:** finding payload contract has no MCP-style truncation; graph materializers own bounded reasoning text.
