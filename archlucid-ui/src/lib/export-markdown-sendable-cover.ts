@@ -24,6 +24,8 @@ export type SendableExportCoverInput = {
   readonly structuralExecutionMode?: StructuralExecutionModeInput;
   readonly hostAgentExecutionMode?: string | null;
   readonly findings?: readonly FindingSemanticSupportBandExportInput[] | null;
+  /** When greater than zero, the cover includes sponsor ROI non-summing honesty. */
+  readonly sponsorRoiRowCount?: number | null;
 };
 
 function readClassificationFromWire(value: unknown): FindingSemanticSupportBandExportInput["classification"] {
@@ -123,7 +125,11 @@ export function formatSendableExportCoverMarkdown(input: SendableExportCoverInpu
     lines.push(`- **Semantic support:** ${SEMANTIC_SUPPORT_BAND_ASYNC_MAY_LAG_COPY}`);
   }
 
-  lines.push(`- **Sponsor ROI:** ${SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE}`);
+  const sponsorRoiRowCount = input.sponsorRoiRowCount ?? 0;
+
+  if (sponsorRoiRowCount > 0) {
+    lines.push(`- **Sponsor ROI:** ${SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE}`);
+  }
 
   lines.push("");
   lines.push(

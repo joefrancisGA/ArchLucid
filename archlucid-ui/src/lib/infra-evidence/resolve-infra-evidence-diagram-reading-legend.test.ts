@@ -15,14 +15,22 @@ describe("resolveInfraEvidenceDiagramReadingLegend", () => {
     const lines = resolveInfraEvidenceDiagramReadingLegend("dataFlow");
 
     expect(lines.evidenceKind).toMatch(/not observed traffic/i);
-    expect(lines.boxes).toMatch(/declared path/);
-    expect(lines.connectors).toMatch(/declared wiring/);
+    expect(lines.boxes).toMatch(/what may connect/);
+    expect(lines.connectors).toMatch(/not observed traffic/);
+    expect(lines.boxes).not.toMatch(/declared path/);
   });
 
-  it("describes data architecture stores and repository relationships", () => {
+  it("uses data-architecture inventory caption", () => {
     const lines = resolveInfraEvidenceDiagramReadingLegend("dataArchitecture");
 
-    expect(lines.boxes).toMatch(/data stores/);
-    expect(lines.connectors).toMatch(/repository relationships/);
+    expect(lines.boxes).toMatch(/Inventory of data platforms/);
+    expect(lines.connectors).toMatch(/not a data-flow diagram/);
+  });
+
+  it("uses network placement reachability note", () => {
+    const lines = resolveInfraEvidenceDiagramReadingLegend("network");
+
+    expect(lines.boxes).toMatch(/does not prove reachability/);
+    expect(lines.connectors).toMatch(/does not prove reachability/);
   });
 });
