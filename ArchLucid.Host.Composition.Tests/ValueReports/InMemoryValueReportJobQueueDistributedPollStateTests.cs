@@ -140,6 +140,26 @@ public sealed class InMemoryValueReportJobQueueDistributedPollStateTests
     }
 
     [Fact]
+    public void TryPoll_propagates_operation_canceled_when_distributed_cache_read_is_canceled()
+    {
+        ServiceCollection services = BuildValueReportJobServices();
+        ThrowOperationCanceledOnGetPollStateCache pollStateCache = new();
+        services.AddSingleton<IValueReportJobPollStateCache>(pollStateCache);
+        ServiceProvider provider = services.BuildServiceProvider();
+        IServiceScopeFactory scopeFactory = provider.GetRequiredService<IServiceScopeFactory>();
+
+        InMemoryValueReportJobQueue pollInstance =
+            new(scopeFactory, pollStateCache, NullLogger<InMemoryValueReportJobQueue>.Instance);
+
+        Guid tenantId = Guid.NewGuid();
+        Guid jobId = Guid.NewGuid();
+
+        Action act = () => pollInstance.TryPoll(jobId, tenantId);
+
+        act.Should().Throw<OperationCanceledException>();
+    }
+
+    [Fact]
     public void TryPoll_reports_failure_when_distributed_state_cache_read_throws()
     {
         ServiceCollection services = BuildValueReportJobServices();
@@ -433,6 +453,52 @@ public sealed class InMemoryValueReportJobQueueDistributedPollStateTests
         recovered.Found.Should().BeTrue();
         recovered.Completed.Should().BeTrue();
         recovered.DocxBytes.Should().NotBeEmpty();
+    }
+
+    [Fact]
+    public void TryPoll_prefers_distributed_pending_when_local_completed_has_no_document_bytes()
+    {
+        ServiceCollection services = BuildValueReportJobServices();
+        DictionaryPollStateCache pollStateCache = new();
+        services.AddSingleton<IValueReportJobPollStateCache>(pollStateCache);
+        ServiceProvider provider = services.BuildServiceProvider();
+        IServiceScopeFactory scopeFactory = provider.GetRequiredService<IServiceScopeFactory>();
+
+        InMemoryValueReportJobQueue instance =
+            new(scopeFactory, pollStateCache, NullLogger<InMemoryValueReportJobQueue>.Instance);
+
+        Guid tenantId = Guid.NewGuid();
+        Guid workspaceId = Guid.NewGuid();
+        Guid projectId = Guid.NewGuid();
+        Guid jobId = Guid.NewGuid();
+        DateTimeOffset from = DateTimeOffset.UtcNow.AddDays(-7);
+        DateTimeOffset to = DateTimeOffset.UtcNow;
+        ValueReportJobRequest request = new(tenantId, workspaceId, projectId, from, to);
+
+        ReplaceLocalJobEntry(
+            instance,
+            jobId,
+            request,
+            "Completed",
+            null,
+            "report.docx",
+            null);
+
+        string payload =
+            $$"""
+              {"tenantId":"{{tenantId}}","workspaceId":"{{workspaceId}}","projectId":"{{projectId}}","fromUtcInclusive":"{{from:O}}","toUtcExclusive":"{{to:O}}","phase":"Pending","bytesBase64":null,"fileName":"report.docx","errorMessage":null}
+              """;
+
+        pollStateCache.Set(
+            $"archlucid:value-report-job:{jobId:N}",
+            System.Text.Encoding.UTF8.GetBytes(payload),
+            new DistributedCacheEntryOptions());
+
+        ValueReportJobPollResult poll = instance.TryPoll(jobId, tenantId);
+
+        poll.Found.Should().BeTrue();
+        poll.Completed.Should().BeFalse();
+        poll.ErrorMessage.Should().BeNull();
     }
 
     [Fact]
@@ -731,6 +797,19 @@ public sealed class InMemoryValueReportJobQueueDistributedPollStateTests
         services.AddSingleton(audit.Object);
 
         return services;
+    }
+
+    private sealed class ThrowOperationCanceledOnGetPollStateCache : IValueReportJobPollStateCache
+    {
+        public void Set(string key, byte[] payload, DistributedCacheEntryOptions options)
+        {
+        }
+
+        public byte[]? Get(string key) => throw new OperationCanceledException();
+
+        public void Remove(string key)
+        {
+        }
     }
 
     private sealed class ThrowOnGetPollStateCache : IValueReportJobPollStateCache
