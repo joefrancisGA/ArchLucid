@@ -4218,6 +4218,20 @@
 
 ## Zone: saml-jwt-bearer
 
+2026-10-23 seed hunt #8 (seed-only): cheap-disproof closed five open `(candidate)` rows (`Negotiate`+Bearer mix guard, leading-plus Bearer token shape, triple duplicate comma segments vs max count, conflicting SAML tenant scope sources, trial JWT without auth-version stamp); regressions `HandleAuthenticateAsync_fails_when_comma_folded_header_mixes_negotiate_and_bearer_schemes`, `HandleAuthenticateAsync_fails_when_three_comma_segments_repeat_the_same_bearer_token`, `HandleAuthenticateAsync_fails_when_bearer_token_has_leading_plus_sign`; reseeded five follow-on `(candidate)` rows; `ScimBearerAuthenticationHandlerTests` 27/27; no production code change.
+
+- [x] (valid-no-repro) `ScimBearerAuthenticationHandler` — `Negotiate` then `Bearer` in folded header — **cheap-disproof 2026-10-23 seed hunt #8:** mix guard; regression `HandleAuthenticateAsync_fails_when_comma_folded_header_mixes_negotiate_and_bearer_schemes`.
+- [x] (valid-no-repro) `ScimBearerAuthenticationHandler` — leading `+` on Bearer token material — **cheap-disproof 2026-10-23 seed hunt #8:** `ScimBearerTokenAuthenticator.TryParseToken` rejects non-`archlucid_scim.` prefix; regression `HandleAuthenticateAsync_fails_when_bearer_token_has_leading_plus_sign`.
+- [x] (valid-no-repro) `ScimBearerAuthenticationHandler` — three comma segments with identical token — **cheap-disproof 2026-10-23 seed hunt #8:** parse-time `tokens.Count > MaxBearerCredentialsPerRequest`; regression `HandleAuthenticateAsync_fails_when_three_comma_segments_repeat_the_same_bearer_token`.
+- [x] (valid-no-repro) `ArchLucidSamlInboundClaimsNormalizer` — two distinct tenant scope source GUIDs — **cheap-disproof 2026-10-23 seed hunt #8:** `PromoteSingleValueIfMissing` requires exactly one distinct value; regression `Apply_strips_conflicting_direct_tenant_id_claims_when_idp_emits_two_distinct_guids`.
+- [x] (valid-no-repro) `LocalTrialJwtIssuer` — optional `authVersion` omitted — **cheap-disproof 2026-10-23 seed hunt #8:** `PlatformUserAuthVersionValidator` fail-closed when stamp missing for Guid `sub`.
+
+- [ ] (candidate) `ScimBearerAuthenticationHandler` — `NTLM` scheme segment before Bearer in folded header — locus: mix guard; input: `NTLM base64, Bearer token`.
+- [ ] (candidate) `ScimBearerAuthenticationHandler` — `Bearer` segment with trailing whitespace-only token body — locus: empty skip; input: `Bearer    , Bearer valid`.
+- [ ] (candidate) `ScimBearerAuthenticationHandler` — conflicting tenant successes from two valid Bearer tokens — locus: `successfulAuths` tenant distinct check; input: two valid tokens for different tenants.
+- [ ] (candidate) `RecentAuthenticationEvaluator` — `maxAgeMinutes` above 60 clamps to 60 — locus: `Math.Clamp(maxAgeMinutes, 1, 60)`; input: caller passes `120`.
+- [ ] (candidate) `ArchLucidSamlInboundClaimsNormalizer` — role source claim with interior newline — locus: `PromoteIncomingRoleValues` trim; input: multiline role attribute.
+
 2026-10-23 seed hunt #7 (seed-only): cheap-disproof closed five open `(candidate)` rows (single-space Bearer join intentional, interior double-space token format, triple `Authorization` header values, `maxAgeMinutes` zero clamp, auth-version mismatch observability); added regressions `HandleAuthenticateAsync_fails_when_single_space_joins_two_bearer_credentials_in_one_segment` and `HandleAuthenticateAsync_fails_when_three_authorization_header_values_each_present_one_bearer_token`; reseeded five follow-on `(candidate)` rows; `ScimBearerAuthenticationHandlerTests` 24/24; no production code change.
 
 - [x] (valid-no-repro) `ScimBearerAuthenticationHandler` — single space between two Bearer credentials — **cheap-disproof 2026-10-23 seed hunt #7:** `\s{2,}(?=Bearer\s)` expand intentionally omitted; regression `HandleAuthenticateAsync_fails_when_single_space_joins_two_bearer_credentials_in_one_segment`.
@@ -4225,12 +4239,6 @@
 - [x] (valid-no-repro) `ScimBearerAuthenticationHandler` — three `Authorization` header values — **cheap-disproof 2026-10-23 seed hunt #7:** `MaxBearerCredentialsPerRequest` fail-closed; regression `HandleAuthenticateAsync_fails_when_three_authorization_header_values_each_present_one_bearer_token`.
 - [x] (valid-no-repro) `RecentAuthenticationEvaluator` — `maxAgeMinutes` of `0` — **cheap-disproof 2026-10-23 seed hunt #7:** `Math.Clamp(maxAgeMinutes, 1, 60)` in `HasRecentAuthentication`.
 - [x] (invalid) `PlatformUserAuthVersionValidator` — auth-version mismatch observability — **cheap-disproof 2026-10-23 seed hunt #7:** security contract is boolean validation only; timing parity is not a defect class in this zone.
-
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — `Negotiate` scheme segment before Bearer in folded header — locus: mix guard; input: `Negotiate xyz, Bearer token`.
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — leading plus in folded `Bearer` token segment — locus: `TryReadBearerCredentialSegment`; input: `Bearer +archlucid_scim.x.y` (format uses alnum segments).
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — duplicate valid Bearer token repeated in three comma segments — locus: distinct-token dedupe + max count; input: `Bearer t, Bearer t, Bearer t`.
-- [ ] (candidate) `ArchLucidSamlInboundClaimsNormalizer` — promotes tenant scope when two source claims disagree — locus: `distinctIncomingValues.Count != 1`; input: conflicting GUIDs on assertion.
-- [ ] (candidate) `LocalTrialJwtIssuer` — omits `auth_version` claim when optional parameter null — locus: conditional claim append; input: trial sign-in without stamp (validator fail-closed elsewhere).
 
 2026-10-23 seed hunt #6 (seed→hit): promoted `ScimBearerAuthenticationHandler` double-space-joined `Authorization` value (revoked Bearer then valid Bearer without comma delimiter); `ExpandWhitespaceJoinedBearerSegment` splits on `\s{2,}(?=Bearer\s)`; regression `HandleAuthenticateAsync_succeeds_when_double_space_separated_header_lists_revoked_token_before_valid_one`; cheap-disproof closed four open `(candidate)` rows; reseeded five follow-on `(candidate)` rows; `ScimBearerAuthenticationHandlerTests` 22/22. Private beta: SCIM Bearer provisioning succeeds when a proxy joins revoked and valid Bearer credentials with multiple ASCII spaces instead of an explicit delimiter.
 
@@ -4303,11 +4311,11 @@
 - **aliases:** SAML; trial JWT; SCIM bearer; OIDC auth stack
 - **paths:** ArchLucid.Api/Auth/; ArchLucid.Core/Auth/Saml/
 - **test-filter:** FullyQualifiedName~Saml|FullyQualifiedName~LocalTrialJwt|FullyQualifiedName~ScimBearer
-- **hunts:** 30
-- **bugs-found:** 28
+- **hunts:** 35
+- **bugs-found:** 31
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-23
-- **last-bug:** 2026-10-23 — SCIM Bearer rejected comma-folded empty Bearer placeholder before valid credential
+- **last-bug:** 2026-10-23 — SCIM Bearer auth failed when double-space joined revoked and valid Bearer in one segment
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 

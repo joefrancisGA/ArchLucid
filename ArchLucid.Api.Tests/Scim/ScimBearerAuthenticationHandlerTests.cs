@@ -595,6 +595,65 @@ public sealed class ScimBearerAuthenticationHandlerTests
     }
 
     [Fact]
+    public async Task HandleAuthenticateAsync_fails_when_comma_folded_header_mixes_negotiate_and_bearer_schemes()
+    {
+        Mock<IScimBearerTokenAuthenticator> authenticator = new();
+
+        DefaultHttpContext http = new();
+        http.Request.Headers.Authorization = $"Negotiate abc, Bearer {ValidToken}";
+
+        ScimBearerAuthenticationHandlerTestDouble handler = CreateHandler(authenticator.Object, http);
+
+        AuthenticateResult result = await handler.InvokeHandleAuthenticateAsync();
+
+        result.Succeeded.Should().BeFalse();
+        result.Failure?.Message.Should().Contain("mixes Bearer");
+        authenticator.Verify(
+            a => a.TryAuthenticateAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task HandleAuthenticateAsync_fails_when_three_comma_segments_repeat_the_same_bearer_token()
+    {
+        Mock<IScimBearerTokenAuthenticator> authenticator = new();
+
+        DefaultHttpContext http = new();
+        http.Request.Headers.Authorization = $"Bearer {ValidToken}, Bearer {ValidToken}, Bearer {ValidToken}";
+
+        ScimBearerAuthenticationHandlerTestDouble handler = CreateHandler(authenticator.Object, http);
+
+        AuthenticateResult result = await handler.InvokeHandleAuthenticateAsync();
+
+        result.Succeeded.Should().BeFalse();
+        result.Failure?.Message.Should().Contain("too many Bearer");
+        authenticator.Verify(
+            a => a.TryAuthenticateAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task HandleAuthenticateAsync_fails_when_bearer_token_has_leading_plus_sign()
+    {
+        Mock<IScimBearerTokenAuthenticator> authenticator = new();
+        authenticator
+            .Setup(a => a.TryAuthenticateAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((ScimBearerAuthenticationResult?)null);
+
+        DefaultHttpContext http = new();
+        http.Request.Headers.Authorization = "Bearer +archlucid_scim.public.secret";
+
+        ScimBearerAuthenticationHandlerTestDouble handler = CreateHandler(authenticator.Object, http);
+
+        AuthenticateResult result = await handler.InvokeHandleAuthenticateAsync();
+
+        result.Succeeded.Should().BeFalse();
+        authenticator.Verify(
+            a => a.TryAuthenticateAsync("+archlucid_scim.public.secret", It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
     public async Task HandleAuthenticateAsync_fails_when_comma_folded_header_mixes_digest_and_bearer_schemes()
     {
         Mock<IScimBearerTokenAuthenticator> authenticator = new();
