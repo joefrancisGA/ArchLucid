@@ -39,66 +39,14 @@ internal static class ClosedLoopReasoningSourceTextNormalizer
         if (fileName.Length == 0)
             return fileName;
 
-        fileName = DecodePercentEncodedFileNameTokens(fileName);
-        fileName = GraphSnapshotCanonicalFingerprint.NormalizeReviewCacheUnicodeSlashScalars(fileName);
-        fileName = GraphSnapshotCanonicalFingerprint.NormalizeReviewCacheUnicodeDotScalars(fileName);
-        fileName = fileName.Replace('\\', '/');
+        fileName = GraphSnapshotCanonicalFingerprint.NormalizeReviewCachePathLikeToken(fileName);
 
-        while (fileName.StartsWith("./", StringComparison.Ordinal))
-            fileName = fileName[2..];
-
-        while (fileName.Contains("//", StringComparison.Ordinal))
-            fileName = fileName.Replace("//", "/", StringComparison.Ordinal);
-
-        while (fileName.Contains("/./", StringComparison.Ordinal))
-            fileName = fileName.Replace("/./", "/", StringComparison.Ordinal);
-
-        while (fileName.StartsWith('/'))
-            fileName = fileName[1..];
-
-        while (fileName.EndsWith('/') && fileName.Length > 1)
-            fileName = fileName[..^1];
-
-        string collapsed = CollapseParentPathSegments(fileName);
-
-        if (collapsed.Length == 0)
-            return collapsed;
-
-        string normalized = CollapseInteriorAsciiSpaces(NormalizeUnicodeSpaces(collapsed)).Normalize(NormalizationForm.FormC);
-
-        return normalized.ToLowerInvariant();
-    }
-
-    private static string CollapseParentPathSegments(string fileName)
-    {
         if (fileName.Length == 0)
             return fileName;
 
-        string[] rawSegments = fileName.Split('/');
-        List<string> segments = [];
+        string normalized = CollapseInteriorAsciiSpaces(NormalizeUnicodeSpaces(fileName)).Normalize(NormalizationForm.FormC);
 
-        foreach (string segment in rawSegments)
-        {
-
-            if (segment.Length == 0 || string.Equals(segment, ".", StringComparison.Ordinal))
-                continue;
-
-            if (string.Equals(segment, "..", StringComparison.Ordinal))
-            {
-
-                if (segments.Count > 0)
-                    segments.RemoveAt(segments.Count - 1);
-
-                continue;
-            }
-
-            segments.Add(segment);
-        }
-
-        if (segments.Count == 0)
-            return string.Empty;
-
-        return string.Join('/', segments);
+        return normalized.ToLowerInvariant();
     }
 
     private static ReadOnlySpan<char> UnicodeLineBreakScalars =>

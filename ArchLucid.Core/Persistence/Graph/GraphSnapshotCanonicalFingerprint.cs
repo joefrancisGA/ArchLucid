@@ -422,8 +422,10 @@ public static class GraphSnapshotCanonicalFingerprint
         string[] rawSegments = path.Split('/');
         List<string> segments = [];
 
-        foreach (string segment in rawSegments)
+        foreach (string rawSegment in rawSegments)
         {
+            string segment = CollapseInteriorAsciiSpaces(NormalizeUnicodeSpaces(rawSegment.Trim()));
+
             if (segment.Length == 0 || string.Equals(segment, ".", StringComparison.Ordinal))
                 continue;
 

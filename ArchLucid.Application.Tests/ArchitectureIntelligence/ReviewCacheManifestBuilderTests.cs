@@ -5423,6 +5423,31 @@ public sealed class ReviewCacheManifestBuilderTests
     }
 
     [Fact]
+    public void Build_matches_content_hash_when_baseline_element_id_differs_only_by_surrounding_whitespace_around_slashes()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "run-model-element-id-spaced-slashes";
+
+        ArchitectureKnowledgeModel tight = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements = [new ArchitectureModelElement { ElementId = "docs/architecture/gateway", Name = "API" }],
+        };
+
+        ArchitectureKnowledgeModel spaced = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements = [new ArchitectureModelElement { ElementId = "docs / architecture / gateway", Name = "API" }],
+        };
+
+        ReviewCacheManifestBuilder.Build(request, tight).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(request, spaced).ContentHash);
+    }
+
+    [Fact]
     public void Build_matches_content_hash_when_baseline_element_id_differs_only_by_unicode_dot_homoglyph_parent_segment()
     {
         ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
@@ -7034,6 +7059,36 @@ public sealed class ReviewCacheManifestBuilderTests
 
         ReviewCacheManifestBuilder.Build(childSegment).ContentHash.Should().Be(canonicalHash);
         ReviewCacheManifestBuilder.Build(nestedParent).ContentHash.Should().Be(canonicalHash);
+    }
+
+    [Fact]
+    public void Build_matches_content_hash_when_file_name_differs_only_by_surrounding_whitespace_around_slashes()
+    {
+        ClosedLoopReasoningRequest tight = CreateRequest("Same body.");
+        tight.SourceTexts =
+        [
+            new ClosedLoopReasoningSourceText
+            {
+                FileName = "docs/architecture/overview.md",
+                ContentType = "text/markdown",
+                Content = "Same body.",
+            },
+        ];
+
+        ClosedLoopReasoningRequest spaced = CreateRequest("Same body.");
+        spaced.SourceTexts =
+        [
+            new ClosedLoopReasoningSourceText
+            {
+                FileName = "docs / architecture / overview.md",
+                ContentType = "text/markdown",
+                Content = "Same body.",
+            },
+        ];
+
+        ReviewCacheManifestBuilder.Build(tight).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(spaced).ContentHash);
     }
 
     [Fact]
