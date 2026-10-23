@@ -65,6 +65,17 @@ describe("insight-density-measurement-floor (PC-01 / DX-15)", () => {
     expect(presentation.line).toContain("no Actor nodes");
   });
 
+  it("names missing actor snapshot instead of implying zero actors", () => {
+    const presentation = formatInsightDensityMeasurementFloorPresentation(12, {
+      actorNodeCount: null,
+      analysisStagesComplete: true,
+    });
+
+    expect(presentation.skippedActorEngineTypes).toEqual([]);
+    expect(presentation.line).toContain("Actor node count was not stored");
+    expect(presentation.line).not.toContain("no Actor nodes");
+  });
+
   it("does not name skipped actor engines when the graph has actors", () => {
     const presentation = formatInsightDensityMeasurementFloorPresentation(12, {
       actorNodeCount: 2,

@@ -9,7 +9,7 @@ export type ChecklistCoverageItem = {
 
 export type InsightDensityCurationCounts = {
   readonly demotedToChecklistCount: number;
-  readonly retainedFindingCount: number;
+  readonly retainedFindingCount: number | null;
 };
 
 export type FindingsSnapshotInsightDensityView = {
@@ -58,7 +58,7 @@ function readFindingTitle(record: Record<string, unknown>): string {
     return findingId;
   }
 
-  return "Checklist observation";
+  return "Checklist title was not stored.";
 }
 
 /** Parses TB-384 checklist rows and TB-385 curation counts from hydrated run detail `findingsSnapshot`. */
@@ -111,7 +111,7 @@ export function resolveFindingsSnapshotInsightDensityView(detail: RunDetail): Fi
     if (demoted !== null || retained !== null) {
       curation = {
         demotedToChecklistCount: demoted ?? checklistCoverage.length,
-        retainedFindingCount: retained ?? 0,
+        retainedFindingCount: retained,
       };
     }
   }
@@ -119,7 +119,7 @@ export function resolveFindingsSnapshotInsightDensityView(detail: RunDetail): Fi
   if (curation === null && checklistCoverage.length > 0) {
     curation = {
       demotedToChecklistCount: checklistCoverage.length,
-      retainedFindingCount: 0,
+      retainedFindingCount: null,
     };
   }
 
@@ -155,6 +155,10 @@ const INSIGHT_DENSITY_TYPED_ENGINE_PROTECTED_LEAD =
 export function formatInsightDensityCurationMessage(curation: InsightDensityCurationCounts): string {
   const demoted = curation.demotedToChecklistCount;
   const retained = curation.retainedFindingCount;
+
+  if (retained === null) {
+    return "Retained finding count was not stored.";
+  }
 
   if (demoted <= 0 && retained <= 0) {
     return "";
