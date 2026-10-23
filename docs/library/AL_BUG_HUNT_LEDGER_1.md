@@ -8716,6 +8716,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: architecture-intelligence-orchestrator
 
+2026-10-23 seed hunt (seed→hit): promoted `https://` authority-prefixed paths splitting `ContentHash` (`https://example.com/docs/architecture/overview.md` vs slash form); `StripReviewCachePathUrlAffixes` now takes `Uri.AbsolutePath` for `http`/`https` only (keeps literal `file://` strip); fullwidth greater-than U+FF1E added to alternate separators; regressions `Build_matches_content_hash_when_file_name_differs_only_by_https_url_with_authority_prefix` and `Build_matches_content_hash_when_file_name_differs_only_by_fullwidth_greater_than_between_segments`; cheap-disproof `Build_matches_content_hash_when_file_name_differs_only_by_percent_encoded_file_uri_scheme`; 420 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `GraphSnapshotCanonicalFingerprint` — `https` authority prefix and fullwidth `>` split path canonicalization — **hit 2026-10-23 seed hunt:** `Uri.AbsolutePath` for http(s); U+FF1E in alternate separator set; regressions above.
+
 2026-10-23 seed hunt (seed→hit): promoted pasted-URL path drift splitting `ContentHash` (`file://` prefix, `?query`, `#fragment`, and `>` between segments); `StripReviewCachePathUrlAffixes` after percent decode and `>` in `ReviewCacheAlternatePathSeparators`; regressions `Build_matches_content_hash_when_file_name_differs_only_by_greater_than_between_segments`, `Build_matches_content_hash_when_file_name_differs_only_by_file_uri_scheme_prefix`, `Build_matches_content_hash_when_file_name_differs_only_by_url_query_suffix`, and `Build_matches_content_hash_when_file_name_differs_only_by_url_fragment_suffix`; 417 scoped orchestrator/cache/manifest/continue-flight tests passed.
 
 - [x] (proven) `GraphSnapshotCanonicalFingerprint` — URL affixes and `>` alternate separator split path canonicalization — **hit 2026-10-23 seed hunt:** `StripReviewCachePathUrlAffixes` + `>` in alternate separator set; regressions above.
