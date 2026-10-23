@@ -12470,10 +12470,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 303
-- **bugs-found:** 205
+- **hunts:** 304
+- **bugs-found:** 206
 - **last-hunt:** 2026-10-23
-- **last-bug:** 2026-10-23 — overlay merge skipped duplicate nodes without backfilling property keys from later rows
+- **last-bug:** 2026-10-23 — overlay merge skipped duplicate nodes without backfilling Label from later rows
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -12981,7 +12981,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - [x] (proven) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — duplicate overlay nodes dropped backfill-only property keys from later rows — **hit 2026-10-23 seed hunt (seed→hit):** property backfill on duplicate overlay node dedupe; regression above.
 
-- [ ] (candidate) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — duplicate overlay nodes where the second row supplies `Label` when the first row omits label may keep an empty label — locus: overlay node dedupe skips later rows without scalar backfill when agreement guards treat empty as backfill-eligible; input: first node has blank or missing label and second duplicate overlay node supplies a non-empty label; wrong outcome: merged graph retains empty label without adopting the second row.
+2026-10-23 seed hunt (seed→hit): promoted `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` duplicate overlay nodes where the second row supplies `Label` when the first row omits label candidate; proved overlay node dedupe treated empty labels as agreement-skipped but never backfilled a non-empty label from a later duplicate row; added `TryMergeOverlayNodeLabelBackfillFromDuplicateRow` after duplicate-node property backfill; regression `Merge_backfills_overlay_duplicate_node_label_from_second_row_when_first_row_omits_label`; seeded `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` duplicate overlay edges where the second row backfills scalar `Label` when the first row omits label follow-on; 616 KnowledgeGraph + 170 Provenance scoped tests passed.
+
+- [x] (proven) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — duplicate overlay nodes with omitted first-row `Label` kept empty label when later row supplied one — **hit 2026-10-23 seed hunt (seed→hit):** label backfill on duplicate overlay node dedupe; regression above.
+
+- [ ] (candidate) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — duplicate overlay edges where the second row supplies `Label` when the first row omits label may keep an empty label — locus: overlay edge dedupe skips later rows without scalar backfill when agreement guards treat empty label as backfill-eligible; input: first edge has blank or missing label and second duplicate overlay edge supplies a non-empty label; wrong outcome: merged graph retains empty edge label without adopting the second row.
 
 2026-10-22 seed hunt (seed→hit): promoted `StructuredDiagramGraphMerger` padded diagram property-key coalesce candidate; proved duplicate node/edge metadata coalesce indexed raw `property.Key`, so a later compile with surrounding-whitespace keys left parallel bag entries and `GraphNodePropertyReader` could return stale source-evidence values; trim keys before skip/coalesce (parity with `GraphNodeFactory.NormalizePropertyBag`); regression `Merge_coalesces_node_properties_when_incoming_property_keys_differ_only_by_surrounding_whitespace`; seeded diagram edge metadata padded-key coalesce regression follow-on; 468 KnowledgeGraph + 170 Provenance scoped tests passed.
 

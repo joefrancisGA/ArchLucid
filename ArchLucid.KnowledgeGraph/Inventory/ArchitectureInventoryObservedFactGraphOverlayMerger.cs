@@ -39,6 +39,7 @@ public static class ArchitectureInventoryObservedFactGraphOverlayMerger
 
                     TryValidateOverlayNodeAgreement(inventoryNode, retainedNode);
                     TryMergeOverlayNodePropertyBackfillFromDuplicateRow(inventoryNode, retainedNode);
+                    TryMergeOverlayNodeLabelBackfillFromDuplicateRow(inventoryNode, retainedNode);
                 }
 
                 continue;
@@ -385,6 +386,27 @@ public static class ArchitectureInventoryObservedFactGraphOverlayMerger
         retainedNode.Properties = MergeOverlayPropertyBackfillFromDuplicateRow(
             incomingNode.Properties,
             retainedNode.Properties);
+    }
+
+    private static void TryMergeOverlayNodeLabelBackfillFromDuplicateRow(
+        GraphNode incomingNode,
+        GraphNode retainedNode)
+    {
+        string incomingLabel = (incomingNode.Label ?? string.Empty).Trim();
+
+        if (incomingLabel.Length == 0)
+        {
+            return;
+        }
+
+        string retainedLabel = (retainedNode.Label ?? string.Empty).Trim();
+
+        if (retainedLabel.Length > 0)
+        {
+            return;
+        }
+
+        retainedNode.Label = incomingLabel;
     }
 
     private static void TryMergeOverlayEdgePropertyBackfillFromDuplicateRow(

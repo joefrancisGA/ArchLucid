@@ -2631,6 +2631,58 @@ public sealed class ArchitectureInventoryObservedFactGraphOverlayTests
     }
 
     [Fact]
+    public void Merge_backfills_overlay_duplicate_node_label_from_second_row_when_first_row_omits_label()
+    {
+        const string canonicalNodeId = "inventory-node-label-backfill";
+
+        GraphSnapshot baseGraph = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = ContextSnapshotId,
+            RunId = RunId,
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "context-node",
+                    NodeType = GraphNodeTypes.ContextSnapshot,
+                    Label = "Context",
+                },
+            ],
+            Edges = [],
+        };
+
+        GraphSnapshot overlay = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = ContextSnapshotId,
+            RunId = RunId,
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = canonicalNodeId,
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "   ",
+                },
+                new GraphNode
+                {
+                    NodeId = canonicalNodeId,
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "SQL primary",
+                },
+            ],
+            Edges = [],
+        };
+
+        GraphSnapshot merged = ArchitectureInventoryObservedFactGraphOverlayMerger.Merge(baseGraph, overlay);
+
+        merged.Nodes.Should().HaveCount(2);
+        merged.Nodes.Single(node => string.Equals(node.NodeId, canonicalNodeId, StringComparison.OrdinalIgnoreCase))
+            .Label.Should().Be("SQL primary");
+    }
+
+    [Fact]
     public void Merge_backfills_overlay_duplicate_node_properties_from_second_row_when_first_row_omits_property_key()
     {
         const string canonicalNodeId = "inventory-node-property-backfill";
