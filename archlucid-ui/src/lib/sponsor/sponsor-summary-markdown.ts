@@ -200,15 +200,20 @@ export function buildSponsorSummaryMarkdown(
     }
   }
 
-  if (summary.realizedValue) {
-    lines.push("");
-    lines.push("## Realized value (computed)");
-    lines.push("");
+  lines.push("");
+  lines.push("## Realized value (computed)");
+  lines.push("");
+
+  if (summary.realizedValue === undefined) {
+    lines.push("- **Realized value:** Realized value was not stored.");
+  } else {
     lines.push(`- **Findings remediated (30d):** ${summary.realizedValue.findingsRemediatedCount30Days}`);
     lines.push(`- **Active waivers:** ${summary.realizedValue.activeWaiversCount}`);
     lines.push(`- **Waivers retired (30d):** ${summary.realizedValue.waiversRetiredCount30Days}`);
 
-    if (summary.realizedValue.medianTimeToRemediationDays != null) {
+    if (summary.realizedValue.medianTimeToRemediationDays === null || summary.realizedValue.medianTimeToRemediationDays === undefined) {
+      lines.push("- **Median time to remediation (days):** Median time to remediation was not stored.");
+    } else {
       lines.push(`- **Median time to remediation (days):** ${summary.realizedValue.medianTimeToRemediationDays}`);
     }
   }
