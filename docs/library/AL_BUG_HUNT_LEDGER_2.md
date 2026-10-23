@@ -1824,16 +1824,24 @@
 
 ## Zone: finding-inspect-sql
 
+2026-10-23 seed hunt #95 (seed-only): re-read mapper, repository core, and SQL batch paths; cheap-disproof closed three open `(candidate)` rows; no hunt-ready promotion; seeded five follow-on `(candidate)` rows; 345 scoped `FindingInspectReadModelMapperTests` + `FindingInspectReadRepositoryCoreTests` passed.
+
+- [x] (valid-no-repro) `MapDispositionPointerProjection` — `LatestDispositionRowVersionBase64` when `LatestDisposition` is null — **cheap-disproof 2026-10-23 seed #95:** regression `MapDispositionPointerProjection_returns_null_disposition_for_invalid_raw_when_row_present` preserves row version for optimistic concurrency on the disposition pointer row; saturated `state-machine-gap`.
+- [x] (valid-no-repro) `FindingInspectReadSql.FollowUpBatch` — related-node `SortOrder` gaps — **cheap-disproof 2026-10-23 seed #95:** ordering is schema-defined; duplicate sort orders blocked by PK; not an inspect read defect in these files.
+- [x] (valid-no-repro) `TryParsePayloadJson` — empty vs corrupt JSON — **cheap-disproof 2026-10-23 seed #95:** `ResolveTypedPayloadForInspect` branches on `string.IsNullOrWhiteSpace(payloadJson)` after parse failure (#1238 metadata fallback); intentional contract.
+
+- [ ] (candidate) `NormalizeFindingId` — trims only; leading/trailing format characters on `FindingId` may survive into `FindingInspectResponse.FindingId` — locus: `NormalizeFindingId` ~16; input: persisted id with U+200B prefix (parity with enum `NormalizeInspectEnumToken` hits).
+- [ ] (candidate) `BuildInspectResponse` — omits disposition pointer fields (`LatestDispositionEventId`, row version, reviewer) entirely — locus: ~407–467; input: Dapper map path sets pointer metadata but helper used in tests may drift from production mapper.
+- [ ] (candidate) `ResolveTypedPayloadForInspectRead` — `includeTypedPayload=false` still evaluates overlay band from typed payload when relational overlay column blank — locus: `ResolveInspectSemanticSupportBand`; input: slim read mode with corrupt `PayloadJson`.
+- [ ] (candidate) `ParseFindingSeverity` — invisible-only severity token defaults to `Info` without `InvalidDataException` — locus: mapper ~11–17; input: symmetric with `ParseHumanReview` default path (#91 cheap-disproof).
+- [ ] (candidate) `FilterNonBlankTrimmedStrings` on `ReasoningTraceDigestSha256` — digest column normalized as display text — locus: Dapper map ~73–74; input: hex digest with surrounding whitespace vs hash verification consumers.
+
 2026-10-22 seed hunt #94 (seed-only): cheap-disproof closed four open `(candidate)` rows; `MapDispositionPointerProjection_*` scoped tests passed (15); no hunt-ready promotion; seeded three follow-on `(candidate)` rows.
 
 - [x] (valid-no-repro) `MapDispositionPointerProjection` partial disposition metadata — **cheap-disproof 2026-10-22 seed #94:** regression `MapDispositionPointerProjection_returns_null_disposition_for_invalid_raw_when_row_present` keeps pointer ids/timestamps when enum parse fails; saturated `state-machine-gap`.
 - [x] (valid-no-repro) `RiskExceptions` `SYSUTCDATETIME()` vs row UTC — **cheap-disproof 2026-10-22 seed #94:** active waiver count is point-in-time SQL clock; disposition timestamps are stored values; no mixed contract bug in these files.
 - [x] (valid-no-repro) `ResolveRuleFields` silent `JsonException` fallback — **cheap-disproof 2026-10-22 seed #94:** intentional trace-text fallback when JSON corrupt (#667 / #1238 siblings); no inspect audit requirement in read path.
 - [x] (valid-no-repro) `MapInspectResponse` raw confidence scores — **cheap-disproof 2026-10-22 seed #94:** relational scores are persisted analytics fields; enum bucket parsed separately; no API contract caps in repository layer.
-
-- [ ] (candidate) `BuildInspectResponse` / disposition projection — omit `LatestDispositionRowVersionBase64` when `LatestDisposition` is null but pointer row exists (ETag/concurrency hint without resolved enum).
-- [ ] (candidate) `FindingInspectReadSql.FollowUpBatch` — related-node `ORDER BY frn.SortOrder` only; duplicate sort orders prevented by PK but deleted-node gaps may reorder evidence vs ingest order (documented schema).
-- [ ] (candidate) `TryParsePayloadJson` — returns null on `JsonException` without distinguishing empty string column from corrupt JSON before `ResolveTypedPayloadForInspect` metadata fallback (#1238 path).
 
 2026-10-22 seed hunt #93 (seed-only): cheap-disproof closed four open `(candidate)` rows; scoped `FindingInspectReadModelMapperTests.ParseDisposition_parses_after_leading_invisible_format_characters` passed; no hunt-ready promotion; seeded four follow-on `(candidate)` rows.
 
@@ -1883,10 +1891,10 @@
 - **aliases:** finding inspect; dapper inspect read
 - **paths:** ArchLucid.Persistence/Findings/DapperFindingInspectReadRepository.cs; ArchLucid.Persistence/Findings/FindingInspectReadModelMapper.cs; ArchLucid.Persistence/Sql/FindingInspectReadSql.cs
 - **test-filter:** FullyQualifiedName~FindingInspectReadModelMapperTests|FullyQualifiedName~FindingInspectReadSqlTests|FullyQualifiedName~FindingInspectReadRepositoryCoreTests|FullyQualifiedName~FindingInspectEndpointTests
-- **hunts:** 94
+- **hunts:** 95
 - **bugs-found:** 27
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-22
+- **last-hunt:** 2026-10-23
 - **last-bug:** 2026-10-22 — inspect enum columns ignored format-character normalization on parse
 - **related-pd-tb:** none
 - **code-changed-since:** yes
