@@ -2048,3 +2048,4 @@
 {"at":"2026-10-23T14:01:23.1801300Z","zoneId":"application-analysis","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-23T14:05:44.7641211Z","zoneId":"application-analysis","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-23T14:11:39.1330475Z","zoneId":"application-analysis","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-23T14:23:36.3889592Z","zoneId":"application-analysis","outcome":"hit","productLine":"archlucid-shared","severity":"medium","defectClass":"other"}
