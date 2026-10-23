@@ -12470,7 +12470,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 275
+- **hunts:** 276
 - **bugs-found:** 182
 - **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-22 — fully empty overlay merge returned base graph without warning normalization
@@ -12869,7 +12869,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - [x] (valid-no-repro) `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` — empty segment and whitespace-only `ResourceType` minted empty `Label` — **cheap-disproof 2026-10-23 seed hunt:** ARM id trim fallback; regression above.
 
-- [ ] (candidate) `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` — `ResourceGroup` and `SubscriptionId` with surrounding whitespace may stamp unpadded values on minted nodes — locus: resource metadata property stamping; input: resource row with padded `ResourceGroup` / `SubscriptionId`; wrong outcome: overlay node properties retain surrounding whitespace.
+2026-10-23 seed hunt (valid-no-repro): promoted `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` padded `ResourceGroup` / `SubscriptionId` stamp candidate; proved mint path trims both fields before writing `arm.resourceGroup` and `arm.subscriptionId`; regression `BuildOverlay_stamps_trimmed_resource_group_and_subscription_id_on_minted_nodes`; seeded `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` whitespace-only `ResourceGroup` / `SubscriptionId` may still stamp properties follow-on; 568 KnowledgeGraph + 170 Provenance scoped tests passed.
+
+- [x] (valid-no-repro) `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` — padded `ResourceGroup` / `SubscriptionId` retained whitespace on stamp — **cheap-disproof 2026-10-23 seed hunt:** trim on stamp; regression above.
+
+- [ ] (candidate) `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` — whitespace-only `ResourceGroup` / `SubscriptionId` may still stamp properties — locus: `IsNullOrWhiteSpace` guards before property stamp; input: resource row with whitespace-only `ResourceGroup` and/or `SubscriptionId`; wrong outcome: overlay node properties contain padding-only values.
 
 2026-10-22 seed hunt (seed→hit): promoted `StructuredDiagramGraphMerger` padded diagram property-key coalesce candidate; proved duplicate node/edge metadata coalesce indexed raw `property.Key`, so a later compile with surrounding-whitespace keys left parallel bag entries and `GraphNodePropertyReader` could return stale source-evidence values; trim keys before skip/coalesce (parity with `GraphNodeFactory.NormalizePropertyBag`); regression `Merge_coalesces_node_properties_when_incoming_property_keys_differ_only_by_surrounding_whitespace`; seeded diagram edge metadata padded-key coalesce regression follow-on; 468 KnowledgeGraph + 170 Provenance scoped tests passed.
 
