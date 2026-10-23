@@ -4211,6 +4211,45 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: storage-vs-data-category
 
+2026-10-23 seed hunt (seed-only): re-read post-processor and consistency-gate paths after brief-grounding token fixes; consolidated endpoint substring heuristics into `BriefGroundingEndpointNameHeuristics`; cheap-disproof closed five open `(candidate)` rows (including `preunencrypted-vault` regression); seeded five follow-on rows; no new failing repro; scoped post-processor, consistency-gate, and brief-grounding tests 47/47.
+
+- [ ] (candidate) `TopologyProposalRelationshipEndpointIndex.CopyNonNullRelationships` — duplicate null-stripping helpers in post-processor and consistency gate may diverge on future edits — locus: shared list sanitizer; input: relationship-only JSON with interleaved null elements.
+- [ ] (candidate) `AgentProposalStructuralPostProcessor.ProposalDeclaresEndpoints` — raw collection `Count` vs sanitized endpoint lists if a future caller invokes `FilterRelationships` before dedupe/claim — locus: declare-endpoint predicate; input: proposal with only JSON-null service placeholders.
+- [ ] (candidate) `CrossAgentProposalConsistencyGate.CollectDeclaredBatchEndpointKeys` — pre-claim batch keys may retain endpoints later rejected by `ClaimServices`, affecting relationship-only validation sets — locus: batch key collection order; input: duplicate conflicting service proposals from two topology agents.
+- [ ] (candidate) `ApplyBriefGrounding` — HTTPS rule applies to services only while private-networking rule applies to datastores; mixed brief may drop datastore but leave service edge referencing it — locus: `applyHttpsRule` flag; input: HTTPS + private networking confirmed brief with cross-tier relationship.
+- [ ] (candidate) `DedupeServices` / `ClaimServices` — rename-alias acceptance without successful `TryClaim` may still add endpoint keys not present in `CollectKnownEndpointKeys` for relationship filter — locus: alias path vs declared keys; input: rename label relationship before alias service is accepted.
+
+- [x] (invalid) `TryDescribeBriefGroundingDrop` — `preunencrypted-vault` false drop — **cheap-disproof 2026-10-23 seed hunt:** `\bunencrypted\b` boundary; regression `ApplyBriefGrounding_preserves_preunencrypted_datastore_when_encryption_at_rest_required`.
+- [x] (valid-no-repro) `PruneRelationshipsAfterGroundingDrops` — ARM casing drift on relationship ids — **cheap-disproof 2026-10-23 seed hunt:** `DeclaredEndpointKeySetContains` uses case-insensitive sets and trims endpoint values.
+- [x] (valid-no-repro) `CrossAgentProposalConsistencyGate.ClaimServices` — duplicate rename-alias double registration — **cheap-disproof 2026-10-23 seed hunt:** `EndpointKeyIsClaimed` rejects duplicate claims; alias path updates accepted batch lists once.
+- [x] (valid-no-repro) `AgentProposalStructuralPostProcessor.FilterRelationships` — unsorted execute payload agent order — **cheap-disproof 2026-10-23 seed hunt:** consistency gate `OrderBy` merge precedence (topology before cost/compliance/critic).
+- [x] (valid-no-repro) `BuildBriefGroundingRules` — empty-string constraint entries — **cheap-disproof 2026-10-23 seed hunt:** `IsConfirmedBriefEntry` rejects whitespace-only strings before rule activation.
+
+2026-10-23 seed hunt (seed→hit): proved brief grounding HTTPS and encryption-at-rest heuristics used raw `Contains` on endpoint names (`chromhttp-bridge`, `nonplaintext-archive`); fixed with `\bhttp\b(?!s\b)`, `\bplaintext\b`, and `\bunencrypted\b` token matchers; regressions `ApplyBriefGrounding_preserves_chromhttp_service_name_when_https_required` and `ApplyBriefGrounding_preserves_nonplaintext_datastore_when_encryption_at_rest_required`; cheap-disproof closed three follow-on `(candidate)` rows; seeded five follow-on rows; scoped post-processor, consistency-gate, and brief-grounding tests 46/46. Private beta: HTTPS and encryption-at-rest brief grounding no longer strips topology nodes whose names embed `http` or `plaintext` only as interior substrings.
+
+2026-10-23 seed hunt (seed→hit): proved `TryDescribeBriefGroundingDrop` used raw `Contains("public")` on endpoint names, so private-networking briefs dropped services like `republic-ledger-api`; fixed with `\bpublic\b` token matching; regression `ApplyBriefGrounding_preserves_republic_service_name_when_private_networking_required`; cheap-disproof closed five stale JSON-null / whitespace `(candidate)` rows; seeded five follow-on rows; scoped post-processor, consistency-gate, and brief-grounding tests 44/44. Private beta: execute batches with confirmed private-networking briefs no longer strip legitimate topology nodes whose names embed `public` as a substring.
+
+- [x] (proven) `TryDescribeBriefGroundingDrop` — HTTPS `Contains("http")` dropped `chromhttp-*` service names — **hit 2026-10-23 seed hunt:** `\bhttp\b(?!s\b)` token matcher; regression `ApplyBriefGrounding_preserves_chromhttp_service_name_when_https_required`.
+- [x] (proven) `EndpointSuggestsMissingEncryptionAtRest` — `plaintext` substring dropped `nonplaintext-*` datastores — **hit 2026-10-23 seed hunt:** `\bplaintext\b` / `\bunencrypted\b` token matchers; regression `ApplyBriefGrounding_preserves_nonplaintext_datastore_when_encryption_at_rest_required`.
+- [x] (valid-no-repro) `PruneRelationshipsAfterGroundingDrops` — whitespace-only relationship endpoint ids — **cheap-disproof 2026-10-23 seed hunt:** `DeclaredEndpointKeySetContains` treats whitespace ids as undeclared; edges retained only when external ids unchanged.
+- [x] (valid-no-repro) `CrossAgentProposalConsistencyGate.FilterRelationshipOnlyProposals` — rename alias validation keys — **cheap-disproof 2026-10-23 seed hunt:** regression `ApplyToResults_preserves_topology_relationship_only_follow_up_when_rename_aliases_are_declared_later_in_batch`.
+- [x] (invalid) `DedupeRequiredControls` — topology duplicate `requiredControls` — **cheap-disproof 2026-10-23 seed hunt:** dedupe intentionally limited to Compliance/Critic agents; cross-agent `ClaimRequiredControls` dedupes batch-wide.
+
+2026-10-23 seed hunt (seed→hit): promoted JSON-null `addedRelationships` elements retained on relationship-only proposals when endpoint validation keys were empty; `CopyNonNullRelationships` on fast paths in post-processor and consistency gate; regressions `ApplyToProposal_skips_null_added_relationship_entry_for_relationship_only_proposal`, `ApplyToResults_skips_null_added_relationship_entry_for_relationship_only_proposal`, `ApplyToProposal_skips_null_added_datastore_entry_from_deserialized_proposal`; cheap-disproof closed two stale `(candidate)` rows; seeded five follow-on rows; scoped tests 37/37. Private beta: multi-agent execute batches with sparse relationship-only JSON no longer carry null edges that could crash later merge/graph steps for invited pilot runs.
+
+- [x] (valid-no-repro) `CrossAgentProposalConsistencyGate.FilterRelationshipOnlyProposals` — null relationship when batch declares endpoints — **cheap-disproof 2026-10-23 seed hunt:** null elements skipped; relationship-only fast path uses `CopyNonNullRelationships`; regression `ApplyToResults_skips_null_added_relationship_entry_for_relationship_only_proposal`.
+- [x] (valid-no-repro) `AgentProposalStructuralPostProcessor.ApplyBriefGrounding` — null relationship in `PruneRelationshipsAfterGroundingDrops` — **cheap-disproof 2026-10-23 seed hunt:** null elements skipped before endpoint comparison.
+- [x] (valid-no-repro) `CrossAgentProposalConsistencyGate.ClaimRequiredControls` — JSON-null control string — **cheap-disproof 2026-10-23 seed hunt:** `IsNullOrWhiteSpace` guard in claim loop.
+- [x] (valid-no-repro) `AgentProposalStructuralPostProcessor.DedupeRequiredControls` — whitespace trim dedupes `" HTTPS "` vs `"HTTPS"` — **cheap-disproof 2026-10-23 seed hunt:** intentional trim + case-insensitive set; regression `ApplyToProposal_dedupes_required_controls_for_compliance`.
+- [x] (valid-no-repro) `CrossAgentProposalConsistencyGate.ApplyToResults` — null `ProposedChanges` on `AgentResult` — **cheap-disproof 2026-10-23 seed hunt:** null proposal skipped before merge loops.
+
+- [x] (proven) `TryDescribeBriefGroundingDrop` — raw `Contains("public")` on endpoint names dropped `republic-*` services under private-networking briefs — **hit 2026-10-23 seed hunt:** `\bpublic\b` token boundary; regression `ApplyBriefGrounding_preserves_republic_service_name_when_private_networking_required`.
+- [x] (proven) `AgentProposalStructuralPostProcessor.FilterRelationships` — JSON-null relationship on relationship-only proposal — **hit 2026-10-23 seed hunt:** `CopyNonNullRelationships`; regression `ApplyToProposal_skips_null_added_relationship_entry_for_relationship_only_proposal`.
+- [x] (proven) `CrossAgentProposalConsistencyGate.FilterRelationshipOnlyProposals` — JSON-null relationship on relationship-only proposal — **hit 2026-10-23 seed hunt:** `CopyNonNullRelationships`; regression `ApplyToResults_skips_null_added_relationship_entry_for_relationship_only_proposal`.
+- [x] (valid-no-repro) `AgentProposalStructuralPostProcessor.DedupeDatastores` — JSON-null datastore entry — **cheap-disproof 2026-10-23 seed hunt:** element guard; regression `ApplyToProposal_skips_null_added_datastore_entry_from_deserialized_proposal`.
+- [x] (valid-no-repro) `AgentProposalStructuralPostProcessor.FilterRelationships` — JSON-null relationship when proposal declares endpoints — **cheap-disproof 2026-10-23 seed hunt:** foreach skip (#21 lane C class).
+- [x] (valid-no-repro) `CrossAgentProposalConsistencyGate.CollectDeclaredBatchEndpointKeys` — null service/datastore entries — **cheap-disproof 2026-10-23 seed hunt:** element guards (#21 lane C).
+
 2026-10-21 thorough hunt (hit, lane C): JSON-null `addedServices` elements and null `AgentResult` entries no longer abort structural post-processing or cross-agent consistency merge; Application scoped filter 34/34.
 
 - **id:** storage-vs-data-category
@@ -4219,11 +4258,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** storage vs data; structural post-processor; consistency gate
 - **paths:** ArchLucid.Application/Runs/Orchestration/AgentProposalStructuralPostProcessor.cs; ArchLucid.Application/Runs/Orchestration/CrossAgentProposalConsistencyGate.cs
 - **test-filter:** FullyQualifiedName~AgentProposalStructuralPostProcessorTests|FullyQualifiedName~CrossAgentProposalConsistencyGateTests
-- **hunts:** 13
-- **bugs-found:** 1
+- **hunts:** 17
+- **bugs-found:** 4
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 — JSON-null proposal collection elements aborted post-execute merge
+- **last-hunt:** 2026-10-23
+- **last-bug:** 2026-10-23 — brief grounding `http` / `plaintext` substring false drops
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -5292,13 +5331,146 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** recommendation engine; alternatives
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationEngine.cs; ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationTradeOffBuilder.cs
 - **test-filter:** FullyQualifiedName~ArchitectureRecommendationAlternativesTests|FullyQualifiedName~ArchitectureRecommendationProposedChangeTests
-- **hunts:** 70
-- **last-hunt:** 2026-10-12
-- **bugs-found:** 26
+- **hunts:** 87
+- **last-hunt:** 2026-10-23
+- **bugs-found:** 50
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-21 — explicit Security over Cost priority balanced trade-off incorrectly
+- **last-bug:** 2026-10-23 — `cost of quality` prose falsely selected Cost dimension
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-23 seed hunt (seed→hit): promoted `cost of quality` goal phrasing still selecting Cost alongside Security; extended `IsCostTokenInCostOfDimensionGoalPhrase` with `quality`; regression `BuildRecommendations_prefers_security_first_when_priority_is_cost_of_quality_security_program`; cheap-disproof closed four sibling `(candidate)` rows; seeded five follow-on rows; scoped Alternatives/ProposedChange/TradeOff tests 124/124.
+
+- [ ] (candidate) `ArchitectureRecommendationTradeOffBuilder.DeclaredPriorityPrefersDimension` — `cost of performance` selects Cost — input: `cost of performance security program`; reachability: sponsor prose; wrong outcome: balanced Security/Cost when performance is modifier not dimension.
+- [ ] (candidate) `ArchitectureRecommendationTradeOffBuilder.DeclaredPriorityPrefersDimension` — `price of operations` with `cost control` selects Cost — input: `price of operations; cost control`; reachability: finance phrasing; wrong outcome: balanced Operations/Cost when operations is goal phrase.
+- [ ] (candidate) `ArchitectureRecommendationTradeOffBuilder.TryResolveExplicitDimensionPrecedence` — `before` syntax after `over` syntax in one comma-joined string — input: `Security over Cost, Cost before Security`; reachability: pasted sponsor bullets; wrong outcome: first `over` clause wins while later `before` ignored.
+- [ ] (candidate) `ArchitectureRecommendationTradeOffBuilder.ApplyTradeOffs` — Security plus DataArchitecture actionable findings produce no trade-off object — input: mixed-dimension review package; contract gap only unless product requires all pairs.
+- [ ] (candidate) `ArchitectureRecommendationTradeOffBuilder.DeclaredPriorityPrefersDimension` — `cost of delay` selects Cost — input: `cost of delay security rollout`; reachability: schedule-risk prose; wrong outcome: balanced Security/Cost.
+
+- [x] (proven) `ArchitectureRecommendationTradeOffBuilder.DeclaredPriorityPrefersDimension` — `cost of quality security program` selects Cost — **hit 2026-10-23 seed hunt:** extended `IsCostTokenInCostOfDimensionGoalPhrase` with `quality`; regression `BuildRecommendations_prefers_security_first_when_priority_is_cost_of_quality_security_program`.
+- [x] (valid-no-repro) `ArchitectureRecommendationTradeOffBuilder.TryResolveExplicitDimensionPrecedence` — comma-joined conflicting explicit pairs — **cheap-disproof 2026-10-23 seed hunt:** first `over`/`before` match in string wins by contract; regression `BuildRecommendations_prefers_security_first_when_comma_joined_priority_lists_security_over_cost_first`.
+- [x] (valid-no-repro) `ArchitectureRecommendationTradeOffBuilder.DeclaredPriorityPrefersDimension` — `price of reliability; cost containment` selects Cost — **cheap-disproof 2026-10-23 seed hunt:** `cost containment` spaced modifier; regression `BuildRecommendations_prefers_reliability_first_when_priority_is_price_of_reliability_with_cost_containment`.
+- [x] (valid-no-repro) `ArchitectureRecommendationTradeOffBuilder.TryResolveDeclaredPairPrecedence` — three-entry list with middle non-pair clause — **cheap-disproof 2026-10-23 seed hunt:** last applicable explicit pair across list entries wins; regression `BuildRecommendations_prefers_cost_first_when_later_priority_has_matching_explicit_pair`.
+- [x] (invalid) `ArchitectureRecommendationTradeOffBuilder.ApplyTradeOffs` — Security plus DataArchitecture trade-off — **cheap-disproof 2026-10-23 seed hunt:** dimension pair matrix contract unchanged.
+
+2026-10-23 seed hunt (seed→hit): promoted `cost of ownership` goal phrasing still selecting Cost alongside Security; extended `IsCostTokenInCostOfDimensionGoalPhrase` with `ownership` and `delivery`; added `IsCostTokenInPriceOfDimensionGoalPhrase` for `price of <dimension>` modifiers when Cost also appears; regressions `BuildRecommendations_prefers_security_first_when_priority_is_cost_of_ownership_security_program`, `BuildRecommendations_prefers_reliability_first_when_priority_is_cost_of_reliability_program`, `BuildRecommendations_prefers_security_first_when_priority_is_price_of_security_program`, `BuildRecommendations_prefers_security_first_when_security_over_cost_precedes_security_hardening_bullet`; cheap-disproof closed five sibling `(candidate)` rows; seeded five follow-on rows; scoped Alternatives/ProposedChange/TradeOff tests 122/122.
+
+- [x] (proven) `ArchitectureRecommendationTradeOffBuilder.DeclaredPriorityPrefersDimension` — `cost of ownership security program` selects Cost — **hit 2026-10-23 seed hunt:** extended `IsCostTokenInCostOfDimensionGoalPhrase`; regression `BuildRecommendations_prefers_security_first_when_priority_is_cost_of_ownership_security_program`.
+- [x] (valid-no-repro) `ArchitectureRecommendationTradeOffBuilder.DeclaredPriorityPrefersDimension` — `cost of reliability program` selects Cost — **cheap-disproof 2026-10-23 seed hunt:** covered by `IsCostTokenInCostOfDimensionGoalPhrase` (#85); regression `BuildRecommendations_prefers_reliability_first_when_priority_is_cost_of_reliability_program`.
+- [x] (valid-no-repro) `ArchitectureRecommendationTradeOffBuilder.DeclaredPriorityPrefersDimension` — `price of security program` selects Cost — **cheap-disproof 2026-10-23 seed hunt:** no bare Cost token; regression `BuildRecommendations_prefers_security_first_when_priority_is_price_of_security_program`.
+- [x] (valid-no-repro) `ArchitectureRecommendationTradeOffBuilder.TryResolveDeclaredPairPrecedence` — `Security over Cost` then `Security hardening` — **cheap-disproof 2026-10-23 seed hunt:** explicit pair retained across list entries; regression `BuildRecommendations_prefers_security_first_when_security_over_cost_precedes_security_hardening_bullet`.
+- [x] (invalid) `ArchitectureRecommendationTradeOffBuilder.ApplyTradeOffs` — Security plus DataArchitecture trade-off — **cheap-disproof 2026-10-23 seed hunt:** dimension pair matrix contract unchanged.
+
+2026-10-23 seed hunt (seed→hit): promoted `cost of security` goal phrasing still selecting Cost alongside Security; added `IsCostTokenInCostOfDimensionGoalPhrase`; regression `BuildRecommendations_prefers_security_first_when_priority_is_cost_of_security_program`; cheap-disproof closed four sibling `(candidate)` rows; seeded five follow-on rows; scoped Alternatives/ProposedChange/TradeOff tests 102/102.
+
+- [x] (proven) `ArchitectureRecommendationTradeOffBuilder.DeclaredPriorityPrefersDimension` — `cost of security program` selects Cost — **hit 2026-10-23 seed hunt:** `IsCostTokenInCostOfDimensionGoalPhrase`; regression `BuildRecommendations_prefers_security_first_when_priority_is_cost_of_security_program`.
+- [x] (valid-no-repro) `ArchitectureRecommendationTradeOffBuilder.DeclaredPriorityPrefersDimension` — `total landed cost security` selects Cost — **cheap-disproof 2026-10-23 seed hunt:** covered by `IsCostTokenInMultiWordQualifiedCostPhrase` (#84); regression `BuildRecommendations_prefers_security_first_when_priority_is_total_landed_cost_security_program`.
+- [x] (valid-no-repro) `ArchitectureRecommendationTradeOffBuilder.TryResolveDeclaredPairPrecedence` — trailing `cost control` after `Security over Cost` — **cheap-disproof 2026-10-23 seed hunt:** explicit pair path; regression `BuildRecommendations_prefers_security_first_when_security_over_cost_precedes_cost_control_bullet`.
+- [x] (invalid) `ArchitectureRecommendationTradeOffBuilder.ApplyTradeOffs` — Security plus DataArchitecture trade-off — **cheap-disproof 2026-10-23 seed hunt:** dimension pair matrix contract unchanged.
+
+2026-10-23 seed hunt (seed→hit): promoted multi-word qualified cost phrase `fully loaded cost` still selecting Cost alongside Security; added `IsCostTokenInMultiWordQualifiedCostPhrase`; regression `BuildRecommendations_prefers_security_first_when_priority_is_fully_loaded_cost_security_program`; cheap-disproof closed four sibling `(candidate)` rows; seeded five follow-on rows; scoped Alternatives/ProposedChange/TradeOff tests 99/99.
+
+- [x] (proven) `ArchitectureRecommendationTradeOffBuilder.DeclaredPriorityPrefersDimension` — `fully loaded cost security` selects Cost — **hit 2026-10-23 seed hunt:** `IsCostTokenInMultiWordQualifiedCostPhrase`; regression `BuildRecommendations_prefers_security_first_when_priority_is_fully_loaded_cost_security_program`.
+- [x] (valid-no-repro) `ArchitectureRecommendationTradeOffBuilder.DeclaredPriorityPrefersDimension` — `operating cost security` selects Cost — **cheap-disproof 2026-10-23 seed hunt:** `operating` in qualified noun list (#83); regression `BuildRecommendations_prefers_security_first_when_priority_is_operating_cost_security_program`.
+- [x] (valid-no-repro) `ArchitectureRecommendationTradeOffBuilder.TryResolveDeclaredPairPrecedence` — `Reliability uplift` after `Security over Cost` — **cheap-disproof 2026-10-23 seed hunt:** explicit pair path; regression `BuildRecommendations_prefers_security_first_when_security_over_cost_precedes_reliability_uplift`.
+- [x] (invalid) `ArchitectureRecommendationTradeOffBuilder.ApplyTradeOffs` — Security plus DataArchitecture trade-off — **cheap-disproof 2026-10-23 seed hunt:** dimension pair matrix contract unchanged.
+
+2026-10-23 seed hunt (seed→hit): promoted `sunk cost` / `lifecycle cost` qualified noun phrases still selecting Cost alongside Security; extended `IsCostTokenInQualifiedCostNounPhrase`; regressions `BuildRecommendations_prefers_security_first_when_priority_is_sunk_cost_security_program`, `BuildRecommendations_prefers_security_first_when_priority_is_lifecycle_cost_security_program`; cheap-disproof closed three sibling `(candidate)` rows; seeded five follow-on rows; scoped Alternatives/ProposedChange/TradeOff tests 96/96.
+
+- [x] (proven) `ArchitectureRecommendationTradeOffBuilder.DeclaredPriorityPrefersDimension` — `sunk cost security` selects Cost — **hit 2026-10-23 seed hunt:** qualified noun list extended; regression `BuildRecommendations_prefers_security_first_when_priority_is_sunk_cost_security_program`.
+- [x] (proven) `ArchitectureRecommendationTradeOffBuilder.DeclaredPriorityPrefersDimension` — `lifecycle cost security` selects Cost — **hit 2026-10-23 seed hunt:** qualified noun list extended; regression `BuildRecommendations_prefers_security_first_when_priority_is_lifecycle_cost_security_program`.
+- [x] (valid-no-repro) `ArchitectureRecommendationTradeOffBuilder.TryResolveDeclaredPairPrecedence` — `Security over Cost` before reliability-only bullets — **cheap-disproof 2026-10-23 seed hunt:** explicit pair retained when later entries lack competing pair syntax; regression `BuildRecommendations_prefers_security_first_when_security_over_cost_precedes_reliability_only_bullets`.
+- [x] (invalid) `ArchitectureRecommendationTradeOffBuilder.ApplyTradeOffs` — Security plus DataArchitecture trade-off — **cheap-disproof 2026-10-23 seed hunt:** dimension pair matrix contract unchanged.
+
+2026-10-23 seed hunt (seed→hit): promoted `opportunity cost` / `capital cost` qualified noun phrases still selecting Cost alongside Security; extended `IsCostTokenInQualifiedCostNounPhrase`; regressions `BuildRecommendations_prefers_security_first_when_priority_is_opportunity_cost_security_program`, `BuildRecommendations_prefers_security_first_when_priority_is_capital_cost_security_program`; cheap-disproof closed three sibling `(candidate)` rows; seeded five follow-on rows; scoped Alternatives/ProposedChange/TradeOff tests 93/93.
+
+- [x] (proven) `ArchitectureRecommendationTradeOffBuilder.DeclaredPriorityPrefersDimension` — `opportunity cost security` selects Cost — **hit 2026-10-23 seed hunt:** qualified noun list extended; regression `BuildRecommendations_prefers_security_first_when_priority_is_opportunity_cost_security_program`.
+- [x] (proven) `ArchitectureRecommendationTradeOffBuilder.DeclaredPriorityPrefersDimension` — `capital cost security` selects Cost — **hit 2026-10-23 seed hunt:** qualified noun list extended; regression `BuildRecommendations_prefers_security_first_when_priority_is_capital_cost_security_program`.
+- [x] (valid-no-repro) `ArchitectureRecommendationTradeOffBuilder.TryResolveDeclaredPairPrecedence` — noisy multi-bullet explicit pairs — **cheap-disproof 2026-10-23 seed hunt:** last applicable Security/Cost explicit pair wins; regression `BuildRecommendations_prefers_cost_first_when_last_explicit_pair_is_cost_over_security`.
+- [x] (invalid) `ArchitectureRecommendationTradeOffBuilder.ApplyTradeOffs` — Security plus DataArchitecture trade-off — **cheap-disproof 2026-10-23 seed hunt:** dimension pair matrix contract unchanged.
+
+2026-10-23 seed hunt (seed→hit): promoted `variable cost` / `incremental cost` qualified noun phrases still selecting Cost alongside Security; extended `IsCostTokenInQualifiedCostNounPhrase`; regressions `BuildRecommendations_prefers_security_first_when_priority_is_variable_cost_security_program`, `BuildRecommendations_prefers_security_first_when_priority_is_incremental_cost_security_program`; cheap-disproof closed three sibling `(candidate)` rows; seeded five follow-on rows; scoped Alternatives/ProposedChange/TradeOff tests 90/90.
+
+- [x] (proven) `ArchitectureRecommendationTradeOffBuilder.DeclaredPriorityPrefersDimension` — `variable cost security` selects Cost — **hit 2026-10-23 seed hunt:** qualified noun list extended; regression `BuildRecommendations_prefers_security_first_when_priority_is_variable_cost_security_program`.
+- [x] (proven) `ArchitectureRecommendationTradeOffBuilder.DeclaredPriorityPrefersDimension` — `incremental cost security` selects Cost — **hit 2026-10-23 seed hunt:** qualified noun list extended; regression `BuildRecommendations_prefers_security_first_when_priority_is_incremental_cost_security_program`.
+- [x] (valid-no-repro) `ArchitectureRecommendationTradeOffBuilder.TryResolveDeclaredPairPrecedence` — `Security over Cost` after reliability-only pair text — **cheap-disproof 2026-10-23 seed hunt:** last applicable explicit Security/Cost pair wins; regression `BuildRecommendations_prefers_security_first_when_reliability_framing_precedes_security_over_cost`.
+- [x] (invalid) `ArchitectureRecommendationTradeOffBuilder.ApplyTradeOffs` — Security plus DataArchitecture trade-off — **cheap-disproof 2026-10-23 seed hunt:** dimension pair matrix contract unchanged.
+
+2026-10-23 seed hunt (seed→hit): promoted `per <word> cost` phrasing still selecting Cost alongside Security; added `IsCostTokenInPerQualifierCostPhrase`; regression `BuildRecommendations_prefers_security_first_when_priority_is_per_user_cost_security_program`; cheap-disproof closed four sibling `(candidate)` rows; seeded five follow-on rows; scoped Alternatives/ProposedChange/TradeOff tests 87/87.
+
+- [x] (proven) `ArchitectureRecommendationTradeOffBuilder.DeclaredPriorityPrefersDimension` — `per user cost security` selects Cost — **hit 2026-10-23 seed hunt:** `IsCostTokenInPerQualifierCostPhrase`; regression `BuildRecommendations_prefers_security_first_when_priority_is_per_user_cost_security_program`.
+- [x] (valid-no-repro) `ArchitectureRecommendationTradeOffBuilder.TryResolveDeclaredPairPrecedence` — later generic Security mention overrides earlier explicit pair — **cheap-disproof 2026-10-23 seed hunt:** explicit pair path ignores generic OR branch; regression `BuildRecommendations_prefers_cost_first_when_explicit_pair_precedes_later_generic_security_uplift`.
+- [x] (valid-no-repro) `ArchitectureRecommendationTradeOffBuilder.DeclaredPriorityPrefersDimension` — bare `Cost` priority — **cheap-disproof 2026-10-23 seed hunt:** intentional cost-first signal when only dimension token provided; regression `BuildRecommendations_prefers_cost_first_when_priority_is_bare_cost_with_security_and_cost_findings`.
+- [x] (invalid) `ArchitectureRecommendationTradeOffBuilder.ApplyTradeOffs` — Security plus DataArchitecture trade-off — **cheap-disproof 2026-10-23 seed hunt:** dimension pair matrix contract unchanged.
+
+2026-10-23 seed hunt (seed→hit): promoted qualified cost noun phrases (`unit cost`, `total cost`, etc.) still selecting Cost alongside Security; added `IsCostTokenInQualifiedCostNounPhrase`; regressions `BuildRecommendations_prefers_security_first_when_priority_is_unit_cost_security_program`, `BuildRecommendations_prefers_security_first_when_priority_is_total_cost_security_program`; cheap-disproof closed three sibling `(candidate)` rows; seeded five follow-on rows; scoped Alternatives/ProposedChange/TradeOff tests 84/84.
+
+- [x] (proven) `ArchitectureRecommendationTradeOffBuilder.DeclaredPriorityPrefersDimension` — `unit cost security` selects Cost — **hit 2026-10-23 seed hunt:** `IsCostTokenInQualifiedCostNounPhrase`; regression `BuildRecommendations_prefers_security_first_when_priority_is_unit_cost_security_program`.
+- [x] (proven) `ArchitectureRecommendationTradeOffBuilder.DeclaredPriorityPrefersDimension` — `total cost security program` selects Cost — **hit 2026-10-23 seed hunt:** qualified noun list includes `total`; regression `BuildRecommendations_prefers_security_first_when_priority_is_total_cost_security_program`.
+- [x] (valid-no-repro) `ArchitectureRecommendationTradeOffBuilder.TryResolveDeclaredPairPrecedence` — explicit pair after unrelated bullets — **cheap-disproof 2026-10-23 seed hunt:** last matching explicit pair wins across list; regression `BuildRecommendations_prefers_cost_first_when_explicit_pair_follows_unrelated_priority_bullets`.
+- [x] (invalid) `ArchitectureRecommendationTradeOffBuilder.ApplyTradeOffs` — Security plus DataArchitecture trade-off — **cheap-disproof 2026-10-23 seed hunt:** dimension pair matrix contract unchanged.
+
+2026-10-23 seed hunt (seed→hit): promoted `for`/`on` prepositional cost phrasing and `cost center` organizational noun still selecting Cost alongside Security; renamed guard to `IsCostTokenInPrepositionalCostPhrase` (`at|for|on` + cost) and added `IsCostTokenInCostCenterPhrase`; regressions `BuildRecommendations_prefers_security_first_when_priority_is_for_cost_security_program`, `BuildRecommendations_prefers_security_first_when_priority_is_cost_center_security_program`; cheap-disproof closed three sibling `(candidate)` rows; seeded five follow-on rows; scoped Alternatives/ProposedChange/TradeOff tests 81/81.
+
+- [x] (proven) `ArchitectureRecommendationTradeOffBuilder.DeclaredPriorityPrefersDimension` — `for cost` / `on cost` prepositions select Cost — **hit 2026-10-23 seed hunt:** `IsCostTokenInPrepositionalCostPhrase`; regression `BuildRecommendations_prefers_security_first_when_priority_is_for_cost_security_program` (covers `at`/`on` via shared guard).
+- [x] (proven) `ArchitectureRecommendationTradeOffBuilder.DeclaredPriorityPrefersDimension` — `cost center security program` selects Cost — **hit 2026-10-23 seed hunt:** `IsCostTokenInCostCenterPhrase`; regression `BuildRecommendations_prefers_security_first_when_priority_is_cost_center_security_program`.
+- [x] (valid-no-repro) `ArchitectureRecommendationTradeOffBuilder.TryResolveDeclaredPairPrecedence` — semicolon-separated clauses — **cheap-disproof 2026-10-23 seed hunt:** first explicit pair match wins (same as comma); regression `BuildRecommendations_prefers_security_first_when_semicolon_joined_priority_lists_security_over_cost_first`.
+- [x] (invalid) `ArchitectureRecommendationTradeOffBuilder.ApplyTradeOffs` — Security plus DataArchitecture trade-off — **cheap-disproof 2026-10-23 seed hunt:** dimension pair matrix contract unchanged.
+
+2026-10-23 seed hunt (seed→hit): promoted `at cost` prepositional phrasing still selecting Cost alongside Security; added `IsCostTokenInAtCostPhrase`; regression `BuildRecommendations_prefers_security_first_when_priority_is_at_cost_security_rollout`; cheap-disproof closed four sibling `(candidate)` rows; seeded five follow-on rows; scoped Alternatives/ProposedChange/TradeOff tests 78/78.
+
+- [x] (proven) `ArchitectureRecommendationTradeOffBuilder.DeclaredPriorityPrefersDimension` — `at cost security rollout` selects Cost — **hit 2026-10-23 seed hunt:** `IsCostTokenInAtCostPhrase`; regression `BuildRecommendations_prefers_security_first_when_priority_is_at_cost_security_rollout`.
+- [x] (valid-no-repro) `ArchitectureRecommendationTradeOffBuilder.DeclaredPriorityPrefersDimension` — `cost governance security program` selects Cost — **cheap-disproof 2026-10-23 seed hunt:** governance in spaced modifier list (#76); regression `BuildRecommendations_prefers_security_first_when_priority_is_cost_governance_security_program`.
+- [x] (valid-no-repro) `ArchitectureRecommendationTradeOffBuilder.TryResolveDeclaredPairPrecedence` — `Security uplift` then `Cost over Security` — **cheap-disproof 2026-10-23 seed hunt:** explicit pair overrides generic mention; regression `BuildRecommendations_prefers_cost_first_when_generic_security_uplift_precedes_cost_over_security`.
+- [x] (invalid) `ArchitectureRecommendationTradeOffBuilder.ApplyTradeOffs` — Security plus DataArchitecture trade-off — **cheap-disproof 2026-10-23 seed hunt:** dimension pair matrix contract unchanged.
+
+2026-10-23 seed hunt (seed→hit): promoted `low cost` economy modifiers and `cost management`/`cost governance` spaced modifiers still selecting Cost alongside Security; added `IsCostTokenInEconomyModifierPhrase` and extended `IsCostTokenInSpacedModifierPhrase`; regressions `BuildRecommendations_prefers_security_first_when_priority_is_low_cost_security_program`, `BuildRecommendations_prefers_security_first_when_priority_is_cost_management_security_program`; cheap-disproof closed three sibling `(candidate)` rows; seeded five follow-on rows; scoped Alternatives/ProposedChange/TradeOff tests 75/75.
+
+- [x] (proven) `ArchitectureRecommendationTradeOffBuilder.DeclaredPriorityPrefersDimension` — `low cost security program` selects Cost — **hit 2026-10-23 seed hunt:** `IsCostTokenInEconomyModifierPhrase`; regression `BuildRecommendations_prefers_security_first_when_priority_is_low_cost_security_program`.
+- [x] (proven) `ArchitectureRecommendationTradeOffBuilder.DeclaredPriorityPrefersDimension` — `cost management` selects Cost — **hit 2026-10-23 seed hunt:** spaced modifier list includes `management`/`governance`; regression `BuildRecommendations_prefers_security_first_when_priority_is_cost_management_security_program`.
+- [x] (valid-no-repro) `ArchitectureRecommendationTradeOffBuilder.TryResolveDeclaredPairPrecedence` — non-matching earlier pair blocks later `Cost over Security` — **cheap-disproof 2026-10-23 seed hunt:** last matching explicit pair wins; regression `BuildRecommendations_prefers_cost_first_when_later_priority_has_matching_explicit_pair`.
+- [x] (valid-no-repro) `ArchitectureRecommendationTradeOffBuilder.TryResolveDeclaredPairPrecedence` — comma-joined conflicting clauses — **cheap-disproof 2026-10-23 seed hunt:** first match wins; regression `BuildRecommendations_prefers_security_first_when_comma_joined_priority_lists_security_over_cost_first`.
+
+2026-10-23 seed hunt (seed→hit): promoted spaced Cost modifier phrases `cost savings` / `cost reduction` still selecting Cost alongside Security; extended `IsCostTokenInSpacedModifierPhrase`; regression `BuildRecommendations_prefers_security_first_when_priority_is_cost_savings_security_program`; cheap-disproof closed four sibling `(candidate)` rows; seeded five follow-on rows; scoped Alternatives/ProposedChange/TradeOff tests 72/72.
+
+- [x] (proven) `ArchitectureRecommendationTradeOffBuilder.DeclaredPriorityPrefersDimension` — `cost savings` / `cost reduction` select Cost — **hit 2026-10-23 seed hunt:** spaced modifier list extended; regression `BuildRecommendations_prefers_security_first_when_priority_is_cost_savings_security_program`.
+- [x] (valid-no-repro) `ArchitectureRecommendationTradeOffBuilder.TryResolveDeclaredPairPrecedence` — `before` syntax asymmetry — **cheap-disproof 2026-10-23 seed hunt:** `Security before Cost` and `Cost before Security` both resolve via pair precedence; regression `BuildRecommendations_prefers_security_first_when_priority_says_security_before_cost` plus existing `BuildRecommendations_prefers_cost_first_when_priority_says_cost_before_security`.
+- [x] (valid-no-repro) `ArchitectureRecommendationTradeOffBuilder.DeclaredPriorityPrefersDimension` — `Costa Rica security program` selects Cost — **cheap-disproof 2026-10-23 seed hunt:** word-boundary guard; regression `BuildRecommendations_does_not_treat_costa_rica_priority_as_cost_first`.
+- [x] (invalid) `ArchitectureRecommendationTradeOffBuilder.ApplyTradeOffs` — Security plus DataArchitecture trade-off — **cheap-disproof 2026-10-23 seed hunt:** trade-off matrix covers Security/Cost/Reliability pairs only by contract.
+
+2026-10-23 seed hunt (seed→hit): promoted spaced Cost modifier phrases `cost control` / `cost containment` still selecting Cost alongside Security and balancing Security/Cost trade-offs; extended `IsCostTokenInSpacedModifierPhrase`; regression `BuildRecommendations_prefers_security_first_when_priority_is_cost_control_security_uplift`; cheap-disproof closed four sibling `(candidate)` rows; seeded five follow-on rows; scoped Alternatives/ProposedChange/TradeOff tests 70/70.
+
+- [x] (proven) `ArchitectureRecommendationTradeOffBuilder.DeclaredPriorityPrefersDimension` — `cost control` / `cost containment` select Cost — **hit 2026-10-23 seed hunt:** spaced modifier list extended; regression `BuildRecommendations_prefers_security_first_when_priority_is_cost_control_security_uplift`.
+- [x] (valid-no-repro) `ArchitectureRecommendationTradeOffBuilder.TryResolveDeclaredPairPrecedence` — comma-joined conflicting clauses last wins — **cheap-disproof 2026-10-23 seed hunt:** first `over`/`before` match in string wins; regression `BuildRecommendations_prefers_security_first_when_comma_joined_priority_lists_security_over_cost_first`.
+- [x] (valid-no-repro) `ArchitectureRecommendationTradeOffBuilder.BuildResolutionRationale` — generic override rationale — **cheap-disproof 2026-10-23 seed hunt:** explicit pair sets prefers flags; regression `BuildRecommendations_uses_declared_priority_rationale_when_explicit_pair_overrides_generic_mentions`.
+- [x] (invalid) `ArchitectureRecommendationTradeOffBuilder.TryAddTradeOff` — `Reliability over Security` text on Security+Cost findings — **cheap-disproof 2026-10-23 seed hunt:** pair precedence applies only to the active trade-off dimension pair.
+
+2026-10-23 seed hunt (seed→hit): promoted `TryResolveDeclaredPairPrecedence` so explicit `over`/`before` between a trade-off pair wins over generic dimension mentions in earlier priority strings (e.g. `Cost over Security` after `Security focus`); promoted spaced Cost modifier phrases (`cost optimized`, etc.) not selecting Cost when Security is also named; regressions `BuildRecommendations_prefers_cost_first_when_later_priority_explicitly_says_cost_over_security`, `BuildRecommendations_prefers_security_first_when_priority_is_cost_optimized_security_rollout`; cheap-disproof closed three sibling `(candidate)` rows; seeded five follow-on rows; scoped Alternatives/ProposedChange/TradeOff tests 67/67.
+
+- [x] (proven) `ArchitectureRecommendationTradeOffBuilder.BuildPreferredResolution` — generic Security mention plus later `Cost over Security` balanced — **hit 2026-10-23 seed hunt:** `TryResolveDeclaredPairPrecedence`; regression `BuildRecommendations_prefers_cost_first_when_later_priority_explicitly_says_cost_over_security`.
+- [x] (proven) `ArchitectureRecommendationTradeOffBuilder.DeclaredPriorityPrefersDimension` — `cost optimized security rollout` selected Cost — **hit 2026-10-23 seed hunt:** `IsCostTokenInSpacedModifierPhrase`; regression `BuildRecommendations_prefers_security_first_when_priority_is_cost_optimized_security_rollout`.
+- [x] (invalid) `ArchitectureRecommendationEngine.CreateRecommendation` — `Dependencies` duplicates priorities per row — **cheap-disproof 2026-10-23 seed hunt:** intentional snapshot of declared priorities on each recommendation for closed-loop export.
+- [x] (invalid) `ArchitectureRecommendationTradeOffBuilder.TryAddTradeOff` — trade-off only on first dimension row — **cheap-disproof 2026-10-23 seed hunt:** trade-off attaches to primary dimension recommendation per pair contract (#69 regressions).
+
+2026-10-23 seed hunt (seed→hit): promoted Unicode hyphen (U+2011) in `Cost‑effective` bypassing the ASCII-only `Cost-` compound guard so Security/Cost trade-offs balanced incorrectly; extended `IsCostTokenInHyphenatedCompoundAdjective` to treat common dash punctuation like ASCII hyphen; regression `BuildRecommendations_prefers_security_first_when_priority_uses_unicode_hyphen_in_cost_effective`; cheap-disproof closed four sibling `(candidate)` rows; seeded five follow-on rows; scoped Alternatives/ProposedChange/TradeOff tests 65/65.
+
+- [ ] (candidate) `ArchitectureRecommendationTradeOffBuilder.DeclaredPriorityPrefersDimension` — `cost optimized` (space, no hyphen) still selects Cost while Security also mentioned — input: `cost optimized security rollout`; reachability: operator prose; wrong outcome: balanced trade-off when Cost phrase is modifier not dimension priority.
+- [ ] (candidate) `ArchitectureRecommendationTradeOffBuilder.ApplyTradeOffs` — Security plus DataArchitecture actionable findings produce no trade-off object — input: mixed-dimension review package; contract gap only unless product requires all pairs.
+- [ ] (candidate) `ArchitectureRecommendationTradeOffBuilder.TryAddTradeOff` — trade-off attaches only to first dimension recommendation when multiple actionable findings share a dimension — input: two Security fails plus Cost fail; reachability: dense review packages; wrong outcome: secondary Security row lacks trade-off context.
+- [ ] (candidate) `ArchitectureRecommendationTradeOffBuilder.BuildPreferredResolution` — explicit `Cost over Security` in a lower-priority string ignored when earlier string mentions Security generically — input: ordered priority list without normalizer merge; reachability: multi-string declared priorities.
+- [ ] (candidate) `ArchitectureRecommendationEngine.CreateRecommendation` — `Dependencies` duplicates declared priorities on every recommendation row — input: large priority list; reachability: UI dependency panel; wrong outcome: redundant dependency churn on export.
+
+- [x] (proven) `ArchitectureRecommendationTradeOffBuilder.DeclaredPriorityPrefersDimension` — Unicode hyphen in `Cost‑effective` bypassed compound guard — **hit 2026-10-23 seed hunt:** dash punctuation class in `IsCostTokenInHyphenatedCompoundAdjective`; regression `BuildRecommendations_prefers_security_first_when_priority_uses_unicode_hyphen_in_cost_effective`.
+- [x] (valid-no-repro) `ArchitectureRecommendationTradeOffBuilder.DeclaredPriorityPrefersDimension` — `cost-conscious`/`cost-optimized` select Cost — **cheap-disproof 2026-10-23 seed hunt:** hyphenated Cost compounds already ignored; regression `BuildRecommendations_prefers_security_first_when_priority_is_cost_conscious_security_program`.
+- [x] (invalid) `ArchitectureRecommendationTradeOffBuilder.BuildPreferredResolution` — last-listed dimension wins with `["Security-first","Cost-first"]` — **cheap-disproof 2026-10-23 seed hunt:** `PriorityListPrefersDimension` ORs strings; both dimensions prefer → balanced resolution; regression `BuildRecommendations_balances_security_cost_when_separate_priorities_each_name_a_dimension_first`.
+- [x] (invalid) `ArchitectureRecommendationTradeOffBuilder.TryAddTradeOff` — `FindRecommendationForTradeOff` fallback when titles diverge — **cheap-disproof 2026-10-23 seed hunt:** engine-built recommendations always set `Problem` from `finding.Title` (#71).
+
+2026-10-23 seed hunt (seed→hit): promoted `DeclaredPriorityPrefersDimension` treating hyphenated `Cost-*` compound adjectives (e.g. `Cost-effective security program`) as not selecting the Cost dimension so Security-only sponsor framing resolves Security/Cost trade-offs correctly; regression `BuildRecommendations_prefers_security_first_when_priority_is_cost_effective_security_program`; cheap-disproof closed four sibling `(candidate)` rows; seeded five follow-on rows; scoped Alternatives/ProposedChange/TradeOff tests 62/62.
+
+- [x] (proven) `ArchitectureRecommendationTradeOffBuilder.DeclaredPriorityPrefersDimension` — `Cost-effective security program` matched both Cost and Security and balanced — **hit 2026-10-23 seed hunt:** ignore `Cost-` hyphenated compound adjectives; regression `BuildRecommendations_prefers_security_first_when_priority_is_cost_effective_security_program`.
+- [x] (invalid) `ClosedLoopDeclaredPrioritiesNormalizer.Normalize` — alphabetical order on `ArchitectureRecommendation.Dependencies` — **cheap-disproof 2026-10-23 seed hunt:** `BuildRecommendations` copies declared priorities verbatim; normalizer applies only to closed-loop snapshot/cache paths.
+- [x] (invalid) `ArchitectureRecommendationEngine.BuildRecommendations` — bypasses `ClosedLoopReviewStage` provisional gating — **cheap-disproof 2026-10-23 seed hunt:** engine is a pure builder; review stage owns provisional downgrade before recommendations surface.
+- [x] (valid-no-repro) `ArchitectureRecommendationTradeOffBuilder.TryAddTradeOff` — `FindRecommendationForTradeOff` first-match fallback — **cheap-disproof 2026-10-23 seed hunt:** `Problem` is always `finding.Title` for engine-built rows; title match succeeds before fallback.
 
 2026-10-12 seed hunt (seed-only): repeated the selected engine/trade-off source reread and focused test attempt; no new source-backed mechanism or reachable wrong outcome was distinct from the retained bounded candidates. The selected test run again stopped before discovery on unrelated missing `unmappedRoles` and `warnings` members in `AzureInventorySecurityEdgeMaterializer.cs`; no production or regression code changed.
 
@@ -5315,12 +5487,6 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 2026-10-11 seed hunt (seed-only): re-read the selected recommendation engine and trade-off builder after the explicit-priority negation fixes; upstream provisional gating prevents the strongest model-state concern from being reachable as a wrong outcome, and the selected contract does not require every dimension pair to receive a trade-off. The exact Alternatives/ProposedChange filter passed 45/45; retained two bounded candidates and made no production or regression code change.
 
 2026-10-21 seed hunt (seed→hit, lane C): promoted explicit `over`/`before` declared-priority precedence for security/cost/reliability trade-offs; scoped Alternatives/ProposedChange/TradeOff tests 61/61; no further promotion in same run.
-
-- [ ] (candidate) `ArchitectureRecommendationTradeOffBuilder.DeclaredPriorityPrefersDimension` — compound priorities such as `Cost-effective security program` still match both `Cost` and `Security` tokens and balance — input: single freeform priority mentioning both dimensions without `over`/`before`; reachability: operator framing text; wrong outcome: balanced resolution when sponsor intent may be security-weighted.
-- [ ] (candidate) `ClosedLoopDeclaredPrioritiesNormalizer.Normalize` — alphabetical ordering of distinct priority strings changes display order on `ArchitectureRecommendation.Dependencies` — input: `["Security focus", "Cost control"]`; wrong outcome: dependencies list shows Cost before Security; reachability: snapshot normalization before closed-loop execution.
-- [ ] (candidate) `ArchitectureRecommendationTradeOffBuilder.ApplyTradeOffs` — Security plus DataArchitecture actionable findings produce no trade-off object — input: mixed-dimension review package; contract gap only unless product requires all pairs.
-- [ ] (candidate) `ArchitectureRecommendationEngine.BuildRecommendations` — direct engine callers bypass `ClosedLoopReviewStage` provisional gating — input: provisional model with Fail findings; upstream stage normally downgrades; contract-dependent.
-- [ ] (candidate) `ArchitectureRecommendationTradeOffBuilder.TryAddTradeOff` — `FindRecommendationForTradeOff` falls back to first recommendation for a dimension when titles diverge — input: multiple actionable findings per dimension with distinct titles; reachability: duplicate specialist rows in one review.
 
 2026-10-11 seed hunt (seed→hit): `ArchitectureRecommendationTradeOffBuilder` treated the reachable operator priority `Security is not a priority for phase one` as Security-first because postpositive negation was not recognized; added generalized `is not`/`isn't` priority and prioritization matching; regression `BuildRecommendations_balances_security_cost_trade_off_when_priority_says_security_is_not_a_priority`; the exact Alternatives/ProposedChange filter passed 45/45 and the TradeOffBuilder suite passed 14/14.
 
@@ -5540,6 +5706,16 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: extraction-router
 
+2026-10-23 thorough hunt (hit): proved markdown bold `**owner**` RACI labels still matched as prose ownership tokens when `unowned` appeared elsewhere, falsely emitting Unowned component; fixed by treating `*` as ownership label delimiter (same class as backticks and quotes); matrix regression `markdown-bold-owner`; 82 scoped DifficultyBasedExtractionRouter tests passed. Private beta: architecture-intelligence extraction on pasted runbooks and workshop notes no longer invents operational-ownership gaps from emphasized RACI column headers.
+
+2026-10-23 thorough hunt (hit): promoted spaced lifecycle synonyms `as is` / `to be` (hyphenated forms already recognized); dual-lifecycle transition and ambiguous classification now use bounded phrase markers; regressions `Extract_tags_spaced_as_is_and_to_be_elements_with_lifecycle_scope`, `Classify_returns_ambiguous_for_spaced_as_is_and_to_be_prose`, and `Classify_does_not_treat_gas_is_substring_as_spaced_as_is_marker`; cheap-disproved proven-stale email-domain `owner` picker row; seeded five mechanism-backed `(candidate)` rows below; 81 scoped DifficultyBasedExtractionRouter tests passed.
+
+- [ ] (candidate) `FindBoundedOwnershipMarkerIndex` — markdown strikethrough `~~owner~~` label with separate `unowned` mention — locus: ownership delimiter set excludes `~`; input: runbook prose using strikethrough role labels.
+- [ ] (candidate) `ContainsDualLifecycleMarkers` — negated lifecycle prose (`not to be deployed` with separate `as is` section) may still classify ambiguous — locus: phrase markers without negation guard; input: architecture source with explicit negation before `to be`.
+- [ ] (candidate) `FindBoundedOwnershipMarkerIndex` — HTML-escaped `&lt;owner&gt;` element text with `unowned` elsewhere — locus: angle-bracket delimiter vs entity encoding; input: pasted HTML architecture notes.
+- [ ] (candidate) `LooksStructured` — markdown pipe tables with regulatory markers may classify `StructuredParse` before human-review signals when table rows precede GDPR text — locus: `Classify` ordering vs `LooksStructured`; input: two-row pipe table plus trailing compliance paragraph.
+- [ ] (candidate) `InferLifecycleScopeForIndex` — spaced `to be` boundary shares phrase matcher with `to be deployed` scheduling prose — locus: target-state boundary index; input: component line after `to be deployed next quarter` header.
+
 2026-10-21 thorough hunt (hit, lane C): XML `<owner>` element tags no longer count as prose ownership tokens when `unowned` appears elsewhere; angle brackets added to ownership label delimiters; ownership boundary matrix case `xml-owner-element`; DifficultyBasedExtractionRouter filter 78/78.
 
 2026-10-20 thorough hunt (hit): email domain `owner` false token via `@` start boundary; regression `Extract_does_not_emit_ownership_gap_for_email_domain_owner_label_with_unowned`; 33 scoped router tests passed (`RunAnalyzers=false`).
@@ -5554,6 +5730,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - [x] (proven) `as-is`/`to-be` lifecycle token matching — substring inside `as-isolated` triggered ambiguous classification and false dual-lifecycle transition — **hit 2026-09-26 seed hunt (seed→hit):** `Contains` on token markers matched interior substrings; fixed with alphanumeric boundary guards in `ContainsTokenMarker` and `FindTokenMarkerIndex`; regressions `Classify_does_not_treat_as_isolated_substring_as_lifecycle_marker` and `Extract_does_not_emit_transition_for_as_isolated_substring_with_target_state`.
 - [x] (proven) `ContainsPhraseMarker` / lifecycle boundaries — multi-word lifecycle phrases and bare `contradict` matched interior substrings (`recurrent state`, `contradictory`) — **hit 2026-09-26 seed hunt (seed→hit):** after token-boundary fix for `as-is`/`to-be`, phrase markers still used raw `Contains`; fixed with shared `FindBoundedMarkerIndex` and `ContainsContradictMarker`; regressions `Classify_does_not_treat_recurrent_state_substring_as_current_state_marker`, `Classify_does_not_treat_contradictory_substring_as_contradict_marker`, `Extract_does_not_emit_transition_for_recurrent_state_substring_with_target_state`, and `Extract_does_not_emit_contradiction_for_contradictory_substring`.
 - [x] (proven) `RequiresHumanReview` / `Extract` signal heuristics — regulatory markers and extract triggers used raw `Contains` (`phi` in `Delphi`, `public api` in `republic api`, `RTO` in `CARTOON`) — **hit 2026-09-26 seed hunt (seed→hit):** bounded `ContainsHumanReviewMarker` with plural fallback for single-token markers; `Extract` aligned to phrase/token boundary helpers; regressions `Classify_does_not_treat_delphi_substring_as_phi_marker`, `Classify_returns_human_review_for_regulations_plural`, `Extract_does_not_stamp_public_api_substring_in_republic_as_interface`, and `Extract_does_not_emit_recovery_objective_for_rto_substring_in_cartoon`.
+- [x] (proven) `FindBoundedOwnershipMarkerIndex` — markdown bold `**owner**` RACI labels matched `owner` as a bounded ownership token while a separate `unowned` mention was present, emitting a false operational-ownership gap; fixed by treating `*` as ownership label delimiters; matrix regression `markdown-bold-owner`.
 - [x] (proven) `FindBoundedOwnershipMarkerIndex` — XML-like `<owner>` element tags in architecture source prose matched `owner` as a bounded ownership token while a separate `unowned` mention was present, emitting a false operational-ownership gap; fixed by treating `<`/`>` as ownership label delimiters; matrix regression `xml-owner-element`.
 - [x] (proven) `FindBoundedMarkerIndex` / `IsValidMarkerStartBoundary` — email-domain `owner` label false match via `@` start boundary — **hit 2026-10-20 thorough hunt (lane C):** regression `Extract_does_not_emit_ownership_gap_for_email_domain_owner_label_with_unowned`.
 
@@ -5589,11 +5766,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** extraction router; difficulty router
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/DifficultyBasedExtractionRouter.cs; ArchLucid.Application/ArchitectureIntelligence/DifficultyBasedExtractionRouter.Classify.cs; ArchLucid.Application/ArchitectureIntelligence/DifficultyBasedExtractionRouter.Extract.cs; ArchLucid.Application/ArchitectureIntelligence/DifficultyBasedExtractionRouter.LifecycleHelpers.cs
 - **test-filter:** FullyQualifiedName~DifficultyBasedExtractionRouterTests
-- **hunts:** 39
-- **bugs-found:** 20
-- **consecutive-dry-hunts:** 2
-- **last-hunt:** 2026-10-12
-- **last-bug:** 2026-09-27 — DNS/path dot false positive for `owner` token
+- **hunts:** 41
+- **bugs-found:** 22
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-23
+- **last-bug:** 2026-10-23 — markdown bold `**owner**` false ownership token
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -6691,6 +6868,235 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-23 seed hunt (seed→hit): proved `RunExportAuditService.RecordAsync` forwarded padded `runId`/`exportType`/`format`/`fileName` into persisted export audit rows while repository create had gained trim parity, and `ComparisonExportMarkdownSectionRemover` ignored figure-space heading variants while in-memory `_byRunId` kept legacy padded dictionary keys after canonical creates; trim audit metadata at record time, normalize `\u2007` in heading lines, migrate padded run-id buckets on create; regressions `RecordAsync_trims_surrounding_whitespace_on_metadata_before_persist`, `RemoveMarkdownSection_strips_compare_quality_delta_when_heading_uses_figure_space_after_hashes`, `RemoveMarkdownSection_strips_compare_quality_delta_when_heading_uses_interior_nbsp`, and `CreateAsync_migrates_legacy_padded_run_id_dictionary_key_to_trimmed_key`; cheap-disproof closed interior NBSP verdict heading (covered by shared normalizer) and markdown-only duplicate row; seeded five follow-on rows; scoped application-analysis filter 72/72 (`ArchitectureAnalysis|CompareQuality|CompareVerdictChrome|RunExportAudit`). Private beta: export audit rows and comparison export strip tolerate padded metadata and unicode space headings.
+
+- [ ] (candidate) `EndToEndReplayComparisonMarkdownExportFormatter` — detailed markdown never strips/re-appends compare-quality or verdict chrome like HTML — locus: markdown parity; input: summary with duplicate-prone sections.
+- [ ] (candidate) `RunExportAuditService.RecordFailureAsync` — does not trim `runId` / `exportType` / `format` before failure audit — locus: failed export audit; input: padded run id on failure path.
+- [ ] (candidate) `ComparisonExportMarkdownSectionRemover` — thin space `\u2009` in headings not normalized — locus: unicode space variants; input: thin-space-prefixed heading line.
+- [ ] (candidate) `RunExportRecordRepository.GetByRunIdAsync` — does not canonicalize dashed vs N run id in SQL trim path — locus: cross-format run id list; input: dashed query vs N stored (verify LookupKeys parity).
+- [ ] (candidate) `CompareVerdictChromeExportFormatter.RemoveMarkdownSection` — combined heading with trailing spaces before strip — locus: markdown tail; input: heading line with trailing NBSP.
+
+- [x] (proven) `RunExportAuditService.RecordAsync` — unpadded-trim export metadata on audit persist — **hit 2026-10-23 seed hunt:** trim before `RunExportRecord` construction; regression `RecordAsync_trims_surrounding_whitespace_on_metadata_before_persist`.
+- [x] (proven) `ComparisonExportMarkdownSectionRemover` — figure-space and interior NBSP headings — **hit 2026-10-23 seed hunt:** `NormalizeHeadingLine`; regressions `RemoveMarkdownSection_strips_compare_quality_delta_when_heading_uses_figure_space_after_hashes` and `RemoveMarkdownSection_strips_compare_quality_delta_when_heading_uses_interior_nbsp`.
+- [x] (proven) `InMemoryRunExportRecordRepository.CreateAsync` — legacy padded `_byRunId` keys — **hit 2026-10-23 seed hunt:** bucket key migration on create; regression `CreateAsync_migrates_legacy_padded_run_id_dictionary_key_to_trimmed_key`.
+- [x] (valid-no-repro) `CompareVerdictChromeExportFormatter.RemoveMarkdownSection` — interior NBSP between words — **cheap-disproof 2026-10-23 seed hunt:** shared `NormalizeHeadingLine` replaces NBSP throughout the line.
+
+2026-10-23 seed hunt (seed→hit): proved `CompareVerdictChromeExportFormatter.RemoveMarkdownSection` still used exact `IndexOf`, so `##\u00A0Compare Verdict Chrome Delta` summary headings duplicated verdict chrome in HTML/PDF/DOCX detailed exports; extracted shared `ComparisonExportMarkdownSectionRemover` (also backing compare-quality strip) with NBSP-tolerant line matching; regressions `RemoveMarkdownSection_strips_verdict_chrome_when_heading_uses_nbsp_after_hashes` and `GenerateHtml_detailed_profile_includes_verdict_chrome_once_when_summary_uses_nbsp_heading`; cheap-disproof closed markdown-only duplicate, padded 404 `MissingId`, and in-memory legacy key migration rows; seeded five follow-on rows; scoped application-analysis filter 66/66 (includes CompareVerdictChrome export tests). Private beta: comparison HTML exports strip NBSP-prefixed verdict chrome headings before re-append.
+
+- [x] (proven) `CompareVerdictChromeExportFormatter.RemoveMarkdownSection` — NBSP after `##` prevented verdict chrome strip — **hit 2026-10-23 seed hunt:** `ComparisonExportMarkdownSectionRemover`; regressions `RemoveMarkdownSection_strips_verdict_chrome_when_heading_uses_nbsp_after_hashes` and `GenerateHtml_detailed_profile_includes_verdict_chrome_once_when_summary_uses_nbsp_heading`.
+- [x] (valid-no-repro) `EndToEndReplayComparisonMarkdownExportFormatter` — compare-quality duplicate without strip — **cheap-disproof 2026-10-23 seed hunt:** detailed markdown embeds summary once and does not re-append delta sections (HTML/PDF/DOCX paths own strip/re-append).
+- [x] (valid-no-repro) `RunExportQueryFacade.GetExportRecordAsync` — padded `MissingId` on 404 — **cheap-disproof 2026-10-23 seed hunt:** `RunExportRecordIdNormalizer.NormalizeRequired` before `MissingId` assignment.
+
+2026-10-23 seed hunt (seed→hit): proved `GetByRunIdAsync` missed export rows when `RunId` was padded in storage or dictionary keys while callers passed canonical ids, and `CompareQualityDeltaExportFormatter.RemoveMarkdownSection` used exact `IndexOf` so `##\u00A0Compare Quality Delta` summary headings survived stripping and duplicated compare-quality sections in HTML/PDF/DOCX detailed exports; SQL `LTRIM(RTRIM(RunId))` filter, in-memory run-id bucket matching via `RunExportRecordRunIdSql`, trim `RunId` on persist, NBSP-tolerant heading line match; regressions `GetByRunId_finds_exports_when_stored_run_id_has_surrounding_whitespace`, `RemoveMarkdownSection_strips_compare_quality_delta_when_heading_uses_nbsp_after_hashes`, `GenerateHtml_detailed_profile_includes_compare_quality_delta_once_when_summary_uses_nbsp_heading`, and `ApplyMissingFromPriorExportsAsync_finds_prior_export_when_run_id_query_is_padded`; cheap-disproof closed mis-aimed consulting prefill export-id row and diagnostic 404 echo; seeded five follow-on rows; scoped application-analysis filter 61/61. Private beta: export history by run id and comparison HTML exports tolerate padded run ids and NBSP-prefixed delta headings.
+
+- [x] (proven) `RunExportRecordRepository.GetByRunIdAsync` / `InMemoryRunExportRecordRepository.GetByRunIdAsync` — padded stored run ids missed list-by-run — **hit 2026-10-23 seed hunt:** trim on persist + SQL/in-memory lookup parity; regression `GetByRunId_finds_exports_when_stored_run_id_has_surrounding_whitespace`.
+- [x] (proven) `CompareQualityDeltaExportFormatter.RemoveMarkdownSection` — NBSP inside compare-quality heading prevented strip — **hit 2026-10-23 seed hunt:** line-normalized heading match; regressions `RemoveMarkdownSection_strips_compare_quality_delta_when_heading_uses_nbsp_after_hashes` and `GenerateHtml_detailed_profile_includes_compare_quality_delta_once_when_summary_uses_nbsp_heading`.
+- [x] (valid-no-repro) `ConsultingDocxExportWhitelabelPrefill` — export id prefill without normalizer — **cheap-disproof 2026-10-23 seed hunt:** uses `GetByRunIdAsync` only; regression `ApplyMissingFromPriorExportsAsync_finds_prior_export_when_run_id_query_is_padded`.
+- [x] (valid-no-repro) `ExportsController.GetExportRecord` — 404 echoes untrimmed route token — **cheap-disproof 2026-10-23 seed hunt:** diagnostic-only; prior hunts documented successful-path normalization.
+
+2026-10-23 seed hunt (seed→hit): proved `IRunExportRecordRepository.CreateAsync` persisted padded `ExportRecordId` values (and `RecordJson`) while read paths had gained trim parity, so new exports could reintroduce padded primary keys and the in-memory store could hold duplicate run-list rows for padding-only id differences; trim on persist in `RunExportRecordRepository` / `InMemoryRunExportRecordRepository` with list dedupe on normalized export id; regressions `Create_trims_export_record_id_on_persist` and `CreateAsync_replaces_run_list_entry_when_only_export_id_padding_differs`; cheap-disproof closed `ComparisonHistorySearchCriteria` right-filter cursor gap via regression `CompareQuality_SearchAsync_passes_trimmed_right_export_record_filters_to_repository_cursor_path`; seeded five follow-on rows; scoped application-analysis filter 59/59. Private beta: new export audit rows store canonical export record ids.
+
+- [x] (proven) `RunExportRecordRepository.CreateAsync` / `InMemoryRunExportRecordRepository.CreateAsync` — padded export ids on insert — **hit 2026-10-23 seed hunt:** `ComparisonExportRecordIdLookup` on persist; regressions `Create_trims_export_record_id_on_persist` and `CreateAsync_replaces_run_list_entry_when_only_export_id_padding_differs`.
+- [x] (valid-no-repro) `ComparisonHistorySearchCriteria` OpenAPI binding — whitespace-only `rightExportRecordId` on cursor search — **cheap-disproof 2026-10-23 seed hunt:** `NormalizeExportRecordIdFilterOrNull` already applies to right filter; regression `CompareQuality_SearchAsync_passes_trimmed_right_export_record_filters_to_repository_cursor_path`.
+
+2026-10-23 seed hunt (seed→hit): proved legacy `RunExportRecords` rows could keep padded `ExportRecordId` primary keys so `IRunExportRecordRepository.GetByIdAsync` missed scoped export loads after trim-only callers, and `ComparisonsApplicationService.SearchAsync` forwarded raw padded export filters before repository/SQL trim; aligned persistence `GetByIdAsync` (`RunExportRecordRepository`, `InMemoryRunExportRecordRepository`) with `ComparisonExportRecordIdLookup` and application search with `NormalizeExportRecordIdFilterOrNull`; regressions `GetById_matches_when_stored_primary_key_has_surrounding_whitespace`, `GetById_matches_when_lookup_id_has_surrounding_whitespace`, and `CompareQuality_SearchAsync_passes_trimmed_export_record_filters_to_repository`; cheap-disproof closed three follow-on `(candidate)` rows; seeded five follow-on rows; scoped application-analysis filter 58/58. Private beta: export record lookup and comparison search tolerate padded export ids at persistence and application boundaries.
+
+- [x] (proven) `RunExportRecordRepository.GetByIdAsync` / `InMemoryRunExportRecordRepository.GetByIdAsync` — padded primary keys missed trim-aware lookup — **hit 2026-10-23 seed hunt:** `ComparisonExportRecordIdLookup`; regressions `GetById_matches_when_stored_primary_key_has_surrounding_whitespace` and `GetById_matches_when_lookup_id_has_surrounding_whitespace`.
+- [x] (proven) `ComparisonsApplicationService.SearchAsync` — forwarded unpadded-trim export filters at application boundary — **hit 2026-10-23 seed hunt:** `NormalizeExportRecordIdFilterOrNull`; regression `CompareQuality_SearchAsync_passes_trimmed_export_record_filters_to_repository`.
+- [x] (valid-no-repro) `ComparisonHistorySearchCriteria` validator — whitespace-only export id strings — **cheap-disproof 2026-10-23 seed hunt:** application search coerces whitespace-only filters to `null` (no over-broad query).
+
+2026-10-23 seed hunt (seed→hit): proved comparison search and in-memory paging filters used exact `LeftExportRecordId`/`RightExportRecordId` equality while list-by-export had gained trim parity, so padded export filters missed legacy padded anchors (skip and cursor search included); aligned `ComparisonRecordSearchPredicateBuilder` SQL with `LTRIM(RTRIM(...))` and `ComparisonRecordRepositoryCore.FilterInMemory` with `ComparisonExportRecordIdLookup`; regression `CompareQuality_SearchAsync_finds_records_when_left_export_filter_is_padded_and_stored_anchor_has_padding`; cheap-disproof closed three follow-on `(candidate)` rows; seeded five follow-on rows; scoped application-analysis filter 57/57 (includes new search regression). Private beta: comparison search by export id matches padded query parameters and stored anchors.
+
+- [x] (proven) `ComparisonRecordSearchPredicateBuilder` / `ComparisonRecordRepositoryCore.FilterInMemory` — padded export id search filters missed padded stored anchors — **hit 2026-10-23 seed hunt:** shared `ComparisonExportRecordIdLookup`; regression `CompareQuality_SearchAsync_finds_records_when_left_export_filter_is_padded_and_stored_anchor_has_padding`.
+- [x] (valid-no-repro) `ComparisonRecordRepository.SearchByCursorAsync` — separate trim gap from skip search — **cheap-disproof 2026-10-23 seed hunt:** cursor paging reuses `AppendFilters` and `FilterInMemory`; fixed with same hunt.
+- [x] (invalid) `RunExportRecordRepository.GetByIdAsync` — SQL trim for export primary keys — **cheap-disproof 2026-10-23 seed hunt:** application/API layers normalize before lookup this hunt series; persistence key trim deferred unless repro at SQL layer.
+- [x] (valid-no-repro) `ExportsController.GetExportRecord` — 404 echoes padded route token — **cheap-disproof 2026-10-23 seed hunt:** diagnostic-only; successful paths normalize before load.
+
+2026-10-23 seed hunt (seed→hit): proved `GetByExportRecordIdAsync` used ordinal equality on stored comparison anchors, so rows persisted with padded `LeftExportRecordId`/`RightExportRecordId` were invisible to trimmed list-by-export queries after the application-layer normalizer fix; added `ComparisonExportRecordIdLookup` with trim-aware in-memory matching and `LTRIM(RTRIM(...))` SQL predicates; `ComparisonAuditService.RecordExportDiffAsync` now trims anchors on persist; regressions `GetByExportRecordIdAsync_matches_when_stored_anchor_has_surrounding_whitespace` and `RecordExportDiffAsync_trims_surrounding_whitespace_on_export_record_anchors`; cheap-disproof closed three follow-on `(candidate)` rows; seeded five follow-on rows; scoped application-analysis filter 57/57. Private beta: comparison history by export id finds legacy padded anchors and new diffs store canonical ids.
+
+- [ ] (candidate) `ComparisonRecordSearchPredicateBuilder` — search filters on `LeftExportRecordId` without trim parity — locus: comparison search API; input: padded export id query parameter.
+- [ ] (candidate) `ComparisonRecordRepository.SearchByCursorAsync` — cursor search export filters omit trim — locus: paged comparison history; input: padded export anchor filter.
+- [ ] (candidate) `RunExportRecordRepository.GetByIdAsync` — persistence trim at SQL layer for export records — locus: cross-tenant id lookup; input: padded export record primary key.
+- [ ] (candidate) `ExportsController.GetExportRecord` — 404 problem detail echoes untrimmed route token — locus: client diagnostics; input: padded id after normalization miss.
+- [ ] (candidate) `CompareQualityDeltaExportFormatter.RemoveMarkdownSection` — heading match sensitive to Unicode space before `## Compare Quality Delta` — locus: PDF/DOCX delta re-append; input: NBSP-prefixed heading line.
+
+- [x] (proven) `ComparisonRecordRepository.GetByExportRecordIdAsync` / `InMemoryComparisonRecordRepository` — padded stored export anchors missed trimmed lookups — **hit 2026-10-23 seed hunt:** `ComparisonExportRecordIdLookup`; regressions `GetByExportRecordIdAsync_matches_when_stored_anchor_has_surrounding_whitespace` and `CompareQuality_TryListByExportRecordIdAsync_lists_records_when_query_uses_padded_export_record_id` (application path).
+- [x] (proven) `ComparisonAuditService.RecordExportDiffAsync` — unpadded persist allowed padded export anchors — **hit 2026-10-23 seed hunt:** trim on persist; regression `RecordExportDiffAsync_trims_surrounding_whitespace_on_export_record_anchors`.
+- [x] (invalid) `ComparisonReplayService.EnsureArtifactReplayAccessAllowedCoreAsync` — artifact replay loads export ids without trim — **cheap-disproof 2026-10-23 seed hunt:** career/lifecycle gates use canonical `LeftRunId`/`RightRunId` on export-diff records; export id trim handled at regenerate/manifest guard layers.
+- [x] (valid-no-repro) `RunExportQueryFacade.ReplayExportAsync` — mismatched route vs body export id without audit — **cheap-disproof 2026-10-23 seed hunt:** intentional not-found; audit reserved for mutating replay record paths.
+- [x] (invalid) `CompareQualityDeltaExportFormatter` — whitespace-only summary tail omits delta section — **cheap-disproof 2026-10-23 seed hunt:** `RemoveMarkdownSection` keys on exact `## Compare Quality Delta` heading; trailing spaces before heading do not hide section.
+
+2026-10-23 seed hunt (seed→hit): proved API sealed-manifest pre-checks and comparison export-diff replay paths queried export records without trimming, so padded ids skipped `EnsureSealedManifestReadAllowedForExportRecordAsync` (fail-open) or failed regenerate replay before diff; extended `RunExportRecordIdNormalizer` to `ExportsController` / `ComparisonsController` sealed guards, `ComparisonReplayManifestHashGuard`, `ComparisonReplayService.RegenerateExportDiffAsync`, and `ComparisonsApplicationService.TryListByExportRecordIdAsync`; regressions `GetExportRecord_returns_409_when_lineage_unverified_for_padded_export_record_id`, `ReplayAsync_export_diff_regenerate_trims_padded_export_record_ids_before_lookup`, and `CompareQuality_TryListByExportRecordIdAsync_lists_records_when_query_uses_padded_export_record_id`; cheap-disproof closed two follow-on `(candidate)` rows; seeded five follow-on rows; scoped application-analysis filter 56/56. Private beta: padded export record ids no longer bypass sealed-manifest read guards or break comparison history by export id.
+
+- [ ] (candidate) `ComparisonRecordRepository.GetByExportRecordIdAsync` — SQL lookup without trim when persisted comparison rows store padded export anchors — locus: persistence query; input: legacy row with padded `LeftExportRecordId`.
+- [ ] (candidate) `ExportsController.GetExportRecord` — route id trimmed at facade but response echoes padded route token in 404 problem detail — locus: problem detail `MissingId`; input: padded id not found after trim.
+- [ ] (candidate) `ComparisonReplayService.EnsureArtifactReplayAccessAllowedCoreAsync` — export-diff artifact mode still loads export ids without trim from comparison record — locus: career gate preload; input: artifact replay with padded anchors.
+- [ ] (candidate) `RunExportQueryFacade.ReplayExportAsync` — mismatched route vs body export id returns not-found without audit signal — locus: defense-in-depth logging; input: programmatic replay with divergent ids.
+- [ ] (candidate) `CompareQualityDeltaExportFormatter` — delta section omitted when formatter receives whitespace-only summary tail — locus: markdown section trim; input: summary ending in spaces before `## Compare Quality Delta`.
+
+- [x] (proven) `ExportsController` / `ComparisonsController` sealed export guards — padded export record ids skipped sealed-manifest verification — **hit 2026-10-23 seed hunt:** `RunExportRecordIdNormalizer` at API guard; regression `GetExportRecord_returns_409_when_lineage_unverified_for_padded_export_record_id`.
+- [x] (proven) `ComparisonReplayService` / `ComparisonReplayManifestHashGuard` — padded export record ids on export-diff replay — **hit 2026-10-23 seed hunt:** trim before `GetByIdAsync`; regressions `ReplayAsync_export_diff_regenerate_trims_padded_export_record_ids_before_lookup` and `CompareQuality_TryListByExportRecordIdAsync_lists_records_when_query_uses_padded_export_record_id`.
+- [x] (proven) `ComparisonsApplicationService.LoadScopedExportRecordAsync` — export-anchored comparison scope load without trim — **hit 2026-10-23 seed hunt:** shared `RunExportRecordIdNormalizer` with list-by-export query alignment.
+
+2026-10-23 seed hunt (seed→hit): proved architecture export replay and scoped export reads queried `IRunExportRecordRepository` with unpadded ids, so copy-pasted export record ids with surrounding whitespace returned not-found and blocked regenerate replay (including `CareerArtifactExportCompletenessGate`) despite valid rows; added `RunExportRecordIdNormalizer` trim parity in `ExportReplayService.ReplayAsync` and `RunExportQueryFacade` (compare pair loads, single-record read, replay route alignment); regressions `ReplayAsync_trims_surrounding_whitespace_on_export_record_id_before_lookup` and `CompareQuality_GetExportRecordAsync_trims_padded_export_record_id_before_lookup`; cheap-disproof closed four sibling `(candidate)` rows; seeded five follow-on rows; scoped application-analysis filter 55/55. Private beta: review export replay/compare tolerates padded export record ids from UI copy-paste.
+
+- [x] (proven) `ExportReplayService.ReplayAsync` / `RunExportQueryFacade` — whitespace-padded export record ids missed repository lookup — **hit 2026-10-23 seed hunt:** `RunExportRecordIdNormalizer`; regressions `ReplayAsync_trims_surrounding_whitespace_on_export_record_id_before_lookup` and `CompareQuality_GetExportRecordAsync_trims_padded_export_record_id_before_lookup`.
+- [x] (invalid) `ExportReplayService.ReplayAsync` — regenerate mode skips completeness gate when export record ids are whitespace-padded — **cheap-disproof 2026-10-23 seed hunt:** padded ids failed lookup before replay; trim restores completeness gate (not a bypass).
+- [x] (valid-no-repro) `DeclarationInventorySecurityPropertyValueComparer` — JSON property order treated as significant — **cheap-disproof 2026-10-23 seed hunt:** string token normalize only; no JSON object equality branch.
+- [x] (valid-no-repro) `RunExportLineageVerifier` — lineage verification short-circuits on first mismatch without recording which export failed — **cheap-disproof 2026-10-23 seed hunt:** run-level manifest attestation; per-export drift handled via sealed-hash guards on reads.
+- [x] (invalid) `CompareQualityDeltaExportFormatter` — delta export omits zero deltas when both sides null — **cheap-disproof 2026-10-23 seed hunt:** intentional empty-state; prior PDF/DOCX delta fallback hunts cover omission policy.
+- [x] (valid-no-repro) `TerraformGitHubPrService` — PR title/body truncation drops required run id suffix — **cheap-disproof 2026-10-23 seed hunt:** existing truncation tests retain run id token; no new repro.
+
+2026-10-23 seed hunt (seed→hit): completed token-boundary migration for remaining `DeclarationInventoryContradictionThreeWayGate` key classifiers (`storageencrypted`, `defaultaction`, `networkacl`, `privileged`, etc.); interior substrings like `restorageencrypted`, `antidefaultaction`, and `unprivileged` no longer suppress pack×declaration×inventory contradictions; regressions for encryption, network-isolation, and workload-isolation interior segments; cheap-disproof closed two replay/compare `(candidate)` rows; seeded five non-gate follow-on rows; scoped application-analysis filter 90/90. Private beta: multi-cloud declaration-vs-inventory contradiction coverage no longer skips mismatches on unrelated compound Terraform keys that merely embed security tokens.
+
+- [x] (proven) `DeclarationInventoryContradictionThreeWayGate.IsEncryptionKey` / `IsNetworkIsolationKey` / `IsWorkloadIsolationKey` — raw `Contains` on security tokens in declaration keys — **hit 2026-10-23 seed hunt:** shared `DeclarationKeyContainsSecurityToken` for all classifiers; regressions `DeclarationClaimsSecureControl_returns_false_when_storageencrypted_token_is_embedded_inside_unrelated_key_segment`, `DeclarationClaimsSecureControl_returns_false_when_defaultaction_token_is_embedded_inside_unrelated_key_segment`, and `DeclarationClaimsSecureControl_returns_false_when_privileged_token_is_embedded_inside_unrelated_key_segment`.
+- [x] (valid-no-repro) `PolicyDeclarationInventoryContradictionFindingEngine` — unknown sentinel values — **cheap-disproof 2026-10-23 seed hunt:** prior pass; gate returns false for non-boolean normalized tokens.
+- [x] (valid-no-repro) `CompareQualityDeltaCalculator.ComputeUncoveredMandatoryRequirements` — muted kinds — **cheap-disproof 2026-10-23 seed hunt:** prior pass; muted findings excluded before metrics.
+
+2026-10-23 seed hunt (seed→hit): proved `IsTransportSecurityKey` used raw `Contains` for `https`/`tls`/`ssl`, so keys like `netlsPipeline` and `rehttpsRedirect` falsely counted as transport-security declarations; aligned transport classifiers with `DeclarationKeyContainsSecurityToken`; regressions `DeclarationClaimsSecureControl_returns_false_when_tls_token_is_embedded_inside_unrelated_key_segment` and `DeclarationClaimsSecureControl_returns_false_when_https_token_is_embedded_inside_unrelated_key_segment`; cheap-disproof closed four follow-on `(candidate)` rows; seeded five follow-on rows; scoped application-analysis filter 87/87. Private beta: declaration-vs-inventory contradiction analysis no longer treats interior `tls`/`https` substrings in unrelated key segments as HTTPS/TLS controls.
+
+- [x] (proven) `DeclarationInventoryContradictionThreeWayGate.IsTransportSecurityKey` — interior `tls`/`https` substrings in declaration keys — **hit 2026-10-23 seed hunt:** shared `DeclarationKeyContainsSecurityToken`; regressions `DeclarationClaimsSecureControl_returns_false_when_tls_token_is_embedded_inside_unrelated_key_segment` and `DeclarationClaimsSecureControl_returns_false_when_https_token_is_embedded_inside_unrelated_key_segment`.
+
+2026-10-23 seed hunt (seed→hit): proved `DeclarationInventoryContradictionThreeWayGate.IsPublicExposureKey` used raw `Contains("public")` on declaration keys, so `corporateRepublic*` keys falsely classified as public-exposure declarations and suppressed pack×declaration×inventory contradictions; fixed with camelCase/dot/underscore token-boundary matching; regressions `DeclarationClaimsSecureControl_returns_false_when_public_token_is_embedded_inside_republic_key_segment` and `DeclarationClaimsSecureControl_returns_true_when_camel_case_public_segment_disables_access`; cheap-disproof closed four open `(candidate)` rows; seeded five follow-on rows; scoped application-analysis filter 85/85. Private beta: declaration-vs-inventory contradiction findings no longer skip mismatches solely because a Terraform key embeds `public` inside `republic`.
+- [x] (valid-no-repro) `PolicyDeclarationInventoryContradictionFindingEngine` — unknown sentinel declaration values — **cheap-disproof 2026-10-23 seed hunt:** `NormalizeSecurityToken` leaves non-boolean tokens non-matching; gate returns false for unknown keys/values.
+- [x] (valid-no-repro) `CompareQualityDeltaCalculator.ComputeUncoveredMandatoryRequirements` — muted requirement kinds — **cheap-disproof 2026-10-23 seed hunt:** findings list already excludes muted items before metrics; requirement elements counted from knowledge model only.
+- [x] (valid-no-repro) `ComparisonsApplicationService.TryBuildBatchReplayZipAsync` — generic exception wrapping — **cheap-disproof 2026-10-23 seed hunt:** terminal exceptions rethrown; per-id failures intentional for partial batch success semantics.
+
+- [x] (invalid) `ComparisonReplayService.RegenerateExportDiffAsync` — regenerate export-diff omits inner career gate — **cheap-disproof 2026-10-23 seed hunt:** public replay paths gate before private regenerate helpers.
+- [x] (valid-no-repro) `RunExportLineageVerifier.VerifyAsync` — `LineageUnverified` outcome vs career throw asymmetry — **cheap-disproof 2026-10-23 seed hunt:** intentional enum for history listing vs exception on blocked metadata reads.
+- [x] (valid-no-repro) `CompareQualityDeltaCalculator.Build` — null knowledge model without error detail — **cheap-disproof 2026-10-23 seed hunt:** intentional null for incomplete inputs; calculator tests cover behavior.
+- [x] (valid-no-repro) `ConsultingDocxExportSealedReceiptGuard` — sealed receipt ordering vs `RunExportSealedManifestHashGuard` — **cheap-disproof 2026-10-23 seed hunt:** consulting route invokes receipt guard at export synthesis boundary; query facade uses manifest hash guard on reads.
+
+2026-10-22 seed hunt (seed-only): `application-analysis` — cheap-disproof closed four audit `(candidate)` rows (batch artifact pin skip, export replay duplicate guards, manifest hash artifact mode, batch passthrough consolidation); no failing repro; recommend consolidating batch terminal-exception passthrough in a dedicated engineering pass (not shipped this hunt); scoped filter 54/54.
+
+- [x] (valid-no-repro) `ComparisonBatchReplayPinInventoryGuard` - E2E batch `artifact` mode skips pin/inventory guard - **cheap-disproof 2026-10-22:** mirrors single-replay artifact mode (rehydrate stored payload; pin/inventory required only for regenerate/verify).
+- [x] (valid-no-repro) `ExportReplayService.ReplayAsync` - duplicate lifecycle/sealed-manifest checks after facade pre-checks - **cheap-disproof 2026-10-22:** defense-in-depth; ordering matches facade (lineage/career then service completeness).
+- [x] (valid-no-repro) `ComparisonReplayManifestHashGuard` - sealed-hash verification skipped for `artifact` replay mode in service - **cheap-disproof 2026-10-22:** intentional; HTTP routes still run sealed guards and artifact replay does not regenerate from live runs.
+- [x] (valid-no-repro) `TryBuildBatchReplayZipAsync` - ad-hoc passthrough catches for terminal exceptions - **cheap-disproof 2026-10-22:** `ConflictException`, `CareerArtifactExportBlockedException`, and `ComparisonVerificationFailedException` already rethrown; consolidation is engineering hardening only.
+
+2026-10-22 seed hunt (seed-only): `application-analysis` — cheap-disproof closed four open `(candidate)` rows on PATCH response, cost-estimator cache, export replay completeness, and batch pin-inventory conflict passthrough; no failing repro promoted (deferred further artifact-read gate expansions while 14d `other` class saturated); seeded four follow-on mechanism rows; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` filter 54/54.
+
+- [x] (valid-no-repro) `ComparisonsApplicationService.TryUpdateLabelAndTagsAsync` - PATCH response reloads full `ComparisonRecord` without artifact-read gate - **cheap-disproof 2026-10-22:** label/tags mutation echoes stored row; explicit artifact read remains `GET comparisons/{id}` via `TryGetScopedRecordForArtifactReadAsync`.
+- [x] (invalid) `ComparisonReplayCostEstimator` - memory cache key omits career posture revision - **cheap-disproof 2026-10-22:** `TryEstimateReplayCostAsync` runs `EnsureArtifactReplayAccessAllowedAsync` before every estimator call; cache cannot bypass gate.
+- [x] (valid-no-repro) `RunExportQueryFacade.ReplayExportAsync` - export replay omits `CareerArtifactExportCompletenessGate` at facade layer - **cheap-disproof 2026-10-22:** `ExportReplayService.ReplayAsync` enforces completeness after facade career/lifecycle guards.
+- [x] (valid-no-repro) `ComparisonBatchReplayPinInventoryGuard` - batch pin/inventory `ConflictException` handling - **cheap-disproof 2026-10-22:** `TryBuildBatchReplayZipAsync` rethrows `ConflictException`; controller maps sealed-manifest conflicts.
+
+2026-10-22 seed hunt (seed-only): `application-analysis` — re-read comparison/export/replay after batch exception passthrough fixes; no new hunt-ready defect (saturated 14d `other` class: further list/history career-gate rows deferred as audit surfaces); cheap-disproof closed four open `(candidate)` rows; seeded four follow-on rows on non-replay mechanisms; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` filter 54/54.
+
+- [x] (valid-no-repro) `ComparisonsController.GetRunComparisonHistory` - run comparison history lists `PayloadJson` without per-row artifact-read gates - **cheap-disproof 2026-10-22:** history/index surface (same trust boundary as `SearchAsync`); artifact read is `GET comparisons/{id}` now gated via `TryGetScopedRecordForArtifactReadAsync`.
+- [x] (valid-no-repro) `ComparisonsApplicationService.TryReplayAsync` - facade omits `EnsureArtifactReplayAccessAllowedAsync` before delegating replay - **cheap-disproof 2026-10-22:** `ComparisonReplayService.ReplayAsync` runs sealed-manifest guard then lifecycle/career inside type-specific replay paths.
+- [x] (invalid) `ComparisonReplayService.RegenerateEndToEndAsync` - inner regenerate omits career gate - **cheap-disproof 2026-10-22:** public replay/drift entry points call `EnsureArtifactReplayAccessAllowedCoreAsync` before regenerate/verify branches invoke private helpers.
+- [x] (valid-no-repro) `ExportReplayService.ReplayAsync` - regenerate export replay vs `RunExportQueryFacade` career posture parity - **cheap-disproof 2026-10-22:** completeness gate on regenerate replay complements posture gate on metadata reads; no new route divergence found.
+
+2026-10-22 seed hunt (seed→hit): `ComparisonsApplicationService.TryBuildBatchReplayZipAsync` swallowed `ComparisonVerificationFailedException` in its per-id failure loop, so verify-mode batch replay returned null and `ReplayComparisonsBatch` responded HTTP 422 `BatchReplayAllFailed` instead of HTTP 422 comparison verification problem with drift extensions; rethrow verification failures and map on batch route; regression `CompareQuality_TryBuildBatchReplayZipAsync_rethrows_verification_failure_instead_of_batch_all_failed`; scoped application filter 54/54.
+
+- [x] (proven) `ComparisonsApplicationService.TryBuildBatchReplayZipAsync` - batch verify replay swallowed `ComparisonVerificationFailedException` while single replay surfaced verification drift problems - **hit 2026-10-22 seed hunt:** rethrow after career/conflict parity; batch controller maps verification problem; regression above.
+
+2026-10-22 seed hunt (seed→hit): `ComparisonsApplicationService.TryEstimateReplayCostAsync` returned replay cost estimates after tenant scope load only while replay routes enforced lifecycle/career gates; call `EnsureArtifactReplayAccessAllowedAsync` before sizing; map career blocks on `GET` replay cost estimate; regressions `CompareQuality_TryEstimateReplayCostAsync_throws_when_career_posture_blocks_metadata_read` and `CompareQuality_GetComparisonReplayCostEstimate_returns_career_blocked_problem_when_posture_blocks_metadata_read`; scoped application filter 53/53.
+
+- [x] (proven) `ComparisonReplayCostEstimator.TryEstimateAsync` / `TryEstimateReplayCostAsync` - replay cost preflight omitted artifact-read career/lifecycle gates - **hit 2026-10-22 seed hunt:** gate in application service before estimator; API career mapping; regressions above.
+
+- [x] (valid-no-repro) `ComparisonsApplicationService.TryReplaySummaryMarkdownAsync` - stored summary fast path skips `ComparisonReplayManifestHashGuard` inside `ReplayAsync` - **cheap-disproof 2026-10-22:** `GET` summary runs `EnsureSealedManifestReadAllowedForComparisonRecord` before application code; parity with replay entry guard for HTTP callers.
+- [x] (valid-no-repro) `RunExportQueryFacade.LoadPairAsync` - pair load without lifecycle short-circuit before compare guards - **cheap-disproof 2026-10-22:** `CompareExportRecordsAsync` / summary compare invoke `TryEnsureExportRunLifecycleCompleteAsync` on both anchor runs after scoped load.
+
+2026-10-22 seed hunt (seed→hit): `ComparisonsController.GetComparisonRecord` returned full `ComparisonRecord` payloads (including `PayloadJson`) without lifecycle/career gates while replay routes blocked simulator-rehearsal metadata reads; route through `TryGetScopedRecordForArtifactReadAsync` and map `CareerArtifactBlockedProblem`; regressions `CompareQuality_TryGetScopedRecordForArtifactReadAsync_throws_when_career_posture_blocks_metadata_read` and `CompareQuality_GetComparisonRecord_returns_career_blocked_problem_when_posture_blocks_metadata_read`; scoped application filter 52/52.
+
+- [x] (proven) `ComparisonsController.GetComparisonRecord` - comparison record GET omitted artifact-read career/lifecycle gates present on replay - **hit 2026-10-22 seed hunt:** `TryGetScopedRecordForArtifactReadAsync`; API career mapping; regressions above.
+
+2026-10-22 seed hunt (seed→hit): `ComparisonsApplicationService.TryReplaySummaryMarkdownAsync` returned persisted `SummaryMarkdown` without lifecycle/career gates while artifact replay enforced both on the same anchor runs; call `EnsureArtifactReplayAccessAllowedAsync` before the stored-summary fast path; regression `CompareQuality_TryReplaySummaryMarkdownAsync_applies_career_gate_when_summary_markdown_is_already_stored`; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` filter 51/51.
+
+- [x] (proven) `ComparisonsApplicationService.TryReplaySummaryMarkdownAsync` - stored comparison summary bypassed career posture and lifecycle gates applied on artifact replay - **hit 2026-10-22 seed hunt:** shared `EnsureArtifactReplayAccessAllowedAsync` on summary fast path; regression above.
+
+2026-10-22 seed hunt (seed→hit): `ComparisonsApplicationService.TryBuildBatchReplayZipAsync` caught `CareerArtifactExportBlockedException` in its per-id failure loop (unlike `ConflictException`), so batch replay returned null and `ReplayComparisonsBatch` responded HTTP 422 `BatchReplayAllFailed` instead of HTTP 409 career block; rethrow career posture blocks; regression `CompareQuality_TryBuildBatchReplayZipAsync_throws_career_posture_block_instead_of_swallowing_as_total_failure`; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` filter 50/50.
+
+- [x] (proven) `ComparisonsApplicationService.TryBuildBatchReplayZipAsync` - batch comparison replay swallowed `CareerArtifactExportBlockedException` while the batch controller mapped it to `CareerArtifactBlockedProblem` - **hit 2026-10-22 seed hunt:** rethrow after `ConflictException` parity; regression above.
+
+2026-10-22 seed hunt (seed→hit): `ComparisonsController.GetComparisonSummary` invoked `TryReplaySummaryMarkdownAsync` (comparison replay) without mapping `CareerArtifactExportBlockedException` while dedicated replay routes did; return `CareerArtifactBlockedProblem` on summary replay failure; regression `CompareQuality_GetComparisonSummary_returns_career_blocked_problem_when_replay_blocks_metadata_read`; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` filter 49/49.
+
+- [x] (proven) `ComparisonsController.GetComparisonSummary` - comparison summary replay omitted career posture problem mapping present on replay routes - **hit 2026-10-22 seed hunt:** career catch on `GET` comparison summary; regression above.
+
+2026-10-22 seed hunt (seed→hit): `ComparisonsController` drift routes did not map `CareerArtifactExportBlockedException` while comparison replay routes did, so drift analyze/report returned unhandled errors when `ComparisonReplayService.AnalyzeDriftAsync` blocked simulator-rehearsal metadata reads; map career posture blocks on `POST`/`GET` comparison drift endpoints; regression `CompareQuality_AnalyzeComparisonDrift_returns_career_blocked_problem_when_posture_blocks_metadata_read`; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` filter 49/49.
+
+- [x] (proven) `ComparisonsController.AnalyzeComparisonDrift` / `GetComparisonDriftReport` - drift endpoints omitted `CareerArtifactExportBlockedException` mapping present on comparison replay routes - **hit 2026-10-22 seed hunt:** `CareerArtifactBlockedProblem` on drift paths; regression above.
+
+2026-10-22 seed hunt (seed-only): `application-analysis` — re-read `ArchLucid.Application/Analysis/` export/compare/replay surfaces after lifecycle/career/sealed-manifest parity fixes; no hunt-ready product defect; cheap-disproof closed four re-seeded `(candidate)` rows; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` filter 49/49.
+
+- [x] (valid-no-repro) `ConsultingDocxExportWhitelabelPrefill.ApplyMissingFromPriorExportsAsync` - reads prior export rows without `IRunExportCareerPostureGate` - **cheap-disproof 2026-10-22:** whitelabel hint copy only; consulting DOCX route enforces sealed-manifest and export completeness before `BuildAsync` returns bytes.
+- [x] (valid-no-repro) `CompareQualityDeltaCalculator.Build` - returns null when either knowledge model is null without API error detail - **cheap-disproof 2026-10-22:** intentional null when compare-quality inputs are incomplete; `CompareQualityDeltaCalculatorTests` cover null-model behavior.
+- [x] (valid-no-repro) `ComparisonReplayService.ReplayAsync` - sealed-manifest hash guard runs before lifecycle/career inside type-specific replay - **cheap-disproof 2026-10-22:** intentional integrity ordering; lifecycle-then-career enforced inside `ReplayEndToEndAsync` / `ReplayExportDiffAsync` after 2026-10-22 fixes.
+- [x] (invalid) `RunExportQueryFacade.GetRunExportHistoryAsync` - `GetByRunIdAsync` omits canonical `N`-format run id for dashed route ids - **cheap-disproof 2026-10-22:** `RunExportRecordRunIdSql.LookupKeys` expands dashed GUID routes to canonical keys; regression `LookupKeys_dashed_route_id_includes_canonical_N_form`.
+
+2026-10-22 seed hunt (seed→hit): `RunExportQueryFacade.GetRunExportHistoryAsync` verified export lineage only and skipped `RunExportSealedManifestHashGuard` while `GetExportRecordAsync` blocked sealed-manifest mismatches; route history through `TryEnsureExportRunLineageAndSealedHashAsync`; regression `CompareQuality_GetRunExportHistoryAsync_returns_lineage_unverified_when_sealed_manifest_hash_mismatches`; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` filter 49/49.
+
+- [x] (proven) `RunExportQueryFacade.GetRunExportHistoryAsync` - export history listing bypassed sealed-manifest hash verification while single-export read returned `LineageUnverified` - **hit 2026-10-22 seed hunt:** shared lineage+sealed guard on history; regression above.
+
+- [x] (valid-no-repro) `ComparisonReplayService.ReplayExportDiffAsync` - career gate uses comparison `LeftRunId`/`RightRunId` only when export record ids are present - **cheap-disproof 2026-10-22:** `RecordExportDiffAsync` persists canonical run ids from export records; null-anchor rows are not written.
+- [x] (valid-no-repro) `ComparisonReplayService.RegenerateExportDiffAsync` - regenerate export-diff replay does not re-invoke career gate after loading pairs - **cheap-disproof 2026-10-22:** `ReplayExportDiffAsync` gates lifecycle and career before regenerate/verify modes.
+- [x] (invalid) `RunExportQueryFacade.ReplayExportAsync` - dashed `record.RunId` bypasses career gate when `Guid.TryParse` fails - **cheap-disproof 2026-10-22:** dashed GUIDs parse; regression `ArchitectureAnalysis_export_replay_applies_career_gate_when_record_run_id_uses_dashed_guid_format`.
+- [x] (invalid) `ComparisonsApplicationService.TryHydrateRunMetadataAsync` - hydrates run detail without career posture gate - **cheap-disproof 2026-10-22:** no such method on `ComparisonsApplicationService`.
+
+2026-10-22 seed hunt (seed→hit): `ComparisonReplayService` end-to-end and export-diff replay/drift paths evaluated `IRunExportCareerPostureGate` before `EnsureRunPairLifecycleCompleteOrThrowAsync`, so artifact replay could surface career blocks (or formatted output) while export metadata reads short-circuit incomplete lifecycle first; run lifecycle completeness before career on all comparison replay/drift entry points; regression `CompareQuality_ReplayAsync_end_to_end_artifact_throws_conflict_when_lifecycle_incomplete_before_career_gate`; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` filter 48/48.
+
+- [x] (proven) `ComparisonReplayService.ReplayEndToEndAsync` / `ReplayExportDiffAsync` - comparison artifact replay skipped lifecycle completeness while evaluating career posture first - **hit 2026-10-22 seed hunt:** lifecycle-then-career on replay and drift paths; regression above.
+
+- [x] (valid-no-repro) `ComparisonsApplicationService.TryListByRunIdAsync` - lists comparison records for a run after `GetRunDetailAsync` scope check only - **cheap-disproof 2026-10-22:** tenant-scoped comparison history; career gate on replay/export mutations.
+- [x] (valid-no-repro) `ComparisonsApplicationService.SearchAsync` - returns comparison `SummaryMarkdown` without career metadata gate - **cheap-disproof 2026-10-22:** stored artifact search; no export-metadata trust boundary cited.
+- [x] (valid-no-repro) `ComparisonReplayCostEstimator.TryEstimateAsync` - estimates replay cost without career posture gate - **cheap-disproof 2026-10-22:** preflight sizing only; does not emit gated export bodies.
+- [x] (invalid) `ComparisonReplayService.EnsureCareerAllowsExportRecordMetadataOrThrowAsync` - non-GUID anchor run id skips gate via early return - **cheap-disproof 2026-10-22:** whitespace/non-GUID anchors are not persisted on write paths.
+
+2026-10-22 seed hunt (seed→hit): `RunExportQueryFacade.ReplayExportAsync` invoked `IRunExportCareerPostureGate` before authority lifecycle completeness while `GetExportRecordAsync` short-circuited incomplete lifecycle runs; align replay with lifecycle-then-career ordering; regression `CompareQuality_ReplayExportAsync_returns_lineage_unverified_when_lifecycle_incomplete_before_career_gate`; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` filter 47/47.
+
+- [x] (proven) `RunExportQueryFacade.ReplayExportAsync` - export replay evaluated career posture before lifecycle completeness while single-export read blocked incomplete lifecycle first - **hit 2026-10-22 seed hunt:** lifecycle guard before career gate on replay; regression above.
+
+- [x] (valid-no-repro) `ComparisonsApplicationService.TryListByExportRecordIdAsync` - lists comparisons anchored on export record id after export scope load only - **cheap-disproof 2026-10-22:** tenant-scoped comparison history; career gate applies on replay/export mutation paths.
+- [x] (valid-no-repro) `CompareRunsApplicationFacade` - end-to-end run pair compare without `IRunExportCareerPostureGate` - **cheap-disproof 2026-10-22:** compare-runs is manifest/run diff orchestration, not export-record metadata reads.
+- [x] (valid-no-repro) `ExportReplayService.ReplayAsync` - `CareerArtifactExportCompletenessGate` vs `IRunExportCareerPostureGate` on query paths - **cheap-disproof 2026-10-22:** regenerate replay enforces export completeness material; facade metadata reads use posture gate; complementary gates.
+- [x] (valid-no-repro) `ComparisonAuditService.RecordReplayOfAsync` - clones comparison payload without re-validating career posture - **cheap-disproof 2026-10-22:** only runs after successful gated `ReplayAsync`; audit persist is not a new metadata read.
+
+2026-10-22 seed hunt (seed→hit): `ComparisonReplayService.ReplayEndToEndAsync` artifact replay returned formatted comparison output while drift/export-diff replay blocked simulator-rehearsal metadata reads; gate end-to-end replay with `EnsureCareerAllowsExportRecordMetadataOrThrowAsync` on both anchor runs; regression `ReplayAsync_end_to_end_artifact_throws_when_career_posture_blocks_metadata_read`; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` filter 47/47.
+
+- [x] (proven) `ComparisonReplayService.ReplayEndToEndAsync` - end-to-end artifact replay bypassed `IRunExportCareerPostureGate` while export-diff replay and drift analysis gated anchor runs - **hit 2026-10-22 seed hunt:** career gate at `ReplayEndToEndAsync` entry; regression above.
+
+- [x] (valid-no-repro) `RunExportQueryFacade.GetRunExportHistoryAsync` - dashed run id on route still parses for career gate after canonical lookup - **cheap-disproof 2026-10-22:** `Guid.TryParse` accepts dashed GUID strings; gate uses parsed guid consistently with single-record reads.
+- [x] (valid-no-repro) `ExportsController.GetRunExportHistory` - sealed-manifest guard ordering vs career gate for incomplete lifecycle runs - **cheap-disproof 2026-10-22:** lifecycle completeness short-circuits before career metadata gate by design; matches single-export query ordering.
+- [x] (valid-no-repro) `RunExportQueryFacade.LoadScopedExportRecordAsync` - export record scope load without career gate until single-record getters - **cheap-disproof 2026-10-22:** public compare/history paths gate before returning metadata; scoped load is tenant/run existence only.
+
+2026-10-22 seed hunt (seed→hit): `RunExportQueryFacade.GetRunExportHistoryAsync` returned export record lists while `GetExportRecordAsync` blocked simulator-rehearsal metadata reads; gate run export history with `IRunExportCareerPostureGate`; map `CareerArtifactExportBlockedException` on `GET` run export history; regression `CompareQuality_GetRunExportHistoryAsync_throws_when_career_posture_blocks_metadata_read`; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` filter 46/46.
+
+- [x] (proven) `RunExportQueryFacade.GetRunExportHistoryAsync` - reachable `GET /v1/architecture/review/{runId}/exports` bypassed `IRunExportCareerPostureGate` while single-export read blocked metadata - **hit 2026-10-22 seed hunt:** career gate before history load; controller maps blocked posture; regression above.
+
+- [x] (valid-no-repro) `EndToEndReplayComparisonService.BuildAsync` - builds end-to-end comparison report without career metadata gate - **cheap-disproof 2026-10-22:** end-to-end replay path gated at `ComparisonReplayService` entry; not export-record metadata listing.
+- [x] (invalid) `ComparisonsApplicationService` drift report formatters - emit drift DOCX/markdown without career gate - **cheap-disproof 2026-10-22:** drift analysis invoked only after gated `AnalyzeDriftAsync` on comparison replay service.
+- [x] (valid-no-repro) `ComparisonReplayManifestHashGuard` - sealed-manifest verification before career gate on replay - **cheap-disproof 2026-10-22:** intentional ordering; manifest integrity guard is independent of career metadata gate.
+
+2026-10-22 seed hunt (seed-only): `application-analysis` - no hunt-ready product defect; cheap-disproof closed four zone-head `(candidate)` rows on export-record list/compare replay parity; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` filter 45/45.
+
+- [x] (valid-no-repro) `ComparisonsApplicationService.TryListByExportRecordIdAsync` - lists comparisons after export scope load only - **cheap-disproof 2026-10-22:** same tenant-scoped history surface as `TryListByRunIdAsync`; career gate remains on export/replay mutations.
+- [x] (valid-no-repro) `CompareRunsApplicationFacade` - end-to-end run pair compare without `IRunExportCareerPostureGate` - **cheap-disproof 2026-10-22:** compare-runs orchestration is manifest/run diff, not export-record metadata reads gated in 2026-10-21 fixes.
+- [x] (valid-no-repro) `ExportReplayService.ReplayAsync` - `CareerArtifactExportCompletenessGate` vs `IRunExportCareerPostureGate` on query paths - **cheap-disproof 2026-10-22:** regenerate replay enforces completeness material; metadata reads use posture gate; regressions cover dashed-guid replay.
+- [x] (valid-no-repro) `ComparisonAuditService.RecordReplayOfAsync` - clones payload without re-validating career posture - **cheap-disproof 2026-10-22:** only invoked after successful gated `ReplayAsync`; persist is audit trail not a new metadata read.
+
+2026-10-22 seed hunt (seed-only): `application-analysis` - no hunt-ready product defect; cheap-disproof closed four zone-head `(candidate)` rows on comparison history/cost-estimate career-gate reads; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` filter 45/45.
+
+- [x] (valid-no-repro) `ComparisonsApplicationService.TryListByRunIdAsync` - lists comparison records after run scope check only - **cheap-disproof 2026-10-22:** persisted comparison history is tenant-scoped; career metadata gate applies on export/replay mutation paths fixed 2026-10-21.
+- [x] (valid-no-repro) `ComparisonsApplicationService.SearchAsync` - returns `SummaryMarkdown` without career metadata gate - **cheap-disproof 2026-10-22:** search reads stored comparison artifacts; blocking reads would diverge from audit/history surfaces without a cited trust-boundary harm.
+- [x] (valid-no-repro) `ComparisonReplayCostEstimator.TryEstimateAsync` - estimates replay cost from stored payload without career posture gate - **cheap-disproof 2026-10-22:** estimator scores payload size/shape only; does not regenerate export bodies or bypass replay gates.
+- [x] (invalid) `ComparisonReplayService.EnsureCareerAllowsExportRecordMetadataOrThrowAsync` - whitespace-only anchor run id skips gate - **cheap-disproof 2026-10-22:** whitespace anchors are not persisted on current write paths; empty parse is intentional no-op before replay throws on missing payload.
+
+2026-10-22 seed hunt (seed-only): `application-analysis` - no hunt-ready product defect; cheap-disproof closed four zone-head `(candidate)` rows on comparison/export career-gate edge cases (null anchor run ids, regenerate-only gate, non-GUID export run id, missing hydrate locus); scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` filter 45/45.
+
+- [x] (valid-no-repro) `ComparisonReplayService.ReplayExportDiffAsync` - career gate uses comparison `LeftRunId`/`RightRunId` only when export record ids are present - **cheap-disproof 2026-10-22:** `RecordExportDiffAsync` and compare paths always persist canonical run ids from export records; null-anchor replay is not reachable on current write paths.
+- [x] (valid-no-repro) `ComparisonReplayService.RegenerateExportDiffAsync` - regenerate export-diff replay does not re-invoke career gate on export-record `RunId` - **cheap-disproof 2026-10-22:** `ReplayExportDiffAsync` gates both anchor run ids before `regenerate`/`verify` modes run.
+- [x] (invalid) `RunExportQueryFacade.ReplayExportAsync` - dashed `record.RunId` bypasses career gate when `Guid.TryParse` fails - **cheap-disproof 2026-10-22:** dashed GUIDs parse successfully; regression `ArchitectureAnalysis_export_replay_applies_career_gate_when_record_run_id_uses_dashed_guid_format`.
+- [x] (invalid) `ComparisonsApplicationService.TryHydrateRunMetadataAsync` - hydrates run detail without career posture gate - **cheap-disproof 2026-10-22:** no such method; scope uses `IsComparisonRecordInScopeAsync` / `LoadScopedComparisonRecordAsync`.
+
+2026-10-22 seed hunt (seed-only): `application-analysis` - no hunt-ready product defect after re-read of export compare/replay career-gate parity on trunk; cheap-disproof closed four legacy `(candidate)` rows (delta coverage heuristic, summary-without-evidence UX, cross-format manifest diff ordering, preload optimization); scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` filter 45/45.
+
+- [x] (valid-no-repro) `CompareQualityDeltaCalculator.Build` - functional requirement coverage uses requirements-minus-covered heuristic when requirements lack design links - **cheap-disproof 2026-10-22:** intentional coverage math; existing `CompareQualityDeltaCalculator` regressions document the heuristic.
+- [x] (valid-no-repro) `ArchitectureAnalysisService.BuildAsync` - `IncludeSummary` with `IncludeEvidence=false` omits evidence section without explicit warning - **cheap-disproof 2026-10-22:** generator contract; summary-only requests do not imply evidence completeness.
+- [x] (valid-no-repro) `MarkdownArchitectureAnalysisExportService` - manifest diff warnings section ordering differs from DOCX export - **cheap-disproof 2026-10-22:** independent markdown/DOCX formatters; no shared ordering invariant on trunk.
+- [x] (invalid) `ExportReplayService.ReplayAsync` - pass `PreloadedRunDetail` from resolved architecture detail into `BuildAsync` to avoid duplicate run loads - **cheap-disproof 2026-10-22:** performance-only optimization; not a correctness defect locus.
+
 2026-10-21 seed hunt (seed→hit): `ComparisonReplayService.ReplayExportDiffAsync` (export-record-diff comparison replay) skipped `IRunExportCareerPostureGate` while `RunExportQueryFacade.CompareExportRecordsAsync` blocked simulator-rehearsal metadata reads; gate both run ids before artifact/regenerate/verify export-diff replay; `ComparisonsController` replay routes map `CareerArtifactExportBlockedException`; regression `ReplayAsync_export_diff_artifact_throws_when_career_posture_blocks_metadata_read`; 45 scoped ArchitectureAnalysis/CompareQuality tests passed.
 
 - [x] (proven) `ComparisonReplayService.ReplayExportDiffAsync` — export-record-diff replay bypassed `IRunExportCareerPostureGate` on artifact/regenerate paths (reachable `POST /v1/planning/comparisons/{id}/replay` with `ComparisonTypes.ExportRecordDiff`) — regression above.
@@ -6704,11 +7110,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 59
-- **bugs-found:** 57
+- **hunts:** 84
+- **bugs-found:** 79
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 — export-record-diff comparison replay skipped career metadata gate
+- **last-hunt:** 2026-10-23
+- **last-bug:** 2026-10-23 — NBSP verdict chrome heading broke HTML strip
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -6998,19 +7404,66 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-pilots
 
+2026-10-23 seed hunt (seed→hit): promoted metadata `Committed runs` count reading as full inventory when `RunDetailSampleLoadedNoRows`; metadata row now qualifies `(0 loaded for detail in partial sample)`; regression extended on `Format_when_committed_runs_exist_but_no_run_details_loaded_does_not_emit_zero_findings_as_tenant_total`; cheap-disproof closed four sibling `(candidate)` rows; seeded five follow-on rows; 69 scoped BuyerProofPack/BoardPack/PilotValueReport tests passed.
+
+- [ ] (candidate) `PilotValueReportMarkdownFormatter` — metadata `Committed runs` when both inventory truncated and `RunDetailSampleLoadedNoRows` — locus: metadata precedence between inventory and detail-sample qualifiers; input: truncated inventory with zero detail rows; wrong outcome: only one qualifier shown.
+- [ ] (candidate) `PilotValueReportMarkdownFormatter` — governance Summary rows when `RunDetailSampleLoadedNoRows` — locus: approvals/rejections without scope note; input: empty timeline with tenant-wide audit totals; wrong outcome: mixed scope without footnote.
+- [ ] (candidate) `PilotValueReportMarkdownFormatter` — `Comparison / drift detections` when `RunDetailSampleLoadedNoRows` — locus: Summary audit row; input: positive drift count with empty timeline; wrong outcome: appears run-scoped without audit-scope note.
+- [ ] (candidate) `BuyerProofPackCommitGuard` — non-canonical boolean strings for `isDemoTenant` — locus: `TryParseJsonBoolean`; input: `"true "` padded JSON; wrong outcome: false demo warning on pack build.
+- [ ] (candidate) `BoardPackQuarterWindow.DigestWeekInsideQuarter` — sub-day override window — locus: digest clamp; input: 12-hour board-pack window; wrong outcome: `weekEndUtc` not after `weekStartUtc`.
+
+- [x] (proven) `PilotValueReportMarkdownFormatter` — metadata `Committed runs` when `RunDetailSampleLoadedNoRows` — **hit 2026-10-23 seed hunt:** detail-sample qualifier on metadata row; regression `Format_when_committed_runs_exist_but_no_run_details_loaded_does_not_emit_zero_findings_as_tenant_total`.
+- [x] (valid-no-repro) `PilotValueReportService` — `TotalFindings` non-zero when every detail fetch fails — **cheap-disproof 2026-10-23 seed hunt:** severities rollup only on successful detail loads; formatter not-computed path for summary findings.
+- [x] (invalid) `BuyerProofPackDeltasJsonFormatter` — `isDemoTenant` vs limitations banner — **cheap-disproof 2026-10-23 seed hunt:** camelCase API contract field; limitations use shared `cautionWarning` from commit guard.
+- [x] (valid-no-repro) `BoardPackPdfBuilder` — short override window digest length — **cheap-disproof 2026-10-23 seed hunt:** clamp keeps `weekEndUtc` after `weekStartUtc`; regression `DigestWeekInsideQuarter_keeps_digest_week_inside_requested_window`.
+
+2026-10-23 seed hunt (seed→hit): promoted committed-runs section header still claiming sample loaded when `RunDetailSampleLoadedNoRows` and `RunDetailsTruncated` false; header now shows `0 of {TotalRunsCommitted}` loaded for detail; regression extended on `Format_when_committed_runs_exist_but_no_run_details_loaded_does_not_emit_zero_findings_as_tenant_total`; cheap-disproof closed four sibling `(candidate)` rows; seeded five follow-on rows; 69 scoped BuyerProofPack/BoardPack/PilotValueReport tests passed.
+
+- [x] (proven) `PilotValueReportMarkdownFormatter` — committed-runs header when `RunDetailSampleLoadedNoRows` — **hit 2026-10-23 seed hunt:** `0 of {total}` header; regression `Format_when_committed_runs_exist_but_no_run_details_loaded_does_not_emit_zero_findings_as_tenant_total`.
+- [x] (valid-no-repro) `PilotValueReportMarkdownFormatter` — `Recommendations generated (audit)` when `RunDetailSampleLoadedNoRows` — **cheap-disproof 2026-10-23 seed hunt:** audit-window totals remain tenant-wide by design; regression `Format_when_audit_export_truncated_with_empty_timeline_still_surfaces_comparison_drift_count`.
+- [x] (valid-no-repro) `PilotValueReportService` — stale `FindingsBySeverity` when detail projection empty — **cheap-disproof 2026-10-23 seed hunt:** severities start empty and formatter omits table when `RunDetailSampleLoadedNoRows`; regression `Format_when_committed_runs_exist_but_no_run_details_loaded_omits_severity_table_even_when_buckets_nonzero`.
+- [x] (invalid) `BuyerProofPackBuilder.TryBuildZipAsync` — manifest `demoDataWarning` key vs limitations copy — **cheap-disproof 2026-10-23 seed hunt:** intentional schema field name; shared caution flag on limitations.
+- [x] (valid-no-repro) `BoardPackPdfBuilder` — digest week on window boundary — **cheap-disproof 2026-10-23 seed hunt:** clamp covered; regression `DigestWeekInsideQuarter_keeps_digest_week_inside_requested_window`.
+
+2026-10-23 seed hunt (seed→hit): promoted `RunDetailSampleLoadedNoRows` gaps for avg pipeline completion and findings-by-severity table still emitting numeric/zero cells; aligned Summary avg and severity table with not-computed banner; regressions extended on `Format_when_committed_runs_exist_but_no_run_details_loaded_does_not_emit_zero_findings_as_tenant_total` and `Format_when_committed_runs_exist_but_no_run_details_loaded_omits_severity_table_even_when_buckets_nonzero`; cheap-disproof closed three sibling `(candidate)` rows; seeded five follow-on rows; 69 scoped BuyerProofPack/BoardPack/PilotValueReport tests passed.
+
+- [x] (proven) `PilotValueReportMarkdownFormatter` — `Avg pipeline completion` numeric when `RunDetailSampleLoadedNoRows` — **hit 2026-10-23 seed hunt:** not-computed avg cell; regression `Format_when_committed_runs_exist_but_no_run_details_loaded_does_not_emit_zero_findings_as_tenant_total`.
+- [x] (proven) `PilotValueReportMarkdownFormatter` — severity table after not-computed banner — **hit 2026-10-23 seed hunt:** omit severity table when `RunDetailSampleLoadedNoRows`; regression `Format_when_committed_runs_exist_but_no_run_details_loaded_omits_severity_table_even_when_buckets_nonzero`.
+- [x] (valid-no-repro) `BuyerProofPackBuilder.TryBuildZipAsync` — manifest vs limitations on demo tenant — **cheap-disproof 2026-10-23 seed hunt:** shared `cautionWarning` drives manifest and limitations; regression `TryBuildZipAsync_when_sample_run_sets_caution_warning_on_manifest_and_result`.
+- [x] (valid-no-repro) `BoardPackSealedExportReceiptGuard` — receipt hash mismatch ordering — **cheap-disproof 2026-10-23 seed hunt:** delegates to `ConsultingDocxExportSealedReceiptGuard`; existing sealed-receipt tests on consulting path.
+- [x] (valid-no-repro) `PilotValueReportService` — empty `UniqueAgentTypes` without truncation — **cheap-disproof 2026-10-23 seed hunt:** formatter handles empty types via `RunDetailSampleLoadedNoRows`; regression on `Format_when_committed_runs_exist_but_no_run_details_loaded_does_not_emit_zero_findings_as_tenant_total`.
+
+2026-10-23 seed hunt (seed→hit): promoted open `(candidate)` for empty `UniqueAgentTypes` when `RunDetailSampleLoadedNoRows` and `RunDetailsTruncated` false; aligned agent-types copy with findings not-computed path; extended regression `Format_when_committed_runs_exist_but_no_run_details_loaded_does_not_emit_zero_findings_as_tenant_total`; seeded five mechanism-backed `(candidate)` rows below; 68 scoped BuyerProofPack/BoardPack/PilotValueReport tests passed.
+
 - **id:** application-pilots
 - **status:** open
 - **impact:** medium
 - **aliases:** buyer proof pack; board pack; pilot artifacts
 - **paths:** ArchLucid.Application/Pilots/
 - **test-filter:** FullyQualifiedName~BuyerProofPack|FullyQualifiedName~BoardPack
-- **hunts:** 49
-- **bugs-found:** 34
+- **hunts:** 54
+- **bugs-found:** 39
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-20
-- **last-bug:** 2026-10-15 — pilot value report markdown summary metrics when zero runs load under truncation
+- **last-hunt:** 2026-10-23
+- **last-bug:** 2026-10-23 — metadata committed-runs count without detail-load qualifier
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-22 thorough hunt (hit): promoted `RunDetailSampleLoadedNoRows` without requiring `RunDetailsTruncated` so committed runs with failed detail projection do not read as tenant-wide zero findings; regression `Format_when_committed_runs_exist_but_no_run_details_loaded_does_not_emit_zero_findings_as_tenant_total`; cheap-disproved five picker candidates; 68 scoped BuyerProofPack/BoardPack/PilotValueReport tests passed.
+
+- [x] (proven) `PilotValueReportMarkdownFormatter.RunDetailSampleLoadedNoRows` — `Total findings | 0` when `TotalRunsCommitted > 0` but timeline empty and `RunDetailsTruncated` false — **hit 2026-10-22 thorough hunt:** treat any zero-loaded detail sample as not computed; regression above. [class:state-machine-gap]
+
+- [x] (valid-no-repro) `PilotValueReportMarkdownFormatter` — Summary `Recommendations generated (audit)` when `RunDetailsTruncated` with empty timeline — **cheap-disproof 2026-10-22 thorough hunt:** audit window totals remain tenant-wide by design; regression `Format_when_audit_export_truncated_with_empty_timeline_still_surfaces_comparison_drift_count`.
+
+- [x] (valid-no-repro) `PilotValueReportMarkdownFormatter` — metadata `Committed runs` when `CommittedRunsInventoryTruncated` below keyset cap — **cheap-disproof 2026-10-22 thorough hunt:** boolean flags inventory keyset stop; count qualification is independent of numeric relation to `RunDetailCap`; regression `Format_when_committed_run_inventory_truncated_qualifies_total_runs_committed_as_partial_inventory`.
+
+- [x] (valid-no-repro) `BuyerProofPackArtifactSummaryBuilder` — compact summary `TotalFindings` when `auditRowCountTruncated` true — **cheap-disproof 2026-10-22 thorough hunt:** compact summary has no total-findings rollup; audit cap lives in first-value computed deltas; regression `Build_when_audit_row_count_truncated_does_not_echo_cap_in_compact_summary`.
+
+- [x] (valid-no-repro) `FirstValueReportDeltasSectionFormatter` — governed-finding coverage when `auditRowCountTruncated` true — **cheap-disproof 2026-10-22 thorough hunt:** coverage rows come from agent/snapshot findings; audit cap disclosed on audit metric row only; regression `AppendComputedDeltasSection_when_audit_rows_truncated_discloses_cap_in_audit_metric_row`.
+
+- [x] (valid-no-repro) `RecentPilotRunDeltasService.GetRecentDeltasAsync` — tie-break when `CreatedUtc` matches — **cheap-disproof 2026-10-22 thorough hunt:** sorts `CompletedUtc ?? CreatedUtc` then `RunId` descending; regression `GetRecentDeltasAsync_WhenSortKeysTie_OrdersByRunIdDescendingSoPanelOrderIsStable`.
+
+- [x] (proven) `PilotValueReportMarkdownFormatter` — `Agent types were not stored` when committed runs exist but detail projection returns no rows and `RunDetailsTruncated` is false — **hit 2026-10-23 seed hunt:** `RunDetailSampleLoadedNoRows` branch for empty `UniqueAgentTypes`; regression extended on `Format_when_committed_runs_exist_but_no_run_details_loaded_does_not_emit_zero_findings_as_tenant_total`. [class:state-machine-gap]
 
 2026-10-11 thorough hunt (dry): cheap-disproved five picker candidates: findings-by-severity presence is intentionally true for a resolved zero-row slice; LLM call counts carry a separate unresolved attestation flag; buyer-proof ZIP generation fails closed at each artifact boundary; `ExecDigestComposer` already trims configured operator URL slashes; and boolean parsing accepts canonical strings while rejecting malformed values. No hunt-ready row or failing repro; 29 scoped BuyerProofPack/BoardPack tests passed.
 
@@ -7121,11 +7574,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - [x] (valid-no-repro) `BoardPackPdfBuilder` — header copy when digest week clamped but value section period label still shows full quarter bounds — **cheap-disproof 2026-10-15 seed hunt:** cover explicitly documents digest week inside quarter vs full-quarter value metrics (`BuildPdfAsync` preamble); regression `DigestWeekInsideQuarter_keeps_digest_week_inside_requested_window`.
 - [x] (valid-no-repro) `BuyerProofPackDeltasJsonFormatter` — null property emission on buyer ZIP JSON — **cheap-disproof 2026-10-15 seed hunt:** `ContractJson.CamelCaseIgnoreNullCompact` (parity with 2026-10-14 `llmCallCount` hit); regression `Serialize_does_not_emit_explicit_null_properties_on_buyer_zip_json`.
 - [x] (valid-no-repro) `PilotValueReportMarkdownFormatter` — `Comparison / drift detections` when `AuditExportTruncated` and zero timeline rows — **cheap-disproof 2026-10-15 seed hunt:** audit-derived Summary metrics remain tenant-wide; run-detail empty sample must not suppress them; regression `Format_when_audit_export_truncated_with_empty_timeline_still_surfaces_comparison_drift_count`.
-- [ ] (candidate) `PilotValueReportMarkdownFormatter` — Summary `Recommendations generated (audit)` when `RunDetailsTruncated` with empty timeline (audit totals vs zero loaded run-detail sample).
-- [ ] (candidate) `PilotValueReportMarkdownFormatter` — metadata `Committed runs` row when `CommittedRunsInventoryTruncated` true but `TotalRunsCommitted` is below inventory keyset cap (boolean-only truncation disclosure).
-- [ ] (candidate) `BuyerProofPackArtifactSummaryBuilder` — compact summary `TotalFindings` when per-run deltas carry `auditRowCountTruncated` true (artifact summary vs first-value audit cap).
-- [ ] (candidate) `FirstValueReportDeltasSectionFormatter` — governed-finding coverage row when `auditRowCountTruncated` true (coverage percent vs capped audit row fetch).
-- [ ] (candidate) `RecentPilotRunDeltasService.GetRecentDeltasAsync` — panel ordering when two committed runs share identical `CreatedUtc` (tie-break stability for sponsor recent-deltas API).
+- [x] (valid-no-repro) `PilotValueReportMarkdownFormatter` — Summary `Recommendations generated (audit)` when `RunDetailsTruncated` with empty timeline (audit totals vs zero loaded run-detail sample) — **cheap-disproof 2026-10-22 thorough hunt:** see ledger row above (audit totals tenant-wide).
+- [x] (valid-no-repro) `PilotValueReportMarkdownFormatter` — metadata `Committed runs` row when `CommittedRunsInventoryTruncated` true but `TotalRunsCommitted` is below inventory keyset cap (boolean-only truncation disclosure) — **cheap-disproof 2026-10-22 thorough hunt:** see ledger row above.
+- [x] (valid-no-repro) `BuyerProofPackArtifactSummaryBuilder` — compact summary `TotalFindings` when per-run deltas carry `auditRowCountTruncated` true (artifact summary vs first-value audit cap) — **cheap-disproof 2026-10-22 thorough hunt:** see ledger row above.
+- [x] (valid-no-repro) `FirstValueReportDeltasSectionFormatter` — governed-finding coverage row when `auditRowCountTruncated` true (coverage percent vs capped audit row fetch) — **cheap-disproof 2026-10-22 thorough hunt:** see ledger row above.
+- [x] (valid-no-repro) `RecentPilotRunDeltasService.GetRecentDeltasAsync` — panel ordering when two committed runs share identical `CreatedUtc` (tie-break stability for sponsor recent-deltas API) — **cheap-disproof 2026-10-22 thorough hunt:** see ledger row above.
 - [x] (valid-no-repro) `SponsorOnePagerPdfBuilder.RenderComputedDeltasTable` — unresolved LLM PDF row — **cheap-disproof 2026-10-14 seed hunt:** `FormatLlmCallCount` emits `(not attested — execution trace query failed)` when `LlmCallCountResolved` is false (parity with `FirstValueReportDeltasSectionFormatter`); gap is PDF text-extraction regression lock only.
 - [x] (valid-no-repro) `PilotOutcomeSummaryService.GetTrailing30DaysAsync` — workspace switch stale cache — **cheap-disproof 2026-10-14 seed hunt:** cache key includes `TenantId`, `WorkspaceId`, and `ProjectId`; different workspace yields different entry (ledger invalid row on pack builders already notes pattern).
 - [x] (invalid) `TenantMeasuredRoiService.GetAsync` — 90-day double-count — **cheap-disproof 2026-10-14 seed hunt:** service wraps `WhyArchLucidSnapshotService` + cost estimate only; no run window rollup or `fromUtc` clamp in this type (`PilotValueReportService` owns 90-day window clamp).
@@ -7252,6 +7705,54 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: agent-runtime-evaluation
 
+2026-10-23 thorough hunt (hit): promoted `AgentOutputTraceRejectionSummaryBuilder.BuildPublicRejectionSummary` omitting `quality_gate_threshold_reject` when reject was driven only by calibrated confidence; pass `calibratedConfidence` into summary gate re-check; extended regression on `ComputeQualityGateAcceptedForConfidenceAsync_returns_false_when_calibrated_confidence_below_semantic_reject_floor`; cheap-disproved stale picker duplicate rows (already closed 2026-10-22); seeded five mechanism-backed `(candidate)` rows below; 229 scoped Evaluation tests passed.
+
+- [ ] (candidate) `AgentOutputQualityGate.ResolveRejectReasonCategory` — `ClassifyThresholdFailure` uses `OverallSemanticScore` when `evaluationReason` is `quality_gate_threshold_reject` but reject used calibrated confidence — locus: `ClassifyThresholdFailure`; input: calibrated semantic reject with high raw semantic score.
+- [ ] (candidate) `AgentOutputTraceRejectionSummaryBuilder.BuildPublicRejectionSummary` — PilotStrict `pilot_semantic_score_below_floor` compares uncalibrated `OverallSemanticScore` — locus: PilotStrict semantic floor branch; input: calibrated reject with raw semantic above `PilotStrictMinSemanticScore`.
+- [ ] (candidate) `AgentOutputTraceQualityEvaluator.TryEvaluateTraceAsyncCore` — `ApplyJudgeHeuristicDisagreementElevation` runs after gate evaluate and may upgrade outcome without updating rejection summary parts — locus: post-gate elevation; input: disagreement elevation to Rejected after summary-eligible path.
+- [ ] (candidate) `CompositeAgentOutputSemanticEvaluator` — calibrated confidence pipeline may diverge from `OverallSemanticScore` surfaced on `AgentOutputSemanticScore` for sponsor read paths — locus: composite vs heuristic score merge; input: enrichment task with low calibrated overlay.
+- [ ] (candidate) `RunAgentOutputPilotEvidenceAggregator` — `WouldPilotStrictBlockSponsorEvidenceAsync` mirrors gate without asserting rejection summary tokens match recorder — locus: sponsor gate vs trace evaluator parity; input: calibrated-only semantic reject trace.
+
+2026-10-22 thorough hunt (hit): promoted `AgentOutputQualityGate.ResolveRejectReasonCategory` mis-mapping `finding_citation_coverage_below_floor` to structural telemetry; regression `ResolveRejectReasonCategory_maps_finding_citation_coverage_below_floor_to_semantic`; cheap-disproved saturated JSON-casing and scalar-coercion picker rows; 229 scoped Evaluation tests passed.
+
+- [x] (proven) `AgentOutputQualityGate.ResolveRejectReasonCategory` — PilotStrict finding-citation reject token lacked `citations` substring so category fell through to structural — **hit 2026-10-22 thorough hunt:** match `citation_coverage` reason token; regression above. [class:state-machine-gap]
+
+- [x] (invalid) `RunExplanationAggregateJsonReader.TryReadFiniteDouble` — boolean-like strings accepted as `1.0` — **cheap-disproof 2026-10-22 thorough hunt:** intentional aggregate lenient coercion (2026-10-12 / 2026-10-21 lane C).
+
+- [x] (invalid) `RunExplanationAggregateJsonReader.TryReadWholeNumber` — boolean accepted as count `1` — **cheap-disproof 2026-10-22 thorough hunt:** documented aggregate compatibility; disposition regressions cover callouts.
+
+- [x] (invalid) `StructuredExplanationParser.TryReadStringList` — numeric/boolean coerced into evidence refs — **cheap-disproof 2026-10-22 thorough hunt:** opaque list normalization by design at LLM boundary.
+
+- [x] (invalid) `HeuristicAgentOutputTraceQualityStage.EvaluateProposedChangesSurfaceRatio` — case-variant nested keys — **cheap-disproof 2026-10-22 thorough hunt:** `AgentOutputJsonPropertyReader.TryGetPropertyIgnoreCase` on all nested lookups (2026-10-11 hits).
+
+- [x] (invalid) `AgentOutputFaithfulnessEvaluator.ReadScore` — judge key casing — **cheap-disproof 2026-10-22 thorough hunt:** case-insensitive `faithfulnessScore` / `faithfulness_score` reads (2026-10-11 hit).
+
+- [x] (invalid) `AgentOutputTraceCitationGate` — `Citations` / `EvidenceRefs` casing — **cheap-disproof 2026-10-22 thorough hunt:** case-insensitive top-level reads (2026-10-11 hits).
+
+- [x] (invalid) `HeuristicAgentOutputTraceQualityStage.EvaluateFindings` — finding field casing — **cheap-disproof 2026-10-22 thorough hunt:** case-insensitive severity/description/recommendation reads.
+
+- [x] (valid-no-repro) `AgentOutputQualityGate.Evaluate` — non-finite calibrated confidence bypass — **cheap-disproof 2026-10-22 thorough hunt:** explicit reject for NaN/Infinity; regression `Evaluate_rejects_when_calibrated_confidence_is_non_finite`.
+
+- [x] (valid-no-repro) `AgentOutputTraceCitationGate.TryHasNonEmptyCitations` — unknown citation object property satisfies presence — **cheap-disproof 2026-10-22 thorough hunt:** intentional nonblank string property contract (2026-10-10 hit); schema contract out of scope.
+
+- [x] (valid-no-repro) `AgentResultEmbeddingFaithfulnessScorer` — non-finite embedding components — **cheap-disproof 2026-10-22 thorough hunt:** provider finite-vector contract; no reachable malformed embed in unit tests without mocking provider contract.
+
+- [x] (valid-no-repro) `FindingClaimCoverageEvaluator.Evaluate` — non-empty refs without package resolution — **cheap-disproof 2026-10-22 thorough hunt:** per-finding ref presence is the documented LP-04 metric; package resolution is a separate gate.
+
+- [x] (proven) `AgentOutputQualityGate.ResolveRejectReasonCategory` — citation-only PilotStrict reject classified from free-form tokens — **hit 2026-10-22 thorough hunt:** same fix as `finding_citation_coverage_below_floor` token; regression above.
+
+- [x] (invalid) `AgentOutputEvaluationHarness.Evaluate` — required JSON keys case-sensitive — **cheap-disproof 2026-10-22 thorough hunt:** ordinal-ignore-case key set (2026-10-11 hit).
+
+- [x] (invalid) `AgentOutputFaithfulnessEvaluator.TrimForJudge` — surrogate split — **cheap-disproof 2026-10-22 thorough hunt:** `AgentOutputJudgePayloadTrimmer` + regression `TryEvaluateAsync_trims_evidence_without_splitting_surrogate_pairs`.
+
+- [x] (valid-no-repro) `AgentOutputReferenceCaseRunEvaluator.EvaluateTraceAsync` — partial persist on cancel — **cheap-disproof 2026-10-22 thorough hunt:** repository append semantics; no run-level completion marker contract in zone paths.
+
+- [x] (invalid) `AgentOutputReferenceCaseRunEvaluator` / `AgentOutputEvaluationHarness` — required-key casing — **cheap-disproof 2026-10-22 thorough hunt:** duplicate of 2026-10-11 proven rows.
+
+- [x] (valid-no-repro) `AgentOutputLlmSemanticJudge.TryParseJudgeResponse` — out-of-range `overallQuality` clamped — **cheap-disproof 2026-10-22 thorough hunt:** values outside `[0,1]` return null before clamp; saturated score-validation class.
+
+- [x] (proven) `AgentOutputTraceRejectionSummaryBuilder.BuildPublicRejectionSummary` — recomputes `qualityGate.Evaluate` without calibrated confidence so threshold token may be omitted when only calibrated reject applies — **hit 2026-10-23 thorough hunt:** forward `calibratedConfidence` into summary gate re-check; regression extended on `ComputeQualityGateAcceptedForConfidenceAsync_returns_false_when_calibrated_confidence_below_semantic_reject_floor`. [class:state-machine-gap]
+
 2026-10-12 seed hunt (seed-only): re-read the structured parser, aggregate scalar/property readers, confidence/citation callouts, and focused explanation tests. No fresh candidate reached the same-run failing-repro bar; the focused `RunExplanation` filter was blocked before discovery on both attempts by unrelated `AzureInventorySecurityEdgeMaterializer.cs` compile errors. Seeded three bounded scalar-coercion candidates; no production or regression code changed.
 
 - [x] (invalid) `RunExplanationAggregateJsonReader.TryReadFiniteDouble` — boolean-like strings such as `"yes"` or `"enabled"` are accepted as `1.0` for aggregate `faithfulnessSupportRatio`, so malformed persisted aggregate data could produce a full-support ratio instead of an unavailable value; input is aggregate JSON consumed by explanation confidence callouts. — **cheap-disproof 2026-10-21 lane C:** aggregate lenient coercion is intentional; structured confidence rejects booleans (proven 2026-10-09).
@@ -7312,13 +7813,13 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** agent evaluation; evaluation runner
 - **paths:** ArchLucid.AgentRuntime/Evaluation/
 - **test-filter:** FullyQualifiedName~Evaluation
-- **hunts:** 53
-- **bugs-found:** 32
+- **hunts:** 55
+- **bugs-found:** 34
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-12
-- **last-bug:** 2026-10-10 — reference-case catalog stayed empty after configuration enablement
+- **last-hunt:** 2026-10-23
+- **last-bug:** 2026-10-23 — rejection summary omitted calibrated-confidence threshold token
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 
 2026-10-12 seed hunt (seed-only): re-read the selected evaluation boundary and focused heuristic, structural, citation, faithfulness, and harness paths. No distinct new reachable mechanism-backed wrong outcome met the promotion bar; the scoped Evaluation filter was blocked before discovery on both attempts by unrelated `AzureInventorySecurityEdgeMaterializer.cs` compile errors. No new candidate was added and no production or regression code changed.
 
@@ -7668,6 +8169,293 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-agents
 
+2026-10-23 seed hunt (seed-only): re-read Agents/ after consolidation hit #154; zone saturated on fail-open-validation null list slots — no hunt-ready row promoted; cheap-disproof closed padded `ModelAliasOverride` (`ReviewModelAliasResolver` trim before allowlist check); regression `ResolveForRunCreateAsync_applies_padded_model_alias_override`; seeded five mechanism-backed `(candidate)` rows; no production change; 170 scoped Application.Tests.Agents tests passed.
+
+- [x] (valid-no-repro) `ReviewModelAliasResolver.ResolveForRunCreateAsync` — padded model alias override rejected outside allowed set — **cheap-disproof 2026-10-23 seed hunt:** `requestedOverride.Trim()` before `IsAliasAllowed`; regression above.
+
+- (candidate) `RunToolInvocationForensicsBuilder.BuildFromStructured` — null `AgentToolInvocationRecord` list entries NRE during `OrderBy`/`Select` — locus: structured forensics ~12–16; input: structured ledger list with JSON-null slot.
+- (candidate) `ReviewRunEngineSelectionProvenanceBuilder.Build` — null `TaskEvaluations` entries NRE on `TaskType` projection — locus: snapshot `Select` ~21; input: catalog entry with null evaluation row.
+- (candidate) `AgentModelCatalogEvaluationRecorder.RecordTaskEvaluationAsync` — null elements in `existing.Evaluations` may break merge index — locus: evaluation list copy ~67; input: catalog row whose evaluations list contains null.
+- (candidate) `CompositeAgentResultPostExecutionEnricher.EnrichAsync` — null registered enricher in `_enrichers` NRE on `EnrichAsync` — locus: child loop ~29; input: DI collection containing null enricher.
+- (candidate) `AgentExecutionTraceRunLlmCostAggregator.BuildModelLabelFromDeployments` — null `modelDeploymentName` in fallback row set already skipped; verify parity when only whitespace names appear in measurable set — locus: deployment label builder ~144; input: mixed whitespace and named deployments.
+
+2026-10-23 seed hunt (seed→hit): promoted four seeded null-slot candidates in one consolidation pass — trace-derived tool forensics, confidence isotonic knots, registered handler discovery, and dual-model sibling endpoint harvest; cheap-disproof closed all-null trace provider kind (existing `nonNullTraces` branch); regressions `Build_skips_null_trace_entries`, `BuildIsotonicKnots_skips_null_sample_rows`, `ListHandlers_skips_null_handler_entries`, `EnrichAsync_skips_null_sibling_service_entries_when_pruning_sibling_proposals`, and `Aggregate_provider_kind_is_azure_openai_when_all_trace_slots_are_null`; 169 scoped Application.Tests.Agents tests passed.
+
+- [x] (proven) `RunToolInvocationForensicsBuilder.BuildFromTraces` — null trace list entries aborted forensics projection — **hit 2026-10-23 seed hunt:** filter before sort/iterate; regression above. [class:fail-open-validation]
+- [x] (proven) `AgentConfidenceCalibrator.BuildIsotonicKnots` — null calibration sample rows aborted knot build — **hit 2026-10-23 seed hunt:** filter before order/bin; regression above. [class:fail-open-validation]
+- [x] (proven) `RegisteredAgentHandlersInspector.ListHandlers` — null handler entries aborted discovery — **hit 2026-10-23 seed hunt:** filter before order; regression above. [class:fail-open-validation]
+- [x] (proven) `TopologyProposalDualModelConsensusEnricher` — null sibling service/datastore entries aborted endpoint harvest — **hit 2026-10-23 seed hunt:** shared `CollectKnownEndpointKeys` filter; regression above. [class:fail-open-validation]
+- [x] (valid-no-repro) `ReviewRunEngineProvenanceAggregator.DeriveProviderKind` — all-null trace list mislabels provider — **cheap-disproof 2026-10-23 seed hunt:** returns `azure-openai` when no material traces; regression above.
+
+2026-10-23 seed hunt (seed-only): re-read Agents/ after prompt-variant stats hit; zone saturated on fail-open-validation null list slots — no new hunt-ready row promoted; cheap-disproof closed padded model execution profile override (`AgentModelExecutionProfileParser` trim via resolver); regression `ResolveForRunCreate_applies_padded_valid_override`; seeded five mechanism-backed `(candidate)` rows; no production change; 164 scoped Application.Tests.Agents tests passed.
+
+- [x] (valid-no-repro) `ModelExecutionProfileResolver.ResolveForRunCreateAsync` — padded `ModelExecutionProfileOverride` rejected as invalid — **cheap-disproof 2026-10-23 seed hunt:** parser trims before `TryParse`; regression `ResolveForRunCreate_applies_padded_valid_override`.
+
+2026-10-23 seed hunt (seed→hit): promoted `PromptVariantStatsService` candidate — null `PromptVariantStatsRow` entries from repository crashed variant stats projection; service now skips null rows before mapping; regression `GetStatsAsync_skips_null_repository_rows`; 163 scoped Application.Tests.Agents tests passed.
+
+- [x] (proven) `PromptVariantStatsService.GetStatsAsync` — null stats row list entries aborted prompt variant API — **hit 2026-10-23 seed hunt:** null guard before `Select`; regression above. [class:fail-open-validation]
+
+2026-10-23 seed hunt (seed→hit): promoted seeded candidates — null `AddedRelationships` entries crashing dual-model sibling prune and null `AgentExecutionTraceLlmCostSlice` rows crashing slice cost aggregation; cheap-disproof closed null `Claims`/`EvidenceRefs` strings (`string.Join` tolerant) and `ReviewRunEngineProvenanceMerger` prompt-pack trim (merger only copies alias/snapshots); regressions `EnrichAsync_skips_null_relationship_entries_when_pruning_sibling_proposals`, `Compute_skips_null_slice_entries`, and `BuildUserPrompt_tolerates_null_string_entries_in_claims_and_evidence_refs`; 162 scoped Application.Tests.Agents tests passed.
+
+- [x] (proven) `TopologyProposalDualModelConsensusEnricher.PruneSiblingRelationshipsToConsensusTopology` — null relationship list entries aborted consensus prune — **hit 2026-10-23 seed hunt:** null guard before endpoint validation; regression above. [class:fail-open-validation]
+- [x] (proven) `AgentExecutionTraceRunLlmCostAggregator.Compute` (slice overload) — null slice list entries aborted cost projection — **hit 2026-10-23 seed hunt:** skip null slices before `Select`; regression above. [class:fail-open-validation]
+- [x] (invalid) `AgentCuratedEvidenceProposer.BuildUserPrompt` — null strings in `Claims`/`EvidenceRefs` break prompt build — **cheap-disproof 2026-10-23 seed hunt:** `string.Join` omits null slots; regression `BuildUserPrompt_tolerates_null_string_entries_in_claims_and_evidence_refs`.
+- [x] (invalid) `ReviewRunEngineProvenanceMerger.MergeSelectionWithExecution` — whitespace-only `PromptPackVersion` preserved on merge — **cheap-disproof 2026-10-23 seed hunt:** merger does not combine prompt/policy pack fields; execution provenance wins unchanged.
+
+2026-10-23 seed hunt (seed-only): re-read Agents/ after read-path consolidation hit; cheap-disproof closed stale `(candidate)` rows (dual-model secondary tier, faithfulness floor boundary, whitespace-only policy titles, structured forensics preference); regression `Aggregate_policy_pack_version_null_when_policy_titles_are_whitespace_only`; seeded five follow-on `(candidate)` rows; no production change; 159 scoped Application.Tests.Agents tests passed.
+
+- [x] (invalid) `TopologyProposalDualModelConsensusEnricher.EnrichAsync` — secondary tier disallowed by workspace engine set — **cheap-disproof 2026-10-23 seed hunt:** secondary invoker returns null; enricher logs and skips merge (see 2026-10-22 seed hunt).
+- [x] (valid-no-repro) `AgentModelCatalogFaithfulnessHarnessImporter.ImportForAliasAsync` — readiness strictly below floor should record `Failed` — **cheap-disproof 2026-10-23 seed hunt:** regressions `Import_records_failed_evaluation_when_readiness_is_strictly_below_floor` / `Import_records_evaluated_when_readiness_equals_floor`.
+- [x] (valid-no-repro) `ReviewRunEngineProvenanceAggregator.DerivePolicyPackVersion` — whitespace-only policy titles kept in pack version — **cheap-disproof 2026-10-23 seed hunt:** `Where(!string.IsNullOrWhiteSpace(title))` drops blank titles; regression `Aggregate_policy_pack_version_null_when_policy_titles_are_whitespace_only`.
+- [x] (valid-no-repro) `RunToolInvocationForensicsBuilder.Build` — structured ledger preferred when trace list empty — **cheap-disproof 2026-10-23 seed hunt:** by design TB-110 structured path; regression `Build_prefers_structured_ledger_when_rows_exist`.
+- [x] (invalid) `FindingIacStubGenerator.NormalizeLlmStubBody` — UTF-8 BOM before disclaimer may still duplicate — **cheap-disproof 2026-10-23 seed hunt:** proven-class `TrimStart('\uFEFF')`; regression `GenerateAndPersistStubsForRunAsync_strips_utf8_bom_before_disclaimer_check`.
+
+2026-10-23 seed hunt (seed→hit): consolidated null-slot guards on agent read paths — null `AgentExecutionTrace` rows aborted LLM cost aggregation and provenance token/prompt derivation; null catalog rows aborted curated-evidence prompt serialization; regressions `Aggregate_skips_null_trace_entries_when_summing_reasoning_tokens` and `BuildUserPrompt_skips_null_catalog_entries_when_serializing_existing_catalog`; 158 scoped Application.Tests.Agents tests passed.
+
+- [x] (proven) `AgentExecutionTraceRunLlmCostAggregator.Compute` / `ReviewRunEngineProvenanceAggregator.Aggregate` / `AgentCuratedEvidenceProposer.BuildUserPrompt` — null trace and evidence-catalog list entries aborted run summary and curated-evidence paths — **hit 2026-10-23 seed hunt:** skip null traces before projection and null catalog entries before serialize; regressions above. [class:fail-open-validation]
+
+2026-10-23 seed hunt (seed→hit): promoted null elements in `AgentEvidencePackage.Policies` crashing run engine provenance aggregation (`policy.Title` in `DerivePolicyPackVersion`); `ReviewRunEngineProvenanceAggregator` now skips null policy entries before title projection; regression `Aggregate_skips_null_policy_entries_when_deriving_policy_pack_version`; 156 scoped Application.Tests.Agents tests passed.
+
+- [x] (proven) `ReviewRunEngineProvenanceAggregator.DerivePolicyPackVersion` — null policy list entries aborted provenance aggregation — **hit 2026-10-23 seed hunt:** null guard before title select; regression above. [class:fail-open-validation]
+
+2026-10-23 seed hunt (seed→hit): promoted null elements in `AddedServices`/`AddedDatastores` crashing region-mismatch enricher before region warnings; `AgentResultRegionMismatchEnricher` now skips null service/datastore entries; regressions `EnrichAsync_skips_null_added_service_entries` and `EnrichAsync_skips_null_added_datastore_entries`; 155 scoped Application.Tests.Agents tests passed.
+
+- [x] (proven) `AgentResultRegionMismatchEnricher.EnrichAsync` — null service/datastore list entries aborted region validation — **hit 2026-10-23 seed hunt:** null guards in topology collection loops; regressions above. [class:fail-open-validation]
+
+2026-10-23 seed hunt (seed→hit): promoted null elements in `AgentResult.Findings` crashing curated-evidence proposal (`Any(HasTypedEmission)` before emission gate); `AgentCuratedEvidenceProposer` now skips null findings when gating and serializing typed findings; regression `BuildUserPrompt_skips_null_finding_entries_when_building_typed_summary`; 153 scoped Application.Tests.Agents tests passed.
+
+- [x] (proven) `AgentCuratedEvidenceProposer.TryProposeEvidenceJsonAsync` / `BuildUserPrompt` — null finding list entries aborted curated-evidence LLM path — **hit 2026-10-23 seed hunt:** null guards before typed-emission checks; regression above. [class:fail-open-validation]
+
+2026-10-23 seed hunt (seed-only): cheap-disproof closed faithfulness harness readiness vs floor threshold candidates; regressions `Import_records_failed_evaluation_when_readiness_is_strictly_below_floor` and `Import_records_evaluated_when_readiness_equals_floor`; no production change; 152 scoped Application.Tests.Agents tests passed.
+
+- [x] (valid-no-repro) `AgentModelCatalogFaithfulnessHarnessImporter.ImportForAliasAsync` — readiness strictly below `FloorMinSupportRatio` should record `Failed` — **cheap-disproof 2026-10-23 seed hunt:** `>=` ternary; regression `Import_records_failed_evaluation_when_readiness_is_strictly_below_floor`.
+- [x] (valid-no-repro) `AgentModelCatalogFaithfulnessHarnessImporter.ImportForAliasAsync` — readiness equal to floor marks `Evaluated` — **cheap-disproof 2026-10-23 seed hunt:** inclusive `>=` bound; regression `Import_records_evaluated_when_readiness_equals_floor`.
+- [x] (invalid) `AgentModelCatalogFaithfulnessHarnessImporter.ImportForAliasAsync` — `evaluationState` uses `>=` so equal ratios mark Evaluated — **cheap-disproof 2026-10-23 seed hunt:** documented intentional inclusive floor; regression above.
+
+2026-10-23 seed hunt (seed→hit): promoted null elements in `AgentResult.Findings` crashing IaC stub clone (`EnsureFindingSourceAgents` before `finding.IsMuted` short-circuit); `AgentResultEnvelopeAgentTypeResolver` now skips null findings when resolving/backfilling `SourceAgent`; IaC loop guards null before property access; regression `GenerateAndPersistStubsForRunAsync_skips_null_finding_entries`; 150 scoped Application.Tests.Agents tests passed.
+
+- [x] (proven) `AgentResultEnvelopeAgentTypeResolver` / `FindingIacStubGenerator` — null finding list entries aborted stub clone — **hit 2026-10-23 seed hunt:** null guards in resolver finding loops and IaC iteration; regression above. [class:fail-open-validation]
+
+2026-10-23 seed hunt (seed→hit): promoted null elements in `AgentResult.Findings` crashing emission gate (`HasTypedEmission` on null finding); `AgentArchitectureFindingEmissionGate.ApplyToResults` now skips null finding entries; regressions `ApplyToResults_skips_null_finding_entries` and `EnrichAsync_skips_null_finding_entries_when_withholding_prose_findings`; 149 scoped Application.Tests.Agents tests passed.
+
+- [x] (proven) `AgentArchitectureFindingEmissionGate.ApplyToResults` — null finding list entries aborted emission withholding — **hit 2026-10-23 seed hunt:** null guard in findings loop; regressions above. [class:fail-open-validation]
+
+2026-10-23 seed hunt (seed→hit): consolidated null `AgentResult` list slots at the composite post-execution enricher so registered children receive a compacted list (defense in depth after per-enricher guards #136–#141); regression `EnrichAsync_omits_null_result_entries_before_invoking_children`; 148 scoped Application.Tests.Agents tests passed.
+
+- [x] (proven) `CompositeAgentResultPostExecutionEnricher.EnrichAsync` — null list slots forwarded to child enrichers — **hit 2026-10-23 seed hunt:** compact non-null rows before invoking registered enrichers; regression above. [class:fail-open-validation]
+
+2026-10-23 seed hunt (seed→hit): promoted null elements in persisted run results crashing IaC stub generation (`CloneResult` during initial materialization); `FindingIacStubGenerator` now filters null rows before clone and returns when no rows remain; regression `GenerateAndPersistStubsForRunAsync_skips_null_result_entries`; 147 scoped Application.Tests.Agents tests passed.
+
+- [x] (proven) `FindingIacStubGenerator.GenerateAndPersistStubsForRunAsync` — null `AgentResult` list entries aborted stub generation — **hit 2026-10-23 seed hunt:** filter before `Select(CloneResult)`; regression above. [class:fail-open-validation]
+
+2026-10-23 seed hunt (seed→hit): promoted null elements in persisted run results crashing confidence calibration (`ResolveAgentType` on null row); `AgentConfidenceCalibrationService` now skips null `AgentResult` entries; regression `ApplyCalibratedConfidenceForRunAsync_skips_null_result_entries`; 146 scoped Application.Tests.Agents tests passed.
+
+- [x] (proven) `AgentConfidenceCalibrationService.ApplyCalibratedConfidenceForRunAsync` — null `AgentResult` list entries aborted calibration — **hit 2026-10-23 seed hunt:** null guard before `ResolveAgentType`; regression above. [class:fail-open-validation]
+
+2026-10-23 seed hunt (seed→hit): promoted null elements in agent `results` list crashing curated-evidence and finding-emission post-processors; `AgentResultPostExecutionEnricher` and `AgentArchitectureFindingEmissionGate.ApplyToResults` now skip null `AgentResult` entries; regressions `EnrichAsync_skips_null_result_entries_when_proposing_curated_evidence` and `EnrichAsync_skips_null_result_entries_when_withholding_prose_findings`; 145 scoped Application.Tests.Agents tests passed.
+
+- [x] (proven) `AgentResultPostExecutionEnricher` / `AgentArchitectureFindingEmissionGate` — null `AgentResult` list entries aborted post-execution enrichment — **hit 2026-10-23 seed hunt:** null guards in curated-evidence loop and emission gate; regressions above. [class:fail-open-validation]
+
+2026-10-23 seed hunt (seed→hit): promoted null elements in agent `results` list crashing `TopologyProposalDualModelConsensusEnricher` during topology row resolution (`FirstOrDefault` + sibling prune); enricher now skips null `AgentResult` entries; regression `EnrichAsync_skips_null_result_entries_when_resolving_topology_row`; 143 scoped Application.Tests.Agents tests passed.
+
+- [x] (proven) `TopologyProposalDualModelConsensusEnricher.EnrichAsync` — null `AgentResult` list entries aborted dual-model consensus — **hit 2026-10-23 seed hunt:** null guard in topology lookup and sibling prune loops; regression above. [class:fail-open-validation]
+
+2026-10-23 seed hunt (seed→hit): promoted null elements in agent `results` list crashing `AgentResultRegionMismatchEnricher` before region warnings; enricher now skips null `AgentResult` entries; regression `EnrichAsync_skips_null_result_entries`; 142 scoped Application.Tests.Agents tests passed.
+
+- [x] (proven) `AgentResultRegionMismatchEnricher.EnrichAsync` — null `AgentResult` list entries aborted enricher — **hit 2026-10-23 seed hunt:** null guard in results loop; regression above. [class:fail-open-validation]
+
+2026-10-23 seed hunt (seed→hit): promoted null elements in `ArchitectureRequest.Constraints` crashing post-execution region enricher (`NullReferenceException` on `constraint.Trim()`); `ResolveRequestRegions` now skips null/whitespace constraint entries; regression `EnrichAsync_skips_null_constraint_entries_when_service_region_missing`; 141 scoped Application.Tests.Agents tests passed.
+
+- [x] (proven) `AgentResultRegionMismatchEnricher.ResolveRequestRegions` — null constraint list entries aborted enricher — **hit 2026-10-23 seed hunt:** `string.IsNullOrWhiteSpace(constraint)` guard before trim; regression above. [class:fail-open-validation]
+
+2026-10-23 seed hunt (seed→hit): promoted padded `region:` request constraints skipped by `StartsWith` so services without `AzureArmRegion` missed `RegionMismatch` warnings; `AgentResultRegionMismatchEnricher.ResolveRequestRegions` now trims each constraint before parsing; regression `EnrichAsync_uses_request_region_constraint_when_constraint_has_leading_whitespace_and_service_region_missing`; 140 scoped Application.Tests.Agents tests passed.
+
+- [x] (proven) `AgentResultRegionMismatchEnricher.ResolveRequestRegions` — leading whitespace on `region:` constraint skipped region parsing — **hit 2026-10-23 seed hunt:** `constraint.Trim()` before prefix check; regression above.
+
+2026-10-22 seed hunt (seed-only): re-read Agents/ after IaC BOM hit; cheap-disproof on stale BOM/provenance/forensics candidates; deferred padded `region:` constraint trim (saturated `other`); seeded three follow-on rows; 139 scoped Application.Tests.Agents tests passed.
+
+- [x] (invalid) `FindingIacStubGenerator.NormalizeLlmStubBody` — UTF-8 BOM before disclaimer may still duplicate — **cheap-disproof 2026-10-22 seed hunt:** proven-class hit `TrimStart('\uFEFF')` in prior run; regression `GenerateAndPersistStubsForRunAsync_strips_utf8_bom_before_disclaimer_check`.
+
+- [x] (invalid) `ReviewRunEngineProvenanceAggregator.DerivePolicyPackVersion` — whitespace-only policy titles kept — **cheap-disproof 2026-10-22 seed hunt:** `Where(!string.IsNullOrWhiteSpace(title))` before `Trim()` drops blank titles; `materialized.Count == 0` returns null.
+
+- [x] (valid-no-repro) `RunToolInvocationForensicsBuilder.Build` — structured ledger preferred when traces empty — **cheap-disproof 2026-10-22 seed hunt:** by design for TB-110 structured path; regression `Build_prefers_structured_ledger_when_rows_exist`.
+
+- [x] (valid-no-repro) `AgentModelCatalogFaithfulnessHarnessImporter.ImportForAliasAsync` — inclusive `>=` floor marks Evaluated at equality — **cheap-disproof 2026-10-22 seed hunt:** intentional operator threshold; import tests use ratios above floor with Evaluated expectation.
+
+- [x] (proven) `AgentResultRegionMismatchEnricher.ResolveRequestRegions` — leading whitespace on `region:` constraint skipped by `StartsWith` — **hit 2026-10-23 seed hunt:** see seed→hit row above.
+- (candidate) `TopologyProposalDualModelConsensusEnricher.EnrichAsync` — secondary tier disallowed by workspace engine set — verify invoker gate before promoting.
+- (candidate) `AgentModelCatalogFaithfulnessHarnessImporter.ImportForAliasAsync` — readiness strictly below floor should record Failed — locus: `evaluationState` ternary; input: `PositiveReadinessSupportRatio` just under `FloorMinSupportRatio` (no boundary test cited).
+
+2026-10-22 seed hunt (seed→hit): promoted IaC stub UTF-8 BOM strip; regression `GenerateAndPersistStubsForRunAsync_strips_utf8_bom_before_disclaimer_check`; 139 scoped Application.Tests.Agents tests passed.
+
+- [x] (proven) `FindingIacStubGenerator.NormalizeLlmStubBody` — UTF-8 BOM prefix prevented `StartsWith` disclaimer match and duplicated disclaimer line — **hit 2026-10-22 seed hunt:** `TrimStart('\uFEFF')` after JSON unwrap in shared normalizer. [class:state-machine-gap]
+
+- (candidate) `TopologyProposalDualModelConsensusEnricher.EnrichAsync` — secondary tier disallowed — verify test host wiring before promoting.
+- (candidate) `AgentModelCatalogFaithfulnessHarnessImporter` — inclusive readiness `>=` floor threshold — document operator semantics before promoting.
+- (candidate) `RunToolInvocationForensicsBuilder.Build` — structured ledger preferred when traces empty — by design for TB-110 structured path.
+
+2026-10-22 seed hunt (seed-only): re-read Agents/ after IaC JSON unwrap hit; closed stale candidates; no hunt-ready row promoted (saturated `other`); 138 scoped Application.Tests.Agents tests passed.
+
+- [x] (invalid) `FindingIacStubGenerator.TryGenerateStubAsync` — JSON-string-wrapped Bicep — **cheap-disproof 2026-10-22 seed hunt:** proven-class hit `TryUnwrapJsonStringLiteral` in prior run; regression `GenerateAndPersistStubsForRunAsync_unwraps_json_string_literal_completion_before_disclaimer_check`.
+
+- [x] (invalid) `AgentExecutionTraceRunLlmCostAggregator.Compute` — whitespace-only deployment in `measurableDeployments` — **cheap-disproof 2026-10-22 seed hunt:** `IsNullOrWhiteSpace(modelDeploymentName)` guard before `measurableDeployments.Add`.
+
+- [x] (valid-no-repro) `AgentConfidenceCalibrator.CalibrateAsync` — non-finite raw confidence becomes `0.0` — **cheap-disproof 2026-10-22 seed hunt:** `ClampUnit` intentionally maps non-finite values to `0.0`; samples with non-finite semantic scores already covered by `CalibrateAsync_returns_finite_value_when_calibration_samples_include_non_finite_scores`.
+
+- [x] (invalid) `TopologyProposalDualModelConsensusEnricher.EnrichAsync` — secondary tier disallowed by workspace engine set — **cheap-disproof 2026-10-22 seed hunt:** secondary invoker returns null and enricher logs warning (no silent merge); no repro without wiring disallowed tier in test host.
+
+- (candidate) `FindingIacStubGenerator.NormalizeLlmStubBody` — UTF-8 BOM before disclaimer line may still duplicate disclaimer — locus: post-unwrap trim; input: LLM returns `\uFEFF` + disclaimer (verify host encoding).
+- (candidate) `AgentModelCatalogFaithfulnessHarnessImporter.ImportForAliasAsync` — `evaluationState` uses `>=` on readiness vs floor so equal ratios mark Evaluated — locus: threshold compare; input: readiness exactly equals floor (document intended inclusive bound).
+- (candidate) `ReviewRunEngineProvenanceAggregator.DerivePolicyPackVersion` — null policy titles skipped but whitespace-only titles kept — locus: title trim loop; input: policy title `"   "` in evidence package.
+- (candidate) `RunToolInvocationForensicsBuilder.Build` — structured records preferred even when trace list empty — locus: `BuildFromStructured`; input: empty traces with non-empty structured ledger rows.
+
+2026-10-22 seed hunt (seed→hit): promoted JSON-string-wrapped IaC stub completions; regression `GenerateAndPersistStubsForRunAsync_unwraps_json_string_literal_completion_before_disclaimer_check`; 138 scoped Application.Tests.Agents tests passed.
+
+- [x] (proven) `FindingIacStubGenerator.NormalizeLlmStubBody` — `CompleteJsonAsync` JSON string literals left leading `"` so disclaimer detection prepended a duplicate line — **hit 2026-10-22 seed hunt:** `TryUnwrapJsonStringLiteral` before fence/disclaimer normalization. [class:state-machine-gap]
+
+- (candidate) `TopologyProposalDualModelConsensusEnricher.EnrichAsync` — secondary tier disallowed by workspace engine set — verify invoker gate before promoting.
+- (candidate) `AgentConfidenceCalibrator.CalibrateAsync` — `ClampUnit` maps non-finite raw confidence to `0.0` — confirm intended fail-closed semantics.
+- (candidate) `AgentModelCatalogFaithfulnessHarnessImporter.ImportForAliasAsync` — evaluation evidence omits harness script when summary file missing mid-import — out of scope unless transactional import required.
+
+2026-10-22 seed hunt (seed-only): re-read Agents/ after IaC fence hit; cheap-disproof on provenance token loop, design-gap enrichers, and saturated trim siblings; 137 scoped Application.Tests.Agents tests passed.
+
+- [x] (valid-no-repro) `ReviewRunEngineProvenanceAggregator.Aggregate` — separate reasoning loop double-counts output tokens — **cheap-disproof 2026-10-22 seed hunt:** `combinedOutputTokens = costSummary.CompletionTokens + reasoningTokens` matches `costSummary.CombinedOutputTokens`; regressions `Aggregate_reasoning_only_traces_include_reasoning_tokens_in_output_total` and `Aggregate_azure_traces_produce_azure_openai_provider_kind_and_token_totals`.
+
+- [x] (invalid) `AgentCuratedEvidenceProposer` — enricher ordering vs structural post-process — **cheap-disproof 2026-10-22 seed hunt:** engineering hardening only; no failing repro without product direction on enricher registration order.
+
+- [x] (invalid) `AgentResultRegionMismatchEnricher` — warnings without name/platform cues — **cheap-disproof 2026-10-22 seed hunt:** explicit design gap; do not extend instance-list name heuristics (saturated `other`).
+
+- [x] (invalid) `EvidenceProposalPromoter.BuildCatalogEntryId` — homoglyph slug collisions — **cheap-disproof 2026-10-22 seed hunt:** no OpenAPI/ARM/config reachability citation for attacker-controlled homoglyph titles.
+
+- (candidate) `FindingIacStubGenerator.TryGenerateStubAsync` — `CompleteJsonAsync` may return JSON-string-wrapped Bicep (leading/trailing quotes) so disclaimer detection fails — locus: post-completion normalize; input: verify `IAgentCompletionClient` contract on production hosts.
+- (candidate) `AgentExecutionTraceRunLlmCostAggregator.Compute` — whitespace-only `ModelDeploymentName` rows still add empty label entries to `measurableDeployments` — locus: `BuildModelLabelFromDeployments`; input: trace row with `"   "` deployment name.
+- (candidate) `TopologyProposalDualModelConsensusEnricher.EnrichAsync` — secondary pass when `SecondaryModelTier` resolves to disallowed tier — locus: options + invoker; input: workspace engine set excludes secondary tier.
+- (candidate) `AgentConfidenceCalibrator.CalibrateAsync` — non-finite raw confidence becomes `0.0` without audit — locus: `ClampUnit`; input: `double.NaN` sample row (verify intended fail-closed).
+
+2026-10-22 seed hunt (seed→hit): promoted IaC stub markdown-fence normalization; regression `GenerateAndPersistStubsForRunAsync_does_not_duplicate_disclaimer_when_llm_wraps_bicep_in_markdown_fence`; 137 scoped Application.Tests.Agents tests passed.
+
+- [x] (proven) `FindingIacStubGenerator.EnsureDisclaimerLine` — LLM completions wrapped in markdown fences did not start with the disclaimer line so a second disclaimer was prepended — **hit 2026-10-22 seed hunt:** `NormalizeLlmStubBody` strips optional fences before disclaimer detection. [class:state-machine-gap]
+
+- (candidate) `AgentCuratedEvidenceProposer` — enricher ordering vs structural post-process — engineering hardening only.
+- (candidate) `AgentResultRegionMismatchEnricher` — restricted-region warnings without name/platform cues — design gap.
+- (candidate) `EvidenceProposalPromoter.BuildCatalogEntryId` — homoglyph title slug collisions — no reachability citation yet.
+- (candidate) `ReviewRunEngineProvenanceAggregator.Aggregate` — `TotalOutputTokens` sums completion plus reasoning twice via separate loops — verify parity tests before promoting.
+
+2026-10-22 seed hunt (seed→hit): promoted curated-evidence text field normalization; regressions `TryParseValid_WhenTitleHasSurroundingWhitespace_returns_trimmed_payload` and `NormalizeResponse_trims_surrounding_whitespace_on_text_fields`; 136 scoped Application.Tests.Agents tests passed.
+
+- [x] (proven) `ProposedEvidencePayloadValidator.TryParseValid` — padded `title`/`description`/`rationale` passed substantive-text guards but persisted verbatim into tenant catalog on promotion — **hit 2026-10-22 seed hunt:** `ProposedEvidencePayloadNormalizer.NormalizeTextFields` shared by validator and proposer. [class:fail-open-validation]
+
+- (candidate) `AgentCuratedEvidenceProposer` — enricher ordering vs structural post-process — engineering hardening only.
+- (candidate) `AgentResultRegionMismatchEnricher` — restricted-region warnings without name/platform cues — design gap.
+- (candidate) `FindingIacStubGenerator.EnsureDisclaimerLine` — disclaimer detected with `StartsWith` only; leading markdown fences may duplicate disclaimer — verify LLM completion shape before promoting.
+- (candidate) `AgentModelCatalogFaithfulnessHarnessImporter.CollectApprovedTaskTypes` — duplicate casing variants — **invalid** after distinct ignore-case (no repro).
+
+2026-10-22 seed hunt (seed→hit): promoted faithfulness summary format version normalization; regressions `TryReadLatestAsync_when_format_version_is_whitespace_uses_default` and `TryReadLatestAsync_trims_surrounding_whitespace_on_format_version`; 134 scoped Application.Tests.Agents tests passed.
+
+- [x] (proven) `RepoFaithfulnessHarnessSummaryReader.TryReadLatestAsync` — whitespace-only `formatVersion` in `docs/quality/faithfulness-summary.json` bypassed `?? "1.0"` and flowed into harness import evidence — **hit 2026-10-22 seed hunt:** `ResolveFormatVersion` treats blank as default and trims non-empty values. [class:fail-open-validation]
+
+- (candidate) `AgentCuratedEvidenceProposer` — enricher ordering vs structural post-process — engineering hardening only.
+- (candidate) `AgentResultRegionMismatchEnricher` — restricted-region warnings without name/platform cues — design gap; do not extend instance-list heuristics.
+- (candidate) `EvidenceProposalPromoter.BuildCatalogEntryId` — homoglyph title slug collisions — no OpenAPI/ARM reachability cited yet.
+- (candidate) `AgentModelCatalogFaithfulnessHarnessImporter` — `CollectApprovedTaskTypes` drops empty strings but not duplicate casing variants — verify catalog seed data before promoting.
+
+2026-10-22 seed hunt (seed→hit): promoted padded replay execution mode; regression `Resolve_known_mode_with_surrounding_whitespace_returns_injected_executor`; consolidated `ExecutionModes.EnsureKnown`; 132 scoped Application.Tests.Agents tests passed.
+
+- [x] (proven) `DefaultAgentExecutorResolver.Resolve` — `ReplayRunRequest.ExecutionMode` with surrounding whitespace failed `KnownModes.Contains` and aborted replay — **hit 2026-10-22 seed hunt:** `ExecutionModes.EnsureKnown` trims before validation; resolver delegates to shared helper. [class:state-machine-gap]
+
+- (candidate) `AgentCuratedEvidenceProposer` — enricher ordering vs structural post-process — engineering hardening.
+- (candidate) `AgentResultRegionMismatchEnricher` — restricted-region SKUs without name heuristics — design gap.
+- (candidate) `EvidenceProposalPromoter.BuildCatalogEntryId` — homoglyph title slug collisions — verify reachability before promoting.
+- (candidate) `RepoFaithfulnessHarnessSummaryReader.TryReadLatestAsync` — whitespace-only `formatVersion` passes through as empty string — locus: `dto.FormatVersion ?? "1.0"`; input: `"formatVersion":"   "`.
+
+2026-10-22 seed hunt (seed→hit): promoted shared curated-evidence type guard; regressions `TryParseValid_WhenTypeHasSurroundingWhitespace_ReturnsTrue` and `NormalizeResponse_parses_valid_policy_proposal_when_type_has_surrounding_whitespace`; 131 scoped Application.Tests.Agents tests passed.
+
+- [x] (proven) `ProposedEvidencePayloadValidator.TryParseValid` — JSON `type` with ASCII padding failed `IsSupportedType` so operator promotion rejected otherwise valid `ProposedEvidenceJson` — **hit 2026-10-22 seed hunt:** `ProposedEvidenceSupportedTypes.IsSupported` shared by validator and proposer; trim normalized type on success. [class:fail-open-validation]
+
+- (candidate) `DefaultAgentExecutorResolver.Resolve` — padded known execution mode throws — locus: `KnownModes.Contains`; reachability: verify replay/run-create never emits padded modes.
+- (candidate) `AgentCuratedEvidenceProposer` — enricher ordering vs structural post-process — engineering hardening.
+- (candidate) `AgentResultRegionMismatchEnricher` — restricted-region SKUs without name heuristics — design gap; do not extend instance-list cues.
+- (candidate) `EvidenceProposalPromoter.BuildCatalogEntryId` — slug collision semantics for homoglyph titles — verify before promoting.
+
+2026-10-22 seed hunt (seed-only): re-read `ArchLucid.Application/Agents/` after provenance applicator hit; cheap-disproof on coordination (out-of-zone), promoter trim sibling, reasoning-only cost slices, selection provenance defaults; 129 scoped Application.Tests.Agents tests passed.
+
+- [x] (invalid) `ArchitectureRunAuthorityCoordination.PatchAuthorityRunHeaderAsync` — padded alias skipped registry `TryGet` before applicator — **cheap-disproof 2026-10-22 seed hunt:** locus is `Runs/Coordination/` (outside zone `paths`); applicator normalizes alias id when reached.
+
+- [x] (invalid) `EvidenceProposalPromoter.PromoteAsync` — padded `resultId` misses proposal lookup — **cheap-disproof 2026-10-22 seed hunt:** padded segment fails lookup; saturated defect class `other` — defer to shared route-id normalizer, not another one-off trim.
+
+- [x] (valid-no-repro) `AgentExecutionTraceRunLlmCostAggregator.Compute` — reasoning-only traces skip USD accumulation — **cheap-disproof 2026-10-22 seed hunt:** `Compute_ReasoningTokensOnlyTrace_StillAccumulatesCost` and related TB-196 regressions.
+
+- [x] (invalid) `ReviewRunEngineSelectionProvenanceBuilder.Build` — null `TaskEvaluations` on registry entry — **cheap-disproof 2026-10-22 seed hunt:** `AgentModelAliasRegistryEntry.TaskEvaluations` defaults to `[]`.
+
+- (candidate) `ProposedEvidencePayloadValidator.TryParseValid` — JSON `type` with surrounding ASCII spaces fails `IsSupportedType` while text fields validate — locus: `IsSupportedType`; input: `"type":" Policy"` in persisted `ProposedEvidenceJson`; wrong outcome: promotion rejects valid operator intent; reachability: manual/SQL catalog edits, not `AgentCuratedEvidenceProposer` path.
+- (candidate) `DefaultAgentExecutorResolver.Resolve` — padded known execution mode throws `Unknown execution mode` — locus: `KnownModes.Contains(executionMode)` without normalize; input: `" Current "`; reachability: cite replay/run-create source of `executionMode` before promoting.
+- (candidate) `AgentCuratedEvidenceProposer.NormalizeResponse` vs `ProposedEvidencePayloadValidator` — duplicate `IsSupportedType` helpers may diverge on edge `type` strings — locus: both private `IsSupportedType`; input: whitespace-padded type token from LLM JSON.
+- (candidate) `AgentCuratedEvidenceProposer` — enricher ordering vs structural post-process — engineering hardening; brief-grounded service drop before consensus.
+
+2026-10-22 seed hunt (seed→hit): promoted run engine provenance applicator alias trim; regression `TryApplyFromEffectiveAliasId_trims_surrounding_whitespace_on_alias_id`; 129 scoped Application.Tests.Agents tests passed.
+
+- [x] (proven) `RunEngineProvenanceApplicator.TryApplyFromEffectiveAliasId` — padded `effectiveModelAliasId` skipped alias registry lookup and left `EngineProvenanceJson` unset — **hit 2026-10-22 seed hunt:** trim before `TryGet`/`Build`; regression above. [class:state-machine-gap]
+
+- [x] (invalid) `AdminAgentModelCatalogController` — padded `taskType` route segment — **cheap-disproof 2026-10-22 seed hunt:** `AgentModelCatalogEvaluationRecorder` already `taskType.Trim()` before evaluation upsert.
+
+2026-10-22 seed hunt (seed→hit): promoted catalog evaluation recorder alias trim (admin record path); regression `RecordTaskEvaluationAsync_trims_surrounding_whitespace_on_alias_id`; 128 scoped Application.Tests.Agents tests passed.
+
+- [x] (proven) `AgentModelCatalogEvaluationRecorder.RecordTaskEvaluationAsync` — direct `POST …/evaluations/{taskType}/record` with padded route `aliasId` missed catalog row — **hit 2026-10-22 seed hunt:** normalize alias id at recorder entry (shared with harness import caller); regression above. [class:fail-open-validation]
+
+- [x] (invalid) `AdminAgentModelCatalogController` — padded `taskType` route segment — **cheap-disproof 2026-10-22 seed hunt:** recorder trims `taskType` at entry.
+- (candidate) `AgentCuratedEvidenceProposer` — enricher ordering vs structural post-process — engineering hardening.
+- (candidate) `RunToolInvocationForensicsBuilder.BuildFromTraces` — first-row null duration — by design for single-trace runs.
+- (candidate) `ReviewRunEngineSelectionProvenanceBuilder.Build` — `TaskEvaluations` null on registry entry — defaults to empty list on `AgentModelAliasRegistryEntry`.
+
+2026-10-22 seed hunt (seed→hit): promoted faithfulness import alias id trim; regression `Import_trims_surrounding_whitespace_on_alias_id`; 127 scoped Application.Tests.Agents tests passed.
+
+- [x] (proven) `AgentModelCatalogFaithfulnessHarnessImporter.ImportForAliasAsync` — padded `aliasId` from admin route lookup missed catalog row and returned 404 — **hit 2026-10-22 seed hunt:** trim alias and actor ids before repository/recorder calls; regression above. [class:fail-open-validation]
+
+- [x] (invalid) `RepoFaithfulnessHarnessSummaryReader.TryReadLatestAsync` — omitted ratio keys default to `0.0` — **cheap-disproof 2026-10-22 seed hunt:** import `EnsureHarnessSummaryRatiosAreValid` rejects non-finite/out-of-range values; zero readiness with positive `casesEvaluated` records Failed evaluation (expected harness semantics).
+
+- [x] (proven) `AgentModelCatalogEvaluationRecorder.RecordTaskEvaluationAsync` — padded `aliasId` on admin record path — **hit 2026-10-22 seed hunt (recorder):** see hunt note above.
+- (candidate) `AgentCuratedEvidenceProposer` — enricher ordering vs structural post-process — engineering hardening.
+- (candidate) `RunToolInvocationForensicsBuilder.BuildFromTraces` — first trace row always null duration — locus: inter-trace delta; input: single-trace runs (by design).
+
+2026-10-22 seed hunt (seed→hit): consolidated harness summary validation; reject out-of-range ratios; regression `Import_rejects_summary_when_readiness_ratio_is_out_of_unit_interval`; 126 scoped Application.Tests.Agents tests passed.
+
+- [x] (proven) `AgentModelCatalogFaithfulnessHarnessImporter.EnsureHarnessSummaryRatiosAreValid` — negative readiness ratios were finite but still persisted in evaluation evidence — **hit 2026-10-22 seed hunt:** shared finite + `[0,1]` guard; regression above. [class:fail-open-validation]
+
+- [x] (valid-no-repro) `ReviewRunEngineProvenanceMerger.MergeSelectionWithExecution` — in-place `execution` mutation — **cheap-disproof 2026-10-22 seed hunt:** `RunEngineProvenanceCaptureService` builds a fresh aggregate object; merge result is serialized immediately; no shared reuse.
+
+- (candidate) `AgentResultRegionMismatchEnricher` — restricted-region coverage for SKUs without name heuristics — design gap; do not extend instance-list name cues (saturated `other`).
+- (candidate) `RepoFaithfulnessHarnessSummaryReader.TryReadLatestAsync` — partial JSON defaults ratios to `0.0` — import records Failed when floor > 0; verify operator harm before promoting.
+- (candidate) `AgentCuratedEvidenceProposer` — enricher ordering vs structural post-process — engineering hardening only.
+
+2026-10-22 seed hunt (seed→hit): promoted faithfulness import when diagnostic ratios are non-finite; regression `Import_rejects_summary_when_combined_diagnostic_ratio_is_not_finite`; 125 scoped Application.Tests.Agents tests passed.
+
+- [x] (proven) `AgentModelCatalogFaithfulnessHarnessImporter.ImportForAliasAsync` — finite guard covered only readiness/floor so `NaN` `combinedDiagnosticSupportRatio` still persisted in evaluation `EvidenceJson` — **hit 2026-10-22 seed hunt:** `AreAllSupportRatiosFinite` on every harness ratio; regression above. [class:fail-open-validation]
+
+- (candidate) `AgentResultRegionMismatchEnricher` — restricted-region warnings still depend on name/platform cues for unlisted SKUs — locus: `TryResolveRestrictedServiceHintFromResourceName`; input: restricted map entry with no name heuristic (design gap, not instance-list).
+- (candidate) `RepoFaithfulnessHarnessSummaryReader.TryReadLatestAsync` — omitted ratio keys deserialize as `0.0` before import guards — locus: DTO defaults; input: partial JSON (import may record Failed — verify operator-visible harm).
+- (candidate) `AgentCuratedEvidenceProposer.TryProposeEvidenceJsonAsync` — LLM runs before structural post-process — locus: enricher order; input: brief-grounded service drop (engineering hardening).
+- (candidate) `ReviewRunEngineProvenanceMerger.MergeSelectionWithExecution` — mutates `execution` provenance in place — locus: merge helper; input: shared object reused by caller (verify callers clone).
+
+2026-10-22 seed hunt (seed→hit): promoted ML region mismatch for unknown-platform services; consolidated name→ARM hint helper; regression `EnrichAsync_appends_warning_when_machine_learning_named_service_omits_runtime_platform_in_restricted_region`; 124 scoped Application.Tests.Agents tests passed.
+
+- [x] (proven) `AgentResultRegionMismatchEnricher.TryResolveRestrictedServiceHintFromResourceName` — Machine Learning–named services with `RuntimePlatform.Unknown` in `qatarcentral` never matched `Microsoft.MachineLearningServices/workspaces` restricted map — **hit 2026-10-22 seed hunt:** shared name-cue ARM hints (OpenAI + ML); regression above. [class:state-machine-gap]
+
+- (candidate) `AgentResultRegionMismatchEnricher` — generic services with no OpenAI/ML name tokens in restricted regions still skip warnings when `RuntimePlatform` omitted — locus: unknown platform without name cues; input: `AppService` workload in `qatarcentral` (likely valid-no-repro).
+- (candidate) `RepoFaithfulnessHarnessSummaryReader.TryReadLatestAsync` — omitted ratio keys deserialize as `0.0` — locus: DTO defaults; input: summary JSON missing ratios (verify importer `Failed` state is acceptable).
+- (candidate) `AgentModelCatalogFaithfulnessHarnessImporter.ImportForAliasAsync` — partial evaluation upsert on mid-loop recorder failure — locus: foreach without transaction; input: fault on second approved task type.
+
+2026-10-22 seed hunt (seed→hit): promoted region mismatch when OpenAI-named services omit `RuntimePlatform`; regression `EnrichAsync_appends_warning_when_openai_named_service_omits_runtime_platform_in_restricted_region`; 123 scoped Application.Tests.Agents tests passed.
+
+- [x] (proven) `AgentResultRegionMismatchEnricher.ResolveRegionValidationPlatformHint` — `RuntimePlatform.Unknown` with OpenAI-like `ServiceName` in `qatarcentral` skipped `Microsoft.CognitiveServices/accounts` restricted-region warnings — **hit 2026-10-22 seed hunt:** infer Cognitive Services ARM hint from resource name when platform omitted; regression above. [class:state-machine-gap]
+
+- [x] (valid-no-repro) `AgentModelCatalogFaithfulnessHarnessImporter.ImportForAliasAsync` — partial evaluation upsert on mid-loop failure — **cheap-disproof 2026-10-22 seed hunt:** each `RecordTaskEvaluationAsync` upserts full catalog row; operator re-import is idempotent per task type; no cross-tenant harm from partial alias row.
+
+2026-10-22 seed hunt (seed→hit): promoted faithfulness harness import with non-finite support ratios; regression `Import_rejects_summary_when_support_ratios_are_not_finite`; 122 scoped Application.Tests.Agents tests passed.
+
+- [x] (proven) `AgentModelCatalogFaithfulnessHarnessImporter.ImportForAliasAsync` — `faithfulness-summary.json` with `NaN` readiness or floor ratios persisted Failed/Evaluated catalog rows instead of rejecting corrupt harness output — **hit 2026-10-22 seed hunt:** `double.IsFinite` guard before evaluation upsert; regression above. [class:fail-open-validation]
+
+- [x] (invalid) `FindingIacStubGenerator.ApplyRelationalMuteFlagsAsync` — non-GUID `runId` skips relational mute lookup — **cheap-disproof 2026-10-22 seed hunt:** `RunRecord.RunId` is `Guid`; IaC stub generation is post-commit on persisted runs; relational mute lookup requires `GetByRunIdAdminAsync(Guid)`; test-only ids like `run-1` are not production reachability.
+
 2026-10-21 follow-up (class closure): persisted `AgentResult.AgentType` direct reads in application agent orchestration — resolver routing + architecture ratchet `Application_and_agents_code_routes_envelope_agent_type_through_resolver`.
 
 - [x] (proven-class) `AgentResult` envelope `AgentType` — direct `result.AgentType` / `r.AgentType` comparisons bypassed finding `SourceAgent` backfill — **follow-up 2026-10-21 lane C:** `AgentResultEnvelopeAgentTypeResolver` everywhere in `ArchLucid.Application` except resolver; architecture test above.
@@ -7690,11 +8478,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** application agents; agent handlers wiring
 - **paths:** ArchLucid.Application/Agents/
 - **test-filter:** FullyQualifiedName~Application.Tests.Agents
-- **hunts:** 45
-- **bugs-found:** 42
+- **hunts:** 83
+- **bugs-found:** 73
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 — topology dual-model consensus resolver parity on persisted envelopes
+- **last-hunt:** 2026-10-23
+- **last-bug:** 2026-10-23 — null slots crash forensics, calibration, handlers, consensus harvest
 
 2026-09-27 seed hunt (seed→hit): proved `TopologyProposalConsensusMerger.Merge` threw when `RequiredControls` was null on topology dual-model proposals (`AgentProposalStructuralPostProcessor` does not initialize controls for `AgentType.Topology`); fixed by null-coalescing in control intersection and disagreement counts; regression `Merge_when_required_controls_is_null_does_not_throw`; 92 scoped Application.Tests.Agents tests passed.
 
@@ -7704,11 +8492,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** application agents; agent handlers wiring
 - **paths:** ArchLucid.Application/Agents/
 - **test-filter:** FullyQualifiedName~Application.Tests.Agents
-- **hunts:** 42
+- **hunts:** 43
 - **bugs-found:** 40
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-20
-- **last-bug:** 2026-10-20 — External subprocessor ack trim on read
+- **last-hunt:** 2026-10-22
+- **last-bug:** 2026-10-22 — IaC stub UTF-8 BOM strip
 2026-10-20 seed hunt (seed→hit): reseeded application-agents with no open hypotheses; promoted `ExternalSubprocessorEngineAcknowledgmentService.HasWorkspaceAcknowledgmentAsync` whitespace-padded tenant setting false negative; fixed trim on read; regression `HasWorkspaceAcknowledgmentAsync_returns_true_when_stored_value_has_surrounding_whitespace`; 2/2 `ExternalSubprocessorEngineAcknowledgmentServiceTests` passed.
 
 
@@ -7880,21 +8668,89 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: capabilities-cost-mcp
 
+2026-10-23 seed hunt (dry): cheap-disproof closed five open `(candidate)` rows (strict boolean stamp contract, whitespace `costRisk` maps to `unknown`, MCP `TopK` clamp, breach spend precedence, policy finding topology sample); no production change; seeded five follow-on rows; 31 scoped `Capabilities.Cost` + 7 MCP retrieval tests passed.
+
+2026-10-23 seed hunt (seed→hit): promoted `PolicyExpectationCostGraphReader.RequiresBudgetCap` treating padded `" true "` as false so policy-required-cap findings were skipped; fixed with `Trim()` before boolean parse; regression `Cost_constraint_emits_policy_required_cap_when_require_flag_has_surrounding_whitespace`; cheap-disproof closed five open `(candidate)` rows; seeded five follow-on rows; 31 scoped `Capabilities.Cost` + 7 MCP retrieval tests passed.
+
+2026-10-23 seed hunt (seed→hit): promoted padded `node.Label` in cost breach/constraint finding titles; titles now use `ResolveBudgetDisplayName` label fallback with trim; regressions `AnalyzeAsync_trims_padded_label_in_breach_title`, `AnalyzeAsync_trims_padded_label_in_constraint_title`; cheap-disproof closed four open `(candidate)` rows including mixed-case corpus filter (`OrdinalIgnoreCase`); seeded five follow-on rows; 30 scoped `Capabilities.Cost` + 7 MCP retrieval tests passed.
+
+2026-10-23 seed hunt (seed→hit): promoted null `RetrievalHit` string fields when projecting MCP tool hits (not only `Text`); null-coalesce `Title`, `DocumentId`, `SourceType`, and `SourceId` to empty strings; regression `PolicyPackSearchAsync_returns_empty_title_when_hit_title_is_null`; cheap-disproof closed padded `policyCostBreachSeverity` (`raw.Trim()` already applied) and three other `(candidate)` rows; seeded five follow-on rows; 28 scoped `Capabilities.Cost` + 6 MCP retrieval tests passed.
+
+2026-10-23 seed hunt (seed→hit): promoted padded `budgetName` on cost breach/constraint payloads and null `RetrievalHit.Text` crashing MCP snippet mapping; fixed with `ResolveBudgetDisplayName` trim fallback and null-coalesced snippet text; regressions `AnalyzeAsync_trims_padded_budget_name_on_breach_payload`, `AnalyzeAsync_trims_padded_budget_name_on_constraint_payload`, `PolicyPackSearchAsync_returns_empty_snippet_when_hit_text_is_null`; cheap-disproof closed remaining `(candidate)` rows; seeded five follow-on rows; 27 scoped `Capabilities.Cost` + 5 MCP retrieval tests passed.
+
+2026-10-23 seed hunt (seed→hit): promoted `CostGraphDecimalParser.TryParse` and `PolicyExpectationCostGraphReader.GraphHasParseableBudgetCap` failing on `maxMonthlyCost` with leading Unicode whitespace (e.g. NBSP from pasted exports), skipping breach findings and emitting spurious policy-required-cap warnings; fixed with `Trim()` before invariant parse; regressions `AnalyzeAsync_parses_max_monthly_cost_with_leading_nbsp`, `Cost_constraint_no_spurious_policy_cap_when_max_monthly_cost_has_leading_nbsp`; cheap-disproof closed five open `(candidate)` rows; seeded five follow-on rows; 25 scoped `Capabilities.Cost` + 4 MCP retrieval tests passed.
+
+2026-10-23 seed hunt (seed→hit): promoted `CostConstraintFindingEngine` `costRisk` severity mapping without trimming padded graph values; `costRisk` of `" high "` downgraded to Info and left padded text on the payload; fixed with `Trim()` before high-risk classification; regression `AnalyzeAsync_treats_padded_high_cost_risk_as_warning_severity`; cheap-disproof closed five open `(candidate)` rows; seeded five follow-on rows; 23 scoped `Capabilities.Cost` + 4 MCP retrieval tests passed.
+
+2026-10-23 seed hunt (seed→hit): promoted `CostBreachFindingEngine` / `CostConstraintFindingEngine` explainability `Notes` using thread-culture `:C0` while graph amounts are invariant USD; under `fr-FR` breach traces showed locale currency formatting instead of USD/month labels; fixed with `CostGraphDecimalParser.FormatUsdPerMonth` (`en-US`); regression `AnalyzeAsync_formats_trace_notes_in_usd_under_non_invariant_thread_culture`; cheap-disproof closed four sibling `(candidate)` rows; seeded five follow-on rows; 22 scoped `Capabilities.Cost` + 4 MCP retrieval tests passed.
+
+2026-10-23 seed hunt (seed→hit): promoted `PolicyExpectationCostGraphReader.GraphHasParseableBudgetCap` current-culture `decimal.TryParse` vs invariant graph materialization; under `fr-FR` an invariant `maxMonthlyCost` (`5000.50`) satisfied `CostConstraintFindingEngine` but failed the policy-cap probe, emitting a spurious “Policy requires a monthly budget cap” alongside the constraint finding; fixed with invariant parse in `GraphHasParseableBudgetCap`; regression `Cost_constraint_no_spurious_policy_cap_when_invariant_max_monthly_cost_under_non_invariant_culture`; 21 scoped `Capabilities.Cost` + 4 MCP retrieval tests passed.
+
+- [ ] (candidate) `RetrievalTools.SearchAsync` — `ChunkId` not projected onto `RetrievalMcpToolHit` so MCP clients cannot correlate chunks — locus: hit mapper fields; input: clients expecting chunk-level citations.
+- [ ] (candidate) `CostGraphDecimalParser.TryParse` — negative `maxMonthlyCost` strings parse successfully and may produce nonsensical breach math — locus: invariant decimal parse without sign guard; input: `-100` on cost constraint node.
+- [ ] (candidate) `RetrievalTools.PriorDecisionSearchAsync` — cannot include platform corpora even when prior manifest indexed only in platform scope — locus: forced `IncludePlatformCorpora = false`; input: cross-tenant prior lookup experiment.
+- [ ] (candidate) `CostConstraintFindingEngine.AnalyzeAsync` — `costRisk` value `HIGH` (all caps) without trim beyond `OrdinalIgnoreCase` — locus: severity mapping; input: uppercase risk stamp from legacy graph exporter.
+- [ ] (candidate) `RetrievalTools.SearchAsync` — `TopK` above 25 silently truncated without surfacing clamp to caller — locus: `Math.Clamp(request.TopK, 1, 25)`; input: MCP request `TopK = 50`.
+
 - **id:** capabilities-cost-mcp
 - **status:** open
 - **impact:** medium
 - **aliases:** capabilities cost; MCP server; cost estimation
 - **paths:** ArchLucid.Capabilities.Cost/; ArchLucid.Mcp/
 - **test-filter:** FullyQualifiedName~Capabilities.Cost|FullyQualifiedName~Mcp
-- **hunts:** 4
-- **bugs-found:** 2
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 — invariant-culture cost graph decimal parsing
+- **hunts:** 13
+- **bugs-found:** 10
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-10-23
+- **last-bug:** 2026-10-23 — padded policyCostRequireBudgetCap flag ignored
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 
 
+- [x] (invalid) `PolicyExpectationCostGraphReader.RequiresBudgetCap` — accepts `yes`/`1` truthy strings — **cheap-disproof 2026-10-23 seed hunt (dry):** context snapshot stamps use strict `"true"`/`"false"` strings per policy overlay contract.
+- [x] (valid-no-repro) `CostConstraintFindingEngine.AnalyzeAsync` — whitespace-only `costRisk` without distinct note — **cheap-disproof 2026-10-23 seed hunt (dry):** `normalizedCostRisk` null yields payload `unknown` and Info severity; regression `AnalyzeAsync_treats_padded_high_cost_risk_as_warning_severity`.
+- [x] (valid-no-repro) `RetrievalTools.SearchAsync` — `TopK = 0` clamps to 1 — **cheap-disproof 2026-10-23 seed hunt (dry):** `Math.Clamp(request.TopK, 1, 25)` MCP contract.
+- [x] (valid-no-repro) `CostBreachFindingEngine.ResolveProjectedMonthlySpend` — point estimate precedence — **cheap-disproof 2026-10-23 seed hunt (dry):** regression `AnalyzeAsync_prefers_projected_monthly_spend_over_impact_bounds`.
+- [x] (valid-no-repro) `CostConstraintFindingEngine.CreatePolicyRequiredCapFinding` — unsorted topology sample — **cheap-disproof 2026-10-23 seed hunt (dry):** explainability sample only; regression `Cost_constraint_emits_policy_required_cap_when_stamped_and_no_cap_node`.
+- [x] (proven) `PolicyExpectationCostGraphReader.RequiresBudgetCap` — padded `policyCostRequireBudgetCap` value not trimmed before `"true"` check — **hit 2026-10-23 seed hunt:** `Trim()` before boolean parse; regression `Cost_constraint_emits_policy_required_cap_when_require_flag_has_surrounding_whitespace`.
+- [x] (valid-no-repro) `CostConstraintFindingEngine.AnalyzeAsync` — whitespace-only `costRisk` — **cheap-disproof 2026-10-23 seed hunt:** maps to `unknown` Info severity by design; titles do not embed risk level.
+- [x] (valid-no-repro) `RetrievalTools.SearchAsync` — `TopK = 0` clamps to 1 — **cheap-disproof 2026-10-23 seed hunt:** intentional MCP clamp contract.
+- [x] (valid-no-repro) `CostBreachFindingEngine.ResolveProjectedMonthlySpend` — point estimate precedence — **cheap-disproof 2026-10-23 seed hunt:** `AnalyzeAsync_prefers_projected_monthly_spend_over_impact_bounds`.
+- [x] (invalid) `RetrievalMcpToolHit.Score` — unclamped scores — **cheap-disproof 2026-10-23 seed hunt:** indexer metadata only.
+- [x] (valid-no-repro) `CostConstraintFindingEngine.CreatePolicyRequiredCapFinding` — unsorted topology sample — **cheap-disproof 2026-10-23 seed hunt:** explainability sample only; not a capacity defect.
+- [x] (proven) `CostBreachFindingEngine.TryCreateBreachFinding` / `CostConstraintFindingEngine.AnalyzeAsync` — padded `node.Label` copied verbatim into finding titles — **hit 2026-10-23 seed hunt:** `ResolveBudgetDisplayName` for title label fallback; regressions `AnalyzeAsync_trims_padded_label_in_breach_title`, `AnalyzeAsync_trims_padded_label_in_constraint_title`.
+- [x] (valid-no-repro) `RetrievalTools.SearchAsync` — mixed-case `CorpusKind` on hits — **cheap-disproof 2026-10-23 seed hunt:** post-filter uses `OrdinalIgnoreCase`; regression `PriceRowLookupAsync_matches_corpus_kind_with_mixed_case_labels`.
+- [x] (valid-no-repro) `CostConstraintFindingEngine.AnalyzeAsync` — unbounded `confidenceReasoning` — **cheap-disproof 2026-10-23 seed hunt:** materializers own bounded reasoning; no engine truncation contract.
+- [x] (valid-no-repro) `CostBreachFindingEngine.ResolveProjectedMonthlySpend` — point estimate precedence — **cheap-disproof 2026-10-23 seed hunt:** `AnalyzeAsync_prefers_projected_monthly_spend_over_impact_bounds`.
+- [x] (invalid) `RetrievalMcpToolHit.Score` — unclamped scores — **cheap-disproof 2026-10-23 seed hunt:** similarity metadata only.
+- [x] (proven) `RetrievalTools.SearchAsync` — null `RetrievalHit.Title` (and related string fields) projected without null guards — **hit 2026-10-23 seed hunt:** null-coalesce string fields on MCP hit mapping; regression `PolicyPackSearchAsync_returns_empty_title_when_hit_title_is_null`.
+- [x] (valid-no-repro) `PolicyExpectationCostGraphReader.ResolveBreachSeverityOverride` — padded severity stamp — **cheap-disproof 2026-10-23 seed hunt:** `raw.Trim()` before `Enum.TryParse`; regression `Cost_breach_uses_critical_severity_when_stamped_with_surrounding_whitespace`.
+- [x] (valid-no-repro) `CostConstraintFindingEngine.AnalyzeAsync` — unbounded `confidenceReasoning` — **cheap-disproof 2026-10-23 seed hunt:** finding payload contract; materializers bound reasoning text.
+- [x] (valid-no-repro) `CostBreachFindingEngine.ResolveProjectedMonthlySpend` — point estimate vs upper bound — **cheap-disproof 2026-10-23 seed hunt:** `AnalyzeAsync_prefers_projected_monthly_spend_over_impact_bounds`.
+- [x] (invalid) `RetrievalMcpToolHit.Score` — unclamped scores — **cheap-disproof 2026-10-23 seed hunt:** indexer metadata only.
+- [x] (proven) `CostBreachFindingEngine.TryCreateBreachFinding` / `CostConstraintFindingEngine.AnalyzeAsync` — padded `budgetName` copied verbatim to payload — **hit 2026-10-23 seed hunt:** `ResolveBudgetDisplayName` trim with label/node-id fallback; regressions `AnalyzeAsync_trims_padded_budget_name_on_breach_payload`, `AnalyzeAsync_trims_padded_budget_name_on_constraint_payload`.
+- [x] (proven) `RetrievalTools.SearchAsync` — null `RetrievalHit.Text` caused `NullReferenceException` when building `Snippet` — **hit 2026-10-23 seed hunt:** null-coalesce to empty string before truncation; regression `PolicyPackSearchAsync_returns_empty_snippet_when_hit_text_is_null`.
+- [x] (valid-no-repro) `CostConstraintFindingEngine.AnalyzeAsync` — unbounded `confidenceReasoning` on payload — **cheap-disproof 2026-10-23 seed hunt:** finding payload contract has no MCP-style truncation; graph materializers own bounded reasoning text.
+- [x] (valid-no-repro) `CostBreachFindingEngine.ResolveProjectedMonthlySpend` — point estimate precedence over upper bound — **cheap-disproof 2026-10-23 seed hunt:** regression `AnalyzeAsync_prefers_projected_monthly_spend_over_impact_bounds`.
+- [x] (invalid) `RetrievalMcpToolHit.Score` — unclamped negative scores — **cheap-disproof 2026-10-23 seed hunt:** raw similarity scores are indexer metadata, not admission control.
+- [x] (proven) `CostGraphDecimalParser.TryParse` / `PolicyExpectationCostGraphReader.GraphHasParseableBudgetCap` — leading Unicode whitespace on `maxMonthlyCost` broke invariant parse — **hit 2026-10-23 seed hunt:** `Trim()` before parse; regressions `AnalyzeAsync_parses_max_monthly_cost_with_leading_nbsp`, `Cost_constraint_no_spurious_policy_cap_when_max_monthly_cost_has_leading_nbsp`.
+- [x] (valid-no-repro) `CostBreachFindingEngine.ResolveProjectedMonthlySpend` — upper bound above cap ignored when point estimate below cap — **cheap-disproof 2026-10-23 seed hunt:** intentional precedence; regression `AnalyzeAsync_prefers_projected_monthly_spend_over_impact_bounds`.
+- [x] (invalid) `RetrievalTools.SearchAsync` — snippet truncation without ellipsis — **cheap-disproof 2026-10-23 seed hunt:** fixed 400-character MCP snippet contract.
+- [x] (valid-no-repro) `CostGraphDecimalParser.TryParse` — invariant thousand separators (`5,000.00`) — **cheap-disproof 2026-10-23 seed hunt:** `NumberStyles.Number` with invariant culture accepts grouped decimals; NBSP trim was the reachable parse failure.
+- [x] (valid-no-repro) `RetrievalTools.PolicyPackSearchAsync` — always includes platform corpora — **cheap-disproof 2026-10-23 seed hunt:** policy-pack MCP tool contract requires platform packs plus tenant overlays.
+- [x] (valid-no-repro) `CostConstraintFindingEngine.CreatePolicyRequiredCapFinding` — `RelatedNodeIds` capped at five topology nodes — **cheap-disproof 2026-10-23 seed hunt:** intentional explainability sample size for policy-required-cap finding.
+- [x] (proven) `CostConstraintFindingEngine.AnalyzeAsync` — padded `costRisk` graph property values not trimmed before high-risk severity mapping — **hit 2026-10-23 seed hunt:** `costRisk.Trim()` before classification; regression `AnalyzeAsync_treats_padded_high_cost_risk_as_warning_severity`.
+- [x] (invalid) `RetrievalTools.SearchAsync` — `Snippet` truncation without ellipsis — **cheap-disproof 2026-10-23 seed hunt:** fixed 400-character MCP snippet contract; ellipsis is UX polish not a wrong retrieval outcome.
+- [x] (valid-no-repro) `CostBreachFindingEngine.ResolveProjectedMonthlySpend` — lower-bound fallback understates breach — **cheap-disproof 2026-10-23 seed hunt:** intentional point-estimate precedence; regression `AnalyzeAsync_prefers_projected_monthly_spend_over_impact_bounds`.
+- [x] (valid-no-repro) `RetrievalTools.SearchAsync` — MCP TopK below HTTP `RetrievalQuery.MaxTopK` — **cheap-disproof 2026-10-23 seed hunt:** `Math.Clamp(request.TopK, 1, 25)` is the MCP tool contract.
+- [x] (valid-no-repro) `PolicyExpectationCostGraphReader.ResolveBreachSeverityOverride` — invalid severity stamp falls back to default Error — **cheap-disproof 2026-10-23 seed hunt:** fail-open to default breach severity; regressions `Cost_breach_clamps_info_stamp_to_warning`, `Cost_breach_uses_critical_severity_when_stamped`.
+- [x] (valid-no-repro) `CostConstraintFindingEngine.AnalyzeAsync` — `ProjectedImpactUsd` uses declared cap not impact bounds — **cheap-disproof 2026-10-23 seed hunt:** field surfaces monthly cap for constraint findings; bounds live on payload.
+- [x] (proven) `CostBreachFindingEngine.TryCreateBreachFinding` / `CostConstraintFindingEngine` — explainability trace `Notes` used `:C0` under thread culture for USD graph amounts — **hit 2026-10-23 seed hunt:** `CostGraphDecimalParser.FormatUsdPerMonth` (`en-US`); regression `AnalyzeAsync_formats_trace_notes_in_usd_under_non_invariant_thread_culture`.
+- [x] (valid-no-repro) `RetrievalTools.SearchAsync` — `QueryText` not validated when callers bypass HTTP controller — **cheap-disproof 2026-10-23 seed hunt:** `RetrievalQueryService.SearchAsync` throws `ArgumentException` on blank `QueryText`; regression `SearchAsync_BlankQueryText_ThrowsArgumentException`.
+- [x] (valid-no-repro) `RetrievalTools.SearchAsync` — corpus filter over-fetch capped at 25 so a 26th-ranked corpus hit is unreachable — **cheap-disproof 2026-10-23 seed hunt:** intentional post-filter over-fetch bound from hit #28; regression `PriceRowLookupAsync_returns_retail_hits_when_they_rank_below_requested_topk`.
+- [x] (valid-no-repro) `CostConstraintFindingEngine.AnalyzeAsync` — unparseable `maxMonthlyCost` still emits Info constraint finding while breach engine skips — **cheap-disproof 2026-10-23 seed hunt:** constraint engine surfaces the node for architects; breach requires parseable cap; `Cost_constraint_emits_policy_required_cap_when_stamped_and_no_cap_node`.
+- [x] (valid-no-repro) `RetrievalTools.PriorDecisionSearchAsync` — `IncludePlatformCorpora = false` excludes platform corpus — **cheap-disproof 2026-10-23 seed hunt:** prior-decision MCP tool is tenant-scoped by design; platform corpora remain available via `PolicyPackSearchAsync` / `PriceRowLookupAsync`.
+- [x] (proven) `PolicyExpectationCostGraphReader.GraphHasParseableBudgetCap` / `CostConstraintFindingEngine` — invariant `maxMonthlyCost` on graph nodes treated as missing under non-invariant thread culture, emitting spurious policy-required-cap finding — **hit 2026-10-23 seed hunt:** invariant `decimal.TryParse` in `GraphHasParseableBudgetCap`; regression `Cost_constraint_no_spurious_policy_cap_when_invariant_max_monthly_cost_under_non_invariant_culture`.
 - [x] (proven) `CostBreachFindingEngine` / `CostConstraintFindingEngine` — graph cost properties persisted with invariant culture were parsed with current-culture `decimal.TryParse`, skipping breach/constraint findings on hosts using non-invariant cultures — **hit 2026-10-21 seed hunt lane B:** `CostGraphDecimalParser`; regression `AnalyzeAsync_parses_invariant_graph_decimals_under_non_invariant_thread_culture`.
 
 ### Hypotheses
@@ -7916,11 +8772,13 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** quick scan queue; anonymous concurrency; quick scan lease
 - **paths:** ArchLucid.Application/Architecture/QuickScanDistributedConcurrencyService.cs; ArchLucid.Persistence/Architecture/DapperQuickScanDistributedConcurrencyStore.cs; ArchLucid.Application/Architecture/InMemoryQuickScanDistributedConcurrencyStore.cs
 - **test-filter:** FullyQualifiedName~QuickScanDistributedConcurrency
-- **hunts:** 40
+- **hunts:** 41
 - **bugs-found:** 21
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-21
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-10-23
 - **last-bug:** 2026-10-20 — lease renewal loop ignored live LeaseRenewalIntervalSeconds changes
+
+2026-10-23 thorough hunt (dry): cheap-disproof closed five open `(candidate)` rows; regressions `Renewal_loop_re_reads_lease_renewal_interval_after_options_change`, `ExecutionCancellationToken_stays_active_when_renewal_interval_is_clamped_before_lease_expires`, `WaitForAdmissionAsync_queue_timeout_frees_queue_capacity_when_abandon_noops_on_timed_out_row`; seeded five follow-on `(candidate)` rows; 45 scoped QuickScanDistributedConcurrency tests passed.
 
 2026-10-21 seed hunt (seed-only, lane B): see ledger header; no production change.
 
@@ -8025,11 +8883,17 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ### Hypotheses
 
-- [ ] (candidate) `QuickScanDistributedConcurrencyLeaseRenewal.RunLoopAsync` — an in-flight `Task.Delay` is not shortened when `LeaseRenewalIntervalSeconds` decreases during the delay, so the next `RenewLeaseAsync` may run later than operators expect after `IOptionsMonitor` reload — locus: renewal loop delay between renewals; input: appsettings / Key Vault reload lowering `QuickScanSafety:Concurrency:LeaseRenewalIntervalSeconds` while an anonymous marketing Quick Scan holds a distributed lease.
-- [ ] (candidate) `QuickScanDistributedConcurrencyLeaseRenewal.RunLoopAsync` — paired reload that shrinks `LeaseDurationSeconds` while a long renewal delay is already scheduled can let `ExpiresUtc` elapse before the next renewal attempt — locus: `Math.Min(LeaseRenewalIntervalSeconds, LeaseDurationSeconds - 1)` vs uncancelled prior delay; input: concurrent config reload during long-running anonymous scan on beta/shared hosts.
-- [ ] (candidate) `DapperQuickScanDistributedConcurrencyStore.TryAdmitAsync` — `@QueueWaitSeconds` truncates `QueueWaitTimeout` to whole seconds, so sub-second queue-wait budgets (if ever configured) would extend store `QueueExpiresUtc` beyond the service deadline — locus: `(int)request.QueueWaitTimeout.TotalSeconds`; input: future fractional-second `QueueWaitTimeout` on admit request (OpenAPI/appsettings today use integer seconds).
-- [ ] (candidate) `QuickScanDistributedConcurrencyService.WaitForAdmissionAsync` — fixed 250ms promote polling with no jitter under sustained `NotYet` outcomes may amplify SQL `usp_QuickScanConcurrency_TryPromote` load during marketing Quick Scan bursts — locus: promote `while` loop `Task.Delay(pollInterval)`; input: anonymous visitors enqueue when `MaxConcurrentAnonymousScans` saturated and `MaxQueuedAnonymousScans` > 0.
-- [ ] (candidate) `InMemoryQuickScanDistributedConcurrencyStore` — `Promoted` / `TimedOut` queue rows are never removed from `_queue`, so simulator chaos tests that hammer queue timeouts could grow unbounded memory while production SQL retires rows — locus: `_queue` dictionary retention; input: in-memory store load tests only (not beta SQL path).
+- [ ] (candidate) `QuickScanDistributedConcurrencyService.WaitForAdmissionAsync` — promote-loop `Task.Delay(pollInterval, cancellationToken)` uses wall-clock delays while the queue-wait deadline is evaluated with injected `TimeProvider`, so fake-time tests cannot advance the promote loop without real sleeps — locus: promote `while` loop; input: `SteppingTimeProvider` harness around queued admission.
+- [ ] (candidate) `QuickScanDistributedConcurrencyService.WaitForAdmissionAsync` — a live increase of `QueueWaitTimeoutSeconds` via `IOptionsMonitor` during queue wait does not extend the `admitUtcNow + queueWaitTimeout` deadline captured at enqueue — locus: promote deadline vs store `QueueExpiresUtc`; input: operators lengthen queue budget mid-wait during marketing Quick Scan saturation.
+- [ ] (candidate) `QuickScanDistributedConcurrencyService.AbandonQueueEntryForCleanupAsync` — only one abandon retry after a transient store failure; a second consecutive failure logs and returns while the queue row may still count toward `MaxQueuedAnonymousScans` until `ExpireStale` — locus: double-fault abandon path; input: flaky SQL `usp_QuickScanConcurrency_AbandonQueueEntry` during cancel/timeout cleanup.
+- [ ] (candidate) `QuickScanDistributedConcurrencyLeaseRenewal.RunLoopAsync` — `RenewLeaseAsync` forwards the execute-loop `cancellationToken`, so a coordinated host shutdown that cancels admission before the renewal task observes the token might skip a final renewal while the lease row remains active until TTL — locus: renewal `catch` + `executeCancellationSource.Cancel()`; input: scale-in / SIGTERM during long anonymous scan.
+- [ ] (candidate) `QuickScanDistributedConcurrencyAdmitLimitRefreshStore.TryPromoteAsync` — limit refresh re-reads `MaxConcurrentAnonymousScans` and `LeaseDurationSeconds` but does not refresh `UtcNow` from `TimeProvider` (unlike admit refresh), relying on the service promote loop to stamp each poll — locus: promote refresh decorator; input: slow `TryPromoteAsync` store wrapper between `UtcNow` capture and inner store evaluation.
+
+- [x] (valid-no-repro) `QuickScanDistributedConcurrencyLeaseRenewal.RunLoopAsync` — an in-flight `Task.Delay` is not shortened when `LeaseRenewalIntervalSeconds` decreases during the delay — **cheap-disproof 2026-10-23 thorough hunt:** interval changes apply on the next loop after the current `TimeProvider` delay completes (documented by `Renewal_loop_re_reads_lease_renewal_interval_after_options_change`); uncancelled in-flight delay is intentional, not the pre-#1406 `PeriodicTimer` stuck-interval defect.
+- [x] (valid-no-repro) `QuickScanDistributedConcurrencyLeaseRenewal.RunLoopAsync` — paired reload shrinking `LeaseDurationSeconds` during a scheduled renewal delay lets `ExpiresUtc` elapse before the next renewal — **cheap-disproof 2026-10-23 thorough hunt:** each cycle renews with fresh `leaseDuration` before delaying, and delay is clamped to `min(renewal, leaseDuration - 1)`; regression `ExecutionCancellationToken_stays_active_when_renewal_interval_is_clamped_before_lease_expires`.
+- [x] (valid-no-repro) `DapperQuickScanDistributedConcurrencyStore.TryAdmitAsync` — `@QueueWaitSeconds` truncates `QueueWaitTimeout` to whole seconds — **cheap-disproof 2026-10-23 thorough hunt:** `QuickScanSafetyOptionsValidator` requires positive integer `QueueWaitTimeoutSeconds`; no appsettings or API path supplies fractional-second queue budgets today.
+- [x] (invalid) `QuickScanDistributedConcurrencyService.WaitForAdmissionAsync` — fixed 250ms promote polling without jitter amplifies SQL promote load — **invalid 2026-10-23 thorough hunt:** intentional capacity polling under contract; throughput tuning, not a reachable wrong admission outcome.
+- [x] (valid-no-repro) `InMemoryQuickScanDistributedConcurrencyStore` — `Promoted` / `TimedOut` queue rows retained in `_queue` — **cheap-disproof 2026-10-23 thorough hunt:** capacity excludes non-waiting rows; regression `WaitForAdmissionAsync_queue_timeout_frees_queue_capacity_when_abandon_noops_on_timed_out_row`; in-memory simulator only.
 
 - [x] (valid-no-repro) `InMemoryQuickScanDistributedConcurrencyStore.TryAdmitAsync` — a caller cancellation arriving before the synchronous direct-lease insertion is ignored, so a canceled anonymous request can still consume a lease — **cheap-disproof 2026-10-10 thorough hunt:** the in-memory admit path inserts and returns synchronously; cancellation is observed by the caller around the completed operation, while downstream cancellation exits and `QuickScanExecutionOrchestrator` finally disposes the admission.
 - [x] (valid-no-repro) `InMemoryQuickScanDistributedConcurrencyStore.TryPromoteAsync` — a caller cancellation arriving during synchronous promotion is ignored, so a canceled queued waiter can still acquire a lease — **cheap-disproof 2026-10-10 thorough hunt:** promotion also completes synchronously; a canceled downstream request cannot leave the admitted lease live because orchestrator cleanup disposes it.
@@ -8068,6 +8932,82 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: run-execute-ownership
 
+2026-10-23 seed hunt (seed-only): cheap-disproof closed five `(candidate)` rows from hunt #177; extended `ExecuteRunAsync_throws_conflict_when_ownership_not_held_locally_after_acquire` to assert `ReleaseAsync` is not invoked when local-hold guard fails; re-read drain renewal and bulk-release holder-id union; seeded five mechanism-backed `(candidate)` rows below; 81 scoped ownership/orchestrator tests passed.
+
+- [x] (invalid) `RunExecuteOwnershipLeaseService.AcquireAsync` — peer vs local conflict message divergence — **cheap-disproof 2026-10-23 seed hunt:** intentional distinct `ConflictException` text for operators; not a wrong outcome.
+- [x] (valid-no-repro) `WorkerHostDrainGate` — drain blocks acquire but not in-flight renew — **cheap-disproof 2026-10-23 seed hunt:** `AcquireAsync_when_host_is_draining_throws_conflict_without_claiming_lease` and `RenewAsync_when_host_is_draining_still_renews_in_flight_execute_lease`.
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseService.ReleaseAllHeldByThisInstanceAsync` — legacy pinned holder id in release walk — **cheap-disproof 2026-10-23 seed hunt:** `holderInstanceIds` unions registry holder ids with current process id; `ReleaseAsync_when_process_instance_id_rotates_after_acquire_releases_original_holder`.
+- [x] (invalid) `ArchitectureRunExecuteOrchestrator` — `finally` `ReleaseAsync` after `EnsureExecuteOwnershipAcquiredLocally` throws — **cheap-disproof 2026-10-23 seed hunt:** guard throws before renewal/`finally`; regression assertion on `ReleaseAsync` never called.
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseRenewalScope` — immediate renew before timer — **cheap-disproof 2026-10-23 seed hunt:** `BeginRenewalScope_invokes_immediate_renew_before_waiting_for_heartbeat_interval`.
+- [ ] (candidate) `RunExecuteOwnershipLeaseService.AcquireAsync` — `TryAdmit` uses current `processInstanceId` string; rotation mid-acquire could pin wrong holder id — locus: `TryAdmit(runId, holderInstanceId)`; input: re-verify rotation release regression.
+- [ ] (candidate) `RunExecuteOwnershipLeaseService` — shared `RunExecuteOwnershipActiveHolderRegistry` singleton across scoped lease services — locus: DI lifetime; input: document process-wide admission vs per-request scope.
+- [ ] (candidate) `ArchitectureRunExecuteOrchestrator.ExecuteSelectiveRunAsync` — `BeginRenewalScope` created before owned core but after acquire — locus: same as full-run ordering; input: no distinct failure beyond existing ordering tests.
+- [ ] (candidate) `RunExecuteOwnershipLeaseRenewalScope.RunRenewalLoopAsync` — `ConflictException` path does not log warning before cancel — locus: catch branch; input: compare to generic exception path logging.
+- [ ] (candidate) `RunExecuteOwnershipLeaseService.ReleaseAsync` — in-memory storage no-op release while registry still holds admission — locus: `IsInMemory` early return; input: paired with `IsEnabled` false orchestrator skip.
+
+2026-10-23 seed hunt (seed-only): cheap-disproof closed five `(candidate)` rows from hunt #176; no production change; re-read concurrent `TryAdmit` admission, rotation release holder resolution, and disabled-ownership guard paths; seeded five mechanism-backed `(candidate)` rows below; 81 scoped ownership/orchestrator tests passed.
+
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseService.AcquireAsync` — in-flight SQL blocks second caller at local admission — **cheap-disproof 2026-10-23 seed hunt:** `AcquireAsync_when_concurrent_acquires_only_one_invokes_repository`; loser fails at `TryAdmit` without second repository call.
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseService.ReleaseAsync` — `ResolveHolderInstanceId` fallback on missing pin — **cheap-disproof 2026-10-23 seed hunt:** `ReleaseAsync_when_process_instance_id_rotates_after_acquire_releases_original_holder`.
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseRenewalScope.DisposeAsync` — swallowed renewal `OperationCanceledException` — **cheap-disproof 2026-10-23 seed hunt:** dispose cancels loop; linked execute cancellation still surfaces via orchestrator await (`ExecuteRunAsync_when_agent_execute_cancelled_releases_lease_with_non_cancellable_token`).
+- [x] (valid-no-repro) `ArchitectureRunExecuteOrchestrator.ExecuteSelectiveRunAsync` — six pre-acquire validations vs full-run double-check — **cheap-disproof 2026-10-23 seed hunt:** intentional selective race guards; no distinct wrong outcome beyond existing selective ownership regressions.
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseService.IsEnabled` / `AcquireAsync` no-op — **cheap-disproof 2026-10-23 seed hunt:** `EnsureExecuteOwnershipAcquiredLocally` after acquire; `ExecuteRunAsync_throws_conflict_when_ownership_not_held_locally_after_acquire` and `IsLocallyHoldingExecuteOwnership_is_false_when_acquire_no_ops_because_ownership_disabled`.
+2026-10-23 seed hunt (seed-only): cheap-disproof closed five `(candidate)` rows from hunt #175; regression `RenewAsync_after_release_does_not_invoke_repository`; re-read local vs peer acquire conflict paths and shutdown drain registry snapshot; seeded five mechanism-backed `(candidate)` rows below; 81 scoped ownership/orchestrator tests passed.
+
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseService.AcquireAsync` — local vs peer conflict messaging — **cheap-disproof 2026-10-23 seed hunt:** local path rejects before SQL (`AcquireAsync_when_run_already_held_locally_throws_conflict_without_second_repository_claim`); peer path rolls back in `catch` (`AcquireAsync_clears_local_admission_when_repository_reports_peer_conflict`).
+- [x] (invalid) `RunExecuteOwnershipActiveHolderRegistry` — `HolderInstanceIds` snapshot misses concurrent admits during bulk drain — **cheap-disproof 2026-10-23 seed hunt:** `AcquireAsync_when_host_is_draining_throws_conflict_without_claiming_lease`; drain gate blocks new admits during shutdown release walk.
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseRenewalScope.RunRenewalLoopAsync` — renew conflict leaves local pin until `ReleaseAsync` — **cheap-disproof 2026-10-23 seed hunt:** intentional TB-943; `Execute_completion_pattern_does_not_recreate_lease_when_renewal_runs_after_release` and renewal lease-loss cancel tests.
+- [x] (valid-no-repro) `ArchitectureRunExecuteOrchestrator.ExecuteRunAsync` — double eligibility without lease on `RunNotFoundException` — **cheap-disproof 2026-10-23 seed hunt:** `ExecuteRunAsync_does_not_acquire_ownership_when_run_deleted_immediately_before_acquire`.
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseService.RenewAsync` — silent no-op after pin cleared — **cheap-disproof 2026-10-23 seed hunt:** early return by design; regression `RenewAsync_after_release_does_not_invoke_repository` plus `RenewAsync_does_not_invoke_repository_without_local_acquire_pin`.
+
+2026-10-23 seed hunt (seed-only): cheap-disproof closed five `(candidate)` rows from hunt #174; regression `AcquireAsync_clears_local_admission_when_repository_reports_peer_conflict`; re-read renewal no-op scope and intentional `CancellationToken.None` execute release; seeded five mechanism-backed `(candidate)` rows below; 80 scoped ownership/orchestrator tests passed.
+
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseService.AcquireAsync` — peer conflict leaves local admission — **cheap-disproof 2026-10-23 seed hunt:** unified `catch` calls `TryRemove`; regression `AcquireAsync_clears_local_admission_when_repository_reports_peer_conflict`.
+- [x] (invalid) `ArchitectureRunExecuteOrchestrator.ExecuteSelectiveRunAsync` — stale `ScopeContext` across validation loop — **cheap-disproof 2026-10-23 seed hunt:** duplicate of 2026-10-06 thorough invalid row; request-scoped provider does not mutate mid-await on shipped routes.
+- [x] (invalid) `RunExecuteOwnershipLeaseService.BeginRenewalScope` — `NoOp` renewal after successful SQL acquire — **cheap-disproof 2026-10-23 seed hunt:** `TryBegin` is null only for in-memory storage, which disables `IsEnabled` before acquire.
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseService.RenewAsync` — renew failure retains local pin until execute teardown — **cheap-disproof 2026-10-23 seed hunt:** intentional; renewal scope cancels linked execute; `finally` `ReleaseAsync` clears pin (`BeginRenewalScope_cancels_linked_execute_token_when_renewal_loses_lease`).
+- [x] (valid-no-repro) `ArchitectureRunExecuteOrchestrator` — `ReleaseAsync` uses `CancellationToken.None` after linked cancel — **cheap-disproof 2026-10-23 seed hunt:** intentional best-effort release; `ExecuteRunAsync_when_agent_execute_cancelled_releases_lease_with_non_cancellable_token` and selective parity test.
+
+2026-10-23 seed hunt (seed-only): cheap-disproof closed five `(candidate)` rows from hunt #173; extended `AcquireAsync_propagates_repository_exceptions_instead_of_mapping_to_peer_conflict` to assert local admission rollback after SQL fault; re-read in-memory `IsEnabled` gate and conditional SQL release semantics; seeded five mechanism-backed `(candidate)` rows below; 79 scoped ownership/orchestrator tests passed.
+
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseService.AcquireAsync` — SQL fault after `TryAdmit` leaves local pin — **cheap-disproof 2026-10-23 seed hunt:** acquire `catch` calls `TryRemove`; `AcquireAsync_propagates_repository_exceptions_instead_of_mapping_to_peer_conflict`.
+- [x] (valid-no-repro) `ArchitectureRunExecuteOrchestrator.ExecuteRunAsync` — pre-acquire vs linked execute cancellation split — **cheap-disproof 2026-10-23 seed hunt:** ownership not acquired until after eligibility checks; caller cancel before acquire never enters `finally` release path.
+- [x] (invalid) `RunExecuteOwnershipLeaseRenewalScope.TryBegin` — in-memory no-op renewal while orchestrator holds lease — **cheap-disproof 2026-10-23 seed hunt:** `IsEnabled` is false when `IArchLucidStorageMode.IsInMemory`; orchestrator skips ownership branch.
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseService.ReleaseAsync` — clears local pin on zero-row delete — **cheap-disproof 2026-10-23 seed hunt:** intentional conditional delete semantics; `ReleaseAsync_clears_local_pin_when_sql_holder_no_longer_matches_pinned_holder`.
+- [x] (valid-no-repro) `ArchitectureRunExecuteOrchestrator.ExecuteSelectiveRunOwnedCoreAsync` — cancel during forced-task delete before demotion — **cheap-disproof 2026-10-23 seed hunt:** `ExecuteSelectiveRunAsync_when_agent_execute_cancelled_releases_lease_with_non_cancellable_token`; prep uses same linked token as agent batch.
+
+2026-10-23 seed hunt (seed-only): cheap-disproof closed five `(candidate)` rows from hunt #172; regression `ReleaseAllHeldByThisInstanceAsync_when_repository_throws_preserves_local_acquire_pin` documents `_activeHolders.Clear()` runs only after successful bulk release; re-read drain rollback cancellation and disabled-ownership guard paths; seeded five mechanism-backed `(candidate)` rows below; 79 scoped ownership/orchestrator tests passed.
+
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseService.AcquireAsync` — post-SQL drain rollback vs cancelled caller token — **cheap-disproof 2026-10-23 seed hunt:** `AcquireAsync_when_drain_begins_during_repository_call_rolls_back_and_throws_conflict` and `AcquireAsync_when_drain_begins_after_acquire_rolls_back_sql_with_non_cancellable_release_when_caller_token_is_cancelled`.
+- [x] (valid-no-repro) `ArchitectureRunExecuteOrchestrator.ExecuteSelectiveRunAsync` — triple pre-acquire eligibility loop — **cheap-disproof 2026-10-23 seed hunt:** intentional race guards; `ExecuteSelectiveRunAsync_does_not_acquire_ownership_when_live_schedule_clears_after_final_eligibility_check` and related selective regressions.
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseRenewalScope.RunRenewalLoopAsync` — transient renewal fault cancels execute — **cheap-disproof 2026-10-23 seed hunt:** intentional TB-943; `BeginRenewalScope_cancels_linked_execute_token_when_renewal_throws_unexpected_error`.
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseService.ReleaseAllHeldByThisInstanceAsync` — premature `Clear()` on partial bulk release — **cheap-disproof 2026-10-23 seed hunt:** `Clear()` after successful foreach only; regression `ReleaseAllHeldByThisInstanceAsync_when_repository_throws_preserves_local_acquire_pin`.
+- [x] (valid-no-repro) `ArchitectureRunExecuteOrchestrator.EnsureExecuteOwnershipAcquiredLocally` — ownership disabled after `IsEnabled` check — **cheap-disproof 2026-10-23 seed hunt:** `ExecuteRunAsync_throws_conflict_when_ownership_not_held_locally_after_acquire` and `IsLocallyHoldingExecuteOwnership_is_false_when_acquire_no_ops_because_ownership_disabled`.
+
+2026-10-23 seed hunt (seed-only): cheap-disproof closed five `(candidate)` rows from hunt #171; refreshed concurrent acquire regression `AcquireAsync_when_concurrent_acquires_only_one_invokes_repository` for `TryAdmit`-before-SQL admission; re-read selective owned-core demotion and release holder resolution; seeded five mechanism-backed `(candidate)` rows below; 78 scoped ownership/orchestrator tests passed.
+
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseService.AcquireAsync` — concurrent local admission vs SQL rollback — **cheap-disproof 2026-10-23 seed hunt:** loser rejected at `TryAdmit` before repository; regression `AcquireAsync_when_concurrent_acquires_only_one_invokes_repository` (replaces hung post-SQL `TryAdd` scenario).
+- [x] (valid-no-repro) `ArchitectureRunExecuteOrchestrator.ExecuteRunAsync` — duplicated pre-acquire eligibility reads — **cheap-disproof 2026-10-23 seed hunt:** intentional fail-closed guard; `ExecuteRunAsync_does_not_acquire_ownership_when_run_deleted_immediately_before_acquire`.
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseRenewalScope.DisposeAsync` — hung renewal delays `finally` release — **cheap-disproof 2026-10-23 seed hunt:** `RenewAsync` honors linked cancellation; prior dispose thorough row (2026-10-06).
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseService.ResolveHolderInstanceId` — release without local pin — **cheap-disproof 2026-10-23 seed hunt:** acquire failure clears pin before release path; successful execute retains pin through `ReleaseAsync_when_process_instance_id_rotates_after_acquire_releases_original_holder`.
+- [x] (valid-no-repro) `ArchitectureRunExecuteOrchestrator.ExecuteSelectiveRunOwnedCoreAsync` — delete before demotion on stale snapshot — **cheap-disproof 2026-10-23 seed hunt:** demotion reloads persisted header and ignores snapshot (`TryDemoteReadyForCommitBeforeSelectiveExecuteAsync_demotes_when_live_header_is_ready_for_commit_even_if_stale_snapshot_was_not`).
+
+2026-10-23 seed hunt (seed-only): cheap-disproof closed five `(candidate)` rows from hunt #170; regressions `ExecuteRunAsync_when_release_throws_in_finally_after_agent_failure_throws_release_exception` and `ExecuteSelectiveRunAsync_when_agent_execute_cancelled_releases_lease_with_non_cancellable_token`; re-read drain gate admission and renewal conflict handling; seeded five mechanism-backed `(candidate)` rows below; 77 scoped ownership/orchestrator tests passed (concurrent acquire hang test excluded; see hunt #170).
+
+- [x] (invalid) `ArchitectureRunExecuteOrchestrator.ExecuteRunAsync` — `ReleaseAsync` in `finally` suppresses agent fault — **cheap-disproof 2026-10-23 seed hunt:** dual-failure edge only; regression documents release exception surfaces when both fail.
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseService.AcquireAsync` — selective path extra pre-acquire reads — **cheap-disproof 2026-10-23 seed hunt:** intentional race guards (`ExecuteSelectiveRunAsync_does_not_acquire_ownership_when_run_deleted_immediately_before_acquire` and related selective regressions).
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseRenewalScope.RunRenewalLoopAsync` — `ConflictException` on renew — **cheap-disproof 2026-10-23 seed hunt:** intentional TB-943 cancel-on-lease-loss; `BeginRenewalScope_cancels_linked_execute_token_when_renewal_loses_lease`.
+- [x] (valid-no-repro) `ArchitectureRunExecuteOrchestrator.ExecuteSelectiveRunAsync` — post-acquire cancel skips `finally` release — **cheap-disproof 2026-10-23 seed hunt:** `ExecuteSelectiveRunAsync_when_agent_execute_cancelled_releases_lease_with_non_cancellable_token` mirrors full-run release ordering.
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseService.RenewAsync` — renew without local pin — **cheap-disproof 2026-10-23 seed hunt:** `RenewAsync_does_not_invoke_repository_without_local_acquire_pin`.
+
+2026-10-23 seed hunt (seed-only): cheap-disproof closed five stale open `(candidate)` rows; regression `ReleaseAllHeldByThisInstanceAsync_propagates_repository_exceptions` documents shutdown drain does not swallow bulk-release faults as a zero count; re-read orchestrator `finally` release ordering and renewal-scope dispose; seeded five mechanism-backed `(candidate)` rows below; 75 scoped ownership/orchestrator tests passed (`AcquireAsync_when_concurrent_repository_success_and_tryadd_loses_rolls_back_sql_lease` hung under 3m blame-hang on this VM; excluded from filter).
+
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseRenewalScope.DisposeAsync` — disposal awaits renewal blocked in repository — **cheap-disproof 2026-10-23 seed hunt:** `RenewAsync` passes linked cancellation; prior thorough row `RunExecuteOwnershipLeaseRenewalScope.DisposeAsync` (2026-10-06).
+- [x] (invalid) `ArchitectureRunExecuteOrchestrator.ExecuteRunCoreInnerAsync` — resume reload drops deferred context — **cheap-disproof 2026-10-23 seed hunt:** duplicate of 2026-10-06 thorough disproof; orchestrator reloads before idempotent return.
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseRenewalScope.DisposeAsync` — renewal failure vs dispose race hides execute cancellation — **cheap-disproof 2026-10-23 seed hunt:** `BeginRenewalScope_cancels_linked_execute_token_when_renewal_throws_unexpected_error` and conflict path cancels linked token before dispose completes.
+- [x] (valid-no-repro) `ArchitectureRunExecuteOrchestrator` — failed `ReleaseAsync` omitted from execute outcome — **cheap-disproof 2026-10-23 seed hunt:** intentional best-effort `finally` release with `CancellationToken.None`; SQL faults propagate from `ReleaseAsync` (`ReleaseAsync_when_repository_throws_and_process_instance_rotates_retry_still_targets_original_holder`).
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseService.ReleaseAllHeldByThisInstanceAsync` — zero count masks repository failure — **cheap-disproof 2026-10-23 seed hunt:** repository exceptions propagate; regression `ReleaseAllHeldByThisInstanceAsync_propagates_repository_exceptions`.
+
 2026-10-21 thorough hunt (hit): lane B; selective ReadyForCommit demotion uses live header status; 70/70 scoped tests.
 
 - **id:** run-execute-ownership
@@ -8076,12 +9016,12 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** run execute lease; execute ownership; orchestration ownership
 - **paths:** ArchLucid.Application/Runs/Orchestration/ArchitectureRunExecuteOrchestrator.cs; ArchLucid.Application/Runs/ExecuteOwnership/RunExecuteOwnershipLeaseService.cs; ArchLucid.Application/Runs/ExecuteOwnership/RunExecuteOwnershipLeaseRenewalScope.cs
 - **test-filter:** FullyQualifiedName~RunExecuteOwnership|FullyQualifiedName~ArchitectureRunExecuteOrchestrator
-- **hunts:** 59
+- **hunts:** 68
 - **bugs-found:** 28
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-21
+- **consecutive-dry-hunts:** 9
+- **last-hunt:** 2026-10-23
 - **last-bug:** 2026-10-21 - trim AgentModelTiers AgentTypeTiers keys after configuration bind
-- **code-changed-since:** no
+- **code-changed-since:** yes
 - **related-pd-tb:** none
 
 2026-10-12 thorough hunt (dry): cheap-disproved all four picker candidates; release failures propagate, selective pre-acquire work is read-only, and renewal disposal uses linked cancellation by design. The scoped ownership/orchestrator filter was blocked before test discovery on both attempts by the unrelated `AzureInventorySecurityEdgeMaterializer.cs` compile errors (`unmappedRoles` and `warnings`). No production or regression code changed.
@@ -8337,6 +9277,755 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: architecture-intelligence-orchestrator
 
+2026-10-23 seed hunt (seed-only): cheap-disproof closed five `(candidate)` rows from hunt #168; regression `Set_reinserts_after_deferred_invalidation_unpin_clears_tombstone` documents deferred tombstone flush on unpin before re-`Set`; re-read single-flight leader abort, composite pin caps, and continue coalesce manifest paths; seeded five mechanism-backed `(candidate)` rows below; 500 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (valid-no-repro) `ReviewResultCache.CoalesceAsync` — leader completion when `CacheReuseReason` differs — **cheap-disproof 2026-10-23 seed hunt:** cache keys omit reuse metadata; followers inherit leader `CacheReuseReason` (`CoalesceAsync_concurrent_waiters_all_receive_cache_hit_metadata`).
+- [x] (valid-no-repro) `ClosedLoopCacheHitPublishGuard.SanitizeForStorage` — follower publish-block alignment — **cheap-disproof 2026-10-23 seed hunt:** `CoalesceAsync_analysis_follower_strips_publish_block_from_blocked_leader` and `stripCoalescedFollowerPublishLeaks: !publishToProduct` on coordinator path.
+- [x] (valid-no-repro) `ReviewCacheKeyBuilder.Build` — whitespace-only declared priorities — **cheap-disproof 2026-10-23 seed hunt:** `Build_matches_declared_priorities_hash_when_request_priorities_are_whitespace_only_vs_empty_list` and `Build_matches_content_hash_when_baseline_declared_priorities_are_whitespace_only_vs_empty_list`.
+- [x] (valid-no-repro) `ClosedLoopArchitectureReasoningOrchestrator.RunAsync` — publish path `Set` sanitization — **cheap-disproof 2026-10-23 seed hunt:** `ReviewResultCache.Set` always calls `ClosedLoopCacheHitPublishGuard.SanitizeForStorage`; publish cache writes go through `ClosedLoopPublishStage`.
+- [x] (valid-no-repro) `ReviewResultCache.Set` — tombstone before insert after unpin — **cheap-disproof 2026-10-23 seed hunt:** `FlushDeferredInvalidations` clears tombstone when pins drop; regression `Set_reinserts_after_deferred_invalidation_unpin_clears_tombstone`.
+- [ ] (candidate) `ReviewSingleFlightCoordinator.CoalesceAsync` — leader `OperationCanceledException` retries flight while follower still attached — locus: `ReviewCacheSingleFlightLeaderAbortedException` catch; input: cancel in-flight analysis coalesce then immediate follower `CoalesceAsync`.
+- [ ] (candidate) `ReviewResultCache.PinScope` — composite dual-manifest pin when distinct-key cap reached mid-scope — locus: `ReviewResultCacheCompositePinScope`; input: saturate `MaxDistinctPinnedStorageKeys` then acquire `PinScope(primary, secondary)`.
+- [ ] (candidate) `ClosedLoopContinueRunSingleFlight` — continue coalesce key when `ExistingRunId` differs only by GUID format — locus: `BuildCoalesceKey`; input: hyphenated vs compact run id on identical continue manifest.
+- [ ] (candidate) `ReviewCacheManifestBuilder.HashContent` — duplicate `SourceTexts` rows differing only by `FileType` casing after normalize — locus: attachment dedupe `GroupBy`; input: same path/content with `md` vs `MD` file type tokens.
+- [ ] (candidate) `ReviewResultCache.TryGet` — hit on storage key reserved via pin-without-entry then populated by concurrent `Set` — locus: `_pinReservationsWithoutCacheEntry`; input: `PinStorageKey` before first `Set` on manifest key.
+
+2026-10-23 seed hunt (seed-only): cheap-disproof closed five `(candidate)` rows from hunt #167; no production change; 499 scoped orchestrator/cache/manifest/continue-flight tests passed plus `ClosedLoopReasoningRequestSnapshotTests.Capture_coalesces_null_framing_answers_assignment_to_empty_dictionary`.
+
+- [x] (valid-no-repro) `ReviewResultCache.InvalidateForRun` — tombstone FIFO when all entries pinned — **cheap-disproof 2026-10-23 seed hunt:** `AddTombstonedRunId_skips_fifo_drop_when_tombstone_has_pinned_entries` documents intentional cap behavior.
+- [x] (valid-no-repro) `ReviewCacheManifestBuilder.HashContent` — null `FramingAnswers` vs empty map — **cheap-disproof 2026-10-23 seed hunt:** `ContractCollectionDefaults.CoalesceDictionary` on setter; regression `Capture_coalesces_null_framing_answers_assignment_to_empty_dictionary`.
+- [x] (valid-no-repro) `ClosedLoopArchitectureReasoningOrchestrator.RunAsync` — null vs empty technology ledger — **cheap-disproof 2026-10-23 seed hunt:** `Build_matches_content_hash_when_technology_ledger_is_null_vs_empty_list`.
+- [x] (valid-no-repro) `ReviewResultCache.TryGet` — pinned expiry refresh via `TimeProvider` — **cheap-disproof 2026-10-23 seed hunt:** `TryGet_returns_pinned_expired_entry_and_refreshes_ttl`.
+- [x] (valid-no-repro) `ReviewCacheManifestBuilder.BuildContinueFromExistingRunCoalesceManifest` — continue tenant whitespace — **cheap-disproof 2026-10-23 seed hunt:** `BuildContinueFromExistingRunCoalesceManifest_matches_hash_when_tenant_differs_only_by_surrounding_whitespace`.
+
+2026-10-23 seed hunt (seed-only): paused single-scalar list-marker separator expansion after the white/triangular bullet hit; cheap-disproof regression `Build_changes_content_hash_when_file_name_differs_only_by_bullet_operator_between_segments` documents bullet operator U+2219 still splits `ContentHash` pending a consolidated separator-table batch; re-read orchestrator continue-coalesce, `ReviewResultCache` tombstone/pin eviction, and manifest hash paths; no hunt-ready row promoted; seeded five mechanism-backed `(candidate)` rows below; 499 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (invalid) `GraphSnapshotCanonicalFingerprint` — add next list-marker scalar without consolidating `ReviewCacheAlternatePathSeparators` — **cheap-disproof 2026-10-23 seed hunt:** U+2219 still diverges; defer scalar-by-scalar imports.
+2026-10-23 seed hunt (seed→hit): promoted white-bullet and triangular-bullet segment-separator drift splitting `ContentHash` (`docs◦architecture/overview.md`, `docs‣architecture/overview.md` vs slash form); extended `ReviewCacheAlternatePathSeparators` with U+25E6 and U+2023 using dotless-tail guard; regressions `Build_matches_content_hash_when_file_name_differs_only_by_white_bullet_between_segments`, `Build_matches_content_hash_when_file_name_differs_only_by_triangular_bullet_between_segments`, and `Build_changes_content_hash_when_file_name_differs_only_by_white_bullet_before_dotted_segment_name`; cheap-disproof regressions for `%E2%97%A6` and `%E2%80%A3`; 498 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `GraphSnapshotCanonicalFingerprint` — white-bullet and triangular-bullet alternate path separators split path canonicalization — **hit 2026-10-23 seed hunt:** U+25E6 / U+2023 in alternate separator set; regressions above.
+
+2026-10-23 seed hunt (seed→hit): promoted black-small-square and hyphen-bullet segment-separator drift splitting `ContentHash` (`docs▪architecture/overview.md`, `docs⁃architecture/overview.md` vs slash form); extended `ReviewCacheAlternatePathSeparators` with U+25AA and U+2043 using dotless-tail guard; regressions `Build_matches_content_hash_when_file_name_differs_only_by_black_small_square_between_segments`, `Build_matches_content_hash_when_file_name_differs_only_by_hyphen_bullet_between_segments`, and `Build_changes_content_hash_when_file_name_differs_only_by_black_small_square_before_dotted_segment_name`; cheap-disproof regressions for `%E2%96%AA` and `%E2%81%83`; 493 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `GraphSnapshotCanonicalFingerprint` — black-small-square and hyphen-bullet alternate path separators split path canonicalization — **hit 2026-10-23 seed hunt:** U+25AA / U+2043 in alternate separator set; regressions above.
+
+2026-10-23 seed hunt (seed→hit): promoted bullet and black-circle segment-separator drift splitting `ContentHash` (`docs•architecture/overview.md`, `docs●architecture/overview.md` vs slash form) without mapping underscore path segments; extended `ReviewCacheAlternatePathSeparators` with U+2022 and U+25CF using dotless-tail guard; regressions `Build_matches_content_hash_when_file_name_differs_only_by_bullet_between_segments`, `Build_matches_content_hash_when_file_name_differs_only_by_black_circle_between_segments`, and `Build_changes_content_hash_when_file_name_differs_only_by_bullet_before_dotted_segment_name`; cheap-disproof regressions for `%E2%80%A2` and `Build_changes_content_hash_when_file_name_differs_only_by_underscore_segment_vs_slash`; 488 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `GraphSnapshotCanonicalFingerprint` — bullet and black-circle alternate path separators split path canonicalization — **hit 2026-10-23 seed hunt:** U+2022 / U+25CF in alternate separator set; regressions above.
+- [x] (valid-no-repro) `GraphSnapshotCanonicalFingerprint` — underscore path segment vs slash — **cheap-disproof 2026-10-23 seed hunt:** `docs_architecture/overview.md` stays distinct from `docs/architecture/overview.md`; regression above.
+
+2026-10-23 seed hunt (seed→hit): promoted figure-dash and horizontal-bar segment-separator drift splitting `ContentHash` (`docs‒architecture/overview.md`, `docs―architecture/overview.md` vs slash form); extended `ReviewCacheAlternatePathSeparators` with U+2012 and U+2015 using dotless-tail guard; regressions `Build_matches_content_hash_when_file_name_differs_only_by_figure_dash_between_segments`, `Build_matches_content_hash_when_file_name_differs_only_by_horizontal_bar_between_segments`, and `Build_changes_content_hash_when_file_name_differs_only_by_figure_dash_before_dotted_segment_name`; cheap-disproof regressions for `%E2%80%92` and `%E2%80%95`; 483 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `GraphSnapshotCanonicalFingerprint` — figure-dash and horizontal-bar alternate path separators split path canonicalization — **hit 2026-10-23 seed hunt:** U+2012 / U+2015 in alternate separator set; regressions above.
+
+2026-10-23 seed hunt (seed→hit): promoted Unicode hyphen and minus-sign segment-separator drift splitting `ContentHash` (`docs−architecture/overview.md`, `docs‐architecture/overview.md` vs slash form) without mapping ASCII `-` kebab segments; extended `ReviewCacheAlternatePathSeparators` with U+2010 and U+2212 using dotless-tail guard; regressions `Build_matches_content_hash_when_file_name_differs_only_by_unicode_minus_sign_between_segments`, `Build_matches_content_hash_when_file_name_differs_only_by_unicode_hyphen_between_segments`, and `Build_changes_content_hash_when_file_name_differs_only_by_unicode_minus_sign_before_dotted_segment_name`; cheap-disproof regressions for `%E2%88%92`, `%E2%80%90`, and `Build_changes_content_hash_when_file_name_differs_only_by_ascii_hyphen_kebab_segment_vs_slash`; 478 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `GraphSnapshotCanonicalFingerprint` — Unicode hyphen and minus-sign alternate path separators split path canonicalization — **hit 2026-10-23 seed hunt:** U+2010 / U+2212 in alternate separator set; regressions above.
+- [x] (valid-no-repro) `GraphSnapshotCanonicalFingerprint` — ASCII hyphen kebab-case path segment vs slash — **cheap-disproof 2026-10-23 seed hunt:** `docs-architecture/overview.md` must stay distinct from `docs/architecture/overview.md`; regression above.
+
+2026-10-23 seed hunt (seed→hit): promoted middle-dot and dash segment-separator drift splitting `ContentHash` (`docs·architecture/overview.md`, `docs–architecture/overview.md`, `docs—architecture/overview.md` vs slash form); extended `ReviewCacheAlternatePathSeparators` with U+00B7, U+2013, and U+2014 using dotless-tail guard; regressions `Build_matches_content_hash_when_file_name_differs_only_by_middle_dot_between_segments`, `Build_matches_content_hash_when_file_name_differs_only_by_en_dash_between_segments`, and `Build_matches_content_hash_when_file_name_differs_only_by_em_dash_between_segments`; cheap-disproof regressions for `%C2%B7`, `%E2%80%93`, and `%E2%80%94`; 472 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `GraphSnapshotCanonicalFingerprint` — middle-dot and dash alternate path separators split path canonicalization — **hit 2026-10-23 seed hunt:** U+00B7 / U+2013 / U+2014 in alternate separator set; regressions above.
+
+2026-10-23 seed hunt (seed→hit): promoted hash and question-mark segment-separator drift splitting `ContentHash` (`docs#architecture/overview.md`, `docs?architecture/overview.md` vs slash form) while preserving trailing `#fragment` and `?query` stripping; `NormalizeReviewCacheHashAndQuerySeparatorsBeforeUrlAffixStrip` maps `#` / U+FF03 and `?` / U+FF1F to `/` only when a further `/` follows (dotless-tail guard); regressions `Build_matches_content_hash_when_file_name_differs_only_by_hash_between_segments`, `Build_matches_content_hash_when_file_name_differs_only_by_question_mark_between_segments`, `Build_matches_content_hash_when_file_name_differs_only_by_question_mark_between_segments_and_query_suffix`, and dotted-segment guard tests; cheap-disproof regressions for `%23`, `%3F`, and fullwidth hash; 465 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `GraphSnapshotCanonicalFingerprint` — hash and question-mark alternate path separators before URL affix strip split path canonicalization — **hit 2026-10-23 seed hunt:** pre-strip `#` / U+FF03 and `?` / U+FF1F with following-slash guard; regressions above.
+
+2026-10-23 seed hunt (seed→hit): promoted dollar, asterisk, and grave-accent segment-separator drift splitting `ContentHash` (`docs$architecture/overview.md`, `docs*architecture/overview.md`, ``docs`architecture/overview.md`` vs slash form); extended `ReviewCacheAlternatePathSeparators` with `$` / U+FF04, `*` / U+FF0A, and `` ` `` / U+FF40 using dotless-tail guard; regressions `Build_matches_content_hash_when_file_name_differs_only_by_dollar_sign_between_segments`, `Build_matches_content_hash_when_file_name_differs_only_by_asterisk_between_segments`, `Build_matches_content_hash_when_file_name_differs_only_by_grave_accent_between_segments`, and dotted-segment guard tests; cheap-disproof regressions for `%24`, `%2A`, `%60`, and fullwidth variants; 457 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `GraphSnapshotCanonicalFingerprint` — dollar, asterisk, and grave-accent alternate path separators split path canonicalization — **hit 2026-10-23 seed hunt:** `$` / U+FF04, `*` / U+FF0A, and grave / U+FF40 in alternate separator set; regressions above.
+
+2026-10-23 seed hunt (seed→hit): promoted tilde and caret segment-separator drift splitting `ContentHash` (`docs~architecture/overview.md`, `docs^architecture/overview.md` vs slash form); extended `ReviewCacheAlternatePathSeparators` with `~` / U+FF5E and `^` / U+FF3E using dotless-tail guard; regressions `Build_matches_content_hash_when_file_name_differs_only_by_tilde_between_segments`, `Build_matches_content_hash_when_file_name_differs_only_by_caret_between_segments`, `Build_changes_content_hash_when_file_name_differs_only_by_tilde_before_dotted_segment_name`, and `Build_changes_content_hash_when_file_name_differs_only_by_caret_before_dotted_segment_name`; cheap-disproof regressions for `%7E`, `%5E`, and fullwidth variants; 445 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `GraphSnapshotCanonicalFingerprint` — tilde and caret alternate path separators split path canonicalization — **hit 2026-10-23 seed hunt:** `~` / U+FF5E and `^` / U+FF3E in alternate separator set; regressions above.
+
+2026-10-23 seed hunt (seed→hit): promoted exclamation and at-sign segment-separator drift splitting `ContentHash` (`docs!architecture/overview.md`, `docs@architecture/overview.md` vs slash form); extended `ReviewCacheAlternatePathSeparators` with `!` / U+FF01 and `@` / U+FF20 using dotless-tail guard; regressions `Build_matches_content_hash_when_file_name_differs_only_by_exclamation_between_segments`, `Build_matches_content_hash_when_file_name_differs_only_by_at_sign_between_segments`, `Build_changes_content_hash_when_file_name_differs_only_by_exclamation_before_dotted_segment_name`, and `Build_changes_content_hash_when_file_name_differs_only_by_at_sign_before_dotted_segment_name`; cheap-disproof regressions for `%21`, `%40`, and fullwidth variants; 437 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `GraphSnapshotCanonicalFingerprint` — exclamation and at-sign alternate path separators split path canonicalization — **hit 2026-10-23 seed hunt:** `!` / U+FF01 and `@` / U+FF20 in alternate separator set; regressions above.
+
+2026-10-23 seed hunt (seed→hit): promoted equals-sign segment-separator drift splitting `ContentHash` (`docs=architecture/overview.md` vs slash form); extended `ReviewCacheAlternatePathSeparators` with `=` and U+FF1D using dotless-tail guard; regressions `Build_matches_content_hash_when_file_name_differs_only_by_equals_sign_between_segments`, `Build_matches_content_hash_when_file_name_differs_only_by_fullwidth_equals_between_segments`, and `Build_changes_content_hash_when_file_name_differs_only_by_equals_before_dotted_segment_name`; cheap-disproof regressions for `%3D` between segments and `https://user@example.com/...` authority paths; 429 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `GraphSnapshotCanonicalFingerprint` — equals alternate path separator split path canonicalization — **hit 2026-10-23 seed hunt:** `=` / U+FF1D in alternate separator set; regressions above.
+- [x] (valid-no-repro) `GraphSnapshotCanonicalFingerprint` — `https` URL with userinfo prefix — **cheap-disproof 2026-10-23 seed hunt:** `Uri.AbsolutePath` strips userinfo; regression `Build_matches_content_hash_when_file_name_differs_only_by_https_url_with_userinfo_prefix`.
+
+2026-10-23 seed hunt (seed-only): cheap-disproof closed IPv6-literal protocol-relative URL and percent-encoded colon segment drift after colon-separator hit; regressions `Build_matches_content_hash_when_file_name_differs_only_by_ipv6_literal_protocol_relative_url` and `Build_matches_content_hash_when_file_name_differs_only_by_percent_encoded_colon_between_segments`; no production change; 430 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (valid-no-repro) `GraphSnapshotCanonicalFingerprint` — IPv6-literal protocol-relative `//[::1]/...` path drift — **cheap-disproof 2026-10-23 seed hunt:** existing `TryStripProtocolRelativeAuthorityPath` + percent decode; regression above.
+- [x] (valid-no-repro) `GraphSnapshotCanonicalFingerprint` — percent-encoded colon (`%3A`) between segments vs literal `/` — **cheap-disproof 2026-10-23 seed hunt:** decode then colon alternate-separator rules from colon hit; regression above.
+
+2026-10-23 seed hunt (seed→hit): promoted colon segment-separator drift splitting `ContentHash` (`docs:architecture/overview.md` vs slash form); extended `ReviewCacheAlternatePathSeparators` with `:` and U+FF1A using dotless-tail guard; regressions `Build_matches_content_hash_when_file_name_differs_only_by_colon_between_segments` and `Build_changes_content_hash_when_file_name_differs_only_by_colon_before_dotted_segment_name`; cheap-disproof regressions for fully percent-encoded https, percent-encoded protocol-relative, IP-literal `//127.0.0.1/...`, and explicit-port https URLs; 428 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `GraphSnapshotCanonicalFingerprint` — colon alternate path separator split path canonicalization — **hit 2026-10-23 seed hunt:** `:` / U+FF1A in alternate separator set; regressions above.
+
+2026-10-23 seed hunt (seed→hit): promoted protocol-relative `//host/...` URL drift splitting `ContentHash` (`//example.com/docs/architecture/overview.md` vs slash form); `TryStripProtocolRelativeAuthorityPath` resolves `//authority/...` via synthetic `https:` only when authority contains `.` or `:` so `//docs/...` path paste stays unchanged; cheap-disproof regression `Build_matches_content_hash_when_file_name_differs_only_by_http_url_with_authority_prefix`; regression `Build_matches_content_hash_when_file_name_differs_only_by_protocol_relative_url_with_authority_prefix`; 422 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `GraphSnapshotCanonicalFingerprint` — protocol-relative URL authority prefix split path canonicalization — **hit 2026-10-23 seed hunt:** `TryStripProtocolRelativeAuthorityPath`; regressions above.
+
+2026-10-23 seed hunt (seed→hit): promoted `https://` authority-prefixed paths splitting `ContentHash` (`https://example.com/docs/architecture/overview.md` vs slash form); `StripReviewCachePathUrlAffixes` now takes `Uri.AbsolutePath` for `http`/`https` only (keeps literal `file://` strip); fullwidth greater-than U+FF1E added to alternate separators; regressions `Build_matches_content_hash_when_file_name_differs_only_by_https_url_with_authority_prefix` and `Build_matches_content_hash_when_file_name_differs_only_by_fullwidth_greater_than_between_segments`; cheap-disproof `Build_matches_content_hash_when_file_name_differs_only_by_percent_encoded_file_uri_scheme`; 420 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `GraphSnapshotCanonicalFingerprint` — `https` authority prefix and fullwidth `>` split path canonicalization — **hit 2026-10-23 seed hunt:** `Uri.AbsolutePath` for http(s); U+FF1E in alternate separator set; regressions above.
+
+2026-10-23 seed hunt (seed→hit): promoted pasted-URL path drift splitting `ContentHash` (`file://` prefix, `?query`, `#fragment`, and `>` between segments); `StripReviewCachePathUrlAffixes` after percent decode and `>` in `ReviewCacheAlternatePathSeparators`; regressions `Build_matches_content_hash_when_file_name_differs_only_by_greater_than_between_segments`, `Build_matches_content_hash_when_file_name_differs_only_by_file_uri_scheme_prefix`, `Build_matches_content_hash_when_file_name_differs_only_by_url_query_suffix`, and `Build_matches_content_hash_when_file_name_differs_only_by_url_fragment_suffix`; 417 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `GraphSnapshotCanonicalFingerprint` — URL affixes and `>` alternate separator split path canonicalization — **hit 2026-10-23 seed hunt:** `StripReviewCachePathUrlAffixes` + `>` in alternate separator set; regressions above.
+
+2026-10-23 seed hunt (seed→hit): promoted ampersand segment-separator drift splitting `ContentHash` (`docs&architecture/...`); extended `ReviewCacheAlternatePathSeparators` with `&` and U+FF06; regression `Build_matches_content_hash_when_file_name_differs_only_by_ampersand_between_segments` and cheap-disproof `Build_matches_content_hash_when_file_name_differs_only_by_percent_encoded_ampersand_between_segments`; cheap-disproof regressions for `%2C` and `%E3%80%80` between segments (decode + existing comma/ideographic rules); 413 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `GraphSnapshotCanonicalFingerprint` — ampersand alternate path separator split path canonicalization — **hit 2026-10-23 seed hunt:** `&` / U+FF06 in alternate separator set; regression above.
+
+2026-10-23 seed hunt (seed→hit): promoted fullwidth semicolon, comma, and vertical line segment-separator drift splitting `ContentHash` (`docs\uFF1Barchitecture/...`, `docs\uFF0Carchitecture/...`, `docs\uFF5Carchitecture/...`); extended `ReviewCacheAlternatePathSeparators` with U+FF1B, U+FF0C, and U+FF5C; cheap-disproof regression `Build_matches_content_hash_when_file_name_differs_only_by_percent_encoded_pipe_between_segments`; 409 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `GraphSnapshotCanonicalFingerprint` — fullwidth punctuation alternate path separators split path canonicalization — **hit 2026-10-23 seed hunt:** fullwidth `;` `,` `|` in alternate separator set; regressions above.
+
+2026-10-23 seed hunt (seed→hit): promoted pipe and comma segment-separator drift splitting `ContentHash` (`docs|architecture/...`, `docs,architecture/...`); extended `ReviewCacheAlternatePathSeparators` with `|` and `,`; regression `Build_matches_content_hash_when_file_name_differs_only_by_pipe_between_segments` and `Build_matches_content_hash_when_file_name_differs_only_by_comma_between_segments`; cheap-disproof regression `Build_matches_content_hash_when_file_name_differs_only_by_percent_encoded_semicolon_between_segments`; 405 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `GraphSnapshotCanonicalFingerprint` — pipe and comma alternate path separators split path canonicalization — **hit 2026-10-23 seed hunt:** extended alternate separator set; regressions above.
+
+2026-10-23 seed hunt (seed→hit): promoted narrow no-break space, ideographic space, and semicolon segment-separator drift splitting `ContentHash` (`docs\u202farchitecture/...`, `docs\u3000architecture/...`, `docs;architecture/...`); generalized `NormalizeReviewCacheAlternatePathSeparators` with dotless-tail guard (extends hunt #126 NBSP rule); regressions `Build_matches_content_hash_when_file_name_differs_only_by_narrow_no_break_space_between_segments_without_slash`, `Build_matches_content_hash_when_file_name_differs_only_by_ideographic_space_between_segments_without_slash`, and `Build_matches_content_hash_when_file_name_differs_only_by_semicolon_between_segments`; 402 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `GraphSnapshotCanonicalFingerprint` — Unicode space and semicolon alternate path separators split path canonicalization — **hit 2026-10-23 seed hunt:** `ReviewCacheAlternatePathSeparators`; regressions above.
+
+2026-10-23 seed hunt (seed→hit): promoted NBSP-as-segment-separator drift (`docs\u00a0architecture/overview.md`, `docs%C2%A0architecture/overview.md`) splitting `ContentHash` while preserving interior NBSP in file-name segments (`arch\u00a0note.md`); `NormalizeReviewCacheNbspPathSeparators` maps NBSP to `/` only when the path already contains `/` and the post-NBSP segment has no `.`; cheap-disproof regressions for `%0D` and `%250A` path separators; 399 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `GraphSnapshotCanonicalFingerprint` — NBSP between path segments split path canonicalization — **hit 2026-10-23 seed hunt:** conditional NBSP→`/`; regressions `Build_matches_content_hash_when_file_name_differs_only_by_narrow_nbsp_between_segments_without_slash` and `Build_matches_content_hash_when_file_name_differs_only_by_percent_encoded_nbsp_between_segments_without_slash`.
+
+2026-10-23 seed hunt (seed→hit): promoted tab path-separator drift (`docs\tarchitecture/...`, `docs%09architecture/...`) splitting `ContentHash`; added horizontal tab to `ReviewCachePathLineBreakScalars` so post-decode canonicalization maps tabs to `/`; regressions `Build_matches_content_hash_when_file_name_differs_only_by_tab_between_segments` and `Build_matches_content_hash_when_file_name_differs_only_by_percent_encoded_tab_between_segments`; 395 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `GraphSnapshotCanonicalFingerprint` — tab and percent-encoded tab between path segments split path canonicalization — **hit 2026-10-23 seed hunt:** `\t` in line-break scalar set; regressions above.
+
+2026-10-23 seed hunt (seed→hit): promoted percent-encoded line-break drift (`docs%0Aarchitecture/...`, `docs%0D%0Aarchitecture/...`) splitting `ContentHash` because line-break canonicalization ran before `Uri.UnescapeDataString`; `NormalizeReviewCachePathLineBreakScalars` now runs after percent decoding (lone `+` still pre-decode); regressions `Build_matches_content_hash_when_file_name_differs_only_by_percent_encoded_line_feed_between_segments` and `Build_matches_content_hash_when_file_name_differs_only_by_percent_encoded_crlf_between_segments`; 393 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `GraphSnapshotCanonicalFingerprint` — percent-encoded line breaks split path canonicalization — **hit 2026-10-23 seed hunt:** post-decode line-break pass; regressions above.
+
+2026-10-23 seed hunt (seed→hit): promoted line-break scalars between path segments splitting `ContentHash` (`docs\narchitecture/overview.md` vs `docs/architecture/overview.md`); `GraphSnapshotCanonicalFingerprint.NormalizeReviewCachePathLineBreakScalars` maps guard-aligned line-break scalars to `/` before percent decoding; regressions `Build_matches_content_hash_when_file_name_differs_only_by_line_feed_vs_slash_between_segments` and `Build_changes_content_hash_when_file_name_differs_only_by_interior_line_feed_in_segment`; 391 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `GraphSnapshotCanonicalFingerprint` / `ClosedLoopReasoningSourceTextNormalizer` — line-break scalars between path segments split path canonicalization — **hit 2026-10-23 seed hunt:** `NormalizeReviewCachePathLineBreakScalars`; regressions above.
+
+2026-10-23 seed hunt (seed→hit): promoted isolated `+` path-separator drift splitting `ContentHash` (`docs+architecture/overview.md` vs `docs/architecture/overview.md`); `GraphSnapshotCanonicalFingerprint.ReplaceIsolatedPlusWithPathSeparator` maps lone `+` to `/` before percent decoding so `%2B` literals stay intact; regression `Build_matches_content_hash_when_file_name_differs_only_by_plus_sign_vs_encoded_space_before_slash`; cheap-disproof regressions for tab-padded slashes, interior tab in element ids, triple-slash and leading `//` file names, and spaced run-id/tenant/ledger evidence refs; 389 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `GraphSnapshotCanonicalFingerprint` / `ClosedLoopReasoningSourceTextNormalizer` — isolated `+` split path canonicalization — **hit 2026-10-23 seed hunt:** pre-decode lone `+`→`/` (preserves `++` and `%2B`); regression above.
+
+2026-10-22 seed hunt (seed→hit): promoted whitespace-padded path separators splitting `ContentHash`/`modelfp` (`docs / architecture` vs `docs/architecture`); `CollapseParentPathSegments` now trims/normalizes each segment and source file names delegate to `NormalizeReviewCachePathLikeToken`; regressions `Build_matches_content_hash_when_file_name_differs_only_by_surrounding_whitespace_around_slashes` and `Build_matches_content_hash_when_baseline_element_id_differs_only_by_surrounding_whitespace_around_slashes`; 380 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `GraphSnapshotCanonicalFingerprint` / `ClosedLoopReasoningSourceTextNormalizer` — whitespace around `/` split path canonicalization — **hit 2026-10-22 seed hunt:** segment trim in `CollapseParentPathSegments` + shared path token for file names; regressions above.
+
+2026-10-22 seed hunt (seed→hit): consolidated review-cache Unicode slash/dot homoglyph maps with `AuthSignInReturnPathGuard` (big-reverse solidus U+29F9, mathematical rising diagonal U+27CB, halfwidth ideographic parent U+FF61, and remaining guard-listed scalars) so path tokens stop splitting on one-off homoglyphs; regressions `Build_matches_content_hash_when_file_name_differs_only_by_big_reverse_solidus_slash`, `Build_matches_content_hash_when_file_name_differs_only_by_mathematical_rising_diagonal_slash`, and `Build_matches_content_hash_when_file_name_differs_only_by_halfwidth_ideographic_full_stop_parent_segment`; 378 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `GraphSnapshotCanonicalFingerprint` — incomplete Unicode homoglyph tables split path canonicalization — **hit 2026-10-22 seed hunt:** guard-aligned `ReviewCacheSlashHomoglyphs` / `ReviewCacheDotHomoglyphs`; regressions above.
+
+2026-10-22 seed hunt (seed→hit): promoted ideographic full-stop parent segments (U+3002) and big-solidus slash scalars (U+29F8) splitting `ContentHash`/`modelfp`; extended `NormalizeReviewCacheUnicodeDotScalars` and slash scalar mapping; regressions `Build_matches_content_hash_when_file_name_differs_only_by_ideographic_full_stop_parent_segment`, `Build_matches_content_hash_when_baseline_element_id_differs_only_by_ideographic_full_stop_parent_segment`, `Build_matches_content_hash_when_file_name_differs_only_by_big_solidus_slash`, and `Build_matches_content_hash_when_baseline_element_provenance_passage_artifact_id_differs_only_by_big_solidus_slash`; 375 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `GraphSnapshotCanonicalFingerprint` / `ClosedLoopReasoningSourceTextNormalizer` — ideographic dot and big-solidus homoglyphs split path canonicalization — **hit 2026-10-22 seed hunt:** U+3002 and U+29F8 normalization; regressions above.
+
+2026-10-22 seed hunt (seed→hit): promoted Unicode **dot** homoglyph parent segments (U+FF0E) and box-drawing slash scalars (U+2571/U+2572) splitting `ContentHash`/`modelfp`; added `NormalizeReviewCacheUnicodeDotScalars` and extended slash scalar mapping; regressions `Build_matches_content_hash_when_request_source_file_name_differs_only_by_unicode_dot_homoglyph_parent_segment`, `Build_matches_content_hash_when_baseline_element_id_differs_only_by_unicode_dot_homoglyph_parent_segment`, and `Build_matches_content_hash_when_file_name_differs_only_by_box_drawings_slash`; 371 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `GraphSnapshotCanonicalFingerprint` / `ClosedLoopReasoningSourceTextNormalizer` — Unicode dot/slash homoglyphs split path canonicalization — **hit 2026-10-22 seed hunt:** dot + box-drawing slash normalization; regressions above.
+
+2026-10-22 seed hunt (seed→hit): promoted fullwidth reverse-solidus (U+FF3C) and related backslash homoglyphs splitting `ContentHash` and `modelfp`; `NormalizeReviewCacheUnicodeSlashScalars` now maps U+FF3C, U+FE68, and U+2216 to `/`; regressions `Build_matches_content_hash_when_file_name_differs_only_by_fullwidth_reverse_solidus` and `Build_matches_content_hash_when_baseline_element_provenance_passage_artifact_id_differs_only_by_fullwidth_reverse_solidus`; 368 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `GraphSnapshotCanonicalFingerprint` / `ClosedLoopReasoningSourceTextNormalizer` — Unicode backslash homoglyphs split review-cache fingerprints — **hit 2026-10-22 seed hunt:** extended `NormalizeReviewCacheUnicodeSlashScalars`; regressions above.
+
+2026-10-22 seed hunt (seed→hit): promoted fraction-slash (U+2044) drift splitting `ContentHash` and `modelfp`; `NormalizeReviewCacheUnicodeSlashScalars` now maps U+2044 to `/`; regressions `Build_matches_content_hash_when_file_name_differs_only_by_fraction_slash` and `Build_matches_content_hash_when_baseline_element_provenance_passage_artifact_id_differs_only_by_fraction_slash`; 366 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `GraphSnapshotCanonicalFingerprint` / `ClosedLoopReasoningSourceTextNormalizer` — fraction slash scalars split review-cache fingerprints — **hit 2026-10-22 seed hunt:** U+2044 in `NormalizeReviewCacheUnicodeSlashScalars`; regressions above.
+
+2026-10-22 seed hunt (seed→hit): promoted Unicode slash drift in **source file names** splitting `ContentHash` while `modelfp` already canonicalized Unicode slashes; `ClosedLoopReasoningSourceTextNormalizer` now applies `NormalizeReviewCacheUnicodeSlashScalars`; regressions `Build_matches_content_hash_when_file_name_differs_only_by_unicode_division_slash` and `Build_matches_content_hash_when_file_name_differs_only_by_fullwidth_slash`; cheap-disproof regressions for ledger evidence and passage `SectionPath` Unicode slashes; 364 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `ClosedLoopReasoningSourceTextNormalizer` — Unicode slash file names split content hash — **hit 2026-10-22 seed hunt:** shared Unicode slash scalar normalization; regressions above.
+
+2026-10-22 seed hunt (seed→hit): promoted Unicode division/fullwidth slash drift splitting `modelfp`; `NormalizeReviewCachePathLikeToken` now maps U+2215 and U+FF0F to `/` before path canonicalization; regression `Build_matches_content_hash_when_baseline_element_provenance_passage_artifact_id_differs_only_by_unicode_division_slash`; cheap-disproof regressions for percent-encoded backslashes, tenant/framing-key percent slashes, duplicate percent-encoded framing keys, double-encoded slashes, and cache invalidation across percent-encoded run ids; 360 scoped orchestrator/cache/manifest/continue-flight tests and 10 KnowledgeGraph fingerprint tests passed.
+
+- [x] (proven) `GraphSnapshotCanonicalFingerprint` — Unicode slash scalars split review-cache fingerprints — **hit 2026-10-22 seed hunt:** `NormalizeUnicodeSlashScalars`; regression above.
+
+2026-10-22 seed hunt (seed→hit): promoted percent-encoded slash drift (`%2F` vs `/`) splitting `ledgerfp` and `modelfp`; `GraphSnapshotCanonicalFingerprint.NormalizeReviewCachePathLikeToken` now decodes percent-encoded path tokens before separator canonicalization; regressions `Build_matches_content_hash_when_ledger_evidence_ref_differs_only_by_percent_encoded_slash` and `Build_matches_content_hash_when_baseline_element_provenance_passage_artifact_id_differs_only_by_percent_encoded_slash`; cheap-disproof regressions for ledger technology `./` and `..` segments plus framing-key/value `..` segments; 353 scoped orchestrator/cache/manifest/continue-flight tests and 10 KnowledgeGraph fingerprint tests passed.
+
+- [x] (proven) `GraphSnapshotCanonicalFingerprint` / `ReviewCacheLedgerFingerprint` — percent-encoded path slashes split review-cache fingerprints — **hit 2026-10-22 seed hunt:** `DecodePercentEncodedPathTokens` in path canonicalization; regressions above.
+
+2026-10-22 seed hunt (seed→hit): promoted path-shaped **ledger technology names** splitting `ledgerfp` on `\` vs `/`; `ReviewCacheLedgerFingerprint.NormalizeTechnologyName` now applies `NormalizeReviewCachePathLikeToken`; regression `Build_matches_content_hash_when_ledger_technology_name_differs_only_by_backslash_vs_forward_slash_in_path`; cheap-disproof regressions for request priority/framing `..` and `./` segments, client run-id `..` collapse, resolved run-id path slashes, continue coalesce run-id path slashes, and cache invalidation across path-shaped run ids; 347 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `ReviewCacheLedgerFingerprint` — path-shaped technology names split ledger fingerprint — **hit 2026-10-22 seed hunt:** path canonicalization on `TechnologyName`; regression above.
+
+2026-10-22 seed hunt (seed→hit): promoted path-shaped **client run ids** splitting `ContentHash` (and continue-coalesce keys) on `\` vs `/`; `ClosedLoopRunIdComparer.Normalize` now applies `NormalizeReviewCachePathLikeToken` before hyphen stripping; regression `Build_matches_content_hash_when_client_run_id_differs_only_by_backslash_vs_forward_slash_in_path`; cheap-disproof `Build_matches_content_hash_when_request_framing_answer_key_differs_only_by_leading_dot_slash`; 333 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `ClosedLoopRunIdComparer` — path-shaped run ids split cache hash — **hit 2026-10-22 seed hunt:** path canonicalization in run-id normalize; regression above.
+
+2026-10-22 seed hunt (seed→hit): promoted path-shaped **request** framing-answer keys splitting `ContentHash` on `\` vs `/` while model keys were already canonicalized; `ClosedLoopFramingAnswersNormalizer.NormalizeFramingKey` now applies `NormalizeReviewCachePathLikeToken` without case folding (request keys stay case-sensitive per contract); regression `Build_matches_content_hash_when_request_framing_answer_key_differs_only_by_backslash_vs_forward_slash_in_path`; 331 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `ClosedLoopFramingAnswersNormalizer` — request framing keys path separator drift split cache hash — **hit 2026-10-22 seed hunt:** path canonicalization on keys; regression above.
+
+2026-10-22 seed hunt (seed→hit): promoted path-shaped declared priorities, framing keys, and element name/description splitting review-cache hash on separator drift; `FormatDeclaredPriorities`, `FormatFramingAnswers`, element labels, and `ClosedLoopDeclaredPrioritiesNormalizer` now canonicalize path separators; regressions `Build_matches_content_hash_when_baseline_model_declared_priorities_differ_only_by_backslash_vs_forward_slash_in_path`, `Build_matches_declared_priorities_hash_when_request_priorities_differ_only_by_backslash_vs_forward_slash_in_path`, `Build_matches_content_hash_when_baseline_model_framing_answer_key_differs_only_by_backslash_vs_forward_slash_in_path`, `Build_matches_content_hash_when_baseline_element_name_differs_only_by_backslash_vs_forward_slash_in_path`, and `Build_matches_content_hash_when_baseline_element_description_differs_only_by_backslash_vs_forward_slash_in_path`; 330 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `GraphSnapshotCanonicalFingerprint` / `ClosedLoopDeclaredPrioritiesNormalizer` — path-shaped priorities and element labels split cache hash — **hit 2026-10-22 seed hunt:** artifact/path normalization on priorities, framing keys, name, and description; regressions above.
+
+2026-10-22 seed hunt (seed→hit): promoted path-shaped property keys, framing answer values, provenance notes, and passage quotes splitting review-cache hash on separator drift; `FormatKnowledgeModelElementFingerprint`, `FormatFramingAnswers`, `FormatElementProvenance`, and `ClosedLoopFramingAnswersNormalizer` now apply artifact/path canonicalization on those text tokens; regressions `Build_matches_content_hash_when_baseline_element_property_key_differs_only_by_backslash_vs_forward_slash_in_path`, `Build_matches_content_hash_when_baseline_model_framing_answer_value_differs_only_by_backslash_vs_forward_slash_in_path`, `Build_matches_content_hash_when_request_framing_answer_value_differs_only_by_backslash_vs_forward_slash_in_path`, `Build_matches_content_hash_when_baseline_element_provenance_notes_differs_only_by_backslash_vs_forward_slash_in_path`, and `Build_matches_content_hash_when_baseline_element_provenance_passage_quote_differs_only_by_backslash_vs_forward_slash_in_path`; cheap-disproof regression for property-value `..` segments; 325 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `GraphSnapshotCanonicalFingerprint` / `ClosedLoopFramingAnswersNormalizer` — path-shaped auxiliary text tokens split cache hash — **hit 2026-10-22 seed hunt:** `NormalizeArtifactReferenceForFingerprint` / `NormalizeReviewCachePathLikeToken` on keys, framing values, notes, and quotes; regressions above.
+
+2026-10-22 seed hunt (seed→hit): promoted path-shaped element property values splitting review-cache `modelfp` on separator drift; property bag values now use `NormalizeArtifactReferenceForFingerprint`; regression `Build_matches_content_hash_when_baseline_element_property_value_differs_only_by_backslash_vs_forward_slash_in_path`; cheap-disproof regressions for model-alias `..`/`./` drift, tenant/workspace/project scope path drift, and request attachment `..` segments; 319 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `GraphSnapshotCanonicalFingerprint.FormatKnowledgeModelElementFingerprint` — property value path separators split `modelfp` — **hit 2026-10-22 seed hunt:** artifact reference normalization on property values; regression above.
+
+2026-10-22 seed hunt (seed→hit): promoted path-shaped `ModelAliasId` splitting review-cache `ContentHash` on separator drift; `ClosedLoopModelAliasIdNormalizer.NormalizeForHash` applies `NormalizeReviewCachePathLikeToken`; regression `Build_matches_content_hash_when_model_alias_id_differs_only_by_backslash_vs_forward_slash_in_path`; cheap-disproof regressions for request tenant/workspace/project scope `..` and `./` drift plus baseline tenant and element-id leading-slash equivalence; 312 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `ClosedLoopModelAliasIdNormalizer.NormalizeForHash` — path-shaped alias ids split `ContentHash` — **hit 2026-10-22 seed hunt:** path token on alias segment; regression above.
+
+2026-10-22 seed hunt (seed→hit): promoted path-shaped tenant/workspace/project scope slugs and baseline model `TenantId` splitting review-cache `TenantConfigurationHash`/`modelfp`; `ClosedLoopScopeIdHashNormalizer` applies `NormalizeReviewCachePathLikeToken` for non-GUID slugs and review-cache `modelfp` tenant header uses artifact reference normalization; regressions `Build_matches_tenant_configuration_hash_when_workspace_slug_differs_only_by_backslash_vs_forward_slash`, `Build_matches_tenant_configuration_hash_when_project_slug_differs_only_by_backslash_vs_forward_slash`, and `Build_matches_content_hash_when_baseline_model_tenant_id_differs_only_by_backslash_vs_forward_slash_in_path_slug`; cheap-disproof regressions for element-id `..` segments and leading-slash related ids; 306 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `ClosedLoopScopeIdHashNormalizer.Normalize` / `ComputeReviewCacheKnowledgeModelFingerprint` — path-shaped scope and tenant slugs split cache hash — **hit 2026-10-22 seed hunt:** path token on scope ids + tenant header; regressions above.
+
+2026-10-22 seed hunt (seed→hit): promoted path-shaped `ElementId` values splitting review-cache `modelfp` on separator drift; element fingerprinting and canonical grouping now use `NormalizeArtifactReferenceForFingerprint`; regression `Build_matches_content_hash_when_baseline_element_id_differs_only_by_backslash_vs_forward_slash_in_path`; cheap-disproof regressions for ledger/source passage/related `..` and `./` path drift, double-slash passage artifacts, source-artifact `..` segments, leading-slash passage ids, and request attachment path separators; 301 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `GraphSnapshotCanonicalFingerprint.SelectCanonicalKnowledgeModelElements` — path-shaped element ids split `modelfp` — **hit 2026-10-22 seed hunt:** artifact reference normalization on `ElementId`; regression above.
+
+2026-10-22 seed hunt (seed→hit): promoted `SourcePassageIds`, `RelatedElementIds`, and ledger `EvidenceRef` path separator drift splitting review-cache `modelfp`/`ledgerfp`; list fingerprints now use `NormalizeArtifactReferenceForFingerprint`; `ReviewCacheLedgerFingerprint` applies `NormalizeReviewCachePathLikeToken`; regressions `Build_matches_content_hash_when_baseline_source_passage_ids_differ_only_by_backslash_vs_forward_slash`, `Build_matches_content_hash_when_baseline_related_element_ids_differ_only_by_backslash_vs_forward_slash`, and `Build_matches_content_hash_when_ledger_evidence_ref_differs_only_by_backslash_vs_forward_slash`; cheap-disproof regression for passage artifact `..` segment collapse; 292 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `GraphSnapshotCanonicalFingerprint.FormatKnowledgeModelElementFingerprint` — passage/related id path separators split `modelfp` — **hit 2026-10-22 seed hunt:** artifact reference normalization on cross-ref lists; regressions above.
+- [x] (proven) `ReviewCacheLedgerFingerprint.NormalizeEvidenceRef` — evidence ref path separators split `ledgerfp` — **hit 2026-10-22 seed hunt:** `NormalizeReviewCachePathLikeToken`; regression above.
+- [x] (valid-no-repro) `GraphSnapshotCanonicalFingerprint.NormalizeArtifactReferenceForFingerprint` — passage artifact `..` segments — **cheap-disproof 2026-10-22 seed hunt:** path token helper; regression `Build_matches_content_hash_when_baseline_element_provenance_passage_artifact_id_differs_only_by_dot_dot_slash_segment`.
+
+2026-10-22 seed hunt (seed→hit): promoted provenance passage and source artifact references splitting review-cache `modelfp` on path separator and `./` prefix drift; `NormalizeArtifactReferenceForFingerprint` shares path canonicalization with section paths; regressions `Build_matches_content_hash_when_baseline_element_provenance_passage_artifact_id_differs_only_by_backslash_vs_forward_slash`, `Build_matches_content_hash_when_baseline_element_provenance_passage_artifact_id_differs_only_by_leading_dot_slash`, and `Build_matches_content_hash_when_baseline_element_provenance_source_artifact_id_differs_only_by_backslash_vs_forward_slash`; cheap-disproof regression for section path backslash vs forward slash; 288 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `GraphSnapshotCanonicalFingerprint.NormalizeArtifactReferenceForFingerprint` — artifact id path variants split `modelfp` — **hit 2026-10-22 seed hunt:** `NormalizePathLikeFingerprintToken`; regressions above.
+- [x] (valid-no-repro) `GraphSnapshotCanonicalFingerprint.NormalizeSectionPathForFingerprint` — section path backslash vs slash — **cheap-disproof 2026-10-22 seed hunt:** path token helper; regression `Build_matches_content_hash_when_baseline_element_provenance_passage_section_path_differs_only_by_backslash_vs_forward_slash`.
+
+2026-10-22 seed hunt (seed→hit): promoted passage `SectionPath` slash, `..`, and whitespace variants splitting review-cache `modelfp`; `NormalizeSectionPathForFingerprint` canonicalizes section paths before locator fingerprinting; regressions `Build_matches_content_hash_when_baseline_element_provenance_passage_section_path_differs_only_by_dot_dot_slash_segment` and `Build_matches_content_hash_when_baseline_element_provenance_passage_section_path_differs_only_by_leading_or_trailing_slash`; added cheap-disproof coverage for section casing/NBSP/whitespace, passage locator null vs section-only, hyphen-only run ids, model/request framing duplicates, and related regression guards; 284 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `GraphSnapshotCanonicalFingerprint.NormalizeSectionPathForFingerprint` — unnormalized section paths split `modelfp` — **hit 2026-10-22 seed hunt:** path canonicalization; regressions above.
+
+2026-10-22 seed hunt (seed→hit): promoted `SourcePassageLocator.SectionPath` omitted from review-cache `modelfp`, collapsing distinct passage anchors; `FormatPassageLocatorFingerprint` now includes normalized section path and treats null vs empty section as unset; regression `Build_changes_content_hash_when_baseline_element_provenance_passage_section_path_differs` plus `Build_matches_content_hash_when_baseline_element_provenance_passage_section_path_is_null_vs_empty_string`; cheap-disproof regressions for default vs empty provenance `SourceArtifactId`, null vs empty passage `Quote`, null vs empty technology ledger, and duplicate provenance support-status list order; 250 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `GraphSnapshotCanonicalFingerprint.FormatPassageLocatorFingerprint` — section path omitted from `modelfp` — **hit 2026-10-22 seed hunt:** include `SectionPath` token; regressions above.
+- [x] (valid-no-repro) `GraphSnapshotCanonicalFingerprint.FormatElementProvenance` — default vs empty `SourceArtifactId` — **cheap-disproof 2026-10-22 seed hunt:** `NormalizeElementIdForFingerprint`; regression `Build_matches_content_hash_when_baseline_element_provenance_source_artifact_id_is_default_vs_empty_string`.
+- [x] (valid-no-repro) `GraphSnapshotCanonicalFingerprint.FormatPassageLocatorFingerprint` — null vs empty passage quote — **cheap-disproof 2026-10-22 seed hunt:** `NormalizeLabelForFingerprint`; regression `Build_matches_content_hash_when_baseline_element_provenance_passage_quote_is_null_vs_empty_string`.
+- [x] (valid-no-repro) `ReviewCacheLedgerFingerprint.Compute` — null vs empty ledger list — **cheap-disproof 2026-10-22 seed hunt:** empty `ledgerfp`; regression `Build_matches_content_hash_when_technology_ledger_is_null_vs_empty_list`.
+- [x] (valid-no-repro) `GraphSnapshotCanonicalFingerprint.SelectCanonicalKnowledgeModelElements` — duplicate provenance support-status list order — **cheap-disproof 2026-10-22 seed hunt:** fingerprint tie-break; regression `Build_matches_content_hash_when_baseline_duplicate_element_ids_differ_only_by_provenance_support_status_list_order`.
+
+2026-10-22 seed hunt (seed→hit): promoted baseline provenance with null `PassageLocator` vs empty `SourcePassageLocator` splitting review-cache `modelfp`; `FormatPassageLocatorFingerprint` omits locator tokens when artifact, offsets, and quote are all unset; regression `Build_matches_content_hash_when_baseline_element_provenance_passage_locator_is_null_vs_empty_object`; cheap-disproof regressions for default vs empty passage `ArtifactId` and duplicate provenance origin list order; 244 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `GraphSnapshotCanonicalFingerprint.FormatElementProvenance` — null vs empty passage locator split `modelfp` — **hit 2026-10-22 seed hunt:** `FormatPassageLocatorFingerprint`; regression above.
+- [x] (valid-no-repro) `GraphSnapshotCanonicalFingerprint.FormatPassageLocatorFingerprint` — default vs empty passage artifact id — **cheap-disproof 2026-10-22 seed hunt:** `NormalizeElementIdForFingerprint`; regression `Build_matches_content_hash_when_baseline_element_provenance_passage_artifact_id_is_null_vs_empty_string`.
+- [x] (valid-no-repro) `GraphSnapshotCanonicalFingerprint.SelectCanonicalKnowledgeModelElements` — duplicate provenance origin list order — **cheap-disproof 2026-10-22 seed hunt:** fingerprint tie-break; regression `Build_matches_content_hash_when_baseline_duplicate_element_ids_differ_only_by_provenance_origin_list_order`.
+
+2026-10-22 seed hunt (seed→hit): promoted baseline passage locator with `StartOffset=0` and unset `EndOffset` splitting review-cache `modelfp` from fully unset offsets; `FormatPassageOffsetToken` treats open-ended zero start like unset start; regression `Build_matches_content_hash_when_baseline_element_provenance_passage_start_is_zero_vs_null_with_unset_end`; cheap-disproof regressions for null vs empty element description, duplicate provenance confidence list order, and empty vs omitted request framing answers; 241 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `GraphSnapshotCanonicalFingerprint.FormatPassageOffsetToken` — zero start vs null start with unset end split `modelfp` — **hit 2026-10-22 seed hunt:** open-range start normalization; regression above.
+- [x] (valid-no-repro) `GraphSnapshotCanonicalFingerprint.FormatKnowledgeModelElementFingerprint` — null vs empty description — **cheap-disproof 2026-10-22 seed hunt:** `NormalizeLabelForFingerprint`; regression `Build_matches_content_hash_when_baseline_element_description_is_null_vs_empty_string`.
+- [x] (valid-no-repro) `GraphSnapshotCanonicalFingerprint.SelectCanonicalKnowledgeModelElements` — duplicate provenance confidence list order — **cheap-disproof 2026-10-22 seed hunt:** fingerprint tie-break; regression `Build_matches_content_hash_when_baseline_duplicate_element_ids_differ_only_by_provenance_confidence_list_order`.
+- [x] (valid-no-repro) `ClosedLoopFramingAnswersNormalizer` — empty vs omitted request framing map — **cheap-disproof 2026-10-22 seed hunt:** empty map omitted from hash; regression `Build_matches_content_hash_when_request_framing_answers_are_empty_vs_omitted`.
+
+2026-10-22 seed hunt (seed→hit): promoted baseline passage locator with non-zero `StartOffset` and unset `EndOffset` splitting review-cache `modelfp` from `EndOffset=0`; `FormatPassageOffsetToken` treats null or zero end as unset when start is set; regression `Build_matches_content_hash_when_baseline_element_provenance_passage_end_is_null_vs_zero_with_start_offset`; 237 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `GraphSnapshotCanonicalFingerprint.FormatPassageOffsetToken` — null end vs zero end with start offset split `modelfp` — **hit 2026-10-22 seed hunt:** unset end normalization; regression above.
+
+2026-10-22 seed hunt (seed→hit): promoted baseline passage locator with unset `StartOffset` but non-zero `EndOffset` splitting review-cache `modelfp` from explicit `StartOffset=0`; `FormatPassageOffsetToken` now treats null start as document origin when an end bound is set; regression `Build_matches_content_hash_when_baseline_element_provenance_passage_start_is_null_vs_zero_with_end_offset`; 236 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `GraphSnapshotCanonicalFingerprint.FormatPassageOffsetToken` — null start vs zero start with end offset split `modelfp` — **hit 2026-10-22 seed hunt:** implicit start at `0`; regression above.
+
+2026-10-22 seed hunt (seed→hit): promoted baseline passage locator `StartOffset`/`EndOffset` null vs zero splitting review-cache `modelfp`; `FormatPassageOffsetToken` treats paired zero offsets as unset; regression `Build_matches_content_hash_when_baseline_element_provenance_passage_offsets_are_null_vs_zero`; added cheap-disproof regressions for continue-coalesce tenant/run id casing, client run id casing, model framing-key casing, and intentional source-content casing partition; 235 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `GraphSnapshotCanonicalFingerprint.FormatElementProvenance` — passage offsets null vs `0` split `modelfp` — **hit 2026-10-22 seed hunt:** `FormatPassageOffsetToken`; regression above.
+- [x] (valid-no-repro) `ReviewCacheManifestBuilder.BuildContinueFromExistingRunCoalesceManifest` — tenant slug and run id casing — **cheap-disproof 2026-10-22 seed hunt:** scope/run normalizers; regressions above.
+- [x] (valid-no-repro) `ReviewCacheManifestBuilder.HashContent` — source body casing — **cheap-disproof 2026-10-22 seed hunt:** intentional partition; regression `Build_changes_content_hash_when_source_content_differs_only_by_casing`.
+
+2026-10-22 seed hunt (seed→hit): promoted request framing-answer **values** letter-casing splitting review-cache `ContentHash`; `ClosedLoopFramingAnswersNormalizer` lower-cases values after unicode normalize while preserving key casing; regression `Build_matches_content_hash_when_request_framing_answer_value_differs_only_by_casing`; cheap-disproof workspace/project slug casing via prior `ClosedLoopScopeIdHashNormalizer` fix; 229 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `ClosedLoopFramingAnswersNormalizer` — request framing value casing split `ContentHash` — **hit 2026-10-22 seed hunt:** `NormalizeFramingValue`; regression above.
+- [x] (valid-no-repro) `ClosedLoopScopeIdHashNormalizer` — workspace/project slug casing — **cheap-disproof 2026-10-22 seed hunt:** non-GUID lower-case from prior hit; regressions `Build_matches_tenant_configuration_hash_when_workspace_slug_differs_only_by_casing` and `Build_matches_tenant_configuration_hash_when_project_slug_differs_only_by_casing`.
+
+2026-10-22 seed hunt (seed→hit): promoted request declared-priority casing, non-GUID tenant slug casing, and source `FileName` path casing splitting review-cache hash; `ClosedLoopDeclaredPrioritiesNormalizer`, `ClosedLoopScopeIdHashNormalizer`, and `NormalizeFileNameForHash` lower-case after normalize; regressions `Build_matches_declared_priorities_hash_when_priorities_differ_only_by_casing`, `Build_matches_tenant_configuration_hash_when_tenant_slug_differs_only_by_casing`, `Build_matches_content_hash_when_source_file_name_differs_only_by_casing`, and `Build_matches_content_hash_when_baseline_element_provenance_passage_quote_differs_only_by_casing`; 226 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `ClosedLoopDeclaredPrioritiesNormalizer` / `ClosedLoopScopeIdHashNormalizer` / `ClosedLoopReasoningSourceTextNormalizer.NormalizeFileNameForHash` — request priority, tenant slug, and attachment path casing split cache hash — **hit 2026-10-22 seed hunt:** invariant lower-case; regressions above.
+- [x] (valid-no-repro) `GraphSnapshotCanonicalFingerprint.FormatElementProvenance` — passage `Quote` casing — **cheap-disproof 2026-10-22 seed hunt:** `NormalizeLabelForFingerprint` from prior hit; regression above.
+
+2026-10-22 seed hunt (seed→hit): promoted element property keys/values, provenance `Notes`, and related label casing gaps in review-cache `modelfp`; property bag, provenance quotes/notes, and baseline declared priorities now use `NormalizeLabelForFingerprint`; regressions `Build_matches_content_hash_when_baseline_element_property_value_differs_only_by_casing`, `Build_matches_content_hash_when_baseline_element_property_key_differs_only_by_casing`, and `Build_matches_content_hash_when_baseline_element_provenance_notes_differs_only_by_casing`; 222 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `GraphSnapshotCanonicalFingerprint.FormatKnowledgeModelElementFingerprint` — property and provenance label casing split `modelfp` — **hit 2026-10-22 seed hunt:** `NormalizeLabelForFingerprint` on property bag and provenance notes; regressions above.
+
+2026-10-22 seed hunt (seed→hit): promoted baseline model framing-answer keys/values and element `Name` letter-casing splitting review-cache `modelfp`; `FormatFramingAnswers` and element labels now use `NormalizeLabelForFingerprint`; regressions `Build_matches_content_hash_when_baseline_model_framing_answer_key_differs_only_by_casing`, `Build_matches_content_hash_when_baseline_model_framing_answer_value_differs_only_by_casing`, and `Build_matches_content_hash_when_baseline_element_name_differs_only_by_casing`; 218 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `GraphSnapshotCanonicalFingerprint.FormatFramingAnswers` / `FormatKnowledgeModelElementFingerprint` — framing keys/values and element name casing split `modelfp` — **hit 2026-10-22 seed hunt:** `NormalizeLabelForFingerprint`; regressions above.
+
+2026-10-22 seed hunt (seed→hit): promoted ledger `EvidenceRef`, baseline model `TenantId`, and request `ModelAliasId` letter-casing splitting review-cache hash; `NormalizeEvidenceRef` and `NormalizeForHash` lower-case after normalize; review-cache `modelfp` tenant header uses `NormalizeElementIdForFingerprint`; regressions `Build_matches_content_hash_when_ledger_evidence_ref_differs_only_by_casing`, `Build_matches_content_hash_when_baseline_model_tenant_id_differs_only_by_casing`, and `Build_matches_content_hash_when_model_alias_id_differs_only_by_casing`; 215 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `ReviewCacheLedgerFingerprint.NormalizeEvidenceRef` — evidence ref casing split `ledgerfp` — **hit 2026-10-22 seed hunt:** invariant lower-case; regression above.
+- [x] (proven) `GraphSnapshotCanonicalFingerprint.ComputeReviewCacheKnowledgeModelFingerprint` — baseline `TenantId` casing split `modelfp` — **hit 2026-10-22 seed hunt:** `NormalizeElementIdForFingerprint` on tenant header; regression above.
+- [x] (proven) `ClosedLoopModelAliasIdNormalizer.NormalizeForHash` — alias id casing split `ContentHash` — **hit 2026-10-22 seed hunt:** invariant lower-case; regression above.
+
+2026-10-22 seed hunt (seed→hit): promoted provenance `SourceArtifactId` / passage `ArtifactId` and ledger `TechnologyName` letter-casing splitting review-cache hash; artifact ids now use `NormalizeElementIdForFingerprint`; `ReviewCacheLedgerFingerprint.NormalizeTechnologyName` lowercases after unicode normalize; regressions `Build_matches_content_hash_when_baseline_element_provenance_source_artifact_id_differs_only_by_casing`, `Build_matches_content_hash_when_baseline_element_provenance_passage_locator_artifact_id_differs_only_by_casing`, and `Build_matches_content_hash_when_ledger_technology_name_differs_only_by_casing`; 212 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `GraphSnapshotCanonicalFingerprint.FormatElementProvenance` — artifact id casing split `modelfp` — **hit 2026-10-22 seed hunt:** `NormalizeElementIdForFingerprint` on provenance artifact tokens; regressions above.
+- [x] (proven) `ReviewCacheLedgerFingerprint.NormalizeTechnologyName` — technology label casing split `ledgerfp` — **hit 2026-10-22 seed hunt:** invariant lower-case after normalize; regression above.
+
+2026-10-22 seed hunt (seed→hit): promoted `RelatedElementIds` / `SourcePassageIds` casing splitting review-cache `modelfp`; related and passage id lists now use `NormalizeElementIdForFingerprint`; regressions `Build_matches_content_hash_when_baseline_related_element_ids_differ_only_by_casing`, `Build_matches_content_hash_when_baseline_related_element_ids_include_duplicates_differing_only_by_casing`, and `Build_matches_content_hash_when_baseline_source_passage_ids_differ_only_by_casing`; 209 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `GraphSnapshotCanonicalFingerprint.FormatKnowledgeModelElementFingerprint` — related/passage id casing split `modelfp` — **hit 2026-10-22 seed hunt:** lowercase canonical ids in cross-ref lists; regressions above.
+
+2026-10-22 seed hunt (seed→hit): promoted baseline `ElementId` casing and duplicate case-variant rows splitting review-cache `modelfp`; `GraphSnapshotCanonicalFingerprint` now lowercases normalized element ids for grouping and fingerprint tokens; regressions `Build_matches_content_hash_when_baseline_element_ids_differ_only_by_casing`, `Build_matches_content_hash_when_baseline_elements_include_duplicate_element_ids_differing_only_by_casing`, and `Build_matches_content_hash_when_baseline_duplicate_element_ids_differ_only_by_provenance_notes_list_order`; 206 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `GraphSnapshotCanonicalFingerprint.SelectCanonicalKnowledgeModelElements` — `el-1` vs `EL-1` treated as distinct element ids in `modelfp` — **hit 2026-10-22 seed hunt:** `NormalizeElementIdForFingerprint`; regressions above.
+- [x] (valid-no-repro) `GraphSnapshotCanonicalFingerprint.SelectCanonicalKnowledgeModelElements` — duplicate element provenance notes list order — **cheap-disproof 2026-10-22 seed hunt:** fingerprint ordinal tie-break; regression above.
+
+2026-10-22 seed hunt (seed→hit): promoted duplicate identical technology-ledger rows splitting review-cache `ledgerfp`; `ReviewCacheLedgerFingerprint.Compute` now `DistinctBy` normalized entry fingerprints after sort; regressions `Build_matches_content_hash_when_ledger_contains_duplicate_identical_entries` and `Build_matches_content_hash_when_baseline_duplicate_element_ids_differ_only_by_lifecycle_scope_list_order`; 203 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `ReviewCacheLedgerFingerprint.Compute` — duplicate identical ledger rows doubled `ledgerfp` payload — **hit 2026-10-22 seed hunt:** `DistinctBy(FormatLedgerEntryFingerprint)`; regression above.
+- [x] (valid-no-repro) `GraphSnapshotCanonicalFingerprint.SelectCanonicalKnowledgeModelElements` — duplicate element `LifecycleScope` list order — **cheap-disproof 2026-10-22 seed hunt:** fingerprint ordinal tie-break; regression above.
+
+2026-10-22 seed hunt (seed→hit): promoted duplicate baseline elements with the same `ElementId` but different property bags (and `Kind`) list order splitting review-cache `modelfp`; `SelectCanonicalKnowledgeModelElements` now picks the lexicographically smallest element fingerprint; regressions `Build_matches_content_hash_when_baseline_duplicate_element_ids_differ_only_by_property_bag_list_order` and `Build_matches_content_hash_when_baseline_duplicate_element_ids_differ_only_by_kind_list_order`; 201 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `GraphSnapshotCanonicalFingerprint.SelectCanonicalKnowledgeModelElements` — duplicate element rows with divergent property bags split `modelfp` by list order — **hit 2026-10-22 seed hunt:** fingerprint ordinal tie-break; regressions above.
+
+2026-10-22 seed hunt (seed→hit): promoted duplicate baseline elements with the same normalized id but different `ExtractionConfidence` list order splitting review-cache `modelfp`; `SelectCanonicalKnowledgeModelElements` now tie-breaks on confidence/kind/lifecycle scope; regression `Build_matches_content_hash_when_baseline_duplicate_element_ids_differ_only_by_extraction_confidence_list_order`; added regression coverage for workspace NBSP, resolved run-id NBSP, provenance note spaces, and model framing-value NBSP; 199 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `GraphSnapshotCanonicalFingerprint.SelectCanonicalKnowledgeModelElements` — duplicate element rows with equal name/description but different confidence split `modelfp` by list order — **hit 2026-10-22 seed hunt:** deterministic tie-break chain; regression above.
+
+2026-10-22 seed hunt (seed→hit): promoted NBSP in client `RunId` and `SourceTexts.ContentType` splitting review-cache hash; `ClosedLoopRunIdComparer.Normalize` and source content-type normalization now unicode-space normalize and collapse ASCII runs; regressions `Build_matches_content_hash_when_client_run_id_differs_only_by_nbsp_vs_space` and `Build_matches_content_hash_when_source_content_type_differs_only_by_nbsp_vs_space`; added coverage for narrow-NBSP model alias and baseline tenant id; 194 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `ClosedLoopRunIdComparer.Normalize` — NBSP in client run ids split `runid=` manifest segment — **hit 2026-10-22 seed hunt:** unicode space + collapse before dash strip; regression above.
+- [x] (proven) `ClosedLoopReasoningSourceTextNormalizer` — NBSP in MIME content types split `ContentHash` — **hit 2026-10-22 seed hunt:** normalize lookup token; regression above.
+
+2026-10-22 seed hunt (seed→hit): promoted NBSP in non-GUID tenant scope ids splitting `TenantConfigurationHash`/`ContentHash`; `ClosedLoopScopeIdHashNormalizer` now unicode-space normalizes and collapses interior ASCII spaces before GUID canonicalization; regressions `Build_matches_tenant_configuration_hash_when_tenant_id_differs_only_by_nbsp_vs_space`, `Build_matches_content_hash_when_ledger_evidence_ref_differs_only_by_consecutive_spaces`, and `Build_matches_declared_priorities_hash_when_priority_differs_only_by_narrow_nbsp_vs_space`; 190 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `ClosedLoopScopeIdHashNormalizer.Normalize` — NBSP in tenant/workspace/project scope ids split tenant-config hash — **hit 2026-10-22 seed hunt:** unicode space + collapse on scope ids; regression above.
+
+2026-10-22 seed hunt (seed→hit): promoted NBSP/consecutive-space drift in request `DeclaredPriorities`, attachment file names, and ledger technology labels splitting review-cache hash; `ClosedLoopDeclaredPrioritiesNormalizer`, `NormalizeFileNameForHash`, and `ReviewCacheLedgerFingerprint` now collapse interior ASCII spaces after unicode-space normalize; regressions `Build_matches_declared_priorities_hash_when_priority_differs_only_by_nbsp_vs_space`, `Build_matches_declared_priorities_hash_when_priority_differs_only_by_consecutive_spaces`, `Build_matches_content_hash_when_file_name_differs_only_by_consecutive_spaces`, and `Build_matches_content_hash_when_ledger_technology_name_differs_only_by_consecutive_spaces`; 187 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `ClosedLoopDeclaredPrioritiesNormalizer` — NBSP and double spaces in request priorities split `DeclaredPrioritiesHash`/`ContentHash` — **hit 2026-10-22 seed hunt:** unicode space + collapse; regressions above.
+- [x] (proven) `ClosedLoopReasoningSourceTextNormalizer.NormalizeFileNameForHash` — consecutive spaces in paths split `ContentHash` — **hit 2026-10-22 seed hunt:** collapse on collapsed path; regression above.
+- [x] (proven) `ReviewCacheLedgerFingerprint.NormalizeTechnologyName` — consecutive spaces in ledger labels split `ledgerfp` — **hit 2026-10-22 seed hunt:** collapse after unicode normalize; regression above.
+
+2026-10-22 seed hunt (seed→hit): promoted NBSP/consecutive-space drift in request framing answers, `ModelAliasId`, and baseline property values splitting review-cache hash; `ClosedLoopFramingAnswersNormalizer` and `ClosedLoopModelAliasIdNormalizer` now unicode-space + collapse ASCII runs; `NormalizeFingerprintText` collapses interior spaces for modelfp tokens; regressions `Build_matches_content_hash_when_framing_answer_key_differs_only_by_nbsp_vs_space`, `Build_matches_content_hash_when_framing_answer_value_differs_only_by_consecutive_spaces`, `Build_matches_content_hash_when_model_alias_id_differs_only_by_nbsp_vs_space`, `Build_matches_content_hash_when_baseline_element_property_value_differs_only_by_consecutive_spaces`, and `Build_matches_content_hash_when_ledger_evidence_ref_differs_only_by_nbsp_vs_space`; 183 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `ClosedLoopFramingAnswersNormalizer` — NBSP keys and double spaces in framing values split `ContentHash` — **hit 2026-10-22 seed hunt:** unicode space + collapse; regressions above.
+- [x] (proven) `ClosedLoopModelAliasIdNormalizer.NormalizeForHash` — NBSP in alias id split `ContentHash` — **hit 2026-10-22 seed hunt:** same normalize chain; regression above.
+- [x] (proven) `GraphSnapshotCanonicalFingerprint.NormalizeFingerprintText` — consecutive spaces in property values split `modelfp` — **hit 2026-10-22 seed hunt:** collapse in fingerprint text; regression above.
+
+2026-10-22 seed hunt (seed→hit): promoted NBSP in ledger `TechnologyName` and consecutive ASCII spaces in source `Content` splitting review-cache hash; `ReviewCacheLedgerFingerprint` unicode-space normalizes technology/evidence tokens; `CollapseInteriorAsciiSpaces` in source normalizer; regressions `Build_matches_content_hash_when_ledger_technology_name_differs_only_by_nbsp_vs_space` and `Build_matches_content_hash_when_source_content_differs_only_by_consecutive_spaces`; added coverage for narrow-NBSP filenames, property-value NBSP, duplicate element canonical pick, and permuted `SourceTexts` list order; 178 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `ReviewCacheLedgerFingerprint.NormalizeTechnologyName` — NBSP in ledger labels split `ledgerfp` — **hit 2026-10-22 seed hunt:** unicode space normalize; regression above.
+- [x] (proven) `ClosedLoopReasoningSourceTextNormalizer` — consecutive ASCII spaces in `Content` split `ContentHash` — **hit 2026-10-22 seed hunt:** `CollapseInteriorAsciiSpaces`; regression above.
+- [x] (valid-no-repro) `ReviewCacheManifestBuilder.HashContent` — `SourceTexts` list order — **cheap-disproof 2026-10-22 seed hunt:** normalize + sort by file/type before hash; regression `Build_matches_content_hash_when_source_texts_differ_only_by_list_order`.
+- [x] (invalid) `ClosedLoopReasoningSourceTextNormalizer` — inline tab vs space in `Content` — **cheap-disproof 2026-10-22 seed hunt:** `U+0009` maps to LF via C0 control pass (line-break policy).
+
+2026-10-22 seed hunt (seed→hit): promoted narrow no-break space (`U+202F`) in source `Content` and NBSP in baseline framing-answer keys splitting review-cache hash; `NormalizeUnicodeSpaces` now maps `U+202F`; `NormalizeFingerprintText` normalizes unicode spaces before FormC; regressions `Build_matches_content_hash_when_source_content_differs_only_by_narrow_nbsp_vs_space`, `Build_matches_content_hash_when_baseline_model_framing_answer_key_differs_only_by_nbsp_vs_space`, and `Build_matches_content_hash_when_baseline_element_properties_include_duplicate_keys_after_casing`; 172 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `ClosedLoopReasoningSourceTextNormalizer.NormalizeUnicodeSpaces` — `U+202F` in `Content` split `ContentHash` — **hit 2026-10-22 seed hunt:** narrow NBSP→space; regression above.
+- [x] (proven) `GraphSnapshotCanonicalFingerprint.FormatFramingAnswers` — NBSP in framing-answer keys split `modelfp` — **hit 2026-10-22 seed hunt:** unicode space normalize in `NormalizeFingerprintText`; regression above.
+- [x] (valid-no-repro) `GraphSnapshotCanonicalFingerprint.FormatKnowledgeModelElementFingerprint` — `Environment`/`environment` duplicate property keys — **cheap-disproof 2026-10-22 seed hunt:** case-insensitive key group from prior hunt; regression above.
+
+2026-10-22 seed hunt (seed→hit): promoted duplicate normalized element property keys and NBSP in `SourceTexts.FileName` splitting review-cache hash; property bag now case-insensitive dedupes normalized keys; `NormalizeFileNameForHash` applies `NormalizeUnicodeSpaces`; regressions `Build_matches_content_hash_when_baseline_element_properties_include_duplicate_keys_after_normalization` and `Build_matches_content_hash_when_file_name_differs_only_by_nbsp_vs_space`; 169 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `GraphSnapshotCanonicalFingerprint.FormatKnowledgeModelElementFingerprint` — duplicate padded property keys split `modelfp` — **hit 2026-10-22 seed hunt:** group normalized keys; regression above.
+- [x] (proven) `ClosedLoopReasoningSourceTextNormalizer.NormalizeFileNameForHash` — NBSP in attachment path split `ContentHash` — **hit 2026-10-22 seed hunt:** NBSP→space before FormC; regression above.
+
+2026-10-22 seed hunt (seed→hit): promoted duplicate normalized `RelatedElementIds`/`SourcePassageIds` and NBSP-vs-space in source `Content` splitting review-cache hash; id lists now `Distinct` after normalization; `NormalizeUnicodeSpaces` maps NBSP to ASCII space; regressions `Build_matches_content_hash_when_baseline_related_element_ids_include_duplicates_after_normalization`, `Build_matches_content_hash_when_baseline_source_passage_ids_include_duplicates_after_normalization`, and `Build_matches_content_hash_when_source_content_differs_only_by_nbsp_vs_space`; 167 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `GraphSnapshotCanonicalFingerprint.FormatKnowledgeModelElementFingerprint` — duplicate related/passage ids split `modelfp` — **hit 2026-10-22 seed hunt:** `Distinct` on normalized id lists; regressions above.
+- [x] (proven) `ClosedLoopReasoningSourceTextNormalizer` — NBSP vs space in `Content` split `ContentHash` — **hit 2026-10-22 seed hunt:** `NormalizeUnicodeSpaces`; regression above.
+
+2026-10-22 seed hunt (seed→hit): promoted duplicate baseline elements whose `ElementId` normalizes to the same token splitting review-cache `modelfp`, plus `DEL`/`ZWSP` line-break scalars in source `Content`; `SelectCanonicalKnowledgeModelElements` dedupes by normalized id; `UnicodeLineBreakScalars` extended; regressions `Build_matches_content_hash_when_baseline_elements_include_duplicate_normalized_element_ids` and expanded `Build_matches_content_hash_when_source_content_uses_unicode_line_separators`; 164 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `GraphSnapshotCanonicalFingerprint.ComputeReviewCacheKnowledgeModelFingerprint` — duplicate padded `ElementId` rows split `modelfp` — **hit 2026-10-22 seed hunt:** canonical element selection; regression above.
+- [x] (proven) `ClosedLoopReasoningSourceTextNormalizer.NormalizeLineEndings` — `U+007F` / `U+200B` split `ContentHash` — **hit 2026-10-22 seed hunt:** scalar batch; theory regression above.
+- [x] (valid-no-repro) `GraphSnapshotCanonicalFingerprint.FormatDeclaredPriorities` — whitespace-only baseline priority vs empty list — **cheap-disproof 2026-10-22 seed hunt:** `NormalizeFingerprintText` drops whitespace-only entries; regression `Build_matches_content_hash_when_baseline_declared_priorities_are_whitespace_only_vs_empty_list`.
+
+2026-10-22 seed hunt (seed→hit): promoted NFC vs NFD `SourceTexts.FileName` and remaining C0 controls (`U+0001`–`U+001F`, including tab) in `Content` splitting review-cache `ContentHash`; `NormalizeFileNameForHash` now FormC-canonicalizes collapsed paths; `NormalizeLineEndings` maps `U+0001`–`U+001F` to LF after prior scalar/C1 passes; regressions `Build_matches_content_hash_when_file_name_differs_only_by_unicode_normalization_form` and expanded `Build_matches_content_hash_when_source_content_uses_unicode_line_separators`; 160 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `ClosedLoopReasoningSourceTextNormalizer.NormalizeFileNameForHash` — NFC vs NFD file names split `ContentHash` — **hit 2026-10-22 seed hunt:** FormC after path collapse; regression above.
+- [x] (proven) `ClosedLoopReasoningSourceTextNormalizer.NormalizeLineEndings` — C0 `\\u0001` / `\\u0009` controls split `ContentHash` — **hit 2026-10-22 seed hunt:** `U+0001`–`U+001F` loop; theory regression above.
+
+- (candidate) `ReviewCacheLedgerFingerprint.Compute` — ledger `ProviderFamily` tie-break when technology names normalize equal — locus: sort chain; input: duplicate-normalized names across provider families.
+
+- (candidate) `GraphSnapshotCanonicalFingerprint.FormatKnowledgeModelElementFingerprint` — duplicate normalized element ids collapse vs distinct rows — locus: element list; input: padded ids mapping to same canonical id.
+
+2026-10-22 seed hunt (seed→hit): promoted remaining C1 control scalars (`U+0080`–`U+009F`) in uploaded source `Content` splitting review-cache `ContentHash`; `NormalizeLineEndings` now maps the C1 block to LF after explicit scalar pass; expanded regression `Build_matches_content_hash_when_source_content_uses_unicode_line_separators`; regression `Build_matches_content_hash_when_baseline_element_provenance_passage_quote_differs_only_by_unicode_normalization_form` documents provenance quote FormC parity; 157 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `ClosedLoopReasoningSourceTextNormalizer.NormalizeLineEndings` — C1 `\\u0080`–`\\u009f` controls split `ContentHash` — **hit 2026-10-22 seed hunt:** C1 loop; theory regression above.
+- [x] (valid-no-repro) `GraphSnapshotCanonicalFingerprint.FormatElementProvenance` — NFC vs NFD passage `Quote` — **cheap-disproof 2026-10-22 seed hunt:** `NormalizeFingerprintText` on quote since provenance artifact-id hit; regression above.
+
+2026-10-22 seed hunt (seed→hit): promoted C0 control line-break scalars (`NUL`, `GS`, `RS`, plus `FS`/`US`) in uploaded source `Content` splitting review-cache `ContentHash`; extended `ClosedLoopReasoningSourceTextNormalizer.UnicodeLineBreakScalars`; expanded regression `Build_matches_content_hash_when_source_content_uses_unicode_line_separators`; added modelfp regressions for passage-locator artifact trim and whitespace-only element ids; 149 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `ClosedLoopReasoningSourceTextNormalizer.NormalizeLineEndings` — C0 `\\u0000` / `\\u001d` / `\\u001e` line breaks split `ContentHash` — **hit 2026-10-22 seed hunt:** consolidated C0 scalar batch; theory regression above.
+- [x] (valid-no-repro) `ReviewResultCache.CoalesceAsync` — follower publish leak when publish intent false — **cheap-disproof 2026-10-22 seed hunt:** `ReviewResultCache.Eviction` passes `stripCoalescedFollowerPublishLeaks: !publishToProduct`; coordinator regressions `CoalesceAsync_analysis_follower_strips_publish_block_from_blocked_leader` and `CoalesceAsync_does_not_share_flight_across_publish_intent`.
+
+- (candidate) `ClosedLoopReasoningSourceTextNormalizer.NormalizeLineEndings` — remaining C1 controls (`\\u0080`–`\\u009f` except covered scalars) — locus: `UnicodeLineBreakScalars`; input: pasted legacy document exports.
+
+- (candidate) `GraphSnapshotCanonicalFingerprint.FormatElementProvenance` — NFC vs NFD passage `Quote` — locus: provenance segment; input: decomposed Unicode in citation quotes.
+
+2026-10-22 seed hunt (seed→hit): promoted baseline model `DeclaredPriorities` case-duplicate lists splitting review-cache `modelfp`; `FormatDeclaredPriorities` now case-dedupes like `ClosedLoopDeclaredPrioritiesNormalizer` after FormC trim; regression `Build_matches_content_hash_when_baseline_model_declared_priorities_differ_only_by_casing` plus coverage for padded priorities and NFC provenance notes; 144 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `GraphSnapshotCanonicalFingerprint.FormatDeclaredPriorities` — `Security`/`security` duplicate baseline priorities split `modelfp` — **hit 2026-10-22 seed hunt:** case-insensitive group + ordinal tie-break; regression above.
+
+- (candidate) `ReviewResultCache.CoalesceAsync` — follower publish leak when publish intent false — locus: `CoalesceAsync_analysis_follower_strips_publish_block_from_blocked_leader`; input: re-verify strip flag on cache coordinator path.
+
+- (candidate) `ClosedLoopReasoningSourceTextNormalizer.NormalizeLineEndings` — consolidated C0/C1 line-break audit (picker saturated `other`; batch only).
+
+2026-10-22 seed hunt (seed→hit): promoted baseline model `DeclaredPriorities` NFC vs NFD and padded element `SourceArtifactId` splitting review-cache `modelfp`; `FormatDeclaredPriorities` and `FormatElementProvenance` now use `NormalizeFingerprintText`; regressions `Build_matches_content_hash_when_baseline_model_declared_priorities_differ_only_by_unicode_normalization_form` and `Build_matches_content_hash_when_baseline_element_provenance_source_artifact_id_differs_only_by_surrounding_whitespace`; 141 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `GraphSnapshotCanonicalFingerprint.FormatDeclaredPriorities` — NFC vs NFD baseline declared priorities split `modelfp` — **hit 2026-10-22 seed hunt:** FormC on priority labels; regression above.
+- [x] (proven) `GraphSnapshotCanonicalFingerprint.FormatElementProvenance` — padded `SourceArtifactId` split `modelfp` — **hit 2026-10-22 seed hunt:** normalize provenance strings; regression above.
+
+- (candidate) `GraphSnapshotCanonicalFingerprint.FormatElementProvenance` — NFC vs NFD `Notes` or passage `Quote` — locus: provenance segment; input: citation metadata with decomposed Unicode.
+
+- (candidate) `ClosedLoopReasoningSourceTextNormalizer.NormalizeLineEndings` — consolidated C0/C1 line-break audit (picker saturated `other`; batch only).
+
+- (candidate) `ReviewResultCache.CoalesceAsync` — follower publish leak when publish intent false — locus: existing analysis-follower regressions; input: verify no new partition gap.
+
+2026-10-22 seed hunt (seed→hit): promoted baseline element `Name`/`Description` NFC vs NFD splitting review-cache `modelfp`; `FormatKnowledgeModelElementFingerprint` now uses `NormalizeFingerprintText` for substantive name/description tokens; regressions `Build_matches_content_hash_when_baseline_element_name_differs_only_by_unicode_normalization_form` and `Build_matches_content_hash_when_baseline_element_description_differs_only_by_unicode_normalization_form`; 139 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `GraphSnapshotCanonicalFingerprint.FormatKnowledgeModelElementFingerprint` — NFC vs NFD element `Name`/`Description` split `modelfp` — **hit 2026-10-22 seed hunt:** FormC on name/description; regressions above.
+
+- (candidate) `GraphSnapshotCanonicalFingerprint.FormatElementProvenance` — padded `SourceArtifactId`, `Notes`, or passage locator fields split `modelfp` — locus: provenance segment; input: loaded model elements with citation metadata.
+
+- (candidate) `GraphSnapshotCanonicalFingerprint.FormatDeclaredPriorities` — NFC vs NFD declared priority labels — locus: priority list fingerprint; input: model with decomposed Unicode priority strings.
+
+- (candidate) `ClosedLoopReasoningSourceTextNormalizer.NormalizeLineEndings` — consolidated C0/C1 line-break audit (picker saturated `other`; batch only).
+
+- (candidate) `ReviewResultCache.CoalesceAsync` — follower publish leak when publish intent false — locus: existing analysis-follower regressions; input: verify no new partition gap.
+
+2026-10-22 seed hunt (seed→hit): promoted padded baseline `RelatedElementIds` splitting review-cache `modelfp`; `FormatKnowledgeModelElementFingerprint` now normalizes related and source-passage id lists (trim + FormC, drop whitespace-only, ordinal sort); regression `Build_matches_content_hash_when_baseline_related_element_ids_differ_only_by_surrounding_whitespace`; 136 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `GraphSnapshotCanonicalFingerprint.FormatKnowledgeModelElementFingerprint` — padded `RelatedElementIds` split `modelfp` — **hit 2026-10-22 seed hunt:** normalize related/passage id tokens; regression above.
+
+- (candidate) `GraphSnapshotCanonicalFingerprint.FormatKnowledgeModelElementFingerprint` — padded `SourcePassageIds` only (if not covered by same fix) — locus: passage id list; input: loaded model citations with whitespace padding.
+
+- (candidate) `ClosedLoopReasoningSourceTextNormalizer.NormalizeLineEndings` — consolidated C0/C1 line-break audit (picker saturated `other`; batch only).
+
+- (candidate) `ReviewResultCache.CoalesceAsync` — follower publish leak when publish intent false — locus: existing analysis-follower regressions; input: verify no new partition gap.
+
+2026-10-22 seed hunt (seed→hit): promoted padded baseline model element `ElementId` splitting review-cache `modelfp`; `GraphSnapshotCanonicalFingerprint` now normalizes element ids (trim + FormC) for sort keys and fingerprint tokens; regression `Build_matches_content_hash_when_baseline_element_id_differs_only_by_surrounding_whitespace`; 135 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `GraphSnapshotCanonicalFingerprint.FormatKnowledgeModelElementFingerprint` — padded `ElementId` split `modelfp` — **hit 2026-10-22 seed hunt:** `NormalizeFingerprintText` on element id and sort key; regression above.
+
+- (candidate) `GraphSnapshotCanonicalFingerprint.FormatKnowledgeModelElementFingerprint` — padded `RelatedElementIds` or `SourcePassageIds` reorder sort keys — locus: related/passage id lists; input: loaded model with whitespace-padded cross-refs.
+
+- (candidate) `ClosedLoopReasoningSourceTextNormalizer.NormalizeLineEndings` — consolidated C0/C1 line-break audit (picker saturated `other`; batch only).
+
+- (candidate) `ReviewResultCache.CoalesceAsync` — follower publish leak when publish intent false — locus: existing analysis-follower regressions; input: verify no new partition gap.
+
+2026-10-22 seed hunt (seed→hit): promoted padded baseline model element property values splitting review-cache `modelfp`; `FormatKnowledgeModelElementFingerprint` now normalizes property keys/values via `NormalizeFingerprintText`; regression `Build_matches_content_hash_when_baseline_element_property_value_differs_only_by_surrounding_whitespace`; 139 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `GraphSnapshotCanonicalFingerprint.FormatKnowledgeModelElementFingerprint` — padded element property values split `modelfp` — **hit 2026-10-22 seed hunt:** normalize property bag tokens; regression above.
+
+- (candidate) `ClosedLoopReasoningSourceTextNormalizer.NormalizeLineEndings` — consolidated C0/C1 line-break audit (picker saturated `other`; batch only).
+
+- (candidate) `ReviewResultCache.CoalesceAsync` — follower publish leak when publish intent false — locus: existing analysis-follower regressions; input: verify no new partition gap.
+
+2026-10-22 seed hunt (seed→hit): promoted padded baseline model `TenantId` and NFC vs NFD model framing answers splitting review-cache `modelfp`; `GraphSnapshotCanonicalFingerprint` now normalizes fingerprint text (trim + FormC) for tenant header and model framing answers; regressions `Build_matches_content_hash_when_baseline_model_tenant_id_differs_only_by_surrounding_whitespace` and `Build_matches_content_hash_when_baseline_model_framing_answer_differs_only_by_unicode_normalization_form`; 138 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `GraphSnapshotCanonicalFingerprint.ComputeReviewCacheKnowledgeModelFingerprint` — padded `TenantId` and NFC/NFD model framing answers split `modelfp` — **hit 2026-10-22 seed hunt:** `NormalizeFingerprintText`; regressions above.
+
+- (candidate) `GraphSnapshotCanonicalFingerprint.FormatKnowledgeModelElementFingerprint` — element property values with surrounding whitespace — locus: property bag serialization; input: loaded model element properties from persistence.
+
+- (candidate) `ClosedLoopReasoningSourceTextNormalizer.NormalizeLineEndings` — consolidated C0/C1 line-break audit (picker saturated `other`; batch only).
+
+2026-10-22 seed hunt (seed→hit): promoted baseline knowledge-model element `Name`/`Description` padding splitting review-cache `modelfp` (`ReviewCacheModelFingerprint` → `GraphSnapshotCanonicalFingerprint`); element fingerprint now trims substantive name/description tokens; regression `Build_matches_content_hash_when_baseline_element_name_differs_only_by_surrounding_whitespace`; 136 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `GraphSnapshotCanonicalFingerprint.FormatKnowledgeModelElementFingerprint` / `ReviewCacheModelFingerprint.Compute` — padded element `Name` split `ContentHash` — **hit 2026-10-22 seed hunt:** trim name/description in element fingerprint; regression above.
+
+- [x] (proven) `GraphSnapshotCanonicalFingerprint.ComputeReviewCacheKnowledgeModelFingerprint` — padded `TenantId` on loaded baseline model — **hit 2026-10-22 seed hunt:** see tenant/framing row above.
+
+- (candidate) `ClosedLoopReasoningSourceTextNormalizer.NormalizeLineEndings` — consolidated C0/C1 line-break audit (picker saturated `other`; batch only).
+
+- (candidate) `ReviewResultCache.CoalesceAsync` — follower publish leak when publish intent false — locus: existing analysis-follower regressions; input: verify no new partition gap.
+
+2026-10-22 seed hunt (seed→hit): promoted ledger `EvidenceRef` values differing only by Unicode NFC vs NFD splitting review-cache `ContentHash`; `ReviewCacheLedgerFingerprint.NormalizeEvidenceRef` now applies `NormalizationForm.FormC` after trim; regression `Build_matches_content_hash_when_ledger_evidence_ref_differs_only_by_unicode_normalization_form`; 135 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `ReviewCacheLedgerFingerprint.Compute` — NFC vs NFD `EvidenceRef` split `ledgerfp` — **hit 2026-10-22 seed hunt:** `NormalizeEvidenceRef` FormC; regression above.
+
+- (candidate) `ReviewCacheModelFingerprint.Compute` — baseline model string fields with whitespace-only vs empty — locus: `GraphSnapshotCanonicalFingerprint`; input: sparse knowledge model from loader.
+
+- (candidate) `ClosedLoopReasoningSourceTextNormalizer.NormalizeLineEndings` — consolidated C0/C1 line-break audit (picker saturated `other`; batch only).
+
+- (candidate) `ReviewResultCache.CoalesceAsync` — follower publish leak when publish intent false — locus: existing analysis-follower regressions; input: verify no new partition gap.
+
+2026-10-22 seed hunt (seed→hit): promoted ledger fingerprint ordering that stopped after evidence ref so rows differing only by `Status`/`Source`/`IsLocked` hashed differently by list order; `ReviewCacheLedgerFingerprint.Compute` now `ThenBy` status, source, and lock flag; regression `Build_matches_content_hash_when_ledger_entries_differ_only_by_status_with_equal_prefix_sort_keys`; cheap-disproof duplicate declared priorities with surrounding whitespace (`Build_matches_declared_priorities_hash_when_duplicate_priorities_differ_only_by_surrounding_whitespace`); 134 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `ReviewCacheLedgerFingerprint.Compute` — missing status/source/lock sort tie-breakers split `ledgerfp` — **hit 2026-10-22 seed hunt:** extended `ThenBy` chain; regression above.
+
+- [x] (valid-no-repro) `ReviewCacheManifestBuilder.HashPriorities` — duplicate declared priorities differing only by surrounding whitespace — **cheap-disproof 2026-10-22 seed hunt:** `ClosedLoopDeclaredPrioritiesNormalizer` trims before dedupe; regression above.
+
+- (candidate) `ReviewCacheModelFingerprint.Compute` — baseline model string fields with whitespace-only vs empty — locus: `GraphSnapshotCanonicalFingerprint`; input: sparse knowledge model from loader.
+
+- (candidate) `ClosedLoopReasoningSourceTextNormalizer.NormalizeLineEndings` — consolidated C0/C1 line-break audit (picker saturated `other`; batch only).
+
+- (candidate) `ReviewResultCache.CoalesceAsync` — follower publish leak when publish intent false — locus: existing analysis-follower regressions; input: verify no new partition gap.
+
+2026-10-22 seed hunt (seed→hit): promoted ledger fingerprint ordering that ignored `EvidenceRef` tie-breakers so equivalent rows hashed differently by list order or ref padding; `ReviewCacheLedgerFingerprint.Compute` now `ThenBy` normalized evidence ref; regressions `Build_matches_content_hash_when_ledger_entries_with_equal_sort_keys_differ_only_by_list_order` and `Build_matches_content_hash_when_ledger_evidence_refs_differ_only_by_padding_that_changes_sort_order`; 132 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `ReviewCacheLedgerFingerprint.Compute` — missing `EvidenceRef` sort tie-breaker split `ledgerfp` — **hit 2026-10-22 seed hunt:** `ThenBy(NormalizeEvidenceRef(...))`; regressions above.
+
+- (candidate) `ReviewCacheModelFingerprint.Compute` — baseline model string fields with whitespace-only vs empty — locus: `GraphSnapshotCanonicalFingerprint`; input: sparse knowledge model from loader.
+
+- (candidate) `ClosedLoopReasoningSourceTextNormalizer.NormalizeLineEndings` — consolidated C0/C1 line-break audit (picker saturated `other`; batch only).
+
+- (candidate) `ReviewCacheManifestBuilder.HashPriorities` — duplicate declared priorities differing only by surrounding whitespace — locus: `ClosedLoopDeclaredPrioritiesNormalizer`; input: OpenAPI priorities array.
+
+- (candidate) `ReviewResultCache.CoalesceAsync` — follower publish leak when publish intent false — locus: existing analysis-follower regressions; input: verify no new partition gap.
+
+2026-10-22 seed hunt (seed→hit): promoted ledger fingerprint sort using raw `TechnologyName` so padding changed row order vs normalized tokens and split `ContentHash`; `ReviewCacheLedgerFingerprint.Compute` now orders by normalized technology name; regression `Build_matches_content_hash_when_ledger_technology_names_differ_only_by_padding_that_changes_sort_order`; 130 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `ReviewCacheLedgerFingerprint.Compute` — sort key used raw `TechnologyName` before hash — **hit 2026-10-22 seed hunt:** `ThenBy(NormalizeTechnologyName(...))`; regression above.
+
+- (candidate) `ReviewCacheModelFingerprint.Compute` — baseline model string fields with whitespace-only vs empty — locus: `GraphSnapshotCanonicalFingerprint`; input: sparse knowledge model from loader.
+
+- (candidate) `ClosedLoopReasoningSourceTextNormalizer.NormalizeLineEndings` — consolidated C0/C1 line-break audit (picker saturated `other`; batch only).
+
+- (candidate) `ReviewCacheManifestBuilder.HashPriorities` — duplicate declared priorities differing only by surrounding whitespace — locus: `ClosedLoopDeclaredPrioritiesNormalizer`; input: OpenAPI priorities array.
+
+- (candidate) `ReviewResultCache.CoalesceAsync` — follower publish leak when publish intent false — locus: existing analysis-follower regressions; input: verify no new partition gap.
+
+2026-10-22 seed hunt (seed→hit): promoted whitespace-only and padded ledger `TechnologyName` splitting review-cache `ContentHash` from empty/trimmed names; `ReviewCacheLedgerFingerprint.NormalizeTechnologyName` now treats whitespace-only as empty and trims before NFC; regressions `Build_matches_content_hash_when_ledger_technology_name_is_whitespace_only_vs_empty_string` and `Build_matches_content_hash_when_ledger_technology_name_differs_only_by_surrounding_whitespace`; 129 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `ReviewCacheLedgerFingerprint.Compute` — whitespace-only or padded `TechnologyName` split `ledgerfp` — **hit 2026-10-22 seed hunt:** `NormalizeTechnologyName` whitespace + trim + FormC; regressions above.
+
+- [x] (proven) `ReviewCacheLedgerFingerprint.Compute` — ledger entry sort uses raw `TechnologyName` before normalize — **hit 2026-10-22 seed hunt:** see sort-order row above.
+
+2026-10-22 seed hunt (seed→hit): promoted whitespace-only ledger `EvidenceRef` splitting review-cache `ContentHash` from empty ref; `ReviewCacheLedgerFingerprint` now treats whitespace-only refs as empty and trims substantive refs; regressions `Build_matches_content_hash_when_ledger_evidence_ref_is_null_vs_empty_string` and `Build_matches_content_hash_when_ledger_evidence_ref_is_whitespace_only_vs_empty_string`; cheap-disproof continue coalesce tenant partition and schema-version storage key partition; guard regressions `BuildCoalesceKey_differs_when_tenant_id_changes` and `TryGet_misses_when_manifest_schema_version_differs_from_stored_entry`; 127 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `ReviewCacheLedgerFingerprint.Compute` — whitespace-only `EvidenceRef` split `ledgerfp` from null/empty — **hit 2026-10-22 seed hunt:** `NormalizeEvidenceRef`; regressions above.
+
+- [x] (valid-no-repro) `ClosedLoopContinueRunSingleFlight.BuildCoalesceKey` — tenant omitted from continue coalesce key — **cheap-disproof 2026-10-22 seed hunt:** key includes normalized tenant id; regression `BuildCoalesceKey_differs_when_tenant_id_changes`.
+
+- [x] (valid-no-repro) `ReviewResultCache.TryGet` — schema version bump still hits stale entry — **cheap-disproof 2026-10-22 seed hunt:** `ReviewCacheKeyBuilder` partitions on `SchemaVersion`; regression `TryGet_misses_when_manifest_schema_version_differs_from_stored_entry`.
+
+2026-10-22 seed hunt (seed-only): cheap-disproof closed null `baselineKnowledgeModel` vs empty `ArchitectureKnowledgeModel` and null vs empty ledger `TechnologyName` parity rows; regressions `Build_matches_content_hash_when_baseline_model_is_null_vs_empty_model` and `Build_matches_content_hash_when_ledger_technology_name_is_null_vs_empty_string`; deferred consolidated C0 line-break batch (picker saturated `other`); 119 scoped orchestrator/cache/manifest tests passed.
+
+- [x] (valid-no-repro) `ReviewCacheManifestBuilder.HashContent` / `ReviewCacheModelFingerprint.Compute` — null baseline model vs empty model split `ContentHash` — **cheap-disproof 2026-10-22 seed hunt:** regression `Build_matches_content_hash_when_baseline_model_is_null_vs_empty_model`.
+
+- [x] (valid-no-repro) `ReviewCacheLedgerFingerprint.Compute` — null `TechnologyName` vs empty string split `ledgerfp` — **cheap-disproof 2026-10-22 seed hunt:** regression `Build_matches_content_hash_when_ledger_technology_name_is_null_vs_empty_string`; `NormalizeTechnologyName` maps null to empty.
+
+2026-10-22 seed hunt (seed→hit): promoted null element in `technologyLedgerEntries` list causing `NullReferenceException` during `ledgerfp` computation; `ReviewCacheLedgerFingerprint.Compute` now skips null entries; regression `Build_ignores_null_technology_ledger_entries_when_hashing_content`; cheap-disproof padded `BuildWithResolvedRunId` and prior API-validation/tombstone/framing-order rows; guard regression for padded resolved run id; 119 scoped tests passed.
+
+- [x] (proven) `ReviewCacheLedgerFingerprint.Compute` — null ledger entry in list threw during ordered fingerprint — **hit 2026-10-22 seed hunt:** filter null entries before sort/hash; regression above.
+
+- [x] (valid-no-repro) `ReviewCacheManifestBuilder.BuildWithResolvedRunId` — padded resolved run id — **cheap-disproof 2026-10-22 seed hunt:** regression `BuildWithResolvedRunId_matches_content_hash_when_resolved_run_id_differs_only_by_surrounding_whitespace`.
+
+- [x] (invalid) `ClosedLoopArchitectureReasoningOrchestrator.RunAsync` — API should reject null `SourceTexts` before manifest — **cheap-disproof 2026-10-22 seed hunt:** in-app skip in `HashContent` is intentional defense-in-depth; API validation is separate layer (not a cache hash defect).
+
+- [x] (valid-no-repro) `ReviewResultCache.Set` — tombstone race — **cheap-disproof 2026-10-22 seed hunt:** `Set` re-checks tombstone under `_evictionLock`; no repro without concurrent stress harness in zone tests.
+
+- [x] (valid-no-repro) `ClosedLoopFramingAnswersNormalizer` — JSON key order with casing duplicates — **cheap-disproof 2026-10-22 seed hunt:** ignore-case merge yields stable normalized dictionary regardless of insertion order.
+
+- (candidate) `ClosedLoopReasoningSourceTextNormalizer.NormalizeLineEndings` — consolidated C0/C1 line-break audit (picker saturated `other`; batch only).
+
+- [x] (valid-no-repro) `ReviewCacheLedgerFingerprint.Compute` — null `TechnologyName` on entry — **cheap-disproof 2026-10-22 seed hunt:** see seed-only row above.
+
+- [x] (valid-no-repro) `ReviewCacheManifestBuilder.HashContent` — null `baselineKnowledgeModel` vs empty model fingerprint — **cheap-disproof 2026-10-22 seed hunt:** see seed-only row above.
+
+- [x] (valid-no-repro) `ClosedLoopContinueRunSingleFlight` — coalesce key uses manifest content hash only — **cheap-disproof 2026-10-22 seed hunt:** see seed→hit row above.
+
+- [x] (valid-no-repro) `ReviewResultCache.TryGet` — manifest `SchemaVersion` mismatch still returns entry — **cheap-disproof 2026-10-22 seed hunt:** see seed→hit row above.
+
+2026-10-22 seed hunt (seed→hit): promoted null element in `SourceTexts` list causing `ArgumentNullException` during manifest `ContentHash` build; `HashContent` now skips null attachments before normalize; regression `Build_ignores_null_source_text_entries_when_hashing_content`; cheap-disproof duplicate-list order (dedupe by normalized triple), padded `InvalidateForRun`, publish in-flight partition, and golden-flag attachment rows; 117 scoped tests passed.
+
+- [x] (proven) `ReviewCacheManifestBuilder.HashContent` — null `SourceTexts` entry threw before hash — **hit 2026-10-22 seed hunt:** filter null list elements before `Normalize`; regression above.
+
+- [x] (valid-no-repro) `ReviewCacheManifestBuilder.HashContent` — duplicate attachments separated by other files — **cheap-disproof 2026-10-22 seed hunt:** distinct normalized rows remain in hash by design; regression `Build_matches_content_hash_when_duplicate_source_texts_normalize_to_identical_rows` covers identical duplicates.
+
+- [x] (valid-no-repro) `ReviewResultCache.InvalidateForRun` — padded run id — **cheap-disproof 2026-10-22 seed hunt:** `InvalidateForRun_removes_entries_for_matching_run_id_regardless_of_guid_format` and `NormalizeRequired` trim/canonicalize run ids.
+
+- [x] (valid-no-repro) `ReviewResultCache.CoalesceAsync` — publish vs analysis in-flight partition — **cheap-disproof 2026-10-22 seed hunt:** regression `CoalesceAsync_does_not_share_flight_across_publish_intent`.
+
+- [x] (valid-no-repro) `ReviewCacheManifestBuilder.HashContent` — `UseGoldenFixture` with attachments — **cheap-disproof 2026-10-22 seed hunt:** regression `Build_changes_hash_when_golden_fixture_flag_changes`; golden flag and source bodies both intentionally hashed.
+
+- (candidate) `ClosedLoopReasoningSourceTextNormalizer.NormalizeLineEndings` — consolidated C0/C1 line-break audit (picker saturated `other`; batch only).
+
+- [x] (invalid) `ClosedLoopArchitectureReasoningOrchestrator.RunAsync` — API reject null `SourceTexts` — **cheap-disproof 2026-10-22 seed hunt:** see seed→hit row above.
+
+- [x] (valid-no-repro) `ReviewResultCache.Set` — tombstone race — **cheap-disproof 2026-10-22 seed hunt:** see seed→hit row above.
+
+- [x] (valid-no-repro) `ReviewCacheManifestBuilder.BuildWithResolvedRunId` — padded resolved run id — **cheap-disproof 2026-10-22 seed hunt:** see seed→hit row above.
+
+- [x] (valid-no-repro) `ClosedLoopFramingAnswersNormalizer` — JSON key order — **cheap-disproof 2026-10-22 seed hunt:** see seed→hit row above.
+
+2026-10-22 seed hunt (seed-only): re-read continue coalesce tenant segment, scope `ProjectId`, and framing whitespace-only answers; cheap-disproof closed `ProjectId` null vs empty, continue tenant padding, framing whitespace-only vs omitted, and prior tombstone/continue-route rows; no new hunt-ready normalization scalar (picker saturated `other`); 116 scoped tests passed.
+
+- [x] (valid-no-repro) `ReviewCacheManifestBuilder.HashTenantConfiguration` — `ProjectId` null vs empty — **cheap-disproof 2026-10-22 seed hunt:** regression `Build_matches_tenant_configuration_hash_when_project_is_null_vs_empty_string`.
+
+- [x] (valid-no-repro) `ReviewCacheManifestBuilder.BuildContinueFromExistingRunCoalesceManifest` — tenant segment surrounding whitespace — **cheap-disproof 2026-10-22 seed hunt:** regression `BuildContinueFromExistingRunCoalesceManifest_matches_hash_when_tenant_differs_only_by_surrounding_whitespace`.
+
+- [x] (valid-no-repro) `ClosedLoopFramingAnswersNormalizer` — whitespace-only framing answer vs omitted key — **cheap-disproof 2026-10-22 seed hunt:** regression `Build_matches_content_hash_when_framing_answer_is_whitespace_only_vs_omitted` (empty-after-trim drop).
+
+- [x] (invalid) `ReviewCacheManifestBuilder.HashPriorities` — null `DeclaredPriorities` list reference — **cheap-disproof 2026-10-22 seed hunt:** contract setter coalesces null to `[]`; field default non-null; not reachable from OpenAPI deserialization.
+
+- [x] (valid-no-repro) `ReviewResultCache.TryGet` — tombstone vs pinned TTL refresh — **cheap-disproof 2026-10-22 seed hunt:** `TryGet_misses_tombstoned_pinned_expired_entry_without_refreshing_ttl` covers invalidate-before-expiry path.
+
+- [x] (valid-no-repro) `ClosedLoopArchitectureReasoningOrchestrator.RunAsync` — continue with blank request `RunId` — **cheap-disproof 2026-10-22 seed hunt:** `RunAsync_continue_without_request_run_id_does_not_load_prior_persisted_model` documents continue contract.
+
+- (candidate) `ClosedLoopReasoningSourceTextNormalizer.NormalizeLineEndings` — consolidated C0/C1 line-break audit (picker saturated `other`; batch only).
+
+- [x] (valid-no-repro) `ReviewCacheManifestBuilder.HashContent` — duplicate `SourceTexts` list order — **cheap-disproof 2026-10-22 seed hunt:** see seed→hit row above.
+
+- [x] (valid-no-repro) `ReviewResultCache.InvalidateForRun` — padded run id — **cheap-disproof 2026-10-22 seed hunt:** see seed→hit row above.
+
+- [x] (valid-no-repro) `ClosedLoopArchitectureReasoningOrchestrator.RunAsync` — publish in-flight partition — **cheap-disproof 2026-10-22 seed hunt:** see seed→hit row above.
+
+- [x] (valid-no-repro) `ReviewCacheManifestBuilder.HashContent` — golden flag with attachments — **cheap-disproof 2026-10-22 seed hunt:** see seed→hit row above.
+
+2026-10-22 seed hunt (seed-only): re-read manifest hashing, cache coalesce, and normalizers; cheap-disproof closed open candidates (`ContentType` null/whitespace, `WorkspaceId` null/empty/padding, whitespace-only declared priority row, coalesce publish-strip, conflicting framing casing); deferred remaining C0 line-break batch (picker saturated `other`); added valid-no-repro guard tests; 113 scoped orchestrator/cache/manifest/framing tests passed.
+
+- [x] (valid-no-repro) `ReviewCacheManifestBuilder.HashContent` — `ContentType` null vs empty vs whitespace-only — **cheap-disproof 2026-10-22 seed hunt:** regressions `Build_matches_content_hash_when_source_content_type_is_null_vs_empty_string` and `Build_matches_content_hash_when_source_content_type_is_whitespace_only_vs_empty_string`.
+
+- [x] (valid-no-repro) `ReviewCacheManifestBuilder.HashTenantConfiguration` — `WorkspaceId` null vs empty vs padded non-GUID — **cheap-disproof 2026-10-22 seed hunt:** regressions `Build_matches_tenant_configuration_hash_when_workspace_is_null_vs_empty_string` and `Build_matches_tenant_configuration_hash_when_non_guid_workspace_differs_only_by_surrounding_whitespace`.
+
+- [x] (valid-no-repro) `ClosedLoopDeclaredPrioritiesNormalizer` — list containing only whitespace priority vs empty list — **cheap-disproof 2026-10-22 seed hunt:** regression `Build_matches_declared_priorities_hash_when_list_contains_only_whitespace_entry_vs_empty_list`.
+
+- [x] (valid-no-repro) `ReviewResultCache.CoalesceAsync` — follower publish leak when analysis coalesce — **cheap-disproof 2026-10-22 seed hunt:** regressions `CoalesceAsync_analysis_follower_strips_publish_block_from_blocked_leader` and `CoalesceAsync_analysis_follower_of_published_leader_keeps_analysis_truth`.
+
+- [x] (valid-no-repro) `ClosedLoopFramingAnswersNormalizer` — conflicting substantive values under casing variants — **cheap-disproof 2026-10-22 seed hunt:** intentional ordinal-first tie-break among non-empty duplicates; not equivalent inputs.
+
+- (candidate) `ClosedLoopReasoningSourceTextNormalizer.NormalizeLineEndings` — consolidated C0/C1 line-break audit (picker saturated `other`; batch only).
+
+- [x] (valid-no-repro) `ReviewCacheManifestBuilder.HashTenantConfiguration` — `ProjectId` null vs empty — **cheap-disproof 2026-10-22 seed hunt:** see seed-only row above.
+
+- [x] (invalid) `ReviewCacheManifestBuilder.HashPriorities` — null declared priorities list — **cheap-disproof 2026-10-22 seed hunt:** see seed-only row above.
+
+- [x] (valid-no-repro) `ReviewResultCache.TryGet` — tombstone TTL refresh — **cheap-disproof 2026-10-22 seed hunt:** see seed-only row above.
+
+- [x] (valid-no-repro) `ClosedLoopArchitectureReasoningOrchestrator.RunAsync` — continue blank `RunId` — **cheap-disproof 2026-10-22 seed hunt:** see seed-only row above.
+
+2026-10-22 seed hunt (seed→hit): promoted next-line (`\u0084`) in source `Content` splitting `ContentHash` from LF; extended `UnicodeLineBreakScalars`; regression `Build_matches_content_hash_when_source_content_uses_unicode_line_separators` (`\u0084`); cheap-disproof declared-priority whitespace duplicate, null vs empty `FileName`, and whitespace-only `Content`; added guard regressions for null or whitespace-only attachment fields; 108 scoped tests passed. [class:other]
+
+- [x] (proven) `ClosedLoopReasoningSourceTextNormalizer.NormalizeLineEndings` — next-line (`\u0084`) split `ContentHash` from LF — **hit 2026-10-22 seed hunt:** added `\u0084` to consolidated scalar loop; regression above.
+
+- [x] (invalid) `ClosedLoopDeclaredPrioritiesNormalizer` — duplicate priorities with whitespace-only casing variant — **cheap-disproof 2026-10-22 seed hunt:** `Where(!IsNullOrWhiteSpace)` drops blank entries before ignore-case merge; not the framing dict duplicate-key shape.
+
+- [x] (valid-no-repro) `ReviewCacheManifestBuilder.HashContent` — `FileName` null vs empty — **cheap-disproof 2026-10-22 seed hunt:** regression `Build_matches_content_hash_when_source_file_name_is_null_vs_empty_string`.
+
+- [x] (valid-no-repro) `ClosedLoopReasoningSourceTextNormalizer` — whitespace-only `Content` vs empty — **cheap-disproof 2026-10-22 seed hunt:** regression `Build_matches_content_hash_when_source_content_is_whitespace_only_vs_empty_string`.
+
+- [x] (valid-no-repro) `ReviewResultCache.TryGet` — tombstoned pinned expired entry — **cheap-disproof 2026-10-22 seed hunt:** existing regression `TryGet_misses_tombstoned_pinned_expired_entry_without_refreshing_ttl`.
+
+- [x] (valid-no-repro) `ClosedLoopArchitectureReasoningOrchestrator.CreateCoalescedCacheHitResult` — in-place mutation — **cheap-disproof 2026-10-22 seed hunt:** callers pass `TryGet` clones or ephemeral leader results; `Set` re-clones on write.
+
+- (candidate) `ClosedLoopReasoningSourceTextNormalizer.NormalizeLineEndings` — remaining C0 controls (e.g. `\u0000`) — locus: batch audit vs `UnicodeLineBreakScalars` (picker saturated `other`).
+
+- [x] (valid-no-repro) `ReviewCacheManifestBuilder.HashContent` — `ContentType` null vs empty — **cheap-disproof 2026-10-22 seed hunt:** see seed-only row above.
+
+- [x] (valid-no-repro) `ClosedLoopFramingAnswersNormalizer` — conflicting casing variant values — **cheap-disproof 2026-10-22 seed hunt:** see seed-only row above.
+
+- [x] (valid-no-repro) `ReviewResultCache.CoalesceAsync` — follower publish strip — **cheap-disproof 2026-10-22 seed hunt:** see seed-only row above.
+
+- [x] (valid-no-repro) `ReviewCacheManifestBuilder.HashTenantConfiguration` — `WorkspaceId` null vs empty — **cheap-disproof 2026-10-22 seed hunt:** see seed-only row above.
+
+2026-10-22 seed hunt (seed→hit): promoted duplicate framing keys differing only by casing where ordinal-first `Scope` whitespace entry dropped substantive `scope` answer from cache hash; `ClosedLoopFramingAnswersNormalizer` now prefers non-empty values within ignore-case groups; regressions `Normalize_prefers_substantive_value_when_duplicate_keys_differ_only_by_casing` and `Build_matches_content_hash_when_duplicate_framing_keys_include_whitespace_only_casing_variant`; cheap-disproof padded `ProjectId`, silent `Set` at pin cap, and `continue=1` partition rows; 105 scoped tests passed.
+
+- [x] (proven) `ClosedLoopFramingAnswersNormalizer` — ignore-case duplicate keys kept whitespace-only ordinal-first variant and discarded substantive answer — **hit 2026-10-22 seed hunt:** prefer non-empty values before ordinal key tie-break; regressions above.
+
+- [x] (valid-no-repro) `ReviewCacheManifestBuilder.HashTenantConfiguration` — padded non-GUID `ProjectId` — **cheap-disproof 2026-10-22 seed hunt:** `NormalizeForHash` trims via `ClosedLoopScopeIdHashNormalizer` (same path as workspace GUID casing tests).
+
+- [x] (valid-no-repro) `ReviewResultCache.Set` — silent drop when all entries pinned at capacity — **cheap-disproof 2026-10-22 seed hunt:** `Set_inserts_when_cache_at_max_entries_because_all_pinned_state_is_unreachable` documents unreachable pinned saturation; new inserts still succeed when unpinned eviction is possible.
+
+- [x] (valid-no-repro) `ReviewCacheManifestBuilder.HashContent` — `continue=1|` on `Build` vs continue coalesce manifest — **cheap-disproof 2026-10-22 seed hunt:** `BuildContinueFromExistingRunCoalesceManifest_partitions_from_continue_build` and orchestrator continue path use coalesce manifest for `TryGet`/`Set`.
+
+- [x] (proven) `ClosedLoopReasoningSourceTextNormalizer.NormalizeLineEndings` — next-line (`\u0084`) — **hit 2026-10-22 seed hunt:** see seed→hit row above.
+
+- [x] (invalid) `ClosedLoopDeclaredPrioritiesNormalizer` — whitespace duplicate priority casing — **cheap-disproof 2026-10-22 seed hunt:** see seed→hit row above.
+
+- [x] (valid-no-repro) `ReviewCacheManifestBuilder.HashContent` — `FileName` null vs empty — **cheap-disproof 2026-10-22 seed hunt:** see seed→hit row above.
+
+- [x] (valid-no-repro) `ReviewResultCache.TryGet` — tombstoned pinned expired — **cheap-disproof 2026-10-22 seed hunt:** see seed→hit row above.
+
+- [x] (valid-no-repro) `ClosedLoopArchitectureReasoningOrchestrator.FinalizeCoalescedReviewResult` — `CreateCoalescedCacheHitResult` mutation — **cheap-disproof 2026-10-22 seed hunt:** see seed→hit row above.
+
+2026-10-22 seed hunt (seed→hit): promoted cleared framing answers (`scope=` empty) splitting `ContentHash` from omitted keys; `ClosedLoopFramingAnswersNormalizer` now drops empty values after trim; regression `Build_matches_content_hash_when_framing_answer_is_empty_vs_omitted`; cheap-disproof null attachment content, eviction tie-break, anonymous `RunId`, and deferred invalidation rows; 103 scoped orchestrator/cache/manifest/framing tests passed.
+
+- [x] (proven) `ClosedLoopFramingAnswersNormalizer` — empty framing answer value emitted `scope=` line and split cache hash from omitted key — **hit 2026-10-22 seed hunt:** skip `string.IsNullOrEmpty` values after normalization; regression above.
+
+- [x] (valid-no-repro) `ReviewCacheManifestBuilder.HashContent` — `SourceTexts` with null `Content` vs empty string — **cheap-disproof 2026-10-22 seed hunt:** regression `Build_matches_content_hash_when_source_content_is_null_vs_empty_string`.
+
+- [x] (valid-no-repro) `ReviewResultCache.TryEvictOldestUnpinnedEntry` — equal `CreatedUtc` tie-break — **cheap-disproof 2026-10-22 seed hunt:** eviction only affects which unrelated unpinned entry drops; manifest-keyed `TryGet`/`Set` contract unchanged.
+
+- [x] (valid-no-repro) `ClosedLoopArchitectureReasoningOrchestrator.RunAsync` — omitted `RunId` assigns new GUID each call — **cheap-disproof 2026-10-22 seed hunt:** intentional anonymous run identity; coalesce requires stable client `RunId`.
+
+- [x] (valid-no-repro) `ReviewResultCache.InvalidateForRun` — deferred flush on unpin — **cheap-disproof 2026-10-22 seed hunt:** regression `InvalidateForRun_defers_removal_while_pinned_then_flushes_on_unpin`.
+
+- (candidate) `ClosedLoopReasoningSourceTextNormalizer.NormalizeLineEndings` — next-line (`\u0084`) and remaining C0 controls not in `UnicodeLineBreakScalars` — locus: consolidated scalar loop; input: batch audit (picker saturated `other`).
+
+- (candidate) `ReviewCacheManifestBuilder.HashTenantConfiguration` — non-GUID `ProjectId` with surrounding whitespace vs trimmed — locus: `ClosedLoopProjectIdNormalizer.NormalizeForHash`; input: project scope string padding from API deserialization.
+
+- [x] (proven) `ClosedLoopFramingAnswersNormalizer` — duplicate keys whitespace-only vs substantive — **hit 2026-10-22 seed hunt:** see seed→hit row above.
+
+- [x] (valid-no-repro) `ReviewResultCache.Set` — silent drop at pin cap — **cheap-disproof 2026-10-22 seed hunt:** see seed→hit row above.
+
+- [x] (valid-no-repro) `ReviewCacheManifestBuilder.HashContent` — `continue=1|` partition — **cheap-disproof 2026-10-22 seed hunt:** see seed→hit row above.
+
+2026-10-22 seed hunt (seed→hit): promoted form feed (`\u000c`) in source `Content` splitting `ContentHash` from LF; extended consolidated `UnicodeLineBreakScalars` in `NormalizeLineEndings`; regression `Build_matches_content_hash_when_source_content_uses_unicode_line_separators` (`\u000c`); cheap-disproof interior BOM, null `FramingAnswers`, and publish+continue pin-scope candidates; 101 scoped orchestrator/cache/manifest tests passed.
+
+- [x] (proven) `ClosedLoopReasoningSourceTextNormalizer.NormalizeLineEndings` — form feed (`\u000c`) split `ContentHash` from LF — **hit 2026-10-22 seed hunt:** added `\u000c` to `UnicodeLineBreakScalars`; regression above. [class:other]
+
+- [x] (invalid) `ClosedLoopReasoningSourceTextNormalizer.StripUtf8Bom` — interior UTF-8 BOM scalar in `Content` — **cheap-disproof 2026-10-22 seed hunt:** interior `\uFEFF` is meaningful content, not a leading BOM artifact; stripping would false-merge distinct uploads.
+
+- [x] (invalid) `ReviewCacheManifestBuilder.HashContent` — `FramingAnswers` null vs empty — **cheap-disproof 2026-10-22 seed hunt:** `ClosedLoopReasoningRequest.FramingAnswers` setter coalesces via `ContractCollectionDefaults.CoalesceDictionary`; default field is non-null empty dict.
+
+- [x] (valid-no-repro) `ClosedLoopArchitectureReasoningOrchestrator.RunContinueFromExistingReviewAsync` — `PublishToProduct=true` skips `TryGet` but holds dual-manifest pin — **cheap-disproof 2026-10-22 seed hunt:** publish path intentionally bypasses non-publish cache hits while pins protect in-flight continue work (mirrors full-run `PublishToProduct` gate).
+
+- (candidate) `ReviewResultCache.TryEvictOldestUnpinnedEntry` — equal `CreatedUtc` timestamps make eviction order depend on `ConcurrentDictionary` enumeration — locus: `ReviewResultCache.Eviction.cs`; input: >128 `Set` calls under one frozen `TimeProvider` tick; wrong outcome: nondeterministic retention.
+
+- (candidate) `ClosedLoopReasoningSourceTextNormalizer.NormalizeLineEndings` — next-line (`\u0084`) and other rare C0 breaks not yet in `UnicodeLineBreakScalars` — locus: shared scalar loop; input: audit remaining C0 controls vs consolidated batch (avoid one-off hits).
+
+- [x] (valid-no-repro) `ReviewCacheManifestBuilder.HashContent` — null `Content` vs empty string — **cheap-disproof 2026-10-22 seed hunt:** see seed→hit row above.
+
+- [x] (valid-no-repro) `ReviewResultCache.InvalidateForRun` — deferred tombstone flush — **cheap-disproof 2026-10-22 seed hunt:** see seed→hit row above.
+
+- [x] (valid-no-repro) `ClosedLoopArchitectureReasoningOrchestrator.RunAsync` — blank `RunId` — **cheap-disproof 2026-10-22 seed hunt:** see seed→hit row above.
+
+2026-10-22 seed hunt (seed-only): re-read orchestrator, review cache, and manifest hashing paths; cheap-disproof closed stale duplicate normalization candidates (`+` vs `%20`, NBSP priorities, vertical tab, framing-key NFC) and Turkish compatibility priority folding; deferred form-feed (`\u000c`) line-break parity to a consolidated `UnicodeLineBreakScalars` batch (picker saturated `other`); seeded five follow-on candidates; 100 scoped orchestrator/cache/manifest tests passed.
+
+- [x] (invalid) `ClosedLoopDeclaredPrioritiesNormalizer` — duplicate priorities differing only by Turkish compatibility case folding (`I`/`ı`) — **cheap-disproof 2026-10-22 seed hunt:** grouping uses `StringComparer.OrdinalIgnoreCase` (invariant), not culture-specific Turkish rules; OpenAPI priority tokens are ASCII labels in practice.
+
+- [x] (invalid) `ClosedLoopReasoningSourceTextNormalizer.NormalizeFileNameForHash` — `+` vs `%20` in `FileName` — **cheap-disproof 2026-10-22 seed hunt:** duplicate of 2026-10-22 row; `%20` decoded; `+` is literal in path segments.
+
+- [x] (invalid) `ReviewCacheManifestBuilder.HashPriorities` — NBSP-padded priority tokens — **cheap-disproof 2026-10-22 seed hunt:** duplicate of 2026-10-22 row; `Trim()` removes Unicode whitespace before hash.
+
+- [x] (invalid) `ClosedLoopReasoningSourceTextNormalizer.NormalizeLineEndings` — vertical tab (`\u000b`) — **cheap-disproof 2026-10-22 seed hunt:** duplicate of 2026-10-22 hit; regression `Build_matches_content_hash_when_source_content_uses_unicode_line_separators` (`\u000b`).
+
+- [x] (valid-no-repro) `ClosedLoopFramingAnswersNormalizer` — framing keys NFC vs NFD — **cheap-disproof 2026-10-22 seed hunt:** duplicate of 2026-10-22 row; regression `Build_matches_content_hash_when_framing_key_differs_only_by_unicode_normalization_form`.
+
+- [x] (proven) `ClosedLoopReasoningSourceTextNormalizer.NormalizeLineEndings` — form feed (`\u000c`) — **hit 2026-10-22 seed hunt:** see seed→hit row above.
+
+- (candidate) `ReviewResultCache.TryEvictOldestUnpinnedEntry` — equal `CreatedUtc` timestamps make eviction order depend on `ConcurrentDictionary` enumeration — locus: `ReviewResultCache.Eviction.cs`; input: >128 `Set` calls under one frozen `TimeProvider` tick; wrong outcome: nondeterministic retention.
+
+- [x] (invalid) `ClosedLoopReasoningSourceTextNormalizer.StripUtf8Bom` — interior UTF-8 BOM — **cheap-disproof 2026-10-22 seed hunt:** see seed→hit row above.
+
+- [x] (invalid) `ReviewCacheManifestBuilder.HashContent` — `FramingAnswers` null vs empty — **cheap-disproof 2026-10-22 seed hunt:** see seed→hit row above.
+
+- [x] (valid-no-repro) `ClosedLoopArchitectureReasoningOrchestrator.RunContinueFromExistingReviewAsync` — publish path pin without `TryGet` — **cheap-disproof 2026-10-22 seed hunt:** see seed→hit row above.
+
+2026-10-22 seed hunt (seed→hit): promoted declared priorities NFC vs NFD splitting `DeclaredPrioritiesHash`; `ClosedLoopDeclaredPrioritiesNormalizer` now applies `NormalizationForm.FormC`; regression `Build_matches_declared_priorities_hash_when_priority_differs_only_by_unicode_normalization_form`; closed `+` vs `%20` and NBSP priority candidates; 100 scoped orchestrator/cache/manifest tests passed.
+
+- [x] (proven) `ClosedLoopDeclaredPrioritiesNormalizer` — priority strings NFC vs NFD split cache priority hash — **hit 2026-10-22 seed hunt:** `NormalizeUnicode` after trim; regression above. [class:state-machine-gap]
+
+- [x] (invalid) `ClosedLoopReasoningSourceTextNormalizer.NormalizeFileNameForHash` — `+` vs `%20` in `FileName` — **cheap-disproof 2026-10-22 seed hunt:** `%20` decoded via `Uri.UnescapeDataString`; `+` is a literal plus in paths (not query `+`→space); regression `Build_matches_content_hash_when_file_name_differs_only_by_percent_encoded_space` covers `%20` only.
+
+- [x] (invalid) `ReviewCacheManifestBuilder.HashPriorities` — NBSP-padded priority tokens — **cheap-disproof 2026-10-22 seed hunt:** `priority.Trim()` removes Unicode whitespace including NBSP before hash.
+
+- [x] (invalid) `ClosedLoopDeclaredPrioritiesNormalizer` — duplicate priorities differing only by compatibility case folding (Turkish `I`/`ı`) — **cheap-disproof 2026-10-22 seed hunt:** see seed-only row above.
+
+2026-10-22 seed hunt (seed→hit): consolidated Unicode line-break scalars in `NormalizeLineEndings` (added vertical tab `\u000b`); regression `Build_matches_content_hash_when_source_content_uses_unicode_line_separators`; cheap-disproof framing-key NFC parity; 99 scoped orchestrator/cache/manifest tests passed.
+
+- [x] (proven) `ClosedLoopReasoningSourceTextNormalizer.NormalizeLineEndings` — vertical tab (`\u000b`) split `ContentHash` from LF — **hit 2026-10-22 seed hunt:** shared `UnicodeLineBreakScalars` loop maps VT with NEL/LS/PS; regression above (`\u000b` case). [class:state-machine-gap]
+
+- [x] (valid-no-repro) `ClosedLoopFramingAnswersNormalizer` — framing keys NFC vs NFD — **cheap-disproof 2026-10-22 seed hunt:** `NormalizeUnicode` on keys; regression `Build_matches_content_hash_when_framing_key_differs_only_by_unicode_normalization_form`.
+
+- [x] (invalid) `ClosedLoopReasoningSourceTextNormalizer.NormalizeFileNameForHash` — `+` vs `%20` in `FileName` — **cheap-disproof 2026-10-22 seed hunt:** see seed-only row above.
+
+- [x] (invalid) `ReviewCacheManifestBuilder.HashPriorities` — NBSP-padded priority tokens — **cheap-disproof 2026-10-22 seed hunt:** see seed-only row above.
+
+2026-10-22 seed hunt (seed→hit): promoted NEL (`\u0085`) line separator in source `Content` splitting `ContentHash` after U+2028/U+2029 fix; extended `NormalizeLineEndings`; regression `Build_matches_content_hash_when_source_content_uses_unicode_line_separators` (`\u0085` case); closed stale framing-key and duplicate-source candidates; 97 scoped orchestrator/cache/manifest tests passed.
+
+- [x] (proven) `ClosedLoopReasoningSourceTextNormalizer.NormalizeLineEndings` — Unicode NEL (`\u0085`) left content unnormalized vs LF — **hit 2026-10-22 seed hunt:** map NEL to LF alongside LS/PS; regression above. [class:state-machine-gap]
+
+- [x] (invalid) `ClosedLoopFramingAnswersNormalizer` — Turkish compatibility case folding on framing keys — **cheap-disproof 2026-10-22 seed hunt:** canonical key picks ordinal-first in ignore-case group (2026-10-21 row); not a reachable OpenAPI key shape.
+
+- [x] (invalid) `ReviewCacheManifestBuilder.HashContent` — duplicate `SourceTexts` differing only by list order — **cheap-disproof 2026-10-22 seed hunt:** `GroupBy` + `OrderBy` on normalized rows (2026-10-13 dedupe hit).
+
+- [x] (valid-no-repro) `ReviewResultCache.InvalidateForRun` — tombstone FIFO saturation under pin pressure — **cheap-disproof 2026-10-22 seed hunt:** deferred invalidation contract documented in cache tests; no new repro without product flag.
+
+- [x] (invalid) `ClosedLoopReasoningSourceTextNormalizer.NormalizeLineEndings` — vertical tab (`\u000b`) — **cheap-disproof 2026-10-22 seed hunt:** see seed-only row above.
+
+- [x] (valid-no-repro) `ClosedLoopFramingAnswersNormalizer` — framing keys NFC vs NFD — **cheap-disproof 2026-10-22 seed hunt:** see seed-only row above.
+
 2026-10-21 seed hunt (seed→hit): promoted NFC vs NFD framing answer values splitting `ContentHash` while ledger technology names already used FormC; `ClosedLoopFramingAnswersNormalizer` now normalizes keys and values with `NormalizationForm.FormC`; regression `Build_matches_content_hash_when_framing_answer_differs_only_by_unicode_normalization_form`; 95 scoped tests passed.
 
 2026-10-06 seed hunt (seed→hit): MIME charset parameter on `SourceTexts.ContentType` split cache manifest hash; `NormalizeContentTypeForLookup` + lowercase in normalizer; regression `Build_matches_content_hash_when_source_content_type_differs_only_by_charset_parameter`; seeded five follow-on candidates; 83 scoped tests passed.
@@ -8364,11 +10053,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** closed-loop orchestrator; review result cache; architecture intelligence
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.cs; ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.Cache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewResultCache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewCacheManifestBuilder.cs
 - **test-filter:** FullyQualifiedName~ClosedLoopArchitectureReasoningOrchestrator|FullyQualifiedName~ReviewResultCache|FullyQualifiedName~ReviewCacheManifestBuilder
-- **hunts:** 43
-- **bugs-found:** 23
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 - trim AgentModelTiers AgentTypeTiers keys after configuration bind
+- **hunts:** 111
+- **bugs-found:** 95
+- **consecutive-dry-hunts:** 3
+- **last-hunt:** 2026-10-23
+- **last-bug:** 2026-10-23 — white-bullet and triangular-bullet alternate path separators split review-cache `ContentHash`
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
