@@ -14654,10 +14654,14 @@ heap-disproved mermaid typed-topology candidate.
 - **aliases:** host composition; DI registration; startup modules
 - **paths:** ArchLucid.Host.Composition/
 - **test-filter:** FullyQualifiedName~Host.Composition|FullyQualifiedName~ServiceCollectionExtensions
-- **hunts:** 61
-- **bugs-found:** 39
-- **consecutive-dry-hunts:** 1
+- **hunts:** 62
+- **bugs-found:** 40
+- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-23
+- **last-bug:** 2026-10-23 — value report enqueue ignored pending poll-state write failure
+- **code-changed-since:** yes
+
+2026-10-23 thorough hunt (seed→hit): proved `InMemoryValueReportJobQueue.Enqueue` ignored failed pending `TryWriteDistributedState`, started `RunJobAsync`, and left load-balanced peers polling not-found while work ran locally; fail fast with operator copy when pending poll state cannot be persisted; regression `TryPoll_on_peer_instance_reports_failure_when_pending_state_cannot_be_persisted`; cheap-disproof closed four sibling `(candidate)` rows; seeded five follow-on `(candidate)` rows; scoped `InMemoryValueReportJobQueueDistributedPollStateTests` 2 passed (`RunAnalyzers=false`).
 
 2026-10-23 thorough hunt (dry): cheap-disproof closed four open `(candidate)` rows below with falsify attempts and regressions; no failing repro or fix shipped; seeded five follow-on `(candidate)` rows; scoped host-composition + discovery tests 5 passed (`PollingCollectionRunDiscoveryTests`, `AzureBlobCollectionRunArtifactReaderTests`, `InMemoryValueReportJobQueueDistributedPollStateTests`; `RunAnalyzers=false`).
 
@@ -14759,11 +14763,17 @@ heap-disproved mermaid typed-topology candidate.
 - [x] (valid-no-repro) `SqlStorageProviderRegistrar` `ICollectionRunArtifactReader` factory — `BlobServiceClient` missing uses `EmptyCollectionRunArtifactReader` — **cheap-disproof 2026-10-23 thorough hunt:** SQL hosts without blob client registration cannot read SecureNow collection artifacts; empty reader is intentional when artifact storage is not wired.
 - [x] (valid-no-repro) `InMemoryValueReportJobQueue` — distributed poll state write failure on completed job — **cheap-disproof 2026-10-23 thorough hunt:** `RunJobAsync` marks job `Failed` with operator copy when completed-state `TryWriteDistributedState` fails; regression `TryPoll_on_peer_instance_reports_failure_when_completed_state_cannot_be_persisted`.
 
-- [ ] (candidate) `PollingCollectionRunDiscovery.DiscoverAsync` — listed manifest with empty `packageBlobPath` never creates a `CollectionRun` rejected row — locus: `continue` when `ReadArtifactAsync` returns null (`PollingCollectionRunDiscovery.cs` ~23-24); input: blob `run-manifest.json` omitting `packageBlobPath`; wrong outcome: operator sees no collection-run record for a listed manifest.
-- [ ] (candidate) `AzureBlobCollectionRunArtifactReader.ListManifestsAsync` — invalid `runId` in manifest JSON is dropped without ingest audit — locus: `ReadManifestAsync` returns null (`AzureBlobCollectionRunArtifactReader.cs` ~90-91); input: malformed manifest blob under `runs/**/run-manifest.json`.
-- [ ] (candidate) `InMemoryValueReportJobQueue.Enqueue` — failed pending-state distributed write still starts `RunJobAsync` — locus: `TryWriteDistributedState` return value ignored on enqueue (`InMemoryValueReportJobQueue.Enqueue.cs` ~19); input: `IValueReportJobPollStateCache.Set` throws on pending write; wrong outcome: peer replica polls not-found while worker runs locally.
-- [ ] (candidate) `GraphProjectionCacheInvalidationSubscriberHostedService` — valid JSON with empty `graphSnapshotId` still evicts cache key — locus: `GraphSnapshotProjectionCacheKeys.Projection` after deserialize (`GraphProjectionCacheInvalidationSubscriberHostedService.cs` ~55-57); input: pub/sub payload with `graphSnapshotId: ""`.
-- [ ] (candidate) `HostedCloudExtractorCompositionModule` — `PollingCollectionRunDiscovery` registered on every hosting role without worker gate — locus: `services.AddScoped<ICollectionRunDiscovery, PollingCollectionRunDiscovery>()` (`HostedCloudExtractorCompositionModule.cs` ~108); input: split Api+Worker deployment where only Worker should poll collection blob manifests.
+- [x] (valid-no-repro) `PollingCollectionRunDiscovery.DiscoverAsync` — listed manifest with empty `packageBlobPath` never creates a `CollectionRun` rejected row — **cheap-disproof 2026-10-23 thorough hunt #62:** `ReadArtifactAsync` returns null before ingest; rejected rows require a readable artifact (`CollectionRunIngestService`); same intentional skip as prior hunt; regression `DiscoverAsync_skips_ingest_when_artifact_reader_returns_null_for_manifest`.
+- [x] (valid-no-repro) `AzureBlobCollectionRunArtifactReader.ListManifestsAsync` — invalid `runId` manifest dropped without ingest audit — **cheap-disproof 2026-10-23 thorough hunt #62:** `ReadManifestAsync` filters non-parseable manifest blobs during listing; no `CollectionRun` row is expected for garbage blobs under `runs/`.
+- [x] (proven) `InMemoryValueReportJobQueue.Enqueue` — failed pending-state distributed write still started `RunJobAsync` — **hit 2026-10-23 thorough hunt #62:** pending `TryWriteDistributedState` failure now fails the job without starting generation; regression `TryPoll_on_peer_instance_reports_failure_when_pending_state_cannot_be_persisted`.
+- [x] (valid-no-repro) `GraphProjectionCacheInvalidationSubscriberHostedService` — JSON with empty `graphSnapshotId` evicts `Guid.Empty` cache key — **cheap-disproof 2026-10-23 thorough hunt #62:** product broadcaster always publishes real snapshot ids; eviction targets one deterministic key and is harmless for poison pub/sub payloads.
+- [x] (invalid) `HostedCloudExtractorCompositionModule` — `PollingCollectionRunDiscovery` registered without worker gate — **cheap-disproof 2026-10-23 thorough hunt #62:** no hosted service or controller resolves `ICollectionRunDiscovery` in production code yet; registration alone has no reachable wrong outcome.
+
+- [ ] (candidate) `InMemoryValueReportJobQueue.Enqueue` — pending and failed-state `TryWriteDistributedState` both fail — locus: second `TryWriteDistributedState` after marking `Failed` (`InMemoryValueReportJobQueue.Enqueue.cs`); input: distributed cache throws on every `Set`; wrong outcome: enqueue returns job id but every replica polls not-found.
+- [ ] (candidate) `GraphProjectionCacheInvalidationSubscriberHostedService` — `Guid.Empty` tenant/workspace/project in pub/sub payload evicts key — locus: `ScopeContext` from payload without validation (`GraphProjectionCacheInvalidationSubscriberHostedService.cs` ~49-57); input: forged invalidation message with zeroed scope ids.
+- [ ] (candidate) `InMemoryValueReportJobQueue.TryPoll` — `TryReadDistributedState` returns `Pending` while local `_jobs` already `Failed` — locus: distributed read wins when local dictionary missing entry (`InMemoryValueReportJobQueue.cs` ~29-35); input: stale pending payload in cache after terminal local transition.
+- [ ] (candidate) `AzureBlobCollectionRunArtifactReader.ListManifestsAsync` — manifest with valid `runId` but missing `startedUtc` omitted from list — locus: `ReadManifestAsync` returns null (`AzureBlobCollectionRunArtifactReader.cs` ~93-94); input: partial `run-manifest.json` in blob storage.
+- [ ] (candidate) `RedisGraphProjectionCacheInvalidationBroadcaster.PublishInvalidation` — publish failure swallowed — locus: catch logs warning only (`RedisGraphProjectionCacheInvalidationBroadcaster.cs` ~48-54); input: Redis pub/sub outage during commit; wrong outcome: peer replicas serve stale graph projection until TTL.
 
 
 2026-10-09 seed hunt (seed→hit): failed usage flush returned events through `Enqueue`, which drops them when metering is disabled. Already-accepted events now use `Requeue`. Regression `StopAsync_keeps_dequeued_usage_events_when_persist_fails_after_metering_disabled` failed first.

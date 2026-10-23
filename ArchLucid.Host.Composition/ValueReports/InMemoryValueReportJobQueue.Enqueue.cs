@@ -16,7 +16,17 @@ public sealed partial class InMemoryValueReportJobQueue
         if (!_jobs.TryAdd(jobId, entry))
             throw new InvalidOperationException("Duplicate job id (extremely unlikely).");
 
-        TryWriteDistributedState(jobId, entry);
+        if (!TryWriteDistributedState(jobId, entry))
+        {
+            const string persistError =
+                "Value report job could not be enqueued for cross-instance polling because poll state could not be persisted — retry the async export.";
+
+            JobEntry failed = new(request, JobPhase.Failed, null, null, persistError);
+            _jobs[jobId] = failed;
+            TryWriteDistributedState(jobId, failed);
+
+            return jobId;
+        }
 
         _ = RunJobAsync(jobId, request);
 

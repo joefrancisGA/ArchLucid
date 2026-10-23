@@ -22,6 +22,53 @@ namespace ArchLucid.Host.Composition.Tests.ValueReports;
 public sealed class InMemoryValueReportJobQueueDistributedPollStateTests
 {
     [Fact]
+    public async Task TryPoll_on_peer_instance_reports_failure_when_pending_state_cannot_be_persisted()
+    {
+        ServiceCollection services = BuildValueReportJobServices();
+        ThrowOnPendingPollStateCache pollStateCache = new();
+        services.AddSingleton<IValueReportJobPollStateCache>(pollStateCache);
+        ServiceProvider provider = services.BuildServiceProvider();
+        IServiceScopeFactory scopeFactory = provider.GetRequiredService<IServiceScopeFactory>();
+
+        InMemoryValueReportJobQueue workerInstance =
+            new(scopeFactory, pollStateCache, NullLogger<InMemoryValueReportJobQueue>.Instance);
+        InMemoryValueReportJobQueue pollInstance =
+            new(scopeFactory, pollStateCache, NullLogger<InMemoryValueReportJobQueue>.Instance);
+
+        Guid tenantId = Guid.NewGuid();
+        ValueReportJobRequest request = new(
+            tenantId,
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            DateTimeOffset.UtcNow.AddDays(-7),
+            DateTimeOffset.UtcNow);
+
+        Guid jobId = workerInstance.Enqueue(request);
+
+        ValueReportJobPollResult? terminal = null;
+
+        for (int attempt = 0; attempt < 20; attempt++)
+        {
+            ValueReportJobPollResult poll = pollInstance.TryPoll(jobId, tenantId);
+
+            if (poll.Found && poll.ErrorMessage is not null)
+            {
+                terminal = poll;
+                break;
+            }
+
+            await Task.Delay(25);
+        }
+
+        terminal.Should().NotBeNull();
+        terminal!.Found.Should().BeTrue();
+        terminal.Completed.Should().BeFalse();
+        terminal.ErrorMessage.Should().Contain("poll state could not be persisted");
+        pollStateCache.PendingWriteAttempts.Should().BeGreaterThan(0);
+        pollStateCache.CompletedWriteAttempts.Should().Be(0);
+    }
+
+    [Fact]
     public async Task TryPoll_on_peer_instance_reports_failure_when_completed_state_cannot_be_persisted()
     {
         ServiceCollection services = BuildValueReportJobServices();
@@ -94,6 +141,38 @@ public sealed class InMemoryValueReportJobQueueDistributedPollStateTests
         services.AddSingleton(audit.Object);
 
         return services;
+    }
+
+    private sealed class ThrowOnPendingPollStateCache : IValueReportJobPollStateCache
+    {
+        private readonly Dictionary<string, byte[]> _payloads = new(StringComparer.Ordinal);
+
+        public int PendingWriteAttempts { get; private set; }
+
+        public int CompletedWriteAttempts { get; private set; }
+
+        public void Set(string key, byte[] payload, DistributedCacheEntryOptions options)
+        {
+            string json = System.Text.Encoding.UTF8.GetString(payload);
+
+            if (json.Contains("\"phase\":\"Pending\"", StringComparison.Ordinal))
+            {
+                PendingWriteAttempts++;
+
+                throw new InvalidOperationException("Simulated distributed cache outage on pending write.");
+            }
+
+            if (json.Contains("\"phase\":\"Completed\"", StringComparison.Ordinal))
+            {
+                CompletedWriteAttempts++;
+
+                throw new InvalidOperationException("Simulated distributed cache outage on completed write.");
+            }
+
+            _payloads[key] = payload;
+        }
+
+        public byte[]? Get(string key) => _payloads.TryGetValue(key, out byte[]? payload) ? payload : null;
     }
 
     private sealed class ThrowOnCompletedPollStateCache : IValueReportJobPollStateCache
