@@ -1,5 +1,3 @@
-using System.Text.RegularExpressions;
-
 using ArchLucid.Application.Agents;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
@@ -331,21 +329,21 @@ public static class AgentProposalStructuralPostProcessor
 
         if (applyHttpsRule
             && rules.RequiresHttps
-            && EndpointNameSuggestsPlainHttp(normalizedEndpoint))
+            && BriefGroundingEndpointNameHeuristics.SuggestsPlainHttp(normalizedEndpoint))
         {
             reason = "contradicts confirmed HTTPS constraint";
             return true;
         }
 
         if (rules.RequiresPrivateNetworking
-            && EndpointNameSuggestsPublicExposure(normalizedEndpoint))
+            && BriefGroundingEndpointNameHeuristics.SuggestsPublicExposure(normalizedEndpoint))
         {
             reason = "contradicts confirmed private-networking constraint";
             return true;
         }
 
         if (rules.RequiresEncryptionAtRest
-            && EndpointSuggestsMissingEncryptionAtRest(normalizedEndpoint))
+            && BriefGroundingEndpointNameHeuristics.SuggestsMissingEncryptionAtRest(normalizedEndpoint))
         {
             reason = "contradicts confirmed encryption-at-rest capability";
             return true;
@@ -353,32 +351,6 @@ public static class AgentProposalStructuralPostProcessor
 
         return false;
     }
-
-    private static bool EndpointSuggestsMissingEncryptionAtRest(string endpointName) =>
-        PlaintextTokenInEndpointNameRegex.IsMatch(endpointName)
-        || UnencryptedTokenInEndpointNameRegex.IsMatch(endpointName);
-
-    private static bool EndpointNameSuggestsPlainHttp(string endpointName) =>
-        PlainHttpTokenInEndpointNameRegex.IsMatch(endpointName);
-
-    private static bool EndpointNameSuggestsPublicExposure(string endpointName) =>
-        PublicTokenInEndpointNameRegex.IsMatch(endpointName);
-
-    private static readonly Regex PlainHttpTokenInEndpointNameRegex = new(
-        @"\bhttp\b(?!s\b)",
-        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Compiled);
-
-    private static readonly Regex PlaintextTokenInEndpointNameRegex = new(
-        @"\bplaintext\b",
-        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Compiled);
-
-    private static readonly Regex UnencryptedTokenInEndpointNameRegex = new(
-        @"\bunencrypted\b",
-        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Compiled);
-
-    private static readonly Regex PublicTokenInEndpointNameRegex = new(
-        @"\bpublic\b",
-        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Compiled);
 
     private static ArchitectureRequestBriefGroundingRules BuildBriefGroundingRules(ArchitectureRequest request)
     {

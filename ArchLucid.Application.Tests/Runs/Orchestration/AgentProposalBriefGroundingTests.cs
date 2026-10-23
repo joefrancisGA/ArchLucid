@@ -340,4 +340,39 @@ public sealed class AgentProposalBriefGroundingTests
             .Which.DatastoreName.Should().Be("nonplaintext-archive");
         dropLog.Should().BeEmpty();
     }
+
+    [Fact]
+    public void ApplyBriefGrounding_preserves_preunencrypted_datastore_when_encryption_at_rest_required()
+    {
+        ArchitectureRequest request = new()
+        {
+            Description = "Encryption brief",
+            SystemName = "brief-grounding-preunencrypted",
+            RequiredCapabilities = ["encryption-at-rest"],
+        };
+
+        AgentResult result = new()
+        {
+            AgentType = AgentType.Topology,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                AddedDatastores =
+                [
+                    new ManifestDatastore
+                    {
+                        DatastoreName = "preunencrypted-vault",
+                        DatastoreType = DatastoreType.Object,
+                        RuntimePlatform = RuntimePlatform.BlobStorage,
+                    },
+                ],
+            },
+        };
+
+        List<string> dropLog = [];
+        AgentProposalStructuralPostProcessor.ApplyBriefGrounding(request, [result], dropLog);
+
+        result.ProposedChanges!.AddedDatastores.Should().ContainSingle()
+            .Which.DatastoreName.Should().Be("preunencrypted-vault");
+        dropLog.Should().BeEmpty();
+    }
 }
