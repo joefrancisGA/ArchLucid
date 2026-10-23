@@ -69,6 +69,10 @@ function formatAskUserTurnContent(content: string): string {
 }
 
 function askMessageRoleLabel(role: string, buyerPolishedShell: boolean): string {
+  if (role.trim().length === 0) {
+    return "Speaker was not stored.";
+  }
+
   if (!buyerPolishedShell) {
     return role;
   }

@@ -71,6 +71,7 @@ internal static class InventoryDiagramNsgInboundRuleChipBuilder
         string port = FormatPort(rule.DestinationPortRange);
         string protocol = FormatProtocol(rule.Protocol);
         string source = FormatSource(rule);
+        string destination = FormatDestination(rule);
         string accessLabel = string.IsNullOrWhiteSpace(rule.Access)
             ? "Access was not stored"
             : string.Equals(rule.Access, "Allow", StringComparison.OrdinalIgnoreCase)
@@ -78,8 +79,8 @@ internal static class InventoryDiagramNsgInboundRuleChipBuilder
                 : $"Access: {rule.Access.Trim()}";
         string? directionLabel = string.IsNullOrWhiteSpace(rule.Direction) ? "Direction was not stored" : null;
         string text = directionLabel is null
-            ? $"{accessLabel} · in {port}/{protocol} · {source}"
-            : $"{accessLabel} · {directionLabel} · in {port}/{protocol} · {source}";
+            ? $"{accessLabel} · in {port}/{protocol} · {source} · to {destination}"
+            : $"{accessLabel} · {directionLabel} · in {port}/{protocol} · {source} · to {destination}";
         bool risky = string.Equals(rule.Direction, "Inbound", StringComparison.OrdinalIgnoreCase)
             && string.Equals(rule.Access, "Allow", StringComparison.OrdinalIgnoreCase)
             && string.Equals(source, "Internet", StringComparison.Ordinal)
@@ -136,6 +137,32 @@ internal static class InventoryDiagramNsgInboundRuleChipBuilder
             int extra = rule.SourceAddressPrefixes.Count - 1;
 
             return $"{prefix}; {extra} other source prefixes were not listed on this chip.";
+        }
+
+        return prefix;
+    }
+
+    private static string FormatDestination(AzureInventoryNsgSecurityRule rule)
+    {
+        string? prefix = rule.DestinationAddressPrefix;
+        int extraPrefixCount = 0;
+
+        if (string.IsNullOrWhiteSpace(prefix) && rule.DestinationAddressPrefixes.Count > 0)
+        {
+            prefix = rule.DestinationAddressPrefixes[0];
+            extraPrefixCount = rule.DestinationAddressPrefixes.Count - 1;
+        }
+
+        if (string.IsNullOrWhiteSpace(prefix))
+        {
+            return "Destination was not stored";
+        }
+
+        prefix = prefix.Trim();
+
+        if (extraPrefixCount > 0)
+        {
+            return $"{prefix} and {extraPrefixCount} other destination prefixes";
         }
 
         return prefix;
