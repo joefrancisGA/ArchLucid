@@ -8546,6 +8546,19 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: run-execute-ownership
 
+2026-10-23 seed hunt (seed-only): cheap-disproof closed five stale open `(candidate)` rows; regression `ReleaseAllHeldByThisInstanceAsync_propagates_repository_exceptions` documents shutdown drain does not swallow bulk-release faults as a zero count; re-read orchestrator `finally` release ordering and renewal-scope dispose; seeded five mechanism-backed `(candidate)` rows below; 75 scoped ownership/orchestrator tests passed (`AcquireAsync_when_concurrent_repository_success_and_tryadd_loses_rolls_back_sql_lease` hung under 3m blame-hang on this VM; excluded from filter).
+
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseRenewalScope.DisposeAsync` — disposal awaits renewal blocked in repository — **cheap-disproof 2026-10-23 seed hunt:** `RenewAsync` passes linked cancellation; prior thorough row `RunExecuteOwnershipLeaseRenewalScope.DisposeAsync` (2026-10-06).
+- [x] (invalid) `ArchitectureRunExecuteOrchestrator.ExecuteRunCoreInnerAsync` — resume reload drops deferred context — **cheap-disproof 2026-10-23 seed hunt:** duplicate of 2026-10-06 thorough disproof; orchestrator reloads before idempotent return.
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseRenewalScope.DisposeAsync` — renewal failure vs dispose race hides execute cancellation — **cheap-disproof 2026-10-23 seed hunt:** `BeginRenewalScope_cancels_linked_execute_token_when_renewal_throws_unexpected_error` and conflict path cancels linked token before dispose completes.
+- [x] (valid-no-repro) `ArchitectureRunExecuteOrchestrator` — failed `ReleaseAsync` omitted from execute outcome — **cheap-disproof 2026-10-23 seed hunt:** intentional best-effort `finally` release with `CancellationToken.None`; SQL faults propagate from `ReleaseAsync` (`ReleaseAsync_when_repository_throws_and_process_instance_rotates_retry_still_targets_original_holder`).
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseService.ReleaseAllHeldByThisInstanceAsync` — zero count masks repository failure — **cheap-disproof 2026-10-23 seed hunt:** repository exceptions propagate; regression `ReleaseAllHeldByThisInstanceAsync_propagates_repository_exceptions`.
+- [ ] (candidate) `ArchitectureRunExecuteOrchestrator.ExecuteRunAsync` — `ReleaseAsync` exception in `finally` after failed execute may suppress the original fault — locus: ownership `finally` block; input: repository throw on release after agent failure.
+- [ ] (candidate) `RunExecuteOwnershipLeaseService.AcquireAsync` — post-acquire drain re-check rolls back but selective path performs more pre-acquire reads than full execute — locus: `EnsureSelectiveExecuteStillEligibleAsync` loop; input: run deleted after first selective validation.
+- [ ] (candidate) `RunExecuteOwnershipLeaseRenewalScope.RunRenewalLoopAsync` — `ConflictException` on renew cancels execute without distinguishing peer loss vs self-disable — locus: renewal catch branch; input: concurrent acquire on second replica during long batch.
+- [ ] (candidate) `ArchitectureRunExecuteOrchestrator.ExecuteSelectiveRunAsync` — caller cancellation during pre-acquire validation still reaches `finally` release when acquire already succeeded — locus: linked `executeCancellation`; input: cancel after `AcquireAsync` before owned core.
+- [ ] (candidate) `RunExecuteOwnershipLeaseService.RenewAsync` — renew without local pin when holder registry cleared by concurrent `ReleaseAsync` — locus: `_activeHolders`; input: release on another thread between acquire and first heartbeat.
+
 2026-10-21 thorough hunt (hit): lane B; selective ReadyForCommit demotion uses live header status; 70/70 scoped tests.
 
 - **id:** run-execute-ownership
@@ -8554,12 +8567,12 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** run execute lease; execute ownership; orchestration ownership
 - **paths:** ArchLucid.Application/Runs/Orchestration/ArchitectureRunExecuteOrchestrator.cs; ArchLucid.Application/Runs/ExecuteOwnership/RunExecuteOwnershipLeaseService.cs; ArchLucid.Application/Runs/ExecuteOwnership/RunExecuteOwnershipLeaseRenewalScope.cs
 - **test-filter:** FullyQualifiedName~RunExecuteOwnership|FullyQualifiedName~ArchitectureRunExecuteOrchestrator
-- **hunts:** 59
+- **hunts:** 60
 - **bugs-found:** 28
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-21
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-10-23
 - **last-bug:** 2026-10-21 - trim AgentModelTiers AgentTypeTiers keys after configuration bind
-- **code-changed-since:** no
+- **code-changed-since:** yes
 - **related-pd-tb:** none
 
 2026-10-12 thorough hunt (dry): cheap-disproved all four picker candidates; release failures propagate, selective pre-acquire work is read-only, and renewal disposal uses linked cancellation by design. The scoped ownership/orchestrator filter was blocked before test discovery on both attempts by the unrelated `AzureInventorySecurityEdgeMaterializer.cs` compile errors (`unmappedRoles` and `warnings`). No production or regression code changed.
