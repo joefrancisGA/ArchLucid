@@ -3274,13 +3274,21 @@
 - **aliases:** persistence billing stripe; stripe wallet integration; stripe billing persistence
 - **paths:** ArchLucid.Persistence/Billing/Stripe/; ArchLucid.Api/Controllers/Billing/WalletController.cs; ArchLucid.Application/Budgeting/Wallet/LlmTenantWalletConsumeStage.cs
 - **test-filter:** FullyQualifiedName~StripeWalletPaymentIdentifierGuard|FullyQualifiedName~UpdateWalletAsync_rejects_stripe_customer_id_that_guard_blocks
-- **hunts:** 2
+- **hunts:** 3
 - **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-21
+- **last-hunt:** 2026-10-23
 - **last-bug:** 2026-10-21 — auto-refill charged without re-validating persisted Stripe ids
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-23 seed hunt (seed-only): re-read zone paths (`StripeWalletPaymentIdentifierGuard`, `StripeLinkedCustomerResolver`, `StripeWalletGateway`, `LlmTenantWalletConsumeStage`, `LlmTenantWalletRefillStage`, `WalletController`); no open hypotheses to cheap-disproof; no hunt-ready row promoted (guard/resolver fail closed on missing linked customer, Stripe API errors, and payment-method attachment mismatch; auto-refill re-validates persisted ids before charge). Seeded five `(candidate)` rows below; scoped Persistence guard tests 3/3 + Application wallet guard/refill regressions 2/2 (`RunAnalyzers=false`).
+
+- [ ] (candidate) `StripeLinkedCustomerResolver.TryResolveCustomerFromProviderRefAsync` — `sub_` ledger ref whose Subscription object lacks `metadata.tenant_id` while Checkout Session metadata was stamped — locus: `MetadataMatchesTenant(subscription.Metadata, tenantId)` (`StripeLinkedCustomerResolver.cs` ~67-68); input: `TryResolveLinkedCustomerIdAsync` after portal checkout when Stripe returns subscription without copied tenant metadata.
+- [ ] (candidate) `StripeLinkedCustomerResolver.TryResolveCustomerFromProviderRefAsync` — `cs_` session with empty `CustomerId` resolves via `SubscriptionId` branch — locus: subscription metadata re-check (`StripeLinkedCustomerResolver.cs` ~97-98); input: completed checkout `cs_…` where session metadata matches tenant but linked `sub_…` metadata does not.
+- [ ] (candidate) `StripeWalletGateway.ChargeRefillAsync` — off-session `PaymentIntent` left in non-`succeeded` status (for example `processing` or `requires_action`) — locus: success gate (`StripeWalletGateway.cs` ~57-61); input: auto-refill with a payment method that cannot confirm off-session; wrong outcome: tenant not credited while Stripe may still settle asynchronously.
+- [ ] (candidate) `LlmTenantWalletRefillStage.TryAutoRefillAsync` — pending `PendingRefillCredits` retry path credits without re-running `AllowsWalletUpdateAsync` — locus: lines 58-74 vs guard before `ChargeRefillAsync` at 84-105 (`LlmTenantWalletRefillStage.cs`); input: settlement queue `RefillCredit` after charge succeeded but persisted Stripe ids were tampered before credit retry.
+- [ ] (candidate) `LlmTenantWalletConsumeStage.UpdateWalletAsync` — partial `PUT /v1/billing/wallet` that omits Stripe fields does not re-validate persisted identifiers when auto-replenish stays enabled — locus: guard invoked with `(null, null)` (`LlmTenantWalletConsumeStage.cs` ~66-75; `StripeWalletPaymentIdentifierGuard.cs` ~26-27); input: admin updates only `monthlyCapUsd` while legacy cross-tenant `StripeCustomerId` remains stored until the next auto-refill attempt.
 
 2026-10-21 follow-up hunt (hit, lane C): auto-refill `TryAutoRefillAsync` now re-runs `IStripeWalletPaymentIdentifierGuard` on persisted Stripe ids before `ChargeRefillAsync`, logging `LlmWalletRefillFailed` with decline code `payment_identifier_guard` and skipping Stripe when legacy rows fail validation. Regression `TryAutoRefillAsync_skips_stripe_charge_when_persisted_identifiers_fail_guard`; 29 scoped wallet tests passed.
 
