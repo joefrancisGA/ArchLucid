@@ -142,6 +142,7 @@ public static class ArchitectureInventoryObservedFactGraphOverlayMerger
         TryValidateOverlayNodeTypeAgreement(incomingNode, retainedNode);
         TryValidateOverlayNodeSourceIdAgreement(incomingNode, retainedNode);
         TryValidateOverlayNodeSourceTypeAgreement(incomingNode, retainedNode);
+        TryValidateOverlayNodePropertyBagAgreement(incomingNode, retainedNode);
     }
 
     private static void TryValidateOverlayNodeLabelAgreement(GraphNode incomingNode, GraphNode retainedNode)
@@ -339,18 +340,33 @@ public static class ArchitectureInventoryObservedFactGraphOverlayMerger
         }
     }
 
-    private static void TryValidateOverlayEdgePropertyBagAgreement(GraphEdge incomingEdge, GraphEdge retainedEdge)
-    {
-        Dictionary<string, string> incomingProperties = NormalizeOverlayPropertyBagOrEmpty(incomingEdge.Properties);
-        Dictionary<string, string> retainedProperties = NormalizeOverlayPropertyBagOrEmpty(retainedEdge.Properties);
+    private static void TryValidateOverlayNodePropertyBagAgreement(GraphNode incomingNode, GraphNode retainedNode) =>
+        TryValidateOverlayPropertyBagAgreement(
+            incomingNode.Properties,
+            retainedNode.Properties,
+            "Inventory overlay duplicate nodes disagree on Properties for key '{0}' for the same normalized NodeId.");
 
-        HashSet<string> propertyKeys = new(incomingProperties.Keys, StringComparer.OrdinalIgnoreCase);
-        propertyKeys.UnionWith(retainedProperties.Keys);
+    private static void TryValidateOverlayEdgePropertyBagAgreement(GraphEdge incomingEdge, GraphEdge retainedEdge) =>
+        TryValidateOverlayPropertyBagAgreement(
+            incomingEdge.Properties,
+            retainedEdge.Properties,
+            "Inventory overlay duplicate edges disagree on Properties for key '{0}' on the same directed edge key.");
+
+    private static void TryValidateOverlayPropertyBagAgreement(
+        IReadOnlyDictionary<string, string>? incomingProperties,
+        IReadOnlyDictionary<string, string>? retainedProperties,
+        string conflictMessageFormat)
+    {
+        Dictionary<string, string> normalizedIncomingProperties = NormalizeOverlayPropertyBagOrEmpty(incomingProperties);
+        Dictionary<string, string> normalizedRetainedProperties = NormalizeOverlayPropertyBagOrEmpty(retainedProperties);
+
+        HashSet<string> propertyKeys = new(normalizedIncomingProperties.Keys, StringComparer.OrdinalIgnoreCase);
+        propertyKeys.UnionWith(normalizedRetainedProperties.Keys);
 
         foreach (string propertyKey in propertyKeys)
         {
-            incomingProperties.TryGetValue(propertyKey, out string? incomingValue);
-            retainedProperties.TryGetValue(propertyKey, out string? retainedValue);
+            normalizedIncomingProperties.TryGetValue(propertyKey, out string? incomingValue);
+            normalizedRetainedProperties.TryGetValue(propertyKey, out string? retainedValue);
 
             string normalizedIncomingValue = incomingValue ?? string.Empty;
             string normalizedRetainedValue = retainedValue ?? string.Empty;
@@ -362,8 +378,7 @@ public static class ArchitectureInventoryObservedFactGraphOverlayMerger
 
             if (!string.Equals(normalizedRetainedValue, normalizedIncomingValue, StringComparison.OrdinalIgnoreCase))
             {
-                throw new ArgumentException(
-                    $"Inventory overlay duplicate edges disagree on Properties for key '{propertyKey}' on the same directed edge key.");
+                throw new ArgumentException(string.Format(conflictMessageFormat, propertyKey));
             }
         }
     }
