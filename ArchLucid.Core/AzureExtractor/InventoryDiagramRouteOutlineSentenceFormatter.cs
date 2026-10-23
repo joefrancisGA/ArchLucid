@@ -29,6 +29,13 @@ public static class InventoryDiagramRouteOutlineSentenceFormatter
                 : $"Traffic to {addressPrefix} is dropped";
         }
 
+        if (nextHopType.Equals("VnetLocal", StringComparison.OrdinalIgnoreCase))
+        {
+            return string.IsNullOrWhiteSpace(route.AddressPrefix)
+                ? "Address prefix was not stored. Next hop type is VnetLocal."
+                : $"Traffic to {addressPrefix} stays in the virtual network (VnetLocal).";
+        }
+
         if (addressPrefix.Equals("0.0.0.0/0", StringComparison.Ordinal))
         {
             return string.IsNullOrWhiteSpace(nextHopType)

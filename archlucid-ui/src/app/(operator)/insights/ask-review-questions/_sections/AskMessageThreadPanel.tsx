@@ -245,6 +245,7 @@ export function AskMessageThreadPanel(props: AskMessageThreadPanelProps) {
                     buyerPolishedLinks={buyerPolishedShell}
                     content={message.content}
                     groundingLinks={askAssistantGroundingLinks ?? undefined}
+                    reviewIdInScope={runId}
                   />
                   <AskCitedFindingsSemanticSupportBandFootnote
                     referencedFindingIds={assistantCitationRefs?.referencedFindings ?? []}

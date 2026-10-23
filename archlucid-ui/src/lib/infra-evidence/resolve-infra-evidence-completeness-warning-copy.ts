@@ -329,6 +329,135 @@ function formatAssignmentCount(count: number): string {
   return `${count} ${count === 1 ? "time" : "times"}`;
 }
 
+function extractDefenderCollectionHttpStatus(warning: string): number | null {
+  const match = warning.match(/HTTP (\d+)/);
+
+  if (!match) {
+    return null;
+  }
+
+  const status = Number.parseInt(match[1], 10);
+
+  return Number.isInteger(status) && status > 0 ? status : null;
+}
+
+function resolveDefenderCompanionPresentation(
+  warning: string,
+): InfraEvidenceCompletenessWarningPresentation | null {
+  const trimmed = warning.trim();
+  const httpStatus = extractDefenderCollectionHttpStatus(trimmed);
+  const forbidden =
+    httpStatus === 401 || httpStatus === 403
+      ? " The call was forbidden for the collecting identity."
+      : "";
+  const statusClause = httpStatus ? ` Azure returned HTTP ${httpStatus}.` : "";
+
+  if (trimmed === "defender-security-contacts-not-collected") {
+    return {
+      code: trimmed,
+      title: "Defender security contacts were not collected",
+      detail: `Grant Security Reader on the subscription and re-run the Tier 1 package.${statusClause}${forbidden}`,
+    };
+  }
+
+  if (trimmed.startsWith("defender-security-contacts.json collection failed")) {
+    return {
+      code: trimmed,
+      title: "Defender security contacts were not collected",
+      detail: `The securityContacts API call did not succeed.${statusClause}${forbidden} Grant Security Reader and re-run collection.`,
+    };
+  }
+
+  if (trimmed === "defender-security-contact-missing") {
+    return {
+      code: trimmed,
+      title: "Defender security contact email is not configured",
+      detail:
+        "Collection succeeded but no alert email was returned. Add a Defender for Cloud security contact in the Azure portal.",
+    };
+  }
+
+  if (trimmed.startsWith("defender-governance.json collection failed")) {
+    return {
+      code: trimmed,
+      title: "Defender governance assignments were not collected",
+      detail: `Governance assignment rows are missing from this snapshot.${statusClause}${forbidden} Grant Security Reader. HTTP 404 often means the preview API is unavailable for this subscription.`,
+    };
+  }
+
+  if (trimmed === "defender-governance-truncated") {
+    return {
+      code: trimmed,
+      title: "Defender governance collection was truncated",
+      detail:
+        "The collector stopped at the governance row cap. Partial governance data may still be in the package.",
+    };
+  }
+
+  if (trimmed === "defender-attack-paths-skipped-plan-off") {
+    return {
+      code: trimmed,
+      title: "Defender attack paths were not collected (plan off)",
+      detail:
+        "Defender CSPM is not enabled on a paid tier for this subscription. Enable Defender CSPM when attack-path evidence is required.",
+    };
+  }
+
+  if (trimmed.startsWith("defender-attack-paths.json collection failed")) {
+    return {
+      code: trimmed,
+      title: "Defender attack paths were not collected",
+      detail: `The attackPaths API call did not succeed.${statusClause}${forbidden} Enable Defender CSPM and Security Reader, then re-run collection.`,
+    };
+  }
+
+  if (trimmed === "defender-attack-paths-truncated") {
+    return {
+      code: trimmed,
+      title: "Defender attack paths collection was truncated",
+      detail: "Attack path rows hit the collector cap. Partial data may still be present in the ZIP.",
+    };
+  }
+
+  if (trimmed.startsWith("defender-vulnerability-counts.json collection failed")) {
+    return {
+      code: trimmed,
+      title: "Defender vulnerability counts were not collected",
+      detail: `The subAssessments API call did not succeed.${statusClause}${forbidden} Enable a Defender workload plan that emits vulnerability findings and grant Security Reader.`,
+    };
+  }
+
+  if (trimmed === "defender-vulnerability-truncated") {
+    return {
+      code: trimmed,
+      title: "Defender vulnerability findings were truncated",
+      detail: "Vulnerability finding rows hit the collector cap.",
+    };
+  }
+
+  return null;
+}
+
+function resolvePolicyComplianceEmptyPresentation(
+  warning: string,
+): InfraEvidenceCompletenessWarningPresentation | null {
+  const prefix = `${AzureInventoryRelationshipCompletenessWarningCodes.PolicyComplianceEmptyWithAssignments}:`;
+
+  if (!warning.startsWith(prefix)) {
+    return null;
+  }
+
+  const countText = warning.slice(prefix.length).trim();
+  const count = Number.parseInt(countText, 10);
+  const countLabel = Number.isInteger(count) && count > 0 ? `${count}` : "some";
+
+  return {
+    code: warning,
+    title: "Policy compliance returned no rows despite assignments",
+    detail: `Policy Insights returned zero compliance records while ${countLabel} assignment(s) were stored in policy.json. Confirm compliance in the Azure portal, then re-run the Tier 1 package.`,
+  };
+}
+
 function resolveUnmappedRolePresentation(
   warning: string,
 ): InfraEvidenceCompletenessWarningPresentation | null {
@@ -443,6 +572,18 @@ export function resolveInfraEvidenceCompletenessWarningPresentation(
     return staticSitePresentation;
   }
 
+  const defenderPresentation = resolveDefenderCompanionPresentation(trimmed);
+
+  if (defenderPresentation) {
+    return defenderPresentation;
+  }
+
+  const policyEmptyPresentation = resolvePolicyComplianceEmptyPresentation(trimmed);
+
+  if (policyEmptyPresentation) {
+    return policyEmptyPresentation;
+  }
+
   if (trimmed === AzureInventoryRelationshipCompletenessWarningCodes.LogicAppConnectionsMissing) {
     return {
       code: trimmed,
@@ -462,8 +603,8 @@ export function resolveInfraEvidenceCompletenessWarningPresentation(
 
   return {
     code: trimmed,
-    title: "Collection warning has no reviewer sentence.",
-    detail: `Stored warning code: ${trimmed}.`,
+    title: "Stored completeness warning (unmapped reviewer copy)",
+    detail: `This warning was stored on the package but has no dedicated reviewer sentence yet. Code: ${trimmed}`,
   };
 }
 
