@@ -1479,3 +1479,4 @@
 {"at":"2026-10-22T23:09:53.0105608Z","zoneId":"email-otp-auth","outcome":"seed-only","productLine":"archlucid-shared"}
 {"outcome":"hit","zoneId":"email-otp-auth","productLine":"archlucid-shared","paths":["ArchLucid.Api/Controllers/Auth/EmailOtpAuthController.cs","ArchLucid.Api.Tests/Auth/EmailOtpAuthControllerVerifyTests.cs"],"at":"2026-10-22T23:19:23.1957277Z"}
 {"at":"2026-10-23T13:31:52.9328923Z","zoneId":"finding-inspect-sql","outcome":"seed-only","productLine":"archlucid-shared"}
+{"at":"2026-10-23T16:40:06.8019675Z","zoneId":"application-governance-policy","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/Governance/GovernanceLineageService.cs","ArchLucid.Application.Tests/Governance/GovernanceLineageServiceTests.cs"]}

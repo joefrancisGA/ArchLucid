@@ -12193,17 +12193,21 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: application-governance-policy
 
+2026-10-23 seed hunt (seed→hit): proved `GovernanceLineageService.GetApprovalRequestLineageAsync` required canonical-N `approval.RunId` via `Guid.TryParseExact(..., "N")`, so dashed GUID approvals skipped authority manifest and top-findings projection despite `GovernanceRunIdNormalizer` parity elsewhere; fixed with `Guid.TryParse`; regressions `GetApprovalRequestLineageAsync_queries_authority_when_approval_run_id_uses_dashed_guid` and renamed opaque-run-id guard test; scoped `GovernanceLineageServiceTests` passed. Private beta: governance approval lineage surfaces sealed manifest summary and top findings when the approval row stores a dashed architecture run id.
+
+- [x] (proven) `GovernanceLineageService.GetApprovalRequestLineageAsync` — dashed `approval.RunId` skipped authority lookup — **hit 2026-10-23 seed hunt:** `Guid.TryParse` accepts equivalent GUID formats; regression `GetApprovalRequestLineageAsync_queries_authority_when_approval_run_id_uses_dashed_guid`.
+
 - **id:** application-governance-policy
 - **status:** open
 - **impact:** medium
 - **aliases:** policy packs; governance coverage; before-after diff
 - **paths:** ArchLucid.Application/Governance/
 - **test-filter:** FullyQualifiedName~PolicyPack|FullyQualifiedName~Governance
-- **hunts:** 40
-- **bugs-found:** 35
+- **hunts:** 41
+- **bugs-found:** 36
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-09 — digest kept superseded NeedsEvidence and Deferred review events
+- **last-hunt:** 2026-10-23
+- **last-bug:** 2026-10-23 — lineage omitted manifest/findings for dashed approval run ids
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
