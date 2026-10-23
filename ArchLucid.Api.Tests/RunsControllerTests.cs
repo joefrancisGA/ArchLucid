@@ -497,6 +497,28 @@ public sealed class RunsControllerTests
     }
 
     [Fact]
+    public async Task ChatIntake_returns_bad_request_when_raw_text_contains_invalid_surrogate()
+    {
+        Mock<IArchitectureRequestIntakeFacade> intakeFacade = new();
+
+        RunsController controller = CreateController();
+
+        ChatIntakeRequest input = new()
+        {
+            RawText = new string('a', 19) + "\uD800",
+        };
+
+        IActionResult action = await controller.ChatIntake(input, intakeFacade.Object, CancellationToken.None);
+
+        ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
+        bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+
+        intakeFacade.Verify(
+            static f => f.ParseChatIntakeAsync(It.IsAny<ChatIntakeRequest>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task GetRequest_returns_not_found_when_repository_has_no_row()
     {
         Mock<IArchitectureRequestRepository> requests = new();
