@@ -39,6 +39,26 @@ public sealed class RunExecuteOwnershipLeaseServiceAcquireTests
     }
 
     [Fact]
+    public async Task AcquireAsync_clears_local_admission_when_repository_reports_peer_conflict()
+    {
+        Guid runId = Guid.NewGuid();
+        Mock<IRunExecuteOwnershipLeaseRepository> leases = new();
+        leases
+            .Setup(l => l.TryAcquireOrRenewAsync(runId, "instance-a", 900, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
+
+        RunExecuteOwnershipLeaseService sut = CreateSut(leases);
+
+        Func<Task> act = () => sut.AcquireAsync(runId, CancellationToken.None);
+
+        await act.Should().ThrowAsync<ConflictException>()
+            .WithMessage("*already owned by another host instance*");
+
+        sut.IsLocallyHoldingExecuteOwnership(runId).Should().BeFalse(
+            "peer conflict after TryAdmit must roll back local admission in the acquire catch path");
+    }
+
+    [Fact]
     public async Task AcquireAsync_when_run_already_held_locally_throws_conflict_without_second_repository_claim()
     {
         Guid runId = Guid.NewGuid();
