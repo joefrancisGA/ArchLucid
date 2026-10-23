@@ -744,6 +744,57 @@ public sealed class ScimBearerAuthenticationHandlerTests
     }
 
     [Fact]
+    public async Task HandleAuthenticateAsync_fails_when_zero_width_space_prefixes_bearer_token_material()
+    {
+        string tokenWithZwsp = "\u200B" + ValidToken;
+
+        Mock<IScimBearerTokenAuthenticator> authenticator = new();
+        authenticator
+            .Setup(a => a.TryAuthenticateAsync(tokenWithZwsp, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((ScimBearerAuthenticationResult?)null);
+
+        DefaultHttpContext http = new();
+        http.Request.Headers.Authorization = $"Bearer {tokenWithZwsp}";
+
+        ScimBearerAuthenticationHandlerTestDouble handler = CreateHandler(authenticator.Object, http);
+
+        AuthenticateResult result = await handler.InvokeHandleAuthenticateAsync();
+
+        result.Succeeded.Should().BeFalse();
+        authenticator.Verify(
+            a => a.TryAuthenticateAsync(tokenWithZwsp, It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task HandleAuthenticateAsync_invokes_authenticator_with_supplementary_unicode_in_token_material()
+    {
+        const string tokenWithSurrogate = "archlucid_scim.public.\uD83D\uDE00";
+
+        Mock<IScimBearerTokenAuthenticator> authenticator = new();
+        authenticator
+            .Setup(a => a.TryAuthenticateAsync(tokenWithSurrogate, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new ScimBearerAuthenticationResult
+                {
+                    TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                    TokenRowId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+                });
+
+        DefaultHttpContext http = new();
+        http.Request.Headers.Authorization = $"Bearer {tokenWithSurrogate}";
+
+        ScimBearerAuthenticationHandlerTestDouble handler = CreateHandler(authenticator.Object, http);
+
+        AuthenticateResult result = await handler.InvokeHandleAuthenticateAsync();
+
+        result.Succeeded.Should().BeTrue();
+        authenticator.Verify(
+            a => a.TryAuthenticateAsync(tokenWithSurrogate, It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
     public async Task HandleAuthenticateAsync_fails_when_authorization_value_is_truncated_at_interior_nul_before_authenticator()
     {
         const string tokenWithNul = "archlucid_scim.public.sec\0ret";

@@ -4218,6 +4218,20 @@
 
 ## Zone: saml-jwt-bearer
 
+2026-10-23 seed hunt #13 (seed-only): cheap-disproof closed five open `(candidate)` rows (ZWSP-prefixed Bearer token material, supplementary Unicode in token segment, `auth_time` one second past max age, trial JWT lifetime above 24h clamp, matching platform-user auth-version stamp); regressions `HandleAuthenticateAsync_fails_when_zero_width_space_prefixes_bearer_token_material`, `HandleAuthenticateAsync_invokes_authenticator_with_supplementary_unicode_in_token_material`, plus full-tree `HasRecentAuthentication_returns_false_when_auth_time_is_one_second_past_max_age_boundary`, `IssueAccessToken_clamps_requested_access_token_lifetime_above_twenty_four_hours`, `ValidateAsync_accepts_current_auth_version`; reseeded five follow-on `(candidate)` rows; `ScimBearerAuthenticationHandlerTests` 38/38; no handler change.
+
+- [x] (valid-no-repro) `ScimBearerAuthenticationHandler` — zero-width space between `Bearer` scheme and token — **cheap-disproof 2026-10-23 seed hunt #13:** `Trim()` does not strip U+200B; authenticator receives prefixed material; regression `HandleAuthenticateAsync_fails_when_zero_width_space_prefixes_bearer_token_material`.
+- [x] (valid-no-repro) `ScimBearerAuthenticationHandler` — UTF-16 surrogate pair in token segment — **cheap-disproof 2026-10-23 seed hunt #13:** segment forwarded intact; regression `HandleAuthenticateAsync_invokes_authenticator_with_supplementary_unicode_in_token_material`.
+- [x] (valid-no-repro) `RecentAuthenticationEvaluator` — `auth_time` one second past `maxAgeMinutes` — **cheap-disproof 2026-10-23 seed hunt #13:** strict `age <= maxAge`; regression `HasRecentAuthentication_returns_false_when_auth_time_is_one_second_past_max_age_boundary` on full tree.
+- [x] (valid-no-repro) `LocalTrialJwtIssuer` — `accessTokenLifetimeMinutes` above 24h clamp — **cheap-disproof 2026-10-23 seed hunt #13:** upper `Math.Clamp`; regression `IssueAccessToken_clamps_requested_access_token_lifetime_above_twenty_four_hours` on full tree.
+- [x] (valid-no-repro) `PlatformUserAuthVersionValidator` — matching auth-version stamp on Guid `sub` — **cheap-disproof 2026-10-23 seed hunt #13:** regression `ValidateAsync_accepts_current_auth_version` on full tree.
+
+- [ ] (candidate) `ScimBearerAuthenticationHandler` — `Bearer` scheme glued to token without separating whitespace — locus: `TryReadBearerCredentialSegment`; input: `Bearerarchlucid_scim.x.y`.
+- [ ] (candidate) `ScimBearerAuthenticationHandler` — comma inside base64url secret portion after parse — locus: token grammar; input: comma in third segment (invalid grammar).
+- [ ] (candidate) `RecentAuthenticationEvaluator` — multiple `auth_time` claims picks latest — locus: `TryGetAuthenticationInstant`; input: stale then fresh claim.
+- [ ] (candidate) `LocalTrialJwtIssuer` — omitted `accessTokenLifetimeMinutes` uses configured default — locus: `local.AccessTokenLifetimeMinutes`; input: caller omits override.
+- [ ] (candidate) `ArchLucidSamlInboundClaimsNormalizer` — duplicate role values from same source — locus: `HasClaim` guard; input: two identical inbound role strings.
+
 2026-10-23 seed hunt #12 (seed-only): cheap-disproof closed five open `(candidate)` rows (single-tab Bearer join intentional, interior NUL token material forwarded to authenticator, inclusive `maxAgeMinutes` boundary, trial JWT lifetime below-five clamp, SAML role source type case-insensitive match); regressions `HandleAuthenticateAsync_fails_when_single_tab_joins_two_bearer_credentials_in_one_segment`, `HandleAuthenticateAsync_fails_when_authorization_value_is_truncated_at_interior_nul_before_authenticator`, plus full-tree `HasRecentAuthentication_returns_true_when_auth_time_is_exactly_at_max_age_boundary`, `IssueAccessToken_clamps_requested_access_token_lifetime_below_five_minutes`, `Apply_promotes_roles_when_configured_role_source_type_differs_by_case_from_inbound_claim`; reseeded five follow-on `(candidate)` rows; `ScimBearerAuthenticationHandlerTests` 36/36; no handler change.
 
 - [x] (valid-no-repro) `ScimBearerAuthenticationHandler` — tab-only separator between two Bearer credentials in one segment — **cheap-disproof 2026-10-23 seed hunt #12:** `\s{2,}(?=Bearer\s)` expand intentionally omitted; regression `HandleAuthenticateAsync_fails_when_single_tab_joins_two_bearer_credentials_in_one_segment`.
@@ -4225,12 +4239,6 @@
 - [x] (valid-no-repro) `RecentAuthenticationEvaluator` — `auth_time` exactly at `maxAgeMinutes` boundary — **cheap-disproof 2026-10-23 seed hunt #12:** `age <= maxAge` inclusive; regression `HasRecentAuthentication_returns_true_when_auth_time_is_exactly_at_max_age_boundary` on full tree.
 - [x] (valid-no-repro) `LocalTrialJwtIssuer` — `accessTokenLifetimeMinutes` below minimum clamp — **cheap-disproof 2026-10-23 seed hunt #12:** `Math.Clamp(..., 5, 24*60)`; regression `IssueAccessToken_clamps_requested_access_token_lifetime_below_five_minutes` on full tree.
 - [x] (valid-no-repro) `ArchLucidSamlInboundClaimsNormalizer` — role source claim type differs only by case — **cheap-disproof 2026-10-23 seed hunt #12:** `OrdinalIgnoreCase` type match; regression `Apply_promotes_roles_when_configured_role_source_type_differs_by_case_from_inbound_claim` on full tree.
-
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — zero-width space between `Bearer` scheme and token — locus: `TryReadBearerCredentialSegment` trim; input: `Bearer\u200Barchlucid_scim.x.y`.
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — `Authorization` header with UTF-16 surrogate pair in token segment — locus: segment trim; input: valid surrogate in secret portion.
-- [ ] (candidate) `RecentAuthenticationEvaluator` — `auth_time` one second past `maxAgeMinutes` — locus: `age <= maxAge`; input: authenticatedAt = now - maxAge - 1s.
-- [ ] (candidate) `LocalTrialJwtIssuer` — `accessTokenLifetimeMinutes` above 24h clamp — locus: upper `Math.Clamp`; input: `60 * 48`.
-- [ ] (candidate) `PlatformUserAuthVersionValidator` — matching auth-version stamp on Guid `sub` — locus: success path; input: aligned `archlucid_auth_ver` claim.
 
 2026-10-23 seed hunt #11 (seed-only): cheap-disproof closed five open `(candidate)` rows (CR-LF-only Bearer segment before comma, whitespace-only `Authorization` value, redundant same-tenant dual Bearer selection order, future `auth_time` beyond clock skew, SAML options disabled no-op); regressions `HandleAuthenticateAsync_succeeds_when_bearer_scheme_only_crlf_segment_precedes_valid_comma_folded_credential`, `HandleAuthenticateAsync_fails_when_authorization_header_value_is_whitespace_only`, `HandleAuthenticateAsync_succeeds_using_first_valid_credential_when_two_distinct_tokens_resolve_to_same_tenant`; reseeded five follow-on `(candidate)` rows; `ScimBearerAuthenticationHandlerTests` 34/34; no handler change.
 
@@ -4343,7 +4351,7 @@
 - **aliases:** SAML; trial JWT; SCIM bearer; OIDC auth stack
 - **paths:** ArchLucid.Api/Auth/; ArchLucid.Core/Auth/Saml/
 - **test-filter:** FullyQualifiedName~Saml|FullyQualifiedName~LocalTrialJwt|FullyQualifiedName~ScimBearer
-- **hunts:** 39
+- **hunts:** 40
 - **bugs-found:** 31
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-23
