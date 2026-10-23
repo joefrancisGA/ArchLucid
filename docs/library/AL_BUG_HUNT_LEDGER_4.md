@@ -861,11 +861,11 @@
 - **aliases:** retrieval indexing; embedding; pricing retrieval
 - **paths:** ArchLucid.Retrieval/
 - **test-filter:** FullyQualifiedName~Retrieval|FullyQualifiedName~Indexing
-- **hunts:** 75
+- **hunts:** 76
 - **last-hunt:** 2026-10-23
-- **bugs-found:** 35
+- **bugs-found:** 36
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-23 — shrink cleanup when catalog understates chunk count
+- **last-bug:** 2026-10-23 — shrink branch skipped ordinal sweep
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -876,6 +876,8 @@
 2026-10-23 seed hunt #105 (seed→hit): promoted catalog-miss shrink cleanup; proved higher-ordinal orphan chunks survived reindex when `IndexedChunkCount` cleanup was gated on `_indexCatalog.TryGet`; remove document vectors before upsert when the catalog has no row; regression `IndexDocumentsAsync_when_content_shrinks_removes_orphan_higher_ordinal_chunks_without_catalog_entry`; seeded five follow-up candidates; 374 scoped retrieval/indexing tests passed.
 
 2026-10-23 thorough hunt #106 (hit): proved shrink reindex left stale ordinals when catalog `IndexedChunkCount` understated live vectors (`1` recorded, multiple chunks indexed); post-upsert cleanup only ran when `prior.IndexedChunkCount > split.Count`; added bounded ordinal sweep when `prior.IndexedChunkCount <= split.Count`; regression `IndexDocumentsAsync_when_content_shrinks_removes_stale_chunks_when_catalog_understates_chunk_count`; cheap-disproved four sibling candidates (skip/hash mismatch, query reuse, merge score upgrade, trim tie-break); 375 scoped retrieval/indexing tests passed.
+
+2026-10-23 seed hunt #107 (seed→hit): promoted shrink-branch catalog understate; when `prior.IndexedChunkCount > split.Count` the narrow ordinal cleanup used catalog count only and skipped the bounded sweep, leaving stale ordinals when live vectors exceeded the catalog; unified post-upsert ordinal sweep for all catalog hits; regression `IndexDocumentsAsync_when_content_shrinks_removes_stale_chunks_when_catalog_understates_during_shrink_branch`; seeded five follow-up candidates; 376 scoped retrieval/indexing tests passed.
 
 ### Hypotheses
 - [x] (invalid) `SimpleTextChunker.Chunk` / `StructureAwareTextChunker.Chunk` — non-positive `maxChars` — **cheap-disproof 2026-10-21 thorough hunt:** only internal chunkers invoke `ITextChunker` with positive defaults; no configuration path supplies non-positive sizes.
@@ -888,6 +890,12 @@
 - [x] (proven) `RetrievalIndexingService.IndexDocumentsAsync` — empty reindex with no catalog row left orphan vectors searchable — **hit 2026-10-23 thorough hunt #104:** gated delete on `TryGet`; fixed by always removing document chunks on empty reindex; regression `IndexDocumentsAsync_when_content_chunks_to_empty_removes_orphan_vectors_without_catalog_entry`.
 - [x] (proven) `RetrievalIndexingService.IndexDocumentsAsync` — content shrink with no catalog row left higher-ordinal orphan chunks — **hit 2026-10-23 seed hunt #105:** stale ordinal cleanup required catalog `IndexedChunkCount`; fixed by `RemoveChunksForDocumentAsync` before upsert when `TryGet` is false; regression `IndexDocumentsAsync_when_content_shrinks_removes_orphan_higher_ordinal_chunks_without_catalog_entry`.
 - [x] (proven) `RetrievalIndexingService.IndexDocumentsAsync` — catalog row understates `IndexedChunkCount` vs live index — **hit 2026-10-23 thorough hunt #106:** ordinal cleanup skipped when `prior.IndexedChunkCount <= split.Count`; bounded post-upsert ordinal sweep; regression `IndexDocumentsAsync_when_content_shrinks_removes_stale_chunks_when_catalog_understates_chunk_count`.
+- [x] (proven) `RetrievalIndexingService.IndexDocumentsAsync` — shrink branch skipped bounded sweep when `prior.IndexedChunkCount > split.Count` — **hit 2026-10-23 seed hunt #107:** narrow cleanup capped at catalog count; unified sweep for all catalog hits; regression `IndexDocumentsAsync_when_content_shrinks_removes_stale_chunks_when_catalog_understates_during_shrink_branch`.
+- [ ] (candidate) `RetrievalIndexingService.IndexDocumentsAsync` — bounded +16 ordinal sweep may miss extreme orphan runs — locus: post-upsert sweep window; input: catalog miss with >32 orphan ordinals; wrong outcome: highest ordinals remain searchable.
+- [ ] (candidate) `RetrievalIndexingService.ShouldSkipUnchangedDocument` — skip when chunking fingerprint changes but content hash unchanged — locus: skip guard; input: strategy toggle with identical body hash; wrong outcome: skip leaves old chunk boundaries indexed.
+- [ ] (candidate) `InMemoryVectorIndex` — `MaxChunks` eviction during concurrent reindex — locus: upsert cap; input: burst indexing above 10_000 chunks; wrong outcome: silent eviction drops tenant vectors without catalog update.
+- [ ] (candidate) `RetrievalQueryService.ExecuteSearchPassAsync` — embedding dimension mismatch drops hits silently — locus: `EmbeddingDimensionsCompatible`; input: query vector length differs from stored chunk metadata; wrong outcome: empty results without surfacing mismatch to caller.
+- [ ] (candidate) `PolicyPackCorpusIndexer` — duplicate rule ids across packs in one startup batch — locus: document id construction; input: two packs emit same rule id; wrong outcome: later pack overwrites earlier vectors.
 - [x] (valid-no-repro) `RetrievalIndexingService.ShouldSkipUnchangedDocument` — matching `ContentHash` with whitespace-only `Content` — **cheap-disproof 2026-10-23 thorough hunt #106:** reachable document builders hash content bytes; mismatched hash+body is caller contract violation; whitespace bodies take empty-chunk path when hash changes.
 - [x] (valid-no-repro) `RetrievalQueryService.ResolveQueryPlanAsync` — `AllowedPolicyPackRulePackIds` mutation on reused query — **cheap-disproof 2026-10-23 thorough hunt #106:** regression `SearchAsync_re_resolves_policy_packs_when_reusing_query_after_scope_change`; no re-open.
 - [x] (valid-no-repro) `IterativeRetrievalLoop.MergeHits` — critique retry duplicate `ChunkId` score upgrade — **cheap-disproof 2026-10-23 thorough hunt #106:** regression `MaybeRetryAsync_when_retry_improves_same_chunk_score_uses_higher_score`.
