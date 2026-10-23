@@ -21,6 +21,7 @@ public sealed class InMemoryRunExportRecordRepositoryReadNormalizeTests
             ExportType = "ArchitectureAnalysis",
             Format = "Markdown",
             FileName = "  legacy-report.md  ",
+            Notes = "  legacy note  ",
             CreatedUtc = new DateTime(2026, 4, 5, 12, 0, 0, DateTimeKind.Utc),
         };
 
@@ -37,5 +38,6 @@ public sealed class InMemoryRunExportRecordRepositoryReadNormalizeTests
         loaded.Should().NotBeNull();
         loaded!.RunId.Should().Be(runId);
         loaded.FileName.Should().Be("legacy-report.md");
+        loaded.Notes.Should().Be("legacy note");
     }
 }

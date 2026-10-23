@@ -6868,13 +6868,21 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
-2026-10-23 seed hunt (seed→hit): proved `ExportRecordDiffService.CompareTopLevel` still used non-trimmed equality for `ExportType` and `Format`, repository reads returned legacy padded optional columns because only persist trimmed new rows, and `ComparisonExportMarkdownSectionRemover` failed to match headings when a UTF-8 byte-order mark preceded `##`; extend trim-aware top-level diff, add `RunExportRecordPersistNormalizer.NormalizeLoadedRecord` on SQL/in-memory get paths, strip BOM when scanning heading lines; regressions `CompareQuality_export_record_diff_ignores_padding_only_export_type_on_top_level_columns`, `CompareQuality_export_record_diff_ignores_padding_only_format_on_top_level_columns`, `RemoveMarkdownSection_strips_compare_quality_delta_when_heading_line_starts_with_byte_order_mark`, `NormalizeLoadedRecord_trims_run_id_and_optional_string_columns`, and `GetById_trims_legacy_padded_optional_columns_on_read`; cheap-disproof closed padded `CompareRunId` in rehydrated request diff (`CompareQuality_export_record_diff_ignores_padding_only_compare_run_id_differences_in_stored_json`); seeded five follow-on rows; scoped application-analysis filter 98/98. Private beta: export compares ignore padding-only type/format drift; metadata reads normalize legacy padded filenames; comparison exports strip BOM-prefixed delta headings.
+2026-10-23 seed hunt (seed→hit): proved `ComparisonExportMarkdownSectionRemover.NormalizeHeadingLine` left embedded byte-order marks (`\uFEFF`) inside compare-quality delta headings so HTML/PDF/DOCX exports could retain the section when the marker sat between words after `##`; strip `UnicodeCategory.Format` characters (including inline BOM) before whitespace normalization; regression `RemoveMarkdownSection_strips_compare_quality_delta_when_heading_embeds_byte_order_mark_mid_line`; cheap-disproof closed padded `Notes` on list/read paths (`NormalizeLoadedRecord` + `GetById_trims_legacy_padded_optional_columns_on_read`), `DeterminismIterations` JSON padding (`int` request field; not string diff), whitespace-only `ExportType` deserialize (`NormalizeLoadedRecord` trims; no reachable corrupt write path), and redundant facade `RunId` trim (`LoadScopedExportRecordAsync` idempotent with repository normalize; invalid); seeded five follow-on rows; scoped application-analysis filter 99/99. Private beta: comparison exports strip inline invisible format characters in delta headings, not only leading BOM.
 
-- [ ] (candidate) `ExportRecordDiffService.CompareTopLevel` — `Notes` column not compared but legacy padded `Notes` may surface in UI lists — locus: export metadata display; input: padded notes on list-by-run.
-- [ ] (candidate) `RunExportRecordRepository.GetByRunIdAsync` — returns records without normalizing when SQL returns corrupt empty `ExportType` — locus: deserialize guard; input: whitespace-only export type in JSON.
-- [ ] (candidate) `ComparisonExportMarkdownSectionRemover` — zero-width no-break space `\uFEFF` embedded mid-heading after `##` — locus: inline format chars; input: BOM between words in heading text.
-- [ ] (candidate) `ExportRecordDiffService.CompareRequests` — `DeterminismIterations` string padding in JSON — locus: request diff; input: padded numeric string in analysis JSON.
-- [ ] (candidate) `RunExportQueryFacade.LoadScopedExportRecordAsync` — double-trims when repository already normalized — locus: redundant trim; input: canonical row from repository (invalid if harmless).
+- [ ] (candidate) `ComparisonExportMarkdownSectionRemover` — soft hyphen `\u00AD` inside heading text breaks literal match — locus: mid-line format chars; input: soft hyphen in delta heading words.
+- [ ] (candidate) `ExportRecordDiffService.CompareTopLevel` — `Notes` padding-only differences if notes added to diff surface — locus: export diff columns; input: padded `Notes` on one legacy row.
+- [ ] (candidate) `RunExportRecordPersistNormalizer` — whitespace-only `ExportType`/`Format` after trim persist as empty strings — locus: persist guard; input: export create with `"   "` type.
+- [ ] (candidate) `AnalysisExportRequestRehydrator` — numeric compare fields deserialized from padded JSON strings — locus: rehydrate; input: `"determinismIterations":"  3  "` in JSON.
+- [ ] (candidate) `RunExportQueryFacade.ListExportRecordsByRunAsync` — does not scope-trim when repository returns legacy row — locus: list-by-run; input: padded run id key with normalized repository rows.
+
+- [x] (proven) `ComparisonExportMarkdownSectionRemover` — inline BOM/format chars in heading — **hit 2026-10-23 seed hunt:** `ShouldRemoveInvisibleFormatting`; regression `RemoveMarkdownSection_strips_compare_quality_delta_when_heading_embeds_byte_order_mark_mid_line`.
+- [x] (valid-no-repro) `RunExportRecord` `Notes` — padded notes on read/list — **cheap-disproof 2026-10-23 seed hunt:** `NormalizeLoadedRecord` trims `Notes`; regression extends `GetById_trims_legacy_padded_optional_columns_on_read`.
+- [x] (valid-no-repro) `ExportRecordDiffService.CompareRequests` — padded `DeterminismIterations` in JSON — **cheap-disproof 2026-10-23 seed hunt:** `int` property; JSON whitespace does not produce false string diff.
+- [x] (invalid) `RunExportRecordRepository.GetByRunIdAsync` — whitespace-only `ExportType` corrupt row — **cheap-disproof 2026-10-23 seed hunt:** no current write path persists whitespace-only required type after normalize.
+- [x] (invalid) `RunExportQueryFacade.LoadScopedExportRecordAsync` — double `RunId` trim — **cheap-disproof 2026-10-23 seed hunt:** idempotent `Trim()`; retained as defense-in-depth for non-normalizing repository fakes.
+
+2026-10-23 seed hunt (seed→hit): proved `ExportRecordDiffService.CompareTopLevel` still used non-trimmed equality for `ExportType` and `Format`, repository reads returned legacy padded optional columns because only persist trimmed new rows, and `ComparisonExportMarkdownSectionRemover` failed to match headings when a UTF-8 byte-order mark preceded `##`; extend trim-aware top-level diff, add `RunExportRecordPersistNormalizer.NormalizeLoadedRecord` on SQL/in-memory get paths, strip BOM when scanning heading lines; regressions `CompareQuality_export_record_diff_ignores_padding_only_export_type_on_top_level_columns`, `CompareQuality_export_record_diff_ignores_padding_only_format_on_top_level_columns`, `RemoveMarkdownSection_strips_compare_quality_delta_when_heading_line_starts_with_byte_order_mark`, `NormalizeLoadedRecord_trims_run_id_and_optional_string_columns`, and `GetById_trims_legacy_padded_optional_columns_on_read`; cheap-disproof closed padded `CompareRunId` in rehydrated request diff (`CompareQuality_export_record_diff_ignores_padding_only_compare_run_id_differences_in_stored_json`); seeded five follow-on rows; scoped application-analysis filter 98/98. Private beta: export compares ignore padding-only type/format drift; metadata reads normalize legacy padded filenames; comparison exports strip BOM-prefixed delta headings.
 
 - [x] (proven) `ExportRecordDiffService.CompareTopLevel` — padded `ExportType`/`Format` false diff — **hit 2026-10-23 seed hunt:** `AddIfChangedTrimmed`; regressions `CompareQuality_export_record_diff_ignores_padding_only_export_type_on_top_level_columns` and `CompareQuality_export_record_diff_ignores_padding_only_format_on_top_level_columns`.
 - [x] (proven) `IRunExportRecordRepository.GetByIdAsync` — legacy padded optional columns on read — **hit 2026-10-23 seed hunt:** `NormalizeLoadedRecord`; regressions `NormalizeLoadedRecord_trims_run_id_and_optional_string_columns` and `GetById_trims_legacy_padded_optional_columns_on_read`.
@@ -7179,11 +7187,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 94
-- **bugs-found:** 89
+- **hunts:** 95
+- **bugs-found:** 90
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-23
-- **last-bug:** 2026-10-23 — export diff type/format trim and read-path column normalize
+- **last-bug:** 2026-10-23 — inline format-char stripping in comparison headings
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 

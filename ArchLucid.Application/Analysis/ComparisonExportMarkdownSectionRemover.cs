@@ -71,20 +71,28 @@ internal static class ComparisonExportMarkdownSectionRemover
             return line;
 
         char[] buffer = new char[line.Length];
+        int writeIndex = 0;
 
         for (int i = 0; i < line.Length; i++)
         {
             char candidate = line[i];
-            buffer[i] = ShouldSubstituteWithAsciiSpace(candidate) ? ' ' : candidate;
+
+            if (ShouldRemoveInvisibleFormatting(candidate))
+                continue;
+
+            buffer[writeIndex++] = ShouldSubstituteWithAsciiSpace(candidate) ? ' ' : candidate;
         }
 
-        string normalized = new string(buffer).Trim();
+        string normalized = new string(buffer, 0, writeIndex).Trim();
 
         while (normalized.Contains("  ", StringComparison.Ordinal))
             normalized = normalized.Replace("  ", " ", StringComparison.Ordinal);
 
         return normalized;
     }
+
+    private static bool ShouldRemoveInvisibleFormatting(char candidate) =>
+        candidate == '\uFEFF' || char.GetUnicodeCategory(candidate) == UnicodeCategory.Format;
 
     private static bool ShouldSubstituteWithAsciiSpace(char candidate)
     {
