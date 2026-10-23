@@ -285,8 +285,8 @@ public static class GraphSnapshotCanonicalFingerprint
 
         string path = NormalizeUnicodeDotScalars(
                 NormalizeUnicodeSlashScalars(
-                    DecodePercentEncodedPathTokens(
-                        NormalizeReviewCachePathLineBreakScalars(
+                    NormalizeReviewCachePathLineBreakScalars(
+                        DecodePercentEncodedPathTokens(
                             ReplaceIsolatedPlusWithPathSeparator(normalizedToken)))))
             .Replace('\\', '/');
 

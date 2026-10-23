@@ -8716,6 +8716,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: architecture-intelligence-orchestrator
 
+2026-10-23 seed hunt (seed→hit): promoted percent-encoded line-break drift (`docs%0Aarchitecture/...`, `docs%0D%0Aarchitecture/...`) splitting `ContentHash` because line-break canonicalization ran before `Uri.UnescapeDataString`; `NormalizeReviewCachePathLineBreakScalars` now runs after percent decoding (lone `+` still pre-decode); regressions `Build_matches_content_hash_when_file_name_differs_only_by_percent_encoded_line_feed_between_segments` and `Build_matches_content_hash_when_file_name_differs_only_by_percent_encoded_crlf_between_segments`; 393 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `GraphSnapshotCanonicalFingerprint` — percent-encoded line breaks split path canonicalization — **hit 2026-10-23 seed hunt:** post-decode line-break pass; regressions above.
+
 2026-10-23 seed hunt (seed→hit): promoted line-break scalars between path segments splitting `ContentHash` (`docs\narchitecture/overview.md` vs `docs/architecture/overview.md`); `GraphSnapshotCanonicalFingerprint.NormalizeReviewCachePathLineBreakScalars` maps guard-aligned line-break scalars to `/` before percent decoding; regressions `Build_matches_content_hash_when_file_name_differs_only_by_line_feed_vs_slash_between_segments` and `Build_changes_content_hash_when_file_name_differs_only_by_interior_line_feed_in_segment`; 391 scoped orchestrator/cache/manifest/continue-flight tests passed.
 
 - [x] (proven) `GraphSnapshotCanonicalFingerprint` / `ClosedLoopReasoningSourceTextNormalizer` — line-break scalars between path segments split path canonicalization — **hit 2026-10-23 seed hunt:** `NormalizeReviewCachePathLineBreakScalars`; regressions above.
