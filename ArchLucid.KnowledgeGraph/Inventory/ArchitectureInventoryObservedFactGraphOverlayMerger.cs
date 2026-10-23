@@ -15,16 +15,31 @@ public static class ArchitectureInventoryObservedFactGraphOverlayMerger
         ArgumentNullException.ThrowIfNull(baseGraph);
         ArgumentNullException.ThrowIfNull(inventoryOverlay);
 
-        HashSet<string> existingNodeIds = baseGraph.Nodes
+        HashSet<string> baseNodeIds = baseGraph.Nodes
             .Select(static node => NormalizeNodeId(node.NodeId))
             .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+        HashSet<string> existingNodeIds = new(baseNodeIds, StringComparer.OrdinalIgnoreCase);
 
         List<GraphNode> mergedNodes = [.. baseGraph.Nodes];
 
         foreach (GraphNode inventoryNode in inventoryOverlay.Nodes)
         {
-            if (existingNodeIds.Contains(NormalizeNodeId(inventoryNode.NodeId)))
+            string normalizedInventoryNodeId = NormalizeNodeId(inventoryNode.NodeId);
+
+            if (existingNodeIds.Contains(normalizedInventoryNodeId))
             {
+                if (!baseNodeIds.Contains(normalizedInventoryNodeId))
+                {
+                    GraphNode retainedNode = mergedNodes.First(node =>
+                        string.Equals(
+                            NormalizeNodeId(node.NodeId),
+                            normalizedInventoryNodeId,
+                            StringComparison.OrdinalIgnoreCase));
+
+                    TryValidateOverlayNodeLabelAgreement(inventoryNode, retainedNode);
+                }
+
                 continue;
             }
 
@@ -109,6 +124,23 @@ public static class ArchitectureInventoryObservedFactGraphOverlayMerger
     private static string NormalizeWarning(string? warning) => (warning ?? string.Empty).Trim();
 
     private static string NormalizeNodeId(string nodeId) => nodeId.Trim();
+
+    private static void TryValidateOverlayNodeLabelAgreement(GraphNode incomingNode, GraphNode retainedNode)
+    {
+        string incomingLabel = (incomingNode.Label ?? string.Empty).Trim();
+        string retainedLabel = (retainedNode.Label ?? string.Empty).Trim();
+
+        if (incomingLabel.Length == 0 || retainedLabel.Length == 0)
+        {
+            return;
+        }
+
+        if (!string.Equals(retainedLabel, incomingLabel, StringComparison.OrdinalIgnoreCase))
+        {
+            throw new ArgumentException(
+                "Inventory overlay duplicate nodes disagree on Label for the same normalized NodeId.");
+        }
+    }
 
     private static string BuildEdgeKey(GraphEdge edge) =>
         $"{NormalizeNodeId(edge.FromNodeId)}|{NormalizeNodeId(edge.ToNodeId)}|{NormalizeEdgeType(edge.EdgeType)}";

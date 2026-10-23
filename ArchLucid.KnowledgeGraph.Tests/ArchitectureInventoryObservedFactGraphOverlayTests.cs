@@ -1897,13 +1897,13 @@ public sealed class ArchitectureInventoryObservedFactGraphOverlayTests
                 {
                     NodeId = canonicalNodeId,
                     NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "SQL first",
+                    Label = "SQL",
                 },
                 new GraphNode
                 {
                     NodeId = $"  {canonicalNodeId}  ",
                     NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "SQL second",
+                    Label = "SQL",
                 },
             ],
             Edges = [],
@@ -1913,7 +1913,7 @@ public sealed class ArchitectureInventoryObservedFactGraphOverlayTests
 
         merged.Nodes.Should().HaveCount(2);
         merged.Nodes.Should().ContainSingle(node => node.NodeId.Trim() == canonicalNodeId);
-        merged.Nodes.Single(node => node.NodeId.Trim() == canonicalNodeId).Label.Should().Be("SQL first");
+        merged.Nodes.Single(node => node.NodeId.Trim() == canonicalNodeId).Label.Should().Be("SQL");
     }
 
     [Fact]
@@ -1949,13 +1949,13 @@ public sealed class ArchitectureInventoryObservedFactGraphOverlayTests
                 {
                     NodeId = canonicalNodeId,
                     NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "first",
+                    Label = "inventory-node-a",
                 },
                 new GraphNode
                 {
                     NodeId = canonicalNodeId.ToUpperInvariant(),
                     NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "second",
+                    Label = "INVENTORY-NODE-A",
                 },
             ],
             Edges = [],
@@ -1968,7 +1968,110 @@ public sealed class ArchitectureInventoryObservedFactGraphOverlayTests
             string.Equals(node.NodeId, canonicalNodeId, StringComparison.OrdinalIgnoreCase));
         merged.Nodes.Single(node =>
                 string.Equals(node.NodeId, canonicalNodeId, StringComparison.OrdinalIgnoreCase))
-            .Label.Should().Be("first");
+            .Label.Should().Be("inventory-node-a");
+    }
+
+    [Fact]
+    public void Merge_throws_when_overlay_duplicate_nodes_disagree_on_label()
+    {
+        string canonicalNodeId = CloudResourceId.ToString("D");
+
+        GraphSnapshot baseGraph = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = ContextSnapshotId,
+            RunId = RunId,
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "context-node",
+                    NodeType = GraphNodeTypes.ContextSnapshot,
+                    Label = "Context",
+                },
+            ],
+            Edges = [],
+        };
+
+        GraphSnapshot overlay = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = ContextSnapshotId,
+            RunId = RunId,
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = canonicalNodeId,
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "SQL primary",
+                },
+                new GraphNode
+                {
+                    NodeId = canonicalNodeId,
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "SQL duplicate",
+                },
+            ],
+            Edges = [],
+        };
+
+        Action act = () => ArchitectureInventoryObservedFactGraphOverlayMerger.Merge(baseGraph, overlay);
+
+        act.Should().Throw<ArgumentException>()
+            .WithMessage("*disagree on Label*");
+    }
+
+    [Fact]
+    public void Merge_coalesces_overlay_duplicate_node_labels_when_labels_differ_only_by_casing()
+    {
+        const string canonicalNodeId = "inventory-node-label-case";
+
+        GraphSnapshot baseGraph = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = ContextSnapshotId,
+            RunId = RunId,
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "context-node",
+                    NodeType = GraphNodeTypes.ContextSnapshot,
+                    Label = "Context",
+                },
+            ],
+            Edges = [],
+        };
+
+        GraphSnapshot overlay = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = ContextSnapshotId,
+            RunId = RunId,
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = canonicalNodeId,
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "VNET-PROD",
+                },
+                new GraphNode
+                {
+                    NodeId = canonicalNodeId,
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "vnet-prod",
+                },
+            ],
+            Edges = [],
+        };
+
+        GraphSnapshot merged = ArchitectureInventoryObservedFactGraphOverlayMerger.Merge(baseGraph, overlay);
+
+        merged.Nodes.Should().HaveCount(2);
+        merged.Nodes.Single(node => string.Equals(node.NodeId, canonicalNodeId, StringComparison.OrdinalIgnoreCase))
+            .Label.Should().Be("VNET-PROD");
     }
 
     [Fact]
