@@ -748,6 +748,39 @@ public sealed class ConfigurationEffectiveValueResolverTests
     }
 
     [Fact]
+    public void Resolve_redacts_json_array_effective_values_when_object_element_contains_api_key_pair()
+    {
+        const string configPath = "ArchLucid:SomeFeature:Settings";
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = """[{"k":"ApiKey=x"}]""",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(configuration, configPath, isSet: true);
+
+        value.Should().Be("***");
+    }
+
+    [Fact]
+    public void Resolve_preserves_scalar_effective_value_at_exactly_256_bmp_chars_without_ellipsis()
+    {
+        const string configPath = "ArchLucid:SomeFeature:Settings";
+        string configured = new string('b', 256);
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = configured,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(configuration, configPath, isSet: true);
+
+        value.Should().Be(configured);
+    }
+
+    [Fact]
     public void Resolve_preserves_non_credential_json_array_scalar_effective_values()
     {
         const string configPath = "ArchLucid:SomeFeature:Settings";
