@@ -5292,21 +5292,28 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** recommendation engine; alternatives
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationEngine.cs; ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationTradeOffBuilder.cs
 - **test-filter:** FullyQualifiedName~ArchitectureRecommendationAlternativesTests|FullyQualifiedName~ArchitectureRecommendationProposedChangeTests
-- **hunts:** 80
+- **hunts:** 81
 - **last-hunt:** 2026-10-23
-- **bugs-found:** 40
+- **bugs-found:** 42
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-23 — `per user cost` prose falsely selected Cost dimension
+- **last-bug:** 2026-10-23 — `variable cost` / `incremental cost` prose falsely selected Cost
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
-2026-10-23 seed hunt (seed→hit): promoted `per <word> cost` phrasing still selecting Cost alongside Security; added `IsCostTokenInPerQualifierCostPhrase`; regression `BuildRecommendations_prefers_security_first_when_priority_is_per_user_cost_security_program`; cheap-disproof closed four sibling `(candidate)` rows; seeded five follow-on rows; scoped Alternatives/ProposedChange/TradeOff tests 87/87.
+2026-10-23 seed hunt (seed→hit): promoted `variable cost` / `incremental cost` qualified noun phrases still selecting Cost alongside Security; extended `IsCostTokenInQualifiedCostNounPhrase`; regressions `BuildRecommendations_prefers_security_first_when_priority_is_variable_cost_security_program`, `BuildRecommendations_prefers_security_first_when_priority_is_incremental_cost_security_program`; cheap-disproof closed three sibling `(candidate)` rows; seeded five follow-on rows; scoped Alternatives/ProposedChange/TradeOff tests 90/90.
 
 - [ ] (candidate) `ArchitectureRecommendationTradeOffBuilder.TryResolveDeclaredPairPrecedence` — multiple explicit pair matches in one priority string only honor the first match — input: comma-joined `Security over Cost, Cost over Security`; reachability: pasted sponsor bullets; wrong outcome: later clause ignored without surfacing ambiguity.
-- [ ] (candidate) `ArchitectureRecommendationTradeOffBuilder.DeclaredPriorityPrefersDimension` — `variable cost security` selects Cost — input: accounting noun phrase; reachability: sponsor prose; wrong outcome: balanced Security/Cost.
+- [ ] (candidate) `ArchitectureRecommendationTradeOffBuilder.DeclaredPriorityPrefersDimension` — `opportunity cost security` selects Cost — input: economics noun phrase; reachability: sponsor prose; wrong outcome: balanced Security/Cost.
 - [ ] (candidate) `ArchitectureRecommendationTradeOffBuilder.ApplyTradeOffs` — Security plus DataArchitecture actionable findings produce no trade-off object — input: mixed-dimension review package; contract gap only unless product requires all pairs.
-- [ ] (candidate) `ArchitectureRecommendationTradeOffBuilder.DeclaredPriorityPrefersDimension` — `incremental cost security` selects Cost — input: incremental cost modifier; reachability: finance framing; wrong outcome: balanced Security/Cost.
-- [ ] (candidate) `ArchitectureRecommendationTradeOffBuilder.TryResolveDeclaredPairPrecedence` — explicit `Security over Cost` in final entry ignored when earlier entries only mention Reliability — input: multi-bullet reliability framing then security/cost pair statement.
+- [ ] (candidate) `ArchitectureRecommendationTradeOffBuilder.DeclaredPriorityPrefersDimension` — `capital cost security` selects Cost — input: capex modifier; reachability: finance framing; wrong outcome: balanced Security/Cost.
+- [ ] (candidate) `ArchitectureRecommendationTradeOffBuilder.TryResolveDeclaredPairPrecedence` — conflicting explicit pairs across list entries with no dimension overlap — input: `Reliability over Cost` then `Security over Cost` then `Cost over Security`; reachability: noisy sponsor paste.
+
+- [x] (proven) `ArchitectureRecommendationTradeOffBuilder.DeclaredPriorityPrefersDimension` — `variable cost security` selects Cost — **hit 2026-10-23 seed hunt:** qualified noun list extended; regression `BuildRecommendations_prefers_security_first_when_priority_is_variable_cost_security_program`.
+- [x] (proven) `ArchitectureRecommendationTradeOffBuilder.DeclaredPriorityPrefersDimension` — `incremental cost security` selects Cost — **hit 2026-10-23 seed hunt:** qualified noun list extended; regression `BuildRecommendations_prefers_security_first_when_priority_is_incremental_cost_security_program`.
+- [x] (valid-no-repro) `ArchitectureRecommendationTradeOffBuilder.TryResolveDeclaredPairPrecedence` — `Security over Cost` after reliability-only pair text — **cheap-disproof 2026-10-23 seed hunt:** last applicable explicit Security/Cost pair wins; regression `BuildRecommendations_prefers_security_first_when_reliability_framing_precedes_security_over_cost`.
+- [x] (invalid) `ArchitectureRecommendationTradeOffBuilder.ApplyTradeOffs` — Security plus DataArchitecture trade-off — **cheap-disproof 2026-10-23 seed hunt:** dimension pair matrix contract unchanged.
+
+2026-10-23 seed hunt (seed→hit): promoted `per <word> cost` phrasing still selecting Cost alongside Security; added `IsCostTokenInPerQualifierCostPhrase`; regression `BuildRecommendations_prefers_security_first_when_priority_is_per_user_cost_security_program`; cheap-disproof closed four sibling `(candidate)` rows; seeded five follow-on rows; scoped Alternatives/ProposedChange/TradeOff tests 87/87.
 
 - [x] (proven) `ArchitectureRecommendationTradeOffBuilder.DeclaredPriorityPrefersDimension` — `per user cost security` selects Cost — **hit 2026-10-23 seed hunt:** `IsCostTokenInPerQualifierCostPhrase`; regression `BuildRecommendations_prefers_security_first_when_priority_is_per_user_cost_security_program`.
 - [x] (valid-no-repro) `ArchitectureRecommendationTradeOffBuilder.TryResolveDeclaredPairPrecedence` — later generic Security mention overrides earlier explicit pair — **cheap-disproof 2026-10-23 seed hunt:** explicit pair path ignores generic OR branch; regression `BuildRecommendations_prefers_cost_first_when_explicit_pair_precedes_later_generic_security_uplift`.
