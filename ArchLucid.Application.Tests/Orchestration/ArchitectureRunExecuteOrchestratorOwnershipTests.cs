@@ -337,6 +337,10 @@ public sealed class ArchitectureRunExecuteOrchestratorOwnershipTests
             .WithMessage("*not acquired*");
 
         ownership.Verify(s => s.BeginRenewalScope(runGuid, It.IsAny<CancellationTokenSource>()), Times.Never);
+        ownership.Verify(
+            s => s.ReleaseAsync(runGuid, It.IsAny<CancellationToken>()),
+            Times.Never,
+            "local-hold guard throws before renewal scope; ownership finally must not run");
     }
 
     private static Mock<IRunExecuteOwnershipLeaseService> CreateEnabledOwnershipMock(Guid runGuid)
