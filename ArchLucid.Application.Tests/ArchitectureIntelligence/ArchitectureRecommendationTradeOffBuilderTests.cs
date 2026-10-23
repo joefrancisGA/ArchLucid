@@ -67,6 +67,59 @@ public sealed class ArchitectureRecommendationTradeOffBuilderTests
     }
 
     [Fact]
+    public void BuildRecommendations_prefers_security_first_when_priority_uses_unicode_hyphen_in_cost_effective()
+    {
+        const string unicodeHyphenPriority = "Cost\u2011effective security program";
+        ArchitectureRecommendationEngine sut = new();
+        SpecialistReviewFinding securityFinding = CreateFailFinding(
+            "sec",
+            QualityDimension.Security,
+            "Public endpoint lacks documented trust boundary");
+        SpecialistReviewFinding costFinding = CreateFailFinding(
+            "cost",
+            QualityDimension.Cost,
+            "Spend exceeds stated ceiling");
+
+        IReadOnlyList<ArchitectureRecommendation> recommendations = sut.BuildRecommendations(
+            new ArchitectureKnowledgeModel { ModelId = "m", TenantId = "t" },
+            [securityFinding, costFinding],
+            [unicodeHyphenPriority]);
+
+        ArchitectureRecommendation securityRecommendation = recommendations.Single(
+            recommendation => recommendation.AffectedRequirementOrQualityAttribute == QualityDimension.Security.ToString());
+
+        securityRecommendation.TradeOffs.Should().ContainSingle();
+        securityRecommendation.TradeOffs[0].RecommendedResolution.Should().Contain(
+            "Prioritize security-first over cost-first.");
+    }
+
+    [Fact]
+    public void BuildRecommendations_prefers_security_first_when_priority_is_cost_conscious_security_program()
+    {
+        ArchitectureRecommendationEngine sut = new();
+        SpecialistReviewFinding securityFinding = CreateFailFinding(
+            "sec",
+            QualityDimension.Security,
+            "Public endpoint lacks documented trust boundary");
+        SpecialistReviewFinding costFinding = CreateFailFinding(
+            "cost",
+            QualityDimension.Cost,
+            "Spend exceeds stated ceiling");
+
+        IReadOnlyList<ArchitectureRecommendation> recommendations = sut.BuildRecommendations(
+            new ArchitectureKnowledgeModel { ModelId = "m", TenantId = "t" },
+            [securityFinding, costFinding],
+            ["cost-conscious security program"]);
+
+        ArchitectureRecommendation securityRecommendation = recommendations.Single(
+            recommendation => recommendation.AffectedRequirementOrQualityAttribute == QualityDimension.Security.ToString());
+
+        securityRecommendation.TradeOffs.Should().ContainSingle();
+        securityRecommendation.TradeOffs[0].RecommendedResolution.Should().Contain(
+            "Prioritize security-first over cost-first.");
+    }
+
+    [Fact]
     public void BuildRecommendations_prefers_security_first_when_priority_is_cost_effective_security_program()
     {
         ArchitectureRecommendationEngine sut = new();
@@ -402,6 +455,32 @@ public sealed class ArchitectureRecommendationTradeOffBuilderTests
         securityRecommendation.TradeOffs.Should().ContainSingle();
         securityRecommendation.TradeOffs[0].RecommendedResolution.Should().Contain(
             "Prioritize security-first over cost-first.");
+    }
+
+    [Fact]
+    public void BuildRecommendations_balances_security_cost_when_separate_priorities_each_name_a_dimension_first()
+    {
+        ArchitectureRecommendationEngine sut = new();
+        SpecialistReviewFinding securityFinding = CreateFailFinding(
+            "sec",
+            QualityDimension.Security,
+            "Public endpoint lacks documented trust boundary");
+        SpecialistReviewFinding costFinding = CreateFailFinding(
+            "cost",
+            QualityDimension.Cost,
+            "Spend exceeds stated ceiling");
+
+        IReadOnlyList<ArchitectureRecommendation> recommendations = sut.BuildRecommendations(
+            new ArchitectureKnowledgeModel { ModelId = "m", TenantId = "t" },
+            [securityFinding, costFinding],
+            ["Security-first", "Cost-first"]);
+
+        ArchitectureRecommendation securityRecommendation = recommendations.Single(
+            recommendation => recommendation.AffectedRequirementOrQualityAttribute == QualityDimension.Security.ToString());
+
+        securityRecommendation.TradeOffs.Should().ContainSingle();
+        securityRecommendation.TradeOffs[0].RecommendedResolution.Should().Contain(
+            "Balance Security and Cost with explicit human approval.");
     }
 
     [Fact]

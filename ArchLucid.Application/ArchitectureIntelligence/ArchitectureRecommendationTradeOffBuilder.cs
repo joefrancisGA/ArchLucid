@@ -183,11 +183,23 @@ internal static class ArchitectureRecommendationTradeOffBuilder
         return true;
     }
 
-    private static bool IsCostTokenInHyphenatedCompoundAdjective(string priority) =>
-        Regex.IsMatch(
+    private static bool IsCostTokenInHyphenatedCompoundAdjective(string priority)
+    {
+        Match match = Regex.Match(
             priority,
-            @"\bCost-(?=[\p{L}\p{N}])",
+            @"\bCost[-\u2010\u2011\u2012\u2013\u2014\u2015\u2212\uFE58\uFE63\uFF0D]([\p{L}\p{N}]+)",
             RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+        if (!match.Success)
+            return false;
+
+        string hyphenSuffix = match.Groups[1].Value;
+
+        if (hyphenSuffix.Equals("first", StringComparison.OrdinalIgnoreCase))
+            return false;
+
+        return true;
+    }
 
     private static bool TryResolveExplicitDimensionPrecedence(
         string priority,
