@@ -14654,12 +14654,14 @@ heap-disproved mermaid typed-topology candidate.
 - **aliases:** host composition; DI registration; startup modules
 - **paths:** ArchLucid.Host.Composition/
 - **test-filter:** FullyQualifiedName~Host.Composition|FullyQualifiedName~ServiceCollectionExtensions
-- **hunts:** 70
-- **bugs-found:** 54
+- **hunts:** 71
+- **bugs-found:** 55
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-23
-- **last-bug:** 2026-10-23 — collection discovery counted non-imported ingests as imported
+- **last-bug:** 2026-10-23 — non-terminal collection manifests ingested as snapshots
 - **code-changed-since:** yes
+
+2026-10-23 thorough hunt (seed→hit): proved `CollectionRunIngestService.IngestAsync` imported packages for manifest `status` `Running` (and other non-terminal states) despite ADR-0103 terminal-only ingest; reject non-`Succeeded`/`Partial` manifests before zip import; regressions `RunningManifestRejectsWithoutImport` and `DiscoverAsync_does_not_count_running_manifest_as_imported`; cheap-disproof closed four sibling `(candidate)` rows; seeded five follow-on `(candidate)` rows; scoped SecureNow ingest + discovery tests 12 passed (`RunAnalyzers=false`).
 
 2026-10-23 thorough hunt (seed→hit): proved `PollingCollectionRunDiscovery.DiscoverAsync` incremented `imported` after any non-throwing `IngestAsync` (including rejected runs and empty zips) and `AzureBlobCollectionRunArtifactReader.ReadArtifactAsync` returned zero-length package blobs as artifacts; count only `CollectionRunStatus.Imported`, skip empty `ZipBytes`, reader returns null for empty downloads; regressions `DiscoverAsync_does_not_count_empty_package_zip_as_imported`, `DiscoverAsync_does_not_increment_import_count_when_ingest_returns_rejected_status`; cheap-disproof closed three sibling `(candidate)` rows; seeded five follow-on `(candidate)` rows; scoped `PollingCollectionRunDiscoveryTests` 7 passed (`RunAnalyzers=false`).
 
@@ -14833,11 +14835,18 @@ heap-disproved mermaid typed-topology candidate.
 - [x] (valid-no-repro) `InMemoryValueReportJobQueue.TryPoll` — distributed `Completed` with whitespace-only `fileName` — **cheap-disproof 2026-10-23 thorough hunt #70:** corrupt poll filenames require invalid cross-replica state; completed bytes guard from hunt #68/#69 covers the high-impact failure mode.
 - [x] (valid-no-repro) `ApiRequestUsageEventBatchFlushHostedService` — timer tick races `StopAsync` dequeue — **cheap-disproof 2026-10-23 thorough hunt #70:** `StopAsync` drains buffer after final flush attempt; failed persist requeues via `ReturnBatchToBuffer`; regressions in `ApiRequestUsageEventBatchFlushHostedServiceTests` cover shutdown paths.
 
-- [ ] (candidate) `PollingCollectionRunDiscovery.DiscoverAsync` — `PartiallySucceeded` manifest status still ingests when zip present — locus: `CollectionRunIngestService.ParseStatus`; input: manifest `status` Partial with valid zip; wrong outcome: import count or run status mismatch.
-- [ ] (candidate) `CollectionRunIngestService.IngestAsync` — hash mismatch creates rejected row but discovery continues — locus: `IsManifestHashValid`; input: manifest `zipSha256` does not match bytes; wrong outcome: operator sees rejected rows without discovery metric signal.
-- [ ] (candidate) `InMemoryValueReportJobQueue.TryPoll` — distributed `Failed` with non-empty `bytesBase64` — locus: failed branch ignores bytes; input: corrupt terminal state includes document bytes; wrong outcome: client cannot download partial artifact.
-- [ ] (candidate) `AzureBlobCollectionRunArtifactReader.ListManifestsAsync` — `RequestFailedException` during enumeration returns partial list silently — locus: catch in list loop; input: mid-scan storage throttle; wrong outcome: operator unaware manifests were skipped.
-- [ ] (candidate) `ValueReportJobPollStateCacheRegistrar` — memory `IDistributedCache` used when Redis connection string invalid — locus: factory fallback; input: malformed Redis string with hot-path cache disabled; wrong outcome: cross-replica poll state split-brain.
+- [x] (valid-no-repro) `PollingCollectionRunDiscovery.DiscoverAsync` — `PartiallySucceeded` manifest status still ingests when zip present — **cheap-disproof 2026-10-23 thorough hunt #71:** ADR-0103 defines `Partial` as importable terminal evidence; ingest correctly promotes to `Imported` when zip validates.
+- [x] (valid-no-repro) `CollectionRunIngestService.IngestAsync` — hash mismatch creates rejected row but discovery continues — **cheap-disproof 2026-10-23 thorough hunt #71:** rejected ingest no longer increments discovery `imported` (hunt #70); per-manifest continue is intentional batch semantics.
+- [x] (proven) `CollectionRunIngestService.IngestAsync` — non-terminal manifest `status` still imported zip — **hit 2026-10-23 thorough hunt #71:** only `Succeeded` and `Partial` are importable; regression `RunningManifestRejectsWithoutImport`.
+- [x] (valid-no-repro) `InMemoryValueReportJobQueue.TryPoll` — distributed `Failed` with non-empty `bytesBase64` — **cheap-disproof 2026-10-23 thorough hunt #71:** failed poll contract exposes error copy only; spurious bytes in corrupt state are not a supported download path.
+- [x] (valid-no-repro) `AzureBlobCollectionRunArtifactReader.ListManifestsAsync` — `RequestFailedException` during enumeration returns partial list silently — **cheap-disproof 2026-10-23 thorough hunt #71:** intentional resilience from hunt #67; discovery still processes listed manifests.
+- [x] (valid-no-repro) `ValueReportJobPollStateCacheRegistrar` — memory `IDistributedCache` used when Redis connection string invalid — **cheap-disproof 2026-10-23 thorough hunt #71:** documented single-process fallback; shared `IDistributedCache` registration remains preferred (hunts #41–#44).
+
+- [ ] (candidate) `CollectionRunIngestService.IngestAsync` — `Failed` manifest with valid zip still rejected at status gate — locus: `IsImportableManifestStatus`; input: terminal `Failed` with package bytes; wrong outcome: forensic zip not ingested (may be correct).
+- [ ] (candidate) `AzureBlobCollectionRunArtifactReader.ParseManifestContent` — missing `schemaVersion` defaults to 0 and fails ingest — locus: `GetInt`; input: manifest without schema field; wrong outcome: rejected after list.
+- [ ] (candidate) `InMemoryValueReportJobQueue.TryPoll` — distributed state with mismatched `tenantId` in payload vs request scope — locus: `TryReadDistributedState`; input: forged cache entry; wrong outcome: cross-tenant leak (should be not-found).
+- [ ] (candidate) `PollingCollectionRunDiscovery.DiscoverAsync` — `OperationCanceledException` swallowed by outer list catch — locus: catch `Exception` around `ListManifestsAsync`; input: cancel during list; wrong outcome: returns 0 instead of propagating cancel.
+- [ ] (candidate) `ProcessSharedValueReportJobPollStateCache` — expired entries removed only on `Get` — locus: `TryGetValue` expiry check; input: many expired keys never read; wrong outcome: unbounded memory growth.
 
 
 2026-10-09 seed hunt (seed→hit): failed usage flush returned events through `Enqueue`, which drops them when metering is disabled. Already-accepted events now use `Requeue`. Regression `StopAsync_keeps_dequeued_usage_events_when_persist_fails_after_metering_disabled` failed first.
