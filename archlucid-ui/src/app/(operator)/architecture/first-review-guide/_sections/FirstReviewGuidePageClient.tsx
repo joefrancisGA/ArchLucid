@@ -147,8 +147,13 @@ function FirstReviewGuideSealedRecordProvenance(props: {
   const [technicalIdentifiersOpen, setTechnicalIdentifiersOpenState] = useState(() =>
     parseFirstReviewGuideTechnicalIdentifiersOpenFromSearch(firstReviewGuideTechnicalIdentifiersOpenParam),
   );
-  const recordTitle = sealedReviewRecord.displayName ?? "Architecture review";
+  const recordTitle =
+    sealedReviewRecord.displayName != null && sealedReviewRecord.displayName.trim().length > 0
+      ? sealedReviewRecord.displayName.trim()
+      : "Review title was not stored.";
   const finalizedOn = sealedRecordFinalizedOnLabel(sealedReviewRecord.finalizedOnUtc);
+  const finalizedTimeLine =
+    finalizedOn !== null ? ` — finalized ${finalizedOn}` : " — Finalized time was not stored.";
 
   const syncTechnicalIdentifiersOpenToUrl = useCallback(
     (open: boolean) => {
@@ -178,7 +183,7 @@ function FirstReviewGuideSealedRecordProvenance(props: {
     <div className="space-y-1" data-testid="first-review-guide-sealed-record-provenance">
       <p className={cn("m-0", OPERATOR_SHORT_HELPER_MEASURE_CLASS, OPERATOR_TYPOGRAPHY.helper)}>
         <span className="font-medium text-neutral-900 dark:text-neutral-100">{recordTitle}</span>
-        {finalizedOn !== null ? ` — finalized ${finalizedOn}` : null}
+        {finalizedTimeLine}
       </p>
       <details
         className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_SHORT_HELPER_MEASURE_CLASS)}
@@ -189,11 +194,11 @@ function FirstReviewGuideSealedRecordProvenance(props: {
       >
         <summary className={cn("cursor-pointer", OPERATOR_TYPOGRAPHY.helper)}>Technical identifiers</summary>
         <p className={cn("m-0 mt-1 font-mono", OPERATOR_TYPOGRAPHY.helper)}>Record ID: {sealedReviewRecord.runId}</p>
-        {sealedReviewRecord.finalizedByUserId !== null ? (
-          <p className={cn("m-0 mt-1 font-mono", OPERATOR_TYPOGRAPHY.helper)}>
-            Created by: {sealedReviewRecord.finalizedByUserId}
-          </p>
-        ) : null}
+        <p className={cn("m-0 mt-1 font-mono", OPERATOR_TYPOGRAPHY.helper)}>
+          {sealedReviewRecord.finalizedByUserId !== null
+            ? `Created by: ${sealedReviewRecord.finalizedByUserId}`
+            : "Finalized by was not stored."}
+        </p>
       </details>
     </div>
   );

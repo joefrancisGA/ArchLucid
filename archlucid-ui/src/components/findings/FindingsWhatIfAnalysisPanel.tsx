@@ -224,7 +224,7 @@ export function FindingsWhatIfAnalysisPanel(props: FindingsWhatIfAnalysisPanelPr
                       −{formatUsd(row.savingsUsd)}
                       {row.interval && (
                         <span className="ml-1 opacity-75">
-                          (Range: {row.interval.lower !== null ? formatUsd(row.interval.lower) : "?"} - {row.interval.upper !== null ? formatUsd(row.interval.upper) : "?"})
+                          (Range: {row.interval.lower !== null ? formatUsd(row.interval.lower) : "Lower bound was not stored."} - {row.interval.upper !== null ? formatUsd(row.interval.upper) : "Upper bound was not stored."})
                         </span>
                       )}
                     </span>

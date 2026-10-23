@@ -125,7 +125,11 @@ export function formatFindingsVisibilitySummaryLine(
   return `Showing ${shownCount} of ${toolbarFilteredCount}`;
 }
 
-export function formatHiddenLowConfidenceHint(hiddenCount: number): string | null {
+export function formatHiddenLowConfidenceHint(hiddenCount: number | null | undefined): string | null {
+  if (hiddenCount === null || hiddenCount === undefined) {
+    return "Hidden finding count was not stored.";
+  }
+
   if (hiddenCount <= 0) {
     return null;
   }
