@@ -32,9 +32,13 @@ public sealed class PollingCollectionRunDiscovery(
         }
 
         int imported = 0;
+        HashSet<Guid> seenRunIds = new();
 
         foreach (CollectionRunManifest manifest in manifests)
         {
+            if (!seenRunIds.Add(manifest.RunId))
+                continue;
+
             CollectionRunArtifact? artifact;
 
             try

@@ -486,6 +486,95 @@ public sealed class PollingCollectionRunDiscoveryTests
     }
 
     [Fact]
+    public async Task DiscoverAsync_counts_duplicate_runId_manifest_once_per_batch()
+    {
+        Guid tenantId = Guid.NewGuid();
+        Guid runId = Guid.NewGuid();
+        CollectionRunManifest first = new()
+        {
+            RunId = runId,
+            AgentVersion = "1.0",
+            StartedUtc = DateTime.UtcNow,
+            Status = "Succeeded",
+            TenantId = tenantId,
+            ZipPath = "runs/a/package.zip",
+            SchemaVersion = AzureExtractorPackageZipValidator.SupportedSchemaVersion,
+        };
+
+        CollectionRunManifest duplicate = new()
+        {
+            RunId = runId,
+            AgentVersion = "1.0",
+            StartedUtc = DateTime.UtcNow,
+            Status = "Succeeded",
+            TenantId = tenantId,
+            ZipPath = "runs/b/package.zip",
+            SchemaVersion = AzureExtractorPackageZipValidator.SupportedSchemaVersion,
+        };
+
+        CollectionRunArtifact artifact = new()
+        {
+            Manifest = first,
+            ZipBytes = [0x50, 0x4B, 0x03, 0x04],
+        };
+
+        Mock<ICollectionRunArtifactReader> reader = new();
+        reader
+            .Setup(r => r.ListManifestsAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync([first, duplicate]);
+        reader
+            .Setup(r => r.ReadArtifactAsync(first, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(artifact);
+        reader
+            .Setup(r => r.ReadArtifactAsync(duplicate, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(artifact);
+
+        Mock<ICollectionRunRepository> repository = new();
+        repository
+            .Setup(r => r.GetAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((CollectionRun?)null);
+        repository
+            .Setup(r => r.HasImportedHashAsync(It.IsAny<ScopeContext>(), It.IsAny<byte[]>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
+        repository
+            .Setup(r => r.UpsertAsync(It.IsAny<CollectionRun>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IAzureExtractorIngestService> azureIngest = new();
+        azureIngest
+            .Setup(i => i.IngestZipBytesAsync(
+                It.IsAny<byte[]>(),
+                It.IsAny<string>(),
+                It.IsAny<Guid?>(),
+                It.IsAny<CancellationToken>(),
+                It.IsAny<string?>(),
+                It.IsAny<long>()))
+            .ReturnsAsync(new AzureExtractorIngestResult { Succeeded = true, SnapshotId = Guid.NewGuid() });
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider
+            .Setup(p => p.GetCurrentScope())
+            .Returns(new ScopeContext
+            {
+                TenantId = tenantId,
+                WorkspaceId = Guid.NewGuid(),
+                ProjectId = Guid.NewGuid(),
+            });
+
+        CollectionRunIngestService ingest = new(
+            repository.Object,
+            azureIngest.Object,
+            scopeProvider.Object);
+
+        PollingCollectionRunDiscovery discovery = new(reader.Object, ingest);
+
+        int imported = await discovery.DiscoverAsync(CancellationToken.None);
+
+        imported.Should().Be(1);
+        azureIngest.Invocations.Count.Should().Be(1);
+    }
+
+    [Fact]
     public async Task DiscoverAsync_propagates_operation_canceled_when_list_manifests_is_canceled()
     {
         using CancellationTokenSource cts = new();

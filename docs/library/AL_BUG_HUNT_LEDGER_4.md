@@ -14654,12 +14654,14 @@ heap-disproved mermaid typed-topology candidate.
 - **aliases:** host composition; DI registration; startup modules
 - **paths:** ArchLucid.Host.Composition/
 - **test-filter:** FullyQualifiedName~Host.Composition|FullyQualifiedName~ServiceCollectionExtensions
-- **hunts:** 76
-- **bugs-found:** 60
+- **hunts:** 77
+- **bugs-found:** 61
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-23
-- **last-bug:** 2026-10-23 — corrupt local completed poll hid distributed terminal state
+- **last-bug:** 2026-10-23 — duplicate collection runId inflated discovery import count
 - **code-changed-since:** yes
+
+2026-10-23 thorough hunt (seed→hit): proved `PollingCollectionRunDiscovery.DiscoverAsync` processed duplicate manifest `runId` entries in one list and incremented `imported` once per duplicate `IngestAsync` returning `Imported`; skip subsequent manifests with the same `runId` in a batch; regression `DiscoverAsync_counts_duplicate_runId_manifest_once_per_batch`; cheap-disproof closed four sibling `(candidate)` rows; seeded five follow-on `(candidate)` rows; scoped `PollingCollectionRunDiscoveryTests` 11 passed (`RunAnalyzers=false`).
 
 2026-10-23 thorough hunt (seed→hit): proved `InMemoryValueReportJobQueue.TryPoll` kept serving corrupt local `Completed` entries (missing bytes) or ignored distributed `Failed` when local still said completed; `PreferDistributedPollState` merges distributed terminal/completed bytes over stale local completed state; regressions `TryPoll_prefers_distributed_completed_bytes_when_local_completed_has_no_document` and `TryPoll_prefers_distributed_failure_when_local_completed_has_no_document_bytes`; cheap-disproof closed three sibling `(candidate)` rows; seeded five follow-on `(candidate)` rows; scoped `InMemoryValueReportJobQueueDistributedPollStateTests` 11 passed (`RunAnalyzers=false`).
 
@@ -14882,11 +14884,17 @@ heap-disproved mermaid typed-topology candidate.
 - [x] (valid-no-repro) `AzureBlobCollectionRunArtifactReader.ListManifestsAsync` — prefix filter omits manifests outside `runs/` layout — **cheap-disproof 2026-10-23 thorough hunt #76:** `CollectionRunStorageOptions.Prefix` is operator configuration for handoff layout, not a defect.
 - [x] (valid-no-repro) `ApiRequestUsageEventBatchFlushHostedService` — `ReturnBatchToBuffer` order not preserved under concurrency — **cheap-disproof 2026-10-23 thorough hunt #76:** metering batches are idempotent via `IdempotencyKey`; ordering is not a correctness invariant.
 
-- [ ] (candidate) `InMemoryValueReportJobQueue.TryPoll` — local `Completed` with bytes not overridden when distributed `Failed` — locus: `PreferDistributedPollState`; input: divergent terminal states with both carrying bytes; wrong outcome: ambiguous download (rare split-brain).
-- [ ] (candidate) `InMemoryValueReportJobQueue.Enqueue` — `PruneTerminalLocalJobs` removes terminal state still needed for same-job poll on single-process host — locus: prune before enqueue; input: no distributed cache; wrong outcome: not-found after second enqueue (mitigated by poll cache).
-- [ ] (candidate) `PollingCollectionRunDiscovery.DiscoverAsync` — same `runId` twice in one list invokes ingest twice — locus: foreach; input: duplicate manifest blobs; wrong outcome: redundant work (bounded by idempotency).
-- [ ] (candidate) `CollectionRunIngestService.IngestAsync` — rejected runs still upsert repository rows without operator metrics — locus: `UpsertAsync` on reject paths; input: bad manifests batch; wrong outcome: DB churn only (intentional audit trail).
-- [ ] (candidate) `ProcessSharedValueReportJobPollStateCache.Get` — expired entry removal only on read — locus: lazy expiry; input: never-polled expired keys between `Set` prunes; wrong outcome: memory until next `Set` (mitigated by hunt #72 prune-on-set).
+- [x] (valid-no-repro) `InMemoryValueReportJobQueue.TryPoll` — local `Completed` with bytes not overridden when distributed `Failed` — **cheap-disproof 2026-10-23 thorough hunt #77:** prefer local completed bytes when present to avoid hiding successful on-box renders; distributed failure wins only when local completed lacks bytes (hunt #76).
+- [x] (valid-no-repro) `InMemoryValueReportJobQueue.Enqueue` — `PruneTerminalLocalJobs` removes terminal state still needed for same-job poll on single-process host — **cheap-disproof 2026-10-23 thorough hunt #77:** `ProcessSharedValueReportJobPollStateCache` and distributed cache retain poll state after local prune (hunts #72/#73).
+- [x] (proven) `PollingCollectionRunDiscovery.DiscoverAsync` — same `runId` twice in one list inflated `imported` — **hit 2026-10-23 thorough hunt #77:** skip duplicate `runId` per batch; regression `DiscoverAsync_counts_duplicate_runId_manifest_once_per_batch`.
+- [x] (valid-no-repro) `CollectionRunIngestService.IngestAsync` — rejected runs still upsert repository rows without operator metrics — **cheap-disproof 2026-10-23 thorough hunt #77:** rejected rows are the operator audit trail for bad manifests.
+- [x] (valid-no-repro) `ProcessSharedValueReportJobPollStateCache.Get` — expired entry removal only on read — **cheap-disproof 2026-10-23 thorough hunt #77:** hunt #72 prunes on `Set`; lazy `Get` expiry remains a second-chance cleanup.
+
+- [ ] (candidate) `PollingCollectionRunDiscovery.DiscoverAsync` — duplicate `runId` with different `packageSha256` in one list keeps first manifest only — locus: `seenRunIds`; input: conflicting duplicates; wrong outcome: wrong package imported (operator must fix blob layout).
+- [ ] (candidate) `CollectionRunIngestService.IngestAsync` — existing non-imported run replaced when same `runId` re-ingested — locus: `GetAsync` + upsert; input: retry after failed ingest; wrong outcome: may be correct retry semantics.
+- [ ] (candidate) `InMemoryValueReportJobQueue.TryPoll` — unknown job phase string maps to failed without clearing local pending — locus: `TryReadDistributedState`; input: corrupt `phase`; wrong outcome: failed copy (hunt #66 behavior).
+- [ ] (candidate) `AzureBlobCollectionRunArtifactReader.ReadArtifactAsync` — whitespace-only `packageBlobPath` treated as missing — locus: `IsNullOrWhiteSpace`; input: `"   "` zip path; wrong outcome: skip (correct).
+- [ ] (candidate) `ValueReportJobPollStateCacheRegistrar.Register` — no-op when cache already registered hides misconfigured second registrar — locus: early return; input: double module registration; wrong outcome: intentional idempotency.
 
 
 2026-10-09 seed hunt (seed→hit): failed usage flush returned events through `Enqueue`, which drops them when metering is disabled. Already-accepted events now use `Requeue`. Regression `StopAsync_keeps_dequeued_usage_events_when_persist_fails_after_metering_disabled` failed first.
