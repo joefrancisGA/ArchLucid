@@ -236,6 +236,8 @@ export function FindingDetailInspectBody({ presentation }: Props) {
               structuredActions={[...buyerStructuredActions]}
               recommendedActionParagraph={buyerRecommendedActionParagraph}
               showOwnerCadence
+              riskOwnerLabel={decisionSummary.riskOwner}
+              nextReviewLabel={decisionSummary.nextReview}
             />
           ) : null}
 
