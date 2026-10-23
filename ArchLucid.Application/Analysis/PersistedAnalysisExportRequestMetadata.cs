@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Metadata;
+
 namespace ArchLucid.Application.Analysis;
 
 /// <summary>
@@ -5,13 +7,8 @@ namespace ArchLucid.Application.Analysis;
 /// </summary>
 internal static class PersistedAnalysisExportRequestMetadata
 {
-    internal static string? NormalizeOptionalString(string? value)
-    {
-        if (string.IsNullOrWhiteSpace(value))
-            return null;
-
-        return value.Trim();
-    }
+    internal static string? NormalizeOptionalString(string? value) =>
+        OptionalExportMetadataStringNormalizer.NormalizeOptionalString(value);
 
     internal static void TrimOptionalStrings(PersistedAnalysisExportRequest? request)
     {

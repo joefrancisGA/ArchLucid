@@ -19,20 +19,14 @@ internal static class RunExportRecordPersistNormalizer
         record.ExportType = record.ExportType.Trim();
         record.Format = record.Format.Trim();
         record.FileName = record.FileName.Trim();
-        record.TemplateProfile = NullIfWhiteSpace(record.TemplateProfile);
-        record.TemplateProfileDisplayName = NullIfWhiteSpace(record.TemplateProfileDisplayName);
-        record.ResolutionReason = NullIfWhiteSpace(record.ResolutionReason);
-        record.ManifestVersion = NullIfWhiteSpace(record.ManifestVersion);
-        record.Notes = NullIfWhiteSpace(record.Notes);
-        record.CompareManifestVersion = NullIfWhiteSpace(record.CompareManifestVersion);
-        record.CompareRunId = NullIfWhiteSpace(record.CompareRunId);
-    }
-
-    private static string? NullIfWhiteSpace(string? value)
-    {
-        if (string.IsNullOrWhiteSpace(value))
-            return null;
-
-        return value.Trim();
+        record.TemplateProfile = OptionalExportMetadataStringNormalizer.NormalizeOptionalString(record.TemplateProfile);
+        record.TemplateProfileDisplayName =
+            OptionalExportMetadataStringNormalizer.NormalizeOptionalString(record.TemplateProfileDisplayName);
+        record.ResolutionReason = OptionalExportMetadataStringNormalizer.NormalizeOptionalString(record.ResolutionReason);
+        record.ManifestVersion = OptionalExportMetadataStringNormalizer.NormalizeOptionalString(record.ManifestVersion);
+        record.Notes = OptionalExportMetadataStringNormalizer.NormalizeOptionalString(record.Notes);
+        record.CompareManifestVersion =
+            OptionalExportMetadataStringNormalizer.NormalizeOptionalString(record.CompareManifestVersion);
+        record.CompareRunId = OptionalExportMetadataStringNormalizer.NormalizeOptionalString(record.CompareRunId);
     }
 }

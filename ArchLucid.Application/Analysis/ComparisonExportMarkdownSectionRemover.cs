@@ -99,7 +99,9 @@ internal static class ComparisonExportMarkdownSectionRemover
         if (candidate is >= '\uFE00' and <= '\uFE0F')
             return true;
 
-        return char.GetUnicodeCategory(candidate) == UnicodeCategory.Format;
+        UnicodeCategory category = char.GetUnicodeCategory(candidate);
+
+        return category is UnicodeCategory.Format or UnicodeCategory.NonSpacingMark;
     }
 
     private static bool ShouldSubstituteWithAsciiSpace(char candidate)

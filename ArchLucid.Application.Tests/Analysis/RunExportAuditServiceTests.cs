@@ -120,6 +120,47 @@ public sealed class RunExportAuditServiceTests
     }
 
     [Fact]
+    public async Task RecordAsync_nulls_whitespace_only_whitelabel_firm_in_serialized_analysis_request()
+    {
+        Mock<IRunExportRecordRepository> repo = new();
+        RunExportRecord? captured = null;
+        repo
+            .Setup(r => r.CreateAsync(It.IsAny<RunExportRecord>(), It.IsAny<CancellationToken>()))
+            .Callback<RunExportRecord, CancellationToken>((record, _) => captured = record)
+            .Returns(Task.CompletedTask);
+
+        RunExportAuditService sut = new(
+            repo.Object,
+            Mock.Of<IAuditService>(),
+            NullLogger<RunExportAuditService>.Instance);
+
+        PersistedAnalysisExportRequest request = new()
+        {
+            ReviewBoardWhitelabelFirmDisplayName = "   ",
+        };
+
+        await sut.RecordAsync(
+            "deadbeefdeadbeefdeadbeefdeadbeef",
+            "analysis-report-docx",
+            "docx",
+            "report.docx",
+            null,
+            null,
+            false,
+            null,
+            null,
+            analysisRequest: request,
+            emitArchitectureDocxExportGeneratedAudit: false,
+            cancellationToken: CancellationToken.None);
+
+        captured.Should().NotBeNull();
+        PersistedAnalysisExportRequest? rehydrated = AnalysisExportRequestRehydrator.Rehydrate(captured!);
+
+        rehydrated.Should().NotBeNull();
+        rehydrated!.ReviewBoardWhitelabelFirmDisplayName.Should().BeNull();
+    }
+
+    [Fact]
     public async Task RecordAsync_nulls_whitespace_only_notes_before_persist()
     {
         Mock<IRunExportRecordRepository> repo = new();
