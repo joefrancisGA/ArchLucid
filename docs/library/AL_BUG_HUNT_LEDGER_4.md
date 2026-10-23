@@ -12470,10 +12470,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 316
-- **bugs-found:** 218
+- **hunts:** 317
+- **bugs-found:** 219
 - **last-hunt:** 2026-10-23
-- **last-bug:** 2026-10-23 — overlay merge skipped duplicate edges without backfilling Weight from later rows
+- **last-bug:** 2026-10-23 — overlay merge skipped duplicate edges colliding with base graph without backfill
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -13033,7 +13033,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - [x] (proven) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — duplicate overlay edges with zero first-row `Weight` kept zero when later row supplied non-zero weight — **hit 2026-10-23 seed hunt (seed→hit):** weight agreement omission parity and weight backfill on duplicate overlay edge dedupe; regression above.
 
-- [ ] (candidate) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — duplicate overlay edges that share a directed key with the base graph may discard later overlay rows without merging overlay-only scalar or property backfill — locus: duplicate-edge handling runs backfill only when `!baseEdgeKeys.Contains(edgeKey)`; input: base graph already has a directed edge and overlay lists multiple rows for the same key; wrong outcome: later overlay rows are skipped entirely without enriching the merged edge.
+2026-10-23 seed hunt (seed→hit): promoted `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` duplicate overlay edges that share a directed key with the base graph candidate; proved duplicate-edge scalar/property backfill ran only when `!baseEdgeKeys.Contains(edgeKey)`, so overlay rows colliding with an existing base-graph edge were skipped without enriching the retained base edge; always run backfill on directed-key collisions and keep strict `TryValidateOverlayEdgeAgreement` only for overlay-only duplicate keys (base-graph collisions still backfill without failing on mismatched overlay metadata ids); regression `Merge_backfills_overlay_duplicate_edge_label_into_base_graph_edge_when_multiple_overlay_rows_share_base_directed_key`; seeded `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` duplicate overlay nodes that share a `NodeId` with the base graph may skip overlay-only duplicate backfill follow-on; 629 KnowledgeGraph + 170 Provenance scoped tests passed.
+
+- [x] (proven) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — duplicate overlay edges sharing a base-graph directed key discarded later overlay rows without backfill — **hit 2026-10-23 seed hunt (seed→hit):** base-graph parity for duplicate overlay edge backfill; regression above.
+
+- [ ] (candidate) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — duplicate overlay nodes that share a `NodeId` with the base graph may discard later overlay rows without merging overlay-only scalar or property backfill — locus: duplicate-node handling runs backfill only when `!baseNodeIds.Contains(normalizedInventoryNodeId)`; input: base graph already has a node id and overlay lists multiple rows for the same id; wrong outcome: later overlay rows are skipped entirely without enriching the merged node.
 
 2026-10-22 seed hunt (seed→hit): promoted `StructuredDiagramGraphMerger` padded diagram property-key coalesce candidate; proved duplicate node/edge metadata coalesce indexed raw `property.Key`, so a later compile with surrounding-whitespace keys left parallel bag entries and `GraphNodePropertyReader` could return stale source-evidence values; trim keys before skip/coalesce (parity with `GraphNodeFactory.NormalizePropertyBag`); regression `Merge_coalesces_node_properties_when_incoming_property_keys_differ_only_by_surrounding_whitespace`; seeded diagram edge metadata padded-key coalesce regression follow-on; 468 KnowledgeGraph + 170 Provenance scoped tests passed.
 

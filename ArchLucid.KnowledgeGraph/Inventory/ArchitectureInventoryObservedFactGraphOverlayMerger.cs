@@ -75,21 +75,22 @@ public static class ArchitectureInventoryObservedFactGraphOverlayMerger
 
             if (!edgeKeys.Add(edgeKey))
             {
+                GraphEdge retainedEdge = mergedEdges.First(edge =>
+                    string.Equals(BuildEdgeKey(edge), edgeKey, StringComparison.OrdinalIgnoreCase));
+
                 if (!baseEdgeKeys.Contains(edgeKey))
                 {
-                    GraphEdge retainedEdge = mergedEdges.First(edge =>
-                        string.Equals(BuildEdgeKey(edge), edgeKey, StringComparison.OrdinalIgnoreCase));
-
                     TryValidateOverlayEdgeAgreement(inventoryEdge, retainedEdge);
-                    TryMergeOverlayEdgePropertyBackfillFromDuplicateRow(inventoryEdge, retainedEdge);
-                    TryMergeOverlayEdgeLabelBackfillFromDuplicateRow(inventoryEdge, retainedEdge);
-                    TryMergeOverlayEdgeReasoningTraceBackfillFromDuplicateRow(inventoryEdge, retainedEdge);
-                    TryMergeOverlayEdgeInferenceSourceBackfillFromDuplicateRow(inventoryEdge, retainedEdge);
-                    TryMergeOverlayEdgeProvenanceKindBackfillFromDuplicateRow(inventoryEdge, retainedEdge);
-                    TryMergeOverlayEdgeDeclaredConnectionIdBackfillFromDuplicateRow(inventoryEdge, retainedEdge);
-                    TryMergeOverlayEdgeEdgeIdBackfillFromDuplicateRow(inventoryEdge, retainedEdge);
-                    TryMergeOverlayEdgeWeightBackfillFromDuplicateRow(inventoryEdge, retainedEdge);
                 }
+
+                TryMergeOverlayEdgePropertyBackfillFromDuplicateRow(inventoryEdge, retainedEdge);
+                TryMergeOverlayEdgeLabelBackfillFromDuplicateRow(inventoryEdge, retainedEdge);
+                TryMergeOverlayEdgeReasoningTraceBackfillFromDuplicateRow(inventoryEdge, retainedEdge);
+                TryMergeOverlayEdgeInferenceSourceBackfillFromDuplicateRow(inventoryEdge, retainedEdge);
+                TryMergeOverlayEdgeProvenanceKindBackfillFromDuplicateRow(inventoryEdge, retainedEdge);
+                TryMergeOverlayEdgeDeclaredConnectionIdBackfillFromDuplicateRow(inventoryEdge, retainedEdge);
+                TryMergeOverlayEdgeEdgeIdBackfillFromDuplicateRow(inventoryEdge, retainedEdge);
+                TryMergeOverlayEdgeWeightBackfillFromDuplicateRow(inventoryEdge, retainedEdge);
 
                 continue;
             }
