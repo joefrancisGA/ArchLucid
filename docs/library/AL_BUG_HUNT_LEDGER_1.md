@@ -4211,14 +4211,23 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: storage-vs-data-category
 
+2026-10-23 seed hunt (seed→hit): proved `TryDescribeBriefGroundingDrop` used raw `Contains("public")` on endpoint names, so private-networking briefs dropped services like `republic-ledger-api`; fixed with `\bpublic\b` token matching; regression `ApplyBriefGrounding_preserves_republic_service_name_when_private_networking_required`; cheap-disproof closed five stale JSON-null / whitespace `(candidate)` rows; seeded five follow-on rows; scoped post-processor, consistency-gate, and brief-grounding tests 44/44. Private beta: execute batches with confirmed private-networking briefs no longer strip legitimate topology nodes whose names embed `public` as a substring.
+
+- [ ] (candidate) `TryDescribeBriefGroundingDrop` — HTTPS rule `Contains("http")` without scheme boundary may drop endpoint names embedding `http` (e.g. `chromhttp-bridge`) — locus: HTTPS substring guard; input: confirmed HTTPS brief with non-URL service name.
+- [ ] (candidate) `EndpointSuggestsMissingEncryptionAtRest` — `plaintext` substring inside unrelated tokens (`nonplaintext-store`) — locus: encryption-at-rest name heuristic; input: confirmed encryption capability brief.
+- [ ] (candidate) `PruneRelationshipsAfterGroundingDrops` — relationship whose `SourceId`/`TargetId` is whitespace-only may bypass drop detection vs trimmed manifest keys — locus: `DeclaredEndpointKeySetContains` trim parity; input: brief grounding drop with padded endpoint ids on edges.
+- [ ] (candidate) `CrossAgentProposalConsistencyGate.FilterRelationshipOnlyProposals` — both batch endpoints declared but `RelationshipEndpointsAreKnown` false may drop deferred inventoried edges when validation keys omit rename aliases — locus: validation key union; input: cost relationship-only follow-up after topology rename alias in same batch.
+- [ ] (candidate) `DedupeRequiredControls` — non-Compliance agents may emit duplicate `requiredControls` that post-processor never dedupes before persistence — locus: `ApplyToProposal` agent-type guard; input: topology proposal JSON with repeated control strings.
+
 2026-10-23 seed hunt (seed→hit): promoted JSON-null `addedRelationships` elements retained on relationship-only proposals when endpoint validation keys were empty; `CopyNonNullRelationships` on fast paths in post-processor and consistency gate; regressions `ApplyToProposal_skips_null_added_relationship_entry_for_relationship_only_proposal`, `ApplyToResults_skips_null_added_relationship_entry_for_relationship_only_proposal`, `ApplyToProposal_skips_null_added_datastore_entry_from_deserialized_proposal`; cheap-disproof closed two stale `(candidate)` rows; seeded five follow-on rows; scoped tests 37/37. Private beta: multi-agent execute batches with sparse relationship-only JSON no longer carry null edges that could crash later merge/graph steps for invited pilot runs.
 
-- [ ] (candidate) `CrossAgentProposalConsistencyGate.FilterRelationshipOnlyProposals` — null relationship retained when batch declares endpoints but validation keys empty — locus: early return vs batch-declared path; input: relationship-only proposal after topology agent registered batch keys.
-- [ ] (candidate) `AgentProposalStructuralPostProcessor.ApplyBriefGrounding` — null relationship survives grounding prune when relationship-only — locus: `PruneRelationshipsAfterGroundingDrops`; input: brief grounding with null relationship element.
-- [ ] (candidate) `CrossAgentProposalConsistencyGate.ClaimRequiredControls` — JSON-null control string element — locus: required-controls loop; input: `requiredControls: [null]`.
-- [ ] (candidate) `AgentProposalStructuralPostProcessor.DedupeRequiredControls` — whitespace-only control duplicates non-empty control — locus: trim/dedupe; input: `" HTTPS "` vs `"HTTPS"`.
-- [ ] (candidate) `CrossAgentProposalConsistencyGate.ApplyToResults` — JSON-null `ProposedChanges` on non-null `AgentResult` — locus: ordering before null proposal skip; input: execute payload with empty proposed-changes object deserialized as null.
+- [x] (valid-no-repro) `CrossAgentProposalConsistencyGate.FilterRelationshipOnlyProposals` — null relationship when batch declares endpoints — **cheap-disproof 2026-10-23 seed hunt:** null elements skipped; relationship-only fast path uses `CopyNonNullRelationships`; regression `ApplyToResults_skips_null_added_relationship_entry_for_relationship_only_proposal`.
+- [x] (valid-no-repro) `AgentProposalStructuralPostProcessor.ApplyBriefGrounding` — null relationship in `PruneRelationshipsAfterGroundingDrops` — **cheap-disproof 2026-10-23 seed hunt:** null elements skipped before endpoint comparison.
+- [x] (valid-no-repro) `CrossAgentProposalConsistencyGate.ClaimRequiredControls` — JSON-null control string — **cheap-disproof 2026-10-23 seed hunt:** `IsNullOrWhiteSpace` guard in claim loop.
+- [x] (valid-no-repro) `AgentProposalStructuralPostProcessor.DedupeRequiredControls` — whitespace trim dedupes `" HTTPS "` vs `"HTTPS"` — **cheap-disproof 2026-10-23 seed hunt:** intentional trim + case-insensitive set; regression `ApplyToProposal_dedupes_required_controls_for_compliance`.
+- [x] (valid-no-repro) `CrossAgentProposalConsistencyGate.ApplyToResults` — null `ProposedChanges` on `AgentResult` — **cheap-disproof 2026-10-23 seed hunt:** null proposal skipped before merge loops.
 
+- [x] (proven) `TryDescribeBriefGroundingDrop` — raw `Contains("public")` on endpoint names dropped `republic-*` services under private-networking briefs — **hit 2026-10-23 seed hunt:** `\bpublic\b` token boundary; regression `ApplyBriefGrounding_preserves_republic_service_name_when_private_networking_required`.
 - [x] (proven) `AgentProposalStructuralPostProcessor.FilterRelationships` — JSON-null relationship on relationship-only proposal — **hit 2026-10-23 seed hunt:** `CopyNonNullRelationships`; regression `ApplyToProposal_skips_null_added_relationship_entry_for_relationship_only_proposal`.
 - [x] (proven) `CrossAgentProposalConsistencyGate.FilterRelationshipOnlyProposals` — JSON-null relationship on relationship-only proposal — **hit 2026-10-23 seed hunt:** `CopyNonNullRelationships`; regression `ApplyToResults_skips_null_added_relationship_entry_for_relationship_only_proposal`.
 - [x] (valid-no-repro) `AgentProposalStructuralPostProcessor.DedupeDatastores` — JSON-null datastore entry — **cheap-disproof 2026-10-23 seed hunt:** element guard; regression `ApplyToProposal_skips_null_added_datastore_entry_from_deserialized_proposal`.
@@ -4233,11 +4242,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** storage vs data; structural post-processor; consistency gate
 - **paths:** ArchLucid.Application/Runs/Orchestration/AgentProposalStructuralPostProcessor.cs; ArchLucid.Application/Runs/Orchestration/CrossAgentProposalConsistencyGate.cs
 - **test-filter:** FullyQualifiedName~AgentProposalStructuralPostProcessorTests|FullyQualifiedName~CrossAgentProposalConsistencyGateTests
-- **hunts:** 14
-- **bugs-found:** 2
+- **hunts:** 15
+- **bugs-found:** 3
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-23
-- **last-bug:** 2026-10-23 — JSON-null relationship elements on relationship-only proposals
+- **last-bug:** 2026-10-23 — brief grounding `public` substring false drop on endpoint names
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 

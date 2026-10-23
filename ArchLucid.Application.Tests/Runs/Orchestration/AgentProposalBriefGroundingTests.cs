@@ -235,4 +235,39 @@ public sealed class AgentProposalBriefGroundingTests
         result.ProposedChanges!.AddedDatastores.Should().ContainSingle();
         dropLog.Should().BeEmpty();
     }
+
+    [Fact]
+    public void ApplyBriefGrounding_preserves_republic_service_name_when_private_networking_required()
+    {
+        ArchitectureRequest request = new()
+        {
+            Description = "Private networking brief",
+            SystemName = "brief-grounding-republic",
+            Constraints = ["All data paths must use private endpoints"],
+        };
+
+        AgentResult result = new()
+        {
+            AgentType = AgentType.Topology,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                AddedServices =
+                [
+                    new ManifestService
+                    {
+                        ServiceName = "republic-ledger-api",
+                        ServiceType = ServiceType.Api,
+                        RuntimePlatform = RuntimePlatform.AppService,
+                    },
+                ],
+            },
+        };
+
+        List<string> dropLog = [];
+        AgentProposalStructuralPostProcessor.ApplyBriefGrounding(request, [result], dropLog);
+
+        result.ProposedChanges!.AddedServices.Should().ContainSingle()
+            .Which.ServiceName.Should().Be("republic-ledger-api");
+        dropLog.Should().BeEmpty();
+    }
 }

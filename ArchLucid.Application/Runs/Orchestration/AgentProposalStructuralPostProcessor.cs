@@ -1,3 +1,5 @@
+using System.Text.RegularExpressions;
+
 using ArchLucid.Application.Agents;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
@@ -337,7 +339,7 @@ public static class AgentProposalStructuralPostProcessor
         }
 
         if (rules.RequiresPrivateNetworking
-            && normalizedEndpoint.Contains("public", StringComparison.OrdinalIgnoreCase))
+            && EndpointNameSuggestsPublicExposure(normalizedEndpoint))
         {
             reason = "contradicts confirmed private-networking constraint";
             return true;
@@ -356,6 +358,13 @@ public static class AgentProposalStructuralPostProcessor
     private static bool EndpointSuggestsMissingEncryptionAtRest(string endpointName) =>
         endpointName.Contains("plaintext", StringComparison.OrdinalIgnoreCase)
         || endpointName.Contains("unencrypted", StringComparison.OrdinalIgnoreCase);
+
+    private static bool EndpointNameSuggestsPublicExposure(string endpointName) =>
+        PublicTokenInEndpointNameRegex.IsMatch(endpointName);
+
+    private static readonly Regex PublicTokenInEndpointNameRegex = new(
+        @"\bpublic\b",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Compiled);
 
     private static ArchitectureRequestBriefGroundingRules BuildBriefGroundingRules(ArchitectureRequest request)
     {
