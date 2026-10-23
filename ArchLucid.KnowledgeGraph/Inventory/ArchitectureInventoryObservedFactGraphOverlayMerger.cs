@@ -41,6 +41,7 @@ public static class ArchitectureInventoryObservedFactGraphOverlayMerger
                     TryMergeOverlayNodePropertyBackfillFromDuplicateRow(inventoryNode, retainedNode);
                     TryMergeOverlayNodeLabelBackfillFromDuplicateRow(inventoryNode, retainedNode);
                     TryMergeOverlayNodeCategoryBackfillFromDuplicateRow(inventoryNode, retainedNode);
+                    TryMergeOverlayNodeSourceIdBackfillFromDuplicateRow(inventoryNode, retainedNode);
                 }
 
                 continue;
@@ -415,6 +416,20 @@ public static class ArchitectureInventoryObservedFactGraphOverlayMerger
         if (backfillCategory is not null)
         {
             retainedNode.Category = backfillCategory;
+        }
+    }
+
+    private static void TryMergeOverlayNodeSourceIdBackfillFromDuplicateRow(
+        GraphNode incomingNode,
+        GraphNode retainedNode)
+    {
+        string? backfillSourceId = ResolveOverlayTrimmedScalarBackfillFromDuplicateRow(
+            incomingNode.SourceId,
+            retainedNode.SourceId);
+
+        if (backfillSourceId is not null)
+        {
+            retainedNode.SourceId = backfillSourceId;
         }
     }
 

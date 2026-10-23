@@ -2631,6 +2631,62 @@ public sealed class ArchitectureInventoryObservedFactGraphOverlayTests
     }
 
     [Fact]
+    public void Merge_backfills_overlay_duplicate_node_source_id_from_second_row_when_first_row_omits_source_id()
+    {
+        const string canonicalNodeId = "inventory-node-source-id-backfill";
+        const string sourceId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Sql/servers/sql-primary";
+
+        GraphSnapshot baseGraph = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = ContextSnapshotId,
+            RunId = RunId,
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "context-node",
+                    NodeType = GraphNodeTypes.ContextSnapshot,
+                    Label = "Context",
+                },
+            ],
+            Edges = [],
+        };
+
+        GraphSnapshot overlay = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = ContextSnapshotId,
+            RunId = RunId,
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = canonicalNodeId,
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "SQL",
+                    SourceId = "   ",
+                },
+                new GraphNode
+                {
+                    NodeId = canonicalNodeId,
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "SQL",
+                    SourceId = sourceId,
+                },
+            ],
+            Edges = [],
+        };
+
+        GraphSnapshot merged = ArchitectureInventoryObservedFactGraphOverlayMerger.Merge(baseGraph, overlay);
+
+        merged.Nodes.Should().HaveCount(2);
+        merged.Nodes.Single(node => string.Equals(node.NodeId, canonicalNodeId, StringComparison.OrdinalIgnoreCase))
+            .SourceId.Should().Be(sourceId);
+    }
+
+    [Fact]
     public void Merge_backfills_overlay_duplicate_node_category_from_second_row_when_first_row_omits_category()
     {
         const string canonicalNodeId = "inventory-node-category-backfill";
