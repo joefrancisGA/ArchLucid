@@ -55,10 +55,14 @@ public sealed partial class InMemoryValueReportJobQueue(
     public ValueReportJobPollResult TryPoll(Guid jobId, Guid scopedTenantId)
     {
         _jobs.TryGetValue(jobId, out JobEntry? entry);
-        JobEntry? distributed = TryReadDistributedState(jobId);
+        DistributedStateReadResult distributedRead = TryReadDistributedState(jobId);
+        JobEntry? distributed = distributedRead.Entry;
 
         if (entry is null)
         {
+            if (distributedRead.CorruptPayload)
+                return new ValueReportJobPollResult(true, false, null, null, UnknownFailedJobErrorMessage);
+
             entry = distributed;
 
             if (entry is null)
@@ -67,6 +71,10 @@ public sealed partial class InMemoryValueReportJobQueue(
         else if (distributed is not null)
         {
             entry = PreferDistributedPollState(entry, distributed);
+        }
+        else if (distributedRead.CorruptPayload)
+        {
+            entry = PreferDistributedPollState(entry, CreateCorruptDistributedFailureEntry(entry.Request));
         }
 
         if (entry.Request.TenantId != scopedTenantId)
