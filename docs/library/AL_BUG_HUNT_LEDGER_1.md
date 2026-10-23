@@ -6868,13 +6868,21 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
-2026-10-23 seed hunt (seed→hit): proved optional-string null-coalescing logic was duplicated between Persistence `RunExportRecordPersistNormalizer` and Application `PersistedAnalysisExportRequestMetadata`, combining diacritics (`\u0301`) in compare-quality headings could bypass section removal, and whitespace-only whitelabel firm names in nested analysis requests survived into stored JSON until rehydrate; add `OptionalExportMetadataStringNormalizer` in Contracts for shared persist/read/rehydrate/diff normalization, strip `NonSpacingMark` characters during heading normalization; regressions `OptionalExportMetadataStringNormalizer_nulls_whitespace_only_values`, `RemoveMarkdownSection_strips_compare_quality_delta_when_heading_uses_combining_diacritic_mid_line`, `CompareQuality_export_record_diff_treats_whitespace_only_template_profile_in_json_as_equivalent_to_null`, and `RecordAsync_nulls_whitespace_only_whitelabel_firm_in_serialized_analysis_request`; cheap-disproof closed diff summary note redaction probe (intentional field-name summary; invalid); seeded five follow-on rows; scoped application-analysis filter 111/111. Private beta: export metadata normalization is consistent across storage and analysis JSON; comparison exports strip combining-mark heading spoofing.
+2026-10-23 seed hunt (seed→hit): proved `RunExportAuditService` serialized nulled whitelabel fields as explicit JSON nulls because `JsonSerializer` omitted `WhenWritingNull`, legacy `RunExportRecord` rows could retain padded `ExportRecordId` values after read, and compare-quality heading normalization did not apply compatibility `FormC` after invisible-char stripping; omit null optional properties on audit serialize, trim export record ids in `NormalizeLoadedRecord`, NFC-normalize heading lines; regressions `RecordAsync_nulls_whitespace_only_whitelabel_firm_in_serialized_analysis_request` (asserts omitted key), `GetById_trims_legacy_padded_optional_columns_on_read` (export id trim), and `NormalizeLoadedRecord_trims_export_record_id_and_required_string_columns`; cheap-disproof closed required-column null-coalesce probe (`ExportType`/`Format`/`FileName` still trim-only on load), and `DeterminismIterations` column vs request int skew (denormalized ints compared with value equality; no string padding path); seeded five follow-on rows; scoped application-analysis filter 111/111. Private beta: leaner stored analysis JSON without null whitelabel noise; export metadata reads canonical export ids; comparison headings normalize to composed form.
 
-- [ ] (candidate) `OptionalExportMetadataStringNormalizer` — required `ExportType`/`Format` should not use null-coalesce helper — locus: required columns; input: verify persist still trims only.
-- [ ] (candidate) `JsonSerializer` — null optional whitelabel properties still emit JSON keys — locus: audit payload size; input: `"firm":null` in stored JSON.
-- [ ] (candidate) `ComparisonExportMarkdownSectionRemover` — compatibility normalization `FormC` before compare — locus: precomposed vs decomposed headings; input: NFC heading spoof.
-- [ ] (candidate) `ExportRecordDiffService` — `DeterminismIterations` top-level column vs request int mismatch — locus: denormalized columns; input: column null vs request zero.
-- [ ] (candidate) `RunExportRecordPersistNormalizer` — `ExportRecordId` padding on read — locus: lookup key; input: padded export id in stored JSON row.
+- [ ] (candidate) `RunExportAuditService` — `WriteIndented` true inflates stored analysis JSON size — locus: audit storage; input: production compact serialize.
+- [ ] (candidate) `ExportRecordDiffService` — top-level `DeterminismIterations` null vs request default 0 false diff — locus: denormalized column drift; input: legacy row missing column with JSON zero.
+- [ ] (candidate) `ComparisonExportMarkdownSectionRemover` — case-insensitive heading match for delta section — locus: heading casing; input: `## compare quality delta`.
+- [ ] (candidate) `RunExportQueryFacade` — compare export ids not normalized before repository lookup — locus: compare API; input: padded left/right export record id query params.
+- [ ] (candidate) `OptionalExportMetadataStringNormalizer` — does not trim required `FileName` on RunExportRecord — locus: helper scope; input: verify required columns stay separate (invalid).
+
+- [x] (proven) `RunExportAuditService` — null whitelabel JSON keys emitted — **hit 2026-10-23 seed hunt:** `JsonIgnoreCondition.WhenWritingNull`; regression extends `RecordAsync_nulls_whitespace_only_whitelabel_firm_in_serialized_analysis_request`.
+- [x] (proven) `RunExportRecordPersistNormalizer` — padded `ExportRecordId` on read — **hit 2026-10-23 seed hunt:** `ComparisonExportRecordIdLookup.NormalizeLookupKey`; regressions `NormalizeLoadedRecord_trims_export_record_id_and_required_string_columns` and `GetById_trims_legacy_padded_optional_columns_on_read`.
+- [x] (proven) `ComparisonExportMarkdownSectionRemover` — NFC heading normalization — **hit 2026-10-23 seed hunt:** `NormalizationForm.FormC` after invisible-char strip.
+- [x] (valid-no-repro) `OptionalExportMetadataStringNormalizer` — required columns — **cheap-disproof 2026-10-23 seed hunt:** required strings use `Trim()` only; regression `NormalizeLoadedRecord_trims_export_record_id_and_required_string_columns`.
+- [x] (valid-no-repro) `ExportRecordDiffService.CompareTopLevel` — `DeterminismIterations` padding — **cheap-disproof 2026-10-23 seed hunt:** integer compare; no trim/normalize path needed.
+
+2026-10-23 seed hunt (seed→hit): proved optional-string null-coalescing logic was duplicated between Persistence `RunExportRecordPersistNormalizer` and Application `PersistedAnalysisExportRequestMetadata`, combining diacritics (`\u0301`) in compare-quality headings could bypass section removal, and whitespace-only whitelabel firm names in nested analysis requests survived into stored JSON until rehydrate; add `OptionalExportMetadataStringNormalizer` in Contracts for shared persist/read/rehydrate/diff normalization, strip `NonSpacingMark` characters during heading normalization; regressions `OptionalExportMetadataStringNormalizer_nulls_whitespace_only_values`, `RemoveMarkdownSection_strips_compare_quality_delta_when_heading_uses_combining_diacritic_mid_line`, `CompareQuality_export_record_diff_treats_whitespace_only_template_profile_in_json_as_equivalent_to_null`, and `RecordAsync_nulls_whitespace_only_whitelabel_firm_in_serialized_analysis_request`; cheap-disproof closed diff summary note redaction probe (intentional field-name summary; invalid); seeded five follow-on rows; scoped application-analysis filter 111/111. Private beta: export metadata normalization is consistent across storage and analysis JSON; comparison exports strip combining-mark heading spoofing.
 
 - [x] (proven) `OptionalExportMetadataStringNormalizer` — cross-layer duplicate null-coalesce — **hit 2026-10-23 seed hunt:** Contracts helper wired from Persistence and Application; regressions `OptionalExportMetadataStringNormalizer_nulls_whitespace_only_values` and persist normalizer tests.
 - [x] (proven) `ComparisonExportMarkdownSectionRemover` — combining diacritic in heading — **hit 2026-10-23 seed hunt:** `NonSpacingMark` strip; regression `RemoveMarkdownSection_strips_compare_quality_delta_when_heading_uses_combining_diacritic_mid_line`.
@@ -7218,11 +7226,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 98
-- **bugs-found:** 93
+- **hunts:** 99
+- **bugs-found:** 94
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-23
-- **last-bug:** 2026-10-23 — shared optional-string normalize and VS heading strip
+- **last-bug:** 2026-10-23 — Contracts optional-string normalize and Mn heading strip
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 

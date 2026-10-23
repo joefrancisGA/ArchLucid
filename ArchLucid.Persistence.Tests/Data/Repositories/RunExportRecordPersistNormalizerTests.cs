@@ -47,4 +47,24 @@ public sealed class RunExportRecordPersistNormalizerTests
         record.Notes.Should().BeNull();
         record.TemplateProfile.Should().BeNull();
     }
+
+    [Fact]
+    public void NormalizeLoadedRecord_trims_export_record_id_and_required_string_columns()
+    {
+        RunExportRecord record = new()
+        {
+            ExportRecordId = "  exp-trim-id  ",
+            RunId = "  dddddddddddddddddddddddddddddddd  ",
+            ExportType = "  ArchitectureAnalysis  ",
+            Format = "  Markdown  ",
+            FileName = "  report.md  ",
+        };
+
+        RunExportRecordPersistNormalizer.NormalizeLoadedRecord(record);
+
+        record.ExportRecordId.Should().Be("exp-trim-id");
+        record.ExportType.Should().Be("ArchitectureAnalysis");
+        record.Format.Should().Be("Markdown");
+        record.FileName.Should().Be("report.md");
+    }
 }

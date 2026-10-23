@@ -8,6 +8,7 @@ internal static class RunExportRecordPersistNormalizer
     {
         ArgumentNullException.ThrowIfNull(record);
 
+        record.ExportRecordId = ComparisonExportRecordIdLookup.NormalizeLookupKey(record.ExportRecordId);
         record.RunId = record.RunId.Trim();
         TrimOptionalStringColumns(record);
     }

@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Core.Audit;
@@ -19,7 +20,11 @@ public sealed class RunExportAuditService(
     IAuditService auditService,
     ILogger<RunExportAuditService> logger) : IRunExportAuditService
 {
-    private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web) { WriteIndented = true };
+    private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
+    {
+        WriteIndented = true,
+        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+    };
     private readonly IRunExportRecordRepository _repository = repository ?? throw new ArgumentNullException(nameof(repository));
     private readonly IAuditService _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
     private readonly ILogger<RunExportAuditService> _logger = logger ?? throw new ArgumentNullException(nameof(logger));

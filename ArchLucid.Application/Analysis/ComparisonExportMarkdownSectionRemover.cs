@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.Text;
 
 namespace ArchLucid.Application.Analysis;
 
@@ -88,7 +89,7 @@ internal static class ComparisonExportMarkdownSectionRemover
         while (normalized.Contains("  ", StringComparison.Ordinal))
             normalized = normalized.Replace("  ", " ", StringComparison.Ordinal);
 
-        return normalized;
+        return normalized.Normalize(NormalizationForm.FormC);
     }
 
     private static bool ShouldRemoveInvisibleFormatting(char candidate)

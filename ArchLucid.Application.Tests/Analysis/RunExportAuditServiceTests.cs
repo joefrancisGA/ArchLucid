@@ -158,6 +158,7 @@ public sealed class RunExportAuditServiceTests
 
         rehydrated.Should().NotBeNull();
         rehydrated!.ReviewBoardWhitelabelFirmDisplayName.Should().BeNull();
+        captured!.AnalysisRequestJson.Should().NotContain("reviewBoardWhitelabelFirmDisplayName");
     }
 
     [Fact]

@@ -12,11 +12,12 @@ public sealed class InMemoryRunExportRecordRepositoryReadNormalizeTests
     public async Task GetById_trims_legacy_padded_optional_columns_on_read()
     {
         const string exportId = "exp-legacy-pad-read";
+        const string paddedExportId = $"  {exportId}  ";
         const string runId = "cccccccccccccccccccccccccccccccc";
         InMemoryRunExportRecordRepository repository = new();
         RunExportRecord legacy = new()
         {
-            ExportRecordId = exportId,
+            ExportRecordId = paddedExportId,
             RunId = $"  {runId}  ",
             ExportType = "ArchitectureAnalysis",
             Format = "Markdown",
@@ -33,10 +34,11 @@ public sealed class InMemoryRunExportRecordRepositoryReadNormalizeTests
             (Dictionary<string, RunExportRecord>)byExportIdField!.GetValue(repository)!;
         byExportId[exportId] = legacy;
 
-        RunExportRecord? loaded = await repository.GetByIdAsync(exportId, CancellationToken.None);
+        RunExportRecord? loaded = await repository.GetByIdAsync(paddedExportId, CancellationToken.None);
 
         loaded.Should().NotBeNull();
-        loaded!.RunId.Should().Be(runId);
+        loaded!.ExportRecordId.Should().Be(exportId);
+        loaded.RunId.Should().Be(runId);
         loaded.FileName.Should().Be("legacy-report.md");
         loaded.Notes.Should().Be("legacy note");
     }
