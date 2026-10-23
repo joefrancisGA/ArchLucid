@@ -7859,6 +7859,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-agents
 
+2026-10-23 seed hunt (seed→hit): promoted null elements in agent `results` list crashing `AgentResultRegionMismatchEnricher` before region warnings; enricher now skips null `AgentResult` entries; regression `EnrichAsync_skips_null_result_entries`; 142 scoped Application.Tests.Agents tests passed.
+
+- [x] (proven) `AgentResultRegionMismatchEnricher.EnrichAsync` — null `AgentResult` list entries aborted enricher — **hit 2026-10-23 seed hunt:** null guard in results loop; regression above. [class:fail-open-validation]
+
 2026-10-23 seed hunt (seed→hit): promoted null elements in `ArchitectureRequest.Constraints` crashing post-execution region enricher (`NullReferenceException` on `constraint.Trim()`); `ResolveRequestRegions` now skips null/whitespace constraint entries; regression `EnrichAsync_skips_null_constraint_entries_when_service_region_missing`; 141 scoped Application.Tests.Agents tests passed.
 
 - [x] (proven) `AgentResultRegionMismatchEnricher.ResolveRequestRegions` — null constraint list entries aborted enricher — **hit 2026-10-23 seed hunt:** `string.IsNullOrWhiteSpace(constraint)` guard before trim; regression above. [class:fail-open-validation]
@@ -8073,11 +8077,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** application agents; agent handlers wiring
 - **paths:** ArchLucid.Application/Agents/
 - **test-filter:** FullyQualifiedName~Application.Tests.Agents
-- **hunts:** 64
-- **bugs-found:** 58
+- **hunts:** 65
+- **bugs-found:** 59
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-23
-- **last-bug:** 2026-10-23 — null architecture constraint entries crash region enricher
+- **last-bug:** 2026-10-23 — null agent result entries crash region enricher
 
 2026-09-27 seed hunt (seed→hit): proved `TopologyProposalConsensusMerger.Merge` threw when `RequiredControls` was null on topology dual-model proposals (`AgentProposalStructuralPostProcessor` does not initialize controls for `AgentType.Topology`); fixed by null-coalescing in control intersection and disagreement counts; regression `Merge_when_required_controls_is_null_does_not_throw`; 92 scoped Application.Tests.Agents tests passed.
 
