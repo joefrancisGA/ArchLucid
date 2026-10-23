@@ -145,7 +145,7 @@ public sealed class RunExportRecordRepository(IDbConnectionFactory connectionFac
             persistRecord = copy;
         }
 
-        RunExportRecordPersistNormalizer.TrimOptionalStringColumns(persistRecord);
+        RunExportRecordPersistNormalizer.NormalizeLoadedRecord(persistRecord);
 
         return persistRecord;
     }
@@ -192,6 +192,7 @@ public sealed class RunExportRecordRepository(IDbConnectionFactory connectionFac
                     $"A RunExportRecord row for run '{runId}' deserialized to null. " +
                     "The stored JSON may be empty or corrupt.");
 
+            RunExportRecordPersistNormalizer.NormalizeLoadedRecord(record);
             records.Add(record);
         }
 
@@ -231,9 +232,13 @@ public sealed class RunExportRecordRepository(IDbConnectionFactory connectionFac
                 "The stored JSON may be corrupt or written by an incompatible schema version.", ex);
         }
 
-        return record
-               ?? throw new InvalidOperationException(
-                   $"RunExportRecord JSON for '{exportRecordId}' deserialized to null. " +
-                   "The stored JSON may be empty or corrupt.");
+        if (record is null)
+            throw new InvalidOperationException(
+                $"RunExportRecord JSON for '{exportRecordId}' deserialized to null. " +
+                "The stored JSON may be empty or corrupt.");
+
+        RunExportRecordPersistNormalizer.NormalizeLoadedRecord(record);
+
+        return record;
     }
 }

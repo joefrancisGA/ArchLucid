@@ -68,8 +68,8 @@ public sealed class ExportRecordDiffService : IExportRecordDiffService
         RunExportRecord right,
         ExportRecordDiffResult result)
     {
-        AddIfChanged(result.ChangedTopLevelFields, "ExportType", left.ExportType, right.ExportType);
-        AddIfChanged(result.ChangedTopLevelFields, "Format", left.Format, right.Format);
+        AddIfChangedTrimmed(result.ChangedTopLevelFields, "ExportType", left.ExportType, right.ExportType);
+        AddIfChangedTrimmed(result.ChangedTopLevelFields, "Format", left.Format, right.Format);
         AddIfChangedTrimmed(result.ChangedTopLevelFields, "FileName", left.FileName, right.FileName);
         AddIfChangedTrimmed(result.ChangedTopLevelFields, "TemplateProfile", left.TemplateProfile, right.TemplateProfile);
         AddIfChangedTrimmed(result.ChangedTopLevelFields, "TemplateProfileDisplayName", left.TemplateProfileDisplayName,

@@ -25,8 +25,7 @@ public sealed class InMemoryRunExportRecordRepository : IRunExportRecordReposito
 
         RunExportRecord stored = Clone(record);
         stored.ExportRecordId = ComparisonExportRecordIdLookup.NormalizeLookupKey(stored.ExportRecordId);
-        stored.RunId = stored.RunId.Trim();
-        RunExportRecordPersistNormalizer.TrimOptionalStringColumns(stored);
+        RunExportRecordPersistNormalizer.NormalizeLoadedRecord(stored);
 
         lock (_gate)
         {
@@ -147,6 +146,11 @@ public sealed class InMemoryRunExportRecordRepository : IRunExportRecordReposito
         string json = JsonSerializer.Serialize(source, ContractJson.Default);
         RunExportRecord? copy = JsonSerializer.Deserialize<RunExportRecord>(json, ContractJson.Default);
 
-        return copy ?? throw new InvalidOperationException("Clone produced null RunExportRecord.");
+        if (copy is null)
+            throw new InvalidOperationException("Clone produced null RunExportRecord.");
+
+        RunExportRecordPersistNormalizer.NormalizeLoadedRecord(copy);
+
+        return copy;
     }
 }

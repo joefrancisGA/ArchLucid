@@ -4,6 +4,14 @@ namespace ArchLucid.Persistence.Data.Repositories;
 
 internal static class RunExportRecordPersistNormalizer
 {
+    internal static void NormalizeLoadedRecord(RunExportRecord record)
+    {
+        ArgumentNullException.ThrowIfNull(record);
+
+        record.RunId = record.RunId.Trim();
+        TrimOptionalStringColumns(record);
+    }
+
     internal static void TrimOptionalStringColumns(RunExportRecord record)
     {
         ArgumentNullException.ThrowIfNull(record);

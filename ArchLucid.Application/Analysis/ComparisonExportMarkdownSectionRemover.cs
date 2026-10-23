@@ -43,7 +43,7 @@ internal static class ComparisonExportMarkdownSectionRemover
             if (lineEnd < 0)
                 lineEnd = markdown.Length;
 
-            ReadOnlySpan<char> line = markdown.AsSpan(lineStart, lineEnd - lineStart).Trim();
+            ReadOnlySpan<char> line = TrimHeadingLine(markdown.AsSpan(lineStart, lineEnd - lineStart));
 
             if (LineMatchesHeading(line, heading))
                 return lineStart;
@@ -92,5 +92,15 @@ internal static class ComparisonExportMarkdownSectionRemover
             return false;
 
         return char.IsWhiteSpace(candidate);
+    }
+
+    private static ReadOnlySpan<char> TrimHeadingLine(ReadOnlySpan<char> line)
+    {
+        line = line.Trim();
+
+        if (line.Length > 0 && line[0] == '\uFEFF')
+            line = line[1..].TrimStart();
+
+        return line;
     }
 }
