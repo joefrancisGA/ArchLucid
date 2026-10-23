@@ -7859,6 +7859,15 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-agents
 
+2026-10-23 seed hunt (seed→hit): promoted seeded candidates — null `AddedRelationships` entries crashing dual-model sibling prune and null `AgentExecutionTraceLlmCostSlice` rows crashing slice cost aggregation; cheap-disproof closed null `Claims`/`EvidenceRefs` strings (`string.Join` tolerant) and `ReviewRunEngineProvenanceMerger` prompt-pack trim (merger only copies alias/snapshots); regressions `EnrichAsync_skips_null_relationship_entries_when_pruning_sibling_proposals`, `Compute_skips_null_slice_entries`, and `BuildUserPrompt_tolerates_null_string_entries_in_claims_and_evidence_refs`; 162 scoped Application.Tests.Agents tests passed.
+
+- [x] (proven) `TopologyProposalDualModelConsensusEnricher.PruneSiblingRelationshipsToConsensusTopology` — null relationship list entries aborted consensus prune — **hit 2026-10-23 seed hunt:** null guard before endpoint validation; regression above. [class:fail-open-validation]
+- [x] (proven) `AgentExecutionTraceRunLlmCostAggregator.Compute` (slice overload) — null slice list entries aborted cost projection — **hit 2026-10-23 seed hunt:** skip null slices before `Select`; regression above. [class:fail-open-validation]
+- [x] (invalid) `AgentCuratedEvidenceProposer.BuildUserPrompt` — null strings in `Claims`/`EvidenceRefs` break prompt build — **cheap-disproof 2026-10-23 seed hunt:** `string.Join` omits null slots; regression `BuildUserPrompt_tolerates_null_string_entries_in_claims_and_evidence_refs`.
+- [x] (invalid) `ReviewRunEngineProvenanceMerger.MergeSelectionWithExecution` — whitespace-only `PromptPackVersion` preserved on merge — **cheap-disproof 2026-10-23 seed hunt:** merger does not combine prompt/policy pack fields; execution provenance wins unchanged.
+
+- (candidate) `PromptVariantStatsService.GetStatsAsync` — null `PromptVariantStatsRow` entries from repository may throw when projecting variant stats — locus: `rows.Select` ~22; input: repository returns list with null row.
+
 2026-10-23 seed hunt (seed-only): re-read Agents/ after read-path consolidation hit; cheap-disproof closed stale `(candidate)` rows (dual-model secondary tier, faithfulness floor boundary, whitespace-only policy titles, structured forensics preference); regression `Aggregate_policy_pack_version_null_when_policy_titles_are_whitespace_only`; seeded five follow-on `(candidate)` rows; no production change; 159 scoped Application.Tests.Agents tests passed.
 
 - [x] (invalid) `TopologyProposalDualModelConsensusEnricher.EnrichAsync` — secondary tier disallowed by workspace engine set — **cheap-disproof 2026-10-23 seed hunt:** secondary invoker returns null; enricher logs and skips merge (see 2026-10-22 seed hunt).
@@ -7866,12 +7875,6 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - [x] (valid-no-repro) `ReviewRunEngineProvenanceAggregator.DerivePolicyPackVersion` — whitespace-only policy titles kept in pack version — **cheap-disproof 2026-10-23 seed hunt:** `Where(!string.IsNullOrWhiteSpace(title))` drops blank titles; regression `Aggregate_policy_pack_version_null_when_policy_titles_are_whitespace_only`.
 - [x] (valid-no-repro) `RunToolInvocationForensicsBuilder.Build` — structured ledger preferred when trace list empty — **cheap-disproof 2026-10-23 seed hunt:** by design TB-110 structured path; regression `Build_prefers_structured_ledger_when_rows_exist`.
 - [x] (invalid) `FindingIacStubGenerator.NormalizeLlmStubBody` — UTF-8 BOM before disclaimer may still duplicate — **cheap-disproof 2026-10-23 seed hunt:** proven-class `TrimStart('\uFEFF')`; regression `GenerateAndPersistStubsForRunAsync_strips_utf8_bom_before_disclaimer_check`.
-
-- (candidate) `TopologyProposalDualModelConsensusEnricher.PruneSiblingRelationshipsToConsensusTopology` — null `AddedRelationships` entries can throw in `RelationshipEndpointsAreKnown` — locus: sibling prune loop ~168; input: compliance proposal with `[null, valid]` relationship rows after JSON deserialize.
-- (candidate) `AgentExecutionTraceRunLlmCostAggregator.Compute` (slice overload) — null `AgentExecutionTraceLlmCostSlice` elements NRE in projection — locus: `slices.Select` ~49; input: persisted slice list containing a null slot.
-- (candidate) `AgentCuratedEvidenceProposer.BuildUserPrompt` — null strings inside `Claims`/`EvidenceRefs` lists may render ambiguous prompt lines — locus: `string.Join` on `result.Claims` ~113; input: claims list with null element alongside substantive claim.
-- (candidate) `PromptVariantStatsService.GetStatsAsync` — null `PromptVariantStatsRow` entries from repository may throw when projecting variant stats — locus: `rows.Select` ~22; input: repository returns list with null row.
-- (candidate) `ReviewRunEngineProvenanceMerger` — merging provenance when one side has whitespace-only `PromptPackVersion` may preserve noise — locus: merge compare; input: verify trim parity with aggregator (read before promoting).
 
 2026-10-23 seed hunt (seed→hit): consolidated null-slot guards on agent read paths — null `AgentExecutionTrace` rows aborted LLM cost aggregation and provenance token/prompt derivation; null catalog rows aborted curated-evidence prompt serialization; regressions `Aggregate_skips_null_trace_entries_when_summing_reasoning_tokens` and `BuildUserPrompt_skips_null_catalog_entries_when_serializing_existing_catalog`; 158 scoped Application.Tests.Agents tests passed.
 
@@ -8141,11 +8144,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** application agents; agent handlers wiring
 - **paths:** ArchLucid.Application/Agents/
 - **test-filter:** FullyQualifiedName~Application.Tests.Agents
-- **hunts:** 78
-- **bugs-found:** 70
+- **hunts:** 79
+- **bugs-found:** 71
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-23
-- **last-bug:** 2026-10-23 — null trace/catalog slots crash provenance and curated-evidence prompts
+- **last-bug:** 2026-10-23 — null relationship/slice slots crash consensus prune and cost aggregation
 
 2026-09-27 seed hunt (seed→hit): proved `TopologyProposalConsensusMerger.Merge` threw when `RequiredControls` was null on topology dual-model proposals (`AgentProposalStructuralPostProcessor` does not initialize controls for `AgentType.Topology`); fixed by null-coalescing in control intersection and disagreement counts; regression `Merge_when_required_controls_is_null_does_not_throw`; 92 scoped Application.Tests.Agents tests passed.
 
