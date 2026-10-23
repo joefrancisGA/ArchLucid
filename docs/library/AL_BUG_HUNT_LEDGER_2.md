@@ -262,42 +262,6 @@
 
 ## Zone: email-otp-auth
 
-2026-10-22 seed hunt #95 (seed→hit): promoted `(candidate)` whitespace-only `Role`; proved `VerifyAsync` success path reached `IssueAccessToken` with `Role = "   "` and `LocalTrialJwtIssuer` throws instead of returning 401 (parity with #93 `DisplayEmail`); fail-closed with `string.IsNullOrWhiteSpace(result.Role)`; regression `VerifyAsync_rejects_success_result_with_whitespace_only_role`; cheap-disproof closed four sibling `(candidate)` rows; 16 `EmailOtpAuthController*` API tests passed. Private beta: invited operators who complete email OTP verify no longer hit an unhandled 500 when a corrupted success payload would have carried a blank role claim.
-
-- [x] (proven) `EmailOtpAuthController.VerifyAsync` — whitespace-only `Role` before JWT issue — **hit 2026-10-22 seed #95:** `string.IsNullOrWhiteSpace(result.Role)`; regression `VerifyAsync_rejects_success_result_with_whitespace_only_role`.
-- [x] (valid-no-repro) `EmailOtpVerifyFlow.ExecuteAsync` — ignored `TryNormalize` on challenge email — **cheap-disproof 2026-10-22 seed #95:** insert path normalizes; controller rejects empty/whitespace display email and role on success.
-- [x] (invalid) `EmailOtpRequestFlow` / `EmailOtpVerifyFlow` — invitation token not trimmed before hash — **cheap-disproof 2026-10-22 seed #95:** tokens are opaque secrets; client must send the exact token; whitespace padding is user error, not an auth bypass.
-- [x] (invalid) `EmailOtpAuthController.RequestChallengeAsync` — empty-string `Email` without HTTP 400 — **cheap-disproof 2026-10-22 seed #95:** anti-enumeration neutral response via `EmailOtpRequestFlow` (~61); same as invalid address.
-- [x] (valid-no-repro) `EmailOtpAuthController.RequestChallengeAsync` — `ClientIp` without forwarded headers — **cheap-disproof 2026-10-22 seed #95:** deployment uses consistent `RemoteIpAddress` for store and limit; forwarded-header policy is host configuration, not demonstrated defect in these files.
-
-- [ ] (candidate) `EmailOtpAuthController.VerifyAsync` — no guard when `result.Role` is empty string while `Succeeded` is true — locus: success guard ~111–117; input: service returns `Role=""` (default struct) with success flag.
-- [ ] (candidate) `EmailOtpVerifyFlow.ExecuteAsync` — `TryNormalize` failure after challenge completion still proceeds to identity lookup — locus: ~77–82; input: defense-in-depth if persistence invariant breaks.
-- [ ] (candidate) `EmailOtpAuthController.VerifyAsync` — `InvitationToken` on verify body forwarded without trim parity with challenge request — locus: ~107; input: padded invitation token on verify only.
-- [ ] (candidate) `EmailOtpRequestFlow.ExecuteAsync` — notifier `CancellationToken` passed through may cancel delivery after persistence — locus: ~189–193; input: covered by delivery-failure cleanup hit 2026-10-10; regression watch.
-- [ ] (candidate) `EmailOtpAuthController.VerifyAsync` — `AuthVersion` `Guid.Empty` omits claim in JWT while response still succeeds — locus: `LocalTrialJwtIssuer` ~76–78; input: legacy user row with empty auth version at first OTP sign-in.
-
-2026-10-22 seed hunt #94 (seed-only): re-read `EmailOtpAuthController` and `EmailOtpAuthService` request/verify paths; cheap-disproof closed four open `(candidate)` rows; no hunt-ready promotion; seeded five follow-on `(candidate)` rows; 46 `EmailOtpAuthServiceTests` + 15 `EmailOtpAuthController*` API tests passed.
-
-- [x] (valid-no-repro) `EmailOtpAuthController.VerifyAsync` — shared problem message for null body vs missing code — **cheap-disproof 2026-10-22 seed #94:** intentional validation surface; regressions `VerifyAsync_returns_bad_request_when_body_is_null` and `VerifyAsync_returns_bad_request_when_code_is_whitespace_only`.
-- [x] (valid-no-repro) `EmailOtpAuthController.RequestChallengeAsync` — `ClientIp` IPv6-mapped IPv4 normalization — **cheap-disproof 2026-10-22 seed #94:** `RemoteIpAddress.ToString()` and `EmailOtpRequestMetadataHasher.HashOptional` use the same string for store and `AuthRateLimitHelper` compare; no split-key bypass demonstrated in-zone.
-- [x] (valid-no-repro) `EmailOtpVerifyFlow.ExecuteAsync` — blank `displayEmail` from corrupted `NormalizedEmail` — **cheap-disproof 2026-10-22 seed #94:** challenges are inserted only after `IdentityEmailNormalizer.TryNormalize` in `EmailOtpRequestFlow`; controller fail-closes whitespace `DisplayEmail` on success (#93).
-- [x] (valid-no-repro) `EmailOtpAuthController.VerifyAsync` — `InvitationId` echoed without controller re-validation — **cheap-disproof 2026-10-22 seed #94:** invitation acceptance and id binding occur in `EmailOtpVerifyFlow`; HTTP layer maps trusted service result only.
-
-2026-10-22 seed hunt #93 (seed→hit, `-Refresh`): promoted `(candidate)` whitespace-only `DisplayEmail`; proved `VerifyAsync` null-only guard allowed `Succeeded` + whitespace `DisplayEmail` to reach `IssueAccessToken` (parity gap with empty `PlatformUserId` guard); fail-closed with `string.IsNullOrWhiteSpace`; regression `VerifyAsync_rejects_success_result_with_whitespace_only_display_email`; cheap-disproof closed four sibling `(candidate)` rows; scoped OTP tests not run on this host.
-
-- [x] (proven) `EmailOtpAuthController.VerifyAsync` — whitespace-only `DisplayEmail` passed null guard — **hit 2026-10-22 seed #93:** `string.IsNullOrWhiteSpace(result.DisplayEmail)`; regression `VerifyAsync_rejects_success_result_with_whitespace_only_display_email`.
-- [x] (invalid) `EmailOtpAuthController.RequestChallengeAsync` — empty-string `Email` passes API null guard — **cheap-disproof 2026-10-22 seed #93:** `EmailOtpRequestFlow` rejects via `IdentityEmailNormalizer.TryNormalize` ~61.
-- [x] (valid-no-repro) `EmailOtpAuthController.VerifyAsync` — `ExpiresInSeconds` clamp parity — **cheap-disproof 2026-10-22 seed #93:** same `Math.Clamp` minutes drive JWT issue and response seconds (~138–139); proven JWT lifetime hit 2026-10-09.
-- [x] (valid-no-repro) `EmailOtpRequestFlow` resend cooldown — **cheap-disproof 2026-10-22 seed #93:** regression `RequestCodeAsync_resend_cooldown_preserves_active_challenge_for_verify`.
-- [x] (valid-no-repro) `EmailOtpAuthController.IsEmailOtpEnabled` options snapshot — **cheap-disproof 2026-10-22 seed #93:** `IOptions` construction-time snapshot; prior valid-no-repro.
-
-2026-10-22 seed hunt (seed-only): re-read `EmailOtpAuthController` and `EmailOtpAuthService` request/verify flows; cheap-disproof closed four open `(candidate)` rows (SSO path sets `SsoMessage` from the same `CustomerMessage` ~102–107; `CreateWorkspace` trial default scope only when `NextStep == CreateWorkspace` ~125–136; `IOptions<EmailOtpAuthOptions>.Value` captured at service construction is documented singleton options contract; controller trusts service `InvitationId` on successful verify — no HTTP caller forge path); no hunt-ready row promoted; five replacement `(candidate)` rows; scoped OTP tests not run (RS1034 analyzer build block).
-
-- [x] (valid-no-repro) `EmailOtpAuthController.RequestChallengeAsync` — inconsistent `SsoRequired`/`SsoMessage` — **cheap-disproof 2026-10-22 seed hunt:** `EmailOtpRequestFlow` assigns both from `domainEvaluation.CustomerMessage` ~104–106.
-- [x] (valid-no-repro) `EmailOtpAuthController.VerifyAsync` — partial tenant/workspace scope fallback — **cheap-disproof 2026-10-22 seed hunt:** trial defaults apply only for `NextStep == CreateWorkspace` ~125–136; intentional.
-- [x] (valid-no-repro) `EmailOtpAuthService` — options snapshot at construction — **cheap-disproof 2026-10-22 seed hunt:** `IOptions` not monitor; prior hunt classified mutable-provider concern valid-no-repro.
-- [x] (valid-no-repro) `EmailOtpAuthController.VerifyAsync` — unvalidated `InvitationId` mapping — **cheap-disproof 2026-10-22 seed hunt:** invitation binding enforced in `EmailOtpVerifyFlow` / repository layer; controller maps trusted service result ~161.
-
 2026-10-21 seed hunt (seed→hit, lane-C): promoted `EmailOtpAuthController.RequestChallengeAsync` leaking `ChallengeId` when service marks `EmailDeliverySucceeded=false`; controller now omits challenge id on failed delivery; regression `RequestChallengeAsync_omits_challenge_id_when_email_delivery_failed`; 51 scoped OTP tests passed (46 `EmailOtpAuthServiceTests` + concurrency, 5 `EmailOtpAuthControllerChallengeTests`).
 
 - [x] (proven) `EmailOtpAuthController.RequestChallengeAsync` — failed email delivery exposed non-empty `ChallengeId` in HTTP response — **hit 2026-10-21 seed hunt (lane-C):** map `ChallengeId` to null when `EmailDeliverySucceeded == false`; regression `RequestChallengeAsync_omits_challenge_id_when_email_delivery_failed`.
@@ -305,16 +269,16 @@
 2026-10-09 seed hunt (seed-only): re-read the selected controller and service paths with the focused test inventory; no new reachable mechanism-backed candidate met the seed quality bar and no hypothesis was promoted. The exact scoped test run was blocked by unrelated `ARCH002` in `ArchLucid.Core/Auth/Saml/SamlMetadataDiscoveryParser.cs`.
 
 - [x] (proven) `EmailOtpAuthController.RequestChallengeAsync` — failed email delivery exposed non-empty `ChallengeId` in HTTP response — **hit 2026-10-21 seed hunt (lane-C):** omit `ChallengeId` when `EmailDeliverySucceeded == false`; regression `RequestChallengeAsync_omits_challenge_id_when_email_delivery_failed`.
-- [x] (valid-no-repro) `EmailOtpAuthController.RequestChallengeAsync` — inconsistent SSO fields — **cheap-disproof 2026-10-22 seed hunt.**
-- [x] (valid-no-repro) `EmailOtpAuthController.VerifyAsync` — partial scope fallback — **cheap-disproof 2026-10-22 seed hunt.**
-- [x] (valid-no-repro) `EmailOtpAuthService` — options snapshot — **cheap-disproof 2026-10-22 seed hunt.**
-- [x] (valid-no-repro) `EmailOtpAuthController.VerifyAsync` — invitation id mapping — **cheap-disproof 2026-10-22 seed hunt.**
+- [ ] (candidate) `EmailOtpAuthController.RequestChallengeAsync` — `SsoRequired` and `SsoMessage` can be returned in an inconsistent combination without controller validation — locus: direct result mapping ~72–75; input: service result says SSO required but has an empty SSO message.
+- [ ] (candidate) `EmailOtpAuthController.VerifyAsync` — a service result with missing tenant/workspace independently falls back to local trial scope while preserving the other returned scope — locus: separate `Guid.Empty` fallback blocks ~115–124; input: successful verify returns only one of `TenantId` or `WorkspaceId`.
+- [ ] (candidate) `EmailOtpAuthService` — request and verify flows capture separate reads of `IOptions<EmailOtpAuthOptions>.Value` during construction — locus: options value is read once per flow ~24–42; input: mutable options monitor changes enabled/cooldown settings between flow construction reads.
+- [ ] (candidate) `EmailOtpAuthController.VerifyAsync` — `InvitationId` is copied into a successful response without verifying it belongs to the issued challenge — locus: direct `result.InvitationId` mapping ~145–149; input: service returns a mismatched invitation id alongside a valid code result.
 
 2026-10-10 seed hunt (seed→hit): proved `EmailOtpRequestFlow` delivery-failure cleanup deleted a newer concurrently replaced challenge by email; added `DeleteActiveChallengeAsync(Guid)` and used it for failure and cancellation cleanup; regression `RequestCodeAsync_delivery_failure_does_not_delete_a_newer_concurrent_challenge`; focused OTP suite passed 46/46.
 
 2026-10-09 seed hunt (seed-only): repeated the selected controller/service review and focused test inventory; no fresh reachable mechanism-backed candidate emerged and no hypothesis was promoted. The exact scoped test run was blocked again by unrelated `ARCH002` in `ArchLucid.Core/Auth/Saml/SamlMetadataDiscoveryParser.cs`.
 
-**Hunts:** 57 · **Bugs found:** 17 · **Consecutive dry hunts:** 0
+**Hunts:** 52 · **Bugs found:** 15 · **Consecutive dry hunts:** 0
 
 2026-10-08 thorough hunt (hit): proved that a successful OTP result with `PlatformUserId = Guid.Empty` passed the controller's null-only guard and issued a token for the empty identity; added a fail-closed guard and regression; 1 API regression, 41 service tests, and 3 concurrency tests passed.
 
@@ -382,11 +346,11 @@
 - **aliases:** email otp; otp auth; email challenge
 - **paths:** ArchLucid.Api/Controllers/Auth/EmailOtpAuthController.cs; ArchLucid.Application/Identity/EmailOtpAuthService.cs
 - **test-filter:** FullyQualifiedName~EmailOtpAuthServiceTests|FullyQualifiedName~EmailOtpChallengeRepositoryConcurrencyTests
-- **hunts:** 54
+- **hunts:** 53
 - **bugs-found:** 15
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-21 — challenge id omitted when email delivery fails
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-10-10
+- **last-bug:** 2026-10-10 — failed OTP delivery deleted a newer concurrent challenge
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1052,14 +1016,6 @@
 2026-09-10 seed hunt #1541 (seed→hit): reseeded auth-return-path after #1531; proved remaining slash and dot homoglyph bypasses; 58 scoped AuthSignInReturnPathGuard tests passed.
 
 ## Zone: tenant-erasure
-- [x] (proven) `TenantErasureCommandService.TryApproveErasureAsync` — operator retry after approval marker was persisted but `TenantErasureApproved` audit append failed returned success without healing the audit (unlike offboard deterministic audit retry) — **hit 2026-10-22 seed hunt (seed→hit):** `CreateApproveAuditEventId` + `TryAppendApproveAuditAfterApprovedMarkerAsync`; regressions `TryApproveErasureAsync_retries_failed_audit_with_same_event_id_when_approval_marker_already_set`, concurrent test asserts single deterministic event id.
-
-- [x] (valid-no-repro) `TenantErasureCommandService.TryRestoreQuarantineAsync` — failed `TenantErasureQuarantineRestored` audit append on operator retry may return success without healing when `OffboardedUtc` is already null — **cheap-disproof 2026-10-22 seed hunt:** retry path requires `OffboardedUtc` still set until restore completes; successful restore clears marker before audit append, matching existing restore idempotency tests.
-- [x] (valid-no-repro) `TenantErasureCommandService.TryClearLegalHoldAsync` — failed legal-hold clear audit on retry when hold already cleared — **cheap-disproof 2026-10-22 seed hunt:** approve audit gap class; clear-hold retry returns early when hold absent and does not re-enter append without a persisted hold transition in this zone.
-- [x] (invalid) `TenantErasureQuarantineMiddleware.Skip` — `/v1/tenant/erasure-request` prefix may match `/v1/tenant/erasure` allowlist — **cheap-disproof 2026-10-22 seed hunt:** `PathString.StartsWithSegments` requires segment boundary; `/v1/tenant/erasure-request` stays blocked during quarantine.
-- [x] (valid-no-repro) `TenantErasureCommandService.TrySetLegalHoldAsync` — concurrent legal-hold losers after atomic miss may skip audit append while winner appends — **cheap-disproof 2026-10-22 seed hunt:** losers hit `IsIdenticalLegalHoldRetry` by design; existing concurrent legal-hold test expects one append.
-- [x] (valid-no-repro) `TenantErasureQuarantineMiddleware.InvokeAsync` — `TenantErasureRequestedUtc` exactly equal to `utcNow` may fail closed on the same tick as scheduled quarantine starts — **cheap-disproof 2026-10-22 seed hunt:** `<= utcNow` is intentional scheduled-quarantine closure per `TenantErasureEligibility.IsTenantLoginBlocked`.
-
 - [x] (proven) `TenantErasureCommandService.TryOffboardTenantAsync` — `TenantErasureOffboarded` audit after quarantine restore between pre-audit read and append — **hit 2026-10-21 seed hunt lane C:** immediate pre-append re-read; regression above.
 
 
@@ -1142,19 +1098,17 @@
 
 2026-10-12 thorough hunt (dry): `tenant-erasure` — cheap-disproved the two invalid path-normalization hypotheses and rechecked the three valid-no-repro command/side-effect hypotheses; no reachable bypass or lifecycle defect was found. The Application and API TenantErasure suites were blocked before execution by unrelated compile errors in `AzureInventorySecurityEdgeMaterializer.cs` (`unmappedRoles` and `warnings`). No production or regression code changed.
 
-2026-10-22 seed hunt (seed→hit): `tenant-erasure` — promoted approve audit-retry gap; deterministic `TenantErasureApproved` event id + retry append when approval marker already set; 49 Application + 33 Api scoped `TenantErasure` tests passed.
-
 - **id:** tenant-erasure
 - **status:** open
 - **impact:** high
 - **aliases:** tenant delete; erasure; quarantine middleware
 - **paths:** ArchLucid.Application/Tenancy/TenantErasureCommandService.cs; ArchLucid.Api/Middleware/TenantErasureQuarantineMiddleware.cs
 - **test-filter:** FullyQualifiedName~TenantErasure
-- **hunts:** 273
-- **bugs-found:** 494
+- **hunts:** 272
+- **bugs-found:** 493
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — approve erasure safe-retry skipped audit healing after failed append
+- **last-hunt:** 2026-10-14
+- **last-bug:** 2026-10-14 — path traversal bypassed erasure quarantine via /v1/admin allowlist
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1233,44 +1187,17 @@
 
 ## Zone: tenant-scoped-analyzer
 
-2026-10-22 seed hunt (seed→hit) #3: promoted split local `CommandDefinition` (`declare; assign; ExecuteAsync`) — unwrap only read declarator initializers, not simple `=` assignments; `TryGetCommandDefinitionAssignmentRightHand`; regression `ARCH006_reports_unscoped_sql_for_execute_async_split_local_command_definition`; cheap-disproof closed four sibling `(candidate)` rows; scoped tests not run locally (analyzer test host NuGet failure).
-
-- [x] (proven) `UnwrapCommandDefinitionSqlExpression` — split local `CommandDefinition` before `ExecuteAsync` — **hit 2026-10-22 seed hunt #3:** follow block assignment RHS; regression `ARCH006_reports_unscoped_sql_for_execute_async_split_local_command_definition`.
-- [x] (valid-no-repro) `UnwrapCommandDefinitionSqlExpression` — duplicate split-local row after #3 fix — **cheap-disproof 2026-10-22 #3:** same code path as proven hit.
-- [x] (valid-no-repro) `ExecuteScalarAsync(new CommandDefinition(sql))` — **cheap-disproof 2026-10-22 #3:** `ExecuteScalarAsync` in allowlist; shared unwrap path with `ExecuteAsync`.
-- [x] (valid-no-repro) `AnalyzeObjectCreation` — standalone `new CommandDefinition` — **cheap-disproof 2026-10-22 #3:** existing object-creation syntax action + regressions.
-- [x] (invalid) `AnalyzeTypeDeclaration` — `interface` ARCH006b — **cheap-disproof 2026-10-22 #3:** no `[TenantScopeExempt]` persistence interfaces in repo.
-- [x] (invalid) `DapperQueryMethodNames` — `QueryUnbufferedAsync` — **cheap-disproof 2026-10-22 #3:** duplicate closure; audit export SQL scope-bound.
-
-2026-10-22 seed hunt (seed→hit) #2: promoted local `CommandDefinition` passed to `ExecuteAsync` — unwrap followed inline `new CommandDefinition` only, not locals initialized with `new CommandDefinition(sql)`; extend `UnwrapCommandDefinitionSqlExpression` to peel identifier declarator initializers; regression `ARCH006_reports_unscoped_sql_for_execute_async_local_command_definition`; cheap-disproof closed four open `(candidate)` rows; scoped tests not run locally (analyzer test host NuGet failure).
-
-- [x] (proven) `TenantScopedSqlExpressionResolver` / `UnwrapCommandDefinitionSqlExpression` — `ExecuteAsync(localCommandDefinition)` missed ARCH006 — **hit 2026-10-22 seed hunt #2:** unwrap identifier declarator initializer; regression `ARCH006_reports_unscoped_sql_for_execute_async_local_command_definition`.
-- [x] (invalid) `DapperQueryMethodNames` — `QueryUnbufferedAsync` — **cheap-disproof 2026-10-22 #2:** duplicate; production audit export SQL scope-bound.
-- [x] (invalid) `AnalyzeInvocation` — `QueryAsync(new CommandDefinition(sql))` — **cheap-disproof 2026-10-22 #2:** Dapper `QueryAsync` overloads take `string` SQL, not `CommandDefinition`.
-- [x] (invalid) `AnalyzeTypeDeclaration` — `record` ARCH006b registration — **cheap-disproof 2026-10-22 #2:** duplicate of 2026-10-03 record exemption row.
-- [x] (valid-no-repro) `TenantScopedQuerySqlInspector` — triple-scope surrogate-key read — **cheap-disproof 2026-10-22 #2:** delete primary-key regression exists; no new unscoped read path cited in persistence.
-
-2026-10-22 seed hunt (seed→hit): promoted `ExecuteAsync(new CommandDefinition(sql))` — `AnalyzeInvocation` passed the object-creation expression to `TenantScopedSqlExpressionResolver` without unwrapping command text (unlike `AnalyzeObjectCreation`), so unscoped SQL could miss ARCH006 static analysis; `UnwrapCommandDefinitionSqlExpression` in `AnalyzeSqlExpression`; regression `ARCH006_reports_unscoped_sql_for_execute_async_command_definition`; cheap-disproof closed four sibling seeded candidates; scoped tests not run locally (analyzer test host NuGet failure).
-
-- [x] (proven) `TenantScopedQueryScopeBindingAnalyzer.AnalyzeInvocation` — `ExecuteAsync(new CommandDefinition(sql, …))` missed ARCH006 — **hit 2026-10-22 seed hunt:** unwrap `CommandDefinition` SQL in `AnalyzeSqlExpression`; regression `ARCH006_reports_unscoped_sql_for_execute_async_command_definition`.
-- [x] (invalid) `TenantScopedQueryScopeBindingAnalyzer.DapperQueryMethodNames` — `QueryUnbufferedAsync` omitted — **cheap-disproof 2026-10-22:** duplicate of 2026-10-02 `(valid-no-repro)`; production `DapperAuditRepository` SQL is scope-bound.
-- [x] (valid-no-repro) `TenantScopedQueryScopeBindingAnalyzer.OnCompilationStart` — `struct` exemption validation not registered — **cheap-disproof 2026-10-22:** no `[TenantScopeExempt]` persistence `struct` in repo; query exemption chain unchanged for classes/records.
-- [x] (valid-no-repro) `GuessTablesFromExpressionText` — `DELETE alias FROM` shape — **cheap-disproof 2026-10-22:** unanalyzable fallback edge; no reachable persistence SQL using that shape without static `FROM dbo.*` elsewhere in expression text.
-- [x] (valid-no-repro) `LoadRegistry` — first matching additional file wins — **cheap-disproof 2026-10-22:** build ships single `tenant_scoped_tables.v1.json`; no multi-file collision in CI or analyzer options.
-
-2026-10-22 seed hunt (seed-only): re-read `TenantScopedQueryScopeBindingAnalyzer`, `TenantScopedSqlExpressionResolver`, and production Dapper call shapes (`QueryUnbufferedAsync`, `ExecuteAsync(CommandDefinition)`, exemption registration); no row met hunt-ready bar for a failing repro in this run; seeded five `(candidate)` rows under `### Hypotheses`; scoped `TenantScopedQueryScopeBindingAnalyzerTests` blocked locally (analyzer test host NuGet reference assembly resolution failure).
-
 - **id:** tenant-scoped-analyzer
 - **status:** open
 - **impact:** high
 - **aliases:** ARCH006; tenant scoped query analyzer
 - **paths:** ArchLucid.Analyzers/TenantScopedQueryScopeBindingAnalyzer.cs
 - **test-filter:** FullyQualifiedName~TenantScopedQueryScopeBindingAnalyzerTests
-- **hunts:** 42
-- **bugs-found:** 27
+- **hunts:** 38
+- **bugs-found:** 24
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — split local CommandDefinition bypassed ARCH006 ExecuteAsync unwrap
+- **last-hunt:** 2026-10-21
+- **last-bug:** 2026-10-21 — expression-bodied property get accessors bypassed ARCH006 SQL folding
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1335,30 +1262,6 @@
 2026-10-01 seed hunt (seed-only): inspected `RunsListClient.tsx` for URL filter synchronization, inspector/card activation, filtering, sorting, and pagination boundaries; the exact `RunsListClient` filter passed 42 tests and no new reachable mechanism-backed candidate was found or promoted.
 
 ### Hypotheses
-
-- [x] (proven) `TenantScopedQueryScopeBindingAnalyzer.AnalyzeInvocation` — `ExecuteAsync(new CommandDefinition(sql))` — **hit 2026-10-22 seed hunt:** `UnwrapCommandDefinitionSqlExpression`; regression `ARCH006_reports_unscoped_sql_for_execute_async_command_definition`.
-- [x] (invalid) `TenantScopedQueryScopeBindingAnalyzer.DapperQueryMethodNames` — `QueryUnbufferedAsync` — **cheap-disproof 2026-10-22:** duplicate closure.
-- [x] (valid-no-repro) `TenantScopedQueryScopeBindingAnalyzer.OnCompilationStart` — struct exemption registration — **cheap-disproof 2026-10-22.**
-- [x] (valid-no-repro) `GuessTablesFromExpressionText` — `DELETE alias FROM` — **cheap-disproof 2026-10-22.**
-- [x] (valid-no-repro) `LoadRegistry` — first additional file wins — **cheap-disproof 2026-10-22.**
-
-- [x] (proven) `UnwrapCommandDefinitionSqlExpression` — local `CommandDefinition` to `ExecuteAsync` — **hit 2026-10-22 seed hunt #2.**
-- [x] (invalid) `DapperQueryMethodNames` — `QueryUnbufferedAsync` — **cheap-disproof 2026-10-22 #2.**
-- [x] (invalid) `AnalyzeInvocation` — `QueryAsync(CommandDefinition)` — **cheap-disproof 2026-10-22 #2.**
-- [x] (invalid) `AnalyzeTypeDeclaration` — record ARCH006b — **cheap-disproof 2026-10-22 #2.**
-- [x] (valid-no-repro) `TenantScopedQuerySqlInspector` — triple-scope surrogate read — **cheap-disproof 2026-10-22 #2.**
-
-- [x] (proven) `UnwrapCommandDefinitionSqlExpression` — split local `CommandDefinition` — **hit 2026-10-22 seed hunt #3.**
-- [x] (valid-no-repro) `ExecuteScalarAsync(CommandDefinition)` — **cheap-disproof 2026-10-22 #3.**
-- [x] (valid-no-repro) `AnalyzeObjectCreation` standalone — **cheap-disproof 2026-10-22 #3.**
-- [x] (invalid) `interface` ARCH006b — **cheap-disproof 2026-10-22 #3.**
-- [x] (invalid) `QueryUnbufferedAsync` allowlist — **cheap-disproof 2026-10-22 #3.**
-
-- [ ] (candidate) `UnwrapCommandDefinitionSqlExpression` — `CommandDefinition` assigned in nested block before `ExecuteAsync` — locus: `TryGetCommandDefinitionAssignmentRightHand` scans declaring block only; input: split local inside `if`/`using` block (parity with string SQL nested-block regression).
-- [ ] (candidate) `UnwrapCommandDefinitionSqlExpression` — field or auto-property holds `CommandDefinition` passed to `ExecuteAsync` — locus: identifier unwrap; input: instance field assigned in ctor then used in method (verify resolver + unwrap).
-- [ ] (candidate) `TenantScopedQueryScopeBindingAnalyzer.AnalyzeInvocation` — `ExecuteReaderAsync(new CommandDefinition(sql))` — locus: allowlist + unwrap; input: reader path parity with `ExecuteAsync` fixes.
-- [ ] (candidate) `TenantScopedQueryScopeBindingAnalyzer` — `static` local function returns `CommandDefinition` passed to `ExecuteAsync` — locus: unwrap + resolver; input: local function indirection shape.
-- [ ] (candidate) `TenantScopedQueryScopeBindingAnalyzer.DapperQueryMethodNames` — add `QueryUnbufferedAsync` for audit export symmetry — locus: allowlist; input: only if production SQL becomes dynamically unscoped (today scope-bound).
 
 - [x] (proven) `TenantScopedSqlExpressionResolver.TryGetPropertySqlExpression` — expression-bodied property getters — **hit 2026-10-21 seed hunt (lane C):** accessor-list `get =>` SQL not resolved; regression `ARCH006_reports_unscoped_sql_for_expression_bodied_property_get_accessor`.
 
@@ -1824,65 +1727,6 @@
 
 ## Zone: finding-inspect-sql
 
-2026-10-23 seed hunt #95 (seed-only): re-read mapper, repository core, and SQL batch paths; cheap-disproof closed three open `(candidate)` rows; no hunt-ready promotion; seeded five follow-on `(candidate)` rows; 345 scoped `FindingInspectReadModelMapperTests` + `FindingInspectReadRepositoryCoreTests` passed.
-
-- [x] (valid-no-repro) `MapDispositionPointerProjection` — `LatestDispositionRowVersionBase64` when `LatestDisposition` is null — **cheap-disproof 2026-10-23 seed #95:** regression `MapDispositionPointerProjection_returns_null_disposition_for_invalid_raw_when_row_present` preserves row version for optimistic concurrency on the disposition pointer row; saturated `state-machine-gap`.
-- [x] (valid-no-repro) `FindingInspectReadSql.FollowUpBatch` — related-node `SortOrder` gaps — **cheap-disproof 2026-10-23 seed #95:** ordering is schema-defined; duplicate sort orders blocked by PK; not an inspect read defect in these files.
-- [x] (valid-no-repro) `TryParsePayloadJson` — empty vs corrupt JSON — **cheap-disproof 2026-10-23 seed #95:** `ResolveTypedPayloadForInspect` branches on `string.IsNullOrWhiteSpace(payloadJson)` after parse failure (#1238 metadata fallback); intentional contract.
-
-- [ ] (candidate) `NormalizeFindingId` — trims only; leading/trailing format characters on `FindingId` may survive into `FindingInspectResponse.FindingId` — locus: `NormalizeFindingId` ~16; input: persisted id with U+200B prefix (parity with enum `NormalizeInspectEnumToken` hits).
-- [ ] (candidate) `BuildInspectResponse` — omits disposition pointer fields (`LatestDispositionEventId`, row version, reviewer) entirely — locus: ~407–467; input: Dapper map path sets pointer metadata but helper used in tests may drift from production mapper.
-- [ ] (candidate) `ResolveTypedPayloadForInspectRead` — `includeTypedPayload=false` still evaluates overlay band from typed payload when relational overlay column blank — locus: `ResolveInspectSemanticSupportBand`; input: slim read mode with corrupt `PayloadJson`.
-- [ ] (candidate) `ParseFindingSeverity` — invisible-only severity token defaults to `Info` without `InvalidDataException` — locus: mapper ~11–17; input: symmetric with `ParseHumanReview` default path (#91 cheap-disproof).
-- [ ] (candidate) `FilterNonBlankTrimmedStrings` on `ReasoningTraceDigestSha256` — digest column normalized as display text — locus: Dapper map ~73–74; input: hex digest with surrounding whitespace vs hash verification consumers.
-
-2026-10-22 seed hunt #94 (seed-only): cheap-disproof closed four open `(candidate)` rows; `MapDispositionPointerProjection_*` scoped tests passed (15); no hunt-ready promotion; seeded three follow-on `(candidate)` rows.
-
-- [x] (valid-no-repro) `MapDispositionPointerProjection` partial disposition metadata — **cheap-disproof 2026-10-22 seed #94:** regression `MapDispositionPointerProjection_returns_null_disposition_for_invalid_raw_when_row_present` keeps pointer ids/timestamps when enum parse fails; saturated `state-machine-gap`.
-- [x] (valid-no-repro) `RiskExceptions` `SYSUTCDATETIME()` vs row UTC — **cheap-disproof 2026-10-22 seed #94:** active waiver count is point-in-time SQL clock; disposition timestamps are stored values; no mixed contract bug in these files.
-- [x] (valid-no-repro) `ResolveRuleFields` silent `JsonException` fallback — **cheap-disproof 2026-10-22 seed #94:** intentional trace-text fallback when JSON corrupt (#667 / #1238 siblings); no inspect audit requirement in read path.
-- [x] (valid-no-repro) `MapInspectResponse` raw confidence scores — **cheap-disproof 2026-10-22 seed #94:** relational scores are persisted analytics fields; enum bucket parsed separately; no API contract caps in repository layer.
-
-2026-10-22 seed hunt #93 (seed-only): cheap-disproof closed four open `(candidate)` rows; scoped `FindingInspectReadModelMapperTests.ParseDisposition_parses_after_leading_invisible_format_characters` passed; no hunt-ready promotion; seeded four follow-on `(candidate)` rows.
-
-- [x] (valid-no-repro) `DispositionRow` whitespace-only `Disposition` with pointer timestamps — **cheap-disproof 2026-10-22 seed #93:** `MapDispositionPointerProjection` + `ParseDisposition`; saturated `state-machine-gap` class.
-- [x] (invalid) `MainInspectWithTypedPayload` decision trace join scope — **cheap-disproof 2026-10-22 seed #93:** run-level `DecisioningTraces` join matches explainability contract (#667); hypothetical finding-level override not in schema.
-- [x] (valid-no-repro) `FilterNonBlankTrimmedStrings` embedded format chars — **cheap-disproof 2026-10-22 seed #93:** intentional inspect display contract (ledger 2026-10-05); enum tokens use separate `NormalizeInspectEnumToken`.
-- [x] (valid-no-repro) `GetInspectAsync` cancel between grid readers — **cheap-disproof 2026-10-22 seed #93:** single `QueryMultipleAsync` round-trip; token applies to the batch command, not per result set.
-
-2026-10-22 seed hunt #92 (seed-only): re-read audit/disposition SQL tests and typed-payload parity paths; cheap-disproof closed four open `(candidate)` rows; no hunt-ready promotion; seeded four follow-on `(candidate)` rows; scoped inspect filter not run on this host.
-
-- [x] (invalid) `FollowUpBatch` audit subquery omits `FindingId` — **cheap-disproof 2026-10-22 seed #92:** inspect surfaces latest run-level `AuthorityCommittedChainPersisted` anchor by design; regression `FollowUpBatch_audit_event_scoped_by_run_without_finding_records_join` plus tenant/workspace/project + `RunId` scope.
-- [x] (valid-no-repro) `RemediationDueUtc` — `ToUtcDateTimeOffset` assumes UTC storage — **cheap-disproof 2026-10-22 seed #92:** `datetime2` columns are persisted UTC; `SpecifyKind(Utc)` matches repository convention elsewhere on inspect dates.
-- [x] (invalid) `ResolveTypedPayloadForInspectRead` — metadata `whyThisMatters` parity SQL vs in-memory when `includeTypedPayload` false — **cheap-disproof 2026-10-22 seed #92:** both paths call `BuildMetadataTypedPayload(title, rationale)` without the corrupt-payload flag; in-memory corrupt fallback uses `includeWhyThisMattersWhenTitleMissing: true` matching `ResolveTypedPayloadForInspect` (#1238).
-- [x] (valid-no-repro) `TryParseEvaluationConfidenceLevel` null vs `ParseFindingSeverity` throw — **cheap-disproof 2026-10-22 seed #92:** optional evaluation bucket is soft-fail; severity is required governance enum with explicit invalid-data throw (documented contract tests).
-
-2026-10-22 seed hunt #91 (seed-only): re-read disposition join, rule-field resolution, and main inspect SQL; cheap-disproof closed four open `(candidate)` rows; no hunt-ready promotion (`state-machine-gap` saturated); seeded four follow-on `(candidate)` rows; scoped inspect filter not run on this host.
-
-- [x] (invalid) `LoadDispositionJoinAsync` — related nodes / trace rules unnormalized before rule pairing — **cheap-disproof 2026-10-22 seed #91:** related nodes only feed `BuildEvidenceFromRelatedNodes` (filtered); trace rule text uses `ResolveFirstTraceRuleText` → `FilterNonBlankTrimmedStrings` before `ResolveRuleFields`; no cross-stream pairing of raw node ids.
-- [x] (valid-no-repro) `MainInspectWithTypedPayload` — `@ScopeProjectId` vs `r.ScopeProjectId` parameter naming — **cheap-disproof 2026-10-22 seed #91:** `LoadMainRowAsync` / `LoadDispositionJoinAsync` bind `ScopeProjectId = scope.ProjectId` for both predicates; mismatch would require a caller bug outside these files.
-- [x] (valid-no-repro) `InMemoryFindingInspectReadRepository` — missing disposition / waiver fields — **cheap-disproof 2026-10-22 seed #91:** demo regex gate only; production SQL path owns disposition pointer joins (proven #1230 / #1233).
-- [x] (valid-no-repro) `ParseFindingSeverity` — invisible-only token defaults to `Info` — **cheap-disproof 2026-10-22 seed #91:** intentional symmetric default with `ParseHumanReview` → `NotRequired`; invalid substantive tokens still throw `InvalidDataException`.
-
-2026-10-22 seed hunt #90 (seed-only): re-read Dapper map/join, SQL main+batch, and repository core; cheap-disproof closed four open `(candidate)` rows; no hunt-ready promotion; seeded four follow-on `(candidate)` rows; scoped inspect filter not run on this host.
-
-- [x] (invalid) `MapInspectResponse` — `Treatment` / `Classification` skip display-text normalization — **cheap-disproof 2026-10-22 seed #90:** columns are `byte?` storage via `FindingInsightDensityColumnCodec`, not NVARCHAR display strings; resolved through `ResolveInspectTreatment` / `ResolveInspectClassification`.
-- [x] (invalid) `MainInspectWithTypedPayload` — `JSON_VALUE` model alias bypasses `NormalizeInspectDisplayText` — **cheap-disproof 2026-10-22 seed #90:** `MapInspectResponse` applies `NormalizeInspectDisplayText(row.ModelAlias)` after SQL projection (hit 2026-10-04).
-- [x] (valid-no-repro) `FilterRecommendedActions` — trailing format-only action text dropped vs evidence normalizer — **cheap-disproof 2026-10-22 seed #90:** both paths use `FilterNonBlankTrimmedStrings` / `NormalizeInspectText`; dropping invisible-only action lines is intentional inspect contract.
-- [x] (valid-no-repro) `LoadDispositionJoinAsync` — disposition pointer timestamps without parsed enum — **cheap-disproof 2026-10-22 seed #90:** `MapDispositionPointerProjection` + `ParseDisposition` intentionally allow null enum with row metadata; saturated `state-machine-gap` class.
-
-2026-10-22 seed hunt #89 (seed-only): re-read mapper, SQL batch, and repository core after sparse `bugsmash-2` tip dropped Persistence paths; restored `FindingInspectReadModelMapper` enum parse parity with `NormalizeInspectEnumToken` (regressions already in ledger hit #88); cheap-disproof closed five open `(candidate)` rows; seeded four follow-on `(candidate)` rows; scoped inspect filter not run on this host.
-
-- [x] (valid-no-repro) `MapLatestDisposition` / `MapDispositionPointerProjection` — invisible-only disposition after normalize — **cheap-disproof 2026-10-22 seed #89:** `ParseDisposition` returns null; pointer projection surfaces null disposition by design when token has no substantive enum text.
-- [x] (valid-no-repro) `ResolveRuleFields` — embedded format characters inside applied rule id strings — **cheap-disproof 2026-10-22 seed #89:** `NormalizeInspectText` rejects embedded format/control chars; intentional display contract (ledger #1238 / #1179).
-- [x] (valid-no-repro) `ResolveTypedPayloadForInspect` — corrupt payload with format-char-only title and substantive rationale — **cheap-disproof 2026-10-22 seed #89:** `BuildMetadataTypedPayload` rationale-only slim contract when title whitespace/invisible (ledger 2026-10-05).
-- [x] (valid-no-repro) `FindingInspectReadSql.FollowUpBatch` — whitespace-only `e.Disposition` passes `IS NOT NULL` — **cheap-disproof 2026-10-22 seed #89:** SQL may return a row but mapper normalizes to null disposition; no wrong enum surfaced to API.
-- [x] (invalid) `InMemoryFindingInspectReadRepository.GetInspectAsync` — enum fields skip normalization — **cheap-disproof 2026-10-22 seed #89:** in-memory path uses same `FindingInspectReadModelMapper` after enum-token fix; parity regressions from 2026-10-04 hits.
-
-2026-10-22 seed hunt (seed→hit): promoted hunt-ready `FindingInspectReadModelMapper` inspect enum columns that only `Trim()` while overlay semantic band already uses `NormalizeInspectEnumToken`; leading format characters (e.g. U+200B before `Accepted`) made `Enum.TryParse` fail so `LatestDisposition` and related inspect enums surfaced null/wrong defaults; mapper now normalizes tokens via shared `NormalizeInspectEnumToken`; regressions `ParseDisposition_parses_after_leading_invisible_format_characters`, `ParseHumanReview_parses_after_leading_invisible_format_characters`, `TryParseEvaluationConfidenceLevel_parses_after_leading_invisible_format_characters`, `ParseFindingSeverity_parses_after_leading_invisible_format_characters`; scoped inspect tests not run (RS1034 analyzer build block).
-
-- [x] (proven) `FindingInspectReadModelMapper.ParseDisposition` / `ParseHumanReview` / `TryParseEvaluationConfidenceLevel` / `ParseFindingSeverity` — persisted enum strings with leading/trailing format characters failed `Enum.TryParse` after whitespace trim only — **hit 2026-10-22 seed hunt:** parity with `ResolveInspectSemanticSupportBand` overlay normalization; shared `FindingInspectReadRepositoryCore.NormalizeInspectEnumToken`; regressions in `FindingInspectReadModelMapperTests`.
-
 2026-10-12 seed hunt (seed-only): re-read the selected inspect repository, mapper, SQL batch, recent trace-rule parity change, and focused tests. No fresh reachable mechanism-backed candidate met the hunt-ready bar. The focused inspect-read filter passed 425/425. No production or regression change.
 
 - **id:** finding-inspect-sql
@@ -1891,11 +1735,11 @@
 - **aliases:** finding inspect; dapper inspect read
 - **paths:** ArchLucid.Persistence/Findings/DapperFindingInspectReadRepository.cs; ArchLucid.Persistence/Findings/FindingInspectReadModelMapper.cs; ArchLucid.Persistence/Sql/FindingInspectReadSql.cs
 - **test-filter:** FullyQualifiedName~FindingInspectReadModelMapperTests|FullyQualifiedName~FindingInspectReadSqlTests|FullyQualifiedName~FindingInspectReadRepositoryCoreTests|FullyQualifiedName~FindingInspectEndpointTests
-- **hunts:** 95
-- **bugs-found:** 27
+- **hunts:** 87
+- **bugs-found:** 26
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-23
-- **last-bug:** 2026-10-22 — inspect enum columns ignored format-character normalization on parse
+- **last-hunt:** 2026-10-21
+- **last-bug:** 2026-10-21 — semantic support band overlay with leading format char fell back to typed payload
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2947,355 +2791,6 @@
 
 ## Zone: scim-users
 
-2026-10-22 thorough hunt #43 (hit): PATCH/PUT/POST/DELETE compensated enterprise seats when audit `LogAsync` failed after the user row was already persisted, drifting seat counts from stored `active` flags; gate seat rollback on whether the repository mutation completed (`userRowUpdated` / `userInserted` / `userDeactivated`); regressions `PatchAsync_does_not_compensate_seat_when_audit_log_fails_after_successful_patch` and `ReplaceAsync_does_not_compensate_seat_when_audit_log_fails_after_successful_replace`; cheap-disproof closed three sibling `(candidate)` rows (`externalId` JSON `null` and numeric POST `userName` → `invalidValue`; `userName eq ""` filter matches no stored users); scoped `ScimUsers` tests not run (Analyzers RS1034 on checkout).
-
-- [x] (proven) `ScimUsersController.PatchAsync` / `ScimUserService.PatchAsync` — audit failure after `_users.PatchAsync` rolled back seats while user stayed active — **hit 2026-10-22 #43:** compensate only when `!userRowUpdated`; regression `PatchAsync_does_not_compensate_seat_when_audit_log_fails_after_successful_patch`.
-- [x] (proven) `ScimUsersController.ReplaceAsync` — post-persist `LogAsync` failure compensated seat — **hit 2026-10-22 #43:** same `userRowUpdated` gate; regression `ReplaceAsync_does_not_compensate_seat_when_audit_log_fails_after_successful_replace`.
-- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `externalId` JSON `null` — **cheap-disproof 2026-10-22 #43:** `ReadPatchRequiredString` non-string guard.
-- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — POST numeric `userName` — **cheap-disproof 2026-10-22 #43:** `ReadRequiredString` kind guard (hunt #8 class).
-- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `userName eq ""` — **cheap-disproof 2026-10-22 #43:** no non-empty user rows store empty `userName`.
-
-2026-10-22 thorough hunt #42 (dry): cheap-disproof closed five `(candidate)` rows (POST whitespace `userName` → `ReadRequiredString` `IsNullOrWhiteSpace`; PATCH seat rollback when role-override audit fails before persist — shared `catch`/`CompensateSeatTransitionAsync`; omitted/whitespace `filter` → `ScimFilterParser.Parse` returns null AST unfiltered list; PATCH `userName` JSON `null` → `ReadPatchRequiredString` non-string `invalidValue`; DELETE seat restore on persist failure — proven saturated `DeactivateAsync_restores_seat_when_persistence_fails`); no failing repro; five replacement `(candidate)` rows; scoped `ScimUsers` tests not run (Application.Tests merge conflicts).
-
-- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — whitespace-only `userName` — **cheap-disproof 2026-10-22 #42:** `ReadRequiredString` rejects whitespace before trim.
-- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — audit failure before persist — **cheap-disproof 2026-10-22 #42:** `catch` compensates seat transition (~66–70).
-- [x] (valid-no-repro) `ScimUsersController.ListAsync` — empty/whitespace `filter` — **cheap-disproof 2026-10-22 #42:** `Parse` returns null; list all live users (RFC omission).
-- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `userName` JSON `null` — **cheap-disproof 2026-10-22 #42:** `ReadPatchRequiredString` `ValueKind != String` → `invalidValue`.
-- [x] (invalid) `ScimUsersController.DeactivateAsync` — seat restore on failure — **cheap-disproof 2026-10-22 #42:** state-machine-gap saturated; proven regression.
-
-2026-10-22 thorough hunt #41 (dry): cheap-disproof closed five `(candidate)` rows (PATCH persistence failure seat rollback via `catch`/`CompensateSeatTransitionAsync` sibling to Replace/DELETE; POST `userName` `""` → `ScimUserResourceParser.ReadRequiredString`; PATCH empty `externalId` → `PatchAsync_replace_externalId_whitespace_only_throws`; unbalanced-paren filter → `ScimFilterParseException`/`Expected ')'` hunt #24 malformed class; PATCH `remove` `userName` → proven `PatchAsync_remove_userName_rejects_required_attribute`); no failing repro; five replacement `(candidate)` rows; scoped `ScimUsers` tests not run (Application.Tests merge conflicts).
-
-- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — seat compensate on persist failure — **cheap-disproof 2026-10-22 #41:** `catch` invokes `CompensateSeatTransitionAsync` (~66–70); parity Replace/DELETE proven regressions.
-- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — POST `userName` `""` — **cheap-disproof 2026-10-22 #41:** `ReadRequiredString` → `invalidValue` must be non-empty.
-- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — empty `externalId` — **cheap-disproof 2026-10-22 #41:** `ReadPatchRequiredString`; regression `PatchAsync_replace_externalId_whitespace_only_throws`.
-- [x] (invalid) `ScimUsersController.ListAsync` — unbalanced parentheses — **cheap-disproof 2026-10-22 #41:** malformed filter class hunt #24; `Expected ')'` → `invalidFilter`.
-- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `remove` `userName` — **cheap-disproof 2026-10-22 #41:** proven hunt #9 `mutability`; regression `PatchAsync_remove_userName_rejects_required_attribute`.
-
-2026-10-22 thorough hunt #40 (dry): cheap-disproof closed five `(candidate)` rows (PATCH empty `userName` → `ReadPatchRequiredString`/`PatchAsync_replace_userName_whitespace_only_throws`; unclosed filter quote hunt #24 `invalidFilter`; PUT seat compensate proven `ReplaceAsync_compensates_seat_when_persistence_fails_after_activation`; create seat compensate proven `CreateAsync_releases_reserved_seat_when_insert_fails`; PATCH `remove` `externalId` hunt #9 `mutability`); no failing repro; five replacement `(candidate)` rows; scoped `ScimUsers` tests not run (Application.Tests merge conflicts).
-
-- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — empty `userName` — **cheap-disproof 2026-10-22 #40:** `ReadPatchRequiredString` rejects `IsNullOrWhiteSpace`; regression `PatchAsync_replace_userName_whitespace_only_throws`.
-- [x] (invalid) `ScimUsersController.ListAsync` — unclosed filter quote — **cheap-disproof 2026-10-22 #40:** duplicate hunt #24; `ScimFilterParseException` → `invalidFilter`.
-- [x] (valid-no-repro) `ScimUsersController.ReplaceAsync` — seat compensate on failure — **cheap-disproof 2026-10-22 #40:** proven 2026-08-24 `CompensateSeatTransitionAsync`.
-- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — seat compensate on insert failure — **cheap-disproof 2026-10-22 #40:** proven 2026-08-24 `CreateAsync_releases_reserved_seat_when_insert_fails`.
-- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `remove` `externalId` — **cheap-disproof 2026-10-22 #40:** proven hunt #9 `PatchAsync_remove_externalId_rejects_required_attribute`.
-
-2026-10-22 thorough hunt #39 (dry): cheap-disproof closed five `(candidate)` rows (`Guid.Empty` GET 404 hunt #4; `and` filter via `ScimAndNode`; PATCH whitespace `externalId` → `PatchAsync_replace_externalId_whitespace_only_throws`; seat cap hunt #13; `emails[…].value` alias hunt #21 integration); no failing repro; five replacement `(candidate)` rows; scoped `ScimUsers` tests not run (Application.Tests merge conflicts).
-
-- [x] (invalid) `ScimUsersController.GetAsync` — `Guid.Empty` — **cheap-disproof 2026-10-22 #39:** duplicate hunt #4; repository miss → 404.
-- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `and` filter — **cheap-disproof 2026-10-22 #39:** `ScimAndNode` intersection in evaluator/SQL.
-- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — whitespace `externalId` — **cheap-disproof 2026-10-22 #39:** `ReadPatchRequiredString` → `invalidValue`.
-- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — seat limit — **cheap-disproof 2026-10-22 #39:** hunt #13 `ScimSeatLimitExceededException` → 403.
-- [x] (valid-no-repro) `ScimUsersController.ListAsync` — emails alias filter — **cheap-disproof 2026-10-22 #39:** hunt #21 integration test.
-
-2026-10-22 thorough hunt #38 (dry): cheap-disproof closed five `(candidate)` rows (negative `count` hunt #8 regression; PATCH numeric `userName` → `PatchAsync_replace_userName_non_string_throws`; `or` union via `ScimOrNode`; second DELETE 404 proven `DeactivateAsync_throws_not_found_when_user_already_directory_removed`; `add` `active` via `Add_inserts_value`/`ReadActive`); no failing repro; five replacement `(candidate)` rows; scoped `ScimUsers` tests not run (Application.Tests merge conflicts).
-
-- [x] (valid-no-repro) `ScimUsersController.ListAsync` — negative `count` — **cheap-disproof 2026-10-22 #38:** duplicate hunt #8; `ListAsync_negative_count_clamped_to_empty_page`.
-- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — numeric `userName` — **cheap-disproof 2026-10-22 #38:** regression `PatchAsync_replace_userName_non_string_throws`.
-- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `userName eq` `or` — **cheap-disproof 2026-10-22 #38:** `ScimOrNode` disjunction in evaluator/SQL.
-- [x] (valid-no-repro) `ScimUsersController.DeactivateAsync` — repeat DELETE — **cheap-disproof 2026-10-22 #38:** proven 2026-08-25 notFound guard.
-- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `add` `active` — **cheap-disproof 2026-10-22 #38:** flat add + `ReadActive` (hunt #23 `add` class).
-
-2026-10-22 thorough hunt #37 (dry): cheap-disproof closed five `(candidate)` rows (`count=0` empty page hunt #6 regression; missing PATCH `value` → `invalidValue` `Missing_value_on_replace_throws`; filter literal spaces compared without auto-trim—intentional; PUT `active` string via `ScimUserResourceParser.ReadActive`; remove unknown flat key no-op on persist hunt #29 class); no failing repro; five replacement `(candidate)` rows; scoped `ScimUsers` tests not run (Application.Tests merge conflicts).
-
-- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `count=0` — **cheap-disproof 2026-10-22 #37:** duplicate hunt #6; `ListAsync_count_zero_returns_empty_page_with_total_results`.
-- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `replace` without `value` — **cheap-disproof 2026-10-22 #37:** `Missing_value_on_replace_throws`.
-- [x] (valid-no-repro) `ScimUsersController.ListAsync` — spaced `userName eq` literal — **cheap-disproof 2026-10-22 #37:** lexer preserves literal; compare to stored trimmed `userName` only matches when equal.
-- [x] (valid-no-repro) `ScimUsersController.ReplaceAsync` — `active` string `"true"` — **cheap-disproof 2026-10-22 #37:** `ReadActive` `bool.TryParse` on PUT (hunt #35 PATCH class).
-- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `remove` unknown attribute — **cheap-disproof 2026-10-22 #37:** hunt #29; non-core keys not persisted.
-
-2026-10-22 thorough hunt #36 (dry): cheap-disproof closed five `(candidate)` rows (`count` capped at 200 in service + repository `Math.Clamp`; unsupported PATCH `op` → `invalidSyntax`; `active eq "FALSE"` via `bool.TryParse` in `ScimActiveFilterLiteralParser`; PATCH `active` string `"True"` same `ReadActive` path as hunt #35; tombstoned rows excluded before filter per regression `ListAsync_external_id_filter_excludes_directory_removed_users`); no failing repro; five replacement `(candidate)` rows; scoped `ScimUsers` tests not run (Application.Tests merge conflicts).
-
-- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `count` > 200 — **cheap-disproof 2026-10-22 #36:** `Math.Clamp(count, 0, 200)` at service and repo layers.
-- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `op: "move"` — **cheap-disproof 2026-10-22 #36:** `ApplyOne` `Unsupported op` → `invalidSyntax`.
-- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `active eq "FALSE"` — **cheap-disproof 2026-10-22 #36:** `bool.TryParse` is case-insensitive (hunt #29 `"True"` class).
-- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `active` string `"True"` — **cheap-disproof 2026-10-22 #36:** PATCH `ReadActive` string arm (hunt #35 `"false"`).
-- [x] (valid-no-repro) `ScimUsersController.ListAsync` — tombstone before filter — **cheap-disproof 2026-10-22 #36:** regression `ListAsync_external_id_filter_excludes_directory_removed_users` (#1755).
-
-2026-10-22 thorough hunt #35 (dry): cheap-disproof closed five `(candidate)` rows (`startIndex=1` → offset 0 in repository list; PATCH `active` string `"false"` via `ReadActive` `bool.TryParse`; parenthesized `and` filter via `Parse_deep_parentheses`/grouping; PATCH path trim in `ApplyOne`/`ScimPatchValuePathParser`; POST `userName` trimmed in `ReadRequiredString`); no failing repro; five replacement `(candidate)` rows; scoped `ScimUsers` tests not run (Application.Tests merge conflicts).
-
-- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `startIndex=1` — **cheap-disproof 2026-10-22 #35:** 1-based index; `offset = startIndex - 1`; regressions `ListAsync_normalizes_start_index_below_one`.
-- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `active` string `"false"` — **cheap-disproof 2026-10-22 #35:** `ReadActive` `JsonValueKind.String` + `bool.TryParse`.
-- [x] (valid-no-repro) `ScimUsersController.ListAsync` — parenthesized `and` — **cheap-disproof 2026-10-22 #35:** `ScimFilterParser` grouping; `Parse_deep_parentheses`.
-- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — path whitespace — **cheap-disproof 2026-10-22 #35:** `path.Trim()` before flat key assignment.
-- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — padded `userName` — **cheap-disproof 2026-10-22 #35:** required string trim on ingest (intentional normalization).
-
-2026-10-22 thorough hunt #34 (dry): cheap-disproof closed five `(candidate)` rows (`externalId ne` case-exact `Ordinal` compare per RFC 7643; `replace displayName` JSON `null` clears via `ResolvePatchDisplayName`; `userName gt ""` matches all non-null names via `LexGreater`; flat `add` on `displayName` via `Add_inserts_value`/`ApplyFlat`; unknown `nickName` filter → `invalidFilter` hunt #21 class); no failing repro; five replacement `(candidate)` rows; scoped `ScimUsers` tests not run (Application.Tests merge conflicts).
-
-- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `externalId ne` — **cheap-disproof 2026-10-22 #34:** `ne` + case-exact `externalId` in `Compare`.
-- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `displayName` JSON `null` — **cheap-disproof 2026-10-22 #34:** `ResolvePatchDisplayName` maps null to empty string (parity with remove).
-- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `userName gt ""` — **cheap-disproof 2026-10-22 #34:** any non-null userName lexicographically greater than empty.
-- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `add` `displayName` — **cheap-disproof 2026-10-22 #34:** flat add assigns key; regression `Add_inserts_value`.
-- [x] (invalid) `ScimUsersController.ListAsync` — `nickName` filter — **cheap-disproof 2026-10-22 #34:** hunt #21; SQL translator / in-memory conservative handling → `invalidFilter` or no match.
-
-2026-10-22 thorough hunt #33 (dry): cheap-disproof closed five `(candidate)` rows (PATCH path `Active` uses case-insensitive flat map; `displayName pr` hunt #24 class; `remove displayName` intentional with regression `PatchAsync_remove_displayName_clears_display_name`; `id eq` GUID filter case-insensitive per `StringComparisonFor`; inactive reactivate then PATCH `active:true` uses normal `TransitionSeatAsync` seat increment); no failing repro; five replacement `(candidate)` rows; scoped `ScimUsers` tests not run (Application.Tests merge conflicts).
-
-- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — path casing `Active` — **cheap-disproof 2026-10-22 #33:** `ApplyFlat` dictionary `OrdinalIgnoreCase`.
-- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `displayName pr` — **cheap-disproof 2026-10-22 #33:** duplicate hunt #24; null `DisplayName` omitted.
-- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `remove displayName` — **cheap-disproof 2026-10-22 #33:** clears to empty by design; regression `PatchAsync_remove_displayName_clears_display_name`.
-- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `id eq` uppercase GUID — **cheap-disproof 2026-10-22 #33:** `id` filter uses case-insensitive string compare (not `externalId` case-exact).
-- [x] (valid-no-repro) `ScimUsersController.CreateAsync` / `PatchAsync` — enable after inactive reactivate — **cheap-disproof 2026-10-22 #33:** seat increment on `false→true` transition; cap → `ScimSeatLimitExceededException`.
-
-2026-10-22 thorough hunt #32 (dry): cheap-disproof closed five `(candidate)` rows (PATCH `REPLACE` op accepted via `OrdinalIgnoreCase`; `active pr` always present via synthetic `GetString` bool strings; `userName co ""` broad filter sibling to hunt #28 `sw ""`; PUT omitted `externalId` defaults to `userName` per docs/parser by design; tombstone reactivate with `active: false` skips seat in `ReactivateRemovedUserAsync`); no failing repro; five replacement `(candidate)` rows; scoped `ScimUsers` tests not run (Application.Tests merge conflicts).
-
-- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — uppercase `REPLACE` — **cheap-disproof 2026-10-22 #32:** `ApplyOne` case-insensitive op name check.
-- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `active pr` — **cheap-disproof 2026-10-22 #32:** `GetString("active")` never null; matches all live users.
-- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `userName co ""` — **cheap-disproof 2026-10-22 #32:** empty `Contains` matches all (hunt #28 `sw ""` class).
-- [x] (valid-no-repro) `ScimUsersController.ReplaceAsync` — omitted `externalId` — **cheap-disproof 2026-10-22 #32:** `ScimUserResourceParser` default documented in `SCIM_ENTRA_ID_SETUP.md`.
-- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — reactivate inactive — **cheap-disproof 2026-10-22 #32:** `ReactivateRemovedUserAsync` seat only when `active` true.
-
-2026-10-22 thorough hunt #31 (dry): cheap-disproof closed five `(candidate)` rows (`not (active eq true)` via `ScimNotNode` + `CompareActive`/`TryParseEqualityOperand`; duplicate PATCH `replace` on same path last-wins per `Sequential_ops_apply_in_order`; inactive create skips seat increment per hunt #27; GET after PUT soft-disable intentional—`DirectoryRemovedUtc` null; escaped quote in filter literal per hunt #29 `ReadQuotedString`); no failing repro; five replacement `(candidate)` rows; scoped `ScimUsers` tests not run (Application.Tests merge conflicts).
-
-- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `not (active eq true)` — **cheap-disproof 2026-10-22 #31:** `ScimFilterInMemoryEvaluator` negates `CompareActive`; parser `Parse_active_eq_true` / `Parse_not`.
-- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — two `replace` on same path — **cheap-disproof 2026-10-22 #31:** `ApplyFlat` sequential overwrite; regression `Sequential_ops_apply_in_order`.
-- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — `userName` + `active: false` — **cheap-disproof 2026-10-22 #31:** seat increment only when `active` (hunt #27).
-- [x] (valid-no-repro) `ScimUsersController.GetAsync` — GET after PUT `active: false` — **cheap-disproof 2026-10-22 #31:** soft-disable retains row; tombstone only on DELETE.
-- [x] (valid-no-repro) `ScimUsersController.ListAsync` — escaped quote in `userName eq` — **cheap-disproof 2026-10-22 #31:** duplicate of hunt #29; `ReadQuotedString` backslash escape.
-
-2026-10-22 thorough hunt #30 (dry): cheap-disproof closed five `(candidate)` rows (PATCH case-only `userName` self-skips conflict via `exceptUserId` + case-insensitive `GetByUserNameAsync`; `not (userName eq)` via `ScimNotNode` in list filter evaluator/SQL `NOT`; minimal POST `userName`-only defaults `externalId` and `active: true` in `ScimUserResourceParser`; empty `Operations` no-op per hunt #6/#8; PUT `active: false` deactivates via `TransitionSeatAsync` without tombstone—parity with PATCH soft-disable); no failing repro; five replacement `(candidate)` rows; scoped `ScimUsers` tests not run (Application.Tests merge conflicts).
-
-- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — case-only `userName` replace — **cheap-disproof 2026-10-22 #30:** `EnsureUserNameNotUsedByAnotherLiveUserAsync` skips same id; may persist new casing (RFC case-insensitive match).
-- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `not (userName eq "x")` — **cheap-disproof 2026-10-22 #30:** `ScimFilterInMemoryEvaluator` / `SqlScimUserFilterTranslator` `NOT`; parser regression `not (userName eq "x")`.
-- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — minimal POST only `userName` — **cheap-disproof 2026-10-22 #30:** `externalId` defaults to `userName`; omitted `active` → true; integration `Post_users_accepts_entra_style_payload`.
-- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `Operations: []` — **cheap-disproof 2026-10-22 #30:** duplicate of hunt #6/#8; `ApplyFlat` zero-op loop.
-- [x] (valid-no-repro) `ScimUsersController.ReplaceAsync` — PUT `active: false` on active user — **cheap-disproof 2026-10-22 #30:** `TransitionSeatAsync` decrement; row stays live (Entra soft-disable ≠ DELETE tombstone).
-
-2026-10-22 thorough hunt #29 (dry): cheap-disproof closed five `(candidate)` rows (`active eq "True"` via case-insensitive `bool.TryParse`; PATCH unknown flat keys not persisted—only core fields read; seat cap → 403 `mutability` proven class; PUT re-activate runs `TransitionSeatAsync` increment with compensate on failure; filter lexer uses simple backslash escape not `\\u` JSON); no failing repro; five replacement `(candidate)` rows; scoped `ScimUsers` tests not run (Application.Tests merge conflicts).
-
-- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `active eq "True"` — **cheap-disproof 2026-10-22 #29:** `ScimActiveFilterLiteralParser` / `bool.TryParse` accepts Pascal case.
-- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — unknown attribute key — **cheap-disproof 2026-10-22 #29:** `PatchAsync` reads only `userName`/`externalId`/`displayName`/`active`; extra flat keys ignored on write.
-- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — seat cap — **cheap-disproof 2026-10-22 #29:** `ScimSeatLimitExceededException` → HTTP 403 `mutability` (hunt #13).
-- [x] (valid-no-repro) `ScimUsersController.ReplaceAsync` — inactive→active PUT — **cheap-disproof 2026-10-22 #29:** intentional seat transition + compensate path (2026-08-24 proven).
-- [x] (valid-no-repro) `ScimUsersController.ListAsync` — escaped filter literal — **cheap-disproof 2026-10-22 #29:** `ReadQuotedString` single-char escape; no JSON `\\u` unescape (consistent parse/compare).
-
-2026-10-22 thorough hunt #28 (dry): cheap-disproof closed five `(candidate)` rows (PATCH same `active` → `TransitionSeatAsync` no-op; `userName sw ""` matches all via `StartsWith` empty string; PUT/PATCH `userName` collision → proven conflict path; unknown id GET → 404; bulk no-op PATCH ops are O(n) loop without defect class); no failing repro; five replacement `(candidate)` rows; scoped `ScimUsers` tests not run (Application.Tests merge conflicts).
-
-- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — same `active` — **cheap-disproof 2026-10-22 #28:** `wasActive == willBeActive` early return in `TransitionSeatAsync`.
-- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `userName sw ""` — **cheap-disproof 2026-10-22 #28:** empty suffix `StartsWith` matches every userName (broad filter, not SQL injection).
-- [x] (valid-no-repro) `ScimUsersController.ReplaceAsync` — `userName` taken — **cheap-disproof 2026-10-22 #28:** `EnsureUserNameNotUsedByAnotherLiveUserAsync` → 409; regressions on duplicate `userName`.
-- [x] (invalid) `ScimUsersController.GetAsync` — unknown id — **cheap-disproof 2026-10-22 #28:** null → 404 `notFound` (hunt #12 DELETE unknown parity).
-- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — many no-op ops — **cheap-disproof 2026-10-22 #28:** no correctness defect; performance not in scope without repro.
-
-2026-10-22 thorough hunt #27 (dry): cheap-disproof closed five `(candidate)` rows (idempotent PATCH `externalId` self-skip; `active ne true` via `CompareActive`/`SqlScimUserFilterTranslator` `ne`; inactive create skips seat increment; bracket PATCH paths rejected by `ParseForUserFlatPatchPath`; huge `startIndex` yields empty page via `Skip` without throw); no failing repro; five replacement `(candidate)` rows; scoped `ScimUsers` tests not run (Application.Tests merge conflicts).
-
-- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — same `externalId` — **cheap-disproof 2026-10-22 #27:** `other.Id != userId` guard (mirror #24).
-- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `active ne true` — **cheap-disproof 2026-10-22 #27:** active `ne` in in-memory `CompareActive` and SQL translator.
-- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — `active: false` — **cheap-disproof 2026-10-22 #27:** seat increment only when `active` true (hunt #9).
-- [x] (invalid) `ScimUsersController.PatchAsync` — bracket path — **cheap-disproof 2026-10-22 #27:** `notImplemented`/`invalidPath` from `ParseForUserFlatPatchPath`.
-- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `startIndex` very large — **cheap-disproof 2026-10-22 #27:** offset `Skip` returns empty items; stable `totalResults` (hunt #10).
-
-2026-10-22 thorough hunt #26 (dry): cheap-disproof closed five `(candidate)` rows (`active eq "false"` via `bool.TryParse` in `ScimActiveFilterLiteralParser`; PATCH same `displayName` is benign no-op with audit; POST after DELETE reactivates per proven regression; `userName eq` with `%` uses `EqualitySql` not `LIKE`; DELETE tombstone hides GET via `DirectoryRemovedUtc`); no failing repro; five replacement `(candidate)` rows; scoped `ScimUsers` tests not run (Application.Tests merge conflicts).
-
-- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `active eq "false"` — **cheap-disproof 2026-10-22 #26:** `TryParseEqualityOperand` accepts bool strings; used in `ListAsync_filter_gives_and_precedence_over_or`.
-- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — same `displayName` — **cheap-disproof 2026-10-22 #26:** idempotent replace persists same value; audit on update is intentional.
-- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — reactivate `externalId` — **cheap-disproof 2026-10-22 #26:** proven `CreateAsync_after_directory_remove_reactivates_same_external_id`.
-- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `userName eq` with `%` — **cheap-disproof 2026-10-22 #26:** `eq` binds literal via `=` / case-insensitive equality, not `co` wildcard expansion.
-- [x] (valid-no-repro) `ScimUsersController.DeleteAsync` / `GetAsync` — tombstone GET 404 — **cheap-disproof 2026-10-22 #26:** `GetAsync` filters `DirectoryRemovedUtc`; hunt #11 parity.
-
-2026-10-22 thorough hunt #25 (dry): cheap-disproof closed five `(candidate)` rows (`active eq "0"` via `ScimActiveFilterLiteralParser` mirror of `"1"`; `externalId gt` uses `OrderedCompareSql` on SQL / `LexGreater` in-memory; PATCH same `userName` self-skips in `EnsureUserNameNotUsedByAnotherLiveUserAsync`; omitted/blank `filter` → `Parse` null full list; PUT displayName-only leaves `active` unchanged so `TransitionSeatAsync` no-ops); no failing repro; five replacement `(candidate)` rows; scoped `ScimUsers` tests not run (Application.Tests merge conflicts).
-
-- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `active eq "0"` — **cheap-disproof 2026-10-22 #25:** `"0"` → false in `ScimActiveFilterLiteralParser`; parity `ListAsync_active_eq_numeric_one_returns_only_active_users` for `"1"`.
-- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `externalId gt` — **cheap-disproof 2026-10-22 #25:** string ordered compare on case-exact `externalId`; SQL `OrderedCompareSql` / in-memory `LexGreater`.
-- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — same `userName` — **cheap-disproof 2026-10-22 #25:** `exceptUserId` self-skip in `EnsureUserNameNotUsedByAnotherLiveUserAsync`.
-- [x] (valid-no-repro) `ScimUsersController.ListAsync` — omitted/empty `filter` — **cheap-disproof 2026-10-22 #25:** `ScimFilterParser.Parse` null/whitespace → unfiltered list (hunt #5).
-- [x] (valid-no-repro) `ScimUsersController.ReplaceAsync` — displayName-only PUT — **cheap-disproof 2026-10-22 #25:** `TransitionSeatAsync` returns when `wasActive == willBeActive`.
-
-2026-10-22 thorough hunt #24 (dry): cheap-disproof closed five `(candidate)` rows (`active eq "1"` via `ScimActiveFilterLiteralParser` + `ListAsync_active_eq_numeric_one_returns_only_active_users`; `displayName pr` excludes null optional field; PATCH same `externalId` skips self in `EnsureExternalIdNotUsedByAnotherUserAsync`; malformed filter → `ScimFilterParseException` / `invalidFilter`; POST without `schemas` still parses core User attributes); no failing repro; five replacement `(candidate)` rows; scoped `ScimUsers` tests not run (Application.Tests merge conflicts).
-
-- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `active eq "1"` — **cheap-disproof 2026-10-22 #24:** literal parser accepts `"1"`; regression `ListAsync_active_eq_numeric_one_returns_only_active_users`.
-- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `displayName pr` — **cheap-disproof 2026-10-22 #24:** `ScimPresentNode` requires `GetString` non-null; null `DisplayName` rows omitted.
-- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — unchanged `externalId` — **cheap-disproof 2026-10-22 #24:** conflict only when `other.Id != userId`.
-- [x] (invalid) `ScimUsersController.ListAsync` — unclosed filter — **cheap-disproof 2026-10-22 #24:** `Unterminated string literal` → `invalidFilter` (hunt #13 malformed filter class).
-- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — missing `schemas` — **cheap-disproof 2026-10-22 #24:** `ParseUser` does not require `schemas`; Entra includes them but core fields suffice for create.
-
-2026-10-22 thorough hunt #23 (dry): cheap-disproof closed five `(candidate)` rows (`active eq true` unquoted parsed; `userName ne` in evaluator/SQL; POST `active: null` → `invalidValue` not default-active; PATCH `add` on `userName` still runs live-name conflict pre-check; `externalId ew` suffix operator in parser/evaluator); no failing repro; five replacement `(candidate)` rows; scoped `ScimUsers` tests not run (Application.Tests merge conflicts).
-
-- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `active eq true` unquoted — **cheap-disproof 2026-10-22 #23:** `ScimFilterParser.Parse_active_eq_true`; `ScimActiveFilterLiteralParser` on compare.
-- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `userName ne` — **cheap-disproof 2026-10-22 #23:** `ne` in `ScimFilterInMemoryEvaluator` / SQL translator; parser `Parse_ne`.
-- [x] (invalid) `ScimUsersController.CreateAsync` — POST `active: null` — **cheap-disproof 2026-10-22 #23:** `ScimUserResourceParser.ReadActive` default arm → `invalidValue` (not silent default true).
-- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `add` on existing `userName` — **cheap-disproof 2026-10-22 #23:** flat `add` assigns then `EnsureUserNameNotUsedByAnotherLiveUserAsync`; parity `Add_inserts_value` / hunt #13.
-- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `externalId ew` — **cheap-disproof 2026-10-22 #23:** parser `Parse_co_sw_ew`; `EndsWith` in in-memory evaluator.
-
-2026-10-22 thorough hunt #22 (dry): cheap-disproof closed five `(candidate)` rows (PATCH `active` JSON `null` → `ReadActive` `invalidValue`; `externalId sw` supported in in-memory/SQL translators; `id eq` list filter uses `Id.ToString("D")` parity; PUT omit `active` defaults true via `ScimUserResourceParser`; `displayName eq ""` does not match null optional field); no failing repro; five replacement `(candidate)` rows; scoped `ScimUsers` tests not run (Application.Tests merge conflicts).
-
-- [x] (invalid) `ScimUsersController.PatchAsync` — replace `active` with JSON `null` — **cheap-disproof 2026-10-22 #22:** `ReadActive` `JsonValueKind.Null` → `invalidValue` default arm (not fallback retain).
-- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `externalId sw` prefix — **cheap-disproof 2026-10-22 #22:** `ScimFilterInMemoryEvaluator` `sw` / SQL `LIKE`; parser `userName sw`.
-- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `id eq "{guid}"` — **cheap-disproof 2026-10-22 #22:** `GetString` maps `id` to `user.Id` canonical `D` format; list filter is intentional GET alternative.
-- [x] (valid-no-repro) `ScimUsersController.ReplaceAsync` — PUT omits `active` — **cheap-disproof 2026-10-22 #22:** missing property → `ReadActive` returns true; full-replace contract (Entra supplies `active` when deactivating).
-- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `displayName eq ""` — **cheap-disproof 2026-10-22 #22:** null `DisplayName` does not equal empty string in `eq` compare; empty stored value matches only when persisted empty.
-
-2026-10-22 thorough hunt #21 (hit): PATCH `remove` on `active` dropped the flat-map key and `ReadActive` fell back to the stored value (silent no-op) instead of `mutability` like `userName`/`externalId`; `RejectRemovedRequiredAttribute` now guards `active`; regression `PatchAsync_remove_active_rejects_required_attribute`; cheap-disproof closed four sibling `(candidate)` rows (unknown `nickName` → SQL `invalidFilter`; `userName co` substring in `ScimFilterInMemoryEvaluator`; numeric `active: 0` proven; Entra `emails[…]` alias integration-tested); scoped `ScimUsers` tests not run (merge conflicts in unrelated Application.Tests files).
-
-- [x] (invalid) `ScimUsersController.ListAsync` — unknown `nickName` filter — **cheap-disproof 2026-10-22 #21:** `SqlScimUserFilterTranslator.ColumnSql` throws → controller `invalidFilter`; in-memory path returns no matches (conservative).
-- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `userName co "corp"` — **cheap-disproof 2026-10-22 #21:** `ScimFilterInMemoryEvaluator` `co` operator; parser regression `userName co "corp"`.
-- [x] (proven) `ScimUserService.PatchAsync` — `remove` on `active` — **hit 2026-10-22 #21:** required-attribute remove must not silently retain via `ReadActive` fallback; regression `PatchAsync_remove_active_rejects_required_attribute`.
-- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — numeric `active: 0` — **cheap-disproof 2026-10-22 #21:** proven 2026-10-05; regression `PatchAsync_replace_active_numeric_zero_deactivates_user`.
-- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `emails[type eq "work"].value` alias — **cheap-disproof 2026-10-22 #21:** maps to `UserName`; integration `Get_users_filter_emails_work_value_eq_entra_literal_returns_single_resource`.
-
-2026-10-22 thorough hunt #20 (dry): cheap-disproof closed five regression-backed `(candidate)` rows (`externalId` case-variant create is RFC case-exact by design; `or`/`and` precedence proven; whitespace-only `userName` PATCH `invalidValue`; whitespace-only `displayName` PATCH clears; `userName pr` presence is supported in parser and SQL `IS NOT NULL` — prior row mis-stated `eq`+`pr`); no failing repro; five replacement `(candidate)` rows; scoped `ScimUsers` tests not run (Defender WIP compile).
-
-- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — `externalId` case-only variant — **cheap-disproof 2026-10-22 #20:** per-tenant case-exact `externalId` equality; regression `CreateAsync_external_id_case_variant_does_not_conflict_with_existing_user`.
-- [x] (valid-no-repro) `ScimFilterParser` / `ScimUsersController.ListAsync` — `or` looser than `and` — **cheap-disproof 2026-10-22 #20:** RFC 7644 precedence; regression `Parse_or_binds_looser_than_and` (proven 2026-10-09).
-- [x] (invalid) `ScimUsersController.PatchAsync` — whitespace-only `userName` — **cheap-disproof 2026-10-22 #20:** `invalidValue`; regression `PatchAsync_replace_userName_whitespace_only_throws`.
-- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — whitespace-only `displayName` — **cheap-disproof 2026-10-22 #20:** clears optional field; regression `PatchAsync_replace_displayName_whitespace_only_clears_display_name`.
-- [x] (invalid) `ScimUsersController.ListAsync` — `userName pr` presence — **cheap-disproof 2026-10-22 #20:** `ScimPresentNode` + `SqlScimUserFilterTranslator` `IS NOT NULL`; regression `Parse_not_and_combo` (not unsupported `invalidFilter`).
-
-2026-10-22 thorough hunt #19 (dry): cheap-disproof closed five regression-backed `(candidate)` rows (create seat release on insert failure; optional `displayName` remove clears; filter `not`/`and` precedence proven; non-string `displayName` PATCH `invalidValue`; live duplicate `externalId` → conflict/reactivate path); no failing repro; five replacement `(candidate)` rows; scoped `ScimUsers` tests not run (Defender WIP compile).
-
-- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — seat release on insert failure — **cheap-disproof 2026-10-22 #19:** catch decrements seat; regression `CreateAsync_releases_reserved_seat_when_insert_fails` (2026-08-24 proven fix).
-- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `remove` on `displayName` — **cheap-disproof 2026-10-22 #19:** flat remove clears optional attribute; regression `PatchAsync_remove_displayName_clears_display_name`.
-- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `not` over `and` — **cheap-disproof 2026-10-22 #19:** `ScimFilterParser` precedence; regressions `Parse_not_binds_tighter_than_and` / `ListAsync_filter_gives_and_precedence_over_or` (2026-10-09 proven fix).
-- [x] (invalid) `ScimUsersController.PatchAsync` — non-string `displayName` — **cheap-disproof 2026-10-22 #19:** `invalidValue`; regression `PatchAsync_replace_displayName_non_string_throws`.
-- [x] (invalid) `ScimUsersController.CreateAsync` — duplicate live `externalId` — **cheap-disproof 2026-10-22 #19:** `GetByExternalIdAsync` → `ScimConflictException` when `DirectoryRemovedUtc` null; reactivate path when tombstoned (not a second live row).
-
-2026-10-22 thorough hunt #18 (dry): cheap-disproof closed five regression-backed `(candidate)` rows (PUT seat compensation on persistence failure; PATCH `active:false` idempotent seat decrement; second DELETE 404 on tombstone; invalid User `members[…]` path `invalidPath`; parser trim `externalId` collision unit); no failing repro; five replacement `(candidate)` rows; scoped `ScimUsers` tests not run (Defender WIP compile).
-
-- [x] (valid-no-repro) `ScimUsersController.ReplaceAsync` — seat compensate on replace failure — **cheap-disproof 2026-10-22 #18:** `CompensateSeatTransitionAsync`; regression `ReplaceAsync_compensates_seat_when_persistence_fails_after_activation` (2026-08-24 proven fix).
-- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `active:false` when already inactive — **cheap-disproof 2026-10-22 #18:** `TransitionSeatAsync` no-op when `wasActive == willBeActive`; regression `PatchAsync_active_false_on_already_inactive_user_does_not_decrement_seats_again`.
-- [x] (valid-no-repro) `ScimUsersController.DeleteAsync` — repeat DELETE on tombstone — **cheap-disproof 2026-10-22 #18:** `DirectoryRemovedUtc` guard; regression `DeactivateAsync_throws_not_found_when_user_already_directory_removed` (2026-08-25 proven fix).
-- [x] (invalid) `ScimUsersController.PatchAsync` — invalid `members[value eq "x"]` — **cheap-disproof 2026-10-22 #18:** `invalidPath`; regression `Invalid_member_filter_value_throws_invalid_path`.
-- [x] (valid-no-repro) `ScimUserResourceParser` / `CreateAsync` — trim `externalId` collision — **cheap-disproof 2026-10-22 #18:** unit `ScimUserResourceParser_trimmed_external_id_collides_with_existing_trimmed_value` aligns with create conflict path.
-
-2026-10-22 thorough hunt #17 (dry): cheap-disproof closed five regression-backed `(candidate)` rows (tombstoned `externalId` on PUT/PATCH conflicts; trimmed `externalId` duplicate detection; required `externalId` remove `mutability`; list/filter skips directory-removed users; deserialize `OperationCanceledException` propagates on POST); no failing repro; five replacement `(candidate)` rows; scoped `ScimUsers` tests not run (Defender WIP compile).
-
-- [x] (invalid) `ScimUsersController.ReplaceAsync` — tombstoned `externalId` on PUT — **cheap-disproof 2026-10-22 #17:** `EnsureExternalIdNotUsedByAnotherUserAsync`; regression `ReplaceAsync_tombstoned_external_id_throws_conflict` (2026-09-03 proven fix).
-- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — padded `externalId` duplicate — **cheap-disproof 2026-10-22 #17:** trim on parse; regression `CreateAsync_trimmed_external_id_conflicts_with_existing_user` (2026-08-24 proven fix).
-- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `remove` on `externalId` — **cheap-disproof 2026-10-22 #17:** `mutability`; regression `PatchAsync_remove_externalId_rejects_required_attribute`.
-- [x] (valid-no-repro) `ScimUsersController.ListAsync` — omit directory-removed — **cheap-disproof 2026-10-22 #17:** `DirectoryRemovedUtc` excluded; regression `ListAsync_external_id_filter_excludes_directory_removed_users`.
-- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — canceled JSON deserialize — **cheap-disproof 2026-10-22 #17:** `OperationCanceledException` rethrow ~86–88; regression `CreateAsync_propagates_operation_canceled_during_json_deserialize` (non-OCE faults remain `invalidSyntax` per 2026-10-22 hit).
-
-2026-10-22 thorough hunt #16 (dry): cheap-disproof closed five regression-backed `(candidate)` rows (invalid string `active` PATCH; POST reactivates directory-removed `externalId`; DELETE seat compensation on persistence failure; tombstoned `externalId` PATCH conflict; User `members[…]` PATCH returns `notImplemented`); no failing repro; five replacement `(candidate)` rows; scoped `ScimUsers` tests not run (Defender WIP compile).
-
-- [x] (invalid) `ScimUsersController.PatchAsync` — non-boolean `active` string — **cheap-disproof 2026-10-22 #16:** `ReadActive` rejects; regression `PatchAsync_replace_active_invalid_string_throws`.
-- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — POST after directory DELETE — **cheap-disproof 2026-10-22 #16:** `ReactivateRemovedUserAsync`; regression `CreateAsync_after_directory_remove_reactivates_same_external_id` (2026-08-25 proven fix).
-- [x] (valid-no-repro) `ScimUsersController.DeleteAsync` — seat restore on deactivate failure — **cheap-disproof 2026-10-22 #16:** compensating increment in `DeactivateAsync` catch; regression `DeactivateAsync_restores_seat_when_persistence_fails`.
-- [x] (invalid) `ScimUsersController.PatchAsync` — tombstoned `externalId` claim — **cheap-disproof 2026-10-22 #16:** `EnsureExternalIdNotUsedByAnotherUserAsync`; regression `PatchAsync_tombstoned_external_id_throws_conflict`.
-- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `members[value eq "…"]` on User — **cheap-disproof 2026-10-22 #16:** `notImplemented` by design; regression `Valid_guid_member_path_on_user_throws_not_implemented`.
-
-2026-10-22 thorough hunt #15 (dry): cheap-disproof closed five regression-backed `(candidate)` rows (`externalId` filter case-exact by design; duplicate `userName` create returns conflict; required `userName` remove returns `mutability`; duplicate `externalId` PUT returns conflict; `active eq "false"` and and/or precedence covered by parser regressions); no failing repro; five replacement `(candidate)` rows; scoped `ScimUsers` tests not run (Defender WIP compile).
-
-- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `externalId` filter case-exact — **cheap-disproof 2026-10-22 #15:** RFC 7643 case-exact `externalId`; regression `ListAsync_external_id_filter_matches_case_exact_per_rfc7643`.
-- [x] (invalid) `ScimUsersController.CreateAsync` — duplicate `userName` — **cheap-disproof 2026-10-22 #15:** `EnsureUserNameNotUsedByAnotherLiveUserAsync`; regression `CreateAsync_duplicate_user_name_throws_conflict` (proven-class behavior holds).
-- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `remove` on `userName` — **cheap-disproof 2026-10-22 #15:** required-attribute `mutability`; regression `PatchAsync_remove_userName_rejects_required_attribute` (2026-10-09 proven fix).
-- [x] (invalid) `ScimUsersController.ReplaceAsync` — duplicate `externalId` — **cheap-disproof 2026-10-22 #15:** pre-check conflict; regression `ReplaceAsync_duplicate_external_id_throws_conflict` (2026-08-24 proven fix).
-- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `active eq "false"` / and-or — **cheap-disproof 2026-10-22 #15:** `ScimActiveFilterLiteralParser.TryParseEqualityOperand`; regression `ListAsync_filter_gives_and_precedence_over_or`.
-
-2026-10-22 thorough hunt #14 (dry): cheap-disproof closed five picker `(candidate)` rows (trimmed `userName` on create; case-insensitive PATCH paths via `OrdinalIgnoreCase` flat map; PUT re-activation seat cap via `TransitionSeatAsync`; duplicate `userName` PATCH blocked with regression; `userName` list filter case-insensitivity with regression); no failing repro; five replacement `(candidate)` rows; scoped `ScimUsers` tests not run (Defender WIP compile).
-
-- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — padded `userName` — **cheap-disproof 2026-10-22 #14:** `ReadRequiredString` trims; `EnsureUserNameNotUsedByAnotherLiveUserAsync` uses trimmed value; intentional normalization.
-- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — path case `DISPLAYNAME` — **cheap-disproof 2026-10-22 #14:** `BuildFlatMap` / `ApplyFlat` use `StringComparer.OrdinalIgnoreCase`; no duplicate keys.
-- [x] (valid-no-repro) `ScimUsersController.ReplaceAsync` — seat cap on re-activate — **cheap-disproof 2026-10-22 #14:** `TransitionSeatAsync` ~119–123 increments seat; failure → `ScimSeatLimitExceededException` → 403.
-- [x] (invalid) `ScimUsersController.PatchAsync` — duplicate `userName` replace — **cheap-disproof 2026-10-22 #14:** conflict pre-check; regression `PatchAsync_replace_userName_to_another_users_name_throws_conflict` (behavior correct).
-- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `userName` filter case — **cheap-disproof 2026-10-22 #14:** regression `ListAsync_userName_filter_matches_case_insensitive`.
-
-2026-10-22 thorough hunt #13 (dry): cheap-disproof closed five picker `(candidate)` rows (malformed list `filter` → `invalidFilter`; PATCH `replace` without `value` → `invalidValue` per `Missing_value_on_replace_throws`; cross-tenant GET id misses tenant scope → 404; seat exhaustion → `ScimSeatLimitExceededException` / 403 `mutability`; flat PATCH `add` overwrites existing keys like `replace` per `Add_inserts_value`); no failing repro; five replacement `(candidate)` rows; scoped `ScimUsers` tests not run (Defender WIP compile).
-
-- [x] (invalid) `ScimUsersController.ListAsync` — malformed `filter` — **cheap-disproof 2026-10-22 #13:** `ScimFilterParser.Parse` throws; controller ~51–54 maps `invalidFilter` (fail-closed, not a defect).
-- [x] (invalid) `ScimUsersController.PatchAsync` — `replace` without `value` — **cheap-disproof 2026-10-22 #13:** `ApplyOne` ~47–48 `invalidValue`; regression `Missing_value_on_replace_throws`.
-- [x] (invalid) `ScimUsersController.GetAsync` — cross-tenant user id — **cheap-disproof 2026-10-22 #13:** `GetByIdAsync` requires matching `TenantId`; miss → null → 404 `notFound`.
-- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — seat limit exceeded — **cheap-disproof 2026-10-22 #13:** `TryIncrementEnterpriseScimSeatAsync` false → `ScimSeatLimitExceededException`; controller ~106–108 → 403 `mutability`.
-- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `add` on existing attribute — **cheap-disproof 2026-10-22 #13:** flat map `add`/`replace` both assign key; `Add_inserts_value` regression.
-
-2026-10-22 thorough hunt #12 (dry): cheap-disproof closed five picker `(candidate)` rows (missing `userName` property → `invalidValue`; PATCH op without `op` → `invalidSyntax`; `count=201` clamps to 200 via `Math.Clamp`; `"True"` string `active` accepted by `bool.TryParse`; DELETE unknown id → `ScimNotFoundException` not 204); no failing repro; five replacement `(candidate)` rows; scoped `ScimUsers` tests not run (Defender WIP compile).
-
-- [x] (invalid) `ScimUsersController.CreateAsync` — missing `userName` property — **cheap-disproof 2026-10-22 #12:** `ReadRequiredString` ~21–22 → `invalidValue`.
-- [x] (invalid) `ScimUsersController.PatchAsync` — operation missing `op` — **cheap-disproof 2026-10-22 #12:** `ApplyOne` ~28–29 → `invalidSyntax`.
-- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `count=201` — **cheap-disproof 2026-10-22 #12:** `Math.Clamp(count, 0, 200)` then `Take`; max page 200, no off-by-one past clamp.
-- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `active` `"True"` — **cheap-disproof 2026-10-22 #12:** `bool.TryParse` is case-insensitive for Boolean strings.
-- [x] (valid-no-repro) `ScimUsersController.DeleteAsync` — unknown user id — **cheap-disproof 2026-10-22 #12:** `DeactivateAsync` ~129 `GetByIdAsync` miss → `ScimNotFoundException`; controller 404.
-
-2026-10-22 thorough hunt #11 (dry): cheap-disproof closed five picker `(candidate)` rows (GET hides directory-removed users via `GetAsync` null → 404; string `active` literals parsed in `ReadActive`; empty `userName` → `invalidValue`; `count=200` honored by single service clamp; PATCH on tombstone throws `ScimNotFoundException` like PUT); no failing repro; five replacement `(candidate)` rows; scoped `ScimUsers` tests not run (Defender WIP compile).
-
-- [x] (valid-no-repro) `ScimUsersController.GetAsync` — GET tombstoned user — **cheap-disproof 2026-10-22 #11:** `GetAsync` ~28–29 filters `DirectoryRemovedUtc`; controller 404 `notFound` (parity `DeactivateAsync_throws_not_found_when_user_already_directory_removed`).
-- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `active` string `"false"` — **cheap-disproof 2026-10-22 #11:** `ReadActive` ~44–46 `bool.TryParse` on string literals; provisioner compatibility.
-- [x] (invalid) `ScimUsersController.CreateAsync` — empty `userName` — **cheap-disproof 2026-10-22 #11:** `ReadRequiredString` ~23–24 whitespace trim → `invalidValue`.
-- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `count=200` cap — **cheap-disproof 2026-10-22 #11:** only `ScimUserService.ListAsync` clamps; controller forwards query; no double-clamp defect.
-- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — PATCH tombstoned user — **cheap-disproof 2026-10-22 #11:** `PatchAsync` ~18–20 `DirectoryRemovedUtc` → `ScimNotFoundException`; controller `notFound`.
-
-2026-10-22 thorough hunt #10 (dry): cheap-disproof closed five picker `(candidate)` rows (non-string `displayName` → `invalidValue`; uppercase PATCH `op` accepted via `OrdinalIgnoreCase`; directory-removed PUT throws `ScimNotFoundException` → 404; `startIndex` past end yields empty page with stable `totalResults`; PATCH `remove` ignores extraneous `value`); no failing repro; five replacement `(candidate)` rows; scoped `ScimUsers` tests not run (Defender WIP compile).
-
-- [x] (invalid) `ScimUsersController.CreateAsync` — `displayName` number — **cheap-disproof 2026-10-22 #10:** `ReadOptionalString` ~33 → `invalidValue`; PATCH parity `PatchAsync_replace_displayName_non_string_throws`.
-- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — uppercase `REPLACE` — **cheap-disproof 2026-10-22 #10:** `ApplyOne` uses `OrdinalIgnoreCase` for `add`/`replace`/`remove`.
-- [x] (valid-no-repro) `ScimUsersController.ReplaceAsync` — PUT on directory-removed user — **cheap-disproof 2026-10-22 #10:** `ReplaceAsync` ~97–98 `DirectoryRemovedUtc` → `ScimNotFoundException`; controller maps `notFound` (parity GET via `GetAsync` ~28–29).
-- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `startIndex` beyond total — **cheap-disproof 2026-10-22 #10:** repository `Skip(offset).Take(count)` returns empty items; `total` unchanged (RFC 7644 list response).
-- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `remove` with extra `value` — **cheap-disproof 2026-10-22 #10:** `ApplyOne` remove branch returns before reading `value`; regression `PatchAsync_remove_displayName_clears_display_name`.
-
-2026-10-22 thorough hunt #9 (dry): cheap-disproof closed five picker `(candidate)` rows (unsupported PATCH `op` → `invalidSyntax`; inactive create correctly skips seat increment; whitespace `userName` on PUT → `invalidValue`; empty PATCH `path` → `invalidPath`; omitted `externalId` defaults to trimmed `userName` for duplicate checks per RFC/Entra minimal POST); no failing repro; five replacement `(candidate)` rows; scoped `ScimUsers` tests not run (Defender WIP compile).
-
-- [x] (invalid) `ScimUsersController.PatchAsync` — unsupported `op` (`copy`) — **cheap-disproof 2026-10-22 #9:** `ScimPatchOpEvaluator.ApplyOne` ~45–46 → `invalidSyntax`.
-- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — `active: false` — **cheap-disproof 2026-10-22 #9:** `CreateAsync` only calls `TryIncrementEnterpriseScimSeatAsync` when `active` is true (~60–68); inactive provisioners should not consume seats.
-- [x] (invalid) `ScimUsersController.ReplaceAsync` — whitespace-only `userName` — **cheap-disproof 2026-10-22 #9:** `ReadRequiredString` rejects whitespace after trim → `invalidValue` (PATCH parity in `PatchAsync_replace_userName_whitespace_only_throws`).
-- [x] (invalid) `ScimUsersController.PatchAsync` — empty `path` — **cheap-disproof 2026-10-22 #9:** `ApplyOne` ~35–37 → `invalidPath` “Empty path.”
-- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — omitted `externalId` — **cheap-disproof 2026-10-22 #9:** `ParseUser` ~15 sets `externalId` from trimmed `userName`; `GetByExternalIdAsync` conflict path is intentional.
-
-2026-10-22 thorough hunt #8 (dry): cheap-disproof closed five picker `(candidate)` rows (PATCH missing `path` returns `invalidPath`; `userName: null` fails `ReadRequiredString`; omitted `active` defaults true and reserves seat when active per `CreateAsync`; negative `count` clamped with regression `ListAsync_negative_count_clamped_to_empty_page`; `null` operation entry fails `ApplyOne` object guard); no failing repro; five replacement `(candidate)` rows; scoped `ScimUsers` tests not run (Defender WIP compile).
-
-- [x] (invalid) `ScimUsersController.PatchAsync` — operation missing `path` — **cheap-disproof 2026-10-22 #8:** `ScimPatchOpEvaluator.ApplyOne` ~31–32 → `invalidPath`.
-- [x] (invalid) `ScimUsersController.ReplaceAsync` — `userName` JSON `null` — **cheap-disproof 2026-10-22 #8:** `ReadRequiredString` requires string kind → `invalidValue`.
-- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — omit `active` — **cheap-disproof 2026-10-22 #8:** `ReadActive` defaults `true`; `CreateAsync` increments seat when `active` (~60–68); intended provisioning default.
-- [x] (valid-no-repro) `ScimUsersController.ListAsync` — negative `count` — **cheap-disproof 2026-10-22 #8:** `Math.Clamp(count, 0, 200)`; regression `ListAsync_negative_count_clamped_to_empty_page`.
-- [x] (invalid) `ScimUsersController.PatchAsync` — `Operations` contains `null` — **cheap-disproof 2026-10-22 #8:** `ApplyOne` ~26–27 non-object → `invalidSyntax`.
-
-2026-10-22 thorough hunt #7 (dry): cheap-disproof closed five picker `(candidate)` rows (JSON `null` POST root fails `ParseUser` non-object `invalidSyntax`; negative `startIndex` matches #6 paging clamp; missing `userName` on PUT returns `invalidValue`; PATCH string root fails `ApplyFlat` object guard; numeric `active` on create is intentional `ReadActive` coercion for provisioner literals); no failing repro; five replacement `(candidate)` rows; scoped `ScimUsers` tests not run (Defender WIP compile).
-
-- [x] (invalid) `ScimUsersController.CreateAsync` — JSON `null` root — **cheap-disproof 2026-10-22 #7:** deserialized `JsonElement` with `ValueKind.Null` → `ParseUser` `invalidSyntax` (non-object).
-- [x] (valid-no-repro) `ScimUsersController.ListAsync` — negative `startIndex` — **cheap-disproof 2026-10-22 #7:** controller and `ScimUserService.ListAsync` clamp to `1`; same semantics as `startIndex=0` (#6).
-- [x] (invalid) `ScimUsersController.ReplaceAsync` — PUT missing `userName` — **cheap-disproof 2026-10-22 #7:** `ReadRequiredString` → `invalidValue` “Missing or invalid 'userName'.”
-- [x] (invalid) `ScimUsersController.PatchAsync` — JSON string root — **cheap-disproof 2026-10-22 #7:** `ScimPatchOpEvaluator.ApplyFlat` requires object body → `invalidSyntax`.
-- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — numeric `active` `0`/`1` — **cheap-disproof 2026-10-22 #7:** `ReadActive` `JsonValueKind.Number` maps non-zero to true; aligns with `ScimActiveFilterLiteralParser` provisioner literals.
-
-2026-10-22 thorough hunt #6 (dry): cheap-disproof closed five picker `(candidate)` rows (`startIndex=0` and negative indices normalize to RFC 1-based paging in controller and `ScimUserService.ListAsync`; JSON number/boolean POST roots fail `ParseUser` non-object `invalidSyntax`; empty `Operations` array is intentional no-op PATCH; PUT patch envelope fails `ParseUser` required User shape; `count=0` empty page covered by `ListAsync_count_zero_returns_empty_page_with_total_results`); no failing repro; five replacement `(candidate)` rows; scoped `ScimUsers` tests not run (Defender WIP compile).
-
-- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `startIndex=0` vs default — **cheap-disproof 2026-10-22 #6:** lines 39–40 clamp `< 1` to `1`; service `Math.Max(1, startIndex)`; list response uses normalized index per RFC 7644 §3.4.2.2.
-- [x] (invalid) `ScimUsersController.CreateAsync` — JSON number/boolean root — **cheap-disproof 2026-10-22 #6:** `ScimUserResourceParser.ParseUser` requires `JsonValueKind.Object` → `invalidSyntax` (same class as array root #5).
-- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `Operations: []` — **cheap-disproof 2026-10-22 #6:** `ScimPatchOpEvaluator.ApplyFlat` iterates zero ops; returns unchanged flat map (no-op patch).
-- [x] (invalid) `ScimUsersController.ReplaceAsync` — PUT SCIM patch envelope — **cheap-disproof 2026-10-22 #6:** `ReplaceAsync` → `ParseUser`; missing `userName` / wrong shape → `invalidSyntax`/`invalidValue`.
-- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `count=0` paging — **cheap-disproof 2026-10-22 #6:** `Math.Clamp(count, 0, 200)`; regression `ListAsync_count_zero_returns_empty_page_with_total_results`; controller forwards `count` unchanged.
-
-2026-10-22 thorough hunt #5 (dry): cheap-disproof closed five picker `(candidate)` rows (JSON array POST root rejected by `ParseUser` `invalidSyntax`; Replace/Patch deserialize OCE rethrow matches Create; `filter=` and omitted filter both normalize to null via `ScimFilterParser.Parse`; whitespace-only body fails JSON deserialize to `invalidSyntax`; empty PATCH `{}` maps to `invalidSyntax` for missing `Operations`); no failing repro; five replacement `(candidate)` rows; scoped `ScimUsers` tests not run (Defender WIP compile).
-
-- [x] (invalid) `ScimUsersController.CreateAsync` — JSON array root POST body — **cheap-disproof 2026-10-22 #5:** `ParseUser` requires `JsonValueKind.Object` → `invalidSyntax`.
-- [x] (valid-no-repro) `ScimUsersController.ReplaceAsync` / `PatchAsync` — missing cancellation deserialize tests — **cheap-disproof 2026-10-22 #5:** `OperationCanceledException` rethrow present; coverage gap only, not a defect.
-- [x] (invalid) `ScimUsersController.ListAsync` — `filter=` vs omitted filter — **cheap-disproof 2026-10-22 #5:** `ScimFilterParser.Parse` returns null for null/whitespace; equivalent list semantics.
-- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — whitespace-only body — **cheap-disproof 2026-10-22 #5:** `JsonException` → controller `invalidSyntax`.
-- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `{}` without `Operations` — **cheap-disproof 2026-10-22 #5:** `ScimPatchOpEvaluator` throws `invalidSyntax`; mapped via `ScimUserResourceParseException`.
-
-2026-10-22 thorough hunt #4 (dry): cheap-disproof closed five picker `(candidate)` rows (empty POST body surfaces `invalidSyntax` via `JsonException` or `ParseUser` non-object guard; `itemsPerPage` equals returned `Resources` count per RFC 7644 §3.4.2; `Guid.Empty` already returns 404; deserialize bare `catch` is intentional fail-closed; `ScimGroupsController` OCE parity is out of zone path); no failing repro; five replacement `(candidate)` rows; scoped `ScimUsers` tests not run (Defender WIP compile).
-
-- [x] (invalid) `ScimUsersController.CreateAsync` — empty body yields `Undefined` without `invalidSyntax` — **cheap-disproof 2026-10-22 #4:** `System.Text.Json` rejects EOF; if `Undefined`, `ParseUser` throws `invalidSyntax` for non-object.
-- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `itemsPerPage` vs requested `count` — **cheap-disproof 2026-10-22 #4:** `ScimResourceSerializer.ListResponse` sets `itemsPerPage` to `items.Count` (page size returned), not the query parameter.
-- [x] (invalid) `ScimUsersController.GetAsync` — missing `Guid.Empty` guard — **cheap-disproof 2026-10-22 #4:** duplicate of thorough hunt #2; repository miss → 404 `notFound`.
-- [x] (valid-no-repro) `ScimUsersController.ReplaceAsync` / `PatchAsync` — bare `catch` maps read faults to `invalidSyntax` — **cheap-disproof 2026-10-22 #4:** intentional SCIM syntax envelope for malformed JSON bodies.
-- [x] (invalid) `ScimUsersController` — sibling `ScimGroupsController` deserialize OCE — **cheap-disproof 2026-10-22 #4:** out of zone `paths`; defer to a Groups/SCIM-wide zone.
-
-2026-10-22 thorough hunt #3 (dry): cheap-disproof closed five picker `(candidate)` rows (`count` clamped in `ScimUserService.ListAsync`; missing `[Consumes]` is Entra-compatible; unbounded `filter` has no in-zone length guard requirement; mutation-path `OperationCanceledException` propagation is correct; DELETE 204 without JSON body is RFC-correct); no failing repro; five replacement `(candidate)` rows; scoped tests not run (Defender WIP compile).
-
-- [x] (invalid) `ScimUsersController.ListAsync` — `count` above 200 without controller clamp — **cheap-disproof 2026-10-22 #3:** `Math.Clamp(count, 0, 200)` in `ScimUserService.ListAsync`.
-- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — missing `[Consumes("application/scim+json")]` — **cheap-disproof 2026-10-22 #3:** `[Produces]` set; ASP.NET accepts JSON bodies; Entra integration posts `application/scim+json`.
-- [x] (valid-no-repro) `ScimUsersController.ListAsync` — unbounded `filter` query length — **cheap-disproof 2026-10-22 #3:** no controller cap; invalid filters return `invalidFilter`; megabyte input is operational DoS class without cited production caller.
-- [x] (valid-no-repro) `ScimUsersController.ReplaceAsync` / `PatchAsync` — `OperationCanceledException` during service mutation — **cheap-disproof 2026-10-22 #3:** must propagate; deserialize cancellation fixed separately (proven hit same day).
-- [x] (valid-no-repro) `ScimUsersController.DeleteAsync` — `Produces("application/scim+json")` with 204 `NoContent` — **cheap-disproof 2026-10-22 #3:** RFC 7644 successful DELETE has no response body.
-
-2026-10-22 thorough hunt #2 (dry): cheap-disproof closed five picker `(candidate)` rows — JSON root `null` already returns `invalidSyntax` via `ScimUserResourceParser` / `ScimPatchOpEvaluator`; list non-filter faults as operational 500; `ScimWrite` on GET is product contract; post-mutation `GetAsync` is intentional projection; 409 vs 403 status split is intentional; no failing repro; five replacement `(candidate)` rows; scoped tests not run (Defender WIP compile).
-
-- [x] (invalid) `ScimUsersController.CreateAsync` / `ReplaceAsync` / `PatchAsync` — JSON root `null` surfaces `invalidValue` — **cheap-disproof 2026-10-22 #2:** `ScimUserResourceParser.ParseUser` throws `invalidSyntax` for non-object; PATCH uses `ScimPatchOpEvaluator` `invalidSyntax` for non-object body.
-- [x] (valid-no-repro) `ScimUsersController.ListAsync` — non-filter `ListAsync` faults become HTTP 500 — **cheap-disproof 2026-10-22 #2:** repository/infra failures are not SCIM client syntax errors.
-- [x] (valid-no-repro) `ScimUsersController` — `ScimWrite` policy on GET routes — **cheap-disproof 2026-10-22 #2:** Entra provisioning token is write-capable by design.
-- [x] (valid-no-repro) `ScimUsersController.ReplaceAsync` / `PatchAsync` — second `GetAsync` round-trip — **cheap-disproof 2026-10-22 #2:** returns persisted projection after mutation; design tradeoff.
-- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — 409 `uniqueness` vs 403 `mutability` for seat cap — **cheap-disproof 2026-10-22 #2:** intentional SCIM type mapping per exception.
-
-2026-10-22 thorough hunt (dry): cheap-disproof closed five open `(candidate)` rows on `ScimUsersController` (post-mutation `GetAsync` 404 only on concurrent directory-remove race; negative `count` clamped in `ScimUserService.ListAsync`; `Guid.Empty` returns not-found; 201 without `Location` is RFC-optional for Entra; DELETE 204 `NoContent` is SCIM-correct); no failing repro; seeded five replacement `(candidate)` rows; scoped `ScimUsers` tests not run on this checkout (Defender WIP compile errors).
-
-- [x] (valid-no-repro) `ScimUsersController.ReplaceAsync` / `PatchAsync` — post-mutation `GetAsync` 404 after successful write — **cheap-disproof 2026-10-22:** `ReplaceAsync`/`PatchAsync` throw `ScimNotFoundException` when the row is directory-removed; second `GetAsync` null implies cross-request race, not single-request inconsistency.
-- [x] (invalid) `ScimUsersController.ListAsync` — negative `count` forwarded without controller clamp — **cheap-disproof 2026-10-22:** service `Math.Clamp(count, 0, 200)`; regression `ListAsync_negative_count_clamped_to_empty_page`.
-- [x] (valid-no-repro) `ScimUsersController.GetAsync` — `Guid.Empty` route id — **cheap-disproof 2026-10-22:** repository lookup returns null → HTTP 404 `notFound` (same as unknown id).
-- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — 201 without `Location` header — **cheap-disproof 2026-10-22:** Entra integration `Post_users_accepts_entra_style_payload_and_returns_user_resource` asserts body `id`; Location is optional in RFC 7644.
-- [x] (valid-no-repro) `ScimUsersController.DeleteAsync` — `NoContent()` without JSON body — **cheap-disproof 2026-10-22:** RFC 7644 DELETE success is 204; errors use `ScimErrorResultFactory` JSON envelope.
-
-2026-10-22 seed hunt (seed→hit): `POST`/`PUT`/`PATCH` JSON deserialize used bare `catch` and mapped `OperationCanceledException` to SCIM `invalidSyntax` HTTP 400; rethrow cancellation before invalid-syntax mapping; regression `CreateAsync_propagates_operation_canceled_during_json_deserialize`; cheap-disproof closed orphaned `(candidate)` rows on malformed `startIndex` query binding (ASP.NET model binding 400) and PATCH `displayName` JSON `null` (`ResolvePatchDisplayName` clears via `JsonValueKind.Null`); scoped tests not run on this checkout (Defender WIP compile errors).
-
-- [x] (invalid) `ScimUsersController.ListAsync` — malformed `startIndex` query binds as zero — **cheap-disproof 2026-10-22:** non-numeric `startIndex` fails model binding before controller; controller normalizes `< 1` to `1`.
-- [x] (invalid) `ScimUserService.PatchAsync` — PATCH replace `displayName` with JSON `null` fails to clear — **cheap-disproof 2026-10-22:** `ResolvePatchDisplayName` maps `JsonValueKind.Null` to `string.Empty`; whitespace clear regression `PatchAsync_replace_displayName_whitespace_only_clears_display_name`.
-
 2026-10-21 seed hunt (seed-only): re-read `IdentityProviderConfigurationController` and `IdentityProviderActivationService` after bugsmash fast-forward; cheap-disproof on audit best-effort envelope, GET claim-mapping passthrough, and discover URI canonicalization lenses; no row met hunt-ready bar for a failing repro in zone paths; seeded five `(candidate)` rows; 93 scoped activation/controller/matrix tests passed (1 matrix theory row expects SAML→SAML requires-metadata=false but `RequiresSubstantiveSamlMetadataXml` returns true by design).
 
 2026-10-21 seed hunt (seed-only) #71: cheap-disproof closed five open `(candidate)` rows (audit-after-persist is intentional `ActivateAsync_returns_success_when_audit_logging_fails`; GET claim-mapping passthrough is by design; discover URI canonicalization covered by `DiscoverAsync_returns_canonical_issuer_and_jwks_uris`; SAML GET strips stale KeyVault via `PrepareConfigurationResponse` ternary; greenfield OIDC without Key Vault name is wizard step-1 contract); no promotion to hunt-ready; 78 scoped activation/controller tests passed.
@@ -3320,11 +2815,11 @@
 - **aliases:** scim; entra provisioning users
 - **paths:** ArchLucid.Api/Controllers/Scim/ScimUsersController.cs
 - **test-filter:** FullyQualifiedName~ScimUsers
-- **hunts:** 77
-- **bugs-found:** 24
+- **hunts:** 33
+- **bugs-found:** 21
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — SCIM seat compensate ran after audit log failed post-persist
+- **last-hunt:** 2026-10-21
+- **last-bug:** 2026-10-09 — second live user with the same userName was accepted
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -3413,275 +2908,10 @@
 - [x] (valid-no-repro) `ScimUsersController.ListAsync` — `startIndex` above `totalResults` returns empty `items` with stable `totalResults` — **cheap-disproof 2026-10-06 seed hunt:** RFC-aligned empty page; regression `ListAsync_start_index_above_total_returns_empty_page`
 
 - [x] (proven) `ScimUserService.PatchAsync` — PATCH `remove` on `externalId` or `userName` repopulated the stored value from the required-string fallback — **hit 2026-10-09 seed hunt:** `RejectRemovedRequiredAttribute` returns `mutability`; regressions `PatchAsync_remove_userName_rejects_required_attribute` and `PatchAsync_remove_externalId_rejects_required_attribute`.
-- [x] (invalid) `ScimUsersController.ListAsync` — malformed `startIndex` query types bind as zero — **cheap-disproof 2026-10-22:** model binding rejects non-numeric values; controller clamps `< 1` to `1`.
-- [x] (invalid) `ScimUserService.PatchAsync` — PATCH replace `displayName` with JSON `null` may not clear — **cheap-disproof 2026-10-22:** `ResolvePatchDisplayName` handles `JsonValueKind.Null`.
+- [ ] (candidate) `ScimUsersController.ListAsync` — `filter` parse failures return `invalidFilter` but malformed `startIndex` query types may bind as zero before service normalization.
+- [ ] (candidate) `ScimUserService.PatchAsync` — PATCH replace `displayName` with JSON `null` may not clear when `ResolvePatchDisplayName` only handles string whitespace.
 
 ### Hypotheses
-
-- [x] (proven) `ScimUsersController.CreateAsync` / `ReplaceAsync` / `PatchAsync` — bare `catch` around JSON deserialize converted `OperationCanceledException` into HTTP 400 `invalidSyntax` — **hit 2026-10-22 seed hunt:** rethrow `OperationCanceledException`; regression `CreateAsync_propagates_operation_canceled_during_json_deserialize`.
-- [x] (valid-no-repro) `ScimUsersController.ReplaceAsync` / `PatchAsync` — post-mutation `GetAsync` 404 after successful write — **cheap-disproof 2026-10-22 thorough hunt:** cross-request directory-remove race only.
-- [x] (invalid) `ScimUsersController.ListAsync` — negative `count` without controller clamp — **cheap-disproof 2026-10-22 thorough hunt:** service clamp; regression `ListAsync_negative_count_clamped_to_empty_page`.
-- [x] (valid-no-repro) `ScimUsersController.GetAsync` — `Guid.Empty` route id — **cheap-disproof 2026-10-22 thorough hunt:** returns 404 `notFound`.
-- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — 201 without `Location` — **cheap-disproof 2026-10-22 thorough hunt:** Entra POST integration; RFC optional Location.
-- [x] (valid-no-repro) `ScimUsersController.DeleteAsync` — `NoContent()` on success — **cheap-disproof 2026-10-22 thorough hunt:** SCIM 204 DELETE contract.
-
-- [x] (invalid) `ScimUsersController.CreateAsync` / `ReplaceAsync` / `PatchAsync` — JSON root `null` maps to `invalidValue` — **cheap-disproof 2026-10-22 #2:** parser/patch evaluator use `invalidSyntax` for non-object bodies.
-- [x] (valid-no-repro) `ScimUsersController.ListAsync` — non-filter failures become HTTP 500 — **cheap-disproof 2026-10-22 #2:** operational errors.
-- [x] (valid-no-repro) `ScimUsersController` — `ScimWrite` on GET — **cheap-disproof 2026-10-22 #2:** provisioning contract.
-- [x] (valid-no-repro) `ScimUsersController.ReplaceAsync` / `PatchAsync` — post-mutation `GetAsync` latency — **cheap-disproof 2026-10-22 #2:** design tradeoff.
-- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — 409 vs 403 mapping — **cheap-disproof 2026-10-22 #2:** intentional SCIM types.
-
-- [x] (invalid) `ScimUsersController.ListAsync` — `count` above 200 without controller clamp — **cheap-disproof 2026-10-22 #3:** service clamp in `ScimUserService.ListAsync`.
-- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — missing `[Consumes("application/scim+json")]` — **cheap-disproof 2026-10-22 #3:** Entra posts SCIM media type; body still JSON-deserialized.
-- [x] (valid-no-repro) `ScimUsersController.ListAsync` — unbounded `filter` length — **cheap-disproof 2026-10-22 #3:** no in-zone production caller cited.
-- [x] (valid-no-repro) `ScimUsersController.ReplaceAsync` / `PatchAsync` — mutation cancellation propagation — **cheap-disproof 2026-10-22 #3:** correct ASP.NET behavior.
-- [x] (valid-no-repro) `ScimUsersController.DeleteAsync` — 204 without JSON body — **cheap-disproof 2026-10-22 #3:** RFC-correct.
-
-- [x] (invalid) `ScimUsersController.CreateAsync` — empty POST body — **cheap-disproof 2026-10-22 #4:** `JsonException` or `ParseUser` non-object → `invalidSyntax`.
-- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `itemsPerPage` semantics — **cheap-disproof 2026-10-22 #4:** RFC page size equals returned resources.
-- [x] (invalid) `ScimUsersController.GetAsync` — `Guid.Empty` guard — **cheap-disproof 2026-10-22 #4:** duplicate closure; 404 today.
-- [x] (valid-no-repro) `ScimUsersController.ReplaceAsync` / `PatchAsync` — deserialize bare `catch` — **cheap-disproof 2026-10-22 #4:** fail-closed `invalidSyntax`.
-- [x] (invalid) `ScimUsersController` — `ScimGroupsController` OCE parity — **cheap-disproof 2026-10-22 #4:** out of zone.
-
-- [x] (invalid) `ScimUsersController.CreateAsync` — JSON array POST root — **cheap-disproof 2026-10-22 #5:** `ParseUser` non-object `invalidSyntax`.
-- [x] (valid-no-repro) `ScimUsersController.ReplaceAsync` / `PatchAsync` — cancellation test gap — **cheap-disproof 2026-10-22 #5:** OCE rethrow; not a functional defect.
-- [x] (invalid) `ScimUsersController.ListAsync` — `filter=` vs omitted — **cheap-disproof 2026-10-22 #5:** `ScimFilterParser.Parse` whitespace → null.
-- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — whitespace-only body — **cheap-disproof 2026-10-22 #5:** `JsonException` → `invalidSyntax`.
-- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `{}` without `Operations` — **cheap-disproof 2026-10-22 #5:** `ScimPatchOpEvaluator` `invalidSyntax`.
-
-- [x] (invalid) `ScimUsersController.ListAsync` — `startIndex=0` — **cheap-disproof 2026-10-22 #6:** normalized to `1` (controller + service).
-- [x] (invalid) `ScimUsersController.CreateAsync` — number/boolean root — **cheap-disproof 2026-10-22 #6:** `ParseUser` non-object `invalidSyntax`.
-- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — empty `Operations` — **cheap-disproof 2026-10-22 #6:** no-op patch by design.
-- [x] (invalid) `ScimUsersController.ReplaceAsync` — patch envelope on PUT — **cheap-disproof 2026-10-22 #6:** `ParseUser` rejects non-User resource.
-- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `count=0` — **cheap-disproof 2026-10-22 #6:** service clamp + existing unit regression.
-
-- [x] (invalid) `ScimUsersController.CreateAsync` — JSON `null` root — **cheap-disproof 2026-10-22 #7:** `ParseUser` non-object `invalidSyntax`.
-- [x] (valid-no-repro) `ScimUsersController.ListAsync` — negative `startIndex` — **cheap-disproof 2026-10-22 #7:** paging clamp to `1`.
-- [x] (invalid) `ScimUsersController.ReplaceAsync` — missing `userName` on PUT — **cheap-disproof 2026-10-22 #7:** `ReadRequiredString` `invalidValue`.
-- [x] (invalid) `ScimUsersController.PatchAsync` — string PATCH root — **cheap-disproof 2026-10-22 #7:** `ApplyFlat` object guard.
-- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — numeric `active` — **cheap-disproof 2026-10-22 #7:** intentional `ReadActive` number coercion.
-
-- [x] (invalid) `ScimUsersController.PatchAsync` — missing `path` — **cheap-disproof 2026-10-22 #8:** `invalidPath`.
-- [x] (invalid) `ScimUsersController.ReplaceAsync` — `userName: null` — **cheap-disproof 2026-10-22 #8:** `invalidValue`.
-- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — omitted `active` — **cheap-disproof 2026-10-22 #8:** default active + seat path.
-- [x] (valid-no-repro) `ScimUsersController.ListAsync` — negative `count` — **cheap-disproof 2026-10-22 #8:** clamp + unit regression.
-- [x] (invalid) `ScimUsersController.PatchAsync` — `null` in `Operations` — **cheap-disproof 2026-10-22 #8:** `invalidSyntax`.
-
-- [x] (invalid) `ScimUsersController.PatchAsync` — unsupported `op` — **cheap-disproof 2026-10-22 #9:** `invalidSyntax`.
-- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — `active: false` seat skip — **cheap-disproof 2026-10-22 #9:** no seat increment when inactive.
-- [x] (invalid) `ScimUsersController.ReplaceAsync` — whitespace `userName` — **cheap-disproof 2026-10-22 #9:** `invalidValue`.
-- [x] (invalid) `ScimUsersController.PatchAsync` — empty `path` — **cheap-disproof 2026-10-22 #9:** `invalidPath`.
-- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — default `externalId` — **cheap-disproof 2026-10-22 #9:** `userName` fallback by design.
-
-- [x] (invalid) `ScimUsersController.CreateAsync` — numeric `displayName` — **cheap-disproof 2026-10-22 #10:** `invalidValue`.
-- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — uppercase `op` — **cheap-disproof 2026-10-22 #10:** case-insensitive ops by design.
-- [x] (valid-no-repro) `ScimUsersController.ReplaceAsync` — PUT tombstoned user — **cheap-disproof 2026-10-22 #10:** `notFound` parity with GET.
-- [x] (valid-no-repro) `ScimUsersController.ListAsync` — past-end `startIndex` — **cheap-disproof 2026-10-22 #10:** empty page + stable total.
-- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `remove` + `value` — **cheap-disproof 2026-10-22 #10:** value ignored on remove.
-
-- [x] (valid-no-repro) `ScimUsersController.GetAsync` — GET tombstoned user — **cheap-disproof 2026-10-22 #11:** 404 `notFound`.
-- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — string `active` — **cheap-disproof 2026-10-22 #11:** `ReadActive` string parse.
-- [x] (invalid) `ScimUsersController.CreateAsync` — empty `userName` — **cheap-disproof 2026-10-22 #11:** `invalidValue`.
-- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `count=200` — **cheap-disproof 2026-10-22 #11:** service-only clamp.
-- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — PATCH tombstone — **cheap-disproof 2026-10-22 #11:** `notFound`.
-
-- [x] (invalid) `ScimUsersController.CreateAsync` — missing `userName` — **cheap-disproof 2026-10-22 #12:** `invalidValue`.
-- [x] (invalid) `ScimUsersController.PatchAsync` — missing `op` — **cheap-disproof 2026-10-22 #12:** `invalidSyntax`.
-- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `count=201` — **cheap-disproof 2026-10-22 #12:** clamp to 200.
-- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `"True"` active — **cheap-disproof 2026-10-22 #12:** case-insensitive parse.
-- [x] (valid-no-repro) `ScimUsersController.DeleteAsync` — unknown id — **cheap-disproof 2026-10-22 #12:** 404 not 204.
-
-- [x] (invalid) `ScimUsersController.ListAsync` — malformed `filter` — **cheap-disproof 2026-10-22 #13:** `invalidFilter`.
-- [x] (invalid) `ScimUsersController.PatchAsync` — `replace` without `value` — **cheap-disproof 2026-10-22 #13:** `invalidValue`.
-- [x] (invalid) `ScimUsersController.GetAsync` — cross-tenant id — **cheap-disproof 2026-10-22 #13:** tenant-scoped lookup.
-- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — seat exhausted — **cheap-disproof 2026-10-22 #13:** 403 `mutability`.
-- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `add` overwrites — **cheap-disproof 2026-10-22 #13:** flat PATCH semantics.
-
-- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — padded `userName` — **cheap-disproof 2026-10-22 #14:** trim + conflict on trimmed value.
-- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — path case variance — **cheap-disproof 2026-10-22 #14:** `OrdinalIgnoreCase` flat map.
-- [x] (valid-no-repro) `ScimUsersController.ReplaceAsync` — re-activate seat cap — **cheap-disproof 2026-10-22 #14:** `TransitionSeatAsync` 403 path.
-- [x] (invalid) `ScimUsersController.PatchAsync` — duplicate `userName` — **cheap-disproof 2026-10-22 #14:** regression proves 409 `uniqueness`.
-- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `userName` filter case — **cheap-disproof 2026-10-22 #14:** existing regression.
-
-- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `externalId` case-exact filter — **cheap-disproof 2026-10-22 #15:** RFC + regression.
-- [x] (invalid) `ScimUsersController.CreateAsync` — duplicate `userName` — **cheap-disproof 2026-10-22 #15:** conflict path holds.
-- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — required `userName` remove — **cheap-disproof 2026-10-22 #15:** `mutability`.
-- [x] (invalid) `ScimUsersController.ReplaceAsync` — duplicate `externalId` — **cheap-disproof 2026-10-22 #15:** 409 pre-check.
-- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `active`/`and`/`or` filter — **cheap-disproof 2026-10-22 #15:** parser regressions.
-
-- [x] (invalid) `ScimUsersController.PatchAsync` — invalid `active` string — **cheap-disproof 2026-10-22 #16:** `invalidValue` regression.
-- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — reactivate after DELETE — **cheap-disproof 2026-10-22 #16:** proven reactivation path.
-- [x] (valid-no-repro) `ScimUsersController.DeleteAsync` — seat compensate on failure — **cheap-disproof 2026-10-22 #16:** proven compensating increment.
-- [x] (invalid) `ScimUsersController.PatchAsync` — tombstoned `externalId` — **cheap-disproof 2026-10-22 #16:** conflict regression.
-- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — User `members[…]` — **cheap-disproof 2026-10-22 #16:** `notImplemented` 501.
-
-- [x] (invalid) `ScimUsersController.ReplaceAsync` — tombstoned `externalId` PUT — **cheap-disproof 2026-10-22 #17:** conflict regression.
-- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — trimmed `externalId` — **cheap-disproof 2026-10-22 #17:** proven trim duplicate path.
-- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `externalId` remove — **cheap-disproof 2026-10-22 #17:** `mutability`.
-- [x] (valid-no-repro) `ScimUsersController.ListAsync` — directory-removed omitted — **cheap-disproof 2026-10-22 #17:** list regression.
-- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — deserialize cancel — **cheap-disproof 2026-10-22 #17:** OCE propagates.
-
-- [x] (valid-no-repro) `ScimUsersController.ReplaceAsync` — seat compensate — **cheap-disproof 2026-10-22 #18:** proven regression.
-- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — inactive `active:false` — **cheap-disproof 2026-10-22 #18:** no double decrement.
-- [x] (valid-no-repro) `ScimUsersController.DeleteAsync` — second DELETE — **cheap-disproof 2026-10-22 #18:** `notFound`.
-- [x] (invalid) `ScimUsersController.PatchAsync` — bad `members[…]` path — **cheap-disproof 2026-10-22 #18:** `invalidPath`.
-- [x] (valid-no-repro) `ScimUserResourceParser` — trim collision — **cheap-disproof 2026-10-22 #18:** parser unit.
-
-- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — seat on insert fail — **cheap-disproof 2026-10-22 #19:** decrement regression.
-- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — remove `displayName` — **cheap-disproof 2026-10-22 #19:** clears optional field.
-- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `not`/`and` — **cheap-disproof 2026-10-22 #19:** parser precedence proven.
-- [x] (invalid) `ScimUsersController.PatchAsync` — bad `displayName` type — **cheap-disproof 2026-10-22 #19:** `invalidValue`.
-- [x] (invalid) `ScimUsersController.CreateAsync` — duplicate `externalId` — **cheap-disproof 2026-10-22 #19:** conflict or reactivate, not duplicate live insert.
-
-- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — `externalId` case variant — **cheap-disproof 2026-10-22 #20:** RFC case-exact; regression-backed.
-- [x] (valid-no-repro) `ScimFilterParser` — `or`/`and` precedence — **cheap-disproof 2026-10-22 #20:** proven-class behavior.
-- [x] (invalid) `ScimUsersController.PatchAsync` — whitespace `userName` — **cheap-disproof 2026-10-22 #20:** `invalidValue`.
-- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — whitespace `displayName` — **cheap-disproof 2026-10-22 #20:** clears display name.
-- [x] (invalid) `ScimUsersController.ListAsync` — `userName pr` — **cheap-disproof 2026-10-22 #20:** presence supported; not `invalidFilter`.
-
-- [x] (invalid) `ScimUsersController.ListAsync` — `nickName` filter — **cheap-disproof 2026-10-22 #21:** SQL `invalidFilter`.
-- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `userName co` — **cheap-disproof 2026-10-22 #21:** evaluator supports `co`.
-- [x] (proven) `ScimUsersController.PatchAsync` — remove `active` — **hit 2026-10-22 #21:** `mutability` guard added.
-- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `active: 0` — **cheap-disproof 2026-10-22 #21:** proven regression.
-- [x] (valid-no-repro) `ScimUsersController.ListAsync` — emails work alias — **cheap-disproof 2026-10-22 #21:** Entra integration test.
-
-- [x] (invalid) `ScimUsersController.PatchAsync` — `active` JSON `null` — **cheap-disproof 2026-10-22 #22:** `invalidValue`.
-- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `externalId sw` — **cheap-disproof 2026-10-22 #22:** `sw` operator implemented.
-- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `id eq` filter — **cheap-disproof 2026-10-22 #22:** `id` attribute path supported.
-- [x] (valid-no-repro) `ScimUsersController.ReplaceAsync` — omitted `active` — **cheap-disproof 2026-10-22 #22:** defaults true by design.
-- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `displayName eq ""` — **cheap-disproof 2026-10-22 #22:** null vs empty semantics.
-
-- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `active eq true` — **cheap-disproof 2026-10-22 #23:** parser + literal parser.
-- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `userName ne` — **cheap-disproof 2026-10-22 #23:** `ne` supported.
-- [x] (invalid) `ScimUsersController.CreateAsync` — `active: null` — **cheap-disproof 2026-10-22 #23:** `invalidValue`.
-- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `add` on `userName` — **cheap-disproof 2026-10-22 #23:** conflict pre-check after flat map.
-- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `externalId ew` — **cheap-disproof 2026-10-22 #23:** `ew` operator implemented.
-
-- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `active eq "1"` — **cheap-disproof 2026-10-22 #24:** regression `ListAsync_active_eq_numeric_one_returns_only_active_users`.
-- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `displayName pr` — **cheap-disproof 2026-10-22 #24:** null display names excluded.
-- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — same `externalId` — **cheap-disproof 2026-10-22 #24:** self-skip in conflict guard.
-- [x] (invalid) `ScimUsersController.ListAsync` — bad filter grammar — **cheap-disproof 2026-10-22 #24:** `invalidFilter`.
-- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — no `schemas` — **cheap-disproof 2026-10-22 #24:** not required for `ParseUser`.
-
-- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `active eq "0"` — **cheap-disproof 2026-10-22 #25:** literal parser `"0"` → false.
-- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `externalId gt` — **cheap-disproof 2026-10-22 #25:** ordered compare supported.
-- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — same `userName` — **cheap-disproof 2026-10-22 #25:** self-skip conflict guard.
-- [x] (valid-no-repro) `ScimUsersController.ListAsync` — empty/omitted filter — **cheap-disproof 2026-10-22 #25:** `Parse` null → full list.
-- [x] (valid-no-repro) `ScimUsersController.ReplaceAsync` — displayName-only — **cheap-disproof 2026-10-22 #25:** no seat transition when active unchanged.
-
-- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `active eq "false"` — **cheap-disproof 2026-10-22 #26:** bool string literal parser (also #15).
-- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — same `displayName` — **cheap-disproof 2026-10-22 #26:** idempotent no-op OK.
-- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — reactivate POST — **cheap-disproof 2026-10-22 #26:** proven reactivate path.
-- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `%` in `eq` literal — **cheap-disproof 2026-10-22 #26:** equality not LIKE.
-- [x] (valid-no-repro) `ScimUsersController.DeleteAsync` — GET after DELETE — **cheap-disproof 2026-10-22 #26:** tombstone 404.
-
-- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — same `externalId` — **cheap-disproof 2026-10-22 #27:** self-skip.
-- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `active ne true` — **cheap-disproof 2026-10-22 #27:** `ne` supported on active.
-- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — inactive create — **cheap-disproof 2026-10-22 #27:** no seat reserve.
-- [x] (invalid) `ScimUsersController.PatchAsync` — bracket path — **cheap-disproof 2026-10-22 #27:** flat-path only.
-- [x] (valid-no-repro) `ScimUsersController.ListAsync` — huge `startIndex` — **cheap-disproof 2026-10-22 #27:** empty page.
-
-- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — same `active` — **cheap-disproof 2026-10-22 #28:** seat transition no-op.
-- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `userName sw ""` — **cheap-disproof 2026-10-22 #28:** empty prefix matches all.
-- [x] (valid-no-repro) `ScimUsersController.ReplaceAsync` — duplicate `userName` — **cheap-disproof 2026-10-22 #28:** conflict path proven.
-- [x] (invalid) `ScimUsersController.GetAsync` — unknown id — **cheap-disproof 2026-10-22 #28:** 404 notFound.
-- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — bulk no-op ops — **cheap-disproof 2026-10-22 #28:** no correctness bug.
-
-- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `active eq "True"` — **cheap-disproof 2026-10-22 #29:** bool string parse.
-- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — unknown flat key — **cheap-disproof 2026-10-22 #29:** not persisted.
-- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — seat cap — **cheap-disproof 2026-10-22 #29:** 403 mutability.
-- [x] (valid-no-repro) `ScimUsersController.ReplaceAsync` — re-activate PUT — **cheap-disproof 2026-10-22 #29:** seat transition by design.
-- [x] (valid-no-repro) `ScimUsersController.ListAsync` — filter escapes — **cheap-disproof 2026-10-22 #29:** SCIM filter lexer semantics.
-
-- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — case-only `userName` replace — **cheap-disproof 2026-10-22 #30:** self-skip + case-insensitive lookup (hunt #25 same-`userName` class).
-- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `not (userName eq "x")` — **cheap-disproof 2026-10-22 #30:** `ScimNotNode` evaluator/SQL `NOT`.
-- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — minimal POST only `userName` — **cheap-disproof 2026-10-22 #30:** `ScimUserResourceParser` defaults.
-- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `Operations` array empty — **cheap-disproof 2026-10-22 #30:** hunt #6/#8 `ApplyFlat` no-op.
-- [x] (valid-no-repro) `ScimUsersController.ReplaceAsync` — PUT `active: false` — **cheap-disproof 2026-10-22 #30:** soft-disable seat transition; not tombstone.
-
-- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `not (active eq true)` — **cheap-disproof 2026-10-22 #31:** `ScimNotNode` + `CompareActive`.
-- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — duplicate `replace` same path — **cheap-disproof 2026-10-22 #31:** sequential last-wins.
-- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — inactive minimal POST — **cheap-disproof 2026-10-22 #31:** no seat when `active: false`.
-- [x] (valid-no-repro) `ScimUsersController.GetAsync` — GET after soft-disable PUT — **cheap-disproof 2026-10-22 #31:** by design vs DELETE tombstone.
-- [x] (valid-no-repro) `ScimUsersController.ListAsync` — escaped quote in filter — **cheap-disproof 2026-10-22 #31:** hunt #29 class.
-
-- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — uppercase `REPLACE` — **cheap-disproof 2026-10-22 #32:** case-insensitive `op`.
-- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `active pr` — **cheap-disproof 2026-10-22 #32:** synthetic active string always present.
-- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `userName co ""` — **cheap-disproof 2026-10-22 #32:** empty substring filter.
-- [x] (valid-no-repro) `ScimUsersController.ReplaceAsync` — omitted `externalId` — **cheap-disproof 2026-10-22 #32:** parser default to `userName`.
-- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — inactive reactivate — **cheap-disproof 2026-10-22 #32:** no seat when `active: false`.
-
-- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — path `Active` casing — **cheap-disproof 2026-10-22 #33:** case-insensitive flat map keys.
-- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `displayName pr` — **cheap-disproof 2026-10-22 #33:** hunt #24.
-- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `remove displayName` — **cheap-disproof 2026-10-22 #33:** regression-backed clear-to-empty.
-- [x] (valid-no-repro) `ScimUsersController.ListAsync` — uppercase `id eq` — **cheap-disproof 2026-10-22 #33:** CI compare on `id` filter.
-- [x] (valid-no-repro) `ScimUsersController` — enable after inactive reactivate — **cheap-disproof 2026-10-22 #33:** standard seat transition.
-
-- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `externalId ne` — **cheap-disproof 2026-10-22 #34:** case-exact `ne`.
-- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `displayName` null replace — **cheap-disproof 2026-10-22 #34:** null → empty via resolver.
-- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `userName gt ""` — **cheap-disproof 2026-10-22 #34:** broad lex filter.
-- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `add displayName` — **cheap-disproof 2026-10-22 #34:** flat add path.
-- [x] (invalid) `ScimUsersController.ListAsync` — `nickName` filter — **cheap-disproof 2026-10-22 #34:** hunt #21 unknown attribute.
-
-- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `startIndex=1` — **cheap-disproof 2026-10-22 #35:** 1-based pagination contract.
-- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — string `"false"` active — **cheap-disproof 2026-10-22 #35:** `ReadActive` string arm.
-- [x] (valid-no-repro) `ScimUsersController.ListAsync` — parenthesized filter — **cheap-disproof 2026-10-22 #35:** parser grouping tests.
-- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — whitespace path — **cheap-disproof 2026-10-22 #35:** trim before key.
-- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — trim `userName` — **cheap-disproof 2026-10-22 #35:** `ReadRequiredString` trim.
-
-- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `count` > 200 — **cheap-disproof 2026-10-22 #36:** clamp at 200.
-- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — unsupported `op` — **cheap-disproof 2026-10-22 #36:** `invalidSyntax`.
-- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `active eq "FALSE"` — **cheap-disproof 2026-10-22 #36:** case-insensitive `bool.TryParse`.
-- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `active` `"True"` — **cheap-disproof 2026-10-22 #36:** `ReadActive` string parse.
-- [x] (valid-no-repro) `ScimUsersController.ListAsync` — tombstone exclusion — **cheap-disproof 2026-10-22 #36:** #1755 regression.
-
-- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `count=0` — **cheap-disproof 2026-10-22 #37:** hunt #6 regression.
-- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — missing `value` — **cheap-disproof 2026-10-22 #37:** `invalidValue`.
-- [x] (valid-no-repro) `ScimUsersController.ListAsync` — spaced filter literal — **cheap-disproof 2026-10-22 #37:** exact literal compare.
-- [x] (valid-no-repro) `ScimUsersController.ReplaceAsync` — string `active` — **cheap-disproof 2026-10-22 #37:** parser `ReadActive`.
-- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — remove unknown key — **cheap-disproof 2026-10-22 #37:** hunt #29.
-
-- [x] (valid-no-repro) `ScimUsersController.ListAsync` — negative `count` — **cheap-disproof 2026-10-22 #38:** hunt #8 regression.
-- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — numeric `userName` — **cheap-disproof 2026-10-22 #38:** type guard regression.
-- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `or` filter — **cheap-disproof 2026-10-22 #38:** `ScimOrNode`.
-- [x] (valid-no-repro) `ScimUsersController.DeactivateAsync` — second DELETE — **cheap-disproof 2026-10-22 #38:** proven notFound.
-- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `add active` — **cheap-disproof 2026-10-22 #38:** flat add path.
-
-- [x] (invalid) `ScimUsersController.GetAsync` — `Guid.Empty` — **cheap-disproof 2026-10-22 #39:** hunt #4.
-- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `and` filter — **cheap-disproof 2026-10-22 #39:** `ScimAndNode`.
-- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — whitespace `externalId` — **cheap-disproof 2026-10-22 #39:** type/whitespace guard.
-- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — seat cap — **cheap-disproof 2026-10-22 #39:** hunt #13.
-- [x] (valid-no-repro) `ScimUsersController.ListAsync` — emails alias — **cheap-disproof 2026-10-22 #39:** hunt #21.
-
-- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — empty `userName` — **cheap-disproof 2026-10-22 #40:** `ReadPatchRequiredString`.
-- [x] (invalid) `ScimUsersController.ListAsync` — unclosed filter quote — **cheap-disproof 2026-10-22 #40:** hunt #24.
-- [x] (valid-no-repro) `ScimUsersController.ReplaceAsync` — seat compensate — **cheap-disproof 2026-10-22 #40:** proven regression.
-- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — insert seat compensate — **cheap-disproof 2026-10-22 #40:** proven regression.
-- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `remove` `externalId` — **cheap-disproof 2026-10-22 #40:** hunt #9 `mutability`.
-
-- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — persist failure seat compensate — **cheap-disproof 2026-10-22 #41:** `CompensateSeatTransitionAsync` in `catch`.
-- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — POST empty `userName` — **cheap-disproof 2026-10-22 #41:** `ReadRequiredString`.
-- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — empty `externalId` — **cheap-disproof 2026-10-22 #41:** whitespace regression.
-- [x] (invalid) `ScimUsersController.ListAsync` — unbalanced parens — **cheap-disproof 2026-10-22 #41:** hunt #24 malformed filter.
-- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `remove` `userName` — **cheap-disproof 2026-10-22 #41:** proven mutability.
-
-- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — whitespace `userName` — **cheap-disproof 2026-10-22 #42:** `ReadRequiredString`.
-- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — audit fail before persist — **cheap-disproof 2026-10-22 #42:** seat `catch` compensate.
-- [x] (valid-no-repro) `ScimUsersController.ListAsync` — empty `filter` — **cheap-disproof 2026-10-22 #42:** null AST.
-- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `userName` JSON `null` — **cheap-disproof 2026-10-22 #42:** `ReadPatchRequiredString`.
-- [x] (invalid) `ScimUsersController.DeactivateAsync` — seat restore — **cheap-disproof 2026-10-22 #42:** proven saturated.
-
-- [x] (proven) `ScimUsersController.PatchAsync` — post-persist audit failure seat drift — **hit 2026-10-22 #43.**
-- [x] (proven) `ScimUsersController.ReplaceAsync` — post-persist audit failure seat drift — **hit 2026-10-22 #43.**
-- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `externalId` JSON `null` — **cheap-disproof 2026-10-22 #43.**
-- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — numeric `userName` — **cheap-disproof 2026-10-22 #43.**
-- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `userName eq ""` — **cheap-disproof 2026-10-22 #43.**
-
-- [ ] (candidate) `ScimUsersController.CreateAsync` — audit `LogAsync` failure after successful `InsertAsync` must not release reserved seat — locus: `CreateAsync` `userInserted` gate; input: sibling #43 PATCH/REPLACE regressions.
-- [ ] (candidate) `ScimUsersController.DeactivateAsync` — audit failure after successful `DeactivateAsync` must not restore seat — locus: `userDeactivated` gate; input: parity create/patch fix.
-- [ ] (candidate) `ScimUsersController.PatchAsync` — `replace` `displayName` JSON `null` clears field — locus: `ResolvePatchDisplayName`; input: hunt #34 intentional clear.
-- [ ] (candidate) `ScimUsersController.ListAsync` — `meta.lastModified` filter unsupported — locus: SQL translator; input: `invalidFilter` hunt #21 class.
-- [ ] (candidate) `ScimUsersController.PatchAsync` — `replace` `active` with JSON string `"1"` — locus: `ReadActive`; input: bool parse vs numeric `1` parity.
 
 - [x] (proven) `ScimUserService.CreateAsync` / `PatchAsync` / `ScimUsersController` — a second live user with the same `userName` and a different `externalId` was stored, including case-only names — **hit 2026-10-09 seed hunt:** live `userName` lookup returns `uniqueness`. Regressions `CreateAsync_duplicate_user_name_throws_conflict` and `PatchAsync_replace_userName_to_another_users_name_throws_conflict`.
 - [x] (proven) `ScimFilterParser.ParseFilter` / `ScimUsersController.ListAsync` — ungrouped `or` before `and` was parsed left-to-right, so an active user matching only the left comparison was omitted — **hit 2026-10-09 seed hunt:** `not` over `and` over `or` per RFC 7644 §3.4.2.2. Regressions `ListAsync_filter_gives_and_precedence_over_or`, `Parse_or_binds_looser_than_and`, and `Parse_not_binds_tighter_than_and`.
@@ -3707,22 +2937,6 @@
 2026-10-20 seed hunt (seed-only): identity-provider-config — re-read IdentityProviderConfigurationController discover/test-login/activate/get-configuration paths and IdentityProviderActivationService activation persistence after recent field-limit and camelCase claim-mapping hits; no row met the hunt-ready bar for a failing repro in the selected files. Seeded five bounded (candidate) rows for discover request validation parity, empty metadata URL handling, claim-mapping JSON size, test-login guard delegation, and legacy oversize Key Vault secret names on same-protocol re-activate. Scoped IdentityProviderActivationServiceTests passed 51/51 and IdentityProviderConfigurationControllerTests passed 15/15. No production change.
 
 ## Zone: identity-provider-config
-
-2026-10-22 seed hunt (seed-only): re-read `IdentityProviderConfigurationController` and `IdentityProviderActivationService` after nested-collection guard ship; cheap-disproof closed five prior seed lenses (failed-discover response detach is saturated `[other]` per #77; legacy oversize issuer GET 400 is intentional repair signal; claim-mapping JSON size is SQL boundary; discover empty metadata URL handled in `IdentityProviderDiscoveryService`; test-login delegates substantive mapping checks to activate path); no hunt-ready promotion; added five new `(candidate)` rows under **Hypotheses**; scoped tests not run on this checkout (unrelated Application compile errors).
-
-- [x] (invalid) `IdentityProviderConfigurationController.WithCanonicalWizardUris` — failed discover returns shared discovery service instance — **cheap-disproof 2026-10-22:** saturated `[other]` detach class; regression `DiscoverAsync_returns_detached_copy_when_discovery_uris_already_canonical` covers success path only by design (#77).
-- [x] (valid-no-repro) `IdentityProviderConfigurationController.GetConfigurationAsync` — HTTP 400 when stored canonical issuer exceeds NVARCHAR(2048) — **cheap-disproof 2026-10-22:** intentional fail-closed read; regression `GetConfigurationAsync_rejects_stored_canonical_issuer_uri_longer_than_persisted_column`.
-- [x] (valid-no-repro) `IdentityProviderActivationService.ActivateAsync` — oversized serialized `ClaimMappingJson` — **cheap-disproof 2026-10-22:** no in-memory length guard; SQL upsert boundary; wizard mappings are bounded operator input.
-- [x] (valid-no-repro) `IdentityProviderDiscoveryService.DiscoverAsync` — blank `MetadataUrl` — **cheap-disproof 2026-10-22:** trims to failed discovery envelope (2026-10-21 #78).
-- [x] (valid-no-repro) `IdentityProviderConfigurationController.TestLogin` — claim-mapping substantive validation parity with activate — **cheap-disproof 2026-10-22:** sandbox returns `Success:false` for mapping failures; activate enforces `IdentityClaimRoleMappingResolver.ValidateMapping` (regressions `TestLogin_rejects_invalid_protocol`, `Execute_returns_failure_when_custom_group_claim_regex_is_whitespace_only`).
-
-### Hypotheses
-
-- [ ] (candidate) `IdentityProviderConfigurationController.DiscoverAsync` — HTTP 400 on post-discovery issuer length mismatch vs activate HTTP 400 on same issuer — locus: `EnsureIssuerUriFits` after successful discovery ~79–86; input: discovery success with issuer one char over NVARCHAR(2048); reachability: `DiscoverAsync_rejects_canonical_issuer_uri_longer_than_persisted_column`.
-- [ ] (candidate) `IdentityProviderActivationService.ActivateAsync` — `sameProtocol` preserves optional fields when `existing.IsActive` is false — locus: `ResolveOptionalPersistedField` ~78–86; input: re-activate inactive row with omitted `KeyVaultSecretName`; reachability: greenfield vs reactivate matrix tests.
-- [ ] (candidate) `IdentityProviderConfigurationController.PrepareConfigurationResponse` — GET returns canonical issuer while `UpdatedByActorId` remains untrimmed from legacy imports — locus: issuer canonicalization ~248–249 only; input: padded actor id in stored row; reachability: activate always trims on write (`ActivateAsync_trims_issuer_uri_and_actor_id`).
-- [ ] (candidate) `IdentityProviderConfigurationController.ActivateAsync` — `scope.TenantId` empty still invokes activation service — locus: passes `scope.TenantId` ~155; input: missing tenant scope binding; reachability: admin middleware / scope provider defaults before controller.
-- [ ] (candidate) `IdentityProviderActivationService.ActivateAsync` — protocol re-parse accepts `OIDC`/`SAML` casing while audit logs lowercase only — locus: `IdentityProviderProtocolParser.TryParse` trim+lower; input: `Protocol: "OIDC"`; reachability: intentional normalization (regression `ActivateAsync_accepts_protocol_case_insensitive` if present).
 
 2026-10-20 seed hunt (seed->hit): promoted GET /v1/admin/identity/configuration returning legacy MetadataXml on OIDC rows (and KeyVaultSecretName on SAML) after activate began stripping cross-protocol fields; PrepareConfigurationResponse omits protocol-inapplicable columns on read; regression GetConfigurationAsync_omits_metadata_xml_when_stored_protocol_is_oidc; 16 scoped IdentityProviderConfigurationControllerTests passed.
 
@@ -3823,11 +3037,11 @@
 - **aliases:** identity provider; idp activation
 - **paths:** ArchLucid.Api/Controllers/Admin/IdentityProviderConfigurationController.cs; ArchLucid.Api/Services/Admin/IdentityProviderActivationService.cs
 - **test-filter:** FullyQualifiedName~IdentityProviderActivationServiceTests
-- **hunts:** 61
+- **hunts:** 60
 - **bugs-found:** 42
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-20 — GET configuration omits cross-protocol persisted fields
+- **last-hunt:** 2026-10-20
+- **last-bug:** 2026-10-09 — activation persisted issuer, secret name, or actor id past SQL column width
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -4060,33 +3274,21 @@
 - **aliases:** persistence billing stripe; stripe wallet integration; stripe billing persistence
 - **paths:** ArchLucid.Persistence/Billing/Stripe/; ArchLucid.Api/Controllers/Billing/WalletController.cs; ArchLucid.Application/Budgeting/Wallet/LlmTenantWalletConsumeStage.cs
 - **test-filter:** FullyQualifiedName~StripeWalletPaymentIdentifierGuard|FullyQualifiedName~UpdateWalletAsync_rejects_stripe_customer_id_that_guard_blocks
-- **hunts:** 4
+- **hunts:** 3
 - **bugs-found:** 2
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-10-22
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-23
 - **last-bug:** 2026-10-21 — auto-refill charged without re-validating persisted Stripe ids
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
-2026-10-22 seed hunt (seed-only): persistence-billing-stripe - no hunt-ready product defect; cheap-disproof closed guard fail-closed paths for unresolved linked customer, missing Stripe secret with payment method, and whitespace-only Stripe ids (no-op bypass); regression documents linked-customer match without payment method; scoped guard filter 6/6.
+2026-10-23 seed hunt (seed-only): re-read zone paths (`StripeWalletPaymentIdentifierGuard`, `StripeLinkedCustomerResolver`, `StripeWalletGateway`, `LlmTenantWalletConsumeStage`, `LlmTenantWalletRefillStage`, `WalletController`); no open hypotheses to cheap-disproof; no hunt-ready row promoted (guard/resolver fail closed on missing linked customer, Stripe API errors, and payment-method attachment mismatch; auto-refill re-validates persisted ids before charge). Seeded five `(candidate)` rows below; scoped Persistence guard tests 3/3 + Application wallet guard/refill regressions 2/2 (`RunAnalyzers=false`).
 
-- [x] (valid-no-repro) `StripeWalletPaymentIdentifierGuard.AllowsWalletUpdateAsync` - linked customer unresolved with customer id supplied - **cheap-disproof 2026-10-22:** fail closed when resolver returns null.
-- [x] (valid-no-repro) `StripeWalletPaymentIdentifierGuard.AllowsWalletUpdateAsync` - missing Stripe secret with payment method supplied - **cheap-disproof 2026-10-22:** fail closed before PaymentMethod API.
-- [x] (valid-no-repro) `StripeWalletPaymentIdentifierGuard.AllowsWalletUpdateAsync` - customer id matches linked customer without payment method - **regression 2026-10-22:** allow tenant-owned customer id only.
-- [x] (valid-no-repro) `StripeWalletPaymentIdentifierGuard.AllowsWalletUpdateAsync` - whitespace-only Stripe ids treated as absent - **cheap-disproof 2026-10-22:** early no-op bypass without resolver call.
-
-- [x] (valid-no-repro) `StripeWalletPaymentIdentifierGuard.AllowsWalletUpdateAsync` — payment method not attached to linked customer — **cheap-disproof 2026-10-22 seed hunt:** `IsPaymentMethodAttachedToCustomerAsync` requires `paymentMethod.CustomerId` equals linked customer; detached or foreign PM returns false.
-- [x] (valid-no-repro) `StripeLinkedCustomerResolver.TryResolveLinkedCustomerIdAsync` — checkout session provider ref without tenant metadata — **cheap-disproof 2026-10-22 seed hunt:** `MetadataMatchesTenant` rejects missing/`tenant_id`; regression `TryResolveCustomerFromProviderRef_returns_null_for_unsupported_provider_ref_prefix`.
-- [x] (valid-no-repro) `LlmTenantWalletRefillStage.TryAutoRefillAsync` — guard bypass when only payment method id persisted — **cheap-disproof 2026-10-22 seed hunt:** requires both persisted customer and payment method (`string.IsNullOrWhiteSpace` on both) before charge; re-runs guard on persisted pair (2026-10-21 hit).
-- [x] (valid-no-repro) `LlmTenantWalletConsumeStage` — guard skipped on consume when Stripe ids stale — **cheap-disproof 2026-10-22 seed hunt:** consume does not call Stripe; auto-refill enqueue path re-validates identifiers in `LlmTenantWalletRefillStage`.
-
-2026-10-22 seed hunt (seed-only): `persistence-billing-stripe` — cheap-disproof closed four open candidates; added `StripeLinkedCustomerResolverTests` + synced guard regressions; scoped filter 9/9 passed; no product defect.
-
-- [ ] (candidate) `StripeWalletPaymentIdentifierGuard.AllowsWalletUpdateAsync` — payment method `GetAsync` StripeException fails closed — locus: `IsPaymentMethodAttachedToCustomerAsync` catch (reachability: invalid or cross-account PM id).
-- [ ] (candidate) `LlmTenantWalletConsumeStage.UpdateWalletAsync` — enable auto-replenish with only linked customer id in PUT leaves stale persisted payment method — locus: first guard `(customer, null)` skip vs persisted PM on refill (reachability: COALESCE update).
-- [ ] (candidate) `StripeLinkedCustomerResolver.TryResolveCustomerFromProviderRefAsync` — `sub_` ref with matching metadata but customer reused across tenants — locus: subscription metadata gate only (reachability: Stripe customer sharing).
-- [ ] (candidate) `StripeWalletGateway.ChargeRefillAsync` — off-session charge without re-running identifier guard — locus: gateway entry (reachability: callers must guard first).
-- [ ] (candidate) `WalletController.PutAsync` — wallet PUT returns 409 without distinguishing guard failure from concurrency — locus: `updated is null` (reachability: operator retry UX).
+- [ ] (candidate) `StripeLinkedCustomerResolver.TryResolveCustomerFromProviderRefAsync` — `sub_` ledger ref whose Subscription object lacks `metadata.tenant_id` while Checkout Session metadata was stamped — locus: `MetadataMatchesTenant(subscription.Metadata, tenantId)` (`StripeLinkedCustomerResolver.cs` ~67-68); input: `TryResolveLinkedCustomerIdAsync` after portal checkout when Stripe returns subscription without copied tenant metadata.
+- [ ] (candidate) `StripeLinkedCustomerResolver.TryResolveCustomerFromProviderRefAsync` — `cs_` session with empty `CustomerId` resolves via `SubscriptionId` branch — locus: subscription metadata re-check (`StripeLinkedCustomerResolver.cs` ~97-98); input: completed checkout `cs_…` where session metadata matches tenant but linked `sub_…` metadata does not.
+- [ ] (candidate) `StripeWalletGateway.ChargeRefillAsync` — off-session `PaymentIntent` left in non-`succeeded` status (for example `processing` or `requires_action`) — locus: success gate (`StripeWalletGateway.cs` ~57-61); input: auto-refill with a payment method that cannot confirm off-session; wrong outcome: tenant not credited while Stripe may still settle asynchronously.
+- [ ] (candidate) `LlmTenantWalletRefillStage.TryAutoRefillAsync` — pending `PendingRefillCredits` retry path credits without re-running `AllowsWalletUpdateAsync` — locus: lines 58-74 vs guard before `ChargeRefillAsync` at 84-105 (`LlmTenantWalletRefillStage.cs`); input: settlement queue `RefillCredit` after charge succeeded but persisted Stripe ids were tampered before credit retry.
+- [ ] (candidate) `LlmTenantWalletConsumeStage.UpdateWalletAsync` — partial `PUT /v1/billing/wallet` that omits Stripe fields does not re-validate persisted identifiers when auto-replenish stays enabled — locus: guard invoked with `(null, null)` (`LlmTenantWalletConsumeStage.cs` ~66-75; `StripeWalletPaymentIdentifierGuard.cs` ~26-27); input: admin updates only `monthlyCapUsd` while legacy cross-tenant `StripeCustomerId` remains stored until the next auto-refill attempt.
 
 2026-10-21 follow-up hunt (hit, lane C): auto-refill `TryAutoRefillAsync` now re-runs `IStripeWalletPaymentIdentifierGuard` on persisted Stripe ids before `ChargeRefillAsync`, logging `LlmWalletRefillFailed` with decline code `payment_identifier_guard` and skipping Stripe when legacy rows fail validation. Regression `TryAutoRefillAsync_skips_stripe_charge_when_persisted_identifiers_fail_guard`; 29 scoped wallet tests passed.
 
@@ -4390,109 +3592,16 @@
 
 ## Zone: api-key-auth
 
-2026-10-22 thorough hunt #11 (dry): cheap-disproof closed five picker `(candidate)` rows (bypass returns before `X-Api-Key` extract — intentional dev open mode ~56–71; `GetSnapshot` exposes `DevelopmentBypassAll` for operator diagnostics ~22; `HasConfiguredKeyMaterial` via masker duplicate invisible-only proven class; header `provided` normalized in `ExtractProvidedApiKey` before `ConstantTimeKeyEquals` — symmetric; `Guid.Empty` scope ids skip claims — regression `When_empty_guid_scope_ids_do_not_emit_scope_claims`); no failing repro; five replacement `(candidate)` rows; scoped ApiKey tests not run.
-
-- [x] (valid-no-repro) `ApiKeyAuthenticationHandler` — bypass ignores `X-Api-Key` — **cheap-disproof 2026-10-22 #11:** `!enabled && developmentBypassAll` path ~56–71 precedes header read ~74–80.
-- [x] (valid-no-repro) `AdminApiKeySettingsService.GetSnapshot` — exposes bypass flag — **cheap-disproof 2026-10-22 #11:** intentional admin visibility of misconfiguration risk ~19–25.
-- [x] (invalid) `AdminApiKeySettingsService.HasConfiguredKeyMaterial` — masker alignment — **cheap-disproof 2026-10-22 #11:** duplicate BOM/ZWSP/tab proven snapshot/handler alignment hits.
-- [x] (valid-no-repro) `ApiKeyAuthenticationHandler` — normalize before constant-time compare — **cheap-disproof 2026-10-22 #11:** `provided` normalized ~151–154; config segments ~210–212; hex fold only on long ascii-hex.
-- [x] (valid-no-repro) `ApiKeyAuthenticationHandler` — empty Guid scope claims — **cheap-disproof 2026-10-22 #11:** `tenant_id` emitted only when non-empty Guid ~255–256; existing regression.
-
-2026-10-22 thorough hunt #10 (dry): cheap-disproof closed five picker `(candidate)` rows (dev bypass uses `BuildSyntheticAdminClaims` without scope claims — intentional local open admin ~69–71; short mask segments `****` only — `ApiKeyMaterialMaskerTests.MaskCommaSeparatedSegments_masks_each_segment`; legacy `RotateKeyIdAsync` always replace — documented operator route; rotation audit JSON excludes plaintext — `Rotate_replace_returns_plaintext_once_without_logging_in_audit_payload`; shared material both slots expired returns admin-expired first — duplicate hunt #5 ~117–119); no failing repro; five replacement `(candidate)` rows; scoped ApiKey tests not run.
-
-- [x] (valid-no-repro) `ApiKeyAuthenticationHandler` — bypass omits scope claims — **cheap-disproof 2026-10-22 #10:** `BuildSyntheticAdminClaims` ~267–277; bypass never calls `BuildApiKeyClaims`; `When_enabled_false_and_bypass_true_in_development_returns_success_without_header`.
-- [x] (valid-no-repro) `ApiKeyMaterialMasker.MaskSegment` — short segment masking — **cheap-disproof 2026-10-22 #10:** `MinLengthToRevealSuffix=9`; regression masks `" short"` as `****`.
-- [x] (valid-no-repro) `AdminApiKeySettingsController.RotateKeyIdAsync` — legacy always replace — **cheap-disproof 2026-10-22 #10:** `InvalidatePrevious=true` ~85; append rotation remains body `POST .../rotate`.
-- [x] (invalid) `AdminApiKeySettingsController.RotateAsync` — audit omits plaintext — **cheap-disproof 2026-10-22 #10:** endpoint audit contract test; audit payload slot/deployment/config only ~63–68.
-- [x] (invalid) `ApiKeyAuthenticationHandler` — shared key both expired ordering — **cheap-disproof 2026-10-22 #10:** duplicate hunt #5; admin-expired branch before reader-expired ~117–123.
-
-2026-10-22 thorough hunt #9 (dry): cheap-disproof closed five picker `(candidate)` rows (`BuildSyntheticAdminClaims` bypass duplicate hunt #3 + `AuthSafetyGuard`/`AuthenticationRules` startup guards; `ApiKeyMaterialMasker` suffix-only reveal intentional operator UI; `IOptionsMonitor` reload duplicate hunt #4 regression; rotation `ExplicitActor` duplicate 2026-10-09 proven hit; identical admin/reader material admin-first duplicate hunt #2); no failing repro; five replacement `(candidate)` rows; scoped ApiKey tests not run.
-
-- [x] (invalid) `ApiKeyAuthenticationHandler` — synthetic admin bypass claims — **cheap-disproof 2026-10-22 #9:** duplicate hunt #3; non-Production opt-in ~64–67; `BuildSyntheticAdminClaims` ~267–277.
-- [x] (valid-no-repro) `AdminApiKeySettingsService.GetSnapshot` — masked segments never echo plaintext — **cheap-disproof 2026-10-22 #9:** `MaskSegment` returns `****` + last four only ~40–49.
-- [x] (invalid) `ApiKeyAuthenticationHandler` — options monitor reload — **cheap-disproof 2026-10-22 #9:** duplicate hunt #4; `When_api_key_options_monitor_advances_old_material_fails_and_new_succeeds`.
-- [x] (invalid) `AdminApiKeySettingsController` — rotation audit `ExplicitActor` — **cheap-disproof 2026-10-22 #9:** `CreateRotationAuditEvent` sets `ExplicitActor=true` ~122; proven 2026-10-09.
-- [x] (invalid) `ApiKeyAuthenticationHandler` — identical admin/reader material admin wins — **cheap-disproof 2026-10-22 #9:** duplicate hunt #2; admin branch ~88–104 precedes reader.
-
-2026-10-22 thorough hunt #8 (dry): cheap-disproof closed five picker `(candidate)` rows (wrong key → generic `Invalid API key` ~125 by design; admin `replay:comparisons` permission in `BuildApiKeyClaims`; append rotate `,{key}` suffix for comma-separated config; embedded BOM/ZWSP normalizer — proven 2026-09-26/28 hits; blank test-actor header no-op ~172–173); no failing repro; five replacement `(candidate)` rows; scoped ApiKey tests not run.
-
-- [x] (valid-no-repro) `ApiKeyAuthenticationHandler` — wrong key message — **cheap-disproof 2026-10-22 #8:** non-enumerating `Invalid API key` fail-closed.
-- [x] (valid-no-repro) `ApiKeyAuthenticationHandler` — admin replay permission — **cheap-disproof 2026-10-22 #8:** intentional admin claim bundle ~94–99.
-- [x] (valid-no-repro) `AdminApiKeySettingsService.Rotate` — append leading comma — **cheap-disproof 2026-10-22 #8:** `AppendConfigSuffix` rotation contract ~71.
-- [x] (invalid) `ApiKeyMaterialNormalizer` — embedded BOM — **cheap-disproof 2026-10-22 #8:** duplicate proven invisible-character class.
-- [x] (valid-no-repro) `ApiKeyAuthenticationHandler` — empty test-actor header — **cheap-disproof 2026-10-22 #8:** `overrideName.Length == 0` returns unchanged claims.
-
-2026-10-22 thorough hunt #7 (dry): cheap-disproof closed five picker `(candidate)` rows (`AllowTestActorHeaders` in Production throws by design ~43–46; distinct reader key when admin expired authenticates via reader branch; comma-separated second segment — `When_enabled_true_and_comma_separated_admin_keys_either_segment_authenticates`; `InvalidatePrevious=true` replace response; missing `X-Api-Key` — `When_enabled_true_and_header_is_blank_returns_missing_failure`); no failing repro; five replacement `(candidate)` rows; scoped ApiKey tests not run.
-
-- [x] (valid-no-repro) `ApiKeyAuthenticationHandler` — test actor headers in Production — **cheap-disproof 2026-10-22 #7:** `InvalidOperationException` guard (intentional fail-fast).
-- [x] (valid-no-repro) `ApiKeyAuthenticationHandler` — expired admin, distinct reader key — **cheap-disproof 2026-10-22 #7:** reader path ~106–114 when admin expired; shared-key regression sibling.
-- [x] (valid-no-repro) `MatchesAnyCommaSeparatedKey` — second segment match — **cheap-disproof 2026-10-22 #7:** rotation delimiter scan; either-segment regressions.
-- [x] (valid-no-repro) `AdminApiKeySettingsService.Rotate` — invalidate previous replace — **cheap-disproof 2026-10-22 #7:** `DeploymentAction=Replace`; omits append suffix by design.
-- [x] (valid-no-repro) `ApiKeyAuthenticationHandler` — missing header — **cheap-disproof 2026-10-22 #7:** fail-closed; blank/missing header regression.
-
-2026-10-22 thorough hunt #6 (dry): cheap-disproof closed five picker `(candidate)` rows (reader-only expired slot → `When_read_only_key_expiry_is_exactly_now_returns_failure`; `Enabled=false` without bypass → fail-closed config tests; unconfigured snapshot still exposes bound `ExpiresAtUtc` — operator metadata; rotation lowercase hex paired with normalizer fold hit 2026-10-20; reader claims omit commit/run — least-privilege by design); no failing repro; five replacement `(candidate)` rows; scoped ApiKey tests not run.
-
-- [x] (valid-no-repro) `ApiKeyAuthenticationHandler` — reader slot expired — **cheap-disproof 2026-10-22 #6:** dedicated reader-expired message ~121–123; regression `When_read_only_key_expiry_is_exactly_now_returns_failure`.
-- [x] (valid-no-repro) `ApiKeyAuthenticationHandler` — disabled without bypass — **cheap-disproof 2026-10-22 #6:** `AuthenticateResult.Fail` when `!enabled && !developmentBypassAll`.
-- [x] (valid-no-repro) `AdminApiKeySettingsService.GetSnapshot` — expiry on unconfigured slot — **cheap-disproof 2026-10-22 #6:** `BuildSlot` passes configured expiry; `IsConfigured=false` when no material.
-- [x] (invalid) `ApiKeyMaterialGenerator.GenerateHexKey` — lowercase hex — **cheap-disproof 2026-10-22 #6:** duplicate 2026-10-20 normalizer/handler fold class.
-- [x] (valid-no-repro) `ApiKeyAuthenticationHandler` — reader permissions — **cheap-disproof 2026-10-22 #6:** reader claim set `metrics:read` only.
-
-2026-10-22 thorough hunt #5 (dry): cheap-disproof closed five picker `(candidate)` rows (shared material with both slots expired returns admin-expired message before reader-expired ~117–119 — intentional precedence; comma-only slot uses `HasConfiguredKeyMaterial` replace path — proven BOM/ZWSP rows; null `AdminKeyExpiresAt` skips expiry — by design; legacy rotate audit uses canonical `response.Slot` — `RotateKeyIdAsync_persisted_audit_uses_canonical_slot_for_padded_route_value`; duplicate `X-Api-Key` uses first non-empty value — duplicate-header regressions); no failing repro; five replacement `(candidate)` rows; scoped ApiKey tests not run.
-
-- [x] (valid-no-repro) `ApiKeyAuthenticationHandler` — both slots expired — **cheap-disproof 2026-10-22 #5:** admin-expired failure precedes generic invalid when admin match + expired.
-- [x] (valid-no-repro) `AdminApiKeySettingsService.Rotate` — empty comma segments — **cheap-disproof 2026-10-22 #5:** unconfigured slot → `Replace` deployment action (BOM/ZWSP proven class).
-- [x] (valid-no-repro) `ApiKeyAuthenticationHandler` — null admin expiry — **cheap-disproof 2026-10-22 #5:** `IsKeyExpired` false when `expiresAt` null (no TTL).
-- [x] (invalid) `AdminApiKeySettingsController.RotateKeyIdAsync` — audit slot casing — **cheap-disproof 2026-10-22 #5:** proven 2026-10-11 canonical slot audit regression.
-- [x] (invalid) `ApiKeyAuthenticationHandler` — duplicate headers — **cheap-disproof 2026-10-22 #5:** `When_enabled_true_and_duplicate_api_key_headers_use_first_value`.
-
-2026-10-22 thorough hunt #4 (dry): cheap-disproof closed five picker `(candidate)` rows (exact `ExpiresAt` fails closed via inclusive `>=` — proven `When_admin_key_expiry_is_exactly_now_returns_failure`; whitespace-only `X-Api-Key` → empty extract ~77–80; unknown rotate slot → `ParseSlot` `ArgumentException`; expired admin with distinct reader key still authenticates reader — intentional + shared-key regression; `IOptionsMonitor.CurrentValue` per request — `When_api_key_options_monitor_advances_old_material_fails_and_new_succeeds`); no failing repro; five replacement `(candidate)` rows; scoped ApiKey tests not run.
-
-- [x] (invalid) `ApiKeyAuthenticationHandler.IsKeyExpired` — expiry equals now still authenticates — **cheap-disproof 2026-10-22 #4:** duplicate proven 2026-08-24; `>=` marks expired at boundary.
-- [x] (valid-no-repro) `ApiKeyAuthenticationHandler` — whitespace-only header — **cheap-disproof 2026-10-22 #4:** `ExtractProvidedApiKey` returns empty; missing-key failure.
-- [x] (valid-no-repro) `AdminApiKeySettingsService.Rotate` — unknown slot — **cheap-disproof 2026-10-22 #4:** `ParseSlot` throws before response materialization.
-- [x] (valid-no-repro) `ApiKeyAuthenticationHandler` — expired admin, reader key differs — **cheap-disproof 2026-10-22 #4:** reader branch ~106–114; shared-key fallback regression.
-- [x] (invalid) `ApiKeyAuthenticationOptions` reload mid-request — **cheap-disproof 2026-10-22 #4:** per-request snapshot; monitor reload test proven.
-
-2026-10-22 thorough hunt #3 (dry): cheap-disproof closed five picker `(candidate)` rows (`DevelopmentBypassAll` documented non-Production opt-in with Production fail-closed ~64–67; append rotate stale segments intentional zero-downtime contract; test-actor header overrides display name only per remarks ~160–187; `ConstantTimeKeyEquals` SHA-256 digest compare ~225–233; rotate plaintext in JSON behind admin authority + TLS); no failing repro; five replacement `(candidate)` rows; scoped ApiKey tests not run (disk/analyzer constraints).
-
-- [x] (valid-no-repro) `ApiKeyAuthenticationHandler` — `DevelopmentBypassAll` synthetic admin — **cheap-disproof 2026-10-22 #3:** explicit local opt-in; blocked when `environment.IsProduction()`.
-- [x] (valid-no-repro) `AdminApiKeySettingsService.Rotate` — append retains stale segments — **cheap-disproof 2026-10-22 #3:** `InvalidatePrevious=false` contract; operator uses replace mode to drop old material.
-- [x] (valid-no-repro) `ApiKeyAuthenticationHandler` — test actor name without role override — **cheap-disproof 2026-10-22 #3:** governance E2E segregation uses display name only (intentional).
-- [x] (valid-no-repro) `ApiKeyAuthenticationHandler.ConstantTimeKeyEquals` — digest-only compare — **cheap-disproof 2026-10-22 #3:** empty inputs return false; `FixedTimeEquals` on SHA-256 bytes.
-- [x] (valid-no-repro) `AdminApiKeySettingsController` — rotate returns plaintext key — **cheap-disproof 2026-10-22 #3:** admin settings surface; authz + transport boundary not handler defect.
-
-2026-10-22 thorough hunt #2 (dry): cheap-disproof closed five picker `(candidate)` rows (both slots unconfigured returns fail-closed `Invalid API key` by design; trailing-comma append suffix is operator hygiene with empty-segment skip in matcher; duplicate invisible-first `X-Api-Key` covered by `When_enabled_true_and_duplicate_api_key_headers_skip_invisible_only_first_value`; comma-separated admin keys share one slot expiry not per-segment; invisible-only snapshot segments already aligned via normalizer/masker proven hits); no failing repro; five replacement `(candidate)` rows; scoped ApiKey tests not run (Defender WIP compile).
-
-- [x] (valid-no-repro) `ApiKeyAuthenticationHandler` — both slots unconfigured message — **cheap-disproof 2026-10-22 #2:** duplicate of empty-slot reload row; generic invalid key is intentional fail-closed.
-- [x] (valid-no-repro) `AdminApiKeySettingsService.Rotate` — trailing comma double-comma suffix — **cheap-disproof 2026-10-22 #2:** `MatchesAnyCommaSeparatedKey` ignores empty segments; deployment operator should `InvalidatePrevious` or trim.
-- [x] (invalid) `ExtractProvidedApiKey` — duplicate invisible-first header — **cheap-disproof 2026-10-22 #2:** regression `When_enabled_true_and_duplicate_api_key_headers_skip_invisible_only_first_value` (proven 2026-10-05).
-- [x] (valid-no-repro) `ApiKeyAuthenticationHandler` — per-segment admin expiry in comma-separated material — **cheap-disproof 2026-10-22 #2:** single `AdminKeyExpiresAt` applies to whole admin slot by design.
-- [x] (invalid) `GetSnapshot` vs handler invisible segments — **cheap-disproof 2026-10-22 #2:** duplicate of BOM/ZWSP/tab/etc. proven alignment hits.
-
-2026-10-22 thorough hunt (dry): cheap-disproof closed ten open `(candidate)` rows (shared admin/reader material uses admin-first precedence with expired-admin reader fallback per `When_shared_key_admin_expired_but_reader_slot_still_valid_authenticates_as_reader`; normalizer stripping is intentional symmetric paste hygiene with prior proven hits; comma segments are documented rotation delimiters; append rotate omitting expiry metadata is operator deployment contract; rotation audit cancellation aborts before `Ok(response)`; stale comma segments survive append by design; legacy `keyId` audit canonicalization already proven; empty slot reload fails closed with generic invalid key; `DateTimeOffset` expiry uses instant comparison in `IsKeyExpired`); no failing repro; five replacement `(candidate)` rows; scoped ApiKey tests not run (Defender WIP compile).
-
-- [x] (valid-no-repro) `ApiKeyAuthenticationHandler` — identical `AdminKey`/`ReadOnlyKey` grants admin — **cheap-disproof 2026-10-22:** intentional precedence; shared-key expiry fallback tested.
-- [x] (invalid) `ApiKeyMaterialNormalizer` — stripping widens secret equivalence — **cheap-disproof 2026-10-22:** symmetric normalize on config + header; prior proven paste-artifact fixes.
-- [x] (valid-no-repro) `MatchesAnyCommaSeparatedKey` — comma inside literal secret — **cheap-disproof 2026-10-22:** comma is rotation delimiter by design (`MatchesAnyCommaSeparatedKey` remarks).
-- [x] (valid-no-repro) `AdminApiKeySettingsService.Rotate` — append response omits expiry — **cheap-disproof 2026-10-22:** deployment operator updates `*ExpiresAt` separately; not a handler bug.
-- [x] (valid-no-repro) `AdminApiKeySettingsController` — cancel between rotate and audit — **cheap-disproof 2026-10-22:** `Rotate` then `LogAsync` then `Ok`; cancel before audit returns no plaintext to client.
-- [x] (valid-no-repro) `ApiKeyAuthenticationHandler` — duplicate shared-secret admin-wins row — **cheap-disproof 2026-10-22:** duplicate of first candidate.
-- [x] (valid-no-repro) `AdminApiKeySettingsService.Rotate` — append preserves legacy comma segments — **cheap-disproof 2026-10-22:** zero-downtime rotation contract; `InvalidatePrevious` replaces.
-- [x] (invalid) `AdminApiKeySettingsController.RotateKeyIdAsync` — raw `keyId` in audit — **cheap-disproof 2026-10-22:** audit uses `response.Slot` (proven 2026-10-11 / revalidated 2026-10-20).
-- [x] (valid-no-repro) `ApiKeyAuthenticationHandler` — reload to empty normalized slot — **cheap-disproof 2026-10-22:** fail-closed `Invalid API key` during misconfiguration.
-- [x] (valid-no-repro) `AdminApiKeySettingsService.GetSnapshot` — non-UTC expiry offset display — **cheap-disproof 2026-10-22:** `DateTimeOffset` instant compare in `IsKeyExpired`; snapshot passes bound value through.
-
 2026-10-20 thorough hunt (hit): `api-key-auth` — promoted hunt-ready `ApiKeyMaterialNormalizer` hex casing; uppercase hex in `Authentication:ApiKey:AdminKey` with lowercase `X-Api-Key` failed `ConstantTimeKeyEquals` while rotation issues lowercase hex; `IsAsciiHexKeyMaterial` + lowercase fold for long hex-only segments; regressions `When_admin_key_config_and_header_differ_only_by_hex_casing_still_authenticates`, `Normalize_lowercases_ascii_hex_key_material`, `Normalize_preserves_case_for_non_hex_key_material`; cheap-disproof closed stale `(candidate)` legacy audit `keyId` row (fixed 2026-10-11); 73 scoped ApiKey auth/settings unit tests passed (2 SQL endpoint tests blocked — no SQL Server in cloud VM).
 
 - [x] (proven) `ApiKeyMaterialNormalizer` — hex-only key material compared case-sensitively — **hit 2026-10-20 thorough hunt lane B:** uppercase deployment hex with lowercase header rejected valid admin auth; lowercase fold for ascii-hex segments ≥32 chars; `ApiKeyAuthenticationHandlerTests.When_admin_key_config_and_header_differ_only_by_hex_casing_still_authenticates` + `ApiKeyMaterialNormalizerTests`.
 - [x] (invalid) `AdminApiKeySettingsController.RotateKeyIdAsync` — legacy route audit `keyId` noncanonical — **cheap-disproof 2026-10-20 thorough hunt lane B:** `response.Slot` already written to audit JSON; regression `RotateKeyIdAsync_persisted_audit_uses_canonical_slot_for_padded_route_value` (2026-10-11).
 
-- [x] (valid-no-repro) `ApiKeyAuthenticationHandler` — identical admin/reader material — **cheap-disproof 2026-10-22 thorough hunt.**
-- [x] (valid-no-repro) `AdminApiKeySettingsService.Rotate` — append omits expiry metadata — **cheap-disproof 2026-10-22 thorough hunt.**
-- [x] (valid-no-repro) `MatchesAnyCommaSeparatedKey` — comma literal secret — **cheap-disproof 2026-10-22 thorough hunt.**
-- [x] (valid-no-repro) `ApiKeyAuthenticationHandler` — empty slot reload — **cheap-disproof 2026-10-22 thorough hunt.**
-- [x] (valid-no-repro) `AdminApiKeySettingsController` — rotation cancel before audit — **cheap-disproof 2026-10-22 thorough hunt.**
+- (candidate) `ApiKeyAuthenticationHandler.HandleAuthenticateAsync` — identical `AdminKey` and `ReadOnlyKey` with both slots non-expired grants admin permissions — locus: admin branch precedes reader; input: misconfigured Key Vault with same material in both slots (may be intentional overlap semantics).
+- (candidate) `AdminApiKeySettingsService.Rotate` — append rotation omits expiry metadata in response — locus: `AdminApiKeyRotateResponse`; input: operator append-rotates without updating `*ExpiresAt` fields.
+- (candidate) `MatchesAnyCommaSeparatedKey` — comma in literal secret cannot authenticate as one value — locus: comma splits config segments; input: operator provisions comma-containing secret (documented rotation delimiter).
+- (candidate) `ApiKeyAuthenticationHandler` — configuration reload to empty normalized slot fails all requests without distinct misconfiguration signal — locus: `CurrentValue` + `MatchesAnyCommaSeparatedKey`; input: transient empty `AdminKey` during reload.
+- (candidate) `AdminApiKeySettingsController` — cancellation between `Rotate` and audit after client disconnect — locus: synchronous rotate then cancellable audit; input: aborted HTTP request (no key returned to client when audit throws).
 
 - **id:** api-key-auth
 - **status:** open
@@ -4500,10 +3609,10 @@
 - **aliases:** API key auth; admin API key settings
 - **paths:** ArchLucid.Api/Authentication/ApiKeyAuthenticationHandler.cs; ArchLucid.Api/Services/Admin/AdminApiKeySettingsService.cs; ArchLucid.Api/Controllers/Admin/AdminApiKeySettingsController.cs
 - **test-filter:** FullyQualifiedName~ApiKeyAuthentication|FullyQualifiedName~AdminApiKeySettings
-- **hunts:** 92
+- **hunts:** 80
 - **bugs-found:** 23
-- **consecutive-dry-hunts:** 11
-- **last-hunt:** 2026-10-22
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-20
 - **last-bug:** 2026-10-20 — hex API key material rejected when config/header casing differed
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -4542,69 +3651,21 @@
 
 2026-10-10 seed hunt (seed-only): re-read shared-slot precedence, comma-delimited rotation material, append rotation, cancellation, expiry, and the admin settings routes. Existing coverage establishes shared-key admin precedence with expired-admin read-only fallback; no fresh hunt-ready row met the full reachability and wrong-outcome bar. No production code changed. The focused API test command was blocked before execution by unrelated `IActorContext` compile errors in `TenantTrialControllerTests`.
 
-- [x] (valid-no-repro) `ApiKeyAuthenticationHandler.HandleAuthenticateAsync` — shared admin/reader material precedence — **cheap-disproof 2026-10-22 thorough hunt.**
-- [x] (invalid) `ApiKeyMaterialNormalizer.Normalize` — stripping broadens equivalence — **cheap-disproof 2026-10-22 thorough hunt:** intentional symmetric normalization.
-- [x] (valid-no-repro) `ApiKeyAuthenticationHandler.MatchesAnyCommaSeparatedKey` — comma in secret — **cheap-disproof 2026-10-22 thorough hunt.**
-- [x] (valid-no-repro) `AdminApiKeySettingsService.Rotate` — append without expiry metadata — **cheap-disproof 2026-10-22 thorough hunt.**
-- [x] (valid-no-repro) `AdminApiKeySettingsController` — cancellation after `Rotate` before audit — **cheap-disproof 2026-10-22 thorough hunt.**
-
-- [x] (valid-no-repro) `ApiKeyAuthenticationHandler` — both slots unconfigured — **cheap-disproof 2026-10-22 #2.**
-- [x] (valid-no-repro) `AdminApiKeySettingsService.Rotate` — trailing comma append — **cheap-disproof 2026-10-22 #2.**
-- [x] (invalid) `ExtractProvidedApiKey` — invisible-first duplicate header — **cheap-disproof 2026-10-22 #2.**
-- [x] (valid-no-repro) `ApiKeyAuthenticationHandler` — per-segment admin expiry — **cheap-disproof 2026-10-22 #2.**
-- [x] (invalid) `GetSnapshot` invisible segments — **cheap-disproof 2026-10-22 #2.**
-
-- [x] (valid-no-repro) `ApiKeyAuthenticationHandler` — `DevelopmentBypassAll` — **cheap-disproof 2026-10-22 #3:** documented opt-in; Production blocked.
-- [x] (valid-no-repro) `AdminApiKeySettingsService.Rotate` — append stale segments — **cheap-disproof 2026-10-22 #3:** rotation contract.
-- [x] (valid-no-repro) `ApiKeyAuthenticationHandler` — test actor header — **cheap-disproof 2026-10-22 #3:** intentional display-name override.
-- [x] (valid-no-repro) `ApiKeyAuthenticationHandler.ConstantTimeKeyEquals` — digest compare — **cheap-disproof 2026-10-22 #3:** SHA-256 + `FixedTimeEquals`.
-- [x] (valid-no-repro) `AdminApiKeySettingsController` — plaintext rotate response — **cheap-disproof 2026-10-22 #3:** admin settings boundary.
-
-- [x] (invalid) `ApiKeyAuthenticationHandler.IsKeyExpired` — boundary expiry — **cheap-disproof 2026-10-22 #4:** proven inclusive expiry.
-- [x] (valid-no-repro) `ApiKeyAuthenticationHandler` — whitespace-only header — **cheap-disproof 2026-10-22 #4:** empty extract.
-- [x] (valid-no-repro) `AdminApiKeySettingsService.Rotate` — unknown slot — **cheap-disproof 2026-10-22 #4:** `ParseSlot`.
-- [x] (valid-no-repro) `ApiKeyAuthenticationHandler` — expired admin reader differs — **cheap-disproof 2026-10-22 #4:** reader path.
-- [x] (invalid) `ApiKeyAuthenticationOptions` reload — **cheap-disproof 2026-10-22 #4:** monitor reload regression.
-
-- [x] (valid-no-repro) `ApiKeyAuthenticationHandler` — both slots expired — **cheap-disproof 2026-10-22 #5:** admin-expired message precedence.
-- [x] (valid-no-repro) `AdminApiKeySettingsService.Rotate` — empty comma segments — **cheap-disproof 2026-10-22 #5:** replace-not-append.
-- [x] (valid-no-repro) `ApiKeyAuthenticationHandler` — null admin expiry — **cheap-disproof 2026-10-22 #5:** no TTL by design.
-- [x] (invalid) `AdminApiKeySettingsController.RotateKeyIdAsync` — audit slot casing — **cheap-disproof 2026-10-22 #5:** proven canonical audit.
-- [x] (invalid) `ApiKeyAuthenticationHandler` — duplicate headers — **cheap-disproof 2026-10-22 #5:** first-value regression.
-
-- [x] (valid-no-repro) `ApiKeyAuthenticationHandler` — reader expired — **cheap-disproof 2026-10-22 #6.**
-- [x] (valid-no-repro) `ApiKeyAuthenticationHandler` — disabled fail-closed — **cheap-disproof 2026-10-22 #6.**
-- [x] (valid-no-repro) `AdminApiKeySettingsService.GetSnapshot` — expiry on unconfigured — **cheap-disproof 2026-10-22 #6.**
-- [x] (invalid) `ApiKeyMaterialGenerator.GenerateHexKey` — lowercase hex — **cheap-disproof 2026-10-22 #6.**
-- [x] (valid-no-repro) `ApiKeyAuthenticationHandler` — reader permissions — **cheap-disproof 2026-10-22 #6.**
-
-- [x] (valid-no-repro) `ApiKeyAuthenticationHandler` — Production test actor guard — **cheap-disproof 2026-10-22 #7.**
-- [x] (valid-no-repro) `ApiKeyAuthenticationHandler` — distinct reader when admin expired — **cheap-disproof 2026-10-22 #7.**
-- [x] (valid-no-repro) `MatchesAnyCommaSeparatedKey` — second segment — **cheap-disproof 2026-10-22 #7.**
-- [x] (valid-no-repro) `AdminApiKeySettingsService.Rotate` — invalidate previous — **cheap-disproof 2026-10-22 #7.**
-- [x] (valid-no-repro) `ApiKeyAuthenticationHandler` — missing header — **cheap-disproof 2026-10-22 #7.**
-
-- [x] (valid-no-repro) `ApiKeyAuthenticationHandler` — wrong key — **cheap-disproof 2026-10-22 #8.**
-- [x] (valid-no-repro) `ApiKeyAuthenticationHandler` — admin permissions — **cheap-disproof 2026-10-22 #8.**
-- [x] (valid-no-repro) `AdminApiKeySettingsService.Rotate` — append comma — **cheap-disproof 2026-10-22 #8.**
-- [x] (invalid) `ApiKeyMaterialNormalizer` — embedded BOM — **cheap-disproof 2026-10-22 #8.**
-- [x] (valid-no-repro) `ApiKeyAuthenticationHandler` — blank test actor — **cheap-disproof 2026-10-22 #8.**
-
-- [ ] (candidate) `ApiKeyAuthenticationHandler` — `AllowTestActorHeaders` with bypass still overrides display name — locus: `BuildSuccessTicket` ~128–131; input: `When_development_bypass_and_allow_test_actor_headers_overrides_display_name`.
-- [ ] (candidate) `AdminApiKeySettingsService.Rotate` — `ParseSlot` accepts `ReadOnly`/`Admin` case-insensitive — locus: `ParseSlot` ~90–100; input: body slot `"readonly"` rotation issues append/replace material.
-- [ ] (candidate) `ApiKeyAuthenticationHandler` — `IsKeyExpired` uses `TimeProvider` not `DateTime.UtcNow` — locus: `IsKeyExpired` ~239–240; input: frozen clock boundary regressions `When_admin_key_expiry_is_exactly_now_returns_failure`.
-- [ ] (candidate) `AdminApiKeySettingsController` — rotation audit includes `configPath` not secret material — locus: `CreateRotationAuditEvent` data ~63–68; input: audit search must not surface `PlaintextKey` (hunt #10 class).
-- [ ] (candidate) `ApiKeyMaterialGenerator.GenerateHexKey` — rotation issues 64-char lowercase hex — locus: generator used by `Rotate` ~34; input: pairs with hex normalizer hit 2026-10-20 (intentional contract).
+- [ ] (candidate) `ApiKeyAuthenticationHandler.HandleAuthenticateAsync` — if deployment configuration assigns the same material to `AdminKey` and `ReadOnlyKey`, the first matching branch grants the admin permission set rather than rejecting the ambiguous configuration or selecting the least-privileged role — locus: `matchesAdmin` is evaluated before `matchesReader`; input: a Key Vault or app-configuration deployment with identical non-empty values in both slots and an inbound `X-Api-Key` using that material.
+- [ ] (candidate) `ApiKeyMaterialNormalizer.Normalize` — stripping control/format characters makes a configured key containing such a character authenticate with the visually cleaned inbound value, creating an equivalence class broader than the operator’s exact secret — locus: `RemoveInvisibleKeyMaterialChars` is applied to both config segments and headers; input: an operator-provided `Authentication:ApiKey:AdminKey` value containing a control or format character and a request header from a normal HTTP client.
+- [ ] (candidate) `ApiKeyAuthenticationHandler.MatchesAnyCommaSeparatedKey` — a comma in configured key material is always treated as a rotation delimiter, so a deployment that provisions a literal comma-containing secret cannot authenticate that secret as one value — locus: every comma terminates a segment before normalization; input: a Key Vault/app-configuration API key containing a comma, followed by an `X-Api-Key` header containing the same value.
+- [ ] (candidate) `AdminApiKeySettingsService.Rotate` — non-invalidating rotation returns an append suffix without carrying expiry metadata, so an operator applying the returned deployment material may leave the newly generated key governed by an old slot expiry — locus: `AdminApiKeyRotateResponse` contains `AppendConfigSuffix` but no replacement expiry; input: an admin settings request with an existing configured key and an expiry timestamp, followed by applying the response through deployment configuration.
+- [ ] (candidate) `AdminApiKeySettingsController.LogRotationAuditAsync` — cancellation after material generation but before audit persistence can return no rotation response while the request has already crossed the controller’s issuance boundary, leaving a material-issuance operation without an audit row — locus: the service generates the plaintext before the cancellable audit call; input: an HTTP client disconnect/cancellation during `POST /v1/admin/settings/api-keys/rotate` or the legacy key-id route.
 
 - [x] (proven) `AdminApiKeySettingsController.RotateKeyIdAsync` — legacy route audit JSON used the raw `keyId` while `AdminApiKeySettingsService.ParseSlot` canonicalized whitespace and casing for the response — **hit 2026-10-11 thorough hunt:** audit `keyId` now uses `response.Slot`; regression `RotateKeyIdAsync_persisted_audit_uses_canonical_slot_for_padded_route_value`.
 
 2026-10-09 seed hunt (seed-only): re-read the selected API-key handler, admin service/controller, and focused tests; no new reachable mechanism-backed candidate emerged and no hypothesis was promoted. The focused API test run was blocked by unrelated `ARCH002` in `ArchLucid.Core/Auth/Saml/SamlMetadataDiscoveryParser.cs`.
 
-- [x] (valid-no-repro) `ApiKeyAuthenticationHandler` — shared secret admin-wins duplicate — **cheap-disproof 2026-10-22 thorough hunt.**
-- [x] (valid-no-repro) `AdminApiKeySettingsService.Rotate` — append preserves comma segments — **cheap-disproof 2026-10-22 thorough hunt.**
-- [x] (invalid) `AdminApiKeySettingsController.RotateKeyIdAsync` — raw `keyId` audit — **cheap-disproof 2026-10-22 thorough hunt.**
-- [x] (valid-no-repro) `ApiKeyAuthenticationHandler` — empty slot on reload — **cheap-disproof 2026-10-22 thorough hunt.**
-- [x] (valid-no-repro) `AdminApiKeySettingsService.GetSnapshot` — expiry offset display — **cheap-disproof 2026-10-22 thorough hunt.**
+- [ ] (candidate) `ApiKeyAuthenticationHandler.HandleAuthenticateAsync` — when the same secret is configured in both `AdminKey` and `ReadOnlyKey`, the admin branch wins and grants admin permissions to a key intended for read-only use — locus: ordered `matchesAdmin` before `matchesReader` branches; input: identical `Authentication:ApiKey:AdminKey` and `ReadOnlyKey` configuration.
+- [ ] (candidate) `AdminApiKeySettingsService.Rotate` — append rotation preserves the full raw configured key string, so a stale or malformed comma-separated segment can survive every non-invalidating rotation and continue affecting authentication — locus: `AppendConfigSuffix` built from `current`; input: operator rotates through the admin settings endpoint with an existing multi-segment key configuration.
+- [ ] (candidate) `AdminApiKeySettingsController.RotateKeyIdAsync` — the legacy route records the unbounded route `keyId` in audit JSON even when slot parsing rejects it, creating an audit-shape difference from the validated rotate route — locus: audit payload uses raw `keyId` after `Rotate`; input: attacker-controlled invalid `keyId` path segment on `/admin/apikeys/{keyId}/rotate`.
+- [ ] (candidate) `ApiKeyAuthenticationHandler.HandleAuthenticateAsync` — configuration reload can observe `Enabled=true` with an empty or normalized-empty key slot and fail all requests without distinguishing an operator-visible misconfiguration from invalid credentials — locus: `CurrentValue` read followed by key matching; input: Key Vault/app-configuration reload that temporarily publishes an empty `AdminKey` or `ReadOnlyKey`.
+- [ ] (candidate) `AdminApiKeySettingsService.GetSnapshot` — expiration metadata is returned without normalizing or validating its offset, so a configuration value representing the same instant with a non-UTC offset may display inconsistently with the handler’s UTC comparison — locus: `BuildSlot` passes `expiresAtUtc` through unchanged; input: JSON/config binding of an offset `DateTimeOffset` expiry from deployment configuration.
 
 2026-10-05 seed hunt (seed→hit): embedded Unicode line separator (U+2028) in configured key material broke auth while admin snapshot still showed configured; strip `LineSeparator`/`ParagraphSeparator` in `ApiKeyMaterialNormalizer`; regressions `When_admin_key_config_has_embedded_line_separator_still_authenticates`, `Normalize_strips_embedded_line_separator_from_key_material`, `GetSnapshot_treats_line_separator_only_readonly_slot_as_unconfigured`; 69 scoped unit tests passed (2 endpoint tests failed — no SQL Server in cloud VM).
 
@@ -5156,24 +4217,11 @@
 ---
 
 ## Zone: saml-jwt-bearer
-
-2026-10-23 seed hunt (seed→hit): proved `TryParseBearerCredentials` left a UTF-8 BOM before `Bearer` on the credential segment, so the scheme was misclassified as non-Bearer and SCIM auth failed; strip `\uFEFF` before `TryReadBearerCredentialSegment`; regression `HandleAuthenticateAsync_succeeds_when_bearer_scheme_is_prefixed_with_utf8_bom`; cheap-disproof closed five open `(candidate)` rows; push worktree `ScimBearerAuthenticationHandlerTests` passed. Private beta: SCIM Bearer auth tolerates BOM-prefixed Authorization values from misconfigured gateways.
-
-- [x] (proven) `ScimBearerAuthenticationHandler.TryParseBearerCredentials` — UTF-8 BOM before `Bearer` — **hit 2026-10-23 seed hunt:** `TrimStart('\uFEFF')` on comma-split segments; regression `HandleAuthenticateAsync_succeeds_when_bearer_scheme_is_prefixed_with_utf8_bom`.
-- [x] (valid-no-repro) `ScimBearerAuthenticationHandler` — separate `Authorization` values revoked then valid — **cheap-disproof 2026-10-23:** covered by `HandleAuthenticateAsync_succeeds_when_separate_authorization_headers_list_revoked_token_before_valid_one` (shipped 2fa38ee).
-- [x] (invalid) `ScimBearerAuthenticationHandler` — lowercase `bearer` glued to token without whitespace — **cheap-disproof 2026-10-23:** not valid HTTP auth scheme grammar.
-- [x] (valid-no-repro) `ArchLucidSamlInboundClaimsNormalizer` — N vs D scope GUID ambiguity — **cheap-disproof 2026-10-23:** requires exactly one non-empty distinct incoming value.
-- [x] (valid-no-repro) `SamlMetadataValidUntilParser` / `PlatformUserAuthVersionValidator` — **cheap-disproof 2026-10-23:** diagnostics / opaque-subject contract; not SCIM Bearer parse defects.
-
-- (candidate) `ScimBearerAuthenticationHandler` — comma-folded header lists non-Bearer credential before valid Bearer segment (proxy appends `Basic` then `Bearer`).
-- (candidate) `LocalTrialJwtIssuer` — trial access token `sub` without platform-user GUID still accepted when `JwtLocalIssuer` matches development bypass path.
-- (candidate) `ArchLucidSamlInboundClaimsNormalizer` — promotes workspace scope when inbound `tenant_id` source claim is empty string vs absent.
-- (candidate) `ScimBearerTokenAuthenticator` — revoked token row still authenticates when Argon verify uses wrong pepper version (migration window).
-- (candidate) `SamlMetadataValidUntilParser` — `validUntil` on `KeyDescriptor` ignored when entity-level attribute is later but signing cert `NotAfter` is earlier.
-
-2026-10-23 seed hunt (seed→hit, ledger catch-up): tab-separated `Bearer` scheme shipped on `bugsmash-2` @ 2fa38ee; ledger documents `TryReadBearerCredentialSegment` and regressions `HandleAuthenticateAsync_succeeds_when_bearer_scheme_uses_tab_separator`.
-
-- [x] (proven) `ScimBearerAuthenticationHandler` — literal space after `Bearer` only — **hit 2026-10-23 (shipped 2fa38ee):** `TryReadBearerCredentialSegment`; regression `HandleAuthenticateAsync_succeeds_when_bearer_scheme_uses_tab_separator`.
+- (candidate) `ScimBearerAuthenticationHandler` — separate `Authorization` header values (HTTP field combination) with revoked Bearer in first value and valid Bearer in second — locus: `TryParseBearerCredentials` multi-value loop; input: parity with comma-folded revoked-then-valid regression (verify explicit dual-header regression).
+- (candidate) `ScimBearerAuthenticationHandler` — comma-folded segment using `bearer` lowercase scheme prefix without space after scheme — locus: `StartsWith("Bearer ")` case-insensitive; input: proxy rewrites scheme casing.
+- (candidate) `ArchLucidSamlInboundClaimsNormalizer.PromoteSingleValueIfMissing` — IdP emits two scope source GUIDs differing only by format (N vs D) treated as ambiguous — locus: `Distinct(StringComparer.OrdinalIgnoreCase)` on string values not Guid-normalized; input: reachable duplicate attribute values on SAML assertion.
+- (candidate) `SamlMetadataValidUntilParser` — operational expiry ignores `KeyDescriptor` / signing cert `NotAfter` when entity `validUntil` is later — locus: `ResolveValidUntilAttribute`; input: metadata-only diagnostics not runtime auth bypass.
+- (candidate) `PlatformUserAuthVersionValidator` — non-Guid JWT `sub` skips auth-version stamp enforcement — locus: `Guid.TryParse(subject)` early return; input: intentional opaque CIAM subjects vs platform-user GUID contract.
 
 2026-10-21 thorough hunt (hit): `saml-jwt-bearer` — promoted comma-folded `Authorization` with revoked/invalid first Bearer segment and valid second segment (`ScimBearerAuthenticationHandler.TryEnumerateBearerTokens` stopped after first token); authenticate each parsed Bearer until `IScimBearerTokenAuthenticator` succeeds; regression `HandleAuthenticateAsync_succeeds_when_comma_folded_header_lists_revoked_token_before_valid_one`; cheap-disproof closed open `(candidate)` rows (SamlSpConfigurationDiagnostics “No root validUntil” copy is intentional when attribute absent; `RecentAuthenticationEvaluator` `iat` Integer64 without `auth_time` already honored via `long.TryParse` + `HasRecentAuthentication_returns_true_when_later_iat_is_fresh_among_multiple_values_without_auth_time`; duplicate `archlucid_auth_ver` not injectable on signed JWT principals; `SamlMetadataDiscoveryParser` multi-`EntityDescriptor` throw intentional); `ScimBearerAuthenticationHandlerTests` 3/3 + `ScimBearer` Application tests 2/2 + scoped SAML/JWT/SCIM Api filter 98 passed (4 SQL/integration baseline failures on Linux VM); seeded five follow-on `(candidate)` rows.
 
@@ -5185,17 +4233,23 @@
 - [x] (invalid) `PlatformUserAuthVersionJwtBearerPostConfigure` duplicate `archlucid_auth_ver` on constructed principals — **cheap-disproof 2026-10-21:** JWT pipeline supplies single claim; validator not reachable with attacker-injected duplicate on signed tokens.
 - [x] (invalid) `SamlMetadataDiscoveryParser` multi-`EntityDescriptor` federation throw — **cheap-disproof 2026-10-21:** intentional discovery guard; not a runtime auth bypass.
 
+- (candidate) `ScimBearerAuthenticationHandler` — comma-folded header lists non-Bearer credential before valid Bearer segment (proxy appends `Basic` then `Bearer`).
+- (candidate) `LocalTrialJwtIssuer` — trial access token `sub` without platform-user GUID still accepted when `JwtLocalIssuer` matches development bypass path.
+- (candidate) `ArchLucidSamlInboundClaimsNormalizer` — promotes workspace scope when inbound `tenant_id` source claim is empty string vs absent.
+- (candidate) `ScimBearerTokenAuthenticator` — revoked token row still authenticates when Argon verify uses wrong pepper version (migration window).
+- (candidate) `SamlMetadataValidUntilParser` — `validUntil` on `KeyDescriptor` ignored when entity-level attribute is later but signing cert `NotAfter` is earlier.
+
 - **id:** saml-jwt-bearer
 - **status:** open
 - **impact:** high
 - **aliases:** SAML; trial JWT; SCIM bearer; OIDC auth stack
 - **paths:** ArchLucid.Api/Auth/; ArchLucid.Core/Auth/Saml/
 - **test-filter:** FullyQualifiedName~Saml|FullyQualifiedName~LocalTrialJwt|FullyQualifiedName~ScimBearer
-- **hunts:** 29
-- **bugs-found:** 26
+- **hunts:** 27
+- **bugs-found:** 24
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-23
-- **last-bug:** 2026-10-23 — SCIM Bearer rejected UTF-8 BOM before Bearer scheme
+- **last-hunt:** 2026-10-20
+- **last-bug:** 2026-10-21 — SCIM Bearer auth failed when comma-folded Authorization listed a revoked Bearer before a valid one
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -5331,21 +4385,13 @@
 - **aliases:** tenant export; run export; export SSRF
 - **paths:** ArchLucid.Application/Exports/; ArchLucid.Api/Controllers/Authority/ExportsController.cs; ArchLucid.Api/Controllers/Authority/ArchitectureExportController.cs; ArchLucid.Api/Controllers/Authority/RunsExportController.cs; ArchLucid.Core/Security/AllowedRunExportBlobDestinationUrlPolicy.cs
 - **test-filter:** FullyQualifiedName~ArchitectureReviewExport|FullyQualifiedName~ExportsController|FullyQualifiedName~AllowedRunExportBlobDestinationUrlPolicy
-- **hunts:** 947
-- **bugs-found:** 60
+- **hunts:** 943
+- **bugs-found:** 57
 - **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — run export blob push HttpClient omitted connect-time private-network guard after DNS pre-check
+- **last-hunt:** 2026-10-12
+- **last-bug:** 2026-10-06 — export replay and run-summary routes omitted CareerArtifactExportBlocked 409 mapping
 - **related-pd-tb:** none
 - **code-changed-since:** yes
-
-2026-10-22 thorough hunt (dry): all three picker candidates cheap-disproved or documented; DNS pin TOCTOU (`valid-no-repro` — connect-time `OutboundHttpsConnectGuard` plus pre-PUT DNS guard matches TB-274 integration posture; no pinned-resolution transport in repo); compare-summary formatter-before-persist (`invalid` — `FormatMarkdown` runs before `RecordExportDiffAsync`; formatter throw yields 500 without audit row); percent-encoded/mixed-case blob hosts (`valid-no-repro` — percent-encoded dot hosts fail `Uri.TryCreate`; mixed-case Azure suffix still allowlisted; regressions `TryGetRejectionReason_WhenPercentEncodedDotsInHost_RejectsAsInvalidAbsoluteUrl` and `TryGetRejectionReason_WhenMixedCaseAzureBlobHost_Allows`); 32 scoped export tests passed (Application + Api + Core).
-
-2026-10-22 thorough hunt (hit): promoted `RunExportBlobPushService` DNS-rebind gap candidate; proved `RunExportBlobPush` `HttpClient` registered without `rejectPrivateNetworkConnectEndpoints` while `PushAsync` DNS-validates then `PutAsync` re-resolves; aligned with TB-274 integration clients by wiring `OutboundHttpsConnectGuard` on the named client; regression `RunExportBlobPush_http_client_wires_private_network_connect_guard`; cheap-disproof closed compare-summary persist vs career ordering (`EnsureCareerAllowsExportRecordMetadataOrThrowAsync` runs before `CompareAsync`) and `ArchitectureReviewExportService` sibling routes (`RunsExportController.Export` maps `CareerArtifactExportBlockedException`; `ArchitectureExportController` only exposes `ExportRunSummary`); 30 scoped export tests passed (Application + Api + Core + composition guard test).
-
-2026-10-22 thorough hunt (hit): promoted `AllowedRunExportBlobDestinationUrlPolicy` blob-account-label candidate; proved `https://127.0.0.1.blob.core.windows.net/...` passed sync allowlist because only the full host was checked while the account label is a forbidden loopback literal; reject forbidden literals on extracted account labels for both Azure blob host suffixes; regression `TryGetRejectionReason_WhenIpv4LiteralIsBlobAccountLabel_Rejects`; cheap-disproof closed compare diff malformed-GUID guard order, metadata replay lifecycle 409 parity, and IDN-only bypass; 29 scoped export tests passed (Application + Api + Core).
-
-2026-10-22 thorough hunt (hit): promoted `RunExportQueryFacade.ReplayExportAsync` lifecycle parity candidate; proved replay delegated to `ExportReplayService` after lineage/hash guard while `GetExportRecordAsync` already enforced `TryEnsureExportRunLifecycleCompleteAsync`; aligned replay with metadata read paths; regression `ReplayExportAsync_returns_lineage_unverified_when_authority_lifecycle_not_complete`; cheap-disproof closed `GetExportRecord` career gap (facade `EnsureCareerAllowsExportRecordMetadataOrThrowAsync` + controller catch), `ArchitectureExportController` review markdown (`CareerArtifactExportBlockedException` mapped on `ExportRunSummary`), `RunsExportController` career parity (`CareerArtifactExportBlockedException` catch on run export), and whitespace-padded `is_sample_run` string tokens (`double.TryParse` already coerces `" 1 "`); regression `ResolveFromDeltasJson_blocks_sample_run_when_is_sample_run_string_one_with_surrounding_whitespace`; 35 scoped export tests passed (Application + Api + Core).
 
 2026-10-12 thorough hunt (dry): `tenant-data-export` — all five picker candidates were inspected; the `RunsExportController` career-block mapping candidate was plausible, but its focused repro could not execute because the API test build stopped on unrelated `AzureInventorySecurityEdgeMaterializer.cs` compile errors (`unmappedRoles` and `warnings`). No production change was made and all candidates remain unpromoted.
 
@@ -7301,27 +6347,11 @@
 - [x] (valid-no-repro) `ExportBundleCareerPostureResolver.TryParseJsonBoolean` — string `"1.00"` / `"01"` for `is_sample_run` — **cheap-disproof 2026-10-06 thorough hunt:** invariant-culture whole-number string coercion after #3469/`"1.0"` fix already treats both as true; regression `ResolveFromDeltasJson_blocks_when_is_sample_run_string_coerces_to_non_zero`.
 - [x] (proven) `ArchitectureExportController.ExportRunSummary` — missing career-blocked HTTP mapping — **hit 2026-10-06 thorough hunt:** `RunSummaryOnePagerExportService` calls `CareerArtifactExportCompletenessGate` but controller only mapped `ConflictException`; regression `ExportRunSummary_returns_409_when_career_export_blocked`.
 
-- [x] (invalid) `ExportsController.GetExportRecord` — returns export-record JSON metadata without career posture check — **cheap-disproof 2026-10-22 thorough hunt:** `RunExportQueryFacade.GetExportRecordAsync` calls `EnsureCareerAllowsExportRecordMetadataOrThrowAsync`; `ExportsController` maps `CareerArtifactExportBlockedException` to 409; existing `GetExportRecordAsync_throws_when_career_posture_blocks_metadata_read`.
-- [x] (proven) `RunExportQueryFacade.ReplayExportAsync` — no lifecycle Complete guard before `ExportReplayService` — **hit 2026-10-22 thorough hunt:** replay ran after sealed-hash verification while lifecycle-incomplete runs already blocked on metadata read; added `TryEnsureExportRunLifecycleCompleteAsync` parity; regression `ReplayExportAsync_returns_lineage_unverified_when_authority_lifecycle_not_complete`.
-- [x] (invalid) `ArchitectureReviewExportService` / review markdown export — API controller missing `CareerArtifactExportBlockedException` mapping — **cheap-disproof 2026-10-22 thorough hunt:** `ArchitectureExportController.ExportRunSummary` catches and maps to `CareerArtifactBlockedProblem`; prior hit #3467 on same route.
-- [x] (valid-no-repro) `ExportBundleCareerPostureResolver.TryParseJsonBoolean` — whitespace-padded numeric string tokens (`" 1 "`, `" 1.0 "`) — **cheap-disproof 2026-10-22 thorough hunt:** invariant-culture `double.TryParse` on string elements already coerces padded whole numbers; regression `ResolveFromDeltasJson_blocks_sample_run_when_is_sample_run_string_one_with_surrounding_whitespace`.
-- [x] (invalid) `RunsExportController` — run export helpers omit career posture parity — **cheap-disproof 2026-10-22 thorough hunt:** `RunsExportController.Export` catches `CareerArtifactExportBlockedException`; regression `RunsExportControllerTests` career-block mapping.
-
-- [x] (invalid) `RunExportQueryFacade.CompareExportRecordsAsync` — lifecycle vs career order with malformed GUID — **cheap-disproof 2026-10-22 thorough hunt:** persisted export `RunId` values are authority guids; `Guid.TryParse` failure skips lifecycle and career gates together; no metadata diff leak path.
-- [x] (invalid) `ExportsController.ReplayExportRecordMetadata` — metadata replay missing lifecycle 409 parity — **cheap-disproof 2026-10-22 thorough hunt:** controller maps `LineageUnverified` to `MapExportReplaySealedManifestConflict` on metadata replay; lifecycle regression uses same outcome after replay facade fix.
-- [x] (proven) `AllowedRunExportBlobDestinationUrlPolicy` — IPv4 literal storage account label before `.blob.core.windows.net` bypassed sync host checks — **hit 2026-10-22 thorough hunt:** `127.0.0.1.blob.core.windows.net` was allowed because suffix matched while account label is a forbidden loopback literal; extract account label and apply `PrivateNetworkAddressGuard` before allowlist; regression `TryGetRejectionReason_WhenIpv4LiteralIsBlobAccountLabel_Rejects`.
-
-- [x] (proven) `RunExportBlobPushService` — DNS pre-check and `HttpClient.PutAsync` without connect-time guard — **hit 2026-10-22 thorough hunt:** `RunExportBlobPush` client omitted `rejectPrivateNetworkConnectEndpoints` while other integration outbound clients wire `OutboundHttpsConnectGuard`; enabled connect-time private-network rejection on the named client; regression `RunExportBlobPush_http_client_wires_private_network_connect_guard`.
-- [x] (invalid) `ExportsController.CompareExportRecordsSummary` — persist path audits before career 409 — **cheap-disproof 2026-10-22 thorough hunt:** `CompareExportRecordsSummaryAsync` invokes career gates before `CompareAsync` and audit persistence; hypothesis misread guard order.
-- [x] (invalid) `ArchitectureReviewExportService` — sibling routes missing career HTTP mapping — **cheap-disproof 2026-10-22 thorough hunt:** review docx/pdf/html export is `RunsExportController.Export` with `CareerArtifactExportBlockedException` mapping; `ArchitectureExportController` has only `ExportRunSummary`.
-
-- [x] (valid-no-repro) `RunExportBlobPushService` — DNS validate then `PutAsync` without pinned resolution — **cheap-disproof 2026-10-22 thorough hunt:** connect-time private-network guard now wired on `RunExportBlobPush` client; full DNS pin-to-first-resolve is not used elsewhere and remains accepted residual TOCTOU for operator-supplied Azure SAS URLs.
-- [x] (invalid) `ExportsController.CompareExportRecordsSummary` — persist writes audit when formatter throws — **cheap-disproof 2026-10-22 thorough hunt:** `CompareExportRecordsSummaryAsync` formats markdown before `RecordExportDiffAsync`; formatter exceptions abort before persistence.
-- [x] (valid-no-repro) `AllowedRunExportBlobDestinationUrlPolicy` — percent-encoded dots / mixed-case hosts evade account-label guard — **cheap-disproof 2026-10-22 thorough hunt:** percent-encoded dot hosts fail absolute HTTPS parse; mixed-case suffix allowlist is intentional; regressions `TryGetRejectionReason_WhenPercentEncodedDotsInHost_RejectsAsInvalidAbsoluteUrl` and `TryGetRejectionReason_WhenMixedCaseAzureBlobHost_Allows`.
-
-- [ ] (candidate) `RunExportQueryFacade.GetRunExportHistoryAsync` — lineage verification skipped when `runId` parses as `AuthorityRunIdentifier` but not `Guid.TryParse`, leaving lifecycle-only guard for non-canonical guid text encodings.
-- [ ] (candidate) `ExportsController.CompareExportRecords` — sealed-manifest pre-check runs per export record id but does not verify both records belong to the same tenant scope before diff metadata compare.
-- [ ] (candidate) `AllowedRunExportBlobDestinationUrlPolicy` — blob host with trailing dot label (`acct.blob.core.windows.net.`) may pass suffix checks while DNS resolves differently from operator intent.
+- [ ] (candidate) `ExportsController.GetExportRecord` — returns export-record JSON metadata after sealed-manifest guard without career posture check; reachable when operators inspect persisted export rows for career-blocked runs (metadata read vs byte replay).
+- [ ] (candidate) `RunExportQueryFacade.ReplayExportAsync` — does not re-run lifecycle Complete guard before delegating to `ExportReplayService` when lineage/hash already verified; reachable if lifecycle regresses after export record was captured.
+- [ ] (candidate) `ArchitectureReviewExportService` / review markdown export — career gate in application service but API controller may not map `CareerArtifactExportBlockedException` to 409 on all routes (parity with `DocxExportController`).
+- [ ] (candidate) `ExportBundleCareerPostureResolver.TryParseJsonBoolean` — string values with leading/trailing whitespace around numeric tokens (`" 1 "`, `" 1.0 "`) may bypass sample-workspace block; reachable from hand-edited `pilot-run-deltas.json`.
+- [ ] (candidate) `RunsExportController` — run export listing or download helpers may omit career posture parity with `ArtifactExportController` run ZIP paths after recent RunArtifacts fixes; reachable on product routes under `/architecture/runs`.
 
 - [x] (valid-no-repro) `ClosedLoopArchitectureReasoningOrchestrator.RunAsync` / `ReviewCacheManifestBuilder.Build` — entry-time fingerprint snapshot — **closed 2026-10-05 thorough hunt (architecture-intelligence-orchestrator zone).**
 - [x] (valid-no-repro) `ReviewResultCache.PinScope` / composite pin cap — **closed 2026-10-05 thorough hunt (architecture-intelligence-orchestrator zone).**
@@ -7561,24 +6591,16 @@
 
 ## Zone: application-billing-logic
 
-2026-10-22 thorough hunt (dry): cheap-disproved five open `(candidate)` rows on `ArchLucid.Application/Billing/` (symmetric `CostRatesConfigured` I/O/reasoning slots, `ReasoningTokens` on top-run rows, intentional `DeferredGaDisabled` for missing `planId`, Free-tier guidance copy vs commercial widen branch, intentional raw `Status` on non-subscribed rows); scoped billing tests not executed on this checkout (Application Defender WIP compile errors); added five replacement `(candidate)` rows.
-
-- [x] (invalid) `AdminFleetLlmCogsService.CostRatesConfigured` — positive global output with zeroed input still reports missing rates — **cheap-disproof 2026-10-22:** `OutputUsdPerMillionTokens > 0m` in the same OR-chain as input/reasoning (~130–132); mirror regression `BuildDashboardAsync_treats_positive_global_input_rate_as_configured_when_output_is_zeroed_for_default_fallback`.
-- [x] (invalid) `TenantLlmCostTopRunRanker.TryBuildRow` — `LlmCostTopRunRowResponse` omits `ReasoningTokens` while tie-break counts them — **cheap-disproof 2026-10-22:** row assigns `ReasoningTokens = aggregate.ReasoningTokens` (~103); regression `RankAsync_includes_reasoning_only_runs_when_cost_rate_is_unavailable`.
-- [x] (valid-no-repro) `MarketplaceChangePlanWebhookMutationHandler.HandleAsync` — missing `planId` returns `DeferredGaDisabled` indistinguishable from GA-off — **cheap-disproof 2026-10-22:** intentional defer without ledger mutation; regression `Ga_enabled_missing_planId_defers_without_ledger_mutation`; Persistence maps deferred outcomes to acknowledged webhook rows.
-- [x] (invalid) `TenantCostEstimateService.TryGetEstimateAsync` — Free tier adds commercial Azure OpenAI widen copy — **cheap-disproof 2026-10-22:** Free branch adds zero-band guidance only (~42–45); widen copy is Standard/Enterprise `else` (~48–49); regression `TryGetEstimateAsync_free_tenant_returns_zero_band_with_guidance`.
-- [x] (valid-no-repro) `BillingCheckoutFacade.GetSubscriptionStatusAsync` — whitespace-only `Status` with `HasSubscription=false` still echoes raw status — **cheap-disproof 2026-10-22:** ledger writers persist canonical `Pending`/`Active`/`Suspended`/`Canceled`; prior hunt #1700 documented intentional lifecycle `Status` echo for pending/canceled.
-
 - **id:** application-billing-logic
 - **status:** open
 - **impact:** high
 - **aliases:** marketplace billing; checkout mutation; billing application layer
 - **paths:** ArchLucid.Application/Billing/
 - **test-filter:** FullyQualifiedName~Marketplace|FullyQualifiedName~BillingCheckout|FullyQualifiedName~TenantLlmCostReporting
-- **hunts:** 45
+- **hunts:** 44
 - **bugs-found:** 23
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-10-22
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-21
 - **last-bug:** 2026-10-21 — fleet COGS missing-rate when only global input rate configured
 - **related-pd-tb:** none
 
@@ -7643,11 +6665,11 @@
 - [x] (proven) `TenantCostEstimateService.TryGetEstimateAsync` — returns a non-zero Standard/Enterprise band when configured low/high rates are both zero (valid negatives already return null), surfacing a `0 — 0` commercial band without an explicit Free-tier style explanation. — **hit 2026-10-20 thorough hunt:** add unconfigured-rates guidance factor; regression `TryGetEstimateAsync_standard_tenant_with_zero_configured_rates_explains_unconfigured_band`.
 - [x] (proven) `AdminFleetLlmCogsService.CostRatesConfigured` — positive global input with zeroed output for default fallback still reported `missing-cost-rates` on fleet COGS rows — **hit 2026-10-21 seed hunt:** align configured check with `LlmCostEstimationEffectiveRates`; regression `BuildDashboardAsync_treats_positive_global_input_rate_as_configured_when_output_is_zeroed_for_default_fallback`.
 
-- [ ] (candidate) `BillingCheckoutFacade.BlocksNewCheckout` / `HasSubscriptionForStatusQuery` — padded ledger `Status` (for example ` Active `) is neither blocking nor subscribed — locus: exact `string.Equals` without trim (~178–188); input: corrupted subscription row; reachability: verify `BillingLedgerCore.WithStatus` always normalizes.
-- [ ] (candidate) `AdminFleetLlmCogsService.BuildDashboardAsync` — fleet-wide `CostRatesConfigured` flag is copied onto every tenant row — locus: single `CostRatesConfigured(costOpts)` before tenant loop (~45, ~82); input: per-deployment overrides in `LlmCostEstimationOptions.Deployments` affecting only some tenants.
-- [ ] (candidate) `TenantLlmCostReportingService.BuildDashboardAsync` — daily chart buckets always emit zero prompt/completion tokens while `TopRuns` may show nonzero usage — locus: daily row init (~71–77); input: dashboard where top runs carry token totals; reachability: pressure-based daily estimate contract.
-- [ ] (candidate) `MarketplaceChangeQuantityWebhookMutationHandler.HandleAsync` — gates on `AzureMarketplace.GaEnabled` only while `ChangePlan` uses `BillingPlanMutationPolicy.WebhookPlanMutationsEnabled` — locus: GA check ~28 vs plan handler ~34; input: Stripe provider with marketplace GA disabled (ledger #1700 may already close).
-- [ ] (candidate) `MarketplaceWebhookIntegrationEventPublisher.TryPublishAsync` — `messageId` is `{ProviderDedupeKey}:BillingMarketplaceWebhookReceivedV1` without empty-key guard — locus: ~41; input: webhook dispatch with blank dedupe key; reachability: `AzureMarketplaceBillingProvider` dedupe construction.
+- [ ] (candidate) `AdminFleetLlmCogsService.CostRatesConfigured` — positive global output with zeroed input for default fallback — locus: same method as input-only fix; input: `Billing:LlmCostEstimation:OutputUsdPerMillionTokens` set while input zeroed for rollback.
+- [ ] (candidate) `TenantLlmCostReportingService.BuildDashboardAsync` — `LlmCostTopRunRowResponse` omits `ReasoningTokens` on ranked rows while tie-break logic counts them — locus: `TenantLlmCostTopRunRanker.TryBuildRow`; input: reasoning-only traces on `GET /v1/tenant/llm-cost-reporting` Top Runs panel.
+- [ ] (candidate) `MarketplaceChangePlanWebhookMutationHandler.HandleAsync` — missing `planId` returns `DeferredGaDisabled` indistinguishable from GA-off deferral — locus: outcome after `TryGetPlanId` fails; input: Marketplace `ChangePlan` notification without `planId` when `BillingPlanMutationPolicy.WebhookPlanMutationsEnabled` is true.
+- [ ] (candidate) `TenantCostEstimateService.TryGetEstimateAsync` — Free-tier estimate always adds commercial Azure OpenAI widen copy even when band is `0 — 0` — locus: factors list line 30; input: `TenantTier.Free` tenant on Why ArchLucid cost guidance.
+- [ ] (candidate) `BillingCheckoutFacade.GetSubscriptionStatusAsync` — whitespace-only ledger `Status` yields `HasSubscription=false` but echoes raw status string — locus: `HasSubscriptionForStatusQuery`; input: corrupted ledger row with `Status` of spaces (no production writer; verify Persistence invariants).
 
 - (candidate) `ReplayComparisonExportsDiffSlice.BuildExportPairingKey` — `CompareManifestVersion` differing only by outer whitespace splits pairing — locus: trim vs normalize; input: same version with padded spaces on left/right exports.
 - (candidate) `EndToEndReplayComparisonService.BuildAsync` — report `LeftRunId`/`RightRunId` echo caller format while audit columns canonicalize — locus: report assembly; input: dashed API route ids in regenerated report body.
@@ -7663,11 +6685,12 @@
 - **aliases:** marketplace billing; checkout mutation; billing application layer
 - **paths:** ArchLucid.Application/Billing/
 - **test-filter:** FullyQualifiedName~Marketplace|FullyQualifiedName~BillingCheckout|FullyQualifiedName~TenantLlmCostReporting
-- **hunts:** 45
-- **bugs-found:** 23
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-21 — fleet COGS missing-rate when only global input rate configured
+- **hunts:** 43
+- **bugs-found:** 22
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-12
+- **last-hunt:** 2026-10-20
+- **last-bug:** 2026-10-20 — zero-config commercial cost band lacked guidance copy
 - **related-pd-tb:** none
 
 2026-10-11 seed hunt (seed-only): re-read the remaining billing interfaces, admin COGS tests, and scoped reporting edge cases; 26 scoped tests passed. No new row met the same-run failing-repro bar. Seeded two bounded candidates for requested dashboard-window clamping and suspended/offboarded tenant visibility.
@@ -9735,17 +8758,26 @@
 
 ## Zone: api-authority-admin-controllers
 
+2026-10-23 seed hunt (seed→hit): promoted `RunsController.RephraseClarificationAnswers` null `Items` collection gap (sibling `ApplyKnowledgeModelClarificationAnswers` already guarded); regression `RephraseClarificationAnswers_returns_bad_request_when_items_collection_is_null`; reseeded five follow-on `(candidate)` rows. Private beta: Invited operators rephrasing draft clarification answers no longer hit HTTP 500 when the UI or API client sends `"items": null`—they receive HTTP 400 validation like the apply-answers route.
+
+- [x] (proven) `RunsController.RephraseClarificationAnswers` — JSON `"items": null` dereferenced `input.Items.Count` and threw `NullReferenceException` instead of `400 ValidationFailed` — **hit 2026-10-23 seed hunt:** null guard before count check (parity with `ReviewClarificationQuestionsController.ApplyKnowledgeModelClarificationAnswers`); regression `RephraseClarificationAnswers_returns_bad_request_when_items_collection_is_null`
+- [ ] (candidate) `RunsController.ExplainStructuredBriefSuggestion` — null `SourceText` or `SuggestionText` after partial JSON bind — locus: `ValidateDraftFreeText` on nullable fields ~explain action; input: `{ "suggestionKind": "Constraint" }` without text fields; reachability: `POST /v1/runs/request/draft/suggestion/explain` OpenAPI.
+- [ ] (candidate) `RunsController.DraftRequest` — null `FreeTextDescription` passes `ValidateDraftFreeText` then calls `DraftAsync` with non-null assertion — locus: `DraftRequest` ~27–31; input: `{}` body; reachability: advisory draft intake on operator workspace.
+- [ ] (candidate) `AdminController.SuppressIntegrationOutboxDeadLetter` — `IntegrationOutboxDeadLetterSuppressRequest` body optional fields when body is `{}` vs null — locus: `SuppressIntegrationOutboxDeadLetterAsync(outboxId, body, ...)` ~92; input: suppress without JSON body on POST; wrong outcome: unhandled null vs intentional default suppress reason.
+- [ ] (candidate) `CollectionRunsController.TriggerAsync` — `request` omitted with valid `Idempotency-Key` — locus: `request?.SubscriptionIds ?? []` ~67; input: empty body trigger; wrong outcome: silent empty subscription list vs explicit validation when SecureNow expects at least one subscription.
+- [ ] (candidate) `AuthorityQueryController.RecordRunOperatorGovernanceDisposition` — `Disposition` enum string case / unknown value before service — locus: `RecordRunOperatorGovernanceDisposition` POST ~171; input: disposition value outside contract casing; wrong outcome: `500` from downstream `InvalidOperationException` vs `400 ValidationFailed` at controller edge.
+
 - **id:** api-authority-admin-controllers
 - **status:** open
 - **impact:** high
 - **aliases:** authority controllers; admin controllers
 - **paths:** ArchLucid.Api/Controllers/Authority/; ArchLucid.Api/Controllers/Admin/
 - **test-filter:** FullyQualifiedName~AuthorityController|FullyQualifiedName~AdminController
-- **hunts:** 63
-- **bugs-found:** 56
+- **hunts:** 64
+- **bugs-found:** 57
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 - trim AgentModelTiers AgentTypeTiers keys after configuration bind
+- **last-hunt:** 2026-10-23
+- **last-bug:** 2026-10-23 — rephrase clarification null Items caused 500 instead of validation
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -9954,88 +8986,6 @@
 ---
 
 ## Zone: api-governance-tenancy-controllers
-
-2026-10-23 seed hunt #10 (seed→hit): promoted `CreateGovernancePreviewRequestValidator` — Fluent `Environment` enum check used raw body text so `" dev "` failed validation while `GovernancePreviewService.PreviewActivationAsync` trims via `GovernanceEnvironment.NormalizeAndValidate` (promotion/activation parity); trim before `GovernanceEnvironment.IsKnown`; regression `Environment_with_surrounding_whitespace_or_different_casing_passes`. Private beta: governance preview POST accepts the same padded environment slugs operators already send on promote/activate routes instead of a spurious 400.
-
-- [x] (proven) `GovernancePreviewController.Preview` — environment slug surrounding whitespace rejected at Fluent validator — **hit 2026-10-23 seed hunt #10:** `CreateGovernancePreviewRequestValidator` trims before `IsKnown`; regression `Environment_with_surrounding_whitespace_or_different_casing_passes`.
-
-- [x] (valid-no-repro) `GovernanceDispositionSealedManifestGuard.EnsureRunSealedManifestHashOrThrowAsync` — null `detail` 409 — **cheap-disproof 2026-10-23 seed hunt #10:** fail-closed for non-HTTP facade callers by design; stickiness HTTP skips null detail before sync helper.
-- [x] (valid-no-repro) `GovernanceController.MutationCorrections` — sealed vs 404 ordering — **cheap-disproof 2026-10-23 seed hunt #10:** `EnsureSealedManifestReadAllowedAsync` returns null when `detail` null; `GovernanceRunScope.RequireScopedRunIdAsync` → `RunNotFoundException` → 404.
-- [x] (valid-no-repro) `TenantCustomerSuccessController` feedback POST scope — **cheap-disproof 2026-10-23 seed hunt #10:** `TenantWorkspaceScopePreflight` + scoped run/finding lookups ~38–76.
-- [x] (valid-no-repro) `GovernanceStickinessController.RecordDisposition` — nullable body `RunId` — **cheap-disproof 2026-10-23 seed hunt #10:** `EnsureRunMatchesFindingAuthorityRun` when finding authority-bound.
-- [x] (valid-no-repro) `GovernancePreviewController.Preview` — run id trim before sealed guard — **cheap-disproof 2026-10-23 seed hunt #10:** `GovernanceRunIdHttpParser.TryParseFromBody` normalizes `body.RunId` before guard ~79–84.
-
-- [ ] (candidate) `CreateGovernanceEnvironmentComparisonRequestValidator` — source/target environment slug trim parity with `CompareEnvironmentsAsync` — locus: `CreateGovernanceEnvironmentComparisonRequestValidator.cs`; input: padded `" dev "` vs promotion routes.
-- [ ] (candidate) `CreateGovernanceActivationRequestValidator` — environment slug trim parity — locus: `CreateGovernanceActivationRequestValidator.cs`; input: same padded slug class as preview fix.
-- [ ] (candidate) `GovernanceController.GetApprovalRequestRationale` — sealed guard vs missing approval 404 — locus: `GovernanceController.Insights.cs` ~229–235; input: null `approval.RunId` skip path.
-- [ ] (candidate) `TenantWorkspacesController.ListRecycleBinAsync` — tenant preflight ordering vs `GetCurrentScope` first — locus: `RetentionPurge.cs` ~25–35; input: confirm 404 parity with other recycle routes.
-- [ ] (candidate) `GovernancePreCommitSimulationController.SimulateAsync` — synthetic count upper bound vs `int.MaxValue` edge — locus: `GovernancePreCommitSimulationController.cs` ~238–246; input: contract test for max boundary.
-
-2026-10-22 seed hunt #9 (seed-only, picker `-Refresh`): refresh did not deprioritize mega-zone; re-read create-risk sealed layering, customer-success health scope, dry-run validation order, workspace inventory row preference, and disposition guard null golden handling; cheap-disproof closed five open `(candidate)` rows (facade `CreateRiskExceptionAsync` still 409 via `runIdForGuard`; health-score uses `TenantWorkspaceScopePreflight` ~21–33; `DryRunPolicyPack` validates run ids before sealed guard ~162–200; recycle-bin `preferInactiveScopedInventoryRow: true` intentional ~65; null `GoldenManifest` throws `ConflictException` ~49–52 mapped to 409 ~42–49); no hunt-ready row promoted; five replacement `(candidate)` rows; scoped Governance/Tenancy controller tests not run.
-
-- [x] (valid-no-repro) `GovernanceStickinessController.CreateRiskException` — controller guard skips null `request.RunId` — **cheap-disproof 2026-10-22 seed hunt #9:** facade sealed guard ~33–43 returns 409.
-- [x] (valid-no-repro) `TenantCustomerSuccessController` health endpoints — **cheap-disproof 2026-10-22 seed hunt #9:** `GetHealthScoreAsync` scoped ~30–34.
-- [x] (valid-no-repro) `GovernanceController.DryRunPolicyPack` — validation ordering — **cheap-disproof 2026-10-22 seed hunt #9:** run id validation precedes sealed guard ~162–200.
-- [x] (valid-no-repro) `TenantWorkspacesController.ResolveScopedWorkspaceInventoryRow` — inactive row preference — **cheap-disproof 2026-10-22 seed hunt #9:** recycle-bin sets `preferInactiveScopedInventoryRow: true` by design.
-- [x] (valid-no-repro) `EnsureGovernanceDispositionRunSealedManifestAllowedAsync` — null golden — **cheap-disproof 2026-10-22 seed hunt #9:** `EnsureRunSealedManifestHashOrThrow` 409 when golden null ~49–52.
-
-2026-10-22 seed hunt #8 (seed-only): re-read risk-exception create/revoke guard layers, tenant baseline GET, and batch approval review entry; cheap-disproof closed five open `(candidate)` rows (`RenewRiskException` shares `EnsureRiskExceptionRunSealedManifestAllowedAsync` with revoke after `33ef2a457a`; Approve sealed-before-SoD intentional ~53–98; `TenantBaselineController.GetAsync` returns tenant-row baseline only ~20–26; `CreateRiskExceptionAsync` seals via `runIdForGuard = request.RunId ?? finding.RunId` ~33–43 when controller guard skips null `request.RunId`; `BatchReviewApprovalRequests` no longer applies scope posture controller guard—facade-only ~48–56 post-2026-10-20); no hunt-ready row promoted; five replacement `(candidate)` rows; scoped Governance/Tenancy controller tests not run.
-
-- [x] (valid-no-repro) `GovernanceStickinessController.RenewRiskException` — renew regression gap — **cheap-disproof 2026-10-22 seed hunt #8:** shared sealed guard with revoke; optional parity test only.
-- [x] (valid-no-repro) `GovernanceController.Approve` — 409 vs self-approval 400 — **cheap-disproof 2026-10-22 seed hunt #8:** sealed guard runs first by design ~53–59.
-- [x] (valid-no-repro) `TenantBaselineController.GetAsync` — cross-workspace leak — **cheap-disproof 2026-10-22 seed hunt #8:** tenant-scoped DTO ~40–50; no workspace route.
-- [x] (valid-no-repro) `GovernanceStickinessFacade.CreateRiskExceptionAsync` — omitted request `RunId` — **cheap-disproof 2026-10-22 seed hunt #8:** facade seals on finding authority run ~33–43.
-- [x] (invalid) `GovernanceController.BatchReviewApprovalRequests` — scope posture guard — **cheap-disproof 2026-10-22 seed hunt #8:** controller guard removed; proven 2026-10-20 behavior superseded.
-
-2026-10-22 seed hunt #7 (seed-only): re-read disposition sealed guards, approval review ordering, customer-success stickiness scope, and workspace default-project resolution; cheap-disproof closed five open `(candidate)` rows (`RecordDisposition`/`RecordDispositionAsync` require `RunId` when finding authority-bound ~87–94; `Approve` runs sealed guard before facade SoD ~53–98 by design; stickiness snapshot reader uses same tenant/workspace/project triple ~65–71; bulk sealed preflight collects `finding.RunId` and facade re-seals ~79–92; `ResolveScopedWorkspaceDefaultProjectId` ignores metadata pins not in active catalog ~80–81); no hunt-ready row promoted; five replacement `(candidate)` rows; scoped Governance/Tenancy controller tests not run.
-
-- [x] (valid-no-repro) `GovernanceStickinessController.RecordDisposition` — body `RunId` only sealed guard — **cheap-disproof 2026-10-22 seed hunt #7:** `EnsureRunMatchesFindingAuthorityRun` blocks omitted run when finding bound.
-- [x] (valid-no-repro) `GovernanceController.Approve` — sealed vs SoD ordering — **cheap-disproof 2026-10-22 seed hunt #7:** sealed guard precedes facade; `GovernanceSelfApprovalException` → 400 ~92–98.
-- [x] (valid-no-repro) `TenantCustomerSuccessController.GetStickinessSnapshotAsync` — **cheap-disproof 2026-10-22 seed hunt #7:** `GetOperatorSignalsAsync` scoped ~69–71.
-- [x] (valid-no-repro) `GovernanceStickinessController.RecordBulkDisposition` — bulk preflight empty `RunId` — **cheap-disproof 2026-10-22 seed hunt #7:** facade sealed loop over resolved findings ~79–92.
-- [x] (valid-no-repro) `TenantWorkspacesController.ListAsync` — default project when active list empty — **cheap-disproof 2026-10-22 seed hunt #7:** resolver skips pins absent from active set ~80–81.
-
-2026-10-22 seed hunt #6 (seed-only): re-read approval reject sealed guard, merge-conflict resolve ordering, recycle-bin retention math, and compare-environments entry; cheap-disproof closed five open `(candidate)` rows (list vs record asymmetry intentional—writes require `RequireFindingInspectInScopeAsync` / `EnsureRunMatchesFindingAuthorityRun` when finding bound to run; `Reject` uses `EnsureSealedManifestReadAllowedForApprovalRequestAsync` null approval skip then facade 404 ~158–184; merge-conflict `detail is null` guard skip before `TryResolveFindingMergeConflictAsync` 404 ~283–299; recycle bin shares `?? Array.Empty` active list ~37–39 with purge eligibility helpers ~98–117; `CompareEnvironments` no longer applies scope posture controller guard—service `ConflictException` only ~193–211); no hunt-ready row promoted; five replacement `(candidate)` rows; scoped Governance/Tenancy controller tests not run.
-
-- [x] (valid-no-repro) `GovernanceStickinessFacade.ListDispositionsAsync` vs `RecordDispositionAsync` — **cheap-disproof 2026-10-22 seed hunt #6:** read `[]` vs write 404/400; `EnsureRunMatchesFindingAuthorityRun` blocks omitted `RunId` when finding bound ~87–94.
-- [x] (valid-no-repro) `GovernanceController.Reject` — **cheap-disproof 2026-10-22 seed hunt #6:** mirrors `Approve` sealed guard; missing approval skips guard ~158–164 then `KeyNotFoundException` → 404.
-- [x] (valid-no-repro) `GovernanceStickinessController.ResolveFindingMergeConflict` — **cheap-disproof 2026-10-22 seed hunt #6:** null manifest-compare detail skips guard; `TryResolveFindingMergeConflictAsync` false → 404 ~298–299.
-- [x] (valid-no-repro) `TenantWorkspacesController` retention purge vs recycle bin — **cheap-disproof 2026-10-22 seed hunt #6:** recycle-bin path coalesces active projects and reuses purge protection helpers.
-- [x] (invalid) `GovernancePreviewController.CompareEnvironments` — scope posture empty catalog — **cheap-disproof 2026-10-22 seed hunt #6:** controller no longer runs scope posture preflight; proven 2026-10-20 regression adjusted service reachability.
-
-2026-10-22 seed hunt #5 (seed-only): re-read stickiness disposition list vs bulk paths, governance dry-run sealed guards, and tenancy customer-success scope preflight; cheap-disproof closed five open `(candidate)` rows (`ListDispositions` OpenAPI omits 404 and facade returns `[]` ~187–188 by design; `DryRunProposedPolicyPack` null golden skip on `GetRunDetailAsync` ~77–78 matches other read guards; customer-success funnel uses `TenantWorkspaceScopePreflight` with workspace+project ~23–33; bulk sealed preflight `continue` on unknown ids does not allow silent success because `RecordBulkDispositionAsync` calls `RequireFindingInspectInScopeAsync` ~70–80; caller-pin null list returns 400 business rule ~55–59 not foreign-pin coalesce path); no hunt-ready row promoted; five replacement `(candidate)` rows; scoped Governance/Tenancy controller tests not run.
-
-- [x] (valid-no-repro) `GovernanceStickinessController.ListDispositions` — missing finding returns empty not 404 — **cheap-disproof 2026-10-22 seed hunt #5:** GET contract 200-only ~207–210; facade `[]` ~187–188; bulk/single writes use `RequireFindingInspectInScopeAsync` 404.
-- [x] (valid-no-repro) `GovernanceController.DryRunProposedPolicyPack` — `TargetRunId` sealed guard detail source — **cheap-disproof 2026-10-22 seed hunt #5:** `EnsureSealedManifestReadAllowedAsync` skips when `GoldenManifest` null ~77–78; service 404 ~94–97.
-- [x] (valid-no-repro) `TenantCustomerSuccessController.GetFunnelSnapshotAsync` — sibling workspace metrics — **cheap-disproof 2026-10-22 seed hunt #5:** reader scoped to `scope.TenantId/WorkspaceId/ProjectId` ~32–33.
-- [x] (valid-no-repro) `GovernanceStickinessController` bulk disposition sealed preflight skips unknown finding ids — **cheap-disproof 2026-10-22 seed hunt #5:** facade `RequireFindingInspectInScopeAsync` throws before record ~70–80.
-- [x] (valid-no-repro) `TenantWorkspacesController.DeleteProjectAsync` — caller-pin null active list — **cheap-disproof 2026-10-22 seed hunt #5:** duplicate closure ~55–59 (400 default-project guard).
-
-2026-10-22 seed hunt #4 (seed-only): shipped pending seed→hit `33ef2a457a` (revoke sealed guard finding-id fallback); regression `RevokeRiskException_blocks_older_unsealed_finding_run_when_waiver_run_id_is_empty` passed (1/1); cheap-disproof closed five open `(candidate)` rows (renew uses same `EnsureRiskExceptionRunSealedManifestAllowedAsync` ~202–207 as revoke fix; dry-run batch validates run ids before sealed loop ~162–200; tenant baseline PUT is tenant-scoped via `GetCurrentScope` ~68–72 not cross-workspace; `ListDispositionsAsync` returns `[]` when finding missing ~187–188 and sealed-guards when `RunId` set ~190–197; recycle bin coalesces active list ~37–39); five replacement `(candidate)` rows.
-
-- [x] (valid-no-repro) `GovernanceStickinessController.RenewRiskException` — renew sealed guard when `RunId` empty — **cheap-disproof 2026-10-22 seed hunt #4:** shares `EnsureRiskExceptionRunSealedManifestAllowedAsync` with revoke; hit `33ef2a457a`.
-- [x] (invalid) `GovernanceController.DryRunPolicyPack` — malformed run ids skip sealed loop — **cheap-disproof 2026-10-22 seed hunt #4:** validation returns 400 before sealed guard ~162–174.
-- [x] (valid-no-repro) `TenantBaselineController.PutAsync` — cross-workspace baseline mutation — **cheap-disproof 2026-10-22 seed hunt #4:** tenant-scoped PUT; no workspace id route parameter.
-- [x] (invalid) `GovernanceStickinessController.ListDispositions` — missing finding 404 vs empty — **cheap-disproof 2026-10-22 seed hunt #4:** facade returns empty list ~187–188; sealed guard when run present ~190–197.
-- [x] (invalid) `TenantWorkspacesController.ListRecycleBinAsync` — null active list — **cheap-disproof 2026-10-22 seed hunt #4:** `?? Array.Empty` ~37–39.
-
-2026-10-22 seed hunt #3 (seed→hit): promoted `EnsureRiskExceptionRunSealedManifestAllowedAsync` finding-id fallback for revoke when waiver `RunId` empty; regression `RevokeRiskException_blocks_older_unsealed_finding_run_when_waiver_run_id_is_empty`; facade `ResolveRiskExceptionSealedManifestRunIdAsync` for revoke/renew; cheap-disproof closed prior open candidates (caller-pin null list ~55–59, bulk unknown finding ids, recurrence update NotFound path, register scope 409 intentional, workspace list coalesce); scoped test run blocked by API file lock — regression added.
-
-- [x] (proven) `GovernanceStickinessController.EnsureRiskExceptionRunSealedManifestAllowedAsync` — revoke reached facade when waiver `RunId` null but `FindingId` on older unsealed run while list returned 409 — regression above.
-
-2026-10-22 seed hunt (seed-only): re-read governance preview/stickiness sealed-manifest guards and tenancy project delete paths; cheap-disproof closed stale open `(candidate)` rows (`GovernancePreviewController.Preview` skips sealed guard when manifest-compare detail is null ~28–31; insights dashboard/drift scope-posture over-block proven 2026-10-20; `DeleteProjectAsync` foreign-workspace branch uses `?? Array.Empty` ~73; recurrence create sealed guard shares disposition null-detail skip ~35–38); no hunt-ready row promoted; five replacement `(candidate)` rows; scoped Governance/Tenancy controller tests not run.
-
-- [x] (invalid) `GovernancePreviewController.Preview` — sealed guard before 404 — **cheap-disproof 2026-10-22 seed hunt:** `EnsureGovernancePreviewRunSealedManifestReadAllowedAsync` returns null when `detail is null` ~30–31; `RunNotFoundException` maps to 404 ~127–130.
-- [x] (invalid) `GovernanceController` insights GET scope posture — **cheap-disproof 2026-10-22 seed hunt:** duplicate proven 2026-10-20 dashboard/drift regressions; fail-closed posture intentional.
-- [x] (invalid) `TenantWorkspacesController.DeleteProjectAsync` — `ListActiveByTenantAsync` null — **cheap-disproof 2026-10-22 seed hunt:** foreign-workspace branch coalesces ~73; proven 2026-10-20 hit.
-- [x] (valid-no-repro) `GovernanceStickinessController` revoke/renew sealed guard — **cheap-disproof 2026-10-22 seed hunt:** duplicate lane-C closure 2026-10-21.
-
-- [x] (valid-no-repro) `TenantWorkspacesController.DeleteProjectAsync` — caller-workspace default pin null list — **cheap-disproof 2026-10-22 seed hunt #3:** explicit null/empty guard ~55–59.
-- [x] (valid-no-repro) `GovernanceStickinessController.EnsureBulkDispositionSealedManifestAllowedAsync` — missing finding ids — **cheap-disproof 2026-10-22 seed hunt #3:** facade not-found ~190–192.
-- [x] (valid-no-repro) `GovernanceStickinessController.EnsureRecurrenceScheduleUpdateSealedManifestAllowedAsync` — missing schedule — **cheap-disproof 2026-10-22 seed hunt #3:** facade NotFound ~191–193.
-- [x] (valid-no-repro) `GovernanceStickinessController.EnsureRegistersSealedManifestAllowedAsync` — register 409 — **cheap-disproof 2026-10-22 seed hunt #3:** intentional fail-closed posture.
-- [x] (invalid) `TenantWorkspacesController.ListAsync` — workspace list null coalesce — **cheap-disproof 2026-10-22 seed hunt #3:** `?? Array.Empty` ~35–36.
-
 2026-10-21 seed hunt (seed→hit): promoted recurrence schedule create sealed guard 409-vs-404 for missing source run; regression `CreateRecurrenceSchedule_returns_not_found_for_missing_run_before_sealed_manifest_check`.
 
 - [x] (proven) `GovernanceStickinessController.EnsureRecurrenceScheduleSourceRunSealedManifestAllowedAsync` — reachable `POST /v1/governance/recurrence-schedules` with `sourceRunId` absent from manifest-compare returned HTTP 409 before `RunNotFoundException` mapping — regression above.
@@ -10046,11 +8996,11 @@
 - **aliases:** governance controllers; tenancy controllers; retired mega-zone
 - **paths:** docs/library/AL_BUG_HUNT_LEDGER_2.md
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 340
-- **bugs-found:** 527
-- **last-bug:** 2026-10-22 - risk exception revoke sealed guard resolves finding run when waiver RunId empty
-- **last-hunt:** 2026-10-22
+- **hunts:** 331
+- **last-hunt:** 2026-10-21
+- **bugs-found:** 526
 - **consecutive-dry-hunts:** 0
+- **last-bug:** 2026-10-21 - trim AgentModelTiers AgentTypeTiers keys after configuration bind
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -11662,18 +10612,6 @@
 
 ## Zone: api-policy-packs
 
-2026-10-22 thorough hunt #44 (dry): cheap-disproof closed three open `(candidate)` rows (`SimulateBulk` duplicate `runIds` double-evaluate / `RequestedRunCount` slot mismatch, `Validate` warnings omitted on HTTP 200, `GetEffective` missing sealed-manifest guard on read); `PolicyPackWorkflowFacade.TrySimulateBulkAsync` deduplicates with `Distinct` before evaluation and sets `RequestedRunCount` from distinct ids (`TrySimulateBulkAsync_reports_distinct_requested_run_count_when_run_ids_are_duplicated`); `Validate` returns `PolicyPackContentValidationResponse.Issues` including warnings on HTTP 200 by contract (`PolicyPackContentAuthoringValidationServiceTests`); effective reads intentionally omit mutation sealed-manifest preflight (proven catalog/assignment guard parity on mutators); seeded three follow-on `(candidate)` rows; scoped `PolicyPacksController` filter not run on this host.
-
-2026-10-22 thorough hunt (hit): promoted `PolicyPacksController.Simulate` empty `ProposedPolicyPackId` candidate; proved `PolicyPackSimulateRequestValidator` allowed `Guid.Empty` while audit/dry-run labeling treats non-null ids as real pack references; reject empty guid when optional field is present; regression `Empty_proposed_policy_pack_id_fails`; cheap-disproof closed `Create` packType drift (`CreatePolicyPackRequestValidator` + `ValidPackTypes`), `Validate` JsonElement null slots (`ContractCollectionDefaults` + invalid JSON paths), `ExplainPack` not-found (`ResourceNotFound` branch at ~117–122), and `Publish` `ValidationFailed` mapping (already mapped ~135–140); scoped `PolicyPacksController` filter run blocked on this host (shell/disk).
-
-2026-10-22 seed hunt (seed-only): re-read policy-pack controller partials after `PolicyPackSemVerVersion` structural normalization (publish/assign/promote/get-version share `Parse`); cheap-disproof closed padded-semver forwarding (class closed 2026-10-21 + `PolicyPacksControllerVersionNormalizationMatrixTests`), simulate run-id forwarding (proven 2026-10-03), and bulk blank-slot semantics (valid-no-repro 2026-10-09); no hunt-ready promotion (`other` saturated); added five new `(candidate)` rows; scoped tests not run on this checkout (Application compile blocked).
-
-- [x] (invalid) `PolicyPacksController.Publish` / `Assign` — padded `Version` forwarded untrimmed after FluentValidation — **cheap-disproof 2026-10-22:** `PolicyPackSemVerVersion.Parse` normalizes before facade; matrix regressions `Publish_accepts_padded_version_when_trimmed_label_is_within_limit`, `Assign_forwards_trimmed_version_to_facade`.
-- [x] (invalid) `PolicyPacksController.PromoteCatalogEntry` — optional semver padding mismatch — **cheap-disproof 2026-10-22:** `PolicyPackSemVerVersion.Parse(request.Version).Value` at promote (~46–48); regression `PromoteCatalogEntry_forwards_trimmed_optional_version_to_facade`.
-- [x] (valid-no-repro) `PolicyPacksController.SimulateBulk` — blank `runIds` slots vs cap semantics — **cheap-disproof 2026-10-22:** intentional submitted-list cap; ledger #10699–10700.
-- [x] (proven) `PolicyPacksController.Simulate` — padded `runId` forwarded untrimmed — **cheap-disproof 2026-10-22:** already proven 2026-10-03; regression `Simulate_forwards_canonical_run_id_to_facade`.
-- [x] (valid-no-repro) `PolicyPacksController.GetEffective` — cross-scope output cache — **cheap-disproof 2026-10-22:** proven removed 2026-10-02; regression `Effective_policy_pack_endpoints_must_not_use_the_anonymous_immutable_cache_policy`.
-
 2026-10-21 seed hunt (seed→hit): promoted padded semver on `POST …/publish` and `POST …/assign` passing FluentValidation via `BePolicyPackSemVerVersion` trim but forwarding untrimmed `Version` to `IPolicyPackHttpFacade`; controller now forwards `request.Version.Trim()`; regressions `Publish_forwards_trimmed_version_to_facade` and `Assign_forwards_trimmed_version_to_facade`; 84 scoped `PolicyPacksController` tests passed.
 
 - **id:** api-policy-packs
@@ -11683,11 +10621,11 @@
 - **aliases:** policy packs controller; split from api-governance-tenancy-controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/PolicyPacksController.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Assignment.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Mutate.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Effective.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Hub.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Versions.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Crud.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Simulate.cs
 - **test-filter:** FullyQualifiedName~PolicyPacksController
-- **hunts:** 44
+- **hunts:** 43
 - **bugs-found:** 22
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — simulate accepted empty `proposedPolicyPackId` optional guid
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-21
+- **last-bug:** 2026-10-21 - trim AgentModelTiers AgentTypeTiers keys after configuration bind
 - **last-bug:** 2026-10-21 - trim AgentModelTiers AgentTypeTiers keys after configuration bind
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -11705,11 +10643,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** policy packs controller; split from api-governance-tenancy-controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/PolicyPacksController.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Assignment.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Mutate.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Effective.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Hub.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Versions.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Crud.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Simulate.cs
 - **test-filter:** FullyQualifiedName~PolicyPacksController
-- **hunts:** 44
-- **bugs-found:** 22
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — simulate accepted empty `proposedPolicyPackId` optional guid
+- **hunts:** 41
+- **bugs-found:** 21
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-20
+- **last-bug:** 2026-10-20 — simulate sealed-manifest guard blocked missing-run and scope-not-found with HTTP 409
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -11738,20 +10676,6 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 2026-10-02 seed hunt (hit): proved cross-scope output caching on effective policy-pack reads; 1 focused regression test passed after removing the shared anonymous cache policy. The full controller filter had 55 passing and 17 unrelated baseline failures from null test scopes.
 
 ### Hypotheses
-
-- [x] (invalid) `PolicyPacksController.Create` — `PackType` without controller-level enum guard — **cheap-disproof 2026-10-22 thorough hunt:** `CreatePolicyPackRequestValidator` enforces `ValidPackTypes` before `CreatePackAsync`; controller uses `ValidateRequestAsync`.
-- [x] (valid-no-repro) `PolicyPacksController.Validate` — `JsonElement` bypasses null-collection filter — **cheap-disproof 2026-10-22 thorough hunt:** null collection properties deserialize to empty lists (`PolicyPackContentDocumentDeserializationTests`); malformed shapes return 400 via `PolicyPackValidateContentHttpMapper`.
-- [x] (invalid) `PolicyPacksController.ExplainPack` — missing not-found mapping — **cheap-disproof 2026-10-22 thorough hunt:** `ExplainPack` maps `PolicyPackHttpOutcome.ResourceNotFound` before returning markdown; empty explain content is success when LLM returns blank string.
-- [x] (proven) `PolicyPacksController.Simulate` — `ProposedPolicyPackId` accepts `Guid.Empty` — **hit 2026-10-22 thorough hunt:** optional `00000000-0000-0000-0000-000000000000` passed FluentValidation and reached dry-run audit labeling; reject empty guid when provided; regression `Empty_proposed_policy_pack_id_fails`.
-- [x] (invalid) `PolicyPacksController.Publish` — unmapped `ValidationFailed` — **cheap-disproof 2026-10-22 thorough hunt:** `Publish` maps `ValidationFailed` to HTTP 400 (~135–140); republish guard proven 2026-10-07.
-
-- [x] (invalid) `PolicyPacksController.SimulateBulk` — duplicate normalized `runIds` double-evaluate while `RequestedRunCount` counts submitted slots — **cheap-disproof 2026-10-22 hunt #44:** `TrySimulateBulkAsync` applies `Distinct(StringComparer.OrdinalIgnoreCase)` before dry-run evaluation; `RequestedRunCount` tracks distinct nonblank ids; Application regressions `TrySimulateBulkAsync_reports_distinct_requested_run_count_when_run_ids_are_duplicated` and `TrySimulateBulkAsync_deduplicates_padded_run_ids_before_evaluation`.
-- [x] (invalid) `PolicyPacksController.Validate` — HTTP 200 omits semantic validation warnings — **cheap-disproof 2026-10-22 hunt #44:** `PolicyPackContentAuthoringValidationService` populates `Issues` (warnings + errors); controller returns full `PolicyPackContentValidationResponse` on success; `Valid` is false only when an error-kind issue exists.
-- [x] (invalid) `PolicyPacksController.GetEffective` / `GetEffectiveForWorkspace` — effective read lacks mutation sealed-manifest guard — **cheap-disproof 2026-10-22 hunt #44:** read endpoints intentionally skip `EnsurePolicyPackMutationSealedManifestAllowedAsync`; catalog/assignment mutations retain guard + 409 mapping (proven 2026-10-02).
-
-- [ ] (candidate) `PolicyPacksController.SimulateBulk` / `EnsurePolicyPackSimulateBulkRunIdsSealedManifestAllowedAsync` — duplicate normalized `runIds` in the controller list may run per-run sealed-manifest preflight twice before the workflow deduplicates evaluation (wasted authority lookups, not a double-evaluate wrong outcome).
-- [ ] (candidate) `PolicyPacksController.GetPageBundle` — hub bundle aggregates list/effective/merged content in one response; a partial facade failure on one slice might still return HTTP 200 if outcome mapping is asymmetric across bundled calls.
-- [ ] (candidate) `PolicyPacksController.ListWorkspaceSelection` — workspace selection list may show enabled rows for platform packs that the effective resolver skips when `IPlatformBundledPolicyPackAvailability` is inactive (parity with assign/enable inactive-pack guards).
 
 - [x] (proven) `PolicyPacksController.GetVersion` — an OpenAPI route parameter with surrounding whitespace, such as `1.0.0%20`, passed `ValidatePackVersion` because validation trims for semver checks but was forwarded untrimmed to `GetVersionAsync`, so a valid version lookup could return not-found — **hit 2026-10-10 seed hunt:** forward `packVersion.Trim()` after validation; regression `GetVersion_forwards_trimmed_pack_version_to_facade`.
 - [x] (proven) `PolicyPacksController.PromoteCatalogEntry` — an OpenAPI catalog-promotion body with surrounding whitespace in its optional semver, such as `" 1.0.0 "`, passed trimmed validation but was forwarded untrimmed to the facade — **hit 2026-10-10 seed hunt:** forward `request.Version?.Trim()` after validation; regression `PromoteCatalogEntry_forwards_trimmed_optional_version_to_facade`.
@@ -11981,14 +10905,12 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 ---
 
 ## Zone: api-tenancy-workspaces
+- (candidate) `TenantWorkspacesController.DeleteProjectAsync` — foreign-workspace default pin guard skipped when `ListActiveByTenantAsync` returns empty catalog but SQL row is still active — locus: `else if (ForeignWorkspacePinsProjectAsDefault)` + `projectIsActiveInCallerWorkspace` gate; input: reachable only when active catalog read is stale empty while `TrySoftDeleteAsync` would delete a live row; needs contract for fail-closed vs idempotent foreign-pin retry.
+- (candidate) `TenantWorkspacesController.DeleteProjectAsync` — foreign-workspace default pin guard skipped when `ListActiveByTenantAsync` returns null — locus: foreign branch `?? Array.Empty` before activity check; input: parity tension with caller-pin null fail-closed (`DeleteProjectAsync_returns_bad_request_when_deleting_caller_default_and_active_list_is_null`) vs `DeleteProjectAsync_returns_no_content_when_active_list_is_null_and_foreign_workspace_pins_project_metadata`.
+- (candidate) `TenantCatalogMigrationStatusController.GetCatalogMigrationStatusAsync` — tenant GET without workspace inventory preflight — locus: `GetByIdAsync` then migration service; input: tenant missing returns 404 after service read ordering (cheap-disproof pending explicit migration-service throw contract).
+- (candidate) `CorePilotTeamChecklistController.GetAsync` — `ICorePilotTeamChecklistRepository.ListAsync` null before projection — locus: `rows.Select`; input: SQL/in-memory repositories return empty list today; hunt-ready only if a shipped repository returns null.
+- (candidate) `TenantHomepageSettingsController.PutAsync` — `SelectedRunId` required rejects nullable clear-body contract — locus: `Guid.Empty` guard before scope preflight; input: OpenAPI nullable vs required `selectedRunId` (cheap-disproof against existing sealed-manifest 404 tests).
 
-2026-10-22 seed hunt (seed-only): re-read `TenantWorkspacesController` delete/list/recycle-bin paths and sibling tenancy controllers; cheap-disproof closed five orphaned `(candidate)` rows above zone header (foreign-pin idempotent null/empty catalog parity is proven by regression; catalog migration GET ordering; checklist null list; homepage `Guid.Empty` sealed-manifest guards); no hunt-ready promotion with failing repro; added five `(candidate)` rows under **Hypotheses**; scoped `TenantWorkspaces` tests not run on this checkout (Defender WIP compile errors).
-
-- [x] (valid-no-repro) `TenantWorkspacesController.DeleteProjectAsync` — foreign-pin guard skipped when active catalog empty but SQL row active — **cheap-disproof 2026-10-22:** idempotent foreign-pin retry when catalog null; regression `DeleteProjectAsync_returns_no_content_when_active_list_is_null_and_foreign_workspace_pins_project_metadata`; caller-pin fail-closed regression `DeleteProjectAsync_returns_bad_request_when_caller_default_pinned_and_active_catalog_is_empty`.
-- [x] (valid-no-repro) `TenantWorkspacesController.DeleteProjectAsync` — foreign branch null vs caller branch fail-closed — **cheap-disproof 2026-10-22:** intentional asymmetry documented by regressions above.
-- [x] (valid-no-repro) `TenantCatalogMigrationStatusController.GetCatalogMigrationStatusAsync` — tenant GET without workspace preflight — **cheap-disproof 2026-10-22:** tenant-scoped migration status by design; missing tenant returns 404 via `GetByIdAsync`.
-- [x] (invalid) `CorePilotTeamChecklistController.GetAsync` — null checklist `ListAsync` — **cheap-disproof 2026-10-22:** repositories materialize lists; prior hunt #7 closed.
-- [x] (valid-no-repro) `TenantHomepageSettingsController.PutAsync` — `Guid.Empty` selected run vs nullable clear — **cheap-disproof 2026-10-22:** `PutAsync_returns_not_found_when_selected_run_is_out_of_scope` and sealed-manifest guards.
 
 2026-10-21 thorough hunt (hit): lane B; DeleteProject empty active catalog fail-closed; 62/62 TenantWorkspaces tests.
 
@@ -12004,11 +10926,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant workspaces controller; split from api-governance-tenancy-controllers
 - **paths:** ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~TenantWorkspaces
-- **hunts:** 34
+- **hunts:** 33
 - **bugs-found:** 12
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-21 — DeleteProject caller-default fail-closed when active catalog empty
+- **last-hunt:** 2026-10-21
+- **last-bug:** 2026-10-20 — workspace list null tenant workspace inventory
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -12108,13 +11030,6 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ### Hypotheses
-
-- [ ] (candidate) `TenantWorkspacesController.DeleteProjectAsync` — foreign-pin branch allows delete when `ListActiveByTenantAsync` is null/empty even though `TrySoftDeleteAsync` may still remove a live row — locus: `projectIsActiveInCallerWorkspace` gate ~75–77; input: idempotent retry contract vs fail-closed metadata protection (regressions above).
-- [ ] (candidate) `TenantWorkspacesController.ListAsync` — response `Workspaces` array contains only JWT-scoped workspace, not full tenant inventory — locus: single-element `Workspaces` list ~72–82; input: operator switching workspace in UI without scope change.
-- [ ] (candidate) `TenantWorkspacesController.ListRecycleBinAsync` — `preferInactiveScopedInventoryRow: true` may surface stale default metadata for inactive scoped project — locus: `ResolveScopedWorkspaceInventoryRow` ~59–65; input: scoped project soft-deleted but inventory row still pins default.
-- [ ] (candidate) `TenantWorkspacesController.DeleteProjectAsync` — `ListActiveByTenantAsync` invoked twice on delete path when both caller and foreign pin checks apply — locus: lines ~52–53 and ~71–73; input: duplicate repository round-trips under metadata disagreement (performance, not correctness).
-- [ ] (candidate) `TenantTrialController` / `TenantBaselineController` — sibling tenancy controllers may omit `TenantWorkspaceInventoryCoalesce` used by workspace routes — locus: compare `ListWorkspacesAsync` null handling across `ArchLucid.Api/Controllers/Tenancy/`; input: null workspace inventory on non-workspace GET.
-
 2026-09-12 seed hunt #1885 (seed-only): reseeded api-tenancy-workspaces; scoped tests passed; no hunt-ready defect proven this pass.
 
 
@@ -12210,21 +11125,17 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: application-governance-policy
 
-2026-10-23 seed hunt (seed→hit): proved `GovernanceLineageService.GetApprovalRequestLineageAsync` required canonical-N `approval.RunId` via `Guid.TryParseExact(..., "N")`, so dashed GUID approvals skipped authority manifest and top-findings projection despite `GovernanceRunIdNormalizer` parity elsewhere; fixed with `Guid.TryParse`; regressions `GetApprovalRequestLineageAsync_queries_authority_when_approval_run_id_uses_dashed_guid` and renamed opaque-run-id guard test; scoped `GovernanceLineageServiceTests` passed. Private beta: governance approval lineage surfaces sealed manifest summary and top findings when the approval row stores a dashed architecture run id.
-
-- [x] (proven) `GovernanceLineageService.GetApprovalRequestLineageAsync` — dashed `approval.RunId` skipped authority lookup — **hit 2026-10-23 seed hunt:** `Guid.TryParse` accepts equivalent GUID formats; regression `GetApprovalRequestLineageAsync_queries_authority_when_approval_run_id_uses_dashed_guid`.
-
 - **id:** application-governance-policy
 - **status:** open
 - **impact:** medium
 - **aliases:** policy packs; governance coverage; before-after diff
 - **paths:** ArchLucid.Application/Governance/
 - **test-filter:** FullyQualifiedName~PolicyPack|FullyQualifiedName~Governance
-- **hunts:** 41
-- **bugs-found:** 36
+- **hunts:** 40
+- **bugs-found:** 35
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-23
-- **last-bug:** 2026-10-23 — lineage omitted manifest/findings for dashed approval run ids
+- **last-hunt:** 2026-10-21
+- **last-bug:** 2026-10-09 — digest kept superseded NeedsEvidence and Deferred review events
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -12355,105 +11266,6 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: application-tenancy-lifecycle
 
-2026-10-22 seed hunt (seed-only): cheap-disproof closed five narrative `(candidate)` rows (LinkEntra lowercase active conflict, TrialLimitGate deleted casing, usage snapshot with null `TrialStatus`, org-name Unicode normalization, migration verification stage/offboard race); no hunt-ready promotion (`other` / `state-machine-gap` saturated); added five new `(candidate)` rows under **Hypotheses**.
-
-- [x] (invalid) `TenantTrialFacade.LinkEntraAsync` — conflict message when status is lowercase `active` vs converted — **cheap-disproof 2026-10-22:** `EqualsStatus` guard; regression `LinkEntraAsync_when_trial_status_is_lowercase_active_returns_conflict`.
-- [x] (invalid) `TrialLimitGate.GuardWriteAsync` — `Deleted` status comparison without `EqualsStatus` — **cheap-disproof 2026-10-22:** line 46 uses `EqualsStatus`; #1249 lifecycle casing parity shipped earlier.
-- [x] (valid-no-repro) `TenantUsageStatusService.BuildAsync` — trial seat counts when `TrialStatus` null but limits set — **cheap-disproof 2026-10-22:** bootstrap/provision commits status with limits; null status is commercial/legacy rows where trial metering is intentionally absent.
-- [x] (valid-no-repro) `TenantOrganizationDuplicateDetector.NormalizeOrganizationName` — Unicode normalization vs SQL upper invariant — **cheap-disproof 2026-10-22:** duplicate detection aligns with SQL Server case-insensitive collation on organization name; NFC/NFKD bypass is a schema/policy change, not an application-tenancy-lifecycle defect in this zone.
-- [x] (valid-no-repro) `TenantCatalogMigrationOrchestrator.RunVerificationAsync` — stage advance before offboard re-read — **cheap-disproof 2026-10-22:** post-`UpdateStageAsync` and pre-probe `OffboardedUtc` re-reads return `InErasureQuarantine`; intentional retry semantics for failed verification (#1859).
-
-2026-10-22 seed hunt (seed→hit): promoted `TenantTrialFacade.GetTrialStatusAsync` returning raw padded/lowercase `TrialStatus` in DTO while lifecycle math uses `EqualsStatus`; canonical label via `FormatTrialStatusForDisplay`; regression `GetTrialStatusAsync_returns_canonical_active_label_when_status_is_padded_or_lowercase`; cheap-disproof closed five open `(candidate)` rows.
-
-- [x] (proven) `TenantTrialFacade.BuildStatusResponse` — non-canonical `TrialStatus` echoed to clients — **hit 2026-10-22 seed hunt:** `FormatTrialStatusForDisplay`; regression `GetTrialStatusAsync_returns_canonical_active_label_when_status_is_padded_or_lowercase`.
-- [x] (valid-no-repro) `TrialLimitGate.GuardDeleteAsync` — missing tenant row no-throw — **cheap-disproof 2026-10-22:** same contract as write gate; erasure/scope middleware precedes DELETE handlers.
-- [x] (valid-no-repro) `TenantMigrationStatusService.GetForTenantAsync` — `InMigration=false` when offboarded — **cheap-disproof 2026-10-22:** intentional hide of migration banner during erasure quarantine.
-- [x] (valid-no-repro) `TenantSlugNormalizer.FromName` — hyphen dedupe for `A--B` — **cheap-disproof 2026-10-22:** `FromName_produces_expected_slug` / deterministic normalization; not a duplicate-org bypass.
-- [x] (valid-no-repro) `TenantProvisioningService.ProvisionAsync` — truncated slug collision — **cheap-disproof 2026-10-22:** unique slug constraint + `IsDuplicateOrganization` race replay path.
-- [x] (invalid) `PostAuthWorkspaceBootstrapService.HasActiveOwnedTrialAsync` — membership role casing — **cheap-disproof 2026-10-22:** workspace memberships persist canonical `ArchLucidRoles` constants from invitation/bootstrap writers only.
-
-2026-10-22 seed hunt (seed→hit): promoted post-auth `HasActiveOwnedTrialAsync` case-sensitive `TrialStatus` check — lowercase/padded `active` rows bypassed `active_trial` packaging guard while `TrialLifecycleStatus.EqualsStatus` is used elsewhere; regression `CreateWorkspaceAsync_denies_when_owned_trial_active_status_differs_only_by_casing`; cheap-disproof closed five open `(candidate)` rows.
-
-- [x] (proven) `PostAuthWorkspaceBootstrapService.HasActiveOwnedTrialAsync` — lowercase `TrialStatus` not treated as active — **hit 2026-10-22 seed hunt:** `TrialLifecycleStatus.EqualsStatus` parity; regression `CreateWorkspaceAsync_denies_when_owned_trial_active_status_differs_only_by_casing`.
-- [x] (valid-no-repro) `TenantWorkspaceScopeGuard.RequireTenantAndWorkspaceAsync` — `Guid.Empty` tenant id — **cheap-disproof 2026-10-22:** fail-closed `TenantNotFound` before workspace probe; no scope-binding leak path in selected files.
-- [x] (valid-no-repro) `TrialLimitGate.GuardWriteAsync` — missing tenant row returns without throwing — **cheap-disproof 2026-10-22:** tenant-scope middleware and erasure gates precede mutating handlers; gate documents non-throw for missing catalog row.
-- [x] (invalid) `TenantProvisioningService.ProvisionAsync` — malformed `AdminEmail` at provision only — **cheap-disproof 2026-10-22:** post-auth `displayEmail` originates from verified OTP session, not raw client bypass.
-- [x] (valid-no-repro) `TrialTenantBootstrapService.TryBootstrapAfterPostAuthWorkspaceAsync` — `companyProfile` discarded — **cheap-disproof 2026-10-22:** post-auth path does not commit self-service trial metadata; industry vertical flows to onboarding URL only by design today.
-- [x] (valid-no-repro) `TenantCatalogMigrationOrchestrator.CompleteAsync` — pre-migration admin suspend preserved — **cheap-disproof 2026-10-22:** regression `CompleteAsync_preserves_admin_suspend_when_tenant_was_suspended_before_migration_start`.
-
-2026-10-22 seed hunt (seed→hit): promoted post-auth unsupported `DataRegion` — `TenantProvisioningDataRegionPolicy.Validate` threw from `ProvisionAsync` on allowlist miss instead of a customer deny; validate normalized region before provision using `TenantProvisioningOptions`; regression `CreateWorkspaceAsync_denies_when_data_region_not_in_supported_list`; cheap-disproof closed five open `(candidate)` rows.
-
-- [x] (proven) `PostAuthWorkspaceBootstrapService.CreateWorkspaceAsync` — unsupported `DataRegion` surfaced as `ArgumentException` from provisioning — **hit 2026-10-22 seed hunt:** pre-provision allowlist validation; regression `CreateWorkspaceAsync_denies_when_data_region_not_in_supported_list`.
-- [x] (invalid) `PostAuthWorkspaceBootstrapService.CreateWorkspaceAsync` — `CompanySize` band not validated on post-auth path — **cheap-disproof 2026-10-22:** `PostAuthCreateWorkspaceRequest` has no `CompanySize` field; registration-only baseline today.
-- [x] (valid-no-repro) `TenantSuspendCommandService.TrySuspendAsync` — idempotent suspend skips audit when already suspended — **cheap-disproof 2026-10-22:** intentional; regression `TrySuspendAsync_is_idempotent_when_already_suspended`.
-- [x] (valid-no-repro) `TenantSlugNormalizer.FromName` — slug truncated at 100 characters — **cheap-disproof 2026-10-22:** bounded slug column contract; collisions fail closed at SQL unique slug / duplicate-org handling.
-- [x] (invalid) `TrialLimitGate.GuardWriteAsync` — `Guid.Empty` tenant scope bypass — **cheap-disproof 2026-10-22:** platform/unscoped writes intentionally skip tenant metering gate.
-- [x] (valid-no-repro) `TenantMigrationVerificationProbe.RunAsync` — probe requires active write freeze — **cheap-disproof 2026-10-22:** orchestrator advances to verification only after migration suspend; probe guard is intentional.
-
-2026-10-22 seed hunt (seed→hit): promoted post-auth uncatalogued `IndustryVertical` — registration rejects via `RegistrationRequestBaselineValidator.IndustryVerticals` but `CreateWorkspaceAsync` accepted arbitrary labels into trial bootstrap; shared curated-list guard before provision; regression `CreateWorkspaceAsync_denies_when_industry_vertical_not_in_curated_list`; cheap-disproof closed four sibling `(candidate)` rows.
-
-- [x] (proven) `PostAuthWorkspaceBootstrapService.CreateWorkspaceAsync` — uncatalogued `IndustryVertical` accepted — **hit 2026-10-22 seed hunt:** `RegistrationRequestBaselineValidator.IndustryVerticals` parity; regression `CreateWorkspaceAsync_denies_when_industry_vertical_not_in_curated_list`.
-- [x] (valid-no-repro) `TenantWorkOwnershipDeletePolicyService.SetAllowCreatorDeleteOwnedWorkAsync` — writer without admin at service — **cheap-disproof 2026-10-22:** tenant settings mutations authorized at API/controller layer; service is tenant-scoped upsert only.
-- [x] (valid-no-repro) `TenantMigrationStatusService.GetForTenantAsync` — `MaintenanceMessage` during suspended migration — **cheap-disproof 2026-10-22:** intentional operator visibility during active migration (not erasure quarantine).
-- [x] (invalid) `TrialLifecycleAdvancement` — mismatched from/to statuses — **cheap-disproof 2026-10-22:** only constructed by `TrialLifecyclePolicy`; no external attacker input path.
-- [x] (valid-no-repro) `TenantProvisioningService.ProvisionAsync` — `DataRegion` mismatch on idempotent retry — **cheap-disproof 2026-10-22:** `WasAlreadyProvisioned` conflict path does not re-run bootstrap (`BuildAlreadyProvisionedResultAsync` ledger #1247).
-
-2026-10-22 seed hunt (seed→hit): promoted post-auth `IndustryVertical=Other` without `IndustryVerticalOther` — self-service registration rejects via `RegistrationRequestBaselineValidator` but `CreateWorkspaceAsync` provisioned and bootstrapped; added deny guard before provision; regression `CreateWorkspaceAsync_denies_when_other_vertical_without_other_specification`; cheap-disproof closed four sibling `(candidate)` rows.
-
-- [x] (proven) `PostAuthWorkspaceBootstrapService.CreateWorkspaceAsync` — `IndustryVertical=Other` with blank `IndustryVerticalOther` accepted — **hit 2026-10-22 seed hunt:** registration parity validation before provision; regression `CreateWorkspaceAsync_denies_when_other_vertical_without_other_specification`.
-- [x] (valid-no-repro) `TenantTrialFacade.GetTrialStatusAsync` — lowercase `trialStatus` breaks days display — **cheap-disproof 2026-10-22:** `TrialLifecycleStatus.EqualsStatus` is ordinal-ignore-case; `GetTrialStatusAsync_sets_identity_handoff_pending_when_converted_status_differs_only_by_casing`.
-- [x] (valid-no-repro) `TenantUsageStatusService.BuildAsync` — workspace count for offboarded tenant — **cheap-disproof 2026-10-22:** erasure-quarantined tenants blocked on tenant-scoped HTTP before usage callers; snapshot is read-model only.
-- [x] (valid-no-repro) `TrialSignupBaselineReviewCycleCapture` — negative baseline hours — **cheap-disproof 2026-10-22:** `RegistrationRequestBaselineValidator` rejects `<= 0` before capture reaches commit (`BaselineReviewCycleHours must be greater than 0`).
-- [x] (valid-no-repro) `TenantAgentOutputQualityGateModeService.SetAsync` — invalid mode string at service layer — **cheap-disproof 2026-10-22:** `SetAsync` accepts typed `AgentOutputQualityGateMode` enum only; string parsing is `GetAsync` read path.
-
-- [x] (proven) `PostAuthWorkspaceBootstrapService.CreateWorkspaceAsync` — uncatalogued `IndustryVertical` — **hit 2026-10-22 seed hunt:** see zone header.
-- [x] (valid-no-repro) `TenantWorkOwnershipDeletePolicyService` — admin role at service — **closed 2026-10-22 seed hunt:** see zone header.
-- [x] (valid-no-repro) `TenantMigrationStatusService` — maintenance message visibility — **closed 2026-10-22 seed hunt:** see zone header.
-- [x] (invalid) `TrialLifecycleAdvancement` — mismatched statuses — **closed 2026-10-22 seed hunt:** see zone header.
-- [x] (valid-no-repro) `TenantProvisioningService.ProvisionAsync` — data region on idempotent retry — **closed 2026-10-22 seed hunt:** see zone header.
-
-2026-10-22 seed hunt (seed→hit): promoted `PostAuthWorkspaceBootstrapService.BuildCompanyProfile` — stray `IndustryVerticalOther` flowed into post-auth trial bootstrap when vertical was not `Other` (registration path already nulls it); parity guard in `BuildCompanyProfile`; regression `CreateWorkspaceAsync_strips_industry_vertical_other_when_vertical_is_not_other`; cheap-disproof closed four sibling `(candidate)` rows; scoped post-auth + org-detector tests passed.
-
-- [x] (proven) `PostAuthWorkspaceBootstrapService.BuildCompanyProfile` — `IndustryVerticalOther` persisted when vertical not `Other` — **hit 2026-10-22 seed hunt:** null other unless vertical is `Other`; regression `CreateWorkspaceAsync_strips_industry_vertical_other_when_vertical_is_not_other`.
-- [x] (valid-no-repro) `TenantMigrationVerificationProbe.RunAsync` — probe runs when tenant suspended but not offboarded — **cheap-disproof 2026-10-22:** orchestrator quarantine re-reads precede probe; suspend is expected during migration verification window.
-- [x] (valid-no-repro) `TenantDeletionService.DeleteTenantAsync` — platform audit skipped when approval cleared after SQL purge — **cheap-disproof 2026-10-22:** documented intentional skip in existing regression.
-- [x] (valid-no-repro) `TrialLifecycleTransitionEngine.TryAdvanceTenantAsync` — stale workspace link for transition audit — **cheap-disproof 2026-10-22:** `[state-machine-gap]` saturated; workspace-missing audit skip already proven (`TryAdvanceTenantAsync_skips_transition_audit_when_workspace_link_missing_before_audit`).
-- [x] (valid-no-repro) `TenantOrganizationDuplicateDetector.IsDuplicateOrganization` — `IX_` only on outer exception — **regression 2026-10-22:** `IsDuplicateOrganization_detects_ix_index_name_on_outer_exception_message`.
-
-- [x] (proven) `PostAuthWorkspaceBootstrapService.CreateWorkspaceAsync` — `Other` vertical without other specification — **hit 2026-10-22 seed hunt:** see zone header.
-- [x] (valid-no-repro) `TenantTrialFacade.GetTrialStatusAsync` — lowercase `trialStatus` — **closed 2026-10-22 seed hunt:** see zone header.
-- [x] (valid-no-repro) `TenantUsageStatusService.BuildAsync` — offboarded workspace count — **closed 2026-10-22 seed hunt:** see zone header.
-- [x] (valid-no-repro) `TrialSignupBaselineReviewCycleCapture` — negative baseline hours — **closed 2026-10-22 seed hunt:** see zone header.
-- [x] (valid-no-repro) `TenantAgentOutputQualityGateModeService.SetAsync` — invalid mode at service — **closed 2026-10-22 seed hunt:** see zone header.
-
-2026-10-22 seed hunt (seed-only): closed five open `(candidate)` rows with regressions/cheap-disproof (duplicate-org inner exception, registration `IndustryVerticalOther` guard, migration status error cleared on successful verify mark, no-op retrieval drainer by design, seat cap enforced at repository); no hunt-ready promotion (`state-machine-gap` saturated); scoped tenancy migration/org-detector + registration tests passed.
-
-- [x] (valid-no-repro) `TenantOrganizationDuplicateDetector.IsDuplicateOrganization` — nested inner exception without SQL unique-key detector — **regression 2026-10-22:** `IsDuplicateOrganization_detects_duplicate_text_on_inner_exception_only`.
-- [x] (valid-no-repro) `TrialSignupCompanyProfileCapture` / `RegistrationApplicationService` — `IndustryVerticalOther` persisted when vertical not `Other` — **regression 2026-10-22:** `RegisterAsync_strips_industry_vertical_other_when_vertical_is_not_other` (null other unless vertical is `Other`).
-- [x] (valid-no-repro) `TenantMigrationStatusService.GetForTenantAsync` — stale `LastVerificationError` after successful verify retry — **regression 2026-10-22:** `MarkVerificationResultAsync` clears error when `passed: true`; `GetForTenantAsync_clears_last_verification_error_after_successful_verification_mark`.
-- [x] (valid-no-repro) `NoOpTenantMigrationRetrievalOutboxDrainer.ProcessPendingBatchAsync` — silent no-op during migration — **cheap-disproof 2026-10-22:** intentional host fallback; catalog migration does not require retrieval drain in Application layer alone.
-- [x] (valid-no-repro) `TrialSeatAccountant.TryReserveSeatAsync` — seat used counter increments when tenant already at limit — **cheap-disproof 2026-10-22:** `TryReserveSeatAsync_lowercase_active_trial_enforces_seat_cap` throws `SeatsExceeded` on third principal; repository owns atomic claim.
-
-- [x] (proven) `PostAuthWorkspaceBootstrapService.BuildCompanyProfile` — stray `IndustryVerticalOther` when vertical not `Other` — **hit 2026-10-22 seed hunt:** see zone header.
-- [x] (valid-no-repro) `TenantMigrationVerificationProbe.RunAsync` — probe while suspended — **closed 2026-10-22 seed hunt:** see zone header.
-- [x] (valid-no-repro) `TenantDeletionService.DeleteTenantAsync` — audit skip after purge — **closed 2026-10-22 seed hunt:** see zone header.
-- [x] (valid-no-repro) `TrialLifecycleTransitionEngine.TryAdvanceTenantAsync` — stale workspace for audit — **closed 2026-10-22 seed hunt:** see zone header.
-- [x] (valid-no-repro) `TenantOrganizationDuplicateDetector.IsDuplicateOrganization` — `IX_` on outer — **closed 2026-10-22 seed hunt:** see zone header.
-
-2026-10-22 seed hunt (seed-only): `[state-machine-gap]` saturated — no hunt-ready promotion; cheap-disproof closed five open `(candidate)` rows (projection refresh stage gate, preseed enqueue re-read, seat middleware ordering, slug homoglyph stripping, data-region validate path); added `TrialLifecyclePolicy` regressions for converted/unknown status and missing expiry display; scoped `TrialLifecyclePolicyTests` 10/10.
-
-- [x] (valid-no-repro) `TenantCatalogMigrationOrchestrator.RunProjectionRefreshAsync` — projection refresh after failed verification retry — **cheap-disproof 2026-10-22:** `RunProjectionRefreshAsync` requires `CatalogAttachDetach` stage; failed verify keeps `Verification` stage until retry passes (`RunVerificationAsync_allows_retry_after_failed_verification`).
-- [x] (valid-no-repro) `TrialTenantBootstrapService.TryEnqueueTrialArchitecturePreseedAsync` — preseed enqueue without re-read after trial commit — **cheap-disproof 2026-10-22:** `IsTenantInErasureQuarantineAsync` immediately before `EnqueueTrialArchitecturePreseedAsync` (~202–205).
-- [x] (valid-no-repro) `TenantTrialSeatReservationMiddleware` — seat claim skipped when `TrialSeatsLimit` null on first request — **cheap-disproof 2026-10-22:** same middleware ordering lens as 2026-10-21; trial commit sets seat limits before self-service HTTP returns.
-- [x] (valid-no-repro) `TenantSlugNormalizer.Normalize` — unicode homoglyph slug collision — **cheap-disproof 2026-10-22:** non-ASCII letters stripped by design; `TenantSlugNormalizerTests` covers alphanumeric extraction.
-- [x] (valid-no-repro) `TenantDataRegionResolver.Resolve` — missing region default vs tenant `DataRegion` mismatch on provision — **cheap-disproof 2026-10-22:** `TenantProvisioningDataRegionPolicy` normalizes optional input and validates against supported list (`ApplicationPackageCoverageBatch8Tests`).
-
-- [x] (valid-no-repro) `TenantOrganizationDuplicateDetector.IsDuplicateOrganization` — nested inner exception — **closed 2026-10-22 seed hunt:** see zone header regression.
-- [x] (valid-no-repro) `TrialSignupCompanyProfileCapture` / registration profile — `IndustryVerticalOther` when vertical not `Other` — **closed 2026-10-22 seed hunt:** see zone header regression.
-- [x] (valid-no-repro) `TenantMigrationStatusService.GetForTenantAsync` — stale `LastVerificationError` — **closed 2026-10-22 seed hunt:** see zone header regression.
-- [x] (valid-no-repro) `NoOpTenantMigrationRetrievalOutboxDrainer` — silent no-op during migration — **closed 2026-10-22 seed hunt:** see zone header cheap-disproof.
-- [x] (valid-no-repro) `TrialSeatAccountant.TryReserveSeatAsync` — seat cap at limit — **closed 2026-10-22 seed hunt:** see zone header cheap-disproof.
-
 2026-10-21 seed hunt (seed→hit): `TrialVerticalWelcomeRequestFactory.Create` ignored signup `IndustryVerticalOther` when `IndustryVertical` is `Other`, so trial architecture pre-seed used generic welcome copy; `TrialArchitecturePreseedExecutor` now passes both fields; regressions `Create_with_other_vertical_and_specification_includes_other_text_in_description` and `TryProcessTenantAsync_other_vertical_passes_other_specification_into_welcome_request`; 245 scoped tenancy tests passed.
 
 - [x] (proven) `TrialVerticalWelcomeRequestFactory.Create` — `IndustryVerticalOther` ignored for `Other` signup vertical — **hit 2026-10-21 seed hunt:** optional other specification woven into welcome pre-seed description; executor passes `tenant.IndustryVerticalOther`.
@@ -12468,11 +11280,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 142
-- **bugs-found:** 120
+- **hunts:** 133
+- **bugs-found:** 114
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — trial status API canonical labels
+- **last-hunt:** 2026-10-21
+- **last-bug:** 2026-10-21 - trial welcome preseed IndustryVerticalOther
 
 2026-10-21 seed hunt (seed-only): cheap-disproof on five settings/registration `(candidate)` rows; no hunt-ready promotion (`state-machine-gap` / `fail-open-validation` saturated); reseeded five new lenses.
 
@@ -12505,10 +11317,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 121
+- **hunts:** 120
 - **bugs-found:** 105
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-22
+- **last-hunt:** 2026-10-13
 - **last-bug:** 2026-10-13 — Trial conversion mark on quarantined tenant after conversion metrics
 
 2026-10-13 seed hunt (seed→hit): reseeded trial conversion post-metrics mark window; proved `MarkTrialConvertedAsync` when offboard followed conversion metrics; pre-mark tenant re-read; regression `ConvertTrialAsync_returns_success_without_mark_when_offboard_completes_after_conversion_metrics_before_mark`; 227 scoped tenancy tests passed.
@@ -12885,12 +11697,6 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ### Hypotheses
 
-- [ ] (candidate) `TenantUsageStatusService.BuildAsync` — calendar-expired `Active` trial still reports `IsTrial=true` before scheduler advances status — locus: `isTrial` ~30; input: past `TrialExpiresUtc` with `Active`; reachability: tenant usage status API / packaging evaluator.
-- [ ] (candidate) `CommercialPackagingTierResolver.ResolveCommercialTierLabel` — `Expired` lifecycle tenants infer Team/Professional from trial seat/workspace counts — locus: no post-active freeze ~25; input: `Expired` + high `TrialSeatsUsed`; reachability: `TenantUsageStatusService.BuildAsync`.
-- [ ] (candidate) `TrialLifecyclePolicy.ComputeDaysRemainingForStatusDisplay` — unrecognized `TrialStatus` literals still emit active-window countdown — locus: `ResolveStatusDeadline` default ~78; input: legacy label + `TrialExpiresUtc`; reachability: `GET /v1/tenant/trial-status`.
-- [ ] (candidate) `WorkspacePackagingLimitEvaluator.EvaluateAdditionalWorkspaceForTenantAsync` — null usage snapshot allows additional workspace — locus: `snapshot is null` ~50; input: tenant row missing at read time; reachability: additional-workspace packaging check.
-- [ ] (candidate) `TrialLimitGate.GuardDeleteAsync` — lowercase `deleted` lifecycle label skips delete freeze — locus: `GuardDeleteAsync` ~90–92; input: `TrialStatus=deleted`; reachability: HTTP DELETE on terminal lifecycle (parity with `GuardWriteAsync` deleted branch).
-
 - [x] (invalid) Suspend leaves mutating API paths active for the tenant — retired: `TenantSuspendCommandService` persists suspend state; mutating-path enforcement lives in API middleware/filters outside this folder
 - [x] (invalid) Migration copies rows without rewriting tenant id on child tables — retired: `TenantCatalogMigrationOrchestrator` coordinates suspend/projection refresh/verification; no catalog row-copy logic in `ArchLucid.Application/Tenancy/`
 - [x] (invalid) Trial bootstrap creates resources under a host catalog tenant id — retired: `TrialTenantBootstrapService` scopes `AmbientScopeContext` to `result.TenantId` and uses `ContosoRetailDemoIds.ForTenant(result.TenantId)`
@@ -13068,36 +11874,13 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (valid-no-repro) `TenantWorkOwnershipDeletePolicyService.GetAllowCreatorDeleteOwnedWorkAsync` — malformed boolean fail-open — **cheap-disproof 2026-10-21 seed hunt:** `[fail-open-validation]` saturated; writes use `TenantSettingBooleanParser.Format`; malformed row requires DB tamper (#1247).
 - [x] (valid-no-repro) `TenantSuspendCommandService.TrySuspendAsync` — suspend/offboard race — **cheap-disproof 2026-10-21 seed hunt:** `TenantSuspendCommandServiceOffboardRaceTests` already covers offboard before atomic suspend, after suspend, and post-read audit windows.
 
-- [x] (valid-no-repro) `TenantCatalogMigrationOrchestrator.RunProjectionRefreshAsync` — projection refresh after failed verification retry — **closed 2026-10-22 seed hunt:** see zone header cheap-disproof.
-- [x] (valid-no-repro) `TrialTenantBootstrapService.TryEnqueueTrialArchitecturePreseedAsync` — preseed enqueue without re-read after trial commit — **closed 2026-10-22 seed hunt:** see zone header cheap-disproof.
-- [x] (valid-no-repro) `TenantTrialSeatReservationMiddleware` — seat claim skipped when `TrialSeatsLimit` null on first request — **closed 2026-10-22 seed hunt:** see zone header cheap-disproof.
-- [x] (valid-no-repro) `TenantSlugNormalizer.Normalize` — unicode homoglyph slug collision — **closed 2026-10-22 seed hunt:** see zone header cheap-disproof.
-- [x] (valid-no-repro) `TenantDataRegionResolver.Resolve` — missing region default vs tenant `DataRegion` mismatch on provision — **closed 2026-10-22 seed hunt:** see zone header cheap-disproof.
+- (candidate) `TenantCatalogMigrationOrchestrator.RunProjectionRefreshAsync` — projection refresh after failed verification retry — locus: stage gate vs `LastVerificationFailedUtc`; input: admin retries verify after probe failure while tenant still suspended (reachability: migration operator API).
+- (candidate) `TrialTenantBootstrapService.TryEnqueueTrialArchitecturePreseedAsync` — preseed enqueue without re-read after trial commit — locus: enqueue path after `CommitSelfServiceTrialAsync`; input: erasure offboard between commit and enqueue (reachability: self-service registration worker).
+- (candidate) `TenantTrialSeatReservationMiddleware` — seat claim skipped when `TrialSeatsLimit` null on first request — locus: middleware early exit; input: tenant row between slug reserve and trial commit (reachability: first authenticated API after register).
+- (candidate) `TenantSlugNormalizer.Normalize` — unicode homoglyph slug collision — locus: normalization table; input: registration slug with confusable characters (reachability: `POST /v1/register` slug field).
+- (candidate) `TenantDataRegionResolver.Resolve` — missing region default vs tenant `DataRegion` mismatch on provision — locus: resolver merge; input: registration with explicit non-default region (reachability: registration + provision path).
 
 ## Zone: api-request-null-collection-elements
-
-2026-10-22 thorough hunt (hit): `api-request-null-collection-elements` — dictionary entry values typed as nested collections (`Dictionary<string, List<string>>`) only called `VisitObject`, which does not enumerate list elements; traverse dictionary values with `VisitDictionaryEntryValue` + value-side `VisitCollection`; hardened nested collection element nullability via `ResolveCollectionElementNullability`; regressions `ContainsNullCollectionElement_returns_true_for_null_string_in_dictionary_list_value` and nested list; 19 scoped guard/architecture/filter tests passed.
-
-- [x] (proven) `ApiRequestNullCollectionElementsGuard.TryVisitDictionaryEntryValue` — null elements inside dictionary values typed as `IEnumerable` collections not detected — **hit 2026-10-22 thorough hunt:** `VisitDictionaryEntryValue` + value nullability from `GenericTypeArguments[1]`; regression `ContainsNullCollectionElement_returns_true_for_null_string_in_dictionary_list_value`.
-- [x] (proven) `ApiRequestNullCollectionElementsGuard.VisitCollection` — nested collection element nullability sometimes missed when `ElementType` was unset — **hit 2026-10-22 thorough hunt (follow-up):** `ResolveCollectionElementNullability` falls back to `GenericTypeArguments[0]`; regression `ContainsNullCollectionElement_returns_true_for_null_string_in_nested_list_collection`.
-
-2026-10-22 seed hunt (seed→hit): promoted nested collection traversal — `List<List<string>>` with null inner strings skipped validation because collection elements typed as `IEnumerable` only recursed through `VisitObject`, which does not enumerate list items; recurse nested collections with element `NullabilityInfo`; regression `ContainsNullCollectionElement_returns_true_for_null_string_in_nested_list_collection`; 11 guard tests (local compile blocked by unrelated Application WIP on main checkout).
-
-- [x] (proven) `ApiRequestNullCollectionElementsGuard.VisitCollection` — null elements inside nested collection properties not detected — **hit 2026-10-22 seed hunt:** nested `VisitCollection` via `ElementType` nullability; regression `ContainsNullCollectionElement_returns_true_for_null_string_in_nested_list_collection`.
-
-### Hypotheses
-
-- [x] (invalid) `ApiRequestNullCollectionElementsGuard.VisitObject` — public fields on `[FromBody]` DTOs bypass property-only reflection — **cheap-disproof 2026-10-22 thorough hunt:** `ArchLucid.Api/Models` request DTOs use properties only; no public instance field-backed collections in the FromBody catalog.
-- [x] (valid-no-repro) `ApiRequestNullCollectionElementsFilter.OnActionExecutionAsync` — skips validation when body argument is null after failed bind — **cheap-disproof 2026-10-22 thorough hunt:** intentional skip; `[ApiController]` model binding returns 400 before the filter runs on failed body bind.
-- [x] (invalid) `ApiRequestBodyTypeCatalog.DiscoverFromBodyRequestTypes` — minimal API / endpoint metadata bodies omitted — **cheap-disproof 2026-10-22 thorough hunt:** `ArchLucid.Api` body surface is MVC controllers; minimal routes are health/docs only (`PipelineExtensions.HealthDocs`).
-- [x] (valid-no-repro) `ApiRequestNullCollectionElementsGuard.TryVisitDictionaryEntryValue` — dictionary keys with nested invalid graphs not visited — **cheap-disproof 2026-10-22 thorough hunt:** production FromBody dictionaries are `Dictionary<string, string>`; complex keys are not reachable.
-- [x] (valid-no-repro) `SkipNullCollectionElementValidationAttribute` — opt-out property can reintroduce null-element 500 if used on production DTO — **cheap-disproof 2026-10-22 thorough hunt:** attribute is documented opt-out only; no production DTO usages.
-
-- [ ] (candidate) `ApiRequestNullCollectionElementsGuard.VisitCollection` — `IEnumerable` elements materialized as lazy enumerables may skip validation when enumeration throws — locus: `foreach` over deserialized collections; input: custom enumerable with deferred null; reachability: System.Text.Json materializes arrays/lists.
-- [ ] (candidate) `ApiRequestBodyTypeCatalog.EnumerateCollectionPropertyPaths` — skips collection properties on nested types reached only via dictionary values — locus: catalog walk; input: future `Dictionary<string, NestedDto>`; reachability: architecture probe factory gap.
-- [ ] (candidate) `ApiRequestNullCollectionElementsFilter` — non-`ControllerActionDescriptor` actions bypass filter — locus: descriptor guard ~20; input: Razor Page handler; reachability: API uses controllers only.
-- [ ] (candidate) `ApiRequestNullCollectionElementsGuard` — `HashSet<string>` with null element — locus: collection foreach; input: null in set; reachability: JSON deserializer typically rejects null in non-nullable set elements.
-- [ ] (candidate) `ApiRequestNullCollectionElementsGuard.VisitObject` — cyclic object graphs short-circuit validation via `visited` — locus: reference equality set; input: shared collection instance referenced twice; reachability: JSON deserializer does not produce cycles in request DTOs.
 
 - **id:** api-request-null-collection-elements
 - **status:** open
@@ -13105,11 +11888,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** null collection elements; request body validation
 - **paths:** ArchLucid.Api/Filters/ApiRequestNullCollectionElementsFilter.cs; ArchLucid.Api/Validation/ApiRequestNullCollectionElementsGuard.cs; ArchLucid.Api/Http/ApiRequestBodyTypeCatalog.cs; ArchLucid.Api/Startup/MvcExtensions.cs
 - **test-filter:** FullyQualifiedName~ApiRequestNullCollectionElements|FullyQualifiedName~RunCoverageControllerTests
-- **hunts:** 4
-- **bugs-found:** 3
+- **hunts:** 2
+- **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — dictionary nested collection values skipped null-element guard
+- **last-hunt:** 2026-10-21
+- **last-bug:** 2026-10-21 - trim AgentModelTiers AgentTypeTiers keys after configuration bind
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
