@@ -142,7 +142,7 @@ export function humanReviewStatusDisplay(
     case undefined:
       return { label: "Human review status was not stored", statusKind: "neutral" };
     default:
-      return { label: "Human review status unknown", statusKind: "neutral" };
+      return { label: "Human review status was not recognized.", statusKind: "neutral" };
   }
 }
 
