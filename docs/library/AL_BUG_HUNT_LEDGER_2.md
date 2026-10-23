@@ -4218,6 +4218,20 @@
 
 ## Zone: saml-jwt-bearer
 
+2026-10-23 seed hunt #3 (seed→hit): promoted `ScimBearerAuthenticationHandler` pipe- and vertical-tab-joined `Authorization` values (revoked then valid Bearer); extended `SplitAuthorizationCredentialSegments` with `|` and `\v`; promoted bare `Bearer` scheme-only comma segment misclassified as non-Bearer and tripped mix guard on `Bearer , Bearer <valid>`; `TryReadBearerCredentialSegment` treats scheme-only segments as empty Bearer credentials; regressions `HandleAuthenticateAsync_succeeds_when_pipe_separated_header_lists_revoked_token_before_valid_one`, `HandleAuthenticateAsync_succeeds_when_vertical_tab_separated_header_lists_revoked_token_before_valid_one`, `HandleAuthenticateAsync_succeeds_when_comma_folded_header_has_empty_first_bearer_segment_before_valid_one`; cheap-disproof closed two remaining `(candidate)` rows; reseeded five follow-on `(candidate)` rows; `ScimBearerAuthenticationHandlerTests` 14/14. Private beta: SCIM Bearer provisioning tolerates pipe- or vertical-tab-joined credentials and comma-folded headers where the first segment is an empty Bearer placeholder before a valid token.
+
+- [x] (proven) `ScimBearerAuthenticationHandler.TryParseBearerCredentials` — pipe-separated revoked then valid Bearer in one header — **hit 2026-10-23 seed hunt #3:** segment split omitted `|`; regression `HandleAuthenticateAsync_succeeds_when_pipe_separated_header_lists_revoked_token_before_valid_one`.
+- [x] (proven) `ScimBearerAuthenticationHandler.TryParseBearerCredentials` — vertical-tab-separated revoked then valid Bearer — **hit 2026-10-23 seed hunt #3:** split omitted `\v`; regression `HandleAuthenticateAsync_succeeds_when_vertical_tab_separated_header_lists_revoked_token_before_valid_one`.
+- [x] (proven) `ScimBearerAuthenticationHandler.TryReadBearerCredentialSegment` — bare `Bearer` comma segment tripped Bearer/non-Bearer mix guard — **hit 2026-10-23 seed hunt #3:** `Bearer , Bearer <valid>` split to `Bearer` + valid segment; scheme-only segment returned non-Bearer; regression `HandleAuthenticateAsync_succeeds_when_comma_folded_header_has_empty_first_bearer_segment_before_valid_one`.
+- [x] (valid-no-repro) `ArchLucidSamlInboundClaimsNormalizer` — whitespace-only role source values block promotion — **cheap-disproof 2026-10-23 seed hunt #3:** `PromoteIncomingRoleValues` skips `IsNullOrWhiteSpace` inbound values; blank IdP rows do not suppress other role claims.
+- [x] (valid-no-repro) `LocalTrialJwtIssuer` — `accessTokenLifetimeMinutes` of `int.MaxValue` bypasses clamp — **cheap-disproof 2026-10-23 seed hunt #3:** `expires` uses `Math.Clamp(configuredMinutes, 5, 24 * 60)` before `AddMinutes`.
+
+- [ ] (candidate) `ScimBearerAuthenticationHandler` — form-feed `\f` between folded Bearer credentials — locus: `SplitAuthorizationCredentialSegments`; input: `Bearer a\fBearer b`; reachability: legacy proxies.
+- [ ] (candidate) `ScimBearerAuthenticationHandler` — multiple consecutive commas between Bearer credentials — locus: split + empty segment handling; input: `Bearer a,,Bearer b`.
+- [ ] (candidate) `ScimBearerAuthenticationHandler` — `Bearer` segment with only tab after scheme and no token before next segment — locus: `TryReadBearerCredentialSegment`; input: `Bearer\t, Bearer valid`.
+- [ ] (candidate) `RecentAuthenticationEvaluator` — stale `auth_time` with fresh `iat` on SAML cookie principal — locus: freshness precedence; input: IdP re-auth without updated `auth_time`.
+- [ ] (candidate) `PlatformUserAuthVersionValidator` — missing `archlucid_auth_ver` on trial JWT accepted on platform-user routes — locus: validator skip paths; input: local trial issuer omitting stamp.
+
 2026-10-23 seed hunt #2 (seed→hit): promoted `ScimBearerAuthenticationHandler` semicolon-joined `Authorization` value (revoked Bearer segment then valid Bearer in one header); extended `SplitAuthorizationCredentialSegments` with `;`; regression `HandleAuthenticateAsync_succeeds_when_semicolon_separated_header_lists_revoked_token_before_valid_one`; cheap-disproof closed five open `(candidate)` rows; reseeded five follow-on `(candidate)` rows; `ScimBearerAuthenticationHandlerTests` 11/11. Private beta: SCIM Bearer provisioning succeeds when a gateway joins multiple Bearer credentials with semicolon separators—not only commas or line breaks—after an earlier revoked segment.
 
 - [x] (proven) `ScimBearerAuthenticationHandler.TryParseBearerCredentials` — semicolon-separated revoked then valid Bearer in one header value — **hit 2026-10-23 seed hunt #2:** single segment `Bearer revoked; Bearer valid` never reached second credential; split includes `;`; regression `HandleAuthenticateAsync_succeeds_when_semicolon_separated_header_lists_revoked_token_before_valid_one`.
@@ -4225,12 +4239,6 @@
 - [x] (valid-no-repro) `LocalTrialJwtIssuer` — non-Guid `sub` on trial access token — **cheap-disproof 2026-10-23 seed hunt #2:** `IssueAccessToken` always emits `JwtRegisteredClaimNames.Sub` from `userId.ToString("D")`; opaque-sub bypass not reachable from issuer API.
 - [x] (valid-no-repro) `ArchLucidSamlInboundClaimsNormalizer` — empty-string inbound tenant scope source claim — **cheap-disproof 2026-10-23 seed hunt #2:** `PromoteSingleValueIfMissing` filters `v.Length > 0` before distinct count; empty attribute does not promote.
 - [x] (invalid) `ScimBearerTokenAuthenticator` — wrong Argon pepper version accepts revoked row — **cheap-disproof 2026-10-23 seed hunt #2:** single `ScimArgonSecretHasher.VerifySecret` path; no multi-pepper migration branch in authenticator.
-
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — vertical tab `\v` between folded Bearer credentials in one header — locus: `SplitAuthorizationCredentialSegments`; input: `Bearer a\vBearer b`; reachability: exotic proxy header joiners.
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — pipe `|` delimiter between Bearer credentials in one header — locus: segment split; input: `Bearer a | Bearer b`; reachability: custom API gateways.
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — empty Bearer segment between valid credentials (`Bearer , Bearer token`) — locus: whitespace-only token skip; input: comma with empty first Bearer body; wrong outcome: skip vs fail entire header.
-- [ ] (candidate) `ArchLucidSamlInboundClaimsNormalizer` — multiple whitespace-only role source values prevent role promotion — locus: `PromoteIncomingRoleValues`; input: IdP sends blank role attribute rows.
-- [ ] (candidate) `LocalTrialJwtIssuer` — `accessTokenLifetimeMinutes` above clamp still honored when caller passes `int.MaxValue` — locus: `Math.Clamp(configuredMinutes, 5, 24 * 60)`; input: hostile controller passes huge lifetime.
 
 2026-10-23 seed hunt (seed→hit): promoted `ScimBearerAuthenticationHandler` newline-joined `Authorization` value (revoked Bearer line then valid Bearer line in one header); split credential segments on comma and line breaks before `TryReadBearerCredentialSegment`; regression `HandleAuthenticateAsync_succeeds_when_newline_separated_header_lists_revoked_token_before_valid_one`; cheap-disproof closed five open `(candidate)` rows at zone top; reseeded five follow-on `(candidate)` rows; `ScimBearerAuthenticationHandlerTests` 10/10. Private beta: Invited operators’ SCIM Bearer provisioning succeeds when a gateway folds multiple Bearer credentials into one `Authorization` value with LF separators—not only commas—after an earlier revoked segment on the JwtBearer pilot path.
 
@@ -4263,11 +4271,11 @@
 - **aliases:** SAML; trial JWT; SCIM bearer; OIDC auth stack
 - **paths:** ArchLucid.Api/Auth/; ArchLucid.Core/Auth/Saml/
 - **test-filter:** FullyQualifiedName~Saml|FullyQualifiedName~LocalTrialJwt|FullyQualifiedName~ScimBearer
-- **hunts:** 29
-- **bugs-found:** 26
+- **hunts:** 30
+- **bugs-found:** 28
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-23
-- **last-bug:** 2026-10-23 — SCIM Bearer auth failed when semicolon-joined Authorization listed a revoked Bearer before a valid one
+- **last-bug:** 2026-10-23 — SCIM Bearer rejected comma-folded empty Bearer placeholder before valid credential
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
