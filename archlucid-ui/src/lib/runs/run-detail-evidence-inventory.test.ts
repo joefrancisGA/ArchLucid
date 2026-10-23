@@ -147,6 +147,16 @@ describe("run-detail-evidence-inventory", () => {
     );
   });
 
+  it("does not mark trust complete when inventory exists but trust rollup is absent", () => {
+    const readiness = deriveEvidenceScopeReadiness({
+      inventoryCount: 3,
+      trustReadiness: null,
+    });
+
+    expect(readiness.verdict).toBe("gaps");
+    expect(readiness.headline).toBe("Trust evidence was not stored.");
+  });
+
   it("forces gaps readiness when inventory is empty", () => {
     const readiness = deriveEvidenceScopeReadiness({
       inventoryCount: 0,

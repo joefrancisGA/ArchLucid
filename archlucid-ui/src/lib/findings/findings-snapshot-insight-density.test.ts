@@ -64,6 +64,17 @@ describe("findings-snapshot-insight-density", () => {
     expect(message).toContain("without hiding checklist coverage");
   });
 
+  it("does not invent curation counts from checklist rows alone", () => {
+    const view = resolveFindingsSnapshotInsightDensityView({
+      run: { runId: "r1", projectId: "p", createdUtc: "2026-01-01T00:00:00Z" },
+      findingsSnapshot: {
+        checklistCoverage: [{ findingId: "chk-1", message: "Enable monitoring" }],
+      },
+    } as never);
+
+    expect(view.curation).toBeNull();
+  });
+
   it("hasFindingsSnapshotInsightDensityContent is false when there is nothing to disclose", () => {
     expect(hasFindingsSnapshotInsightDensityContent({ checklistCoverage: [], curation: null })).toBe(false);
     expect(

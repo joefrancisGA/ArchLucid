@@ -14,20 +14,21 @@ export function buildReviewDefensibilityStripProps(
     }
 
     return {
-      assertedCount: 0,
-      inferredCount: 0,
-      skippedCount: 0,
+      assertedCount: null,
+      inferredCount: null,
+      skippedCount: null,
       criticAbsent: true,
       verdictKind: null,
     };
   }
 
   const trail = feasibilityVerdict.transparencyTrail;
+  const trailStored = trail !== null && trail !== undefined;
 
   return {
-    assertedCount: trail?.asserted.length ?? 0,
-    inferredCount: trail?.inferred.length ?? 0,
-    skippedCount: countSkippedMustQuestions(trail),
+    assertedCount: trailStored ? trail.asserted.length : null,
+    inferredCount: trailStored ? trail.inferred.length : null,
+    skippedCount: trailStored ? countSkippedMustQuestions(trail) : null,
     criticAbsent,
     verdictKind: feasibilityVerdictKindLabel(feasibilityVerdict.kind),
   };

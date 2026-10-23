@@ -28,11 +28,22 @@ describe("buildReviewDefensibilityStripProps", () => {
     const props = buildReviewDefensibilityStripProps(null, true);
 
     expect(props).toEqual({
-      assertedCount: 0,
-      inferredCount: 0,
-      skippedCount: 0,
+      assertedCount: null,
+      inferredCount: null,
+      skippedCount: null,
       criticAbsent: true,
       verdictKind: null,
     });
+  });
+
+  it("returns null trail counts when transparency trail is absent on the verdict", () => {
+    const props = buildReviewDefensibilityStripProps(
+      { kind: "feasible", summary: "Ready", transparencyTrail: undefined } as ManifestFeasibilityVerdict,
+      false,
+    );
+
+    expect(props?.assertedCount).toBeNull();
+    expect(props?.inferredCount).toBeNull();
+    expect(props?.skippedCount).toBeNull();
   });
 });
