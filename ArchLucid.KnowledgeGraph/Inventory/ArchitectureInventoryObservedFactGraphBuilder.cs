@@ -187,13 +187,25 @@ public static class ArchitectureInventoryObservedFactGraphBuilder
         Dictionary<string, GraphNode> nodeByNormalizedArmId)
     {
         if (string.IsNullOrWhiteSpace(resource.ParentResourceId)
-            || !nodeByNormalizedArmId.TryGetValue(normalizedArmId, out GraphNode? node)
-            || node.Properties.ContainsKey("arm.parentId"))
+            || !nodeByNormalizedArmId.TryGetValue(normalizedArmId, out GraphNode? node))
         {
             return;
         }
 
-        node.Properties["arm.parentId"] = ArmResourceIdNormalizer.Normalize(resource.ParentResourceId);
+        string incomingParentId = ArmResourceIdNormalizer.Normalize(resource.ParentResourceId);
+
+        if (node.Properties.TryGetValue("arm.parentId", out string? existingParentId))
+        {
+            if (!string.Equals(existingParentId, incomingParentId, StringComparison.Ordinal))
+            {
+                throw new ArgumentException(
+                    "Inventory overlay duplicate resource rows disagree on arm.parentId for the same normalized ARM resource id.");
+            }
+
+            return;
+        }
+
+        node.Properties["arm.parentId"] = incomingParentId;
     }
 
 }
