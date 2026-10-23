@@ -7859,6 +7859,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-agents
 
+2026-10-23 seed hunt (seed→hit): promoted null elements in `AgentResult.Findings` crashing IaC stub clone (`EnsureFindingSourceAgents` before `finding.IsMuted` short-circuit); `AgentResultEnvelopeAgentTypeResolver` now skips null findings when resolving/backfilling `SourceAgent`; IaC loop guards null before property access; regression `GenerateAndPersistStubsForRunAsync_skips_null_finding_entries`; 150 scoped Application.Tests.Agents tests passed.
+
+- [x] (proven) `AgentResultEnvelopeAgentTypeResolver` / `FindingIacStubGenerator` — null finding list entries aborted stub clone — **hit 2026-10-23 seed hunt:** null guards in resolver finding loops and IaC iteration; regression above. [class:fail-open-validation]
+
 2026-10-23 seed hunt (seed→hit): promoted null elements in `AgentResult.Findings` crashing emission gate (`HasTypedEmission` on null finding); `AgentArchitectureFindingEmissionGate.ApplyToResults` now skips null finding entries; regressions `ApplyToResults_skips_null_finding_entries` and `EnrichAsync_skips_null_finding_entries_when_withholding_prose_findings`; 149 scoped Application.Tests.Agents tests passed.
 
 - [x] (proven) `AgentArchitectureFindingEmissionGate.ApplyToResults` — null finding list entries aborted emission withholding — **hit 2026-10-23 seed hunt:** null guard in findings loop; regressions above. [class:fail-open-validation]
@@ -8101,11 +8105,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** application agents; agent handlers wiring
 - **paths:** ArchLucid.Application/Agents/
 - **test-filter:** FullyQualifiedName~Application.Tests.Agents
-- **hunts:** 71
-- **bugs-found:** 65
+- **hunts:** 72
+- **bugs-found:** 66
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-23
-- **last-bug:** 2026-10-23 — null finding entries crash emission gate
+- **last-bug:** 2026-10-23 — null finding entries crash IaC stub clone path
 
 2026-09-27 seed hunt (seed→hit): proved `TopologyProposalConsensusMerger.Merge` threw when `RequiredControls` was null on topology dual-model proposals (`AgentProposalStructuralPostProcessor` does not initialize controls for `AgentType.Topology`); fixed by null-coalescing in control intersection and disagreement counts; regression `Merge_when_required_controls_is_null_does_not_throw`; 92 scoped Application.Tests.Agents tests passed.
 
