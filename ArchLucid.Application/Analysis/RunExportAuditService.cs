@@ -46,6 +46,7 @@ public sealed class RunExportAuditService(
         resolutionReason = resolutionReason?.Trim();
         manifestVersion = manifestVersion?.Trim();
         notes = notes?.Trim();
+        TrimPersistedAnalysisExportRequest(analysisRequest);
         RunExportRecord record = new()
         {
             ExportRecordId = Guid.NewGuid().ToString("N"),
@@ -138,6 +139,17 @@ public sealed class RunExportAuditService(
                         errorMessage
                     }, AuditJsonSerializationOptions.Instance)
             }, cancellationToken);
+    }
+
+    private static void TrimPersistedAnalysisExportRequest(PersistedAnalysisExportRequest? analysisRequest)
+    {
+        if (analysisRequest is null)
+            return;
+
+        analysisRequest.CompareRunId = analysisRequest.CompareRunId?.Trim();
+        analysisRequest.CompareManifestVersion = analysisRequest.CompareManifestVersion?.Trim();
+        analysisRequest.TemplateProfile = analysisRequest.TemplateProfile?.Trim();
+        analysisRequest.Audience = analysisRequest.Audience?.Trim();
     }
 
     private static Guid? TryParseRunGuid(string runId)

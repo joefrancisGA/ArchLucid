@@ -5,6 +5,9 @@ namespace ArchLucid.Application.Analysis;
 /// </summary>
 internal static class ComparisonExportMarkdownSectionRemover
 {
+    private static readonly char[] UnicodeSpaceSubstitutes =
+        ['\u00A0', '\u2003', '\u2007', '\u2009', '\u200A', '\u202F', '\u205F'];
+
     internal static string RemoveSection(string markdown, string heading)
     {
         ArgumentNullException.ThrowIfNull(markdown);
@@ -65,14 +68,12 @@ internal static class ComparisonExportMarkdownSectionRemover
 
     private static string NormalizeHeadingLine(string line)
     {
-        string normalized = line
-            .Replace('\u00A0', ' ')
-            .Replace('\u2003', ' ')
-            .Replace('\u2007', ' ')
-            .Replace('\u2009', ' ')
-            .Replace('\u200A', ' ')
-            .Replace('\u202F', ' ')
-            .Trim();
+        string normalized = line;
+
+        foreach (char substitute in UnicodeSpaceSubstitutes)
+            normalized = normalized.Replace(substitute, ' ');
+
+        normalized = normalized.Trim();
 
         while (normalized.Contains("  ", StringComparison.Ordinal))
             normalized = normalized.Replace("  ", " ", StringComparison.Ordinal);

@@ -1,3 +1,5 @@
+using System.Text.Json;
+
 using ArchLucid.Application.Analysis;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Core.Audit;
@@ -149,6 +151,50 @@ public sealed class RunExportAuditServiceTests
         captured!.TemplateProfileDisplayName.Should().Be("Executive summary");
         captured.ResolutionReason.Should().Be("auto-selected");
         captured.ManifestVersion.Should().Be("v2");
+    }
+
+    [Fact]
+    public async Task RecordAsync_trims_padded_compare_run_id_in_serialized_analysis_request()
+    {
+        Mock<IRunExportRecordRepository> repo = new();
+        RunExportRecord? captured = null;
+        repo
+            .Setup(r => r.CreateAsync(It.IsAny<RunExportRecord>(), It.IsAny<CancellationToken>()))
+            .Callback<RunExportRecord, CancellationToken>((record, _) => captured = record)
+            .Returns(Task.CompletedTask);
+
+        RunExportAuditService sut = new(
+            repo.Object,
+            Mock.Of<IAuditService>(),
+            NullLogger<RunExportAuditService>.Instance);
+
+        const string compareRunId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb";
+        PersistedAnalysisExportRequest analysisRequest = new()
+        {
+            IncludeAgentResultCompare = true,
+            CompareRunId = $"  {compareRunId}  ",
+            CompareManifestVersion = "  v3  ",
+        };
+
+        await sut.RecordAsync(
+            "deadbeefdeadbeefdeadbeefdeadbeef",
+            "analysis-report-docx",
+            "docx",
+            "report.docx",
+            null,
+            null,
+            false,
+            null,
+            null,
+            analysisRequest: analysisRequest,
+            emitArchitectureDocxExportGeneratedAudit: false,
+            cancellationToken: CancellationToken.None);
+
+        captured.Should().NotBeNull();
+        captured!.CompareRunId.Should().Be(compareRunId);
+        captured.CompareManifestVersion.Should().Be("v3");
+        captured.AnalysisRequestJson.Should().Contain(compareRunId);
+        captured.AnalysisRequestJson.Should().Contain("\"v3\"");
     }
 
     [Fact]

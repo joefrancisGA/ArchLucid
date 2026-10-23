@@ -103,6 +103,8 @@ public sealed class ExportReplayService(
         if (record is null)
             throw new InvalidOperationException($"Export record '{exportRecordId}' was not found.");
 
+        record.RunId = record.RunId.Trim();
+
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
 
         await RunExportSealedManifestHashGuard.EnsureRunSealedManifestHashOrThrowAsync(
