@@ -14,6 +14,7 @@ import {
   EnterpriseTableCell,
   EnterpriseTableRow,
 } from "@/components/ui/enterprise-table";
+import { RUN_FINDING_EXPLAINABILITY_TITLE_OMITTED } from "@/components/runs/RunFindingExplainabilityTable";
 import { SeverityTag } from "@/components/ui/severity-tag";
 import { StatusTag } from "@/components/ui/status-tag";
 import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -82,7 +83,7 @@ export function RunDetailFindingsDenseTableRow(props: RunDetailFindingsDenseTabl
             event.stopPropagation();
           }}
         >
-          {finding.title}
+          {finding.title.trim().length > 0 ? finding.title : RUN_FINDING_EXPLAINABILITY_TITLE_OMITTED}
         </Link>
         <FindingCounterfactualLine finding={finding} className="mt-0.5" />
         {finding.classification !== null && finding.classification !== undefined ? (
