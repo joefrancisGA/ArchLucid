@@ -6868,6 +6868,20 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-24 seed hunt (seed→hit): proved `ComparisonsApplicationService.SearchAsync` forwarded untrimmed `Label` criteria to the comparison repository while `ComparisonType` was already trimmed, so history search missed labeled rows when operators pasted labels with trailing spaces or line breaks; trim label like comparison type at the application layer and trim SQL label parameters in `ComparisonRecordSearchPredicateBuilder`; regressions `CompareQuality_SearchAsync_finds_records_when_label_filter_has_trailing_whitespace` and `AppendFilters_trims_padded_label_query_parameter`; cheap-disproof closed batch zip manifest echo (cosmetic), Armenian homoglyphs (deferred), tag filter trim (no cited harm), and persistence-layer determinism normalize (deferred); seeded five follow-on rows; scoped application-analysis + replay filter 220/220; persistence predicate regressions 10/10. Private beta: comparison history label filters match stored labels when pasted with surrounding whitespace, consistent with type and run-id search trim.
+
+- [ ] (candidate) `ComparisonsApplicationService.SearchAsync` — individual `Tags` criteria without trim — locus: history search; input: tag filter tokens with trailing spaces.
+- [ ] (candidate) `ComparisonRecordSearchPredicateBuilder` — `comparisonType` filter without trim on SQL path — locus: persistence search; input: padded type when repository called without app normalization.
+- [ ] (candidate) `ComparisonBatchReplayZipSupport` — manifest failure entries echo pre-trim batch tokens — locus: zip manifest; input: cosmetic id echo only.
+- [ ] (candidate) `ComparisonExportMarkdownSectionRemover` — Armenian homoglyphs in delta headings — locus: `UnicodeLatinHomoglyphMapper`; input: deferred expansion.
+- [ ] (candidate) `RunExportRecordPersistNormalizer` — persistence-layer determinism column normalize — locus: repository read; input: consolidation at DB boundary.
+
+- [x] (proven) `ComparisonsApplicationService.SearchAsync` — untrimmed label filter — **hit 2026-10-24 seed hunt:** `normalizedLabel` trim; regression `CompareQuality_SearchAsync_finds_records_when_label_filter_has_trailing_whitespace`.
+- [x] (proven) `ComparisonRecordSearchPredicateBuilder` — untrimmed label SQL parameter — **hit 2026-10-24 seed hunt:** `label.Trim()`; regression `AppendFilters_trims_padded_label_query_parameter`.
+- [x] (invalid) `ComparisonBatchReplayZipSupport` — manifest id echo — **cheap-disproof 2026-10-24 seed hunt:** cosmetic only.
+- [x] (invalid) `UnicodeLatinHomoglyphMapper` — Armenian homoglyphs — **cheap-disproof 2026-10-24 seed hunt:** deferred.
+- [x] (invalid) `RunExportRecordPersistNormalizer` — DB read normalize — **cheap-disproof 2026-10-24 seed hunt:** consolidation deferred.
+
 2026-10-24 seed hunt (seed→hit): proved `ComparisonsApplicationService.TryBuildBatchReplayZipAsync` deduped batch comparison ids with ordinal `HashSet` membership before trim, so pasted lists containing the same comparison anchor with and without trailing whitespace replayed twice and produced duplicate zip entries; normalize ids with `ComparisonRecordIdNormalizer` before dedupe and processing; regression `CompareQuality_TryBuildBatchReplayZipAsync_dedupes_ids_that_differ_only_by_trailing_whitespace`; cheap-disproof closed SQL label filter trim (no cited caller harm), dual replay-service entry (fixed hunt 120), Armenian homoglyphs (deferred), and persistence-layer determinism normalize (deferred); seeded five follow-on rows; scoped application-analysis + replay filter 219/219. Private beta: batch comparison replay zip manifests treat whitespace-padded duplicate ids as one record, matching single-record replay trim parity.
 
 - [ ] (candidate) `ComparisonsApplicationService.SearchAsync` — `Label` criteria without trim — locus: history search; input: label filter with trailing spaces from query string.
@@ -7507,11 +7521,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 121
-- **bugs-found:** 127
+- **hunts:** 122
+- **bugs-found:** 128
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-24
-- **last-bug:** 2026-10-24 — batch replay zip dedupes trimmed comparison ids
+- **last-bug:** 2026-10-24 — comparison history search trims label filters
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
