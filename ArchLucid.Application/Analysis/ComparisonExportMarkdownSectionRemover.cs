@@ -21,7 +21,7 @@ internal static class ComparisonExportMarkdownSectionRemover
 
         int headingLineEnd = FindLineEnd(markdown, start);
         int searchFrom = AdvancePastLineBreak(markdown, headingLineEnd);
-        int nextSection = IndexOfNextSectionBoundaryHeadingLine(markdown, searchFrom);
+        int nextSection = IndexOfNextSectionBoundaryHeadingLine(markdown, searchFrom, heading);
 
         if (nextSection < 0)
             return markdown[..start].TrimEnd();
@@ -47,7 +47,7 @@ internal static class ComparisonExportMarkdownSectionRemover
         return -1;
     }
 
-    private static int IndexOfNextSectionBoundaryHeadingLine(string markdown, int searchFrom)
+    private static int IndexOfNextSectionBoundaryHeadingLine(string markdown, int searchFrom, string removedHeading)
     {
         int lineStart = searchFrom;
 
@@ -56,7 +56,7 @@ internal static class ComparisonExportMarkdownSectionRemover
             int lineEnd = FindLineEnd(markdown, lineStart);
             ReadOnlySpan<char> line = TrimHeadingLine(markdown.AsSpan(lineStart, lineEnd - lineStart));
 
-            if (IsSectionBoundaryHeadingLine(line))
+            if (IsSectionBoundaryHeadingLine(line) && !LineMatchesHeading(line, removedHeading))
                 return lineStart;
 
             lineStart = AdvancePastLineBreak(markdown, lineEnd);

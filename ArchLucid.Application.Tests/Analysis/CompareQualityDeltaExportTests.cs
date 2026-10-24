@@ -194,6 +194,44 @@ public sealed class CompareQualityDeltaExportTests
     }
 
     [Fact]
+    public void RemoveMarkdownSection_strips_through_duplicate_canonical_heading_until_next_distinct_section()
+    {
+        string markdown =
+            "intro\n## Compare Quality Delta\n| Metric | Before | After |\n## Compare Quality Delta\n| dup |\n## Warnings\n";
+
+        string result = CompareQualityDeltaExportFormatter.RemoveMarkdownSection(markdown);
+
+        result.Should().NotContain("Compare Quality Delta");
+        result.Should().NotContain("| dup |");
+        result.Should().Contain("## Warnings");
+    }
+
+    [Fact]
+    public void RemoveMarkdownSection_does_not_stop_at_inline_hash_token_mid_line()
+    {
+        string markdown =
+            "intro\n## Compare Quality Delta\nSee #tag reference in table footnote.\n## Warnings\n";
+
+        string result = CompareQualityDeltaExportFormatter.RemoveMarkdownSection(markdown);
+
+        result.Should().NotContain("Compare Quality Delta");
+        result.Should().Contain("## Warnings");
+    }
+
+    [Fact]
+    public void RemoveMarkdownSection_strips_through_level4_heading_under_delta_until_distinct_level2_section()
+    {
+        string markdown =
+            "intro\n## Compare Quality Delta\n| Metric | Before | After |\n#### Footnote\nnote\n## Warnings\n";
+
+        string result = CompareQualityDeltaExportFormatter.RemoveMarkdownSection(markdown);
+
+        result.Should().NotContain("Compare Quality Delta");
+        result.Should().NotContain("#### Footnote");
+        result.Should().Contain("## Warnings");
+    }
+
+    [Fact]
     public void RemoveMarkdownSection_stops_at_level1_heading_when_no_following_level2_heading_exists()
     {
         string markdown = "intro\n## Compare Quality Delta\n| Metric | Before | After |\n# Executive summary\nBody text\n";
