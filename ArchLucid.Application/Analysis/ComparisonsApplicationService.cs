@@ -230,26 +230,30 @@ public sealed partial class ComparisonsApplicationService(
         ComparisonRecord record,
         CancellationToken cancellationToken)
     {
-        if (!string.IsNullOrWhiteSpace(record.LeftRunId)
-            && await _runDetailQueryService.GetRunDetailAsync(record.LeftRunId, cancellationToken) is not null)
+        string? leftRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookupOrNull(record.LeftRunId);
+        if (leftRunId is not null
+            && await _runDetailQueryService.GetRunDetailAsync(leftRunId, cancellationToken) is not null)
         {
             return true;
         }
 
-        if (!string.IsNullOrWhiteSpace(record.RightRunId)
-            && await _runDetailQueryService.GetRunDetailAsync(record.RightRunId, cancellationToken) is not null)
+        string? rightRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookupOrNull(record.RightRunId);
+        if (rightRunId is not null
+            && await _runDetailQueryService.GetRunDetailAsync(rightRunId, cancellationToken) is not null)
         {
             return true;
         }
 
-        if (!string.IsNullOrWhiteSpace(record.LeftExportRecordId)
-            && await LoadScopedExportRecordAsync(record.LeftExportRecordId, cancellationToken) is not null)
+        string? leftExportRecordId = NormalizeExportRecordIdFilterOrNull(record.LeftExportRecordId);
+        if (leftExportRecordId is not null
+            && await LoadScopedExportRecordAsync(leftExportRecordId, cancellationToken) is not null)
         {
             return true;
         }
 
-        if (!string.IsNullOrWhiteSpace(record.RightExportRecordId)
-            && await LoadScopedExportRecordAsync(record.RightExportRecordId, cancellationToken) is not null)
+        string? rightExportRecordId = NormalizeExportRecordIdFilterOrNull(record.RightExportRecordId);
+        if (rightExportRecordId is not null
+            && await LoadScopedExportRecordAsync(rightExportRecordId, cancellationToken) is not null)
         {
             return true;
         }

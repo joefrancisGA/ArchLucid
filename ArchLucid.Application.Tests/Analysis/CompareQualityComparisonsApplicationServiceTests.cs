@@ -138,6 +138,51 @@ public sealed class CompareQualityComparisonsApplicationServiceTests
     }
 
     [Fact]
+    public async Task CompareQuality_TryGetScopedRecordAsync_returns_record_when_stored_left_run_id_is_dashed_guid_with_padding()
+    {
+        const string comparisonRecordId = "cmp-scoped-dashed-run-id";
+        Guid runGuid = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+        string canonicalRunId = runGuid.ToString("N");
+        string dashedPaddedRunId = $"{runGuid:D}  ";
+
+        InMemoryComparisonRecordRepository comparisonRecords = new();
+        await comparisonRecords.CreateAsync(
+            new ComparisonRecord
+            {
+                ComparisonRecordId = comparisonRecordId,
+                ComparisonType = ComparisonTypes.EndToEndReplay,
+                LeftRunId = dashedPaddedRunId,
+                RightRunId = "ffffffffffffffffffffffffffffffff",
+                CreatedUtc = DateTime.UtcNow,
+            },
+            CancellationToken.None);
+
+        Mock<IRunDetailQueryService> runDetail = new();
+        runDetail
+            .Setup(s => s.GetRunDetailAsync(canonicalRunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchitectureRunDetail { Run = new() { RunId = canonicalRunId } });
+
+        ComparisonsApplicationService sut = new(
+            runDetail.Object,
+            new Mock<IRunExportRecordRepository>().Object,
+            comparisonRecords,
+            new Mock<IComparisonReplayService>().Object,
+            new Mock<ICompareRunsApplicationFacade>().Object,
+            new Mock<IComparisonReplayCostEstimator>().Object,
+            new Mock<IDriftReportFormatter>().Object,
+            new DriftReportDocxExport());
+
+        ComparisonRecord? scoped =
+            await sut.TryGetScopedRecordAsync(comparisonRecordId, CancellationToken.None);
+
+        scoped.Should().NotBeNull();
+        scoped!.ComparisonRecordId.Should().Be(comparisonRecordId);
+        runDetail.Verify(
+            s => s.GetRunDetailAsync(canonicalRunId, It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
     public async Task CompareQuality_TryListByExportRecordIdAsync_lists_records_when_query_uses_padded_export_record_id()
     {
         const string exportRecordId = "export-anchor-id";
