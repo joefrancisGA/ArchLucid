@@ -6868,6 +6868,21 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-24 seed hunt (seed→hit): proved `ComparisonRecordPayloadRehydrator.RehydrateExportDiff` left padded `LeftExportRecordId`/`RightExportRecordId` inside stored export-diff JSON so drift analysis and verify replay compared regenerated diffs with trimmed export anchors against non-trimmed stored payload ids; normalize export record ids via `RunExportRecordIdNormalizer.NormalizeRequired` after deserialize; regressions `RehydrateExportDiff_trims_padded_export_record_ids_in_payload` and `AnalyzeDriftAsync_export_diff_succeeds_when_payload_export_record_ids_are_padded`; cheap-disproof closed `ComparisonsApplicationService.TryBuildBatchReplayZipAsync` manifest failure id echo (loop already normalizes processed ids), `DriftReportDocxExport` untrimmed comparison record id (facade `TryBuildDriftReportContent` normalizes hunt 143), `ApiPaging.TryParseUtcTicksIdCursor` (comparison search normalizes cursor id), batch zip manifest echo (cosmetic), Armenian homoglyphs (deferred), and persistence-layer determinism normalize (deferred); seeded five follow-on rows; scoped application-analysis + replay filter 284/284. Private beta: export-diff drift analysis and verify replay no longer report false drift when legacy payload JSON kept padded export record id strings while regenerated diffs use trimmed anchors.
+
+- [ ] (candidate) `ComparisonDriftReportExportService` — drift markdown/docx export without comparison record id normalize at service boundary — locus: standalone export service; input: direct caller with padded id (facade already normalizes).
+- [ ] (candidate) `ApiPaging.TryParseUtcTicksIdCursor` — cursor id segment without trim — locus: HTTP cursor parse; input: padded id after ticks delimiter (alerts inbox and other API surfaces).
+- [ ] (candidate) `ComparisonBatchReplayZipSupport` — manifest failure entries echo pre-trim batch tokens — locus: zip manifest; input: cosmetic id echo only.
+- [ ] (candidate) `ComparisonExportMarkdownSectionRemover` — Armenian homoglyphs in delta headings — locus: `UnicodeLatinHomoglyphMapper`; input: deferred expansion.
+- [ ] (candidate) `RunExportRecordPersistNormalizer` — persistence-layer determinism column normalize — locus: repository read; input: consolidation at DB boundary.
+
+- [x] (proven) `ComparisonRecordPayloadRehydrator` — padded export record ids in export-diff payload JSON — **hit 2026-10-24 seed hunt:** `RunExportRecordIdNormalizer` on rehydrate; regressions `RehydrateExportDiff_trims_padded_export_record_ids_in_payload` and `AnalyzeDriftAsync_export_diff_succeeds_when_payload_export_record_ids_are_padded`.
+- [x] (valid-no-repro) `ComparisonsApplicationService.TryBuildBatchReplayZipAsync` — manifest failure id echo — **cheap-disproof 2026-10-24 seed hunt:** failure entries use normalized `processedIds`.
+- [x] (valid-no-repro) `DriftReportDocxExport` — untrimmed comparison record id in docx body — **cheap-disproof 2026-10-24 seed hunt:** `TryBuildDriftReportContent` normalizes (hunt 143).
+- [x] (invalid) `ApiPaging.TryParseUtcTicksIdCursor` — HTTP cursor id trim — **cheap-disproof 2026-10-24 seed hunt:** comparison search normalizes at application layer.
+- [x] (invalid) `ComparisonBatchReplayZipSupport` — manifest id echo — **cheap-disproof 2026-10-24 seed hunt:** cosmetic only.
+- [x] (invalid) `UnicodeLatinHomoglyphMapper` — Armenian homoglyphs — **cheap-disproof 2026-10-24 seed hunt:** deferred.
+
 2026-10-24 seed hunt (seed→hit): proved `ComparisonsApplicationService.TryBuildDriftReportContent` built drift download filenames and formatter labels from untrimmed route comparison record ids while `TryAnalyzeDriftAsync` already normalized ids for lookup, and `ComparisonRecordPayloadRehydrator.RehydrateExportDiff` left nested `CompareManifestVersion` padded in stored request diff JSON so export-diff drift could flag spurious manifest-version changes; normalize comparison record id via `ComparisonRecordIdNormalizer.NormalizeRequired` in drift report build and trim nested requests via `PersistedAnalysisExportRequestMetadata.TrimOptionalStrings` after deserialize; regressions `TryBuildDriftReportContent_uses_trimmed_comparison_record_id_in_download_filename` and `RehydrateExportDiff_trims_padded_compare_manifest_version_in_nested_request_diff`; cheap-disproof closed `ApiPaging.TryParseUtcTicksIdCursor` (comparison search normalizes cursor id), batch zip manifest echo (cosmetic), Armenian homoglyphs (deferred), and persistence-layer determinism normalize (deferred); seeded five follow-on rows; scoped application-analysis + replay filter 282/282. Private beta: comparison drift report downloads use trimmed record ids in filenames and body labels, and stored export-diff payloads trim padded nested manifest version metadata before drift compare.
 
 - [ ] (candidate) `ComparisonsApplicationService.TryBuildBatchReplayZipAsync` — manifest failure entries echo pre-normalize batch tokens — locus: zip manifest; input: cosmetic id echo only (partially normalized in loop).
@@ -7820,11 +7835,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 143
-- **bugs-found:** 149
+- **hunts:** 144
+- **bugs-found:** 150
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-24
-- **last-bug:** 2026-10-24 — drift report filename trim and nested manifest version rehydrate
+- **last-bug:** 2026-10-24 — export-diff payload export record id trim on rehydrate
 - **related-pd-tb:** none
 - **code-changed-since:** no
 

@@ -150,6 +150,26 @@ public sealed class ComparisonRecordPayloadRehydratorTests
     }
 
     [Fact]
+    public void RehydrateExportDiff_trims_padded_export_record_ids_in_payload()
+    {
+        ExportRecordDiffResult diff = new()
+        {
+            LeftExportRecordId = "  left-export  ",
+            RightExportRecordId = "  right-export  ",
+            LeftRunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            RightRunId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        };
+        string json = JsonSerializer.Serialize(diff, new JsonSerializerOptions(JsonSerializerDefaults.Web));
+        ComparisonRecord record = new() { ComparisonRecordId = "c2-export-ids", PayloadJson = json };
+
+        ExportRecordDiffResult? result = ComparisonRecordPayloadRehydrator.RehydrateExportDiff(record);
+
+        result.Should().NotBeNull();
+        result!.LeftExportRecordId.Should().Be("left-export");
+        result.RightExportRecordId.Should().Be("right-export");
+    }
+
+    [Fact]
     public void RehydrateExportDiff_trims_padded_compare_manifest_version_in_nested_request_diff()
     {
         ExportRecordDiffResult diff = new()

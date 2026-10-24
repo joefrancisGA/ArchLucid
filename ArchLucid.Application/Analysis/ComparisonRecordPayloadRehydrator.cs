@@ -72,6 +72,12 @@ public static class ComparisonRecordPayloadRehydrator
         if (!string.IsNullOrWhiteSpace(diff.RightRunId))
             diff.RightRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(diff.RightRunId);
 
+        if (!string.IsNullOrWhiteSpace(diff.LeftExportRecordId))
+            diff.LeftExportRecordId = RunExportRecordIdNormalizer.NormalizeRequired(diff.LeftExportRecordId);
+
+        if (!string.IsNullOrWhiteSpace(diff.RightExportRecordId))
+            diff.RightExportRecordId = RunExportRecordIdNormalizer.NormalizeRequired(diff.RightExportRecordId);
+
         TrimNestedRequestOptionalStrings(diff.RequestDiff.LeftRequest);
         TrimNestedRequestOptionalStrings(diff.RequestDiff.RightRequest);
         CanonicalizePersistedCompareRunId(diff.RequestDiff.LeftRequest);

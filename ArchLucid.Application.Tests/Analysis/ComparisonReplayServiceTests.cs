@@ -791,6 +791,47 @@ public sealed class ComparisonReplayServiceTests
     }
 
     [Fact]
+    public async Task AnalyzeDriftAsync_export_diff_succeeds_when_payload_export_record_ids_are_padded()
+    {
+        ExportRecordDiffResult diff = SampleExportDiff();
+        ComparisonRecord record = ExportDiffRecord("drift-diff-padded-export-ids", diff);
+        record.LeftExportRecordId = diff.LeftExportRecordId;
+        record.RightExportRecordId = diff.RightExportRecordId;
+        record.PayloadJson = JsonSerializer.Serialize(
+            new ExportRecordDiffResult
+            {
+                LeftExportRecordId = $"  {diff.LeftExportRecordId}  ",
+                RightExportRecordId = $"  {diff.RightExportRecordId}  ",
+                LeftRunId = diff.LeftRunId,
+                RightRunId = diff.RightRunId,
+            },
+            JsonOptions);
+
+        RunExportRecord left = new() { ExportRecordId = diff.LeftExportRecordId, RunId = diff.LeftRunId };
+        RunExportRecord right = new() { ExportRecordId = diff.RightExportRecordId, RunId = diff.RightRunId };
+        Mock<IComparisonRecordRepository> repo = SetupRepo(record);
+        Mock<IRunExportRecordRepository> exports = new();
+        exports.Setup(r => r.GetByIdAsync(left.ExportRecordId, It.IsAny<CancellationToken>())).ReturnsAsync(left);
+        exports.Setup(r => r.GetByIdAsync(right.ExportRecordId, It.IsAny<CancellationToken>())).ReturnsAsync(right);
+        Mock<IExportRecordDiffService> diffService = new();
+        diffService.Setup(s => s.CompareAsync(left, right, It.IsAny<CancellationToken>())).ReturnsAsync(diff);
+        ManifestHashService manifestHashService = new();
+        Mock<IAuthorityQueryService> authority = new();
+        SetupSealedManifestForRuns(authority, manifestHashService, diff.LeftRunId, diff.RightRunId);
+        ComparisonReplayService sut = CreateSut(
+            comparisonRepo: repo.Object,
+            runExports: exports.Object,
+            diffService: diffService.Object,
+            driftAnalyzer: new ComparisonDriftAnalyzer(),
+            authorityQuery: authority.Object,
+            manifestHash: manifestHashService);
+
+        DriftAnalysisResult result = await sut.AnalyzeDriftAsync("drift-diff-padded-export-ids", CancellationToken.None);
+
+        result.DriftDetected.Should().BeFalse();
+    }
+
+    [Fact]
     public async Task AnalyzeDriftAsync_export_diff_succeeds_when_export_anchor_run_id_is_dashed_with_padding()
     {
         ExportRecordDiffResult diff = SampleExportDiff();
