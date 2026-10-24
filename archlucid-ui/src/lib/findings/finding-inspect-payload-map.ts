@@ -4,8 +4,9 @@ import type { FindingInspectPayload } from "@/types/finding-inspect";
 /** Maps inspect API wire JSON to the UI payload shape (camelCase normalization). */
 export function mapFindingInspectApiPayload(raw: Record<string, unknown>): FindingInspectPayload {
   const evidenceRaw = raw.evidence;
+  const evidenceListReturned = Array.isArray(evidenceRaw);
   const evidence =
-    Array.isArray(evidenceRaw)
+    evidenceListReturned
       ? evidenceRaw.map((item) => {
           const row = item as Record<string, unknown>;
 
@@ -54,5 +55,6 @@ export function mapFindingInspectApiPayload(raw: Record<string, unknown>): Findi
     remediationDueUtc: typeof raw.remediationDueUtc === "string" ? raw.remediationDueUtc : null,
     trustLabel: typeof raw.trustLabel === "string" ? raw.trustLabel : null,
     trustLabelReason: typeof raw.trustLabelReason === "string" ? raw.trustLabelReason : null,
+    evidenceListReturned,
   };
 }

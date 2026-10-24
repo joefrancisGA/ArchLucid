@@ -12,6 +12,7 @@ import {
   mitigationPosture,
   resolveFindingNextReviewLabel,
   resolveFindingRiskOwnerLabel,
+  summarizeEvidenceBasis,
 } from "./finding-detail-route-display";
 
 function emptyPayload(overrides: Partial<FindingInspectPayload> = {}): FindingInspectPayload {
@@ -30,6 +31,16 @@ function emptyPayload(overrides: Partial<FindingInspectPayload> = {}): FindingIn
 }
 
 describe("finding-detail-route-display buyer summary copy", () => {
+  it("states when the inspect payload omitted the evidence list", () => {
+    expect(
+      summarizeEvidenceBasis(
+        emptyPayload({
+          evidenceListReturned: false,
+        }),
+      ),
+    ).toBe("Evidence list was not returned.");
+  });
+
   it("does not invent business impact for PHI showcase finding id without payload", () => {
     expect(buyerFindingDecisionImpactCopy(null, "sensitive-data-minimization-risk")).toBe(
       "Business impact was not stored",

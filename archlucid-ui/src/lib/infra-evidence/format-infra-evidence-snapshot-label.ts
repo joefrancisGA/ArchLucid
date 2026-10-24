@@ -69,6 +69,14 @@ export function formatInfraEvidenceSnapshotFreshness(snapshot: InfraEvidenceSnap
   return parts.join(" · ");
 }
 
+export function formatInfraEvidenceDiffTotalChangesPhrase(totalChanges: number | undefined): string {
+  if (totalChanges === undefined || !Number.isFinite(totalChanges)) {
+    return "Change count was not returned";
+  }
+
+  return `${totalChanges} changes`;
+}
+
 export function formatInfraEvidenceDiffLabel(
   diff: InfraEvidenceDiffSummary,
   selectedSnapshotId: string,
@@ -81,7 +89,7 @@ export function formatInfraEvidenceDiffLabel(
       ? formatInfraEvidenceSnapshotCapturedLabel(otherSnapshot.capturedUtc)
       : formatInfraEvidenceSnapshotCapturedLabel(diff.createdUtc);
 
-  return `${diff.totalChanges} changes vs ${otherCaptured}`;
+  return `${formatInfraEvidenceDiffTotalChangesPhrase(diff.totalChanges)} vs ${otherCaptured}`;
 }
 
 export function formatInfraEvidenceScopeFreshnessLine(input: {
@@ -95,7 +103,7 @@ export function formatInfraEvidenceScopeFreshnessLine(input: {
   }
 
   if (input.selectedDiff != null) {
-    parts.push(`${input.selectedDiff.totalChanges} changes`);
+    parts.push(formatInfraEvidenceDiffTotalChangesPhrase(input.selectedDiff.totalChanges));
   }
 
   if (parts.length === 0) {
