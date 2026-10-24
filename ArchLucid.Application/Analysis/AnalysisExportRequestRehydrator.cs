@@ -26,6 +26,8 @@ public static class AnalysisExportRequestRehydrator
                 JsonSerializer.Deserialize<PersistedAnalysisExportRequest>(record.AnalysisRequestJson, JsonOptions);
 
             PersistedAnalysisExportRequestMetadata.TrimOptionalStrings(request);
+            if (request is not null)
+                PersistedAnalysisExportRequestDeterminismNormalizer.ClearIterationsWhenCheckDisabled(request);
 
             return request;
         }

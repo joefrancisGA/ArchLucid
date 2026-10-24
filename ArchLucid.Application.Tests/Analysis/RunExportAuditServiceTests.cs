@@ -304,6 +304,46 @@ public sealed class RunExportAuditServiceTests
     }
 
     [Fact]
+    public async Task RecordAsync_nulls_zero_determinism_iterations_when_check_enabled()
+    {
+        Mock<IRunExportRecordRepository> repo = new();
+        RunExportRecord? captured = null;
+        repo
+            .Setup(r => r.CreateAsync(It.IsAny<RunExportRecord>(), It.IsAny<CancellationToken>()))
+            .Callback<RunExportRecord, CancellationToken>((record, _) => captured = record)
+            .Returns(Task.CompletedTask);
+
+        RunExportAuditService sut = new(
+            repo.Object,
+            Mock.Of<IAuditService>(),
+            NullLogger<RunExportAuditService>.Instance);
+
+        PersistedAnalysisExportRequest analysisRequest = new()
+        {
+            IncludeDeterminismCheck = true,
+            DeterminismIterations = 0,
+        };
+
+        await sut.RecordAsync(
+            "deadbeefdeadbeefdeadbeefdeadbeef",
+            "analysis-report-docx",
+            "docx",
+            "report.docx",
+            null,
+            null,
+            false,
+            null,
+            null,
+            analysisRequest: analysisRequest,
+            emitArchitectureDocxExportGeneratedAudit: false,
+            cancellationToken: CancellationToken.None);
+
+        captured.Should().NotBeNull();
+        captured!.DeterminismIterations.Should().BeNull();
+        captured.IncludedDeterminismCheck.Should().BeTrue();
+    }
+
+    [Fact]
     public async Task RecordAsync_trims_padded_compare_run_id_in_serialized_analysis_request()
     {
         Mock<IRunExportRecordRepository> repo = new();

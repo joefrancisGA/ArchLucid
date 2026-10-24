@@ -106,6 +106,22 @@ public sealed class AnalysisExportRequestRehydratorTests
     }
 
     [Fact]
+    public void Rehydrate_clears_determinism_iterations_when_check_disabled_in_stored_json()
+    {
+        RunExportRecord record = new()
+        {
+            ExportRecordId = "e1",
+            AnalysisRequestJson = """{"determinismIterations":3,"includeDeterminismCheck":false}""",
+        };
+
+        PersistedAnalysisExportRequest? result = AnalysisExportRequestRehydrator.Rehydrate(record);
+
+        result.Should().NotBeNull();
+        result!.IncludeDeterminismCheck.Should().BeFalse();
+        result.DeterminismIterations.Should().Be(0);
+    }
+
+    [Fact]
     public void Rehydrate_corrupt_json_throws_InvalidOperationException()
     {
         RunExportRecord record = new() { ExportRecordId = "broken", AnalysisRequestJson = "{bad" };

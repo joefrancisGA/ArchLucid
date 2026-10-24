@@ -172,6 +172,28 @@ public sealed class CompareQualityDeltaExportTests
     }
 
     [Fact]
+    public void RemoveMarkdownSection_strips_compare_quality_delta_when_heading_uses_greek_homoglyph_in_compare()
+    {
+        string markdown = "intro\n## C\u03BFmpare Quality Delta\n| Metric | Before | After |\n\n## Warnings\n";
+
+        string result = CompareQualityDeltaExportFormatter.RemoveMarkdownSection(markdown);
+
+        result.Should().NotContain("Compare Quality Delta");
+        result.Should().Contain("## Warnings");
+    }
+
+    [Fact]
+    public void RemoveMarkdownSection_strips_compare_quality_delta_when_heading_combines_cyrillic_and_fullwidth_homoglyphs()
+    {
+        string markdown = "intro\n## \u0421\uFF4F\uFF4D\uFF50\uFF41\uFF52\uFF45 Quality Delta\n| Metric | Before | After |\n\n## Warnings\n";
+
+        string result = CompareQualityDeltaExportFormatter.RemoveMarkdownSection(markdown);
+
+        result.Should().NotContain("Compare Quality Delta");
+        result.Should().Contain("## Warnings");
+    }
+
+    [Fact]
     public void RemoveMarkdownSection_strips_compare_quality_delta_when_heading_uses_cyrillic_homoglyph_in_compare()
     {
         string markdown = "intro\n## \u0421ompare Quality Delta\n| Metric | Before | After |\n\n## Warnings\n";

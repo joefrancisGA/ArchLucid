@@ -73,7 +73,7 @@ public sealed class RunExportAuditService(
             IncludedDiagram = analysisRequest?.IncludeDiagram,
             IncludedSummary = analysisRequest?.IncludeSummary,
             IncludedDeterminismCheck = analysisRequest?.IncludeDeterminismCheck,
-            DeterminismIterations = NormalizeAuditDeterminismIterations(analysisRequest),
+            DeterminismIterations = PersistedAnalysisExportRequestDeterminismNormalizer.ToAuditDenormalizedColumn(analysisRequest),
             IncludedManifestCompare = analysisRequest?.IncludeManifestCompare,
             CompareManifestVersion = analysisRequest?.CompareManifestVersion,
             IncludedAgentResultCompare = analysisRequest?.IncludeAgentResultCompare,
@@ -155,13 +155,4 @@ public sealed class RunExportAuditService(
         return null;
     }
 
-    private static int? NormalizeAuditDeterminismIterations(PersistedAnalysisExportRequest? analysisRequest)
-    {
-        if (analysisRequest is null || !analysisRequest.IncludeDeterminismCheck)
-            return null;
-
-        int iterations = analysisRequest.DeterminismIterations;
-
-        return iterations is 0 ? null : iterations;
-    }
 }

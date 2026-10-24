@@ -6868,6 +6868,20 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-24 seed hunt (seed→hit): proved `AnalysisExportRequestRehydrator` left stale `DeterminismIterations` in rehydrated requests when stored JSON disabled the check but retained iteration counts, and Greek omicron homoglyphs in compare-quality headings bypassed section stripping; clear iterations on rehydrate via shared `PersistedAnalysisExportRequestDeterminismNormalizer`, extend `UnicodeLatinHomoglyphMapper` with Greek Latin lookalikes; regressions `Rehydrate_clears_determinism_iterations_when_check_disabled_in_stored_json` and `RemoveMarkdownSection_strips_compare_quality_delta_when_heading_uses_greek_homoglyph_in_compare`; cheap-disproof closed stacked Cyrillic+fullwidth headings (normalization order already correct), `IncludedManifestCompare` null/false parity, zero iterations stored as null when check enabled, and asymmetric enable/disable request pairs (intentional diff); seeded five follow-on rows; scoped application-analysis filter 136/136. Private beta: export replay and compare read canonical determinism settings from stored JSON; comparison exports strip Greek homoglyph delta headings.
+
+- [ ] (candidate) `PersistedAnalysisExportRequestDeterminismNormalizer` — apply on `RecordAsync` input mutation — locus: audit write path; input: pre-persist request object side effects.
+- [ ] (candidate) `UnicodeLatinHomoglyphMapper` — Armenian homoglyphs — locus: homoglyph casing; input: Armenian lookalike letters.
+- [ ] (candidate) `ExportRecordDiffService.CompareRequests` — zero vs omitted iterations when check enabled — locus: request int defaults; input: both zero after rehydrate normalize.
+- [ ] (candidate) `AnalysisExportRequestRehydrator` — corrupt partial determinism JSON — locus: deserialize edge; input: invalid probe.
+- [ ] (candidate) `ComparisonExportMarkdownSectionRemover` — HTML entity encoded heading — locus: markdown vs HTML strip paths; input: `&amp;` in heading (invalid separate formatter).
+
+- [x] (proven) `AnalysisExportRequestRehydrator.Rehydrate` — stale iterations when check disabled — **hit 2026-10-24 seed hunt:** `PersistedAnalysisExportRequestDeterminismNormalizer.ClearIterationsWhenCheckDisabled`; regression `Rehydrate_clears_determinism_iterations_when_check_disabled_in_stored_json`.
+- [x] (proven) `ComparisonExportMarkdownSectionRemover` — Greek homoglyph heading — **hit 2026-10-24 seed hunt:** Greek mappings in `UnicodeLatinHomoglyphMapper`; regression `RemoveMarkdownSection_strips_compare_quality_delta_when_heading_uses_greek_homoglyph_in_compare`.
+- [x] (valid-no-repro) `ComparisonExportMarkdownSectionRemover` — Cyrillic + fullwidth stacked — **cheap-disproof 2026-10-24 seed hunt:** regression `RemoveMarkdownSection_strips_compare_quality_delta_when_heading_combines_cyrillic_and_fullwidth_homoglyphs`.
+- [x] (valid-no-repro) `ExportRecordDiffService.CompareTopLevel` — `IncludedManifestCompare` null vs false — **cheap-disproof 2026-10-24 seed hunt:** regression `CompareQuality_export_record_diff_treats_null_and_false_included_manifest_compare_as_equivalent`.
+- [x] (valid-no-repro) `RunExportAuditService.RecordAsync` — zero iterations when check enabled — **cheap-disproof 2026-10-24 seed hunt:** stores null column; regression `RecordAsync_nulls_zero_determinism_iterations_when_check_enabled`.
+
 2026-10-24 seed hunt (seed→hit): proved legacy export rows could retain non-zero `DeterminismIterations` denormalized columns while `IncludedDeterminismCheck` was false, `RunExportAuditService` copied iteration counts into those columns even when the request disabled the check, and Cyrillic `С` homoglyphs in compare-quality headings bypassed section stripping; gate top-level iteration diff on included-flag parity, null audit denormalized iterations when check off, fold Cyrillic Latin lookalikes via shared `UnicodeLatinHomoglyphMapper` in Contracts; regressions `CompareQuality_export_record_diff_ignores_top_level_determinism_iterations_when_check_disabled`, `RecordAsync_nulls_determinism_iterations_when_check_disabled`, and `RemoveMarkdownSection_strips_compare_quality_delta_when_heading_uses_cyrillic_homoglyph_in_compare`; cheap-disproof closed `IncludedEvidence` null/false (same `AddIncludedFlagIfChanged` helper) and omitted vs false `IncludeDeterminismCheck` in JSON (both deserialize false); seeded five follow-on rows; scoped application-analysis filter 125/125. Private beta: new exports stop storing misleading determinism iteration counts; export compare ignores legacy column drift when determinism check is off; comparison exports strip Cyrillic heading spoofing.
 
 - [ ] (candidate) `UnicodeLatinHomoglyphMapper` — Greek homoglyphs in headings — locus: homoglyph casing; input: Greek alpha in `Compare`.
@@ -7262,8 +7276,8 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 103
-- **bugs-found:** 102
+- **hunts:** 104
+- **bugs-found:** 104
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-23
 - **last-bug:** 2026-10-23 — compact audit JSON, determinism null/zero, case-insensitive headings
