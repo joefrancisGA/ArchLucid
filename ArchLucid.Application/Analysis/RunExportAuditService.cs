@@ -156,7 +156,7 @@ public sealed class RunExportAuditService(
 
         JsonObject node = JsonSerializer.SerializeToNode(analysisRequest, AnalysisRequestPersistJsonOptions)!.AsObject();
 
-        if (!analysisRequest.IncludeDeterminismCheck)
+        if (!analysisRequest.IncludeDeterminismCheck || analysisRequest.DeterminismIterations == 0)
             node.Remove("determinismIterations");
 
         return node.ToJsonString(AnalysisRequestPersistJsonOptions);

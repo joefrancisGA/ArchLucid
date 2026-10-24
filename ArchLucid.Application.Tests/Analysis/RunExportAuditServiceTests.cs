@@ -383,6 +383,7 @@ public sealed class RunExportAuditServiceTests
         captured.Should().NotBeNull();
         captured!.DeterminismIterations.Should().BeNull();
         captured.IncludedDeterminismCheck.Should().BeTrue();
+        captured.AnalysisRequestJson.Should().NotContain("determinismIterations");
     }
 
     [Fact]

@@ -21,7 +21,7 @@ internal static class ComparisonExportMarkdownSectionRemover
 
         int headingLineEnd = FindLineEnd(markdown, start);
         int searchFrom = AdvancePastLineBreak(markdown, headingLineEnd);
-        int nextSection = IndexOfNextLevel2HeadingLine(markdown, searchFrom);
+        int nextSection = IndexOfNextSectionBoundaryHeadingLine(markdown, searchFrom);
 
         if (nextSection < 0)
             return markdown[..start].TrimEnd();
@@ -47,7 +47,7 @@ internal static class ComparisonExportMarkdownSectionRemover
         return -1;
     }
 
-    private static int IndexOfNextLevel2HeadingLine(string markdown, int searchFrom)
+    private static int IndexOfNextSectionBoundaryHeadingLine(string markdown, int searchFrom)
     {
         int lineStart = searchFrom;
 
@@ -56,13 +56,27 @@ internal static class ComparisonExportMarkdownSectionRemover
             int lineEnd = FindLineEnd(markdown, lineStart);
             ReadOnlySpan<char> line = TrimHeadingLine(markdown.AsSpan(lineStart, lineEnd - lineStart));
 
-            if (IsLevel2MarkdownHeadingLine(line))
+            if (IsSectionBoundaryHeadingLine(line))
                 return lineStart;
 
             lineStart = AdvancePastLineBreak(markdown, lineEnd);
         }
 
         return -1;
+    }
+
+    private static bool IsSectionBoundaryHeadingLine(ReadOnlySpan<char> trimmedLine) =>
+        IsLevel2MarkdownHeadingLine(trimmedLine) || IsLevel1MarkdownHeadingLine(trimmedLine);
+
+    private static bool IsLevel1MarkdownHeadingLine(ReadOnlySpan<char> trimmedLine)
+    {
+        if (trimmedLine.Length < 2 || trimmedLine[0] != '#')
+            return false;
+
+        if (trimmedLine.Length >= 2 && trimmedLine[1] == '#')
+            return false;
+
+        return trimmedLine[1] == ' ';
     }
 
     private static bool IsLevel2MarkdownHeadingLine(ReadOnlySpan<char> trimmedLine)

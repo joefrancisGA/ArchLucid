@@ -6868,6 +6868,20 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-24 seed hunt (seed→hit): proved `ComparisonExportMarkdownSectionRemover` truncated everything after the compare-quality delta when only a level-1 `#` heading followed (no trailing `##`), and `RunExportAuditService` still emitted `"determinismIterations":0` in audit JSON when the check was enabled; treat level-1 `#` headings as section boundaries and omit zero iteration keys from persisted JSON; regressions `RemoveMarkdownSection_stops_at_level1_heading_when_no_following_level2_heading_exists` and `RecordAsync_nulls_zero_determinism_iterations_when_check_enabled` (asserts omitted JSON key); cheap-disproof closed rehydrate parity for omitted vs stale iteration keys when check disabled and setext-style headings (invalid for stored exports); seeded five follow-on rows; scoped application-analysis filter 144/144. Private beta: comparison export stripping preserves executive-level `#` sections after the delta block; audit JSON stays lean and matches denormalized null iteration columns.
+
+- [ ] (candidate) `ComparisonExportMarkdownSectionRemover` — inline `#` token mid-line — locus: level-1 detector; input: `see # tag` must not boundary.
+- [ ] (candidate) `RunExportAuditService` — preserve non-zero iterations in JSON when check enabled — locus: serialize guard; input: iterations 3 retained.
+- [ ] (candidate) `UnicodeLatinHomoglyphMapper` — Armenian homoglyphs — locus: homoglyph casing; input: deferred.
+- [ ] (candidate) `ComparisonExportMarkdownSectionRemover` — level-4 `####` headings — locus: section boundary; input: treated as content under delta.
+- [ ] (candidate) `ExportRecordDiffService` — compare records with only top-level column drift — locus: legacy rows; input: covered by prior normalizers.
+
+- [x] (proven) `ComparisonExportMarkdownSectionRemover` — level-1 heading boundary — **hit 2026-10-24 seed hunt:** `IsLevel1MarkdownHeadingLine` in section scan; regression `RemoveMarkdownSection_stops_at_level1_heading_when_no_following_level2_heading_exists`.
+- [x] (proven) `RunExportAuditService.RecordAsync` — zero iterations JSON key when check enabled — **hit 2026-10-24 seed hunt:** `SerializeAnalysisRequestForPersist` omits zero; regression `RecordAsync_nulls_zero_determinism_iterations_when_check_enabled`.
+- [x] (valid-no-repro) `ExportRecordDiffService.CompareRequests` — omitted vs stale iterations when check disabled — **cheap-disproof 2026-10-24 seed hunt:** rehydrate normalize; regression `CompareQuality_export_record_diff_treats_omitted_and_stale_determinism_iterations_as_equivalent_when_check_disabled`.
+- [x] (invalid) `ComparisonExportMarkdownSectionRemover` — setext underline headings — **cheap-disproof 2026-10-24 seed hunt:** not used in stored comparison summaries.
+- [x] (invalid) `UnicodeLatinHomoglyphMapper` — Armenian homoglyphs — **cheap-disproof 2026-10-24 seed hunt:** deferred until cited spoof.
+
 2026-10-24 seed hunt (seed→hit): proved `ComparisonExportMarkdownSectionRemover` failed to recognize headings on CR-only line endings and stopped at inline `\n## ` substrings instead of the next level-2 heading line, and `RunExportAuditService` still wrote `"determinismIterations":0` when the check was disabled; scan lines with `\r`/`\n` breaks and locate the next level-2 heading without treating `###` as a section boundary, omit `determinismIterations` from persisted JSON when the check is off; regressions `RemoveMarkdownSection_strips_compare_quality_delta_when_lines_use_cr_only_line_endings`, `RemoveMarkdownSection_strips_through_level3_subheadings_until_next_level2_heading`, and updated `RecordAsync_clears_stale_determinism_iterations_in_serialized_json_when_check_disabled`; cheap-disproof closed tab-indented headings (trim already handles) and raw JSON string diff (invalid); seeded five follow-on rows; scoped application-analysis filter 142/142. Private beta: comparison export stripping works on legacy CR summaries and keeps level-3 detail under the delta until the next major section; audit JSON omits disabled-check iteration noise entirely.
 
 - [ ] (candidate) `ComparisonExportMarkdownSectionRemover` — level-1 `#` heading boundary — locus: section scan; input: `# Title` ends delta section early.
@@ -7304,8 +7318,8 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 106
-- **bugs-found:** 109
+- **hunts:** 107
+- **bugs-found:** 111
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-23
 - **last-bug:** 2026-10-23 — compact audit JSON, determinism null/zero, case-insensitive headings

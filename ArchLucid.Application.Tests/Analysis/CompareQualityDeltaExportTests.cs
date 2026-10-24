@@ -194,6 +194,18 @@ public sealed class CompareQualityDeltaExportTests
     }
 
     [Fact]
+    public void RemoveMarkdownSection_stops_at_level1_heading_when_no_following_level2_heading_exists()
+    {
+        string markdown = "intro\n## Compare Quality Delta\n| Metric | Before | After |\n# Executive summary\nBody text\n";
+
+        string result = CompareQualityDeltaExportFormatter.RemoveMarkdownSection(markdown);
+
+        result.Should().NotContain("Compare Quality Delta");
+        result.Should().Contain("# Executive summary");
+        result.Should().Contain("Body text");
+    }
+
+    [Fact]
     public void RemoveMarkdownSection_strips_through_level3_subheadings_until_next_level2_heading()
     {
         string markdown =
