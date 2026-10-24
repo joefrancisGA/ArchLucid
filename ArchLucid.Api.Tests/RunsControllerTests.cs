@@ -206,6 +206,60 @@ public sealed class RunsControllerTests
     }
 
     [Fact]
+    public async Task CreateRunBatch_returns_bad_request_when_idempotency_key_exceeds_max_length()
+    {
+        Mock<IRunLifecycleCommandService> lifecycle = new();
+        lifecycle
+            .Setup(s => s.ValidateIdempotencyKey(It.IsAny<string?>()))
+            .Returns<string?>(raw =>
+            {
+                if (raw is null)
+                    return new IdempotencyKeyValidationResult(true, null, null);
+
+                string trimmed = raw.Trim();
+
+                if (trimmed.Length > ArchitectureRunIdempotencyHashing.MaxIdempotencyKeyLength)
+                {
+                    return new IdempotencyKeyValidationResult(
+                        false,
+                        null,
+                        $"Idempotency-Key must be at most {ArchitectureRunIdempotencyHashing.MaxIdempotencyKeyLength} characters after trim.");
+                }
+
+                return new IdempotencyKeyValidationResult(true, trimmed.Length == 0 ? null : trimmed, null);
+            });
+
+        RunsController controller = CreateController(runLifecycleCommandService: lifecycle.Object);
+
+        controller.ControllerContext.HttpContext.Request.Headers["Idempotency-Key"] =
+            new string('k', ArchitectureRunIdempotencyHashing.MaxIdempotencyKeyLength + 1);
+
+        ArchitectureRequest[] requests =
+        [
+            new()
+            {
+                RequestId = "batch-bad-idem",
+                Description = new string('x', 20),
+                SystemName = "CreatedArch",
+            },
+        ];
+
+        IActionResult action = await controller.CreateRunBatch(requests, CancellationToken.None);
+
+        ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
+        bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+
+        lifecycle.Verify(
+            static s => s.CreateRunBatchAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<IReadOnlyList<ArchitectureRequest>>(),
+                It.IsAny<string?>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task CreateRun_returns_bad_request_when_idempotency_key_exceeds_max_length()
     {
         Mock<IRunLifecycleCommandService> lifecycle = new();
@@ -716,6 +770,34 @@ public sealed class RunsControllerTests
         intakeFacade.Verify(
             static f => f.ExplainStructuredBriefSuggestionAsync(It.IsAny<ExplainStructuredBriefSuggestionInput>(), It.IsAny<CancellationToken>()),
             Times.Never);
+    }
+
+    [Fact]
+    public async Task ExplainStructuredBriefSuggestion_calls_intake_facade_when_source_text_is_exactly_minimum_length()
+    {
+        Mock<IArchitectureRequestIntakeFacade> intakeFacade = new();
+        intakeFacade
+            .Setup(s => s.ExplainStructuredBriefSuggestionAsync(It.IsAny<ExplainStructuredBriefSuggestionInput>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ExplainStructuredBriefSuggestionResponse { Explanation = "ok" });
+
+        RunsController controller = CreateController();
+
+        ExplainStructuredBriefSuggestionInput input = new()
+        {
+            SourceText = new string('a', 20),
+            SuggestionKind = StructuredBriefSuggestionKind.Constraint,
+            SuggestionText = "EU data residency",
+        };
+
+        IActionResult action = await controller.ExplainStructuredBriefSuggestion(input, intakeFacade.Object, CancellationToken.None);
+
+        action.Should().BeOfType<OkObjectResult>();
+
+        intakeFacade.Verify(
+            static f => f.ExplainStructuredBriefSuggestionAsync(
+                It.Is<ExplainStructuredBriefSuggestionInput>(i => i.SourceText!.Length == 20),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 
     [Fact]
