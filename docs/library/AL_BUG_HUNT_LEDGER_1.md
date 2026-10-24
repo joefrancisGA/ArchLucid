@@ -6868,10 +6868,25 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-24 seed hunt (seed→hit): proved `ComparisonRecordPayloadRehydrator.RehydrateExportDiff` left nested `RequestDiff` `CompareRunId` values in dashed or padded form after deserialize so export-diff drift and artifact replay could flag spurious request-diff changes against regenerated diffs that canonicalize compare run ids; canonicalize nested `PersistedAnalysisExportRequest.CompareRunId` after deserialize; regression `RehydrateExportDiff_canonicalizes_dashed_compare_run_id_in_nested_request_diff`; cheap-disproof closed `ComparisonsApplicationService.TryAnalyzeDriftAsync` (already `ComparisonRecordIdNormalizer.NormalizeRequired` before scoped load and replay), `ApiPaging.TryParseUtcTicksIdCursor` (comparison search normalizes cursor id), batch zip manifest echo (cosmetic), Armenian homoglyphs (deferred), and persistence-layer determinism normalize (deferred); seeded five follow-on rows; scoped application-analysis + replay filter 276/276. Private beta: export-diff comparison drift compares stored nested compare-run ids using canonical form when legacy payload JSON kept dashed or padded GUID strings.
+
+- [ ] (candidate) `ComparisonsApplicationService.TryBuildDriftReportContent` — drift report filename uses untrimmed comparison record id — locus: markdown/html export; input: padded record id in download name only.
+- [ ] (candidate) `ComparisonRecordPayloadRehydrator` — nested `CompareManifestVersion` trim in export-diff payload — locus: `RequestDiff`; input: padded manifest version strings in stored JSON.
+- [ ] (candidate) `ApiPaging.TryParseUtcTicksIdCursor` — cursor id segment without trim — locus: HTTP cursor parse; input: padded id after ticks delimiter (alerts inbox and other API surfaces).
+- [ ] (candidate) `ComparisonBatchReplayZipSupport` — manifest failure entries echo pre-trim batch tokens — locus: zip manifest; input: cosmetic id echo only.
+- [ ] (candidate) `ComparisonExportMarkdownSectionRemover` — Armenian homoglyphs in delta headings — locus: `UnicodeLatinHomoglyphMapper`; input: deferred expansion.
+
+- [x] (proven) `ComparisonRecordPayloadRehydrator` — nested `CompareRunId` in export-diff payload — **hit 2026-10-24 seed hunt:** canonicalize nested requests; regression `RehydrateExportDiff_canonicalizes_dashed_compare_run_id_in_nested_request_diff`.
+- [x] (valid-no-repro) `ComparisonsApplicationService.TryAnalyzeDriftAsync` — comparison record id normalize at facade — **cheap-disproof 2026-10-24 seed hunt:** `NormalizeRequired` before scoped load/replay.
+- [x] (invalid) `ApiPaging.TryParseUtcTicksIdCursor` — HTTP cursor id trim — **cheap-disproof 2026-10-24 seed hunt:** comparison search normalizes at application layer.
+- [x] (invalid) `ComparisonBatchReplayZipSupport` — manifest id echo — **cheap-disproof 2026-10-24 seed hunt:** cosmetic only.
+- [x] (invalid) `UnicodeLatinHomoglyphMapper` — Armenian homoglyphs — **cheap-disproof 2026-10-24 seed hunt:** deferred.
+
 2026-10-24 seed hunt (seed→hit): proved `ComparisonRecordPayloadRehydrator` returned stored comparison payloads with dashed or padded `LeftRunId`/`RightRunId` unchanged so drift analysis and artifact replay compared canonical regenerated output against non-canonical stored JSON; canonicalize run id columns after deserialize for end-to-end and export-diff payloads; regressions `RehydrateEndToEnd_canonicalizes_dashed_padded_run_ids_in_payload` and `RehydrateExportDiff_canonicalizes_dashed_padded_run_ids_in_payload`; cheap-disproof closed `ComparisonReplayService.AnalyzeDriftAsync` export-diff anchor path (hunt 138 regenerate + hunt 140 access gates; regression `AnalyzeDriftAsync_export_diff_succeeds_when_export_anchor_run_id_is_dashed_with_padding`), `ApiPaging.TryParseUtcTicksIdCursor` (comparison search normalizes cursor id), batch zip manifest echo (cosmetic), Armenian homoglyphs (deferred), and persistence-layer determinism normalize (deferred); seeded five follow-on rows; scoped application-analysis + replay filter 275/275. Private beta: comparison drift analysis and artifact replay compare stored payloads using canonical run ids even when legacy JSON kept dashed or padded GUID strings.
 
-- [ ] (candidate) `ComparisonRecordPayloadRehydrator` — nested request diff `CompareRunId` in export-diff payload — locus: `ExportRecordRequestDiff`; input: dashed compare run id inside stored JSON only.
-- [ ] (candidate) `ComparisonsApplicationService.TryAnalyzeDriftAsync` — drift entry without comparison record id normalize — locus: facade wrapper; input: padded comparison record id (partially fixed at replay service).
+- [x] (proven) `ComparisonRecordPayloadRehydrator` — nested request diff `CompareRunId` — **hit 2026-10-24 seed hunt (142):** regression `RehydrateExportDiff_canonicalizes_dashed_compare_run_id_in_nested_request_diff`.
+- [x] (valid-no-repro) `ComparisonsApplicationService.TryAnalyzeDriftAsync` — facade drift id normalize — **cheap-disproof 2026-10-24 seed hunt (142):** existing `NormalizeRequired`.
+- [ ] (candidate) `ApiPaging.TryParseUtcTicksIdCursor` — cursor id segment without trim — locus: HTTP cursor parse; input: padded id after ticks delimiter (alerts inbox and other API surfaces).
 - [ ] (candidate) `ApiPaging.TryParseUtcTicksIdCursor` — cursor id segment without trim — locus: HTTP cursor parse; input: padded id after ticks delimiter (alerts inbox and other API surfaces).
 - [ ] (candidate) `ComparisonBatchReplayZipSupport` — manifest failure entries echo pre-trim batch tokens — locus: zip manifest; input: cosmetic id echo only.
 - [ ] (candidate) `ComparisonExportMarkdownSectionRemover` — Armenian homoglyphs in delta headings — locus: `UnicodeLatinHomoglyphMapper`; input: deferred expansion.
@@ -7790,11 +7805,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 141
-- **bugs-found:** 147
+- **hunts:** 142
+- **bugs-found:** 148
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-24
-- **last-bug:** 2026-10-24 — comparison payload rehydrate canonicalizes run ids
+- **last-bug:** 2026-10-24 — export-diff payload nested CompareRunId canonicalize
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
