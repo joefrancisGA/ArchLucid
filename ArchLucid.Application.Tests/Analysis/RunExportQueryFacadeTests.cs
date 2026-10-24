@@ -360,6 +360,67 @@ public sealed class RunExportQueryFacadeTests
     }
 
     [Fact]
+    public async Task CompareExportRecordsAsync_passes_normalized_denormalized_determinism_columns_to_diff()
+    {
+        const string leftExportRecordId = "left-export";
+        const string rightExportRecordId = "right-export";
+        Guid runGuid = Guid.Parse(RunId);
+        RunExportRecord leftRecord = CreateExportRecord(leftExportRecordId);
+        leftRecord.IncludedDeterminismCheck = false;
+        leftRecord.DeterminismIterations = 5;
+        RunExportRecord rightRecord = CreateExportRecord(rightExportRecordId);
+        ArchitectureRunDetail scopedDetail = CreateScopedRunDetail();
+        RunDetailDto authorityDetail = CreateAuthorityDetailWithCompleteLifecycle(runGuid);
+
+        Mock<IRunDetailQueryService> runDetails = new();
+        runDetails
+            .Setup(r => r.GetRunDetailAsync(RunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(scopedDetail);
+
+        Mock<IRunExportRecordRepository> exportRecords = new();
+        exportRecords
+            .Setup(r => r.GetByIdAsync(leftExportRecordId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(leftRecord);
+        exportRecords
+            .Setup(r => r.GetByIdAsync(rightExportRecordId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(rightRecord);
+
+        ArchLucid.Decisioning.Services.ManifestHashService manifestHashService = new();
+        Mock<IAuthorityQueryService> authority = new();
+        SealedExportReceiptTestSupport.ConfigureVerifiedSealedExport(authority, runGuid, manifestHashService);
+        authority
+            .Setup(a => a.GetRunDetailAsync(It.IsAny<ScopeContext>(), runGuid, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(authorityDetail);
+
+        RunExportRecord? capturedLeft = null;
+        RunExportRecord? capturedRight = null;
+        Mock<IExportRecordDiffService> diffService = new();
+        diffService
+            .Setup(d => d.CompareAsync(It.IsAny<RunExportRecord>(), It.IsAny<RunExportRecord>(), It.IsAny<CancellationToken>()))
+            .Callback<RunExportRecord, RunExportRecord, CancellationToken>((left, right, _) =>
+            {
+                capturedLeft = left;
+                capturedRight = right;
+            })
+            .ReturnsAsync(new ExportRecordDiffResult());
+
+        RunExportQueryFacade sut = CreateFacade(
+            runDetails,
+            exportRecords,
+            authority,
+            manifestHashService,
+            exportRecordDiffService: diffService);
+
+        ExportRecordDiffQueryResult result =
+            await sut.CompareExportRecordsAsync(leftExportRecordId, rightExportRecordId, CancellationToken.None);
+
+        result.Outcome.Should().Be(ExportRecordLoadOutcome.Success);
+        capturedLeft.Should().NotBeNull();
+        capturedLeft!.DeterminismIterations.Should().BeNull();
+        capturedRight!.DeterminismIterations.Should().BeNull();
+    }
+
+    [Fact]
     public async Task CompareExportRecordsAsync_throws_when_career_posture_blocks_metadata_read()
     {
         const string leftExportRecordId = "left-export";

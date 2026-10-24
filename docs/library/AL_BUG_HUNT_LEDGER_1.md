@@ -6868,6 +6868,20 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-24 seed hunt (seed→hit): proved `ExportReplayService` and `ComparisonReplayService.RegenerateExportDiffAsync` still loaded export rows with stale denormalized `DeterminismIterations` when the check was disabled, and `ExportRecordDiffService` duplicated determinism column normalization; normalize export records on replay/diff-regenerate loads and route top-level diff through `PersistedAnalysisExportRequestDeterminismNormalizer.NormalizeDenormalizedIterationsColumn`; regressions `ReplayAsync_clears_stale_denormalized_determinism_iterations_on_loaded_record`, `CompareExportRecordsAsync_passes_normalized_denormalized_determinism_columns_to_diff`, and shared diff helper wiring; cheap-disproof closed compare-pair load (same `LoadScopedExportRecordAsync` path), `IncludedSummary` null/false parity, and false `includeDeterminismCheck` JSON omission; seeded five follow-on rows; scoped application-analysis filter 161/161. Private beta: export replay and comparison diff-regenerate no longer carry legacy iteration column drift; export compare diff uses one normalization source with metadata reads.
+
+- [ ] (candidate) `ConsultingDocxExportWhitelabelPrefill` — normalize export history rows on read — locus: `GetByRunIdAsync`; input: whitelabel prefill path only.
+- [ ] (candidate) `ComparisonsApplicationService` — export record lookup normalization — locus: metadata read; input: verify scope.
+- [ ] (candidate) `UnicodeLatinHomoglyphMapper` — Armenian homoglyphs — locus: homoglyph casing; input: deferred.
+- [ ] (candidate) `ComparisonExportMarkdownSectionRemover` — distinct `##` subsection inside delta — locus: product shape; input: intentional boundary.
+- [ ] (candidate) `RunExportRecordPersistNormalizer` — persistence-layer column normalize — locus: repository read; input: consolidation at DB boundary.
+
+- [x] (proven) `ExportReplayService.ReplayAsync` — stale denormalized iterations on load — **hit 2026-10-24 seed hunt:** `NormalizeRunExportRecordDenormalizedColumns`; regression `ReplayAsync_clears_stale_denormalized_determinism_iterations_on_loaded_record`.
+- [x] (proven) `ComparisonReplayService.RegenerateExportDiffAsync` — stale columns before diff — **hit 2026-10-24 seed hunt:** same normalizer before `CompareAsync`.
+- [x] (proven) `ExportRecordDiffService.CompareTopLevel` — duplicate determinism normalize — **hit 2026-10-24 seed hunt:** `NormalizeDenormalizedIterationsColumn` shared helper.
+- [x] (valid-no-repro) `RunExportQueryFacade.CompareExportRecordsAsync` — compare pair normalization — **cheap-disproof 2026-10-24 seed hunt:** regression `CompareExportRecordsAsync_passes_normalized_denormalized_determinism_columns_to_diff`.
+- [x] (valid-no-repro) `ExportRecordDiffService.CompareTopLevel` — `IncludedSummary` null vs false — **cheap-disproof 2026-10-24 seed hunt:** regression `CompareQuality_export_record_diff_treats_null_and_false_included_summary_as_equivalent`.
+
 2026-10-24 seed hunt (seed→hit): proved `RunExportQueryFacade` returned legacy denormalized `DeterminismIterations` values on metadata reads when `IncludedDeterminismCheck` was false, and confirmed homoglyph duplicate headings continue to strip through under the hunt 108 boundary skip; normalize denormalized iteration columns on scoped export loads via `PersistedAnalysisExportRequestDeterminismNormalizer.NormalizeRunExportRecordDenormalizedColumns`; regressions `GetExportRecordAsync_clears_stale_denormalized_determinism_iterations_when_check_disabled`, `RemoveMarkdownSection_strips_through_duplicate_homoglyph_heading_until_next_distinct_section`, and `RemoveMarkdownSection_strips_through_duplicate_verdict_chrome_heading_until_next_distinct_section`; cheap-disproof closed explicit `includeDeterminismCheck` false JSON omission (intentional) and omitted vs zero iteration JSON when check enabled; seeded five follow-on rows; scoped application-analysis filter 157/157. Private beta: export metadata reads and history lists no longer surface stale determinism iteration counts when the check is off; comparison re-append still clears homoglyph duplicate delta headings.
 
 - [ ] (candidate) `RunExportQueryFacade` — normalize determinism columns on compare pair load — locus: `LoadScopedExportRecordAsync`; input: already normalized on that path.
@@ -7346,8 +7360,8 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 109
-- **bugs-found:** 113
+- **hunts:** 110
+- **bugs-found:** 116
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-23
 - **last-bug:** 2026-10-23 — compact audit JSON, determinism null/zero, case-insensitive headings

@@ -104,6 +104,7 @@ public sealed class ExportReplayService(
             throw new InvalidOperationException($"Export record '{exportRecordId}' was not found.");
 
         record.RunId = record.RunId.Trim();
+        PersistedAnalysisExportRequestDeterminismNormalizer.NormalizeRunExportRecordDenormalizedColumns(record);
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
 

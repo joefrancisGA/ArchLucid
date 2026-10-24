@@ -89,8 +89,12 @@ public sealed class ExportRecordDiffService : IExportRecordDiffService
         AddIfChanged(
             result.ChangedTopLevelFields,
             "DeterminismIterations",
-            NormalizeDeterminismIterationsColumn(left.DeterminismIterations, left.IncludedDeterminismCheck),
-            NormalizeDeterminismIterationsColumn(right.DeterminismIterations, right.IncludedDeterminismCheck));
+            PersistedAnalysisExportRequestDeterminismNormalizer.NormalizeDenormalizedIterationsColumn(
+                left.DeterminismIterations,
+                left.IncludedDeterminismCheck),
+            PersistedAnalysisExportRequestDeterminismNormalizer.NormalizeDenormalizedIterationsColumn(
+                right.DeterminismIterations,
+                right.IncludedDeterminismCheck));
         AddIncludedFlagIfChanged(result.ChangedTopLevelFields, "IncludedManifestCompare", left.IncludedManifestCompare,
             right.IncludedManifestCompare);
         AddIfChangedTrimmed(result.ChangedTopLevelFields, "CompareManifestVersion", left.CompareManifestVersion,
@@ -143,17 +147,6 @@ public sealed class ExportRecordDiffService : IExportRecordDiffService
         AddRunIdIfChanged(diff.ChangedValues, "CompareRunId", left.CompareRunId, right.CompareRunId);
 
         return diff;
-    }
-
-    private static int? NormalizeDeterminismIterationsColumn(int? value) =>
-        value is null or 0 ? null : value;
-
-    private static int? NormalizeDeterminismIterationsColumn(int? value, bool? includedDeterminismCheck)
-    {
-        if (!NormalizeIncludedFlag(includedDeterminismCheck))
-            return null;
-
-        return NormalizeDeterminismIterationsColumn(value);
     }
 
     private static int NormalizeRequestDeterminismIterations(PersistedAnalysisExportRequest request) =>
