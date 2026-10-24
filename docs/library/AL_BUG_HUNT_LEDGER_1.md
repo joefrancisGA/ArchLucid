@@ -6868,6 +6868,20 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-24 seed hunt (seed→hit): proved `ComparisonsApplicationService.SearchAsync` forwarded untrimmed `SortDir`/`SortBy` to the comparison repository so padded `asc` tokens were treated as descending sort and cursor next-page emission missed trimmed `createdUtc` sort keys; trim sort parameters before search and cursor paging; regression `CompareQuality_SearchAsync_sorts_ascending_when_sort_dir_has_surrounding_whitespace`; cheap-disproof closed `ExportReplayService` duplicate lookup helper (inlined shared canonicalization call), `ApiPaging.TryParseUtcTicksIdCursor` (comparison search normalizes cursor id), batch zip manifest echo (cosmetic), Armenian homoglyphs (deferred), and persistence-layer determinism normalize (deferred); seeded five follow-on rows; scoped application-analysis + replay filter 256/256. Private beta: comparison history sort direction and cursor paging honor ascending requests when sort tokens are pasted with surrounding whitespace.
+
+- [ ] (candidate) `ApiPaging.TryParseUtcTicksIdCursor` — cursor id segment without trim — locus: HTTP cursor parse; input: padded id after ticks delimiter (alerts inbox and other API surfaces).
+- [ ] (candidate) `ComparisonBatchReplayZipSupport` — manifest failure entries echo pre-trim batch tokens — locus: zip manifest; input: cosmetic id echo only.
+- [ ] (candidate) `ComparisonExportMarkdownSectionRemover` — Armenian homoglyphs in delta headings — locus: `UnicodeLatinHomoglyphMapper`; input: deferred expansion.
+- [ ] (candidate) `RunExportRecordPersistNormalizer` — persistence-layer determinism column normalize — locus: repository read; input: consolidation at DB boundary.
+- [ ] (candidate) `ComparisonRecordRepositoryCore.IsSortDescending` — trim at persistence layer for direct repository callers — locus: repository core; input: defense in depth.
+
+- [x] (proven) `ComparisonsApplicationService.SearchAsync` — untrimmed sort direction — **hit 2026-10-24 seed hunt:** trim `SortBy`/`SortDir`; regression `CompareQuality_SearchAsync_sorts_ascending_when_sort_dir_has_surrounding_whitespace`.
+- [x] (valid-no-repro) `ExportReplayService` — duplicate `CanonicalRunIdForLookup` — **cheap-disproof 2026-10-24 seed hunt:** call `AnalysisRunIdCanonicalization` directly; no behavior change.
+- [x] (invalid) `ApiPaging.TryParseUtcTicksIdCursor` — HTTP cursor id trim — **cheap-disproof 2026-10-24 seed hunt:** comparison search normalizes at application layer.
+- [x] (invalid) `ComparisonBatchReplayZipSupport` — manifest id echo — **cheap-disproof 2026-10-24 seed hunt:** cosmetic only.
+- [x] (invalid) `UnicodeLatinHomoglyphMapper` — Armenian homoglyphs — **cheap-disproof 2026-10-24 seed hunt:** deferred.
+
 2026-10-24 seed hunt (seed→hit): proved `ArchitectureAnalysisService.BuildAsync` forwarded untrimmed `CompareManifestVersion` to `GetByVersionAsync` so manifest-compare exports missed golden manifests when rehydrated requests carried padded version tokens, and sealed-manifest guard used raw `request.RunId` instead of canonical lookup id; trim compare manifest version before reader lookup, pass canonical primary run id to sealed-manifest guard, and route comparison history run-id filters through `AnalysisRunIdCanonicalization.CanonicalRunIdForLookupOrNull`; regressions `BuildAsync_manifest_compare_trims_padded_compare_manifest_version` and `CanonicalRunIdForLookupOrNull_whitespace_only_returns_null`; cheap-disproof closed `ApiPaging.TryParseUtcTicksIdCursor` (comparison search normalizes cursor id), batch zip manifest echo (cosmetic), Armenian homoglyphs (deferred), and persistence-layer determinism normalize (deferred); seeded five follow-on rows; scoped application-analysis + replay filter 255/255. Private beta: architecture analysis manifest compare and sealed-manifest checks tolerate padded run and manifest version strings from replayed export requests, matching export metadata trim parity.
 
 - [ ] (candidate) `ApiPaging.TryParseUtcTicksIdCursor` — cursor id segment without trim — locus: HTTP cursor parse; input: padded id after ticks delimiter (alerts inbox and other API surfaces).
@@ -7645,11 +7659,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 131
-- **bugs-found:** 137
+- **hunts:** 132
+- **bugs-found:** 138
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-24
-- **last-bug:** 2026-10-24 — architecture manifest compare trims version token
+- **last-bug:** 2026-10-24 — comparison history search trims sort parameters
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
