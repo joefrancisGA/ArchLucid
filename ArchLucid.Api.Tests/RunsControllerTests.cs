@@ -226,6 +226,30 @@ public sealed class RunsControllerTests
     }
 
     [Fact]
+    public async Task LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_is_whitespace_only()
+    {
+        Mock<IRunLifecycleCommandService> lifecycle = new();
+
+        RunsController controller = CreateController(runLifecycleCommandService: lifecycle.Object);
+
+        IActionResult action = await controller.LookupCreateRunByIdempotencyKey("   ", CancellationToken.None);
+
+        ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
+        bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+
+        lifecycle.Verify(
+            static s => s.ValidateIdempotencyKey(It.IsAny<string?>()),
+            Times.Never);
+
+        lifecycle.Verify(
+            static s => s.LookupCreateRunByIdempotencyKeyAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_exceeds_max_length()
     {
         Mock<IRunLifecycleCommandService> lifecycle = new();
@@ -888,6 +912,36 @@ public sealed class RunsControllerTests
             ok.Value.Should().BeOfType<ExplainStructuredBriefSuggestionResponse>().Subject;
 
         response.Explanation.Should().Contain("EU customers");
+    }
+
+    [Fact]
+    public async Task RephraseClarificationAnswers_returns_bad_request_when_extracted_answer_is_two_characters()
+    {
+        Mock<IArchitectureRequestIntakeFacade> intakeFacade = new();
+
+        RunsController controller = CreateController();
+
+        RephraseClarificationAnswersInput input = new()
+        {
+            Items =
+            [
+                new ClarificationAnswerRephraseItem
+                {
+                    QuestionKey = "q1",
+                    QuestionPrompt = new string('a', 10),
+                    ExtractedAnswer = "no",
+                },
+            ],
+        };
+
+        IActionResult action = await controller.RephraseClarificationAnswers(input, intakeFacade.Object, CancellationToken.None);
+
+        ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
+        bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+
+        intakeFacade.Verify(
+            static f => f.RephraseClarificationAnswersAsync(It.IsAny<RephraseClarificationAnswersInput>(), It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     [Fact]

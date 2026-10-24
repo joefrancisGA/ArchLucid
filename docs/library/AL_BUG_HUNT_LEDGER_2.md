@@ -9040,11 +9040,19 @@
 
 2026-10-24 seed hunt (seed-only #19): cheap-disproof closed five open `(candidate)` rows; four regressions; scoped tests passed on full tree (`RunAnalyzers=false`).
 
-- [ ] (candidate) `RunsController.LookupCreateRunByIdempotencyKey` — whitespace-only `Idempotency-Key` — locus: trim + empty key guard; input: `"   "` header.
-- [ ] (candidate) `AdminAgentModelCatalogController.RecordEvaluation` — null `EvidenceJson` vs omitted — locus: optional evidence; input: parity hunt #7.
-- [ ] (candidate) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with empty-string `ExclusionReason` — locus: bulk validation; input: `""` on PUT.
-- [ ] (candidate) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `498` — locus: interior bound below 500 cap.
-- [ ] (candidate) `RunsController.RephraseClarificationAnswers` — `ExtractedAnswer` exactly 2 characters — locus: 3-char minimum; input: boundary fail.
+- [x] (valid-no-repro) `RunsController.LookupCreateRunByIdempotencyKey` — whitespace-only `Idempotency-Key` — **cheap-disproof 2026-10-24 seed hunt #20:** `IsNullOrWhiteSpace` guard before `ValidateIdempotencyKey`; regression `LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_is_whitespace_only`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — null `EvidenceJson` vs omitted — **cheap-disproof 2026-10-24 seed hunt #20:** optional evidence forwarded to recorder by contract (recycle hunt #7).
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with empty-string `ExclusionReason` — **cheap-disproof 2026-10-24 seed hunt #20:** `ValidateEntriesAsync` treats `""` as missing reason when excluded → HTTP 400.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `498` — **cheap-disproof 2026-10-24 seed hunt #20:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_498`.
+- [x] (valid-no-repro) `RunsController.RephraseClarificationAnswers` — `ExtractedAnswer` exactly 2 characters — **cheap-disproof 2026-10-24 seed hunt #20:** below 3-char minimum; regression `RephraseClarificationAnswers_returns_bad_request_when_extracted_answer_is_two_characters`.
+
+2026-10-24 seed hunt (seed-only #20): cheap-disproof closed five open `(candidate)` rows; four regressions; scoped tests passed on full tree (`RunAnalyzers=false`).
+
+- [ ] (candidate) `RunsController.CreateRun` — whitespace-only `Idempotency-Key` header — locus: trim yields null key; input: create proceeds without replay slot.
+- [ ] (candidate) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` `Failed` numeric `2` — locus: enum parse; input: recycle hunt #17.
+- [ ] (candidate) `RunCoverageController.PatchRunCoveragePack` — excluded true with empty-string `ExclusionReason` — locus: patch guard; input: `""` on PATCH.
+- [ ] (candidate) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `497` — locus: interior bound neighbor.
+- [ ] (candidate) `RunsController.RephraseClarificationAnswers` — `ExtractedAnswer` exactly 3 characters — locus: inclusive minimum pass.
 
 2026-10-23 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows from prior reseed; no new hunt-ready promotion (Rephrase null `Items` already shipped on `bugsmash-2` 01857d53eb); seeded five follow-on `(candidate)` rows; 12 scoped RunsController draft/explain + RunCoverage acknowledgement tests passed.
 
@@ -9064,9 +9072,9 @@
 - **aliases:** authority controllers; admin controllers
 - **paths:** ArchLucid.Api/Controllers/Authority/; ArchLucid.Api/Controllers/Admin/
 - **test-filter:** FullyQualifiedName~AuthorityController|FullyQualifiedName~AdminController
-- **hunts:** 83
+- **hunts:** 84
 - **bugs-found:** 58
-- **consecutive-dry-hunts:** 17
+- **consecutive-dry-hunts:** 18
 - **last-hunt:** 2026-10-24
 - **last-bug:** 2026-10-23 — rephrase clarification null item in items array caused 500 instead of validation
 - **related-pd-tb:** none
