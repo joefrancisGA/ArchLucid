@@ -103,6 +103,64 @@ public sealed class RunCoverageControllerAcknowledgementTests
     }
 
     [Fact]
+    public async Task PatchRunCoveragePack_accepts_empty_exclusion_reason_when_not_excluded()
+    {
+        Guid runId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+        Guid policyPackId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(static s => s.GetCurrentScope()).Returns(Scope);
+
+        Mock<IAuthorityQueryService> authority = new();
+        authority
+            .Setup(q => q.GetRunDetailAsync(
+                It.IsAny<ScopeContext>(),
+                runId,
+                It.IsAny<CancellationToken>(),
+                It.IsAny<bool>()))
+            .ReturnsAsync((RunDetailDto?)null);
+
+        Mock<IRunCoverageAcknowledgementService> acknowledgementService = new();
+        acknowledgementService
+            .Setup(s => s.PatchPackExclusionAsync(
+                Scope,
+                runId,
+                policyPackId,
+                false,
+                string.Empty,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunCoverageAcknowledgementEntry
+            {
+                PolicyPackId = policyPackId,
+                Excluded = false,
+                ExclusionReason = null,
+            });
+
+        RunCoverageController sut = new(
+            Mock.Of<ICoverageQueryService>(),
+            acknowledgementService.Object,
+            Mock.Of<ArchLucid.Core.Persistence.Ports.IPolicyPackRepository>(),
+            scopeProvider.Object,
+            authority.Object,
+            SealedManifestHashTestSupport.CreateManifestHashService())
+        {
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
+        };
+
+        IActionResult result = await sut.PatchRunCoveragePack(
+            runId,
+            policyPackId,
+            new PatchRunCoveragePackRequest { Excluded = false, ExclusionReason = string.Empty },
+            CancellationToken.None);
+
+        OkObjectResult ok = result.Should().BeOfType<OkObjectResult>().Subject;
+        RunCoverageAcknowledgementEntry entry =
+            ok.Value.Should().BeOfType<RunCoverageAcknowledgementEntry>().Subject;
+        entry.Excluded.Should().BeFalse();
+        entry.ExclusionReason.Should().BeNull();
+    }
+
+    [Fact]
     public async Task PatchRunCoveragePack_returns_bad_request_when_excluded_true_with_empty_exclusion_reason()
     {
         Guid runId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
