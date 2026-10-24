@@ -209,5 +209,5 @@ public sealed class ArchitectureAnalysisService(
     }
 
     private static string CanonicalRunIdForLookup(string runId) =>
-        Guid.TryParse(runId, out Guid guid) ? guid.ToString("N") : runId;
+        AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(runId);
 }

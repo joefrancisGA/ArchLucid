@@ -110,4 +110,27 @@ public sealed class ComparisonAuditServiceTests
         persisted!.LeftExportRecordId.Should().Be("left-anchor");
         persisted.RightExportRecordId.Should().Be("right-anchor");
     }
+
+    [Fact]
+    public async Task RecordExportDiffAsync_treats_whitespace_only_run_ids_as_null()
+    {
+        ComparisonRecord? persisted = null;
+        Mock<IComparisonRecordRepository> repo = new();
+        repo
+            .Setup(r => r.CreateAsync(It.IsAny<ComparisonRecord>(), It.IsAny<CancellationToken>()))
+            .Callback<ComparisonRecord, CancellationToken>((record, _) => persisted = record)
+            .Returns(Task.CompletedTask);
+        ComparisonAuditService sut = new(repo.Object, Mock.Of<IAuditService>());
+        ExportRecordDiffResult diff = new()
+        {
+            LeftRunId = "   ",
+            RightRunId = "\t",
+        };
+
+        await sut.RecordExportDiffAsync(diff, "# md", CancellationToken.None);
+
+        persisted.Should().NotBeNull();
+        persisted!.LeftRunId.Should().BeNull();
+        persisted.RightRunId.Should().BeNull();
+    }
 }
