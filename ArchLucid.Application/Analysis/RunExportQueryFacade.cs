@@ -320,7 +320,7 @@ public sealed class RunExportQueryFacade(
         if (record is null)
             return null;
 
-        record.RunId = record.RunId.Trim();
+        record.RunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(record.RunId);
         if (await _runDetailQueryService.GetRunDetailAsync(record.RunId, cancellationToken) is null)
             return null;
 
