@@ -91,6 +91,10 @@ public sealed partial class ComparisonsApplicationService(
             ? null
             : criteria.ComparisonType.Trim();
 
+        string? normalizedLabel = string.IsNullOrWhiteSpace(criteria.Label)
+            ? null
+            : criteria.Label.Trim();
+
         int limit = criteria.Limit <= 0 ? Core.Pagination.PaginationDefaults.DefaultPageSize : criteria.Limit;
         string? leftRunIdFilter = CanonicalRunIdForLookupOrNull(criteria.LeftRunId);
         string? rightRunIdFilter = CanonicalRunIdForLookupOrNull(criteria.RightRunId);
@@ -109,7 +113,7 @@ public sealed partial class ComparisonsApplicationService(
                 criteria.CreatedToUtc,
                 leftExportRecordIdFilter,
                 rightExportRecordIdFilter,
-                criteria.Label,
+                normalizedLabel,
                 criteria.Tags.ToList(),
                 criteria.SortBy,
                 criteria.SortDir,
@@ -128,7 +132,7 @@ public sealed partial class ComparisonsApplicationService(
                 criteria.CreatedToUtc,
                 leftExportRecordIdFilter,
                 rightExportRecordIdFilter,
-                criteria.Label,
+                normalizedLabel,
                 criteria.Tags.ToList(),
                 criteria.SortBy,
                 criteria.SortDir,

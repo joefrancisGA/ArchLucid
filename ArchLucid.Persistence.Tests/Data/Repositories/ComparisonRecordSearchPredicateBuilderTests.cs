@@ -129,6 +129,29 @@ public sealed class ComparisonRecordSearchPredicateBuilderTests
     }
 
     [Fact]
+    public void AppendFilters_trims_padded_label_query_parameter()
+    {
+        List<string> conditions = [];
+        DynamicParameters parameters = new();
+
+        ComparisonRecordSearchPredicateBuilder.AppendFilters(
+            conditions,
+            parameters,
+            comparisonType: null,
+            leftRunId: null,
+            rightRunId: null,
+            createdFromUtc: null,
+            createdToUtc: null,
+            leftExportRecordId: null,
+            rightExportRecordId: null,
+            label: "  release-1  ",
+            tags: null);
+
+        conditions.Should().Contain("Label = @Label");
+        parameters.Get<string>("@Label").Should().Be("release-1");
+    }
+
+    [Fact]
     public void AppendFilters_trims_padded_export_record_id_query_parameters()
     {
         List<string> conditions = [];

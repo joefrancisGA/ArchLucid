@@ -85,7 +85,7 @@ internal static class ComparisonRecordSearchPredicateBuilder
         if (!string.IsNullOrWhiteSpace(label))
         {
             conditions.Add("Label = @Label");
-            parameters.Add("@Label", label);
+            parameters.Add("@Label", label.Trim());
         }
 
         if (tags is not { Count: > 0 })
