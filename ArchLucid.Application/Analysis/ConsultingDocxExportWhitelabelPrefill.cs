@@ -19,6 +19,8 @@ public static class ConsultingDocxExportWhitelabelPrefill
         ArgumentNullException.ThrowIfNull(hints);
         ArgumentNullException.ThrowIfNull(repository);
 
+        runId = runId.Trim();
+
         if (!string.IsNullOrWhiteSpace(hints.FirmDisplayName))
         {
             return;
