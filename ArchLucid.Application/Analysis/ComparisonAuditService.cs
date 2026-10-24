@@ -92,8 +92,8 @@ public sealed class ComparisonAuditService(IComparisonRecordRepository repositor
             ComparisonType = sourceRecord.ComparisonType,
             LeftRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForPersistenceOrNull(sourceRecord.LeftRunId),
             RightRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForPersistenceOrNull(sourceRecord.RightRunId),
-            LeftExportRecordId = sourceRecord.LeftExportRecordId,
-            RightExportRecordId = sourceRecord.RightExportRecordId,
+            LeftExportRecordId = NormalizeExportRecordIdColumnOrNull(sourceRecord.LeftExportRecordId),
+            RightExportRecordId = NormalizeExportRecordIdColumnOrNull(sourceRecord.RightExportRecordId),
             LeftManifestVersion = sourceRecord.LeftManifestVersion,
             RightManifestVersion = sourceRecord.RightManifestVersion,
             Format = sourceRecord.Format,
@@ -164,6 +164,11 @@ public sealed class ComparisonAuditService(IComparisonRecordRepository repositor
         if (!string.IsNullOrWhiteSpace(diff.RightExportRecordId))
             diff.RightExportRecordId = RunExportRecordIdNormalizer.NormalizeRequired(diff.RightExportRecordId);
     }
+
+    private static string? NormalizeExportRecordIdColumnOrNull(string? exportRecordId) =>
+        string.IsNullOrWhiteSpace(exportRecordId)
+            ? exportRecordId
+            : RunExportRecordIdNormalizer.NormalizeRequired(exportRecordId);
 
     private static string SerializeExportDiffPayload(
         ExportRecordDiffResult diff,
