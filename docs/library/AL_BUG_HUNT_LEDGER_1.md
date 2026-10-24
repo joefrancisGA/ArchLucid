@@ -6868,6 +6868,20 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-24 seed hunt (seed→hit): proved `ComparisonReplayCostEstimator.TryEstimateAsync` loaded comparison records with untrimmed ids so direct estimator calls (and cache keys) missed rows when comparison record ids carried trailing line breaks even though `TryEstimateReplayCostAsync` scoped loads were already trimmed; normalize via `ComparisonRecordIdNormalizer.NormalizeRequired` at estimator entry; regression `TryEstimateAsync_trims_padded_comparison_record_id_before_load`; cheap-disproof closed `ApiPaging.TryParseUtcTicksIdCursor` (analysis path normalizes cursor id), batch zip manifest echo (cosmetic), Armenian homoglyphs (deferred), persistence-layer determinism normalize (deferred), and opaque run-id `FilterInMemory` (canonical helper already trims); seeded five follow-on rows; scoped application-analysis + replay + cost estimator filter 244/244. Private beta: comparison replay cost previews stay available when record ids are pasted with trailing whitespace, including any internal caller that invokes the estimator directly.
+
+- [ ] (candidate) `ApiPaging.TryParseUtcTicksIdCursor` — cursor id segment without trim — locus: HTTP cursor parse; input: padded id after ticks delimiter (alerts inbox and other API surfaces).
+- [ ] (candidate) `ComparisonBatchReplayZipSupport` — manifest failure entries echo pre-trim batch tokens — locus: zip manifest; input: cosmetic id echo only.
+- [ ] (candidate) `ComparisonExportMarkdownSectionRemover` — Armenian homoglyphs in delta headings — locus: `UnicodeLatinHomoglyphMapper`; input: deferred expansion.
+- [ ] (candidate) `RunExportRecordPersistNormalizer` — persistence-layer determinism column normalize — locus: repository read; input: consolidation at DB boundary.
+- [ ] (candidate) `AnalysisRunIdCanonicalization.CanonicalRunIdForPersistence` — explicit trim before `Guid.TryParse` — locus: audit persist; input: verify `TryParse` whitespace parity for non-standard tokens.
+
+- [x] (proven) `ComparisonReplayCostEstimator.TryEstimateAsync` — untrimmed comparison record id — **hit 2026-10-24 seed hunt:** `ComparisonRecordIdNormalizer.NormalizeRequired`; regression `TryEstimateAsync_trims_padded_comparison_record_id_before_load`.
+- [x] (invalid) `ApiPaging.TryParseUtcTicksIdCursor` — HTTP cursor id trim — **cheap-disproof 2026-10-24 seed hunt:** comparison search normalizes at application layer; API trim is separate surface.
+- [x] (invalid) `ComparisonBatchReplayZipSupport` — manifest id echo — **cheap-disproof 2026-10-24 seed hunt:** cosmetic only.
+- [x] (invalid) `UnicodeLatinHomoglyphMapper` — Armenian homoglyphs — **cheap-disproof 2026-10-24 seed hunt:** deferred.
+- [x] (invalid) `RunExportRecordPersistNormalizer` — DB read normalize — **cheap-disproof 2026-10-24 seed hunt:** consolidation deferred.
+
 2026-10-24 seed hunt (seed→hit): proved `ComparisonsApplicationService.SearchAsync` forwarded untrimmed cursor comparison record ids into cursor paging while `ComparisonRecordRepositoryCore.MatchesCursor` and SQL `@CursorId` compared ordinally against stored ids, so the next page after a cursor token with a padded comparison record id segment skipped or duplicated rows; normalize cursor id via `NormalizeComparisonRecordIdFilterOrNull` (`ComparisonRecordIdNormalizer`) before `SearchByCursorAsync` and trim cursor ids in repository cursor match and SQL search; regressions `CompareQuality_SearchAsync_cursor_paging_trims_padded_comparison_record_id` and `MatchesCursor_trims_padded_comparison_record_id`; cheap-disproof closed batch zip manifest echo (cosmetic), Armenian homoglyphs (deferred), persistence-layer determinism normalize (deferred), and `ApiPaging.TryParseUtcTicksIdCursor` id-segment trim (API layer separate from analysis path); seeded five follow-on rows; scoped application-analysis + replay filter 223/223; persistence `ComparisonRecordRepositoryCore` regressions 22/22. Private beta: comparison history cursor paging tolerates padded comparison record id segments in cursor tokens, matching scoped load and search filter trim parity.
 
 - [ ] (candidate) `ApiPaging.TryParseUtcTicksIdCursor` — cursor id segment without trim — locus: HTTP cursor parse; input: padded id after ticks delimiter.
@@ -7603,11 +7617,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 128
-- **bugs-found:** 134
+- **hunts:** 129
+- **bugs-found:** 135
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-24
-- **last-bug:** 2026-10-24 — comparison history cursor paging trims comparison record id
+- **last-bug:** 2026-10-24 — comparison replay cost estimator trims record id
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
