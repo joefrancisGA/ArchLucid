@@ -91,6 +91,9 @@ public sealed class RunsControllerTests
         ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
         bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
 
+        MvcProblemDetails problem = bad.Value.Should().BeOfType<MvcProblemDetails>().Subject;
+        problem.Detail.Should().Contain("Description is required.");
+
         asyncAcceptor.Verify(
             static a => a.AcceptCreateAsync(
                 It.IsAny<ArchitectureRequest>(),
@@ -253,6 +256,25 @@ public sealed class RunsControllerTests
         RunsController controller = CreateController();
 
         RewriteArchitectureOverviewInput input = new() { CurrentOverview = "   " };
+
+        IActionResult action = await controller.RewriteArchitectureOverview(input, intakeFacade.Object, CancellationToken.None);
+
+        ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
+        bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+
+        intakeFacade.Verify(
+            static f => f.RewriteOverviewAsync(It.IsAny<RewriteArchitectureOverviewInput>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task RewriteArchitectureOverview_returns_bad_request_when_current_overview_is_too_short()
+    {
+        Mock<IArchitectureRequestIntakeFacade> intakeFacade = new();
+
+        RunsController controller = CreateController();
+
+        RewriteArchitectureOverviewInput input = new() { CurrentOverview = new string('a', 19) };
 
         IActionResult action = await controller.RewriteArchitectureOverview(input, intakeFacade.Object, CancellationToken.None);
 
