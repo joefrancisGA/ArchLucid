@@ -6868,6 +6868,19 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-24 seed hunt (seed→hit): proved `ComparisonsApplicationService.TryUpdateLabelAndTagsAsync` persisted label and tag strings without trim, so PATCH bodies with padded values stored whitespace in metadata and later tag search missed those rows; normalize label via `NormalizeLabelForPersistOrNull` and tags via `NormalizeSearchTags` before repository update; regression `CompareQuality_TryUpdateLabelAndTagsAsync_trims_label_and_tags_on_persist`; cheap-disproof closed in-memory label filter trim (follow-on row), batch zip manifest echo (cosmetic), Armenian homoglyphs (deferred), and persistence-layer determinism normalize (deferred); seeded five follow-on rows; scoped application-analysis + replay filter 222/222. Private beta: comparison label/tag edits store trimmed metadata so search and display stay aligned when operators paste padded values in PATCH bodies.
+
+- [ ] (candidate) `ComparisonRecordRepositoryCore.FilterInMemory` — `label` filter without trim — locus: in-memory search; input: padded label when repository called without app normalization.
+- [ ] (candidate) `ComparisonRecordSearchPredicateBuilder` — `label` already trimmed at SQL — verify in-memory-only gap — locus: repository core; input: direct repository search with padded label.
+- [ ] (candidate) `ComparisonBatchReplayZipSupport` — manifest failure entries echo pre-trim batch tokens — locus: zip manifest; input: cosmetic id echo only.
+- [ ] (candidate) `ComparisonExportMarkdownSectionRemover` — Armenian homoglyphs in delta headings — locus: `UnicodeLatinHomoglyphMapper`; input: deferred expansion.
+- [ ] (candidate) `RunExportRecordPersistNormalizer` — persistence-layer determinism column normalize — locus: repository read; input: consolidation at DB boundary.
+
+- [x] (proven) `ComparisonsApplicationService.TryUpdateLabelAndTagsAsync` — untrimmed label/tags on persist — **hit 2026-10-24 seed hunt:** `NormalizeLabelForPersistOrNull` + `NormalizeSearchTags`; regression `CompareQuality_TryUpdateLabelAndTagsAsync_trims_label_and_tags_on_persist`.
+- [x] (invalid) `ComparisonBatchReplayZipSupport` — manifest id echo — **cheap-disproof 2026-10-24 seed hunt:** cosmetic only.
+- [x] (invalid) `UnicodeLatinHomoglyphMapper` — Armenian homoglyphs — **cheap-disproof 2026-10-24 seed hunt:** deferred.
+- [x] (invalid) `RunExportRecordPersistNormalizer` — DB read normalize — **cheap-disproof 2026-10-24 seed hunt:** consolidation deferred.
+
 2026-10-24 seed hunt (seed→hit): proved `ComparisonRecordSearchPredicateBuilder` and `ComparisonRecordRepositoryCore.FilterInMemory` compared `ComparisonType` filters without trim while the application service already trimmed type on `SearchAsync`, so SQL-backed or direct repository searches missed rows when comparison type query tokens carried trailing whitespace; trim comparison type in SQL predicates and in-memory filters; regressions `AppendFilters_trims_padded_comparison_type_query_parameter` and `FilterInMemory_trims_padded_comparison_type_filter`; cheap-disproof closed `TryUpdateLabelAndTagsAsync` tag persist trim (follow-on row), batch zip manifest echo (cosmetic), Armenian homoglyphs (deferred), and persistence-layer determinism normalize (deferred); seeded five follow-on rows; scoped application-analysis + replay filter 221/221; persistence search regressions 19/19. Private beta: comparison history type filters stay consistent on SQL persistence when type tokens are pasted with surrounding whitespace, matching application-layer search normalization.
 
 - [ ] (candidate) `ComparisonsApplicationService.TryUpdateLabelAndTagsAsync` — tag list on persist without per-tag trim — locus: label/tags update; input: padded tag strings on PATCH body.
@@ -7549,11 +7562,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 124
-- **bugs-found:** 130
+- **hunts:** 125
+- **bugs-found:** 131
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-24
-- **last-bug:** 2026-10-24 — persistence comparison type search trims filters
+- **last-bug:** 2026-10-24 — comparison label/tag updates trim on persist
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
