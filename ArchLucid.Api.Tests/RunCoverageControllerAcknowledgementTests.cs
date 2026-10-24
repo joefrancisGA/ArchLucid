@@ -5,6 +5,7 @@ using ArchLucid.Contracts.Governance.Coverage;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Queries;
+using ArchLucid.TestSupport.SealedManifest;
 
 using FluentAssertions;
 
@@ -59,5 +60,44 @@ public sealed class RunCoverageControllerAcknowledgementTests
                 It.IsAny<RunAcknowledgedCoverageDocument>(),
                 It.IsAny<CancellationToken>()),
             Times.Never);
+    }
+
+    [Fact]
+    public async Task GetAcknowledgedCoverage_returns_not_found_when_run_does_not_exist()
+    {
+        Guid runId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(static s => s.GetCurrentScope()).Returns(Scope);
+
+        Mock<IAuthorityQueryService> authority = new();
+        authority
+            .Setup(q => q.GetRunDetailAsync(
+                It.IsAny<ScopeContext>(),
+                runId,
+                It.IsAny<CancellationToken>(),
+                It.IsAny<bool>()))
+            .ReturnsAsync((RunDetailDto?)null);
+
+        Mock<IRunCoverageAcknowledgementService> acknowledgementService = new();
+        acknowledgementService
+            .Setup(s => s.GetAsync(Scope, runId, It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new RunNotFoundException(runId.ToString("N")));
+
+        RunCoverageController sut = new(
+            Mock.Of<ICoverageQueryService>(),
+            acknowledgementService.Object,
+            Mock.Of<ArchLucid.Core.Persistence.Ports.IPolicyPackRepository>(),
+            scopeProvider.Object,
+            authority.Object,
+            SealedManifestHashTestSupport.CreateManifestHashService())
+        {
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
+        };
+
+        IActionResult result = await sut.GetAcknowledgedCoverage(runId, CancellationToken.None);
+
+        ObjectResult notFound = result.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
     }
 }

@@ -57,4 +57,43 @@ public sealed class AdminAgentModelCatalogControllerRecordEvaluationTests
         ObjectResult notFound = result.Should().BeOfType<ObjectResult>().Subject;
         notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
     }
+
+    [Fact]
+    public async Task RecordEvaluation_returns_not_found_when_task_type_route_segment_empty()
+    {
+        Mock<IAgentModelCatalogEvaluationRecorder> recorder = new();
+        recorder
+            .Setup(r => r.RecordTaskEvaluationAsync(
+                "gpt-test",
+                string.Empty,
+                AgentModelEvaluationStateKind.Evaluated,
+                It.IsAny<string?>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new KeyNotFoundException("Task type not found."));
+
+        AdminAgentModelCatalogController controller = new(
+            Mock.Of<IAgentModelCatalogRepository>(),
+            recorder.Object,
+            Mock.Of<IAgentModelCatalogFaithfulnessHarnessImporter>(),
+            Mock.Of<IAgentModelCatalogCacheInvalidator>(),
+            Mock.Of<IActorContext>(),
+            Mock.Of<IAuditService>(),
+            Mock.Of<IScopeContextProvider>())
+        {
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
+        };
+
+        IActionResult result = await controller.RecordEvaluation(
+            "gpt-test",
+            string.Empty,
+            new RecordAgentModelCatalogEvaluationRequest
+            {
+                EvaluationState = nameof(AgentModelEvaluationStateKind.Evaluated),
+            },
+            CancellationToken.None);
+
+        ObjectResult notFound = result.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+    }
 }
