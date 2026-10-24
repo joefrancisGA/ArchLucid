@@ -7,4 +7,9 @@ public static class ComparisonRecordIdNormalizer
         ArgumentException.ThrowIfNullOrWhiteSpace(comparisonRecordId);
         return comparisonRecordId.Trim();
     }
+
+    public static string? NormalizeOptional(string? comparisonRecordId) =>
+        string.IsNullOrWhiteSpace(comparisonRecordId)
+            ? comparisonRecordId
+            : NormalizeRequired(comparisonRecordId);
 }

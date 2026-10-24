@@ -6868,6 +6868,20 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-24 seed hunt (seed→hit): proved drift report formatters (`MarkdownDriftReportFormatter`, `DriftReportDocxExport`, `ComparisonDriftReportExportService`) echoed padded comparison record ids in markdown/html/docx bodies when callers bypassed `ComparisonsApplicationService.TryBuildDriftReportContent` (which already normalized hunt 143); consolidate optional-id trim via `ComparisonRecordIdNormalizer.NormalizeOptional` at each drift export boundary; regressions `MarkdownDriftReportFormatter_FormatMarkdown_uses_trimmed_comparison_record_id` and `ComparisonDriftReportExportService_formats_markdown_with_trimmed_comparison_record_id`; cheap-disproof closed `ApiPaging.TryParseUtcTicksIdCursor` (comparison search normalizes cursor id), batch zip manifest echo (cosmetic), Armenian homoglyphs (deferred), and persistence-layer determinism normalize (deferred); seeded five follow-on rows; scoped application-analysis + replay filter 291/291. Private beta: drift report markdown, HTML, and DOCX exports show trimmed comparison record ids even when a direct formatter or export-service caller passes padded route tokens.
+
+- [ ] (candidate) `ComparisonsApplicationService.TryBuildDriftReportContent` — duplicate normalize with formatter boundary — locus: facade; input: consolidation-only double trim (harmless).
+- [ ] (candidate) `ApiPaging.TryParseUtcTicksIdCursor` — cursor id segment without trim — locus: HTTP cursor parse; input: padded id after ticks delimiter (alerts inbox and other API surfaces).
+- [ ] (candidate) `ComparisonBatchReplayZipSupport` — manifest failure entries echo pre-trim batch tokens — locus: zip manifest; input: cosmetic id echo only.
+- [ ] (candidate) `ComparisonExportMarkdownSectionRemover` — Armenian homoglyphs in delta headings — locus: `UnicodeLatinHomoglyphMapper`; input: deferred expansion.
+- [ ] (candidate) `RunExportRecordPersistNormalizer` — persistence-layer determinism column normalize — locus: repository read; input: consolidation at DB boundary.
+
+- [x] (proven) `MarkdownDriftReportFormatter` / `DriftReportDocxExport` / `ComparisonDriftReportExportService` — padded comparison record id in drift export bodies — **hit 2026-10-24 seed hunt:** `ComparisonRecordIdNormalizer.NormalizeOptional`; regressions above.
+- [x] (valid-no-repro) `ComparisonsApplicationService.TryBuildDriftReportContent` — facade duplicate normalize — **cheap-disproof 2026-10-24 seed hunt:** redundant trim is harmless idempotency.
+- [x] (invalid) `ApiPaging.TryParseUtcTicksIdCursor` — HTTP cursor id trim — **cheap-disproof 2026-10-24 seed hunt:** comparison search normalizes at application layer.
+- [x] (invalid) `ComparisonBatchReplayZipSupport` — manifest id echo — **cheap-disproof 2026-10-24 seed hunt:** cosmetic only.
+- [x] (invalid) `UnicodeLatinHomoglyphMapper` — Armenian homoglyphs — **cheap-disproof 2026-10-24 seed hunt:** deferred.
+
 2026-10-24 seed hunt (seed→hit): proved `ComparisonAuditService.RecordReplayOfAsync` copied `LeftManifestVersion`/`RightManifestVersion` without optional-string trim while export audit and request rehydrate paths already normalized manifest version metadata via `PersistedAnalysisExportRequestMetadata`, so replay-persisted comparison rows could re-store padded manifest version columns on chained replay snapshots; normalize via `PersistedAnalysisExportRequestMetadata.NormalizeOptionalString` before create; regression `RecordReplayOfAsync_trims_padded_manifest_version_columns_on_persist`; cheap-disproof closed `RecordReplayOfAsync` `SummaryMarkdown` copy (display-only whitespace), `ApiPaging.TryParseUtcTicksIdCursor` (comparison search normalizes cursor id), batch zip manifest echo (cosmetic), Armenian homoglyphs (deferred), and persistence-layer determinism normalize (deferred); seeded five follow-on rows; scoped application-analysis + replay filter 289/289. Private beta: comparison replay persist rows store trimmed manifest version metadata on denormalized columns, matching export metadata trim parity elsewhere in analysis flows.
 
 - [ ] (candidate) `ComparisonDriftReportExportService` — comparison record id normalize at service boundary — locus: standalone drift export; input: direct caller with padded id (facade normalizes).
@@ -7905,11 +7919,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 149
-- **bugs-found:** 155
+- **hunts:** 150
+- **bugs-found:** 156
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-24
-- **last-bug:** 2026-10-24 — replay persist trims manifest version columns
+- **last-bug:** 2026-10-24 — drift export formatters trim comparison record id
 - **related-pd-tb:** none
 - **code-changed-since:** no
 

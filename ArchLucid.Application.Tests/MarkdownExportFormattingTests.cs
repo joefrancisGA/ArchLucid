@@ -43,6 +43,18 @@ public sealed class MarkdownExportFormattingTests
     }
 
     [SkippableFact]
+    public void MarkdownDriftReportFormatter_FormatMarkdown_uses_trimmed_comparison_record_id()
+    {
+        MarkdownDriftReportFormatter fmt = new();
+        DriftAnalysisResult drift = new() { DriftDetected = false };
+
+        string md = fmt.FormatMarkdown(drift, "  rec-padded  ");
+
+        md.Should().Contain("`rec-padded`");
+        md.Should().NotContain("`  rec-padded  `");
+    }
+
+    [SkippableFact]
     public void MarkdownDriftReportFormatter_FormatHtml_encodes_comparison_id()
     {
         MarkdownDriftReportFormatter fmt = new();
