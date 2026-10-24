@@ -6868,6 +6868,21 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-24 seed hunt (seed→hit): proved `RunExportQueryFacade.LoadScopedExportRecordAsync` scope-checked stored export `RunId` with trim-only before `GetRunDetailAsync` while comparison export-anchored loads had gained canonical lookup in hunt 135, so export compare/replay and single-record metadata reads returned not-found when rows stored dashed or padded run ids; canonicalize via `AnalysisRunIdCanonicalization.CanonicalRunIdForLookup` before run detail probe; regression `CompareQuality_GetExportRecordAsync_loads_record_when_stored_run_id_is_dashed_guid_with_padding`; cheap-disproof closed `ComparisonsApplicationService.LoadScopedExportRecordAsync` (hunt 135 parity), `CompareRunsApplicationFacade.CompareAgentResults` (pair load already trims), `ApiPaging.TryParseUtcTicksIdCursor` (comparison search normalizes cursor id), batch zip manifest echo (cosmetic), Armenian homoglyphs (deferred), and persistence-layer determinism normalize (deferred); seeded five follow-on rows; scoped application-analysis + replay filter 260/260. Private beta: export record GET/compare/replay paths succeed when linked export rows store dashed or padded run ids, matching comparison list-by-export scope-check parity.
+
+- [ ] (candidate) `ExportReplayService.ReplayAsync` — rehydrated request run id without canonical lookup after scoped load — locus: replay build; input: dashed stored run id when load path omits normalize on returned row.
+- [ ] (candidate) `ApiPaging.TryParseUtcTicksIdCursor` — cursor id segment without trim — locus: HTTP cursor parse; input: padded id after ticks delimiter (alerts inbox and other API surfaces).
+- [ ] (candidate) `ComparisonBatchReplayZipSupport` — manifest failure entries echo pre-trim batch tokens — locus: zip manifest; input: cosmetic id echo only.
+- [ ] (candidate) `ComparisonExportMarkdownSectionRemover` — Armenian homoglyphs in delta headings — locus: `UnicodeLatinHomoglyphMapper`; input: deferred expansion.
+- [ ] (candidate) `RunExportRecordPersistNormalizer` — persistence-layer determinism column normalize — locus: repository read; input: consolidation at DB boundary.
+
+- [x] (proven) `RunExportQueryFacade.LoadScopedExportRecordAsync` — dashed/padded export record `RunId` on scope check — **hit 2026-10-24 seed hunt:** `CanonicalRunIdForLookup`; regression `CompareQuality_GetExportRecordAsync_loads_record_when_stored_run_id_is_dashed_guid_with_padding`.
+- [x] (valid-no-repro) `ComparisonsApplicationService.LoadScopedExportRecordAsync` — export scope canonical parity — **cheap-disproof 2026-10-24 seed hunt:** hunt 135.
+- [x] (valid-no-repro) `CompareRunsApplicationFacade.CompareAgentResults` — diff run id canonicalization — **cheap-disproof 2026-10-24 seed hunt:** HTTP path trims at pair load.
+- [x] (invalid) `ApiPaging.TryParseUtcTicksIdCursor` — HTTP cursor id trim — **cheap-disproof 2026-10-24 seed hunt:** comparison search normalizes at application layer.
+- [x] (invalid) `ComparisonBatchReplayZipSupport` — manifest id echo — **cheap-disproof 2026-10-24 seed hunt:** cosmetic only.
+- [x] (invalid) `UnicodeLatinHomoglyphMapper` — Armenian homoglyphs — **cheap-disproof 2026-10-24 seed hunt:** deferred.
+
 2026-10-24 seed hunt (seed→hit): proved `ComparisonsApplicationService.LoadScopedExportRecordAsync` scope-checked `export.RunId` without canonical run-id lookup so list-by-export and export-anchored comparison flows returned null when export rows stored dashed or padded run ids; canonicalize via `AnalysisRunIdCanonicalization.CanonicalRunIdForLookup` before run detail probe; regression `CompareQuality_TryListByExportRecordIdAsync_lists_when_export_record_run_id_is_dashed_guid_with_padding`; cheap-disproof closed `CompareRunsApplicationFacade.CompareAgentResults` (pair load already trims; diff id echo separate), `ApiPaging.TryParseUtcTicksIdCursor` (comparison search normalizes cursor id), batch zip manifest echo (cosmetic), Armenian homoglyphs (deferred), and persistence-layer determinism normalize (deferred); seeded five follow-on rows; scoped application-analysis + replay filter 259/259. Private beta: comparison history list-by-export succeeds when linked export records store dashed or padded run ids, matching scoped comparison scope-check trim parity.
 
 - [ ] (candidate) `ApiPaging.TryParseUtcTicksIdCursor` — cursor id segment without trim — locus: HTTP cursor parse; input: padded id after ticks delimiter (alerts inbox and other API surfaces).
@@ -7701,11 +7716,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 135
-- **bugs-found:** 141
+- **hunts:** 136
+- **bugs-found:** 142
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-24
-- **last-bug:** 2026-10-24 — scoped export load canonicalizes export run id
+- **last-bug:** 2026-10-24 — export query facade scoped load canonicalizes run id
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
