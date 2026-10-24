@@ -142,6 +142,23 @@ public sealed class RunsControllerTests
     }
 
     [Fact]
+    public async Task RewriteArchitectureOverview_returns_bad_request_when_body_is_null()
+    {
+        Mock<IArchitectureRequestIntakeFacade> intakeFacade = new();
+
+        RunsController controller = CreateController();
+
+        IActionResult action = await controller.RewriteArchitectureOverview(null, intakeFacade.Object, CancellationToken.None);
+
+        ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
+        bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+
+        intakeFacade.Verify(
+            static f => f.RewriteOverviewAsync(It.IsAny<RewriteArchitectureOverviewInput>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task RewriteArchitectureOverview_returns_rewritten_overview_when_valid()
     {
         Mock<IArchitectureRequestIntakeFacade> intakeFacade = new();

@@ -8960,11 +8960,19 @@
 
 2026-10-23 seed hunt (seed-only #9): cheap-disproof closed five open `(candidate)` rows; two regressions; 2 scoped tests passed on full tree (`RunAnalyzers=false`).
 
-- [ ] (candidate) `RunsController.CreateRun` — null body on sync create — locus: create guard; input: POST without JSON body.
-- [ ] (candidate) `AdminAgentModelCatalogController.RecordEvaluation` — unknown `aliasId` — locus: recorder `KeyNotFoundException`; input: random alias segment.
-- [ ] (candidate) `RunCoverageController.PatchRunCoveragePack` — excluded true with whitespace-only `ExclusionReason` — locus: `PatchPackExclusionAsync`; input: `"   "` reason.
-- [ ] (candidate) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` exactly `1` — locus: lower inclusive bound; input: boundary acceptance.
-- [ ] (candidate) `RunsController.RewriteArchitectureOverview` — null body — locus: `ValidateDraftFreeText` on `CurrentOverview`; input: overview rewrite POST.
+- [x] (proven) `RunsController.CreateRun` — null body on sync create — **cheap-disproof 2026-10-24 seed hunt #10:** existing regression `CreateRun_returns_bad_request_when_body_null` on sparse branch.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — unknown `aliasId` — **cheap-disproof 2026-10-24 seed hunt #10:** `KeyNotFoundException` → HTTP 404 `ResourceNotFound` (master controller).
+- [x] (valid-no-repro) `RunCoverageController.PatchRunCoveragePack` — excluded true with whitespace-only `ExclusionReason` — **cheap-disproof 2026-10-24 seed hunt #10:** `PatchPackExclusionAsync` rejects `excluded && IsNullOrWhiteSpace(reason)` → HTTP 400.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` exactly `1` — **cheap-disproof 2026-10-24 seed hunt #10:** inclusive lower bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_at_lower_bound_1`.
+- [x] (valid-no-repro) `RunsController.RewriteArchitectureOverview` — null body — **cheap-disproof 2026-10-24 seed hunt #10:** `ValidateDraftFreeText` on null `CurrentOverview`; regression `RewriteArchitectureOverview_returns_bad_request_when_body_is_null`.
+
+2026-10-24 seed hunt (seed-only #10): cheap-disproof closed five open `(candidate)` rows; two regressions; 3 scoped tests passed on full tree (`RunAnalyzers=false`).
+
+- [ ] (candidate) `RunsController.CreateRun` — empty `ArchitectureRequest` with missing required fields — locus: FluentValidation; input: `{}` create body.
+- [ ] (candidate) `AdminAgentModelCatalogController.RecordEvaluation` — invalid `EvaluationState` empty string — locus: `Enum.TryParse`; input: `""`.
+- [ ] (candidate) `RunCoverageController.PatchRunCoveragePack` — `Excluded` false with non-null `ExclusionReason` — locus: patch trim/clear semantics; input: reason on non-excluded pack.
+- [ ] (candidate) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — null body vs empty object — locus: `body ?? new()`; input: compare defaults.
+- [ ] (candidate) `RunsController.RewriteArchitectureOverview` — empty `CurrentOverview` string — locus: `ValidateDraftFreeText`; input: `""` overview.
 
 2026-10-23 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows from prior reseed; no new hunt-ready promotion (Rephrase null `Items` already shipped on `bugsmash-2` 01857d53eb); seeded five follow-on `(candidate)` rows; 12 scoped RunsController draft/explain + RunCoverage acknowledgement tests passed.
 
@@ -8984,9 +8992,9 @@
 - **aliases:** authority controllers; admin controllers
 - **paths:** ArchLucid.Api/Controllers/Authority/; ArchLucid.Api/Controllers/Admin/
 - **test-filter:** FullyQualifiedName~AuthorityController|FullyQualifiedName~AdminController
-- **hunts:** 73
+- **hunts:** 74
 - **bugs-found:** 58
-- **consecutive-dry-hunts:** 7
+- **consecutive-dry-hunts:** 8
 - **last-hunt:** 2026-10-23
 - **last-bug:** 2026-10-23 — rephrase clarification null item in items array caused 500 instead of validation
 - **related-pd-tb:** none
