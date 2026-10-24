@@ -51,11 +51,13 @@ function addEntityNodes(
   kind: ArchitectureDiagramNodeKind,
   nodes: ArchitectureDiagramNode[],
   usedIds: Set<string>,
+  skippedUnlabeled: { count: number },
 ): void {
   let index = nodes.length;
 
   for (const entity of entities) {
     if (entity.label.trim().length === 0) {
+      skippedUnlabeled.count += 1;
       continue;
     }
 
@@ -270,10 +272,11 @@ export function buildArchitectureDiagramModel(
   const nodes: ArchitectureDiagramNode[] = [];
   const edges: ArchitectureDiagramEdge[] = [];
   const usedIds = new Set<string>();
+  const skippedUnlabeled = { count: 0 };
 
-  addEntityNodes(byKey.get("users-and-stakeholders")?.entities ?? [], "user", nodes, usedIds);
-  addEntityNodes(byKey.get("systems-and-services")?.entities ?? [], "system", nodes, usedIds);
-  addEntityNodes(byKey.get("external-integrations")?.entities ?? [], "external", nodes, usedIds);
+  addEntityNodes(byKey.get("users-and-stakeholders")?.entities ?? [], "user", nodes, usedIds, skippedUnlabeled);
+  addEntityNodes(byKey.get("systems-and-services")?.entities ?? [], "system", nodes, usedIds, skippedUnlabeled);
+  addEntityNodes(byKey.get("external-integrations")?.entities ?? [], "external", nodes, usedIds, skippedUnlabeled);
 
   if (architectureNameAddsDiagramNode(architectureName, nodes.map((node) => node.label))) {
     nodes.push(createNode(architectureName.trim(), "system", "asserted", usedIds, nodes.length));
@@ -288,6 +291,7 @@ export function buildArchitectureDiagramModel(
     nodes,
     edges,
     trustBoundaryLabels,
+    skippedUnlabeledEntityCount: skippedUnlabeled.count,
   };
 }
 
@@ -305,5 +309,6 @@ export function applyArchitectureDiagramOverrides(
       .map((edge) => edgeOverrideMap.get(edge.id) ?? edge)
       .filter((edge) => !edge.removed),
     trustBoundaryLabels: model.trustBoundaryLabels,
+    skippedUnlabeledEntityCount: model.skippedUnlabeledEntityCount,
   };
 }

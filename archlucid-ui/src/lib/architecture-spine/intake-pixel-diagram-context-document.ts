@@ -18,6 +18,7 @@ export type IntakePixelDiagramContextStub = {
   readonly nodes: readonly [];
   readonly edges: readonly [];
   readonly trustBoundaryLabels: readonly [];
+  readonly skippedUnlabeledEntityCount: number;
   readonly intakeStub: {
     readonly kind: "pixel-diagram-not-verifiable";
     readonly sourceMimeType: string;
@@ -72,6 +73,7 @@ export function buildIntakePixelDiagramContextStub(input: {
     nodes: [],
     edges: [],
     trustBoundaryLabels: [],
+    skippedUnlabeledEntityCount: 0,
     intakeStub: {
       kind: "pixel-diagram-not-verifiable",
       sourceMimeType: input.sourceMimeType,
