@@ -15,6 +15,9 @@ describe("ask-review-artifact-status-copy", () => {
       /Draft review context/i,
     );
     expect(askReviewArtifactStatusCopy(resolveAskReviewArtifactStatus({ runMissing: true }))).toMatch(/No architecture review/i);
+    expect(askReviewArtifactStatusCopy(resolveAskReviewArtifactStatus({ runMissing: false }))).toMatch(
+      /Finalized status has not loaded/i,
+    );
   });
 
   it("flags assistant output without grounding links", () => {

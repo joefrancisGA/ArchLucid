@@ -94,16 +94,44 @@ describe("architecture diagram element provenance", () => {
     ).toBe("/architecture/reviews/run-1?reviewTab=evidence");
   });
 
-  it("maps user-edit diagram version source to user-drawn provenance", () => {
+  it("keeps asserted provenance on user-edited diagram versions", () => {
     const assertedNode = model.nodes[2]!;
 
-    expect(resolveNodeProvenanceClass(assertedNode, "user-edit")).toBe("user-drawn");
+    expect(resolveNodeProvenanceClass(assertedNode, "user-edit")).toBe("evidence-backed");
     expect(
-      buildArchitectureDiagramEdgeProvenanceDetail({
+      buildArchitectureDiagramNodeProvenanceDetail({
         runId: "run-1",
-        edge: model.edges[1]!,
+        node: assertedNode,
         diagramVersionSource: "user-edit",
+      }).sentence,
+    ).not.toMatch(/placed or edited by an architect/i);
+  });
+
+  it("labels accepted inference separately from evidence-backed", () => {
+    const acceptedInferredNode = {
+      ...model.nodes[0]!,
+      accepted: true,
+    };
+
+    expect(resolveNodeProvenanceClass(acceptedInferredNode, null)).toBe("accepted-inference");
+    expect(
+      buildArchitectureDiagramNodeProvenanceDetail({
+        runId: "run-1",
+        node: acceptedInferredNode,
+        diagramVersionSource: null,
       }).provenanceClass,
-    ).toBe("user-drawn");
+    ).toBe("accepted-inference");
+  });
+
+  it("prefixes regenerated diagram versions in provenance copy", () => {
+    const assertedNode = model.nodes[2]!;
+
+    expect(
+      buildArchitectureDiagramNodeProvenanceDetail({
+        runId: "run-1",
+        node: assertedNode,
+        diagramVersionSource: "regenerated",
+      }).sentence,
+    ).toMatch(/^This diagram version was regenerated\./);
   });
 });

@@ -53,7 +53,7 @@ export type AskMessageThreadPanelProps = {
   onStarterPromptClick?: (line: string) => void;
   runId: string;
   retrievalDegraded?: boolean;
-  isFinalizedReview?: boolean;
+  isFinalizedReview?: boolean | undefined;
 };
 
 function formatAskUserTurnContent(content: string): string {
