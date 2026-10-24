@@ -59,7 +59,10 @@ internal static class ComparisonRecordRepositoryCore
         IEnumerable<ComparisonRecord> query = source;
 
         if (!string.IsNullOrWhiteSpace(comparisonType))
-            query = query.Where(r => string.Equals(r.ComparisonType, comparisonType, StringComparison.Ordinal));
+        {
+            string normalizedComparisonType = comparisonType.Trim();
+            query = query.Where(r => string.Equals(r.ComparisonType, normalizedComparisonType, StringComparison.Ordinal));
+        }
 
         if (!string.IsNullOrWhiteSpace(leftRunId))
             query = query.Where(r => string.Equals(r.LeftRunId, leftRunId, StringComparison.Ordinal));

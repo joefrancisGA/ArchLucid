@@ -23,7 +23,7 @@ internal static class ComparisonRecordSearchPredicateBuilder
         if (!string.IsNullOrWhiteSpace(comparisonType))
         {
             conditions.Add("ComparisonType = @ComparisonType");
-            parameters.Add("@ComparisonType", comparisonType);
+            parameters.Add("@ComparisonType", comparisonType.Trim());
         }
 
         if (!string.IsNullOrWhiteSpace(leftRunId))

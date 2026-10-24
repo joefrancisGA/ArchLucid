@@ -129,6 +129,29 @@ public sealed class ComparisonRecordSearchPredicateBuilderTests
     }
 
     [Fact]
+    public void AppendFilters_trims_padded_comparison_type_query_parameter()
+    {
+        List<string> conditions = [];
+        DynamicParameters parameters = new();
+
+        ComparisonRecordSearchPredicateBuilder.AppendFilters(
+            conditions,
+            parameters,
+            comparisonType: "  end-to-end-replay  ",
+            leftRunId: null,
+            rightRunId: null,
+            createdFromUtc: null,
+            createdToUtc: null,
+            leftExportRecordId: null,
+            rightExportRecordId: null,
+            label: null,
+            tags: null);
+
+        conditions.Should().Contain("ComparisonType = @ComparisonType");
+        parameters.Get<string>("@ComparisonType").Should().Be("end-to-end-replay");
+    }
+
+    [Fact]
     public void AppendFilters_trims_padded_tag_query_parameters()
     {
         List<string> conditions = [];

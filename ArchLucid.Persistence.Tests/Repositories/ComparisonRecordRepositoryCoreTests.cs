@@ -32,6 +32,19 @@ public sealed class ComparisonRecordRepositoryCoreTests
     }
 
     [Fact]
+    public void FilterInMemory_trims_padded_comparison_type_filter()
+    {
+        ComparisonRecord match = Record("typed", comparisonType: "end-to-end-replay");
+        ComparisonRecord other = Record("other", comparisonType: "export-record-diff");
+
+        List<ComparisonRecord> filtered = ComparisonRecordRepositoryCore
+            .FilterInMemory([match, other], "  end-to-end-replay\n", null, null, null, null, null, null, null, null)
+            .ToList();
+
+        filtered.Should().ContainSingle().Which.ComparisonRecordId.Should().Be("typed");
+    }
+
+    [Fact]
     public void FilterInMemory_applies_tag_conjunction()
     {
         ComparisonRecord tagged = Record("a", tags: ["alpha", "beta"]);
@@ -78,11 +91,12 @@ public sealed class ComparisonRecordRepositoryCoreTests
     private static ComparisonRecord Record(
         string id,
         DateTime? createdUtc = null,
-        IReadOnlyList<string>? tags = null) =>
+        IReadOnlyList<string>? tags = null,
+        string comparisonType = "run-vs-run") =>
         new()
         {
             ComparisonRecordId = id,
-            ComparisonType = "run-vs-run",
+            ComparisonType = comparisonType,
             CreatedUtc = createdUtc ?? DateTime.UtcNow,
             Tags = tags?.ToList() ?? [],
         };
