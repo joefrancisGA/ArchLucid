@@ -65,10 +65,24 @@ internal static class ComparisonRecordRepositoryCore
         }
 
         if (!string.IsNullOrWhiteSpace(leftRunId))
-            query = query.Where(r => string.Equals(r.LeftRunId, leftRunId, StringComparison.Ordinal));
+        {
+            string? normalizedLeftRunId = ComparisonRecordRunIdSql.ToCanonicalRunIdStringOrNull(leftRunId);
+            if (normalizedLeftRunId is not null)
+            {
+                query = query.Where(r =>
+                    string.Equals(r.LeftRunId, normalizedLeftRunId, StringComparison.Ordinal));
+            }
+        }
 
         if (!string.IsNullOrWhiteSpace(rightRunId))
-            query = query.Where(r => string.Equals(r.RightRunId, rightRunId, StringComparison.Ordinal));
+        {
+            string? normalizedRightRunId = ComparisonRecordRunIdSql.ToCanonicalRunIdStringOrNull(rightRunId);
+            if (normalizedRightRunId is not null)
+            {
+                query = query.Where(r =>
+                    string.Equals(r.RightRunId, normalizedRightRunId, StringComparison.Ordinal));
+            }
+        }
 
         if (createdFromUtc is not null)
             query = query.Where(r => r.CreatedUtc >= createdFromUtc.Value);

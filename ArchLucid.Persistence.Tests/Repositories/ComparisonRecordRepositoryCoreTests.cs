@@ -32,6 +32,31 @@ public sealed class ComparisonRecordRepositoryCoreTests
     }
 
     [Fact]
+    public void FilterInMemory_trims_and_canonicalizes_padded_left_run_id_filter()
+    {
+        Guid runKey = Guid.Parse("11111111-1111-1111-1111-111111111111");
+        string canonicalLeftRunId = runKey.ToString("N");
+        ComparisonRecord match = Record("left-match", leftRunId: canonicalLeftRunId);
+        ComparisonRecord other = Record("left-other", leftRunId: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+
+        List<ComparisonRecord> filtered = ComparisonRecordRepositoryCore
+            .FilterInMemory(
+                [match, other],
+                comparisonType: null,
+                leftRunId: $"  {runKey:D}\n",
+                rightRunId: null,
+                createdFromUtc: null,
+                createdToUtc: null,
+                leftExportRecordId: null,
+                rightExportRecordId: null,
+                label: null,
+                tags: null)
+            .ToList();
+
+        filtered.Should().ContainSingle().Which.ComparisonRecordId.Should().Be("left-match");
+    }
+
+    [Fact]
     public void FilterInMemory_trims_padded_label_filter()
     {
         ComparisonRecord match = Record("labeled", label: "release-1");
@@ -106,12 +131,16 @@ public sealed class ComparisonRecordRepositoryCoreTests
         DateTime? createdUtc = null,
         IReadOnlyList<string>? tags = null,
         string comparisonType = "run-vs-run",
-        string? label = null) =>
+        string? label = null,
+        string? leftRunId = null,
+        string? rightRunId = null) =>
         new()
         {
             ComparisonRecordId = id,
             ComparisonType = comparisonType,
             Label = label,
+            LeftRunId = leftRunId,
+            RightRunId = rightRunId,
             CreatedUtc = createdUtc ?? DateTime.UtcNow,
             Tags = tags?.ToList() ?? [],
         };
