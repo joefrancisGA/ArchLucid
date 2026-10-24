@@ -24,6 +24,7 @@ public sealed partial class ComparisonsApplicationService
         string comparisonRecordId,
         string format)
     {
+        string normalizedComparisonRecordId = ComparisonRecordIdNormalizer.NormalizeRequired(comparisonRecordId);
         string normalizedFormat = format.Trim().ToLowerInvariant();
 
         return normalizedFormat switch
@@ -31,24 +32,24 @@ public sealed partial class ComparisonsApplicationService
             "markdown" => new DriftReportContent
             {
                 Payload = [],
-                TextPayload = _driftReportFormatter.FormatMarkdown(drift, comparisonRecordId),
+                TextPayload = _driftReportFormatter.FormatMarkdown(drift, normalizedComparisonRecordId),
                 ContentType = "text/markdown",
-                FileName = $"drift-report_{comparisonRecordId}.md",
+                FileName = $"drift-report_{normalizedComparisonRecordId}.md",
                 IsText = true,
             },
             "html" => new DriftReportContent
             {
                 Payload = [],
-                TextPayload = _driftReportFormatter.FormatHtml(drift, comparisonRecordId),
+                TextPayload = _driftReportFormatter.FormatHtml(drift, normalizedComparisonRecordId),
                 ContentType = "text/html",
-                FileName = $"drift-report_{comparisonRecordId}.html",
+                FileName = $"drift-report_{normalizedComparisonRecordId}.html",
                 IsText = true,
             },
             "docx" => new DriftReportContent
             {
-                Payload = _driftReportDocxExport.GenerateDocx(drift, comparisonRecordId),
+                Payload = _driftReportDocxExport.GenerateDocx(drift, normalizedComparisonRecordId),
                 ContentType = "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-                FileName = $"drift-report_{comparisonRecordId}.docx",
+                FileName = $"drift-report_{normalizedComparisonRecordId}.docx",
                 IsText = false,
             },
             _ => null,

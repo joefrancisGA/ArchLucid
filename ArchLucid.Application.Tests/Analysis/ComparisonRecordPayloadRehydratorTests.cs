@@ -150,6 +150,34 @@ public sealed class ComparisonRecordPayloadRehydratorTests
     }
 
     [Fact]
+    public void RehydrateExportDiff_trims_padded_compare_manifest_version_in_nested_request_diff()
+    {
+        ExportRecordDiffResult diff = new()
+        {
+            LeftExportRecordId = "l",
+            RightExportRecordId = "r",
+            LeftRunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            RightRunId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            RequestDiff = new ExportRecordRequestDiff
+            {
+                RightRequest = new PersistedAnalysisExportRequest
+                {
+                    IncludeManifestCompare = true,
+                    CompareManifestVersion = "  v2  ",
+                },
+            },
+        };
+        string json = JsonSerializer.Serialize(diff, new JsonSerializerOptions(JsonSerializerDefaults.Web));
+        ComparisonRecord record = new() { ComparisonRecordId = "c2-nested-manifest", PayloadJson = json };
+
+        ExportRecordDiffResult? result = ComparisonRecordPayloadRehydrator.RehydrateExportDiff(record);
+
+        result.Should().NotBeNull();
+        result!.RequestDiff.RightRequest.Should().NotBeNull();
+        result.RequestDiff.RightRequest!.CompareManifestVersion.Should().Be("v2");
+    }
+
+    [Fact]
     public void RehydrateExportDiff_corrupt_json_throws_InvalidOperationException()
     {
         ComparisonRecord record = new() { ComparisonRecordId = "bad-diff", PayloadJson = "[]" };
