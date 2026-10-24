@@ -9064,11 +9064,19 @@
 
 2026-10-24 seed hunt (seed-only #22): cheap-disproof closed five open `(candidate)` rows; four regressions; scoped tests passed on full tree (`RunAnalyzers=false`).
 
-- [ ] (candidate) `RunsController.AcceptCreateRunAsync` — whitespace-only `Idempotency-Key` after validation — locus: trim semantics; input: 202 without replay slot.
-- [ ] (candidate) `AdminAgentModelCatalogController.RecordEvaluation` — unknown `aliasId` — locus: `KeyNotFoundException`; input: recycle hunt #10.
-- [ ] (candidate) `RunCoverageController.PutAcknowledgedCoverage` — null request body — locus: null guard; input: recycle hunt #8.
-- [ ] (candidate) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `495` — locus: interior bound.
-- [ ] (candidate) `RunsController.DraftRequestAsync` — null body — locus: `ValidateDraftFreeText`; input: recycle hunt #9.
+- [x] (invalid) `RunsController.AcceptCreateRunAsync` — whitespace-only `Idempotency-Key` after validation — **cheap-disproof 2026-10-24 seed hunt #23:** trim → null key; async create accepted without replay slot by design; regression `AcceptCreateRunAsync_proceeds_with_null_idempotency_when_header_is_whitespace_only`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — unknown `aliasId` — **cheap-disproof 2026-10-24 seed hunt #23:** `KeyNotFoundException` → HTTP 404 `ResourceNotFound` (recycle hunt #10); regression `RecordEvaluation_returns_not_found_when_alias_id_unknown`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — null request body — **cheap-disproof 2026-10-24 seed hunt #23:** `request is null` → HTTP 400 `Request body is required` (recycle hunt #8); regression `PutAcknowledgedCoverage_returns_bad_request_when_request_body_null`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `495` — **cheap-disproof 2026-10-24 seed hunt #23:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_495`.
+- [x] (valid-no-repro) `RunsController.DraftRequestAsync` — null body — **cheap-disproof 2026-10-24 seed hunt #23:** HTTP 400 before async acceptor (recycle hunt #9); existing regression `DraftRequestAsync_returns_bad_request_when_body_null`.
+
+2026-10-24 seed hunt (seed-only #23): cheap-disproof closed five open `(candidate)` rows; four new regressions plus one recycle assertion; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [ ] (candidate) `RunsController.LookupCreateRunByIdempotencyKey` — missing `Idempotency-Key` header — locus: `IsNullOrWhiteSpace` guard; input: recycle hunt #18.
+- [ ] (candidate) `AdminAgentModelCatalogController.RecordEvaluation` — empty `taskType` route segment — locus: recorder lookup; input: recycle hunt #9.
+- [ ] (candidate) `RunCoverageController.GetAcknowledgedCoverage` — unknown `runId` — locus: `RunNotFoundException`; input: recycle hunt #22.
+- [ ] (candidate) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `494` — locus: interior bound.
+- [ ] (candidate) `RunsController.ExplainStructuredBriefSuggestion` — null request body — locus: `ValidateDraftFreeText`; input: recycle hunt #2.
 
 2026-10-23 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows from prior reseed; no new hunt-ready promotion (Rephrase null `Items` already shipped on `bugsmash-2` 01857d53eb); seeded five follow-on `(candidate)` rows; 12 scoped RunsController draft/explain + RunCoverage acknowledgement tests passed.
 
@@ -9088,9 +9096,9 @@
 - **aliases:** authority controllers; admin controllers
 - **paths:** ArchLucid.Api/Controllers/Authority/; ArchLucid.Api/Controllers/Admin/
 - **test-filter:** FullyQualifiedName~AuthorityController|FullyQualifiedName~AdminController
-- **hunts:** 86
+- **hunts:** 87
 - **bugs-found:** 58
-- **consecutive-dry-hunts:** 20
+- **consecutive-dry-hunts:** 21
 - **last-hunt:** 2026-10-24
 - **last-bug:** 2026-10-23 — rephrase clarification null item in items array caused 500 instead of validation
 - **related-pd-tb:** none

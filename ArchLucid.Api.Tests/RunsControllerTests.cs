@@ -149,6 +149,63 @@ public sealed class RunsControllerTests
     }
 
     [Fact]
+    public async Task AcceptCreateRunAsync_proceeds_with_null_idempotency_when_header_is_whitespace_only()
+    {
+        Mock<IArchitectureRunAsyncOperationAcceptor> asyncAcceptor = new();
+        asyncAcceptor
+            .Setup(a => a.AcceptCreateAsync(
+                It.IsAny<ArchitectureRequest>(),
+                null,
+                It.IsAny<ScopeContext>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync("run:async-ws-idem");
+
+        Mock<IRunLifecycleCommandService> lifecycle = new();
+        lifecycle
+            .Setup(s => s.ValidateIdempotencyKey(It.IsAny<string?>()))
+            .Returns<string?>(raw =>
+            {
+                if (raw is null)
+                    return new IdempotencyKeyValidationResult(true, null, null);
+
+                string trimmed = raw.Trim();
+                return new IdempotencyKeyValidationResult(true, trimmed.Length == 0 ? null : trimmed, null);
+            });
+
+        RunsController controller = CreateController(runLifecycleCommandService: lifecycle.Object);
+
+        controller.ControllerContext.HttpContext.Request.Headers["Idempotency-Key"] = "   ";
+
+        ArchitectureRequest request = new()
+        {
+            RequestId = "req-async-ws-idem",
+            Description = new string('x', 20),
+            SystemName = "CreatedArch",
+            WorkflowIntent = ArchitectureWorkflowIntent.CreateArchitecture,
+        };
+
+        IActionResult action = await controller.AcceptCreateRunAsync(
+            request,
+            asyncAcceptor.Object,
+            CancellationToken.None);
+
+        StatusCodeResult accepted = action.Should().BeOfType<StatusCodeResult>().Subject;
+        accepted.StatusCode.Should().Be(StatusCodes.Status202Accepted);
+
+        asyncAcceptor.Verify(
+            static a => a.AcceptCreateAsync(
+                It.IsAny<ArchitectureRequest>(),
+                null,
+                It.IsAny<ScopeContext>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
     public async Task AcceptCreateRunAsync_returns_bad_request_when_idempotency_key_exceeds_max_length()
     {
         Mock<IArchitectureRunAsyncOperationAcceptor> asyncAcceptor = new();
