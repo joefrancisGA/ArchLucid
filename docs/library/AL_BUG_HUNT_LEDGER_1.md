@@ -6868,6 +6868,20 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-24 seed hunt (seed→hit): proved `ComparisonReplayService.ReplayAsync` and `AnalyzeDriftAsync` loaded comparison records via `GetByIdAsync` without trimming ids, so direct replay/drift API calls failed when comparison record ids were pasted with trailing line breaks even though `ComparisonsApplicationService` scoped loads were fixed in the prior hunt; normalize with `ComparisonRecordIdNormalizer` before repository lookup; regressions `ReplayAsync_trims_padded_comparison_record_id_before_load` and `AnalyzeDriftAsync_trims_padded_comparison_record_id_before_load`; cheap-disproof closed batch zip dedupe trim (separate manifest path), SQL label filter trim (no cited harm), Armenian homoglyphs (deferred), and persistence-layer determinism normalize (deferred); aligned five regenerate/verify replay tests with sealed-manifest fixtures; scoped application-analysis + replay filter 218/218. Private beta: comparison replay and drift analysis succeed when record ids are pasted with trailing whitespace on routes that invoke the replay service directly.
+
+- [ ] (candidate) `ComparisonsApplicationService.TryBuildBatchReplayZipAsync` — dedupe `HashSet` uses raw ids before scoped load trim — locus: batch manifest; input: same comparison id with differing trailing whitespace.
+- [ ] (candidate) `ComparisonRecordSearchPredicateBuilder` — `label` filter without trim — locus: SQL search; input: label query with trailing spaces when criteria bypass app trim.
+- [ ] (candidate) `ComparisonReplayService` — lifecycle/career gates on replay when record loaded via padded id only on application facade path — locus: dual entry; input: already covered for replay service entry after this hunt.
+- [ ] (candidate) `ComparisonExportMarkdownSectionRemover` — Armenian homoglyphs in delta headings — locus: `UnicodeLatinHomoglyphMapper`; input: deferred expansion.
+- [ ] (candidate) `RunExportRecordPersistNormalizer` — persistence-layer determinism column normalize — locus: repository read; input: consolidation at DB boundary.
+
+- [x] (proven) `ComparisonReplayService` — untrimmed comparison record id on replay/drift load — **hit 2026-10-24 seed hunt:** `ComparisonRecordIdNormalizer`; regressions `ReplayAsync_trims_padded_comparison_record_id_before_load` and `AnalyzeDriftAsync_trims_padded_comparison_record_id_before_load`.
+- [x] (invalid) `ComparisonsApplicationService.TryBuildBatchReplayZipAsync` — batch dedupe before trim — **cheap-disproof 2026-10-24 seed hunt:** deferred to follow-on row.
+- [x] (valid-no-repro) `ComparisonRecordSearchPredicateBuilder` — label filter trim — **cheap-disproof 2026-10-24 seed hunt:** no application caller cited with untrimmed label-only query harm.
+- [x] (invalid) `UnicodeLatinHomoglyphMapper` — Armenian homoglyphs — **cheap-disproof 2026-10-24 seed hunt:** deferred.
+- [x] (invalid) `RunExportRecordPersistNormalizer` — DB read normalize — **cheap-disproof 2026-10-24 seed hunt:** consolidation deferred.
+
 2026-10-24 seed hunt (seed→hit): proved `ComparisonsApplicationService.LoadScopedComparisonRecordAsync` queried `GetByIdAsync` with untrimmed comparison record ids so scoped GET/replay/drift routes returned null when operators pasted comparison anchors with trailing line breaks; add `ComparisonRecordIdNormalizer` (export-id parity) and trim before scoped load, label update, drift, and replay downstream ids; regression `CompareQuality_TryGetScopedRecordAsync_returns_record_when_comparison_id_has_trailing_line_break`; cheap-disproof closed `ComparisonRecordRepositoryCore` in-memory search trim (app `SearchAsync` canonicalizes filters), `ComparisonRecordSearchPredicateBuilder` comparison-type trim (`SearchAsync` already trims type), Armenian homoglyphs (deferred), and persistence-layer determinism normalize (deferred); seeded five follow-on rows; scoped application-analysis filter 189/189. Private beta: comparison detail, replay, drift, and label/tag updates resolve records when comparison ids are pasted with trailing whitespace, matching export-anchor and run-id trim parity.
 
 - [ ] (candidate) `ComparisonReplayService` — `GetByIdAsync` without comparison id trim on drift/replay entry — locus: replay service; input: padded id when caller bypasses `ComparisonsApplicationService` scoped load.
@@ -7479,11 +7493,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 119
-- **bugs-found:** 125
+- **hunts:** 120
+- **bugs-found:** 126
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-24
-- **last-bug:** 2026-10-24 — scoped comparison loads trim comparison record ids
+- **last-bug:** 2026-10-24 — comparison replay service trims record ids before load
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
