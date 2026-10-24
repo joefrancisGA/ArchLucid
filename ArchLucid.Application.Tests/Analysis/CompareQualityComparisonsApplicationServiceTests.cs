@@ -232,6 +232,56 @@ public sealed class CompareQualityComparisonsApplicationServiceTests
     }
 
     [Fact]
+    public async Task CompareQuality_TryListByExportRecordIdAsync_lists_when_export_record_run_id_is_dashed_guid_with_padding()
+    {
+        const string exportRecordId = "export-dashed-run-id";
+        Guid runGuid = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+        string canonicalRunId = runGuid.ToString("N");
+        string dashedPaddedRunId = $"{runGuid:D}  ";
+
+        InMemoryComparisonRecordRepository comparisonRecords = new();
+        await comparisonRecords.CreateAsync(
+            new ComparisonRecord
+            {
+                ComparisonRecordId = "cmp-by-export-dashed-run",
+                ComparisonType = ComparisonTypes.ExportRecordDiff,
+                LeftExportRecordId = exportRecordId,
+                RightExportRecordId = "other-export",
+                CreatedUtc = DateTime.UtcNow,
+            },
+            CancellationToken.None);
+
+        Mock<IRunExportRecordRepository> exportRecords = new();
+        exportRecords
+            .Setup(r => r.GetByIdAsync(exportRecordId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunExportRecord { ExportRecordId = exportRecordId, RunId = dashedPaddedRunId });
+
+        Mock<IRunDetailQueryService> runDetail = new();
+        runDetail
+            .Setup(s => s.GetRunDetailAsync(canonicalRunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchitectureRunDetail { Run = new() { RunId = canonicalRunId } });
+
+        ComparisonsApplicationService sut = new(
+            runDetail.Object,
+            exportRecords.Object,
+            comparisonRecords,
+            new Mock<IComparisonReplayService>().Object,
+            new Mock<ICompareRunsApplicationFacade>().Object,
+            new Mock<IComparisonReplayCostEstimator>().Object,
+            new Mock<IDriftReportFormatter>().Object,
+            new DriftReportDocxExport());
+
+        IReadOnlyList<ComparisonRecord>? records =
+            await sut.TryListByExportRecordIdAsync(exportRecordId, CancellationToken.None);
+
+        records.Should().NotBeNull();
+        records!.Should().ContainSingle(r => r.ComparisonRecordId == "cmp-by-export-dashed-run");
+        runDetail.Verify(
+            s => s.GetRunDetailAsync(canonicalRunId, It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
     public async Task CompareQuality_TryListByExportRecordIdAsync_clears_stale_denormalized_determinism_iterations_on_scoped_export_load()
     {
         const string exportRecordId = "export-determinism-normalize";

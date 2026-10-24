@@ -200,7 +200,8 @@ public sealed partial class ComparisonsApplicationService(
         if (export is null)
             return null;
 
-        if (await _runDetailQueryService.GetRunDetailAsync(export.RunId, cancellationToken) is null)
+        string lookupRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(export.RunId);
+        if (await _runDetailQueryService.GetRunDetailAsync(lookupRunId, cancellationToken) is null)
             return null;
 
         PersistedAnalysisExportRequestDeterminismNormalizer.NormalizeRunExportRecordDenormalizedColumns(export);
