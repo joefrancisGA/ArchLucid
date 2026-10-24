@@ -32,6 +32,19 @@ public sealed class ComparisonRecordRepositoryCoreTests
     }
 
     [Fact]
+    public void FilterInMemory_trims_padded_label_filter()
+    {
+        ComparisonRecord match = Record("labeled", label: "release-1");
+        ComparisonRecord other = Record("other", label: "release-2");
+
+        List<ComparisonRecord> filtered = ComparisonRecordRepositoryCore
+            .FilterInMemory([match, other], null, null, null, null, null, null, null, "  release-1\n", null)
+            .ToList();
+
+        filtered.Should().ContainSingle().Which.ComparisonRecordId.Should().Be("labeled");
+    }
+
+    [Fact]
     public void FilterInMemory_trims_padded_comparison_type_filter()
     {
         ComparisonRecord match = Record("typed", comparisonType: "end-to-end-replay");
@@ -92,11 +105,13 @@ public sealed class ComparisonRecordRepositoryCoreTests
         string id,
         DateTime? createdUtc = null,
         IReadOnlyList<string>? tags = null,
-        string comparisonType = "run-vs-run") =>
+        string comparisonType = "run-vs-run",
+        string? label = null) =>
         new()
         {
             ComparisonRecordId = id,
             ComparisonType = comparisonType,
+            Label = label,
             CreatedUtc = createdUtc ?? DateTime.UtcNow,
             Tags = tags?.ToList() ?? [],
         };

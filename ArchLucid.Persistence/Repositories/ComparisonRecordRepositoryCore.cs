@@ -97,7 +97,10 @@ internal static class ComparisonRecordRepositoryCore
         }
 
         if (!string.IsNullOrWhiteSpace(label))
-            query = query.Where(r => string.Equals(r.Label, label, StringComparison.Ordinal));
+        {
+            string normalizedLabel = label.Trim();
+            query = query.Where(r => string.Equals(r.Label, normalizedLabel, StringComparison.Ordinal));
+        }
 
         if (tags is { Count: > 0 })
         {
