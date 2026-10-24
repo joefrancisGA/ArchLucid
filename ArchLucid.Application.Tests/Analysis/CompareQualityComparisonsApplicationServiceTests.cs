@@ -58,6 +58,46 @@ public sealed class CompareQualityComparisonsApplicationServiceTests
     }
 
     [Fact]
+    public async Task CompareQuality_TryListByRunIdAsync_lists_records_when_query_run_id_has_trailing_line_break()
+    {
+        const string canonicalRunId = "44444444444444444444444444444444";
+
+        InMemoryComparisonRecordRepository comparisonRecords = new();
+        await comparisonRecords.CreateAsync(
+            new ComparisonRecord
+            {
+                ComparisonRecordId = "cmp-run-trim-list",
+                ComparisonType = ComparisonTypes.EndToEndReplay,
+                LeftRunId = canonicalRunId,
+                RightRunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                CreatedUtc = DateTime.UtcNow,
+            },
+            CancellationToken.None);
+
+        Mock<IRunDetailQueryService> runDetail = new();
+        runDetail
+            .Setup(s => s.GetRunDetailAsync(canonicalRunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchitectureRunDetail { Run = new() { RunId = canonicalRunId } });
+
+        ComparisonsApplicationService sut = new(
+            runDetail.Object,
+            new Mock<IRunExportRecordRepository>().Object,
+            comparisonRecords,
+            new Mock<IComparisonReplayService>().Object,
+            new Mock<ICompareRunsApplicationFacade>().Object,
+            new Mock<IComparisonReplayCostEstimator>().Object,
+            new Mock<IDriftReportFormatter>().Object,
+            new DriftReportDocxExport());
+
+        IReadOnlyList<ComparisonRecord>? records =
+            await sut.TryListByRunIdAsync($"{canonicalRunId}\n", CancellationToken.None);
+
+        records.Should().NotBeNull();
+        records!.Should().ContainSingle(r => r.ComparisonRecordId == "cmp-run-trim-list");
+        runDetail.Verify(s => s.GetRunDetailAsync(canonicalRunId, It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
     public async Task CompareQuality_TryListByExportRecordIdAsync_lists_records_when_query_uses_padded_export_record_id()
     {
         const string exportRecordId = "export-anchor-id";
