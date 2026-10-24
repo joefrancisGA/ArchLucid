@@ -791,6 +791,48 @@ public sealed class ComparisonReplayServiceTests
     }
 
     [Fact]
+    public async Task AnalyzeDriftAsync_export_diff_succeeds_when_export_anchor_run_id_is_dashed_with_padding()
+    {
+        ExportRecordDiffResult diff = SampleExportDiff();
+        ComparisonRecord record = ExportDiffRecord("drift-diff-dashed-run", diff);
+        record.LeftExportRecordId = diff.LeftExportRecordId;
+        record.RightExportRecordId = diff.RightExportRecordId;
+
+        Guid leftGuid = Guid.Parse(diff.LeftRunId);
+        Guid rightGuid = Guid.Parse(diff.RightRunId);
+        string dashedPaddedLeftRunId = $"{leftGuid:D}  ";
+        string dashedPaddedRightRunId = $"{rightGuid:D}  ";
+
+        RunExportRecord left = new() { ExportRecordId = diff.LeftExportRecordId, RunId = dashedPaddedLeftRunId };
+        RunExportRecord right = new() { ExportRecordId = diff.RightExportRecordId, RunId = dashedPaddedRightRunId };
+        Mock<IComparisonRecordRepository> repo = SetupRepo(record);
+        Mock<IRunExportRecordRepository> exports = new();
+        exports.Setup(r => r.GetByIdAsync(left.ExportRecordId, It.IsAny<CancellationToken>())).ReturnsAsync(left);
+        exports.Setup(r => r.GetByIdAsync(right.ExportRecordId, It.IsAny<CancellationToken>())).ReturnsAsync(right);
+        Mock<IExportRecordDiffService> diffService = new();
+        diffService.Setup(s => s.CompareAsync(left, right, It.IsAny<CancellationToken>())).ReturnsAsync(diff);
+        DriftAnalysisResult expected = new() { DriftDetected = false, Summary = "stable" };
+        Mock<IComparisonDriftAnalyzer> drift = new();
+        drift.Setup(d => d.Analyze(It.IsAny<object>(), It.IsAny<object>())).Returns(expected);
+        ManifestHashService manifestHashService = new();
+        Mock<IAuthorityQueryService> authority = new();
+        SetupSealedManifestForRuns(authority, manifestHashService, diff.LeftRunId, diff.RightRunId);
+        ComparisonReplayService sut = CreateSut(
+            comparisonRepo: repo.Object,
+            runExports: exports.Object,
+            diffService: diffService.Object,
+            driftAnalyzer: drift.Object,
+            authorityQuery: authority.Object,
+            manifestHash: manifestHashService);
+
+        DriftAnalysisResult result = await sut.AnalyzeDriftAsync("drift-diff-dashed-run", CancellationToken.None);
+
+        result.Should().BeSameAs(expected);
+        left.RunId.Should().Be(diff.LeftRunId);
+        right.RunId.Should().Be(diff.RightRunId);
+    }
+
+    [Fact]
     public async Task AnalyzeDriftAsync_end_to_end_throws_when_career_posture_blocks_metadata_read()
     {
         EndToEndReplayComparisonReport report = SampleEndToEndReport();

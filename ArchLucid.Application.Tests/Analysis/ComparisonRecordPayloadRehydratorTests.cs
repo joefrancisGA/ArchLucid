@@ -41,6 +41,29 @@ public sealed class ComparisonRecordPayloadRehydratorTests
     }
 
     [Fact]
+    public void RehydrateEndToEnd_canonicalizes_dashed_padded_run_ids_in_payload()
+    {
+        Guid leftGuid = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+        Guid rightGuid = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
+        string leftCanonical = leftGuid.ToString("N");
+        string rightCanonical = rightGuid.ToString("N");
+
+        EndToEndReplayComparisonReport report = new()
+        {
+            LeftRunId = $"{leftGuid:D}  ",
+            RightRunId = $"{rightGuid:D}  ",
+        };
+        string json = JsonSerializer.Serialize(report, new JsonSerializerOptions(JsonSerializerDefaults.Web));
+        ComparisonRecord record = new() { ComparisonRecordId = "c-dashed", PayloadJson = json };
+
+        EndToEndReplayComparisonReport? result = ComparisonRecordPayloadRehydrator.RehydrateEndToEnd(record);
+
+        result.Should().NotBeNull();
+        result!.LeftRunId.Should().Be(leftCanonical);
+        result.RightRunId.Should().Be(rightCanonical);
+    }
+
+    [Fact]
     public void RehydrateEndToEnd_corrupt_json_throws_InvalidOperationException()
     {
         ComparisonRecord record = new() { ComparisonRecordId = "bad", PayloadJson = "{not-json" };
@@ -67,6 +90,31 @@ public sealed class ComparisonRecordPayloadRehydratorTests
 
         result.Should().NotBeNull();
         result!.LeftExportRecordId.Should().Be("l");
+    }
+
+    [Fact]
+    public void RehydrateExportDiff_canonicalizes_dashed_padded_run_ids_in_payload()
+    {
+        Guid leftGuid = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
+        Guid rightGuid = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+        string leftCanonical = leftGuid.ToString("N");
+        string rightCanonical = rightGuid.ToString("N");
+
+        ExportRecordDiffResult diff = new()
+        {
+            LeftExportRecordId = "l",
+            RightExportRecordId = "r",
+            LeftRunId = $"{leftGuid:D}  ",
+            RightRunId = $"{rightGuid:D}  ",
+        };
+        string json = JsonSerializer.Serialize(diff, new JsonSerializerOptions(JsonSerializerDefaults.Web));
+        ComparisonRecord record = new() { ComparisonRecordId = "c2-dashed", PayloadJson = json };
+
+        ExportRecordDiffResult? result = ComparisonRecordPayloadRehydrator.RehydrateExportDiff(record);
+
+        result.Should().NotBeNull();
+        result!.LeftRunId.Should().Be(leftCanonical);
+        result.RightRunId.Should().Be(rightCanonical);
     }
 
     [Fact]
