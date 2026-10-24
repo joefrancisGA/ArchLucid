@@ -84,7 +84,7 @@ internal static class ComparisonExportMarkdownSectionRemover
             if (ShouldRemoveInvisibleFormatting(candidate))
                 continue;
 
-            buffer[writeIndex++] = ShouldSubstituteWithAsciiSpace(candidate) ? ' ' : candidate;
+            buffer[writeIndex++] = MapHeadingCharacter(candidate);
         }
 
         string normalized = new string(buffer, 0, writeIndex).Trim();
@@ -106,6 +106,17 @@ internal static class ComparisonExportMarkdownSectionRemover
         UnicodeCategory category = char.GetUnicodeCategory(candidate);
 
         return category is UnicodeCategory.Format or UnicodeCategory.NonSpacingMark;
+    }
+
+    private static char MapHeadingCharacter(char candidate)
+    {
+        if (ShouldSubstituteWithAsciiSpace(candidate))
+            return ' ';
+
+        if (candidate is >= '\uFF01' and <= '\uFF5E')
+            return (char)(candidate - 0xFEE0);
+
+        return candidate;
     }
 
     private static bool ShouldSubstituteWithAsciiSpace(char candidate)

@@ -172,6 +172,17 @@ public sealed class CompareQualityDeltaExportTests
     }
 
     [Fact]
+    public void RemoveMarkdownSection_strips_compare_quality_delta_when_heading_uses_fullwidth_latin_letters()
+    {
+        string markdown = "intro\n## \uFF23\uFF4F\uFF4D\uFF50\uFF41\uFF52\uFF45 Quality Delta\n| Metric | Before | After |\n\n## Warnings\n";
+
+        string result = CompareQualityDeltaExportFormatter.RemoveMarkdownSection(markdown);
+
+        result.Should().NotContain("Compare Quality Delta");
+        result.Should().Contain("## Warnings");
+    }
+
+    [Fact]
     public void RemoveMarkdownSection_strips_compare_quality_delta_when_heading_uses_mixed_case()
     {
         string markdown = "intro\n## compare quality delta\n| Metric | Before | After |\n\n## Warnings\n";

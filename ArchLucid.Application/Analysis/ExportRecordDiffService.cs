@@ -78,24 +78,24 @@ public sealed class ExportRecordDiffService : IExportRecordDiffService
         AddIfChangedTrimmed(result.ChangedTopLevelFields, "ResolutionReason", left.ResolutionReason, right.ResolutionReason);
         AddIfChangedTrimmed(result.ChangedTopLevelFields, "ManifestVersion", left.ManifestVersion, right.ManifestVersion);
         AddIfChangedTrimmed(result.ChangedTopLevelFields, "Notes", left.Notes, right.Notes);
-        AddIfChanged(result.ChangedTopLevelFields, "IncludedEvidence", left.IncludedEvidence, right.IncludedEvidence);
-        AddIfChanged(result.ChangedTopLevelFields, "IncludedExecutionTraces", left.IncludedExecutionTraces,
+        AddIncludedFlagIfChanged(result.ChangedTopLevelFields, "IncludedEvidence", left.IncludedEvidence, right.IncludedEvidence);
+        AddIncludedFlagIfChanged(result.ChangedTopLevelFields, "IncludedExecutionTraces", left.IncludedExecutionTraces,
             right.IncludedExecutionTraces);
-        AddIfChanged(result.ChangedTopLevelFields, "IncludedManifest", left.IncludedManifest, right.IncludedManifest);
-        AddIfChanged(result.ChangedTopLevelFields, "IncludedDiagram", left.IncludedDiagram, right.IncludedDiagram);
-        AddIfChanged(result.ChangedTopLevelFields, "IncludedSummary", left.IncludedSummary, right.IncludedSummary);
-        AddIfChanged(result.ChangedTopLevelFields, "IncludedDeterminismCheck", left.IncludedDeterminismCheck,
+        AddIncludedFlagIfChanged(result.ChangedTopLevelFields, "IncludedManifest", left.IncludedManifest, right.IncludedManifest);
+        AddIncludedFlagIfChanged(result.ChangedTopLevelFields, "IncludedDiagram", left.IncludedDiagram, right.IncludedDiagram);
+        AddIncludedFlagIfChanged(result.ChangedTopLevelFields, "IncludedSummary", left.IncludedSummary, right.IncludedSummary);
+        AddIncludedFlagIfChanged(result.ChangedTopLevelFields, "IncludedDeterminismCheck", left.IncludedDeterminismCheck,
             right.IncludedDeterminismCheck);
         AddIfChanged(
             result.ChangedTopLevelFields,
             "DeterminismIterations",
             NormalizeDeterminismIterationsColumn(left.DeterminismIterations),
             NormalizeDeterminismIterationsColumn(right.DeterminismIterations));
-        AddIfChanged(result.ChangedTopLevelFields, "IncludedManifestCompare", left.IncludedManifestCompare,
+        AddIncludedFlagIfChanged(result.ChangedTopLevelFields, "IncludedManifestCompare", left.IncludedManifestCompare,
             right.IncludedManifestCompare);
         AddIfChangedTrimmed(result.ChangedTopLevelFields, "CompareManifestVersion", left.CompareManifestVersion,
             right.CompareManifestVersion);
-        AddIfChanged(result.ChangedTopLevelFields, "IncludedAgentResultCompare", left.IncludedAgentResultCompare,
+        AddIncludedFlagIfChanged(result.ChangedTopLevelFields, "IncludedAgentResultCompare", left.IncludedAgentResultCompare,
             right.IncludedAgentResultCompare);
         AddRunIdIfChanged(result.ChangedTopLevelFields, "CompareRunId", left.CompareRunId, right.CompareRunId);
     }
@@ -133,8 +133,11 @@ public sealed class ExportRecordDiffService : IExportRecordDiffService
         AddIfChanged(diff.ChangedFlags, "IncludeAgentResultCompare", left.IncludeAgentResultCompare,
             right.IncludeAgentResultCompare);
 
-        AddIfChanged(diff.ChangedValues, "DeterminismIterations", left.DeterminismIterations,
-            right.DeterminismIterations);
+        AddIfChanged(
+            diff.ChangedValues,
+            "DeterminismIterations",
+            NormalizeRequestDeterminismIterations(left),
+            NormalizeRequestDeterminismIterations(right));
         AddIfChangedTrimmed(diff.ChangedValues, "CompareManifestVersion", left.CompareManifestVersion,
             right.CompareManifestVersion);
         AddRunIdIfChanged(diff.ChangedValues, "CompareRunId", left.CompareRunId, right.CompareRunId);
@@ -144,6 +147,23 @@ public sealed class ExportRecordDiffService : IExportRecordDiffService
 
     private static int? NormalizeDeterminismIterationsColumn(int? value) =>
         value is null or 0 ? null : value;
+
+    private static int NormalizeRequestDeterminismIterations(PersistedAnalysisExportRequest request) =>
+        request.IncludeDeterminismCheck ? request.DeterminismIterations : 0;
+
+    private static bool NormalizeIncludedFlag(bool? value) => value == true;
+
+    private static void AddIncludedFlagIfChanged(
+        List<string> target,
+        string fieldName,
+        bool? left,
+        bool? right)
+    {
+        if (NormalizeIncludedFlag(left) == NormalizeIncludedFlag(right))
+            return;
+
+        target.Add(fieldName);
+    }
 
     private static bool RunIdsEquivalent(string left, string right) =>
         GovernanceRunIdNormalizer.AreEquivalent(left, right);

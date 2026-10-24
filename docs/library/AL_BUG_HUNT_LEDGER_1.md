@@ -6868,6 +6868,20 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-24 seed hunt (seed→hit): proved `ExportRecordDiffService` flagged `IncludedDeterminismCheck` when legacy null denormalized columns sat beside explicit `false`, request-level `DeterminismIterations` drifted when determinism check was disabled but iterations differed in JSON, and `ComparisonExportMarkdownSectionRemover` left fullwidth Latin homoglyphs in compare-quality headings unstripped; treat null/false included flags as equivalent on top-level diff, normalize request iterations to zero when check disabled, map fullwidth Latin to ASCII in heading normalization; regressions `CompareQuality_export_record_diff_treats_null_and_false_included_determinism_check_as_equivalent`, `CompareQuality_export_record_diff_ignores_determinism_iterations_when_check_disabled_in_requests`, and `RemoveMarkdownSection_strips_compare_quality_delta_when_heading_uses_fullwidth_latin_letters`; cheap-disproof closed padded export id on `GetExportRecordAsync` (`NormalizeRequired` already on entry) and compact JSON operability probe (invalid tradeoff); seeded five follow-on rows; scoped application-analysis filter 117/117. Private beta: export compare no longer false-alarms on legacy included-flag nulls or disabled-check iteration noise; comparison exports strip fullwidth heading spoofing.
+
+- [ ] (candidate) `ExportRecordDiffService.CompareRequests` — `IncludeDeterminismCheck` false vs omitted JSON default — locus: request bool defaults; input: deserialize default false on both.
+- [ ] (candidate) `ComparisonExportMarkdownSectionRemover` — Cyrillic homoglyphs in heading — locus: homoglyph casing; input: Cyrillic lookalike `Сompare`.
+- [ ] (candidate) `ExportRecordDiffService` — `IncludedEvidence` null vs false on legacy rows — locus: verify parity after included-flag helper; input: already covered by helper (invalid probe).
+- [ ] (candidate) `RunExportAuditService` — determinism iterations persisted when check off — locus: audit denormalize; input: verify column mirrors request normalize.
+- [ ] (candidate) `ExportRecordDiffService` — top-level `DeterminismIterations` when `IncludedDeterminismCheck` false but column non-zero — locus: column/request skew; input: legacy denormalized column drift.
+
+- [x] (proven) `ExportRecordDiffService.CompareTopLevel` — `IncludedDeterminismCheck` null vs false — **hit 2026-10-24 seed hunt:** `AddIncludedFlagIfChanged`; regression `CompareQuality_export_record_diff_treats_null_and_false_included_determinism_check_as_equivalent`.
+- [x] (proven) `ExportRecordDiffService.CompareRequests` — `DeterminismIterations` when check disabled — **hit 2026-10-24 seed hunt:** `NormalizeRequestDeterminismIterations`; regression `CompareQuality_export_record_diff_ignores_determinism_iterations_when_check_disabled_in_requests`.
+- [x] (proven) `ComparisonExportMarkdownSectionRemover` — fullwidth Latin heading — **hit 2026-10-24 seed hunt:** `MapHeadingCharacter` fullwidth fold; regression `RemoveMarkdownSection_strips_compare_quality_delta_when_heading_uses_fullwidth_latin_letters`.
+- [x] (valid-no-repro) `RunExportQueryFacade.GetExportRecordAsync` — padded export id — **cheap-disproof 2026-10-24 seed hunt:** `RunExportRecordIdNormalizer.NormalizeRequired` on entry.
+- [x] (invalid) `RunExportAuditService` — compact JSON operability — **cheap-disproof 2026-10-24 seed hunt:** intentional storage tradeoff from hunt 101.
+
 2026-10-23 seed hunt (seed→hit): proved `RunExportAuditService` persisted pretty-printed analysis request JSON with `WriteIndented`, `ExportRecordDiffService` flagged `DeterminismIterations` when legacy rows stored null denormalized columns beside zero-valued peers, and `ComparisonExportMarkdownSectionRemover` required exact heading casing so mixed-case delta headings survived stripping; persist compact analysis JSON, treat null/zero determinism iteration columns as equivalent, case-insensitive heading match after normalization; regressions `RecordAsync_persists_compact_analysis_request_json_without_indentation`, `CompareQuality_export_record_diff_treats_null_and_zero_determinism_iterations_as_equivalent_on_top_level_columns`, and `RemoveMarkdownSection_strips_compare_quality_delta_when_heading_uses_mixed_case`; cheap-disproof closed padded compare export ids (`LoadPairAsync` already uses `RunExportRecordIdNormalizer`) and `OptionalExportMetadataStringNormalizer` on required `FileName` (invalid — required columns use `Trim()` only); seeded five follow-on rows; scoped application-analysis filter 114/114. Private beta: smaller stored export analysis payloads; export compares ignore null-vs-zero determinism iteration drift; comparison exports strip mixed-case delta headings.
 
 - [ ] (candidate) `ExportRecordDiffService.CompareRequests` — request-level `DeterminismIterations` zero vs default when check disabled — locus: request diff; input: omitted vs explicit zero in JSON.
@@ -7234,8 +7248,8 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 101
-- **bugs-found:** 96
+- **hunts:** 102
+- **bugs-found:** 99
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-23
 - **last-bug:** 2026-10-23 — compact audit JSON, determinism null/zero, case-insensitive headings
