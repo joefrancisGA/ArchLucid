@@ -6868,6 +6868,20 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-24 seed hunt (seed→hit): proved `EndToEndReplayComparisonService.BuildAsync` echoed untrimmed left/right run ids on the comparison report and passed the same padded strings into export history loads instead of canonical trimmed ids; trim run ids after validation before pair load, report assembly, and `GetByRunIdAsync`; regression `BuildAsync_trims_run_ids_on_report_and_export_history_load`; cheap-disproof closed export-history determinism column normalize at list load (diff normalizes at compare), `GetRunExportHistoryAsync` line-break trim parity (already trims), Armenian homoglyphs (deferred), and persistence-layer determinism normalize (deferred); seeded five follow-on rows; scoped application-analysis filter 182/182. Private beta: end-to-end run comparison reports and export diff slices use trimmed run ids when operators paste run keys with surrounding whitespace or trailing line breaks.
+
+- [ ] (candidate) `ComparisonsApplicationService.TryListByRunIdAsync` — trim run id before scope check — locus: `GetRunDetailAsync`; input: trailing whitespace on list-by-run query.
+- [ ] (candidate) `CompareRunsApplicationFacade.LoadScopedRunPairAsync` — trim run ids at facade entry — locus: pair load; input: shared trim with E2E replay.
+- [ ] (candidate) `ComparisonExportMarkdownSectionRemover` — Armenian homoglyphs in delta headings — locus: `UnicodeLatinHomoglyphMapper`; input: deferred expansion.
+- [ ] (candidate) `ComparisonExportMarkdownSectionRemover` — distinct level-2 subsection inside delta — locus: product shape; input: intentional early boundary.
+- [ ] (candidate) `RunExportRecordPersistNormalizer` — persistence-layer determinism column normalize — locus: repository read; input: consolidation at DB boundary.
+
+- [x] (proven) `EndToEndReplayComparisonService.BuildAsync` — untrimmed run ids on report and export loads — **hit 2026-10-24 seed hunt:** `Trim()` before pair/export loads; regression `BuildAsync_trims_run_ids_on_report_and_export_history_load`.
+- [x] (valid-no-repro) `EndToEndReplayComparisonService` — denormalized determinism on export lists — **cheap-disproof 2026-10-24 seed hunt:** `ExportRecordDiffService` normalizes at compare.
+- [x] (valid-no-repro) `RunExportQueryFacade.GetRunExportHistoryAsync` — line-break run id trim — **cheap-disproof 2026-10-24 seed hunt:** existing `runId.Trim()` on history list.
+- [x] (invalid) `UnicodeLatinHomoglyphMapper` — Armenian homoglyphs — **cheap-disproof 2026-10-24 seed hunt:** deferred.
+- [x] (invalid) `RunExportRecordPersistNormalizer` — DB read normalize — **cheap-disproof 2026-10-24 seed hunt:** consolidation deferred.
+
 2026-10-24 seed hunt (seed→hit): proved `ConsultingDocxExportWhitelabelPrefill` used null-coalescing assignment for `ClientEngagementTitle` so an empty-string hint blocked copying engagement text from a prior export while firm prefill still ran, and confirmed dashed-vs-N run id lookup already works via repository `LookupKeys`; treat whitespace-only hint engagement like missing and copy rehydrated metadata strings without redundant trim; regressions `ApplyMissingFromPriorExportsAsync_copies_engagement_when_hints_engagement_is_empty_string` and `ApplyMissingFromPriorExportsAsync_finds_prior_export_when_run_id_query_uses_dashed_guid`; cheap-disproof closed `EndToEndReplayComparisonService` export-list normalize (diff compares via normalized columns), Armenian homoglyphs (deferred), distinct `##` delta subsection (intentional), and persistence-layer determinism normalize (deferred); seeded five follow-on rows; scoped application-analysis filter 171/171. Private beta: consulting DOCX whitelabel prefill fills engagement titles from prior exports when the caller left an empty engagement field, and dashed run routes still resolve stored N-format export rows.
 
 - [ ] (candidate) `EndToEndReplayComparisonService.BuildAsync` — trim run ids before export history load — locus: `GetByRunIdAsync`; input: trailing whitespace on pair ids.
@@ -7401,11 +7415,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 113
-- **bugs-found:** 119
+- **hunts:** 114
+- **bugs-found:** 120
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-24
-- **last-bug:** 2026-10-24 — whitelabel prefill copies engagement when hint is empty string
+- **last-bug:** 2026-10-24 — E2E replay comparison trims run ids on report and export loads
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 

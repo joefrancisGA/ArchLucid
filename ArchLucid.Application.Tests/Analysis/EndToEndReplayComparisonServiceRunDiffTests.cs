@@ -24,6 +24,42 @@ namespace ArchLucid.Application.Tests.Analysis;
 public sealed class EndToEndReplayComparisonServiceRunDiffTests
 {
   [Fact]
+  public async Task BuildAsync_trims_run_ids_on_report_and_export_history_load()
+  {
+    const string leftRunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+    const string rightRunId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb";
+
+    Mock<IRunDetailQueryService> runDetailQuery = new();
+    runDetailQuery
+      .Setup(s => s.GetRunDetailForRollupAsync(leftRunId, It.IsAny<CancellationToken>()))
+      .ReturnsAsync(CreateDetail(leftRunId, null));
+    runDetailQuery
+      .Setup(s => s.GetRunDetailForRollupAsync(rightRunId, It.IsAny<CancellationToken>()))
+      .ReturnsAsync(CreateDetail(rightRunId, null));
+
+    Mock<IRunExportRecordRepository> exportRecords = new();
+    exportRecords
+      .Setup(r => r.GetByRunIdAsync(leftRunId, It.IsAny<CancellationToken>()))
+      .ReturnsAsync(Array.Empty<RunExportRecord>());
+    exportRecords
+      .Setup(r => r.GetByRunIdAsync(rightRunId, It.IsAny<CancellationToken>()))
+      .ReturnsAsync(Array.Empty<RunExportRecord>());
+
+    EndToEndReplayComparisonService sut = CreateSut(
+      runDetailQuery,
+      exportRecords,
+      new Mock<IManifestDiffService>());
+
+    EndToEndReplayComparisonReport report =
+      await sut.BuildAsync($"{leftRunId}\n", $"  {rightRunId}  ");
+
+    report.LeftRunId.Should().Be(leftRunId);
+    report.RightRunId.Should().Be(rightRunId);
+    exportRecords.Verify(r => r.GetByRunIdAsync(leftRunId, It.IsAny<CancellationToken>()), Times.Once);
+    exportRecords.Verify(r => r.GetByRunIdAsync(rightRunId, It.IsAny<CancellationToken>()), Times.Once);
+  }
+
+  [Fact]
   public async Task BuildAsync_marks_completion_state_differs_when_completed_utc_values_differ()
   {
     DateTime leftCompleted = new(2026, 1, 1, 12, 0, 0, DateTimeKind.Utc);

@@ -47,6 +47,9 @@ public sealed class EndToEndReplayComparisonService(
         ArgumentException.ThrowIfNullOrWhiteSpace(leftRunId);
         ArgumentException.ThrowIfNullOrWhiteSpace(rightRunId);
 
+        leftRunId = leftRunId.Trim();
+        rightRunId = rightRunId.Trim();
+
         (ArchitectureRunDetail leftDetail, ArchitectureRunDetail rightDetail) =
             await LoadScopedRunPairOrThrowAsync(leftRunId, rightRunId, cancellationToken);
         ArchitectureRun leftRun = leftDetail.Run;
