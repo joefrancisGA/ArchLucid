@@ -86,6 +86,19 @@ public sealed class CompareVerdictChromeExportTests
     }
 
     [Fact]
+    public void RemoveMarkdownSection_strips_through_duplicate_verdict_chrome_heading_until_next_distinct_section()
+    {
+        string markdown =
+            "intro\n## Compare Verdict Chrome Delta\n### Gate\n\n## Compare Verdict Chrome Delta\n### Dup\n\n## Warnings\n";
+
+        string result = CompareVerdictChromeExportFormatter.RemoveMarkdownSection(markdown);
+
+        result.Should().NotContain("Compare Verdict Chrome Delta");
+        result.Should().NotContain("### Dup");
+        result.Should().Contain("## Warnings");
+    }
+
+    [Fact]
     public void RemoveMarkdownSection_strips_verdict_chrome_when_heading_uses_nbsp_after_hashes()
     {
         string markdown = "intro\n##\u00A0Compare Verdict Chrome Delta\n### Gate\n\n## Warnings\n";

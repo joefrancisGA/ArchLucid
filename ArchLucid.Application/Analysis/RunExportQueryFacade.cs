@@ -88,7 +88,8 @@ public sealed class RunExportQueryFacade(
         await EnsureCareerAllowsExportRecordMetadataOrThrowAsync(runId, cancellationToken);
 
         IReadOnlyList<RunExportRecord> records = await _runExportRecordRepository.GetByRunIdAsync(runId, cancellationToken);
-        return new RunExportHistoryQueryResult { Outcome = ExportRecordLoadOutcome.Success, Exports = records.ToList() };
+        List<RunExportRecord> normalized = records.Select(NormalizeLoadedExportRecord).ToList();
+        return new RunExportHistoryQueryResult { Outcome = ExportRecordLoadOutcome.Success, Exports = normalized };
     }
 
     public async Task<ScopedExportRecordLoadResult> GetExportRecordAsync(string exportRecordId, CancellationToken cancellationToken = default)
@@ -320,7 +321,16 @@ public sealed class RunExportQueryFacade(
             return null;
 
         record.RunId = record.RunId.Trim();
-        return await _runDetailQueryService.GetRunDetailAsync(record.RunId, cancellationToken) is null ? null : record;
+        if (await _runDetailQueryService.GetRunDetailAsync(record.RunId, cancellationToken) is null)
+            return null;
+
+        return NormalizeLoadedExportRecord(record);
+    }
+
+    private static RunExportRecord NormalizeLoadedExportRecord(RunExportRecord record)
+    {
+        PersistedAnalysisExportRequestDeterminismNormalizer.NormalizeRunExportRecordDenormalizedColumns(record);
+        return record;
     }
 
     private async Task<ExportRecordLoadOutcome?> TryEnsureExportRunLineageAndSealedHashAsync(

@@ -194,6 +194,19 @@ public sealed class CompareQualityDeltaExportTests
     }
 
     [Fact]
+    public void RemoveMarkdownSection_strips_through_duplicate_homoglyph_heading_until_next_distinct_section()
+    {
+        string markdown =
+            "intro\n## Compare Quality Delta\n| Metric | Before | After |\n## \u0421ompare Quality Delta\n| dup |\n## Warnings\n";
+
+        string result = CompareQualityDeltaExportFormatter.RemoveMarkdownSection(markdown);
+
+        result.Should().NotContain("Compare Quality Delta");
+        result.Should().NotContain("| dup |");
+        result.Should().Contain("## Warnings");
+    }
+
+    [Fact]
     public void RemoveMarkdownSection_strips_through_duplicate_canonical_heading_until_next_distinct_section()
     {
         string markdown =

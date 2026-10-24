@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Metadata;
+
 namespace ArchLucid.Application.Analysis;
 
 /// <summary>
@@ -5,6 +7,23 @@ namespace ArchLucid.Application.Analysis;
 /// </summary>
 internal static class PersistedAnalysisExportRequestDeterminismNormalizer
 {
+    internal static void NormalizeRunExportRecordDenormalizedColumns(RunExportRecord record)
+    {
+        ArgumentNullException.ThrowIfNull(record);
+
+        record.DeterminismIterations = NormalizeDenormalizedIterationsColumn(
+            record.DeterminismIterations,
+            record.IncludedDeterminismCheck);
+    }
+
+    internal static int? NormalizeDenormalizedIterationsColumn(int? iterations, bool? includedDeterminismCheck)
+    {
+        if (includedDeterminismCheck != true)
+            return null;
+
+        return iterations is null or 0 ? null : iterations;
+    }
+
     internal static void ClearIterationsWhenCheckDisabled(PersistedAnalysisExportRequest request)
     {
         ArgumentNullException.ThrowIfNull(request);
@@ -15,11 +34,9 @@ internal static class PersistedAnalysisExportRequestDeterminismNormalizer
 
     internal static int? ToAuditDenormalizedColumn(PersistedAnalysisExportRequest? request)
     {
-        if (request is null || !request.IncludeDeterminismCheck)
+        if (request is null)
             return null;
 
-        int iterations = request.DeterminismIterations;
-
-        return iterations is 0 ? null : iterations;
+        return NormalizeDenormalizedIterationsColumn(request.DeterminismIterations, request.IncludeDeterminismCheck);
     }
 }

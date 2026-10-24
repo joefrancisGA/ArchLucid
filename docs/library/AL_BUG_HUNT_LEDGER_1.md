@@ -6868,6 +6868,20 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-24 seed hunt (seed→hit): proved `RunExportQueryFacade` returned legacy denormalized `DeterminismIterations` values on metadata reads when `IncludedDeterminismCheck` was false, and confirmed homoglyph duplicate headings continue to strip through under the hunt 108 boundary skip; normalize denormalized iteration columns on scoped export loads via `PersistedAnalysisExportRequestDeterminismNormalizer.NormalizeRunExportRecordDenormalizedColumns`; regressions `GetExportRecordAsync_clears_stale_denormalized_determinism_iterations_when_check_disabled`, `RemoveMarkdownSection_strips_through_duplicate_homoglyph_heading_until_next_distinct_section`, and `RemoveMarkdownSection_strips_through_duplicate_verdict_chrome_heading_until_next_distinct_section`; cheap-disproof closed explicit `includeDeterminismCheck` false JSON omission (intentional) and omitted vs zero iteration JSON when check enabled; seeded five follow-on rows; scoped application-analysis filter 157/157. Private beta: export metadata reads and history lists no longer surface stale determinism iteration counts when the check is off; comparison re-append still clears homoglyph duplicate delta headings.
+
+- [ ] (candidate) `RunExportQueryFacade` — normalize determinism columns on compare pair load — locus: `LoadScopedExportRecordAsync`; input: already normalized on that path.
+- [ ] (candidate) `PersistedAnalysisExportRequestDeterminismNormalizer` — dedupe with `ExportRecordDiffService` column normalize — locus: shared helper; input: consolidation follow-on.
+- [ ] (candidate) `UnicodeLatinHomoglyphMapper` — Armenian homoglyphs — locus: homoglyph casing; input: deferred.
+- [ ] (candidate) `ComparisonExportMarkdownSectionRemover` — distinct `##` subsection inside delta — locus: early boundary; input: product shape assumption.
+- [ ] (candidate) `RunExportAuditService` — omit false `includeDeterminismCheck` from JSON — locus: compact bools; input: invalid explicit-default probe.
+
+- [x] (proven) `RunExportQueryFacade.LoadScopedExportRecordAsync` — stale denormalized iterations on read — **hit 2026-10-24 seed hunt:** `NormalizeRunExportRecordDenormalizedColumns`; regression `GetExportRecordAsync_clears_stale_denormalized_determinism_iterations_when_check_disabled`.
+- [x] (valid-no-repro) `ComparisonExportMarkdownSectionRemover` — homoglyph duplicate heading boundary — **cheap-disproof 2026-10-24 seed hunt:** `LineMatchesHeading` skip; regression `RemoveMarkdownSection_strips_through_duplicate_homoglyph_heading_until_next_distinct_section`.
+- [x] (valid-no-repro) `CompareVerdictChromeExportFormatter.RemoveMarkdownSection` — duplicate verdict heading — **cheap-disproof 2026-10-24 seed hunt:** regression `RemoveMarkdownSection_strips_through_duplicate_verdict_chrome_heading_until_next_distinct_section`.
+- [x] (invalid) `RunExportAuditService` — omit false `includeDeterminismCheck` — **cheap-disproof 2026-10-24 seed hunt:** explicit false is intentional for audit clarity.
+- [x] (valid-no-repro) `ExportRecordDiffService.CompareRequests` — omitted vs zero iterations when check enabled — **cheap-disproof 2026-10-24 seed hunt:** prior regression retained.
+
 2026-10-24 seed hunt (seed→hit): proved `ComparisonExportMarkdownSectionRemover` stopped stripping at a second canonical `## Compare Quality Delta` line inside the same section, leaving duplicate delta tables before re-append; skip section boundaries that still match the removed heading after normalization; regression `RemoveMarkdownSection_strips_through_duplicate_canonical_heading_until_next_distinct_section`; cheap-disproof closed inline `#` tokens mid-line, level-4 headings under the delta, non-zero iteration JSON retention when check enabled, and `IncludedAgentResultCompare` null/false parity; seeded five follow-on rows; scoped application-analysis filter 149/149. Private beta: comparison export re-append removes the full delta block even when summaries repeat the heading; audit JSON still records non-zero determinism iteration counts when the check is on.
 
 - [ ] (candidate) `ComparisonExportMarkdownSectionRemover` — homoglyph duplicate heading boundary — locus: boundary skip; input: Cyrillic duplicate should also be skipped via `LineMatchesHeading`.
@@ -7332,8 +7346,8 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 108
-- **bugs-found:** 112
+- **hunts:** 109
+- **bugs-found:** 113
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-23
 - **last-bug:** 2026-10-23 — compact audit JSON, determinism null/zero, case-insensitive headings
