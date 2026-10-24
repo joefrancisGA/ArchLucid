@@ -6868,6 +6868,20 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-24 seed hunt (seed→hit): proved `ComparisonRecordSearchPredicateBuilder` and `ComparisonRecordRepositoryCore.FilterInMemory` compared `ComparisonType` filters without trim while the application service already trimmed type on `SearchAsync`, so SQL-backed or direct repository searches missed rows when comparison type query tokens carried trailing whitespace; trim comparison type in SQL predicates and in-memory filters; regressions `AppendFilters_trims_padded_comparison_type_query_parameter` and `FilterInMemory_trims_padded_comparison_type_filter`; cheap-disproof closed `TryUpdateLabelAndTagsAsync` tag persist trim (follow-on row), batch zip manifest echo (cosmetic), Armenian homoglyphs (deferred), and persistence-layer determinism normalize (deferred); seeded five follow-on rows; scoped application-analysis + replay filter 221/221; persistence search regressions 19/19. Private beta: comparison history type filters stay consistent on SQL persistence when type tokens are pasted with surrounding whitespace, matching application-layer search normalization.
+
+- [ ] (candidate) `ComparisonsApplicationService.TryUpdateLabelAndTagsAsync` — tag list on persist without per-tag trim — locus: label/tags update; input: padded tag strings on PATCH body.
+- [ ] (candidate) `ComparisonRecordRepositoryCore.FilterInMemory` — `label` filter without trim — locus: in-memory search; input: padded label when repository called without app normalization.
+- [ ] (candidate) `ComparisonBatchReplayZipSupport` — manifest failure entries echo pre-trim batch tokens — locus: zip manifest; input: cosmetic id echo only.
+- [ ] (candidate) `ComparisonExportMarkdownSectionRemover` — Armenian homoglyphs in delta headings — locus: `UnicodeLatinHomoglyphMapper`; input: deferred expansion.
+- [ ] (candidate) `RunExportRecordPersistNormalizer` — persistence-layer determinism column normalize — locus: repository read; input: consolidation at DB boundary.
+
+- [x] (proven) `ComparisonRecordSearchPredicateBuilder` — untrimmed comparison type SQL filter — **hit 2026-10-24 seed hunt:** `comparisonType.Trim()`; regression `AppendFilters_trims_padded_comparison_type_query_parameter`.
+- [x] (proven) `ComparisonRecordRepositoryCore.FilterInMemory` — untrimmed comparison type in-memory filter — **hit 2026-10-24 seed hunt:** trim before ordinal compare; regression `FilterInMemory_trims_padded_comparison_type_filter`.
+- [x] (invalid) `ComparisonBatchReplayZipSupport` — manifest id echo — **cheap-disproof 2026-10-24 seed hunt:** cosmetic only.
+- [x] (invalid) `UnicodeLatinHomoglyphMapper` — Armenian homoglyphs — **cheap-disproof 2026-10-24 seed hunt:** deferred.
+- [x] (invalid) `RunExportRecordPersistNormalizer` — DB read normalize — **cheap-disproof 2026-10-24 seed hunt:** consolidation deferred.
+
 2026-10-24 seed hunt (seed→hit): proved `ComparisonsApplicationService.SearchAsync` forwarded tag filter tokens without trim while label and comparison type were normalized, so history search missed tagged rows when operators pasted tag values with trailing spaces or line breaks; normalize tags via `NormalizeSearchTags` and trim tag needles in `ComparisonRecordRepositoryCore` and `ComparisonRecordSearchPredicateBuilder`; regressions `CompareQuality_SearchAsync_finds_records_when_tag_filter_has_trailing_whitespace` and `AppendFilters_trims_padded_tag_query_parameters`; cheap-disproof closed SQL `comparisonType` trim (app layer already trims type), batch zip manifest echo (cosmetic), Armenian homoglyphs (deferred), and persistence-layer determinism normalize (deferred); seeded five follow-on rows; scoped application-analysis + replay filter 221/221; persistence predicate regressions 11/11. Private beta: comparison history tag filters match stored tags when pasted with surrounding whitespace, completing label/type/run-id trim parity on search criteria.
 
 - [ ] (candidate) `ComparisonRecordSearchPredicateBuilder` — `comparisonType` filter without trim on SQL path — locus: persistence search; input: padded type when repository called without app normalization.
@@ -7535,11 +7549,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 123
-- **bugs-found:** 129
+- **hunts:** 124
+- **bugs-found:** 130
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-24
-- **last-bug:** 2026-10-24 — comparison history search trims tag filters
+- **last-bug:** 2026-10-24 — persistence comparison type search trims filters
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
