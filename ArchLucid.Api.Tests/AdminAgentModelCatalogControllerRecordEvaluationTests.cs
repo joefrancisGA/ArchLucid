@@ -98,6 +98,45 @@ public sealed class AdminAgentModelCatalogControllerRecordEvaluationTests
     }
 
     [Fact]
+    public async Task RecordEvaluation_returns_bad_request_when_evaluation_state_is_null()
+    {
+        Mock<IAgentModelCatalogEvaluationRecorder> recorder = new();
+
+        AdminAgentModelCatalogController controller = new(
+            Mock.Of<IAgentModelCatalogRepository>(),
+            recorder.Object,
+            Mock.Of<IAgentModelCatalogFaithfulnessHarnessImporter>(),
+            Mock.Of<IAgentModelCatalogCacheInvalidator>(),
+            Mock.Of<IActorContext>(),
+            Mock.Of<IAuditService>(),
+            Mock.Of<IScopeContextProvider>())
+        {
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
+        };
+
+        RecordAgentModelCatalogEvaluationRequest request = new() { EvaluationState = null! };
+
+        IActionResult result = await controller.RecordEvaluation(
+            "gpt-test",
+            "Primary",
+            request,
+            CancellationToken.None);
+
+        ObjectResult bad = result.Should().BeOfType<ObjectResult>().Subject;
+        bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+
+        recorder.Verify(
+            static r => r.RecordTaskEvaluationAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<AgentModelEvaluationStateKind>(),
+                It.IsAny<string?>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task RecordEvaluation_returns_bad_request_when_evaluation_state_empty_string()
     {
         Mock<IAgentModelCatalogEvaluationRecorder> recorder = new();
