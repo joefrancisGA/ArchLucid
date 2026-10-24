@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Text;
+using ArchLucid.Contracts.Text;
 
 namespace ArchLucid.Application.Analysis;
 
@@ -114,9 +115,9 @@ internal static class ComparisonExportMarkdownSectionRemover
             return ' ';
 
         if (candidate is >= '\uFF01' and <= '\uFF5E')
-            return (char)(candidate - 0xFEE0);
+            candidate = (char)(candidate - 0xFEE0);
 
-        return candidate;
+        return UnicodeLatinHomoglyphMapper.MapToLatinLookalike(candidate);
     }
 
     private static bool ShouldSubstituteWithAsciiSpace(char candidate)
