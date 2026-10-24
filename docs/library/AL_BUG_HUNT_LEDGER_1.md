@@ -6868,6 +6868,20 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-24 seed hunt (seed→hit): proved `ComparisonsApplicationService.CanonicalRunIdForLookup` forwarded untrimmed run id search filters to the comparison repository so pasted keys with trailing line breaks missed in-memory history search for non-canonical run id strings; trim before GUID canonicalization and opaque id passthrough; regression `CompareQuality_SearchAsync_finds_records_when_left_run_filter_has_trailing_line_break`; cheap-disproof closed `CompareRunsApplicationFacade.CompareManifestsAsync` (accepts `Guid` route parameters already parsed), Armenian homoglyphs (deferred), distinct `##` subsection (intentional), and persistence-layer determinism normalize (deferred); seeded five follow-on rows; scoped application-analysis filter 188/188. Private beta: comparison history search run-id filters tolerate trailing line breaks on pasted keys, completing trim parity with list-by-run and compare-runs pair load.
+
+- [ ] (candidate) `ComparisonRecordSearchPredicateBuilder` — trim run id filters before SQL `Guid.TryParse` — locus: persistence search; input: padded GUID strings on SQL path.
+- [ ] (candidate) `ComparisonsApplicationService.TryGetScopedRecordAsync` — trim comparison record id — locus: scoped get; input: padded comparison id route token.
+- [ ] (candidate) `ComparisonExportMarkdownSectionRemover` — Armenian homoglyphs in delta headings — locus: `UnicodeLatinHomoglyphMapper`; input: deferred expansion.
+- [ ] (candidate) `ComparisonExportMarkdownSectionRemover` — distinct level-2 subsection inside delta — locus: product shape; input: intentional early boundary.
+- [ ] (candidate) `RunExportRecordPersistNormalizer` — persistence-layer determinism column normalize — locus: repository read; input: consolidation at DB boundary.
+
+- [x] (proven) `ComparisonsApplicationService.CanonicalRunIdForLookup` — untrimmed search run id filters — **hit 2026-10-24 seed hunt:** `Trim()` before parse/canonicalize; regression `CompareQuality_SearchAsync_finds_records_when_left_run_filter_has_trailing_line_break`.
+- [x] (invalid) `CompareRunsApplicationFacade.CompareManifestsAsync` — padded GUID route strings — **cheap-disproof 2026-10-24 seed hunt:** API passes parsed `Guid` values.
+- [x] (invalid) `UnicodeLatinHomoglyphMapper` — Armenian homoglyphs — **cheap-disproof 2026-10-24 seed hunt:** deferred.
+- [x] (valid-no-repro) `ComparisonExportMarkdownSectionRemover` — distinct `##` inside delta — **cheap-disproof 2026-10-24 seed hunt:** intentional boundary.
+- [x] (invalid) `RunExportRecordPersistNormalizer` — DB read normalize — **cheap-disproof 2026-10-24 seed hunt:** consolidation deferred.
+
 2026-10-24 seed hunt (seed→hit): proved `CompareRunsApplicationFacade.LoadScopedRunPairAsync` forwarded untrimmed left/right run ids into `GetRunDetailForRollupAsync`, so compare-runs callers that omitted service-layer trim could miss rollup detail for pasted run keys with trailing line breaks; trim both ids at facade entry before detail and authority lookups; regression `LoadScopedRunPairAsync_trims_run_ids_before_run_detail_lookup`; cheap-disproof closed `ComparisonsApplicationService.SearchAsync` run-filter trim (canonical lookup via `Guid.TryParse` on dashed ids; export filters already use `NormalizeRequired`), Armenian homoglyphs (deferred), distinct `##` subsection (intentional), and persistence-layer determinism normalize (deferred); seeded five follow-on rows; scoped application-analysis filter 187/187. Private beta: compare-runs pair loading tolerates run ids pasted with trailing whitespace across API and orchestration entry points, not only end-to-end replay builds.
 
 - [ ] (candidate) `ComparisonsApplicationService.SearchAsync` — explicit trim on run id filters — locus: `CanonicalRunIdForLookupOrNull`; input: non-GUID run id suffix whitespace.
@@ -7443,11 +7457,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 116
-- **bugs-found:** 122
+- **hunts:** 117
+- **bugs-found:** 123
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-24
-- **last-bug:** 2026-10-24 — compare-runs facade trims run ids before rollup lookup
+- **last-bug:** 2026-10-24 — comparison search trims run id filters before lookup
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 

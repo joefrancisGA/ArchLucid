@@ -240,8 +240,11 @@ public sealed partial class ComparisonsApplicationService(
     /// <summary>
     ///     Route and API callers may use dashed GUIDs while persisted comparison rows use canonical N-format ids.
     /// </summary>
-    private static string CanonicalRunIdForLookup(string runId) =>
-        Guid.TryParse(runId, out Guid guid) ? guid.ToString("N") : runId;
+    private static string CanonicalRunIdForLookup(string runId)
+    {
+        string trimmed = runId.Trim();
+        return Guid.TryParse(trimmed, out Guid guid) ? guid.ToString("N") : trimmed;
+    }
 
     private static string? CanonicalRunIdForLookupOrNull(string? runId) =>
         string.IsNullOrWhiteSpace(runId) ? runId : CanonicalRunIdForLookup(runId);
