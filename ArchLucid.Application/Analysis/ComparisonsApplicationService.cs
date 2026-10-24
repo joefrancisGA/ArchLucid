@@ -158,11 +158,14 @@ public sealed partial class ComparisonsApplicationService(
         IReadOnlyList<string>? tags,
         CancellationToken ct)
     {
-        if (await LoadScopedComparisonRecordAsync(comparisonRecordId, ct) is null)
+        string normalizedComparisonRecordId =
+            ComparisonRecordIdNormalizer.NormalizeRequired(comparisonRecordId);
+
+        if (await LoadScopedComparisonRecordAsync(normalizedComparisonRecordId, ct) is null)
             return null;
 
         bool updated = await _comparisonRecordRepository.UpdateLabelAndTagsAsync(
-            comparisonRecordId,
+            normalizedComparisonRecordId,
             label,
             tags,
             ct);
@@ -170,7 +173,7 @@ public sealed partial class ComparisonsApplicationService(
         if (!updated)
             return null;
 
-        return await LoadScopedComparisonRecordAsync(comparisonRecordId, ct);
+        return await LoadScopedComparisonRecordAsync(normalizedComparisonRecordId, ct);
     }
 
     private async Task<RunExportRecord?> LoadScopedExportRecordAsync(
@@ -194,8 +197,11 @@ public sealed partial class ComparisonsApplicationService(
         string comparisonRecordId,
         CancellationToken cancellationToken)
     {
+        string normalizedComparisonRecordId =
+            ComparisonRecordIdNormalizer.NormalizeRequired(comparisonRecordId);
+
         ComparisonRecord? record =
-            await _comparisonRecordRepository.GetByIdAsync(comparisonRecordId, cancellationToken);
+            await _comparisonRecordRepository.GetByIdAsync(normalizedComparisonRecordId, cancellationToken);
 
         if (record is null)
             return null;

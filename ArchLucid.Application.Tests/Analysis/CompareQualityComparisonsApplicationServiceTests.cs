@@ -98,6 +98,46 @@ public sealed class CompareQualityComparisonsApplicationServiceTests
     }
 
     [Fact]
+    public async Task CompareQuality_TryGetScopedRecordAsync_returns_record_when_comparison_id_has_trailing_line_break()
+    {
+        const string comparisonRecordId = "cmp-scoped-trim-id";
+        const string runId = "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee";
+
+        InMemoryComparisonRecordRepository comparisonRecords = new();
+        await comparisonRecords.CreateAsync(
+            new ComparisonRecord
+            {
+                ComparisonRecordId = comparisonRecordId,
+                ComparisonType = ComparisonTypes.EndToEndReplay,
+                LeftRunId = runId,
+                RightRunId = "ffffffffffffffffffffffffffffffff",
+                CreatedUtc = DateTime.UtcNow,
+            },
+            CancellationToken.None);
+
+        Mock<IRunDetailQueryService> runDetail = new();
+        runDetail
+            .Setup(s => s.GetRunDetailAsync(runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchitectureRunDetail { Run = new() { RunId = runId } });
+
+        ComparisonsApplicationService sut = new(
+            runDetail.Object,
+            new Mock<IRunExportRecordRepository>().Object,
+            comparisonRecords,
+            new Mock<IComparisonReplayService>().Object,
+            new Mock<ICompareRunsApplicationFacade>().Object,
+            new Mock<IComparisonReplayCostEstimator>().Object,
+            new Mock<IDriftReportFormatter>().Object,
+            new DriftReportDocxExport());
+
+        ComparisonRecord? scoped =
+            await sut.TryGetScopedRecordAsync($"{comparisonRecordId}\n", CancellationToken.None);
+
+        scoped.Should().NotBeNull();
+        scoped!.ComparisonRecordId.Should().Be(comparisonRecordId);
+    }
+
+    [Fact]
     public async Task CompareQuality_TryListByExportRecordIdAsync_lists_records_when_query_uses_padded_export_record_id()
     {
         const string exportRecordId = "export-anchor-id";

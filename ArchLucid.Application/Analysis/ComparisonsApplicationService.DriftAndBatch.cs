@@ -9,10 +9,13 @@ public sealed partial class ComparisonsApplicationService
     /// <inheritdoc />
     public async Task<DriftAnalysisResult?> TryAnalyzeDriftAsync(string comparisonRecordId, CancellationToken ct)
     {
-        if (await LoadScopedComparisonRecordAsync(comparisonRecordId, ct) is null)
+        string normalizedComparisonRecordId =
+            ComparisonRecordIdNormalizer.NormalizeRequired(comparisonRecordId);
+
+        if (await LoadScopedComparisonRecordAsync(normalizedComparisonRecordId, ct) is null)
             return null;
 
-        return await _comparisonReplayService.AnalyzeDriftAsync(comparisonRecordId, ct);
+        return await _comparisonReplayService.AnalyzeDriftAsync(normalizedComparisonRecordId, ct);
     }
 
     /// <inheritdoc />
