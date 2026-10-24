@@ -126,7 +126,7 @@ export function formatReviewMeetingCapturePlainText(
   const lines: string[] = [REVIEW_MEETING_CAPTURE_DISCLAIMER, ""];
 
   for (const entry of entries) {
-    lines.push(`Q: ${formatReviewMeetingCaptureQuestionLabel(entry.questionLabel)}`);
+    lines.push(`Q: ${formatReviewMeetingCaptureQuestionLine(entry.questionLabel)}`);
     lines.push(`A: ${formatReviewMeetingCaptureAnswer(entry.answer)}`);
 
     const metaParts = buildReviewMeetingCaptureMetaParts(entry);
