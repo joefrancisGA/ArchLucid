@@ -24,6 +24,7 @@ export type ArchitectureDiagramModel = {
   readonly nodes: readonly ArchitectureDiagramNode[];
   readonly edges: readonly ArchitectureDiagramEdge[];
   readonly trustBoundaryLabels: readonly string[];
+  readonly skippedUnlabeledEntityCount: number;
 };
 
 export type ArchitectureDiagramMissingCategory =
