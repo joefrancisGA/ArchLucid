@@ -8968,11 +8968,19 @@
 
 2026-10-24 seed hunt (seed-only #10): cheap-disproof closed five open `(candidate)` rows; two regressions; 3 scoped tests passed on full tree (`RunAnalyzers=false`).
 
-- [ ] (candidate) `RunsController.CreateRun` — empty `ArchitectureRequest` with missing required fields — locus: FluentValidation; input: `{}` create body.
-- [ ] (candidate) `AdminAgentModelCatalogController.RecordEvaluation` — invalid `EvaluationState` empty string — locus: `Enum.TryParse`; input: `""`.
-- [ ] (candidate) `RunCoverageController.PatchRunCoveragePack` — `Excluded` false with non-null `ExclusionReason` — locus: patch trim/clear semantics; input: reason on non-excluded pack.
-- [ ] (candidate) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — null body vs empty object — locus: `body ?? new()`; input: compare defaults.
-- [ ] (candidate) `RunsController.RewriteArchitectureOverview` — empty `CurrentOverview` string — locus: `ValidateDraftFreeText`; input: `""` overview.
+- [x] (valid-no-repro) `RunsController.CreateRun` — empty `ArchitectureRequest` with missing required fields — **cheap-disproof 2026-10-24 seed hunt #11:** JSON `{}` still materializes default `RequestId`; coordination `ValidateRequest` rejects blank `SystemName`/`Description`; orchestrator → HTTP 400; regression `CreateRun_returns_bad_request_when_coordination_rejects_minimal_request`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — invalid `EvaluationState` empty string — **cheap-disproof 2026-10-24 seed hunt #11:** `Enum.TryParse` fails on `""` → HTTP 400 `EvaluationState is invalid` (master controller).
+- [x] (valid-no-repro) `RunCoverageController.PatchRunCoveragePack` — `Excluded` false with non-null `ExclusionReason` — **cheap-disproof 2026-10-24 seed hunt #11:** `PatchPackExclusionAsync` stores `ExclusionReason = excluded ? reason?.Trim() : null` — reason cleared when not excluded by design.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — null body vs empty object — **cheap-disproof 2026-10-24 seed hunt #11:** both `body ?? new()` and default `MaxRows = 100`; regressions `RetryIntegrationOutboxDeadLetters_uses_default_max_rows_when_body_is_null` and `when_body_is_empty_object`.
+- [x] (valid-no-repro) `RunsController.RewriteArchitectureOverview` — empty `CurrentOverview` string — **cheap-disproof 2026-10-24 seed hunt #11:** `ValidateDraftFreeText` whitespace guard; regression `RewriteArchitectureOverview_returns_bad_request_when_current_overview_is_empty`.
+
+2026-10-24 seed hunt (seed-only #11): cheap-disproof closed five open `(candidate)` rows; three regressions; scoped tests passed on full tree (`RunAnalyzers=false`).
+
+- [ ] (candidate) `RunsController.AcceptCreateRunAsync` — empty `{}` vs sync `CreateRun` validation parity — locus: explicit `ValidateAsync` on async only; input: compare HTTP 400 shape.
+- [ ] (candidate) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` unknown name with surrounding whitespace — locus: `Enum.TryParse`; input: `" Evaluated "`.
+- [ ] (candidate) `RunCoverageController.PatchRunCoveragePack` — `Excluded` true with null `ExclusionReason` — locus: `PatchPackExclusionAsync`; input: omitted reason on excluded patch.
+- [ ] (candidate) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — omitted `MaxRows` on body with `EventType` set — locus: default `MaxRows`; input: filter-only body.
+- [ ] (candidate) `RunsController.RewriteArchitectureOverview` — whitespace-only `CurrentOverview` — locus: `ValidateDraftFreeText`; input: `"   "` overview.
 
 2026-10-23 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows from prior reseed; no new hunt-ready promotion (Rephrase null `Items` already shipped on `bugsmash-2` 01857d53eb); seeded five follow-on `(candidate)` rows; 12 scoped RunsController draft/explain + RunCoverage acknowledgement tests passed.
 
@@ -8992,10 +9000,10 @@
 - **aliases:** authority controllers; admin controllers
 - **paths:** ArchLucid.Api/Controllers/Authority/; ArchLucid.Api/Controllers/Admin/
 - **test-filter:** FullyQualifiedName~AuthorityController|FullyQualifiedName~AdminController
-- **hunts:** 74
+- **hunts:** 75
 - **bugs-found:** 58
-- **consecutive-dry-hunts:** 8
-- **last-hunt:** 2026-10-23
+- **consecutive-dry-hunts:** 9
+- **last-hunt:** 2026-10-24
 - **last-bug:** 2026-10-23 — rephrase clarification null item in items array caused 500 instead of validation
 - **related-pd-tb:** none
 - **code-changed-since:** yes

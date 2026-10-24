@@ -70,6 +70,41 @@ public sealed class RunsControllerTests
     }
 
     [Fact]
+    public async Task CreateRun_returns_bad_request_when_coordination_rejects_minimal_request()
+    {
+        Mock<IRunLifecycleCommandService> lifecycle = new();
+        lifecycle
+            .Setup(s => s.CreateRunAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<ArchitectureRequest>(),
+                It.IsAny<string?>(),
+                It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException(
+                "CreateRun failed: SystemName is required.; Description is required."));
+
+        RunsController controller = CreateController(runLifecycleCommandService: lifecycle.Object);
+
+        ArchitectureRequest request = new()
+        {
+            Description = string.Empty,
+            SystemName = string.Empty,
+        };
+
+        IActionResult action = await controller.CreateRun(request, CancellationToken.None);
+
+        ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
+        bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+
+        lifecycle.Verify(
+            static s => s.CreateRunAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<ArchitectureRequest>(),
+                It.IsAny<string?>(),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
     public async Task DraftRequest_returns_bad_request_when_body_null()
     {
         Mock<IArchitectureRequestIntakeFacade> intakeFacade = new();
@@ -149,6 +184,25 @@ public sealed class RunsControllerTests
         RunsController controller = CreateController();
 
         IActionResult action = await controller.RewriteArchitectureOverview(null, intakeFacade.Object, CancellationToken.None);
+
+        ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
+        bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+
+        intakeFacade.Verify(
+            static f => f.RewriteOverviewAsync(It.IsAny<RewriteArchitectureOverviewInput>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task RewriteArchitectureOverview_returns_bad_request_when_current_overview_is_empty()
+    {
+        Mock<IArchitectureRequestIntakeFacade> intakeFacade = new();
+
+        RunsController controller = CreateController();
+
+        RewriteArchitectureOverviewInput input = new() { CurrentOverview = string.Empty };
+
+        IActionResult action = await controller.RewriteArchitectureOverview(input, intakeFacade.Object, CancellationToken.None);
 
         ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
         bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
