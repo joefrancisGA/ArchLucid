@@ -98,7 +98,7 @@ public sealed class ComparisonAuditService(IComparisonRecordRepository repositor
             RightManifestVersion = sourceRecord.RightManifestVersion,
             Format = sourceRecord.Format,
             SummaryMarkdown = sourceRecord.SummaryMarkdown,
-            PayloadJson = sourceRecord.PayloadJson,
+            PayloadJson = NormalizeReplayPayloadJson(sourceRecord),
             Notes = notes ?? $"Replay of comparison record {sourceRecord.ComparisonRecordId}.",
             CreatedUtc = TimeProvider.System.UtcNowDateTime()
         };
@@ -169,6 +169,28 @@ public sealed class ComparisonAuditService(IComparisonRecordRepository repositor
         string.IsNullOrWhiteSpace(exportRecordId)
             ? exportRecordId
             : RunExportRecordIdNormalizer.NormalizeRequired(exportRecordId);
+
+    private static string NormalizeReplayPayloadJson(ComparisonRecord sourceRecord)
+    {
+        if (string.IsNullOrWhiteSpace(sourceRecord.PayloadJson))
+            return sourceRecord.PayloadJson;
+
+        if (string.Equals(sourceRecord.ComparisonType, ComparisonTypes.ExportRecordDiff, StringComparison.Ordinal))
+        {
+            ExportRecordDiffResult? diff = ComparisonRecordPayloadRehydrator.RehydrateExportDiff(sourceRecord);
+
+            return diff is null ? sourceRecord.PayloadJson : JsonSerializer.Serialize(diff, JsonOptions);
+        }
+
+        if (string.Equals(sourceRecord.ComparisonType, ComparisonTypes.EndToEndReplay, StringComparison.Ordinal))
+        {
+            EndToEndReplayComparisonReport? report = ComparisonRecordPayloadRehydrator.RehydrateEndToEnd(sourceRecord);
+
+            return report is null ? sourceRecord.PayloadJson : JsonSerializer.Serialize(report, JsonOptions);
+        }
+
+        return sourceRecord.PayloadJson;
+    }
 
     private static string SerializeExportDiffPayload(
         ExportRecordDiffResult diff,
