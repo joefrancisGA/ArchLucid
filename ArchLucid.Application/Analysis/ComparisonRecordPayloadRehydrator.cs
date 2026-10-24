@@ -71,5 +71,16 @@ public static class ComparisonRecordPayloadRehydrator
 
         if (!string.IsNullOrWhiteSpace(diff.RightRunId))
             diff.RightRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(diff.RightRunId);
+
+        CanonicalizePersistedCompareRunId(diff.RequestDiff.LeftRequest);
+        CanonicalizePersistedCompareRunId(diff.RequestDiff.RightRequest);
+    }
+
+    private static void CanonicalizePersistedCompareRunId(PersistedAnalysisExportRequest? request)
+    {
+        if (request is null || string.IsNullOrWhiteSpace(request.CompareRunId))
+            return;
+
+        request.CompareRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(request.CompareRunId);
     }
 }

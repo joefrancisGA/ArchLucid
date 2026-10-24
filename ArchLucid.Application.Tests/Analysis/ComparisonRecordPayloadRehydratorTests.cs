@@ -118,6 +118,38 @@ public sealed class ComparisonRecordPayloadRehydratorTests
     }
 
     [Fact]
+    public void RehydrateExportDiff_canonicalizes_dashed_compare_run_id_in_nested_request_diff()
+    {
+        Guid compareGuid = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+        string compareCanonical = compareGuid.ToString("N");
+        string dashedPaddedCompareRunId = $"{compareGuid:D}  ";
+
+        ExportRecordDiffResult diff = new()
+        {
+            LeftExportRecordId = "l",
+            RightExportRecordId = "r",
+            LeftRunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            RightRunId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            RequestDiff = new ExportRecordRequestDiff
+            {
+                LeftRequest = new PersistedAnalysisExportRequest
+                {
+                    IncludeAgentResultCompare = true,
+                    CompareRunId = dashedPaddedCompareRunId,
+                },
+            },
+        };
+        string json = JsonSerializer.Serialize(diff, new JsonSerializerOptions(JsonSerializerDefaults.Web));
+        ComparisonRecord record = new() { ComparisonRecordId = "c2-nested-compare", PayloadJson = json };
+
+        ExportRecordDiffResult? result = ComparisonRecordPayloadRehydrator.RehydrateExportDiff(record);
+
+        result.Should().NotBeNull();
+        result!.RequestDiff.LeftRequest.Should().NotBeNull();
+        result.RequestDiff.LeftRequest!.CompareRunId.Should().Be(compareCanonical);
+    }
+
+    [Fact]
     public void RehydrateExportDiff_corrupt_json_throws_InvalidOperationException()
     {
         ComparisonRecord record = new() { ComparisonRecordId = "bad-diff", PayloadJson = "[]" };
