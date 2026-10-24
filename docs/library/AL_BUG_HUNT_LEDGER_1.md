@@ -6868,6 +6868,20 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-24 seed hunt (seed→hit): proved `ComparisonAuditService.RecordExportDiffAsync` called `NormalizeExportDiffExportRecordIds` before `SerializeExportDiffPayload` so denormalized columns and format/rehydrate paths (hunt 152) normalized nested `RequestDiff` metadata but newly persisted export-diff rows still stored padded `CompareManifestVersion` inside `PayloadJson`; replace the persist-only export-id helper with `ExportRecordDiffResultNormalizer.NormalizeDisplayAnchors`; regression `RecordExportDiffAsync_payload_json_trims_nested_compare_manifest_version`; regression `RecordReplayOfAsync_rewrites_end_to_end_payload_json_with_canonical_run_ids` locks E2E replay payload canonicalization shipped hunt 148; cheap-disproof closed `RecordReplayOfAsync` E2E rewrite (behavior already correct), `ApiPaging.TryParseUtcTicksIdCursor` (comparison search normalizes cursor id), batch zip manifest echo (cosmetic), Armenian homoglyphs (deferred), and persistence-layer determinism normalize (deferred); seeded five follow-on rows; scoped application-analysis + replay filter 291/291. Private beta: export-record comparison audits store trimmed nested request metadata in persisted diff JSON, matching format and replay rehydrate behavior.
+
+- [ ] (candidate) `RecordEndToEndAsync` — nested payload fields beyond run ids — locus: initial E2E persist; input: verify parity with replay normalize.
+- [ ] (candidate) `ApiPaging.TryParseUtcTicksIdCursor` — cursor id segment without trim — locus: HTTP cursor parse; input: padded id after ticks delimiter (alerts inbox and other API surfaces).
+- [ ] (candidate) `ComparisonBatchReplayZipSupport` — manifest failure entries echo pre-trim batch tokens — locus: zip manifest; input: cosmetic id echo only.
+- [ ] (candidate) `ComparisonExportMarkdownSectionRemover` — Armenian homoglyphs in delta headings — locus: `UnicodeLatinHomoglyphMapper`; input: deferred expansion.
+- [ ] (candidate) `RunExportRecordPersistNormalizer` — persistence-layer determinism column normalize — locus: repository read; input: consolidation at DB boundary.
+
+- [x] (proven) `ComparisonAuditService.RecordExportDiffAsync` — padded nested request metadata in `PayloadJson` on persist — **hit 2026-10-24 seed hunt:** `NormalizeDisplayAnchors` on persist; regression `RecordExportDiffAsync_payload_json_trims_nested_compare_manifest_version`.
+- [x] (valid-no-repro) `ComparisonAuditService.RecordReplayOfAsync` — E2E payload canonical run ids — **cheap-disproof 2026-10-24 seed hunt:** regression `RecordReplayOfAsync_rewrites_end_to_end_payload_json_with_canonical_run_ids`.
+- [x] (invalid) `ApiPaging.TryParseUtcTicksIdCursor` — HTTP cursor id trim — **cheap-disproof 2026-10-24 seed hunt:** comparison search normalizes at application layer.
+- [x] (invalid) `ComparisonBatchReplayZipSupport` — manifest id echo — **cheap-disproof 2026-10-24 seed hunt:** cosmetic only.
+- [x] (invalid) `UnicodeLatinHomoglyphMapper` — Armenian homoglyphs — **cheap-disproof 2026-10-24 seed hunt:** deferred.
+
 2026-10-24 seed hunt (seed→hit): proved `ExportRecordDiffResultNormalizer` trimmed top-level export anchors only while `MarkdownExportRecordDiffSummaryFormatter`/`ExportRecordDiffExportService` format paths could still pass export diffs with padded nested `CompareManifestVersion` and dashed `CompareRunId` on `RequestDiff` requests when callers skipped `ComparisonRecordPayloadRehydrator`; extend `NormalizeDisplayAnchors` with nested `PersistedAnalysisExportRequestMetadata.TrimOptionalStrings` and compare-run canonicalization and delegate `ComparisonRecordPayloadRehydrator` export-diff canonicalize to the shared helper; regression `MarkdownExportRecordDiffSummaryFormatter_trims_nested_compare_manifest_version_on_format`; cheap-disproof closed duplicate rehydrate-only nested trim (now shared), `ApiPaging.TryParseUtcTicksIdCursor` (comparison search normalizes cursor id), batch zip manifest echo (cosmetic), Armenian homoglyphs (deferred), and persistence-layer determinism normalize (deferred); seeded five follow-on rows; scoped application-analysis + replay filter 289/289; export-diff nested format regression 1/1. Private beta: export-record comparison summary and DOCX formatting normalizes nested request metadata on the same path as payload rehydrate, avoiding padded nested manifest version strings on format-only callers.
 
 - [ ] (candidate) `RecordReplayOfAsync` — E2E payload canonical run id rewrite without regression — locus: replay persist; input: add regression only (behavior shipped hunt 148).
@@ -7947,11 +7961,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 152
-- **bugs-found:** 158
+- **hunts:** 153
+- **bugs-found:** 159
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-24
-- **last-bug:** 2026-10-24 — export-diff format normalizes nested request metadata
+- **last-bug:** 2026-10-24 — export-diff persist normalizes nested request metadata in PayloadJson
 - **related-pd-tb:** none
 - **code-changed-since:** no
 

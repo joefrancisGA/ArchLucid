@@ -248,6 +248,79 @@ public sealed class ComparisonAuditServiceTests
     }
 
     [Fact]
+    public async Task RecordExportDiffAsync_payload_json_trims_nested_compare_manifest_version()
+    {
+        ComparisonRecord? persisted = null;
+        Mock<IComparisonRecordRepository> repo = new();
+        repo
+            .Setup(r => r.CreateAsync(It.IsAny<ComparisonRecord>(), It.IsAny<CancellationToken>()))
+            .Callback<ComparisonRecord, CancellationToken>((record, _) => persisted = record)
+            .Returns(Task.CompletedTask);
+        ComparisonAuditService sut = new(repo.Object, Mock.Of<IAuditService>());
+        ExportRecordDiffResult diff = new()
+        {
+            LeftExportRecordId = "left-anchor",
+            RightExportRecordId = "right-anchor",
+            LeftRunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            RightRunId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            RequestDiff = new ExportRecordRequestDiff
+            {
+                LeftRequest = new PersistedAnalysisExportRequest { CompareManifestVersion = "  v-left  " },
+                RightRequest = new PersistedAnalysisExportRequest { CompareManifestVersion = "  v-right  " },
+            },
+        };
+
+        await sut.RecordExportDiffAsync(diff, "# md", CancellationToken.None);
+
+        persisted.Should().NotBeNull();
+        ExportRecordDiffResult? payload = JsonSerializer.Deserialize<ExportRecordDiffResult>(
+            persisted!.PayloadJson,
+            new JsonSerializerOptions(JsonSerializerDefaults.Web) { PropertyNameCaseInsensitive = true });
+        payload.Should().NotBeNull();
+        payload!.RequestDiff.LeftRequest!.CompareManifestVersion.Should().Be("v-left");
+        payload.RequestDiff.RightRequest!.CompareManifestVersion.Should().Be("v-right");
+    }
+
+    [Fact]
+    public async Task RecordReplayOfAsync_rewrites_end_to_end_payload_json_with_canonical_run_ids()
+    {
+        ComparisonRecord? persisted = null;
+        Mock<IComparisonRecordRepository> repo = new();
+        repo
+            .Setup(r => r.CreateAsync(It.IsAny<ComparisonRecord>(), It.IsAny<CancellationToken>()))
+            .Callback<ComparisonRecord, CancellationToken>((record, _) => persisted = record)
+            .Returns(Task.CompletedTask);
+        ComparisonAuditService sut = new(repo.Object, Mock.Of<IAuditService>());
+        string canonicalLeft = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+        string canonicalRight = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb";
+        string dashedLeft = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+        string dashedRight = "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb";
+        EndToEndReplayComparisonReport report = new() { LeftRunId = dashedLeft, RightRunId = dashedRight };
+        string payloadJson = JsonSerializer.Serialize(report, new JsonSerializerOptions(JsonSerializerDefaults.Web));
+        ComparisonRecord source = new()
+        {
+            ComparisonRecordId = "cccccccccccccccccccccccccccccccc",
+            ComparisonType = ComparisonTypes.EndToEndReplay,
+            LeftRunId = canonicalLeft,
+            RightRunId = canonicalRight,
+            Format = ComparisonTypes.FormatJsonMarkdown,
+            SummaryMarkdown = "# e2e",
+            PayloadJson = payloadJson,
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+        };
+
+        await sut.RecordReplayOfAsync(source, "replay note", CancellationToken.None);
+
+        persisted.Should().NotBeNull();
+        EndToEndReplayComparisonReport? payload = JsonSerializer.Deserialize<EndToEndReplayComparisonReport>(
+            persisted!.PayloadJson,
+            new JsonSerializerOptions(JsonSerializerDefaults.Web) { PropertyNameCaseInsensitive = true });
+        payload.Should().NotBeNull();
+        payload!.LeftRunId.Should().Be(canonicalLeft);
+        payload.RightRunId.Should().Be(canonicalRight);
+    }
+
+    [Fact]
     public async Task RecordExportDiffAsync_treats_whitespace_only_run_ids_as_null()
     {
         ComparisonRecord? persisted = null;
