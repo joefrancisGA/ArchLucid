@@ -6868,6 +6868,20 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-24 seed hunt (seed→hit): proved `MarkdownExportRecordDiffSummaryFormatter` and `ExportRecordDiffExportService` rendered export-record diff headings and DOCX anchor lines from untrimmed `LeftExportRecordId`/`RightExportRecordId` (and non-canonical run ids) when callers passed legacy padded `ExportRecordDiffResult` objects without going through `ComparisonRecordPayloadRehydrator`; consolidate display-anchor normalize via `ExportRecordDiffResultNormalizer.NormalizeDisplayAnchors` before markdown/docx export; regression `MarkdownExportRecordDiffSummaryFormatter_uses_trimmed_export_record_ids_in_heading`; cheap-disproof closed `ComparisonsApplicationService.TryBuildDriftReportContent` duplicate normalize (idempotent), `ApiPaging.TryParseUtcTicksIdCursor` (comparison search normalizes cursor id), batch zip manifest echo (cosmetic), Armenian homoglyphs (deferred), and persistence-layer determinism normalize (deferred); seeded five follow-on rows; scoped application-analysis + replay filter 289/289; export-diff summary regression 1/1. Private beta: export-record comparison summary markdown and DOCX exports show trimmed export anchors and canonical run ids when formatting diffs that still carry padded legacy anchor strings.
+
+- [ ] (candidate) `ExportRecordDiffResultNormalizer` — nested request trim on format-only path — locus: display normalizer; input: payload rehydrate already trims nested requests (hunt 143–144).
+- [ ] (candidate) `ApiPaging.TryParseUtcTicksIdCursor` — cursor id segment without trim — locus: HTTP cursor parse; input: padded id after ticks delimiter (alerts inbox and other API surfaces).
+- [ ] (candidate) `ComparisonBatchReplayZipSupport` — manifest failure entries echo pre-trim batch tokens — locus: zip manifest; input: cosmetic id echo only.
+- [ ] (candidate) `ComparisonExportMarkdownSectionRemover` — Armenian homoglyphs in delta headings — locus: `UnicodeLatinHomoglyphMapper`; input: deferred expansion.
+- [ ] (candidate) `RunExportRecordPersistNormalizer` — persistence-layer determinism column normalize — locus: repository read; input: consolidation at DB boundary.
+
+- [x] (proven) `MarkdownExportRecordDiffSummaryFormatter` / `ExportRecordDiffExportService` — padded export anchors on export-format path — **hit 2026-10-24 seed hunt:** `ExportRecordDiffResultNormalizer`; regression `MarkdownExportRecordDiffSummaryFormatter_uses_trimmed_export_record_ids_in_heading`.
+- [x] (valid-no-repro) `ComparisonRecordPayloadRehydrator` — nested request trim before format — **cheap-disproof 2026-10-24 seed hunt:** replay/compare paths rehydrate first.
+- [x] (invalid) `ApiPaging.TryParseUtcTicksIdCursor` — HTTP cursor id trim — **cheap-disproof 2026-10-24 seed hunt:** comparison search normalizes at application layer.
+- [x] (invalid) `ComparisonBatchReplayZipSupport` — manifest id echo — **cheap-disproof 2026-10-24 seed hunt:** cosmetic only.
+- [x] (invalid) `UnicodeLatinHomoglyphMapper` — Armenian homoglyphs — **cheap-disproof 2026-10-24 seed hunt:** deferred.
+
 2026-10-24 seed hunt (seed→hit): proved drift report formatters (`MarkdownDriftReportFormatter`, `DriftReportDocxExport`, `ComparisonDriftReportExportService`) echoed padded comparison record ids in markdown/html/docx bodies when callers bypassed `ComparisonsApplicationService.TryBuildDriftReportContent` (which already normalized hunt 143); consolidate optional-id trim via `ComparisonRecordIdNormalizer.NormalizeOptional` at each drift export boundary; regressions `MarkdownDriftReportFormatter_FormatMarkdown_uses_trimmed_comparison_record_id` and `ComparisonDriftReportExportService_formats_markdown_with_trimmed_comparison_record_id`; cheap-disproof closed `ApiPaging.TryParseUtcTicksIdCursor` (comparison search normalizes cursor id), batch zip manifest echo (cosmetic), Armenian homoglyphs (deferred), and persistence-layer determinism normalize (deferred); seeded five follow-on rows; scoped application-analysis + replay filter 289/289; drift formatter regressions 2/2. Private beta: drift report markdown, HTML, and DOCX exports show trimmed comparison record ids even when a direct formatter or export-service caller passes padded route tokens.
 
 - [ ] (candidate) `ComparisonsApplicationService.TryBuildDriftReportContent` — duplicate normalize with formatter boundary — locus: facade; input: consolidation-only double trim (harmless).
@@ -7919,11 +7933,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 150
-- **bugs-found:** 156
+- **hunts:** 151
+- **bugs-found:** 157
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-24
-- **last-bug:** 2026-10-24 — drift export formatters trim comparison record id
+- **last-bug:** 2026-10-24 — export-diff summary/docx trim display anchors
 - **related-pd-tb:** none
 - **code-changed-since:** no
 

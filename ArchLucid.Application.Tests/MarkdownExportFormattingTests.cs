@@ -88,6 +88,23 @@ public sealed class MarkdownExportFormattingTests
     }
 
     [SkippableFact]
+    public void MarkdownExportRecordDiffSummaryFormatter_uses_trimmed_export_record_ids_in_heading()
+    {
+        MarkdownExportRecordDiffSummaryFormatter fmt = new();
+        ExportRecordDiffResult diff = new()
+        {
+            LeftExportRecordId = "  left-anchor  ",
+            RightExportRecordId = "  right-anchor  ",
+            LeftRunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            RightRunId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        };
+
+        string md = fmt.FormatMarkdown(diff);
+
+        md.Should().Contain("# Export Record Comparison: left-anchor -> right-anchor");
+    }
+
+    [SkippableFact]
     public void MarkdownArchitectureExportService_includes_diagram_fence_and_evidence_counts()
     {
         MarkdownArchitectureExportService svc = new();
