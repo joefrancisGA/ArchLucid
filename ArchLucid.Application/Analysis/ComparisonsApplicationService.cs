@@ -97,6 +97,8 @@ public sealed partial class ComparisonsApplicationService(
 
         List<string> normalizedTags = NormalizeSearchTags(criteria.Tags);
 
+        string? normalizedCursorId = NormalizeComparisonRecordIdFilterOrNull(criteria.CursorId);
+
         int limit = criteria.Limit <= 0 ? Core.Pagination.PaginationDefaults.DefaultPageSize : criteria.Limit;
         string? leftRunIdFilter = CanonicalRunIdForLookupOrNull(criteria.LeftRunId);
         string? rightRunIdFilter = CanonicalRunIdForLookupOrNull(criteria.RightRunId);
@@ -120,7 +122,7 @@ public sealed partial class ComparisonsApplicationService(
                 criteria.SortBy,
                 criteria.SortDir,
                 criteria.CursorCreatedUtc,
-                criteria.CursorId,
+                normalizedCursorId,
                 limit,
                 ct);
         }
@@ -271,6 +273,11 @@ public sealed partial class ComparisonsApplicationService(
 
     private static string? NormalizeLabelForPersistOrNull(string? label) =>
         label is null ? null : string.IsNullOrWhiteSpace(label) ? null : label.Trim();
+
+    private static string? NormalizeComparisonRecordIdFilterOrNull(string? comparisonRecordId) =>
+        string.IsNullOrWhiteSpace(comparisonRecordId)
+            ? null
+            : ComparisonRecordIdNormalizer.NormalizeRequired(comparisonRecordId);
 
     private static List<string> NormalizeSearchTags(IReadOnlyList<string> tags)
     {

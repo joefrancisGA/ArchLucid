@@ -171,13 +171,21 @@ internal static class ComparisonRecordRepositoryCore
         ArgumentNullException.ThrowIfNull(record);
         ArgumentException.ThrowIfNullOrWhiteSpace(cursorComparisonRecordId);
 
+        string normalizedCursorComparisonRecordId = cursorComparisonRecordId.Trim();
+
         return sortDescending
             ? record.CreatedUtc < cursorCreatedUtc
               || (record.CreatedUtc == cursorCreatedUtc
-                  && string.Compare(record.ComparisonRecordId, cursorComparisonRecordId, StringComparison.Ordinal) < 0)
+                  && string.Compare(
+                      record.ComparisonRecordId,
+                      normalizedCursorComparisonRecordId,
+                      StringComparison.Ordinal) < 0)
             : record.CreatedUtc > cursorCreatedUtc
               || (record.CreatedUtc == cursorCreatedUtc
-                  && string.Compare(record.ComparisonRecordId, cursorComparisonRecordId, StringComparison.Ordinal) > 0);
+                  && string.Compare(
+                      record.ComparisonRecordId,
+                      normalizedCursorComparisonRecordId,
+                      StringComparison.Ordinal) > 0);
     }
 
     public static ComparisonRecord Clone(ComparisonRecord record)

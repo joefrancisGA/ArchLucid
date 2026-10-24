@@ -97,6 +97,21 @@ public sealed class ComparisonRecordRepositoryCoreTests
     }
 
     [Fact]
+    public void MatchesCursor_trims_padded_comparison_record_id()
+    {
+        DateTime cursorTime = new(2026, 1, 2, 0, 0, 0, DateTimeKind.Utc);
+        ComparisonRecord older = Record("older", createdUtc: new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc));
+
+        ComparisonRecordRepositoryCore.MatchesCursor(
+                older,
+                cursorTime,
+                "newer\n",
+                sortDescending: true)
+            .Should()
+            .BeTrue();
+    }
+
+    [Fact]
     public void MatchesCursor_respects_desc_order()
     {
         ComparisonRecord older = Record("older", createdUtc: new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc));

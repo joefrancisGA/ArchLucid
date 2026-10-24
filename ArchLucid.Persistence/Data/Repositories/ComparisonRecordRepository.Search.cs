@@ -203,7 +203,7 @@ public sealed partial class ComparisonRecordRepository
         if (cursorCreatedUtc is not null && !string.IsNullOrWhiteSpace(cursorComparisonRecordId))
         {
             parameters.Add("@CursorCreatedUtc", cursorCreatedUtc);
-            parameters.Add("@CursorId", cursorComparisonRecordId);
+            parameters.Add("@CursorId", cursorComparisonRecordId.Trim());
             // For DESC: fetch items strictly "after" cursor in DESC order => older than cursor.
             // For ASC: fetch items strictly "after" cursor in ASC order => newer than cursor.
             conditions.Add(sortDescending
