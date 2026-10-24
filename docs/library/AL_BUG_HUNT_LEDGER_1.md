@@ -6868,6 +6868,20 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-24 seed hunt (seed→hit): proved `ComparisonsApplicationService.SearchAsync` forwarded untrimmed cursor comparison record ids into cursor paging while `ComparisonRecordRepositoryCore.MatchesCursor` and SQL `@CursorId` compared ordinally against stored ids, so the next page after a cursor token with a padded comparison record id segment skipped or duplicated rows; normalize cursor id via `NormalizeComparisonRecordIdFilterOrNull` (`ComparisonRecordIdNormalizer`) before `SearchByCursorAsync` and trim cursor ids in repository cursor match and SQL search; regressions `CompareQuality_SearchAsync_cursor_paging_trims_padded_comparison_record_id` and `MatchesCursor_trims_padded_comparison_record_id`; cheap-disproof closed batch zip manifest echo (cosmetic), Armenian homoglyphs (deferred), persistence-layer determinism normalize (deferred), and `ApiPaging.TryParseUtcTicksIdCursor` id-segment trim (API layer separate from analysis path); seeded five follow-on rows; scoped application-analysis + replay filter 223/223; persistence `ComparisonRecordRepositoryCore` regressions 22/22. Private beta: comparison history cursor paging tolerates padded comparison record id segments in cursor tokens, matching scoped load and search filter trim parity.
+
+- [ ] (candidate) `ApiPaging.TryParseUtcTicksIdCursor` — cursor id segment without trim — locus: HTTP cursor parse; input: padded id after ticks delimiter.
+- [ ] (candidate) `ComparisonBatchReplayZipSupport` — manifest failure entries echo pre-trim batch tokens — locus: zip manifest; input: cosmetic id echo only.
+- [ ] (candidate) `ComparisonExportMarkdownSectionRemover` — Armenian homoglyphs in delta headings — locus: `UnicodeLatinHomoglyphMapper`; input: deferred expansion.
+- [ ] (candidate) `RunExportRecordPersistNormalizer` — persistence-layer determinism column normalize — locus: repository read; input: consolidation at DB boundary.
+- [ ] (candidate) `ComparisonRecordRepositoryCore.FilterInMemory` — opaque run id filters without trim only — locus: non-GUID run ids; input: padded opaque id string (verify canonical helper covers).
+
+- [x] (proven) `ComparisonsApplicationService.SearchAsync` — untrimmed cursor comparison record id — **hit 2026-10-24 seed hunt:** `NormalizeComparisonRecordIdFilterOrNull`; regressions `CompareQuality_SearchAsync_cursor_paging_trims_padded_comparison_record_id` and `MatchesCursor_trims_padded_comparison_record_id`.
+- [x] (invalid) `ComparisonBatchReplayZipSupport` — manifest id echo — **cheap-disproof 2026-10-24 seed hunt:** cosmetic only.
+- [x] (invalid) `UnicodeLatinHomoglyphMapper` — Armenian homoglyphs — **cheap-disproof 2026-10-24 seed hunt:** deferred.
+- [x] (invalid) `RunExportRecordPersistNormalizer` — DB read normalize — **cheap-disproof 2026-10-24 seed hunt:** consolidation deferred.
+- [x] (invalid) `ApiPaging.TryParseUtcTicksIdCursor` — HTTP cursor id trim — **cheap-disproof 2026-10-24 seed hunt:** analysis service normalizes before repository; API trim is separate surface.
+
 2026-10-24 seed hunt (seed→hit): proved `ComparisonRecordRepositoryCore.FilterInMemory` compared left/right run id filters with ordinal equality on untrimmed tokens while `SearchAsync` canonicalized run ids at the application layer and SQL search trimmed GUID parameters, so direct in-memory repository searches missed rows when padded dashed GUID filters were supplied; normalize filters via `ComparisonRecordRunIdSql.ToCanonicalRunIdStringOrNull`; regression `FilterInMemory_trims_and_canonicalizes_padded_left_run_id_filter`; cheap-disproof closed batch zip manifest echo (cosmetic), cursor id trim (deferred), Armenian homoglyphs (deferred), and persistence-layer determinism normalize (deferred); seeded five follow-on rows; scoped application-analysis + replay filter 222/222; persistence `ComparisonRecordRepositoryCore` regressions 9/9. Private beta: in-memory comparison history run-id filters match stored canonical ids when operators paste dashed GUIDs with trailing whitespace.
 
 - [ ] (candidate) `ComparisonsApplicationService.SearchAsync` — cursor comparison record id without trim — locus: cursor paging; input: padded id segment in cursor token.
@@ -7589,11 +7603,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 127
-- **bugs-found:** 133
+- **hunts:** 128
+- **bugs-found:** 134
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-24
-- **last-bug:** 2026-10-24 — in-memory comparison run-id search canonicalizes filters
+- **last-bug:** 2026-10-24 — comparison history cursor paging trims comparison record id
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
