@@ -348,6 +348,49 @@ public sealed class RunsControllerTests
     }
 
     [Fact]
+    public async Task CreateRunBatch_proceeds_with_null_idempotency_when_header_omitted()
+    {
+        Mock<IRunLifecycleCommandService> lifecycle = new();
+        lifecycle
+            .Setup(s => s.CreateRunBatchAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<IReadOnlyList<ArchitectureRequest>>(),
+                null,
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new BatchCreateRunOrchestrationResult
+            {
+                Outcome = BatchCreateRunOutcome.Accepted,
+                Items = [],
+            });
+
+        RunsController controller = CreateController(runLifecycleCommandService: lifecycle.Object);
+
+        ArchitectureRequest[] requests =
+        [
+            new()
+            {
+                RequestId = "batch-no-idem",
+                Description = new string('x', 20),
+                SystemName = "CreatedArch",
+            },
+        ];
+
+        IActionResult action = await controller.CreateRunBatch(requests, CancellationToken.None);
+
+        action.Should().BeOfType<AcceptedResult>();
+
+        lifecycle.Verify(
+            static s => s.CreateRunBatchAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<IReadOnlyList<ArchitectureRequest>>(),
+                null,
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
     public async Task CreateRunBatch_proceeds_with_null_idempotency_when_header_is_whitespace_only()
     {
         Mock<IRunLifecycleCommandService> lifecycle = new();
