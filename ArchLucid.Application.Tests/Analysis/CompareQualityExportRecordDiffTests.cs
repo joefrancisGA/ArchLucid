@@ -839,4 +839,33 @@ public sealed class CompareQualityExportRecordDiffTests
         result.LeftRunId.Should().Be(canonicalRunId);
         result.RightRunId.Should().Be(canonicalRunId);
     }
+
+    [Fact]
+    public void CompareQuality_export_record_diff_normalizes_padded_export_record_ids_on_result()
+    {
+        ExportRecordDiffService sut = new();
+        RunExportRecord left = new()
+        {
+            ExportRecordId = "  left-anchor  ",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = "ArchitectureAnalysis",
+            Format = "Markdown",
+            FileName = "a.md",
+            AnalysisRequestJson = """{"includeManifest":true}""",
+        };
+        RunExportRecord right = new()
+        {
+            ExportRecordId = "  right-anchor  ",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = "ArchitectureAnalysis",
+            Format = "Markdown",
+            FileName = "b.md",
+            AnalysisRequestJson = """{"includeManifest":true}""",
+        };
+
+        ExportRecordDiffResult result = sut.Compare(left, right);
+
+        result.LeftExportRecordId.Should().Be("left-anchor");
+        result.RightExportRecordId.Should().Be("right-anchor");
+    }
 }

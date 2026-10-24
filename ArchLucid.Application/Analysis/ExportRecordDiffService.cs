@@ -22,8 +22,8 @@ public sealed class ExportRecordDiffService : IExportRecordDiffService
 
         ExportRecordDiffResult result = new()
         {
-            LeftExportRecordId = left.ExportRecordId,
-            RightExportRecordId = right.ExportRecordId,
+            LeftExportRecordId = RunExportRecordIdNormalizer.NormalizeRequired(left.ExportRecordId),
+            RightExportRecordId = RunExportRecordIdNormalizer.NormalizeRequired(right.ExportRecordId),
             LeftRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForPersistence(left.RunId),
             RightRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForPersistence(right.RunId),
         };
