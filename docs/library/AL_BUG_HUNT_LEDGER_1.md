@@ -6868,6 +6868,20 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-24 seed hunt (seed→hit): proved `ComparisonsApplicationService.SearchAsync` forwarded tag filter tokens without trim while label and comparison type were normalized, so history search missed tagged rows when operators pasted tag values with trailing spaces or line breaks; normalize tags via `NormalizeSearchTags` and trim tag needles in `ComparisonRecordRepositoryCore` and `ComparisonRecordSearchPredicateBuilder`; regressions `CompareQuality_SearchAsync_finds_records_when_tag_filter_has_trailing_whitespace` and `AppendFilters_trims_padded_tag_query_parameters`; cheap-disproof closed SQL `comparisonType` trim (app layer already trims type), batch zip manifest echo (cosmetic), Armenian homoglyphs (deferred), and persistence-layer determinism normalize (deferred); seeded five follow-on rows; scoped application-analysis + replay filter 221/221; persistence predicate regressions 11/11. Private beta: comparison history tag filters match stored tags when pasted with surrounding whitespace, completing label/type/run-id trim parity on search criteria.
+
+- [ ] (candidate) `ComparisonRecordSearchPredicateBuilder` — `comparisonType` filter without trim on SQL path — locus: persistence search; input: padded type when repository called without app normalization.
+- [ ] (candidate) `ComparisonsApplicationService.TryUpdateLabelAndTagsAsync` — tag list on persist without per-tag trim — locus: label/tags update; input: padded tag strings on PATCH body.
+- [ ] (candidate) `ComparisonBatchReplayZipSupport` — manifest failure entries echo pre-trim batch tokens — locus: zip manifest; input: cosmetic id echo only.
+- [ ] (candidate) `ComparisonExportMarkdownSectionRemover` — Armenian homoglyphs in delta headings — locus: `UnicodeLatinHomoglyphMapper`; input: deferred expansion.
+- [ ] (candidate) `RunExportRecordPersistNormalizer` — persistence-layer determinism column normalize — locus: repository read; input: consolidation at DB boundary.
+
+- [x] (proven) `ComparisonsApplicationService.SearchAsync` — untrimmed tag filters — **hit 2026-10-24 seed hunt:** `NormalizeSearchTags`; regression `CompareQuality_SearchAsync_finds_records_when_tag_filter_has_trailing_whitespace`.
+- [x] (valid-no-repro) `ComparisonRecordSearchPredicateBuilder` — comparison type SQL trim — **cheap-disproof 2026-10-24 seed hunt:** `SearchAsync` trims type before repository.
+- [x] (invalid) `ComparisonBatchReplayZipSupport` — manifest id echo — **cheap-disproof 2026-10-24 seed hunt:** cosmetic only.
+- [x] (invalid) `UnicodeLatinHomoglyphMapper` — Armenian homoglyphs — **cheap-disproof 2026-10-24 seed hunt:** deferred.
+- [x] (invalid) `RunExportRecordPersistNormalizer` — DB read normalize — **cheap-disproof 2026-10-24 seed hunt:** consolidation deferred.
+
 2026-10-24 seed hunt (seed→hit): proved `ComparisonsApplicationService.SearchAsync` forwarded untrimmed `Label` criteria to the comparison repository while `ComparisonType` was already trimmed, so history search missed labeled rows when operators pasted labels with trailing spaces or line breaks; trim label like comparison type at the application layer and trim SQL label parameters in `ComparisonRecordSearchPredicateBuilder`; regressions `CompareQuality_SearchAsync_finds_records_when_label_filter_has_trailing_whitespace` and `AppendFilters_trims_padded_label_query_parameter`; cheap-disproof closed batch zip manifest echo (cosmetic), Armenian homoglyphs (deferred), tag filter trim (no cited harm), and persistence-layer determinism normalize (deferred); seeded five follow-on rows; scoped application-analysis + replay filter 220/220; persistence predicate regressions 10/10. Private beta: comparison history label filters match stored labels when pasted with surrounding whitespace, consistent with type and run-id search trim.
 
 - [ ] (candidate) `ComparisonsApplicationService.SearchAsync` — individual `Tags` criteria without trim — locus: history search; input: tag filter tokens with trailing spaces.
@@ -7521,11 +7535,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 122
-- **bugs-found:** 128
+- **hunts:** 123
+- **bugs-found:** 129
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-24
-- **last-bug:** 2026-10-24 — comparison history search trims label filters
+- **last-bug:** 2026-10-24 — comparison history search trims tag filters
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
