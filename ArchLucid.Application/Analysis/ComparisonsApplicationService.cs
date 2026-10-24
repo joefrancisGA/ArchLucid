@@ -95,6 +95,8 @@ public sealed partial class ComparisonsApplicationService(
             ? null
             : criteria.Label.Trim();
 
+        List<string> normalizedTags = NormalizeSearchTags(criteria.Tags);
+
         int limit = criteria.Limit <= 0 ? Core.Pagination.PaginationDefaults.DefaultPageSize : criteria.Limit;
         string? leftRunIdFilter = CanonicalRunIdForLookupOrNull(criteria.LeftRunId);
         string? rightRunIdFilter = CanonicalRunIdForLookupOrNull(criteria.RightRunId);
@@ -114,7 +116,7 @@ public sealed partial class ComparisonsApplicationService(
                 leftExportRecordIdFilter,
                 rightExportRecordIdFilter,
                 normalizedLabel,
-                criteria.Tags.ToList(),
+                normalizedTags,
                 criteria.SortBy,
                 criteria.SortDir,
                 criteria.CursorCreatedUtc,
@@ -133,7 +135,7 @@ public sealed partial class ComparisonsApplicationService(
                 leftExportRecordIdFilter,
                 rightExportRecordIdFilter,
                 normalizedLabel,
-                criteria.Tags.ToList(),
+                normalizedTags,
                 criteria.SortBy,
                 criteria.SortDir,
                 criteria.Skip,
@@ -263,4 +265,21 @@ public sealed partial class ComparisonsApplicationService(
         string.IsNullOrWhiteSpace(exportRecordId)
             ? null
             : RunExportRecordIdNormalizer.NormalizeRequired(exportRecordId);
+
+    private static List<string> NormalizeSearchTags(IReadOnlyList<string> tags)
+    {
+        if (tags is not { Count: > 0 })
+            return [];
+
+        List<string> normalized = [];
+        foreach (string tag in tags)
+        {
+            if (string.IsNullOrWhiteSpace(tag))
+                continue;
+
+            normalized.Add(tag.Trim());
+        }
+
+        return normalized;
+    }
 }

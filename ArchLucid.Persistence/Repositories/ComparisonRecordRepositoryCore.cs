@@ -100,6 +100,7 @@ internal static class ComparisonRecordRepositoryCore
         {
             query = tags
                 .Where(static t => !string.IsNullOrWhiteSpace(t))
+                .Select(static t => t.Trim())
                 .Aggregate(
                     query,
                     static (current, needle) => current.Where(r =>

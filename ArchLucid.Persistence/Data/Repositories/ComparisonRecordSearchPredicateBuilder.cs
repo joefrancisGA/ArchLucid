@@ -97,7 +97,7 @@ internal static class ComparisonRecordSearchPredicateBuilder
             if (string.IsNullOrWhiteSpace(t))
                 continue;
             string paramName = $"@Tag{i}";
-            parameters.Add(paramName, t);
+            parameters.Add(paramName, t.Trim());
             conditions.Add(
                 $"EXISTS (SELECT 1 FROM OPENJSON(ISNULL(Tags, '[]')) AS t WHERE t.value = {paramName})");
         }

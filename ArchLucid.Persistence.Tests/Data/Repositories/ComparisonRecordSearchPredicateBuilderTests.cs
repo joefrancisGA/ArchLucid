@@ -129,6 +129,31 @@ public sealed class ComparisonRecordSearchPredicateBuilderTests
     }
 
     [Fact]
+    public void AppendFilters_trims_padded_tag_query_parameters()
+    {
+        List<string> conditions = [];
+        DynamicParameters parameters = new();
+
+        ComparisonRecordSearchPredicateBuilder.AppendFilters(
+            conditions,
+            parameters,
+            comparisonType: null,
+            leftRunId: null,
+            rightRunId: null,
+            createdFromUtc: null,
+            createdToUtc: null,
+            leftExportRecordId: null,
+            rightExportRecordId: null,
+            label: null,
+            tags: ["  alpha  ", " ", "  beta\n"]);
+
+        conditions.Should().ContainSingle(c => c.Contains("OPENJSON", StringComparison.Ordinal) && c.Contains("@Tag0"));
+        conditions.Should().ContainSingle(c => c.Contains("OPENJSON", StringComparison.Ordinal) && c.Contains("@Tag2"));
+        parameters.Get<string>("@Tag0").Should().Be("alpha");
+        parameters.Get<string>("@Tag2").Should().Be("beta");
+    }
+
+    [Fact]
     public void AppendFilters_trims_padded_label_query_parameter()
     {
         List<string> conditions = [];
