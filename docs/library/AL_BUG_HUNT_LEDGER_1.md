@@ -6868,6 +6868,20 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-24 seed hunt (seed→hit): proved `ComparisonsApplicationService.LoadScopedExportRecordAsync` scope-checked `export.RunId` without canonical run-id lookup so list-by-export and export-anchored comparison flows returned null when export rows stored dashed or padded run ids; canonicalize via `AnalysisRunIdCanonicalization.CanonicalRunIdForLookup` before run detail probe; regression `CompareQuality_TryListByExportRecordIdAsync_lists_when_export_record_run_id_is_dashed_guid_with_padding`; cheap-disproof closed `CompareRunsApplicationFacade.CompareAgentResults` (pair load already trims; diff id echo separate), `ApiPaging.TryParseUtcTicksIdCursor` (comparison search normalizes cursor id), batch zip manifest echo (cosmetic), Armenian homoglyphs (deferred), and persistence-layer determinism normalize (deferred); seeded five follow-on rows; scoped application-analysis + replay filter 259/259. Private beta: comparison history list-by-export succeeds when linked export records store dashed or padded run ids, matching scoped comparison scope-check trim parity.
+
+- [ ] (candidate) `ApiPaging.TryParseUtcTicksIdCursor` — cursor id segment without trim — locus: HTTP cursor parse; input: padded id after ticks delimiter (alerts inbox and other API surfaces).
+- [ ] (candidate) `ComparisonBatchReplayZipSupport` — manifest failure entries echo pre-trim batch tokens — locus: zip manifest; input: cosmetic id echo only.
+- [ ] (candidate) `ComparisonExportMarkdownSectionRemover` — Armenian homoglyphs in delta headings — locus: `UnicodeLatinHomoglyphMapper`; input: deferred expansion.
+- [ ] (candidate) `RunExportRecordPersistNormalizer` — persistence-layer determinism column normalize — locus: repository read; input: consolidation at DB boundary.
+- [ ] (candidate) `CompareRunsApplicationFacade.CompareAgentResults` — canonical run ids on diff emission — locus: agent compare facade; input: padded query ids passed to diff service.
+
+- [x] (proven) `ComparisonsApplicationService.LoadScopedExportRecordAsync` — untrimmed export record `RunId` on scope check — **hit 2026-10-24 seed hunt:** `CanonicalRunIdForLookup`; regression `CompareQuality_TryListByExportRecordIdAsync_lists_when_export_record_run_id_is_dashed_guid_with_padding`.
+- [x] (valid-no-repro) `CompareRunsApplicationFacade.CompareAgentResults` — diff run id canonicalization — **cheap-disproof 2026-10-24 seed hunt:** HTTP path trims at pair load; cosmetic diff labels only.
+- [x] (invalid) `ApiPaging.TryParseUtcTicksIdCursor` — HTTP cursor id trim — **cheap-disproof 2026-10-24 seed hunt:** comparison search normalizes at application layer.
+- [x] (invalid) `ComparisonBatchReplayZipSupport` — manifest id echo — **cheap-disproof 2026-10-24 seed hunt:** cosmetic only.
+- [x] (invalid) `UnicodeLatinHomoglyphMapper` — Armenian homoglyphs — **cheap-disproof 2026-10-24 seed hunt:** deferred.
+
 2026-10-24 seed hunt (seed→hit): proved `ComparisonsApplicationService.IsComparisonRecordInScopeAsync` scope-checked stored `LeftRunId`/`RightRunId` and export anchors without canonical run-id lookup or export-id normalization, so scoped comparison GET/replay returned null when legacy rows kept dashed or padded run ids or padded export record ids; canonicalize run ids via `AnalysisRunIdCanonicalization.CanonicalRunIdForLookupOrNull` and export anchors via `NormalizeExportRecordIdFilterOrNull` before scope probes; regression `CompareQuality_TryGetScopedRecordAsync_returns_record_when_stored_left_run_id_is_dashed_guid_with_padding`; cheap-disproof closed `ComparisonRecordRepositoryCore.IsSortDescending` (application search trims sort params), `ApiPaging.TryParseUtcTicksIdCursor` (comparison search normalizes cursor id), batch zip manifest echo (cosmetic), Armenian homoglyphs (deferred), and persistence-layer determinism normalize (deferred); seeded five follow-on rows; scoped application-analysis + replay filter 258/258. Private beta: scoped comparison record loads succeed when persisted anchors use dashed run ids or padded export record ids, matching search and replay trim parity.
 
 - [ ] (candidate) `ApiPaging.TryParseUtcTicksIdCursor` — cursor id segment without trim — locus: HTTP cursor parse; input: padded id after ticks delimiter (alerts inbox and other API surfaces).
@@ -7687,11 +7701,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 134
-- **bugs-found:** 140
+- **hunts:** 135
+- **bugs-found:** 141
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-24
-- **last-bug:** 2026-10-24 — comparison scope check canonicalizes stored anchors
+- **last-bug:** 2026-10-24 — scoped export load canonicalizes export run id
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
