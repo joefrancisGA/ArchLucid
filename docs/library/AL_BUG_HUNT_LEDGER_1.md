@@ -6868,6 +6868,20 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-24 seed hunt (seed→hit): proved `ConsultingDocxExportWhitelabelPrefill` used null-coalescing assignment for `ClientEngagementTitle` so an empty-string hint blocked copying engagement text from a prior export while firm prefill still ran, and confirmed dashed-vs-N run id lookup already works via repository `LookupKeys`; treat whitespace-only hint engagement like missing and copy rehydrated metadata strings without redundant trim; regressions `ApplyMissingFromPriorExportsAsync_copies_engagement_when_hints_engagement_is_empty_string` and `ApplyMissingFromPriorExportsAsync_finds_prior_export_when_run_id_query_uses_dashed_guid`; cheap-disproof closed `EndToEndReplayComparisonService` export-list normalize (diff compares via normalized columns), Armenian homoglyphs (deferred), distinct `##` delta subsection (intentional), and persistence-layer determinism normalize (deferred); seeded five follow-on rows; scoped application-analysis filter 171/171. Private beta: consulting DOCX whitelabel prefill fills engagement titles from prior exports when the caller left an empty engagement field, and dashed run routes still resolve stored N-format export rows.
+
+- [ ] (candidate) `EndToEndReplayComparisonService.BuildAsync` — trim run ids before export history load — locus: `GetByRunIdAsync`; input: trailing whitespace on pair ids.
+- [ ] (candidate) `RunExportQueryFacade.ListExportsForRunAsync` — parity with whitelabel trim — locus: run id trim; input: line-break suffix on history list only.
+- [ ] (candidate) `ComparisonExportMarkdownSectionRemover` — Armenian homoglyphs in delta headings — locus: `UnicodeLatinHomoglyphMapper`; input: deferred expansion.
+- [ ] (candidate) `ComparisonExportMarkdownSectionRemover` — distinct level-2 subsection inside delta — locus: product shape; input: intentional early boundary.
+- [ ] (candidate) `RunExportRecordPersistNormalizer` — persistence-layer determinism column normalize — locus: repository read; input: consolidation at DB boundary.
+
+- [x] (proven) `ConsultingDocxExportWhitelabelPrefill` — empty-string engagement hint blocked prefill — **hit 2026-10-24 seed hunt:** `IsNullOrWhiteSpace` before copying engagement; regression `ApplyMissingFromPriorExportsAsync_copies_engagement_when_hints_engagement_is_empty_string`.
+- [x] (valid-no-repro) `ConsultingDocxExportWhitelabelPrefill` — dashed GUID run id lookup — **cheap-disproof 2026-10-24 seed hunt:** repository lookup keys; regression `ApplyMissingFromPriorExportsAsync_finds_prior_export_when_run_id_query_uses_dashed_guid`.
+- [x] (valid-no-repro) `EndToEndReplayComparisonService` — export list denormalized columns — **cheap-disproof 2026-10-24 seed hunt:** `ExportRecordDiffService.CompareTopLevel` normalizes determinism iterations at compare.
+- [x] (invalid) `UnicodeLatinHomoglyphMapper` — Armenian homoglyphs — **cheap-disproof 2026-10-24 seed hunt:** deferred.
+- [x] (invalid) `RunExportRecordPersistNormalizer` — DB read normalize — **cheap-disproof 2026-10-24 seed hunt:** Application read boundaries sufficient; consolidation deferred.
+
 2026-10-24 seed hunt (seed→hit): proved `ConsultingDocxExportWhitelabelPrefill.ApplyMissingFromPriorExportsAsync` queried `GetByRunIdAsync` with untrimmed run ids so copy-pasted or routed run keys with trailing line breaks missed prior export rows and left consulting DOCX whitelabel hints empty; trim `runId` before repository lookup; regression `ApplyMissingFromPriorExportsAsync_finds_prior_export_when_run_id_query_has_trailing_line_break`; cheap-disproof closed `IsComparisonRecordInScopeAsync` dual export normalization (shared `LoadScopedExportRecordAsync` since hunt 111), Armenian homoglyphs (deferred), distinct `##` delta subsection (intentional boundary), and persistence-layer determinism normalize (deferred); seeded five follow-on rows; scoped application-analysis filter 169/169. Private beta: consulting DOCX export prefill tolerates run ids pasted with trailing line breaks when recovering whitelabel firm and engagement titles from earlier exports on the same run.
 
 - [ ] (candidate) `ConsultingDocxExportWhitelabelPrefill` — dashed GUID run id lookup parity — locus: `GetByRunIdAsync`; input: route uses `D` format while stored row uses `N`.
@@ -7387,11 +7401,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 112
-- **bugs-found:** 118
+- **hunts:** 113
+- **bugs-found:** 119
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-24
-- **last-bug:** 2026-10-24 — consulting DOCX whitelabel prefill trims run id before lookup
+- **last-bug:** 2026-10-24 — whitelabel prefill copies engagement when hint is empty string
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 

@@ -31,15 +31,18 @@ public static class ConsultingDocxExportWhitelabelPrefill
         foreach (RunExportRecord record in records)
         {
             PersistedAnalysisExportRequest? prior = AnalysisExportRequestRehydrator.Rehydrate(record);
-            string? firm = prior?.ReviewBoardWhitelabelFirmDisplayName?.Trim();
 
-            if (string.IsNullOrWhiteSpace(firm))
+            if (prior is null || string.IsNullOrWhiteSpace(prior.ReviewBoardWhitelabelFirmDisplayName))
             {
                 continue;
             }
 
-            hints.FirmDisplayName = firm;
-            hints.ClientEngagementTitle ??= prior?.ReviewBoardWhitelabelClientEngagementTitle?.Trim();
+            hints.FirmDisplayName = prior.ReviewBoardWhitelabelFirmDisplayName;
+
+            if (string.IsNullOrWhiteSpace(hints.ClientEngagementTitle))
+            {
+                hints.ClientEngagementTitle = prior.ReviewBoardWhitelabelClientEngagementTitle;
+            }
 
             return;
         }

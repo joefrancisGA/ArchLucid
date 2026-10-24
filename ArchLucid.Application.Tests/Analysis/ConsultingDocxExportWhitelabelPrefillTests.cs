@@ -190,6 +190,69 @@ public sealed class ConsultingDocxExportWhitelabelPrefillTests
     }
 
     [Fact]
+    public async Task ApplyMissingFromPriorExportsAsync_copies_engagement_when_hints_engagement_is_empty_string()
+    {
+        InMemoryRunExportRecordRepository repository = new();
+        const string runId = "11111111111111111111111111111111";
+
+        await repository.CreateAsync(
+            new RunExportRecord
+            {
+                ExportRecordId = Guid.NewGuid().ToString("N"),
+                RunId = runId,
+                ExportType = "ArchitectureAnalysis",
+                Format = "Markdown",
+                FileName = "seed.md",
+                AnalysisRequestJson =
+                    """{"reviewBoardWhitelabelFirmDisplayName":"Prior Firm","reviewBoardWhitelabelClientEngagementTitle":"Prior Engagement"}""",
+            },
+            CancellationToken.None);
+
+        ConsultingDocxWhitelabelHints hints = new() { ClientEngagementTitle = string.Empty };
+
+        await ConsultingDocxExportWhitelabelPrefill.ApplyMissingFromPriorExportsAsync(
+            runId,
+            hints,
+            repository,
+            CancellationToken.None);
+
+        hints.FirmDisplayName.Should().Be("Prior Firm");
+        hints.ClientEngagementTitle.Should().Be("Prior Engagement");
+    }
+
+    [Fact]
+    public async Task ApplyMissingFromPriorExportsAsync_finds_prior_export_when_run_id_query_uses_dashed_guid()
+    {
+        Guid runKey = Guid.Parse("22222222-2222-2222-2222-222222222222");
+        string canonicalRunId = runKey.ToString("N");
+        string dashedRunId = runKey.ToString("D");
+
+        InMemoryRunExportRecordRepository repository = new();
+        await repository.CreateAsync(
+            new RunExportRecord
+            {
+                ExportRecordId = Guid.NewGuid().ToString("N"),
+                RunId = canonicalRunId,
+                ExportType = "ArchitectureAnalysis",
+                Format = "Markdown",
+                FileName = "seed.md",
+                AnalysisRequestJson =
+                    """{"reviewBoardWhitelabelFirmDisplayName":"Dashed Route Firm"}""",
+            },
+            CancellationToken.None);
+
+        ConsultingDocxWhitelabelHints hints = new();
+
+        await ConsultingDocxExportWhitelabelPrefill.ApplyMissingFromPriorExportsAsync(
+            dashedRunId,
+            hints,
+            repository,
+            CancellationToken.None);
+
+        hints.FirmDisplayName.Should().Be("Dashed Route Firm");
+    }
+
+    [Fact]
     public async Task ApplyMissingFromPriorExportsAsync_leaves_existing_firm_display_name_unchanged()
     {
         InMemoryRunExportRecordRepository repository = new();
