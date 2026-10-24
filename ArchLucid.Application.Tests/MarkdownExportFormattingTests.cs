@@ -105,6 +105,32 @@ public sealed class MarkdownExportFormattingTests
     }
 
     [SkippableFact]
+    public void MarkdownExportRecordDiffSummaryFormatter_trims_nested_compare_manifest_version_on_format()
+    {
+        MarkdownExportRecordDiffSummaryFormatter fmt = new();
+        ExportRecordDiffResult diff = new()
+        {
+            LeftExportRecordId = "left",
+            RightExportRecordId = "right",
+            LeftRunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            RightRunId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            RequestDiff = new ExportRecordRequestDiff
+            {
+                RightRequest = new PersistedAnalysisExportRequest
+                {
+                    IncludeManifestCompare = true,
+                    CompareManifestVersion = "  v2  ",
+                },
+            },
+        };
+
+        fmt.FormatMarkdown(diff);
+
+        diff.RequestDiff.RightRequest.Should().NotBeNull();
+        diff.RequestDiff.RightRequest!.CompareManifestVersion.Should().Be("v2");
+    }
+
+    [SkippableFact]
     public void MarkdownArchitectureExportService_includes_diagram_fence_and_evidence_counts()
     {
         MarkdownArchitectureExportService svc = new();

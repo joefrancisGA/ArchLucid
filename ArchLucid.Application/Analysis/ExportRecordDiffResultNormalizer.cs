@@ -1,7 +1,9 @@
+using ArchLucid.Contracts.Metadata;
+
 namespace ArchLucid.Application.Analysis;
 
 /// <summary>
-///     Normalizes export-record diff anchor columns before markdown/docx export formatting.
+///     Normalizes export-record diff anchors and nested request metadata before export formatting or drift compare.
 /// </summary>
 internal static class ExportRecordDiffResultNormalizer
 {
@@ -20,5 +22,18 @@ internal static class ExportRecordDiffResultNormalizer
 
         if (!string.IsNullOrWhiteSpace(diff.RightRunId))
             diff.RightRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(diff.RightRunId);
+
+        PersistedAnalysisExportRequestMetadata.TrimOptionalStrings(diff.RequestDiff.LeftRequest);
+        PersistedAnalysisExportRequestMetadata.TrimOptionalStrings(diff.RequestDiff.RightRequest);
+        CanonicalizeNestedCompareRunId(diff.RequestDiff.LeftRequest);
+        CanonicalizeNestedCompareRunId(diff.RequestDiff.RightRequest);
+    }
+
+    private static void CanonicalizeNestedCompareRunId(PersistedAnalysisExportRequest? request)
+    {
+        if (request is null || string.IsNullOrWhiteSpace(request.CompareRunId))
+            return;
+
+        request.CompareRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(request.CompareRunId);
     }
 }

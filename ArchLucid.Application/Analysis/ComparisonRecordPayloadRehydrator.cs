@@ -64,34 +64,6 @@ public static class ComparisonRecordPayloadRehydrator
             report.RightRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(report.RightRunId);
     }
 
-    private static void CanonicalizeExportDiffRunIds(ExportRecordDiffResult diff)
-    {
-        if (!string.IsNullOrWhiteSpace(diff.LeftRunId))
-            diff.LeftRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(diff.LeftRunId);
-
-        if (!string.IsNullOrWhiteSpace(diff.RightRunId))
-            diff.RightRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(diff.RightRunId);
-
-        if (!string.IsNullOrWhiteSpace(diff.LeftExportRecordId))
-            diff.LeftExportRecordId = RunExportRecordIdNormalizer.NormalizeRequired(diff.LeftExportRecordId);
-
-        if (!string.IsNullOrWhiteSpace(diff.RightExportRecordId))
-            diff.RightExportRecordId = RunExportRecordIdNormalizer.NormalizeRequired(diff.RightExportRecordId);
-
-        TrimNestedRequestOptionalStrings(diff.RequestDiff.LeftRequest);
-        TrimNestedRequestOptionalStrings(diff.RequestDiff.RightRequest);
-        CanonicalizePersistedCompareRunId(diff.RequestDiff.LeftRequest);
-        CanonicalizePersistedCompareRunId(diff.RequestDiff.RightRequest);
-    }
-
-    private static void TrimNestedRequestOptionalStrings(PersistedAnalysisExportRequest? request) =>
-        PersistedAnalysisExportRequestMetadata.TrimOptionalStrings(request);
-
-    private static void CanonicalizePersistedCompareRunId(PersistedAnalysisExportRequest? request)
-    {
-        if (request is null || string.IsNullOrWhiteSpace(request.CompareRunId))
-            return;
-
-        request.CompareRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(request.CompareRunId);
-    }
+    private static void CanonicalizeExportDiffRunIds(ExportRecordDiffResult diff) =>
+        ExportRecordDiffResultNormalizer.NormalizeDisplayAnchors(diff);
 }
