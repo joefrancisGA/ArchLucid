@@ -135,6 +135,57 @@ public sealed class AdminAgentModelCatalogControllerRecordEvaluationTests
     }
 
     [Fact]
+    public async Task RecordEvaluation_accepts_evaluation_state_numeric_zero_as_not_evaluated()
+    {
+        Mock<IAgentModelCatalogEvaluationRecorder> recorder = new();
+        recorder
+            .Setup(r => r.RecordTaskEvaluationAsync(
+                "gpt-test",
+                "Primary",
+                AgentModelEvaluationStateKind.NotEvaluated,
+                It.IsAny<string?>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new AgentModelCatalogRow
+            {
+                AliasId = "gpt-test",
+                ProviderConnectionKind = "azure-openai",
+                CapabilityTags = ["structured-output"],
+                ApprovedTaskTypes = ["Primary"],
+            });
+
+        AdminAgentModelCatalogController controller = new(
+            Mock.Of<IAgentModelCatalogRepository>(),
+            recorder.Object,
+            Mock.Of<IAgentModelCatalogFaithfulnessHarnessImporter>(),
+            Mock.Of<IAgentModelCatalogCacheInvalidator>(),
+            Mock.Of<IActorContext>(),
+            Mock.Of<IAuditService>(),
+            Mock.Of<IScopeContextProvider>())
+        {
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
+        };
+
+        IActionResult result = await controller.RecordEvaluation(
+            "gpt-test",
+            "Primary",
+            new RecordAgentModelCatalogEvaluationRequest { EvaluationState = "0" },
+            CancellationToken.None);
+
+        result.Should().BeOfType<OkObjectResult>();
+
+        recorder.Verify(
+            static r => r.RecordTaskEvaluationAsync(
+                "gpt-test",
+                "Primary",
+                AgentModelEvaluationStateKind.NotEvaluated,
+                It.IsAny<string?>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
     public async Task RecordEvaluation_accepts_evaluation_state_with_surrounding_whitespace_on_evaluated()
     {
         Mock<IAgentModelCatalogEvaluationRecorder> recorder = new();

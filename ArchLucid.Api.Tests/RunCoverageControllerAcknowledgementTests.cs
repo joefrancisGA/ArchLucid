@@ -155,6 +155,58 @@ public sealed class RunCoverageControllerAcknowledgementTests
     }
 
     [Fact]
+    public async Task PatchRunCoveragePack_returns_bad_request_when_excluded_true_with_whitespace_only_exclusion_reason()
+    {
+        Guid runId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+        Guid policyPackId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(static s => s.GetCurrentScope()).Returns(Scope);
+
+        Mock<IAuthorityQueryService> authority = new();
+        authority
+            .Setup(q => q.GetRunDetailAsync(
+                It.IsAny<ScopeContext>(),
+                runId,
+                It.IsAny<CancellationToken>(),
+                It.IsAny<bool>()))
+            .ReturnsAsync((RunDetailDto?)null);
+
+        Mock<IRunCoverageAcknowledgementService> acknowledgementService = new();
+        acknowledgementService
+            .Setup(s => s.PatchPackExclusionAsync(
+                Scope,
+                runId,
+                policyPackId,
+                true,
+                "   ",
+                It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new ArgumentException(
+                "ExclusionReason is required when excluded is true.",
+                nameof(PatchRunCoveragePackRequest.ExclusionReason)));
+
+        RunCoverageController sut = new(
+            Mock.Of<ICoverageQueryService>(),
+            acknowledgementService.Object,
+            Mock.Of<ArchLucid.Core.Persistence.Ports.IPolicyPackRepository>(),
+            scopeProvider.Object,
+            authority.Object,
+            SealedManifestHashTestSupport.CreateManifestHashService())
+        {
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
+        };
+
+        IActionResult result = await sut.PatchRunCoveragePack(
+            runId,
+            policyPackId,
+            new PatchRunCoveragePackRequest { Excluded = true, ExclusionReason = "   " },
+            CancellationToken.None);
+
+        ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
+    [Fact]
     public async Task PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_empty_exclusion_reason()
     {
         Guid runId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
