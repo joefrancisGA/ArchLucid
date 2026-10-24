@@ -19,9 +19,9 @@ internal static class ComparisonExportMarkdownSectionRemover
         if (start < 0)
             return markdown;
 
-        int lineEnd = markdown.IndexOf('\n', start);
-        int searchFrom = lineEnd < 0 ? start : lineEnd;
-        int nextSection = markdown.IndexOf("\n## ", searchFrom, StringComparison.Ordinal);
+        int headingLineEnd = FindLineEnd(markdown, start);
+        int searchFrom = AdvancePastLineBreak(markdown, headingLineEnd);
+        int nextSection = IndexOfNextLevel2HeadingLine(markdown, searchFrom);
 
         if (nextSection < 0)
             return markdown[..start].TrimEnd();
@@ -33,25 +33,73 @@ internal static class ComparisonExportMarkdownSectionRemover
     {
         int lineStart = 0;
 
-        while (lineStart <= markdown.Length)
+        while (lineStart < markdown.Length)
         {
-            int lineEnd = markdown.IndexOf('\n', lineStart);
-
-            if (lineEnd < 0)
-                lineEnd = markdown.Length;
-
+            int lineEnd = FindLineEnd(markdown, lineStart);
             ReadOnlySpan<char> line = TrimHeadingLine(markdown.AsSpan(lineStart, lineEnd - lineStart));
 
             if (LineMatchesHeading(line, heading))
                 return lineStart;
 
-            if (lineEnd == markdown.Length)
-                break;
-
-            lineStart = lineEnd + 1;
+            lineStart = AdvancePastLineBreak(markdown, lineEnd);
         }
 
         return -1;
+    }
+
+    private static int IndexOfNextLevel2HeadingLine(string markdown, int searchFrom)
+    {
+        int lineStart = searchFrom;
+
+        while (lineStart < markdown.Length)
+        {
+            int lineEnd = FindLineEnd(markdown, lineStart);
+            ReadOnlySpan<char> line = TrimHeadingLine(markdown.AsSpan(lineStart, lineEnd - lineStart));
+
+            if (IsLevel2MarkdownHeadingLine(line))
+                return lineStart;
+
+            lineStart = AdvancePastLineBreak(markdown, lineEnd);
+        }
+
+        return -1;
+    }
+
+    private static bool IsLevel2MarkdownHeadingLine(ReadOnlySpan<char> trimmedLine)
+    {
+        if (trimmedLine.Length < 3 || trimmedLine[0] != '#' || trimmedLine[1] != '#')
+            return false;
+
+        if (trimmedLine.Length >= 3 && trimmedLine[2] == '#')
+            return false;
+
+        return trimmedLine.Length == 2 || trimmedLine[2] == ' ';
+    }
+
+    private static int FindLineEnd(string markdown, int lineStart)
+    {
+        for (int i = lineStart; i < markdown.Length; i++)
+        {
+            if (markdown[i] is '\n' or '\r')
+                return i;
+        }
+
+        return markdown.Length;
+    }
+
+    private static int AdvancePastLineBreak(string markdown, int lineBreakIndex)
+    {
+        if (lineBreakIndex >= markdown.Length)
+            return markdown.Length;
+
+        if (markdown[lineBreakIndex] == '\r')
+        {
+            return lineBreakIndex + 1 < markdown.Length && markdown[lineBreakIndex + 1] == '\n'
+                ? lineBreakIndex + 2
+                : lineBreakIndex + 1;
+        }
+
+        return lineBreakIndex + 1;
     }
 
     private static bool LineMatchesHeading(ReadOnlySpan<char> trimmedLine, string heading)

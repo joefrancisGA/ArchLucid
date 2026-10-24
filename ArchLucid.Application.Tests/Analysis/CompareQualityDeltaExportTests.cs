@@ -172,6 +172,41 @@ public sealed class CompareQualityDeltaExportTests
     }
 
     [Fact]
+    public void RemoveMarkdownSection_strips_compare_quality_delta_when_lines_use_cr_only_line_endings()
+    {
+        string markdown = "intro\r## Compare Quality Delta\r| Metric | Before | After |\r\r## Warnings\r";
+
+        string result = CompareQualityDeltaExportFormatter.RemoveMarkdownSection(markdown);
+
+        result.Should().NotContain("Compare Quality Delta");
+        result.Should().Contain("## Warnings");
+    }
+
+    [Fact]
+    public void RemoveMarkdownSection_strips_compare_quality_delta_when_heading_line_is_tab_indented()
+    {
+        string markdown = "intro\n\t## Compare Quality Delta\n| Metric | Before | After |\n\n## Warnings\n";
+
+        string result = CompareQualityDeltaExportFormatter.RemoveMarkdownSection(markdown);
+
+        result.Should().NotContain("Compare Quality Delta");
+        result.Should().Contain("## Warnings");
+    }
+
+    [Fact]
+    public void RemoveMarkdownSection_strips_through_level3_subheadings_until_next_level2_heading()
+    {
+        string markdown =
+            "intro\n## Compare Quality Delta\n| Metric | Before | After |\n### Detail row\nmore\n## Warnings\n";
+
+        string result = CompareQualityDeltaExportFormatter.RemoveMarkdownSection(markdown);
+
+        result.Should().NotContain("Compare Quality Delta");
+        result.Should().NotContain("### Detail row");
+        result.Should().Contain("## Warnings");
+    }
+
+    [Fact]
     public void RemoveMarkdownSection_does_not_strip_when_heading_text_appears_mid_line()
     {
         string markdown =

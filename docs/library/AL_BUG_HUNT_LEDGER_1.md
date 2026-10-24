@@ -6868,6 +6868,20 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-24 seed hunt (seed→hit): proved `ComparisonExportMarkdownSectionRemover` failed to recognize headings on CR-only line endings and stopped at inline `\n## ` substrings instead of the next level-2 heading line, and `RunExportAuditService` still wrote `"determinismIterations":0` when the check was disabled; scan lines with `\r`/`\n` breaks and locate the next level-2 heading without treating `###` as a section boundary, omit `determinismIterations` from persisted JSON when the check is off; regressions `RemoveMarkdownSection_strips_compare_quality_delta_when_lines_use_cr_only_line_endings`, `RemoveMarkdownSection_strips_through_level3_subheadings_until_next_level2_heading`, and updated `RecordAsync_clears_stale_determinism_iterations_in_serialized_json_when_check_disabled`; cheap-disproof closed tab-indented headings (trim already handles) and raw JSON string diff (invalid); seeded five follow-on rows; scoped application-analysis filter 142/142. Private beta: comparison export stripping works on legacy CR summaries and keeps level-3 detail under the delta until the next major section; audit JSON omits disabled-check iteration noise entirely.
+
+- [ ] (candidate) `ComparisonExportMarkdownSectionRemover` — level-1 `#` heading boundary — locus: section scan; input: `# Title` ends delta section early.
+- [ ] (candidate) `RunExportAuditService` — omit zero iterations when check enabled — locus: compact JSON; input: intentional null column only.
+- [ ] (candidate) `UnicodeLatinHomoglyphMapper` — Armenian homoglyphs — locus: homoglyph casing; input: deferred.
+- [ ] (candidate) `ComparisonExportMarkdownSectionRemover` — setext-style underline headings — locus: markdown variant; input: invalid for stored exports.
+- [ ] (candidate) `ExportRecordDiffService` — rehydrate JSON missing omitted determinism key — locus: compare after omit; input: verify default zero parity.
+
+- [x] (proven) `ComparisonExportMarkdownSectionRemover` — CR-only line endings — **hit 2026-10-24 seed hunt:** `FindLineEnd`/`AdvancePastLineBreak`; regression `RemoveMarkdownSection_strips_compare_quality_delta_when_lines_use_cr_only_line_endings`.
+- [x] (proven) `ComparisonExportMarkdownSectionRemover` — level-3 vs level-2 section boundary — **hit 2026-10-24 seed hunt:** `IndexOfNextLevel2HeadingLine`; regression `RemoveMarkdownSection_strips_through_level3_subheadings_until_next_level2_heading`.
+- [x] (proven) `RunExportAuditService.RecordAsync` — zero iterations key when check disabled — **hit 2026-10-24 seed hunt:** `SerializeAnalysisRequestForPersist` removes property; regression `RecordAsync_clears_stale_determinism_iterations_in_serialized_json_when_check_disabled`.
+- [x] (valid-no-repro) `ComparisonExportMarkdownSectionRemover` — tab-indented heading — **cheap-disproof 2026-10-24 seed hunt:** regression `RemoveMarkdownSection_strips_compare_quality_delta_when_heading_line_is_tab_indented`.
+- [x] (invalid) `ExportRecordDiffService` — raw `AnalysisRequestJson` compare — **cheap-disproof 2026-10-24 seed hunt:** structured request diff only.
+
 2026-10-24 seed hunt (seed→hit): proved `RunExportAuditService` persisted stale `determinismIterations` inside `AnalysisRequestJson` when the check was disabled, and `ComparisonExportMarkdownSectionRemover` stripped sections when the canonical heading substring appeared mid-line because of a blind `IndexOf` fast path; clear iterations on the request before audit serialize and scan line boundaries only; regressions `RecordAsync_clears_stale_determinism_iterations_in_serialized_json_when_check_disabled` and `RemoveMarkdownSection_does_not_strip_when_heading_text_appears_mid_line`; cheap-disproof closed zero vs omitted iterations when check enabled, corrupt JSON probe (invalid), HTML entity headings (separate formatter), and Armenian homoglyphs (no mapping yet); seeded five follow-on rows; scoped application-analysis filter 139/139. Private beta: stored export analysis JSON matches determinism intent; comparison export stripping no longer mangles summaries that mention the delta heading in prose.
 
 - [ ] (candidate) `ComparisonExportMarkdownSectionRemover` — heading preceded by tab indentation — locus: line scan; input: tab-indented `##` heading.
@@ -7290,8 +7304,8 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 105
-- **bugs-found:** 106
+- **hunts:** 106
+- **bugs-found:** 109
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-23
 - **last-bug:** 2026-10-23 — compact audit JSON, determinism null/zero, case-insensitive headings

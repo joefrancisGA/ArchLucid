@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 
 using ArchLucid.Contracts.Metadata;
@@ -67,9 +68,7 @@ public sealed class RunExportAuditService(
             ResolutionReason = resolutionReason,
             ManifestVersion = manifestVersion,
             Notes = notes,
-            AnalysisRequestJson = analysisRequest is null
-                ? null
-                : JsonSerializer.Serialize(analysisRequest, AnalysisRequestPersistJsonOptions),
+            AnalysisRequestJson = SerializeAnalysisRequestForPersist(analysisRequest),
             IncludedEvidence = analysisRequest?.IncludeEvidence,
             IncludedExecutionTraces = analysisRequest?.IncludeExecutionTraces,
             IncludedManifest = analysisRequest?.IncludeManifest,
@@ -148,6 +147,19 @@ public sealed class RunExportAuditService(
                         errorMessage
                     }, AuditJsonSerializationOptions.Instance)
             }, cancellationToken);
+    }
+
+    private static string? SerializeAnalysisRequestForPersist(PersistedAnalysisExportRequest? analysisRequest)
+    {
+        if (analysisRequest is null)
+            return null;
+
+        JsonObject node = JsonSerializer.SerializeToNode(analysisRequest, AnalysisRequestPersistJsonOptions)!.AsObject();
+
+        if (!analysisRequest.IncludeDeterminismCheck)
+            node.Remove("determinismIterations");
+
+        return node.ToJsonString(AnalysisRequestPersistJsonOptions);
     }
 
     private static Guid? TryParseRunGuid(string runId)
