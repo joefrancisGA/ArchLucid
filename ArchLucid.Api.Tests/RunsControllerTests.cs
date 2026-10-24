@@ -206,6 +206,26 @@ public sealed class RunsControllerTests
     }
 
     [Fact]
+    public async Task LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_header_missing()
+    {
+        Mock<IRunLifecycleCommandService> lifecycle = new();
+
+        RunsController controller = CreateController(runLifecycleCommandService: lifecycle.Object);
+
+        IActionResult action = await controller.LookupCreateRunByIdempotencyKey(null, CancellationToken.None);
+
+        ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
+        bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+
+        lifecycle.Verify(
+            static s => s.LookupCreateRunByIdempotencyKeyAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task CreateRunBatch_returns_bad_request_when_idempotency_key_exceeds_max_length()
     {
         Mock<IRunLifecycleCommandService> lifecycle = new();
@@ -827,6 +847,43 @@ public sealed class RunsControllerTests
             ok.Value.Should().BeOfType<ExplainStructuredBriefSuggestionResponse>().Subject;
 
         response.Explanation.Should().Contain("EU customers");
+    }
+
+    [Fact]
+    public async Task RephraseClarificationAnswers_calls_intake_facade_when_question_prompt_is_twenty_characters()
+    {
+        Mock<IArchitectureRequestIntakeFacade> intakeFacade = new();
+        intakeFacade
+            .Setup(s => s.RephraseClarificationAnswersAsync(It.IsAny<RephraseClarificationAnswersInput>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RephraseClarificationAnswersResponse
+            {
+                RephrasedAnswers = new Dictionary<string, string> { ["q1"] = "ok" },
+            });
+
+        RunsController controller = CreateController();
+
+        RephraseClarificationAnswersInput input = new()
+        {
+            Items =
+            [
+                new ClarificationAnswerRephraseItem
+                {
+                    QuestionKey = "q1",
+                    QuestionPrompt = new string('a', 20),
+                    ExtractedAnswer = "yes",
+                },
+            ],
+        };
+
+        IActionResult action = await controller.RephraseClarificationAnswers(input, intakeFacade.Object, CancellationToken.None);
+
+        action.Should().BeOfType<OkObjectResult>();
+
+        intakeFacade.Verify(
+            static f => f.RephraseClarificationAnswersAsync(
+                It.Is<RephraseClarificationAnswersInput>(i => i.Items[0].QuestionPrompt!.Length == 20),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 
     [Fact]

@@ -15,6 +15,28 @@ namespace ArchLucid.Api.Tests.Admin;
 public sealed class AdminIntegrationsControllerTests
 {
     [Fact]
+    public async Task RetryIntegrationOutboxDeadLetters_forwards_explicit_max_rows_when_event_type_is_null()
+    {
+        Mock<IAdminDiagnosticsService> diagnostics = new();
+        diagnostics
+            .Setup(d => d.RetryIntegrationOutboxDeadLettersAsync(
+                It.Is<IntegrationOutboxDeadLetterBulkRetryRequest>(r => r.MaxRows == 42 && r.EventType == null),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new IntegrationOutboxDeadLetterBulkRetryResponse());
+
+        AdminIntegrationsController controller = new(diagnostics.Object)
+        {
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
+        };
+
+        IntegrationOutboxDeadLetterBulkRetryRequest body = new() { MaxRows = 42 };
+
+        IActionResult result = await controller.RetryIntegrationOutboxDeadLetters(body, CancellationToken.None);
+
+        result.Should().BeOfType<OkObjectResult>();
+    }
+
+    [Fact]
     public async Task RetryIntegrationOutboxDeadLetters_accepts_whitespace_only_event_type_filter()
     {
         Mock<IAdminDiagnosticsService> diagnostics = new();
