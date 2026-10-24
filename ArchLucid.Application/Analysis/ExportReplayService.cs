@@ -103,7 +103,7 @@ public sealed class ExportReplayService(
         if (record is null)
             throw new InvalidOperationException($"Export record '{exportRecordId}' was not found.");
 
-        record.RunId = record.RunId.Trim();
+        record.RunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(record.RunId);
         PersistedAnalysisExportRequestDeterminismNormalizer.NormalizeRunExportRecordDenormalizedColumns(record);
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
@@ -127,9 +127,8 @@ public sealed class ExportReplayService(
             }
         }
 
-        string canonicalRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(record.RunId);
         ArchitectureRunDetail? architectureDetail =
-            await _runDetailQueryService.GetRunDetailAsync(canonicalRunId, cancellationToken);
+            await _runDetailQueryService.GetRunDetailAsync(record.RunId, cancellationToken);
 
         if (architectureDetail is not null)
         {
