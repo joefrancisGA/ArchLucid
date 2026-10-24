@@ -608,6 +608,56 @@ public sealed class CompareQualityComparisonsApplicationServiceTests
     }
 
     [Fact]
+    public async Task CompareQuality_TryUpdateLabelAndTagsAsync_trims_label_and_tags_on_persist()
+    {
+        const string comparisonRecordId = "cmp-update-trim";
+        const string runId = "cccccccccccccccccccccccccccccccc";
+
+        InMemoryComparisonRecordRepository comparisonRecords = new();
+        await comparisonRecords.CreateAsync(
+            new ComparisonRecord
+            {
+                ComparisonRecordId = comparisonRecordId,
+                ComparisonType = ComparisonTypes.EndToEndReplay,
+                LeftRunId = runId,
+                RightRunId = "dddddddddddddddddddddddddddddddd",
+                CreatedUtc = DateTime.UtcNow,
+            },
+            CancellationToken.None);
+
+        Mock<IRunDetailQueryService> runDetail = new();
+        runDetail
+            .Setup(s => s.GetRunDetailAsync(runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchitectureRunDetail { Run = new() { RunId = runId } });
+
+        ComparisonsApplicationService sut = new(
+            runDetail.Object,
+            new Mock<IRunExportRecordRepository>().Object,
+            comparisonRecords,
+            new Mock<IComparisonReplayService>().Object,
+            new Mock<ICompareRunsApplicationFacade>().Object,
+            new Mock<IComparisonReplayCostEstimator>().Object,
+            new Mock<IDriftReportFormatter>().Object,
+            new DriftReportDocxExport());
+
+        ComparisonRecord? updated = await sut.TryUpdateLabelAndTagsAsync(
+            comparisonRecordId,
+            label: "  release-1  ",
+            tags: ["  alpha\n", " "],
+            CancellationToken.None);
+
+        updated.Should().NotBeNull();
+        updated!.Label.Should().Be("release-1");
+        updated.Tags.Should().Equal(["alpha"]);
+
+        ComparisonHistorySearchResult search = await sut.SearchAsync(
+            new ComparisonHistorySearchCriteria { Tags = ["alpha"], Limit = 10 },
+            CancellationToken.None);
+
+        search.Records.Should().ContainSingle(r => r.ComparisonRecordId == comparisonRecordId);
+    }
+
+    [Fact]
     public async Task CompareQuality_TryBuildBatchReplayZipAsync_dedupes_ids_that_differ_only_by_trailing_whitespace()
     {
         const string comparisonRecordId = "cmp-batch-dedupe";

@@ -170,10 +170,13 @@ public sealed partial class ComparisonsApplicationService(
         if (await LoadScopedComparisonRecordAsync(normalizedComparisonRecordId, ct) is null)
             return null;
 
+        string? normalizedLabel = NormalizeLabelForPersistOrNull(label);
+        IReadOnlyList<string>? normalizedTags = tags is null ? null : NormalizeSearchTags(tags);
+
         bool updated = await _comparisonRecordRepository.UpdateLabelAndTagsAsync(
             normalizedComparisonRecordId,
-            label,
-            tags,
+            normalizedLabel,
+            normalizedTags,
             ct);
 
         if (!updated)
@@ -265,6 +268,9 @@ public sealed partial class ComparisonsApplicationService(
         string.IsNullOrWhiteSpace(exportRecordId)
             ? null
             : RunExportRecordIdNormalizer.NormalizeRequired(exportRecordId);
+
+    private static string? NormalizeLabelForPersistOrNull(string? label) =>
+        label is null ? null : string.IsNullOrWhiteSpace(label) ? null : label.Trim();
 
     private static List<string> NormalizeSearchTags(IReadOnlyList<string> tags)
     {
