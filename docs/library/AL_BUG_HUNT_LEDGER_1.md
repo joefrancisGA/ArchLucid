@@ -6868,6 +6868,20 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-24 seed hunt (seed→hit): proved `ComparisonAuditService.RecordReplayOfAsync` copied `LeftManifestVersion`/`RightManifestVersion` without optional-string trim while export audit and request rehydrate paths already normalized manifest version metadata via `PersistedAnalysisExportRequestMetadata`, so replay-persisted comparison rows could re-store padded manifest version columns on chained replay snapshots; normalize via `PersistedAnalysisExportRequestMetadata.NormalizeOptionalString` before create; regression `RecordReplayOfAsync_trims_padded_manifest_version_columns_on_persist`; cheap-disproof closed `RecordReplayOfAsync` `SummaryMarkdown` copy (display-only whitespace), `ApiPaging.TryParseUtcTicksIdCursor` (comparison search normalizes cursor id), batch zip manifest echo (cosmetic), Armenian homoglyphs (deferred), and persistence-layer determinism normalize (deferred); seeded five follow-on rows; scoped application-analysis + replay filter 289/289. Private beta: comparison replay persist rows store trimmed manifest version metadata on denormalized columns, matching export metadata trim parity elsewhere in analysis flows.
+
+- [ ] (candidate) `ComparisonDriftReportExportService` — comparison record id normalize at service boundary — locus: standalone drift export; input: direct caller with padded id (facade normalizes).
+- [ ] (candidate) `ApiPaging.TryParseUtcTicksIdCursor` — cursor id segment without trim — locus: HTTP cursor parse; input: padded id after ticks delimiter (alerts inbox and other API surfaces).
+- [ ] (candidate) `ComparisonBatchReplayZipSupport` — manifest failure entries echo pre-trim batch tokens — locus: zip manifest; input: cosmetic id echo only.
+- [ ] (candidate) `ComparisonExportMarkdownSectionRemover` — Armenian homoglyphs in delta headings — locus: `UnicodeLatinHomoglyphMapper`; input: deferred expansion.
+- [ ] (candidate) `RunExportRecordPersistNormalizer` — persistence-layer determinism column normalize — locus: repository read; input: consolidation at DB boundary.
+
+- [x] (proven) `ComparisonAuditService.RecordReplayOfAsync` — padded manifest version columns on replay persist — **hit 2026-10-24 seed hunt:** `NormalizeOptionalString`; regression `RecordReplayOfAsync_trims_padded_manifest_version_columns_on_persist`.
+- [x] (valid-no-repro) `ComparisonAuditService.RecordReplayOfAsync` — `SummaryMarkdown` whitespace — **cheap-disproof 2026-10-24 seed hunt:** cosmetic display only.
+- [x] (invalid) `ApiPaging.TryParseUtcTicksIdCursor` — HTTP cursor id trim — **cheap-disproof 2026-10-24 seed hunt:** comparison search normalizes at application layer.
+- [x] (invalid) `ComparisonBatchReplayZipSupport` — manifest id echo — **cheap-disproof 2026-10-24 seed hunt:** cosmetic only.
+- [x] (invalid) `UnicodeLatinHomoglyphMapper` — Armenian homoglyphs — **cheap-disproof 2026-10-24 seed hunt:** deferred.
+
 2026-10-24 seed hunt (seed→hit): proved `ComparisonAuditService.RecordReplayOfAsync` copied `PayloadJson` verbatim from the source comparison row so replay-persisted export-diff (and end-to-end) artifacts kept padded export anchors and non-canonical run ids in stored JSON even after hunt 147 normalized denormalized columns; rehydrate via `ComparisonRecordPayloadRehydrator` and re-serialize known comparison payload shapes in `NormalizeReplayPayloadJson` before create; regression `RecordReplayOfAsync_rewrites_export_diff_payload_json_with_trimmed_export_record_ids`; cheap-disproof closed `ApiPaging.TryParseUtcTicksIdCursor` (comparison search normalizes cursor id), batch zip manifest echo (cosmetic), Armenian homoglyphs (deferred), persistence-layer determinism normalize (deferred), and `ComparisonDriftReportExportService` (no production callers); seeded five follow-on rows; scoped application-analysis + replay filter 288/288. Private beta: comparison replay persist snapshots rewrite stored payload JSON through the same trim/canonicalize boundaries as drift rehydrate, so artifact exports and verify replay see normalized anchors without relying on read-time-only fixes.
 
 - [ ] (candidate) `ComparisonAuditService.RecordReplayOfAsync` — `SummaryMarkdown` copied without normalize — locus: replay-of; input: cosmetic whitespace in summary only.
@@ -7891,11 +7905,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 148
-- **bugs-found:** 154
+- **hunts:** 149
+- **bugs-found:** 155
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-24
-- **last-bug:** 2026-10-24 — replay persist rewrites payload JSON via rehydrate
+- **last-bug:** 2026-10-24 — replay persist trims manifest version columns
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
