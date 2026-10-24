@@ -28,6 +28,28 @@ public sealed class CompareRunsApplicationFacadeTests
     };
 
     [Fact]
+    public async Task LoadScopedRunPairAsync_trims_run_ids_before_run_detail_lookup()
+    {
+        const string leftRunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+        const string rightRunId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb";
+
+        Mock<IRunDetailQueryService> runDetail = new();
+        runDetail
+            .Setup(s => s.GetRunDetailForRollupAsync(leftRunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((ArchitectureRunDetail?)null);
+        runDetail
+            .Setup(s => s.GetRunDetailForRollupAsync(rightRunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchitectureRunDetail { Run = new() { RunId = rightRunId } });
+
+        CompareRunsApplicationFacade sut = CreateSut(runDetail: runDetail.Object);
+
+        await sut.LoadScopedRunPairAsync($"{leftRunId}\n", $"  {rightRunId}  ", CancellationToken.None);
+
+        runDetail.Verify(s => s.GetRunDetailForRollupAsync(leftRunId, It.IsAny<CancellationToken>()), Times.Once);
+        runDetail.Verify(s => s.GetRunDetailForRollupAsync(rightRunId, It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
     public async Task LoadScopedRunPairAsync_returns_left_not_found_when_left_run_is_missing()
     {
         Mock<IRunDetailQueryService> runDetail = new();
