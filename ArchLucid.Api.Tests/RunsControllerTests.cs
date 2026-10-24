@@ -83,6 +83,28 @@ public sealed class RunsControllerTests
     }
 
     [Fact]
+    public async Task DraftRequestAsync_returns_bad_request_when_body_null()
+    {
+        Mock<IArchitectureRequestIntakeFacade> intakeFacade = new();
+        Mock<IAdvisoryDraftOperationAcceptor> acceptor = new();
+
+        RunsController controller = CreateController();
+
+        IActionResult action = await controller.DraftRequestAsync(
+            null,
+            intakeFacade.Object,
+            acceptor.Object,
+            CancellationToken.None);
+
+        ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
+        bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+
+        acceptor.Verify(
+            static a => a.AcceptAsync(It.IsAny<DraftArchitectureRequestInput>(), It.IsAny<ScopeContext>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task DraftRequest_returns_bad_request_when_description_too_short()
     {
         Mock<IArchitectureRequestIntakeFacade> intakeFacade = new();

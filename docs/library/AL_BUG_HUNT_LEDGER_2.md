@@ -8952,11 +8952,19 @@
 
 2026-10-23 seed hunt (seed-only #8): cheap-disproof closed five open `(candidate)` rows; one regression; 2 scoped ChatIntake tests passed on full tree (`RunAnalyzers=false`). Picker still selected this zone despite seed-only streak (stale zone metadata block).
 
-- [ ] (candidate) `RunsController.CreateRunBatch` — zero-length batch array `[]` — locus: empty collection guard; input: `POST` with `[]`.
-- [ ] (candidate) `AdminAgentModelCatalogController.RecordEvaluation` — empty `taskType` route segment — locus: recorder lookup; input: whitespace task type.
-- [ ] (candidate) `RunCoverageController.PatchRunCoveragePack` — null request body — locus: body required guard; input: PATCH without JSON.
-- [ ] (candidate) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` exactly `500` — locus: upper inclusive bound; input: boundary acceptance.
-- [ ] (candidate) `RunsController.DraftRequestAsync` — null `FreeTextDescription` parity with sync `DraftRequest` — locus: `ValidateDraftFreeText`; input: async draft route.
+- [x] (valid-no-repro) `RunsController.CreateRunBatch` — zero-length batch array `[]` — **cheap-disproof 2026-10-23 seed hunt #9:** `requests is null || requests.Count == 0` → HTTP 400 before batch orchestration (master `RunsController.Create.Batch.cs`).
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — empty `taskType` route segment — **cheap-disproof 2026-10-23 seed hunt #9:** whitespace route segment reaches recorder lookup → HTTP 404 `KeyNotFoundException`, not unhandled 500.
+- [x] (valid-no-repro) `RunCoverageController.PatchRunCoveragePack` — null request body — **cheap-disproof 2026-10-23 seed hunt #9:** `request is null` → HTTP 400 `Request body is required` (parity with bulk PUT).
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` exactly `500` — **cheap-disproof 2026-10-23 seed hunt #9:** inclusive upper bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_at_upper_bound_500`.
+- [x] (valid-no-repro) `RunsController.DraftRequestAsync` — null `FreeTextDescription` parity with sync `DraftRequest` — **cheap-disproof 2026-10-23 seed hunt #9:** shared `ValidateDraftFreeText`; regression `DraftRequestAsync_returns_bad_request_when_body_is_null`; vendored `RunsController.Intake.DraftAsync.cs`.
+
+2026-10-23 seed hunt (seed-only #9): cheap-disproof closed five open `(candidate)` rows; two regressions; 2 scoped tests passed on full tree (`RunAnalyzers=false`).
+
+- [ ] (candidate) `RunsController.CreateRun` — null body on sync create — locus: create guard; input: POST without JSON body.
+- [ ] (candidate) `AdminAgentModelCatalogController.RecordEvaluation` — unknown `aliasId` — locus: recorder `KeyNotFoundException`; input: random alias segment.
+- [ ] (candidate) `RunCoverageController.PatchRunCoveragePack` — excluded true with whitespace-only `ExclusionReason` — locus: `PatchPackExclusionAsync`; input: `"   "` reason.
+- [ ] (candidate) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` exactly `1` — locus: lower inclusive bound; input: boundary acceptance.
+- [ ] (candidate) `RunsController.RewriteArchitectureOverview` — null body — locus: `ValidateDraftFreeText` on `CurrentOverview`; input: overview rewrite POST.
 
 2026-10-23 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows from prior reseed; no new hunt-ready promotion (Rephrase null `Items` already shipped on `bugsmash-2` 01857d53eb); seeded five follow-on `(candidate)` rows; 12 scoped RunsController draft/explain + RunCoverage acknowledgement tests passed.
 
@@ -8976,9 +8984,9 @@
 - **aliases:** authority controllers; admin controllers
 - **paths:** ArchLucid.Api/Controllers/Authority/; ArchLucid.Api/Controllers/Admin/
 - **test-filter:** FullyQualifiedName~AuthorityController|FullyQualifiedName~AdminController
-- **hunts:** 72
+- **hunts:** 73
 - **bugs-found:** 58
-- **consecutive-dry-hunts:** 6
+- **consecutive-dry-hunts:** 7
 - **last-hunt:** 2026-10-23
 - **last-bug:** 2026-10-23 — rephrase clarification null item in items array caused 500 instead of validation
 - **related-pd-tb:** none
