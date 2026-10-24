@@ -106,6 +106,49 @@ public sealed class RunsControllerTests
     }
 
     [Fact]
+    public async Task AcceptCreateRunAsync_returns_accepted_when_idempotency_key_header_omitted()
+    {
+        Mock<IArchitectureRunAsyncOperationAcceptor> asyncAcceptor = new();
+        asyncAcceptor
+            .Setup(a => a.AcceptCreateAsync(
+                It.IsAny<ArchitectureRequest>(),
+                null,
+                It.IsAny<ScopeContext>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync("run:async-no-idem");
+
+        RunsController controller = CreateController();
+
+        ArchitectureRequest request = new()
+        {
+            RequestId = "req-async-no-idem",
+            Description = new string('x', 20),
+            SystemName = "CreatedArch",
+            WorkflowIntent = ArchitectureWorkflowIntent.CreateArchitecture,
+        };
+
+        IActionResult action = await controller.AcceptCreateRunAsync(
+            request,
+            asyncAcceptor.Object,
+            CancellationToken.None);
+
+        StatusCodeResult accepted = action.Should().BeOfType<StatusCodeResult>().Subject;
+        accepted.StatusCode.Should().Be(StatusCodes.Status202Accepted);
+
+        asyncAcceptor.Verify(
+            static a => a.AcceptCreateAsync(
+                It.IsAny<ArchitectureRequest>(),
+                null,
+                It.IsAny<ScopeContext>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
     public async Task CreateRun_returns_bad_request_when_coordination_rejects_minimal_request()
     {
         Mock<IRunLifecycleCommandService> lifecycle = new();
@@ -188,6 +231,29 @@ public sealed class RunsControllerTests
 
         ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
         bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
+    [Fact]
+    public async Task DraftRequest_calls_intake_facade_when_free_text_is_exactly_minimum_length()
+    {
+        Mock<IArchitectureRequestIntakeFacade> intakeFacade = new();
+        intakeFacade
+            .Setup(f => f.DraftAsync(It.IsAny<DraftArchitectureRequestInput>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new DraftArchitectureRequestResponse());
+
+        RunsController controller = CreateController();
+
+        DraftArchitectureRequestInput input = new() { FreeTextDescription = new string('a', 20) };
+
+        IActionResult action = await controller.DraftRequest(input, intakeFacade.Object, CancellationToken.None);
+
+        action.Should().BeOfType<OkObjectResult>();
+
+        intakeFacade.Verify(
+            static f => f.DraftAsync(
+                It.Is<DraftArchitectureRequestInput>(i => i.FreeTextDescription!.Length == 20),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 
     [Fact]
