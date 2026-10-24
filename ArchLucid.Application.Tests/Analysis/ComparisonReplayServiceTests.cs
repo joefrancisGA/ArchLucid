@@ -191,6 +191,45 @@ public sealed class ComparisonReplayServiceTests
     }
 
     [Fact]
+    public async Task ReplayAsync_end_to_end_regenerate_calls_build_with_canonical_run_ids_when_record_uses_dashed_padding()
+    {
+        EndToEndReplayComparisonReport stored = SampleEndToEndReport();
+        EndToEndReplayComparisonReport regenerated = SampleEndToEndReport();
+        Guid leftGuid = Guid.Parse(stored.LeftRunId);
+        Guid rightGuid = Guid.Parse(stored.RightRunId);
+        string dashedPaddedLeft = $"{leftGuid:D}  ";
+        string dashedPaddedRight = $"{rightGuid:D}  ";
+
+        ComparisonRecord record = EndToEndRecord("e2e-regen-canonical-build", stored);
+        record.LeftRunId = dashedPaddedLeft;
+        record.RightRunId = dashedPaddedRight;
+        Mock<IComparisonRecordRepository> repo = SetupRepo(record);
+        Mock<IEndToEndReplayComparisonService> build = new();
+        build
+            .Setup(b => b.BuildAsync(stored.LeftRunId, stored.RightRunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(regenerated);
+        Mock<IEndToEndReplayComparisonExportService> export = new();
+        export.Setup(e => e.GenerateMarkdown(It.IsAny<EndToEndReplayComparisonReport>(), It.IsAny<string?>())).Returns("# canonical-build");
+        ManifestHashService manifestHashService = new();
+        Mock<IAuthorityQueryService> authority = new();
+        SetupSealedManifestForRuns(authority, manifestHashService, stored.LeftRunId, stored.RightRunId);
+        ComparisonReplayService sut = CreateSut(
+            comparisonRepo: repo.Object,
+            e2eBuild: build.Object,
+            e2eExport: export.Object,
+            authorityQuery: authority.Object,
+            manifestHash: manifestHashService);
+
+        await sut.ReplayAsync(
+            new ReplayComparisonRequest { ComparisonRecordId = "e2e-regen-canonical-build", ReplayMode = "regenerate" },
+            CancellationToken.None);
+
+        build.Verify(
+            b => b.BuildAsync(stored.LeftRunId, stored.RightRunId, It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
     public async Task ReplayAsync_end_to_end_regenerate_succeeds_when_comparison_record_run_ids_are_dashed_with_padding()
     {
         EndToEndReplayComparisonReport stored = SampleEndToEndReport();
@@ -418,8 +457,10 @@ public sealed class ComparisonReplayServiceTests
     {
         EndToEndReplayComparisonReport report = SampleEndToEndReport();
         ComparisonRecord record = EndToEndRecord("e2e-career-artifact", report);
-        Mock<IComparisonRecordRepository> repo = SetupRepo(record);
         Guid leftRunGuid = Guid.Parse(report.LeftRunId);
+        record.LeftRunId = $"{leftRunGuid:D}  ";
+        record.RightRunId = report.RightRunId;
+        Mock<IComparisonRecordRepository> repo = SetupRepo(record);
         Mock<IRunExportCareerPostureGate> careerGate = new();
         careerGate
             .Setup(g => g.EnsureAllowsExportRecordMetadataOrThrowAsync(
@@ -453,6 +494,9 @@ public sealed class ComparisonReplayServiceTests
     {
         EndToEndReplayComparisonReport report = SampleEndToEndReport();
         ComparisonRecord record = EndToEndRecord("e2e-lifecycle-artifact", report);
+        Guid leftGuid = Guid.Parse(report.LeftRunId);
+        record.LeftRunId = $"{leftGuid:D}  ";
+        record.RightRunId = report.RightRunId;
         Mock<IComparisonRecordRepository> repo = SetupRepo(record);
         Guid leftRunGuid = Guid.Parse(report.LeftRunId);
         Mock<IRunExportCareerPostureGate> careerGate = new();

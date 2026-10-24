@@ -123,12 +123,12 @@ public sealed class ComparisonReplayService(
 
     private async Task EnsureArtifactReplayAccessAllowedCoreAsync(ComparisonRecord record, CancellationToken cancellationToken)
     {
-        await EnsureRunPairLifecycleCompleteOrThrowAsync(
-            record.LeftRunId ?? string.Empty,
-            record.RightRunId ?? string.Empty,
-            cancellationToken);
-        await EnsureCareerAllowsExportRecordMetadataOrThrowAsync(record.LeftRunId ?? string.Empty, cancellationToken);
-        await EnsureCareerAllowsExportRecordMetadataOrThrowAsync(record.RightRunId ?? string.Empty, cancellationToken);
+        string leftRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookupOrNull(record.LeftRunId) ?? string.Empty;
+        string rightRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookupOrNull(record.RightRunId) ?? string.Empty;
+
+        await EnsureRunPairLifecycleCompleteOrThrowAsync(leftRunId, rightRunId, cancellationToken);
+        await EnsureCareerAllowsExportRecordMetadataOrThrowAsync(leftRunId, cancellationToken);
+        await EnsureCareerAllowsExportRecordMetadataOrThrowAsync(rightRunId, cancellationToken);
     }
 
     private async Task<DriftAnalysisResult> AnalyzeDriftEndToEndAsync(ComparisonRecord record, CancellationToken cancellationToken)
@@ -198,9 +198,12 @@ public sealed class ComparisonReplayService(
             throw new InvalidOperationException(
                 $"Comparison record '{record.ComparisonRecordId}' has no LeftRunId/RightRunId; cannot regenerate end-to-end comparison.");
 
-        await EnsureRunPairLifecycleCompleteOrThrowAsync(record.LeftRunId, record.RightRunId, cancellationToken);
+        string leftRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(record.LeftRunId);
+        string rightRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(record.RightRunId);
 
-        return await _endToEndReplayComparisonService.BuildAsync(record.LeftRunId, record.RightRunId, cancellationToken);
+        await EnsureRunPairLifecycleCompleteOrThrowAsync(leftRunId, rightRunId, cancellationToken);
+
+        return await _endToEndReplayComparisonService.BuildAsync(leftRunId, rightRunId, cancellationToken);
     }
 
     private async Task EnsureRunPairLifecycleCompleteOrThrowAsync(
@@ -208,6 +211,12 @@ public sealed class ComparisonReplayService(
         string rightRunId,
         CancellationToken cancellationToken)
     {
+        if (!string.IsNullOrWhiteSpace(leftRunId))
+            leftRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(leftRunId);
+
+        if (!string.IsNullOrWhiteSpace(rightRunId))
+            rightRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(rightRunId);
+
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
 
         if (Guid.TryParse(leftRunId, out Guid leftGuid))
@@ -402,6 +411,8 @@ public sealed class ComparisonReplayService(
     {
         if (string.IsNullOrWhiteSpace(runId))
             return;
+
+        runId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(runId);
 
         if (!Guid.TryParse(runId, out Guid runGuid))
             return;
