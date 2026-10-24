@@ -19,7 +19,7 @@ public static class ConsultingDocxExportWhitelabelPrefill
         ArgumentNullException.ThrowIfNull(hints);
         ArgumentNullException.ThrowIfNull(repository);
 
-        runId = runId.Trim();
+        runId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(runId);
 
         if (!string.IsNullOrWhiteSpace(hints.FirmDisplayName))
         {

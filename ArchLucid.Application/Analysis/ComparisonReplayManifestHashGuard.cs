@@ -98,8 +98,11 @@ internal static class ComparisonReplayManifestHashGuard
                 "Comparison replay blocked: end-to-end record is missing LeftRunId/RightRunId required for sealed manifest hash verification.");
         }
 
-        await EnsureRunSealedManifestHashOrThrowAsync(leftRunId, authorityQueryService, manifestHashService, scope, cancellationToken);
-        await EnsureRunSealedManifestHashOrThrowAsync(rightRunId, authorityQueryService, manifestHashService, scope, cancellationToken);
+        string leftLookupRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(leftRunId);
+        string rightLookupRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(rightRunId);
+
+        await EnsureRunSealedManifestHashOrThrowAsync(leftLookupRunId, authorityQueryService, manifestHashService, scope, cancellationToken);
+        await EnsureRunSealedManifestHashOrThrowAsync(rightLookupRunId, authorityQueryService, manifestHashService, scope, cancellationToken);
     }
 
     private static async Task EnsureRunSealedManifestHashOrThrowAsync(

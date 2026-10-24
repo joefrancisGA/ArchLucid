@@ -4,6 +4,8 @@ using ArchLucid.Persistence.Data.Repositories;
 
 using FluentAssertions;
 
+using Moq;
+
 namespace ArchLucid.Application.Tests.Analysis;
 
 [Trait("Category", "Unit")]
@@ -250,6 +252,43 @@ public sealed class ConsultingDocxExportWhitelabelPrefillTests
             CancellationToken.None);
 
         hints.FirmDisplayName.Should().Be("Dashed Route Firm");
+    }
+
+    [Fact]
+    public async Task ApplyMissingFromPriorExportsAsync_queries_canonical_run_id_when_route_uses_dashed_guid_with_padding()
+    {
+        Guid runKey = Guid.Parse("33333333-3333-3333-3333-333333333333");
+        string canonicalRunId = runKey.ToString("N");
+        string dashedPaddedRunId = $"{runKey:D}  ";
+
+        RunExportRecord prior = new()
+        {
+            ExportRecordId = Guid.NewGuid().ToString("N"),
+            RunId = canonicalRunId,
+            ExportType = "ArchitectureAnalysis",
+            Format = "Markdown",
+            FileName = "seed.md",
+            AnalysisRequestJson = """{"reviewBoardWhitelabelFirmDisplayName":"Canonical Lookup Firm"}""",
+        };
+
+        Mock<IRunExportRecordRepository> repository = new();
+        repository
+            .Setup(r => r.GetByRunIdAsync(canonicalRunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([prior]);
+        repository
+            .Setup(r => r.GetByRunIdAsync(It.Is<string>(id => id != canonicalRunId), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Array.Empty<RunExportRecord>());
+
+        ConsultingDocxWhitelabelHints hints = new();
+
+        await ConsultingDocxExportWhitelabelPrefill.ApplyMissingFromPriorExportsAsync(
+            dashedPaddedRunId,
+            hints,
+            repository.Object,
+            CancellationToken.None);
+
+        hints.FirmDisplayName.Should().Be("Canonical Lookup Firm");
+        repository.Verify(r => r.GetByRunIdAsync(canonicalRunId, It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]

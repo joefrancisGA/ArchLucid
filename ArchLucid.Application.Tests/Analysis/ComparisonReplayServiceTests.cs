@@ -191,6 +191,44 @@ public sealed class ComparisonReplayServiceTests
     }
 
     [Fact]
+    public async Task ReplayAsync_end_to_end_regenerate_succeeds_when_comparison_record_run_ids_are_dashed_with_padding()
+    {
+        EndToEndReplayComparisonReport stored = SampleEndToEndReport();
+        EndToEndReplayComparisonReport regenerated = SampleEndToEndReport();
+        Guid leftGuid = Guid.Parse(stored.LeftRunId);
+        Guid rightGuid = Guid.Parse(stored.RightRunId);
+        string dashedPaddedLeft = $"{leftGuid:D}  ";
+        string dashedPaddedRight = $"{rightGuid:D}  ";
+
+        ComparisonRecord record = EndToEndRecord("e2e-dashed-run-id", stored);
+        record.LeftRunId = dashedPaddedLeft;
+        record.RightRunId = dashedPaddedRight;
+        Mock<IComparisonRecordRepository> repo = SetupRepo(record);
+        Mock<IEndToEndReplayComparisonService> build = new();
+        build
+            .Setup(b => b.BuildAsync(dashedPaddedLeft, dashedPaddedRight, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(regenerated);
+        Mock<IEndToEndReplayComparisonExportService> export = new();
+        export.Setup(e => e.GenerateMarkdown(It.IsAny<EndToEndReplayComparisonReport>(), It.IsAny<string?>())).Returns("# dashed-e2e");
+        ManifestHashService manifestHashService = new();
+        Mock<IAuthorityQueryService> authority = new();
+        SetupSealedManifestForRuns(authority, manifestHashService, stored.LeftRunId, stored.RightRunId);
+        ComparisonReplayService sut = CreateSut(
+            comparisonRepo: repo.Object,
+            e2eBuild: build.Object,
+            e2eExport: export.Object,
+            authorityQuery: authority.Object,
+            manifestHash: manifestHashService);
+
+        ReplayComparisonResult result = await sut.ReplayAsync(
+            new ReplayComparisonRequest { ComparisonRecordId = "e2e-dashed-run-id", ReplayMode = "regenerate" },
+            CancellationToken.None);
+
+        result.ReplayMode.Should().Be("regenerate");
+        result.Content.Should().Be("# dashed-e2e");
+    }
+
+    [Fact]
     public async Task ReplayAsync_end_to_end_verify_pass_sets_verification_flags()
     {
         EndToEndReplayComparisonReport report = SampleEndToEndReport();
