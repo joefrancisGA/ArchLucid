@@ -61,9 +61,9 @@ public sealed class ComparisonReplayService(
     public async Task<ReplayComparisonResult> ReplayAsync(ReplayComparisonRequest request, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(request);
-        ArgumentException.ThrowIfNullOrWhiteSpace(request.ComparisonRecordId);
-        ComparisonRecord record = await _comparisonRecordRepository.GetByIdAsync(request.ComparisonRecordId, cancellationToken) ??
-                                  throw new InvalidOperationException($"Comparison record '{request.ComparisonRecordId}' was not found.");
+        string comparisonRecordId = ComparisonRecordIdNormalizer.NormalizeRequired(request.ComparisonRecordId);
+        ComparisonRecord record = await _comparisonRecordRepository.GetByIdAsync(comparisonRecordId, cancellationToken) ??
+                                  throw new InvalidOperationException($"Comparison record '{comparisonRecordId}' was not found.");
         string format = ComparisonReplayRequestParsing.NormalizeFormat(request.Format);
         string profile = EndToEndComparisonExportProfile.Normalize(request.Profile);
         ComparisonReplayMode mode = ComparisonReplayRequestParsing.ParseReplayMode(request.ReplayMode);
@@ -101,9 +101,9 @@ public sealed class ComparisonReplayService(
 
     public async Task<DriftAnalysisResult> AnalyzeDriftAsync(string comparisonRecordId, CancellationToken cancellationToken = default)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(comparisonRecordId);
-        ComparisonRecord record = await _comparisonRecordRepository.GetByIdAsync(comparisonRecordId, cancellationToken) ??
-                                  throw new InvalidOperationException($"Comparison record '{comparisonRecordId}' was not found.");
+        string normalizedComparisonRecordId = ComparisonRecordIdNormalizer.NormalizeRequired(comparisonRecordId);
+        ComparisonRecord record = await _comparisonRecordRepository.GetByIdAsync(normalizedComparisonRecordId, cancellationToken) ??
+                                  throw new InvalidOperationException($"Comparison record '{normalizedComparisonRecordId}' was not found.");
 
         await ComparisonReplayManifestHashGuard.EnsureDriftAnalyzeSealedManifestHashesOrThrowAsync(
             record,

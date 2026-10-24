@@ -40,6 +40,29 @@ public sealed class ComparisonReplayServiceTests
     }
 
     [Fact]
+    public async Task ReplayAsync_trims_padded_comparison_record_id_before_load()
+    {
+        EndToEndReplayComparisonReport report = SampleEndToEndReport();
+        ComparisonRecord record = EndToEndRecord("e2e-trim-id", report);
+        Mock<IComparisonRecordRepository> repo = SetupRepo(record);
+        Mock<IEndToEndReplayComparisonExportService> export = new();
+        export.Setup(e => e.GenerateMarkdown(It.IsAny<EndToEndReplayComparisonReport>(), It.IsAny<string?>())).Returns("# md");
+        ComparisonReplayService sut = CreateSut(comparisonRepo: repo.Object, e2eExport: export.Object);
+
+        ReplayComparisonResult result = await sut.ReplayAsync(
+            new ReplayComparisonRequest
+            {
+                ComparisonRecordId = "e2e-trim-id\n",
+                Format = "markdown",
+                ReplayMode = "artifact",
+            },
+            CancellationToken.None);
+
+        result.ComparisonRecordId.Should().Be("e2e-trim-id");
+        repo.Verify(r => r.GetByIdAsync("e2e-trim-id", It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
     public async Task ReplayAsync_missing_record_throws()
     {
         Mock<IComparisonRecordRepository> repo = new();
@@ -148,7 +171,15 @@ public sealed class ComparisonReplayServiceTests
             .ReturnsAsync(regenerated);
         Mock<IEndToEndReplayComparisonExportService> export = new();
         export.Setup(e => e.GenerateMarkdown(It.IsAny<EndToEndReplayComparisonReport>(), It.IsAny<string?>())).Returns("# regen");
-        ComparisonReplayService sut = CreateSut(comparisonRepo: repo.Object, e2eBuild: build.Object, e2eExport: export.Object);
+        ManifestHashService manifestHashService = new();
+        Mock<IAuthorityQueryService> authority = new();
+        SetupSealedManifestForRuns(authority, manifestHashService, stored.LeftRunId, stored.RightRunId);
+        ComparisonReplayService sut = CreateSut(
+            comparisonRepo: repo.Object,
+            e2eBuild: build.Object,
+            e2eExport: export.Object,
+            authorityQuery: authority.Object,
+            manifestHash: manifestHashService);
 
         ReplayComparisonResult result = await sut.ReplayAsync(
             new ReplayComparisonRequest { ComparisonRecordId = "e2e-regen", ReplayMode = "regenerate" },
@@ -174,11 +205,16 @@ public sealed class ComparisonReplayServiceTests
         export.Setup(e => e.GenerateMarkdown(It.IsAny<EndToEndReplayComparisonReport>(), It.IsAny<string?>())).Returns("# ok");
         Mock<IComparisonDriftAnalyzer> drift = new();
         drift.Setup(d => d.Analyze(It.IsAny<object>(), It.IsAny<object>())).Returns(NoDrift());
+        ManifestHashService manifestHashService = new();
+        Mock<IAuthorityQueryService> authority = new();
+        SetupSealedManifestForRuns(authority, manifestHashService, report.LeftRunId, report.RightRunId);
         ComparisonReplayService sut = CreateSut(
             comparisonRepo: repo.Object,
             e2eBuild: build.Object,
             e2eExport: export.Object,
-            driftAnalyzer: drift.Object);
+            driftAnalyzer: drift.Object,
+            authorityQuery: authority.Object,
+            manifestHash: manifestHashService);
 
         ReplayComparisonResult result = await sut.ReplayAsync(
             new ReplayComparisonRequest { ComparisonRecordId = "e2e-verify", ReplayMode = "verify" },
@@ -204,7 +240,15 @@ public sealed class ComparisonReplayServiceTests
         DriftAnalysisResult driftResult = new() { DriftDetected = true, Summary = "drift summary" };
         Mock<IComparisonDriftAnalyzer> drift = new();
         drift.Setup(d => d.Analyze(It.IsAny<object>(), It.IsAny<object>())).Returns(driftResult);
-        ComparisonReplayService sut = CreateSut(comparisonRepo: repo.Object, e2eBuild: build.Object, driftAnalyzer: drift.Object);
+        ManifestHashService manifestHashService = new();
+        Mock<IAuthorityQueryService> authority = new();
+        SetupSealedManifestForRuns(authority, manifestHashService, stored.LeftRunId, stored.RightRunId);
+        ComparisonReplayService sut = CreateSut(
+            comparisonRepo: repo.Object,
+            e2eBuild: build.Object,
+            driftAnalyzer: drift.Object,
+            authorityQuery: authority.Object,
+            manifestHash: manifestHashService);
 
         ReplayComparisonRequest request = new() { ComparisonRecordId = "e2e-drift", ReplayMode = "verify" };
 
@@ -427,11 +471,16 @@ public sealed class ComparisonReplayServiceTests
         diffService.Setup(s => s.CompareAsync(left, right, It.IsAny<CancellationToken>())).ReturnsAsync(regenerated);
         Mock<IExportRecordDiffSummaryFormatter> formatter = new();
         formatter.Setup(f => f.FormatMarkdown(It.IsAny<ExportRecordDiffResult>())).Returns("# regenerated");
+        ManifestHashService manifestHashService = new();
+        Mock<IAuthorityQueryService> authority = new();
+        SetupSealedManifestForRuns(authority, manifestHashService, stored.LeftRunId, stored.RightRunId);
         ComparisonReplayService sut = CreateSut(
             comparisonRepo: repo.Object,
             runExports: exports.Object,
             diffService: diffService.Object,
-            diffFormatter: formatter.Object);
+            diffFormatter: formatter.Object,
+            authorityQuery: authority.Object,
+            manifestHash: manifestHashService);
 
         ReplayComparisonResult result = await sut.ReplayAsync(
             new ReplayComparisonRequest { ComparisonRecordId = "diff-regen", ReplayMode = "regenerate" },
@@ -460,12 +509,17 @@ public sealed class ComparisonReplayServiceTests
         formatter.Setup(f => f.FormatMarkdown(It.IsAny<ExportRecordDiffResult>())).Returns("# ok");
         Mock<IComparisonDriftAnalyzer> drift = new();
         drift.Setup(d => d.Analyze(It.IsAny<object>(), It.IsAny<object>())).Returns(NoDrift());
+        ManifestHashService manifestHashService = new();
+        Mock<IAuthorityQueryService> authority = new();
+        SetupSealedManifestForRuns(authority, manifestHashService, diff.LeftRunId, diff.RightRunId);
         ComparisonReplayService sut = CreateSut(
             comparisonRepo: repo.Object,
             runExports: exports.Object,
             diffService: diffService.Object,
             diffFormatter: formatter.Object,
-            driftAnalyzer: drift.Object);
+            driftAnalyzer: drift.Object,
+            authorityQuery: authority.Object,
+            manifestHash: manifestHashService);
 
         ReplayComparisonResult result = await sut.ReplayAsync(
             new ReplayComparisonRequest { ComparisonRecordId = "diff-verify", ReplayMode = "verify" },
@@ -686,6 +740,36 @@ public sealed class ComparisonReplayServiceTests
 
         await act.Should().ThrowAsync<CareerArtifactExportBlockedException>();
         drift.Verify(d => d.Analyze(It.IsAny<object>(), It.IsAny<object>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task AnalyzeDriftAsync_trims_padded_comparison_record_id_before_load()
+    {
+        EndToEndReplayComparisonReport report = SampleEndToEndReport();
+        ComparisonRecord record = EndToEndRecord("drift-trim-id", report);
+        record.LeftRunId = report.LeftRunId;
+        record.RightRunId = report.RightRunId;
+        Mock<IComparisonRecordRepository> repo = SetupRepo(record);
+        Mock<IEndToEndReplayComparisonService> build = new();
+        build.Setup(b => b.BuildAsync(report.LeftRunId, report.RightRunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(report);
+        DriftAnalysisResult expected = new() { DriftDetected = false, Summary = "ok" };
+        Mock<IComparisonDriftAnalyzer> drift = new();
+        drift.Setup(d => d.Analyze(It.IsAny<object>(), It.IsAny<object>())).Returns(expected);
+        ManifestHashService manifestHashService = new();
+        Mock<IAuthorityQueryService> authority = new();
+        SetupSealedManifestForRuns(authority, manifestHashService, report.LeftRunId, report.RightRunId);
+        ComparisonReplayService sut = CreateSut(
+            comparisonRepo: repo.Object,
+            e2eBuild: build.Object,
+            driftAnalyzer: drift.Object,
+            authorityQuery: authority.Object,
+            manifestHash: manifestHashService);
+
+        DriftAnalysisResult result = await sut.AnalyzeDriftAsync("drift-trim-id\n", CancellationToken.None);
+
+        result.Should().BeSameAs(expected);
+        repo.Verify(r => r.GetByIdAsync("drift-trim-id", It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
