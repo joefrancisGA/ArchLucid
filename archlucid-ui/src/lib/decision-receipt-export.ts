@@ -50,8 +50,8 @@ export type DecisionReceiptDocument = {
   transparencyTrail: TransparencyTrailExportSection | null;
   costStory: {
     label: typeof DECISION_RECEIPT_COST_ESTIMATE_LABEL;
-    sessionCostUsdEstimate: number;
-    avoidedHumanArchitectCostUsdEstimate: number;
+    sessionCostUsdEstimate: string;
+    avoidedHumanArchitectCostUsdEstimate: string;
     avoidedCalendarWeeksEstimate: string;
     narrative: string;
   };
@@ -95,11 +95,11 @@ export function buildDecisionReceiptDocument(context: DecisionReceiptContext): D
     transparencyTrail: buildTransparencyTrailExportSection(context.verdict.transparencyTrail),
     costStory: {
       label: DECISION_RECEIPT_COST_ESTIMATE_LABEL,
-      sessionCostUsdEstimate: 1,
-      avoidedHumanArchitectCostUsdEstimate: 25_000,
-      avoidedCalendarWeeksEstimate: "2–4",
+      sessionCostUsdEstimate: "Session cost was not stored.",
+      avoidedHumanArchitectCostUsdEstimate: "Avoided human architect cost was not stored.",
+      avoidedCalendarWeeksEstimate: "Avoided calendar time was not stored.",
       narrative:
-        "A defensible decision delivered in minutes at low compute cost versus weeks of human architecture review.",
+        "Session cost, avoided architect cost, and avoided calendar time were not stored on this receipt.",
     },
     careerPosture,
   };

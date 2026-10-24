@@ -256,12 +256,20 @@ export function RunDetailPackageStatusStrip(props: RunDetailPackageStatusStripPr
               href="#artifacts-exports"
               className={cn("block rounded outline-none ring-offset-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--al-accent-border-focus)] dark:outline-offset-neutral-950", inlineLinkClass)}
             >
-              <p className={valueClass}>{finiteIntegerCountDisplay(props.artifactCount)}</p>
+              <p className={valueClass}>
+                {finiteIntegerCountDisplay(props.artifactCount, {
+                  notStoredLabel: "Artifact count was not stored.",
+                })}
+              </p>
               <p className={detailClass}>Export-ready deliverables</p>
             </Link>
           ) : (
             <>
-              <p className={valueClass}>{finiteIntegerCountDisplay(props.artifactCount)}</p>
+              <p className={valueClass}>
+                {finiteIntegerCountDisplay(props.artifactCount, {
+                  notStoredLabel: "Artifact count was not stored.",
+                })}
+              </p>
               <p className={detailClass}>Export-ready deliverables</p>
             </>
           )}
