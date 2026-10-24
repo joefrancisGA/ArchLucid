@@ -102,6 +102,33 @@ public sealed class ComparisonRecordSearchPredicateBuilderTests
     }
 
     [Fact]
+    public void AppendFilters_trims_padded_run_id_query_parameters()
+    {
+        List<string> conditions = [];
+        DynamicParameters parameters = new();
+        Guid leftRunId = Guid.NewGuid();
+        Guid rightRunId = Guid.NewGuid();
+
+        ComparisonRecordSearchPredicateBuilder.AppendFilters(
+            conditions,
+            parameters,
+            comparisonType: null,
+            leftRunId: $"  {leftRunId:D}\r\n",
+            rightRunId: $"  {rightRunId:N}  ",
+            createdFromUtc: null,
+            createdToUtc: null,
+            leftExportRecordId: null,
+            rightExportRecordId: null,
+            label: null,
+            tags: null);
+
+        conditions.Should().Contain("LeftRunId = @LeftRunId");
+        conditions.Should().Contain("RightRunId = @RightRunId");
+        parameters.Get<Guid>("@LeftRunId").Should().Be(leftRunId);
+        parameters.Get<Guid>("@RightRunId").Should().Be(rightRunId);
+    }
+
+    [Fact]
     public void AppendFilters_trims_padded_export_record_id_query_parameters()
     {
         List<string> conditions = [];

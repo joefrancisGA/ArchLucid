@@ -6868,13 +6868,21 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
-2026-10-24 seed hunt (seed→hit): proved `ComparisonsApplicationService.CanonicalRunIdForLookup` forwarded untrimmed run id search filters to the comparison repository so pasted keys with trailing line breaks missed in-memory history search for non-canonical run id strings; trim before GUID canonicalization and opaque id passthrough; regression `CompareQuality_SearchAsync_finds_records_when_left_run_filter_has_trailing_line_break`; cheap-disproof closed `CompareRunsApplicationFacade.CompareManifestsAsync` (accepts `Guid` route parameters already parsed), Armenian homoglyphs (deferred), distinct `##` subsection (intentional), and persistence-layer determinism normalize (deferred); seeded five follow-on rows; scoped application-analysis filter 188/188. Private beta: comparison history search run-id filters tolerate trailing line breaks on pasted keys, completing trim parity with list-by-run and compare-runs pair load.
+2026-10-24 seed hunt (seed→hit): proved `ComparisonRecordSearchPredicateBuilder` parsed left/right run id filters with `Guid.TryParse` before trim so SQL-backed comparison history search emitted `1 = 0` when operators pasted GUID run keys with trailing line breaks (application-layer canonical lookup was fixed separately); route SQL search filters through `ComparisonRecordRunIdSql.ToNullableSqlGuid` and trim on write validation in the same helper; regressions `AppendFilters_trims_padded_run_id_query_parameters`, `ToNullableSqlGuid_trims_surrounding_whitespace_before_parse`, and `ThrowIfNonEmptyButNotGuid_accepts_padded_guid`; cheap-disproof closed `ComparisonsApplicationService.TryGetScopedRecordAsync` padded comparison id (deferred to next row), Armenian homoglyphs (deferred), distinct `##` subsection (intentional), and persistence-layer determinism normalize (deferred); seeded five follow-on rows; scoped application-analysis filter 188/188; persistence run-id SQL regressions 15/15. Private beta: comparison history search tolerates pasted run-id whitespace on SQL persistence deployments, matching in-memory and application-layer trim parity.
 
-- [ ] (candidate) `ComparisonRecordSearchPredicateBuilder` — trim run id filters before SQL `Guid.TryParse` — locus: persistence search; input: padded GUID strings on SQL path.
-- [ ] (candidate) `ComparisonsApplicationService.TryGetScopedRecordAsync` — trim comparison record id — locus: scoped get; input: padded comparison id route token.
+- [ ] (candidate) `ComparisonsApplicationService.LoadScopedComparisonRecordAsync` — trim comparison record id before `GetByIdAsync` — locus: scoped get; input: padded comparison id route token from UI copy.
+- [ ] (candidate) `ComparisonRecordRepositoryCore` — in-memory search compares run id filters with ordinal equality without trim — locus: EF/in-memory `Search` filter; input: padded GUID string when repository called without app canonicalization.
+- [ ] (candidate) `ComparisonRecordSearchPredicateBuilder` — `comparisonType` filter without trim — locus: SQL search; input: `manifest-diff` with trailing spaces from query string.
 - [ ] (candidate) `ComparisonExportMarkdownSectionRemover` — Armenian homoglyphs in delta headings — locus: `UnicodeLatinHomoglyphMapper`; input: deferred expansion.
-- [ ] (candidate) `ComparisonExportMarkdownSectionRemover` — distinct level-2 subsection inside delta — locus: product shape; input: intentional early boundary.
 - [ ] (candidate) `RunExportRecordPersistNormalizer` — persistence-layer determinism column normalize — locus: repository read; input: consolidation at DB boundary.
+
+- [x] (proven) `ComparisonRecordSearchPredicateBuilder` — untrimmed run id filters on SQL search — **hit 2026-10-24 seed hunt:** `ComparisonRecordRunIdSql.ToNullableSqlGuid`; regressions `AppendFilters_trims_padded_run_id_query_parameters` and `ToNullableSqlGuid_trims_surrounding_whitespace_before_parse`.
+- [x] (invalid) `ComparisonsApplicationService.TryGetScopedRecordAsync` — padded comparison id — **cheap-disproof 2026-10-24 seed hunt:** promoted to `LoadScopedComparisonRecordAsync` candidate with explicit locus.
+- [x] (invalid) `UnicodeLatinHomoglyphMapper` — Armenian homoglyphs — **cheap-disproof 2026-10-24 seed hunt:** deferred.
+- [x] (valid-no-repro) `ComparisonExportMarkdownSectionRemover` — distinct `##` inside delta — **cheap-disproof 2026-10-24 seed hunt:** intentional boundary.
+- [x] (invalid) `RunExportRecordPersistNormalizer` — DB read normalize — **cheap-disproof 2026-10-24 seed hunt:** consolidation deferred.
+
+2026-10-24 seed hunt (seed→hit): proved `ComparisonsApplicationService.CanonicalRunIdForLookup` forwarded untrimmed run id search filters to the comparison repository so pasted keys with trailing line breaks missed in-memory history search for non-canonical run id strings; trim before GUID canonicalization and opaque id passthrough; regression `CompareQuality_SearchAsync_finds_records_when_left_run_filter_has_trailing_line_break`; cheap-disproof closed `CompareRunsApplicationFacade.CompareManifestsAsync` (accepts `Guid` route parameters already parsed), Armenian homoglyphs (deferred), distinct `##` subsection (intentional), and persistence-layer determinism normalize (deferred); seeded five follow-on rows; scoped application-analysis filter 188/188. Private beta: comparison history search run-id filters tolerate trailing line breaks on pasted keys, completing trim parity with list-by-run and compare-runs pair load.
 
 - [x] (proven) `ComparisonsApplicationService.CanonicalRunIdForLookup` — untrimmed search run id filters — **hit 2026-10-24 seed hunt:** `Trim()` before parse/canonicalize; regression `CompareQuality_SearchAsync_finds_records_when_left_run_filter_has_trailing_line_break`.
 - [x] (invalid) `CompareRunsApplicationFacade.CompareManifestsAsync` — padded GUID route strings — **cheap-disproof 2026-10-24 seed hunt:** API passes parsed `Guid` values.
@@ -7457,13 +7465,13 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 117
-- **bugs-found:** 123
+- **hunts:** 118
+- **bugs-found:** 124
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-24
-- **last-bug:** 2026-10-24 — comparison search trims run id filters before lookup
+- **last-bug:** 2026-10-24 — SQL comparison search trims run id filters before GUID parse
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
 
 - [x] (proven) `ComparisonReplayService.ReplayExportDiffAsync` — export-record-diff replay bypassed career metadata gate — **hit 2026-10-21 seed hunt:** regression `ReplayAsync_export_diff_artifact_throws_when_career_posture_blocks_metadata_read`.
 
