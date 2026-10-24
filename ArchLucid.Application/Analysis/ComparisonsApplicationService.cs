@@ -184,6 +184,7 @@ public sealed partial class ComparisonsApplicationService(
         if (await _runDetailQueryService.GetRunDetailAsync(export.RunId, cancellationToken) is null)
             return null;
 
+        PersistedAnalysisExportRequestDeterminismNormalizer.NormalizeRunExportRecordDenormalizedColumns(export);
         return export;
     }
 

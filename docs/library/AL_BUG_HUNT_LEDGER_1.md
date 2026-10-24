@@ -6868,6 +6868,19 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-24 seed hunt (seed→hit): proved `ComparisonsApplicationService.LoadScopedExportRecordAsync` loaded export anchors via `GetByIdAsync` without clearing stale denormalized `DeterminismIterations` when `IncludedDeterminismCheck` was false (unlike `RunExportQueryFacade` scoped reads fixed in hunt 109), so export-anchored comparison list/scope checks could retain legacy iteration column drift on the in-memory row; normalize via `PersistedAnalysisExportRequestDeterminismNormalizer.NormalizeRunExportRecordDenormalizedColumns` before returning; regression `CompareQuality_TryListByExportRecordIdAsync_clears_stale_denormalized_determinism_iterations_on_scoped_export_load`; cheap-disproof closed facade compare-pair path (already normalized), `ConsultingDocxExportWhitelabelPrefill` whitelabel-only probe (no determinism surface), and persistence-layer `RunExportRecordPersistNormalizer` (deferred consolidation); seeded five follow-on rows; scoped application-analysis filter 162/162. Private beta: export-anchored comparison history loads align determinism denormalized columns with metadata reads elsewhere; operators listing comparisons by export id no longer inherit stale iteration counts when the check is off.
+
+- [ ] (candidate) `ConsultingDocxExportWhitelabelPrefill` — normalize export history rows on read — locus: `GetByRunIdAsync`; input: whitelabel prefill path only.
+- [ ] (candidate) `ComparisonsApplicationService.IsComparisonRecordInScopeAsync` — left/right export scope loads share normalization — locus: dual `LoadScopedExportRecordAsync`; input: parity when both anchors loaded.
+- [ ] (candidate) `UnicodeLatinHomoglyphMapper` — Armenian homoglyphs — locus: homoglyph casing; input: deferred.
+- [ ] (candidate) `ComparisonExportMarkdownSectionRemover` — distinct `##` subsection inside delta — locus: product shape; input: intentional boundary.
+- [ ] (candidate) `RunExportRecordPersistNormalizer` — persistence-layer column normalize — locus: repository read; input: consolidation at DB boundary.
+
+- [x] (proven) `ComparisonsApplicationService.LoadScopedExportRecordAsync` — stale denormalized iterations on export-anchored scope load — **hit 2026-10-24 seed hunt:** `NormalizeRunExportRecordDenormalizedColumns`; regression `CompareQuality_TryListByExportRecordIdAsync_clears_stale_denormalized_determinism_iterations_on_scoped_export_load`.
+- [x] (valid-no-repro) `RunExportQueryFacade.LoadScopedExportRecordAsync` — compare pair normalization — **cheap-disproof 2026-10-24 seed hunt:** hunt 109; regression `GetExportRecordAsync_clears_stale_denormalized_determinism_iterations_when_check_disabled`.
+- [x] (valid-no-repro) `ConsultingDocxExportWhitelabelPrefill` — determinism columns on whitelabel prefill — **cheap-disproof 2026-10-24 seed hunt:** prefill path does not surface `DeterminismIterations` to operators.
+- [x] (invalid) `RunExportRecordPersistNormalizer` — immediate DB read normalize — **cheap-disproof 2026-10-24 seed hunt:** Application read boundary fix sufficient for scoped comparison loads; persistence consolidation deferred.
+
 2026-10-24 seed hunt (seed→hit): proved `ExportReplayService` and `ComparisonReplayService.RegenerateExportDiffAsync` still loaded export rows with stale denormalized `DeterminismIterations` when the check was disabled, and `ExportRecordDiffService` duplicated determinism column normalization; normalize export records on replay/diff-regenerate loads and route top-level diff through `PersistedAnalysisExportRequestDeterminismNormalizer.NormalizeDenormalizedIterationsColumn`; regressions `ReplayAsync_clears_stale_denormalized_determinism_iterations_on_loaded_record`, `CompareExportRecordsAsync_passes_normalized_denormalized_determinism_columns_to_diff`, and shared diff helper wiring; cheap-disproof closed compare-pair load (same `LoadScopedExportRecordAsync` path), `IncludedSummary` null/false parity, and false `includeDeterminismCheck` JSON omission; seeded five follow-on rows; scoped application-analysis filter 161/161. Private beta: export replay and comparison diff-regenerate no longer carry legacy iteration column drift; export compare diff uses one normalization source with metadata reads.
 
 - [ ] (candidate) `ConsultingDocxExportWhitelabelPrefill` — normalize export history rows on read — locus: `GetByRunIdAsync`; input: whitelabel prefill path only.
@@ -7360,11 +7373,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 110
-- **bugs-found:** 116
+- **hunts:** 111
+- **bugs-found:** 117
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-23
-- **last-bug:** 2026-10-23 — compact audit JSON, determinism null/zero, case-insensitive headings
+- **last-hunt:** 2026-10-24
+- **last-bug:** 2026-10-24 — comparison export-anchored scope load clears stale determinism iterations
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 

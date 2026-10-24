@@ -107,6 +107,59 @@ public sealed class CompareQualityComparisonsApplicationServiceTests
     }
 
     [Fact]
+    public async Task CompareQuality_TryListByExportRecordIdAsync_clears_stale_denormalized_determinism_iterations_on_scoped_export_load()
+    {
+        const string exportRecordId = "export-determinism-normalize";
+        const string runId = "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee";
+
+        InMemoryComparisonRecordRepository comparisonRecords = new();
+        await comparisonRecords.CreateAsync(
+            new ComparisonRecord
+            {
+                ComparisonRecordId = "cmp-export-determinism",
+                ComparisonType = ComparisonTypes.ExportRecordDiff,
+                LeftExportRecordId = exportRecordId,
+                RightExportRecordId = "other-export",
+                CreatedUtc = DateTime.UtcNow,
+            },
+            CancellationToken.None);
+
+        RunExportRecord storedExport = new()
+        {
+            ExportRecordId = exportRecordId,
+            RunId = runId,
+            IncludedDeterminismCheck = false,
+            DeterminismIterations = 4,
+        };
+
+        Mock<IRunExportRecordRepository> exportRecords = new();
+        exportRecords
+            .Setup(r => r.GetByIdAsync(exportRecordId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(storedExport);
+
+        Mock<IRunDetailQueryService> runDetail = new();
+        runDetail
+            .Setup(s => s.GetRunDetailAsync(runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchitectureRunDetail { Run = new() { RunId = runId } });
+
+        ComparisonsApplicationService sut = new(
+            runDetail.Object,
+            exportRecords.Object,
+            comparisonRecords,
+            new Mock<IComparisonReplayService>().Object,
+            new Mock<ICompareRunsApplicationFacade>().Object,
+            new Mock<IComparisonReplayCostEstimator>().Object,
+            new Mock<IDriftReportFormatter>().Object,
+            new DriftReportDocxExport());
+
+        IReadOnlyList<ComparisonRecord>? records =
+            await sut.TryListByExportRecordIdAsync(exportRecordId, CancellationToken.None);
+
+        records.Should().NotBeNull();
+        storedExport.DeterminismIterations.Should().BeNull();
+    }
+
+    [Fact]
     public async Task CompareQuality_SearchAsync_finds_records_when_left_export_filter_is_padded_and_stored_anchor_has_padding()
     {
         const string exportRecordId = "search-left-export";
