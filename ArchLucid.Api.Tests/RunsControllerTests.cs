@@ -291,6 +291,61 @@ public sealed class RunsControllerTests
     }
 
     [Fact]
+    public async Task CreateRunBatch_proceeds_with_null_idempotency_when_header_is_whitespace_only()
+    {
+        Mock<IRunLifecycleCommandService> lifecycle = new();
+        lifecycle
+            .Setup(s => s.ValidateIdempotencyKey(It.IsAny<string?>()))
+            .Returns<string?>(raw =>
+            {
+                if (raw is null)
+                    return new IdempotencyKeyValidationResult(true, null, null);
+
+                string trimmed = raw.Trim();
+                return new IdempotencyKeyValidationResult(true, trimmed.Length == 0 ? null : trimmed, null);
+            });
+        lifecycle
+            .Setup(s => s.CreateRunBatchAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<IReadOnlyList<ArchitectureRequest>>(),
+                null,
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new BatchCreateRunOrchestrationResult
+            {
+                Outcome = BatchCreateRunOutcome.Accepted,
+                Items = [],
+            });
+
+        RunsController controller = CreateController(runLifecycleCommandService: lifecycle.Object);
+
+        controller.ControllerContext.HttpContext.Request.Headers["Idempotency-Key"] = "   ";
+
+        ArchitectureRequest[] requests =
+        [
+            new()
+            {
+                RequestId = "batch-ws-idem",
+                Description = new string('x', 20),
+                SystemName = "CreatedArch",
+            },
+        ];
+
+        IActionResult action = await controller.CreateRunBatch(requests, CancellationToken.None);
+
+        action.Should().BeOfType<AcceptedResult>();
+
+        lifecycle.Verify(
+            static s => s.CreateRunBatchAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<IReadOnlyList<ArchitectureRequest>>(),
+                null,
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
     public async Task CreateRunBatch_returns_bad_request_when_idempotency_key_exceeds_max_length()
     {
         Mock<IRunLifecycleCommandService> lifecycle = new();
@@ -1033,6 +1088,43 @@ public sealed class RunsControllerTests
         intakeFacade.Verify(
             static f => f.RephraseClarificationAnswersAsync(It.IsAny<RephraseClarificationAnswersInput>(), It.IsAny<CancellationToken>()),
             Times.Never);
+    }
+
+    [Fact]
+    public async Task RephraseClarificationAnswers_calls_intake_facade_when_question_prompt_is_ten_characters()
+    {
+        Mock<IArchitectureRequestIntakeFacade> intakeFacade = new();
+        intakeFacade
+            .Setup(s => s.RephraseClarificationAnswersAsync(It.IsAny<RephraseClarificationAnswersInput>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RephraseClarificationAnswersResponse
+            {
+                RephrasedAnswers = new Dictionary<string, string> { ["q1"] = "ok" },
+            });
+
+        RunsController controller = CreateController();
+
+        RephraseClarificationAnswersInput input = new()
+        {
+            Items =
+            [
+                new ClarificationAnswerRephraseItem
+                {
+                    QuestionKey = "q1",
+                    QuestionPrompt = new string('a', 10),
+                    ExtractedAnswer = "yes",
+                },
+            ],
+        };
+
+        IActionResult action = await controller.RephraseClarificationAnswers(input, intakeFacade.Object, CancellationToken.None);
+
+        action.Should().BeOfType<OkObjectResult>();
+
+        intakeFacade.Verify(
+            static f => f.RephraseClarificationAnswersAsync(
+                It.Is<RephraseClarificationAnswersInput>(i => i.Items[0].QuestionPrompt!.Length == 10),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 
     [Fact]
