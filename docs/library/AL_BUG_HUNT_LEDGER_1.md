@@ -6868,6 +6868,20 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-24 seed hunt (seed→hit): proved `AnalysisRunIdCanonicalization.CanonicalRunIdForPersistenceOrNull` returned whitespace-only strings unchanged so export-diff comparison audits persisted space-filled `LeftRunId`/`RightRunId` columns instead of null, and `ArchitectureAnalysisService`/`ExportReplayService` run-id lookup omitted trim on non-GUID ids; centralize lookup via `CanonicalRunIdForLookup` with trim-before-parse, return null from `CanonicalRunIdForPersistenceOrNull` for whitespace-only input, and trim before `Guid.TryParse` in persistence; regressions `RecordExportDiffAsync_treats_whitespace_only_run_ids_as_null`, `CanonicalRunIdForPersistenceOrNull_whitespace_only_returns_null`, and `CanonicalRunIdForLookup_trims_opaque_run_id`; cheap-disproof closed `ApiPaging.TryParseUtcTicksIdCursor` (comparison search normalizes cursor id), batch zip manifest echo (cosmetic), Armenian homoglyphs (deferred), and persistence-layer determinism normalize (deferred); seeded five follow-on rows; scoped application-analysis + replay filter 253/253. Private beta: export-diff comparison records and architecture analysis run-id resolution treat whitespace-only or padded run keys consistently with other comparison trim parity on the RC35 line.
+
+- [ ] (candidate) `ApiPaging.TryParseUtcTicksIdCursor` — cursor id segment without trim — locus: HTTP cursor parse; input: padded id after ticks delimiter (alerts inbox and other API surfaces).
+- [ ] (candidate) `ComparisonBatchReplayZipSupport` — manifest failure entries echo pre-trim batch tokens — locus: zip manifest; input: cosmetic id echo only.
+- [ ] (candidate) `ComparisonExportMarkdownSectionRemover` — Armenian homoglyphs in delta headings — locus: `UnicodeLatinHomoglyphMapper`; input: deferred expansion.
+- [ ] (candidate) `RunExportRecordPersistNormalizer` — persistence-layer determinism column normalize — locus: repository read; input: consolidation at DB boundary.
+- [ ] (candidate) `ComparisonsApplicationService` — delegate `CanonicalRunIdForLookup` to `AnalysisRunIdCanonicalization` — locus: duplicate helper; input: consolidation only.
+
+- [x] (proven) `AnalysisRunIdCanonicalization` — whitespace-only run ids on export-diff persist — **hit 2026-10-24 seed hunt:** `CanonicalRunIdForPersistenceOrNull` returns null; shared `CanonicalRunIdForLookup`; regressions above.
+- [x] (invalid) `ApiPaging.TryParseUtcTicksIdCursor` — HTTP cursor id trim — **cheap-disproof 2026-10-24 seed hunt:** comparison search normalizes at application layer.
+- [x] (invalid) `ComparisonBatchReplayZipSupport` — manifest id echo — **cheap-disproof 2026-10-24 seed hunt:** cosmetic only.
+- [x] (invalid) `UnicodeLatinHomoglyphMapper` — Armenian homoglyphs — **cheap-disproof 2026-10-24 seed hunt:** deferred.
+- [x] (invalid) `RunExportRecordPersistNormalizer` — DB read normalize — **cheap-disproof 2026-10-24 seed hunt:** consolidation deferred.
+
 2026-10-24 seed hunt (seed→hit): proved `ComparisonReplayCostEstimator.TryEstimateAsync` loaded comparison records with untrimmed ids so direct estimator calls (and cache keys) missed rows when comparison record ids carried trailing line breaks even though `TryEstimateReplayCostAsync` scoped loads were already trimmed; normalize via `ComparisonRecordIdNormalizer.NormalizeRequired` at estimator entry; regression `TryEstimateAsync_trims_padded_comparison_record_id_before_load`; cheap-disproof closed `ApiPaging.TryParseUtcTicksIdCursor` (analysis path normalizes cursor id), batch zip manifest echo (cosmetic), Armenian homoglyphs (deferred), persistence-layer determinism normalize (deferred), and opaque run-id `FilterInMemory` (canonical helper already trims); seeded five follow-on rows; scoped application-analysis + replay + cost estimator filter 244/244. Private beta: comparison replay cost previews stay available when record ids are pasted with trailing whitespace, including any internal caller that invokes the estimator directly.
 
 - [ ] (candidate) `ApiPaging.TryParseUtcTicksIdCursor` — cursor id segment without trim — locus: HTTP cursor parse; input: padded id after ticks delimiter (alerts inbox and other API surfaces).
@@ -7617,11 +7631,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 129
-- **bugs-found:** 135
+- **hunts:** 130
+- **bugs-found:** 136
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-24
-- **last-bug:** 2026-10-24 — comparison replay cost estimator trims record id
+- **last-bug:** 2026-10-24 — shared run-id canonicalization trims and nulls whitespace
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
