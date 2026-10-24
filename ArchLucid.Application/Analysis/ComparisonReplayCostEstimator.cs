@@ -20,7 +20,7 @@ public sealed class ComparisonReplayCostEstimator(
     public async Task<ComparisonReplayCostEstimate?> TryEstimateAsync(string comparisonRecordId, string? format, string? replayMode, bool persistReplay,
         CancellationToken ct)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(comparisonRecordId);
+        comparisonRecordId = ComparisonRecordIdNormalizer.NormalizeRequired(comparisonRecordId);
 
         string normalizedFormat = ComparisonReplayRequestParsing.NormalizeFormat(format);
         ComparisonReplayMode mode = ComparisonReplayRequestParsing.ParseReplayMode(replayMode);
