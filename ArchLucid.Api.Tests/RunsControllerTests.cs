@@ -226,6 +226,47 @@ public sealed class RunsControllerTests
     }
 
     [Fact]
+    public async Task LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_exceeds_max_length()
+    {
+        Mock<IRunLifecycleCommandService> lifecycle = new();
+        lifecycle
+            .Setup(s => s.ValidateIdempotencyKey(It.IsAny<string?>()))
+            .Returns<string?>(raw =>
+            {
+                if (raw is null)
+                    return new IdempotencyKeyValidationResult(true, null, null);
+
+                string trimmed = raw.Trim();
+
+                if (trimmed.Length > ArchitectureRunIdempotencyHashing.MaxIdempotencyKeyLength)
+                {
+                    return new IdempotencyKeyValidationResult(
+                        false,
+                        null,
+                        $"Idempotency-Key must be at most {ArchitectureRunIdempotencyHashing.MaxIdempotencyKeyLength} characters after trim.");
+                }
+
+                return new IdempotencyKeyValidationResult(true, trimmed.Length == 0 ? null : trimmed, null);
+            });
+
+        RunsController controller = CreateController(runLifecycleCommandService: lifecycle.Object);
+
+        string overlongKey = new string('k', ArchitectureRunIdempotencyHashing.MaxIdempotencyKeyLength + 1);
+
+        IActionResult action = await controller.LookupCreateRunByIdempotencyKey(overlongKey, CancellationToken.None);
+
+        ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
+        bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+
+        lifecycle.Verify(
+            static s => s.LookupCreateRunByIdempotencyKeyAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task CreateRunBatch_returns_bad_request_when_idempotency_key_exceeds_max_length()
     {
         Mock<IRunLifecycleCommandService> lifecycle = new();
@@ -847,6 +888,36 @@ public sealed class RunsControllerTests
             ok.Value.Should().BeOfType<ExplainStructuredBriefSuggestionResponse>().Subject;
 
         response.Explanation.Should().Contain("EU customers");
+    }
+
+    [Fact]
+    public async Task RephraseClarificationAnswers_returns_bad_request_when_question_prompt_is_nine_characters()
+    {
+        Mock<IArchitectureRequestIntakeFacade> intakeFacade = new();
+
+        RunsController controller = CreateController();
+
+        RephraseClarificationAnswersInput input = new()
+        {
+            Items =
+            [
+                new ClarificationAnswerRephraseItem
+                {
+                    QuestionKey = "q1",
+                    QuestionPrompt = new string('a', 9),
+                    ExtractedAnswer = "yes",
+                },
+            ],
+        };
+
+        IActionResult action = await controller.RephraseClarificationAnswers(input, intakeFacade.Object, CancellationToken.None);
+
+        ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
+        bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+
+        intakeFacade.Verify(
+            static f => f.RephraseClarificationAnswersAsync(It.IsAny<RephraseClarificationAnswersInput>(), It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     [Fact]

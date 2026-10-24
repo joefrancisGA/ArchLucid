@@ -9032,11 +9032,19 @@
 
 2026-10-24 seed hunt (seed-only #18): cheap-disproof closed five open `(candidate)` rows; four regressions; scoped tests passed on full tree (`RunAnalyzers=false`).
 
-- [ ] (candidate) `RunsController.LookupCreateRunByIdempotencyKey` — over-max `Idempotency-Key` on lookup — locus: `ValidateIdempotencyKey`; input: parity with create routes.
-- [ ] (candidate) `AdminAgentModelCatalogController.RecordEvaluation` — missing `EvaluationState` property — locus: `Enum.TryParse`; input: omitted field (recycle hunt #8).
-- [ ] (candidate) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with whitespace-only `ExclusionReason` — locus: bulk validation; input: `"   "` on PUT.
-- [ ] (candidate) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — empty-string `EventType` — locus: filter forwarded; input: `""` vs null.
-- [ ] (candidate) `RunsController.RephraseClarificationAnswers` — `QuestionPrompt` exactly 9 characters — locus: 10-char minimum; input: boundary fail.
+- [x] (valid-no-repro) `RunsController.LookupCreateRunByIdempotencyKey` — over-max `Idempotency-Key` on lookup — **cheap-disproof 2026-10-24 seed hunt #19:** shared `ValidateIdempotencyKey`; regression `LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — missing `EvaluationState` property — **cheap-disproof 2026-10-24 seed hunt #19:** omitted/null `EvaluationState` fails `Enum.TryParse` → HTTP 400 (recycle hunt #8).
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with whitespace-only `ExclusionReason` — **cheap-disproof 2026-10-24 seed hunt #19:** `ValidateEntriesAsync` `IsNullOrWhiteSpace` → HTTP 400.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — empty-string `EventType` — **cheap-disproof 2026-10-24 seed hunt #19:** optional filter forwarded without validation error; regression `RetryIntegrationOutboxDeadLetters_accepts_empty_string_event_type_filter`.
+- [x] (valid-no-repro) `RunsController.RephraseClarificationAnswers` — `QuestionPrompt` exactly 9 characters — **cheap-disproof 2026-10-24 seed hunt #19:** below 10-char minimum; regression `RephraseClarificationAnswers_returns_bad_request_when_question_prompt_is_nine_characters`.
+
+2026-10-24 seed hunt (seed-only #19): cheap-disproof closed five open `(candidate)` rows; four regressions; scoped tests passed on full tree (`RunAnalyzers=false`).
+
+- [ ] (candidate) `RunsController.LookupCreateRunByIdempotencyKey` — whitespace-only `Idempotency-Key` — locus: trim + empty key guard; input: `"   "` header.
+- [ ] (candidate) `AdminAgentModelCatalogController.RecordEvaluation` — null `EvidenceJson` vs omitted — locus: optional evidence; input: parity hunt #7.
+- [ ] (candidate) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with empty-string `ExclusionReason` — locus: bulk validation; input: `""` on PUT.
+- [ ] (candidate) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `498` — locus: interior bound below 500 cap.
+- [ ] (candidate) `RunsController.RephraseClarificationAnswers` — `ExtractedAnswer` exactly 2 characters — locus: 3-char minimum; input: boundary fail.
 
 2026-10-23 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows from prior reseed; no new hunt-ready promotion (Rephrase null `Items` already shipped on `bugsmash-2` 01857d53eb); seeded five follow-on `(candidate)` rows; 12 scoped RunsController draft/explain + RunCoverage acknowledgement tests passed.
 
@@ -9056,9 +9064,9 @@
 - **aliases:** authority controllers; admin controllers
 - **paths:** ArchLucid.Api/Controllers/Authority/; ArchLucid.Api/Controllers/Admin/
 - **test-filter:** FullyQualifiedName~AuthorityController|FullyQualifiedName~AdminController
-- **hunts:** 82
+- **hunts:** 83
 - **bugs-found:** 58
-- **consecutive-dry-hunts:** 16
+- **consecutive-dry-hunts:** 17
 - **last-hunt:** 2026-10-24
 - **last-bug:** 2026-10-23 — rephrase clarification null item in items array caused 500 instead of validation
 - **related-pd-tb:** none
