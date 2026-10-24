@@ -6868,6 +6868,20 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-24 seed hunt (seed→hit): proved `ExportRecordDiffResultNormalizer` trimmed top-level export anchors only while `MarkdownExportRecordDiffSummaryFormatter`/`ExportRecordDiffExportService` format paths could still pass export diffs with padded nested `CompareManifestVersion` and dashed `CompareRunId` on `RequestDiff` requests when callers skipped `ComparisonRecordPayloadRehydrator`; extend `NormalizeDisplayAnchors` with nested `PersistedAnalysisExportRequestMetadata.TrimOptionalStrings` and compare-run canonicalization and delegate `ComparisonRecordPayloadRehydrator` export-diff canonicalize to the shared helper; regression `MarkdownExportRecordDiffSummaryFormatter_trims_nested_compare_manifest_version_on_format`; cheap-disproof closed duplicate rehydrate-only nested trim (now shared), `ApiPaging.TryParseUtcTicksIdCursor` (comparison search normalizes cursor id), batch zip manifest echo (cosmetic), Armenian homoglyphs (deferred), and persistence-layer determinism normalize (deferred); seeded five follow-on rows; scoped application-analysis + replay filter 289/289; export-diff nested format regression 1/1. Private beta: export-record comparison summary and DOCX formatting normalizes nested request metadata on the same path as payload rehydrate, avoiding padded nested manifest version strings on format-only callers.
+
+- [ ] (candidate) `RecordReplayOfAsync` — E2E payload canonical run id rewrite without regression — locus: replay persist; input: add regression only (behavior shipped hunt 148).
+- [ ] (candidate) `ApiPaging.TryParseUtcTicksIdCursor` — cursor id segment without trim — locus: HTTP cursor parse; input: padded id after ticks delimiter (alerts inbox and other API surfaces).
+- [ ] (candidate) `ComparisonBatchReplayZipSupport` — manifest failure entries echo pre-trim batch tokens — locus: zip manifest; input: cosmetic id echo only.
+- [ ] (candidate) `ComparisonExportMarkdownSectionRemover` — Armenian homoglyphs in delta headings — locus: `UnicodeLatinHomoglyphMapper`; input: deferred expansion.
+- [ ] (candidate) `RunExportRecordPersistNormalizer` — persistence-layer determinism column normalize — locus: repository read; input: consolidation at DB boundary.
+
+- [x] (proven) `ExportRecordDiffResultNormalizer` — nested request trim on format-only path — **hit 2026-10-24 seed hunt:** shared nested normalize; regression `MarkdownExportRecordDiffSummaryFormatter_trims_nested_compare_manifest_version_on_format`.
+- [x] (valid-no-repro) `ComparisonRecordPayloadRehydrator` — duplicate nested canonicalize — **cheap-disproof 2026-10-24 seed hunt:** delegates to shared normalizer.
+- [x] (invalid) `ApiPaging.TryParseUtcTicksIdCursor` — HTTP cursor id trim — **cheap-disproof 2026-10-24 seed hunt:** comparison search normalizes at application layer.
+- [x] (invalid) `ComparisonBatchReplayZipSupport` — manifest id echo — **cheap-disproof 2026-10-24 seed hunt:** cosmetic only.
+- [x] (invalid) `UnicodeLatinHomoglyphMapper` — Armenian homoglyphs — **cheap-disproof 2026-10-24 seed hunt:** deferred.
+
 2026-10-24 seed hunt (seed→hit): proved `MarkdownExportRecordDiffSummaryFormatter` and `ExportRecordDiffExportService` rendered export-record diff headings and DOCX anchor lines from untrimmed `LeftExportRecordId`/`RightExportRecordId` (and non-canonical run ids) when callers passed legacy padded `ExportRecordDiffResult` objects without going through `ComparisonRecordPayloadRehydrator`; consolidate display-anchor normalize via `ExportRecordDiffResultNormalizer.NormalizeDisplayAnchors` before markdown/docx export; regression `MarkdownExportRecordDiffSummaryFormatter_uses_trimmed_export_record_ids_in_heading`; cheap-disproof closed `ComparisonsApplicationService.TryBuildDriftReportContent` duplicate normalize (idempotent), `ApiPaging.TryParseUtcTicksIdCursor` (comparison search normalizes cursor id), batch zip manifest echo (cosmetic), Armenian homoglyphs (deferred), and persistence-layer determinism normalize (deferred); seeded five follow-on rows; scoped application-analysis + replay filter 289/289; export-diff summary regression 1/1. Private beta: export-record comparison summary markdown and DOCX exports show trimmed export anchors and canonical run ids when formatting diffs that still carry padded legacy anchor strings.
 
 - [ ] (candidate) `ExportRecordDiffResultNormalizer` — nested request trim on format-only path — locus: display normalizer; input: payload rehydrate already trims nested requests (hunt 143–144).
@@ -7933,11 +7947,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 151
-- **bugs-found:** 157
+- **hunts:** 152
+- **bugs-found:** 158
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-24
-- **last-bug:** 2026-10-24 — export-diff summary/docx trim display anchors
+- **last-bug:** 2026-10-24 — export-diff format normalizes nested request metadata
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
