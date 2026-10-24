@@ -63,7 +63,9 @@ function renderTextWithUuidReviewLinks(
     const idMatchesScope =
       scopedReviewId.length > 0 && id.toLowerCase() === scopedReviewId;
 
-    if (idMatchesScope) {
+    const shouldLinkReviewUuid = scopedReviewId.length === 0 || idMatchesScope;
+
+    if (shouldLinkReviewUuid) {
       const linkChildren = buyerPolishedLinks ? "Open linked review" : id;
 
       parts.push(

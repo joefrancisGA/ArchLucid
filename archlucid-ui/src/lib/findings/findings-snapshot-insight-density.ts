@@ -34,31 +34,19 @@ function readNonNegativeInt(value: unknown): number | null {
 }
 
 function readFindingTitle(record: Record<string, unknown>): string {
+  const title = typeof record.title === "string" ? record.title.trim() : "";
+
+  if (title.length > 0) {
+    return title;
+  }
+
   const message = typeof record.message === "string" ? record.message.trim() : "";
 
   if (message.length > 0) {
     return message;
   }
 
-  const category = typeof record.category === "string" ? record.category.trim() : "";
-
-  if (category.length > 0) {
-    return category;
-  }
-
-  const findingType = typeof record.findingType === "string" ? record.findingType.trim() : "";
-
-  if (findingType.length > 0) {
-    return findingType;
-  }
-
-  const findingId = typeof record.findingId === "string" ? record.findingId.trim() : "";
-
-  if (findingId.length > 0) {
-    return findingId;
-  }
-
-  return "Checklist observation";
+  return "Finding title was not stored.";
 }
 
 /** Parses TB-384 checklist rows and TB-385 curation counts from hydrated run detail `findingsSnapshot`. */
