@@ -24,6 +24,8 @@ export type ArchitectureDiagramModel = {
   readonly nodes: readonly ArchitectureDiagramNode[];
   readonly edges: readonly ArchitectureDiagramEdge[];
   readonly trustBoundaryLabels: readonly string[];
+  /** Parsed data-flow lines that could not be matched to diagram nodes (omission copy only). */
+  readonly unmatchedDataFlows: readonly string[];
 };
 
 export type ArchitectureDiagramMissingCategory =

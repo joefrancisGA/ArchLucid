@@ -25,6 +25,7 @@ const model: ArchitectureDiagramModel = {
   ],
   edges: [],
   trustBoundaryLabels: [],
+  unmatchedDataFlows: [],
 };
 
 describe("ArchitectureDiagramInferredPanel", () => {
