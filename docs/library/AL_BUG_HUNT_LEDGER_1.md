@@ -6868,6 +6868,20 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-24 seed hunt (seed→hit): proved `ComparisonsApplicationService.TryBuildBatchReplayZipAsync` deduped batch comparison ids with ordinal `HashSet` membership before trim, so pasted lists containing the same comparison anchor with and without trailing whitespace replayed twice and produced duplicate zip entries; normalize ids with `ComparisonRecordIdNormalizer` before dedupe and processing; regression `CompareQuality_TryBuildBatchReplayZipAsync_dedupes_ids_that_differ_only_by_trailing_whitespace`; cheap-disproof closed SQL label filter trim (no cited caller harm), dual replay-service entry (fixed hunt 120), Armenian homoglyphs (deferred), and persistence-layer determinism normalize (deferred); seeded five follow-on rows; scoped application-analysis + replay filter 219/219. Private beta: batch comparison replay zip manifests treat whitespace-padded duplicate ids as one record, matching single-record replay trim parity.
+
+- [ ] (candidate) `ComparisonsApplicationService.SearchAsync` — `Label` criteria without trim — locus: history search; input: label filter with trailing spaces from query string.
+- [ ] (candidate) `ComparisonRecordSearchPredicateBuilder` — `label` filter without trim on SQL path — locus: persistence search; input: padded label when repository called without app normalization.
+- [ ] (candidate) `ComparisonBatchReplayZipSupport` — manifest entry ids echo raw batch tokens — locus: zip manifest; input: padded id strings in failure entries only (cosmetic).
+- [ ] (candidate) `ComparisonExportMarkdownSectionRemover` — Armenian homoglyphs in delta headings — locus: `UnicodeLatinHomoglyphMapper`; input: deferred expansion.
+- [ ] (candidate) `RunExportRecordPersistNormalizer` — persistence-layer determinism column normalize — locus: repository read; input: consolidation at DB boundary.
+
+- [x] (proven) `ComparisonsApplicationService.TryBuildBatchReplayZipAsync` — dedupe before comparison id trim — **hit 2026-10-24 seed hunt:** `ComparisonRecordIdNormalizer` on dedupe; regression `CompareQuality_TryBuildBatchReplayZipAsync_dedupes_ids_that_differ_only_by_trailing_whitespace`.
+- [x] (valid-no-repro) `ComparisonRecordSearchPredicateBuilder` — label filter trim — **cheap-disproof 2026-10-24 seed hunt:** no cited SQL-only label query harm.
+- [x] (invalid) `ComparisonReplayService` — dual entry trim gap — **cheap-disproof 2026-10-24 seed hunt:** closed hunt 120.
+- [x] (invalid) `UnicodeLatinHomoglyphMapper` — Armenian homoglyphs — **cheap-disproof 2026-10-24 seed hunt:** deferred.
+- [x] (invalid) `RunExportRecordPersistNormalizer` — DB read normalize — **cheap-disproof 2026-10-24 seed hunt:** consolidation deferred.
+
 2026-10-24 seed hunt (seed→hit): proved `ComparisonReplayService.ReplayAsync` and `AnalyzeDriftAsync` loaded comparison records via `GetByIdAsync` without trimming ids, so direct replay/drift API calls failed when comparison record ids were pasted with trailing line breaks even though `ComparisonsApplicationService` scoped loads were fixed in the prior hunt; normalize with `ComparisonRecordIdNormalizer` before repository lookup; regressions `ReplayAsync_trims_padded_comparison_record_id_before_load` and `AnalyzeDriftAsync_trims_padded_comparison_record_id_before_load`; cheap-disproof closed batch zip dedupe trim (separate manifest path), SQL label filter trim (no cited harm), Armenian homoglyphs (deferred), and persistence-layer determinism normalize (deferred); aligned five regenerate/verify replay tests with sealed-manifest fixtures; scoped application-analysis + replay filter 218/218. Private beta: comparison replay and drift analysis succeed when record ids are pasted with trailing whitespace on routes that invoke the replay service directly.
 
 - [ ] (candidate) `ComparisonsApplicationService.TryBuildBatchReplayZipAsync` — dedupe `HashSet` uses raw ids before scoped load trim — locus: batch manifest; input: same comparison id with differing trailing whitespace.
@@ -7493,11 +7507,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 120
-- **bugs-found:** 126
+- **hunts:** 121
+- **bugs-found:** 127
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-24
-- **last-bug:** 2026-10-24 — comparison replay service trims record ids before load
+- **last-bug:** 2026-10-24 — batch replay zip dedupes trimmed comparison ids
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
