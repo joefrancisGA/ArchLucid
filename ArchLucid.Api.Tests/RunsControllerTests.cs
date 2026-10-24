@@ -396,6 +396,60 @@ public sealed class RunsControllerTests
     }
 
     [Fact]
+    public async Task CreateRun_proceeds_with_null_idempotency_when_header_is_whitespace_only()
+    {
+        Mock<IRunLifecycleCommandService> lifecycle = new();
+        lifecycle
+            .Setup(s => s.ValidateIdempotencyKey(It.IsAny<string?>()))
+            .Returns<string?>(raw =>
+            {
+                if (raw is null)
+                    return new IdempotencyKeyValidationResult(true, null, null);
+
+                string trimmed = raw.Trim();
+                return new IdempotencyKeyValidationResult(true, trimmed.Length == 0 ? null : trimmed, null);
+            });
+        lifecycle
+            .Setup(s => s.CreateRunAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<ArchitectureRequest>(),
+                null,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new CreateRunCommandResult
+            {
+                SynthesisResult = new ArchitectureSynthesisGenerateResult
+                {
+                    RunId = Guid.NewGuid().ToString("N"),
+                    PackageOrigin = ArchitecturePackageOrigin.Created,
+                },
+            });
+
+        RunsController controller = CreateController(runLifecycleCommandService: lifecycle.Object);
+
+        controller.ControllerContext.HttpContext.Request.Headers["Idempotency-Key"] = "   ";
+
+        ArchitectureRequest request = new()
+        {
+            RequestId = "req-sync-ws-idem",
+            Description = new string('x', 20),
+            SystemName = "CreatedArch",
+            WorkflowIntent = ArchitectureWorkflowIntent.CreateArchitecture,
+        };
+
+        IActionResult action = await controller.CreateRun(request, CancellationToken.None);
+
+        action.Should().BeOfType<CreatedAtActionResult>();
+
+        lifecycle.Verify(
+            static s => s.CreateRunAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<ArchitectureRequest>(),
+                null,
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
     public async Task CreateRun_returns_bad_request_when_coordination_rejects_minimal_request()
     {
         Mock<IRunLifecycleCommandService> lifecycle = new();
@@ -912,6 +966,43 @@ public sealed class RunsControllerTests
             ok.Value.Should().BeOfType<ExplainStructuredBriefSuggestionResponse>().Subject;
 
         response.Explanation.Should().Contain("EU customers");
+    }
+
+    [Fact]
+    public async Task RephraseClarificationAnswers_calls_intake_facade_when_extracted_answer_is_three_characters()
+    {
+        Mock<IArchitectureRequestIntakeFacade> intakeFacade = new();
+        intakeFacade
+            .Setup(s => s.RephraseClarificationAnswersAsync(It.IsAny<RephraseClarificationAnswersInput>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RephraseClarificationAnswersResponse
+            {
+                RephrasedAnswers = new Dictionary<string, string> { ["q1"] = "ok" },
+            });
+
+        RunsController controller = CreateController();
+
+        RephraseClarificationAnswersInput input = new()
+        {
+            Items =
+            [
+                new ClarificationAnswerRephraseItem
+                {
+                    QuestionKey = "q1",
+                    QuestionPrompt = new string('a', 10),
+                    ExtractedAnswer = "yes",
+                },
+            ],
+        };
+
+        IActionResult action = await controller.RephraseClarificationAnswers(input, intakeFacade.Object, CancellationToken.None);
+
+        action.Should().BeOfType<OkObjectResult>();
+
+        intakeFacade.Verify(
+            static f => f.RephraseClarificationAnswersAsync(
+                It.Is<RephraseClarificationAnswersInput>(i => i.Items[0].ExtractedAnswer!.Length == 3),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 
     [Fact]
