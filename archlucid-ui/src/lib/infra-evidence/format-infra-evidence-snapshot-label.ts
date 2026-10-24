@@ -46,6 +46,8 @@ export function formatInfraEvidenceSnapshotLabel(snapshot: InfraEvidenceSnapshot
 
   if (subscription != null) {
     parts.push(subscription);
+  } else {
+    parts.push("Subscription was not stored.");
   }
 
   parts.push(captured);
@@ -61,6 +63,8 @@ export function formatInfraEvidenceSnapshotFreshness(snapshot: InfraEvidenceSnap
 
   if (subscription != null) {
     parts.push(subscription);
+  } else {
+    parts.push("Subscription was not stored.");
   }
 
   parts.push(`captured ${captured}`);
