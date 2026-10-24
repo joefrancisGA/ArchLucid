@@ -206,6 +206,57 @@ public sealed class RunsControllerTests
     }
 
     [Fact]
+    public async Task CreateRun_returns_bad_request_when_idempotency_key_exceeds_max_length()
+    {
+        Mock<IRunLifecycleCommandService> lifecycle = new();
+        lifecycle
+            .Setup(s => s.ValidateIdempotencyKey(It.IsAny<string?>()))
+            .Returns<string?>(raw =>
+            {
+                if (raw is null)
+                    return new IdempotencyKeyValidationResult(true, null, null);
+
+                string trimmed = raw.Trim();
+
+                if (trimmed.Length > ArchitectureRunIdempotencyHashing.MaxIdempotencyKeyLength)
+                {
+                    return new IdempotencyKeyValidationResult(
+                        false,
+                        null,
+                        $"Idempotency-Key must be at most {ArchitectureRunIdempotencyHashing.MaxIdempotencyKeyLength} characters after trim.");
+                }
+
+                return new IdempotencyKeyValidationResult(true, trimmed.Length == 0 ? null : trimmed, null);
+            });
+
+        RunsController controller = CreateController(runLifecycleCommandService: lifecycle.Object);
+
+        controller.ControllerContext.HttpContext.Request.Headers["Idempotency-Key"] =
+            new string('k', ArchitectureRunIdempotencyHashing.MaxIdempotencyKeyLength + 1);
+
+        ArchitectureRequest request = new()
+        {
+            RequestId = "req-sync-bad-idem",
+            Description = new string('x', 20),
+            SystemName = "CreatedArch",
+            WorkflowIntent = ArchitectureWorkflowIntent.CreateArchitecture,
+        };
+
+        IActionResult action = await controller.CreateRun(request, CancellationToken.None);
+
+        ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
+        bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+
+        lifecycle.Verify(
+            static s => s.CreateRunAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<ArchitectureRequest>(),
+                It.IsAny<string?>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task CreateRun_returns_bad_request_when_coordination_rejects_minimal_request()
     {
         Mock<IRunLifecycleCommandService> lifecycle = new();
@@ -809,6 +860,37 @@ public sealed class RunsControllerTests
         intakeFacade.Verify(
             static f => f.ParseConnectorIntakeAsync(It.IsAny<ConnectorIntakeRequest>(), It.IsAny<CancellationToken>()),
             Times.Never);
+    }
+
+    [Fact]
+    public async Task ConnectorIntake_calls_intake_facade_when_description_is_twenty_characters()
+    {
+        Mock<IArchitectureRequestIntakeFacade> intakeFacade = new();
+        intakeFacade
+            .Setup(f => f.ParseConnectorIntakeAsync(It.IsAny<ConnectorIntakeRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchitectureRequestIntakeParseResult
+            {
+                Outcome = ArchitectureRequestIntakeOutcome.Success,
+                Request = new ArchitectureRequest { RequestId = "connector-intake-desc" },
+            });
+
+        RunsController controller = CreateController();
+
+        ConnectorIntakeRequest input = new()
+        {
+            Source = "manual-connector",
+            Description = new string('a', 20),
+        };
+
+        IActionResult action = await controller.ConnectorIntake(input, intakeFacade.Object, CancellationToken.None);
+
+        action.Should().BeOfType<OkObjectResult>();
+
+        intakeFacade.Verify(
+            static f => f.ParseConnectorIntakeAsync(
+                It.Is<ConnectorIntakeRequest>(r => r.Description!.Length == 20),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 
     [Fact]
