@@ -8976,11 +8976,19 @@
 
 2026-10-24 seed hunt (seed-only #11): cheap-disproof closed five open `(candidate)` rows; three regressions; scoped tests passed on full tree (`RunAnalyzers=false`).
 
-- [ ] (candidate) `RunsController.AcceptCreateRunAsync` — empty `{}` vs sync `CreateRun` validation parity — locus: explicit `ValidateAsync` on async only; input: compare HTTP 400 shape.
-- [ ] (candidate) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` unknown name with surrounding whitespace — locus: `Enum.TryParse`; input: `" Evaluated "`.
-- [ ] (candidate) `RunCoverageController.PatchRunCoveragePack` — `Excluded` true with null `ExclusionReason` — locus: `PatchPackExclusionAsync`; input: omitted reason on excluded patch.
-- [ ] (candidate) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — omitted `MaxRows` on body with `EventType` set — locus: default `MaxRows`; input: filter-only body.
-- [ ] (candidate) `RunsController.RewriteArchitectureOverview` — whitespace-only `CurrentOverview` — locus: `ValidateDraftFreeText`; input: `"   "` overview.
+- [x] (invalid) `RunsController.AcceptCreateRunAsync` — empty `{}` vs sync `CreateRun` validation parity — **cheap-disproof 2026-10-24 seed hunt #12:** async route calls explicit `ValidateAsync` before accept; sync relies on coordination + HTTP auto-validation; both reject invalid shapes → HTTP 400; regression `AcceptCreateRunAsync_returns_bad_request_when_architecture_request_fails_validation`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` with surrounding whitespace — **cheap-disproof 2026-10-24 seed hunt #12:** `Enum.TryParse` does not trim; `" Evaluated "` fails → HTTP 400 `EvaluationState is invalid` (master controller).
+- [x] (valid-no-repro) `RunCoverageController.PatchRunCoveragePack` — `Excluded` true with null `ExclusionReason` — **cheap-disproof 2026-10-24 seed hunt #12:** `PatchPackExclusionAsync` throws `ArgumentException` when excluded without reason → HTTP 400 (parity with bulk PUT).
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — omitted `MaxRows` on body with `EventType` set — **cheap-disproof 2026-10-24 seed hunt #12:** property default `MaxRows = 100`; regression `RetryIntegrationOutboxDeadLetters_uses_default_max_rows_when_only_event_type_filter_set`.
+- [x] (valid-no-repro) `RunsController.RewriteArchitectureOverview` — whitespace-only `CurrentOverview` — **cheap-disproof 2026-10-24 seed hunt #12:** `ValidateDraftFreeText` `IsNullOrWhiteSpace` guard; regression `RewriteArchitectureOverview_returns_bad_request_when_current_overview_is_whitespace_only`.
+
+2026-10-24 seed hunt (seed-only #12): cheap-disproof closed five open `(candidate)` rows; four regressions; scoped tests passed on full tree (`RunAnalyzers=false`).
+
+- [ ] (candidate) `RunsController.AcceptCreateRunAsync` — valid FluentValidation failure message includes `Description is required` — locus: error join; input: minimal invalid body.
+- [ ] (candidate) `AdminAgentModelCatalogController.RecordEvaluation` — numeric string `EvaluationState` — locus: `Enum.TryParse`; input: `"1"` for `Evaluated`.
+- [ ] (candidate) `RunCoverageController.PatchRunCoveragePack` — `Excluded` true with whitespace-only `ExclusionReason` — locus: patch guard; input: `"   "` reason.
+- [ ] (candidate) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` property explicitly `100` — locus: inclusive bounds; input: upper/lower neighbor already covered.
+- [ ] (candidate) `RunsController.RewriteArchitectureOverview` — `CurrentOverview` below minimum length after trim — locus: 20-char intake minimum; input: 19-char overview.
 
 2026-10-23 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows from prior reseed; no new hunt-ready promotion (Rephrase null `Items` already shipped on `bugsmash-2` 01857d53eb); seeded five follow-on `(candidate)` rows; 12 scoped RunsController draft/explain + RunCoverage acknowledgement tests passed.
 
@@ -9000,9 +9008,9 @@
 - **aliases:** authority controllers; admin controllers
 - **paths:** ArchLucid.Api/Controllers/Authority/; ArchLucid.Api/Controllers/Admin/
 - **test-filter:** FullyQualifiedName~AuthorityController|FullyQualifiedName~AdminController
-- **hunts:** 75
+- **hunts:** 76
 - **bugs-found:** 58
-- **consecutive-dry-hunts:** 9
+- **consecutive-dry-hunts:** 10
 - **last-hunt:** 2026-10-24
 - **last-bug:** 2026-10-23 — rephrase clarification null item in items array caused 500 instead of validation
 - **related-pd-tb:** none

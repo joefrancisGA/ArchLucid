@@ -1,5 +1,6 @@
 using ArchLucid.Api.Controllers.Authority;
 using ArchLucid.Api.Models;
+using ArchLucid.Api.Validators;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
 using ArchLucid.Application.Architecture;
@@ -67,6 +68,38 @@ public sealed class RunsControllerTests
 
         ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
         bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
+    [Fact]
+    public async Task AcceptCreateRunAsync_returns_bad_request_when_architecture_request_fails_validation()
+    {
+        Mock<IArchitectureRunAsyncOperationAcceptor> asyncAcceptor = new();
+
+        RunsController controller = CreateController(architectureRequestValidator: new ArchitectureRequestValidator());
+
+        ArchitectureRequest request = new()
+        {
+            Description = string.Empty,
+            SystemName = string.Empty,
+        };
+
+        IActionResult action = await controller.AcceptCreateRunAsync(
+            request,
+            asyncAcceptor.Object,
+            CancellationToken.None);
+
+        ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
+        bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+
+        asyncAcceptor.Verify(
+            static a => a.AcceptCreateAsync(
+                It.IsAny<ArchitectureRequest>(),
+                It.IsAny<CreateRunIdempotencyState?>(),
+                It.IsAny<ScopeContext>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     [Fact]
@@ -201,6 +234,25 @@ public sealed class RunsControllerTests
         RunsController controller = CreateController();
 
         RewriteArchitectureOverviewInput input = new() { CurrentOverview = string.Empty };
+
+        IActionResult action = await controller.RewriteArchitectureOverview(input, intakeFacade.Object, CancellationToken.None);
+
+        ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
+        bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+
+        intakeFacade.Verify(
+            static f => f.RewriteOverviewAsync(It.IsAny<RewriteArchitectureOverviewInput>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task RewriteArchitectureOverview_returns_bad_request_when_current_overview_is_whitespace_only()
+    {
+        Mock<IArchitectureRequestIntakeFacade> intakeFacade = new();
+
+        RunsController controller = CreateController();
+
+        RewriteArchitectureOverviewInput input = new() { CurrentOverview = "   " };
 
         IActionResult action = await controller.RewriteArchitectureOverview(input, intakeFacade.Object, CancellationToken.None);
 
@@ -1176,7 +1228,8 @@ public sealed class RunsControllerTests
         IArchitectureApplicationService? architectureApplicationService = null,
         IRunLifecycleCommandService? runLifecycleCommandService = null,
         IRunRepository? runRepository = null,
-        IAuditService? auditService = null)
+        IAuditService? auditService = null,
+        IValidator<ArchitectureRequest>? architectureRequestValidator = null)
     {
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
@@ -1184,15 +1237,12 @@ public sealed class RunsControllerTests
         Mock<IActorContext> actor = new();
         actor.Setup(a => a.GetActor()).Returns("operator@test");
 
-        Mock<IValidator<ArchitectureRequest>> validator = new();
-        validator
-            .Setup(v => v.ValidateAsync(It.IsAny<ArchitectureRequest>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new ValidationResult());
+        IValidator<ArchitectureRequest> validator = architectureRequestValidator ?? CreatePermissiveArchitectureRequestValidator();
 
         return new RunsController(
             runLifecycleCommandService ?? Mock.Of<IRunLifecycleCommandService>(),
             architectureApplicationService ?? Mock.Of<IArchitectureApplicationService>(),
-            validator.Object,
+            validator,
             scopeProvider.Object,
             actor.Object,
             auditService ?? Mock.Of<IAuditService>(),
@@ -1208,5 +1258,15 @@ public sealed class RunsControllerTests
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
         };
+    }
+
+    private static IValidator<ArchitectureRequest> CreatePermissiveArchitectureRequestValidator()
+    {
+        Mock<IValidator<ArchitectureRequest>> validator = new();
+        validator
+            .Setup(v => v.ValidateAsync(It.IsAny<ArchitectureRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ValidationResult());
+
+        return validator.Object;
     }
 }
