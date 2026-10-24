@@ -6868,6 +6868,20 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-24 seed hunt (seed→hit): proved `ArchitectureAnalysisService.BuildAsync` forwarded untrimmed `CompareManifestVersion` to `GetByVersionAsync` so manifest-compare exports missed golden manifests when rehydrated requests carried padded version tokens, and sealed-manifest guard used raw `request.RunId` instead of canonical lookup id; trim compare manifest version before reader lookup, pass canonical primary run id to sealed-manifest guard, and route comparison history run-id filters through `AnalysisRunIdCanonicalization.CanonicalRunIdForLookupOrNull`; regressions `BuildAsync_manifest_compare_trims_padded_compare_manifest_version` and `CanonicalRunIdForLookupOrNull_whitespace_only_returns_null`; cheap-disproof closed `ApiPaging.TryParseUtcTicksIdCursor` (comparison search normalizes cursor id), batch zip manifest echo (cosmetic), Armenian homoglyphs (deferred), and persistence-layer determinism normalize (deferred); seeded five follow-on rows; scoped application-analysis + replay filter 255/255. Private beta: architecture analysis manifest compare and sealed-manifest checks tolerate padded run and manifest version strings from replayed export requests, matching export metadata trim parity.
+
+- [ ] (candidate) `ApiPaging.TryParseUtcTicksIdCursor` — cursor id segment without trim — locus: HTTP cursor parse; input: padded id after ticks delimiter (alerts inbox and other API surfaces).
+- [ ] (candidate) `ComparisonBatchReplayZipSupport` — manifest failure entries echo pre-trim batch tokens — locus: zip manifest; input: cosmetic id echo only.
+- [ ] (candidate) `ComparisonExportMarkdownSectionRemover` — Armenian homoglyphs in delta headings — locus: `UnicodeLatinHomoglyphMapper`; input: deferred expansion.
+- [ ] (candidate) `RunExportRecordPersistNormalizer` — persistence-layer determinism column normalize — locus: repository read; input: consolidation at DB boundary.
+- [ ] (candidate) `ExportReplayService` — delegate `CanonicalRunIdForLookup` to shared helper only — locus: duplicate private method; input: consolidation only.
+
+- [x] (proven) `ArchitectureAnalysisService.BuildAsync` — untrimmed `CompareManifestVersion` on manifest compare — **hit 2026-10-24 seed hunt:** trim before `GetByVersionAsync`; canonical primary run id for sealed guard; regression `BuildAsync_manifest_compare_trims_padded_compare_manifest_version`.
+- [x] (proven) `ComparisonsApplicationService.SearchAsync` — duplicate run-id lookup helper — **hit 2026-10-24 seed hunt:** `AnalysisRunIdCanonicalization.CanonicalRunIdForLookupOrNull`; regression `CanonicalRunIdForLookupOrNull_whitespace_only_returns_null`.
+- [x] (invalid) `ApiPaging.TryParseUtcTicksIdCursor` — HTTP cursor id trim — **cheap-disproof 2026-10-24 seed hunt:** comparison search normalizes at application layer.
+- [x] (invalid) `ComparisonBatchReplayZipSupport` — manifest id echo — **cheap-disproof 2026-10-24 seed hunt:** cosmetic only.
+- [x] (invalid) `UnicodeLatinHomoglyphMapper` — Armenian homoglyphs — **cheap-disproof 2026-10-24 seed hunt:** deferred.
+
 2026-10-24 seed hunt (seed→hit): proved `AnalysisRunIdCanonicalization.CanonicalRunIdForPersistenceOrNull` returned whitespace-only strings unchanged so export-diff comparison audits persisted space-filled `LeftRunId`/`RightRunId` columns instead of null, and `ArchitectureAnalysisService`/`ExportReplayService` run-id lookup omitted trim on non-GUID ids; centralize lookup via `CanonicalRunIdForLookup` with trim-before-parse, return null from `CanonicalRunIdForPersistenceOrNull` for whitespace-only input, and trim before `Guid.TryParse` in persistence; regressions `RecordExportDiffAsync_treats_whitespace_only_run_ids_as_null`, `CanonicalRunIdForPersistenceOrNull_whitespace_only_returns_null`, and `CanonicalRunIdForLookup_trims_opaque_run_id`; cheap-disproof closed `ApiPaging.TryParseUtcTicksIdCursor` (comparison search normalizes cursor id), batch zip manifest echo (cosmetic), Armenian homoglyphs (deferred), and persistence-layer determinism normalize (deferred); seeded five follow-on rows; scoped application-analysis + replay filter 253/253. Private beta: export-diff comparison records and architecture analysis run-id resolution treat whitespace-only or padded run keys consistently with other comparison trim parity on the RC35 line.
 
 - [ ] (candidate) `ApiPaging.TryParseUtcTicksIdCursor` — cursor id segment without trim — locus: HTTP cursor parse; input: padded id after ticks delimiter (alerts inbox and other API surfaces).
@@ -7631,11 +7645,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 130
-- **bugs-found:** 136
+- **hunts:** 131
+- **bugs-found:** 137
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-24
-- **last-bug:** 2026-10-24 — shared run-id canonicalization trims and nulls whitespace
+- **last-bug:** 2026-10-24 — architecture manifest compare trims version token
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
