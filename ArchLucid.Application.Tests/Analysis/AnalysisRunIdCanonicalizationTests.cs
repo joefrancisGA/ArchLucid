@@ -20,4 +20,10 @@ public sealed class AnalysisRunIdCanonicalizationTests
         AnalysisRunIdCanonicalization.CanonicalRunIdForLookup("  opaque-run-key  ")
             .Should().Be("opaque-run-key");
     }
+
+    [Fact]
+    public void CanonicalRunIdForLookupOrNull_whitespace_only_returns_null()
+    {
+        AnalysisRunIdCanonicalization.CanonicalRunIdForLookupOrNull("  ").Should().BeNull();
+    }
 }

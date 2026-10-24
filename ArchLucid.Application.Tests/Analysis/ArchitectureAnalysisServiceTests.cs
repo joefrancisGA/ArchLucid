@@ -560,6 +560,108 @@ public sealed class ArchitectureAnalysisServiceTests
     }
 
     [Fact]
+    public async Task BuildAsync_manifest_compare_trims_padded_compare_manifest_version()
+    {
+        Guid primaryRunId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+            WorkspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+            ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
+        };
+
+        GoldenManifest primaryManifest = new()
+        {
+            RunId = primaryRunId.ToString("N"),
+            SystemName = "primary",
+            Metadata = new ManifestMetadata { ManifestVersion = "v1-primary" },
+        };
+
+        GoldenManifest compareManifest = new()
+        {
+            RunId = primaryRunId.ToString("D"),
+            SystemName = "primary-compare",
+            Metadata = new ManifestMetadata { ManifestVersion = "v1-compare" },
+        };
+
+        ArchitectureRunDetail preloadedDetail = new()
+        {
+            Run = new ArchitectureRun
+            {
+                RunId = primaryRunId.ToString("N"),
+                CurrentManifestVersion = "v1-primary",
+            },
+            Manifest = primaryManifest,
+        };
+
+        Mock<IUnifiedGoldenManifestReader> manifestReader = new();
+        manifestReader
+            .Setup(reader => reader.GetByVersionAsync("v1-compare", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(compareManifest);
+
+        Mock<IAuthorityQueryService> authority = new();
+        authority
+            .Setup(service => service.GetRunDetailForManifestCompareAsync(
+                It.IsAny<ScopeContext>(),
+                primaryRunId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunDetailDto
+            {
+                Run = new RunRecord { RunId = primaryRunId },
+                GoldenManifest = new ManifestDocument
+                {
+                    RunId = primaryRunId,
+                    ManifestHash = "ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789",
+                },
+            });
+
+        Mock<IManifestHashService> manifestHash = new();
+        manifestHash
+            .Setup(service => service.ComputeHash(It.IsAny<ManifestDocument>()))
+            .Returns("ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789");
+
+        ManifestDiffResult expectedDiff = new();
+        Mock<IManifestDiffService> manifestDiff = new();
+        manifestDiff
+            .Setup(service => service.Compare(primaryManifest, compareManifest))
+            .Returns(expectedDiff);
+
+        ArchitectureAnalysisService sut = new(
+            Mock.Of<IRunDetailQueryService>(),
+            Mock.Of<IScopeContextProvider>(provider => provider.GetCurrentScope() == scope),
+            manifestReader.Object,
+            Mock.Of<IAgentEvidencePackageRepository>(),
+            Mock.Of<IAgentExecutionTraceRepository>(),
+            Mock.Of<IAgentResultRepository>(),
+            Mock.Of<IDiagramGenerator>(),
+            Mock.Of<IManifestSummaryGenerator>(),
+            Mock.Of<IDeterminismCheckService>(),
+            manifestDiff.Object,
+            Mock.Of<IAgentResultDiffService>(),
+            authority.Object,
+            manifestHash.Object);
+
+        ArchitectureAnalysisReport report = await sut.BuildAsync(
+            new ArchitectureAnalysisRequest
+            {
+                RunId = primaryRunId.ToString("N"),
+                PreloadedRunDetail = preloadedDetail,
+                IncludeManifest = true,
+                IncludeManifestCompare = true,
+                CompareManifestVersion = "  v1-compare  ",
+                IncludeEvidence = false,
+                IncludeExecutionTraces = false,
+                IncludeDiagram = false,
+                IncludeSummary = false,
+            });
+
+        report.ManifestDiff.Should().BeSameAs(expectedDiff);
+        manifestReader.Verify(
+            reader => reader.GetByVersionAsync("v1-compare", It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
     public async Task BuildAsync_loads_primary_agent_results_when_preloaded_detail_omits_results_for_agent_compare()
     {
         Guid primaryRunId = Guid.Parse("11111111-1111-1111-1111-111111111111");

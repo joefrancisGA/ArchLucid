@@ -28,4 +28,12 @@ internal static class AnalysisRunIdCanonicalization
 
         return CanonicalRunIdForPersistence(runId);
     }
+
+    public static string? CanonicalRunIdForLookupOrNull(string? runId)
+    {
+        if (string.IsNullOrWhiteSpace(runId))
+            return null;
+
+        return CanonicalRunIdForLookup(runId);
+    }
 }

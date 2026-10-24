@@ -54,7 +54,7 @@ public sealed class ArchitectureAnalysisService(
         string primaryRunId = CanonicalRunIdForLookup(request.RunId);
 
         await ArchitectureAnalysisSealedManifestHashGuard.EnsureRunSealedManifestHashOrThrowAsync(
-            request.RunId,
+            primaryRunId,
             scope,
             _authorityQueryService,
             _manifestHashService,
@@ -149,14 +149,16 @@ public sealed class ArchitectureAnalysisService(
                 report.Warnings.Add("Manifest comparison was requested but the primary manifest is not available.");
             else
             {
-                GoldenManifest? compareManifest = await unifiedGoldenManifestReader.GetByVersionAsync(request.CompareManifestVersion, cancellationToken);
+                string compareManifestVersion = request.CompareManifestVersion.Trim();
+                GoldenManifest? compareManifest =
+                    await unifiedGoldenManifestReader.GetByVersionAsync(compareManifestVersion, cancellationToken);
 
                 if (compareManifest is null)
-                    report.Warnings.Add($"Compare manifest '{request.CompareManifestVersion}' was not found.");
+                    report.Warnings.Add($"Compare manifest '{compareManifestVersion}' was not found.");
                 else if (!RunIdsReferToSameRun(compareManifest.RunId, report.Manifest.RunId))
                 {
                     report.Warnings.Add(
-                        $"Compare manifest '{request.CompareManifestVersion}' does not belong to run '{report.Manifest.RunId}'.");
+                        $"Compare manifest '{compareManifestVersion}' does not belong to run '{report.Manifest.RunId}'.");
                 }
                 else
                     report.ManifestDiff = manifestDiffService.Compare(report.Manifest, compareManifest);

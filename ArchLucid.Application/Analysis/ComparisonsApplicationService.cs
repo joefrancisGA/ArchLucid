@@ -49,7 +49,7 @@ public sealed partial class ComparisonsApplicationService(
         if (await _runDetailQueryService.GetRunDetailAsync(runId, ct) is null)
             return null;
 
-        string lookupRunId = CanonicalRunIdForLookup(runId);
+        string lookupRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(runId);
 
         return await _comparisonRecordRepository.GetByRunIdAsync(lookupRunId, ct);
     }
@@ -100,8 +100,8 @@ public sealed partial class ComparisonsApplicationService(
         string? normalizedCursorId = NormalizeComparisonRecordIdFilterOrNull(criteria.CursorId);
 
         int limit = criteria.Limit <= 0 ? Core.Pagination.PaginationDefaults.DefaultPageSize : criteria.Limit;
-        string? leftRunIdFilter = CanonicalRunIdForLookupOrNull(criteria.LeftRunId);
-        string? rightRunIdFilter = CanonicalRunIdForLookupOrNull(criteria.RightRunId);
+        string? leftRunIdFilter = AnalysisRunIdCanonicalization.CanonicalRunIdForLookupOrNull(criteria.LeftRunId);
+        string? rightRunIdFilter = AnalysisRunIdCanonicalization.CanonicalRunIdForLookupOrNull(criteria.RightRunId);
         string? leftExportRecordIdFilter = NormalizeExportRecordIdFilterOrNull(criteria.LeftExportRecordId);
         string? rightExportRecordIdFilter = NormalizeExportRecordIdFilterOrNull(criteria.RightExportRecordId);
 
@@ -253,18 +253,6 @@ public sealed partial class ComparisonsApplicationService(
 
         return false;
     }
-
-    /// <summary>
-    ///     Route and API callers may use dashed GUIDs while persisted comparison rows use canonical N-format ids.
-    /// </summary>
-    private static string CanonicalRunIdForLookup(string runId)
-    {
-        string trimmed = runId.Trim();
-        return Guid.TryParse(trimmed, out Guid guid) ? guid.ToString("N") : trimmed;
-    }
-
-    private static string? CanonicalRunIdForLookupOrNull(string? runId) =>
-        string.IsNullOrWhiteSpace(runId) ? runId : CanonicalRunIdForLookup(runId);
 
     private static string? NormalizeExportRecordIdFilterOrNull(string? exportRecordId) =>
         string.IsNullOrWhiteSpace(exportRecordId)
