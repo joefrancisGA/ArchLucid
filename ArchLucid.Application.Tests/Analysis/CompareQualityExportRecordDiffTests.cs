@@ -458,6 +458,34 @@ public sealed class CompareQualityExportRecordDiffTests
     }
 
     [Fact]
+    public void CompareQuality_export_record_diff_treats_zero_and_omitted_determinism_iterations_as_equivalent_when_check_enabled()
+    {
+        ExportRecordDiffService sut = new();
+        RunExportRecord left = new()
+        {
+            ExportRecordId = "left",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = "ArchitectureAnalysis",
+            Format = "Markdown",
+            FileName = "a.md",
+            AnalysisRequestJson = """{"includeDeterminismCheck":true,"determinismIterations":0}""",
+        };
+        RunExportRecord right = new()
+        {
+            ExportRecordId = "right",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = "ArchitectureAnalysis",
+            Format = "Markdown",
+            FileName = "a.md",
+            AnalysisRequestJson = """{"includeDeterminismCheck":true}""",
+        };
+
+        ExportRecordDiffResult result = sut.Compare(left, right);
+
+        result.RequestDiff.ChangedValues.Should().NotContain("DeterminismIterations");
+    }
+
+    [Fact]
     public void CompareQuality_export_record_diff_treats_omitted_and_false_include_determinism_check_in_requests_as_equivalent()
     {
         ExportRecordDiffService sut = new();

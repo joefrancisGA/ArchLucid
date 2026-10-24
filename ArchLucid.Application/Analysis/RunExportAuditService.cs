@@ -51,6 +51,9 @@ public sealed class RunExportAuditService(
         manifestVersion = PersistedAnalysisExportRequestMetadata.NormalizeOptionalString(manifestVersion);
         notes = PersistedAnalysisExportRequestMetadata.NormalizeOptionalString(notes);
         PersistedAnalysisExportRequestMetadata.TrimOptionalStrings(analysisRequest);
+        if (analysisRequest is not null)
+            PersistedAnalysisExportRequestDeterminismNormalizer.ClearIterationsWhenCheckDisabled(analysisRequest);
+
         RunExportRecord record = new()
         {
             ExportRecordId = Guid.NewGuid().ToString("N"),

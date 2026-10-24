@@ -304,6 +304,48 @@ public sealed class RunExportAuditServiceTests
     }
 
     [Fact]
+    public async Task RecordAsync_clears_stale_determinism_iterations_in_serialized_json_when_check_disabled()
+    {
+        Mock<IRunExportRecordRepository> repo = new();
+        RunExportRecord? captured = null;
+        repo
+            .Setup(r => r.CreateAsync(It.IsAny<RunExportRecord>(), It.IsAny<CancellationToken>()))
+            .Callback<RunExportRecord, CancellationToken>((record, _) => captured = record)
+            .Returns(Task.CompletedTask);
+
+        RunExportAuditService sut = new(
+            repo.Object,
+            Mock.Of<IAuditService>(),
+            NullLogger<RunExportAuditService>.Instance);
+
+        PersistedAnalysisExportRequest analysisRequest = new()
+        {
+            IncludeDeterminismCheck = false,
+            DeterminismIterations = 4,
+        };
+
+        await sut.RecordAsync(
+            "deadbeefdeadbeefdeadbeefdeadbeef",
+            "analysis-report-docx",
+            "docx",
+            "report.docx",
+            null,
+            null,
+            false,
+            null,
+            null,
+            analysisRequest: analysisRequest,
+            emitArchitectureDocxExportGeneratedAudit: false,
+            cancellationToken: CancellationToken.None);
+
+        captured.Should().NotBeNull();
+        captured!.AnalysisRequestJson.Should().NotBeNull();
+        captured.AnalysisRequestJson.Should().Contain("\"determinismIterations\":0");
+        captured.AnalysisRequestJson.Should().NotContain("\"determinismIterations\":4");
+        analysisRequest.DeterminismIterations.Should().Be(0);
+    }
+
+    [Fact]
     public async Task RecordAsync_nulls_zero_determinism_iterations_when_check_enabled()
     {
         Mock<IRunExportRecordRepository> repo = new();

@@ -6868,6 +6868,20 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-24 seed hunt (seed→hit): proved `RunExportAuditService` persisted stale `determinismIterations` inside `AnalysisRequestJson` when the check was disabled, and `ComparisonExportMarkdownSectionRemover` stripped sections when the canonical heading substring appeared mid-line because of a blind `IndexOf` fast path; clear iterations on the request before audit serialize and scan line boundaries only; regressions `RecordAsync_clears_stale_determinism_iterations_in_serialized_json_when_check_disabled` and `RemoveMarkdownSection_does_not_strip_when_heading_text_appears_mid_line`; cheap-disproof closed zero vs omitted iterations when check enabled, corrupt JSON probe (invalid), HTML entity headings (separate formatter), and Armenian homoglyphs (no mapping yet); seeded five follow-on rows; scoped application-analysis filter 139/139. Private beta: stored export analysis JSON matches determinism intent; comparison export stripping no longer mangles summaries that mention the delta heading in prose.
+
+- [ ] (candidate) `ComparisonExportMarkdownSectionRemover` — heading preceded by tab indentation — locus: line scan; input: tab-indented `##` heading.
+- [ ] (candidate) `RunExportAuditService` — omit zero `determinismIterations` key when check disabled — locus: compact JSON; input: `WhenWritingDefault` scope.
+- [ ] (candidate) `UnicodeLatinHomoglyphMapper` — Armenian homoglyphs — locus: homoglyph casing; input: deferred until cited spoof.
+- [ ] (candidate) `ComparisonExportMarkdownSectionRemover` — level-3 `###` heading collision — locus: section boundary; input: `### Compare Quality Delta`.
+- [ ] (candidate) `ExportRecordDiffService` — raw `AnalysisRequestJson` string compare — locus: diff surface; input: invalid (structured request diff only).
+
+- [x] (proven) `RunExportAuditService.RecordAsync` — stale iterations in stored JSON — **hit 2026-10-24 seed hunt:** `ClearIterationsWhenCheckDisabled` before serialize; regression `RecordAsync_clears_stale_determinism_iterations_in_serialized_json_when_check_disabled`.
+- [x] (proven) `ComparisonExportMarkdownSectionRemover.IndexOfHeadingLine` — mid-line substring match — **hit 2026-10-24 seed hunt:** removed blind `IndexOf`; regression `RemoveMarkdownSection_does_not_strip_when_heading_text_appears_mid_line`.
+- [x] (valid-no-repro) `ExportRecordDiffService.CompareRequests` — zero vs omitted iterations when check enabled — **cheap-disproof 2026-10-24 seed hunt:** regression `CompareQuality_export_record_diff_treats_zero_and_omitted_determinism_iterations_as_equivalent_when_check_enabled`.
+- [x] (invalid) `AnalysisExportRequestRehydrator` — corrupt partial determinism JSON — **cheap-disproof 2026-10-24 seed hunt:** existing corrupt-json regression.
+- [x] (invalid) `ComparisonExportMarkdownSectionRemover` — HTML entity encoded heading — **cheap-disproof 2026-10-24 seed hunt:** markdown strip path only.
+
 2026-10-24 seed hunt (seed→hit): proved `AnalysisExportRequestRehydrator` left stale `DeterminismIterations` in rehydrated requests when stored JSON disabled the check but retained iteration counts, and Greek omicron homoglyphs in compare-quality headings bypassed section stripping; clear iterations on rehydrate via shared `PersistedAnalysisExportRequestDeterminismNormalizer`, extend `UnicodeLatinHomoglyphMapper` with Greek Latin lookalikes; regressions `Rehydrate_clears_determinism_iterations_when_check_disabled_in_stored_json` and `RemoveMarkdownSection_strips_compare_quality_delta_when_heading_uses_greek_homoglyph_in_compare`; cheap-disproof closed stacked Cyrillic+fullwidth headings (normalization order already correct), `IncludedManifestCompare` null/false parity, zero iterations stored as null when check enabled, and asymmetric enable/disable request pairs (intentional diff); seeded five follow-on rows; scoped application-analysis filter 136/136. Private beta: export replay and compare read canonical determinism settings from stored JSON; comparison exports strip Greek homoglyph delta headings.
 
 - [ ] (candidate) `PersistedAnalysisExportRequestDeterminismNormalizer` — apply on `RecordAsync` input mutation — locus: audit write path; input: pre-persist request object side effects.
@@ -7276,8 +7290,8 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 104
-- **bugs-found:** 104
+- **hunts:** 105
+- **bugs-found:** 106
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-23
 - **last-bug:** 2026-10-23 — compact audit JSON, determinism null/zero, case-insensitive headings

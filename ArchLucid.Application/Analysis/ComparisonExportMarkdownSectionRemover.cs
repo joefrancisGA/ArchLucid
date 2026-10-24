@@ -31,11 +31,6 @@ internal static class ComparisonExportMarkdownSectionRemover
 
     private static int IndexOfHeadingLine(string markdown, string heading)
     {
-        int direct = markdown.IndexOf(heading, StringComparison.Ordinal);
-
-        if (direct >= 0)
-            return direct;
-
         int lineStart = 0;
 
         while (lineStart <= markdown.Length)
