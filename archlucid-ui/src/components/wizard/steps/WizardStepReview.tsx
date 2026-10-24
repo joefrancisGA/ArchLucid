@@ -20,6 +20,33 @@ function wizardConfirmIdentityField(value: string, notStoredLabel: string): stri
   return value.trim().length > 0 ? value : notStoredLabel;
 }
 
+function wizardConfirmNamedAttachmentSummary(
+  entries: ReadonlyArray<{ readonly name: string }> | null | undefined,
+  options: { readonly countNotStoredLabel: string; readonly unitLabel: string; readonly nameNotStoredLabel: string },
+): string {
+  if (entries === null || entries === undefined) {
+    return options.countNotStoredLabel;
+  }
+
+  const withStoredContent = entries.filter(
+    (entry) => entry.name.trim().length > 0 || Object.values(entry).some((value) => typeof value === "string" && value.trim().length > 0),
+  );
+  const unnamedCount = withStoredContent.filter((entry) => entry.name.trim().length === 0).length;
+  const namedCount = withStoredContent.length - unnamedCount;
+  const countLine =
+    namedCount > 0
+      ? `${namedCount} ${options.unitLabel}${namedCount === 1 ? "" : "s"}`
+      : withStoredContent.length === 0
+        ? `0 ${options.unitLabel}s`
+        : `0 named ${options.unitLabel}s`;
+
+  if (unnamedCount === 0) {
+    return countLine;
+  }
+
+  return `${countLine} (${unnamedCount} ${options.nameNotStoredLabel})`;
+}
+
 function ErrorList({ errors }: { errors: FieldErrors<WizardFormValues> }) {
   const messages: string[] = [];
 
@@ -210,15 +237,19 @@ export function WizardStepReview(props: { readonly focusedPilotModeEnabled?: boo
           </p>
           <p className={cn("mt-2 m-0 text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>Documents</p>
           <p className="m-0">
-            {v.documents === null || v.documents === undefined
-              ? "Document count was not stored."
-              : `${v.documents.filter((d) => d.name.trim()).length} attached`}
+            {wizardConfirmNamedAttachmentSummary(v.documents, {
+              countNotStoredLabel: "Document count was not stored.",
+              unitLabel: "attached document",
+              nameNotStoredLabel: "document name was not stored",
+            })}
           </p>
           <p className={cn("mt-2 m-0 text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>Infrastructure declarations</p>
           <p className="m-0">
-            {v.infrastructureDeclarations === null || v.infrastructureDeclarations === undefined
-              ? "Infrastructure declaration count was not stored."
-              : `${v.infrastructureDeclarations.filter((d) => d.name.trim()).length} declaration(s)`}
+            {wizardConfirmNamedAttachmentSummary(v.infrastructureDeclarations, {
+              countNotStoredLabel: "Infrastructure declaration count was not stored.",
+              unitLabel: "declaration",
+              nameNotStoredLabel: "declaration name was not stored",
+            })}
           </p>
         </ReadOnlyBlock>
 

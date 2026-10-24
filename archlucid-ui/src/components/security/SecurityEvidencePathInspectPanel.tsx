@@ -162,7 +162,10 @@ function PathHopsTable(props: {
       </EnterpriseTableHead>
       <EnterpriseTableBody>
         {props.hops.map((hop) => {
-          const isWeakest = hop.hopOrdinal === props.weakestHopOrdinal;
+          const isWeakest =
+            props.weakestHopOrdinal !== null
+            && hop.hopOrdinal !== null
+            && hop.hopOrdinal === props.weakestHopOrdinal;
 
           return (
             <EnterpriseTableRow
@@ -171,7 +174,9 @@ function PathHopsTable(props: {
               className={isWeakest ? "bg-muted/50 ring-1 ring-inset ring-border" : undefined}
               aria-current={isWeakest ? "true" : undefined}
             >
-              <EnterpriseTableCell>{hop.hopOrdinal}</EnterpriseTableCell>
+              <EnterpriseTableCell>
+                {hop.hopOrdinal ?? "Hop order was not stored."}
+              </EnterpriseTableCell>
               <EnterpriseTableCell>
                 <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
                   {securityEvidencePathHopNodeName(hop.fromNodeLabel)} to {securityEvidencePathHopNodeName(hop.toNodeLabel)} by{" "}
@@ -245,7 +250,7 @@ function PathBandWeakestHopLimitNote(props: {
       data-testid="security-evidence-path-band-weakest-hop-limit"
     >
       Path band {formatSecurityEvidencePathConfidenceBandLabel(props.pathBand)} is capped by weakest hop{" "}
-      {props.weakestHop.hopOrdinal} ({hopBandLabel}). Stronger path bands are not claimed.
+      {props.weakestHop.hopOrdinal ?? "Hop order was not stored."} ({hopBandLabel}). Stronger path bands are not claimed.
     </p>
   );
 }
@@ -283,7 +288,14 @@ function PathRankSection(props: { readonly rank: SecurityEvidencePathRankDetail 
     <div className="rounded border border-border bg-muted/30 p-3" data-testid="security-evidence-path-rank">
       <div className="flex flex-wrap items-center gap-2">
         <h3 className={OPERATOR_TYPOGRAPHY.cardTitle}>{SECURENOW_PATH_INSPECT_RANK_TITLE}</h3>
-        <StatusTag kind="neutral" label={`Rank ${props.rank.rankOrder}`} />
+        <StatusTag
+          kind="neutral"
+          label={
+            props.rank.rankOrder !== null
+              ? `Rank ${props.rank.rankOrder}`
+              : "Rank was not stored"
+          }
+        />
       </div>
       <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper)}>
         Dimension prose below expands the reader sentence. The composite key is ordering only.
@@ -358,7 +370,7 @@ function PathExplanationSection(props: {
             ...props.explanation.businessImpactHypotheses,
             props.explanation.proposedRemediation.recommendedChange.trim().length > 0
               ? `Recommended change: ${props.explanation.proposedRemediation.recommendedChange}`
-              : "",
+              : "Recommended change was not stored.",
             props.explanation.citedEvidenceRefs.length > 0
               ? `Cited evidence: ${props.explanation.citedEvidenceRefs.join(", ")}`
               : "",
@@ -391,7 +403,7 @@ function RecommendedActionSection(props: {
       value:
         props.path.weakestHop?.reason?.trim() ||
         props.path.hops[0]?.evidenceReference?.trim() ||
-        "Not cited.",
+        "Evidence citation was not stored.",
     },
     {
       label: "Consequence",
@@ -846,7 +858,7 @@ export function SecurityEvidencePathInspectPanel(props: {
                 This hop limits how strong the path evidence can be.
               </p>
               <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.body)}>
-                Hop {pathQuery.data.weakestHop.hopOrdinal}:{" "}
+                Hop {pathQuery.data.weakestHop.hopOrdinal ?? "Hop order was not stored."}:{" "}
                 {formatSecurityEvidencePathRelationshipLabel(pathQuery.data.weakestHop.edgeType)}
               </p>
               <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}>

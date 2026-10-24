@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   formatInfraEvidenceDiffLabel,
+  formatInfraEvidenceDiffTotalChangesPhrase,
   formatInfraEvidenceScopeFreshnessLine,
   formatInfraEvidenceSnapshotCapturedLabel,
   formatInfraEvidenceSnapshotFreshness,
@@ -80,6 +81,12 @@ describe("formatInfraEvidenceSnapshotCapturedLabel", () => {
 
     expect(label).toBe("9/8/2026, 6:44 PM EDT");
     expect(label).not.toMatch(/:\d{2}:\d{2}/u);
+  });
+});
+
+describe("formatInfraEvidenceDiffTotalChangesPhrase", () => {
+  it("states when total change count was not returned", () => {
+    expect(formatInfraEvidenceDiffTotalChangesPhrase(undefined)).toBe("Change count was not returned");
   });
 });
 
