@@ -105,6 +105,9 @@ public sealed partial class ComparisonsApplicationService(
         string? leftExportRecordIdFilter = NormalizeExportRecordIdFilterOrNull(criteria.LeftExportRecordId);
         string? rightExportRecordIdFilter = NormalizeExportRecordIdFilterOrNull(criteria.RightExportRecordId);
 
+        string sortBy = string.IsNullOrWhiteSpace(criteria.SortBy) ? "createdUtc" : criteria.SortBy.Trim();
+        string sortDir = string.IsNullOrWhiteSpace(criteria.SortDir) ? "desc" : criteria.SortDir.Trim();
+
         IReadOnlyList<ComparisonRecord> records;
 
         if (criteria.UseCursorPaging)
@@ -119,8 +122,8 @@ public sealed partial class ComparisonsApplicationService(
                 rightExportRecordIdFilter,
                 normalizedLabel,
                 normalizedTags,
-                criteria.SortBy,
-                criteria.SortDir,
+                sortBy,
+                sortDir,
                 criteria.CursorCreatedUtc,
                 normalizedCursorId,
                 limit,
@@ -138,15 +141,15 @@ public sealed partial class ComparisonsApplicationService(
                 rightExportRecordIdFilter,
                 normalizedLabel,
                 normalizedTags,
-                criteria.SortBy,
-                criteria.SortDir,
+                sortBy,
+                sortDir,
                 criteria.Skip,
                 limit,
                 ct);
         }
 
         string? nextCursor =
-            records.Count > 0 && string.Equals(criteria.SortBy, "createdUtc", StringComparison.OrdinalIgnoreCase)
+            records.Count > 0 && string.Equals(sortBy, "createdUtc", StringComparison.OrdinalIgnoreCase)
                 ? $"{records[^1].CreatedUtc.Ticks}:{records[^1].ComparisonRecordId}"
                 : null;
 

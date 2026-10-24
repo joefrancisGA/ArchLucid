@@ -396,6 +396,69 @@ public sealed class CompareQualityComparisonsApplicationServiceTests
     }
 
     [Fact]
+    public async Task CompareQuality_SearchAsync_sorts_ascending_when_sort_dir_has_surrounding_whitespace()
+    {
+        DateTime oldest = new(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        DateTime middle = new(2026, 1, 2, 0, 0, 0, DateTimeKind.Utc);
+        DateTime newest = new(2026, 1, 3, 0, 0, 0, DateTimeKind.Utc);
+
+        InMemoryComparisonRecordRepository comparisonRecords = new();
+        await comparisonRecords.CreateAsync(
+            new ComparisonRecord
+            {
+                ComparisonRecordId = "cmp-sort-oldest",
+                ComparisonType = ComparisonTypes.EndToEndReplay,
+                LeftRunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                RightRunId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+                CreatedUtc = newest,
+            },
+            CancellationToken.None);
+        await comparisonRecords.CreateAsync(
+            new ComparisonRecord
+            {
+                ComparisonRecordId = "cmp-sort-middle",
+                ComparisonType = ComparisonTypes.EndToEndReplay,
+                LeftRunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                RightRunId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+                CreatedUtc = oldest,
+            },
+            CancellationToken.None);
+        await comparisonRecords.CreateAsync(
+            new ComparisonRecord
+            {
+                ComparisonRecordId = "cmp-sort-newest",
+                ComparisonType = ComparisonTypes.EndToEndReplay,
+                LeftRunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                RightRunId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+                CreatedUtc = middle,
+            },
+            CancellationToken.None);
+
+        ComparisonsApplicationService sut = new(
+            new Mock<IRunDetailQueryService>().Object,
+            new Mock<IRunExportRecordRepository>().Object,
+            comparisonRecords,
+            new Mock<IComparisonReplayService>().Object,
+            new Mock<ICompareRunsApplicationFacade>().Object,
+            new Mock<IComparisonReplayCostEstimator>().Object,
+            new Mock<IDriftReportFormatter>().Object,
+            new DriftReportDocxExport());
+
+        ComparisonHistorySearchResult result = await sut.SearchAsync(
+            new ComparisonHistorySearchCriteria
+            {
+                SortBy = "createdUtc",
+                SortDir = " asc ",
+                Limit = 10,
+            },
+            CancellationToken.None);
+
+        result.Records.Select(r => r.ComparisonRecordId)
+            .Should()
+            .Equal("cmp-sort-middle", "cmp-sort-newest", "cmp-sort-oldest");
+    }
+
+    [Fact]
     public async Task CompareQuality_SearchAsync_passes_trimmed_right_export_record_filters_to_repository_cursor_path()
     {
         const string exportRecordId = "trim-right-export";

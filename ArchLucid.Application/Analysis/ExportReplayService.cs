@@ -127,7 +127,7 @@ public sealed class ExportReplayService(
             }
         }
 
-        string canonicalRunId = CanonicalRunIdForLookup(record.RunId);
+        string canonicalRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(record.RunId);
         ArchitectureRunDetail? architectureDetail =
             await _runDetailQueryService.GetRunDetailAsync(canonicalRunId, cancellationToken);
 
@@ -256,6 +256,4 @@ public sealed class ExportReplayService(
         return $"{baseName}_replay{extension}";
     }
 
-    private static string CanonicalRunIdForLookup(string runId) =>
-        AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(runId);
 }
