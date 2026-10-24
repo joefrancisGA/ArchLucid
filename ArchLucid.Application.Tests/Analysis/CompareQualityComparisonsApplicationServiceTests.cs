@@ -538,6 +538,67 @@ public sealed class CompareQualityComparisonsApplicationServiceTests
     }
 
     [Fact]
+    public async Task CompareQuality_TryBuildBatchReplayZipAsync_dedupes_ids_that_differ_only_by_trailing_whitespace()
+    {
+        const string comparisonRecordId = "cmp-batch-dedupe";
+        const string runId = "dddddddddddddddddddddddddddddddd";
+
+        Mock<IComparisonRecordRepository> comparisons = new();
+        comparisons
+            .Setup(r => r.GetByIdAsync(comparisonRecordId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new ComparisonRecord
+                {
+                    ComparisonRecordId = comparisonRecordId,
+                    LeftRunId = runId,
+                    ComparisonType = ComparisonTypes.ExportRecordDiff,
+                    SummaryMarkdown = "## ok",
+                    CreatedUtc = DateTime.UtcNow,
+                });
+
+        Mock<IRunDetailQueryService> runDetail = new();
+        runDetail
+            .Setup(s => s.GetRunDetailAsync(runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchitectureRunDetail { Run = new() { RunId = runId } });
+
+        Mock<IComparisonReplayService> replay = new();
+        replay
+            .Setup(s => s.ReplayAsync(It.IsAny<ReplayComparisonRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new ReplayComparisonResult
+                {
+                    ComparisonRecordId = comparisonRecordId,
+                    ComparisonType = ComparisonTypes.ExportRecordDiff,
+                    Format = "markdown",
+                    Content = "# replay",
+                });
+
+        ComparisonsApplicationService sut = new(
+            runDetail.Object,
+            new Mock<IRunExportRecordRepository>().Object,
+            comparisons.Object,
+            replay.Object,
+            new Mock<ICompareRunsApplicationFacade>().Object,
+            new Mock<IComparisonReplayCostEstimator>().Object,
+            new Mock<IDriftReportFormatter>().Object,
+            new DriftReportDocxExport());
+
+        await sut.TryBuildBatchReplayZipAsync(
+            [$"{comparisonRecordId}\n", comparisonRecordId],
+            format: "markdown",
+            replayMode: "artifact",
+            profile: null,
+            persistReplay: false,
+            CancellationToken.None);
+
+        replay.Verify(
+            r => r.ReplayAsync(
+                It.Is<ReplayComparisonRequest>(req => req.ComparisonRecordId == comparisonRecordId),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
     public async Task CompareQuality_TryBuildBatchReplayZipAsync_throws_career_posture_block_instead_of_swallowing_as_total_failure()
     {
         const string runId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";

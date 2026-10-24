@@ -69,8 +69,17 @@ public sealed partial class ComparisonsApplicationService
 
         foreach (string id in comparisonRecordIds)
         {
-            if (seen.Add(id))
-                processedIds.Add(id);
+            if (string.IsNullOrWhiteSpace(id))
+            {
+                if (seen.Add(id))
+                    processedIds.Add(id);
+
+                continue;
+            }
+
+            string normalizedId = ComparisonRecordIdNormalizer.NormalizeRequired(id);
+            if (seen.Add(normalizedId))
+                processedIds.Add(normalizedId);
         }
 
         List<(string Id, ReplayComparisonResult Result)> successes = [];
