@@ -148,6 +148,37 @@ public sealed class ComparisonAuditServiceTests
     }
 
     [Fact]
+    public async Task RecordReplayOfAsync_trims_padded_manifest_version_columns_on_persist()
+    {
+        ComparisonRecord? persisted = null;
+        Mock<IComparisonRecordRepository> repo = new();
+        repo
+            .Setup(r => r.CreateAsync(It.IsAny<ComparisonRecord>(), It.IsAny<CancellationToken>()))
+            .Callback<ComparisonRecord, CancellationToken>((record, _) => persisted = record)
+            .Returns(Task.CompletedTask);
+        ComparisonAuditService sut = new(repo.Object, Mock.Of<IAuditService>());
+        ComparisonRecord source = new()
+        {
+            ComparisonRecordId = "ffffffffffffffffffffffffffffffff",
+            ComparisonType = ComparisonTypes.EndToEndReplay,
+            LeftRunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            RightRunId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            LeftManifestVersion = "  v-left  ",
+            RightManifestVersion = "  v-right  ",
+            Format = ComparisonTypes.FormatJsonMarkdown,
+            SummaryMarkdown = "# e2e",
+            PayloadJson = "{}",
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+        };
+
+        await sut.RecordReplayOfAsync(source, "replay note", CancellationToken.None);
+
+        persisted.Should().NotBeNull();
+        persisted!.LeftManifestVersion.Should().Be("v-left");
+        persisted.RightManifestVersion.Should().Be("v-right");
+    }
+
+    [Fact]
     public async Task RecordExportDiffAsync_AfterCreate_DoesNotLogDuplicateDurableRow()
     {
         Mock<IComparisonRecordRepository> repo = new();
