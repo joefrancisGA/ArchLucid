@@ -102,7 +102,9 @@ public sealed class ArchitectureAnalysisService(
             if (report.Manifest is not null && !RunIdsReferToSameRun(report.Manifest.RunId, run.RunId))
                 report.Manifest = null;
 
-            string manifestVersionKey = string.IsNullOrWhiteSpace(run.CurrentManifestVersion) ? $"v1-{run.RunId}" : run.CurrentManifestVersion;
+            string manifestVersionKey = string.IsNullOrWhiteSpace(run.CurrentManifestVersion)
+                ? $"v1-{run.RunId}"
+                : run.CurrentManifestVersion.Trim();
 
             if (report.Manifest is null)
             {

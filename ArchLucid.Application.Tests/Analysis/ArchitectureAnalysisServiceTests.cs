@@ -273,6 +273,93 @@ public sealed class ArchitectureAnalysisServiceTests
     }
 
     [Fact]
+    public async Task BuildAsync_loads_manifest_when_current_manifest_version_has_surrounding_whitespace()
+    {
+        Guid primaryRunId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+            WorkspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+            ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
+        };
+
+        GoldenManifest loadedManifest = new()
+        {
+            RunId = primaryRunId.ToString("N"),
+            SystemName = "primary",
+            Metadata = new ManifestMetadata { ManifestVersion = "v1-primary" },
+        };
+
+        ArchitectureRunDetail preloadedDetail = new()
+        {
+            Run = new ArchitectureRun
+            {
+                RunId = primaryRunId.ToString("N"),
+                CurrentManifestVersion = "  v1-primary  ",
+            },
+            Manifest = null,
+        };
+
+        Mock<IAuthorityQueryService> authority = new();
+        authority
+            .Setup(service => service.GetRunDetailForManifestCompareAsync(
+                It.IsAny<ScopeContext>(),
+                primaryRunId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunDetailDto
+            {
+                Run = new RunRecord { RunId = primaryRunId },
+                GoldenManifest = new ManifestDocument
+                {
+                    RunId = primaryRunId,
+                    ManifestHash = "ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789",
+                },
+            });
+
+        Mock<IManifestHashService> manifestHash = new();
+        manifestHash
+            .Setup(service => service.ComputeHash(It.IsAny<ManifestDocument>()))
+            .Returns("ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789");
+
+        Mock<IUnifiedGoldenManifestReader> manifestReader = new();
+        manifestReader
+            .Setup(reader => reader.GetByVersionAsync("v1-primary", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(loadedManifest);
+
+        ArchitectureAnalysisService sut = new(
+            Mock.Of<IRunDetailQueryService>(),
+            Mock.Of<IScopeContextProvider>(provider => provider.GetCurrentScope() == scope),
+            manifestReader.Object,
+            Mock.Of<IAgentEvidencePackageRepository>(),
+            Mock.Of<IAgentExecutionTraceRepository>(),
+            Mock.Of<IAgentResultRepository>(),
+            Mock.Of<IDiagramGenerator>(),
+            Mock.Of<IManifestSummaryGenerator>(),
+            Mock.Of<IDeterminismCheckService>(),
+            Mock.Of<IManifestDiffService>(),
+            Mock.Of<IAgentResultDiffService>(),
+            authority.Object,
+            manifestHash.Object);
+
+        ArchitectureAnalysisReport report = await sut.BuildAsync(
+            new ArchitectureAnalysisRequest
+            {
+                RunId = primaryRunId.ToString("N"),
+                PreloadedRunDetail = preloadedDetail,
+                IncludeManifest = true,
+                IncludeEvidence = false,
+                IncludeExecutionTraces = false,
+                IncludeDiagram = false,
+                IncludeSummary = false,
+            });
+
+        report.Manifest.Should().BeSameAs(loadedManifest);
+        manifestReader.Verify(
+            reader => reader.GetByVersionAsync("v1-primary", It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
     public async Task BuildAsync_keeps_preloaded_manifest_when_manifest_run_id_uses_different_guid_format()
     {
         Guid primaryRunId = Guid.Parse("11111111-1111-1111-1111-111111111111");
