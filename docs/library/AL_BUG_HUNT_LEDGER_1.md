@@ -6868,6 +6868,20 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-24 seed hunt (seed→hit): proved `ComparisonAuditService.RecordExportDiffAsync` trimmed `LeftExportRecordId`/`RightExportRecordId` on the comparison record row but serialized the pre-trim `ExportRecordDiffResult` into `PayloadJson`, so new export-diff comparisons stored padded export anchors in the artifact while denormalized columns were trimmed and drift/rehydrate paths (hunt 144) had to compensate on read; normalize export record ids on the diff via `RunExportRecordIdNormalizer.NormalizeRequired` before persist and column assignment; regression `RecordExportDiffAsync_payload_json_trims_export_record_anchors`; cheap-disproof closed `ComparisonDriftReportExportService` comparison record id trim (facade `TryBuildDriftReportContent` normalizes; service has no production callers), `ApiPaging.TryParseUtcTicksIdCursor` (comparison search normalizes cursor id), batch zip manifest echo (cosmetic), Armenian homoglyphs (deferred), and persistence-layer determinism normalize (deferred); seeded five follow-on rows; scoped application-analysis + replay filter 285/285. Private beta: newly persisted export-diff comparison payloads store trimmed left/right export record ids in JSON, matching denormalized record columns and avoiding false drift on verify replay.
+
+- [ ] (candidate) `ExportRecordDiffService.Compare` — export record ids on diff result without `RunExportRecordIdNormalizer` — locus: diff generation; input: padded `ExportRecordId` on `RunExportRecord` rows (audit persist now normalizes).
+- [ ] (candidate) `ApiPaging.TryParseUtcTicksIdCursor` — cursor id segment without trim — locus: HTTP cursor parse; input: padded id after ticks delimiter (alerts inbox and other API surfaces).
+- [ ] (candidate) `ComparisonBatchReplayZipSupport` — manifest failure entries echo pre-trim batch tokens — locus: zip manifest; input: cosmetic id echo only.
+- [ ] (candidate) `ComparisonExportMarkdownSectionRemover` — Armenian homoglyphs in delta headings — locus: `UnicodeLatinHomoglyphMapper`; input: deferred expansion.
+- [ ] (candidate) `RunExportRecordPersistNormalizer` — persistence-layer determinism column normalize — locus: repository read; input: consolidation at DB boundary.
+
+- [x] (proven) `ComparisonAuditService.RecordExportDiffAsync` — padded export record ids in `PayloadJson` while columns trimmed — **hit 2026-10-24 seed hunt:** `NormalizeExportDiffExportRecordIds`; regression `RecordExportDiffAsync_payload_json_trims_export_record_anchors`.
+- [x] (valid-no-repro) `ComparisonDriftReportExportService` — drift export without comparison id normalize — **cheap-disproof 2026-10-24 seed hunt:** facade normalizes; no production callers.
+- [x] (invalid) `ApiPaging.TryParseUtcTicksIdCursor` — HTTP cursor id trim — **cheap-disproof 2026-10-24 seed hunt:** comparison search normalizes at application layer.
+- [x] (invalid) `ComparisonBatchReplayZipSupport` — manifest id echo — **cheap-disproof 2026-10-24 seed hunt:** cosmetic only.
+- [x] (invalid) `UnicodeLatinHomoglyphMapper` — Armenian homoglyphs — **cheap-disproof 2026-10-24 seed hunt:** deferred.
+
 2026-10-24 seed hunt (seed→hit): proved `ComparisonRecordPayloadRehydrator.RehydrateExportDiff` left padded `LeftExportRecordId`/`RightExportRecordId` inside stored export-diff JSON so drift analysis and verify replay compared regenerated diffs with trimmed export anchors against non-trimmed stored payload ids; normalize export record ids via `RunExportRecordIdNormalizer.NormalizeRequired` after deserialize; regressions `RehydrateExportDiff_trims_padded_export_record_ids_in_payload` and `AnalyzeDriftAsync_export_diff_succeeds_when_payload_export_record_ids_are_padded`; cheap-disproof closed `ComparisonsApplicationService.TryBuildBatchReplayZipAsync` manifest failure id echo (loop already normalizes processed ids), `DriftReportDocxExport` untrimmed comparison record id (facade `TryBuildDriftReportContent` normalizes hunt 143), `ApiPaging.TryParseUtcTicksIdCursor` (comparison search normalizes cursor id), batch zip manifest echo (cosmetic), Armenian homoglyphs (deferred), and persistence-layer determinism normalize (deferred); seeded five follow-on rows; scoped application-analysis + replay filter 284/284. Private beta: export-diff drift analysis and verify replay no longer report false drift when legacy payload JSON kept padded export record id strings while regenerated diffs use trimmed anchors.
 
 - [ ] (candidate) `ComparisonDriftReportExportService` — drift markdown/docx export without comparison record id normalize at service boundary — locus: standalone export service; input: direct caller with padded id (facade already normalizes).
@@ -7835,11 +7849,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 144
-- **bugs-found:** 150
+- **hunts:** 145
+- **bugs-found:** 151
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-24
-- **last-bug:** 2026-10-24 — export-diff payload export record id trim on rehydrate
+- **last-bug:** 2026-10-24 — export-diff audit payload export record id trim on persist
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
