@@ -60,6 +60,7 @@ public sealed class ComparisonAuditService(IComparisonRecordRepository repositor
     {
         ArgumentNullException.ThrowIfNull(summaryMarkdown);
         ArgumentNullException.ThrowIfNull(diff);
+        NormalizeExportDiffExportRecordIds(diff);
         string? leftRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForPersistenceOrNull(diff.LeftRunId);
         string? rightRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForPersistenceOrNull(diff.RightRunId);
         ComparisonRecord record = new()
@@ -68,12 +69,8 @@ public sealed class ComparisonAuditService(IComparisonRecordRepository repositor
             ComparisonType = ComparisonTypes.ExportRecordDiff,
             LeftRunId = leftRunId,
             RightRunId = rightRunId,
-            LeftExportRecordId = string.IsNullOrWhiteSpace(diff.LeftExportRecordId)
-                ? diff.LeftExportRecordId
-                : diff.LeftExportRecordId.Trim(),
-            RightExportRecordId = string.IsNullOrWhiteSpace(diff.RightExportRecordId)
-                ? diff.RightExportRecordId
-                : diff.RightExportRecordId.Trim(),
+            LeftExportRecordId = diff.LeftExportRecordId,
+            RightExportRecordId = diff.RightExportRecordId,
             Format = ComparisonTypes.FormatJsonMarkdown,
             SummaryMarkdown = summaryMarkdown,
             PayloadJson = SerializeExportDiffPayload(diff, leftRunId, rightRunId),
@@ -157,6 +154,15 @@ public sealed class ComparisonAuditService(IComparisonRecordRepository repositor
             report.LeftRunId = originalLeft;
             report.RightRunId = originalRight;
         }
+    }
+
+    private static void NormalizeExportDiffExportRecordIds(ExportRecordDiffResult diff)
+    {
+        if (!string.IsNullOrWhiteSpace(diff.LeftExportRecordId))
+            diff.LeftExportRecordId = RunExportRecordIdNormalizer.NormalizeRequired(diff.LeftExportRecordId);
+
+        if (!string.IsNullOrWhiteSpace(diff.RightExportRecordId))
+            diff.RightExportRecordId = RunExportRecordIdNormalizer.NormalizeRequired(diff.RightExportRecordId);
     }
 
     private static string SerializeExportDiffPayload(

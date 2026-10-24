@@ -1,3 +1,5 @@
+using System.Text.Json;
+
 using ArchLucid.Application.Analysis;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Core.Audit;
@@ -109,6 +111,35 @@ public sealed class ComparisonAuditServiceTests
         persisted.Should().NotBeNull();
         persisted!.LeftExportRecordId.Should().Be("left-anchor");
         persisted.RightExportRecordId.Should().Be("right-anchor");
+    }
+
+    [Fact]
+    public async Task RecordExportDiffAsync_payload_json_trims_export_record_anchors()
+    {
+        ComparisonRecord? persisted = null;
+        Mock<IComparisonRecordRepository> repo = new();
+        repo
+            .Setup(r => r.CreateAsync(It.IsAny<ComparisonRecord>(), It.IsAny<CancellationToken>()))
+            .Callback<ComparisonRecord, CancellationToken>((record, _) => persisted = record)
+            .Returns(Task.CompletedTask);
+        ComparisonAuditService sut = new(repo.Object, Mock.Of<IAuditService>());
+        ExportRecordDiffResult diff = new()
+        {
+            LeftExportRecordId = "  left-anchor  ",
+            RightExportRecordId = "  right-anchor  ",
+            LeftRunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            RightRunId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        };
+
+        await sut.RecordExportDiffAsync(diff, "# md", CancellationToken.None);
+
+        persisted.Should().NotBeNull();
+        ExportRecordDiffResult? payload = JsonSerializer.Deserialize<ExportRecordDiffResult>(
+            persisted!.PayloadJson,
+            new JsonSerializerOptions(JsonSerializerDefaults.Web) { PropertyNameCaseInsensitive = true });
+        payload.Should().NotBeNull();
+        payload!.LeftExportRecordId.Should().Be("left-anchor");
+        payload.RightExportRecordId.Should().Be("right-anchor");
     }
 
     [Fact]
