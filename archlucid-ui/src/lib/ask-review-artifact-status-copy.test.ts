@@ -20,5 +20,6 @@ describe("ask-review-artifact-status-copy", () => {
   it("flags assistant output without grounding links", () => {
     expect(messageHasUncitedAssistantOutput("Answer without links", 0)).toBe(true);
     expect(messageHasUncitedAssistantOutput("Answer with links", 2)).toBe(false);
+    expect(messageHasUncitedAssistantOutput("Answer without links", null)).toBe(false);
   });
 });

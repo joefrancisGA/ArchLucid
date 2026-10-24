@@ -14,7 +14,8 @@ export type PolicyPackInfluenceHonestyChipProps = {
 };
 
 export function PolicyPackInfluenceHonestyChip(props: PolicyPackInfluenceHonestyChipProps): ReactElement {
-  const unmappedCount = props.unmappedFindingCount ?? 0;
+  const unmappedCount = props.unmappedFindingCount;
+  const unmappedOmitted = unmappedCount === null || unmappedCount === undefined;
 
   return (
     <div
@@ -27,7 +28,9 @@ export function PolicyPackInfluenceHonestyChip(props: PolicyPackInfluenceHonesty
     >
       <div className="flex flex-wrap items-center gap-2">
         <StatusTag kind="neutral" label="Policy influence boundary" />
-        {unmappedCount > 0 ? (
+        {unmappedOmitted ? (
+          <StatusTag kind="neutral" label="Unmapped finding count was not stored." />
+        ) : unmappedCount > 0 ? (
           <StatusTag kind="needs-attention" label={`${unmappedCount} unmapped finding${unmappedCount === 1 ? "" : "s"}`} />
         ) : null}
       </div>

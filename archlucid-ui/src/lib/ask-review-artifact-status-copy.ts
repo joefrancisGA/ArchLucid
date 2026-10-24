@@ -10,6 +10,9 @@ export const ASK_REVIEW_ARTIFACT_STATUS_MISSING =
 export const ASK_REVIEW_UNCITED_RESPONSE_MARKER =
   "No cited findings linked — open evidence before signing off." as const;
 
+export const ASK_REVIEW_CITATION_LINKS_NOT_STORED =
+  "Citation links were not stored." as const;
+
 export const ASK_REVIEW_STREAMING_PROVISIONAL_MARKER =
   "Provisional answer — not part of the Finalized review record until finalized." as const;
 
@@ -46,12 +49,23 @@ export function askReviewArtifactStatusCopy(status: AskReviewArtifactStatus): st
   }
 }
 
-export function messageHasUncitedAssistantOutput(content: string, groundingLinkCount: number): boolean {
+export function messageHasUncitedAssistantOutput(
+  content: string,
+  groundingLinkCount: number | null,
+): boolean {
   const trimmed = content.trim();
 
   if (trimmed.length === 0) {
     return false;
   }
 
+  if (groundingLinkCount === null) {
+    return false;
+  }
+
   return groundingLinkCount <= 0;
+}
+
+export function messageCitationLinksNotStored(groundingLinkCount: number | null): boolean {
+  return groundingLinkCount === null;
 }
