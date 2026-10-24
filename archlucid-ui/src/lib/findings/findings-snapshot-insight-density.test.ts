@@ -74,6 +74,25 @@ describe("findings-snapshot-insight-density", () => {
     ).toBe(false);
   });
 
+  it("does not infer curation counts from checklist rows when counts are omitted", () => {
+    const detail = {
+      run: { runId: "r1", projectId: "p", createdUtc: "2026-01-01T00:00:00Z" },
+      findingsSnapshot: {
+        checklistCoverage: [{ findingId: "chk-1", message: "Row", category: null }],
+      },
+    } as RunDetail;
+
+    const view = resolveFindingsSnapshotInsightDensityView(detail);
+
+    expect(view.curation).toBeNull();
+  });
+
+  it("formatInsightDensityCurationMessage states when counts were not stored", () => {
+    expect(formatInsightDensityCurationMessage({ demotedToChecklistCount: null, retainedFindingCount: null })).toContain(
+      "Demoted count was not stored.",
+    );
+  });
+
   it("hasFindingsSnapshotInsightDensityContent is true for checklist rows or curation copy", () => {
     expect(
       hasFindingsSnapshotInsightDensityContent({

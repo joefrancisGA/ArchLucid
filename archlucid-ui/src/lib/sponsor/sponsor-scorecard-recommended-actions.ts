@@ -53,7 +53,8 @@ function findMostOverduePendingReview(
 
     if (best === null || days > best.daysPending) {
       best = {
-        systemName: row.systemName.trim().length > 0 ? row.systemName.trim() : "Architecture review",
+        systemName:
+          row.systemName.trim().length > 0 ? row.systemName.trim() : "Review title was not stored.",
         runId: row.runId,
         daysPending: days,
       };

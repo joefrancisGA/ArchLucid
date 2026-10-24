@@ -81,7 +81,12 @@ export function formatInfraEvidenceDiffLabel(
       ? formatInfraEvidenceSnapshotCapturedLabel(otherSnapshot.capturedUtc)
       : formatInfraEvidenceSnapshotCapturedLabel(diff.createdUtc);
 
-  return `${diff.totalChanges} changes vs ${otherCaptured}`;
+  const changeCount =
+    typeof diff.totalChanges === "number" && Number.isFinite(diff.totalChanges)
+      ? `${diff.totalChanges} changes`
+      : "Change count was not stored.";
+
+  return `${changeCount} vs ${otherCaptured}`;
 }
 
 export function formatInfraEvidenceScopeFreshnessLine(input: {
@@ -95,7 +100,13 @@ export function formatInfraEvidenceScopeFreshnessLine(input: {
   }
 
   if (input.selectedDiff != null) {
-    parts.push(`${input.selectedDiff.totalChanges} changes`);
+    const changeCount = input.selectedDiff.totalChanges;
+
+    parts.push(
+      typeof changeCount === "number" && Number.isFinite(changeCount)
+        ? `${changeCount} changes`
+        : "Change count was not stored.",
+    );
   }
 
   if (parts.length === 0) {
