@@ -6868,10 +6868,25 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-24 seed hunt (seed→hit): proved `ComparisonReplayManifestHashGuard` and `ComparisonReplayService.RegenerateExportDiffAsync` loaded export anchors with trim-only run ids so sealed-manifest replay blocked on padded dashed `RunId` strings (`Guid.TryParse` failed) and lifecycle probes could skip incomplete runs, and `EndToEndReplayComparisonService.BuildAsync` listed exports with trim-only route ids so dashed regenerate inputs missed canonical `GetByRunIdAsync` keys; canonicalize via `AnalysisRunIdCanonicalization.CanonicalRunIdForLookup` on export-anchor loads and end-to-end build entry; regressions `ReplayAsync_export_diff_regenerate_succeeds_when_export_record_run_id_is_dashed_with_padding` and `BuildAsync_canonicalizes_dashed_run_ids_for_export_history_load`; cheap-disproof closed `ApiPaging.TryParseUtcTicksIdCursor` (comparison search normalizes cursor id), batch zip manifest echo (cosmetic), Armenian homoglyphs (deferred), and persistence-layer determinism normalize (deferred); seeded five follow-on rows; scoped application-analysis + replay filter 263/263. Private beta: comparison export-diff replay/regenerate and end-to-end comparison rebuild succeed when export anchors or route ids use dashed or padded GUID strings, matching scoped export read parity.
+
+- [ ] (candidate) `ComparisonReplayManifestHashGuard` — end-to-end replay sealed hash on untrimmed `LeftRunId`/`RightRunId` columns — locus: E2E branch; input: padded comparison record run ids.
+- [ ] (candidate) `ConsultingDocxExportWhitelabelPrefill` — `GetByRunIdAsync` with trim-only query — locus: prior export prefill; input: dashed route id without canonical lookup.
+- [ ] (candidate) `ApiPaging.TryParseUtcTicksIdCursor` — cursor id segment without trim — locus: HTTP cursor parse; input: padded id after ticks delimiter (alerts inbox and other API surfaces).
+- [ ] (candidate) `ComparisonBatchReplayZipSupport` — manifest failure entries echo pre-trim batch tokens — locus: zip manifest; input: cosmetic id echo only.
+- [ ] (candidate) `ComparisonExportMarkdownSectionRemover` — Armenian homoglyphs in delta headings — locus: `UnicodeLatinHomoglyphMapper`; input: deferred expansion.
+
+- [x] (proven) `ComparisonReplayManifestHashGuard` / `ComparisonReplayService.RegenerateExportDiffAsync` — padded dashed export `RunId` on replay guard — **hit 2026-10-24 seed hunt:** `CanonicalRunIdForLookup` on export-anchor load; regression `ReplayAsync_export_diff_regenerate_succeeds_when_export_record_run_id_is_dashed_with_padding`.
+- [x] (proven) `EndToEndReplayComparisonService.BuildAsync` — dashed route ids on export history load — **hit 2026-10-24 seed hunt:** canonical run ids at build entry; regression `BuildAsync_canonicalizes_dashed_run_ids_for_export_history_load`.
+- [x] (invalid) `ApiPaging.TryParseUtcTicksIdCursor` — HTTP cursor id trim — **cheap-disproof 2026-10-24 seed hunt:** comparison search normalizes at application layer.
+- [x] (invalid) `ComparisonBatchReplayZipSupport` — manifest id echo — **cheap-disproof 2026-10-24 seed hunt:** cosmetic only.
+- [x] (invalid) `UnicodeLatinHomoglyphMapper` — Armenian homoglyphs — **cheap-disproof 2026-10-24 seed hunt:** deferred.
+
 2026-10-24 seed hunt (seed→hit): proved `ExportReplayService.ReplayAsync` normalized stored export `RunId` with trim-only after `GetByIdAsync` while scoped export reads had gained `CanonicalRunIdForLookup` in hunts 135–136, so replay `ArchitectureAnalysisRequest`, audit re-record, and `ReplayExportResult` kept dashed or padded run ids even though career and run-detail probes already used canonical lookup; assign `record.RunId` via `AnalysisRunIdCanonicalization.CanonicalRunIdForLookup` at load; regression `ReplayAsync_canonicalizes_stored_dashed_padded_run_id_before_build_request`; cheap-disproof closed `ComparisonReplayService.RegenerateExportDiffAsync` export pair load (diff service canonicalizes result columns; lifecycle accepts dashed `Guid.TryParse`), `ApiPaging.TryParseUtcTicksIdCursor` (comparison search normalizes cursor id), batch zip manifest echo (cosmetic), Armenian homoglyphs (deferred), and persistence-layer determinism normalize (deferred); seeded five follow-on rows; scoped application-analysis + replay filter 261/261. Private beta: architecture export replay emits canonical run ids on regenerated artifacts and recorded replay rows when legacy export records store dashed or padded run ids.
 
-- [ ] (candidate) `ComparisonReplayService.RegenerateExportDiffAsync` — export record `RunId` trim/canonical before lifecycle guard — locus: direct repository load; input: padded run id on export anchor row.
-- [ ] (candidate) `EndToEndReplayComparisonService.BuildAsync` — `GetByRunIdAsync` with trim-only route ids — locus: export slice pairing; input: dashed left/right run ids on regenerate path.
+- [x] (proven) `ComparisonReplayService.RegenerateExportDiffAsync` — export record `RunId` canonical before lifecycle — **hit 2026-10-24 seed hunt (138):** shared with manifest guard; regression `ReplayAsync_export_diff_regenerate_succeeds_when_export_record_run_id_is_dashed_with_padding`.
+- [x] (proven) `EndToEndReplayComparisonService.BuildAsync` — canonical route ids for export history — **hit 2026-10-24 seed hunt (138):** regression `BuildAsync_canonicalizes_dashed_run_ids_for_export_history_load`.
+- [ ] (candidate) `ApiPaging.TryParseUtcTicksIdCursor` — cursor id segment without trim — locus: HTTP cursor parse; input: padded id after ticks delimiter (alerts inbox and other API surfaces).
 - [ ] (candidate) `ApiPaging.TryParseUtcTicksIdCursor` — cursor id segment without trim — locus: HTTP cursor parse; input: padded id after ticks delimiter (alerts inbox and other API surfaces).
 - [ ] (candidate) `ComparisonBatchReplayZipSupport` — manifest failure entries echo pre-trim batch tokens — locus: zip manifest; input: cosmetic id echo only.
 - [ ] (candidate) `ComparisonExportMarkdownSectionRemover` — Armenian homoglyphs in delta headings — locus: `UnicodeLatinHomoglyphMapper`; input: deferred expansion.
@@ -7730,11 +7745,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 137
-- **bugs-found:** 143
+- **hunts:** 138
+- **bugs-found:** 144
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-24
-- **last-bug:** 2026-10-24 — export replay canonicalizes stored run id
+- **last-bug:** 2026-10-24 — comparison replay canonicalizes export anchor run ids
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
