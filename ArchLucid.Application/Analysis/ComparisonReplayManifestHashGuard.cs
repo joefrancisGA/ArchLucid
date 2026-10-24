@@ -77,6 +77,9 @@ internal static class ComparisonReplayManifestHashGuard
         RunExportRecord right = await runExportRecordRepository.GetByIdAsync(rightExportRecordId, cancellationToken)
                                 ?? throw new InvalidOperationException($"Export record '{rightExportRecordId}' was not found.");
 
+        left.RunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(left.RunId);
+        right.RunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(right.RunId);
+
         await EnsureRunSealedManifestHashOrThrowAsync(left.RunId, authorityQueryService, manifestHashService, scope, cancellationToken);
         await EnsureRunSealedManifestHashOrThrowAsync(right.RunId, authorityQueryService, manifestHashService, scope, cancellationToken);
     }

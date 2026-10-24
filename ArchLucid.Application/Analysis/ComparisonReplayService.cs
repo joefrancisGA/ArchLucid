@@ -388,6 +388,9 @@ public sealed class ComparisonReplayService(
         PersistedAnalysisExportRequestDeterminismNormalizer.NormalizeRunExportRecordDenormalizedColumns(left);
         PersistedAnalysisExportRequestDeterminismNormalizer.NormalizeRunExportRecordDenormalizedColumns(right);
 
+        left.RunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(left.RunId);
+        right.RunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(right.RunId);
+
         await EnsureRunPairLifecycleCompleteOrThrowAsync(left.RunId, right.RunId, cancellationToken);
 
         return await _exportRecordDiffService.CompareAsync(left, right, cancellationToken).ConfigureAwait(false);

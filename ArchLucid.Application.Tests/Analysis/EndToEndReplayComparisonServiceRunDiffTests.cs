@@ -60,6 +60,45 @@ public sealed class EndToEndReplayComparisonServiceRunDiffTests
   }
 
   [Fact]
+  public async Task BuildAsync_canonicalizes_dashed_run_ids_for_export_history_load()
+  {
+    Guid leftGuid = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+    Guid rightGuid = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
+    string leftCanonical = leftGuid.ToString("N");
+    string rightCanonical = rightGuid.ToString("N");
+    string leftDashed = leftGuid.ToString("D");
+    string rightDashed = rightGuid.ToString("D");
+
+    Mock<IRunDetailQueryService> runDetailQuery = new();
+    runDetailQuery
+      .Setup(s => s.GetRunDetailForRollupAsync(leftCanonical, It.IsAny<CancellationToken>()))
+      .ReturnsAsync(CreateDetail(leftCanonical, null));
+    runDetailQuery
+      .Setup(s => s.GetRunDetailForRollupAsync(rightCanonical, It.IsAny<CancellationToken>()))
+      .ReturnsAsync(CreateDetail(rightCanonical, null));
+
+    Mock<IRunExportRecordRepository> exportRecords = new();
+    exportRecords
+      .Setup(r => r.GetByRunIdAsync(leftCanonical, It.IsAny<CancellationToken>()))
+      .ReturnsAsync([new RunExportRecord { ExportRecordId = "left-export", RunId = leftCanonical }]);
+    exportRecords
+      .Setup(r => r.GetByRunIdAsync(rightCanonical, It.IsAny<CancellationToken>()))
+      .ReturnsAsync(Array.Empty<RunExportRecord>());
+
+    EndToEndReplayComparisonService sut = CreateSut(
+      runDetailQuery,
+      exportRecords,
+      new Mock<IManifestDiffService>());
+
+    EndToEndReplayComparisonReport report = await sut.BuildAsync(leftDashed, rightDashed);
+
+    report.LeftRunId.Should().Be(leftCanonical);
+    report.RightRunId.Should().Be(rightCanonical);
+    exportRecords.Verify(r => r.GetByRunIdAsync(leftCanonical, It.IsAny<CancellationToken>()), Times.Once);
+    exportRecords.Verify(r => r.GetByRunIdAsync(rightCanonical, It.IsAny<CancellationToken>()), Times.Once);
+  }
+
+  [Fact]
   public async Task BuildAsync_marks_completion_state_differs_when_completed_utc_values_differ()
   {
     DateTime leftCompleted = new(2026, 1, 1, 12, 0, 0, DateTimeKind.Utc);

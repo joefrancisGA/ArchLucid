@@ -568,6 +568,49 @@ public sealed class ComparisonReplayServiceTests
     }
 
     [Fact]
+    public async Task ReplayAsync_export_diff_regenerate_succeeds_when_export_record_run_id_is_dashed_with_padding()
+    {
+        ExportRecordDiffResult diff = SampleExportDiff();
+        ComparisonRecord record = ExportDiffRecord("diff-dashed-run-id", diff);
+        record.LeftExportRecordId = diff.LeftExportRecordId;
+        record.RightExportRecordId = diff.RightExportRecordId;
+
+        Guid leftGuid = Guid.Parse(diff.LeftRunId);
+        Guid rightGuid = Guid.Parse(diff.RightRunId);
+        string dashedPaddedLeftRunId = $"{leftGuid:D}  ";
+        string dashedPaddedRightRunId = $"{rightGuid:D}  ";
+
+        RunExportRecord left = new() { ExportRecordId = diff.LeftExportRecordId, RunId = dashedPaddedLeftRunId };
+        RunExportRecord right = new() { ExportRecordId = diff.RightExportRecordId, RunId = dashedPaddedRightRunId };
+        Mock<IComparisonRecordRepository> repo = SetupRepo(record);
+        Mock<IRunExportRecordRepository> exports = new();
+        exports.Setup(r => r.GetByIdAsync(left.ExportRecordId, It.IsAny<CancellationToken>())).ReturnsAsync(left);
+        exports.Setup(r => r.GetByIdAsync(right.ExportRecordId, It.IsAny<CancellationToken>())).ReturnsAsync(right);
+        Mock<IExportRecordDiffService> diffService = new();
+        diffService.Setup(s => s.CompareAsync(left, right, It.IsAny<CancellationToken>())).ReturnsAsync(diff);
+        Mock<IExportRecordDiffSummaryFormatter> formatter = new();
+        formatter.Setup(f => f.FormatMarkdown(It.IsAny<ExportRecordDiffResult>())).Returns("# dashed-run-id");
+        ManifestHashService manifestHashService = new();
+        Mock<IAuthorityQueryService> authority = new();
+        SetupSealedManifestForRuns(authority, manifestHashService, diff.LeftRunId, diff.RightRunId);
+        ComparisonReplayService sut = CreateSut(
+            comparisonRepo: repo.Object,
+            runExports: exports.Object,
+            diffService: diffService.Object,
+            diffFormatter: formatter.Object,
+            authorityQuery: authority.Object,
+            manifestHash: manifestHashService);
+
+        ReplayComparisonResult result = await sut.ReplayAsync(
+            new ReplayComparisonRequest { ComparisonRecordId = "diff-dashed-run-id", ReplayMode = "regenerate" },
+            CancellationToken.None);
+
+        result.Content.Should().Be("# dashed-run-id");
+        left.RunId.Should().Be(diff.LeftRunId);
+        right.RunId.Should().Be(diff.RightRunId);
+    }
+
+    [Fact]
     public async Task ReplayAsync_export_diff_unsupported_format_throws()
     {
         ExportRecordDiffResult diff = SampleExportDiff();
