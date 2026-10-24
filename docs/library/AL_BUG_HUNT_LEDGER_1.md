@@ -6868,6 +6868,20 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-24 seed hunt (seed→hit): proved `ComparisonsApplicationService.IsComparisonRecordInScopeAsync` scope-checked stored `LeftRunId`/`RightRunId` and export anchors without canonical run-id lookup or export-id normalization, so scoped comparison GET/replay returned null when legacy rows kept dashed or padded run ids or padded export record ids; canonicalize run ids via `AnalysisRunIdCanonicalization.CanonicalRunIdForLookupOrNull` and export anchors via `NormalizeExportRecordIdFilterOrNull` before scope probes; regression `CompareQuality_TryGetScopedRecordAsync_returns_record_when_stored_left_run_id_is_dashed_guid_with_padding`; cheap-disproof closed `ComparisonRecordRepositoryCore.IsSortDescending` (application search trims sort params), `ApiPaging.TryParseUtcTicksIdCursor` (comparison search normalizes cursor id), batch zip manifest echo (cosmetic), Armenian homoglyphs (deferred), and persistence-layer determinism normalize (deferred); seeded five follow-on rows; scoped application-analysis + replay filter 258/258. Private beta: scoped comparison record loads succeed when persisted anchors use dashed run ids or padded export record ids, matching search and replay trim parity.
+
+- [ ] (candidate) `ApiPaging.TryParseUtcTicksIdCursor` — cursor id segment without trim — locus: HTTP cursor parse; input: padded id after ticks delimiter (alerts inbox and other API surfaces).
+- [ ] (candidate) `ComparisonBatchReplayZipSupport` — manifest failure entries echo pre-trim batch tokens — locus: zip manifest; input: cosmetic id echo only.
+- [ ] (candidate) `ComparisonExportMarkdownSectionRemover` — Armenian homoglyphs in delta headings — locus: `UnicodeLatinHomoglyphMapper`; input: deferred expansion.
+- [ ] (candidate) `RunExportRecordPersistNormalizer` — persistence-layer determinism column normalize — locus: repository read; input: consolidation at DB boundary.
+- [ ] (candidate) `CompareRunsApplicationFacade.CompareAgentResults` — canonical run ids on diff emission — locus: agent compare facade; input: padded query ids after pair load.
+
+- [x] (proven) `ComparisonsApplicationService.IsComparisonRecordInScopeAsync` — untrimmed stored run/export anchors on scope check — **hit 2026-10-24 seed hunt:** shared canonical lookup + export id normalize; regression `CompareQuality_TryGetScopedRecordAsync_returns_record_when_stored_left_run_id_is_dashed_guid_with_padding`.
+- [x] (valid-no-repro) `ComparisonRecordRepositoryCore.IsSortDescending` — persistence sort-dir trim — **cheap-disproof 2026-10-24 seed hunt:** application search trims sort params hunt 132.
+- [x] (invalid) `ApiPaging.TryParseUtcTicksIdCursor` — HTTP cursor id trim — **cheap-disproof 2026-10-24 seed hunt:** comparison search normalizes at application layer.
+- [x] (invalid) `ComparisonBatchReplayZipSupport` — manifest id echo — **cheap-disproof 2026-10-24 seed hunt:** cosmetic only.
+- [x] (invalid) `UnicodeLatinHomoglyphMapper` — Armenian homoglyphs — **cheap-disproof 2026-10-24 seed hunt:** deferred.
+
 2026-10-24 seed hunt (seed→hit): proved `ArchitectureAnalysisService.BuildAsync` used untrimmed `run.CurrentManifestVersion` when resolving the golden-manifest reader key so architecture exports with padded current-version metadata missed manifests on the reader fallback path; trim current manifest version before `GetByVersionAsync`; regression `BuildAsync_loads_manifest_when_current_manifest_version_has_surrounding_whitespace`; cheap-disproof closed `ComparisonRecordRepositoryCore.IsSortDescending` persistence trim (application search already trims sort params), `ApiPaging.TryParseUtcTicksIdCursor` (comparison search normalizes cursor id), batch zip manifest echo (cosmetic), Armenian homoglyphs (deferred), and persistence-layer determinism normalize (deferred); seeded five follow-on rows; scoped application-analysis + replay filter 257/257. Private beta: architecture analysis manifest sections load when run header current manifest version strings include surrounding whitespace, matching compare-manifest version trim parity.
 
 - [ ] (candidate) `ApiPaging.TryParseUtcTicksIdCursor` — cursor id segment without trim — locus: HTTP cursor parse; input: padded id after ticks delimiter (alerts inbox and other API surfaces).
@@ -7673,11 +7687,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 133
-- **bugs-found:** 139
+- **hunts:** 134
+- **bugs-found:** 140
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-24
-- **last-bug:** 2026-10-24 — architecture analysis trims current manifest version key
+- **last-bug:** 2026-10-24 — comparison scope check canonicalizes stored anchors
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
