@@ -154,14 +154,17 @@ public sealed class RunExportRecordRepository(IDbConnectionFactory connectionFac
         string runId,
         CancellationToken cancellationToken = default)
     {
-        IReadOnlyList<string> lookupKeys = RunExportRecordRunIdSql.LookupKeys(runId);
+        IReadOnlyList<string> lookupKeys = RunExportRecordRunIdSql.LookupKeys(runId)
+            .Select(static key => key.ToLowerInvariant())
+            .Distinct(StringComparer.Ordinal)
+            .ToArray();
 
         using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         string sql = $"""
                       SELECT RecordJson
                       FROM RunExportRecords
-                      WHERE LTRIM(RTRIM(RunId)) IN @RunIds
+                      WHERE LOWER(LTRIM(RTRIM(RunId))) IN @RunIds
                       ORDER BY CreatedUtc DESC
                       {SqlPagingSyntax.FirstRowsOnly(500)};
                       """;

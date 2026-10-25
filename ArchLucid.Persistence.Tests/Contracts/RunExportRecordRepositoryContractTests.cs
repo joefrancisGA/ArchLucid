@@ -142,6 +142,26 @@ public abstract class RunExportRecordRepositoryContractTests
     }
 
     [SkippableFact]
+    public async Task GetByRunId_finds_exports_when_stored_run_id_differs_only_by_casing()
+    {
+        SkipIfSqlServerUnavailable();
+        IRunExportRecordRepository repo = CreateRepository();
+        string runId = Guid.NewGuid().ToString("N");
+        string uppercaseRunId = runId.ToUpperInvariant();
+        string requestId = "req-exp-run-case-" + Guid.NewGuid().ToString("N");
+        await PrepareRunAsync(requestId, runId, CancellationToken.None);
+        string exportId = "exp-" + Guid.NewGuid().ToString("N");
+
+        await repo.CreateAsync(
+            NewRecord(exportId, uppercaseRunId, new DateTime(2026, 4, 5, 12, 0, 0, DateTimeKind.Utc)),
+            CancellationToken.None);
+
+        IReadOnlyList<RunExportRecord> list = await repo.GetByRunIdAsync(runId, CancellationToken.None);
+
+        list.Should().ContainSingle(r => r.ExportRecordId == exportId);
+    }
+
+    [SkippableFact]
     public async Task GetByRunId_finds_exports_when_stored_run_id_has_surrounding_whitespace()
     {
         SkipIfSqlServerUnavailable();
