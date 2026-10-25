@@ -19,6 +19,10 @@ describe("normalizeOidcDisplayString", () => {
     expect(normalizeOidcDisplayString("می\u200cخواهم")).toBe("می\u200cخواهم");
     expect(normalizeOidcDisplayString("👨\u200d👩\u200d👧")).toBe("👨\u200d👩\u200d👧");
   });
+
+  it("collapses vertical-tab control characters in OIDC display copy", () => {
+    expect(normalizeOidcDisplayString("Desk\u000BUser")).toBe("Desk User");
+  });
 });
 
 describe("readOAuthJsonErrorDescription", () => {
@@ -68,6 +72,50 @@ describe("readOAuthJsonErrorDescription", () => {
     expect(readOAuthJsonErrorDescription("line1%0Aline2")).toBe("line1 line2");
   });
 
+  it("collapses literal CRLF in JSON error_description for single-line token errors", () => {
+    expect(readOAuthJsonErrorDescription("line1\r\nline2")).toBe("line1 line2");
+  });
+
+  it("returns empty for nbsp-only token-endpoint JSON error_description values", () => {
+    expect(readOAuthJsonErrorDescription("\u00a0\u00a0")).toBe("");
+  });
+
+  it("returns empty for thin-space-only token-endpoint JSON error_description values", () => {
+    expect(readOAuthJsonErrorDescription("\u202f\u202f")).toBe("");
+  });
+
+  it("returns empty for figure-space-only token-endpoint JSON error_description values", () => {
+    expect(readOAuthJsonErrorDescription("\u2007\u2007")).toBe("");
+  });
+
+  it("returns empty for hair-space-only token-endpoint JSON error_description values", () => {
+    expect(readOAuthJsonErrorDescription("\u200a\u200a")).toBe("");
+  });
+
+  it("returns empty for six-per-em-space-only token-endpoint JSON error_description values", () => {
+    expect(readOAuthJsonErrorDescription("\u2006\u2006")).toBe("");
+  });
+
+  it("returns empty for em-dash-only token-endpoint JSON error_description values", () => {
+    expect(readOAuthJsonErrorDescription("\u2014\u2014")).toBe("");
+  });
+
+  it("returns empty for en-dash-only token-endpoint JSON error_description values", () => {
+    expect(readOAuthJsonErrorDescription("\u2013\u2013")).toBe("");
+  });
+
+  it("returns empty for bullet-only token-endpoint JSON error_description values", () => {
+    expect(readOAuthJsonErrorDescription("\u2022\u2022")).toBe("");
+  });
+
+  it("returns empty for ellipsis-only token-endpoint JSON error_description values", () => {
+    expect(readOAuthJsonErrorDescription("\u2026\u2026")).toBe("");
+  });
+
+  it("returns empty for middle-dot-only token-endpoint JSON error_description values", () => {
+    expect(readOAuthJsonErrorDescription("\u00b7\u00b7")).toBe("");
+  });
+
   it("preserves ZWNJ in Persian token error_description copy", () => {
     const detail = "دسترسی\u200cرد";
 
@@ -99,6 +147,7 @@ describe("readOAuthJsonErrorDescription", () => {
     expect(readOAuthJsonErrorDescription("👍🏻%2Bextra")).toBe("👍🏻+extra");
     expect(readOAuthJsonErrorDescription("Policy%20denied%2Bextra")).toBe("Policy denied+extra");
     expect(readOAuthJsonErrorDescription("User+denied%2B👍🏻")).toBe("User+denied+👍🏻");
+    expect(readOAuthJsonErrorDescription("Policy\u3000denied%252Bextra")).toBe("Policy denied+extra");
   });
 
   it("preserves percent-decoded plus in JSON when thin-space glue separates words", () => {
@@ -119,6 +168,10 @@ describe("readOAuthJsonErrorDescription", () => {
 
   it("preserves percent-decoded plus in JSON when ZWJ glue separates words", () => {
     expect(readOAuthJsonErrorDescription("Policy\u200ddenied%252Bextra")).toBe("Policy denied+extra");
+  });
+
+  it("preserves percent-decoded plus in JSON when ideographic-space glue separates words", () => {
+    expect(readOAuthJsonErrorDescription("Policy\u3000denied%252Bextra")).toBe("Policy denied+extra");
   });
 });
 
@@ -165,15 +218,26 @@ describe("decodeOAuthErrorDescription", () => {
 
   it("preserves literal plus in authorize error descriptions when ZWNJ glue separates words", () => {
     expect(decodeOAuthErrorDescription("Policy\u200cdenied+extra")).toBe("Policy denied+extra");
+    expect(decodeOAuthErrorDescription("Policy\u2007denied%252Bextra")).toBe("Policy denied+extra");
+    expect(decodeOAuthErrorDescription("Policy\u2008denied%252Bextra")).toBe("Policy denied+extra");
+    expect(decodeOAuthErrorDescription("Policy\u200adenied%252Bextra")).toBe("Policy denied+extra");
+    expect(decodeOAuthErrorDescription("Policy\u202fdenied%252Bextra")).toBe("Policy denied+extra");
   });
 
   it("preserves literal plus in authorize error descriptions when emoji ZWJ sequences are present", () => {
     expect(decodeOAuthErrorDescription("👨\u200d👩\u200d👧+extra")).toBe("👨\u200d👩\u200d👧+extra");
+    expect(decodeOAuthErrorDescription("👨\u200d👩\u200d👧%2Bextra")).toBe("👨\u200d👩\u200d👧+extra");
+    expect(decodeOAuthErrorDescription("👨\u200d👩\u200d👧%252Bextra")).toBe("👨\u200d👩\u200d👧+extra");
   });
 
   it("preserves literal plus in authorize error descriptions when regional-indicator flag emoji is present", () => {
     expect(decodeOAuthErrorDescription("🇺🇸+extra")).toBe("🇺🇸+extra");
     expect(decodeOAuthErrorDescription("🇺🇸%2Bextra")).toBe("🇺🇸+extra");
+  });
+
+  it("preserves literal plus in authorize error descriptions when skin-tone emoji modifiers are present", () => {
+    expect(decodeOAuthErrorDescription("👍🏻+extra")).toBe("👍🏻+extra");
+    expect(decodeOAuthErrorDescription("👋🏽+denied")).toBe("👋🏽+denied");
   });
 
   it("preserves literal plus in authorize error descriptions when skin-tone emoji modifiers are present", () => {
@@ -251,6 +315,42 @@ describe("decodeOAuthErrorDescription", () => {
 
   it("returns empty for nbsp-only percent-encoded error descriptions", () => {
     expect(decodeOAuthErrorDescription("%C2%A0")).toBe("");
+  });
+
+  it("returns empty for thin-space-only percent-encoded error descriptions", () => {
+    expect(decodeOAuthErrorDescription("%E2%80%AF")).toBe("");
+  });
+
+  it("returns empty for figure-space-only percent-encoded error descriptions", () => {
+    expect(decodeOAuthErrorDescription("%E2%80%87")).toBe("");
+  });
+
+  it("returns empty for hair-space-only percent-encoded error descriptions", () => {
+    expect(decodeOAuthErrorDescription("%E2%80%8A")).toBe("");
+  });
+
+  it("returns empty for six-per-em-space-only percent-encoded error descriptions", () => {
+    expect(decodeOAuthErrorDescription("%E2%80%86")).toBe("");
+  });
+
+  it("returns empty for em-dash-only percent-encoded error descriptions", () => {
+    expect(decodeOAuthErrorDescription("%E2%80%94")).toBe("");
+  });
+
+  it("returns empty for en-dash-only percent-encoded error descriptions", () => {
+    expect(decodeOAuthErrorDescription("%E2%80%93")).toBe("");
+  });
+
+  it("returns empty for bullet-only percent-encoded error descriptions", () => {
+    expect(decodeOAuthErrorDescription("%E2%80%A2")).toBe("");
+  });
+
+  it("returns empty for ellipsis-only percent-encoded error descriptions", () => {
+    expect(decodeOAuthErrorDescription("%E2%80%A6")).toBe("");
+  });
+
+  it("returns empty for middle-dot-only percent-encoded error descriptions", () => {
+    expect(decodeOAuthErrorDescription("%C2%B7")).toBe("");
   });
 
   it("returns empty for percent-encoded punctuation-only error descriptions", () => {
@@ -454,6 +554,20 @@ describe("humanizeAuthorizeCallbackError", () => {
     expect(message).not.toContain("org_internal");
   });
 
+  it("humanizes admin_consent_required authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("admin_consent_required", "");
+
+    expect(message).toMatch(/admin consent required/i);
+    expect(message).not.toContain("admin_consent_required");
+  });
+
+  it("humanizes acr_values_not_supported authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("acr_values_not_supported", "");
+
+    expect(message).toMatch(/acr values not supported/i);
+    expect(message).not.toContain("acr_values_not_supported");
+  });
+
   it("humanizes invalid_target authorize callback errors with readable copy", () => {
     const message = humanizeAuthorizeCallbackError("invalid_target", "");
 
@@ -494,6 +608,13 @@ describe("humanizeAuthorizeCallbackError", () => {
 
     expect(message).toMatch(/request not supported/i);
     expect(message).not.toContain("request_not_supported");
+  });
+
+  it("humanizes unsupported_response_type authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("unsupported_response_type", "");
+
+    expect(message).toMatch(/unsupported response type/i);
+    expect(message).not.toContain("unsupported_response_type");
   });
 
   it("humanizes request_uri_too_long authorize callback errors with readable copy", () => {
@@ -550,6 +671,20 @@ describe("humanizeAuthorizeCallbackError", () => {
 
     expect(message).toMatch(/session expired/i);
     expect(message).not.toContain("session_expired");
+  });
+
+  it("humanizes login_timeout authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("login_timeout", "");
+
+    expect(message).toMatch(/login timeout/i);
+    expect(message).not.toContain("login_timeout");
+  });
+
+  it("humanizes device_code_expired authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("device_code_expired", "");
+
+    expect(message).toMatch(/device code expired/i);
+    expect(message).not.toContain("device_code_expired");
   });
 
   it("humanizes invalid_code authorize callback errors with readable copy", () => {
@@ -613,6 +748,14 @@ describe("humanizeAuthorizeCallbackError", () => {
 
     expect(message).toMatch(/invalid saml response/i);
     expect(message).not.toContain("invalid_saml_response");
+  });
+
+
+  it("humanizes invalid_saml_assertion authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("invalid_saml_assertion", "");
+
+    expect(message).toMatch(/invalid saml assertion/i);
+    expect(message).not.toContain("invalid_saml_assertion");
   });
 
   it("humanizes invalid_oidc_response authorize callback errors with readable copy", () => {
@@ -725,6 +868,21 @@ describe("humanizeAuthorizeCallbackError", () => {
 
     expect(message).toMatch(/invalid session id/i);
     expect(message).not.toContain("invalid_session_id");
+  });
+
+  it("humanizes invalid_saml_issuer authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("invalid_saml_issuer", "");
+
+    expect(message).toMatch(/invalid saml issuer/i);
+    expect(message).not.toContain("invalid_saml_issuer");
+
+  });
+
+  it("humanizes invalid_saml_nameid authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("invalid_saml_nameid", "");
+
+    expect(message).toMatch(/invalid saml nameid/i);
+    expect(message).not.toContain("invalid_saml_nameid");
   });
 
   it("avoids empty parentheses when the authorize error code is whitespace-only", () => {
@@ -860,6 +1018,20 @@ describe("humanizeAuthorizeCallbackError", () => {
     expect(message).not.toContain("Policy");
   });
 
+  it("uses readable default copy for authorization_pending authorize-query errors", () => {
+    const message = humanizeAuthorizeCallbackError("authorization_pending", "");
+
+    expect(message).toContain("authorization pending");
+    expect(message).toContain("Sign-in did not finish");
+  });
+
+  it("uses readable default copy for slow_down authorize-query errors", () => {
+    const message = humanizeAuthorizeCallbackError("slow_down", "");
+
+    expect(message).toContain("slow down");
+    expect(message).toContain("Sign-in did not finish");
+  });
+
   it("uses fixed copy for login_required regardless of oversized error_description", () => {
     const oversized = `${"Policy ".repeat(80)}end`;
     const message = humanizeAuthorizeCallbackError("login_required", oversized);
@@ -897,6 +1069,13 @@ describe("humanizeAuthorizeCallbackError", () => {
 
     expect(message).toBe("This sign-in request was not valid. Try signing in again.");
     expect(message).not.toContain("+++");
+  });
+
+  it("uses fixed copy for unauthorized_client authorize-query errors", () => {
+    const message = humanizeAuthorizeCallbackError("unauthorized_client", "");
+
+    expect(message).toContain("not enabled");
+    expect(message).not.toContain("unauthorized_client");
   });
 
   it("uses fixed copy for unauthorized_client regardless of oversized error_description", () => {

@@ -53,9 +53,7 @@ export function formatCitationBuyerDisplay(
   const rawLabel = citation.label?.trim() ?? "";
   const cleanedLabel = stripOpaqueSuffix(rawLabel);
   const headline =
-    cleanedLabel.length > 0
-      ? cleanedLabel
-      : citationKindFallbackHeadline(citation.kind);
+    cleanedLabel.length > 0 ? cleanedLabel : "Citation label was not stored.";
 
   if (!buyerPolishedShell) {
     return {

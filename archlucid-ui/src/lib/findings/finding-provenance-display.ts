@@ -28,7 +28,8 @@ export type FindingProvenanceGrounding =
   | "Estimated"
   | "Ungrounded"
   | "Degraded"
-  | "Not applicable";
+  | "Not applicable"
+  | "Grounding was not stored.";
 
 export type FindingProvenanceDisplay = {
   readonly origin: FindingProvenanceOriginDisplay;
@@ -149,7 +150,7 @@ export function resolveFindingProvenance(input: DeriveFindingTrustLabelInput): F
   const label = deriveFindingTrustLabel(input).label;
 
   if (label === "NotStored") {
-    return { origin: "Trust label was not stored", grounding: "Not applicable" };
+    return { origin: "Trust label was not stored", grounding: "Grounding was not stored." };
   }
 
   return mapFindingTrustLabelToProvenance(label);
@@ -162,6 +163,7 @@ export type FindingProvenanceAggregateCounts = {
   readonly aiGenerated: number;
   readonly aiEvidenceBacked: number;
   readonly simulated: number;
+  readonly trustLabelNotStored: number;
 };
 
 export function aggregateFindingProvenance(
@@ -172,8 +174,14 @@ export function aggregateFindingProvenance(
   let aiGenerated = 0;
   let aiEvidenceBacked = 0;
   let simulated = 0;
+  let trustLabelNotStored = 0;
 
   for (const item of items) {
+    if (deriveFindingTrustLabel(item).label === "NotStored") {
+      trustLabelNotStored += 1;
+      continue;
+    }
+
     const provenance = resolveFindingProvenance(item);
 
     if (provenance.origin === "Deterministic rule") {
@@ -198,6 +206,7 @@ export function aggregateFindingProvenance(
     aiGenerated,
     aiEvidenceBacked,
     simulated,
+    trustLabelNotStored,
   };
 }
 
@@ -229,6 +238,12 @@ export function formatFindingProvenanceAggregateLine(counts: FindingProvenanceAg
 
   if (counts.simulated > 0) {
     parts.push(`${counts.simulated} simulated`);
+  }
+
+  if (counts.trustLabelNotStored > 0) {
+    parts.push(
+      `${counts.trustLabelNotStored} trust label was not stored`,
+    );
   }
 
   if (parts.length === 0) {

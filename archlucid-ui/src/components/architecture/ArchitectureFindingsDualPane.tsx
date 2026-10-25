@@ -6,6 +6,7 @@ import { usePathname, useSearchParams } from "next/navigation";
 
 import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
 
+import { RUN_FINDING_EXPLAINABILITY_TITLE_OMITTED } from "@/components/runs/RunFindingExplainabilityTable";
 import { SeverityTag } from "@/components/ui/severity-tag";
 import { Button } from "@/components/ui/button";
 import {
@@ -14,6 +15,7 @@ import {
   ARCHITECTURE_FINDINGS_DUAL_PANE_LINKED_VIEW_TITLE,
   ARCHITECTURE_FINDINGS_DUAL_PANE_LAYOUT_MODE_ID,
   buildArchitectureFindingsDualPaneFindingsHref,
+  formatFindingDiagramMatchRowLabel,
   formatLinkedComponentStatus,
   resolveFindingDiagramSelectionSync,
   type ArchitectureFindingsDualPaneDiagramNode,
@@ -291,17 +293,17 @@ export function ArchitectureFindingsDualPane(props: ArchitectureFindingsDualPane
                           severity={severityKindFromNumericValue(finding.severityValue)}
                           label={severityBadgeLabel(finding.severityValue)}
                         />
-                        {sync.matchedNodeLabel !== null ? (
+                        {formatFindingDiagramMatchRowLabel(sync) !== null ? (
                           <span
                             className={cn("text-al-text-secondary dark:text-neutral-200", OPERATOR_TYPOGRAPHY.helper)}
                             data-testid={`architecture-findings-dual-pane-finding-node-${finding.findingId}`}
                           >
-                            {sync.matchedNodeLabel}
+                            {formatFindingDiagramMatchRowLabel(sync)}
                           </span>
                         ) : null}
                       </div>
                       <p className={cn("m-0 mt-1 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-                        {finding.title}
+                        {finding.title.trim().length > 0 ? finding.title : RUN_FINDING_EXPLAINABILITY_TITLE_OMITTED}
                       </p>
                     </button>
                   </li>

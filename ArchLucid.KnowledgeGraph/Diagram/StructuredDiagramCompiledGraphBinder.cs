@@ -46,12 +46,14 @@ public static class StructuredDiagramCompiledGraphBinder
                 continue;
             }
 
-            diagramNodeIdRemap[diagramNode.NodeId] = boundTarget.NodeId;
+            string canonicalNodeId = boundTarget.NodeId.Trim();
+            string diagramGraphNodeId = diagramNode.NodeId.Trim();
+            diagramNodeIdRemap[diagramGraphNodeId] = canonicalNodeId;
             bindings.Add(new StructuredDiagramCanonicalBinding
             {
-                DiagramGraphNodeId = diagramNode.NodeId,
+                DiagramGraphNodeId = diagramGraphNodeId,
                 DiagramSourceId = diagramSourceId,
-                CanonicalGraphNodeId = boundTarget.NodeId,
+                CanonicalGraphNodeId = canonicalNodeId,
                 SourceEvidenceItemId = TryReadSourceEvidenceItemId(diagramNode),
             });
         }
@@ -95,26 +97,36 @@ public static class StructuredDiagramCompiledGraphBinder
         }
 
         Dictionary<string, GraphNode> nodeById = graphNodes.ToDictionary(
-            node => node.NodeId,
+            node => node.NodeId.Trim(),
             StringComparer.OrdinalIgnoreCase);
 
         foreach (StructuredDiagramCanonicalBinding binding in bindings)
         {
-            if (!nodeById.TryGetValue(binding.CanonicalGraphNodeId, out GraphNode? target))
+            if (!nodeById.TryGetValue(binding.CanonicalGraphNodeId.Trim(), out GraphNode? target))
             {
                 continue;
             }
 
-            target.Properties[StructuredDiagramGraphPropertyKeys.BoundDiagramNodeId] = binding.DiagramSourceId;
-            target.Properties[StructuredDiagramGraphPropertyKeys.BoundDiagramGraphNodeId] = binding.DiagramGraphNodeId;
-            target.Properties[StructuredDiagramGraphPropertyKeys.ProvenanceKind] =
-                StructuredDiagramGraphProvenanceKinds.ObservedFact;
-            target.Properties[StructuredDiagramGraphPropertyKeys.InferenceConfidence] = "1";
+            StructuredDiagramGraphCanonicalPropertyWriter.WriteString(
+                target.Properties,
+                StructuredDiagramGraphPropertyKeys.BoundDiagramNodeId,
+                binding.DiagramSourceId.Trim());
+            StructuredDiagramGraphCanonicalPropertyWriter.WriteString(
+                target.Properties,
+                StructuredDiagramGraphPropertyKeys.BoundDiagramGraphNodeId,
+                binding.DiagramGraphNodeId.Trim());
+            StructuredDiagramGraphCanonicalPropertyWriter.WriteString(
+                target.Properties,
+                StructuredDiagramGraphPropertyKeys.ProvenanceKind,
+                StructuredDiagramGraphProvenanceKinds.ObservedFact);
+            StructuredDiagramGraphInferenceConfidenceWriter.Write(target.Properties, 1d);
 
             if (!string.IsNullOrWhiteSpace(binding.SourceEvidenceItemId))
             {
-                target.Properties[StructuredDiagramGraphPropertyKeys.SourceEvidenceItemId] =
-                    binding.SourceEvidenceItemId.Trim();
+                StructuredDiagramGraphCanonicalPropertyWriter.WriteString(
+                    target.Properties,
+                    StructuredDiagramGraphPropertyKeys.SourceEvidenceItemId,
+                    binding.SourceEvidenceItemId.Trim());
             }
         }
     }
@@ -140,7 +152,7 @@ public static class StructuredDiagramCompiledGraphBinder
 
     private static bool IsDiagramTopologyNode(GraphNode node)
     {
-        return node.NodeId.StartsWith("diagram-node:", StringComparison.Ordinal);
+        return node.NodeId.Trim().StartsWith("diagram-node:", StringComparison.Ordinal);
     }
 
     private static List<GraphEdge> RemapEdges(
@@ -160,7 +172,8 @@ public static class StructuredDiagramCompiledGraphBinder
                 continue;
             }
 
-            string edgeKey = $"{fromNodeId}|{toNodeId}|{edge.EdgeType}";
+            string edgeKey =
+                $"{fromNodeId}|{toNodeId}|{(edge.EdgeType ?? string.Empty).Trim()}";
 
             if (!edgeKeys.Add(edgeKey))
             {
@@ -172,7 +185,7 @@ public static class StructuredDiagramCompiledGraphBinder
                 EdgeId = edge.EdgeId,
                 FromNodeId = fromNodeId,
                 ToNodeId = toNodeId,
-                EdgeType = edge.EdgeType,
+                EdgeType = (edge.EdgeType ?? string.Empty).Trim(),
                 Label = edge.Label,
                 Weight = edge.Weight,
                 InferenceSource = edge.InferenceSource,
@@ -188,11 +201,12 @@ public static class StructuredDiagramCompiledGraphBinder
 
     private static string RemapEndpoint(string nodeId, IReadOnlyDictionary<string, string> diagramNodeIdRemap)
     {
-        if (diagramNodeIdRemap.TryGetValue(nodeId, out string? remapped))
+        if (diagramNodeIdRemap.TryGetValue(nodeId, out string? remapped)
+            || diagramNodeIdRemap.TryGetValue(nodeId.Trim(), out remapped))
         {
-            return remapped;
+            return remapped.Trim();
         }
 
-        return nodeId;
+        return nodeId.Trim();
     }
 }

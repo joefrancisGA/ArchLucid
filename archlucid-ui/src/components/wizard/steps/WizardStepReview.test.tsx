@@ -51,11 +51,11 @@ describe("WizardStepReview", () => {
     expect(screen.getByRole("heading", { name: "Review & submit" })).toBeInTheDocument();
     expect(screen.getByText("AcmeOrderApi")).toBeInTheDocument();
     expect(screen.getByText("production")).toBeInTheDocument();
-    expect(screen.getByText("Azure")).toBeInTheDocument();
+    expect(screen.getByText("Microsoft Azure")).toBeInTheDocument();
     expect(screen.getByText("Rate limits on public endpoints")).toBeInTheDocument();
     expect(screen.getByText("EU-only data")).toBeInTheDocument();
     expect(screen.getByText("policy-pack:default")).toBeInTheDocument();
-    expect(screen.getByText("1 attached")).toBeInTheDocument();
+    expect(screen.getByText("1 attached document")).toBeInTheDocument();
   });
 
   it("labels blank identity draft fields as not stored", () => {
@@ -154,7 +154,7 @@ describe("WizardStepReview", () => {
       </DirectWizardFormProvider>,
     );
 
-    expect(screen.getByText("0 declaration(s)")).toBeInTheDocument();
+    expect(screen.getByText("0 declarations")).toBeInTheDocument();
     expect(screen.queryByText("Required capabilities were not stored.")).not.toBeInTheDocument();
   });
 

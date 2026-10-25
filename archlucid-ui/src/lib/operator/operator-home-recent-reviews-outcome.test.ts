@@ -52,6 +52,28 @@ describe("formatOperatorHomeRecentReviewsOutcome", () => {
     );
   });
 
+  it("normalizes non-finite recent preview cap counts in outcome copy", () => {
+    const metrics: OperatorHomeWorkspaceMetricsSnapshot = {
+      ...emptyMetrics,
+      reviewPackagesTotal: 2,
+      evidenceSources: 1,
+      hasReviews: true,
+    };
+
+    expect(
+      formatOperatorHomeRecentReviewsOutcome(metrics, {
+        visibleCount: Number.NaN,
+        recentTotalCount: 4,
+      }),
+    ).toBe("2 reviews · 0 open findings · showing 0 of 4");
+    expect(
+      formatOperatorHomeRecentReviewsOutcome(metrics, {
+        visibleCount: 2,
+        recentTotalCount: Number.NaN,
+      }),
+    ).toBe("2 reviews · 0 open findings · showing 2");
+  });
+
   it("summarizes committed packages with finding pressure", () => {
     const metrics: OperatorHomeWorkspaceMetricsSnapshot = {
       ...emptyMetrics,
@@ -99,6 +121,25 @@ describe("buildOperatorHomeRecentReviewsOutcomeParts", () => {
     expect(parts.find((part) => part.key === "open-findings")?.tabId).toBe("attention");
   });
 
+  it("normalizes non-finite preview cap counts in structured outcome parts", () => {
+    const metrics: OperatorHomeWorkspaceMetricsSnapshot = {
+      ...emptyMetrics,
+      reviewPackagesTotal: 4,
+      evidenceSources: 1,
+      hasReviews: true,
+    };
+
+    const parts = buildOperatorHomeRecentReviewsOutcomeParts(metrics, {
+      visibleCount: Number.NaN,
+      recentTotalCount: 4,
+    });
+
+    expect(parts.find((part) => part.key === "showing-cap")).toEqual({
+      key: "showing-cap",
+      text: "showing 0 of 4",
+    });
+  });
+
   it("renders showing-cap as plain text without a link target", () => {
     const metrics: OperatorHomeWorkspaceMetricsSnapshot = {
       ...emptyMetrics,
@@ -122,6 +163,43 @@ describe("buildOperatorHomeRecentReviewsOutcomeParts", () => {
 });
 
 describe("deriveHomePreviewTabCounts", () => {
+  it("normalizes non-finite workspace awaiting-approval fallback for tab counts", () => {
+    const items: RunSummary[] = [{ runId: "run-1", projectId: "default" }];
+
+    const counts = deriveHomePreviewTabCounts({
+      previewItems: items,
+      awaitingApprovalRunIds: ["missing-run"],
+      awaitingApprovalCount: Number.NaN,
+    });
+
+    expect(counts["awaiting-approval"]).toBe(0);
+  });
+
+  it("counts awaiting-approval tab rows when queue run ids have surrounding whitespace", () => {
+    const items: RunSummary[] = [{ runId: "run-a", projectId: "default" }];
+
+    const counts = deriveHomePreviewTabCounts({
+      previewItems: items,
+      awaitingApprovalRunIds: [" run-a "],
+    });
+
+    expect(counts["awaiting-approval"]).toBe(1);
+  });
+
+  it("excludes showcase rows when the showcase run id token has surrounding whitespace", () => {
+    const items: RunSummary[] = [
+      { runId: "run-1", projectId: "default" },
+      { runId: "showcase", projectId: "default" },
+    ];
+
+    const counts = deriveHomePreviewTabCounts({
+      previewItems: items,
+      excludeShowcaseRunId: " showcase ",
+    });
+
+    expect(counts.recentTotalCount).toBe(1);
+  });
+
   it("caps the Recent tab at the featured limit and excludes showcase rows", () => {
     const items: RunSummary[] = [
       { runId: "run-1", projectId: "default" },

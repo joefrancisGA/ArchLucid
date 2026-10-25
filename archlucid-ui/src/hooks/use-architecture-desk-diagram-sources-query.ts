@@ -4,9 +4,10 @@ import { getRunDetail } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import {
-  readArchitectureDeskDiagramSourcesFromContextSnapshot,
-  type ArchitectureDeskDiagramSourceRow,
-} from "@/lib/architecture-spine/read-architecture-desk-diagram-sources";
+  type ArchitectureDeskDiagramSourcesQueryData,
+  isArchitectureDeskDiagramContextSnapshotStored,
+} from "@/lib/architecture-spine/architecture-desk-diagram-sources-query-data";
+import { readArchitectureDeskDiagramSourcesFromContextSnapshot } from "@/lib/architecture-spine/read-architecture-desk-diagram-sources";
 import { tryStaticDemoRunDetail } from "@/lib/operator/operator-static-demo";
 import { shouldSkipLiveAuthorityRunScopedApi } from "@/lib/operator-static-demo/run-scoped-live-api";
 import { createOperatorQueryHook } from "@/lib/query/create-operator-query-hook";
@@ -24,20 +25,33 @@ export function useArchitectureDeskDiagramSourcesQuery(
 ) {
   const trimmed = latestReviewId?.trim() ?? "";
 
-  const query = createOperatorQueryHook<readonly ArchitectureDeskDiagramSourceRow[]>({
+  const query = createOperatorQueryHook<ArchitectureDeskDiagramSourcesQueryData>({
     queryKey: operatorQueryKeys.architectureDeskDiagramSources(trimmed),
     queryFn: async () => {
       if (shouldSkipLiveAuthorityRunScopedApi(trimmed)) {
         const staticDetail = tryStaticDemoRunDetail(trimmed);
 
         if (staticDetail !== null) {
-          return readArchitectureDeskDiagramSourcesFromContextSnapshot(staticDetail.contextSnapshot);
+          const snapshotStored = isArchitectureDeskDiagramContextSnapshotStored(staticDetail.contextSnapshot);
+
+          return {
+            snapshotStored,
+            rows: snapshotStored
+              ? readArchitectureDeskDiagramSourcesFromContextSnapshot(staticDetail.contextSnapshot)
+              : [],
+          };
         }
       }
 
       const response = await getRunDetail(trimmed);
+      const snapshotStored = isArchitectureDeskDiagramContextSnapshotStored(response.data.contextSnapshot);
 
-      return readArchitectureDeskDiagramSourcesFromContextSnapshot(response.data.contextSnapshot);
+      return {
+        snapshotStored,
+        rows: snapshotStored
+          ? readArchitectureDeskDiagramSourcesFromContextSnapshot(response.data.contextSnapshot)
+          : [],
+      };
     },
     enabled: (options?.enabled ?? true) && trimmed.length > 0,
   });
