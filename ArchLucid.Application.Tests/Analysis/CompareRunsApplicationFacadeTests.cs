@@ -28,6 +28,32 @@ public sealed class CompareRunsApplicationFacadeTests
     };
 
     [Fact]
+    public async Task CompareQuality_LoadScopedRunPairAsync_resolves_left_run_when_ids_differ_only_by_casing()
+    {
+        const string leftCanonical = "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee";
+        const string rightCanonical = "ffffffffffffffffffffffffffffffff";
+
+        Mock<IRunDetailQueryService> runDetail = new();
+        runDetail
+            .Setup(s => s.GetRunDetailForRollupAsync(leftCanonical, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchitectureRunDetail { Run = new() { RunId = leftCanonical } });
+        runDetail
+            .Setup(s => s.GetRunDetailForRollupAsync(rightCanonical, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((ArchitectureRunDetail?)null);
+
+        CompareRunsApplicationFacade sut = CreateSut(runDetail: runDetail.Object);
+
+        ScopedRunPairLoadResult result = await sut.LoadScopedRunPairAsync(
+            leftCanonical.ToUpperInvariant(),
+            rightCanonical.ToUpperInvariant(),
+            CancellationToken.None);
+
+        result.Outcome.Should().Be(ScopedRunPairLoadOutcome.RightRunNotFound);
+        result.MissingRunId.Should().Be(rightCanonical);
+        runDetail.Verify(s => s.GetRunDetailForRollupAsync(leftCanonical, It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
     public async Task LoadScopedRunPairAsync_trims_run_ids_before_run_detail_lookup()
     {
         const string leftRunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
