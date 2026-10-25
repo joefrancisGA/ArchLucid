@@ -31,6 +31,18 @@ function wizardConfirmCloudProviderField(value: string): string {
     return "Evidence-only (no cloud target)";
   }
 
+  if (trimmed === "Azure") {
+    return "Microsoft Azure";
+  }
+
+  if (trimmed === "Aws") {
+    return "Amazon Web Services";
+  }
+
+  if (trimmed === "Gcp") {
+    return "Google Cloud Platform";
+  }
+
   return trimmed;
 }
 
