@@ -38,6 +38,7 @@ import {
   formatGovernanceQueueRecordKind,
   governanceFindingQueueRowHasPolicyRuleId,
   governanceFindingQueueRowHasStoredRunId,
+  governanceFindingQueueRowReviewHref,
   type GovernanceFindingQueueRow,
 } from "./governance-finding-queue-row";
 import { GovernanceFindingsQueueAssignedToMeRowCells } from "./GovernanceFindingsQueueAssignedToMeRowCells";
@@ -182,7 +183,7 @@ export function GovernanceFindingsQueueTableRow(props: GovernanceFindingsQueueTa
           </EnterpriseTableCell>
           <EnterpriseTableCell>
             {row.runId.trim().length > 0 ? (
-              <Link className={OPERATOR_LINK.inline} href={`/architecture/reviews/${encodeURIComponent(row.runId)}`}>
+              <Link className={OPERATOR_LINK.inline} href={governanceFindingQueueRowReviewHref(row.runId)}>
                 {row.runLabel}
               </Link>
             ) : (

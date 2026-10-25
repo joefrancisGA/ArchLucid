@@ -14,7 +14,32 @@ import {
   GOVERNANCE_QUEUE_RULE_ID_NOT_STORED,
   GOVERNANCE_QUEUE_SEVERITY_NOT_STORED,
 } from "./governance-findings-row-omission-copy";
-import { decisionRegisterRows, riskRegisterRows, traceRowsForRun } from "./governance-findings-row-mappers";
+import {
+  dedupeGovernanceFindingRows,
+  decisionRegisterRows,
+  riskRegisterRows,
+  traceRowsForRun,
+} from "./governance-findings-row-mappers";
+import type { GovernanceFindingQueueRow } from "@/app/(operator)/governance/findings/governance-finding-queue-row";
+
+describe("dedupeGovernanceFindingRows", () => {
+  it("collapses rows that differ only by surrounding run-id padding", () => {
+    const base: GovernanceFindingQueueRow = {
+      runId: "run-1",
+      runLabel: "Review",
+      manifestId: "",
+      findingId: "finding-1",
+      title: "Risk",
+      severity: "High",
+      category: "Security",
+      status: "Open",
+      recommended: "Review.",
+      recordKind: "finding",
+    };
+
+    expect(dedupeGovernanceFindingRows([base, { ...base, runId: " run-1 " }])).toHaveLength(1);
+  });
+});
 
 describe("riskRegisterRows", () => {
   it("drops risk-register entries without a finding id before queue selection", () => {

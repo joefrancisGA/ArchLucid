@@ -195,7 +195,7 @@ export function dedupeGovernanceFindingRows(rows: GovernanceFindingQueueRow[]): 
   const out: GovernanceFindingQueueRow[] = [];
 
   for (const row of rows) {
-    const key = `${row.runId}:${row.findingId}`;
+    const key = `${row.runId.trim()}:${row.findingId.trim()}`;
 
     if (seen.has(key)) {
       continue;

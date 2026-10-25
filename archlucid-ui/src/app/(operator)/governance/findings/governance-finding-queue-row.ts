@@ -55,6 +55,11 @@ export function governanceFindingQueueRowHasStoredRunId(row: GovernanceFindingQu
   return row.runId.trim().length > 0;
 }
 
+/** Review hub href for a queue row run id; trims padding before encoding. */
+export function governanceFindingQueueRowReviewHref(runId: string): string {
+  return `/architecture/reviews/${encodeURIComponent(runId.trim())}`;
+}
+
 /** Optional API policy rule keys must be non-empty after trim before traceability chrome renders. */
 export function governanceFindingQueueRowHasPolicyRuleId(row: GovernanceFindingQueueRow): boolean {
   return row.policyRuleId != null && row.policyRuleId.trim().length > 0;
