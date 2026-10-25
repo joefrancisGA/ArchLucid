@@ -85,7 +85,9 @@ export function graphBuyerTrailPanelTitle(node: GraphNodeVm): string {
   const label = node.label.trim().length > 0 ? node.label.trim() : recordType.primary;
 
   if (node.type === "Finding") {
-    return `Selected finding: ${label}`;
+    return `Selected finding: ${
+      node.label.trim().length > 0 ? label : "Finding title was not stored."
+    }`;
   }
 
   if (node.type === "Decision") {
@@ -256,6 +258,24 @@ export function graphBuyerTrailMetadataLines(
       summaryLines.push({
         label: "Monitoring cadence",
         value: value.length > 0 ? value : "Monitoring cadence was not stored.",
+      });
+
+      continue;
+    }
+
+    if (lower === "roledefinition" || lower === "rolename" || lower === "assignedrole") {
+      summaryLines.push({
+        label: "Role assignment",
+        value: value.length > 0 ? value : "Role name was not stored.",
+      });
+
+      continue;
+    }
+
+    if (lower === "principalid" || lower === "identityobjectid") {
+      summaryLines.push({
+        label: "Principal",
+        value: value.length > 0 ? value : "Principal id was not stored.",
       });
 
       continue;

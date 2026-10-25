@@ -44,6 +44,12 @@ internal static class DiagramRelationshipVerbCatalog
             return true;
         }
 
+        if (normalized.Equals(GraphEdgeTypes.HasRole, StringComparison.OrdinalIgnoreCase))
+        {
+            label = "Role is assigned. Observed use was not stored.";
+            return true;
+        }
+
         if (normalized.Equals(GraphEdgeTypes.UsesIdentity, StringComparison.OrdinalIgnoreCase))
         {
             label = "Identity is assigned. Use of that identity was not stored.";

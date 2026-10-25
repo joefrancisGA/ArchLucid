@@ -19,7 +19,7 @@ public sealed class DiagramEdgeLabelHumanizerTests
     [InlineData(GraphEdgeTypes.RelatesTo, "relates to")]
     [InlineData(GraphEdgeTypes.DependsOn, "depends on")]
     [InlineData(GraphEdgeTypes.Exposes, "Public IP is attached.")]
-    [InlineData(GraphEdgeTypes.HasRole, "has role")]
+    [InlineData(GraphEdgeTypes.HasRole, "Role is assigned. Observed use was not stored.")]
     [InlineData(GraphEdgeTypes.UsesIdentity, "Identity is assigned. Use of that identity was not stored.")]
     [InlineData(GraphEdgeTypes.CanRead, "Role allows read. This is not observed use.")]
     [InlineData(GraphEdgeTypes.CanWrite, "Role allows write. This is not observed use.")]
@@ -37,16 +37,16 @@ public sealed class DiagramEdgeLabelHumanizerTests
     [Theory]
     [InlineData(AzureInventoryRelationshipAssociationTypes.VnetPeering, "peering")]
     [InlineData(GraphEdgeInferenceSources.InventoryVnetPeering, "peering")]
-    [InlineData(GraphEdgeInferenceSources.InventoryNicSubnet, "in")]
-    [InlineData(AzureInventoryRelationshipAssociationTypes.NicToSubnet, "in")]
+    [InlineData(GraphEdgeInferenceSources.InventoryNicSubnet, "Subnet placement.")]
+    [InlineData(AzureInventoryRelationshipAssociationTypes.NicToSubnet, "Subnet placement.")]
     [InlineData(AzureInventoryRelationshipAssociationTypes.AdfLinkedService, "Linked service")]
     [InlineData(GraphEdgeInferenceSources.InventoryLogicAppConnection, "API connection")]
-    [InlineData(GraphEdgeInferenceSources.InventoryDiagnosticSettingStorage, "Diagnostic setting name was not stored.")]
-    [InlineData(AzureInventoryRelationshipAssociationTypes.AdfLinkedServiceInferred, "No stored link yet; inferred from resource group.")]
-    [InlineData(AzureInventoryRelationshipAssociationTypes.AdfReadsFrom, "Reads from")]
-    [InlineData(AzureInventoryRelationshipAssociationTypes.AdfWritesTo, "Writes to")]
-    [InlineData(GraphEdgeInferenceSources.InventoryAdfReadsFrom, "Reads from")]
-    [InlineData(GraphEdgeInferenceSources.InventoryAdfWritesTo, "Writes to")]
+    [InlineData(GraphEdgeInferenceSources.InventoryDiagnosticSettingStorage, InventoryDiagramRelationshipLabelTexts.DiagnosticSettingNameNotStoredLogDeliveryNotObserved)]
+    [InlineData(AzureInventoryRelationshipAssociationTypes.AdfLinkedServiceInferred, "No stored link; hostname or linked-service text was inferred.")]
+    [InlineData(AzureInventoryRelationshipAssociationTypes.AdfReadsFrom, InventoryDiagramRelationshipLabelTexts.PipelineDatasetConfiguredReadObservedReadNotStored)]
+    [InlineData(AzureInventoryRelationshipAssociationTypes.AdfWritesTo, InventoryDiagramRelationshipLabelTexts.PipelineDatasetConfiguredWriteObservedWriteNotStored)]
+    [InlineData(GraphEdgeInferenceSources.InventoryAdfReadsFrom, InventoryDiagramRelationshipLabelTexts.PipelineDatasetConfiguredReadObservedReadNotStored)]
+    [InlineData(GraphEdgeInferenceSources.InventoryAdfWritesTo, InventoryDiagramRelationshipLabelTexts.PipelineDatasetConfiguredWriteObservedWriteNotStored)]
     public void HumanizeLabel_maps_inventory_association_and_inference_aliases(string alias, string expected)
     {
         DiagramEdgeLabelHumanizer.HumanizeLabel(alias).Should().Be(expected);
@@ -141,8 +141,8 @@ public sealed class DiagramEdgeLabelHumanizerTests
     [InlineData(AzureInventoryRelationshipAssociationTypes.AdfIntegrationRuntime, InventoryDiagramRelationshipLabelTexts.AdfIntegrationRuntimeConfiguredObservedRunNotStored)]
     [InlineData(AzureInventoryRelationshipAssociationTypes.EventHubCapture, InventoryDiagramRelationshipLabelTexts.CaptureConfiguredObservedCaptureNotStored)]
     [InlineData(AzureInventoryRelationshipAssociationTypes.AvdSessionHostToVm, "AVD session host")]
-    [InlineData(GraphEdgeInferenceSources.InventoryFirewallSubnet, "Firewall is associated with the subnet. Protection was not observed.")]
-    [InlineData(AzureInventoryRelationshipAssociationTypes.FirewallToSubnet, "Firewall is associated with the subnet. Protection was not observed.")]
+    [InlineData(GraphEdgeInferenceSources.InventoryFirewallSubnet, "Firewall subnet association. This is not observed filtering.")]
+    [InlineData(AzureInventoryRelationshipAssociationTypes.FirewallToSubnet, "Firewall subnet association. This is not observed filtering.")]
     public void HumanizeLabel_maps_diagram_enrichment_association_aliases(string alias, string expected)
     {
         DiagramEdgeLabelHumanizer.HumanizeLabel(alias).Should().Be(expected);

@@ -1,4 +1,5 @@
 using ArchLucid.ArtifactSynthesis.Models;
+using ArchLucid.Core.AzureExtractor;
 using ArchLucid.Core.InfraEvidence;
 using ArchLucid.KnowledgeGraph;
 
@@ -7,7 +8,7 @@ namespace ArchLucid.ArtifactSynthesis.Compilers;
 /// <summary>Labels AKS managed cluster to Kubernetes service load balancer edges (NR-39).</summary>
 internal static class InventoryDiagramKubernetesServiceLoadBalancerRelationshipApplier
 {
-    public const string Label = "Exposes services through";
+    public const string Label = InventoryDiagramRelationshipLabelTexts.AksServiceLoadBalancerConfiguredObservedTrafficNotStored;
 
     public static void Apply(DiagramAst ast)
     {

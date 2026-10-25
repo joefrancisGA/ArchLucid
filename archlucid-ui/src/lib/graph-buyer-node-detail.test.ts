@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   graphBuyerTrailMetadataLines,
+  graphBuyerTrailPanelTitle,
   graphBuyerTrailRecordTypeLine,
   visibleBuyerTrailTechnicalAppendixLines,
 } from "./graph-buyer-node-detail";
@@ -51,6 +52,18 @@ describe("graphBuyerTrailRecordTypeLine", () => {
       primary: "Finding: Sensitive data minimization",
       secondary: { label: "Risk area", value: "Stored risk" },
     });
+  });
+
+  it("uses finding title omission copy in the panel title when the label is blank", () => {
+    const node: GraphNodeVm = {
+      id: "finding-empty-label",
+      type: "Finding",
+      label: "   ",
+    };
+
+    expect(graphBuyerTrailPanelTitle(node)).toBe(
+      "Selected finding: Finding title was not stored.",
+    );
   });
 
   it("labels generic finding nodes as Finding", () => {
@@ -119,6 +132,16 @@ describe("graphBuyerTrailMetadataLines", () => {
     });
     expect(stored.summaryLines).toContainEqual({ label: "Risk area", value: "Stored risk" });
     expect(stored.summaryLines).toContainEqual({ label: "Monitoring cadence", value: "Stored cadence" });
+  });
+
+  it("labels empty role assignment and principal metadata as not stored", () => {
+    const { summaryLines } = graphBuyerTrailMetadataLines({
+      roleName: "",
+      principalId: "",
+    });
+
+    expect(summaryLines).toContainEqual({ label: "Role assignment", value: "Role name was not stored." });
+    expect(summaryLines).toContainEqual({ label: "Principal", value: "Principal id was not stored." });
   });
 
   it("labels empty decision impact, next action, and blocking status as not stored (P-17)", () => {

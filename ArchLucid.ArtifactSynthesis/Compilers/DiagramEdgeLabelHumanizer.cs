@@ -385,11 +385,6 @@ internal static class DiagramEdgeLabelHumanizer
             return aliased;
         }
 
-        if (DiagramRelationshipVerbCatalog.TryResolve(trimmed, out string catalogVerb))
-        {
-            return catalogVerb;
-        }
-
         return trimmed;
     }
 
@@ -657,9 +652,9 @@ internal static class DiagramEdgeLabelHumanizer
             return true;
         }
 
-        if (string.Equals(value, GraphEdgeTypes.HasRole, StringComparison.OrdinalIgnoreCase))
+        if (DiagramRelationshipVerbCatalog.TryResolve(value, out string catalogPrivilegeVerb))
         {
-            humanized = "has role";
+            humanized = catalogPrivilegeVerb;
 
             return true;
         }
@@ -667,41 +662,6 @@ internal static class DiagramEdgeLabelHumanizer
         if (string.Equals(value, GraphEdgeTypes.UsesIdentity, StringComparison.OrdinalIgnoreCase))
         {
             humanized = "Identity is assigned. Use of that identity was not stored.";
-
-            return true;
-        }
-
-        if (string.Equals(value, GraphEdgeTypes.CanControlCode, StringComparison.OrdinalIgnoreCase))
-        {
-            humanized = "deploys code";
-
-            return true;
-        }
-
-        if (string.Equals(value, GraphEdgeTypes.CanAddCredential, StringComparison.OrdinalIgnoreCase))
-        {
-            humanized = "adds credential";
-
-            return true;
-        }
-
-        if (string.Equals(value, GraphEdgeTypes.CanGrantRole, StringComparison.OrdinalIgnoreCase))
-        {
-            humanized = "grants role";
-
-            return true;
-        }
-
-        if (string.Equals(value, GraphEdgeTypes.CanRead, StringComparison.OrdinalIgnoreCase))
-        {
-            humanized = "reads";
-
-            return true;
-        }
-
-        if (string.Equals(value, GraphEdgeTypes.CanWrite, StringComparison.OrdinalIgnoreCase))
-        {
-            humanized = "writes";
 
             return true;
         }

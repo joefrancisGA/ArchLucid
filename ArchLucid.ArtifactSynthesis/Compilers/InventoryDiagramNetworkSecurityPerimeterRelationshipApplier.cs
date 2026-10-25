@@ -1,4 +1,5 @@
 using ArchLucid.ArtifactSynthesis.Models;
+using ArchLucid.Core.AzureExtractor;
 using ArchLucid.Core.InfraEvidence;
 using ArchLucid.KnowledgeGraph;
 
@@ -7,7 +8,8 @@ namespace ArchLucid.ArtifactSynthesis.Compilers;
 /// <summary>Labels observed network security perimeter resource-association relationships (NR-37).</summary>
 internal static class InventoryDiagramNetworkSecurityPerimeterRelationshipApplier
 {
-    public const string Label = "Secures";
+    public const string Label =
+        InventoryDiagramRelationshipLabelTexts.NetworkSecurityPerimeterAssociationConfiguredObservedEnforcementNotStored;
 
     public static void Apply(DiagramAst ast)
     {

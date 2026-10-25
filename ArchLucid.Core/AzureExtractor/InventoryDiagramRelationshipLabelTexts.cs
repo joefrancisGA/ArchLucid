@@ -53,7 +53,7 @@ public static class InventoryDiagramRelationshipLabelTexts
 
         if (status.Equals("Approved", StringComparison.OrdinalIgnoreCase))
         {
-            return "Private endpoint connection: Approved.";
+            return $"Private access · {status}";
         }
 
         if (status.Equals("Rejected", StringComparison.OrdinalIgnoreCase)
@@ -66,7 +66,14 @@ public static class InventoryDiagramRelationshipLabelTexts
         return $"Private endpoint connection: {status}";
     }
 
-    public const string Peered = "Peered";
+    public const string Peered =
+        "Peering state is Connected. Observed traffic was not stored.";
+
+    public const string AksServiceLoadBalancerConfiguredObservedTrafficNotStored =
+        "Service exposure is configured. Observed traffic was not stored.";
+
+    public const string NetworkSecurityPerimeterAssociationConfiguredObservedEnforcementNotStored =
+        "Network security perimeter association is stored. Enforcement was not observed.";
 
     public const string SendsTrafficTo = "Sends traffic to";
 
