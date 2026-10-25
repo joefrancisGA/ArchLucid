@@ -1,4 +1,8 @@
 import type { OperatorHomeRunsDashboardModel } from "@/app/(operator)/_sections/operator-home-runs-dashboard-model";
+import {
+  countNonArchivedOverviewRuns,
+  resolveOperatorHomeReviewTotalCount,
+} from "@/lib/operator/operator-home-review-total-resolution";
 import type { RunSummary } from "@/types/authority";
 
 /** Reviews snapshot reported by the runs dashboard panel after a client load or header Refresh. */
@@ -6,33 +10,6 @@ export type OperatorHomeLiveRunsSnapshot = {
   readonly items: readonly RunSummary[];
   readonly totalCount: number;
 };
-
-function resolveLiveRunsDashboardTotalCount(
-  liveTotalCount: number,
-  ssrTotalCount: number,
-  liveItemCount: number,
-): number {
-  const normalizedSsrTotal = Number.isFinite(ssrTotalCount) ? Math.max(0, Math.trunc(ssrTotalCount)) : 0;
-  const liveTotalIsFinite = Number.isFinite(liveTotalCount);
-
-  const resolved = liveTotalIsFinite
-    ? Math.max(0, Math.trunc(liveTotalCount))
-    : normalizedSsrTotal;
-
-  if (liveItemCount > 0) {
-    const upliftedTotal = Math.max(liveItemCount, normalizedSsrTotal);
-
-    if (!liveTotalIsFinite || liveTotalCount === 0) {
-      return Math.max(upliftedTotal, resolved);
-    }
-
-    if (liveTotalCount > 0 && resolved < liveItemCount) {
-      return Math.max(upliftedTotal, resolved);
-    }
-  }
-
-  return resolved;
-}
 
 /**
  * Overlays the client-refreshed reviews snapshot onto the server-rendered dashboard model so every
@@ -50,10 +27,10 @@ export function resolveLiveRunsDashboardModel(
   return {
     ...ssrModel,
     items: [...liveSnapshot.items],
-    totalCount: resolveLiveRunsDashboardTotalCount(
+    totalCount: resolveOperatorHomeReviewTotalCount(
       liveSnapshot.totalCount,
       ssrModel.totalCount,
-      liveSnapshot.items.length,
+      countNonArchivedOverviewRuns(liveSnapshot.items),
     ),
   };
 }

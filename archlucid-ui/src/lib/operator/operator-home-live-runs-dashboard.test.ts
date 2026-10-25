@@ -101,4 +101,17 @@ describe("resolveLiveRunsDashboardModel", () => {
     expect(merged.items).toEqual([]);
     expect(merged.totalCount).toBe(0);
   });
+
+  it("does not uplift stale zero totalCount using archived-only snapshot rows", () => {
+    const merged = resolveLiveRunsDashboardModel(ssrModel, {
+      items: [
+        { ...buildRun("archived-a"), isArchived: true },
+        { ...buildRun("archived-b"), isArchived: true },
+      ],
+      totalCount: 0,
+    });
+
+    expect(merged.items).toHaveLength(2);
+    expect(merged.totalCount).toBe(0);
+  });
 });

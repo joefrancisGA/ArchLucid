@@ -112,6 +112,40 @@ describe("deriveOperatorHomeWorkspaceMetrics", () => {
     expect(metrics.reviewPackagesAwaitingApproval).toBe(0);
   });
 
+  it("does not uplift stale zero totalCount using archived-only overview rows", () => {
+    const items: RunSummary[] = [
+      makeRun({
+        runId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        isArchived: true,
+        hasGoldenManifest: true,
+      }),
+      makeRun({
+        runId: "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+        isArchived: true,
+        hasGoldenManifest: true,
+      }),
+    ];
+
+    const metrics = deriveOperatorHomeWorkspaceMetrics(items, 0);
+
+    expect(metrics.reviewPackagesTotal).toBe(0);
+    expect(metrics.hasReviews).toBe(false);
+  });
+
+  it("treats zero totalCount as stale when active overview rows are loaded on the page", () => {
+    const items: RunSummary[] = [
+      makeRun({
+        runId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        hasFindingsSnapshot: true,
+      }),
+    ];
+
+    const metrics = deriveOperatorHomeWorkspaceMetrics(items, 0);
+
+    expect(metrics.reviewPackagesTotal).toBe(1);
+    expect(metrics.hasReviews).toBe(true);
+  });
+
   it("excludes archived runs from workspace metrics aggregates", () => {
     const items: RunSummary[] = [
       makeRun({

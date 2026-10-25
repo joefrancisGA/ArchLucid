@@ -1,3 +1,4 @@
+import { countNonArchivedOverviewRuns } from "@/lib/operator/operator-home-review-total-resolution";
 import { resolveRunFindingCountDisplay } from "@/lib/operator/operator-home-run-list-insight";
 import { formatOperatorHomeApprovalCheckWarningCount } from "@/lib/operator/operator-home-approval-check-warning-copy";
 import { normalizeOperatorHomeNonNegativeCount, resolveRunHomeStatusTag } from "@/lib/operator/run-home-status";
@@ -62,18 +63,6 @@ export type DeriveOperatorHomeWorkspaceMetricsInput = {
 };
 
 /** Aggregates workspace metrics from operator-home runs dashboard data already on the page. */
-function countNonArchivedOverviewRuns(items: readonly RunSummary[]): number {
-  let count = 0;
-
-  for (const run of items) {
-    if (run.isArchived !== true) {
-      count += 1;
-    }
-  }
-
-  return count;
-}
-
 export function deriveOperatorHomeWorkspaceMetrics(
   items: readonly RunSummary[],
   totalCount: number,
