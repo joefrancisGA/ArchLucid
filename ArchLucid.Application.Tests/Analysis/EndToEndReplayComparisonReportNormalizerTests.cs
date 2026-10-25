@@ -1137,6 +1137,47 @@ public sealed class EndToEndReplayComparisonReportNormalizerTests
     }
 
     [Fact]
+    public void CompareQuality_EndToEndReplayComparisonReportNormalizer_resets_unknown_finding_correlation_primary_method()
+    {
+        EndToEndReplayComparisonReport report = new()
+        {
+            LeftRunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            RightRunId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            FindingCorrelation = new ComparisonFindingCorrelationMetadata
+            {
+                PrimaryCorrelationMethod = "legacyPlaceholder",
+                HonestyNote = "  counts still matter  ",
+                PolicyRuleMatchCount = 2,
+            },
+        };
+
+        EndToEndReplayComparisonReportNormalizer.NormalizePersistedPayload(report);
+
+        report.FindingCorrelation!.PrimaryCorrelationMethod.Should().Be("PolicyRuleAndFingerprint");
+        report.FindingCorrelation.HonestyNote.Should().Be("counts still matter");
+        report.FindingCorrelation.PolicyRuleMatchCount.Should().Be(2);
+    }
+
+    [Fact]
+    public void CompareQuality_EndToEndReplayComparisonReportNormalizer_nulls_finding_correlation_when_only_unknown_primary_method_remains()
+    {
+        EndToEndReplayComparisonReport report = new()
+        {
+            LeftRunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            RightRunId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            FindingCorrelation = new ComparisonFindingCorrelationMetadata
+            {
+                PrimaryCorrelationMethod = "  legacyPlaceholder  ",
+                HonestyNote = "   ",
+            },
+        };
+
+        EndToEndReplayComparisonReportNormalizer.NormalizePersistedPayload(report);
+
+        report.FindingCorrelation.Should().BeNull();
+    }
+
+    [Fact]
     public void CompareQuality_EndToEndReplayComparisonReportNormalizer_nulls_empty_finding_correlation_metadata_shell()
     {
         EndToEndReplayComparisonReport report = new()

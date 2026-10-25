@@ -1,3 +1,4 @@
+using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Metadata;
 
 namespace ArchLucid.Application.Analysis;
@@ -8,6 +9,13 @@ namespace ArchLucid.Application.Analysis;
 internal static class ComparisonFindingCorrelationMetadataNormalizer
 {
     private const string DefaultPrimaryCorrelationMethod = "PolicyRuleAndFingerprint";
+
+    private static readonly HashSet<string> KnownPrimaryCorrelationMethods = new(StringComparer.Ordinal)
+    {
+        DefaultPrimaryCorrelationMethod,
+        nameof(FindingCorrelationMethod.MessageCategoryFuzzy),
+        "Mixed",
+    };
 
     internal static void NormalizeInPlace(ComparisonFindingCorrelationMetadata? metadata)
     {
@@ -32,8 +40,16 @@ internal static class ComparisonFindingCorrelationMetadataNormalizer
         && metadata.HonestyNote.Length == 0
         && metadata.PrimaryCorrelationMethod == DefaultPrimaryCorrelationMethod;
 
-    private static string NormalizePrimaryCorrelationMethod(string value) =>
-        OptionalExportMetadataStringNormalizer.NormalizeOptionalString(value) ?? DefaultPrimaryCorrelationMethod;
+    private static string NormalizePrimaryCorrelationMethod(string value)
+    {
+        string? normalized = OptionalExportMetadataStringNormalizer.NormalizeOptionalString(value);
+        if (normalized is null)
+            return DefaultPrimaryCorrelationMethod;
+
+        return KnownPrimaryCorrelationMethods.Contains(normalized)
+            ? normalized
+            : DefaultPrimaryCorrelationMethod;
+    }
 
     private static int ClampCount(int value) => value < 0 ? 0 : value;
 }
