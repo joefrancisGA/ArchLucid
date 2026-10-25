@@ -141,9 +141,10 @@ function mapQuestion(raw: Record<string, unknown>): SecureNowQuestion {
     reasonText: stringOrDefault(raw.reasonText),
     sourceLine: stringOrDefault(raw.sourceLine),
     answerCodes: Array.isArray(raw.answerCodes)
-      ? raw.answerCodes.filter(
-          (value): value is string => typeof value === "string" && value.trim().length > 0,
-        )
+      ? raw.answerCodes
+        .filter((value): value is string => typeof value === "string")
+        .map((value) => value.trim())
+        .filter((value) => value.length > 0)
       : null,
     evidenceFingerprint: typeof raw.evidenceFingerprint === "string"
       ? raw.evidenceFingerprint

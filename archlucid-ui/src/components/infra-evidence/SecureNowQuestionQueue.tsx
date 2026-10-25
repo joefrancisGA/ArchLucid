@@ -341,27 +341,31 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
                 </p>
               ) : null}
               <div className="flex flex-wrap gap-2">
-                {currentQuestion.answerCodes?.map((answerCode) => (
+                {currentQuestion.answerCodes?.map((answerCode) => {
+                  const normalizedAnswerCode = answerCode.trim();
+
+                  return (
                   <Button
-                    key={answerCode}
+                    key={normalizedAnswerCode}
                     type="button"
                     size="sm"
-                    variant={selectedAnswer === answerCode ? "primary" : "outline"}
+                    variant={selectedAnswer === normalizedAnswerCode ? "primary" : "outline"}
                     onClick={() => {
-                      if (answerCode === "NotSure") {
+                      if (normalizedAnswerCode === "NotSure") {
                         advanceWithoutPersistence();
                         return;
                       }
 
-                      setSelectedAnswer(answerCode);
+                      setSelectedAnswer(normalizedAnswerCode);
                       setDrawerAction("answer");
                     }}
                   >
-                    {answerCode === "NotSure"
+                    {normalizedAnswerCode === "NotSure"
                       ? "Not sure. This does not store an answer."
                       : secureNowQuestionAnswerLabel(answerCode)}
                   </Button>
-                ))}
+                  );
+                })}
               </div>
               {selectedAnswer != null ? (
                 <Button type="button" size="sm" variant="primary" disabled={busy} onClick={() => void submitAction()}>

@@ -309,7 +309,7 @@ export function SecureNowQuestionQueueProvider(
     }
     if (action === "ignore" && reason.trim().length === 0) return;
     if (action === "reopen" && reason.trim().length === 0) return;
-    if (action === "answer" && selectedAnswer == null) return;
+    if (action === "answer" && (selectedAnswer == null || selectedAnswer.trim().length === 0)) return;
 
     const mutationQuestionKey =
       secureNowQuestionDispositionMutationQuestionKey(currentQuestion.questionKey);
@@ -433,14 +433,15 @@ export function SecureNowQuestionQueueProvider(
           await dismissOperatorInferredConnection(snapshotId, { connectionId: connection.connectionId });
         }
       } else {
+        const trimmedAnswer = selectedAnswer!.trim();
         await answerSecureNowQuestion(snapshotId, {
           subscriptionId: mutationSubscriptionId,
           resourceId: mutationResourceId,
           questionKey: mutationQuestionKey,
           source: mutationSource!,
           scopeKind: mutationScopeKind!,
-          answerCode: selectedAnswer,
-          answerText: selectedAnswer,
+          answerCode: trimmedAnswer,
+          answerText: trimmedAnswer,
           reason: "Answered in the SecureNow subscription question queue.",
           evidenceFingerprint: mutationEvidenceFingerprint!,
         });

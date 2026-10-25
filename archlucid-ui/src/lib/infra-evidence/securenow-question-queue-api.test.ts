@@ -148,6 +148,22 @@ describe("securenow-question-queue-api", () => {
     expect(questions[0].answerCodes).toEqual(["NamePeer"]);
   });
 
+  it("trims padded answer code entries from list responses", async () => {
+    vi.mocked(proxyJsonGet).mockResolvedValueOnce([
+      {
+        snapshotId: "snapshot-1",
+        questionKey: "unknown-evidence@v1",
+        questionText: "Should this resource connect?",
+        answerCodes: ["  NamePeer  ", " StandsAlone "],
+        evidenceFingerprint: "fingerprint",
+      },
+    ]);
+
+    const questions = await listSecureNowQuestions("snapshot-1");
+
+    expect(questions[0].answerCodes).toEqual(["NamePeer", "StandsAlone"]);
+  });
+
   it("maps disposition mutation responses without inventing list-question display fields", () => {
     const disposition = mapSecureNowQuestionDisposition({
       dispositionId: "00000000-0000-0000-0000-000000000001",

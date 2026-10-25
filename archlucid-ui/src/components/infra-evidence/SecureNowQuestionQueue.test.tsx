@@ -287,7 +287,7 @@ describe("SecureNowQuestionQueue", () => {
     mocks.listQuestions.mockResolvedValue([
       {
         ...question,
-        expirationUtc: "  2026-10-25T12:00:00.000Z  ",
+        expirationUtc: "  2099-01-01T00:00:00.000Z  ",
         isExpired: false,
       },
     ]);
@@ -295,7 +295,7 @@ describe("SecureNowQuestionQueue", () => {
     render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
     fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
 
-    expect(screen.getByText(/2026-10-25T12:00:00.000Z · Not expired/)).toBeInTheDocument();
+    expect(screen.getByText(/2099-01-01T00:00:00.000Z · Not expired/)).toBeInTheDocument();
   });
 
   it("renders inventory source and scope details when question key is omitted", async () => {
@@ -1002,6 +1002,27 @@ describe("SecureNowQuestionQueue", () => {
 
     expect(screen.queryByText("Resource id was not stored.")).not.toBeInTheDocument();
     expect(screen.queryByText("Resource id was stored empty.")).not.toBeInTheDocument();
+  });
+
+  it("posts trimmed answer codes when list JSON stored padded answer choices", async () => {
+    mocks.listQuestions.mockResolvedValue([
+      {
+        ...question,
+        answerCodes: ["  NamePeer  ", " StandsAlone ", "NotSure"],
+      },
+    ]);
+
+    render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
+    fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
+    fireEvent.click(screen.getByRole("button", { name: "Name the peer" }));
+    fireEvent.click(screen.getByRole("button", { name: "Save answer" }));
+
+    await waitFor(() => {
+      expect(mocks.answerQuestion).toHaveBeenCalledWith("snapshot-1", expect.objectContaining({
+        answerCode: "NamePeer",
+        answerText: "NamePeer",
+      }));
+    });
   });
 
   it("answers when list snapshot id is padded but matches the active snapshot", async () => {
