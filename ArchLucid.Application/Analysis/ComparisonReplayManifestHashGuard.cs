@@ -47,7 +47,8 @@ internal static class ComparisonReplayManifestHashGuard
             return;
 
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
-        string comparisonType = ComparisonTypeNormalizer.NormalizeForLookup(record.ComparisonType);
+        string? comparisonType =
+            ComparisonRecordScopedReadNormalizer.CanonicalizeComparisonTypeSearchFilter(record.ComparisonType);
 
         if (string.Equals(comparisonType, ComparisonTypes.EndToEndReplay, StringComparison.Ordinal))
         {
