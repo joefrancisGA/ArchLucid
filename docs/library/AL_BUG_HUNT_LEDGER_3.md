@@ -4938,7 +4938,21 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-operator-lib
 
-**Hunts:** 49 · **Bugs found:** 46 · **Consecutive dry hunts:** 0
+**Hunts:** 56 · **Bugs found:** 53 · **Consecutive dry hunts:** 0
+
+2026-10-25 seed hunt (hit): promoted `readOperatorShellStableCache` non-finite `writtenAtMs` TTL eviction; regression `discards stable cache entries with non-finite writtenAtMs`; 4 scoped `operator-shell-stable-cache` vitest passed. Private beta: Invited operators no longer keep a poisoned session shell snapshot alive forever when stable-cache JSON carries a non-finite `writtenAtMs` timestamp.
+
+2026-10-25 seed hunt (hit): promoted `isRenderableRefreshedInstant` guards on home data-currency helpers; regressions `treats an invalid Date like a missing refresh instead of formatting garbage` and `does not report stale data when the refresh timestamp is invalid`; scoped `operator-last-refreshed-label` vitest passed. Private beta: Invited operators no longer see a false “Data may be stale” home header cue or garbage currency text when the home refresh timestamp is an invalid Date.
+
+2026-10-25 seed hunt (hit): promoted `normalizeOperatorBillingAiBudgetRemainingPercent` on current-plan view; regression `omits non-finite ai budget remaining percent from the plan view`; 13 scoped `operator-billing-current-plan` vitest passed. Private beta: Invited operators no longer see `NaN%` AI budget remaining on the billing current-plan card when LLM budget helpers hand through a non-finite percent.
+
+2026-10-25 seed hunt (hit): promoted `formatTenantTrialDaysRemainingLine` for non-finite `trialDaysRemaining`; regressions `falls back when trial days remaining is non-finite` and `truncates fractional trial days remaining for display`; scoped `operator-billing-current-plan` vitest passed. Private beta: Invited operators no longer see `Infinity days remaining` (or other garbage day counts) on the billing current-plan trial line when trial status JSON carries a non-finite `daysRemaining` value.
+
+2026-10-25 seed hunt (hit): promoted `resolveOperatorAttentionChipCount` for attention chip `?? 0` NaN footgun; regressions `normalizes non-finite chip counts to zero for display and aria` and `ignores non-finite counts when resolving the highest attention kind`; scoped `operator-attention-chip-needs-action` vitest passed; `OperatorAttentionKindChip` uses normalized count for visible badge. Private beta: Invited operators no longer see `(NaN)` on home attention chips or misleading promoted-partition emphasis when rollup inputs carry non-finite counts.
+
+2026-10-25 seed hunt (hit): promoted `resolveOperatorBillingSeatRow` `seatsUsed ?? 0` NaN footgun; regression `normalizes non-finite seatsUsed for the billing seat row`; 9 scoped `operator-billing-subscription-resolution` vitest passed. Private beta: Invited operators no longer see `NaN of N in use` on the billing current-plan seat row when usage status JSON carries a non-finite `seatsUsed` value.
+
+2026-10-25 seed hunt (hit): promoted `presentOperatorSessionsToFinalizedPercent` negative-ratio guard; regression `rejects negative ratios instead of showing 0%`; 4 scoped `operator-sessions-to-finalized-percent-display` vitest passed. Private beta: Invited operators no longer see a misleading `0%` session-to-finalize conversion tile when diagnostics APIs return a negative ratio.
 
 2026-10-25 seed hunt (hit): promoted `deriveOperatorHomeTenantCountingSnapshot` `runsDashboardTotalCount` floor against loaded tenant rows; regression `treats zero runsDashboardTotalCount as stale when tenant overview rows are loaded`; scoped `operator-home-tenant-counting` vitest passed. Private beta: Invited operators no longer get an empty-home metrics strip and “no reviews yet” outcome copy when the runs dashboard reports `totalCount` 0 while real overview rows are already on screen.
 
@@ -4966,6 +4980,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-10-08 seed hunt (seed-only): re-read continuity hydration, recent-view mapping, workspace metrics, and freshness helpers; no hunt-ready row promoted; scoped `lib/operator` tests completed with known baseline failures outside the reviewed utility behavior.
 
+- [x] (proven) `readOperatorShellStableCache` — `typeof writtenAtMs === "number"` accepts `NaN`, skipping TTL eviction — **hit 2026-10-25 seed hunt:** `Number.isFinite(parsed.writtenAtMs)`; regression `discards stable cache entries with non-finite writtenAtMs`.
+- [x] (proven) `operatorHomeDataCurrencyValue` / `operatorHomeDataCurrencyStaleCue` — invalid `Date` bypasses `isRenderableRefreshedInstant` — **hit 2026-10-25 seed hunt:** fail-closed guards; regressions `treats an invalid Date like a missing refresh instead of formatting garbage` and `does not report stale data when the refresh timestamp is invalid`.
+- [x] (proven) `resolveOperatorBillingCurrentPlan` — non-finite `aiBudgetRemainingPercent` passes through to `NaN%` UI — **hit 2026-10-25 seed hunt:** `normalizeOperatorBillingAiBudgetRemainingPercent`; regression `omits non-finite ai budget remaining percent from the plan view`.
+- [x] (proven) `resolveOperatorBillingCurrentPlan` — `trialDaysRemaining >= 0` accepts `Infinity` and fractional days in trial copy — **hit 2026-10-25 seed hunt:** `formatTenantTrialDaysRemainingLine`; regressions `falls back when trial days remaining is non-finite` and `truncates fractional trial days remaining for display`.
+- [x] (proven) `operatorAttentionChipNeedsAction` / `formatOperatorAttentionChipAriaLabel` / `resolveHighestNonZeroAttentionKind` — `countsByKind[kind] ?? 0` passes `NaN` into chip UI — **hit 2026-10-25 seed hunt:** `resolveOperatorAttentionChipCount`; regressions `normalizes non-finite chip counts to zero for display and aria` and `ignores non-finite counts when resolving the highest attention kind`.
+- [x] (proven) `resolveOperatorBillingSeatRow` — `seatsUsed ?? 0` leaves `NaN` in seat copy — **hit 2026-10-25 seed hunt:** `normalizeOperatorHomeNonNegativeCount`; regression `normalizes non-finite seatsUsed for the billing seat row`.
+- [x] (proven) `presentOperatorSessionsToFinalizedPercent` — negative finite ratios clamp to `0%` display — **hit 2026-10-25 seed hunt:** reject `r < 0` like `r > 1`; regression `rejects negative ratios instead of showing 0%`.
 - [x] (proven) `deriveOperatorHomeTenantCountingSnapshot` — `runsDashboardTotalCount ?? tenantItems.length` keeps `0` when dashboard total is stale — **hit 2026-10-25 seed hunt:** `Math.max(normalizedDashboardTotal, tenantReviewCount)`; regression `treats zero runsDashboardTotalCount as stale when tenant overview rows are loaded`.
 - [x] (proven) `mapAlertsInboxSummary` — raw DTO counts propagate `NaN` into alerts inbox cache — **hit 2026-10-25 seed hunt:** `normalizeOperatorHomeNonNegativeCount` on open/acknowledged/resolved/blocking; regression `normalizes non-finite alerts inbox summary counts from shell status JSON to zero`.
 - [x] (proven) `fetchOperatorShellStatus` — `assignedToMeFindingsCount ?? null` leaves `NaN` on hydrate (`?? 0` in UI still shows NaN) — **hit 2026-10-25 seed hunt:** `normalizeOperatorShellNullableCount`; regressions `maps non-finite assigned-to-me findings count from shell status JSON to null` and `maps non-finite counts to null`.
