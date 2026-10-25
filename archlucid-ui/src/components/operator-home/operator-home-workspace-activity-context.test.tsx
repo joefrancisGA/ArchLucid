@@ -251,4 +251,46 @@ describe("OperatorHomeWorkspaceActivityProvider", () => {
 
     expect(screen.getByTestId("open-findings-count")).toHaveTextContent("0");
   });
+
+  it("keeps hasWorkspaceReviews false when only a description-matched showcase story is reported", () => {
+    function Reporter(): React.JSX.Element {
+      const { reportWorkspaceReviews } = useOperatorHomeWorkspaceActivity();
+
+      return (
+        <button
+          type="button"
+          onClick={() =>
+            reportWorkspaceReviews(
+              [
+                {
+                  runId: "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+                  requestId: "req-showcase-story",
+                  projectId: "default",
+                  status: "Completed",
+                  description: "Enterprise customer intake modernization review",
+                  hasGoldenManifest: true,
+                } as RunSummary,
+              ],
+              0,
+            )
+          }
+        >
+          Report story
+        </button>
+      );
+    }
+
+    render(
+      <OperatorHomeWorkspaceActivityProvider initialHasReviews={false}>
+        <Probe />
+        <Reporter />
+      </OperatorHomeWorkspaceActivityProvider>,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Report story" }));
+
+    expect(screen.getByTestId("has-workspace-reviews")).toHaveTextContent("no");
+    expect(screen.getByTestId("has-overview-review-rows")).toHaveTextContent("yes");
+    expect(screen.getByTestId("open-findings-count")).toHaveTextContent("0");
+  });
 });

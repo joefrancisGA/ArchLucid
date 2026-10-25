@@ -232,7 +232,8 @@ export function isExampleOnlyOverviewRunList(items: readonly RunSummary[]): bool
   );
 }
 
-function isNonTenantOverviewRun(run: RunSummary): boolean {
+/** Demo inject, static showcase id, or API showcase story matched by description — not tenant KPI scope. */
+export function isNonTenantOverviewRun(run: RunSummary): boolean {
   return (
     isDemoSeededOverviewInjectedRun(run)
     || isShowcaseSampleOfAnyKind(run.runId ?? "")

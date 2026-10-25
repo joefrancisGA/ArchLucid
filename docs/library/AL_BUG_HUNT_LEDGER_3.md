@@ -4938,7 +4938,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-operator-lib
 
-**Hunts:** 107 · **Bugs found:** 102 · **Consecutive dry hunts:** 0
+**Hunts:** 108 · **Bugs found:** 103 · **Consecutive dry hunts:** 0
+
+2026-10-25 seed hunt (hit): `reportWorkspaceReviews` excludes description-matched showcase stories from `realItems` and overview sample detection so `hasWorkspaceReviews` stays aligned with tenant KPI derives; regression `keeps hasWorkspaceReviews false when only a description-matched showcase story is reported`; cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; 68 scoped workspace-activity-context, recent-reviews-outcome, and tenant-counting vitest passed. Private beta: Invited operators whose Overview shows the live customer-intake showcase story no longer flip populated-workspace emphasis while workspace KPIs still read zero tenant reviews.
 
 2026-10-25 seed hunt (hit): `filterTenantOverviewRuns` excludes showcase story rows matched by the customer-intake description token; `use-runs-dashboard-tabs` routes tenant counting through `resolveOperatorHomeRunsPanelReportedTotalCount` for parity with activity publish; regression `excludes showcase story rows matched by description from tenant metrics`; cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; 65 scoped recent-reviews-outcome, tenant-counting, live-runs-dashboard, and workspace-metrics vitest passed. Private beta: Invited operators whose Overview lists a live API showcase story (not only the static demo id) no longer see workspace KPI and outcome copy count that sample as a tenant review.
 
@@ -5334,11 +5336,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `filterTenantOverviewRuns` — showcase static ids excluded but buyer-polished showcase story rows remain — **hit 2026-10-25 seed hunt:** `runMatchesOperatorHomeExampleDescription`; regression `excludes showcase story rows matched by description from tenant metrics`.
 - [x] (valid-no-repro) `deriveHomePreviewTabCounts` — `recentTotalCount` uses preview list length not pagination metadata — **cheap-disproof 2026-10-25 seed hunt:** intentional featured-cap label contract (`Recent (2 of N)`); workspace total flows through metrics `reviewPackagesTotal`.
 
-- [ ] (candidate) `isExampleOnlyOverviewRunList` — description-matched example without findings still flips example-only outcome — locus: outcome formatter; input: showcase story row with zero KPI fields.
-- [ ] (candidate) `runMatchesOperatorHomeExampleDescription` — substring false positive on unrelated descriptions containing customer intake — locus: token match; input: tenant review brief mentioning intake modernization.
-- [ ] (candidate) `deriveOperatorHomeWorkspaceMetricsFromOverviewRuns` — tenant filter change drops open findings from description-matched showcase rows — locus: metrics loop; input: showcase story with `findingCount` on home refresh.
-- [ ] (candidate) `resolveOperatorHomeRunsPanelReportedTotalCount` — empty `displayItems` with positive loaded total before catalog hydrate — locus: reported total memo; input: dependency neighborhood awaiting seed with SSR pagination metadata.
-- [ ] (candidate) `filterRunsForHomeAttentionPreview` — excluded rail ids do not include description-matched showcase run ids — locus: attention dedupe; input: TB-2369 rail row plus API showcase story duplicate.
+- [x] (valid-no-repro) `isExampleOnlyOverviewRunList` — description-matched example without findings still flips example-only outcome — **cheap-disproof 2026-10-25 seed hunt:** `isExampleOnlyOverviewRunList` returns true for description-only showcase; outcome uses `exampleReviewOnly` path.
+- [x] (valid-no-repro) `runMatchesOperatorHomeExampleDescription` — substring false positive on unrelated descriptions containing customer intake — **cheap-disproof 2026-10-25 seed hunt:** token matches curated showcase story contract documented on `OPERATOR_HOME_EXAMPLE_RUN_DESCRIPTION_TOKEN`; tenant-authored rows use distinct run metadata in production paths.
+- [x] (valid-no-repro) `deriveOperatorHomeWorkspaceMetricsFromOverviewRuns` — tenant filter change drops open findings from description-matched showcase rows — **cheap-disproof 2026-10-25 seed hunt:** intentional TB-1039 parity; regression `excludes showcase story rows matched by description from tenant metrics`.
+- [x] (valid-no-repro) `resolveOperatorHomeRunsPanelReportedTotalCount` — empty `displayItems` with positive loaded total before catalog hydrate — **cheap-disproof 2026-10-25 seed hunt:** regression `keeps workspace totalCount when the overview page is empty but pagination metadata is present`.
+- [x] (valid-no-repro) `filterRunsForHomeAttentionPreview` — excluded rail ids do not include description-matched showcase run ids — **cheap-disproof 2026-10-25 seed hunt:** dedupe keys on canonical run ids from rail row ids/hrefs; showcase story uses the same run id when duplicated on Overview.
+
+- [ ] (candidate) `operator-home-workspace-activity-context` — `hasActionNeededReviews` still scans pre-filter `realItems` attention on showcase rows — locus: `isRunNeedingAttention`; input: description showcase with governance warnings.
+- [ ] (candidate) `isNonTenantOverviewRun` — exported helper not yet used by compare/reviews workspace summaries — locus: import sites; input: duplicate tenant filter predicates outside home.
+- [ ] (candidate) `runIsShowcaseHomeExampleStory` — static demo id path bypasses description check ordering — locus: runs-dashboard-helpers; input: static id with unrelated description text.
+- [ ] (candidate) `deriveOperatorHomeWorkspacePhaseSignalsFromOverviewRuns` — overview occupancy still counts description showcase when tenant metrics exclude it — locus: phase signals; input: eval-empty vs active-workspace flip.
+- [ ] (candidate) `use-runs-dashboard-tabs` — `displayItems` tenant filter when samples hidden does not apply description token — locus: `hideHeading` branch; input: buyer-polished shell with API showcase story visible in list.
 
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regression `drops favorite rows when runId is whitespace-only`; 41 scoped continuity, scope-storage, and attention-preview vitest tests passed.
 
