@@ -6868,6 +6868,20 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-25 seed hunt (seed→hit): proved `ResolveCompareRunIdForPairing` treated whitespace-only denormalized `CompareRunId` columns as present anchors (`IsNullOrWhiteSpace` false on padded spaces) instead of falling through to `AnalysisRequestJson`, so end-to-end export pairing could throw from `CanonicalRunIdForPersistence` or emit false missing-export warnings when legacy rows left blank compare columns as spaces; normalize column compare run id via `NormalizeOptionalString` before JSON fallback; regression `BuildExportPairingKey_treats_whitespace_only_compare_run_column_as_json_anchor` plus manifest-version JSON parity `BuildExportPairingKey_treats_column_and_json_compare_manifest_version_as_same_pairing_key`; cheap-disproof closed dashed-vs-N column canonicalize (existing test), template profile JSON fallback (hunt 198), `ApiPaging.TryParseUtcTicksIdCursor` (comparison search normalizes inbound cursor id), batch zip manifest echo (cosmetic), and Armenian homoglyphs (deferred); seeded five follow-on rows; scoped application-analysis + replay filter 359/359. Private beta: end-to-end run comparison export pairing no longer breaks when compare-run columns are whitespace-only placeholders and the real anchor lives in persisted request JSON.
+
+- [ ] (candidate) `ComparisonRecordRepository.GetByRunIdAsync` — SQL list-by-run dashed stored — locus: UNIQUEIDENTIFIER column; input: already matches N/D lookup via guid param.
+- [ ] (candidate) `ComparisonRecordRepositoryCore.SerializeTagsForUpdate` — JSON tag order — locus: cosmetic; input: defer.
+- [ ] (candidate) `ComparisonRecordSearchPredicateBuilder` — notes column search — locus: no notes filter today; input: defer.
+- [ ] (candidate) `ApiPaging.TryParseUtcTicksIdCursor` — cursor id segment without trim — locus: HTTP cursor parse; input: padded id after ticks delimiter (alerts inbox and other API surfaces).
+- [ ] (candidate) `ComparisonBatchReplayZipSupport` — manifest failure entries echo pre-trim batch tokens — locus: zip manifest; input: cosmetic id echo only.
+
+- [x] (proven) `ResolveCompareRunIdForPairing` — whitespace-only compare column blocks JSON fallback — **hit 2026-10-25 seed hunt:** optional-string normalize on column; regression above.
+- [x] (valid-no-repro) `ResolveCompareManifestVersionForPairing` — JSON manifest version — **cheap-disproof 2026-10-25 seed hunt:** hunt 197 resolver; added parity regression.
+- [x] (valid-no-repro) `ResolveTemplateProfileForPairing` — template JSON fallback — **cheap-disproof 2026-10-25 seed hunt:** hunt 198.
+- [x] (invalid) `ApiPaging.TryParseUtcTicksIdCursor` — HTTP cursor id trim — **cheap-disproof 2026-10-25 seed hunt:** comparison search normalizes at application layer.
+- [x] (invalid) `ComparisonBatchReplayZipSupport` — manifest id echo — **cheap-disproof 2026-10-25 seed hunt:** cosmetic only.
+
 2026-10-25 seed hunt (seed→hit): proved `ReplayComparisonExportsDiffSlice.BuildExportPairingKey` still keyed template profile only on the denormalized `TemplateProfile` column after hunt 197 added JSON fallback for compare anchors, so end-to-end export pairing could split rows when one run stored `templateProfile` only inside `AnalysisRequestJson` and the peer run had the same profile on the column; resolve template profile via `AnalysisExportRequestRehydrator` fallback with optional-string normalize parity; regression `BuildExportPairingKey_treats_column_and_json_template_profile_as_same_pairing_key`; cheap-disproof closed compare-run JSON fallback (hunt 197), padded column trim without JSON (existing export read normalizers), `ApiPaging.TryParseUtcTicksIdCursor` (comparison search normalizes inbound cursor id), batch zip manifest echo (cosmetic), and Armenian homoglyphs (deferred); seeded five follow-on rows; scoped application-analysis + replay filter 357/357. Private beta: end-to-end run comparison reports pair consulting exports for diffing when template profile metadata lives only in persisted request JSON on one export row.
 
 - [ ] (candidate) `ComparisonRecordRepository.GetByRunIdAsync` — SQL list-by-run dashed stored — locus: UNIQUEIDENTIFIER column; input: already matches N/D lookup via guid param.
@@ -8591,11 +8605,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 198
-- **bugs-found:** 204
+- **hunts:** 199
+- **bugs-found:** 205
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-25
-- **last-bug:** 2026-10-25 — E2E export pairing honors JSON template profile
+- **last-bug:** 2026-10-25 — E2E pairing ignores whitespace-only compare column
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
