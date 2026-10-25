@@ -1095,6 +1095,30 @@ describe("ResourceHubClient", () => {
     expect(await screen.findByText("Remediation status was not stored.")).toBeInTheDocument();
   });
 
+  it("shows severity omission copy when the captured severity is whitespace-only", async () => {
+    fetchCachedInfraEvidenceResourceHub.mockImplementation(async () =>
+      buildResourceHubTestMockHub({
+        operationalSecurityFindings: {
+          ...buildResourceHubTestMockHub().operationalSecurityFindings,
+          items: [
+            {
+              id: "finding-whitespace-severity",
+              title: "Public endpoint",
+              severity: "   ",
+              status: "Open",
+              streamKind: "OperationalSecurity",
+              streamLabel: "Operational security",
+            },
+          ],
+        },
+      }),
+    );
+    searchParams = new URLSearchParams(`tab=findings&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}`);
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    expect(await screen.findByText("Severity was not stored.")).toBeInTheDocument();
+  });
+
   it("shows finding title omission copy when the captured title is whitespace-only", async () => {
     fetchCachedInfraEvidenceResourceHub.mockImplementation(async () =>
       buildResourceHubTestMockHub({
