@@ -222,7 +222,7 @@ public sealed class MarkdownArchitectureAnalysisExportServiceTests
 
         md.Should().Contain("## Evidence Package");
         md.Should().Contain("At least ten characters for export body.");
-        md.Should().Contain(ArchitectureEvidenceRequestExport.ConstraintsNotRecordedCopy);
+        md.Should().Contain($"- Constraints: {ArchitectureEvidenceRequestExport.ConstraintsNotRecordedCopy}");
         md.Should().Contain(ArchitectureEvidenceRequestExport.RequiredCapabilitiesNotRecordedCopy);
         md.Should().Contain(ArchitectureEvidenceRequestExport.AssumptionsNotRecordedCopy);
     }
@@ -247,6 +247,29 @@ public sealed class MarkdownArchitectureAnalysisExportServiceTests
     }
 
     [Fact]
+    public void GenerateMarkdown_reports_omission_copy_for_missing_evidence_identity_and_summary_sections()
+    {
+        ArchitectureAnalysisReport report = new()
+        {
+            Run = new ArchitectureRun
+            {
+                RunId = "a1b2c3d4e5f678901234567890abcd",
+                RequestId = "req-1",
+                Status = ArchitectureRunStatus.Committed,
+            },
+        };
+
+        string md = _sut.GenerateMarkdown(report);
+
+        md.Should().Contain(ArchitectureEvidenceRequestExport.MissingEvidencePackageCopy);
+        md.Should().Contain($"- Completed UTC: {ArchitectureEvidenceRequestExport.MissingCompletedTimeCopy}");
+        md.Should().Contain("## Diagram");
+        md.Should().Contain(ArchitectureEvidenceRequestExport.DiagramNotStoredCopy);
+        md.Should().Contain("## Architecture Summary");
+        md.Should().Contain(ArchitectureEvidenceRequestExport.ArchitectureSummaryNotStoredCopy);
+    }
+
+    [Fact]
     public void GenerateMarkdown_evidence_identity_fields_use_not_stored_copy_when_blank()
     {
         ArchitectureAnalysisReport report = new()
@@ -268,6 +291,41 @@ public sealed class MarkdownArchitectureAnalysisExportServiceTests
         md.Should().Contain(ArchitectureEvidenceRequestExport.MissingSystemNameCopy);
         md.Should().Contain(ArchitectureEvidenceRequestExport.MissingEnvironmentCopy);
         md.Should().Contain(ArchitectureEvidenceRequestExport.MissingCloudProviderCopy);
+    }
+
+    [Fact]
+    public void GenerateMarkdown_uses_summary_omission_copy_for_empty_policy_catalog_and_pattern_summaries()
+    {
+        ArchitectureAnalysisReport report = new()
+        {
+            Run = new ArchitectureRun
+            {
+                RunId = "a1b2c3d4e5f678901234567890abcd",
+                RequestId = "req-1",
+                Status = ArchitectureRunStatus.Committed,
+                CompletedUtc = new DateTime(2026, 5, 2, 0, 0, 0, DateTimeKind.Utc),
+            },
+            Evidence = new AgentEvidencePackage
+            {
+                EvidencePackageId = "ev-1",
+                SystemName = "Sys",
+                Environment = "prod",
+                CloudProvider = "Azure",
+                Request = new RequestEvidence { Description = "At least ten characters for export body." },
+                Policies = [new PolicyEvidence { Title = "Pack", PolicyId = "p-1", Summary = "" }],
+                ServiceCatalog =
+                [
+                    new ServiceCatalogEvidence { ServiceName = "API", Category = "compute", Summary = null! },
+                ],
+                Patterns = [new PatternEvidence { Name = "Web", PatternId = "pat-1", Summary = "  " }],
+            },
+        };
+
+        string md = _sut.GenerateMarkdown(report);
+
+        md.Should().Contain(ArchitectureEvidenceRequestExport.PolicySummaryNotStoredCopy);
+        md.Should().Contain(ArchitectureEvidenceRequestExport.ServiceCatalogSummaryNotStoredCopy);
+        md.Should().Contain(ArchitectureEvidenceRequestExport.PatternSummaryNotStoredCopy);
     }
 
     [Fact]

@@ -4,7 +4,10 @@ import type { RunSummary } from "@/types/authority";
 
 import {
   FINDINGS_SNAPSHOT_FLAG_NOT_STORED_LABEL,
+  RUN_LIST_FINDING_COUNT_NOT_STORED_LABEL,
+  RUN_LIST_WARNING_COUNT_NOT_STORED_LABEL,
   runRowExplicitCountsLine,
+  runRowNumericCountsLine,
   runRowOutputReadinessLine,
   runRowOutputReadinessLineBuyer,
 } from "./runs-list-row-presentation";
@@ -30,14 +33,27 @@ describe("runs-list-row-presentation", () => {
       false,
     );
 
-    expect(line).toContain("Finding count was not stored.");
-    expect(line).toContain("Warning count was not stored.");
+    expect(line).toContain(RUN_LIST_FINDING_COUNT_NOT_STORED_LABEL);
+    expect(line).toContain(RUN_LIST_WARNING_COUNT_NOT_STORED_LABEL);
     expect(line).toContain("2 artifacts");
   });
 
   it("surfaces finding count not stored when it is the only omitted count", () => {
     const line = runRowExplicitCountsLine(baseRun({ findingCount: null }), false);
 
-    expect(line).toContain("Finding count was not stored.");
+    expect(line).toContain(RUN_LIST_FINDING_COUNT_NOT_STORED_LABEL);
+  });
+});
+
+describe("runs-list-row-presentation work queue honesty", () => {
+  it("labels omitted finding and warning counts without implying zero", () => {
+    const line = runRowNumericCountsLine(
+      baseRun({ findingCount: undefined, warningCount: undefined }),
+      false,
+    );
+
+    expect(line).toContain(RUN_LIST_FINDING_COUNT_NOT_STORED_LABEL);
+    expect(line).toContain(RUN_LIST_WARNING_COUNT_NOT_STORED_LABEL);
+    expect(line).not.toMatch(/\b0 findings\b/);
   });
 });

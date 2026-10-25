@@ -51,7 +51,7 @@ describe("WizardStepReview", () => {
     expect(screen.getByRole("heading", { name: "Review & submit" })).toBeInTheDocument();
     expect(screen.getByText("AcmeOrderApi")).toBeInTheDocument();
     expect(screen.getByText("production")).toBeInTheDocument();
-    expect(screen.getByText("Azure")).toBeInTheDocument();
+    expect(screen.getByText("Microsoft Azure")).toBeInTheDocument();
     expect(screen.getByText("Rate limits on public endpoints")).toBeInTheDocument();
     expect(screen.getByText("EU-only data")).toBeInTheDocument();
     expect(screen.getByText("policy-pack:default")).toBeInTheDocument();

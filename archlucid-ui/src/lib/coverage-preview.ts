@@ -97,6 +97,19 @@ export function buildCoveragePreviewRequest(input: {
 export const COVERAGE_PREVIEW_CLOUD_NOT_STORED_MESSAGE =
   "Cloud was not stored. This preview is not a stored cloud choice." as const;
 
+export const COVERAGE_PREVIEW_POLICY_PACK_VERSION_NOT_STORED_MESSAGE =
+  "Policy pack version was not stored." as const;
+
+export function formatCoveragePreviewPolicyPackVersion(policyPackVersion?: string | null): string {
+  const trimmed = policyPackVersion?.trim() ?? "";
+
+  if (trimmed.length === 0 || trimmed === COVERAGE_PREVIEW_POLICY_PACK_VERSION_NOT_STORED_MESSAGE) {
+    return COVERAGE_PREVIEW_POLICY_PACK_VERSION_NOT_STORED_MESSAGE;
+  }
+
+  return trimmed;
+}
+
 export function resolveCoveragePreviewCloudHonesty(cloudProvider?: string): string | null {
   if (cloudProvider === undefined || cloudProvider.trim().length === 0) {
     return COVERAGE_PREVIEW_CLOUD_NOT_STORED_MESSAGE;

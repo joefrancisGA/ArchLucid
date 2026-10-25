@@ -12,7 +12,13 @@ export { runListPrimaryTitle };
 
 export const FINDINGS_SNAPSHOT_FLAG_NOT_STORED_LABEL = "Findings snapshot flag was not stored." as const;
 
-function runRowNumericCountsLine(run: RunSummary, buyerPolished: boolean): string | null {
+export const RUN_LIST_FINDING_COUNT_NOT_STORED_LABEL = "Finding count was not stored." as const;
+
+export const RUN_LIST_WARNING_COUNT_NOT_STORED_LABEL = "Warning count was not stored." as const;
+
+export const RUN_LIST_ARTIFACT_COUNT_NOT_STORED_LABEL = "Artifact count was not stored." as const;
+
+export function runRowNumericCountsLine(run: RunSummary, buyerPolished: boolean): string | null {
   const fc = run.findingCount;
   const wc = run.warningCount;
   const ac = run.artifactCount;
@@ -32,19 +38,19 @@ function runRowNumericCountsLine(run: RunSummary, buyerPolished: boolean): strin
   if (hasFinding) {
     tokens.push(`${fc} findings`);
   } else if (findingOmitted) {
-    tokens.push("Finding count was not stored.");
+    tokens.push(RUN_LIST_FINDING_COUNT_NOT_STORED_LABEL);
   }
 
   if (hasWarning) {
     tokens.push(buyerPolished ? `${wc} monitored risks` : `${wc} warnings`);
   } else if (warningOmitted) {
-    tokens.push("Warning count was not stored.");
+    tokens.push(RUN_LIST_WARNING_COUNT_NOT_STORED_LABEL);
   }
 
   if (hasArtifact) {
     tokens.push(`${ac} artifacts`);
   } else if (artifactOmitted) {
-    tokens.push("Artifact count was not stored.");
+    tokens.push(RUN_LIST_ARTIFACT_COUNT_NOT_STORED_LABEL);
   }
 
   return tokens.join(" · ");

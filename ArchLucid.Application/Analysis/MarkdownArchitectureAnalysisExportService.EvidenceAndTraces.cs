@@ -82,7 +82,8 @@ public sealed partial class MarkdownArchitectureAnalysisExportService
                 {
                     sb.AppendLine($"- **{policy.Title}**");
                     sb.AppendLine($"  - Policy ID: {policy.PolicyId}");
-                    sb.AppendLine($"  - Summary: {policy.Summary}");
+                    sb.AppendLine(
+                        $"  - Summary: {ArchitectureEvidenceRequestExport.FormatSummary(policy.Summary, ArchitectureEvidenceRequestExport.PolicySummaryNotStoredCopy)}");
 
                     if (policy.RequiredControls.Count > 0)
 
@@ -101,7 +102,8 @@ public sealed partial class MarkdownArchitectureAnalysisExportService
                 {
                     sb.AppendLine($"- **{service.ServiceName}**");
                     sb.AppendLine($"  - Category: {service.Category}");
-                    sb.AppendLine($"  - Summary: {service.Summary}");
+                    sb.AppendLine(
+                        $"  - Summary: {ArchitectureEvidenceRequestExport.FormatSummary(service.Summary, ArchitectureEvidenceRequestExport.ServiceCatalogSummaryNotStoredCopy)}");
 
                     if (service.RecommendedUseCases.Count > 0)
 
@@ -120,7 +122,8 @@ public sealed partial class MarkdownArchitectureAnalysisExportService
                 {
                     sb.AppendLine($"- **{pattern.Name}**");
                     sb.AppendLine($"  - Pattern ID: {pattern.PatternId}");
-                    sb.AppendLine($"  - Summary: {pattern.Summary}");
+                    sb.AppendLine(
+                        $"  - Summary: {ArchitectureEvidenceRequestExport.FormatSummary(pattern.Summary, ArchitectureEvidenceRequestExport.PatternSummaryNotStoredCopy)}");
 
                     if (pattern.SuggestedServices.Count > 0)
 

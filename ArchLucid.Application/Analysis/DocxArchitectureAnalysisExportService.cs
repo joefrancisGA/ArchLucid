@@ -1,4 +1,5 @@
 using ArchLucid.Application.Determinism;
+using ArchLucid.Application.Manifests;
 using ArchLucid.Application.Diffs;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Manifest;
@@ -24,8 +25,10 @@ public sealed class DocxArchitectureAnalysisExportService(IDiagramImageRenderer 
         builder.AddParagraph($"Request ID: {report.Run.RequestId}");
         builder.AddParagraph($"Status: {report.Run.Status}");
         builder.AddParagraph($"Created UTC: {report.Run.CreatedUtc:O}");
-        if (report.Run.CompletedUtc.HasValue)
-            builder.AddParagraph($"Completed UTC: {report.Run.CompletedUtc.Value:O}");
+        builder.AddParagraph(
+            report.Run.CompletedUtc.HasValue
+                ? $"Completed UTC: {report.Run.CompletedUtc.Value:O}"
+                : $"Completed UTC: {ArchitectureEvidenceRequestExport.MissingCompletedTimeCopy}");
         if (!string.IsNullOrWhiteSpace(report.Run.CurrentManifestVersion))
             builder.AddParagraph($"Current Manifest Version: {report.Run.CurrentManifestVersion}");
         builder.AddSpacer();
@@ -156,8 +159,10 @@ public sealed class DocxArchitectureAnalysisExportService(IDiagramImageRenderer 
                     builder.AddParagraph(datastore.DatastoreName, true);
                     builder.AddBullet($"Type: {datastore.DatastoreType}");
                     builder.AddBullet($"Platform: {datastore.RuntimePlatform}");
-                    builder.AddBullet($"Private Endpoint Required: {(datastore.PrivateEndpointRequired ? "Yes" : "No")}");
-                    builder.AddBullet($"Encryption At Rest Required: {(datastore.EncryptionAtRestRequired ? "Yes" : "No")}");
+                    builder.AddBullet(
+                        $"Private Endpoint Required: {ArchitectureManifestDatastoreExport.FormatPrivateEndpointRequiredForExport(datastore.PrivateEndpointRequired)}");
+                    builder.AddBullet(
+                        $"Encryption At Rest Required: {ArchitectureManifestDatastoreExport.FormatEncryptionAtRestRequiredForExport(datastore.EncryptionAtRestRequired)}");
                 }
 
                 builder.AddSpacer();
@@ -177,10 +182,11 @@ public sealed class DocxArchitectureAnalysisExportService(IDiagramImageRenderer 
             }
         }
 
+        builder.AddHeading("Architecture Diagram", 2);
+
         if (!string.IsNullOrWhiteSpace(report.Diagram))
         {
-            builder.AddHeading("Architecture Diagram", 2);
-            byte[]? diagramBytes = await diagramImageRenderer.RenderMermaidPngAsync(report.Diagram, cancellationToken);
+            byte[]? diagramBytes = await _diagramImageRenderer.RenderMermaidPngAsync(report.Diagram, cancellationToken);
             if (diagramBytes is not null && diagramBytes.Length > 0)
                 builder.AddImage(diagramBytes, "Architecture Diagram", 6_000_000L, 3_500_000L);
             else
@@ -188,16 +194,22 @@ public sealed class DocxArchitectureAnalysisExportService(IDiagramImageRenderer 
                 builder.AddParagraph("Diagram image rendering was not available. Mermaid source is included below.");
                 builder.AddCodeBlock(report.Diagram, MermaidLanguage);
             }
-
-            builder.AddSpacer();
         }
+        else
+        {
+            builder.AddParagraph(ArchitectureEvidenceRequestExport.DiagramNotStoredCopy);
+        }
+
+        builder.AddSpacer();
+
+        builder.AddHeading("Architecture Summary", 2);
 
         if (!string.IsNullOrWhiteSpace(report.Summary))
-        {
-            builder.AddHeading("Architecture Summary", 2);
             builder.AddMultilineParagraphs(report.Summary);
-            builder.AddSpacer();
-        }
+        else
+            builder.AddParagraph(ArchitectureEvidenceRequestExport.ArchitectureSummaryNotStoredCopy);
+
+        builder.AddSpacer();
 
         if (report.Determinism is not null)
         {
@@ -295,7 +307,8 @@ public sealed class DocxArchitectureAnalysisExportService(IDiagramImageRenderer 
         {
             builder.AddParagraph(policy.Title, true);
             builder.AddBullet($"Policy ID: {policy.PolicyId}");
-            builder.AddBullet($"Summary: {policy.Summary}");
+            builder.AddBullet(
+                $"Summary: {ArchitectureEvidenceRequestExport.FormatSummary(policy.Summary, ArchitectureEvidenceRequestExport.PolicySummaryNotStoredCopy)}");
 
             if (policy.RequiredControls.Count > 0)
                 builder.AddBullet($"Required Controls: {string.Join(", ", policy.RequiredControls)}");
@@ -313,7 +326,8 @@ public sealed class DocxArchitectureAnalysisExportService(IDiagramImageRenderer 
         {
             builder.AddParagraph(service.ServiceName, true);
             builder.AddBullet($"Category: {service.Category}");
-            builder.AddBullet($"Summary: {service.Summary}");
+            builder.AddBullet(
+                $"Summary: {ArchitectureEvidenceRequestExport.FormatSummary(service.Summary, ArchitectureEvidenceRequestExport.ServiceCatalogSummaryNotStoredCopy)}");
 
             if (service.RecommendedUseCases.Count > 0)
                 builder.AddBullet($"Recommended Use Cases: {string.Join(", ", service.RecommendedUseCases)}");
@@ -331,7 +345,8 @@ public sealed class DocxArchitectureAnalysisExportService(IDiagramImageRenderer 
         {
             builder.AddParagraph(pattern.Name, true);
             builder.AddBullet($"Pattern ID: {pattern.PatternId}");
-            builder.AddBullet($"Summary: {pattern.Summary}");
+            builder.AddBullet(
+                $"Summary: {ArchitectureEvidenceRequestExport.FormatSummary(pattern.Summary, ArchitectureEvidenceRequestExport.PatternSummaryNotStoredCopy)}");
 
             if (pattern.SuggestedServices.Count > 0)
                 builder.AddBullet($"Suggested Services: {string.Join(", ", pattern.SuggestedServices)}");

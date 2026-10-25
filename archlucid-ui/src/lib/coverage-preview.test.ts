@@ -2,12 +2,24 @@ import { describe, expect, it } from "vitest";
 
 import {
   buildCoveragePreviewRequest,
+  COVERAGE_PREVIEW_POLICY_PACK_VERSION_NOT_STORED_MESSAGE,
+  formatCoveragePreviewPolicyPackVersion,
   groupCoveragePreviewAssignments,
   mapNormalizedCloudProvider,
 } from "@/lib/coverage-preview";
 import type { CoveragePreviewAssignment } from "@/lib/api/coverage-preview-api";
 
 describe("coverage-preview helpers", () => {
+  it("formatCoveragePreviewPolicyPackVersion surfaces missing versions honestly", () => {
+    expect(formatCoveragePreviewPolicyPackVersion("")).toBe(
+      COVERAGE_PREVIEW_POLICY_PACK_VERSION_NOT_STORED_MESSAGE,
+    );
+    expect(formatCoveragePreviewPolicyPackVersion("  ")).toBe(
+      COVERAGE_PREVIEW_POLICY_PACK_VERSION_NOT_STORED_MESSAGE,
+    );
+    expect(formatCoveragePreviewPolicyPackVersion("2.4.1")).toBe("2.4.1");
+  });
+
   it("mapNormalizedCloudProvider maps wizard values", () => {
     expect(mapNormalizedCloudProvider("azure")).toBe("Azure");
     expect(mapNormalizedCloudProvider("aws")).toBe("Aws");
