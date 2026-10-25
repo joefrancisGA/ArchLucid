@@ -94,6 +94,15 @@ describe("home-attention-dedup (TB-2369)", () => {
     expect(runIds).toEqual(["run-1", "run-3"]);
   });
 
+  it("lists both row and desk highlight run ids when TB-2369 row id disagrees with highlightReviewId", () => {
+    const item = {
+      ...railItem("review-in-progress", "review-in-progress:run-a"),
+      href: "/architecture/architectures/architecture-identity-001?highlightReviewId=run-b",
+    };
+
+    expect(listHomeAttentionPreviewExcludedRunIds([item])).toEqual(["run-b", "run-a"]);
+  });
+
   it("lists both row and peer href run ids when TB-2369 row id disagrees with review href", () => {
     const item = {
       ...railItem("review-in-progress", "review-in-progress:run-a"),

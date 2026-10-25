@@ -65,6 +65,29 @@ export function resolveUnfinishedWorkRailRunIdForMatch(item: UnfinishedWorkRailI
   return runIds[0] ?? null;
 }
 
+function collectHomeAttentionExcludedRunIdsForRailItem(item: UnfinishedWorkRailItem): readonly string[] {
+  const runIds = new Set<string>();
+  const canonicalRunId = resolveUnfinishedWorkRailRunIdForMatch(item);
+
+  if (canonicalRunId !== null) {
+    runIds.add(canonicalRunId);
+  }
+
+  const railRowRunId = resolveRunIdFromUnfinishedWorkRailItem(item)?.trim() ?? "";
+
+  if (railRowRunId.length > 0 && railRowRunId !== canonicalRunId) {
+    runIds.add(railRowRunId);
+  }
+
+  const hrefRunId = resolveRunIdFromWorkingReviewHref(item.href)?.trim() ?? "";
+
+  if (hrefRunId.length > 0 && hrefRunId !== canonicalRunId) {
+    runIds.add(hrefRunId);
+  }
+
+  return [...runIds];
+}
+
 /** Run ids already surfaced on home unfinished-work rail rows (TB-2369). */
 export function listHomeAttentionPreviewExcludedRunIds(
   unfinishedRailItems: readonly UnfinishedWorkRailItem[],
@@ -72,16 +95,8 @@ export function listHomeAttentionPreviewExcludedRunIds(
   const runIds = new Set<string>();
 
   for (const item of unfinishedRailItems) {
-    const runId = resolveUnfinishedWorkRailRunIdForMatch(item);
-
-    if (runId !== null) {
+    for (const runId of collectHomeAttentionExcludedRunIdsForRailItem(item)) {
       runIds.add(runId);
-    }
-
-    const hrefRunId = resolveRunIdFromWorkingReviewHref(item.href)?.trim() ?? "";
-
-    if (hrefRunId.length > 0 && hrefRunId !== runId) {
-      runIds.add(hrefRunId);
     }
   }
 
