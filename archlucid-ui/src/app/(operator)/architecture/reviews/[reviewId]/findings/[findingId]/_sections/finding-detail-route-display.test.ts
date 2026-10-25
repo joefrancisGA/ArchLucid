@@ -6,6 +6,7 @@ import {
   buyerFindingDecisionImpactCopy,
   buyerFindingNextStepCopy,
   deriveFindingDecisionSummary,
+  findingDetailLeadFallback,
   findingRecommendedActionParagraph,
   fallbackImpactedScope,
   formatFindingRemediationDueLabel,
@@ -31,14 +32,9 @@ function emptyPayload(overrides: Partial<FindingInspectPayload> = {}): FindingIn
 }
 
 describe("finding-detail-route-display buyer summary copy", () => {
-  it("states when the inspect payload omitted the evidence list", () => {
-    expect(
-      summarizeEvidenceBasis(
-        emptyPayload({
-          evidenceListReturned: false,
-        }),
-      ),
-    ).toBe("Evidence list was not returned.");
+  it("does not name Claims Intake before inspect payload loads (P-20)", () => {
+    expect(findingDetailLeadFallback("sensitive-data-minimization-risk")).toBe("Finding detail has not loaded.");
+    expect(findingDetailLeadFallback("sensitive-data-minimization-risk")).not.toContain("Claims Intake");
   });
 
   it("does not invent business impact for PHI showcase finding id without payload", () => {

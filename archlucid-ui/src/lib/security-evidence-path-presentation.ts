@@ -56,7 +56,7 @@ export function formatSecurityEvidenceProvenanceKindLabel(kind: string | null | 
   const trimmed = kind?.trim() ?? "";
 
   if (trimmed.length === 0) {
-    return "Provenance was not stored.";
+    return "Provenance kind was not stored.";
   }
 
   return PROVENANCE_KIND_LABELS[trimmed] ?? "Guessed";

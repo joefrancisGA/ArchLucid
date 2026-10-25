@@ -2,13 +2,21 @@ import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { OperatorEmptyState } from "@/components/operator/OperatorShellMessage";
 import type { ComparisonExplanation } from "@/types/explanation";
+import {
+  formatCompareAiExplanationCostDeltaHonesty,
+  formatCompareAiExplanationSecurityDeltaHonesty,
+} from "@/lib/compare/compare-ai-explanation-structured-honesty";
 
 const sectionBoxCls = "mt-5 rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-700 dark:bg-neutral-950";
 
 /**
  * LLM-generated comparison narrative (when the explain endpoint succeeds).
  */
-export function AiComparisonExplanationView(props: { explanation: ComparisonExplanation }) {
+export function AiComparisonExplanationView(props: {
+  explanation: ComparisonExplanation;
+  readonly structuredSecurityChangeCount?: number | null;
+  readonly structuredCostChangeCount?: number | null;
+}) {
   const { explanation } = props;
 
   return (
@@ -17,6 +25,18 @@ export function AiComparisonExplanationView(props: { explanation: ComparisonExpl
       <p className={cn("mt-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
         Generated from structured deltas. Treat this as narrative assistance only. Confirm every claim against the
         structured comparison before you forward it.
+      </p>
+      <p
+        className={cn("mt-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+        data-testid="compare-ai-explanation-security-delta-honesty"
+      >
+        {formatCompareAiExplanationSecurityDeltaHonesty(props.structuredSecurityChangeCount)}
+      </p>
+      <p
+        className={cn("mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+        data-testid="compare-ai-explanation-cost-delta-honesty"
+      >
+        {formatCompareAiExplanationCostDeltaHonesty(props.structuredCostChangeCount)}
       </p>
 
       <div className={sectionBoxCls}>
