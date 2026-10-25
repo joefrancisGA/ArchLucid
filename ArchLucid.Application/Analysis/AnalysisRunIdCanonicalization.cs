@@ -36,4 +36,24 @@ internal static class AnalysisRunIdCanonicalization
 
         return CanonicalRunIdForLookup(runId);
     }
+
+    /// <summary>
+    ///     Repository run-id keys to try when hosts store legacy casing (for example uppercase hex on in-memory rows).
+    /// </summary>
+    internal static IEnumerable<string> EnumerateRunIdRepositoryLookupKeys(string runId)
+    {
+        string canonical = CanonicalRunIdForLookup(runId);
+        yield return canonical;
+
+        if (!Guid.TryParse(canonical, out Guid guid))
+            yield break;
+
+        string uppercaseHex = guid.ToString("N").ToUpperInvariant();
+        if (!string.Equals(uppercaseHex, canonical, StringComparison.Ordinal))
+            yield return uppercaseHex;
+
+        string dashed = guid.ToString("D");
+        if (!string.Equals(dashed, canonical, StringComparison.Ordinal))
+            yield return dashed;
+    }
 }

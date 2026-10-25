@@ -81,7 +81,7 @@ public sealed class ArchitectureAnalysisService(
 
         if (request.IncludeEvidence)
         {
-            report.Evidence = await evidenceRepository.GetByRunIdAsync(primaryRunId, cancellationToken);
+            report.Evidence = await TryLoadEvidencePackageAsync(primaryRunId, cancellationToken);
 
             if (report.Evidence is null)
                 report.Warnings.Add("Evidence package was not found for this run.");
@@ -89,7 +89,7 @@ public sealed class ArchitectureAnalysisService(
 
         if (request.IncludeExecutionTraces)
         {
-            report.ExecutionTraces = (await traceRepository.GetByRunIdAsync(scope, primaryRunId, cancellationToken)).ToList();
+            report.ExecutionTraces = await TryLoadExecutionTracesAsync(scope, primaryRunId, cancellationToken);
 
             if (report.ExecutionTraces.Count == 0)
                 report.Warnings.Add("No execution traces were found for this run.");
@@ -189,7 +189,7 @@ public sealed class ArchitectureAnalysisService(
 
                 IReadOnlyList<AgentResult> leftResults = primaryDetail is not null && primaryDetail.Results.Count > 0
                     ? primaryDetail.Results
-                    : await resultRepository.GetByRunIdAsync(scope, primaryRunId, cancellationToken);
+                    : await TryLoadAgentResultsAsync(scope, primaryRunId, cancellationToken);
                 List<AgentResult> rightResults = compareDetail.Results;
                 report.AgentResultDiff = agentResultDiffService.Compare(primaryRunId, leftResults, compareRunId, rightResults);
             }
@@ -201,6 +201,59 @@ public sealed class ArchitectureAnalysisService(
     /// <summary>
     ///     Route parameters may use dashed GUIDs while persisted run rows use canonical N-format ids.
     /// </summary>
+    private async Task<AgentEvidencePackage?> TryLoadEvidencePackageAsync(
+        string primaryRunId,
+        CancellationToken cancellationToken)
+    {
+        foreach (string lookupKey in AnalysisRunIdCanonicalization.EnumerateRunIdRepositoryLookupKeys(primaryRunId))
+        {
+            AgentEvidencePackage? evidence = await evidenceRepository
+                .GetByRunIdAsync(lookupKey, cancellationToken)
+                .ConfigureAwait(false);
+
+            if (evidence is not null)
+                return evidence;
+        }
+
+        return null;
+    }
+
+    private async Task<List<AgentExecutionTrace>> TryLoadExecutionTracesAsync(
+        ScopeContext scope,
+        string primaryRunId,
+        CancellationToken cancellationToken)
+    {
+        foreach (string lookupKey in AnalysisRunIdCanonicalization.EnumerateRunIdRepositoryLookupKeys(primaryRunId))
+        {
+            IReadOnlyList<AgentExecutionTrace> traces = await traceRepository
+                .GetByRunIdAsync(scope, lookupKey, cancellationToken)
+                .ConfigureAwait(false);
+
+            if (traces.Count > 0)
+                return traces.ToList();
+        }
+
+        return [];
+    }
+
+    private async Task<IReadOnlyList<AgentResult>> TryLoadAgentResultsAsync(
+        ScopeContext scope,
+        string primaryRunId,
+        CancellationToken cancellationToken)
+    {
+        foreach (string lookupKey in AnalysisRunIdCanonicalization.EnumerateRunIdRepositoryLookupKeys(primaryRunId))
+        {
+            IReadOnlyList<AgentResult> results = await resultRepository
+                .GetByRunIdAsync(scope, lookupKey, cancellationToken)
+                .ConfigureAwait(false);
+
+            if (results.Count > 0)
+                return results;
+        }
+
+        return [];
+    }
+
     private static bool RunIdsReferToSameRun(string preloadedRunId, string requestRunId)
     {
         if (string.Equals(preloadedRunId, requestRunId, StringComparison.Ordinal))
