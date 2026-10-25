@@ -6868,10 +6868,24 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-25 seed hunt (seed→hit): proved `ComparisonRecordPersistNormalizer` and `ComparisonRecordScopedReadNormalizer` trimmed ids, run anchors, export columns, labels, and tags but left `LeftManifestVersion`, `RightManifestVersion`, `Notes`, and `Format` denormalized while `ComparisonAuditService` already normalized manifest versions only on replay copy writes, so comparison detail and list reads could echo legacy padding on manifest metadata; reuse `OptionalExportMetadataStringNormalizer` on optional columns and trim `Format` at repository read and application scoped-read boundaries; regressions `GetByIdAsync_trims_padded_manifest_versions_and_notes_on_read` and `CompareQuality_TryGetScopedRecordAsync_trims_padded_manifest_versions_from_stored_row`; cheap-disproof closed audit-only normalize path (read/list still leaked), SQL get-by-run dashed GUID storage (UNIQUEIDENTIFIER equality), `ApiPaging.TryParseUtcTicksIdCursor` (comparison search normalizes inbound cursor id), batch zip manifest echo (cosmetic), and Armenian homoglyphs (deferred); seeded five follow-on rows; scoped application-analysis + replay filter 342/342 plus persistence get-by-id regression. Private beta: comparison detail shows trimmed manifest version and notes metadata when legacy rows kept surrounding whitespace.
+
+- [ ] (candidate) `ComparisonRecordRepository.GetByRunIdAsync` — SQL list-by-run dashed stored — locus: UNIQUEIDENTIFIER column; input: already matches N/D lookup via guid param.
+- [ ] (candidate) `InMemoryComparisonRecordRepository.UpdateLabelAndTagsAsync` — label/tags write without persist trim — locus: direct repository callers; input: application layer normalizes today.
+- [ ] (candidate) `ComparisonRecordSearchPredicateBuilder` — notes column search — locus: no notes filter today; input: defer.
+- [ ] (candidate) `ApiPaging.TryParseUtcTicksIdCursor` — cursor id segment without trim — locus: HTTP cursor parse; input: padded id after ticks delimiter (alerts inbox and other API surfaces).
+- [ ] (candidate) `ComparisonBatchReplayZipSupport` — manifest failure entries echo pre-trim batch tokens — locus: zip manifest; input: cosmetic id echo only.
+
+- [x] (proven) `ComparisonRecordPersistNormalizer` / scoped read — manifest version and notes padding — **hit 2026-10-25 seed hunt:** `OptionalExportMetadataStringNormalizer`; regressions above.
+- [x] (valid-no-repro) `ComparisonAuditService.RecordReplayAsync` — manifest trim on copy — **cheap-disproof 2026-10-25 seed hunt:** write path only; reads still echoed padding before this hunt.
+- [x] (valid-no-repro) `GetByRunIdAsync` — SQL dashed run storage — **cheap-disproof 2026-10-25 seed hunt:** GUID column param equality.
+- [x] (invalid) `ApiPaging.TryParseUtcTicksIdCursor` — HTTP cursor id trim — **cheap-disproof 2026-10-25 seed hunt:** comparison search normalizes at application layer.
+- [x] (invalid) `ComparisonBatchReplayZipSupport` — manifest id echo — **cheap-disproof 2026-10-25 seed hunt:** cosmetic only.
+
 2026-10-25 seed hunt (seed→hit): proved SQL `ComparisonRecordRepository.UpdateLabelAndTagsAsync` matched `ComparisonRecordId` with exact equality after a simple `.Trim()` on the lookup key while hunt 177 fixed padded primary-key tolerance on `GetById` and in-memory `UpdateLabelAndTagsAsync` already used `ComparisonRecordIdLookup`, so label/tag edits from the API could return null after a successful scoped read when legacy SQL rows retained surrounding whitespace on the primary key; normalize lookup keys and filter with `ComparisonRecordIdSql.TrimmedColumnExpression`; regression `UpdateLabelAndTagsAsync_finds_legacy_row_when_stored_comparison_record_id_has_padding`; cheap-disproof closed in-memory update path (already aligned), manifest-version column trim (audit copy path normalizes), `ApiPaging.TryParseUtcTicksIdCursor` (comparison search normalizes inbound cursor id), batch zip manifest echo (cosmetic), and Armenian homoglyphs (deferred); seeded five follow-on rows; scoped application-analysis + replay filter 341/341 plus persistence update regression. Private beta: operators can edit comparison labels and tags when legacy storage used padded comparison record ids.
 
 - [ ] (candidate) `ComparisonRecordRepository.GetByRunIdAsync` — SQL list-by-run dashed stored — locus: UNIQUEIDENTIFIER column; input: already matches N/D lookup via guid param.
-- [ ] (candidate) `ComparisonRecordPersistNormalizer` — manifest version columns on read — locus: optional string columns; input: audit replay copy already trims.
+- [x] (proven) `ComparisonRecordPersistNormalizer` — manifest version columns on read — **hit 2026-10-25 seed hunt:** hunt 185; shared optional-string normalizer.
 - [ ] (candidate) `ComparisonRecordSearchPredicateBuilder` — notes column search — locus: no notes filter today; input: defer.
 - [ ] (candidate) `ApiPaging.TryParseUtcTicksIdCursor` — cursor id segment without trim — locus: HTTP cursor parse; input: padded id after ticks delimiter (alerts inbox and other API surfaces).
 - [ ] (candidate) `ComparisonBatchReplayZipSupport` — manifest failure entries echo pre-trim batch tokens — locus: zip manifest; input: cosmetic id echo only.
@@ -8395,11 +8409,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 184
-- **bugs-found:** 190
+- **hunts:** 185
+- **bugs-found:** 191
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-25
-- **last-bug:** 2026-10-25 — SQL update label/tags padded id lookup
+- **last-bug:** 2026-10-25 — comparison manifest metadata trim on read
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
