@@ -27,3 +27,14 @@ export function secureNowQuestionShowsExpired(
 
   return parsed <= nowMs;
 }
+
+export function secureNowQuestionReviewerExpirationUtcStamp(
+  expirationUtc: string | null | undefined,
+): string | null {
+  if (expirationUtc === null || expirationUtc === undefined) {
+    return null;
+  }
+
+  const trimmed = expirationUtc.trim();
+  return trimmed.length > 0 ? trimmed : null;
+}

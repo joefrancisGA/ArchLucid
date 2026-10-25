@@ -18,7 +18,11 @@ import {
   secureNowQuestionDispositionIsClosed,
   secureNowQuestionDispositionIsOpen,
   secureNowQuestionDispositionStatusTrimmed,
+  secureNowQuestionReviewerClosedAnswerCodeLine,
+  secureNowQuestionReviewerClosedAnswerTextLine,
+  secureNowQuestionReviewerClosedDispositionReasonLine,
 } from "@/lib/infra-evidence/securenow-question-disposition-status";
+import { secureNowQuestionReviewerExpirationUtcStamp } from "@/lib/infra-evidence/securenow-question-expiration";
 import type { SecureNowQuestion } from "@/lib/infra-evidence/securenow-question-queue-api";
 import {
   secureNowQuestionResourceDisplayName,
@@ -57,33 +61,11 @@ function closedSecureNowQuestionAnswerLines(question: ClosedQuestionAnswerFields
     return [];
   }
 
-  const lines: string[] = [];
-
-  if (question.answerCode === null || question.answerCode === undefined) {
-    lines.push("Answer code was not stored.");
-  } else if (question.answerCode.length > 0) {
-    lines.push(secureNowQuestionAnswerLabel(question.answerCode));
-  } else {
-    lines.push("Answer code was stored empty.");
-  }
-
-  if (question.answerText === null || question.answerText === undefined) {
-    lines.push("Answer text was not stored.");
-  } else if (question.answerText.length > 0) {
-    lines.push(question.answerText);
-  } else {
-    lines.push("Answer text was stored empty.");
-  }
-
-  if (question.reason === null || question.reason === undefined) {
-    lines.push("Disposition reason was not stored.");
-  } else if (question.reason.length > 0) {
-    lines.push(question.reason);
-  } else {
-    lines.push("Disposition reason was stored empty.");
-  }
-
-  return lines;
+  return [
+    secureNowQuestionReviewerClosedAnswerCodeLine(question.answerCode),
+    secureNowQuestionReviewerClosedAnswerTextLine(question.answerText),
+    secureNowQuestionReviewerClosedDispositionReasonLine(question.reason),
+  ];
 }
 
 function questionStatusLabel(status: string | null): string {
@@ -529,15 +511,13 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
                 Subscription: {secureNowQuestionReviewerSubscriptionLabel(currentQuestion.subscriptionId)}
               </p>
               <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                {currentQuestion.expirationUtc === null || currentQuestion.expirationUtc === undefined
-                  ? "Expiration was not stored."
-                  : currentQuestion.expirationUtc.trim().length === 0
-                    ? "Expiration was stored empty."
-                    : currentQuestion.expirationUtc}
+                {secureNowQuestionReviewerExpirationUtcStamp(currentQuestion.expirationUtc) ?? (
+                  currentQuestion.expirationUtc === null || currentQuestion.expirationUtc === undefined
+                    ? "Expiration was not stored."
+                    : "Expiration was stored empty."
+                )}
                 {currentQuestion.isExpired === null
-                    && (currentQuestion.expirationUtc === null
-                      || currentQuestion.expirationUtc === undefined
-                      || currentQuestion.expirationUtc.trim().length === 0)
+                    && secureNowQuestionReviewerExpirationUtcStamp(currentQuestion.expirationUtc) === null
                   ? " · Expiration status was not stored."
                   : secureNowQuestionShowsExpired(
                       currentQuestion.expirationUtc,

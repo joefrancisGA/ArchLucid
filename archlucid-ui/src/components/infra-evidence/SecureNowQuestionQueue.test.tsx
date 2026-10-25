@@ -123,6 +123,27 @@ describe("SecureNowQuestionQueue", () => {
     expect(screen.queryByText("Which peer should this connection use?")).not.toBeInTheDocument();
   });
 
+  it("shows trimmed closed-question answer metadata in the answered filter", async () => {
+    mocks.listQuestions.mockResolvedValue([
+      question,
+      {
+        ...question,
+        status: "  Answered  ",
+        answerCode: "  NamePeer  ",
+        answerText: "  Name the peer  ",
+        reason: "  Operator selected the peer.  ",
+      },
+    ]);
+
+    render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
+    fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
+    fireEvent.click(screen.getByRole("button", { name: "Answered", exact: true }));
+
+    const answerPanel = screen.getByTestId("infra-diagrams-question-answer");
+    expect(answerPanel).toHaveTextContent("Name the peer");
+    expect(answerPanel).toHaveTextContent("Operator selected the peer.");
+  });
+
   it("shows a stored answer for answered questions", async () => {
     mocks.listQuestions.mockResolvedValue([
       question,
@@ -216,6 +237,21 @@ describe("SecureNowQuestionQueue", () => {
 
     expect(screen.getByText("Subscription: subscription-1")).toBeInTheDocument();
     expect(screen.getByText("Evidence fingerprint: fingerprint")).toBeInTheDocument();
+  });
+
+  it("shows trimmed expiration timestamps in details", async () => {
+    mocks.listQuestions.mockResolvedValue([
+      {
+        ...question,
+        expirationUtc: "  2026-10-25T12:00:00.000Z  ",
+        isExpired: false,
+      },
+    ]);
+
+    render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
+    fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
+
+    expect(screen.getByText(/2026-10-25T12:00:00.000Z · Not expired/)).toBeInTheDocument();
   });
 
   it("renders inventory source and scope details when question key is omitted", async () => {

@@ -1,6 +1,17 @@
 import { describe, expect, it } from "vitest";
 
-import { secureNowQuestionShowsExpired } from "./securenow-question-expiration";
+import {
+  secureNowQuestionReviewerExpirationUtcStamp,
+  secureNowQuestionShowsExpired,
+} from "./securenow-question-expiration";
+
+describe("secureNowQuestionReviewerExpirationUtcStamp", () => {
+  it("returns the trimmed expiration timestamp for display", () => {
+    expect(secureNowQuestionReviewerExpirationUtcStamp("  2026-10-25T12:00:00.000Z  ")).toBe(
+      "2026-10-25T12:00:00.000Z",
+    );
+  });
+});
 
 describe("secureNowQuestionShowsExpired", () => {
   const now = Date.parse("2026-10-25T12:00:00.000Z");
