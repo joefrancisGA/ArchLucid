@@ -1,5 +1,6 @@
 using ArchLucid.Api.Controllers.Authority;
 using ArchLucid.Api.Models;
+using ArchLucid.Api.Validators;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
 using ArchLucid.Application.Architecture;
@@ -70,6 +71,575 @@ public sealed class RunsControllerTests
     }
 
     [Fact]
+    public async Task AcceptCreateRunAsync_returns_bad_request_when_architecture_request_fails_validation()
+    {
+        Mock<IArchitectureRunAsyncOperationAcceptor> asyncAcceptor = new();
+
+        RunsController controller = CreateController(architectureRequestValidator: new ArchitectureRequestValidator());
+
+        ArchitectureRequest request = new()
+        {
+            Description = string.Empty,
+            SystemName = string.Empty,
+        };
+
+        IActionResult action = await controller.AcceptCreateRunAsync(
+            request,
+            asyncAcceptor.Object,
+            CancellationToken.None);
+
+        ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
+        bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+
+        MvcProblemDetails problem = bad.Value.Should().BeOfType<MvcProblemDetails>().Subject;
+        problem.Detail.Should().Contain("Description is required.");
+
+        asyncAcceptor.Verify(
+            static a => a.AcceptCreateAsync(
+                It.IsAny<ArchitectureRequest>(),
+                It.IsAny<CreateRunIdempotencyState?>(),
+                It.IsAny<ScopeContext>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task AcceptCreateRunAsync_returns_accepted_when_idempotency_key_header_omitted()
+    {
+        Mock<IArchitectureRunAsyncOperationAcceptor> asyncAcceptor = new();
+        asyncAcceptor
+            .Setup(a => a.AcceptCreateAsync(
+                It.IsAny<ArchitectureRequest>(),
+                null,
+                It.IsAny<ScopeContext>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync("run:async-no-idem");
+
+        RunsController controller = CreateController();
+
+        ArchitectureRequest request = new()
+        {
+            RequestId = "req-async-no-idem",
+            Description = new string('x', 20),
+            SystemName = "CreatedArch",
+            WorkflowIntent = ArchitectureWorkflowIntent.CreateArchitecture,
+        };
+
+        IActionResult action = await controller.AcceptCreateRunAsync(
+            request,
+            asyncAcceptor.Object,
+            CancellationToken.None);
+
+        StatusCodeResult accepted = action.Should().BeOfType<StatusCodeResult>().Subject;
+        accepted.StatusCode.Should().Be(StatusCodes.Status202Accepted);
+
+        asyncAcceptor.Verify(
+            static a => a.AcceptCreateAsync(
+                It.IsAny<ArchitectureRequest>(),
+                null,
+                It.IsAny<ScopeContext>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task AcceptCreateRunAsync_proceeds_with_null_idempotency_when_header_is_whitespace_only()
+    {
+        Mock<IArchitectureRunAsyncOperationAcceptor> asyncAcceptor = new();
+        asyncAcceptor
+            .Setup(a => a.AcceptCreateAsync(
+                It.IsAny<ArchitectureRequest>(),
+                null,
+                It.IsAny<ScopeContext>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync("run:async-ws-idem");
+
+        Mock<IRunLifecycleCommandService> lifecycle = new();
+        lifecycle
+            .Setup(s => s.ValidateIdempotencyKey(It.IsAny<string?>()))
+            .Returns<string?>(raw =>
+            {
+                if (raw is null)
+                    return new IdempotencyKeyValidationResult(true, null, null);
+
+                string trimmed = raw.Trim();
+                return new IdempotencyKeyValidationResult(true, trimmed.Length == 0 ? null : trimmed, null);
+            });
+
+        RunsController controller = CreateController(runLifecycleCommandService: lifecycle.Object);
+
+        controller.ControllerContext.HttpContext.Request.Headers["Idempotency-Key"] = "   ";
+
+        ArchitectureRequest request = new()
+        {
+            RequestId = "req-async-ws-idem",
+            Description = new string('x', 20),
+            SystemName = "CreatedArch",
+            WorkflowIntent = ArchitectureWorkflowIntent.CreateArchitecture,
+        };
+
+        IActionResult action = await controller.AcceptCreateRunAsync(
+            request,
+            asyncAcceptor.Object,
+            CancellationToken.None);
+
+        StatusCodeResult accepted = action.Should().BeOfType<StatusCodeResult>().Subject;
+        accepted.StatusCode.Should().Be(StatusCodes.Status202Accepted);
+
+        asyncAcceptor.Verify(
+            static a => a.AcceptCreateAsync(
+                It.IsAny<ArchitectureRequest>(),
+                null,
+                It.IsAny<ScopeContext>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task AcceptCreateRunAsync_returns_bad_request_when_idempotency_key_exceeds_max_length()
+    {
+        Mock<IArchitectureRunAsyncOperationAcceptor> asyncAcceptor = new();
+        Mock<IRunLifecycleCommandService> lifecycle = new();
+        lifecycle
+            .Setup(s => s.ValidateIdempotencyKey(It.IsAny<string?>()))
+            .Returns<string?>(raw =>
+            {
+                if (raw is null)
+                    return new IdempotencyKeyValidationResult(true, null, null);
+
+                string trimmed = raw.Trim();
+
+                if (trimmed.Length > ArchitectureRunIdempotencyHashing.MaxIdempotencyKeyLength)
+                {
+                    return new IdempotencyKeyValidationResult(
+                        false,
+                        null,
+                        $"Idempotency-Key must be at most {ArchitectureRunIdempotencyHashing.MaxIdempotencyKeyLength} characters after trim.");
+                }
+
+                return new IdempotencyKeyValidationResult(true, trimmed.Length == 0 ? null : trimmed, null);
+            });
+
+        RunsController controller = CreateController(runLifecycleCommandService: lifecycle.Object);
+
+        controller.ControllerContext.HttpContext.Request.Headers["Idempotency-Key"] =
+            new string('k', ArchitectureRunIdempotencyHashing.MaxIdempotencyKeyLength + 1);
+
+        ArchitectureRequest request = new()
+        {
+            RequestId = "req-async-bad-idem",
+            Description = new string('x', 20),
+            SystemName = "CreatedArch",
+            WorkflowIntent = ArchitectureWorkflowIntent.CreateArchitecture,
+        };
+
+        IActionResult action = await controller.AcceptCreateRunAsync(
+            request,
+            asyncAcceptor.Object,
+            CancellationToken.None);
+
+        ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
+        bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+
+        asyncAcceptor.Verify(
+            static a => a.AcceptCreateAsync(
+                It.IsAny<ArchitectureRequest>(),
+                It.IsAny<CreateRunIdempotencyState?>(),
+                It.IsAny<ScopeContext>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_header_missing()
+    {
+        Mock<IRunLifecycleCommandService> lifecycle = new();
+
+        RunsController controller = CreateController(runLifecycleCommandService: lifecycle.Object);
+
+        IActionResult action = await controller.LookupCreateRunByIdempotencyKey(null, CancellationToken.None);
+
+        ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
+        bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+
+        lifecycle.Verify(
+            static s => s.LookupCreateRunByIdempotencyKeyAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_is_whitespace_only()
+    {
+        Mock<IRunLifecycleCommandService> lifecycle = new();
+
+        RunsController controller = CreateController(runLifecycleCommandService: lifecycle.Object);
+
+        IActionResult action = await controller.LookupCreateRunByIdempotencyKey("   ", CancellationToken.None);
+
+        ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
+        bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+
+        lifecycle.Verify(
+            static s => s.ValidateIdempotencyKey(It.IsAny<string?>()),
+            Times.Never);
+
+        lifecycle.Verify(
+            static s => s.LookupCreateRunByIdempotencyKeyAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_exceeds_max_length()
+    {
+        Mock<IRunLifecycleCommandService> lifecycle = new();
+        lifecycle
+            .Setup(s => s.ValidateIdempotencyKey(It.IsAny<string?>()))
+            .Returns<string?>(raw =>
+            {
+                if (raw is null)
+                    return new IdempotencyKeyValidationResult(true, null, null);
+
+                string trimmed = raw.Trim();
+
+                if (trimmed.Length > ArchitectureRunIdempotencyHashing.MaxIdempotencyKeyLength)
+                {
+                    return new IdempotencyKeyValidationResult(
+                        false,
+                        null,
+                        $"Idempotency-Key must be at most {ArchitectureRunIdempotencyHashing.MaxIdempotencyKeyLength} characters after trim.");
+                }
+
+                return new IdempotencyKeyValidationResult(true, trimmed.Length == 0 ? null : trimmed, null);
+            });
+
+        RunsController controller = CreateController(runLifecycleCommandService: lifecycle.Object);
+
+        string overlongKey = new string('k', ArchitectureRunIdempotencyHashing.MaxIdempotencyKeyLength + 1);
+
+        IActionResult action = await controller.LookupCreateRunByIdempotencyKey(overlongKey, CancellationToken.None);
+
+        ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
+        bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+
+        lifecycle.Verify(
+            static s => s.LookupCreateRunByIdempotencyKeyAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task CreateRunBatch_proceeds_with_null_idempotency_when_header_omitted()
+    {
+        Mock<IRunLifecycleCommandService> lifecycle = new();
+        lifecycle
+            .Setup(s => s.CreateRunBatchAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<IReadOnlyList<ArchitectureRequest>>(),
+                null,
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new BatchCreateRunOrchestrationResult
+            {
+                Outcome = BatchCreateRunOutcome.Accepted,
+                Items = [],
+            });
+
+        RunsController controller = CreateController(runLifecycleCommandService: lifecycle.Object);
+
+        ArchitectureRequest[] requests =
+        [
+            new()
+            {
+                RequestId = "batch-no-idem",
+                Description = new string('x', 20),
+                SystemName = "CreatedArch",
+            },
+        ];
+
+        IActionResult action = await controller.CreateRunBatch(requests, CancellationToken.None);
+
+        action.Should().BeOfType<AcceptedResult>();
+
+        lifecycle.Verify(
+            static s => s.CreateRunBatchAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<IReadOnlyList<ArchitectureRequest>>(),
+                null,
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task CreateRunBatch_proceeds_with_null_idempotency_when_header_is_whitespace_only()
+    {
+        Mock<IRunLifecycleCommandService> lifecycle = new();
+        lifecycle
+            .Setup(s => s.ValidateIdempotencyKey(It.IsAny<string?>()))
+            .Returns<string?>(raw =>
+            {
+                if (raw is null)
+                    return new IdempotencyKeyValidationResult(true, null, null);
+
+                string trimmed = raw.Trim();
+                return new IdempotencyKeyValidationResult(true, trimmed.Length == 0 ? null : trimmed, null);
+            });
+        lifecycle
+            .Setup(s => s.CreateRunBatchAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<IReadOnlyList<ArchitectureRequest>>(),
+                null,
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new BatchCreateRunOrchestrationResult
+            {
+                Outcome = BatchCreateRunOutcome.Accepted,
+                Items = [],
+            });
+
+        RunsController controller = CreateController(runLifecycleCommandService: lifecycle.Object);
+
+        controller.ControllerContext.HttpContext.Request.Headers["Idempotency-Key"] = "   ";
+
+        ArchitectureRequest[] requests =
+        [
+            new()
+            {
+                RequestId = "batch-ws-idem",
+                Description = new string('x', 20),
+                SystemName = "CreatedArch",
+            },
+        ];
+
+        IActionResult action = await controller.CreateRunBatch(requests, CancellationToken.None);
+
+        action.Should().BeOfType<AcceptedResult>();
+
+        lifecycle.Verify(
+            static s => s.CreateRunBatchAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<IReadOnlyList<ArchitectureRequest>>(),
+                null,
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task CreateRunBatch_returns_bad_request_when_idempotency_key_exceeds_max_length()
+    {
+        Mock<IRunLifecycleCommandService> lifecycle = new();
+        lifecycle
+            .Setup(s => s.ValidateIdempotencyKey(It.IsAny<string?>()))
+            .Returns<string?>(raw =>
+            {
+                if (raw is null)
+                    return new IdempotencyKeyValidationResult(true, null, null);
+
+                string trimmed = raw.Trim();
+
+                if (trimmed.Length > ArchitectureRunIdempotencyHashing.MaxIdempotencyKeyLength)
+                {
+                    return new IdempotencyKeyValidationResult(
+                        false,
+                        null,
+                        $"Idempotency-Key must be at most {ArchitectureRunIdempotencyHashing.MaxIdempotencyKeyLength} characters after trim.");
+                }
+
+                return new IdempotencyKeyValidationResult(true, trimmed.Length == 0 ? null : trimmed, null);
+            });
+
+        RunsController controller = CreateController(runLifecycleCommandService: lifecycle.Object);
+
+        controller.ControllerContext.HttpContext.Request.Headers["Idempotency-Key"] =
+            new string('k', ArchitectureRunIdempotencyHashing.MaxIdempotencyKeyLength + 1);
+
+        ArchitectureRequest[] requests =
+        [
+            new()
+            {
+                RequestId = "batch-bad-idem",
+                Description = new string('x', 20),
+                SystemName = "CreatedArch",
+            },
+        ];
+
+        IActionResult action = await controller.CreateRunBatch(requests, CancellationToken.None);
+
+        ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
+        bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+
+        lifecycle.Verify(
+            static s => s.CreateRunBatchAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<IReadOnlyList<ArchitectureRequest>>(),
+                It.IsAny<string?>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task CreateRun_returns_bad_request_when_idempotency_key_exceeds_max_length()
+    {
+        Mock<IRunLifecycleCommandService> lifecycle = new();
+        lifecycle
+            .Setup(s => s.ValidateIdempotencyKey(It.IsAny<string?>()))
+            .Returns<string?>(raw =>
+            {
+                if (raw is null)
+                    return new IdempotencyKeyValidationResult(true, null, null);
+
+                string trimmed = raw.Trim();
+
+                if (trimmed.Length > ArchitectureRunIdempotencyHashing.MaxIdempotencyKeyLength)
+                {
+                    return new IdempotencyKeyValidationResult(
+                        false,
+                        null,
+                        $"Idempotency-Key must be at most {ArchitectureRunIdempotencyHashing.MaxIdempotencyKeyLength} characters after trim.");
+                }
+
+                return new IdempotencyKeyValidationResult(true, trimmed.Length == 0 ? null : trimmed, null);
+            });
+
+        RunsController controller = CreateController(runLifecycleCommandService: lifecycle.Object);
+
+        controller.ControllerContext.HttpContext.Request.Headers["Idempotency-Key"] =
+            new string('k', ArchitectureRunIdempotencyHashing.MaxIdempotencyKeyLength + 1);
+
+        ArchitectureRequest request = new()
+        {
+            RequestId = "req-sync-bad-idem",
+            Description = new string('x', 20),
+            SystemName = "CreatedArch",
+            WorkflowIntent = ArchitectureWorkflowIntent.CreateArchitecture,
+        };
+
+        IActionResult action = await controller.CreateRun(request, CancellationToken.None);
+
+        ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
+        bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+
+        lifecycle.Verify(
+            static s => s.CreateRunAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<ArchitectureRequest>(),
+                It.IsAny<string?>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task CreateRun_proceeds_with_null_idempotency_when_header_is_whitespace_only()
+    {
+        Mock<IRunLifecycleCommandService> lifecycle = new();
+        lifecycle
+            .Setup(s => s.ValidateIdempotencyKey(It.IsAny<string?>()))
+            .Returns<string?>(raw =>
+            {
+                if (raw is null)
+                    return new IdempotencyKeyValidationResult(true, null, null);
+
+                string trimmed = raw.Trim();
+                return new IdempotencyKeyValidationResult(true, trimmed.Length == 0 ? null : trimmed, null);
+            });
+        lifecycle
+            .Setup(s => s.CreateRunAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<ArchitectureRequest>(),
+                null,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new CreateRunCommandResult
+            {
+                SynthesisResult = new ArchitectureSynthesisGenerateResult
+                {
+                    RunId = Guid.NewGuid().ToString("N"),
+                    PackageOrigin = ArchitecturePackageOrigin.Created,
+                },
+            });
+
+        RunsController controller = CreateController(runLifecycleCommandService: lifecycle.Object);
+
+        controller.ControllerContext.HttpContext.Request.Headers["Idempotency-Key"] = "   ";
+
+        ArchitectureRequest request = new()
+        {
+            RequestId = "req-sync-ws-idem",
+            Description = new string('x', 20),
+            SystemName = "CreatedArch",
+            WorkflowIntent = ArchitectureWorkflowIntent.CreateArchitecture,
+        };
+
+        IActionResult action = await controller.CreateRun(request, CancellationToken.None);
+
+        action.Should().BeOfType<CreatedAtActionResult>();
+
+        lifecycle.Verify(
+            static s => s.CreateRunAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<ArchitectureRequest>(),
+                null,
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task CreateRun_returns_bad_request_when_coordination_rejects_minimal_request()
+    {
+        Mock<IRunLifecycleCommandService> lifecycle = new();
+        lifecycle
+            .Setup(s => s.CreateRunAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<ArchitectureRequest>(),
+                It.IsAny<string?>(),
+                It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException(
+                "CreateRun failed: SystemName is required.; Description is required."));
+
+        RunsController controller = CreateController(runLifecycleCommandService: lifecycle.Object);
+
+        ArchitectureRequest request = new()
+        {
+            Description = string.Empty,
+            SystemName = string.Empty,
+        };
+
+        IActionResult action = await controller.CreateRun(request, CancellationToken.None);
+
+        ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
+        bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+
+        lifecycle.Verify(
+            static s => s.CreateRunAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<ArchitectureRequest>(),
+                It.IsAny<string?>(),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
     public async Task DraftRequest_returns_bad_request_when_body_null()
     {
         Mock<IArchitectureRequestIntakeFacade> intakeFacade = new();
@@ -80,6 +650,28 @@ public sealed class RunsControllerTests
 
         ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
         bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
+    [Fact]
+    public async Task DraftRequestAsync_returns_bad_request_when_body_null()
+    {
+        Mock<IArchitectureRequestIntakeFacade> intakeFacade = new();
+        Mock<IAdvisoryDraftOperationAcceptor> acceptor = new();
+
+        RunsController controller = CreateController();
+
+        IActionResult action = await controller.DraftRequestAsync(
+            null,
+            intakeFacade.Object,
+            acceptor.Object,
+            CancellationToken.None);
+
+        ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
+        bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+
+        acceptor.Verify(
+            static a => a.AcceptAsync(It.IsAny<DraftArchitectureRequestInput>(), It.IsAny<ScopeContext>(), It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     [Fact]
@@ -95,6 +687,29 @@ public sealed class RunsControllerTests
 
         ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
         bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
+    [Fact]
+    public async Task DraftRequest_calls_intake_facade_when_free_text_is_exactly_minimum_length()
+    {
+        Mock<IArchitectureRequestIntakeFacade> intakeFacade = new();
+        intakeFacade
+            .Setup(f => f.DraftAsync(It.IsAny<DraftArchitectureRequestInput>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new DraftArchitectureRequestResponse());
+
+        RunsController controller = CreateController();
+
+        DraftArchitectureRequestInput input = new() { FreeTextDescription = new string('a', 20) };
+
+        IActionResult action = await controller.DraftRequest(input, intakeFacade.Object, CancellationToken.None);
+
+        action.Should().BeOfType<OkObjectResult>();
+
+        intakeFacade.Verify(
+            static f => f.DraftAsync(
+                It.Is<DraftArchitectureRequestInput>(i => i.FreeTextDescription!.Length == 20),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 
     [Fact]
@@ -116,6 +731,80 @@ public sealed class RunsControllerTests
 
         intakeFacade.Verify(
             static f => f.DraftAsync(It.IsAny<DraftArchitectureRequestInput>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task RewriteArchitectureOverview_returns_bad_request_when_body_is_null()
+    {
+        Mock<IArchitectureRequestIntakeFacade> intakeFacade = new();
+
+        RunsController controller = CreateController();
+
+        IActionResult action = await controller.RewriteArchitectureOverview(null, intakeFacade.Object, CancellationToken.None);
+
+        ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
+        bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+
+        intakeFacade.Verify(
+            static f => f.RewriteOverviewAsync(It.IsAny<RewriteArchitectureOverviewInput>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task RewriteArchitectureOverview_returns_bad_request_when_current_overview_is_empty()
+    {
+        Mock<IArchitectureRequestIntakeFacade> intakeFacade = new();
+
+        RunsController controller = CreateController();
+
+        RewriteArchitectureOverviewInput input = new() { CurrentOverview = string.Empty };
+
+        IActionResult action = await controller.RewriteArchitectureOverview(input, intakeFacade.Object, CancellationToken.None);
+
+        ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
+        bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+
+        intakeFacade.Verify(
+            static f => f.RewriteOverviewAsync(It.IsAny<RewriteArchitectureOverviewInput>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task RewriteArchitectureOverview_returns_bad_request_when_current_overview_is_whitespace_only()
+    {
+        Mock<IArchitectureRequestIntakeFacade> intakeFacade = new();
+
+        RunsController controller = CreateController();
+
+        RewriteArchitectureOverviewInput input = new() { CurrentOverview = "   " };
+
+        IActionResult action = await controller.RewriteArchitectureOverview(input, intakeFacade.Object, CancellationToken.None);
+
+        ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
+        bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+
+        intakeFacade.Verify(
+            static f => f.RewriteOverviewAsync(It.IsAny<RewriteArchitectureOverviewInput>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task RewriteArchitectureOverview_returns_bad_request_when_current_overview_is_too_short()
+    {
+        Mock<IArchitectureRequestIntakeFacade> intakeFacade = new();
+
+        RunsController controller = CreateController();
+
+        RewriteArchitectureOverviewInput input = new() { CurrentOverview = new string('a', 19) };
+
+        IActionResult action = await controller.RewriteArchitectureOverview(input, intakeFacade.Object, CancellationToken.None);
+
+        ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
+        bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+
+        intakeFacade.Verify(
+            static f => f.RewriteOverviewAsync(It.IsAny<RewriteArchitectureOverviewInput>(), It.IsAny<CancellationToken>()),
             Times.Never);
     }
 
@@ -201,6 +890,45 @@ public sealed class RunsControllerTests
 
         ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
         bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
+    [Fact]
+    public async Task RephraseClarificationAnswers_returns_bad_request_when_items_collection_is_null()
+    {
+        Mock<IArchitectureRequestIntakeFacade> intakeFacade = new();
+
+        RunsController controller = CreateController();
+
+        RephraseClarificationAnswersInput input = new() { Items = null! };
+
+        IActionResult action = await controller.RephraseClarificationAnswers(input, intakeFacade.Object, CancellationToken.None);
+
+        ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
+        bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        intakeFacade.Verify(
+            static f => f.RephraseClarificationAnswersAsync(It.IsAny<RephraseClarificationAnswersInput>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task RephraseClarificationAnswers_returns_bad_request_when_items_collection_contains_null_element()
+    {
+        Mock<IArchitectureRequestIntakeFacade> intakeFacade = new();
+
+        RunsController controller = CreateController();
+
+        RephraseClarificationAnswersInput input = new()
+        {
+            Items = [null!],
+        };
+
+        IActionResult action = await controller.RephraseClarificationAnswers(input, intakeFacade.Object, CancellationToken.None);
+
+        ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
+        bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        intakeFacade.Verify(
+            static f => f.RephraseClarificationAnswersAsync(It.IsAny<RephraseClarificationAnswersInput>(), It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     [Fact]
@@ -339,6 +1067,34 @@ public sealed class RunsControllerTests
     }
 
     [Fact]
+    public async Task ExplainStructuredBriefSuggestion_calls_intake_facade_when_source_text_is_exactly_minimum_length()
+    {
+        Mock<IArchitectureRequestIntakeFacade> intakeFacade = new();
+        intakeFacade
+            .Setup(s => s.ExplainStructuredBriefSuggestionAsync(It.IsAny<ExplainStructuredBriefSuggestionInput>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ExplainStructuredBriefSuggestionResponse { Explanation = "ok" });
+
+        RunsController controller = CreateController();
+
+        ExplainStructuredBriefSuggestionInput input = new()
+        {
+            SourceText = new string('a', 20),
+            SuggestionKind = StructuredBriefSuggestionKind.Constraint,
+            SuggestionText = "EU data residency",
+        };
+
+        IActionResult action = await controller.ExplainStructuredBriefSuggestion(input, intakeFacade.Object, CancellationToken.None);
+
+        action.Should().BeOfType<OkObjectResult>();
+
+        intakeFacade.Verify(
+            static f => f.ExplainStructuredBriefSuggestionAsync(
+                It.Is<ExplainStructuredBriefSuggestionInput>(i => i.SourceText!.Length == 20),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
     public async Task ExplainStructuredBriefSuggestion_returns_explanation_when_valid()
     {
         Mock<IArchitectureRequestIntakeFacade> intakeFacade = new();
@@ -365,6 +1121,177 @@ public sealed class RunsControllerTests
             ok.Value.Should().BeOfType<ExplainStructuredBriefSuggestionResponse>().Subject;
 
         response.Explanation.Should().Contain("EU customers");
+    }
+
+    [Fact]
+    public async Task RephraseClarificationAnswers_calls_intake_facade_when_extracted_answer_is_three_characters()
+    {
+        Mock<IArchitectureRequestIntakeFacade> intakeFacade = new();
+        intakeFacade
+            .Setup(s => s.RephraseClarificationAnswersAsync(It.IsAny<RephraseClarificationAnswersInput>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RephraseClarificationAnswersResponse
+            {
+                RephrasedAnswers = new Dictionary<string, string> { ["q1"] = "ok" },
+            });
+
+        RunsController controller = CreateController();
+
+        RephraseClarificationAnswersInput input = new()
+        {
+            Items =
+            [
+                new ClarificationAnswerRephraseItem
+                {
+                    QuestionKey = "q1",
+                    QuestionPrompt = new string('a', 10),
+                    ExtractedAnswer = "yes",
+                },
+            ],
+        };
+
+        IActionResult action = await controller.RephraseClarificationAnswers(input, intakeFacade.Object, CancellationToken.None);
+
+        action.Should().BeOfType<OkObjectResult>();
+
+        intakeFacade.Verify(
+            static f => f.RephraseClarificationAnswersAsync(
+                It.Is<RephraseClarificationAnswersInput>(i => i.Items[0].ExtractedAnswer!.Length == 3),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task RephraseClarificationAnswers_returns_bad_request_when_extracted_answer_is_two_characters()
+    {
+        Mock<IArchitectureRequestIntakeFacade> intakeFacade = new();
+
+        RunsController controller = CreateController();
+
+        RephraseClarificationAnswersInput input = new()
+        {
+            Items =
+            [
+                new ClarificationAnswerRephraseItem
+                {
+                    QuestionKey = "q1",
+                    QuestionPrompt = new string('a', 10),
+                    ExtractedAnswer = "no",
+                },
+            ],
+        };
+
+        IActionResult action = await controller.RephraseClarificationAnswers(input, intakeFacade.Object, CancellationToken.None);
+
+        ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
+        bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+
+        intakeFacade.Verify(
+            static f => f.RephraseClarificationAnswersAsync(It.IsAny<RephraseClarificationAnswersInput>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task RephraseClarificationAnswers_calls_intake_facade_when_question_prompt_is_ten_characters()
+    {
+        Mock<IArchitectureRequestIntakeFacade> intakeFacade = new();
+        intakeFacade
+            .Setup(s => s.RephraseClarificationAnswersAsync(It.IsAny<RephraseClarificationAnswersInput>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RephraseClarificationAnswersResponse
+            {
+                RephrasedAnswers = new Dictionary<string, string> { ["q1"] = "ok" },
+            });
+
+        RunsController controller = CreateController();
+
+        RephraseClarificationAnswersInput input = new()
+        {
+            Items =
+            [
+                new ClarificationAnswerRephraseItem
+                {
+                    QuestionKey = "q1",
+                    QuestionPrompt = new string('a', 10),
+                    ExtractedAnswer = "yes",
+                },
+            ],
+        };
+
+        IActionResult action = await controller.RephraseClarificationAnswers(input, intakeFacade.Object, CancellationToken.None);
+
+        action.Should().BeOfType<OkObjectResult>();
+
+        intakeFacade.Verify(
+            static f => f.RephraseClarificationAnswersAsync(
+                It.Is<RephraseClarificationAnswersInput>(i => i.Items[0].QuestionPrompt!.Length == 10),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task RephraseClarificationAnswers_returns_bad_request_when_question_prompt_is_nine_characters()
+    {
+        Mock<IArchitectureRequestIntakeFacade> intakeFacade = new();
+
+        RunsController controller = CreateController();
+
+        RephraseClarificationAnswersInput input = new()
+        {
+            Items =
+            [
+                new ClarificationAnswerRephraseItem
+                {
+                    QuestionKey = "q1",
+                    QuestionPrompt = new string('a', 9),
+                    ExtractedAnswer = "yes",
+                },
+            ],
+        };
+
+        IActionResult action = await controller.RephraseClarificationAnswers(input, intakeFacade.Object, CancellationToken.None);
+
+        ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
+        bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+
+        intakeFacade.Verify(
+            static f => f.RephraseClarificationAnswersAsync(It.IsAny<RephraseClarificationAnswersInput>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task RephraseClarificationAnswers_calls_intake_facade_when_question_prompt_is_twenty_characters()
+    {
+        Mock<IArchitectureRequestIntakeFacade> intakeFacade = new();
+        intakeFacade
+            .Setup(s => s.RephraseClarificationAnswersAsync(It.IsAny<RephraseClarificationAnswersInput>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RephraseClarificationAnswersResponse
+            {
+                RephrasedAnswers = new Dictionary<string, string> { ["q1"] = "ok" },
+            });
+
+        RunsController controller = CreateController();
+
+        RephraseClarificationAnswersInput input = new()
+        {
+            Items =
+            [
+                new ClarificationAnswerRephraseItem
+                {
+                    QuestionKey = "q1",
+                    QuestionPrompt = new string('a', 20),
+                    ExtractedAnswer = "yes",
+                },
+            ],
+        };
+
+        IActionResult action = await controller.RephraseClarificationAnswers(input, intakeFacade.Object, CancellationToken.None);
+
+        action.Should().BeOfType<OkObjectResult>();
+
+        intakeFacade.Verify(
+            static f => f.RephraseClarificationAnswersAsync(
+                It.Is<RephraseClarificationAnswersInput>(i => i.Items[0].QuestionPrompt!.Length == 20),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 
     [Fact]
@@ -408,6 +1335,61 @@ public sealed class RunsControllerTests
     }
 
     [Fact]
+    public async Task ConnectorIntake_returns_bad_request_when_body_is_null()
+    {
+        Mock<IArchitectureRequestIntakeFacade> intakeFacade = new();
+
+        RunsController controller = CreateController();
+
+        IActionResult action = await controller.ConnectorIntake(null, intakeFacade.Object, CancellationToken.None);
+
+        ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
+        bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+
+        intakeFacade.Verify(
+            static f => f.ParseConnectorIntakeAsync(It.IsAny<ConnectorIntakeRequest>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task ConnectorIntake_returns_bad_request_when_source_property_omitted()
+    {
+        Mock<IArchitectureRequestIntakeFacade> intakeFacade = new();
+
+        RunsController controller = CreateController();
+
+        ConnectorIntakeRequest input = new();
+
+        IActionResult action = await controller.ConnectorIntake(input, intakeFacade.Object, CancellationToken.None);
+
+        ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
+        bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+
+        intakeFacade.Verify(
+            static f => f.ParseConnectorIntakeAsync(It.IsAny<ConnectorIntakeRequest>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task ConnectorIntake_returns_bad_request_when_source_is_whitespace_only()
+    {
+        Mock<IArchitectureRequestIntakeFacade> intakeFacade = new();
+
+        RunsController controller = CreateController();
+
+        ConnectorIntakeRequest input = new() { Source = "   " };
+
+        IActionResult action = await controller.ConnectorIntake(input, intakeFacade.Object, CancellationToken.None);
+
+        ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
+        bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+
+        intakeFacade.Verify(
+            static f => f.ParseConnectorIntakeAsync(It.IsAny<ConnectorIntakeRequest>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task ConnectorIntake_returns_bad_request_when_description_contains_invalid_surrogate()
     {
         Mock<IArchitectureRequestIntakeFacade> intakeFacade = new();
@@ -445,6 +1427,37 @@ public sealed class RunsControllerTests
     }
 
     [Fact]
+    public async Task ConnectorIntake_calls_intake_facade_when_description_is_twenty_characters()
+    {
+        Mock<IArchitectureRequestIntakeFacade> intakeFacade = new();
+        intakeFacade
+            .Setup(f => f.ParseConnectorIntakeAsync(It.IsAny<ConnectorIntakeRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchitectureRequestIntakeParseResult
+            {
+                Outcome = ArchitectureRequestIntakeOutcome.Success,
+                Request = new ArchitectureRequest { RequestId = "connector-intake-desc" },
+            });
+
+        RunsController controller = CreateController();
+
+        ConnectorIntakeRequest input = new()
+        {
+            Source = "manual-connector",
+            Description = new string('a', 20),
+        };
+
+        IActionResult action = await controller.ConnectorIntake(input, intakeFacade.Object, CancellationToken.None);
+
+        action.Should().BeOfType<OkObjectResult>();
+
+        intakeFacade.Verify(
+            static f => f.ParseConnectorIntakeAsync(
+                It.Is<ConnectorIntakeRequest>(r => r.Description!.Length == 20),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
     public async Task ChatIntake_returns_bad_request_when_raw_text_missing()
     {
         Mock<IArchitectureRequestIntakeFacade> intakeFacade = new();
@@ -455,6 +1468,91 @@ public sealed class RunsControllerTests
 
         ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
         bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
+    [Fact]
+    public async Task ChatIntake_returns_bad_request_when_body_is_null()
+    {
+        Mock<IArchitectureRequestIntakeFacade> intakeFacade = new();
+
+        RunsController controller = CreateController();
+
+        IActionResult action = await controller.ChatIntake(null, intakeFacade.Object, CancellationToken.None);
+
+        ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
+        bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+
+        intakeFacade.Verify(
+            static f => f.ParseChatIntakeAsync(It.IsAny<ChatIntakeRequest>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task ChatIntake_returns_bad_request_when_raw_text_is_empty_string()
+    {
+        Mock<IArchitectureRequestIntakeFacade> intakeFacade = new();
+
+        RunsController controller = CreateController();
+
+        ChatIntakeRequest input = new() { RawText = string.Empty };
+
+        IActionResult action = await controller.ChatIntake(input, intakeFacade.Object, CancellationToken.None);
+
+        ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
+        bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+
+        intakeFacade.Verify(
+            static f => f.ParseChatIntakeAsync(It.IsAny<ChatIntakeRequest>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task ChatIntake_returns_bad_request_when_raw_text_contains_invalid_surrogate()
+    {
+        Mock<IArchitectureRequestIntakeFacade> intakeFacade = new();
+
+        RunsController controller = CreateController();
+
+        ChatIntakeRequest input = new()
+        {
+            RawText = new string('a', 19) + "\uD800",
+        };
+
+        IActionResult action = await controller.ChatIntake(input, intakeFacade.Object, CancellationToken.None);
+
+        ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
+        bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+
+        intakeFacade.Verify(
+            static f => f.ParseChatIntakeAsync(It.IsAny<ChatIntakeRequest>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task ChatIntake_calls_intake_facade_when_raw_text_is_exactly_minimum_length()
+    {
+        Mock<IArchitectureRequestIntakeFacade> intakeFacade = new();
+        intakeFacade
+            .Setup(f => f.ParseChatIntakeAsync(It.IsAny<ChatIntakeRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchitectureRequestIntakeParseResult
+            {
+                Outcome = ArchitectureRequestIntakeOutcome.Success,
+                Request = new ArchitectureRequest { RequestId = "chat-intake-min" },
+            });
+
+        RunsController controller = CreateController();
+
+        ChatIntakeRequest input = new() { RawText = new string('a', 20) };
+
+        IActionResult action = await controller.ChatIntake(input, intakeFacade.Object, CancellationToken.None);
+
+        action.Should().BeOfType<OkObjectResult>();
+
+        intakeFacade.Verify(
+            static f => f.ParseChatIntakeAsync(
+                It.Is<ChatIntakeRequest>(r => r.RawText!.Length == 20),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 
     [Fact]
@@ -948,7 +2046,8 @@ public sealed class RunsControllerTests
         IArchitectureApplicationService? architectureApplicationService = null,
         IRunLifecycleCommandService? runLifecycleCommandService = null,
         IRunRepository? runRepository = null,
-        IAuditService? auditService = null)
+        IAuditService? auditService = null,
+        IValidator<ArchitectureRequest>? architectureRequestValidator = null)
     {
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
@@ -956,15 +2055,12 @@ public sealed class RunsControllerTests
         Mock<IActorContext> actor = new();
         actor.Setup(a => a.GetActor()).Returns("operator@test");
 
-        Mock<IValidator<ArchitectureRequest>> validator = new();
-        validator
-            .Setup(v => v.ValidateAsync(It.IsAny<ArchitectureRequest>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new ValidationResult());
+        IValidator<ArchitectureRequest> validator = architectureRequestValidator ?? CreatePermissiveArchitectureRequestValidator();
 
         return new RunsController(
             runLifecycleCommandService ?? Mock.Of<IRunLifecycleCommandService>(),
             architectureApplicationService ?? Mock.Of<IArchitectureApplicationService>(),
-            validator.Object,
+            validator,
             scopeProvider.Object,
             actor.Object,
             auditService ?? Mock.Of<IAuditService>(),
@@ -980,5 +2076,15 @@ public sealed class RunsControllerTests
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
         };
+    }
+
+    private static IValidator<ArchitectureRequest> CreatePermissiveArchitectureRequestValidator()
+    {
+        Mock<IValidator<ArchitectureRequest>> validator = new();
+        validator
+            .Setup(v => v.ValidateAsync(It.IsAny<ArchitectureRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ValidationResult());
+
+        return validator.Object;
     }
 }

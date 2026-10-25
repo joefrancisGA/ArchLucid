@@ -17,8 +17,12 @@ export function DriftChangeResourceCells(props: {
           {display.name}
         </div>
       </EnterpriseTableCell>
-      <EnterpriseTableCell>{display.resourceGroup ?? "—"}</EnterpriseTableCell>
-      <EnterpriseTableCell>{display.resourceType ?? "—"}</EnterpriseTableCell>
+      <EnterpriseTableCell>
+        {display.resourceGroup ?? "Resource group was not stored."}
+      </EnterpriseTableCell>
+      <EnterpriseTableCell>
+        {display.resourceType ?? "Resource type was not stored."}
+      </EnterpriseTableCell>
     </>
   );
 }

@@ -88,7 +88,7 @@ internal static class InventoryDiagramRoleAccessApplier
 
             if (distinctRoleNames.Count > 1)
             {
-                return "Role names were not listed on this line.";
+                return "More than one role name was stored. This line does not list them.";
             }
         }
 
@@ -155,8 +155,8 @@ internal static class InventoryDiagramRoleAccessApplier
 
         string normalizedScope = ArmResourceIdNormalizer.Normalize(scope);
         string sentence = normalizedScope.Contains("/resourceGroups/", StringComparison.OrdinalIgnoreCase)
-            ? $"Has {roleName} on resource group {ReadResourceName(normalizedScope)}"
-            : $"Has {roleName} on subscription {ReadSubscriptionId(normalizedScope)}";
+            ? $"Role assignment {roleName} on resource group {ReadResourceName(normalizedScope)}. This is not observed use."
+            : $"Role assignment {roleName} on subscription {ReadSubscriptionId(normalizedScope)}. This is not observed use.";
 
         if (!sourceNode.UnresolvedRelationshipDetails.Contains(sentence, StringComparer.Ordinal))
         {

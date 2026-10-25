@@ -1,3 +1,5 @@
+> **Scope:** Contributor-reference — set catalog and historical diary for `/al-bug`. Zone bodies and new hunt notes live in `AL_BUG_HUNT_LEDGER_1.md` through `AL_BUG_HUNT_LEDGER_4.md`. Not customer-facing.
+
 2026-10-22 seed hunt (seed→hit): `ui-oidc` — promoted hunt-ready `decodeOAuthErrorDescription` / `shouldPreserveLiteralPlusInAuthorizeDescription` — Fitzpatrick skin-tone emoji with literal `+` in authorize `error_description` collapsed the plus to space because the mixed-plus guard covered ZWJ and regional indicators only; treat `\p{Emoji_Modifier}` like other emoji glue; regression `preserves literal plus in authorize error descriptions when skin-tone emoji modifiers are present`; scoped `src/lib/oidc` vitest 412/412.
 
 - [x] (proven) `decodeOAuthErrorDescription` — skin-tone modifier plus literal plus — **hit 2026-10-22 seed hunt:** `Emoji_Modifier` guard; regression above.

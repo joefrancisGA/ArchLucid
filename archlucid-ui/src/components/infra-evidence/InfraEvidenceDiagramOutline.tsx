@@ -106,7 +106,11 @@ function resolveNodeProblem(node: InfraEvidenceMermaidOutlineNode): string {
   }
 
   if (node.connectionState === "Unknown") {
-    const unknownDetails = node.unresolvedRelationshipDetails ?? [];
+    const unknownDetails = node.unresolvedRelationshipDetails;
+
+    if (unknownDetails === null || unknownDetails === undefined) {
+      return "Unresolved relationship details were not stored.";
+    }
 
     if (unknownDetails.length > 0) {
       return unknownDetails.join(" ");
@@ -219,7 +223,7 @@ function formatOutlineResourceType(resourceType: string | null): string {
     return "Resource type was stored empty.";
   }
 
-  return formatDiagramArmTypeFriendlyName(resourceType);
+  return formatDiagramArmTypeFriendlyName(resourceType) ?? "Resource type was not stored";
 }
 
 function formatOutlineEdgeSource(

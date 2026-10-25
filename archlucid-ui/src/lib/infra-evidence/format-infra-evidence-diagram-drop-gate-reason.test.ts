@@ -34,4 +34,8 @@ describe("formatInfraEvidenceDiagramDropGateReasonLabel", () => {
   it("returns the stored code when no mapping exists", () => {
     expect(formatInfraEvidenceDiagramDropGateReasonLabel("custom-drop")).toBe("custom-drop");
   });
+
+  it("labels blank drop reasons as not stored", () => {
+    expect(formatInfraEvidenceDiagramDropGateReasonLabel("   ")).toBe("Drop reason was not stored.");
+  });
 });

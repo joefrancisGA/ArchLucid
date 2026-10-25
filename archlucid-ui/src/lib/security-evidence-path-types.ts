@@ -1,5 +1,5 @@
 export type SecurityEvidencePathHop = {
-  hopOrdinal: number;
+  hopOrdinal: number | null;
   fromNodeLabel: string;
   toNodeLabel: string;
   edgeType: string;
@@ -25,7 +25,7 @@ export function securityEvidencePathHopNodeName(label: string): string {
 }
 
 export type SecurityEvidencePathWeakestHop = {
-  hopOrdinal: number;
+  hopOrdinal: number | null;
   edgeType: string;
   hopConfidenceBand: string;
   provenanceKind: string;
@@ -71,7 +71,7 @@ export type SecurityEvidencePathDetail = {
   snapshotId: string;
   pathKind: string;
   pathConfidenceBand: string;
-  weakestHopOrdinal: number;
+  weakestHopOrdinal: number | null;
   weakestHopReason: string;
   hops: ReadonlyArray<SecurityEvidencePathHop>;
   weakestHop: SecurityEvidencePathWeakestHop | null;
@@ -89,14 +89,14 @@ export type OperationalSecurityFindingDetail = {
 export type SecurityEvidencePathRankSummary = {
   pathId: string;
   snapshotId: string;
-  rankOrder: number;
+  rankOrder: number | null;
   ruleVersion: string;
-  technicalExposureScore: number;
-  privilegeDepthScore: number;
-  blastRadiusScore: number;
+  technicalExposureScore: number | null;
+  privilegeDepthScore: number | null;
+  blastRadiusScore: number | null;
   businessConsequenceScore: number | null;
-  confidenceBandScore: number;
-  compositeSortScore: number;
+  confidenceBandScore: number | null;
+  compositeSortScore: number | null;
   explanationSummary: string;
   pathKind: string;
   pathConfidenceBand: string;
@@ -131,14 +131,14 @@ export type SecurityEvidencePathAttackPathReport = {
 export type SecurityEvidencePathRankDetail = {
   pathId: string;
   snapshotId: string;
-  rankOrder: number;
+  rankOrder: number | null;
   ruleVersion: string;
-  technicalExposureScore: number;
-  privilegeDepthScore: number;
-  blastRadiusScore: number;
+  technicalExposureScore: number | null;
+  privilegeDepthScore: number | null;
+  blastRadiusScore: number | null;
   businessConsequenceScore: number | null;
-  confidenceBandScore: number;
-  compositeSortScore: number;
+  confidenceBandScore: number | null;
+  compositeSortScore: number | null;
   explanationSummary: string;
   breakdownJson: string;
   pathKind: string;

@@ -29,9 +29,9 @@ export function resolveInfraEvidenceDiagramReadingLegend(mode: string): InfraEvi
       };
     default:
       return {
-        boxes: "Boxes are Azure resources in this view.",
+        boxes: "Boxes are cloud resources in this inventory view (Azure when the snapshot is Azure).",
         connectors: "Connectors are relationships already on the diagram.",
-        evidenceKind: "Evidence kind is configuration from inventory.",
+        evidenceKind: "Evidence kind is configuration from inventory — not live cloud telemetry.",
       };
   }
 }
