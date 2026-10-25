@@ -1045,6 +1045,22 @@ public sealed class ConfigurationEffectiveValueResolverTests
     }
 
     [Fact]
+    public void Resolve_redacts_json_object_effective_values_when_property_name_is_client_secret_and_value_is_boolean()
+    {
+        const string configPath = "ArchLucid:SomeFeature:Settings";
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = """{"ClientSecret":false}""",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(configuration, configPath, isSet: true);
+
+        value.Should().Be("***");
+    }
+
+    [Fact]
     public void Resolve_truncates_scalar_without_splitting_valid_surrogate_pair_across_boundary()
     {
         const string configPath = "ArchLucid:FallbackLlm:Endpoints";
@@ -1137,6 +1153,31 @@ public sealed class ConfigurationEffectiveValueResolverTests
         value.Should().NotBeNull();
         value.Should().EndWith("…");
         value.Should().Be(new string('c', 248) + "\U0001F4A1\U0001F4A2\U0001F4A3" + "ab" + "…");
+        TruncatedPrefixIsWellFormed(value!).Should().BeTrue();
+    }
+
+    [Fact]
+    public void Resolve_truncates_scalar_without_splitting_four_supplementary_characters_at_boundary()
+    {
+        const string configPath = "ArchLucid:FallbackLlm:Endpoints";
+        string configured = new string('d', 244) + "\U0001F4A1\U0001F4A2\U0001F4A3\U0001F4A4" + "abcdefghi";
+
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = configured,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            configPath,
+            isSet: true);
+
+        value.Should().NotBeNull();
+        value.Should().EndWith("…");
+        value.Should().Be(
+            new string('d', 244) + "\U0001F4A1\U0001F4A2\U0001F4A3\U0001F4A4" + "abcd" + "…");
         TruncatedPrefixIsWellFormed(value!).Should().BeTrue();
     }
 
