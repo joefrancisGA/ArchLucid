@@ -51,6 +51,10 @@ describe("assignRunWorkQueueGroup", () => {
     ).toBe("in-progress");
   });
 
+  it("does not infer in-progress when every snapshot flag was omitted (P-11)", () => {
+    expect(assignRunWorkQueueGroup(baseRun())).toBe("snapshot-flags-not-stored");
+  });
+
   it("maps committed queue rows to awaiting-approval attention partition", () => {
     expect(runWorkQueueAttentionPartition("committed")).toBe("awaiting-approval");
   });
@@ -65,6 +69,14 @@ describe("partitionRunsIntoWorkQueueSections", () => {
     ]);
 
     expect(sections.map((s) => s.groupId)).toEqual(["needs-attention", "in-progress", "committed"]);
+
+    const omittedFlags = partitionRunsIntoWorkQueueSections([
+      baseRun({ runId: "omitted" }),
+      baseRun({ runId: "known", hasContextSnapshot: false }),
+    ]);
+
+    expect(omittedFlags[0]?.groupId).toBe("snapshot-flags-not-stored");
+    expect(omittedFlags[0]?.runs.map((r) => r.runId)).toEqual(["omitted"]);
     expect(sections[0]?.runs.map((r) => r.runId)).toEqual(["b"]);
     expect(sections[1]?.runs.map((r) => r.runId)).toEqual(["c"]);
     expect(sections[2]?.runs.map((r) => r.runId)).toEqual(["a"]);

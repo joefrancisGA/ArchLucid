@@ -214,6 +214,7 @@ export function RunDetailPageViewCreateHome(props: RunDetailPageViewCreateHomePr
                   governanceGateLabel={m.governanceGateLabel}
                   governanceGateOperatorLabel={m.governanceGateOperatorLabel}
                   blockingFindingCount={blockingApprovalCount}
+                  manifestUnresolvedIssueCount={m.manifestSummary?.unresolvedIssueCount ?? null}
                   hasGovernanceWarnings={m.resolvedDetail.run.hasGovernanceWarnings === true}
                   pagePrimaryOwnedElsewhere
                 />

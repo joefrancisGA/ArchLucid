@@ -1,3 +1,4 @@
+using ArchLucid.Application.Manifests;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Manifest;
@@ -54,9 +55,9 @@ internal static partial class ConsultingDocxSupplementalSections
                 ConsultingDocxOpenXmlPrimitives.AddBullet(body, $"Type: {datastore.DatastoreType}");
                 ConsultingDocxOpenXmlPrimitives.AddBullet(body, $"Platform: {datastore.RuntimePlatform}");
                 ConsultingDocxOpenXmlPrimitives.AddBullet(body,
-                    $"Private Endpoint Required: {(datastore.PrivateEndpointRequired ? "Yes" : "No")}");
+                    $"Private Endpoint Required: {ArchitectureManifestDatastoreExport.FormatPrivateEndpointRequiredForExport(datastore.PrivateEndpointRequired)}");
                 ConsultingDocxOpenXmlPrimitives.AddBullet(body,
-                    $"Encryption At Rest Required: {(datastore.EncryptionAtRestRequired ? "Yes" : "No")}");
+                    $"Encryption At Rest Required: {ArchitectureManifestDatastoreExport.FormatEncryptionAtRestRequiredForExport(datastore.EncryptionAtRestRequired)}");
                 ConsultingDocxOpenXmlPrimitives.AddSpacer(body);
             }
         }

@@ -389,9 +389,9 @@ function RecommendedActionSection(props: {
   readonly path: SecurityEvidencePathDetail;
   readonly rank: SecurityEvidencePathRankDetail | null;
 }): React.JSX.Element {
-  const firstCutPoint = props.path.relatedCutPoints[0];
   const firstRoute = props.path.routing[0];
   const architectSentence = props.path.explanationTemplate?.architectSentence?.trim() ?? "";
+  const hopEvidenceRef = props.path.hops[0]?.evidenceReference?.trim() ?? "";
 
   const lines = [
     {
@@ -400,10 +400,7 @@ function RecommendedActionSection(props: {
     },
     {
       label: "Evidence",
-      value:
-        props.path.weakestHop?.reason?.trim() ||
-        props.path.hops[0]?.evidenceReference?.trim() ||
-        "Evidence citation was not stored.",
+      value: hopEvidenceRef.length > 0 ? hopEvidenceRef : "Evidence citation was not stored.",
     },
     {
       label: "Consequence",
@@ -412,9 +409,9 @@ function RecommendedActionSection(props: {
     {
       label: "Recommended change",
       value:
-        firstCutPoint?.explanationSummary ??
-        props.path.explanationTemplate?.proposedChange ??
-        "Proposed change was not stored.",
+        props.path.explanationTemplate?.proposedChange?.trim() && props.path.explanationTemplate.proposedChange.trim().length > 0
+          ? props.path.explanationTemplate.proposedChange.trim()
+          : "Proposed change was not stored.",
     },
     {
       label: "Owner",
@@ -885,7 +882,14 @@ export function SecurityEvidencePathInspectPanel(props: {
               weakestHopOrdinal={pathQuery.data.weakestHopOrdinal}
               snapshotId={pathQuery.data.snapshotId}
             />
-          ) : null}
+          ) : (
+            <p
+              className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="security-evidence-path-hops-empty"
+            >
+              No hops were stored.
+            </p>
+          )}
 
           {pathQuery.data.relatedCutPoints.length > 0 ? (
             <div className="space-y-2" data-testid="security-evidence-path-cut-points">
@@ -975,7 +979,18 @@ export function SecurityEvidencePathInspectPanel(props: {
                     <EnterpriseTableRow key={`${row.role}-${row.principalId ?? row.displayName ?? row.sourceReference}`}>
                       <EnterpriseTableCell>{row.role}</EnterpriseTableCell>
                       <EnterpriseTableCell>
-                        {row.displayName?.trim() || row.principalId?.trim() || "Owner was not stored"}
+                        {row.displayName !== null && row.displayName !== undefined && row.displayName.trim().length > 0
+                          ? row.displayName.trim()
+                          : row.principalId !== null && row.principalId !== undefined && row.principalId.trim().length > 0
+                            ? (
+                              <span className="space-y-0.5">
+                                <span className="block">Display name was not stored.</span>
+                                <span className={cn("block", OPERATOR_TYPOGRAPHY.helper)}>
+                                  Principal: {row.principalId.trim()}
+                                </span>
+                              </span>
+                            )
+                            : "Owner was not stored"}
                       </EnterpriseTableCell>
                       <EnterpriseTableCell>{formatSecurityEvidenceProvenanceKindLabel(row.provenanceKind)}</EnterpriseTableCell>
                     </EnterpriseTableRow>
@@ -983,7 +998,14 @@ export function SecurityEvidencePathInspectPanel(props: {
                 </EnterpriseTableBody>
               </EnterpriseTable>
             </div>
-          ) : null}
+          ) : (
+            <p
+              className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="security-evidence-path-routing-empty"
+            >
+              No routing citations were stored.
+            </p>
+          )}
 
           {advisoryInstance != null && props.findingId != null ? (
             <div className="space-y-1" data-testid="security-evidence-path-workbench-handoff">
