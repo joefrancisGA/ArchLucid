@@ -1,4 +1,5 @@
 using ArchLucid.Application.Determinism;
+using ArchLucid.Application.Manifests;
 using ArchLucid.Application.Diffs;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Manifest;
@@ -138,8 +139,10 @@ public sealed class DocxArchitectureAnalysisExportService(IDiagramImageRenderer 
                     builder.AddParagraph(datastore.DatastoreName, true);
                     builder.AddBullet($"Type: {datastore.DatastoreType}");
                     builder.AddBullet($"Platform: {datastore.RuntimePlatform}");
-                    builder.AddBullet($"Private Endpoint Required: {(datastore.PrivateEndpointRequired ? "Yes" : "No")}");
-                    builder.AddBullet($"Encryption At Rest Required: {(datastore.EncryptionAtRestRequired ? "Yes" : "No")}");
+                    builder.AddBullet(
+                        $"Private Endpoint Required: {ArchitectureManifestDatastoreExport.FormatPrivateEndpointRequiredForExport(datastore.PrivateEndpointRequired)}");
+                    builder.AddBullet(
+                        $"Encryption At Rest Required: {ArchitectureManifestDatastoreExport.FormatEncryptionAtRestRequiredForExport(datastore.EncryptionAtRestRequired)}");
                 }
 
                 builder.AddSpacer();

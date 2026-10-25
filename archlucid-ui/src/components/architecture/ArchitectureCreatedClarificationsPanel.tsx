@@ -133,8 +133,13 @@ export function ArchitectureCreatedClarificationsPanel(
   const hasOpenQuestions = hasOpenQuestionEntities(openQuestions);
   const preferModelInterviewQuestions = (props.clarificationQuestions ?? []).length > 0;
   const showIntakeOpenQuestions = hasOpenQuestions && !preferModelInterviewQuestions;
+  const clarificationBlockedReason = props.clarificationQuestionsBlockedReason?.trim() ?? "";
+  const hasClarificationBlockedReason = clarificationBlockedReason.length > 0;
   const isZeroGapSuccess =
-    !parseResult.hasPartialParseFailure && !hasVisibleWorkQueue && !showIntakeOpenQuestions;
+    !hasClarificationBlockedReason
+    && !parseResult.hasPartialParseFailure
+    && !hasVisibleWorkQueue
+    && !showIntakeOpenQuestions;
   const reviewDiagramVariant = props.pagePrimaryOwnedElsewhere === true ? "outline" : "primary";
   const deltaPresentation = buildReviewClarificationDeltaPresentation(props.clarificationDelta);
   const clarificationQuestions = props.clarificationQuestions ?? [];
