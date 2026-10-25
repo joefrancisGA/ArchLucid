@@ -10,6 +10,51 @@
 - [ ] (candidate) refreshBffSessionCookie - refresh 414 shouldClearSession false - locus: proxy transient policy.
 - [ ] (candidate) exchangeAuthorizationCode - temporarily_unavailable marks authorize retry - locus: transient exchange policy.
 - [ ] (candidate) preparePostSignInReturnUrlForSignInStart - ZWSP-only post-sign-in purge during retry - locus: tamper defense parity.
+2026-10-22 seed hunt (seed-only): `ui-oidc` - no hunt-ready product defect; cheap-disproof closed slow_down authorize UX, authorization_pending code-exchange retry policy, and refresh 408 client/route parity; parity regressions BFF refresh HTTP 411 and opaque token endpoint 411 without cookie clear, authorize-retry snapshot preserved when sign-in restarts during retry without returnUrl; scoped `src/lib/oidc` + BFF refresh route vitest 484/484.
+
+- [x] (invalid) humanizeAuthorizeCallbackError - slow_down authorize-query copy - **cheap-disproof 2026-10-22:** readable default-branch UX; not a security defect.
+- [x] (valid-no-repro) refreshBffSessionCookie - refresh 408 shouldClearSession false - **cheap-disproof 2026-10-22:** client HTTP 408 + route opaque 408 already regression-covered.
+- [x] (valid-no-repro) exchangeAuthorizationCode - authorization_pending marks authorize retry - **cheap-disproof 2026-10-22:** `token-client.test.ts` marks retry on transient authorization_pending exchange.
+- [x] (valid-no-repro) clearAbandonedPostSignInReturnUrl - tampered unsafe during retry - **regression 2026-10-22:** retry restart preserves snapshot; tamper purge covered by prepare helper tests.
+- [x] (invalid) readOAuthJsonErrorDescription - multiply-encoded %252B with ZWJ glue - **cheap-disproof 2026-10-22:** saturated encoding class on trunk.
+
+- [ ] (candidate) humanizeAuthorizeCallbackError - temporarily_unavailable authorize-query copy - locus: fixed-branch UX vs default.
+- [ ] (candidate) refreshBffSessionCookie - refresh 412 shouldClearSession false - locus: proxy transient policy.
+- [ ] (candidate) exchangeAuthorizationCode - slow_down marks authorize retry - locus: transient exchange policy.
+- [ ] (candidate) preparePostSignInReturnUrlForSignInStart - idle desk when snapshot unsafe - locus: rehydrate ordering.
+
+2026-10-22 seed hunt (seed-only): `ui-oidc` - no hunt-ready product defect; cheap-disproof closed authorization_pending authorize UX and clearOidcSession retry-snapshot policy without signed-in identity; parity regressions zero-width-only authorize-retry snapshot purge, snapshot preserved on unsigned session clear, BFF refresh HTTP 410 and opaque token endpoint 410 without cookie clear; removed duplicate BFF client 425 test; scoped `src/lib/oidc` + BFF refresh route vitest 480/480.
+2026-10-22 seed hunt (seed-only): `ui-oidc` - no hunt-ready product defect; cheap-disproof closed authorization_pending authorize UX and clearOidcSession retry-snapshot policy without signed-in identity; parity regressions zero-width-only authorize-retry snapshot purge, snapshot preserved on unsigned session clear, BFF refresh HTTP 410 and opaque token endpoint 410 without cookie clear; removed duplicate BFF client 425 test; scoped `src/lib/oidc` + BFF refresh route vitest 480/480.
+
+- [x] (invalid) humanizeAuthorizeCallbackError - authorization_pending authorize-query copy - **cheap-disproof 2026-10-22:** readable default-branch UX; not a security defect.
+- [x] (valid-no-repro) clearOidcSession - clear retry snapshot without signed-in identity - **cheap-disproof 2026-10-22:** snapshot + retry marker intentionally preserved for unsigned retry flow.
+- [x] (valid-no-repro) readAuthorizeRetryReturnPathSnapshot - ZWSP-only snapshot purge - **regression 2026-10-22:** parity with post-sign-in zero-width tamper purge.
+- [x] (valid-no-repro) refreshBffSessionCookie - refresh 410 shouldClearSession false - **regression 2026-10-22:** non-401/403 refresh failures soft-fail without cookie clear.
+- [x] (invalid) readOAuthJsonErrorDescription - multiply-encoded %252B with ZWJ glue - **cheap-disproof 2026-10-22:** saturated encoding class on trunk.
+
+2026-10-22 seed hunt (seed-only): `ui-oidc` - no hunt-ready product defect; cheap-disproof closed invalid_request authorize-query UX, refresh 415 parity, and saturated readOAuthJsonErrorDescription skin-tone glue; parity regressions BFF refresh HTTP 416 and opaque token endpoint 416 without cookie clear, and code exchange JSON without access_token marks authorize retry; scoped `src/lib/oidc` + BFF refresh route vitest 516/516.
+
+- [x] (invalid) humanizeAuthorizeCallbackError - invalid_request authorize-query copy - **cheap-disproof 2026-10-22:** bounded invalid-request UX tests on trunk.
+- [x] (valid-no-repro) refreshBffSessionCookie - refresh 415 shouldClearSession false - **cheap-disproof 2026-10-22:** client + route opaque 415 regressions on trunk.
+- [x] (valid-no-repro) exchangeAuthorizationCode - missing access_token marks authorize retry - **regression 2026-10-22:** malformed success JSON still preserves return-path retry marker.
+- [x] (invalid) readOAuthJsonErrorDescription - multiply-encoded %252B with skin-tone modifier glue - **cheap-disproof 2026-10-22:** saturated JSON encoding class on trunk.
+
+- [ ] (candidate) humanizeAuthorizeCallbackError - access_denied authorize-query copy - locus: fixed-branch UX.
+- [ ] (candidate) refreshBffSessionCookie - refresh 417 shouldClearSession false - locus: proxy transient policy.
+- [ ] (candidate) exchangeAuthorizationCode - invalid token endpoint URL skips authorize retry marker - locus: misconfiguration policy.
+- [ ] (candidate) decodeOAuthErrorDescription - multiply-encoded %252B skin-tone glue - locus: saturated encoding class.
+2026-10-22 seed hunt (seed-only): `ui-oidc` - no hunt-ready product defect; cheap-disproof closed temporarily_unavailable fixed authorize copy, slow_down code-exchange retry policy, and encoding candidate; parity regressions BFF refresh HTTP 412 and opaque token endpoint 412 without cookie clear, and idle-desk rehydrate when authorize-retry snapshot is unsafe; scoped `src/lib/oidc` + BFF refresh route vitest 489/489.
+
+- [x] (invalid) humanizeAuthorizeCallbackError - temporarily_unavailable authorize-query copy - **cheap-disproof 2026-10-22:** dedicated fixed-branch UX; not a security defect.
+- [x] (valid-no-repro) refreshBffSessionCookie - refresh 412 shouldClearSession false - **regression 2026-10-22:** non-401/403 refresh failures soft-fail without cookie clear.
+- [x] (valid-no-repro) exchangeAuthorizationCode - slow_down marks authorize retry - **cheap-disproof 2026-10-22:** `token-client.test.ts` marks retry on transient slow_down exchange.
+- [x] (valid-no-repro) preparePostSignInReturnUrlForSignInStart - idle desk when snapshot unsafe - **regression 2026-10-22:** unsafe snapshot purged then idle-desk path restored at sign-in start.
+- [x] (invalid) readOAuthJsonErrorDescription - multiply-encoded %252B with ZWJ glue - **cheap-disproof 2026-10-22:** saturated encoding class on trunk.
+
+- [ ] (candidate) humanizeAuthorizeCallbackError - invalid_scope authorize-query copy - locus: fixed-branch UX.
+- [ ] (candidate) refreshBffSessionCookie - refresh 413 shouldClearSession false - locus: proxy transient policy.
+- [ ] (candidate) exchangeAuthorizationCode - temporarily_unavailable marks authorize retry - locus: transient exchange policy.
+- [ ] (candidate) readPostSignInReturnUrl - backslash-prefixed path purge during retry - locus: tamper defense parity.
 2026-10-22 seed hunt (seed-only): `ui-oidc` - no hunt-ready product defect after opaque-400 classifier hit; cheap-disproof closed legacy substring session-clear claims for bare `Token endpoint error 401` and `403` throws; parity regressions `returns 503 without clearing BFF session cookies when refreshAccessToken throws opaque token endpoint error 401` and `403`; scoped `src/lib/oidc` + BFF refresh route vitest 439/439.
 2026-10-22 seed hunt (seed→hit): `ui-oidc` — promoted hunt-ready `shouldClearSessionOnRefreshFailure` / BFF refresh route — malformed token JSON that yields bare `Token endpoint error 400` (no parseable OAuth fields) cleared HttpOnly cookies via legacy `message.includes("token endpoint error 400")` substring; classify only via `isOAuthRefreshTokenRejectedError`; regression `returns 503 without clearing BFF session cookies when refreshAccessToken throws opaque token endpoint error 400`; scoped oidc + BFF refresh route vitest 437/437.
 > **Scope:** Contributor-reference — set catalog and historical diary for `/al-bug`. Zone bodies and new hunt notes live in `AL_BUG_HUNT_LEDGER_1.md` through `AL_BUG_HUNT_LEDGER_4.md`. Not customer-facing.
@@ -75567,6 +75612,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
+- **hunts:** 88
+- **hunts:** 87
+- **hunts:** 86
 - **hunts:** 85
 - **hunts:** 84
 - **hunts:** 83
