@@ -463,6 +463,47 @@ public sealed class EndToEndReplayComparisonReportNormalizerTests
     }
 
     [Fact]
+    public void CompareQuality_EndToEndReplayComparisonReportNormalizer_drops_display_empty_finding_lifecycle_records()
+    {
+        EndToEndReplayComparisonReport report = new()
+        {
+            LeftRunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            RightRunId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            FindingLifecycleRecords =
+            [
+                new CrossReviewFindingLifecycleRecord
+                {
+                    State = CrossReviewFindingLifecycleState.NewlyIdentified,
+                    ResolutionBasis = CrossReviewFindingResolutionBasis.NotApplicable,
+                    CorrelationMethod = FindingCorrelationMethod.PolicyRuleAndFingerprint,
+                    Severity = FindingSeverity.Warning,
+                    SourceAgent = AgentType.Cost,
+                    Category = "   ",
+                    Message = "\t",
+                },
+                new CrossReviewFindingLifecycleRecord
+                {
+                    State = CrossReviewFindingLifecycleState.PreviouslyIdentifiedStillPresent,
+                    ResolutionBasis = CrossReviewFindingResolutionBasis.NotApplicable,
+                    CorrelationMethod = FindingCorrelationMethod.PolicyRuleAndFingerprint,
+                    Severity = FindingSeverity.Warning,
+                    SourceAgent = AgentType.Topology,
+                    Category = "topology",
+                    Message = "drift",
+                    CurrentFindingId = "cccccccccccccccccccccccccccccccc",
+                },
+            ],
+        };
+
+        EndToEndReplayComparisonReportNormalizer.NormalizePersistedPayload(report);
+
+        report.FindingLifecycleRecords.Should().ContainSingle();
+        report.FindingLifecycleRecords[0].Category.Should().Be("topology");
+        report.FindingLifecycle!.PreviouslyIdentifiedStillPresentCount.Should().Be(1);
+        report.FindingLifecycle.NewlyIdentifiedCount.Should().Be(0);
+    }
+
+    [Fact]
     public void CompareQuality_EndToEndReplayComparisonReportNormalizer_trims_nested_compare_input_fingerprints()
     {
         EndToEndReplayComparisonReport report = new()

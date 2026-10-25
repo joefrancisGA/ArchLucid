@@ -17,11 +17,16 @@ internal static class CrossReviewFindingLifecycleNormalizer
         {
             List<CrossReviewFindingLifecycleRecord> normalizedRecords = report.FindingLifecycleRecords
                 .Select(NormalizeRecord)
+                .Where(record => !IsDisplayEmptyShell(record))
                 .ToList();
 
             report.FindingLifecycleRecords = normalizedRecords;
-            report.FindingLifecycle = CrossReviewFindingLifecycleSummarizer.Summarize(normalizedRecords);
-            return;
+
+            if (normalizedRecords.Count > 0)
+            {
+                report.FindingLifecycle = CrossReviewFindingLifecycleSummarizer.Summarize(normalizedRecords);
+                return;
+            }
         }
 
         if (report.FindingLifecycle is null)
@@ -42,6 +47,12 @@ internal static class CrossReviewFindingLifecycleNormalizer
         if (report.FindingLifecycle is not null && IsPersistedEmptyShell(report.FindingLifecycle))
             report.FindingLifecycle = null;
     }
+
+    private static bool IsDisplayEmptyShell(CrossReviewFindingLifecycleRecord record) =>
+        record.Category.Length == 0
+        && record.Message.Length == 0
+        && record.PriorFindingId is null
+        && record.CurrentFindingId is null;
 
     internal static bool IsPersistedEmptyShell(CrossReviewFindingLifecycleSummary summary) =>
         summary.NewlyIdentifiedCount == 0
