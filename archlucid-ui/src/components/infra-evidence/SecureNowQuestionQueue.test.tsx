@@ -1125,6 +1125,25 @@ describe("SecureNowQuestionQueue", () => {
     expect(screen.queryByRole("button", { name: "Name the peer" })).not.toBeInTheDocument();
   });
 
+  it("shows the review promo and opens answered when only closed disposition rows are reviewable", async () => {
+    mocks.listQuestions.mockResolvedValue([{
+      ...question,
+      status: "Pending",
+      answerCode: "NamePeer",
+      answerText: "Name the peer",
+      reason: "Operator selected the peer.",
+    }]);
+
+    render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
+
+    expect(await screen.findByTestId("infra-diagrams-question-snapshot-promo")).toBeInTheDocument();
+    expect(screen.getByText("1 question to review")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Review questions" }));
+
+    expect(screen.getByTestId("infra-diagrams-question-disposition-status")).toHaveTextContent("Answered");
+    expect(screen.getByTestId("infra-diagrams-question-answer")).toHaveTextContent("Name the peer");
+  });
+
   it("hides the open promo when every listed question has unknown disposition status", async () => {
     mocks.listQuestions.mockResolvedValue([{ ...question, status: "Pending" }]);
 

@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   secureNowQuestionCountsAsAnsweredFilterRow,
   secureNowQuestionCountsAsOpenQueueRow,
+  secureNowQuestionQueueInitialReviewFilter,
   secureNowQuestionDispositionIsAnswered,
   secureNowQuestionDispositionIsClosed,
   secureNowQuestionDispositionIsDismissed,
@@ -96,6 +97,19 @@ describe("secureNowQuestionDispositionShowsAnswerActions", () => {
       answerText: "Name the peer",
       reason: "Operator selected the peer.",
     })).toBe(false);
+  });
+});
+
+describe("secureNowQuestionQueueInitialReviewFilter", () => {
+  it("opens answered when no open rows are reviewable", () => {
+    expect(secureNowQuestionQueueInitialReviewFilter([{
+      status: "Pending",
+      answerCode: "NamePeer",
+      answerText: null,
+      reason: null,
+      expirationUtc: "2099-01-01T00:00:00Z",
+      isExpired: false,
+    }])).toBe("Answered");
   });
 });
 

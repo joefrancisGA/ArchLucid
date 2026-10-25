@@ -32,7 +32,9 @@ import {
   secureNowQuestionCountsAsAnsweredFilterRow,
   secureNowQuestionCountsAsDismissedFilterRow,
   secureNowQuestionCountsAsOpenQueueRow,
+  secureNowQuestionCountsAsReviewableQueueRow,
   secureNowQuestionDispositionShowsAnswerActions,
+  secureNowQuestionQueueInitialReviewFilter,
 } from "@/lib/infra-evidence/securenow-question-disposition-status";
 import {
   confirmOperatorInferredConnection,
@@ -61,6 +63,7 @@ type SecureNowQuestionQueueContextValue = {
   readonly questionsLoaded: boolean;
   readonly loadError: boolean;
   readonly openQuestions: readonly SecureNowQuestion[];
+  readonly reviewableQuestions: readonly SecureNowQuestion[];
   readonly filteredQuestions: readonly SecureNowQuestion[];
   readonly currentQuestion: SecureNowQuestion | null;
   readonly currentIndex: number;
@@ -79,6 +82,7 @@ type SecureNowQuestionQueueContextValue = {
   readonly setReason: (reason: string) => void;
   readonly setDrawerAction: (action: DrawerAction) => void;
   readonly advanceWithoutPersistence: () => void;
+  readonly beginQuestionReview: () => void;
   readonly submitAction: (action?: DrawerAction) => Promise<void>;
 };
 
@@ -264,6 +268,10 @@ export function SecureNowQuestionQueueProvider(
     () => questions.filter((question) => secureNowQuestionCountsAsOpenQueueRow(question)),
     [questions],
   );
+  const reviewableQuestions = useMemo(
+    () => questions.filter((question) => secureNowQuestionCountsAsReviewableQueueRow(question)),
+    [questions],
+  );
   const filteredQuestions = useMemo(
     () => filterQuestions(questions, filter).filter(
       (question) => !sessionSkippedQuestionKeys.has(questionIdentity(question)),
@@ -295,6 +303,15 @@ export function SecureNowQuestionQueueProvider(
     setReason("");
     setCurrentIndex((current) => Math.min(current, Math.max(filteredQuestions.length - 2, 0)));
   }, [currentQuestion, filteredQuestions.length]);
+
+  const beginQuestionReview = useCallback(() => {
+    setFilter(secureNowQuestionQueueInitialReviewFilter(questions));
+    setCurrentIndex(0);
+    setSelectedAnswer(null);
+    setReason("");
+    setDrawerAction("answer");
+    setDrawerOpen(true);
+  }, [questions]);
 
   const submitAction = useCallback(async (action: DrawerAction = drawerAction) => {
     if (!questionsLoaded || currentQuestion == null || busy) return;
@@ -480,6 +497,7 @@ export function SecureNowQuestionQueueProvider(
       questionsLoaded,
       loadError: error !== null,
       openQuestions,
+      reviewableQuestions,
       filteredQuestions,
       currentQuestion,
       currentIndex,
@@ -498,10 +516,12 @@ export function SecureNowQuestionQueueProvider(
       setReason,
       setDrawerAction,
       advanceWithoutPersistence,
+      beginQuestionReview,
       submitAction,
     }),
     [
       advanceWithoutPersistence,
+      beginQuestionReview,
       busy,
       currentIndex,
       currentQuestion,
@@ -514,6 +534,7 @@ export function SecureNowQuestionQueueProvider(
       questionsLoaded,
       error,
       openQuestions,
+      reviewableQuestions,
       reason,
       selectedAnswer,
       submitAction,

@@ -104,6 +104,30 @@ export function secureNowQuestionCountsAsOpenQueueRow(
     && !secureNowQuestionDispositionShowsStoredAnswerMetadata(question);
 }
 
+export function secureNowQuestionCountsAsReviewableQueueRow(
+  question: SecureNowQuestionOpenQueueRowFields,
+): boolean {
+  return secureNowQuestionCountsAsOpenQueueRow(question)
+    || secureNowQuestionCountsAsAnsweredFilterRow(question)
+    || secureNowQuestionCountsAsDismissedFilterRow(question);
+}
+
+export type SecureNowQuestionQueueReviewFilter = "Open" | "Answered" | "Dismissed";
+
+export function secureNowQuestionQueueInitialReviewFilter(
+  questions: readonly SecureNowQuestionOpenQueueRowFields[],
+): SecureNowQuestionQueueReviewFilter {
+  if (questions.some((question) => secureNowQuestionCountsAsOpenQueueRow(question))) {
+    return "Open";
+  }
+
+  if (questions.some((question) => secureNowQuestionCountsAsAnsweredFilterRow(question))) {
+    return "Answered";
+  }
+
+  return "Dismissed";
+}
+
 export function secureNowQuestionCountsAsAnsweredFilterRow(
   question: SecureNowQuestionDispositionChromeFields,
 ): boolean {

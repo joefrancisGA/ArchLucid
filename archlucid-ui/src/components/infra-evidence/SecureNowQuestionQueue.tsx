@@ -78,6 +78,14 @@ function openQuestionsCountLabel(count: number): string {
   return `${count} open questions`;
 }
 
+function reviewableQuestionsCountLabel(count: number): string {
+  if (count === 1) {
+    return "1 question to review";
+  }
+
+  return `${count} questions to review`;
+}
+
 export type SecureNowQuestionQueueSnapshotPromoProps = {
   readonly compact?: boolean;
 };
@@ -91,9 +99,8 @@ export function SecureNowQuestionQueueSnapshotPromo(
   const {
     drawerOpen,
     openQuestions,
-    setFilter,
-    setCurrentIndex,
-    setDrawerOpen,
+    reviewableQuestions,
+    beginQuestionReview,
   } = useSecureNowQuestionQueue();
 
   useEffect(() => {
@@ -106,9 +113,15 @@ export function SecureNowQuestionQueueSnapshotPromo(
       ?.scrollIntoView({ behavior: "smooth", block: "start" });
   }, [drawerOpen]);
 
-  if (openQuestions.length === 0) {
+  if (reviewableQuestions.length === 0) {
     return null;
   }
+
+  const promoShowsOpenCount = openQuestions.length > 0;
+  const promoCountLabel = promoShowsOpenCount
+    ? openQuestionsCountLabel(openQuestions.length)
+    : reviewableQuestionsCountLabel(reviewableQuestions.length);
+  const promoStatusLabel = promoShowsOpenCount ? "Open questions" : "Questions to review";
 
   if (compact) {
     return (
@@ -121,13 +134,9 @@ export function SecureNowQuestionQueueSnapshotPromo(
           size="sm"
           variant="outline"
           data-testid="infra-diagrams-question-review"
-          onClick={() => {
-            setFilter("Open");
-            setCurrentIndex(0);
-            setDrawerOpen(true);
-          }}
+          onClick={beginQuestionReview}
         >
-          {openQuestionsCountLabel(openQuestions.length)} — Review
+          {promoCountLabel} — Review
         </Button>
       </p>
     );
@@ -138,20 +147,16 @@ export function SecureNowQuestionQueueSnapshotPromo(
       className={cn("m-0 flex flex-wrap items-center gap-x-2 gap-y-1", OPERATOR_TYPOGRAPHY.helper)}
       data-testid="infra-diagrams-question-snapshot-promo"
     >
-      <StatusTag kind="needs-attention" label="Open questions" />
+      <StatusTag kind="needs-attention" label={promoStatusLabel} />
       <span className={cn("font-medium", OPERATOR_TYPOGRAPHY.helper)}>
-        {openQuestionsCountLabel(openQuestions.length)}
+        {promoCountLabel}
       </span>
       <Button
         type="button"
         size="sm"
         variant="outline"
         data-testid="infra-diagrams-question-review"
-        onClick={() => {
-          setFilter("Open");
-          setCurrentIndex(0);
-          setDrawerOpen(true);
-        }}
+        onClick={beginQuestionReview}
       >
         Review questions
       </Button>
