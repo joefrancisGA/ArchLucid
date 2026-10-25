@@ -9,7 +9,7 @@ public static class InventoryDiagramQuestionableAttentionResolver
     public const string UhgUnregisteredAvdSessionHostRuleKey = "uhg-avd-vm-not-in-host-pool";
 
     private const string Reason =
-        "This virtual machine is named like a UHG session host and is not registered in any session host collected for this snapshot.";
+        "This virtual machine name starts with avd and is not listed on a collected session host. Whether it is a session host was not stored.";
 
     private const string RecommendedAction =
         "Confirm whether it should be registered to a host pool, kept as an image or management machine, or retired.";

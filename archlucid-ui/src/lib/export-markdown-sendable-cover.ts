@@ -24,6 +24,7 @@ export type SendableExportCoverInput = {
   readonly structuralExecutionMode?: StructuralExecutionModeInput;
   readonly hostAgentExecutionMode?: string | null;
   readonly findings?: readonly FindingSemanticSupportBandExportInput[] | null;
+  /** When greater than zero, the cover includes sponsor ROI non-summing honesty. */
   readonly sponsorRoiRowCount?: number | null;
 };
 
