@@ -1307,6 +1307,18 @@ describe("ResourceHubClient", () => {
     expect(screen.queryByTestId("infra-resource-hub-open-terraform-work")).not.toBeInTheDocument();
   });
 
+  it("shows evidence pointer kind omission copy when kind is whitespace-only", async () => {
+    fetchCachedInfraEvidenceResourceHub.mockImplementation(async () =>
+      buildResourceHubTestMockHub({
+        evidencePointers: [{ kind: "   ", relativePath: "snapshots/222/properties.json" }],
+      }),
+    );
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    expect(await screen.findByText("Evidence pointer kind was not stored.")).toBeInTheDocument();
+    expect(screen.getByText("snapshots/222/properties.json")).toBeInTheDocument();
+  });
+
   it("shows evidence pointer path omission copy when relativePath is whitespace-only", async () => {
     fetchCachedInfraEvidenceResourceHub.mockImplementation(async () =>
       buildResourceHubTestMockHub({
