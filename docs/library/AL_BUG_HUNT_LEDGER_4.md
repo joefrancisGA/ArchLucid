@@ -6769,12 +6769,6 @@ Split from retired `archlucid-core` (ABQ-08).
 - [x] (valid-no-repro) `ConfigurationEmbeddedCredentialMaterialDetector` — connection pair with uppercase key (`CLIENTSECRET=`) — **cheap-disproof 2026-10-25 seed hunt #202:** `OrdinalIgnoreCase` match on `ClientSecret` key name; regression `Resolve_redacts_embedded_credential_material_when_client_secret_pair_uses_uppercase_key_name`.
 - [x] (valid-no-repro) `ConfigurationEffectiveValueResolver.Resolve` — scalar length 325 with sixty-eight supplementary characters ending at boundary — **cheap-disproof 2026-10-25 seed hunt #202:** truncation preserves fifty-nine supplementary characters within bound; regression `Resolve_truncates_scalar_without_splitting_sixty_eight_supplementary_characters_at_boundary`.
 
-- [ ] (candidate) `ConfigurationEmbeddedCredentialMaterialDetector` — percent-encoded equals chain exceeding four thousand four hundred eighty decode passes — locus: `maxPercentDecodePasses`; input: three thousand three hundred forty-seven-layer chained `Uri.EscapeDataString` on `=`; wrong outcome: leak if cap too low.
-- [ ] (candidate) `ConfigurationEmbeddedCredentialMaterialDetector` — `Password=` pair after Arabic letter teh marbuta final form two (`U+FE98`) — locus: `IsPairDelimiter`; input: paste with `U+FE98` between pairs; wrong outcome: leak.
-- [ ] (candidate) `ConfigurationSensitiveConfigValueScanner` — JSON object with sensitive property name `ApiKey` and null value — locus: property name matcher; input: `{"ApiKey":null}`; wrong outcome: verify redaction.
-- [ ] (candidate) `ConfigurationEmbeddedCredentialMaterialDetector` — connection pair with uppercase key (`SHAREDACCESSKEY=`) — locus: key case sensitivity; input: `SHAREDACCESSKEY=abc`; wrong outcome: leak if case-sensitive match.
-- [ ] (candidate) `ConfigurationEffectiveValueResolver.Resolve` — scalar length 326 with sixty-nine supplementary characters ending at boundary — locus: truncation; input: 139 ascii + sixty-nine emoji; wrong outcome: strip valid emoji incorrectly.
-
 2026-10-25 seed hunt #201 (seed→hit): promoted five open `(candidate)` three thousand three hundred forty-five-layer percent encoding, Arabic letter teh marbuta initial form (`U+FE96`) delimiter, JSON `Secret` null value, uppercase `ACCESSTOKEN=` key, and scalar truncation with sixty-seven supplementary characters at boundary rows; three thousand three hundred forty-five-layer percent-encoded `ClientSecret` query values leaked because decode cap was four thousand three hundred fifty-two passes and `ApiKey=` after Arabic letter teh marbuta initial form (`U+FE96`) was not a pair boundary; raised `maxPercentDecodePasses` to four thousand four hundred sixteen and extended `IsPairDelimiter` with `\uFE96`; regressions `Resolve_redacts_embedded_credential_material_when_client_secret_pair_is_three_thousand_three_hundred_forty_five_layer_percent_encoded_in_query` and `Resolve_redacts_embedded_credential_material_when_api_key_pair_is_arabic_teh_marbuta_initial_form_three_delimited`; cheap-disproof closed JSON object property name `Secret` with null value (`Resolve_redacts_json_object_effective_values_when_property_name_is_secret_and_value_is_null`), uppercase `ACCESSTOKEN=` pair (`Resolve_redacts_embedded_credential_material_when_access_token_pair_uses_uppercase_key_name`), and one hundred thirty-seven ascii plus sixty-seven emoji plus tail ascii truncation (`Resolve_truncates_scalar_without_splitting_sixty_seven_supplementary_characters_at_boundary`); seeded five follow-on `(candidate)` rows; 1495 scoped Configuration tests passed (Release). Private beta: invited operators viewing config summary effective values no longer see secrets when redirect query values use three thousand three hundred forty-five-layer percent-encoding (up to four thousand four hundred sixteen decode passes) or when pairs are separated by Arabic letter teh marbuta initial form.
 
 - [x] (proven) `ConfigurationEmbeddedCredentialMaterialDetector.ContainsCredentialKeyValuePairAfterPercentDecoding` — percent-encoded equals chain exceeding four thousand three hundred fifty-two decode passes — **hit 2026-10-25 seed hunt #201:** four thousand four hundred sixteen-pass decode cap; regression `Resolve_redacts_embedded_credential_material_when_client_secret_pair_is_three_thousand_three_hundred_forty_five_layer_percent_encoded_in_query`. [class:fail-open-validation]
@@ -7564,11 +7558,11 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** configuration summary; config paths; split from archlucid-core
 - **paths:** ArchLucid.Core/Configuration/
 - **test-filter:** FullyQualifiedName~Configuration
-- **hunts:** 161
-- **bugs-found:** 229
+- **hunts:** 162
+- **bugs-found:** 231
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-25
-- **last-bug:** 2026-10-25 — U+FE97 delimiter and 4480-pass percent-decode for config summary redaction
+- **last-bug:** 2026-10-25 — U+FE98 delimiter and 4544-pass percent-decode for config summary redaction
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
