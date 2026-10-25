@@ -94,7 +94,7 @@ public sealed partial class ArchitectureReviewPdfBuilder
         foreach (ArchitectureReviewBoardExportPolicyFindingRow row in findings)
         {
             string pack = string.IsNullOrWhiteSpace(row.PolicyPackNameOrId)
-                ? "Policy pack was not stored."
+                ? "Policy pack name was not stored."
                 : row.PolicyPackNameOrId.Trim();
             string outcome = string.IsNullOrWhiteSpace(row.Outcome)
                 ? "Policy outcome was not stored."
