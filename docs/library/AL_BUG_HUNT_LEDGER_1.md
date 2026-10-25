@@ -6868,6 +6868,20 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-25 seed hunt (seed→hit): proved `ComparisonsApplicationService.LoadScopedComparisonRecordAsync` returned stored comparison rows with padded `ComparisonRecordId` (and non-canonical run/export anchors) while replay, drift, and cost-estimate paths already normalized ids on their response DTOs (hunts 157–160), so `GET /v1/planning/comparisons/{id}` and other scoped record reads echoed legacy padding; normalize on scoped read via shared `ComparisonRecordScopedReadNormalizer`; regression `CompareQuality_TryGetScopedRecordAsync_trims_padded_comparison_record_id_from_stored_row`; cheap-disproof closed `TryListByRunIdAsync` list projection (separate list path), `ApiPaging.TryParseUtcTicksIdCursor` (comparison search normalizes cursor id), batch zip manifest echo (cosmetic), Armenian homoglyphs (deferred), and persistence-layer determinism normalize (deferred); seeded five follow-on rows; scoped application-analysis + replay filter 323/323. Private beta: comparison record detail and scoped reads return trimmed record ids and canonical run/export anchors matching replay and export surfaces.
+
+- [ ] (candidate) `ComparisonsApplicationService.TryListByRunIdAsync` — repository list rows echo padded `ComparisonRecordId` — locus: run history list; input: legacy row padding without scoped load.
+- [ ] (candidate) `ComparisonsApplicationService.SearchAsync` — search results and `NextCursor` echo untrimmed record ids — locus: history search; input: padded ids in repository projection.
+- [ ] (candidate) `ApiPaging.TryParseUtcTicksIdCursor` — cursor id segment without trim — locus: HTTP cursor parse; input: padded id after ticks delimiter (alerts inbox and other API surfaces).
+- [ ] (candidate) `ComparisonBatchReplayZipSupport` — manifest failure entries echo pre-trim batch tokens — locus: zip manifest; input: cosmetic id echo only.
+- [ ] (candidate) `RunExportRecordPersistNormalizer` — persistence-layer determinism column normalize — locus: repository read; input: consolidation at DB boundary.
+
+- [x] (proven) `ComparisonRecordScopedReadNormalizer` / `LoadScopedComparisonRecordAsync` — padded comparison record id on scoped read — **hit 2026-10-25 seed hunt:** normalize on scoped read; regression above.
+- [x] (valid-no-repro) `TryGetScopedRecordForArtifactReadAsync` — artifact gate path — **cheap-disproof 2026-10-25 seed hunt:** delegates to scoped load normalizer.
+- [x] (invalid) `ApiPaging.TryParseUtcTicksIdCursor` — HTTP cursor id trim — **cheap-disproof 2026-10-25 seed hunt:** comparison search normalizes at application layer.
+- [x] (invalid) `ComparisonBatchReplayZipSupport` — manifest id echo — **cheap-disproof 2026-10-25 seed hunt:** cosmetic only.
+- [x] (invalid) `UnicodeLatinHomoglyphMapper` — Armenian homoglyphs — **cheap-disproof 2026-10-25 seed hunt:** deferred.
+
 2026-10-25 seed hunt (seed→hit): proved `ComparisonReplayCostEstimator.ComputeEstimateAsync` trimmed the lookup `comparisonRecordId` argument but echoed untrimmed `record.ComparisonRecordId` on the returned `ComparisonReplayCostEstimate` while replay APIs already normalized ids (hunts 157–159), so replay cost preview could show padded legacy record ids; normalize via `ComparisonRecordIdNormalizer.NormalizeRequired` on the estimate DTO; regression `TryEstimateAsync_returns_trimmed_comparison_record_id_from_stored_row`; cheap-disproof closed cache key path (lookup id already normalized at `TryEstimateAsync` entry), `ApiPaging.TryParseUtcTicksIdCursor` (comparison search normalizes cursor id), batch zip manifest echo (cosmetic), Armenian homoglyphs (deferred), and persistence-layer determinism normalize (deferred); seeded five follow-on rows; scoped application-analysis + replay filter 322/322. Private beta: comparison replay cost estimates return trimmed comparison record ids matching replay API metadata.
 
 - [ ] (candidate) `ComparisonsApplicationService.TryEstimateReplayCostAsync` — passes raw row id into estimator — locus: facade delegate; input: estimator now normalizes output (idempotent).
@@ -8059,11 +8073,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 160
-- **bugs-found:** 166
+- **hunts:** 161
+- **bugs-found:** 167
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-25
-- **last-bug:** 2026-10-25 — replay cost estimate trims comparison record id
+- **last-bug:** 2026-10-25 — scoped comparison record read trims padded id
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
