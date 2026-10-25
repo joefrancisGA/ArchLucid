@@ -53,6 +53,29 @@ describe("formatOperatorHomeRecentReviewsOutcome", () => {
     );
   });
 
+  it("omits awaiting-approval copy when suppressAwaitingApprovalCount is set", () => {
+    const metrics: OperatorHomeWorkspaceMetricsSnapshot = {
+      ...emptyMetrics,
+      reviewPackagesTotal: 2,
+      reviewPackagesCommitted: 1,
+      evidenceSources: 1,
+      hasReviews: true,
+    };
+
+    expect(
+      formatOperatorHomeRecentReviewsOutcome(metrics, {
+        awaitingApprovalCount: 3,
+        suppressAwaitingApprovalCount: true,
+      }),
+    ).toBe("2 reviews · 1 sealed review record · 0 open findings");
+    expect(
+      formatOperatorHomeRecentReviewsOutcome(metrics, {
+        awaitingApprovalCount: 3,
+        suppressAwaitingApprovalCount: true,
+      }),
+    ).not.toContain("awaiting approval");
+  });
+
   it("uses workspace pagination total in the headline while preview cap counts stay in the recent pool", () => {
     const metrics: OperatorHomeWorkspaceMetricsSnapshot = {
       ...emptyMetrics,

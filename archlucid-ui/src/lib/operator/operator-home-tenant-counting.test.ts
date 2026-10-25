@@ -21,6 +21,56 @@ describe("deriveOperatorHomeTenantCountingSnapshot", () => {
     expect(snapshot.metrics.hasReviews).toBe(true);
   });
 
+  it("matches panel-reported totals when runsDashboardTotalCount is non-finite", () => {
+    const items: RunSummary[] = [
+      {
+        runId: "tenant-a",
+        projectId: "default",
+        hasFindingsSnapshot: true,
+      },
+      {
+        runId: "tenant-b",
+        projectId: "default",
+        hasFindingsSnapshot: true,
+      },
+    ];
+
+    const snapshot = deriveOperatorHomeTenantCountingSnapshot({
+      displayItems: items,
+      previewItems: items,
+      runsDashboardTotalCount: Number.NaN,
+    });
+
+    expect(snapshot.metrics.reviewPackagesTotal).toBe(
+      resolveOperatorHomeRunsPanelReportedTotalCount(items, Number.NaN),
+    );
+  });
+
+  it("matches panel-reported totals when runsDashboardTotalCount is negative", () => {
+    const items: RunSummary[] = [
+      {
+        runId: "tenant-a",
+        projectId: "default",
+        hasFindingsSnapshot: true,
+      },
+      {
+        runId: "tenant-b",
+        projectId: "default",
+        hasFindingsSnapshot: true,
+      },
+    ];
+
+    const snapshot = deriveOperatorHomeTenantCountingSnapshot({
+      displayItems: items,
+      previewItems: items,
+      runsDashboardTotalCount: -4,
+    });
+
+    expect(snapshot.metrics.reviewPackagesTotal).toBe(
+      resolveOperatorHomeRunsPanelReportedTotalCount(items, -4),
+    );
+  });
+
   it("matches panel-reported totals when runsDashboardTotalCount undercounts visible tenant rows", () => {
     const items: RunSummary[] = [
       {

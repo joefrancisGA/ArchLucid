@@ -82,6 +82,23 @@ describe("resolveOperatorHomeRunsPanelReportedTotalCount", () => {
     ).toBe(2);
   });
 
+  it("uplifts omitted loaded totals from the tenant row when a description-matched showcase shares the page", () => {
+    expect(
+      resolveOperatorHomeRunsPanelReportedTotalCount(
+        [
+          {
+            ...buildRun("showcase-story"),
+            description: "Enterprise customer intake modernization review",
+            hasFindingsSnapshot: true,
+            findingCount: 4,
+          },
+          buildRun("tenant-active"),
+        ],
+        0,
+      ),
+    ).toBe(1);
+  });
+
   it("returns zero for description-matched showcase rows even when loaded total is positive", () => {
     expect(
       resolveOperatorHomeRunsPanelReportedTotalCount(
@@ -164,6 +181,36 @@ describe("resolveLiveRunsDashboardModel", () => {
 
   it("returns the server model when a partially mocked context omits the snapshot", () => {
     expect(resolveLiveRunsDashboardModel(ssrModel, undefined)).toBe(ssrModel);
+  });
+
+  it("preserves SSR loadFailure metadata when a live snapshot overlay succeeds", () => {
+    const merged = resolveLiveRunsDashboardModel(
+      {
+        ...ssrModel,
+        totalCount: 12,
+        loadFailure: {
+          message: "Service unavailable",
+          problem: null,
+          correlationId: null,
+          httpStatus: 503,
+          retryAfterSeconds: null,
+        },
+      },
+      {
+        items: [buildRun("live-a")],
+        totalCount: 1,
+      },
+    );
+
+    expect(merged.loadFailure).toEqual({
+      message: "Service unavailable",
+      problem: null,
+      correlationId: null,
+      httpStatus: 503,
+      retryAfterSeconds: null,
+    });
+    expect(merged.items.map((run) => run.runId)).toEqual(["live-a"]);
+    expect(merged.totalCount).toBe(1);
   });
 
   it("overlays live items and total count while preserving the server scope fields", () => {
