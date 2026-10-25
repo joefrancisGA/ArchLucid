@@ -121,6 +121,10 @@ function resolveNodeProblem(node: InfraEvidenceMermaidOutlineNode): string {
 
   const details = node.unresolvedRelationshipDetails ?? [];
 
+  if (node.connectionState === "Orphaned" && details.length === 0) {
+    return "Missing a required link. The missing-link reason was not stored.";
+  }
+
   if (details.length > 0) {
     return details.join(" ");
   }

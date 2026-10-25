@@ -16,6 +16,14 @@ export type RetrievalHitActionLink = {
   readonly label: string;
 };
 
+export const RETRIEVAL_HIT_TITLE_NOT_STORED = "Hit title was not stored." as const;
+
+export function resolveRetrievalHitTitle(title: string | null | undefined): string {
+  const trimmed = (title ?? "").trim();
+
+  return trimmed.length > 0 ? trimmed : RETRIEVAL_HIT_TITLE_NOT_STORED;
+}
+
 const GUID_PATTERN = "[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}";
 
 const MANIFEST_FINDING_DOCUMENT_ID = new RegExp(`^manifest-(${GUID_PATTERN})-finding-`, "i");

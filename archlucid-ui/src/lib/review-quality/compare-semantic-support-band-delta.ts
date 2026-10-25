@@ -17,6 +17,24 @@ export type CompareSemanticSupportBandDeltaView = {
   readonly target: CompareSemanticSupportBandSide;
 };
 
+export const COMPARE_SEMANTIC_SUPPORT_BAND_SUMMARY_NOT_STORED =
+  "Semantic support band summary was not stored." as const;
+
+/** Buyer-facing summary line — never imply zero counts when the stamp line is absent. */
+export function formatCompareSemanticSupportBandSideSummary(
+  side: CompareSemanticSupportBandSide,
+): string {
+  if (side.summaryLine !== null && side.summaryLine.trim().length > 0) {
+    return side.summaryLine;
+  }
+
+  if (side.counts.decisionGradeTotal > 0) {
+    return COMPARE_SEMANTIC_SUPPORT_BAND_SUMMARY_NOT_STORED;
+  }
+
+  return "No decision-grade findings";
+}
+
 export function buildCompareSemanticSupportBandDeltaView(input: {
   readonly baselineFindings: readonly QuickDecisionFinding[];
   readonly targetFindings: readonly QuickDecisionFinding[];

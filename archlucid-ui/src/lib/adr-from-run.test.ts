@@ -104,6 +104,47 @@ describe("adr-from-run", () => {
     expect(md).toContain("Driver A");
   });
 
+  it("labels omitted cost implications in ADR consequences without follow-up boilerplate", () => {
+    const summary = {
+      overallAssessment: "OK",
+      riskPosture: "Low",
+      themeSummaries: [],
+      findingCount: 0,
+      decisionCount: 0,
+      unresolvedIssueCount: 0,
+      complianceGapCount: 0,
+      explanation: {
+        rawText: "",
+        structured: null,
+        confidence: null,
+        provenance: null,
+        summary: "",
+        keyDrivers: ["Driver"],
+        riskImplications: [],
+        complianceImplications: [],
+        detailedNarrative: "",
+      },
+    } as RunExplanationSummary;
+
+    const slice = buildAdrExplanationSlice(summary);
+    expect(slice?.costImplications).toBeNull();
+
+    const md = buildMadrMarkdownFromRun({
+      runId: "run-1",
+      projectId: "p1",
+      reviewTitle: "Review",
+      createdUtc: "2026-05-01T12:00:00.000Z",
+      manifestStatusLabel: null,
+      policyPackLabel: null,
+      manifestCounts: null,
+      explanation: slice,
+      findings: [],
+    });
+
+    expect(md).toContain("Cost implications were not stored.");
+    expect(md).not.toContain("Capture operational, security, and cost follow-ups manually");
+  });
+
   it("distinguishes missing ADR explanation values from stored empty values", () => {
     const missing = buildMadrMarkdownFromRun({
       runId: "missing",

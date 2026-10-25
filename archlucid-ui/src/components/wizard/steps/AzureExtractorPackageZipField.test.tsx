@@ -46,6 +46,27 @@ describe("AzureExtractorPackageZipField (TB-495)", () => {
     expect(screen.getByText("Azure inventory script")).toBeInTheDocument();
   });
 
+  it("labels bundled demo ZIP with scenario title (multi-region-saas-platform)", async () => {
+    render(
+      <WizardFormTestHarness>
+        <AzureExtractorPackageZipField variant="baseline" />
+      </WizardFormTestHarness>,
+    );
+
+    fireEvent.click(screen.getByTestId("wizard-azure-advanced-toggle"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("wizard-baseline-demo-scenario-multi-region-saas-platform")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId("wizard-baseline-demo-scenario-multi-region-saas-platform"));
+    fireEvent.click(screen.getByTestId("wizard-azure-zip-try-demo"));
+
+    await waitFor(() => {
+      expect(screen.getByText(/Bundled demo \(Multi-region SaaS platform\)/)).toBeInTheDocument();
+    });
+  });
+
   it("shows inline ZIP validation without dual toast (TB-2009)", async () => {
     render(
       <WizardFormTestHarness>

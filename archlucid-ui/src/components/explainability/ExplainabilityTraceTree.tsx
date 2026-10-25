@@ -105,7 +105,7 @@ export function ExplainabilityTraceTree(props: ExplainabilityTraceTreeProps) {
   const decisionText =
     data.decisionsTaken.length > 0
       ? data.decisionsTaken[0]
-      : (data.evidence?.conclusion?.trim() ?? "No decision recorded in trace.");
+      : (data.evidence?.conclusion?.trim() ?? "Decision text was not stored.");
 
   const confidenceLabel = normalizeFindingConfidenceLevel(data.confidenceLevel ?? null);
   const evidenceRefs = data.evidence?.evidenceRefs;
