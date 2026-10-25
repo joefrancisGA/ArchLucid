@@ -227,7 +227,9 @@ export function FindingsWhatIfAnalysisPanel(props: FindingsWhatIfAnalysisPanelPr
                   </span>
                   {row.savingsUsd === null ? (
                     <span className={cn("ml-2 text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>
-                      Projected savings were not stored.
+                      {row.interval !== null
+                        ? "Projected impact was not stored."
+                        : "Projected savings were not stored."}
                     </span>
                   ) : row.savingsUsd > 0 ? (
                     <span className={cn("ml-2 text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>

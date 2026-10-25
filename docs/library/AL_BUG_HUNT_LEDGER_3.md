@@ -1,4 +1,4 @@
-> **Scope:** Hunt ledger for `/al-bug3` (UI and CLI). Edit this file only from that command. Sync and push `bugsmash-3`. Do not edit the other set ledgers in the same hunt.
+> **Scope:** Contributor-reference — hunt ledger for `/al-bug3` (UI and CLI). Edit this file only from that command. Sync and push `bugsmash-3`. Do not edit the other set ledgers in the same hunt.
 
 ## Zone: ui-form-validation
 
@@ -4938,7 +4938,33 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-operator-lib
 
-**Hunts:** 49 · **Bugs found:** 46 · **Consecutive dry hunts:** 0
+**Hunts:** 62 · **Bugs found:** 59 · **Consecutive dry hunts:** 0
+
+2026-10-25 seed hunt (hit): promoted `normalizeOperatorHomeNonNegativeCount` on compact home KPI strip counts; regression `normalizes non-finite workspace metric counts in the KPI strip`; 10 scoped `operator-home-workspace-metrics` vitest passed. Private beta: Invited operators no longer see `NaN Active reviews` or `NaN Open findings` in the home workspace metrics strip when a metrics snapshot carries non-finite counts.
+
+2026-10-25 seed hunt (hit): promoted `resolveRecentPreviewCapCounts` for home recent-reviews outcome preview cap; regressions `normalizes non-finite recent preview cap counts in outcome copy` and `normalizes non-finite preview cap counts in structured outcome parts`; 17 scoped `operator-home-recent-reviews-outcome` vitest passed. Private beta: Invited operators no longer see `showing NaN` (or `showing NaN of NaN`) in home recent reviews captions when preview cap counts are non-finite.
+
+2026-10-25 seed hunt (hit): promoted `normalizeOperatorConnectivityHttpStatus` in connectivity technical details; regression `omits non-finite http status from technical details`; 6 scoped `operator-connectivity-error-present` vitest passed. Private beta: Invited operators no longer see `HTTP NaN` (or similar) in workspace connectivity troubleshooting details when failure payloads carry non-finite status codes.
+
+2026-10-25 seed hunt (hit): promoted setup readiness count normalization in home workspace metrics formatters; regression `normalizes non-finite setup readiness counts to zero`; scoped `operator-home-workspace-metrics` vitest passed. Private beta: Invited operators no longer see `Setup NaN/NaN` or `NaN of NaN ready` on home workspace metrics when finish-setup readiness hands through non-finite counts.
+
+2026-10-25 seed hunt (hit): promoted `resolveOperatorBillingSeatRow` non-finite `seatsLimit` guard; regressions `omits the billing seat row when seatsLimit is non-finite` and existing seatsUsed normalization; 10 scoped `operator-billing-subscription-resolution` vitest passed. Private beta: Invited operators no longer see `0 of NaN in use` on the billing seat row when usage status JSON carries a non-finite `seatsLimit`.
+
+2026-10-25 seed hunt (hit): promoted `formatOperatorHomeGovernanceApprovalWarningCount` non-finite guard; regressions `treats non-finite counts as zero warnings` and plural formatting; scoped `operator-home-governance-approval-warning-copy` vitest passed. Private beta: Invited operators no longer see `NaN approval warnings` in home KPI and outcome copy when workspace metrics hand through a non-finite governance warning count.
+
+2026-10-25 seed hunt (hit): promoted `readOperatorShellStableCache` non-finite `writtenAtMs` TTL eviction; regression `discards stable cache entries with non-finite writtenAtMs`; 4 scoped `operator-shell-stable-cache` vitest passed. Private beta: Invited operators no longer keep a poisoned session shell snapshot alive forever when stable-cache JSON carries a non-finite `writtenAtMs` timestamp.
+
+2026-10-25 seed hunt (hit): promoted `isRenderableRefreshedInstant` guards on home data-currency helpers; regressions `treats an invalid Date like a missing refresh instead of formatting garbage` and `does not report stale data when the refresh timestamp is invalid`; scoped `operator-last-refreshed-label` vitest passed. Private beta: Invited operators no longer see a false “Data may be stale” home header cue or garbage currency text when the home refresh timestamp is an invalid Date.
+
+2026-10-25 seed hunt (hit): promoted `normalizeOperatorBillingAiBudgetRemainingPercent` on current-plan view; regression `omits non-finite ai budget remaining percent from the plan view`; 13 scoped `operator-billing-current-plan` vitest passed. Private beta: Invited operators no longer see `NaN%` AI budget remaining on the billing current-plan card when LLM budget helpers hand through a non-finite percent.
+
+2026-10-25 seed hunt (hit): promoted `formatTenantTrialDaysRemainingLine` for non-finite `trialDaysRemaining`; regressions `falls back when trial days remaining is non-finite` and `truncates fractional trial days remaining for display`; scoped `operator-billing-current-plan` vitest passed. Private beta: Invited operators no longer see `Infinity days remaining` (or other garbage day counts) on the billing current-plan trial line when trial status JSON carries a non-finite `daysRemaining` value.
+
+2026-10-25 seed hunt (hit): promoted `resolveOperatorAttentionChipCount` for attention chip `?? 0` NaN footgun; regressions `normalizes non-finite chip counts to zero for display and aria` and `ignores non-finite counts when resolving the highest attention kind`; scoped `operator-attention-chip-needs-action` vitest passed; `OperatorAttentionKindChip` uses normalized count for visible badge. Private beta: Invited operators no longer see `(NaN)` on home attention chips or misleading promoted-partition emphasis when rollup inputs carry non-finite counts.
+
+2026-10-25 seed hunt (hit): promoted `resolveOperatorBillingSeatRow` `seatsUsed ?? 0` NaN footgun; regression `normalizes non-finite seatsUsed for the billing seat row`; 9 scoped `operator-billing-subscription-resolution` vitest passed. Private beta: Invited operators no longer see `NaN of N in use` on the billing current-plan seat row when usage status JSON carries a non-finite `seatsUsed` value.
+
+2026-10-25 seed hunt (hit): promoted `presentOperatorSessionsToFinalizedPercent` negative-ratio guard; regression `rejects negative ratios instead of showing 0%`; 4 scoped `operator-sessions-to-finalized-percent-display` vitest passed. Private beta: Invited operators no longer see a misleading `0%` session-to-finalize conversion tile when diagnostics APIs return a negative ratio.
 
 2026-10-25 seed hunt (hit): promoted `deriveOperatorHomeTenantCountingSnapshot` `runsDashboardTotalCount` floor against loaded tenant rows; regression `treats zero runsDashboardTotalCount as stale when tenant overview rows are loaded`; scoped `operator-home-tenant-counting` vitest passed. Private beta: Invited operators no longer get an empty-home metrics strip and “no reviews yet” outcome copy when the runs dashboard reports `totalCount` 0 while real overview rows are already on screen.
 
@@ -4966,6 +4992,19 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-10-08 seed hunt (seed-only): re-read continuity hydration, recent-view mapping, workspace metrics, and freshness helpers; no hunt-ready row promoted; scoped `lib/operator` tests completed with known baseline failures outside the reviewed utility behavior.
 
+- [x] (proven) `formatOperatorHomeCompactMetricsLine` — raw metrics snapshot counts interpolate `NaN` into home KPI strip — **hit 2026-10-25 seed hunt:** `normalizeOperatorHomeNonNegativeCount` on active/sealed/findings; regression `normalizes non-finite workspace metric counts in the KPI strip`.
+- [x] (proven) `formatOperatorHomeRecentReviewsOutcome` / `buildOperatorHomeRecentReviewsOutcomeParts` — `visibleCount !== undefined` accepts `NaN` in showing-cap copy — **hit 2026-10-25 seed hunt:** `resolveRecentPreviewCapCounts`; regressions `normalizes non-finite recent preview cap counts in outcome copy` and `normalizes non-finite preview cap counts in structured outcome parts`.
+- [x] (proven) `formatOperatorHomeGovernanceApprovalWarningCount` — `Math.max(0, Math.trunc(count))` leaves `NaN` labels — **hit 2026-10-25 seed hunt:** `Number.isFinite` guard; regression `treats non-finite counts as zero warnings`.
+- [x] (proven) `readOperatorShellStableCache` — `typeof writtenAtMs === "number"` accepts `NaN`, skipping TTL eviction — **hit 2026-10-25 seed hunt:** `Number.isFinite(parsed.writtenAtMs)`; regression `discards stable cache entries with non-finite writtenAtMs`.
+- [x] (proven) `operatorHomeDataCurrencyValue` / `operatorHomeDataCurrencyStaleCue` — invalid `Date` bypasses `isRenderableRefreshedInstant` — **hit 2026-10-25 seed hunt:** fail-closed guards; regressions `treats an invalid Date like a missing refresh instead of formatting garbage` and `does not report stale data when the refresh timestamp is invalid`.
+- [x] (proven) `resolveOperatorBillingCurrentPlan` — non-finite `aiBudgetRemainingPercent` passes through to `NaN%` UI — **hit 2026-10-25 seed hunt:** `normalizeOperatorBillingAiBudgetRemainingPercent`; regression `omits non-finite ai budget remaining percent from the plan view`.
+- [x] (proven) `resolveOperatorBillingCurrentPlan` — `trialDaysRemaining >= 0` accepts `Infinity` and fractional days in trial copy — **hit 2026-10-25 seed hunt:** `formatTenantTrialDaysRemainingLine`; regressions `falls back when trial days remaining is non-finite` and `truncates fractional trial days remaining for display`.
+- [x] (proven) `operatorAttentionChipNeedsAction` / `formatOperatorAttentionChipAriaLabel` / `resolveHighestNonZeroAttentionKind` — `countsByKind[kind] ?? 0` passes `NaN` into chip UI — **hit 2026-10-25 seed hunt:** `resolveOperatorAttentionChipCount`; regressions `normalizes non-finite chip counts to zero for display and aria` and `ignores non-finite counts when resolving the highest attention kind`.
+- [x] (proven) `resolveOperatorConnectivityTechnicalDetails` — `httpStatus ?? problem.status` passes `NaN` into technical details — **hit 2026-10-25 seed hunt:** `normalizeOperatorConnectivityHttpStatus`; regression `omits non-finite http status from technical details`.
+- [x] (proven) `formatSetupReadinessLabel` / compact / complete helpers — raw counts interpolate `NaN` into home setup copy — **hit 2026-10-25 seed hunt:** `normalizeSetupReadinessCount`; regression `normalizes non-finite setup readiness counts to zero`.
+- [x] (proven) `resolveOperatorBillingSeatRow` — non-finite `seatsLimit` passes `typeof === "number"` and renders `of NaN` — **hit 2026-10-25 seed hunt:** `Number.isFinite(seatsLimit)`; regression `omits the billing seat row when seatsLimit is non-finite`.
+- [x] (proven) `resolveOperatorBillingSeatRow` — `seatsUsed ?? 0` leaves `NaN` in seat copy — **hit 2026-10-25 seed hunt:** `normalizeOperatorHomeNonNegativeCount`; regression `normalizes non-finite seatsUsed for the billing seat row`.
+- [x] (proven) `presentOperatorSessionsToFinalizedPercent` — negative finite ratios clamp to `0%` display — **hit 2026-10-25 seed hunt:** reject `r < 0` like `r > 1`; regression `rejects negative ratios instead of showing 0%`.
 - [x] (proven) `deriveOperatorHomeTenantCountingSnapshot` — `runsDashboardTotalCount ?? tenantItems.length` keeps `0` when dashboard total is stale — **hit 2026-10-25 seed hunt:** `Math.max(normalizedDashboardTotal, tenantReviewCount)`; regression `treats zero runsDashboardTotalCount as stale when tenant overview rows are loaded`.
 - [x] (proven) `mapAlertsInboxSummary` — raw DTO counts propagate `NaN` into alerts inbox cache — **hit 2026-10-25 seed hunt:** `normalizeOperatorHomeNonNegativeCount` on open/acknowledged/resolved/blocking; regression `normalizes non-finite alerts inbox summary counts from shell status JSON to zero`.
 - [x] (proven) `fetchOperatorShellStatus` — `assignedToMeFindingsCount ?? null` leaves `NaN` on hydrate (`?? 0` in UI still shows NaN) — **hit 2026-10-25 seed hunt:** `normalizeOperatorShellNullableCount`; regressions `maps non-finite assigned-to-me findings count from shell status JSON to null` and `maps non-finite counts to null`.

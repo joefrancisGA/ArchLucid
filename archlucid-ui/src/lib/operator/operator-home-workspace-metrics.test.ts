@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   deriveOperatorHomeWorkspaceMetrics,
+  formatOperatorHomeCompactMetricsLine,
   formatSetupReadinessCompleteLabel,
   formatSetupReadinessLabel,
 } from "@/lib/operator/operator-home-workspace-metrics";
@@ -120,9 +121,39 @@ describe("deriveOperatorHomeWorkspaceMetrics", () => {
   });
 });
 
+describe("formatOperatorHomeCompactMetricsLine", () => {
+  it("normalizes non-finite workspace metric counts in the KPI strip", () => {
+    const line = formatOperatorHomeCompactMetricsLine({
+      metrics: {
+        reviewPackagesTotal: 2,
+        reviewPackagesCommitted: Number.NaN,
+        reviewPackagesActive: Number.NaN,
+        reviewPackagesAwaitingApproval: 0,
+        openFindings: Number.NaN,
+        governanceWarnings: Number.NaN,
+        evidenceSources: 0,
+        hasReviews: true,
+      },
+      setupReadyCount: 1,
+      setupTotalCount: 2,
+      setupReadinessLoading: false,
+    });
+
+    expect(line).toBe(
+      "0 Active reviews · 0 sealed review records · 0 Open findings · 0 approval warnings · Setup 1/2",
+    );
+    expect(line).not.toMatch(/NaN/);
+  });
+});
+
 describe("formatSetupReadinessLabel", () => {
   it("formats ready counts", () => {
     expect(formatSetupReadinessLabel(2, 4)).toBe("2 of 4 ready");
+  });
+
+  it("normalizes non-finite setup readiness counts to zero", () => {
+    expect(formatSetupReadinessLabel(Number.NaN, 4)).toBe("0 of 4 ready");
+    expect(formatSetupReadinessLabel(2, Number.NaN)).toBe("2 of 0 ready");
   });
 });
 

@@ -11,6 +11,11 @@ import {
   formatSponsorSummaryFiniteCountLine,
   formatSponsorSummaryOptionalStringLine,
 } from "@/lib/sponsor/format-sponsor-summary-count-line";
+import {
+  SPONSOR_ROI_IDENTIFIED_PENDING_LABEL,
+  SPONSOR_ROI_REALIZED_COMMITTED_LABEL,
+  SPONSOR_ROI_REALIZED_NOT_STORED_LABEL,
+} from "@/lib/sponsor/sponsor-roi-identified-vs-realized";
 
 export type SponsorRoiSystemicIssueTrendPoint = {
   monthKey: string;
@@ -138,13 +143,14 @@ export function buildSponsorSummaryMarkdown(
   if (summary.basisBreakdown) {
     const identifiedPending = summary.basisBreakdown.openEstimatedUsd + summary.basisBreakdown.needsEvidenceUsd;
 
-    lines.push(`- **Identified savings (pending approval):** ${formatUsd(identifiedPending)}`);
-    lines.push(`- **Realized savings (committed & applied):** ${formatUsd(summary.basisBreakdown.realizedUsd)}`);
+    lines.push(`- **${SPONSOR_ROI_IDENTIFIED_PENDING_LABEL}:** ${formatUsd(identifiedPending)}`);
+    lines.push(`- **${SPONSOR_ROI_REALIZED_COMMITTED_LABEL}:** ${formatUsd(summary.basisBreakdown.realizedUsd)}`);
     lines.push(
       `- **Excluded from realized (deferred / waived / accepted-risk / not applicable):** ${formatUsd(summary.basisBreakdown.deferredUsd + summary.basisBreakdown.waivedUsd + summary.basisBreakdown.acceptedRiskUsd + summary.basisBreakdown.rejectedNotApplicableUsd)}`,
     );
   } else {
     lines.push(`- **Estimated USD savings (headline):** ${formatUsd(summary.totalEstimatedUsdSavings)}`);
+    lines.push(`- **${SPONSOR_ROI_REALIZED_COMMITTED_LABEL}:** ${SPONSOR_ROI_REALIZED_NOT_STORED_LABEL}`);
   }
 
   lines.push(

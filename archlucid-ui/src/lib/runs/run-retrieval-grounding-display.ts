@@ -34,7 +34,7 @@ export function formatRunRetrievalGroundingScoresLabel(
     .slice(0, 2)
     .map((score) => {
       if (score.score === null || score.score === undefined || Number.isNaN(score.score)) {
-        return score.chunkId;
+        return `${score.chunkId}: Score was not stored.`;
       }
 
       return `${score.chunkId}: ${score.score.toFixed(4)}`;

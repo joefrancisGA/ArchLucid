@@ -92,7 +92,7 @@ internal static class InventoryDiagramRoleAccessApplier
             }
         }
 
-        return roleNames[0];
+        return InventoryDiagramRelationshipLabelTexts.FormatRoleAssignmentAccessLabel(roleNames[0]);
     }
 
     private static bool IsRoleAssignmentEdge(GraphEdge edge)
@@ -154,9 +154,7 @@ internal static class InventoryDiagramRoleAccessApplier
         }
 
         string normalizedScope = ArmResourceIdNormalizer.Normalize(scope);
-        string sentence = normalizedScope.Contains("/resourceGroups/", StringComparison.OrdinalIgnoreCase)
-            ? $"Role assignment {roleName} on resource group {ReadResourceName(normalizedScope)}. This is not observed use."
-            : $"Role assignment {roleName} on subscription {ReadSubscriptionId(normalizedScope)}. This is not observed use.";
+        string sentence = FormatBroadScopeOutline(roleName, normalizedScope);
 
         if (!sourceNode.UnresolvedRelationshipDetails.Contains(sentence, StringComparer.Ordinal))
         {
@@ -196,6 +194,40 @@ internal static class InventoryDiagramRoleAccessApplier
             && !string.IsNullOrWhiteSpace(value)
             ? value
             : null;
+    }
+
+    private static string FormatBroadScopeOutline(string roleName, string normalizedScope)
+    {
+        bool roleNameMissing = string.Equals(
+            roleName,
+            "Role name was not stored.",
+            StringComparison.Ordinal);
+
+        if (normalizedScope.Contains("/resourceGroups/", StringComparison.OrdinalIgnoreCase))
+        {
+            string resourceGroupName = ReadResourceName(normalizedScope);
+
+            if (roleNameMissing)
+            {
+                return $"Role name was not stored. Scope is resource group {resourceGroupName}.";
+            }
+
+            return $"{roleName} on resource group {resourceGroupName}";
+        }
+
+        string subscriptionId = ReadSubscriptionId(normalizedScope);
+
+        if (string.Equals(subscriptionId, "Subscription id was not stored.", StringComparison.Ordinal))
+        {
+            return subscriptionId;
+        }
+
+        if (roleNameMissing)
+        {
+            return $"Role name was not stored. Scope is subscription {subscriptionId}.";
+        }
+
+        return $"{roleName} on subscription {subscriptionId}";
     }
 
     private static string ReadResourceName(string scope)

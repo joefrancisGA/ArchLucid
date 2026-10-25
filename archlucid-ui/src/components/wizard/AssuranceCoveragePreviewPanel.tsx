@@ -7,6 +7,7 @@ import { StatusTag } from "@/components/ui/status-tag";
 import {
   buildCoveragePreviewRequest,
   COVERAGE_PREVIEW_GROUP_LABELS,
+  formatCoveragePreviewPolicyPackVersion,
   formatCoveragePreviewScopeNote,
   groupCoveragePreviewAssignments,
   mapNormalizedCloudProvider,
@@ -62,9 +63,14 @@ function renderAssignmentRow(
       data-testid={`coverage-preview-row-${assignment.policyPackDisplayName}`}
     >
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <span className="min-w-0 font-medium text-neutral-900 dark:text-neutral-100">
-          {assignment.policyPackDisplayName}
-        </span>
+        <div className="min-w-0">
+          <span className="font-medium text-neutral-900 dark:text-neutral-100">
+            {assignment.policyPackDisplayName}
+          </span>
+          <p className={cn("m-0 mt-0.5", OPERATOR_TYPOGRAPHY.helper, "text-neutral-600 dark:text-neutral-400")}>
+            Pack version: {formatCoveragePreviewPolicyPackVersion(assignment.policyPackVersion)}
+          </p>
+        </div>
         <div className="flex flex-wrap items-center gap-2">
           <StatusTag kind={included ? "ready" : "neutral"} label={included ? "Evaluates this run" : "Not in this run"} />
           <span className={cn("max-w-md", OPERATOR_TYPOGRAPHY.helper, "text-neutral-600 dark:text-neutral-400")}>

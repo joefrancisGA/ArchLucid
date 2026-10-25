@@ -117,6 +117,30 @@ public sealed class AgentArchitectureFindingEmissionGateTests
     }
 
     [Fact]
+    public void ApplyToResults_skips_null_finding_entries()
+    {
+        AgentResult result = new()
+        {
+            AgentType = AgentType.Compliance,
+            Findings =
+            [
+                null!,
+                new ArchitectureFinding
+                {
+                    Classification = FindingClassification.DecisionGradeFinding,
+                    Message = "Prose only",
+                },
+            ],
+        };
+
+        AgentArchitectureFindingEmissionGate.ApplyToResults([result]);
+
+        result.Findings.Should().BeEmpty();
+        result.WithheldFindings.Should().ContainSingle();
+        result.WithheldFindings[0].Reason.Should().Be(WithheldFindingReasons.ProseOnlyEmission);
+    }
+
+    [Fact]
     public void ApplyToResults_tolerates_null_withheld_findings_on_deserialized_result()
     {
         const string json =
