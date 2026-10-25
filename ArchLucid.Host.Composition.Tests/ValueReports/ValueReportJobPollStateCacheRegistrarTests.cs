@@ -57,6 +57,27 @@ public sealed class ValueReportJobPollStateCacheRegistrarTests
     }
 
     [Fact]
+    public void Register_wraps_redis_cache_when_probe_resolves_without_shared_IDistributedCache()
+    {
+        ServiceCollection services = [];
+        IConfiguration configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                ["HotPathCache:RedisConnectionString"] = "localhost:6379",
+            })
+            .Build();
+        services.AddSingleton(configuration);
+
+        ValueReportJobPollStateCacheRegistrar.Register(services, configuration);
+
+        using ServiceProvider provider = services.BuildServiceProvider();
+
+        provider.GetRequiredService<IValueReportJobPollStateCache>()
+            .Should()
+            .BeOfType<DistributedCacheValueReportJobPollStateCache>();
+    }
+
+    [Fact]
     public void Register_falls_back_to_process_shared_cache_when_no_distributed_cache_or_redis()
     {
         ServiceCollection services = [];

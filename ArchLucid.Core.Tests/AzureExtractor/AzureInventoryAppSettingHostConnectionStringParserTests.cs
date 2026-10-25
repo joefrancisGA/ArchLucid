@@ -63,6 +63,19 @@ public sealed class AzureInventoryAppSettingHostConnectionStringParserTests
     }
 
     [Fact]
+    public void ParseSettingValues_managed_redis_azure_net_hostname()
+    {
+        const string value = "myaccount.eastus.redis.azure.net,password=abc,ssl=True";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("myaccount.eastus.redis.azure.net");
+        $"{parsed[0]}".Should().NotContain("abc");
+    }
+
+    [Fact]
     public void ParseSettingValues_cosmos_documents_host()
     {
         const string value = "AccountEndpoint=https://myaccount.documents.azure.com:443/;AccountKey=abc";

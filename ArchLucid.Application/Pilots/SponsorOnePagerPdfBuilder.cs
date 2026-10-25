@@ -293,7 +293,9 @@ public sealed class SponsorOnePagerPdfBuilder(
 
     private static string FormatTimeToCommit(PilotRunDeltas deltas)
     {
-        return deltas.TimeToCommittedManifest is not { } wall ? "(pending — no committed manifest)" : $"{wall:c} (committed {deltas.ManifestCommittedUtc:O})";
+        return deltas.TimeToCommittedManifest is not { } wall
+            ? "Time to committed manifest was not stored."
+            : $"{wall:c} (committed {deltas.ManifestCommittedUtc:O})";
     }
 
     private static string FormatFindingsBySeverity(PilotRunDeltas deltas)

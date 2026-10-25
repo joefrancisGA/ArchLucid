@@ -19,7 +19,8 @@ internal static class AgentOutputTraceRejectionSummaryBuilder
         string? parsedResultJson,
         AgentOutputEvaluationScore structural,
         AgentOutputSemanticScore semantic,
-        AgentOutputQualityGateOutcome outcome)
+        AgentOutputQualityGateOutcome outcome,
+        double? calibratedConfidence = null)
     {
         if (outcome != AgentOutputQualityGateOutcome.Rejected)
             return null;
@@ -29,7 +30,7 @@ internal static class AgentOutputTraceRejectionSummaryBuilder
 
         List<string> parts = new();
 
-        if (qualityGate.Evaluate(structural, semantic) == AgentOutputQualityGateOutcome.Rejected)
+        if (qualityGate.Evaluate(structural, semantic, calibratedConfidence) == AgentOutputQualityGateOutcome.Rejected)
             parts.Add("quality_gate_threshold_reject");
 
         if (pilotStrict)

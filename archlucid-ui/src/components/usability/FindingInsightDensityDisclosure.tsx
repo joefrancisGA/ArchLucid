@@ -31,7 +31,9 @@ export function FindingInsightDensityDisclosure(props: FindingInsightDensityDisc
   const openRef = useRef(open);
   openRef.current = open;
   const hasScore = props.insightDensityScore !== null && Number.isFinite(props.insightDensityScore);
-  const scoreDisplay = hasScore ? String(Math.trunc(props.insightDensityScore ?? 0)) : "Score not returned";
+  const scoreDisplay = hasScore
+    ? String(Math.trunc(props.insightDensityScore ?? 0))
+    : "Insight density score was not stored.";
   const bandLabel = formatInsightDensityBandLabel(props.insightDensityScore);
   const whyText = props.whyThisIsNotGeneric?.trim() ?? "";
 

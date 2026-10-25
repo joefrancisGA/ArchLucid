@@ -47,8 +47,10 @@ internal static partial class RunExplanationAggregateJsonReader
 
         string numericText = raw.Trim();
 
-        if (numericText.EndsWith('%'))
-            numericText = numericText[..^1].TrimEnd();
+        int percentIndex = numericText.LastIndexOf('%');
+
+        if (percentIndex >= 0)
+            numericText = numericText[..percentIndex].TrimEnd();
 
         if (double.TryParse(numericText, NumberStyles.Float, CultureInfo.InvariantCulture, out double parsed)
             && double.IsFinite(parsed))

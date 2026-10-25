@@ -262,7 +262,11 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
         ? "Resource name was stored empty."
         : normalizeSecureNowResourceNameForDisplay(currentQuestion.resourceName);
   const resourceIdMissing = currentQuestion?.resourceId === null || currentQuestion?.resourceId === undefined;
-  const resourceOnDiagram = currentQuestion == null || resourceIdMissing || outline == null
+  const resourceIdStoredEmpty =
+    currentQuestion?.resourceId !== null
+    && currentQuestion?.resourceId !== undefined
+    && currentQuestion.resourceId.trim().length === 0;
+  const resourceOnDiagram = currentQuestion == null || resourceIdMissing || resourceIdStoredEmpty || outline == null
     ? true
     : diagramOutlineIncludesFocusResource(outline, currentQuestion.resourceId);
   const inferredConnectionQuestion =
@@ -324,7 +328,16 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
         </p>
       ) : null}
 
-      {currentQuestion != null && !resourceIdMissing && outline === null ? (
+      {currentQuestion != null && resourceIdStoredEmpty ? (
+        <p
+          className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          role="status"
+        >
+          Resource id was stored empty.
+        </p>
+      ) : null}
+
+      {currentQuestion != null && !resourceIdMissing && !resourceIdStoredEmpty && outline === null ? (
         <p
           className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
           data-testid="infra-diagrams-question-outline-not-loaded"
@@ -334,7 +347,7 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
         </p>
       ) : null}
 
-      {currentQuestion != null && !resourceIdMissing && outline != null && !resourceOnDiagram ? (
+      {currentQuestion != null && !resourceIdMissing && !resourceIdStoredEmpty && outline != null && !resourceOnDiagram ? (
         <p
           className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
           data-testid="infra-diagrams-question-off-diagram"
@@ -367,9 +380,9 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
                 </p>
               ) : null}
               <div className="flex flex-wrap gap-2">
-                {currentQuestion.answerCodes?.map((answerCode) => (
+                {currentQuestion.answerCodes?.map((answerCode, choiceIndex) => (
                   <Button
-                    key={answerCode}
+                    key={`${choiceIndex}:${answerCode}`}
                     type="button"
                     size="sm"
                     variant={selectedAnswer === answerCode ? "primary" : "outline"}
@@ -385,7 +398,9 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
                   >
                     {answerCode === "NotSure"
                       ? "Not sure. This does not store an answer."
-                      : secureNowQuestionAnswerLabel(answerCode)}
+                      : answerCode.trim().length === 0
+                        ? "Answer choice was stored empty."
+                        : secureNowQuestionAnswerLabel(answerCode)}
                   </Button>
                 ))}
               </div>

@@ -50,6 +50,14 @@ export function AskPickReviewBeforeAskingStrip(
       <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
         Scope questions to one architecture package so answers cite the right evidence and governance context.
       </p>
+      {pickerValue.trim().length === 0 ? (
+        <p
+          className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="ask-pick-review-empty-selection-helper"
+        >
+          Architecture package selection was not stored. Pick a committed review to scope Ask.
+        </p>
+      ) : null}
       <div className="mt-3 min-w-[16rem] max-w-xl">
         <AskRunIdPicker
           value={pickerValue}
