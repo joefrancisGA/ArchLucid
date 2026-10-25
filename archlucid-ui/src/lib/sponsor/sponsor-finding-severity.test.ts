@@ -3,9 +3,9 @@ import { describe, expect, it } from "vitest";
 import { severityFromTrace, severitySortRank } from "./sponsor-finding-severity";
 
 describe("severityFromTrace", () => {
-  it("maps empty to Not recorded", () => {
-    expect(severityFromTrace("")).toBe("Not recorded");
-    expect(severityFromTrace(null)).toBe("Not recorded");
+  it("maps empty to not-stored copy", () => {
+    expect(severityFromTrace("")).toBe("Severity was not stored.");
+    expect(severityFromTrace(null)).toBe("Severity was not stored.");
   });
 
   it("keeps critical and severe distinct from high", () => {

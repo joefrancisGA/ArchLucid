@@ -41,6 +41,10 @@ public static class EndToEndReplayComparisonHtmlExportFormatter
             sb.AppendLine("<p class=\"meta\">Fuzzy (possible) matches: " + metadata.FuzzyMatchCount + "</p>");
             sb.AppendLine("<p class=\"meta\">Correlation honesty: " + EscapeHtml(metadata.HonestyNote) + "</p>");
         }
+        else
+        {
+            sb.AppendLine("<p class=\"meta\">" + EscapeHtml(ConsultingDocxAppendixHonestyCopy.FindingCorrelationNotStored) + "</p>");
+        }
 
         if (report.FindingLifecycle is not null)
             foreach (string line in CrossReviewFindingLifecycleExportLines.Build(report.FindingLifecycle))
