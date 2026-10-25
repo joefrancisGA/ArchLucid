@@ -116,7 +116,7 @@ public sealed class ApplicationPackageCoverageBatchRc24Tests
             renderer.Object,
             CancellationToken.None);
 
-        body.InnerText.Should().Contain("No manifest was available for this run.");
+        body.InnerText.Should().Contain(ConsultingDocxExportHonestyCopy.CommittedManifestNotStored);
         renderer.Verify(
             r => r.RenderMermaidPngAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()),
             Times.Never);

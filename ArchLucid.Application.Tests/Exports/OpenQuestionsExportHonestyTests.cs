@@ -44,6 +44,21 @@ public sealed class OpenQuestionsExportHonestyTests
     }
 
     [Fact]
+    public void AppendWorkingDocumentMarkdownSection_labels_blank_key_and_value()
+    {
+        StringBuilder sb = new();
+
+        OpenQuestionsExportHonesty.AppendWorkingDocumentMarkdownSection(
+            sb,
+            [new OpenQuestionsWorkingDocumentExportEntry { Key = "  ", Value = "" }]);
+
+        string markdown = sb.ToString();
+
+        markdown.Should().Contain("Key was not stored.");
+        markdown.Should().Contain("Value was not stored.");
+    }
+
+    [Fact]
     public void TransparencyTrailMarkdownFormatter_routes_open_questions_out_of_asserted_section()
     {
         TransparencyTrail trail = new()
