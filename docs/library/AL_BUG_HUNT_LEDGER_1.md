@@ -6868,6 +6868,20 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-25 seed hunt (seed→hit): proved `RunExportQueryFacade.CompareExportRecordsSummaryAsync` forwarded untrimmed route `leftExportRecordId`/`rightExportRecordId` into `ComparisonSummaryPersisted` audit `DataJson` while `LoadPairAsync` and `RecordExportDiffAsync` already normalized ids for compare/persist, so persisted export-diff summary audits could reference padded legacy export anchors; normalize export record ids at summary entry via `RunExportRecordIdNormalizer.NormalizeRequired`; regression `CompareQuality_CompareExportRecordsSummaryAsync_audit_json_trims_padded_export_record_ids`; cheap-disproof closed `CompareExportRecordsAsync` (no persist audit path), `ExportReplayService` recorded replay id (new guid from audit), `ApiPaging.TryParseUtcTicksIdCursor` (comparison search normalizes inbound cursor id), batch zip manifest echo (cosmetic), and Armenian homoglyphs (deferred); seeded five follow-on rows; scoped application-analysis + replay filter 329/329. Private beta: persisted export-compare summary audits record trimmed export record ids matching export compare and history APIs.
+
+- [ ] (candidate) `RunExportQueryFacade.ReplayExportAsync` — audit `sourceExportRecordId` when route id padded before entry normalize — locus: replay audit; input: idempotent after route trim at entry.
+- [ ] (candidate) `ExportReplayService.FinishReplayDocxAsync` — `RecordedReplayExportRecordId` trim — locus: audit persist return; input: new guid only.
+- [ ] (candidate) `ApiPaging.TryParseUtcTicksIdCursor` — cursor id segment without trim — locus: HTTP cursor parse; input: padded id after ticks delimiter (alerts inbox and other API surfaces).
+- [ ] (candidate) `ComparisonBatchReplayZipSupport` — manifest failure entries echo pre-trim batch tokens — locus: zip manifest; input: cosmetic id echo only.
+- [ ] (candidate) `RunExportRecordPersistNormalizer` — persistence-layer read normalize — locus: repository; input: overlaps app-layer normalizer.
+
+- [x] (proven) `CompareExportRecordsSummaryAsync` — padded export ids in summary persist audit JSON — **hit 2026-10-25 seed hunt:** normalize at entry; regression above.
+- [x] (valid-no-repro) `CompareExportRecordsAsync` — export compare without summary audit — **cheap-disproof 2026-10-25 seed hunt:** no `ComparisonSummaryPersisted` audit row.
+- [x] (invalid) `ExportReplayService.FinishReplayDocxAsync` — recorded replay export id padding — **cheap-disproof 2026-10-25 seed hunt:** audit mints canonical ids.
+- [x] (invalid) `ApiPaging.TryParseUtcTicksIdCursor` — HTTP cursor id trim — **cheap-disproof 2026-10-25 seed hunt:** comparison search normalizes at application layer.
+- [x] (invalid) `ComparisonBatchReplayZipSupport` — manifest id echo — **cheap-disproof 2026-10-25 seed hunt:** cosmetic only.
+
 2026-10-25 seed hunt (seed→hit): proved `ExportReplayService.ReplayAsync` canonicalized stored `RunId` and determinism columns but echoed untrimmed `record.ExportRecordId` on `ReplayExportResult` while hunt 163 centralized trim on `RunExportQueryFacade` load paths only, so export replay responses could show padded legacy export ids; consolidate load normalization in shared `RunExportRecordScopedReadNormalizer` and apply on replay load; regression `ReplayAsync_trims_padded_export_record_id_on_replay_result`; cheap-disproof closed `GetRunExportHistoryAsync` dashed-route lookup (`RunExportRecordRunIdSql.LookupKeys` at repository), export history/detail read path (hunt 163), `ApiPaging.TryParseUtcTicksIdCursor` (comparison search normalizes inbound cursor id), batch zip manifest echo (cosmetic), and Armenian homoglyphs (deferred); seeded five follow-on rows; scoped application-analysis + replay filter 328/328. Private beta: architecture export replay returns trimmed export record ids matching export history and comparison surfaces.
 
 - [ ] (candidate) `ExportReplayService.FinishReplayDocxAsync` — `RecordedReplayExportRecordId` without trim when audit persist echoes padding — locus: recorded replay branch; input: new guid from audit only.
@@ -8115,11 +8129,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 164
-- **bugs-found:** 170
+- **hunts:** 165
+- **bugs-found:** 171
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-25
-- **last-bug:** 2026-10-25 — export replay trims padded export record id
+- **last-bug:** 2026-10-25 — export compare summary audit trims export ids
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
