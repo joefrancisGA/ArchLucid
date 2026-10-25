@@ -39,6 +39,8 @@ internal static class EndToEndReplayComparisonReportNormalizer
                 report.ExportDiffs.RemoveAt(i);
         }
 
+        ExportRecordDiffMateriality.DedupeByExportRecordIdPairKeepFirstInPlace(report.ExportDiffs);
+
         ComparisonFindingCorrelationMetadataNormalizer.NormalizeInPlace(report.FindingCorrelation);
         if (report.FindingCorrelation is not null
             && ComparisonFindingCorrelationMetadataNormalizer.IsPersistedEmptyShell(report.FindingCorrelation))

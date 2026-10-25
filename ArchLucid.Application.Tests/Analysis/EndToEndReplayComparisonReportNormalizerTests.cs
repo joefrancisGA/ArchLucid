@@ -525,6 +525,43 @@ public sealed class EndToEndReplayComparisonReportNormalizerTests
     }
 
     [Fact]
+    public void CompareQuality_EndToEndReplayComparisonReportNormalizer_dedupes_duplicate_export_record_diffs_by_export_id_pair()
+    {
+        EndToEndReplayComparisonReport report = new()
+        {
+            LeftRunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            RightRunId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            ExportDiffs =
+            [
+                new ExportRecordDiffResult
+                {
+                    LeftExportRecordId = "left-export",
+                    RightExportRecordId = "right-export",
+                    ChangedTopLevelFields = ["Format"],
+                },
+                new ExportRecordDiffResult
+                {
+                    LeftExportRecordId = "left-export",
+                    RightExportRecordId = "right-export",
+                    ChangedTopLevelFields = ["FileName"],
+                },
+                new ExportRecordDiffResult
+                {
+                    LeftExportRecordId = "other-left",
+                    RightExportRecordId = "other-right",
+                    ChangedTopLevelFields = ["TemplateProfile"],
+                },
+            ],
+        };
+
+        EndToEndReplayComparisonReportNormalizer.NormalizePersistedPayload(report);
+
+        report.ExportDiffs.Should().HaveCount(2);
+        report.ExportDiffs[0].ChangedTopLevelFields.Should().Equal(["Format"]);
+        report.ExportDiffs[1].ChangedTopLevelFields.Should().Equal(["TemplateProfile"]);
+    }
+
+    [Fact]
     public void CompareQuality_EndToEndReplayComparisonReportNormalizer_nulls_immaterial_manifest_diff_shell()
     {
         EndToEndReplayComparisonReport report = new()

@@ -21,4 +21,28 @@ internal static class ExportRecordDiffMateriality
 
     private static bool HasMaterialRequest(PersistedAnalysisExportRequest? request) =>
         request is not null && !PersistedAnalysisExportRequestMetadata.IsPersistedEmptyShell(request);
+
+    internal static void DedupeByExportRecordIdPairKeepFirstInPlace(List<ExportRecordDiffResult> exportDiffs)
+    {
+        if (exportDiffs.Count < 2)
+            return;
+
+        HashSet<(string Left, string Right)> seen = new();
+        List<ExportRecordDiffResult> distinct = [];
+
+        foreach (ExportRecordDiffResult diff in exportDiffs)
+        {
+            (string Left, string Right) key = (diff.LeftExportRecordId, diff.RightExportRecordId);
+            if (!seen.Add(key))
+                continue;
+
+            distinct.Add(diff);
+        }
+
+        if (distinct.Count == exportDiffs.Count)
+            return;
+
+        exportDiffs.Clear();
+        exportDiffs.AddRange(distinct);
+    }
 }
