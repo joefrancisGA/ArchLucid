@@ -1307,6 +1307,24 @@ describe("ResourceHubClient", () => {
     expect(screen.queryByTestId("infra-resource-hub-open-terraform-work")).not.toBeInTheDocument();
   });
 
+  it("shows RBAC scope omission copy when a captured scope is whitespace-only", async () => {
+    fetchCachedInfraEvidenceResourceHub.mockImplementation(async () =>
+      buildResourceHubTestMockHub({
+        rbacAssignments: [
+          {
+            principalId: "principal-1",
+            roleDefinitionId: "role-reader",
+            scope: "   ",
+          },
+        ],
+      }),
+    );
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    expect(await screen.findByText("RBAC scope was not stored.")).toBeInTheDocument();
+    expect(screen.getByText("principal-1")).toBeInTheDocument();
+  });
+
   it("shows tag value omission copy when a captured tag value is whitespace-only", async () => {
     fetchCachedInfraEvidenceResourceHub.mockImplementation(async () =>
       buildResourceHubTestMockHub({

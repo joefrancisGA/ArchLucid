@@ -1257,7 +1257,9 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                           >
                             <EnterpriseTableCell className="font-mono text-xs">{assignment.principalId}</EnterpriseTableCell>
                             <EnterpriseTableCell className="font-mono text-xs">{assignment.roleDefinitionId}</EnterpriseTableCell>
-                            <EnterpriseTableCell className="font-mono text-xs">{assignment.scope}</EnterpriseTableCell>
+                            <EnterpriseTableCell className="font-mono text-xs">
+                              {formatStoredInfraEvidenceHubField(assignment.scope, "RBAC scope was not stored.")}
+                            </EnterpriseTableCell>
                           </EnterpriseTableRow>
                         ))}
                       </EnterpriseTableBody>

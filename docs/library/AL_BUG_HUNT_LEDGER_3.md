@@ -7174,6 +7174,34 @@ ABQ-09 churn hotspot.
 
 ## Zone: ui-infra-resource-hub
 
+2026-10-25 seed hunt (seed→hit): promoted whitespace-only RBAC assignment `scope` values shown as blank mono cells — scope rendered raw while tag and property values already used `formatStoredInfraEvidenceHubField`; regression `shows RBAC scope omission copy when a captured scope is whitespace-only`; cheap-disproof closed tag and property value whitespace (prior hits), network `relationshipType` and evidence pointer path/kind whitespace (raw cells; seeded below); scoped ResourceHubClient vitest 80/80. Private beta: operators reviewing RBAC assignments on a resource hub see “RBAC scope was not stored.” instead of an empty scope cell when capture stored only whitespace.
+
+- [x] (proven) `ResourceHubClient` RBAC assignments — `scope` whitespace-only — **hit 2026-10-25 seed hunt:** `formatStoredInfraEvidenceHubField` on scope cells; regression whitespace scope fixture.
+- [x] (valid-no-repro) `ResourceHubClient` configuration tags — tag value whitespace-only — **cheap-disproof 2026-10-25 seed hunt:** prior hit; regression lock retained.
+- [x] (valid-no-repro) `ResourceHubClient` configuration properties — property value whitespace-only — **cheap-disproof 2026-10-25 seed hunt:** prior hit; regression lock retained.
+- [x] (valid-no-repro) `ResourceHubClient` network relationships — `relationshipType` whitespace-only — **cheap-disproof 2026-10-25 seed hunt:** type column still raw; seeded below.
+- [x] (valid-no-repro) `ResourceHubClient` evidence pointers — `relativePath` / `kind` whitespace-only — **cheap-disproof 2026-10-25 seed hunt:** columns still raw; seeded below.
+
+- [ ] (candidate) `ResourceHubClient` network relationships — `relationshipType` whitespace-only — locus: type column; input: blank relationship type label.
+- [ ] (candidate) `ResourceHubClient` evidence pointers — `relativePath` whitespace-only — locus: path column; input: blank path cell.
+- [ ] (candidate) `ResourceHubClient` evidence pointers — `kind` whitespace-only — locus: kind column; input: blank kind label.
+- [ ] (candidate) `ResourceHubClient` configuration properties — property key whitespace-only — locus: property name column; input: blank key display.
+- [ ] (candidate) `ResourceHubClient` RBAC assignments — `principalId` or `roleDefinitionId` whitespace-only — locus: principal/role columns; input: blank identity cells.
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **aliases:** resource hub; infrastructure resource detail
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 54
+- **bugs-found:** 33
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-25
+- **last-bug:** 2026-10-25 — whitespace-only RBAC scope on overview
+- **related-pd-tb:** none
+- **code-changed-since:** yes
+
 2026-10-25 seed hunt (seed→hit): promoted whitespace-only configuration tag values shown as blank mono cells on the overview tags table — tag values rendered raw while property values already used `formatStoredInfraEvidenceHubField`; regression `shows tag value omission copy when a captured tag value is whitespace-only`; cheap-disproof closed property value whitespace (prior hit), RBAC `scope` and network `relationshipType` whitespace (raw cells; seeded below), and evidence pointer `relativePath` whitespace (seeded); scoped ResourceHubClient vitest 79/79. Private beta: operators reviewing captured tags on a resource hub see “Tag value was not stored.” instead of an empty cell when capture stored only whitespace.
 
 - [x] (proven) `ResourceHubClient` configuration tags — tag value whitespace-only — **hit 2026-10-25 seed hunt:** `formatStoredInfraEvidenceHubField` on tag value cells; regression whitespace tag fixture.
