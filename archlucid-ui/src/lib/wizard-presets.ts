@@ -1,4 +1,4 @@
-import { wizardFormSchema, type WizardFormValues } from "@/lib/wizard-schema";
+import type { WizardFormValues } from "@/lib/wizard-schema";
 
 export type WizardPreset = {
   id: string;
@@ -7,14 +7,12 @@ export type WizardPreset = {
   values: Partial<WizardFormValues>;
 };
 
-/**
- * Applies preset field overrides on top of base wizard values and re-parses (defaults + validation).
- */
+/** Applies preset field overrides on top of base wizard values (validation runs on submit). */
 export function applyWizardPreset(
   base: WizardFormValues,
   partial: Partial<WizardFormValues>,
 ): WizardFormValues {
-  return wizardFormSchema.parse({ ...base, ...partial });
+  return { ...base, ...partial };
 }
 
 export const wizardPresets: WizardPreset[] = [

@@ -30,6 +30,7 @@ public sealed class ProcessSharedValueReportJobPollStateCache : IValueReportJobP
         DateTimeOffset expiresAtUtc = ResolveExpiresAtUtc(options);
 
         _entries[key] = new CacheEntry(payload, expiresAtUtc);
+        PruneExpiredEntries();
     }
 
     public byte[]? Get(string key)
@@ -47,6 +48,24 @@ public sealed class ProcessSharedValueReportJobPollStateCache : IValueReportJobP
         }
 
         return entry.Payload;
+    }
+
+    public void Remove(string key)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(key);
+
+        _entries.TryRemove(key, out _);
+    }
+
+    private void PruneExpiredEntries()
+    {
+        DateTimeOffset now = TimeProvider.System.GetUtcNow();
+
+        foreach (string staleKey in _entries.Keys.ToArray())
+        {
+            if (_entries.TryGetValue(staleKey, out CacheEntry? entry) && entry.ExpiresAtUtc <= now)
+                _entries.TryRemove(staleKey, out _);
+        }
     }
 
     private static DateTimeOffset ResolveExpiresAtUtc(DistributedCacheEntryOptions options)

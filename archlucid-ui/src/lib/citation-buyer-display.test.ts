@@ -25,4 +25,13 @@ describe("formatCitationBuyerDisplay", () => {
     expect(display.headline).toBe("Evidence did not surface architecture components");
     expect(display.technicalId).toBe("finding-123");
   });
+
+  it("states when the citation label was not stored", () => {
+    const display = formatCitationBuyerDisplay(
+      { kind: "Finding", id: "finding-123", label: "   " },
+      false,
+    );
+
+    expect(display.headline).toBe("Citation label was not stored.");
+  });
 });

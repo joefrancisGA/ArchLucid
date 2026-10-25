@@ -49,6 +49,24 @@ function GapActionLink(props: {
   );
 }
 
+function statusTagLabelForCategory(category: ArchitectureMissingItem["category"]): string {
+  switch (category) {
+    case "clarification":
+      return "Clarification";
+
+    case "evidence":
+      return "Evidence";
+
+    case "assessment":
+      return "Assessment";
+
+    default: {
+      const exhaustive: never = category;
+      return exhaustive;
+    }
+  }
+}
+
 function statusTagKindForCategory(category: ArchitectureMissingItem["category"]): EnterpriseStatusKind {
   switch (category) {
     case "clarification":
@@ -80,7 +98,11 @@ export function ClarificationGapRow(props: ClarificationGapRowProps): React.JSX.
     >
       <div className="min-w-0 space-y-1">
         <div className="flex flex-wrap items-center gap-2">
-          <StatusTag kind={statusKind} data-testid={`clarification-gap-status-${props.item.id}`} />
+          <StatusTag
+            kind={statusKind}
+            label={statusTagLabelForCategory(props.item.category)}
+            data-testid={`clarification-gap-status-${props.item.id}`}
+          />
           <span className={cn("font-medium text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
             {props.item.label}
           </span>

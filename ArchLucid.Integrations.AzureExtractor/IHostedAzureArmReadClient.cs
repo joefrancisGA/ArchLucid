@@ -82,6 +82,18 @@ public interface IHostedAzureArmReadClient
         string subscriptionId,
         CancellationToken cancellationToken);
 
+    Task<HostedAzureDefenderCompanionCollectResult> CollectSubscriptionDefenderCompanionsAsync(
+        string accessToken,
+        string subscriptionId,
+        CancellationToken cancellationToken);
+
+    Task<HostedAzureDefenderFollowOnCollectResult> CollectSubscriptionDefenderFollowOnAsync(
+        string accessToken,
+        string subscriptionId,
+        IReadOnlyList<HostedAzureArmDefenderPricingRecord> pricings,
+        IReadOnlyList<string> assessmentKeys,
+        CancellationToken cancellationToken);
+
     /// <summary>
     ///     Type-scoped subscription list GET for network relationship enrichment (IE-RF-03).
     /// </summary>

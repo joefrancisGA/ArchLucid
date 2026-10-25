@@ -70,6 +70,7 @@ export function readOperatorShellStableCache(): OperatorShellStableCachePayload 
 
     if (
       typeof parsed.writtenAtMs !== "number" ||
+      !Number.isFinite(parsed.writtenAtMs) ||
       Date.now() - parsed.writtenAtMs > OPERATOR_SHELL_STABLE_CACHE_MAX_AGE_MS
     ) {
       window.sessionStorage.removeItem(OPERATOR_SHELL_STABLE_CACHE_STORAGE_KEY);
