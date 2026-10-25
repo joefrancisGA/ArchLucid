@@ -19,6 +19,8 @@ internal static class AgentResultDiffNormalizer
 
         foreach (AgentResultDelta delta in diff.AgentDeltas)
             NormalizeDeltaInPlace(delta);
+
+        CompareInputFingerprintsNormalizer.NormalizeInPlace(diff.InputFingerprints);
     }
 
     private static void NormalizeDeltaInPlace(AgentResultDelta delta)

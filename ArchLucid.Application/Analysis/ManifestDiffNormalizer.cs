@@ -26,6 +26,8 @@ internal static class ManifestDiffNormalizer
 
         NormalizeRelationshipsInPlace(diff.AddedRelationships);
         NormalizeRelationshipsInPlace(diff.RemovedRelationships);
+
+        CompareInputFingerprintsNormalizer.NormalizeInPlace(diff.InputFingerprints);
     }
 
     private static void NormalizeRelationshipsInPlace(List<RelationshipDiffItem> relationships)

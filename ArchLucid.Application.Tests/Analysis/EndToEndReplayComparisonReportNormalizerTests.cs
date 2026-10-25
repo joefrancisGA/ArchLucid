@@ -3,6 +3,7 @@ using ArchLucid.Application.Diffs;
 using ArchLucid.Application.Exports;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Findings;
+using ArchLucid.Core.Comparison;
 
 using FluentAssertions;
 
@@ -370,5 +371,43 @@ public sealed class EndToEndReplayComparisonReportNormalizerTests
         record.PriorFindingId.Should().BeNull();
         report.FindingLifecycle!.HonestyNote.Should().NotBeNullOrWhiteSpace();
         report.FindingLifecycle.NewlyIdentifiedCount.Should().Be(1);
+    }
+
+    [Fact]
+    public void CompareQuality_EndToEndReplayComparisonReportNormalizer_trims_nested_compare_input_fingerprints()
+    {
+        EndToEndReplayComparisonReport report = new()
+        {
+            LeftRunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            RightRunId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            AgentResultDiff = new AgentResultDiffResult
+            {
+                LeftRunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                RightRunId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+                InputFingerprints = new CompareInputFingerprints
+                {
+                    ComparisonAlgorithmVersion = "   ",
+                    BaseManifestHashSha256 = "  abcdef  ",
+                    TargetManifestHashSha256 = "\t",
+                },
+            },
+            ManifestDiff = new ManifestDiffResult
+            {
+                InputFingerprints = new CompareInputFingerprints
+                {
+                    BaseCommittedArtifactInventoryHashSha256 = "  inv1  ",
+                    TargetCommittedArtifactInventoryHashSha256 = "   ",
+                },
+            },
+        };
+
+        EndToEndReplayComparisonReportNormalizer.NormalizePersistedPayload(report);
+
+        report.AgentResultDiff!.InputFingerprints!.ComparisonAlgorithmVersion
+            .Should().Be(CompareInputFingerprints.AlgorithmVersion);
+        report.AgentResultDiff.InputFingerprints.BaseManifestHashSha256.Should().Be("abcdef");
+        report.AgentResultDiff.InputFingerprints.TargetManifestHashSha256.Should().BeNull();
+        report.ManifestDiff!.InputFingerprints!.BaseCommittedArtifactInventoryHashSha256.Should().Be("inv1");
+        report.ManifestDiff.InputFingerprints.TargetCommittedArtifactInventoryHashSha256.Should().BeNull();
     }
 }
