@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 
 import { resolveOperatorHomeResumeAffordancePlan } from "@/lib/operator/operator-home-resume-affordance";
+import * as continueLastArchitectureIdentity from "@/lib/resolve-continue-last-architecture-identity";
 import * as continueLastReviewPackage from "@/lib/resolve-continue-last-review-package";
 import * as unfinishedWorkRail from "@/lib/unfinished-work-rail";
 import { OPERATOR_RECENT_VIEWS_STORAGE_KEY } from "@/lib/operator/operator-recent-views";
@@ -184,6 +185,45 @@ describe("resolveOperatorHomeResumeAffordancePlan", () => {
     expect(plan.showContinueLast).toBe(true);
     expect(plan.continueLastVariant).toBe("primary");
     expect(plan.continueLastKind).toBe("review");
+  });
+
+  it("suppresses architecture continue-last when rail href matches target aside from trailing slash", () => {
+    vi.spyOn(continueLastArchitectureIdentity, "resolveContinueLastArchitectureIdentityTarget").mockReturnValue({
+      architectureId: "architecture-identity-001",
+      label: "Payments platform",
+      href: "/architecture/architectures/architecture-identity-001",
+      visitedAtUtc: "2026-01-15T12:00:00.000Z",
+    });
+
+    vi.spyOn(continueLastReviewPackage, "resolveContinueLastReviewPackageTarget").mockReturnValue(null);
+
+    vi.spyOn(unfinishedWorkRail, "summarizeUnfinishedWorkRailItems").mockReturnValue({
+      items: [
+        {
+          id: "architecture-draft:architecture-identity-001",
+          kind: "architecture-draft",
+          title: "Payments platform",
+          href: "/architecture/architectures/architecture-identity-001/",
+          statusLabel: "Draft",
+          updatedUtc: null,
+          workTypeLabel: "Architecture draft",
+          activityLabel: null,
+          actionLabel: "Continue",
+        },
+      ],
+      totalCount: 1,
+      truncated: false,
+    });
+
+    const plan = resolveOperatorHomeResumeAffordancePlan({
+      runs: [],
+      drafts: [],
+      incompleteWizards: [],
+      workingMode: true,
+    });
+
+    expect(plan.showContinueLast).toBe(false);
+    vi.restoreAllMocks();
   });
 
   it("CA-37: prefers architecture identity continue-last in Working mode", () => {

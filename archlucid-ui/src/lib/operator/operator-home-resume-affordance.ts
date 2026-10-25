@@ -44,6 +44,39 @@ export function resolveOperatorHomeResumeAffordancePlan(
     return { showContinueLast: false, continueLastVariant: "outline", continueLastKind: null };
   }
 
+  if (continueLastKind === "architecture" && architectureTarget !== null) {
+    const targetArchitectureId = architectureTarget.architectureId.trim();
+
+    const railSurfacesSameArchitecture = railSummary.items.some((item) => {
+      const targetHref = architectureTarget.href.trim();
+
+      if (
+        targetHref.length > 0
+        && normalizeResumeHrefForMatch(item.href) === normalizeResumeHrefForMatch(targetHref)
+      ) {
+        return true;
+      }
+
+      if (targetArchitectureId.length === 0) {
+        return false;
+      }
+
+      const draftIdFromRailId = item.id.startsWith("architecture-draft:")
+        ? item.id.slice("architecture-draft:".length).trim()
+        : "";
+
+      if (draftIdFromRailId.length > 0 && draftIdFromRailId === targetArchitectureId) {
+        return true;
+      }
+
+      return false;
+    });
+
+    if (railSurfacesSameArchitecture) {
+      return { showContinueLast: false, continueLastVariant: "outline", continueLastKind: null };
+    }
+  }
+
   if (continueLastKind === "review") {
     const railSurfacesSameRun = railSummary.items.some((item) => {
       const runId = resolveRunIdFromWorkingReviewHref(item.href);

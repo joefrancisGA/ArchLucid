@@ -4938,7 +4938,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-operator-lib
 
-**Hunts:** 71 · **Bugs found:** 68 · **Consecutive dry hunts:** 0
+**Hunts:** 72 · **Bugs found:** 69 · **Consecutive dry hunts:** 0
+
+2026-10-25 seed hunt (hit): promoted architecture continue-last rail dedupe in `resolveOperatorHomeResumeAffordancePlan` (href trailing slash + architecture-draft id); regression `suppresses architecture continue-last when rail href matches target aside from trailing slash`; 7 scoped `operator-home-resume-affordance` vitest passed. Private beta: Invited operators in Working mode no longer see duplicate Continue architecture CTAs when the unfinished-work rail and continue-last target point at the same architecture aside from a trailing slash.
 
 2026-10-25 seed hunt (hit): promoted `normalizeResumeHrefForMatch` in `resolveOperatorHomeResumeAffordancePlan` rail dedupe; regression `suppresses continue-last when rail href matches target href aside from trailing slash`; 10 scoped resume-affordance + hero-resume-target vitest passed. Private beta: Invited operators no longer see a duplicate Continue last review CTA when the continue-last target and unfinished-work rail hrefs differ only by a trailing slash.
 
@@ -5015,6 +5017,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `formatOperatorHomeCompactMetricsLine` — raw metrics snapshot counts interpolate `NaN` into home KPI strip — **hit 2026-10-25 seed hunt:** `normalizeOperatorHomeNonNegativeCount` on active/sealed/findings; regression `normalizes non-finite workspace metric counts in the KPI strip`.
 - [x] (proven) `formatOperatorHomeRecentReviewsOutcome` / `buildOperatorHomeRecentReviewsOutcomeParts` — `visibleCount !== undefined` accepts `NaN` in showing-cap copy — **hit 2026-10-25 seed hunt:** `resolveRecentPreviewCapCounts`; regressions `normalizes non-finite recent preview cap counts in outcome copy` and `normalizes non-finite preview cap counts in structured outcome parts`.
 - [x] (proven) `formatOperatorHomeGovernanceApprovalWarningCount` — `Math.max(0, Math.trunc(count))` leaves `NaN` labels — **hit 2026-10-25 seed hunt:** `Number.isFinite` guard; regression `treats non-finite counts as zero warnings`.
+- [x] (proven) `resolveOperatorHomeResumeAffordancePlan` — Working-mode architecture continue-last skipped rail dedupe, duplicating CTAs when rail href matched aside from trailing slash — **hit 2026-10-25 seed hunt:** architecture branch href + `architecture-draft:` id match; regression `suppresses architecture continue-last when rail href matches target aside from trailing slash`.
 - [x] (proven) `resolveOperatorHomeResumeAffordancePlan` — rail dedupe compares run ids only and misses trailing-slash href equivalents — **hit 2026-10-25 seed hunt:** shared `normalizeResumeHrefForMatch` fallback; regression `suppresses continue-last when rail href matches target href aside from trailing slash`.
 - [x] (proven) `matchesOperatorHomeHeroResumeTarget` — strict `href` equality misses trailing-slash equivalents — **hit 2026-10-25 seed hunt:** `normalizeResumeHrefForMatch`; regression `matches resume targets when hrefs differ only by a trailing slash`.
 - [x] (proven) `mapStickinessSnapshot` — null `pilotFunnel` drops entire stickiness snapshot including top-level governance/comparison counts — **hit 2026-10-25 seed hunt:** synthetic empty funnel + top-level metrics path; regressions `maps top-level stickiness metrics when pilotFunnel is null` and `treats stickinessSnapshot pilotFunnel null as absent when no top-level metrics exist`.
