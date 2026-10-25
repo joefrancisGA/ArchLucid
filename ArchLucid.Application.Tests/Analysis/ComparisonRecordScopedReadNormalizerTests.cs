@@ -106,4 +106,18 @@ public sealed class ComparisonRecordScopedReadNormalizerTests
         record.ComparisonType.Should().Be(ComparisonTypes.EndToEndReplay);
         record.Format.Should().Be(ComparisonTypes.FormatJsonMarkdown);
     }
+
+    [Fact]
+    public void CompareQuality_comparison_record_scoped_read_normalizer_dedupes_duplicate_tags()
+    {
+        ComparisonRecord record = new()
+        {
+            ComparisonRecordId = "cmp-duplicate-tags",
+            Tags = ["  alpha  ", "alpha", " beta ", "beta", "   "],
+        };
+
+        ComparisonRecordScopedReadNormalizer.NormalizeInPlace(record);
+
+        record.Tags.Should().Equal(["alpha", "beta"]);
+    }
 }

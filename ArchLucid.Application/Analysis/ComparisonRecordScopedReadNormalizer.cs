@@ -37,24 +37,10 @@ internal static class ComparisonRecordScopedReadNormalizer
         record.ComparisonType = NormalizeKnownComparisonTypeColumn(record.ComparisonType);
 
         record.Label = OptionalExportMetadataStringNormalizer.NormalizeOptionalString(record.Label);
-        NormalizeTagsInPlace(record.Tags);
+        ComparisonPersistedStringListNormalizer.NormalizeInPlace(record.Tags);
 
         record.SummaryMarkdown =
             OptionalExportMetadataStringNormalizer.NormalizeOptionalString(record.SummaryMarkdown);
-    }
-
-    private static void NormalizeTagsInPlace(List<string> tags)
-    {
-        for (int i = tags.Count - 1; i >= 0; i--)
-        {
-            if (string.IsNullOrWhiteSpace(tags[i]))
-            {
-                tags.RemoveAt(i);
-                continue;
-            }
-
-            tags[i] = tags[i].Trim();
-        }
     }
 
     private static string NormalizeRequiredStringColumn(string value) =>
