@@ -115,6 +115,55 @@ describe("operator shell status client", () => {
     expect(queryClient.getQueryData(operatorQueryKeys.governanceReviewsAwaitingAction(SCOPE))?.items).toHaveLength(1);
   });
 
+  it("normalizes non-finite stickiness funnel counts from shell status JSON to zero", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        new Response(
+          JSON.stringify({
+            stickinessSnapshot: {
+              pilotFunnel: {
+                firstRunCreatedUtc: null,
+                firstGoldenManifestUtc: null,
+                firstComparisonUtc: null,
+                firstArtifactOrBundleDownloadUtc: null,
+                firstReplayUtc: null,
+                totalRunsInScope: Number.NaN,
+                committedRunsInScope: Number.NaN,
+                productLearningSignalsLast90Days: Number.NaN,
+              },
+              latestRunId: "run-nan",
+              comparisonEventsLast30Days: Number.NaN,
+              pendingGovernanceApprovals: Number.NaN,
+            },
+          }),
+          {
+            status: 200,
+            headers: { "Content-Type": "application/json" },
+          },
+        ),
+      ),
+    );
+
+    const payload = await fetchOperatorShellStatus();
+
+    expect(payload.stickinessSnapshot).toEqual({
+      pilotFunnel: {
+        firstRunCreatedUtc: null,
+        firstGoldenManifestUtc: null,
+        firstComparisonUtc: null,
+        firstArtifactOrBundleDownloadUtc: null,
+        firstReplayUtc: null,
+        totalRunsInScope: 0,
+        committedRunsInScope: 0,
+        productLearningSignalsLast90Days: 0,
+      },
+      latestRunId: "run-nan",
+      comparisonEventsLast30Days: 0,
+      pendingGovernanceApprovals: 0,
+    });
+  });
+
   it("treats stickinessSnapshot pilotFunnel null as absent without throwing", async () => {
     vi.stubGlobal(
       "fetch",
