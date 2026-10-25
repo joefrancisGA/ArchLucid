@@ -6868,6 +6868,20 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-25 seed hunt (seed→hit): proved hunt 220 trimmed E2E `Warnings` and `InterpretationNotes` but left `RunMetadataDiffResult.ChangedFields` untouched on `NormalizePersistedPayload`, so rehydrated end-to-end JSON could persist whitespace-only run-metadata bullets that markdown/HTML/PDF summary exports rendered as empty list rows; run `ComparisonPersistedStringListNormalizer` on `report.RunDiff.ChangedFields`; regression `CompareQuality_EndToEndReplayComparisonReportNormalizer_removes_whitespace_only_run_metadata_changed_fields`; cheap-disproof closed warning/interpretation lists (hunt 220), live `EndToEndReplayComparisonService.BuildRunDiff` output (generator never emits blank entries), `ApiPaging.TryParseUtcTicksIdCursor` (comparison search normalizes inbound cursor id), batch zip manifest echo (cosmetic), and Armenian homoglyphs (deferred); seeded five follow-on rows; scoped application-analysis + replay filter 315/315. Private beta: end-to-end comparison exports no longer list whitespace-only run-metadata changed-field placeholders from legacy stored JSON.
+
+- [ ] (candidate) `ComparisonRecordRepository.GetByRunIdAsync` — SQL list-by-run dashed stored — locus: UNIQUEIDENTIFIER column; input: already matches N/D lookup via guid param.
+- [ ] (candidate) `ComparisonRecordRepositoryCore.SerializeTagsForUpdate` — JSON tag order — locus: cosmetic; input: defer.
+- [ ] (candidate) `ComparisonRecordSearchPredicateBuilder` — notes column search — locus: no notes filter today; input: defer.
+- [ ] (candidate) `ApiPaging.TryParseUtcTicksIdCursor` — cursor id segment without trim — locus: HTTP cursor parse; input: padded id after ticks delimiter (alerts inbox and other API surfaces).
+- [ ] (candidate) `ComparisonBatchReplayZipSupport` — manifest failure entries echo pre-trim batch tokens — locus: zip manifest; input: cosmetic id echo only.
+
+- [x] (proven) `EndToEndReplayComparisonReportNormalizer` — whitespace run-metadata changed-field list — **hit 2026-10-25 seed hunt:** shared list normalizer on `RunDiff.ChangedFields`; regression above.
+- [x] (valid-no-repro) `EndToEndReplayComparisonService.BuildRunDiff` — changed-field generation — **cheap-disproof 2026-10-25 seed hunt:** compare path only adds field names; gap was rehydrate/persist normalize.
+- [x] (valid-no-repro) `EndToEndReplayComparisonReportNormalizer` — warning/interpretation lists — **cheap-disproof 2026-10-25 seed hunt:** hunt 220; run-metadata list was separate.
+- [x] (invalid) `ApiPaging.TryParseUtcTicksIdCursor` — HTTP cursor id trim — **cheap-disproof 2026-10-25 seed hunt:** comparison search normalizes at application layer.
+- [x] (invalid) `ComparisonBatchReplayZipSupport` — manifest id echo — **cheap-disproof 2026-10-25 seed hunt:** cosmetic only.
+
 2026-10-25 seed hunt (seed→hit): proved hunt 221 normalized export-diff `Warnings` and `ChangedTopLevelFields` but left `ExportRecordRequestDiff` `ChangedFlags` and `ChangedValues` untouched on `NormalizeDisplayAnchors`, so rehydrated export-diff JSON could still persist whitespace-only request-diff bullets that markdown/HTML/PDF formatters rendered as empty list rows; run `ComparisonPersistedStringListNormalizer` on both request-diff lists; regression `CompareQuality_ExportRecordDiffResultNormalizer_removes_whitespace_only_request_diff_changed_flags_and_values`; cheap-disproof closed top-level export-diff lists (hunt 221), live `ExportRecordDiffService` compare output (generator never emits blank entries), `ApiPaging.TryParseUtcTicksIdCursor` (comparison search normalizes inbound cursor id), batch zip manifest echo (cosmetic), and Armenian homoglyphs (deferred); seeded five follow-on rows; scoped application-analysis + replay filter 314/314. Private beta: export-diff changed-flag and changed-value lists in comparison JSON no longer carry whitespace-only placeholders after normalize.
 
 - [ ] (candidate) `ComparisonRecordRepository.GetByRunIdAsync` — SQL list-by-run dashed stored — locus: UNIQUEIDENTIFIER column; input: already matches N/D lookup via guid param.
