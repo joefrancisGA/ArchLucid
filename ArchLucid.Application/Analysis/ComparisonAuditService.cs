@@ -104,6 +104,7 @@ public sealed class ComparisonAuditService(IComparisonRecordRepository repositor
             Notes = NormalizeReplayNotes(notes, sourceComparisonRecordId),
             CreatedUtc = TimeProvider.System.UtcNowDateTime()
         };
+        ComparisonRecordScopedReadNormalizer.NormalizeInPlace(record);
         await _repository.CreateAsync(record, cancellationToken);
         DateTime occurredUtc = TimeProvider.System.UtcNowDateTime();
         await _auditService.LogAsync(

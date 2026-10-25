@@ -417,6 +417,35 @@ public sealed class ComparisonAuditServiceTests
     }
 
     [Fact]
+    public async Task CompareQuality_RecordReplayOfAsync_canonicalizes_known_comparison_type_and_format_casing_on_persist()
+    {
+        ComparisonRecord? persisted = null;
+        Mock<IComparisonRecordRepository> repo = new();
+        repo
+            .Setup(r => r.CreateAsync(It.IsAny<ComparisonRecord>(), It.IsAny<CancellationToken>()))
+            .Callback<ComparisonRecord, CancellationToken>((record, _) => persisted = record)
+            .Returns(Task.CompletedTask);
+        ComparisonAuditService sut = new(repo.Object, Mock.Of<IAuditService>());
+        ComparisonRecord source = new()
+        {
+            ComparisonRecordId = "dddddddddddddddddddddddddddddddd",
+            ComparisonType = "  END-TO-END-REPLAY  ",
+            LeftRunId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            RightRunId = "cccccccccccccccccccccccccccccccc",
+            Format = "  JSON+MARKDOWN  ",
+            SummaryMarkdown = "# e2e",
+            PayloadJson = "{}",
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+        };
+
+        await sut.RecordReplayOfAsync(source, "replay note", CancellationToken.None);
+
+        persisted.Should().NotBeNull();
+        persisted!.ComparisonType.Should().Be(ComparisonTypes.EndToEndReplay);
+        persisted.Format.Should().Be(ComparisonTypes.FormatJsonMarkdown);
+    }
+
+    [Fact]
     public async Task RecordReplayOfAsync_trims_padded_comparison_type_format_summary_and_notes_on_persist()
     {
         ComparisonRecord? persisted = null;
