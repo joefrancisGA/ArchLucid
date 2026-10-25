@@ -41,6 +41,36 @@ public sealed class ConsultingDocxExportWhitelabelPrefillTests
     }
 
     [Fact]
+    public async Task ApplyMissingFromPriorExportsAsync_finds_prior_export_when_run_id_query_is_padded()
+    {
+        InMemoryRunExportRecordRepository repository = new();
+        const string runId = "cccccccccccccccccccccccccccccccc";
+
+        await repository.CreateAsync(
+            new RunExportRecord
+            {
+                ExportRecordId = Guid.NewGuid().ToString("N"),
+                RunId = runId,
+                ExportType = "ArchitectureAnalysis",
+                Format = "Markdown",
+                FileName = "seed.md",
+                AnalysisRequestJson =
+                    """{"reviewBoardWhitelabelFirmDisplayName":"Padded Run Lookup Firm"}""",
+            },
+            CancellationToken.None);
+
+        ConsultingDocxWhitelabelHints hints = new();
+
+        await ConsultingDocxExportWhitelabelPrefill.ApplyMissingFromPriorExportsAsync(
+            $"  {runId}  ",
+            hints,
+            repository,
+            CancellationToken.None);
+
+        hints.FirmDisplayName.Should().Be("Padded Run Lookup Firm");
+    }
+
+    [Fact]
     public async Task ApplyMissingFromPriorExportsAsync_leaves_existing_firm_display_name_unchanged()
     {
         InMemoryRunExportRecordRepository repository = new();

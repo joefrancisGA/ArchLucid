@@ -18,7 +18,7 @@ public static class TopologySensitivityClassifier
         }
 
         string category = GraphNodePropertyReader.TryGetPropertyValue(properties, "category", out string? categoryRaw)
-            ? categoryRaw ?? string.Empty
+            ? (categoryRaw ?? string.Empty).Trim()
             : string.Empty;
 
         if (string.Equals(category, GraphTopologyCategories.Identity, StringComparison.OrdinalIgnoreCase))
@@ -80,10 +80,14 @@ public static class TopologySensitivityClassifier
                || name.Contains("public", StringComparison.Ordinal);
     }
 
-    private static bool IsTruthy(string value) =>
-        string.Equals(value, "true", StringComparison.OrdinalIgnoreCase)
-        || string.Equals(value, "1", StringComparison.OrdinalIgnoreCase)
-        || string.Equals(value, "enabled", StringComparison.OrdinalIgnoreCase);
+    private static bool IsTruthy(string value)
+    {
+        string normalized = value.Trim();
+
+        return string.Equals(normalized, "true", StringComparison.OrdinalIgnoreCase)
+               || string.Equals(normalized, "1", StringComparison.OrdinalIgnoreCase)
+               || string.Equals(normalized, "enabled", StringComparison.OrdinalIgnoreCase);
+    }
 
     private static bool ContainsAny(string haystack, params string[] keywords)
     {

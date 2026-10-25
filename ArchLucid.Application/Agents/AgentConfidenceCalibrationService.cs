@@ -52,6 +52,9 @@ public sealed class AgentConfidenceCalibrationService(
 
         foreach (AgentResult result in results)
         {
+            if (result is null)
+                continue;
+
             AgentType agentType = AgentResultEnvelopeAgentTypeResolver.ResolveAgentType(result);
 
             double calibrated = await _calibrator

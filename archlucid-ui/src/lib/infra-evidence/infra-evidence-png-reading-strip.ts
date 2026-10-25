@@ -227,7 +227,7 @@ export function buildInfraMermaidExportLegendCommentLines(
   outline: InfraEvidenceMermaidOutline | null | undefined,
 ): readonly string[] {
   if (outline === null || outline === undefined) {
-    return [];
+    return ["%% Diagram outline was not stored."];
   }
 
   const lines: string[] = [];
@@ -246,6 +246,10 @@ export function buildInfraMermaidExportLegendCommentLines(
 
   if (hasInfraEvidenceInferredDiagramEdges(outline)) {
     lines.push(`%% ${resolveInfraEvidenceDiagramLegendInferredCopy(outline).legendLine}`);
+  }
+
+  if (hasInfraEvidenceUnclassifiedDiagramEdges(outline, null)) {
+    lines.push(`%% ${INFRA_EVIDENCE_DIAGRAM_LEGEND_UNCLASSIFIED_PROVENANCE}`);
   }
 
   return lines;

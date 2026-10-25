@@ -30,7 +30,7 @@ public static partial class RunToolInvocationForensicsBuilder
             .ToList();
 
         bool blobFailed = rows.Exists(static r => r.BlobUploadFailed == true)
-            || traces.Any(static t => t.BlobUploadFailed == true);
+            || traces.Any(static t => t is not null && t.BlobUploadFailed == true);
 
         return new RunToolInvocationForensicsResponse
         {

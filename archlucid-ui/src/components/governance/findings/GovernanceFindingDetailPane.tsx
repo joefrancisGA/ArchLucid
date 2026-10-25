@@ -27,6 +27,7 @@ import {
   formatGovernanceQueueRecordKind,
   type GovernanceFindingQueueRow,
 } from "@/app/(operator)/governance/findings/governance-finding-queue-row";
+import { GOVERNANCE_QUEUE_LINKED_REVIEW_RECORD_NOT_STORED } from "@/components/governance/findings/governance-findings-row-omission-copy";
 import {
   governanceFindingManifestRecordHref,
   governanceQueueGraphEvidenceHref,
@@ -244,12 +245,18 @@ export function GovernanceFindingOperationalHeaderMeta(props: {
         <div>
           <div className={cn("font-medium text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{SIGNED_MANIFEST_LABEL}</div>
           <div className="mt-0.5">
-            <Link
-              className={OPERATOR_LINK.inline}
-              href={governanceFindingManifestRecordHref(row.runId, row.manifestId)}
-            >
-              {BUYER_OPEN_SIGNED_RECORD_CTA}
-            </Link>
+            {row.manifestId.trim().length > 0 ? (
+              <Link
+                className={OPERATOR_LINK.inline}
+                href={governanceFindingManifestRecordHref(row.runId, row.manifestId)}
+              >
+                {BUYER_OPEN_SIGNED_RECORD_CTA}
+              </Link>
+            ) : (
+              <span className="text-al-text-secondary">
+                {GOVERNANCE_QUEUE_LINKED_REVIEW_RECORD_NOT_STORED}
+              </span>
+            )}
           </div>
         </div>
       ) : null}
