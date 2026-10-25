@@ -38,7 +38,7 @@ public sealed class ComparisonRecordSearchPredicateBuilderTests
         conditions.Should().Contain("CreatedUtc <= @CreatedToUtc");
         conditions.Should().Contain("LTRIM(RTRIM(LeftExportRecordId)) = @LeftExportRecordId");
         conditions.Should().Contain("LTRIM(RTRIM(RightExportRecordId)) = @RightExportRecordId");
-        conditions.Should().Contain("LTRIM(RTRIM(Label)) = @Label");
+        conditions.Should().Contain("LOWER(LTRIM(RTRIM(Label))) = LOWER(@Label)");
         conditions.Should().ContainSingle(c => c.Contains("OPENJSON", StringComparison.Ordinal) && c.Contains("@Tag0"));
         conditions.Should().ContainSingle(c => c.Contains("OPENJSON", StringComparison.Ordinal) && c.Contains("@Tag2"));
         conditions.Should().NotContain(c => c.Contains("@Tag1", StringComparison.Ordinal));
@@ -201,7 +201,7 @@ public sealed class ComparisonRecordSearchPredicateBuilderTests
             label: "  release-1  ",
             tags: null);
 
-        conditions.Should().Contain("LTRIM(RTRIM(Label)) = @Label");
+        conditions.Should().Contain("LOWER(LTRIM(RTRIM(Label))) = LOWER(@Label)");
         parameters.Get<string>("@Label").Should().Be("release-1");
     }
 

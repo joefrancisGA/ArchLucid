@@ -120,7 +120,10 @@ internal static class ComparisonRecordRepositoryCore
             string normalizedLabel = label.Trim();
             query = query.Where(r =>
                 !string.IsNullOrWhiteSpace(r.Label)
-                && string.Equals(r.Label.Trim(), normalizedLabel, StringComparison.Ordinal));
+                && string.Equals(
+                    r.Label.Trim(),
+                    normalizedLabel,
+                    StringComparison.OrdinalIgnoreCase));
         }
 
         if (tags is { Count: > 0 })

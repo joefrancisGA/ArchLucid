@@ -85,7 +85,7 @@ internal static class ComparisonRecordSearchPredicateBuilder
 
         if (!string.IsNullOrWhiteSpace(label))
         {
-            conditions.Add("LTRIM(RTRIM(Label)) = @Label");
+            conditions.Add("LOWER(LTRIM(RTRIM(Label))) = LOWER(@Label)");
             parameters.Add("@Label", label.Trim());
         }
 

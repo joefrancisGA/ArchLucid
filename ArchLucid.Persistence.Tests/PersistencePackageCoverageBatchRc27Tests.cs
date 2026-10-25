@@ -444,7 +444,7 @@ public sealed class PersistencePackageCoverageBatchRc27Tests
         conditions.Should().Contain("CreatedUtc <= @CreatedToUtc");
         conditions.Should().Contain("LTRIM(RTRIM(LeftExportRecordId)) = @LeftExportRecordId");
         conditions.Should().Contain("LTRIM(RTRIM(RightExportRecordId)) = @RightExportRecordId");
-        conditions.Should().Contain("LTRIM(RTRIM(Label)) = @Label");
+        conditions.Should().Contain("LOWER(LTRIM(RTRIM(Label))) = LOWER(@Label)");
         conditions.Should().Contain(c => c.Contains("@Tag0", StringComparison.Ordinal));
         conditions.Should().Contain(c => c.Contains("@Tag2", StringComparison.Ordinal));
         conditions.Should().NotContain(c => c.Contains("@Tag1", StringComparison.Ordinal));
