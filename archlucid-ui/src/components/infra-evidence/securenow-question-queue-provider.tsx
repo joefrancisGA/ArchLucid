@@ -53,6 +53,7 @@ type DrawerAction = "answer" | "ignore" | "reopen";
 
 type LoadQuestionsOptions = {
   readonly preferredFilter?: QueueFilter;
+  readonly focusQuestionIdentity?: string;
 };
 
 const VISIT_CAP = 10;
@@ -158,6 +159,33 @@ function queueFilterHasRows(
   return filterQuestions(questions, queueFilter).length > 0;
 }
 
+function resolveQueueFilterAfterReload(
+  loadedQuestions: readonly SecureNowQuestion[],
+  currentFilter: QueueFilter,
+  preferredFilter?: QueueFilter,
+): QueueFilter {
+  if (preferredFilter != null && queueFilterHasRows(loadedQuestions, preferredFilter)) {
+    return preferredFilter;
+  }
+
+  if (queueFilterHasRows(loadedQuestions, currentFilter)) {
+    return currentFilter;
+  }
+
+  return secureNowQuestionQueueInitialReviewFilter(loadedQuestions);
+}
+
+function indexInFilterForIdentity(
+  questions: readonly SecureNowQuestion[],
+  queueFilter: QueueFilter,
+  identity: string,
+): number {
+  const index = filterQuestions(questions, queueFilter).findIndex(
+    (question) => questionIdentity(question) === identity,
+  );
+  return index >= 0 ? index : 0;
+}
+
 function findInferredConnection(
   question: SecureNowQuestion,
   connections: readonly OperatorInferredConnectionRow[],
@@ -193,6 +221,7 @@ export function SecureNowQuestionQueueProvider(
   const [questions, setQuestions] = useState<SecureNowQuestion[]>([]);
   const [inferredConnections, setInferredConnections] = useState<OperatorInferredConnectionRow[]>([]);
   const [filter, setFilter] = useState<QueueFilter>("Open");
+  const filterRef = useRef<QueueFilter>(filter);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
@@ -219,6 +248,10 @@ export function SecureNowQuestionQueueProvider(
     setReason("");
   }, [snapshotId]);
 
+  useEffect(() => {
+    filterRef.current = filter;
+  }, [filter]);
+
   const loadQuestions = useCallback(async (options?: LoadQuestionsOptions) => {
     if (snapshotId.trim().length === 0) return;
     const requestSequence = ++loadSequence.current;
@@ -242,18 +275,12 @@ export function SecureNowQuestionQueueProvider(
       setQuestionsLoaded(true);
       setSessionSkippedQuestionKeys(new Set());
       setVisitedQuestionKeys(new Set());
-      setFilter((currentFilter) => {
-        const preferredFilter = options?.preferredFilter;
-        if (preferredFilter != null && queueFilterHasRows(loadedQuestions, preferredFilter)) {
-          return preferredFilter;
-        }
-
-        if (queueFilterHasRows(loadedQuestions, currentFilter)) {
-          return currentFilter;
-        }
-
-        return secureNowQuestionQueueInitialReviewFilter(loadedQuestions);
-      });
+      const nextFilter = resolveQueueFilterAfterReload(
+        loadedQuestions,
+        filterRef.current,
+        options?.preferredFilter,
+      );
+      setFilter(nextFilter);
       if (connectionsResult.status === "fulfilled") {
         setInferredConnections(connectionsResult.value);
       } else {
@@ -266,7 +293,12 @@ export function SecureNowQuestionQueueProvider(
           ),
         );
       }
-      setCurrentIndex(0);
+      const focusIdentity = options?.focusQuestionIdentity;
+      setCurrentIndex(
+        focusIdentity != null
+          ? indexInFilterForIdentity(loadedQuestions, nextFilter, focusIdentity)
+          : 0,
+      );
       setSelectedAnswer(null);
       setReason("");
       setDrawerAction("answer");
@@ -516,7 +548,10 @@ export function SecureNowQuestionQueueProvider(
         preferredFilter = "Open";
       }
 
-      await loadQuestions({ preferredFilter });
+      await loadQuestions({
+        preferredFilter,
+        focusQuestionIdentity: questionIdentity(currentQuestion),
+      });
       setSelectedAnswer(null);
       setReason("");
       setDrawerAction("answer");

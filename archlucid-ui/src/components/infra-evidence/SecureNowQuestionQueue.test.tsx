@@ -1014,7 +1014,7 @@ describe("SecureNowQuestionQueue", () => {
 
     mocks.listQuestions
       .mockResolvedValueOnce(manyQuestions)
-      .mockResolvedValueOnce(manyQuestions.slice(0, 10));
+      .mockResolvedValueOnce(manyQuestions);
 
     render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
     fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
@@ -1300,6 +1300,44 @@ describe("SecureNowQuestionQueue", () => {
 
     expect(screen.getByTestId("infra-diagrams-question-disposition-status")).toHaveTextContent("Dismissed");
     expect(screen.getByRole("button", { name: "Reopen" })).toBeInTheDocument();
+  });
+
+  it("focuses the reopened question after reload when another open row exists", async () => {
+    const otherOpen = {
+      ...question,
+      resourceId:
+        "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.DataFactory/factories/other-resource",
+      resourceName: "other-resource",
+      questionText: "Should other-resource connect to a peer, or stand alone?",
+      reasonText:
+        "SecureNow found no connection to or from other-resource. Data factory is not treated as a shared service that can stand alone.",
+    };
+    const dismissedRow = {
+      ...question,
+      status: "Ignored",
+      answerCode: null,
+      answerText: null,
+      reason: "Operator chose not to answer.",
+    };
+
+    mocks.listQuestions
+      .mockResolvedValueOnce([otherOpen, dismissedRow])
+      .mockResolvedValueOnce([otherOpen, { ...question, status: "Open", reason: null }]);
+
+    render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
+    fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
+    fireEvent.click(screen.getByRole("button", { name: "Dismissed" }));
+    fireEvent.change(screen.getByRole("textbox", { name: "Reason for reopening" }), {
+      target: { value: "Still needs review." },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Reopen" }));
+
+    await waitFor(() => expect(mocks.listQuestions).toHaveBeenCalledTimes(2));
+    await waitFor(() => expect(mocks.reopenQuestion).toHaveBeenCalled());
+
+    expect(screen.getByTestId("infra-diagrams-question-disposition-status")).toHaveTextContent("Open");
+    expect(screen.getByTestId("infra-diagrams-question-text")).toHaveTextContent(question.questionText);
+    expect(screen.queryByText("Should other-resource connect to a peer, or stand alone?")).not.toBeInTheDocument();
   });
 
   it("routes to dismissed when open filter empties after saving an ignore", async () => {
