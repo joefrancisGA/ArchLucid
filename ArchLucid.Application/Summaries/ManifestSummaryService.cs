@@ -50,8 +50,8 @@ public sealed class ManifestSummaryService : IManifestSummaryService
             {
                 sb.AppendLine($"### {service.ServiceName}");
                 sb.AppendLine();
-                sb.AppendLine($"- **Service Type:** {service.ServiceType}");
-                sb.AppendLine($"- **Runtime Platform:** {service.RuntimePlatform}");
+                sb.AppendLine($"- **Service Type:** {ArchitectureManifestTopologyExport.FormatServiceTypeForExport(service.ServiceType)}");
+                sb.AppendLine($"- **Runtime Platform:** {ArchitectureManifestTopologyExport.FormatRuntimePlatformForExport(service.RuntimePlatform)}");
                 if (!string.IsNullOrWhiteSpace(service.Purpose))
                     sb.AppendLine($"- **Purpose:** {service.Purpose}");
                 if (options.IncludeComponentControls && service.RequiredControls.Count > 0)
@@ -70,12 +70,12 @@ public sealed class ManifestSummaryService : IManifestSummaryService
             {
                 sb.AppendLine($"### {datastore.DatastoreName}");
                 sb.AppendLine();
-                sb.AppendLine($"- **Datastore Type:** {datastore.DatastoreType}");
-                sb.AppendLine($"- **Runtime Platform:** {datastore.RuntimePlatform}");
+                sb.AppendLine($"- **Datastore Type:** {ArchitectureManifestTopologyExport.FormatDatastoreTypeForExport(datastore.DatastoreType)}");
+                sb.AppendLine($"- **Runtime Platform:** {ArchitectureManifestTopologyExport.FormatRuntimePlatformForExport(datastore.RuntimePlatform)}");
                 if (!string.IsNullOrWhiteSpace(datastore.Purpose))
                     sb.AppendLine($"- **Purpose:** {datastore.Purpose}");
-                sb.AppendLine($"- **Private Endpoint Required:** {(datastore.PrivateEndpointRequired ? "Yes" : "No")}");
-                sb.AppendLine($"- **Encryption At Rest Required:** {(datastore.EncryptionAtRestRequired ? "Yes" : "No")}");
+                sb.AppendLine($"- **Private Endpoint Required:** {ArchitectureManifestDatastoreExport.FormatPrivateEndpointRequiredForExport(datastore.PrivateEndpointRequired)}");
+                sb.AppendLine($"- **Encryption At Rest Required:** {ArchitectureManifestDatastoreExport.FormatEncryptionAtRestRequiredForExport(datastore.EncryptionAtRestRequired)}");
                 sb.AppendLine();
             }
         }

@@ -209,7 +209,7 @@ export function RunAgentResultsSummaryCard(props: {
                     {findings}
                     {" · "}
                     {evidenceRefs}
-                    {confidence !== null ? ` · confidence ${confidence}` : null}
+                    {confidence !== null ? ` · confidence ${confidence}` : " · Agent confidence was not stored."}
                   </p>
                   {result.agentType === "Topology"
                     ? topologyExemplarLink(props.retrievalGroundingSummary)
