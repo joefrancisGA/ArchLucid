@@ -1,4 +1,8 @@
 import { runListPrimaryTitle } from "@/components/operator-home/runs-dashboard-helpers";
+import {
+  resolveRunFindingCountDisplay,
+  resolveRunWarningCountDisplay,
+} from "@/lib/operator/operator-home-run-list-insight";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { resolveProductionEvalChromeFromStorage } from "@/lib/resolve-production-eval-chrome-from-storage";
@@ -13,26 +17,28 @@ import type { RunSummary } from "@/types/authority";
 
 export { runListPrimaryTitle };
 
-function runRowNumericCountsLine(run: RunSummary, buyerPolished: boolean): string | null {
-  const fc = run.findingCount;
-  const wc = run.warningCount;
-  const ac = run.artifactCount;
-  const hasFinding = typeof fc === "number" && Number.isFinite(fc);
-  const hasWarning = typeof wc === "number" && Number.isFinite(wc);
-  const hasArtifact = typeof ac === "number" && Number.isFinite(ac);
+export const RUN_LIST_FINDING_COUNT_NOT_STORED_LABEL = "Finding count was not stored." as const;
 
-  if (!hasFinding && !hasWarning && !hasArtifact) {
-    return null;
-  }
+export const RUN_LIST_WARNING_COUNT_NOT_STORED_LABEL = "Monitored risk count was not stored." as const;
+
+export function runRowNumericCountsLine(run: RunSummary, buyerPolished: boolean): string | null {
+  const fc = resolveRunFindingCountDisplay(run);
+  const wc = resolveRunWarningCountDisplay(run);
+  const ac = run.artifactCount;
+  const hasArtifact = typeof ac === "number" && Number.isFinite(ac);
 
   const tokens: string[] = [];
 
-  if (hasFinding) {
+  if (fc !== null) {
     tokens.push(`${fc} findings`);
+  } else {
+    tokens.push(RUN_LIST_FINDING_COUNT_NOT_STORED_LABEL);
   }
 
-  if (hasWarning) {
+  if (wc !== null) {
     tokens.push(buyerPolished ? `${wc} monitored risks` : `${wc} warnings`);
+  } else {
+    tokens.push(RUN_LIST_WARNING_COUNT_NOT_STORED_LABEL);
   }
 
   if (hasArtifact) {

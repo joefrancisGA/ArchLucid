@@ -55,6 +55,6 @@ describe("buyer-demo-persona-labels (TB-273 / 5CZ-demo)", () => {
 
     expect(sanitized.actorUserName).toBe("Jordan Lee");
     expect(sanitized.tenantId).toBe("workspace");
-    expect(sanitized.correlationId).toBe("Recorded in workspace audit trail");
+    expect(sanitized.correlationId).toBe("Demo seed id — not a customer audit record.");
   });
 });

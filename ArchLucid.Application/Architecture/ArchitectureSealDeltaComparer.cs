@@ -34,7 +34,7 @@ internal static class ArchitectureSealDeltaComparer
 
         TransparencyTrail draftTrail = draftDocument.TransparencyTrail;
 
-        if (TrailHasComparableContent(sealedTrail) || TrailHasComparableContent(draftTrail))
+        if (TrailHasComparableContent(draftTrail))
         {
             CompareAssertedTrail(diffs, sealedTrail, draftTrail);
             CompareInferredTrail(diffs, sealedTrail, draftTrail);
