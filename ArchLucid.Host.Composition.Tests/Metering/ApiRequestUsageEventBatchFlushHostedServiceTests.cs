@@ -110,6 +110,74 @@ public sealed class ApiRequestUsageEventBatchFlushHostedServiceTests
     }
 
     [Fact]
+    public async Task StopAsync_requeues_unflushed_snapshot_tail_when_persist_is_canceled()
+    {
+        UsageEvent first = new()
+        {
+            TenantId = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"),
+            Kind = UsageMeterKind.ApiRequest,
+            Quantity = 1,
+            RecordedUtc = DateTimeOffset.Parse("2026-10-23T17:00:00Z"),
+            IdempotencyKey = "request-cancel-1",
+        };
+
+        UsageEvent second = new()
+        {
+            TenantId = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"),
+            Kind = UsageMeterKind.ApiRequest,
+            Quantity = 1,
+            RecordedUtc = DateTimeOffset.Parse("2026-10-23T17:00:01Z"),
+            IdempotencyKey = "request-cancel-2",
+        };
+
+        UsageEvent third = new()
+        {
+            TenantId = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"),
+            Kind = UsageMeterKind.ApiRequest,
+            Quantity = 1,
+            RecordedUtc = DateTimeOffset.Parse("2026-10-23T17:00:02Z"),
+            IdempotencyKey = "request-cancel-3",
+        };
+
+        ServiceCollection services = new();
+        services.Configure<MeteringOptions>(options =>
+        {
+            options.Enabled = true;
+            options.ApiRequestBatchMaxSize = 1;
+        });
+        Mock<IUsageMeteringService> metering = new();
+        metering
+            .SetupSequence(candidate => candidate.RecordBatchAsync(
+                It.IsAny<IReadOnlyList<UsageEvent>>(),
+                It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask)
+            .ThrowsAsync(new OperationCanceledException());
+        services.AddSingleton(metering.Object);
+        ServiceProvider provider = services.BuildServiceProvider();
+        ApiRequestUsageEventBuffer buffer = new(provider.GetRequiredService<IOptionsMonitor<MeteringOptions>>());
+        buffer.Enqueue(first);
+        buffer.Enqueue(second);
+        buffer.Enqueue(third);
+
+        ApiRequestUsageEventBatchFlushHostedService service = new(
+            buffer,
+            provider.GetRequiredService<IServiceScopeFactory>(),
+            provider.GetRequiredService<IOptionsMonitor<MeteringOptions>>(),
+            NullLogger<ApiRequestUsageEventBatchFlushHostedService>.Instance);
+
+        Func<Task> act = () => service.StopAsync(CancellationToken.None);
+
+        await act.Should().ThrowAsync<OperationCanceledException>();
+
+        List<string> restoredKeys = [];
+        while (buffer.TryDequeue(out UsageEvent? restored) && restored is not null)
+            restoredKeys.Add(restored.IdempotencyKey!);
+
+        restoredKeys.Should().Equal("request-cancel-2", "request-cancel-3");
+        metering.Invocations.Count.Should().Be(2);
+    }
+
+    [Fact]
     public async Task StopAsync_attempts_persist_for_all_dequeued_batches_when_an_earlier_batch_fails()
     {
         UsageEvent first = new()

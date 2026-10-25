@@ -5,11 +5,7 @@ import type { ReactElement } from "react";
 
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import {
-  buildWithheldFindingDeepLink,
-  formatWithheldFindingReasonLabel,
-  type WithheldFindingRow,
-} from "@/lib/findings/findings-withheld-band";
+import { buildWithheldFindingDeepLink, type WithheldFindingRow } from "@/lib/findings/findings-withheld-band";
 import { cn } from "@/lib/utils";
 
 export type FindingsWithheldBandProps = {
@@ -39,7 +35,7 @@ export function FindingsWithheldBand(props: FindingsWithheldBandProps): ReactEle
           <li key={row.withheldFindingId} data-testid={`findings-withheld-row-${row.withheldFindingId}`}>
             <p className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>{row.title}</p>
             <p className={cn("m-0 mt-0.5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-              {formatWithheldFindingReasonLabel(row.reason)} · {row.originEngineType}
+              {row.reasonDisplay} · {row.originEngineType}
               {row.originAgentType !== null ? ` · ${row.originAgentType}` : ""}
             </p>
             <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}>

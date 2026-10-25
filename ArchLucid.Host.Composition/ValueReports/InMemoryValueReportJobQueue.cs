@@ -30,11 +30,16 @@ public sealed partial class InMemoryValueReportJobQueue(
     private const string MissingCompletedDocumentErrorMessage =
         "Value report job completed but the document is unavailable — retry the async export.";
 
+    private static bool IsAuthoritativeDistributedTerminalFailure(JobEntry distributed) =>
+        distributed.Phase == JobPhase.Failed &&
+        !string.IsNullOrWhiteSpace(distributed.ErrorMessage) &&
+        !string.Equals(distributed.ErrorMessage, UnknownFailedJobErrorMessage, StringComparison.Ordinal);
+
     private static JobEntry PreferDistributedPollState(JobEntry local, JobEntry distributed) =>
         local.Phase switch
         {
             JobPhase.Pending when distributed is { Phase: JobPhase.Completed, Bytes: { Length: > 0 } } => distributed,
-            JobPhase.Pending when distributed.Phase == JobPhase.Failed => distributed,
+            JobPhase.Pending when IsAuthoritativeDistributedTerminalFailure(distributed) => distributed,
             JobPhase.Completed when distributed.Phase == JobPhase.Failed &&
                                     local.Bytes is not { Length: > 0 } => distributed,
             JobPhase.Completed when local.Bytes is not { Length: > 0 } &&
@@ -76,12 +81,6 @@ public sealed partial class InMemoryValueReportJobQueue(
         else if (distributed is not null)
         {
             entry = PreferDistributedPollState(entry, distributed);
-        }
-        else if (distributedRead.CorruptPayload &&
-                 entry is not { Phase: JobPhase.Completed, Bytes: { Length: > 0 } } &&
-                 entry.Phase is not JobPhase.Pending and not JobPhase.Failed)
-        {
-            entry = PreferDistributedPollState(entry, CreateCorruptDistributedFailureEntry(entry.Request));
         }
 
         if (entry.Request.TenantId != scopedTenantId)

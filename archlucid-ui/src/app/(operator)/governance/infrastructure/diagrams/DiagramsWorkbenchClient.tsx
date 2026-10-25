@@ -115,6 +115,10 @@ import { buildInfraMermaidExportLegendCommentLines } from "@/lib/infra-evidence/
 import { formatInfraEvidenceMermaidPngExportError } from "@/lib/infra-evidence/infra-evidence-mermaid-png-export-error";
 import type { InfraEvidenceSnapshotSummary } from "@/lib/infra-evidence/infra-evidence-drift-types";
 import { formatInfraEvidenceDiagramsSnapshotPickerLabel } from "@/lib/infra-evidence/format-infra-evidence-diagrams-snapshot-label";
+import {
+  formatInfraEvidenceDiagramMetricsAnnouncement,
+  isInfraEvidenceDiagramEdgeCountStored,
+} from "@/lib/infra-evidence/format-infra-evidence-diagram-metrics-announcement";
 import { infraEvidenceSnapshotCaptureStatusTagProps } from "@/lib/infra-evidence/infra-evidence-snapshot-capture-status";
 import {
   buildInfraDiagramsSubscriptionFilterOptions,
@@ -304,6 +308,10 @@ const cnField =
   "rounded-md border border-neutral-200 bg-white px-3 py-2 dark:border-neutral-800 dark:bg-neutral-950";
 
 function resolveInfraDiagramsModeLabel(mode: string, fallbackKey: string, resourceGroupName: string): string {
+  if (mode.trim().length === 0) {
+    return "Diagram mode was stored empty.";
+  }
+
   if (isInfraDiagramsResourceGroupMode(mode)) {
     if (resourceGroupName.length > 0) {
       return `Resource group · ${resourceGroupName}`;
@@ -318,7 +326,7 @@ function resolveInfraDiagramsModeLabel(mode: string, fallbackKey: string, resour
 
   const option = INFRA_DIAGRAMS_MODE_OPTIONS.find((entry) => entry.value === mode);
 
-  return option?.label ?? mode;
+  return option?.label ?? `Diagram mode ${mode} has no reviewer label.`;
 }
 
 const INFRA_DIAGRAM_DATA_FLOW_READING_CARD_CAPTION_REST =
@@ -821,7 +829,7 @@ export function DiagramsWorkbenchClient() {
     const metrics = renderResult?.metrics;
     const metricLine =
       renderResult != null && metrics != null
-        ? `${metrics.nodeCount} nodes and ${metrics.edgeCount} edges across ${metrics.subgraphCount} subgraphs.`
+        ? formatInfraEvidenceDiagramMetricsAnnouncement(metrics)
         : renderResult != null
           ? "Diagram metrics were not stored."
           : "";
@@ -888,7 +896,8 @@ export function DiagramsWorkbenchClient() {
   const diagramContentEmpty =
     isInfraEvidenceMermaidDiagramEmpty(mermaidSource, metrics?.nodeCount)
     && (layoutSvg ?? "").trim().length === 0;
-  const dataFlowEdgeCountUnknown = selectedMode === "dataFlow" && metrics == null;
+  const dataFlowEdgeCountUnknown =
+    selectedMode === "dataFlow" && !isInfraEvidenceDiagramEdgeCountStored(metrics);
   const dataFlowHasNoConnections =
     selectedMode === "dataFlow" && metrics != null && metrics.edgeCount === 0;
   const dataFlowHasNoResourcesOrConnections =

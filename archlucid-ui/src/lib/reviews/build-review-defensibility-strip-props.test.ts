@@ -28,9 +28,9 @@ describe("buildReviewDefensibilityStripProps", () => {
     const props = buildReviewDefensibilityStripProps(null, true);
 
     expect(props).toEqual({
-      assertedCount: 0,
-      inferredCount: 0,
-      skippedCount: 0,
+      assertedCount: null,
+      inferredCount: null,
+      skippedCount: null,
       criticAbsent: true,
       verdictKind: null,
     });

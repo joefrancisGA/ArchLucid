@@ -51,7 +51,7 @@ describe("package-print-view (TB-2205)", () => {
   it("resolves status and presentation for a finalized package", () => {
     const presentation = buildPackagePrintPresentation(summary());
 
-    expect(resolvePackagePrintStatusLabel(summary())).toBe("Active");
+    expect(resolvePackagePrintStatusLabel(summary())).toBe("Finalized. Governance warnings were stored.");
     expect(presentation.title).toBe("Payments edge");
     expect(presentation.findingsSummary).toContain("3 findings");
     expect(presentation.findingsSummary).toContain("1 warning");
@@ -119,6 +119,15 @@ describe("package-print-view (TB-2205)", () => {
 
     expect(printMock).toHaveBeenCalledTimes(1);
     printMock.mockRestore();
+  });
+
+  it("labels omitted listed finding count without implying full inventory (P-09)", () => {
+    const presentation = buildPackagePrintPresentation(summary({ findingCount: 25 }), {
+      findingsListedCount: null,
+    });
+
+    expect(presentation.findingsSummary).toContain("Listed finding count was not stored.");
+    expect(presentation.findingsSummary).not.toContain("Showing 25 of 25");
   });
 
   it("CA-41: adds showing N of M when listed findings are fewer than the run total", () => {
