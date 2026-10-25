@@ -82,4 +82,21 @@ public sealed class OpenQuestionsExportHonestyTests
         markdown.Should().Contain(OpenQuestionsExportHonesty.WorkingDocumentExportHeading);
         markdown.Should().Contain("open-questions: Who owns failover approvals?");
     }
+
+    [Fact]
+    public void TransparencyTrailMarkdownFormatter_states_when_skipped_questions_were_not_recorded()
+    {
+        TransparencyTrail trail = new()
+        {
+            Asserted = [new AssertedTrailEntry { Key = "businessOutcome", Value = "Reduce triage time" }],
+            Inferred = [],
+            Skipped = [],
+        };
+
+        StringBuilder sb = new();
+        TransparencyTrailMarkdownFormatter.AppendMarkdownSection(sb, trail);
+        string markdown = sb.ToString();
+
+        markdown.Should().Contain(TransparencyTrailMarkdownFormatter.SkippedQuestionsNotRecordedCopy);
+    }
 }

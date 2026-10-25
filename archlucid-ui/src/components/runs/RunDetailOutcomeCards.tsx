@@ -280,8 +280,8 @@ export function RunDetailOutcomeCards({
                 <dt className={cn(OPERATOR_NAV_GROUP_LABEL, "text-neutral-500 dark:text-neutral-400")}>Evidence basis</dt>
                 <dd className="m-0 mt-0.5 text-neutral-800 dark:text-neutral-200">
                   {typeof findingCountDisplay === "number"
-                    ? `${findingCountDisplay} citation${findingCountDisplay === 1 ? "" : "s"} in evidence trail`
-                    : "Citation count was not returned."}
+                    ? `${findingCountDisplay} finding${findingCountDisplay === 1 ? "" : "s"} in evidence trail`
+                    : "Finding count was not returned."}
                 </dd>
               </div>
               <div>

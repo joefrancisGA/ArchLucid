@@ -21,7 +21,7 @@ public static partial class DiagramForestCollapsedSingletonTailLabels
             return node.ArmResourceGroup.Trim();
         }
 
-        return fallback;
+        return DiagramNodeHumanCaptionFactory.ResourceGroupNotStoredCaption;
     }
 
     public static int ResolveNeighborhoodResourceCount(IReadOnlyList<DiagramNode> memberNodes)

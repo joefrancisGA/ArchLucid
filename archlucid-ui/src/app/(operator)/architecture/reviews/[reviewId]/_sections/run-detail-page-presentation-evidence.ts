@@ -17,7 +17,11 @@ import {
 import type { RunDetailEvidenceInventoryItem } from "@/lib/runs/run-detail-evidence-inventory";
 import type { EvidenceCoverageSummary, RunDetailWorkspaceStatus } from "@/lib/run-detail-workspace-derive";
 import { buildBuyerReviewPackageDispositionLine } from "@/lib/review-buyer-disposition-line";
+<<<<<<< HEAD
 import { formatSubmittedArchitectureTextForSummary } from "@/lib/reviews/submitted-architecture-text-honesty";
+=======
+import { UNTITLED_ARCHITECTURE_LABEL } from "@/lib/architecture/architecture-draft-status";
+>>>>>>> origin/master
 
 import { analysisStagesCompleteOnSummary } from "./pipeline-complete-on-summary";
 import type { RunDetailPageModel } from "./run-detail-page-model";
@@ -55,6 +59,7 @@ export function buildRunDetailEvidencePresentation(
     readonly workspaceStatus: RunDetailWorkspaceStatus;
     readonly quickDecisionFindings: readonly QuickDecisionFinding[];
     readonly hasManifest: boolean;
+    readonly hasFindingsSnapshot: boolean;
   },
 ): RunDetailEvidencePresentation {
   const submittedArchitectureText = workspaceDerive.deriveSubmittedArchitectureText(
@@ -89,16 +94,23 @@ export function buildRunDetailEvidencePresentation(
   );
   const architectureCreatedBaseline: BuildArchitectureCreatedHomeModelInput = {
     runId: model.resolvedDetail.run.runId,
+<<<<<<< HEAD
     architectureName: input.systemName ?? input.reviewDisplayTitle,
     architectureOverview: formatSubmittedArchitectureTextForSummary(
       submittedArchitectureText,
       input.runSummaryForBadge.description,
     ),
+=======
+    architectureName: input.systemName?.trim() || UNTITLED_ARCHITECTURE_LABEL,
+    architectureOverview: submittedArchitectureText ?? "",
+>>>>>>> origin/master
     businessOutcome: derivedGapBaseline.businessOutcome,
     peopleAndSystems: derivedGapBaseline.peopleAndSystems,
     ownerLabel: workspaceDerive.deriveReviewOwnerLabel(model.resolvedDetail.run),
     lastUpdatedLabel:
-      lastEvaluatedUtc !== null ? formatInstantForLocale(lastEvaluatedUtc) : "time was not stored.",
+      lastEvaluatedUtc !== null
+        ? formatInstantForLocale(lastEvaluatedUtc)
+        : "Last updated time was not stored.",
     workspaceStatus: input.workspaceStatus,
     assessmentInProgress: model.showProgressTracker,
     hasArtifacts: model.artifacts.length > 0,
@@ -115,16 +127,24 @@ export function buildRunDetailEvidencePresentation(
     hasSubmittedArchitecture,
     architectureEditHref,
     architectureTabSubmittedHelperText,
-    evidenceCoverageSummary: workspaceDerive.deriveEvidenceCoverageSummary(input.quickDecisionFindings),
+    evidenceCoverageSummary: workspaceDerive.deriveEvidenceCoverageSummary(input.quickDecisionFindings, {
+      hasFindingsSnapshot: input.hasFindingsSnapshot,
+    }),
     evidenceInventoryItems,
     evidenceInventoryCount: countRunDetailEvidenceInventoryItems(evidenceInventoryItems),
     findingsCiteEvidenceWithoutSourceNames: findingsCiteEvidenceWithoutStoredSourceNames(
       input.quickDecisionFindings,
     ),
     evidenceReviewDateLabel:
+<<<<<<< HEAD
       lastEvaluatedUtc !== null
         ? formatInstantForLocale(lastEvaluatedUtc) || "Review date was not stored."
         : "Review date was not stored.",
+=======
+      (model.resolvedDetail.run.completedUtc?.trim() ?? "").length > 0
+        ? formatInstantForLocale(model.resolvedDetail.run.completedUtc) || model.createdLabel
+        : "Review completed time was not stored.",
+>>>>>>> origin/master
     showArchitectureCreatedHome,
     createHomeAnalysisStagesComplete,
     createHomePreFinalizeReadyToFinalize: showArchitectureCreatedHome && createHomeAnalysisStagesComplete,
@@ -137,7 +157,13 @@ export function buildRunDetailEvidencePresentation(
       aggregateRiskPosture: model.explanationSummary?.riskPosture ?? null,
     }),
     createHomeActivityProvenanceAsOfLabel:
+<<<<<<< HEAD
       formatInstantForLocale(model.resolvedDetail.run.completedUtc ?? "") || "Not recorded",
+=======
+      (model.resolvedDetail.run.completedUtc?.trim() ?? "").length > 0
+        ? formatInstantForLocale(model.resolvedDetail.run.completedUtc) ?? ""
+        : "Provenance time was not stored.",
+>>>>>>> origin/master
     architectureCreatedBaseline,
     architectureCreatedHomeModel: showArchitectureCreatedHome
       ? buildArchitectureCreatedHomeModel(architectureCreatedBaseline)

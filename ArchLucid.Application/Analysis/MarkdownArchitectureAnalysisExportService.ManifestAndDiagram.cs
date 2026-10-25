@@ -12,6 +12,7 @@ public sealed partial class MarkdownArchitectureAnalysisExportService
         if (report.Manifest is null)
         {
             sb.AppendLine("## Architecture Manifest");
+            sb.AppendLine();
             sb.AppendLine($"- {ConsultingDocxExportHonestyCopy.CommittedManifestNotStored}");
             sb.AppendLine();
         }

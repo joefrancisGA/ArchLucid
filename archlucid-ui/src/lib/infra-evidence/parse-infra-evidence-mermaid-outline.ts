@@ -420,6 +420,10 @@ function resolveEdgeSourceFromArrow(line: string, metadata: OutlineEdgeMetadata)
 }
 
 function edgeIsHumanDeclaredConnection(edge: InfraEvidenceMermaidOutlineEdge): boolean {
+  if (edge.source === "declared") {
+    return true;
+  }
+
   const provenance = edge.provenanceKind?.trim().toLowerCase() ?? "";
 
   if (provenance === "humanassertion") {

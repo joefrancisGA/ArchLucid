@@ -66,6 +66,17 @@ describe("run-detail-evidence-inventory", () => {
     expect(countRunDetailEvidenceInventoryItems(items)).toBe(1);
   });
 
+  it("labels inventory-like filenames as submitted evidence, not cloud inventory", () => {
+    const items = deriveRunDetailEvidenceInventory({
+      findings: [],
+      runCreatedUtc: "2026-08-09T12:00:00Z",
+      submittedArchitecturePresent: false,
+      attachedFileNames: ["notes.zip", "inventory-brief.pdf"],
+    });
+
+    expect(items.map((item) => item.kind)).toEqual(["Document", "Submitted evidence"]);
+  });
+
   it("includes submitted architecture brief as an inventory row", () => {
     const items = deriveRunDetailEvidenceInventory({
       findings: [],

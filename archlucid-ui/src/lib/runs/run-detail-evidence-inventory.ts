@@ -31,16 +31,12 @@ export type RunDetailEvidenceInventoryItem = {
 
 const ARCHITECTURE_BRIEF_KEY = "__architecture-brief__";
 
-function resolveIngestedUtcForEvidenceItem(
-  evidenceItemId: string | null,
-  catalog: readonly RunStoredEvidenceCatalogEntry[] | undefined,
-): string | null {
-  if (evidenceItemId === null || catalog === undefined) {
-    return null;
-  }
+function inferEvidenceKind(sourceName: string): string {
+  const lower = sourceName.toLowerCase();
 
-  const entry = catalog.find((row) => row.evidenceItemId === evidenceItemId);
-  const createdUtc = entry?.createdUtc?.trim() ?? "";
+  if (lower.includes(".bicep") || lower.includes(".tf") || lower.includes("terraform")) {
+    return "Infrastructure as code";
+  }
 
   return createdUtc.length > 0 ? createdUtc : null;
 }

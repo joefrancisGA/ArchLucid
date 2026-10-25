@@ -139,6 +139,12 @@ export function PolicyRulePreviewDialog(props: PolicyRulePreviewDialogProps): Re
             {preview.severity !== null ? <StatusTag kind="needs-attention" label={preview.severity} /> : null}
           </div>
 
+          {preview.hasCuratedRuleText ? null : (
+            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} role="note">
+              Curated rule text was not stored on the effective policy pack for this preview.
+            </p>
+          )}
+
           <div>
             <p className={cn("m-0 font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
               Rule ID

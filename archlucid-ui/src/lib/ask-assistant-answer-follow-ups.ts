@@ -8,9 +8,9 @@ export const ASK_ASSISTANT_ANSWER_FOLLOW_UP_UNBLOCK_FINALIZE_PROMPT =
 
 /** @deprecated Use {@link resolveAskAssistantAnswerFollowUpPrompts} for answer-aware chips. */
 export const ASK_ASSISTANT_ANSWER_FOLLOW_UP_PROMPTS: readonly string[] = [
-  ASK_ASSISTANT_ANSWER_FOLLOW_UP_TOP_RISK_PROMPT,
-  ASK_ASSISTANT_ANSWER_FOLLOW_UP_EVIDENCE_PROMPT,
-  ASK_ASSISTANT_ANSWER_FOLLOW_UP_UNBLOCK_FINALIZE_PROMPT,
+  "What did this answer cite?",
+  "Which finding is this about?",
+  "What is still open on this review?",
 ];
 
 function answerNamesTopRisk(answerText: string): boolean {

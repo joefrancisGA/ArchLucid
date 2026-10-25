@@ -167,7 +167,9 @@ export function FindingProvenancePanel(props: FindingProvenancePanelProps): Reac
 
           {error ? (
             <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)} role="status">
-              Provenance is not available for this finding.
+              {provenanceQuery.isError
+                ? "Provenance could not be loaded for this finding."
+                : "Finding provenance steps were not stored."}
             </p>
           ) : null}
 
