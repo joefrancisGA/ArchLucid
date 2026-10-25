@@ -9,6 +9,7 @@ import { OPERATOR_HOME_SEALED_REVIEW_RECORD_NOUN } from "@/lib/metric-count-pres
 import { isDemoSeededOverviewInjectedRun } from "@/lib/demo-seeded-overview";
 import { isShowcaseSampleOfAnyKind } from "@/lib/demo-run-canonical";
 import type { OperatorHomeWorkspaceMetricsSnapshot } from "@/lib/operator/operator-home-workspace-metrics";
+import { buildTrimmedRunIdSet } from "@/lib/operator/home-attention-dedup";
 import type { RunSummary } from "@/types/authority";
 
 export type FormatOperatorHomeRecentReviewsOutcomeOptions = {
@@ -232,7 +233,7 @@ function countAwaitingApprovalPreviewRuns(
     return 0;
   }
 
-  const awaitingIds = new Set(awaitingApprovalRunIds);
+  const awaitingIds = buildTrimmedRunIdSet(awaitingApprovalRunIds);
 
   return items.filter((run) => {
     const runId = run.runId?.trim() ?? "";
@@ -247,9 +248,10 @@ function countAwaitingApprovalPreviewRuns(
  */
 export function deriveHomePreviewTabCounts(input: DeriveHomePreviewTabCountsInput): HomePreviewTabCounts {
   const activePreviewItems = input.previewItems.filter((run) => run.isArchived !== true);
+  const excludeShowcaseRunId = input.excludeShowcaseRunId?.trim() ?? "";
   const listItems =
-    input.excludeShowcaseRunId !== undefined
-      ? activePreviewItems.filter((run) => run.runId !== input.excludeShowcaseRunId)
+    excludeShowcaseRunId.length > 0
+      ? activePreviewItems.filter((run) => (run.runId?.trim() ?? "") !== excludeShowcaseRunId)
       : activePreviewItems;
   const baseCounts = deriveRunsDashboardTabCounts(listItems);
   const awaitingApprovalRunIds = input.awaitingApprovalRunIds;
