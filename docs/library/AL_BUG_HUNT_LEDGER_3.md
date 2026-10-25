@@ -6647,6 +6647,8 @@ ABQ-09 churn hotspot; intake wizard route tree.
 
 ## Zone: ui-governance-findings-queue
 
+2026-10-25 seed hunt (seed→hit): `traceRowsForRun` kept padded `RunSummary.runId` on explainability trace rows, so review links encoded whitespace, dedupe keys split the same finding across padded and trimmed run ids, and keyboard navigation treated padded ids as stored; normalize run id at the mapper boundary; regression `normalizes padded run ids on trace-backed queue rows`; row-mappers suite 11/11. Reseeded five follow-on `(candidate)` rows.
+
 2026-10-21 thorough hunt (hit): `GovernanceFindingsQueueOperationalRowCells` and buyer-polished `GovernanceFindingsQueueTableRow` treated whitespace-only optional `policyRuleId` as present, skipping the policy-area fallback while assigned-to-me rows already trimmed the key; shared `governanceFindingQueueRowHasPolicyRuleId` guard; regression `does not render policy traceability badges when policyRuleId is whitespace-only`; operational row + desktop-table regressions 16/16.
 
 - [x] (proven) `GovernanceFindingsQueueOperationalRowCells` / `GovernanceFindingsQueueTableRow` — whitespace-only `policyRuleId` blocked policy-area fallback — **hit 2026-10-21 thorough hunt:** `governanceFindingQueueRowHasPolicyRuleId`; regression above.
@@ -6659,11 +6661,11 @@ ABQ-09 churn hotspot; intake wizard route tree.
 - **aliases:** governance findings queue
 - **paths:** archlucid-ui/src/app/(operator)/governance/findings/
 - **test-filter:** FullyQualifiedName~GovernanceFindingsQueueClient
-- **hunts:** 59
-- **bugs-found:** 38
+- **hunts:** 60
+- **bugs-found:** 39
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 - trim AgentModelTiers AgentTypeTiers keys after configuration bind
+- **last-hunt:** 2026-10-25
+- **last-bug:** 2026-10-25 — trace-backed governance queue rows kept padded run ids
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -6673,6 +6675,13 @@ ABQ-09 churn hotspot.
 
 ### Hypotheses
 
+- [ ] (candidate) `dedupeGovernanceFindingRows` — composite keys use raw `runId`/`findingId` strings, so mixed register and trace sources that disagree only on run-id padding could surface duplicate actionable rows until every mapper normalizes both fields — locus: `governance-findings-row-mappers.ts` `dedupeGovernanceFindingRows`; input: merge risk-register rows with trace rows for the same finding where one mapper omits trim.
+- [ ] (candidate) `GovernanceFindingsQueueOperationalRowCells` / `GovernanceFindingsQueueTableRow` — review column links call `encodeURIComponent(row.runId)` without a final trim, so any future row source that skips mapper normalization can still emit `%20`-padded review URLs while inspect links trim — locus: review column `Link` href builders; input: queue row with `runId: " run-1 "`.
+- [ ] (candidate) `useGovernanceFindingsQueueBulkActions` — SecureNow remediation-factory auto-selection compares URL finding ids to `availableFindingIds` without normalizing surrounding whitespace — locus: remediation-factory param parse effect; input: `remediationFactoryFindingId=%20finding-1%20` with a loaded `finding-1` row.
+- [ ] (candidate) `GovernanceFindingsQueueAssignedToMeRowCells` — framework-control helper text prints `row.policyRuleId` verbatim even though traceability chrome uses trimmed `coerceComplianceRuleKey` output — locus: assigned-to-me control line; input: risk-register category key with surrounding whitespace that coerces to a valid rule id.
+- [ ] (candidate) `groupGovernanceFindingQueueRows` — resource-group disclosure keys use trimmed `resourceId` labels but table row keys still concatenate untrimmed `runId`, so padded run ids could remount rows and reset focus when grouping toggles — locus: `GovernanceFindingsQueueTableBody` row keys; input: grouped queue containing padded run ids from a non-trace source.
+
+- [x] (proven) `traceRowsForRun` — explainability trace rows retained padded `RunSummary.runId`, breaking review links, dedupe, and stored-run detection relative to register rows — **hit 2026-10-25 seed hunt:** trim run id once at the trace mapper boundary; regression `normalizes padded run ids on trace-backed queue rows`.
 - [x] (proven) `GovernanceFindingsQueueAssignedToMeRowCells` / buyer-polished `GovernanceFindingsQueueTableRow` — assigned-to-me and buyer-polished review columns linked `runLabel` even when `runId` was whitespace-only, yielding a broken `/architecture/reviews/` href while operational rows already render plain text — **hit 2026-10-13 seed hunt:** `runId.trim().length > 0` guard before review links; regression `renders assigned-to-me review label without link when run id is blank`.
 
 - [x] (proven) `GovernanceFindingsQueueDesktopTable` keyboard activation — Enter on rows with whitespace-only `runId` navigated to broken inspect href — **hit 2026-10-20 thorough hunt:** skip `router.push` when `runId.trim()` is empty; regression `does not keyboard-navigate findings when run id is blank`.

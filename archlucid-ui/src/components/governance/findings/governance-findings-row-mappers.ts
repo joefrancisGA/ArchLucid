@@ -146,6 +146,8 @@ export function decisionRegisterRows(entries: ArchitectureDecisionRegisterEntry[
 }
 
 export function traceRowsForRun(run: RunSummary, traces: FindingTraceConfidenceDto[]): GovernanceFindingQueueRow[] {
+  const runId = run.runId.trim();
+
   return traces
     .filter((t) => (t.findingId ?? "").trim().length > 0)
     .map((t) => {
@@ -161,7 +163,7 @@ export function traceRowsForRun(run: RunSummary, traces: FindingTraceConfidenceD
         runDescription.length > 0 ? runDescription : GOVERNANCE_QUEUE_REVIEW_TITLE_NOT_STORED;
 
       return {
-        runId: run.runId,
+        runId,
         runLabel,
         manifestId: manifestRaw,
         findingId,

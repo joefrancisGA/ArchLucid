@@ -187,6 +187,23 @@ describe("riskRegisterRows", () => {
     expect(row?.evidenceRefCount).toBeNull();
   });
 
+  it("normalizes padded run ids on trace-backed queue rows", () => {
+    const [row] = traceRowsForRun(
+      { runId: " run-trace ", projectId: "project-trace", createdUtc: "2026-10-11T00:00:00.000Z" },
+      [
+        {
+          findingId: "finding-trace",
+          findingTitle: "Trace finding",
+          ruleId: "sc-28",
+          traceConfidenceLabel: "High confidence",
+          evidenceRefCount: 1,
+        },
+      ],
+    );
+
+    expect(row?.runId).toBe("run-trace");
+  });
+
   it("labels stale risk rows with missing status (P-16)", () => {
     const [row] = riskRegisterRows([
       {
