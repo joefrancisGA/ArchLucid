@@ -20,6 +20,27 @@ export function formatInfraEvidenceSnapshotCapturedLabel(
   return formatted;
 }
 
+export function formatInfraEvidenceSnapshotResourceCountLabel(
+  resourceCount: number | null | undefined,
+): string {
+  if (typeof resourceCount === "number" && Number.isFinite(resourceCount)) {
+    return `${resourceCount} resources`;
+  }
+
+  return "Resource count was not stored.";
+}
+
+export function formatInfraEvidenceSnapshotFiniteCountCell(
+  value: number | null | undefined,
+  notStoredLabel: string,
+): string {
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return String(value);
+  }
+
+  return notStoredLabel;
+}
+
 export function formatInfraEvidenceSubscriptionLabel(
   subscriptionName: string | null | undefined,
   subscriptionId: string | null | undefined,
@@ -51,7 +72,7 @@ export function formatInfraEvidenceSnapshotLabel(snapshot: InfraEvidenceSnapshot
   }
 
   parts.push(captured);
-  parts.push(`${snapshot.resourceCount} resources`);
+  parts.push(formatInfraEvidenceSnapshotResourceCountLabel(snapshot.resourceCount));
 
   return parts.join(" · ");
 }
@@ -68,7 +89,7 @@ export function formatInfraEvidenceSnapshotFreshness(snapshot: InfraEvidenceSnap
   }
 
   parts.push(`captured ${captured}`);
-  parts.push(`${snapshot.resourceCount} resources`);
+  parts.push(formatInfraEvidenceSnapshotResourceCountLabel(snapshot.resourceCount));
 
   return parts.join(" · ");
 }
