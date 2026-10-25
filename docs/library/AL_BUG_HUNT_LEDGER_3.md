@@ -4938,7 +4938,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-operator-lib
 
-**Hunts:** 50 · **Bugs found:** 47 · **Consecutive dry hunts:** 0
+**Hunts:** 51 · **Bugs found:** 48 · **Consecutive dry hunts:** 0
+
+2026-10-25 seed hunt (hit): promoted `resolveOperatorBillingSeatRow` `seatsUsed ?? 0` NaN footgun; regression `normalizes non-finite seatsUsed for the billing seat row`; 9 scoped `operator-billing-subscription-resolution` vitest passed. Private beta: Invited operators no longer see `NaN of N in use` on the billing current-plan seat row when usage status JSON carries a non-finite `seatsUsed` value.
 
 2026-10-25 seed hunt (hit): promoted `presentOperatorSessionsToFinalizedPercent` negative-ratio guard; regression `rejects negative ratios instead of showing 0%`; 4 scoped `operator-sessions-to-finalized-percent-display` vitest passed. Private beta: Invited operators no longer see a misleading `0%` session-to-finalize conversion tile when diagnostics APIs return a negative ratio.
 
@@ -4968,6 +4970,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-10-08 seed hunt (seed-only): re-read continuity hydration, recent-view mapping, workspace metrics, and freshness helpers; no hunt-ready row promoted; scoped `lib/operator` tests completed with known baseline failures outside the reviewed utility behavior.
 
+- [x] (proven) `resolveOperatorBillingSeatRow` — `seatsUsed ?? 0` leaves `NaN` in seat copy — **hit 2026-10-25 seed hunt:** `normalizeOperatorHomeNonNegativeCount`; regression `normalizes non-finite seatsUsed for the billing seat row`.
 - [x] (proven) `presentOperatorSessionsToFinalizedPercent` — negative finite ratios clamp to `0%` display — **hit 2026-10-25 seed hunt:** reject `r < 0` like `r > 1`; regression `rejects negative ratios instead of showing 0%`.
 - [x] (proven) `deriveOperatorHomeTenantCountingSnapshot` — `runsDashboardTotalCount ?? tenantItems.length` keeps `0` when dashboard total is stale — **hit 2026-10-25 seed hunt:** `Math.max(normalizedDashboardTotal, tenantReviewCount)`; regression `treats zero runsDashboardTotalCount as stale when tenant overview rows are loaded`.
 - [x] (proven) `mapAlertsInboxSummary` — raw DTO counts propagate `NaN` into alerts inbox cache — **hit 2026-10-25 seed hunt:** `normalizeOperatorHomeNonNegativeCount` on open/acknowledged/resolved/blocking; regression `normalizes non-finite alerts inbox summary counts from shell status JSON to zero`.
