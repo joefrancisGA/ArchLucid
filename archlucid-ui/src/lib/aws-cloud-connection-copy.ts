@@ -1,3 +1,5 @@
+import { formatCloudConnectionImportSuccessMessage } from "@/lib/cloud-connection-import-success-message";
+
 /** Operator-facing copy for `/integrations/cloud-connections/aws` (TB-1762, TB-1763). */
 
 export const AWS_CLOUD_CONNECTION_BANNED_COPY = [
@@ -48,8 +50,8 @@ export const AWS_CONNECTION_RECENT_ACTIVITY_EMPTY_STATE =
   "Save a connection and run Re-poll now to import inventory.";
 
 export function formatAwsConnectionCollectionSuccessMessage(
-  resourceCount: number,
-  packageId: string,
+  resourceCount: number | null | undefined,
+  packageId: string | null | undefined,
 ): string {
-  return `Collection completed (${resourceCount} resources imported as package ${packageId}).`;
+  return formatCloudConnectionImportSuccessMessage("Collection", resourceCount, packageId);
 }

@@ -6,6 +6,7 @@ import type { ReactElement } from "react";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
+  ACTOR_DEPENDENT_FINDINGS_ACTOR_COUNT_NOT_STORED_BODY,
   ACTOR_DEPENDENT_FINDINGS_QUIET_ENGINES_ARCHITECTURE_LINK_LABEL,
   ACTOR_DEPENDENT_FINDINGS_QUIET_ENGINES_BODY,
   ACTOR_DEPENDENT_FINDINGS_QUIET_ENGINES_DRAFT_LINK_LABEL,
@@ -23,6 +24,7 @@ export const ACTOR_DEPENDENT_FINDINGS_QUIET_ENGINES_COPY = ACTOR_DEPENDENT_FINDI
 
 export type ActorDependentFindingsQuietEnginesHintProps = {
   readonly show: boolean;
+  readonly hintKind?: "quiet-engines" | "actor-count-not-stored";
   readonly runId?: string;
   readonly workingMode?: boolean;
   readonly draftArchitectureId?: string | null;
@@ -61,6 +63,18 @@ export function ActorDependentFindingsQuietEnginesHint(
 
   if (!props.show) {
     return null;
+  }
+
+  if (props.hintKind === "actor-count-not-stored") {
+    return (
+      <div
+        className={cn(DESIGN_TOKENS.callout.info, "p-3")}
+        role="status"
+        data-testid="run-detail-actor-count-not-stored-hint"
+      >
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{ACTOR_DEPENDENT_FINDINGS_ACTOR_COUNT_NOT_STORED_BODY}</p>
+      </div>
+    );
   }
 
   const workingMode = resolveWorkingMode(props.workingMode, isWorkingMode);

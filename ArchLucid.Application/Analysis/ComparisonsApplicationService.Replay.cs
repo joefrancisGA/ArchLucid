@@ -12,8 +12,12 @@ public sealed partial class ComparisonsApplicationService
         bool persistReplay,
         CancellationToken ct)
     {
-        if (await LoadScopedComparisonRecordAsync(comparisonRecordId, ct) is null)
+        ComparisonRecord? record = await LoadScopedComparisonRecordAsync(comparisonRecordId, ct);
+
+        if (record is null)
             return null;
+
+        await _comparisonReplayService.EnsureArtifactReplayAccessAllowedAsync(record, ct);
 
         return await _comparisonReplayCostEstimator.TryEstimateAsync(
             comparisonRecordId,
@@ -32,6 +36,8 @@ public sealed partial class ComparisonsApplicationService
 
         if (record is null)
             return null;
+
+        await _comparisonReplayService.EnsureArtifactReplayAccessAllowedAsync(record, ct);
 
         if (!string.IsNullOrWhiteSpace(record.SummaryMarkdown))
         {

@@ -249,6 +249,39 @@ public sealed class FindingInspectReadModelMapperTests
     }
 
     [Fact]
+    public void ParseDisposition_parses_after_leading_invisible_format_characters()
+    {
+        FindingDisposition? actual = FindingInspectReadModelMapper.ParseDisposition("\u200BAccepted");
+
+        actual.Should().Be(FindingDisposition.Accepted);
+    }
+
+    [Fact]
+    public void ParseHumanReview_parses_after_leading_invisible_format_characters()
+    {
+        FindingHumanReviewStatus actual = FindingInspectReadModelMapper.ParseHumanReview("\u200BPending");
+
+        actual.Should().Be(FindingHumanReviewStatus.Pending);
+    }
+
+    [Fact]
+    public void TryParseEvaluationConfidenceLevel_parses_after_leading_invisible_format_characters()
+    {
+        FindingConfidenceLevel? actual =
+            FindingInspectReadModelMapper.TryParseEvaluationConfidenceLevel("\u200BHigh");
+
+        actual.Should().Be(FindingConfidenceLevel.High);
+    }
+
+    [Fact]
+    public void ParseFindingSeverity_parses_after_leading_invisible_format_characters()
+    {
+        FindingSeverity actual = FindingInspectReadModelMapper.ParseFindingSeverity("\u200BCritical");
+
+        actual.Should().Be(FindingSeverity.Critical);
+    }
+
+    [Fact]
     public void ParseFindingSeverity_rejects_negative_numeric_string()
     {
         Action act = () => FindingInspectReadModelMapper.ParseFindingSeverity("-1");
