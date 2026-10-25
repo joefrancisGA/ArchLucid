@@ -224,11 +224,14 @@ public sealed class InMemoryComparisonRecordRepository : IComparisonRecordReposi
             if (i < 0)
                 return Task.FromResult(false);
 
-            if (label is not null)
-                _items[i].Label = label;
+            (string? normalizedLabel, IReadOnlyList<string>? normalizedTags) =
+                ComparisonRecordRepositoryCore.NormalizeLabelAndTagsForUpdate(label, tags);
 
-            if (tags is not null)
-                _items[i].Tags = [.. tags];
+            if (normalizedLabel is not null)
+                _items[i].Label = normalizedLabel;
+
+            if (normalizedTags is not null)
+                _items[i].Tags = [.. normalizedTags];
 
             return Task.FromResult(true);
         }

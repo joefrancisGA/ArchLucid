@@ -231,4 +231,26 @@ internal static class ComparisonRecordRepositoryCore
 
     public static string? SerializeTagsForUpdate(IReadOnlyList<string>? tags) =>
         tags is null || tags.Count == 0 ? null : JsonSerializer.Serialize(tags);
+
+    internal static (string? Label, IReadOnlyList<string>? Tags) NormalizeLabelAndTagsForUpdate(
+        string? label,
+        IReadOnlyList<string>? tags)
+    {
+        string? normalizedLabel = label is null
+            ? null
+            : OptionalExportMetadataStringNormalizer.NormalizeOptionalString(label);
+
+        if (tags is null)
+            return (normalizedLabel, null);
+
+        List<string> normalizedTags = [];
+        foreach (string tag in tags)
+        {
+            string? normalizedTag = OptionalExportMetadataStringNormalizer.NormalizeOptionalString(tag);
+            if (normalizedTag is not null)
+                normalizedTags.Add(normalizedTag);
+        }
+
+        return (normalizedLabel, normalizedTags);
+    }
 }

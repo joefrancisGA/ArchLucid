@@ -312,6 +312,24 @@ public sealed class InMemoryComparisonRecordRepositoryAdditionalCoverageTests
     }
 
     [SkippableFact]
+    public async Task UpdateLabelAndTagsAsync_persists_trimmed_label_and_tags_when_caller_passes_padding()
+    {
+        InMemoryComparisonRecordRepository sut = new();
+        await sut.CreateAsync(Row("cmp-update-pad-values", TimeProvider.System.UtcNowDateTime()), CancellationToken.None);
+
+        bool updated = await sut.UpdateLabelAndTagsAsync(
+            "cmp-update-pad-values",
+            "  release-1  ",
+            ["  alpha  ", " "],
+            CancellationToken.None);
+
+        updated.Should().BeTrue();
+        ComparisonRecord? loaded = await sut.GetByIdAsync("cmp-update-pad-values", CancellationToken.None);
+        loaded!.Label.Should().Be("release-1");
+        loaded.Tags.Should().BeEquivalentTo("alpha");
+    }
+
+    [SkippableFact]
     public async Task UpdateLabelAndTagsAsync_finds_legacy_row_when_stored_comparison_record_id_has_padding()
     {
         const string canonicalComparisonRecordId = "cmp-update-legacy-pad";

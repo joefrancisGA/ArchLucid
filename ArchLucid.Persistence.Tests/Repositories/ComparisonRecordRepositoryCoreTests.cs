@@ -196,6 +196,18 @@ public sealed class ComparisonRecordRepositoryCoreTests
         ComparisonRecordRepositoryCore.SerializeTagsForUpdate(["a"]).Should().Contain("a");
     }
 
+    [Fact]
+    public void NormalizeLabelAndTagsForUpdate_trims_label_and_tags()
+    {
+        (string? label, IReadOnlyList<string>? tags) =
+            ComparisonRecordRepositoryCore.NormalizeLabelAndTagsForUpdate(
+                "  release-1  ",
+                ["  alpha  ", " ", "beta\n"]);
+
+        label.Should().Be("release-1");
+        tags.Should().BeEquivalentTo("alpha", "beta");
+    }
+
     private static ComparisonRecord Record(
         string id,
         DateTime? createdUtc = null,

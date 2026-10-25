@@ -104,14 +104,17 @@ public sealed partial class ComparisonRecordRepository
                       WHERE {ComparisonRecordIdSql.TrimmedColumnExpression} = @ComparisonRecordId;
                       """;
 
+        (string? normalizedLabel, IReadOnlyList<string>? normalizedTags) =
+            ComparisonRecordRepositoryCore.NormalizeLabelAndTagsForUpdate(label, tags);
+
         using IDbConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
-        string? tagsJson = ComparisonRecordRepositoryCore.SerializeTagsForUpdate(tags);
+        string? tagsJson = ComparisonRecordRepositoryCore.SerializeTagsForUpdate(normalizedTags);
         int rows = await connection.ExecuteAsync(new CommandDefinition(
             sql,
             new
             {
                 ComparisonRecordId = normalizedComparisonRecordId,
-                Label = label ?? (object)DBNull.Value,
+                Label = normalizedLabel ?? (object)DBNull.Value,
                 Tags = tagsJson ?? (object)DBNull.Value
             },
             cancellationToken: cancellationToken));
