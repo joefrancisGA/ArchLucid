@@ -39,7 +39,7 @@ type RankedDimension = {
   readonly tieOrder: number;
 };
 
-function dimensionScoreIsStored(score: number | null): boolean {
+function dimensionScoreIsStored(score: number | null): score is number {
   return score !== null && Number.isFinite(score);
 }
 
