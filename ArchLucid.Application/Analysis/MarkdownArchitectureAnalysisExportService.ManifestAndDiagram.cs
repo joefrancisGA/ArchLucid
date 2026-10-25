@@ -81,13 +81,19 @@ public sealed partial class MarkdownArchitectureAnalysisExportService
             }
         }
 
+        sb.AppendLine("## Diagram");
+        sb.AppendLine();
+
         if (!string.IsNullOrWhiteSpace(report.Diagram))
         {
-            sb.AppendLine("## Diagram");
-            sb.AppendLine();
             sb.AppendLine("```mermaid");
             sb.AppendLine(report.Diagram);
             sb.AppendLine("```");
+            sb.AppendLine();
+        }
+        else
+        {
+            sb.AppendLine(ConsultingDocxAppendixHonestyCopy.MermaidSourceNotStored);
             sb.AppendLine();
         }
 

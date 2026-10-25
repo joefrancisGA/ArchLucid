@@ -3,6 +3,7 @@
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { INHABIT_DISPOSITION_HISTORY_LOAD_NOT_STORED } from "@/lib/inhabit/inhabit-disposition-history-copy";
 import { cn } from "@/lib/utils";
 
 type FindingInspectDispositionBlockedCalloutProps = {
@@ -21,6 +22,10 @@ export function FindingInspectDispositionBlockedCallout(props: FindingInspectDis
       {props.failure ? <OperatorApiProblem failure={props.failure} /> : null}
       {props.blockedReason ? (
         <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{props.blockedReason}</p>
+      ) : props.failure ? (
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="finding-inspect-disposition-history-load-not-stored">
+          {INHABIT_DISPOSITION_HISTORY_LOAD_NOT_STORED}
+        </p>
       ) : null}
     </div>
   );
