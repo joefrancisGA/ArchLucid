@@ -315,6 +315,10 @@ function emptyOutlineEdgeMetadata(): OutlineEdgeMetadata {
 export function formatInfraEvidenceOutlineProvenanceReviewerBand(provenanceKind: string): string {
   const normalized = provenanceKind.trim();
 
+  if (normalized.length === 0) {
+    return "Provenance was not stored.";
+  }
+
   if (normalized === "ObservedFact") {
     return INFRA_EVIDENCE_DIAGRAM_OUTLINE_SOURCE_OBSERVED;
   }

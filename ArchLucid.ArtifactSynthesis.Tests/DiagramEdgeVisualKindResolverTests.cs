@@ -78,19 +78,19 @@ public sealed class DiagramEdgeVisualKindResolverTests
     }
 
     [Fact]
+    public void From_blank_provenance_and_unknown_inference_returns_unclassified()
+    {
+        DiagramEdgeVisualKindResolver.From(null, "not-a-known-source")
+            .Should()
+            .Be(DiagramEdgeVisualKind.Unclassified);
+    }
+
+    [Fact]
     public void From_deterministic_inference_synapse_linked_service_guess_returns_inferred()
     {
         DiagramEdgeVisualKindResolver.From("DeterministicInference", GraphEdgeInferenceSources.InventorySynapseLinkedServiceInferred)
             .Should()
             .Be(DiagramEdgeVisualKind.Inferred);
-    }
-
-    [Fact]
-    public void From_blank_provenance_with_inventory_inference_returns_unclassified()
-    {
-        DiagramEdgeVisualKindResolver.From(null, GraphEdgeInferenceSources.InventoryFirewallSubnet)
-            .Should()
-            .Be(DiagramEdgeVisualKind.Unclassified);
     }
 
     [Fact]

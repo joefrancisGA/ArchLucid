@@ -10,6 +10,16 @@ public sealed partial class MarkdownArchitectureAnalysisExportService
 {
     private static void AppendDeterminismAndDiffs(StringBuilder sb, ArchitectureAnalysisReport report)
     {
+        bool hasCompareArtifacts =
+            report.Determinism is not null
+            || report.ManifestDiff is not null
+            || report.AgentResultDiff is not null;
+
+        if (!hasCompareArtifacts)
+        {
+            return;
+        }
+
         if (report.Determinism is not null)
         {
             sb.AppendLine("## Determinism Check");
@@ -48,6 +58,13 @@ public sealed partial class MarkdownArchitectureAnalysisExportService
                 sb.AppendLine();
             }
         }
+        else
+        {
+            sb.AppendLine("## Determinism Check");
+            sb.AppendLine();
+            sb.AppendLine($"- {ConsultingDocxAppendixHonestyCopy.DeterminismCheckNotStored}");
+            sb.AppendLine();
+        }
 
         if (report.ManifestDiff is not null)
         {
@@ -72,9 +89,23 @@ public sealed partial class MarkdownArchitectureAnalysisExportService
 
                 AppendList(sb, "Warnings", report.ManifestDiff.Warnings);
         }
+        else
+        {
+            sb.AppendLine("## Manifest Diff");
+            sb.AppendLine();
+            sb.AppendLine($"- {ConsultingDocxAppendixHonestyCopy.ManifestDiffNotStored}");
+            sb.AppendLine();
+        }
 
         if (report.AgentResultDiff is null)
+        {
+            sb.AppendLine("## Agent Result Diff");
+            sb.AppendLine();
+            sb.AppendLine($"- {ConsultingDocxAppendixHonestyCopy.AgentResultDiffNotStored}");
+            sb.AppendLine();
+
             return;
+        }
 
         sb.AppendLine("## Agent Result Diff");
         sb.AppendLine();
