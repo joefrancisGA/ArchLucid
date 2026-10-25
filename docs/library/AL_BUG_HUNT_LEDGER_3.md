@@ -4938,7 +4938,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-operator-lib
 
-**Hunts:** 61 · **Bugs found:** 58 · **Consecutive dry hunts:** 0
+**Hunts:** 62 · **Bugs found:** 59 · **Consecutive dry hunts:** 0
+
+2026-10-25 seed hunt (hit): promoted `normalizeOperatorHomeNonNegativeCount` on compact home KPI strip counts; regression `normalizes non-finite workspace metric counts in the KPI strip`; 10 scoped `operator-home-workspace-metrics` vitest passed. Private beta: Invited operators no longer see `NaN Active reviews` or `NaN Open findings` in the home workspace metrics strip when a metrics snapshot carries non-finite counts.
 
 2026-10-25 seed hunt (hit): promoted `resolveRecentPreviewCapCounts` for home recent-reviews outcome preview cap; regressions `normalizes non-finite recent preview cap counts in outcome copy` and `normalizes non-finite preview cap counts in structured outcome parts`; 17 scoped `operator-home-recent-reviews-outcome` vitest passed. Private beta: Invited operators no longer see `showing NaN` (or `showing NaN of NaN`) in home recent reviews captions when preview cap counts are non-finite.
 
@@ -4990,6 +4992,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-10-08 seed hunt (seed-only): re-read continuity hydration, recent-view mapping, workspace metrics, and freshness helpers; no hunt-ready row promoted; scoped `lib/operator` tests completed with known baseline failures outside the reviewed utility behavior.
 
+- [x] (proven) `formatOperatorHomeCompactMetricsLine` — raw metrics snapshot counts interpolate `NaN` into home KPI strip — **hit 2026-10-25 seed hunt:** `normalizeOperatorHomeNonNegativeCount` on active/sealed/findings; regression `normalizes non-finite workspace metric counts in the KPI strip`.
 - [x] (proven) `formatOperatorHomeRecentReviewsOutcome` / `buildOperatorHomeRecentReviewsOutcomeParts` — `visibleCount !== undefined` accepts `NaN` in showing-cap copy — **hit 2026-10-25 seed hunt:** `resolveRecentPreviewCapCounts`; regressions `normalizes non-finite recent preview cap counts in outcome copy` and `normalizes non-finite preview cap counts in structured outcome parts`.
 - [x] (proven) `formatOperatorHomeGovernanceApprovalWarningCount` — `Math.max(0, Math.trunc(count))` leaves `NaN` labels — **hit 2026-10-25 seed hunt:** `Number.isFinite` guard; regression `treats non-finite counts as zero warnings`.
 - [x] (proven) `readOperatorShellStableCache` — `typeof writtenAtMs === "number"` accepts `NaN`, skipping TTL eviction — **hit 2026-10-25 seed hunt:** `Number.isFinite(parsed.writtenAtMs)`; regression `discards stable cache entries with non-finite writtenAtMs`.
