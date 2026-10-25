@@ -6868,6 +6868,20 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-25 seed hunt (seed→hit): proved `EndToEndReplayComparisonExportService` and nested markdown/html/docx/pdf formatters rendered E2E export-diff sections from in-memory `ExportDiffs` with padded `LeftExportRecordId`/`RightExportRecordId` when callers bypassed persist/rehydrate (hunt 154), echoing the standalone export-diff format gap fixed in hunt 151; normalize via `EndToEndReplayComparisonReportNormalizer.NormalizePersistedPayload` at each `EndToEndReplayComparisonExportService` export entrypoint; regression `GenerateMarkdown_detailed_profile_uses_trimmed_nested_export_record_ids_in_export_diff_section`; cheap-disproof closed direct formatter-only callers (production replay uses export service), `ApiPaging.TryParseUtcTicksIdCursor` (comparison search normalizes cursor id), batch zip manifest echo (cosmetic), Armenian homoglyphs (deferred), and persistence-layer determinism normalize (deferred); seeded five follow-on rows; scoped application-analysis + replay filter 293/293. Private beta: end-to-end comparison markdown/html/docx/pdf downloads show trimmed nested export anchors when formatting in-memory E2E reports.
+
+- [ ] (candidate) `EndToEndReplayComparisonMarkdownExportFormatter` — direct `Generate` without export service — locus: test-only callers; input: bypass `EndToEndReplayComparisonExportService`.
+- [ ] (candidate) `ApiPaging.TryParseUtcTicksIdCursor` — cursor id segment without trim — locus: HTTP cursor parse; input: padded id after ticks delimiter (alerts inbox and other API surfaces).
+- [ ] (candidate) `ComparisonBatchReplayZipSupport` — manifest failure entries echo pre-trim batch tokens — locus: zip manifest; input: cosmetic id echo only.
+- [ ] (candidate) `ComparisonExportMarkdownSectionRemover` — Armenian homoglyphs in delta headings — locus: `UnicodeLatinHomoglyphMapper`; input: deferred expansion.
+- [ ] (candidate) `RunExportRecordPersistNormalizer` — persistence-layer determinism column normalize — locus: repository read; input: consolidation at DB boundary.
+
+- [x] (proven) `EndToEndReplayComparisonExportService` — padded nested export anchors on E2E format path — **hit 2026-10-25 seed hunt:** export service normalizer; regression above.
+- [x] (valid-no-repro) `EndToEndReplayComparisonMarkdownExportFormatter` — format-only without service — **cheap-disproof 2026-10-25 seed hunt:** replay artifact path uses export service.
+- [x] (invalid) `ApiPaging.TryParseUtcTicksIdCursor` — HTTP cursor id trim — **cheap-disproof 2026-10-25 seed hunt:** comparison search normalizes at application layer.
+- [x] (invalid) `ComparisonBatchReplayZipSupport` — manifest id echo — **cheap-disproof 2026-10-25 seed hunt:** cosmetic only.
+- [x] (invalid) `UnicodeLatinHomoglyphMapper` — Armenian homoglyphs — **cheap-disproof 2026-10-25 seed hunt:** deferred.
+
 2026-10-25 seed hunt (seed→hit): proved `ComparisonAuditService.RecordEndToEndAsync` canonicalized top-level run ids in `PayloadJson` but left nested `ExportDiffs` entries with padded export anchors and untrimmed nested request metadata, and `ComparisonRecordPayloadRehydrator.RehydrateEndToEnd` did not normalize nested export diffs on read so E2E replay/drift could compare against legacy padded nested JSON; consolidate via `EndToEndReplayComparisonReportNormalizer.NormalizePersistedPayload` on initial persist and rehydrate; regression `RecordEndToEndAsync_payload_json_trims_nested_export_diff_metadata`; cheap-disproof closed `RecordEndToEndAsync` top-level-only run id path (already covered), `ApiPaging.TryParseUtcTicksIdCursor` (comparison search normalizes cursor id), batch zip manifest echo (cosmetic), Armenian homoglyphs (deferred), and persistence-layer determinism normalize (deferred); seeded five follow-on rows; scoped application-analysis + replay filter 292/292. Private beta: end-to-end comparison audits and replay rehydrate store trimmed nested export-diff metadata inside the E2E payload, matching standalone export-diff persist behavior.
 
 - [ ] (candidate) `EndToEndReplayComparisonMarkdownExportFormatter` — nested export diff display without rehydrate — locus: format-only E2E export; input: in-memory report with padded nested diffs.
@@ -7975,11 +7989,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 154
-- **bugs-found:** 160
+- **hunts:** 155
+- **bugs-found:** 161
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-25
-- **last-bug:** 2026-10-25 — E2E comparison payload normalizes nested export diffs
+- **last-bug:** 2026-10-25 — E2E comparison exports trim nested export anchors
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
