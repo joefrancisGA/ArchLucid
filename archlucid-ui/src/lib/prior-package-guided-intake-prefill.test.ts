@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 
-import { derivePriorPackageGuidedIntakePrefill } from "@/lib/prior-package-guided-intake-prefill";
+import {
+  derivePriorPackageGuidedIntakePrefill,
+  formatPriorPackagePrefillSystemNameLabel,
+} from "@/lib/prior-package-guided-intake-prefill";
 
 const GENERATED_BRIEF = [
   'Architecture review intake for "ArchLucid".',
@@ -76,6 +79,11 @@ describe("derivePriorPackageGuidedIntakePrefill", () => {
         }),
       ]),
     );
+  });
+
+  it("labels omitted system name for prior-package prefill UI (P-04)", () => {
+    expect(formatPriorPackagePrefillSystemNameLabel("")).toBe("System name was not stored.");
+    expect(formatPriorPackagePrefillSystemNameLabel("Retail API")).toBe("Retail API");
   });
 
   it("returns null when the request has no description", () => {

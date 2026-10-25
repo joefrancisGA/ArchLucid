@@ -26,7 +26,12 @@ function sumDriftChanges(points: { changeCount: number }[]): number {
 }
 
 function buildFallbackNarrativeFromSummary(summary: SponsorRoiSummary): string {
-  const reviewsCount = summary.latestRunCount ?? summary.systemCount ?? 0;
+  const reviewsCount =
+    typeof summary.latestRunCount === "number" && Number.isFinite(summary.latestRunCount)
+      ? summary.latestRunCount
+      : typeof summary.systemCount === "number" && Number.isFinite(summary.systemCount)
+        ? summary.systemCount
+        : null;
 
   return buildSponsorValueNarrative({
     reviewsCount,
@@ -110,8 +115,13 @@ export function SponsorValueNarrativeBanner({ timeRange, roiSummary }: SponsorVa
         ? report.totalFindings
         : null;
 
+    const reviewsCount =
+      typeof report.totalRunsCommitted === "number" && Number.isFinite(report.totalRunsCommitted)
+        ? report.totalRunsCommitted
+        : null;
+
     return buildSponsorValueNarrative({
-      reviewsCount: report.totalRunsCommitted,
+      reviewsCount,
       findingsCount,
       estimatedHoursSaved: estimatedHours,
       estimatedUsdSavings: SponsorReport?.totalEstimatedUsdSavings ?? null,
