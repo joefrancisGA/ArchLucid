@@ -353,4 +353,26 @@ public sealed class MarkdownArchitectureAnalysisExportServiceTests
 
         md.Should().Contain($"- Description: {ArchitectureEvidenceRequestExport.MissingDescriptionCopy}");
     }
+
+    [Fact]
+    public void GenerateMarkdown_emits_not_stored_copy_for_missing_compare_artifacts()
+    {
+        ArchitectureAnalysisReport report = new()
+        {
+            Run =
+                new ArchitectureRun
+                {
+                    RunId = "a1b2c3d4e5f678901234567890abcd",
+                    RequestId = "req-1",
+                    Status = ArchitectureRunStatus.Committed,
+                },
+            ManifestDiff = new ManifestDiffResult { AddedServices = ["api"] },
+        };
+
+        string markdown = _sut.GenerateMarkdown(report);
+
+        markdown.Should().Contain(ConsultingDocxAppendixHonestyCopy.DeterminismCheckNotStored);
+        markdown.Should().Contain(ConsultingDocxAppendixHonestyCopy.AgentResultDiffNotStored);
+        markdown.Should().Contain("Added Services");
+    }
 }
