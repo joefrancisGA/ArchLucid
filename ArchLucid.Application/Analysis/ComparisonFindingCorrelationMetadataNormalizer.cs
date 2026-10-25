@@ -17,8 +17,15 @@ internal static class ComparisonFindingCorrelationMetadataNormalizer
         metadata.PrimaryCorrelationMethod = NormalizePrimaryCorrelationMethod(metadata.PrimaryCorrelationMethod);
         metadata.HonestyNote =
             OptionalExportMetadataStringNormalizer.NormalizeOptionalString(metadata.HonestyNote) ?? string.Empty;
+
+        metadata.PolicyRuleMatchCount = ClampCount(metadata.PolicyRuleMatchCount);
+        metadata.FuzzyMatchCount = ClampCount(metadata.FuzzyMatchCount);
+        metadata.UnmatchedLeftCount = ClampCount(metadata.UnmatchedLeftCount);
+        metadata.UnmatchedRightCount = ClampCount(metadata.UnmatchedRightCount);
     }
 
     private static string NormalizePrimaryCorrelationMethod(string value) =>
         OptionalExportMetadataStringNormalizer.NormalizeOptionalString(value) ?? DefaultPrimaryCorrelationMethod;
+
+    private static int ClampCount(int value) => value < 0 ? 0 : value;
 }

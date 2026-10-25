@@ -336,6 +336,30 @@ public sealed class EndToEndReplayComparisonReportNormalizerTests
     }
 
     [Fact]
+    public void CompareQuality_EndToEndReplayComparisonReportNormalizer_clamps_negative_finding_correlation_match_counts()
+    {
+        EndToEndReplayComparisonReport report = new()
+        {
+            LeftRunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            RightRunId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            FindingCorrelation = new ComparisonFindingCorrelationMetadata
+            {
+                PolicyRuleMatchCount = -2,
+                FuzzyMatchCount = -1,
+                UnmatchedLeftCount = 3,
+                UnmatchedRightCount = -4,
+            },
+        };
+
+        EndToEndReplayComparisonReportNormalizer.NormalizePersistedPayload(report);
+
+        report.FindingCorrelation!.PolicyRuleMatchCount.Should().Be(0);
+        report.FindingCorrelation.FuzzyMatchCount.Should().Be(0);
+        report.FindingCorrelation.UnmatchedLeftCount.Should().Be(3);
+        report.FindingCorrelation.UnmatchedRightCount.Should().Be(0);
+    }
+
+    [Fact]
     public void CompareQuality_EndToEndReplayComparisonReportNormalizer_trims_finding_lifecycle_records_and_re_summarizes_honesty()
     {
         EndToEndReplayComparisonReport report = new()
