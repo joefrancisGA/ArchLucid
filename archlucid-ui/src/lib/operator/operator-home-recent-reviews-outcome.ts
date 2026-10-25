@@ -9,7 +9,10 @@ import { OPERATOR_HOME_RECENT_REVIEWS_EXAMPLE_ONLY_OUTCOME } from "@/lib/buyer/b
 import { OPERATOR_HOME_SEALED_REVIEW_RECORD_NOUN } from "@/lib/metric-count-presentation";
 import { isDemoSeededOverviewInjectedRun } from "@/lib/demo-seeded-overview";
 import { isShowcaseSampleOfAnyKind } from "@/lib/demo-run-canonical";
-import type { OperatorHomeWorkspaceMetricsSnapshot } from "@/lib/operator/operator-home-workspace-metrics";
+import {
+  normalizeOperatorHomeWorkspaceMetricsForDisplay,
+  type OperatorHomeWorkspaceMetricsSnapshot,
+} from "@/lib/operator/operator-home-workspace-metrics";
 import { buildTrimmedRunIdSet } from "@/lib/operator/home-attention-dedup";
 import type { RunSummary } from "@/types/authority";
 
@@ -48,34 +51,40 @@ export function formatOperatorHomeRecentReviewsOutcome(
   metrics: OperatorHomeWorkspaceMetricsSnapshot,
   options?: FormatOperatorHomeRecentReviewsOutcomeOptions,
 ): string {
+  const displayMetrics = normalizeOperatorHomeWorkspaceMetricsForDisplay(metrics);
+
   if (options?.exampleReviewOnly === true) {
     return OPERATOR_HOME_RECENT_REVIEWS_EXAMPLE_ONLY_OUTCOME;
   }
 
-  if (!metrics.hasReviews) {
+  if (!displayMetrics.hasReviews) {
     return "No reviews in this workspace yet.";
   }
 
   const parts: string[] = [];
-  const total = metrics.reviewPackagesTotal;
+  const total = displayMetrics.reviewPackagesTotal;
   parts.push(`${total} review${total === 1 ? "" : "s"}`);
 
-  if (metrics.reviewPackagesCommitted > 0) {
+  if (displayMetrics.reviewPackagesCommitted > 0) {
     const sealedNoun =
-      metrics.reviewPackagesCommitted === 1
+      displayMetrics.reviewPackagesCommitted === 1
         ? OPERATOR_HOME_SEALED_REVIEW_RECORD_NOUN.singular
         : OPERATOR_HOME_SEALED_REVIEW_RECORD_NOUN.plural;
-    parts.push(`${metrics.reviewPackagesCommitted} ${sealedNoun}`);
+    parts.push(`${displayMetrics.reviewPackagesCommitted} ${sealedNoun}`);
   }
 
-  if (metrics.reviewPackagesActive > 0) {
-    parts.push(`${metrics.reviewPackagesActive} active`);
+  if (displayMetrics.reviewPackagesActive > 0) {
+    parts.push(`${displayMetrics.reviewPackagesActive} active`);
   }
 
-  parts.push(`${metrics.openFindings} open finding${metrics.openFindings === 1 ? "" : "s"}`);
+  parts.push(
+    `${displayMetrics.openFindings} open finding${displayMetrics.openFindings === 1 ? "" : "s"}`,
+  );
 
-  if (metrics.governanceWarnings > 0) {
-    parts.push(`with ${formatOperatorHomeGovernanceApprovalWarningCount(metrics.governanceWarnings)}`);
+  if (displayMetrics.governanceWarnings > 0) {
+    parts.push(
+      `with ${formatOperatorHomeGovernanceApprovalWarningCount(displayMetrics.governanceWarnings)}`,
+    );
   }
 
   const awaitingApprovalCount = normalizeOperatorHomeNonNegativeCount(options?.awaitingApprovalCount);
@@ -119,16 +128,18 @@ export function buildOperatorHomeRecentReviewsOutcomeParts(
   metrics: OperatorHomeWorkspaceMetricsSnapshot,
   options?: FormatOperatorHomeRecentReviewsOutcomeOptions,
 ): readonly OperatorHomeRecentReviewsOutcomePart[] {
+  const displayMetrics = normalizeOperatorHomeWorkspaceMetricsForDisplay(metrics);
+
   if (options?.exampleReviewOnly === true) {
     return [{ key: "example-only", text: OPERATOR_HOME_RECENT_REVIEWS_EXAMPLE_ONLY_OUTCOME }];
   }
 
-  if (!metrics.hasReviews) {
+  if (!displayMetrics.hasReviews) {
     return [];
   }
 
   const parts: OperatorHomeRecentReviewsOutcomePart[] = [];
-  const total = metrics.reviewPackagesTotal;
+  const total = displayMetrics.reviewPackagesTotal;
 
   parts.push({
     key: "reviews-total",
@@ -136,23 +147,23 @@ export function buildOperatorHomeRecentReviewsOutcomeParts(
     hrefKind: "all-reviews",
   });
 
-  if (metrics.reviewPackagesCommitted > 0) {
+  if (displayMetrics.reviewPackagesCommitted > 0) {
     const sealedNoun =
-      metrics.reviewPackagesCommitted === 1
+      displayMetrics.reviewPackagesCommitted === 1
         ? OPERATOR_HOME_SEALED_REVIEW_RECORD_NOUN.singular
         : OPERATOR_HOME_SEALED_REVIEW_RECORD_NOUN.plural;
 
     parts.push({
       key: "sealed-records",
-      text: `${metrics.reviewPackagesCommitted} ${sealedNoun}`,
+      text: `${displayMetrics.reviewPackagesCommitted} ${sealedNoun}`,
       hrefKind: "all-reviews",
     });
   }
 
-  if (metrics.reviewPackagesActive > 0) {
+  if (displayMetrics.reviewPackagesActive > 0) {
     parts.push({
       key: "active",
-      text: `${metrics.reviewPackagesActive} active`,
+      text: `${displayMetrics.reviewPackagesActive} active`,
       hrefKind: "tab",
       tabId: "all",
     });
@@ -160,15 +171,15 @@ export function buildOperatorHomeRecentReviewsOutcomeParts(
 
   parts.push({
     key: "open-findings",
-    text: `${metrics.openFindings} open finding${metrics.openFindings === 1 ? "" : "s"}`,
+    text: `${displayMetrics.openFindings} open finding${displayMetrics.openFindings === 1 ? "" : "s"}`,
     hrefKind: "tab",
     tabId: "attention",
   });
 
-  if (metrics.governanceWarnings > 0) {
+  if (displayMetrics.governanceWarnings > 0) {
     parts.push({
       key: "governance-warnings",
-      text: `with ${formatOperatorHomeGovernanceApprovalWarningCount(metrics.governanceWarnings)}`,
+      text: `with ${formatOperatorHomeGovernanceApprovalWarningCount(displayMetrics.governanceWarnings)}`,
       hrefKind: "governance-warnings-filter",
     });
   }

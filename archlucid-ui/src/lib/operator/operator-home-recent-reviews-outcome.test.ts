@@ -52,6 +52,18 @@ describe("formatOperatorHomeRecentReviewsOutcome", () => {
     );
   });
 
+  it("normalizes non-finite workspace metrics in recent reviews outcome copy", () => {
+    const metrics: OperatorHomeWorkspaceMetricsSnapshot = {
+      ...emptyMetrics,
+      reviewPackagesTotal: Number.NaN,
+      openFindings: Number.NaN,
+      hasReviews: true,
+    };
+
+    expect(formatOperatorHomeRecentReviewsOutcome(metrics)).toBe("0 reviews · 0 open findings");
+    expect(formatOperatorHomeRecentReviewsOutcome(metrics)).not.toMatch(/NaN/);
+  });
+
   it("normalizes non-finite recent preview cap counts in outcome copy", () => {
     const metrics: OperatorHomeWorkspaceMetricsSnapshot = {
       ...emptyMetrics,

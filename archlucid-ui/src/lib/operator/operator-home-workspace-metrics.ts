@@ -18,6 +18,24 @@ export type OperatorHomeWorkspaceMetricsSnapshot = {
   readonly hasReviews: boolean;
 };
 
+/** Fail-closed numeric fields before operator home copy interpolates metrics snapshots. */
+export function normalizeOperatorHomeWorkspaceMetricsForDisplay(
+  metrics: OperatorHomeWorkspaceMetricsSnapshot,
+): OperatorHomeWorkspaceMetricsSnapshot {
+  return {
+    reviewPackagesTotal: normalizeOperatorHomeNonNegativeCount(metrics.reviewPackagesTotal),
+    reviewPackagesCommitted: normalizeOperatorHomeNonNegativeCount(metrics.reviewPackagesCommitted),
+    reviewPackagesActive: normalizeOperatorHomeNonNegativeCount(metrics.reviewPackagesActive),
+    reviewPackagesAwaitingApproval: normalizeOperatorHomeNonNegativeCount(
+      metrics.reviewPackagesAwaitingApproval,
+    ),
+    openFindings: normalizeOperatorHomeNonNegativeCount(metrics.openFindings),
+    governanceWarnings: normalizeOperatorHomeNonNegativeCount(metrics.governanceWarnings),
+    evidenceSources: normalizeOperatorHomeNonNegativeCount(metrics.evidenceSources),
+    hasReviews: metrics.hasReviews,
+  };
+}
+
 function runHasEvidenceSource(run: RunSummary): boolean {
   return (
     run.hasContextSnapshot === true ||
