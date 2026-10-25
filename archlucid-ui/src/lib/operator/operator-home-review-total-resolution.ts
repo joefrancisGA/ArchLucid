@@ -18,13 +18,26 @@ export function resolveOperatorHomeReviewTotalCount(
   reportedTotalCount: number,
   ssrTotalCount: number,
   visibleNonArchivedItemCount: number,
+  onPageItemCount = 0,
 ): number {
+  const normalizedOnPageItemCount = Number.isFinite(onPageItemCount)
+    ? Math.max(0, Math.trunc(onPageItemCount))
+    : 0;
   const normalizedSsrTotal = Number.isFinite(ssrTotalCount) ? Math.max(0, Math.trunc(ssrTotalCount)) : 0;
   const reportedTotalIsFinite = Number.isFinite(reportedTotalCount);
 
   const resolved = reportedTotalIsFinite
     ? Math.max(0, Math.trunc(reportedTotalCount))
     : normalizedSsrTotal;
+
+  if (
+    visibleNonArchivedItemCount === 0
+    && normalizedOnPageItemCount > 0
+    && reportedTotalIsFinite
+    && reportedTotalCount > 0
+  ) {
+    return 0;
+  }
 
   if (visibleNonArchivedItemCount > 0) {
     const upliftedTotal = Math.max(visibleNonArchivedItemCount, normalizedSsrTotal);

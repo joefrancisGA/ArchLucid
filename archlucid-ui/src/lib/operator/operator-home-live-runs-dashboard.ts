@@ -31,6 +31,7 @@ export function resolveLiveRunsDashboardModel(
       liveSnapshot.totalCount,
       ssrModel.totalCount,
       countNonArchivedOverviewRuns(liveSnapshot.items),
+      liveSnapshot.items.length,
     ),
   };
 }

@@ -48,7 +48,12 @@ export function deriveOperatorHomeTenantCountingSnapshot(
   const reviewPackagesTotal =
     dashboardTotal === undefined
       ? visibleActiveTenantCount
-      : resolveOperatorHomeReviewTotalCount(dashboardTotal, 0, visibleActiveTenantCount);
+      : resolveOperatorHomeReviewTotalCount(
+          dashboardTotal,
+          0,
+          visibleActiveTenantCount,
+          tenantItems.length,
+        );
   const metrics = deriveOperatorHomeWorkspaceMetrics(tenantItems, reviewPackagesTotal, awaitingApprovalCount);
   const previewTabCounts = deriveHomePreviewTabCounts({
     previewItems: previewTenantItems,

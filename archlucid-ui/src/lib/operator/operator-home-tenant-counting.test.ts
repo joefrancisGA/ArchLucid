@@ -192,6 +192,26 @@ describe("deriveOperatorHomeTenantCountingSnapshot", () => {
     expect(snapshot.metrics.hasReviews).toBe(false);
   });
 
+  it("does not keep stale positive runsDashboardTotalCount when tenant rows are archived-only", () => {
+    const displayItems: RunSummary[] = [
+      {
+        runId: "archived-1",
+        projectId: "default",
+        hasGoldenManifest: true,
+        isArchived: true,
+      },
+    ];
+
+    const snapshot = deriveOperatorHomeTenantCountingSnapshot({
+      displayItems,
+      previewItems: displayItems,
+      runsDashboardTotalCount: 12,
+    });
+
+    expect(snapshot.metrics.reviewPackagesTotal).toBe(0);
+    expect(snapshot.metrics.hasReviews).toBe(false);
+  });
+
   it("does not uplift stale zero runsDashboardTotalCount using archived-only tenant rows", () => {
     const displayItems: RunSummary[] = [
       {

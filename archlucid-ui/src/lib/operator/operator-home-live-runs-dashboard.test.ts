@@ -114,4 +114,17 @@ describe("resolveLiveRunsDashboardModel", () => {
     expect(merged.items).toHaveLength(2);
     expect(merged.totalCount).toBe(0);
   });
+
+  it("does not keep stale positive totalCount when the live snapshot is archived-only", () => {
+    const merged = resolveLiveRunsDashboardModel(ssrModel, {
+      items: [
+        { ...buildRun("archived-a"), isArchived: true },
+        { ...buildRun("archived-b"), isArchived: true },
+      ],
+      totalCount: 12,
+    });
+
+    expect(merged.items).toHaveLength(2);
+    expect(merged.totalCount).toBe(0);
+  });
 });

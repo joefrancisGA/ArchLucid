@@ -4938,7 +4938,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-operator-lib
 
-**Hunts:** 96 · **Bugs found:** 91 · **Consecutive dry hunts:** 0
+**Hunts:** 97 · **Bugs found:** 92 · **Consecutive dry hunts:** 0
+
+2026-10-25 seed hunt (hit): `resolveOperatorHomeReviewTotalCount` treats archived-only on-page rows as stale when API `totalCount` is still positive (`onPageItemCount` guard); regressions `does not keep stale positive totals when only archived rows are on the page`, `does not keep stale positive totalCount when the live snapshot is archived-only`, and `does not keep stale positive runsDashboardTotalCount when tenant rows are archived-only`; cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; 61 scoped tenant-counting, review-total-resolution, live-runs-dashboard, workspace-metrics, and workspace-phase vitest passed. Private beta: Invited operators who refresh onto an archived-only home reviews page no longer see inflated review totals and active-workspace KPIs when the API still reports a positive `totalCount`.
 
 2026-10-25 seed hunt (hit): `deriveOperatorHomeTenantCountingSnapshot` defaults omitted `runsDashboardTotalCount` to non-archived tenant rows only (not raw `tenantItems.length`); regression `does not treat archived-only tenant rows as reviews when runsDashboardTotalCount is omitted`; cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; 75 scoped tenant-counting, review-total-resolution, live-runs-dashboard, workspace-metrics, workspace-phase, and recent-reviews-outcome vitest passed. Private beta: Invited operators no longer see active-review KPIs and portfolio outcome copy when the home page only shows archived overview rows and the runs dashboard total has not hydrated yet.
 
@@ -5258,11 +5260,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `formatOperatorHomeRecentReviewsOutcome` — archived-only tenant metrics still render portfolio copy when dashboard total undefined — **cheap-disproof 2026-10-25 seed hunt:** tenant counting fix drives `hasReviews: false`; outcome regressions already normalize metrics snapshots.
 - [x] (valid-no-repro) `filterTenantOverviewRuns` — archived rows remain in preview tab pools — **cheap-disproof 2026-10-25 seed hunt:** archived filtering is metrics/total contract only; preview tab pools intentionally retain archived tenant rows for tab counts.
 
-- [ ] (candidate) `deriveOperatorHomeTenantCountingSnapshot` — omitted `runsDashboardTotalCount` undercounts when active rows exist only on a later dashboard page — locus: `visibleActiveTenantCount` default; input: first paint with empty display items but SSR hint of totals.
-- [ ] (candidate) `resolveOperatorHomeReviewTotalCount` — negative `ssrTotalCount` skews uplift floor when reported total is finite — locus: `normalizedSsrTotal`; input: negative SSR floor with visible active rows.
-- [ ] (candidate) `deriveOperatorHomeWorkspaceMetrics` — `hasReviews` true when `reviewPackagesTotal` uplifted but every visible row is archived — locus: `countNonArchivedOverviewRuns` in `Math.max`; input: impossible mixed state after tenant counting wiring.
-- [ ] (candidate) `deriveHomePreviewTabCounts` — awaiting-approval tab uses queue ids while metrics use normalized count — locus: preview vs metrics inputs; input: `awaitingApprovalCount` set without `awaitingApprovalRunIds`.
-- [ ] (candidate) `mergeLiveRunsDashboardSnapshot` — live merge drops archived rows but keeps stale positive total — locus: merge + `resolveLiveRunsDashboardTotalCount`; input: archived-only snapshot with positive `totalCount`.
+- [x] (valid-no-repro) `deriveOperatorHomeTenantCountingSnapshot` — omitted `runsDashboardTotalCount` undercounts when active rows exist only on a later dashboard page — **cheap-disproof 2026-10-25 seed hunt:** empty display with omitted total is intentional first-paint; explicit paginated totals still pass through the shared resolver.
+- [x] (valid-no-repro) `resolveOperatorHomeReviewTotalCount` — negative `ssrTotalCount` skews uplift floor when reported total is finite — **cheap-disproof 2026-10-25 seed hunt:** `normalizedSsrTotal` clamps negatives to zero; stale-zero uplift regression unchanged.
+- [x] (valid-no-repro) `deriveOperatorHomeWorkspaceMetrics` — `hasReviews` true when `reviewPackagesTotal` uplifted but every visible row is archived — **cheap-disproof 2026-10-25 seed hunt:** archived-only positive totals now zeroed in shared resolver before metrics derive.
+- [x] (valid-no-repro) `deriveHomePreviewTabCounts` — awaiting-approval tab uses queue ids while metrics use normalized count — **cheap-disproof 2026-10-25 seed hunt:** regression `does not fall back to workspace awaiting-approval count while queue ids are still loading`.
+- [x] (proven) `resolveLiveRunsDashboardModel` — live merge keeps stale positive total on archived-only snapshot — **hit 2026-10-25 seed hunt:** `onPageItemCount` guard in shared resolver; regression `does not keep stale positive totalCount when the live snapshot is archived-only`.
+
+- [ ] (candidate) `resolveOperatorHomeReviewTotalCount` — non-finite reported total with archived-only on-page rows still resolves via SSR — locus: archived-only guard vs `reportedTotalIsFinite`; input: `NaN` reported with archived rows loaded.
+- [ ] (candidate) `deriveOperatorHomeWorkspaceMetrics` — direct `totalCount` bypasses shared resolver when called outside tenant counting — locus: `Math.max(reportedTotal, countNonArchived)`; input: archived-only items with positive `totalCount` argument.
+- [ ] (candidate) `resolveLiveRunsDashboardModel` — SSR model retains stale total when live snapshot is null after archived-only refresh — locus: early return; input: client clears snapshot without SSR revalidation.
+- [ ] (candidate) `deriveHomePreviewTabCounts` — workspace awaiting-approval fallback fires when preview count is zero but ids mismatch trimmed run ids — locus: `buildTrimmedRunIdSet`; input: whitespace-padded queue ids only.
+- [ ] (candidate) `countNonArchivedOverviewRuns` — `isArchived: false` explicit still counts as active when API marks sealed rows — locus: `isArchived !== true`; input: golden manifest without archived flag.
 
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regression `drops favorite rows when runId is whitespace-only`; 41 scoped continuity, scope-storage, and attention-preview vitest tests passed.
 
