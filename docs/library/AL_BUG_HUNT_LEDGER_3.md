@@ -7322,13 +7322,15 @@ ABQ-09 churn hotspot.
 - **aliases:** infra evidence diagrams; inventory mermaid; diagrams workbench
 - **paths:** archlucid-ui/src/lib/infra-evidence/; archlucid-ui/src/components/infra-evidence/; ArchLucid.Application/InfraEvidence/Mermaid/; ArchLucid.Api/Controllers/InfraEvidence/InfraEvidenceSnapshotsController.cs; archlucid-ui/src/app/(operator)/governance/infrastructure/diagrams/
 - **test-filter:** InfraEvidence
-- **hunts:** 10
-- **bugs-found:** 9
+- **hunts:** 11
+- **bugs-found:** 10
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-25
-- **last-bug:** 2026-10-25 — evidence-family filter hid all connectors when display mermaid lowercased edge labels
+- **last-bug:** 2026-10-25 — dependency-neighborhood seed catalog listed executive overflow rollup nodes absent from display canvas
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-25 thorough hunt (hit): dependency-neighborhood seed catalog parsed raw executive mermaid while the workbench canvas strips overflow rollups and normalizes labels, so the starting-resource picker listed phantom “+N more …” nodes operators could not match on the rendered diagram; `resolveInfraEvidenceSeedCatalogOutlineFromExecutiveMermaid` applies the same strip + display normalization before parse; regressions `strips executive overflow rollup nodes before parsing the seed catalog outline` and `normalizes edge labels to match display mermaid before outline parse`; cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; scoped seed-catalog, diagram-family, display-parity, and workbench vitest passed. Private beta: Invited operators choosing a dependency-neighborhood starting resource no longer see executive overflow rollup rows in the seed picker that never appear on the SecureNow-normalized diagram canvas.
 
 2026-10-25 seed hunt (hit): diagrams workbench parsed Mermaid outline from raw server source while the canvas renders display-normalized labels, so evidence-family `visibleConnectors` matched zero SVG edges and hid every connector; parse `displayMermaidSource` for outline and compare connector labels case-insensitively in `applyConnectorVisibility`; regression `lowercases edge labels in display mermaid so outline must parse display source for family filtering`; scoped infra-evidence diagram vitest passed. Private beta: Invited operators filtering infra evidence diagrams by relationship family again see the matching connectors instead of a blank canvas when SecureNow display normalization lowercases edge labels.
 
@@ -7359,11 +7361,17 @@ ABQ-09 churn hotspot.
 
 - [x] (proven) `DiagramsWorkbenchClient` / `ArchitectureDiagramViewer.applyConnectorVisibility` — evidence-family filter hid every connector when display-normalized Mermaid labels diverged from raw outline text — **hit 2026-10-25 seed hunt:** parse display mermaid for outline + case-insensitive label match; regression `lowercases edge labels in display mermaid so outline must parse display source for family filtering`.
 
-- [ ] (candidate) `DiagramsWorkbenchClient` — seed catalog outline still parses raw executive mermaid without display normalization — locus: dependency-neighborhood seed catalog fetch; input: catalog render with mixed-case edge labels.
-- [ ] (candidate) `applyConnectorVisibility` — null `visibleConnectors` vs empty array semantics for family filter — locus: `visibleFamilyConnectors` memo; input: family chip with zero edges after snapshot swap.
-- [ ] (candidate) `InfraEvidenceDiagramLegend` — omits declared/probable rows when `mermaidSource` is null under active family filter — locus: legend props when `effectiveEvidenceFamily !== all`; input: filtered outline with declared edges only.
-- [ ] (candidate) `resolveInfraEvidenceDiagramFamily` — private endpoint inference sources map to StructuralNetworkPath chip — locus: `FAMILY_BY_INFERENCE_SOURCE`; input: `inventory-private-endpoint` edge fixture.
-- [ ] (candidate) `normalizeInfraEvidenceLayoutSvgForDisplay` — lowercases SVG text nodes independently of mermaid outline parity — locus: layout SVG normalization; input: PNG export reading strip with mixed-case snapshot label.
+- [x] (proven) `DiagramsWorkbenchClient` — seed catalog outline still parses raw executive mermaid without display normalization — **hit 2026-10-25 thorough hunt:** `resolveInfraEvidenceSeedCatalogOutlineFromExecutiveMermaid`; regressions `strips executive overflow rollup nodes before parsing the seed catalog outline` and `normalizes edge labels to match display mermaid before outline parse`.
+- [x] (valid-no-repro) `applyConnectorVisibility` — null `visibleConnectors` vs empty array semantics for family filter — **cheap-disproof 2026-10-25 thorough hunt:** `resolveSelectableInfraEvidenceDiagramFamily` resets to All before `visibleFamilyConnectors` can pass `[]` while a stale chip stays selected.
+- [x] (valid-no-repro) `InfraEvidenceDiagramLegend` — omits declared/probable rows when `mermaidSource` is null under active family filter — **cheap-disproof 2026-10-25 thorough hunt:** `hasInfraEvidenceDeclaredDiagramEdges` / `hasInfraEvidenceProbableDiagramEdges` consult filtered `outline` before mermaid fallback.
+- [x] (valid-no-repro) `resolveInfraEvidenceDiagramFamily` — private endpoint inference sources map to StructuralNetworkPath chip — **cheap-disproof 2026-10-25 thorough hunt:** intentional `inventory-private-endpoint` → Private network path mapping; label fallback includes private endpoint copy.
+- [x] (valid-no-repro) `normalizeInfraEvidenceLayoutSvgForDisplay` — lowercases SVG text nodes independently of mermaid outline parity — **cheap-disproof 2026-10-25 thorough hunt:** intentional SecureNow display normalization; `normalize-infra-evidence-mermaid-display.test.ts` covers SVG text lowercasing.
+
+- [ ] (candidate) `DiagramsWorkbenchClient` — seed candidate list still hydrates from `visibleMermaidOutline` before executive catalog fetch completes — locus: `setSeedCandidateNodes` effect; input: dependency neighborhood with slow catalog response.
+- [ ] (candidate) `resolveInfraEvidenceSeedCatalogOutlineFromExecutiveMermaid` — outline-only metadata nodes remain when `al-outline-only=true` — locus: strip helper; input: executive catalog with NSG outline-only rows.
+- [ ] (candidate) `ArchitectureDiagramViewer.applyConnectorVisibility` — empty `visibleConnectors` array hides every edge when family chip desyncs for one frame — locus: visibility apply; input: race between URL family param and `effectiveEvidenceFamily` sync effect.
+- [ ] (candidate) `InfraEvidenceDiagramLegend` — family-filtered outline drops observed edges while layout SVG still shows observed accent swatches — locus: legend props with `familyFilteredOutline`; input: ObservedRuntime filter on mixed graph.
+- [ ] (candidate) `fetchInfraEvidenceMermaidRender` — dependency neighborhood render uses raw mermaid for outline side panel while canvas uses display source — locus: workbench render path; input: mixed-case edge labels in neighborhood mode.
 
 - **id:** infra-evidence-diagrams
 - **status:** open

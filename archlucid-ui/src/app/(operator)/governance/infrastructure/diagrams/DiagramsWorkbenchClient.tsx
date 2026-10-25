@@ -131,6 +131,7 @@ import { resolveInfraEvidenceMermaidRenderStatusPresentation } from "@/lib/infra
 import { parseInfraDiagramsDataFlowCaptionPresentation } from "@/lib/infra-evidence/infra-evidence-data-flow-diagram";
 import { isInfraEvidenceMermaidDiagramEmpty } from "@/lib/infra-evidence/infra-evidence-mermaid-empty-content";
 import { resolveInfraEvidenceDiagramOutlineResourceName } from "@/lib/infra-evidence/resolve-infra-evidence-diagram-outline-resource-name";
+import { resolveInfraEvidenceSeedCatalogOutlineFromExecutiveMermaid } from "@/lib/infra-evidence/resolve-infra-evidence-seed-catalog-outline";
 import {
   normalizeInfraEvidenceLayoutSvgForDisplay,
   normalizeInfraEvidenceMermaidSourceForDisplay,
@@ -1278,7 +1279,9 @@ export function DiagramsWorkbenchClient() {
 
       try {
         const catalogRender = await fetchInfraEvidenceMermaidRender(selectedSnapshotId, { mode: "executive" });
-        const catalogOutline = parseInfraEvidenceMermaidOutline(catalogRender.mermaid ?? "");
+        const catalogOutline = resolveInfraEvidenceSeedCatalogOutlineFromExecutiveMermaid(
+          catalogRender.mermaid ?? "",
+        );
 
         if (cancelled || catalogOutline == null || catalogOutline.nodes.length === 0) {
           return;
