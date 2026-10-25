@@ -115,6 +115,108 @@ describe("operator shell status client", () => {
     expect(queryClient.getQueryData(operatorQueryKeys.governanceReviewsAwaitingAction(SCOPE))?.items).toHaveLength(1);
   });
 
+  it("normalizes non-finite alerts inbox summary counts from shell status JSON to zero", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        new Response(
+          JSON.stringify({
+            alertsInboxSummary: {
+              openCount: Number.NaN,
+              acknowledgedCount: Number.NaN,
+              resolvedCount: Number.NaN,
+              blockingCount: Number.NaN,
+              lastEvaluatedUtc: "2026-10-25T00:00:00Z",
+            },
+          }),
+          {
+            status: 200,
+            headers: { "Content-Type": "application/json" },
+          },
+        ),
+      ),
+    );
+
+    const queryClient = createOperatorQueryClient();
+    const payload = await fetchAndHydrateOperatorShellStatus(queryClient, SCOPE);
+
+    expect(payload.alertsInboxSummary).toEqual({
+      open: 0,
+      acknowledged: 0,
+      resolved: 0,
+      blocking: 0,
+      lastEvaluatedUtc: "2026-10-25T00:00:00Z",
+    });
+    expect(queryClient.getQueryData(operatorQueryKeys.alertsInboxSummary(SCOPE))).toEqual(payload.alertsInboxSummary);
+  });
+
+  it("maps non-finite assigned-to-me findings count from shell status JSON to null", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        new Response(JSON.stringify({ assignedToMeFindingsCount: Number.NaN }), {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        }),
+      ),
+    );
+
+    const queryClient = createOperatorQueryClient();
+    const payload = await fetchAndHydrateOperatorShellStatus(queryClient, SCOPE);
+
+    expect(payload.assignedToMeFindingsCount).toBeNull();
+    expect(queryClient.getQueryData(operatorQueryKeys.governanceAssignedToMeFindingsCount(SCOPE))).toBeUndefined();
+  });
+
+  it("normalizes non-finite stickiness funnel counts from shell status JSON to zero", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        new Response(
+          JSON.stringify({
+            stickinessSnapshot: {
+              pilotFunnel: {
+                firstRunCreatedUtc: null,
+                firstGoldenManifestUtc: null,
+                firstComparisonUtc: null,
+                firstArtifactOrBundleDownloadUtc: null,
+                firstReplayUtc: null,
+                totalRunsInScope: Number.NaN,
+                committedRunsInScope: Number.NaN,
+                productLearningSignalsLast90Days: Number.NaN,
+              },
+              latestRunId: "run-nan",
+              comparisonEventsLast30Days: Number.NaN,
+              pendingGovernanceApprovals: Number.NaN,
+            },
+          }),
+          {
+            status: 200,
+            headers: { "Content-Type": "application/json" },
+          },
+        ),
+      ),
+    );
+
+    const payload = await fetchOperatorShellStatus();
+
+    expect(payload.stickinessSnapshot).toEqual({
+      pilotFunnel: {
+        firstRunCreatedUtc: null,
+        firstGoldenManifestUtc: null,
+        firstComparisonUtc: null,
+        firstArtifactOrBundleDownloadUtc: null,
+        firstReplayUtc: null,
+        totalRunsInScope: 0,
+        committedRunsInScope: 0,
+        productLearningSignalsLast90Days: 0,
+      },
+      latestRunId: "run-nan",
+      comparisonEventsLast30Days: 0,
+      pendingGovernanceApprovals: 0,
+    });
+  });
+
   it("treats stickinessSnapshot pilotFunnel null as absent without throwing", async () => {
     vi.stubGlobal(
       "fetch",

@@ -26,6 +26,7 @@ export type RunDetailCreateHomeEvidencePanelProps = {
   readonly linkedFindingCount: number;
   readonly openFindingCount: number;
   readonly items: readonly RunDetailEvidenceInventoryItem[];
+  readonly findingsCiteEvidenceWithoutSourceNames?: boolean;
   readonly artifacts: readonly { readonly artifactId: string; readonly name: string; readonly createdUtc: string }[];
   readonly runId: string;
   readonly buyerPolished: boolean;
@@ -37,6 +38,7 @@ export function RunDetailCreateHomeEvidencePanel(props: RunDetailCreateHomeEvide
   const scopeReadiness = deriveEvidenceScopeReadiness({
     inventoryCount,
     trustReadiness: null,
+    findingsCiteEvidenceWithoutSourceNames: props.findingsCiteEvidenceWithoutSourceNames === true,
   });
   const evidenceCoverageLine = deriveEvidenceScopeCoverageLine({
     inventoryCount,

@@ -37,6 +37,16 @@ public sealed class ProcessSharedValueReportJobPollStateCacheTests
         cache.Get("fresh-job").Should().Equal(payload);
     }
 
+    [Fact]
+    public void Remove_missing_key_does_not_throw()
+    {
+        ProcessSharedValueReportJobPollStateCache cache = CreateIsolatedCache();
+
+        Action act = () => cache.Remove("missing-job");
+
+        act.Should().NotThrow();
+    }
+
     private static ProcessSharedValueReportJobPollStateCache CreateIsolatedCache() =>
         (ProcessSharedValueReportJobPollStateCache)Activator.CreateInstance(
             typeof(ProcessSharedValueReportJobPollStateCache),

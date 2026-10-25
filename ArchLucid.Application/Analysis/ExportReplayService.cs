@@ -97,10 +97,11 @@ public sealed class ExportReplayService(
     public async Task<ReplayExportResult> ReplayAsync(ReplayExportRequest request, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(request);
-        ArgumentException.ThrowIfNullOrWhiteSpace(request.ExportRecordId);
-        RunExportRecord? record = await runExportRecordRepository.GetByIdAsync(request.ExportRecordId, cancellationToken);
+        string exportRecordId = RunExportRecordIdNormalizer.NormalizeRequired(request.ExportRecordId);
+        request.ExportRecordId = exportRecordId;
+        RunExportRecord? record = await runExportRecordRepository.GetByIdAsync(exportRecordId, cancellationToken);
         if (record is null)
-            throw new InvalidOperationException($"Export record '{request.ExportRecordId}' was not found.");
+            throw new InvalidOperationException($"Export record '{exportRecordId}' was not found.");
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
 

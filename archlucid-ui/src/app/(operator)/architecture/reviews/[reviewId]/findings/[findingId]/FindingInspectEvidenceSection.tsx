@@ -31,11 +31,27 @@ export type FindingInspectEvidenceSectionProps = {
   readonly reviewContextHref: string;
   readonly reviewContextLabel: string;
   readonly evidence: FindingInspectEvidence[];
+  readonly evidenceListReturned?: boolean;
   readonly citationModel?: FindingPolicyEvidenceCitationModel | null;
 };
 
+const FINDING_INSPECT_EVIDENCE_EXCERPT_NOT_STORED = "Evidence excerpt was not stored." as const;
+const FINDING_INSPECT_EVIDENCE_EXCERPT_STORED_EMPTY = "Evidence excerpt was stored empty." as const;
+
 function evidenceCitationTitle(row: FindingInspectEvidence): string {
-  const excerpt = row.excerpt?.trim() ?? "";
+  if (row.excerpt === null || row.excerpt === undefined) {
+    return FINDING_INSPECT_EVIDENCE_EXCERPT_NOT_STORED;
+  }
+
+  if (row.excerpt.length === 0) {
+    return FINDING_INSPECT_EVIDENCE_EXCERPT_STORED_EMPTY;
+  }
+
+  const excerpt = row.excerpt.trim();
+
+  if (excerpt.length === 0) {
+    return FINDING_INSPECT_EVIDENCE_EXCERPT_STORED_EMPTY;
+  }
 
   if (excerpt.length > 0) {
     const firstClause = excerpt.split(/[.—]/)[0]?.trim() ?? excerpt;
@@ -47,7 +63,7 @@ function evidenceCitationTitle(row: FindingInspectEvidence): string {
     return excerpt.length > 80 ? `${excerpt.slice(0, 77)}…` : excerpt;
   }
 
-  return "Evidence excerpt was not stored.";
+  return FINDING_INSPECT_EVIDENCE_EXCERPT_NOT_STORED;
 }
 
 const FINDING_INSPECT_EVIDENCE_LINK_NOT_STORED = "Evidence link was not stored." as const;
@@ -225,6 +241,7 @@ export function FindingInspectEvidenceSection({
   reviewContextHref,
   reviewContextLabel,
   evidence,
+  evidenceListReturned = true,
   citationModel = null,
 }: FindingInspectEvidenceSectionProps): ReactElement {
   const pathname = usePathname() ?? "/";
@@ -379,9 +396,13 @@ export function FindingInspectEvidenceSection({
         </h3>
       ) : null}
 
-      {evidence.length === 0 ? (
+      {evidenceListReturned === false ? (
         <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-          No evidence citations were stored.
+          Evidence list was not stored.
+        </p>
+      ) : evidence.length === 0 ? (
+        <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+          Evidence list was stored empty.
         </p>
       ) : (
         <EvidenceCitationList {...citationListProps} />

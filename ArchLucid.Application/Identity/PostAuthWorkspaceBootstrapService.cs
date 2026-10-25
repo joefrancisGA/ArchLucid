@@ -2,8 +2,11 @@ using ArchLucid.Application.Tenancy;
 using ArchLucid.Core.Admin;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
+using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Identity;
 using ArchLucid.Core.Tenancy;
+
+using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Application.Identity;
 
@@ -39,6 +42,7 @@ public sealed partial class PostAuthWorkspaceBootstrapService(
     ISelfServiceTrialAbusePolicy trialAbusePolicy,
     IWorkspacePackagingLimitEvaluator workspacePackagingLimitEvaluator,
     IAuditService auditService,
+    IOptionsMonitor<TenantProvisioningOptions> tenantProvisioningOptions,
     TimeProvider timeProvider) : IPostAuthWorkspaceBootstrapService
 {
     private const string DuplicateOrgMessage =
@@ -70,6 +74,9 @@ public sealed partial class PostAuthWorkspaceBootstrapService(
 
     private readonly ITrialTenantBootstrapService _trialBootstrap =
         trialBootstrap ?? throw new ArgumentNullException(nameof(trialBootstrap));
+
+    private readonly IOptionsMonitor<TenantProvisioningOptions> _tenantProvisioningOptions =
+        tenantProvisioningOptions ?? throw new ArgumentNullException(nameof(tenantProvisioningOptions));
 
     private readonly TimeProvider _timeProvider =
         timeProvider ?? throw new ArgumentNullException(nameof(timeProvider));

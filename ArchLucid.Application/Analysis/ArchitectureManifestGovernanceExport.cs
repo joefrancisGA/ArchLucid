@@ -9,6 +9,51 @@ internal static class ArchitectureManifestGovernanceExport
 {
     private const string DefaultClassification = "Moderate";
 
+    internal const string RiskClassificationNotStoredLabel = "Risk classification was not stored.";
+
+    internal const string CostClassificationNotStoredLabel = "Cost classification was not stored.";
+
+    internal static string FormatRiskClassificationForExport(ManifestGovernance governance)
+    {
+        ArgumentNullException.ThrowIfNull(governance);
+
+        if (IsDefaultClassificationOnly(governance))
+        {
+            return RiskClassificationNotStoredLabel;
+        }
+
+        return string.IsNullOrWhiteSpace(governance.RiskClassification)
+            ? RiskClassificationNotStoredLabel
+            : governance.RiskClassification.Trim();
+    }
+
+    internal static string FormatCostClassificationForExport(ManifestGovernance governance)
+    {
+        ArgumentNullException.ThrowIfNull(governance);
+
+        if (IsDefaultClassificationOnly(governance))
+        {
+            return CostClassificationNotStoredLabel;
+        }
+
+        return string.IsNullOrWhiteSpace(governance.CostClassification)
+            ? CostClassificationNotStoredLabel
+            : governance.CostClassification.Trim();
+    }
+
+    private static bool IsDefaultClassificationOnly(ManifestGovernance governance)
+    {
+        if (governance.RequiredControls.Count > 0
+            || governance.ComplianceTags.Count > 0
+            || governance.PolicyConstraints.Count > 0)
+        {
+            return false;
+        }
+
+        return string.Equals(governance.RiskClassification, DefaultClassification, StringComparison.OrdinalIgnoreCase)
+            && string.Equals(governance.CostClassification, DefaultClassification, StringComparison.OrdinalIgnoreCase);
+    }
+
     internal static bool ShouldRender(ManifestGovernance governance)
     {
         ArgumentNullException.ThrowIfNull(governance);

@@ -62,7 +62,14 @@ public static class HostedAzureExtractorZipBuilder
         IReadOnlyList<HostedAzureArmDefenderScoreControlRecord>? defenderScoreControls = null,
         IReadOnlyList<HostedAzureArmDefenderAssessmentRecord>? defenderAssessments = null,
         IReadOnlyList<HostedAzureArmDefenderAssessmentCountRecord>? defenderAssessmentCounts = null,
-        IReadOnlyList<HostedAzureArmDefenderSecurityContactRecord>? defenderSecurityContacts = null)
+        IReadOnlyList<HostedAzureArmDefenderSecurityContactRecord>? defenderSecurityContacts = null,
+        IReadOnlyList<HostedAzureArmDefenderGovernanceRecord>? defenderGovernanceAssignments = null,
+        IReadOnlyList<HostedAzureArmDefenderComplianceStandardRecord>? defenderComplianceStandards = null,
+        IReadOnlyList<HostedAzureArmDefenderComplianceControlRecord>? defenderComplianceControls = null,
+        IReadOnlyList<HostedAzureArmDefenderAlertRecord>? defenderAlerts = null,
+        IReadOnlyList<HostedAzureArmDefenderAttackPathRecord>? defenderAttackPaths = null,
+        IReadOnlyList<HostedAzureArmDefenderVulnerabilityCountRecord>? defenderVulnerabilityCounts = null,
+        IReadOnlyList<HostedAzureArmDefenderVulnerabilityFindingRecord>? defenderVulnerabilityFindings = null)
     {
         bool hasSubscriptionId = !string.IsNullOrWhiteSpace(subscriptionId);
         bool hasManagementGroupId = !string.IsNullOrWhiteSpace(managementGroupId);
@@ -344,6 +351,92 @@ public static class HostedAzureExtractorZipBuilder
             })
             .ToArray<object>();
 
+        object[] defenderGovernanceRows = (defenderGovernanceAssignments ?? [])
+            .Select(static row => new
+            {
+                subscriptionId = row.SubscriptionId,
+                assessmentKey = row.AssessmentKey,
+                resourceId = row.ResourceId,
+                owner = row.Owner,
+                remediationDueUtc = row.RemediationDueUtc,
+                isGracePeriod = row.IsGracePeriod,
+                assignmentStatus = row.AssignmentStatus,
+            })
+            .ToArray<object>();
+
+        object[] defenderComplianceStandardRows = (defenderComplianceStandards ?? [])
+            .Select(static row => new
+            {
+                subscriptionId = row.SubscriptionId,
+                standardName = row.StandardName,
+                state = row.State,
+                passedControlCount = row.PassedControlCount,
+                failedControlCount = row.FailedControlCount,
+                skippedControlCount = row.SkippedControlCount,
+            })
+            .ToArray<object>();
+
+        object[] defenderComplianceControlRows = (defenderComplianceControls ?? [])
+            .Select(static row => new
+            {
+                subscriptionId = row.SubscriptionId,
+                standardName = row.StandardName,
+                controlName = row.ControlName,
+                state = row.State,
+                failedAssessmentCount = row.FailedAssessmentCount,
+            })
+            .ToArray<object>();
+
+        object[] defenderAlertRows = (defenderAlerts ?? [])
+            .Select(static row => new
+            {
+                subscriptionId = row.SubscriptionId,
+                alertId = row.AlertId,
+                displayName = row.DisplayName,
+                severity = row.Severity,
+                status = row.Status,
+                intent = row.Intent,
+                alertType = row.AlertType,
+                startTimeUtc = row.StartTimeUtc,
+                resourceId = row.ResourceId,
+            })
+            .ToArray<object>();
+
+        object[] defenderAttackPathRows = (defenderAttackPaths ?? [])
+            .Select(static row => new
+            {
+                subscriptionId = row.SubscriptionId,
+                attackPathId = row.AttackPathId,
+                displayName = row.DisplayName,
+                riskLevel = row.RiskLevel,
+                entryResourceIds = row.EntryResourceIds,
+                targetResourceIds = row.TargetResourceIds,
+            })
+            .ToArray<object>();
+
+        object[] defenderVulnerabilityCountRows = (defenderVulnerabilityCounts ?? [])
+            .Select(static row => new
+            {
+                subscriptionId = row.SubscriptionId,
+                resourceId = row.ResourceId,
+                criticalCount = row.CriticalCount,
+                highCount = row.HighCount,
+                mediumCount = row.MediumCount,
+                lowCount = row.LowCount,
+            })
+            .ToArray<object>();
+
+        object[] defenderVulnerabilityFindingRows = (defenderVulnerabilityFindings ?? [])
+            .Select(static row => new
+            {
+                subscriptionId = row.SubscriptionId,
+                resourceId = row.ResourceId,
+                severity = row.Severity,
+                findingId = row.FindingId,
+                displayName = row.DisplayName,
+            })
+            .ToArray<object>();
+
         object[] effectiveNetworkControlRows = (effectiveNetworkControls ?? [])
             .Select(static row => new
             {
@@ -590,6 +683,34 @@ public static class HostedAzureExtractorZipBuilder
                 archive,
                 AzureExtractorPackageZipEntryNames.DefenderSecurityContacts,
                 JsonSerializer.Serialize(defenderSecurityContactRows, SerializerOptions));
+            AddUtf8Entry(
+                archive,
+                AzureExtractorPackageZipEntryNames.DefenderGovernance,
+                JsonSerializer.Serialize(defenderGovernanceRows, SerializerOptions));
+            AddUtf8Entry(
+                archive,
+                AzureExtractorPackageZipEntryNames.DefenderComplianceStandards,
+                JsonSerializer.Serialize(defenderComplianceStandardRows, SerializerOptions));
+            AddUtf8Entry(
+                archive,
+                AzureExtractorPackageZipEntryNames.DefenderComplianceControls,
+                JsonSerializer.Serialize(defenderComplianceControlRows, SerializerOptions));
+            AddUtf8Entry(
+                archive,
+                AzureExtractorPackageZipEntryNames.DefenderAlerts,
+                JsonSerializer.Serialize(defenderAlertRows, SerializerOptions));
+            AddUtf8Entry(
+                archive,
+                AzureExtractorPackageZipEntryNames.DefenderAttackPaths,
+                JsonSerializer.Serialize(defenderAttackPathRows, SerializerOptions));
+            AddUtf8Entry(
+                archive,
+                AzureExtractorPackageZipEntryNames.DefenderVulnerabilityCounts,
+                JsonSerializer.Serialize(defenderVulnerabilityCountRows, SerializerOptions));
+            AddUtf8Entry(
+                archive,
+                AzureExtractorPackageZipEntryNames.DefenderVulnerabilityFindings,
+                JsonSerializer.Serialize(defenderVulnerabilityFindingRows, SerializerOptions));
             AddUtf8Entry(
                 archive,
                 AzureExtractorPackageZipEntryNames.EntraGroupMemberships,
