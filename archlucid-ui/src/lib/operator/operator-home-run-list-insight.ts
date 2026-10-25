@@ -51,14 +51,13 @@ export type RunHomeListUpdatedPresentation = {
 
 function resolveRunHomeListTimestampUtc(run: RunSummary): { readonly isoUtc: string; readonly usedCreatedFallback: boolean } | null {
   const lastModifiedUtc = run.lastModifiedUtc?.trim() ?? "";
+  const createdUtc = run.createdUtc?.trim() ?? "";
 
-  if (lastModifiedUtc.length > 0) {
+  if (lastModifiedUtc.length > 0 && !Number.isNaN(parseIsoUtcMs(lastModifiedUtc))) {
     return { isoUtc: lastModifiedUtc, usedCreatedFallback: false };
   }
 
-  const createdUtc = run.createdUtc?.trim() ?? "";
-
-  if (createdUtc.length === 0) {
+  if (createdUtc.length === 0 || Number.isNaN(parseIsoUtcMs(createdUtc))) {
     return null;
   }
 
