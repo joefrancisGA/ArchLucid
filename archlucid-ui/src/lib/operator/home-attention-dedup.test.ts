@@ -179,6 +179,31 @@ describe("home-attention-dedup (TB-2369)", () => {
     expect(listHomeAttentionPreviewExcludedRunIds([draftItem])).toEqual([]);
   });
 
+  it("returns no excluded run ids for incomplete-wizard rows even when href parses a review run id", () => {
+    const wizardItem: UnfinishedWorkRailItem = {
+      id: "incomplete-wizard:reviewsNewQuickStart",
+      kind: "incomplete-wizard",
+      title: "New architecture review (quick start)",
+      href: "/architecture/reviews/run-wizard-leak",
+      statusLabel: "In progress",
+      updatedUtc: null,
+      workTypeLabel: "Setup wizard",
+      activityLabel: null,
+      actionLabel: "Continue",
+    };
+
+    expect(listHomeAttentionPreviewExcludedRunIds([wizardItem])).toEqual([]);
+  });
+
+  it("lists both row and peer href run ids for awaiting-disposition rail rows", () => {
+    const item = {
+      ...railItem("awaiting-disposition", "awaiting-disposition:run-a"),
+      href: "/architecture/reviews/run-b",
+    };
+
+    expect(listHomeAttentionPreviewExcludedRunIds([item])).toEqual(["run-a", "run-b"]);
+  });
+
   it("returns no excluded run ids for architecture-draft unfinished-work rail rows", () => {
     const draftItem: UnfinishedWorkRailItem = {
       id: "architecture-draft:draft-identity-001",

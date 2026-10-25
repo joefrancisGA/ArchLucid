@@ -120,6 +120,28 @@ describe("operator shell stable cache", () => {
     );
   });
 
+  it("normalizes non-finite alerts inbox counts when writing stable cache", () => {
+    writeOperatorShellStableCache({
+      trialStatus: { status: "None" },
+      catalogMigration: { inMigration: false },
+      alertsInboxSummary: {
+        open: Number.NaN,
+        acknowledged: 1,
+        resolved: 0,
+        blocking: -2,
+        lastEvaluatedUtc: null,
+      },
+    });
+
+    expect(readOperatorShellStableCache()?.alertsInboxSummary).toEqual({
+      open: 0,
+      acknowledged: 1,
+      resolved: 0,
+      blocking: 0,
+      lastEvaluatedUtc: null,
+    });
+  });
+
   it("does not persist alerts inbox summary without a stable shell snapshot", () => {
     writeOperatorShellStableCache({
       trialStatus: { status: "Active", daysRemaining: 5 },

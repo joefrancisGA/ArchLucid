@@ -57,6 +57,16 @@ describe("resolveLiveRunsDashboardModel", () => {
     expect(merged.totalCount).toBe(1);
   });
 
+  it("clamps negative live snapshot total counts to zero", () => {
+    const merged = resolveLiveRunsDashboardModel(ssrModel, {
+      items: [buildRun("live-a")],
+      totalCount: -4,
+    });
+
+    expect(merged.totalCount).toBe(0);
+    expect(merged.items.map((run) => run.runId)).toEqual(["live-a"]);
+  });
+
   it("drops reviews that the refreshed snapshot no longer contains", () => {
     const merged = resolveLiveRunsDashboardModel(ssrModel, { items: [], totalCount: 0 });
 
