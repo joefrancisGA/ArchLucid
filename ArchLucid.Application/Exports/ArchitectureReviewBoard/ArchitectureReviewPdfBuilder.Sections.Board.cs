@@ -60,7 +60,7 @@ public sealed partial class ArchitectureReviewPdfBuilder
 
         foreach (ArchitectureReviewBoardExportRiskRow risk in risks)
         {
-            string severity = string.IsNullOrWhiteSpace(risk.SeverityLabel) ? "Severity n/a" : risk.SeverityLabel.Trim();
+            string severity = string.IsNullOrWhiteSpace(risk.SeverityLabel) ? "Severity was not stored." : risk.SeverityLabel.Trim();
             string summaryText = string.IsNullOrWhiteSpace(risk.Summary)
                 ? "Risk summary was not stored."
                 : risk.Summary.Trim();
