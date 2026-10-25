@@ -32,6 +32,7 @@ import type {
   ReviewClarificationDelta,
   ReviewClarificationQuestion,
 } from "@/lib/review-clarification-questions-types";
+import { describeClarificationQuestionsLoadState } from "@/lib/reviews/review-clarification-questions-honesty";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type ArchitectureCreatedClarificationsPanelProps = {
@@ -131,7 +132,9 @@ export function ArchitectureCreatedClarificationsPanel(
     props.model.evidenceGaps.length > 0 ||
     props.model.assessmentItems.length > 0;
   const hasOpenQuestions = hasOpenQuestionEntities(openQuestions);
-  const preferModelInterviewQuestions = (props.clarificationQuestions ?? []).length > 0;
+  const clarificationQuestionsLoadState = describeClarificationQuestionsLoadState(props.clarificationQuestions);
+  const preferModelInterviewQuestions =
+    props.clarificationQuestions !== undefined && props.clarificationQuestions.length > 0;
   const showIntakeOpenQuestions = hasOpenQuestions && !preferModelInterviewQuestions;
   const isZeroGapSuccess =
     !parseResult.hasPartialParseFailure && !hasVisibleWorkQueue && !showIntakeOpenQuestions;
@@ -193,6 +196,16 @@ export function ArchitectureCreatedClarificationsPanel(
   return (
     <div className="space-y-5" data-testid="architecture-workspace-clarifications-panel">
       <h2 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>Clarifications</h2>
+
+      {clarificationQuestionsLoadState !== null ? (
+        <p
+          className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="architecture-clarifications-questions-load-state"
+          role="status"
+        >
+          {clarificationQuestionsLoadState}
+        </p>
+      ) : null}
 
       {props.clarificationQuestionsBlockedReason !== null
       && props.clarificationQuestionsBlockedReason !== undefined
