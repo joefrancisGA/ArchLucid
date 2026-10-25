@@ -159,29 +159,19 @@ export function resolveRunDecisionExplainabilityFromDetail(
               const record = row as Record<string, unknown>;
               const confidence = readFiniteNumber(record.confidence);
 
-              return {
-                pipeline: readString(record.pipeline) ?? "Pipeline was not stored.",
-                decisionId: readString(record.decisionId) ?? "unknown",
-                topic: readString(record.topic) ?? "Decision topic was not stored.",
-                selectedOptionId: readString(record.selectedOptionId),
-                rationale: readString(record.rationale) ?? "Decision rationale was not stored.",
-                confidence,
-                supportingEvaluationIds: readStringArray(record.supportingEvaluationIds),
-                opposingEvaluationIds: readStringArray(record.opposingEvaluationIds),
-              };
-            })
-            .filter((row): row is NonNullable<typeof row> => row !== null)
-        : [];
-
-  const findingEngineFailures =
-    failureWire === undefined
-      ? null
-      : Array.isArray(failureWire)
-        ? failureWire
-            .map((row) => {
-              if (row === null || typeof row !== "object") {
-                return null;
-              }
+          return {
+            pipeline: readString(record.pipeline) ?? "Pipeline was not stored.",
+            decisionId: readString(record.decisionId) ?? "unknown",
+            topic: readString(record.topic) ?? "Decision topic was not stored.",
+            selectedOptionId: readString(record.selectedOptionId),
+            rationale: readString(record.rationale) ?? "Decision rationale was not stored.",
+            confidence,
+            supportingEvaluationIds: readStringArray(record.supportingEvaluationIds),
+            opposingEvaluationIds: readStringArray(record.opposingEvaluationIds),
+          };
+        })
+        .filter((row): row is NonNullable<typeof row> => row !== null)
+    : [];
 
               const record = row as Record<string, unknown>;
               const engineType = readString(record.engineType);
