@@ -1413,6 +1413,53 @@ describe("SecureNowQuestionQueue", () => {
     expect(screen.queryByText("No questions match this filter.")).not.toBeInTheDocument();
   });
 
+  it("focuses the dismissed question after reload when another dismissed row exists", async () => {
+    const dismissedRow = {
+      ...question,
+      status: "Ignored",
+      answerCode: null,
+      answerText: null,
+      reason: "Already dismissed earlier.",
+    };
+    const otherOpen = {
+      ...question,
+      resourceId:
+        "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.DataFactory/factories/other-resource",
+      resourceName: "other-resource",
+      questionText: "Should other-resource connect to a peer, or stand alone?",
+      reasonText:
+        "SecureNow found no connection to or from other-resource. Data factory is not treated as a shared service that can stand alone.",
+    };
+
+    mocks.listQuestions
+      .mockResolvedValueOnce([dismissedRow, otherOpen])
+      .mockResolvedValueOnce([
+        dismissedRow,
+        {
+          ...otherOpen,
+          status: "Ignored",
+          answerCode: null,
+          answerText: null,
+          reason: "Operator chose not to answer.",
+        },
+      ]);
+
+    render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
+    fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
+    fireEvent.click(screen.getByRole("button", { name: "Don't ask again" }));
+    fireEvent.change(screen.getByRole("textbox", { name: "Reason for not asking again" }), {
+      target: { value: "Operator chose not to answer." },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Save" }));
+
+    await waitFor(() => expect(mocks.listQuestions).toHaveBeenCalledTimes(2));
+    await waitFor(() => expect(mocks.ignoreQuestion).toHaveBeenCalled());
+
+    expect(screen.getByTestId("infra-diagrams-question-disposition-status")).toHaveTextContent("Dismissed");
+    expect(screen.getByTestId("infra-diagrams-question-text")).toHaveTextContent(otherOpen.questionText);
+    expect(screen.queryByText(question.questionText)).not.toBeInTheDocument();
+  });
+
   it("focuses the answered question after reload when another answered row exists", async () => {
     const answeredRow = {
       ...question,

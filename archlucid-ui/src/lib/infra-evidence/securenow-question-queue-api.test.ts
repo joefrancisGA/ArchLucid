@@ -29,6 +29,23 @@ describe("securenow-question-queue-api", () => {
     vi.mocked(proxyJsonPost).mockReset();
   });
 
+  it("maps non-string questionText to placeholder copy without throwing", async () => {
+    vi.mocked(proxyJsonGet).mockResolvedValueOnce([
+      {
+        snapshotId: "snapshot-1",
+        questionKey: "unknown-evidence@v1",
+        questionText: 123,
+        answerCodes: ["NamePeer"],
+        evidenceFingerprint: "fingerprint",
+      },
+    ]);
+
+    const questions = await listSecureNowQuestions("snapshot-1");
+
+    expect(questions).toHaveLength(1);
+    expect(questions[0].questionText).toBe("Question text was not stored");
+  });
+
   it("maps whitespace-only questionKey to null on list responses", async () => {
     vi.mocked(proxyJsonGet).mockResolvedValueOnce([
       {

@@ -7489,6 +7489,34 @@ ABQ-09 churn hotspot.
 
 ## Zone: securenow-question-queue
 
+2026-10-25 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows (SQL MERGE concurrency deferred, optimistic disposition merge future-risk, ignore reload focus parity, non-string list `questionText`, pack fingerprint churn on answer); added two regression locks; seeded five follow-on `(candidate)` rows below; scoped SecureNow queue vitest 167/167; no production code changed.
+
+- [x] (invalid) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` under parallel mutations — **cheap-disproof 2026-10-25 seed hunt:** SQL integration host unavailable; candidate reseeded below.
+- [x] (invalid) `securenow-question-queue-provider` — optimistic list patch from disposition JSON — **cheap-disproof 2026-10-25 seed hunt:** reload-only provider by design; candidate reseeded below.
+- [x] (valid-no-repro) `SecureNowQuestionQueueProvider.loadQuestions` — ignore mutation reload focus when another dismissed row exists — **cheap-disproof 2026-10-25 seed hunt:** `focusQuestionIdentity`; regression `focuses the dismissed question after reload when another dismissed row exists`.
+- [x] (valid-no-repro) `securenow-question-queue-api.mapQuestion` — non-string `questionText` list values — **cheap-disproof 2026-10-25 seed hunt:** `stringOrDefault`; regression `maps non-string questionText to placeholder copy without throwing`.
+- [x] (valid-no-repro) `ValidateMutationAgainstCompiledQuestionAsync` — pack prompt churn with stale fingerprint — **cheap-disproof 2026-10-25 seed hunt:** `Stale_evidence_fingerprint_is_rejected_before_persisting_an_answer` / ignore parity in Application tests.
+
+- [ ] (candidate) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` writes for the same identity hash — locus: SQL repository; input: integration repro when SQL host available.
+- [ ] (candidate) `securenow-question-queue-provider` — optimistic merge from mutation JSON without reload — locus: future post-mutation path; input: must use `mapSecureNowQuestionDisposition` only.
+- [ ] (candidate) `securenow-question-queue-api.mapQuestion` — non-string `reasonText` or `sourceLine` values — locus: `stringOrDefault`; input: list JSON numeric reasonText should not throw.
+- [ ] (candidate) `SecureNowQuestionQueueProvider` — inferred-connection Yes/No reload focus when multiple inferred rows exist — locus: `focusQuestionIdentity` after confirm/dismiss; input: parity with answer/ignore/reopen focus regressions.
+- [ ] (candidate) `securenow-question-queue-api.mapQuestion` — `answerCodes` array containing non-string entries — locus: answerCodes map filter; input: mixed-type array should not throw.
+
+- **id:** securenow-question-queue
+- **status:** open
+- **impact:** medium
+- **aliases:** securenow question queue; question disposition
+- **paths:** archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx; archlucid-ui/src/lib/infra-evidence/securenow-question-queue-api.ts
+- **test-filter:** SecureNowQuestion
+- **hunts:** 94
+- **bugs-found:** 70
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-25
+- **last-bug:** 2026-10-25 — list mapper ReferenceError on question load
+- **related-pd-tb:** none
+- **code-changed-since:** yes
+
 2026-10-25 seed hunt (seed→hit): promoted `listSecureNowQuestions` / `mapQuestion` calling undefined `optionalStringField` — any list load threw `ReferenceError` and left the question queue empty; map `questionText` with `stringOrDefault`; regressions in `securenow-question-queue-api.test.ts` (full mapper suite) plus `focuses the answered question after reload when another answered row exists`; cheap-disproof closed three open `(candidate)` rows (SQL MERGE concurrency, optimistic disposition merge, pack fingerprint churn); seeded five follow-on `(candidate)` rows below; scoped SecureNow queue vitest 165/165. Private beta: operators can open and review SecureNow questions again when list JSON loads instead of hitting a blank queue from a client mapper crash.
 
 - [x] (proven) `securenow-question-queue-api.mapQuestion` / `listSecureNowQuestions` — undefined `optionalStringField` helper crashed list mapping — **hit 2026-10-25 seed hunt:** `stringOrDefault` for `questionText`; `securenow-question-queue-api.test.ts` mapper regressions.
@@ -7496,12 +7524,6 @@ ABQ-09 churn hotspot.
 - [x] (invalid) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` duplicate-key risk — **cheap-disproof 2026-10-25 seed hunt:** requires SQL integration host; retained as deferred integration candidate below.
 - [x] (invalid) `securenow-question-queue-provider` — optimistic merge from mutation JSON without reload — **cheap-disproof 2026-10-25 seed hunt:** provider reload-only by design; future-risk candidate reseeded below.
 - [x] (valid-no-repro) `ValidateMutationAgainstCompiledQuestionAsync` — pack prompt churn with stale fingerprint — **cheap-disproof 2026-10-25 seed hunt:** existing stale-fingerprint rejection on answer/ignore; Application tests cover compiler join.
-
-- [ ] (candidate) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` writes for the same identity hash under parallel mutations — locus: SQL repository; input: integration or concurrent repro (deferred without SQL host).
-- [ ] (candidate) `securenow-question-queue-provider` — optimistic list patch from `SecureNowQuestionDisposition` JSON without full reload — locus: post-mutation state; input: future code path must use `mapSecureNowQuestionDisposition` only.
-- [ ] (candidate) `SecureNowQuestionQueueProvider.loadQuestions` — ignore mutation reload focus when another dismissed row exists — locus: `focusQuestionIdentity` on ignore; input: parity with reopen/answer focus regressions.
-- [ ] (candidate) `securenow-question-queue-api.mapQuestion` — non-string `questionText` values — locus: `stringOrDefault`; input: list JSON `questionText: 123` should not throw.
-- [ ] (candidate) `SecureNowPackQuestionCandidateBuilder` — Must-tier prompt edit with same `QuestionKey` and stale disposition row — locus: stale fingerprint on answer; input: Application compiler/service repro on pack content churn.
 
 - **id:** securenow-question-queue
 - **status:** open
