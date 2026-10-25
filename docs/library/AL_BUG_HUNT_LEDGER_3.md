@@ -4938,7 +4938,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-operator-lib
 
-**Hunts:** 85 · **Bugs found:** 82 · **Consecutive dry hunts:** 0
+**Hunts:** 86 · **Bugs found:** 83 · **Consecutive dry hunts:** 0
+
+2026-10-25 seed hunt (hit): `collectHomeAttentionExcludedRunIdsForRailItem` unions TB-2369 row prefix ids when canonical match prefers desk `highlightReviewId`; regression `lists both row and desk highlight run ids when TB-2369 row id disagrees with highlightReviewId`; scoped attention-dedup + resume vitest passed. Private beta: Invited operators no longer see duplicate home attention rows for a stale rail row id when the unfinished-work link highlights a different review on the architecture desk.
 
 2026-10-25 seed hunt (hit): `listHomeAttentionPreviewExcludedRunIds` unions SN-012 href run ids when they disagree with TB-2369 row ids so home attention preview drops both identities; regressions `lists both row and peer href run ids when TB-2369 row id disagrees with review href` and `filters home attention preview when peer review href run id disagrees with TB-2369 row id`; scoped attention-dedup + resume vitest passed. Private beta: Invited operators no longer see a duplicate home attention row for a run whose unfinished-work rail link targets a different review id than the row prefix encodes.
 
@@ -5163,11 +5165,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) `listHomeAttentionPreviewExcludedRunIds` — omitted href-parsed run id when TB-2369 row id disagreed with peer review href — **hit 2026-10-25 seed hunt:** href union on conflict; regressions `lists both row and peer href run ids when TB-2369 row id disagrees with review href` and `filters home attention preview when peer review href run id disagrees with TB-2369 row id`.
 
-- [ ] (candidate) `listHomeAttentionPreviewExcludedRunIds` — unions desk `highlightReviewId` when row id omits href run on architecture desk conflict — locus: exclusion union; input: desk highlight conflict fixtures.
-- [ ] (candidate) `resolveUnfinishedWorkRailRunIdForMatch` — keeps single canonical id for resume targets while exclusion list unions href — locus: resolver vs exclusion; input: peer disagreement regressions.
-- [ ] (candidate) `filterRunsForHomeAttentionPreview` — dedupes excluded run ids when union introduces duplicates across rail rows — locus: Set in exclusion list; input: `lists active review run ids from unfinished-work rail items`.
-- [ ] (candidate) `resolveOperatorUnfinishedWorkRailItemResumeTarget` — run id stays row-priority on peer href disagreement — locus: resume target; input: `prefers TB-2369 row id when href does not parse a run id`.
-- [ ] (candidate) `matchesOperatorHomeHeroResumeTarget` — hero dedupe unchanged when exclusion list unions href run id — locus: hero match; input: desk conflict + peer disagreement affordance regressions.
+- [x] (proven) `listHomeAttentionPreviewExcludedRunIds` — omitted TB-2369 row id when canonical match preferred desk `highlightReviewId` — **hit 2026-10-25 seed hunt:** `collectHomeAttentionExcludedRunIdsForRailItem`; regression `lists both row and desk highlight run ids when TB-2369 row id disagrees with highlightReviewId`.
+- [x] (valid-no-repro) `resolveUnfinishedWorkRailRunIdForMatch` — keeps single canonical id for resume targets while exclusion list unions row and href — **cheap-disproof 2026-10-25 seed hunt:** peer + desk disagreement regressions; resume target tests unchanged.
+- [x] (valid-no-repro) `filterRunsForHomeAttentionPreview` — dedupes excluded run ids when union introduces duplicates across rail rows — **cheap-disproof 2026-10-25 seed hunt:** regression `lists active review run ids from unfinished-work rail items`.
+- [x] (valid-no-repro) `resolveOperatorUnfinishedWorkRailItemResumeTarget` — run id stays row-priority on peer href disagreement — **cheap-disproof 2026-10-25 seed hunt:** regression `prefers TB-2369 row id when href does not parse a run id`.
+- [x] (valid-no-repro) `matchesOperatorHomeHeroResumeTarget` — hero dedupe unchanged when exclusion list unions identities — **cheap-disproof 2026-10-25 seed hunt:** desk conflict + affordance vitest suites.
+
+- [ ] (candidate) `collectHomeAttentionExcludedRunIdsForRailItem` — omits architecture-draft and other non-review rail kinds — locus: resolver null branch; input: draft rail fixtures.
+- [ ] (candidate) `listHomeAttentionPreviewExcludedRunIds` — merges per-item identity sets without losing insertion order semantics — locus: outer Set loop; input: multi-row fixtures.
+- [ ] (candidate) `resolveUnfinishedWorkRailRunIdForMatch` — nested architecture review path conflicts still resolve before exclusion union — locus: nested href parsing; input: nested review href fixtures.
+- [ ] (candidate) `filterRunsForHomeAttentionPreview` — filters both desk-highlight and row-id exclusions in one pass — locus: filter helper; input: desk highlight disagreement filter test.
+- [ ] (candidate) `resolveOperatorHomeResumeAffordancePlan` — continue-last suppression independent of attention exclusion union — locus: affordance plan; input: scoped affordance regressions.
 
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regression `drops favorite rows when runId is whitespace-only`; 41 scoped continuity, scope-storage, and attention-preview vitest tests passed.
 
