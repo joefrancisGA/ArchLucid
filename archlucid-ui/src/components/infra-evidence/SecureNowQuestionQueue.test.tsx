@@ -1003,6 +1003,33 @@ describe("SecureNowQuestionQueue", () => {
     );
   });
 
+  it("clears the visit limit when review starts again", async () => {
+    const manyQuestions = Array.from({ length: 11 }, (_, index) => ({
+      ...question,
+      resourceId:
+        `/subscriptions/sub/resourceGroups/rg/providers/Microsoft.DataFactory/factories/factory-${index}`,
+      resourceName: `factory-${index}`,
+      questionText: `Should factory-${index} connect to a peer, or stand alone?`,
+    }));
+
+    mocks.listQuestions.mockResolvedValue(manyQuestions);
+
+    render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
+    fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
+
+    const nextButton = screen.getByRole("button", { name: "Next" });
+    for (let step = 0; step < 9; step += 1) {
+      fireEvent.click(nextButton);
+    }
+
+    expect(nextButton).toBeDisabled();
+
+    fireEvent.click(screen.getByRole("button", { name: "Close" }));
+    fireEvent.click(screen.getByRole("button", { name: "Review questions" }));
+
+    expect(screen.getByRole("button", { name: "Next" })).not.toBeDisabled();
+  });
+
   it("restores session skipped questions after the queue reloads", async () => {
     const secondQuestion = {
       ...question,

@@ -307,6 +307,7 @@ export function SecureNowQuestionQueueProvider(
 
   const beginQuestionReview = useCallback(() => {
     setSessionSkippedQuestionKeys(new Set());
+    setVisitedQuestionKeys(new Set());
     setFilter(secureNowQuestionQueueInitialReviewFilter(questions));
     setCurrentIndex(0);
     setSelectedAnswer(null);
