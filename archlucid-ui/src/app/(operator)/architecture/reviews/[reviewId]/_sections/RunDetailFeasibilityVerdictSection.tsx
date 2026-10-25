@@ -123,7 +123,11 @@ export function RunDetailFeasibilityVerdictSection(
               ))}
             </ul>
           </div>
-        ) : null}
+        ) : (
+          <p className={cn("mt-3", OPERATOR_TYPOGRAPHY.body)}>
+            No proposed relaxations were stored on this verdict.
+          </p>
+        )}
 
         {verdict.unsatCoreInvariantKeys === null || verdict.unsatCoreInvariantKeys === undefined ? (
           <p className={cn("mt-3", OPERATOR_TYPOGRAPHY.body)}>Unsat core was not stored.</p>
@@ -131,7 +135,9 @@ export function RunDetailFeasibilityVerdictSection(
           <p className={cn("mt-3", OPERATOR_TYPOGRAPHY.body)}>
             Unsat core: {verdict.unsatCoreInvariantKeys.join(", ")}
           </p>
-        ) : null}
+        ) : (
+          <p className={cn("mt-3", OPERATOR_TYPOGRAPHY.body)}>Unsat core was stored empty.</p>
+        )}
 
         {isExportableDecisionVerdict(verdict.kind) ? (
           <div className="mt-4">
