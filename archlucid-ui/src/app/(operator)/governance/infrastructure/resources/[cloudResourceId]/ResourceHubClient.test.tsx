@@ -1385,6 +1385,23 @@ describe("ResourceHubClient", () => {
     expect(screen.getByText("costCenter")).toBeInTheDocument();
   });
 
+  it("shows property key omission copy when a captured property key is whitespace-only", async () => {
+    fetchCachedInfraEvidenceResourceHub.mockImplementation(async () =>
+      buildResourceHubTestMockHub({
+        currentConfiguration: {
+          ...buildResourceHubTestMockHub().currentConfiguration,
+          properties: {
+            "   ": "captured-property-value-for-whitespace-key",
+          },
+        },
+      }),
+    );
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    expect(await screen.findByText("Property key was not stored.")).toBeInTheDocument();
+    expect(screen.getByText("captured-property-value-for-whitespace-key")).toBeInTheDocument();
+  });
+
   it("shows property value omission copy when a captured property value is whitespace-only", async () => {
     fetchCachedInfraEvidenceResourceHub.mockImplementation(async () =>
       buildResourceHubTestMockHub({

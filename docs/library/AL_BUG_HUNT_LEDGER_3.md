@@ -7174,6 +7174,34 @@ ABQ-09 churn hotspot.
 
 ## Zone: ui-infra-resource-hub
 
+2026-10-25 seed hunt (seed→hit): promoted whitespace-only configuration property **keys** shown as blank name cells — property keys rendered raw while property values already used `formatStoredInfraEvidenceHubField`; regression `shows property key omission copy when a captured property key is whitespace-only`; cheap-disproof closed evidence pointer kind/path whitespace (prior hits), RBAC identity and network endpoint whitespace (seeded below), and tag keys (N/A — keys come from object entries); scoped ResourceHubClient vitest 84/84. Private beta: configuration property tables show “Property key was not stored.” instead of a blank key cell when capture stored only whitespace as the property name.
+
+- [x] (proven) `ResourceHubClient` configuration properties — property key whitespace-only — **hit 2026-10-25 seed hunt:** `formatStoredInfraEvidenceHubField` on key column; regression whitespace-key fixture.
+- [x] (valid-no-repro) `ResourceHubClient` configuration properties — property value whitespace-only — **cheap-disproof 2026-10-25 seed hunt:** prior hit; regression lock retained.
+- [x] (valid-no-repro) `ResourceHubClient` evidence pointers — `kind` / `relativePath` whitespace-only — **cheap-disproof 2026-10-25 seed hunt:** prior hits; regression locks retained.
+- [x] (valid-no-repro) `ResourceHubClient` RBAC assignments — `principalId` / `roleDefinitionId` whitespace-only — **cheap-disproof 2026-10-25 seed hunt:** identity columns still raw; seeded below.
+- [x] (valid-no-repro) `ResourceHubClient` network relationships — endpoint resource id whitespace-only — **cheap-disproof 2026-10-25 seed hunt:** from/to columns still raw; seeded below.
+
+- [ ] (candidate) `ResourceHubClient` RBAC assignments — `principalId` or `roleDefinitionId` whitespace-only — locus: principal/role columns; input: blank identity cells.
+- [ ] (candidate) `ResourceHubClient` network relationships — endpoint resource id whitespace-only — locus: from/to columns; input: blank endpoint cells.
+- [ ] (candidate) `ResourceHubClient` configuration tags — tag key whitespace-only — locus: tag name column; input: blank tag key display.
+- [ ] (candidate) `ResourceHubClient` drift recent changes — `property` or value whitespace-only — locus: drift preview table; input: blank drift field cells.
+- [ ] (candidate) `ResourceHubClient` remediation instances — `patternKey` whitespace-only — locus: remediation table pattern column; input: blank pattern label.
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **aliases:** resource hub; infrastructure resource detail
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 58
+- **bugs-found:** 37
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-25
+- **last-bug:** 2026-10-25 — whitespace-only configuration property keys
+- **related-pd-tb:** none
+- **code-changed-since:** yes
+
 2026-10-25 seed hunt (seed→hit): promoted whitespace-only evidence pointer `kind` labels shown as blank kind cells — kind rendered raw while pointer path already used `formatStoredInfraEvidenceHubField`; regression `shows evidence pointer kind omission copy when kind is whitespace-only`; cheap-disproof closed pointer path whitespace (prior hit), property key and RBAC identity whitespace (seeded below), and network endpoint id whitespace (seeded); scoped ResourceHubClient vitest 83/83. Private beta: evidence pointer tables show “Evidence pointer kind was not stored.” instead of a blank kind label when capture stored only whitespace.
 
 - [x] (proven) `ResourceHubClient` evidence pointers — `kind` whitespace-only — **hit 2026-10-25 seed hunt:** `formatStoredInfraEvidenceHubField` on kind column; regression whitespace kind fixture.
