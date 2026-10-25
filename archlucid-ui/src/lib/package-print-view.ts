@@ -46,6 +46,9 @@ export const PACKAGE_PRINT_META_CREATED_LABEL = "Created";
 export const PACKAGE_PRINT_LOADING_LABEL = "Loading review for print…";
 export const PACKAGE_PRINT_ERROR_FALLBACK = "This architecture review could not be loaded for print.";
 
+export const PACKAGE_PRINT_PIPELINE_STAGE_FLAGS_OMITTED_LINE =
+  "Assessment step flags were not stored on this summary — package status may not reflect pipeline progress.";
+
 export type PackagePrintStatusLabel =
   | "Draft"
   | "Active"
@@ -105,7 +108,24 @@ export type PackagePrintPresentation = {
   readonly transparencyTrail?: TransparencyTrail | null;
   readonly showQuietEnginesHint?: boolean;
   readonly rehearsalHonestyStrip?: PackagePrintRehearsalHonestyStrip | null;
+  readonly pipelineStageFlagsOmittedLine?: string | null;
 };
+
+function pipelineStageFlagIsKnown(value: boolean | null | undefined): boolean {
+  return value !== null && value !== undefined;
+}
+
+export function packagePrintPipelineStageFlagsOmitted(summary: RunSummary): boolean {
+  if (summary.hasGoldenManifest === true) {
+    return false;
+  }
+
+  return (
+    !pipelineStageFlagIsKnown(summary.hasContextSnapshot)
+    && !pipelineStageFlagIsKnown(summary.hasGraphSnapshot)
+    && !pipelineStageFlagIsKnown(summary.hasFindingsSnapshot)
+  );
+}
 
 function finiteCount(value: number | null | undefined): number | null {
   if (typeof value !== "number" || !Number.isFinite(value)) {
@@ -288,6 +308,9 @@ export function buildPackagePrintPresentation(
     transparencyTrail: options?.transparencyTrail ?? null,
     showQuietEnginesHint: options?.showQuietEnginesHint ?? false,
     rehearsalHonestyStrip: options?.rehearsalHonestyStrip ?? null,
+    pipelineStageFlagsOmittedLine: packagePrintPipelineStageFlagsOmitted(summary)
+      ? PACKAGE_PRINT_PIPELINE_STAGE_FLAGS_OMITTED_LINE
+      : null,
     manifestVersionForGuard:
       summary.currentManifestVersion?.trim()
       ?? summary.goldenManifestId?.trim()

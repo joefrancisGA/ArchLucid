@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 
+import { DRAFT_INTAKE_ACTOR_NOT_NAMED_IN_BRIEF_LABEL } from "@/lib/draft-intake/draft-intake-actor-honesty";
 import { derivePriorPackageGuidedIntakePrefill } from "@/lib/prior-package-guided-intake-prefill";
 
 const GENERATED_BRIEF = [
@@ -22,8 +23,9 @@ describe("derivePriorPackageGuidedIntakePrefill", () => {
     expect(prefill?.freeTextIntent).toContain('Architecture review intake for "ArchLucid".');
     expect(prefill?.freeTextIntent).not.toContain("Attached files:");
     expect(prefill?.priorAttachedFileNames).toEqual(["ARCHITECTURE_HANDBOOK.2026.08.06b.docx"]);
-    expect(prefill?.businessOutcome).toContain("Evaluate the attached materials");
-    expect(prefill?.actorSet.actors.length).toBeGreaterThan(0);
+    expect(prefill?.businessOutcome).toBe("");
+    expect(prefill?.actorSet.actors[0]?.label).toBe(DRAFT_INTAKE_ACTOR_NOT_NAMED_IN_BRIEF_LABEL);
+    expect(prefill?.actorSet.actors[0]?.origin).toBe("Inferred");
     expect(prefill?.scopeGateOpen).toBe(true);
     expect(prefill?.scopeBullets.some((bullet) => bullet.value.includes("ArchLucid"))).toBe(true);
   });

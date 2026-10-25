@@ -5,7 +5,7 @@ import {
   stripScopeUnderstandingSection,
   type ScopeUnderstandingBullet,
 } from "@/lib/architecture/architecture-scope-understanding-check";
-import { buildDefaultActorSet } from "@/lib/api/draft-intake-api";
+import { buildMissingDraftActorsPlaceholderSet } from "@/lib/draft-intake/draft-intake-actor-honesty";
 import { extractAttachedIntakeFileNames } from "@/lib/intake-attached-file-names";
 import {
   extractGeneratedIntakeBriefTitle,
@@ -14,9 +14,6 @@ import {
 import type { ActorDescriptor, ActorSet } from "@/types/draft-intake";
 
 const BUSINESS_OUTCOME_MARKER = "\n\nBusiness outcome: ";
-
-const GENERATED_BRIEF_DEFAULT_OUTCOME =
-  "Evaluate the attached materials for architecture structure, cost, compliance, security, and policy-pack violations.";
 
 const ATTACHED_FILES_MARKERS = ["\n\nAttached files:", "\n\nAttached architecture evidence:"] as const;
 
@@ -111,7 +108,7 @@ function resolveBusinessOutcome(
   }
 
   if (generatedBrief) {
-    return GENERATED_BRIEF_DEFAULT_OUTCOME;
+    return "";
   }
 
   return "";
@@ -123,7 +120,7 @@ function actorSetFromDraftActors(draftActors: readonly ApiActorDescriptor[] | nu
     .filter((actor): actor is ActorDescriptor => actor !== null);
 
   if (actors.length === 0) {
-    return buildDefaultActorSet();
+    return buildMissingDraftActorsPlaceholderSet();
   }
 
   return { actors: [...actors] };

@@ -13,6 +13,9 @@ public static class InventoryDiagramRelationshipLabelTexts
     public const string AppAuthorizedAccessLabel =
         "Authorization may allow access. Observed use was not stored.";
 
+    public const string AppToKeyVaultRefLabel =
+        "App setting names Key Vault. Observed secret access was not stored.";
+
     public const string SqlPrincipalAuthorizedAccessLabel =
         "SQL principal authorization may allow access. An observed query was not stored.";
 

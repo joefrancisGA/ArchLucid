@@ -22,6 +22,18 @@ public sealed class AzureInventoryDataFlowEvidenceCatalogTests
     }
 
     [Fact]
+    public void AppToKeyVaultRef_uses_key_vault_honesty_label()
+    {
+        bool found = AzureInventoryDataFlowEvidenceCatalog.TryGetDataFlowEvidence(
+            AzureInventoryRelationshipAssociationTypes.AppToKeyVaultRef,
+            out AzureInventoryDataFlowEvidenceAssociation? evidence);
+
+        found.Should().BeTrue();
+        evidence!.DiagramLabel.Should().Be(InventoryDiagramRelationshipLabelTexts.AppToKeyVaultRefLabel);
+        evidence.DiagramLabel.Should().NotBe("May access");
+    }
+
+    [Fact]
     public void AppAuthorizedAccess_maps_to_authorized_access_not_reads_from()
     {
         bool found = AzureInventoryDataFlowEvidenceCatalog.TryGetDataFlowEvidence(

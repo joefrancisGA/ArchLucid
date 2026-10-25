@@ -9,6 +9,7 @@ import {
   buildPackagePrintFindingsSummary,
   buildPackagePrintPath,
   buildPackagePrintPresentation,
+  packagePrintPipelineStageFlagsOmitted,
   buildPackagePrintSponsorSynopsis,
   printPackagePage,
   resolvePackagePrintSemanticSupportBandStampLine,
@@ -159,6 +160,14 @@ describe("package-print-view (TB-2205)", () => {
     const line = resolvePackagePrintSemanticSupportBandStampLine(findings);
 
     expect(line).toContain("1 Supported");
+  });
+
+  it("surfaces pipeline stage flag omission on print presentation", () => {
+    expect(packagePrintPipelineStageFlagsOmitted(summary({ hasGoldenManifest: false }))).toBe(true);
+
+    const presentation = buildPackagePrintPresentation(summary({ hasGoldenManifest: false }));
+
+    expect(presentation.pipelineStageFlagsOmittedLine).toContain("Assessment step flags were not stored");
   });
 
   it("buildPackagePrintPresentation carries semantic support stamp line", () => {
