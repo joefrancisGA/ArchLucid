@@ -23,6 +23,18 @@ describe("shouldShowRunDetailFirstScreenProofStatus", () => {
 });
 
 describe("buildRunDetailFirstScreenProofSummary", () => {
+  it("does not read READY when strict sponsor proof flag was omitted", () => {
+    const summary = buildRunDetailFirstScreenProofSummary({
+      proofPackageCompleteness: {
+        sponsorProofReadiness: "Sendable",
+      },
+    });
+
+    expect(summary.pilotStrictLabel).toBe("Strict sponsor proof was not stored.");
+    expect(summary.cardTitle).not.toBe("Why this is safe to send");
+    expect(summary.disposition).toBe("HOLD");
+  });
+
   it("returns READY when sendable and PilotStrict satisfied with classified ROI", () => {
     const summary = buildRunDetailFirstScreenProofSummary({
       structuralExecutionMode: "Real",
