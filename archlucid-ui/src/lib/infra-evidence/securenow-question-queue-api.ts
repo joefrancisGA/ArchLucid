@@ -176,7 +176,7 @@ function mapQuestion(raw: Record<string, unknown>): SecureNowQuestion {
 
   return {
     dispositionId: mapListedOptionalString(raw.dispositionId),
-    snapshotId: stringOrDefault(raw.snapshotId),
+    snapshotId: typeof raw.snapshotId === "string" ? raw.snapshotId.trim() : "",
     subscriptionId: mapListedOptionalString(raw.subscriptionId),
     resourceId: mapListedOptionalString(raw.resourceId),
     questionKey: mapListedOptionalString(raw.questionKey),

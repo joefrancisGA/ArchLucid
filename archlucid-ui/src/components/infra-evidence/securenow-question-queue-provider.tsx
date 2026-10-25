@@ -392,6 +392,13 @@ export function SecureNowQuestionQueueProvider(
     if (!questionsLoaded || currentQuestion == null || busy) return;
 
     if (!secureNowQuestionListedSnapshotMatchesContext(currentQuestion.snapshotId, snapshotId)) {
+      setError(
+        operatorInferredConnectionPanelErrorFromUnknown(
+          new Error("Listed snapshot id does not match the active evidence snapshot."),
+          "Could not save the question update.",
+          "mutation",
+        ),
+      );
       return;
     }
     if (action === "ignore" && reason.trim().length === 0) return;

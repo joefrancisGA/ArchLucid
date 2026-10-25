@@ -66,7 +66,7 @@ describe("securenow-question-queue-api", () => {
 
     const questions = await listSecureNowQuestions("snapshot-1");
 
-    expect(questions[0].snapshotId).toBe("   ");
+    expect(questions[0].snapshotId).toBe("");
   });
 
   it("maps non-string snapshotId to empty string without throwing", async () => {

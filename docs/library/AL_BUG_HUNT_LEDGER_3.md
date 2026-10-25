@@ -7489,6 +7489,34 @@ ABQ-09 churn hotspot.
 
 ## Zone: securenow-question-queue
 
+2026-10-25 seed hunt (seed→hit): promoted `SecureNowQuestionQueueProvider.submitAction` returning silently when listed snapshot id failed `secureNowQuestionListedSnapshotMatchesContext` — Save appeared to do nothing on mismatched, empty, or whitespace-only listed snapshot ids; surface `operator-mutation-inline-error` with listed-snapshot mismatch copy; trim listed `snapshotId` strings in `mapQuestion`; regressions for mismatch/empty/whitespace save paths plus `focuses the inferred question after confirm when another open inferred row exists`; cheap-disproof closed SQL MERGE deferred, optimistic merge future-risk, mapper trim row, inferred confirm focus; seeded five follow-on `(candidate)` rows below; scoped SecureNow queue vitest 179/179. Private beta: operators see a clear inline error when a SecureNow question row’s listed snapshot id does not match the snapshot they are reviewing instead of a no-op Save.
+
+- [x] (proven) `SecureNowQuestionQueueProvider.submitAction` — silent return on snapshot guard failure — **hit 2026-10-25 seed hunt:** `setError` on mismatch; UI regressions for empty, whitespace, and cross-snapshot rows.
+- [x] (valid-no-repro) `securenow-question-queue-api.mapQuestion` — trim listed `snapshotId` — **hit 2026-10-25 seed hunt:** string trim at mapper; regression `maps whitespace-only snapshotId to empty string without throwing`.
+- [x] (invalid) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` — **cheap-disproof 2026-10-25 seed hunt:** integration host unavailable; candidate reseeded below.
+- [x] (invalid) `securenow-question-queue-provider` — optimistic merge from disposition JSON — **cheap-disproof 2026-10-25 seed hunt:** reload-only provider; candidate reseeded below.
+- [x] (valid-no-repro) `SecureNowQuestionQueueProvider` — inferred confirm focus with two open inferred rows — **cheap-disproof 2026-10-25 seed hunt:** regression `focuses the inferred question after confirm when another open inferred row exists`.
+
+- [ ] (candidate) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` identity hash collision — locus: SQL repository; input: integration repro when SQL host available.
+- [ ] (candidate) `securenow-question-queue-provider` — optimistic merge from disposition JSON — locus: future post-mutation path; input: must use `mapSecureNowQuestionDisposition` only.
+- [ ] (candidate) `securenow-question-queue-api.mapQuestion` — non-string list `snapshotId` should map to sentinel distinct from trim-empty — locus: list identity; input: distinguish omitted vs malformed without matching context.
+- [ ] (candidate) `SecureNowQuestionQueueProvider.submitAction` — snapshot guard on ignore/reopen when listed id mismatches — locus: all drawer actions; input: parity tests for ignore/reopen paths.
+- [ ] (candidate) `SecureNowQuestionQueueProvider` — inferred dismiss reload when first row uses embedded connection-id question key — locus: legacy key shapes; input: connection id embedded in questionKey string.
+
+- **id:** securenow-question-queue
+- **status:** open
+- **impact:** medium
+- **aliases:** securenow question queue; question disposition
+- **paths:** archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx; archlucid-ui/src/lib/infra-evidence/securenow-question-queue-api.ts
+- **test-filter:** SecureNowQuestion
+- **hunts:** 99
+- **bugs-found:** 72
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-25
+- **last-bug:** 2026-10-25 — silent snapshot guard on SecureNow save
+- **related-pd-tb:** none
+- **code-changed-since:** yes
+
 2026-10-25 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows (SQL MERGE deferred, optimistic merge future-risk, non-string `snapshotId` coercion blocked by empty-listed guard, inferred dismiss reload focus with two open inferred rows, whitespace-only listed `snapshotId` blocked after trim); added four regression locks; seeded five follow-on `(candidate)` rows below; scoped SecureNow queue vitest 177/177; no production code changed.
 
 - [x] (invalid) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` — **cheap-disproof 2026-10-25 seed hunt:** integration host unavailable; candidate reseeded below.

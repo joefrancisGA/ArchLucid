@@ -931,6 +931,57 @@ describe("SecureNowQuestionQueue", () => {
     expect(mocks.answerQuestion).not.toHaveBeenCalled();
   });
 
+  it("focuses the inferred question after confirm when another open inferred row exists", async () => {
+    const otherInferred = {
+      ...question,
+      resourceId:
+        "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.DataFactory/factories/other-resource",
+      resourceName: "other-resource",
+      questionText: "Should other-resource connect to a peer, or stand alone?",
+      source: null,
+      questionKey: "unresolved-host@v1",
+      answerCodes: ["Yes", "No", "NotSure"],
+    };
+    const inferredQuestion = {
+      ...question,
+      source: null,
+      questionKey: "unresolved-host@v1",
+      answerCodes: ["Yes", "No", "NotSure"],
+    };
+
+    mocks.listQuestions
+      .mockResolvedValueOnce([inferredQuestion, otherInferred])
+      .mockResolvedValueOnce([inferredQuestion, otherInferred]);
+    mocks.listConnections.mockResolvedValue([
+      {
+        connectionId: "connection-1",
+        fromArmId: question.resourceId,
+        ruleName: "Unresolved host",
+      },
+      {
+        connectionId: "connection-2",
+        fromArmId: otherInferred.resourceId,
+        ruleName: "Unresolved host",
+      },
+    ]);
+    mocks.confirmConnection.mockResolvedValue(undefined);
+
+    render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
+    fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
+    fireEvent.click(screen.getByRole("button", { name: "Yes" }));
+    fireEvent.click(screen.getByRole("button", { name: "Save answer" }));
+
+    await waitFor(() => expect(mocks.listQuestions).toHaveBeenCalledTimes(2));
+    await waitFor(() => {
+      expect(mocks.confirmConnection).toHaveBeenCalledWith("snapshot-1", {
+        connectionId: "connection-1",
+      });
+    });
+
+    expect(screen.getByTestId("infra-diagrams-question-text")).toHaveTextContent(question.questionText);
+    expect(screen.queryByText(otherInferred.questionText)).not.toBeInTheDocument();
+  });
+
   it("focuses the inferred question after dismiss when another open inferred row exists", async () => {
     const otherInferred = {
       ...question,
@@ -1699,8 +1750,11 @@ describe("SecureNowQuestionQueue", () => {
     fireEvent.click(screen.getByRole("button", { name: "Save answer" }));
 
     await waitFor(() => {
-      expect(mocks.answerQuestion).not.toHaveBeenCalled();
+      expect(screen.getByTestId("operator-mutation-inline-error")).toHaveTextContent(
+        "Listed snapshot id does not match the active evidence snapshot.",
+      );
     });
+    expect(mocks.answerQuestion).not.toHaveBeenCalled();
   });
 
   it("does not post an answer when the listed snapshot id is empty", async () => {
@@ -1717,8 +1771,32 @@ describe("SecureNowQuestionQueue", () => {
     fireEvent.click(screen.getByRole("button", { name: "Save answer" }));
 
     await waitFor(() => {
-      expect(mocks.answerQuestion).not.toHaveBeenCalled();
+      expect(screen.getByTestId("operator-mutation-inline-error")).toHaveTextContent(
+        "Listed snapshot id does not match the active evidence snapshot.",
+      );
     });
+    expect(mocks.answerQuestion).not.toHaveBeenCalled();
+  });
+
+  it("does not post an answer when the listed snapshot id differs from the active snapshot", async () => {
+    mocks.listQuestions.mockResolvedValue([
+      {
+        ...question,
+        snapshotId: "snapshot-2",
+      },
+    ]);
+
+    render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
+    fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
+    fireEvent.click(screen.getByRole("button", { name: "Name the peer" }));
+    fireEvent.click(screen.getByRole("button", { name: "Save answer" }));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("operator-mutation-inline-error")).toHaveTextContent(
+        "Listed snapshot id does not match the active evidence snapshot.",
+      );
+    });
+    expect(mocks.answerQuestion).not.toHaveBeenCalled();
   });
 
   it("answers when list snapshot id is padded but matches the active snapshot", async () => {
