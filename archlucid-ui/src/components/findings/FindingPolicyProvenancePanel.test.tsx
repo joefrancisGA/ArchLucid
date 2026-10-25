@@ -64,6 +64,26 @@ describe("FindingPolicyProvenancePanel", () => {
     expect(screen.getByTestId("finding-policy-provenance-panel")).toHaveClass("border-neutral-200");
   });
 
+  it("labels missing policy pack name when only rule context is stored", () => {
+    render(
+      <FindingPolicyProvenancePanel
+        model={{
+          pack: null,
+          policy: {
+            ruleId: "sec-base-001",
+            ruleLabel: "Security baseline ingress rule",
+            href: "/governance/policy-packs?ruleId=sec-base-001",
+          },
+          evidence: [],
+        }}
+      />,
+    );
+
+    expect(screen.getByTestId("finding-policy-violation-tag")).toHaveTextContent(
+      "Policy pack name was not stored.",
+    );
+  });
+
   it("returns null when no provenance is available", () => {
     const { container } = render(
       <FindingPolicyProvenancePanel

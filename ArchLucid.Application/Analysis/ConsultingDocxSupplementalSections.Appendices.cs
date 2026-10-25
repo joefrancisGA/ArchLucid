@@ -99,6 +99,13 @@ internal static partial class ConsultingDocxSupplementalSections
                 "BodyText");
         }
 
+        else
+        {
+            ConsultingDocxOpenXmlPrimitives.AddSpacer(body);
+            ConsultingDocxOpenXmlPrimitives.AddStyledParagraph(body, ConsultingDocxAppendixHonestyCopy.ManifestDiffNotStored,
+                "BodyText");
+        }
+
         if (report.AgentResultDiff is null)
         {
             ConsultingDocxOpenXmlPrimitives.AddSpacer(body);
