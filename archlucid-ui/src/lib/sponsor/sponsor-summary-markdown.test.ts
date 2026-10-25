@@ -37,7 +37,7 @@ describe("buildSponsorSummaryMarkdown realized value honesty", () => {
     expect(markdown).toContain("Median time to remediation was not stored.");
   });
 
-  it("states when portfolio counts were not stored", () => {
+  it("states when portfolio counts were not stored (P-09, P-11–P-13)", () => {
     const markdown = buildSponsorSummaryMarkdown(
       minimalSummary({
         systemCount: Number.NaN,

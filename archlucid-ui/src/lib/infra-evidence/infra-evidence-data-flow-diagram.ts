@@ -1,6 +1,9 @@
 export const INFRA_DIAGRAMS_DATA_FLOW_HONESTY_PREFIX =
   "Declared pipeline wiring, not observed traffic.";
 
+export const INFRA_DIAGRAMS_BUYER_CAPTION_NOT_STORED =
+  "Buyer-facing data-flow caption was not stored.";
+
 const INFRA_EVIDENCE_MERMAID_METADATA_COMMENT_PATTERN =
   /(?:^|\s)al-(?:type|rg|seed|provenance|inference|declared-id|state|outline-only)=/u;
 
@@ -42,7 +45,7 @@ export function parseInfraDiagramsDataFlowCaptionPresentation(
 
   if (honestyCaptions.length === 0 && mermaidSource.trim().length > 0) {
     return {
-      honestyCaptions: [INFRA_DIAGRAMS_DATA_FLOW_HONESTY_PREFIX],
+      honestyCaptions: [INFRA_DIAGRAMS_DATA_FLOW_HONESTY_PREFIX, INFRA_DIAGRAMS_BUYER_CAPTION_NOT_STORED],
       metadataComments,
     };
   }

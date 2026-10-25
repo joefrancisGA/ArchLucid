@@ -122,6 +122,41 @@ describe("formatManifestDocumentShape component breakdown", () => {
     expect(markdown).toContain("Security controls were not stored.");
   });
 
+  it("labels omitted policy pack version when rule set id is stored (P-05)", () => {
+    const markdown = formatManifestDocumentShape({
+      ruleSetId: "soc2-pack",
+      ruleSetVersion: null,
+    });
+
+    expect(markdown).toContain("Policy pack version was not stored.");
+  });
+
+  it("labels omitted topology gaps separately from empty arrays (P-06)", () => {
+    const missing = formatManifestDocumentShape({
+      topology: { services: [], datastores: [], relationships: [], gaps: null },
+      decisions: [],
+    });
+    const empty = formatManifestDocumentShape({
+      topology: { services: [], datastores: [], relationships: [], gaps: [] },
+      decisions: [],
+    });
+
+    expect(missing).toContain("Topology gaps were not stored.");
+    expect(empty).not.toContain("Topology gaps were not stored.");
+  });
+
+  it("labels omitted manifest warnings (P-07)", () => {
+    const markdown = formatManifestDocumentShape({ warnings: null });
+
+    expect(markdown).toContain("Warnings were not stored.");
+  });
+
+  it("labels omitted review record hash (P-08)", () => {
+    const markdown = formatManifestDocumentShape({ manifestHash: null });
+
+    expect(markdown).toContain("Review record hash was not stored.");
+  });
+
   it("labels stored-empty service names and security controls (P-09)", () => {
     const markdown = formatManifestDocumentShape({
       topology: {
