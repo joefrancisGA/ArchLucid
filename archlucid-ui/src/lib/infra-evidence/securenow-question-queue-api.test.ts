@@ -156,7 +156,7 @@ describe("securenow-question-queue-api", () => {
         questionText: "Should this resource connect?",
         answerCodes: ["NamePeer"],
         evidenceFingerprint: "fingerprint",
-        isExpired: "true",
+        isExpired: "  TRUE  ",
         expirationUtc: "2099-01-01T00:00:00.000Z",
       },
     ]);
@@ -164,6 +164,28 @@ describe("securenow-question-queue-api", () => {
     const questions = await listSecureNowQuestions("snapshot-1");
 
     expect(questions[0].isExpired).toBe(true);
+  });
+
+  it("maps padded false string isExpired on disposition responses", () => {
+    const disposition = mapSecureNowQuestionDisposition({
+      dispositionId: "00000000-0000-0000-0000-000000000001",
+      snapshotId: "00000000-0000-0000-0000-000000000002",
+      subscriptionId: "sub-1",
+      resourceId: "sub-1",
+      questionKey: "subscription-ownership@v1",
+      source: "PolicyPack",
+      scopeKind: "Subscription",
+      status: "Answered",
+      reason: "Answered in queue.",
+      expirationUtc: "2099-01-01T00:00:00.000Z",
+      isExpired: " FALSE ",
+      evidenceFingerprint: "fingerprint",
+      actorKey: "operator",
+      updatedUtc: "2026-10-25T12:00:00.000Z",
+      auditEntries: [],
+    });
+
+    expect(disposition.isExpired).toBe(false);
   });
 
   it("trims padded answer code entries from list responses", async () => {

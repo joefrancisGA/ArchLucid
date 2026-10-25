@@ -74,20 +74,37 @@ function stringOrDefault(value: unknown, fallback = ""): string {
   return typeof value === "string" ? value : fallback;
 }
 
-function mapJsonBoolean(value: unknown): boolean {
-  return value === true || value === "true";
-}
-
-function mapJsonBooleanOrNull(value: unknown): boolean | null {
-  if (value === true || value === "true") {
+function parseJsonBooleanOrNull(value: unknown): boolean | null {
+  if (value === true) {
     return true;
   }
 
-  if (value === false || value === "false") {
+  if (value === false) {
+    return false;
+  }
+
+  if (typeof value !== "string") {
+    return null;
+  }
+
+  const normalized = value.trim().toLowerCase();
+  if (normalized === "true") {
+    return true;
+  }
+
+  if (normalized === "false") {
     return false;
   }
 
   return null;
+}
+
+function mapJsonBoolean(value: unknown): boolean {
+  return parseJsonBooleanOrNull(value) === true;
+}
+
+function mapJsonBooleanOrNull(value: unknown): boolean | null {
+  return parseJsonBooleanOrNull(value);
 }
 
 /** Whether a listed question's snapshot id matches the active queue context after trim. */
