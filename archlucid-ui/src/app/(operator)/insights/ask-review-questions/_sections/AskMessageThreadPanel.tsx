@@ -33,7 +33,7 @@ import {
   ASK_BUYER_PROMPT_GROUPS,
   ASK_EMPTY_THREAD_REVIEW_STARTER_PROMPTS,
 } from "@/app/(operator)/insights/ask-review-questions/_sections/ask-page-constants";
-import { ASK_ASSISTANT_ANSWER_FOLLOW_UP_PROMPTS } from "@/lib/ask-assistant-answer-follow-ups";
+import { resolveAskAssistantAnswerFollowUpPrompts } from "@/lib/ask-assistant-answer-follow-ups";
 import {
   askCannedPromptFollowUpsDisclosureHrefFromSearch,
   parseAskCannedPromptFollowUpsOpenFromSearch,
@@ -119,6 +119,13 @@ export function AskMessageThreadPanel(props: AskMessageThreadPanelProps) {
   });
   const artifactStatusCopy = askReviewArtifactStatusCopy(artifactStatus);
   const citationHostMessageId = lastAssistantMessageId(messages);
+  const citationHostMessage =
+    citationHostMessageId === null
+      ? null
+      : messages.find((message) => message.messageId === citationHostMessageId) ?? null;
+  const assistantAnswerFollowUpPrompts = resolveAskAssistantAnswerFollowUpPrompts(
+    citationHostMessage?.content ?? "",
+  );
   const showCitationActionsOnAnswer =
     streamingAssistantContent === null && citationHostMessageId !== null;
   const citedFindingsBandsQuery = useAskCitedFindingsBandsQuery(runId, {
@@ -306,7 +313,7 @@ export function AskMessageThreadPanel(props: AskMessageThreadPanelProps) {
               {buyerPolishedShell ? "Suggested follow-ups" : "Follow up on this answer"}
             </p>
             <div className="flex flex-wrap gap-1.5" role="group" aria-label="Suggested follow-up questions">
-              {ASK_ASSISTANT_ANSWER_FOLLOW_UP_PROMPTS.map((line) => (
+              {assistantAnswerFollowUpPrompts.map((line) => (
                 <Button
                   key={line}
                   type="button"

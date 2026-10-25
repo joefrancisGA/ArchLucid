@@ -11,27 +11,28 @@ export function resolveInfraEvidenceDiagramReadingLegend(mode: string): InfraEvi
   switch (mode) {
     case "dataFlow":
       return {
-        boxes: "Boxes are resources on a declared path.",
-        connectors: "Connectors are declared wiring.",
-        evidenceKind: `${INFRA_DIAGRAMS_DATA_FLOW_HONESTY_PREFIX} Evidence kind is configuration, not observed traffic.`,
+        boxes: "Boxes are resources in this data-flow view.",
+        connectors: "Connectors follow the line label. A line is not observed traffic.",
+        evidenceKind: `${INFRA_DIAGRAMS_DATA_FLOW_HONESTY_PREFIX} This view does not prove reachability or runtime use.`,
       };
     case "dataArchitecture":
       return {
-        boxes: "Boxes are data stores.",
-        connectors: "Connectors are declared repository relationships.",
-        evidenceKind: "Evidence kind is configuration.",
+        boxes: "Boxes are resources in the data-architecture view.",
+        connectors:
+          "Connectors are the relationships drawn for that view. They are not observed queries.",
+        evidenceKind: "This view does not prove reachability or runtime use.",
       };
     case "data":
       return {
-        boxes: "Boxes are data resources in the infrastructure forest.",
-        connectors: "Connectors are the forest relationships already drawn.",
-        evidenceKind: "Evidence kind is configuration.",
+        boxes: "Boxes are resources in this inventory view.",
+        connectors: "Each connector is only as strong as its own line.",
+        evidenceKind: "This view does not prove reachability or runtime use.",
       };
     default:
       return {
-        boxes: "Boxes are cloud resources in this inventory view (Azure when the snapshot is Azure).",
-        connectors: "Connectors are relationships already on the diagram.",
-        evidenceKind: "Evidence kind is configuration from inventory — not live cloud telemetry.",
+        boxes: "Boxes are resources in this inventory view.",
+        connectors: "Each connector is only as strong as its own line.",
+        evidenceKind: "This view does not prove reachability or runtime use.",
       };
   }
 }
