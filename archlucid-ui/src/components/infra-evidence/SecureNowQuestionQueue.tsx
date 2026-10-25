@@ -350,7 +350,9 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
                   >
                     {normalizedAnswerCode === "NotSure"
                       ? "Not sure. This does not store an answer."
-                      : secureNowQuestionAnswerLabel(answerCode)}
+                      : answerCode.trim().length === 0
+                        ? "Answer choice was stored empty."
+                        : secureNowQuestionAnswerLabel(answerCode)}
                   </Button>
                   );
                 })}

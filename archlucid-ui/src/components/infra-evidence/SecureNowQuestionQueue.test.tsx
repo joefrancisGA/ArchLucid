@@ -730,6 +730,15 @@ describe("SecureNowQuestionQueue", () => {
     expect(screen.getByText("No answer choices were stored on this question.")).toBeInTheDocument();
   });
 
+  it("shows a stored empty answer choice line", async () => {
+    mocks.listQuestions.mockResolvedValue([{ ...question, answerCodes: ["Yes", ""] }]);
+
+    render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
+    fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
+
+    expect(screen.getByRole("button", { name: "Answer choice was stored empty." })).toBeInTheDocument();
+  });
+
   it("does not show missing-choice copy for a stored empty choice list", async () => {
     mocks.listQuestions.mockResolvedValue([{ ...question, answerCodes: [] }]);
 

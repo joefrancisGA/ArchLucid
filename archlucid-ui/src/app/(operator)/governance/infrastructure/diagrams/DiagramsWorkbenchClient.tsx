@@ -116,6 +116,10 @@ import { buildInfraMermaidExportLegendCommentLines } from "@/lib/infra-evidence/
 import { formatInfraEvidenceMermaidPngExportError } from "@/lib/infra-evidence/infra-evidence-mermaid-png-export-error";
 import type { InfraEvidenceSnapshotSummary } from "@/lib/infra-evidence/infra-evidence-drift-types";
 import { formatInfraEvidenceDiagramsSnapshotPickerLabel } from "@/lib/infra-evidence/format-infra-evidence-diagrams-snapshot-label";
+import {
+  formatInfraEvidenceDiagramMetricsAnnouncement,
+  isInfraEvidenceDiagramEdgeCountStored,
+} from "@/lib/infra-evidence/format-infra-evidence-diagram-metrics-announcement";
 import { infraEvidenceSnapshotCaptureStatusTagProps } from "@/lib/infra-evidence/infra-evidence-snapshot-capture-status";
 import {
   buildInfraDiagramsSubscriptionFilterOptions,
@@ -828,7 +832,7 @@ export function DiagramsWorkbenchClient() {
     const metrics = renderResult?.metrics;
     const metricLine =
       renderResult != null && metrics != null
-        ? `${metrics.nodeCount} nodes and ${metrics.edgeCount} edges across ${metrics.subgraphCount} subgraphs.`
+        ? formatInfraEvidenceDiagramMetricsAnnouncement(metrics)
         : renderResult != null
           ? "Diagram metrics were not stored."
           : "";
@@ -895,7 +899,8 @@ export function DiagramsWorkbenchClient() {
   const diagramContentEmpty =
     isInfraEvidenceMermaidDiagramEmpty(mermaidSource, metrics?.nodeCount)
     && (layoutSvg ?? "").trim().length === 0;
-  const dataFlowEdgeCountUnknown = selectedMode === "dataFlow" && metrics == null;
+  const dataFlowEdgeCountUnknown =
+    selectedMode === "dataFlow" && !isInfraEvidenceDiagramEdgeCountStored(metrics);
   const dataFlowHasNoConnections =
     selectedMode === "dataFlow" && metrics != null && metrics.edgeCount === 0;
   const dataFlowHasNoResourcesOrConnections =
@@ -3060,7 +3065,7 @@ export function DiagramsWorkbenchClient() {
               className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
               data-testid="infra-diagrams-evidence-family-empty"
             >
-              No connectors in this family on this diagram. Connectors in other families are still listed under All.
+              No relationships in this family on this diagram. Relationships in other families are still listed under All.
             </p>
           ) : null}
           <InfraEvidenceDiagramReadingLegend mode={selectedMode} />

@@ -1,4 +1,3 @@
-import { ARCHITECTURE_DIAGRAM_COMPONENT_NAME_NOT_STORED } from "@/lib/architecture/architecture-diagram-copy";
 import { architectureNameAddsDiagramNode } from "@/lib/architecture/architecture-diagram-named-node";
 import type { ArchitectureContentProvenance, ArchitectureStructuredEntity, ArchitectureStructuredParseResult } from "@/lib/architecture/architecture-structured-content-types";
 import type {
@@ -52,12 +51,17 @@ function addEntityNodes(
   kind: ArchitectureDiagramNodeKind,
   nodes: ArchitectureDiagramNode[],
   usedIds: Set<string>,
+  skippedUnlabeled: { count: number },
 ): void {
   let index = nodes.length;
 
   for (const entity of entities) {
-    const label =
-      entity.label.trim().length > 0 ? entity.label.trim() : ARCHITECTURE_DIAGRAM_COMPONENT_NAME_NOT_STORED;
+    if (entity.label.trim().length === 0) {
+      skippedUnlabeled.count += 1;
+      continue;
+    }
+
+    const label = entity.label.trim();
 
     nodes.push(createNode(label, kind, entity.provenance, usedIds, index));
     index += 1;
@@ -93,7 +97,7 @@ function findNodeIdByLabel(
     }
   }
 
-  return matches[0]!.id;
+  return null;
 }
 
 function mergeEndpointLabels(
@@ -293,13 +297,14 @@ export function buildArchitectureDiagramModel(
   const edges: ArchitectureDiagramEdge[] = [];
   const unmatchedDataFlows: string[] = [];
   const usedIds = new Set<string>();
+  const skippedUnlabeled = { count: 0 };
 
-  addEntityNodes(byKey.get("users-and-stakeholders")?.entities ?? [], "user", nodes, usedIds);
-  addEntityNodes(byKey.get("systems-and-services")?.entities ?? [], "system", nodes, usedIds);
-  addEntityNodes(byKey.get("external-integrations")?.entities ?? [], "external", nodes, usedIds);
+  addEntityNodes(byKey.get("users-and-stakeholders")?.entities ?? [], "user", nodes, usedIds, skippedUnlabeled);
+  addEntityNodes(byKey.get("systems-and-services")?.entities ?? [], "system", nodes, usedIds, skippedUnlabeled);
+  addEntityNodes(byKey.get("external-integrations")?.entities ?? [], "external", nodes, usedIds, skippedUnlabeled);
 
   if (architectureNameAddsDiagramNode(architectureName, nodes.map((node) => node.label))) {
-    nodes.push(createNode(architectureName.trim(), "system", "asserted", usedIds, nodes.length));
+    nodes.push(createNode(architectureName.trim(), "system", "inferred", usedIds, nodes.length));
   }
 
   addFlowEdges(parseResult, nodes, edges, unmatchedDataFlows);
@@ -311,6 +316,7 @@ export function buildArchitectureDiagramModel(
     nodes,
     edges,
     trustBoundaryLabels,
+    skippedUnlabeledEntityCount: skippedUnlabeled.count,
     unmatchedDataFlows,
   };
 }
@@ -329,6 +335,7 @@ export function applyArchitectureDiagramOverrides(
       .map((edge) => edgeOverrideMap.get(edge.id) ?? edge)
       .filter((edge) => !edge.removed),
     trustBoundaryLabels: model.trustBoundaryLabels,
+    skippedUnlabeledEntityCount: model.skippedUnlabeledEntityCount,
     unmatchedDataFlows: model.unmatchedDataFlows,
   };
 }

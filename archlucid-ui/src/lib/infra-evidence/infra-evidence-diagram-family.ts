@@ -20,11 +20,11 @@ export const INFRA_EVIDENCE_DIAGRAM_FAMILY_LABELS: Readonly<Record<InfraEvidence
   all: "All",
   DeclaredMovement: "Pipeline wiring",
   AuthorizedAccess: "Authorization may allow access",
-  StructuralNetworkPath: "Private network path",
+  StructuralNetworkPath: "Private endpoint in inventory",
   AppSettingsHost: "From app settings",
   InferredHostname: "Inferred hostname. A stored link was not recorded.",
   HumanConfirmed: "Confirmed connection",
-  ObservedRuntime: "Observed in logs",
+  ObservedRuntime: "Dependency named in inventory",
 };
 
 const FAMILY_BY_INFERENCE_SOURCE: Readonly<Record<string, InfraEvidenceDiagramFamily>> = {

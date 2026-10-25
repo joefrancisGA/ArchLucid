@@ -123,6 +123,21 @@ describe("AskAssistantMessageBody", () => {
     expect(screen.getByText(foreignId, { exact: false })).toBeInTheDocument();
   });
 
+  it("only linkifies UUIDs that match reviewIdInScope when scope is provided (P-15)", () => {
+    render(
+      <AskAssistantMessageBody
+        content={`Related review ${sampleId} and other ${"22222222-2222-4222-8222-222222222222"}.`}
+        reviewIdInScope={sampleId}
+      />,
+    );
+
+    const links = screen.getAllByRole("link");
+
+    expect(links).toHaveLength(1);
+    expect(links[0]).toHaveAttribute("href", `/architecture/reviews/${encodeURIComponent(sampleId)}`);
+    expect(links[0]).toHaveTextContent(sampleId);
+  });
+
   it("renders grounding links footer when provided", () => {
     render(
       <AskAssistantMessageBody

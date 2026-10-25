@@ -12,6 +12,7 @@ namespace ArchLucid.Application.Analysis;
 
 public sealed partial class CompareRunsApplicationFacade
 {
+    internal const string ProjectIdNotStoredSystemName = "Project id was not stored.";
     /// <inheritdoc />
     public async Task<VersionManifestCompareLoadResult> CompareManifestVersionsAsync(
         string leftVersion,
@@ -229,7 +230,7 @@ public sealed partial class CompareRunsApplicationFacade
         CancellationToken ct)
     {
         string systemName = runHeader.ScopeProjectId == Guid.Empty
-            ? "Unknown"
+            ? ProjectIdNotStoredSystemName
             : runHeader.ScopeProjectId.ToString("D");
 
         return await _projectionBuilder.BuildAsync(

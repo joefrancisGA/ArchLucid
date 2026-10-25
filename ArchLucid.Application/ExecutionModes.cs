@@ -14,4 +14,29 @@ public static class ExecutionModes
 
     /// <summary>Replay a prior run's inputs through agents without creating a new original run.</summary>
     public const string Replay = "Replay";
+
+    private static readonly HashSet<string> KnownModes = new(StringComparer.OrdinalIgnoreCase)
+    {
+        Current,
+        Deterministic,
+        Replay,
+    };
+
+    /// <summary>
+    ///     Validates a replay/API execution mode label after trimming surrounding whitespace
+    ///     (OpenAPI <c>ReplayRunRequest.ExecutionMode</c>).
+    /// </summary>
+    public static void EnsureKnown(string executionMode)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(executionMode);
+
+        string normalized = executionMode.Trim();
+
+        if (!KnownModes.Contains(normalized))
+        {
+            throw new ArgumentException(
+                $"Unknown execution mode '{executionMode}'. Supported modes: {string.Join(", ", KnownModes)}.",
+                nameof(executionMode));
+        }
+    }
 }

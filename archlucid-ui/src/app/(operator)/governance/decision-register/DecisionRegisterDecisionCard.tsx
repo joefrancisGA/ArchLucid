@@ -38,11 +38,7 @@ function formatConfidence(decision: ArchitectureDecisionRegisterEntry): string {
     return String(decision.confidence);
   }
 
-  if (decision.buyerConfidenceSource !== null && decision.buyerConfidenceSource !== undefined) {
-    return `Unknown (${decision.buyerConfidenceSource})`;
-  }
-
-  return "Not recorded";
+  return "Confidence was not stored.";
 }
 
 type DecisionRegisterDecisionCardProps = {

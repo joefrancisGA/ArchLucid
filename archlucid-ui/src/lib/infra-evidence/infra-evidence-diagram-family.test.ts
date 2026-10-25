@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   filterInfraEvidenceDiagramOutlineByFamily,
   INFRA_EVIDENCE_DIAGRAM_FAMILY_ALL,
+  INFRA_EVIDENCE_DIAGRAM_FAMILY_LABELS,
   resolveInfraEvidenceDiagramFamily,
   resolveSelectableInfraEvidenceDiagramFamily,
 } from "@/lib/infra-evidence/infra-evidence-diagram-family";
@@ -25,6 +26,13 @@ function edge(
 }
 
 describe("infra-evidence-diagram-family", () => {
+  it("uses first-review-next-step family chip labels (P-08 / P-09)", () => {
+    expect(INFRA_EVIDENCE_DIAGRAM_FAMILY_LABELS.ObservedRuntime).toBe("Dependency named in inventory");
+    expect(INFRA_EVIDENCE_DIAGRAM_FAMILY_LABELS.StructuralNetworkPath).toBe("Private endpoint in inventory");
+    expect(resolveInfraEvidenceDiagramFamily(edge("x", "inventory-observed-dependency"))).toBe("ObservedRuntime");
+    expect(resolveInfraEvidenceDiagramFamily(edge("private network path", null))).toBe("StructuralNetworkPath");
+  });
+
   it("prefers inference sources over labels", () => {
     expect(resolveInfraEvidenceDiagramFamily(edge("From app settings", "inventory-hostname-inferred-target"))).toBe(
       "AppSettingsHost",

@@ -7,6 +7,15 @@ import {
 import { POLICY_PACK_INFLUENCE_HONESTY_LINE } from "@/components/reviews/PolicyPackInfluenceHonestyChip";
 import { SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE } from "@/lib/export-markdown-sendable-cover";
 import { buildSponsorMarkdownMethodologyFooter } from "@/lib/sponsor-markdown-footer";
+import {
+  formatSponsorSummaryFiniteCountLine,
+  formatSponsorSummaryOptionalStringLine,
+} from "@/lib/sponsor/format-sponsor-summary-count-line";
+import {
+  SPONSOR_ROI_IDENTIFIED_PENDING_LABEL,
+  SPONSOR_ROI_REALIZED_COMMITTED_LABEL,
+  SPONSOR_ROI_REALIZED_NOT_STORED_LABEL,
+} from "@/lib/sponsor/sponsor-roi-identified-vs-realized";
 
 export type SponsorRoiSystemicIssueTrendPoint = {
   monthKey: string;
@@ -134,16 +143,28 @@ export function buildSponsorSummaryMarkdown(
   if (summary.basisBreakdown) {
     const identifiedPending = summary.basisBreakdown.openEstimatedUsd + summary.basisBreakdown.needsEvidenceUsd;
 
-    lines.push(`- **Identified savings (pending approval):** ${formatUsd(identifiedPending)}`);
-    lines.push(`- **Realized savings (committed & applied):** ${formatUsd(summary.basisBreakdown.realizedUsd)}`);
+    lines.push(`- **${SPONSOR_ROI_IDENTIFIED_PENDING_LABEL}:** ${formatUsd(identifiedPending)}`);
+    lines.push(`- **${SPONSOR_ROI_REALIZED_COMMITTED_LABEL}:** ${formatUsd(summary.basisBreakdown.realizedUsd)}`);
     lines.push(
       `- **Excluded from realized (deferred / waived / accepted-risk / not applicable):** ${formatUsd(summary.basisBreakdown.deferredUsd + summary.basisBreakdown.waivedUsd + summary.basisBreakdown.acceptedRiskUsd + summary.basisBreakdown.rejectedNotApplicableUsd)}`,
     );
   } else {
     lines.push(`- **Estimated USD savings (headline):** ${formatUsd(summary.totalEstimatedUsdSavings)}`);
+    lines.push(`- **${SPONSOR_ROI_REALIZED_COMMITTED_LABEL}:** ${SPONSOR_ROI_REALIZED_NOT_STORED_LABEL}`);
   }
 
-  lines.push(`- **Savings pricing basis:** ${summary.savingsPricingBasis} (EA multiplier ${summary.eaDiscountMultiplier})`);
+  lines.push(
+    formatSponsorSummaryOptionalStringLine(
+      "Savings pricing basis",
+      summary.savingsPricingBasis,
+      "Savings pricing basis was not stored.",
+    ),
+  );
+  lines.push(
+    typeof summary.eaDiscountMultiplier === "number" && Number.isFinite(summary.eaDiscountMultiplier)
+      ? `- **EA discount multiplier:** ${summary.eaDiscountMultiplier}`
+      : "- **EA discount multiplier:** EA discount multiplier was not stored.",
+  );
 
   if (summary.savingsPricingBasisDescription) {
     lines.push(`- **Pricing basis note:** ${summary.savingsPricingBasisDescription}`);
@@ -153,8 +174,20 @@ export function buildSponsorSummaryMarkdown(
     lines.push(`- **Cost evidence freshness:** ${summary.costEvidenceFreshnessStatus}`);
   }
 
-  lines.push(`- **Systems reviewed:** ${summary.systemCount}`);
-  lines.push(`- **Latest runs included:** ${summary.latestRunCount}`);
+  lines.push(
+    formatSponsorSummaryFiniteCountLine(
+      "Systems reviewed",
+      summary.systemCount,
+      "Systems reviewed count was not stored.",
+    ),
+  );
+  lines.push(
+    formatSponsorSummaryFiniteCountLine(
+      "Latest runs included",
+      summary.latestRunCount,
+      "Latest run count was not stored.",
+    ),
+  );
   lines.push("");
   lines.push("## Top systemic issues");
   lines.push("");
@@ -177,6 +210,58 @@ export function buildSponsorSummaryMarkdown(
     || summary.newlyDiscoveredFindingsCount30Days !== undefined
   ) {
     lines.push(`- **30-day activity scope:** ${resolveSponsorTrailing30DayScopeLabel(summary)}`);
+  }
+
+  lines.push(
+    formatSponsorSummaryFiniteCountLine(
+      "Resolved findings (30d)",
+      summary.resolvedFindingsCount30Days,
+      "Resolved finding count was not stored.",
+    ),
+  );
+  lines.push(
+    formatSponsorSummaryFiniteCountLine(
+      "Newly discovered findings (30d)",
+      summary.newlyDiscoveredFindingsCount30Days,
+      "Newly discovered finding count was not stored.",
+    ),
+  );
+  lines.push(
+    formatSponsorSummaryFiniteCountLine(
+      "Stale architecture risks",
+      summary.staleArchitectureRiskCount,
+      "Stale architecture risk count was not stored.",
+    ),
+  );
+  lines.push(
+    formatSponsorSummaryFiniteCountLine(
+      "Waivers expiring in 14 days",
+      summary.expiringWaiversCount14Days,
+      "Expiring waiver count was not stored.",
+    ),
+  );
+
+  lines.push("");
+  lines.push("## Orphan candidates");
+  lines.push("");
+
+  if (summary.orphanCandidates === undefined) {
+    lines.push("- **Orphan candidate count:** Orphan candidate count was not stored.");
+  } else {
+    const orphanCount = summary.orphanCandidates.candidateCount;
+    lines.push(
+      formatSponsorSummaryFiniteCountLine(
+        "Orphan candidate count",
+        orphanCount,
+        "Orphan candidate count was not stored.",
+      ),
+    );
+    const annualSavings = summary.orphanCandidates.annualSavingsUsd;
+    lines.push(
+      typeof annualSavings === "number" && Number.isFinite(annualSavings)
+        ? `- **Annual savings (orphans):** ${formatUsd(annualSavings)}`
+        : "- **Annual savings (orphans):** Annual savings were not stored.",
+    );
   }
 
   lines.push("");
