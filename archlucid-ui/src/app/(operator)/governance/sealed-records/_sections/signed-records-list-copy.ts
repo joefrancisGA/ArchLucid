@@ -160,6 +160,8 @@ export function signedRecordsListRecordLookupFailureMessage(
 
 export const SIGNED_RECORDS_LIST_RETRY_RECORD_ACTION = "Retry";
 
-export const SIGNED_RECORDS_LIST_VERSION_UNKNOWN = " — ";
+export const SIGNED_RECORDS_LIST_VERSION_UNKNOWN = "Version was not stored.";
+
+export const SIGNED_RECORDS_LIST_VERSION_NOT_STORED_SCREEN_READER = "Version was not stored.";
 
 export const SIGNED_RECORDS_LIST_PAGE_PATH = SIGNED_RECORDS_LIST_PATH;

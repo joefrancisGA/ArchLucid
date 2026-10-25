@@ -4,9 +4,9 @@
 import { BUYER_SPONSOR_SUMMARY_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 
 export const ASK_EXAMPLE_PROMPTS: readonly string[] = [
-  "Summarize the PHI risk for this review.",
+  "Summarize the findings stored in this review.",
   "What should the sponsor review before sign-off?",
-  "Summarize this for an sponsor sponsor.",
+  "Summarize this review for a sponsor.",
   "Which finding should we fix first, and why?",
 ];
 
@@ -20,7 +20,7 @@ export const ASK_BUYER_PROMPT_GROUPS: readonly AskBuyerPromptGroup[] = [
   {
     heading: BUYER_SPONSOR_SUMMARY_VOCABULARY.reviewSponsorReportLabel,
     prompts: [
-      "Summarize this for an sponsor sponsor.",
+      "Summarize this review for a sponsor.",
       "What are the top three risks I should brief leadership on?",
       "What should I tell my CTO in the first 90 seconds?",
     ],
@@ -58,7 +58,7 @@ export function buyerAskStarterPromptLines(): readonly string[] {
 
 /** Clickable starters on an empty Ask thread when a review is selected. */
 export const ASK_EMPTY_THREAD_REVIEW_STARTER_PROMPTS: readonly string[] = [
-  "What is the top risk?",
+  "What findings are stored in this review?",
   "What is blocking finalize?",
   "Summarize for a sponsor.",
 ];

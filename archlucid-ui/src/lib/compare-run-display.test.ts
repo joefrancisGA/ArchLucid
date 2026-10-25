@@ -26,7 +26,13 @@ describe("compareRunHeadingLabel", () => {
   it("ignores picked summary when ids differ", () => {
     const picked = row({ runId: "other", displayName: "Wrong row" });
 
-    expect(compareRunHeadingLabel("abc", picked)).toBe("abc");
+    expect(compareRunHeadingLabel("abc", picked)).toBe("Review title was not stored.");
+  });
+
+  it("uses omission copy when the picked summary only echoes the run id", () => {
+    const picked = row({ runId: "abc", displayName: null, description: null });
+
+    expect(compareRunHeadingLabel("abc", picked)).toBe("Review title was not stored.");
   });
 
   it("uses demo slug mapping when no usable picked summary", () => {

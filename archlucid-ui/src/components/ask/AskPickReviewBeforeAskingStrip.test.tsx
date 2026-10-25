@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 import { AskPickReviewBeforeAskingStrip } from "./AskPickReviewBeforeAskingStrip";
 
 vi.mock("@/components/WorkspaceActiveRunContext", () => ({
-  useWorkspaceActiveRun: () => ({ activeRunId: "run-ask-1", runId: "run-ask-1" }),
+  useWorkspaceActiveRun: () => ({ activeRunId: null, runId: null }),
 }));
 
 vi.mock("@/components/AskRunIdPicker", () => ({
@@ -17,5 +17,6 @@ describe("AskPickReviewBeforeAskingStrip", () => {
 
     expect(screen.getByTestId("ask-pick-review-before-asking-strip")).toBeInTheDocument();
     expect(screen.getByText("Pick a review before asking")).toBeInTheDocument();
+    expect(screen.getByTestId("ask-pick-review-empty-selection-helper")).toBeInTheDocument();
   });
 });

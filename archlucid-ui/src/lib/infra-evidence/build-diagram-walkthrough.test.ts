@@ -23,7 +23,8 @@ describe("buildDiagramWalkthrough", () => {
 
     expect(summary).toContain("11");
     expect(summary).toContain("6");
-    expect(summary).toContain("5 connected components");
+    expect(summary).toContain("5 groups");
+    expect(summary).not.toMatch(/connected/i);
     expect(summary).not.toMatch(/\/subscriptions\//u);
   });
 
@@ -37,7 +38,9 @@ describe("buildDiagramWalkthrough", () => {
       edges: [{ from: "a", to: "b", label: null, source: "observed", declaredConnectionId: null }],
     });
 
-    expect(summary).toContain("2 connected components");
+    expect(summary).toContain("2 groups");
+    expect(summary).toContain("A group can be one resource with no relationship on this diagram");
+    expect(summary).not.toMatch(/connected/i);
   });
 
   it("splits relationship counts by evidence source", () => {
@@ -51,7 +54,9 @@ describe("buildDiagramWalkthrough", () => {
     });
 
     expect(summary).toContain("1 observed, 1 declared, 1 inferred");
-    expect(summary).toContain("Relationships that are not observed are not inventory links.");
+    expect(summary).toContain(
+      "Declared, probable, and inferred relationships are on this inventory diagram.",
+    );
     expect(summary).not.toContain("visible relationships");
   });
 });

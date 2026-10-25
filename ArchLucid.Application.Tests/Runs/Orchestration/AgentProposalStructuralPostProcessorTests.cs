@@ -456,4 +456,48 @@ public sealed class AgentProposalStructuralPostProcessorTests
 
         valid.ProposedChanges!.AddedServices.Should().ContainSingle();
     }
+
+    [Fact]
+    public void ApplyToProposal_skips_null_added_relationship_entry_for_relationship_only_proposal()
+    {
+        const string json = """
+            {
+              "proposalId": "p1",
+              "sourceAgent": 1,
+              "addedRelationships": [
+                null,
+                {
+                  "sourceId": "svc-api",
+                  "targetId": "ds-sql",
+                  "relationshipType": 1
+                }
+              ]
+            }
+            """;
+
+        AgentTopologyProposal proposal = JsonSerializer.Deserialize<AgentTopologyProposal>(json, ContractJson.Default)!;
+
+        AgentProposalStructuralPostProcessor.ApplyToProposal(AgentType.Topology, proposal);
+
+        proposal.AddedRelationships.Should().ContainSingle();
+        proposal.AddedRelationships![0].SourceId.Should().Be("svc-api");
+    }
+
+    [Fact]
+    public void ApplyToProposal_skips_null_added_datastore_entry_from_deserialized_proposal()
+    {
+        const string json = """
+            {
+              "proposalId": "p1",
+              "sourceAgent": 1,
+              "addedDatastores": [null]
+            }
+            """;
+
+        AgentTopologyProposal proposal = JsonSerializer.Deserialize<AgentTopologyProposal>(json, ContractJson.Default)!;
+
+        AgentProposalStructuralPostProcessor.ApplyToProposal(AgentType.Topology, proposal);
+
+        proposal.AddedDatastores.Should().BeEmpty();
+    }
 }

@@ -54,11 +54,13 @@ public sealed class AgentModelCatalogEvaluationRecorder(
         ArgumentException.ThrowIfNullOrWhiteSpace(taskType);
         ArgumentException.ThrowIfNullOrWhiteSpace(actorUserId);
 
-        AgentModelCatalogRow? existing = await _catalogRepository.TryGetAsync(aliasId, cancellationToken).ConfigureAwait(false);
+        string normalizedAliasId = aliasId.Trim();
+
+        AgentModelCatalogRow? existing = await _catalogRepository.TryGetAsync(normalizedAliasId, cancellationToken).ConfigureAwait(false);
 
         if (existing is null)
         {
-            throw new KeyNotFoundException($"Model alias '{aliasId}' is not registered.");
+            throw new KeyNotFoundException($"Model alias '{normalizedAliasId}' is not registered.");
         }
 
         string normalizedTaskType = taskType.Trim();
@@ -112,7 +114,7 @@ public sealed class AgentModelCatalogEvaluationRecorder(
             },
             cancellationToken).ConfigureAwait(false);
 
-        AgentModelCatalogRow? saved = await _catalogRepository.TryGetAsync(aliasId, cancellationToken).ConfigureAwait(false);
+        AgentModelCatalogRow? saved = await _catalogRepository.TryGetAsync(normalizedAliasId, cancellationToken).ConfigureAwait(false);
 
         return saved ?? updatedRow;
     }

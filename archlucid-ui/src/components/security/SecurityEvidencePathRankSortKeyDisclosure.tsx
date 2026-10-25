@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 
 export function SecurityEvidencePathRankSortKeyDisclosure(props: {
   readonly pathId: string;
-  readonly compositeSortScore: number;
+  readonly compositeSortScore: number | null;
 }) {
   const [open, setOpen] = useState(false);
 

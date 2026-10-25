@@ -5,7 +5,7 @@ export type CloudResourceExplorerWorkCountKind = "findings" | "remediation" | "d
 export type CloudResourceExplorerWorkCountBadge = {
   readonly kind: CloudResourceExplorerWorkCountKind;
   readonly label: string;
-  readonly count: number;
+  readonly count: number | null;
 };
 
 export function buildCloudResourceExplorerWorkCountBadges(
@@ -17,7 +17,13 @@ export function buildCloudResourceExplorerWorkCountBadges(
 
   const badges: CloudResourceExplorerWorkCountBadge[] = [];
 
-  if (workCounts.openOperationalFindingsCount > 0) {
+  if (workCounts.openOperationalFindingsCount === undefined) {
+    badges.push({
+      kind: "findings",
+      label: "Open findings count was not stored.",
+      count: null,
+    });
+  } else if (workCounts.openOperationalFindingsCount > 0) {
     badges.push({
       kind: "findings",
       label: "Open findings",
@@ -25,7 +31,13 @@ export function buildCloudResourceExplorerWorkCountBadges(
     });
   }
 
-  if (workCounts.openRemediationInstancesCount > 0) {
+  if (workCounts.openRemediationInstancesCount === undefined) {
+    badges.push({
+      kind: "remediation",
+      label: "Open remediation count was not stored.",
+      count: null,
+    });
+  } else if (workCounts.openRemediationInstancesCount > 0) {
     badges.push({
       kind: "remediation",
       label: "Open remediation",
@@ -33,7 +45,13 @@ export function buildCloudResourceExplorerWorkCountBadges(
     });
   }
 
-  if (workCounts.inventoryDriftChangeCount > 0) {
+  if (workCounts.inventoryDriftChangeCount === undefined) {
+    badges.push({
+      kind: "drift",
+      label: "Drift change count was not stored.",
+      count: null,
+    });
+  } else if (workCounts.inventoryDriftChangeCount > 0) {
     badges.push({
       kind: "drift",
       label: "Drift changes",

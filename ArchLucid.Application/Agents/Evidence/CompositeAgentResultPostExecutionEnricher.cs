@@ -19,7 +19,15 @@ public sealed class CompositeAgentResultPostExecutionEnricher(IEnumerable<IAgent
         IReadOnlyList<AgentResult> results,
         CancellationToken cancellationToken = default)
     {
+        ArgumentNullException.ThrowIfNull(results);
+
+        IReadOnlyList<AgentResult> enrichableResults = results;
+
+        if (results.Any(static result => result is null))
+            enrichableResults = results.Where(static result => result is not null).ToArray();
+
         foreach (IAgentResultPostExecutionEnricher enricher in _enrichers)
-            await enricher.EnrichAsync(runId, request, evidence, results, cancellationToken).ConfigureAwait(false);
+            await enricher.EnrichAsync(runId, request, evidence, enrichableResults, cancellationToken)
+                .ConfigureAwait(false);
     }
 }
