@@ -4938,7 +4938,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-operator-lib
 
-**Hunts:** 62 · **Bugs found:** 59 · **Consecutive dry hunts:** 0
+**Hunts:** 63 · **Bugs found:** 60 · **Consecutive dry hunts:** 0
+
+2026-10-25 seed hunt (hit): promoted `normalizeOperatorHomeWorkspaceMetricsForDisplay` for recent-reviews outcome + home page subtitle formatters; regressions `normalizes non-finite workspace metrics in recent reviews outcome copy` and `normalizes non-finite metrics in working-mode pressure subtitle`; 33 scoped home metrics/copy vitest passed. Private beta: Invited operators no longer see `NaN reviews` or `NaN open findings` in home recent-reviews captions and working-mode subtitles when metrics snapshots carry non-finite counts.
 
 2026-10-25 seed hunt (hit): promoted `normalizeOperatorHomeNonNegativeCount` on compact home KPI strip counts; regression `normalizes non-finite workspace metric counts in the KPI strip`; 10 scoped `operator-home-workspace-metrics` vitest passed. Private beta: Invited operators no longer see `NaN Active reviews` or `NaN Open findings` in the home workspace metrics strip when a metrics snapshot carries non-finite counts.
 
@@ -4992,6 +4994,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-10-08 seed hunt (seed-only): re-read continuity hydration, recent-view mapping, workspace metrics, and freshness helpers; no hunt-ready row promoted; scoped `lib/operator` tests completed with known baseline failures outside the reviewed utility behavior.
 
+- [x] (proven) `formatOperatorHomeRecentReviewsOutcome` / `operatorHomePageSubtitle` — raw metrics snapshot fields interpolate `NaN` into home captions — **hit 2026-10-25 seed hunt:** `normalizeOperatorHomeWorkspaceMetricsForDisplay`; regressions `normalizes non-finite workspace metrics in recent reviews outcome copy` and `normalizes non-finite metrics in working-mode pressure subtitle`.
 - [x] (proven) `formatOperatorHomeCompactMetricsLine` — raw metrics snapshot counts interpolate `NaN` into home KPI strip — **hit 2026-10-25 seed hunt:** `normalizeOperatorHomeNonNegativeCount` on active/sealed/findings; regression `normalizes non-finite workspace metric counts in the KPI strip`.
 - [x] (proven) `formatOperatorHomeRecentReviewsOutcome` / `buildOperatorHomeRecentReviewsOutcomeParts` — `visibleCount !== undefined` accepts `NaN` in showing-cap copy — **hit 2026-10-25 seed hunt:** `resolveRecentPreviewCapCounts`; regressions `normalizes non-finite recent preview cap counts in outcome copy` and `normalizes non-finite preview cap counts in structured outcome parts`.
 - [x] (proven) `formatOperatorHomeGovernanceApprovalWarningCount` — `Math.max(0, Math.trunc(count))` leaves `NaN` labels — **hit 2026-10-25 seed hunt:** `Number.isFinite` guard; regression `treats non-finite counts as zero warnings`.
