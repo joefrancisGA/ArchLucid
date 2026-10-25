@@ -2,6 +2,7 @@ using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Diffs;
 using ArchLucid.Application.Exports;
 using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Findings;
 
 using FluentAssertions;
 
@@ -331,5 +332,43 @@ public sealed class EndToEndReplayComparisonReportNormalizerTests
 
         report.FindingCorrelation!.PrimaryCorrelationMethod.Should().Be("PolicyRuleAndFingerprint");
         report.FindingCorrelation.HonestyNote.Should().Be("fuzzy matches are advisory");
+    }
+
+    [Fact]
+    public void CompareQuality_EndToEndReplayComparisonReportNormalizer_trims_finding_lifecycle_records_and_re_summarizes_honesty()
+    {
+        EndToEndReplayComparisonReport report = new()
+        {
+            LeftRunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            RightRunId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            FindingLifecycle = new CrossReviewFindingLifecycleSummary
+            {
+                NewlyIdentifiedCount = 1,
+                HonestyNote = "   ",
+            },
+            FindingLifecycleRecords =
+            [
+                new CrossReviewFindingLifecycleRecord
+                {
+                    State = CrossReviewFindingLifecycleState.NewlyIdentified,
+                    ResolutionBasis = CrossReviewFindingResolutionBasis.NotApplicable,
+                    CorrelationMethod = FindingCorrelationMethod.PolicyRuleAndFingerprint,
+                    Severity = FindingSeverity.Warning,
+                    SourceAgent = AgentType.Cost,
+                    Category = "  cost  ",
+                    Message = "  spend drift  ",
+                    PriorFindingId = "   ",
+                },
+            ],
+        };
+
+        EndToEndReplayComparisonReportNormalizer.NormalizePersistedPayload(report);
+
+        CrossReviewFindingLifecycleRecord record = report.FindingLifecycleRecords[0];
+        record.Category.Should().Be("cost");
+        record.Message.Should().Be("spend drift");
+        record.PriorFindingId.Should().BeNull();
+        report.FindingLifecycle!.HonestyNote.Should().NotBeNullOrWhiteSpace();
+        report.FindingLifecycle.NewlyIdentifiedCount.Should().Be(1);
     }
 }

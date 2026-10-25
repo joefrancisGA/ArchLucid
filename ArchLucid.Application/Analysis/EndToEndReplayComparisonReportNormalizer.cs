@@ -25,6 +25,7 @@ internal static class EndToEndReplayComparisonReportNormalizer
             ExportRecordDiffResultNormalizer.NormalizeDisplayAnchors(diff);
 
         ComparisonFindingCorrelationMetadataNormalizer.NormalizeInPlace(report.FindingCorrelation);
+        CrossReviewFindingLifecycleNormalizer.NormalizeOnReport(report);
 
         CompareVerdictChromeDeltaNormalizer.NormalizeInPlace(report.CompareVerdictChromeDelta);
 
