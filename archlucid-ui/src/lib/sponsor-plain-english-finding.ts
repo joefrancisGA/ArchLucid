@@ -74,7 +74,7 @@ function buildHeadline(title: string | null, severity: string | null): string {
   }
 
   if (severity !== null) {
-    return `Recorded severity ${severity} — finding title was not stored.`;
+    return `Severity ${severity} — finding title was not stored.`;
   }
 
   return "Finding title was not stored.";

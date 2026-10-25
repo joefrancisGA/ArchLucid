@@ -16,12 +16,19 @@ function trailArrayCount(value: readonly unknown[] | undefined, trailPresent: bo
   return value.length;
 }
 
+export type BuildReviewDefensibilityStripInput = {
+  readonly pipelineInFlight: boolean;
+  readonly criticAbsent: boolean;
+};
+
 export function buildReviewDefensibilityStripProps(
   feasibilityVerdict: ManifestFeasibilityVerdict | null | undefined,
-  criticAbsent: boolean,
+  input: BuildReviewDefensibilityStripInput,
 ): ReviewDefensibilityStripProps | null {
+  const { pipelineInFlight, criticAbsent } = input;
+
   if (feasibilityVerdict === null || feasibilityVerdict === undefined) {
-    if (!criticAbsent) {
+    if (!pipelineInFlight && !criticAbsent) {
       return null;
     }
 
@@ -29,7 +36,8 @@ export function buildReviewDefensibilityStripProps(
       assertedCount: null,
       inferredCount: null,
       skippedCount: null,
-      criticAbsent: true,
+      pipelineInFlight,
+      criticAbsent,
       verdictKind: null,
     };
   }
@@ -41,6 +49,7 @@ export function buildReviewDefensibilityStripProps(
     assertedCount: trailArrayCount(trail?.asserted, trailPresent),
     inferredCount: trailArrayCount(trail?.inferred, trailPresent),
     skippedCount: trailPresent ? countSkippedMustQuestions(trail) : null,
+    pipelineInFlight,
     criticAbsent,
     verdictKind: feasibilityVerdictKindLabel(feasibilityVerdict.kind),
   };
