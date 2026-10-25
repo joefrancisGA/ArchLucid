@@ -7,6 +7,8 @@ import {
   secureNowQuestionDispositionMutationEvidenceFingerprint,
   secureNowQuestionDispositionMutationQuestionKey,
   secureNowQuestionDispositionMutationSource,
+  secureNowQuestionReviewerEvidenceFingerprintLine,
+  secureNowQuestionReviewerSubscriptionLabel,
   secureNowQuestionReviewerScopeLabel,
   secureNowQuestionShowsInferredConnectionReviewerCopy,
   secureNowQuestionDispositionMutationSubscriptionId,
@@ -106,6 +108,20 @@ describe("secureNowQuestionDispositionMutationResourceId", () => {
         resourceId: " /subscriptions/sub/resource ",
       }),
     ).toBe("/subscriptions/sub/resource");
+  });
+});
+
+describe("secureNowQuestionReviewerSubscriptionLabel", () => {
+  it("shows the trimmed subscription id used on mutations", () => {
+    expect(secureNowQuestionReviewerSubscriptionLabel("  subscription-1  ")).toBe("subscription-1");
+  });
+});
+
+describe("secureNowQuestionReviewerEvidenceFingerprintLine", () => {
+  it("shows the trimmed fingerprint used on mutations", () => {
+    expect(secureNowQuestionReviewerEvidenceFingerprintLine("  fingerprint  ")).toBe(
+      "Evidence fingerprint: fingerprint",
+    );
   });
 });
 

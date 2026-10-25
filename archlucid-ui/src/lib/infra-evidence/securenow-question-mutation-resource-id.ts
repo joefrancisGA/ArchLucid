@@ -210,3 +210,83 @@ export function secureNowQuestionDispositionMutationScopeKind(
 
   return null;
 }
+
+export function secureNowQuestionReviewerSubscriptionLabel(
+  subscriptionId: string | null | undefined,
+): string {
+  const mutationSubscriptionId =
+    secureNowQuestionDispositionMutationSubscriptionId(subscriptionId);
+  if (mutationSubscriptionId !== null) {
+    return mutationSubscriptionId;
+  }
+
+  if (subscriptionId === null || subscriptionId === undefined) {
+    return "Subscription id was not stored.";
+  }
+
+  return "Subscription id was stored empty.";
+}
+
+export function secureNowQuestionReviewerEvidenceFingerprintLine(
+  evidenceFingerprint: string | null | undefined,
+): string {
+  const mutationFingerprint =
+    secureNowQuestionDispositionMutationEvidenceFingerprint(evidenceFingerprint);
+  if (mutationFingerprint === null) {
+    return "Evidence fingerprint was not stored.";
+  }
+
+  return `Evidence fingerprint: ${mutationFingerprint}`;
+}
+
+export function secureNowQuestionReviewerSourceLabel(
+  question: Pick<SecureNowQuestion, "source" | "scopeKind" | "questionKey">,
+  matchesInferredConnection: boolean,
+): string {
+  if (secureNowQuestionShowsInferredConnectionReviewerCopy(question, matchesInferredConnection)) {
+    return "Asked because a connection was inferred. Answering does not store a link.";
+  }
+
+  const resolvedSource = secureNowQuestionDispositionMutationSource(question);
+  if (resolvedSource) {
+    if (resolvedSource === "InventoryEvidence") {
+      return "Asked from inventory evidence.";
+    }
+
+    if (resolvedSource === "InferredConnection") {
+      return "Asked because a connection was inferred. Answering does not store a link.";
+    }
+
+    if (resolvedSource === "PolicyPack") {
+      return "Asked from an assigned policy pack.";
+    }
+
+    return `Question source code ${resolvedSource} has no reviewer label.`;
+  }
+
+  const source = question.source;
+
+  if (source === null) {
+    return "Question source was not stored.";
+  }
+
+  const trimmed = source.trim();
+
+  if (trimmed.length === 0) {
+    return "Question source was stored empty.";
+  }
+
+  if (trimmed === "InventoryEvidence") {
+    return "Asked from inventory evidence.";
+  }
+
+  if (trimmed === "InferredConnection") {
+    return "Asked because a connection was inferred. Answering does not store a link.";
+  }
+
+  if (trimmed === "PolicyPack") {
+    return "Asked from an assigned policy pack.";
+  }
+
+  return `Question source code ${trimmed} has no reviewer label.`;
+}

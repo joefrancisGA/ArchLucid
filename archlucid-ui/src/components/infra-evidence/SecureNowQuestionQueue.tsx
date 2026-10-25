@@ -8,10 +8,11 @@ import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { secureNowQuestionAnswerLabel } from "@/lib/infra-evidence/securenow-question-answer-label";
 import {
   secureNowQuestionDispositionMutationResourceId,
-  secureNowQuestionDispositionMutationSource,
   secureNowQuestionIsPolicyPackDispositionRow,
+  secureNowQuestionReviewerEvidenceFingerprintLine,
   secureNowQuestionReviewerScopeLabel,
-  secureNowQuestionShowsInferredConnectionReviewerCopy,
+  secureNowQuestionReviewerSourceLabel,
+  secureNowQuestionReviewerSubscriptionLabel,
 } from "@/lib/infra-evidence/securenow-question-mutation-resource-id";
 import {
   secureNowQuestionDispositionIsClosed,
@@ -108,65 +109,6 @@ function openQuestionsCountLabel(count: number): string {
   }
 
   return `${count} open questions`;
-}
-
-function formatSecureNowQuestionSourceLabel(
-  question: Pick<SecureNowQuestion, "source" | "scopeKind" | "questionKey">,
-  matchesInferredConnection: boolean,
-): string {
-  if (secureNowQuestionShowsInferredConnectionReviewerCopy(question, matchesInferredConnection)) {
-    return "Asked because a connection was inferred. Answering does not store a link.";
-  }
-
-  const resolvedSource = secureNowQuestionDispositionMutationSource(question);
-  if (resolvedSource) {
-    if (resolvedSource === "InventoryEvidence") {
-      return "Asked from inventory evidence.";
-    }
-
-    if (resolvedSource === "InferredConnection") {
-      return "Asked because a connection was inferred. Answering does not store a link.";
-    }
-
-    if (resolvedSource === "PolicyPack") {
-      return "Asked from an assigned policy pack.";
-    }
-
-    return `Question source code ${resolvedSource} has no reviewer label.`;
-  }
-
-  const source = question.source;
-
-  if (source === null) {
-    return "Question source was not stored.";
-  }
-
-  const trimmed = source.trim();
-
-  if (trimmed.length === 0) {
-    return "Question source was stored empty.";
-  }
-
-  if (trimmed === "InventoryEvidence") {
-    return "Asked from inventory evidence.";
-  }
-
-  if (trimmed === "InferredConnection") {
-    return "Asked because a connection was inferred. Answering does not store a link.";
-  }
-
-  if (trimmed === "PolicyPack") {
-    return "Asked from an assigned policy pack.";
-  }
-
-  return `Question source code ${trimmed} has no reviewer label.`;
-}
-
-function formatSecureNowQuestionScopeLabel(
-  question: Pick<SecureNowQuestion, "scopeKind" | "source" | "questionKey" | "questionText">,
-  matchesInferredConnection: boolean,
-): string {
-  return secureNowQuestionReviewerScopeLabel(question, matchesInferredConnection);
 }
 
 export type SecureNowQuestionQueueSnapshotPromoProps = {
@@ -572,24 +514,19 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
                   : "Source line was not stored"}
               </p>
               <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                Source: {formatSecureNowQuestionSourceLabel(
+                Source: {secureNowQuestionReviewerSourceLabel(
                   currentQuestion,
                   currentQuestionMatchesInferredConnection,
                 )}
               </p>
               <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                Scope: {formatSecureNowQuestionScopeLabel(
+                Scope: {secureNowQuestionReviewerScopeLabel(
                   currentQuestion,
                   currentQuestionMatchesInferredConnection,
                 )}
               </p>
               <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                Subscription:{" "}
-                {currentQuestion.subscriptionId === null
-                  ? "Subscription id was not stored."
-                  : currentQuestion.subscriptionId.trim().length === 0
-                    ? "Subscription id was stored empty."
-                    : currentQuestion.subscriptionId}
+                Subscription: {secureNowQuestionReviewerSubscriptionLabel(currentQuestion.subscriptionId)}
               </p>
               <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                 {currentQuestion.expirationUtc === null || currentQuestion.expirationUtc === undefined
@@ -610,11 +547,7 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
                     : " · Not expired."}
               </p>
               <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                {currentQuestion.evidenceFingerprint === null
-                  || currentQuestion.evidenceFingerprint === undefined
-                  || currentQuestion.evidenceFingerprint.trim().length === 0
-                  ? "Evidence fingerprint was not stored."
-                  : `Evidence fingerprint: ${currentQuestion.evidenceFingerprint}`}
+                {secureNowQuestionReviewerEvidenceFingerprintLine(currentQuestion.evidenceFingerprint)}
               </p>
             </div>
           </CollapsibleSection>

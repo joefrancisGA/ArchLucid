@@ -202,6 +202,22 @@ describe("SecureNowQuestionQueue", () => {
     expect(screen.getByText(/Expiration status was not stored/)).toBeInTheDocument();
   });
 
+  it("shows trimmed subscription and fingerprint values in details", async () => {
+    mocks.listQuestions.mockResolvedValue([
+      {
+        ...question,
+        subscriptionId: "  subscription-1  ",
+        evidenceFingerprint: "  fingerprint  ",
+      },
+    ]);
+
+    render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
+    fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
+
+    expect(screen.getByText("Subscription: subscription-1")).toBeInTheDocument();
+    expect(screen.getByText("Evidence fingerprint: fingerprint")).toBeInTheDocument();
+  });
+
   it("renders inventory source and scope details when question key is omitted", async () => {
     mocks.listQuestions.mockResolvedValue([
       {
