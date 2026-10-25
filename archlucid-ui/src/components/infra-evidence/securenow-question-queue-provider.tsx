@@ -287,6 +287,10 @@ export function SecureNowQuestionQueueProvider(
     [currentQuestion, inferredConnections],
   );
 
+  const currentQuestionIdentity = currentQuestion == null
+    ? null
+    : questionIdentity(currentQuestion);
+
   useEffect(() => {
     if (!drawerOpen || currentQuestion == null) return;
     const identity = questionIdentity(currentQuestion);
@@ -297,6 +301,16 @@ export function SecureNowQuestionQueueProvider(
       return next;
     });
   }, [currentQuestion, drawerOpen]);
+
+  useEffect(() => {
+    if (!drawerOpen || currentQuestionIdentity == null) {
+      return;
+    }
+
+    setSelectedAnswer(null);
+    setReason("");
+    setDrawerAction("answer");
+  }, [currentQuestionIdentity, drawerOpen]);
 
   const advanceWithoutPersistence = useCallback(() => {
     if (currentQuestion == null) return;

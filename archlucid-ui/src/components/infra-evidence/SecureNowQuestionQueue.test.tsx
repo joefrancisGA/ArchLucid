@@ -1302,6 +1302,35 @@ describe("SecureNowQuestionQueue", () => {
     expect(screen.getByRole("button", { name: "Reopen" })).toBeInTheDocument();
   });
 
+  it("clears draft ignore state when moving to the next question", async () => {
+    const secondQuestion = {
+      ...question,
+      resourceId:
+        "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.DataFactory/factories/other-resource",
+      resourceName: "other-resource",
+      questionText: "Should other-resource connect to a peer, or stand alone?",
+      reasonText:
+        "SecureNow found no connection to or from other-resource. Data factory is not treated as a shared service that can stand alone.",
+    };
+
+    mocks.listQuestions.mockResolvedValue([question, secondQuestion]);
+
+    render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
+    fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
+    fireEvent.click(screen.getByRole("button", { name: "Don't ask again" }));
+    fireEvent.change(screen.getByRole("textbox", { name: "Reason for not asking again" }), {
+      target: { value: "Draft ignore reason" },
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: "Next" }));
+
+    expect(
+      await screen.findByText("Should other-resource connect to a peer, or stand alone?"),
+    ).toBeInTheDocument();
+    expect(screen.queryByRole("textbox", { name: "Reason for not asking again" })).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Name the peer" })).toBeInTheDocument();
+  });
+
   it("clears draft reason when switching question filters", async () => {
     mocks.listQuestions.mockResolvedValue([
       question,
