@@ -58,7 +58,7 @@ internal static class ConfigurationEmbeddedCredentialMaterialDetector
 
         string current = trimmed.ToString();
 
-        const int maxPercentDecodePasses = 3456;
+        const int maxPercentDecodePasses = 3520;
 
         for (int pass = 0; pass < maxPercentDecodePasses && current.Contains('%'); pass++)
         {
@@ -182,7 +182,7 @@ internal static class ConfigurationEmbeddedCredentialMaterialDetector
         or '\u200E' or '\u200F' or '\u2011' or '\u2012' or '\u2013' or '\u2014' or '\u2015' or '\u202A' or '\u202B'
         or '\u202C' or '\u202D' or '\u202E' or '\u202F' or '\u205F' or '\u2060' or '\u2066' or '\u2067' or '\u2068'
         or '\u2069' or '\u206A' or '\u206B' or '\u206C' or '\u206D' or '\u206E' or '\u206F' or '\u3000' or '\uFE63' or '\uFF0D' or '\uFF0F'
-        or '\u2044' or '\u2571' or '\u2572' or '\u29F8' or '\u29F9' or '\uFE00' or '\uFE01' or '\uFE02' or '\uFE03' or '\uFE04' or '\uFE05' or '\uFE06' or '\uFE07' or '\uFE08' or '\uFE09' or '\uFE0A' or '\uFE0B' or '\uFE0C' or '\uFE0D' or '\uFE0E' or '\uFE0F' or '\uFE31' or '\uFE32' or '\uFE68' or '\uFE69' or '\uFE6A' or '\uFE6B' or '\uFE6C' or '\uFE6D' or '\uFE6E' or '\uFE6F' or '\uFE70' or '\uFE71' or '\uFE72' or '\uFE73' or '\uFE74' or '\uFE75' or '\uFE76' or '\uFE77' or '\uFE78' or '\uFE79' or '\uFE7A' or '\uFE7B' or '\uFE7C' or '\uFE7D' or '\uFE7E' or '\uFE7F' or '\uFE80' or '\uFE81' or '\uFE82' or '\uFE83' or '\uFE84' or '\uFE85' or '\uFE86' or '\uFE87' or '\uFEFF' or '\uFF3C' or '\uFFE5' or '\uFFE6' or '\uFFFC' or '\uFFFD' or '\uFFF9' or '\uFFFA' or '\u2216' or '\u2212' or '\u2215' or '\u0085' or '\u2028' or '\u2029';
+        or '\u2044' or '\u2571' or '\u2572' or '\u29F8' or '\u29F9' or '\uFE00' or '\uFE01' or '\uFE02' or '\uFE03' or '\uFE04' or '\uFE05' or '\uFE06' or '\uFE07' or '\uFE08' or '\uFE09' or '\uFE0A' or '\uFE0B' or '\uFE0C' or '\uFE0D' or '\uFE0E' or '\uFE0F' or '\uFE31' or '\uFE32' or '\uFE68' or '\uFE69' or '\uFE6A' or '\uFE6B' or '\uFE6C' or '\uFE6D' or '\uFE6E' or '\uFE6F' or '\uFE70' or '\uFE71' or '\uFE72' or '\uFE73' or '\uFE74' or '\uFE75' or '\uFE76' or '\uFE77' or '\uFE78' or '\uFE79' or '\uFE7A' or '\uFE7B' or '\uFE7C' or '\uFE7D' or '\uFE7E' or '\uFE7F' or '\uFE80' or '\uFE81' or '\uFE82' or '\uFE83' or '\uFE84' or '\uFE85' or '\uFE86' or '\uFE87' or '\uFE88' or '\uFEFF' or '\uFF3C' or '\uFFE5' or '\uFFE6' or '\uFFFC' or '\uFFFD' or '\uFFF9' or '\uFFFA' or '\u2216' or '\u2212' or '\u2215' or '\u0085' or '\u2028' or '\u2029';
 
     private static bool TryMatchCredentialKeyValuePairAt(ReadOnlySpan<char> trimmed, int index)
     {
