@@ -63,6 +63,33 @@ export function secureNowQuestionCountsAsAnsweredFilterRow(
         || secureNowQuestionDispositionFieldWasStored(question.answerText)));
 }
 
+export function secureNowQuestionDispositionReviewerStatusLabel(
+  question: SecureNowQuestionDispositionChromeFields,
+): string {
+  const normalized = secureNowQuestionDispositionStatusTrimmed(question.status);
+  if (normalized === null) {
+    if (secureNowQuestionCountsAsAnsweredFilterRow(question)) {
+      return "Answered";
+    }
+
+    if (secureNowQuestionCountsAsDismissedFilterRow(question)) {
+      return "Dismissed";
+    }
+
+    return "Question status was not stored";
+  }
+
+  if (normalized === "Answered") {
+    return "Answered";
+  }
+
+  if (normalized === "Ignored" || normalized === "Dismissed") {
+    return "Dismissed";
+  }
+
+  return `Question status "${normalized}" has no reviewer label.`;
+}
+
 export function secureNowQuestionCountsAsDismissedFilterRow(
   question: SecureNowQuestionDispositionChromeFields,
 ): boolean {

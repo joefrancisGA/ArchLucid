@@ -15,9 +15,9 @@ import {
   secureNowQuestionReviewerSubscriptionLabel,
 } from "@/lib/infra-evidence/securenow-question-mutation-resource-id";
 import {
+  secureNowQuestionDispositionReviewerStatusLabel,
   secureNowQuestionDispositionShowsAnswerActions,
   secureNowQuestionDispositionShowsStoredAnswerMetadata,
-  secureNowQuestionDispositionStatusTrimmed,
   secureNowQuestionReviewerClosedAnswerCodeLine,
   secureNowQuestionReviewerClosedAnswerTextLine,
   secureNowQuestionReviewerClosedDispositionReasonLine,
@@ -68,23 +68,6 @@ function closedSecureNowQuestionAnswerLines(question: ClosedQuestionAnswerFields
     secureNowQuestionReviewerClosedAnswerTextLine(question.answerText),
     secureNowQuestionReviewerClosedDispositionReasonLine(question.reason),
   ];
-}
-
-function questionStatusLabel(status: string | null): string {
-  const normalized = secureNowQuestionDispositionStatusTrimmed(status);
-  if (normalized == null) {
-    return "Question status was not stored";
-  }
-
-  if (normalized === "Answered") {
-    return "Answered";
-  }
-
-  if (normalized === "Ignored" || normalized === "Dismissed") {
-    return "Dismissed";
-  }
-
-  return `Question status "${normalized}" has no reviewer label.`;
 }
 
 function openQuestionsCountLabel(count: number): string {
@@ -481,8 +464,11 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
                 ))}
               </div>
               <div className="flex flex-wrap items-center gap-2">
-                <span className={cn("rounded border border-neutral-300 px-2 py-1", OPERATOR_TYPOGRAPHY.helper)}>
-                  {questionStatusLabel(currentQuestion.status)}
+                <span
+                  className={cn("rounded border border-neutral-300 px-2 py-1", OPERATOR_TYPOGRAPHY.helper)}
+                  data-testid="infra-diagrams-question-disposition-status"
+                >
+                  {secureNowQuestionDispositionReviewerStatusLabel(currentQuestion)}
                 </span>
                 <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                   Visit limit: {Math.min(visitedQuestionKeys.size, VISIT_CAP)} of {VISIT_CAP}

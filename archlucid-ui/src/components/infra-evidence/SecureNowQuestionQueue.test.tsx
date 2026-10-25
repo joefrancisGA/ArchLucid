@@ -625,6 +625,28 @@ describe("SecureNowQuestionQueue", () => {
     expect(screen.getByTestId("infra-diagrams-question-answer")).toHaveTextContent("Name the peer");
     expect(screen.queryByRole("button", { name: "Name the peer" })).not.toBeInTheDocument();
     expect(screen.getByPlaceholderText("Reason required to reopen")).toBeInTheDocument();
+    expect(screen.getByTestId("infra-diagrams-question-disposition-status")).toHaveTextContent("Answered");
+  });
+
+  it("shows dismissed status label when list JSON omits status but stores a dismiss reason", async () => {
+    mocks.listQuestions.mockResolvedValue([
+      { ...question, status: null },
+      {
+        ...question,
+        status: null,
+        answerCode: null,
+        answerText: null,
+        reason: "Operator chose not to answer.",
+      },
+    ]);
+
+    render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
+    fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
+    fireEvent.click(screen.getByRole("button", { name: "Dismissed" }));
+
+    expect(screen.getByTestId("infra-diagrams-question-disposition-status")).toHaveTextContent("Dismissed");
+    expect(screen.getByText("Operator chose not to answer.")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Name the peer" })).not.toBeInTheDocument();
   });
 
   it("labels missing question copy, type, reason, and choices", async () => {

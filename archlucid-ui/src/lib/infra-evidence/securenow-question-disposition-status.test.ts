@@ -7,6 +7,7 @@ import {
   secureNowQuestionDispositionIsClosed,
   secureNowQuestionDispositionIsDismissed,
   secureNowQuestionDispositionIsOpen,
+  secureNowQuestionDispositionReviewerStatusLabel,
   secureNowQuestionDispositionShowsAnswerActions,
   secureNowQuestionDispositionShowsStoredAnswerMetadata,
   secureNowQuestionDispositionStatusTrimmed,
@@ -84,6 +85,26 @@ describe("secureNowQuestionCountsAsAnsweredFilterRow", () => {
       answerText: null,
       reason: null,
     })).toBe(true);
+  });
+});
+
+describe("secureNowQuestionDispositionReviewerStatusLabel", () => {
+  it("labels omitted status as Answered when answer metadata was stored", () => {
+    expect(secureNowQuestionDispositionReviewerStatusLabel({
+      status: null,
+      answerCode: "NamePeer",
+      answerText: null,
+      reason: null,
+    })).toBe("Answered");
+  });
+
+  it("labels omitted status as Dismissed when only a dismiss reason was stored", () => {
+    expect(secureNowQuestionDispositionReviewerStatusLabel({
+      status: null,
+      answerCode: null,
+      answerText: null,
+      reason: "Operator chose not to answer.",
+    })).toBe("Dismissed");
   });
 });
 
