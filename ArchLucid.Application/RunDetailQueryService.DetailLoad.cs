@@ -35,6 +35,8 @@ public sealed partial class RunDetailQueryService
             return null;
         }
 
+        string lookupRunId = runGuid.ToString("N");
+
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
         RunRecord? record = await runRepository.GetByIdAsync(scope, runGuid, cancellationToken).ConfigureAwait(false);
 
@@ -46,14 +48,14 @@ public sealed partial class RunDetailQueryService
         }
 
         Task<IReadOnlyList<AgentTask>> tasksTask =
-            taskRepository.GetByRunIdAsync(scope, runId, cancellationToken);
+            taskRepository.GetByRunIdAsync(scope, lookupRunId, cancellationToken);
         Task<IReadOnlyList<AgentResult>> resultsTask = useRollupProjection
-            ? resultRepository.GetRollupProjectionByRunIdAsync(scope, runId, cancellationToken)
-            : resultRepository.GetByRunIdAsync(scope, runId, cancellationToken);
+            ? resultRepository.GetRollupProjectionByRunIdAsync(scope, lookupRunId, cancellationToken)
+            : resultRepository.GetByRunIdAsync(scope, lookupRunId, cancellationToken);
         Task<GoldenManifest?> manifestTask =
             unifiedGoldenManifestReader.ReadByRunIdAsync(scope, runGuid, cancellationToken);
         Task<IReadOnlyList<AgentExecutionTraceLlmCostSlice>> costSlicesTask =
-            _agentExecutionTraceRepository.GetLlmCostSlicesByRunIdAsync(scope, runId, cancellationToken);
+            _agentExecutionTraceRepository.GetLlmCostSlicesByRunIdAsync(scope, lookupRunId, cancellationToken);
 
         Task<IReadOnlyDictionary<string, FindingMuteFlag>> muteFlagsTask =
             record.FindingsSnapshotId is { } findingsSnapshotId

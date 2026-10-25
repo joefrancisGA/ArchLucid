@@ -29,6 +29,8 @@ public sealed partial class RunDetailQueryService
             return null;
         }
 
+        string lookupRunId = runGuid.ToString("N");
+
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
         RunRecord? record = await runRepository.GetByIdAsync(scope, runGuid, cancellationToken).ConfigureAwait(false);
 
@@ -41,7 +43,7 @@ public sealed partial class RunDetailQueryService
         }
 
         Task<IReadOnlyList<AgentResult>> resultsTask =
-            resultRepository.GetRollupProjectionByRunIdAsync(scope, runId, cancellationToken);
+            resultRepository.GetRollupProjectionByRunIdAsync(scope, lookupRunId, cancellationToken);
         Task<GoldenManifest?> manifestTask =
             unifiedGoldenManifestReader.ReadByRunIdAsync(scope, runGuid, cancellationToken);
 

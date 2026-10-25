@@ -8,6 +8,7 @@ using ArchLucid.Contracts.Persistence.DecisionTraces;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Persistence;
 using ArchLucid.Core.Persistence.ApplicationPorts.Runs;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
@@ -37,6 +38,64 @@ public sealed class RunDetailQueryServiceApplicationTests
 {
     private static ScopeContext NewScope() =>
         new() { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
+
+    [Fact]
+    public async Task CompareQuality_GetRunDetailForRollupAsync_loads_results_when_run_id_differs_only_by_casing()
+    {
+        ScopeContext scope = NewScope();
+        Guid runGuid = Guid.Parse("88888888-8888-8888-8888-888888888888");
+        string runN = runGuid.ToString("N");
+
+        Mock<IRunRepository> runRepo = new();
+        Mock<IScopeContextProvider> scopeProvider = new();
+        Mock<IUnifiedGoldenManifestReader> unifiedReader = new();
+        Mock<IAgentResultEnrichmentRepository> enrichmentRepo = new();
+        enrichmentRepo
+            .Setup(r => r.GetByResultIdsAsync(It.IsAny<IReadOnlyList<string>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new Dictionary<string, AgentResultEnrichmentRecord>(StringComparer.Ordinal));
+        InMemoryAgentResultRepository resultRepo = new(enrichmentRepo.Object);
+
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(scope);
+
+        RunRecord record = new()
+        {
+            RunId = runGuid,
+            TenantId = scope.TenantId,
+            WorkspaceId = scope.WorkspaceId,
+            ScopeProjectId = scope.ProjectId,
+            ProjectId = "p",
+            ArchitectureRequestId = "req-z",
+            LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+        };
+
+        runRepo.Setup(r => r.GetByIdAsync(scope, runGuid, It.IsAny<CancellationToken>())).ReturnsAsync(record);
+        unifiedReader
+            .Setup(r => r.ReadByRunIdAsync(scope, runGuid, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((GoldenManifest?)null);
+
+        await resultRepo.CreateAsync(CommitReady(runN, AgentType.Topology), CancellationToken.None);
+
+        RunDetailQueryService sut = new(
+            runRepo.Object,
+            scopeProvider.Object,
+            Mock.Of<IAgentTaskRepository>(),
+            resultRepo,
+            unifiedReader.Object,
+            Mock.Of<IDecisionTraceRepository>(),
+            Mock.Of<IFindingRecordMuteRepository>(),
+            Mock.Of<IAgentExecutionTraceRepository>(),
+            Mock.Of<ILlmCostEstimator>(),
+            new FindingTrustLabelMapper(),
+            Mock.Of<IRunStageOutcomesRepository>(),
+            new RunStateTransitionService(),
+            Mock.Of<ILogger<RunDetailQueryService>>());
+
+        ArchitectureRunDetail? detail = await sut.GetRunDetailForRollupAsync(runN.ToUpperInvariant());
+
+        detail.Should().NotBeNull();
+        detail!.Results.Should().ContainSingle();
+    }
 
     [SkippableFact]
     public async Task GetRunDetailAsync_returns_null_for_whitespace_run_id_without_querying_repository()
