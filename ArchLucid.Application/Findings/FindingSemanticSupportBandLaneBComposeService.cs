@@ -1,3 +1,4 @@
+using ArchLucid.Application.Analysis;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Core.Scoping;
@@ -35,8 +36,10 @@ public sealed class FindingSemanticSupportBandLaneBComposeService(
         if (results.Count == 0 || string.IsNullOrWhiteSpace(runId))
             return;
 
-        IReadOnlyList<AgentExecutionTrace> traces =
-            await _traceRepository.GetByRunIdAsync(scope, runId.Trim(), cancellationToken).ConfigureAwait(false);
+        IReadOnlyList<AgentExecutionTrace> traces = await TryLoadExecutionTracesAsync(
+            scope,
+            runId.Trim(),
+            cancellationToken).ConfigureAwait(false);
 
         if (traces.Count == 0)
         {
@@ -51,8 +54,9 @@ public sealed class FindingSemanticSupportBandLaneBComposeService(
         IReadOnlyList<AgentExecutionTrace> latestTraces =
             AgentExecutionTraceLatestPerTaskSelector.Select(traces);
 
-        AgentEvidencePackage? evidence =
-            await _evidencePackageRepository.GetByRunIdAsync(runId.Trim(), cancellationToken).ConfigureAwait(false);
+        AgentEvidencePackage? evidence = await TryLoadEvidencePackageAsync(
+            runId.Trim(),
+            cancellationToken).ConfigureAwait(false);
 
         Dictionary<string, AgentOutputSemanticScore> semanticScoresByTraceId =
             FindingSemanticSupportBandLaneBSemanticScoreIndex.BuildFromTraces(
@@ -67,5 +71,40 @@ public sealed class FindingSemanticSupportBandLaneBComposeService(
             results,
             semanticScoresByTraceId,
             traceIdByTaskId);
+    }
+
+    private async Task<AgentEvidencePackage?> TryLoadEvidencePackageAsync(
+        string primaryRunId,
+        CancellationToken cancellationToken)
+    {
+        foreach (string lookupKey in AnalysisRunIdCanonicalization.EnumerateRunIdRepositoryLookupKeys(primaryRunId))
+        {
+            AgentEvidencePackage? evidence = await _evidencePackageRepository
+                .GetByRunIdAsync(lookupKey, cancellationToken)
+                .ConfigureAwait(false);
+
+            if (evidence is not null)
+                return evidence;
+        }
+
+        return null;
+    }
+
+    private async Task<IReadOnlyList<AgentExecutionTrace>> TryLoadExecutionTracesAsync(
+        ScopeContext scope,
+        string primaryRunId,
+        CancellationToken cancellationToken)
+    {
+        foreach (string lookupKey in AnalysisRunIdCanonicalization.EnumerateRunIdRepositoryLookupKeys(primaryRunId))
+        {
+            IReadOnlyList<AgentExecutionTrace> traces = await _traceRepository
+                .GetByRunIdAsync(scope, lookupKey, cancellationToken)
+                .ConfigureAwait(false);
+
+            if (traces.Count > 0)
+                return traces;
+        }
+
+        return [];
     }
 }
