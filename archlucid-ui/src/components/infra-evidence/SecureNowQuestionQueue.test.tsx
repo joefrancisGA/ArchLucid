@@ -178,6 +178,22 @@ describe("SecureNowQuestionQueue", () => {
     expect(screen.getByText(/Expiration status was not stored/)).toBeInTheDocument();
   });
 
+  it("does not post a mutation when evidence fingerprint was not stored", async () => {
+    mocks.listQuestions.mockResolvedValue([{ ...question, evidenceFingerprint: null }]);
+
+    render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
+    fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
+    fireEvent.click(screen.getByRole("button", { name: "Name the peer" }));
+    fireEvent.click(screen.getByRole("button", { name: "Save answer" }));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("operator-mutation-inline-error")).toHaveTextContent(
+        "Evidence fingerprint was not stored.",
+      );
+    });
+    expect(mocks.answerQuestion).not.toHaveBeenCalled();
+  });
+
   it("does not post a mutation when subscription id was not stored", async () => {
     mocks.listQuestions.mockResolvedValue([{ ...question, subscriptionId: null }]);
 

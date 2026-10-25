@@ -42,6 +42,17 @@ export function secureNowQuestionPackScopeKindFromPrompt(questionText: string): 
 /**
  * Resource id sent on disposition mutations. Pack elicitation rows may list a null resource id while the API accepts an empty string.
  */
+export function secureNowQuestionDispositionMutationEvidenceFingerprint(
+  evidenceFingerprint: string | null | undefined,
+): string | null {
+  if (evidenceFingerprint === null || evidenceFingerprint === undefined) {
+    return null;
+  }
+
+  const trimmed = evidenceFingerprint.trim();
+  return trimmed.length > 0 ? trimmed : null;
+}
+
 export function secureNowQuestionDispositionMutationSubscriptionId(
   subscriptionId: string | null | undefined,
 ): string | null {

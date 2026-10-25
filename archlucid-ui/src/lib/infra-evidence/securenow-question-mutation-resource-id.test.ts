@@ -4,6 +4,7 @@ import type { SecureNowQuestion } from "@/lib/infra-evidence/securenow-question-
 import {
   secureNowQuestionDispositionMutationResourceId,
   secureNowQuestionDispositionMutationScopeKind,
+  secureNowQuestionDispositionMutationEvidenceFingerprint,
   secureNowQuestionDispositionMutationSource,
   secureNowQuestionShowsInferredConnectionReviewerCopy,
   secureNowQuestionDispositionMutationSubscriptionId,
@@ -91,6 +92,21 @@ describe("secureNowQuestionShowsInferredConnectionReviewerCopy", () => {
         false,
       ),
     ).toBe(false);
+  });
+});
+
+describe("secureNowQuestionDispositionMutationEvidenceFingerprint", () => {
+  it("returns null when evidence fingerprint is omitted", () => {
+    expect(secureNowQuestionDispositionMutationEvidenceFingerprint(null)).toBeNull();
+    expect(secureNowQuestionDispositionMutationEvidenceFingerprint(undefined)).toBeNull();
+  });
+
+  it("returns null when evidence fingerprint is blank", () => {
+    expect(secureNowQuestionDispositionMutationEvidenceFingerprint("   ")).toBeNull();
+  });
+
+  it("returns trimmed fingerprint when stored", () => {
+    expect(secureNowQuestionDispositionMutationEvidenceFingerprint("  fp  ")).toBe("fp");
   });
 });
 

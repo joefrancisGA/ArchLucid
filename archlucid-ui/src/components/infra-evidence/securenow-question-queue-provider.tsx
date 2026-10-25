@@ -20,6 +20,7 @@ import {
   type SecureNowQuestion,
 } from "@/lib/infra-evidence/securenow-question-queue-api";
 import {
+  secureNowQuestionDispositionMutationEvidenceFingerprint,
   secureNowQuestionDispositionMutationResourceId,
   secureNowQuestionDispositionMutationScopeKind,
   secureNowQuestionDispositionMutationSource,
@@ -319,6 +320,24 @@ export function SecureNowQuestionQueueProvider(
       matchedInferredConnection != null
       && (selectedAnswer === "Yes" || selectedAnswer === "No");
 
+    const mutationEvidenceFingerprint =
+      secureNowQuestionDispositionMutationEvidenceFingerprint(currentQuestion.evidenceFingerprint);
+
+    if (
+      action !== "reopen"
+      && !usesInferredConnectionConfirm
+      && mutationEvidenceFingerprint === null
+    ) {
+      setError(
+        operatorInferredConnectionPanelErrorFromUnknown(
+          new Error("Evidence fingerprint was not stored."),
+          "Could not save the question update.",
+          "mutation",
+        ),
+      );
+      return;
+    }
+
     if (
       action !== "reopen"
       && !usesInferredConnectionConfirm
@@ -354,7 +373,7 @@ export function SecureNowQuestionQueueProvider(
           source: dispositionMutationSource,
           scopeKind: dispositionMutationScopeKind,
           reason: reason.trim(),
-          evidenceFingerprint: currentQuestion.evidenceFingerprint,
+          evidenceFingerprint: mutationEvidenceFingerprint!,
         });
       } else if (action === "reopen") {
         await reopenSecureNowQuestion(snapshotId, {
@@ -384,7 +403,7 @@ export function SecureNowQuestionQueueProvider(
           answerCode: selectedAnswer,
           answerText: selectedAnswer,
           reason: "Answered in the SecureNow subscription question queue.",
-          evidenceFingerprint: currentQuestion.evidenceFingerprint,
+          evidenceFingerprint: mutationEvidenceFingerprint!,
         });
       }
       await loadQuestions();

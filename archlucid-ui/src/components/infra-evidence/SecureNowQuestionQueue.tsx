@@ -648,9 +648,11 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
                     : " · Not expired."}
               </p>
               <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                {currentQuestion.evidenceFingerprint.trim().length > 0
-                  ? `Evidence fingerprint: ${currentQuestion.evidenceFingerprint}`
-                  : "Evidence fingerprint was not stored."}
+                {currentQuestion.evidenceFingerprint === null
+                  || currentQuestion.evidenceFingerprint === undefined
+                  || currentQuestion.evidenceFingerprint.trim().length === 0
+                  ? "Evidence fingerprint was not stored."
+                  : `Evidence fingerprint: ${currentQuestion.evidenceFingerprint}`}
               </p>
             </div>
           </CollapsibleSection>

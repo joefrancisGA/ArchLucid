@@ -35,6 +35,22 @@ describe("securenow-question-queue-api", () => {
     expect(questions[0].subscriptionId).toBeNull();
   });
 
+  it("maps null evidenceFingerprint to null instead of empty string", async () => {
+    vi.mocked(proxyJsonGet).mockResolvedValueOnce([
+      {
+        snapshotId: "snapshot-1",
+        questionKey: "unknown-evidence@v1",
+        questionText: "Should this resource connect?",
+        evidenceFingerprint: null,
+        answerCodes: ["NamePeer"],
+      },
+    ]);
+
+    const questions = await listSecureNowQuestions("snapshot-1");
+
+    expect(questions[0].evidenceFingerprint).toBeNull();
+  });
+
   it("maps null resourceName to null instead of empty string", async () => {
     vi.mocked(proxyJsonGet).mockResolvedValueOnce([
       {
