@@ -31,5 +31,9 @@ export function findingEnforcementTierLabel(tier: FindingEnforcementTierKind): s
     return "Policy violation";
   }
 
+  if (tier.trim().toLowerCase() === "unknown") {
+    return "Enforcement tier Unknown has no reviewer label.";
+  }
+
   return tier;
 }

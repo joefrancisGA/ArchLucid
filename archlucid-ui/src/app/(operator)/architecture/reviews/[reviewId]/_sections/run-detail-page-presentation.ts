@@ -65,6 +65,7 @@ export type RunDetailPresentation = {
   readonly blockingApprovalCount: number;
   readonly lowExtractionConfidenceCount: number;
   readonly withheldFindings: readonly WithheldFindingRow[];
+  readonly withheldListLoadState: string | null;
   readonly catalogAdvisoryEngineFailureCount: number;
   readonly workspaceStatus: RunDetailWorkspaceStatus;
   readonly reviewPipelineIncomplete: boolean;
@@ -83,6 +84,7 @@ export type RunDetailPresentation = {
   readonly evidenceCoverageSummary: EvidenceCoverageSummary;
   readonly evidenceInventoryItems: ReturnType<typeof buildRunDetailEvidencePresentation>["evidenceInventoryItems"];
   readonly evidenceInventoryCount: number;
+  readonly findingsCiteEvidenceWithoutSourceNames: boolean;
   readonly evidenceReviewDateLabel: string;
 
   readonly buyerFinalizedPackage: boolean;

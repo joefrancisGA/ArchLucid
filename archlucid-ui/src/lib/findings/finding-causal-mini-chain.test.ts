@@ -121,4 +121,23 @@ describe("buildFindingCausalMiniChain (TB-2217)", () => {
     expect(fromInspect.steps[0]?.value).toBe("Inspect rule");
     expect(fromInspect.steps[2]?.value).toBe("Rotate keys.");
   });
+
+  it("treats an omitted inspect evidence list as unknown rather than zero citations", () => {
+    const payload = {
+      findingId: "f1",
+      typedPayload: null,
+      decisionRuleId: "rule-1",
+      decisionRuleName: "Inspect rule",
+      evidence: [],
+      evidenceListReturned: false,
+      recommendedActions: [],
+      auditRowId: null,
+      runId: "run-1",
+      manifestVersion: null,
+    } as FindingInspectPayload;
+
+    const chain = findingCausalMiniChainFromInspectPayload(payload);
+
+    expect(chain.steps[1]?.value).toBeNull();
+  });
 });

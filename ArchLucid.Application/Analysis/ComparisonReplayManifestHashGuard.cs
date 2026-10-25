@@ -70,10 +70,12 @@ internal static class ComparisonReplayManifestHashGuard
                 $"Comparison replay blocked for '{record.ComparisonRecordId}': export-diff record is missing export record ids.");
         }
 
-        RunExportRecord left = await runExportRecordRepository.GetByIdAsync(record.LeftExportRecordId, cancellationToken)
-                               ?? throw new InvalidOperationException($"Export record '{record.LeftExportRecordId}' was not found.");
-        RunExportRecord right = await runExportRecordRepository.GetByIdAsync(record.RightExportRecordId, cancellationToken)
-                                ?? throw new InvalidOperationException($"Export record '{record.RightExportRecordId}' was not found.");
+        string leftExportRecordId = RunExportRecordIdNormalizer.NormalizeRequired(record.LeftExportRecordId);
+        string rightExportRecordId = RunExportRecordIdNormalizer.NormalizeRequired(record.RightExportRecordId);
+        RunExportRecord left = await runExportRecordRepository.GetByIdAsync(leftExportRecordId, cancellationToken)
+                               ?? throw new InvalidOperationException($"Export record '{leftExportRecordId}' was not found.");
+        RunExportRecord right = await runExportRecordRepository.GetByIdAsync(rightExportRecordId, cancellationToken)
+                                ?? throw new InvalidOperationException($"Export record '{rightExportRecordId}' was not found.");
 
         await EnsureRunSealedManifestHashOrThrowAsync(left.RunId, authorityQueryService, manifestHashService, scope, cancellationToken);
         await EnsureRunSealedManifestHashOrThrowAsync(right.RunId, authorityQueryService, manifestHashService, scope, cancellationToken);

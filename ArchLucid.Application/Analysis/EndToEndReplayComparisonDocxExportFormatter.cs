@@ -194,7 +194,7 @@ public static class EndToEndReplayComparisonDocxExportFormatter
     {
         if (items.Count == 0)
         {
-            AddBullet(body, "None");
+            AddBullet(body, EndToEndReplayComparisonExportListHonesty.EmptySectionBullet);
             return;
         }
 
@@ -211,7 +211,7 @@ public static class EndToEndReplayComparisonDocxExportFormatter
 
         if (relationships.Count == 0)
         {
-            AddBullet(body, "None");
+            AddBullet(body, EndToEndReplayComparisonExportListHonesty.EmptySectionBullet);
             return;
         }
 

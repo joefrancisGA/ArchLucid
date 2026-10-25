@@ -5,7 +5,7 @@ const STORAGE_KEY_PREFIX = "archlucid-extract-upload-last-accepted";
 export type ExtractUploadAcceptedPackageRecord = {
   readonly packageId: string;
   readonly acceptedAtUtc: string;
-  readonly actorLabel: string;
+  readonly actorLabel: string | null;
   readonly resourceCount: number | null;
   readonly fileLabel?: string | null;
   readonly associateRunId?: string | null;
@@ -43,7 +43,10 @@ export function extractUploadPackageIdIsCopyable(packageId: string): boolean {
   return packageId.trim().length > 0;
 }
 
-export function formatExtractUploadAcceptedActorLabel(actorLabel: string): string {
+export function formatExtractUploadAcceptedActorLabel(actorLabel: string | null | undefined): string {
+  if (actorLabel === null || actorLabel === undefined) {
+    return EXTRACT_UPLOAD_ACTOR_NOT_STORED;
+  }
   if (actorLabel.trim().length === 0) {
     return EXTRACT_UPLOAD_ACTOR_STORED_EMPTY;
   }
@@ -113,7 +116,12 @@ export function readExtractUploadAcceptedPackageRecord(): ExtractUploadAcceptedP
     const parsed = JSON.parse(raw) as Partial<ExtractUploadAcceptedPackageRecord>;
     const packageId = parsed.packageId?.trim() ?? "";
     const acceptedAtUtc = parsed.acceptedAtUtc?.trim() ?? "";
-    const actorLabel = parsed.actorLabel?.trim() ?? "";
+    const actorLabel =
+      parsed.actorLabel === undefined || parsed.actorLabel === null
+        ? null
+        : typeof parsed.actorLabel === "string"
+          ? parsed.actorLabel.trim()
+          : null;
 
     if (packageId.length === 0 || acceptedAtUtc.length === 0) {
       return null;

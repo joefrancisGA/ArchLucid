@@ -236,6 +236,11 @@ describe("decodeOAuthErrorDescription", () => {
     expect(decodeOAuthErrorDescription("👋🏽+denied")).toBe("👋🏽+denied");
   });
 
+  it("preserves literal plus in authorize error descriptions when skin-tone emoji modifiers are present", () => {
+    expect(decodeOAuthErrorDescription("👍🏻+extra")).toBe("👍🏻+extra");
+    expect(decodeOAuthErrorDescription("👋🏽+denied")).toBe("👋🏽+denied");
+  });
+
   it("decodes doubly percent-encoded authorize error descriptions", () => {
     expect(decodeOAuthErrorDescription("User%2520denied")).toBe("User denied");
   });

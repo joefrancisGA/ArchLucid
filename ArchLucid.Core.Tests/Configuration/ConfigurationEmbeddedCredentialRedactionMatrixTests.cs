@@ -64,6 +64,433 @@ public sealed class ConfigurationEmbeddedCredentialRedactionMatrixTests
         AssertRedacts(effectiveValue);
     }
 
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_password_pair_is_unicode_line_separator_delimited()
+    {
+        string effectiveValue = "Server=prod" + '\u2028' + "Password=secret";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_password_pair_is_nbsp_delimited()
+    {
+        string effectiveValue = "Server=prod" + '\u00A0' + "Password=secret";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_password_pair_is_thin_space_delimited()
+    {
+        string effectiveValue = "Server=prod" + '\u2009' + "Password=secret";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_password_pair_is_narrow_no_break_space_delimited()
+    {
+        string effectiveValue = "Server=prod" + '\u202F' + "Password=secret";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_password_pair_is_en_space_delimited()
+    {
+        string effectiveValue = "Server=prod" + '\u2002' + "Password=secret";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_password_pair_is_figure_space_delimited()
+    {
+        string effectiveValue = "Server=prod" + '\u2007' + "Password=secret";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_password_pair_is_punctuation_space_delimited()
+    {
+        string effectiveValue = "Server=prod" + '\u2008' + "Password=secret";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_password_pair_is_hair_space_delimited()
+    {
+        string effectiveValue = "Server=prod" + '\u200A' + "Password=secret";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_password_pair_is_medium_mathematical_space_delimited()
+    {
+        string effectiveValue = "Server=prod" + '\u205F' + "Password=secret";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_password_pair_is_em_space_delimited()
+    {
+        string effectiveValue = "Server=prod" + '\u2003' + "Password=secret";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_password_pair_is_three_per_em_space_delimited()
+    {
+        string effectiveValue = "Server=prod" + '\u2004' + "Password=secret";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_password_pair_is_four_per_em_space_delimited()
+    {
+        string effectiveValue = "Server=prod" + '\u2005' + "Password=secret";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_password_pair_is_six_per_em_space_delimited()
+    {
+        string effectiveValue = "Server=prod" + '\u2006' + "Password=secret";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_password_pair_is_ideographic_space_delimited()
+    {
+        string effectiveValue = "Server=prod" + '\u3000' + "Password=secret";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_password_pair_is_en_quad_delimited()
+    {
+        string effectiveValue = "Server=prod" + '\u2000' + "Password=secret";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_password_pair_is_em_quad_delimited()
+    {
+        string effectiveValue = "Server=prod" + '\u2001' + "Password=secret";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_password_pair_is_ogham_space_mark_delimited()
+    {
+        string effectiveValue = "Server=prod" + '\u1680' + "Password=secret";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_password_pair_is_narrow_no_break_hyphen_delimited()
+    {
+        string effectiveValue = "Server=prod" + '\u2011' + "Password=secret";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_password_pair_is_zero_width_space_delimited()
+    {
+        string effectiveValue = "Server=prod" + '\u200B' + "Password=secret";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_password_pair_is_figure_dash_delimited()
+    {
+        string effectiveValue = "Server=prod" + '\u2012' + "Password=secret";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_password_pair_is_zero_width_non_joiner_delimited()
+    {
+        string effectiveValue = "Server=prod" + '\u200C' + "Password=secret";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_password_pair_is_zero_width_joiner_delimited()
+    {
+        string effectiveValue = "Server=prod" + '\u200D' + "Password=secret";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_password_pair_is_soft_hyphen_delimited()
+    {
+        string effectiveValue = "Server=prod" + '\u00AD' + "Password=secret";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_password_pair_is_mongolian_vowel_separator_delimited()
+    {
+        string effectiveValue = "Server=prod" + '\u180E' + "Password=secret";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_password_pair_is_en_dash_delimited()
+    {
+        string effectiveValue = "Server=prod" + '\u2013' + "Password=secret";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_password_pair_is_em_dash_delimited()
+    {
+        string effectiveValue = "Server=prod" + '\u2014' + "Password=secret";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_password_pair_is_horizontal_bar_delimited()
+    {
+        string effectiveValue = "Server=prod" + '\u2015' + "Password=secret";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_password_pair_is_minus_sign_delimited()
+    {
+        string effectiveValue = "Server=prod" + '\u2212' + "Password=secret";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_password_pair_is_word_joiner_delimited()
+    {
+        string effectiveValue = "Server=prod" + '\u2060' + "Password=secret";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_password_pair_is_left_to_right_mark_delimited()
+    {
+        string effectiveValue = "Server=prod" + '\u200E' + "Password=secret";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_password_pair_is_right_to_left_mark_delimited()
+    {
+        string effectiveValue = "Server=prod" + '\u200F' + "Password=secret";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_password_pair_is_fullwidth_hyphen_minus_delimited()
+    {
+        string effectiveValue = "Server=prod" + '\uFF0D' + "Password=secret";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_password_pair_is_small_hyphen_minus_delimited()
+    {
+        string effectiveValue = "Server=prod" + '\uFE63' + "Password=secret";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_password_pair_is_division_slash_delimited()
+    {
+        string effectiveValue = "Server=prod" + '\u2215' + "Password=secret";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_password_pair_is_left_to_right_embedding_delimited()
+    {
+        string effectiveValue = "Server=prod" + '\u202A' + "Password=secret";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_password_pair_is_right_to_left_embedding_delimited()
+    {
+        string effectiveValue = "Server=prod" + '\u202B' + "Password=secret";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_password_pair_is_pop_directional_formatting_delimited()
+    {
+        string effectiveValue = "Server=prod" + '\u202C' + "Password=secret";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_password_pair_is_left_to_right_override_delimited()
+    {
+        string effectiveValue = "Server=prod" + '\u202D' + "Password=secret";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_password_pair_is_right_to_left_override_delimited()
+    {
+        string effectiveValue = "Server=prod" + '\u202E' + "Password=secret";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_password_pair_is_left_to_right_isolate_delimited()
+    {
+        string effectiveValue = "Server=prod" + '\u2066' + "Password=secret";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_password_pair_is_right_to_left_isolate_delimited()
+    {
+        string effectiveValue = "Server=prod" + '\u2067' + "Password=secret";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_password_pair_is_first_strong_isolate_delimited()
+    {
+        string effectiveValue = "Server=prod" + '\u2068' + "Password=secret";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_password_pair_is_pop_directional_isolate_delimited()
+    {
+        string effectiveValue = "Server=prod" + '\u2069' + "Password=secret";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_password_pair_is_inhibit_symmetric_swapping_delimited()
+    {
+        string effectiveValue = "Server=prod" + '\u206A' + "Password=secret";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_password_pair_is_inhibit_arabic_form_shaping_delimited()
+    {
+        string effectiveValue = "Server=prod" + '\u206B' + "Password=secret";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_password_pair_is_activate_arabic_form_shaping_delimited()
+    {
+        string effectiveValue = "Server=prod" + '\u206C' + "Password=secret";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_password_pair_is_activate_arabic_form_shaping_mark_delimited()
+    {
+        string effectiveValue = "Server=prod" + '\u206D' + "Password=secret";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_account_key_pair_is_tab_delimited()
+    {
+        string effectiveValue = "Endpoint=x" + '\t' + "AccountKey=secret";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_password_pair_is_backslash_delimited()
+    {
+        string effectiveValue = "Server=prod" + '\\' + "Password=secret";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_client_secret_pair_is_percent_encoded_in_query()
+    {
+        const string effectiveValue = "redirect=https://x?ClientSecret%3Dabc";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_client_secret_pair_is_doubly_percent_encoded_in_query()
+    {
+        const string effectiveValue = "redirect=https://x?ClientSecret%253Dabc";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_client_secret_pair_is_percent_encoded_with_plus_in_secret()
+    {
+        const string effectiveValue = "redirect=https://x?ClientSecret%3Dabc%2Bdef";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_password_pair_is_slash_delimited()
+    {
+        string effectiveValue = "Server=prod" + '/' + "Password=secret";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_client_secret_pair_is_triply_percent_encoded_in_query()
+    {
+        const string effectiveValue = "redirect=https://x?ClientSecret%25253Dabc";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_password_pair_is_fullwidth_solidus_delimited()
+    {
+        string effectiveValue = "Server=prod" + '\uFF0F' + "Password=secret";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_password_pair_is_percent_encoded_slash_delimited()
+    {
+        const string effectiveValue = "Server=prod%2FPassword=secret";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_password_pair_is_activate_national_digit_shapes_delimited()
+    {
+        string effectiveValue = "Server=prod" + '\u206E' + "Password=secret";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_password_pair_is_activate_nominal_digit_shapes_delimited()
+    {
+        string effectiveValue = "Server=prod" + '\u206F' + "Password=secret";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_password_pair_is_ascii_space_delimited()
+    {
+        string effectiveValue = "Server=prod Password=secret";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_password_pair_is_nel_delimited()
+    {
+        string effectiveValue = "Server=prod" + '\u0085' + "Password=secret";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_password_pair_is_paragraph_separator_delimited()
+    {
+        string effectiveValue = "Server=prod" + '\u2029' + "Password=secret";
+        AssertRedacts(effectiveValue);
+    }
+
     private static void AssertRedacts(string effectiveValue)
     {
         Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
