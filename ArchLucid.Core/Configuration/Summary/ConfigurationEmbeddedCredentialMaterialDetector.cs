@@ -54,7 +54,7 @@ internal static class ConfigurationEmbeddedCredentialMaterialDetector
 
         string current = trimmed.ToString();
 
-        for (int pass = 0; pass < 6 && current.Contains('%'); pass++)
+        for (int pass = 0; pass < 7 && current.Contains('%'); pass++)
         {
             string decoded = Uri.UnescapeDataString(current);
 
@@ -176,7 +176,7 @@ internal static class ConfigurationEmbeddedCredentialMaterialDetector
         or '\u200E' or '\u200F' or '\u2011' or '\u2012' or '\u2013' or '\u2014' or '\u2015' or '\u202A' or '\u202B'
         or '\u202C' or '\u202D' or '\u202E' or '\u202F' or '\u205F' or '\u2060' or '\u2066' or '\u2067' or '\u2068'
         or '\u2069' or '\u206A' or '\u206B' or '\u206C' or '\u206D' or '\u206E' or '\u206F' or '\u3000' or '\uFE63' or '\uFF0D' or '\uFF0F'
-        or '\u2044' or '\u29F8' or '\u29F9' or '\uFE68' or '\uFF3C' or '\u2216' or '\u2212' or '\u2215' or '\u0085' or '\u2028' or '\u2029';
+        or '\u2044' or '\u2571' or '\u29F8' or '\u29F9' or '\uFE31' or '\uFE68' or '\uFF3C' or '\u2216' or '\u2212' or '\u2215' or '\u0085' or '\u2028' or '\u2029';
 
     private static bool TryMatchCredentialKeyValuePairAt(ReadOnlySpan<char> trimmed, int index)
     {
