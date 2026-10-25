@@ -1173,6 +1173,22 @@ public sealed class ConfigurationEffectiveValueResolverTests
     }
 
     [Fact]
+    public void Resolve_redacts_json_object_effective_values_when_property_name_is_token_and_value_is_null()
+    {
+        const string configPath = "ArchLucid:SomeFeature:Settings";
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = """{"Token":null}""",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(configuration, configPath, isSet: true);
+
+        value.Should().Be("***");
+    }
+
+    [Fact]
     public void Resolve_truncates_scalar_without_splitting_valid_surrogate_pair_across_boundary()
     {
         const string configPath = "ArchLucid:FallbackLlm:Endpoints";
@@ -1471,6 +1487,33 @@ public sealed class ConfigurationEffectiveValueResolverTests
         prefix.Length.Should().Be(256);
         TruncatedPrefixIsWellFormed(value).Should().BeTrue();
         prefix.Should().Be(new string('k', 216) + emojis + "abcdefghijklmnopqr");
+    }
+
+    [Fact]
+    public void Resolve_truncates_scalar_without_splitting_twelve_supplementary_characters_at_boundary()
+    {
+        const string configPath = "ArchLucid:FallbackLlm:Endpoints";
+        string emojis = "\U0001F4A1\U0001F4A2\U0001F4A3\U0001F4A4\U0001F4A5\U0001F4A6\U0001F4A7\U0001F4A8\U0001F4A9\U0001F4AA\U0001F4AB\U0001F4AC";
+        string configured = new string('l', 212) + emojis + "abcdefghijklmnopqrstuvwxyz012345";
+
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = configured,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            configPath,
+            isSet: true);
+
+        value.Should().NotBeNull();
+        value.Should().EndWith("…");
+        string prefix = value![..^1];
+        prefix.Length.Should().Be(256);
+        TruncatedPrefixIsWellFormed(value).Should().BeTrue();
+        prefix.Should().Be(new string('l', 212) + emojis + "abcdefghijklmnopqrst");
     }
 
     [Fact]
