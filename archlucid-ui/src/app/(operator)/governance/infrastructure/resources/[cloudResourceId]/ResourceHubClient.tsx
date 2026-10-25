@@ -1299,7 +1299,12 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                           <EnterpriseTableRow
                             key={`${relationship.fromAzureResourceId}-${relationship.toAzureResourceId}-${relationship.relationshipType}`}
                           >
-                            <EnterpriseTableCell>{relationship.relationshipType}</EnterpriseTableCell>
+                            <EnterpriseTableCell>
+                              {formatStoredInfraEvidenceHubField(
+                                relationship.relationshipType,
+                                "Network relationship type was not stored.",
+                              )}
+                            </EnterpriseTableCell>
                             <EnterpriseTableCell className="font-mono text-xs">{relationship.fromAzureResourceId}</EnterpriseTableCell>
                             <EnterpriseTableCell className="font-mono text-xs">{relationship.toAzureResourceId}</EnterpriseTableCell>
                           </EnterpriseTableRow>
