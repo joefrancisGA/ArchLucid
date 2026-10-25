@@ -606,6 +606,16 @@ describe("SecureNowQuestionQueue", () => {
     expect(screen.queryByPlaceholderText("Reason required to reopen")).not.toBeInTheDocument();
   });
 
+  it("shows answer actions when list JSON stores lowercase open status", async () => {
+    mocks.listQuestions.mockResolvedValue([{ ...question, status: "open" }]);
+
+    render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
+    fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
+
+    expect(screen.getByRole("button", { name: "Name the peer" })).toBeInTheDocument();
+    expect(screen.queryByPlaceholderText("Reason required to reopen")).not.toBeInTheDocument();
+  });
+
   it("shows stored answer metadata instead of answer actions when status is omitted but answer fields are stored", async () => {
     mocks.listQuestions.mockResolvedValue([
       { ...question, status: null },

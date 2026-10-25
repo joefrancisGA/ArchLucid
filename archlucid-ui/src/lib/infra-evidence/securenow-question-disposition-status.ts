@@ -30,11 +30,42 @@ function secureNowQuestionDispositionFieldContributesToInference(
   return value.trim().length > 0;
 }
 
+type SecureNowQuestionDispositionStatusCanonical =
+  | "missing"
+  | "open"
+  | "answered"
+  | "dismissed"
+  | "other";
+
+function secureNowQuestionDispositionStatusCanonical(
+  status: string | null | undefined,
+): SecureNowQuestionDispositionStatusCanonical {
+  const trimmed = secureNowQuestionDispositionStatusTrimmed(status);
+  if (trimmed === null) {
+    return "missing";
+  }
+
+  const lower = trimmed.toLowerCase();
+  if (lower === "open") {
+    return "open";
+  }
+
+  if (lower === "answered") {
+    return "answered";
+  }
+
+  if (lower === "ignored" || lower === "dismissed") {
+    return "dismissed";
+  }
+
+  return "other";
+}
+
 function secureNowQuestionDispositionStatusAllowsStoredMetadataInference(
   status: string | null | undefined,
 ): boolean {
-  const normalized = secureNowQuestionDispositionStatusTrimmed(status);
-  return normalized === null || normalized === "Open";
+  const canonical = secureNowQuestionDispositionStatusCanonical(status);
+  return canonical === "missing" || canonical === "open";
 }
 
 function secureNowQuestionDispositionHasInferredClosedFields(
@@ -90,8 +121,10 @@ export function secureNowQuestionCountsAsAnsweredFilterRow(
 export function secureNowQuestionDispositionReviewerStatusLabel(
   question: SecureNowQuestionDispositionChromeFields,
 ): string {
-  const normalized = secureNowQuestionDispositionStatusTrimmed(question.status);
-  if (normalized === null) {
+  const trimmed = secureNowQuestionDispositionStatusTrimmed(question.status);
+  const canonical = secureNowQuestionDispositionStatusCanonical(question.status);
+
+  if (canonical === "missing") {
     if (secureNowQuestionCountsAsAnsweredFilterRow(question)) {
       return "Answered";
     }
@@ -103,15 +136,15 @@ export function secureNowQuestionDispositionReviewerStatusLabel(
     return "Question status was not stored";
   }
 
-  if (normalized === "Answered") {
+  if (canonical === "answered") {
     return "Answered";
   }
 
-  if (normalized === "Ignored" || normalized === "Dismissed") {
+  if (canonical === "dismissed") {
     return "Dismissed";
   }
 
-  if (normalized === "Open") {
+  if (canonical === "open") {
     if (secureNowQuestionCountsAsAnsweredFilterRow(question)) {
       return "Answered";
     }
@@ -121,7 +154,7 @@ export function secureNowQuestionDispositionReviewerStatusLabel(
     }
   }
 
-  return `Question status "${normalized}" has no reviewer label.`;
+  return `Question status "${trimmed}" has no reviewer label.`;
 }
 
 export function secureNowQuestionCountsAsDismissedFilterRow(
@@ -155,35 +188,32 @@ export function secureNowQuestionDispositionStatusTrimmed(
 export function secureNowQuestionDispositionIsOpen(
   status: string | null | undefined,
 ): boolean {
-  const normalized = secureNowQuestionDispositionStatusTrimmed(status);
-  if (normalized === null) {
+  const canonical = secureNowQuestionDispositionStatusCanonical(status);
+  if (canonical === "missing") {
     // List JSON may omit status on actionable open rows while they still appear in the Open filter.
     return true;
   }
 
-  return normalized === "Open";
+  return canonical === "open";
 }
 
 export function secureNowQuestionDispositionIsAnswered(
   status: string | null | undefined,
 ): boolean {
-  return secureNowQuestionDispositionStatusTrimmed(status) === "Answered";
+  return secureNowQuestionDispositionStatusCanonical(status) === "answered";
 }
 
 export function secureNowQuestionDispositionIsDismissed(
   status: string | null | undefined,
 ): boolean {
-  const normalized = secureNowQuestionDispositionStatusTrimmed(status);
-  return normalized === "Ignored" || normalized === "Dismissed";
+  return secureNowQuestionDispositionStatusCanonical(status) === "dismissed";
 }
 
 export function secureNowQuestionDispositionIsClosed(
   status: string | null | undefined,
 ): boolean {
-  const normalized = secureNowQuestionDispositionStatusTrimmed(status);
-  return normalized === "Answered"
-    || normalized === "Ignored"
-    || normalized === "Dismissed";
+  const canonical = secureNowQuestionDispositionStatusCanonical(status);
+  return canonical === "answered" || canonical === "dismissed";
 }
 
 export function secureNowQuestionReviewerClosedAnswerCodeLine(

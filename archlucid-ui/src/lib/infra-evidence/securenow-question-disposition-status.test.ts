@@ -29,6 +29,10 @@ describe("secureNowQuestionDispositionIsAnswered", () => {
   it("treats padded answered status as answered", () => {
     expect(secureNowQuestionDispositionIsAnswered("  Answered  ")).toBe(true);
   });
+
+  it("treats lowercase answered status as answered", () => {
+    expect(secureNowQuestionDispositionIsAnswered("answered")).toBe(true);
+  });
 });
 
 describe("secureNowQuestionDispositionIsOpen", () => {
@@ -39,6 +43,10 @@ describe("secureNowQuestionDispositionIsOpen", () => {
 
   it("treats padded Open status as open", () => {
     expect(secureNowQuestionDispositionIsOpen("  Open  ")).toBe(true);
+  });
+
+  it("treats case-variant open status as open", () => {
+    expect(secureNowQuestionDispositionIsOpen("  open  ")).toBe(true);
   });
 });
 
