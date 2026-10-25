@@ -15,6 +15,42 @@ describe("deriveOperatorHomeTenantCountingSnapshot", () => {
     expect(snapshot.metrics.hasReviews).toBe(true);
   });
 
+  it("normalizes non-finite awaitingApprovalCount to zero in metrics", () => {
+    const snapshot = deriveOperatorHomeTenantCountingSnapshot({
+      displayItems: [
+        {
+          runId: "tenant-1",
+          projectId: "default",
+          hasFindingsSnapshot: true,
+        },
+      ],
+      previewItems: [],
+      awaitingApprovalCount: Number.NaN,
+    });
+
+    expect(snapshot.metrics.reviewPackagesAwaitingApproval).toBe(0);
+  });
+
+  it("matches panel-normalized totals when raw pagination metadata is stale on archived-only pages", () => {
+    const displayItems: RunSummary[] = [
+      {
+        runId: "archived-1",
+        projectId: "default",
+        hasGoldenManifest: true,
+        isArchived: true,
+      },
+    ];
+
+    const snapshot = deriveOperatorHomeTenantCountingSnapshot({
+      displayItems,
+      previewItems: displayItems,
+      runsDashboardTotalCount: 12,
+    });
+
+    expect(snapshot.metrics.reviewPackagesTotal).toBe(0);
+    expect(snapshot.metrics.hasReviews).toBe(false);
+  });
+
   it("uplifts review totals from visible tenant rows when runsDashboardTotalCount is omitted (TB-1039)", () => {
     const items: RunSummary[] = [
       {

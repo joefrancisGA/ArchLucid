@@ -49,6 +49,12 @@ describe("resolveOperatorHomeRunsPanelReportedTotalCount", () => {
     ).toBe(12);
   });
 
+  it("clamps negative loaded totals to zero before uplifting from visible active tenant rows", () => {
+    expect(
+      resolveOperatorHomeRunsPanelReportedTotalCount([buildRun("active-a"), buildRun("active-b")], -3),
+    ).toBe(2);
+  });
+
   it("keeps workspace totalCount when the overview page is empty but loaded pagination metadata is present", () => {
     expect(resolveOperatorHomeRunsPanelReportedTotalCount([], 8)).toBe(8);
   });
