@@ -7174,6 +7174,82 @@ ABQ-09 churn hotspot.
 
 ## Zone: ui-infra-resource-hub
 
+2026-10-25 seed hunt (seed→hit): promoted whitespace-only configuration property values shown as blank mono cells on the overview configuration table — property values rendered raw while findings and terraform fields already used `formatStoredInfraEvidenceHubField`; regression `shows property value omission copy when a captured property value is whitespace-only`; cheap-disproof closed tag value whitespace (same helper pattern; seeded below), RBAC `scope` whitespace (table still shows blank scope without omission copy; seeded), network `relationshipType` whitespace (seeded), and architecture-review `status` whitespace (existing trim gate; regression lock from prior hunt); scoped ResourceHubClient vitest 78/78. Private beta: operators reviewing captured configuration on a resource hub see “Property value was not stored.” instead of an empty cell when capture stored only whitespace.
+
+- [x] (proven) `ResourceHubClient` configuration properties — property value whitespace-only — **hit 2026-10-25 seed hunt:** `formatStoredInfraEvidenceHubField` on property value cells; regression whitespace property fixture.
+- [x] (valid-no-repro) `ResourceHubClient` configuration tags — tag value whitespace-only — **cheap-disproof 2026-10-25 seed hunt:** same omission helper applies once wired; follow-on candidate seeded below.
+- [x] (valid-no-repro) `ResourceHubClient` RBAC assignments — `scope` whitespace-only — **cheap-disproof 2026-10-25 seed hunt:** scope cell still raw string; seeded below.
+- [x] (valid-no-repro) `ResourceHubClient` network relationships — `relationshipType` whitespace-only — **cheap-disproof 2026-10-25 seed hunt:** type column raw; seeded below.
+- [x] (valid-no-repro) `ResourceHubClient` architecture-review findings — `status` whitespace-only — **cheap-disproof 2026-10-25 seed hunt:** existing trim + omission copy; regression `shows finding status omission copy on architecture review rows when status is whitespace-only`.
+
+- [ ] (candidate) `ResourceHubClient` configuration tags — tag value whitespace-only — locus: tags table value cell; input: blank tag value without omission copy.
+- [ ] (candidate) `ResourceHubClient` RBAC assignments — `scope` whitespace-only — locus: scope column; input: blank scope cell.
+- [ ] (candidate) `ResourceHubClient` network relationships — `relationshipType` whitespace-only — locus: type column; input: blank relationship type label.
+- [ ] (candidate) `ResourceHubClient` configuration properties — property key whitespace-only — locus: property name column; input: blank key display.
+- [ ] (candidate) `ResourceHubClient` evidence pointers — `relativePath` whitespace-only — locus: path column; input: blank path cell.
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **aliases:** resource hub; infrastructure resource detail
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 52
+- **bugs-found:** 31
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-25
+- **last-bug:** 2026-10-25 — whitespace-only configuration property values on overview
+- **related-pd-tb:** none
+- **code-changed-since:** yes
+
+2026-10-25 seed hunt (seed→hit): promoted whitespace-only findings stream section labels and diagram `matchKind` chip labels — `stream.streamLabel` rendered raw in `<h2>` and table `ariaLabel` while other hub strings used `formatStoredInfraEvidenceHubField`; diagram `StatusTag` label bypassed trim while `resolveDiagramCorrespondenceStatusKind` already trimmed for kind resolution; regressions `shows findings stream section label omission copy when streamLabel is whitespace-only` and `shows diagram match kind omission copy when matchKind is whitespace-only`; cheap-disproof closed architecture-review status whitespace (existing trim gate; parity regression retained) and duplicate stream-label keys across streams (labels are per-stream objects); scoped ResourceHubClient vitest 77/77. Private beta: findings stream headings and diagram match kind chips show not-stored copy when capture stored only whitespace.
+
+- [x] (proven) `ResourceHubClient` findings streams — `streamLabel` whitespace-only — **hit 2026-10-25 seed hunt:** `findingsStreamSectionLabel` via `formatStoredInfraEvidenceHubField`; regression findings tab fixture.
+- [x] (proven) `ResourceHubClient` diagram correspondence — `matchKind` whitespace-only — **hit 2026-10-25 seed hunt:** `diagramCorrespondenceMatchKindDisplayLabel`; regression diagram tab fixture.
+- [x] (valid-no-repro) `ResourceHubClient` architecture-review findings — `status` whitespace-only — **cheap-disproof 2026-10-25 seed hunt:** trim gate on status column; regression lock.
+- [x] (valid-no-repro) `ResourceHubClient` configuration properties — property value whitespace-only — **cheap-disproof 2026-10-25 seed hunt:** display-only gap; promoted in hunt above.
+- [x] (valid-no-repro) `ResourceHubClient` configuration tags — tag value whitespace-only — **cheap-disproof 2026-10-25 seed hunt:** seeded follow-on below.
+
+- [x] (proven) `ResourceHubClient` terraform tab — `terraformGenerationMethod` whitespace-only — **hit 2026-10-25 seed hunt:** see prior hunt.
+- [x] (proven) `ResourceHubClient` diagram correspondence — `explainText` whitespace-only — **hit 2026-10-25 seed hunt:** see prior hunt.
+- [x] (proven) `ResourceHubClient` remediation instances — `status` whitespace-only — **hit 2026-10-25 seed hunt:** see prior hunt.
+- [ ] (candidate) `ResourceHubClient` configuration tags — tag value whitespace-only — locus: tags table; input: blank tag value display.
+- [ ] (candidate) `ResourceHubClient` RBAC assignments — `scope` whitespace-only — locus: scope column; input: blank scope cell.
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **aliases:** resource hub; infrastructure resource detail
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 51
+- **bugs-found:** 30
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-25
+- **last-bug:** 2026-10-25 — whitespace-only stream labels and diagram match kind
+- **related-pd-tb:** none
+- **code-changed-since:** yes
+
+2026-10-25 seed hunt (seed-only): cooldown seed on `ui-infra-resource-hub`; promoted findings `severity` whitespace omission regression lock (`shows severity omission copy when the captured severity is whitespace-only`) — production trim gate already present; no code changes; cheap-disproof closed stream-label and matchKind whitespace (display gaps; promoted next hunt); scoped ResourceHubClient vitest 76/76.
+
+- [x] (valid-no-repro) `ResourceHubClient` findings stream items — `severity` whitespace-only — **cheap-disproof 2026-10-25 seed hunt:** existing trim gate; regression lock added.
+- [x] (valid-no-repro) `ResourceHubClient` findings streams — `streamLabel` whitespace-only — **cheap-disproof 2026-10-25 seed hunt:** raw label in heading; promoted hunt #51.
+- [x] (valid-no-repro) `ResourceHubClient` diagram correspondence — `matchKind` whitespace-only — **cheap-disproof 2026-10-25 seed hunt:** raw `StatusTag` label; promoted hunt #51.
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **aliases:** resource hub; infrastructure resource detail
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 50
+- **bugs-found:** 29
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-25
+- **last-bug:** 2026-10-25 — whitespace-only hub field omission copy parity
+- **related-pd-tb:** none
+- **code-changed-since:** yes
+
 2026-10-25 seed hunt (seed→hit): promoted whitespace-only captured hub text shown as real values — generation method, diagram explanation, and remediation status (and terraform address label) bypassed trim while findings titles already omitted whitespace; add `formatStoredInfraEvidenceHubField` and align remediation status with findings trim parity; regressions for terraform method, diagram explain, remediation status, and finding title whitespace; cheap-disproof closed remediation tab `hasMore` with empty items (caption suppressed; factory link only; regression from prior hunt) and duplicate pagination affordances; scoped ResourceHubClient + display tests 78/78. Private beta: resource hub shows honest not-stored copy for whitespace-only terraform generation method, correspondence explanation, and remediation status.
 
 - [x] (proven) `ResourceHubClient` terraform tab — `terraformGenerationMethod` whitespace-only — **hit 2026-10-25 seed hunt:** `formatStoredInfraEvidenceHubField`; regression whitespace fixture.

@@ -1307,6 +1307,23 @@ describe("ResourceHubClient", () => {
     expect(screen.queryByTestId("infra-resource-hub-open-terraform-work")).not.toBeInTheDocument();
   });
 
+  it("shows property value omission copy when a captured property value is whitespace-only", async () => {
+    fetchCachedInfraEvidenceResourceHub.mockImplementation(async () =>
+      buildResourceHubTestMockHub({
+        currentConfiguration: {
+          ...buildResourceHubTestMockHub().currentConfiguration,
+          properties: {
+            skuName: "   ",
+          },
+        },
+      }),
+    );
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    expect(await screen.findByText("Property value was not stored.")).toBeInTheDocument();
+    expect(screen.getByText("skuName")).toBeInTheDocument();
+  });
+
   it("labels missing resource group and region with omission copy (P-13)", async () => {
     fetchCachedInfraEvidenceResourceHub.mockImplementation(async () =>
       buildResourceHubTestMockHub({
