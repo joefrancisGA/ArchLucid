@@ -5,11 +5,22 @@ namespace ArchLucid.Application.Analysis;
 /// </summary>
 internal static class RunMetadataDiffNormalizer
 {
+    private static readonly HashSet<string> KnownChangedFieldNames = new(StringComparer.Ordinal)
+    {
+        "RequestId",
+        "Status",
+        "CurrentManifestVersion",
+        "CompletedUtc",
+        "StructuralExecutionMode",
+        "ModelAliasId",
+    };
+
     internal static void NormalizeInPlace(RunMetadataDiffResult runDiff)
     {
         ArgumentNullException.ThrowIfNull(runDiff);
 
         ComparisonPersistedStringListNormalizer.NormalizeInPlace(runDiff.ChangedFields);
+        RemoveUnknownChangedFieldNamesInPlace(runDiff.ChangedFields);
 
         if (runDiff.ChangedFields.Count == 0)
         {
@@ -43,5 +54,14 @@ internal static class RunMetadataDiffNormalizer
 
         if (runDiff.ExecutionModesDiffer)
             runDiff.SharedNonRealExecutionMode = false;
+    }
+
+    private static void RemoveUnknownChangedFieldNamesInPlace(List<string> changedFields)
+    {
+        for (int i = changedFields.Count - 1; i >= 0; i--)
+        {
+            if (!KnownChangedFieldNames.Contains(changedFields[i]))
+                changedFields.RemoveAt(i);
+        }
     }
 }

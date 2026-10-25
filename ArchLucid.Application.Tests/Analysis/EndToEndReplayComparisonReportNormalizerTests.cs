@@ -461,6 +461,51 @@ public sealed class EndToEndReplayComparisonReportNormalizerTests
     }
 
     [Fact]
+    public void CompareQuality_EndToEndReplayComparisonReportNormalizer_removes_unknown_run_metadata_changed_field_names()
+    {
+        EndToEndReplayComparisonReport report = new()
+        {
+            LeftRunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            RightRunId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            RunDiff = new RunMetadataDiffResult
+            {
+                ChangedFields = ["Status", "NotARealField", "  NotARealField  ", "bogus"],
+                RequestIdsDiffer = true,
+                ManifestVersionsDiffer = true,
+            },
+        };
+
+        EndToEndReplayComparisonReportNormalizer.NormalizePersistedPayload(report);
+
+        report.RunDiff.ChangedFields.Should().Equal(["Status"]);
+        report.RunDiff.StatusDiffers.Should().BeTrue();
+        report.RunDiff.RequestIdsDiffer.Should().BeFalse();
+        report.RunDiff.ManifestVersionsDiffer.Should().BeFalse();
+    }
+
+    [Fact]
+    public void CompareQuality_EndToEndReplayComparisonReportNormalizer_clears_run_metadata_flags_when_only_unknown_changed_field_names_remain()
+    {
+        EndToEndReplayComparisonReport report = new()
+        {
+            LeftRunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            RightRunId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            RunDiff = new RunMetadataDiffResult
+            {
+                ChangedFields = ["legacyPlaceholder", "   "],
+                StatusDiffers = true,
+                RequestIdsDiffer = true,
+            },
+        };
+
+        EndToEndReplayComparisonReportNormalizer.NormalizePersistedPayload(report);
+
+        report.RunDiff.ChangedFields.Should().BeEmpty();
+        report.RunDiff.StatusDiffers.Should().BeFalse();
+        report.RunDiff.RequestIdsDiffer.Should().BeFalse();
+    }
+
+    [Fact]
     public void CompareQuality_EndToEndReplayComparisonReportNormalizer_syncs_run_metadata_diff_flags_from_changed_field_names()
     {
         EndToEndReplayComparisonReport report = new()
