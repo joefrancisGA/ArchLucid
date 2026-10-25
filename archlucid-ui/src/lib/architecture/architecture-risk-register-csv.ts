@@ -4,6 +4,26 @@ export const ARCHITECTURE_RISK_REGISTER_OWNER_NOT_STORED = "Owner was not stored
 
 export const ARCHITECTURE_RISK_REGISTER_EVIDENCE_LINK_NOT_STORED = "Evidence link was not stored." as const;
 
+export const ARCHITECTURE_RISK_REGISTER_STALE_FLAG_NOT_STORED = "Stale flag was not stored." as const;
+
+export const ARCHITECTURE_RISK_REGISTER_LAST_REVIEWED_NOT_STORED = "Last reviewed was not stored." as const;
+
+export const ARCHITECTURE_RISK_REGISTER_LAST_REVIEWED_STORED_EMPTY = "Last reviewed was stored empty." as const;
+
+export const ARCHITECTURE_RISK_REGISTER_NEXT_REVIEW_NOT_STORED = "Next review was not stored." as const;
+
+export const ARCHITECTURE_RISK_REGISTER_NEXT_REVIEW_STORED_EMPTY = "Next review was stored empty." as const;
+
+export const ARCHITECTURE_RISK_REGISTER_HUMAN_REVIEW_NOT_STORED = "Human review status was not stored." as const;
+
+export const ARCHITECTURE_RISK_REGISTER_HUMAN_REVIEW_STORED_EMPTY = "Human review status was stored empty." as const;
+
+export const ARCHITECTURE_RISK_REGISTER_ITSM_LINKAGE_NOT_STORED = "ITSM linkage was not stored." as const;
+
+export const ARCHITECTURE_RISK_REGISTER_ITSM_LINKAGE_STORED_EMPTY = "ITSM linkage was stored empty." as const;
+
+export const ARCHITECTURE_RISK_REGISTER_AGING_DAYS_NOT_STORED = "Aging days was not stored." as const;
+
 export type ArchitectureRiskRegisterCsvRow = {
   recordKind: "finding" | "decision";
   runId: string;
@@ -65,18 +85,82 @@ export function buildArchitectureRiskRegisterCsv(rows: readonly ArchitectureRisk
       row.recommended,
       row.status,
       row.evidenceHref ?? inspectPath(row.runId, row.findingId),
-      row.lastReviewedUtc ?? "",
-      row.revisitDueUtc ?? "",
-      row.agingDays !== undefined ? String(row.agingDays) : "",
-      row.isStale ? "yes" : "no",
-      row.humanReviewStatusLabel ?? "",
-      row.itsmLinkedTicketsSummary ?? "",
+      formatRiskRegisterLastReviewedCell(row.lastReviewedUtc),
+      formatRiskRegisterNextReviewCell(row.revisitDueUtc),
+      formatRiskRegisterAgingDaysCell(row.agingDays),
+      formatRiskRegisterStaleCell(row.isStale),
+      formatRiskRegisterHumanReviewCell(row.humanReviewStatusLabel),
+      formatRiskRegisterItsmLinkageCell(row.itsmLinkedTicketsSummary),
     ].map((c) => escapeCsvCell(c));
 
     lines.push(cells.join(","));
   }
 
   return `${lines.join("\r\n")}\r\n`;
+}
+
+function formatRiskRegisterStaleCell(isStale: boolean | undefined): string {
+  if (isStale === undefined) {
+    return ARCHITECTURE_RISK_REGISTER_STALE_FLAG_NOT_STORED;
+  }
+
+  return isStale ? "yes" : "no";
+}
+
+function formatRiskRegisterLastReviewedCell(lastReviewedUtc: string | null | undefined): string {
+  if (lastReviewedUtc === null || lastReviewedUtc === undefined) {
+    return ARCHITECTURE_RISK_REGISTER_LAST_REVIEWED_NOT_STORED;
+  }
+
+  if (lastReviewedUtc.length === 0) {
+    return ARCHITECTURE_RISK_REGISTER_LAST_REVIEWED_STORED_EMPTY;
+  }
+
+  return lastReviewedUtc;
+}
+
+function formatRiskRegisterNextReviewCell(revisitDueUtc: string | null | undefined): string {
+  if (revisitDueUtc === null || revisitDueUtc === undefined) {
+    return ARCHITECTURE_RISK_REGISTER_NEXT_REVIEW_NOT_STORED;
+  }
+
+  if (revisitDueUtc.length === 0) {
+    return ARCHITECTURE_RISK_REGISTER_NEXT_REVIEW_STORED_EMPTY;
+  }
+
+  return revisitDueUtc;
+}
+
+function formatRiskRegisterAgingDaysCell(agingDays: number | undefined): string {
+  if (agingDays === undefined) {
+    return ARCHITECTURE_RISK_REGISTER_AGING_DAYS_NOT_STORED;
+  }
+
+  return String(agingDays);
+}
+
+function formatRiskRegisterHumanReviewCell(humanReviewStatusLabel: string | null | undefined): string {
+  if (humanReviewStatusLabel === null || humanReviewStatusLabel === undefined) {
+    return ARCHITECTURE_RISK_REGISTER_HUMAN_REVIEW_NOT_STORED;
+  }
+
+  if (humanReviewStatusLabel.length === 0) {
+    return ARCHITECTURE_RISK_REGISTER_HUMAN_REVIEW_STORED_EMPTY;
+  }
+
+  return humanReviewStatusLabel;
+}
+
+function formatRiskRegisterItsmLinkageCell(itsmLinkedTicketsSummary: string | null | undefined): string {
+  if (itsmLinkedTicketsSummary === null || itsmLinkedTicketsSummary === undefined) {
+    return ARCHITECTURE_RISK_REGISTER_ITSM_LINKAGE_NOT_STORED;
+  }
+
+  if (itsmLinkedTicketsSummary.length === 0) {
+    return ARCHITECTURE_RISK_REGISTER_ITSM_LINKAGE_STORED_EMPTY;
+  }
+
+  return itsmLinkedTicketsSummary;
 }
 
 function formatRiskRegisterOwnerCell(ownerUserId: string | null | undefined): string {

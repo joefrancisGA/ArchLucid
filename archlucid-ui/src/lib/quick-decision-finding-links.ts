@@ -8,23 +8,29 @@ import {
   runDetailSectionHref,
 } from "@/lib/findings/finding-source-evidence-links";
 
-/** Shown when a finding carries no recommendation text of its own. */
-export const QUICK_DECISION_RECOMMENDATION_FALLBACK = "No recommended action recorded for this finding.";
+export const QUICK_DECISION_RECOMMENDATION_NOT_STORED = "Recommended action was not stored." as const;
 
 export const QUICK_DECISION_RECOMMENDATION_STORED_EMPTY =
   "Recommended action was stored empty." as const;
 
-/** First recommendation sentence, or the shared fallback when the finding has no recommendation. */
-export function quickDecisionRecommendationSnippet(finding: QuickDecisionFinding): string {
-  if (finding.recommendation.length === 0) {
-    return QUICK_DECISION_RECOMMENDATION_FALLBACK;
+/** @deprecated Use {@link QUICK_DECISION_RECOMMENDATION_NOT_STORED}. */
+export const QUICK_DECISION_RECOMMENDATION_FALLBACK = QUICK_DECISION_RECOMMENDATION_NOT_STORED;
+
+export function formatQuickDecisionRecommendedAction(recommendation: string): string {
+  if (recommendation.length === 0) {
+    return QUICK_DECISION_RECOMMENDATION_NOT_STORED;
   }
 
-  if (finding.recommendation.trim().length === 0) {
+  if (recommendation.trim().length === 0) {
     return QUICK_DECISION_RECOMMENDATION_STORED_EMPTY;
   }
 
-  return firstRecommendationSentence(finding.recommendation);
+  return firstRecommendationSentence(recommendation);
+}
+
+/** First recommendation sentence, or omission copy when the finding has no recommendation. */
+export function quickDecisionRecommendationSnippet(finding: QuickDecisionFinding): string {
+  return formatQuickDecisionRecommendedAction(finding.recommendation);
 }
 
 /** Severity wording used by ITSM / work-item payloads (coarser than the severity badge scale). */

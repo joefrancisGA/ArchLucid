@@ -83,8 +83,11 @@ public sealed class AgentConfidenceCalibrator(
     /// </summary>
     internal static IReadOnlyList<CalibrationKnot> BuildIsotonicKnots(IReadOnlyList<AgentConfidenceCalibrationSampleRow> samples)
     {
-        List<AgentConfidenceCalibrationSampleRow> ordered =
-            samples.OrderBy(s => s.RawConfidence).ThenBy(s => s.SemanticScore).ToList();
+        List<AgentConfidenceCalibrationSampleRow> ordered = samples
+            .Where(static sample => sample is not null)
+            .OrderBy(s => s.RawConfidence)
+            .ThenBy(s => s.SemanticScore)
+            .ToList();
 
         List<CalibrationBin> bins = [];
 

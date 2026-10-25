@@ -33,18 +33,20 @@ public class DefaultGraphEdgeInferer : IGraphEdgeInferer
             Nodes = nodes,
             ContextNodeId = contextNodeId,
             TopologyNodes = nodes
-                .Where(x => string.Equals(x.NodeType, GraphNodeTypes.TopologyResource, StringComparison.OrdinalIgnoreCase))
+                .Where(static node => NodeTypeEquals(node.NodeType, GraphNodeTypes.TopologyResource))
                 .ToList(),
             SecurityNodes = nodes
-                .Where(x => string.Equals(x.NodeType, GraphNodeTypes.SecurityBaseline, StringComparison.OrdinalIgnoreCase))
+                .Where(static node => NodeTypeEquals(node.NodeType, GraphNodeTypes.SecurityBaseline))
                 .ToList(),
             PolicyNodes = nodes
-                .Where(x => string.Equals(x.NodeType, GraphNodeTypes.PolicyControl, StringComparison.OrdinalIgnoreCase))
+                .Where(static node => NodeTypeEquals(node.NodeType, GraphNodeTypes.PolicyControl))
                 .ToList(),
             RequirementNodes = nodes
-                .Where(x => string.Equals(x.NodeType, GraphNodeTypes.Requirement, StringComparison.OrdinalIgnoreCase))
+                .Where(static node => NodeTypeEquals(node.NodeType, GraphNodeTypes.Requirement))
                 .ToList(),
-            NodeById = nodes.ToDictionary(n => n.NodeId, StringComparer.OrdinalIgnoreCase),
+            NodeById = nodes
+                .GroupBy(static node => node.NodeId.Trim(), StringComparer.OrdinalIgnoreCase)
+                .ToDictionary(static group => group.Key, static group => group.First(), StringComparer.OrdinalIgnoreCase),
         };
 
         foreach (IGraphEdgeInferenceRule rule in Rules)
@@ -52,4 +54,7 @@ public class DefaultGraphEdgeInferer : IGraphEdgeInferer
 
         return GraphEdgeInferenceHelpers.Deduplicate(edges);
     }
+
+    private static bool NodeTypeEquals(string? actual, string expected) =>
+        string.Equals((actual ?? string.Empty).Trim(), expected, StringComparison.OrdinalIgnoreCase);
 }

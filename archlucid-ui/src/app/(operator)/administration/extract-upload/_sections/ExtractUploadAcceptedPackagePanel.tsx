@@ -11,8 +11,11 @@ import { OperatorMutationInlineError } from "@/components/operator/OperatorMutat
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { ExtractUploadAcceptedPackageRecord } from "@/lib/extract-upload-accepted-package-record";
 import {
+  extractUploadPackageIdIsCopyable,
+  formatExtractUploadAcceptedActorLabel,
   formatExtractUploadAcceptedFileLabel,
   formatExtractUploadAcceptedLinkedReview,
+  formatExtractUploadAcceptedPackageId,
 } from "@/lib/extract-upload-accepted-package-record";
 import {
   EXTRACT_UPLOAD_ACCEPTED_PACKAGE_PANEL_TITLE,
@@ -38,17 +41,24 @@ export function ExtractUploadAcceptedPackagePanel(
   props: ExtractUploadAcceptedPackagePanelProps,
 ): React.JSX.Element {
   const { record } = props;
-  const nextAction = extractUploadAcceptedPackageNextAction(props.productLineId);
+  const nextAction = extractUploadAcceptedPackageNextAction(props.productLineId, record.associateRunId);
   const showEvidenceGraphLink = !isSecureNowProductLine(props.productLineId ?? "architecture");
   const { ianaTimeZoneId } = useIanaTimeZonePreference();
   const [copied, setCopied] = useState(false);
   const [copyPackageIdError, setCopyPackageIdError] = useState<string | null>(null);
 
+  const packageIdDisplay = formatExtractUploadAcceptedPackageId(record.packageId);
+  const packageIdCopyable = extractUploadPackageIdIsCopyable(record.packageId);
+
   const onCopyPackageId = useCallback(async () => {
     setCopyPackageIdError(null);
 
+    if (!packageIdCopyable) {
+      return;
+    }
+
     try {
-      await navigator.clipboard.writeText(record.packageId);
+      await navigator.clipboard.writeText(record.packageId.trim());
       setCopied(true);
       showSuccess("Upload id copied.");
       window.setTimeout(() => setCopied(false), 2000);
@@ -60,9 +70,14 @@ export function ExtractUploadAcceptedPackagePanel(
         ),
       );
     }
-  }, [record.packageId]);
+  }, [packageIdCopyable, record.packageId]);
 
-  const acceptedAtLabel = formatInstantInPreferredTimeZone(record.acceptedAtUtc, ianaTimeZoneId);
+  const acceptedAtLabel =
+    record.acceptedAtUtc !== null &&
+    record.acceptedAtUtc !== undefined &&
+    record.acceptedAtUtc.trim().length === 0
+      ? "Accepted time was stored empty."
+      : formatInstantInPreferredTimeZone(record.acceptedAtUtc, ianaTimeZoneId);
 
   return (
     <section
@@ -87,12 +102,13 @@ export function ExtractUploadAcceptedPackagePanel(
                   className="break-all font-mono"
                   data-testid="extract-upload-accepted-package-id-full"
                 >
-                  {record.packageId}
+                  {packageIdDisplay}
                 </span>
                 <Button
                   type="button"
                   variant="outline"
                   size="sm"
+                  disabled={!packageIdCopyable}
                   data-testid="extract-upload-accepted-package-id-copy"
                   aria-describedby={copyPackageIdError != null ? "extract-upload-accepted-package-id-copy-error" : undefined}
                   onClick={() => {
@@ -124,7 +140,7 @@ export function ExtractUploadAcceptedPackagePanel(
                 Actor
               </dt>
               <dd className={cn("m-0 mt-0.5", OPERATOR_TYPOGRAPHY.body)} data-testid="extract-upload-accepted-actor">
-                {record.actorLabel.trim().length > 0 ? record.actorLabel : "Actor was not stored"}
+                {formatExtractUploadAcceptedActorLabel(record.actorLabel)}
               </dd>
             </div>
             <div>

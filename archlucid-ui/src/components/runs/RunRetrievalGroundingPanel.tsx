@@ -260,10 +260,20 @@ export function RunRetrievalGroundingPanel(props: RunRetrievalGroundingPanelProp
                       : row.corpusKind}
                   </EnterpriseTableCell>
                   <EnterpriseTableCell className={cn("max-w-[14rem] break-all font-mono", OPERATOR_TYPOGRAPHY.micro)}>
-                    {row.retrievedChunkIds.length > 0 ? row.retrievedChunkIds.join(", ") : "-"}
+                    {row.retrievedChunkIds == null
+                      ? "Chunk ids were not stored."
+                      : row.retrievedChunkIds.length > 0
+                        ? row.retrievedChunkIds.join(", ")
+                        : "Chunk ids were stored empty."}
                   </EnterpriseTableCell>
                   <EnterpriseTableCell className={cn("max-w-[12rem] break-all font-mono", OPERATOR_TYPOGRAPHY.micro)}>
-                    {row.documentMetadataMalformed ? "degraded" : row.documentIds.length > 0 ? row.documentIds.join(", ") : "-"}
+                    {row.documentMetadataMalformed
+                      ? "degraded"
+                      : row.documentIds == null
+                        ? "Document ids were not stored."
+                        : row.documentIds.length > 0
+                          ? row.documentIds.join(", ")
+                          : "Document ids were stored empty."}
                   </EnterpriseTableCell>
                   <EnterpriseTableCell className={cn("max-w-[12rem] font-mono", OPERATOR_TYPOGRAPHY.micro)}>
                     {formatRunRetrievalGroundingScoresLabel(row.scoreMetadataMalformed, row.scoreSummaries)}

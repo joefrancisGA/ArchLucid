@@ -8,7 +8,7 @@ internal sealed class TopologyRelationshipEdgeInferenceRule : IGraphEdgeInferenc
 
     public void InferEdges(GraphEdgeInferenceContext context, List<GraphEdge> edges)
     {
-        Dictionary<string, GraphNode> topologyById = context.TopologyNodes.ToDictionary(n => n.NodeId, StringComparer.OrdinalIgnoreCase);
+        Dictionary<string, GraphNode> topologyById = BuildTopologyLookup(context.TopologyNodes);
 
         foreach (GraphNode node in context.TopologyNodes)
         {
@@ -36,12 +36,13 @@ internal sealed class TopologyRelationshipEdgeInferenceRule : IGraphEdgeInferenc
             {
                 foreach (string targetId in connectedRaw.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
                 {
-                    if (!topologyById.TryGetValue(targetId, out GraphNode? targetNode))
+                    GraphNode? connectedTarget = ResolveTopologyNode(topologyById, targetId);
+                    if (connectedTarget is null)
                         continue;
 
                     edges.Add(GraphEdgeInferenceHelpers.CreateEdge(
                         node.NodeId,
-                        targetNode.NodeId,
+                        connectedTarget.NodeId,
                         GraphEdgeTypes.ConnectsTo,
                         "connects to",
                         WeightTopologyRelationship,
@@ -67,7 +68,8 @@ internal sealed class TopologyRelationshipEdgeInferenceRule : IGraphEdgeInferenc
 
         foreach (string targetId in targeted)
         {
-            if (!topologyById.TryGetValue(targetId, out GraphNode? targetNode))
+            GraphNode? targetNode = ResolveTopologyNode(topologyById, targetId);
+            if (targetNode is null)
                 continue;
 
             edges.Add(GraphEdgeInferenceHelpers.CreateEdge(
@@ -79,4 +81,16 @@ internal sealed class TopologyRelationshipEdgeInferenceRule : IGraphEdgeInferenc
                 inferenceSource));
         }
     }
+
+    private static Dictionary<string, GraphNode> BuildTopologyLookup(IReadOnlyList<GraphNode> topologyNodes) =>
+        topologyNodes
+            .GroupBy(static node => NormalizeTopologyNodeId(node.NodeId), StringComparer.OrdinalIgnoreCase)
+            .ToDictionary(static group => group.Key, static group => group.First(), StringComparer.OrdinalIgnoreCase);
+
+    private static GraphNode? ResolveTopologyNode(
+        Dictionary<string, GraphNode> topologyById,
+        string targetNodeId) =>
+        topologyById.GetValueOrDefault(NormalizeTopologyNodeId(targetNodeId));
+
+    private static string NormalizeTopologyNodeId(string nodeId) => nodeId.Trim();
 }
