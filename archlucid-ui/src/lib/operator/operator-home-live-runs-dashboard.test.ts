@@ -4,6 +4,7 @@ import type { OperatorHomeRunsDashboardModel } from "@/app/(operator)/_sections/
 import {
   resolveLiveRunsDashboardModel,
   resolveOperatorHomeLiveRunsSnapshotTotalCount,
+  resolveOperatorHomeRunsPanelReportedTotalCount,
 } from "@/lib/operator/operator-home-live-runs-dashboard";
 import type { RunSummary } from "@/types/authority";
 
@@ -27,6 +28,27 @@ const ssrModel: OperatorHomeRunsDashboardModel = {
   usedStaticRunsFallback: false,
   buyerPolishedShell: false,
 };
+
+describe("resolveOperatorHomeRunsPanelReportedTotalCount", () => {
+  it("does not use archived rows when uplifting omitted API totals for the runs panel report", () => {
+    expect(
+      resolveOperatorHomeRunsPanelReportedTotalCount(
+        [
+          { ...buildRun("archived-a"), isArchived: true },
+          { ...buildRun("archived-b"), isArchived: true },
+          buildRun("active"),
+        ],
+        0,
+      ),
+    ).toBe(1);
+  });
+
+  it("keeps loaded pagination totals when they exceed the on-page active tenant row count", () => {
+    expect(
+      resolveOperatorHomeRunsPanelReportedTotalCount([buildRun("active-a"), buildRun("active-b")], 12),
+    ).toBe(12);
+  });
+});
 
 describe("resolveOperatorHomeLiveRunsSnapshotTotalCount", () => {
   it("does not use archived row count when no explicit total is supplied", () => {

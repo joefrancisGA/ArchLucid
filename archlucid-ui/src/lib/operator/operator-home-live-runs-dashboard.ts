@@ -1,5 +1,9 @@
 import type { OperatorHomeRunsDashboardModel } from "@/app/(operator)/_sections/operator-home-runs-dashboard-model";
-import { resolveOperatorHomeTenantScopedReviewTotalCount } from "@/lib/operator/operator-home-review-total-resolution";
+import { filterTenantOverviewRuns } from "@/lib/operator/operator-home-recent-reviews-outcome";
+import {
+  countNonArchivedOverviewRuns,
+  resolveOperatorHomeTenantScopedReviewTotalCount,
+} from "@/lib/operator/operator-home-review-total-resolution";
 import type { RunSummary } from "@/types/authority";
 
 /** Reviews snapshot reported by the runs dashboard panel after a client load or header Refresh. */
@@ -14,6 +18,22 @@ export function resolveOperatorHomeLiveRunsSnapshotTotalCount(
   totalCount?: number,
 ): number {
   return resolveOperatorHomeTenantScopedReviewTotalCount(items, totalCount);
+}
+
+/**
+ * Pagination total the runs panel passes into workspace activity before tenant/demo/archived normalization.
+ * Uses tenant-scoped active row count — not raw `items.length` — so archived rows cannot inflate the floor.
+ */
+export function resolveOperatorHomeRunsPanelReportedTotalCount(
+  items: readonly RunSummary[],
+  loadedTotalCount: number,
+): number {
+  const normalizedLoaded = Number.isFinite(loadedTotalCount)
+    ? Math.max(0, Math.trunc(loadedTotalCount))
+    : 0;
+  const visibleActiveTenantCount = countNonArchivedOverviewRuns(filterTenantOverviewRuns(items));
+
+  return Math.max(normalizedLoaded, visibleActiveTenantCount);
 }
 
 /**
