@@ -271,4 +271,45 @@ public sealed class EndToEndReplayComparisonReportNormalizerTests
         delta.AddedClaims.Should().Equal(["claim-a"]);
         delta.RemovedWarnings.Should().BeEmpty();
     }
+
+    [Fact]
+    public void CompareQuality_EndToEndReplayComparisonReportNormalizer_removes_whitespace_only_manifest_diff_lists_and_empty_relationships()
+    {
+        EndToEndReplayComparisonReport report = new()
+        {
+            LeftRunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            RightRunId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            ManifestDiff = new ManifestDiffResult
+            {
+                LeftManifestVersion = "  v1  ",
+                RightManifestVersion = "   ",
+                AddedServices = ["   ", "  svc-a  "],
+                Warnings = ["\t"],
+                AddedRelationships =
+                [
+                    new RelationshipDiffItem { SourceId = "   ", TargetId = " ", RelationshipType = "\t" },
+                    new RelationshipDiffItem
+                    {
+                        SourceId = "  src  ",
+                        TargetId = "  tgt  ",
+                        RelationshipType = "  connects_to  ",
+                        Description = "  edge note  ",
+                    },
+                ],
+            },
+        };
+
+        EndToEndReplayComparisonReportNormalizer.NormalizePersistedPayload(report);
+
+        report.ManifestDiff!.LeftManifestVersion.Should().Be("v1");
+        report.ManifestDiff.RightManifestVersion.Should().BeEmpty();
+        report.ManifestDiff.AddedServices.Should().Equal(["svc-a"]);
+        report.ManifestDiff.Warnings.Should().BeEmpty();
+        report.ManifestDiff.AddedRelationships.Should().ContainSingle();
+        RelationshipDiffItem relationship = report.ManifestDiff.AddedRelationships[0];
+        relationship.SourceId.Should().Be("src");
+        relationship.TargetId.Should().Be("tgt");
+        relationship.RelationshipType.Should().Be("connects_to");
+        relationship.Description.Should().Be("edge note");
+    }
 }
