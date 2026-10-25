@@ -39,9 +39,9 @@ public sealed class ArchitectureReviewBoardExportDocxStructureTests
         string xml = ArchitectureReviewBoardDocxTestHelpers.ExtractMainDocumentXml(bytes);
 
         xml.Should().Contain("No Sponsor report content recorded.");
-        xml.Should().Contain("No architecture snapshot overview items recorded.");
-        xml.Should().Contain("No evidence items recorded.");
-        xml.Should().Contain("No architecture decisions recorded.");
+        xml.Should().Contain("Architecture snapshot overview list was stored empty.");
+        xml.Should().Contain("Evidence reviewed list was stored empty.");
+        xml.Should().Contain("Architecture decision list was stored empty.");
         xml.Should().Contain("No key risks at or above the export threshold recorded.");
         xml.Should().Contain("No policy evaluation results recorded.");
         xml.Should().Contain("No findings pending human disposition recorded.");

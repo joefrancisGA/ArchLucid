@@ -91,7 +91,13 @@ public static partial class ArchitectureReviewBoardExportDocumentFactory
             if (trace is RunEventTraceDto runEvent)
             {
                 RunEventTracePayload payload = runEvent.RunEvent;
-                detailText = $"{payload.EventType}: {payload.EventDescription}".Trim();
+                string eventType = string.IsNullOrWhiteSpace(payload.EventType)
+                    ? "Event type was not stored."
+                    : payload.EventType.Trim();
+                string eventDescription = string.IsNullOrWhiteSpace(payload.EventDescription)
+                    ? "Event description was not stored."
+                    : payload.EventDescription.Trim();
+                detailText = $"{eventType}: {eventDescription}";
             }
             else if (trace is RuleAuditTraceDto ruleAudit)
             {
@@ -104,7 +110,7 @@ public static partial class ArchitectureReviewBoardExportDocumentFactory
                 new ArchitectureReviewBoardExportDecisionRow
                 {
                     Title = title,
-                    Detail = string.IsNullOrWhiteSpace(detailText) ? null : detailText,
+                    Detail = string.IsNullOrWhiteSpace(detailText) ? "Decision detail was not stored." : detailText,
                 });
 
             if (rows.Count >= 40)

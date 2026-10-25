@@ -691,18 +691,28 @@ export function isInfraEvidenceVirtualNetworkResourceType(resourceType: string |
   return lower.includes("/virtualnetworks") && !lower.includes("/subnets");
 }
 
+export const INFRA_EVIDENCE_OUTLINE_REFERENCED_OFF_DIAGRAM_EDGE_LABEL =
+  "Referenced off this diagram. Use was not observed." as const;
+
 export function resolveInfraEvidenceOutlineEdgeLabel(
   edge: InfraEvidenceMermaidOutlineEdge,
   nodes: readonly InfraEvidenceMermaidOutlineNode[],
 ): string | null {
-  if (edge.label == null) {
-    return null;
-  }
-
   const explicit = edge.label?.trim() ?? "";
 
   if (explicit.length > 0) {
     return explicit;
+  }
+
+  const fromNode = nodes.find((node) => node.id === edge.from);
+  const toNode = nodes.find((node) => node.id === edge.to);
+
+  if (fromNode?.outlineOnlyOnCanvas === true || toNode?.outlineOnlyOnCanvas === true) {
+    return INFRA_EVIDENCE_OUTLINE_REFERENCED_OFF_DIAGRAM_EDGE_LABEL;
+  }
+
+  if (edge.label == null) {
+    return null;
   }
 
   return "";
