@@ -67,7 +67,7 @@ internal static class ComparisonRecordScopedReadNormalizer
         if (trimmed.Length == 0)
             return string.Empty;
 
-        return string.Equals(trimmed, ComparisonTypes.FormatJsonMarkdown, StringComparison.Ordinal)
+        return string.Equals(trimmed, ComparisonTypes.FormatJsonMarkdown, StringComparison.OrdinalIgnoreCase)
             ? ComparisonTypes.FormatJsonMarkdown
             : string.Empty;
     }

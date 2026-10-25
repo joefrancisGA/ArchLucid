@@ -108,6 +108,20 @@ public sealed class ComparisonRecordScopedReadNormalizerTests
     }
 
     [Fact]
+    public void CompareQuality_comparison_record_scoped_read_normalizer_canonicalizes_known_format_case_insensitively()
+    {
+        ComparisonRecord record = new()
+        {
+            ComparisonRecordId = "cmp-format-case",
+            Format = "  JSON+MARKDOWN  ",
+        };
+
+        ComparisonRecordScopedReadNormalizer.NormalizeInPlace(record);
+
+        record.Format.Should().Be(ComparisonTypes.FormatJsonMarkdown);
+    }
+
+    [Fact]
     public void CompareQuality_comparison_record_scoped_read_normalizer_dedupes_duplicate_tags()
     {
         ComparisonRecord record = new()
