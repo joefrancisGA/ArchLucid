@@ -4938,7 +4938,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-operator-lib
 
-**Hunts:** 54 · **Bugs found:** 51 · **Consecutive dry hunts:** 0
+**Hunts:** 55 · **Bugs found:** 52 · **Consecutive dry hunts:** 0
+
+2026-10-25 seed hunt (hit): promoted `isRenderableRefreshedInstant` guards on home data-currency helpers; regressions `treats an invalid Date like a missing refresh instead of formatting garbage` and `does not report stale data when the refresh timestamp is invalid`; scoped `operator-last-refreshed-label` vitest passed. Private beta: Invited operators no longer see a false “Data may be stale” home header cue or garbage currency text when the home refresh timestamp is an invalid Date.
 
 2026-10-25 seed hunt (hit): promoted `normalizeOperatorBillingAiBudgetRemainingPercent` on current-plan view; regression `omits non-finite ai budget remaining percent from the plan view`; 13 scoped `operator-billing-current-plan` vitest passed. Private beta: Invited operators no longer see `NaN%` AI budget remaining on the billing current-plan card when LLM budget helpers hand through a non-finite percent.
 
@@ -4976,6 +4978,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-10-08 seed hunt (seed-only): re-read continuity hydration, recent-view mapping, workspace metrics, and freshness helpers; no hunt-ready row promoted; scoped `lib/operator` tests completed with known baseline failures outside the reviewed utility behavior.
 
+- [x] (proven) `operatorHomeDataCurrencyValue` / `operatorHomeDataCurrencyStaleCue` — invalid `Date` bypasses `isRenderableRefreshedInstant` — **hit 2026-10-25 seed hunt:** fail-closed guards; regressions `treats an invalid Date like a missing refresh instead of formatting garbage` and `does not report stale data when the refresh timestamp is invalid`.
 - [x] (proven) `resolveOperatorBillingCurrentPlan` — non-finite `aiBudgetRemainingPercent` passes through to `NaN%` UI — **hit 2026-10-25 seed hunt:** `normalizeOperatorBillingAiBudgetRemainingPercent`; regression `omits non-finite ai budget remaining percent from the plan view`.
 - [x] (proven) `resolveOperatorBillingCurrentPlan` — `trialDaysRemaining >= 0` accepts `Infinity` and fractional days in trial copy — **hit 2026-10-25 seed hunt:** `formatTenantTrialDaysRemainingLine`; regressions `falls back when trial days remaining is non-finite` and `truncates fractional trial days remaining for display`.
 - [x] (proven) `operatorAttentionChipNeedsAction` / `formatOperatorAttentionChipAriaLabel` / `resolveHighestNonZeroAttentionKind` — `countsByKind[kind] ?? 0` passes `NaN` into chip UI — **hit 2026-10-25 seed hunt:** `resolveOperatorAttentionChipCount`; regressions `normalizes non-finite chip counts to zero for display and aria` and `ignores non-finite counts when resolving the highest attention kind`.
