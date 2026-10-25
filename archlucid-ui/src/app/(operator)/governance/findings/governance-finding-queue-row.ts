@@ -80,3 +80,11 @@ export function formatGovernanceQueueRecordKind(
 
   return buyerPolishedShell ? BUYER_SURFACE_VOCABULARY.finding : "Finding";
 }
+
+export function formatGovernanceQueueRecordRoleHonesty(
+  kind: GovernanceFindingQueueRecordKind,
+): string {
+  return kind === "decision"
+    ? GOVERNANCE_QUEUE_RECORD_ROLE_DECISION_HONESTY
+    : GOVERNANCE_QUEUE_RECORD_ROLE_FINDING_HONESTY;
+}

@@ -124,5 +124,13 @@ export function QuickDecisionSummaryEmptyState({
     );
   }
 
+  if (headlineFindingCount === null || headlineFindingCount === undefined) {
+    return (
+      <p className="m-0 text-neutral-600 dark:text-neutral-400" data-testid="quick-decision-headline-count-not-stored">
+        Manifest headline finding count was not stored.
+      </p>
+    );
+  }
+
   return <p className="m-0 text-neutral-600 dark:text-neutral-400">No findings to act on</p>;
 }
