@@ -4938,7 +4938,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-operator-lib
 
-**Hunts:** 105 · **Bugs found:** 100 · **Consecutive dry hunts:** 0
+**Hunts:** 106 · **Bugs found:** 101 · **Consecutive dry hunts:** 0
+
+2026-10-25 seed hunt (hit): `resolveOperatorHomeRunsPanelReportedTotalCount` replaces raw `effectiveItems.length` floor when the runs panel reports workspace reviews (fixes archived rows inflating live totals when API `totalCount` is omitted); regression `does not use archived rows when uplifting omitted API totals for the runs panel report`; cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; 63 scoped live-runs-dashboard, review-total-resolution, tenant-counting, workspace-metrics, and workspace-activity-context vitest passed. Private beta: Invited operators who refresh onto a home page mixing archived rows with one active review no longer publish inflated workspace review totals to hero KPIs and live dashboard merge when pagination metadata was still zero.
 
 2026-10-25 seed hunt (hit): `reportWorkspaceReviews` routes open-findings metrics through `deriveOperatorHomeWorkspaceMetricsFromOverviewRuns` (fixes showcase sample findings inflating live workspace activity when sample reviews are visible); regression `does not publish showcase sample open findings into workspace activity metrics (TB-1039)` plus `keeps stale positive totals when active tenant rows share the page with archived rows`; cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; 61 scoped workspace-activity-context, review-total-resolution, tenant-counting, live-runs-dashboard, workspace-metrics, and workspace-phase vitest passed. Private beta: Invited operators who keep sample reviews on Overview no longer see home emphasis chips and KPI shells inherit inflated open-findings counts from the static showcase row when the runs panel reports a live refresh.
 
@@ -5318,11 +5320,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `normalizeOperatorHomeWorkspaceMetricsForDisplay` — called before overview helper on some surfaces — **cheap-disproof 2026-10-25 seed hunt:** normalization runs after overview derive on metrics summary and disclosure surfaces.
 - [x] (valid-no-repro) `resolveOperatorHomeTenantScopedReviewTotalCount` — mixed tenant and archived rows on page with stale positive total — **cheap-disproof 2026-10-25 seed hunt:** regression `keeps stale positive totals when active tenant rows share the page with archived rows`.
 
-- [ ] (candidate) `use-runs-dashboard-tabs` — `reportWorkspaceReviews` uses `Math.max(loadedTotalCount, effectiveItems.length)` — locus: effect dependency; input: archived-only refresh with omitted API total.
-- [ ] (candidate) `OperatorHomeWorkspaceMetricsSummary` — live merge overlay may re-derive before activity context publishes — locus: metrics summary props; input: SSR snapshot then null live snapshot.
-- [ ] (candidate) `deriveOperatorHomeWorkspaceMetricsFromOverviewRuns` — `awaitingApprovalCount` default zero on activity context path — locus: `reportWorkspaceReviews`; input: governance queue hydrates after first report.
-- [ ] (candidate) `UnfinishedWorkRail` — test helper reports `runs.length` without pagination total — locus: test double only; input: parity with production `loadedTotalCount`.
-- [ ] (candidate) `resolveOperatorHomeLiveRunsSnapshotTotalCount` — explicit zero total with active tenant rows on page — locus: zero vs stale-zero uplift; input: API returns `totalCount: 0` while page shows in-progress tenant row.
+- [x] (proven) `use-runs-dashboard-tabs` — `reportWorkspaceReviews` uses `Math.max(loadedTotalCount, effectiveItems.length)` — **hit 2026-10-25 seed hunt:** `resolveOperatorHomeRunsPanelReportedTotalCount`; regression `does not use archived rows when uplifting omitted API totals for the runs panel report`.
+- [x] (valid-no-repro) `OperatorHomeWorkspaceMetricsSummary` — live merge overlay may re-derive before activity context publishes — **cheap-disproof 2026-10-25 seed hunt:** disclosure and command center call `useLiveOperatorHomeRunsDashboard` / `resolveLiveRunsDashboardModel` before metrics derive.
+- [x] (valid-no-repro) `deriveOperatorHomeWorkspaceMetricsFromOverviewRuns` — `awaitingApprovalCount` default zero on activity context path — **cheap-disproof 2026-10-25 seed hunt:** awaiting-approval KPIs flow from `deriveOperatorHomeTenantCountingSnapshot` and metrics strip, not activity context publish.
+- [x] (invalid) `UnfinishedWorkRail` — test helper reports `runs.length` without pagination total — **cheap-disproof 2026-10-25 seed hunt:** test-only double; production path uses `resolveOperatorHomeRunsPanelReportedTotalCount`.
+- [x] (valid-no-repro) `resolveOperatorHomeLiveRunsSnapshotTotalCount` — explicit zero total with active tenant rows on page — **cheap-disproof 2026-10-25 seed hunt:** regression `uplifts stale zero totals from visible active rows and SSR floor`.
+
+- [ ] (candidate) `deriveOperatorHomeTenantCountingSnapshot` — `runsDashboardTotalCount` still passed raw from tabs hook while activity context normalizes publish totals — locus: `use-runs-dashboard-tabs` tenant snapshot input; input: archived rows on page with positive `loadedTotalCount`.
+- [ ] (candidate) `resolveLiveRunsDashboardModel` — SSR `totalCount` floor during merge when live snapshot passes normalized zero — locus: third `ssrModel.totalCount` argument; input: archived-only live refresh after SSR positive total.
+- [ ] (candidate) `operator-home-workspace-activity-context` — `hasWorkspaceReviews` still keyed on `realItems.length` while metrics use overview derive — locus: TB-1039 split; input: showcase visible with tenant-only KPI totals.
+- [ ] (candidate) `filterTenantOverviewRuns` — showcase static ids excluded but buyer-polished showcase story rows remain — locus: tenant filter; input: `runIsShowcaseHomeExampleStory` rows in `effectiveItems`.
+- [ ] (candidate) `deriveHomePreviewTabCounts` — `recentTotalCount` uses preview list length not pagination metadata — locus: `recentTotalCount`; input: partial overview page with workspace `totalCount` greater than preview rows.
 
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regression `drops favorite rows when runId is whitespace-only`; 41 scoped continuity, scope-storage, and attention-preview vitest tests passed.
 
