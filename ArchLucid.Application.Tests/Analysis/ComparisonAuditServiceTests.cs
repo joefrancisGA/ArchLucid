@@ -116,6 +116,43 @@ public sealed class ComparisonAuditServiceTests
     }
 
     [Fact]
+    public async Task RecordReplayOfAsync_default_notes_and_audit_trim_source_comparison_record_id()
+    {
+        ComparisonRecord? persisted = null;
+        Mock<IComparisonRecordRepository> repo = new();
+        repo
+            .Setup(r => r.CreateAsync(It.IsAny<ComparisonRecord>(), It.IsAny<CancellationToken>()))
+            .Callback<ComparisonRecord, CancellationToken>((record, _) => persisted = record)
+            .Returns(Task.CompletedTask);
+        Mock<IAuditService> audit = new();
+        AuditEvent? logged = null;
+        audit
+            .Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .Callback<AuditEvent, CancellationToken>((evt, _) => logged = evt)
+            .Returns(Task.CompletedTask);
+        ComparisonAuditService sut = new(repo.Object, audit.Object);
+        ComparisonRecord source = new()
+        {
+            ComparisonRecordId = "  cccccccccccccccccccccccccccccccc  ",
+            ComparisonType = ComparisonTypes.EndToEndReplay,
+            LeftRunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            RightRunId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            Format = ComparisonTypes.FormatJsonMarkdown,
+            SummaryMarkdown = "x",
+            PayloadJson = "{}",
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+        };
+
+        await sut.RecordReplayOfAsync(source, notes: null, CancellationToken.None);
+
+        persisted.Should().NotBeNull();
+        persisted!.Notes.Should().Be("Replay of comparison record cccccccccccccccccccccccccccccccc.");
+        logged.Should().NotBeNull();
+        logged!.DataJson.Should().Contain("cccccccccccccccccccccccccccccccc");
+        logged.DataJson.Should().NotContain("  cccccccccccccccccccccccccccccccc  ");
+    }
+
+    [Fact]
     public async Task RecordReplayOfAsync_trims_padded_export_record_anchors_on_persist()
     {
         ComparisonRecord? persisted = null;

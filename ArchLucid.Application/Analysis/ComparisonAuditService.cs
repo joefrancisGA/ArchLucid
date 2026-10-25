@@ -87,6 +87,7 @@ public sealed class ComparisonAuditService(IComparisonRecordRepository repositor
     public async Task<string> RecordReplayOfAsync(ComparisonRecord sourceRecord, string? notes = null, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(sourceRecord);
+        string sourceComparisonRecordId = ComparisonRecordIdNormalizer.NormalizeRequired(sourceRecord.ComparisonRecordId);
         ComparisonRecord record = new()
         {
             ComparisonRecordId = Guid.NewGuid().ToString("N"),
@@ -100,7 +101,7 @@ public sealed class ComparisonAuditService(IComparisonRecordRepository repositor
             Format = sourceRecord.Format,
             SummaryMarkdown = sourceRecord.SummaryMarkdown,
             PayloadJson = NormalizeReplayPayloadJson(sourceRecord),
-            Notes = notes ?? $"Replay of comparison record {sourceRecord.ComparisonRecordId}.",
+            Notes = notes ?? $"Replay of comparison record {sourceComparisonRecordId}.",
             CreatedUtc = TimeProvider.System.UtcNowDateTime()
         };
         await _repository.CreateAsync(record, cancellationToken);
@@ -115,7 +116,7 @@ public sealed class ComparisonAuditService(IComparisonRecordRepository repositor
                     new
                     {
                         comparisonRecordId = record.ComparisonRecordId,
-                        sourceComparisonRecordId = sourceRecord.ComparisonRecordId,
+                        sourceComparisonRecordId = sourceComparisonRecordId,
                         leftRunId = record.LeftRunId,
                         rightRunId = record.RightRunId,
                         comparisonType = record.ComparisonType
