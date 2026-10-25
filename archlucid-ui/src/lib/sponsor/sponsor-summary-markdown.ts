@@ -103,7 +103,7 @@ export type SponsorBusinessImpactCategoryCounts = {
 
 function formatUsd(value: number | null): string {
   if (typeof value !== "number" || !Number.isFinite(value)) {
-    return "Amount not returned";
+    return "Savings amount was not stored.";
   }
 
   return new Intl.NumberFormat(undefined, {

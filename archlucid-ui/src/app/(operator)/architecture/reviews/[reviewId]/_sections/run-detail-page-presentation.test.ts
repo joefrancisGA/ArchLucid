@@ -270,7 +270,7 @@ describe("buildRunDetailPresentation", () => {
       false,
     );
 
-    expect(presentation.overallPosture).toBe("Not assessed");
+    expect(presentation.overallPosture).toBe("Risk posture was not stored.");
     expect(presentation.reviewStatusSummary.highestUnresolvedSeverity).toBeNull();
   });
 

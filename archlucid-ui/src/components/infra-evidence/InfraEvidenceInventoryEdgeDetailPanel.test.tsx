@@ -35,6 +35,21 @@ describe("InfraEvidenceInventoryEdgeDetailPanel (P-15)", () => {
     expect(screen.queryByText("inventory-static-site-backend")).not.toBeInTheDocument();
   });
 
+  it("does not label an unclassified confidence band as Observed", () => {
+    render(
+      <InfraEvidenceInventoryEdgeDetailPanel
+        edge={{
+          ...edge("inventory-custom-edge"),
+          confidenceBand: undefined,
+        }}
+        onClose={() => undefined}
+      />,
+    );
+
+    expect(screen.getByText("Confidence band was not classified.")).toBeInTheDocument();
+    expect(screen.queryByText(/^Observed$/)).not.toBeInTheDocument();
+  });
+
   it("labels stored empty provenance and inference source", () => {
     render(
       <InfraEvidenceInventoryEdgeDetailPanel

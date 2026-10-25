@@ -374,6 +374,11 @@ internal static class DiagramEdgeLabelHumanizer
             return humanized;
         }
 
+        if (DiagramRelationshipVerbCatalog.TryResolve(trimmed, out string catalogVerb))
+        {
+            return catalogVerb;
+        }
+
         if (InventoryAliasToGraphEdgeType.TryGetValue(trimmed, out string? graphEdgeType)
             && TryHumanizeGraphEdgeType(graphEdgeType, out string aliased))
         {
