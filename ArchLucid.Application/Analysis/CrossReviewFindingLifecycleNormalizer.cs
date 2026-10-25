@@ -38,7 +38,18 @@ internal static class CrossReviewFindingLifecycleNormalizer
             AbsenceNotInformativeCount = ClampCount(summary.AbsenceNotInformativeCount),
             HonestyNote = honestyNote ?? string.Empty,
         };
+
+        if (report.FindingLifecycle is not null && IsPersistedEmptyShell(report.FindingLifecycle))
+            report.FindingLifecycle = null;
     }
+
+    internal static bool IsPersistedEmptyShell(CrossReviewFindingLifecycleSummary summary) =>
+        summary.NewlyIdentifiedCount == 0
+        && summary.PreviouslyIdentifiedStillPresentCount == 0
+        && summary.ConfirmedResolvedCount == 0
+        && summary.UnverifiedResolvedCount == 0
+        && summary.AbsenceNotInformativeCount == 0
+        && summary.HonestyNote.Length == 0;
 
     private static int ClampCount(int value) => value < 0 ? 0 : value;
 
