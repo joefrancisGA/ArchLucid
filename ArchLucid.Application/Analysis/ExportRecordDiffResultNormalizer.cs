@@ -14,11 +14,8 @@ internal static class ExportRecordDiffResultNormalizer
         diff.LeftExportRecordId = NormalizeExportRecordIdAnchor(diff.LeftExportRecordId);
         diff.RightExportRecordId = NormalizeExportRecordIdAnchor(diff.RightExportRecordId);
 
-        if (!string.IsNullOrWhiteSpace(diff.LeftRunId))
-            diff.LeftRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(diff.LeftRunId);
-
-        if (!string.IsNullOrWhiteSpace(diff.RightRunId))
-            diff.RightRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(diff.RightRunId);
+        diff.LeftRunId = NormalizeRunIdAnchor(diff.LeftRunId);
+        diff.RightRunId = NormalizeRunIdAnchor(diff.RightRunId);
 
         PersistedAnalysisExportRequestMetadata.TrimOptionalStrings(diff.RequestDiff.LeftRequest);
         PersistedAnalysisExportRequestMetadata.TrimOptionalStrings(diff.RequestDiff.RightRequest);
@@ -34,11 +31,26 @@ internal static class ExportRecordDiffResultNormalizer
         return RunExportRecordIdNormalizer.NormalizeRequired(exportRecordId);
     }
 
+    private static string NormalizeRunIdAnchor(string? runId)
+    {
+        if (string.IsNullOrWhiteSpace(runId))
+            return string.Empty;
+
+        return AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(runId);
+    }
+
     private static void CanonicalizeNestedCompareRunId(PersistedAnalysisExportRequest? request)
     {
-        if (request is null || string.IsNullOrWhiteSpace(request.CompareRunId))
+        if (request is null)
             return;
 
-        request.CompareRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(request.CompareRunId);
+        string? normalized = PersistedAnalysisExportRequestMetadata.NormalizeOptionalString(request.CompareRunId);
+        if (string.IsNullOrEmpty(normalized))
+        {
+            request.CompareRunId = null;
+            return;
+        }
+
+        request.CompareRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(normalized);
     }
 }
