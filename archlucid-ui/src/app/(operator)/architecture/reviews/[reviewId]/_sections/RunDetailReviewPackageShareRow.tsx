@@ -8,7 +8,7 @@ import { SponsorExportSendHonestyStrip } from "@/components/exports/SponsorExpor
 import { ExportDeliverableDialog } from "@/components/usability/ExportDeliverableDialog";
 import { PersistentSponsorEmailStrip } from "@/components/usability/PersistentSponsorEmailStrip";
 import { ShareableReviewLinkButton } from "@/components/usability/ShareableReviewLinkButton";
-import { OPERATOR_LAYOUT } from "@/lib/design-tokens";
+import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 type RunDetailReviewPackageShareRowProps = {
@@ -26,7 +26,13 @@ export function RunDetailReviewPackageShareRow(props: RunDetailReviewPackageShar
       <div className={cn("flex flex-wrap items-center", OPERATOR_LAYOUT.inlineGap)}>
         <ExportDeliverableDialog runId={props.runId} manifestId={props.manifestId} />
         <ShareableReviewLinkButton runId={props.runId} isCommitted manifestVersion={props.manifestId} />
-        {props.completedUtc ? <ReviewSealedIndicatorChip sealedUtc={props.completedUtc} /> : null}
+        {props.completedUtc ? (
+          <ReviewSealedIndicatorChip sealedUtc={props.completedUtc} />
+        ) : (
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="review-package-share-completed-missing">
+            Completed time was not stored.
+          </p>
+        )}
       </div>
 
       <SponsorExportSendHonestyStrip className="mt-3" testIdPrefix="review-package-share-row-export" />

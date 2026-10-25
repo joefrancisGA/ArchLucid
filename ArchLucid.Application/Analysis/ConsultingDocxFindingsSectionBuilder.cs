@@ -39,7 +39,7 @@ internal static class ConsultingDocxFindingsSectionBuilder
         {
             ConsultingDocxOpenXmlPrimitives.AddStyledParagraph(
                 body,
-                ArchitectureEvidenceRequestExport.ConstraintsNotStoredCopy,
+                ArchitectureEvidenceRequestExport.ConstraintsNotRecordedCopy,
                 "BodyText");
         }
 
@@ -55,7 +55,7 @@ internal static class ConsultingDocxFindingsSectionBuilder
         {
             ConsultingDocxOpenXmlPrimitives.AddStyledParagraph(
                 body,
-                ArchitectureEvidenceRequestExport.RequiredCapabilitiesNotStoredCopy,
+                ArchitectureEvidenceRequestExport.RequiredCapabilitiesNotRecordedCopy,
                 "BodyText");
         }
 
@@ -65,7 +65,7 @@ internal static class ConsultingDocxFindingsSectionBuilder
         {
             ConsultingDocxOpenXmlPrimitives.AddStyledParagraph(
                 body,
-                ArchitectureEvidenceRequestExport.PolicyEvidenceNotStoredCopy,
+                ArchitectureEvidenceRequestExport.PolicyEvidenceNotRecordedCopy,
                 "BodyText");
 
             return;
