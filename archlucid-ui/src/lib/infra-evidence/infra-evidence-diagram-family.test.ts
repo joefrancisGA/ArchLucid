@@ -48,6 +48,20 @@ describe("infra-evidence-diagram-family", () => {
     );
   });
 
+  it("maps inventory configuration relationship inference sources to pipeline wiring (P-05)", () => {
+    expect(resolveInfraEvidenceDiagramFamily(edge("Linked backend", "inventory-static-site-backend"))).toBe(
+      "DeclaredMovement",
+    );
+    expect(resolveInfraEvidenceDiagramFamily(edge("Assigned workspace", "inventory-fabric-capacity-workspace"))).toBe(
+      "DeclaredMovement",
+    );
+    expect(
+      resolveInfraEvidenceDiagramFamily(
+        edge("Diagnostic setting name was not stored.", "inventory-diagnostic-setting-storage"),
+      ),
+    ).toBe("DeclaredMovement");
+  });
+
   it("filters only matching edges while retaining nodes", () => {
     const outline = {
       nodes: [{ id: "from", label: "from", resourceType: null, resourceGroup: null }],

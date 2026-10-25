@@ -7079,13 +7079,15 @@ ABQ-09 churn hotspot.
 - **aliases:** infra evidence diagrams; inventory mermaid; diagrams workbench
 - **paths:** archlucid-ui/src/lib/infra-evidence/; archlucid-ui/src/components/infra-evidence/; ArchLucid.Application/InfraEvidence/Mermaid/; ArchLucid.Api/Controllers/InfraEvidence/InfraEvidenceSnapshotsController.cs; archlucid-ui/src/app/(operator)/governance/infrastructure/diagrams/
 - **test-filter:** InfraEvidence
-- **hunts:** 7
-- **bugs-found:** 6
+- **hunts:** 8
+- **bugs-found:** 7
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 - trim AgentModelTiers AgentTypeTiers keys after configuration bind
+- **last-hunt:** 2026-10-25
+- **last-bug:** 2026-10-25 — configuration inventory edges lacked Pipeline wiring family chips
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-25 thorough hunt (hit): static site backend, Fabric capacity workspace, and diagnostic-setting storage edges stayed in All-only family filtering though the PNG reading strip treats them as configuration relationships; mapped inference sources and labels to DeclaredMovement; regression `maps inventory configuration relationship inference sources to pipeline wiring (P-05)`. Private beta: invited operators filtering infra evidence diagrams by relationship family can now isolate linked backends, capacity assignments, and diagnostic settings with the Pipeline wiring chip instead of leaving those edges visible only under All.
 
 2026-10-21 seed hunt (seed→hit): diagrams workbench mode preview ignored display flags; preview API and client now forward `includeNetworkDetails` and sibling toggles; regressions `forwards display flags on mermaid preview` and `Preview_applies_include_network_details_to_mode_renders`.
 
@@ -7101,7 +7103,7 @@ ABQ-09 churn hotspot.
 - [x] (proven) `InfraEvidenceInventoryEdgeDetailPanel.resolveEdgeHint` and `infra-evidence-diagram-family` — `inventory-storage-host-ref` / From app settings edges from app-setting host resolution lacked hostname hint copy and `InferredHostname` family; regressions `shows app-settings hostname copy for storage host-ref edges` and `maps app-setting host inference sources to Likely connected family`.
 - [x] (proven) `DiagramsWorkbenchClient` / `InfraEvidenceSnapshotsController.GetMermaidPreview` — mode preview omitted workbench display flags so picker status diverged from render — **hit 2026-10-21 seed hunt:** forward preview query flags; regression `forwards display flags on mermaid preview`.
 
-- [ ] (candidate) `infra-evidence-diagram-family` — `inventory-static-site-backend`, `inventory-fabric-capacity-workspace`, and `inventory-diagnostic-setting-storage` lack family chips though PNG reading strip treats them as configuration relationships — locus: `FAMILY_BY_INFERENCE_SOURCE`; input: observed edges from `AzureInventoryRelationshipAssociationTypes` on inventory diagrams workbench.
+- [x] (proven) `infra-evidence-diagram-family` — `inventory-static-site-backend`, `inventory-fabric-capacity-workspace`, and `inventory-diagnostic-setting-storage` lacked family chips though PNG reading strip treats them as configuration relationships — **hit 2026-10-25 thorough hunt:** map inference sources and configuration edge labels to `DeclaredMovement`; regression `maps inventory configuration relationship inference sources to pipeline wiring (P-05)`.
 - [ ] (candidate) `MergeDisplayCompileOptions` — `IncludeAvdAssets` uses `??` not `||` like `IncludeNetworkDetails` — locus: `InfraEvidenceSnapshotMermaidService.MergeDisplayCompileOptions`; input: `GET /v1/infra-evidence/snapshots/{id}/mermaid?mode=full&includeCrossGroupFanOut=true&includeAvdAssets=true` when parser built options with explicit false AVD.
 - [ ] (candidate) `TryRenderInventoryPngAsync` — `GraphvizDotEmitOptions` forwards only `IncludeCrossGroupFanOut` — locus: graphviz PNG fallback path; input: PNG export with `includeNetworkDetails=true` on inventory-forest layout.
 - [ ] (candidate) `InfraEvidenceMermaidModeParser.TryParse` — `businessContinuity` branch passes `includeRecoveryServices: false` literal — locus: Success call; input: `mode=businessContinuity&includeRecoveryServices=true` when compile options object is non-null from another flag.
