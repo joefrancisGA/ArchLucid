@@ -19,6 +19,7 @@ import {
   reopenSecureNowQuestion,
   type SecureNowQuestion,
 } from "@/lib/infra-evidence/securenow-question-queue-api";
+import { secureNowQuestionDispositionMutationResourceId } from "@/lib/infra-evidence/securenow-question-mutation-resource-id";
 import {
   confirmOperatorInferredConnection,
   dismissOperatorInferredConnection,
@@ -266,7 +267,9 @@ export function SecureNowQuestionQueueProvider(
     if (action === "ignore" && reason.trim().length === 0) return;
     if (action === "reopen" && reason.trim().length === 0) return;
     if (action === "answer" && selectedAnswer == null) return;
-    if (currentQuestion.resourceId === null || currentQuestion.resourceId === undefined) {
+
+    const mutationResourceId = secureNowQuestionDispositionMutationResourceId(currentQuestion);
+    if (mutationResourceId === null) {
       setError(
         operatorInferredConnectionPanelErrorFromUnknown(
           new Error("Resource id was not stored."),
@@ -283,7 +286,7 @@ export function SecureNowQuestionQueueProvider(
       if (action === "ignore") {
         await ignoreSecureNowQuestion(snapshotId, {
           subscriptionId: currentQuestion.subscriptionId ?? "",
-          resourceId: currentQuestion.resourceId,
+          resourceId: mutationResourceId,
           questionKey: currentQuestion.questionKey,
           source: currentQuestion.source ?? "",
           scopeKind: currentQuestion.scopeKind ?? "",
@@ -293,7 +296,7 @@ export function SecureNowQuestionQueueProvider(
       } else if (action === "reopen") {
         await reopenSecureNowQuestion(snapshotId, {
           subscriptionId: currentQuestion.subscriptionId ?? "",
-          resourceId: currentQuestion.resourceId,
+          resourceId: mutationResourceId,
           questionKey: currentQuestion.questionKey,
           reason: reason.trim(),
         });
@@ -310,7 +313,7 @@ export function SecureNowQuestionQueueProvider(
       } else {
         await answerSecureNowQuestion(snapshotId, {
           subscriptionId: currentQuestion.subscriptionId ?? "",
-          resourceId: currentQuestion.resourceId,
+          resourceId: mutationResourceId,
           questionKey: currentQuestion.questionKey,
           source: currentQuestion.source ?? "",
           scopeKind: currentQuestion.scopeKind ?? "",
