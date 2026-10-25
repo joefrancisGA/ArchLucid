@@ -4508,7 +4508,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-operator-lib
 
-**Hunts:** 45 · **Bugs found:** 42 · **Consecutive dry hunts:** 0
+**Hunts:** 46 · **Bugs found:** 43 · **Consecutive dry hunts:** 0
+
+2026-10-25 seed hunt (hit): promoted `mapStickinessSnapshot` stickiness count normalization via `normalizeOperatorHomeNonNegativeCount`; regression `normalizes non-finite stickiness funnel counts from shell status JSON to zero`; 6 scoped `operator-shell-status-client` vitest passed. Private beta: Invited operators no longer see `NaN` in shell stickiness funnel metrics when aggregated shell-status JSON carries non-finite numeric fields.
 
 2026-10-25 seed hunt (hit): promoted `normalizeOperatorHomeNonNegativeCount` for awaiting-approval `?? 0` NaN footgun; regressions `normalizes non-finite awaiting-approval tab counts to zero` and `normalizes non-finite workspace awaiting-approval fallback for tab counts`; 22 scoped run-home-status + outcome + tenant-counting vitest passed. Private beta: Invited operators no longer see `NaN` on home awaiting-approval tab labels when attention summary hands through a non-finite count.
 
@@ -4528,6 +4530,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-10-08 seed hunt (seed-only): re-read continuity hydration, recent-view mapping, workspace metrics, and freshness helpers; no hunt-ready row promoted; scoped `lib/operator` tests completed with known baseline failures outside the reviewed utility behavior.
 
+- [x] (proven) `mapStickinessSnapshot` — `?? 0` leaves `NaN` stickiness counts on shell hydrate — **hit 2026-10-25 seed hunt:** `normalizeOperatorHomeNonNegativeCount` on funnel and top-level counts; regression `normalizes non-finite stickiness funnel counts from shell status JSON to zero`.
 - [x] (invalid) `shouldHydrateWorkingWorkspaceContinuityFromServer` — malformed non-empty server `updatedAtUtc` is compared as `NaN` — **cheap-disproof 2026-10-25 seed hunt:** `Date.parse` invalid yields `NaN >= local` false, so hydrate is refused (fail-closed); does not overwrite local watermark.
 - [x] (proven) `deriveOperatorHomeWorkspaceMetrics` — non-finite `awaitingApprovalCount` is only lower-bounded, not normalized — **hit 2026-10-25 seed hunt:** `Number.isFinite` guard before `Math.max`/`Math.trunc`; regression `normalizes non-finite awaitingApprovalCount to zero for home KPI totals`.
 - [x] (proven) `applyWorkingWorkspaceContinuityFromServer` / `shouldHydrateWorkingWorkspaceContinuityFromServer` — invalid `updatedAtUtc` poisons local watermark and blocks later hydrates — **hit 2026-10-25 seed hunt:** `parseContinuityInstantMs` guards persist + hydrate compare; regressions `does not persist invalid server updatedAtUtc as the continuity watermark` and `hydrates when local continuity watermark is unparseable and server sends a valid timestamp`.
@@ -4677,6 +4680,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) Error mapper surfaces another tenant's problem detail in the toast — `operator-connectivity-error-present.ts` is stateless; no cross-request error cache in this directory.
 - [x] (proven) Assigned-to-me findings compact presets missing from `OPERATOR_EMPTY_STATE_PRESET_KINDS` — three `GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_*_COMPACT` exports added without TB-1556 kind registration; `operator-empty-state-kind-presets.test.ts` failed on `GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_LOAD_FAILED_COMPACT`. Fixed by registering `error` / `collection` / `filtered` kinds.
 - [x] (proven) `mapStickinessSnapshot` threw when API sent `stickinessSnapshot.pilotFunnel: null` — fixed 2026-08-24; treat null funnel as absent (`operator-shell-status-client.test.ts`).
+- [x] (proven) `mapStickinessSnapshot` — non-finite stickiness counts pass through `?? 0` as `NaN` — **hit 2026-10-25 seed hunt:** `normalizeOperatorHomeNonNegativeCount`; regression `normalizes non-finite stickiness funnel counts from shell status JSON to zero`.
 - [x] (proven) `hydrateOperatorShellStatusCaches` left stale TanStack data when later shell-status payloads omitted concerns — fixed 2026-08-24; remove queries when payload fields are null (`operator-shell-status-client.test.ts`).
 - [x] (proven) `OPERATOR_RECENT_VIEWS_STORAGE_KEY` and `HAS_EXISTING_RUNS_CACHE_KEY` survived tenant/workspace switch — fixed 2026-08-24; clear on `notifyOperatorScopeChanged` (`operator-scope-storage.test.ts`).
 - [x] (proven) `extractQuickDecisionFindingsFromRunDetail` discarded live OpenAPI string `humanReviewStatus` values such as `Pending`, leaving review badges without a status — fixed 2026-08-24 via reusable `normalizeFindingHumanReviewStatus` (`quick-decision-summary-derive.test.ts`).
