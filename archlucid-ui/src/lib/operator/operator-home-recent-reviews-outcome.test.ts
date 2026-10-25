@@ -52,6 +52,28 @@ describe("formatOperatorHomeRecentReviewsOutcome", () => {
     );
   });
 
+  it("normalizes non-finite recent preview cap counts in outcome copy", () => {
+    const metrics: OperatorHomeWorkspaceMetricsSnapshot = {
+      ...emptyMetrics,
+      reviewPackagesTotal: 2,
+      evidenceSources: 1,
+      hasReviews: true,
+    };
+
+    expect(
+      formatOperatorHomeRecentReviewsOutcome(metrics, {
+        visibleCount: Number.NaN,
+        recentTotalCount: 4,
+      }),
+    ).toBe("2 reviews · 0 open findings · showing 0 of 4");
+    expect(
+      formatOperatorHomeRecentReviewsOutcome(metrics, {
+        visibleCount: 2,
+        recentTotalCount: Number.NaN,
+      }),
+    ).toBe("2 reviews · 0 open findings · showing 2");
+  });
+
   it("summarizes committed packages with finding pressure", () => {
     const metrics: OperatorHomeWorkspaceMetricsSnapshot = {
       ...emptyMetrics,
@@ -97,6 +119,25 @@ describe("buildOperatorHomeRecentReviewsOutcomeParts", () => {
       hrefKind: "all-reviews",
     });
     expect(parts.find((part) => part.key === "open-findings")?.tabId).toBe("attention");
+  });
+
+  it("normalizes non-finite preview cap counts in structured outcome parts", () => {
+    const metrics: OperatorHomeWorkspaceMetricsSnapshot = {
+      ...emptyMetrics,
+      reviewPackagesTotal: 4,
+      evidenceSources: 1,
+      hasReviews: true,
+    };
+
+    const parts = buildOperatorHomeRecentReviewsOutcomeParts(metrics, {
+      visibleCount: Number.NaN,
+      recentTotalCount: 4,
+    });
+
+    expect(parts.find((part) => part.key === "showing-cap")).toEqual({
+      key: "showing-cap",
+      text: "showing 0 of 4",
+    });
   });
 
   it("renders showing-cap as plain text without a link target", () => {

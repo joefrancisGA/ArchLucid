@@ -46,6 +46,8 @@ const PIPELINE_EVENT_TYPE_LABELS: Record<string, string> = {
   "com.archlucid.seat.reservation.released": "Trial seat released",
   "com.archlucid.notifications.trial-lifecycle-email.v1": "Trial lifecycle email sent",
   "com.archlucid.billing.marketplace.webhook.received.v1": "Marketplace webhook received",
+  "OperatorInferredConnection.Confirmed": "Inferred connection confirmed",
+  "OperatorInferredConnection.Dismissed": "Inferred connection dismissed",
 };
 
 /** Maps API timeline event codes to reviewer-facing labels (falls back to humanized code). */

@@ -26,6 +26,21 @@ export type FormatOperatorHomeRecentReviewsOutcomeOptions = {
   readonly suppressAwaitingApprovalCount?: boolean;
 };
 
+function resolveRecentPreviewCapCounts(
+  options?: FormatOperatorHomeRecentReviewsOutcomeOptions,
+): { readonly visible: number; readonly previewTotal: number } | null {
+  if (options?.visibleCount === undefined) {
+    return null;
+  }
+
+  const visible = normalizeOperatorHomeNonNegativeCount(options.visibleCount);
+  const previewTotal = normalizeOperatorHomeNonNegativeCount(
+    options.recentTotalCount ?? options.visibleCount,
+  );
+
+  return { visible, previewTotal };
+}
+
 /**
  * One-line portfolio outcome for Recent reviews — population, lifecycle, pressure, and preview cap.
  */
@@ -71,12 +86,13 @@ export function formatOperatorHomeRecentReviewsOutcome(
     );
   }
 
-  if (options?.visibleCount !== undefined) {
-    const visible = options.visibleCount;
-    const total = options.recentTotalCount ?? visible;
+  const previewCap = resolveRecentPreviewCapCounts(options);
 
-    if (total > visible) {
-      parts.push(`showing ${visible} of ${total}`);
+  if (previewCap !== null) {
+    const { visible, previewTotal } = previewCap;
+
+    if (previewTotal > visible) {
+      parts.push(`showing ${visible} of ${previewTotal}`);
     } else {
       parts.push(`showing ${visible}`);
     }
@@ -167,9 +183,10 @@ export function buildOperatorHomeRecentReviewsOutcomeParts(
     });
   }
 
-  if (options?.visibleCount !== undefined) {
-    const visible = options.visibleCount;
-    const previewTotal = options.recentTotalCount ?? visible;
+  const previewCap = resolveRecentPreviewCapCounts(options);
+
+  if (previewCap !== null) {
+    const { visible, previewTotal } = previewCap;
 
     if (previewTotal > visible) {
       parts.push({

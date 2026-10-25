@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import { StatusTag } from "@/components/ui/status-tag";
 import {
   ARCHITECTURE_DIAGRAM_REVIEW_ID_NOT_STORED_EVIDENCE_LINK,
+  ARCHITECTURE_DIAGRAM_USER_EDIT_VERSION_HONESTY,
   buildArchitectureDiagramEdgeProvenanceDetail,
   buildArchitectureDiagramNodeProvenanceDetail,
   listSelectableArchitectureDiagramElements,
@@ -29,7 +30,7 @@ export type ArchitectureDiagramProvenancePanelProps = {
 };
 
 function provenanceStatusKind(provenanceClass: ArchitectureDiagramProvenanceClass): "approved" | "needs-attention" | "neutral" {
-  if (provenanceClass === "evidence-backed") {
+  if (provenanceClass === "evidence-backed" || provenanceClass === "accepted-inference") {
     return "approved";
   }
 
@@ -44,6 +45,8 @@ function provenanceStatusLabel(provenanceClass: ArchitectureDiagramProvenanceCla
   switch (provenanceClass) {
     case "evidence-backed":
       return "Evidence-backed";
+    case "accepted-inference":
+      return "Accepted inference";
     case "inferred":
       return "Inferred";
     case "user-drawn":
@@ -86,6 +89,14 @@ export function ArchitectureDiagramProvenancePanel(props: ArchitectureDiagramPro
       <p className={cn("m-0 font-medium text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
         Why is this here?
       </p>
+      {props.diagramVersionSource === "user-edit" ? (
+        <p
+          className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="architecture-diagram-user-edit-version-honesty"
+        >
+          {ARCHITECTURE_DIAGRAM_USER_EDIT_VERSION_HONESTY}
+        </p>
+      ) : null}
       <div className="flex flex-wrap gap-1" role="group" aria-label="Diagram nodes and connections">
         {selectable.map((entry) => {
           const active = props.selectedKind === entry.kind && props.selectedId === entry.id;
@@ -140,7 +151,7 @@ export function ArchitectureDiagramProvenancePanel(props: ArchitectureDiagramPro
             </p>
           ) : detail.provenanceClass === "inferred" ? (
             <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-              Source evidence link was not stored
+              Inferred items do not include a source evidence link.
             </p>
           ) : null}
         </div>

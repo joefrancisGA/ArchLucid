@@ -209,15 +209,19 @@ export function ReviewChainOfCustodySection({
                   <CopyIdButton value={run.runId} aria-label="Copy review ID" />
                 </dd>
               </div>
-              {run.contextSnapshotId ? (
-                <div>
-                  <dt className={cn("font-medium text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>Context snapshot</dt>
-                  <dd className={cn("mt-0.5 flex items-center gap-1.5 font-mono text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.navHelper)}>
-                    <span className="truncate">{run.contextSnapshotId.slice(0, 16)}…</span>
-                    <CopyIdButton value={run.contextSnapshotId} aria-label="Copy context snapshot ID" />
-                  </dd>
-                </div>
-              ) : null}
+              <div>
+                <dt className={cn("font-medium text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>Context snapshot</dt>
+                <dd className={cn("mt-0.5 font-mono text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.navHelper)}>
+                  {run.contextSnapshotId && run.contextSnapshotId.trim().length > 0 ? (
+                    <span className="flex items-center gap-1.5">
+                      <span className="truncate">{run.contextSnapshotId.slice(0, 16)}…</span>
+                      <CopyIdButton value={run.contextSnapshotId} aria-label="Copy context snapshot ID" />
+                    </span>
+                  ) : (
+                    "Context snapshot ID was not stored."
+                  )}
+                </dd>
+              </div>
             </dl>
           </CollapsibleSection>
         </CardContent>

@@ -225,10 +225,15 @@ export function findingWhyThisMattersText(payload: FindingInspectPayload): strin
   return (
     typedPayloadLookupString(payload, "whyThisMatters") ??
     typedPayloadLookupString(payload, "WhyThisMatters") ??
+    null
+  );
+}
+
+/** Separate disposition rationale — not shown under the why-this-matters heading. */
+export function findingInspectTypedRationaleText(payload: FindingInspectPayload): string | null {
+  return (
     typedPayloadLookupString(payload, "rationale") ??
     typedPayloadLookupString(payload, "Rationale") ??
-    typedPayloadLookupString(payload, "businessImpact") ??
-    typedPayloadLookupString(payload, "impact") ??
     null
   );
 }

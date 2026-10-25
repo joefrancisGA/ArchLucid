@@ -24,13 +24,22 @@ function payloadWithTyped(data: Record<string, unknown>): FindingInspectPayload 
 }
 
 describe("findingDetailHeadingTitle", () => {
-  it("uses canonical PHI title for showcase finding id", () => {
+  it("uses stored title for showcase finding id when title is present", () => {
     const payload: FindingInspectPayload = {
       ...payloadWithTyped({ title: "Some engine title" }),
       findingId: SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID,
     };
 
     expect(findingDetailHeadingTitle(payload)).toBe("Some engine title");
+  });
+
+  it("uses canonical PHI title for showcase finding id when title is absent", () => {
+    const payload: FindingInspectPayload = {
+      ...payloadWithTyped({}),
+      findingId: SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID,
+    };
+
+    expect(findingDetailHeadingTitle(payload)).toBe("Sensitive Data Minimization Risk");
   });
 
   it("does not promote a rule id into the title", () => {
@@ -57,9 +66,9 @@ describe("findingWhyThisMattersText", () => {
     expect(findingWhyThisMattersText(payloadWithTyped({ WhyThisMatters: "Risk to members" }))).toBe("Risk to members");
   });
 
-  it("falls back to rationale and impact keys", () => {
-    expect(findingWhyThisMattersText(payloadWithTyped({ rationale: "Because PHI" }))).toBe("Because PHI");
-    expect(findingWhyThisMattersText(payloadWithTyped({ businessImpact: "Compliance" }))).toBe("Compliance");
+  it("does not reuse rationale or impact keys for why-this-matters", () => {
+    expect(findingWhyThisMattersText(payloadWithTyped({ rationale: "Because PHI" }))).toBeNull();
+    expect(findingWhyThisMattersText(payloadWithTyped({ businessImpact: "Compliance" }))).toBeNull();
   });
 
   it("returns null when absent", () => {

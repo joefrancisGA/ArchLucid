@@ -238,7 +238,7 @@ function formatManifestSummaryFallback(
   lines.push("## Architecture overview");
   lines.push("");
   lines.push(
-    "Full review record JSON was not available in the browser session; this export contains summary counts only.",
+    "Full review record JSON was not included in this export. The lines below are summary counts only.",
   );
   lines.push("");
   lines.push(`- **Decisions:** ${formatExportMarkdownFiniteCount(summary.decisionCount, "Decision count was not stored.")}`);
@@ -250,12 +250,12 @@ function formatManifestSummaryFallback(
 
   lines.push("## Component breakdown");
   lines.push("");
-  lines.push("_Unavailable without full review record JSON._");
+  lines.push("This summary export does not include a component breakdown.");
   lines.push("");
 
   lines.push("## Security model");
   lines.push("");
-  lines.push("_Unavailable without full review record JSON._");
+  lines.push("This summary export does not include a security model.");
   lines.push("");
 
   const honestyInput = resolveCareerExportHonestyInput(options, summary);

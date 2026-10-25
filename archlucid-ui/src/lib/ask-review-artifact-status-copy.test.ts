@@ -27,6 +27,12 @@ describe("askReviewArtifactStatusCopy", () => {
       /No architecture review/i,
     );
   });
+
+  it("describes finalized-loading when isFinalized is omitted", () => {
+    expect(askReviewArtifactStatusCopy(resolveAskReviewArtifactStatus({ runMissing: false }))).toMatch(
+      /Finalized status has not loaded/i,
+    );
+  });
 });
 
 describe("messageHasUncitedAssistantOutput", () => {

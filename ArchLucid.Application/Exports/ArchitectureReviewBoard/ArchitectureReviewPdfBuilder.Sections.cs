@@ -79,6 +79,13 @@ public sealed partial class ArchitectureReviewPdfBuilder
         column.Item().Height(8);
     }
 
+    private static void AddStyledOmissionLine(ColumnDescriptor column, string omissionLine)
+    {
+        column.Item().PaddingVertical(2).Text(omissionLine).FontSize(8).FontColor(Colors.Grey.Darken2).Italic();
+
+        column.Item().Height(8);
+    }
+
     private static void AddBullet(ColumnDescriptor column, string text)
     {
         column.Item().PaddingVertical(1).Row(row =>
