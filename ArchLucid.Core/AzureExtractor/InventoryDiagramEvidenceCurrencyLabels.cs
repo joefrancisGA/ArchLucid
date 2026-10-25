@@ -46,6 +46,6 @@ public static class InventoryDiagramEvidenceCurrencyLabels
             return InventoryDiagramEvidenceCurrency.Observed;
         }
 
-        return InventoryDiagramEvidenceCurrency.Current;
+        return null;
     }
 }

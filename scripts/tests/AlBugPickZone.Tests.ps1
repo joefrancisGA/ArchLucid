@@ -1657,3 +1657,45 @@ Describe 'al-bug-pick-zone.ps1' {
         $result.zoneId | Should -Not -BeNullOrEmpty
     }
 }
+
+Describe 'al-bug zone set picker' {
+    It 'picks only zones in the requested set and names that set branch' {
+        [string]$ledger = New-LedgerFixture -Content (Get-TwoZoneLedger)
+        [string]$config = Join-Path $TestDrive 'zone-sets.json'
+        @'
+{
+  "sets": [
+    {"id": 1, "title": "A", "command": "/al-bug1", "branch": "bugsmash-1", "ledger": "docs/library/AL_BUG_HUNT_LEDGER_1.md", "runLog": "docs/library/AL_BUG_HUNT_RUN_LOG_1.jsonl", "zones": ["zone-a"]},
+    {"id": 2, "title": "B", "command": "/al-bug2", "branch": "bugsmash-2", "ledger": "docs/library/AL_BUG_HUNT_LEDGER_2.md", "runLog": "docs/library/AL_BUG_HUNT_RUN_LOG_2.jsonl", "zones": ["zone-b"]},
+    {"id": 3, "title": "C", "command": "/al-bug3", "branch": "bugsmash-3", "ledger": "docs/library/AL_BUG_HUNT_LEDGER_3.md", "runLog": "docs/library/AL_BUG_HUNT_RUN_LOG_3.jsonl", "zones": []},
+    {"id": 4, "title": "D", "command": "/al-bug4", "branch": "bugsmash-4", "ledger": "docs/library/AL_BUG_HUNT_LEDGER_4.md", "runLog": "docs/library/AL_BUG_HUNT_RUN_LOG_4.jsonl", "zones": []}
+  ]
+}
+'@ | Set-Content -LiteralPath $config -Encoding UTF8
+
+        $result = Invoke-Picker -LedgerPath $ledger -ExtraArgs @{ Set = 1; SetConfigPath = $config }
+
+        $result.zoneId | Should -Be 'zone-a'
+        $result.set | Should -Be 1
+        $result.targetBranch | Should -Be 'bugsmash-1'
+        $result.ledgerPath | Should -Be 'docs/library/AL_BUG_HUNT_LEDGER_1.md'
+        $result.runLogPath | Should -Be 'docs/library/AL_BUG_HUNT_RUN_LOG_1.jsonl'
+    }
+
+    It 'rejects a hint that belongs to another set' {
+        [string]$ledger = New-LedgerFixture -Content (Get-TwoZoneLedger)
+        [string]$config = Join-Path $TestDrive 'zone-sets-hint.json'
+        @'
+{
+  "sets": [
+    {"id": 1, "title": "A", "command": "/al-bug1", "branch": "bugsmash-1", "ledger": "docs/library/AL_BUG_HUNT_LEDGER_1.md", "runLog": "docs/library/AL_BUG_HUNT_RUN_LOG_1.jsonl", "zones": ["zone-a"]},
+    {"id": 2, "title": "B", "command": "/al-bug2", "branch": "bugsmash-2", "ledger": "docs/library/AL_BUG_HUNT_LEDGER_2.md", "runLog": "docs/library/AL_BUG_HUNT_RUN_LOG_2.jsonl", "zones": ["zone-b"]},
+    {"id": 3, "title": "C", "command": "/al-bug3", "branch": "bugsmash-3", "ledger": "docs/library/AL_BUG_HUNT_LEDGER_3.md", "runLog": "docs/library/AL_BUG_HUNT_RUN_LOG_3.jsonl", "zones": []},
+    {"id": 4, "title": "D", "command": "/al-bug4", "branch": "bugsmash-4", "ledger": "docs/library/AL_BUG_HUNT_LEDGER_4.md", "runLog": "docs/library/AL_BUG_HUNT_RUN_LOG_4.jsonl", "zones": []}
+  ]
+}
+'@ | Set-Content -LiteralPath $config -Encoding UTF8
+
+        { Invoke-Picker -LedgerPath $ledger -Hint 'zone-b' -ExtraArgs @{ Set = 1; SetConfigPath = $config } } | Should -Throw
+    }
+}

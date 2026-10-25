@@ -9783,6 +9783,283 @@ END;
 
 GO
 
+IF OBJECT_ID(N'dbo.AzureInventoryDefenderPricings', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.AzureInventoryDefenderPricings
+    (
+        DefenderPricingRowId      UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_AzureInventoryDefenderPricings PRIMARY KEY CLUSTERED,
+        SnapshotId                UNIQUEIDENTIFIER NOT NULL,
+        TenantId                  UNIQUEIDENTIFIER NOT NULL,
+        SubscriptionId            NVARCHAR(64)      NOT NULL,
+        PricingName               NVARCHAR(128)     NOT NULL,
+        Tier                      NVARCHAR(32)      NOT NULL,
+        Extensions                NVARCHAR(512)     NOT NULL CONSTRAINT DF_AzureInventoryDefenderPricings_Extensions DEFAULT N'',
+        SourceEvidenceReference   NVARCHAR(512)     NULL,
+        CONSTRAINT FK_AzureInventoryDefenderPricings_Snapshots FOREIGN KEY (SnapshotId) REFERENCES dbo.AzureInventorySnapshots (SnapshotId)
+    );
+
+    CREATE NONCLUSTERED INDEX IX_AzureInventoryDefenderPricings_Tenant_Snapshot
+        ON dbo.AzureInventoryDefenderPricings (TenantId, SnapshotId);
+END;
+
+GO
+
+IF OBJECT_ID(N'dbo.AzureInventoryDefenderScoreControls', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.AzureInventoryDefenderScoreControls
+    (
+        DefenderScoreControlRowId UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_AzureInventoryDefenderScoreControls PRIMARY KEY CLUSTERED,
+        SnapshotId                UNIQUEIDENTIFIER NOT NULL,
+        TenantId                  UNIQUEIDENTIFIER NOT NULL,
+        SubscriptionId            NVARCHAR(64)      NOT NULL,
+        ScoreName                 NVARCHAR(64)      NOT NULL,
+        ControlName               NVARCHAR(128)     NOT NULL,
+        DisplayName               NVARCHAR(512)     NOT NULL CONSTRAINT DF_AzureInventoryDefenderScoreControls_DisplayName DEFAULT N'',
+        CurrentScore              INT               NOT NULL,
+        MaxScore                  INT               NOT NULL,
+        Percentage                INT               NOT NULL,
+        Weight                    INT               NOT NULL,
+        UnhealthyResourceCount    INT               NOT NULL,
+        HealthyResourceCount      INT               NOT NULL,
+        SourceEvidenceReference   NVARCHAR(512)     NULL,
+        CONSTRAINT FK_AzureInventoryDefenderScoreControls_Snapshots FOREIGN KEY (SnapshotId) REFERENCES dbo.AzureInventorySnapshots (SnapshotId)
+    );
+
+    CREATE NONCLUSTERED INDEX IX_AzureInventoryDefenderScoreControls_Tenant_Snapshot
+        ON dbo.AzureInventoryDefenderScoreControls (TenantId, SnapshotId);
+END;
+
+GO
+
+IF OBJECT_ID(N'dbo.AzureInventoryDefenderAssessments', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.AzureInventoryDefenderAssessments
+    (
+        DefenderAssessmentRowId   UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_AzureInventoryDefenderAssessments PRIMARY KEY CLUSTERED,
+        SnapshotId                UNIQUEIDENTIFIER NOT NULL,
+        TenantId                  UNIQUEIDENTIFIER NOT NULL,
+        SubscriptionId            NVARCHAR(64)      NOT NULL,
+        AssessmentKey             NVARCHAR(128)     NOT NULL,
+        DisplayName               NVARCHAR(512)     NOT NULL CONSTRAINT DF_AzureInventoryDefenderAssessments_DisplayName DEFAULT N'',
+        Severity                  NVARCHAR(32)      NOT NULL,
+        Status                    NVARCHAR(32)      NOT NULL,
+        StatusCause               NVARCHAR(240)     NOT NULL CONSTRAINT DF_AzureInventoryDefenderAssessments_StatusCause DEFAULT N'',
+        Category                  NVARCHAR(128)     NOT NULL CONSTRAINT DF_AzureInventoryDefenderAssessments_Category DEFAULT N'',
+        ResourceId                NVARCHAR(1024)    NOT NULL,
+        SourceEvidenceReference   NVARCHAR(512)     NULL,
+        CONSTRAINT FK_AzureInventoryDefenderAssessments_Snapshots FOREIGN KEY (SnapshotId) REFERENCES dbo.AzureInventorySnapshots (SnapshotId)
+    );
+
+    CREATE NONCLUSTERED INDEX IX_AzureInventoryDefenderAssessments_Tenant_Snapshot
+        ON dbo.AzureInventoryDefenderAssessments (TenantId, SnapshotId);
+END;
+
+GO
+
+IF OBJECT_ID(N'dbo.AzureInventoryDefenderAssessmentCounts', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.AzureInventoryDefenderAssessmentCounts
+    (
+        DefenderAssessmentCountRowId UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_AzureInventoryDefenderAssessmentCounts PRIMARY KEY CLUSTERED,
+        SnapshotId                   UNIQUEIDENTIFIER NOT NULL,
+        TenantId                     UNIQUEIDENTIFIER NOT NULL,
+        SubscriptionId               NVARCHAR(64)      NOT NULL,
+        AssessmentKey                NVARCHAR(128)     NOT NULL,
+        DisplayName                  NVARCHAR(512)     NOT NULL CONSTRAINT DF_AzureInventoryDefenderAssessmentCounts_DisplayName DEFAULT N'',
+        Severity                     NVARCHAR(32)      NOT NULL,
+        HealthyCount                 INT               NOT NULL,
+        UnhealthyCount               INT               NOT NULL,
+        NotApplicableCount           INT               NOT NULL,
+        SourceEvidenceReference      NVARCHAR(512)     NULL,
+        CONSTRAINT FK_AzureInventoryDefenderAssessmentCounts_Snapshots FOREIGN KEY (SnapshotId) REFERENCES dbo.AzureInventorySnapshots (SnapshotId)
+    );
+
+    CREATE NONCLUSTERED INDEX IX_AzureInventoryDefenderAssessmentCounts_Tenant_Snapshot
+        ON dbo.AzureInventoryDefenderAssessmentCounts (TenantId, SnapshotId);
+END;
+
+GO
+
+IF OBJECT_ID(N'dbo.AzureInventoryDefenderSecurityContacts', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.AzureInventoryDefenderSecurityContacts
+    (
+        DefenderSecurityContactRowId UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_AzureInventoryDefenderSecurityContacts PRIMARY KEY CLUSTERED,
+        SnapshotId                   UNIQUEIDENTIFIER NOT NULL,
+        TenantId                     UNIQUEIDENTIFIER NOT NULL,
+        SubscriptionId               NVARCHAR(64)      NOT NULL,
+        CollectionStatus             NVARCHAR(32)      NOT NULL,
+        EmailCount                   INT               NOT NULL,
+        Emails                       NVARCHAR(512)     NOT NULL CONSTRAINT DF_AzureInventoryDefenderSecurityContacts_Emails DEFAULT N'',
+        AlertsToAdmins               BIT               NOT NULL,
+        MinimalSeverity              NVARCHAR(64)      NOT NULL CONSTRAINT DF_AzureInventoryDefenderSecurityContacts_MinimalSeverity DEFAULT N'',
+        NotificationRoles            NVARCHAR(512)     NOT NULL CONSTRAINT DF_AzureInventoryDefenderSecurityContacts_NotificationRoles DEFAULT N'',
+        SourceEvidenceReference      NVARCHAR(512)     NULL,
+        CONSTRAINT FK_AzureInventoryDefenderSecurityContacts_Snapshots FOREIGN KEY (SnapshotId) REFERENCES dbo.AzureInventorySnapshots (SnapshotId)
+    );
+
+    CREATE NONCLUSTERED INDEX IX_AzureInventoryDefenderSecurityContacts_Tenant_Snapshot
+        ON dbo.AzureInventoryDefenderSecurityContacts (TenantId, SnapshotId);
+END;
+
+GO
+
+IF OBJECT_ID(N'dbo.AzureInventoryDefenderGovernanceAssignments', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.AzureInventoryDefenderGovernanceAssignments
+    (
+        DefenderGovernanceAssignmentRowId UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_AzureInventoryDefenderGovernanceAssignments PRIMARY KEY CLUSTERED,
+        SnapshotId                        UNIQUEIDENTIFIER NOT NULL,
+        TenantId                          UNIQUEIDENTIFIER NOT NULL,
+        SubscriptionId                    NVARCHAR(64)      NOT NULL,
+        AssessmentKey                     NVARCHAR(128)     NOT NULL,
+        ResourceId                        NVARCHAR(1024)    NOT NULL,
+        Owner                             NVARCHAR(320)     NULL,
+        RemediationDueUtc                 DATETIME2         NULL,
+        IsGracePeriod                     BIT               NOT NULL CONSTRAINT DF_AzureInventoryDefenderGovernanceAssignments_IsGracePeriod DEFAULT 0,
+        AssignmentStatus                  NVARCHAR(64)      NOT NULL CONSTRAINT DF_AzureInventoryDefenderGovernanceAssignments_AssignmentStatus DEFAULT N'',
+        SourceEvidenceReference           NVARCHAR(512)     NULL,
+        CONSTRAINT FK_AzureInventoryDefenderGovernanceAssignments_Snapshots FOREIGN KEY (SnapshotId) REFERENCES dbo.AzureInventorySnapshots (SnapshotId)
+    );
+
+    CREATE NONCLUSTERED INDEX IX_AzureInventoryDefenderGovernanceAssignments_Tenant_Snapshot
+        ON dbo.AzureInventoryDefenderGovernanceAssignments (TenantId, SnapshotId);
+END;
+GO
+
+IF OBJECT_ID(N'dbo.AzureInventoryDefenderComplianceStandards', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.AzureInventoryDefenderComplianceStandards
+    (
+        DefenderComplianceStandardRowId UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_AzureInventoryDefenderComplianceStandards PRIMARY KEY CLUSTERED,
+        SnapshotId                      UNIQUEIDENTIFIER NOT NULL,
+        TenantId                        UNIQUEIDENTIFIER NOT NULL,
+        SubscriptionId                  NVARCHAR(64)      NOT NULL,
+        StandardName                    NVARCHAR(128)     NOT NULL,
+        State                           NVARCHAR(64)      NOT NULL CONSTRAINT DF_AzureInventoryDefenderComplianceStandards_State DEFAULT N'',
+        PassedControlCount              INT               NOT NULL,
+        FailedControlCount              INT               NOT NULL,
+        SkippedControlCount             INT               NOT NULL,
+        SourceEvidenceReference         NVARCHAR(512)     NULL,
+        CONSTRAINT FK_AzureInventoryDefenderComplianceStandards_Snapshots FOREIGN KEY (SnapshotId) REFERENCES dbo.AzureInventorySnapshots (SnapshotId)
+    );
+
+    CREATE NONCLUSTERED INDEX IX_AzureInventoryDefenderComplianceStandards_Tenant_Snapshot
+        ON dbo.AzureInventoryDefenderComplianceStandards (TenantId, SnapshotId);
+END;
+GO
+
+IF OBJECT_ID(N'dbo.AzureInventoryDefenderComplianceControls', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.AzureInventoryDefenderComplianceControls
+    (
+        DefenderComplianceControlRowId UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_AzureInventoryDefenderComplianceControls PRIMARY KEY CLUSTERED,
+        SnapshotId                     UNIQUEIDENTIFIER NOT NULL,
+        TenantId                       UNIQUEIDENTIFIER NOT NULL,
+        SubscriptionId                 NVARCHAR(64)      NOT NULL,
+        StandardName                   NVARCHAR(128)     NOT NULL,
+        ControlName                    NVARCHAR(256)     NOT NULL,
+        State                          NVARCHAR(64)      NOT NULL,
+        FailedAssessmentCount          INT               NOT NULL,
+        SourceEvidenceReference        NVARCHAR(512)     NULL,
+        CONSTRAINT FK_AzureInventoryDefenderComplianceControls_Snapshots FOREIGN KEY (SnapshotId) REFERENCES dbo.AzureInventorySnapshots (SnapshotId)
+    );
+
+    CREATE NONCLUSTERED INDEX IX_AzureInventoryDefenderComplianceControls_Tenant_Snapshot
+        ON dbo.AzureInventoryDefenderComplianceControls (TenantId, SnapshotId);
+END;
+GO
+
+IF OBJECT_ID(N'dbo.AzureInventoryDefenderAlerts', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.AzureInventoryDefenderAlerts
+    (
+        DefenderAlertRowId      UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_AzureInventoryDefenderAlerts PRIMARY KEY CLUSTERED,
+        SnapshotId              UNIQUEIDENTIFIER NOT NULL,
+        TenantId                UNIQUEIDENTIFIER NOT NULL,
+        SubscriptionId          NVARCHAR(64)      NOT NULL,
+        AlertId                 NVARCHAR(128)     NOT NULL,
+        DisplayName             NVARCHAR(512)     NOT NULL CONSTRAINT DF_AzureInventoryDefenderAlerts_DisplayName DEFAULT N'',
+        Severity                NVARCHAR(32)      NOT NULL,
+        Status                  NVARCHAR(32)      NOT NULL,
+        Intent                  NVARCHAR(64)      NOT NULL CONSTRAINT DF_AzureInventoryDefenderAlerts_Intent DEFAULT N'',
+        AlertType               NVARCHAR(256)     NOT NULL CONSTRAINT DF_AzureInventoryDefenderAlerts_AlertType DEFAULT N'',
+        StartTimeUtc            DATETIME2         NULL,
+        ResourceId              NVARCHAR(1024)    NOT NULL CONSTRAINT DF_AzureInventoryDefenderAlerts_ResourceId DEFAULT N'',
+        SourceEvidenceReference NVARCHAR(512)     NULL,
+        CONSTRAINT FK_AzureInventoryDefenderAlerts_Snapshots FOREIGN KEY (SnapshotId) REFERENCES dbo.AzureInventorySnapshots (SnapshotId)
+    );
+
+    CREATE NONCLUSTERED INDEX IX_AzureInventoryDefenderAlerts_Tenant_Snapshot
+        ON dbo.AzureInventoryDefenderAlerts (TenantId, SnapshotId);
+END;
+GO
+
+IF OBJECT_ID(N'dbo.AzureInventoryDefenderAttackPaths', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.AzureInventoryDefenderAttackPaths
+    (
+        DefenderAttackPathRowId UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_AzureInventoryDefenderAttackPaths PRIMARY KEY CLUSTERED,
+        SnapshotId              UNIQUEIDENTIFIER NOT NULL,
+        TenantId                UNIQUEIDENTIFIER NOT NULL,
+        SubscriptionId          NVARCHAR(64)      NOT NULL,
+        AttackPathId            NVARCHAR(128)     NOT NULL,
+        DisplayName             NVARCHAR(512)     NOT NULL CONSTRAINT DF_AzureInventoryDefenderAttackPaths_DisplayName DEFAULT N'',
+        RiskLevel               NVARCHAR(64)      NOT NULL CONSTRAINT DF_AzureInventoryDefenderAttackPaths_RiskLevel DEFAULT N'',
+        EntryResourceIds        NVARCHAR(2048)    NOT NULL CONSTRAINT DF_AzureInventoryDefenderAttackPaths_EntryResourceIds DEFAULT N'',
+        TargetResourceIds       NVARCHAR(2048)    NOT NULL CONSTRAINT DF_AzureInventoryDefenderAttackPaths_TargetResourceIds DEFAULT N'',
+        SourceEvidenceReference NVARCHAR(512)     NULL,
+        CONSTRAINT FK_AzureInventoryDefenderAttackPaths_Snapshots FOREIGN KEY (SnapshotId) REFERENCES dbo.AzureInventorySnapshots (SnapshotId)
+    );
+
+    CREATE NONCLUSTERED INDEX IX_AzureInventoryDefenderAttackPaths_Tenant_Snapshot
+        ON dbo.AzureInventoryDefenderAttackPaths (TenantId, SnapshotId);
+END;
+GO
+
+IF OBJECT_ID(N'dbo.AzureInventoryDefenderVulnerabilityCounts', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.AzureInventoryDefenderVulnerabilityCounts
+    (
+        DefenderVulnerabilityCountRowId UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_AzureInventoryDefenderVulnerabilityCounts PRIMARY KEY CLUSTERED,
+        SnapshotId                      UNIQUEIDENTIFIER NOT NULL,
+        TenantId                        UNIQUEIDENTIFIER NOT NULL,
+        SubscriptionId                  NVARCHAR(64)      NOT NULL,
+        ResourceId                      NVARCHAR(1024)    NOT NULL,
+        CriticalCount                   INT               NOT NULL,
+        HighCount                       INT               NOT NULL,
+        MediumCount                     INT               NOT NULL,
+        LowCount                        INT               NOT NULL,
+        SourceEvidenceReference         NVARCHAR(512)     NULL,
+        CONSTRAINT FK_AzureInventoryDefenderVulnerabilityCounts_Snapshots FOREIGN KEY (SnapshotId) REFERENCES dbo.AzureInventorySnapshots (SnapshotId)
+    );
+
+    CREATE NONCLUSTERED INDEX IX_AzureInventoryDefenderVulnerabilityCounts_Tenant_Snapshot
+        ON dbo.AzureInventoryDefenderVulnerabilityCounts (TenantId, SnapshotId);
+END;
+GO
+
+IF OBJECT_ID(N'dbo.AzureInventoryDefenderVulnerabilityFindings', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.AzureInventoryDefenderVulnerabilityFindings
+    (
+        DefenderVulnerabilityFindingRowId UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_AzureInventoryDefenderVulnerabilityFindings PRIMARY KEY CLUSTERED,
+        SnapshotId                        UNIQUEIDENTIFIER NOT NULL,
+        TenantId                          UNIQUEIDENTIFIER NOT NULL,
+        SubscriptionId                    NVARCHAR(64)      NOT NULL,
+        ResourceId                        NVARCHAR(1024)    NOT NULL,
+        Severity                          NVARCHAR(16)      NOT NULL,
+        FindingId                         NVARCHAR(64)      NOT NULL,
+        DisplayName                       NVARCHAR(240)     NOT NULL CONSTRAINT DF_AzureInventoryDefenderVulnerabilityFindings_DisplayName DEFAULT N'',
+        SourceEvidenceReference           NVARCHAR(512)     NULL,
+        CONSTRAINT FK_AzureInventoryDefenderVulnerabilityFindings_Snapshots FOREIGN KEY (SnapshotId) REFERENCES dbo.AzureInventorySnapshots (SnapshotId)
+    );
+
+    CREATE NONCLUSTERED INDEX IX_AzureInventoryDefenderVulnerabilityFindings_Tenant_Snapshot
+        ON dbo.AzureInventoryDefenderVulnerabilityFindings (TenantId, SnapshotId);
+END;
+GO
+
 IF OBJECT_ID(N'dbo.CloudResourceIdentities', N'U') IS NULL
 BEGIN
     CREATE TABLE dbo.CloudResourceIdentities

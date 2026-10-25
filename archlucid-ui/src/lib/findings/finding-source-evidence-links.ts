@@ -35,7 +35,17 @@ export type FindingSourceEvidenceLinkContext = {
   readonly runId: string;
   readonly findingId: string;
   readonly manifestId?: string | null;
+  /** When true, manifest links may say finalized; otherwise use review-record wording. */
+  readonly reviewManifestFinalized?: boolean | null;
 };
+
+const UNRESOLVED_EVIDENCE_REF_LABEL = "This evidence reference did not resolve to a stored artifact." as const;
+
+function manifestRecordSectionLinkLabel(ctx: FindingSourceEvidenceLinkContext): string {
+  return ctx.reviewManifestFinalized === true
+    ? "Open finalized record section"
+    : "Open review record section.";
+}
 
 function nonEmpty(value: string | null | undefined): string | null {
   const trimmed = value?.trim() ?? "";
@@ -190,7 +200,7 @@ function inspectRowSourceLink(
       if (manifestId !== null && manifestId.includes("-")) {
         return linkFromKind(
           "manifestRecord",
-          "Open finalized record section",
+          manifestRecordSectionLinkLabel(ctx),
           manifestRecordSectionHref(manifestId, "manifest-decisions"),
           detail,
         );
@@ -198,7 +208,7 @@ function inspectRowSourceLink(
 
       return linkFromKind(
         "manifestSection",
-        "Open finalized record section",
+        manifestRecordSectionLinkLabel(ctx),
         runDetailSectionHref(ctx.runId, "manifest-summary"),
         detail,
       );
@@ -250,7 +260,7 @@ function inspectRowSourceLink(
 
   return linkFromKind(
     "manifestSection",
-    "Open finalized record section",
+    manifestRecordSectionLinkLabel(ctx),
     runDetailSectionHref(ctx.runId, "manifest-summary"),
     detail,
   );
@@ -288,7 +298,7 @@ export function parseEvidenceRefToSourceLink(
     if (manifestId !== null) {
       return linkFromKind(
         "manifestRecord",
-        "Open finalized record section",
+        manifestRecordSectionLinkLabel(ctx),
         manifestRecordSectionHref(manifestId, "manifest-decisions"),
         snippet,
       );
@@ -296,7 +306,7 @@ export function parseEvidenceRefToSourceLink(
 
     return linkFromKind(
       "manifestSection",
-      "Open finalized record section",
+      manifestRecordSectionLinkLabel(ctx),
       runDetailSectionHref(ctx.runId, "manifest-summary"),
       snippet,
     );
@@ -333,7 +343,7 @@ export function parseEvidenceRefToSourceLink(
 
   return linkFromKind(
     "artifactSection",
-    "Open cited evidence",
+    UNRESOLVED_EVIDENCE_REF_LABEL,
     runDetailSectionHref(ctx.runId, "artifacts-exports"),
     snippet,
   );

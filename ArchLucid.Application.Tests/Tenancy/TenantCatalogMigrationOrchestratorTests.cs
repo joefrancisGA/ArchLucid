@@ -245,6 +245,79 @@ public sealed class TenantCatalogMigrationOrchestratorTests
     }
 
     [Fact]
+    public async Task AcknowledgeCatalogAttachDetachAsync_returns_in_erasure_quarantine_without_attach_audit_when_offboard_completes_after_tenant_before_attach_audit_read_before_audit()
+    {
+        InMemoryTenantCatalogMigrationRepository migrations = new();
+        FakeTimeProvider clock = new(new DateTimeOffset(2026, 10, 22, 6, 0, 0, TimeSpan.Zero));
+        Guid migrationId = Guid.NewGuid();
+        await migrations.InsertAsync(
+            new TenantCatalogMigrationRecord
+            {
+                MigrationId = migrationId,
+                TenantId = TenantId,
+                CorrelationId = "corr-offboard-attach-pre-append",
+                Stage = TenantCatalogMigrationStage.ScopeFreeze,
+                StartedUtc = clock.GetUtcNow().AddHours(-1),
+            },
+            CancellationToken.None);
+
+        TenantRecord activeTenant = new()
+        {
+            Id = TenantId,
+            Name = "Acme",
+            Slug = "acme",
+            Tier = TenantTier.Standard,
+            DataRegion = TenantDataRegions.Default,
+            CreatedUtc = clock.GetUtcNow().AddDays(-1),
+        };
+
+        TenantRecord offboarded = new()
+        {
+            Id = TenantId,
+            Name = "Acme",
+            Slug = "acme",
+            Tier = TenantTier.Standard,
+            DataRegion = TenantDataRegions.Default,
+            CreatedUtc = clock.GetUtcNow().AddDays(-1),
+            OffboardedUtc = clock.GetUtcNow(),
+            ErasureEligibleUtc = clock.GetUtcNow().AddDays(30),
+        };
+
+        Mock<ITenantRepository> tenants = new(MockBehavior.Strict);
+        tenants
+            .SetupSequence(t => t.GetByIdAsync(TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(activeTenant)
+            .ReturnsAsync(activeTenant)
+            .ReturnsAsync(activeTenant)
+            .ReturnsAsync(offboarded);
+
+        Mock<IPlatformAuditRepository> audit = new(MockBehavior.Strict);
+        TenantSuspendCommandService suspend = new(tenants.Object, audit.Object, clock);
+        TenantCatalogMigrationOrchestrator sut = new(
+            migrations,
+            tenants.Object,
+            suspend,
+            CreateDefaultProjectionRefresh(),
+            CreateDefaultVerificationProbe(),
+            audit.Object,
+            clock);
+
+        TenantCatalogMigrationCommandOutcome outcome =
+            await sut.AcknowledgeCatalogAttachDetachAsync(TenantId, "admin", "Admin", CancellationToken.None);
+
+        Assert.Equal(TenantCatalogMigrationCommandOutcome.InErasureQuarantine, outcome);
+
+        TenantCatalogMigrationRecord? record =
+            await migrations.GetActiveByTenantIdAsync(TenantId, CancellationToken.None);
+        Assert.Equal(TenantCatalogMigrationStage.CatalogAttachDetach, record?.Stage);
+        audit.Verify(
+            a => a.AppendAsync(
+                It.Is<PlatformAuditEvent>(e => e.EventType == AuditEventTypes.TenantCatalogMigrationCatalogAttachAcknowledged),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task Fan_out_stage_sequence_advances_scope_freeze_to_verification()
     {
         InMemoryTenantCatalogMigrationRepository migrations = new();
@@ -745,6 +818,83 @@ public sealed class TenantCatalogMigrationOrchestratorTests
     }
 
     [Fact]
+    public async Task RunProjectionRefreshAsync_returns_in_erasure_quarantine_without_refresh_audit_when_offboard_completes_after_tenant_before_refresh_audit_read_before_audit()
+    {
+        InMemoryTenantCatalogMigrationRepository migrations = new();
+        FakeTimeProvider clock = new(new DateTimeOffset(2026, 10, 22, 5, 5, 0, TimeSpan.Zero));
+        Guid migrationId = Guid.NewGuid();
+        await migrations.InsertAsync(
+            new TenantCatalogMigrationRecord
+            {
+                MigrationId = migrationId,
+                TenantId = TenantId,
+                CorrelationId = "corr-offboard-refresh-pre-append-audit",
+                Stage = TenantCatalogMigrationStage.CatalogAttachDetach,
+                StartedUtc = clock.GetUtcNow().AddHours(-1),
+            },
+            CancellationToken.None);
+
+        TenantRecord activeTenant = new()
+        {
+            Id = TenantId,
+            Name = "Acme",
+            Slug = "acme",
+            Tier = TenantTier.Standard,
+            DataRegion = TenantDataRegions.Default,
+            CreatedUtc = clock.GetUtcNow().AddDays(-1),
+        };
+
+        TenantRecord offboarded = new()
+        {
+            Id = TenantId,
+            Name = "Acme",
+            Slug = "acme",
+            Tier = TenantTier.Standard,
+            DataRegion = TenantDataRegions.Default,
+            CreatedUtc = clock.GetUtcNow().AddDays(-1),
+            OffboardedUtc = clock.GetUtcNow(),
+            ErasureEligibleUtc = clock.GetUtcNow().AddDays(30),
+        };
+
+        Mock<ITenantRepository> tenants = new(MockBehavior.Strict);
+        tenants
+            .SetupSequence(t => t.GetByIdAsync(TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(activeTenant)
+            .ReturnsAsync(activeTenant)
+            .ReturnsAsync(activeTenant)
+            .ReturnsAsync(activeTenant)
+            .ReturnsAsync(activeTenant)
+            .ReturnsAsync(activeTenant)
+            .ReturnsAsync(offboarded);
+
+        Mock<IPlatformAuditRepository> audit = new(MockBehavior.Strict);
+        TenantSuspendCommandService suspend = new(tenants.Object, audit.Object, clock);
+        TenantCatalogMigrationOrchestrator sut = new(
+            migrations,
+            tenants.Object,
+            suspend,
+            CreateDefaultProjectionRefresh(),
+            CreateDefaultVerificationProbe(),
+            audit.Object,
+            clock);
+
+        (TenantCatalogMigrationCommandOutcome outcome, TenantMigrationProjectionRefreshResult? refresh) =
+            await sut.RunProjectionRefreshAsync(TenantId, WorkspaceId, ProjectId, "admin", "Admin", CancellationToken.None);
+
+        Assert.Equal(TenantCatalogMigrationCommandOutcome.InErasureQuarantine, outcome);
+        Assert.NotNull(refresh);
+
+        TenantCatalogMigrationRecord? record =
+            await migrations.GetActiveByTenantIdAsync(TenantId, CancellationToken.None);
+        Assert.Equal(TenantCatalogMigrationStage.ProjectionRefresh, record?.Stage);
+        audit.Verify(
+            a => a.AppendAsync(
+                It.Is<PlatformAuditEvent>(e => e.EventType == AuditEventTypes.TenantCatalogMigrationProjectionRefreshCompleted),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task RunVerificationAsync_returns_wrong_stage_before_projection_refresh_succeeds()
     {
         InMemoryTenantCatalogMigrationRepository migrations = new();
@@ -1028,6 +1178,7 @@ public sealed class TenantCatalogMigrationOrchestratorTests
             .ReturnsAsync(active)
             .ReturnsAsync(active)
             .ReturnsAsync(active)
+            .ReturnsAsync(active)
             .ReturnsAsync(offboarded);
         tenants
             .Setup(t => t.TrySuspendTenantAsync(TenantId, It.IsAny<CancellationToken>()))
@@ -1060,6 +1211,79 @@ public sealed class TenantCatalogMigrationOrchestratorTests
 
         (TenantCatalogMigrationCommandOutcome outcome, Guid? migrationId) =
             await sut.StartAsync(TenantId, "corr-offboard-post-insert", "admin", "Admin", CancellationToken.None);
+
+        Assert.Equal(TenantCatalogMigrationCommandOutcome.InErasureQuarantine, outcome);
+        Assert.NotNull(migrationId);
+        migrationSpy.Verify(
+            r => r.InsertAsync(It.IsAny<TenantCatalogMigrationRecord>(), It.IsAny<CancellationToken>()),
+            Times.Once);
+        audit.Verify(
+            a => a.AppendAsync(
+                It.Is<PlatformAuditEvent>(e => e.EventType == AuditEventTypes.TenantCatalogMigrationStarted),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task StartAsync_returns_in_erasure_quarantine_without_started_audit_when_offboard_completes_after_tenant_after_insert_read_before_audit()
+    {
+        InMemoryTenantCatalogMigrationRepository migrations = new();
+        FakeTimeProvider clock = new(new DateTimeOffset(2026, 10, 22, 5, 10, 0, TimeSpan.Zero));
+        TenantRecord active = ActiveTenant(clock);
+        TenantRecord offboarded = new()
+        {
+            Id = TenantId,
+            Name = "Acme",
+            Slug = "acme",
+            Tier = TenantTier.Standard,
+            DataRegion = TenantDataRegions.Default,
+            CreatedUtc = clock.GetUtcNow().AddDays(-1),
+            OffboardedUtc = clock.GetUtcNow(),
+            ErasureEligibleUtc = clock.GetUtcNow().AddDays(30),
+        };
+
+        Mock<ITenantRepository> tenants = new(MockBehavior.Strict);
+        tenants
+            .SetupSequence(t => t.GetByIdAsync(TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(active)
+            .ReturnsAsync(active)
+            .ReturnsAsync(active)
+            .ReturnsAsync(active)
+            .ReturnsAsync(active)
+            .ReturnsAsync(active)
+            .ReturnsAsync(active)
+            .ReturnsAsync(offboarded);
+        tenants
+            .Setup(t => t.TrySuspendTenantAsync(TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+
+        Mock<ITenantCatalogMigrationRepository> migrationSpy = new(MockBehavior.Strict);
+        migrationSpy
+            .Setup(r => r.GetActiveByTenantIdAsync(TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((TenantCatalogMigrationRecord?)null);
+        migrationSpy
+            .Setup(r => r.InsertAsync(It.IsAny<TenantCatalogMigrationRecord>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IPlatformAuditRepository> audit = new(MockBehavior.Strict);
+        audit
+            .Setup(a => a.AppendAsync(
+                It.Is<PlatformAuditEvent>(e => e.EventType == AuditEventTypes.TenantSuspended),
+                It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        TenantSuspendCommandService suspend = new(tenants.Object, audit.Object, clock);
+        TenantCatalogMigrationOrchestrator sut = new(
+            migrationSpy.Object,
+            tenants.Object,
+            suspend,
+            CreateDefaultProjectionRefresh(),
+            CreateDefaultVerificationProbe(),
+            audit.Object,
+            clock);
+
+        (TenantCatalogMigrationCommandOutcome outcome, Guid? migrationId) =
+            await sut.StartAsync(TenantId, "corr-offboard-post-insert-pre-append-audit", "admin", "Admin", CancellationToken.None);
 
         Assert.Equal(TenantCatalogMigrationCommandOutcome.InErasureQuarantine, outcome);
         Assert.NotNull(migrationId);
@@ -1519,6 +1743,81 @@ public sealed class TenantCatalogMigrationOrchestratorTests
         Mock<ITenantRepository> tenants = new(MockBehavior.Strict);
         tenants
             .SetupSequence(t => t.GetByIdAsync(TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(active)
+            .ReturnsAsync(active)
+            .ReturnsAsync(active)
+            .ReturnsAsync(active)
+            .ReturnsAsync(offboarded);
+
+        Mock<IPlatformAuditRepository> audit = new(MockBehavior.Strict);
+        TenantSuspendCommandService suspend = new(
+            tenants.Object,
+            audit.Object,
+            clock);
+
+        TenantCatalogMigrationOrchestrator sut = new(
+            migrations.Object,
+            tenants.Object,
+            suspend,
+            CreateDefaultProjectionRefresh(),
+            CreateDefaultVerificationProbe(),
+            audit.Object,
+            clock);
+
+        TenantCatalogMigrationCommandOutcome outcome =
+            await sut.CompleteAsync(TenantId, "admin", "Admin", CancellationToken.None);
+
+        Assert.Equal(TenantCatalogMigrationCommandOutcome.InErasureQuarantine, outcome);
+        migrations.Verify(
+            r => r.CompleteAsync(migrationId, It.IsAny<DateTimeOffset>(), It.IsAny<CancellationToken>()),
+            Times.Once);
+        audit.Verify(
+            a => a.AppendAsync(
+                It.Is<PlatformAuditEvent>(e => e.EventType == AuditEventTypes.TenantCatalogMigrationCompleted),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task CompleteAsync_returns_in_erasure_quarantine_without_completed_audit_when_offboard_completes_after_tenant_before_completed_audit_read_before_audit()
+    {
+        FakeTimeProvider clock = new(new DateTimeOffset(2026, 10, 22, 4, 58, 0, TimeSpan.Zero));
+        Guid migrationId = Guid.NewGuid();
+        TenantCatalogMigrationRecord activeMigration = new()
+        {
+            MigrationId = migrationId,
+            TenantId = TenantId,
+            CorrelationId = "corr-offboard-complete-pre-append-audit",
+            Stage = TenantCatalogMigrationStage.Verification,
+            StartedUtc = clock.GetUtcNow().AddHours(-1),
+            VerificationPassedUtc = clock.GetUtcNow().AddMinutes(-5),
+        };
+
+        TenantRecord active = ActiveTenant(clock);
+        TenantRecord offboarded = new()
+        {
+            Id = TenantId,
+            Name = "Acme",
+            Slug = "acme",
+            Tier = TenantTier.Standard,
+            DataRegion = TenantDataRegions.Default,
+            CreatedUtc = clock.GetUtcNow().AddDays(-1),
+            OffboardedUtc = clock.GetUtcNow(),
+            ErasureEligibleUtc = clock.GetUtcNow().AddDays(30),
+        };
+
+        Mock<ITenantCatalogMigrationRepository> migrations = new(MockBehavior.Strict);
+        migrations
+            .Setup(r => r.GetActiveByTenantIdAsync(TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(activeMigration);
+        migrations
+            .Setup(r => r.CompleteAsync(migrationId, It.IsAny<DateTimeOffset>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<ITenantRepository> tenants = new(MockBehavior.Strict);
+        tenants
+            .SetupSequence(t => t.GetByIdAsync(TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(active)
             .ReturnsAsync(active)
             .ReturnsAsync(active)
             .ReturnsAsync(active)

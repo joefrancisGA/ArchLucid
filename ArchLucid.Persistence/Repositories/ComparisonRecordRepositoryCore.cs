@@ -2,6 +2,8 @@ using System.Text.Json;
 
 using ArchLucid.Contracts.Metadata;
 
+using ArchLucid.Persistence.Data.Repositories;
+
 namespace ArchLucid.Persistence.Repositories;
 
 /// <summary>
@@ -72,10 +74,24 @@ internal static class ComparisonRecordRepositoryCore
             query = query.Where(r => r.CreatedUtc <= createdToUtc.Value);
 
         if (!string.IsNullOrWhiteSpace(leftExportRecordId))
-            query = query.Where(r => string.Equals(r.LeftExportRecordId, leftExportRecordId, StringComparison.Ordinal));
+        {
+            string normalizedLeftExportRecordId =
+                ComparisonExportRecordIdLookup.NormalizeLookupKey(leftExportRecordId);
+            query = query.Where(r =>
+                ComparisonExportRecordIdLookup.StoredValueMatchesLookup(
+                    r.LeftExportRecordId,
+                    normalizedLeftExportRecordId));
+        }
 
         if (!string.IsNullOrWhiteSpace(rightExportRecordId))
-            query = query.Where(r => string.Equals(r.RightExportRecordId, rightExportRecordId, StringComparison.Ordinal));
+        {
+            string normalizedRightExportRecordId =
+                ComparisonExportRecordIdLookup.NormalizeLookupKey(rightExportRecordId);
+            query = query.Where(r =>
+                ComparisonExportRecordIdLookup.StoredValueMatchesLookup(
+                    r.RightExportRecordId,
+                    normalizedRightExportRecordId));
+        }
 
         if (!string.IsNullOrWhiteSpace(label))
             query = query.Where(r => string.Equals(r.Label, label, StringComparison.Ordinal));

@@ -351,6 +351,7 @@ public sealed class TrialLifecycleTransitionEngineTests
             .ReturnsAsync(active)
             .ReturnsAsync(active)
             .ReturnsAsync(active)
+            .ReturnsAsync(active)
             .ReturnsAsync(offboarded);
         repo
             .Setup(r => r.TryRecordTrialLifecycleTransitionAsync(
@@ -388,6 +389,77 @@ public sealed class TrialLifecycleTransitionEngineTests
             a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()),
             Times.Once);
         expirationMeasurements.Should().Be(0);
+    }
+
+    [Fact]
+    public async Task TryAdvanceTenantAsync_skips_transition_audit_when_offboard_completes_after_tenant_before_audit_read_before_audit()
+    {
+        Guid tenantId = Guid.NewGuid();
+        DateTimeOffset anchor = new(2026, 10, 22, 9, 0, 0, TimeSpan.Zero);
+        TenantRecord active = new()
+        {
+            Id = tenantId,
+            Name = "n",
+            Slug = "s",
+            Tier = TenantTier.Standard,
+            CreatedUtc = TimeProvider.System.GetUtcNow(),
+            TrialStatus = TrialLifecycleStatus.Active,
+            TrialExpiresUtc = anchor,
+        };
+        TenantRecord offboarded = new()
+        {
+            Id = tenantId,
+            Name = "n",
+            Slug = "s",
+            Tier = TenantTier.Standard,
+            CreatedUtc = TimeProvider.System.GetUtcNow(),
+            TrialStatus = TrialLifecycleStatus.Active,
+            TrialExpiresUtc = anchor,
+            OffboardedUtc = anchor.AddHours(1),
+            ErasureEligibleUtc = anchor.AddDays(30),
+        };
+
+        Mock<ITenantRepository> repo = new(MockBehavior.Strict);
+        repo
+            .SetupSequence(r => r.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(active)
+            .ReturnsAsync(active)
+            .ReturnsAsync(active)
+            .ReturnsAsync(active)
+            .ReturnsAsync(active)
+            .ReturnsAsync(offboarded);
+        repo
+            .Setup(r => r.TryRecordTrialLifecycleTransitionAsync(
+                tenantId,
+                TrialLifecycleStatus.Active,
+                TrialLifecycleStatus.Expired,
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+        repo
+            .Setup(r => r.GetFirstWorkspaceAsync(tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new TenantWorkspaceLink { WorkspaceId = Guid.NewGuid(), DefaultProjectId = Guid.NewGuid() });
+
+        Mock<ITenantHardPurgeService> purge = new(MockBehavior.Strict);
+        Mock<IAuditService> audit = new(MockBehavior.Strict);
+
+        Mock<IOptionsMonitor<TrialLifecycleSchedulerOptions>> opts = new();
+        opts.Setup(m => m.CurrentValue).Returns(new TrialLifecycleSchedulerOptions());
+
+        TrialLifecycleTransitionEngine engine = new(
+            repo.Object,
+            purge.Object,
+            audit.Object,
+            opts.Object,
+            new FixedUtcTimeProvider(anchor),
+            NullLogger<TrialLifecycleTransitionEngine>.Instance);
+
+        bool ok = await engine.TryAdvanceTenantAsync(tenantId, CancellationToken.None);
+
+        ok.Should().BeTrue();
+        audit.Verify(
+            a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     [Fact]
@@ -729,6 +801,7 @@ public sealed class TrialLifecycleTransitionEngineTests
             .ReturnsAsync(exportOnly)
             .ReturnsAsync(exportOnly)
             .ReturnsAsync(exportOnly)
+            .ReturnsAsync(exportOnly)
             .ReturnsAsync(withHold);
         repo
             .Setup(r => r.TryRecordTrialLifecycleTransitionAsync(
@@ -762,6 +835,88 @@ public sealed class TrialLifecycleTransitionEngineTests
         bool ok = await engine.TryAdvanceTenantAsync(tenantId, CancellationToken.None);
 
         ok.Should().BeFalse();
+        purge.Verify(
+            p => p.PurgeTenantAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<TenantHardPurgeOptions>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task TryAdvanceTenantAsync_skips_hard_purge_when_offboard_completes_after_deleted_transition_automation_gate_before_purge()
+    {
+        Guid tenantId = Guid.NewGuid();
+        DateTimeOffset trialExpires = new(2026, 1, 1, 0, 0, 0, TimeSpan.Zero);
+        DateTimeOffset now = new(2026, 9, 1, 0, 0, 0, TimeSpan.Zero);
+        DateTimeOffset offboardedUtc = now.AddHours(-1);
+
+        TenantRecord exportOnly = new()
+        {
+            Id = tenantId,
+            Name = "n",
+            Slug = "s",
+            Tier = TenantTier.Standard,
+            CreatedUtc = trialExpires,
+            TrialStatus = TrialLifecycleStatus.ExportOnly,
+            TrialExpiresUtc = trialExpires,
+        };
+        TenantRecord offboarded = new()
+        {
+            Id = tenantId,
+            Name = "n",
+            Slug = "s",
+            Tier = TenantTier.Standard,
+            CreatedUtc = trialExpires,
+            TrialStatus = TrialLifecycleStatus.Deleted,
+            TrialExpiresUtc = trialExpires,
+            OffboardedUtc = offboardedUtc,
+        };
+
+        Mock<ITenantRepository> repo = new(MockBehavior.Strict);
+        repo
+            .SetupSequence(r => r.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(exportOnly)
+            .ReturnsAsync(exportOnly)
+            .ReturnsAsync(exportOnly)
+            .ReturnsAsync(exportOnly)
+            .ReturnsAsync(exportOnly)
+            .ReturnsAsync(exportOnly)
+            .ReturnsAsync(exportOnly)
+            .ReturnsAsync(exportOnly)
+            .ReturnsAsync(offboarded);
+        repo
+            .Setup(r => r.TryRecordTrialLifecycleTransitionAsync(
+                tenantId,
+                TrialLifecycleStatus.ExportOnly,
+                TrialLifecycleStatus.Deleted,
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+        repo
+            .Setup(r => r.GetFirstWorkspaceAsync(tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new TenantWorkspaceLink { WorkspaceId = Guid.NewGuid(), DefaultProjectId = Guid.NewGuid() });
+
+        Mock<ITenantHardPurgeService> purge = new(MockBehavior.Strict);
+        Mock<IAuditService> audit = new(MockBehavior.Strict);
+        audit
+            .Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IOptionsMonitor<TrialLifecycleSchedulerOptions>> opts = new();
+        opts.Setup(m => m.CurrentValue).Returns(new TrialLifecycleSchedulerOptions());
+
+        TrialLifecycleTransitionEngine engine = new(
+            repo.Object,
+            purge.Object,
+            audit.Object,
+            opts.Object,
+            new FixedUtcTimeProvider(now),
+            NullLogger<TrialLifecycleTransitionEngine>.Instance);
+
+        bool ok = await engine.TryAdvanceTenantAsync(tenantId, CancellationToken.None);
+
+        ok.Should().BeTrue();
         purge.Verify(
             p => p.PurgeTenantAsync(
                 It.IsAny<Guid>(),

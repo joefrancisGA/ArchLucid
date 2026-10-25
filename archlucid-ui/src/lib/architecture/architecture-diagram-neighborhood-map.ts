@@ -156,7 +156,18 @@ export function parseDiagramNeighborhoodMap(markup: string): DiagramNeighborhood
 }
 
 export function shouldAutoOpenDiagramNeighborhoodMap(map: DiagramNeighborhoodMap): boolean {
-  return map.neighborhoods.length >= DIAGRAM_NEIGHBORHOOD_MAP_MIN_COUNT
-    || map.neighborhoods.reduce((sum, neighborhood) => sum + (neighborhood.resourceCount ?? 0), 0)
-      >= DIAGRAM_NEIGHBORHOOD_MAP_MIN_RESOURCE_COUNT;
+  const hasNullResourceCount = map.neighborhoods.some((neighborhood) => neighborhood.resourceCount === null);
+  const storedResourceSum = map.neighborhoods.reduce((sum, neighborhood) => {
+    if (typeof neighborhood.resourceCount !== "number" || !Number.isFinite(neighborhood.resourceCount)) {
+      return sum;
+    }
+
+    return sum + neighborhood.resourceCount;
+  }, 0);
+
+  return (
+    map.neighborhoods.length >= DIAGRAM_NEIGHBORHOOD_MAP_MIN_COUNT
+    || storedResourceSum >= DIAGRAM_NEIGHBORHOOD_MAP_MIN_RESOURCE_COUNT
+    || hasNullResourceCount
+  );
 }

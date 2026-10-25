@@ -30,9 +30,8 @@ public static class ProvenanceGraphAlgorithms
             string nFormat = parsedGuid.ToString("N");
             string dFormat = parsedGuid.ToString("D");
             ProvenanceNode? byRefFromGuid = nodes.FirstOrDefault(n =>
-                n.Type == ProvenanceNodeType.Decision &&
-                (string.Equals(n.ReferenceId, nFormat, StringComparison.OrdinalIgnoreCase) ||
-                 string.Equals(n.ReferenceId, dFormat, StringComparison.OrdinalIgnoreCase)));
+                n.Type == ProvenanceNodeType.Decision
+                && ReferenceIdEquals(n.ReferenceId, nFormat, dFormat));
             if (byRefFromGuid is null)
                 return false;
             decisionInternalNodeId = byRefFromGuid.Id;
@@ -40,8 +39,7 @@ public static class ProvenanceGraphAlgorithms
         }
 
         ProvenanceNode? byRef = nodes.FirstOrDefault(n =>
-            n.Type == ProvenanceNodeType.Decision &&
-            string.Equals(n.ReferenceId, key, StringComparison.OrdinalIgnoreCase));
+            n.Type == ProvenanceNodeType.Decision && ReferenceIdEquals(n.ReferenceId, key));
         if (byRef is null)
             return false;
 
@@ -140,6 +138,24 @@ public static class ProvenanceGraphAlgorithms
                 visited.Contains(e.FromNodeId) &&
                 visited.Contains(e.ToNodeId)).ToList()
         };
+    }
+
+    private static bool ReferenceIdEquals(string? referenceId, string key)
+    {
+        if (string.IsNullOrWhiteSpace(referenceId))
+            return false;
+
+        return string.Equals(referenceId.Trim(), key, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool ReferenceIdEquals(string? referenceId, string keyA, string keyB)
+    {
+        if (string.IsNullOrWhiteSpace(referenceId))
+            return false;
+
+        string trimmed = referenceId.Trim();
+        return string.Equals(trimmed, keyA, StringComparison.OrdinalIgnoreCase)
+               || string.Equals(trimmed, keyB, StringComparison.OrdinalIgnoreCase);
     }
 
     private static IReadOnlyList<T> CoalesceEmpty<T>(List<T>? items) => items ?? [];

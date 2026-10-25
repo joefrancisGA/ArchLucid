@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import type { RunSummary } from "@/types/authority";
 
 import {
+  REVIEW_STAGE_NOT_STORED_LABEL,
   reviewsHubLifecycleStage,
   reviewsHubNeedsAttention,
   reviewsHubOverallStatus,
@@ -77,6 +78,18 @@ describe("reviews-hub-review-status", () => {
 
     expect(reviewsHubOverallStatus(run)).toBe("Active");
     expect(reviewsHubLifecycleStage(run)).toBe("Finalized");
+  });
+
+  it("reports review stage was not stored when snapshot flags are omitted", () => {
+    const run = {
+      runId: "unknown-stage",
+      projectId: "default",
+      createdUtc: "2026-01-01T00:00:00.000Z",
+    } satisfies RunSummary;
+
+    expect(reviewsHubOverallStatus(run)).toBe(REVIEW_STAGE_NOT_STORED_LABEL);
+    expect(reviewsHubLifecycleStage(run)).toBe(REVIEW_STAGE_NOT_STORED_LABEL);
+    expect(reviewsHubOverallStatusTagKind(REVIEW_STAGE_NOT_STORED_LABEL, false)).toBe("neutral");
   });
 
   it("maps evidence collection before findings exist", () => {

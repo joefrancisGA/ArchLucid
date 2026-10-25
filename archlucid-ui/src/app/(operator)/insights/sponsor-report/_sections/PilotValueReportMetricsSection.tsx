@@ -10,6 +10,12 @@ import type { PilotValueReportJson } from "@/types/pilot-value-report";
 
 import { resolveRoiTileSectionHeading } from "@/lib/roi/roi-tile-career-honesty";
 
+import {
+  pilotValueReportMaterialFindingsDisplay,
+  pilotValueReportSeverityCountDisplay,
+  pilotValueReportTotalFindingsDisplay,
+} from "@/lib/sponsor/pilot-value-report-count-display";
+
 import { formatPilotValueReportAvgCompletion } from "./pilot-value-report-page-helpers";
 import { PilotValueReportSeverityBars } from "./PilotValueReportSeverityBars";
 
@@ -17,9 +23,8 @@ type Props = {
   readonly data: PilotValueReportJson;
   readonly executiveNarrative: string | null;
   readonly scopedRunId: string;
-  readonly criticalFindings: number;
-  readonly highFindings: number;
-  readonly materialFindings: number;
+  readonly criticalFindings: number | undefined;
+  readonly highFindings: number | undefined;
   readonly roiSectionQualifier?: string | null;
 };
 
@@ -29,11 +34,25 @@ export function PilotValueReportMetricsSection(props: Props) {
     data,
     executiveNarrative,
     highFindings,
-    materialFindings,
     roiSectionQualifier = null,
     scopedRunId,
   } = props;
-  const timelineRows = data.committedRunsTimeline ?? [];
+  const timelineRows = data.committedRunsTimeline;
+  const timelineOmitted = data.committedRunsTimeline === undefined;
+  const architecturesReviewedLine = (() => {
+    if (timelineOmitted) {
+      return "Review list was not stored.";
+    }
+
+    const rows = timelineRows ?? [];
+    const missingNames = rows.filter((row) => (row.systemName?.trim() ?? "").length === 0).length;
+
+    if (missingNames > 0) {
+      return `${rows.length - missingNames} named · ${missingNames} system name was not stored`;
+    }
+
+    return new Set(rows.map((row) => row.systemName).filter(Boolean)).size.toString();
+  })();
   const reviewActivityHeading = resolveRoiTileSectionHeading("Review activity", roiSectionQualifier);
   const riskDiscoveryHeading = resolveRoiTileSectionHeading("Risk discovery", roiSectionQualifier);
 
@@ -89,17 +108,20 @@ export function PilotValueReportMetricsSection(props: Props) {
         </h2>
         <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <SponsorReportMetricCard title="Finalized reviews" value={data.totalRunsCommitted.toString()} />
-          <SponsorReportMetricCard
-            title="Architectures reviewed"
-            value={new Set(timelineRows.map((row) => row.systemName).filter(Boolean)).size.toString()}
-          />
+          <SponsorReportMetricCard title="Architectures reviewed" value={architecturesReviewedLine} />
           <SponsorReportMetricCard
             title="Average review completion time"
             value={formatPilotValueReportAvgCompletion(data.averagePipelineCompletionSeconds)}
           />
           <SponsorReportMetricCard
             title="Systems in period"
-            value={timelineRows.length > 0 ? String(timelineRows.length) : "Not available"}
+            value={
+              timelineOmitted
+                ? "Review list was not stored."
+                : (timelineRows?.length ?? 0) > 0
+                  ? String(timelineRows?.length ?? 0)
+                  : "No systems were recorded."
+            }
           />
         </div>
       </section>
@@ -109,10 +131,22 @@ export function PilotValueReportMetricsSection(props: Props) {
           {riskDiscoveryHeading}
         </h2>
         <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          <SponsorReportMetricCard title="Total findings" value={data.totalFindings.toString()} />
-          <SponsorReportMetricCard title="Critical findings" value={String(criticalFindings)} />
-          <SponsorReportMetricCard title="High findings" value={String(highFindings)} />
-          <SponsorReportMetricCard title="Material findings" value={String(materialFindings)} />
+          <SponsorReportMetricCard
+            title="Total findings"
+            value={pilotValueReportTotalFindingsDisplay(data.totalFindings)}
+          />
+          <SponsorReportMetricCard
+            title="Critical findings"
+            value={pilotValueReportSeverityCountDisplay(criticalFindings, "Critical")}
+          />
+          <SponsorReportMetricCard
+            title="High findings"
+            value={pilotValueReportSeverityCountDisplay(highFindings, "High")}
+          />
+          <SponsorReportMetricCard
+            title="Material findings"
+            value={pilotValueReportMaterialFindingsDisplay(criticalFindings, highFindings)}
+          />
         </div>
         <div className="mt-4 rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900">
           <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>Severity distribution</h3>
