@@ -54,6 +54,24 @@ describe("findings-snapshot-insight-density", () => {
     expect(message).toContain("moved 3");
   });
 
+  it("readFindingTitle does not substitute category when message is missing", () => {
+    const detail = {
+      run: { runId: "r1", projectId: "p", createdUtc: "2026-01-01T00:00:00Z" },
+      findingsSnapshot: {
+        checklistCoverage: [
+          {
+            findingId: "chk-2",
+            category: "Hygiene",
+          },
+        ],
+      },
+    } as RunDetail;
+
+    const view = resolveFindingsSnapshotInsightDensityView(detail);
+
+    expect(view.checklistCoverage[0]?.title).toBe("Finding title was not stored.");
+  });
+
   it("formatInsightDensityCurationMessage does not imply demotion when only findings were retained (FC-26)", () => {
     const message = formatInsightDensityCurationMessage({
       demotedToChecklistCount: 0,

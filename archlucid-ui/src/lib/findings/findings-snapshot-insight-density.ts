@@ -12,7 +12,8 @@ export type InsightDensityCurationCounts = {
   readonly retainedFindingCount: number | null;
 };
 
-export const INSIGHT_DENSITY_CURATION_COUNTS_NOT_STORED = "Curation counts were not stored." as const;
+export const FINDINGS_SNAPSHOT_CHECKLIST_FINDING_TITLE_NOT_STORED =
+  "Finding title was not stored." as const;
 
 export type FindingsSnapshotInsightDensityView = {
   readonly checklistCoverage: readonly ChecklistCoverageItem[];
@@ -36,31 +37,19 @@ function readNonNegativeInt(value: unknown): number | null {
 }
 
 function readFindingTitle(record: Record<string, unknown>): string {
-  const title = typeof record.title === "string" ? record.title.trim() : "";
+  const message = typeof record.message === "string" ? record.message : "";
 
-  if (title.length > 0) {
-    return title;
+  if (message.length === 0) {
+    return FINDINGS_SNAPSHOT_CHECKLIST_FINDING_TITLE_NOT_STORED;
   }
 
-  const message = typeof record.message === "string" ? record.message.trim() : "";
+  const trimmed = message.trim();
 
-  if (message.length > 0) {
-    return message;
+  if (trimmed.length === 0) {
+    return "Finding title was stored empty.";
   }
 
-  const category = typeof record.category === "string" ? record.category.trim() : "";
-
-  if (category.length > 0) {
-    return category;
-  }
-
-  const findingType = typeof record.findingType === "string" ? record.findingType.trim() : "";
-
-  if (findingType.length > 0) {
-    return findingType;
-  }
-
-  return "Checklist title was not stored.";
+  return trimmed;
 }
 
 /** Parses TB-384 checklist rows and TB-385 curation counts from hydrated run detail `findingsSnapshot`. */

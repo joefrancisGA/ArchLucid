@@ -59,6 +59,25 @@ describe("resolveRunDecisionExplainabilityFromDetail", () => {
     expect(model?.manifestHonestyWarnings).toHaveLength(1);
   });
 
+  it("keeps coordinator decisions when confidence is missing", () => {
+    const detail = {
+      decisionExplainability: {
+        coordinatorDecisionNodes: [
+          {
+            decisionId: "node-no-confidence",
+            topic: "RetentionPolicy",
+            rationale: "Policy retained.",
+          },
+        ],
+      },
+    } as RunDetail;
+
+    const model = resolveRunDecisionExplainabilityFromDetail(detail);
+
+    expect(model?.coordinatorDecisionNodes).toHaveLength(1);
+    expect(model?.coordinatorDecisionNodes[0]?.confidence).toBeNull();
+  });
+
   it("uses omission copy for absent decision explainability fields", () => {
     const detail = {
       decisionExplainability: {

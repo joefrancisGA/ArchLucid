@@ -125,8 +125,10 @@ export function FindingInspectWhyMattersSection({
     setTechnicalRuleOpenState(urlTechnicalRuleOpen);
   }, [urlTechnicalRuleOpen]);
 
+  const findingTitleOmitted = findingTitle === "Finding title was not stored";
+
   const whyHeading =
-    findingTitle.trim().length > 0 && findingTitle !== "Finding detail"
+    findingTitle.trim().length > 0 && findingTitle !== "Finding detail" && !findingTitleOmitted
       ? `Why ${findingTitle} matters`
       : "Why this matters";
 

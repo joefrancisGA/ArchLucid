@@ -124,4 +124,14 @@ public sealed class DiagramEdgeVisualKindResolverTests
             .Should()
             .Be("probable");
     }
+
+    [Fact]
+    public void Build_inferred_app_settings_verb_omits_likely_prefix()
+    {
+        DiagramEdgeProvenanceDisplayLabelBuilder.Build(
+                "Named in app settings. This is not a declared connection.",
+                DiagramEdgeVisualKind.Inferred)
+            .Should()
+            .Be("Named in app settings. This is not a declared connection.");
+    }
 }
