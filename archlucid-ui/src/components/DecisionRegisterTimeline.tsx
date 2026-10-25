@@ -10,13 +10,13 @@ function formatRecordedDateHeading(value: string | null | undefined): string {
   const raw = value?.trim() ?? "";
 
   if (raw.length === 0) {
-    return "Unknown date";
+    return "Recorded date was not stored.";
   }
 
   const ms = Date.parse(raw);
 
   if (Number.isNaN(ms)) {
-    return raw;
+    return "Recorded date was not readable.";
   }
 
   return new Intl.DateTimeFormat(undefined, { dateStyle: "long" }).format(new Date(ms));
@@ -86,13 +86,21 @@ export function DecisionRegisterTimeline(props: DecisionRegisterTimelineProps): 
                   aria-hidden
                 />
                 <p className={cn("m-0 text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>{formatRecordedAt(row.recordedAtUtc)}</p>
-                <p className="m-0 font-medium text-neutral-900 dark:text-neutral-100">{row.title ?? "Decision"}</p>
-                {row.category !== null && row.category !== undefined && row.category.trim().length > 0 ? (
-                  <p className={cn("m-0 mt-0.5 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>{row.category}</p>
-                ) : null}
-                {row.rationale !== null && row.rationale !== undefined && row.rationale.trim().length > 0 ? (
-                  <p className={cn("m-0 mt-1 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>{row.rationale}</p>
-                ) : null}
+                <p className="m-0 font-medium text-neutral-900 dark:text-neutral-100">
+                  {row.title !== null && row.title !== undefined && row.title.trim().length > 0
+                    ? row.title
+                    : "Decision title was not stored."}
+                </p>
+                <p className={cn("m-0 mt-0.5 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+                  {row.category !== null && row.category !== undefined && row.category.trim().length > 0
+                    ? row.category
+                    : "Category was not stored."}
+                </p>
+                <p className={cn("m-0 mt-1 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
+                  {row.rationale !== null && row.rationale !== undefined && row.rationale.trim().length > 0
+                    ? row.rationale
+                    : "Rationale was not stored."}
+                </p>
               </li>
             ))}
           </ol>

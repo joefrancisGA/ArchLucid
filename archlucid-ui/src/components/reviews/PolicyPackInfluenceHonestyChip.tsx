@@ -14,10 +14,13 @@ export type PolicyPackInfluenceHonestyChipProps = {
 };
 
 export function PolicyPackInfluenceHonestyChip(props: PolicyPackInfluenceHonestyChipProps): ReactElement {
+  const raw = props.unmappedFindingCount;
+  const unmappedOmitted =
+    raw === null ||
+    raw === undefined ||
+    (typeof raw === "number" && !Number.isFinite(raw));
   const unmappedCount =
-    typeof props.unmappedFindingCount === "number" && Number.isFinite(props.unmappedFindingCount)
-      ? Math.max(0, Math.trunc(props.unmappedFindingCount))
-      : null;
+    !unmappedOmitted && typeof raw === "number" ? Math.max(0, Math.trunc(raw)) : 0;
 
   return (
     <div
@@ -30,7 +33,7 @@ export function PolicyPackInfluenceHonestyChip(props: PolicyPackInfluenceHonesty
     >
       <div className="flex flex-wrap items-center gap-2">
         <StatusTag kind="neutral" label="Policy influence boundary" />
-        {unmappedCount === null ? (
+        {unmappedOmitted ? (
           <StatusTag kind="neutral" label="Unmapped finding count was not stored." />
         ) : unmappedCount > 0 ? (
           <StatusTag kind="needs-attention" label={`${unmappedCount} unmapped finding${unmappedCount === 1 ? "" : "s"}`} />

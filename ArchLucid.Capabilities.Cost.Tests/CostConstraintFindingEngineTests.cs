@@ -34,6 +34,34 @@ public sealed class CostConstraintFindingEngineTests
     }
 
     [Fact]
+    public async Task AnalyzeAsync_treats_padded_high_cost_risk_as_warning_severity()
+    {
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "c-padded",
+                    NodeType = "CostConstraint",
+                    Label = "prod-budget",
+                    Properties = new Dictionary<string, string>
+                    {
+                        ["costRisk"] = " high ",
+                    }
+                }
+            ],
+        };
+
+        IReadOnlyList<Finding> findings = await _sut.AnalyzeAsync(graph, null, CancellationToken.None);
+
+        Finding finding = findings.Should().ContainSingle().Subject;
+        finding.Severity.Should().Be(FindingSeverity.Warning);
+        CostConstraintFindingPayload payload = finding.Payload.Should().BeOfType<CostConstraintFindingPayload>().Subject;
+        payload.CostRisk.Should().Be("high");
+    }
+
+    [Fact]
     public async Task AnalyzeAsync_MapsHighCostRisk_ToWarningSeverity_WithHighSpendAlternatives()
     {
         GraphSnapshot graph = new()
@@ -94,6 +122,54 @@ public sealed class CostConstraintFindingEngineTests
         Finding f = findings.Should().ContainSingle().Subject;
         f.Severity.Should().Be(FindingSeverity.Info);
         f.Trace.AlternativePathsConsidered.Should().Contain(s => s.Contains("Right-size", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public async Task AnalyzeAsync_trims_padded_budget_name_on_constraint_payload()
+    {
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "c3",
+                    NodeType = "CostConstraint",
+                    Label = "from-label-only",
+                    Properties = new Dictionary<string, string> { ["budgetName"] = " Tenant A " }
+                }
+            ],
+            Edges = []
+        };
+
+        IReadOnlyList<Finding> findings = await _sut.AnalyzeAsync(graph, null, CancellationToken.None);
+
+        CostConstraintFindingPayload payload = findings.Should().ContainSingle().Subject.Payload
+            .Should().BeOfType<CostConstraintFindingPayload>().Subject;
+        payload.BudgetName.Should().Be("Tenant A");
+    }
+
+    [Fact]
+    public async Task AnalyzeAsync_trims_padded_label_in_constraint_title()
+    {
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "c3",
+                    NodeType = "CostConstraint",
+                    Label = " tenant-a ",
+                    Properties = []
+                }
+            ],
+            Edges = []
+        };
+
+        IReadOnlyList<Finding> findings = await _sut.AnalyzeAsync(graph, null, CancellationToken.None);
+
+        findings.Should().ContainSingle().Subject.Title.Should().Be("Cost constraint: tenant-a");
     }
 
     [Fact]

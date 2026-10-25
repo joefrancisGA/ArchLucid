@@ -145,6 +145,7 @@ describe("buildIntakeContextDocumentsFromEvidenceFiles", () => {
       ],
       edges: [{ id: "e1", sourceId: "api", targetId: "db", label: "queries" }],
       trustBoundaryLabels: [],
+      skippedUnlabeledEntityCount: 0,
       unmatchedDataFlows: [],
       extractionMethod: "StructuredParse",
     });
@@ -165,6 +166,7 @@ describe("buildIntakeContextDocumentsFromEvidenceFiles", () => {
       nodes: [{ id: "web", label: "Web app", kind: "system" }],
       edges: [],
       trustBoundaryLabels: [],
+      skippedUnlabeledEntityCount: 0,
       unmatchedDataFlows: [],
     });
     const file = new File([diagramJson], "topology.json", { type: "application/json" });

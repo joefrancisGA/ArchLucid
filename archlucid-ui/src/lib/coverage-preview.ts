@@ -94,6 +94,17 @@ export function buildCoveragePreviewRequest(input: {
   };
 }
 
+export const COVERAGE_PREVIEW_CLOUD_NOT_STORED_MESSAGE =
+  "Cloud was not stored. This preview is not a stored cloud choice." as const;
+
+export function resolveCoveragePreviewCloudHonesty(cloudProvider?: string): string | null {
+  if (cloudProvider === undefined || cloudProvider.trim().length === 0) {
+    return COVERAGE_PREVIEW_CLOUD_NOT_STORED_MESSAGE;
+  }
+
+  return null;
+}
+
 export function mapNormalizedCloudProvider(normalized: string): string {
   switch (normalized.trim().toLowerCase()) {
     case "azure":

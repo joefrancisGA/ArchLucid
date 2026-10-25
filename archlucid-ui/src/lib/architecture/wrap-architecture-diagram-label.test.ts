@@ -101,4 +101,8 @@ describe("wrapArchitectureDiagramLabelForMermaidSource", () => {
   it("does not insert breaks for names that already fit", () => {
     expect(wrapArchitectureDiagramLabelForMermaidSource("Claims API")).toBe("Claims API");
   });
+
+  it("labels empty diagram source text as not stored", () => {
+    expect(wrapArchitectureDiagramLabelForMermaidSource("   ")).toBe("Node label was not stored.");
+  });
 });

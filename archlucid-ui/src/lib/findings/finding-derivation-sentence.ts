@@ -10,6 +10,8 @@ export const FINDING_DERIVATION_ASSEMBLED_PREFIX =
   "Assembled from stored rule and evidence fields, not a stored explanation.";
 export const FINDING_DERIVATION_ASSEMBLED_RULE_ONLY_PREFIX =
   "Assembled from stored rule fields, not a stored explanation.";
+export const FINDING_DERIVATION_EVIDENCE_REF_COUNT_NOT_STORED =
+  "Evidence reference count was not stored." as const;
 
 export type FindingDerivationInput = {
   readonly ruleName?: string | null;
@@ -134,10 +136,20 @@ export function buildFindingDerivationSentence(input: FindingDerivationInput): F
 
   const rulePhrase = resolveRulePhrase(input);
   const categoryLead = rulePhrase === null ? resolveCategoryOnlyLead(nonEmpty(input.categoryLabel)) : null;
+  const evidenceRefCountKnown =
+    typeof input.evidenceRefCount === "number" && Number.isFinite(input.evidenceRefCount);
+
+  if (
+    !evidenceRefCountKnown
+    && (rulePhrase !== null || categoryLead !== null || traceConfidencePhrase(input) !== null)
+  ) {
+    return { sentence: FINDING_DERIVATION_EVIDENCE_REF_COUNT_NOT_STORED, synthesised: false };
+  }
+
   const evidence = evidencePhrase(input);
   const traceConfidence = traceConfidencePhrase(input);
   const severityLabel = nonEmpty(input.severityLabel);
-  const positiveEvidenceRefs = (citedEvidenceRefCount(input) ?? 0) > 0;
+  const positiveEvidenceRefs = evidenceRefCountKnown && (citedEvidenceRefCount(input) ?? 0) > 0;
 
   if (rulePhrase === null && categoryLead === null && evidence === null && traceConfidence === null) {
     return { sentence: FINDING_DERIVATION_NOT_STORED, synthesised: false };

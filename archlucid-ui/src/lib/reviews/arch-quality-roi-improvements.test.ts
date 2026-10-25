@@ -68,4 +68,24 @@ describe("pre-commit-gate-preview", () => {
     expect(preview?.minimumBlockingSeverityLabel).toBe("Critical");
     expect(preview?.blockingFindingCount).toBe(2);
   });
+
+  it("does not treat an omitted gate payload as clear", () => {
+    const preview = resolvePreCommitGatePreviewView({});
+
+    expect(preview?.disposition).toBe("not-stored");
+    expect(preview?.title).toBe("Pre-commit gate result was not stored.");
+    expect(preview?.detail).not.toContain("Pre-commit gate clear");
+  });
+
+  it("uses not-stored copy for blocked results missing pack and severity", () => {
+    const preview = resolvePreCommitGatePreviewView({
+      blocked: true,
+      policyPackId: null,
+      minimumBlockingSeverity: null,
+    });
+
+    expect(preview?.detail).toContain("Policy pack id was not stored.");
+    expect(preview?.detail).toContain("Blocking severity was not stored.");
+    expect(preview?.detail).not.toContain("Pack unknown");
+  });
 });
