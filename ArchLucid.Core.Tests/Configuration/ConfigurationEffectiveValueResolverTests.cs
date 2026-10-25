@@ -892,6 +892,47 @@ public sealed class ConfigurationEffectiveValueResolverTests
     }
 
     [Fact]
+    public void Resolve_strips_dangling_low_surrogate_when_scalar_effective_value_is_exactly_max_length()
+    {
+        const string configPath = "ArchLucid:FallbackLlm:Endpoints";
+        string lowSurrogate = "\uDC00";
+        string configured = new string('k', 255) + lowSurrogate;
+
+        configured.Length.Should().Be(256);
+
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = configured,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            configPath,
+            isSet: true);
+
+        value.Should().Be(new string('k', 255));
+        TruncatedPrefixIsWellFormed(value!).Should().BeTrue();
+    }
+
+    [Fact]
+    public void Resolve_redacts_json_object_effective_values_when_property_name_is_client_secret()
+    {
+        const string configPath = "ArchLucid:SomeFeature:Settings";
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = """{"ClientSecret":"ok","v":"x"}""",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(configuration, configPath, isSet: true);
+
+        value.Should().Be("***");
+    }
+
+    [Fact]
     public void Resolve_strips_dangling_high_surrogate_when_scalar_effective_value_is_exactly_max_length()
     {
         const string configPath = "ArchLucid:FallbackLlm:Endpoints";
