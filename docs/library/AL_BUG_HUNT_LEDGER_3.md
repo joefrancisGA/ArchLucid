@@ -7489,19 +7489,41 @@ ABQ-09 churn hotspot.
 
 ## Zone: securenow-question-queue
 
-2026-10-25 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows (SQL MERGE deferred, optimistic merge future-risk, non-string `reasonText`/`sourceLine`, inferred-connection reload focus parity via shared `submitAction` focus path, mixed-type `answerCodes`); added three regression locks; seeded five follow-on `(candidate)` rows below; scoped SecureNow queue vitest 170/170; no production code changed.
+2026-10-25 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows (SQL MERGE deferred, optimistic merge future-risk, non-string list `snapshotId`, inferred dismiss reload focus via shared `submitAction` path, all-non-string `answerCodes`); added two regression locks; seeded five follow-on `(candidate)` rows below; scoped SecureNow queue vitest 171/171; no production code changed.
+
+- [x] (invalid) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` — **cheap-disproof 2026-10-25 seed hunt:** integration host unavailable; candidate reseeded below.
+- [x] (invalid) `securenow-question-queue-provider` — optimistic disposition merge — **cheap-disproof 2026-10-25 seed hunt:** reload-only provider; candidate reseeded below.
+- [x] (valid-no-repro) `securenow-question-queue-api.mapQuestion` — non-string list `snapshotId` — **cheap-disproof 2026-10-25 seed hunt:** `stringOrDefault`; regression `maps non-string snapshotId to empty string without throwing`.
+- [x] (valid-no-repro) `SecureNowQuestionQueueProvider.submitAction` — inferred-connection dismiss reload focus — **cheap-disproof 2026-10-25 seed hunt:** dismiss uses same `loadQuestions({ focusQuestionIdentity })` path as confirm/answer/ignore.
+- [x] (valid-no-repro) `securenow-question-queue-api.mapQuestion` — `answerCodes` with only non-string values — **cheap-disproof 2026-10-25 seed hunt:** string filter; regression `maps answerCodes with only non-string entries to an empty array`.
+
+- [ ] (candidate) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` identity hash collision — locus: SQL repository; input: integration repro when SQL host available.
+- [ ] (candidate) `securenow-question-queue-provider` — optimistic merge from disposition JSON — locus: future post-mutation path; input: must use `mapSecureNowQuestionDisposition` only.
+- [ ] (candidate) `secureNowQuestionListedSnapshotMatchesContext` — empty listed `snapshotId` after malformed list JSON — locus: snapshot guard on mutations; input: numeric `snapshotId` should not bypass active snapshot checks.
+- [ ] (candidate) `securenow-question-queue-api.mapQuestion` — JSON `null` `answerCodes` vs missing key — locus: answerCodes branch; input: explicit null stays null, not `[]`.
+- [ ] (candidate) `SecureNowQuestionQueueProvider` — UI regression for inferred dismiss focus with two open inferred rows — locus: `focusQuestionIdentity` after `dismissOperatorInferredConnection`; input: embedded connection-id keys and second reload mock.
+
+- **id:** securenow-question-queue
+- **status:** open
+- **impact:** medium
+- **aliases:** securenow question queue; question disposition
+- **paths:** archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx; archlucid-ui/src/lib/infra-evidence/securenow-question-queue-api.ts
+- **test-filter:** SecureNowQuestion
+- **hunts:** 96
+- **bugs-found:** 70
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-25
+- **last-bug:** 2026-10-25 — list mapper ReferenceError on question load
+- **related-pd-tb:** none
+- **code-changed-since:** yes
+
+2026-10-25 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows (SQL MERGE deferred, optimistic merge future-risk, non-string `reasonText`/`sourceLine`, inferred-connection reload focus parity via shared `submitAction` focus path, mixed-type `answerCodes`); added three regression locks; seeded five follow-on `(candidate)` rows below; scoped SecureNow queue vitest 169/169; no production code changed.
 
 - [x] (invalid) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` — **cheap-disproof 2026-10-25 seed hunt:** integration host unavailable; candidate reseeded below.
 - [x] (invalid) `securenow-question-queue-provider` — optimistic disposition merge — **cheap-disproof 2026-10-25 seed hunt:** reload-only provider; candidate reseeded below.
 - [x] (valid-no-repro) `securenow-question-queue-api.mapQuestion` — non-string `reasonText` / `sourceLine` — **cheap-disproof 2026-10-25 seed hunt:** `stringOrDefault`; regression `maps non-string reasonText and sourceLine to empty strings without throwing`.
 - [x] (valid-no-repro) `SecureNowQuestionQueueProvider.submitAction` — inferred-connection confirm reload focus — **cheap-disproof 2026-10-25 seed hunt:** same `loadQuestions({ focusQuestionIdentity })` path as answer/ignore/reopen; existing focus regressions cover filter retargeting.
 - [x] (valid-no-repro) `securenow-question-queue-api.mapQuestion` — mixed-type `answerCodes` array — **cheap-disproof 2026-10-25 seed hunt:** string filter in mapper; regression `drops non-string entries from answerCodes without throwing`.
-
-- [ ] (candidate) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` identity hash collision — locus: SQL repository; input: integration repro when SQL host available.
-- [ ] (candidate) `securenow-question-queue-provider` — optimistic merge from disposition JSON — locus: future post-mutation path; input: must use `mapSecureNowQuestionDisposition` only.
-- [ ] (candidate) `securenow-question-queue-api.mapQuestion` — non-string `snapshotId` on list rows — locus: `stringOrDefault`; input: numeric snapshotId should not throw list mapping.
-- [ ] (candidate) `SecureNowQuestionQueueProvider.loadQuestions` — reload after inferred-connection dismiss when another open inferred row exists — locus: `focusQuestionIdentity` after dismiss; input: UI regression with two embedded connection-id keys.
-- [ ] (candidate) `securenow-question-queue-api.mapQuestion` — `answerCodes` array of only non-string values — locus: answerCodes filter; input: `[1, 2]` maps to `[]` not null.
 
 - **id:** securenow-question-queue
 - **status:** open

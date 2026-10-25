@@ -48,6 +48,38 @@ describe("securenow-question-queue-api", () => {
     expect(questions[0].sourceLine).toBe("");
   });
 
+  it("maps non-string snapshotId to empty string without throwing", async () => {
+    vi.mocked(proxyJsonGet).mockResolvedValueOnce([
+      {
+        snapshotId: 123,
+        questionKey: "unknown-evidence@v1",
+        questionText: "Should this resource connect?",
+        answerCodes: ["NamePeer"],
+        evidenceFingerprint: "fingerprint",
+      },
+    ]);
+
+    const questions = await listSecureNowQuestions("snapshot-1");
+
+    expect(questions[0].snapshotId).toBe("");
+  });
+
+  it("maps answerCodes with only non-string entries to an empty array", async () => {
+    vi.mocked(proxyJsonGet).mockResolvedValueOnce([
+      {
+        snapshotId: "snapshot-1",
+        questionKey: "unknown-evidence@v1",
+        questionText: "Should this resource connect?",
+        answerCodes: [1, 2],
+        evidenceFingerprint: "fingerprint",
+      },
+    ]);
+
+    const questions = await listSecureNowQuestions("snapshot-1");
+
+    expect(questions[0].answerCodes).toEqual([]);
+  });
+
   it("drops non-string entries from answerCodes without throwing", async () => {
     vi.mocked(proxyJsonGet).mockResolvedValueOnce([
       {
