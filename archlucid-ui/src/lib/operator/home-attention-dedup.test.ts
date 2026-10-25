@@ -163,6 +163,22 @@ describe("home-attention-dedup (TB-2369)", () => {
     expect(filterRunsForHomeAttentionPreview(runs, excluded).map((run) => run.runId)).toEqual(["run-c"]);
   });
 
+  it("returns no excluded run ids when architecture-draft href carries highlightReviewId", () => {
+    const draftItem: UnfinishedWorkRailItem = {
+      id: "architecture-draft:draft-identity-001",
+      kind: "architecture-draft",
+      title: "Payments draft",
+      href: "/architecture/architectures/draft-identity-001?highlightReviewId=run-highlighted",
+      statusLabel: "Draft",
+      updatedUtc: null,
+      workTypeLabel: "Architecture",
+      activityLabel: null,
+      actionLabel: "Continue",
+    };
+
+    expect(listHomeAttentionPreviewExcludedRunIds([draftItem])).toEqual([]);
+  });
+
   it("returns no excluded run ids for architecture-draft unfinished-work rail rows", () => {
     const draftItem: UnfinishedWorkRailItem = {
       id: "architecture-draft:draft-identity-001",

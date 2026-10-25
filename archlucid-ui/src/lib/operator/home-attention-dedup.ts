@@ -65,7 +65,15 @@ export function resolveUnfinishedWorkRailRunIdForMatch(item: UnfinishedWorkRailI
   return runIds[0] ?? null;
 }
 
+function isTb2369ReviewWorkRailItem(item: UnfinishedWorkRailItem): boolean {
+  return item.kind === "awaiting-disposition" || item.kind === "review-in-progress";
+}
+
 function collectHomeAttentionExcludedRunIdsForRailItem(item: UnfinishedWorkRailItem): readonly string[] {
+  if (!isTb2369ReviewWorkRailItem(item)) {
+    return [];
+  }
+
   const runIds = new Set<string>();
   const canonicalRunId = resolveUnfinishedWorkRailRunIdForMatch(item);
 
