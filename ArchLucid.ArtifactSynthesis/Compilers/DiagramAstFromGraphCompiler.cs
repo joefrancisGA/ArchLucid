@@ -296,6 +296,7 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
         }
 
         DiagramSparseComponentPacker.Pack(ast);
+        InventoryDiagramPrivateEndpointConnectionLabelApplier.Apply(ast, graph, nodeIdMap);
         DiagramEdgeLabelHumanizer.ApplyToVisibleEdges(ast);
         DiagramEdgeProvenanceDisplayLabelApplier.ApplyToVisibleEdges(ast);
         DiagramConnectionTypeAnnotator.Annotate(ast);

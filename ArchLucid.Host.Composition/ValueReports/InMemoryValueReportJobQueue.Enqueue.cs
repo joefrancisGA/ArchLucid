@@ -10,6 +10,8 @@ public sealed partial class InMemoryValueReportJobQueue
         if (request is null)
             throw new ArgumentNullException(nameof(request));
 
+        PruneTerminalLocalJobs();
+
         Guid jobId = Guid.NewGuid();
         JobEntry entry = new(request, JobPhase.Pending, null, null, null);
 

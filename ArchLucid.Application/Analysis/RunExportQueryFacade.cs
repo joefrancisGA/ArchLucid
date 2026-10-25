@@ -56,20 +56,16 @@ public sealed class RunExportQueryFacade(
         if (await _runDetailQueryService.GetRunDetailAsync(runId, cancellationToken) is null)
             return new RunExportHistoryQueryResult { Outcome = ExportRecordLoadOutcome.RunNotFound, MissingRunId = runId };
 
-        if (Guid.TryParse(runId, out Guid runGuid))
-        {
-            ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-            RunExportLineageVerificationResult? lineage =
-                await _runExportLineageVerifier.VerifyAsync(scope, runGuid, cancellationToken);
+        ExportRecordLoadOutcome? lineageOutcome =
+            await TryEnsureExportRunLineageAndSealedHashAsync(runId, cancellationToken);
 
-            if (lineage is not null && lineage.Status != RunExportLineageVerificationStatus.Match)
+        if (lineageOutcome is not null)
+        {
+            return new RunExportHistoryQueryResult
             {
-                return new RunExportHistoryQueryResult
-                {
-                    Outcome = ExportRecordLoadOutcome.LineageUnverified,
-                    MissingRunId = runId,
-                };
-            }
+                Outcome = lineageOutcome.Value,
+                MissingRunId = runId,
+            };
         }
 
         ExportRecordLoadOutcome? lifecycleOutcome =
@@ -84,12 +80,15 @@ public sealed class RunExportQueryFacade(
             };
         }
 
+        await EnsureCareerAllowsExportRecordMetadataOrThrowAsync(runId, cancellationToken);
+
         IReadOnlyList<RunExportRecord> records = await _runExportRecordRepository.GetByRunIdAsync(runId, cancellationToken);
         return new RunExportHistoryQueryResult { Outcome = ExportRecordLoadOutcome.Success, Exports = records.ToList() };
     }
 
     public async Task<ScopedExportRecordLoadResult> GetExportRecordAsync(string exportRecordId, CancellationToken cancellationToken = default)
     {
+        exportRecordId = RunExportRecordIdNormalizer.NormalizeRequired(exportRecordId);
         RunExportRecord? record = await LoadScopedExportRecordAsync(exportRecordId, cancellationToken);
 
         if (record is null)
@@ -224,6 +223,21 @@ public sealed class RunExportQueryFacade(
     public async Task<ExportReplayQueryResult> ReplayExportAsync(string exportRecordId, ReplayExportRequest request, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(request);
+        exportRecordId = RunExportRecordIdNormalizer.NormalizeRequired(exportRecordId);
+        if (!string.IsNullOrWhiteSpace(request.ExportRecordId))
+        {
+            string normalizedRequestId = RunExportRecordIdNormalizer.NormalizeRequired(request.ExportRecordId);
+            if (!string.Equals(exportRecordId, normalizedRequestId, StringComparison.OrdinalIgnoreCase))
+            {
+                return new ExportReplayQueryResult
+                {
+                    Outcome = ExportRecordLoadOutcome.ExportRecordNotFound,
+                    MissingId = exportRecordId,
+                };
+            }
+        }
+
+        request.ExportRecordId = exportRecordId;
         RunExportRecord? record = await LoadScopedExportRecordAsync(exportRecordId, cancellationToken);
 
         if (record is null)
@@ -235,8 +249,19 @@ public sealed class RunExportQueryFacade(
         if (guardOutcome is not null)
             return new ExportReplayQueryResult { Outcome = guardOutcome.Value, MissingId = record.RunId };
 
-        await EnsureCareerAllowsExportRecordMetadataOrThrowAsync(record.RunId, cancellationToken);
+        ExportRecordLoadOutcome? lifecycleOutcome =
+            await TryEnsureExportRunLifecycleCompleteAsync(record.RunId, cancellationToken);
 
+        if (lifecycleOutcome is not null)
+        {
+            return new ExportReplayQueryResult
+            {
+                Outcome = lifecycleOutcome.Value,
+                MissingId = record.RunId,
+            };
+        }
+
+        await EnsureCareerAllowsExportRecordMetadataOrThrowAsync(record.RunId, cancellationToken);
 
         ReplayExportResult result = await _exportReplayService.ReplayAsync(request, cancellationToken);
 
@@ -264,6 +289,9 @@ public sealed class RunExportQueryFacade(
 
         if (string.IsNullOrWhiteSpace(rightExportRecordId))
             return (ExportRecordLoadOutcome.RightIdRequired, null, null, null);
+
+        leftExportRecordId = RunExportRecordIdNormalizer.NormalizeRequired(leftExportRecordId);
+        rightExportRecordId = RunExportRecordIdNormalizer.NormalizeRequired(rightExportRecordId);
 
         RunExportRecord? left = await LoadScopedExportRecordAsync(leftExportRecordId, cancellationToken);
 

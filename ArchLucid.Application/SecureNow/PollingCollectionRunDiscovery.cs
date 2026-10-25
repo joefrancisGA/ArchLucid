@@ -32,16 +32,24 @@ public sealed class PollingCollectionRunDiscovery(
         }
 
         int imported = 0;
+        HashSet<Guid> importedRunIdsThisBatch = new();
 
         foreach (CollectionRunManifest manifest in manifests)
         {
+            if (importedRunIdsThisBatch.Contains(manifest.RunId))
+                continue;
+
             CollectionRunArtifact? artifact;
 
             try
             {
                 artifact = await _artifactReader.ReadArtifactAsync(manifest, cancellationToken);
             }
-            catch (RequestFailedException)
+            catch (OperationCanceledException)
+            {
+                throw;
+            }
+            catch (Exception)
             {
                 continue;
             }
@@ -54,7 +62,10 @@ public sealed class PollingCollectionRunDiscovery(
                 CollectionRun run = await _ingestService.IngestAsync(artifact, cancellationToken);
 
                 if (run.Status == CollectionRunStatus.Imported)
+                {
                     imported++;
+                    importedRunIdsThisBatch.Add(manifest.RunId);
+                }
             }
             catch (OperationCanceledException)
             {

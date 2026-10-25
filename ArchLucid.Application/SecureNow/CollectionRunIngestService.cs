@@ -54,7 +54,17 @@ public sealed class CollectionRunIngestService(
             return collectionRun;
         }
 
-        if (manifest.TenantId is Guid manifestTenantId && manifestTenantId != scope.TenantId)
+        if (manifest.TenantId is not Guid manifestTenantId)
+        {
+            collectionRun = WithStatus(
+                collectionRun,
+                CollectionRunStatus.Rejected,
+                "Collection manifest does not include a tenant identifier.");
+            await _collectionRunRepository.UpsertAsync(collectionRun, cancellationToken);
+            return collectionRun;
+        }
+
+        if (manifestTenantId != scope.TenantId)
         {
             collectionRun = WithStatus(collectionRun, CollectionRunStatus.Rejected, "Collection manifest tenant does not match the current scope.");
             await _collectionRunRepository.UpsertAsync(collectionRun, cancellationToken);

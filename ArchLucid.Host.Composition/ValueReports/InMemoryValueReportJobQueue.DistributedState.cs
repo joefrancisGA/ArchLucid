@@ -69,19 +69,27 @@ public sealed partial class InMemoryValueReportJobQueue
         }
     }
 
-    private JobEntry? TryReadDistributedState(Guid jobId)
+    private readonly record struct DistributedStateReadResult(JobEntry? Entry, bool CorruptPayload);
+
+    private DistributedStateReadResult TryReadDistributedState(Guid jobId)
     {
         try
         {
             byte[]? payload = _pollStateCache.Get(GetCacheKey(jobId));
 
             if (payload is null || payload.Length == 0)
-                return null;
+                return new DistributedStateReadResult(null, false);
 
             DistributedJobState? state = JsonSerializer.Deserialize<DistributedJobState>(payload, SerializerOptions);
 
-            if (state is null)
-                return null;
+            if (state is null ||
+                state.TenantId == Guid.Empty ||
+                state.WorkspaceId == Guid.Empty ||
+                state.ProjectId == Guid.Empty ||
+                state.FromUtcInclusive == default ||
+                state.ToUtcExclusive == default ||
+                state.FromUtcInclusive >= state.ToUtcExclusive)
+                return new DistributedStateReadResult(null, true);
 
             ValueReportJobRequest request = new(
                 state.TenantId,
@@ -92,12 +100,14 @@ public sealed partial class InMemoryValueReportJobQueue
 
             if (!Enum.TryParse(state.Phase, ignoreCase: true, out JobPhase phase))
             {
-                return new JobEntry(
-                    request,
-                    JobPhase.Failed,
-                    null,
-                    state.FileName,
-                    UnknownFailedJobErrorMessage);
+                return new DistributedStateReadResult(
+                    new JobEntry(
+                        request,
+                        JobPhase.Failed,
+                        null,
+                        state.FileName,
+                        UnknownFailedJobErrorMessage),
+                    false);
             }
 
             byte[]? bytes = null;
@@ -110,23 +120,38 @@ public sealed partial class InMemoryValueReportJobQueue
                 }
                 catch (FormatException)
                 {
-                    return new JobEntry(
-                        request,
-                        JobPhase.Failed,
-                        null,
-                        state.FileName,
-                        UnknownFailedJobErrorMessage);
+                    return new DistributedStateReadResult(
+                        new JobEntry(
+                            request,
+                            JobPhase.Failed,
+                            null,
+                            state.FileName,
+                            UnknownFailedJobErrorMessage),
+                        false);
                 }
             }
 
-            return new JobEntry(request, phase, bytes, state.FileName, state.ErrorMessage);
+            return new DistributedStateReadResult(
+                new JobEntry(request, phase, bytes, state.FileName, state.ErrorMessage),
+                false);
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
+        catch (JsonException ex)
+        {
+            if (_logger.IsEnabled(LogLevel.Warning))
+                _logger.LogWarning(ex, "Failed to deserialize value report job {JobId} from distributed cache.", jobId);
+
+            return new DistributedStateReadResult(null, true);
         }
         catch (Exception ex)
         {
             if (_logger.IsEnabled(LogLevel.Warning))
                 _logger.LogWarning(ex, "Failed to read value report job {JobId} from distributed cache.", jobId);
 
-            return null;
+            return new DistributedStateReadResult(null, true);
         }
     }
 

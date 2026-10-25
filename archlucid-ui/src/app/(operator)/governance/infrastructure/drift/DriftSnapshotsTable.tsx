@@ -14,7 +14,10 @@ import {
 } from "@/lib/governance/governance-infrastructure-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { InfraEvidenceSnapshotSummary } from "@/lib/infra-evidence/infra-evidence-drift-types";
-import { formatInfraEvidenceSubscriptionLabel } from "@/lib/infra-evidence/format-infra-evidence-snapshot-label";
+import {
+  formatInfraEvidenceSnapshotFiniteCountCell,
+  formatInfraEvidenceSubscriptionLabel,
+} from "@/lib/infra-evidence/format-infra-evidence-snapshot-label";
 import { infraEvidenceSnapshotCaptureStatusTagProps } from "@/lib/infra-evidence/infra-evidence-snapshot-capture-status";
 import type { DriftSnapshotsTableFilterState } from "@/lib/infra-evidence/infra-evidence-drift-snapshots-table-filter";
 import { cn } from "@/lib/utils";
@@ -148,8 +151,18 @@ export function DriftSnapshotsTable(props: DriftSnapshotsTableProps): React.JSX.
                   testId={`infra-drift-snapshot-captured-${snapshot.snapshotId}`}
                 />
               </EnterpriseTableCell>
-              <EnterpriseTableCell className="tabular-nums">{snapshot.resourceCount}</EnterpriseTableCell>
-              <EnterpriseTableCell className="tabular-nums">{snapshot.relationshipCount}</EnterpriseTableCell>
+              <EnterpriseTableCell className="tabular-nums">
+                {formatInfraEvidenceSnapshotFiniteCountCell(
+                  snapshot.resourceCount,
+                  "Resource count was not stored.",
+                )}
+              </EnterpriseTableCell>
+              <EnterpriseTableCell className="tabular-nums">
+                {formatInfraEvidenceSnapshotFiniteCountCell(
+                  snapshot.relationshipCount,
+                  "Relationship count was not stored.",
+                )}
+              </EnterpriseTableCell>
               <EnterpriseTableCell>
                 <div className="flex flex-wrap items-center gap-2">
                   {isSelected ? (

@@ -6,6 +6,7 @@ import { collectEvidenceRefSnippets } from "@/lib/findings/finding-evidence-ref-
 import { coercePolicyRuleIdFromFindingWire } from "@/lib/findings/finding-policy-evidence-citations";
 import { normalizeFindingSemanticSupportBand } from "@/lib/findings/semantic-support-band-presentation";
 import type { FindingWireSnapshot } from "@/lib/quick-decision-wire-snapshots";
+import { resolveQuickDecisionFindingPresentation } from "@/lib/quick-decision-finding-wire-fields";
 import {
   coerceArchitectureFindingSeverity,
   normalizeFindingHumanReviewStatus,
@@ -116,7 +117,11 @@ export function quickDecisionFindingFromTraceRow(row: FindingTraceConfidenceDto,
 
   const titleRaw = typeof row.findingTitle === "string" ? row.findingTitle.trim() : "";
   const title = titleRaw.length > 0 ? titleRaw : "Finding title was not stored";
-  const recommendation = typeof row.traceConfidenceLabel === "string" ? row.traceConfidenceLabel.trim() : "";
+  const traceLabel =
+    typeof row.traceConfidenceLabel === "string" && row.traceConfidenceLabel.trim().length > 0
+      ? row.traceConfidenceLabel.trim()
+      : null;
+  const recommendation = "";
   const ruleIdRaw = typeof row.ruleId === "string" ? row.ruleId.trim() : "";
   let wireJson: string;
 
@@ -137,15 +142,12 @@ export function quickDecisionFindingFromTraceRow(row: FindingTraceConfidenceDto,
     recommendation,
     severityValue: severityValueFromTraceRow(row),
     findingOrder: order,
-    aiReasoning: { wireJson, reasoningTrace: recommendation },
+    aiReasoning: { wireJson, reasoningTrace: traceLabel ?? "" },
     isMuted: false,
     muteReason: null,
     confidenceLevel: normalizeConfidenceLevelFromWire(row.confidenceLevel),
     evaluationConfidenceScore: normalizeEvaluationConfidenceScore(row.evaluationConfidenceScore),
-    traceConfidenceLabel:
-      typeof row.traceConfidenceLabel === "string" && row.traceConfidenceLabel.trim().length > 0
-        ? row.traceConfidenceLabel.trim()
-        : null,
+    traceConfidenceLabel: traceLabel,
     evidenceRefCount,
     enforcementTier: "PolicyViolation",
     policyRuleId: ruleIdRaw.length > 0 ? ruleIdRaw : null,
@@ -157,9 +159,8 @@ export function quickDecisionFindingFromTraceRow(row: FindingTraceConfidenceDto,
 
 /**
  * Flattens agent results findings from run detail (no extra HTTP calls).
- * Title uses the stored message and does not substitute category or finding id
- * when the message is absent.
- * Recommendation prefers `reasoningTrace`.
+ * Title prefers stored `title`, then `message`. Recommendation prefers `message` when
+ * both title and message exist; otherwise `recommendedActions`, `rationale`, then `reasoningTrace`.
  */
 export function extractQuickDecisionFindingsFromRunDetail(detail: RunDetail): QuickDecisionFinding[] {
   const raw = detail as Record<string, unknown>;
@@ -202,9 +203,8 @@ export function extractQuickDecisionFindingsFromRunDetail(detail: RunDetail): Qu
 
       const findingId = findingIdRaw;
 
-      const message = typeof fr.message === "string" ? fr.message.trim() : "";
       const category = typeof fr.category === "string" ? fr.category.trim() : "";
-      const title = message.length > 0 ? message : "Finding title was not stored";
+      const { title, recommendation } = resolveQuickDecisionFindingPresentation(fr);
       const reasoning =
         typeof fr.reasoningTrace === "string" && fr.reasoningTrace.trim().length > 0
           ? fr.reasoningTrace.trim()
@@ -298,7 +298,7 @@ export function extractQuickDecisionFindingsFromRunDetail(detail: RunDetail): Qu
         findingId,
         title,
         category: category.length > 0 ? category : null,
-        recommendation: reasoning,
+        recommendation,
         severityValue,
         findingOrder: order++,
         aiReasoning: { wireJson, reasoningTrace: reasoning },
