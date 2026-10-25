@@ -1135,7 +1135,7 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
         }
 
         const chip = stub.querySelector('text')?.textContent?.trim() ?? '';
-        const name = chip.replace(/^[→←]\s*/u, '') || id;
+        const name = chip.replace(/^[→←]\s*/u, '');
         setClickFocus({ id, name });
         return;
       }
@@ -1168,7 +1168,7 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
         return;
       }
 
-      const title = node.querySelector('title')?.textContent?.trim() ?? id;
+      const title = node.querySelector('title')?.textContent?.trim() ?? "";
       const memberNames = (node.getAttribute('data-member-names') ?? '')
         .split('|')
         .map((member) => member.trim())
