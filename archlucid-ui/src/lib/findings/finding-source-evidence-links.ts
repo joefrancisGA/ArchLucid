@@ -259,9 +259,9 @@ function inspectRowSourceLink(
   }
 
   return linkFromKind(
-    "manifestSection",
-    manifestRecordSectionLinkLabel(ctx),
-    runDetailSectionHref(ctx.runId, "manifest-summary"),
+    "artifactSection",
+    UNRESOLVED_EVIDENCE_REF_LABEL,
+    runDetailSectionHref(ctx.runId, "artifacts-exports"),
     detail,
   );
 }

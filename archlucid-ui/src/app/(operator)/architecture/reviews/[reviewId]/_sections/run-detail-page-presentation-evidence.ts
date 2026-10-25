@@ -55,6 +55,7 @@ export function buildRunDetailEvidencePresentation(
     readonly workspaceStatus: RunDetailWorkspaceStatus;
     readonly quickDecisionFindings: readonly QuickDecisionFinding[];
     readonly hasManifest: boolean;
+    readonly hasFindingsSnapshot: boolean;
   },
 ): RunDetailEvidencePresentation {
   const submittedArchitectureText = workspaceDerive.deriveSubmittedArchitectureText(
@@ -114,7 +115,9 @@ export function buildRunDetailEvidencePresentation(
     hasSubmittedArchitecture,
     architectureEditHref,
     architectureTabSubmittedHelperText,
-    evidenceCoverageSummary: workspaceDerive.deriveEvidenceCoverageSummary(input.quickDecisionFindings),
+    evidenceCoverageSummary: workspaceDerive.deriveEvidenceCoverageSummary(input.quickDecisionFindings, {
+      hasFindingsSnapshot: input.hasFindingsSnapshot,
+    }),
     evidenceInventoryItems,
     evidenceInventoryCount: countRunDetailEvidenceInventoryItems(evidenceInventoryItems),
     findingsCiteEvidenceWithoutSourceNames: findingsCiteEvidenceWithoutStoredSourceNames(
