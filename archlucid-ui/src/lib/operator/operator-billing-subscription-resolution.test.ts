@@ -73,4 +73,8 @@ describe("operator-billing-subscription-resolution", () => {
 
     expect(row).toEqual({ label: "Seats", value: "0 of 5 in use" });
   });
+
+  it("omits the billing seat row when seatsLimit is non-finite", () => {
+    expect(resolveOperatorBillingSeatRow(true, false, "resolved", 2, Number.NaN)).toBeNull();
+  });
 });
