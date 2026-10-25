@@ -4938,7 +4938,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-operator-lib
 
-**Hunts:** 101 · **Bugs found:** 96 · **Consecutive dry hunts:** 0
+**Hunts:** 103 · **Bugs found:** 98 · **Consecutive dry hunts:** 0
+
+2026-10-25 seed hunt (hit): `resolveLiveRunsDashboardModel` merge uses `resolveOperatorHomeTenantScopedReviewTotalCount` so demo-only live snapshots are not re-inflated from raw overview visible counts or SSR floors; regression `does not uplift demo-only live snapshots from SSR totals during merge`; cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; 73 scoped live-runs-dashboard, tenant-counting, review-total-resolution, workspace-metrics, and workspace-phase vitest passed. Private beta: Invited operators no longer see merged home dashboard totals snap back above zero after the runs panel reports a demo-only refresh with a normalized zero snapshot total.
+
+2026-10-25 seed hunt (hit): consolidated `resolveOperatorHomeTenantScopedReviewTotalCount` for TB-1039 demo-only totals across tenant counting and live snapshot publish; regressions `returns zero for demo-only overview rows even when workspace totalCount is populated` and `returns zero for demo-only items even when an explicit workspace total is supplied`; cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; 78 scoped review-total-resolution, live-runs-dashboard, tenant-counting, workspace-metrics, workspace-phase, and workspace-activity-context vitest passed. Private beta: Invited operators no longer see merged home review totals stay positive when the runs panel reports only demo samples with a stale explicit `totalCount`.
 
 2026-10-25 seed hunt (hit): `deriveOperatorHomeTenantCountingSnapshot` zeroes tenant review totals when overview rows are demo-only but workspace `totalCount` is still populated (TB-1039); regression `does not apply workspace totalCount when only demo-seeded overview rows are on the page`; cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; 68 scoped tenant-counting, review-total-resolution, live-runs-dashboard, workspace-metrics, and workspace-phase vitest passed. Private beta: Invited operators on an empty home (demo sample only in Recent reviews) no longer see workspace KPI and outcome copy claim real reviews because a stale paginated `totalCount` leaked into tenant metrics.
 
@@ -5292,11 +5296,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `deriveOperatorHomeTenantCountingSnapshot` — workspace `totalCount` applies when tenant filter removes all on-page rows — **hit 2026-10-25 seed hunt:** demo-only guard; regression `does not apply workspace totalCount when only demo-seeded overview rows are on the page (TB-1039)`.
 - [x] (valid-no-repro) `use-live-operator-home-runs-dashboard` — merged model not recomputed when snapshot total normalized but items reference unchanged — **cheap-disproof 2026-10-25 seed hunt:** activity context creates a new snapshot object when `totalCount` changes; `useMemo` depends on `liveRunsSnapshot`.
 
-- [ ] (candidate) `filterTenantOverviewRuns` — showcase static demo ids excluded but buyer-polished sample rows still count as tenant — locus: `isShowcaseSampleOfAnyKind`; input: static showcase run id on overview.
-- [ ] (candidate) `deriveHomePreviewTabCounts` — demo-only preview still increments `recentTotalCount` while tenant metrics zeroed — locus: preview tab pools vs tenant strip contract.
-- [ ] (candidate) `resolveOperatorHomeLiveRunsSnapshotTotalCount` — explicit positive total with demo-only items still stored before tenant guard — locus: snapshot helper; input: demo-only report with API total.
-- [ ] (candidate) `deriveOperatorHomeTenantCountingSnapshot` — empty `displayItems` with positive `runsDashboardTotalCount` should keep pagination total — locus: demo-only guard vs empty page; input: `displayItems: []`, `runsDashboardTotalCount: 8`.
-- [ ] (candidate) `BuyerPolishedHomeHeroSection` — workspace metrics read merged dashboard before tenant counting snapshot — locus: component wiring; input: demo-only merged model.
+- [x] (proven) `resolveLiveRunsDashboardModel` — merge re-inflates demo-only snapshots from overview visible counts — **hit 2026-10-25 seed hunt:** tenant-scoped merge resolver; regression `does not uplift demo-only live snapshots from SSR totals during merge`.
+- [x] (valid-no-repro) `deriveOperatorHomeWorkspacePhaseSignalsFromOverviewRuns` — demo row with `totalCount: 0` still marks overview occupied — **cheap-disproof 2026-10-25 seed hunt:** intentional showcase occupancy; regression `counts showcase rows toward overview occupancy while excluding them from tenant metrics`.
+- [x] (valid-no-repro) `operator-home-workspace-activity-context` — demo-only report still sets `hasOverviewReviewRows` while snapshot total zeroed — **cheap-disproof 2026-10-25 seed hunt:** regression `keeps empty-home false when only a demo-seeded Overview inject is reported (TB-1039)`.
+- [x] (valid-no-repro) `resolveOperatorHomeTenantScopedReviewTotalCount` — mixed demo and tenant rows drops API total uplift — **cheap-disproof 2026-10-25 seed hunt:** tenant rows present bypass demo-only guard; undercount uplift unchanged for visible tenant rows.
+- [x] (valid-no-repro) `deriveOperatorHomeWorkspaceMetrics` — empty tenant items with positive resolved total still sets `hasReviews` — **cheap-disproof 2026-10-25 seed hunt:** regression `keeps workspace totalCount when the overview page is empty but pagination metadata is present`.
+
+- [ ] (candidate) `resolveLiveRunsDashboardModel` — archived-only live snapshot with zero publish total still re-inflates from SSR during merge — locus: tenant-scoped merge; input: archived rows with positive SSR total.
+- [ ] (candidate) `useLiveOperatorHomeRunsDashboard` — consumers read merged totals before tenant counting snapshot on hero strip — locus: hook ordering; input: demo-only merged model.
+- [ ] (candidate) `resolveOperatorHomeTenantScopedReviewTotalCount` — showcase static sample id on page treated as tenant row — locus: `isShowcaseSampleOfAnyKind`; input: static showcase run id without inject flag.
+- [ ] (candidate) `deriveHomePreviewTabCounts` — excludes archived rows from preview pools but tenant totals use separate filter — locus: `activePreviewItems`; input: archived tenant row in preview list.
+- [ ] (candidate) `PilotCommandCenterCard` — `useSsrSeedCounts` ignores normalized zero live snapshot totals — locus: `liveRunsSnapshot === null` gate; input: demo-only live snapshot present.
 
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regression `drops favorite rows when runId is whitespace-only`; 41 scoped continuity, scope-storage, and attention-preview vitest tests passed.
 
