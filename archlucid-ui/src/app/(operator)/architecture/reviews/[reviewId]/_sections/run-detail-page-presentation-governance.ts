@@ -20,6 +20,22 @@ export type ShowcasePolicyPackStrip = {
   readonly label: string;
 };
 
+export function resolveGovernanceGateLabelForPresentation(
+  governanceGateLabel: string | null | undefined,
+): string {
+  if (governanceGateLabel === null || governanceGateLabel === undefined) {
+    return "Governance gate label was not stored.";
+  }
+
+  const trimmed = governanceGateLabel.trim();
+
+  if (trimmed.length === 0) {
+    return "Governance gate label was stored empty.";
+  }
+
+  return trimmed;
+}
+
 export type ReviewPolicyPackCallout = {
   readonly ruleSetId: string;
   readonly ruleSetVersion: string;
@@ -151,7 +167,7 @@ export async function buildRunDetailGovernancePresentation(
   const governanceDecisionLabel =
     (model.resolvedDetail.run.operatorGovernanceDecision ?? "").trim().length > 0
       ? (model.resolvedDetail.run.operatorGovernanceDecision ?? "").trim()
-      : model.governanceGateLabel ?? "No approval decision recorded";
+      : resolveGovernanceGateLabelForPresentation(model.governanceGateLabel);
 
   return {
     commitBlockedReason,

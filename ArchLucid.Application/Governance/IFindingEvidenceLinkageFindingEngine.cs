@@ -7,5 +7,5 @@ namespace ArchLucid.Application.Governance;
 /// </summary>
 public interface IFindingEvidenceLinkageFindingEngine
 {
-    IReadOnlyList<Finding> Evaluate(string runId, IReadOnlyList<Finding> findings);
+    IReadOnlyList<Finding>? Evaluate(string runId, IReadOnlyList<Finding> findings);
 }

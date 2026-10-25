@@ -338,6 +338,12 @@ export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EMPTY_CONTENT_TITLE =
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EMPTY_CONTENT_BODY =
   "This snapshot has no topology nodes for the selected diagram mode. Try Executive, Full subscription, or Pick a Resource Group, or open the resource explorer." as const;
 
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_NODE_COUNT_NOT_STORED_TITLE =
+  "Node count was not stored" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_NODE_COUNT_NOT_STORED_BODY =
+  "Diagram metrics were not stored for this snapshot — an empty canvas does not mean zero nodes." as const;
+
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DENSITY_COACH_TOO_LARGE_TITLE =
   "This view is too large to read." as const;
 

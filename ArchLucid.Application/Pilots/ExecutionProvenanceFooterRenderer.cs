@@ -46,11 +46,22 @@ public sealed class ExecutionProvenanceFooterRenderer : IExecutionProvenanceFoot
     private static string ResolveModeLabel(ExecutionProvenanceFooterInput input) =>
         StructuralExecutionModeLabels.ToDisplayLabel(input.PersistedStructuralExecutionMode);
 
-    private static string ResolveDeploymentValue(string? value, string omittedMessage) =>
-        IsOmitted(value) ? omittedMessage : value ?? string.Empty;
+    private const string DeploymentNameStoredEmptyMessage = "Deployment name was stored empty.";
 
-    private static bool IsOmitted(string? value) =>
-        value is null || (value.Length > 0 && string.IsNullOrWhiteSpace(value));
+    private static string ResolveDeploymentValue(string? value, string omittedMessage)
+    {
+        if (value is null)
+        {
+            return omittedMessage;
+        }
+
+        if (value.Length == 0)
+        {
+            return DeploymentNameStoredEmptyMessage;
+        }
+
+        return string.IsNullOrWhiteSpace(value) ? omittedMessage : value;
+    }
 
     private static string FormatLlmCompletionTraceCount(ExecutionProvenanceFooterInput input)
     {

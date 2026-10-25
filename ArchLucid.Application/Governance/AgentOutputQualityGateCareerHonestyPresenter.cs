@@ -16,15 +16,33 @@ public static class AgentOutputQualityGateCareerHonestyPresenter
     public const string RejectedDispositionCareerExportBlockedReason =
         "Quality gate disposition is Rejected — PilotStrict citation coverage or other floors block career export";
 
-    public static string FormatStampQualityGateModeLabel(AgentOutputQualityGateMode? recordedMode, AgentOutputQualityGateMode hostMode)
-    {
-        AgentOutputQualityGateMode mode = recordedMode ?? hostMode;
+    public const string QualityGateModeNotStoredLabel = "Quality gate mode was not stored.";
 
-        return mode switch
+    public static string FormatStampQualityGateModeLabel(
+        AgentOutputQualityGateMode? recordedMode,
+        AgentOutputQualityGateMode? hostMode)
+    {
+        if (recordedMode is AgentOutputQualityGateMode.PilotStrict)
         {
-            AgentOutputQualityGateMode.PilotStrict => "Quality gate: PilotStrict",
-            _ => "Quality gate: WarnOnly",
-        };
+            return "Quality gate: PilotStrict";
+        }
+
+        if (recordedMode is AgentOutputQualityGateMode.WarnOnly)
+        {
+            return "Quality gate: WarnOnly";
+        }
+
+        if (hostMode is AgentOutputQualityGateMode.PilotStrict)
+        {
+            return "Quality gate: PilotStrict (host default)";
+        }
+
+        if (hostMode is AgentOutputQualityGateMode.WarnOnly)
+        {
+            return "Quality gate: WarnOnly (host default)";
+        }
+
+        return QualityGateModeNotStoredLabel;
     }
 
     public static bool RequiresWorkingCareerExportBlock(

@@ -8,6 +8,9 @@ import { describeSkippedMustMeasurementGap } from "@/lib/intake/universal-intake
 import { listSkippedMustQuestionKeys } from "@/lib/review-quality/list-skipped-must-question-keys";
 import type { TransparencyTrail } from "@/types/feasibility-verdict";
 
+export const FINALIZE_SKIPPED_MUST_TRANSPARENCY_TRAIL_NOT_STORED =
+  "Transparency trail was not stored." as const;
+
 export type FinalizeSkippedMustStripProps = {
   readonly transparencyTrail: TransparencyTrail | null | undefined;
   readonly className?: string;
@@ -16,9 +19,29 @@ export type FinalizeSkippedMustStripProps = {
 /** Loud skipped-MUST visibility adjacent to finalize controls (LI-03; LI-04 owns the gate). */
 export function FinalizeSkippedMustStrip(props: FinalizeSkippedMustStripProps): React.JSX.Element | null {
   const { isWorkingMode } = useWorkspaceMode();
+
+  if (!isWorkingMode) {
+    return null;
+  }
+
+  if (props.transparencyTrail === null || props.transparencyTrail === undefined) {
+    return (
+      <div
+        className={cn(
+          "rounded-md border border-rose-300 bg-rose-50 px-4 py-3 text-rose-900 dark:border-rose-800 dark:bg-rose-950/40 dark:text-rose-100",
+          props.className,
+        )}
+        data-testid="finalize-skipped-must-strip"
+        role="status"
+      >
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{FINALIZE_SKIPPED_MUST_TRANSPARENCY_TRAIL_NOT_STORED}</p>
+      </div>
+    );
+  }
+
   const skippedMustKeys = listSkippedMustQuestionKeys(props.transparencyTrail);
 
-  if (!isWorkingMode || skippedMustKeys.length === 0) {
+  if (skippedMustKeys.length === 0) {
     return null;
   }
 

@@ -17,10 +17,16 @@ export type PixelDiagramNotVerifiableSource = {
 export const PIXEL_DIAGRAM_NOT_VERIFIABLE_OPERATOR_LINE =
   "Diagram file stored; topology not extracted.";
 
+export const PIXEL_DIAGRAM_IMAGE_MIME_UNKNOWN_LABEL = "Image MIME type was not recognized." as const;
+
 export function formatPixelDiagramNotVerifiableLabel(source: PixelDiagramNotVerifiableSource): string {
   const disposition = "not verifiable";
+  const mimeNote =
+    source.sourceMimeType.trim().toLowerCase() === "image/unknown"
+      ? ` ${PIXEL_DIAGRAM_IMAGE_MIME_UNKNOWN_LABEL}`
+      : "";
 
-  return `${source.fileName} — ${PIXEL_DIAGRAM_NOT_VERIFIABLE_OPERATOR_LINE} (${disposition})`;
+  return `${source.fileName} — ${PIXEL_DIAGRAM_NOT_VERIFIABLE_OPERATOR_LINE}${mimeNote} (${disposition})`;
 }
 
 function parseWarningToken(warning: string, key: string): string | null {

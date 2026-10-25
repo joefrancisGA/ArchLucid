@@ -1,6 +1,7 @@
 import type { CreateArchitectureRunDocumentPayload } from "@/lib/api/architecture-runs-mutate";
 import {
   buildIntakePixelDiagramContextDocument,
+  isPixelDiagramIntakeFile,
   isPixelDiagramIntakeFileName,
 } from "@/lib/architecture-spine/intake-pixel-diagram-context-document";
 import {
@@ -81,7 +82,7 @@ async function toIntakeContextDocument(
     return readExtractedBinaryDocument(name, file);
   }
 
-  if (isPixelDiagramIntakeFileName(trimmedName)) {
+  if (isPixelDiagramIntakeFileName(trimmedName) || isPixelDiagramIntakeFile(file)) {
     return readPixelDiagramDocument(name, trimmedName, file, options);
   }
 

@@ -233,7 +233,7 @@ export function mergeUserAssertions(
     const systemsDraft = drafts.get("systems-and-services")!;
 
     if (!systemsDraft.entities.some((entity) => entity.label.toLowerCase() === name.toLowerCase())) {
-      appendEntity(systemsDraft, { label: name, detail: "Primary system", provenance: "asserted" });
+      appendEntity(systemsDraft, { label: name, detail: null, provenance: "asserted" });
       systemsDraft.provenance = "asserted";
     }
   }

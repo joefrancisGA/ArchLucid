@@ -98,6 +98,14 @@ alpha|beta|gamma|delta|epsilon|zeta`;
     expect(result.sourceText.length).toBeGreaterThan(1000);
   });
 
+  it("does not route unkeyed blocks into the sponsor report section", () => {
+    const source = "Unlabeled narrative that should not become sponsor report.\n\n## Business outcome\nShip faster.";
+    const result = parseArchitectureGeneratedContent(source, null);
+
+    expect(result.sections.some((section) => section.key === "sponsor-report")).toBe(false);
+    expect(result.sections.some((section) => section.key === "business-outcome")).toBe(true);
+  });
+
   it("normalizes escaped newlines before section parsing", () => {
     const source = "## Sponsor report\\n\\nGoverned claims intake.\\n\\n## Risks\\n\\n- Partner outage";
     const result = parseArchitectureGeneratedContent(source, null);

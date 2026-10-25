@@ -118,6 +118,7 @@ import { formatInfraEvidenceDiagramsSnapshotPickerLabel } from "@/lib/infra-evid
 import {
   formatInfraEvidenceDiagramMetricsAnnouncement,
   isInfraEvidenceDiagramEdgeCountStored,
+  isInfraEvidenceDiagramNodeCountStored,
 } from "@/lib/infra-evidence/format-infra-evidence-diagram-metrics-announcement";
 import { infraEvidenceSnapshotCaptureStatusTagProps } from "@/lib/infra-evidence/infra-evidence-snapshot-capture-status";
 import {
@@ -228,6 +229,8 @@ import {
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DEPENDENCY_SEED_PROMPT_BODY,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EMPTY_CONTENT_BODY,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EMPTY_CONTENT_TITLE,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_NODE_COUNT_NOT_STORED_BODY,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_NODE_COUNT_NOT_STORED_TITLE,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_RESOURCE_GROUP_MAP_CAPTION,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_BACKBONE_KEEP_CAPTION,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_RESOURCE_GROUP_PICKER_ALL,
@@ -898,6 +901,8 @@ export function DiagramsWorkbenchClient() {
     && (layoutSvg ?? "").trim().length === 0;
   const dataFlowEdgeCountUnknown =
     selectedMode === "dataFlow" && !isInfraEvidenceDiagramEdgeCountStored(metrics);
+  const diagramNodeCountUnknown =
+    selectedMode !== "dataFlow" && metrics != null && !isInfraEvidenceDiagramNodeCountStored(metrics);
   const dataFlowHasNoConnections =
     selectedMode === "dataFlow" && metrics != null && metrics.edgeCount === 0;
   const dataFlowHasNoResourcesOrConnections =
@@ -2934,20 +2939,24 @@ export function DiagramsWorkbenchClient() {
           title={
             dataFlowEdgeCountUnknown
               ? "Edge count was not stored"
-              : dataFlowHasNoResourcesOrConnections
-                ? "This data-flow canvas has no resources and no connections."
-                : dataFlowHasNoConnections
-                ? "No data-flow connections in this snapshot"
-                : GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EMPTY_CONTENT_TITLE
+              : diagramNodeCountUnknown
+                ? GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_NODE_COUNT_NOT_STORED_TITLE
+                : dataFlowHasNoResourcesOrConnections
+                  ? "This data-flow canvas has no resources and no connections."
+                  : dataFlowHasNoConnections
+                    ? "No data-flow connections in this snapshot"
+                    : GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EMPTY_CONTENT_TITLE
           }
           description={
             dataFlowEdgeCountUnknown
               ? "Diagram metrics were not stored for this snapshot — an empty canvas does not mean zero edges."
-              : dataFlowHasNoResourcesOrConnections
-                ? "This data-flow canvas has no resources and no connections."
-                : dataFlowHasNoConnections
-                ? "The snapshot has inventory and no declared connection to draw."
-                : GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EMPTY_CONTENT_BODY
+              : diagramNodeCountUnknown
+                ? GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_NODE_COUNT_NOT_STORED_BODY
+                : dataFlowHasNoResourcesOrConnections
+                  ? "This data-flow canvas has no resources and no connections."
+                  : dataFlowHasNoConnections
+                    ? "The snapshot has inventory and no declared connection to draw."
+                    : GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EMPTY_CONTENT_BODY
           }
           testId="infra-diagrams-empty-content"
         />

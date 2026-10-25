@@ -59,7 +59,7 @@ public sealed class ExecutionProvenanceFooterRendererTests
 
         ExecutionProvenanceFooterInput emptyInput = missingInput with { HostAzureOpenAiDeploymentName = string.Empty };
 
-        _sut.BuildFooterMarkdown(emptyInput).Should().Contain("Azure OpenAI deployment (when known) | ``");
+        _sut.BuildFooterMarkdown(emptyInput).Should().Contain("Deployment name was stored empty.");
     }
 
     [SkippableFact]

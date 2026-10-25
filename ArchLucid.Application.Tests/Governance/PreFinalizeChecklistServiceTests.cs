@@ -1050,6 +1050,34 @@ public sealed class PreFinalizeChecklistServiceTests
             && item.Count == 0);
     }
 
+    [Fact]
+    public async Task BuildAsync_marks_evidence_linkage_advisory_when_gap_count_is_not_returned()
+    {
+        Guid runKey = Guid.NewGuid();
+        string runId = runKey.ToString("D");
+
+        Mock<IFindingEvidenceLinkageFindingEngine> linkage = new();
+        linkage
+            .Setup(e => e.Evaluate(It.IsAny<string>(), It.IsAny<IReadOnlyList<Finding>>()))
+            .Returns((IReadOnlyList<Finding>?)null);
+
+        PreFinalizeChecklistService sut = CreateSut(
+            linkageEngine: linkage.Object,
+            linkageOptions: Options.Create(new FindingEvidenceLinkageFindingEngineOptions
+            {
+                Enabled = true,
+                WarnOnly = false,
+            }));
+
+        PreFinalizeChecklistResult result = await sut.BuildAsync(runId, CancellationToken.None);
+
+        PreFinalizeChecklistItem linkageItem = result.Items.Should().ContainSingle(item =>
+            item.ItemId == "evidence-linkage-gaps").Subject;
+        linkageItem.Status.Should().Be(PreFinalizeChecklistItemStatus.Advisory);
+        linkageItem.Detail.Should().Contain("was not returned");
+        linkageItem.Count.Should().Be(0);
+    }
+
     private static PreFinalizeChecklistService CreateSut(
         IRunRepository? runRepository = null,
         IArchitectureRequestRepository? architectureRequestRepository = null,

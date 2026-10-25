@@ -57,7 +57,7 @@ export function mapSponsorRoiTrendSavingsChartPoints(
     const usd = resolveExecutiveTrendSavingsUsd(
       {
         totalEstimatedUsdSavings,
-        realModeSavingsUsd: realModeSavingsUsd ?? 0,
+        realModeSavingsUsd: realModeSavingsUsd ?? totalEstimatedUsdSavings,
         realRunCount: real!,
         simulatorRunCount: simulator!,
       },

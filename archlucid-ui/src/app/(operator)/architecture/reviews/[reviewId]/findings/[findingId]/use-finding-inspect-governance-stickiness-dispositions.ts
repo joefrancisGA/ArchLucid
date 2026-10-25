@@ -41,6 +41,7 @@ import {
   EMPTY_FINDING_INSPECT_DISPOSITION_BASELINE,
   type FindingInspectDispositionBaseline,
 } from "@/lib/findings/finding-inspect-disposition-unsaved";
+import { GOVERNANCE_QUEUE_DISPOSITION_NONE_LABEL } from "@/lib/architecture/architecture-risk-register-copy";
 import {
   APPROVED_DECISION_OVERRIDE_MESSAGE,
   dispositionRequiresRationale,
@@ -77,10 +78,16 @@ export type UseFindingInspectGovernanceStickinessDispositionsInput = {
 
 function latestDispositionLabel(history: readonly FindingDispositionEvent[]): string {
   if (history.length === 0) {
-    return "No disposition recorded";
+    return GOVERNANCE_QUEUE_DISPOSITION_NONE_LABEL;
   }
 
-  return history[0]?.disposition ?? "No disposition recorded";
+  const disposition = history[0]?.disposition;
+
+  if (disposition === null || disposition === undefined) {
+    return GOVERNANCE_QUEUE_DISPOSITION_NONE_LABEL;
+  }
+
+  return disposition;
 }
 
 export function useFindingInspectGovernanceStickinessDispositions({

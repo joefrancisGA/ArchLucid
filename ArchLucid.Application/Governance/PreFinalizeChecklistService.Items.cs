@@ -100,7 +100,22 @@ public sealed partial class PreFinalizeChecklistService
                         latestDispositionsByFindingId)))
             .ToList();
 
-        int linkageGapCount = _findingEvidenceLinkageFindingEngine.Evaluate(runId, activeHighSeverityFindings)?.Count ?? 0;
+        IReadOnlyList<Finding>? linkageGaps =
+            _findingEvidenceLinkageFindingEngine.Evaluate(runId, activeHighSeverityFindings);
+
+        if (linkageGaps is null)
+        {
+            return new PreFinalizeChecklistItem
+            {
+                ItemId = "evidence-linkage-gaps",
+                Title = "Finding evidence linkage",
+                Detail = "Evidence linkage gap count was not returned.",
+                Status = PreFinalizeChecklistItemStatus.Advisory,
+                Count = 0,
+            };
+        }
+
+        int linkageGapCount = linkageGaps.Count;
 
         return new PreFinalizeChecklistItem
         {
@@ -129,8 +144,8 @@ public sealed partial class PreFinalizeChecklistService
             {
                 ItemId = "provisional-synthesis",
                 Title = "Framing completeness",
-                Detail = "Knowledge model not available for this run.",
-                Status = PreFinalizeChecklistItemStatus.Clear,
+                Detail = "Knowledge model was not available for this run.",
+                Status = PreFinalizeChecklistItemStatus.Advisory,
                 Count = 0,
             };
         }
@@ -139,7 +154,19 @@ public sealed partial class PreFinalizeChecklistService
             .GetForRunAsync(scope, parsedRunId, cancellationToken)
             .ConfigureAwait(false);
 
-        if (model is null || !model.IsProvisionalSynthesis)
+        if (model is null)
+        {
+            return new PreFinalizeChecklistItem
+            {
+                ItemId = "provisional-synthesis",
+                Title = "Framing completeness",
+                Detail = "Knowledge model was not returned for this run.",
+                Status = PreFinalizeChecklistItemStatus.Advisory,
+                Count = 0,
+            };
+        }
+
+        if (!model.IsProvisionalSynthesis)
         {
             return new PreFinalizeChecklistItem
             {

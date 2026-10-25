@@ -8,55 +8,82 @@ namespace ArchLucid.Application.Exports.ArchitectureReviewBoard;
 
 public static partial class ArchitectureReviewBoardExportDocumentFactory
 {
-    private static IReadOnlyList<string> BuildSystemOverviewBullets(ArchitectureRunDetail detail, ArchitectureAnalysisReport report)
+    private const string SystemNameNotStoredLabel = "System name was not stored.";
+    private const string ComplianceTagsStoredEmptyLabel = "Compliance tags list was stored empty.";
+
+    private static IReadOnlyList<string>? BuildSystemOverviewBullets(ArchitectureRunDetail detail, ArchitectureAnalysisReport report)
     {
         GoldenManifest? m = report.Manifest ?? detail.Manifest;
 
         if (m is null)
-            return [];
+        {
+            return null;
+        }
+
+        string systemName = m.SystemName?.Trim() ?? string.Empty;
+        string systemLabel = systemName.Length > 0 ? systemName : SystemNameNotStoredLabel;
+        string complianceTagsLine = m.Governance.ComplianceTags.Count > 0
+            ? string.Join(", ", m.Governance.ComplianceTags)
+            : ComplianceTagsStoredEmptyLabel;
 
         List<string> lines =
         [
-            $"Architecture snapshot covers system «{m.SystemName}» with {m.Services.Count} services and {m.Datastores.Count} datastores.",
+            $"Architecture snapshot covers system «{systemLabel}» with {m.Services.Count} services and {m.Datastores.Count} datastores.",
             $"Relationships modeled: {m.Relationships.Count}. Governance risk tier: {m.Governance.RiskClassification}; cost tier: {m.Governance.CostClassification}.",
-            $"Compliance tags: {(m.Governance.ComplianceTags.Count > 0 ? string.Join(", ", m.Governance.ComplianceTags) : "none recorded")}."
+            $"Compliance tags: {complianceTagsLine}.",
         ];
 
         return lines;
     }
 
-    private static List<ArchitectureReviewBoardExportEvidenceItem> BuildEvidenceReviewed(ArchitectureAnalysisReport report)
+    private static IReadOnlyList<ArchitectureReviewBoardExportEvidenceItem>? BuildEvidenceReviewed(ArchitectureAnalysisReport report)
     {
+        if (report.Evidence is null)
+        {
+            return null;
+        }
+
         List<ArchitectureReviewBoardExportEvidenceItem> items = [];
 
-        if (report.Evidence?.Request.Description is { Length: > 0 } desc)
+        if (report.Evidence.Request.Description is { Length: > 0 } desc)
+        {
             items.Add(
                 new ArchitectureReviewBoardExportEvidenceItem
                 {
                     Title = "Request narrative",
-                    Detail = desc.Trim()
+                    Detail = desc.Trim(),
                 });
-
-        foreach (string c in report.Evidence?.Request.Constraints ?? [])
-        {
-            if (!string.IsNullOrWhiteSpace(c))
-                items.Add(new ArchitectureReviewBoardExportEvidenceItem { Title = "Constraint", Detail = c.Trim() });
         }
 
-        foreach (string cap in report.Evidence?.Request.RequiredCapabilities ?? [])
+        foreach (string c in report.Evidence.Request.Constraints ?? [])
+        {
+            if (!string.IsNullOrWhiteSpace(c))
+            {
+                items.Add(new ArchitectureReviewBoardExportEvidenceItem { Title = "Constraint", Detail = c.Trim() });
+            }
+        }
+
+        foreach (string cap in report.Evidence.Request.RequiredCapabilities ?? [])
         {
             if (!string.IsNullOrWhiteSpace(cap))
+            {
                 items.Add(new ArchitectureReviewBoardExportEvidenceItem { Title = "Required capability", Detail = cap.Trim() });
+            }
         }
 
         return items;
     }
 
-    private static List<ArchitectureReviewBoardExportDecisionRow> BuildArchitectureDecisions(ArchitectureRunDetail detail)
+    private static IReadOnlyList<ArchitectureReviewBoardExportDecisionRow>? BuildArchitectureDecisions(ArchitectureRunDetail detail)
     {
+        if (detail.DecisionTraces is null)
+        {
+            return null;
+        }
+
         List<ArchitectureReviewBoardExportDecisionRow> rows = [];
 
-        foreach (DecisionTraceDto trace in detail.DecisionTraces ?? [])
+        foreach (DecisionTraceDto trace in detail.DecisionTraces)
         {
             string title = trace.Kind.ToString();
             string detailText = string.Empty;
@@ -77,11 +104,13 @@ public static partial class ArchitectureReviewBoardExportDocumentFactory
                 new ArchitectureReviewBoardExportDecisionRow
                 {
                     Title = title,
-                    Detail = string.IsNullOrWhiteSpace(detailText) ? null : detailText
+                    Detail = string.IsNullOrWhiteSpace(detailText) ? null : detailText,
                 });
 
             if (rows.Count >= 40)
+            {
                 break;
+            }
         }
 
         return rows;
