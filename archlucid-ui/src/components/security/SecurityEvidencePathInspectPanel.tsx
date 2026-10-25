@@ -86,7 +86,7 @@ import { InlineGlossaryChip } from "@/components/InlineGlossaryChip";
 
 function PathHopsTable(props: {
   readonly hops: ReadonlyArray<SecurityEvidencePathHop>;
-  readonly weakestHopOrdinal: number;
+  readonly weakestHopOrdinal: number | null;
   readonly snapshotId: string;
 }) {
   const internetHopOrdinal = props.hops.find(
@@ -162,7 +162,10 @@ function PathHopsTable(props: {
       </EnterpriseTableHead>
       <EnterpriseTableBody>
         {props.hops.map((hop) => {
-          const isWeakest = hop.hopOrdinal === props.weakestHopOrdinal;
+          const isWeakest =
+            props.weakestHopOrdinal !== null
+            && hop.hopOrdinal !== null
+            && hop.hopOrdinal === props.weakestHopOrdinal;
 
           return (
             <EnterpriseTableRow
@@ -171,7 +174,9 @@ function PathHopsTable(props: {
               className={isWeakest ? "bg-muted/50 ring-1 ring-inset ring-border" : undefined}
               aria-current={isWeakest ? "true" : undefined}
             >
-              <EnterpriseTableCell>{hop.hopOrdinal}</EnterpriseTableCell>
+              <EnterpriseTableCell>
+                {hop.hopOrdinal ?? "Hop order was not stored."}
+              </EnterpriseTableCell>
               <EnterpriseTableCell>
                 <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
                   {securityEvidencePathHopNodeName(hop.fromNodeLabel)} to {securityEvidencePathHopNodeName(hop.toNodeLabel)} by{" "}
@@ -245,7 +250,7 @@ function PathBandWeakestHopLimitNote(props: {
       data-testid="security-evidence-path-band-weakest-hop-limit"
     >
       Path band {formatSecurityEvidencePathConfidenceBandLabel(props.pathBand)} is capped by weakest hop{" "}
-      {props.weakestHop.hopOrdinal} ({hopBandLabel}). Stronger path bands are not claimed.
+      {props.weakestHop.hopOrdinal ?? "Hop order was not stored."} ({hopBandLabel}). Stronger path bands are not claimed.
     </p>
   );
 }
@@ -283,7 +288,14 @@ function PathRankSection(props: { readonly rank: SecurityEvidencePathRankDetail 
     <div className="rounded border border-border bg-muted/30 p-3" data-testid="security-evidence-path-rank">
       <div className="flex flex-wrap items-center gap-2">
         <h3 className={OPERATOR_TYPOGRAPHY.cardTitle}>{SECURENOW_PATH_INSPECT_RANK_TITLE}</h3>
-        <StatusTag kind="neutral" label={`Rank ${props.rank.rankOrder}`} />
+        <StatusTag
+          kind="neutral"
+          label={
+            props.rank.rankOrder !== null
+              ? `Rank ${props.rank.rankOrder}`
+              : "Rank was not stored"
+          }
+        />
       </div>
       <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper)}>
         Dimension prose below expands the reader sentence. The composite key is ordering only.
@@ -358,7 +370,7 @@ function PathExplanationSection(props: {
             ...props.explanation.businessImpactHypotheses,
             props.explanation.proposedRemediation.recommendedChange.trim().length > 0
               ? `Recommended change: ${props.explanation.proposedRemediation.recommendedChange}`
-              : "",
+              : "Recommended change was not stored.",
             props.explanation.citedEvidenceRefs.length > 0
               ? `Cited evidence: ${props.explanation.citedEvidenceRefs.join(", ")}`
               : "",
@@ -377,9 +389,9 @@ function RecommendedActionSection(props: {
   readonly path: SecurityEvidencePathDetail;
   readonly rank: SecurityEvidencePathRankDetail | null;
 }): React.JSX.Element {
-  const firstCutPoint = props.path.relatedCutPoints[0];
   const firstRoute = props.path.routing[0];
   const architectSentence = props.path.explanationTemplate?.architectSentence?.trim() ?? "";
+  const hopEvidenceRef = props.path.hops[0]?.evidenceReference?.trim() ?? "";
 
   const lines = [
     {
@@ -388,10 +400,7 @@ function RecommendedActionSection(props: {
     },
     {
       label: "Evidence",
-      value:
-        props.path.weakestHop?.reason?.trim() ||
-        props.path.hops[0]?.evidenceReference?.trim() ||
-        "Not cited.",
+      value: hopEvidenceRef.length > 0 ? hopEvidenceRef : "Evidence citation was not stored.",
     },
     {
       label: "Consequence",
@@ -400,9 +409,9 @@ function RecommendedActionSection(props: {
     {
       label: "Recommended change",
       value:
-        firstCutPoint?.explanationSummary ??
-        props.path.explanationTemplate?.proposedChange ??
-        "Proposed change was not stored.",
+        props.path.explanationTemplate?.proposedChange?.trim() && props.path.explanationTemplate.proposedChange.trim().length > 0
+          ? props.path.explanationTemplate.proposedChange.trim()
+          : "Proposed change was not stored.",
     },
     {
       label: "Owner",
@@ -422,8 +431,8 @@ function RecommendedActionSection(props: {
         return "How to check was not stored.";
       }
 
-      if (line.value === "Not cited.") {
-        return "Not cited.";
+      if (line.value === "Evidence citation was not stored.") {
+        return "Evidence citation was not stored.";
       }
 
       return line.value;
@@ -436,8 +445,10 @@ function RecommendedActionSection(props: {
     ...line,
     display: displayForLine(line),
   }));
-  const notCitedLabels = linesWithDisplay.filter((line) => line.display === "Not cited.").map((line) => line.label);
-  const citedLines = linesWithDisplay.filter((line) => line.display !== "Not cited.");
+  const notCitedLabels = linesWithDisplay
+    .filter((line) => line.display === "Evidence citation was not stored.")
+    .map((line) => line.label);
+  const citedLines = linesWithDisplay.filter((line) => line.display !== "Evidence citation was not stored.");
   const showSingleNotCitedLine = notCitedLabels.length === 1;
   const showNotCitedSummary = notCitedLabels.length >= 2;
 
@@ -446,7 +457,7 @@ function RecommendedActionSection(props: {
       <h3 className={OPERATOR_TYPOGRAPHY.cardTitle}>Recommended action</h3>
       {showNotCitedSummary ? (
         <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)} data-testid="security-evidence-path-recommended-action-not-cited-summary">
-          Not cited: {notCitedLabels.join(", ")}.
+          Evidence citation was not stored: {notCitedLabels.join(", ")}.
         </p>
       ) : null}
       <dl className="m-0 space-y-2">
@@ -459,7 +470,7 @@ function RecommendedActionSection(props: {
         {showSingleNotCitedLine ? (
           <div>
             <dt className={cn("font-medium", OPERATOR_TYPOGRAPHY.helper)}>{notCitedLabels[0]}</dt>
-            <dd className={cn("m-0 mt-0.5", OPERATOR_TYPOGRAPHY.body)}>Not cited.</dd>
+            <dd className={cn("m-0 mt-0.5", OPERATOR_TYPOGRAPHY.body)}>Evidence citation was not stored.</dd>
           </div>
         ) : null}
       </dl>
@@ -846,7 +857,7 @@ export function SecurityEvidencePathInspectPanel(props: {
                 This hop limits how strong the path evidence can be.
               </p>
               <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.body)}>
-                Hop {pathQuery.data.weakestHop.hopOrdinal}:{" "}
+                Hop {pathQuery.data.weakestHop.hopOrdinal ?? "Hop order was not stored."}:{" "}
                 {formatSecurityEvidencePathRelationshipLabel(pathQuery.data.weakestHop.edgeType)}
               </p>
               <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}>
@@ -867,7 +878,14 @@ export function SecurityEvidencePathInspectPanel(props: {
               weakestHopOrdinal={pathQuery.data.weakestHopOrdinal}
               snapshotId={pathQuery.data.snapshotId}
             />
-          ) : null}
+          ) : (
+            <p
+              className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="security-evidence-path-hops-empty"
+            >
+              No hops were stored.
+            </p>
+          )}
 
           {pathQuery.data.relatedCutPoints.length > 0 ? (
             <div className="space-y-2" data-testid="security-evidence-path-cut-points">
@@ -957,7 +975,18 @@ export function SecurityEvidencePathInspectPanel(props: {
                     <EnterpriseTableRow key={`${row.role}-${row.principalId ?? row.displayName ?? row.sourceReference}`}>
                       <EnterpriseTableCell>{row.role}</EnterpriseTableCell>
                       <EnterpriseTableCell>
-                        {row.displayName?.trim() || row.principalId?.trim() || "Owner was not stored"}
+                        {row.displayName !== null && row.displayName !== undefined && row.displayName.trim().length > 0
+                          ? row.displayName.trim()
+                          : row.principalId !== null && row.principalId !== undefined && row.principalId.trim().length > 0
+                            ? (
+                              <span className="space-y-0.5">
+                                <span className="block">Display name was not stored.</span>
+                                <span className={cn("block", OPERATOR_TYPOGRAPHY.helper)}>
+                                  Principal: {row.principalId.trim()}
+                                </span>
+                              </span>
+                            )
+                            : "Owner was not stored"}
                       </EnterpriseTableCell>
                       <EnterpriseTableCell>{formatSecurityEvidenceProvenanceKindLabel(row.provenanceKind)}</EnterpriseTableCell>
                     </EnterpriseTableRow>
@@ -965,7 +994,14 @@ export function SecurityEvidencePathInspectPanel(props: {
                 </EnterpriseTableBody>
               </EnterpriseTable>
             </div>
-          ) : null}
+          ) : (
+            <p
+              className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="security-evidence-path-routing-empty"
+            >
+              No routing citations were stored.
+            </p>
+          )}
 
           {advisoryInstance != null && props.findingId != null ? (
             <div className="space-y-1" data-testid="security-evidence-path-workbench-handoff">

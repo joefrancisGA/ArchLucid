@@ -10,7 +10,30 @@ export type ReviewsHubLifecycleStage =
   | "Evaluation"
   | "Finalized";
 
-export function reviewsHubOverallStatus(run: RunSummary): ReviewsHubOverallStatus {
+export const REVIEW_STAGE_NOT_STORED_LABEL = "Review stage was not stored." as const;
+
+export type ReviewsHubOverallStatusDisplay = ReviewsHubOverallStatus | typeof REVIEW_STAGE_NOT_STORED_LABEL;
+
+export type ReviewsHubLifecycleStageDisplay = ReviewsHubLifecycleStage | typeof REVIEW_STAGE_NOT_STORED_LABEL;
+
+function reviewStageSnapshotFlagsAreUnknown(run: RunSummary): boolean {
+  if (run.isArchived === true) {
+    return false;
+  }
+
+  return (
+    run.hasGoldenManifest === undefined &&
+    run.hasFindingsSnapshot === undefined &&
+    run.hasGraphSnapshot === undefined &&
+    run.hasContextSnapshot === undefined
+  );
+}
+
+export function reviewsHubOverallStatus(run: RunSummary): ReviewsHubOverallStatusDisplay {
+  if (reviewStageSnapshotFlagsAreUnknown(run)) {
+    return REVIEW_STAGE_NOT_STORED_LABEL;
+  }
+
   if (run.isArchived === true) {
     return "Archived";
   }
@@ -42,7 +65,11 @@ export function reviewsHubOverallStatus(run: RunSummary): ReviewsHubOverallStatu
  * (that word is reserved for the approval queue). Archived reviews keep the stage they reached;
  * archival is reported by {@link reviewsHubOverallStatus} instead.
  */
-export function reviewsHubLifecycleStage(run: RunSummary): ReviewsHubLifecycleStage {
+export function reviewsHubLifecycleStage(run: RunSummary): ReviewsHubLifecycleStageDisplay {
+  if (reviewStageSnapshotFlagsAreUnknown(run)) {
+    return REVIEW_STAGE_NOT_STORED_LABEL;
+  }
+
   if (run.hasGoldenManifest === true) {
     return "Finalized";
   }
@@ -79,9 +106,13 @@ export function reviewsHubNeedsAttention(run: RunSummary): boolean {
 
 /** Map inventory overall status onto enterprise StatusTag kinds. */
 export function reviewsHubOverallStatusTagKind(
-  status: ReviewsHubOverallStatus,
+  status: ReviewsHubOverallStatusDisplay,
   attention: boolean,
 ): EnterpriseStatusKind {
+  if (status === REVIEW_STAGE_NOT_STORED_LABEL) {
+    return "neutral";
+  }
+
   if (attention) {
     return "needs-attention";
   }

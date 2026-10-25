@@ -1,4 +1,5 @@
 using ArchLucid.ArtifactSynthesis.Models;
+using ArchLucid.Core.AzureExtractor;
 using ArchLucid.Core.InfraEvidence;
 using ArchLucid.KnowledgeGraph;
 

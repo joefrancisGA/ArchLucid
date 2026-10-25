@@ -5,7 +5,19 @@ public static class InventoryDiagramRelationshipLabelTexts
 {
     public const string HasAccess = "Has access";
 
-    public const string PrivateAccess = "Private access";
+    public const string PrivateAccess = "Private endpoint. This is not observed traffic.";
+
+    public const string ServiceConnectorConfiguredLabel =
+        "Service connector is configured. An observed connection was not stored.";
+
+    public const string AppAuthorizedAccessLabel =
+        "Authorization may allow access. Observed use was not stored.";
+
+    public const string SqlPrincipalAuthorizedAccessLabel =
+        "SQL principal authorization may allow access. An observed query was not stored.";
+
+    public const string HostnameInferredTargetLabel =
+        "App setting hostname was inferred. A stored resource link was not stored.";
 
     public const string PublicExposureCaption = "Public IP is attached; its card is hidden on this diagram.";
 
@@ -35,7 +47,7 @@ public static class InventoryDiagramRelationshipLabelTexts
 
         if (status.Equals("Approved", StringComparison.OrdinalIgnoreCase))
         {
-            return $"{PrivateAccess} · {status}";
+            return "Private endpoint connection: Approved.";
         }
 
         if (status.Equals("Rejected", StringComparison.OrdinalIgnoreCase)
@@ -58,7 +70,7 @@ public static class InventoryDiagramRelationshipLabelTexts
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(nextHopResourceName);
 
-        return $"Routed through {nextHopResourceName.Trim()}";
+        return $"Default route next hop is {nextHopResourceName.Trim()}. This is not observed traffic.";
     }
 
     public static string FormatSendsTrafficTo(int? backendPort)
@@ -100,6 +112,47 @@ public static class InventoryDiagramRelationshipLabelTexts
         ArgumentException.ThrowIfNullOrWhiteSpace(remoteVirtualNetworkName);
 
         return $"Peering to {remoteVirtualNetworkName.Trim()} is connected. The remote network is not on this diagram.";
+    }
+
+    public const string BackendPoolMembershipConfiguredObservedTrafficNotStored =
+        "Backend pool membership is configured. Observed traffic was not stored.";
+
+    public const string PipelineDatasetConfiguredReadObservedReadNotStored =
+        "Pipeline dataset is configured to read. An observed read was not stored.";
+
+    public const string PipelineDatasetConfiguredWriteObservedWriteNotStored =
+        "Pipeline dataset is configured to write. An observed write was not stored.";
+
+    public const string EventSubscriptionNamesDestinationObservedDeliveryNotStored =
+        "Event subscription names this destination. Observed delivery was not stored.";
+
+    public const string CaptureConfiguredObservedCaptureNotStored =
+        "Capture is configured. Observed capture was not stored.";
+
+    public const string PrivateEndpointTargetStoredReachabilityNotObserved =
+        "Private endpoint target was stored. Reachability was not observed.";
+
+    public const string DiagnosticSettingNameNotStoredLogDeliveryNotObserved =
+        "Diagnostic setting name was not stored. Log delivery was not observed.";
+
+    public const string DiagnosticSettingNamesNotListedLogDeliveryNotObserved =
+        "Diagnostic setting names were not listed on this line. Log delivery was not observed.";
+
+    public const string ImageReferenceStoredImagePullNotObserved =
+        "Image reference was stored. An image pull was not observed.";
+
+    public const string RoleAssignmentObservedUseNotStoredSuffix = "Observed use was not stored.";
+
+    public const string DiagnosticSettingStorageNamesNotListedQualifier = "names-not-listed";
+
+    public static string FormatBackendPoolMembershipConfigured(int? backendPort)
+    {
+        if (backendPort is null)
+        {
+            return BackendPoolMembershipConfiguredObservedTrafficNotStored;
+        }
+
+        return $"Backend pool membership is configured on port {backendPort.Value}. Observed traffic was not stored.";
     }
 
     public static string FormatSendsTrafficToBackend(int? backendPort)

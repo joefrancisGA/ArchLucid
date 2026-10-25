@@ -121,7 +121,11 @@ export function RunWizardCostPreviewCard(props: RunWizardCostPreviewCardProps = 
         )}{" "}
         (band: low = small assumed prompt, high = four parallel agents at configured token ceiling;{" "}
         <code className={cn("rounded bg-neutral-100 px-1 dark:bg-neutral-800", OPERATOR_TYPOGRAPHY.helper)}>MaxCompletionTokens</code>
-        ={data.maxCompletionTokens})
+        =
+        {typeof data.maxCompletionTokens === "number" && Number.isFinite(data.maxCompletionTokens)
+          ? data.maxCompletionTokens
+          : "Token ceiling was not stored."}
+        )
         {data.deploymentName === null || data.deploymentName === undefined ? (
           <>
             {" "}
@@ -134,11 +138,15 @@ export function RunWizardCostPreviewCard(props: RunWizardCostPreviewCardProps = 
           </>
         ) : null}
       </p>
-      {data.pricingUsesIllustrativeUsdRates ? (
+      {data.pricingUsesIllustrativeUsdRates === true ? (
         <p className={cn("mt-2 mb-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.helper)}>
           Illustrative USD rates are still set from defaults — override{" "}
           <code className="rounded bg-neutral-100 px-1 dark:bg-neutral-800">AgentExecution:LlmCostEstimation</code> to match
           your deployment&apos;s list price.
+        </p>
+      ) : data.pricingUsesIllustrativeUsdRates === undefined ? (
+        <p className={cn("mt-2 mb-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+          Illustrative rate flag was not stored.
         </p>
       ) : null}
       <p className={cn("mt-2 mb-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{data.estimatedCostBasis}</p>

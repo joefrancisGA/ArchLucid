@@ -85,6 +85,113 @@ public sealed class AgentResultPostExecutionEnricherTests
     }
 
     [Fact]
+    public async Task EnrichAsync_skips_null_result_entries_when_proposing_curated_evidence()
+    {
+        Mock<IAgentCompletionClient> completionClient = new();
+        completionClient
+            .Setup(client => client.CompleteJsonAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<int?>(),
+                It.IsAny<float?>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                """
+                {"type":"Policy","title":"Catalog gap policy","description":"Add missing catalog policy.","rationale":"Finding cited a gap."}
+                """);
+
+        AgentCuratedEvidenceProposer proposer = new(
+            completionClient.Object,
+            Options.Create(new AgentCuratedEvidenceProposalOptions { Enabled = true }),
+            NullLogger<AgentCuratedEvidenceProposer>.Instance);
+
+        AgentResultPostExecutionEnricher sut = new(proposer);
+
+        AgentResult retained = new()
+        {
+            AgentType = AgentType.Compliance,
+            Findings =
+            [
+                new ArchitectureFinding
+                {
+                    Classification = FindingClassification.DecisionGradeFinding,
+                    Message = "Gap",
+                    EvidenceRefs = ["ref-1"],
+                },
+            ],
+        };
+
+        Func<Task> act = async () => await sut.EnrichAsync(
+            "run-1",
+            new ArchitectureRequest { RequestId = "req-1", Description = new string('x', 12) },
+            new AgentEvidencePackage(),
+            [null!, retained],
+            CancellationToken.None);
+
+        await act.Should().NotThrowAsync();
+    }
+
+    [Fact]
+    public async Task EnrichAsync_skips_null_result_entries_when_withholding_prose_findings()
+    {
+        AgentResult retained = new()
+        {
+            AgentType = AgentType.Compliance,
+            Findings =
+            [
+                new ArchitectureFinding
+                {
+                    Classification = FindingClassification.DecisionGradeFinding,
+                    Message = "Prose only",
+                },
+            ],
+        };
+
+        CompositeAgentResultPostExecutionEnricher sut = new([new AgentArchitectureFindingEmissionEnricher()]);
+
+        Func<Task> act = async () => await sut.EnrichAsync(
+            "run-1",
+            new ArchitectureRequest { RequestId = "req-1", Description = new string('x', 12) },
+            new AgentEvidencePackage(),
+            [null!, retained],
+            CancellationToken.None);
+
+        await act.Should().NotThrowAsync();
+        retained.WithheldFindings.Should().ContainSingle();
+    }
+
+    [Fact]
+    public async Task EnrichAsync_skips_null_finding_entries_when_withholding_prose_findings()
+    {
+        AgentResult result = new()
+        {
+            AgentType = AgentType.Compliance,
+            Findings =
+            [
+                null!,
+                new ArchitectureFinding
+                {
+                    Classification = FindingClassification.DecisionGradeFinding,
+                    Message = "Prose only",
+                },
+            ],
+        };
+
+        CompositeAgentResultPostExecutionEnricher sut = new([new AgentArchitectureFindingEmissionEnricher()]);
+
+        await sut.EnrichAsync(
+            "run-1",
+            new ArchitectureRequest { RequestId = "req-1", Description = new string('x', 12) },
+            new AgentEvidencePackage(),
+            [result],
+            CancellationToken.None);
+
+        result.Findings.Should().BeEmpty();
+        result.WithheldFindings.Should().ContainSingle();
+        result.WithheldFindings[0].Reason.Should().Be(WithheldFindingReasons.ProseOnlyEmission);
+    }
+
+    [Fact]
     public async Task EnrichAsync_withholds_prose_findings_when_deserialized_withheld_findings_is_null()
     {
         const string json =

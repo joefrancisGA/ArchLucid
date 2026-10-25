@@ -19,6 +19,7 @@ public sealed class PromptVariantStatsService(IPromptVariantStatsRepository stat
             await _statsRepository.GetStatsByTemplateAsync(promptTemplateName.Trim(), cancellationToken);
 
         List<PromptVariantStatsItem> items = rows
+            .Where(static row => row is not null)
             .Select(r => new PromptVariantStatsItem
             {
                 VariantKey = r.VariantKey,

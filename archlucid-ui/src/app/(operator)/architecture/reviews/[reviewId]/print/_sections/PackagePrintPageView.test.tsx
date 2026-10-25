@@ -88,7 +88,7 @@ describe("PackagePrintPageView (TB-2205)", () => {
     );
   });
 
-  it("omits synopsis section when null", () => {
+  it("shows draft synopsis honesty when the package is not finalized", () => {
     render(
       <PackagePrintPageView
         presentation={{
@@ -97,6 +97,7 @@ describe("PackagePrintPageView (TB-2205)", () => {
           statusKind: "draft",
           findingsSummary: "No findings summary is available yet.",
           sponsorSynopsis: null,
+          draftWorkingSynopsisParagraph: "Working sponsor paragraph.",
           createdUtc: "2026-08-01T12:00:00Z",
           runId: "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
           manifestVersionForGuard: "manifest-draft",
@@ -104,7 +105,8 @@ describe("PackagePrintPageView (TB-2205)", () => {
       />,
     );
 
-    expect(screen.queryByTestId("package-print-sponsor-synopsis")).toBeNull();
+    expect(screen.getByTestId("package-print-sponsor-synopsis")).toHaveTextContent("not published");
+    expect(screen.getByTestId("package-print-sponsor-synopsis")).toHaveTextContent("Working sponsor paragraph.");
   });
 
   it("renders meeting capture blockedReason callout when capture is blocked (sealed-manifest 409)", () => {
