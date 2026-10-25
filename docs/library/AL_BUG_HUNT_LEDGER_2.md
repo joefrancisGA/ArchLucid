@@ -9366,11 +9366,11 @@
 - **aliases:** authority controllers; admin controllers
 - **paths:** ArchLucid.Api/Controllers/Authority/; ArchLucid.Api/Controllers/Admin/
 - **test-filter:** FullyQualifiedName~AuthorityController|FullyQualifiedName~AdminController
-- **hunts:** 62
-- **bugs-found:** 57
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-16
-- **last-bug:** 2026-10-16 — archive-by-ids null RunIds caused 500 instead of validation
+- **hunts:** 119
+- **bugs-found:** 58
+- **consecutive-dry-hunts:** 53
+- **last-hunt:** 2026-10-25
+- **last-bug:** 2026-10-23 — rephrase clarification null item in items array caused 500 instead of validation
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
