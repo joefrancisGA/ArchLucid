@@ -416,6 +416,52 @@ public sealed class ComparisonAuditServiceTests
     }
 
     [Fact]
+    public async Task CompareQuality_RecordEndToEndAsync_nulls_whitespace_only_summary_markdown_on_persist()
+    {
+        ComparisonRecord? persisted = null;
+        Mock<IComparisonRecordRepository> repo = new();
+        repo
+            .Setup(r => r.CreateAsync(It.IsAny<ComparisonRecord>(), It.IsAny<CancellationToken>()))
+            .Callback<ComparisonRecord, CancellationToken>((record, _) => persisted = record)
+            .Returns(Task.CompletedTask);
+        ComparisonAuditService sut = new(repo.Object, Mock.Of<IAuditService>());
+        EndToEndReplayComparisonReport report = new()
+        {
+            LeftRunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            RightRunId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        };
+
+        await sut.RecordEndToEndAsync(report, "   ", CancellationToken.None);
+
+        persisted.Should().NotBeNull();
+        persisted!.SummaryMarkdown.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task CompareQuality_RecordExportDiffAsync_nulls_whitespace_only_summary_markdown_on_persist()
+    {
+        ComparisonRecord? persisted = null;
+        Mock<IComparisonRecordRepository> repo = new();
+        repo
+            .Setup(r => r.CreateAsync(It.IsAny<ComparisonRecord>(), It.IsAny<CancellationToken>()))
+            .Callback<ComparisonRecord, CancellationToken>((record, _) => persisted = record)
+            .Returns(Task.CompletedTask);
+        ComparisonAuditService sut = new(repo.Object, Mock.Of<IAuditService>());
+        ExportRecordDiffResult diff = new()
+        {
+            LeftExportRecordId = "left-anchor",
+            RightExportRecordId = "right-anchor",
+            LeftRunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            RightRunId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        };
+
+        await sut.RecordExportDiffAsync(diff, "\t\n", CancellationToken.None);
+
+        persisted.Should().NotBeNull();
+        persisted!.SummaryMarkdown.Should().BeNull();
+    }
+
+    [Fact]
     public async Task RecordExportDiffAsync_AfterCreate_DoesNotLogDuplicateDurableRow()
     {
         Mock<IComparisonRecordRepository> repo = new();

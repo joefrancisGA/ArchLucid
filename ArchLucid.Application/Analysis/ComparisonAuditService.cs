@@ -31,7 +31,7 @@ public sealed class ComparisonAuditService(IComparisonRecordRepository repositor
             LeftRunId = leftRunId,
             RightRunId = rightRunId,
             Format = ComparisonTypes.FormatJsonMarkdown,
-            SummaryMarkdown = NormalizeRequiredMarkdown(summaryMarkdown),
+            SummaryMarkdown = NormalizeOptionalMarkdown(summaryMarkdown),
             PayloadJson = SerializeEndToEndPayload(report, leftRunId, rightRunId),
             Notes = "Persisted end-to-end replay comparison.",
             CreatedUtc = TimeProvider.System.UtcNowDateTime()
@@ -73,7 +73,7 @@ public sealed class ComparisonAuditService(IComparisonRecordRepository repositor
             LeftExportRecordId = NormalizeExportRecordIdColumnOrNull(diff.LeftExportRecordId),
             RightExportRecordId = NormalizeExportRecordIdColumnOrNull(diff.RightExportRecordId),
             Format = ComparisonTypes.FormatJsonMarkdown,
-            SummaryMarkdown = NormalizeRequiredMarkdown(summaryMarkdown),
+            SummaryMarkdown = NormalizeOptionalMarkdown(summaryMarkdown),
             PayloadJson = SerializeExportDiffPayload(diff, leftRunId, rightRunId),
             Notes = "Persisted export record diff.",
             CreatedUtc = TimeProvider.System.UtcNowDateTime()
@@ -165,8 +165,6 @@ public sealed class ComparisonAuditService(IComparisonRecordRepository repositor
 
         return RunExportRecordIdNormalizer.NormalizeRequired(exportRecordId);
     }
-
-    private static string NormalizeRequiredMarkdown(string summaryMarkdown) => summaryMarkdown.Trim();
 
     private static string? NormalizeOptionalMarkdown(string? summaryMarkdown) =>
         OptionalExportMetadataStringNormalizer.NormalizeOptionalString(summaryMarkdown);
