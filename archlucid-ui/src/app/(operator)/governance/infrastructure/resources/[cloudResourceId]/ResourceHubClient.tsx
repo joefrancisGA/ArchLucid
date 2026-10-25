@@ -671,15 +671,14 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
     return hub.operationalSecurityFindings.totalCount + hub.architectureReviewFindings.totalCount;
   }, [hub]);
 
-  const hasTerraformMapping = useMemo(() => {
-    if (hub == null) {
-      return false;
-    }
+  const trimmedTerraformAddress = useMemo(() => hub?.terraformAddress?.trim() ?? "", [hub?.terraformAddress]);
 
-    const terraformAddress = hub.terraformAddress?.trim() ?? "";
+  const hasTerraformMapping = trimmedTerraformAddress.length > 0;
 
-    return terraformAddress.length > 0;
-  }, [hub]);
+  const terraformAddressDisplayLabel = useMemo(
+    () => (trimmedTerraformAddress.length > 0 ? trimmedTerraformAddress : "Terraform address was not stored."),
+    [trimmedTerraformAddress],
+  );
 
   const diagramCorrespondenceRemediationHref = useMemo(() => {
     if (hub?.diagramCorrespondence == null) {
@@ -1517,12 +1516,12 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                   <CollapsibleSection
                     title={GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_TERRAFORM_ADDRESS_LABEL}
                     sectionTestId="infra-resource-hub-terraform-address-disclosure"
-                    summaryLine={hub.terraformAddress ?? "Terraform address was not stored."}
+                    summaryLine={terraformAddressDisplayLabel}
                     open={infraResourceHubTechnicalKey === "terraformAddress"}
                     onToggle={(open) => setInfraResourceHubTechnicalKey(open ? "terraformAddress" : null)}
                   >
                     <p className={cn("m-0 font-mono text-xs break-all text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                      {hub.terraformAddress ?? "Terraform address was not stored."}
+                      {terraformAddressDisplayLabel}
                     </p>
                   </CollapsibleSection>
                 ) : (
@@ -1531,7 +1530,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                   <dd className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
                     The advisory address used to identify this resource in Terraform.
                   </dd>
-                    <dd className="font-mono text-xs">{hub.terraformAddress ?? "Terraform address was not stored."}</dd>
+                    <dd className="font-mono text-xs">{terraformAddressDisplayLabel}</dd>
                   </div>
                 )}
                 <div>

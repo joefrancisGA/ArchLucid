@@ -1049,6 +1049,59 @@ describe("ResourceHubClient", () => {
     );
   });
 
+  it("treats whitespace-only terraform address as not stored on the terraform tab", async () => {
+    fetchCachedInfraEvidenceResourceHub.mockImplementation(async () =>
+      buildResourceHubTestMockHub({ terraformAddress: "   \t  " }),
+    );
+    searchParams = new URLSearchParams(`tab=terraform&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}`);
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    const labels = await screen.findAllByText("Terraform address was not stored.");
+    expect(labels.length).toBeGreaterThan(0);
+    expect(screen.queryByText(/\s{3,}/)).not.toBeInTheDocument();
+  });
+
+  it("renders the same finding id in both operational and architecture review streams", async () => {
+    const sharedFindingId = "shared-finding-id";
+    fetchCachedInfraEvidenceResourceHub.mockImplementation(async () =>
+      buildResourceHubTestMockHub({
+        operationalSecurityFindings: {
+          ...buildResourceHubTestMockHub().operationalSecurityFindings,
+          items: [
+            {
+              id: sharedFindingId,
+              title: "Operational title for shared id",
+              severity: "High",
+              status: "Open",
+              streamKind: "OperationalSecurity",
+              streamLabel: "Operational security",
+            },
+          ],
+        },
+        architectureReviewFindings: {
+          ...buildResourceHubTestMockHub().architectureReviewFindings,
+          items: [
+            {
+              id: sharedFindingId,
+              title: "Architecture title for shared id",
+              severity: "Medium",
+              status: "Open",
+              streamKind: "ArchitectureReview",
+              streamLabel: "Architecture review",
+            },
+          ],
+        },
+      }),
+    );
+    searchParams = new URLSearchParams(`tab=findings&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}`);
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    expect(await screen.findByText("Operational title for shared id")).toBeInTheDocument();
+    expect(screen.getByText("Architecture title for shared id")).toBeInTheDocument();
+    expect(screen.getByTestId(`infra-resource-hub-create-remediation-${sharedFindingId}`)).toBeInTheDocument();
+    expect(screen.getByTestId(`infra-resource-hub-architecture-finding-ask-${sharedFindingId}`)).toBeInTheDocument();
+  });
+
   it("omits terraform mapping from overview when address is absent", async () => {
     fetchCachedInfraEvidenceResourceHub.mockImplementation(async () =>
       buildResourceHubTestMockHub({ terraformAddress: null, terraformGenerationMethod: null }),

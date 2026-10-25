@@ -7174,6 +7174,34 @@ ABQ-09 churn hotspot.
 
 ## Zone: ui-infra-resource-hub
 
+2026-10-25 seed hunt (seed→hit): promoted whitespace-only `terraformAddress` shown as a captured mapping on the terraform tab — raw address bypassed trim so operators saw blank disclosure copy while `hasTerraformMapping` already treated the value as absent; centralize trimmed display label for buyer-polished and working-mode terraform sections; regression `treats whitespace-only terraform address as not stored on the terraform tab`; cheap-disproof closed duplicate finding `id` across streams (keys include `streamKind`), overview drift preview truncation (intentional `slice(0, 5)` plus view-all link), create-remediation dialog state during hub reload (no automatic reload without URL or explicit refresh), and empty URL `controlId` audit chip (`resolvedAuditLineage` returns null when control id resolves empty); regression `renders the same finding id in both operational and architecture review streams`; scoped ResourceHubClient vitest 66/66. Private beta: resource hub terraform tab shows “not stored” copy instead of a blank address when capture stored only whitespace.
+
+- [x] (proven) `ResourceHubClient` terraform tab — whitespace-only `terraformAddress` vs null — **hit 2026-10-25 seed hunt:** `terraformAddressDisplayLabel` uses trim; regression whitespace fixture.
+- [x] (valid-no-repro) `ResourceHubClient` findings stream — duplicate finding `id` across streams — **cheap-disproof 2026-10-25 seed hunt:** row keys `${streamKind}-${item.id}`; regression shared-id fixture.
+- [x] (valid-no-repro) `ResourceHubClient` create-remediation confirm dialog — `pendingRemediationFinding` survives hub reload — **cheap-disproof 2026-10-25 seed hunt:** hub reload is URL-driven or explicit; dialog state unchanged without those triggers.
+- [x] (valid-no-repro) `ResourceHubClient` overview drift preview — sixth change hidden without view-all — **cheap-disproof 2026-10-25 seed hunt:** by design with `View all N in Drift` when length &gt; 5; regression `preserves explorer workQueue on overview view all drift hub tab link`.
+- [x] (valid-no-repro) `ResourceHubClient` audit scope chip — empty `controlId` in URL — **cheap-disproof 2026-10-25 seed hunt:** `resolvedAuditLineage` null when resolved control id length is 0.
+
+- [ ] (candidate) `ResourceHubClient` configuration properties table — duplicate property keys in captured JSON — locus: `Object.entries` row keys; input: later key wins in object but only one row renders.
+- [ ] (candidate) `ResourceHubClient` terraform tab — `terraformGenerationMethod` whitespace-only vs null — locus: generation method disclosure; input: misleading empty method label.
+- [ ] (candidate) `ResourceHubClient` findings stream pagination caption — `hasMore` with zero `items.length` — locus: `formatResourceHubFindingStreamCaption`; input: misleading “more” link on empty stream.
+- [ ] (candidate) `ResourceHubClient` diagram correspondence — `explainText` whitespace-only — locus: correspondence body copy; input: blank explanation paragraph.
+- [ ] (candidate) `ResourceHubClient` remediation instances — `status` whitespace-only — locus: `StatusTag` label; input: empty status chip.
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **aliases:** resource hub; infrastructure resource detail
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 47
+- **bugs-found:** 27
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-25
+- **last-bug:** 2026-10-25 — whitespace-only terraform address displayed as mapping
+- **related-pd-tb:** none
+- **code-changed-since:** yes
+
 2026-10-25 seed hunt (seed→hit): promoted duplicate React keys on evidence pointers and drift change rows — colliding `${kind}-${relativePath}` or `changeId` keys dropped duplicate captured pointer or drift property rows; include row index in keys and drift action test ids; regressions `renders evidence pointers that share kind and relative path` and `renders drift rows that share changeId but differ in property`; cheap-disproof closed post-create `loadHub` failure surfacing (`loadHub` catches and sets load error without throwing), stale finding messages when finding leaves stream (ordinary `loadHub` clears map), and empty-string `correspondenceId` (null-guard section only; empty id remains data-quality); scoped ResourceHubClient vitest 64/64. Private beta: resource hub overview and drift tabs list every captured evidence pointer and drift property row even when capture metadata repeats ids or paths.
 
 - [x] (proven) `ResourceHubClient` evidence pointers table — duplicate `kind` and `relativePath` — **hit 2026-10-25 seed hunt:** key includes row index; regression dual-pointer fixture.
