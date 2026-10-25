@@ -6868,6 +6868,20 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-25 seed hunt (seed→hit): proved `ComparisonReplayService` and `ComparisonReplayManifestHashGuard` dispatched replay, drift analysis, sealed-manifest verification, batch pin/inventory checks, and replay cost scoring using raw `record.ComparisonType` while repository reads and audit persist paths already trimmed the column, so legacy rows or test doubles with padded type tokens failed artifact replay with "not supported", skipped verify/regenerate manifest-hash guards, and mis-scored replay cost; centralize trim via `ComparisonTypeNormalizer.NormalizeForLookup` at replay boundaries; regressions `ReplayAsync_end_to_end_artifact_succeeds_when_comparison_type_has_surrounding_whitespace` and `ReplayAsync_export_diff_artifact_succeeds_when_comparison_type_has_surrounding_whitespace`; cheap-disproof closed repository read trim (defense in depth), audit replay payload branch (hunt 189), `ApiPaging.TryParseUtcTicksIdCursor` (comparison search normalizes inbound cursor id), batch zip manifest echo (cosmetic), and Armenian homoglyphs (deferred); seeded five follow-on rows; scoped application-analysis + replay filter 348/348. Private beta: comparison artifact replay, drift analysis, and verify/regenerate manifest checks work when stored comparison type values still include surrounding whitespace.
+
+- [ ] (candidate) `ComparisonRecordRepository.GetByRunIdAsync` — SQL list-by-run dashed stored — locus: UNIQUEIDENTIFIER column; input: already matches N/D lookup via guid param.
+- [ ] (candidate) `ComparisonRecordRepositoryCore.SerializeTagsForUpdate` — JSON tag order — locus: cosmetic; input: defer.
+- [ ] (candidate) `ComparisonRecordSearchPredicateBuilder` — notes column search — locus: no notes filter today; input: defer.
+- [ ] (candidate) `ApiPaging.TryParseUtcTicksIdCursor` — cursor id segment without trim — locus: HTTP cursor parse; input: padded id after ticks delimiter (alerts inbox and other API surfaces).
+- [ ] (candidate) `ComparisonBatchReplayZipSupport` — manifest failure entries echo pre-trim batch tokens — locus: zip manifest; input: cosmetic id echo only.
+
+- [x] (proven) `ComparisonReplayService` / `ComparisonReplayManifestHashGuard` — padded comparison type on replay dispatch and guards — **hit 2026-10-25 seed hunt:** `ComparisonTypeNormalizer`; regressions above.
+- [x] (valid-no-repro) `ComparisonRecordPersistNormalizer` — read trim on type — **cheap-disproof 2026-10-25 seed hunt:** repository path; replay service still saw raw rows from doubles/legacy callers.
+- [x] (valid-no-repro) `ComparisonAuditService` — replay persist payload branch — **cheap-disproof 2026-10-25 seed hunt:** hunt 189; live replay API still used raw type in switch.
+- [x] (invalid) `ApiPaging.TryParseUtcTicksIdCursor` — HTTP cursor id trim — **cheap-disproof 2026-10-25 seed hunt:** comparison search normalizes at application layer.
+- [x] (invalid) `ComparisonBatchReplayZipSupport` — manifest id echo — **cheap-disproof 2026-10-25 seed hunt:** cosmetic only.
+
 2026-10-25 seed hunt (seed→hit): proved `ComparisonAuditService.NormalizeReplayPayloadJson` chose export-diff and end-to-end rehydrate branches using raw `sourceRecord.ComparisonType` while hunt 188 trimmed the persisted type column and hunt 147 rewrote payload JSON when the type matched exactly, so replay-of legacy rows with padded type tokens skipped rehydration and copied padded export anchors inside `PayloadJson`; normalize comparison type before branch checks via `NormalizeComparisonType`; regression `RecordReplayOfAsync_rewrites_export_diff_payload_when_source_comparison_type_has_padding`; cheap-disproof closed audit persist column trim (hunt 188 — output type trimmed but payload rewrite still gated on raw type), verbatim payload copy when type already canonical (hunt 147), `ApiPaging.TryParseUtcTicksIdCursor` (comparison search normalizes inbound cursor id), batch zip manifest echo (cosmetic), and Armenian homoglyphs (deferred); seeded five follow-on rows; scoped application-analysis + replay filter 346/346. Private beta: comparison replay persist rewrites stored payload JSON through export-diff and end-to-end rehydrate paths even when the source row's comparison type column still has surrounding whitespace.
 
 - [ ] (candidate) `ComparisonRecordRepository.GetByRunIdAsync` — SQL list-by-run dashed stored — locus: UNIQUEIDENTIFIER column; input: already matches N/D lookup via guid param.
@@ -8465,11 +8479,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 189
-- **bugs-found:** 195
+- **hunts:** 190
+- **bugs-found:** 196
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-25
-- **last-bug:** 2026-10-25 — replay payload normalize uses trimmed comparison type
+- **last-bug:** 2026-10-25 — replay dispatch uses trimmed comparison type
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
