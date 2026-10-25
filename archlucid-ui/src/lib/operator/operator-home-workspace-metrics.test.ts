@@ -112,6 +112,21 @@ describe("deriveOperatorHomeWorkspaceMetrics", () => {
     expect(metrics.reviewPackagesAwaitingApproval).toBe(0);
   });
 
+  it("does not keep stale positive totalCount when overview rows are archived-only", () => {
+    const items: RunSummary[] = [
+      makeRun({
+        runId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        isArchived: true,
+        hasGoldenManifest: true,
+      }),
+    ];
+
+    const metrics = deriveOperatorHomeWorkspaceMetrics(items, 12);
+
+    expect(metrics.reviewPackagesTotal).toBe(0);
+    expect(metrics.hasReviews).toBe(false);
+  });
+
   it("does not uplift stale zero totalCount using archived-only overview rows", () => {
     const items: RunSummary[] = [
       makeRun({

@@ -1,4 +1,7 @@
-import { countNonArchivedOverviewRuns } from "@/lib/operator/operator-home-review-total-resolution";
+import {
+  countNonArchivedOverviewRuns,
+  resolveOperatorHomeReviewTotalCount,
+} from "@/lib/operator/operator-home-review-total-resolution";
 import { resolveRunFindingCountDisplay } from "@/lib/operator/operator-home-run-list-insight";
 import { formatOperatorHomeApprovalCheckWarningCount } from "@/lib/operator/operator-home-approval-check-warning-copy";
 import { normalizeOperatorHomeNonNegativeCount, resolveRunHomeStatusTag } from "@/lib/operator/run-home-status";
@@ -68,8 +71,13 @@ export function deriveOperatorHomeWorkspaceMetrics(
   totalCount: number,
   awaitingApprovalCount = 0,
 ): OperatorHomeWorkspaceMetricsSnapshot {
-  const reportedTotal = Number.isFinite(totalCount) ? Math.max(0, Math.trunc(totalCount)) : 0;
-  const reviewPackagesTotal = Math.max(reportedTotal, countNonArchivedOverviewRuns(items));
+  const visibleActiveCount = countNonArchivedOverviewRuns(items);
+  const reviewPackagesTotal = resolveOperatorHomeReviewTotalCount(
+    totalCount,
+    0,
+    visibleActiveCount,
+    items.length,
+  );
 
   let reviewPackagesCommitted = 0;
   let reviewPackagesActive = 0;

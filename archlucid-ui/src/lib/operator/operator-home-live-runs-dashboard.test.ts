@@ -115,6 +115,15 @@ describe("resolveLiveRunsDashboardModel", () => {
     expect(merged.totalCount).toBe(0);
   });
 
+  it("does not fall back to the SSR total when the live snapshot is archived-only with non-finite totalCount", () => {
+    const merged = resolveLiveRunsDashboardModel(ssrModel, {
+      items: [{ ...buildRun("archived-a"), isArchived: true }],
+      totalCount: Number.NaN,
+    });
+
+    expect(merged.totalCount).toBe(0);
+  });
+
   it("does not keep stale positive totalCount when the live snapshot is archived-only", () => {
     const merged = resolveLiveRunsDashboardModel(ssrModel, {
       items: [

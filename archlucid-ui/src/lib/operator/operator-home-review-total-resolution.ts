@@ -30,12 +30,7 @@ export function resolveOperatorHomeReviewTotalCount(
     ? Math.max(0, Math.trunc(reportedTotalCount))
     : normalizedSsrTotal;
 
-  if (
-    visibleNonArchivedItemCount === 0
-    && normalizedOnPageItemCount > 0
-    && reportedTotalIsFinite
-    && reportedTotalCount > 0
-  ) {
+  if (visibleNonArchivedItemCount === 0 && normalizedOnPageItemCount > 0) {
     return 0;
   }
 

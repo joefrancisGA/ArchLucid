@@ -23,6 +23,10 @@ describe("resolveOperatorHomeReviewTotalCount", () => {
     expect(resolveOperatorHomeReviewTotalCount(10, 5, 0, 0)).toBe(10);
   });
 
+  it("does not fall back to SSR totals when only archived rows are on the page", () => {
+    expect(resolveOperatorHomeReviewTotalCount(Number.NaN, 5, 0, 2)).toBe(0);
+  });
+
   it("uplifts positive undercounts using visible active rows only", () => {
     expect(resolveOperatorHomeReviewTotalCount(1, 0, 2)).toBe(2);
   });
