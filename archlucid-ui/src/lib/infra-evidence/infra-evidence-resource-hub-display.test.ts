@@ -38,5 +38,6 @@ describe("infra-evidence-resource-hub-display", () => {
   it("formats paginated finding stream captions", () => {
     expect(formatResourceHubFindingStreamCaption(20, 40, true)).toBe("Showing 20 of 40");
     expect(formatResourceHubFindingStreamCaption(5, 5, false)).toBeNull();
+    expect(formatResourceHubFindingStreamCaption(0, 40, true)).toBeNull();
   });
 });

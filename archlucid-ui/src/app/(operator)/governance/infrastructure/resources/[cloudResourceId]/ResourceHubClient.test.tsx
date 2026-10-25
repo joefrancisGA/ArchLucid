@@ -1049,6 +1049,43 @@ describe("ResourceHubClient", () => {
     );
   });
 
+  it("does not show paginated caption on remediation tab when the instance list is empty", async () => {
+    fetchCachedInfraEvidenceResourceHub.mockImplementation(async () =>
+      buildResourceHubTestMockHub({
+        remediationInstances: {
+          items: [],
+          totalCount: 50,
+          page: 1,
+          pageSize: 25,
+          hasMore: true,
+        },
+      }),
+    );
+    searchParams = new URLSearchParams(`tab=remediation&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}`);
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    await screen.findByTestId("infra-resource-hub-remediation-empty");
+    expect(screen.queryByText("Showing 0 of 50")).not.toBeInTheDocument();
+  });
+
+  it("does not show findings stream pagination link when the stream has no rows", async () => {
+    fetchCachedInfraEvidenceResourceHub.mockImplementation(async () =>
+      buildResourceHubTestMockHub({
+        operationalSecurityFindings: {
+          ...buildResourceHubTestMockHub().operationalSecurityFindings,
+          items: [],
+          totalCount: 40,
+          hasMore: true,
+        },
+      }),
+    );
+    searchParams = new URLSearchParams(`tab=findings&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}`);
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    await screen.findByTestId("infra-resource-hub-findings-empty-OperationalSecurity");
+    expect(screen.queryByTestId("infra-resource-hub-findings-stream-more-OperationalSecurity")).not.toBeInTheDocument();
+  });
+
   it("treats whitespace-only terraform address as not stored on the terraform tab", async () => {
     fetchCachedInfraEvidenceResourceHub.mockImplementation(async () =>
       buildResourceHubTestMockHub({ terraformAddress: "   \t  " }),

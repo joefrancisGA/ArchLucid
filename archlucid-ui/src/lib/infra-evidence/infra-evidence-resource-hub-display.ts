@@ -114,7 +114,7 @@ export function formatResourceHubFindingStreamCaption(
   totalCount: number,
   hasMore: boolean,
 ): string | null {
-  if (!hasMore || totalCount <= visibleCount) {
+  if (!hasMore || visibleCount <= 0 || totalCount <= visibleCount) {
     return null;
   }
 
