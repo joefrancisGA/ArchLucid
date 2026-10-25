@@ -77,6 +77,22 @@ describe("resolveOperatorBillingCurrentPlan", () => {
     expect(view.hasPaidPlan).toBe(false);
   });
 
+  it("omits non-finite ai budget remaining percent from the plan view", () => {
+    const view = resolveOperatorBillingCurrentPlan({
+      isDemoMode: false,
+      isFrictionlessTrial: false,
+      trialStatus: "None",
+      trialDaysRemaining: null,
+      workspaceLabel: "Acme",
+      aiBudgetRemainingPercent: Number.NaN,
+      isTrialUsage: false,
+      commercialTier: "Team",
+    });
+
+    expect(view.planKind).toBe("paid-plan");
+    expect(view.aiBudgetRemainingPercent).toBeNull();
+  });
+
   it("returns paid plan when usage reports a commercial tier off trial", () => {
     const view = resolveOperatorBillingCurrentPlan({
       isDemoMode: false,
