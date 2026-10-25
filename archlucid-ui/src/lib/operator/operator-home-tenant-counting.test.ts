@@ -15,6 +15,30 @@ describe("deriveOperatorHomeTenantCountingSnapshot", () => {
     expect(snapshot.metrics.hasReviews).toBe(true);
   });
 
+  it("uplifts review totals from visible tenant rows when runsDashboardTotalCount is omitted (TB-1039)", () => {
+    const items: RunSummary[] = [
+      {
+        runId: "demo-seed",
+        projectId: "default",
+        demoSeededOverviewInject: true,
+        hasGoldenManifest: true,
+      },
+      {
+        runId: "tenant-1",
+        projectId: "default",
+        hasFindingsSnapshot: true,
+      },
+    ];
+
+    const snapshot = deriveOperatorHomeTenantCountingSnapshot({
+      displayItems: items,
+      previewItems: items,
+    });
+
+    expect(snapshot.metrics.reviewPackagesTotal).toBe(1);
+    expect(snapshot.metrics.hasReviews).toBe(true);
+  });
+
   it("does not apply workspace totalCount when only demo-seeded overview rows are on the page (TB-1039)", () => {
     const items: RunSummary[] = [
       {

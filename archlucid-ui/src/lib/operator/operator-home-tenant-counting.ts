@@ -6,11 +6,23 @@ import {
   deriveHomePreviewTabCounts,
   filterTenantOverviewRuns,
 } from "@/lib/operator/operator-home-recent-reviews-outcome";
+import { resolveOperatorHomeRunsPanelReportedTotalCount } from "@/lib/operator/operator-home-live-runs-dashboard";
 import {
   deriveOperatorHomeWorkspaceMetricsFromOverviewRuns,
   type OperatorHomeWorkspaceMetricsSnapshot,
 } from "@/lib/operator/operator-home-workspace-metrics";
 import type { RunSummary } from "@/types/authority";
+
+function resolveTenantCountingRunsDashboardTotal(
+  displayItems: readonly RunSummary[],
+  runsDashboardTotalCount?: number,
+): number | undefined {
+  if (runsDashboardTotalCount === undefined) {
+    return undefined;
+  }
+
+  return resolveOperatorHomeRunsPanelReportedTotalCount(displayItems, runsDashboardTotalCount);
+}
 
 export type HomePreviewTabCounts = RunsDashboardTabCounts & {
   readonly recentVisibleCount: number;
@@ -41,7 +53,7 @@ export function deriveOperatorHomeTenantCountingSnapshot(
   const awaitingApprovalCount = normalizeOperatorHomeNonNegativeCount(input.awaitingApprovalCount);
   const metrics = deriveOperatorHomeWorkspaceMetricsFromOverviewRuns(
     input.displayItems,
-    input.runsDashboardTotalCount,
+    resolveTenantCountingRunsDashboardTotal(input.displayItems, input.runsDashboardTotalCount),
     awaitingApprovalCount,
   );
   const previewTabCounts = deriveHomePreviewTabCounts({
