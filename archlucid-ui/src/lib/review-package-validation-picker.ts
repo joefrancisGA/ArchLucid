@@ -162,7 +162,7 @@ function normalizeResolvedOwnerLabel(
   const formatted = formatActionActorName(currentUserLabel);
 
   if (formatted === ACTION_ACTOR_UNAVAILABLE) {
-    return ownerLabel;
+    return "Owner was not stored.";
   }
 
   return formatted;

@@ -6,6 +6,7 @@ import {
   countFindingsAwaitingAction,
   countFindingsBySeverity,
   countOpenFindings,
+  deriveHighestUnresolvedSeverityLabel,
 } from "./finding-metrics";
 
 function sampleFinding(
@@ -66,12 +67,20 @@ describe("finding-metrics", () => {
     expect(awaitingActionCount).toBe(0);
   });
 
+  it("reports Info as the highest label when severity 0 is the top open finding", () => {
+    expect(
+      deriveHighestUnresolvedSeverityLabel([
+        sampleFinding({ findingId: "f-info", severityValue: 0 }),
+      ]),
+    ).toBe("Info");
+  });
+
   it("does not include findings with missing severity in numeric severity counts", () => {
     expect(
       countFindingsBySeverity([
         sampleFinding({ findingId: "f-unknown", severityValue: null }),
         sampleFinding({ findingId: "f-low", severityValue: 0 }),
       ]),
-    ).toEqual({ critical: 0, high: 0, medium: 0, low: 1 });
+    ).toEqual({ critical: 0, high: 0, medium: 0, low: 0, info: 1 });
   });
 });

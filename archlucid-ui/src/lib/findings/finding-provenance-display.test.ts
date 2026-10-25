@@ -6,6 +6,7 @@ import {
   formatFindingProvenanceAggregateLine,
   mapFindingTrustLabelToProvenance,
   normalizeFindingTrustLabelName,
+  resolveFindingProvenance,
   type FindingTrustLabelName,
   FINDING_PROVENANCE_ORIGIN_EXPLANATIONS,
 } from "@/lib/findings/finding-provenance-display";
@@ -107,6 +108,7 @@ describe("aggregateFindingProvenance", () => {
       aiGenerated: 3,
       aiEvidenceBacked: 2,
       simulated: 0,
+      trustLabelNotStored: 0,
     });
     expect(formatFindingProvenanceAggregateLine(counts)).toBe(
       "5 findings — 2 from deterministic rules, 3 AI-generated (2 evidence-backed)",
@@ -130,9 +132,27 @@ describe("aggregateFindingProvenance", () => {
       aiGenerated: 0,
       aiEvidenceBacked: 0,
       simulated: 0,
+      trustLabelNotStored: 0,
     });
     expect(formatFindingProvenanceAggregateLine(counts)).toBe(
       "2 findings — 1 from deterministic rule, 1 deterministic fallback",
     );
+  });
+
+  it("does not count missing trust labels as AI-generated", () => {
+    const counts = aggregateFindingProvenance([{ evidenceRefCount: 0 }, { trustLabel: "RealModel" }]);
+
+    expect(counts.trustLabelNotStored).toBe(1);
+    expect(counts.aiGenerated).toBe(1);
+    expect(formatFindingProvenanceAggregateLine(counts)).toContain("trust label was not stored");
+  });
+});
+
+describe("resolveFindingProvenance", () => {
+  it("uses grounding omission copy when the trust label is missing", () => {
+    expect(resolveFindingProvenance({})).toEqual({
+      origin: "Trust label was not stored",
+      grounding: "Grounding was not stored.",
+    });
   });
 });

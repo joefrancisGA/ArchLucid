@@ -145,12 +145,12 @@ export function deriveRecommendedWorkspaceActions(input: {
   if (unassignedHigh > 0) {
     actions.push({
       id: "assign-owners",
-      title: `Assign owners to ${unassignedHigh} high finding${unassignedHigh === 1 ? "" : "s"}`,
+      title: "Open findings",
       reason: "Remediation owners are not set for important findings.",
       relatedFindingCount: unassignedHigh,
       ownerOrRole: "Remediation lead",
       href: buildReviewDetailTabHref(input.runId, "findings"),
-      actionLabel: "Assign owners",
+      actionLabel: "Open findings",
     });
   }
 
@@ -208,7 +208,7 @@ export function deriveRecommendedWorkspaceActions(input: {
       relatedFindingCount: null,
       ownerOrRole: "Approval lead",
       href: `/governance/approval-queue?runId=${encodeURIComponent(input.runId)}`,
-      actionLabel: "Record decision",
+      actionLabel: "Open approval queue",
     });
   }
 
@@ -218,7 +218,8 @@ export function deriveRecommendedWorkspaceActions(input: {
     actions.push({
       id: "finalize-review",
       title: "Finalize review",
-      reason: "Analysis is complete — finalize to create the shareable review.",
+      reason:
+        "The run has finished. Read the diagram and findings, ask one question, then finalize the shareable review.",
       relatedFindingCount: null,
       ownerOrRole: "Review owner",
       href: buildReviewDetailTabHref(input.runId, "review-package"),

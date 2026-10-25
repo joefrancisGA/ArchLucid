@@ -32,6 +32,17 @@ describe("home-attention-dedup (TB-2369)", () => {
     expect(runIds).toEqual(["run-1", "run-2"]);
   });
 
+  it("filters home attention preview when excluded run ids have surrounding whitespace", () => {
+    const runs = [
+      { runId: "run-1", projectId: "default" },
+      { runId: "run-2", projectId: "default" },
+    ] as RunSummary[];
+
+    const filtered = filterRunsForHomeAttentionPreview(runs, [" run-1 "]);
+
+    expect(filtered.map((run) => run.runId)).toEqual(["run-2"]);
+  });
+
   it("filters home attention preview runs already on unfinished-work rail", () => {
     const runs = [
       { runId: "run-1", projectId: "default" },

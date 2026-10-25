@@ -130,7 +130,7 @@ describe("WizardStepPreset", () => {
     expect(notice.textContent?.toLowerCase()).not.toContain("azure");
   });
 
-  it("Start from scratch resets to buildDefaultWizardValues system name", () => {
+  it("Start from scratch resets to empty buildDefaultWizardValues system name", () => {
     render(
       <WizardFormTestHarness
         values={{
@@ -146,6 +146,6 @@ describe("WizardStepPreset", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "Start from scratch" }));
 
-    expect(screen.getByTestId("probe-system")).toHaveTextContent("TargetSystem");
+    expect(screen.getByTestId("probe-system")).toHaveTextContent("");
   });
 });

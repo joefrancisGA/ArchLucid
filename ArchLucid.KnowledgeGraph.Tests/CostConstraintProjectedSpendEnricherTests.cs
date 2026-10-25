@@ -1,5 +1,6 @@
 using System.Globalization;
 
+using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Persistence.Graph;
 using ArchLucid.KnowledgeGraph;
 using ArchLucid.KnowledgeGraph.Materialization;
@@ -46,6 +47,44 @@ public sealed class CostConstraintProjectedSpendEnricherTests
     }
 
     [Fact]
+    public async Task EnrichFromTopologyAsync_matches_vm_projection_when_runtime_platform_property_has_surrounding_whitespace()
+    {
+        List<GraphNode> paddedNodes = BuildTopologyAndBudgetNodesForExplicitPlatform($"  {nameof(RuntimePlatform.Vm)}  ");
+        List<GraphNode> baselineNodes = BuildTopologyAndBudgetNodesForExplicitPlatform(nameof(RuntimePlatform.Vm));
+
+        await CostConstraintProjectedSpendEnricher.EnrichFromTopologyAsync(paddedNodes, CancellationToken.None);
+        await CostConstraintProjectedSpendEnricher.EnrichFromTopologyAsync(baselineNodes, CancellationToken.None);
+
+        decimal paddedSpend = decimal.Parse(
+            paddedNodes[1].Properties["projectedMonthlySpendUsd"],
+            CultureInfo.InvariantCulture);
+        decimal baselineSpend = decimal.Parse(
+            baselineNodes[1].Properties["projectedMonthlySpendUsd"],
+            CultureInfo.InvariantCulture);
+
+        paddedSpend.Should().Be(baselineSpend);
+    }
+
+    [Fact]
+    public async Task EnrichFromTopologyAsync_matches_compute_projection_when_topology_category_has_surrounding_whitespace()
+    {
+        List<GraphNode> paddedNodes = BuildTopologyAndBudgetNodesForCategory($"  {GraphTopologyCategories.Compute}  ");
+        List<GraphNode> baselineNodes = BuildTopologyAndBudgetNodesForCategory(GraphTopologyCategories.Compute);
+
+        await CostConstraintProjectedSpendEnricher.EnrichFromTopologyAsync(paddedNodes, CancellationToken.None);
+        await CostConstraintProjectedSpendEnricher.EnrichFromTopologyAsync(baselineNodes, CancellationToken.None);
+
+        decimal paddedSpend = decimal.Parse(
+            paddedNodes[1].Properties["projectedMonthlySpendUsd"],
+            CultureInfo.InvariantCulture);
+        decimal baselineSpend = decimal.Parse(
+            baselineNodes[1].Properties["projectedMonthlySpendUsd"],
+            CultureInfo.InvariantCulture);
+
+        paddedSpend.Should().Be(baselineSpend);
+    }
+
+    [Fact]
     public async Task EnrichFromTopologyAsync_scales_topology_projection_when_instance_count_uses_pascal_case_keys()
     {
         List<GraphNode> scaledNodes = BuildTopologyAndBudgetNodes("InstanceCount", "5");
@@ -78,6 +117,53 @@ public sealed class CostConstraintProjectedSpendEnricherTests
                 {
                     [instanceCountKey] = instanceCountValue,
                 },
+            },
+            new GraphNode
+            {
+                NodeId = "cost-1",
+                NodeType = GraphNodeTypes.CostConstraint,
+                Label = "Budget",
+                Properties = new Dictionary<string, string>(),
+            },
+        ];
+    }
+
+    private static List<GraphNode> BuildTopologyAndBudgetNodesForExplicitPlatform(string runtimePlatform)
+    {
+        return
+        [
+            new GraphNode
+            {
+                NodeId = "top-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "api",
+                Category = "custom",
+                Properties = new Dictionary<string, string>
+                {
+                    ["runtimePlatform"] = runtimePlatform,
+                },
+            },
+            new GraphNode
+            {
+                NodeId = "cost-1",
+                NodeType = GraphNodeTypes.CostConstraint,
+                Label = "Budget",
+                Properties = new Dictionary<string, string>(),
+            },
+        ];
+    }
+
+    private static List<GraphNode> BuildTopologyAndBudgetNodesForCategory(string category)
+    {
+        return
+        [
+            new GraphNode
+            {
+                NodeId = "top-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "api",
+                Category = category,
+                Properties = new Dictionary<string, string>(),
             },
             new GraphNode
             {

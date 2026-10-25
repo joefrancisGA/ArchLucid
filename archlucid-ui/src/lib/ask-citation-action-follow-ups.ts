@@ -17,7 +17,7 @@ export type AskCitationActionKind = "finding" | "evidence" | "disposition";
 export type AskCitationActionFollowUp = {
   readonly kind: AskCitationActionKind;
   readonly label: string;
-  readonly href: string;
+  readonly href: string | null;
   /** Stable id used for dedupe and test keys. */
   readonly citationId: string;
 };
@@ -138,7 +138,12 @@ function pushChip(
   chips: AskCitationActionFollowUp[],
   chip: AskCitationActionFollowUp,
 ): void {
-  if (chips.some((existing) => existing.href === chip.href && existing.kind === chip.kind)) {
+  if (
+    chips.some(
+      (existing) =>
+        existing.href === chip.href && existing.kind === chip.kind && existing.label === chip.label,
+    )
+  ) {
     return;
   }
 
@@ -174,8 +179,8 @@ export function buildAskCitationActionFollowUps(
     });
     pushChip(chips, {
       kind: "evidence",
-      label: "Open evidence",
-      href: getFindingEvidenceTraceHref(runId, findingId),
+      label: evidenceArtifacts ? "Open evidence" : "Evidence link was not stored.",
+      href: evidenceArtifacts ? getFindingEvidenceTraceHref(runId, findingId) : null,
       citationId: findingId,
     });
     pushChip(chips, {
@@ -190,8 +195,8 @@ export function buildAskCitationActionFollowUps(
     for (const decisionId of decisionIds) {
       pushChip(chips, {
         kind: "disposition",
-        label: `Open ${ARCHITECTURE_DECISION_LABEL.toLowerCase()} register`,
-        href: GOVERNANCE_DECISION_REGISTER_PATH,
+        label: "Decision link was not stored.",
+        href: null,
         citationId: decisionId,
       });
     }

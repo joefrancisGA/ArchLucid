@@ -10,6 +10,7 @@ export type AskCitationActionFollowUpsProps = {
   readonly chips: readonly AskCitationActionFollowUp[];
   /** When true and chips are empty, show an honest empty note instead of hiding the region. */
   readonly showHonestEmpty?: boolean;
+  readonly reviewId?: string;
 };
 
 /**
@@ -23,6 +24,8 @@ export function AskCitationActionFollowUps(props: AskCitationActionFollowUpsProp
       return null;
     }
 
+    const emptyNote = "No linked finding, evidence, or decision to open from this answer.";
+
     return (
       <div
         className="mt-3"
@@ -30,9 +33,7 @@ export function AskCitationActionFollowUps(props: AskCitationActionFollowUpsProp
         role="region"
         aria-label="Cited finding follow-ups"
       >
-        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-          No linked finding, evidence, or decision to open from this answer.
-        </p>
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{emptyNote}</p>
       </div>
     );
   }
@@ -48,19 +49,32 @@ export function AskCitationActionFollowUps(props: AskCitationActionFollowUpsProp
         Open cited evidence
       </p>
       <div className="flex flex-wrap gap-2">
-        {chips.map((chip) => (
-          <Link
-            key={`${chip.kind}-${chip.citationId}-${chip.href}`}
-            href={chip.href}
-            data-testid={`ask-citation-action-${chip.kind}`}
-            className={cn(
-              "inline-flex h-auto max-w-full items-center rounded-md border border-neutral-300 bg-white px-2.5 py-1.5 font-medium text-al-text-primary no-underline hover:bg-neutral-50 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800",
-              OPERATOR_TYPOGRAPHY.helper,
-            )}
-          >
-            {chip.label}
-          </Link>
-        ))}
+        {chips.map((chip) =>
+          chip.href !== null && chip.href.length > 0 ? (
+            <Link
+              key={`${chip.kind}-${chip.citationId}-${chip.href}`}
+              href={chip.href}
+              data-testid={`ask-citation-action-${chip.kind}`}
+              className={cn(
+                "inline-flex h-auto max-w-full items-center rounded-md border border-neutral-300 bg-white px-2.5 py-1.5 font-medium text-al-text-primary no-underline hover:bg-neutral-50 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800",
+                OPERATOR_TYPOGRAPHY.helper,
+              )}
+            >
+              {chip.label}
+            </Link>
+          ) : (
+            <span
+              key={`${chip.kind}-${chip.citationId}-text`}
+              data-testid={`ask-citation-action-${chip.kind}`}
+              className={cn(
+                "inline-flex h-auto max-w-full items-center rounded-md border border-neutral-300 bg-white px-2.5 py-1.5 font-medium text-al-text-secondary dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-300",
+                OPERATOR_TYPOGRAPHY.helper,
+              )}
+            >
+              {chip.label}
+            </span>
+          ),
+        )}
       </div>
     </div>
   );

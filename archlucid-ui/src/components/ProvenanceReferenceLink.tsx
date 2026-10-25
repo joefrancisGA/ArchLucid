@@ -31,7 +31,7 @@ export function ProvenanceReferenceLink(props: {
   const raw = referenceId?.trim() ?? "";
 
   if (raw.length === 0) {
-    return <>—</>;
+    return <>Reference was not stored.</>;
   }
 
   const href = provenanceReferenceHref(runId, raw, nodes);
