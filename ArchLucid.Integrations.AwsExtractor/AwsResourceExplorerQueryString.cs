@@ -6,6 +6,8 @@ internal static class AwsResourceExplorerQueryString
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(regionSystemName);
 
+        regionSystemName = regionSystemName.Trim();
+
         if (regionSystemName.StartsWith("us-isob-", StringComparison.OrdinalIgnoreCase))
             return "arn:aws-iso-b:*";
 

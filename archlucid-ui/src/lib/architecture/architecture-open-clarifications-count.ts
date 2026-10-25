@@ -13,6 +13,18 @@ export function countOpenClarifications(
   return clarificationGapCount + openQuestionEntityCount;
 }
 
+export const OPEN_QUESTION_COUNT_NOT_STORED_LABEL = "Open question count was not stored." as const;
+
+export function isOpenQuestionsSectionMissing(
+  sourceText: string,
+  userAssertions: ArchitectureCreationUserAssertions | null,
+): boolean {
+  const parseResult = parseArchitectureGeneratedContent(sourceText, userAssertions);
+  const openQuestions = parseResult.sections.find((section) => section.key === "open-questions");
+
+  return openQuestions === undefined || openQuestions.entities === undefined || openQuestions.entities === null;
+}
+
 export function countOpenQuestionEntities(
   sourceText: string,
   userAssertions: ArchitectureCreationUserAssertions | null,

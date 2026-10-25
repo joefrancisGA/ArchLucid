@@ -15,12 +15,12 @@ public static class ProvenanceGraphViewMapper
                 .Select(n => new GraphNodeVm
                 {
                     Id = n.Id.ToString("D"),
-                    Label = n.Name,
+                    Label = string.IsNullOrWhiteSpace(n.Name) ? n.Name ?? string.Empty : n.Name.Trim(),
                     Type = n.Type.ToString(),
-                    AgentExecutionTraceId = n.AgentExecutionTraceId,
-                    Metadata = n.Metadata is { Count: > 0 } metadata
-                        ? new Dictionary<string, string>(metadata)
-                        : null
+                    AgentExecutionTraceId = string.IsNullOrWhiteSpace(n.AgentExecutionTraceId)
+                        ? n.AgentExecutionTraceId
+                        : n.AgentExecutionTraceId.Trim(),
+                    Metadata = CopyViewMetadata(n.Metadata)
                 })
                 .ToList(),
             Edges = edges
@@ -30,5 +30,22 @@ public static class ProvenanceGraphViewMapper
                 })
                 .ToList()
         };
+    }
+
+    private static Dictionary<string, string>? CopyViewMetadata(Dictionary<string, string>? metadata)
+    {
+        if (metadata is not { Count: > 0 })
+            return null;
+
+        Dictionary<string, string> copy = new(metadata.Comparer);
+
+        foreach (KeyValuePair<string, string> entry in metadata)
+        {
+            copy[entry.Key] = string.IsNullOrWhiteSpace(entry.Value)
+                ? entry.Value
+                : entry.Value.Trim();
+        }
+
+        return copy;
     }
 }

@@ -17,7 +17,7 @@ import Link from "next/link";
 
 export type RunDetailInsightDensityMeasurementDenominatorStripProps = {
   readonly enginesSucceeded?: number | null;
-  readonly actorNodeCount?: number;
+  readonly actorNodeCount?: number | null;
   readonly analysisStagesComplete?: boolean;
   readonly judgeSkippedByCap?: number | null;
   readonly judgeConfiguredCap?: number | null;

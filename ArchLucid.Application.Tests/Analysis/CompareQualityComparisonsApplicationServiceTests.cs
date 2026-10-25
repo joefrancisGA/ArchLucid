@@ -58,6 +58,210 @@ public sealed class CompareQualityComparisonsApplicationServiceTests
     }
 
     [Fact]
+    public async Task CompareQuality_TryListByExportRecordIdAsync_lists_records_when_query_uses_padded_export_record_id()
+    {
+        const string exportRecordId = "export-anchor-id";
+        const string runId = "dddddddddddddddddddddddddddddddd";
+
+        InMemoryComparisonRecordRepository comparisonRecords = new();
+        await comparisonRecords.CreateAsync(
+            new ComparisonRecord
+            {
+                ComparisonRecordId = "cmp-by-export",
+                ComparisonType = ComparisonTypes.ExportRecordDiff,
+                LeftExportRecordId = exportRecordId,
+                RightExportRecordId = "other-export",
+                CreatedUtc = DateTime.UtcNow,
+            },
+            CancellationToken.None);
+
+        Mock<IRunExportRecordRepository> exportRecords = new();
+        exportRecords
+            .Setup(r => r.GetByIdAsync(exportRecordId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunExportRecord { ExportRecordId = exportRecordId, RunId = runId });
+        exportRecords
+            .Setup(r => r.GetByIdAsync(It.Is<string>(id => id != exportRecordId), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((RunExportRecord?)null);
+
+        Mock<IRunDetailQueryService> runDetail = new();
+        runDetail
+            .Setup(s => s.GetRunDetailAsync(runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchitectureRunDetail { Run = new() { RunId = runId } });
+
+        ComparisonsApplicationService sut = new(
+            runDetail.Object,
+            exportRecords.Object,
+            comparisonRecords,
+            new Mock<IComparisonReplayService>().Object,
+            new Mock<ICompareRunsApplicationFacade>().Object,
+            new Mock<IComparisonReplayCostEstimator>().Object,
+            new Mock<IDriftReportFormatter>().Object,
+            new DriftReportDocxExport());
+
+        IReadOnlyList<ComparisonRecord>? records =
+            await sut.TryListByExportRecordIdAsync($"  {exportRecordId}  ", CancellationToken.None);
+
+        records.Should().NotBeNull();
+        records!.Should().ContainSingle(r => r.ComparisonRecordId == "cmp-by-export");
+        exportRecords.Verify(r => r.GetByIdAsync(exportRecordId, It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task CompareQuality_SearchAsync_finds_records_when_left_export_filter_is_padded_and_stored_anchor_has_padding()
+    {
+        const string exportRecordId = "search-left-export";
+
+        InMemoryComparisonRecordRepository comparisonRecords = new();
+        await comparisonRecords.CreateAsync(
+            new ComparisonRecord
+            {
+                ComparisonRecordId = "cmp-search-export",
+                ComparisonType = ComparisonTypes.ExportRecordDiff,
+                LeftExportRecordId = $"  {exportRecordId}  ",
+                RightExportRecordId = "other-export",
+                CreatedUtc = DateTime.UtcNow,
+            },
+            CancellationToken.None);
+
+        ComparisonsApplicationService sut = new(
+            new Mock<IRunDetailQueryService>().Object,
+            new Mock<IRunExportRecordRepository>().Object,
+            comparisonRecords,
+            new Mock<IComparisonReplayService>().Object,
+            new Mock<ICompareRunsApplicationFacade>().Object,
+            new Mock<IComparisonReplayCostEstimator>().Object,
+            new Mock<IDriftReportFormatter>().Object,
+            new DriftReportDocxExport());
+
+        ComparisonHistorySearchResult result = await sut.SearchAsync(
+            new ComparisonHistorySearchCriteria { LeftExportRecordId = $"  {exportRecordId}  ", Limit = 10 },
+            CancellationToken.None);
+
+        result.Records.Should().ContainSingle(r => r.ComparisonRecordId == "cmp-search-export");
+    }
+
+    [Fact]
+    public async Task CompareQuality_SearchAsync_passes_trimmed_export_record_filters_to_repository()
+    {
+        const string exportRecordId = "trim-search-export";
+
+        Mock<IComparisonRecordRepository> comparisonRecords = new();
+        comparisonRecords
+            .Setup(r => r.SearchAsync(
+                null,
+                null,
+                null,
+                null,
+                null,
+                exportRecordId,
+                null,
+                null,
+                It.IsAny<IReadOnlyList<string>>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                0,
+                10,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        ComparisonsApplicationService sut = new(
+            new Mock<IRunDetailQueryService>().Object,
+            new Mock<IRunExportRecordRepository>().Object,
+            comparisonRecords.Object,
+            new Mock<IComparisonReplayService>().Object,
+            new Mock<ICompareRunsApplicationFacade>().Object,
+            new Mock<IComparisonReplayCostEstimator>().Object,
+            new Mock<IDriftReportFormatter>().Object,
+            new DriftReportDocxExport());
+
+        await sut.SearchAsync(
+            new ComparisonHistorySearchCriteria { LeftExportRecordId = $"  {exportRecordId}  ", Limit = 10 },
+            CancellationToken.None);
+
+        comparisonRecords.Verify(
+            r => r.SearchAsync(
+                null,
+                null,
+                null,
+                null,
+                null,
+                exportRecordId,
+                null,
+                null,
+                It.IsAny<IReadOnlyList<string>>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                0,
+                10,
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task CompareQuality_SearchAsync_passes_trimmed_right_export_record_filters_to_repository_cursor_path()
+    {
+        const string exportRecordId = "trim-right-export";
+
+        Mock<IComparisonRecordRepository> comparisonRecords = new();
+        comparisonRecords
+            .Setup(r => r.SearchByCursorAsync(
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                exportRecordId,
+                null,
+                It.IsAny<IReadOnlyList<string>>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                null,
+                null,
+                10,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        ComparisonsApplicationService sut = new(
+            new Mock<IRunDetailQueryService>().Object,
+            new Mock<IRunExportRecordRepository>().Object,
+            comparisonRecords.Object,
+            new Mock<IComparisonReplayService>().Object,
+            new Mock<ICompareRunsApplicationFacade>().Object,
+            new Mock<IComparisonReplayCostEstimator>().Object,
+            new Mock<IDriftReportFormatter>().Object,
+            new DriftReportDocxExport());
+
+        await sut.SearchAsync(
+            new ComparisonHistorySearchCriteria
+            {
+                RightExportRecordId = $"  {exportRecordId}  ",
+                UseCursorPaging = true,
+                Limit = 10,
+            },
+            CancellationToken.None);
+
+        comparisonRecords.Verify(
+            r => r.SearchByCursorAsync(
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                exportRecordId,
+                null,
+                It.IsAny<IReadOnlyList<string>>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                null,
+                null,
+                10,
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
     public async Task CompareQuality_SearchAsync_finds_records_when_left_run_filter_uses_dashed_guid_and_persisted_left_uses_n_format()
     {
         Guid leftKey = Guid.Parse("44444444-4444-4444-4444-444444444444");

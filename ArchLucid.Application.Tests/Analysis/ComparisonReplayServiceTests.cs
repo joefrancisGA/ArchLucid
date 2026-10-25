@@ -475,6 +475,45 @@ public sealed class ComparisonReplayServiceTests
     }
 
     [Fact]
+    public async Task ReplayAsync_export_diff_regenerate_trims_padded_export_record_ids_before_lookup()
+    {
+        ExportRecordDiffResult diff = SampleExportDiff();
+        ComparisonRecord record = ExportDiffRecord("diff-padded", diff);
+        record.LeftExportRecordId = $"  {diff.LeftExportRecordId}  ";
+        record.RightExportRecordId = $"  {diff.RightExportRecordId}  ";
+        RunExportRecord left = new() { ExportRecordId = diff.LeftExportRecordId, RunId = diff.LeftRunId };
+        RunExportRecord right = new() { ExportRecordId = diff.RightExportRecordId, RunId = diff.RightRunId };
+        Mock<IComparisonRecordRepository> repo = SetupRepo(record);
+        Mock<IRunExportRecordRepository> exports = new();
+        exports.Setup(r => r.GetByIdAsync(diff.LeftExportRecordId, It.IsAny<CancellationToken>())).ReturnsAsync(left);
+        exports.Setup(r => r.GetByIdAsync(diff.RightExportRecordId, It.IsAny<CancellationToken>())).ReturnsAsync(right);
+        exports.Setup(r => r.GetByIdAsync(It.Is<string>(id => id != diff.LeftExportRecordId && id != diff.RightExportRecordId), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((RunExportRecord?)null);
+        Mock<IExportRecordDiffService> diffService = new();
+        diffService.Setup(s => s.CompareAsync(left, right, It.IsAny<CancellationToken>())).ReturnsAsync(diff);
+        Mock<IExportRecordDiffSummaryFormatter> formatter = new();
+        formatter.Setup(f => f.FormatMarkdown(It.IsAny<ExportRecordDiffResult>())).Returns("# padded");
+        ManifestHashService manifestHashService = new();
+        Mock<IAuthorityQueryService> authority = new();
+        SetupSealedManifestForRuns(authority, manifestHashService, diff.LeftRunId, diff.RightRunId);
+        ComparisonReplayService sut = CreateSut(
+            comparisonRepo: repo.Object,
+            runExports: exports.Object,
+            diffService: diffService.Object,
+            diffFormatter: formatter.Object,
+            authorityQuery: authority.Object,
+            manifestHash: manifestHashService);
+
+        ReplayComparisonResult result = await sut.ReplayAsync(
+            new ReplayComparisonRequest { ComparisonRecordId = "diff-padded", ReplayMode = "regenerate" },
+            CancellationToken.None);
+
+        result.Content.Should().Be("# padded");
+        exports.Verify(r => r.GetByIdAsync(diff.LeftExportRecordId, It.IsAny<CancellationToken>()), Times.AtLeastOnce);
+        exports.Verify(r => r.GetByIdAsync(diff.RightExportRecordId, It.IsAny<CancellationToken>()), Times.AtLeastOnce);
+    }
+
+    [Fact]
     public async Task ReplayAsync_export_diff_unsupported_format_throws()
     {
         ExportRecordDiffResult diff = SampleExportDiff();

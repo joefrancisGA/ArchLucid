@@ -228,6 +228,102 @@ public sealed class EmailOtpAuthControllerVerifyTests
     }
 
     [Fact]
+    public async Task VerifyAsync_rejects_success_result_with_whitespace_only_display_email()
+    {
+        Guid challengeId = Guid.NewGuid();
+        Mock<IEmailOtpAuthService> emailOtpAuth = new();
+        emailOtpAuth
+            .Setup(service => service.VerifyCodeAsync(It.IsAny<Application.Identity.EmailOtpVerifyRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new EmailOtpVerifyResult
+                {
+                    Succeeded = true,
+                    PlatformUserId = Guid.NewGuid(),
+                    DisplayEmail = "   ",
+                    Role = "Reader",
+                    NextStep = EmailOtpAuthNextStep.Complete
+                });
+
+        Mock<ILocalTrialJwtIssuer> jwtIssuer = new();
+        EmailOtpAuthController controller = new(
+            Options.Create(new EmailOtpAuthOptions { Enabled = true }),
+            emailOtpAuth.Object,
+            jwtIssuer.Object)
+        {
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
+        };
+
+        IActionResult actionResult = await controller.VerifyAsync(
+            new ArchLucid.Api.Models.Auth.EmailOtpVerifyRequest
+            {
+                ChallengeId = challengeId,
+                Code = "123456"
+            },
+            CancellationToken.None);
+
+        actionResult.Should().BeOfType<UnauthorizedResult>();
+        jwtIssuer.Verify(
+            issuer => issuer.IssueAccessToken(
+                It.IsAny<Guid>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid?>(),
+                It.IsAny<int?>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task VerifyAsync_rejects_success_result_with_whitespace_only_role()
+    {
+        Guid challengeId = Guid.NewGuid();
+        Mock<IEmailOtpAuthService> emailOtpAuth = new();
+        emailOtpAuth
+            .Setup(service => service.VerifyCodeAsync(It.IsAny<Application.Identity.EmailOtpVerifyRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new EmailOtpVerifyResult
+                {
+                    Succeeded = true,
+                    PlatformUserId = Guid.NewGuid(),
+                    DisplayEmail = "reader@example.com",
+                    Role = "   ",
+                    NextStep = EmailOtpAuthNextStep.Complete
+                });
+
+        Mock<ILocalTrialJwtIssuer> jwtIssuer = new();
+        EmailOtpAuthController controller = new(
+            Options.Create(new EmailOtpAuthOptions { Enabled = true }),
+            emailOtpAuth.Object,
+            jwtIssuer.Object)
+        {
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
+        };
+
+        IActionResult actionResult = await controller.VerifyAsync(
+            new ArchLucid.Api.Models.Auth.EmailOtpVerifyRequest
+            {
+                ChallengeId = challengeId,
+                Code = "123456"
+            },
+            CancellationToken.None);
+
+        actionResult.Should().BeOfType<UnauthorizedResult>();
+        jwtIssuer.Verify(
+            issuer => issuer.IssueAccessToken(
+                It.IsAny<Guid>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid?>(),
+                It.IsAny<int?>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task VerifyAsync_returns_bad_request_when_challenge_id_is_empty()
     {
         Mock<IEmailOtpAuthService> emailOtpAuth = new();
