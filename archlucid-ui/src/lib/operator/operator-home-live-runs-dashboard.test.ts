@@ -115,6 +115,18 @@ describe("resolveOperatorHomeRunsPanelReportedTotalCount", () => {
     ).toBe(0);
   });
 
+  it("returns zero for archived-only pages when loadedTotalCount is non-finite", () => {
+    expect(
+      resolveOperatorHomeRunsPanelReportedTotalCount(
+        [
+          { ...buildRun("archived-a"), isArchived: true, hasGoldenManifest: true },
+          { ...buildRun("archived-b"), isArchived: true, hasGoldenManifest: true },
+        ],
+        Number.NaN,
+      ),
+    ).toBe(0);
+  });
+
   it("does not keep stale positive loaded totals when only archived tenant rows are on the page", () => {
     expect(
       resolveOperatorHomeRunsPanelReportedTotalCount(

@@ -71,6 +71,28 @@ describe("deriveOperatorHomeTenantCountingSnapshot", () => {
     );
   });
 
+  it("is idempotent when runsDashboardTotalCount is already panel-normalized on archived-only pages", () => {
+    const displayItems: RunSummary[] = [
+      {
+        runId: "archived-1",
+        projectId: "default",
+        hasGoldenManifest: true,
+        isArchived: true,
+      },
+    ];
+    const normalized = resolveOperatorHomeRunsPanelReportedTotalCount(displayItems, 12);
+
+    const snapshot = deriveOperatorHomeTenantCountingSnapshot({
+      displayItems,
+      previewItems: displayItems,
+      runsDashboardTotalCount: normalized,
+    });
+
+    expect(normalized).toBe(0);
+    expect(snapshot.metrics.reviewPackagesTotal).toBe(0);
+    expect(snapshot.metrics.hasReviews).toBe(false);
+  });
+
   it("matches panel-reported totals when runsDashboardTotalCount undercounts visible tenant rows", () => {
     const items: RunSummary[] = [
       {

@@ -190,6 +190,23 @@ describe("buildOperatorHomeRecentReviewsOutcomeParts", () => {
     });
   });
 
+  it("omits structured awaiting-approval part when suppressAwaitingApprovalCount is set", () => {
+    const metrics: OperatorHomeWorkspaceMetricsSnapshot = {
+      ...emptyMetrics,
+      reviewPackagesTotal: 2,
+      reviewPackagesCommitted: 1,
+      evidenceSources: 1,
+      hasReviews: true,
+    };
+
+    const parts = buildOperatorHomeRecentReviewsOutcomeParts(metrics, {
+      awaitingApprovalCount: 3,
+      suppressAwaitingApprovalCount: true,
+    });
+
+    expect(parts.find((part) => part.key === "awaiting-approval")).toBeUndefined();
+  });
+
   it("keeps workspace pagination total on reviews-total while preview cap stays in the recent pool", () => {
     const metrics: OperatorHomeWorkspaceMetricsSnapshot = {
       ...emptyMetrics,
