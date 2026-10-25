@@ -6868,6 +6868,34 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-25 seed hunt (seed→hit): proved hunt 276–280 normalized comparison history type/label/tag matching but export-record id filters still compared stored `LeftExportRecordId`/`RightExportRecordId` anchors with ordinal equality so uppercase filter tokens missed lowercase persisted export ids; match export record ids case-insensitively in `ComparisonExportRecordIdLookup.StoredValueMatchesLookup` and SQL `ComparisonRecordSearchPredicateBuilder`; regression `CompareQuality_SearchAsync_finds_records_when_left_export_filter_differs_only_by_casing`; cheap-disproof closed tag list dedupe casing (hunt 280), tag filter casing (hunt 279), label filter casing (hunt 278), stored comparison type casing (hunt 276), `ApiPaging.TryParseUtcTicksIdCursor` (comparison search normalizes inbound cursor id), batch zip manifest echo (cosmetic), and Armenian homoglyphs (deferred); seeded five follow-on rows; scoped application-analysis + replay filter 383/383. Private beta: comparison history export-record filters find rows when stored export anchors differ only by hex letter casing from the query.
+
+- [ ] (candidate) `ComparisonRecordRepository.GetByRunIdAsync` — SQL list-by-run dashed stored — locus: UNIQUEIDENTIFIER column; input: already matches N/D lookup via guid param.
+- [ ] (candidate) `ComparisonRecordRepositoryCore.SerializeTagsForUpdate` — JSON tag order — locus: cosmetic; input: defer.
+- [ ] (candidate) `ComparisonRecordSearchPredicateBuilder` — notes column search — locus: no notes filter today; input: defer.
+- [ ] (candidate) `ApiPaging.TryParseUtcTicksIdCursor` — cursor id segment without trim — locus: HTTP cursor parse; input: padded id after ticks delimiter (alerts inbox and other API surfaces).
+- [ ] (candidate) `ComparisonBatchReplayZipSupport` — manifest failure entries echo pre-trim batch tokens — locus: zip manifest; input: cosmetic id echo only.
+
+- [x] (proven) `ComparisonExportRecordIdLookup` / `ComparisonRecordSearchPredicateBuilder` — export id filter casing — **hit 2026-10-25 seed hunt:** case-insensitive trim match; regression above.
+- [x] (valid-no-repro) `ComparisonPersistedStringListNormalizer` — tag list dedupe casing — **cheap-disproof 2026-10-25 seed hunt:** hunt 280.
+- [x] (valid-no-repro) `ComparisonRecordRepositoryCore.FilterInMemory` — tag filter casing — **cheap-disproof 2026-10-25 seed hunt:** hunt 279.
+- [x] (invalid) `ApiPaging.TryParseUtcTicksIdCursor` — HTTP cursor id trim — **cheap-disproof 2026-10-25 seed hunt:** comparison search normalizes at application layer.
+- [x] (invalid) `ComparisonBatchReplayZipSupport` — manifest id echo — **cheap-disproof 2026-10-25 seed hunt:** cosmetic only.
+
+2026-10-25 seed hunt (seed→hit): proved hunt 279 fixed tag filter casing in history search but `ComparisonPersistedStringListNormalizer` still deduped tag lists with ordinal equality so scoped reads and label/tag updates could persist both `Release-Alpha` and `release-alpha` on the same row; dedupe tags with `OrdinalIgnoreCase` (first-seen casing wins) and run the same normalizer before `UpdateLabelAndTagsAsync` persists; regressions `CompareQuality_comparison_record_scoped_read_normalizer_dedupes_tags_that_differ_only_by_casing` and `CompareQuality_TryUpdateLabelAndTagsAsync_dedupes_tags_that_differ_only_by_casing`; cheap-disproof closed tag filter casing (hunt 279), label filter casing (hunt 278), stored comparison type casing (hunt 276), `ApiPaging.TryParseUtcTicksIdCursor` (comparison search normalizes inbound cursor id), batch zip manifest echo (cosmetic), and Armenian homoglyphs (deferred); seeded five follow-on rows; scoped application-analysis + replay filter 382/382. Private beta: comparison rows no longer accumulate duplicate tags that differ only by letter casing after updates or scoped reads.
+
+- [ ] (candidate) `ComparisonRecordRepository.GetByRunIdAsync` — SQL list-by-run dashed stored — locus: UNIQUEIDENTIFIER column; input: already matches N/D lookup via guid param.
+- [ ] (candidate) `ComparisonRecordRepositoryCore.SerializeTagsForUpdate` — JSON tag order — locus: cosmetic; input: defer.
+- [ ] (candidate) `ComparisonRecordSearchPredicateBuilder` — notes column search — locus: no notes filter today; input: defer.
+- [ ] (candidate) `ApiPaging.TryParseUtcTicksIdCursor` — cursor id segment without trim — locus: HTTP cursor parse; input: padded id after ticks delimiter (alerts inbox and other API surfaces).
+- [ ] (candidate) `ComparisonBatchReplayZipSupport` — manifest failure entries echo pre-trim batch tokens — locus: zip manifest; input: cosmetic id echo only.
+
+- [x] (proven) `ComparisonPersistedStringListNormalizer` / `TryUpdateLabelAndTagsAsync` — tag list dedupe casing — **hit 2026-10-25 seed hunt:** case-insensitive dedupe; regressions above.
+- [x] (valid-no-repro) `ComparisonRecordRepositoryCore.FilterInMemory` — tag filter casing — **cheap-disproof 2026-10-25 seed hunt:** hunt 279; tag dedupe was parallel surface.
+- [x] (valid-no-repro) `ComparisonRecordRepositoryCore.FilterInMemory` — label filter casing — **cheap-disproof 2026-10-25 seed hunt:** hunt 278.
+- [x] (invalid) `ApiPaging.TryParseUtcTicksIdCursor` — HTTP cursor id trim — **cheap-disproof 2026-10-25 seed hunt:** comparison search normalizes at application layer.
+- [x] (invalid) `ComparisonBatchReplayZipSupport` — manifest id echo — **cheap-disproof 2026-10-25 seed hunt:** cosmetic only.
+
 2026-10-25 seed hunt (seed→hit): proved hunt 278 fixed label casing in history search but `ComparisonsApplicationService.SearchAsync` tag filters still matched stored tag values with ordinal equality so operators filtering `release-alpha` missed rows tagged `Release-Alpha`; compare trimmed tags case-insensitively in `ComparisonRecordRepositoryCore.FilterInMemory` and SQL `ComparisonRecordSearchPredicateBuilder` OPENJSON predicates; regression `CompareQuality_SearchAsync_finds_records_when_tag_filter_differs_only_by_casing`; cheap-disproof closed label filter casing (hunt 278), stored comparison type casing (hunt 276), replay guard type casing (hunt 277), `ApiPaging.TryParseUtcTicksIdCursor` (comparison search normalizes inbound cursor id), batch zip manifest echo (cosmetic), and Armenian homoglyphs (deferred); seeded five follow-on rows; scoped application-analysis + replay filter 380/380. Private beta: comparison history tag search finds rows when stored tags differ only by letter casing from the filter.
 
 - [ ] (candidate) `ComparisonRecordRepository.GetByRunIdAsync` — SQL list-by-run dashed stored — locus: UNIQUEIDENTIFIER column; input: already matches N/D lookup via guid param.
