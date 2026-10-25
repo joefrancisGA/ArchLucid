@@ -530,6 +530,33 @@ public sealed class ComparisonAuditServiceTests
     }
 
     [Fact]
+    public async Task CompareQuality_RecordExportDiffAsync_nulls_whitespace_only_export_record_ids_on_persist()
+    {
+        ComparisonRecord? persisted = null;
+        Mock<IComparisonRecordRepository> repo = new();
+        repo
+            .Setup(r => r.CreateAsync(It.IsAny<ComparisonRecord>(), It.IsAny<CancellationToken>()))
+            .Callback<ComparisonRecord, CancellationToken>((record, _) => persisted = record)
+            .Returns(Task.CompletedTask);
+        ComparisonAuditService sut = new(repo.Object, Mock.Of<IAuditService>());
+        ExportRecordDiffResult diff = new()
+        {
+            LeftExportRecordId = "   ",
+            RightExportRecordId = "  right-export  ",
+            LeftRunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            RightRunId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        };
+
+        await sut.RecordExportDiffAsync(diff, "# md", CancellationToken.None);
+
+        persisted.Should().NotBeNull();
+        persisted!.LeftExportRecordId.Should().BeNull();
+        persisted.RightExportRecordId.Should().Be("right-export");
+        diff.LeftExportRecordId.Should().BeEmpty();
+        diff.RightExportRecordId.Should().Be("right-export");
+    }
+
+    [Fact]
     public async Task RecordExportDiffAsync_treats_whitespace_only_run_ids_as_null()
     {
         ComparisonRecord? persisted = null;

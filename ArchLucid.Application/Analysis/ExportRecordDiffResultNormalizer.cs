@@ -11,11 +11,8 @@ internal static class ExportRecordDiffResultNormalizer
     {
         ArgumentNullException.ThrowIfNull(diff);
 
-        if (!string.IsNullOrWhiteSpace(diff.LeftExportRecordId))
-            diff.LeftExportRecordId = RunExportRecordIdNormalizer.NormalizeRequired(diff.LeftExportRecordId);
-
-        if (!string.IsNullOrWhiteSpace(diff.RightExportRecordId))
-            diff.RightExportRecordId = RunExportRecordIdNormalizer.NormalizeRequired(diff.RightExportRecordId);
+        diff.LeftExportRecordId = NormalizeExportRecordIdAnchor(diff.LeftExportRecordId);
+        diff.RightExportRecordId = NormalizeExportRecordIdAnchor(diff.RightExportRecordId);
 
         if (!string.IsNullOrWhiteSpace(diff.LeftRunId))
             diff.LeftRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(diff.LeftRunId);
@@ -27,6 +24,14 @@ internal static class ExportRecordDiffResultNormalizer
         PersistedAnalysisExportRequestMetadata.TrimOptionalStrings(diff.RequestDiff.RightRequest);
         CanonicalizeNestedCompareRunId(diff.RequestDiff.LeftRequest);
         CanonicalizeNestedCompareRunId(diff.RequestDiff.RightRequest);
+    }
+
+    private static string NormalizeExportRecordIdAnchor(string? exportRecordId)
+    {
+        if (string.IsNullOrWhiteSpace(exportRecordId))
+            return string.Empty;
+
+        return RunExportRecordIdNormalizer.NormalizeRequired(exportRecordId);
     }
 
     private static void CanonicalizeNestedCompareRunId(PersistedAnalysisExportRequest? request)
