@@ -4938,7 +4938,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-operator-lib
 
-**Hunts:** 65 · **Bugs found:** 62 · **Consecutive dry hunts:** 0
+**Hunts:** 66 · **Bugs found:** 63 · **Consecutive dry hunts:** 0
+
+2026-10-25 seed hunt (hit): promoted unparseable-instant guard in `formatRunHomeListUpdatedLabel`; regression `returns null when the chosen timestamp is not a parseable instant`; 6 scoped `operator-home-run-list-insight` vitest passed. Private beta: Invited operators no longer see raw garbage timestamps as “updated” labels on home run rows when API run metadata carries non-ISO `lastModifiedUtc` / `createdUtc` values.
 
 2026-10-25 seed hunt (hit): promoted `normalizeStableCacheAlertsInboxSummary` on shell stable-cache read/write; regression `normalizes non-finite alerts inbox counts when reading stable cache`; 5 scoped `operator-shell-stable-cache` vitest passed. Private beta: Invited operators no longer rehydrate `NaN` alerts nav counts from a poisoned session shell stable cache when inbox summary JSON carries non-finite counts.
 
@@ -5003,6 +5005,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `formatOperatorHomeCompactMetricsLine` — raw metrics snapshot counts interpolate `NaN` into home KPI strip — **hit 2026-10-25 seed hunt:** `normalizeOperatorHomeNonNegativeCount` on active/sealed/findings; regression `normalizes non-finite workspace metric counts in the KPI strip`.
 - [x] (proven) `formatOperatorHomeRecentReviewsOutcome` / `buildOperatorHomeRecentReviewsOutcomeParts` — `visibleCount !== undefined` accepts `NaN` in showing-cap copy — **hit 2026-10-25 seed hunt:** `resolveRecentPreviewCapCounts`; regressions `normalizes non-finite recent preview cap counts in outcome copy` and `normalizes non-finite preview cap counts in structured outcome parts`.
 - [x] (proven) `formatOperatorHomeGovernanceApprovalWarningCount` — `Math.max(0, Math.trunc(count))` leaves `NaN` labels — **hit 2026-10-25 seed hunt:** `Number.isFinite` guard; regression `treats non-finite counts as zero warnings`.
+- [x] (proven) `formatRunHomeListUpdatedLabel` — unparseable `lastModifiedUtc` / `createdUtc` strings render as raw relative labels — **hit 2026-10-25 seed hunt:** `parseIsoUtcMs` fail-closed; regression `returns null when the chosen timestamp is not a parseable instant`.
 - [x] (proven) `readOperatorShellStableCache` / `hydrateOperatorShellStableCache` — session JSON alerts inbox counts bypass `mapAlertsInboxSummary` normalization — **hit 2026-10-25 seed hunt:** `normalizeStableCacheAlertsInboxSummary`; regression `normalizes non-finite alerts inbox counts when reading stable cache`.
 - [x] (proven) `readOperatorShellStableCache` — `typeof writtenAtMs === "number"` accepts `NaN`, skipping TTL eviction — **hit 2026-10-25 seed hunt:** `Number.isFinite(parsed.writtenAtMs)`; regression `discards stable cache entries with non-finite writtenAtMs`.
 - [x] (proven) `operatorHomeDataCurrencyValue` / `operatorHomeDataCurrencyStaleCue` — invalid `Date` bypasses `isRenderableRefreshedInstant` — **hit 2026-10-25 seed hunt:** fail-closed guards; regressions `treats an invalid Date like a missing refresh instead of formatting garbage` and `does not report stale data when the refresh timestamp is invalid`.
