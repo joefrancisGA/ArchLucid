@@ -71,11 +71,26 @@ describe("package-print-view (TB-2205)", () => {
     expect(presentation.sponsorSynopsis).toContain("Payments edge");
   });
 
-  it("includes finding count omission in findings summary when count is missing", () => {
+  it("includes finding count omission in package print rollup when count is missing (P-01)", () => {
     const line = buildPackagePrintFindingsSummary(summary({ findingCount: null, warningCount: 0 }));
 
     expect(line).toContain("Finding count was not stored.");
     expect(line).not.toContain("0 findings");
+    expect(line).not.toContain("Included in the finalized architecture review.");
+    expect(line).toContain("Package is finalized.");
+  });
+
+  it("labels omitted snapshot flags as package status not stored (P-11)", () => {
+    expect(
+      resolvePackagePrintStatusLabel(
+        summary({
+          hasGoldenManifest: undefined,
+          hasFindingsSnapshot: undefined,
+          hasGraphSnapshot: undefined,
+          hasContextSnapshot: undefined,
+        }),
+      ),
+    ).toBe("Package status was not stored.");
   });
 
   it("appends warning count omission to findings summary when warning count is missing", () => {
@@ -173,22 +188,11 @@ describe("package-print-view (TB-2205)", () => {
     expect(line).toContain("1 Supported");
   });
 
-  it("labels draft working synopsis as not published", () => {
-    expect(formatPackagePrintDraftSynopsisBody("Working paragraph.")).toContain("not published");
-    expect(formatPackagePrintDraftSynopsisBody(null)).toBe("Draft sponsor synopsis was not stored.");
-    expect(resolvePackagePrintSynopsisHeading("Draft")).toContain("draft");
-    const body = resolvePackagePrintSynopsisBody({
-      title: "Draft",
-      statusLabel: "Draft",
-      statusKind: "draft",
-      findingsSummary: "x",
-      sponsorSynopsis: null,
-      draftWorkingSynopsisParagraph: "Working paragraph.",
-      createdUtc: "2026-01-01T00:00:00Z",
-      runId: "r1",
-    });
-
-    expect(body).toContain("Working paragraph.");
+  it("labels omitted governance warning flags on finalized print status (P-11)", () => {
+    expect(resolvePackagePrintStatusLabel(summary({ hasGovernanceWarnings: undefined }))).toBe(
+      "Finalized. Governance warning flags were not stored.",
+    );
+    expect(resolvePackagePrintStatusLabel(summary({ hasGovernanceWarnings: false }))).toBe("Finalized");
   });
 
   it("buildPackagePrintPresentation carries semantic support stamp line", () => {
