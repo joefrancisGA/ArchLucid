@@ -24,8 +24,9 @@ export type CitationChipsProps = {
 
 function citationHref(c: CitationReference, runId: string, buyerPolishedShell: boolean): string | null {
   const trimmedRunId = runId.trim();
+  const trimmedCitationId = c.id?.trim() ?? "";
 
-  if (trimmedRunId.length === 0) {
+  if (trimmedRunId.length === 0 || trimmedCitationId.length === 0) {
     return null;
   }
 
@@ -92,6 +93,8 @@ export function CitationChips({ citations, runId }: CitationChipsProps) {
       </h4>
       <ul className="m-0 flex list-none flex-wrap gap-2 p-0">
         {citations.map((c) => {
+          const citationIdTrimmed = c.id?.trim() ?? "";
+          const citationIdMissing = citationIdTrimmed.length === 0;
           const href = citationHref(c, runId, buyerPolished);
           const kindLabel = citationKindBuyerLabel(c.kind);
           const display = formatCitationBuyerDisplay(c, buyerPolished);
@@ -116,9 +119,14 @@ export function CitationChips({ citations, runId }: CitationChipsProps) {
               ) : (
               <span
                 className={chipClassName}
-                aria-label={`${kindLabel}: ${display.headline}. Review id was not stored.`}
+                aria-label={
+                  citationIdMissing
+                    ? `${kindLabel}: ${display.headline}. Citation id was not stored on this explanation.`
+                    : `${kindLabel}: ${display.headline}. Review id was not stored.`
+                }
               >
-                <span className="text-neutral-500 dark:text-neutral-400">{kindLabel}</span> · {display.headline}
+                <span className="text-neutral-500 dark:text-neutral-400">{kindLabel}</span> ·{" "}
+                {citationIdMissing ? "Citation id was not stored on this explanation." : display.headline}
               </span>
               )}
               {buyerPolished && display.technicalId !== null ? (

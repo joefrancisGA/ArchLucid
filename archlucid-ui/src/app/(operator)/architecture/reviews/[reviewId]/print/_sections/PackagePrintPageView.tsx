@@ -172,22 +172,22 @@ export function PackagePrintPageView(props: PackagePrintPageViewProps): React.JS
         </p>
       </section>
 
-      {presentation.semanticSupportBandStampLine?.trim().length ? (
-        <section className="space-y-2" aria-labelledby="package-print-semantic-support-heading">
-          <h2
-            id="package-print-semantic-support-heading"
-            className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}
-          >
-            {PACKAGE_PRINT_SEMANTIC_SUPPORT_HEADING}
-          </h2>
-          <p
-            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
-            data-testid="package-print-semantic-support-band-line"
-          >
-            {presentation.semanticSupportBandStampLine}
-          </p>
-        </section>
-      ) : null}
+      <section className="space-y-2" aria-labelledby="package-print-semantic-support-heading">
+        <h2
+          id="package-print-semantic-support-heading"
+          className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}
+        >
+          {PACKAGE_PRINT_SEMANTIC_SUPPORT_HEADING}
+        </h2>
+        <p
+          className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+          data-testid="package-print-semantic-support-band-line"
+        >
+          {presentation.semanticSupportBandStampLine?.trim().length
+            ? presentation.semanticSupportBandStampLine
+            : "No decision-grade findings were stored for semantic support."}
+        </p>
+      </section>
 
       {showMeetingCapture ? (
         <section
