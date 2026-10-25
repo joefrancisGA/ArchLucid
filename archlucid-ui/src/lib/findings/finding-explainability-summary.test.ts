@@ -32,12 +32,12 @@ describe("finding-explainability-summary", () => {
     expect(findingTraceCompletenessPlainEnglish(NaN)).toContain("Unavailable");
   });
 
-  it("summarizes evidence ref counts deterministically", () => {
+  it("summarizes evidence ref counts without support claims (P-06)", () => {
     expect(findingEvidenceCountPlainLine(undefined)).toContain("not stored");
     expect(findingEvidenceCountPlainLine(null)).toContain("not stored");
     expect(findingEvidenceCountPlainLine([])).toContain("No structured");
-    expect(findingEvidenceCountPlainLine(["a"])).toContain("1 structured");
-    expect(findingEvidenceCountPlainLine(["a", "b"])).toContain("2 structured");
+    expect(findingEvidenceCountPlainLine(["a"])).toBe("1 evidence reference was stored.");
+    expect(findingEvidenceCountPlainLine(["a", "b"])).toBe("2 evidence references were stored.");
   });
 
   describe("stripFindingNarrativePreamble", () => {

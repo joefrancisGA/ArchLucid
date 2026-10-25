@@ -59,10 +59,10 @@ export function findingEvidenceCountPlainLine(evidenceRefs: readonly string[] | 
   }
 
   if (n === 1) {
-    return "1 structured source supports this finding.";
+    return "1 evidence reference was stored.";
   }
 
-  return `${n} structured sources support this finding.`;
+  return `${n} evidence references were stored.`;
 }
 
 /**

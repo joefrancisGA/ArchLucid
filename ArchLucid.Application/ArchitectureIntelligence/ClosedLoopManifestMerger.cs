@@ -124,7 +124,7 @@ public sealed class ClosedLoopManifestMerger : IClosedLoopManifestMerger
             {
                 RequirementName = requirementName,
                 RequirementText = recommendation.ProposedChange,
-                IsMandatory = recommendation.RequiresHumanApproval,
+                IsMandatory = recommendation.RequiresHumanApproval == true,
                 CoverageStatus = ClosedLoopCoverageStatus,
                 SupportingFindingIds = [],
             });
