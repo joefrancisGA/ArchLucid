@@ -29,6 +29,48 @@ public sealed class EndToEndReplayComparisonReportNormalizerTests
     }
 
     [Fact]
+    public void CompareQuality_EndToEndReplayComparisonReportNormalizer_backfills_nested_agent_and_export_diff_run_ids_from_report_anchors()
+    {
+        const string leftRunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+        const string rightRunId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb";
+
+        EndToEndReplayComparisonReport report = new()
+        {
+            LeftRunId = leftRunId,
+            RightRunId = rightRunId,
+            AgentResultDiff = new AgentResultDiffResult
+            {
+                LeftRunId = "   ",
+                RightRunId = "\t",
+                AgentDeltas =
+                [
+                    new AgentResultDelta
+                    {
+                        AgentType = AgentType.Cost,
+                        AddedClaims = ["spend drift"],
+                    },
+                ],
+            },
+            ExportDiffs =
+            [
+                new ExportRecordDiffResult
+                {
+                    LeftRunId = " ",
+                    RightRunId = "  ",
+                    ChangedTopLevelFields = ["Format"],
+                },
+            ],
+        };
+
+        EndToEndReplayComparisonReportNormalizer.NormalizePersistedPayload(report);
+
+        report.AgentResultDiff!.LeftRunId.Should().Be(leftRunId);
+        report.AgentResultDiff.RightRunId.Should().Be(rightRunId);
+        report.ExportDiffs[0].LeftRunId.Should().Be(leftRunId);
+        report.ExportDiffs[0].RightRunId.Should().Be(rightRunId);
+    }
+
+    [Fact]
     public void CompareQuality_EndToEndReplayComparisonReportNormalizer_nulls_whitespace_only_roi_headline_labels()
     {
         EndToEndReplayComparisonReport report = new()
@@ -378,7 +420,7 @@ public sealed class EndToEndReplayComparisonReportNormalizerTests
 
         EndToEndReplayComparisonReportNormalizer.NormalizePersistedPayload(report);
 
-        report.AgentResultDiff!.LeftRunId.Should().BeEmpty();
+        report.AgentResultDiff!.LeftRunId.Should().Be("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
         report.AgentResultDiff.RightRunId.Should().Be(rightRunGuid.ToString("N"));
         report.AgentResultDiff.Warnings.Should().Equal(["partial agent coverage"]);
         AgentResultDelta delta = report.AgentResultDiff.AgentDeltas[0];

@@ -22,6 +22,8 @@ internal static class EndToEndReplayComparisonReportNormalizer
         AgentResultDiffNormalizer.NormalizeInPlace(report.AgentResultDiff);
         if (report.AgentResultDiff is not null && AgentResultDiffNormalizer.IsPersistedEmptyShell(report.AgentResultDiff))
             report.AgentResultDiff = null;
+        else
+            BackfillNestedRunIdAnchorsFromReport(report);
 
         ManifestDiffNormalizer.NormalizeInPlace(report.ManifestDiff);
         if (report.ManifestDiff is not null
@@ -34,6 +36,7 @@ internal static class EndToEndReplayComparisonReportNormalizer
         {
             ExportRecordDiffResult diff = report.ExportDiffs[i];
             ExportRecordDiffResultNormalizer.NormalizeDisplayAnchors(diff);
+            BackfillExportDiffRunIdsFromReport(diff, report);
 
             if (!ExportRecordDiffMateriality.HasMaterialChanges(diff))
                 report.ExportDiffs.RemoveAt(i);
@@ -57,4 +60,26 @@ internal static class EndToEndReplayComparisonReportNormalizer
 
     private static string NormalizeReportRunIdAnchor(string runId) =>
         string.IsNullOrWhiteSpace(runId) ? string.Empty : AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(runId);
+
+    private static void BackfillNestedRunIdAnchorsFromReport(EndToEndReplayComparisonReport report)
+    {
+        AgentResultDiffResult? agentDiff = report.AgentResultDiff;
+        if (agentDiff is null)
+            return;
+
+        if (agentDiff.LeftRunId.Length == 0 && report.LeftRunId.Length > 0)
+            agentDiff.LeftRunId = report.LeftRunId;
+
+        if (agentDiff.RightRunId.Length == 0 && report.RightRunId.Length > 0)
+            agentDiff.RightRunId = report.RightRunId;
+    }
+
+    private static void BackfillExportDiffRunIdsFromReport(ExportRecordDiffResult diff, EndToEndReplayComparisonReport report)
+    {
+        if (diff.LeftRunId.Length == 0 && report.LeftRunId.Length > 0)
+            diff.LeftRunId = report.LeftRunId;
+
+        if (diff.RightRunId.Length == 0 && report.RightRunId.Length > 0)
+            diff.RightRunId = report.RightRunId;
+    }
 }
