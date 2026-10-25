@@ -6868,6 +6868,20 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-25 seed hunt (seed→hit): proved `ComparisonReplayCostEstimator.ComputeEstimateAsync` trimmed the lookup `comparisonRecordId` argument but echoed untrimmed `record.ComparisonRecordId` on the returned `ComparisonReplayCostEstimate` while replay APIs already normalized ids (hunts 157–159), so replay cost preview could show padded legacy record ids; normalize via `ComparisonRecordIdNormalizer.NormalizeRequired` on the estimate DTO; regression `TryEstimateAsync_returns_trimmed_comparison_record_id_from_stored_row`; cheap-disproof closed cache key path (lookup id already normalized at `TryEstimateAsync` entry), `ApiPaging.TryParseUtcTicksIdCursor` (comparison search normalizes cursor id), batch zip manifest echo (cosmetic), Armenian homoglyphs (deferred), and persistence-layer determinism normalize (deferred); seeded five follow-on rows; scoped application-analysis + replay filter 322/322. Private beta: comparison replay cost estimates return trimmed comparison record ids matching replay API metadata.
+
+- [ ] (candidate) `ComparisonsApplicationService.TryEstimateReplayCostAsync` — passes raw row id into estimator — locus: facade delegate; input: estimator now normalizes output (idempotent).
+- [ ] (candidate) `ApiPaging.TryParseUtcTicksIdCursor` — cursor id segment without trim — locus: HTTP cursor parse; input: padded id after ticks delimiter (alerts inbox and other API surfaces).
+- [ ] (candidate) `ComparisonBatchReplayZipSupport` — manifest failure entries echo pre-trim batch tokens — locus: zip manifest; input: cosmetic id echo only.
+- [ ] (candidate) `ComparisonExportMarkdownSectionRemover` — Armenian homoglyphs in delta headings — locus: `UnicodeLatinHomoglyphMapper`; input: deferred expansion.
+- [ ] (candidate) `RunExportRecordPersistNormalizer` — persistence-layer determinism column normalize — locus: repository read; input: consolidation at DB boundary.
+
+- [x] (proven) `ComparisonReplayCostEstimator` — padded comparison record id on cost estimate DTO — **hit 2026-10-25 seed hunt:** normalize on estimate; regression above.
+- [x] (valid-no-repro) `ComparisonReplayCostEstimator.TryEstimateAsync` — lookup id trim — **cheap-disproof 2026-10-25 seed hunt:** existing `TryEstimateAsync_trims_padded_comparison_record_id_before_load`.
+- [x] (invalid) `ApiPaging.TryParseUtcTicksIdCursor` — HTTP cursor id trim — **cheap-disproof 2026-10-25 seed hunt:** comparison search normalizes at application layer.
+- [x] (invalid) `ComparisonBatchReplayZipSupport` — manifest id echo — **cheap-disproof 2026-10-25 seed hunt:** cosmetic only.
+- [x] (invalid) `UnicodeLatinHomoglyphMapper` — Armenian homoglyphs — **cheap-disproof 2026-10-25 seed hunt:** deferred.
+
 2026-10-25 seed hunt (seed→hit): proved `ComparisonsApplicationService.TryReplaySummaryMarkdownAsync` returned stored-summary fast-path `ReplayComparisonResult` with padded `ComparisonRecordId` and `FileName` copied from the scoped row while `TryReplayAsync` and `ComparisonReplayService` already normalized replay metadata (hunts 157–158), so summary-only replay skipped the replay service normalizer; trim via `ComparisonRecordIdNormalizer` on the fast path; regression `CompareQuality_TryReplaySummaryMarkdownAsync_trims_comparison_record_id_on_stored_summary_fast_path`; cheap-disproof closed full `ReplayAsync` path (already normalized), `ApiPaging.TryParseUtcTicksIdCursor` (comparison search normalizes cursor id), batch zip manifest echo (cosmetic), Armenian homoglyphs (deferred), and persistence-layer determinism normalize (deferred); seeded five follow-on rows; scoped application-analysis + replay filter 321/321. Private beta: summary-only comparison replay returns trimmed record ids and download filenames when stored markdown is returned without regenerating artifacts.
 
 - [ ] (candidate) `ComparisonsApplicationService.TryEstimateReplayCostAsync` — passes untrimmed `record.ComparisonRecordId` to estimator — locus: cost estimate; input: cosmetic id echo in estimate factors only.
@@ -8045,11 +8059,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 159
-- **bugs-found:** 165
+- **hunts:** 160
+- **bugs-found:** 166
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-25
-- **last-bug:** 2026-10-25 — summary replay fast path trims comparison record id
+- **last-bug:** 2026-10-25 — replay cost estimate trims comparison record id
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
