@@ -4938,7 +4938,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-operator-lib
 
-**Hunts:** 94 · **Bugs found:** 89 · **Consecutive dry hunts:** 0
+**Hunts:** 95 · **Bugs found:** 90 · **Consecutive dry hunts:** 0
+
+2026-10-25 seed hunt (hit): `deriveOperatorHomeTenantCountingSnapshot` uses shared `resolveOperatorHomeReviewTotalCount` so stale-zero `runsDashboardTotalCount` no longer uplifts from archived-only tenant rows; regression `does not uplift stale zero runsDashboardTotalCount using archived-only tenant rows`; scoped tenant-counting + review-total-resolution vitest passed. Private beta: Invited operators no longer see mismatched home KPI totals between the merged runs dashboard and the workspace metrics strip when the visible page is archived-only and the API still reports zero reviews.
 
 2026-10-25 seed hunt (hit): consolidated `resolveOperatorHomeReviewTotalCount` / `countNonArchivedOverviewRuns` so live dashboard stale-total uplift ignores archived-only snapshot rows (aligned with workspace metrics); regressions `does not uplift stale zero totalCount using archived-only snapshot rows` and `does not uplift stale zero totalCount using archived-only overview rows`; scoped live-runs-dashboard and workspace-metrics vitest passed. Private beta: Invited operators no longer see inflated home review totals when a refreshed page shows only archived rows and the API still reports `totalCount: 0`.
 
@@ -5242,11 +5244,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) `resolveLiveRunsDashboardModel` — stale-zero uplift used raw `items.length` and counted archived rows — **hit 2026-10-25 seed hunt:** non-archived visible count in merge; regression `does not uplift stale zero totalCount using archived-only snapshot rows`.
 
-- [ ] (candidate) `resolveOperatorHomeReviewTotalCount` — non-finite reported totals still uplift from SSR + visible active rows — locus: shared resolver; input: non-finite live dashboard regressions.
-- [ ] (candidate) `resolveOperatorHomeReviewTotalCount` — positive undercount uplift uses visible active rows only — locus: undercount branch; input: undercount live dashboard + workspace metrics tests.
-- [ ] (candidate) `deriveOperatorHomeTenantCountingSnapshot` — tenant row count still includes archived rows for stale uplift — locus: tenant filter; input: tenant-counting archived fixture.
-- [ ] (candidate) `deriveOperatorHomeWorkspacePhaseSignalsFromOverviewRuns` — archived-only rows do not set `hasOverviewReviewRows` when total is zero — locus: occupancy `max`; input: archived-only phase fixture.
-- [ ] (candidate) `countNonArchivedOverviewRuns` — treats `isArchived` undefined as active — locus: strict equality check; input: runs without `isArchived` field.
+- [x] (valid-no-repro) `resolveOperatorHomeReviewTotalCount` — non-finite reported totals still uplift from SSR + visible active rows — **cheap-disproof 2026-10-25 seed hunt:** live dashboard non-finite regressions + `uplifts stale zero totals from visible active rows and SSR floor`.
+- [x] (valid-no-repro) `resolveOperatorHomeReviewTotalCount` — positive undercount uplift uses visible active rows only — **cheap-disproof 2026-10-25 seed hunt:** `uplifts positive undercounts using visible active rows only` + live dashboard undercount regression.
+- [x] (proven) `deriveOperatorHomeTenantCountingSnapshot` — tenant row count included archived rows for stale uplift — **hit 2026-10-25 seed hunt:** shared resolver with `visibleActiveTenantCount`; regression `does not uplift stale zero runsDashboardTotalCount using archived-only tenant rows`.
+- [x] (valid-no-repro) `deriveOperatorHomeWorkspacePhaseSignalsFromOverviewRuns` — archived-only rows do not set `hasOverviewReviewRows` when total is zero — **cheap-disproof 2026-10-25 seed hunt:** regression `does not mark overview occupied when only archived rows are visible and totalCount is zero`.
+- [x] (valid-no-repro) `countNonArchivedOverviewRuns` — treats `isArchived` undefined as active — **cheap-disproof 2026-10-25 seed hunt:** regression `counts runs without isArchived as active overview rows`.
+
+- [ ] (candidate) `deriveOperatorHomeTenantCountingSnapshot` — undefined `runsDashboardTotalCount` still counts archived tenant rows on the page — locus: `tenantReviewCount` default; input: archived-only display without dashboard total.
+- [ ] (candidate) `resolveOperatorHomeReviewTotalCount` — SSR floor applies on stale-zero uplift when visible active rows are present — locus: `upliftedTotal`; input: `uplifts stale zero totals from visible active rows and SSR floor`.
+- [ ] (candidate) `deriveOperatorHomeWorkspaceMetrics` — positive undercount with mixed archived and active rows — locus: shared visible count; input: mixed-row fixture with `totalCount: 1`.
+- [ ] (candidate) `formatOperatorHomeRecentReviewsOutcome` — archived-only tenant metrics still render portfolio copy when dashboard total undefined — locus: tenant counting default branch; input: archived-only tenant snapshot.
+- [ ] (candidate) `filterTenantOverviewRuns` — archived rows remain in preview tab pools — locus: tenant filter; input: existing preview tab regressions.
 
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regression `drops favorite rows when runId is whitespace-only`; 41 scoped continuity, scope-storage, and attention-preview vitest tests passed.
 
