@@ -6868,6 +6868,20 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-25 seed hunt (seed→hit): proved `InMemoryComparisonRecordRepository.CreateAsync` cloned comparison rows verbatim while SQL stores `UNIQUEIDENTIFIER` run anchors and hunts 173–174 only fixed read/search matching, so in-memory hosts persisted dashed or padded `ComparisonRecordId`/run/export anchors and `UpdateLabelAndTagsAsync`/`GetByIdAsync` could miss rows until a read path normalized; consolidate write normalization in `ComparisonRecordPersistNormalizer.NormalizeForPersist` on create and trim lookup ids on in-memory get/update; regressions `CreateAsync_canonicalizes_dashed_run_ids_and_trims_comparison_record_id`, `UpdateLabelAndTagsAsync_finds_row_when_create_used_padded_comparison_record_id`, and `CompareQuality_in_memory_comparison_repository_create_canonicalizes_dashed_left_run_id`; cheap-disproof closed search filter row-side parity (hunt 174), list-by-run parity (hunt 173), `ApiPaging.TryParseUtcTicksIdCursor` (comparison search normalizes inbound cursor id), batch zip manifest echo (cosmetic), and Armenian homoglyphs (deferred); seeded five follow-on rows; scoped application-analysis + replay filter 339/339. Private beta: comparison records created in dev/in-memory hosts store canonical run ids and trimmed record keys like SQL, so scoped reads and label updates stay consistent.
+
+- [ ] (candidate) `ComparisonRecordRepository.Writes.CreateAsync` — SQL insert without pre-canonicalize string columns — locus: SQL write; input: UNIQUEIDENTIFIER coercion already canonicalizes run ids.
+- [ ] (candidate) `InMemoryComparisonRecordRepository.ReplacePayloadJsonForIntegrationTest` — bypasses persist normalizer — locus: test hook only.
+- [ ] (candidate) `ApiPaging.TryParseUtcTicksIdCursor` — cursor id segment without trim — locus: HTTP cursor parse; input: padded id after ticks delimiter (alerts inbox and other API surfaces).
+- [ ] (candidate) `ComparisonBatchReplayZipSupport` — manifest failure entries echo pre-trim batch tokens — locus: zip manifest; input: cosmetic id echo only.
+- [ ] (candidate) `ComparisonExportMarkdownSectionRemover` — Armenian homoglyphs — locus: deferred expansion.
+
+- [x] (proven) `InMemoryComparisonRecordRepository.CreateAsync` — dashed/padded ids on in-memory persist — **hit 2026-10-25 seed hunt:** `ComparisonRecordPersistNormalizer`; regressions above.
+- [x] (valid-no-repro) `FilterInMemory` — search run id row match — **cheap-disproof 2026-10-25 seed hunt:** hunt 174.
+- [x] (valid-no-repro) `GetByRunIdAsync` — in-memory list-by-run — **cheap-disproof 2026-10-25 seed hunt:** hunt 173.
+- [x] (invalid) `ApiPaging.TryParseUtcTicksIdCursor` — HTTP cursor id trim — **cheap-disproof 2026-10-25 seed hunt:** comparison search normalizes at application layer.
+- [x] (invalid) `ComparisonBatchReplayZipSupport` — manifest id echo — **cheap-disproof 2026-10-25 seed hunt:** cosmetic only.
+
 2026-10-25 seed hunt (seed→hit): proved `ComparisonRecordRepositoryCore.FilterInMemory` canonicalized left/right run id **filters** but compared stored `LeftRunId`/`RightRunId` with ordinal equality while hunt 173 fixed `GetByRunIdAsync` with `StoredRunIdMatchesLookup`, so comparison history **search** in in-memory hosts missed legacy rows when stored run anchors used dashed GUID strings even though list-by-run and SQL search matched; reuse `StoredRunIdMatchesLookup` for row-side left/right run filters; regressions `SearchAsync_finds_row_when_stored_left_run_id_uses_dashed_guid_and_filter_uses_n_format` and `CompareQuality_SearchAsync_finds_records_when_left_run_filter_uses_dashed_guid_and_persisted_left_uses_dashed_format`; cheap-disproof closed list-by-run in-memory parity (hunt 173), in-memory create canonicalize on write (deferred), `ApiPaging.TryParseUtcTicksIdCursor` (comparison search normalizes inbound cursor id), batch zip manifest echo (cosmetic), and Armenian homoglyphs (deferred); seeded five follow-on rows; scoped application-analysis + replay filter 338/338. Private beta: comparison history search by left/right run id finds dashed-format stored anchors in dev/in-memory hosts, matching list-by-run and SQL behavior.
 
 - [ ] (candidate) `InMemoryComparisonRecordRepository.CreateAsync` — canonicalize run ids on write — locus: in-memory create; input: deferred; search/list read paths aligned.
@@ -8255,11 +8269,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 174
-- **bugs-found:** 180
+- **hunts:** 175
+- **bugs-found:** 181
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-25
-- **last-bug:** 2026-10-25 — in-memory comparison search run-id parity
+- **last-bug:** 2026-10-25 — in-memory comparison create persist normalize
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
