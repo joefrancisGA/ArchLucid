@@ -10,6 +10,7 @@ internal static class RunMetadataDiffNormalizer
         ArgumentNullException.ThrowIfNull(runDiff);
 
         ComparisonPersistedStringListNormalizer.NormalizeInPlace(runDiff.ChangedFields);
+        DedupeChangedFieldsInPlace(runDiff.ChangedFields);
 
         if (runDiff.ChangedFields.Count == 0)
         {
@@ -43,5 +44,28 @@ internal static class RunMetadataDiffNormalizer
 
         if (runDiff.ExecutionModesDiffer)
             runDiff.SharedNonRealExecutionMode = false;
+    }
+
+    private static void DedupeChangedFieldsInPlace(List<string> changedFields)
+    {
+        if (changedFields.Count < 2)
+            return;
+
+        HashSet<string> seen = new(StringComparer.Ordinal);
+        List<string> distinct = [];
+
+        foreach (string field in changedFields)
+        {
+            if (!seen.Add(field))
+                continue;
+
+            distinct.Add(field);
+        }
+
+        if (distinct.Count == changedFields.Count)
+            return;
+
+        changedFields.Clear();
+        changedFields.AddRange(distinct);
     }
 }

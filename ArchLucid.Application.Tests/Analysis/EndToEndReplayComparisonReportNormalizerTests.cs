@@ -240,6 +240,28 @@ public sealed class EndToEndReplayComparisonReportNormalizerTests
     }
 
     [Fact]
+    public void CompareQuality_EndToEndReplayComparisonReportNormalizer_dedupes_run_metadata_changed_fields()
+    {
+        EndToEndReplayComparisonReport report = new()
+        {
+            LeftRunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            RightRunId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            RunDiff = new RunMetadataDiffResult
+            {
+                ChangedFields = ["Status", "  Status  ", "RequestId", "Status"],
+                StatusDiffers = false,
+                RequestIdsDiffer = false,
+            },
+        };
+
+        EndToEndReplayComparisonReportNormalizer.NormalizePersistedPayload(report);
+
+        report.RunDiff.ChangedFields.Should().Equal(["Status", "RequestId"]);
+        report.RunDiff.StatusDiffers.Should().BeTrue();
+        report.RunDiff.RequestIdsDiffer.Should().BeTrue();
+    }
+
+    [Fact]
     public void CompareQuality_EndToEndReplayComparisonReportNormalizer_clears_run_metadata_flags_when_changed_fields_empty()
     {
         EndToEndReplayComparisonReport report = new()
