@@ -19,6 +19,8 @@ internal static class ExportRecordDiffResultNormalizer
 
         ComparisonPersistedStringListNormalizer.NormalizeInPlace(diff.Warnings);
         ComparisonPersistedStringListNormalizer.NormalizeInPlace(diff.ChangedTopLevelFields);
+        ComparisonPersistedStringListNormalizer.NormalizeInPlace(diff.RequestDiff.ChangedFlags);
+        ComparisonPersistedStringListNormalizer.NormalizeInPlace(diff.RequestDiff.ChangedValues);
 
         PersistedAnalysisExportRequestMetadata.TrimOptionalStrings(diff.RequestDiff.LeftRequest);
         PersistedAnalysisExportRequestMetadata.TrimOptionalStrings(diff.RequestDiff.RightRequest);

@@ -59,4 +59,22 @@ public sealed class ExportRecordDiffResultNormalizerTests
         diff.Warnings.Should().Equal("drift on title");
         diff.ChangedTopLevelFields.Should().Equal("summaryMarkdown");
     }
+
+    [Fact]
+    public void CompareQuality_ExportRecordDiffResultNormalizer_removes_whitespace_only_request_diff_changed_flags_and_values()
+    {
+        ExportRecordDiffResult diff = new()
+        {
+            RequestDiff = new ExportRecordRequestDiff
+            {
+                ChangedFlags = ["   ", "  IncludeManifest  "],
+                ChangedValues = ["\t", "  TemplateProfile: executive  "],
+            },
+        };
+
+        ExportRecordDiffResultNormalizer.NormalizeDisplayAnchors(diff);
+
+        diff.RequestDiff.ChangedFlags.Should().Equal("IncludeManifest");
+        diff.RequestDiff.ChangedValues.Should().Equal("TemplateProfile: executive");
+    }
 }
