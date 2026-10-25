@@ -7328,6 +7328,8 @@ ABQ-09 churn hotspot.
 
 ## Zone: securenow-question-queue
 
+2026-10-25 seed hunt (seed-only): re-read disposition service, compiler, controller, SQL repository, contracts, queue provider, and queue/API mappers after the pack chrome and mutation-typing hits; no new hunt-ready mechanism survived cheap-disproof without duplicating the pack disposition-identity or state-machine-gap classes; seeded five follow-on `(candidate)` rows below; scoped SecureNow queue vitest 37/37; no production or test code changed.
+
 2026-10-25 seed hunt (seed→hit): promoted `securenow-question-queue-api` mutation helpers typed as `SecureNowQuestion` although `POST /answer|ignore|reopen` returns `SecureNowQuestionDispositionResponse` without list display fields — a caller merging the mutation JSON through the list mapper would fabricate placeholder question copy; added `SecureNowQuestionDisposition`, `mapSecureNowQuestionDisposition`, and `postSecureNowQuestionDisposition`; regressions `maps disposition mutation responses without inventing list-question display fields` and `answer returns a disposition payload from POST /answer`; queue API vitest 3/3 and provider still reloads after mutations. Private beta: no pilot-path behavior change today; prevents a future mutation-response merge from corrupting queue state with fake “Question text was not stored” rows.
 
 2026-10-25 seed hunt (seed→hit): policy-pack list rows with empty `resourceType` / `resourceName` (normal API shape) rendered “Resource type was not stored” and “Resource name was stored empty.” in the question bar identity line; `secureNowQuestionResourceTypeLabel` / `secureNowQuestionResourceDisplayName`; regressions `uses pack-friendly identity copy instead of empty-resource warnings` and `shows pack-friendly resource identity instead of empty-resource warnings`; queue + identity vitest 31/31. Private beta: pack elicitation questions open with “Subscription question” (or resource group) instead of looking like corrupt inventory metadata.
@@ -7352,11 +7354,11 @@ ABQ-09 churn hotspot.
 - **aliases:** securenow question queue; question disposition
 - **paths:** ArchLucid.Application/InfraEvidence/SecureNowQuestionDispositions/; ArchLucid.Api/Controllers/InfraEvidence/InfraEvidenceSecureNowQuestionsController.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/ISecureNowQuestionDispositionRepository.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/ISecureNowQuestionDispositionService.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/SecureNowQuestionDispositionRecord.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/SecureNowQuestionRecord.cs; ArchLucid.Persistence/InfraEvidence/NoOpSecureNowQuestionDispositionRepository.cs; ArchLucid.Persistence/InfraEvidence/SqlSecureNowQuestionDispositionRepository.cs; ArchLucid.Contracts/InfraEvidence/SecureNowQuestionDispositionContracts.cs; archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx; archlucid-ui/src/lib/infra-evidence/securenow-question-queue-api.ts
 - **test-filter:** SecureNowQuestion
-- **hunts:** 52
+- **hunts:** 53
 - **bugs-found:** 30
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-25
-- **last-bug:** 2026-10-25 — mutation API helpers mis-typed as list questions
+- **last-bug:** 2026-10-25 — mutation API helpers mis-typed as list questions (prior hit)
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -7492,6 +7494,11 @@ ABQ-09 churn hotspot.
 - [x] (proven) `SecureNowQuestionQueueProvider.submitAction` / `secureNowQuestionDispositionMutationResourceId` — list rows with `resourceId: null` and subscription or resource-group scope were rejected client-side with “Resource id was not stored.” although disposition APIs accept an empty resource id for pack elicitation; fixed by resolving mutation resource id via shared helper; regressions `returns empty string for subscription scope when resource id is null` and `answers a subscription-scope pack question when resource id is null`.
 - [x] (proven) `SecureNowQuestionDispositionService.ReopenAsync` — subscription-scope pack questions with empty listed `ResourceId` failed reopen with `ResourceId is required.` because reopen hardcoded `Resource` scope for disposition identity while answer/ignore used subscription identity; `ResolveForReopen` on the shared resolver; regression `Subscription_scope_pack_question_accepts_empty_resource_id_on_reopen`.
 - [x] (proven) `SecureNowQuestionDispositionService.ReopenAsync` / `SecureNowQuestionCompiler.AddQuestion` — a reachable `POST /reopen` after `POST /answer` set `Status` to `Open` but copied prior `AnswerCode` and `AnswerText`, so `ListQuestionsAsync` still joined stale answer metadata; fixed by clearing answer fields on reopen; regression `Reopen_clears_prior_answer_fields_from_listed_questions`.
+- (candidate) `SecureNowQuestionQueueProvider.submitAction` / `InfraEvidenceSecureNowQuestionsController.TryMapWriteRequest` — list rows with `scopeKind: null` become `scopeKind: ""` on answer/ignore payloads and fail server validation with a generic 400; verify whether reachable list responses omit scope and whether the UI should block before POST with stored-scope copy.
+- (candidate) `SecureNowQuestionCompiler.AddQuestion` / `SecureNowQuestionResponse` list mapping — joined answered dispositions copy `Status` and `ExpirationUtc` but listed `SecureNowQuestionRecord.IsExpired` stays default false, so UI filters keyed on `isExpired` may not reflect expiration until the disposition join drops; verify open vs answered filter behavior against `ExpirationUtc`.
+- (candidate) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` writes for the same identity hash may surface duplicate-key or lost-update failures under parallel operator mutations; requires SQL integration or concurrent repro (prior valid-no-repro when SQL host unavailable).
+- (candidate) `securenow-question-queue-provider` / disposition mutation responses — provider always reloads after POST and ignores `SecureNowQuestionDisposition` payloads; a future optimistic merge that patches list state from mutation JSON without reloading could reintroduce missing display fields unless it uses `mapSecureNowQuestionDisposition` only.
+- (candidate) `SecureNowPackQuestionCandidateBuilder.Build` / `SecureNowQuestionDispositionService.ValidateMutationAgainstCompiledQuestionAsync` — Must-tier elicitation edits that change prompt text but keep the same `QuestionKey` alter the compiled `EvidenceFingerprint` while an old disposition row may still exist; verify stale-fingerprint rejection and operator messaging on pack content churn.
 
 ## Zone: infra-evidence-diagrams
 
