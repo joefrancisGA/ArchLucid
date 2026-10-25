@@ -6868,6 +6868,20 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-25 seed hunt (seed→hit): proved `RunExportRecordScopedReadNormalizer` left whitespace-only `CompareRunId` denormalized columns untouched because `IsNullOrWhiteSpace` skipped canonicalize while the column still compared unequal to null on export diff and export detail reads even though pairing resolvers (hunt 199) already treated those cells as empty; null column compare run ids via `NormalizeOptionalString` before canonicalize; regressions `CompareQuality_scoped_export_read_normalizer_nulls_whitespace_only_compare_run_id_column` and `CompareQuality_export_record_diff_treats_whitespace_only_compare_run_column_as_equivalent_to_null`; cheap-disproof closed pairing-only fix (hunt 199), padded non-empty compare run ids (existing tests), `ApiPaging.TryParseUtcTicksIdCursor` (comparison search normalizes inbound cursor id), batch zip manifest echo (cosmetic), and Armenian homoglyphs (deferred); seeded five follow-on rows; scoped application-analysis + replay filter 361/361. Private beta: export record reads and export-record diffs no longer treat whitespace-only compare-run columns as distinct from unset compare anchors.
+
+- [ ] (candidate) `ComparisonRecordRepository.GetByRunIdAsync` — SQL list-by-run dashed stored — locus: UNIQUEIDENTIFIER column; input: already matches N/D lookup via guid param.
+- [ ] (candidate) `ComparisonRecordRepositoryCore.SerializeTagsForUpdate` — JSON tag order — locus: cosmetic; input: defer.
+- [ ] (candidate) `ComparisonRecordSearchPredicateBuilder` — notes column search — locus: no notes filter today; input: defer.
+- [ ] (candidate) `ApiPaging.TryParseUtcTicksIdCursor` — cursor id segment without trim — locus: HTTP cursor parse; input: padded id after ticks delimiter (alerts inbox and other API surfaces).
+- [ ] (candidate) `ComparisonBatchReplayZipSupport` — manifest failure entries echo pre-trim batch tokens — locus: zip manifest; input: cosmetic id echo only.
+
+- [x] (proven) `RunExportRecordScopedReadNormalizer` — whitespace-only compare run column — **hit 2026-10-25 seed hunt:** optional-string null before canonicalize; regressions above.
+- [x] (valid-no-repro) `ResolveCompareRunIdForPairing` — pairing JSON fallback — **cheap-disproof 2026-10-25 seed hunt:** hunt 199; scoped read still leaked column on diff API.
+- [x] (valid-no-repro) `ExportRecordDiffService.Compare` — in-place normalize — **cheap-disproof 2026-10-25 seed hunt:** depends on scoped normalizer shape.
+- [x] (invalid) `ApiPaging.TryParseUtcTicksIdCursor` — HTTP cursor id trim — **cheap-disproof 2026-10-25 seed hunt:** comparison search normalizes at application layer.
+- [x] (invalid) `ComparisonBatchReplayZipSupport` — manifest id echo — **cheap-disproof 2026-10-25 seed hunt:** cosmetic only.
+
 2026-10-25 seed hunt (seed→hit): proved `ResolveCompareRunIdForPairing` treated whitespace-only denormalized `CompareRunId` columns as present anchors (`IsNullOrWhiteSpace` false on padded spaces) instead of falling through to `AnalysisRequestJson`, so end-to-end export pairing could throw from `CanonicalRunIdForPersistence` or emit false missing-export warnings when legacy rows left blank compare columns as spaces; normalize column compare run id via `NormalizeOptionalString` before JSON fallback; regression `BuildExportPairingKey_treats_whitespace_only_compare_run_column_as_json_anchor` plus manifest-version JSON parity `BuildExportPairingKey_treats_column_and_json_compare_manifest_version_as_same_pairing_key`; cheap-disproof closed dashed-vs-N column canonicalize (existing test), template profile JSON fallback (hunt 198), `ApiPaging.TryParseUtcTicksIdCursor` (comparison search normalizes inbound cursor id), batch zip manifest echo (cosmetic), and Armenian homoglyphs (deferred); seeded five follow-on rows; scoped application-analysis + replay filter 359/359. Private beta: end-to-end run comparison export pairing no longer breaks when compare-run columns are whitespace-only placeholders and the real anchor lives in persisted request JSON.
 
 - [ ] (candidate) `ComparisonRecordRepository.GetByRunIdAsync` — SQL list-by-run dashed stored — locus: UNIQUEIDENTIFIER column; input: already matches N/D lookup via guid param.
@@ -8605,11 +8619,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 199
-- **bugs-found:** 205
+- **hunts:** 200
+- **bugs-found:** 206
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-25
-- **last-bug:** 2026-10-25 — E2E pairing ignores whitespace-only compare column
+- **last-bug:** 2026-10-25 — scoped export read nulls whitespace compare run id
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
