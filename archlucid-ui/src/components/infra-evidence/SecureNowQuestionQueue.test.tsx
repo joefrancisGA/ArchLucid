@@ -970,6 +970,23 @@ describe("SecureNowQuestionQueue", () => {
     expect(await screen.findByText(question.questionText)).toBeInTheDocument();
   });
 
+  it("clears session skipped questions when review starts again", async () => {
+    mocks.listQuestions.mockResolvedValue([question]);
+
+    render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
+    fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
+    fireEvent.click(screen.getByRole("button", { name: "Not sure. This does not store an answer." }));
+
+    expect(screen.queryByTestId("infra-diagrams-question-text")).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Close" }));
+    fireEvent.click(screen.getByRole("button", { name: "Review questions" }));
+
+    expect(await screen.findByTestId("infra-diagrams-question-text")).toHaveTextContent(
+      question.questionText,
+    );
+  });
+
   it("does not persist a question from the previous snapshot while the next snapshot is loading", async () => {
     const snapshotOneQuestion = {
       ...question,
