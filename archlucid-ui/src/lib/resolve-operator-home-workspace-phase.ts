@@ -1,7 +1,7 @@
 import type { ArchitectureDraftRegistryEntry } from "@/lib/architecture/architecture-draft-registry";
-import { isDemoSeededOverviewInjectedRun } from "@/lib/demo-seeded-overview";
-import { deriveOperatorHomeWorkspaceMetrics } from "@/lib/operator/operator-home-workspace-metrics";
-import { resolveOperatorHomeReviewTotalCount } from "@/lib/operator/operator-home-review-total-resolution";
+import { isNonTenantOverviewRun } from "@/lib/operator/operator-home-recent-reviews-outcome";
+import { resolveOperatorHomeTenantScopedReviewTotalCount } from "@/lib/operator/operator-home-review-total-resolution";
+import { deriveOperatorHomeWorkspaceMetricsFromOverviewRuns } from "@/lib/operator/operator-home-workspace-metrics";
 import type { RunSummary } from "@/types/authority";
 import {
   OPERATOR_HOME_ACTIVE_REVIEWS_HEADING,
@@ -49,17 +49,14 @@ export function deriveOperatorHomeWorkspacePhaseSignalsFromOverviewRuns(
   "hasOverviewReviewRows" | "openFindingsCount" | "governanceWarningsCount"
 > {
   const activeItems = items.filter((run) => run.isArchived !== true);
-  const tenantItems = activeItems.filter((run) => !isDemoSeededOverviewInjectedRun(run));
-  const resolvedOverviewTotal = resolveOperatorHomeReviewTotalCount(
-    totalCount === undefined ? activeItems.length : totalCount,
-    0,
-    activeItems.length,
-    items.length,
-  );
-  const metrics = deriveOperatorHomeWorkspaceMetrics(tenantItems, resolvedOverviewTotal);
+  const metrics = deriveOperatorHomeWorkspaceMetricsFromOverviewRuns(items, totalCount);
+  const tenantScopedTotal = resolveOperatorHomeTenantScopedReviewTotalCount(items, totalCount);
+  const hasOverviewReviewRows =
+    tenantScopedTotal > 0
+    || activeItems.some((run) => isNonTenantOverviewRun(run));
 
   return {
-    hasOverviewReviewRows: resolvedOverviewTotal > 0,
+    hasOverviewReviewRows,
     openFindingsCount: metrics.openFindings,
     governanceWarningsCount: metrics.governanceWarnings,
   };

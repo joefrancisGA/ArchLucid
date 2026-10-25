@@ -138,6 +138,26 @@ describe("deriveOperatorHomeWorkspacePhaseSignalsFromOverviewRuns", () => {
     expect(signals.hasOverviewReviewRows).toBe(false);
   });
 
+  it("counts description-matched showcase toward overview occupancy while excluding tenant metrics", () => {
+    const signals = deriveOperatorHomeWorkspacePhaseSignalsFromOverviewRuns(
+      [
+        {
+          runId: "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+          projectId: "default",
+          description: "Enterprise customer intake modernization review",
+          hasGovernanceWarnings: true,
+          findingCount: 3,
+          hasFindingsSnapshot: true,
+        } as RunSummary,
+      ],
+      0,
+    );
+
+    expect(signals.hasOverviewReviewRows).toBe(true);
+    expect(signals.openFindingsCount).toBe(0);
+    expect(signals.governanceWarningsCount).toBe(0);
+  });
+
   it("treats non-finite totalCount as stale when active overview rows are present", () => {
     const signals = deriveOperatorHomeWorkspacePhaseSignalsFromOverviewRuns(
       [
