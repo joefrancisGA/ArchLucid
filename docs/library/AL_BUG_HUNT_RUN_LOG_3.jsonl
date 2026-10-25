@@ -1448,3 +1448,4 @@
 {"at":"2026-10-25T22:54:43.8197608Z","zoneId":"securenow-question-queue","outcome":"seed-only","productLine":"securenow"}
 {"at":"2026-10-25T22:58:20.6175161Z","zoneId":"securenow-question-queue","outcome":"hit","productLine":"securenow"}
 {"at":"2026-10-25T23:01:08.5212632Z","zoneId":"securenow-question-queue","outcome":"seed-only","productLine":"securenow"}
+{"at":"2026-10-25T23:04:26.3402401Z","zoneId":"ui-host-gate","outcome":"hit","productLine":"archlucid-shared"}
