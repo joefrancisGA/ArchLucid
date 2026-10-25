@@ -21,7 +21,7 @@ public static class ComparisonRecordPayloadRehydrator
             if (report is null)
                 return null;
 
-            CanonicalizeEndToEndRunIds(report);
+            EndToEndReplayComparisonReportNormalizer.NormalizePersistedPayload(report);
             return report;
         }
         catch (JsonException ex)
@@ -53,15 +53,6 @@ public static class ComparisonRecordPayloadRehydrator
                 $"Comparison record '{record.ComparisonRecordId}' PayloadJson could not be deserialized as ExportRecordDiffResult. " +
                 "The stored JSON may be corrupt.", ex);
         }
-    }
-
-    private static void CanonicalizeEndToEndRunIds(EndToEndReplayComparisonReport report)
-    {
-        if (!string.IsNullOrWhiteSpace(report.LeftRunId))
-            report.LeftRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(report.LeftRunId);
-
-        if (!string.IsNullOrWhiteSpace(report.RightRunId))
-            report.RightRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(report.RightRunId);
     }
 
     private static void CanonicalizeExportDiffRunIds(ExportRecordDiffResult diff) =>

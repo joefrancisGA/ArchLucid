@@ -15,6 +15,48 @@ namespace ArchLucid.Application.Tests.Analysis;
 public sealed class ComparisonAuditServiceTests
 {
     [Fact]
+    public async Task RecordEndToEndAsync_payload_json_trims_nested_export_diff_metadata()
+    {
+        ComparisonRecord? persisted = null;
+        Mock<IComparisonRecordRepository> repo = new();
+        repo
+            .Setup(r => r.CreateAsync(It.IsAny<ComparisonRecord>(), It.IsAny<CancellationToken>()))
+            .Callback<ComparisonRecord, CancellationToken>((record, _) => persisted = record)
+            .Returns(Task.CompletedTask);
+        ComparisonAuditService sut = new(repo.Object, Mock.Of<IAuditService>());
+        EndToEndReplayComparisonReport report = new()
+        {
+            LeftRunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            RightRunId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            ExportDiffs =
+            [
+                new ExportRecordDiffResult
+                {
+                    LeftExportRecordId = "  left-anchor  ",
+                    RightExportRecordId = "  right-anchor  ",
+                    RequestDiff = new ExportRecordRequestDiff
+                    {
+                        LeftRequest = new PersistedAnalysisExportRequest { CompareManifestVersion = "  v-left  " },
+                    },
+                },
+            ],
+        };
+
+        await sut.RecordEndToEndAsync(report, "# summary", CancellationToken.None);
+
+        persisted.Should().NotBeNull();
+        EndToEndReplayComparisonReport? payload = JsonSerializer.Deserialize<EndToEndReplayComparisonReport>(
+            persisted!.PayloadJson,
+            new JsonSerializerOptions(JsonSerializerDefaults.Web) { PropertyNameCaseInsensitive = true });
+        payload.Should().NotBeNull();
+        payload!.ExportDiffs.Should().ContainSingle();
+        ExportRecordDiffResult nested = payload.ExportDiffs[0];
+        nested.LeftExportRecordId.Should().Be("left-anchor");
+        nested.RightExportRecordId.Should().Be("right-anchor");
+        nested.RequestDiff.LeftRequest!.CompareManifestVersion.Should().Be("v-left");
+    }
+
+    [Fact]
     public async Task RecordEndToEndAsync_AfterCreate_LogsEndToEndComparisonPersisted()
     {
         Mock<IComparisonRecordRepository> repo = new();

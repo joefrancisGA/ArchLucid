@@ -21,6 +21,7 @@ public sealed class ComparisonAuditService(IComparisonRecordRepository repositor
     {
         ArgumentNullException.ThrowIfNull(summaryMarkdown);
         ArgumentNullException.ThrowIfNull(report);
+        EndToEndReplayComparisonReportNormalizer.NormalizePersistedPayload(report);
         string leftRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForPersistence(report.LeftRunId);
         string rightRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForPersistence(report.RightRunId);
         ComparisonRecord record = new()
