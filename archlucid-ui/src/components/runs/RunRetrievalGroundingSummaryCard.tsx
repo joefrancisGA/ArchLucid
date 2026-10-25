@@ -74,13 +74,19 @@ export function RunRetrievalGroundingSummaryCard(props: {
           </dd>
         </dl>
 
-        {agentsWithTraces.length > 0 ? (
+        {summary.agentsWithTraces === null || summary.agentsWithTraces === undefined ? (
+          <p className="m-0">Agents with traces were not stored.</p>
+        ) : agentsWithTraces.length > 0 ? (
           <p className="m-0">
             <span className="font-medium">Agents with traces:</span> {agentsWithTraces.join(", ")}
           </p>
-        ) : null}
+        ) : (
+          <p className="m-0">Agents with traces were stored empty.</p>
+        )}
 
-        {missingAgents.length > 0 ? (
+        {summary.expectedAgentsMissingTraces === null || summary.expectedAgentsMissingTraces === undefined ? (
+          <p className="m-0">Missing-trace agent list was not stored.</p>
+        ) : missingAgents.length > 0 ? (
           <p className="m-0 font-medium">
             Missing traces: {missingAgents.join(", ")}
           </p>

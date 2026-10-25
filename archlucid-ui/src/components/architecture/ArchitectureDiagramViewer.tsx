@@ -1169,14 +1169,17 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
       }
 
       const title = node.querySelector('title')?.textContent?.trim() ?? "";
-      const memberNames = (node.getAttribute('data-member-names') ?? '')
-        .split('|')
-        .map((member) => member.trim())
-        .filter(Boolean);
+      const rawMemberNames = node.getAttribute('data-member-names');
+      const memberNames = rawMemberNames === null
+        ? undefined
+        : rawMemberNames.split('|').map((member) => {
+            const trimmed = member.trim();
+            return trimmed.length > 0 ? trimmed : 'Member name was stored empty.';
+          });
       setClickFocus({
         id,
         name: title,
-        memberNames: memberNames.length > 0 ? memberNames : undefined,
+        memberNames: memberNames !== undefined && memberNames.length > 0 ? memberNames : undefined,
       });
     };
 
@@ -1393,11 +1396,17 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
             <p className="m-0 mt-1">{focusedNodeConnectionHint}</p>
           ) : null}
           {clickFocus.memberNames !== undefined ? (
-            <ul className="m-0 mt-1 list-disc pl-5">
-              {clickFocus.memberNames.map((memberName) => (
-                <li key={memberName}>{memberName}</li>
-              ))}
-            </ul>
+            clickFocus.memberNames.length > 0 ? (
+              <ul className="m-0 mt-1 list-disc pl-5" data-testid="diagram-click-focus-cluster-members">
+                {clickFocus.memberNames.map((memberName) => (
+                  <li key={memberName}>{memberName}</li>
+                ))}
+              </ul>
+            ) : (
+              <p className="m-0 mt-1" data-testid="diagram-click-focus-cluster-members-empty">
+                Cluster member names were not stored.
+              </p>
+            )
           ) : null}
         </div>
       ) : null}

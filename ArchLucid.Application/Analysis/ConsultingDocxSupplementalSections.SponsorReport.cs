@@ -15,9 +15,7 @@ internal static partial class ConsultingDocxSupplementalSections
     {
         ConsultingDocxOpenXmlPrimitives.AddHeading(body, "Sponsor report", 1);
 
-        string systemName = report.Manifest?.SystemName
-                            ?? report.Evidence?.SystemName
-                            ?? "the requested system";
+        string systemName = ConsultingDocxExportHonestyCopy.ResolveSystemName(report);
 
         int serviceCount = report.Manifest?.Services.Count ?? 0;
         int datastoreCount = report.Manifest?.Datastores.Count ?? 0;
@@ -52,7 +50,9 @@ internal static partial class ConsultingDocxSupplementalSections
 
         if (report.Manifest is null)
         {
-            ConsultingDocxOpenXmlPrimitives.AddStyledParagraph(body, "No manifest was available for this run.",
+            ConsultingDocxOpenXmlPrimitives.AddStyledParagraph(
+                body,
+                ConsultingDocxExportHonestyCopy.CommittedManifestNotStored,
                 "BodyText");
 
             return;
