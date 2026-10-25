@@ -11,13 +11,13 @@ internal static class EndToEndReplayComparisonReportNormalizer
     {
         ArgumentNullException.ThrowIfNull(report);
 
-        if (!string.IsNullOrWhiteSpace(report.LeftRunId))
-            report.LeftRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(report.LeftRunId);
-
-        if (!string.IsNullOrWhiteSpace(report.RightRunId))
-            report.RightRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(report.RightRunId);
+        report.LeftRunId = NormalizeReportRunIdAnchor(report.LeftRunId);
+        report.RightRunId = NormalizeReportRunIdAnchor(report.RightRunId);
 
         foreach (ExportRecordDiffResult diff in report.ExportDiffs)
             ExportRecordDiffResultNormalizer.NormalizeDisplayAnchors(diff);
     }
+
+    private static string NormalizeReportRunIdAnchor(string runId) =>
+        string.IsNullOrWhiteSpace(runId) ? string.Empty : AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(runId);
 }

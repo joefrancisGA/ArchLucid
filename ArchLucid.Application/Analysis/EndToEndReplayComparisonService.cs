@@ -70,6 +70,8 @@ public sealed class EndToEndReplayComparisonService(
             await _runExportRecordRepository.GetByRunIdAsync(leftRunId, cancellationToken);
         IReadOnlyList<RunExportRecord> rightExports =
             await _runExportRecordRepository.GetByRunIdAsync(rightRunId, cancellationToken);
+        NormalizeExportsForReplayPairing(leftExports);
+        NormalizeExportsForReplayPairing(rightExports);
 
         ReplayComparisonBuildContext context = new()
         {
@@ -176,5 +178,11 @@ public sealed class EndToEndReplayComparisonService(
     {
         if (!EqualityComparer<T>.Default.Equals(left, right))
             target.Add(fieldName);
+    }
+
+    private static void NormalizeExportsForReplayPairing(IReadOnlyList<RunExportRecord> exports)
+    {
+        foreach (RunExportRecord export in exports)
+            RunExportRecordScopedReadNormalizer.NormalizeInPlace(export);
     }
 }
