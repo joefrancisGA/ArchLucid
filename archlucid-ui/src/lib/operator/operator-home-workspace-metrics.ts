@@ -88,13 +88,16 @@ export function deriveOperatorHomeWorkspaceMetrics(
   totalCount: number,
   awaitingApprovalCount = 0,
 ): OperatorHomeWorkspaceMetricsSnapshot {
-  const visibleActiveCount = countNonArchivedOverviewRuns(items);
-  const reviewPackagesTotal = resolveOperatorHomeReviewTotalCount(
-    totalCount,
-    0,
-    visibleActiveCount,
-    items.length,
-  );
+  const tenantItems = filterTenantOverviewRuns(items);
+  const reviewPackagesTotal =
+    tenantItems.length === items.length
+      ? resolveOperatorHomeReviewTotalCount(
+          totalCount,
+          0,
+          countNonArchivedOverviewRuns(tenantItems),
+          tenantItems.length,
+        )
+      : resolveOperatorHomeTenantScopedReviewTotalCount(items, totalCount);
 
   let reviewPackagesCommitted = 0;
   let reviewPackagesActive = 0;
@@ -102,7 +105,7 @@ export function deriveOperatorHomeWorkspaceMetrics(
   let governanceWarnings = 0;
   let evidenceSources = 0;
 
-  for (const run of items) {
+  for (const run of tenantItems) {
 
     if (run.isArchived === true) {
       continue;
