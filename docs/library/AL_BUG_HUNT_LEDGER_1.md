@@ -6868,6 +6868,20 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-25 seed hunt (seed→hit): proved hunt 281 fixed export-record id filter casing but comparison record id lookups and cursor tiebreakers still compared `ComparisonRecordId` values with ordinal equality so uppercase lookup tokens missed lowercase persisted ids and cursor paging could skip or duplicate rows; match comparison record ids case-insensitively in `ComparisonRecordIdLookup`, `MatchesCursor`, and SQL get/cursor predicates; regressions `CompareQuality_TryGetScopedRecordAsync_finds_record_when_comparison_id_differs_only_by_casing` and `MatchesCursor_treats_comparison_record_id_tiebreaker_case_insensitively`; cheap-disproof closed export id filter casing (hunt 281), tag list dedupe casing (hunt 280), tag filter casing (hunt 279), label filter casing (hunt 278), `ApiPaging.TryParseUtcTicksIdCursor` (comparison search normalizes inbound cursor id), batch zip manifest echo (cosmetic), and Armenian homoglyphs (deferred); seeded five follow-on rows; scoped application-analysis + replay filter 384/384. Private beta: scoped comparison reads and cursor-paged history find rows when the comparison record id differs only by hex letter casing from the request.
+
+- [ ] (candidate) `ComparisonRecordRepository.GetByRunIdAsync` — SQL list-by-run dashed stored — locus: UNIQUEIDENTIFIER column; input: already matches N/D lookup via guid param.
+- [ ] (candidate) `ComparisonRecordRepositoryCore.SerializeTagsForUpdate` — JSON tag order — locus: cosmetic; input: defer.
+- [ ] (candidate) `ComparisonRecordSearchPredicateBuilder` — notes column search — locus: no notes filter today; input: defer.
+- [ ] (candidate) `ApiPaging.TryParseUtcTicksIdCursor` — cursor id segment without trim — locus: HTTP cursor parse; input: padded id after ticks delimiter (alerts inbox and other API surfaces).
+- [ ] (candidate) `ComparisonBatchReplayZipSupport` — manifest failure entries echo pre-trim batch tokens — locus: zip manifest; input: cosmetic id echo only.
+
+- [x] (proven) `ComparisonRecordIdLookup` / `MatchesCursor` — comparison record id casing — **hit 2026-10-25 seed hunt:** case-insensitive match; regressions above.
+- [x] (valid-no-repro) `ComparisonExportRecordIdLookup` — export id filter casing — **cheap-disproof 2026-10-25 seed hunt:** hunt 281.
+- [x] (valid-no-repro) `ComparisonPersistedStringListNormalizer` — tag list dedupe casing — **cheap-disproof 2026-10-25 seed hunt:** hunt 280.
+- [x] (invalid) `ApiPaging.TryParseUtcTicksIdCursor` — HTTP cursor id trim — **cheap-disproof 2026-10-25 seed hunt:** comparison search normalizes at application layer.
+- [x] (invalid) `ComparisonBatchReplayZipSupport` — manifest id echo — **cheap-disproof 2026-10-25 seed hunt:** cosmetic only.
+
 2026-10-25 seed hunt (seed→hit): proved hunt 276–280 normalized comparison history type/label/tag matching but export-record id filters still compared stored `LeftExportRecordId`/`RightExportRecordId` anchors with ordinal equality so uppercase filter tokens missed lowercase persisted export ids; match export record ids case-insensitively in `ComparisonExportRecordIdLookup.StoredValueMatchesLookup` and SQL `ComparisonRecordSearchPredicateBuilder`; regression `CompareQuality_SearchAsync_finds_records_when_left_export_filter_differs_only_by_casing`; cheap-disproof closed tag list dedupe casing (hunt 280), tag filter casing (hunt 279), label filter casing (hunt 278), stored comparison type casing (hunt 276), `ApiPaging.TryParseUtcTicksIdCursor` (comparison search normalizes inbound cursor id), batch zip manifest echo (cosmetic), and Armenian homoglyphs (deferred); seeded five follow-on rows; scoped application-analysis + replay filter 383/383. Private beta: comparison history export-record filters find rows when stored export anchors differ only by hex letter casing from the query.
 
 - [ ] (candidate) `ComparisonRecordRepository.GetByRunIdAsync` — SQL list-by-run dashed stored — locus: UNIQUEIDENTIFIER column; input: already matches N/D lookup via guid param.
