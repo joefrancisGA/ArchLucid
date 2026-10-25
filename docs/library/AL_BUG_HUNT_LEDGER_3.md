@@ -4938,7 +4938,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-operator-lib
 
-**Hunts:** 104 · **Bugs found:** 99 · **Consecutive dry hunts:** 0
+**Hunts:** 105 · **Bugs found:** 100 · **Consecutive dry hunts:** 0
+
+2026-10-25 seed hunt (hit): `reportWorkspaceReviews` routes open-findings metrics through `deriveOperatorHomeWorkspaceMetricsFromOverviewRuns` (fixes showcase sample findings inflating live workspace activity when sample reviews are visible); regression `does not publish showcase sample open findings into workspace activity metrics (TB-1039)` plus `keeps stale positive totals when active tenant rows share the page with archived rows`; cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; 61 scoped workspace-activity-context, review-total-resolution, tenant-counting, live-runs-dashboard, workspace-metrics, and workspace-phase vitest passed. Private beta: Invited operators who keep sample reviews on Overview no longer see home emphasis chips and KPI shells inherit inflated open-findings counts from the static showcase row when the runs panel reports a live refresh.
 
 2026-10-25 seed hunt (hit): `deriveOperatorHomeWorkspaceMetricsFromOverviewRuns` tenant-scopes overview dashboard derives (fixes demo-row stale-zero uplift in command center / KPI surfaces); regression `does not treat demo-only overview rows as tenant reviews when totalCount is zero`; cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; 74 scoped workspace-metrics, tenant-counting, review-total-resolution, live-runs-dashboard, and workspace-phase vitest passed. Private beta: Invited operators on demo-only home no longer see command-center and KPI metrics claim an active review because a demo row was counted as a visible overview item.
 
@@ -5310,11 +5312,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `deriveHomePreviewTabCounts` — excludes archived rows from preview pools but tenant totals use separate filter — **cheap-disproof 2026-10-25 seed hunt:** intentional split between overview preview pools and tenant KPI strip.
 - [x] (proven) `deriveOperatorHomeWorkspaceMetrics` — demo overview rows inflate `reviewPackagesTotal` via stale-zero uplift — **hit 2026-10-25 seed hunt:** `deriveOperatorHomeWorkspaceMetricsFromOverviewRuns`; regression `does not treat demo-only overview rows as tenant reviews when totalCount is zero`.
 
-- [ ] (candidate) `OperatorHomePageView` — workspace metrics type still references low-level derive return — locus: `OperatorHomePageView.tsx` type import; input: overview helper adoption across page view model.
-- [ ] (candidate) `operator-home-workspace-activity-context` — `realItems.length` metrics derive bypasses overview helper — locus: `reportWorkspaceReviews`; input: mixed archived and tenant preview rows.
-- [ ] (candidate) `deriveOperatorHomeWorkspaceMetricsFromOverviewRuns` — omits `awaitingApprovalCount` on hero surfaces — locus: call sites; input: governance awaiting approval KPI on overview-only derive.
-- [ ] (candidate) `normalizeOperatorHomeWorkspaceMetricsForDisplay` — called before overview helper on some surfaces — locus: display normalization order; input: non-finite totals after tenant scoping.
-- [ ] (candidate) `resolveOperatorHomeTenantScopedReviewTotalCount` — mixed tenant and archived rows on page with stale positive total — locus: archived-only guard; input: one active tenant plus archived rows.
+- [x] (valid-no-repro) `OperatorHomePageView` — workspace metrics type still references low-level derive return — **cheap-disproof 2026-10-25 seed hunt:** compile-time alias only; runtime paths already call overview helper at call sites.
+- [x] (proven) `operator-home-workspace-activity-context` — `realItems.length` metrics derive bypasses overview helper — **hit 2026-10-25 seed hunt:** `deriveOperatorHomeWorkspaceMetricsFromOverviewRuns(items, totalCount)`; regression `does not publish showcase sample open findings into workspace activity metrics (TB-1039)`.
+- [x] (valid-no-repro) `deriveOperatorHomeWorkspaceMetricsFromOverviewRuns` — omits `awaitingApprovalCount` on hero surfaces — **cheap-disproof 2026-10-25 seed hunt:** hero and command center pass workspace `awaitingApprovalCount` from dashboard model at derive call sites.
+- [x] (valid-no-repro) `normalizeOperatorHomeWorkspaceMetricsForDisplay` — called before overview helper on some surfaces — **cheap-disproof 2026-10-25 seed hunt:** normalization runs after overview derive on metrics summary and disclosure surfaces.
+- [x] (valid-no-repro) `resolveOperatorHomeTenantScopedReviewTotalCount` — mixed tenant and archived rows on page with stale positive total — **cheap-disproof 2026-10-25 seed hunt:** regression `keeps stale positive totals when active tenant rows share the page with archived rows`.
+
+- [ ] (candidate) `use-runs-dashboard-tabs` — `reportWorkspaceReviews` uses `Math.max(loadedTotalCount, effectiveItems.length)` — locus: effect dependency; input: archived-only refresh with omitted API total.
+- [ ] (candidate) `OperatorHomeWorkspaceMetricsSummary` — live merge overlay may re-derive before activity context publishes — locus: metrics summary props; input: SSR snapshot then null live snapshot.
+- [ ] (candidate) `deriveOperatorHomeWorkspaceMetricsFromOverviewRuns` — `awaitingApprovalCount` default zero on activity context path — locus: `reportWorkspaceReviews`; input: governance queue hydrates after first report.
+- [ ] (candidate) `UnfinishedWorkRail` — test helper reports `runs.length` without pagination total — locus: test double only; input: parity with production `loadedTotalCount`.
+- [ ] (candidate) `resolveOperatorHomeLiveRunsSnapshotTotalCount` — explicit zero total with active tenant rows on page — locus: zero vs stale-zero uplift; input: API returns `totalCount: 0` while page shows in-progress tenant row.
 
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regression `drops favorite rows when runId is whitespace-only`; 41 scoped continuity, scope-storage, and attention-preview vitest tests passed.
 

@@ -10,7 +10,7 @@ import {
   type OperatorHomeLiveRunsSnapshot,
   resolveOperatorHomeLiveRunsSnapshotTotalCount,
 } from "@/lib/operator/operator-home-live-runs-dashboard";
-import { deriveOperatorHomeWorkspaceMetrics } from "@/lib/operator/operator-home-workspace-metrics";
+import { deriveOperatorHomeWorkspaceMetricsFromOverviewRuns } from "@/lib/operator/operator-home-workspace-metrics";
 import type { RunSummary } from "@/types/authority";
 
 type OperatorHomeWorkspaceActivityContextValue = {
@@ -105,7 +105,7 @@ export function OperatorHomeWorkspaceActivityProvider(
     const overviewVisibleItems = sampleReviewsVisible
       ? activeItems
       : activeItems.filter((run) => !isOverviewSampleRun(run));
-    const metrics = deriveOperatorHomeWorkspaceMetrics(realItems, realItems.length);
+    const metrics = deriveOperatorHomeWorkspaceMetricsFromOverviewRuns(items, totalCount);
 
     setHasWorkspaceReviews(realItems.length > 0);
     setHasOverviewReviewRows(overviewVisibleItems.length > 0);

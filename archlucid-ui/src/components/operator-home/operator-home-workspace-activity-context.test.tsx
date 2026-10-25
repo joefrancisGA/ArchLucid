@@ -1,17 +1,27 @@
 import { fireEvent, render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import {
   OperatorHomeWorkspaceActivityProvider,
   useOperatorHomeWorkspaceActivity,
 } from "@/components/operator-home/operator-home-workspace-activity-context";
 import { buildDemoSeededOverviewRunSummary } from "@/lib/demo-seeded-overview";
+import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 
 import type { RunSummary } from "@/types/authority";
 
+vi.mock("@/components/SampleReviewsOnOverviewPreferenceProvider", () => ({
+  useSampleReviewsOnOverviewVisible: () => true,
+}));
+
 function Probe(): React.JSX.Element {
-  const { recentRunIds, hasWorkspaceReviews, hasOverviewReviewRows, liveRunsSnapshot } =
-    useOperatorHomeWorkspaceActivity();
+  const {
+    recentRunIds,
+    hasWorkspaceReviews,
+    hasOverviewReviewRows,
+    liveRunsSnapshot,
+    openFindingsCount,
+  } = useOperatorHomeWorkspaceActivity();
 
   return (
     <>
@@ -20,6 +30,7 @@ function Probe(): React.JSX.Element {
       <div data-testid="has-overview-review-rows">{hasOverviewReviewRows ? "yes" : "no"}</div>
       <div data-testid="live-snapshot-state">{liveRunsSnapshot === null ? "none" : "live"}</div>
       <div data-testid="live-snapshot-total">{liveRunsSnapshot?.totalCount ?? -1}</div>
+      <div data-testid="open-findings-count">{openFindingsCount}</div>
     </>
   );
 }
@@ -198,5 +209,46 @@ describe("OperatorHomeWorkspaceActivityProvider", () => {
     expect(screen.getByTestId("has-workspace-reviews")).toHaveTextContent("no");
     expect(screen.getByTestId("has-overview-review-rows")).toHaveTextContent("yes");
     expect(screen.getByTestId("recent-run-ids")).not.toHaveTextContent("");
+  });
+
+  it("does not publish showcase sample open findings into workspace activity metrics (TB-1039)", () => {
+    function Reporter(): React.JSX.Element {
+      const { reportWorkspaceReviews } = useOperatorHomeWorkspaceActivity();
+
+      return (
+        <button
+          type="button"
+          onClick={() =>
+            reportWorkspaceReviews(
+              [
+                {
+                  runId: SHOWCASE_STATIC_DEMO_RUN_ID,
+                  requestId: "req-showcase",
+                  projectId: "default",
+                  status: "Completed",
+                  hasGoldenManifest: true,
+                  hasFindingsSnapshot: true,
+                  findingCount: 42,
+                } as RunSummary,
+              ],
+              0,
+            )
+          }
+        >
+          Report showcase
+        </button>
+      );
+    }
+
+    render(
+      <OperatorHomeWorkspaceActivityProvider initialHasReviews={false}>
+        <Probe />
+        <Reporter />
+      </OperatorHomeWorkspaceActivityProvider>,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Report showcase" }));
+
+    expect(screen.getByTestId("open-findings-count")).toHaveTextContent("0");
   });
 });

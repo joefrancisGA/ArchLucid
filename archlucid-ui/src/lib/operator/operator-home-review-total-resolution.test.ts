@@ -53,6 +53,18 @@ describe("resolveOperatorHomeTenantScopedReviewTotalCount", () => {
   it("keeps pagination totals when the overview page is empty", () => {
     expect(resolveOperatorHomeTenantScopedReviewTotalCount([], 8)).toBe(8);
   });
+
+  it("keeps stale positive totals when active tenant rows share the page with archived rows", () => {
+    expect(
+      resolveOperatorHomeTenantScopedReviewTotalCount(
+        [
+          { runId: "active", projectId: "default", hasFindingsSnapshot: true },
+          { runId: "archived", projectId: "default", isArchived: true, hasGoldenManifest: true },
+        ],
+        12,
+      ),
+    ).toBe(12);
+  });
 });
 
 describe("countNonArchivedOverviewRuns", () => {
