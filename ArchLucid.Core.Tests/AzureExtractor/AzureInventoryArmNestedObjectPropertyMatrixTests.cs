@@ -50,6 +50,19 @@ public sealed class AzureInventoryArmNestedObjectPropertyMatrixTests
                 """,
                 StorageAccountId
             },
+            {
+                $$"""
+                {
+                  "destination": {
+                    "endpointType": "StorageQueue",
+                    "resourceId": {
+                      "id": "{{StorageAccountId}}"
+                    }
+                  }
+                }
+                """,
+                StorageAccountId
+            },
         };
 
     [Theory]
@@ -119,6 +132,26 @@ public sealed class AzureInventoryArmNestedObjectPropertyMatrixTests
                         "properties": {
                           "storageAccountResourceId": {
                             "id": "{{StorageAccountId}}"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+                """,
+                StorageAccountId
+            },
+            {
+                $$"""
+                {
+                  "id": "{{NamespaceId}}/eventhubs/orders",
+                  "name": "orders",
+                  "properties": {
+                    "captureDescription": {
+                      "destination": {
+                        "properties": {
+                          "storageAccountResourceId": {
+                            "Id": "{{StorageAccountId}}"
                           }
                         }
                       }
