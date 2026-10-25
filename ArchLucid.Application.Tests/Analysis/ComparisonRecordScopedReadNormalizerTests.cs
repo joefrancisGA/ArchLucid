@@ -74,4 +74,36 @@ public sealed class ComparisonRecordScopedReadNormalizerTests
         record.SummaryMarkdown.Should().BeNull();
         record.Tags.Should().BeEquivalentTo(["alpha", "beta"]);
     }
+
+    [Fact]
+    public void CompareQuality_comparison_record_scoped_read_normalizer_clears_unknown_comparison_type_and_format()
+    {
+        ComparisonRecord record = new()
+        {
+            ComparisonRecordId = "cmp-unknown-type-format",
+            ComparisonType = "legacyPlaceholder",
+            Format = "legacyPlaceholder",
+        };
+
+        ComparisonRecordScopedReadNormalizer.NormalizeInPlace(record);
+
+        record.ComparisonType.Should().BeEmpty();
+        record.Format.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void CompareQuality_comparison_record_scoped_read_normalizer_canonicalizes_known_comparison_type_and_format()
+    {
+        ComparisonRecord record = new()
+        {
+            ComparisonRecordId = "cmp-known-type-format",
+            ComparisonType = "  END-TO-END-REPLAY  ",
+            Format = "json+markdown",
+        };
+
+        ComparisonRecordScopedReadNormalizer.NormalizeInPlace(record);
+
+        record.ComparisonType.Should().Be(ComparisonTypes.EndToEndReplay);
+        record.Format.Should().Be(ComparisonTypes.FormatJsonMarkdown);
+    }
 }

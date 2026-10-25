@@ -33,8 +33,8 @@ internal static class ComparisonRecordScopedReadNormalizer
             OptionalExportMetadataStringNormalizer.NormalizeOptionalString(record.RightManifestVersion);
         record.Notes = OptionalExportMetadataStringNormalizer.NormalizeOptionalString(record.Notes);
 
-        record.Format = NormalizeRequiredStringColumn(record.Format);
-        record.ComparisonType = NormalizeRequiredStringColumn(record.ComparisonType);
+        record.Format = NormalizeKnownFormatColumn(record.Format);
+        record.ComparisonType = NormalizeKnownComparisonTypeColumn(record.ComparisonType);
 
         record.Label = OptionalExportMetadataStringNormalizer.NormalizeOptionalString(record.Label);
         NormalizeTagsInPlace(record.Tags);
@@ -59,6 +59,32 @@ internal static class ComparisonRecordScopedReadNormalizer
 
     private static string NormalizeRequiredStringColumn(string value) =>
         string.IsNullOrWhiteSpace(value) ? string.Empty : value.Trim();
+
+    private static string NormalizeKnownComparisonTypeColumn(string value)
+    {
+        string trimmed = NormalizeRequiredStringColumn(value);
+        if (trimmed.Length == 0)
+            return string.Empty;
+
+        if (string.Equals(trimmed, ComparisonTypes.EndToEndReplay, StringComparison.OrdinalIgnoreCase))
+            return ComparisonTypes.EndToEndReplay;
+
+        if (string.Equals(trimmed, ComparisonTypes.ExportRecordDiff, StringComparison.OrdinalIgnoreCase))
+            return ComparisonTypes.ExportRecordDiff;
+
+        return string.Empty;
+    }
+
+    private static string NormalizeKnownFormatColumn(string value)
+    {
+        string trimmed = NormalizeRequiredStringColumn(value);
+        if (trimmed.Length == 0)
+            return string.Empty;
+
+        return string.Equals(trimmed, ComparisonTypes.FormatJsonMarkdown, StringComparison.Ordinal)
+            ? ComparisonTypes.FormatJsonMarkdown
+            : string.Empty;
+    }
 
     private static string? NormalizeRunIdColumnOrNull(string? runId)
     {
