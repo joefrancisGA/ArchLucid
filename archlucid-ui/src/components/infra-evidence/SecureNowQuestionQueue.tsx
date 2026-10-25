@@ -14,6 +14,7 @@ import {
   secureNowQuestionResourceDisplayName,
   secureNowQuestionResourceTypeLabel,
 } from "@/lib/infra-evidence/securenow-question-resource-identity-display";
+import { secureNowQuestionShowsExpired } from "@/lib/infra-evidence/securenow-question-expiration";
 import { diagramOutlineIncludesFocusResource } from "@/lib/architecture/architecture-diagram-camera-focus";
 import type { InfraEvidenceMermaidOutline } from "@/lib/infra-evidence/parse-infra-evidence-mermaid-outline";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -579,8 +580,14 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
                     ? "Expiration was stored empty."
                     : currentQuestion.expirationUtc}
                 {currentQuestion.isExpired === null
+                    && (currentQuestion.expirationUtc === null
+                      || currentQuestion.expirationUtc === undefined
+                      || currentQuestion.expirationUtc.trim().length === 0)
                   ? " · Expiration status was not stored."
-                  : currentQuestion.isExpired
+                  : secureNowQuestionShowsExpired(
+                      currentQuestion.expirationUtc,
+                      currentQuestion.isExpired,
+                    )
                     ? " · Expired"
                     : " · Not expired."}
               </p>

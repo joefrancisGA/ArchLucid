@@ -20,6 +20,7 @@ import {
   type SecureNowQuestion,
 } from "@/lib/infra-evidence/securenow-question-queue-api";
 import { secureNowQuestionDispositionMutationResourceId } from "@/lib/infra-evidence/securenow-question-mutation-resource-id";
+import { secureNowQuestionShowsExpired } from "@/lib/infra-evidence/securenow-question-expiration";
 import {
   confirmOperatorInferredConnection,
   dismissOperatorInferredConnection,
@@ -105,7 +106,9 @@ function isDismissed(question: SecureNowQuestion): boolean {
 function filterQuestions(questions: readonly SecureNowQuestion[], filter: QueueFilter): SecureNowQuestion[] {
   return questions.filter((question) => {
     if (filter === "Open") {
-      return question.status !== "Answered" && !isDismissed(question) && question.isExpired !== true;
+      return question.status !== "Answered"
+        && !isDismissed(question)
+        && !secureNowQuestionShowsExpired(question.expirationUtc, question.isExpired);
     }
     if (filter === "Answered") return question.status === "Answered";
     return isDismissed(question);
@@ -226,7 +229,9 @@ export function SecureNowQuestionQueueProvider(
 
   const openQuestions = useMemo(
     () => questions.filter(
-      (question) => question.status !== "Answered" && !isDismissed(question) && question.isExpired !== true,
+      (question) => question.status !== "Answered"
+        && !isDismissed(question)
+        && !secureNowQuestionShowsExpired(question.expirationUtc, question.isExpired),
     ),
     [questions],
   );

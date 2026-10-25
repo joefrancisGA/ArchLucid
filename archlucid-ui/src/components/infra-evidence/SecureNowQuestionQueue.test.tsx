@@ -178,6 +178,27 @@ describe("SecureNowQuestionQueue", () => {
     expect(screen.getByText(/Expiration status was not stored/)).toBeInTheDocument();
   });
 
+  it("marks expiration as expired in details when expirationUtc is past but isExpired is false", async () => {
+    vi.setSystemTime(new Date("2026-10-25T12:00:00.000Z"));
+    mocks.listQuestions.mockResolvedValue([
+      question,
+      {
+        ...question,
+        status: "Answered",
+        expirationUtc: "2026-10-25T11:00:00.000Z",
+        isExpired: false,
+      },
+    ]);
+
+    render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
+    fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
+    fireEvent.click(screen.getByRole("button", { name: "Answered", exact: true }));
+
+    expect(screen.getByText(/· Expired/)).toBeInTheDocument();
+    expect(screen.queryByText(/· Not expired/)).not.toBeInTheDocument();
+    vi.useRealTimers();
+  });
+
   it("maps known question source and scope codes (P-16, P-17)", async () => {
     mocks.listQuestions.mockResolvedValue([
       { ...question, source: "InventoryEvidence", scopeKind: "Resource" },
