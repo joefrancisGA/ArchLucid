@@ -547,7 +547,10 @@ public static class AzureInventorySecurityEdgeMaterializer
     {
         if (resource.ResourceType.Contains("privateEndpoints", StringComparison.OrdinalIgnoreCase))
         {
-            if (resource.Properties.TryGetValue("privateLinkServiceConnectionState.status", out _))
+            if (resource.Properties.ContainsKey("privateLinkServiceConnectionState.status")
+                || resource.Properties.Keys.Any(key =>
+                    key.Contains("privateLinkServiceConnectionState", StringComparison.OrdinalIgnoreCase)
+                    && key.Contains("status", StringComparison.OrdinalIgnoreCase)))
             {
                 string? targetResourceId = TryReadLinkedResourceId(resource.Properties, "privateLinkServiceId");
 
@@ -943,6 +946,9 @@ public static class AzureInventorySecurityEdgeMaterializer
             return;
         }
 
+        Dictionary<string, DiagnosticStorageEdgeDraft> diagnosticStorageDrafts =
+            new(StringComparer.OrdinalIgnoreCase);
+
         foreach (JsonElement diagnostic in diagnosticSettings)
         {
             string? targetId = TryReadJsonString(diagnostic, "targetResourceId")
@@ -970,15 +976,22 @@ public static class AzureInventorySecurityEdgeMaterializer
                         continue;
                     }
 
-                    AddRelationship(
-                        relationships,
-                        relationshipKeys,
-                        normalizedTargetId,
-                        normalizedStorageAccountId,
-                        storageDefinition.DefaultGraphEdgeType,
-                        storageDefinition.DefaultProvenanceKind,
-                        ObservedFactConfidence,
-                        storageDefinition.DefaultInferenceSource);
+                    string storageDraftKey = $"{normalizedTargetId}|{normalizedStorageAccountId}";
+
+                    if (!diagnosticStorageDrafts.TryGetValue(storageDraftKey, out DiagnosticStorageEdgeDraft? storageDraft))
+                    {
+                        storageDraft = new DiagnosticStorageEdgeDraft
+                        {
+                            FromAzureResourceId = normalizedTargetId,
+                            ToAzureResourceId = normalizedStorageAccountId,
+                        };
+                        diagnosticStorageDrafts[storageDraftKey] = storageDraft;
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(name))
+                    {
+                        storageDraft.SettingNames.Add(name.Trim());
+                    }
 
                     emittedDestination = true;
 
@@ -1014,6 +1027,63 @@ public static class AzureInventorySecurityEdgeMaterializer
                 warnings.Add("diagnostic-destination-unresolved");
             }
         }
+
+        if (storageDefinition is null)
+        {
+            return;
+        }
+
+        foreach (DiagnosticStorageEdgeDraft storageDraft in diagnosticStorageDrafts.Values)
+        {
+            AddRelationship(
+                relationships,
+                relationshipKeys,
+                storageDraft.FromAzureResourceId,
+                storageDraft.ToAzureResourceId,
+                storageDefinition.DefaultGraphEdgeType,
+                storageDefinition.DefaultProvenanceKind,
+                ObservedFactConfidence,
+                ResolveDiagnosticStorageInferenceSource(storageDraft.SettingNames));
+        }
+    }
+
+    private static string ResolveDiagnosticStorageInferenceSource(HashSet<string> settingNames)
+    {
+        if (settingNames.Count == 0)
+        {
+            return GraphEdgeInferenceSources.InventoryDiagnosticSettingStorage;
+        }
+
+        if (settingNames.Count == 1)
+        {
+            return GraphEdgeInferenceSources.WithQualifier(
+                GraphEdgeInferenceSources.InventoryDiagnosticSettingStorage,
+                settingNames.First());
+        }
+
+        return GraphEdgeInferenceSources.WithQualifier(
+            GraphEdgeInferenceSources.InventoryDiagnosticSettingStorage,
+            InventoryDiagramRelationshipLabelTexts.DiagnosticSettingStorageNamesNotListedQualifier);
+    }
+
+    private sealed class DiagnosticStorageEdgeDraft
+    {
+        public required string FromAzureResourceId
+        {
+            get;
+            init;
+        }
+
+        public required string ToAzureResourceId
+        {
+            get;
+            init;
+        }
+
+        public HashSet<string> SettingNames
+        {
+            get;
+        } = new(StringComparer.OrdinalIgnoreCase);
     }
 
     private static bool IsStorageAccountArmId(string armResourceId)

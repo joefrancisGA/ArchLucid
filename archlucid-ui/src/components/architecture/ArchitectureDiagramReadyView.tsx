@@ -94,11 +94,23 @@ export function ArchitectureDiagramReadyView(props: ArchitectureDiagramReadyView
   return (
     <>
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,18rem)]">
-        <ArchitectureDiagramViewer
-          mermaidSource={panel.displayMermaidSource}
-          textAlternative={panel.textAlternative}
-          onRetry={() => void panel.runGeneration(false)}
-        />
+        <div className="min-w-0 space-y-2">
+          {panel.diagramModel !== null && panel.diagramModel.skippedUnlabeledEntityCount > 0 ? (
+            <p
+              className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="architecture-diagram-skipped-unlabeled-entities"
+            >
+              Skipped {panel.diagramModel.skippedUnlabeledEntityCount} unlabeled{" "}
+              {panel.diagramModel.skippedUnlabeledEntityCount === 1 ? "entity" : "entities"} — diagram labels were
+              not stored on the structured brief.
+            </p>
+          ) : null}
+          <ArchitectureDiagramViewer
+            mermaidSource={panel.displayMermaidSource}
+            textAlternative={panel.textAlternative}
+            onRetry={() => void panel.runGeneration(false)}
+          />
+        </div>
         {panel.diagramModel !== null ? (
           <div className="space-y-3">
             <ArchitectureDiagramProvenancePanel

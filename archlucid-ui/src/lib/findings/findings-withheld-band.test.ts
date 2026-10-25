@@ -29,6 +29,7 @@ describe("findings-withheld-band (DR-02)", () => {
 
     expect(rows).toHaveLength(1);
     expect(rows[0]?.reason).toBe("prose-only-emission");
+    expect(rows[0]?.reasonDisplay).toContain("Prose-only");
     expect(formatWithheldFindingReasonLabel(rows[0]!.reason)).toContain("Prose-only");
   });
 
@@ -36,6 +37,7 @@ describe("findings-withheld-band (DR-02)", () => {
     const href = buildWithheldFindingDeepLink("run-1", {
       withheldFindingId: "merge-drop-f2",
       reason: "merge-conflict-dropped",
+      reasonDisplay: "Merge conflict (alternate payload withheld)",
       originEngineType: "zulu",
       originAgentType: null,
       title: "Dropped alternate",
@@ -78,6 +80,24 @@ describe("findings-withheld-band (DR-02)", () => {
     expect(rows).toHaveLength(1);
     expect(formatWithheldFindingReasonLabel(rows[0]!.reason)).toContain("Engine did not run");
     expect(buildWithheldFindingDeepLink("run-1", rows[0]!)).toContain("reviewTab=findings");
+  });
+
+  it("labels withheld reason and title when omitted on the wire", () => {
+    const rows = resolveFindingsWithheldRows({
+      run: { runId: "run-1" },
+      findingsSnapshot: {
+        withheldFindings: [
+          {
+            withheldFindingId: "missing-reason",
+            originEngineType: "cost-constraint",
+            title: "",
+          },
+        ],
+      },
+    } as never);
+
+    expect(rows[0]?.reasonDisplay).toBe("Withheld reason was not stored.");
+    expect(rows[0]?.title).toBe("Finding title was not stored.");
   });
 
   it("labels a missing origin engine explicitly", () => {

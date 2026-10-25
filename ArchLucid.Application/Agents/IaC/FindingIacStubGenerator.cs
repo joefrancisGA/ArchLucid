@@ -65,7 +65,13 @@ public sealed class FindingIacStubGenerator(
         if (existingResults.Count == 0)
             return;
 
-        List<AgentResult> results = existingResults.Select(CloneResult).ToList();
+        List<AgentResult> results = existingResults
+            .Where(static result => result is not null)
+            .Select(CloneResult)
+            .ToList();
+
+        if (results.Count == 0)
+            return;
         await ApplyRelationalMuteFlagsAsync(scope, runId, results, cancellationToken).ConfigureAwait(false);
 
         List<AgentResult> updatedResults = [];
@@ -79,7 +85,8 @@ public sealed class FindingIacStubGenerator(
             foreach (ArchitectureFinding finding in updatedResult.Findings ?? [])
             {
 
-                if (finding.IsMuted
+                if (finding is null
+                    || finding.IsMuted
                     || !HasEvidenceReferences(finding)
                     || !AgentArchitectureFindingEmissionGate.HasTypedEmission(finding))
                     continue;
@@ -90,7 +97,7 @@ public sealed class FindingIacStubGenerator(
                 if (string.IsNullOrWhiteSpace(stub))
                     continue;
 
-                finding.IacStub = EnsureDisclaimerLine(stub.Trim());
+                finding.IacStub = EnsureDisclaimerLine(NormalizeLlmStubBody(stub));
                 anyFindingUpdated = true;
             }
 
@@ -109,6 +116,44 @@ public sealed class FindingIacStubGenerator(
             await _agentResultEnrichmentRepository
                 .UpsertEnrichedResultJsonAsync(updatedResult.ResultId, json, cancellationToken)
                 .ConfigureAwait(false);
+        }
+    }
+
+    private static string NormalizeLlmStubBody(string stub)
+    {
+        string trimmed = TryUnwrapJsonStringLiteral(stub.Trim());
+        trimmed = trimmed.TrimStart('\uFEFF');
+
+        if (!trimmed.StartsWith("```", StringComparison.Ordinal))
+            return trimmed;
+
+        int firstNewline = trimmed.IndexOf('\n');
+
+        if (firstNewline < 0)
+            return trimmed;
+
+        trimmed = trimmed[(firstNewline + 1)..].TrimStart();
+
+        if (trimmed.EndsWith("```", StringComparison.Ordinal))
+            trimmed = trimmed[..^3].TrimEnd();
+
+        return trimmed;
+    }
+
+    private static string TryUnwrapJsonStringLiteral(string value)
+    {
+        if (value.Length < 2 || value[0] != '"' || value[^1] != '"')
+            return value;
+
+        try
+        {
+            string? unwrapped = JsonSerializer.Deserialize<string>(value);
+
+            return string.IsNullOrEmpty(unwrapped) ? value : unwrapped;
+        }
+        catch (JsonException)
+        {
+            return value;
         }
     }
 

@@ -41,11 +41,26 @@ public static class SecurityEvidenceCutPointResponseMapper
     private static string BuildExplanationSummary(SecurityEvidenceCutPointRecord record)
     {
         string target = record.CutKind == SecurityEvidenceCutPointKind.Edge
-            ? $"edge {record.EdgeType} from {SecurityEvidencePathExplanationTemplateBuilder.ShortNodeLabel(record.FromNodeId ?? "unknown")} to {SecurityEvidencePathExplanationTemplateBuilder.ShortNodeLabel(record.ToNodeId ?? "unknown")}"
-            : $"node {SecurityEvidencePathExplanationTemplateBuilder.ShortNodeLabel(record.FromNodeId ?? "unknown")}";
+            ? $"edge {record.EdgeType} from {FormatCutPointEndpointLabel(record.FromNodeId)} to {FormatCutPointEndpointLabel(record.ToNodeId)}"
+            : $"node {FormatCutPointEndpointLabel(record.FromNodeId)}";
 
         return $"{SecurityEvidenceCutPointConstants.RuleVersion}: removing {target} collapses {record.PathsCollapsedCount} ranked path(s) "
             + $"with operational cost {record.OperationalCostClass} (leverage {record.LeverageScore:0.###}).";
+    }
+
+    private static string FormatCutPointEndpointLabel(string? nodeId)
+    {
+        if (nodeId is null)
+        {
+            return "Endpoint was not stored.";
+        }
+
+        if (nodeId.Length == 0)
+        {
+            return "Endpoint was stored empty.";
+        }
+
+        return SecurityEvidencePathExplanationTemplateBuilder.ShortNodeLabel(nodeId);
     }
 
     private static IReadOnlyList<Guid> ParseGuidList(string json)

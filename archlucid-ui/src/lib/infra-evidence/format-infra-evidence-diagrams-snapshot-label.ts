@@ -1,8 +1,10 @@
 import { DEFAULT_IANA_TIME_ZONE_ID } from "@/lib/default-iana-time-zone";
 import { formatInstantInPreferredTimeZoneMilitary } from "@/lib/locale-datetime";
 import type { InfraEvidenceSnapshotSummary } from "@/lib/infra-evidence/infra-evidence-drift-types";
-import { formatInfraEvidenceSubscriptionLabel } from "@/lib/infra-evidence/format-infra-evidence-snapshot-label";
-import { isUuidLike } from "@/lib/resolve-governance-finding-resource-group";
+import {
+  formatInfraEvidenceSnapshotResourceCountLabel,
+  formatInfraEvidenceSubscriptionLabel,
+} from "@/lib/infra-evidence/format-infra-evidence-snapshot-label";
 
 /** Capture label for diagrams snapshot picker options in the operator's preferred zone. */
 export function formatInfraEvidenceDiagramsSnapshotPickerLabel(
@@ -16,14 +18,14 @@ export function formatInfraEvidenceDiagramsSnapshotPickerLabel(
   const subscription = formatInfraEvidenceSubscriptionLabel(snapshot.subscriptionName, snapshot.subscriptionId);
   const parts: string[] = [];
 
-  if (subscription != null && !isUuidLike(subscription)) {
+  if (subscription !== null) {
     parts.push(subscription);
-  } else if (snapshot.subscriptionName == null && snapshot.subscriptionId == null) {
+  } else {
     parts.push("Subscription was not stored.");
   }
 
   parts.push(captured);
-  parts.push(`${snapshot.resourceCount} resources`);
+  parts.push(formatInfraEvidenceSnapshotResourceCountLabel(snapshot.resourceCount));
 
   return parts.join(" · ");
 }

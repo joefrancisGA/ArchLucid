@@ -27,24 +27,26 @@ export function formatSecurityEvidencePathKindLabel(kind: string | null | undefi
     return "Path kind was not stored.";
   }
 
-  if (kind === "") {
-    return "";
-  }
-
-  const trimmed = kind?.trim() ?? "";
+  const trimmed = kind.trim();
 
   if (trimmed.length === 0) {
-    return "Not recorded";
+    return "Path kind was not stored.";
   }
 
-  return PATH_KIND_LABELS[trimmed] ?? trimmed;
+  const mapped = PATH_KIND_LABELS[trimmed];
+
+  if (mapped !== undefined) {
+    return mapped;
+  }
+
+  return "Path kind was not recognized.";
 }
 
 export function formatSecurityEvidencePathConfidenceBandLabel(band: string | null | undefined): string {
   const trimmed = band?.trim() ?? "";
 
   if (trimmed.length === 0) {
-    return "Not recorded";
+    return "Confidence band was not stored.";
   }
 
   return PATH_CONFIDENCE_BAND_LABELS[trimmed] ?? trimmed;
@@ -54,7 +56,7 @@ export function formatSecurityEvidenceProvenanceKindLabel(kind: string | null | 
   const trimmed = kind?.trim() ?? "";
 
   if (trimmed.length === 0) {
-    return "Not recorded";
+    return "Provenance was not stored.";
   }
 
   return PROVENANCE_KIND_LABELS[trimmed] ?? trimmed;

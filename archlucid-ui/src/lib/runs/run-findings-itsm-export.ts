@@ -131,7 +131,12 @@ export function buildQuickDecisionFindingsCsv(
     "FindingId,RunId,Severity,Title,Recommendation,Confidence,PolicyRuleId,TrustLabel,TrustLabelReason,SemanticSupportBand,SemanticSupportBandScorerVersion,Status,RecordStatus";
   const lines = exportableFindings.map((finding) => {
     const trustFields = findingTrustExportJsonFields(finding);
-    const semanticSupportBand = finding.semanticSupportBand ?? "";
+    const semanticSupportBand =
+      finding.semanticSupportBand === null || finding.semanticSupportBand === undefined
+        ? "Semantic support band was not stored"
+        : finding.semanticSupportBand.length === 0
+          ? "Semantic support band was stored empty."
+          : finding.semanticSupportBand;
 
     return [
       finding.findingId,
@@ -147,8 +152,10 @@ export function buildQuickDecisionFindingsCsv(
       "trustLabelReason" in trustFields
         ? trustFields.trustLabelReason ?? "Trust label reason was not stored"
         : "Trust label reason was not stored",
-      semanticSupportBand.length > 0 ? semanticSupportBand : "Semantic support band was not stored",
-      semanticSupportBand.length > 0
+      semanticSupportBand,
+      finding.semanticSupportBand !== null
+        && finding.semanticSupportBand !== undefined
+        && finding.semanticSupportBand.length > 0
         ? resolveFindingSemanticSupportBandScorerVersion(finding)
         : "Semantic support band scorer version was not stored",
       finding.isMuted ? "Muted" : humanReviewStatusDisplay(finding.humanReviewStatus).label,
