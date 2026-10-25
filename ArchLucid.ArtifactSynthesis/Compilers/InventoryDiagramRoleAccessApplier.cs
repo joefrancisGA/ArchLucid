@@ -88,7 +88,7 @@ internal static class InventoryDiagramRoleAccessApplier
 
             if (distinctRoleNames.Count > 1)
             {
-                return "Role names were not listed on this line.";
+                return "More than one role name was stored. This line does not list them.";
             }
         }
 

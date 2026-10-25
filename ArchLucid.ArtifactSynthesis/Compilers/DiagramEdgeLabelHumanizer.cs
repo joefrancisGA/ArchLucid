@@ -299,7 +299,7 @@ internal static class DiagramEdgeLabelHumanizer
 
         if (string.Equals(baseSource, GraphEdgeInferenceSources.InventoryDiagnosticDestination, StringComparison.OrdinalIgnoreCase))
         {
-            label = $"Sends diagnostics to {qualifier.Trim()}.";
+            label = $"Diagnostic setting destination is {qualifier.Trim()}. This is not observed log delivery.";
 
             return true;
         }
@@ -534,7 +534,7 @@ internal static class DiagramEdgeLabelHumanizer
         if (string.Equals(value, GraphEdgeInferenceSources.InventoryAdfTriggerSource, StringComparison.OrdinalIgnoreCase)
             || string.Equals(value, AzureInventoryRelationshipAssociationTypes.AdfTriggerSource, StringComparison.OrdinalIgnoreCase))
         {
-            humanized = "Triggers";
+            humanized = "Trigger is configured. This is not an observed run.";
 
             return true;
         }
@@ -542,7 +542,7 @@ internal static class DiagramEdgeLabelHumanizer
         if (string.Equals(value, GraphEdgeInferenceSources.InventoryAdfIntegrationRuntime, StringComparison.OrdinalIgnoreCase)
             || string.Equals(value, AzureInventoryRelationshipAssociationTypes.AdfIntegrationRuntime, StringComparison.OrdinalIgnoreCase))
         {
-            humanized = "Runs on";
+            humanized = "Integration runtime in configuration. This is not an observed run.";
 
             return true;
         }

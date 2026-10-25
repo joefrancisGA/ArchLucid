@@ -19,9 +19,8 @@ import { StatusTag } from "@/components/ui/status-tag";
 import { ASK_CONVERSATION_EMPTY } from "@/lib/ask-conversation-empty-preset";
 import {
   ASK_REVIEW_STREAMING_PROVISIONAL_MARKER,
-  ASK_REVIEW_UNCITED_RESPONSE_MARKER,
   askReviewArtifactStatusCopy,
-  messageHasUncitedAssistantOutput,
+  resolveAskAssistantGroundingCitationMarker,
   resolveAskReviewArtifactStatus,
 } from "@/lib/ask-review-artifact-status-copy";
 import {
@@ -119,7 +118,6 @@ export function AskMessageThreadPanel(props: AskMessageThreadPanelProps) {
     isFinalized: isFinalizedReview,
   });
   const artifactStatusCopy = askReviewArtifactStatusCopy(artifactStatus);
-  const groundingLinkCount = askAssistantGroundingLinks?.length ?? 0;
   const citationHostMessageId = lastAssistantMessageId(messages);
   const citationHostMessage =
     citationHostMessageId === null
@@ -239,15 +237,22 @@ export function AskMessageThreadPanel(props: AskMessageThreadPanelProps) {
               </div>
               {message.role.toLowerCase() === "assistant" ? (
                 <>
-                  {messageHasUncitedAssistantOutput(message.content, groundingLinkCount) ? (
-                    <p
-                      className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-                      data-testid="ask-uncited-assistant-marker"
-                      role="note"
-                    >
-                      {ASK_REVIEW_UNCITED_RESPONSE_MARKER}
-                    </p>
-                  ) : null}
+                  {(() => {
+                    const groundingMarker = resolveAskAssistantGroundingCitationMarker(
+                      message.content,
+                      askAssistantGroundingLinks,
+                    );
+
+                    return groundingMarker !== null ? (
+                      <p
+                        className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                        data-testid="ask-uncited-assistant-marker"
+                        role="note"
+                      >
+                        {groundingMarker}
+                      </p>
+                    ) : null;
+                  })()}
                   <AskAssistantMessageBody
                     buyerPolishedLinks={buyerPolishedShell}
                     content={message.content}

@@ -74,8 +74,8 @@ describe("formatSendableExportCoverMarkdown", () => {
     });
 
     expect(missing).toContain("Verdict summary was not stored.");
+    expect(storedEmpty).toContain("Verdict summary was stored empty.");
     expect(storedEmpty).not.toContain("Verdict summary was not stored.");
-    expect(storedEmpty).not.toContain("Gate summary:");
   });
 
   it("reports an omitted verdict kind and preserves unexpected stored kinds", () => {

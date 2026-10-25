@@ -316,7 +316,9 @@ export function deriveEvidenceCoverageSummary(
     };
   }
 
-  const linkedCount = unresolved.filter((finding) => finding.evidenceRefCount > 0).length;
+  const linkedCount = unresolved.filter(
+    (finding) => typeof finding.evidenceRefCount === "number" && finding.evidenceRefCount > 0,
+  ).length;
   const noun = totalCount === 1 ? "finding has" : "findings have";
 
   return {

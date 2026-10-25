@@ -29,13 +29,13 @@ public sealed partial class DifficultyBasedExtractionRouter
         || c is '-' or '_' or '/' or '@' or '?' or '&' or '#' or '=' or '%' or '+';
 
     /// <summary>
-    ///     Opening delimiters for parenthetical labels, bracket notes, markdown code spans, and quoted strings.
+    ///     Opening delimiters for parenthetical labels, bracket notes, markdown emphasis/code spans, and quoted strings.
     /// </summary>
     private static bool IsLabelOrCodeSpanOpeningDelimiter(char c) =>
-        c is '(' or '[' or '{' or '<' or '`' or '"' or '\'' or '“' or '‘';
+        c is '(' or '[' or '{' or '<' or '`' or '*' or '"' or '\'' or '“' or '‘';
 
     private static bool IsLabelOrCodeSpanClosingDelimiter(char c) =>
-        c is ')' or ']' or '}' or '>' or '`' or '"' or '\'' or '”' or '’';
+        c is ')' or ']' or '}' or '>' or '`' or '*' or '"' or '\'' or '”' or '’';
 
     private static int FindBoundedOwnershipMarkerIndex(string sourceText, string marker, int startIndex)
     {

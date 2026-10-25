@@ -52,31 +52,31 @@ internal static class DiagramRelationshipVerbCatalog
 
         if (normalized.Equals(GraphEdgeTypes.CanControlCode, StringComparison.OrdinalIgnoreCase))
         {
-            label = "deploys code";
+            label = "Role can control code. This is not an observed deployment.";
             return true;
         }
 
         if (normalized.Equals(GraphEdgeTypes.CanAddCredential, StringComparison.OrdinalIgnoreCase))
         {
-            label = "adds credential";
+            label = "Role can add a credential. This is not an observed change.";
             return true;
         }
 
         if (normalized.Equals(GraphEdgeTypes.CanGrantRole, StringComparison.OrdinalIgnoreCase))
         {
-            label = "grants role";
+            label = "Role can grant a role. This is not an observed grant.";
             return true;
         }
 
         if (normalized.Equals(GraphEdgeTypes.CanRead, StringComparison.OrdinalIgnoreCase))
         {
-            label = "reads";
+            label = "Role allows read. This is not observed use.";
             return true;
         }
 
         if (normalized.Equals(GraphEdgeTypes.CanWrite, StringComparison.OrdinalIgnoreCase))
         {
-            label = "writes";
+            label = "Role allows write. This is not observed use.";
             return true;
         }
 

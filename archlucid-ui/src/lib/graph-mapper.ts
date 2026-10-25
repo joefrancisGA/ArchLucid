@@ -97,7 +97,13 @@ export function buyerTrailEdgeDisplayPhrase(edgeType: string): string {
     return mapped;
   }
 
-  return humanizeEdgeLabel(edgeType);
+  const trimmed = edgeType.trim();
+
+  if (trimmed.length === 0) {
+    return humanizeEdgeLabel(edgeType);
+  }
+
+  return `Unmapped relationship: ${trimmed}`;
 }
 
 /** True when this reviewer-trail finding is a registered sample hero (layout + panel emphasis). */
