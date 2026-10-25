@@ -51,6 +51,10 @@ import type { OperatorInferredConnectionRow } from "@/lib/infra-evidence/operato
 type QueueFilter = "Open" | "Answered" | "Dismissed";
 type DrawerAction = "answer" | "ignore" | "reopen";
 
+type LoadQuestionsOptions = {
+  readonly preferredFilter?: QueueFilter;
+};
+
 const VISIT_CAP = 10;
 
 export type SecureNowQuestionQueueProviderProps = {
@@ -215,7 +219,7 @@ export function SecureNowQuestionQueueProvider(
     setReason("");
   }, [snapshotId]);
 
-  const loadQuestions = useCallback(async () => {
+  const loadQuestions = useCallback(async (options?: LoadQuestionsOptions) => {
     if (snapshotId.trim().length === 0) return;
     const requestSequence = ++loadSequence.current;
     setLoading(true);
@@ -239,6 +243,11 @@ export function SecureNowQuestionQueueProvider(
       setSessionSkippedQuestionKeys(new Set());
       setVisitedQuestionKeys(new Set());
       setFilter((currentFilter) => {
+        const preferredFilter = options?.preferredFilter;
+        if (preferredFilter != null && queueFilterHasRows(loadedQuestions, preferredFilter)) {
+          return preferredFilter;
+        }
+
         if (queueFilterHasRows(loadedQuestions, currentFilter)) {
           return currentFilter;
         }
@@ -498,7 +507,16 @@ export function SecureNowQuestionQueueProvider(
           evidenceFingerprint: mutationEvidenceFingerprint!,
         });
       }
-      await loadQuestions();
+      let preferredFilter: QueueFilter | undefined;
+      if (action === "answer") {
+        preferredFilter = "Answered";
+      } else if (action === "ignore") {
+        preferredFilter = "Dismissed";
+      } else if (action === "reopen") {
+        preferredFilter = "Open";
+      }
+
+      await loadQuestions({ preferredFilter });
       setSelectedAnswer(null);
       setReason("");
       setDrawerAction("answer");
