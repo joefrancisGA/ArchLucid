@@ -17,7 +17,7 @@ internal static class EndToEndReplayComparisonReportNormalizer
 
         ComparisonPersistedStringListNormalizer.NormalizeInPlace(report.Warnings);
         ComparisonPersistedStringListNormalizer.NormalizeInPlace(report.InterpretationNotes);
-        ComparisonPersistedStringListNormalizer.NormalizeInPlace(report.RunDiff.ChangedFields);
+        RunMetadataDiffNormalizer.NormalizeInPlace(report.RunDiff);
 
         AgentResultDiffNormalizer.NormalizeInPlace(report.AgentResultDiff);
         if (report.AgentResultDiff is not null && AgentResultDiffNormalizer.IsPersistedEmptyShell(report.AgentResultDiff))
