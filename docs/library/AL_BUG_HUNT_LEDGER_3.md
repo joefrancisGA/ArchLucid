@@ -4938,7 +4938,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-operator-lib
 
-**Hunts:** 60 · **Bugs found:** 57 · **Consecutive dry hunts:** 0
+**Hunts:** 61 · **Bugs found:** 58 · **Consecutive dry hunts:** 0
+
+2026-10-25 seed hunt (hit): promoted `resolveRecentPreviewCapCounts` for home recent-reviews outcome preview cap; regressions `normalizes non-finite recent preview cap counts in outcome copy` and `normalizes non-finite preview cap counts in structured outcome parts`; 17 scoped `operator-home-recent-reviews-outcome` vitest passed. Private beta: Invited operators no longer see `showing NaN` (or `showing NaN of NaN`) in home recent reviews captions when preview cap counts are non-finite.
 
 2026-10-25 seed hunt (hit): promoted `normalizeOperatorConnectivityHttpStatus` in connectivity technical details; regression `omits non-finite http status from technical details`; 6 scoped `operator-connectivity-error-present` vitest passed. Private beta: Invited operators no longer see `HTTP NaN` (or similar) in workspace connectivity troubleshooting details when failure payloads carry non-finite status codes.
 
@@ -4988,6 +4990,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-10-08 seed hunt (seed-only): re-read continuity hydration, recent-view mapping, workspace metrics, and freshness helpers; no hunt-ready row promoted; scoped `lib/operator` tests completed with known baseline failures outside the reviewed utility behavior.
 
+- [x] (proven) `formatOperatorHomeRecentReviewsOutcome` / `buildOperatorHomeRecentReviewsOutcomeParts` — `visibleCount !== undefined` accepts `NaN` in showing-cap copy — **hit 2026-10-25 seed hunt:** `resolveRecentPreviewCapCounts`; regressions `normalizes non-finite recent preview cap counts in outcome copy` and `normalizes non-finite preview cap counts in structured outcome parts`.
 - [x] (proven) `formatOperatorHomeGovernanceApprovalWarningCount` — `Math.max(0, Math.trunc(count))` leaves `NaN` labels — **hit 2026-10-25 seed hunt:** `Number.isFinite` guard; regression `treats non-finite counts as zero warnings`.
 - [x] (proven) `readOperatorShellStableCache` — `typeof writtenAtMs === "number"` accepts `NaN`, skipping TTL eviction — **hit 2026-10-25 seed hunt:** `Number.isFinite(parsed.writtenAtMs)`; regression `discards stable cache entries with non-finite writtenAtMs`.
 - [x] (proven) `operatorHomeDataCurrencyValue` / `operatorHomeDataCurrencyStaleCue` — invalid `Date` bypasses `isRenderableRefreshedInstant` — **hit 2026-10-25 seed hunt:** fail-closed guards; regressions `treats an invalid Date like a missing refresh instead of formatting garbage` and `does not report stale data when the refresh timestamp is invalid`.
