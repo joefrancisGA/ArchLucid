@@ -93,7 +93,10 @@ export function SocraticIntakeWizardStepConfirm({
               ))}
             </ul>
           ) : (
-            <p className={cn("m-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
+            <p
+              className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="guided-intake-confirmed-scope-not-stored"
+            >
               {GUIDED_INTAKE_CONFIRMED_SCOPE_NOT_STORED}
             </p>
           )}

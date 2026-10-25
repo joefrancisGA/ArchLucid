@@ -1,7 +1,16 @@
 import { describe, expect, it } from "vitest";
 
 import { formatManifestDocumentShape } from "./export-markdown-manifest-document";
-import { pushPolicyAtCommitMarkdownLines } from "./export-markdown-policy-section";
+import { formatPolicySection, POLICY_SECTION_NOT_STORED_COPY, pushPolicyAtCommitMarkdownLines } from "./export-markdown-policy-section";
+
+describe("formatPolicySection", () => {
+  it("states when policy section was not stored", () => {
+    const lines: string[] = [];
+    formatPolicySection(null, lines);
+
+    expect(lines.join("\n")).toContain(POLICY_SECTION_NOT_STORED_COPY);
+  });
+});
 
 describe("formatManifestDocumentShape component breakdown", () => {
   it("reports missing collections instead of calling them present", () => {

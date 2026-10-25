@@ -18,9 +18,7 @@ import {
 import {
   formatActiveWaiverEvidenceRef,
   formatActiveWaiverRationale,
-  formatDispositionHistoryActor,
-  formatDispositionHistoryRationale,
-  formatDispositionHistoryRecordedTime,
+  formatFindingDispositionHistoryLine,
 } from "@/lib/findings/finding-disposition-history-display";
 import {
   INHABIT_DISPOSITION_HISTORY_EMPTY_BODY,
@@ -214,14 +212,11 @@ export function FindingInspectWaiverPanel(props: FindingInspectWaiverPanelProps)
         {history.length > 0 ? (
           <ul className="m-0 list-disc space-y-1 pl-5" data-testid="finding-inspect-disposition-history-list">
             {history.map((event) => (
-              <li key={event.eventId} data-testid={`finding-inspect-disposition-history-event-${event.eventId}`}>
-                <span className="font-medium">{event.disposition}</span>
-                {" · "}
-                {formatDispositionHistoryActor(event.reviewerUserId)}
-                {" · "}
-                {formatDispositionHistoryRecordedTime(event.occurredAtUtc)}
-                {" — "}
-                {formatDispositionHistoryRationale(event.rationale)}
+              <li
+                key={event.eventId}
+                data-testid={`finding-inspect-disposition-history-event-${event.eventId}`}
+              >
+                {formatFindingDispositionHistoryLine(event)}
               </li>
             ))}
           </ul>
