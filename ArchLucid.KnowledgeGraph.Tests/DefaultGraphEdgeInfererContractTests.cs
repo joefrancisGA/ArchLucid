@@ -215,7 +215,7 @@ public sealed class DefaultGraphEdgeInfererContractTests
         IReadOnlyList<GraphEdge> edges = _sut.InferEdges(context, [topo, security]);
 
         edges.Should().ContainSingle(e =>
-            e.EdgeType == GraphEdgeTypes.Protects && e.FromNodeId == "sec-1" && e.ToNodeId == "res-a ");
+            e.EdgeType == GraphEdgeTypes.Protects && e.FromNodeId == "sec-1" && e.ToNodeId == "res-a");
     }
 
     [Fact]

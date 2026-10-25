@@ -1,13 +1,24 @@
 export type ProseAssumptionDisposition = "contradicted" | "consistent" | "notVerifiable";
 
+export const PROSE_ASSUMPTION_ROW_NOT_STORED_IN_FULL = "An assumption row was not stored in full." as const;
+
+export const PROSE_ASSUMPTION_STATEMENT_NOT_STORED = "Assumption statement was not stored." as const;
+export const PROSE_ASSUMPTION_DOCUMENT_PATH_NOT_STORED = "Document path was not stored." as const;
+export const PROSE_ASSUMPTION_LINE_NOT_STORED = "Line was not stored." as const;
+export const PROSE_ASSUMPTION_EVIDENCE_REF_NOT_STORED = "Evidence ref was not stored." as const;
+export const PROSE_ASSUMPTION_DISPOSITION_NOT_STORED = "Disposition was not stored." as const;
+
 export type ProseAssumptionRegisterEntry = {
   readonly statement: string;
   readonly documentPath: string;
   readonly lineNumber: number;
+  readonly lineNumberStored: boolean;
   readonly evidenceRef: string;
   readonly logicalPropertyName: string | null;
   readonly disposition: ProseAssumptionDisposition;
+  readonly dispositionStored: boolean;
   readonly findingId: string | null;
+  readonly rowNotStoredInFull?: boolean;
 };
 
 const PROSE_ASSUMPTION_DISPOSITIONS: readonly ProseAssumptionDisposition[] = [
@@ -18,6 +29,16 @@ const PROSE_ASSUMPTION_DISPOSITIONS: readonly ProseAssumptionDisposition[] = [
 
 function isProseAssumptionDisposition(value: string): value is ProseAssumptionDisposition {
   return (PROSE_ASSUMPTION_DISPOSITIONS as readonly string[]).includes(value);
+}
+
+function readOptionalTrimmedString(value: unknown): string | null {
+  if (typeof value !== "string") {
+    return null;
+  }
+
+  const trimmed = value.trim();
+
+  return trimmed.length > 0 ? trimmed : null;
 }
 
 /** Reads prose assumption register rows persisted on findings snapshot curation (DX-61). */
@@ -44,6 +65,18 @@ export function readProseAssumptionRegisterFromFindingsSnapshot(
 
   for (const rawEntry of rawEntries) {
     if (rawEntry === null || typeof rawEntry !== "object") {
+      entries.push({
+        statement: PROSE_ASSUMPTION_ROW_NOT_STORED_IN_FULL,
+        documentPath: PROSE_ASSUMPTION_DOCUMENT_PATH_NOT_STORED,
+        lineNumber: 0,
+        lineNumberStored: false,
+        evidenceRef: PROSE_ASSUMPTION_EVIDENCE_REF_NOT_STORED,
+        logicalPropertyName: null,
+        disposition: "notVerifiable",
+        dispositionStored: false,
+        findingId: null,
+        rowNotStoredInFull: true,
+      });
       continue;
     }
 
@@ -55,37 +88,20 @@ export function readProseAssumptionRegisterFromFindingsSnapshot(
     const dispositionRaw = (rawEntry as { disposition?: unknown }).disposition;
     const findingIdRaw = (rawEntry as { findingId?: unknown }).findingId;
 
-    if (typeof statementRaw !== "string" || statementRaw.trim().length === 0) {
-      continue;
-    }
-
-    if (typeof documentPathRaw !== "string" || documentPathRaw.trim().length === 0) {
-      continue;
-    }
-
-    if (typeof lineNumberRaw !== "number" || !Number.isFinite(lineNumberRaw)) {
-      continue;
-    }
-
-    if (typeof evidenceRefRaw !== "string" || evidenceRefRaw.trim().length === 0) {
-      continue;
-    }
-
-    if (typeof dispositionRaw !== "string" || !isProseAssumptionDisposition(dispositionRaw)) {
-      continue;
-    }
+    const lineNumberStored = typeof lineNumberRaw === "number" && Number.isFinite(lineNumberRaw);
+    const dispositionStored =
+      typeof dispositionRaw === "string" && isProseAssumptionDisposition(dispositionRaw);
 
     entries.push({
-      statement: statementRaw.trim(),
-      documentPath: documentPathRaw.trim(),
-      lineNumber: Math.max(1, Math.trunc(lineNumberRaw)),
-      evidenceRef: evidenceRefRaw.trim(),
-      logicalPropertyName:
-        typeof logicalPropertyNameRaw === "string" && logicalPropertyNameRaw.trim().length > 0
-          ? logicalPropertyNameRaw.trim()
-          : null,
-      disposition: dispositionRaw,
-      findingId: typeof findingIdRaw === "string" && findingIdRaw.trim().length > 0 ? findingIdRaw.trim() : null,
+      statement: readOptionalTrimmedString(statementRaw) ?? PROSE_ASSUMPTION_STATEMENT_NOT_STORED,
+      documentPath: readOptionalTrimmedString(documentPathRaw) ?? PROSE_ASSUMPTION_DOCUMENT_PATH_NOT_STORED,
+      lineNumber: lineNumberStored ? Math.trunc(lineNumberRaw) : 0,
+      lineNumberStored,
+      evidenceRef: readOptionalTrimmedString(evidenceRefRaw) ?? PROSE_ASSUMPTION_EVIDENCE_REF_NOT_STORED,
+      logicalPropertyName: readOptionalTrimmedString(logicalPropertyNameRaw),
+      disposition: dispositionStored ? dispositionRaw : "notVerifiable",
+      dispositionStored,
+      findingId: readOptionalTrimmedString(findingIdRaw),
     });
   }
 
@@ -121,8 +137,17 @@ export function formatProseAssumptionRegisterLabels(
   entries: readonly ProseAssumptionRegisterEntry[],
 ): readonly string[] {
   return entries.map((entry) => {
-    const dispositionLabel = formatProseAssumptionDispositionLabel(entry.disposition);
+    if (entry.rowNotStoredInFull === true) {
+      return PROSE_ASSUMPTION_ROW_NOT_STORED_IN_FULL;
+    }
 
-    return `${truncateProseAssumptionStatement(entry.statement)} — ${dispositionLabel} (${entry.evidenceRef})`;
+    const dispositionLabel = entry.dispositionStored
+      ? formatProseAssumptionDispositionLabel(entry.disposition)
+      : PROSE_ASSUMPTION_DISPOSITION_NOT_STORED;
+    const lineLabel = entry.lineNumberStored
+      ? `line ${entry.lineNumber}`
+      : PROSE_ASSUMPTION_LINE_NOT_STORED;
+
+    return `${truncateProseAssumptionStatement(entry.statement)} — ${dispositionLabel} (${entry.evidenceRef}, ${lineLabel})`;
   });
 }

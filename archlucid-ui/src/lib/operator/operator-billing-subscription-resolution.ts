@@ -6,6 +6,8 @@ import {
 import type { EnterpriseStatusKind } from "@/lib/design-tokens";
 import type { TeamExpansionNudgeStatusPayload } from "@/lib/team-expansion-nudge-trigger";
 
+import { normalizeOperatorHomeNonNegativeCount } from "@/lib/operator/run-home-status";
+
 import type { OperatorBillingSubscriptionLoadState } from "./operator-billing-current-plan";
 
 export type OperatorBillingSubscriptionStatusDisplay = {
@@ -108,20 +110,22 @@ export function resolveOperatorBillingSeatRow(
     return null;
   }
 
-  if (typeof seatsLimit !== "number" || seatsLimit <= 0) {
+  if (typeof seatsLimit !== "number" || !Number.isFinite(seatsLimit) || seatsLimit <= 0) {
     return null;
   }
+
+  const seatLimit = Math.trunc(seatsLimit);
 
   if (!hasPaidPlan && !isTenantTrial) {
     return null;
   }
 
-  const used = seatsUsed ?? 0;
+  const used = normalizeOperatorHomeNonNegativeCount(seatsUsed);
   const label = isTenantTrial ? "Trial seats" : "Seats";
 
   return {
     label,
-    value: `${used} of ${seatsLimit} in use`,
+    value: `${used} of ${seatLimit} in use`,
   };
 }
 

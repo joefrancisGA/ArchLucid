@@ -125,6 +125,20 @@ public sealed class CorePackageCoverageBatchRc28bTests
     }
 
     [Fact]
+    public void ConfigurationKeyRequirement_WhenProduction_treats_dotnet_environment_with_trailing_tab_as_production()
+    {
+        IConfiguration configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?> { ["DOTNET_ENVIRONMENT"] = "Production\t" })
+            .Build();
+        ConfigurationKeyEntry prod = new("s", "p", ["e"], null, "r", "d", ConfigKeyRequirementKind.WhenProduction);
+
+        ConfigurationKeyRequirement.IsKeyRequired(prod, configuration, aspNetCoreEnvironment: null, out string reason)
+            .Should()
+            .BeTrue();
+        reason.Should().Contain("Production");
+    }
+
+    [Fact]
     public void ConfigurationKeyRequirement_WhenProduction_uses_archlucid_environment_from_configuration_when_aspnet_env_not_production()
     {
         IConfiguration configuration = new ConfigurationBuilder()
@@ -214,6 +228,20 @@ public sealed class CorePackageCoverageBatchRc28bTests
         ConfigurationKeyEntry prod = new("s", "p", ["e"], null, "r", "d", ConfigKeyRequirementKind.WhenProduction);
 
         ConfigurationKeyRequirement.IsKeyRequired(prod, configuration, aspNetCoreEnvironment: null, out string reason)
+            .Should()
+            .BeTrue();
+        reason.Should().Contain("Production");
+    }
+
+    [Fact]
+    public void ConfigurationKeyRequirement_WhenProduction_treats_archlucid_environment_with_unicode_line_separator_padding_as_production()
+    {
+        IConfiguration configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?> { ["ARCHLUCID_ENVIRONMENT"] = "Production" + '\u2028' })
+            .Build();
+        ConfigurationKeyEntry prod = new("s", "p", ["e"], null, "r", "d", ConfigKeyRequirementKind.WhenProduction);
+
+        ConfigurationKeyRequirement.IsKeyRequired(prod, configuration, aspNetCoreEnvironment: "Development", out string reason)
             .Should()
             .BeTrue();
         reason.Should().Contain("Production");

@@ -52,10 +52,24 @@ const cnCard =
 const cnBrokenLinksPanel =
   "mt-4 rounded-md border border-dashed border-neutral-300 bg-neutral-50 p-3 dark:border-neutral-700 dark:bg-neutral-900/40";
 
+function formatLineageVersionLabel(value: string | null | undefined, notStoredLabel: string): string {
+  if (value === null || value === undefined) {
+    return notStoredLabel;
+  }
+
+  const trimmed = value.trim();
+
+  if (trimmed.length === 0 || trimmed.toLowerCase() === "unknown") {
+    return notStoredLabel;
+  }
+
+  return trimmed;
+}
+
 function TechnicalIdentifierRow(props: { readonly label: string; readonly value: string | null | undefined }): React.JSX.Element {
   return (
     <p className={cn("m-0 font-mono text-xs break-all text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-      {props.label}={props.value ?? "—"}
+      {props.label}={props.value?.trim() || `${props.label} was not stored.`}
     </p>
   );
 }
@@ -321,8 +335,8 @@ export function AuditEvidenceLineageSpine(props: AuditEvidenceLineageSpineProps)
                   ) : null}
                   <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                     Collected {evidence.collectedUtc ? formatIsoUtcForDisplay(evidence.collectedUtc) : "Collected time was not stored."} · collector{" "}
-                    {evidence.collectorVersion ?? "Collector version was not stored."} · selector{" "}
-                    {evidence.selectorVersion ?? "Selector version was not stored."}
+                    {formatLineageVersionLabel(evidence.collectorVersion, "Collector version was not stored.")} · selector{" "}
+                    {formatLineageVersionLabel(evidence.selectorVersion, "Selector version was not stored.")}
                   </p>
                   {(evidence.missingLinkKinds?.length ?? 0) > 0 ? (
                     <p

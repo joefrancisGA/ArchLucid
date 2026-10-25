@@ -24,6 +24,7 @@ export type SendableExportCoverInput = {
   readonly structuralExecutionMode?: StructuralExecutionModeInput;
   readonly hostAgentExecutionMode?: string | null;
   readonly findings?: readonly FindingSemanticSupportBandExportInput[] | null;
+  readonly sponsorRoiRowCount?: number | null;
 };
 
 function readClassificationFromWire(value: unknown): FindingSemanticSupportBandExportInput["classification"] {
@@ -86,15 +87,31 @@ export function formatSendableExportCoverMarkdown(input: SendableExportCoverInpu
   lines.push(
     runId.length > 0 ? `- **Review id:** \`${runId}\`` : "- **Review id:** Review id was not stored",
   );
+  const ruleSetId = summary?.ruleSetId?.trim() ?? "";
+  const ruleSetVersion = summary?.ruleSetVersion?.trim() ?? "";
+  const reviewStatus = summary?.status?.trim() ?? "";
+
+  if (summary === null) {
+    lines.push("- **Policy pack:** Policy pack was not stored.");
+  } else if (ruleSetId.length > 0 && ruleSetVersion.length > 0) {
+    lines.push(`- **Policy pack:** ${ruleSetId} @ ${ruleSetVersion}`);
+  } else {
+    const policyPackParts: string[] = [];
+
+    if (ruleSetId.length === 0) {
+      policyPackParts.push("Policy pack id was not stored.");
+    }
+
+    if (ruleSetVersion.length === 0) {
+      policyPackParts.push("Policy pack version was not stored.");
+    }
+
+    lines.push(`- **Policy pack:** ${policyPackParts.join(" ")}`);
+  }
   lines.push(
-    summary !== null
-      ? `- **Policy pack:** ${summary.ruleSetId} @ ${summary.ruleSetVersion}`
-      : "- **Policy pack:** Policy pack was not stored",
-  );
-  lines.push(
-    summary !== null
-      ? `- **Review record status:** ${summary.status}`
-      : "- **Review record status:** Review record status was not stored",
+    summary !== null && reviewStatus.length > 0
+      ? `- **Review record status:** ${reviewStatus}`
+      : "- **Review record status:** Review record status was not stored.",
   );
 
   if (feasibilityVerdict !== null) {
@@ -104,6 +121,8 @@ export function formatSendableExportCoverMarkdown(input: SendableExportCoverInpu
       lines.push("- **Gate summary:** Verdict summary was not stored.");
     } else if (feasibilityVerdict.summary.trim().length > 0) {
       lines.push(`- **Gate summary:** ${feasibilityVerdict.summary.trim()}`);
+    } else {
+      lines.push("- **Gate summary:** Verdict summary was stored empty.");
     }
   } else {
     lines.push("- **Gate outcome:** Gate outcome was not stored");
@@ -119,11 +138,19 @@ export function formatSendableExportCoverMarkdown(input: SendableExportCoverInpu
 
   if (findings === null || findings === undefined) {
     lines.push("- Findings were not stored on this export cover.");
+  } else if (findings.length === 0) {
+    lines.push("- Findings list was stored empty.");
   } else if (hasUncheckedDecisionGradeSemanticSupportBand(findings)) {
     lines.push(`- **Semantic support:** ${SEMANTIC_SUPPORT_BAND_ASYNC_MAY_LAG_COPY}`);
   }
 
-  lines.push(`- **Sponsor ROI:** ${SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE}`);
+  const sponsorRoiRowCount = input.sponsorRoiRowCount ?? 0;
+
+  if (sponsorRoiRowCount > 0) {
+    lines.push(`- **Sponsor ROI:** ${SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE}`);
+  } else {
+    lines.push("- **Sponsor ROI:** Sponsor savings were not stored on this export cover.");
+  }
 
   lines.push("");
   lines.push(

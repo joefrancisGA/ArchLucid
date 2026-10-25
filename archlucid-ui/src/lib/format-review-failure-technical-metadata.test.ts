@@ -36,4 +36,16 @@ describe("format-review-failure-technical-metadata", () => {
     expect(byLabel["Last failure reason (stored)"]).toContain("NoScheduledAgentTasks");
     expect(byLabel["OpenTelemetry trace id"]).toBe("637db8b7-0000-4000-8000-000000000001");
   });
+
+  it("does not invent assessment progress when pipeline summary is absent (P-20)", () => {
+    const rows = formatReviewFailureTechnicalMetadataRows({
+      runId: "run-abc",
+      lastFailureSummary: { failureClass: "invalidOperation" },
+    });
+
+    const byLabel = Object.fromEntries(rows.map((row) => [row.label, row.value]));
+
+    expect(byLabel["Assessment progress"]).toBe("Assessment progress was not stored.");
+    expect(byLabel["Assessment step flags"]).toBe("Assessment progress was not stored.");
+  });
 });

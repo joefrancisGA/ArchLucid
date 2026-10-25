@@ -1,9 +1,6 @@
 import { buildCompareTwoReviewsHref } from "@/lib/compare-two-reviews-route";
 import { secondReviewFromPriorHref } from "@/lib/second-review-prior-package";
-import {
-  SPONSOR_BRIEFING_EXPORT_LABEL,
-  SPONSOR_BRIEFING_EXPORT_LABEL_LOWER,
-} from "@/lib/usability/canonical-product-terms";
+import { SPONSOR_BRIEFING_EXPORT_LABEL } from "@/lib/usability/canonical-product-terms";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { buildReviewWorkspaceTabHref } from "@/lib/unified-review-workspace-tabs";
 import { INTERNAL_REPLAY_PATH } from "@/lib/internal-ops-route-paths";
@@ -54,8 +51,8 @@ export const REVIEW_LIFECYCLE_NEXT_ACTION_REGISTRY: readonly ReviewLifecycleNext
   {
     id: "sponsor-packet",
     kind: "primary",
-    label: `Send ${SPONSOR_BRIEFING_EXPORT_LABEL_LOWER}`,
-    description: `Download ${SPONSOR_BRIEFING_EXPORT_LABEL_LOWER} from the deliverables section.`,
+    label: "Open sponsor briefing",
+    description: "Opens the deliverables section, where the sponsor briefing can be downloaded.",
     surfaces: ["post-commit-habit-loop", "review-package", "operator-home"],
     phases: ["post-finalize"],
   },
@@ -135,7 +132,7 @@ export const REVIEW_LIFECYCLE_NEXT_ACTION_REGISTRY: readonly ReviewLifecycleNext
     id: "answer-clarifications",
     kind: "primary",
     label: "Answer clarifying questions",
-    description: "Answer open clarifying questions before assessment confidence improves.",
+    description: "Open the clarifying questions stored for this review.",
     surfaces: ["review-package"],
     phases: ["in-review"],
   },
@@ -220,7 +217,7 @@ function resolveHref(id: ReviewLifecycleNextActionId, input: BuildReviewLifecycl
         return correctionHref;
       }
 
-      return buildReviewWorkspaceTabHref(runId, "overview");
+      return null;
     }
 
     default: {
@@ -267,11 +264,11 @@ export function listReviewLifecycleNextActions(input: {
       if (buyerPolishedShell && entry.id === "sponsor-packet") {
         primary = {
           ...instance,
-          label: `Send ${SPONSOR_BRIEFING_EXPORT_LABEL_LOWER}`,
+          label: "Open sponsor briefing",
           description:
             input.hrefInput.buyerShowcaseQuickLinks === true
-              ? "Open sponsor deliverables — PDF, proof pack, and readiness checks."
-              : `Finalize ${SPONSOR_BRIEFING_EXPORT_LABEL_LOWER} before external circulation.`,
+              ? "Opens the deliverables section, where the sponsor briefing can be downloaded."
+              : "Opens the deliverables section, where the sponsor briefing can be downloaded.",
         };
       }
       else {

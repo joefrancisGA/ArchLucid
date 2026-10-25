@@ -27,4 +27,11 @@ public sealed class DistributedCacheValueReportJobPollStateCache(IDistributedCac
 
         return _distributedCache.Get(key);
     }
+
+    public void Remove(string key)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(key);
+
+        _distributedCache.Remove(key);
+    }
 }
