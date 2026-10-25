@@ -25,6 +25,35 @@ public sealed class AllowedRunExportBlobDestinationUrlPolicyTests
             .Contain("embedded credentials");
     }
 
+    [Fact]
+    public void TryGetRejectionReason_WhenIpv4LiteralIsBlobAccountLabel_Rejects()
+    {
+        AllowedRunExportBlobDestinationUrlPolicy.TryGetRejectionReason(
+                "https://127.0.0.1.blob.core.windows.net/container/run.zip?sas=token")
+            .Should()
+            .Contain("private");
+    }
+
+    [Theory]
+    [InlineData("https://127%2e0%2e0%2e1.blob.core.windows.net/container/run.zip?sas=token")]
+    [InlineData("https://10%2e0%2e0%2e1.blob.core.windows.net/container/run.zip?sas=token")]
+    [InlineData("https://acct.blob%2ecore%2ewindows%2enet/container/run.zip?sas=token")]
+    public void TryGetRejectionReason_WhenPercentEncodedDotsInHost_RejectsAsInvalidAbsoluteUrl(string url)
+    {
+        AllowedRunExportBlobDestinationUrlPolicy.TryGetRejectionReason(url)
+            .Should()
+            .Contain("absolute HTTPS");
+    }
+
+    [Fact]
+    public void TryGetRejectionReason_WhenMixedCaseAzureBlobHost_Allows()
+    {
+        AllowedRunExportBlobDestinationUrlPolicy.TryGetRejectionReason(
+                "https://Acct.BLOB.core.windows.net/container/run.zip?sas=token")
+            .Should()
+            .BeNull();
+    }
+
     [Theory]
     [InlineData("http://acct.blob.core.windows.net/c?sas=1", "https scheme")]
     [InlineData("https://127.0.0.1/c?sas=1", "private")]

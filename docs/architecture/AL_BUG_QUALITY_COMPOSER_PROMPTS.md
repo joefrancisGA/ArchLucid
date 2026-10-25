@@ -1,6 +1,6 @@
 > **Scope:** Copy-paste Composer prompts that stop `/al-bug` from manufacturing synthetic defects (especially redaction, schema-version coercion, and English-negation phrase lists) and restore a hunt catalog that covers recent product surface. Internal engineering only — not buyer-facing copy.
 > **Paste-ready files:** [`.cursor/prompts/al-bug-quality-00-index.md`](../../.cursor/prompts/al-bug-quality-00-index.md) (**ABQ-01–51 shipped**) · wave 7 index [`.cursor/prompts/al-bug-quality-week-uom-00-index.md`](../../.cursor/prompts/al-bug-quality-week-uom-00-index.md)
-> **Workflow:** [`.cursor/commands/al-bug.md`](../../.cursor/commands/al-bug.md) · ledger [`../library/AL_BUG_HUNT_LEDGER.md`](../library/AL_BUG_HUNT_LEDGER.md)
+> **Workflow:** [`.cursor/skills/al-bug/workflow.md`](../../.cursor/skills/al-bug/workflow.md) · zone sets **`/1`–`/4`** / **`/al-bug1`–`/al-bug4`** · ledger [`../library/AL_BUG_HUNT_LEDGER.md`](../library/AL_BUG_HUNT_LEDGER.md)
 > **Do not fork:** GTM cohorts **M-90 / M-44 / M-91 / M-92**; closed assurance **TB-135 / TB-136**; `/al-defect` PD intake; a full `bugsmash` revert
 
 # `/al-bug` quality — Composer prompts (ABQ-01–ABQ-51)

@@ -49,8 +49,6 @@ public static partial class ArchitectureReviewBoardExportDocumentFactory
 
         List<ArchitectureReviewBoardExportPolicyFindingRow> rows = [];
 
-        int i = 1;
-
         foreach (string constraint in m.Governance.PolicyConstraints ?? [])
         {
             if (string.IsNullOrWhiteSpace(constraint))
@@ -59,12 +57,10 @@ public static partial class ArchitectureReviewBoardExportDocumentFactory
             rows.Add(
                 new ArchitectureReviewBoardExportPolicyFindingRow
                 {
-                    PolicyPackNameOrId = $"Policy constraint #{i}",
+                    PolicyPackNameOrId = string.Empty,
                     Outcome = "Recorded on architecture snapshot",
                     Detail = constraint.Trim()
                 });
-
-            i++;
 
             if (rows.Count >= 20)
                 break;
@@ -123,6 +119,13 @@ public static partial class ArchitectureReviewBoardExportDocumentFactory
         if (detail.Run.GoldenManifestId is Guid goldenManifestId)
             rows.Add(
                 new ArchitectureReviewBoardExportTraceRow { Label = "Reviewed manifest identifier", Value = goldenManifestId.ToString("D") });
+        else
+            rows.Add(
+                new ArchitectureReviewBoardExportTraceRow
+                {
+                    Label = "Reviewed manifest identifier",
+                    Value = "Reviewed manifest identifier was not stored."
+                });
 
         return rows;
     }
@@ -137,7 +140,7 @@ public static partial class ArchitectureReviewBoardExportDocumentFactory
             if (string.IsNullOrWhiteSpace(constraint))
                 continue;
 
-            actions.Add($"Validate remediation plans against constraint: {constraint.Trim()}");
+            actions.Add($"Recorded constraint: {constraint.Trim()}. No remediation action was stored.");
 
             if (actions.Count >= 8)
                 break;

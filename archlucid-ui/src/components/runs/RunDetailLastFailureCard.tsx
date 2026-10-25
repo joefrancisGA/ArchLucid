@@ -194,11 +194,11 @@ export function RunDetailLastFailureCard(props: {
         </CardTitle>
       </CardHeader>
       <CardContent className={cn("space-y-2 pt-0", bodyClass, OPERATOR_TYPOGRAPHY.body)}>
-        {failureRecordedAtLabel !== null ? (
-          <p className={cn("m-0", helperClass, OPERATOR_TYPOGRAPHY.helper)} data-testid="run-detail-last-failure-recorded-at">
-            Failed {failureRecordedAtLabel}
-          </p>
-        ) : null}
+        <p className={cn("m-0", helperClass, OPERATOR_TYPOGRAPHY.helper)} data-testid="run-detail-last-failure-recorded-at">
+          {failureRecordedAtLabel !== null
+            ? `Failed ${failureRecordedAtLabel}`
+            : "Failure recorded time was not stored."}
+        </p>
         <p className="m-0" data-testid="run-detail-last-failure-cause">
           <span className="font-medium">What failed:</span> {whatFailedLine}
         </p>
@@ -215,11 +215,10 @@ export function RunDetailLastFailureCard(props: {
               Technical details
             </summary>
             <div className={cn("mt-2 space-y-2", helperClass, OPERATOR_TYPOGRAPHY.helper)}>
-              {agentLabel !== null ? (
-                <p className="m-0">
-                  <span className="font-medium">Agent:</span> {agentLabel}
-                </p>
-              ) : null}
+              <p className="m-0" data-testid="run-detail-last-failure-agent">
+                <span className="font-medium">Agent:</span>{" "}
+                {agentLabel !== null ? agentLabel : "Agent was not stored."}
+              </p>
               <p className="m-0">
                 <span className="font-medium">Failure class:</span> {copy.failureClassLabel}
               </p>

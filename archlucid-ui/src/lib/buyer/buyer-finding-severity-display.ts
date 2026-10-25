@@ -1,17 +1,11 @@
-import { isPhiMinimizationFindingId } from "@/lib/findings/finding-display-from-inspect";
-
 /**
  * Normalizes finding severity labels for buyer-facing surfaces so breadcrumbs, graph panels, and detail cards agree.
  */
-export function buyerFindingSeverityDisplayLabel(severityRaw: string | null | undefined, findingId?: string): string {
+export function buyerFindingSeverityDisplayLabel(severityRaw: string | null | undefined, _findingId?: string): string {
   const trimmed = (severityRaw ?? "").trim();
 
-  if (isPhiMinimizationFindingId(findingId ?? "")) {
-    return "High";
-  }
-
   if (trimmed.length === 0) {
-    return "Severity pending";
+    return "Severity was not stored.";
   }
 
   const key = trimmed.toLowerCase();

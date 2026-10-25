@@ -264,7 +264,7 @@ public sealed class CoveragePreviewEmitStage : ICoveragePreviewEmitStage
     {
         PolicyPackId = pack.PolicyPackId,
         PolicyPackDisplayName = pack.Name,
-        PolicyPackVersion = assignment?.PolicyPackVersion ?? pack.CurrentVersion ?? "1.0.0",
+        PolicyPackVersion = ResolvePolicyPackVersion(assignment?.PolicyPackVersion, pack.CurrentVersion),
         CoverageType = coverageType,
         SelectionState = selectionState,
         RecommendationConfidence = recommendationConfidence,
@@ -304,6 +304,18 @@ public sealed class CoveragePreviewEmitStage : ICoveragePreviewEmitStage
             return "No assurance coverage could be resolved for this workspace yet.";
 
         return $"This architecture will use {string.Join(", ", parts)}.";
+    }
+
+
+    private static string ResolvePolicyPackVersion(string? assignmentVersion, string? packCurrentVersion)
+    {
+        if (!string.IsNullOrWhiteSpace(assignmentVersion))
+            return assignmentVersion.Trim();
+
+        if (!string.IsNullOrWhiteSpace(packCurrentVersion))
+            return packCurrentVersion.Trim();
+
+        return "Policy pack version was not stored.";
     }
 
     private static bool AppliesToScope(PolicyPackAssignment assignment, ScopeContext scope)

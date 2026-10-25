@@ -33,6 +33,18 @@ public static class AzureExtractorPackageInventoryReader
             (bool graphAppRoleAssignmentsFilePresent, AzureInventoryGraphAppRoleAssignmentsDocument graphAppRoleAssignmentsDocument) =
                 ReadGraphAppRoleAssignments(archive);
             List<JsonElement> defenderSummary = ReadOptionalArray(archive, AzureExtractorPackageZipEntryNames.DefenderSummary);
+            List<JsonElement> defenderPricings = ReadOptionalArray(archive, AzureExtractorPackageZipEntryNames.DefenderPricings);
+            List<JsonElement> defenderScoreControls = ReadOptionalArray(archive, AzureExtractorPackageZipEntryNames.DefenderScoreControls);
+            List<JsonElement> defenderAssessments = ReadOptionalArray(archive, AzureExtractorPackageZipEntryNames.DefenderAssessments);
+            List<JsonElement> defenderAssessmentCounts = ReadOptionalArray(archive, AzureExtractorPackageZipEntryNames.DefenderAssessmentCounts);
+            List<JsonElement> defenderSecurityContacts = ReadOptionalArray(archive, AzureExtractorPackageZipEntryNames.DefenderSecurityContacts);
+            List<JsonElement> defenderGovernanceAssignments = ReadOptionalArray(archive, AzureExtractorPackageZipEntryNames.DefenderGovernance);
+            List<JsonElement> defenderComplianceStandards = ReadOptionalArray(archive, AzureExtractorPackageZipEntryNames.DefenderComplianceStandards);
+            List<JsonElement> defenderComplianceControls = ReadOptionalArray(archive, AzureExtractorPackageZipEntryNames.DefenderComplianceControls);
+            List<JsonElement> defenderAlerts = ReadOptionalArray(archive, AzureExtractorPackageZipEntryNames.DefenderAlerts);
+            List<JsonElement> defenderAttackPaths = ReadOptionalArray(archive, AzureExtractorPackageZipEntryNames.DefenderAttackPaths);
+            List<JsonElement> defenderVulnerabilityCounts = ReadOptionalArray(archive, AzureExtractorPackageZipEntryNames.DefenderVulnerabilityCounts);
+            List<JsonElement> defenderVulnerabilityFindings = ReadOptionalArray(archive, AzureExtractorPackageZipEntryNames.DefenderVulnerabilityFindings);
             (bool effectiveNetworkControlsFilePresent, List<AzureInventoryEffectiveNetworkControlRow> effectiveNetworkControls) =
                 ReadEffectiveNetworkControls(archive);
             (bool adfLinkedServicesFilePresent, List<AzureInventoryAdfLinkedServiceRow> adfLinkedServices) =
@@ -85,6 +97,18 @@ public static class AzureExtractorPackageInventoryReader
                 GraphAppRoleAssignments = graphAppRoleAssignmentsDocument.AppRoleAssignments,
                 GraphAppRoleAssignmentsFilePresent = graphAppRoleAssignmentsFilePresent,
                 DefenderSummary = defenderSummary,
+                DefenderPricings = defenderPricings,
+                DefenderScoreControls = defenderScoreControls,
+                DefenderAssessments = defenderAssessments,
+                DefenderAssessmentCounts = defenderAssessmentCounts,
+                DefenderSecurityContacts = defenderSecurityContacts,
+                DefenderGovernanceAssignments = defenderGovernanceAssignments,
+                DefenderComplianceStandards = defenderComplianceStandards,
+                DefenderComplianceControls = defenderComplianceControls,
+                DefenderAlerts = defenderAlerts,
+                DefenderAttackPaths = defenderAttackPaths,
+                DefenderVulnerabilityCounts = defenderVulnerabilityCounts,
+                DefenderVulnerabilityFindings = defenderVulnerabilityFindings,
                 EffectiveNetworkControls = effectiveNetworkControls,
                 EffectiveNetworkControlsFilePresent = effectiveNetworkControlsFilePresent,
                 AdfLinkedServices = adfLinkedServices,

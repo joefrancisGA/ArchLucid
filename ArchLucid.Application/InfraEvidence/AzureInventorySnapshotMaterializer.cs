@@ -192,6 +192,30 @@ public sealed class AzureInventorySnapshotMaterializer(
 
             IReadOnlyList<AzureInventoryDefenderSummaryWrite> defenderSummaries =
                 DefenderSummaryCompanionMaterializer.Materialize(inventory.DefenderSummary);
+            IReadOnlyList<AzureInventoryDefenderPricingWrite> defenderPricings =
+                DefenderCompanionMaterializer.MaterializePricings(inventory.DefenderPricings);
+            IReadOnlyList<AzureInventoryDefenderScoreControlWrite> defenderScoreControls =
+                DefenderCompanionMaterializer.MaterializeScoreControls(inventory.DefenderScoreControls);
+            IReadOnlyList<AzureInventoryDefenderAssessmentWrite> defenderAssessments =
+                DefenderCompanionMaterializer.MaterializeAssessments(inventory.DefenderAssessments);
+            IReadOnlyList<AzureInventoryDefenderAssessmentCountWrite> defenderAssessmentCounts =
+                DefenderCompanionMaterializer.MaterializeAssessmentCounts(inventory.DefenderAssessmentCounts);
+            IReadOnlyList<AzureInventoryDefenderSecurityContactWrite> defenderSecurityContacts =
+                DefenderCompanionMaterializer.MaterializeSecurityContacts(inventory.DefenderSecurityContacts);
+            IReadOnlyList<AzureInventoryDefenderGovernanceAssignmentWrite> defenderGovernanceAssignments =
+                DefenderFollowOnMaterializer.MaterializeGovernance(inventory.DefenderGovernanceAssignments);
+            IReadOnlyList<AzureInventoryDefenderComplianceStandardWrite> defenderComplianceStandards =
+                DefenderFollowOnMaterializer.MaterializeComplianceStandards(inventory.DefenderComplianceStandards);
+            IReadOnlyList<AzureInventoryDefenderComplianceControlWrite> defenderComplianceControls =
+                DefenderFollowOnMaterializer.MaterializeComplianceControls(inventory.DefenderComplianceControls);
+            IReadOnlyList<AzureInventoryDefenderAlertWrite> defenderAlerts =
+                DefenderFollowOnMaterializer.MaterializeAlerts(inventory.DefenderAlerts);
+            IReadOnlyList<AzureInventoryDefenderAttackPathWrite> defenderAttackPaths =
+                DefenderFollowOnMaterializer.MaterializeAttackPaths(inventory.DefenderAttackPaths);
+            IReadOnlyList<AzureInventoryDefenderVulnerabilityCountWrite> defenderVulnerabilityCounts =
+                DefenderFollowOnMaterializer.MaterializeVulnerabilityCounts(inventory.DefenderVulnerabilityCounts);
+            IReadOnlyList<AzureInventoryDefenderVulnerabilityFindingWrite> defenderVulnerabilityFindings =
+                DefenderFollowOnMaterializer.MaterializeVulnerabilityFindings(inventory.DefenderVulnerabilityFindings);
 
             AzureInventorySecurityEdgeMaterializeResult securityEdges =
                 AzureInventorySecurityEdgeMaterializer.Materialize(
@@ -297,6 +321,18 @@ public sealed class AzureInventorySnapshotMaterializer(
                     Diagnostics = diagnostics,
                     UnknownResources = unknowns,
                     DefenderSummaries = defenderSummaries,
+                    DefenderPricings = defenderPricings,
+                    DefenderScoreControls = defenderScoreControls,
+                    DefenderAssessments = defenderAssessments,
+                    DefenderAssessmentCounts = defenderAssessmentCounts,
+                    DefenderSecurityContacts = defenderSecurityContacts,
+                    DefenderGovernanceAssignments = defenderGovernanceAssignments,
+                    DefenderComplianceStandards = defenderComplianceStandards,
+                    DefenderComplianceControls = defenderComplianceControls,
+                    DefenderAlerts = defenderAlerts,
+                    DefenderAttackPaths = defenderAttackPaths,
+                    DefenderVulnerabilityCounts = defenderVulnerabilityCounts,
+                    DefenderVulnerabilityFindings = defenderVulnerabilityFindings,
                 },
                 cancellationToken);
 
