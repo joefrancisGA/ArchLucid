@@ -215,7 +215,7 @@ function formatOutlineResourceType(resourceType: string | null): string {
     return "Resource type was stored empty.";
   }
 
-  return formatDiagramArmTypeFriendlyName(resourceType);
+  return formatDiagramArmTypeFriendlyName(resourceType) ?? "Resource type was not stored";
 }
 
 function formatOutlineEdgeSource(
