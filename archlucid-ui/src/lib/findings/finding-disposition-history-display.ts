@@ -58,3 +58,27 @@ export function formatFindingDispositionHistoryLine(event: FindingDispositionEve
 
   return parts.join(" · ");
 }
+
+export function formatActiveWaiverRationale(rationale: string | null | undefined): string {
+  if (rationale === null || rationale === undefined) {
+    return "Waiver rationale was not stored.";
+  }
+
+  if (rationale.trim().length === 0) {
+    return "Waiver rationale was stored empty.";
+  }
+
+  return rationale.trim();
+}
+
+export function formatActiveWaiverEvidenceRef(evidenceRef: string | null | undefined): string {
+  if (evidenceRef === null || evidenceRef === undefined) {
+    return "Waiver evidence reference was not stored.";
+  }
+
+  if (evidenceRef.trim().length === 0) {
+    return "Waiver evidence reference was stored empty.";
+  }
+
+  return evidenceRef.trim();
+}

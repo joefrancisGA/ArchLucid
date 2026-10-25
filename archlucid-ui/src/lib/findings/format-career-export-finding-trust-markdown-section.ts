@@ -25,7 +25,7 @@ export function formatCareerExportFindingTrustMarkdownSection(
       finding.title.trim().length > 0 ? finding.title.trim() : "Finding title was not stored.";
 
     lines.push(
-      `- **${finding.findingId}** — ${title}: ${trustLine ?? "Trust label unavailable on this snapshot."}`,
+      `- **${finding.findingId}** — ${title}: ${trustLine ?? "Trust label was not stored."}`,
     );
   }
 
