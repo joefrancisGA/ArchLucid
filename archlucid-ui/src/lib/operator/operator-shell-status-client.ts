@@ -73,10 +73,10 @@ function mapAlertsInboxSummary(dto: AlertsInboxSummaryApiDto | null | undefined)
   }
 
   return {
-    open: dto.openCount,
-    acknowledged: dto.acknowledgedCount,
-    resolved: dto.resolvedCount,
-    blocking: dto.blockingCount,
+    open: normalizeOperatorHomeNonNegativeCount(dto.openCount),
+    acknowledged: normalizeOperatorHomeNonNegativeCount(dto.acknowledgedCount),
+    resolved: normalizeOperatorHomeNonNegativeCount(dto.resolvedCount),
+    blocking: normalizeOperatorHomeNonNegativeCount(dto.blockingCount),
     lastEvaluatedUtc: dto.lastEvaluatedUtc ?? null,
   };
 }
