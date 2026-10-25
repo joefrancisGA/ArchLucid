@@ -1,3 +1,5 @@
+import type { FindingDispositionEvent } from "@/lib/api/governance-stickiness-disposition-types";
+
 export function formatDispositionHistoryActor(reviewerUserId: string | null | undefined): string {
   const trimmed = reviewerUserId?.trim() ?? "";
 
@@ -28,6 +30,33 @@ export function formatDispositionHistoryRecordedTime(occurredAtUtc: string | nul
   }
 
   return trimmed;
+}
+
+export function formatDispositionHistoryRevisitDue(revisitDueUtc: string | null | undefined): string {
+  if (revisitDueUtc === null || revisitDueUtc === undefined) {
+    return "Revisit due was not stored.";
+  }
+
+  if (revisitDueUtc.trim().length === 0) {
+    return "Revisit due was stored empty.";
+  }
+
+  return revisitDueUtc.trim();
+}
+
+export function formatFindingDispositionHistoryLine(event: FindingDispositionEvent): string {
+  const parts = [
+    event.disposition,
+    formatDispositionHistoryActor(event.reviewerUserId),
+    formatDispositionHistoryRecordedTime(event.occurredAtUtc),
+    formatDispositionHistoryRationale(event.rationale),
+  ];
+
+  if (event.disposition === "Deferred") {
+    parts.push(formatDispositionHistoryRevisitDue(event.revisitDueUtc));
+  }
+
+  return parts.join(" · ");
 }
 
 export function formatActiveWaiverRationale(rationale: string | null | undefined): string {

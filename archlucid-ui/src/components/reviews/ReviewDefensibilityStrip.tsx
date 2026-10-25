@@ -1,12 +1,14 @@
 "use client";
 
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { formatReviewDefensibilityCriticLabel } from "@/lib/reviews/review-defensibility-critic-display";
 import { cn } from "@/lib/utils";
 
 export type ReviewDefensibilityStripProps = {
   readonly assertedCount: number | null;
   readonly inferredCount: number | null;
   readonly skippedCount: number | null;
+  readonly pipelineInFlight: boolean;
   readonly criticAbsent: boolean;
   readonly verdictKind?: string | null;
 };
@@ -64,7 +66,7 @@ export function ReviewDefensibilityStrip(props: ReviewDefensibilityStripProps): 
         <li data-testid="review-defensibility-critic">
           Critic:{" "}
           <span className="font-semibold">
-            {props.criticAbsent ? "Not included in this run" : "Included"}
+            {formatReviewDefensibilityCriticLabel(props.pipelineInFlight, props.criticAbsent)}
           </span>
         </li>
         {verdictLabel !== null ? (

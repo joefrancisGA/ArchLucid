@@ -66,7 +66,7 @@ public sealed class DocxArchitectureAnalysisExportService(IDiagramImageRenderer 
             }
             else
             {
-                builder.AddParagraph(ArchitectureEvidenceRequestExport.ConstraintsNotStoredCopy);
+                builder.AddParagraph(ArchitectureEvidenceRequestExport.ConstraintsNotRecordedCopy);
             }
 
             if (report.Evidence.Request.RequiredCapabilities.Count > 0)
@@ -78,7 +78,7 @@ public sealed class DocxArchitectureAnalysisExportService(IDiagramImageRenderer 
             }
             else
             {
-                builder.AddParagraph(ArchitectureEvidenceRequestExport.RequiredCapabilitiesNotStoredCopy);
+                builder.AddParagraph(ArchitectureEvidenceRequestExport.RequiredCapabilitiesNotRecordedCopy);
             }
 
             AddEvidenceAssumptions(builder, report.Evidence);
@@ -285,7 +285,7 @@ public sealed class DocxArchitectureAnalysisExportService(IDiagramImageRenderer 
 
         if (evidence.Request.Assumptions.Count == 0)
         {
-            builder.AddParagraph(ArchitectureEvidenceRequestExport.AssumptionsNotStoredCopy);
+            builder.AddParagraph(ArchitectureEvidenceRequestExport.AssumptionsNotRecordedCopy);
             return;
         }
 
@@ -299,7 +299,7 @@ public sealed class DocxArchitectureAnalysisExportService(IDiagramImageRenderer 
 
         if (evidence.Policies.Count == 0)
         {
-            builder.AddParagraph(ArchitectureEvidenceRequestExport.PolicyEvidenceNotStoredCopy);
+            builder.AddParagraph(ArchitectureEvidenceRequestExport.PolicyEvidenceNotRecordedCopy);
             return;
         }
 
