@@ -763,6 +763,26 @@ describe("SecureNowQuestionQueue", () => {
     });
   });
 
+  it("labels policy pack source in details when source is omitted on subscription-scope rows", async () => {
+    mocks.listQuestions.mockResolvedValue([
+      {
+        ...question,
+        resourceId: null,
+        scopeKind: "Subscription",
+        source: null,
+        questionKey: "subscription-ownership@v1",
+        questionText: "Who owns this subscription workload?",
+        answerCodes: ["Register", "Keep"],
+      },
+    ]);
+
+    render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
+    fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
+
+    expect(screen.getByText("Source: Asked from an assigned policy pack.")).toBeInTheDocument();
+    expect(screen.queryByText("Source: Question source was not stored.")).not.toBeInTheDocument();
+  });
+
   it("answers a subscription-scope pack question when source is null", async () => {
     mocks.listQuestions.mockResolvedValue([
       {

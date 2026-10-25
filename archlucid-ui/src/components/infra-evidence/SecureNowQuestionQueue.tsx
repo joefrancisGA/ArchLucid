@@ -8,6 +8,7 @@ import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { secureNowQuestionAnswerLabel } from "@/lib/infra-evidence/securenow-question-answer-label";
 import {
   secureNowQuestionDispositionMutationResourceId,
+  secureNowQuestionDispositionMutationSource,
   secureNowQuestionHasPackStyleDispositionScope,
   secureNowQuestionIsPolicyPackDispositionRow,
   secureNowQuestionPackScopeKindFromPrompt,
@@ -107,7 +108,28 @@ function openQuestionsCountLabel(count: number): string {
   return `${count} open questions`;
 }
 
-function formatSecureNowQuestionSourceLabel(source: string | null): string {
+function formatSecureNowQuestionSourceLabel(
+  question: Pick<SecureNowQuestion, "source" | "scopeKind" | "questionKey">,
+): string {
+  const resolvedSource = secureNowQuestionDispositionMutationSource(question);
+  if (resolvedSource) {
+    if (resolvedSource === "InventoryEvidence") {
+      return "Asked from inventory evidence.";
+    }
+
+    if (resolvedSource === "InferredConnection") {
+      return "Asked because a connection was inferred. Answering does not store a link.";
+    }
+
+    if (resolvedSource === "PolicyPack") {
+      return "Asked from an assigned policy pack.";
+    }
+
+    return `Question source code ${resolvedSource} has no reviewer label.`;
+  }
+
+  const source = question.source;
+
   if (source === null) {
     return "Question source was not stored.";
   }
@@ -579,7 +601,7 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
                   : "Source line was not stored"}
               </p>
               <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                Source: {formatSecureNowQuestionSourceLabel(currentQuestion.source)}
+                Source: {formatSecureNowQuestionSourceLabel(currentQuestion)}
               </p>
               <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                 Scope: {formatSecureNowQuestionScopeLabel(currentQuestion)}
