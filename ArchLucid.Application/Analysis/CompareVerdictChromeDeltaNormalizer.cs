@@ -1,3 +1,4 @@
+using ArchLucid.Application.Exports;
 using ArchLucid.Contracts.Metadata;
 
 namespace ArchLucid.Application.Analysis;
@@ -12,7 +13,34 @@ internal static class CompareVerdictChromeDeltaNormalizer
         if (delta is null)
             return;
 
+        NormalizeHonestyLinesInPlace(delta);
+        NormalizeExecutionModeInPlace(delta);
         NormalizeRoiHeadlineInPlace(delta);
+    }
+
+    private static void NormalizeHonestyLinesInPlace(CompareVerdictChromeDelta delta)
+    {
+        delta.Wk21Line = NormalizeHonestyLineOrDefault(
+            delta.Wk21Line,
+            SendableExportCoverComposer.PolicyPackInfluenceHonestyLine);
+        delta.NonSummingLine = NormalizeHonestyLineOrDefault(
+            delta.NonSummingLine,
+            SendableExportCoverComposer.SponsorRoiNonSummingHeadlineLine);
+    }
+
+    private static string NormalizeHonestyLineOrDefault(string? value, string defaultLine)
+    {
+        string? normalized = OptionalExportMetadataStringNormalizer.NormalizeOptionalString(value);
+        return normalized ?? defaultLine;
+    }
+
+    private static void NormalizeExecutionModeInPlace(CompareVerdictChromeDelta delta)
+    {
+        if (delta.ExecutionMode is null)
+            return;
+
+        delta.ExecutionMode.AdvisoryParagraph =
+            OptionalExportMetadataStringNormalizer.NormalizeOptionalString(delta.ExecutionMode.AdvisoryParagraph);
     }
 
     private static void NormalizeRoiHeadlineInPlace(CompareVerdictChromeDelta delta)

@@ -1,4 +1,5 @@
 using ArchLucid.Application.Analysis;
+using ArchLucid.Application.Exports;
 
 using FluentAssertions;
 
@@ -67,5 +68,49 @@ public sealed class EndToEndReplayComparisonReportNormalizerTests
         report.CompareVerdictChromeDelta!.RoiHeadline.Should().NotBeNull();
         report.CompareVerdictChromeDelta.RoiHeadline!.BaselineSavingsLabel.Should().Be("$1200.00");
         report.CompareVerdictChromeDelta.RoiHeadline.TargetSavingsLabel.Should().BeNull();
+    }
+
+    [Fact]
+    public void CompareQuality_EndToEndReplayComparisonReportNormalizer_restores_default_honesty_lines_when_whitespace_only()
+    {
+        EndToEndReplayComparisonReport report = new()
+        {
+            LeftRunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            RightRunId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            CompareVerdictChromeDelta = new CompareVerdictChromeDelta
+            {
+                Wk21Line = "   ",
+                NonSummingLine = "\t",
+            },
+        };
+
+        EndToEndReplayComparisonReportNormalizer.NormalizePersistedPayload(report);
+
+        report.CompareVerdictChromeDelta!.Wk21Line.Should().Be(SendableExportCoverComposer.PolicyPackInfluenceHonestyLine);
+        report.CompareVerdictChromeDelta.NonSummingLine.Should().Be(SendableExportCoverComposer.SponsorRoiNonSummingHeadlineLine);
+    }
+
+    [Fact]
+    public void CompareQuality_EndToEndReplayComparisonReportNormalizer_nulls_whitespace_only_execution_mode_advisory_paragraph()
+    {
+        EndToEndReplayComparisonReport report = new()
+        {
+            LeftRunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            RightRunId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            CompareVerdictChromeDelta = new CompareVerdictChromeDelta
+            {
+                ExecutionMode = new CompareVerdictChromeExecutionModeDelta
+                {
+                    BaselineModeLabel = "Simulator",
+                    TargetModeLabel = "Real",
+                    Changed = true,
+                    AdvisoryParagraph = "   ",
+                },
+            },
+        };
+
+        EndToEndReplayComparisonReportNormalizer.NormalizePersistedPayload(report);
+
+        report.CompareVerdictChromeDelta!.ExecutionMode!.AdvisoryParagraph.Should().BeNull();
     }
 }
