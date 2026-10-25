@@ -98,6 +98,43 @@ public sealed class InMemoryComparisonRecordRepositoryAdditionalCoverageTests
     }
 
     [SkippableFact]
+    public async Task GetByRunIdAsync_matches_when_stored_left_run_id_uses_dashed_guid_and_lookup_uses_n_format()
+    {
+        Guid runKey = Guid.Parse("22222222-2222-2222-2222-222222222222");
+        string canonicalRunId = runKey.ToString("N");
+        string dashedPaddedRunId = $"  {runKey:D}  ";
+
+        InMemoryComparisonRecordRepository sut = new();
+        await sut.CreateAsync(
+            Row("cmp-dashed-stored", TimeProvider.System.UtcNowDateTime(), leftRun: dashedPaddedRunId),
+            CancellationToken.None);
+
+        IReadOnlyList<ComparisonRecord> list =
+            await sut.GetByRunIdAsync(canonicalRunId, CancellationToken.None);
+
+        list.Should().ContainSingle(r => r.ComparisonRecordId == "cmp-dashed-stored");
+        list[0].LeftRunId.Should().Be(canonicalRunId);
+    }
+
+    [SkippableFact]
+    public async Task GetByIdAsync_canonicalizes_dashed_run_ids_on_read()
+    {
+        Guid left = Guid.Parse("33333333-3333-3333-3333-333333333333");
+        Guid right = Guid.Parse("44444444-4444-4444-4444-444444444444");
+
+        InMemoryComparisonRecordRepository sut = new();
+        await sut.CreateAsync(
+            Row("cmp-get-id", TimeProvider.System.UtcNowDateTime(), leftRun: left.ToString("D"), rightRun: right.ToString("D")),
+            CancellationToken.None);
+
+        ComparisonRecord? loaded = await sut.GetByIdAsync("cmp-get-id", CancellationToken.None);
+
+        loaded.Should().NotBeNull();
+        loaded!.LeftRunId.Should().Be(left.ToString("N"));
+        loaded.RightRunId.Should().Be(right.ToString("N"));
+    }
+
+    [SkippableFact]
     public async Task GetByExportRecordIdAsync_matches_left_or_right()
     {
         InMemoryComparisonRecordRepository sut = new();

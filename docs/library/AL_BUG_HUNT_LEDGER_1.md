@@ -6868,6 +6868,20 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-25 seed hunt (seed→hit): proved `InMemoryComparisonRecordRepository.GetByRunIdAsync` matched `LeftRunId`/`RightRunId` with ordinal equality while SQL `ComparisonRecordRepository.GetByRunIdAsync` compares `UNIQUEIDENTIFIER` values and `ComparisonsApplicationService.TryListByRunIdAsync` always queries with canonical `N`-format ids, so legacy/demo rows stored as dashed or padded GUID strings were invisible to comparison history list-by-run in in-memory hosts; match via `ComparisonRecordRunIdSql.StoredRunIdMatchesLookup` and canonicalize run ids on in-memory `GetByIdAsync` reads; regressions `GetByRunIdAsync_matches_when_stored_left_run_id_uses_dashed_guid_and_lookup_uses_n_format`, `GetByIdAsync_canonicalizes_dashed_run_ids_on_read`, and `CompareQuality_TryListByRunIdAsync_lists_records_when_persisted_left_uses_dashed_guid_and_query_uses_n_format`; cheap-disproof closed export persist read canonicalize (hunt 172), comparisons `LoadScopedExportRecordAsync` scoped normalizer gap (repository parity), `ApiPaging.TryParseUtcTicksIdCursor` (comparison search normalizes inbound cursor id), batch zip manifest echo (cosmetic), and Armenian homoglyphs (deferred); seeded five follow-on rows; scoped application-analysis + replay filter 337/337. Private beta: comparison history list-by-run finds records in dev/in-memory environments when stored run anchors use dashed GUID strings, matching SQL-backed behavior.
+
+- [ ] (candidate) `ComparisonRecordRepositoryCore.FilterInMemory` — stored dashed run id vs canonical filter still ordinal on row side — locus: search filter; input: leftRunId filter only canonicalizes filter token.
+- [ ] (candidate) `InMemoryComparisonRecordRepository.CreateAsync` — persist canonicalize on write — locus: in-memory create; input: deferred; read path fixed.
+- [ ] (candidate) `ApiPaging.TryParseUtcTicksIdCursor` — cursor id segment without trim — locus: HTTP cursor parse; input: padded id after ticks delimiter (alerts inbox and other API surfaces).
+- [ ] (candidate) `ComparisonBatchReplayZipSupport` — manifest failure entries echo pre-trim batch tokens — locus: zip manifest; input: cosmetic id echo only.
+- [ ] (candidate) `ComparisonExportMarkdownSectionRemover` — Armenian homoglyphs — locus: deferred expansion.
+
+- [x] (proven) `InMemoryComparisonRecordRepository.GetByRunIdAsync` — dashed stored run id vs N lookup — **hit 2026-10-25 seed hunt:** `StoredRunIdMatchesLookup`; regressions above.
+- [x] (valid-no-repro) `RunExportRecordPersistNormalizer` — export read canonicalize — **cheap-disproof 2026-10-25 seed hunt:** hunt 172.
+- [x] (valid-no-repro) `ComparisonsApplicationService.LoadScopedExportRecordAsync` — missing scoped export normalizer — **cheap-disproof 2026-10-25 seed hunt:** repository read parity for run ids.
+- [x] (invalid) `ApiPaging.TryParseUtcTicksIdCursor` — HTTP cursor id trim — **cheap-disproof 2026-10-25 seed hunt:** comparison search normalizes at application layer.
+- [x] (invalid) `ComparisonBatchReplayZipSupport` — manifest id echo — **cheap-disproof 2026-10-25 seed hunt:** cosmetic only.
+
 2026-10-25 seed hunt (seed→hit): proved `RunExportRecordPersistNormalizer` trimmed `RunId` and optional `CompareRunId` on SQL/in-memory repository reads but left dashed GUID strings on those columns while application-layer `RunExportRecordScopedReadNormalizer` canonicalized only on facade paths, so comparison replay, whitelabel prefill, and other direct `IRunExportRecordRepository` loads of legacy rows could echo non-canonical run anchors; canonicalize via `RunExportRecordRunIdSql.NormalizeRunIdForRead` and `ComparisonRecordRunIdSql.ToCanonicalRunIdStringOrNull` in the shared persist read normalizer; regressions `NormalizeLoadedRecord_canonicalizes_dashed_run_id_and_compare_run_id`, `GetById_canonicalizes_dashed_compare_run_id_on_legacy_row`, and `CompareQuality_in_memory_export_repository_get_by_id_canonicalizes_dashed_compare_run_id`; cheap-disproof closed facade replay `RunId` normalize (hunt 171), scoped app read normalizer parity on facade loads (hunt 170), `ApiPaging.TryParseUtcTicksIdCursor` (comparison search normalizes inbound cursor id), batch zip manifest echo (cosmetic), and Armenian homoglyphs (deferred); seeded five follow-on rows; scoped application-analysis + replay filter 336/336. Private beta: export rows loaded from storage return canonical run and compare-run ids across replay, comparison, and consulting prefill flows without depending on each caller to re-normalize.
 
 - [ ] (candidate) `RunExportQueryFacade.ReplayExportAsync` — dashed `RunId` on replay result without canonicalize — locus: facade normalizer; input: covered by hunt 171 helper.
@@ -8227,11 +8241,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 172
-- **bugs-found:** 178
+- **hunts:** 173
+- **bugs-found:** 179
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-25
-- **last-bug:** 2026-10-25 — persist export read canonicalizes run ids
+- **last-bug:** 2026-10-25 — in-memory comparison list-by-run guid parity
 - **related-pd-tb:** none
 - **code-changed-since:** no
 

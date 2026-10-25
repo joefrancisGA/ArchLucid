@@ -42,7 +42,12 @@ public sealed class InMemoryComparisonRecordRepository : IComparisonRecordReposi
             ComparisonRecord? row = _items.FirstOrDefault(r =>
                 string.Equals(r.ComparisonRecordId, comparisonRecordId, StringComparison.Ordinal));
 
-            return Task.FromResult(row is null ? null : ComparisonRecordRepositoryCore.Clone(row));
+            if (row is null)
+                return Task.FromResult<ComparisonRecord?>(null);
+
+            ComparisonRecord clone = ComparisonRecordRepositoryCore.Clone(row);
+            ComparisonRecordRunIdSql.NormalizeRunIdsForRead(clone);
+            return Task.FromResult<ComparisonRecord?>(clone);
         }
     }
 
@@ -56,8 +61,8 @@ public sealed class InMemoryComparisonRecordRepository : IComparisonRecordReposi
         {
             List<ComparisonRecord> list = _items
                 .Where(r =>
-                    string.Equals(r.LeftRunId, runId, StringComparison.Ordinal) ||
-                    string.Equals(r.RightRunId, runId, StringComparison.Ordinal))
+                    ComparisonRecordRunIdSql.StoredRunIdMatchesLookup(r.LeftRunId, runId) ||
+                    ComparisonRecordRunIdSql.StoredRunIdMatchesLookup(r.RightRunId, runId))
                 .OrderByDescending(r => r.CreatedUtc)
                 .Select(r => ComparisonRecordListProjection.WithoutPayloadJson(ComparisonRecordRepositoryCore.Clone(r)))
                 .ToList();

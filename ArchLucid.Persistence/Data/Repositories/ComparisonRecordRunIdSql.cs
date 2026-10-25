@@ -41,6 +41,17 @@ internal static class ComparisonRecordRunIdSql
         return !Guid.TryParse(value.Trim(), out Guid g) ? value.Trim() : g.ToString("N");
     }
 
+    internal static bool StoredRunIdMatchesLookup(string? storedRunId, string lookupRunId)
+    {
+        string? canonicalLookup = ToCanonicalRunIdStringOrNull(lookupRunId);
+        if (canonicalLookup is null)
+            return false;
+
+        string? canonicalStored = ToCanonicalRunIdStringOrNull(storedRunId);
+        return canonicalStored is not null
+               && string.Equals(canonicalStored, canonicalLookup, StringComparison.Ordinal);
+    }
+
     internal static void ThrowIfNonEmptyButNotGuid(string? value, string paramName)
     {
         if (string.IsNullOrWhiteSpace(value))
