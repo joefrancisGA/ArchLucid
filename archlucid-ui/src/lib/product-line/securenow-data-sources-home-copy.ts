@@ -20,7 +20,7 @@ export const SECURENOW_DATA_SOURCES_HOME_ROWS: readonly SecureNowHomeDestination
   {
     href: SECURENOW_COLLECTION_AGENT_PATH,
     label: SECURENOW_NAV_LABELS[SECURENOW_COLLECTION_AGENT_PATH],
-    summary: "Whether scheduled collection is running and what it found.",
+    summary: "Whether a collection run is stored, and its status.",
   },
   {
     href: SECURENOW_INFRASTRUCTURE_DECLARED_CONNECTIONS_PATH,

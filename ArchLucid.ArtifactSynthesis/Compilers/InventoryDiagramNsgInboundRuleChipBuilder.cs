@@ -50,7 +50,9 @@ internal static class InventoryDiagramNsgInboundRuleChipBuilder
 
         if (remainder > 0)
         {
-            chips.Add(new DiagramNsgInboundRuleChip($"{remainder} more inbound rules", IsRisky: false));
+            chips.Add(new DiagramNsgInboundRuleChip(
+                $"{remainder} more inbound rules were stored and are not listed on this chip.",
+                IsRisky: false));
         }
 
         if (inboundWithoutPriority > 0)

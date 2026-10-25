@@ -385,9 +385,9 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
                 </p>
               ) : null}
               <div className="flex flex-wrap gap-2">
-                {currentQuestion.answerCodes?.map((answerCode) => (
+                {currentQuestion.answerCodes?.map((answerCode, choiceIndex) => (
                   <Button
-                    key={answerCode}
+                    key={`${choiceIndex}:${answerCode}`}
                     type="button"
                     size="sm"
                     variant={selectedAnswer === answerCode ? "primary" : "outline"}
@@ -403,7 +403,9 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
                   >
                     {answerCode === "NotSure"
                       ? "Not sure. This does not store an answer."
-                      : secureNowQuestionAnswerLabel(answerCode)}
+                      : answerCode.trim().length === 0
+                        ? "Answer choice was stored empty."
+                        : secureNowQuestionAnswerLabel(answerCode)}
                   </Button>
                 ))}
               </div>

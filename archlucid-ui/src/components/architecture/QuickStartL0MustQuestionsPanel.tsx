@@ -338,7 +338,7 @@ export function QuickStartL0MustQuestionsPanel(props: QuickStartL0MustQuestionsP
   return (
     <CollapsibleSection
       title="Required clarifications"
-      summaryLine={`${handledClarificationCount} of ${total} answered or marked unknown`}
+      summaryLine={`${handledClarificationCount} of ${total} answered or skipped`}
       open={panelOpen}
       onToggle={setPanelOpen}
       sectionTestId="first-pilot-l0-must-panel"
@@ -419,7 +419,7 @@ export function QuickStartL0MustQuestionsPanel(props: QuickStartL0MustQuestionsP
               className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
               data-testid="first-pilot-l0-must-complete"
             >
-              All required clarifications are answered or marked unknown.
+              All required clarifications are answered or skipped.
             </p>
           )}
 

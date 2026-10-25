@@ -178,9 +178,14 @@ export function resolveRunDetailTabbedWorkspace(
     />
   ) : null;
 
+  const pipelineInFlight = resolveReviewPackagePipelineInFlight(m.showProgressTracker);
   const defensibilityStripProps = buildReviewDefensibilityStripProps(
     m.manifestSummaryForUi?.feasibilityVerdict ?? m.manifestSummary?.feasibilityVerdict,
-    m.showProgressTracker,
+    {
+      pipelineInFlight,
+      // No persisted critic-inclusion field on the summary DTO — do not infer "Included" from the progress tracker.
+      criticAbsent: true,
+    },
   );
   const defensibilityStripEl =
     defensibilityStripProps !== null ? <ReviewDefensibilityStrip {...defensibilityStripProps} /> : null;

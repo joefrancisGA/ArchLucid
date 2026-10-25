@@ -139,6 +139,7 @@ const INSIGHT_DENSITY_TYPED_ENGINE_PROTECTED_LEAD =
 export function formatInsightDensityCurationMessage(curation: InsightDensityCurationCounts): string {
   const demoted = curation.demotedToChecklistCount;
   const retained = curation.retainedFindingCount;
+  const parts: string[] = [];
 
   if (demoted === null && retained === null) {
     return "";

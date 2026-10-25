@@ -92,6 +92,35 @@ describe("findings-snapshot-insight-density", () => {
     ).toBe(false);
   });
 
+  it("labels checklist rows without a stored title", () => {
+    const view = resolveFindingsSnapshotInsightDensityView({
+      run: { runId: "r1", projectId: "p", createdUtc: "2026-01-01T00:00:00Z" },
+      findingsSnapshot: {
+        checklistCoverage: [{ findingId: "chk-1" }],
+      },
+    } as never);
+
+    expect(view.checklistCoverage[0]?.title).toBe("Checklist title was not stored.");
+  });
+
+  it("formatInsightDensityCurationMessage states when counts were not stored", () => {
+    expect(formatInsightDensityCurationMessage({ demotedToChecklistCount: null, retainedFindingCount: null })).toContain(
+      "Demoted count was not stored.",
+    );
+    expect(
+      formatInsightDensityCurationMessage({
+        demotedToChecklistCount: null,
+        retainedFindingCount: 2,
+      }),
+    ).toContain("Demoted count was not stored.");
+    expect(
+      formatInsightDensityCurationMessage({
+        demotedToChecklistCount: 2,
+        retainedFindingCount: null,
+      }),
+    ).toContain("Retained finding count was not stored.");
+  });
+
   it("hasFindingsSnapshotInsightDensityContent is true for checklist rows or curation copy", () => {
     expect(
       hasFindingsSnapshotInsightDensityContent({

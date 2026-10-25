@@ -3,6 +3,7 @@
 import { cn } from "@/lib/utils";
 
 import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { finiteIntegerCountDisplay } from "@/lib/finite-count-display";
 import type { components } from "@/lib/openapi-schemas";
 
 type FindingCoverageSummary = components["schemas"]["RunFindingCoverageSummary"];
@@ -35,8 +36,32 @@ export function DegradedFindingCoverageBanner({
   );
 }
 
-function finiteCoverageCount(value: number | null | undefined): number {
-  return typeof value === "number" && Number.isFinite(value) ? Math.max(0, Math.trunc(value)) : 0;
+function formatEngineCoverageSummaryLine(summary: NonNullable<FindingCoverageSummary>): string {
+  const succeeded = summary.enginesSucceeded;
+  const attempted = summary.enginesAttempted;
+  const failed = summary.enginesFailed;
+
+  if (succeeded === null || succeeded === undefined) {
+    return "Engine succeeded count was not stored.";
+  }
+
+  if (attempted === null || attempted === undefined) {
+    return "Engine attempted count was not stored.";
+  }
+
+  const succeededLabel = finiteIntegerCountDisplay(succeeded);
+  const attemptedLabel = finiteIntegerCountDisplay(attempted);
+  let line = `Engines ${succeededLabel}/${attemptedLabel} succeeded`;
+
+  if (failed === null || failed === undefined) {
+    return `${line} · Engine failed count was not stored.`;
+  }
+
+  if (typeof failed === "number" && Number.isFinite(failed) && Math.trunc(failed) > 0) {
+    line = `${line} · ${finiteIntegerCountDisplay(failed)} failed`;
+  }
+
+  return line;
 }
 
 export function RunDetailFindingCoverageDispositionPanel({
@@ -79,8 +104,7 @@ export function RunDetailFindingCoverageDispositionPanel({
             : "Finding disposition coverage"}
         </p>
         <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper, "text-current/80")}>
-          Engines {finiteCoverageCount(summary.enginesSucceeded)}/{finiteCoverageCount(summary.enginesAttempted)} succeeded
-          {finiteCoverageCount(summary.enginesFailed) > 0 ? ` · ${finiteCoverageCount(summary.enginesFailed)} failed` : ""}
+          {formatEngineCoverageSummaryLine(summary)}
         </p>
       </div>
       {summary.hasCommitBlockingFailures === true ? (
@@ -92,7 +116,9 @@ export function RunDetailFindingCoverageDispositionPanel({
         {rows.map(([label, value]) => (
           <div key={label} className="rounded-md bg-white/65 px-2 py-1.5 dark:bg-black/15">
             <dt className={cn(OPERATOR_NAV_GROUP_LABEL, "opacity-70")}>{label}</dt>
-            <dd className={cn("m-0 font-semibold tabular-nums text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>{finiteCoverageCount(value)}</dd>
+            <dd className={cn("m-0 font-semibold tabular-nums text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+              {finiteIntegerCountDisplay(value)}
+            </dd>
           </div>
         ))}
       </dl>
