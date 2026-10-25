@@ -374,13 +374,18 @@ public sealed class ComparisonReplayService(
 
     private static void SetRecordMetadata(ReplayComparisonResult r, ComparisonRecord record, string? formatProfile)
     {
-        r.LeftRunId = record.LeftRunId;
-        r.RightRunId = record.RightRunId;
-        r.LeftExportRecordId = record.LeftExportRecordId;
-        r.RightExportRecordId = record.RightExportRecordId;
+        r.LeftRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookupOrNull(record.LeftRunId);
+        r.RightRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookupOrNull(record.RightRunId);
+        r.LeftExportRecordId = NormalizeExportRecordIdMetadataOrNull(record.LeftExportRecordId);
+        r.RightExportRecordId = NormalizeExportRecordIdMetadataOrNull(record.RightExportRecordId);
         r.CreatedUtc = record.CreatedUtc;
         r.FormatProfile = formatProfile;
     }
+
+    private static string? NormalizeExportRecordIdMetadataOrNull(string? exportRecordId) =>
+        string.IsNullOrWhiteSpace(exportRecordId)
+            ? exportRecordId
+            : RunExportRecordIdNormalizer.NormalizeRequired(exportRecordId);
 
     private async Task<ExportRecordDiffResult> RegenerateExportDiffAsync(ComparisonRecord record, CancellationToken cancellationToken)
     {

@@ -387,6 +387,26 @@ public sealed class ComparisonReplayServiceTests
     }
 
     [Fact]
+    public async Task ReplayAsync_export_diff_artifact_returns_trimmed_export_record_ids_on_result_metadata()
+    {
+        ExportRecordDiffResult diff = SampleExportDiff();
+        ComparisonRecord record = ExportDiffRecord("diff-meta-trim", diff);
+        record.LeftExportRecordId = $"  {diff.LeftExportRecordId}  ";
+        record.RightExportRecordId = $"  {diff.RightExportRecordId}  ";
+        Mock<IComparisonRecordRepository> repo = SetupRepo(record);
+        Mock<IExportRecordDiffSummaryFormatter> formatter = new();
+        formatter.Setup(f => f.FormatMarkdown(It.IsAny<ExportRecordDiffResult>())).Returns("# diff");
+        ComparisonReplayService sut = CreateSut(comparisonRepo: repo.Object, diffFormatter: formatter.Object);
+
+        ReplayComparisonResult result = await sut.ReplayAsync(
+            new ReplayComparisonRequest { ComparisonRecordId = "diff-meta-trim", ReplayMode = "artifact" },
+            CancellationToken.None);
+
+        result.LeftExportRecordId.Should().Be(diff.LeftExportRecordId);
+        result.RightExportRecordId.Should().Be(diff.RightExportRecordId);
+    }
+
+    [Fact]
     public async Task ReplayAsync_export_diff_artifact_markdown()
     {
         ExportRecordDiffResult diff = SampleExportDiff();
