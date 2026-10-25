@@ -1004,6 +1004,21 @@ describe("SecureNowQuestionQueue", () => {
     expect(screen.queryByText("Resource id was stored empty.")).not.toBeInTheDocument();
   });
 
+  it("hides expired questions from the open promo when isExpired is true", async () => {
+    mocks.listQuestions.mockResolvedValue([
+      {
+        ...question,
+        isExpired: true,
+        expirationUtc: "2099-01-01T00:00:00.000Z",
+      },
+    ]);
+
+    render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
+
+    await waitFor(() => expect(mocks.listQuestions).toHaveBeenCalled());
+    expect(screen.queryByTestId("infra-diagrams-question-snapshot-promo")).not.toBeInTheDocument();
+  });
+
   it("posts trimmed answer codes when list JSON stored padded answer choices", async () => {
     mocks.listQuestions.mockResolvedValue([
       {

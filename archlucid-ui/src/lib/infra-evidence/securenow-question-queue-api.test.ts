@@ -148,6 +148,24 @@ describe("securenow-question-queue-api", () => {
     expect(questions[0].answerCodes).toEqual(["NamePeer"]);
   });
 
+  it("maps string isExpired values from list responses", async () => {
+    vi.mocked(proxyJsonGet).mockResolvedValueOnce([
+      {
+        snapshotId: "snapshot-1",
+        questionKey: "unknown-evidence@v1",
+        questionText: "Should this resource connect?",
+        answerCodes: ["NamePeer"],
+        evidenceFingerprint: "fingerprint",
+        isExpired: "true",
+        expirationUtc: "2099-01-01T00:00:00.000Z",
+      },
+    ]);
+
+    const questions = await listSecureNowQuestions("snapshot-1");
+
+    expect(questions[0].isExpired).toBe(true);
+  });
+
   it("trims padded answer code entries from list responses", async () => {
     vi.mocked(proxyJsonGet).mockResolvedValueOnce([
       {

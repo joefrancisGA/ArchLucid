@@ -74,6 +74,22 @@ function stringOrDefault(value: unknown, fallback = ""): string {
   return typeof value === "string" ? value : fallback;
 }
 
+function mapJsonBoolean(value: unknown): boolean {
+  return value === true || value === "true";
+}
+
+function mapJsonBooleanOrNull(value: unknown): boolean | null {
+  if (value === true || value === "true") {
+    return true;
+  }
+
+  if (value === false || value === "false") {
+    return false;
+  }
+
+  return null;
+}
+
 /** Whether a listed question's snapshot id matches the active queue context after trim. */
 export function secureNowQuestionListedSnapshotMatchesContext(
   listedSnapshotId: string,
@@ -103,7 +119,7 @@ export function mapSecureNowQuestionDisposition(raw: Record<string, unknown>): S
     answerText: typeof raw.answerText === "string" ? raw.answerText : null,
     reason: stringOrDefault(raw.reason),
     expirationUtc: stringOrDefault(raw.expirationUtc),
-    isExpired: raw.isExpired === true,
+    isExpired: mapJsonBoolean(raw.isExpired),
     evidenceFingerprint: stringOrDefault(raw.evidenceFingerprint),
     actorKey: stringOrDefault(raw.actorKey),
     updatedUtc: stringOrDefault(raw.updatedUtc),
@@ -150,7 +166,7 @@ function mapQuestion(raw: Record<string, unknown>): SecureNowQuestion {
       ? raw.evidenceFingerprint
       : null,
     expirationUtc: typeof raw.expirationUtc === "string" ? raw.expirationUtc : null,
-    isExpired: raw.isExpired === true ? true : raw.isExpired === false ? false : null,
+    isExpired: mapJsonBooleanOrNull(raw.isExpired),
     answerCode: typeof raw.answerCode === "string" ? raw.answerCode : null,
     answerText: typeof raw.answerText === "string" ? raw.answerText : null,
     reason: typeof raw.reason === "string" ? raw.reason : null,

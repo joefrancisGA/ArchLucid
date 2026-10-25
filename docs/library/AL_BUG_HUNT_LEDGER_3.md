@@ -7328,6 +7328,8 @@ ABQ-09 churn hotspot.
 
 ## Zone: securenow-question-queue
 
+2026-10-25 seed hunt (seed→hit): promoted `securenow-question-queue-api.mapQuestion` treating string `isExpired` values as null — list JSON `"true"`/`"false"` from mis-serialized proxies was ignored so expired questions stayed in the open queue; `mapJsonBooleanOrNull` for list rows and `mapJsonBoolean` on disposition responses; regressions `maps string isExpired values from list responses` and `hides expired questions from the open promo when isExpired is true`; scoped SecureNow queue vitest 113/113. Private beta: expired questions drop out of the open-queue promo when list JSON carries isExpired as a string boolean.
+
 2026-10-25 seed hunt (seed→hit): promoted `securenow-question-queue-api.mapQuestion` preserving padded `answerCodes` and `SecureNowQuestionQueue` posting untrimmed `answerCode`/`answerText` on answer — list JSON such as `"  NamePeer  "` reached disposition POSTs with surrounding whitespace; trim codes in `mapQuestion`, normalize selection in the queue bar, and trim on `answerSecureNowQuestion`; regressions `trims padded answer code entries from list responses` and `posts trimmed answer codes when list JSON stored padded answer choices`; scoped SecureNow queue vitest 111/111. Private beta: operators answering questions with padded list answer choices send canonical answer codes instead of whitespace-wrapped values that fail server validation.
 
 2026-10-25 seed hunt (seed→hit): promoted `questionIdentity` still collapsing null-`questionKey` rows that shared prompt text when fingerprints differed, plus padded `reasonText`/`sourceLine`/`questionText` in reviewer chrome; include `missing-key:fingerprint:` when disposition id is absent, and trim-aware `secureNowQuestionReviewerReasonTextLine` / `secureNowQuestionReviewerSourceLine`; regressions `skips only one row when omitted keys share text but fingerprints differ`, `shows trimmed reason and source lines in details`; scoped SecureNow queue vitest 109/109. Private beta: Not sure no longer hides sibling malformed rows that share prompt text but differ by fingerprint, and question details show trimmed reason and source lines.
@@ -7408,11 +7410,11 @@ ABQ-09 churn hotspot.
 - **aliases:** securenow question queue; question disposition
 - **paths:** ArchLucid.Application/InfraEvidence/SecureNowQuestionDispositions/; ArchLucid.Api/Controllers/InfraEvidence/InfraEvidenceSecureNowQuestionsController.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/ISecureNowQuestionDispositionRepository.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/ISecureNowQuestionDispositionService.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/SecureNowQuestionDispositionRecord.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/SecureNowQuestionRecord.cs; ArchLucid.Persistence/InfraEvidence/NoOpSecureNowQuestionDispositionRepository.cs; ArchLucid.Persistence/InfraEvidence/SqlSecureNowQuestionDispositionRepository.cs; ArchLucid.Contracts/InfraEvidence/SecureNowQuestionDispositionContracts.cs; archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx; archlucid-ui/src/lib/infra-evidence/securenow-question-queue-api.ts
 - **test-filter:** SecureNowQuestion
-- **hunts:** 80
-- **bugs-found:** 57
+- **hunts:** 81
+- **bugs-found:** 58
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-25
-- **last-bug:** 2026-10-25 — padded answerCodes on answer POST
+- **last-bug:** 2026-10-25 — string isExpired list coercion
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -7576,6 +7578,7 @@ ABQ-09 churn hotspot.
 - [x] (proven) `closedSecureNowQuestionAnswerLines` / expiration details — padded or whitespace-only closed-question answer metadata and expiration timestamps displayed misleadingly; `secureNowQuestionReviewerClosed*` helpers and `secureNowQuestionReviewerExpirationUtcStamp`; regressions `shows trimmed closed-question answer metadata in the answered filter` and `shows trimmed expiration timestamps in details`.
 - [x] (proven) `SecureNowQuestionQueueProvider.questionIdentity` / details reason copy — null `questionKey` rows with shared prompt text but different fingerprints still shared session-skip keys; fingerprint fallback in identity plus trimmed reason/source/question text reviewer lines; regressions `skips only one row when omitted keys share text but fingerprints differ` and `shows trimmed reason and source lines in details`.
 - [x] (proven) `securenow-question-queue-api.mapQuestion` / `answerSecureNowQuestion` — padded `answerCodes` preserved on list rows and posted verbatim on answer; trim in `mapQuestion`, normalize bar selection, trim on answer POST; regressions `trims padded answer code entries from list responses` and `posts trimmed answer codes when list JSON stored padded answer choices`.
+- [x] (proven) `securenow-question-queue-api.mapQuestion` — string `isExpired` list values coerced to null so expired rows stayed open; `mapJsonBooleanOrNull` / `mapJsonBoolean`; regressions `maps string isExpired values from list responses` and `hides expired questions from the open promo when isExpired is true`.
 - [x] (proven) `SecureNowQuestionQueue` / `securenow-question-queue-provider` — list payloads could carry `isExpired: false` while `expirationUtc` was already in the past, so details read “Not expired” and open filtering kept stale rows until reload; `secureNowQuestionShowsExpired`; regressions `returns true when expirationUtc is in the past even if isExpired is false` and `marks expiration as expired in details when expirationUtc is past but isExpired is false`.
 - (candidate) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` writes for the same identity hash may surface duplicate-key or lost-update failures under parallel operator mutations; requires SQL integration or concurrent repro (prior valid-no-repro when SQL host unavailable).
 - (candidate) `securenow-question-queue-provider` / disposition mutation responses — provider always reloads after POST and ignores `SecureNowQuestionDisposition` payloads; a future optimistic merge that patches list state from mutation JSON without reloading could reintroduce missing display fields unless it uses `mapSecureNowQuestionDisposition` only.
