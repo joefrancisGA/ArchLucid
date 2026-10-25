@@ -74,6 +74,25 @@ describe("secureNowQuestionDispositionMutationResourceId", () => {
       }),
     ).toBeNull();
   });
+
+  it("returns null for resource scope when resource id is whitespace-only", () => {
+    expect(
+      secureNowQuestionDispositionMutationResourceId({
+        ...baseQuestion,
+        resourceId: "   ",
+        scopeKind: "Resource",
+      }),
+    ).toBeNull();
+  });
+
+  it("returns trimmed resource ids for inventory mutations", () => {
+    expect(
+      secureNowQuestionDispositionMutationResourceId({
+        ...baseQuestion,
+        resourceId: " /subscriptions/sub/resource ",
+      }),
+    ).toBe("/subscriptions/sub/resource");
+  });
 });
 
 describe("secureNowQuestionShowsInferredConnectionReviewerCopy", () => {

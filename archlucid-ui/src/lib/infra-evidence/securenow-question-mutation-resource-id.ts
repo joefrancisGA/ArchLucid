@@ -68,7 +68,16 @@ export function secureNowQuestionDispositionMutationResourceId(
   question: SecureNowQuestion,
 ): string | null {
   if (question.resourceId !== null && question.resourceId !== undefined) {
-    return question.resourceId;
+    const trimmed = question.resourceId.trim();
+    if (trimmed.length > 0) {
+      return trimmed;
+    }
+
+    if (secureNowQuestionIsPolicyPackDispositionRow(question)) {
+      return "";
+    }
+
+    return null;
   }
 
   if (secureNowQuestionIsPolicyPackDispositionRow(question)) {
