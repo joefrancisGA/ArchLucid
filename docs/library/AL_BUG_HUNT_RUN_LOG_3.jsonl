@@ -1363,3 +1363,4 @@
 {"at":"2026-10-25T04:43:22.5242383Z","zoneId":"infra-evidence-diagrams","outcome":"hit","productLine":"securenow"}
 {"at":"2026-10-25T04:46:51.2591060Z","zoneId":"ui-review-intake-wizards","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-25T04:49:07.7757120Z","zoneId":"ui-governance-findings-queue","outcome":"hit","productLine":"securenow"}
+{"at":"2026-10-25T04:51:53.8026036Z","zoneId":"ui-governance-findings-queue","outcome":"hit","productLine":"securenow"}
