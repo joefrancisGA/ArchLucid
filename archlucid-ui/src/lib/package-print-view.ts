@@ -221,6 +221,8 @@ export function buildPackagePrintFindingsSummary(summary: RunSummary): string {
 
   if (warnings !== null && warnings > 0) {
     parts.push(`${warnings} warning${warnings === 1 ? "" : "s"}`);
+  } else if (warnings === 0) {
+    parts.push("0 warnings were stored.");
   } else if (warnings === null) {
     parts.push("Warning count was not stored.");
   }

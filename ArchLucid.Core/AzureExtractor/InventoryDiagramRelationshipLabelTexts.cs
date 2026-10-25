@@ -176,32 +176,9 @@ public static class InventoryDiagramRelationshipLabelTexts
 
     public static string FormatSendsTrafficToBackend(int? backendPort)
     {
-        return FormatBackendPoolMembershipConfigured(backendPort);
-    }
-
-    public static string FormatDiagnosticSettingStorageLabel(string? settingName)
-    {
-        if (string.IsNullOrWhiteSpace(settingName))
-        {
-            return DiagnosticSettingNameNotStoredLogDeliveryNotObserved;
-        }
-
-        if (string.Equals(
-                settingName.Trim(),
-                DiagnosticSettingStorageNamesNotListedQualifier,
-                StringComparison.OrdinalIgnoreCase))
-        {
-            return DiagnosticSettingNamesNotListedLogDeliveryNotObserved;
-        }
-
-        return $"{settingName.Trim()}. Log delivery was not observed.";
-    }
-
-    public static string FormatRoleAssignmentAccessLabel(string roleName)
-    {
-        ArgumentException.ThrowIfNullOrWhiteSpace(roleName);
-
-        return $"Role assignment: {roleName.Trim()}. {RoleAssignmentObservedUseNotStoredSuffix}";
+        return backendPort is null
+            ? "Configured backend pool member. Backend port was not stored."
+            : $"Configured backend pool member on port {backendPort.Value}.";
     }
 
     public static string FormatBackendOffCanvasOutline(string backendName)

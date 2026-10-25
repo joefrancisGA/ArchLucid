@@ -3,7 +3,6 @@ import {
   typedPayloadLookupString,
   isPhiMinimizationFindingId,
   isPhiMinimizationSampleFinding,
-  phiMinimizationApprovalNarrative,
   phiMinimizationRecommendedActionFallback,
 } from "@/lib/findings/finding-display-from-inspect";
 import { buyerFindingSeverityDisplayLabel } from "@/lib/buyer/buyer-finding-severity-display";
@@ -274,28 +273,12 @@ export function buyerFindingNextStepCopy(payload: FindingInspectPayload | null, 
     if (action !== null && action.trim().length > 0) {
       return action;
     }
-
-    if (isPhiMinimizationSampleFinding(payload)) {
-      return phiMinimizationRecommendedActionFallback();
-    }
-  }
-
-  if (isPhiMinimizationFindingId(findingId)) {
-    return phiMinimizationRecommendedActionFallback();
   }
 
   return mitigationPosture(payload, findingId);
 }
 
-export function validationRequirement(payload: FindingInspectPayload | null, findingId: string): string {
-  if (payload !== null && isPhiMinimizationSampleFinding(payload)) {
-    return phiMinimizationApprovalNarrative();
-  }
-
-  if (isPhiMinimizationFindingId(findingId)) {
-    return phiMinimizationApprovalNarrative();
-  }
-
+export function validationRequirement(_payload: FindingInspectPayload | null, _findingId: string): string {
   return "No audit requirement was stored on this finding.";
 }
 

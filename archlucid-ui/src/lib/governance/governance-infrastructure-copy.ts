@@ -257,7 +257,7 @@ export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_CONNECTED_SECTION =
   "Has a line on this diagram" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_USED_SECTION =
-  "Referenced off this diagram" as const;
+  "Off-diagram use was not stored." as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_ORPHANED_SECTION =
   "No stored association" as const;

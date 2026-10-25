@@ -214,17 +214,11 @@ internal static class InventoryDiagramOrphanedStateApplier
 
             if (!string.IsNullOrWhiteSpace(resolvedArmId))
             {
-<<<<<<< HEAD
-                message =
-                    $"Attached to {ReadResourceName(resolvedArmId)}. That resource is in this inventory snapshot.";
-=======
                 string resourceName = ReadResourceName(resolvedArmId);
 
                 message = string.IsNullOrWhiteSpace(resourceName)
                     ? "Attached resource name was not stored."
-                    : $"attached to {resourceName}";
-
->>>>>>> origin/master
+                    : $"Attached to {resourceName}. That resource is in this inventory snapshot.";
                 return true;
             }
         }
