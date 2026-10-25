@@ -389,10 +389,13 @@ public sealed class ComparisonReplayService(
     private static string BuildComparisonDownloadFileName(ComparisonRecord record, string extension) =>
         $"comparison_{ComparisonRecordIdNormalizer.NormalizeRequired(record.ComparisonRecordId)}.{extension}";
 
-    private static string? NormalizeExportRecordIdMetadataOrNull(string? exportRecordId) =>
-        string.IsNullOrWhiteSpace(exportRecordId)
-            ? exportRecordId
-            : RunExportRecordIdNormalizer.NormalizeRequired(exportRecordId);
+    private static string? NormalizeExportRecordIdMetadataOrNull(string? exportRecordId)
+    {
+        if (string.IsNullOrWhiteSpace(exportRecordId))
+            return null;
+
+        return RunExportRecordIdNormalizer.NormalizeRequired(exportRecordId);
+    }
 
     private async Task<ExportRecordDiffResult> RegenerateExportDiffAsync(ComparisonRecord record, CancellationToken cancellationToken)
     {
