@@ -216,4 +216,22 @@ public sealed class EndToEndReplayComparisonReportNormalizerTests
         report.Warnings.Should().Equal(["manifest missing"]);
         report.InterpretationNotes.Should().Equal(["catalog alias differs"]);
     }
+
+    [Fact]
+    public void CompareQuality_EndToEndReplayComparisonReportNormalizer_removes_whitespace_only_run_metadata_changed_fields()
+    {
+        EndToEndReplayComparisonReport report = new()
+        {
+            LeftRunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            RightRunId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            RunDiff = new RunMetadataDiffResult
+            {
+                ChangedFields = ["   ", "  Status  ", "\t"],
+            },
+        };
+
+        EndToEndReplayComparisonReportNormalizer.NormalizePersistedPayload(report);
+
+        report.RunDiff.ChangedFields.Should().Equal(["Status"]);
+    }
 }
