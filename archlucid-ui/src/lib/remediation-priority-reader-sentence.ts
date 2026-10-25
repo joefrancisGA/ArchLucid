@@ -19,7 +19,8 @@ const FACTOR_CLAUSE = {
   DataSensitivity: "Sensitive data",
   BlastRadius: "Wide blast radius",
   RemediationComplexity: "Hard to automate",
-  RemediationRisk: "No rollback recorded",
+  RemediationRiskRecorded: "No rollback recorded",
+  RemediationRiskNotStored: "Rollback plan was not stored",
 } as const;
 
 /**
@@ -202,15 +203,23 @@ function isLeadingContribution(contribution: ParsedContribution): boolean {
     return false;
   }
 
-  return !isBlockedSource(contribution.source);
+  if (contribution.factor === "RemediationRisk") {
+    return true;
+  }
+
+  return !isBlockedSource(contribution.source, contribution.factor);
 }
 
 function isActiveException(contribution: ParsedContribution): boolean {
   return contribution.factor === "CompensatingControls" && contribution.weightedContribution < 0;
 }
 
-function isBlockedSource(source: string): boolean {
+function isBlockedSource(source: string, factor: RemediationPriorityFactorName): boolean {
   const normalized = source.trim().toLowerCase();
+
+  if (factor === "RemediationRisk" && normalized === "none") {
+    return false;
+  }
 
   return normalized === "unknown" || normalized === "none";
 }
@@ -220,8 +229,13 @@ function toLeadingClause(contribution: ParsedContribution): LeadingClause | null
     return null;
   }
 
+  const clause =
+    contribution.factor === "RemediationRisk"
+      ? remediationRiskClause(contribution.source)
+      : FACTOR_CLAUSE[contribution.factor];
+
   return {
-    clause: FACTOR_CLAUSE[contribution.factor],
+    clause,
     weightedContribution: contribution.weightedContribution,
     order: contribution.order,
   };
@@ -233,6 +247,20 @@ function compareLeadingClauses(left: LeadingClause, right: LeadingClause): numbe
   }
 
   return left.order - right.order;
+}
+
+function remediationRiskClause(source: string): string {
+  const normalized = source.trim().toLowerCase();
+
+  if (normalized.length === 0 || normalized === "unknown") {
+    return FACTOR_CLAUSE.RemediationRiskNotStored;
+  }
+
+  if (normalized === "none") {
+    return FACTOR_CLAUSE.RemediationRiskRecorded;
+  }
+
+  return FACTOR_CLAUSE.RemediationRiskNotStored;
 }
 
 function joinLeadingClauses(clauses: readonly string[]): string {

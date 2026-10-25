@@ -323,6 +323,7 @@ internal static class InventoryDiagramNodeRelationshipApplier
         Dictionary<string, HashSet<string>> subnetOwnerArmIds = BuildSubnetOwnerArmIdMap(graph, nicOwnerArmIdByNicArmId);
         IReadOnlyList<DiagramNsgInboundRuleChip> chips = InventoryDiagramNsgInboundRuleChipBuilder.BuildVisibleChips(rules);
         HashSet<string> ownerDiagramNodeIds = new(StringComparer.Ordinal);
+        bool hadStoredAssociationTarget = false;
 
         foreach (AzureInventoryNsgAssociation association in associations)
         {
@@ -331,6 +332,7 @@ internal static class InventoryDiagramNodeRelationshipApplier
                 continue;
             }
 
+            hadStoredAssociationTarget = true;
             IReadOnlyList<string> endpointArmIds = ResolveNsgAssociationEndpointArmIds(
                 association,
                 nicOwnerArmIdByNicArmId,
@@ -349,7 +351,9 @@ internal static class InventoryDiagramNodeRelationshipApplier
         {
             ast.LedgerDrops.Add(new DiagramMermaidLedgerDrop
             {
-                Reason = "nsg-unattached",
+                Reason = hadStoredAssociationTarget
+                    ? "nsg-unattached-off-diagram"
+                    : "nsg-unattached-no-association",
                 FromNodeId = nsgNode.NodeId,
                 ToNodeId = null,
             });

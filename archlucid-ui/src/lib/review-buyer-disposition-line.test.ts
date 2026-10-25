@@ -116,4 +116,32 @@ describe("buildBuyerReviewPackageDispositionLine", () => {
 
     expect(line).toContain("2 unresolved issues");
   });
+
+  it("does not claim approval complete when risk posture was omitted", () => {
+    const line = buildBuyerReviewPackageDispositionLine({
+      hasGoldenManifest: true,
+      findingCountDisplay: 2,
+      warningCountDisplay: 0,
+      unresolvedIssueCountDisplay: 0,
+      governanceGateLabel: "Passed",
+      aggregateRiskPosture: null,
+    });
+
+    expect(line).toContain("risk posture was not stored");
+    expect(line).not.toContain("approval complete");
+  });
+
+  it("does not claim no blocking items when unresolved count was omitted", () => {
+    const line = buildBuyerReviewPackageDispositionLine({
+      hasGoldenManifest: true,
+      findingCountDisplay: 4,
+      warningCountDisplay: 0,
+      unresolvedIssueCountDisplay: null,
+      governanceGateLabel: "Passed",
+      aggregateRiskPosture: "Low",
+    });
+
+    expect(line).toContain("unresolved issue count was not stored");
+    expect(line).not.toContain("no blocking items");
+  });
 });

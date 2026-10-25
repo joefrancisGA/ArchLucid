@@ -55,7 +55,11 @@ export function RunDetailFirstReviewSpineBand(props: RunDetailFirstReviewSpineBa
         {summary.executionModeLabel !== null ? (
           <StatusTag
             kind="neutral"
-            label={`${summary.executionModeLabel} execution`}
+            label={
+              summary.executionModeLabel === "Execution mode was not stored"
+                ? summary.executionModeLabel
+                : `${summary.executionModeLabel} execution`
+            }
             data-testid="run-detail-first-review-spine-execution-mode"
           />
         ) : null}
@@ -101,35 +105,44 @@ export function RunDetailFirstReviewSpineBand(props: RunDetailFirstReviewSpineBa
           data-testid="run-detail-first-review-spine-disposition-next-action"
         >
           Record dispositions on open decision-grade findings before sponsor send.{" "}
-          <Link
-            href="/governance/findings"
-            className={OPERATOR_LINK.inline}
-            data-testid="run-detail-first-review-spine-disposition-queue-link"
-          >
-            Open governance queue
-          </Link>
           {props.runId !== null && props.runId !== undefined && props.runId.trim().length > 0 ? (
-            <>
-              {" · "}
-              <Link
-                href={`/architecture/reviews/${encodeURIComponent(props.runId.trim())}?tab=findings`}
-                className={OPERATOR_LINK.inline}
-                data-testid="run-detail-first-review-spine-disposition-findings-link"
-              >
-                Review findings
-              </Link>
-            </>
-          ) : null}
+            <Link
+              href={`/architecture/reviews/${encodeURIComponent(props.runId.trim())}?tab=findings`}
+              className={OPERATOR_LINK.inline}
+              data-testid="run-detail-first-review-spine-disposition-findings-link"
+            >
+              Open this review&apos;s findings
+            </Link>
+          ) : (
+            <>Review id was not stored.</>
+          )}
         </p>
       ) : null}
 
-      {summary.topFindingTitle !== null ? (
+      {summary.showTopFindingRow ? (
         <p className={cn("m-0 mt-2 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)} data-testid="run-detail-first-review-spine-top-finding">
           <span className="font-semibold">
             {summary.topFindingPolicyMapped ? "Top policy-mapped finding:" : "Top finding:"}
           </span>{" "}
           {summary.topFindingSeverityLabel !== null ? `[${summary.topFindingSeverityLabel}] ` : ""}
-          {summary.topFindingTitle}
+          {props.runId !== null
+            && props.runId !== undefined
+            && props.runId.trim().length > 0
+            && summary.topFindingId !== null
+            && summary.topFindingId.trim().length > 0
+            && summary.topFindingTitle !== null
+            && !summary.topFindingTitle.endsWith("was not stored.")
+            && !summary.topFindingTitle.endsWith("was stored empty.") ? (
+            <Link
+              href={`/architecture/reviews/${encodeURIComponent(props.runId.trim())}/findings/${encodeURIComponent(summary.topFindingId.trim())}`}
+              className={OPERATOR_LINK.inline}
+              data-testid="run-detail-first-review-spine-top-finding-link"
+            >
+              {summary.topFindingTitle}
+            </Link>
+          ) : (
+            summary.topFindingTitle
+          )}
         </p>
       ) : null}
 

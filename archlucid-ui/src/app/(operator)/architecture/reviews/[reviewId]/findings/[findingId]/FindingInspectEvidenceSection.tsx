@@ -31,6 +31,7 @@ export type FindingInspectEvidenceSectionProps = {
   readonly reviewContextHref: string;
   readonly reviewContextLabel: string;
   readonly evidence: FindingInspectEvidence[];
+  readonly evidenceListReturned?: boolean;
   readonly citationModel?: FindingPolicyEvidenceCitationModel | null;
 };
 
@@ -240,6 +241,7 @@ export function FindingInspectEvidenceSection({
   reviewContextHref,
   reviewContextLabel,
   evidence,
+  evidenceListReturned = true,
   citationModel = null,
 }: FindingInspectEvidenceSectionProps): ReactElement {
   const pathname = usePathname() ?? "/";
@@ -394,9 +396,13 @@ export function FindingInspectEvidenceSection({
         </h3>
       ) : null}
 
-      {evidence.length === 0 ? (
+      {evidenceListReturned === false ? (
         <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-          No evidence citations were stored.
+          Evidence list was not stored.
+        </p>
+      ) : evidence.length === 0 ? (
+        <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+          Evidence list was stored empty.
         </p>
       ) : (
         <EvidenceCitationList {...citationListProps} />

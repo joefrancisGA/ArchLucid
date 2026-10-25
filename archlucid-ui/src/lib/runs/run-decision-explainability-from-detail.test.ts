@@ -113,4 +113,45 @@ describe("resolveRunDecisionExplainabilityFromDetail", () => {
     expect(model?.findingEngineFailures[0]?.exceptionType).toBe("Exception type was not stored.");
     expect(model?.findingEngineFailures[0]?.errorMessage).toBe("Error message was not stored.");
   });
+
+  it("distinguishes omitted id lists from stored empty lists on authority audit", () => {
+    const detail = {
+      decisionExplainability: {
+        authorityRuleAudit: {
+          ruleSetId: "baseline",
+          ruleSetVersion: "1.0",
+        },
+        manifestDecisions: [],
+        coordinatorDecisionNodes: [],
+        findingEngineFailures: [],
+      },
+    } as RunDetail;
+
+    const model = resolveRunDecisionExplainabilityFromDetail(detail);
+
+    expect(model?.authorityRuleAudit?.appliedRuleIds).toBeNull();
+    expect(model?.authorityRuleAudit?.acceptedFindingIds).toBeNull();
+    expect(model?.manifestDecisions).toEqual([]);
+    expect(model?.findingEngineFailures).toEqual([]);
+  });
+
+  it("returns null lists when manifest, coordinator, and failure arrays were omitted", () => {
+    const detail = {
+      decisionExplainability: {
+        authorityRuleAudit: {
+          ruleSetId: "baseline",
+          ruleSetVersion: "1.0",
+          appliedRuleIds: [],
+          acceptedFindingIds: [],
+        },
+      },
+    } as RunDetail;
+
+    const model = resolveRunDecisionExplainabilityFromDetail(detail);
+
+    expect(model?.manifestDecisions).toBeNull();
+    expect(model?.coordinatorDecisionNodes).toBeNull();
+    expect(model?.findingEngineFailures).toBeNull();
+    expect(model?.authorityRuleAudit?.appliedRuleIds).toEqual([]);
+  });
 });

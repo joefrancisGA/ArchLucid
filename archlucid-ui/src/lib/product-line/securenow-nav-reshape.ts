@@ -120,7 +120,7 @@ export const SECURENOW_DATA_SOURCES_NAV_HREFS: readonly string[] =
 export const SECURENOW_COLLECTION_AGENT_NAV_LINK: NavLinkItem = {
   href: SECURENOW_COLLECTION_AGENT_PATH,
   label: resolveSecureNowPageHeading("security", "Collection Agent", SECURENOW_COLLECTION_AGENT_PATH),
-  title: "Whether scheduled collection is running and what it found.",
+  title: "Whether a collection run is stored, and its status.",
   icon: Activity,
   tier: "extended",
   requiredAuthority: "ReadAuthority",
