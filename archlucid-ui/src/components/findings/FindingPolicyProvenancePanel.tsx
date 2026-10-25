@@ -117,7 +117,11 @@ export function FindingPolicyProvenancePanel(props: FindingPolicyProvenancePanel
   }
 
   const violationLabel =
-    model.pack !== null ? `Policy violation: ${model.pack.packName}` : "Policy violation";
+    model.pack !== null
+      ? `Policy violation: ${model.pack.packName}`
+      : model.policy !== null
+        ? "Policy violation: Policy pack was not stored."
+        : "Policy violation";
 
   const headingLabel = prominent ? "Triggered by policy" : "Policy provenance";
 
