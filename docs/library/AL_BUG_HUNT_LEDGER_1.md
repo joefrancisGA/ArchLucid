@@ -6868,6 +6868,20 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-25 seed hunt (seed→hit): proved `ExportReplayService.FinishReplayDocxAsync` copied `persisted.ExportRecordId` verbatim onto `ReplayExportResult.RecordedReplayExportRecordId` when `RecordReplayExport` was true while hunt 164 already trimmed the source export id on replay load, so replay-persist responses and downstream `ReplayExportRecorded` audits could echo padded ids returned from legacy persistence rows; trim via `RunExportRecordIdNormalizer.NormalizeRequired` on the recorded replay id; regression `ReplayAsync_trims_padded_recorded_replay_export_record_id_when_persisting_replay`; cheap-disproof closed `ReplayExportAsync` route id trim (entry normalize hunt 165 parity), `CompareExportRecordsSummaryAsync` audit (hunt 165), `ApiPaging.TryParseUtcTicksIdCursor` (comparison search normalizes inbound cursor id), batch zip manifest echo (cosmetic), and Armenian homoglyphs (deferred); seeded five follow-on rows; scoped application-analysis + replay filter 330/330. Private beta: replay-persist export flows return trimmed recorded export record ids matching export history and audit surfaces.
+
+- [ ] (candidate) `RunExportQueryFacade.ReplayExportAsync` — defensive trim on `RecordedReplayExportRecordId` in audit JSON — locus: facade audit; input: idempotent after replay service trim.
+- [ ] (candidate) `RunExportAuditService.RecordAsync` — return row without scoped read normalizer — locus: audit persist; input: new guid mint path only.
+- [ ] (candidate) `ApiPaging.TryParseUtcTicksIdCursor` — cursor id segment without trim — locus: HTTP cursor parse; input: padded id after ticks delimiter (alerts inbox and other API surfaces).
+- [ ] (candidate) `ComparisonBatchReplayZipSupport` — manifest failure entries echo pre-trim batch tokens — locus: zip manifest; input: cosmetic id echo only.
+- [ ] (candidate) `RunExportRecordPersistNormalizer` — persistence-layer read normalize — locus: repository; input: overlaps app-layer normalizer.
+
+- [x] (proven) `ExportReplayService.FinishReplayDocxAsync` — padded recorded replay export record id — **hit 2026-10-25 seed hunt:** normalize recorded id; regression above.
+- [x] (valid-no-repro) `ReplayExportAsync` — route export id trim — **cheap-disproof 2026-10-25 seed hunt:** `NormalizeRequired` at facade entry.
+- [x] (valid-no-repro) `CompareExportRecordsSummaryAsync` — summary persist audit ids — **cheap-disproof 2026-10-25 seed hunt:** hunt 165.
+- [x] (invalid) `ApiPaging.TryParseUtcTicksIdCursor` — HTTP cursor id trim — **cheap-disproof 2026-10-25 seed hunt:** comparison search normalizes at application layer.
+- [x] (invalid) `ComparisonBatchReplayZipSupport` — manifest id echo — **cheap-disproof 2026-10-25 seed hunt:** cosmetic only.
+
 2026-10-25 seed hunt (seed→hit): proved `RunExportQueryFacade.CompareExportRecordsSummaryAsync` forwarded untrimmed route `leftExportRecordId`/`rightExportRecordId` into `ComparisonSummaryPersisted` audit `DataJson` while `LoadPairAsync` and `RecordExportDiffAsync` already normalized ids for compare/persist, so persisted export-diff summary audits could reference padded legacy export anchors; normalize export record ids at summary entry via `RunExportRecordIdNormalizer.NormalizeRequired`; regression `CompareQuality_CompareExportRecordsSummaryAsync_audit_json_trims_padded_export_record_ids`; cheap-disproof closed `CompareExportRecordsAsync` (no persist audit path), `ExportReplayService` recorded replay id (new guid from audit), `ApiPaging.TryParseUtcTicksIdCursor` (comparison search normalizes inbound cursor id), batch zip manifest echo (cosmetic), and Armenian homoglyphs (deferred); seeded five follow-on rows; scoped application-analysis + replay filter 329/329. Private beta: persisted export-compare summary audits record trimmed export record ids matching export compare and history APIs.
 
 - [ ] (candidate) `RunExportQueryFacade.ReplayExportAsync` — audit `sourceExportRecordId` when route id padded before entry normalize — locus: replay audit; input: idempotent after route trim at entry.
@@ -8129,11 +8143,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 165
-- **bugs-found:** 171
+- **hunts:** 166
+- **bugs-found:** 172
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-25
-- **last-bug:** 2026-10-25 — export compare summary audit trims export ids
+- **last-bug:** 2026-10-25 — replay-persist trims recorded export id
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
