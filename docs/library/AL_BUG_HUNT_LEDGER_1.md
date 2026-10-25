@@ -6868,10 +6868,24 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-25 seed hunt (seed→hit): proved `ComparisonRecordRepository.GetByIdAsync` and in-memory `GetByIdAsync` trimmed `ComparisonRecordId` and canonicalized run ids via `NormalizeRunIdsNullable` but left padded `LeftExportRecordId`/`RightExportRecordId` on single-record reads while hunt 180 aligned list materialize through `ComparisonRecordPersistNormalizer`, so replay payload hooks and direct repository loads could echo legacy export anchor padding; route SQL and in-memory get-by-id through the shared persist normalizer on return; regression `GetByIdAsync_trims_padded_export_record_ids_on_read`; cheap-disproof closed facade scoped read export trim (hunt 170), list projection parity (hunt 180), `ApiPaging.TryParseUtcTicksIdCursor` (comparison search normalizes inbound cursor id), batch zip manifest echo (cosmetic), and Armenian homoglyphs (deferred); seeded five follow-on rows; scoped application-analysis + replay filter 341/341 plus persistence get-by-id regression. Private beta: comparison detail loads from the repository return trimmed export record ids when legacy rows kept surrounding whitespace on export anchor columns.
+
+- [ ] (candidate) `ComparisonRecordSearchPredicateBuilder` — run id SQL filters vs dashed stored — locus: SQL search; input: GUID columns coerce shapes.
+- [ ] (candidate) `ComparisonRecordRepository.GetByRunIdAsync` — SQL run filter vs dashed stored left/right — locus: SQL list-by-run; input: GUID param coercion only.
+- [ ] (candidate) `ApiPaging.TryParseUtcTicksIdCursor` — cursor id segment without trim — locus: HTTP cursor parse; input: padded id after ticks delimiter (alerts inbox and other API surfaces).
+- [ ] (candidate) `ComparisonBatchReplayZipSupport` — manifest failure entries echo pre-trim batch tokens — locus: zip manifest; input: cosmetic id echo only.
+- [ ] (candidate) `ComparisonExportMarkdownSectionRemover` — Armenian homoglyphs — locus: deferred expansion.
+
+- [x] (proven) `GetByIdAsync` — padded export anchors on single-record read — **hit 2026-10-25 seed hunt:** `ComparisonRecordPersistNormalizer`; regression above.
+- [x] (valid-no-repro) `ComparisonRecordListProjection` — list export trim — **cheap-disproof 2026-10-25 seed hunt:** hunt 180.
+- [x] (valid-no-repro) `ComparisonRecordScopedReadNormalizer` — facade export trim — **cheap-disproof 2026-10-25 seed hunt:** hunt 170.
+- [x] (invalid) `ApiPaging.TryParseUtcTicksIdCursor` — HTTP cursor id trim — **cheap-disproof 2026-10-25 seed hunt:** comparison search normalizes at application layer.
+- [x] (invalid) `ComparisonBatchReplayZipSupport` — manifest id echo — **cheap-disproof 2026-10-25 seed hunt:** cosmetic only.
+
 2026-10-25 seed hunt (seed→hit): proved `ComparisonRecordListProjection` cleared payload and canonicalized run ids on list materialize but echoed padded `ComparisonRecordId` and export anchor columns while hunt 177 trimmed primary keys on `GetById` and hunt 162 normalized list rows only on `ComparisonsApplicationService` facade returns, so repository list/search/run/export history paths could surface legacy padding to direct `IComparisonRecordRepository` consumers; reuse `ComparisonRecordPersistNormalizer` on the list clone before omitting payload; regressions `GetByRunIdAsync_trims_padded_comparison_record_id_on_list_rows` and `ComparisonRecordListProjection_clears_payload_and_normalizes_run_ids`; cheap-disproof closed app-layer list normalizer (hunt 162), offset sort tiebreaker (hunt 179), `ApiPaging.TryParseUtcTicksIdCursor` (comparison search normalizes inbound cursor id), batch zip manifest echo (cosmetic), and Armenian homoglyphs (deferred); seeded five follow-on rows; scoped application-analysis + replay filter 341/341 plus persistence list-projection regressions. Private beta: comparison history list and search rows show trimmed comparison and export record ids even when legacy SQL or in-memory storage retained surrounding whitespace.
 
 - [ ] (candidate) `ComparisonRecordSearchPredicateBuilder` — run id SQL filters vs dashed stored — locus: SQL search; input: GUID columns coerce shapes.
-- [ ] (candidate) `ComparisonRecordRepository.GetByIdAsync` — export anchor trim on single-record read — locus: SQL get-by-id; input: list projection now aligns export columns.
+- [x] (proven) `ComparisonRecordRepository.GetByIdAsync` — export anchor trim on single-record read — **hit 2026-10-25 seed hunt:** hunt 181; shared persist normalizer on get-by-id.
 - [ ] (candidate) `ApiPaging.TryParseUtcTicksIdCursor` — cursor id segment without trim — locus: HTTP cursor parse; input: padded id after ticks delimiter (alerts inbox and other API surfaces).
 - [ ] (candidate) `ComparisonBatchReplayZipSupport` — manifest failure entries echo pre-trim batch tokens — locus: zip manifest; input: cosmetic id echo only.
 - [ ] (candidate) `ComparisonExportMarkdownSectionRemover` — Armenian homoglyphs — locus: deferred expansion.
@@ -8339,11 +8353,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 180
-- **bugs-found:** 186
+- **hunts:** 181
+- **bugs-found:** 187
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-25
-- **last-bug:** 2026-10-25 — comparison list projection id trim
+- **last-bug:** 2026-10-25 — comparison get-by-id export anchor trim
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
