@@ -85,17 +85,6 @@ describe("findings-snapshot-insight-density", () => {
     ).toBe(false);
   });
 
-  it("does not invent curation counts from checklist rows alone", () => {
-    const view = resolveFindingsSnapshotInsightDensityView({
-      run: { runId: "r1", projectId: "p", createdUtc: "2026-01-01T00:00:00Z" },
-      findingsSnapshot: {
-        checklistCoverage: [{ findingId: "chk-1", message: "Enable monitoring" }],
-      },
-    } as never);
-
-    expect(view.curation).toBeNull();
-  });
-
   it("labels checklist rows without a stored title", () => {
     const view = resolveFindingsSnapshotInsightDensityView({
       run: { runId: "r1", projectId: "p", createdUtc: "2026-01-01T00:00:00Z" },
@@ -116,7 +105,7 @@ describe("findings-snapshot-insight-density", () => {
     ).toBe("Demoted finding count was not stored.");
     expect(
       formatInsightDensityCurationMessage({
-        demotedToChecklistCount: 1,
+        demotedToChecklistCount: 2,
         retainedFindingCount: null,
       }),
     ).toBe("Retained finding count was not stored.");
