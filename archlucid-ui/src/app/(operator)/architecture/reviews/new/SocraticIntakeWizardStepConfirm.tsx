@@ -11,6 +11,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer/buyer-polish-copy";
 import { REVIEW_START_LOADING_LABEL } from "@/lib/review-start-progress-copy";
 import {
+  GUIDED_INTAKE_CONFIRMED_SCOPE_NOT_STORED,
   GUIDED_INTAKE_CONFIRMED_SCOPE_SUMMARY_HEADING,
   GUIDED_INTAKE_STEP2_SUBMIT_DESCRIPTION,
 } from "@/lib/guided-intake-copy";
@@ -92,7 +93,14 @@ export function SocraticIntakeWizardStepConfirm({
               ))}
             </ul>
           </section>
-        ) : null}
+        ) : (
+          <p
+            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="guided-intake-confirmed-scope-not-stored"
+          >
+            {GUIDED_INTAKE_CONFIRMED_SCOPE_NOT_STORED}
+          </p>
+        )}
         {submitError !== null ? <GuidedIntakeRequestError error={submitError} /> : null}
         {policyPackCloudMismatch !== null ? (
           <WizardPolicyPackCloudMismatchCallout detail={policyPackCloudMismatch} />

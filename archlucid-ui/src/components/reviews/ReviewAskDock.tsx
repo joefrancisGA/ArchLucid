@@ -7,6 +7,8 @@ import { usePathname, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState, type ReactElement } from "react";
 
 import { AskAssistantMessageBody } from "@/components/AskAssistantMessageBody";
+import { AskCitationActionFollowUps } from "@/components/ask/AskCitationActionFollowUps";
+import { buildAskCitationActionFollowUps } from "@/lib/ask-citation-action-follow-ups";
 import { AskRunCoverageHonestyStrip } from "@/components/ask/AskRunCoverageHonestyStrip";
 import { HelpDrawerContent } from "@/components/help/HelpDrawerContent";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
@@ -46,6 +48,9 @@ export type ReviewAskDockProps = {
 type AskTurn = {
   question: string;
   answer: string;
+  referencedFindings: readonly string[];
+  referencedDecisions: readonly string[];
+  referencedArtifacts: readonly string[];
 };
 
 /** Review-scoped Ask dock: grounded Q&A without leaving the review detail page. */
@@ -75,6 +80,10 @@ export function ReviewAskDock(props: ReviewAskDockProps): ReactElement {
   const { ask: askStream, isStreaming, tokens: streamingContent, reset: resetStream } = useAskStream();
   const askDockDisabled = props.disabled === true;
   const disabledReasonMessage = formatWhyDisabledCtaMessage(props.disabledReason);
+  const reviewTitleForGrounding =
+    props.reviewTitle !== null && props.reviewTitle !== undefined && props.reviewTitle.trim().length > 0
+      ? props.reviewTitle.trim()
+      : "Review title was not stored.";
 
   const syncAskDockToUrl = useCallback(
     (nextOpen: boolean, nextThreadId: string | null) => {
@@ -221,6 +230,9 @@ export function ReviewAskDock(props: ReviewAskDockProps): ReactElement {
         {
           question: trimmed,
           answer: response.answer.trim().length > 0 ? response.answer : "Answer was not stored",
+          referencedFindings: response.referencedFindings ?? [],
+          referencedDecisions: response.referencedDecisions ?? [],
+          referencedArtifacts: response.referencedArtifacts ?? [],
         },
       ]);
       setQuestion("");
@@ -288,7 +300,7 @@ export function ReviewAskDock(props: ReviewAskDockProps): ReactElement {
             </DialogTitle>
             <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
               Grounded answers cite indexed evidence from{" "}
-              <span className="font-medium text-al-text-primary">{props.reviewTitle ?? "this review"}</span>.
+              <span className="font-medium text-al-text-primary">{reviewTitleForGrounding}</span>.
             </p>
           </DialogHeader>
 
@@ -296,7 +308,19 @@ export function ReviewAskDock(props: ReviewAskDockProps): ReactElement {
             <AskRunCoverageHonestyStrip runId={runId} />
             {turns.length > 0 ? (
               <ol className="m-0 list-none space-y-4 p-0">
-                {turns.map((turn, index) => (
+                {turns.map((turn, index) => {
+                  const citationChips = buildAskCitationActionFollowUps({
+                    runId,
+                    referencedFindings: turn.referencedFindings,
+                    referencedDecisions: turn.referencedDecisions,
+                    referencedArtifacts: turn.referencedArtifacts,
+                  });
+                  const refsPresentInWire =
+                    turn.referencedFindings.length > 0
+                    || turn.referencedDecisions.length > 0
+                    || turn.referencedArtifacts.length > 0;
+
+                  return (
                   <li
                     key={`${index}-${turn.question.slice(0, 24)}`}
                     className="space-y-2 rounded-lg border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-700 dark:bg-neutral-900/40"
@@ -308,9 +332,20 @@ export function ReviewAskDock(props: ReviewAskDockProps): ReactElement {
                     <p className={cn("m-0 font-semibold uppercase tracking-wide text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>
                       Answer
                     </p>
-                    <AskAssistantMessageBody content={turn.answer} />
+                    <AskAssistantMessageBody content={turn.answer} groundingLinks={refsPresentInWire ? [] : undefined} />
+                    {refsPresentInWire ? (
+                      <AskCitationActionFollowUps chips={citationChips} showHonestEmpty reviewId={runId} />
+                    ) : (
+                      <p
+                        className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                        data-testid="review-ask-dock-sources-not-stored"
+                      >
+                        Ask sources were not stored on this answer.
+                      </p>
+                    )}
                   </li>
-                ))}
+                  );
+                })}
               </ol>
             ) : null}
 

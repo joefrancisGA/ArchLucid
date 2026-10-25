@@ -39,7 +39,8 @@ public sealed class ApiRequestUsageEventBatchFlushHostedService(
 
             if (!options.Enabled)
             {
-                await FlushPendingAsync(options.ApiRequestBatchMaxSize, stoppingToken).ConfigureAwait(false);
+                await FlushPendingAsync(options.ApiRequestBatchMaxSize, stoppingToken, drainRemainingAfterBatchFailure: false)
+                    .ConfigureAwait(false);
                 await Task.Delay(TimeSpan.FromSeconds(1), stoppingToken).ConfigureAwait(false);
                 continue;
             }
@@ -55,12 +56,14 @@ public sealed class ApiRequestUsageEventBatchFlushHostedService(
 
                 if (!options.Enabled)
                 {
-                    await FlushPendingAsync(options.ApiRequestBatchMaxSize, stoppingToken).ConfigureAwait(false);
+                    await FlushPendingAsync(options.ApiRequestBatchMaxSize, stoppingToken, drainRemainingAfterBatchFailure: false)
+                    .ConfigureAwait(false);
 
                     break;
                 }
 
-                await FlushPendingAsync(options.ApiRequestBatchMaxSize, stoppingToken).ConfigureAwait(false);
+                await FlushPendingAsync(options.ApiRequestBatchMaxSize, stoppingToken, drainRemainingAfterBatchFailure: false)
+                    .ConfigureAwait(false);
             }
         }
     }
@@ -73,7 +76,11 @@ public sealed class ApiRequestUsageEventBatchFlushHostedService(
             MeteringOptions options = _meteringOptions.CurrentValue;
             options.Normalize();
 
-            await FlushPendingAsync(options.ApiRequestBatchMaxSize, cancellationToken).ConfigureAwait(false);
+            await FlushPendingAsync(
+                    options.ApiRequestBatchMaxSize,
+                    cancellationToken,
+                    drainRemainingAfterBatchFailure: true)
+                .ConfigureAwait(false);
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
@@ -85,31 +92,47 @@ public sealed class ApiRequestUsageEventBatchFlushHostedService(
         await base.StopAsync(cancellationToken).ConfigureAwait(false);
     }
 
-    private async Task FlushPendingAsync(int maxBatchSize, CancellationToken ct)
+    private async Task FlushPendingAsync(int maxBatchSize, CancellationToken ct, bool drainRemainingAfterBatchFailure)
     {
         int safeMax = Math.Clamp(maxBatchSize, 1, 500);
-        List<UsageEvent> batch = [];
+        List<UsageEvent> pending = [];
 
         while (_buffer.TryDequeue(out UsageEvent? usageEvent))
+            pending.Add(usageEvent);
+
+        if (pending.Count == 0)
+            return;
+
+        for (int index = 0; index < pending.Count; index += safeMax)
         {
-            batch.Add(usageEvent);
+            int count = Math.Min(safeMax, pending.Count - index);
+            List<UsageEvent> batch = pending.GetRange(index, count);
 
-            if (batch.Count >= safeMax)
+            try
             {
-
                 if (!await PersistOrReturnAsync(batch, ct).ConfigureAwait(false))
                 {
-                    return;
-                }
+                    if (!drainRemainingAfterBatchFailure)
+                    {
+                        RequeueSnapshotTail(pending, index + count);
 
-                batch = [];
+                        return;
+                    }
+                }
+            }
+            catch (OperationCanceledException)
+            {
+                RequeueSnapshotTail(pending, index + count);
+
+                throw;
             }
         }
+    }
 
-        if (batch.Count > 0)
-        {
-            await PersistOrReturnAsync(batch, ct).ConfigureAwait(false);
-        }
+    private void RequeueSnapshotTail(List<UsageEvent> pending, int startIndex)
+    {
+        if (startIndex < pending.Count)
+            ReturnBatchToBuffer(pending.GetRange(startIndex, pending.Count - startIndex));
     }
 
     /// <summary>

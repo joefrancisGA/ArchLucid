@@ -162,7 +162,7 @@ public sealed class TenantTrialFacade(
     private static TenantTrialStatusDto BuildStatusResponse(TenantRecord tenant, int? daysRemaining) =>
         new()
         {
-            Status = string.IsNullOrWhiteSpace(tenant.TrialStatus) ? "None" : tenant.TrialStatus,
+            Status = FormatTrialStatusForDisplay(tenant.TrialStatus),
             TrialStartUtc = tenant.TrialStartUtc,
             TrialExpiresUtc = tenant.TrialExpiresUtc,
             DaysRemaining = daysRemaining,
@@ -183,6 +183,32 @@ public sealed class TenantTrialFacade(
     private static bool ComputeIdentityHandoffPending(TenantRecord tenant) =>
         TrialLifecycleStatus.EqualsStatus(tenant.TrialStatus, TrialLifecycleStatus.Converted)
         && tenant.EntraTenantId is null;
+
+    private static string FormatTrialStatusForDisplay(string? trialStatus)
+    {
+        if (string.IsNullOrWhiteSpace(trialStatus))
+            return "None";
+
+        if (TrialLifecycleStatus.EqualsStatus(trialStatus, TrialLifecycleStatus.Active))
+            return TrialLifecycleStatus.Active;
+
+        if (TrialLifecycleStatus.EqualsStatus(trialStatus, TrialLifecycleStatus.Converted))
+            return TrialLifecycleStatus.Converted;
+
+        if (TrialLifecycleStatus.EqualsStatus(trialStatus, TrialLifecycleStatus.Expired))
+            return TrialLifecycleStatus.Expired;
+
+        if (TrialLifecycleStatus.EqualsStatus(trialStatus, TrialLifecycleStatus.ReadOnly))
+            return TrialLifecycleStatus.ReadOnly;
+
+        if (TrialLifecycleStatus.EqualsStatus(trialStatus, TrialLifecycleStatus.ExportOnly))
+            return TrialLifecycleStatus.ExportOnly;
+
+        if (TrialLifecycleStatus.EqualsStatus(trialStatus, TrialLifecycleStatus.Deleted))
+            return TrialLifecycleStatus.Deleted;
+
+        return trialStatus.Trim();
+    }
 
     private static double? ComputeTimeToFirstCommittedManifestTotalSeconds(TenantRecord tenant)
     {

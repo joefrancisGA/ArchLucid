@@ -25,10 +25,14 @@ const MIN_STRONG_OVERVIEW_CHARS = 100;
 const MIN_OUTCOME_CHARS = 10;
 const MAX_MISSING_ITEMS = 5;
 
-function buildGapSource(input: BuildArchitectureCreatedHomeModelInput): ClarificationGapSource {
+function buildGapSource(
+  input: BuildArchitectureCreatedHomeModelInput,
+  options?: { readonly heuristicDerived?: boolean },
+): ClarificationGapSource {
   return buildClarificationGapSourcePresentation({
     capturedAtUtc: input.gapSourceCapturedAtUtc,
     fromHandoff: input.gapSourceCapturedAtUtc !== null,
+    heuristicDerived: options?.heuristicDerived === true,
   });
 }
 
@@ -46,7 +50,7 @@ function resolveClarifyHref(input: BuildArchitectureCreatedHomeModelInput): stri
 function buildHeuristicMissingItems(input: BuildArchitectureCreatedHomeModelInput): ArchitectureMissingItem[] {
   const items: ArchitectureMissingItem[] = [];
   const clarifyHref = resolveClarifyHref(input);
-  const source = buildGapSource(input);
+  const source = buildGapSource(input, { heuristicDerived: true });
 
   if (input.gapAssertion.businessOutcome && input.businessOutcome.trim().length < MIN_OUTCOME_CHARS) {
     items.push({

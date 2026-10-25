@@ -66,15 +66,24 @@ public sealed class AzureBlobCollectionRunArtifactReader(
         {
             await package.DownloadToAsync(bytes, cancellationToken);
         }
-        catch (RequestFailedException)
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
+        catch (Exception)
         {
             return null;
         }
 
+        byte[] zipBytes = bytes.ToArray();
+
+        if (zipBytes.Length == 0)
+            return null;
+
         return new CollectionRunArtifact
         {
             Manifest = manifest,
-            ZipBytes = bytes.ToArray(),
+            ZipBytes = zipBytes,
         };
     }
 

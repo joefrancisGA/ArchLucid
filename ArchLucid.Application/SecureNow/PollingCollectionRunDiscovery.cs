@@ -1,3 +1,5 @@
+using ArchLucid.Core.SecureNow;
+
 using Azure;
 
 namespace ArchLucid.Application.SecureNow;
@@ -30,26 +32,18 @@ public sealed class PollingCollectionRunDiscovery(
         }
 
         int imported = 0;
+        HashSet<Guid> importedRunIdsThisBatch = new();
 
         foreach (CollectionRunManifest manifest in manifests)
         {
+            if (importedRunIdsThisBatch.Contains(manifest.RunId))
+                continue;
+
             CollectionRunArtifact? artifact;
 
             try
             {
                 artifact = await _artifactReader.ReadArtifactAsync(manifest, cancellationToken);
-            }
-            catch (RequestFailedException)
-            {
-                continue;
-            }
-
-            if (artifact is null)
-                continue;
-
-            try
-            {
-                await _ingestService.IngestAsync(artifact, cancellationToken);
             }
             catch (OperationCanceledException)
             {
@@ -60,7 +54,27 @@ public sealed class PollingCollectionRunDiscovery(
                 continue;
             }
 
-            imported++;
+            if (artifact is null || artifact.ZipBytes.Length == 0)
+                continue;
+
+            try
+            {
+                CollectionRun run = await _ingestService.IngestAsync(artifact, cancellationToken);
+
+                if (run.Status == CollectionRunStatus.Imported)
+                {
+                    imported++;
+                    importedRunIdsThisBatch.Add(manifest.RunId);
+                }
+            }
+            catch (OperationCanceledException)
+            {
+                throw;
+            }
+            catch (Exception)
+            {
+                continue;
+            }
         }
 
         return imported;
