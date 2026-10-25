@@ -214,6 +214,60 @@ public sealed class ComparisonAuditServiceTests
     }
 
     [Fact]
+    public async Task CompareQuality_RecordReplayOfAsync_clears_payload_json_when_typed_rehydrate_returns_null()
+    {
+        ComparisonRecord? exportPersisted = null;
+        Mock<IComparisonRecordRepository> exportRepo = new();
+        exportRepo
+            .Setup(r => r.CreateAsync(It.IsAny<ComparisonRecord>(), It.IsAny<CancellationToken>()))
+            .Callback<ComparisonRecord, CancellationToken>((record, _) => exportPersisted = record)
+            .Returns(Task.CompletedTask);
+        ComparisonAuditService exportSut = new(exportRepo.Object, Mock.Of<IAuditService>());
+        ComparisonRecord exportSource = new()
+        {
+            ComparisonRecordId = "ffffffffffffffffffffffffffffffff",
+            ComparisonType = ComparisonTypes.ExportRecordDiff,
+            LeftRunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            RightRunId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            LeftExportRecordId = "left-anchor",
+            RightExportRecordId = "right-anchor",
+            Format = ComparisonTypes.FormatJsonMarkdown,
+            SummaryMarkdown = "# diff",
+            PayloadJson = "null",
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+        };
+
+        await exportSut.RecordReplayOfAsync(exportSource, "replay note", CancellationToken.None);
+
+        exportPersisted.Should().NotBeNull();
+        exportPersisted!.PayloadJson.Should().BeEmpty();
+
+        ComparisonRecord? e2ePersisted = null;
+        Mock<IComparisonRecordRepository> e2eRepo = new();
+        e2eRepo
+            .Setup(r => r.CreateAsync(It.IsAny<ComparisonRecord>(), It.IsAny<CancellationToken>()))
+            .Callback<ComparisonRecord, CancellationToken>((record, _) => e2ePersisted = record)
+            .Returns(Task.CompletedTask);
+        ComparisonAuditService e2eSut = new(e2eRepo.Object, Mock.Of<IAuditService>());
+        ComparisonRecord e2eSource = new()
+        {
+            ComparisonRecordId = "11111111111111111111111111111111",
+            ComparisonType = ComparisonTypes.EndToEndReplay,
+            LeftRunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            RightRunId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            Format = ComparisonTypes.FormatJsonMarkdown,
+            SummaryMarkdown = "# e2e",
+            PayloadJson = "null",
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+        };
+
+        await e2eSut.RecordReplayOfAsync(e2eSource, "replay note", CancellationToken.None);
+
+        e2ePersisted.Should().NotBeNull();
+        e2ePersisted!.PayloadJson.Should().BeEmpty();
+    }
+
+    [Fact]
     public async Task RecordReplayOfAsync_trims_padded_export_record_anchors_on_persist()
     {
         ComparisonRecord? persisted = null;

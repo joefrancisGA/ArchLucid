@@ -188,14 +188,14 @@ public sealed class ComparisonAuditService(IComparisonRecordRepository repositor
         {
             ExportRecordDiffResult? diff = ComparisonRecordPayloadRehydrator.RehydrateExportDiff(sourceRecord);
 
-            return diff is null ? sourceRecord.PayloadJson : JsonSerializer.Serialize(diff, JsonOptions);
+            return diff is null ? string.Empty : JsonSerializer.Serialize(diff, JsonOptions);
         }
 
         if (string.Equals(comparisonType, ComparisonTypes.EndToEndReplay, StringComparison.Ordinal))
         {
             EndToEndReplayComparisonReport? report = ComparisonRecordPayloadRehydrator.RehydrateEndToEnd(sourceRecord);
 
-            return report is null ? sourceRecord.PayloadJson : JsonSerializer.Serialize(report, JsonOptions);
+            return report is null ? string.Empty : JsonSerializer.Serialize(report, JsonOptions);
         }
 
         return sourceRecord.PayloadJson;
