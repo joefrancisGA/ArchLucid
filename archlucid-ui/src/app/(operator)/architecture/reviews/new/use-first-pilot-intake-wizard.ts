@@ -254,7 +254,7 @@ export function useFirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
       return;
     }
 
-    if (priorSummaryQuery.data === undefined) {
+    if (!priorSummaryQuery.isFetched || priorSummaryQuery.data === undefined) {
       return;
     }
 
@@ -287,7 +287,7 @@ export function useFirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
 
       return current;
     });
-  }, [priorRunIdForTitlePrefill, priorSummaryQuery.data]);
+  }, [priorRunIdForTitlePrefill, priorSummaryQuery.data, priorSummaryQuery.isFetched]);
 
   useEffect(() => {
     if (priorRunIdForTitlePrefill === null) {

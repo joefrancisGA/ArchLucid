@@ -6331,12 +6331,14 @@ ABQ-09 churn hotspot; review detail route tree.
 ---
 
 ## Zone: ui-review-intake-wizards
+2026-10-25 thorough hunt (hit): `useFirstPilotIntakeWizard` applied inherited run title from `useRunSummaryQuery` before the active `rerun=` summary fetch settled, so placeholder or in-flight cache rows could prefill the wrong prior review name on revised-clone quick start; title prefill now waits for `isFetched`; regression `does not apply stale run summary data while the new prior run summary is still fetching`; 10/10 first-pilot wizard tests. Cheap-disproof closed picker candidates for pending-evidence generation, post-create upload state, semantic-count races (existing regressions), template-restore ordering, and guided-intake popstate sync.
+
 2026-10-16 thorough hunt (hit): promoted clear `inheritedSemanticSummary` when revised-clone intent removed; 6/6 first-pilot wizard tests.
 
 2026-10-16 thorough hunt (hit): promoted pending document upload generation on `setPendingDocumentFiles`; 10/10 pending-evidence tests.
 
 
-**Hunts:** 62 · **Bugs found:** 33 · **Consecutive dry hunts:** 0
+**Hunts:** 63 · **Bugs found:** 34 · **Consecutive dry hunts:** 0
 
 2026-10-09 seed hunt (seed-only): `ui-review-intake-wizards` — re-read full and quick submit orchestration, draft admission, evidence handoff, and scope-gate URL synchronization; no new hypothesis met the same-run failing-repro bar without repeating a saturated unhandled-rejection or post-create handoff class. Seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
 
@@ -6471,11 +6473,11 @@ ABQ-09 churn hotspot; review detail route tree.
 - **aliases:** review intake; new review wizard
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/new/
 - **test-filter:** FullyQualifiedName~reviews/new
-- **hunts:** 61
-- **bugs-found:** 31
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-10-09
-- **last-bug:** 2026-10-09 — branch clarification refresh escaped as an unhandled rejection
+- **hunts:** 63
+- **bugs-found:** 34
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-25
+- **last-bug:** 2026-10-25 — revised-clone quick start prefilled wrong inherited title from in-flight prior run summary
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -6504,9 +6506,10 @@ ABQ-09 churn hotspot; intake wizard route tree.
 
 ### Hypotheses
 
-- [ ] (candidate) `useNewRunWizardPendingEvidence` — document-only pending files replaced while a mixed inventory+document upload is in flight can still be cleared when the inventory leg of a stale upload succeeds — locus: `uploadPendingEvidence` document branch after inventory success; input: attach inventory ZIP and PDFs, start upload, remove PDFs before the inventory request resolves.
-- [ ] (candidate) `useNewRunWizardSubmit.uploadPendingEvidence` — post-create evidence upload is invoked after `setRunId` without resetting `evidenceUploadState` from a prior failed quick-start attempt on the same mount — locus: `use-new-run-wizard-submit.ts` success path; input: failed pending upload on step 1, create review on step 2 without remounting.
-- [ ] (candidate) `useFirstPilotIntakeWizard` — semantic summary counts from a prior `rerun=` request can display after the query changes because the fetch effect lacks a generation guard — locus: `use-first-pilot-intake-wizard.ts` prior-run counts effect; input: swap `rerun=` while counts request is unresolved.
+- [x] (proven) `useFirstPilotIntakeWizard` — inherited run title prefilled from in-flight or placeholder `useRunSummaryQuery` data after `rerun=` changed — **hit 2026-10-25 thorough hunt:** wait for `isFetched` before applying `priorPackageInheritedTitle`; regression `does not apply stale run summary data while the new prior run summary is still fetching`.
+- [x] (valid-no-repro) `useNewRunWizardPendingEvidence` — document-only pending files replaced while a mixed inventory+document upload is in flight can still be cleared when the inventory leg of a stale upload succeeds — **cheap-disproof 2026-10-25 thorough hunt:** `setPendingDocumentFiles` bumps upload generation and regression `does not upload documents cleared while inventory upload is in flight` covers the mixed-upload path.
+- [x] (valid-no-repro) `useNewRunWizardSubmit.uploadPendingEvidence` — post-create evidence upload is invoked after `setRunId` without resetting `evidenceUploadState` from a prior failed quick-start attempt on the same mount — **cheap-disproof 2026-10-25 thorough hunt:** `uploadPendingEvidence` sets `"uploading"` at entry and full-wizard create requires `runId === null` until submit, so the proposed step-1 failure before step-2 create is not reachable on one mount.
+- [x] (valid-no-repro) `useFirstPilotIntakeWizard` — semantic summary counts from a prior `rerun=` request can display after the query changes because the fetch effect lacks a generation guard — **cheap-disproof 2026-10-25 thorough hunt:** effect cleanup plus regressions `ignores stale prior-run semantic counts when rerun= changes before the first fetch resolves` and `clears inherited semantic summary immediately when rerun= changes after prior counts loaded`.
 - [ ] (candidate) `NewRunWizardTemplateRestore` — restored wizard step index is applied before query-prefill effects finish, so automation that snapshots `data-wizard-ready` may read pre-prefill policy fields — locus: template restore vs `useNewRunWizardQueryPrefill` ordering; input: saved session plus `policyPackId` deeplink on same mount.
 - [ ] (candidate) `useGuidedIntakeWizard.setStep` — browser `popstate` updates to `intakeStep` can race the Next `useSearchParams` sync effect and briefly render the wrong slide with current draft answers — locus: dual URL listeners in `use-guided-intake-wizard.ts`; input: Back/Forward across clarifications while a draft restore is hydrating.
 
