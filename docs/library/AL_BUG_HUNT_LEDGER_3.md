@@ -4938,7 +4938,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-operator-lib
 
-**Hunts:** 92 · **Bugs found:** 87 · **Consecutive dry hunts:** 0
+**Hunts:** 93 · **Bugs found:** 88 · **Consecutive dry hunts:** 0
+
+2026-10-25 seed hunt (hit): `deriveOperatorHomeWorkspaceMetrics` and `deriveOperatorHomeWorkspacePhaseSignalsFromOverviewRuns` treat non-finite `totalCount` as stale when non-archived overview rows are loaded (fixes `Math.max(NaN, n)` hiding occupancy); regressions `treats non-finite totalCount as stale when overview rows are loaded on the page` and `treats non-finite totalCount as stale when active overview rows are present`; scoped workspace-metrics, workspace-phase, and tenant-counting vitest passed. Private beta: Invited operators no longer flash eval-empty hero chrome on first paint when the runs dashboard already lists reviews but the total metadata is non-finite.
 
 2026-10-25 seed hunt (hit): `resolveLiveRunsDashboardTotalCount` uplifts positive finite live totals that undercount returned snapshot rows (without changing negative-total clamp); regression `uplifts total when live count is positive but below the returned page size`; scoped live-runs-dashboard vitest passed. Private beta: Invited operators who refresh home reviews no longer see KPI totals below the number of rows the refreshed list actually shows when the API returns an understated `totalCount`.
 
@@ -5221,11 +5223,20 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) `resolveLiveRunsDashboardTotalCount` — left KPI total below returned row count when live total was positive but undercounted items — **hit 2026-10-25 seed hunt:** undercount uplift branch; regression `uplifts total when live count is positive but below the returned page size`.
 
-- [ ] (candidate) `resolveLiveRunsDashboardTotalCount` — does not uplift when live total exceeds item count on a partial page — locus: return `resolved` when `liveTotalCount >= liveItemCount`; input: overlay test with `totalCount: 7` and two items.
-- [ ] (candidate) `resolveLiveRunsDashboardTotalCount` — negative live totals still skip item-count uplift — locus: clamp branch; input: `clamps negative live snapshot total counts to zero`.
-- [ ] (candidate) `resolveLiveRunsDashboardModel` — empty live snapshot zeroes total without SSR uplift — locus: empty items branch; input: `drops reviews that the refreshed snapshot no longer contains`.
-- [ ] (candidate) `deriveOperatorHomeTenantCountingSnapshot` — stale-zero uplift parity with dashboard merge — locus: tenant counting helper; input: existing tenant-counting vitest.
-- [ ] (candidate) `collectHomeAttentionExcludedRunIdsForRailItem` — review-kind guard still blocks draft/wizard unions — locus: `isTb2369ReviewWorkRailItem`; input: architecture-draft + incomplete-wizard regressions.
+- [x] (valid-no-repro) `resolveLiveRunsDashboardTotalCount` — does not uplift when live total exceeds item count on a partial page — **cheap-disproof 2026-10-25 seed hunt:** regression `overlays live items and total count while preserving the server scope fields`.
+- [x] (valid-no-repro) `resolveLiveRunsDashboardTotalCount` — negative live totals still skip item-count uplift — **cheap-disproof 2026-10-25 seed hunt:** regression `clamps negative live snapshot total counts to zero`.
+- [x] (valid-no-repro) `resolveLiveRunsDashboardModel` — empty live snapshot zeroes total without SSR uplift — **cheap-disproof 2026-10-25 seed hunt:** regression `drops reviews that the refreshed snapshot no longer contains`.
+- [x] (valid-no-repro) `deriveOperatorHomeTenantCountingSnapshot` — stale-zero and positive undercount uplift parity with dashboard merge — **cheap-disproof 2026-10-25 seed hunt:** regressions `treats zero runsDashboardTotalCount as stale` and `uplifts understated runsDashboardTotalCount when more tenant rows are visible than the API total`.
+- [x] (valid-no-repro) `collectHomeAttentionExcludedRunIdsForRailItem` — review-kind guard still blocks draft/wizard unions — **cheap-disproof 2026-10-25 seed hunt:** architecture-draft + incomplete-wizard regressions in attention-dedup suite.
+
+- [x] (proven) `deriveOperatorHomeWorkspaceMetrics` — non-finite `totalCount` zeroed `hasReviews` while overview rows were loaded — **hit 2026-10-25 seed hunt:** stale uplift via `max(reportedTotal, visibleActiveCount)`; regression `treats non-finite totalCount as stale when overview rows are loaded on the page`.
+- [x] (proven) `deriveOperatorHomeWorkspacePhaseSignalsFromOverviewRuns` — non-finite `totalCount` made `hasOverviewReviewRows` false via `Math.max(NaN, n)` — **hit 2026-10-25 seed hunt:** finite reported total normalization; regression `treats non-finite totalCount as stale when active overview rows are present`.
+
+- [ ] (candidate) `deriveOperatorHomeWorkspaceMetrics` — zero `totalCount` with loaded rows uplifts `reviewPackagesTotal` — locus: `max(reportedTotal, visibleActiveCount)`; input: extend stale-zero case beyond tenant counting wrapper.
+- [ ] (candidate) `deriveOperatorHomeWorkspaceMetrics` — archived rows do not inflate stale-total uplift floor — locus: `countNonArchivedOverviewRuns`; input: archived-only visible rows with `totalCount: 0`.
+- [ ] (candidate) `BuyerPolishedHomeHeroSection` — live merge + workspace metrics share the same total contract — locus: hero section wiring; input: workspace-metrics regressions with non-finite totals.
+- [ ] (candidate) `formatOperatorHomeRecentReviewsOutcome` — `hasReviews` false when metrics snapshot not normalized — locus: outcome copy guard; input: workspace-metrics normalization tests.
+- [ ] (candidate) `resolveLiveRunsDashboardTotalCount` — negative totals still skip uplift after workspace-metrics stale uplift — locus: dashboard merge; input: negative clamp regression unchanged.
 
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regression `drops favorite rows when runId is whitespace-only`; 41 scoped continuity, scope-storage, and attention-preview vitest tests passed.
 
