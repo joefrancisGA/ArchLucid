@@ -178,7 +178,7 @@ export function deriveRecommendedWorkspaceActions(input: {
     actions.push({
       id: "assign-owners",
       title: "Open findings",
-      reason: "Remediation owners are not set for important findings.",
+      reason: "Owner was not stored for important findings.",
       relatedFindingCount: unassignedHigh,
       ownerOrRole: "Remediation lead",
       href: buildReviewDetailTabHref(input.runId, "findings"),

@@ -77,6 +77,8 @@ type RunDetailOutcomeCardsProps = {
   readonly hidePromotedStatus?: boolean;
   /** When ReviewPackageDoThisNextStrip owns the filled page primary (TB-2175). */
   readonly pagePrimaryOwnedElsewhere?: boolean;
+  /** Primary material finding title when stored on the review record. */
+  readonly materialFindingTitleDisplay?: string | null;
 };
 
 /**
@@ -103,6 +105,7 @@ export function RunDetailOutcomeCards({
   findingCoverageSummary = null,
   hidePromotedStatus = false,
   pagePrimaryOwnedElsewhere = false,
+  materialFindingTitleDisplay = null,
 }: RunDetailOutcomeCardsProps) {
   const pathname = usePathname() ?? "/";
   const searchParams = useSearchParams();
@@ -274,14 +277,21 @@ export function RunDetailOutcomeCards({
               </div>
               <div>
                 <dt className={cn(OPERATOR_NAV_GROUP_LABEL, "text-neutral-500 dark:text-neutral-400")}>Material finding</dt>
-                <dd className="m-0 mt-0.5 text-neutral-800 dark:text-neutral-200">Material finding was not stored.</dd>
+                <dd className="m-0 mt-0.5 text-neutral-800 dark:text-neutral-200">
+                  {materialFindingTitleDisplay?.trim() || "Material finding was not stored."}
+                </dd>
               </div>
               <div>
                 <dt className={cn(OPERATOR_NAV_GROUP_LABEL, "text-neutral-500 dark:text-neutral-400")}>Evidence basis</dt>
                 <dd className="m-0 mt-0.5 text-neutral-800 dark:text-neutral-200">
                   {typeof findingCountDisplay === "number"
+<<<<<<< HEAD
+                    ? `${findingCountDisplay} finding${findingCountDisplay === 1 ? "" : "s"} on the review record`
+                    : "Finding count was not stored."}
+=======
                     ? `${findingCountDisplay} finding${findingCountDisplay === 1 ? "" : "s"} in evidence trail`
                     : "Finding count was not returned."}
+>>>>>>> origin/master
                 </dd>
               </div>
               <div>

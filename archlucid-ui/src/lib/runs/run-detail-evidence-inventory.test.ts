@@ -157,6 +157,18 @@ describe("run-detail-evidence-inventory", () => {
     expect(items[0]?.citingFindingCount).toBe(0);
   });
 
+  it("does not treat omitted evidenceRefCount as citing evidence without source names", () => {
+    expect(
+      findingsCiteEvidenceWithoutStoredSourceNames([
+        finding({
+          findingId: "f-omitted",
+          evidenceRefCount: null,
+          evidenceRefSnippets: [],
+        }),
+      ]),
+    ).toBe(false);
+  });
+
   it("detects findings that cite evidence counts without stored source names", () => {
     expect(
       findingsCiteEvidenceWithoutStoredSourceNames([
