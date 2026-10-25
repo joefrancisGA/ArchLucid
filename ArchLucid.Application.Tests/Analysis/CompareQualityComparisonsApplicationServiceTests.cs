@@ -98,6 +98,46 @@ public sealed class CompareQualityComparisonsApplicationServiceTests
     }
 
     [Fact]
+    public async Task CompareQuality_TryGetScopedRecordAsync_trims_padded_comparison_record_id_from_stored_row()
+    {
+        const string runId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+        const string canonicalComparisonRecordId = "cmp-scoped-read-trim";
+        ComparisonRecord record = new()
+        {
+            ComparisonRecordId = $"  {canonicalComparisonRecordId}  ",
+            ComparisonType = ComparisonTypes.EndToEndReplay,
+            LeftRunId = runId,
+            RightRunId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            CreatedUtc = DateTime.UtcNow,
+        };
+        Mock<IComparisonRecordRepository> comparisonRecords = new();
+        comparisonRecords
+            .Setup(r => r.GetByIdAsync(canonicalComparisonRecordId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(record);
+
+        Mock<IRunDetailQueryService> runDetail = new();
+        runDetail
+            .Setup(s => s.GetRunDetailAsync(runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchitectureRunDetail { Run = new() { RunId = runId } });
+
+        ComparisonsApplicationService sut = new(
+            runDetail.Object,
+            new Mock<IRunExportRecordRepository>().Object,
+            comparisonRecords.Object,
+            new Mock<IComparisonReplayService>().Object,
+            new Mock<ICompareRunsApplicationFacade>().Object,
+            new Mock<IComparisonReplayCostEstimator>().Object,
+            new Mock<IDriftReportFormatter>().Object,
+            new DriftReportDocxExport());
+
+        ComparisonRecord? scoped =
+            await sut.TryGetScopedRecordAsync(canonicalComparisonRecordId, CancellationToken.None);
+
+        scoped.Should().NotBeNull();
+        scoped!.ComparisonRecordId.Should().Be(canonicalComparisonRecordId);
+    }
+
+    [Fact]
     public async Task CompareQuality_TryGetScopedRecordAsync_returns_record_when_comparison_id_has_trailing_line_break()
     {
         const string comparisonRecordId = "cmp-scoped-trim-id";

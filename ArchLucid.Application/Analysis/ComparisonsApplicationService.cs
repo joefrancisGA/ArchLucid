@@ -224,6 +224,7 @@ public sealed partial class ComparisonsApplicationService(
         if (!await IsComparisonRecordInScopeAsync(record, cancellationToken))
             return null;
 
+        ComparisonRecordScopedReadNormalizer.NormalizeInPlace(record);
         return record;
     }
 
