@@ -33,6 +33,13 @@ internal static class ExportRecordDiffMateriality
         foreach (ExportRecordDiffResult diff in exportDiffs)
         {
             (string Left, string Right) key = (diff.LeftExportRecordId, diff.RightExportRecordId);
+
+            if (key.Left.Length == 0 && key.Right.Length == 0)
+            {
+                distinct.Add(diff);
+                continue;
+            }
+
             if (!seen.Add(key))
                 continue;
 
