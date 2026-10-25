@@ -16,6 +16,20 @@ function trimLine(value: string | null | undefined): string {
   return (value ?? "").trim();
 }
 
+function formatSponsorFindingSeverityCell(severity: string | null | undefined): string {
+  if (severity === null || severity === undefined || severity.length === 0) {
+    return "Severity was not stored.";
+  }
+
+  const trimmed = severity.trim();
+
+  if (trimmed.length === 0) {
+    return "Severity was stored empty.";
+  }
+
+  return trimmed;
+}
+
 function pickRecommendedSponsorAction(_summary: RunExplanationSummary): string {
   return "This export has no separate sponsor-action field. Recommended actions are on the finding rows when they were stored.";
 }
@@ -48,7 +62,19 @@ function faithfulnessSupportRatioLine(value: unknown): string | null {
   }
 
   if (typeof value === "string") {
-    return `Faithfulness support ratio: ${value}.`;
+    const trimmed = value.trim();
+
+    if (trimmed.length === 0) {
+      return "Faithfulness support ratio was stored empty.";
+    }
+
+    const parsed = Number(trimmed);
+
+    if (Number.isFinite(parsed)) {
+      return `Faithfulness support ratio: ${ratioPercentLabel(parsed, "Ratio not returned")}.`;
+    }
+
+    return "Faithfulness support ratio was not stored.";
   }
 
   return null;
@@ -138,7 +164,7 @@ export function buildSponsorRiskReviewMarkdown(
           "| --- | --- | --- |",
           ...prioritizedFindings.map(
             (r) =>
-              `| ${mdTableCell(trimLine(r.severity) || "Severity was not stored")} | ${mdTableCell(
+              `| ${mdTableCell(formatSponsorFindingSeverityCell(r.severity))} | ${mdTableCell(
                 trimLine(r.title) || "Finding title was not stored",
               )} | ${mdTableCell(formatSponsorFindingRecommendedAction(r.recommended))} |`,
           ),
@@ -148,7 +174,9 @@ export function buildSponsorRiskReviewMarkdown(
   return [
     `# Sponsor report — ${headline}`,
     "",
-    `- **Review ID:** \`${runId.trim()}\``,
+    `- **Review ID:** ${
+      runId.trim().length > 0 ? `\`${runId.trim()}\`` : "Review id was not stored."
+    }`,
     "",
     "## Risk posture",
     "",
