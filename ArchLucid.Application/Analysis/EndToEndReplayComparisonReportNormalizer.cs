@@ -26,6 +26,7 @@ internal static class EndToEndReplayComparisonReportNormalizer
 
         ComparisonFindingCorrelationMetadataNormalizer.NormalizeInPlace(report.FindingCorrelation);
         CrossReviewFindingLifecycleNormalizer.NormalizeOnReport(report);
+        CompareQualityDeltaCountsNormalizer.NormalizeInPlace(report.CompareQualityDelta);
 
         CompareVerdictChromeDeltaNormalizer.NormalizeInPlace(report.CompareVerdictChromeDelta);
 

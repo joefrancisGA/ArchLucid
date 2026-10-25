@@ -410,4 +410,28 @@ public sealed class EndToEndReplayComparisonReportNormalizerTests
         report.ManifestDiff!.InputFingerprints!.BaseCommittedArtifactInventoryHashSha256.Should().Be("inv1");
         report.ManifestDiff.InputFingerprints.TargetCommittedArtifactInventoryHashSha256.Should().BeNull();
     }
+
+    [Fact]
+    public void CompareQuality_EndToEndReplayComparisonReportNormalizer_clamps_negative_compare_quality_delta_counts()
+    {
+        EndToEndReplayComparisonReport report = new()
+        {
+            LeftRunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            RightRunId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            CompareQualityDelta = new CompareQualityDeltaCounts
+            {
+                UnsupportedAssumptionsBefore = -3,
+                HighSeverityAfter = -1,
+                EvidenceBackedDecisionsBefore = 2,
+                EvidenceBackedDecisionsAfter = 4,
+            },
+        };
+
+        EndToEndReplayComparisonReportNormalizer.NormalizePersistedPayload(report);
+
+        report.CompareQualityDelta!.UnsupportedAssumptionsBefore.Should().Be(0);
+        report.CompareQualityDelta.HighSeverityAfter.Should().Be(0);
+        report.CompareQualityDelta.EvidenceBackedDecisionsBefore.Should().Be(2);
+        report.CompareQualityDelta.EvidenceBackedDecisionsAfter.Should().Be(4);
+    }
 }
