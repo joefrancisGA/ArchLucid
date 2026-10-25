@@ -49,7 +49,7 @@ export function formatSecurityEvidencePathConfidenceBandLabel(band: string | nul
     return "Confidence band was not stored.";
   }
 
-  return PATH_CONFIDENCE_BAND_LABELS[trimmed] ?? trimmed;
+  return PATH_CONFIDENCE_BAND_LABELS[trimmed] ?? "Guessed";
 }
 
 export function formatSecurityEvidenceProvenanceKindLabel(kind: string | null | undefined): string {
@@ -59,7 +59,7 @@ export function formatSecurityEvidenceProvenanceKindLabel(kind: string | null | 
     return "Provenance was not stored.";
   }
 
-  return PROVENANCE_KIND_LABELS[trimmed] ?? trimmed;
+  return PROVENANCE_KIND_LABELS[trimmed] ?? "Guessed";
 }
 
 export function formatSecurityEvidencePathRelationshipLabel(edgeType: string | null | undefined): string {

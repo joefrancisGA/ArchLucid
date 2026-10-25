@@ -19,6 +19,7 @@ import {
   INHABIT_DISPOSITION_HISTORY_EMPTY_BODY,
   INHABIT_DISPOSITION_HISTORY_SECTION_TITLE,
 } from "@/lib/inhabit/inhabit-disposition-history-copy";
+import { formatFindingDispositionHistoryLine } from "@/lib/findings/finding-disposition-history-display";
 
 import type { FindingInspectDispositionControlsViewModel } from "./use-finding-inspect-disposition-controls";
 
@@ -199,8 +200,7 @@ export function FindingInspectWaiverPanel(props: FindingInspectWaiverPanelProps)
           <ul className="m-0 list-disc space-y-1 pl-5" data-testid="finding-inspect-disposition-history-list">
             {history.map((event) => (
               <li key={event.eventId}>
-                {event.disposition}  —  {event.occurredAtUtc}
-                {event.rationale ? `  —  ${event.rationale}` : ""}
+                {formatFindingDispositionHistoryLine(event)}
               </li>
             ))}
           </ul>
