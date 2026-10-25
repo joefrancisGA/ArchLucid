@@ -122,6 +122,22 @@ describe("deriveOperatorHomeWorkspacePhaseSignalsFromOverviewRuns", () => {
     expect(signals.hasOverviewReviewRows).toBe(false);
   });
 
+  it("does not mark overview occupied when only archived rows are visible and totalCount is stale-positive", () => {
+    const signals = deriveOperatorHomeWorkspacePhaseSignalsFromOverviewRuns(
+      [
+        {
+          runId: "archived-1",
+          projectId: "default",
+          hasGoldenManifest: true,
+          isArchived: true,
+        } as RunSummary,
+      ],
+      12,
+    );
+
+    expect(signals.hasOverviewReviewRows).toBe(false);
+  });
+
   it("treats non-finite totalCount as stale when active overview rows are present", () => {
     const signals = deriveOperatorHomeWorkspacePhaseSignalsFromOverviewRuns(
       [

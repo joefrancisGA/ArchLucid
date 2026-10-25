@@ -1,6 +1,7 @@
 import type { ArchitectureDraftRegistryEntry } from "@/lib/architecture/architecture-draft-registry";
 import { isDemoSeededOverviewInjectedRun } from "@/lib/demo-seeded-overview";
 import { deriveOperatorHomeWorkspaceMetrics } from "@/lib/operator/operator-home-workspace-metrics";
+import { resolveOperatorHomeReviewTotalCount } from "@/lib/operator/operator-home-review-total-resolution";
 import type { RunSummary } from "@/types/authority";
 import {
   OPERATOR_HOME_ACTIVE_REVIEWS_HEADING,
@@ -49,16 +50,16 @@ export function deriveOperatorHomeWorkspacePhaseSignalsFromOverviewRuns(
 > {
   const activeItems = items.filter((run) => run.isArchived !== true);
   const tenantItems = activeItems.filter((run) => !isDemoSeededOverviewInjectedRun(run));
-  const metrics = deriveOperatorHomeWorkspaceMetrics(tenantItems, tenantItems.length);
-  const reportedTotal =
-    totalCount === undefined
-      ? activeItems.length
-      : Number.isFinite(totalCount)
-        ? Math.max(0, Math.trunc(totalCount))
-        : 0;
+  const resolvedOverviewTotal = resolveOperatorHomeReviewTotalCount(
+    totalCount === undefined ? activeItems.length : totalCount,
+    0,
+    activeItems.length,
+    items.length,
+  );
+  const metrics = deriveOperatorHomeWorkspaceMetrics(tenantItems, resolvedOverviewTotal);
 
   return {
-    hasOverviewReviewRows: Math.max(reportedTotal, activeItems.length) > 0,
+    hasOverviewReviewRows: resolvedOverviewTotal > 0,
     openFindingsCount: metrics.openFindings,
     governanceWarningsCount: metrics.governanceWarnings,
   };
