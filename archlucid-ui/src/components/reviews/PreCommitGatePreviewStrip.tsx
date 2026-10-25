@@ -19,7 +19,9 @@ export function PreCommitGatePreviewStrip(props: PreCommitGatePreviewStripProps)
       ? DESIGN_TOKENS.callout.warnShell
       : preview.disposition === "warn"
         ? DESIGN_TOKENS.callout.info
-        : "rounded-md border border-emerald-600/30 bg-emerald-50/70 p-4 dark:border-emerald-700/40 dark:bg-emerald-950/20";
+        : preview.disposition === "not-stored"
+          ? "rounded-md border border-neutral-300 bg-neutral-50/90 p-4 dark:border-neutral-600 dark:bg-neutral-900/40"
+          : "rounded-md border border-emerald-600/30 bg-emerald-50/70 p-4 dark:border-emerald-700/40 dark:bg-emerald-950/20";
 
   return (
     <div
@@ -36,7 +38,9 @@ export function PreCommitGatePreviewStrip(props: PreCommitGatePreviewStripProps)
           {preview.minimumBlockingSeverityLabel !== null
             ? `Threshold: ${preview.minimumBlockingSeverityLabel} or above`
             : null}
-          {preview.blockingFindingCount > 0 ? ` · ${preview.blockingFindingCount} blocking finding(s)` : null}
+          {preview.blockingFindingCount !== null && preview.blockingFindingCount > 0
+            ? ` · ${preview.blockingFindingCount} blocking finding(s)`
+            : null}
         </p>
       ) : null}
     </div>

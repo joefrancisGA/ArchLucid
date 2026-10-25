@@ -75,7 +75,9 @@ export async function downloadSponsorRoiCsvExport(): Promise<void> {
       row.severity,
       `"${row.title.replaceAll('"', '""')}"`,
       row.affectedResource ?? "",
-      row.estimatedUsdSavings ?? "",
+      row.estimatedUsdSavings === null || row.estimatedUsdSavings === undefined
+        ? "Estimated USD savings was not stored."
+        : row.estimatedUsdSavings,
     ].join(","),
   );
 

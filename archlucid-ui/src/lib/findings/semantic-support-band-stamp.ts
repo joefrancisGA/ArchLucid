@@ -84,7 +84,13 @@ export function countDecisionGradeSemanticSupportBands(
 }
 
 export function stampSemanticSupportShowsAllClear(counts: SemanticSupportBandStampCounts): boolean {
-  return counts.decisionGradeTotal > 0 && counts.unsupported === 0;
+  return (
+    counts.decisionGradeTotal > 0
+    && counts.unsupported === 0
+    && counts.unchecked === 0
+    && counts.missingStoredBand === 0
+    && counts.notScored === 0
+  );
 }
 
 function formatBandCountSegment(label: string, count: number): string {
@@ -210,7 +216,8 @@ export function listUnsupportedDecisionGradeSemanticSupportFindings(
 
     entries.push({
       findingId: finding.findingId,
-      title: finding.title.trim().length > 0 ? finding.title.trim() : finding.findingId,
+      title:
+        finding.title.trim().length > 0 ? finding.title.trim() : "Finding title was not stored.",
     });
   }
 
@@ -220,5 +227,5 @@ export function listUnsupportedDecisionGradeSemanticSupportFindings(
 export function formatStampUnsupportedSemanticSupportLabels(
   entries: readonly UnsupportedSemanticSupportStampEntry[],
 ): string[] {
-  return entries.map((entry) => `${entry.findingId}: ${entry.title}`);
+  return entries.map((entry) => `Finding id: ${entry.findingId} — ${entry.title}`);
 }

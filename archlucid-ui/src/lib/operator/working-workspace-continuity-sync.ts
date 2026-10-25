@@ -7,6 +7,7 @@ import {
 } from "@/lib/favorite-reviews";
 import {
   createEmptyRecentViewsState,
+  normalizeOperatorRecentViewKind,
   persistRecentViewsState,
   readStoredRecentViewsState,
   type OperatorRecentViewEntry,
@@ -28,6 +29,18 @@ function readLocalSyncedAtUtc(): string | null {
   } catch {
     return null;
   }
+}
+
+function parseContinuityInstantMs(value: string): number | null {
+  const trimmed = value.trim();
+
+  if (trimmed.length === 0) {
+    return null;
+  }
+
+  const parsedMs = Date.parse(trimmed);
+
+  return Number.isFinite(parsedMs) ? parsedMs : null;
 }
 
 function writeLocalSyncedAtUtc(value: string): void {
@@ -87,7 +100,7 @@ function toRecentViewEntries(
       const href = row.href?.trim() ?? "";
       const label = row.label?.trim() ?? "";
       const visitedAtUtc = row.visitedAtUtc?.trim() ?? "";
-      const kind = row.kind?.trim() ?? "page";
+      const kind = normalizeOperatorRecentViewKind(row.kind ?? "page");
 
       if (href.length === 0 || label.length === 0 || visitedAtUtc.length === 0) {
         return null;
@@ -99,7 +112,7 @@ function toRecentViewEntries(
       return {
         href,
         label,
-        kind: kind as OperatorRecentViewEntry["kind"],
+        kind,
         visitedAtUtc,
         ...(architectureId !== undefined && architectureId.length > 0 ? { architectureId } : {}),
         ...(parentArchitectureId !== undefined && parentArchitectureId.length > 0
@@ -145,16 +158,27 @@ export function shouldHydrateWorkingWorkspaceContinuityFromServer(
 
   const serverUpdatedAt = continuity.updatedAtUtc?.trim() ?? "";
   const localSyncedAt = readLocalSyncedAtUtc();
+  const localSyncedAtMs = localSyncedAt !== null ? parseContinuityInstantMs(localSyncedAt) : null;
 
-  if (localSyncedAt === null) {
-    return true;
+  if (localSyncedAt === null || localSyncedAtMs === null) {
+    if (serverUpdatedAt.length === 0) {
+      return true;
+    }
+
+    return parseContinuityInstantMs(serverUpdatedAt) !== null;
   }
 
   if (serverUpdatedAt.length === 0) {
     return true;
   }
 
-  return Date.parse(serverUpdatedAt) >= Date.parse(localSyncedAt);
+  const serverUpdatedAtMs = parseContinuityInstantMs(serverUpdatedAt);
+
+  if (serverUpdatedAtMs === null) {
+    return false;
+  }
+
+  return serverUpdatedAtMs >= localSyncedAtMs;
 }
 
 export function applyWorkingWorkspaceContinuityFromServer(
@@ -171,7 +195,7 @@ export function applyWorkingWorkspaceContinuityFromServer(
 
   const updatedAtUtc = continuity.updatedAtUtc?.trim();
 
-  if (updatedAtUtc !== undefined && updatedAtUtc.length > 0) {
+  if (updatedAtUtc !== undefined && updatedAtUtc.length > 0 && parseContinuityInstantMs(updatedAtUtc) !== null) {
     writeLocalSyncedAtUtc(updatedAtUtc);
   }
 }

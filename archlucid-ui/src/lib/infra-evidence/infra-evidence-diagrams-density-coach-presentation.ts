@@ -36,9 +36,14 @@ function formatInventoryFilteredIdentityArmTypes(
     return "";
   }
 
-  const lines = armTypes.map(
-    (entry) => `${entry.armResourceType} (${entry.resourceCount})`,
-  );
+  const lines = armTypes.map((entry) => {
+    const count =
+      typeof entry.resourceCount === "number" && Number.isFinite(entry.resourceCount)
+        ? entry.resourceCount
+        : "Resource count was not stored.";
+
+    return `${entry.armResourceType} (${count})`;
+  });
 
   return `${GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DENSITY_COACH_EMPTY_IDENTITY_RECORDED_TYPES_PREFIX} ${lines.join(", ")}.`;
 }

@@ -68,6 +68,18 @@ public sealed class GraphValidatorTests
     }
 
     [Fact]
+    public void Validate_EdgeWithWhitespaceOnlyEdgeType_ThrowsInvalidOperationException()
+    {
+        GraphNode node = ValidNode("n1");
+        GraphSnapshot snapshot = BuildSnapshot(node);
+        snapshot.Edges.Add(new GraphEdge { EdgeId = "e1", FromNodeId = "n1", ToNodeId = "n1", EdgeType = "   " });
+
+        Action act = () => _sut.Validate(snapshot);
+
+        act.Should().Throw<InvalidOperationException>().WithMessage("*EdgeType*");
+    }
+
+    [Fact]
     public void Validate_EdgeFromNodeNotInSnapshot_ThrowsInvalidOperationException()
     {
         GraphNode node = ValidNode("n1");
@@ -122,6 +134,97 @@ public sealed class GraphValidatorTests
         snapshot.Edges.Add(new GraphEdge
         {
             EdgeId = "e1", FromNodeId = "nodea", ToNodeId = "NODEA", EdgeType = GraphEdgeTypes.Contains
+        });
+
+        Action act = () => _sut.Validate(snapshot);
+
+        act.Should().NotThrow();
+    }
+
+    [Fact]
+    public void Validate_DuplicateNodeIdsDifferingOnlyBySurroundingWhitespace_ThrowsInvalidOperationException()
+    {
+        GraphSnapshot snapshot = BuildSnapshot(ValidNode("a"), ValidNode(" a "));
+
+        Action act = () => _sut.Validate(snapshot);
+
+        act.Should().Throw<InvalidOperationException>().WithMessage("*duplicate node ids*'a'*");
+    }
+
+    [Fact]
+    public void Validate_DuplicateNodeIdsDifferingOnlyByCase_ThrowsInvalidOperationException()
+    {
+        GraphSnapshot snapshot = BuildSnapshot(ValidNode("NodeA"), ValidNode("nodea"));
+
+        Action act = () => _sut.Validate(snapshot);
+
+        act.Should().Throw<InvalidOperationException>().WithMessage("*duplicate node ids*");
+    }
+
+    [Fact]
+    public void Validate_DuplicateDirectedEdgesWithSameNormalizedEndpointsAndType_ThrowsInvalidOperationException()
+    {
+        GraphNode a = ValidNode("a");
+        GraphNode b = ValidNode("b");
+        GraphSnapshot snapshot = BuildSnapshot(a, b);
+        snapshot.Edges.Add(new GraphEdge
+        {
+            EdgeId = "e1",
+            FromNodeId = "a",
+            ToNodeId = "b",
+            EdgeType = GraphEdgeTypes.Contains,
+        });
+        snapshot.Edges.Add(new GraphEdge
+        {
+            EdgeId = "e2",
+            FromNodeId = "a",
+            ToNodeId = "b",
+            EdgeType = GraphEdgeTypes.Contains,
+        });
+
+        Action act = () => _sut.Validate(snapshot);
+
+        act.Should().Throw<InvalidOperationException>().WithMessage("*duplicate directed edges*");
+    }
+
+    [Fact]
+    public void Validate_DuplicateDirectedEdgesDifferingOnlyByEdgeTypePadding_ThrowsInvalidOperationException()
+    {
+        GraphNode a = ValidNode("a");
+        GraphNode b = ValidNode("b");
+        GraphSnapshot snapshot = BuildSnapshot(a, b);
+        snapshot.Edges.Add(new GraphEdge
+        {
+            EdgeId = "e1",
+            FromNodeId = "a",
+            ToNodeId = "b",
+            EdgeType = GraphEdgeTypes.Contains,
+        });
+        snapshot.Edges.Add(new GraphEdge
+        {
+            EdgeId = "e2",
+            FromNodeId = " a ",
+            ToNodeId = " b ",
+            EdgeType = $" {GraphEdgeTypes.Contains} ",
+        });
+
+        Action act = () => _sut.Validate(snapshot);
+
+        act.Should().Throw<InvalidOperationException>().WithMessage("*duplicate directed edges*");
+    }
+
+    [Fact]
+    public void Validate_EdgeWithSurroundingWhitespaceOnEndpoints_DoesNotThrow()
+    {
+        GraphNode a = ValidNode("a");
+        GraphNode b = ValidNode("b");
+        GraphSnapshot snapshot = BuildSnapshot(a, b);
+        snapshot.Edges.Add(new GraphEdge
+        {
+            EdgeId = "e1",
+            FromNodeId = "  a  ",
+            ToNodeId = " b ",
+            EdgeType = GraphEdgeTypes.Contains,
         });
 
         Action act = () => _sut.Validate(snapshot);

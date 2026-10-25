@@ -57,6 +57,7 @@ Store associate -> Retail API`;
     expect(result.readiness.sufficient).toBe(false);
     expect(result.mermaidSource).toBeNull();
     expect(result.model).toBeNull();
+    expect(result.textAlternative).toBe("Architecture diagram was not generated.");
   });
 
   it("labels inferred nodes in mermaid output", () => {

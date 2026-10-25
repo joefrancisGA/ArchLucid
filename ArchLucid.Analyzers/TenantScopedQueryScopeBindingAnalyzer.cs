@@ -157,6 +157,72 @@ public sealed class TenantScopedQueryScopeBindingAnalyzer : DiagnosticAnalyzer
         AnalyzeSqlExpression(context, registry, sqlExpression, objectCreation.GetLocation());
     }
 
+    private static ExpressionSyntax UnwrapCommandDefinitionSqlExpression(
+        ExpressionSyntax sqlExpression,
+        SemanticModel semanticModel)
+    {
+        if (sqlExpression is IdentifierNameSyntax identifier)
+        {
+            ISymbol? symbol = semanticModel.GetSymbolInfo(identifier).Symbol;
+            SyntaxReference? reference = symbol?.DeclaringSyntaxReferences.FirstOrDefault();
+
+            if (reference?.GetSyntax() is VariableDeclaratorSyntax declarator)
+            {
+                if (declarator.Initializer?.Value is ExpressionSyntax initializer)
+                    sqlExpression = initializer;
+                else if (symbol is ILocalSymbol local &&
+                         TryGetCommandDefinitionAssignmentRightHand(local, semanticModel) is ExpressionSyntax assigned)
+                    sqlExpression = assigned;
+            }
+        }
+
+        if (sqlExpression is not BaseObjectCreationExpressionSyntax objectCreation)
+            return sqlExpression;
+
+        ITypeSymbol? type = semanticModel.GetTypeInfo(objectCreation).Type;
+
+        if (type is null || !string.Equals(type.Name, "CommandDefinition", StringComparison.Ordinal))
+            return sqlExpression;
+
+        return TryGetCommandDefinitionSqlExpression(objectCreation) ?? sqlExpression;
+    }
+
+    private static ExpressionSyntax? TryGetCommandDefinitionAssignmentRightHand(
+        ILocalSymbol local,
+        SemanticModel semanticModel)
+    {
+        SyntaxReference? syntaxReference = local.DeclaringSyntaxReferences.FirstOrDefault();
+
+        if (syntaxReference?.GetSyntax() is not VariableDeclaratorSyntax declarator)
+            return null;
+
+        BlockSyntax? block = declarator.FirstAncestorOrSelf<BlockSyntax>();
+
+        if (block is null)
+            return null;
+
+        foreach (StatementSyntax statement in block.Statements)
+        {
+            if (statement is not ExpressionStatementSyntax { Expression: AssignmentExpressionSyntax assignment })
+                continue;
+
+            if (assignment.OperatorToken.Kind() != SyntaxKind.EqualsToken)
+                continue;
+
+            if (assignment.Left is not IdentifierNameSyntax leftIdentifier)
+                continue;
+
+            ISymbol? leftSymbol = semanticModel.GetSymbolInfo(leftIdentifier).Symbol;
+
+            if (!SymbolEqualityComparer.Default.Equals(leftSymbol, local))
+                continue;
+
+            return assignment.Right;
+        }
+
+        return null;
+    }
+
     private static ExpressionSyntax? TryGetCommandDefinitionSqlExpression(BaseObjectCreationExpressionSyntax objectCreation)
     {
         if (objectCreation.ArgumentList is null)
@@ -185,6 +251,8 @@ public sealed class TenantScopedQueryScopeBindingAnalyzer : DiagnosticAnalyzer
 
         if (TenantScopeExemptSymbolHelper.TryGetExemption(containingSymbol, context.Compilation) is not null)
             return;
+
+        sqlExpression = UnwrapCommandDefinitionSqlExpression(sqlExpression, context.SemanticModel);
 
         TenantScopedSqlExpressionResolver.ResolutionResult resolution =
             TenantScopedSqlExpressionResolver.Resolve(sqlExpression, context.SemanticModel);

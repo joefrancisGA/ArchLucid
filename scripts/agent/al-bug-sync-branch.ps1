@@ -63,6 +63,19 @@ if (-not $localBranchExists) {
     if ($remoteBranchExists) {
         git checkout -b $TargetBranch "origin/$TargetBranch"
     }
+    elseif ($TargetBranch -match '^bugsmash-[1-4]$') {
+        git fetch origin bugsmash 2>$null | Out-Null
+
+        if (Test-GitRefExists -Ref 'refs/remotes/origin/bugsmash') {
+            git checkout -b $TargetBranch origin/bugsmash
+            Write-Host "Created local $TargetBranch from origin/bugsmash (remote set branch not found yet)."
+        }
+        else {
+            git fetch origin master | Out-Null
+            git checkout -b $TargetBranch origin/master
+            Write-Host "Created local $TargetBranch from origin/master (origin/bugsmash not found)."
+        }
+    }
     else {
         if ($fetchExit -ne 0) {
             git fetch origin master | Out-Null
