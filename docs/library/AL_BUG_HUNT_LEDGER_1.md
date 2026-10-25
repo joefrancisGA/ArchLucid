@@ -6868,6 +6868,19 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-25 seed hunt (seed→hit): proved hunt 289–290 canonicalized run ids for run-detail child lookups and Lane B compose but `ArchitectureAnalysisService.BuildAsync` still queried evidence, execution traces, and agent results with a single canonical `N`-format key, so in-memory hosts with legacy uppercase hex `RunId` anchors returned empty evidence/trace/result loads; try `AnalysisRunIdCanonicalization.EnumerateRunIdRepositoryLookupKeys` before giving up; regression `CompareQuality_BuildAsync_loads_evidence_when_package_run_id_differs_only_by_casing`; cheap-disproof closed Lane B compose casing (hunt 290), run-detail child lookup casing (hunt 289), compare run-pair facade casing (hunt 288), SQL run export list-by-run casing (hunt 287), batch zip manifest echo (cosmetic); seeded five follow-on rows; scoped application-analysis + replay filter 392/392. Private beta: architecture analysis reports include evidence when persisted packages use run anchors that differ only by hex letter casing from the canonical lookup key.
+
+- [ ] (candidate) `ComparisonRecordRepository.GetByRunIdAsync` — SQL list-by-run dashed stored — locus: UNIQUEIDENTIFIER column; input: already matches N/D lookup via guid param.
+- [ ] (candidate) `ComparisonRecordRepositoryCore.SerializeTagsForUpdate` — JSON tag order — locus: cosmetic; input: defer.
+- [ ] (candidate) `ComparisonRecordSearchPredicateBuilder` — notes column search — locus: no notes filter today; input: defer.
+- [ ] (candidate) `ApiPaging.TryParseUtcTicksIdCursor` — cursor id segment without trim — locus: HTTP cursor parse; input: padded id after ticks delimiter (alerts inbox and other API surfaces).
+- [ ] (candidate) `ComparisonBatchReplayZipSupport` — manifest failure entries echo pre-trim batch tokens — locus: zip manifest; input: cosmetic id echo only.
+
+- [x] (proven) `ArchitectureAnalysisService.BuildAsync` — evidence/trace/result run id casing — **hit 2026-10-25 seed hunt:** alternate lookup keys; regression above.
+- [x] (valid-no-repro) `RunDetailQueryService` — Lane B compose run id casing — **cheap-disproof 2026-10-25 seed hunt:** hunt 290.
+- [x] (invalid) `ApiPaging.TryParseUtcTicksIdCursor` — HTTP cursor id trim — **cheap-disproof 2026-10-25 seed hunt:** comparison search normalizes at application layer.
+- [x] (invalid) `ComparisonBatchReplayZipSupport` — manifest id echo — **cheap-disproof 2026-10-25 seed hunt:** cosmetic only.
+
 2026-10-25 seed hunt (seed→hit): proved hunt 289 canonicalized run id strings for task/result/cost child repository calls but `LoadRunDetailAsync` and `GetRunDetailForRoiAsync` still passed the caller’s original casing into `ApplySemanticSupportBandOverlaysAndLaneBComposeAsync`, so Lane B semantic support compose skipped execution traces on in-memory hosts when uppercase hex run keys were used; thread `lookupRunId` through the compose path; regression `CompareQuality_GetRunDetailAsync_passes_canonical_run_id_to_lane_b_compose_when_casing_differs`; cheap-disproof closed run-detail child lookup casing (hunt 289), compare run-pair facade casing (hunt 288), SQL run export list-by-run casing (hunt 287), `ApiPaging.TryParseUtcTicksIdCursor` (comparison search normalizes at app layer), batch zip manifest echo (cosmetic); seeded five follow-on rows; scoped application-analysis + replay filter 391/391. Private beta: run detail and ROI reads apply Lane B semantic support bands when the requested run id differs only by hex letter casing from the canonical key.
 
 - [ ] (candidate) `ComparisonRecordRepository.GetByRunIdAsync` — SQL list-by-run dashed stored — locus: UNIQUEIDENTIFIER column; input: already matches N/D lookup via guid param.
