@@ -5,6 +5,7 @@ import type { RunSummary } from "@/types/authority";
 import {
   filterRunsForHomeAttentionPreview,
   listHomeAttentionPreviewExcludedRunIds,
+  resolveRunIdFromUnfinishedWorkRailItem,
 } from "@/lib/operator/home-attention-dedup";
 import type { UnfinishedWorkRailItem } from "@/lib/unfinished-work-rail";
 
@@ -74,6 +75,14 @@ describe("home-attention-dedup (TB-2369)", () => {
     const filtered = filterRunsForHomeAttentionPreview(runs, ["run-2"]);
 
     expect(filtered.map((run) => run.runId)).toEqual(["   "]);
+  });
+
+  it("resolveRunIdFromUnfinishedWorkRailItem returns null when id suffix is whitespace-only", () => {
+    expect(
+      resolveRunIdFromUnfinishedWorkRailItem(
+        railItem("awaiting-disposition", "awaiting-disposition:   "),
+      ),
+    ).toBeNull();
   });
 
   it("omits rail items whose id prefix does not yield a run id", () => {

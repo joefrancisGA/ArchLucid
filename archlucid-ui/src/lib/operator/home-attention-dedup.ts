@@ -24,7 +24,7 @@ export function buildTrimmedRunIdSet(runIds: readonly string[]): ReadonlySet<str
 export function resolveRunIdFromUnfinishedWorkRailItem(item: UnfinishedWorkRailItem): string | null {
   if (item.kind === "awaiting-disposition") {
     const runId = item.id.startsWith(AWAITING_DISPOSITION_RAIL_ID_PREFIX)
-      ? item.id.slice(AWAITING_DISPOSITION_RAIL_ID_PREFIX.length)
+      ? item.id.slice(AWAITING_DISPOSITION_RAIL_ID_PREFIX.length).trim()
       : "";
 
     return runId.length > 0 ? runId : null;
@@ -32,7 +32,7 @@ export function resolveRunIdFromUnfinishedWorkRailItem(item: UnfinishedWorkRailI
 
   if (item.kind === "review-in-progress") {
     const runId = item.id.startsWith(REVIEW_IN_PROGRESS_RAIL_ID_PREFIX)
-      ? item.id.slice(REVIEW_IN_PROGRESS_RAIL_ID_PREFIX.length)
+      ? item.id.slice(REVIEW_IN_PROGRESS_RAIL_ID_PREFIX.length).trim()
       : "";
 
     return runId.length > 0 ? runId : null;

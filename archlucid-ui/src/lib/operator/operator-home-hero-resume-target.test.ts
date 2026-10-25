@@ -55,6 +55,10 @@ describe("operator-home-hero-resume-target", () => {
     expect(collectResumeRunIdsForMatch("/architecture/first-review-guide", "   ")).toEqual([]);
   });
 
+  it("collectResumeRunIdsForMatch dedupes when href and explicit encode the same run", () => {
+    expect(collectResumeRunIdsForMatch("/architecture/reviews/run-hero", "run-hero")).toEqual(["run-hero"]);
+  });
+
   it("matches when hero runId is whitespace-only but href encodes the rail run id", () => {
     expect(
       matchesOperatorHomeHeroResumeTarget(
