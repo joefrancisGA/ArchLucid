@@ -4938,7 +4938,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-operator-lib
 
-**Hunts:** 109 · **Bugs found:** 104 · **Consecutive dry hunts:** 0
+**Hunts:** 110 · **Bugs found:** 104 · **Consecutive dry hunts:** 0
+
+2026-10-25 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; 97 scoped workspace-phase, recent-reviews-outcome, tenant-counting, review-total-resolution, live-runs-dashboard, workspace-metrics, and workspace-activity-context vitest passed; no production code changed.
 
 2026-10-25 seed hunt (hit): `deriveOperatorHomeWorkspacePhaseSignalsFromOverviewRuns` routes through `deriveOperatorHomeWorkspaceMetricsFromOverviewRuns` and tenant-scoped totals (fixes description-matched showcase rows inflating governance/open-findings phase signals); regression `counts description-matched showcase toward overview occupancy while excluding tenant metrics`; cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; 47 scoped workspace-phase, workspace-metrics, and review-total-resolution vitest passed. Private beta: Invited operators with only the live customer-intake showcase on Overview no longer see hero phase signals report governance pressure from a non-tenant sample row.
 
@@ -5350,11 +5352,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `deriveOperatorHomeWorkspacePhaseSignalsFromOverviewRuns` — overview occupancy still counts description showcase when tenant metrics exclude it — **hit 2026-10-25 seed hunt:** overview helper + `isNonTenantOverviewRun` occupancy; regression `counts description-matched showcase toward overview occupancy while excluding tenant metrics`.
 - [x] (valid-no-repro) `use-runs-dashboard-tabs` — `displayItems` tenant filter when samples hidden does not apply description token — **cheap-disproof 2026-10-25 seed hunt:** `filterTenantOverviewRuns` applies `isNonTenantOverviewRun` including description token when `hideHeading && !sampleReviewsVisible`.
 
-- [ ] (candidate) `resolveOperatorHomeWorkspacePhase` — `hasOverviewReviewRows` alone cannot elevate phase without tenant reviews — locus: TB-1039 guard; input: description showcase with `hasWorkspaceReviews` false from context.
-- [ ] (candidate) `PilotCommandCenterCard` — phase signals derived from merged dashboard items before description filter landed — locus: command center props; input: live snapshot with API showcase only.
-- [ ] (candidate) `deriveOperatorHomeWorkspaceMetrics` — direct callers outside overview helper after phase signal consolidation — locus: grep direct derive; input: stale tenant item list passed manually.
-- [ ] (candidate) `isNonTenantOverviewRun` — static showcase id rows with tenant findings metadata — locus: filter predicate order; input: static id row with `hasFindingsSnapshot`.
-- [ ] (candidate) `formatOperatorHomeRecentReviewsOutcome` — example-only path when description showcase shares page with tenant row — locus: outcome formatter; input: mixed overview list with one tenant review.
+- [x] (valid-no-repro) `resolveOperatorHomeWorkspacePhase` — `hasOverviewReviewRows` alone cannot elevate phase without tenant reviews — **cheap-disproof 2026-10-25 seed hunt:** TB-1039 guard ignores overview occupancy for phase; regression `keeps eval-empty when only overview showcase rows exist without tenant reviews (TB-1039)`.
+- [x] (valid-no-repro) `PilotCommandCenterCard` — phase signals derived from merged dashboard items before description filter landed — **cheap-disproof 2026-10-25 seed hunt:** `overviewRunsSignals` calls `deriveOperatorHomeWorkspacePhaseSignalsFromOverviewRuns` on live `runsDashboard` items; description showcase excluded from tenant metrics in overview helper regressions.
+- [x] (valid-no-repro) `deriveOperatorHomeWorkspaceMetrics` — direct callers outside overview helper after phase signal consolidation — **cheap-disproof 2026-10-25 seed hunt:** production surfaces route through `deriveOperatorHomeWorkspaceMetricsFromOverviewRuns`; low-level derive remains test-only alias path.
+- [x] (valid-no-repro) `isNonTenantOverviewRun` — static showcase id rows with tenant findings metadata — **cheap-disproof 2026-10-25 seed hunt:** `isShowcaseSampleOfAnyKind` short-circuits before findings fields; regression `excludes showcase story rows matched by description from tenant metrics`.
+- [x] (valid-no-repro) `formatOperatorHomeRecentReviewsOutcome` — example-only path when description showcase shares page with tenant row — **cheap-disproof 2026-10-25 seed hunt:** `isExampleOnlyOverviewRunList` returns false when a tenant row is present; regression `returns false when a tenant review is present`.
+
+- [ ] (candidate) `OperatorHomePageView` — SSR tenant counting still passes raw `runsDashboard.totalCount` without `resolveOperatorHomeRunsPanelReportedTotalCount` — locus: `deriveOperatorHomeTenantCountingSnapshot` ~254–257; input: SSR home payload with demo-only or archived-only visible rows and stale positive `totalCount` before client merge hydrates.
+- [ ] (candidate) `OperatorHomePageView` — buyer-polished section composer seeds phase `hasWorkspaceReviews` from SSR metrics while tabs hook later normalizes publish totals — locus: `composeOperatorHomeSections` ~263–271; input: archived-only SSR list with positive `runsDashboard.totalCount`.
+- [ ] (candidate) `PilotCommandCenterCard` — SSR seed `openFindingsCount` / `hasWorkspaceReviews` props floor live metrics via `Math.max` when `liveRunsSnapshot === null` — locus: `useSsrSeedCounts` branch ~117–128; input: showcase-only first paint with stale non-zero SSR findings before live dashboard reports zero tenant metrics.
+- [ ] (candidate) `use-runs-dashboard-tabs` — `exampleReviewOnly` forced false when samples hidden even if tenant-filtered `displayItems` are empty — locus: `exampleReviewOnly` ternary ~300–302; input: `hideHeading && !sampleReviewsVisible` with zero tenant rows but positive `runsPanelReportedTotalCount` from pagination metadata.
+- [ ] (candidate) `BuyerPolishedHomeHeroSection` — hero seeds `hasWorkspaceReviews` from overview metrics while command center re-merges activity after live snapshot — locus: hero props ~34 vs `workspaceActivity.hasWorkspaceReviews` ~127–128; input: live merge zeroes tenant rows while SSR seed props still assert reviews.
 
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regression `drops favorite rows when runId is whitespace-only`; 41 scoped continuity, scope-storage, and attention-preview vitest tests passed.
 
