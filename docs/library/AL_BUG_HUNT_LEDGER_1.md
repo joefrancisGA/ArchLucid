@@ -6868,6 +6868,20 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-25 seed hunt (seed→hit): proved `ExportReplayService.ReplayAsync` canonicalized stored `RunId` and determinism columns but echoed untrimmed `record.ExportRecordId` on `ReplayExportResult` while hunt 163 centralized trim on `RunExportQueryFacade` load paths only, so export replay responses could show padded legacy export ids; consolidate load normalization in shared `RunExportRecordScopedReadNormalizer` and apply on replay load; regression `ReplayAsync_trims_padded_export_record_id_on_replay_result`; cheap-disproof closed `GetRunExportHistoryAsync` dashed-route lookup (`RunExportRecordRunIdSql.LookupKeys` at repository), export history/detail read path (hunt 163), `ApiPaging.TryParseUtcTicksIdCursor` (comparison search normalizes inbound cursor id), batch zip manifest echo (cosmetic), and Armenian homoglyphs (deferred); seeded five follow-on rows; scoped application-analysis + replay filter 328/328. Private beta: architecture export replay returns trimmed export record ids matching export history and comparison surfaces.
+
+- [ ] (candidate) `ExportReplayService.FinishReplayDocxAsync` — `RecordedReplayExportRecordId` without trim when audit persist echoes padding — locus: recorded replay branch; input: new guid from audit only.
+- [ ] (candidate) `RunExportQueryFacade.GetRunExportHistoryAsync` — route run id not canonicalized before detail vs repository — locus: idempotent when repository lookup keys expand dashed ids.
+- [ ] (candidate) `ApiPaging.TryParseUtcTicksIdCursor` — cursor id segment without trim — locus: HTTP cursor parse; input: padded id after ticks delimiter (alerts inbox and other API surfaces).
+- [ ] (candidate) `ComparisonBatchReplayZipSupport` — manifest failure entries echo pre-trim batch tokens — locus: zip manifest; input: cosmetic id echo only.
+- [ ] (candidate) `RunExportRecordPersistNormalizer` — persistence-layer determinism column normalize — locus: repository read; input: consolidation at DB boundary.
+
+- [x] (proven) `ExportReplayService.ReplayAsync` — padded export record id on replay result — **hit 2026-10-25 seed hunt:** `RunExportRecordScopedReadNormalizer`; regression above.
+- [x] (valid-no-repro) `RunExportQueryFacade.NormalizeLoadedExportRecord` — export read trim — **cheap-disproof 2026-10-25 seed hunt:** delegates to shared normalizer after refactor.
+- [x] (invalid) `GetRunExportHistoryAsync` — dashed route run id list miss — **cheap-disproof 2026-10-25 seed hunt:** repository `LookupKeys` expands dashed/N forms.
+- [x] (invalid) `ApiPaging.TryParseUtcTicksIdCursor` — HTTP cursor id trim — **cheap-disproof 2026-10-25 seed hunt:** comparison search normalizes at application layer.
+- [x] (invalid) `ComparisonBatchReplayZipSupport` — manifest id echo — **cheap-disproof 2026-10-25 seed hunt:** cosmetic only.
+
 2026-10-25 seed hunt (seed→hit): proved `RunExportQueryFacade.NormalizeLoadedExportRecord` only cleared stale determinism columns while `GetRunExportHistoryAsync` and `GetExportRecordAsync` returned repository rows with padded `ExportRecordId` (and non-canonical `RunId`) after hunt 162 normalized comparison list/search parity, so architecture export history and export detail echoed legacy padding; trim export anchors via `RunExportRecordIdNormalizer` and `AnalysisRunIdCanonicalization` inside `NormalizeLoadedExportRecord`; regressions `CompareQuality_GetRunExportHistoryAsync_trims_padded_export_record_id_from_list_rows` and `CompareQuality_GetExportRecordAsync_trims_padded_export_record_id_from_stored_row`; cheap-disproof closed comparison list paths (hunt 162), `ApiPaging.TryParseUtcTicksIdCursor` (comparison search normalizes inbound cursor id), batch zip manifest echo (cosmetic), Armenian homoglyphs (deferred), and persistence-layer determinism-only normalizer scope (now includes id trim); seeded five follow-on rows; scoped application-analysis + replay filter 327/327. Private beta: run export history and export record detail return trimmed export record ids and canonical run ids matching comparison and replay surfaces.
 
 - [ ] (candidate) `RunExportQueryFacade.GetRunExportHistoryAsync` — `GetByRunIdAsync` lookup without canonical run id — locus: dashed/padded route run id vs N-format persistence.
@@ -8101,11 +8115,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 163
-- **bugs-found:** 169
+- **hunts:** 164
+- **bugs-found:** 170
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-25
-- **last-bug:** 2026-10-25 — export history/detail trims padded export ids
+- **last-bug:** 2026-10-25 — export replay trims padded export record id
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
