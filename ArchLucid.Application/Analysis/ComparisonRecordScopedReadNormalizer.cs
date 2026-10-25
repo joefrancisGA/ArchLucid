@@ -7,6 +7,15 @@ namespace ArchLucid.Application.Analysis;
 /// </summary>
 internal static class ComparisonRecordScopedReadNormalizer
 {
+    internal static void NormalizeListInPlace(IReadOnlyList<ComparisonRecord> records)
+    {
+        if (records.Count == 0)
+            return;
+
+        foreach (ComparisonRecord record in records)
+            NormalizeInPlace(record);
+    }
+
     internal static void NormalizeInPlace(ComparisonRecord record)
     {
         ArgumentNullException.ThrowIfNull(record);

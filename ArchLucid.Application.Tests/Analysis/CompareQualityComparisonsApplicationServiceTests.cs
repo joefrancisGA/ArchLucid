@@ -58,6 +58,100 @@ public sealed class CompareQualityComparisonsApplicationServiceTests
     }
 
     [Fact]
+    public async Task CompareQuality_TryListByRunIdAsync_trims_padded_comparison_record_id_from_list_rows()
+    {
+        const string canonicalComparisonRecordId = "cmp-run-list-trim";
+        const string runId = "cccccccccccccccccccccccccccccccc";
+
+        InMemoryComparisonRecordRepository comparisonRecords = new();
+        await comparisonRecords.CreateAsync(
+            new ComparisonRecord
+            {
+                ComparisonRecordId = $"  {canonicalComparisonRecordId}  ",
+                ComparisonType = ComparisonTypes.EndToEndReplay,
+                LeftRunId = runId,
+                RightRunId = "dddddddddddddddddddddddddddddddd",
+                CreatedUtc = DateTime.UtcNow,
+            },
+            CancellationToken.None);
+
+        Mock<IRunDetailQueryService> runDetail = new();
+        runDetail
+            .Setup(s => s.GetRunDetailAsync(runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchitectureRunDetail { Run = new() { RunId = runId } });
+
+        ComparisonsApplicationService sut = new(
+            runDetail.Object,
+            new Mock<IRunExportRecordRepository>().Object,
+            comparisonRecords,
+            new Mock<IComparisonReplayService>().Object,
+            new Mock<ICompareRunsApplicationFacade>().Object,
+            new Mock<IComparisonReplayCostEstimator>().Object,
+            new Mock<IDriftReportFormatter>().Object,
+            new DriftReportDocxExport());
+
+        IReadOnlyList<ComparisonRecord>? records =
+            await sut.TryListByRunIdAsync(runId, CancellationToken.None);
+
+        records.Should().NotBeNull();
+        records!.Should().ContainSingle();
+        records[0].ComparisonRecordId.Should().Be(canonicalComparisonRecordId);
+    }
+
+    [Fact]
+    public async Task CompareQuality_SearchAsync_trims_padded_comparison_record_id_in_results_and_next_cursor()
+    {
+        const string canonicalComparisonRecordId = "cmp-search-next-cursor-trim";
+        DateTime older = new(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        DateTime newer = new(2026, 1, 2, 0, 0, 0, DateTimeKind.Utc);
+
+        InMemoryComparisonRecordRepository comparisonRecords = new();
+        await comparisonRecords.CreateAsync(
+            new ComparisonRecord
+            {
+                ComparisonRecordId = $"  {canonicalComparisonRecordId}  ",
+                ComparisonType = ComparisonTypes.EndToEndReplay,
+                LeftRunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                RightRunId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+                CreatedUtc = newer,
+            },
+            CancellationToken.None);
+        await comparisonRecords.CreateAsync(
+            new ComparisonRecord
+            {
+                ComparisonRecordId = "cmp-search-next-cursor-other",
+                ComparisonType = ComparisonTypes.EndToEndReplay,
+                LeftRunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                RightRunId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+                CreatedUtc = older,
+            },
+            CancellationToken.None);
+
+        ComparisonsApplicationService sut = new(
+            new Mock<IRunDetailQueryService>().Object,
+            new Mock<IRunExportRecordRepository>().Object,
+            comparisonRecords,
+            new Mock<IComparisonReplayService>().Object,
+            new Mock<ICompareRunsApplicationFacade>().Object,
+            new Mock<IComparisonReplayCostEstimator>().Object,
+            new Mock<IDriftReportFormatter>().Object,
+            new DriftReportDocxExport());
+
+        ComparisonHistorySearchResult page = await sut.SearchAsync(
+            new ComparisonHistorySearchCriteria
+            {
+                SortBy = "createdUtc",
+                SortDir = "desc",
+                Limit = 1,
+            },
+            CancellationToken.None);
+
+        page.Records.Should().ContainSingle();
+        page.Records[0].ComparisonRecordId.Should().Be(canonicalComparisonRecordId);
+        page.NextCursor.Should().Be($"{newer.Ticks}:{canonicalComparisonRecordId}");
+    }
+
+    [Fact]
     public async Task CompareQuality_TryListByRunIdAsync_lists_records_when_query_run_id_has_trailing_line_break()
     {
         const string canonicalRunId = "44444444444444444444444444444444";

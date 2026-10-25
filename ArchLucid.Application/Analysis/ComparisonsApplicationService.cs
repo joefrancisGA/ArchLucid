@@ -51,7 +51,10 @@ public sealed partial class ComparisonsApplicationService(
 
         string lookupRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(runId);
 
-        return await _comparisonRecordRepository.GetByRunIdAsync(lookupRunId, ct);
+        IReadOnlyList<ComparisonRecord> records =
+            await _comparisonRecordRepository.GetByRunIdAsync(lookupRunId, ct);
+        ComparisonRecordScopedReadNormalizer.NormalizeListInPlace(records);
+        return records;
     }
 
     /// <inheritdoc />
@@ -63,7 +66,10 @@ public sealed partial class ComparisonsApplicationService(
         if (await LoadScopedExportRecordAsync(normalizedExportRecordId, ct) is null)
             return null;
 
-        return await _comparisonRecordRepository.GetByExportRecordIdAsync(normalizedExportRecordId, ct);
+        IReadOnlyList<ComparisonRecord> records =
+            await _comparisonRecordRepository.GetByExportRecordIdAsync(normalizedExportRecordId, ct);
+        ComparisonRecordScopedReadNormalizer.NormalizeListInPlace(records);
+        return records;
     }
 
     /// <inheritdoc />
@@ -147,6 +153,8 @@ public sealed partial class ComparisonsApplicationService(
                 limit,
                 ct);
         }
+
+        ComparisonRecordScopedReadNormalizer.NormalizeListInPlace(records);
 
         string? nextCursor =
             records.Count > 0 && string.Equals(sortBy, "createdUtc", StringComparison.OrdinalIgnoreCase)
