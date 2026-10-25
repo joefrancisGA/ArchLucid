@@ -20,4 +20,20 @@ describe("buildPolicyPackSimulationSummary", () => {
     expect(summary?.disposition).toBe("HOLD");
     expect(summary?.headline).toContain("block");
   });
+
+  it("does not invent zero evaluated reviews when deltaCounts is omitted", () => {
+    const result = {
+      items: [],
+      page: 1,
+      pageSize: 20,
+      returnedRuns: 0,
+      totalRequestedRuns: 0,
+      proposedThresholds: {},
+    } as PolicyPackDryRunResponse;
+
+    const summary = buildPolicyPackSimulationSummary(result);
+
+    expect(summary?.headline).toContain("not returned");
+    expect(summary?.detail).not.toContain("Evaluated 0");
+  });
 });
