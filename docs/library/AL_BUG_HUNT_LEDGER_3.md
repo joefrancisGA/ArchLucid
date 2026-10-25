@@ -4938,7 +4938,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-operator-lib
 
-**Hunts:** 83 · **Bugs found:** 80 · **Consecutive dry hunts:** 0
+**Hunts:** 84 · **Bugs found:** 81 · **Consecutive dry hunts:** 0
+
+2026-10-25 seed hunt (hit): consolidated `resolveUnfinishedWorkRailRunIdForMatch` for TB-2369 row id + href resolution (desk `highlightReviewId` wins on conflict; row id wins for stale peer hrefs); wired `listHomeAttentionPreviewExcludedRunIds` to href fallback when row id suffix is empty; regressions `lists run id from rail href when row id suffix is empty` and `filters home attention preview when rail row id suffix is empty but href encodes the run`; scoped attention-dedup + rail-resume vitest passed. Private beta: Invited operators no longer see duplicate home attention rows for a review already on the unfinished-work rail when the row id suffix is malformed but the href still points at the run.
 
 2026-10-25 seed hunt (hit): promoted `resolvePrimaryResumeRunIdForRailItem` so rail resume targets prefer href-encoded SN-012 `highlightReviewId` when TB-2369 row id disagrees; regressions `prefers href-encoded run id when TB-2369 row id conflicts with desk highlightReviewId` and `does not suppress hero Continue when row id conflicts with desk highlightReviewId`; scoped rail-resume vitest passed. Private beta: Invited operators keep Continue on unfinished-work rows whose desk link highlights a different review than a stale row id would imply.
 
@@ -5143,11 +5145,19 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `resumeHrefsEquivalentForDedupe` — peer review trailing-slash equivalence unchanged — **cheap-disproof 2026-10-25 seed hunt:** regression `matches resume targets when hrefs differ only by a trailing slash`.
 - [x] (proven) `resolveOperatorUnfinishedWorkRailItemResumeTarget` — `collectResumeRunIdsForMatch` first id preferred stale TB-2369 row id over desk `highlightReviewId` — **hit 2026-10-25 seed hunt:** `resolvePrimaryResumeRunIdForRailItem`; regressions `prefers href-encoded run id when TB-2369 row id conflicts with desk highlightReviewId` and `does not suppress hero Continue when row id conflicts with desk highlightReviewId`.
 
-- [ ] (candidate) `resolvePrimaryResumeRunIdForRailItem` — falls back to rail row id when href parses no run id — locus: rail resume resolver; input: `/architecture/reviews/new` + `review-in-progress:run-42`.
-- [ ] (candidate) `resolveOperatorHomeResumeAffordancePlan` — review dedupe inherits href-priority via shared rail resume resolver — locus: affordance review branch; input: conflict regressions above.
-- [ ] (candidate) `matchesOperatorHomeHeroResumeTarget` — path-scoped highlight guard + href-priority rail target avoid double false positive — locus: hero match + resolver; input: conflict + stale-path regressions together.
-- [ ] (candidate) `collectResumeRunIdsForMatch` — does not emit two ids when explicit conflicts with href (resolver bypasses union) — locus: primary resolver; input: conflicting rail row fixture.
-- [ ] (candidate) `resolveOperatorHomeResumeAffordancePlan` — architecture continue-last dedupe independent of highlight guard — locus: architecture branch; input: architecture affordance regressions.
+- [x] (valid-no-repro) `resolveUnfinishedWorkRailRunIdForMatch` — falls back to rail row id when href parses no run id — **cheap-disproof 2026-10-25 seed hunt:** regression `prefers TB-2369 row id when href does not parse a run id`.
+- [x] (proven) `resolveOperatorHomeResumeAffordancePlan` — review dedupe inherits shared rail run id resolver — **hit 2026-10-25 seed hunt (prior):** `resolveOperatorUnfinishedWorkRailItemResumeTarget` → `resolveUnfinishedWorkRailRunIdForMatch`.
+- [x] (valid-no-repro) `matchesOperatorHomeHeroResumeTarget` — path-scoped highlight guard + href-priority rail target — **cheap-disproof 2026-10-25 seed hunt:** conflict + stale-path regressions in hero/rail vitest.
+- [x] (valid-no-repro) `collectResumeRunIdsForMatch` — single primary id from shared resolver on conflict — **cheap-disproof 2026-10-25 seed hunt:** resolver returns one id, not a union.
+- [x] (valid-no-repro) `resolveOperatorHomeResumeAffordancePlan` — architecture continue-last dedupe independent of highlight guard — **cheap-disproof 2026-10-25 seed hunt:** architecture affordance regressions unchanged.
+
+- [x] (proven) `listHomeAttentionPreviewExcludedRunIds` — only read TB-2369 row id prefix and omitted href run ids when suffix empty — **hit 2026-10-25 seed hunt:** `resolveUnfinishedWorkRailRunIdForMatch`; regressions `lists run id from rail href when row id suffix is empty` and `filters home attention preview when rail row id suffix is empty but href encodes the run`.
+
+- [ ] (candidate) `resolveUnfinishedWorkRailRunIdForMatch` — prefers desk `highlightReviewId` only when href is architecture desk with query — locus: conflict branch; input: desk conflict regressions in rail resume tests.
+- [ ] (candidate) `resolveUnfinishedWorkRailRunIdForMatch` — prefers row id when peer href disagrees with TB-2369 id — locus: conflict branch; input: `lists active review run ids from unfinished-work rail items`.
+- [ ] (candidate) `listHomeAttentionPreviewExcludedRunIds` — uses shared resolver for awaiting-disposition and review-in-progress — locus: exclusion list; input: href suffix-empty regressions.
+- [ ] (candidate) `resolveOperatorUnfinishedWorkRailItemResumeTarget` — delegates run id to `resolveUnfinishedWorkRailRunIdForMatch` — locus: rail resume target module; input: existing rail resume vitest suite.
+- [ ] (candidate) `filterRunsForHomeAttentionPreview` — trims excluded ids via `buildTrimmedRunIdSet` when exclusions come from shared resolver — locus: filter helper; input: whitespace exclusion regression.
 
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regression `drops favorite rows when runId is whitespace-only`; 41 scoped continuity, scope-storage, and attention-preview vitest tests passed.
 
