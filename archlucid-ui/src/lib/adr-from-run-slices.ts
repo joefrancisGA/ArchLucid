@@ -10,10 +10,10 @@ export type AdrGeneratorExplanationSlice = {
   riskPosture: string;
   themeSummaries: readonly string[];
   summary: string;
-  keyDrivers: readonly string[];
-  riskImplications: readonly string[];
-  costImplications: readonly string[];
-  complianceImplications: readonly string[];
+  keyDrivers: readonly string[] | null;
+  riskImplications: readonly string[] | null;
+  costImplications: readonly string[] | null;
+  complianceImplications: readonly string[] | null;
   detailedNarrative: string;
   structuredReasoning: string | null;
   alternativesConsidered: readonly string[] | null;
