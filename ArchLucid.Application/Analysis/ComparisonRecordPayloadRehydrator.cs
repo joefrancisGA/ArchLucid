@@ -22,6 +22,7 @@ public static class ComparisonRecordPayloadRehydrator
                 return null;
 
             EndToEndReplayComparisonReportNormalizer.NormalizePersistedPayload(report);
+            EndToEndReplayComparisonReportNormalizer.ApplyComparisonRecordRunIdAnchorsInPlace(report, record);
             return report;
         }
         catch (JsonException ex)

@@ -1,6 +1,8 @@
 using System.Text.Json;
 
 using ArchLucid.Application.Analysis;
+using ArchLucid.Application.Diffs;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Metadata;
 
 using FluentAssertions;
@@ -61,6 +63,77 @@ public sealed class ComparisonRecordPayloadRehydratorTests
         result.Should().NotBeNull();
         result!.LeftRunId.Should().Be(leftCanonical);
         result.RightRunId.Should().Be(rightCanonical);
+    }
+
+    [Fact]
+    public void CompareQuality_RehydrateEndToEnd_backfills_report_run_ids_from_comparison_record_columns()
+    {
+        Guid leftGuid = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+        Guid rightGuid = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
+        string leftCanonical = leftGuid.ToString("N");
+        string rightCanonical = rightGuid.ToString("N");
+
+        EndToEndReplayComparisonReport report = new()
+        {
+            LeftRunId = "   ",
+            RightRunId = "\t",
+        };
+        string json = JsonSerializer.Serialize(report, new JsonSerializerOptions(JsonSerializerDefaults.Web));
+        ComparisonRecord record = new()
+        {
+            ComparisonRecordId = "c-e2e-record-anchors",
+            LeftRunId = $"{leftGuid:D}  ",
+            RightRunId = $"{rightGuid:D}  ",
+            PayloadJson = json,
+        };
+
+        EndToEndReplayComparisonReport? result = ComparisonRecordPayloadRehydrator.RehydrateEndToEnd(record);
+
+        result.Should().NotBeNull();
+        result!.LeftRunId.Should().Be(leftCanonical);
+        result.RightRunId.Should().Be(rightCanonical);
+    }
+
+    [Fact]
+    public void CompareQuality_RehydrateEndToEnd_backfills_nested_agent_run_ids_from_comparison_record_columns()
+    {
+        Guid leftGuid = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
+        Guid rightGuid = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+        string leftCanonical = leftGuid.ToString("N");
+        string rightCanonical = rightGuid.ToString("N");
+
+        EndToEndReplayComparisonReport report = new()
+        {
+            LeftRunId = "   ",
+            RightRunId = "   ",
+            AgentResultDiff = new AgentResultDiffResult
+            {
+                AgentDeltas =
+                [
+                    new AgentResultDelta
+                    {
+                        AgentType = AgentType.Topology,
+                        AddedClaims = ["claim-a"],
+                    },
+                ],
+            },
+        };
+        string json = JsonSerializer.Serialize(report, new JsonSerializerOptions(JsonSerializerDefaults.Web));
+        ComparisonRecord record = new()
+        {
+            ComparisonRecordId = "c-e2e-nested-anchors",
+            LeftRunId = leftCanonical,
+            RightRunId = rightCanonical,
+            PayloadJson = json,
+        };
+
+        EndToEndReplayComparisonReport? result = ComparisonRecordPayloadRehydrator.RehydrateEndToEnd(record);
+
+        result.Should().NotBeNull();
+        result!.LeftRunId.Should().Be(leftCanonical);
+        result.RightRunId.Should().Be(rightCanonical);
+        result.AgentResultDiff!.LeftRunId.Should().Be(leftCanonical);
+        result.AgentResultDiff.RightRunId.Should().Be(rightCanonical);
     }
 
     [Fact]

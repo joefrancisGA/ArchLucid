@@ -58,6 +58,34 @@ internal static class EndToEndReplayComparisonReportNormalizer
             report.CompareVerdictChromeDelta = null;
     }
 
+    internal static void ApplyComparisonRecordRunIdAnchorsInPlace(
+        EndToEndReplayComparisonReport report,
+        ComparisonRecord record)
+    {
+        ArgumentNullException.ThrowIfNull(report);
+        ArgumentNullException.ThrowIfNull(record);
+
+        if (report.LeftRunId.Length == 0)
+        {
+            string? left = AnalysisRunIdCanonicalization.CanonicalRunIdForLookupOrNull(record.LeftRunId);
+            if (!string.IsNullOrEmpty(left))
+                report.LeftRunId = left;
+        }
+
+        if (report.RightRunId.Length == 0)
+        {
+            string? right = AnalysisRunIdCanonicalization.CanonicalRunIdForLookupOrNull(record.RightRunId);
+            if (!string.IsNullOrEmpty(right))
+                report.RightRunId = right;
+        }
+
+        if (report.AgentResultDiff is not null)
+            BackfillNestedRunIdAnchorsFromReport(report);
+
+        foreach (ExportRecordDiffResult diff in report.ExportDiffs)
+            BackfillExportDiffRunIdsFromReport(diff, report);
+    }
+
     private static string NormalizeReportRunIdAnchor(string runId) =>
         string.IsNullOrWhiteSpace(runId) ? string.Empty : AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(runId);
 
