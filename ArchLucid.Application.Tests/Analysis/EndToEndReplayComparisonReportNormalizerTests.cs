@@ -1399,6 +1399,10 @@ public sealed class EndToEndReplayComparisonReportNormalizerTests
     [Fact]
     public void CompareQuality_EndToEndReplayComparisonReportNormalizer_trims_nested_compare_input_fingerprints()
     {
+        const string baseManifestHash =
+            "ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789";
+        const string inventoryHash =
+            "fedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210";
         EndToEndReplayComparisonReport report = new()
         {
             LeftRunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
@@ -1410,7 +1414,7 @@ public sealed class EndToEndReplayComparisonReportNormalizerTests
                 InputFingerprints = new CompareInputFingerprints
                 {
                     ComparisonAlgorithmVersion = "   ",
-                    BaseManifestHashSha256 = "  abcdef  ",
+                    BaseManifestHashSha256 = $"  {baseManifestHash}  ",
                     TargetManifestHashSha256 = "\t",
                 },
             },
@@ -1418,7 +1422,7 @@ public sealed class EndToEndReplayComparisonReportNormalizerTests
             {
                 InputFingerprints = new CompareInputFingerprints
                 {
-                    BaseCommittedArtifactInventoryHashSha256 = "  inv1  ",
+                    BaseCommittedArtifactInventoryHashSha256 = $"  {inventoryHash}  ",
                     TargetCommittedArtifactInventoryHashSha256 = "   ",
                 },
             },
@@ -1428,9 +1432,9 @@ public sealed class EndToEndReplayComparisonReportNormalizerTests
 
         report.AgentResultDiff!.InputFingerprints!.ComparisonAlgorithmVersion
             .Should().Be(CompareInputFingerprints.AlgorithmVersion);
-        report.AgentResultDiff.InputFingerprints.BaseManifestHashSha256.Should().Be("abcdef");
+        report.AgentResultDiff.InputFingerprints.BaseManifestHashSha256.Should().Be(baseManifestHash.ToLowerInvariant());
         report.AgentResultDiff.InputFingerprints.TargetManifestHashSha256.Should().BeNull();
-        report.ManifestDiff!.InputFingerprints!.BaseCommittedArtifactInventoryHashSha256.Should().Be("inv1");
+        report.ManifestDiff!.InputFingerprints!.BaseCommittedArtifactInventoryHashSha256.Should().Be(inventoryHash);
         report.ManifestDiff.InputFingerprints.TargetCommittedArtifactInventoryHashSha256.Should().BeNull();
     }
 
@@ -1448,7 +1452,8 @@ public sealed class EndToEndReplayComparisonReportNormalizerTests
                 InputFingerprints = new CompareInputFingerprints
                 {
                     ComparisonAlgorithmVersion = "legacyPlaceholder",
-                    BaseManifestHashSha256 = "abcdef",
+                    BaseManifestHashSha256 =
+                        "abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789",
                 },
             },
         };
@@ -1457,7 +1462,30 @@ public sealed class EndToEndReplayComparisonReportNormalizerTests
 
         report.AgentResultDiff!.InputFingerprints!.ComparisonAlgorithmVersion
             .Should().Be(CompareInputFingerprints.AlgorithmVersion);
-        report.AgentResultDiff.InputFingerprints.BaseManifestHashSha256.Should().Be("abcdef");
+        report.AgentResultDiff.InputFingerprints.BaseManifestHashSha256.Should().Be(
+            "abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789");
+    }
+
+    [Fact]
+    public void CompareQuality_EndToEndReplayComparisonReportNormalizer_nulls_invalid_compare_input_fingerprint_hashes()
+    {
+        EndToEndReplayComparisonReport report = new()
+        {
+            LeftRunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            RightRunId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            AgentResultDiff = new AgentResultDiffResult
+            {
+                InputFingerprints = new CompareInputFingerprints
+                {
+                    BaseManifestHashSha256 = "legacyPlaceholder",
+                    TargetManifestHashSha256 = "tooshort",
+                },
+            },
+        };
+
+        EndToEndReplayComparisonReportNormalizer.NormalizePersistedPayload(report);
+
+        report.AgentResultDiff.Should().BeNull();
     }
 
     [Fact]

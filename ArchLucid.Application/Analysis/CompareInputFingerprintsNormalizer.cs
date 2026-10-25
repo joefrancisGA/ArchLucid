@@ -50,8 +50,23 @@ internal static class CompareInputFingerprintsNormalizer
         && fingerprints.BaseCommittedArtifactInventoryHashSha256 is null
         && fingerprints.TargetCommittedArtifactInventoryHashSha256 is null;
 
-    private static string? NormalizeOptionalHash(string? value) =>
-        OptionalExportMetadataStringNormalizer.NormalizeOptionalString(value);
+    private static string? NormalizeOptionalHash(string? value)
+    {
+        string? normalized = OptionalExportMetadataStringNormalizer.NormalizeOptionalString(value);
+        if (normalized is null)
+            return null;
+
+        if (normalized.Length != 64)
+            return null;
+
+        for (int i = 0; i < normalized.Length; i++)
+        {
+            if (!Uri.IsHexDigit(normalized[i]))
+                return null;
+        }
+
+        return normalized.ToLowerInvariant();
+    }
 
     private static string NormalizeComparisonAlgorithmVersion(string value)
     {
