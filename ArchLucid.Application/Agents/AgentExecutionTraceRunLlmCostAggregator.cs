@@ -27,11 +27,13 @@ public static class AgentExecutionTraceRunLlmCostAggregator
         ArgumentNullException.ThrowIfNull(costEstimator);
 
         return ComputeCore(
-            traces.Select(static t => (
-                t.ModelDeploymentName,
-                t.InputTokenCount,
-                t.OutputTokenCount,
-                t.ReasoningTokenCount)),
+            traces
+                .Where(static trace => trace is not null)
+                .Select(static t => (
+                    t.ModelDeploymentName,
+                    t.InputTokenCount,
+                    t.OutputTokenCount,
+                    t.ReasoningTokenCount)),
             costEstimator);
     }
 
@@ -44,11 +46,13 @@ public static class AgentExecutionTraceRunLlmCostAggregator
         ArgumentNullException.ThrowIfNull(costEstimator);
 
         return ComputeCore(
-            slices.Select(static s => (
-                s.ModelDeploymentName,
-                s.InputTokenCount,
-                s.OutputTokenCount,
-                s.ReasoningTokenCount)),
+            slices
+                .Where(static slice => slice is not null)
+                .Select(static s => (
+                    s.ModelDeploymentName,
+                    s.InputTokenCount,
+                    s.OutputTokenCount,
+                    s.ReasoningTokenCount)),
             costEstimator);
     }
 

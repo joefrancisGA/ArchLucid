@@ -354,6 +354,38 @@ public sealed class ReviewResultCacheTests
     }
 
     [Fact]
+    public void InvalidateForRun_removes_entries_when_invalidate_run_id_differs_only_by_backslash_vs_forward_slash_in_path()
+    {
+        ReviewResultCache cache = new();
+        ReviewCacheDependencyManifest manifest = new() { ContentHash = "hash-run-path-invalidated" };
+
+        cache.Set(
+            manifest,
+            new ClosedLoopReasoningResult { RunId = "tenants/acme/runs/42" });
+        cache.TryGet(manifest, out ClosedLoopReasoningResult? _).Should().BeTrue();
+
+        cache.InvalidateForRun("tenants\\acme\\runs\\42");
+
+        cache.TryGet(manifest, out ClosedLoopReasoningResult? _).Should().BeFalse();
+    }
+
+    [Fact]
+    public void InvalidateForRun_removes_entries_when_invalidate_run_id_differs_only_by_percent_encoded_slash_in_path()
+    {
+        ReviewResultCache cache = new();
+        ReviewCacheDependencyManifest manifest = new() { ContentHash = "hash-run-percent-invalidated" };
+
+        cache.Set(
+            manifest,
+            new ClosedLoopReasoningResult { RunId = "tenants/acme/runs/42" });
+        cache.TryGet(manifest, out ClosedLoopReasoningResult? _).Should().BeTrue();
+
+        cache.InvalidateForRun("tenants%2Facme%2Fruns%2F42");
+
+        cache.TryGet(manifest, out ClosedLoopReasoningResult? _).Should().BeFalse();
+    }
+
+    [Fact]
     public async Task CoalesceAsync_does_not_pin_storage_key_without_outer_pin_scope()
     {
         ReviewResultCache cache = new();
@@ -520,6 +552,29 @@ public sealed class ReviewResultCacheTests
 
         cache.UnpinStorageKey(storageKey);
         cache.TryGet(manifest, out ClosedLoopReasoningResult? _).Should().BeFalse();
+    }
+
+    [Fact]
+    public void Set_reinserts_after_deferred_invalidation_unpin_clears_tombstone()
+    {
+        ReviewResultCache cache = new();
+        ReviewCacheDependencyManifest manifest = new() { ContentHash = "hash-reinsert-after-unpin" };
+        string storageKey = ReviewCacheKeyBuilder.Build(manifest);
+
+        cache.Set(
+            manifest,
+            new ClosedLoopReasoningResult { RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" });
+        cache.PinStorageKey(storageKey);
+
+        cache.InvalidateForRun("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+        cache.UnpinStorageKey(storageKey);
+
+        cache.Set(
+            manifest,
+            new ClosedLoopReasoningResult { RunId = "reinsert-run" });
+
+        cache.TryGet(manifest, out ClosedLoopReasoningResult? cached).Should().BeTrue();
+        cached!.RunId.Should().Be("reinsertrun");
     }
 
     [Fact]
@@ -780,6 +835,33 @@ public sealed class ReviewResultCacheTests
 
         cache.TryGet(manifest, out ClosedLoopReasoningResult? cached).Should().BeTrue();
         cached!.RunId.Should().BeNull();
+    }
+
+    [Fact]
+    public void TryGet_misses_when_manifest_schema_version_differs_from_stored_entry()
+    {
+        ReviewResultCache cache = new();
+        ReviewCacheDependencyManifest stored = new()
+        {
+            ContentHash = "hash-schema-version",
+            SchemaVersion = 1,
+        };
+
+        cache.Set(stored, new ClosedLoopReasoningResult { RunId = "run-schema" });
+
+        ReviewCacheDependencyManifest lookup = new()
+        {
+            ContentHash = stored.ContentHash,
+            PromptVersion = stored.PromptVersion,
+            ModelVersion = stored.ModelVersion,
+            PolicyPackVersion = stored.PolicyPackVersion,
+            RubricVersion = stored.RubricVersion,
+            TenantConfigurationHash = stored.TenantConfigurationHash,
+            DeclaredPrioritiesHash = stored.DeclaredPrioritiesHash,
+            SchemaVersion = 2,
+        };
+
+        cache.TryGet(lookup, out ClosedLoopReasoningResult? _).Should().BeFalse();
     }
 
     [Fact]
