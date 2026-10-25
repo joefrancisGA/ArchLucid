@@ -31,6 +31,10 @@ describe("decisionReceiptExport", () => {
 
     expect(receipt.schemaVersion).toBe(DECISION_RECEIPT_SCHEMA_VERSION);
     expect(receipt.costStory.label).toBe(DECISION_RECEIPT_COST_ESTIMATE_LABEL);
+    expect(receipt.costStory.sessionCostUsdEstimate).toBe("Session cost was not stored.");
+    expect(receipt.costStory.avoidedHumanArchitectCostUsdEstimate).toBe(
+      "Avoided human architect cost was not stored.",
+    );
     expect(receipt.verdict.kind).toBe("SoftInfeasible");
     expect(receipt.intake?.freeTextIntent).toBe("Build a workflow.");
   });

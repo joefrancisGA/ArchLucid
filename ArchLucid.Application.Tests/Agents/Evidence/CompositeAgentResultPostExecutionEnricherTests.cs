@@ -1,5 +1,6 @@
 using ArchLucid.Application.Agents.Evidence;
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Requests;
 
@@ -44,6 +45,43 @@ public sealed class CompositeAgentResultPostExecutionEnricherTests
             CancellationToken.None);
 
         await act.Should().NotThrowAsync();
+    }
+
+    [Fact]
+    public async Task EnrichAsync_omits_null_result_entries_before_invoking_children()
+    {
+        AgentResult retained = new()
+        {
+            RunId = "run",
+            TaskId = "task",
+            AgentType = AgentType.Topology,
+        };
+
+        IReadOnlyList<AgentResult>? capturedResults = null;
+
+        Mock<IAgentResultPostExecutionEnricher> child = new();
+        child
+            .Setup(enricher => enricher.EnrichAsync(
+                It.IsAny<string>(),
+                It.IsAny<ArchitectureRequest>(),
+                It.IsAny<AgentEvidencePackage>(),
+                It.IsAny<IReadOnlyList<AgentResult>>(),
+                It.IsAny<CancellationToken>()))
+            .Callback<string, ArchitectureRequest, AgentEvidencePackage, IReadOnlyList<AgentResult>, CancellationToken>(
+                (_, _, _, results, _) => capturedResults = results)
+            .Returns(Task.CompletedTask);
+
+        CompositeAgentResultPostExecutionEnricher sut = new([child.Object]);
+
+        await sut.EnrichAsync(
+            "run",
+            new ArchitectureRequest { RequestId = "req", Description = new string('x', 12) },
+            new AgentEvidencePackage(),
+            [null!, retained],
+            CancellationToken.None);
+
+        capturedResults.Should().NotBeNull();
+        capturedResults!.Should().ContainSingle().Which.Should().BeSameAs(retained);
     }
 
     [Fact]

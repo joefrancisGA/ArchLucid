@@ -128,19 +128,17 @@ export function plainLanguageFailureCauseSentence(args: {
   readonly completedStages?: number | null;
 }): string {
   const triageTitle = plainLanguageTriageTitle(args.triageScenarioId);
+  const stagePrefix = resolveFailureStagePrefix(args.completedStages);
 
   if (triageTitle !== null) {
-    const stagePrefix = resolveFailureStageReachedPhraseOrNotStored(args.completedStages);
     const resolutionHint = resolveFailureResolutionHint(args.failureClass, args.reasonCode);
 
     return `${stagePrefix} ${triageTitle}${resolutionHint.length > 0 ? ` (${resolutionHint})` : ""}`;
   }
 
   const failureClass = (args.failureClass ?? "").trim();
-  const completedStages = args.completedStages;
 
   if (failureClass.length > 0 && FAILURE_CLASS_CAUSE_SENTENCES[failureClass] !== undefined) {
-    const stagePrefix = resolveFailureStageReachedPhraseOrNotStored(completedStages);
     const cause = FAILURE_CLASS_CAUSE_SENTENCES[failureClass];
     const resolutionHint = resolveFailureResolutionHint(failureClass, args.reasonCode);
 
@@ -151,8 +149,6 @@ export function plainLanguageFailureCauseSentence(args: {
     const label = plainLanguageFailureClassLabel(failureClass).toLowerCase();
 
     if (label === "invalid operation") {
-      const stagePrefix = resolveFailureStageReachedPhraseOrNotStored(completedStages);
-
       return `${stagePrefix} Processing stopped for a configuration or scheduling issue — re-run after your workspace AI setup is confirmed, or share the review ID with support.`;
     }
 
@@ -168,14 +164,12 @@ export function plainLanguageFailureCauseSentence(args: {
   return FAILURE_CLASS_CAUSE_SENTENCES.unknown;
 }
 
-export function resolveFailureStageReachedPhraseOrNotStored(
-  completedStages: number | null | undefined,
-): string {
-  if (completedStages === null || completedStages === undefined) {
+function resolveFailureStagePrefix(completedStages: number | null | undefined): string {
+  if (completedStages === null || completedStages === undefined || !Number.isFinite(completedStages)) {
     return "Assessment stage count was not stored.";
   }
 
-  return resolveFailureStageReachedPhrase(completedStages);
+  return resolveFailureStageReachedPhrase(Math.trunc(completedStages));
 }
 
 function resolveFailureStageReachedPhrase(completedStages: number): string {

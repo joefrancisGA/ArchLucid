@@ -1,7 +1,6 @@
 "use client";
 
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { finiteIntegerCountDisplay } from "@/lib/finite-count-display";
 import { cn } from "@/lib/utils";
 
 export type ReviewDefensibilityStripProps = {
@@ -36,16 +35,31 @@ export function ReviewDefensibilityStrip(props: ReviewDefensibilityStripProps): 
         )}
       >
         <li data-testid="review-defensibility-asserted">
-          Asserted:{" "}
-          <span className="font-semibold tabular-nums">{finiteIntegerCountDisplay(props.assertedCount)}</span>
+          {props.assertedCount === null
+            ? "Asserted count was not stored."
+            : (
+              <>
+                Asserted: <span className="font-semibold tabular-nums">{props.assertedCount}</span>
+              </>
+            )}
         </li>
         <li data-testid="review-defensibility-inferred">
-          Inferred:{" "}
-          <span className="font-semibold tabular-nums">{finiteIntegerCountDisplay(props.inferredCount)}</span>
+          {props.inferredCount === null
+            ? "Inferred count was not stored."
+            : (
+              <>
+                Inferred: <span className="font-semibold tabular-nums">{props.inferredCount}</span>
+              </>
+            )}
         </li>
         <li data-testid="review-defensibility-skipped">
-          Skipped MUST:{" "}
-          <span className="font-semibold tabular-nums">{finiteIntegerCountDisplay(props.skippedCount)}</span>
+          {props.skippedCount === null
+            ? "Skipped MUST count was not stored."
+            : (
+              <>
+                Skipped MUST: <span className="font-semibold tabular-nums">{props.skippedCount}</span>
+              </>
+            )}
         </li>
         <li data-testid="review-defensibility-critic">
           Critic:{" "}
