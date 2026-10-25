@@ -1,9 +1,21 @@
 import { describe, expect, it } from "vitest";
 
+import { resolveInfraEvidenceCompletenessBannerLead } from "@/lib/infra-evidence/infra-evidence-completeness-banner-lead";
 import {
   resolveInfraEvidenceCompletenessWarningPresentation,
   snapshotIncludesTier1AppSettingHosts,
 } from "@/lib/infra-evidence/resolve-infra-evidence-completeness-warning-copy";
+
+describe("resolveInfraEvidenceCompletenessBannerLead", () => {
+  it("uses companion metadata lead for defender warnings", () => {
+    const lead = resolveInfraEvidenceCompletenessBannerLead([
+      "defender-security-contacts-not-collected",
+    ]);
+
+    expect(lead).toContain("Companion metadata");
+    expect(lead).not.toContain("Connection lines may be missing");
+  });
+});
 
 describe("resolveInfraEvidenceCompletenessWarningPresentation", () => {
   it("maps hosted app-settings gap copy", () => {
@@ -109,6 +121,33 @@ describe("resolveInfraEvidenceCompletenessWarningPresentation", () => {
     expect(presentation.title).toBe("Logic App API connections were not in this snapshot.");
     expect(presentation.detail).toContain("logic-app-connections.json");
     expect(presentation.detail).not.toBe("logic-app-connections-missing");
+  });
+
+  it("maps defender security contact collection failures", () => {
+    const presentation = resolveInfraEvidenceCompletenessWarningPresentation(
+      "defender-security-contacts.json collection failed; HTTP 403",
+    );
+
+    expect(presentation.title).toContain("security contacts");
+    expect(presentation.detail).toContain("HTTP 403");
+    expect(presentation.title).not.toBe("Inventory completeness note");
+  });
+
+  it("maps policy compliance empty with assignments", () => {
+    const presentation = resolveInfraEvidenceCompletenessWarningPresentation(
+      "policy-compliance-empty-with-assignments:60",
+    );
+
+    expect(presentation.title).toContain("no rows");
+    expect(presentation.detail).toContain("60");
+  });
+
+  it("labels unmapped warnings without echoing raw code as the title", () => {
+    const presentation = resolveInfraEvidenceCompletenessWarningPresentation("custom-unmapped-warning-code");
+
+    expect(presentation.title).toContain("unmapped");
+    expect(presentation.detail).toContain("custom-unmapped-warning-code");
+    expect(presentation.title).not.toBe("custom-unmapped-warning-code");
   });
 
   it("maps diagnostic-destination-unresolved without raw code fallback (P-08)", () => {

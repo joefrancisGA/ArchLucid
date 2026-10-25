@@ -183,25 +183,8 @@ internal static class CompareVerdictChromeExportFormatter
         return lines;
     }
 
-    internal static string RemoveMarkdownSection(string markdown)
-    {
-        const string heading = CombinedHeading;
-        int start = markdown.IndexOf(heading, StringComparison.Ordinal);
-
-        if (start < 0)
-        {
-            return markdown;
-        }
-
-        int nextSection = markdown.IndexOf("\n## ", start + heading.Length, StringComparison.Ordinal);
-
-        if (nextSection < 0)
-        {
-            return markdown[..start].TrimEnd();
-        }
-
-        return (markdown[..start] + markdown[nextSection..]).Trim();
-    }
+    internal static string RemoveMarkdownSection(string markdown) =>
+        ComparisonExportMarkdownSectionRemover.RemoveSection(markdown, CombinedHeading);
 
     private static void AppendSideBySideMarkdown(
         StringBuilder sb,

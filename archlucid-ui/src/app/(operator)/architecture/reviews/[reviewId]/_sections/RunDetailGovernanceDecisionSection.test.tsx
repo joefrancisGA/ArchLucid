@@ -111,7 +111,7 @@ describe("RunDetailGovernanceDecisionSection", () => {
       />,
     );
 
-    expect(screen.getByText("None")).toBeInTheDocument();
+    expect(screen.getByText("Blocking finding count was not stored.")).toBeInTheDocument();
     expect(screen.getByText("Needs attention")).toBeInTheDocument();
     expect(screen.getByTestId("run-detail-governance-warning-banner")).toBeInTheDocument();
   });

@@ -225,7 +225,7 @@ export function ArchitectureIdentityDeskInventoryBindingPanel(
               : binding.snapshotId}
             {binding.snapshotCapturedUtc != null && binding.snapshotCapturedUtc.trim().length > 0
               ? ` · captured ${formatInfraEvidenceSnapshotCapturedLabel(binding.snapshotCapturedUtc)}`
-              : null}
+              : " · Captured time was not stored."}
           </p>
           {staleSnapshotLine !== null ? (
             <div

@@ -26,7 +26,10 @@ public sealed partial class ArchitectureReviewDocxBuilder
         ArchitectureReviewDocxOpenXmlPrimitives.AddHeading1(body, "Sponsor report");
 
         if (string.IsNullOrWhiteSpace(model.SponsorReport))
-            ArchitectureReviewDocxOpenXmlPrimitives.AddEmptyPlaceholder(body, "Sponsor report content");
+            ArchitectureReviewDocxOpenXmlPrimitives.AddStyledParagraph(
+                body,
+                ArchitectureReviewBoardExportHonestyCopy.SponsorReportNotStored,
+                "Subtle");
         else
             ArchitectureReviewDocxOpenXmlPrimitives.AddMultilineBodyText(body, model.SponsorReport);
     }
@@ -160,7 +163,7 @@ public sealed partial class ArchitectureReviewDocxBuilder
         foreach (ArchitectureReviewBoardExportPolicyFindingRow row in findings)
         {
             string pack = string.IsNullOrWhiteSpace(row.PolicyPackNameOrId)
-                ? "Policy pack was not stored."
+                ? "Policy pack name was not stored."
                 : row.PolicyPackNameOrId.Trim();
             string outcome = string.IsNullOrWhiteSpace(row.Outcome)
                 ? "Policy outcome was not stored."

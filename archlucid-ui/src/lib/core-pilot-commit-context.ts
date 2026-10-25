@@ -104,7 +104,7 @@ export async function fetchTrialAnchoredCommit(): Promise<boolean> {
 function resolveSealedReviewRecordSummary(
   committed: RunSummary | undefined,
   firstCommittedRunId: string | null,
-  trialFirstCommitUtc: string | null,
+  _trialFirstCommitUtc: string | null,
 ): SealedReviewRecordSummary | null {
   if (firstCommittedRunId === null) {
     return null;
@@ -112,20 +112,15 @@ function resolveSealedReviewRecordSummary(
 
   const buyerTitle = committed !== undefined ? buyerFacingReviewTitleFromSummary(committed).trim() : "";
   const completedUtc = committed?.completedUtc?.trim() ?? "";
-  const createdUtc = committed?.createdUtc?.trim() ?? "";
 
   return {
     runId: firstCommittedRunId,
     displayName: buyerTitle.length > 0 && buyerTitle !== "Untitled review" ? buyerTitle : null,
-    finalizedOnUtc:
-      completedUtc.length > 0
-        ? completedUtc
-        : createdUtc.length > 0
-          ? createdUtc
-          : trialFirstCommitUtc !== null && trialFirstCommitUtc.length > 0
-            ? trialFirstCommitUtc
-            : null,
-    finalizedByUserId: null,
+    finalizedOnUtc: completedUtc.length > 0 ? completedUtc : null,
+    finalizedByUserId:
+      committed?.createdByUserId != null && committed.createdByUserId.trim().length > 0
+        ? committed.createdByUserId.trim()
+        : null,
   };
 }
 
