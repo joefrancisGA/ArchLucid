@@ -245,6 +245,7 @@ export function SecureNowQuestionQueueProvider(
       setCurrentIndex(0);
       setSelectedAnswer(null);
       setReason("");
+      setDrawerAction("answer");
     } catch (loadError) {
       if (requestSequence !== loadSequence.current) return;
 
