@@ -14,6 +14,9 @@ internal static class EndToEndReplayComparisonReportNormalizer
         report.LeftRunId = NormalizeReportRunIdAnchor(report.LeftRunId);
         report.RightRunId = NormalizeReportRunIdAnchor(report.RightRunId);
 
+        NormalizeStringListInPlace(report.Warnings);
+        NormalizeStringListInPlace(report.InterpretationNotes);
+
         foreach (ExportRecordDiffResult diff in report.ExportDiffs)
             ExportRecordDiffResultNormalizer.NormalizeDisplayAnchors(diff);
 
@@ -25,4 +28,18 @@ internal static class EndToEndReplayComparisonReportNormalizer
 
     private static string NormalizeReportRunIdAnchor(string runId) =>
         string.IsNullOrWhiteSpace(runId) ? string.Empty : AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(runId);
+
+    private static void NormalizeStringListInPlace(List<string> items)
+    {
+        for (int i = items.Count - 1; i >= 0; i--)
+        {
+            if (string.IsNullOrWhiteSpace(items[i]))
+            {
+                items.RemoveAt(i);
+                continue;
+            }
+
+            items[i] = items[i].Trim();
+        }
+    }
 }

@@ -199,4 +199,21 @@ public sealed class EndToEndReplayComparisonReportNormalizerTests
 
         report.CompareVerdictChromeDelta.Should().BeNull();
     }
+
+    [Fact]
+    public void CompareQuality_EndToEndReplayComparisonReportNormalizer_removes_whitespace_only_warnings_and_interpretation_notes()
+    {
+        EndToEndReplayComparisonReport report = new()
+        {
+            LeftRunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            RightRunId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            Warnings = ["   ", "  manifest missing  ", "\t"],
+            InterpretationNotes = ["\n", "  catalog alias differs  "],
+        };
+
+        EndToEndReplayComparisonReportNormalizer.NormalizePersistedPayload(report);
+
+        report.Warnings.Should().Equal(["manifest missing"]);
+        report.InterpretationNotes.Should().Equal(["catalog alias differs"]);
+    }
 }
