@@ -6868,6 +6868,20 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-25 seed hunt (seed→hit): proved `RunExportRecordScopedReadNormalizer` trimmed ids and manifest metadata but not `ExportType`, `Format`, or `FileName` while persistence `RunExportRecordPersistNormalizer` already trimmed those columns on SQL load, so `ExportReplayService` switch dispatch on `record.ExportType` failed for legacy padded export types when repositories or test doubles skipped persistence read normalization; trim required export columns in scoped read normalize before replay routing; regression `ReplayAsync_succeeds_when_export_type_has_surrounding_whitespace`; cheap-disproof closed persistence-only trim (defense in depth), comparison-type replay parity (hunts 190–191), `ApiPaging.TryParseUtcTicksIdCursor` (comparison search normalizes inbound cursor id), batch zip manifest echo (cosmetic), and Armenian homoglyphs (deferred); seeded five follow-on rows; scoped application-analysis + replay filter 351/351. Private beta: architecture export replay succeeds and returns trimmed export type metadata when stored export rows still have surrounding whitespace on type or file columns.
+
+- [ ] (candidate) `ComparisonRecordRepository.GetByRunIdAsync` — SQL list-by-run dashed stored — locus: UNIQUEIDENTIFIER column; input: already matches N/D lookup via guid param.
+- [ ] (candidate) `ComparisonRecordRepositoryCore.SerializeTagsForUpdate` — JSON tag order — locus: cosmetic; input: defer.
+- [ ] (candidate) `ComparisonRecordSearchPredicateBuilder` — notes column search — locus: no notes filter today; input: defer.
+- [ ] (candidate) `ApiPaging.TryParseUtcTicksIdCursor` — cursor id segment without trim — locus: HTTP cursor parse; input: padded id after ticks delimiter (alerts inbox and other API surfaces).
+- [ ] (candidate) `ComparisonBatchReplayZipSupport` — manifest failure entries echo pre-trim batch tokens — locus: zip manifest; input: cosmetic id echo only.
+
+- [x] (proven) `RunExportRecordScopedReadNormalizer` — padded export type on replay dispatch — **hit 2026-10-25 seed hunt:** trim `ExportType`/`Format`/`FileName`; regression above.
+- [x] (valid-no-repro) `RunExportRecordPersistNormalizer` — SQL read trim — **cheap-disproof 2026-10-25 seed hunt:** persistence path; scoped replay still failed on doubles.
+- [x] (valid-no-repro) `ExportReplayService` — run id canonicalize — **cheap-disproof 2026-10-25 seed hunt:** already normalized; export type switch was not.
+- [x] (invalid) `ApiPaging.TryParseUtcTicksIdCursor` — HTTP cursor id trim — **cheap-disproof 2026-10-25 seed hunt:** comparison search normalizes at application layer.
+- [x] (invalid) `ComparisonBatchReplayZipSupport` — manifest id echo — **cheap-disproof 2026-10-25 seed hunt:** cosmetic only.
+
 2026-10-25 seed hunt (seed→hit): proved `ComparisonReplayService.SetRecordMetadata`, `ComparisonReplayCostEstimator`, and `ComparisonsApplicationService.TryReplaySummaryMarkdownAsync` echoed raw `record.ComparisonType` on replay API and cost-estimate DTOs while hunt 190 normalized type only for dispatch and guards, so successful artifact replay could still return padded `comparisonType` metadata to clients and replay-cost panels; trim via `ComparisonTypeNormalizer.NormalizeForLookup` on replay result metadata and cost estimates; regressions extended padded-type replay tests plus `TryEstimateAsync_returns_trimmed_comparison_type_from_stored_row`; cheap-disproof closed replay dispatch (hunt 190), repository scoped read trim, `ApiPaging.TryParseUtcTicksIdCursor` (comparison search normalizes inbound cursor id), batch zip manifest echo (cosmetic), and Armenian homoglyphs (deferred); seeded five follow-on rows; scoped application-analysis + replay filter 350/350. Private beta: comparison replay and replay-cost responses expose trimmed comparison type tokens even when legacy stored rows still include surrounding whitespace.
 
 - [ ] (candidate) `ComparisonRecordRepository.GetByRunIdAsync` — SQL list-by-run dashed stored — locus: UNIQUEIDENTIFIER column; input: already matches N/D lookup via guid param.
@@ -8493,11 +8507,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 191
-- **bugs-found:** 197
+- **hunts:** 192
+- **bugs-found:** 198
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-25
-- **last-bug:** 2026-10-25 — replay response metadata trims comparison type
+- **last-bug:** 2026-10-25 — export replay trims padded export type
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
