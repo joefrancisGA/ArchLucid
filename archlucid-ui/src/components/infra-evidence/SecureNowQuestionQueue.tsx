@@ -10,8 +10,8 @@ import {
   secureNowQuestionDispositionMutationResourceId,
   secureNowQuestionDispositionMutationSource,
   secureNowQuestionIsPolicyPackDispositionRow,
+  secureNowQuestionReviewerScopeLabel,
   secureNowQuestionShowsInferredConnectionReviewerCopy,
-  secureNowQuestionPackScopeKindFromPrompt,
 } from "@/lib/infra-evidence/securenow-question-mutation-resource-id";
 import type { SecureNowQuestion } from "@/lib/infra-evidence/securenow-question-queue-api";
 import {
@@ -161,50 +161,10 @@ function formatSecureNowQuestionSourceLabel(
 }
 
 function formatSecureNowQuestionScopeLabel(
-  question: Pick<SecureNowQuestion, "scopeKind" | "source" | "questionText">,
+  question: Pick<SecureNowQuestion, "scopeKind" | "source" | "questionKey" | "questionText">,
   matchesInferredConnection: boolean,
 ): string {
-  if (matchesInferredConnection) {
-    return "This resource.";
-  }
-
-  const scopeKind = question.scopeKind;
-
-  if (scopeKind === null) {
-    if (secureNowQuestionIsPolicyPackDispositionRow(question)) {
-      return secureNowQuestionPackScopeKindFromPrompt(question.questionText) === "ResourceGroup"
-        ? "This resource group."
-        : "This subscription.";
-    }
-
-    return "Question scope was not stored.";
-  }
-
-  const trimmed = scopeKind.trim();
-
-  if (trimmed.length === 0) {
-    if (secureNowQuestionIsPolicyPackDispositionRow(question)) {
-      return secureNowQuestionPackScopeKindFromPrompt(question.questionText) === "ResourceGroup"
-        ? "This resource group."
-        : "This subscription.";
-    }
-
-    return "Question scope was not stored.";
-  }
-
-  if (trimmed === "Resource") {
-    return "This resource.";
-  }
-
-  if (trimmed === "Subscription") {
-    return "This subscription.";
-  }
-
-  if (trimmed === "ResourceGroup") {
-    return "This resource group.";
-  }
-
-  return `Question scope code ${trimmed} has no reviewer label.`;
+  return secureNowQuestionReviewerScopeLabel(question, matchesInferredConnection);
 }
 
 export type SecureNowQuestionQueueSnapshotPromoProps = {

@@ -253,6 +253,18 @@ describe("SecureNowQuestionQueue", () => {
     expect(screen.getByText("Scope: Question scope code Tenant has no reviewer label.")).toBeInTheDocument();
   });
 
+  it("labels resource scope in details when scopeKind is omitted on inventory evidence rows", async () => {
+    mocks.listQuestions.mockResolvedValue([
+      { ...question, source: "InventoryEvidence", scopeKind: null },
+    ]);
+
+    render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
+    fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
+
+    expect(screen.getByText("Scope: This resource.")).toBeInTheDocument();
+    expect(screen.queryByText("Scope: Question scope was not stored.")).not.toBeInTheDocument();
+  });
+
   it("shows omitted question source and scope in details", async () => {
     mocks.listQuestions.mockResolvedValue([
       { ...question, source: null, scopeKind: null },

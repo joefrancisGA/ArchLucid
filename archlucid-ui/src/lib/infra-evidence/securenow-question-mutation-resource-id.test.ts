@@ -6,6 +6,7 @@ import {
   secureNowQuestionDispositionMutationScopeKind,
   secureNowQuestionDispositionMutationEvidenceFingerprint,
   secureNowQuestionDispositionMutationSource,
+  secureNowQuestionReviewerScopeLabel,
   secureNowQuestionShowsInferredConnectionReviewerCopy,
   secureNowQuestionDispositionMutationSubscriptionId,
   secureNowQuestionHasPackStyleDispositionScope,
@@ -92,6 +93,22 @@ describe("secureNowQuestionShowsInferredConnectionReviewerCopy", () => {
         false,
       ),
     ).toBe(false);
+  });
+});
+
+describe("secureNowQuestionReviewerScopeLabel", () => {
+  it("infers resource scope in details when scopeKind is omitted but source is inventory evidence", () => {
+    expect(
+      secureNowQuestionReviewerScopeLabel(
+        {
+          source: "InventoryEvidence",
+          scopeKind: null,
+          questionKey: "unknown-evidence@v1",
+          questionText: "Should this resource connect?",
+        },
+        false,
+      ),
+    ).toBe("This resource.");
   });
 });
 

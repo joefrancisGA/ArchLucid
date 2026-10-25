@@ -119,6 +119,53 @@ export function secureNowQuestionShowsInferredConnectionReviewerCopy(
   return matchesInferredConnection;
 }
 
+function secureNowQuestionReviewerScopeLabelFromKind(scopeKind: string): string | null {
+  if (scopeKind === "Resource") {
+    return "This resource.";
+  }
+
+  if (scopeKind === "Subscription") {
+    return "This subscription.";
+  }
+
+  if (scopeKind === "ResourceGroup") {
+    return "This resource group.";
+  }
+
+  return null;
+}
+
+export function secureNowQuestionReviewerScopeLabel(
+  question: Pick<SecureNowQuestion, "source" | "scopeKind" | "questionKey" | "questionText">,
+  matchesInferredConnection: boolean,
+): string {
+  if (matchesInferredConnection) {
+    return "This resource.";
+  }
+
+  const trimmedScope = question.scopeKind?.trim() ?? "";
+  if (trimmedScope.length > 0) {
+    const knownLabel = secureNowQuestionReviewerScopeLabelFromKind(trimmedScope);
+    return knownLabel ?? `Question scope code ${trimmedScope} has no reviewer label.`;
+  }
+
+  if (secureNowQuestionIsPolicyPackDispositionRow(question)) {
+    return secureNowQuestionPackScopeKindFromPrompt(question.questionText) === "ResourceGroup"
+      ? "This resource group."
+      : "This subscription.";
+  }
+
+  const resolvedScope = secureNowQuestionDispositionMutationScopeKind(question);
+  if (resolvedScope) {
+    const mutationLabel = secureNowQuestionReviewerScopeLabelFromKind(resolvedScope);
+    if (mutationLabel) {
+      return mutationLabel;
+    }
+  }
+
+  return "Question scope was not stored.";
+}
+
 export function secureNowQuestionDispositionMutationScopeKind(
   question: Pick<SecureNowQuestion, "source" | "scopeKind" | "questionKey" | "questionText">,
 ): string | null {
