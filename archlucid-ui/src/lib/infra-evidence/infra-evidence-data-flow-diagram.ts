@@ -14,6 +14,8 @@ export type InfraDiagramsDataFlowCaptionPresentation = {
   readonly metadataComments: readonly string[];
 };
 
+export const INFRA_DIAGRAMS_DATA_FLOW_NOT_STORED_CAPTION = "Data-flow diagram was not stored.";
+
 function parseInfraDiagramsDataFlowCaptionLinesFromMermaid(mermaidSource: string): readonly string[] {
   if (mermaidSource.trim().length === 0) {
     return [];
@@ -36,6 +38,13 @@ export function parseInfraDiagramsDataFlowCaptionsFromMermaid(mermaidSource: str
 export function parseInfraDiagramsDataFlowCaptionPresentation(
   mermaidSource: string,
 ): InfraDiagramsDataFlowCaptionPresentation {
+  if (mermaidSource.trim().length === 0) {
+    return {
+      honestyCaptions: [INFRA_DIAGRAMS_DATA_FLOW_NOT_STORED_CAPTION],
+      metadataComments: [],
+    };
+  }
+
   const captions = parseInfraDiagramsDataFlowCaptionLinesFromMermaid(mermaidSource);
   const honestyCaptions = captions.filter((caption) => !isInfraEvidenceMermaidMetadataComment(caption));
   const metadataComments = captions.filter((caption) => isInfraEvidenceMermaidMetadataComment(caption));

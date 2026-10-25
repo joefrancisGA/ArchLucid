@@ -852,10 +852,16 @@ public sealed class AzureInventorySecurityEdgeMaterializerTests
 
         result.Relationships.Should().Contain(r =>
             r.ToAzureResourceId == ArmResourceIdNormalizer.Normalize(diagnosticStorage)
-            && r.InferenceSource == GraphEdgeInferenceSources.InventoryDiagnosticSettingStorage);
+            && r.InferenceSource == GraphEdgeInferenceSources.WithQualifier(
+                GraphEdgeInferenceSources.InventoryDiagnosticSettingStorage,
+                "diag-storage"));
 
         result.Relationships.Count(r =>
-                r.InferenceSource == GraphEdgeInferenceSources.InventoryDiagnosticSettingStorage)
+                GraphEdgeInferenceSources.TrySplitQualifier(r.InferenceSource, out string baseSource, out _)
+                && string.Equals(
+                    baseSource,
+                    GraphEdgeInferenceSources.InventoryDiagnosticSettingStorage,
+                    StringComparison.OrdinalIgnoreCase))
             .Should()
             .Be(1);
     }
@@ -955,7 +961,9 @@ public sealed class AzureInventorySecurityEdgeMaterializerTests
         result.Relationships.Should().ContainSingle(r =>
             r.FromAzureResourceId == ArmResourceIdNormalizer.Normalize(keyVault)
             && r.ToAzureResourceId == ArmResourceIdNormalizer.Normalize(diagnosticStorage)
-            && r.InferenceSource == GraphEdgeInferenceSources.InventoryDiagnosticSettingStorage);
+            && r.InferenceSource == GraphEdgeInferenceSources.WithQualifier(
+                GraphEdgeInferenceSources.InventoryDiagnosticSettingStorage,
+                InventoryDiagramRelationshipLabelTexts.DiagnosticSettingStorageNamesNotListedQualifier));
     }
 
     [Fact]

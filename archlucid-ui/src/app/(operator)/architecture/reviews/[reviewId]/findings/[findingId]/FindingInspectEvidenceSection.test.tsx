@@ -183,6 +183,21 @@ describe("FindingInspectEvidenceSection", () => {
     expect(screen.queryByText("Open diagram-1")).not.toBeInTheDocument();
   });
 
+  it("labels omitted evidence list separately from stored-empty list", () => {
+    render(
+      <FindingInspectEvidenceSection
+        runId="run-1"
+        demoFillGaps={false}
+        reviewContextHref="/architecture/reviews/run-1"
+        reviewContextLabel="Open review"
+        evidence={[]}
+        evidenceListReturned={false}
+      />,
+    );
+
+    expect(screen.getByText("Evidence list was not stored.")).toBeInTheDocument();
+  });
+
   it("does not render demo citation scaffold when evidence is empty (P-09)", () => {
     render(
       <FindingInspectEvidenceSection
@@ -194,7 +209,7 @@ describe("FindingInspectEvidenceSection", () => {
       />,
     );
 
-    expect(screen.getByText("No evidence citations were stored.")).toBeInTheDocument();
+    expect(screen.getByText("Evidence list was stored empty.")).toBeInTheDocument();
     expect(screen.queryByText("Claims intake API schema")).not.toBeInTheDocument();
     expect(screen.queryByText("Open cited evidence")).not.toBeInTheDocument();
   });

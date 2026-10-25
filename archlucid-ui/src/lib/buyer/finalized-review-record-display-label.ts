@@ -52,6 +52,6 @@ export function finalizedReviewRecordDisplayLabel(
   }
 
   return buyerTitle.length === 0 || buyerTitle === "Untitled review"
-    ? "Untitled review"
+    ? "Review title was not stored."
     : "Manifest id not recorded";
 }

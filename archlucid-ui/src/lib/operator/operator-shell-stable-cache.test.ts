@@ -53,6 +53,24 @@ describe("operator shell stable cache", () => {
     expect(cached?.catalogMigration?.inMigration).toBe(false);
   });
 
+  it("discards stable cache entries with non-finite writtenAtMs", () => {
+    writeOperatorShellStableCache({
+      trialStatus: { status: "None" },
+      catalogMigration: { inMigration: false },
+    });
+
+    const cached = readOperatorShellStableCache();
+
+    expect(cached).not.toBeNull();
+
+    sessionStorage.setItem(
+      "archlucid:operator-shell-stable:v1",
+      JSON.stringify({ ...cached, writtenAtMs: Number.NaN }),
+    );
+
+    expect(readOperatorShellStableCache()).toBeNull();
+  });
+
   it("does not persist alerts inbox summary without a stable shell snapshot", () => {
     writeOperatorShellStableCache({
       trialStatus: { status: "Active", daysRemaining: 5 },
