@@ -30,6 +30,18 @@ function readLocalSyncedAtUtc(): string | null {
   }
 }
 
+function parseContinuityInstantMs(value: string): number | null {
+  const trimmed = value.trim();
+
+  if (trimmed.length === 0) {
+    return null;
+  }
+
+  const parsedMs = Date.parse(trimmed);
+
+  return Number.isFinite(parsedMs) ? parsedMs : null;
+}
+
 function writeLocalSyncedAtUtc(value: string): void {
   if (typeof window === "undefined") {
     return;
@@ -145,16 +157,27 @@ export function shouldHydrateWorkingWorkspaceContinuityFromServer(
 
   const serverUpdatedAt = continuity.updatedAtUtc?.trim() ?? "";
   const localSyncedAt = readLocalSyncedAtUtc();
+  const localSyncedAtMs = localSyncedAt !== null ? parseContinuityInstantMs(localSyncedAt) : null;
 
-  if (localSyncedAt === null) {
-    return true;
+  if (localSyncedAt === null || localSyncedAtMs === null) {
+    if (serverUpdatedAt.length === 0) {
+      return true;
+    }
+
+    return parseContinuityInstantMs(serverUpdatedAt) !== null;
   }
 
   if (serverUpdatedAt.length === 0) {
     return true;
   }
 
-  return Date.parse(serverUpdatedAt) >= Date.parse(localSyncedAt);
+  const serverUpdatedAtMs = parseContinuityInstantMs(serverUpdatedAt);
+
+  if (serverUpdatedAtMs === null) {
+    return false;
+  }
+
+  return serverUpdatedAtMs >= localSyncedAtMs;
 }
 
 export function applyWorkingWorkspaceContinuityFromServer(
@@ -171,7 +194,7 @@ export function applyWorkingWorkspaceContinuityFromServer(
 
   const updatedAtUtc = continuity.updatedAtUtc?.trim();
 
-  if (updatedAtUtc !== undefined && updatedAtUtc.length > 0) {
+  if (updatedAtUtc !== undefined && updatedAtUtc.length > 0 && parseContinuityInstantMs(updatedAtUtc) !== null) {
     writeLocalSyncedAtUtc(updatedAtUtc);
   }
 }
