@@ -7174,6 +7174,34 @@ ABQ-09 churn hotspot.
 
 ## Zone: ui-infra-resource-hub
 
+2026-10-25 seed hunt (seed→hit): promoted architecture-review findings stream pagination linking to remediation workbench — `hasMore` caption for `ArchitectureReview` used `buildResourceScopedWorkbenchHref(..., "remediation")` instead of the resource hub findings tab; route architecture review to `"findings"` while operational security stays on remediation; regressions `links architecture review pagination to the resource hub findings tab` and operational href assertion on `shows paginated finding stream caption when hasMore`; scoped ResourceHubClient vitest 58/58. Private beta: operators paging architecture-review findings on a resource hub land on that resource’s findings tab instead of the remediation factory.
+
+- [x] (proven) `ResourceHubClient` architecture-review findings stream pagination — **hit 2026-10-25 seed hunt:** stream-kind-specific `buildResourceScopedWorkbenchHref`; `ResourceHubClient.test.tsx`.
+- [x] (valid-no-repro) `ResourceHubClient.resolvedAuditLineage` — URL scope absent from matches — **cheap-disproof 2026-10-25 seed hunt:** returns `null` when active match missing (no default control label fallback).
+- [x] (valid-no-repro) `ResourceHubClient` RBAC assignments table — duplicate principal/role keys — **cheap-disproof 2026-10-25 seed hunt:** mock hub renders single scoped row; collision remains future-risk without multi-scope fixture.
+- [x] (valid-no-repro) `ResourceHubClient` network relationships table — duplicate endpoint keys — **cheap-disproof 2026-10-25 seed hunt:** mock hub renders distinct relationship types on unique keys in default fixture.
+- [x] (valid-no-repro) `ResourceHubClient.setActiveTab` — technical disclosure key on tab change — **cheap-disproof 2026-10-25 seed hunt:** existing regressions for terraform-only key stripping outside terraform tab.
+
+- [ ] (candidate) `ResourceHubClient` RBAC assignments table — two rows sharing `principalId` and `roleDefinitionId` but different `scope` — locus: React key; input: integration fixture with colliding key shows one row.
+- [ ] (candidate) `ResourceHubClient` network relationships table — two rows sharing endpoints but different `relationshipType` — locus: React key; input: colliding key omits a relationship row.
+- [ ] (candidate) `ResourceHubClient` audit “Other linked controls” — duplicate `controlId` and `auditEvidenceSnapshotId` across assessments — locus: list key; input: cross-assessment collision.
+- [ ] (candidate) `ResourceHubClient` architecture-review findings stream — per-item actions vs operational security factory buttons — locus: findings tab actions column; input: parity review for deep links.
+- [ ] (candidate) `ResourceHubClient.loadHub` — slow success after fast failure for same generation — locus: request generation gate; input: failure then success ordering edge.
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **aliases:** resource hub; infrastructure resource detail
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 43
+- **bugs-found:** 23
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-25
+- **last-bug:** 2026-10-25 — architecture review findings pagination linked to remediation workbench
+- **related-pd-tb:** none
+- **code-changed-since:** yes
+
 2026-10-12 seed hunt (seed-only): reread the selected `ResourceHubClient.tsx` request, URL/tab, audit, remediation, disclosure, captured-evidence, and workbench-link paths with all three focused suites. No fresh reachable mechanism-backed wrong outcome met the hunt-ready bar; no candidate was promoted and no production or regression code changed. The focused ResourceHubClient suites passed 52/52.
 
 2026-10-12 seed hunt (seed-only): reread the selected `ResourceHubClient.tsx` request lifecycle, URL context, tabs/shortcuts, audit scope, remediation, disclosures, captured collections, and workbench links with all three focused suites. No fresh reachable mechanism-backed wrong outcome met the hunt-ready bar; no candidate was promoted and no production or regression code changed. The focused ResourceHubClient suites passed 52/52.

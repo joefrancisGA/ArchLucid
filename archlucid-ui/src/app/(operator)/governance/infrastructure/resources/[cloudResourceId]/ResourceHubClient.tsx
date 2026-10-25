@@ -1571,7 +1571,13 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                   {formatResourceHubFindingStreamCaption(stream.items.length, stream.totalCount, stream.hasMore) != null ? (
                     <Link
                       className={OPERATOR_LINK.inline}
-                      href={buildResourceScopedWorkbenchHref(cloudResourceId, "remediation", resolvedSnapshotId, workbenchLinkAuditContext, runId)}
+                      href={buildResourceScopedWorkbenchHref(
+                        cloudResourceId,
+                        stream.streamKind === "ArchitectureReview" ? "findings" : "remediation",
+                        resolvedSnapshotId,
+                        workbenchLinkAuditContext,
+                        runId,
+                      )}
                       data-testid={`infra-resource-hub-findings-stream-more-${stream.streamKind}`}
                     >
                       {formatResourceHubFindingStreamCaption(stream.items.length, stream.totalCount, stream.hasMore)}

@@ -237,6 +237,32 @@ describe("ResourceHubClient", () => {
     expect(await screen.findByTestId("infra-resource-hub-findings-stream-more-OperationalSecurity")).toHaveTextContent(
       "Showing 1 of 40",
     );
+    expect(screen.getByTestId("infra-resource-hub-findings-stream-more-OperationalSecurity")).toHaveAttribute(
+      "href",
+      expect.stringContaining("/governance/infrastructure/remediation"),
+    );
+  });
+
+  it("links architecture review pagination to the resource hub findings tab", async () => {
+    fetchCachedInfraEvidenceResourceHub.mockImplementation(async () =>
+      buildResourceHubTestMockHub({
+        architectureReviewFindings: {
+          ...buildResourceHubTestMockHub().architectureReviewFindings,
+          totalCount: 40,
+          hasMore: true,
+        },
+      }),
+    );
+    searchParams = new URLSearchParams(`tab=findings&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}`);
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    const moreLink = await screen.findByTestId("infra-resource-hub-findings-stream-more-ArchitectureReview");
+    expect(moreLink).toHaveTextContent("Showing 1 of 40");
+    expect(moreLink).toHaveAttribute(
+      "href",
+      `/governance/infrastructure/resources/${RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID}?tab=findings&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}`,
+    );
+    expect(moreLink.getAttribute("href")).not.toContain("/governance/infrastructure/remediation");
   });
 
   it("derives diagram correspondence status from match kind", async () => {
