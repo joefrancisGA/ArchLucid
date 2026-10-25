@@ -32,6 +32,22 @@ describe("FindingInsightDensityDisclosure", () => {
     expect(container).toBeEmptyDOMElement();
   });
 
+  it("labels missing why-this-is-not-generic copy when score exists", () => {
+    render(
+      <FindingInsightDensityDisclosure insightDensityScore={72} whyThisIsNotGeneric={null} />,
+    );
+
+    expect(screen.getByText("Why this is not generic was not stored.")).toBeInTheDocument();
+  });
+
+  it("labels whitespace why-this-is-not-generic as stored empty when score exists", () => {
+    render(
+      <FindingInsightDensityDisclosure insightDensityScore={72} whyThisIsNotGeneric="   " />,
+    );
+
+    expect(screen.getByText("Why this is not generic was stored empty.")).toBeInTheDocument();
+  });
+
   it("shows insight density score was not stored when rationale exists without a score", () => {
     render(
       <FindingInsightDensityDisclosure insightDensityScore={null} whyThisIsNotGeneric="Specific control gap cited." />,
