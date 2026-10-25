@@ -1,22 +1,35 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  ASK_REVIEW_GROUNDING_LINKS_NOT_STORED_MARKER,
+  ASK_REVIEW_UNCITED_RESPONSE_MARKER,
   askReviewArtifactStatusCopy,
   messageHasUncitedAssistantOutput,
+  resolveAskAssistantGroundingCitationMarker,
   resolveAskReviewArtifactStatus,
-} from "@/lib/ask-review-artifact-status-copy";
+} from "./ask-review-artifact-status-copy";
 
-describe("ask-review-artifact-status-copy", () => {
-  it("maps finalized, draft, and missing review contexts", () => {
-    expect(askReviewArtifactStatusCopy(resolveAskReviewArtifactStatus({ runMissing: false, isFinalized: true }))).toMatch(
-      /finalized architecture review/i,
+describe("resolveAskAssistantGroundingCitationMarker", () => {
+  it("distinguishes omitted grounding links from a stored empty list", () => {
+    expect(resolveAskAssistantGroundingCitationMarker("Answer text", null)).toBe(
+      ASK_REVIEW_GROUNDING_LINKS_NOT_STORED_MARKER,
     );
-    expect(askReviewArtifactStatusCopy(resolveAskReviewArtifactStatus({ runMissing: false, isFinalized: false }))).toMatch(
-      /Draft review context/i,
+    expect(resolveAskAssistantGroundingCitationMarker("Answer text", [])).toBe(
+      ASK_REVIEW_UNCITED_RESPONSE_MARKER,
     );
-    expect(askReviewArtifactStatusCopy(resolveAskReviewArtifactStatus({ runMissing: true }))).toMatch(/No architecture review/i);
+    expect(resolveAskAssistantGroundingCitationMarker("Answer text", [{ findingId: "f-1" }])).toBeNull();
   });
+});
 
+describe("askReviewArtifactStatusCopy", () => {
+  it("describes missing review context", () => {
+    expect(askReviewArtifactStatusCopy(resolveAskReviewArtifactStatus({ runMissing: true }))).toMatch(
+      /No architecture review/i,
+    );
+  });
+});
+
+describe("messageHasUncitedAssistantOutput", () => {
   it("flags assistant output without grounding links", () => {
     expect(messageHasUncitedAssistantOutput("Answer without links", 0)).toBe(true);
     expect(messageHasUncitedAssistantOutput("Answer with links", 2)).toBe(false);

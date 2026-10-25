@@ -150,30 +150,29 @@ const INSIGHT_DENSITY_TYPED_ENGINE_PROTECTED_LEAD =
 export function formatInsightDensityCurationMessage(curation: InsightDensityCurationCounts): string {
   const demoted = curation.demotedToChecklistCount;
   const retained = curation.retainedFindingCount;
-
-  if (demoted === null && retained === null) {
-    return "";
-  }
+  const parts: string[] = [];
 
   if (demoted === null) {
-    return "Demoted finding count was not stored.";
+    parts.push("Demoted count was not stored.");
+  } else if (demoted > 0) {
+    parts.push(
+      `${INSIGHT_DENSITY_DEMOTION_LEAD} ArchLucid moved ${demoted} low-specificity ${demoted === 1 ? "observation" : "observations"} to the coverage checklist (not decision-grade findings on this package).`,
+    );
   }
 
   if (retained === null) {
-    return "Retained finding count was not stored.";
+    parts.push("Retained finding count was not stored.");
+  } else if (retained > 0) {
+    if (demoted !== null && demoted > 0) {
+      parts.push(
+        `ArchLucid retained ${retained} decision-grade ${retained === 1 ? "finding" : "findings"} on this package.`,
+      );
+    } else {
+      parts.push(
+        `${INSIGHT_DENSITY_TYPED_ENGINE_PROTECTED_LEAD} ArchLucid retained ${retained} decision-grade ${retained === 1 ? "finding" : "findings"} after insight-density curation.`,
+      );
+    }
   }
 
-  if (demoted <= 0 && retained <= 0) {
-    return "";
-  }
-
-  if (demoted > 0 && retained > 0) {
-    return `${INSIGHT_DENSITY_DEMOTION_LEAD} ArchLucid moved ${demoted} low-specificity ${demoted === 1 ? "advisory" : "advisories"} to the coverage checklist and retained ${retained} decision-grade ${retained === 1 ? "finding" : "findings"} on this package.`;
-  }
-
-  if (demoted > 0) {
-    return `${INSIGHT_DENSITY_DEMOTION_LEAD} ArchLucid moved ${demoted} low-specificity ${demoted === 1 ? "observation" : "observations"} to the coverage checklist (not decision-grade findings on this package).`;
-  }
-
-  return `${INSIGHT_DENSITY_TYPED_ENGINE_PROTECTED_LEAD} ArchLucid retained ${retained} decision-grade ${retained === 1 ? "finding" : "findings"} after insight-density curation.`;
+  return parts.join(" ");
 }

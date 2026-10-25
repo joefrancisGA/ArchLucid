@@ -96,7 +96,7 @@ export function formatInfraEvidenceSnapshotFreshness(snapshot: InfraEvidenceSnap
 
 export function formatInfraEvidenceDiffTotalChangesPhrase(totalChanges: number | undefined): string {
   if (totalChanges === undefined || !Number.isFinite(totalChanges)) {
-    return "Change count was not returned";
+    return "Change count was not stored.";
   }
 
   return `${totalChanges} changes`;

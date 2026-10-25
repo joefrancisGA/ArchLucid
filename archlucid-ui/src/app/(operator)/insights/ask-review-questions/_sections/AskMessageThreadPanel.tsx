@@ -19,11 +19,8 @@ import { StatusTag } from "@/components/ui/status-tag";
 import { ASK_CONVERSATION_EMPTY } from "@/lib/ask-conversation-empty-preset";
 import {
   ASK_REVIEW_STREAMING_PROVISIONAL_MARKER,
-  ASK_REVIEW_UNCITED_RESPONSE_MARKER,
   askReviewArtifactStatusCopy,
-  ASK_REVIEW_CITATION_LINKS_NOT_STORED,
-  messageCitationLinksNotStored,
-  messageHasUncitedAssistantOutput,
+  resolveAskAssistantGroundingCitationMarker,
   resolveAskReviewArtifactStatus,
 } from "@/lib/ask-review-artifact-status-copy";
 import {
@@ -121,10 +118,6 @@ export function AskMessageThreadPanel(props: AskMessageThreadPanelProps) {
     isFinalized: isFinalizedReview,
   });
   const artifactStatusCopy = askReviewArtifactStatusCopy(artifactStatus);
-  const groundingLinkCount =
-    askAssistantGroundingLinks === null || askAssistantGroundingLinks === undefined
-      ? null
-      : askAssistantGroundingLinks.length;
   const citationHostMessageId = lastAssistantMessageId(messages);
   const showCitationActionsOnAnswer =
     streamingAssistantContent === null && citationHostMessageId !== null;
@@ -237,24 +230,22 @@ export function AskMessageThreadPanel(props: AskMessageThreadPanelProps) {
               </div>
               {message.role.toLowerCase() === "assistant" ? (
                 <>
-                  {messageCitationLinksNotStored(groundingLinkCount) ? (
-                    <p
-                      className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-                      data-testid="ask-citation-links-not-stored-marker"
-                      role="note"
-                    >
-                      {ASK_REVIEW_CITATION_LINKS_NOT_STORED}
-                    </p>
-                  ) : null}
-                  {messageHasUncitedAssistantOutput(message.content, groundingLinkCount) ? (
-                    <p
-                      className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-                      data-testid="ask-uncited-assistant-marker"
-                      role="note"
-                    >
-                      {ASK_REVIEW_UNCITED_RESPONSE_MARKER}
-                    </p>
-                  ) : null}
+                  {(() => {
+                    const groundingMarker = resolveAskAssistantGroundingCitationMarker(
+                      message.content,
+                      askAssistantGroundingLinks,
+                    );
+
+                    return groundingMarker !== null ? (
+                      <p
+                        className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                        data-testid="ask-uncited-assistant-marker"
+                        role="note"
+                      >
+                        {groundingMarker}
+                      </p>
+                    ) : null;
+                  })()}
                   <AskAssistantMessageBody
                     buyerPolishedLinks={buyerPolishedShell}
                     content={message.content}

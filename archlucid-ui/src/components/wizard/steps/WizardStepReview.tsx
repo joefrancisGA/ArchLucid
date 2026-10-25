@@ -158,11 +158,13 @@ export function WizardStepReview(props: { readonly focusedPilotModeEnabled?: boo
           <p className="m-0 whitespace-pre-wrap">
             {wizardConfirmIdentityField(v.description, "Description was not stored.")}
           </p>
-          {(v.inlineRequirements ?? []).some((s) => s.trim()) ? (
+          {v.inlineRequirements === null || v.inlineRequirements === undefined ? (
+            <p className={cn("mt-2 m-0", OPERATOR_TYPOGRAPHY.helper)}>Inline requirements were not stored.</p>
+          ) : v.inlineRequirements.some((s) => s.trim()) ? (
             <div className="mt-2">
               <p className={cn("m-0 font-medium text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>Inline requirements</p>
               <ul className="mt-1 list-disc pl-5">
-                {(v.inlineRequirements ?? [])
+                {v.inlineRequirements
                   .map((s) => s.trim())
                   .filter(Boolean)
                   .map((line) => (
@@ -170,7 +172,9 @@ export function WizardStepReview(props: { readonly focusedPilotModeEnabled?: boo
                   ))}
               </ul>
             </div>
-          ) : null}
+          ) : (
+            <p className={cn("mt-2 m-0", OPERATOR_TYPOGRAPHY.helper)}>Inline requirements were stored empty.</p>
+          )}
         </ReadOnlyBlock>
 
         <Separator />
@@ -179,6 +183,8 @@ export function WizardStepReview(props: { readonly focusedPilotModeEnabled?: boo
           <p className={cn("m-0 text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>Constraints</p>
           {v.constraints === null || v.constraints === undefined ? (
             <p className="m-0">Constraints were not stored.</p>
+          ) : v.constraints.length === 0 ? (
+            <p className="m-0">Constraints were stored empty.</p>
           ) : (
             <ul className="mt-1 list-disc pl-5">
               {v.constraints.map((c) => (

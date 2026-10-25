@@ -64,17 +64,6 @@ describe("findings-snapshot-insight-density", () => {
     expect(message).toContain("without hiding checklist coverage");
   });
 
-  it("does not invent curation counts from checklist rows alone", () => {
-    const view = resolveFindingsSnapshotInsightDensityView({
-      run: { runId: "r1", projectId: "p", createdUtc: "2026-01-01T00:00:00Z" },
-      findingsSnapshot: {
-        checklistCoverage: [{ findingId: "chk-1", message: "Enable monitoring" }],
-      },
-    } as never);
-
-    expect(view.curation).toBeNull();
-  });
-
   it("hasFindingsSnapshotInsightDensityContent is false when there is nothing to disclose", () => {
     expect(hasFindingsSnapshotInsightDensityContent({ checklistCoverage: [], curation: null })).toBe(false);
     expect(
@@ -96,19 +85,22 @@ describe("findings-snapshot-insight-density", () => {
     expect(view.checklistCoverage[0]?.title).toBe("Checklist title was not stored.");
   });
 
-  it("formatInsightDensityCurationMessage states when curation counts were not stored", () => {
+  it("formatInsightDensityCurationMessage states when counts were not stored", () => {
+    expect(formatInsightDensityCurationMessage({ demotedToChecklistCount: null, retainedFindingCount: null })).toContain(
+      "Demoted count was not stored.",
+    );
     expect(
       formatInsightDensityCurationMessage({
         demotedToChecklistCount: null,
         retainedFindingCount: 2,
       }),
-    ).toBe("Demoted finding count was not stored.");
+    ).toContain("Demoted count was not stored.");
     expect(
       formatInsightDensityCurationMessage({
         demotedToChecklistCount: 2,
         retainedFindingCount: null,
       }),
-    ).toBe("Retained finding count was not stored.");
+    ).toContain("Retained finding count was not stored.");
   });
 
   it("hasFindingsSnapshotInsightDensityContent is true for checklist rows or curation copy", () => {

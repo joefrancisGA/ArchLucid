@@ -91,8 +91,8 @@ describe("formatInfraEvidenceSnapshotCapturedLabel", () => {
 });
 
 describe("formatInfraEvidenceDiffTotalChangesPhrase", () => {
-  it("states when total change count was not returned", () => {
-    expect(formatInfraEvidenceDiffTotalChangesPhrase(undefined)).toBe("Change count was not returned");
+  it("states when total change count was not stored", () => {
+    expect(formatInfraEvidenceDiffTotalChangesPhrase(undefined)).toBe("Change count was not stored.");
   });
 });
 
