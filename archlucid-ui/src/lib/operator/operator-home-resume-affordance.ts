@@ -3,8 +3,10 @@ import type { ArchitectureDraftRegistryEntry } from "@/lib/architecture/architec
 import type { IncompleteWizardSignal } from "@/lib/unfinished-work-rail";
 import { resolveContinueLastArchitectureIdentityTarget } from "@/lib/resolve-continue-last-architecture-identity";
 import { resolveContinueLastReviewPackageTarget } from "@/lib/resolve-continue-last-review-package";
-import { resumeHrefsEquivalentForDedupe } from "@/lib/operator/operator-home-hero-resume-target";
-import { resolveRunIdFromWorkingReviewHref } from "@/lib/system-not-job-portfolio-resume-href";
+import {
+  collectResumeRunIdsForMatch,
+  resumeHrefsEquivalentForDedupe,
+} from "@/lib/operator/operator-home-hero-resume-target";
 import type { RunSummary } from "@/types/authority";
 
 function architectureDeskIdFromHref(href: string): string | null {
@@ -106,18 +108,17 @@ export function resolveOperatorHomeResumeAffordancePlan(
 
   if (continueLastKind === "review") {
     const railSurfacesSameRun = railSummary.items.some((item) => {
-      const runId = resolveRunIdFromWorkingReviewHref(item.href);
-
-      const targetRunId = reviewTarget?.runId?.trim() ?? "";
-
-      if (runId !== null && targetRunId.length > 0 && runId.trim() === targetRunId) {
-        return true;
-      }
-
       const targetHref = reviewTarget?.href?.trim() ?? "";
 
       if (targetHref.length === 0) {
         return false;
+      }
+
+      const targetRunIds = collectResumeRunIdsForMatch(targetHref, reviewTarget?.runId);
+      const railRunIds = collectResumeRunIdsForMatch(item.href);
+
+      if (railRunIds.some((railRunId) => targetRunIds.includes(railRunId))) {
+        return true;
       }
 
       return resumeHrefsEquivalentForDedupe(item.href, targetHref);

@@ -54,6 +54,27 @@ export function resumeHrefsEquivalentForDedupe(left: string, right: string): boo
   return true;
 }
 
+/** Union explicit resume run id fields with SN-012 / peer href parsing for dedupe. */
+export function collectResumeRunIdsForMatch(
+  href: string,
+  explicitRunId?: string | null,
+): readonly string[] {
+  const ids = new Set<string>();
+  const explicit = explicitRunId?.trim() ?? "";
+
+  if (explicit.length > 0) {
+    ids.add(explicit);
+  }
+
+  const fromHref = resolveRunIdFromWorkingReviewHref(href);
+
+  if (fromHref !== null && fromHref.length > 0) {
+    ids.add(fromHref);
+  }
+
+  return [...ids];
+}
+
 function draftIdFromDraftHref(href: string): string | null {
   const match = /^\/architecture\/architectures\/([^/?#]+)/.exec(href.split("?")[0] ?? "");
 
@@ -130,15 +151,12 @@ export function matchesOperatorHomeHeroResumeTarget(
     return true;
   }
 
-  const targetRunId = target.runId?.trim() ?? "";
-  const itemRunId = item.runId?.trim() ?? "";
   const heroRunId = resolveRunIdFromWorkingReviewHref(target.href);
   const itemHrefRunId = resolveRunIdFromWorkingReviewHref(item.href);
+  const targetRunIds = collectResumeRunIdsForMatch(target.href, target.runId);
+  const itemRunIds = collectResumeRunIdsForMatch(item.href, item.runId);
 
-  const targetRunIds = [targetRunId, heroRunId ?? ""].filter((id) => id.length > 0);
-  const itemRunIds = [itemRunId, itemHrefRunId ?? ""].filter((id) => id.length > 0);
-
-  if (targetRunIds.some((left) => itemRunIds.some((right) => left === right))) {
+  if (targetRunIds.some((left) => itemRunIds.includes(left))) {
     return true;
   }
 
