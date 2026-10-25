@@ -525,6 +525,7 @@ Zone bodies live in the set ledgers below. `/al-bug1` through `/al-bug4` each hu
 
 - [ ] (candidate) humanizeAuthorizeCallbackError - invalid_state authorize-query copy - locus: default branch UX.
 - [ ] (candidate) refreshBffSessionCookie - refresh 498 shouldClearSession false - locus: transient refresh parity.
+- [ ] (candidate) exchangeAuthorizationCode - access_token JSON string soft-hyphen replacement-character and variation-selector-16-only skips authorize retry marker - locus: literal whitespace token shape.
 - [ ] (candidate) exchangeAuthorizationCode - access_token JSON string replacement-character and variation-selector-16-only skips authorize retry marker - locus: literal whitespace token shape.
 - [ ] (candidate) readOAuthJsonErrorDescription - multiply-encoded %252B with ZWJ glue - locus: saturated JSON encoding class.
 
