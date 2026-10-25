@@ -78,6 +78,14 @@ public sealed class DiagramEdgeLabelHumanizerTests
     }
 
     [Fact]
+    public void HumanizeLabel_maps_may_access_to_authorized_access_honesty_label()
+    {
+        DiagramEdgeLabelHumanizer.HumanizeLabel(GraphEdgeTypes.MayAccess)
+            .Should()
+            .Be(InventoryDiagramRelationshipLabelTexts.AppAuthorizedAccessLabel);
+    }
+
+    [Fact]
     public void HumanizeLabel_preserves_custom_non_canonical_labels()
     {
         DiagramEdgeLabelHumanizer.HumanizeLabel("reads").Should().Be("reads");
@@ -131,8 +139,8 @@ public sealed class DiagramEdgeLabelHumanizerTests
     [InlineData(AzureInventoryRelationshipAssociationTypes.AppAuthorizedAccess, InventoryDiagramRelationshipLabelTexts.AppAuthorizedAccessLabel)]
     [InlineData(GraphEdgeTypes.MayAccess, InventoryDiagramRelationshipLabelTexts.AppAuthorizedAccessLabel)]
     [InlineData(AzureInventoryRelationshipAssociationTypes.EventGridToDestination, InventoryDiagramRelationshipLabelTexts.EventSubscriptionNamesDestinationObservedDeliveryNotStored)]
-    [InlineData(AzureInventoryRelationshipAssociationTypes.AdfTriggerSource, "Trigger is configured. This is not an observed run.")]
-    [InlineData(AzureInventoryRelationshipAssociationTypes.AdfIntegrationRuntime, "Integration runtime in configuration. This is not an observed run.")]
+    [InlineData(AzureInventoryRelationshipAssociationTypes.AdfTriggerSource, InventoryDiagramRelationshipLabelTexts.AdfTriggerConfiguredObservedRunNotStored)]
+    [InlineData(AzureInventoryRelationshipAssociationTypes.AdfIntegrationRuntime, InventoryDiagramRelationshipLabelTexts.AdfIntegrationRuntimeConfiguredObservedRunNotStored)]
     [InlineData(AzureInventoryRelationshipAssociationTypes.EventHubCapture, InventoryDiagramRelationshipLabelTexts.CaptureConfiguredObservedCaptureNotStored)]
     [InlineData(AzureInventoryRelationshipAssociationTypes.AvdSessionHostToVm, "AVD session host")]
     public void HumanizeLabel_maps_diagram_enrichment_association_aliases(string alias, string expected)
@@ -151,6 +159,6 @@ public sealed class DiagramEdgeLabelHumanizerTests
                     GraphEdgeInferenceSources.InventoryDiagnosticDestination,
                     "storage-account-logs"))
             .Should()
-            .Be("Diagnostic setting destination is storage-account-logs. This is not observed log delivery.");
+            .Be(InventoryDiagramRelationshipLabelTexts.FormatDiagnosticSettingDestinationLabel("storage-account-logs"));
     }
 }

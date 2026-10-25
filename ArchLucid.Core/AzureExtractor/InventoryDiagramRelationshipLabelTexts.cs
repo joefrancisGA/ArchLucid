@@ -129,6 +129,19 @@ public static class InventoryDiagramRelationshipLabelTexts
     public const string CaptureConfiguredObservedCaptureNotStored =
         "Capture is configured. Observed capture was not stored.";
 
+    public const string AdfTriggerConfiguredObservedRunNotStored =
+        "Trigger is configured. This is not an observed run.";
+
+    public const string AdfIntegrationRuntimeConfiguredObservedRunNotStored =
+        "Integration runtime in configuration. This is not an observed run.";
+
+    public static string FormatDiagnosticSettingDestinationLabel(string destinationName)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(destinationName);
+
+        return $"Diagnostic setting destination is {destinationName.Trim()}. This is not observed log delivery.";
+    }
+
     public const string PrivateEndpointTargetStoredReachabilityNotObserved =
         "Private endpoint target was stored. Reachability was not observed.";
 

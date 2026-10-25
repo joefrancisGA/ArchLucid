@@ -236,6 +236,24 @@ describe("buildRunDetailPresentation", () => {
     expect(presentation.materialSeverityLine).toBeNull();
   });
 
+  it("labels material severity when unresolved findings omit severity (P-06)", async () => {
+    const presentation = await buildRunDetailPresentation(
+      model({
+        manifestId: "manifest-1",
+        findings: [
+          {
+            findingId: "f-no-severity",
+            message: "Severity omitted",
+            severity: null,
+          },
+        ],
+      }),
+      false,
+    );
+
+    expect(presentation.materialSeverityLine).toBe("Severity was not stored.");
+  });
+
   it("does not surface disposition-closed findings in highest severity summary", async () => {
     const presentation = await buildRunDetailPresentation(
       model({

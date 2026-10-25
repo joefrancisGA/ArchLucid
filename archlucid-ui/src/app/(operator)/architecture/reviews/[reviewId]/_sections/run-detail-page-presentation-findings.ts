@@ -56,15 +56,21 @@ export function buildRunDetailFindingsPresentation(
   });
 
   const withheldFindings = resolveFindingsWithheldRows(model.resolvedDetail);
+  const unresolvedForSeverity = workspaceDerive.filterUnresolvedFindings(quickDecisionFindings);
+  const materialSeverityTotal = severityCounts.critical + severityCounts.high;
+  const materialSeverityLine =
+    materialSeverityTotal > 0
+      ? `${severityCounts.critical} critical · ${severityCounts.high} high`
+      : unresolvedForSeverity.length > 0
+          && unresolvedForSeverity.some((finding) => finding.severityValue === null)
+        ? "Severity was not stored."
+        : null;
 
   return {
     quickDecisionFindings,
     findingsTriageVisibleCount: deriveRunDetailFindingsTriageCounts(quickDecisionFindings).triageVisibleCount,
     severityCounts,
-    materialSeverityLine:
-      severityCounts.critical + severityCounts.high > 0
-        ? `${severityCounts.critical} critical · ${severityCounts.high} high`
-        : null,
+    materialSeverityLine,
     pendingDecisionCount: countPendingDecisions(quickDecisionFindings),
     primaryConcernFindingId: workspaceDerive.derivePrimaryConcernFinding(quickDecisionFindings)?.findingId ?? null,
     primaryConcernLabel: workspaceDerive.derivePrimaryConcernLabel(quickDecisionFindings),
