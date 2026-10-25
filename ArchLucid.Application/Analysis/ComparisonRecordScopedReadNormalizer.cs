@@ -42,7 +42,7 @@ internal static class ComparisonRecordScopedReadNormalizer
         if (!string.IsNullOrWhiteSpace(record.ComparisonType))
             record.ComparisonType = record.ComparisonType.Trim();
 
-        record.Label = TrimLabelOrNull(record.Label);
+        record.Label = OptionalExportMetadataStringNormalizer.NormalizeOptionalString(record.Label);
         NormalizeTagsInPlace(record.Tags);
 
         if (!string.IsNullOrWhiteSpace(record.SummaryMarkdown))
@@ -58,11 +58,11 @@ internal static class ComparisonRecordScopedReadNormalizer
         }
     }
 
-    private static string? TrimLabelOrNull(string? value) =>
-        string.IsNullOrWhiteSpace(value) ? value : value.Trim();
+    private static string? NormalizeExportRecordIdOrNull(string? exportRecordId)
+    {
+        if (string.IsNullOrWhiteSpace(exportRecordId))
+            return null;
 
-    private static string? NormalizeExportRecordIdOrNull(string? exportRecordId) =>
-        string.IsNullOrWhiteSpace(exportRecordId)
-            ? exportRecordId
-            : RunExportRecordIdNormalizer.NormalizeRequired(exportRecordId);
+        return RunExportRecordIdNormalizer.NormalizeRequired(exportRecordId);
+    }
 }
