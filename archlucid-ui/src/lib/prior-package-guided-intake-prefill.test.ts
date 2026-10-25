@@ -80,6 +80,11 @@ describe("derivePriorPackageGuidedIntakePrefill", () => {
     );
   });
 
+  it("labels omitted system name for prior-package prefill UI (P-04)", () => {
+    expect(formatPriorPackagePrefillSystemNameLabel("")).toBe("System name was not stored.");
+    expect(formatPriorPackagePrefillSystemNameLabel("Retail API")).toBe("Retail API");
+  });
+
   it("returns null when the request has no description", () => {
     expect(
       derivePriorPackageGuidedIntakePrefill({

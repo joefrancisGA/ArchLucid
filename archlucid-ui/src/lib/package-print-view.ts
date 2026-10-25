@@ -59,6 +59,7 @@ export type PackagePrintStatusLabel =
   | "Finalized"
   | "Finalized. Governance warnings were stored."
   | "Finalized. Governance warning flags were not stored."
+  | "Package status was not stored."
   | "Archived";
 
 /** Builds the dedicated print path for a review (`/architecture/reviews/{runId}/print`). */
@@ -167,6 +168,18 @@ export function resolvePackagePrintStatusLabel(summary: RunSummary): PackagePrin
     return "Active";
   }
 
+  const draftFlags = [
+    summary.isArchived,
+    summary.hasGoldenManifest,
+    summary.hasFindingsSnapshot,
+    summary.hasGraphSnapshot,
+    summary.hasContextSnapshot,
+  ];
+
+  if (draftFlags.some((flag) => flag === undefined)) {
+    return "Package status was not stored.";
+  }
+
   return "Draft";
 }
 
@@ -184,6 +197,8 @@ export function resolvePackagePrintStatusKind(status: PackagePrintStatusLabel): 
       return "approved";
     case "Archived":
       return "neutral";
+    case "Package status was not stored.":
+      return "draft";
     default: {
       const _exhaustive: never = status;
 
@@ -225,6 +240,10 @@ export function buildPackagePrintFindingsSummary(summary: RunSummary): string {
   const base = parts.join(" · ");
 
   if (summary.hasGoldenManifest === true) {
+    if (findings === null || warnings === null) {
+      return `${base}. Package is finalized.`;
+    }
+
     return `${base}. Included in the finalized architecture review.`;
   }
 

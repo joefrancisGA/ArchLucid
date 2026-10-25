@@ -62,6 +62,31 @@ public sealed class ArchitectureMandatedMarkdownSectionsTests
     }
 
     [Fact]
+    public void Append_labels_missing_relationship_endpoints_instead_of_placeholder_tokens()
+    {
+        ManifestDocument manifest = new()
+        {
+            Topology = new TopologySection
+            {
+                Relationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = "",
+                        TargetId = "orders-sql",
+                        RelationshipType = RelationshipType.WritesTo,
+                    },
+                ],
+            },
+        };
+        StringBuilder markdown = new();
+
+        ArchitectureMandatedMarkdownSections.Append(markdown, manifest);
+
+        markdown.ToString().Should().Contain("Relationship source id was not stored.");
+    }
+
+    [Fact]
     public void Append_maps_topology_relationships_into_data_flow()
     {
         ManifestDocument manifest = new()

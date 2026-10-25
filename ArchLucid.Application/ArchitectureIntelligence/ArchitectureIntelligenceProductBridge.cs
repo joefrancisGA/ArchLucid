@@ -290,7 +290,7 @@ public static class ArchitectureIntelligenceProductBridge
 
     private static string MapUrgency(ArchitectureRecommendation recommendation)
     {
-        if (recommendation.RequiresHumanApproval)
+        if (recommendation.RequiresHumanApproval == true)
         {
             return "High";
         }
@@ -302,7 +302,7 @@ public static class ArchitectureIntelligenceProductBridge
     {
         int score = (int)Math.Round(recommendation.Confidence * 100);
 
-        if (recommendation.RequiresHumanApproval)
+        if (recommendation.RequiresHumanApproval == true)
         {
             score += 10;
         }

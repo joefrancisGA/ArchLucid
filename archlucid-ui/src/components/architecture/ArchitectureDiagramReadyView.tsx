@@ -96,6 +96,14 @@ export function ArchitectureDiagramReadyView(props: ArchitectureDiagramReadyView
     <>
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,18rem)]">
         <div className="min-w-0 space-y-2">
+          {panel.diagramModel === null ? (
+            <p
+              className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="architecture-diagram-structured-model-not-stored"
+            >
+              Structured diagram metadata was not stored — the Mermaid view below is the only persisted diagram artifact.
+            </p>
+          ) : null}
           {panel.diagramModel !== null && panel.diagramModel.skippedUnlabeledEntityCount > 0 ? (
             <p
               className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
