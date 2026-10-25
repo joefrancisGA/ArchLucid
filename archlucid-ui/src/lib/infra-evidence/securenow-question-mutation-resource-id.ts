@@ -1,6 +1,8 @@
 import type { SecureNowQuestion } from "@/lib/infra-evidence/securenow-question-queue-api";
 
-function isSubscriptionOrResourceGroupScope(scopeKind: string | null | undefined): boolean {
+export function secureNowQuestionHasPackStyleDispositionScope(
+  scopeKind: string | null | undefined,
+): boolean {
   const normalized = scopeKind?.trim().toLowerCase() ?? "";
 
   return normalized === "subscription" || normalized === "resourcegroup";
@@ -16,5 +18,5 @@ export function secureNowQuestionDispositionMutationResourceId(
     return question.resourceId;
   }
 
-  return isSubscriptionOrResourceGroupScope(question.scopeKind) ? "" : null;
+  return secureNowQuestionHasPackStyleDispositionScope(question.scopeKind) ? "" : null;
 }

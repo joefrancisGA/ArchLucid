@@ -1,7 +1,10 @@
 import { describe, expect, it } from "vitest";
 
 import type { SecureNowQuestion } from "@/lib/infra-evidence/securenow-question-queue-api";
-import { secureNowQuestionDispositionMutationResourceId } from "@/lib/infra-evidence/securenow-question-mutation-resource-id";
+import {
+  secureNowQuestionDispositionMutationResourceId,
+  secureNowQuestionHasPackStyleDispositionScope,
+} from "@/lib/infra-evidence/securenow-question-mutation-resource-id";
 
 const baseQuestion: SecureNowQuestion = {
   dispositionId: null,
@@ -36,6 +39,12 @@ describe("secureNowQuestionDispositionMutationResourceId", () => {
         source: "PolicyPack",
       }),
     ).toBe("");
+  });
+
+  it("treats resource group scope as pack-style disposition scope", () => {
+    expect(secureNowQuestionHasPackStyleDispositionScope("ResourceGroup")).toBe(true);
+    expect(secureNowQuestionHasPackStyleDispositionScope("Subscription")).toBe(true);
+    expect(secureNowQuestionHasPackStyleDispositionScope("Resource")).toBe(false);
   });
 
   it("returns null for resource scope when resource id is null", () => {

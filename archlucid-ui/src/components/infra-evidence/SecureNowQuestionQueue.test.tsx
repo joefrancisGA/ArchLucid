@@ -487,6 +487,26 @@ describe("SecureNowQuestionQueue", () => {
     expect(screen.queryByTestId("securenow-question-queue")).not.toBeInTheDocument();
   });
 
+  it("does not warn about resource id for subscription-scope pack rows with an empty listed resource id", async () => {
+    mocks.listQuestions.mockResolvedValue([
+      {
+        ...question,
+        resourceId: "",
+        scopeKind: "Subscription",
+        source: "PolicyPack",
+        questionKey: "subscription-ownership@v1",
+        questionText: "Who owns this subscription workload?",
+        answerCodes: ["Register", "Keep"],
+      },
+    ]);
+
+    render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
+    fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
+
+    expect(screen.queryByText("Resource id was not stored.")).not.toBeInTheDocument();
+    expect(screen.queryByText("Resource id was stored empty.")).not.toBeInTheDocument();
+  });
+
   it("does not warn that resource id was missing for subscription-scope pack rows with null resource id", async () => {
     mocks.listQuestions.mockResolvedValue([
       {
