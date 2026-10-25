@@ -275,6 +275,41 @@ public sealed class EndToEndReplayComparisonReportNormalizerTests
     }
 
     [Fact]
+    public void CompareQuality_EndToEndReplayComparisonReportNormalizer_drops_immaterial_agent_result_deltas()
+    {
+        EndToEndReplayComparisonReport report = new()
+        {
+            LeftRunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            RightRunId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            AgentResultDiff = new AgentResultDiffResult
+            {
+                AgentDeltas =
+                [
+                    new AgentResultDelta
+                    {
+                        AgentType = AgentType.Cost,
+                        AddedClaims = ["   "],
+                        RemovedFindings = ["\t"],
+                    },
+                    new AgentResultDelta
+                    {
+                        AgentType = AgentType.Topology,
+                        LeftExists = true,
+                        RightExists = false,
+                    },
+                ],
+            },
+        };
+
+        EndToEndReplayComparisonReportNormalizer.NormalizePersistedPayload(report);
+
+        report.AgentResultDiff!.AgentDeltas.Should().ContainSingle();
+        report.AgentResultDiff.AgentDeltas[0].AgentType.Should().Be(AgentType.Topology);
+        report.AgentResultDiff.AgentDeltas[0].LeftExists.Should().BeTrue();
+        report.AgentResultDiff.AgentDeltas[0].RightExists.Should().BeFalse();
+    }
+
+    [Fact]
     public void CompareQuality_EndToEndReplayComparisonReportNormalizer_removes_whitespace_only_manifest_diff_lists_and_empty_relationships()
     {
         EndToEndReplayComparisonReport report = new()

@@ -17,8 +17,14 @@ internal static class AgentResultDiffNormalizer
         diff.RightRunId = NormalizeRunIdAnchor(diff.RightRunId);
         ComparisonPersistedStringListNormalizer.NormalizeInPlace(diff.Warnings);
 
-        foreach (AgentResultDelta delta in diff.AgentDeltas)
+        for (int i = diff.AgentDeltas.Count - 1; i >= 0; i--)
+        {
+            AgentResultDelta delta = diff.AgentDeltas[i];
             NormalizeDeltaInPlace(delta);
+
+            if (!AgentResultDeltaMateriality.HasMaterialChanges(delta))
+                diff.AgentDeltas.RemoveAt(i);
+        }
 
         CompareInputFingerprintsNormalizer.NormalizeInPlace(diff.InputFingerprints);
     }
