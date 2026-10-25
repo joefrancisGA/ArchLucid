@@ -49,14 +49,14 @@ export function formatDecisionSnapshotFindingsLine(
   openCount: number,
   blockingCount: number,
   awaitingActionCount: number,
-  options?: { readonly findingsSnapshotCaptured?: boolean },
+  hasFindingsSnapshot: boolean = true,
 ): string {
   if (options?.findingsSnapshotCaptured === false) {
     return FINDINGS_SNAPSHOT_NOT_STORED_LINE;
   }
 
   if (openCount <= 0) {
-    return "None open";
+    return hasFindingsSnapshot ? "None open" : "Findings snapshot was not stored.";
   }
 
   const segments: string[] = [`${openCount} open`];

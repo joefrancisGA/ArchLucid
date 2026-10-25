@@ -6,7 +6,10 @@ import { usePilotRunDeltasQuery, resolvePilotRunDeltasQueryErrorMessage } from "
 import { downloadPilotFirstValueReportMarkdown } from "@/lib/api/pilots-collateral-download-api";
 import { OPERATOR_TYPOGRAPHY, operatorSemanticSurface } from "@/lib/design-tokens";
 import { resolveInAppDocHref } from "@/lib/in-app-doc-href";
-import { isAgentOutputPilotStrictSponsorSafe } from "@/lib/pilot-proof-readiness";
+import {
+  isAgentOutputPilotStrictSponsorSafe,
+  PILOT_STRICT_EVIDENCE_NOT_STORED_LABEL,
+} from "@/lib/pilot-proof-readiness";
 import { showError } from "@/lib/toast";
 import Link from "next/link";
 
@@ -52,6 +55,8 @@ export function RunDetailAiReadinessGateCard(props: { readonly runId: string; re
     );
   }
 
+  const strictEvidenceStored =
+    payload.proofPackageCompleteness?.agentOutputPilotStrictEvidenceSatisfied !== undefined;
   const pilotStrictOk = isAgentOutputPilotStrictSponsorSafe(payload);
   const roiSourceFreshness = (payload.roiSourceFreshnessDisposition ?? "").trim().toUpperCase();
   const freshnessHold = roiSourceFreshness === "HOLD";
@@ -81,7 +86,9 @@ export function RunDetailAiReadinessGateCard(props: { readonly runId: string; re
           ? "No strict AI quality trace or faithfulness failures are attested for this committed review on real-mode hosts."
           : freshnessHold || freshnessWarn
             ? `Server ROI source freshness is ${roiSourceFreshness}. Open the first-value report and observability summary before external PDF send.`
-            : "Strict AI quality signals failed or are unresolved. Open the first-value report and observability summary before external PDF send."}
+            : !strictEvidenceStored
+              ? `${PILOT_STRICT_EVIDENCE_NOT_STORED_LABEL} Open the first-value report before external PDF send.`
+              : "Strict AI quality signals failed or are unresolved. Open the first-value report and observability summary before external PDF send."}
         {llmResolved && typeof llmCalls === "number" ? (
           <>
             {" "}

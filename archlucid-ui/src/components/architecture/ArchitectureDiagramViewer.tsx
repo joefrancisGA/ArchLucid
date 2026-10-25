@@ -80,7 +80,10 @@ import {
   resolveMermaidViewportDefaultZoom,
   sanitizeMermaidRenderId,
 } from '@/lib/help/help-mermaid';
-import { applySecureNowQuestionSubjectHighlight } from '@/lib/architecture/architecture-diagram-question-subject';
+import {
+  applySecureNowQuestionSubjectHighlight,
+  ARCHITECTURE_DIAGRAM_QUESTION_SUBJECT_NOT_FOUND,
+} from '@/lib/architecture/architecture-diagram-question-subject';
 import { renderMermaidSvgMarkup } from '@/lib/mermaid/mermaid-safe-render';
 import { OPERATOR_TYPOGRAPHY } from '@/lib/design-tokens';
 import { useDocumentDarkMode } from '@/lib/use-document-dark-mode';
@@ -629,6 +632,7 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
       new URLSearchParams(typeof window === 'undefined' ? '' : window.location.search).get('diagFullscreen'),
     );
   const [svgMarkup, setSvgMarkup] = useState<string | null>(null);
+  const [questionSubjectNotOnDiagram, setQuestionSubjectNotOnDiagram] = useState(false);
   const [renderError, setRenderError] = useState<string | null>(null);
   const [clickFocus, setClickFocus] = useState<{
     id: string;
@@ -822,7 +826,8 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
       return;
     }
 
-    applySecureNowQuestionSubjectHighlight(svg, questionSubjectNodeId);
+    const subjectFound = applySecureNowQuestionSubjectHighlight(svg, questionSubjectNodeId);
+    setQuestionSubjectNotOnDiagram(!subjectFound);
   }, [questionSubjectNodeId, sanitizedSvg, focusNonce]);
 
   const syncInlineViewportCamera = useCallback((): boolean => {
@@ -1498,6 +1503,15 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
 
       {neighborhoodMap !== null && effectiveSurface === 'map' ? (
         <DiagramNeighborhoodMapView map={neighborhoodMap} onOpenNeighborhood={openNeighborhood} />
+      ) : null}
+
+      {questionSubjectNotOnDiagram ? (
+        <p
+          className={cn('mb-2 text-al-text-secondary', OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="architecture-diagram-question-subject-missing"
+        >
+          {ARCHITECTURE_DIAGRAM_QUESTION_SUBJECT_NOT_FOUND}
+        </p>
       ) : null}
 
       <ArchitectureDiagramMermaidViewportFrame

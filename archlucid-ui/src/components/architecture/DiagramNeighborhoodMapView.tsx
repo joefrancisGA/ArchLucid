@@ -3,7 +3,10 @@ import {
   type DiagramNeighborhood,
   type DiagramNeighborhoodMap,
 } from '@/lib/architecture/architecture-diagram-neighborhood-map';
-import { ARCHITECTURE_DIAGRAM_SUBSCRIPTION_MAP_LABEL } from '@/lib/architecture/architecture-diagram-copy';
+import {
+  ARCHITECTURE_DIAGRAM_NEIGHBORHOOD_MAP_LABEL,
+  ARCHITECTURE_DIAGRAM_SUBSCRIPTION_NAME_NOT_STORED_ON_MAP,
+} from '@/lib/architecture/architecture-diagram-copy';
 
 export type DiagramNeighborhoodMapViewProps = {
   readonly map: DiagramNeighborhoodMap;
@@ -80,7 +83,10 @@ export function DiagramNeighborhoodMapView(
   const sections = groupDiagramNeighborhoodSections(props.map.neighborhoods);
 
   return (
-    <section aria-label={ARCHITECTURE_DIAGRAM_SUBSCRIPTION_MAP_LABEL} className="space-y-4 p-1">
+    <section aria-label={ARCHITECTURE_DIAGRAM_NEIGHBORHOOD_MAP_LABEL} className="space-y-4 p-1">
+      <p className="m-0 text-[12px] text-slate-600 dark:text-slate-300">
+        {ARCHITECTURE_DIAGRAM_SUBSCRIPTION_NAME_NOT_STORED_ON_MAP}
+      </p>
       <p className="m-0 text-[12px] text-slate-600 dark:text-slate-300">
         These cards summarize neighborhoods. They do not list every resource. Relationship lines are on the full plate, not on the cards.
       </p>

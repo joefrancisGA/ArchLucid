@@ -1,5 +1,8 @@
 import { BUYER_SPONSOR_SUMMARY_VOCABULARY, BUYER_SURFACE_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 import { evidenceGraphHref } from "@/lib/evidence-graph-route";
+import { resolveQuickDecisionFindingInspectHref } from "@/lib/findings/finding-evidence-navigation";
+import { GOVERNANCE_DECISION_REGISTER_PATH } from "@/lib/governance/governance-route-paths";
+import { ARCHITECTURE_DECISION_LABEL } from "@/lib/usability/canonical-product-terms";
 import {
   getShowcaseCompareHref,
   getShowcaseSponsorHref,
@@ -81,4 +84,99 @@ export function buyerAskGroundingLinksForRun(runIdRaw: string): readonly BuyerAs
       href: getShowcaseCompareHref(),
     },
   ];
+}
+
+export type AskAnswerCitationRefs = {
+  readonly referencedFindings: readonly string[];
+  readonly referencedDecisions: readonly string[];
+  readonly referencedArtifacts: readonly string[];
+};
+
+/** Sources footer links for citation ids stored on a single assistant answer (not review navigation). */
+export function buildAskAnswerCitationSourceLinks(
+  runIdRaw: string,
+  refs: AskAnswerCitationRefs | null,
+): readonly BuyerAskGroundingLink[] {
+  const runId = canonicalizeDemoRunId(runIdRaw.trim());
+
+  if (runId.length === 0 || refs === null) {
+    return [];
+  }
+
+  const links: BuyerAskGroundingLink[] = [];
+
+  for (const findingId of refs.referencedFindings) {
+    const trimmed = findingId.trim();
+
+    if (trimmed.length === 0) {
+      continue;
+    }
+
+    links.push({
+      label: `Open ${BUYER_SURFACE_VOCABULARY.finding.toLowerCase()} ${trimmed}`,
+      href: resolveQuickDecisionFindingInspectHref(runId, trimmed),
+    });
+  }
+
+  for (const decisionId of refs.referencedDecisions) {
+    const trimmed = decisionId.trim();
+
+    if (trimmed.length === 0) {
+      continue;
+    }
+
+    links.push({
+      label: `Open ${ARCHITECTURE_DECISION_LABEL.toLowerCase()} ${trimmed}`,
+      href: GOVERNANCE_DECISION_REGISTER_PATH,
+    });
+  }
+
+  for (const artifactId of refs.referencedArtifacts) {
+    const trimmed = artifactId.trim();
+
+    if (trimmed.length === 0) {
+      continue;
+    }
+
+    if (trimmed.toLowerCase() === runId.toLowerCase()) {
+      links.push({
+        label: "Open review",
+        href: `/architecture/reviews/${encodeURIComponent(runId)}`,
+      });
+      continue;
+    }
+
+    links.push({
+      label: `${BUYER_SURFACE_VOCABULARY.evidenceGraph} (${trimmed})`,
+      href: evidenceGraphHref({ runId }),
+    });
+  }
+
+  return links;
+}
+
+export function collectCitedReviewIdsFromAskAnswerRefs(
+  runIdRaw: string,
+  refs: AskAnswerCitationRefs | null,
+): ReadonlySet<string> {
+  const cited = new Set<string>();
+  const runId = canonicalizeDemoRunId(runIdRaw.trim()).toLowerCase();
+
+  if (refs === null) {
+    return cited;
+  }
+
+  for (const artifactId of refs.referencedArtifacts) {
+    const trimmed = artifactId.trim().toLowerCase();
+
+    if (trimmed.length > 0) {
+      cited.add(trimmed);
+    }
+  }
+
+  if (runId.length > 0 && refs.referencedArtifacts.some((id) => id.trim().toLowerCase() === runId)) {
+    cited.add(runId);
+  }
+
+  return cited;
 }

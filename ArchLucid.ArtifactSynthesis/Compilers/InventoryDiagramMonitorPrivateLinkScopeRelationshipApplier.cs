@@ -7,7 +7,7 @@ namespace ArchLucid.ArtifactSynthesis.Compilers;
 /// <summary>Labels AMPLS scoped-resource relationships (NR-38).</summary>
 internal static class InventoryDiagramMonitorPrivateLinkScopeRelationshipApplier
 {
-    public const string Label = "Scopes monitoring for";
+    public const string Label = "Private link scope member in configuration.";
 
     public static void Apply(DiagramAst ast)
     {

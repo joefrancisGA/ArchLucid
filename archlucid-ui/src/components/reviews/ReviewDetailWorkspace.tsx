@@ -125,7 +125,7 @@ export function ReviewDetailWorkspace(props: ReviewDetailWorkspaceProps): React.
   if (tabs.presenterMode && isWorkingMode && props.suppressPresenterSurface !== true) {
     return (
       <ReviewPresenterSurface
-        title={presenterTitle}
+        title={props.presenterFindingTitle ?? "Review title was not stored."}
         body={presenterBody}
         actions={props.presenterFindingActions}
         onExit={presenter.exitPresenter}

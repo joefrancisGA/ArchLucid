@@ -8,7 +8,6 @@ import type { ArchitectureDraftRegistryEntry } from "@/lib/architecture/architec
 import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer/buyer-facing-review-title";
 import { buyerDemoPackageCardMeta } from "@/lib/buyer/buyer-demo-package-card-meta";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
-import { formatRecurrenceScheduleUtcLabel } from "@/lib/recurrence-schedule-utc-format";
 import type { ReplayValidationOutcome } from "@/lib/replay-validation-workflow";
 import { replayValidationOutcomeLabel } from "@/lib/replay-validation-workflow";
 
@@ -64,12 +63,14 @@ export function reviewPackageStatusLabel(run: RunSummary): string {
   return "In progress";
 }
 
+export const REVIEW_PACKAGE_FINALIZED_DATE_NOT_STORED = "Finalized date was not stored." as const;
+
 export function reviewPackageFinalizedDateLabel(run: RunSummary): string {
   if (run.hasGoldenManifest !== true) {
-    return "Not finalized";
+    return "";
   }
 
-  return formatRecurrenceScheduleUtcLabel(run.createdUtc);
+  return REVIEW_PACKAGE_FINALIZED_DATE_NOT_STORED;
 }
 
 export function lookupArchitectureDraftOwnerLabel(

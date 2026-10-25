@@ -264,7 +264,7 @@ public sealed class MarkdownArchitectureAnalysisExportServiceTests
         md.Should().Contain(ArchitectureEvidenceRequestExport.MissingEvidencePackageCopy);
         md.Should().Contain($"- Completed UTC: {ArchitectureEvidenceRequestExport.MissingCompletedTimeCopy}");
         md.Should().Contain("## Diagram");
-        md.Should().Contain(ArchitectureEvidenceRequestExport.DiagramNotStoredCopy);
+        md.Should().Contain(ConsultingDocxAppendixHonestyCopy.MermaidSourceNotStored);
         md.Should().Contain("## Architecture Summary");
         md.Should().Contain(ArchitectureEvidenceRequestExport.ArchitectureSummaryNotStoredCopy);
     }
@@ -326,6 +326,25 @@ public sealed class MarkdownArchitectureAnalysisExportServiceTests
         md.Should().Contain(ArchitectureEvidenceRequestExport.PolicySummaryNotStoredCopy);
         md.Should().Contain(ArchitectureEvidenceRequestExport.ServiceCatalogSummaryNotStoredCopy);
         md.Should().Contain(ArchitectureEvidenceRequestExport.PatternSummaryNotStoredCopy);
+    }
+
+    [Fact]
+    public void GenerateMarkdown_labels_missing_manifest_with_committed_manifest_honesty()
+    {
+        ArchitectureAnalysisReport report = new()
+        {
+            Run = new ArchitectureRun
+            {
+                RunId = "a1b2c3d4e5f678901234567890abcd",
+                RequestId = "req-1",
+                Status = ArchitectureRunStatus.Committed,
+            },
+        };
+
+        string md = _sut.GenerateMarkdown(report);
+
+        md.Should().Contain("## Architecture Manifest");
+        md.Should().Contain(ConsultingDocxExportHonestyCopy.CommittedManifestNotStored);
     }
 
     [Fact]

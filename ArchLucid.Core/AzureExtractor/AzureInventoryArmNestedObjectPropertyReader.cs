@@ -43,6 +43,90 @@ public static class AzureInventoryArmNestedObjectPropertyReader
             return null;
         }
 
-        return value.ValueKind is JsonValueKind.String ? value.GetString() : value.GetRawText().Trim('"');
+        return TryReadScalarString(value);
+    }
+
+    public static string? TryReadScalarString(JsonElement value)
+    {
+        if (value.ValueKind is JsonValueKind.String)
+        {
+            string? text = value.GetString();
+
+            if (string.IsNullOrWhiteSpace(text))
+            {
+                return null;
+            }
+
+            string trimmed = text.Trim();
+
+            if (trimmed.StartsWith("{", StringComparison.Ordinal))
+            {
+                return TryResolveArmReferenceScalar(trimmed);
+            }
+
+            return text;
+        }
+
+        if (value.ValueKind is JsonValueKind.Object)
+        {
+            return TryReadArmIdFromReferenceObject(value);
+        }
+
+        return value.GetRawText().Trim('"');
+    }
+
+    private static string? TryResolveArmReferenceScalar(string? text)
+    {
+        if (string.IsNullOrWhiteSpace(text))
+        {
+            return null;
+        }
+
+        string trimmed = text.Trim();
+
+        if (!trimmed.StartsWith("{", StringComparison.Ordinal))
+        {
+            return null;
+        }
+
+        try
+        {
+            using JsonDocument document = JsonDocument.Parse(trimmed);
+            JsonElement root = document.RootElement;
+
+            if (root.ValueKind is JsonValueKind.Object)
+            {
+                return TryReadArmIdFromReferenceObject(root);
+            }
+        }
+        catch (JsonException)
+        {
+        }
+
+        return null;
+    }
+
+    private static string? TryReadArmIdFromReferenceObject(JsonElement referenceObject)
+    {
+        foreach (JsonProperty property in referenceObject.EnumerateObject())
+        {
+            if (!property.Name.Equals("id", StringComparison.OrdinalIgnoreCase)
+                || property.Value.ValueKind is not JsonValueKind.String)
+            {
+                continue;
+            }
+
+            string? armId = property.Value.GetString();
+
+            if (string.IsNullOrWhiteSpace(armId)
+                || !armId.Contains("/subscriptions/", StringComparison.OrdinalIgnoreCase))
+            {
+                return null;
+            }
+
+            return armId.Trim();
+        }
+
+        return null;
     }
 }
