@@ -48,6 +48,13 @@ internal static class CompareVerdictChromeDeltaNormalizer
         gate.BaselineGateLabel = NormalizeGateLabelOrDefault(gate.BaselineGateLabel);
         gate.TargetGateLabel = NormalizeGateLabelOrDefault(gate.TargetGateLabel);
         gate.Changed = !string.Equals(gate.BaselineGateLabel, gate.TargetGateLabel, StringComparison.Ordinal);
+
+        if (!gate.Changed
+            && gate.BaselineGateLabel == GatePendingLabel
+            && gate.TargetGateLabel == GatePendingLabel)
+        {
+            delta.GateOutcome = null;
+        }
     }
 
     private static void NormalizePackAssignmentInPlace(CompareVerdictChromeDelta delta)
@@ -83,6 +90,13 @@ internal static class CompareVerdictChromeDeltaNormalizer
 
         if (!mode.Changed)
             mode.AdvisoryParagraph = null;
+
+        if (!mode.Changed
+            && mode.BaselineModeLabel.Length == 0
+            && mode.TargetModeLabel.Length == 0)
+        {
+            delta.ExecutionMode = null;
+        }
     }
 
     private static string NormalizeGateLabelOrDefault(string value)

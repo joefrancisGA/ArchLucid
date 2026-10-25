@@ -211,8 +211,8 @@ public sealed class EndToEndReplayComparisonReportNormalizerTests
             {
                 GateOutcome = new CompareVerdictChromeGateOutcomeDelta
                 {
-                    BaselineGateLabel = "Gate pending",
-                    TargetGateLabel = "  Gate pending  ",
+                    BaselineGateLabel = "Soft infeasible",
+                    TargetGateLabel = "  Soft infeasible  ",
                     Changed = true,
                 },
                 ExecutionMode = new CompareVerdictChromeExecutionModeDelta
@@ -228,6 +228,7 @@ public sealed class EndToEndReplayComparisonReportNormalizerTests
         EndToEndReplayComparisonReportNormalizer.NormalizePersistedPayload(report);
 
         report.CompareVerdictChromeDelta!.GateOutcome!.Changed.Should().BeFalse();
+        report.CompareVerdictChromeDelta.GateOutcome.TargetGateLabel.Should().Be("Soft infeasible");
         report.CompareVerdictChromeDelta.ExecutionMode!.Changed.Should().BeFalse();
         report.CompareVerdictChromeDelta.ExecutionMode.AdvisoryParagraph.Should().BeNull();
     }
@@ -260,6 +261,53 @@ public sealed class EndToEndReplayComparisonReportNormalizerTests
 
         report.CompareVerdictChromeDelta!.PackAssignment.Should().BeNull();
         report.CompareVerdictChromeDelta.GateOutcome.Should().NotBeNull();
+    }
+
+    [Fact]
+    public void CompareQuality_EndToEndReplayComparisonReportNormalizer_nulls_unchanged_gate_pending_outcome_shell()
+    {
+        EndToEndReplayComparisonReport report = new()
+        {
+            LeftRunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            RightRunId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            CompareVerdictChromeDelta = new CompareVerdictChromeDelta
+            {
+                GateOutcome = new CompareVerdictChromeGateOutcomeDelta
+                {
+                    BaselineGateLabel = "   ",
+                    TargetGateLabel = "\t",
+                    Changed = true,
+                },
+            },
+        };
+
+        EndToEndReplayComparisonReportNormalizer.NormalizePersistedPayload(report);
+
+        report.CompareVerdictChromeDelta.Should().BeNull();
+    }
+
+    [Fact]
+    public void CompareQuality_EndToEndReplayComparisonReportNormalizer_nulls_unchanged_empty_execution_mode_shell()
+    {
+        EndToEndReplayComparisonReport report = new()
+        {
+            LeftRunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            RightRunId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            CompareVerdictChromeDelta = new CompareVerdictChromeDelta
+            {
+                ExecutionMode = new CompareVerdictChromeExecutionModeDelta
+                {
+                    BaselineModeLabel = "   ",
+                    TargetModeLabel = "\t",
+                    Changed = true,
+                    AdvisoryParagraph = "stale advisory",
+                },
+            },
+        };
+
+        EndToEndReplayComparisonReportNormalizer.NormalizePersistedPayload(report);
+
+        report.CompareVerdictChromeDelta.Should().BeNull();
     }
 
     [Fact]
