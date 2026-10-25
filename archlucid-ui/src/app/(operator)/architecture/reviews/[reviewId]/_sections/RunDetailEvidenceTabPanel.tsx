@@ -35,6 +35,7 @@ type RunDetailEvidenceTabPanelProps = {
   readonly linkedFindingCount: number;
   readonly openFindingCount: number;
   readonly items: readonly RunDetailEvidenceInventoryItem[];
+  readonly findingsCiteEvidenceWithoutSourceNames?: boolean;
   readonly runId: string;
   readonly manifestId: string | null | undefined;
   readonly buyerPolished: boolean;
@@ -60,6 +61,7 @@ export function RunDetailEvidenceTabPanel(props: RunDetailEvidenceTabPanelProps)
   const scopeReadiness = deriveEvidenceScopeReadiness({
     inventoryCount,
     trustReadiness,
+    findingsCiteEvidenceWithoutSourceNames: props.findingsCiteEvidenceWithoutSourceNames === true,
   });
   const evidenceCoverageLine = deriveEvidenceScopeCoverageLine({
     inventoryCount,

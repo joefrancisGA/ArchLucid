@@ -1,5 +1,5 @@
 /** Shown when an action attribution field has no recorded user name. */
-export const ACTION_ACTOR_UNAVAILABLE = "N/A";
+export const ACTION_ACTOR_UNAVAILABLE = "Actor was not stored.";
 
 type MeClaim = { readonly type: string; readonly value: string };
 

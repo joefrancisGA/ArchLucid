@@ -74,7 +74,7 @@ describe("graphBuyerTrailMetadataLines", () => {
       referenced: REGISTERED_HERO_FINDING_ID,
     });
 
-    expect(summaryLines.length).toBeGreaterThan(0);
+    expect(summaryLines).toEqual([]);
     expect(technicalLines).toEqual([
       { label: "Reference ID", value: REGISTERED_HERO_FINDING_ID },
       { label: "Raw reference (referenced)", value: REGISTERED_HERO_FINDING_ID },
@@ -111,11 +111,7 @@ describe("graphBuyerTrailMetadataLines", () => {
       monitoringCadence: "Stored cadence",
     });
 
-    expect(missing.summaryLines).toContainEqual({ label: "Risk area", value: "Risk area was not stored." });
-    expect(missing.summaryLines).toContainEqual({
-      label: "Monitoring cadence",
-      value: "Monitoring cadence was not stored.",
-    });
+    expect(missing.summaryLines).toEqual([]);
     expect(empty.summaryLines).toContainEqual({ label: "Risk area", value: "" });
     expect(empty.summaryLines).toContainEqual({ label: "Monitoring cadence", value: "" });
     expect(stored.summaryLines).toContainEqual({ label: "Risk area", value: "Stored risk" });

@@ -6,7 +6,7 @@ export function buildDiagramWalkthrough(outline: InfraEvidenceMermaidOutline): s
   const edgeCount = outline.edges.length;
   const componentCount = countDiagramOutlineComponents(outline, { includeTrivial: true });
 
-  const componentLabel = componentCount === 1 ? "component" : "components";
+  const groupLabel = componentCount === 1 ? "group" : "groups";
   const sourceCounts = [
     { source: "observed", count: outline.edges.filter((edge) => edge.source === "observed").length },
     { source: "declared", count: outline.edges.filter((edge) => edge.source === "declared").length },
@@ -20,11 +20,11 @@ export function buildDiagramWalkthrough(outline: InfraEvidenceMermaidOutline): s
   const notObservedSentence = outline.edges.some(
     (edge) => edge.source === "declared" || edge.source === "probable" || edge.source === "inferred",
   )
-    ? " Relationships that are not observed are not inventory links."
+    ? " Declared, probable, and inferred relationships are on this inventory diagram. They are not observed Azure connections."
     : "";
   const relationshipSummary = relationshipSourceSummary.length > 0
     ? ` ${edgeCount} relationships (${relationshipSourceSummary}).`
     : ` ${edgeCount} relationships.`;
 
-  return `${nodeCount} resources in ${componentCount} connected ${componentLabel}.${relationshipSummary}${notObservedSentence}`;
+  return `${nodeCount} resources in ${componentCount} ${groupLabel}. A group can be one resource with no relationship on this diagram.${relationshipSummary}${notObservedSentence}`;
 }

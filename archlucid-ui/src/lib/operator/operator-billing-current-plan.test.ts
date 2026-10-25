@@ -34,6 +34,33 @@ describe("resolveOperatorBillingCurrentPlan", () => {
     expect(view.supportingLine).toContain("12 days remaining");
   });
 
+  it("falls back when trial days remaining is non-finite", () => {
+    const view = resolveOperatorBillingCurrentPlan({
+      isDemoMode: false,
+      isFrictionlessTrial: false,
+      trialStatus: "Active",
+      trialDaysRemaining: Number.POSITIVE_INFINITY,
+      workspaceLabel: null,
+      aiBudgetRemainingPercent: null,
+    });
+
+    expect(view.planKind).toBe("tenant-trial");
+    expect(view.supportingLine).toBe("Trial is active. No paid plan is selected yet.");
+  });
+
+  it("truncates fractional trial days remaining for display", () => {
+    const view = resolveOperatorBillingCurrentPlan({
+      isDemoMode: false,
+      isFrictionlessTrial: false,
+      trialStatus: "Active",
+      trialDaysRemaining: 12.9,
+      workspaceLabel: null,
+      aiBudgetRemainingPercent: null,
+    });
+
+    expect(view.supportingLine).toContain("12 days remaining");
+  });
+
   it("returns no paid plan copy when no trial or demo applies", () => {
     const view = resolveOperatorBillingCurrentPlan({
       isDemoMode: false,
@@ -48,6 +75,22 @@ describe("resolveOperatorBillingCurrentPlan", () => {
     expect(view.supportingLine).toContain("No paid plan is active");
     expect(view.supportingLine).not.toContain("below");
     expect(view.hasPaidPlan).toBe(false);
+  });
+
+  it("omits non-finite ai budget remaining percent from the plan view", () => {
+    const view = resolveOperatorBillingCurrentPlan({
+      isDemoMode: false,
+      isFrictionlessTrial: false,
+      trialStatus: "None",
+      trialDaysRemaining: null,
+      workspaceLabel: "Acme",
+      aiBudgetRemainingPercent: Number.NaN,
+      isTrialUsage: false,
+      commercialTier: "Team",
+    });
+
+    expect(view.planKind).toBe("paid-plan");
+    expect(view.aiBudgetRemainingPercent).toBeNull();
   });
 
   it("returns paid plan when usage reports a commercial tier off trial", () => {

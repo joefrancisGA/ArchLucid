@@ -14,6 +14,7 @@ import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
 import { clarificationGapImpactCopy } from "@/lib/architecture/architecture-clarification-gap-present";
+import type { ArchitectureMissingItem } from "@/lib/architecture/architecture-created-home-model";
 import { buildArchitectureCorrectionHref } from "@/lib/architecture/architecture-correction-href";
 import { parseArchitectureGeneratedContent } from "@/lib/architecture/architecture-generated-content-parser";
 import type { ArchitectureCreatedHomeModel } from "@/lib/architecture/architecture-created-home-model";
@@ -31,6 +32,7 @@ import type {
   ReviewClarificationDelta,
   ReviewClarificationQuestion,
 } from "@/lib/review-clarification-questions-types";
+import { describeClarificationQuestionsLoadState } from "@/lib/reviews/review-clarification-questions-honesty";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type ArchitectureCreatedClarificationsPanelProps = {
@@ -49,6 +51,26 @@ export type ArchitectureCreatedClarificationsPanelProps = {
   readonly clarificationQuestionsBlockedReason?: string | null;
   readonly priorRunId?: string;
 };
+
+const FINDINGS_DERIVED_GAP_SOURCE_LABEL = "From assessment findings";
+
+function partitionClarificationGapsBySource(items: readonly ArchitectureMissingItem[]): {
+  readonly fromBrief: readonly ArchitectureMissingItem[];
+  readonly fromFindings: readonly ArchitectureMissingItem[];
+} {
+  const fromBrief: ArchitectureMissingItem[] = [];
+  const fromFindings: ArchitectureMissingItem[] = [];
+
+  for (const item of items) {
+    if (item.source.label === FINDINGS_DERIVED_GAP_SOURCE_LABEL) {
+      fromFindings.push(item);
+    } else {
+      fromBrief.push(item);
+    }
+  }
+
+  return { fromBrief, fromFindings };
+}
 
 function hasOpenQuestionEntities(
   section: ReturnType<typeof parseArchitectureGeneratedContent>["sections"][number] | undefined,
@@ -104,15 +126,23 @@ export function ArchitectureCreatedClarificationsPanel(
   const visibleClarificationGaps = props.model.clarificationGaps.filter(
     (item) => !props.dismissedClarificationGapIds.has(item.id),
   );
+  const partitionedClarificationGaps = partitionClarificationGapsBySource(visibleClarificationGaps);
   const hasVisibleWorkQueue =
     visibleClarificationGaps.length > 0 ||
     props.model.evidenceGaps.length > 0 ||
     props.model.assessmentItems.length > 0;
   const hasOpenQuestions = hasOpenQuestionEntities(openQuestions);
-  const preferModelInterviewQuestions = (props.clarificationQuestions ?? []).length > 0;
+  const clarificationQuestionsLoadState = describeClarificationQuestionsLoadState(props.clarificationQuestions);
+  const preferModelInterviewQuestions =
+    props.clarificationQuestions !== undefined && props.clarificationQuestions.length > 0;
   const showIntakeOpenQuestions = hasOpenQuestions && !preferModelInterviewQuestions;
+  const clarificationBlockedReason = props.clarificationQuestionsBlockedReason?.trim() ?? "";
+  const hasClarificationBlockedReason = clarificationBlockedReason.length > 0;
   const isZeroGapSuccess =
-    !parseResult.hasPartialParseFailure && !hasVisibleWorkQueue && !showIntakeOpenQuestions;
+    !hasClarificationBlockedReason
+    && !parseResult.hasPartialParseFailure
+    && !hasVisibleWorkQueue
+    && !showIntakeOpenQuestions;
   const reviewDiagramVariant = props.pagePrimaryOwnedElsewhere === true ? "outline" : "primary";
   const deltaPresentation = buildReviewClarificationDeltaPresentation(props.clarificationDelta);
   const clarificationQuestions = props.clarificationQuestions ?? [];
@@ -171,6 +201,16 @@ export function ArchitectureCreatedClarificationsPanel(
   return (
     <div className="space-y-5" data-testid="architecture-workspace-clarifications-panel">
       <h2 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>Clarifications</h2>
+
+      {clarificationQuestionsLoadState !== null ? (
+        <p
+          className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="architecture-clarifications-questions-load-state"
+          role="status"
+        >
+          {clarificationQuestionsLoadState}
+        </p>
+      ) : null}
 
       {props.clarificationQuestionsBlockedReason !== null
       && props.clarificationQuestionsBlockedReason !== undefined
@@ -244,16 +284,40 @@ export function ArchitectureCreatedClarificationsPanel(
         </div>
       ) : hasVisibleWorkQueue ? (
         <div className="space-y-4">
-          {visibleClarificationGaps.length > 0 ? (
-            <section className="space-y-2" aria-labelledby="architecture-open-clarifications-heading">
+          {partitionedClarificationGaps.fromBrief.length > 0 ? (
+            <section className="space-y-2" aria-labelledby="architecture-open-clarifications-brief-heading">
               <h3
-                id="architecture-open-clarifications-heading"
+                id="architecture-open-clarifications-brief-heading"
                 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}
               >
-                Open clarifications
+                Open clarifications from your brief
               </h3>
               <ul className="m-0 list-none space-y-2 p-0">
-                {visibleClarificationGaps.map((item) => (
+                {partitionedClarificationGaps.fromBrief.map((item) => (
+                  <li key={item.id}>
+                    <ClarificationGapRow
+                      item={item}
+                      impact={clarificationGapImpactCopy(item)}
+                      answerHref={continueClarifyingHref}
+                      onNavigateTab={props.onNavigateTab}
+                      onDismiss={props.onDismissClarificationGap}
+                    />
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ) : null}
+
+          {partitionedClarificationGaps.fromFindings.length > 0 ? (
+            <section className="space-y-2" aria-labelledby="architecture-open-clarifications-findings-heading">
+              <h3
+                id="architecture-open-clarifications-findings-heading"
+                className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}
+              >
+                Open clarifications from assessment findings
+              </h3>
+              <ul className="m-0 list-none space-y-2 p-0">
+                {partitionedClarificationGaps.fromFindings.map((item) => (
                   <li key={item.id}>
                     <ClarificationGapRow
                       item={item}

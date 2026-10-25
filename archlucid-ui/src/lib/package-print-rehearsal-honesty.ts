@@ -18,6 +18,9 @@ export const PACKAGE_PRINT_REHEARSAL_CAREER_DOOR_BODY =
 export const PACKAGE_PRINT_REHEARSAL_DOOR_BODY =
   "This print summary was produced under the Working Practice review type with Simulator or Fallback execution. Practice output is labeled dry-run — not production customer evidence.";
 
+export const PACKAGE_PRINT_REHEARSAL_REVIEW_TYPE_NOT_STORED_BODY =
+  "This print summary was produced under Simulator or Fallback execution. Review type was not stored.";
+
 export type PackagePrintRehearsalHonestyStrip = {
   readonly title: string;
   readonly body: string;
@@ -52,11 +55,14 @@ export function resolvePackagePrintRehearsalHonestyStrip(input: {
     return null;
   }
 
-  const effectiveDoor = input.effectiveWorkingCareerRehearsalDoor ?? DEFAULT_WORKING_CAREER_REHEARSAL_DOOR;
+  const door = input.effectiveWorkingCareerRehearsalDoor;
+  const effectiveDoor = door ?? DEFAULT_WORKING_CAREER_REHEARSAL_DOOR;
   const body =
-    effectiveDoor === "rehearsal"
-      ? PACKAGE_PRINT_REHEARSAL_DOOR_BODY
-      : PACKAGE_PRINT_REHEARSAL_CAREER_DOOR_BODY;
+    door === null
+      ? PACKAGE_PRINT_REHEARSAL_REVIEW_TYPE_NOT_STORED_BODY
+      : effectiveDoor === "rehearsal"
+        ? PACKAGE_PRINT_REHEARSAL_DOOR_BODY
+        : PACKAGE_PRINT_REHEARSAL_CAREER_DOOR_BODY;
 
   return {
     title: PACKAGE_PRINT_REHEARSAL_STRIP_TITLE,

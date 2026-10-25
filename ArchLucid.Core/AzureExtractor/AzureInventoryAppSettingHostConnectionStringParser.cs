@@ -174,6 +174,8 @@ public static partial class AzureInventoryAppSettingHostConnectionStringParser
     [GeneratedRegex(@"https?://(?<host>[^/\s;]+\.documents\.azure\.com)", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)]
     private static partial Regex CosmosDocumentsHostRegex();
 
-    [GeneratedRegex(@"(?<host>[^,;\s]+\.redis\.cache\.windows\.net)", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)]
+    [GeneratedRegex(
+        @"(?<host>[^,;\s]+\.(?:redis\.cache\.windows\.net|redis\.azure\.net))",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)]
     private static partial Regex RedisCacheHostRegex();
 }

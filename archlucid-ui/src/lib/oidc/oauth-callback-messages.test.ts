@@ -222,11 +222,18 @@ describe("decodeOAuthErrorDescription", () => {
 
   it("preserves literal plus in authorize error descriptions when emoji ZWJ sequences are present", () => {
     expect(decodeOAuthErrorDescription("👨\u200d👩\u200d👧+extra")).toBe("👨\u200d👩\u200d👧+extra");
+    expect(decodeOAuthErrorDescription("👨\u200d👩\u200d👧%2Bextra")).toBe("👨\u200d👩\u200d👧+extra");
+    expect(decodeOAuthErrorDescription("👨\u200d👩\u200d👧%252Bextra")).toBe("👨\u200d👩\u200d👧+extra");
   });
 
   it("preserves literal plus in authorize error descriptions when regional-indicator flag emoji is present", () => {
     expect(decodeOAuthErrorDescription("🇺🇸+extra")).toBe("🇺🇸+extra");
     expect(decodeOAuthErrorDescription("🇺🇸%2Bextra")).toBe("🇺🇸+extra");
+  });
+
+  it("preserves literal plus in authorize error descriptions when skin-tone emoji modifiers are present", () => {
+    expect(decodeOAuthErrorDescription("👍🏻+extra")).toBe("👍🏻+extra");
+    expect(decodeOAuthErrorDescription("👋🏽+denied")).toBe("👋🏽+denied");
   });
 
   it("preserves literal plus in authorize error descriptions when skin-tone emoji modifiers are present", () => {
@@ -1000,6 +1007,20 @@ describe("humanizeAuthorizeCallbackError", () => {
     expect(message).not.toContain("Policy");
   });
 
+  it("uses readable default copy for authorization_pending authorize-query errors", () => {
+    const message = humanizeAuthorizeCallbackError("authorization_pending", "");
+
+    expect(message).toContain("authorization pending");
+    expect(message).toContain("Sign-in did not finish");
+  });
+
+  it("uses readable default copy for slow_down authorize-query errors", () => {
+    const message = humanizeAuthorizeCallbackError("slow_down", "");
+
+    expect(message).toContain("slow down");
+    expect(message).toContain("Sign-in did not finish");
+  });
+
   it("uses fixed copy for login_required regardless of oversized error_description", () => {
     const oversized = `${"Policy ".repeat(80)}end`;
     const message = humanizeAuthorizeCallbackError("login_required", oversized);
@@ -1037,6 +1058,13 @@ describe("humanizeAuthorizeCallbackError", () => {
 
     expect(message).toBe("This sign-in request was not valid. Try signing in again.");
     expect(message).not.toContain("+++");
+  });
+
+  it("uses fixed copy for unauthorized_client authorize-query errors", () => {
+    const message = humanizeAuthorizeCallbackError("unauthorized_client", "");
+
+    expect(message).toContain("not enabled");
+    expect(message).not.toContain("unauthorized_client");
   });
 
   it("uses fixed copy for unauthorized_client regardless of oversized error_description", () => {

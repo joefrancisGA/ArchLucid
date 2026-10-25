@@ -6,6 +6,12 @@ import {
   hasHardInfeasibleCitation,
   resolveHardInfeasibleCitationExportBlockedReason,
 } from "@/lib/feasibility/feasibility-verdict-citation";
+import {
+  formatFeasibilityConfidenceBand,
+  formatFeasibilityCostOfBeingWrong,
+  formatFeasibilityEnvelopeDescription,
+  formatFeasibilitySoftAssumption,
+} from "@/lib/feasibility/format-feasibility-soft-envelope-display";
 import { resolveFeasibilityVerdictForDisplay } from "@/lib/feasibility/resolve-feasibility-verdict-for-display";
 
 export {
@@ -82,27 +88,13 @@ function formatSoftEnvelopeLines(verdict: ManifestFeasibilityVerdict): string[] 
 
   lines.push(SOFT_INFEASIBLE_ENVELOPE_EXPORT_LEAD);
   lines.push("");
-  lines.push(`- **Confidence band:** ${envelope.confidenceLow}–${envelope.confidenceHigh}`);
   lines.push(
-    `- **Envelope:** ${
-      envelope.envelopeDescription === null || envelope.envelopeDescription === undefined
-        ? "Envelope description was not stored."
-        : envelope.envelopeDescription
-    }`,
+    `- **Confidence band:** ${formatFeasibilityConfidenceBand(envelope.confidenceLow, envelope.confidenceHigh)}`,
   );
-  lines.push(
-    `- **Soft assumption:** ${
-      envelope.softAssumption === null || envelope.softAssumption === undefined
-        ? "Soft assumption was not stored."
-        : envelope.softAssumption
-    }`,
-  );
+  lines.push(`- **Envelope:** ${formatFeasibilityEnvelopeDescription(envelope.envelopeDescription)}`);
+  lines.push(`- **Soft assumption:** ${formatFeasibilitySoftAssumption(envelope.softAssumption)}`);
 
-  if (envelope.costOfBeingWrong === null || envelope.costOfBeingWrong === undefined) {
-    lines.push("- Cost of being wrong was not stored.");
-  } else if (envelope.costOfBeingWrong.trim().length > 0) {
-    lines.push(`- **Cost of being wrong:** ${envelope.costOfBeingWrong}`);
-  }
+  lines.push(`- **Cost of being wrong:** ${formatFeasibilityCostOfBeingWrong(envelope.costOfBeingWrong)}`);
 
   lines.push("");
 

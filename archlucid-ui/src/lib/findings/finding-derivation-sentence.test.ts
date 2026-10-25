@@ -3,7 +3,10 @@ import { describe, expect, it } from "vitest";
 import {
   buildFindingDerivationSentence,
   FINDING_DERIVATION_ASSEMBLED_RULE_ONLY_PREFIX,
+  FINDING_DERIVATION_EVIDENCE_REF_COUNT_NOT_STORED,
   FINDING_DERIVATION_NOT_AVAILABLE,
+  FINDING_DERIVATION_NOT_STORED,
+  FINDING_DERIVATION_STORED_EMPTY,
   findingDerivationFromGovernanceQueueRow,
   findingDerivationFromQuickDecisionFinding,
 } from "@/lib/findings/finding-derivation-sentence";
@@ -77,10 +80,20 @@ describe("finding-derivation-sentence (TB-2154)", () => {
     expect(result.sentence).toContain("High severity finding");
   });
 
-  it("labels category-only rows without quoting the category as a rule (P-07)", () => {
+  it("labels omitted evidence ref count when rule fields are present", () => {
     const result = buildFindingDerivationSentence({
       categoryLabel: "Security",
       severityLabel: "High",
+    });
+
+    expect(result.sentence).toBe(FINDING_DERIVATION_EVIDENCE_REF_COUNT_NOT_STORED);
+  });
+
+  it("labels category-only rows without quoting the category as a rule when ref count is stored", () => {
+    const result = buildFindingDerivationSentence({
+      categoryLabel: "Security",
+      severityLabel: "High",
+      evidenceRefCount: 0,
     });
 
     expect(result.sentence).toContain("Policy area Security. Rule name was not stored.");
@@ -113,7 +126,12 @@ describe("finding-derivation-sentence (TB-2154)", () => {
   });
 
   it("returns honest unavailable copy when synthesis inputs are missing", () => {
-    expect(buildFindingDerivationSentence({}).sentence).toBe(FINDING_DERIVATION_NOT_AVAILABLE);
+    expect(buildFindingDerivationSentence({}).sentence).toBe(FINDING_DERIVATION_NOT_STORED);
+  });
+
+  it("labels absent reasoning as not stored and blank reasoning as stored empty (P-08)", () => {
+    expect(buildFindingDerivationSentence({ reasoningSummary: null }).sentence).toBe(FINDING_DERIVATION_NOT_STORED);
+    expect(buildFindingDerivationSentence({ reasoningSummary: "   " }).sentence).toBe(FINDING_DERIVATION_STORED_EMPTY);
   });
 
   it("derives from quick-decision finding wire JSON", () => {
