@@ -1,6 +1,7 @@
 import type { RunsDashboardTabId } from "@/components/operator-home/runs-dashboard-load-phase";
 import {
   deriveRunsDashboardTabCounts,
+  normalizeOperatorHomeNonNegativeCount,
   type RunsDashboardTabCounts,
 } from "@/lib/operator/run-home-status";
 import { formatOperatorHomeGovernanceApprovalWarningCount } from "@/lib/operator/operator-home-governance-approval-warning-copy";
@@ -9,6 +10,7 @@ import { OPERATOR_HOME_SEALED_REVIEW_RECORD_NOUN } from "@/lib/metric-count-pres
 import { isDemoSeededOverviewInjectedRun } from "@/lib/demo-seeded-overview";
 import { isShowcaseSampleOfAnyKind } from "@/lib/demo-run-canonical";
 import type { OperatorHomeWorkspaceMetricsSnapshot } from "@/lib/operator/operator-home-workspace-metrics";
+import { buildTrimmedRunIdSet } from "@/lib/operator/home-attention-dedup";
 import type { RunSummary } from "@/types/authority";
 
 export type FormatOperatorHomeRecentReviewsOutcomeOptions = {
@@ -61,7 +63,7 @@ export function formatOperatorHomeRecentReviewsOutcome(
     parts.push(`with ${formatOperatorHomeGovernanceApprovalWarningCount(metrics.governanceWarnings)}`);
   }
 
-  const awaitingApprovalCount = options?.awaitingApprovalCount ?? 0;
+  const awaitingApprovalCount = normalizeOperatorHomeNonNegativeCount(options?.awaitingApprovalCount);
 
   if (awaitingApprovalCount > 0 && options?.suppressAwaitingApprovalCount !== true) {
     parts.push(
@@ -155,7 +157,7 @@ export function buildOperatorHomeRecentReviewsOutcomeParts(
     });
   }
 
-  const awaitingApprovalCount = options?.awaitingApprovalCount ?? 0;
+  const awaitingApprovalCount = normalizeOperatorHomeNonNegativeCount(options?.awaitingApprovalCount);
 
   if (awaitingApprovalCount > 0 && options?.suppressAwaitingApprovalCount !== true) {
     parts.push({
@@ -232,7 +234,7 @@ function countAwaitingApprovalPreviewRuns(
     return 0;
   }
 
-  const awaitingIds = new Set(awaitingApprovalRunIds);
+  const awaitingIds = buildTrimmedRunIdSet(awaitingApprovalRunIds);
 
   return items.filter((run) => {
     const runId = run.runId?.trim() ?? "";
@@ -247,14 +249,15 @@ function countAwaitingApprovalPreviewRuns(
  */
 export function deriveHomePreviewTabCounts(input: DeriveHomePreviewTabCountsInput): HomePreviewTabCounts {
   const activePreviewItems = input.previewItems.filter((run) => run.isArchived !== true);
+  const excludeShowcaseRunId = input.excludeShowcaseRunId?.trim() ?? "";
   const listItems =
-    input.excludeShowcaseRunId !== undefined
-      ? activePreviewItems.filter((run) => run.runId !== input.excludeShowcaseRunId)
+    excludeShowcaseRunId.length > 0
+      ? activePreviewItems.filter((run) => (run.runId?.trim() ?? "") !== excludeShowcaseRunId)
       : activePreviewItems;
   const baseCounts = deriveRunsDashboardTabCounts(listItems);
   const awaitingApprovalRunIds = input.awaitingApprovalRunIds;
   const previewAwaitingApproval = countAwaitingApprovalPreviewRuns(listItems, awaitingApprovalRunIds);
-  const workspaceAwaitingApproval = input.awaitingApprovalCount ?? 0;
+  const workspaceAwaitingApproval = normalizeOperatorHomeNonNegativeCount(input.awaitingApprovalCount);
 
   let awaitingApproval = previewAwaitingApproval;
 
