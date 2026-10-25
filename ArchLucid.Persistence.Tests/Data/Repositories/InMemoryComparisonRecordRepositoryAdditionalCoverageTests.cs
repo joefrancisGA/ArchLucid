@@ -43,6 +43,37 @@ public sealed class InMemoryComparisonRecordRepositoryAdditionalCoverageTests
     }
 
     [SkippableFact]
+    public async Task SearchAsync_finds_row_when_stored_left_run_id_uses_dashed_guid_and_filter_uses_n_format()
+    {
+        Guid runKey = Guid.Parse("66666666-6666-6666-6666-666666666666");
+        string canonicalRunId = runKey.ToString("N");
+
+        InMemoryComparisonRecordRepository sut = new();
+        await sut.CreateAsync(
+            Row("cmp-search-dashed-stored", TimeProvider.System.UtcNowDateTime(), leftRun: runKey.ToString("D")),
+            CancellationToken.None);
+
+        IReadOnlyList<ComparisonRecord> page = await sut.SearchAsync(
+            null,
+            canonicalRunId,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            0,
+            10,
+            CancellationToken.None);
+
+        page.Should().ContainSingle(r => r.ComparisonRecordId == "cmp-search-dashed-stored");
+        page[0].LeftRunId.Should().Be(canonicalRunId);
+    }
+
+    [SkippableFact]
     public async Task SearchAsync_sorts_by_label_ascending()
     {
         InMemoryComparisonRecordRepository sut = new();

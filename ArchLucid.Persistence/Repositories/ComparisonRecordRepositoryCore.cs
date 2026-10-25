@@ -70,7 +70,7 @@ internal static class ComparisonRecordRepositoryCore
             if (normalizedLeftRunId is not null)
             {
                 query = query.Where(r =>
-                    string.Equals(r.LeftRunId, normalizedLeftRunId, StringComparison.Ordinal));
+                    ComparisonRecordRunIdSql.StoredRunIdMatchesLookup(r.LeftRunId, normalizedLeftRunId));
             }
         }
 
@@ -80,7 +80,7 @@ internal static class ComparisonRecordRepositoryCore
             if (normalizedRightRunId is not null)
             {
                 query = query.Where(r =>
-                    string.Equals(r.RightRunId, normalizedRightRunId, StringComparison.Ordinal));
+                    ComparisonRecordRunIdSql.StoredRunIdMatchesLookup(r.RightRunId, normalizedRightRunId));
             }
         }
 
