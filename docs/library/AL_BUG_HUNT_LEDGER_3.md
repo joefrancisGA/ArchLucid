@@ -4938,7 +4938,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-operator-lib
 
-**Hunts:** 73 · **Bugs found:** 70 · **Consecutive dry hunts:** 0
+**Hunts:** 74 · **Bugs found:** 71 · **Consecutive dry hunts:** 0
+
+2026-10-25 seed hunt (hit): promoted cross-field run-id matching in `matchesOperatorHomeHeroResumeTarget`; regression `matches when the hero run id equals the rail href run id even if paths differ`; 5 scoped `operator-home-hero-resume-target` vitest passed. Private beta: Invited operators no longer see duplicate Continue actions on home unfinished-work rows when the hero resume target carries a stale review path but the same run id as the rail row.
 
 2026-10-25 seed hunt (hit): promoted `normalizeResumeHrefForMatch` in `recordRecentView` dedupe; regression `dedupes recent views when hrefs differ only by a trailing slash`; 10 scoped `operator-recent-views` vitest passed. Private beta: Invited operators no longer see duplicate home recent-view rows when navigation records the same route with and without a trailing slash.
 
@@ -5019,6 +5021,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `formatOperatorHomeCompactMetricsLine` — raw metrics snapshot counts interpolate `NaN` into home KPI strip — **hit 2026-10-25 seed hunt:** `normalizeOperatorHomeNonNegativeCount` on active/sealed/findings; regression `normalizes non-finite workspace metric counts in the KPI strip`.
 - [x] (proven) `formatOperatorHomeRecentReviewsOutcome` / `buildOperatorHomeRecentReviewsOutcomeParts` — `visibleCount !== undefined` accepts `NaN` in showing-cap copy — **hit 2026-10-25 seed hunt:** `resolveRecentPreviewCapCounts`; regressions `normalizes non-finite recent preview cap counts in outcome copy` and `normalizes non-finite preview cap counts in structured outcome parts`.
 - [x] (proven) `formatOperatorHomeGovernanceApprovalWarningCount` — `Math.max(0, Math.trunc(count))` leaves `NaN` labels — **hit 2026-10-25 seed hunt:** `Number.isFinite` guard; regression `treats non-finite counts as zero warnings`.
+- [x] (proven) `matchesOperatorHomeHeroResumeTarget` — explicit hero `runId` did not match rail rows that only exposed the run id via href parsing when paths diverged — **hit 2026-10-25 seed hunt:** cross-field run id equality; regression `matches when the hero run id equals the rail href run id even if paths differ`.
 - [x] (proven) `recordRecentView` — strict `href` equality let trailing-slash revisits create duplicate recent-view rows — **hit 2026-10-25 seed hunt:** `normalizeResumeHrefForMatch` dedupe key; regression `dedupes recent views when hrefs differ only by a trailing slash`.
 - [x] (proven) `resolveOperatorHomeResumeAffordancePlan` — Working-mode architecture continue-last skipped rail dedupe, duplicating CTAs when rail href matched aside from trailing slash — **hit 2026-10-25 seed hunt:** architecture branch href + `architecture-draft:` id match; regression `suppresses architecture continue-last when rail href matches target aside from trailing slash`.
 - [x] (proven) `resolveOperatorHomeResumeAffordancePlan` — rail dedupe compares run ids only and misses trailing-slash href equivalents — **hit 2026-10-25 seed hunt:** shared `normalizeResumeHrefForMatch` fallback; regression `suppresses continue-last when rail href matches target href aside from trailing slash`.
