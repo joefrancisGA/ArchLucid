@@ -6868,6 +6868,20 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-25 seed hunt (seed→hit): proved `ComparisonReplayService` echoed padded `ComparisonRecordId` on `ReplayComparisonResult` and download `FileName` from legacy stored rows while route lookup already trimmed the request id (hunt 156 metadata fix covered run/export anchors only), so replay API clients could see whitespace in record id metadata and filenames; normalize comparison record id in `SetRecordMetadata` and `BuildComparisonDownloadFileName`; regression `ReplayAsync_export_diff_artifact_returns_trimmed_comparison_record_id_on_result_metadata`; cheap-disproof closed `PersistedReplayRecordId` (new guid on persist replay), `ApiPaging.TryParseUtcTicksIdCursor` (comparison search normalizes cursor id), batch zip manifest echo (cosmetic), Armenian homoglyphs (deferred), and persistence-layer determinism normalize (deferred); seeded five follow-on rows; scoped application-analysis + replay filter 319/319. Private beta: comparison replay responses use trimmed comparison record ids in metadata and suggested download filenames.
+
+- [ ] (candidate) `ComparisonAuditService.RecordReplayOfAsync` — `Notes` template echoes untrimmed source comparison record id — locus: replay persist notes; input: padded source id in note text only.
+- [ ] (candidate) `ApiPaging.TryParseUtcTicksIdCursor` — cursor id segment without trim — locus: HTTP cursor parse; input: padded id after ticks delimiter (alerts inbox and other API surfaces).
+- [ ] (candidate) `ComparisonBatchReplayZipSupport` — manifest failure entries echo pre-trim batch tokens — locus: zip manifest; input: cosmetic id echo only.
+- [ ] (candidate) `ComparisonExportMarkdownSectionRemover` — Armenian homoglyphs in delta headings — locus: `UnicodeLatinHomoglyphMapper`; input: deferred expansion.
+- [ ] (candidate) `RunExportRecordPersistNormalizer` — persistence-layer determinism column normalize — locus: repository read; input: consolidation at DB boundary.
+
+- [x] (proven) `ComparisonReplayService` — padded `ComparisonRecordId` on replay result metadata and filename — **hit 2026-10-25 seed hunt:** `SetRecordMetadata` + `BuildComparisonDownloadFileName`; regression above.
+- [x] (valid-no-repro) `ReplayComparisonResult.PersistedReplayRecordId` — padded new replay row id — **cheap-disproof 2026-10-25 seed hunt:** persist replay allocates fresh guid.
+- [x] (invalid) `ApiPaging.TryParseUtcTicksIdCursor` — HTTP cursor id trim — **cheap-disproof 2026-10-25 seed hunt:** comparison search normalizes at application layer.
+- [x] (invalid) `ComparisonBatchReplayZipSupport` — manifest id echo — **cheap-disproof 2026-10-25 seed hunt:** cosmetic only.
+- [x] (invalid) `UnicodeLatinHomoglyphMapper` — Armenian homoglyphs — **cheap-disproof 2026-10-25 seed hunt:** deferred.
+
 2026-10-25 seed hunt (seed→hit): proved `ComparisonReplayService.SetRecordMetadata` copied denormalized `LeftExportRecordId`/`RightExportRecordId` (and non-canonical run ids) verbatim onto `ReplayComparisonResult` for artifact/regenerate/verify replay responses while regenerate lookup already trimmed anchors (hunt 147), so API replay payloads could echo padded legacy comparison columns; normalize export anchors via `RunExportRecordIdNormalizer` and run ids via `AnalysisRunIdCanonicalization` on result metadata; regression `ReplayAsync_export_diff_artifact_returns_trimmed_export_record_ids_on_result_metadata`; cheap-disproof closed markdown/docx body content (formatters normalize diff objects), `ApiPaging.TryParseUtcTicksIdCursor` (comparison search normalizes cursor id), batch zip manifest echo (cosmetic), Armenian homoglyphs (deferred), and persistence-layer determinism normalize (deferred); seeded five follow-on rows; scoped application-analysis + replay filter 318/318. Private beta: comparison replay API responses return trimmed export anchors and canonical run ids on result metadata for legacy padded rows.
 
 - [ ] (candidate) `ReplayComparisonResult.ComparisonRecordId` — padded route id echo on metadata — locus: replay result; input: legacy padded comparison record id column.
@@ -8003,11 +8017,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 156
-- **bugs-found:** 162
+- **hunts:** 157
+- **bugs-found:** 163
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-25
-- **last-bug:** 2026-10-25 — replay result metadata trims export anchors
+- **last-bug:** 2026-10-25 — replay result trims comparison record id metadata
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
