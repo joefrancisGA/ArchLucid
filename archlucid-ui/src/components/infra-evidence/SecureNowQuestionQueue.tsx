@@ -5,13 +5,15 @@ import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
-import { formatDiagramArmTypeFriendlyName } from "@/lib/infra-evidence/format-diagram-arm-type-friendly-name";
-import { normalizeSecureNowResourceNameForDisplay } from "@/lib/infra-evidence/format-azure-resource-display";
 import { secureNowQuestionAnswerLabel } from "@/lib/infra-evidence/securenow-question-answer-label";
 import {
   secureNowQuestionDispositionMutationResourceId,
   secureNowQuestionHasPackStyleDispositionScope,
 } from "@/lib/infra-evidence/securenow-question-mutation-resource-id";
+import {
+  secureNowQuestionResourceDisplayName,
+  secureNowQuestionResourceTypeLabel,
+} from "@/lib/infra-evidence/securenow-question-resource-identity-display";
 import { diagramOutlineIncludesFocusResource } from "@/lib/architecture/architecture-diagram-camera-focus";
 import type { InfraEvidenceMermaidOutline } from "@/lib/infra-evidence/parse-infra-evidence-mermaid-outline";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -267,16 +269,12 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
     return null;
   }
 
-  const friendlyType = currentQuestion == null || currentQuestion.resourceType.trim().length === 0
+  const resourceTypeLabel = currentQuestion == null
     ? null
-    : formatDiagramArmTypeFriendlyName(currentQuestion.resourceType) ?? "Resource type was not stored";
-  const resourceTypeLabel = friendlyType ?? (currentQuestion != null ? "Resource type was not stored" : null);
-  const displayName =
-    currentQuestion?.resourceName === null || currentQuestion?.resourceName === undefined
-      ? "Resource name was not stored."
-      : currentQuestion.resourceName.trim().length === 0
-        ? "Resource name was stored empty."
-        : normalizeSecureNowResourceNameForDisplay(currentQuestion.resourceName);
+    : secureNowQuestionResourceTypeLabel(currentQuestion);
+  const displayName = currentQuestion == null
+    ? "Resource name was not stored."
+    : secureNowQuestionResourceDisplayName(currentQuestion);
   const dispositionMutationResourceId = currentQuestion == null
     ? null
     : secureNowQuestionDispositionMutationResourceId(currentQuestion);

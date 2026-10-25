@@ -1,0 +1,59 @@
+import { describe, expect, it } from "vitest";
+
+import type { SecureNowQuestion } from "@/lib/infra-evidence/securenow-question-queue-api";
+import {
+  secureNowQuestionResourceDisplayName,
+  secureNowQuestionResourceTypeLabel,
+} from "@/lib/infra-evidence/securenow-question-resource-identity-display";
+
+const baseQuestion: SecureNowQuestion = {
+  dispositionId: null,
+  snapshotId: "snapshot-1",
+  subscriptionId: "sub-1",
+  resourceId: "/subscriptions/sub/resource",
+  questionKey: "unknown-evidence@v1",
+  source: "InventoryEvidence",
+  scopeKind: "Resource",
+  status: "Open",
+  questionText: "Question?",
+  resourceType: "Microsoft.Storage/storageAccounts",
+  resourceName: "store",
+  reasonText: "Reason",
+  sourceLine: "Inventory evidence",
+  answerCodes: ["NamePeer"],
+  evidenceFingerprint: "fp",
+  expirationUtc: null,
+  isExpired: false,
+  answerCode: null,
+  answerText: null,
+  reason: null,
+};
+
+describe("secureNowQuestionResourceIdentityDisplay", () => {
+  it("uses pack-friendly identity copy instead of empty-resource warnings", () => {
+    const packQuestion: SecureNowQuestion = {
+      ...baseQuestion,
+      source: "PolicyPack",
+      scopeKind: "Subscription",
+      resourceId: "",
+      resourceType: "",
+      resourceName: "",
+    };
+
+    expect(secureNowQuestionResourceTypeLabel(packQuestion)).toBeNull();
+    expect(secureNowQuestionResourceDisplayName(packQuestion)).toBe("Subscription question");
+  });
+
+  it("labels resource group pack questions distinctly", () => {
+    const packQuestion: SecureNowQuestion = {
+      ...baseQuestion,
+      source: "PolicyPack",
+      scopeKind: "ResourceGroup",
+      resourceId: "",
+      resourceType: "",
+      resourceName: "",
+    };
+
+    expect(secureNowQuestionResourceDisplayName(packQuestion)).toBe("Resource group question");
+  });
+});

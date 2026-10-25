@@ -214,6 +214,29 @@ describe("SecureNowQuestionQueue", () => {
     expect(screen.getByText("Scope: Question scope was not stored.")).toBeInTheDocument();
   });
 
+  it("shows pack-friendly resource identity instead of empty-resource warnings", async () => {
+    mocks.listQuestions.mockResolvedValue([
+      {
+        ...question,
+        source: "PolicyPack",
+        scopeKind: "Subscription",
+        resourceId: "",
+        resourceType: "",
+        resourceName: "",
+        questionKey: "subscription-ownership@v1",
+        questionText: "Who owns this subscription workload?",
+        answerCodes: ["Register", "Keep"],
+      },
+    ]);
+
+    render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
+    fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
+
+    expect(screen.queryByText("Resource type was not stored")).not.toBeInTheDocument();
+    expect(screen.queryByText("Resource name was stored empty.")).not.toBeInTheDocument();
+    expect(screen.getByTestId("infra-diagrams-question-resource-name")).toHaveTextContent("Subscription question");
+  });
+
   it("labels policy pack source and subscription scope in details", async () => {
     mocks.listQuestions.mockResolvedValue([
       {
