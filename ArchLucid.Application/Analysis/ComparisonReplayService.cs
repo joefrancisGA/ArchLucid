@@ -250,25 +250,25 @@ public sealed class ComparisonReplayService(
         if (string.Equals(format, "markdown", StringComparison.OrdinalIgnoreCase))
         {
             string content = _endToEndExportService.GenerateMarkdown(report, profile);
-            return BuildTextResult(record, "markdown", $"comparison_{record.ComparisonRecordId}.md", content, profile);
+            return BuildTextResult(record, "markdown", BuildComparisonDownloadFileName(record, "md"), content, profile);
         }
 
         if (string.Equals(format, "html", StringComparison.OrdinalIgnoreCase))
         {
             string content = _endToEndExportService.GenerateHtml(report, profile);
-            return BuildTextResult(record, "html", $"comparison_{record.ComparisonRecordId}.html", content, profile);
+            return BuildTextResult(record, "html", BuildComparisonDownloadFileName(record, "html"), content, profile);
         }
 
         if (string.Equals(format, "docx", StringComparison.OrdinalIgnoreCase))
         {
             byte[] bytes = await _endToEndExportService.GenerateDocxAsync(report, cancellationToken, profile);
-            return BuildBinaryResult(record, "docx", $"comparison_{record.ComparisonRecordId}.docx", bytes, profile);
+            return BuildBinaryResult(record, "docx", BuildComparisonDownloadFileName(record, "docx"), bytes, profile);
         }
 
         if (!string.Equals(format, "pdf", StringComparison.OrdinalIgnoreCase))
             throw new InvalidOperationException($"Unsupported replay format '{format}'.");
         byte[] pdfBytes = await _endToEndExportService.GeneratePdfAsync(report, cancellationToken, profile);
-        return BuildBinaryResult(record, "pdf", $"comparison_{record.ComparisonRecordId}.pdf", pdfBytes, profile);
+        return BuildBinaryResult(record, "pdf", BuildComparisonDownloadFileName(record, "pdf"), pdfBytes, profile);
     }
 
     private static ReplayComparisonResult BuildTextResult(ComparisonRecord record, string format, string fileName, string content, string? profile)
@@ -338,7 +338,7 @@ public sealed class ComparisonReplayService(
                 ComparisonRecordId = record.ComparisonRecordId,
                 ComparisonType = record.ComparisonType,
                 Format = "docx",
-                FileName = $"comparison_{record.ComparisonRecordId}.docx",
+                FileName = BuildComparisonDownloadFileName(record, "docx"),
                 BinaryContent = bytes,
                 ReplayMode = ComparisonReplayRequestParsing.FormatReplayMode(mode)
             };
@@ -359,7 +359,7 @@ public sealed class ComparisonReplayService(
             ComparisonRecordId = record.ComparisonRecordId,
             ComparisonType = record.ComparisonType,
             Format = "markdown",
-            FileName = $"comparison_{record.ComparisonRecordId}.md",
+            FileName = BuildComparisonDownloadFileName(record, "md"),
             Content = markdown,
             ReplayMode = ComparisonReplayRequestParsing.FormatReplayMode(mode)
         };
@@ -374,6 +374,7 @@ public sealed class ComparisonReplayService(
 
     private static void SetRecordMetadata(ReplayComparisonResult r, ComparisonRecord record, string? formatProfile)
     {
+        r.ComparisonRecordId = ComparisonRecordIdNormalizer.NormalizeRequired(record.ComparisonRecordId);
         r.LeftRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookupOrNull(record.LeftRunId);
         r.RightRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookupOrNull(record.RightRunId);
         r.LeftExportRecordId = NormalizeExportRecordIdMetadataOrNull(record.LeftExportRecordId);
@@ -381,6 +382,9 @@ public sealed class ComparisonReplayService(
         r.CreatedUtc = record.CreatedUtc;
         r.FormatProfile = formatProfile;
     }
+
+    private static string BuildComparisonDownloadFileName(ComparisonRecord record, string extension) =>
+        $"comparison_{ComparisonRecordIdNormalizer.NormalizeRequired(record.ComparisonRecordId)}.{extension}";
 
     private static string? NormalizeExportRecordIdMetadataOrNull(string? exportRecordId) =>
         string.IsNullOrWhiteSpace(exportRecordId)

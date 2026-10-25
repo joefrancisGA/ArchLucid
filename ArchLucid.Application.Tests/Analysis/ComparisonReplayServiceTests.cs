@@ -387,6 +387,26 @@ public sealed class ComparisonReplayServiceTests
     }
 
     [Fact]
+    public async Task ReplayAsync_export_diff_artifact_returns_trimmed_comparison_record_id_on_result_metadata()
+    {
+        ExportRecordDiffResult diff = SampleExportDiff();
+        ComparisonRecord record = ExportDiffRecord("cmp-trim-id", diff);
+        record.ComparisonRecordId = "  cmp-trim-id  ";
+        Mock<IComparisonRecordRepository> repo = new();
+        repo.Setup(r => r.GetByIdAsync("cmp-trim-id", It.IsAny<CancellationToken>())).ReturnsAsync(record);
+        Mock<IExportRecordDiffSummaryFormatter> formatter = new();
+        formatter.Setup(f => f.FormatMarkdown(It.IsAny<ExportRecordDiffResult>())).Returns("# diff");
+        ComparisonReplayService sut = CreateSut(comparisonRepo: repo.Object, diffFormatter: formatter.Object);
+
+        ReplayComparisonResult result = await sut.ReplayAsync(
+            new ReplayComparisonRequest { ComparisonRecordId = "cmp-trim-id", ReplayMode = "artifact" },
+            CancellationToken.None);
+
+        result.ComparisonRecordId.Should().Be("cmp-trim-id");
+        result.FileName.Should().Be("comparison_cmp-trim-id.md");
+    }
+
+    [Fact]
     public async Task ReplayAsync_export_diff_artifact_returns_trimmed_export_record_ids_on_result_metadata()
     {
         ExportRecordDiffResult diff = SampleExportDiff();
