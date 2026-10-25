@@ -4938,7 +4938,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-operator-lib
 
-**Hunts:** 56 · **Bugs found:** 53 · **Consecutive dry hunts:** 0
+**Hunts:** 57 · **Bugs found:** 54 · **Consecutive dry hunts:** 0
+
+2026-10-25 seed hunt (hit): promoted `formatOperatorHomeGovernanceApprovalWarningCount` non-finite guard; regressions `treats non-finite counts as zero warnings` and plural formatting; scoped `operator-home-governance-approval-warning-copy` vitest passed. Private beta: Invited operators no longer see `NaN approval warnings` in home KPI and outcome copy when workspace metrics hand through a non-finite governance warning count.
 
 2026-10-25 seed hunt (hit): promoted `readOperatorShellStableCache` non-finite `writtenAtMs` TTL eviction; regression `discards stable cache entries with non-finite writtenAtMs`; 4 scoped `operator-shell-stable-cache` vitest passed. Private beta: Invited operators no longer keep a poisoned session shell snapshot alive forever when stable-cache JSON carries a non-finite `writtenAtMs` timestamp.
 
@@ -4980,6 +4982,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-10-08 seed hunt (seed-only): re-read continuity hydration, recent-view mapping, workspace metrics, and freshness helpers; no hunt-ready row promoted; scoped `lib/operator` tests completed with known baseline failures outside the reviewed utility behavior.
 
+- [x] (proven) `formatOperatorHomeGovernanceApprovalWarningCount` — `Math.max(0, Math.trunc(count))` leaves `NaN` labels — **hit 2026-10-25 seed hunt:** `Number.isFinite` guard; regression `treats non-finite counts as zero warnings`.
 - [x] (proven) `readOperatorShellStableCache` — `typeof writtenAtMs === "number"` accepts `NaN`, skipping TTL eviction — **hit 2026-10-25 seed hunt:** `Number.isFinite(parsed.writtenAtMs)`; regression `discards stable cache entries with non-finite writtenAtMs`.
 - [x] (proven) `operatorHomeDataCurrencyValue` / `operatorHomeDataCurrencyStaleCue` — invalid `Date` bypasses `isRenderableRefreshedInstant` — **hit 2026-10-25 seed hunt:** fail-closed guards; regressions `treats an invalid Date like a missing refresh instead of formatting garbage` and `does not report stale data when the refresh timestamp is invalid`.
 - [x] (proven) `resolveOperatorBillingCurrentPlan` — non-finite `aiBudgetRemainingPercent` passes through to `NaN%` UI — **hit 2026-10-25 seed hunt:** `normalizeOperatorBillingAiBudgetRemainingPercent`; regression `omits non-finite ai budget remaining percent from the plan view`.
