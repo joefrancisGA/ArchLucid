@@ -6942,11 +6942,11 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** configuration summary; config paths; split from archlucid-core
 - **paths:** ArchLucid.Core/Configuration/
 - **test-filter:** FullyQualifiedName~Configuration
-- **hunts:** 84
-- **bugs-found:** 73
+- **hunts:** 85
+- **bugs-found:** 76
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-25
-- **last-bug:** 2026-10-25 — fullwidth reverse solidus, set minus delimiters, and sextuple percent-decode for config summary redaction
+- **last-bug:** 2026-10-25 — box-drawing and presentation-form delimiters and septuple percent-decode for config summary redaction
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
