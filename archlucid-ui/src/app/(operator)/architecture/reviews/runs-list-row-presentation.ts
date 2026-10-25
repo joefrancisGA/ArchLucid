@@ -1,8 +1,4 @@
 import { runListPrimaryTitle } from "@/components/operator-home/runs-dashboard-helpers";
-import {
-  resolveRunFindingCountDisplay,
-  resolveRunWarningCountDisplay,
-} from "@/lib/operator/operator-home-run-list-insight";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { resolveProductionEvalChromeFromStorage } from "@/lib/resolve-production-eval-chrome-from-storage";
@@ -17,32 +13,47 @@ import type { RunSummary } from "@/types/authority";
 
 export { runListPrimaryTitle };
 
+export const FINDINGS_SNAPSHOT_FLAG_NOT_STORED_LABEL = "Findings snapshot flag was not stored." as const;
+
 export const RUN_LIST_FINDING_COUNT_NOT_STORED_LABEL = "Finding count was not stored." as const;
 
-export const RUN_LIST_WARNING_COUNT_NOT_STORED_LABEL = "Monitored risk count was not stored." as const;
+export const RUN_LIST_WARNING_COUNT_NOT_STORED_LABEL = "Warning count was not stored." as const;
+
+export const RUN_LIST_ARTIFACT_COUNT_NOT_STORED_LABEL = "Artifact count was not stored." as const;
 
 export function runRowNumericCountsLine(run: RunSummary, buyerPolished: boolean): string | null {
-  const fc = resolveRunFindingCountDisplay(run);
-  const wc = resolveRunWarningCountDisplay(run);
+  const fc = run.findingCount;
+  const wc = run.warningCount;
   const ac = run.artifactCount;
+  const hasFinding = typeof fc === "number" && Number.isFinite(fc);
+  const hasWarning = typeof wc === "number" && Number.isFinite(wc);
   const hasArtifact = typeof ac === "number" && Number.isFinite(ac);
+  const findingOmitted = fc === null || fc === undefined;
+  const warningOmitted = wc === null || wc === undefined;
+  const artifactOmitted = ac === null || ac === undefined;
+
+  if (!hasFinding && !hasWarning && !hasArtifact && !findingOmitted && !warningOmitted && !artifactOmitted) {
+    return null;
+  }
 
   const tokens: string[] = [];
 
-  if (fc !== null) {
+  if (hasFinding) {
     tokens.push(`${fc} findings`);
-  } else {
+  } else if (findingOmitted) {
     tokens.push(RUN_LIST_FINDING_COUNT_NOT_STORED_LABEL);
   }
 
-  if (wc !== null) {
+  if (hasWarning) {
     tokens.push(buyerPolished ? `${wc} monitored risks` : `${wc} warnings`);
-  } else {
+  } else if (warningOmitted) {
     tokens.push(RUN_LIST_WARNING_COUNT_NOT_STORED_LABEL);
   }
 
   if (hasArtifact) {
     tokens.push(`${ac} artifacts`);
+  } else if (artifactOmitted) {
+    tokens.push(RUN_LIST_ARTIFACT_COUNT_NOT_STORED_LABEL);
   }
 
   return tokens.join(" · ");
@@ -76,6 +87,10 @@ export function runRowOutputReadinessLineBuyer(run: RunSummary): string {
 
   if (complete) {
     return "All review steps complete";
+  }
+
+  if (run.hasFindingsSnapshot === undefined) {
+    return FINDINGS_SNAPSHOT_FLAG_NOT_STORED_LABEL;
   }
 
   const started =
@@ -112,12 +127,14 @@ export function runRowOutputReadinessLine(run: RunSummary): string {
     run.hasFindingsSnapshot === true &&
     run.hasGoldenManifest === true
       ? "Review trail complete"
-      : run.hasContextSnapshot === true ||
-          run.hasGraphSnapshot === true ||
-          run.hasFindingsSnapshot === true ||
-          run.hasGoldenManifest === true
-        ? "Review trail partial"
-        : "Review trail: not started";
+      : run.hasFindingsSnapshot === undefined
+        ? FINDINGS_SNAPSHOT_FLAG_NOT_STORED_LABEL
+        : run.hasContextSnapshot === true ||
+            run.hasGraphSnapshot === true ||
+            run.hasFindingsSnapshot === true ||
+            run.hasGoldenManifest === true
+          ? "Review trail partial"
+          : "Review trail: not started";
 
   if (tokens.length === 0) {
     return `Output: in progress · ${reviewTrailSummary}`;

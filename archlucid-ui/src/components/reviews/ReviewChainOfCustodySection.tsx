@@ -15,15 +15,16 @@ import { runDetailSectionHeadingClass } from "@/app/(operator)/architecture/revi
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { formatIsoUtcForDisplay } from "@/lib/format-iso-utc";
 import {
-  reviewChainOfCustodyPackageSealedLabel,
-  reviewChainOfCustodyPolicyPackAppliedLabel,
-  reviewChainOfCustodyTriggerSourceLabel,
-} from "@/lib/reviews/review-chain-of-custody-display";
-import {
   REVIEW_CHAIN_OF_CUSTODY_SECTION_KEY_PARAM,
   parseReviewChainOfCustodySectionKeyFromSearch,
   reviewChainOfCustodySectionDisclosureHrefFromSearch,
 } from "@/lib/reviews/review-chain-of-custody-section-disclosure-url";
+import {
+  reviewChainOfCustodyPackageSealedLabel,
+  reviewChainOfCustodyPolicyPackAppliedLabel,
+  reviewChainOfCustodyPolicyPackVersionLabel,
+  reviewChainOfCustodyTriggerSourceLabel,
+} from "@/lib/reviews/review-chain-of-custody-display";
 
 const REVIEW_CHAIN_OF_CUSTODY_SECTION_KEYS = {
   whoAndWhen: "who-and-when",
@@ -60,7 +61,9 @@ export function ReviewChainOfCustodySection({
       ? formatIsoUtcForDisplay(run.completedUtc)
       : null;
 
-  const policyPackLabel = reviewChainOfCustodyPolicyPackAppliedLabel(ruleSetId, ruleSetVersion);
+  const policyPackAppliedLabel = reviewChainOfCustodyPolicyPackAppliedLabel(ruleSetId);
+  const policyPackVersionLabel = reviewChainOfCustodyPolicyPackVersionLabel(ruleSetId, ruleSetVersion);
+  const packageSealedLabel = reviewChainOfCustodyPackageSealedLabel(manifestId, completedLabel);
   const pathname = usePathname() ?? "/";
   const searchParams = useSearchParams();
   const urlOpenSectionKey = parseReviewChainOfCustodySectionKeyFromSearch(
@@ -168,7 +171,7 @@ export function ReviewChainOfCustodySection({
               <div>
                 <dt className={cn("font-medium text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>Package sealed</dt>
                 <dd className={cn("mt-0.5 font-mono text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.navHelper)}>
-                  {reviewChainOfCustodyPackageSealedLabel(manifestId, completedLabel)}
+                  {packageSealedLabel}
                 </dd>
               </div>
             </dl>
@@ -182,8 +185,18 @@ export function ReviewChainOfCustodySection({
             <dl className={cn("m-0 grid gap-3 sm:grid-cols-2", OPERATOR_TYPOGRAPHY.body)}>
               <div>
                 <dt className={cn("font-medium text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>Policy pack applied</dt>
-                <dd className={cn("mt-0.5 font-mono text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.navHelper)}>{policyPackLabel}</dd>
+                <dd className={cn("mt-0.5 font-mono text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.navHelper)}>
+                  {policyPackAppliedLabel}
+                </dd>
               </div>
+              {policyPackVersionLabel !== null ? (
+                <div>
+                  <dt className={cn("font-medium text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>Policy pack version</dt>
+                  <dd className={cn("mt-0.5 font-mono text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.navHelper)}>
+                    {policyPackVersionLabel}
+                  </dd>
+                </div>
+              ) : null}
               {architectureRequestId !== null ? (
                 <div>
                   <dt className={cn("font-medium text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>Architecture request</dt>
