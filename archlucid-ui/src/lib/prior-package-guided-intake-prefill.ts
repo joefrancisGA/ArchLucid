@@ -93,7 +93,6 @@ function splitDraftIntakeDescription(description: string): {
 function resolveBusinessOutcome(
   parsedOutcome: string,
   inlineRequirements: readonly string[] | null | undefined,
-  generatedBrief: boolean,
 ): string {
   const trimmedOutcome = parsedOutcome.trim();
 
@@ -183,11 +182,7 @@ export function derivePriorPackageGuidedIntakePrefill(
   const freeTextIntent = generatedBrief
     ? stripAttachedFilesSection(stripScopeUnderstandingSection(description))
     : parsed.freeTextIntent.trim();
-  const businessOutcome = resolveBusinessOutcome(
-    parsed.businessOutcome,
-    request.inlineRequirements,
-    generatedBrief,
-  );
+  const businessOutcome = resolveBusinessOutcome(parsed.businessOutcome, request.inlineRequirements);
   const actorSet = actorSetFromDraftActors(request.draftActors);
 
   if (systemName.length === 0 && freeTextIntent.length === 0 && businessOutcome.length === 0) {

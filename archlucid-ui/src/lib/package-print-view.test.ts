@@ -11,6 +11,9 @@ import {
   buildPackagePrintPresentation,
   packagePrintPipelineStageFlagsOmitted,
   buildPackagePrintSponsorSynopsis,
+  formatPackagePrintDraftSynopsisBody,
+  resolvePackagePrintSynopsisBody,
+  resolvePackagePrintSynopsisHeading,
   printPackagePage,
   resolvePackagePrintSemanticSupportBandStampLine,
   resolvePackagePrintStatusLabel,
@@ -47,6 +50,15 @@ describe("package-print-view (TB-2205)", () => {
     expect(buildPackagePrintPath("abc/def")).toBe("/architecture/reviews/abc%2Fdef/print");
     expect(buildPackagePrintBackHref("abc")).toBe("/architecture/reviews/abc?reviewTab=review-package");
     expect(buildPackagePrintPath("  ")).toBe("/architecture/reviews/print");
+  });
+
+  it("labels omitted governance warning flags on finalized print status (P-09)", () => {
+    expect(
+      resolvePackagePrintStatusLabel(
+        summary({ hasGovernanceWarnings: undefined }),
+      ),
+    ).toBe("Finalized. Governance warning flags were not stored.");
+    expect(resolvePackagePrintStatusLabel(summary({ hasGovernanceWarnings: false }))).toBe("Finalized");
   });
 
   it("resolves status and presentation for a finalized package", () => {
