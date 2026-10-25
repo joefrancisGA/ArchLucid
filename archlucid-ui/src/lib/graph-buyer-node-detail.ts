@@ -73,7 +73,7 @@ export function graphBuyerTrailDispositionLine(
   const scenario = resolveHeroFindingReferenceScenario(referenceId, referencedSlug);
 
   if (scenario !== null) {
-    return "Accepted with monitoring — non-blocking for go-live; approval cadence covers unstructured attachment exceptions.";
+    return "Disposition was not stored on this showcase finding — open the linked finding for the recorded resolve decision.";
   }
 
   return null;
@@ -247,27 +247,6 @@ export function graphBuyerTrailMetadataLines(
     }
 
     technicalLines.push({ label: key, value });
-  }
-
-  const referenceId = metadataValue(metadata, "referenceId");
-  const referencedSlug = metadataValue(metadata, "referenced");
-  const inferredSampleHeroFinding = resolveHeroFindingReferenceScenario(referenceId, referencedSlug);
-
-  if (inferredSampleHeroFinding !== null) {
-    const summaryLabelsPresent = new Set(summaryLines.map((row) => row.label));
-
-    const attachStructuredField = (label: string, value: string): void => {
-      if (!summaryLabelsPresent.has(label)) {
-        summaryLines.push({ label, value });
-        summaryLabelsPresent.add(label);
-      }
-    };
-
-    attachStructuredField("Severity", "High");
-    attachStructuredField("Decision", "Accepted with monitoring");
-    attachStructuredField("Blocking status", "Non-blocking");
-    attachStructuredField("Monitoring cadence", "Monitoring cadence was not stored.");
-    attachStructuredField("Risk area", "Risk area was not stored.");
   }
 
   return { summaryLines, technicalLines };

@@ -120,6 +120,22 @@ public sealed class ApiRequestNullCollectionElementsGuardTests
         ApiRequestNullCollectionElementsGuard.ContainsNullCollectionElement(request).Should().BeFalse();
     }
 
+    [Fact]
+    public void ContainsNullCollectionElement_returns_true_for_null_string_in_nested_list_collection()
+    {
+        NestedStringListRequest request = new()
+        {
+            Buckets = [new List<string> { "ok", null! }],
+        };
+
+        ApiRequestNullCollectionElementsGuard.ContainsNullCollectionElement(request).Should().BeTrue();
+    }
+
+    private sealed class NestedStringListRequest
+    {
+        public List<List<string>> Buckets { get; set; } = [];
+    }
+
     private sealed class NullableStringListRequest
     {
         public List<string?> Tags { get; set; } = [];

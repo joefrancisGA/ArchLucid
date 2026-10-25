@@ -108,19 +108,31 @@ public sealed class ApiRequestUsageEventBatchFlushHostedService(
             int count = Math.Min(safeMax, pending.Count - index);
             List<UsageEvent> batch = pending.GetRange(index, count);
 
-            if (!await PersistOrReturnAsync(batch, ct).ConfigureAwait(false))
+            try
             {
-                if (!drainRemainingAfterBatchFailure)
+                if (!await PersistOrReturnAsync(batch, ct).ConfigureAwait(false))
                 {
-                    int remainderStart = index + count;
+                    if (!drainRemainingAfterBatchFailure)
+                    {
+                        RequeueSnapshotTail(pending, index + count);
 
-                    if (remainderStart < pending.Count)
-                        ReturnBatchToBuffer(pending.GetRange(remainderStart, pending.Count - remainderStart));
-
-                    return;
+                        return;
+                    }
                 }
             }
+            catch (OperationCanceledException)
+            {
+                RequeueSnapshotTail(pending, index + count);
+
+                throw;
+            }
         }
+    }
+
+    private void RequeueSnapshotTail(List<UsageEvent> pending, int startIndex)
+    {
+        if (startIndex < pending.Count)
+            ReturnBatchToBuffer(pending.GetRange(startIndex, pending.Count - startIndex));
     }
 
     /// <summary>

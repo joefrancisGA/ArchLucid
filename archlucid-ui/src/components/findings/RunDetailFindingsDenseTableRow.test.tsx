@@ -2,6 +2,7 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { RunDetailFindingsDenseTableRow } from "@/components/findings/RunDetailFindingsDenseTableRow";
+import { RUN_FINDING_EXPLAINABILITY_TITLE_OMITTED } from "@/components/runs/RunFindingExplainabilityTable";
 import * as quickDecisionFindingLinks from "@/lib/quick-decision-finding-links";
 import { INSIGHT_DENSITY_TYPED_ENGINE_HONESTY_LINE } from "@/lib/findings/insight-density-band";
 import { FINDING_CLASSIFICATION_CHECKLIST_COVERAGE, FINDING_CLASSIFICATION_DECISION_GRADE } from "@/lib/findings/review-detail-findings-classification-band";
@@ -108,6 +109,23 @@ describe("RunDetailFindingsDenseTableRow", () => {
 
     expect(screen.getByTestId("finding-evidence-link-chip")).toHaveTextContent("0 linked");
     vi.restoreAllMocks();
+  });
+
+  it("labels an empty stored title on the inspect link and prefixes the finding id", () => {
+    render(
+      <table>
+        <tbody>
+          <RunDetailFindingsDenseTableRow
+            runId="run-1"
+            finding={sampleFinding({ title: "   ", findingId: "finding-empty-title" })}
+            showDensityScore
+          />
+        </tbody>
+      </table>,
+    );
+
+    expect(screen.getByRole("link", { name: RUN_FINDING_EXPLAINABILITY_TITLE_OMITTED })).toBeInTheDocument();
+    expect(screen.getByText("Finding id: finding-empty-title")).toBeInTheDocument();
   });
 
   it("labels missing confidence, review status, and evidence link", () => {

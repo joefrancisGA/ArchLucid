@@ -60,11 +60,18 @@ public sealed partial class RunsController
     {
         if (input is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
-        if (input.Items.Count == 0)
+        if (input.Items is null || input.Items.Count == 0)
             return this.BadRequestProblem("At least one clarification item is required.", ProblemTypes.ValidationFailed);
 
         foreach (ClarificationAnswerRephraseItem item in input.Items)
         {
+            if (item is null)
+            {
+                return this.BadRequestProblem(
+                    "Each clarification item is required.",
+                    ProblemTypes.ValidationFailed);
+            }
+
             if (string.IsNullOrWhiteSpace(item.QuestionKey))
                 return this.BadRequestProblem("Each item must include QuestionKey.", ProblemTypes.ValidationFailed);
             if (string.IsNullOrWhiteSpace(item.QuestionPrompt) || item.QuestionPrompt.Trim().Length < 10)

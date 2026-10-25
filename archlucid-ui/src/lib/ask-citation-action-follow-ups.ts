@@ -174,7 +174,7 @@ export function buildAskCitationActionFollowUps(
     });
     pushChip(chips, {
       kind: "evidence",
-      label: "Open evidence",
+      label: evidenceArtifacts ? "Open evidence" : "Evidence link was not stored.",
       href: getFindingEvidenceTraceHref(runId, findingId),
       citationId: findingId,
     });
@@ -190,7 +190,7 @@ export function buildAskCitationActionFollowUps(
     for (const decisionId of decisionIds) {
       pushChip(chips, {
         kind: "disposition",
-        label: `Open ${ARCHITECTURE_DECISION_LABEL.toLowerCase()} register`,
+        label: `Open ${ARCHITECTURE_DECISION_LABEL.toLowerCase()} register (citation only)`,
         href: GOVERNANCE_DECISION_REGISTER_PATH,
         citationId: decisionId,
       });

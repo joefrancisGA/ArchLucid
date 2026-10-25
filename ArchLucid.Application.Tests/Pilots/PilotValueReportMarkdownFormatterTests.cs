@@ -168,6 +168,71 @@ public sealed class PilotValueReportMarkdownFormatterTests
     }
 
     [Fact]
+    public void Format_when_committed_runs_exist_but_no_run_details_loaded_does_not_emit_zero_findings_as_tenant_total()
+    {
+        PilotValueReportMarkdownFormatter sut = new(new ExportFormatterService());
+        DateTime from = new(2026, 4, 1, 0, 0, 0, DateTimeKind.Utc);
+        PilotValueReport report = new()
+        {
+            TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+            FromUtc = from,
+            ToUtc = from.AddDays(30),
+            TotalRunsCommitted = 3,
+            TotalFindings = 0,
+            RunDetailsTruncated = false,
+            CommittedRunsTimeline = [],
+        };
+
+        string markdown = sut.Format(report);
+
+        markdown.Should().Contain("not computed — no committed runs loaded for detail");
+        markdown.Should().NotContain("| Total findings | 0 |");
+        markdown.Should().Contain(
+            "Agent types were not computed — no committed runs loaded for detail in the partial sample.");
+        markdown.Should().NotContain("Agent types were not stored.");
+        markdown.Should().Contain(
+            "| Avg pipeline completion | not computed — no committed runs loaded for detail in the partial sample |");
+        markdown.Should().NotContain("| Critical | 0 |");
+        markdown.Should().Contain("## Committed runs (0 of 3 in-window committed runs loaded for detail)");
+        markdown.Should().NotContain("## Committed runs (sample loaded for detail)");
+        markdown.Should().Contain(
+            "| Committed runs | 3 (0 loaded for detail in partial sample) |");
+        markdown.Should().NotContain("| Committed runs | 3 |");
+    }
+
+    [Fact]
+    public void Format_when_committed_runs_exist_but_no_run_details_loaded_omits_severity_table_even_when_buckets_nonzero()
+    {
+        PilotValueReportMarkdownFormatter sut = new(new ExportFormatterService());
+        DateTime from = new(2026, 4, 1, 0, 0, 0, DateTimeKind.Utc);
+        PilotValueReport report = new()
+        {
+            TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+            FromUtc = from,
+            ToUtc = from.AddDays(30),
+            TotalRunsCommitted = 2,
+            TotalFindings = 12,
+            AveragePipelineCompletionSeconds = 90,
+            RunDetailsTruncated = false,
+            CommittedRunsTimeline = [],
+            FindingsBySeverity = new PilotValueReportSeverityBreakdown
+            {
+                Critical = 1,
+                High = 2,
+                Medium = 3,
+                Low = 0,
+                Info = 6,
+            },
+        };
+
+        string markdown = sut.Format(report);
+
+        markdown.Should().Contain("Severity counts were not computed");
+        markdown.Should().NotContain("| Critical | 1 |");
+        markdown.Should().NotContain("| Avg pipeline completion | 1 min 30 s |");
+    }
+
+    [Fact]
     public void Format_when_run_details_truncated_with_empty_timeline_does_not_label_positive_findings_as_partial_sample()
     {
         PilotValueReportMarkdownFormatter sut = new(new ExportFormatterService());
@@ -373,6 +438,16 @@ public sealed class PilotValueReportMarkdownFormatterTests
             ToUtc = from.AddDays(30),
             TotalRunsCommitted = 12_000,
             CommittedRunsInventoryTruncated = true,
+            CommittedRunsTimeline =
+            [
+                new PilotValueReportRunTimelinePoint
+                {
+                    RunId = "run-1",
+                    CreatedUtc = from,
+                    CommittedUtc = from.AddHours(1),
+                    SystemName = "alpha",
+                },
+            ],
         };
 
         string markdown = sut.Format(report);
