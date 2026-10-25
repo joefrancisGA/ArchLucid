@@ -47,9 +47,10 @@ export function formatDecisionSnapshotFindingsLine(
   openCount: number,
   blockingCount: number,
   awaitingActionCount: number,
+  hasFindingsSnapshot: boolean = true,
 ): string {
   if (openCount <= 0) {
-    return "None open";
+    return hasFindingsSnapshot ? "None open" : "Findings snapshot was not stored.";
   }
 
   const segments: string[] = [`${openCount} open`];

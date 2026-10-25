@@ -263,6 +263,7 @@ describe("run-detail-workspace-derive", () => {
   it("formats decision snapshot findings line with blocking and triage segments", () => {
     expect(formatDecisionSnapshotFindingsLine(3, 1, 2)).toBe("3 open · 1 blocks approval · 1 needs triage");
     expect(formatDecisionSnapshotFindingsLine(0, 0, 0)).toBe("None open");
+    expect(formatDecisionSnapshotFindingsLine(0, 0, 0, false)).toBe("Findings snapshot was not stored.");
   });
 
   it("maps topology extraction gaps to coverage language in primary concern", () => {

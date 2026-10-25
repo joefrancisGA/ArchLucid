@@ -46,6 +46,7 @@ export function deriveReviewNextActionLabel(input: {
   readonly recommendedActions: readonly RunDetailWorkspaceRecommendedAction[];
   readonly primaryConcernFinding: QuickDecisionFinding | null;
   readonly blockingFindingCount: number;
+  readonly hasFindingsSnapshot?: boolean;
 }): string {
   const primary = input.primaryConcernFinding;
 
@@ -93,6 +94,10 @@ export function deriveReviewNextActionLabel(input: {
     return `${first.actionLabel} — ${first.reason}`;
   }
 
+  if (input.hasFindingsSnapshot === false) {
+    return "Next action was not stored.";
+  }
+
   return "No immediate actions required — monitor findings and evidence coverage.";
 }
 export function deriveReviewStatusSummary(input: {
@@ -100,6 +105,7 @@ export function deriveReviewStatusSummary(input: {
   readonly findings: readonly QuickDecisionFinding[];
   readonly recommendedActions: readonly RunDetailWorkspaceRecommendedAction[];
   readonly blockingFindingCount: number;
+  readonly hasFindingsSnapshot?: boolean;
 }): ReviewStatusSummary {
   const primaryConcernFinding = derivePrimaryConcernFinding(input.findings);
 
@@ -113,6 +119,7 @@ export function deriveReviewStatusSummary(input: {
       recommendedActions: input.recommendedActions,
       primaryConcernFinding,
       blockingFindingCount: input.blockingFindingCount,
+      hasFindingsSnapshot: input.hasFindingsSnapshot,
     }),
   };
 }
@@ -292,15 +299,17 @@ export function derivePackageVersionLabel(
 }
 export function deriveEvidenceCoverageSummary(
   findings: readonly QuickDecisionFinding[],
+  options?: { readonly hasFindingsSnapshot?: boolean },
 ): EvidenceCoverageSummary {
   const unresolved = filterUnresolvedFindings(findings);
   const totalCount = unresolved.length;
+  const hasFindingsSnapshot = options?.hasFindingsSnapshot !== false;
 
   if (totalCount === 0) {
     return {
       linkedCount: 0,
       totalCount: 0,
-      summaryLine: "No open findings",
+      summaryLine: hasFindingsSnapshot ? "No open findings" : "Evidence coverage was not stored.",
     };
   }
 

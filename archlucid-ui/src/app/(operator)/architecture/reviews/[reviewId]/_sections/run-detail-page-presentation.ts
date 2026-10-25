@@ -73,6 +73,7 @@ export type RunDetailPresentation = {
   readonly governanceDecisionLabel: string;
   readonly governanceOutcomeLine: string;
   readonly findingsSummaryLine: string;
+  readonly hasFindingsSnapshot: boolean;
   readonly executiveBottomLineContent: SponsorBottomLineContent | null;
 
   readonly submittedArchitectureText: string | null;
@@ -146,6 +147,7 @@ export async function buildRunDetailPresentation(
   } = workspaceDerive;
 
   const runSummaryForBadge = model.progressForPipelineUi;
+  const hasFindingsSnapshot = runSummaryForBadge.hasFindingsSnapshot === true;
   const findingCoverageSummary = model.resolvedDetail.findingCoverageSummary ?? null;
   const coverageBlocking = findingCoverageSummary?.hasCommitBlockingFailures === true;
   const hasManifest = Boolean(model.manifestId);
@@ -212,6 +214,7 @@ export async function buildRunDetailPresentation(
     findings: quickDecisionFindings,
     recommendedActions,
     blockingFindingCount: blockingApprovalCount,
+    hasFindingsSnapshot,
   });
 
   const governancePresentation = await buildRunDetailGovernancePresentation(model, workspaceDerive, {
@@ -229,6 +232,7 @@ export async function buildRunDetailPresentation(
     workspaceStatus,
     quickDecisionFindings,
     hasManifest,
+    hasFindingsSnapshot,
   });
 
   const finalizedAtUtc = deriveFinalizedAtUtc(model.resolvedDetail.run, model.manifestSummary, model.manifestId);
@@ -278,10 +282,12 @@ export async function buildRunDetailPresentation(
     reviewStatusSummary,
     governanceDecisionLabel: governancePresentation.governanceDecisionLabel,
     governanceOutcomeLine: governancePresentation.governanceOutcomeLine,
+    hasFindingsSnapshot,
     findingsSummaryLine: formatDecisionSnapshotFindingsLine(
       reviewStatusSummary.openFindingsCount,
       blockingApprovalCount,
       reviewStatusSummary.findingsRequiringActionCount,
+      hasFindingsSnapshot,
     ),
     executiveBottomLineContent: deriveSponsorBottomLineContent({
       governanceDecisionLabel: governancePresentation.governanceDecisionLabel,
