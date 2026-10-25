@@ -178,6 +178,29 @@ describe("SecureNowQuestionQueue", () => {
     expect(screen.getByText(/Expiration status was not stored/)).toBeInTheDocument();
   });
 
+  it("does not post a mutation when resource id was not stored on inventory rows", async () => {
+    mocks.listQuestions.mockResolvedValue([
+      {
+        ...question,
+        resourceId: null,
+        source: "InventoryEvidence",
+        scopeKind: "Resource",
+      },
+    ]);
+
+    render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
+    fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
+    fireEvent.click(screen.getByRole("button", { name: "Name the peer" }));
+    fireEvent.click(screen.getByRole("button", { name: "Save answer" }));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("operator-mutation-inline-error")).toHaveTextContent(
+        "Resource id was not stored.",
+      );
+    });
+    expect(mocks.answerQuestion).not.toHaveBeenCalled();
+  });
+
   it("does not post a mutation when evidence fingerprint was not stored", async () => {
     mocks.listQuestions.mockResolvedValue([{ ...question, evidenceFingerprint: null }]);
 
@@ -817,6 +840,26 @@ describe("SecureNowQuestionQueue", () => {
         evidenceFingerprint: "fingerprint",
       });
     });
+  });
+
+  it("labels policy pack source in details when source is omitted on resource-group scope rows", async () => {
+    mocks.listQuestions.mockResolvedValue([
+      {
+        ...question,
+        resourceId: null,
+        scopeKind: "ResourceGroup",
+        source: null,
+        questionKey: "rg-scope@v1",
+        questionText: "Which resource group owns this workload?",
+        answerCodes: ["Register", "Keep"],
+      },
+    ]);
+
+    render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
+    fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
+
+    expect(screen.getByText("Source: Asked from an assigned policy pack.")).toBeInTheDocument();
+    expect(screen.queryByText("Source: Question source was not stored.")).not.toBeInTheDocument();
   });
 
   it("labels policy pack source in details when source is omitted on subscription-scope rows", async () => {
