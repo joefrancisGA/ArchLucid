@@ -236,6 +236,47 @@ public sealed class CompareQualityComparisonsApplicationServiceTests
     }
 
     [Fact]
+    public async Task CompareQuality_TryGetScopedRecordAsync_finds_record_when_comparison_id_differs_only_by_casing()
+    {
+        const string storedComparisonRecordId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+        const string lookupComparisonRecordId = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
+        const string runId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb";
+
+        InMemoryComparisonRecordRepository comparisonRecords = new();
+        await comparisonRecords.CreateAsync(
+            new ComparisonRecord
+            {
+                ComparisonRecordId = storedComparisonRecordId,
+                ComparisonType = ComparisonTypes.EndToEndReplay,
+                LeftRunId = runId,
+                RightRunId = "cccccccccccccccccccccccccccccccc",
+                CreatedUtc = DateTime.UtcNow,
+            },
+            CancellationToken.None);
+
+        Mock<IRunDetailQueryService> runDetail = new();
+        runDetail
+            .Setup(s => s.GetRunDetailAsync(runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchitectureRunDetail { Run = new() { RunId = runId } });
+
+        ComparisonsApplicationService sut = new(
+            runDetail.Object,
+            new Mock<IRunExportRecordRepository>().Object,
+            comparisonRecords,
+            new Mock<IComparisonReplayService>().Object,
+            new Mock<ICompareRunsApplicationFacade>().Object,
+            new Mock<IComparisonReplayCostEstimator>().Object,
+            new Mock<IDriftReportFormatter>().Object,
+            new DriftReportDocxExport());
+
+        ComparisonRecord? scoped =
+            await sut.TryGetScopedRecordAsync(lookupComparisonRecordId, CancellationToken.None);
+
+        scoped.Should().NotBeNull();
+        scoped!.ComparisonRecordId.Should().Be(storedComparisonRecordId);
+    }
+
+    [Fact]
     public async Task CompareQuality_TryGetScopedRecordAsync_trims_padded_comparison_record_id_from_stored_row()
     {
         const string runId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";

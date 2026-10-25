@@ -101,7 +101,7 @@ public sealed partial class ComparisonRecordRepository
                       UPDATE ComparisonRecords
                       SET Label = @Label,
                           Tags = @Tags
-                      WHERE {ComparisonRecordIdSql.TrimmedColumnExpression} = @ComparisonRecordId;
+                      WHERE LOWER({ComparisonRecordIdSql.TrimmedColumnExpression}) = LOWER(@ComparisonRecordId);
                       """;
 
         (string? normalizedLabel, IReadOnlyList<string>? normalizedTags) =

@@ -167,6 +167,21 @@ public sealed class ComparisonRecordRepositoryCoreTests
     }
 
     [Fact]
+    public void MatchesCursor_treats_comparison_record_id_tiebreaker_case_insensitively()
+    {
+        DateTime sharedTime = new(2026, 1, 2, 0, 0, 0, DateTimeKind.Utc);
+        ComparisonRecord duplicateCursorRow = Record("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", createdUtc: sharedTime);
+
+        ComparisonRecordRepositoryCore.MatchesCursor(
+                duplicateCursorRow,
+                sharedTime,
+                "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                sortDescending: true)
+            .Should()
+            .BeFalse();
+    }
+
+    [Fact]
     public void MatchesCursor_respects_desc_order()
     {
         ComparisonRecord older = Record("older", createdUtc: new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc));

@@ -22,7 +22,7 @@ public sealed partial class ComparisonRecordRepository
                       SELECT TOP 1
                           {ComparisonRecordRunIdSql.ProjectionRow}
                       FROM ComparisonRecords
-                      WHERE {ComparisonRecordIdSql.TrimmedColumnExpression} = @ComparisonRecordId;
+                      WHERE LOWER({ComparisonRecordIdSql.TrimmedColumnExpression}) = LOWER(@ComparisonRecordId);
                       """;
 
         using IDbConnection connection = await _readConnectionFactory.CreateOpenConnectionAsync(cancellationToken);
@@ -210,12 +210,12 @@ public sealed partial class ComparisonRecordRepository
             parameters.Add(
                 "@CursorId",
                 ComparisonRecordIdLookup.NormalizeLookupKey(cursorComparisonRecordId));
-            string trimmedComparisonRecordId = ComparisonRecordIdSql.TrimmedColumnExpression;
+            string trimmedComparisonRecordId = $"LOWER({ComparisonRecordIdSql.TrimmedColumnExpression})";
             // For DESC: fetch items strictly "after" cursor in DESC order => older than cursor.
             // For ASC: fetch items strictly "after" cursor in ASC order => newer than cursor.
             conditions.Add(sortDescending
-                ? $"(CreatedUtc < @CursorCreatedUtc OR (CreatedUtc = @CursorCreatedUtc AND {trimmedComparisonRecordId} < @CursorId))"
-                : $"(CreatedUtc > @CursorCreatedUtc OR (CreatedUtc = @CursorCreatedUtc AND {trimmedComparisonRecordId} > @CursorId))");
+                ? $"(CreatedUtc < @CursorCreatedUtc OR (CreatedUtc = @CursorCreatedUtc AND {trimmedComparisonRecordId} < LOWER(@CursorId)))"
+                : $"(CreatedUtc > @CursorCreatedUtc OR (CreatedUtc = @CursorCreatedUtc AND {trimmedComparisonRecordId} > LOWER(@CursorId)))");
         }
 
         string sql = baseSql;

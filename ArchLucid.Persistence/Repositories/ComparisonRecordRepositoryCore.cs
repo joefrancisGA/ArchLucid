@@ -205,13 +205,13 @@ internal static class ComparisonRecordRepositoryCore
                   && string.Compare(
                       normalizedRecordComparisonRecordId,
                       normalizedCursorComparisonRecordId,
-                      StringComparison.Ordinal) < 0)
+                      StringComparison.OrdinalIgnoreCase) < 0)
             : record.CreatedUtc > cursorCreatedUtc
               || (record.CreatedUtc == cursorCreatedUtc
                   && string.Compare(
                       normalizedRecordComparisonRecordId,
                       normalizedCursorComparisonRecordId,
-                      StringComparison.Ordinal) > 0);
+                      StringComparison.OrdinalIgnoreCase) > 0);
     }
 
     public static ComparisonRecord Clone(ComparisonRecord record)

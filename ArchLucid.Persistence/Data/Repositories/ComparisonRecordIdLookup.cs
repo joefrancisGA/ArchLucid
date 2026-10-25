@@ -10,7 +10,10 @@ internal static class ComparisonRecordIdLookup
 
     internal static bool StoredValueMatchesLookup(string? storedComparisonRecordId, string normalizedLookupKey) =>
         !string.IsNullOrWhiteSpace(storedComparisonRecordId)
-        && string.Equals(storedComparisonRecordId.Trim(), normalizedLookupKey, StringComparison.Ordinal);
+        && string.Equals(
+            storedComparisonRecordId.Trim(),
+            normalizedLookupKey,
+            StringComparison.OrdinalIgnoreCase);
 
     internal static string TiebreakerSortKey(string comparisonRecordId) => comparisonRecordId.Trim();
 }
