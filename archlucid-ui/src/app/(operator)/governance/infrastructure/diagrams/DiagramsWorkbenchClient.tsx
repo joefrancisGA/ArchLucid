@@ -93,6 +93,7 @@ import {
   INFRA_EVIDENCE_DIAGRAM_FAMILY_ALL,
   INFRA_EVIDENCE_DIAGRAM_FAMILY_LABELS,
   resolveInfraEvidenceDiagramFamily,
+  resolveSelectableInfraEvidenceDiagramFamily,
   type InfraEvidenceDiagramFamily,
 } from "@/lib/infra-evidence/infra-evidence-diagram-family";
 import {
@@ -1047,21 +1048,38 @@ export function DiagramsWorkbenchClient() {
     ),
     [visibleMermaidOutline],
   );
+  const effectiveEvidenceFamily = useMemo(
+    () => resolveSelectableInfraEvidenceDiagramFamily(selectedEvidenceFamily, availableEvidenceFamilies),
+    [availableEvidenceFamilies, selectedEvidenceFamily],
+  );
+
+  useEffect(() => {
+    if (!evidenceFamilyFilterEnabled || effectiveEvidenceFamily === selectedEvidenceFamily) {
+      return;
+    }
+
+    setSelectedEvidenceFamily(effectiveEvidenceFamily);
+    syncUrl({ evidenceFamily: effectiveEvidenceFamily });
+  }, [effectiveEvidenceFamily, evidenceFamilyFilterEnabled, selectedEvidenceFamily, syncUrl]);
+
   const familyFilteredOutline = useMemo(
     () => evidenceFamilyFilterEnabled
-      ? filterInfraEvidenceDiagramOutlineByFamily(visibleMermaidOutline ?? { nodes: [], edges: [] }, selectedEvidenceFamily)
+      ? filterInfraEvidenceDiagramOutlineByFamily(
+          visibleMermaidOutline ?? { nodes: [], edges: [] },
+          effectiveEvidenceFamily,
+        )
       : visibleMermaidOutline,
-    [evidenceFamilyFilterEnabled, selectedEvidenceFamily, visibleMermaidOutline],
+    [effectiveEvidenceFamily, evidenceFamilyFilterEnabled, visibleMermaidOutline],
   );
   const visibleFamilyConnectors = useMemo(
-    () => evidenceFamilyFilterEnabled && selectedEvidenceFamily !== INFRA_EVIDENCE_DIAGRAM_FAMILY_ALL
+    () => evidenceFamilyFilterEnabled && effectiveEvidenceFamily !== INFRA_EVIDENCE_DIAGRAM_FAMILY_ALL
       ? familyFilteredOutline?.edges.map((edge) => ({
           from: edge.from,
           to: edge.to,
           label: edge.label,
         })) ?? []
       : null,
-    [evidenceFamilyFilterEnabled, familyFilteredOutline, selectedEvidenceFamily],
+    [effectiveEvidenceFamily, evidenceFamilyFilterEnabled, familyFilteredOutline],
   );
 
   const handleEvidenceFamilyChange = useCallback(
@@ -3016,8 +3034,8 @@ export function DiagramsWorkbenchClient() {
                   key={family}
                   type="button"
                   size="sm"
-                  variant={selectedEvidenceFamily === family ? "primary" : "outline"}
-                  aria-pressed={selectedEvidenceFamily === family}
+                  variant={effectiveEvidenceFamily === family ? "primary" : "outline"}
+                  aria-pressed={effectiveEvidenceFamily === family}
                   onClick={() => handleEvidenceFamilyChange(family)}
                 >
                   {INFRA_EVIDENCE_DIAGRAM_FAMILY_LABELS[family]}
@@ -3026,7 +3044,7 @@ export function DiagramsWorkbenchClient() {
             </div>
           ) : null}
           {evidenceFamilyFilterEnabled
-            && selectedEvidenceFamily !== INFRA_EVIDENCE_DIAGRAM_FAMILY_ALL
+            && effectiveEvidenceFamily !== INFRA_EVIDENCE_DIAGRAM_FAMILY_ALL
             && familyFilteredOutline?.edges.length === 0 ? (
             <p
               className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
@@ -3061,7 +3079,7 @@ export function DiagramsWorkbenchClient() {
           <InfraEvidenceDiagramLegend
             outline={familyFilteredOutline}
             mermaidSource={
-              evidenceFamilyFilterEnabled && selectedEvidenceFamily !== INFRA_EVIDENCE_DIAGRAM_FAMILY_ALL
+              evidenceFamilyFilterEnabled && effectiveEvidenceFamily !== INFRA_EVIDENCE_DIAGRAM_FAMILY_ALL
                 ? null
                 : displayMermaidSource
             }

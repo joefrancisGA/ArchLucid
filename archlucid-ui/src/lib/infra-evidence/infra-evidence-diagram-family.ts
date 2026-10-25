@@ -127,6 +127,18 @@ export function resolveInfraEvidenceDiagramFamily(
   return resolveFamilyFromLabel(edge.label ?? "") ?? INFRA_EVIDENCE_DIAGRAM_FAMILY_ALL;
 }
 
+/** Keeps deep-linked family chips from stranding the workbench when the current diagram has no edges in that family. */
+export function resolveSelectableInfraEvidenceDiagramFamily(
+  selected: InfraEvidenceDiagramFamily,
+  availableFamilies: readonly InfraEvidenceDiagramFamily[],
+): InfraEvidenceDiagramFamily {
+  if (selected === INFRA_EVIDENCE_DIAGRAM_FAMILY_ALL) {
+    return selected;
+  }
+
+  return availableFamilies.includes(selected) ? selected : INFRA_EVIDENCE_DIAGRAM_FAMILY_ALL;
+}
+
 export function filterInfraEvidenceDiagramOutlineByFamily(
   outline: InfraEvidenceMermaidOutline,
   family: InfraEvidenceDiagramFamily,

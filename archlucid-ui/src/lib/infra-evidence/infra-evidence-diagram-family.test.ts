@@ -4,6 +4,7 @@ import {
   filterInfraEvidenceDiagramOutlineByFamily,
   INFRA_EVIDENCE_DIAGRAM_FAMILY_ALL,
   resolveInfraEvidenceDiagramFamily,
+  resolveSelectableInfraEvidenceDiagramFamily,
 } from "@/lib/infra-evidence/infra-evidence-diagram-family";
 import type { InfraEvidenceMermaidOutlineEdge } from "@/lib/infra-evidence/parse-infra-evidence-mermaid-outline";
 
@@ -60,6 +61,18 @@ describe("infra-evidence-diagram-family", () => {
         edge("Diagnostic setting name was not stored.", "inventory-diagnostic-setting-storage"),
       ),
     ).toBe("DeclaredMovement");
+  });
+
+  it("falls back to All when the selected family has no edges on the diagram", () => {
+    expect(resolveSelectableInfraEvidenceDiagramFamily("AuthorizedAccess", ["DeclaredMovement"])).toBe(
+      INFRA_EVIDENCE_DIAGRAM_FAMILY_ALL,
+    );
+    expect(resolveSelectableInfraEvidenceDiagramFamily("AuthorizedAccess", ["AuthorizedAccess"])).toBe(
+      "AuthorizedAccess",
+    );
+    expect(resolveSelectableInfraEvidenceDiagramFamily(INFRA_EVIDENCE_DIAGRAM_FAMILY_ALL, [])).toBe(
+      INFRA_EVIDENCE_DIAGRAM_FAMILY_ALL,
+    );
   });
 
   it("filters only matching edges while retaining nodes", () => {

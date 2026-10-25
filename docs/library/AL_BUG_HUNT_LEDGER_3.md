@@ -7085,13 +7085,15 @@ ABQ-09 churn hotspot.
 - **aliases:** infra evidence diagrams; inventory mermaid; diagrams workbench
 - **paths:** archlucid-ui/src/lib/infra-evidence/; archlucid-ui/src/components/infra-evidence/; ArchLucid.Application/InfraEvidence/Mermaid/; ArchLucid.Api/Controllers/InfraEvidence/InfraEvidenceSnapshotsController.cs; archlucid-ui/src/app/(operator)/governance/infrastructure/diagrams/
 - **test-filter:** InfraEvidence
-- **hunts:** 8
-- **bugs-found:** 7
+- **hunts:** 9
+- **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-25
-- **last-bug:** 2026-10-25 — configuration inventory edges lacked Pipeline wiring family chips
+- **last-bug:** 2026-10-25 — stale evidence-family deep links hid diagram connectors
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-25 thorough hunt (hit): deep-linked `evidenceFamily` chips could stay selected when the current diagram had no edges in that family, hiding connectors until operators guessed to click All; `resolveSelectableInfraEvidenceDiagramFamily` resets to All and syncs URL; regression `falls back to All when the selected family has no edges on the diagram`. Private beta: Invited operators switching snapshots or modes on infra evidence diagrams no longer land on an empty canvas when a bookmarked family filter does not apply to the current diagram.
 
 2026-10-25 thorough hunt (hit): static site backend, Fabric capacity workspace, and diagnostic-setting storage edges stayed in All-only family filtering though the PNG reading strip treats them as configuration relationships; mapped inference sources and labels to DeclaredMovement; regression `maps inventory configuration relationship inference sources to pipeline wiring (P-05)`. Private beta: invited operators filtering infra evidence diagrams by relationship family can now isolate linked backends, capacity assignments, and diagnostic settings with the Pipeline wiring chip instead of leaving those edges visible only under All.
 
@@ -7110,10 +7112,11 @@ ABQ-09 churn hotspot.
 - [x] (proven) `DiagramsWorkbenchClient` / `InfraEvidenceSnapshotsController.GetMermaidPreview` — mode preview omitted workbench display flags so picker status diverged from render — **hit 2026-10-21 seed hunt:** forward preview query flags; regression `forwards display flags on mermaid preview`.
 
 - [x] (proven) `infra-evidence-diagram-family` — `inventory-static-site-backend`, `inventory-fabric-capacity-workspace`, and `inventory-diagnostic-setting-storage` lacked family chips though PNG reading strip treats them as configuration relationships — **hit 2026-10-25 thorough hunt:** map inference sources and configuration edge labels to `DeclaredMovement`; regression `maps inventory configuration relationship inference sources to pipeline wiring (P-05)`.
-- [ ] (candidate) `MergeDisplayCompileOptions` — `IncludeAvdAssets` uses `??` not `||` like `IncludeNetworkDetails` — locus: `InfraEvidenceSnapshotMermaidService.MergeDisplayCompileOptions`; input: `GET /v1/infra-evidence/snapshots/{id}/mermaid?mode=full&includeCrossGroupFanOut=true&includeAvdAssets=true` when parser built options with explicit false AVD.
-- [ ] (candidate) `TryRenderInventoryPngAsync` — `GraphvizDotEmitOptions` forwards only `IncludeCrossGroupFanOut` — locus: graphviz PNG fallback path; input: PNG export with `includeNetworkDetails=true` on inventory-forest layout.
-- [ ] (candidate) `InfraEvidenceMermaidModeParser.TryParse` — `businessContinuity` branch passes `includeRecoveryServices: false` literal — locus: Success call; input: `mode=businessContinuity&includeRecoveryServices=true` when compile options object is non-null from another flag.
-- [ ] (candidate) `resolveInfraEvidenceDiagramLegendInferredCopy` — probable-band logic app edges use dedicated legend line but family filter leaves them in All only — locus: `inventory-logic-app-connection`; input: data-flow mode with Logic App API connection edges (P-11).
+- [x] (invalid) `MergeDisplayCompileOptions` — `IncludeAvdAssets` uses `??` not `||` — **cheap-disproof 2026-10-25 thorough hunt:** line 919 already uses `includeAvdAssets || (options?.IncludeAvdAssets ?? false)`; `InfraEvidenceMermaidDisplayFlagMergeTests` covers AVD for every mode.
+- [x] (valid-no-repro) `TryRenderInventoryPngAsync` — `GraphvizDotEmitOptions` forwards only `IncludeCrossGroupFanOut` — **cheap-disproof 2026-10-25 thorough hunt:** `IncludeNetworkDetails` shapes `RepairedAst` during compile/render; Graphviz emit options only gate cross-group fan-out edges at DOT emission.
+- [x] (valid-no-repro) `InfraEvidenceMermaidModeParser.TryParse` — `businessContinuity` ignores `includeRecoveryServices` — **cheap-disproof 2026-10-25 thorough hunt:** intentional; regression `TryParse_business_continuity_ignores_include_recovery_services_flag`.
+- [x] (valid-no-repro) `resolveInfraEvidenceDiagramLegendInferredCopy` / family filter — Logic App API connections stay All-only — **cheap-disproof 2026-10-25 thorough hunt:** P-11 regression `does not classify logic app connections as pipeline wiring`; dedicated probable legend via `resolveInfraEvidenceDiagramLegendProbableLine`.
+- [x] (proven) `DiagramsWorkbenchClient` / `resolveSelectableInfraEvidenceDiagramFamily` — deep-linked family with zero matching edges left canvas filtered empty with no chip selected — **hit 2026-10-25 thorough hunt:** reset to All + URL sync; regression `falls back to All when the selected family has no edges on the diagram`.
 
 - **id:** infra-evidence-diagrams
 - **status:** open
