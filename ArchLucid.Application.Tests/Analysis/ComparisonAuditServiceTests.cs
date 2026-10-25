@@ -258,6 +258,59 @@ public sealed class ComparisonAuditServiceTests
     }
 
     [Fact]
+    public async Task RecordReplayOfAsync_trims_padded_comparison_type_format_summary_and_notes_on_persist()
+    {
+        ComparisonRecord? persisted = null;
+        Mock<IComparisonRecordRepository> repo = new();
+        repo
+            .Setup(r => r.CreateAsync(It.IsAny<ComparisonRecord>(), It.IsAny<CancellationToken>()))
+            .Callback<ComparisonRecord, CancellationToken>((record, _) => persisted = record)
+            .Returns(Task.CompletedTask);
+        ComparisonAuditService sut = new(repo.Object, Mock.Of<IAuditService>());
+        ComparisonRecord source = new()
+        {
+            ComparisonRecordId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ComparisonType = $"  {ComparisonTypes.EndToEndReplay}  ",
+            LeftRunId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            RightRunId = "cccccccccccccccccccccccccccccccc",
+            Format = $"  {ComparisonTypes.FormatJsonMarkdown}  ",
+            SummaryMarkdown = "  # e2e  ",
+            PayloadJson = "{}",
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+        };
+
+        await sut.RecordReplayOfAsync(source, "  replay note  ", CancellationToken.None);
+
+        persisted.Should().NotBeNull();
+        persisted!.ComparisonType.Should().Be(ComparisonTypes.EndToEndReplay);
+        persisted.Format.Should().Be(ComparisonTypes.FormatJsonMarkdown);
+        persisted.SummaryMarkdown.Should().Be("# e2e");
+        persisted.Notes.Should().Be("replay note");
+    }
+
+    [Fact]
+    public async Task RecordEndToEndAsync_trims_padded_summary_markdown_on_persist()
+    {
+        ComparisonRecord? persisted = null;
+        Mock<IComparisonRecordRepository> repo = new();
+        repo
+            .Setup(r => r.CreateAsync(It.IsAny<ComparisonRecord>(), It.IsAny<CancellationToken>()))
+            .Callback<ComparisonRecord, CancellationToken>((record, _) => persisted = record)
+            .Returns(Task.CompletedTask);
+        ComparisonAuditService sut = new(repo.Object, Mock.Of<IAuditService>());
+        EndToEndReplayComparisonReport report = new()
+        {
+            LeftRunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            RightRunId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        };
+
+        await sut.RecordEndToEndAsync(report, "  # summary  ", CancellationToken.None);
+
+        persisted.Should().NotBeNull();
+        persisted!.SummaryMarkdown.Should().Be("# summary");
+    }
+
+    [Fact]
     public async Task RecordExportDiffAsync_AfterCreate_DoesNotLogDuplicateDurableRow()
     {
         Mock<IComparisonRecordRepository> repo = new();
