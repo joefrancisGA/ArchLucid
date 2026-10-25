@@ -79,6 +79,38 @@ public sealed class InMemoryComparisonRecordRepositoryAdditionalCoverageTests
     }
 
     [SkippableFact]
+    public async Task SearchAsync_finds_row_when_stored_tag_has_surrounding_whitespace()
+    {
+        InMemoryComparisonRecordRepository sut = new();
+        FieldInfo? itemsField = typeof(InMemoryComparisonRecordRepository).GetField(
+            "_items",
+            BindingFlags.Instance | BindingFlags.NonPublic);
+        itemsField.Should().NotBeNull();
+        List<ComparisonRecord> items = (List<ComparisonRecord>)itemsField!.GetValue(sut)!;
+        ComparisonRecord legacy = Row("cmp-tag-pad", TimeProvider.System.UtcNowDateTime(), tags: ["  pilot  "]);
+        items.Add(legacy);
+
+        IReadOnlyList<ComparisonRecord> page = await sut.SearchAsync(
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            ["pilot"],
+            null,
+            null,
+            0,
+            10,
+            CancellationToken.None);
+
+        page.Should().ContainSingle(r => r.ComparisonRecordId == "cmp-tag-pad");
+        page[0].Tags.Should().ContainSingle().Which.Should().Be("pilot");
+    }
+
+    [SkippableFact]
     public async Task SearchAsync_finds_row_when_stored_label_has_surrounding_whitespace()
     {
         InMemoryComparisonRecordRepository sut = new();

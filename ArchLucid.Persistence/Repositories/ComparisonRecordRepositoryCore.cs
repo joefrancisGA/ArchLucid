@@ -128,7 +128,9 @@ internal static class ComparisonRecordRepositoryCore
                 .Aggregate(
                     query,
                     static (current, needle) => current.Where(r =>
-                        r.Tags.Any(x => string.Equals(x, needle, StringComparison.Ordinal))));
+                        r.Tags.Any(x =>
+                            !string.IsNullOrWhiteSpace(x)
+                            && string.Equals(x.Trim(), needle, StringComparison.Ordinal))));
         }
 
         return query;

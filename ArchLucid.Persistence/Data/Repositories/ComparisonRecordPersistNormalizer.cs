@@ -16,6 +16,16 @@ internal static class ComparisonRecordPersistNormalizer
             record.ComparisonType = record.ComparisonType.Trim();
 
         record.Label = TrimLabelOrNull(record.Label);
+        NormalizeTagsInPlace(record.Tags);
+    }
+
+    private static void NormalizeTagsInPlace(List<string> tags)
+    {
+        for (int i = 0; i < tags.Count; i++)
+        {
+            if (!string.IsNullOrWhiteSpace(tags[i]))
+                tags[i] = tags[i].Trim();
+        }
     }
 
     private static string? TrimLabelOrNull(string? value) =>

@@ -170,8 +170,14 @@ public sealed class ComparisonRecordSearchPredicateBuilderTests
             label: null,
             tags: ["  alpha  ", " ", "  beta\n"]);
 
-        conditions.Should().ContainSingle(c => c.Contains("OPENJSON", StringComparison.Ordinal) && c.Contains("@Tag0"));
-        conditions.Should().ContainSingle(c => c.Contains("OPENJSON", StringComparison.Ordinal) && c.Contains("@Tag2"));
+        conditions.Should().ContainSingle(c =>
+            c.Contains("OPENJSON", StringComparison.Ordinal)
+            && c.Contains("LTRIM(RTRIM(t.value))", StringComparison.Ordinal)
+            && c.Contains("@Tag0"));
+        conditions.Should().ContainSingle(c =>
+            c.Contains("OPENJSON", StringComparison.Ordinal)
+            && c.Contains("LTRIM(RTRIM(t.value))", StringComparison.Ordinal)
+            && c.Contains("@Tag2"));
         parameters.Get<string>("@Tag0").Should().Be("alpha");
         parameters.Get<string>("@Tag2").Should().Be("beta");
     }

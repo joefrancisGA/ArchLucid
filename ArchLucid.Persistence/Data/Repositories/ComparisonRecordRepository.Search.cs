@@ -41,7 +41,8 @@ public sealed partial class ComparisonRecordRepository
     {
         using IDbConnection connection = await _readConnectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
-        if (!Guid.TryParse(runId, out Guid runGuid))
+        Guid? runGuid = ComparisonRecordRunIdSql.ToNullableSqlGuid(runId);
+        if (runGuid is null)
             return [];
 
         string sql = $"""
@@ -54,7 +55,7 @@ public sealed partial class ComparisonRecordRepository
 
         IEnumerable<ComparisonRecord> rows = await connection.QueryAsync<ComparisonRecord>(new CommandDefinition(
             sql,
-            new { RunId = runGuid },
+            new { RunId = runGuid.Value },
             cancellationToken: cancellationToken));
 
         return ComparisonRecordListProjection.MaterializeWithoutPayloadJson(rows);

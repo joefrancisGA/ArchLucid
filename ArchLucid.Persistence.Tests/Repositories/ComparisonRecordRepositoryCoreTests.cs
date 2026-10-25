@@ -110,6 +110,19 @@ public sealed class ComparisonRecordRepositoryCoreTests
     }
 
     [Fact]
+    public void FilterInMemory_finds_row_when_stored_tag_has_surrounding_whitespace()
+    {
+        ComparisonRecord tagged = Record("tagged", tags: ["  alpha  "]);
+        ComparisonRecord other = Record("other", tags: ["beta"]);
+
+        List<ComparisonRecord> filtered = ComparisonRecordRepositoryCore
+            .FilterInMemory([tagged, other], null, null, null, null, null, null, null, null, ["alpha"])
+            .ToList();
+
+        filtered.Should().ContainSingle().Which.ComparisonRecordId.Should().Be("tagged");
+    }
+
+    [Fact]
     public void OrderInMemory_uses_trimmed_comparison_record_id_tiebreaker_when_created_utc_equal()
     {
         DateTime sharedTime = new(2026, 1, 2, 0, 0, 0, DateTimeKind.Utc);
