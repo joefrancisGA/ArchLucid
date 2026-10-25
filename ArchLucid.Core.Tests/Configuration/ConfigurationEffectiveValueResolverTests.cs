@@ -780,6 +780,42 @@ public sealed class ConfigurationEffectiveValueResolverTests
     }
 
     [Fact]
+    public void Resolve_redacts_json_array_effective_values_when_array_of_arrays_contains_password_pair()
+    {
+        const string configPath = "ArchLucid:SomeFeature:Settings";
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = """[[{"k":"Password=x"}]]""",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(configuration, configPath, isSet: true);
+
+        value.Should().Be("***");
+    }
+
+    [Fact]
+    public void Resolve_keeps_truncated_effective_value_well_formed_when_length_exceeds_bound_with_trailing_combining_mark()
+    {
+        const string configPath = "ArchLucid:SomeFeature:Settings";
+        string configured = new string('c', 256) + "\u0301";
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = configured,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(configuration, configPath, isSet: true);
+
+        value.Should().NotBeNull();
+        value.Should().EndWith("…");
+        value!.Length.Should().Be(257);
+        TruncatedPrefixIsWellFormed(value).Should().BeTrue();
+    }
+
+    [Fact]
     public void Resolve_preserves_scalar_effective_value_at_exactly_256_bmp_chars_without_ellipsis()
     {
         const string configPath = "ArchLucid:SomeFeature:Settings";
