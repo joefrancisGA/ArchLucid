@@ -1350,6 +1350,42 @@ describe("ResourceHubClient", () => {
     expect(await screen.findByText("Network relationship type was not stored.")).toBeInTheDocument();
   });
 
+  it("shows RBAC principal omission copy when principalId is whitespace-only", async () => {
+    fetchCachedInfraEvidenceResourceHub.mockImplementation(async () =>
+      buildResourceHubTestMockHub({
+        rbacAssignments: [
+          {
+            principalId: "   ",
+            roleDefinitionId: "role-reader",
+            scope: "/subscriptions/sub",
+          },
+        ],
+      }),
+    );
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    expect(await screen.findByText("RBAC principal was not stored.")).toBeInTheDocument();
+    expect(screen.getByText("role-reader")).toBeInTheDocument();
+  });
+
+  it("shows RBAC role omission copy when roleDefinitionId is whitespace-only", async () => {
+    fetchCachedInfraEvidenceResourceHub.mockImplementation(async () =>
+      buildResourceHubTestMockHub({
+        rbacAssignments: [
+          {
+            principalId: "principal-1",
+            roleDefinitionId: "   ",
+            scope: "/subscriptions/sub",
+          },
+        ],
+      }),
+    );
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    expect(await screen.findByText("RBAC role was not stored.")).toBeInTheDocument();
+    expect(screen.getByText("principal-1")).toBeInTheDocument();
+  });
+
   it("shows RBAC scope omission copy when a captured scope is whitespace-only", async () => {
     fetchCachedInfraEvidenceResourceHub.mockImplementation(async () =>
       buildResourceHubTestMockHub({

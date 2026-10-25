@@ -1257,8 +1257,18 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                           <EnterpriseTableRow
                             key={`${assignment.principalId}-${assignment.roleDefinitionId}-${assignment.scope}`}
                           >
-                            <EnterpriseTableCell className="font-mono text-xs">{assignment.principalId}</EnterpriseTableCell>
-                            <EnterpriseTableCell className="font-mono text-xs">{assignment.roleDefinitionId}</EnterpriseTableCell>
+                            <EnterpriseTableCell className="font-mono text-xs">
+                              {formatStoredInfraEvidenceHubField(
+                                assignment.principalId,
+                                "RBAC principal was not stored.",
+                              )}
+                            </EnterpriseTableCell>
+                            <EnterpriseTableCell className="font-mono text-xs">
+                              {formatStoredInfraEvidenceHubField(
+                                assignment.roleDefinitionId,
+                                "RBAC role was not stored.",
+                              )}
+                            </EnterpriseTableCell>
                             <EnterpriseTableCell className="font-mono text-xs">
                               {formatStoredInfraEvidenceHubField(assignment.scope, "RBAC scope was not stored.")}
                             </EnterpriseTableCell>
