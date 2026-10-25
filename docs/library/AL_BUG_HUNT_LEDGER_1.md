@@ -6868,6 +6868,20 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-25 seed hunt (seed→hit): proved `ComparisonsApplicationService.TryListByRunIdAsync`, `TryListByExportRecordIdAsync`, and `SearchAsync` returned repository list/search projections with padded `ComparisonRecordId` values and built `NextCursor` from untrimmed ids while hunt 161 already normalized scoped single-record reads, so run/export comparison history and search pagination echoed legacy padding; normalize list rows via `ComparisonRecordScopedReadNormalizer.NormalizeListInPlace` before return and before cursor composition; regressions `CompareQuality_TryListByRunIdAsync_trims_padded_comparison_record_id_from_list_rows` and `CompareQuality_SearchAsync_trims_padded_comparison_record_id_in_results_and_next_cursor`; cheap-disproof closed scoped single-record path (hunt 161), `ApiPaging.TryParseUtcTicksIdCursor` (comparison search normalizes inbound cursor id), batch zip manifest echo (cosmetic), Armenian homoglyphs (deferred), and persistence-layer determinism normalize (deferred); seeded five follow-on rows; scoped application-analysis + replay filter 325/325. Private beta: comparison history lists and search pages return trimmed record ids and stable pagination cursors aligned with single-record comparison APIs.
+
+- [ ] (candidate) `ComparisonsApplicationService.TryListByExportRecordIdAsync` — export-scoped list without list normalizer on empty result edge — locus: idempotent after hunt 162 list helper.
+- [ ] (candidate) `RunExportQueryFacade.ListExportsByRunIdAsync` — export list echoes padded export record ids — locus: parallel export history surface.
+- [ ] (candidate) `ApiPaging.TryParseUtcTicksIdCursor` — cursor id segment without trim — locus: HTTP cursor parse; input: padded id after ticks delimiter (alerts inbox and other API surfaces).
+- [ ] (candidate) `ComparisonBatchReplayZipSupport` — manifest failure entries echo pre-trim batch tokens — locus: zip manifest; input: cosmetic id echo only.
+- [ ] (candidate) `RunExportRecordPersistNormalizer` — persistence-layer determinism column normalize — locus: repository read; input: consolidation at DB boundary.
+
+- [x] (proven) `ComparisonsApplicationService.TryListByRunIdAsync` / `SearchAsync` — padded comparison record id on list and next cursor — **hit 2026-10-25 seed hunt:** `NormalizeListInPlace`; regressions above.
+- [x] (valid-no-repro) `TryListByExportRecordIdAsync` — export comparison list — **cheap-disproof 2026-10-25 seed hunt:** same list normalizer applied.
+- [x] (valid-no-repro) `LoadScopedComparisonRecordAsync` — scoped single-record read — **cheap-disproof 2026-10-25 seed hunt:** hunt 161.
+- [x] (invalid) `ApiPaging.TryParseUtcTicksIdCursor` — HTTP cursor id trim — **cheap-disproof 2026-10-25 seed hunt:** comparison search normalizes at application layer.
+- [x] (invalid) `ComparisonBatchReplayZipSupport` — manifest id echo — **cheap-disproof 2026-10-25 seed hunt:** cosmetic only.
+
 2026-10-25 seed hunt (seed→hit): proved `ComparisonsApplicationService.LoadScopedComparisonRecordAsync` returned stored comparison rows with padded `ComparisonRecordId` (and non-canonical run/export anchors) while replay, drift, and cost-estimate paths already normalized ids on their response DTOs (hunts 157–160), so `GET /v1/planning/comparisons/{id}` and other scoped record reads echoed legacy padding; normalize on scoped read via shared `ComparisonRecordScopedReadNormalizer`; regression `CompareQuality_TryGetScopedRecordAsync_trims_padded_comparison_record_id_from_stored_row`; cheap-disproof closed `TryListByRunIdAsync` list projection (separate list path), `ApiPaging.TryParseUtcTicksIdCursor` (comparison search normalizes cursor id), batch zip manifest echo (cosmetic), Armenian homoglyphs (deferred), and persistence-layer determinism normalize (deferred); seeded five follow-on rows; scoped application-analysis + replay filter 323/323. Private beta: comparison record detail and scoped reads return trimmed record ids and canonical run/export anchors matching replay and export surfaces.
 
 - [ ] (candidate) `ComparisonsApplicationService.TryListByRunIdAsync` — repository list rows echo padded `ComparisonRecordId` — locus: run history list; input: legacy row padding without scoped load.
@@ -8073,11 +8087,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 161
-- **bugs-found:** 167
+- **hunts:** 162
+- **bugs-found:** 168
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-25
-- **last-bug:** 2026-10-25 — scoped comparison record read trims padded id
+- **last-bug:** 2026-10-25 — comparison list/search trims padded record ids
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
