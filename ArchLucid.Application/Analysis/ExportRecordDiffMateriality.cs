@@ -15,7 +15,10 @@ internal static class ExportRecordDiffMateriality
                || diff.Warnings.Count > 0
                || requestDiff.ChangedFlags.Count > 0
                || requestDiff.ChangedValues.Count > 0
-               || requestDiff.LeftRequest is not null
-               || requestDiff.RightRequest is not null;
+               || HasMaterialRequest(requestDiff.LeftRequest)
+               || HasMaterialRequest(requestDiff.RightRequest);
     }
+
+    private static bool HasMaterialRequest(PersistedAnalysisExportRequest? request) =>
+        request is not null && !PersistedAnalysisExportRequestMetadata.IsPersistedEmptyShell(request);
 }

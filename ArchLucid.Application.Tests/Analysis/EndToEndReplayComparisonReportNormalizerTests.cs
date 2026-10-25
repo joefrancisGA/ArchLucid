@@ -342,6 +342,39 @@ public sealed class EndToEndReplayComparisonReportNormalizerTests
     }
 
     [Fact]
+    public void CompareQuality_EndToEndReplayComparisonReportNormalizer_drops_export_diff_with_empty_nested_request_shells()
+    {
+        EndToEndReplayComparisonReport report = new()
+        {
+            LeftRunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            RightRunId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            ExportDiffs =
+            [
+                new ExportRecordDiffResult
+                {
+                    RequestDiff = new ExportRecordRequestDiff
+                    {
+                        LeftRequest = new PersistedAnalysisExportRequest(),
+                        RightRequest = new PersistedAnalysisExportRequest { Audience = "   " },
+                    },
+                },
+                new ExportRecordDiffResult
+                {
+                    RequestDiff = new ExportRecordRequestDiff
+                    {
+                        LeftRequest = new PersistedAnalysisExportRequest { CompareManifestVersion = "v2" },
+                    },
+                },
+            ],
+        };
+
+        EndToEndReplayComparisonReportNormalizer.NormalizePersistedPayload(report);
+
+        report.ExportDiffs.Should().ContainSingle();
+        report.ExportDiffs[0].RequestDiff.LeftRequest!.CompareManifestVersion.Should().Be("v2");
+    }
+
+    [Fact]
     public void CompareQuality_EndToEndReplayComparisonReportNormalizer_nulls_immaterial_manifest_diff_shell()
     {
         EndToEndReplayComparisonReport report = new()

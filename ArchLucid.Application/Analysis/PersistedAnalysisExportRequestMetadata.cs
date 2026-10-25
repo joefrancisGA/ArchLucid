@@ -25,4 +25,33 @@ internal static class PersistedAnalysisExportRequestMetadata
         request.ReviewBoardWhitelabelLogoBlobReference = NormalizeOptionalString(request.ReviewBoardWhitelabelLogoBlobReference);
         request.ReviewBoardWhitelabelFooterAttribution = NormalizeOptionalString(request.ReviewBoardWhitelabelFooterAttribution);
     }
+
+    internal static bool IsPersistedEmptyShell(PersistedAnalysisExportRequest request)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+
+        return request.TemplateProfile is null
+               && request.Audience is null
+               && !request.ExternalDelivery
+               && !request.ExecutiveFriendly
+               && !request.RegulatedEnvironment
+               && !request.NeedDetailedEvidence
+               && !request.NeedExecutionTraces
+               && !request.NeedDeterminismOrCompareAppendices
+               && !request.IncludeEvidence
+               && !request.IncludeExecutionTraces
+               && !request.IncludeManifest
+               && !request.IncludeDiagram
+               && !request.IncludeSummary
+               && !request.IncludeDeterminismCheck
+               && request.DeterminismIterations == 0
+               && !request.IncludeManifestCompare
+               && request.CompareManifestVersion is null
+               && !request.IncludeAgentResultCompare
+               && request.CompareRunId is null
+               && request.ReviewBoardWhitelabelFirmDisplayName is null
+               && request.ReviewBoardWhitelabelClientEngagementTitle is null
+               && request.ReviewBoardWhitelabelLogoBlobReference is null
+               && request.ReviewBoardWhitelabelFooterAttribution is null;
+    }
 }
