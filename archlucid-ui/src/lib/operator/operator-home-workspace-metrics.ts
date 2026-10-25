@@ -1,6 +1,6 @@
 import { resolveRunFindingCountDisplay } from "@/lib/operator/operator-home-run-list-insight";
 import { formatOperatorHomeApprovalCheckWarningCount } from "@/lib/operator/operator-home-approval-check-warning-copy";
-import { resolveRunHomeStatusTag } from "@/lib/operator/run-home-status";
+import { normalizeOperatorHomeNonNegativeCount, resolveRunHomeStatusTag } from "@/lib/operator/run-home-status";
 import { OPERATOR_HOME_SEALED_REVIEW_RECORD_NOUN } from "@/lib/metric-count-presentation";
 import type { RunSummary } from "@/types/authority";
 
@@ -49,7 +49,9 @@ export function deriveOperatorHomeWorkspaceMetrics(
   totalCount: number,
   awaitingApprovalCount = 0,
 ): OperatorHomeWorkspaceMetricsSnapshot {
-  const reviewPackagesTotal = Math.max(0, totalCount);
+  const reviewPackagesTotal = Number.isFinite(totalCount)
+    ? Math.max(0, Math.trunc(totalCount))
+    : 0;
 
   let reviewPackagesCommitted = 0;
   let reviewPackagesActive = 0;
@@ -84,7 +86,9 @@ export function deriveOperatorHomeWorkspaceMetrics(
     }
   }
 
-  const normalizedAwaitingApproval = Math.max(0, Math.trunc(awaitingApprovalCount));
+  const normalizedAwaitingApproval = Number.isFinite(awaitingApprovalCount)
+    ? Math.max(0, Math.trunc(awaitingApprovalCount))
+    : 0;
 
   return {
     reviewPackagesTotal,
@@ -98,12 +102,22 @@ export function deriveOperatorHomeWorkspaceMetrics(
   };
 }
 
+function normalizeSetupReadinessCount(count: number): number {
+  return normalizeOperatorHomeNonNegativeCount(count);
+}
+
 export function formatSetupReadinessLabel(readyCount: number, totalCount: number): string {
-  return `${readyCount} of ${totalCount} ready`;
+  const ready = normalizeSetupReadinessCount(readyCount);
+  const total = normalizeSetupReadinessCount(totalCount);
+
+  return `${ready} of ${total} ready`;
 }
 
 export function formatSetupReadinessCompactLabel(readyCount: number, totalCount: number): string {
-  return `Setup ${readyCount}/${totalCount}`;
+  const ready = normalizeSetupReadinessCount(readyCount);
+  const total = normalizeSetupReadinessCount(totalCount);
+
+  return `Setup ${ready}/${total}`;
 }
 
 export type OperatorHomeCompactMetricsLineInput = {
@@ -117,11 +131,12 @@ export type OperatorHomeCompactMetricsLineInput = {
 export function formatOperatorHomeCompactMetricsLine(
   input: OperatorHomeCompactMetricsLineInput,
 ): string {
-  const activeReviews = input.metrics.reviewPackagesActive;
+  const activeReviews = normalizeOperatorHomeNonNegativeCount(input.metrics.reviewPackagesActive);
   const activeLabel = `${activeReviews} Active review${activeReviews === 1 ? "" : "s"}`;
-  const sealedCount = input.metrics.reviewPackagesCommitted;
+  const sealedCount = normalizeOperatorHomeNonNegativeCount(input.metrics.reviewPackagesCommitted);
   const sealedLabel = `${sealedCount} ${sealedCount === 1 ? OPERATOR_HOME_SEALED_REVIEW_RECORD_NOUN.singular : OPERATOR_HOME_SEALED_REVIEW_RECORD_NOUN.plural}`;
-  const findingsLabel = `${input.metrics.openFindings} Open finding${input.metrics.openFindings === 1 ? "" : "s"}`;
+  const openFindings = normalizeOperatorHomeNonNegativeCount(input.metrics.openFindings);
+  const findingsLabel = `${openFindings} Open finding${openFindings === 1 ? "" : "s"}`;
   const warningsLabel = formatOperatorHomeApprovalCheckWarningCount(input.metrics.governanceWarnings);
   const setupLabel = input.setupReadinessLoading
     ? "Setup …"
@@ -139,5 +154,8 @@ export function formatOperatorHomeCompactMetricsLine(
 }
 
 export function formatSetupReadinessCompleteLabel(readyCount: number, totalCount: number): string {
-  return `${readyCount} of ${totalCount} complete`;
+  const ready = normalizeSetupReadinessCount(readyCount);
+  const total = normalizeSetupReadinessCount(totalCount);
+
+  return `${ready} of ${total} complete`;
 }

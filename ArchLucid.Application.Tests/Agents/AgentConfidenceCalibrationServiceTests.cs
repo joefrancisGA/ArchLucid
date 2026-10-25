@@ -84,4 +84,55 @@ public sealed class AgentConfidenceCalibrationServiceTests
             r => r.UpsertCalibratedConfidenceAsync("result-1", 0.55, It.IsAny<CancellationToken>()),
             Times.Once);
     }
+
+    [Fact]
+    public async Task ApplyCalibratedConfidenceForRunAsync_skips_null_result_entries()
+    {
+        AgentResult retained = new()
+        {
+            ResultId = "result-1",
+            TaskId = "task-1",
+            RunId = "run-1",
+            AgentType = AgentType.Topology,
+            Confidence = 0.5,
+        };
+
+        Mock<IAgentResultRepository> resultRepository = new();
+        resultRepository
+            .Setup(r => r.GetByRunIdAsync(It.IsAny<ScopeContext>(), "run-1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync([null!, retained]);
+
+        Mock<IAgentResultEnrichmentRepository> enrichmentRepository = new();
+        enrichmentRepository
+            .Setup(r => r.UpsertCalibratedConfidenceAsync(
+                It.IsAny<string>(),
+                It.IsAny<double>(),
+                It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IAgentConfidenceCalibrator> calibrator = new();
+        calibrator
+            .Setup(c => c.CalibrateAsync(
+                AgentType.Topology,
+                0.5,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(0.4);
+
+        Mock<IScopeContextProvider> scopeContextProvider = new();
+        scopeContextProvider.Setup(s => s.GetCurrentScope()).Returns(new ScopeContext());
+
+        AgentConfidenceCalibrationService sut = new(
+            resultRepository.Object,
+            enrichmentRepository.Object,
+            scopeContextProvider.Object,
+            calibrator.Object,
+            Options.Create(new AgentConfidenceCalibrationOptions { Enabled = true }),
+            NullLogger<AgentConfidenceCalibrationService>.Instance);
+
+        await sut.ApplyCalibratedConfidenceForRunAsync("run-1", CancellationToken.None);
+
+        calibrator.Verify(
+            c => c.CalibrateAsync(AgentType.Topology, 0.5, It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
 }

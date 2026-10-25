@@ -1,3 +1,6 @@
+import {
+  ARCHITECTURE_DIAGRAM_DATA_FLOW_NOT_MATCHED_PREFIX,
+} from "@/lib/architecture/architecture-diagram-copy";
 import type { ArchitectureDiagramModel, ArchitectureDiagramNode } from "@/lib/architecture/architecture-diagram-types";
 import { wrapArchitectureDiagramLabelForMermaidSource } from "@/lib/architecture/wrap-architecture-diagram-label";
 
@@ -65,7 +68,7 @@ export function architectureDiagramModelToMermaid(
   const peerResourceNames = activeNodes.map((node) => node.label);
 
   if (activeNodes.length === 0) {
-    return "flowchart TB\n  empty[\"No components available\"]";
+    return "flowchart TB\n";
   }
 
   lines.push(...mermaidClassDefLines(dark));
@@ -133,8 +136,13 @@ export function architectureDiagramModelToTextAlternative(model: ArchitectureDia
   });
   const boundaryLine =
     model.trustBoundaryLabels.length > 0 ? `Trust boundaries: ${model.trustBoundaryLabels.join(", ")}` : null;
+  const unmatchedLines = model.unmatchedDataFlows.map(
+    (flow) => `${ARCHITECTURE_DIAGRAM_DATA_FLOW_NOT_MATCHED_PREFIX} ${flow}`,
+  );
 
-  return [nodeLines.join("; "), edgeLines.join("; "), boundaryLine].filter((line) => line !== null && line.length > 0).join(". ");
+  return [nodeLines.join("; "), edgeLines.join("; "), boundaryLine, ...unmatchedLines]
+    .filter((line) => line !== null && line.length > 0)
+    .join(". ");
 }
 
 export function isValidMermaidArchitectureDiagram(source: string): boolean {

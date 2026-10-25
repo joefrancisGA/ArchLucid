@@ -4,9 +4,6 @@ import Link from "next/link";
 import type { ReactElement } from "react";
 
 import { CopyIdButton } from "@/components/CopyIdButton";
-import {
-  BUYER_SHOWCASE_RESIDUAL_RISK_OWNER,
-} from "@/lib/buyer/buyer-polish-copy";
 import { resolveProductionEvalChromeFromStorage } from "@/lib/resolve-production-eval-chrome-from-storage";
 import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -46,19 +43,9 @@ export function FindingInspectAuditSection({
           </p>
         )
       ) : demoFillGaps && !buyerPolishedShell ? (
-        <div className={cn("mt-2 space-y-1 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-          <p className="m-0">
-            <strong className="font-medium">Related audit event</strong> — Monitored finding recorded with governance
-            disposition and policy rule linkage. Actor:{" "}
-            <span className="text-al-text-secondary">Jordan Lee (Architecture approver)</span>
-            {" · "}
-            Outcome:{" "}
-            <span className="text-al-text-secondary">Accepted with monitoring — residual risk owner {BUYER_SHOWCASE_RESIDUAL_RISK_OWNER}</span>
-          </p>
-          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-            Monitoring cadence was not stored.
-          </p>
-        </div>
+        <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+          Audit record was not stored.
+        </p>
       ) : buyerPolishedShell ? (
         <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
           No linked audit event for this finding.

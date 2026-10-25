@@ -92,10 +92,9 @@ export function SponsorRoiDashboardLiveKpiCards({
     ? (loadingProp ?? false) || decisionsQuery.isPending || attestationQuery.isPending
     : summaryQuery.isPending || decisionsQuery.isPending || attestationQuery.isPending;
 
-  const staleRiskCount =
-    resolvedSummary?.staleArchitectureRiskCount ?? decisionsQuery.data?.staleRisks ?? 0;
-  const expiringWaiversCount = decisionsQuery.data?.waiversExpiringWithin14Days ?? 0;
-  const decisionsNeededCount = decisionsQuery.data?.totalDecisionItems ?? 0;
+  const staleRiskCount = resolvedSummary?.staleArchitectureRiskCount ?? decisionsQuery.data?.staleRisks;
+  const expiringWaiversCount = decisionsQuery.data?.waiversExpiringWithin14Days;
+  const decisionsNeededCount = decisionsQuery.data?.totalDecisionItems;
 
   const buyerPolished = isBuyerPolishedOperatorShellEnv();
 
@@ -208,7 +207,7 @@ export function SponsorRoiDashboardLiveKpiCards({
             <SelfDescribingMetricCount
               variant="executive"
               presentation={sponsorNewlyDiscoveredFindingsPresentation(
-                resolvedSummary?.newlyDiscoveredFindingsCount30Days ?? 0,
+                resolvedSummary?.newlyDiscoveredFindingsCount30Days,
               )}
               testId="exec-kpi-discovered-30d-count"
             />

@@ -240,6 +240,63 @@ describe("working-workspace-continuity-sync (IH-066)", () => {
     expect(JSON.parse(window.localStorage.getItem(FAVORITE_REVIEWS_STORAGE_KEY) ?? "[]")).toEqual([]);
   });
 
+  it("coerces unknown recent-view kinds to page on server hydrate", () => {
+    applyWorkingWorkspaceContinuityFromServer({
+      favoriteReviews: [],
+      recentViewEntries: [
+        {
+          href: "/help/workspace-scope",
+          label: "Workspace scope",
+          kind: "survey-junk",
+          visitedAtUtc: "2026-09-13T12:01:00Z",
+        },
+      ],
+      updatedAtUtc: "2026-09-13T12:02:00Z",
+    });
+
+    const stored = JSON.parse(window.localStorage.getItem(OPERATOR_RECENT_VIEWS_STORAGE_KEY) ?? "{}");
+
+    expect(stored.entries).toEqual([
+      {
+        href: "/help/workspace-scope",
+        label: "Workspace scope",
+        kind: "page",
+        visitedAtUtc: "2026-09-13T12:01:00Z",
+      },
+    ]);
+  });
+
+  it("does not persist invalid server updatedAtUtc as the continuity watermark", () => {
+    window.localStorage.setItem(
+      WORKING_WORKSPACE_CONTINUITY_SYNCED_AT_STORAGE_KEY,
+      "2026-09-13T10:00:00Z",
+    );
+
+    applyWorkingWorkspaceContinuityFromServer({
+      favoriteReviews: [],
+      recentViewEntries: [],
+      updatedAtUtc: "not-a-date",
+    });
+
+    expect(window.localStorage.getItem(WORKING_WORKSPACE_CONTINUITY_SYNCED_AT_STORAGE_KEY)).toBe(
+      "2026-09-13T10:00:00Z",
+    );
+  });
+
+  it("hydrates when local continuity watermark is unparseable and server sends a valid timestamp", () => {
+    window.localStorage.setItem(
+      WORKING_WORKSPACE_CONTINUITY_SYNCED_AT_STORAGE_KEY,
+      "not-a-date",
+    );
+
+    expect(
+      shouldHydrateWorkingWorkspaceContinuityFromServer(
+        { favoriteReviews: [], recentViewEntries: [], updatedAtUtc: "2026-09-13T12:00:00Z" },
+        true,
+      ),
+    ).toBe(true);
+  });
+
   it("drops favorite rows when runId is whitespace-only", () => {
     applyWorkingWorkspaceContinuityFromServer({
       favoriteReviews: [{ runId: "   ", pinnedAtUtc: "2026-09-13T12:00:00Z" }],

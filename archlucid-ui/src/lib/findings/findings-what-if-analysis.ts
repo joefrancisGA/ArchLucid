@@ -35,15 +35,15 @@ function readFiniteNumber(value: unknown): number | null {
   return null;
 }
 
-/** Projected annual USD savings carried on the finding wire payload (0 when absent or unparsable). */
-export function readFindingProjectedImpactUsd(finding: QuickDecisionFinding): number {
+/** Projected annual USD savings on the finding wire payload, or null when omitted or unparsable. */
+export function readFindingProjectedImpactUsd(finding: QuickDecisionFinding): number | null {
   const parsed = parseFindingWireCostData(finding);
 
   if (parsed === null) {
-    return 0;
+    return null;
   }
 
-  return readFiniteNumber(parsed.projectedImpactUsd) ?? 0;
+  return readFiniteNumber(parsed.projectedImpactUsd);
 }
 
 /** Confidence bounds for the projected impact, or null when the wire carries neither bound. */
@@ -84,5 +84,9 @@ export function hasFindingsWhatIfAnalysisContent(
     return true;
   }
 
-  return findings.some((finding) => readFindingProjectedImpactUsd(finding) > 0);
+  return findings.some((finding) => {
+    const impact = readFindingProjectedImpactUsd(finding);
+
+    return impact !== null && impact > 0;
+  });
 }

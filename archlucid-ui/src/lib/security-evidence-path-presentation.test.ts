@@ -15,15 +15,17 @@ describe("security-evidence-path-presentation", () => {
     expect(formatSecurityEvidenceProvenanceKindLabel("AiInference")).toBe("AI inference");
     expect(formatSecurityEvidencePathConfidenceBandLabel("HighlyLikely")).toBe("Highly likely");
     expect(formatSecurityEvidencePathConfidenceBandLabel("InsufficientEvidence")).toBe("Insufficient evidence");
+    expect(formatSecurityEvidenceProvenanceKindLabel("")).toBe("Provenance was not stored.");
+    expect(formatSecurityEvidencePathConfidenceBandLabel("")).toBe("Confidence band was not stored.");
   });
 
   it("maps path kinds to reader-facing labels and preserves unknown values", () => {
     expect(formatSecurityEvidencePathKindLabel("IntendedReachability")).toBe("Can reach");
     expect(formatSecurityEvidencePathKindLabel("Privilege")).toBe("Privilege");
     expect(formatSecurityEvidencePathKindLabel("CapabilityToFlow")).toBe("May access");
-    expect(formatSecurityEvidencePathKindLabel("FutureKind")).toBe("FutureKind");
+    expect(formatSecurityEvidencePathKindLabel("FutureKind")).toBe("Path kind was not recognized.");
     expect(formatSecurityEvidencePathKindLabel(null)).toBe("Path kind was not stored.");
-    expect(formatSecurityEvidencePathKindLabel("")).toBe("");
+    expect(formatSecurityEvidencePathKindLabel("")).toBe("Path kind was not stored.");
   });
 
   it("maps confidence bands to enterprise status kinds without percentages", () => {
@@ -42,5 +44,6 @@ describe("security-evidence-path-presentation", () => {
       "logs",
     );
     expect(securityEvidencePathHopNodeName("Internet")).toBe("Internet");
+    expect(securityEvidencePathHopNodeName("")).toBe("Node name was not stored.");
   });
 });

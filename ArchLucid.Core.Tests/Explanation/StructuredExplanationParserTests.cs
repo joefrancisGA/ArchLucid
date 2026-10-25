@@ -229,6 +229,116 @@ public sealed class StructuredExplanationParserTests
     }
 
     [Fact]
+    public void TryNormalizeStructuredJson_coerces_percent_suffixed_confidence_with_interior_space_in_array()
+    {
+        const string json = """{"reasoning":"Main","confidence":["75 %"]}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.Confidence.Should().Be(0.75m);
+    }
+
+    [Fact]
+    public void TryNormalizeStructuredJson_coerces_percent_suffixed_confidence_in_nested_array()
+    {
+        const string json = """{"reasoning":"Main","confidence":[["75%"]]}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.Confidence.Should().Be(0.75m);
+    }
+
+    [Fact]
+    public void TryNormalizeStructuredJson_coerces_plus_prefixed_percent_confidence()
+    {
+        const string json = """{"reasoning":"Main","confidence":"+75%"}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.Confidence.Should().Be(0.75m);
+    }
+
+    [Fact]
+    public void TryNormalizeStructuredJson_ignores_boolean_confidence_in_sole_element_array()
+    {
+        const string json = """{"reasoning":"Main","confidence":[true]}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.Confidence.Should().BeNull();
+    }
+
+    [Fact]
+    public void TryNormalizeStructuredJson_uses_finite_confidence_when_array_leads_with_boolean_entry()
+    {
+        const string json = """{"reasoning":"Main","confidence":[true,0.75]}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.Confidence.Should().Be(0.75m);
+    }
+
+    [Fact]
+    public void TryNormalizeStructuredJson_rejects_underscore_separated_percent_confidence()
+    {
+        const string json = """{"reasoning":"Main","confidence":"75_%"}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.Confidence.Should().BeNull();
+    }
+
+    [Fact]
+    public void TryNormalizeStructuredJson_scales_whole_number_confidence_in_sole_element_array()
+    {
+        const string json = """{"reasoning":"Main","confidence":[75]}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.Confidence.Should().Be(0.75m);
+    }
+
+    [Fact]
+    public void TryNormalizeStructuredJson_scales_whole_number_string_confidence_in_sole_element_array()
+    {
+        const string json = """{"reasoning":"Main","confidence":["75"]}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.Confidence.Should().Be(0.75m);
+    }
+
+    [Fact]
+    public void TryNormalizeStructuredJson_uses_non_empty_confidence_when_later_case_variant_is_whole_number_array()
+    {
+        const string json = """{"reasoning":"Main","confidence":0.8,"CONFIDENCE":[75]}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.Confidence.Should().Be(0.8m);
+    }
+
+    [Fact]
+    public void TryNormalizeStructuredJson_uses_non_empty_confidence_when_later_case_variant_is_one_in_array()
+    {
+        const string json = """{"reasoning":"Main","confidence":0.8,"CONFIDENCE":[1]}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.Confidence.Should().Be(0.8m);
+    }
+
+    [Fact]
     public void TryNormalizeStructuredJson_coerces_percent_suffixed_confidence_with_interior_space_before_percent()
     {
         const string json = """{"reasoning":"Main","confidence":"75 %"}""";

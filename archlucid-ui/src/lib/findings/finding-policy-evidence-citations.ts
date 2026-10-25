@@ -301,7 +301,10 @@ export function buildFindingPolicyEvidenceCitationsFromQuickDecision(
     policy,
     evidence: [
       {
-        label: evidenceRefCount === 1 ? "1 linked evidence reference" : `${evidenceRefCount} linked evidence references`,
+        label:
+          evidenceRefCount === 1
+            ? "1 evidence reference was stored without an excerpt."
+            : `${evidenceRefCount} evidence references were stored without excerpts.`,
         detail: null,
         href: fallbackHref,
       },

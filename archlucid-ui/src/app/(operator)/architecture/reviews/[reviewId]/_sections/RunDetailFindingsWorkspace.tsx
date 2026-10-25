@@ -259,6 +259,8 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
 
   const createHomeSurface = props.packageCommitted === false;
   const actorNodeCount = countActorNodesInGraphSnapshot(props.graphSnapshot);
+  const showActorCountNotStored =
+    props.analysisStagesComplete === true && actorNodeCount === null;
   const showActorEnginesQuietHint =
     props.analysisStagesComplete === true && actorNodeCount === 0;
   const triageCounts = deriveRunDetailFindingsTriageCounts(props.findings);
@@ -402,6 +404,9 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
   );
   const toolbarEl = (
     <div className="space-y-3" data-testid="run-detail-findings-toolbar-hero">
+      {architectWorkspaceChrome && showActorCountNotStored ? (
+        <ActorDependentFindingsQuietEnginesHint show={true} hintKind="actor-count-not-stored" />
+      ) : null}
       {architectWorkspaceChrome && showActorEnginesQuietHint ? (
         <ActorDependentFindingsQuietEnginesHint show={true} runId={props.runId} />
       ) : null}

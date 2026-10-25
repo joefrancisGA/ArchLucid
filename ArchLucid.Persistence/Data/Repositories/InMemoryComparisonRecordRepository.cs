@@ -72,13 +72,14 @@ public sealed class InMemoryComparisonRecordRepository : IComparisonRecordReposi
         CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
+        string normalizedExportRecordId = ComparisonExportRecordIdLookup.NormalizeLookupKey(exportRecordId);
 
         lock (_gate)
         {
             List<ComparisonRecord> list = _items
                 .Where(r =>
-                    string.Equals(r.LeftExportRecordId, exportRecordId, StringComparison.Ordinal) ||
-                    string.Equals(r.RightExportRecordId, exportRecordId, StringComparison.Ordinal))
+                    ComparisonExportRecordIdLookup.StoredValueMatchesLookup(r.LeftExportRecordId, normalizedExportRecordId) ||
+                    ComparisonExportRecordIdLookup.StoredValueMatchesLookup(r.RightExportRecordId, normalizedExportRecordId))
                 .OrderByDescending(r => r.CreatedUtc)
                 .Select(r => ComparisonRecordListProjection.WithoutPayloadJson(ComparisonRecordRepositoryCore.Clone(r)))
                 .ToList();

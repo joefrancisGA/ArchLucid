@@ -10,6 +10,7 @@ export type AskCitationActionFollowUpsProps = {
   readonly chips: readonly AskCitationActionFollowUp[];
   /** When true and chips are empty, show an honest empty note instead of hiding the region. */
   readonly showHonestEmpty?: boolean;
+  readonly reviewId?: string;
 };
 
 /**
@@ -23,6 +24,8 @@ export function AskCitationActionFollowUps(props: AskCitationActionFollowUpsProp
       return null;
     }
 
+    const emptyNote = "No linked finding, evidence, or decision to open from this answer.";
+
     return (
       <div
         className="mt-3"
@@ -30,9 +33,7 @@ export function AskCitationActionFollowUps(props: AskCitationActionFollowUpsProp
         role="region"
         aria-label="Cited finding follow-ups"
       >
-        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-          No linked finding, evidence, or decision to open from this answer.
-        </p>
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{emptyNote}</p>
       </div>
     );
   }

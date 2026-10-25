@@ -1236,6 +1236,14 @@ internal static partial class RunExplanationAggregateJsonReader
 
     private static double? TryReadAggregateRatioFromArrayItems(JsonElement ratioArray)
     {
+        int nonNullEntryCount = 0;
+
+        foreach (JsonElement entry in ratioArray.EnumerateArray())
+        {
+            if (entry.ValueKind != JsonValueKind.Null)
+                nonNullEntryCount++;
+        }
+
         foreach (JsonElement item in ratioArray.EnumerateArray())
         {
             if (item.ValueKind == JsonValueKind.Array)
@@ -1249,7 +1257,18 @@ internal static partial class RunExplanationAggregateJsonReader
             }
 
             if (RatioArrayItemIsDuplicateAliasPoison(item))
+            {
+                if (nonNullEntryCount == 1
+                    && item.ValueKind is not (JsonValueKind.True or JsonValueKind.False)
+                    && TryReadFiniteDouble(item) is double poisonedRatio
+                    && (poisonedRatio == 1 || poisonedRatio > 1)
+                    && NormalizeUnitRatio(poisonedRatio) is { } normalizedSoleRatio)
+                {
+                    return normalizedSoleRatio;
+                }
+
                 continue;
+            }
 
             if (TryReadFiniteDouble(item) is double ratio)
                 return ratio;

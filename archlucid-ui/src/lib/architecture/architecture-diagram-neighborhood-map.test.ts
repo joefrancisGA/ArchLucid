@@ -122,4 +122,15 @@ describe("shouldAutoOpenDiagramNeighborhoodMap", () => {
       links: [],
     })).toBe(true);
   });
+
+  it("opens when any neighborhood omits resource count", () => {
+    expect(
+      shouldAutoOpenDiagramNeighborhoodMap({
+        neighborhoods: [
+          { id: "a", kind: "vnet", title: "a", resourceCount: null, memberIds: [], frameIds: [], types: [] },
+        ],
+        links: [],
+      }),
+    ).toBe(true);
+  });
 });
