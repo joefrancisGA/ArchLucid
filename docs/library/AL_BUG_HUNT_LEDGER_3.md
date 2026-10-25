@@ -7254,13 +7254,15 @@ ABQ-09 churn hotspot.
 - **aliases:** infra evidence diagrams; inventory mermaid; diagrams workbench
 - **paths:** archlucid-ui/src/lib/infra-evidence/; archlucid-ui/src/components/infra-evidence/; ArchLucid.Application/InfraEvidence/Mermaid/; ArchLucid.Api/Controllers/InfraEvidence/InfraEvidenceSnapshotsController.cs; archlucid-ui/src/app/(operator)/governance/infrastructure/diagrams/
 - **test-filter:** InfraEvidence
-- **hunts:** 9
-- **bugs-found:** 8
+- **hunts:** 10
+- **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-25
-- **last-bug:** 2026-10-25 — stale evidence-family deep links hid diagram connectors
+- **last-bug:** 2026-10-25 — evidence-family filter hid all connectors when display mermaid lowercased edge labels
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-25 seed hunt (hit): diagrams workbench parsed Mermaid outline from raw server source while the canvas renders display-normalized labels, so evidence-family `visibleConnectors` matched zero SVG edges and hid every connector; parse `displayMermaidSource` for outline and compare connector labels case-insensitively in `applyConnectorVisibility`; regression `lowercases edge labels in display mermaid so outline must parse display source for family filtering`; scoped infra-evidence diagram vitest passed. Private beta: Invited operators filtering infra evidence diagrams by relationship family again see the matching connectors instead of a blank canvas when SecureNow display normalization lowercases edge labels.
 
 2026-10-25 thorough hunt (hit): deep-linked `evidenceFamily` chips could stay selected when the current diagram had no edges in that family, hiding connectors until operators guessed to click All; `resolveSelectableInfraEvidenceDiagramFamily` resets to All and syncs URL; regression `falls back to All when the selected family has no edges on the diagram`. Private beta: Invited operators switching snapshots or modes on infra evidence diagrams no longer land on an empty canvas when a bookmarked family filter does not apply to the current diagram.
 
@@ -7286,6 +7288,14 @@ ABQ-09 churn hotspot.
 - [x] (valid-no-repro) `InfraEvidenceMermaidModeParser.TryParse` — `businessContinuity` ignores `includeRecoveryServices` — **cheap-disproof 2026-10-25 thorough hunt:** intentional; regression `TryParse_business_continuity_ignores_include_recovery_services_flag`.
 - [x] (valid-no-repro) `resolveInfraEvidenceDiagramLegendInferredCopy` / family filter — Logic App API connections stay All-only — **cheap-disproof 2026-10-25 thorough hunt:** P-11 regression `does not classify logic app connections as pipeline wiring`; dedicated probable legend via `resolveInfraEvidenceDiagramLegendProbableLine`.
 - [x] (proven) `DiagramsWorkbenchClient` / `resolveSelectableInfraEvidenceDiagramFamily` — deep-linked family with zero matching edges left canvas filtered empty with no chip selected — **hit 2026-10-25 thorough hunt:** reset to All + URL sync; regression `falls back to All when the selected family has no edges on the diagram`.
+
+- [x] (proven) `DiagramsWorkbenchClient` / `ArchitectureDiagramViewer.applyConnectorVisibility` — evidence-family filter hid every connector when display-normalized Mermaid labels diverged from raw outline text — **hit 2026-10-25 seed hunt:** parse display mermaid for outline + case-insensitive label match; regression `lowercases edge labels in display mermaid so outline must parse display source for family filtering`.
+
+- [ ] (candidate) `DiagramsWorkbenchClient` — seed catalog outline still parses raw executive mermaid without display normalization — locus: dependency-neighborhood seed catalog fetch; input: catalog render with mixed-case edge labels.
+- [ ] (candidate) `applyConnectorVisibility` — null `visibleConnectors` vs empty array semantics for family filter — locus: `visibleFamilyConnectors` memo; input: family chip with zero edges after snapshot swap.
+- [ ] (candidate) `InfraEvidenceDiagramLegend` — omits declared/probable rows when `mermaidSource` is null under active family filter — locus: legend props when `effectiveEvidenceFamily !== all`; input: filtered outline with declared edges only.
+- [ ] (candidate) `resolveInfraEvidenceDiagramFamily` — private endpoint inference sources map to StructuralNetworkPath chip — locus: `FAMILY_BY_INFERENCE_SOURCE`; input: `inventory-private-endpoint` edge fixture.
+- [ ] (candidate) `normalizeInfraEvidenceLayoutSvgForDisplay` — lowercases SVG text nodes independently of mermaid outline parity — locus: layout SVG normalization; input: PNG export reading strip with mixed-case snapshot label.
 
 - **id:** infra-evidence-diagrams
 - **status:** open

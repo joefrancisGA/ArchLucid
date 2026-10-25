@@ -1024,12 +1024,12 @@ export function DiagramsWorkbenchClient() {
   }, [diagramContentEmpty, renderStatus]);
 
   const mermaidOutline = useMemo(() => {
-    if (mermaidSource.trim().length === 0) {
+    if (displayMermaidSource.trim().length === 0) {
       return null;
     }
 
-    return parseInfraEvidenceMermaidOutline(mermaidSource);
-  }, [mermaidSource]);
+    return parseInfraEvidenceMermaidOutline(displayMermaidSource);
+  }, [displayMermaidSource]);
 
   const visibleMermaidOutline = useMemo(() => {
     if (mermaidOutline == null) {
