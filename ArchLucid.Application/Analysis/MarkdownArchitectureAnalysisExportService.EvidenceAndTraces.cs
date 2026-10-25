@@ -45,7 +45,7 @@ public sealed partial class MarkdownArchitectureAnalysisExportService
             }
             else
             {
-                sb.AppendLine($"- Constraints: {ArchitectureEvidenceRequestExport.ConstraintsNotStoredCopy}");
+                sb.AppendLine($"- Constraints: {ArchitectureEvidenceRequestExport.ConstraintsNotRecordedCopy}");
             }
 
             if (evidence.Request.RequiredCapabilities.Count > 0)
@@ -57,7 +57,7 @@ public sealed partial class MarkdownArchitectureAnalysisExportService
             else
             {
                 sb.AppendLine(
-                    $"- Required Capabilities: {ArchitectureEvidenceRequestExport.RequiredCapabilitiesNotStoredCopy}");
+                    $"- Required Capabilities: {ArchitectureEvidenceRequestExport.RequiredCapabilitiesNotRecordedCopy}");
             }
 
             if (evidence.Request.Assumptions.Count > 0)
@@ -68,7 +68,7 @@ public sealed partial class MarkdownArchitectureAnalysisExportService
             }
             else
             {
-                sb.AppendLine($"- Assumptions: {ArchitectureEvidenceRequestExport.AssumptionsNotStoredCopy}");
+                sb.AppendLine($"- Assumptions: {ArchitectureEvidenceRequestExport.AssumptionsNotRecordedCopy}");
             }
 
             sb.AppendLine();

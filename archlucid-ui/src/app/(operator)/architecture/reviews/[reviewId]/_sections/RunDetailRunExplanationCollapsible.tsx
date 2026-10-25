@@ -353,6 +353,7 @@ export function RunDetailRunExplanationCollapsible(
           graphSnapshot={graphSnapshot}
           requestAssumptionTexts={props.requestAssumptionTexts}
           withheldFindings={props.withheldFindings}
+          withheldListLoadState={props.withheldListLoadState ?? null}
           structuralExecutionMode={structuralExecutionMode}
           parentArchitectureId={parentArchitectureId}
         />

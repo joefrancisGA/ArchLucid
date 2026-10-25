@@ -65,6 +65,7 @@ export type RunDetailPresentation = {
   readonly blockingApprovalCount: number;
   readonly lowExtractionConfidenceCount: number;
   readonly withheldFindings: readonly WithheldFindingRow[];
+  readonly withheldListLoadState: string | null;
   readonly catalogAdvisoryEngineFailureCount: number;
   readonly workspaceStatus: RunDetailWorkspaceStatus;
   readonly reviewPipelineIncomplete: boolean;

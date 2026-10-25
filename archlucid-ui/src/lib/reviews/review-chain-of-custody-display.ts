@@ -1,12 +1,11 @@
 export const POLICY_PACK_WAS_NOT_STORED = "Policy pack was not stored.";
 export const POLICY_PACK_VERSION_WAS_NOT_STORED = "Policy pack version was not stored.";
-export const TRIGGER_WAS_NOT_STORED = "Trigger was not stored.";
+export const TRIGGER_SOURCE_WAS_NOT_STORED = "Trigger source was not stored.";
 export const PACKAGE_NOT_YET_SEALED = "Not yet sealed";
 export const SEALED_TIME_WAS_NOT_STORED = "Sealed time was not stored.";
 
 export function reviewChainOfCustodyPolicyPackAppliedLabel(
   ruleSetId: string | null | undefined,
-  ruleSetVersion: string | null | undefined,
 ): string {
   const id = ruleSetId?.trim() ?? "";
 
@@ -14,13 +13,26 @@ export function reviewChainOfCustodyPolicyPackAppliedLabel(
     return POLICY_PACK_WAS_NOT_STORED;
   }
 
+  return id;
+}
+
+export function reviewChainOfCustodyPolicyPackVersionLabel(
+  ruleSetId: string | null | undefined,
+  ruleSetVersion: string | null | undefined,
+): string | null {
+  const id = ruleSetId?.trim() ?? "";
+
+  if (id.length === 0) {
+    return null;
+  }
+
   const version = ruleSetVersion?.trim() ?? "";
 
   if (version.length === 0) {
-    return `${id} · ${POLICY_PACK_VERSION_WAS_NOT_STORED}`;
+    return POLICY_PACK_VERSION_WAS_NOT_STORED;
   }
 
-  return `${id} v${version}`;
+  return `v${version}`;
 }
 
 export function reviewChainOfCustodyTriggerSourceLabel(
@@ -38,7 +50,7 @@ export function reviewChainOfCustodyTriggerSourceLabel(
     return "Web UI";
   }
 
-  return TRIGGER_WAS_NOT_STORED;
+  return TRIGGER_SOURCE_WAS_NOT_STORED;
 }
 
 export function reviewChainOfCustodyPackageSealedLabel(
