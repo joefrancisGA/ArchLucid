@@ -36,7 +36,7 @@ describe("formatActionActorName", () => {
     expect(formatActionActorName("api-user")).toBe("api-user");
   });
 
-  it("returns N/A for null, undefined, and blank values", () => {
+  it("returns omission copy for null, undefined, and blank values", () => {
     expect(formatActionActorName(null)).toBe(ACTION_ACTOR_UNAVAILABLE);
     expect(formatActionActorName(undefined)).toBe(ACTION_ACTOR_UNAVAILABLE);
     expect(formatActionActorName("")).toBe(ACTION_ACTOR_UNAVAILABLE);

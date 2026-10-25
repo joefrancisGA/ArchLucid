@@ -6,6 +6,8 @@ import {
   buildReviewMeetingCaptureEntries,
   buildReviewMeetingCaptureMetaParts,
   formatReviewMeetingCapturePlainText,
+  formatReviewMeetingCaptureAnswer,
+  formatReviewMeetingCaptureQuestionLabel,
   presenterAssertedQuestionLabel,
   resolveReviewMeetingCaptureEntries,
 } from "@/lib/reviews/review-meeting-capture-export";
@@ -59,7 +61,10 @@ describe("review-meeting-capture-export (PC-09 optional)", () => {
       "Responder was not stored.",
       "Answer recorded time was not stored.",
     ]);
-    expect(buildReviewMeetingCaptureMetaParts(entries[1]!)).toEqual([]);
+    expect(buildReviewMeetingCaptureMetaParts(entries[1]!)).toEqual([
+      "Responder was stored empty.",
+      "Answer recorded time was stored empty.",
+    ]);
   });
 
   it("filters presenter answers from transparency trail", () => {
@@ -95,5 +100,23 @@ describe("review-meeting-capture-export (PC-09 optional)", () => {
 
   it("returns empty plain text when there are no entries", () => {
     expect(formatReviewMeetingCapturePlainText([])).toBe("");
+  });
+
+  it("labels blank meeting-capture questions and answers in plain text", () => {
+    expect(formatReviewMeetingCaptureQuestionLabel("")).toBe("Question was not stored.");
+    expect(formatReviewMeetingCaptureAnswer("   ")).toBe("Answer was not stored.");
+
+    const text = formatReviewMeetingCapturePlainText([
+      {
+        questionLabel: "",
+        answer: "",
+        responderLabel: null,
+        recordedUtc: null,
+        recordedAtLabel: null,
+      },
+    ]);
+
+    expect(text).toContain("Q: Question was not stored.");
+    expect(text).toContain("A: Answer was not stored.");
   });
 });

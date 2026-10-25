@@ -66,6 +66,23 @@ describe("RunDetailLastFailureCard (TB-965)", () => {
     expect(screen.getByText("Technical details")).toBeInTheDocument();
   });
 
+  it("states when failure time and agent metadata were not stored", () => {
+    render(
+      <RunDetailLastFailureCard
+        summary={{
+          failureClass: "timeout",
+          triageScenarioId: "timeout",
+        }}
+        legacyRunStatus="Failed"
+      />,
+    );
+
+    expect(screen.getByTestId("run-detail-last-failure-recorded-at")).toHaveTextContent(
+      "Failure recorded time was not stored.",
+    );
+    expect(screen.getByTestId("run-detail-last-failure-agent")).toHaveTextContent("Agent was not stored.");
+  });
+
   it("hides stale failure details while a re-run attempt is in flight", () => {
     useReviewPipelineReRunInFlightMock.mockReturnValue(true);
 

@@ -56,7 +56,7 @@ describe("run-detail-workspace-derive", () => {
       finding(3, { isMuted: true }),
     ]);
 
-    expect(counts).toEqual({ critical: 1, high: 1, medium: 1, low: 1 });
+    expect(counts).toEqual({ critical: 1, high: 1, medium: 1, low: 0, info: 1 });
   });
 
   it("maps draft vs analysis-in-progress status", () => {
@@ -511,6 +511,16 @@ describe("run-detail-workspace-derive", () => {
     ]);
 
     expect(summary.summaryLine).toBe("1 of 2 open findings have linked evidence");
+  });
+
+  it("does not treat missing evidence ref counts as zero linked findings", () => {
+    const summary = deriveEvidenceCoverageSummary([
+      finding(1, { evidenceRefCount: null }),
+      finding(2, { evidenceRefCount: null }),
+      finding(0, { evidenceRefCount: null }),
+    ]);
+
+    expect(summary.summaryLine).toBe("Evidence link count was not stored.");
   });
 
   it("shortens next-action copy for primary CTA labels", () => {

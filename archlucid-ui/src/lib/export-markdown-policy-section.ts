@@ -9,8 +9,15 @@ import {
 
 import { isRecord, normalizeInlineText, pushBulletLines } from "./export-markdown-text";
 
+export const POLICY_SECTION_NOT_STORED_COPY = "Policy section was not stored." as const;
+
 export function formatPolicySection(policy: Record<string, unknown> | null, lines: string[]): void {
   if (policy === null) {
+    lines.push("## Policy");
+    lines.push("");
+    lines.push(POLICY_SECTION_NOT_STORED_COPY);
+    lines.push("");
+
     return;
   }
 

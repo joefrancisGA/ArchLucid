@@ -10,15 +10,26 @@ import type { RunSummary } from "@/types/authority";
 
 export { runListPrimaryTitle };
 
-function runRowNumericCountsLine(run: RunSummary, buyerPolished: boolean): string | null {
+export const FINDINGS_SNAPSHOT_FLAG_NOT_STORED_LABEL = "Findings snapshot flag was not stored." as const;
+
+export const RUN_LIST_FINDING_COUNT_NOT_STORED_LABEL = "Finding count was not stored." as const;
+
+export const RUN_LIST_WARNING_COUNT_NOT_STORED_LABEL = "Warning count was not stored." as const;
+
+export const RUN_LIST_ARTIFACT_COUNT_NOT_STORED_LABEL = "Artifact count was not stored." as const;
+
+export function runRowNumericCountsLine(run: RunSummary, buyerPolished: boolean): string | null {
   const fc = run.findingCount;
   const wc = run.warningCount;
   const ac = run.artifactCount;
   const hasFinding = typeof fc === "number" && Number.isFinite(fc);
   const hasWarning = typeof wc === "number" && Number.isFinite(wc);
   const hasArtifact = typeof ac === "number" && Number.isFinite(ac);
+  const findingOmitted = fc === null || fc === undefined;
+  const warningOmitted = wc === null || wc === undefined;
+  const artifactOmitted = ac === null || ac === undefined;
 
-  if (!hasFinding && !hasWarning && !hasArtifact) {
+  if (!hasFinding && !hasWarning && !hasArtifact && !findingOmitted && !warningOmitted && !artifactOmitted) {
     return null;
   }
 
@@ -26,14 +37,20 @@ function runRowNumericCountsLine(run: RunSummary, buyerPolished: boolean): strin
 
   if (hasFinding) {
     tokens.push(`${fc} findings`);
+  } else if (findingOmitted) {
+    tokens.push(RUN_LIST_FINDING_COUNT_NOT_STORED_LABEL);
   }
 
   if (hasWarning) {
     tokens.push(buyerPolished ? `${wc} monitored risks` : `${wc} warnings`);
+  } else if (warningOmitted) {
+    tokens.push(RUN_LIST_WARNING_COUNT_NOT_STORED_LABEL);
   }
 
   if (hasArtifact) {
     tokens.push(`${ac} artifacts`);
+  } else if (artifactOmitted) {
+    tokens.push(RUN_LIST_ARTIFACT_COUNT_NOT_STORED_LABEL);
   }
 
   return tokens.join(" · ");
@@ -67,6 +84,10 @@ export function runRowOutputReadinessLineBuyer(run: RunSummary): string {
 
   if (complete) {
     return "All review steps complete";
+  }
+
+  if (run.hasFindingsSnapshot === undefined) {
+    return FINDINGS_SNAPSHOT_FLAG_NOT_STORED_LABEL;
   }
 
   const started =
@@ -103,12 +124,14 @@ export function runRowOutputReadinessLine(run: RunSummary): string {
     run.hasFindingsSnapshot === true &&
     run.hasGoldenManifest === true
       ? "Review trail complete"
-      : run.hasContextSnapshot === true ||
-          run.hasGraphSnapshot === true ||
-          run.hasFindingsSnapshot === true ||
-          run.hasGoldenManifest === true
-        ? "Review trail partial"
-        : "Review trail: not started";
+      : run.hasFindingsSnapshot === undefined
+        ? FINDINGS_SNAPSHOT_FLAG_NOT_STORED_LABEL
+        : run.hasContextSnapshot === true ||
+            run.hasGraphSnapshot === true ||
+            run.hasFindingsSnapshot === true ||
+            run.hasGoldenManifest === true
+          ? "Review trail partial"
+          : "Review trail: not started";
 
   if (tokens.length === 0) {
     return `Output: in progress · ${reviewTrailSummary}`;

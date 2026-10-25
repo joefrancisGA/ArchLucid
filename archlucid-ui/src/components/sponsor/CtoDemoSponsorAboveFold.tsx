@@ -12,7 +12,10 @@ import {
 import { isCtoDemoPackEnv } from "@/lib/cto-demo-presenter-pack";
 import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY, operatorSemanticBadge } from "@/lib/design-tokens";
 import { getFindingEvidenceInspectHref } from "@/lib/findings/finding-evidence-navigation";
-import { severityFromTrace, severitySortRank } from "@/lib/sponsor-finding-severity";
+import {
+  formatSponsorTraceConfidenceDisplay,
+  severitySortRank,
+} from "@/lib/sponsor-finding-severity";
 import { decisionGradeSponsorTraceRows } from "@/lib/sponsor-decision-grade-trace-rows";
 import {
   RISK_POSTURE_NOT_STORED_LABEL,
@@ -180,8 +183,8 @@ export function traceRowsToCtoDemoTopRisks(
 
       return {
         findingId,
-        title: titleRaw.length > 0 ? titleRaw : findingId,
-        severity: severityFromTrace(t.traceConfidenceLabel),
+        title: titleRaw.length > 0 ? titleRaw : "Finding title was not stored.",
+        severity: formatSponsorTraceConfidenceDisplay(t.traceConfidenceLabel),
         sortKey: severitySortRank(t.traceConfidenceLabel),
       };
     });

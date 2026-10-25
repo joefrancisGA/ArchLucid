@@ -3,12 +3,18 @@ import { StatusTag } from "@/components/ui/status-tag";
 import { formatInstantForLocale } from "@/lib/locale-datetime";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { RunDetailWorkspaceStatus } from "@/lib/run-detail-workspace-derive";
+import {
+  formatRunDetailAwaitingActionCountDisplay,
+  formatRunDetailCriticalFindingCountDisplay,
+  formatRunDetailHighFindingCountDisplay,
+} from "@/lib/reviews/run-detail-sponsor-finding-count-display";
 import { cn } from "@/lib/utils";
 
 export type RunDetailSponsorReportProps = {
   readonly workspaceStatus: RunDetailWorkspaceStatus;
   readonly overallPosture: string;
   readonly highestSeverity: string | null;
+  readonly hasFindingsSnapshot?: boolean;
   readonly criticalCount: number;
   readonly highCount: number;
   readonly awaitingActionCount: number;
@@ -80,19 +86,25 @@ export function RunDetailSponsorReport(
         <div>
           <dt className="text-neutral-500 dark:text-neutral-400">Critical findings</dt>
           <dd className="m-0 mt-0.5 font-semibold tabular-nums text-neutral-900 dark:text-neutral-100">
-            {props.criticalCount === 0 ? "None" : props.criticalCount}
+            {formatRunDetailCriticalFindingCountDisplay(
+              props.hasFindingsSnapshot,
+              props.criticalCount,
+            )}
           </dd>
         </div>
         <div>
           <dt className="text-neutral-500 dark:text-neutral-400">High findings</dt>
           <dd className="m-0 mt-0.5 font-semibold tabular-nums text-neutral-900 dark:text-neutral-100">
-            {props.highCount === 0 ? "None" : props.highCount}
+            {formatRunDetailHighFindingCountDisplay(props.hasFindingsSnapshot, props.highCount)}
           </dd>
         </div>
         <div>
           <dt className="text-neutral-500 dark:text-neutral-400">Findings requiring action</dt>
           <dd className="m-0 mt-0.5 font-semibold tabular-nums text-neutral-900 dark:text-neutral-100">
-            {props.awaitingActionCount}
+            {formatRunDetailAwaitingActionCountDisplay(
+              props.hasFindingsSnapshot,
+              props.awaitingActionCount,
+            )}
           </dd>
         </div>
         <div>
