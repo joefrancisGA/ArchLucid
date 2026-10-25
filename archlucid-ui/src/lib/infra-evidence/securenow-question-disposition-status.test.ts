@@ -8,6 +8,8 @@ import {
   secureNowQuestionReviewerClosedAnswerCodeLine,
   secureNowQuestionReviewerClosedAnswerTextLine,
   secureNowQuestionReviewerClosedDispositionReasonLine,
+  secureNowQuestionReviewerReasonTextLine,
+  secureNowQuestionReviewerSourceLine,
 } from "@/lib/infra-evidence/securenow-question-disposition-status";
 
 describe("secureNowQuestionDispositionStatusTrimmed", () => {
@@ -58,5 +60,19 @@ describe("secureNowQuestionReviewerClosedDispositionReasonLine", () => {
     expect(secureNowQuestionReviewerClosedDispositionReasonLine("  Operator selected the peer.  ")).toBe(
       "Operator selected the peer.",
     );
+  });
+});
+
+describe("secureNowQuestionReviewerReasonTextLine", () => {
+  it("returns trimmed reason text for display", () => {
+    expect(secureNowQuestionReviewerReasonTextLine("  SecureNow found no peer.  ")).toBe(
+      "SecureNow found no peer.",
+    );
+  });
+});
+
+describe("secureNowQuestionReviewerSourceLine", () => {
+  it("returns trimmed source lines for display", () => {
+    expect(secureNowQuestionReviewerSourceLine("  Inventory evidence  ")).toBe("Inventory evidence");
   });
 });

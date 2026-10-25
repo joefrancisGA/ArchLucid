@@ -82,3 +82,13 @@ export function secureNowQuestionReviewerClosedDispositionReasonLine(
 
   return trimmed;
 }
+
+export function secureNowQuestionReviewerReasonTextLine(reasonText: string): string {
+  const trimmed = reasonText.trim();
+  return trimmed.length > 0 ? trimmed : "Reason was not stored";
+}
+
+export function secureNowQuestionReviewerSourceLine(sourceLine: string): string {
+  const trimmed = sourceLine.trim();
+  return trimmed.length > 0 ? trimmed : "Source line was not stored";
+}

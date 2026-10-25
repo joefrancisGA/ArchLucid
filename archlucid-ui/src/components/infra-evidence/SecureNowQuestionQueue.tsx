@@ -21,6 +21,8 @@ import {
   secureNowQuestionReviewerClosedAnswerCodeLine,
   secureNowQuestionReviewerClosedAnswerTextLine,
   secureNowQuestionReviewerClosedDispositionReasonLine,
+  secureNowQuestionReviewerReasonTextLine,
+  secureNowQuestionReviewerSourceLine,
 } from "@/lib/infra-evidence/securenow-question-disposition-status";
 import { secureNowQuestionReviewerExpirationUtcStamp } from "@/lib/infra-evidence/securenow-question-expiration";
 import type { SecureNowQuestion } from "@/lib/infra-evidence/securenow-question-queue-api";
@@ -257,7 +259,7 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
                 ? "Question text was not stored."
                 : currentQuestion.questionText.trim().length === 0
                   ? "Question text was stored empty."
-                  : currentQuestion.questionText}
+                  : currentQuestion.questionText.trim()}
             </p>
           ) : null}
           {currentQuestion != null && secureNowQuestionDispositionIsClosed(currentQuestion.status) ? (
@@ -485,15 +487,11 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
               <div className="space-y-1">
                 <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>Why SecureNow is asking</h3>
                 <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)} data-testid="infra-diagrams-question-reason">
-                  {currentQuestion.reasonText.trim().length > 0
-                    ? currentQuestion.reasonText
-                    : "Reason was not stored"}
+                  {secureNowQuestionReviewerReasonTextLine(currentQuestion.reasonText)}
                 </p>
               </div>
               <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                {currentQuestion.sourceLine.trim().length > 0
-                  ? currentQuestion.sourceLine
-                  : "Source line was not stored"}
+                {secureNowQuestionReviewerSourceLine(currentQuestion.sourceLine)}
               </p>
               <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                 Source: {secureNowQuestionReviewerSourceLabel(

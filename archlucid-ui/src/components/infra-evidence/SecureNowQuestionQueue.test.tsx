@@ -239,6 +239,50 @@ describe("SecureNowQuestionQueue", () => {
     expect(screen.getByText("Evidence fingerprint: fingerprint")).toBeInTheDocument();
   });
 
+  it("shows trimmed reason and source lines in details", async () => {
+    mocks.listQuestions.mockResolvedValue([
+      {
+        ...question,
+        reasonText: `  ${question.reasonText}  `,
+        sourceLine: "  Inventory evidence  ",
+      },
+    ]);
+
+    render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
+    fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
+
+    expect(screen.getByTestId("infra-diagrams-question-reason")).toHaveTextContent(question.reasonText);
+    expect(screen.getByText("Inventory evidence")).toBeInTheDocument();
+  });
+
+  it("skips only one row when omitted keys share text but fingerprints differ", async () => {
+    mocks.listQuestions.mockResolvedValue([
+      {
+        ...question,
+        questionKey: null,
+        dispositionId: null,
+        questionText: "Shared prompt without a stored key?",
+        evidenceFingerprint: "fingerprint-a",
+      },
+      {
+        ...question,
+        questionKey: null,
+        dispositionId: null,
+        questionText: "Shared prompt without a stored key?",
+        evidenceFingerprint: "fingerprint-b",
+      },
+    ]);
+
+    render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
+    fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
+
+    expect(screen.getAllByText("Shared prompt without a stored key?")).toHaveLength(1);
+    fireEvent.click(screen.getByRole("button", { name: "Not sure. This does not store an answer." }));
+
+    expect(await screen.findByText("Shared prompt without a stored key?")).toBeInTheDocument();
+    expect(screen.queryByText("No questions match this filter.")).not.toBeInTheDocument();
+  });
+
   it("shows trimmed expiration timestamps in details", async () => {
     mocks.listQuestions.mockResolvedValue([
       {
@@ -636,8 +680,18 @@ describe("SecureNowQuestionQueue", () => {
 
   it("skips only the active question when multiple open rows omit question keys", async () => {
     mocks.listQuestions.mockResolvedValue([
-      { ...question, questionKey: null, questionText: "First question without a stored key?" },
-      { ...question, questionKey: null, questionText: "Second question without a stored key?" },
+      {
+        ...question,
+        questionKey: null,
+        questionText: "First question without a stored key?",
+        evidenceFingerprint: null,
+      },
+      {
+        ...question,
+        questionKey: null,
+        questionText: "Second question without a stored key?",
+        evidenceFingerprint: null,
+      },
     ]);
 
     render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);

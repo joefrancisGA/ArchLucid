@@ -116,9 +116,15 @@ function questionIdentity(question: SecureNowQuestion): string {
     keySegment = mutationQuestionKey;
   } else {
     const dispositionId = question.dispositionId?.trim() ?? "";
-    keySegment = dispositionId.length > 0
-      ? `missing-key:disposition:${normalize(dispositionId)}`
-      : `missing-key:${normalize(question.questionText)}`;
+    if (dispositionId.length > 0) {
+      keySegment = `missing-key:disposition:${normalize(dispositionId)}`;
+    } else {
+      const fingerprint =
+        secureNowQuestionDispositionMutationEvidenceFingerprint(question.evidenceFingerprint);
+      keySegment = fingerprint !== null
+        ? `missing-key:fingerprint:${normalize(fingerprint)}`
+        : `missing-key:${normalize(question.questionText)}`;
+    }
   }
 
   return `${normalize(question.subscriptionId ?? "")}|${normalize(question.resourceId ?? "")}|${keySegment}`;
