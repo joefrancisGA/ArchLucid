@@ -779,6 +779,55 @@ public sealed class CompareQualityExportRecordDiffTests
     }
 
     [Fact]
+    public void CompareQuality_export_record_diff_treats_whitespace_only_compare_run_column_as_equivalent_to_null()
+    {
+        ExportRecordDiffService sut = new();
+        RunExportRecord left = new()
+        {
+            ExportRecordId = "left",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = "ArchitectureAnalysis",
+            Format = "Markdown",
+            FileName = "a.md",
+            CompareRunId = "   ",
+            AnalysisRequestJson = """{"includeManifest":true}""",
+        };
+        RunExportRecord right = new()
+        {
+            ExportRecordId = "right",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = "ArchitectureAnalysis",
+            Format = "Markdown",
+            FileName = "a.md",
+            CompareRunId = null,
+            AnalysisRequestJson = """{"includeManifest":true}""",
+        };
+
+        ExportRecordDiffResult result = sut.Compare(left, right);
+
+        result.ChangedTopLevelFields.Should().NotContain("CompareRunId");
+    }
+
+    [Fact]
+    public void CompareQuality_scoped_export_read_normalizer_nulls_whitespace_only_compare_run_id_column()
+    {
+        RunExportRecord record = new()
+        {
+            ExportRecordId = "export-whitespace-compare-run",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = "ArchitectureAnalysis",
+            Format = "Markdown",
+            FileName = "a.md",
+            CompareRunId = "   ",
+            AnalysisRequestJson = """{"includeManifest":true}""",
+        };
+
+        RunExportRecordScopedReadNormalizer.NormalizeInPlace(record);
+
+        record.CompareRunId.Should().BeNull();
+    }
+
+    [Fact]
     public void CompareQuality_export_record_diff_ignores_padding_only_compare_run_id_on_top_level_columns()
     {
         const string compareRunId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb";

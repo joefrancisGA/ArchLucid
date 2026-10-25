@@ -14,7 +14,8 @@ internal static class RunExportRecordScopedReadNormalizer
         record.ExportRecordId = RunExportRecordIdNormalizer.NormalizeRequired(record.ExportRecordId);
         record.RunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(record.RunId);
 
-        if (!string.IsNullOrWhiteSpace(record.CompareRunId))
+        record.CompareRunId = PersistedAnalysisExportRequestMetadata.NormalizeOptionalString(record.CompareRunId);
+        if (!string.IsNullOrEmpty(record.CompareRunId))
             record.CompareRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(record.CompareRunId);
 
         record.CompareManifestVersion =
