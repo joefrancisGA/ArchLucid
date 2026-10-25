@@ -4,7 +4,7 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 
 import {
-  deriveOperatorHomeWorkspaceMetrics,
+  deriveOperatorHomeWorkspaceMetricsFromOverviewRuns,
   formatSetupReadinessLabel,
   OPERATOR_HOME_WORKSPACE_METRICS_EMPTY_COPY,
   type OperatorHomeWorkspaceMetricsSnapshot,
@@ -74,7 +74,10 @@ function buildReviewPackagesValue(metrics: OperatorHomeWorkspaceMetricsSnapshot)
 /** Compact workspace metrics — primary KPIs are doors into findings / warnings / packages. */
 export function OperatorHomeWorkspaceMetricsSummary(props: OperatorHomeWorkspaceMetricsSummaryProps) {
   const variant = props.variant ?? "primary";
-  const metrics = deriveOperatorHomeWorkspaceMetrics(props.runsDashboard.items, props.runsDashboard.totalCount);
+  const metrics = deriveOperatorHomeWorkspaceMetricsFromOverviewRuns(
+    props.runsDashboard.items,
+    props.runsDashboard.totalCount,
+  );
   const setupReadinessValue = props.setupReadinessLoading
     ? "…"
     : formatSetupReadinessLabel(props.setupReadyCount, props.setupTotalCount);

@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   deriveOperatorHomeWorkspaceMetrics,
+  deriveOperatorHomeWorkspaceMetricsFromOverviewRuns,
   formatOperatorHomeCompactMetricsLine,
   formatSetupReadinessCompleteLabel,
   formatSetupReadinessLabel,
@@ -16,6 +17,25 @@ function makeRun(overrides: Partial<RunSummary> = {}): RunSummary {
     ...overrides,
   };
 }
+
+describe("deriveOperatorHomeWorkspaceMetricsFromOverviewRuns", () => {
+  it("does not treat demo-only overview rows as tenant reviews when totalCount is zero", () => {
+    const metrics = deriveOperatorHomeWorkspaceMetricsFromOverviewRuns(
+      [
+        {
+          runId: "demo-seed",
+          projectId: "default",
+          demoSeededOverviewInject: true,
+          hasGoldenManifest: true,
+        },
+      ],
+      0,
+    );
+
+    expect(metrics.reviewPackagesTotal).toBe(0);
+    expect(metrics.hasReviews).toBe(false);
+  });
+});
 
 describe("deriveOperatorHomeWorkspaceMetrics", () => {
   it("returns zeroed metrics for an empty workspace", () => {

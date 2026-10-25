@@ -1,6 +1,8 @@
+import { filterTenantOverviewRuns } from "@/lib/operator/operator-home-recent-reviews-outcome";
 import {
   countNonArchivedOverviewRuns,
   resolveOperatorHomeReviewTotalCount,
+  resolveOperatorHomeTenantScopedReviewTotalCount,
 } from "@/lib/operator/operator-home-review-total-resolution";
 import { resolveRunFindingCountDisplay } from "@/lib/operator/operator-home-run-list-insight";
 import { formatOperatorHomeApprovalCheckWarningCount } from "@/lib/operator/operator-home-approval-check-warning-copy";
@@ -64,6 +66,21 @@ export type DeriveOperatorHomeWorkspaceMetricsInput = {
   readonly totalCount: number;
   readonly awaitingApprovalCount?: number;
 };
+
+/** Tenant-scoped metrics from full overview runs (filters demo/showcase rows; TB-1039 totals). */
+export function deriveOperatorHomeWorkspaceMetricsFromOverviewRuns(
+  overviewItems: readonly RunSummary[],
+  reportedTotalCount?: number,
+  awaitingApprovalCount = 0,
+): OperatorHomeWorkspaceMetricsSnapshot {
+  const tenantItems = filterTenantOverviewRuns(overviewItems);
+  const reviewPackagesTotal = resolveOperatorHomeTenantScopedReviewTotalCount(
+    overviewItems,
+    reportedTotalCount,
+  );
+
+  return deriveOperatorHomeWorkspaceMetrics(tenantItems, reviewPackagesTotal, awaitingApprovalCount);
+}
 
 /** Aggregates workspace metrics from operator-home runs dashboard data already on the page. */
 export function deriveOperatorHomeWorkspaceMetrics(

@@ -43,7 +43,7 @@ import {
 } from "@/lib/operator-canonical-next-action";
 import { resolvePilotNextBestAction, type PilotNextBestAction } from "@/lib/resolve-pilot-next-best-action";
 import { resolveLiveRunsDashboardModel } from "@/lib/operator/operator-home-live-runs-dashboard";
-import { deriveOperatorHomeWorkspaceMetrics } from "@/lib/operator/operator-home-workspace-metrics";
+import { deriveOperatorHomeWorkspaceMetricsFromOverviewRuns } from "@/lib/operator/operator-home-workspace-metrics";
 import {
   resolveOperatorHomeLifecycleEmphasizedPath,
   resolveLatestArchitectureDraftHref,
@@ -107,7 +107,10 @@ export function PilotCommandCenterCard(props: PilotCommandCenterCardProps = {}):
       return null;
     }
 
-    return deriveOperatorHomeWorkspaceMetrics(runsDashboard.items, runsDashboard.totalCount);
+    return deriveOperatorHomeWorkspaceMetricsFromOverviewRuns(
+      runsDashboard.items,
+      runsDashboard.totalCount,
+    );
   }, [runsDashboard]);
   // SSR seed props are a stale floor once live rows arrive: keeping them would pin counts that
   // Refresh just proved lower (a resolved finding, a deleted review).
