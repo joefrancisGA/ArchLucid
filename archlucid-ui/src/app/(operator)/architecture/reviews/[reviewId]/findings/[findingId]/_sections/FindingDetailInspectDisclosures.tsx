@@ -248,7 +248,7 @@ export function FindingDetailInspectDisclosures(props: FindingDetailInspectDiscl
           reviewContextHref={reviewPackageHref}
           reviewContextLabel="Open review summary"
           evidence={inspectPayload.evidence}
-          evidenceListReturned={inspectPayload.evidenceListReturned ?? true}
+          evidenceListReturned={inspectPayload.evidenceListReturned}
           citationModel={citationModel}
         />
       </CollapsibleSection>

@@ -29,36 +29,6 @@ internal static class ArchitectureEvidenceRequestExport
 
     internal const string PatternSummaryNotStoredCopy = "Pattern summary was not stored.";
 
-    internal const string PolicyTitleNotStoredCopy = "Policy title was not stored.";
-
-    internal const string PolicyIdNotStoredCopy = "Policy id was not stored.";
-
-    internal const string RequiredControlsNotRecordedCopy = "Required controls were not recorded.";
-
-    internal const string ServiceCatalogEvidenceNotRecordedCopy = "Service catalog evidence was not recorded.";
-
-    internal const string ServiceNameNotStoredCopy = "Service name was not stored.";
-
-    internal const string ServiceCategoryNotStoredCopy = "Service category was not stored.";
-
-    internal const string PatternEvidenceNotRecordedCopy = "Pattern evidence was not recorded.";
-
-    internal const string PatternNameNotStoredCopy = "Pattern name was not stored.";
-
-    internal const string PatternIdNotStoredCopy = "Pattern id was not stored.";
-
-    internal const string TraceSystemPromptNotStoredCopy = "System prompt was not stored.";
-
-    internal const string TraceSystemPromptStoredEmptyCopy = "System prompt was stored empty.";
-
-    internal const string TraceUserPromptNotStoredCopy = "User prompt was not stored.";
-
-    internal const string TraceUserPromptStoredEmptyCopy = "User prompt was stored empty.";
-
-    internal const string TraceRawResponseNotStoredCopy = "Raw response was not stored.";
-
-    internal const string TraceRawResponseStoredEmptyCopy = "Raw response was stored empty.";
-
     internal const string MissingCompletedTimeCopy = "Completed time was not stored.";
 
     internal const string DiagramNotStoredCopy = "Diagram was not stored.";
@@ -73,13 +43,4 @@ internal static class ArchitectureEvidenceRequestExport
 
     internal static string FormatSummary(string? summary, string missingCopy) =>
         string.IsNullOrWhiteSpace(summary) ? missingCopy : summary.Trim();
-
-    internal static string FormatTraceField(string? value, string notStoredCopy, string storedEmptyCopy) =>
-        value switch
-        {
-            null => notStoredCopy,
-            _ when value.Length == 0 => storedEmptyCopy,
-            _ when string.IsNullOrWhiteSpace(value) => storedEmptyCopy,
-            _ => value,
-        };
 }

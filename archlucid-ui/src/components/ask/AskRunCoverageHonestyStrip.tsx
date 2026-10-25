@@ -24,17 +24,6 @@ export function AskRunCoverageHonestyStrip(props: AskRunCoverageHonestyStripProp
     return null;
   }
 
-  if (query.isPending) {
-    return (
-      <p
-        className={cn("m-0 mb-4 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-        data-testid="ask-run-coverage-honesty-loading"
-      >
-        Loading coverage honesty for this review…
-      </p>
-    );
-  }
-
   if (query.isError) {
     return (
       <div className="mb-4 space-y-2" data-testid="ask-run-coverage-honesty-blocked">

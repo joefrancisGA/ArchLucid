@@ -26,9 +26,9 @@ public sealed class FindingEvidenceLinkageFindingEngineTests
             },
         ];
 
-        IReadOnlyList<Finding>? linkageFindings = sut.Evaluate("run123", findings);
+        IReadOnlyList<Finding> linkageFindings = sut.Evaluate("run123", findings);
 
-        linkageFindings.Should().NotBeNull().And.ContainSingle(f => f.FindingType == "EvidenceLinkage");
+        linkageFindings.Should().ContainSingle(f => f.FindingType == "EvidenceLinkage");
     }
 
     [Fact]
@@ -50,9 +50,9 @@ public sealed class FindingEvidenceLinkageFindingEngineTests
             },
         ];
 
-        IReadOnlyList<Finding>? linkageFindings = sut.Evaluate("run123", findings);
+        IReadOnlyList<Finding> linkageFindings = sut.Evaluate("run123", findings);
 
-        linkageFindings.Should().NotBeNull().And.BeEmpty();
+        linkageFindings.Should().BeEmpty();
     }
 
     [Theory]
@@ -75,8 +75,8 @@ public sealed class FindingEvidenceLinkageFindingEngineTests
             },
         ];
 
-        IReadOnlyList<Finding>? linkageFindings = sut.Evaluate("run123", findings);
+        IReadOnlyList<Finding> linkageFindings = sut.Evaluate("run123", findings);
 
-        linkageFindings.Should().NotBeNull().And.BeEmpty();
+        linkageFindings.Should().BeEmpty();
     }
 }

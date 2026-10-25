@@ -118,7 +118,6 @@ import { formatInfraEvidenceDiagramsSnapshotPickerLabel } from "@/lib/infra-evid
 import {
   formatInfraEvidenceDiagramMetricsAnnouncement,
   isInfraEvidenceDiagramEdgeCountStored,
-  isInfraEvidenceDiagramNodeCountStored,
 } from "@/lib/infra-evidence/format-infra-evidence-diagram-metrics-announcement";
 import { infraEvidenceSnapshotCaptureStatusTagProps } from "@/lib/infra-evidence/infra-evidence-snapshot-capture-status";
 import {
@@ -229,8 +228,6 @@ import {
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DEPENDENCY_SEED_PROMPT_BODY,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EMPTY_CONTENT_BODY,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EMPTY_CONTENT_TITLE,
-  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_NODE_COUNT_NOT_STORED_BODY,
-  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_NODE_COUNT_NOT_STORED_TITLE,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_RESOURCE_GROUP_MAP_CAPTION,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_BACKBONE_KEEP_CAPTION,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_RESOURCE_GROUP_PICKER_ALL,
@@ -808,18 +805,6 @@ export function DiagramsWorkbenchClient() {
     return null;
   }, [formatSnapshotPickerLabel, selectedSnapshot, selectedSnapshotId]);
 
-  const diagramSnapshotAltLabel = useMemo(() => {
-    if (selectedSnapshotDisplayLabel !== null && selectedSnapshotDisplayLabel.trim().length > 0) {
-      return selectedSnapshotDisplayLabel;
-    }
-
-    if (selectedSnapshotId.trim().length > 0) {
-      return `Snapshot label was not stored. Selected id ${selectedSnapshotId}`;
-    }
-
-    return "Snapshot was not stored.";
-  }, [selectedSnapshotDisplayLabel, selectedSnapshotId]);
-
   const selectedModeLabel = useMemo(() => {
     if (!diagramTypeSelected) {
       return GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_TYPE_PLACEHOLDER;
@@ -913,8 +898,6 @@ export function DiagramsWorkbenchClient() {
     && (layoutSvg ?? "").trim().length === 0;
   const dataFlowEdgeCountUnknown =
     selectedMode === "dataFlow" && !isInfraEvidenceDiagramEdgeCountStored(metrics);
-  const diagramNodeCountUnknown =
-    selectedMode !== "dataFlow" && metrics != null && !isInfraEvidenceDiagramNodeCountStored(metrics);
   const dataFlowHasNoConnections =
     selectedMode === "dataFlow" && metrics != null && metrics.edgeCount === 0;
   const dataFlowHasNoResourcesOrConnections =
@@ -2951,24 +2934,20 @@ export function DiagramsWorkbenchClient() {
           title={
             dataFlowEdgeCountUnknown
               ? "Edge count was not stored"
-              : diagramNodeCountUnknown
-                ? GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_NODE_COUNT_NOT_STORED_TITLE
-                : dataFlowHasNoResourcesOrConnections
-                  ? "This data-flow canvas has no resources and no connections."
-                  : dataFlowHasNoConnections
-                    ? "No data-flow connections in this snapshot"
-                    : GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EMPTY_CONTENT_TITLE
+              : dataFlowHasNoResourcesOrConnections
+                ? "This data-flow canvas has no resources and no connections."
+                : dataFlowHasNoConnections
+                ? "No data-flow connections in this snapshot"
+                : GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EMPTY_CONTENT_TITLE
           }
           description={
             dataFlowEdgeCountUnknown
               ? "Diagram metrics were not stored for this snapshot — an empty canvas does not mean zero edges."
-              : diagramNodeCountUnknown
-                ? GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_NODE_COUNT_NOT_STORED_BODY
-                : dataFlowHasNoResourcesOrConnections
-                  ? "This data-flow canvas has no resources and no connections."
-                  : dataFlowHasNoConnections
-                    ? "The snapshot has inventory and no declared connection to draw."
-                    : GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EMPTY_CONTENT_BODY
+              : dataFlowHasNoResourcesOrConnections
+                ? "This data-flow canvas has no resources and no connections."
+                : dataFlowHasNoConnections
+                ? "The snapshot has inventory and no declared connection to draw."
+                : GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EMPTY_CONTENT_BODY
           }
           testId="infra-diagrams-empty-content"
         />
@@ -3066,8 +3045,8 @@ export function DiagramsWorkbenchClient() {
             embedQuestionBarInViewport={paintDiagramCanvas}
             mermaidSource={displayMermaidSource}
             layoutSvg={displayLayoutSvg.length > 0 ? displayLayoutSvg : null}
-            textAlternative={`Inventory diagram for snapshot ${diagramSnapshotAltLabel} in ${selectedModeLabel} mode.`}
-            viewportAriaLabel={`Inventory diagram for snapshot ${diagramSnapshotAltLabel}`}
+            textAlternative={`Inventory diagram for snapshot ${selectedSnapshotDisplayLabel ?? selectedSnapshotId} in ${selectedModeLabel} mode.`}
+            viewportAriaLabel={`Inventory diagram for snapshot ${selectedSnapshotDisplayLabel ?? selectedSnapshotId}`}
             fullscreenTitle={`Inventory diagram · ${selectedModeLabel}`}
             scopeContextLine={diagramScopeContextLine}
             canvasStale={renderInFlight}

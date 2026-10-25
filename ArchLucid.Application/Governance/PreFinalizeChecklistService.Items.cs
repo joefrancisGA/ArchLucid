@@ -100,22 +100,7 @@ public sealed partial class PreFinalizeChecklistService
                         latestDispositionsByFindingId)))
             .ToList();
 
-        IReadOnlyList<Finding>? linkageGaps =
-            _findingEvidenceLinkageFindingEngine.Evaluate(runId, activeHighSeverityFindings);
-
-        if (linkageGaps is null)
-        {
-            return new PreFinalizeChecklistItem
-            {
-                ItemId = "evidence-linkage-gaps",
-                Title = "Finding evidence linkage",
-                Detail = "Evidence linkage gap count was not returned.",
-                Status = PreFinalizeChecklistItemStatus.Advisory,
-                Count = 0,
-            };
-        }
-
-        int linkageGapCount = linkageGaps.Count;
+        int linkageGapCount = _findingEvidenceLinkageFindingEngine.Evaluate(runId, activeHighSeverityFindings)?.Count ?? 0;
 
         return new PreFinalizeChecklistItem
         {
@@ -144,8 +129,8 @@ public sealed partial class PreFinalizeChecklistService
             {
                 ItemId = "provisional-synthesis",
                 Title = "Framing completeness",
-                Detail = "Knowledge model was not available for this run.",
-                Status = PreFinalizeChecklistItemStatus.Advisory,
+                Detail = "Knowledge model not available for this run.",
+                Status = PreFinalizeChecklistItemStatus.Clear,
                 Count = 0,
             };
         }
@@ -154,19 +139,7 @@ public sealed partial class PreFinalizeChecklistService
             .GetForRunAsync(scope, parsedRunId, cancellationToken)
             .ConfigureAwait(false);
 
-        if (model is null)
-        {
-            return new PreFinalizeChecklistItem
-            {
-                ItemId = "provisional-synthesis",
-                Title = "Framing completeness",
-                Detail = "Knowledge model was not returned for this run.",
-                Status = PreFinalizeChecklistItemStatus.Advisory,
-                Count = 0,
-            };
-        }
-
-        if (!model.IsProvisionalSynthesis)
+        if (model is null || !model.IsProvisionalSynthesis)
         {
             return new PreFinalizeChecklistItem
             {

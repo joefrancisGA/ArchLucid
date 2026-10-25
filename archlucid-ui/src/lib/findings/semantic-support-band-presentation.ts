@@ -104,9 +104,6 @@ export function semanticSupportBandInspectDetail(band: FindingSemanticSupportBan
   return semanticSupportBandShortReason(band);
 }
 
-export const FINDING_SEMANTIC_SUPPORT_BAND_STORED_EMPTY_COPY =
-  "Semantic support band was stored empty." as const;
-
 export const FINDING_SEMANTIC_SUPPORT_BAND_NOT_STORED_COPY =
   "Semantic support band was not stored." as const;
 

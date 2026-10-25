@@ -4,7 +4,6 @@ import {
 } from "@/lib/findings/review-detail-findings-classification-band";
 import {
   FINDING_SEMANTIC_SUPPORT_BAND_NOT_STORED_COPY,
-  FINDING_SEMANTIC_SUPPORT_BAND_STORED_EMPTY_COPY,
   normalizeFindingSemanticSupportBand,
   resolveDecisionGradeSemanticSupportBand,
 } from "@/lib/findings/semantic-support-band-presentation";
@@ -20,7 +19,6 @@ export type SemanticSupportBandStampCounts = {
   readonly unsupported: number;
   readonly notScored: number;
   readonly missingStoredBand: number;
-  readonly storedEmptyBand: number;
   readonly decisionGradeTotal: number;
 };
 
@@ -32,7 +30,6 @@ export function countDecisionGradeSemanticSupportBands(
   let unsupported = 0;
   let notScored = 0;
   let missingStoredBand = 0;
-  let storedEmptyBand = 0;
   let decisionGradeTotal = 0;
 
   for (const finding of findings) {
@@ -49,7 +46,6 @@ export function countDecisionGradeSemanticSupportBands(
     }
 
     if (rawBand === "") {
-      storedEmptyBand += 1;
       continue;
     }
 
@@ -83,7 +79,6 @@ export function countDecisionGradeSemanticSupportBands(
     unsupported,
     notScored,
     missingStoredBand,
-    storedEmptyBand,
     decisionGradeTotal,
   };
 }
@@ -94,16 +89,11 @@ export function stampSemanticSupportShowsAllClear(counts: SemanticSupportBandSta
     && counts.unsupported === 0
     && counts.unchecked === 0
     && counts.missingStoredBand === 0
-    && counts.storedEmptyBand === 0
     && counts.notScored === 0
   );
 }
 
-function formatBandCountSegment(label: string, count: number): string | null {
-  if (count === 0) {
-    return null;
-  }
-
+function formatBandCountSegment(label: string, count: number): string {
   return `${count} ${label}`;
 }
 
@@ -131,7 +121,6 @@ export function countDecisionGradeSemanticSupportBandsForPresentation(
     unsupported: 0,
     notScored: decisionGradeTotal,
     missingStoredBand: 0,
-    storedEmptyBand: 0,
     decisionGradeTotal,
   };
 }
@@ -189,18 +178,10 @@ export function formatStampSemanticSupportBandLine(
     formatBandCountSegment("Supported", counts.supported),
     formatBandCountSegment("Unchecked", counts.unchecked),
     formatBandCountSegment("Unsupported", counts.unsupported),
-  ].filter((segment): segment is string => segment !== null);
+  ];
 
   if (options?.compact !== true && counts.notScored > 0) {
-    const notScoredSegment = formatBandCountSegment("Not scored", counts.notScored);
-
-    if (notScoredSegment !== null) {
-      segments.push(notScoredSegment);
-    }
-  }
-
-  if (counts.storedEmptyBand > 0) {
-    segments.push(FINDING_SEMANTIC_SUPPORT_BAND_STORED_EMPTY_COPY);
+    segments.push(formatBandCountSegment("Not scored", counts.notScored));
   }
 
   if (counts.missingStoredBand > 0) {
@@ -208,10 +189,6 @@ export function formatStampSemanticSupportBandLine(
   }
 
   const prefix = options?.compact === true ? "Semantic support:" : "Semantic support (decision-grade):";
-
-  if (segments.length === 0) {
-    return `${prefix} ${FINDING_SEMANTIC_SUPPORT_BAND_NOT_STORED_COPY}`;
-  }
 
   return `${prefix} ${segments.join(" · ")}`;
 }

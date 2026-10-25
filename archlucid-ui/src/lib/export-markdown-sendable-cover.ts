@@ -144,14 +144,12 @@ export function formatSendableExportCoverMarkdown(input: SendableExportCoverInpu
     lines.push(`- **Semantic support:** ${SEMANTIC_SUPPORT_BAND_ASYNC_MAY_LAG_COPY}`);
   }
 
-  const sponsorRoiRowCount = input.sponsorRoiRowCount;
+  const sponsorRoiRowCount = input.sponsorRoiRowCount ?? 0;
 
-  if (sponsorRoiRowCount === null || sponsorRoiRowCount === undefined) {
-    lines.push("- **Sponsor ROI:** Sponsor savings were not stored on this export cover.");
-  } else if (sponsorRoiRowCount > 0) {
+  if (sponsorRoiRowCount > 0) {
     lines.push(`- **Sponsor ROI:** ${SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE}`);
   } else {
-    lines.push("- **Sponsor ROI:** Sponsor savings list was stored empty on this export cover.");
+    lines.push("- **Sponsor ROI:** Sponsor savings were not stored on this export cover.");
   }
 
   lines.push("");

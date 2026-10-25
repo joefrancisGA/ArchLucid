@@ -48,7 +48,7 @@ export function resolveFindingOptionalArtifactUnavailableCopy(
 
     return {
       heading: "Evidence chain unavailable",
-      body: "Supporting evidence pointers are not available for this finding.",
+      body: "Evidence chain was not stored for this finding.",
       tryNext: "Review linked evidence citations in the finding summary above.",
       showRetry: false,
     };

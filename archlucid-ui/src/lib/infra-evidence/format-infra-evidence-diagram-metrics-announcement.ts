@@ -47,9 +47,3 @@ export function isInfraEvidenceDiagramEdgeCountStored(
 ): boolean {
   return metrics != null && typeof metrics.edgeCount === "number" && Number.isFinite(metrics.edgeCount);
 }
-
-export function isInfraEvidenceDiagramNodeCountStored(
-  metrics: { readonly nodeCount?: number | null } | null | undefined,
-): boolean {
-  return metrics != null && typeof metrics.nodeCount === "number" && Number.isFinite(metrics.nodeCount);
-}

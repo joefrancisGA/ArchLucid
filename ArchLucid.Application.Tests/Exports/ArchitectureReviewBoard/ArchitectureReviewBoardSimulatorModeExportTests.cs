@@ -5,7 +5,6 @@ using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
-using ArchLucid.Contracts.User;
 using ArchLucid.Core.Explanation;
 using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Persistence.Ports;
@@ -111,13 +110,13 @@ public sealed class ArchitectureReviewBoardSimulatorModeExportTests
             authorityQuery,
             manifestHashService,
             Mock.Of<IGraphSnapshotRepository>(),
-            SealedExportReceiptTestSupport.CreateEmptyAgentExecutionTraceRepository(),
+            Mock.Of<ArchLucid.Persistence.Data.Repositories.IAgentExecutionTraceRepository>(),
             analysis.Object,
             scope.Object,
             Mock.Of<ITenantRepository>(),
             Mock.Of<IRunExplanationSummaryService>(),
             tenantReviewBoardCoverLogoStore: null,
-            SealedExportReceiptTestSupport.CreateSuccessfulExportHonestyConfiguration(),
+            Mock.Of<Microsoft.Extensions.Configuration.IConfiguration>(),
             new ArchitectureReviewDocxBuilder(),
             new ArchitectureReviewPdfBuilder(),
             Mock.Of<ArchLucid.Persistence.Interfaces.IRunRepository>(),
@@ -163,7 +162,6 @@ public sealed class ArchitectureReviewBoardSimulatorModeExportTests
             CreatedUtc = DateTime.UtcNow,
             CompletedUtc = DateTime.UtcNow,
             StructuralExecutionMode = executionMode,
-            WorkingCareerRehearsalDoor = WorkingCareerRehearsalDoorValues.Rehearsal,
         };
 
         ArchitectureRunDetail detail = new()

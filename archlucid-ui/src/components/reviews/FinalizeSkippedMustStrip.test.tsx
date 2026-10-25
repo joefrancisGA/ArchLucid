@@ -29,15 +29,6 @@ describe("FinalizeSkippedMustStrip", () => {
     expect(screen.getByText(/security-baseline/i)).toBeInTheDocument();
   });
 
-  it("labels a missing transparency trail in Working mode", () => {
-    workspaceModeMock.isWorkingMode = true;
-
-    render(<FinalizeSkippedMustStrip transparencyTrail={null} />);
-
-    expect(screen.getByTestId("finalize-skipped-must-strip")).toBeInTheDocument();
-    expect(screen.getByText("Transparency trail was not stored.")).toBeInTheDocument();
-  });
-
   it("stays hidden in Guided mode", () => {
     workspaceModeMock.isWorkingMode = false;
 

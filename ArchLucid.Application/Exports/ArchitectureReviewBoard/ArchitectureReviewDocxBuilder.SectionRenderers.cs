@@ -38,18 +38,11 @@ public sealed partial class ArchitectureReviewDocxBuilder
     {
         ArchitectureReviewDocxOpenXmlPrimitives.AddHeading1(body, "System overview (architecture snapshot)");
 
-        if (model.SystemOverviewBullets is null)
-        {
-            ArchitectureReviewDocxOpenXmlPrimitives.AddListNotStoredPlaceholder(body, "Architecture snapshot overview items");
-
-            return;
-        }
-
-        IReadOnlyList<string> bullets = model.SystemOverviewBullets;
+        IReadOnlyList<string> bullets = model.SystemOverviewBullets ?? [];
 
         if (bullets.Count == 0)
         {
-            ArchitectureReviewDocxOpenXmlPrimitives.AddListStoredEmptyPlaceholder(body, "Architecture snapshot overview");
+            ArchitectureReviewDocxOpenXmlPrimitives.AddEmptyPlaceholder(body, "architecture snapshot overview items");
 
             return;
         }
@@ -69,18 +62,11 @@ public sealed partial class ArchitectureReviewDocxBuilder
     {
         ArchitectureReviewDocxOpenXmlPrimitives.AddHeading1(body, "Evidence reviewed");
 
-        if (model.EvidenceReviewed is null)
-        {
-            ArchitectureReviewDocxOpenXmlPrimitives.AddListNotStoredPlaceholder(body, "Evidence reviewed items");
-
-            return;
-        }
-
-        IReadOnlyList<ArchitectureReviewBoardExportEvidenceItem> items = model.EvidenceReviewed;
+        IReadOnlyList<ArchitectureReviewBoardExportEvidenceItem> items = model.EvidenceReviewed ?? [];
 
         if (items.Count == 0)
         {
-            ArchitectureReviewDocxOpenXmlPrimitives.AddListStoredEmptyPlaceholder(body, "Evidence reviewed");
+            ArchitectureReviewDocxOpenXmlPrimitives.AddEmptyPlaceholder(body, "evidence items");
 
             return;
         }
@@ -105,18 +91,11 @@ public sealed partial class ArchitectureReviewDocxBuilder
     {
         ArchitectureReviewDocxOpenXmlPrimitives.AddHeading1(body, "Architecture decisions");
 
-        if (model.ArchitectureDecisions is null)
-        {
-            ArchitectureReviewDocxOpenXmlPrimitives.AddListNotStoredPlaceholder(body, "Architecture decision rows");
-
-            return;
-        }
-
-        IReadOnlyList<ArchitectureReviewBoardExportDecisionRow> rows = model.ArchitectureDecisions;
+        IReadOnlyList<ArchitectureReviewBoardExportDecisionRow> rows = model.ArchitectureDecisions ?? [];
 
         if (rows.Count == 0)
         {
-            ArchitectureReviewDocxOpenXmlPrimitives.AddListStoredEmptyPlaceholder(body, "Architecture decision");
+            ArchitectureReviewDocxOpenXmlPrimitives.AddEmptyPlaceholder(body, "architecture decisions");
 
             return;
         }

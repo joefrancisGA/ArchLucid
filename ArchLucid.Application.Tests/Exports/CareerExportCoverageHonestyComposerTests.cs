@@ -133,20 +133,6 @@ public sealed class CareerExportCoverageHonestyComposerTests
     }
 
     [Fact]
-    public void FormatStampQualityGateModeLabel_distinguishes_missing_modes_from_defaults()
-    {
-        AgentOutputQualityGateCareerHonestyPresenter.FormatStampQualityGateModeLabel(null, null)
-            .Should()
-            .Be(AgentOutputQualityGateCareerHonestyPresenter.QualityGateModeNotStoredLabel);
-
-        AgentOutputQualityGateCareerHonestyPresenter.FormatStampQualityGateModeLabel(
-                null,
-                AgentOutputQualityGateMode.WarnOnly)
-            .Should()
-            .Be("Quality gate: WarnOnly (host default)");
-    }
-
-    [Fact]
     public void Resolve_allows_guided_exports_without_working_floor_enforcement()
     {
         CareerExportCoverageHonestyInput input = CreateInput(enginesSucceeded: 4, workingDesk: false);

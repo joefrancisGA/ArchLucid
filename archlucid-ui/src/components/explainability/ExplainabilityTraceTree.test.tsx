@@ -26,6 +26,19 @@ const sample: FindingExplainability = {
 };
 
 describe("ExplainabilityTraceTree", () => {
+  it("does not claim a complete trace when missingTraceFields was omitted", () => {
+    render(
+      <ExplainabilityTraceTree
+        data={{
+          ...sample,
+          missingTraceFields: null,
+        }}
+      />,
+    );
+
+    expect(screen.getByText(/Reasoning trace fields were not stored\./)).toBeInTheDocument();
+  });
+
   it("renders decision and collapsible trace sections", () => {
     render(<ExplainabilityTraceTree data={sample} />);
 

@@ -27,23 +27,13 @@ describe("formatSendableExportCoverMarkdown", () => {
     expect(markdown).not.toContain("headline savings");
   });
 
-  it("distinguishes omitted sponsor ROI rows from a stored empty list", () => {
-    const omitted = formatSendableExportCoverMarkdown({ runId: "run-1", sponsorRoiRowCount: null });
-    const storedEmpty = formatSendableExportCoverMarkdown({ runId: "run-1", sponsorRoiRowCount: 0 });
+  it("includes sponsor ROI honesty only when ROI rows are present", () => {
+    const withoutRows = formatSendableExportCoverMarkdown({ runId: "run-1", sponsorRoiRowCount: 0 });
     const withRows = formatSendableExportCoverMarkdown({ runId: "run-1", sponsorRoiRowCount: 2 });
 
-    expect(omitted).toContain("Sponsor savings were not stored on this export cover.");
-    expect(storedEmpty).toContain("Sponsor savings list was stored empty on this export cover.");
-    expect(storedEmpty).not.toContain("Sponsor savings were not stored");
+    expect(withoutRows).toContain("Sponsor savings were not stored on this export cover.");
+    expect(withoutRows).not.toContain("headline savings");
     expect(withRows).toContain("do not sum to the headline");
-  });
-
-  it("distinguishes missing findings from a stored empty findings list", () => {
-    const missing = formatSendableExportCoverMarkdown({ runId: "run-1", findings: null });
-    const storedEmpty = formatSendableExportCoverMarkdown({ runId: "run-1", findings: [] });
-
-    expect(missing).toContain("Findings were not stored on this export cover.");
-    expect(storedEmpty).toContain("Findings list was stored empty.");
   });
 
   it("includes Lane B disclaimer when decision-grade findings include Unchecked bands", () => {

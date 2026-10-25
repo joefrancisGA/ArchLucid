@@ -265,8 +265,7 @@ public sealed class PostAuthBootstrapServiceTests
     [Fact]
     public async Task AcceptInvitationAsync_creates_membership_and_audits_on_success()
     {
-        (PostAuthBootstrapService sut, Guid userId, InMemoryWorkspaceMembershipRepository memberships, InMemoryUserInvitationRepository invitations, _) =
-            CreateSut(out Mock<IAuditService> audit);
+        (PostAuthBootstrapService sut, Guid userId, InMemoryWorkspaceMembershipRepository memberships, InMemoryUserInvitationRepository invitations, _) = CreateSut(out Mock<IAuditService> audit);
         const string token = "accept-token";
         Guid tenantId = Guid.NewGuid();
         Guid workspaceId = Guid.NewGuid();

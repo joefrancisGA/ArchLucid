@@ -6,7 +6,7 @@ namespace ArchLucid.Application.Governance;
 /// <inheritdoc cref="IFindingEvidenceLinkageFindingEngine" />
 public sealed class FindingEvidenceLinkageFindingEngine : IFindingEvidenceLinkageFindingEngine
 {
-    public IReadOnlyList<Finding>? Evaluate(string runId, IReadOnlyList<Finding> findings)
+    public IReadOnlyList<Finding> Evaluate(string runId, IReadOnlyList<Finding> findings)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
         ArgumentNullException.ThrowIfNull(findings);

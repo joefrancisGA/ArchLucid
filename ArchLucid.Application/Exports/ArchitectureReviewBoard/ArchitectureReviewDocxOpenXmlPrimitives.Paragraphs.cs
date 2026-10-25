@@ -66,18 +66,6 @@ internal static partial class ArchitectureReviewDocxOpenXmlPrimitives
         AddSpacer(body);
     }
 
-    internal static void AddListNotStoredPlaceholder(Body body, string listPhrase)
-    {
-        AddStyledParagraph(body, $"{listPhrase} were not stored.", "Subtle");
-        AddSpacer(body);
-    }
-
-    internal static void AddListStoredEmptyPlaceholder(Body body, string listPhrase)
-    {
-        AddStyledParagraph(body, $"{listPhrase} list was stored empty.", "Subtle");
-        AddSpacer(body);
-    }
-
     internal static void AddMultilineBodyText(Body body, string text)
     {
         foreach (string line in text.Replace("\r\n", "\n").Split('\n'))

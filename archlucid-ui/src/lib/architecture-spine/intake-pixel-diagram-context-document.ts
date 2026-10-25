@@ -38,16 +38,6 @@ export function isPixelDiagramIntakeFileName(fileName: string): boolean {
   return PIXEL_DIAGRAM_EXTENSIONS.some((extension) => lower.endsWith(extension));
 }
 
-export function isPixelDiagramIntakeFile(file: File): boolean {
-  if (isPixelDiagramIntakeFileName(file.name)) {
-    return true;
-  }
-
-  const mime = file.type.trim().toLowerCase();
-
-  return mime.startsWith("image/") && file.size > 0;
-}
-
 export function buildIntakePendingStoredFileMarker(fileName: string): string {
   return `${INTAKE_PENDING_STORED_FILE_MARKER_PREFIX}${fileName.trim()}`;
 }

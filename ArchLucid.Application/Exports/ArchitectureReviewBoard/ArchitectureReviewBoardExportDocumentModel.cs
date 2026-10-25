@@ -44,23 +44,23 @@ public sealed class ArchitectureReviewBoardExportDocumentModel
         init;
     }
 
-    public IReadOnlyList<string>? SystemOverviewBullets
+    public IReadOnlyList<string> SystemOverviewBullets
     {
         get;
         init;
-    }
+    } = [];
 
-    public IReadOnlyList<ArchitectureReviewBoardExportEvidenceItem>? EvidenceReviewed
+    public IReadOnlyList<ArchitectureReviewBoardExportEvidenceItem> EvidenceReviewed
     {
         get;
         init;
-    }
+    } = [];
 
-    public IReadOnlyList<ArchitectureReviewBoardExportDecisionRow>? ArchitectureDecisions
+    public IReadOnlyList<ArchitectureReviewBoardExportDecisionRow> ArchitectureDecisions
     {
         get;
         init;
-    }
+    } = [];
 
     public IReadOnlyList<ArchitectureReviewBoardExportRiskRow> KeyRisks
     {

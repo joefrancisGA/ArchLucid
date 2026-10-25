@@ -1,6 +1,5 @@
 using System.Text;
 
-using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Manifest.Sections;
@@ -34,23 +33,23 @@ public static class ArchitectureMandatedMarkdownSections
     {
         markdown.AppendLine("## Objective");
 
-        string? summaryRaw = manifest.Metadata?.Summary;
+        string summary = manifest.Metadata?.Summary?.Trim() ?? string.Empty;
 
-        if (summaryRaw is null)
-        {
-            AppendBodyAndBlankLine(markdown, "Objective was not stored.");
-            return;
-        }
-
-        string summary = summaryRaw.Trim();
-
-        if (summary.Length > 0)
+        if (!string.IsNullOrWhiteSpace(summary))
         {
             AppendBodyAndBlankLine(markdown, summary);
             return;
         }
 
-        AppendBodyAndBlankLine(markdown, "Objective was stored empty.");
+        string name = manifest.Metadata?.Name?.Trim() ?? string.Empty;
+
+        if (!string.IsNullOrWhiteSpace(name))
+        {
+            AppendBodyAndBlankLine(markdown, name);
+            return;
+        }
+
+        AppendBodyAndBlankLine(markdown, "No objective was recorded.");
     }
 
     private static void AppendAssumptions(StringBuilder markdown, ManifestDocument manifest)
@@ -101,9 +100,9 @@ public static class ArchitectureMandatedMarkdownSections
                     continue;
 
                 string serviceName = string.IsNullOrWhiteSpace(service.ServiceName)
-                    ? "Service name was stored empty."
+                    ? service.ServiceId
                     : service.ServiceName.Trim();
-                lines.Add($"- Service: {serviceName} ({FormatServiceType(service.ServiceType)})");
+                lines.Add($"- Service: {serviceName} ({service.ServiceType})");
             }
         }
 
@@ -115,9 +114,9 @@ public static class ArchitectureMandatedMarkdownSections
                     continue;
 
                 string datastoreName = string.IsNullOrWhiteSpace(datastore.DatastoreName)
-                    ? "Datastore name was stored empty."
+                    ? datastore.DatastoreId
                     : datastore.DatastoreName.Trim();
-                lines.Add($"- Datastore: {datastoreName} ({FormatDatastoreType(datastore.DatastoreType)})");
+                lines.Add($"- Datastore: {datastoreName} ({datastore.DatastoreType})");
             }
         }
 
@@ -138,13 +137,12 @@ public static class ArchitectureMandatedMarkdownSections
                     continue;
 
                 string sourceId = string.IsNullOrWhiteSpace(relationship.SourceId)
-                    ? "Relationship source id was not stored."
+                    ? "source"
                     : relationship.SourceId.Trim();
                 string targetId = string.IsNullOrWhiteSpace(relationship.TargetId)
-                    ? "Relationship target id was not stored."
+                    ? "target"
                     : relationship.TargetId.Trim();
-                string relationshipType = FormatRelationshipType(relationship.RelationshipType);
-                lines.Add($"- {sourceId} {relationshipType} {targetId}");
+                lines.Add($"- {sourceId} {relationship.RelationshipType} {targetId}");
             }
         }
 
@@ -164,13 +162,7 @@ public static class ArchitectureMandatedMarkdownSections
                 if (control is null)
                     continue;
 
-                string controlId = string.IsNullOrWhiteSpace(control.ControlId)
-                    ? "Control id was not stored."
-                    : control.ControlId.Trim();
-                string controlName = string.IsNullOrWhiteSpace(control.ControlName)
-                    ? "Control name was not stored."
-                    : control.ControlName.Trim();
-                lines.Add($"- {controlId} {controlName} ({control.Impact}): {control.Status}");
+                lines.Add($"- {control.ControlId} {control.ControlName} ({control.Impact}): {control.Status}");
             }
         }
 
@@ -219,17 +211,6 @@ public static class ArchitectureMandatedMarkdownSections
 
         AppendLinesOrFallback(markdown, lines, "No operational considerations were recorded.");
     }
-
-    private static string FormatServiceType(ServiceType serviceType) =>
-        serviceType == ServiceType.Unknown ? "Service type was not stored." : serviceType.ToString();
-
-    private static string FormatDatastoreType(DatastoreType datastoreType) =>
-        datastoreType == DatastoreType.Unknown ? "Datastore type was not stored." : datastoreType.ToString();
-
-    private static string FormatRelationshipType(RelationshipType relationshipType) =>
-        Enum.IsDefined(relationshipType) && relationshipType != default
-            ? relationshipType.ToString()
-            : "Relationship type was not stored.";
 
     private static void AppendPrefixedItems(List<string> lines, IReadOnlyList<string>? items, string prefix)
     {

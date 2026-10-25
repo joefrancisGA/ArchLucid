@@ -20,10 +20,6 @@ function wizardConfirmIdentityField(value: string, notStoredLabel: string): stri
   return value.trim().length > 0 ? value : notStoredLabel;
 }
 
-function wizardConfirmListEntry(value: string, storedEmptyLabel: string): string {
-  return value.trim().length > 0 ? value.trim() : storedEmptyLabel;
-}
-
 function wizardConfirmCloudProviderField(value: string): string {
   const trimmed = value.trim();
 
@@ -177,7 +173,7 @@ export function WizardStepReview(props: { readonly focusedPilotModeEnabled?: boo
             <dd className="m-0">
               {v.priorManifestVersion === null || v.priorManifestVersion === undefined
                 ? "Prior manifest was not stored."
-                : v.priorManifestVersion.trim() || "No prior manifest recorded"}
+                : v.priorManifestVersion.trim() || "Prior manifest was stored empty."}
             </dd>
           </dl>
         </ReadOnlyBlock>
@@ -194,11 +190,12 @@ export function WizardStepReview(props: { readonly focusedPilotModeEnabled?: boo
             <div className="mt-2">
               <p className={cn("m-0 font-medium text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>Inline requirements</p>
               <ul className="mt-1 list-disc pl-5">
-                {v.inlineRequirements.map((line, index) => (
-                  <li key={`inline-requirement-${index}`}>
-                    {wizardConfirmListEntry(line, "Requirement was stored empty.")}
-                  </li>
-                ))}
+                {v.inlineRequirements
+                  .map((s) => s.trim())
+                  .filter(Boolean)
+                  .map((line) => (
+                    <li key={line}>{line}</li>
+                  ))}
               </ul>
             </div>
           ) : (
@@ -216,10 +213,8 @@ export function WizardStepReview(props: { readonly focusedPilotModeEnabled?: boo
             <p className="m-0">Constraints were stored empty.</p>
           ) : (
             <ul className="mt-1 list-disc pl-5">
-              {v.constraints.map((c, index) => (
-                <li key={`constraint-${index}`}>
-                  {wizardConfirmListEntry(c, "Constraint was stored empty.")}
-                </li>
+              {v.constraints.map((c) => (
+                <li key={c}>{c}</li>
               ))}
             </ul>
           )}
@@ -232,10 +227,8 @@ export function WizardStepReview(props: { readonly focusedPilotModeEnabled?: boo
             <p className="m-0">Required capabilities were stored empty.</p>
           ) : (
             <ul className="mt-1 list-disc pl-5">
-              {v.requiredCapabilities.map((c, index) => (
-                <li key={`required-capability-${index}`}>
-                  {wizardConfirmListEntry(c, "Required capability was stored empty.")}
-                </li>
+              {v.requiredCapabilities.map((c) => (
+                <li key={c}>{c}</li>
               ))}
             </ul>
           )}
@@ -246,10 +239,8 @@ export function WizardStepReview(props: { readonly focusedPilotModeEnabled?: boo
             <p className="m-0">Assumptions were stored empty.</p>
           ) : (
             <ul className="mt-1 list-disc pl-5">
-              {v.assumptions.map((c, index) => (
-                <li key={`assumption-${index}`}>
-                  {wizardConfirmListEntry(c, "Assumption was stored empty.")}
-                </li>
+              {v.assumptions.map((c) => (
+                <li key={c}>{c}</li>
               ))}
             </ul>
           )}
@@ -262,19 +253,25 @@ export function WizardStepReview(props: { readonly focusedPilotModeEnabled?: boo
           <p className="m-0">
             {v.policyReferences === null || v.policyReferences === undefined
               ? "Policy references were not stored."
-              : v.policyReferences.join(", ") || "None recorded on this draft"}
+              : v.policyReferences.length === 0
+                ? "Policy references were stored empty."
+                : v.policyReferences.join(", ")}
           </p>
           <p className={cn("mt-2 m-0 text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>{ARCHITECTURE_HINTS_BUYER_LABEL}</p>
           <p className="m-0">
             {v.topologyHints === null || v.topologyHints === undefined
               ? "Architecture hints were not stored."
-              : v.topologyHints.join(", ") || "None recorded on this draft"}
+              : v.topologyHints.length === 0
+                ? "Architecture hints were stored empty."
+                : v.topologyHints.join(", ")}
           </p>
           <p className={cn("mt-2 m-0 text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>Security baseline hints</p>
           <p className="m-0">
             {v.securityBaselineHints === null || v.securityBaselineHints === undefined
               ? "Security baseline hints were not stored."
-              : v.securityBaselineHints.join(", ") || "None recorded on this draft"}
+              : v.securityBaselineHints.length === 0
+                ? "Security baseline hints were stored empty."
+                : v.securityBaselineHints.join(", ")}
           </p>
           <p className={cn("mt-2 m-0 text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>Documents</p>
           <p className="m-0">

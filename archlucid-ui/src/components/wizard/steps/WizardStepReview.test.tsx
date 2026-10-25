@@ -93,10 +93,10 @@ describe("WizardStepReview", () => {
     );
 
     const priorRow = screen.getByText("Prior manifest").closest("dl");
-    expect(priorRow?.textContent).toContain("No prior manifest recorded");
+    expect(priorRow?.textContent).toContain("Prior manifest was stored empty.");
 
     const advancedSection = screen.getByRole("heading", { name: "Advanced" }).closest("section");
-    expect(advancedSection?.textContent).toContain("None recorded on this draft");
+    expect(advancedSection?.textContent).toContain("Policy references were stored empty.");
     expect(advancedSection?.textContent).toContain("0 attached");
   });
 
@@ -131,30 +131,10 @@ describe("WizardStepReview", () => {
     );
 
     expect(screen.queryByText("Assumptions were not stored.")).not.toBeInTheDocument();
-    expect(screen.getByText("No prior manifest recorded")).toBeInTheDocument();
+    expect(screen.getByText("Prior manifest was stored empty.")).toBeInTheDocument();
 
     const advancedSection = screen.getByRole("heading", { name: "Advanced" }).closest("section");
-    expect(advancedSection?.textContent).toContain("None recorded on this draft");
-  });
-
-  it("labels whitespace-only list entries as stored empty (P-16–P-19)", () => {
-    render(
-      <DirectWizardFormProvider
-        values={{
-          inlineRequirements: ["Rate limits", "   "],
-          constraints: ["EU-only", " "],
-          requiredCapabilities: ["TLS 1.2+", ""],
-          assumptions: ["SRE on-call", "\t"],
-        }}
-      >
-        <WizardStepReview />
-      </DirectWizardFormProvider>,
-    );
-
-    expect(screen.getByText("Requirement was stored empty.")).toBeInTheDocument();
-    expect(screen.getByText("Constraint was stored empty.")).toBeInTheDocument();
-    expect(screen.getByText("Required capability was stored empty.")).toBeInTheDocument();
-    expect(screen.getByText("Assumption was stored empty.")).toBeInTheDocument();
+    expect(advancedSection?.textContent).toContain("Architecture hints were stored empty.");
   });
 
   it("distinguishes missing declarations and capabilities from stored empty lists", () => {

@@ -23,18 +23,9 @@ export function parseArchitectureGeneratedContent(
   if (blocks.length === 0 && cleanedText.length > 0) {
     ingestLinesIntoDraft(drafts.get("sponsor-report")!, cleanedLines);
   } else {
-    const hasKeyedBlock = blocks.some((block) => block.key !== null);
-
     for (const block of blocks) {
-      if (block.key === null) {
-        if (!hasKeyedBlock) {
-          ingestLinesIntoDraft(drafts.get("sponsor-report")!, block.lines);
-        }
-
-        continue;
-      }
-
-      const draft = drafts.get(block.key)!;
+      const targetKey = block.key ?? "sponsor-report";
+      const draft = drafts.get(targetKey)!;
       ingestLinesIntoDraft(draft, block.lines);
     }
   }

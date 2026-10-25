@@ -241,7 +241,7 @@ export function FindingInspectEvidenceSection({
   reviewContextHref,
   reviewContextLabel,
   evidence,
-  evidenceListReturned = true,
+  evidenceListReturned,
   citationModel = null,
 }: FindingInspectEvidenceSectionProps): ReactElement {
   const pathname = usePathname() ?? "/";
@@ -396,7 +396,7 @@ export function FindingInspectEvidenceSection({
         </h3>
       ) : null}
 
-      {evidenceListReturned === false ? (
+      {evidenceListReturned !== true ? (
         <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
           Evidence list was not stored.
         </p>

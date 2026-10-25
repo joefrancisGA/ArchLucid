@@ -9,18 +9,13 @@ import {
 export type AgentQualityRatioKind = "structural" | "semantic" | "faithfulness";
 
 const NOT_SCORED_LABEL = "Not scored";
-const SCORE_NOT_STORED_LABEL = "Score was not stored.";
 
 export function formatAgentQualityRatioCell(
   value: number | null,
   kind: AgentQualityRatioKind,
   status: AgentQualityConcernStatus,
 ): string {
-  if (value === null) {
-    return SCORE_NOT_STORED_LABEL;
-  }
-
-  if (Number.isNaN(value)) {
+  if (value === null || Number.isNaN(value)) {
     return NOT_SCORED_LABEL;
   }
 
@@ -73,4 +68,4 @@ export function agentQualityRatioFloorHint(
   return null;
 }
 
-export { NOT_SCORED_LABEL as AGENT_QUALITY_NOT_SCORED_LABEL, SCORE_NOT_STORED_LABEL as AGENT_QUALITY_SCORE_NOT_STORED_LABEL };
+export { NOT_SCORED_LABEL as AGENT_QUALITY_NOT_SCORED_LABEL };

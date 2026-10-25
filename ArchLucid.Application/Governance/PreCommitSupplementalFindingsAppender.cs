@@ -88,7 +88,7 @@ internal static class PreCommitSupplementalFindingsAppender
         if (!linkageOptions.Enabled)
             return;
 
-        IReadOnlyList<Finding> linkageFindings = findingEvidenceLinkageFindingEngine.Evaluate(runId, findings) ?? [];
+        IReadOnlyList<Finding> linkageFindings = findingEvidenceLinkageFindingEngine.Evaluate(runId, findings);
 
         if (linkageFindings.Count == 0)
             return;
