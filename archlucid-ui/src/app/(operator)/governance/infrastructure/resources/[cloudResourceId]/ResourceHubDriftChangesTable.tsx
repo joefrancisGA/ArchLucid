@@ -96,13 +96,13 @@ export function ResourceHubDriftChangesTable(props: ResourceHubDriftChangesTable
         </EnterpriseTableRow>
       </EnterpriseTableHead>
       <EnterpriseTableBody>
-        {changes.map((change) => (
-          <EnterpriseTableRow key={change.changeId}>
+        {changes.map((change, changeIndex) => (
+          <EnterpriseTableRow key={`${change.changeId}-${changeIndex}`}>
             <EnterpriseTableCell>
               <Link
                 className="text-al-link hover:underline"
                 href={buildChangeWorkbenchHref(change)}
-                data-testid={`${testIdPrefix}-change-${change.changeId}`}
+                data-testid={`${testIdPrefix}-change-${change.changeId}-${changeIndex}`}
               >
                 {change.property ?? "Property name was not stored."}
               </Link>
@@ -134,7 +134,7 @@ export function ResourceHubDriftChangesTable(props: ResourceHubDriftChangesTable
               <Button asChild size="sm" variant="outline">
                 <Link
                   href={buildChangeAskHref(change)}
-                  data-testid={`${testIdPrefix}-ask-${change.changeId}`}
+                  data-testid={`${testIdPrefix}-ask-${change.changeId}-${changeIndex}`}
                 >
                   Ask
                 </Link>

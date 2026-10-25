@@ -1305,8 +1305,8 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                         </EnterpriseTableRow>
                       </EnterpriseTableHead>
                       <EnterpriseTableBody>
-                        {hub.evidencePointers.map((pointer) => (
-                          <EnterpriseTableRow key={`${pointer.kind}-${pointer.relativePath}`}>
+                        {hub.evidencePointers.map((pointer, pointerIndex) => (
+                          <EnterpriseTableRow key={`${pointer.kind}-${pointer.relativePath}-${pointerIndex}`}>
                             <EnterpriseTableCell>{pointer.kind}</EnterpriseTableCell>
                             <EnterpriseTableCell className="font-mono text-xs">{pointer.relativePath}</EnterpriseTableCell>
                           </EnterpriseTableRow>

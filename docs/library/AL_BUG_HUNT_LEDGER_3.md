@@ -7174,6 +7174,34 @@ ABQ-09 churn hotspot.
 
 ## Zone: ui-infra-resource-hub
 
+2026-10-25 seed hunt (seed→hit): promoted duplicate React keys on evidence pointers and drift change rows — colliding `${kind}-${relativePath}` or `changeId` keys dropped duplicate captured pointer or drift property rows; include row index in keys and drift action test ids; regressions `renders evidence pointers that share kind and relative path` and `renders drift rows that share changeId but differ in property`; cheap-disproof closed post-create `loadHub` failure surfacing (`loadHub` catches and sets load error without throwing), stale finding messages when finding leaves stream (ordinary `loadHub` clears map), and empty-string `correspondenceId` (null-guard section only; empty id remains data-quality); scoped ResourceHubClient vitest 64/64. Private beta: resource hub overview and drift tabs list every captured evidence pointer and drift property row even when capture metadata repeats ids or paths.
+
+- [x] (proven) `ResourceHubClient` evidence pointers table — duplicate `kind` and `relativePath` — **hit 2026-10-25 seed hunt:** key includes row index; regression dual-pointer fixture.
+- [x] (proven) `ResourceHubDriftChangesTable` — duplicate `changeId` across diffs — **hit 2026-10-25 seed hunt:** key and test ids include row index; regression shared `changeId` fixture.
+- [x] (valid-no-repro) `ResourceHubClient.runCreateRemediationFromFinding` — success message cleared when post-create `loadHub` fails — **cheap-disproof 2026-10-25 seed hunt:** `loadHub` internal catch; no throw to remediation handler.
+- [x] (valid-no-repro) `ResourceHubClient` findings stream — remediation message for finding id absent after reload — **cheap-disproof 2026-10-25 seed hunt:** `loadHub` clears `findingActionMessages` unless `retainFindingMessages`.
+- [x] (valid-no-repro) `ResourceHubClient` diagram correspondence — empty-string `correspondenceId` — **cheap-disproof 2026-10-25 seed hunt:** section gated on `diagramCorrespondence != null`; empty id not modeled in regressions.
+
+- [ ] (candidate) `ResourceHubClient` findings stream — duplicate finding `id` across `OperationalSecurity` and `ArchitectureReview` streams — locus: stream row keys; input: one stream omits a row.
+- [ ] (candidate) `ResourceHubClient` create-remediation confirm dialog — `pendingRemediationFinding` survives hub reload while dialog open — locus: dialog state vs `loadHub`; input: stale finding title after refresh.
+- [ ] (candidate) `ResourceHubClient` overview drift preview — fifth change row hidden without “view all” when exactly six changes — locus: `slice(0, 5)` caption; input: operator misses sixth change on overview.
+- [ ] (candidate) `ResourceHubClient` terraform tab — whitespace-only `terraformAddress` vs null — locus: advisory mapping disclosure; input: misleading empty address label.
+- [ ] (candidate) `ResourceHubClient` audit scope chip — active audit query params with empty `controlId` — locus: `resolvedAuditLineage`; input: chip shows misleading control label.
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **aliases:** resource hub; infrastructure resource detail
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 46
+- **bugs-found:** 26
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-25
+- **last-bug:** 2026-10-25 — duplicate React keys on evidence pointers and drift rows
+- **related-pd-tb:** none
+- **code-changed-since:** yes
+
 2026-10-25 thorough hunt (seed→hit): promoted stale `findingActionMessages` after evidence hub reload — `loadHub` left per-finding remediation success/error copy on the findings tab when snapshot scope changed or the hub refetched without a tab change; clear the map on ordinary reloads and retain messages only for the post-create `loadHub` via `retainFindingMessages`; regression `clears per-finding remediation message when the hub reloads for a new snapshot scope`; cheap-disproof closed duplicate evidence-pointer React keys (single-pointer fixture), duplicate drift `changeId` rows (table already keys by `changeId` with unique regression data), remediation `patternKey` row identity (rows keyed by `instanceId`), and diagram correspondence empty state (explicit empty copy when correspondence absent); scoped ResourceHubClient vitest 62/62. Private beta: operators who change snapshot scope or reload the resource hub no longer see remediation action messages from the prior capture context on the findings tab.
 
 - [x] (proven) `ResourceHubClient` finding action messages — stale map after hub reload — **hit 2026-10-25 thorough hunt:** `loadHub` clears `findingActionMessages` unless `retainFindingMessages`; regression snapshot-scope reload test.

@@ -287,6 +287,41 @@ describe("ResourceHubClient", () => {
     expect(screen.getByText("snapshots/222/properties.json")).toBeInTheDocument();
   });
 
+  it("renders evidence pointers that share kind and relative path", async () => {
+    const sharedPath = "snapshots/222/properties.json";
+    fetchCachedInfraEvidenceResourceHub.mockImplementation(async () =>
+      buildResourceHubTestMockHub({
+        evidencePointers: [
+          { kind: "inventory", relativePath: sharedPath },
+          { kind: "inventory", relativePath: sharedPath },
+        ],
+      }),
+    );
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    await screen.findByText("Evidence pointers");
+    expect(screen.getAllByText(sharedPath)).toHaveLength(2);
+    expect(screen.getAllByText("inventory")).toHaveLength(2);
+  });
+
+  it("renders drift rows that share changeId but differ in property", async () => {
+    const baseChange = buildResourceHubTestMockHub().recentChanges[0];
+    fetchCachedInfraEvidenceResourceHub.mockImplementation(async () =>
+      buildResourceHubTestMockHub({
+        recentChanges: [
+          { ...baseChange, property: "sku" },
+          { ...baseChange, property: "tier" },
+        ],
+      }),
+    );
+    searchParams = new URLSearchParams(`tab=drift&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}`);
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    await screen.findByTestId("infra-resource-hub-drift-tab-change-change-1-0");
+    expect(screen.getByTestId("infra-resource-hub-drift-tab-change-change-1-1")).toHaveTextContent("tier");
+    expect(screen.getByTestId("infra-resource-hub-drift-tab-change-change-1-0")).toHaveTextContent("sku");
+  });
+
   it("renders RBAC rows that share principal and role but differ in scope", async () => {
     fetchCachedInfraEvidenceResourceHub.mockImplementation(async () =>
       buildResourceHubTestMockHub({
@@ -377,13 +412,13 @@ describe("ResourceHubClient", () => {
   it("uses shared drift table with old and new values on overview and drift tab", async () => {
     render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
 
-    expect(await screen.findByTestId("infra-resource-hub-drift-change-change-1")).toBeInTheDocument();
+    expect(await screen.findByTestId("infra-resource-hub-drift-change-change-1-0")).toBeInTheDocument();
     expect(screen.getAllByText("Basic").length).toBeGreaterThan(0);
     expect(screen.getAllByText("Standard").length).toBeGreaterThan(0);
 
     searchParams = new URLSearchParams(`tab=drift&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}`);
     const { unmount } = render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
-    expect(await screen.findByTestId("infra-resource-hub-drift-tab-change-change-1")).toBeInTheDocument();
+    expect(await screen.findByTestId("infra-resource-hub-drift-tab-change-change-1-0")).toBeInTheDocument();
     unmount();
   });
 
@@ -511,7 +546,7 @@ describe("ResourceHubClient", () => {
     );
     render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
 
-    expect(await screen.findByTestId("infra-resource-hub-drift-ask-change-1")).toHaveAttribute(
+    expect(await screen.findByTestId("infra-resource-hub-drift-ask-change-1-0")).toHaveAttribute(
       "href",
       expect.stringContaining("runId=run-1"),
     );
@@ -535,7 +570,7 @@ describe("ResourceHubClient", () => {
     );
     render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
 
-    expect(await screen.findByTestId("infra-resource-hub-drift-ask-change-1")).toHaveAttribute(
+    expect(await screen.findByTestId("infra-resource-hub-drift-ask-change-1-0")).toHaveAttribute(
       "href",
       expect.stringContaining("workQueue=open-findings"),
     );
@@ -559,7 +594,7 @@ describe("ResourceHubClient", () => {
     );
     render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
 
-    expect(await screen.findByTestId("infra-resource-hub-drift-change-change-1")).toHaveAttribute(
+    expect(await screen.findByTestId("infra-resource-hub-drift-change-change-1-0")).toHaveAttribute(
       "href",
       expect.stringContaining("runId=run-1"),
     );
