@@ -184,14 +184,16 @@ public sealed class ComparisonAuditService(IComparisonRecordRepository repositor
         if (string.IsNullOrWhiteSpace(sourceRecord.PayloadJson))
             return sourceRecord.PayloadJson;
 
-        if (string.Equals(sourceRecord.ComparisonType, ComparisonTypes.ExportRecordDiff, StringComparison.Ordinal))
+        string comparisonType = NormalizeComparisonType(sourceRecord.ComparisonType);
+
+        if (string.Equals(comparisonType, ComparisonTypes.ExportRecordDiff, StringComparison.Ordinal))
         {
             ExportRecordDiffResult? diff = ComparisonRecordPayloadRehydrator.RehydrateExportDiff(sourceRecord);
 
             return diff is null ? sourceRecord.PayloadJson : JsonSerializer.Serialize(diff, JsonOptions);
         }
 
-        if (string.Equals(sourceRecord.ComparisonType, ComparisonTypes.EndToEndReplay, StringComparison.Ordinal))
+        if (string.Equals(comparisonType, ComparisonTypes.EndToEndReplay, StringComparison.Ordinal))
         {
             EndToEndReplayComparisonReport? report = ComparisonRecordPayloadRehydrator.RehydrateEndToEnd(sourceRecord);
 

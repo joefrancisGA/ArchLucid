@@ -227,6 +227,50 @@ public sealed class ComparisonAuditServiceTests
     }
 
     [Fact]
+    public async Task RecordReplayOfAsync_rewrites_export_diff_payload_when_source_comparison_type_has_padding()
+    {
+        ComparisonRecord? persisted = null;
+        Mock<IComparisonRecordRepository> repo = new();
+        repo
+            .Setup(r => r.CreateAsync(It.IsAny<ComparisonRecord>(), It.IsAny<CancellationToken>()))
+            .Callback<ComparisonRecord, CancellationToken>((record, _) => persisted = record)
+            .Returns(Task.CompletedTask);
+        ComparisonAuditService sut = new(repo.Object, Mock.Of<IAuditService>());
+        ExportRecordDiffResult diff = new()
+        {
+            LeftExportRecordId = "  left-anchor  ",
+            RightExportRecordId = "  right-anchor  ",
+            LeftRunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            RightRunId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        };
+        string payloadJson = JsonSerializer.Serialize(diff, new JsonSerializerOptions(JsonSerializerDefaults.Web));
+        ComparisonRecord source = new()
+        {
+            ComparisonRecordId = "ffffffffffffffffffffffffffffffff",
+            ComparisonType = $"  {ComparisonTypes.ExportRecordDiff}  ",
+            LeftRunId = diff.LeftRunId,
+            RightRunId = diff.RightRunId,
+            LeftExportRecordId = "left-anchor",
+            RightExportRecordId = "right-anchor",
+            Format = ComparisonTypes.FormatJsonMarkdown,
+            SummaryMarkdown = "# diff",
+            PayloadJson = payloadJson,
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+        };
+
+        await sut.RecordReplayOfAsync(source, "replay note", CancellationToken.None);
+
+        persisted.Should().NotBeNull();
+        persisted!.ComparisonType.Should().Be(ComparisonTypes.ExportRecordDiff);
+        ExportRecordDiffResult? payload = JsonSerializer.Deserialize<ExportRecordDiffResult>(
+            persisted.PayloadJson,
+            new JsonSerializerOptions(JsonSerializerDefaults.Web) { PropertyNameCaseInsensitive = true });
+        payload.Should().NotBeNull();
+        payload!.LeftExportRecordId.Should().Be("left-anchor");
+        payload.RightExportRecordId.Should().Be("right-anchor");
+    }
+
+    [Fact]
     public async Task RecordReplayOfAsync_trims_padded_manifest_version_columns_on_persist()
     {
         ComparisonRecord? persisted = null;
