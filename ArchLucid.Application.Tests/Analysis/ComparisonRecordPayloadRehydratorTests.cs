@@ -271,6 +271,43 @@ public sealed class ComparisonRecordPayloadRehydratorTests
     }
 
     [Fact]
+    public void CompareQuality_RehydrateExportDiff_backfills_anchors_from_comparison_record_columns()
+    {
+        Guid leftRunGuid = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+        Guid rightRunGuid = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
+        string leftRunCanonical = leftRunGuid.ToString("N");
+        string rightRunCanonical = rightRunGuid.ToString("N");
+
+        ExportRecordDiffResult diff = new()
+        {
+            LeftExportRecordId = "   ",
+            RightExportRecordId = "\t",
+            LeftRunId = "   ",
+            RightRunId = "  ",
+            ChangedTopLevelFields = ["Format"],
+        };
+        string json = JsonSerializer.Serialize(diff, new JsonSerializerOptions(JsonSerializerDefaults.Web));
+        ComparisonRecord record = new()
+        {
+            ComparisonRecordId = "c2-record-anchors",
+            LeftExportRecordId = "  left-export  ",
+            RightExportRecordId = "  right-export  ",
+            LeftRunId = $"{leftRunGuid:D}  ",
+            RightRunId = $"{rightRunGuid:D}  ",
+            PayloadJson = json,
+        };
+
+        ExportRecordDiffResult? result = ComparisonRecordPayloadRehydrator.RehydrateExportDiff(record);
+
+        result.Should().NotBeNull();
+        result!.LeftExportRecordId.Should().Be("left-export");
+        result.RightExportRecordId.Should().Be("right-export");
+        result.LeftRunId.Should().Be(leftRunCanonical);
+        result.RightRunId.Should().Be(rightRunCanonical);
+        result.ChangedTopLevelFields.Should().Equal(["Format"]);
+    }
+
+    [Fact]
     public void CompareQuality_RehydrateExportDiff_returns_null_when_payload_is_immaterial_after_normalize()
     {
         ExportRecordDiffResult diff = new()

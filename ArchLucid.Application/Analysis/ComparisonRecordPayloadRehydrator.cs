@@ -46,6 +46,7 @@ public static class ComparisonRecordPayloadRehydrator
                 return null;
 
             ExportRecordDiffResultNormalizer.NormalizeDisplayAnchors(diff);
+            ExportRecordDiffResultNormalizer.ApplyComparisonRecordAnchorsInPlace(diff, record);
 
             if (!ExportRecordDiffMateriality.HasMaterialChanges(diff)
                 && diff.LeftExportRecordId.Length == 0

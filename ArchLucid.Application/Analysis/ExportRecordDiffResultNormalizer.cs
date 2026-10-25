@@ -88,6 +88,32 @@ internal static class ExportRecordDiffResultNormalizer
         CanonicalizeNestedCompareRunId(diff.RequestDiff.RightRequest);
     }
 
+    internal static void ApplyComparisonRecordAnchorsInPlace(ExportRecordDiffResult diff, ComparisonRecord record)
+    {
+        ArgumentNullException.ThrowIfNull(diff);
+        ArgumentNullException.ThrowIfNull(record);
+
+        if (diff.LeftRunId.Length == 0)
+        {
+            string? left = AnalysisRunIdCanonicalization.CanonicalRunIdForLookupOrNull(record.LeftRunId);
+            if (!string.IsNullOrEmpty(left))
+                diff.LeftRunId = left;
+        }
+
+        if (diff.RightRunId.Length == 0)
+        {
+            string? right = AnalysisRunIdCanonicalization.CanonicalRunIdForLookupOrNull(record.RightRunId);
+            if (!string.IsNullOrEmpty(right))
+                diff.RightRunId = right;
+        }
+
+        if (diff.LeftExportRecordId.Length == 0 && !string.IsNullOrWhiteSpace(record.LeftExportRecordId))
+            diff.LeftExportRecordId = RunExportRecordIdNormalizer.NormalizeRequired(record.LeftExportRecordId);
+
+        if (diff.RightExportRecordId.Length == 0 && !string.IsNullOrWhiteSpace(record.RightExportRecordId))
+            diff.RightExportRecordId = RunExportRecordIdNormalizer.NormalizeRequired(record.RightExportRecordId);
+    }
+
     private static void RemoveUnknownExportDiffFieldNamesInPlace(ExportRecordDiffResult diff)
     {
         RemoveUnknownFieldNamesInPlace(diff.ChangedTopLevelFields, KnownTopLevelChangedFields);
