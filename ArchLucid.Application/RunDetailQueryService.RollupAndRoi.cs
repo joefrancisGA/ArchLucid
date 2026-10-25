@@ -70,6 +70,11 @@ public sealed partial class RunDetailQueryService
     /// <inheritdoc/>
     public async Task<ArchitectureRunDetail?> GetRunDetailForRoiAsync(string runId, CancellationToken cancellationToken = default)
     {
+        if (!AuthorityRunIdentifier.TryParse(runId, out Guid runGuid))
+            return null;
+
+        string lookupRunId = runGuid.ToString("N");
+
         ArchitectureRunDetail? detail = await GetRunDetailForRollupAsync(runId, cancellationToken).ConfigureAwait(false);
 
         if (detail is null)
@@ -87,7 +92,7 @@ public sealed partial class RunDetailQueryService
             FindingMuteFlagApplier.Apply(detail.Results, muteFlags);
 
         await ApplySemanticSupportBandOverlaysAndLaneBComposeAsync(
-            runId,
+            lookupRunId,
             scope,
             detail.Results,
             detail.Run.FindingsSnapshotId,

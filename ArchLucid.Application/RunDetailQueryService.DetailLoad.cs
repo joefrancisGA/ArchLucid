@@ -92,7 +92,7 @@ public sealed partial class RunDetailQueryService
         }
 
         await ApplySemanticSupportBandOverlaysAndLaneBComposeAsync(
-            runId,
+            lookupRunId,
             scope,
             results,
             record.FindingsSnapshotId,

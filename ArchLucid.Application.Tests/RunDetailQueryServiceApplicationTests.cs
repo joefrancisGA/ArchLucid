@@ -40,6 +40,93 @@ public sealed class RunDetailQueryServiceApplicationTests
         new() { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
 
     [Fact]
+    public async Task CompareQuality_GetRunDetailAsync_passes_canonical_run_id_to_lane_b_compose_when_casing_differs()
+    {
+        ScopeContext scope = NewScope();
+        Guid runGuid = Guid.Parse("99999999-9999-9999-9999-999999999999");
+        string runN = runGuid.ToString("N");
+        Guid findingsSnapshotId = Guid.Parse("99999999-9999-9999-9999-99999999aaaa");
+
+        Mock<IRunRepository> runRepo = new();
+        Mock<IScopeContextProvider> scopeProvider = new();
+        Mock<IAgentTaskRepository> taskRepo = new();
+        Mock<IUnifiedGoldenManifestReader> unifiedReader = new();
+        Mock<IRunStageOutcomesRepository> stageOutcomes = new();
+        Mock<IAgentExecutionTraceRepository> executionTraceRepo = new();
+        Mock<IFindingRecordMuteRepository> muteRepo = new();
+        Mock<IFindingSemanticSupportBandLaneBComposeService> laneBCompose = new();
+        string? capturedRunId = null;
+
+        muteRepo
+            .Setup(r => r.GetMuteFlagsAsync(findingsSnapshotId, scope, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new Dictionary<string, FindingMuteFlag>(StringComparer.Ordinal));
+
+        laneBCompose
+            .Setup(s => s.ApplyToAgentResultsAsync(
+                It.IsAny<string>(),
+                It.IsAny<ScopeContext>(),
+                It.IsAny<IReadOnlyList<AgentResult>>(),
+                It.IsAny<CancellationToken>()))
+            .Callback<string, ScopeContext, IReadOnlyList<AgentResult>, CancellationToken>(
+                (id, _, _, _) => capturedRunId = id)
+            .Returns(Task.CompletedTask);
+
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(scope);
+
+        RunRecord record = new()
+        {
+            RunId = runGuid,
+            TenantId = scope.TenantId,
+            WorkspaceId = scope.WorkspaceId,
+            ScopeProjectId = scope.ProjectId,
+            ProjectId = "p",
+            ArchitectureRequestId = "req-lane-b",
+            LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+            FindingsSnapshotId = findingsSnapshotId,
+        };
+
+        runRepo.Setup(r => r.GetByIdAsync(scope, runGuid, It.IsAny<CancellationToken>())).ReturnsAsync(record);
+        taskRepo.Setup(r => r.GetByRunIdAsync(scope, runN, It.IsAny<CancellationToken>())).ReturnsAsync([]);
+        executionTraceRepo
+            .Setup(r => r.GetLlmCostSlicesByRunIdAsync(scope, runN, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+        stageOutcomes
+            .Setup(r => r.ListByRunIdAsync(runGuid, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+        unifiedReader
+            .Setup(r => r.ReadByRunIdAsync(scope, runGuid, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((GoldenManifest?)null);
+
+        Mock<IAgentResultEnrichmentRepository> enrichmentRepo = new();
+        enrichmentRepo
+            .Setup(r => r.GetByResultIdsAsync(It.IsAny<IReadOnlyList<string>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new Dictionary<string, AgentResultEnrichmentRecord>(StringComparer.Ordinal));
+        InMemoryAgentResultRepository resultRepo = new(enrichmentRepo.Object);
+        await resultRepo.CreateAsync(CommitReady(runN, AgentType.Topology), CancellationToken.None);
+
+        RunDetailQueryService sut = new(
+            runRepo.Object,
+            scopeProvider.Object,
+            taskRepo.Object,
+            resultRepo,
+            unifiedReader.Object,
+            Mock.Of<IDecisionTraceRepository>(),
+            muteRepo.Object,
+            executionTraceRepo.Object,
+            Mock.Of<ILlmCostEstimator>(),
+            new FindingTrustLabelMapper(),
+            stageOutcomes.Object,
+            new RunStateTransitionService(),
+            Mock.Of<ILogger<RunDetailQueryService>>(),
+            semanticSupportBandLaneBComposeService: laneBCompose.Object);
+
+        await sut.GetRunDetailAsync(runN.ToUpperInvariant());
+
+        capturedRunId.Should().Be(runN);
+    }
+
+    [Fact]
     public async Task CompareQuality_GetRunDetailForRollupAsync_loads_results_when_run_id_differs_only_by_casing()
     {
         ScopeContext scope = NewScope();
