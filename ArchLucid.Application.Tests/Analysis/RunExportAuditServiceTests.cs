@@ -556,6 +556,34 @@ public sealed class RunExportAuditServiceTests
     }
 
     [Fact]
+    public async Task CompareQuality_RecordFailureAsync_canonicalizes_dashed_run_id_in_audit_json()
+    {
+        Guid runGuid = Guid.Parse("22222222-3333-4444-5555-666666666666");
+        string canonicalRunId = runGuid.ToString("N");
+        string dashedRunId = runGuid.ToString("D");
+
+        Mock<IRunExportRecordRepository> repo = new();
+        Mock<IAuditService> audit = new();
+        RunExportAuditService sut = new(repo.Object, audit.Object, NullLogger<RunExportAuditService>.Instance);
+
+        await sut.RecordFailureAsync(
+            dashedRunId,
+            "analysis-report-docx",
+            "docx",
+            "export failed",
+            CancellationToken.None);
+
+        audit.Verify(
+            a => a.LogAsync(
+                It.Is<AuditEvent>(e =>
+                    e.EventType == AuditEventTypes.RunExportFailed &&
+                    e.RunId == runGuid &&
+                    e.DataJson.Contains($"\"runId\":\"{canonicalRunId}\"", StringComparison.Ordinal)),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
     public async Task RecordFailureAsync_trims_surrounding_whitespace_on_metadata_before_audit()
     {
         Mock<IRunExportRecordRepository> repo = new();

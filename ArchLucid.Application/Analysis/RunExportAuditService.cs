@@ -122,7 +122,7 @@ public sealed class RunExportAuditService(
         ArgumentNullException.ThrowIfNull(exportType);
         ArgumentNullException.ThrowIfNull(format);
         ArgumentNullException.ThrowIfNull(errorMessage);
-        runId = runId.Trim();
+        runId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(runId.Trim());
         exportType = exportType.Trim();
         format = format.Trim();
         errorMessage = errorMessage.Trim();
