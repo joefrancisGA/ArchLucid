@@ -78,7 +78,7 @@ internal static class InventoryDiagramAvdBoundaryApplier
                 DiagramNode boundaryNode = new()
                 {
                     NodeId = boundaryDiagramNodeId,
-                    Label = BuildCollapsedBoundaryLabel(hostPoolCount, sessionHostCount),
+                    Label = InventoryDiagramAvdResourceMapping.FormatHostPoolBoundaryLabel(hostPoolArmId),
                     NodeType = "avd-boundary",
                     OrderKey = ast.Nodes.Count + boundaryNodes.Count,
                     IsAvdCollapsedBoundary = true,
@@ -98,7 +98,7 @@ internal static class InventoryDiagramAvdBoundaryApplier
             {
                 FromNodeId = fromAvdOnly ? boundaryDiagramNodeId : sharedDiagramNodeId,
                 ToNodeId = fromAvdOnly ? sharedDiagramNodeId : boundaryDiagramNodeId,
-                Label = InventoryDiagramAvdResourceMapping.CollapsedBoundaryLabel,
+                Label = InventoryDiagramAvdResourceMapping.CollapsedBoundaryEdgeLabel,
             });
         }
 
@@ -108,18 +108,13 @@ internal static class InventoryDiagramAvdBoundaryApplier
             boundaryNodes[boundaryDiagramNodeId] = new DiagramNode
             {
                 NodeId = boundaryDiagramNodeId,
-                Label = BuildCollapsedBoundaryLabel(hostPoolCount, sessionHostCount),
+                Label = InventoryDiagramAvdResourceMapping.FormatOmittedAvdSummaryBoundaryLabel(
+                    hostPoolCount,
+                    sessionHostCount),
                 NodeType = "avd-boundary",
                 OrderKey = ast.Nodes.Count,
                 IsAvdCollapsedBoundary = true,
             };
-        }
-        else
-        {
-            foreach (DiagramNode boundaryNode in boundaryNodes.Values)
-            {
-                boundaryNode.Label = BuildCollapsedBoundaryLabel(hostPoolCount, sessionHostCount);
-            }
         }
 
         foreach (DiagramNode boundaryNode in boundaryNodes.Values.OrderBy(node => node.NodeId, StringComparer.Ordinal))
@@ -160,14 +155,6 @@ internal static class InventoryDiagramAvdBoundaryApplier
         }
 
         return (hostPools, sessionHosts);
-    }
-
-    private static string BuildCollapsedBoundaryLabel(int hostPoolCount, int sessionHostCount)
-    {
-        string hostPoolWord = hostPoolCount == 1 ? "host pool" : "host pools";
-        string sessionHostWord = sessionHostCount == 1 ? "session host" : "session hosts";
-
-        return $"{InventoryDiagramAvdResourceMapping.CollapsedBoundaryLabel} · {hostPoolCount} {hostPoolWord} · {sessionHostCount} {sessionHostWord}";
     }
 
     private static string ResolveBoundaryDiagramNodeId(
