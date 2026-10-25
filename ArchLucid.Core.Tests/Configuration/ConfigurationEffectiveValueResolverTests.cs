@@ -981,6 +981,46 @@ public sealed class ConfigurationEffectiveValueResolverTests
     }
 
     [Fact]
+    public void Resolve_redacts_json_object_effective_values_when_property_name_is_token_and_value_is_boolean()
+    {
+        const string configPath = "ArchLucid:SomeFeature:Settings";
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = """{"Token":false}""",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(configuration, configPath, isSet: true);
+
+        value.Should().Be("***");
+    }
+
+    [Fact]
+    public void Resolve_truncates_scalar_without_splitting_valid_surrogate_pair_across_boundary()
+    {
+        const string configPath = "ArchLucid:FallbackLlm:Endpoints";
+        string configured = new string('q', 255) + "\U0001F4A1" + "z";
+
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = configured,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            configPath,
+            isSet: true);
+
+        value.Should().NotBeNull();
+        value.Should().EndWith("…");
+        value.Should().Be(new string('q', 255) + "…");
+        TruncatedPrefixIsWellFormed(value!).Should().BeTrue();
+    }
+
+    [Fact]
     public void Resolve_preserves_scalar_effective_value_at_exactly_max_length_when_ending_with_valid_surrogate_pair()
     {
         const string configPath = "ArchLucid:FallbackLlm:Endpoints";
