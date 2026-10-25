@@ -26,7 +26,7 @@ describe("resolveReviewPackageDoThisNext", () => {
     const next = resolveReviewPackageDoThisNext(baseInput);
 
     expect(next.kind).toBe("add-evidence");
-    expect(next.sentence).toContain("Evidence is still thin");
+    expect(next.sentence).toContain("Evidence thickness was not measured");
     expect(next.href).toContain("reviewTab=evidence");
   });
 
@@ -320,6 +320,7 @@ describe("resolveReviewPackageDoThisNext", () => {
     });
 
     expect(next.kind).toBe("compare-to-prior");
+    expect(next.sentence).toBe("A prior review link is stored. This strip does not list what changed.");
     expect(next.actionLabel).toBe("Compare reviews");
     expect(next.href).toContain("compare-two-reviews");
     expect(next.secondaryAction?.label).toBe("Send sponsor briefing export");

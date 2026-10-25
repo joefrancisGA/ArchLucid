@@ -97,7 +97,7 @@ describe("RunDetailFeasibilityVerdictSection", () => {
     );
 
     expect(screen.queryByText("Soft assumption was not stored.")).not.toBeInTheDocument();
-    expect(screen.queryByText("Unsat core was not stored.")).not.toBeInTheDocument();
+    expect(screen.getByText("Unsat core was stored empty.")).toBeInTheDocument();
   });
 
   it("renders omitted and stored feasibility detail without collapsing empty values", () => {
@@ -138,7 +138,9 @@ describe("RunDetailFeasibilityVerdictSection", () => {
     );
 
     expect(screen.queryByText("Cost of being wrong was not stored.")).not.toBeInTheDocument();
-    expect(screen.queryByText("Proposed relaxations were not stored.")).not.toBeInTheDocument();
+    expect(
+      screen.getByText("No proposed relaxations were stored on this verdict."),
+    ).toBeInTheDocument();
   });
 
   it("renders proposed relaxation omissions and stored values", () => {

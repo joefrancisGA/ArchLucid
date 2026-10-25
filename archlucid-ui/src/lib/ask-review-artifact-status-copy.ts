@@ -15,6 +15,9 @@ export const ASK_REVIEW_ARTIFACT_STATUS_UNSPECIFIED = "Finalized state was not s
 export const ASK_REVIEW_GROUNDING_LINKS_NOT_STORED_MARKER =
   "Cited findings were not stored." as const;
 
+export const ASK_CITATION_REFS_NOT_STORED_MARKER =
+  "Citation refs were not stored on this answer." as const;
+
 export const ASK_REVIEW_STREAMING_PROVISIONAL_MARKER =
   "Provisional answer — not part of the Finalized review record until finalized." as const;
 

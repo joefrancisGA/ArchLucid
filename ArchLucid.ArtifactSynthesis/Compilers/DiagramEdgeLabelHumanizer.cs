@@ -153,6 +153,22 @@ internal static class DiagramEdgeLabelHumanizer
             return authorizedLabel;
         }
 
+        if (!string.IsNullOrWhiteSpace(inferenceSource))
+        {
+            string trimmedInferenceSource = inferenceSource.Trim();
+
+            if (TryHumanizeGraphEdgeType(trimmedInferenceSource, out string inferenceInventoryLabel))
+            {
+                return inferenceInventoryLabel;
+            }
+
+            if (InventoryAliasToGraphEdgeType.TryGetValue(trimmedInferenceSource, out string? inferenceGraphEdgeType)
+                && TryHumanizeGraphEdgeType(inferenceGraphEdgeType, out string aliasedInferenceLabel))
+            {
+                return aliasedInferenceLabel;
+            }
+        }
+
         if (DiagramRelationshipVerbCatalog.TryResolve(inferenceSource, out string inferenceVerb))
         {
             return inferenceVerb;
@@ -252,7 +268,7 @@ internal static class DiagramEdgeLabelHumanizer
             return true;
         }
 
-        label = "Observed in logs";
+        label = "Observed dependency. Read/write direction was not stored.";
 
         return true;
     }
@@ -299,7 +315,7 @@ internal static class DiagramEdgeLabelHumanizer
 
         if (string.Equals(baseSource, GraphEdgeInferenceSources.InventoryDiagnosticDestination, StringComparison.OrdinalIgnoreCase))
         {
-            label = $"Diagnostic setting destination is {qualifier.Trim()}. This is not observed log delivery.";
+            label = InventoryDiagramRelationshipLabelTexts.FormatDiagnosticSettingDestinationLabel(qualifier);
 
             return true;
         }
@@ -367,6 +383,11 @@ internal static class DiagramEdgeLabelHumanizer
             && TryHumanizeGraphEdgeType(graphEdgeType, out string aliased))
         {
             return aliased;
+        }
+
+        if (DiagramRelationshipVerbCatalog.TryResolve(trimmed, out string catalogVerb))
+        {
+            return catalogVerb;
         }
 
         return trimmed;
@@ -534,7 +555,7 @@ internal static class DiagramEdgeLabelHumanizer
         if (string.Equals(value, GraphEdgeInferenceSources.InventoryAdfTriggerSource, StringComparison.OrdinalIgnoreCase)
             || string.Equals(value, AzureInventoryRelationshipAssociationTypes.AdfTriggerSource, StringComparison.OrdinalIgnoreCase))
         {
-            humanized = "Trigger is configured. This is not an observed run.";
+            humanized = InventoryDiagramRelationshipLabelTexts.AdfTriggerConfiguredObservedRunNotStored;
 
             return true;
         }
@@ -542,7 +563,7 @@ internal static class DiagramEdgeLabelHumanizer
         if (string.Equals(value, GraphEdgeInferenceSources.InventoryAdfIntegrationRuntime, StringComparison.OrdinalIgnoreCase)
             || string.Equals(value, AzureInventoryRelationshipAssociationTypes.AdfIntegrationRuntime, StringComparison.OrdinalIgnoreCase))
         {
-            humanized = "Integration runtime in configuration. This is not an observed run.";
+            humanized = InventoryDiagramRelationshipLabelTexts.AdfIntegrationRuntimeConfiguredObservedRunNotStored;
 
             return true;
         }

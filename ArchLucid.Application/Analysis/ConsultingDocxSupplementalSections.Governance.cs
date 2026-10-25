@@ -99,8 +99,8 @@ internal static partial class ConsultingDocxSupplementalSections
         ManifestGovernance gov = report.Manifest.Governance;
 
         ConsultingDocxOpenXmlPrimitives.AddKeyValueTable(body, [
-            ("Risk Classification", gov.RiskClassification),
-            ("Cost Classification", gov.CostClassification),
+            ("Risk Classification", ArchitectureManifestGovernanceExport.FormatRiskClassificationForExport(gov)),
+            ("Cost Classification", ArchitectureManifestGovernanceExport.FormatCostClassificationForExport(gov)),
             ("Required Controls", gov.RequiredControls.Count > 0 ? string.Join(", ", gov.RequiredControls) : "None"),
             ("Compliance Tags", gov.ComplianceTags.Count > 0 ? string.Join(", ", gov.ComplianceTags) : "None"),
             ("Policy Constraints", gov.PolicyConstraints.Count > 0 ? string.Join(", ", gov.PolicyConstraints) : "None")

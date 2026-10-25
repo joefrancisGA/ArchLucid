@@ -2,14 +2,23 @@ import { describe, expect, it } from "vitest";
 
 import {
   buildCoveragePreviewRequest,
+  COVERAGE_PREVIEW_CLOUD_NOT_STORED_MESSAGE,
   COVERAGE_PREVIEW_POLICY_PACK_VERSION_NOT_STORED_MESSAGE,
   formatCoveragePreviewPolicyPackVersion,
   groupCoveragePreviewAssignments,
   mapNormalizedCloudProvider,
+  resolveCoveragePreviewCloudHonesty,
 } from "@/lib/coverage-preview";
 import type { CoveragePreviewAssignment } from "@/lib/api/coverage-preview-api";
 
 describe("coverage-preview helpers", () => {
+  it("resolveCoveragePreviewCloudHonesty surfaces omitted cloud without inventing a provider", () => {
+    expect(resolveCoveragePreviewCloudHonesty(undefined)).toBe(COVERAGE_PREVIEW_CLOUD_NOT_STORED_MESSAGE);
+    expect(resolveCoveragePreviewCloudHonesty("")).toBe(COVERAGE_PREVIEW_CLOUD_NOT_STORED_MESSAGE);
+    expect(resolveCoveragePreviewCloudHonesty("  ")).toBe(COVERAGE_PREVIEW_CLOUD_NOT_STORED_MESSAGE);
+    expect(resolveCoveragePreviewCloudHonesty("Azure")).toBeNull();
+  });
+
   it("formatCoveragePreviewPolicyPackVersion surfaces missing versions honestly", () => {
     expect(formatCoveragePreviewPolicyPackVersion("")).toBe(
       COVERAGE_PREVIEW_POLICY_PACK_VERSION_NOT_STORED_MESSAGE,

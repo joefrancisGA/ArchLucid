@@ -95,7 +95,7 @@ export function buildCoveragePreviewRequest(input: {
 }
 
 export const COVERAGE_PREVIEW_CLOUD_NOT_STORED_MESSAGE =
-  "Cloud was not stored. This preview is not a stored cloud choice." as const;
+  "Cloud was not stored, so this coverage preview was not evaluated." as const;
 
 export const COVERAGE_PREVIEW_POLICY_PACK_VERSION_NOT_STORED_MESSAGE =
   "Policy pack version was not stored." as const;

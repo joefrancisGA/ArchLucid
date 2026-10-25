@@ -365,8 +365,10 @@ export const GUIDED_INTAKE_REQUEST_FAILED_FALLBACK = "Guided questions request f
 
 /** Heading for the read-only confirmed-scope recap on the submit step. */
 export const GUIDED_INTAKE_CONFIRMED_SCOPE_SUMMARY_HEADING = "Confirmed in-scope items";
+
+/** Shown on the submit step when no in-scope confirmation lines were stored. */
 export const GUIDED_INTAKE_CONFIRMED_SCOPE_NOT_STORED =
-  "Confirmed scope lines were not recorded on this step.";
+  "Confirmed in-scope items were not stored." as const;
 
 export function buildGuidedIntakeCreationAdvanceBlockerMessage(blockers: readonly string[]): string {
   if (blockers.length === 0) {

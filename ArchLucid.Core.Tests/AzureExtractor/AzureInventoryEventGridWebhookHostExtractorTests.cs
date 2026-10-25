@@ -18,6 +18,14 @@ public sealed class AzureInventoryEventGridWebhookHostExtractorTests
             .Be(expectedHost);
     }
 
+    [Fact]
+    public void TryExtractHost_strips_userinfo_from_webhook_url()
+    {
+        AzureInventoryEventGridWebhookHostExtractor.TryExtractHost("https://user:pass@hooks.example.com/path")
+            .Should()
+            .Be("hooks.example.com");
+    }
+
     [Theory]
     [InlineData(null)]
     [InlineData("")]

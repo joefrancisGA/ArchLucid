@@ -127,9 +127,15 @@ internal static class InventoryDiagramNsgInboundRuleChipBuilder
 
         prefix = prefix.Trim();
 
-        if (prefix == "*"
-            || prefix.Equals("Internet", StringComparison.OrdinalIgnoreCase)
-            || prefix == "0.0.0.0/0")
+        if (prefix == "*")
+        {
+            prefix = "Any source";
+        }
+        else if (prefix == "0.0.0.0/0")
+        {
+            prefix = "Any IPv4 source";
+        }
+        else if (prefix.Equals("Internet", StringComparison.OrdinalIgnoreCase))
         {
             prefix = "Internet";
         }
