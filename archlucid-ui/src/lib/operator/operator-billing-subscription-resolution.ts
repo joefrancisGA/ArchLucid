@@ -6,6 +6,8 @@ import {
 import type { EnterpriseStatusKind } from "@/lib/design-tokens";
 import type { TeamExpansionNudgeStatusPayload } from "@/lib/team-expansion-nudge-trigger";
 
+import { normalizeOperatorHomeNonNegativeCount } from "@/lib/operator/run-home-status";
+
 import type { OperatorBillingSubscriptionLoadState } from "./operator-billing-current-plan";
 
 export type OperatorBillingSubscriptionStatusDisplay = {
@@ -116,7 +118,7 @@ export function resolveOperatorBillingSeatRow(
     return null;
   }
 
-  const used = seatsUsed ?? 0;
+  const used = normalizeOperatorHomeNonNegativeCount(seatsUsed);
   const label = isTenantTrial ? "Trial seats" : "Seats";
 
   return {
