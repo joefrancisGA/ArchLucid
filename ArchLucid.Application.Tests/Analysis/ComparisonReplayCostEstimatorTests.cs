@@ -183,6 +183,27 @@ public sealed class ComparisonReplayCostEstimatorTests
     }
 
     [SkippableFact]
+    public async Task CompareQuality_TryEstimateAsync_whitespace_only_payload_does_not_add_large_payload_factor()
+    {
+        Mock<IComparisonRecordRepository> repo = new();
+        string whitespacePayload = new(' ', 600_000);
+        repo.Setup(r => r.GetByIdAsync("c1", It.IsAny<CancellationToken>())).ReturnsAsync(
+            new ComparisonRecord
+            {
+                ComparisonRecordId = "c1",
+                ComparisonType = ComparisonTypes.EndToEndReplay,
+                PayloadJson = whitespacePayload,
+            });
+        ComparisonReplayCostEstimator sut = CreateSut(repo.Object);
+
+        ComparisonReplayCostEstimate? result =
+            await sut.TryEstimateAsync("c1", "markdown", "artifact", false, CancellationToken.None);
+
+        result.Should().NotBeNull();
+        result!.Factors.Should().NotContain(f => f.Contains("Large stored payload", StringComparison.Ordinal));
+    }
+
+    [SkippableFact]
     public async Task TryEstimateAsync_large_payload_adds_factor()
     {
         Mock<IComparisonRecordRepository> repo = new();

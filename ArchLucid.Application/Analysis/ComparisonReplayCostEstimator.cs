@@ -70,7 +70,7 @@ public sealed class ComparisonReplayCostEstimator(
             factors.Add("PersistReplay adds a new comparison record write.");
         }
 
-        int payloadChars = record.PayloadJson.Length;
+        int payloadChars = string.IsNullOrWhiteSpace(record.PayloadJson) ? 0 : record.PayloadJson.Length;
 
         if (payloadChars > 500_000)
         {
