@@ -39,6 +39,6 @@ export const architectureSealDeltaDiffKindLabel = (diffKind: string): string => 
     case "Changed":
       return "Changed";
     default:
-      return diffKind;
+      return diffKind.trim().length > 0 ? diffKind : "Diff kind was not stored.";
   }
 };

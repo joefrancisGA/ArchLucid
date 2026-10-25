@@ -53,8 +53,8 @@ export function DraftIntakeDecisionReceiptCard(props: DraftIntakeDecisionReceipt
         <p className={cn("m-0 leading-relaxed", OPERATOR_TYPOGRAPHY.body)}>{props.verdict.summary}</p>
         <FeasibilityVerdictDriversPanel drivers={verdictDrivers} />
         <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-          Cost story ({DECISION_RECEIPT_COST_ESTIMATE_LABEL}): ~$1 session vs ~$25k / 2–4 weeks of human
-          architecture review avoided.
+          Cost story ({DECISION_RECEIPT_COST_ESTIMATE_LABEL}): Session cost, avoided architect cost, and avoided
+          calendar time were not stored on this receipt.
         </p>
         <DecisionReceiptExportButton
           context={{

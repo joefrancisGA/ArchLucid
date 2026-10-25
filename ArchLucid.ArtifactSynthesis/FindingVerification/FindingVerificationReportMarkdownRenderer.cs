@@ -42,9 +42,9 @@ public static class FindingVerificationReportMarkdownRenderer
             builder.Append('|');
             builder.Append(EscapeCell(finding.FindingId));
             builder.Append('|');
-            builder.Append(EscapeCell(finding.Title ?? string.Empty));
+            builder.Append(EscapeCell(finding.Title));
             builder.Append('|');
-            builder.Append(EscapeCell(finding.Severity ?? string.Empty));
+            builder.Append(EscapeCell(finding.Severity));
             builder.Append('|');
             builder.Append(EscapeCell(finding.Status));
             builder.Append('|');
@@ -76,9 +76,15 @@ public static class FindingVerificationReportMarkdownRenderer
         }
     }
 
-    private static string EscapeCell(string value)
+    private static string EscapeCell(string? value)
     {
-        string sanitized = LlmArtifactFreeTextSanitizer.Sanitize(value);
+        string sanitized = LlmArtifactFreeTextSanitizer.Sanitize(value ?? string.Empty);
+
+        if (string.IsNullOrWhiteSpace(sanitized))
+        {
+            return "Value was not stored.";
+        }
+
         return sanitized
             .Replace("|", "/", StringComparison.Ordinal)
             .Replace("\n", " ", StringComparison.Ordinal);
