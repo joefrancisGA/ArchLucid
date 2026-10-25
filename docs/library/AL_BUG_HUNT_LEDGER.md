@@ -1,3 +1,15 @@
+2026-10-22 seed hunt (seed-only): `ui-oidc` - no hunt-ready product defect; cheap-disproof closed saturated pictograph encoding, temporarily_unavailable fixed authorize copy, and BFF refresh 502 parity; parity regressions BFF refresh HTTP 413 and opaque token endpoint 413 without cookie clear, backslash-prefixed post-sign-in purge during retry, and supplemental Google poisoned unsafe return purge at sign-in start; scoped `src/lib/oidc` + BFF refresh route vitest 493/493.
+
+- [x] (invalid) decodeOAuthErrorDescription - multiply-encoded %252B with pictograph glue - **cheap-disproof 2026-10-22:** saturated encoding class on trunk.
+- [x] (invalid) humanizeAuthorizeCallbackError - temporarily_unavailable authorize-query copy - **cheap-disproof 2026-10-22:** fixed-branch temporary-error UX.
+- [x] (valid-no-repro) refreshBffSessionCookie - refresh 502 shouldClearSession false - **cheap-disproof 2026-10-22:** client + route opaque 502 regressions on trunk.
+- [x] (valid-no-repro) initiateSupplementalOidcRedirect - poisoned unsafe return URL during authorize retry - **regression 2026-10-22:** supplemental parity with primary poisoned-url purge at sign-in start.
+- [x] (valid-no-repro) readPostSignInReturnUrl - backslash-prefixed path purge during retry - **regression 2026-10-22:** tamper purge without clearing retry marker.
+
+- [ ] (candidate) humanizeAuthorizeCallbackError - invalid_scope authorize-query copy - locus: fixed-branch UX.
+- [ ] (candidate) refreshBffSessionCookie - refresh 414 shouldClearSession false - locus: proxy transient policy.
+- [ ] (candidate) exchangeAuthorizationCode - temporarily_unavailable marks authorize retry - locus: transient exchange policy.
+- [ ] (candidate) preparePostSignInReturnUrlForSignInStart - ZWSP-only post-sign-in purge during retry - locus: tamper defense parity.
 2026-10-22 seed hunt (seed-only): `ui-oidc` - no hunt-ready product defect; cheap-disproof closed unauthorized_client fixed authorize UX, refresh 413 parity, and saturated readOAuthJsonErrorDescription regional-indicator glue; parity regressions BFF refresh HTTP 415 and opaque token endpoint 415 without cookie clear, and code exchange opaque HTTP 502 marks authorize retry to preserve return path; scoped `src/lib/oidc` + BFF refresh route vitest 509/509.
 
 - [x] (invalid) humanizeAuthorizeCallbackError - unauthorized_client authorize-query copy - **cheap-disproof 2026-10-22:** fixed registration-route UX; not a defect.
