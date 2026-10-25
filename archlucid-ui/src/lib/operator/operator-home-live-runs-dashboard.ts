@@ -7,6 +7,17 @@ export type OperatorHomeLiveRunsSnapshot = {
   readonly totalCount: number;
 };
 
+function resolveLiveRunsDashboardTotalCount(
+  liveTotalCount: number,
+  ssrTotalCount: number,
+): number {
+  if (!Number.isFinite(liveTotalCount)) {
+    return Number.isFinite(ssrTotalCount) ? Math.max(0, Math.trunc(ssrTotalCount)) : 0;
+  }
+
+  return Math.max(0, Math.trunc(liveTotalCount));
+}
+
 /**
  * Overlays the client-refreshed reviews snapshot onto the server-rendered dashboard model so every
  * runs-derived home surface (continue rail, hero KPIs, workspace metrics) reflects the same data as
@@ -23,6 +34,6 @@ export function resolveLiveRunsDashboardModel(
   return {
     ...ssrModel,
     items: [...liveSnapshot.items],
-    totalCount: liveSnapshot.totalCount,
+    totalCount: resolveLiveRunsDashboardTotalCount(liveSnapshot.totalCount, ssrModel.totalCount),
   };
 }

@@ -47,6 +47,16 @@ describe("resolveLiveRunsDashboardModel", () => {
     expect(merged.buyerPolishedShell).toBe(false);
   });
 
+  it("keeps the server total count when the live snapshot total is non-finite", () => {
+    const merged = resolveLiveRunsDashboardModel(ssrModel, {
+      items: [buildRun("live-a")],
+      totalCount: Number.NaN,
+    });
+
+    expect(merged.items.map((run) => run.runId)).toEqual(["live-a"]);
+    expect(merged.totalCount).toBe(1);
+  });
+
   it("drops reviews that the refreshed snapshot no longer contains", () => {
     const merged = resolveLiveRunsDashboardModel(ssrModel, { items: [], totalCount: 0 });
 
