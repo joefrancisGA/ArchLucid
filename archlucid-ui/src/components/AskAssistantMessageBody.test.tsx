@@ -109,6 +109,20 @@ describe("AskAssistantMessageBody", () => {
     expect(screen.queryByText("Based on the evidence indexed for this review:")).not.toBeInTheDocument();
   });
 
+  it("does not link foreign review UUIDs when reviewIdInScope is set", () => {
+    const foreignId = "22222222-2222-4222-8222-222222222222";
+
+    render(
+      <AskAssistantMessageBody
+        content={`See run ${foreignId} for detail.`}
+        reviewIdInScope={sampleId}
+      />,
+    );
+
+    expect(screen.queryByRole("link", { name: foreignId })).toBeNull();
+    expect(screen.getByText(foreignId, { exact: false })).toBeInTheDocument();
+  });
+
   it("renders grounding links footer when provided", () => {
     render(
       <AskAssistantMessageBody

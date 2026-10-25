@@ -36,6 +36,7 @@ const model: ArchitectureDiagramModel = {
     },
   ],
   trustBoundaryLabels: [],
+  unmatchedDataFlows: [],
 };
 
 describe("ArchitectureDiagramProvenancePanel", () => {
