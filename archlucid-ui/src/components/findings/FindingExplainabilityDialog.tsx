@@ -29,8 +29,10 @@ import { findingExplainBlockedReason } from "@/lib/explain/finding-explain-block
 import {
   findingRationalePreview,
   findingSeverityAudienceCopy,
+  findingEvidenceCountPlainLine,
   formatFindingExplainabilityPolicyRuleDisplay,
 } from "@/lib/findings/finding-explainability-summary";
+import { ARCHITECTURE_INTELLIGENCE_FINDING_CONCLUSION_NOT_STORED } from "@/lib/architecture/architecture-intelligence-findings";
 import {
   FINDING_TRACE_FIELD_FILL_LABEL,
   FINDING_TRACE_FIELD_FILL_SCOPE_LINE,
@@ -312,13 +314,23 @@ export function FindingExplainabilityDialog({
                             The recorded conclusion, drawn from the finding rationale.
                           </span>
                         </dt>
-                        <dd className="m-0 whitespace-pre-wrap leading-relaxed">{data.evidence.conclusion}</dd>
+                        <dd className="m-0 whitespace-pre-wrap leading-relaxed">
+                          {data.evidence.conclusion?.trim().length
+                            ? data.evidence.conclusion
+                            : ARCHITECTURE_INTELLIGENCE_FINDING_CONCLUSION_NOT_STORED}
+                        </dd>
                       </div>
                       <div>
                         <dt className="font-semibold text-sky-900 dark:text-sky-200">Evidence refs</dt>
                         <dd className="m-0">
-                          {data.evidence.evidenceRefs.length === 0 ? (
-                            <span className="text-sky-800/80 dark:text-sky-200/80">None recorded</span>
+                          {data.evidence.evidenceRefs === null || data.evidence.evidenceRefs === undefined ? (
+                            <span className="text-sky-800/80 dark:text-sky-200/80">
+                              Evidence refs were not stored.
+                            </span>
+                          ) : data.evidence.evidenceRefs.length === 0 ? (
+                            <span className="text-sky-800/80 dark:text-sky-200/80">
+                              {findingEvidenceCountPlainLine([])}
+                            </span>
                           ) : (
                             <ul className="m-0 list-disc space-y-0.5 pl-5">
                               {data.evidence.evidenceRefs.map((ref, i) => (

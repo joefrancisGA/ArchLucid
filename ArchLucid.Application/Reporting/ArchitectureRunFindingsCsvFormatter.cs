@@ -15,6 +15,24 @@ namespace ArchLucid.Application.Reporting;
 /// </summary>
 public static class ArchitectureRunFindingsCsvFormatter
 {
+    internal const string ConfidenceScoreNotStoredLabel = "Confidence score was not stored.";
+
+    internal const string EstimatedSavingsNotStoredLabel = "Estimated savings were not stored.";
+
+    internal const string CategoryNotStoredLabel = "Category was not stored.";
+
+    internal const string FindingMessageNotStoredLabel = "Finding message was not stored.";
+
+    internal const string TrustLabelNotStoredLabel = "Trust label was not stored.";
+
+    internal const string TrustLabelReasonNotStoredLabel = "Trust label reason was not stored.";
+
+    internal const string HumanReviewStatusNotStoredLabel = "Human review status was not stored.";
+
+    internal const string DispositionNotStoredLabel = "Disposition was not stored.";
+
+    internal const string RevisitTimeNotStoredLabel = "Revisit time was not stored.";
+
     internal const string LegacyHeaderLine =
         "FindingId,ResultId,TaskId,SourceAgent,Severity,Category,Message,EstimatedUsdSavings,Status,MuteReason,ConfidenceScore";
 
@@ -162,10 +180,7 @@ public static class ArchitectureRunFindingsCsvFormatter
         ArchitectureFinding finding,
         IReadOnlyDictionary<string, RunFindingExternalTrackingProjection>? trackingByFindingId)
     {
-        string confidence =
-            finding.ConfidenceScore.HasValue
-                ? finding.ConfidenceScore.Value.ToString(CultureInfo.InvariantCulture)
-                : string.Empty;
+        string confidence = FormatConfidenceScore(finding);
 
         RunFindingExternalTrackingProjection? tracking = null;
 
@@ -184,14 +199,14 @@ public static class ArchitectureRunFindingsCsvFormatter
                 ExportFormatterService.EscapeCsvField(
                     AgentResultEnvelopeAgentTypeResolver.ResolveAgentType(result).ToString()),
                 ExportFormatterService.EscapeCsvField(finding.Severity.ToString()),
-                ExportFormatterService.EscapeCsvField(finding.Category),
-                ExportFormatterService.EscapeCsvField(finding.Message),
+                ExportFormatterService.EscapeCsvField(FormatCategory(finding.Category)),
+                ExportFormatterService.EscapeCsvField(FormatMessage(finding.Message)),
                 ExportFormatterService.EscapeCsvField(FormatEstimatedUsdSavings(finding)),
                 ExportFormatterService.EscapeCsvField(FormatFindingStatus(finding.IsMuted)),
                 ExportFormatterService.EscapeCsvField(finding.MuteReason),
                 ExportFormatterService.EscapeCsvField(confidence),
-                ExportFormatterService.EscapeCsvField(finding.TrustLabel),
-                ExportFormatterService.EscapeCsvField(finding.TrustLabelReason),
+                ExportFormatterService.EscapeCsvField(FormatTrustLabel(finding.TrustLabel)),
+                ExportFormatterService.EscapeCsvField(FormatTrustLabelReason(finding.TrustLabelReason)),
                 ExportFormatterService.EscapeCsvField(tracking?.Provider),
                 ExportFormatterService.EscapeCsvField(tracking?.ExternalKey),
                 ExportFormatterService.EscapeCsvField(tracking?.ExternalUrl),
@@ -209,13 +224,43 @@ public static class ArchitectureRunFindingsCsvFormatter
             return finding.EstimatedUsdSavings.Value.ToString(CultureInfo.InvariantCulture);
         }
 
-        return string.Empty;
+        return EstimatedSavingsNotStoredLabel;
+    }
+
+    private static string FormatConfidenceScore(ArchitectureFinding finding)
+    {
+        if (!finding.ConfidenceScore.HasValue)
+        {
+            return ConfidenceScoreNotStoredLabel;
+        }
+
+        return finding.ConfidenceScore.Value.ToString(CultureInfo.InvariantCulture);
+    }
+
+    private static string FormatCategory(string? category)
+    {
+        return category is null ? CategoryNotStoredLabel : category;
+    }
+
+    private static string FormatMessage(string? message)
+    {
+        return message is null ? FindingMessageNotStoredLabel : message;
+    }
+
+    private static string FormatTrustLabel(string? trustLabel)
+    {
+        return trustLabel is null ? TrustLabelNotStoredLabel : trustLabel;
+    }
+
+    private static string FormatTrustLabelReason(string? trustLabelReason)
+    {
+        return trustLabelReason is null ? TrustLabelReasonNotStoredLabel : trustLabelReason;
     }
 
     private static string FormatHumanReviewStatus(RunFindingExternalTrackingProjection? tracking)
     {
         if (tracking is null)
-            return string.Empty;
+            return HumanReviewStatusNotStoredLabel;
 
         return FindingHumanReviewDispositionDivergence.FormatHumanReviewStatusForExport(
             tracking.HumanReviewStatus,
@@ -224,16 +269,16 @@ public static class ArchitectureRunFindingsCsvFormatter
 
     private static string FormatDisposition(RunFindingExternalTrackingProjection? tracking)
     {
-        if (tracking?.LatestDisposition is null)
-            return string.Empty;
+        if (tracking is null || tracking.LatestDisposition is null)
+            return DispositionNotStoredLabel;
 
         return tracking.LatestDisposition.Value.ToString();
     }
 
     private static string FormatRevisitDueUtc(RunFindingExternalTrackingProjection? tracking)
     {
-        if (tracking?.RevisitDueUtc is null)
-            return string.Empty;
+        if (tracking is null || tracking.RevisitDueUtc is null)
+            return RevisitTimeNotStoredLabel;
 
         return tracking.RevisitDueUtc.Value.ToString("O", CultureInfo.InvariantCulture);
     }

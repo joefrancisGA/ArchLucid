@@ -173,7 +173,7 @@ export function WizardStepReview(props: { readonly focusedPilotModeEnabled?: boo
             <dd className="m-0">
               {v.priorManifestVersion === null || v.priorManifestVersion === undefined
                 ? "Prior manifest was not stored."
-                : v.priorManifestVersion.trim() || "No prior manifest recorded"}
+                : v.priorManifestVersion.trim() || "Prior manifest was stored empty."}
             </dd>
           </dl>
         </ReadOnlyBlock>
@@ -253,19 +253,25 @@ export function WizardStepReview(props: { readonly focusedPilotModeEnabled?: boo
           <p className="m-0">
             {v.policyReferences === null || v.policyReferences === undefined
               ? "Policy references were not stored."
-              : v.policyReferences.join(", ") || "None recorded on this draft"}
+              : v.policyReferences.length === 0
+                ? "Policy references were stored empty."
+                : v.policyReferences.join(", ")}
           </p>
           <p className={cn("mt-2 m-0 text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>{ARCHITECTURE_HINTS_BUYER_LABEL}</p>
           <p className="m-0">
             {v.topologyHints === null || v.topologyHints === undefined
               ? "Architecture hints were not stored."
-              : v.topologyHints.join(", ") || "None recorded on this draft"}
+              : v.topologyHints.length === 0
+                ? "Architecture hints were stored empty."
+                : v.topologyHints.join(", ")}
           </p>
           <p className={cn("mt-2 m-0 text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>Security baseline hints</p>
           <p className="m-0">
             {v.securityBaselineHints === null || v.securityBaselineHints === undefined
               ? "Security baseline hints were not stored."
-              : v.securityBaselineHints.join(", ") || "None recorded on this draft"}
+              : v.securityBaselineHints.length === 0
+                ? "Security baseline hints were stored empty."
+                : v.securityBaselineHints.join(", ")}
           </p>
           <p className={cn("mt-2 m-0 text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>Documents</p>
           <p className="m-0">

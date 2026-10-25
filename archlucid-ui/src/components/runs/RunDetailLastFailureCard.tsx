@@ -16,7 +16,7 @@ import {
   resolveRunDetailLastFailureSummary,
   type RunDetailLastFailureSummary,
 } from "@/components/resolve-run-detail-last-failure-summary";
-import { buyerLabelForAgentType } from "@/lib/agent-type-buyer-label";
+import { AGENT_TYPE_NOT_STORED_LABEL, buyerLabelForAgentType } from "@/lib/agent-type-buyer-label";
 import {
   plainLanguageFailureCauseSentence,
   resolveLastFailureCardCopy,
@@ -45,9 +45,7 @@ function resolveAgentLabel(summary: RunDetailLastFailureSummary): string | null 
     return null;
   }
 
-  const label = buyerLabelForAgentType(rawAgentType);
-
-  return label === "Unknown agent" ? null : label;
+  return buyerLabelForAgentType(rawAgentType);
 }
 
 /** Surfaces parsed last agent execution failure on operator run detail (assessment #5 / TB-965). */
@@ -217,7 +215,7 @@ export function RunDetailLastFailureCard(props: {
             <div className={cn("mt-2 space-y-2", helperClass, OPERATOR_TYPOGRAPHY.helper)}>
               <p className="m-0" data-testid="run-detail-last-failure-agent">
                 <span className="font-medium">Agent:</span>{" "}
-                {agentLabel !== null ? agentLabel : "Agent was not stored."}
+                {agentLabel !== null ? agentLabel : AGENT_TYPE_NOT_STORED_LABEL}
               </p>
               <p className="m-0">
                 <span className="font-medium">Failure class:</span> {copy.failureClassLabel}
