@@ -291,7 +291,19 @@ export function SecureNowQuestionQueueProvider(
 
     const mutationSource = secureNowQuestionDispositionMutationSource(currentQuestion);
     const mutationScopeKind = secureNowQuestionDispositionMutationScopeKind(currentQuestion);
-    if (action !== "reopen" && (mutationSource === null || mutationScopeKind === null)) {
+    const matchedInferredConnection =
+      action === "answer"
+        ? findInferredConnection(currentQuestion, inferredConnections)
+        : null;
+    const usesInferredConnectionConfirm =
+      matchedInferredConnection != null
+      && (selectedAnswer === "Yes" || selectedAnswer === "No");
+
+    if (
+      action !== "reopen"
+      && !usesInferredConnectionConfirm
+      && (mutationSource === null || mutationScopeKind === null)
+    ) {
       setError(
         operatorInferredConnectionPanelErrorFromUnknown(
           new Error("Question source or scope was not stored."),
@@ -322,8 +334,9 @@ export function SecureNowQuestionQueueProvider(
           questionKey: currentQuestion.questionKey,
           reason: reason.trim(),
         });
-      } else if (mutationSource === "InferredConnection") {
-        const connection = findInferredConnection(currentQuestion, inferredConnections);
+      } else if (mutationSource === "InferredConnection" || usesInferredConnectionConfirm) {
+        const connection = matchedInferredConnection
+          ?? findInferredConnection(currentQuestion, inferredConnections);
         if (connection == null || (selectedAnswer !== "Yes" && selectedAnswer !== "No")) {
           throw new Error("The inferred connection for this question is no longer available.");
         }
