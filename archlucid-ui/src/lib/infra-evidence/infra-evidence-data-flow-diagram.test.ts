@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   INFRA_DIAGRAMS_BUYER_CAPTION_NOT_STORED,
   INFRA_DIAGRAMS_DATA_FLOW_HONESTY_PREFIX,
+  INFRA_DIAGRAMS_DATA_FLOW_NOT_STORED_CAPTION,
   isInfraEvidenceDataFlowMermaid,
   isInfraEvidenceMermaidMetadataComment,
   parseInfraDiagramsDataFlowCaptionPresentation,
@@ -92,6 +93,12 @@ describe("infra-evidence-data-flow-diagram", () => {
     expect(presentation.honestyCaptions).toEqual([evidenceSentence]);
     expect(presentation.metadataComments).toHaveLength(6);
     expect(presentation.honestyCaptions.join(" ")).not.toMatch(/al-provenance|al-inference|al-seed|adf-external:/u);
+  });
+
+  it("labels an empty mermaid source as not stored", () => {
+    expect(parseInfraDiagramsDataFlowCaptionPresentation("").honestyCaptions).toEqual([
+      INFRA_DIAGRAMS_DATA_FLOW_NOT_STORED_CAPTION,
+    ]);
   });
 
   it("uses the default honesty prefix when no buyer caption comment exists (P-04)", () => {
