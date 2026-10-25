@@ -36,13 +36,22 @@ public sealed class DocxArchitectureAnalysisExportService(IDiagramImageRenderer 
                 builder.AddBullet(warning);
             builder.AddSpacer();
         }
-        if (report.Evidence is not null)
+        builder.AddHeading("Evidence Package", 2);
+        if (report.Evidence is null)
         {
-            builder.AddHeading("Evidence Package", 2);
-            builder.AddParagraph($"Evidence Package ID: {report.Evidence.EvidencePackageId}");
-            builder.AddParagraph($"System Name: {report.Evidence.SystemName}");
-            builder.AddParagraph($"Environment: {report.Evidence.Environment}");
-            builder.AddParagraph($"Cloud Provider: {report.Evidence.CloudProvider}");
+            builder.AddParagraph(ArchitectureEvidenceRequestExport.MissingEvidencePackageCopy);
+            builder.AddSpacer();
+        }
+        else
+        {
+            builder.AddParagraph(
+                $"Evidence Package ID: {ArchitectureEvidenceRequestExport.FormatIdentityField(report.Evidence.EvidencePackageId, ArchitectureEvidenceRequestExport.MissingEvidencePackageIdCopy)}");
+            builder.AddParagraph(
+                $"System Name: {ArchitectureEvidenceRequestExport.FormatIdentityField(report.Evidence.SystemName, ArchitectureEvidenceRequestExport.MissingSystemNameCopy)}");
+            builder.AddParagraph(
+                $"Environment: {ArchitectureEvidenceRequestExport.FormatIdentityField(report.Evidence.Environment, ArchitectureEvidenceRequestExport.MissingEnvironmentCopy)}");
+            builder.AddParagraph(
+                $"Cloud Provider: {ArchitectureEvidenceRequestExport.FormatIdentityField(report.Evidence.CloudProvider, ArchitectureEvidenceRequestExport.MissingCloudProviderCopy)}");
             builder.AddSpacer();
             builder.AddHeading("Request Context", 3);
             builder.AddParagraph(ArchitectureEvidenceRequestExport.FormatDescription(report.Evidence.Request.Description));
@@ -52,6 +61,10 @@ public sealed class DocxArchitectureAnalysisExportService(IDiagramImageRenderer 
                 foreach (string item in report.Evidence.Request.Constraints)
                     builder.AddBullet(item);
             }
+            else
+            {
+                builder.AddParagraph(ArchitectureEvidenceRequestExport.ConstraintsNotRecordedCopy);
+            }
 
             if (report.Evidence.Request.RequiredCapabilities.Count > 0)
             {
@@ -59,6 +72,10 @@ public sealed class DocxArchitectureAnalysisExportService(IDiagramImageRenderer 
 
                 foreach (string item in report.Evidence.Request.RequiredCapabilities)
                     builder.AddBullet(item);
+            }
+            else
+            {
+                builder.AddParagraph(ArchitectureEvidenceRequestExport.RequiredCapabilitiesNotRecordedCopy);
             }
 
             AddEvidenceAssumptions(builder, report.Evidence);
@@ -102,7 +119,8 @@ public sealed class DocxArchitectureAnalysisExportService(IDiagramImageRenderer 
         if (report.Manifest is not null)
         {
             builder.AddHeading("Architecture Manifest", 2);
-            builder.AddParagraph($"System Name: {report.Manifest.SystemName}");
+            builder.AddParagraph(
+                $"System Name: {ArchitectureEvidenceRequestExport.FormatIdentityField(report.Manifest.SystemName, ArchitectureEvidenceRequestExport.MissingSystemNameCopy)}");
             builder.AddParagraph($"Run ID: {report.Manifest.RunId}");
             builder.AddParagraph($"Manifest Version: {report.Manifest.Metadata.ManifestVersion}");
 
@@ -251,10 +269,13 @@ public sealed class DocxArchitectureAnalysisExportService(IDiagramImageRenderer 
 
     private static void AddEvidenceAssumptions(OpenXmlDocxDocumentBuilder builder, AgentEvidencePackage evidence)
     {
-        if (evidence.Request.Assumptions.Count == 0)
-            return;
-
         builder.AddHeading("Assumptions", 3);
+
+        if (evidence.Request.Assumptions.Count == 0)
+        {
+            builder.AddParagraph(ArchitectureEvidenceRequestExport.AssumptionsNotRecordedCopy);
+            return;
+        }
 
         foreach (string assumption in evidence.Request.Assumptions)
             builder.AddBullet(assumption);
@@ -262,10 +283,13 @@ public sealed class DocxArchitectureAnalysisExportService(IDiagramImageRenderer 
 
     private static void AddEvidencePolicies(OpenXmlDocxDocumentBuilder builder, AgentEvidencePackage evidence)
     {
-        if (evidence.Policies.Count == 0)
-            return;
-
         builder.AddHeading("Policy Evidence", 3);
+
+        if (evidence.Policies.Count == 0)
+        {
+            builder.AddParagraph(ArchitectureEvidenceRequestExport.PolicyEvidenceNotRecordedCopy);
+            return;
+        }
 
         foreach (PolicyEvidence policy in evidence.Policies.OrderBy(static item => item.Title))
         {

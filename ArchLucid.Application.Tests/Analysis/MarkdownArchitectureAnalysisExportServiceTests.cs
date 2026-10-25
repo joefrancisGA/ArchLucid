@@ -196,7 +196,7 @@ public sealed class MarkdownArchitectureAnalysisExportServiceTests
     }
 
     [Fact]
-    public void GenerateMarkdown_evidence_with_empty_nested_lists_skips_optional_bullets()
+    public void GenerateMarkdown_evidence_with_empty_nested_lists_states_not_recorded_copy()
     {
         ArchitectureAnalysisReport report = new()
         {
@@ -222,7 +222,52 @@ public sealed class MarkdownArchitectureAnalysisExportServiceTests
 
         md.Should().Contain("## Evidence Package");
         md.Should().Contain("At least ten characters for export body.");
-        md.Should().NotContain("- Constraints:");
+        md.Should().Contain(ArchitectureEvidenceRequestExport.ConstraintsNotRecordedCopy);
+        md.Should().Contain(ArchitectureEvidenceRequestExport.RequiredCapabilitiesNotRecordedCopy);
+        md.Should().Contain(ArchitectureEvidenceRequestExport.AssumptionsNotRecordedCopy);
+    }
+
+    [Fact]
+    public void GenerateMarkdown_null_evidence_states_package_not_stored()
+    {
+        ArchitectureAnalysisReport report = new()
+        {
+            Run = new ArchitectureRun
+            {
+                RunId = "a1b2c3d4e5f678901234567890abcd",
+                RequestId = "req-1",
+                Status = ArchitectureRunStatus.Committed,
+            },
+        };
+
+        string md = _sut.GenerateMarkdown(report);
+
+        md.Should().Contain("## Evidence Package");
+        md.Should().Contain(ArchitectureEvidenceRequestExport.MissingEvidencePackageCopy);
+    }
+
+    [Fact]
+    public void GenerateMarkdown_evidence_identity_fields_use_not_stored_copy_when_blank()
+    {
+        ArchitectureAnalysisReport report = new()
+        {
+            Run = new ArchitectureRun
+            {
+                RunId = "a1b2c3d4e5f678901234567890abcd",
+                RequestId = "req-1",
+                Status = ArchitectureRunStatus.Committed,
+            },
+            Evidence = new AgentEvidencePackage
+            {
+                Request = new RequestEvidence { Description = "At least ten characters for export body." },
+            },
+        };
+
+        string md = _sut.GenerateMarkdown(report);
+
+        md.Should().Contain(ArchitectureEvidenceRequestExport.MissingSystemNameCopy);
+        md.Should().Contain(ArchitectureEvidenceRequestExport.MissingEnvironmentCopy);
+        md.Should().Contain(ArchitectureEvidenceRequestExport.MissingCloudProviderCopy);
     }
 
     [Fact]

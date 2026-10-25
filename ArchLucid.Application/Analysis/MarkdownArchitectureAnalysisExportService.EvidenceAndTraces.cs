@@ -9,51 +9,76 @@ public sealed partial class MarkdownArchitectureAnalysisExportService
 {
     private static void AppendEvidenceAndTraces(StringBuilder sb, ArchitectureAnalysisReport report)
     {
-        if (report.Evidence is not null)
+        sb.AppendLine("## Evidence Package");
+        sb.AppendLine();
+
+        if (report.Evidence is null)
         {
-            sb.AppendLine("## Evidence Package");
+            sb.AppendLine(ArchitectureEvidenceRequestExport.MissingEvidencePackageCopy);
             sb.AppendLine();
-            sb.AppendLine($"- Evidence Package ID: {report.Evidence.EvidencePackageId}");
-            sb.AppendLine($"- System Name: {report.Evidence.SystemName}");
-            sb.AppendLine($"- Environment: {report.Evidence.Environment}");
-            sb.AppendLine($"- Cloud Provider: {report.Evidence.CloudProvider}");
+        }
+        else
+        {
+            AgentEvidencePackage evidence = report.Evidence;
+
+            sb.AppendLine(
+                $"- Evidence Package ID: {ArchitectureEvidenceRequestExport.FormatIdentityField(evidence.EvidencePackageId, ArchitectureEvidenceRequestExport.MissingEvidencePackageIdCopy)}");
+            sb.AppendLine(
+                $"- System Name: {ArchitectureEvidenceRequestExport.FormatIdentityField(evidence.SystemName, ArchitectureEvidenceRequestExport.MissingSystemNameCopy)}");
+            sb.AppendLine(
+                $"- Environment: {ArchitectureEvidenceRequestExport.FormatIdentityField(evidence.Environment, ArchitectureEvidenceRequestExport.MissingEnvironmentCopy)}");
+            sb.AppendLine(
+                $"- Cloud Provider: {ArchitectureEvidenceRequestExport.FormatIdentityField(evidence.CloudProvider, ArchitectureEvidenceRequestExport.MissingCloudProviderCopy)}");
             sb.AppendLine();
 
             sb.AppendLine("### Request Context");
             sb.AppendLine();
 
             sb.AppendLine(
-                $"- Description: {ArchitectureEvidenceRequestExport.FormatDescription(report.Evidence.Request.Description)}");
+                $"- Description: {ArchitectureEvidenceRequestExport.FormatDescription(evidence.Request.Description)}");
 
-            if (report.Evidence.Request.Constraints.Count > 0)
+            if (evidence.Request.Constraints.Count > 0)
             {
                 sb.AppendLine("- Constraints:");
                 sb.AppendLine(string.Join(Environment.NewLine,
-                    report.Evidence.Request.Constraints.Select(static item => $"  - {item}")));
+                    evidence.Request.Constraints.Select(static item => $"  - {item}")));
+            }
+            else
+            {
+                sb.AppendLine($"- Constraints: {ArchitectureEvidenceRequestExport.ConstraintsNotRecordedCopy}");
             }
 
-            if (report.Evidence.Request.RequiredCapabilities.Count > 0)
+            if (evidence.Request.RequiredCapabilities.Count > 0)
             {
                 sb.AppendLine("- Required Capabilities:");
                 sb.AppendLine(string.Join(Environment.NewLine,
-                    report.Evidence.Request.RequiredCapabilities.Select(static item => $"  - {item}")));
+                    evidence.Request.RequiredCapabilities.Select(static item => $"  - {item}")));
+            }
+            else
+            {
+                sb.AppendLine(
+                    $"- Required Capabilities: {ArchitectureEvidenceRequestExport.RequiredCapabilitiesNotRecordedCopy}");
             }
 
-            if (report.Evidence.Request.Assumptions.Count > 0)
+            if (evidence.Request.Assumptions.Count > 0)
             {
                 sb.AppendLine("- Assumptions:");
                 sb.AppendLine(string.Join(Environment.NewLine,
-                    report.Evidence.Request.Assumptions.Select(static item => $"  - {item}")));
+                    evidence.Request.Assumptions.Select(static item => $"  - {item}")));
+            }
+            else
+            {
+                sb.AppendLine($"- Assumptions: {ArchitectureEvidenceRequestExport.AssumptionsNotRecordedCopy}");
             }
 
             sb.AppendLine();
 
-            if (report.Evidence.Policies.Count > 0)
+            if (evidence.Policies.Count > 0)
             {
                 sb.AppendLine("### Policy Evidence");
                 sb.AppendLine();
 
-                foreach (PolicyEvidence policy in report.Evidence.Policies.OrderBy(x => x.Title))
+                foreach (PolicyEvidence policy in evidence.Policies.OrderBy(x => x.Title))
                 {
                     sb.AppendLine($"- **{policy.Title}**");
                     sb.AppendLine($"  - Policy ID: {policy.PolicyId}");
@@ -67,12 +92,12 @@ public sealed partial class MarkdownArchitectureAnalysisExportService
                 sb.AppendLine();
             }
 
-            if (report.Evidence.ServiceCatalog.Count > 0)
+            if (evidence.ServiceCatalog.Count > 0)
             {
                 sb.AppendLine("### Service Catalog Hints");
                 sb.AppendLine();
 
-                foreach (ServiceCatalogEvidence service in report.Evidence.ServiceCatalog.OrderBy(x => x.ServiceName))
+                foreach (ServiceCatalogEvidence service in evidence.ServiceCatalog.OrderBy(x => x.ServiceName))
                 {
                     sb.AppendLine($"- **{service.ServiceName}**");
                     sb.AppendLine($"  - Category: {service.Category}");
@@ -86,12 +111,12 @@ public sealed partial class MarkdownArchitectureAnalysisExportService
                 sb.AppendLine();
             }
 
-            if (report.Evidence.Patterns.Count > 0)
+            if (evidence.Patterns.Count > 0)
             {
                 sb.AppendLine("### Pattern Hints");
                 sb.AppendLine();
 
-                foreach (PatternEvidence pattern in report.Evidence.Patterns.OrderBy(x => x.Name))
+                foreach (PatternEvidence pattern in evidence.Patterns.OrderBy(x => x.Name))
                 {
                     sb.AppendLine($"- **{pattern.Name}**");
                     sb.AppendLine($"  - Pattern ID: {pattern.PatternId}");
