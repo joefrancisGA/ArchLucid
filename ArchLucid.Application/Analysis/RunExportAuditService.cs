@@ -38,7 +38,7 @@ public sealed class RunExportAuditService(
         ArgumentNullException.ThrowIfNull(exportType);
         ArgumentNullException.ThrowIfNull(format);
         ArgumentNullException.ThrowIfNull(fileName);
-        runId = runId.Trim();
+        runId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(runId.Trim());
         exportType = exportType.Trim();
         format = format.Trim();
         fileName = fileName.Trim();
@@ -83,6 +83,7 @@ public sealed class RunExportAuditService(
             CreatedUtc = TimeProvider.System.UtcNowDateTime()
         };
         await _repository.CreateAsync(record, cancellationToken);
+        RunExportRecordScopedReadNormalizer.NormalizeInPlace(record);
         if (!emitArchitectureDocxExportGeneratedAudit)
             return record;
         Guid? auditRunId = TryParseRunGuid(runId);

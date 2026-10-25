@@ -50,6 +50,32 @@ public sealed class RunExportAuditServiceTests
     }
 
     [Fact]
+    public async Task CompareQuality_RecordAsync_canonicalizes_dashed_run_id_on_returned_record()
+    {
+        Guid runGuid = Guid.Parse("11111111-2222-3333-4444-555555555555");
+        string canonicalRunId = runGuid.ToString("N");
+        string dashedRunId = runGuid.ToString("D");
+
+        Mock<IRunExportRecordRepository> repo = new();
+        RunExportAuditService sut = new(repo.Object, Mock.Of<IAuditService>(), NullLogger<RunExportAuditService>.Instance);
+
+        RunExportRecord row = await sut.RecordAsync(
+            dashedRunId,
+            "analysis-report-consulting-docx",
+            "docx",
+            "file.docx",
+            templateProfile: null,
+            templateProfileDisplayName: null,
+            wasAutoSelected: false,
+            resolutionReason: null,
+            manifestVersion: null,
+            emitArchitectureDocxExportGeneratedAudit: false,
+            cancellationToken: CancellationToken.None);
+
+        row.RunId.Should().Be(canonicalRunId);
+    }
+
+    [Fact]
     public async Task RecordAsync_trims_surrounding_whitespace_on_metadata_before_persist()
     {
         Mock<IRunExportRecordRepository> repo = new();
