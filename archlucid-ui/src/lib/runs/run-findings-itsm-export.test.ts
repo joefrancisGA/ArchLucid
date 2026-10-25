@@ -151,6 +151,24 @@ describe("buildRunFindingsItsmJsonExportDocument", () => {
 });
 
 describe("buildQuickDecisionFindingsCsv", () => {
+  it("writes explicit absence copy for omitted finding titles (P-08)", () => {
+    const csv = buildQuickDecisionFindingsCsv("run-a", [
+      {
+        findingId: "f-null-title",
+        title: null as unknown as string,
+        recommendation: "Fix it.",
+        severityValue: 1,
+        findingOrder: 0,
+        aiReasoning: { wireJson: "{}", reasoningTrace: "" },
+        isMuted: false,
+        muteReason: null,
+        enforcementTier: "PolicyViolation",
+      },
+    ]);
+
+    expect(csv).toContain("Finding title was not stored.");
+  });
+
   it("writes explicit absence copy for omitted finding fields", () => {
     const csv = buildQuickDecisionFindingsCsv("run-a", [{
       findingId: "f-missing",

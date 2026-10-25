@@ -78,12 +78,30 @@ describe("WizardStepTrack", () => {
     vi.useRealTimers();
   });
 
-  it("shows Pending badges when pipeline flags are false or summary is null", () => {
+  it("labels undefined pipeline flags as not stored (P-14)", () => {
     renderWithTooltips(<WizardStepTrack runId="r1" pollSummary={{ ...baseSummary, runId: "r1" }} />);
 
     expect(screen.getByTestId("wizard-track-progress-count")).toHaveTextContent("Review progress: 0 / 4 stages");
     expect(screen.getByTestId("wizard-track-review-id")).toHaveTextContent("r1");
-    expect(screen.getAllByText("Pending").length).toBeGreaterThanOrEqual(4);
+    expect(screen.getAllByText("Stage status was not stored.")).toHaveLength(4);
+  });
+
+  it("shows Pending badges when pipeline flags are explicitly false", () => {
+    renderWithTooltips(
+      <WizardStepTrack
+        runId="r1"
+        pollSummary={{
+          ...baseSummary,
+          runId: "r1",
+          hasContextSnapshot: false,
+          hasGraphSnapshot: false,
+          hasFindingsSnapshot: false,
+          hasGoldenManifest: false,
+        }}
+      />,
+    );
+
+    expect(screen.getAllByText("Pending")).toHaveLength(4);
   });
 
   it("marks stages Complete as flags flip true", () => {
@@ -100,7 +118,7 @@ describe("WizardStepTrack", () => {
     );
 
     expect(screen.getAllByText("Complete").length).toBe(2);
-    expect(screen.getAllByText("Pending").length).toBe(2);
+    expect(screen.getAllByText("Stage status was not stored.").length).toBe(2);
     expect(screen.getByTestId("wizard-track-progress-count")).toHaveTextContent("Review progress: 2 / 4 stages");
 
     rerender(

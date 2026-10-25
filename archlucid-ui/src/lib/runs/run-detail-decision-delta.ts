@@ -79,7 +79,30 @@ function resolveEvidenceAnchorHint(finding: QuickDecisionFinding): string | null
     return `${count} evidence reference${count === 1 ? "" : "s"} on finding record`;
   }
 
-  return null;
+  if (count === 0) {
+    return "Evidence references were stored as zero.";
+  }
+
+  return "Evidence anchor was not stored.";
+}
+
+const DECISION_DELTA_TITLE_NOT_STORED = "Finding title was not stored." as const;
+const DECISION_DELTA_TITLE_STORED_EMPTY = "Finding title was stored empty." as const;
+
+function resolveDecisionDeltaTitle(finding: QuickDecisionFinding): string {
+  const title = finding.title;
+
+  if (title === null || title === undefined) {
+    return DECISION_DELTA_TITLE_NOT_STORED;
+  }
+
+  const trimmed = title.trim();
+
+  if (trimmed.length === 0) {
+    return DECISION_DELTA_TITLE_STORED_EMPTY;
+  }
+
+  return truncateDecisionDeltaMessage(trimmed);
 }
 
 export function buildRunDetailDecisionDeltaRow(
@@ -96,30 +119,48 @@ export function buildRunDetailDecisionDeltaRow(
     confidenceLevel: finding.confidenceLevel,
   });
 
+  const evidenceAnchorHint = resolveEvidenceAnchorHint(finding);
+
   return {
     rank,
     findingId: finding.findingId,
-    title: truncateDecisionDeltaMessage(finding.title),
+    title: resolveDecisionDeltaTitle(finding),
     severityLabel: severityBadgeLabel(finding.severityValue),
     policyRuleId,
     evidenceRefCount:
       typeof finding.evidenceRefCount === "number" && Number.isFinite(finding.evidenceRefCount)
         ? Math.trunc(finding.evidenceRefCount)
         : null,
+<<<<<<< HEAD
     evidenceAnchorHint: resolveEvidenceAnchorHint(finding),
     evidenceRefCountNotStored:
       finding.evidenceRefCount === null || finding.evidenceRefCount === undefined,
+=======
+    evidenceAnchorHint,
+>>>>>>> origin/master
     trustChipSet: trustPresentation.chipSet,
     compareDeltaTrustLabels: formatFindingTrustCompareDeltaLabels(trustPresentation.chipSet),
   };
 }
 
+export const RUN_DETAIL_DECISION_DELTA_FINDINGS_SNAPSHOT_NOT_STORED =
+  "Findings snapshot was not stored — decision delta is withheld until findings are captured." as const;
+
 export function resolveRunDetailDecisionDeltaView(
   findings: readonly QuickDecisionFinding[],
   isCommitted: boolean,
+  hasFindingsSnapshot: boolean | undefined = true,
 ): RunDetailDecisionDeltaView | null {
   if (!isCommitted) {
     return null;
+  }
+
+  if (hasFindingsSnapshot !== true) {
+    return {
+      isCommitted: true,
+      rows: [],
+      emptyMessage: RUN_DETAIL_DECISION_DELTA_FINDINGS_SNAPSHOT_NOT_STORED,
+    };
   }
 
   const material = selectMaterialDecisionDeltaFindings(findings);

@@ -94,7 +94,12 @@ export function ReviewsHubInventoryRow(props: ReviewsHubInventoryRowProps): Reac
         <span className="text-al-text-primary">{row.lifecycleStage}</span>
       </EnterpriseTableCell>
       <EnterpriseTableCell>{row.ownerLabel}</EnterpriseTableCell>
-      <EnterpriseTableCell className={DESIGN_TOKENS.table.cellSecondary} title={row.lastUpdatedAbsolute}>
+      <EnterpriseTableCell
+        className={DESIGN_TOKENS.table.cellSecondary}
+        title={row.lastUpdatedAbsolute}
+        data-testid={`reviews-hub-recency-${row.runId}`}
+      >
+        <span className="sr-only">{row.lastUpdatedKind === "finalized" ? "Finalized" : "Created"}</span>
         {row.lastUpdated}
       </EnterpriseTableCell>
       <EnterpriseTableCell className="text-right tabular-nums">

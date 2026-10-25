@@ -184,6 +184,15 @@ export function deriveLastEvaluatedLabel(
     return completedUtc;
   }
 
+<<<<<<< HEAD
+  const manifestUtc = manifestSummary?.createdUtc?.trim() ?? "";
+
+  if (manifestUtc.length > 0) {
+    return manifestUtc;
+  }
+
+=======
+>>>>>>> origin/master
   return null;
 }
 export function deriveFinalizedAtUtc(

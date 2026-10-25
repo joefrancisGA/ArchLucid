@@ -85,8 +85,8 @@ export function hasFindingsWhatIfAnalysisContent(
   }
 
   return findings.some((finding) => {
-    const impact = readFindingProjectedImpactUsd(finding);
+    const savings = readFindingProjectedImpactUsd(finding);
 
-    return impact !== null && impact > 0;
+    return savings !== null && savings > 0;
   });
 }

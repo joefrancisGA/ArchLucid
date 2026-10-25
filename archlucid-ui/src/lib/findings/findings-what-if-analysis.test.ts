@@ -28,6 +28,10 @@ describe("findings-what-if-analysis", () => {
     expect(readFindingProjectedImpactUsd(buildFinding("f3", '{"projectedImpactUsd":"1200"}'))).toBeNull();
   });
 
+  it("readFindingProjectedImpactUsd returns zero when the wire stores zero", () => {
+    expect(readFindingProjectedImpactUsd(buildFinding("f0", '{"projectedImpactUsd":0}'))).toBe(0);
+  });
+
   it("readFindingProjectedImpactUsd reads the finite wire value", () => {
     expect(readFindingProjectedImpactUsd(buildFinding("f1", '{"projectedImpactUsd":1200}'))).toBe(1200);
   });

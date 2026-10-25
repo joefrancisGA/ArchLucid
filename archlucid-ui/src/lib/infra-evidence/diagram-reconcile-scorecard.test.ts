@@ -4,6 +4,8 @@ import {
   buildDiagramReconcileCsv,
   buildDiagramReconcileDenominatorSentence,
   buildDiagramReconcileScorecard,
+  DIAGRAM_RECONCILE_CONNECTOR_GAPS_NOT_STORED_COPY,
+  formatDiagramReconcileConnectorGapsLabel,
   groupDiagramReconcileInventoryOnlyRows,
 } from "@/lib/infra-evidence/diagram-reconcile-scorecard";
 import type { DiagramInfrastructureReconciliationResult } from "@/lib/infra-evidence/infra-evidence-diagram-reconcile-types";
@@ -88,6 +90,17 @@ describe("diagram-reconcile-scorecard", () => {
     expect(csv).toContain('"inventory-group","Inventory only","","rg","Microsoft.Storage/storageAccounts","20"');
     expect(csv).toContain('"correspondence","Confirmed","Portal"');
     expect(csv).toContain('"connector-gap","MissingInDiagram"');
+  });
+
+  it("labels omitted edgeGaps instead of exporting zero connector gaps", () => {
+    const scorecard = buildDiagramReconcileScorecard({ ...reconciliation(), edgeGaps: undefined });
+    const csv = buildDiagramReconcileCsv({ ...reconciliation(), edgeGaps: undefined });
+
+    expect(scorecard.connectorGaps).toBeNull();
+    expect(formatDiagramReconcileConnectorGapsLabel(scorecard.connectorGaps)).toBe(
+      DIAGRAM_RECONCILE_CONNECTOR_GAPS_NOT_STORED_COPY,
+    );
+    expect(csv).toContain(DIAGRAM_RECONCILE_CONNECTOR_GAPS_NOT_STORED_COPY);
   });
 
   it("labels missing resource group and type without inventing placeholders", () => {
