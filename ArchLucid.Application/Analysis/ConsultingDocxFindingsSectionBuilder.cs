@@ -13,7 +13,9 @@ internal static class ConsultingDocxFindingsSectionBuilder
 
         if (report.Evidence is null)
         {
-            ConsultingDocxOpenXmlPrimitives.AddStyledParagraph(body, "No evidence package was available for this run.",
+            ConsultingDocxOpenXmlPrimitives.AddStyledParagraph(
+                body,
+                ArchitectureEvidenceRequestExport.MissingEvidencePackageCopy,
                 "BodyText");
 
             return;
@@ -33,6 +35,13 @@ internal static class ConsultingDocxFindingsSectionBuilder
 
                 ConsultingDocxOpenXmlPrimitives.AddBullet(body, item);
         }
+        else
+        {
+            ConsultingDocxOpenXmlPrimitives.AddStyledParagraph(
+                body,
+                ArchitectureEvidenceRequestExport.ConstraintsNotStoredCopy,
+                "BodyText");
+        }
 
         if (report.Evidence.Request.RequiredCapabilities.Count > 0)
         {
@@ -42,11 +51,25 @@ internal static class ConsultingDocxFindingsSectionBuilder
 
                 ConsultingDocxOpenXmlPrimitives.AddBullet(body, item);
         }
-
-        if (report.Evidence.Policies.Count <= 0)
-            return;
+        else
+        {
+            ConsultingDocxOpenXmlPrimitives.AddStyledParagraph(
+                body,
+                ArchitectureEvidenceRequestExport.RequiredCapabilitiesNotStoredCopy,
+                "BodyText");
+        }
 
         ConsultingDocxOpenXmlPrimitives.AddHeading(body, "Policy Evidence", 2);
+
+        if (report.Evidence.Policies.Count == 0)
+        {
+            ConsultingDocxOpenXmlPrimitives.AddStyledParagraph(
+                body,
+                ArchitectureEvidenceRequestExport.PolicyEvidenceNotStoredCopy,
+                "BodyText");
+
+            return;
+        }
 
         foreach (PolicyEvidence policy in report.Evidence.Policies.OrderBy(x => x.Title))
         {

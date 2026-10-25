@@ -181,7 +181,7 @@ public sealed class PilotValueReportService(
         timeline.Sort(static (a, b) => a.CreatedUtc.CompareTo(b.CreatedUtc));
         int totalFindings = severities.Critical + severities.High + severities.Medium + severities.Low + severities.Info;
         double? avgSeconds = completionSeconds.Count > 0 ? completionSeconds.Average() : null;
-        string roiSourceFreshnessDisposition = "PASS";
+        string roiSourceFreshnessDisposition = string.Empty;
 
         if (committedRuns.Count > 0)
         {
@@ -323,7 +323,7 @@ public sealed class PilotValueReportService(
             GovernancePendingApprovalsNow = pendingApprovals,
             AuditExportTruncated = false,
             CommittedRunsInventoryTruncated = false,
-            RoiSourceFreshnessDisposition = "PASS"
+            RoiSourceFreshnessDisposition = string.Empty
         };
     }
 
