@@ -190,7 +190,9 @@ public sealed class ArchitectureAnalysisService(
                 IReadOnlyList<AgentResult> leftResults = primaryDetail is not null && primaryDetail.Results.Count > 0
                     ? primaryDetail.Results
                     : await TryLoadAgentResultsAsync(scope, primaryRunId, cancellationToken);
-                List<AgentResult> rightResults = compareDetail.Results;
+                IReadOnlyList<AgentResult> rightResults = compareDetail.Results.Count > 0
+                    ? compareDetail.Results
+                    : await TryLoadAgentResultsAsync(scope, compareRunId, cancellationToken);
                 report.AgentResultDiff = agentResultDiffService.Compare(primaryRunId, leftResults, compareRunId, rightResults);
             }
         }
@@ -229,7 +231,7 @@ public sealed class ArchitectureAnalysisService(
                 .GetByRunIdAsync(scope, lookupKey, cancellationToken)
                 .ConfigureAwait(false);
 
-            if (traces.Count > 0)
+            if (traces is { Count: > 0 })
                 return traces.ToList();
         }
 
@@ -247,7 +249,7 @@ public sealed class ArchitectureAnalysisService(
                 .GetByRunIdAsync(scope, lookupKey, cancellationToken)
                 .ConfigureAwait(false);
 
-            if (results.Count > 0)
+            if (results is { Count: > 0 })
                 return results;
         }
 

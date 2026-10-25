@@ -789,6 +789,12 @@ public sealed class ArchitectureAnalysisServiceTests
                 primaryRunId.ToString("N"),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(persistedPrimaryResults);
+        resultRepository
+            .Setup(repository => repository.GetByRunIdAsync(
+                scope,
+                compareRunId.ToString("N"),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
 
         const string sealedHash = "ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789";
 
@@ -876,6 +882,137 @@ public sealed class ArchitectureAnalysisServiceTests
                 persistedPrimaryResults,
                 compareRunId.ToString("N"),
                 It.IsAny<IReadOnlyList<AgentResult>>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task CompareQuality_BuildAsync_loads_compare_agent_results_when_run_detail_omits_results_for_agent_compare()
+    {
+        Guid primaryRunId = Guid.Parse("14141414-1414-1414-1414-141414141414");
+        Guid compareRunId = Guid.Parse("25252525-2525-2525-2525-252525252525");
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+            WorkspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+            ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
+        };
+
+        List<AgentResult> persistedCompareResults =
+        [
+            new AgentResult { AgentType = AgentType.Topology, RunId = compareRunId.ToString("N") },
+        ];
+
+        ArchitectureRunDetail preloadedDetail = new()
+        {
+            Run = new ArchitectureRun { RunId = primaryRunId.ToString("N") },
+            Results = [new AgentResult { AgentType = AgentType.Compliance, RunId = primaryRunId.ToString("N") }],
+        };
+
+        Mock<IRunDetailQueryService> runDetails = new();
+        runDetails
+            .Setup(service => service.GetRunDetailAsync(
+                compareRunId.ToString("N"),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchitectureRunDetail
+            {
+                Run = new ArchitectureRun { RunId = compareRunId.ToString("N") },
+                Results = [],
+            });
+
+        Mock<IAgentResultRepository> resultRepository = new();
+        resultRepository
+            .Setup(repository => repository.GetByRunIdAsync(
+                scope,
+                compareRunId.ToString("N"),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(persistedCompareResults);
+
+        const string sealedHash = "ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789";
+
+        Mock<IAuthorityQueryService> authority = new();
+        authority
+            .Setup(service => service.GetRunDetailForManifestCompareAsync(
+                It.IsAny<ScopeContext>(),
+                primaryRunId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunDetailDto
+            {
+                Run = new RunRecord { RunId = primaryRunId },
+                GoldenManifest = new ManifestDocument
+                {
+                    RunId = primaryRunId,
+                    ManifestHash = sealedHash,
+                },
+            });
+        authority
+            .Setup(service => service.GetRunDetailForManifestCompareAsync(
+                It.IsAny<ScopeContext>(),
+                compareRunId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunDetailDto
+            {
+                Run = new RunRecord { RunId = compareRunId },
+                GoldenManifest = new ManifestDocument
+                {
+                    RunId = compareRunId,
+                    ManifestHash = sealedHash,
+                },
+            });
+
+        Mock<IManifestHashService> manifestHash = new();
+        manifestHash
+            .Setup(service => service.ComputeHash(It.IsAny<ManifestDocument>()))
+            .Returns(sealedHash);
+
+        AgentResultDiffResult diffResult = new();
+        Mock<IAgentResultDiffService> agentResultDiff = new();
+        agentResultDiff
+            .Setup(service => service.Compare(
+                primaryRunId.ToString("N"),
+                It.IsAny<IReadOnlyList<AgentResult>>(),
+                compareRunId.ToString("N"),
+                It.IsAny<IReadOnlyList<AgentResult>>()))
+            .Returns(diffResult);
+
+        ArchitectureAnalysisService sut = new(
+            runDetails.Object,
+            Mock.Of<IScopeContextProvider>(provider => provider.GetCurrentScope() == scope),
+            Mock.Of<IUnifiedGoldenManifestReader>(),
+            Mock.Of<IAgentEvidencePackageRepository>(),
+            Mock.Of<IAgentExecutionTraceRepository>(),
+            resultRepository.Object,
+            Mock.Of<IDiagramGenerator>(),
+            Mock.Of<IManifestSummaryGenerator>(),
+            Mock.Of<IDeterminismCheckService>(),
+            Mock.Of<IManifestDiffService>(),
+            agentResultDiff.Object,
+            authority.Object,
+            manifestHash.Object);
+
+        ArchitectureAnalysisReport report = await sut.BuildAsync(
+            new ArchitectureAnalysisRequest
+            {
+                RunId = primaryRunId.ToString("N"),
+                PreloadedRunDetail = preloadedDetail,
+                IncludeEvidence = false,
+                IncludeExecutionTraces = false,
+                IncludeManifest = false,
+                IncludeDiagram = false,
+                IncludeSummary = false,
+                IncludeAgentResultCompare = true,
+                CompareRunId = compareRunId.ToString("N"),
+            });
+
+        report.AgentResultDiff.Should().BeSameAs(diffResult);
+        resultRepository.Verify(
+            repository => repository.GetByRunIdAsync(scope, compareRunId.ToString("N"), It.IsAny<CancellationToken>()),
+            Times.Once);
+        agentResultDiff.Verify(
+            service => service.Compare(
+                primaryRunId.ToString("N"),
+                It.IsAny<IReadOnlyList<AgentResult>>(),
+                compareRunId.ToString("N"),
+                persistedCompareResults),
             Times.Once);
     }
 
