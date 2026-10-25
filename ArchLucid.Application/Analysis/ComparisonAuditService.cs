@@ -183,7 +183,8 @@ public sealed class ComparisonAuditService(IComparisonRecordRepository repositor
         if (string.IsNullOrWhiteSpace(sourceRecord.PayloadJson))
             return string.Empty;
 
-        string comparisonType = ComparisonTypeNormalizer.NormalizeForLookup(sourceRecord.ComparisonType);
+        string? comparisonType =
+            ComparisonRecordScopedReadNormalizer.CanonicalizeComparisonTypeSearchFilter(sourceRecord.ComparisonType);
 
         if (string.Equals(comparisonType, ComparisonTypes.ExportRecordDiff, StringComparison.Ordinal))
         {
