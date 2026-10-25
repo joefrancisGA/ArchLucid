@@ -24,6 +24,11 @@ internal static class ExportRecordDiffResultNormalizer
 
         PersistedAnalysisExportRequestMetadata.TrimOptionalStrings(diff.RequestDiff.LeftRequest);
         PersistedAnalysisExportRequestMetadata.TrimOptionalStrings(diff.RequestDiff.RightRequest);
+        if (diff.RequestDiff.LeftRequest is not null)
+            PersistedAnalysisExportRequestDeterminismNormalizer.ClearIterationsWhenCheckDisabled(diff.RequestDiff.LeftRequest);
+
+        if (diff.RequestDiff.RightRequest is not null)
+            PersistedAnalysisExportRequestDeterminismNormalizer.ClearIterationsWhenCheckDisabled(diff.RequestDiff.RightRequest);
         CanonicalizeNestedCompareRunId(diff.RequestDiff.LeftRequest);
         CanonicalizeNestedCompareRunId(diff.RequestDiff.RightRequest);
     }
