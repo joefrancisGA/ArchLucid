@@ -303,7 +303,7 @@ export function deriveEvidenceScopeReadiness(input: {
   }
 
   return {
-    verdict: "complete",
-    headline: "Evidence is available for review.",
+    verdict: "gaps",
+    headline: "Trust evidence was not stored.",
   };
 }
