@@ -200,7 +200,9 @@ export function FindingDetailHeader(props: FindingDetailHeaderProps) {
               {labels.impactedAreaLabel !== null && labels.impactedAreaLabel !== undefined ? (
                 labels.impactedAreaLabel.length > 0 ? (
                   <StatusTag kind="neutral" label={`Business impact: ${labels.impactedAreaLabel}`} />
-                ) : null
+                ) : (
+                  <StatusTag kind="neutral" label="Business impact was stored empty." />
+                )
               ) : (
                 <StatusTag kind="neutral" label="Business impact was not stored." />
               )}

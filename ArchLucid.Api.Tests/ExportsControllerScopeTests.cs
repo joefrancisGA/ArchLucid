@@ -189,6 +189,39 @@ public sealed class ExportsControllerScopeTests
     }
 
     [Fact]
+    public async Task GetExportRecord_returns_409_when_lineage_unverified_for_padded_export_record_id()
+    {
+        Guid runGuid = Guid.NewGuid();
+        string runId = runGuid.ToString("N");
+        string paddedExportRecordId = $"  {ExportRecordId}  ";
+
+        Mock<IRunExportRecordRepository> exports = new();
+        exports
+            .Setup(r => r.GetByIdAsync(ExportRecordId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunExportRecord { ExportRecordId = ExportRecordId, RunId = runId });
+        exports
+            .Setup(r => r.GetByIdAsync(It.Is<string>(id => id != ExportRecordId), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((RunExportRecord?)null);
+
+        Mock<IRunDetailQueryService> runDetails = new();
+        runDetails
+            .Setup(r => r.GetRunDetailAsync(runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchitectureRunDetail { Run = new ArchitectureRun { RunId = runId } });
+
+        Mock<IRunExportLineageVerifier> lineageVerifier = new();
+        lineageVerifier
+            .Setup(v => v.VerifyAsync(It.IsAny<ScopeContext>(), runGuid, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunExportLineageVerificationResult { Status = RunExportLineageVerificationStatus.Mismatch });
+
+        ExportsController sut = CreateController(exports, runDetails, lineageVerifier: lineageVerifier);
+
+        IActionResult result = await sut.GetExportRecord(paddedExportRecordId, exports.Object, CancellationToken.None);
+
+        result.Should().BeOfType<ObjectResult>().Which.StatusCode.Should().Be(StatusCodes.Status409Conflict);
+        exports.Verify(r => r.GetByIdAsync(ExportRecordId, It.IsAny<CancellationToken>()), Times.AtLeastOnce);
+    }
+
+    [Fact]
     public async Task CompareExportRecords_returns_409_when_lineage_unverified()
     {
         Guid runGuid = Guid.NewGuid();

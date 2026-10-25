@@ -41,7 +41,20 @@ export function ArchitectureIntelligenceReasoningResults(props: ArchitectureInte
     (props.result.validationResults ?? []).map((validation) => [validation.findingId, validation]),
   );
   const runId = props.result.runId?.trim() ?? "";
-  const adversarialChallengeCount = props.result.adversarial?.challenges?.length ?? 0;
+  const adversarialPayload = props.result.adversarial;
+  const adversarialChallengeCount = adversarialPayload?.challenges?.length ?? 0;
+  const adversarialSubstantiatedDisplay =
+    adversarialPayload === undefined
+      ? "Not returned"
+      : adversarialPayload.substantiatedFindings === undefined
+        ? "Not returned"
+        : String(adversarialPayload.substantiatedFindings.length);
+  const adversarialChallengesDisplay =
+    adversarialPayload === undefined
+      ? "Not returned"
+      : adversarialPayload.challenges === undefined
+        ? "Not returned"
+        : String(adversarialPayload.challenges.length);
   const verifyHypothesesLaneHref =
     runId.length > 0 && adversarialChallengeCount > 0
       ? buildReviewFindingsTabHref(runId, "verify-hypotheses")
@@ -140,7 +153,31 @@ export function ArchitectureIntelligenceReasoningResults(props: ArchitectureInte
               const validation = validationById.get(findingId);
               const product = props.result.productFindings?.find((item) => item.findingId === findingId);
               const provenanceBucket = product?.properties?.["architectureIntelligence.provenancePresentation"];
-              const integrityPassed = finding.findingId ? integritySet.has(finding.findingId) : validation?.overallPassedIntegrity;
+              const integrityLabel = (() => {
+                if (finding.findingId) {
+                  if (integritySet.size > 0) {
+                    return integritySet.has(finding.findingId) ? "passed" : "failed / not cited";
+                  }
+
+                  if (validation?.overallPassedIntegrity != null) {
+                    return validation.overallPassedIntegrity ? "passed" : "failed / not cited";
+                  }
+
+                  return "Integrity outcome was not returned.";
+                }
+
+                if (validation?.overallPassedIntegrity != null) {
+                  return validation.overallPassedIntegrity ? "passed" : "failed / not cited";
+                }
+
+                return "Integrity outcome was not returned.";
+              })();
+              const integrityPassed =
+                integrityLabel === "passed"
+                  ? true
+                  : integrityLabel === "failed / not cited"
+                    ? false
+                    : null;
               const publishedInspectHref =
                 props.result.publishedToProduct === true &&
                 (props.result.runId?.trim().length ?? 0) > 0 &&
@@ -150,7 +187,11 @@ export function ArchitectureIntelligenceReasoningResults(props: ArchitectureInte
 
               return (
                 <li key={findingId}>
-                  <Card data-integrity-passed={integrityPassed ? "true" : "false"}>
+                  <Card
+                    data-integrity-passed={
+                      integrityPassed === null ? "unknown" : integrityPassed ? "true" : "false"
+                    }
+                  >
                     <CardHeader className="pb-2">
                       <CardTitle className={OPERATOR_TYPOGRAPHY.sectionTitle}>{finding.title}</CardTitle>
                     </CardHeader>
@@ -160,7 +201,7 @@ export function ArchitectureIntelligenceReasoningResults(props: ArchitectureInte
                         <SeverityTag severity={finding.severity} />
                       </div>
                       <p className="m-0">Conclusion: {finding.conclusion}</p>
-                      <p className="m-0">Integrity: {integrityPassed ? "passed" : "failed / not cited"}</p>
+                      <p className="m-0">Integrity: {integrityLabel}</p>
                       {provenanceBucket ? <p className="m-0">Provenance: {provenanceBucket}</p> : null}
                       {validation?.semanticAssessment ? (
                         <p className="m-0">Semantic assessment: {validation.semanticAssessment}</p>
@@ -187,8 +228,7 @@ export function ArchitectureIntelligenceReasoningResults(props: ArchitectureInte
 
       <ArchitectureIntelligenceResultSection title="Adversarial lanes" testId="architecture-intelligence-adversarial">
         <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-          Substantiated: {props.result.adversarial?.substantiatedFindings?.length ?? 0} · Challenges:{" "}
-          {props.result.adversarial?.challenges?.length ?? 0}
+          Substantiated: {adversarialSubstantiatedDisplay} · Challenges: {adversarialChallengesDisplay}
         </p>
         {adversarialChallengeCount > 0 ? (
           <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
@@ -206,16 +246,20 @@ export function ArchitectureIntelligenceReasoningResults(props: ArchitectureInte
             </Link>
           </p>
         ) : null}
-        {(props.result.adversarial?.challenges ?? []).length > 0 ? (
+        {adversarialPayload?.challenges != null && adversarialPayload.challenges.length > 0 ? (
           <ul className="m-0 list-disc space-y-1 pl-5">
-            {(props.result.adversarial?.challenges ?? []).map((challenge, index) => (
+            {adversarialPayload.challenges.map((challenge, index) => (
               <li key={`${challenge.hypothesis}-${index}`} className={OPERATOR_TYPOGRAPHY.body}>
                 {challenge.hypothesis} — {challenge.falsificationEvidenceNeeded}
               </li>
             ))}
           </ul>
         ) : (
-          <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>No active adversarial challenges.</p>
+          <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+            {adversarialPayload === undefined
+              ? "Adversarial lane counts were not returned."
+              : "No active adversarial challenges."}
+          </p>
         )}
       </ArchitectureIntelligenceResultSection>
 

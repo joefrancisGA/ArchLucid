@@ -204,7 +204,7 @@ export function CollectionAgentPageClient(): React.JSX.Element {
       <OperatorPageHeader
         navHref={SECURENOW_COLLECTION_AGENT_PATH}
         title={COLLECTION_AGENT_PAGE_TITLE}
-        subtitle="Whether scheduled collection is running and what it found."
+        subtitle="Whether a collection run is stored, and its status."
         actions={
           <button
             type="button"

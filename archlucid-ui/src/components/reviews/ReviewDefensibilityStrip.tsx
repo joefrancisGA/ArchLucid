@@ -1,12 +1,14 @@
 "use client";
 
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { formatReviewDefensibilityCriticLabel } from "@/lib/reviews/review-defensibility-critic-display";
 import { cn } from "@/lib/utils";
 
 export type ReviewDefensibilityStripProps = {
-  readonly assertedCount: number;
-  readonly inferredCount: number;
-  readonly skippedCount: number;
+  readonly assertedCount: number | null;
+  readonly inferredCount: number | null;
+  readonly skippedCount: number | null;
+  readonly pipelineInFlight: boolean;
   readonly criticAbsent: boolean;
   readonly verdictKind?: string | null;
 };
@@ -35,18 +37,36 @@ export function ReviewDefensibilityStrip(props: ReviewDefensibilityStripProps): 
         )}
       >
         <li data-testid="review-defensibility-asserted">
-          Asserted: <span className="font-semibold tabular-nums">{props.assertedCount}</span>
+          {props.assertedCount === null
+            ? "Asserted count was not stored."
+            : (
+              <>
+                Asserted: <span className="font-semibold tabular-nums">{props.assertedCount}</span>
+              </>
+            )}
         </li>
         <li data-testid="review-defensibility-inferred">
-          Inferred: <span className="font-semibold tabular-nums">{props.inferredCount}</span>
+          {props.inferredCount === null
+            ? "Inferred count was not stored."
+            : (
+              <>
+                Inferred: <span className="font-semibold tabular-nums">{props.inferredCount}</span>
+              </>
+            )}
         </li>
         <li data-testid="review-defensibility-skipped">
-          Skipped MUST: <span className="font-semibold tabular-nums">{props.skippedCount}</span>
+          {props.skippedCount === null
+            ? "Skipped MUST count was not stored."
+            : (
+              <>
+                Skipped MUST: <span className="font-semibold tabular-nums">{props.skippedCount}</span>
+              </>
+            )}
         </li>
         <li data-testid="review-defensibility-critic">
           Critic:{" "}
           <span className="font-semibold">
-            {props.criticAbsent ? "Not included in this run" : "Included"}
+            {formatReviewDefensibilityCriticLabel(props.pipelineInFlight, props.criticAbsent)}
           </span>
         </li>
         {verdictLabel !== null ? (

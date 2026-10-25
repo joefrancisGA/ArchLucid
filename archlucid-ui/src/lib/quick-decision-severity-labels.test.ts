@@ -3,13 +3,14 @@ import { describe, expect, it } from "vitest";
 import {
   compareFindingSeverity,
   hasFindingSeverityAtLeast,
+  humanReviewStatusDisplay,
   severityBadgeLabel,
   severityKindFromNumericValue,
 } from "./quick-decision-severity-labels";
 
 describe("quick-decision-severity-labels", () => {
   it("keeps a missing severity unclassified instead of treating it as Info", () => {
-    expect(severityBadgeLabel(null)).toBe("Severity was not stored");
+    expect(severityBadgeLabel(null)).toBe("Severity label was not stored.");
     expect(severityKindFromNumericValue(null)).toBe("unknown");
     expect(hasFindingSeverityAtLeast(null, 0)).toBe(false);
   });
@@ -19,7 +20,12 @@ describe("quick-decision-severity-labels", () => {
     expect(compareFindingSeverity(0, null, "ascending")).toBe(-1);
   });
 
-  it("shows stored finite severities outside the named bands", () => {
-    expect(severityBadgeLabel(4)).toBe("4");
+  it("labels severities outside the named bands without inventing Critical/High/Medium/Info", () => {
+    expect(severityBadgeLabel(4)).toBe("Severity 4 has no reviewer label.");
+    expect(severityBadgeLabel(Number.NaN)).toBe("Severity label was not stored.");
+  });
+
+  it("labels unknown human review status codes without inventing Approved/Pending", () => {
+    expect(humanReviewStatusDisplay(99).label).toContain("has no reviewer label");
   });
 });
