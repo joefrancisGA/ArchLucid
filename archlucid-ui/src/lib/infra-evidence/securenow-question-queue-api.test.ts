@@ -29,6 +29,41 @@ describe("securenow-question-queue-api", () => {
     vi.mocked(proxyJsonPost).mockReset();
   });
 
+  it("maps non-string reasonText and sourceLine to empty strings without throwing", async () => {
+    vi.mocked(proxyJsonGet).mockResolvedValueOnce([
+      {
+        snapshotId: "snapshot-1",
+        questionKey: "unknown-evidence@v1",
+        questionText: "Should this resource connect?",
+        reasonText: 404,
+        sourceLine: false,
+        answerCodes: ["NamePeer"],
+        evidenceFingerprint: "fingerprint",
+      },
+    ]);
+
+    const questions = await listSecureNowQuestions("snapshot-1");
+
+    expect(questions[0].reasonText).toBe("");
+    expect(questions[0].sourceLine).toBe("");
+  });
+
+  it("drops non-string entries from answerCodes without throwing", async () => {
+    vi.mocked(proxyJsonGet).mockResolvedValueOnce([
+      {
+        snapshotId: "snapshot-1",
+        questionKey: "unknown-evidence@v1",
+        questionText: "Should this resource connect?",
+        answerCodes: [1, "NamePeer", null, "StandsAlone"],
+        evidenceFingerprint: "fingerprint",
+      },
+    ]);
+
+    const questions = await listSecureNowQuestions("snapshot-1");
+
+    expect(questions[0].answerCodes).toEqual(["NamePeer", "StandsAlone"]);
+  });
+
   it("maps non-string questionText to placeholder copy without throwing", async () => {
     vi.mocked(proxyJsonGet).mockResolvedValueOnce([
       {
