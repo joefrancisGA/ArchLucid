@@ -228,6 +228,7 @@ export function SecureNowQuestionQueueProvider(
 
       setQuestions(questionsResult.value);
       setQuestionsLoaded(true);
+      setSessionSkippedQuestionKeys(new Set());
       if (connectionsResult.status === "fulfilled") {
         setInferredConnections(connectionsResult.value);
       } else {

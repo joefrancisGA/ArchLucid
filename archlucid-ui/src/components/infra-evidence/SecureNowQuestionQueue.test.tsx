@@ -987,6 +987,38 @@ describe("SecureNowQuestionQueue", () => {
     );
   });
 
+  it("restores session skipped questions after the queue reloads", async () => {
+    const secondQuestion = {
+      ...question,
+      resourceId: "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.DataFactory/factories/other-resource",
+      resourceName: "other-resource",
+      questionText: "Should other-resource connect to a peer, or stand alone?",
+      reasonText:
+        "SecureNow found no connection to or from other-resource. Data factory is not treated as a shared service that can stand alone.",
+    };
+
+    mocks.listQuestions
+      .mockResolvedValueOnce([question, secondQuestion])
+      .mockResolvedValueOnce([question]);
+
+    render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
+    fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
+    fireEvent.click(screen.getByRole("button", { name: "Not sure. This does not store an answer." }));
+
+    expect(
+      await screen.findByText("Should other-resource connect to a peer, or stand alone?"),
+    ).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Name the peer" }));
+    fireEvent.click(screen.getByRole("button", { name: "Save answer" }));
+
+    await waitFor(() => expect(mocks.listQuestions).toHaveBeenCalledTimes(2));
+
+    expect(await screen.findByTestId("infra-diagrams-question-text")).toHaveTextContent(
+      question.questionText,
+    );
+  });
+
   it("does not persist a question from the previous snapshot while the next snapshot is loading", async () => {
     const snapshotOneQuestion = {
       ...question,
