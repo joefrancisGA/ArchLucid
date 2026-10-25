@@ -928,6 +928,40 @@ public sealed class EndToEndReplayComparisonReportNormalizerTests
     }
 
     [Fact]
+    public void CompareQuality_EndToEndReplayComparisonReportNormalizer_clears_stale_finding_lifecycle_summary_when_all_records_normalize_away()
+    {
+        EndToEndReplayComparisonReport report = new()
+        {
+            LeftRunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            RightRunId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            FindingLifecycle = new CrossReviewFindingLifecycleSummary
+            {
+                NewlyIdentifiedCount = 9,
+                PreviouslyIdentifiedStillPresentCount = 4,
+                HonestyNote = "stale summary from corrupt JSON",
+            },
+            FindingLifecycleRecords =
+            [
+                new CrossReviewFindingLifecycleRecord
+                {
+                    State = CrossReviewFindingLifecycleState.NewlyIdentified,
+                    ResolutionBasis = CrossReviewFindingResolutionBasis.NotApplicable,
+                    CorrelationMethod = FindingCorrelationMethod.PolicyRuleAndFingerprint,
+                    Severity = FindingSeverity.Warning,
+                    SourceAgent = AgentType.Topology,
+                    Category = "   ",
+                    Message = "\t",
+                },
+            ],
+        };
+
+        EndToEndReplayComparisonReportNormalizer.NormalizePersistedPayload(report);
+
+        report.FindingLifecycleRecords.Should().BeEmpty();
+        report.FindingLifecycle.Should().BeNull();
+    }
+
+    [Fact]
     public void CompareQuality_EndToEndReplayComparisonReportNormalizer_trims_nested_compare_input_fingerprints()
     {
         EndToEndReplayComparisonReport report = new()

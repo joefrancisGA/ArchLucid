@@ -25,11 +25,14 @@ internal static class CrossReviewFindingLifecycleNormalizer
 
             report.FindingLifecycleRecords = normalizedRecords;
 
-            if (normalizedRecords.Count > 0)
+            if (normalizedRecords.Count == 0)
             {
-                report.FindingLifecycle = CrossReviewFindingLifecycleSummarizer.Summarize(normalizedRecords);
+                report.FindingLifecycle = null;
                 return;
             }
+
+            report.FindingLifecycle = CrossReviewFindingLifecycleSummarizer.Summarize(normalizedRecords);
+            return;
         }
 
         if (report.FindingLifecycle is null)
