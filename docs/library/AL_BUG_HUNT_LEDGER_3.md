@@ -4938,7 +4938,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-operator-lib
 
-**Hunts:** 69 · **Bugs found:** 66 · **Consecutive dry hunts:** 0
+**Hunts:** 70 · **Bugs found:** 67 · **Consecutive dry hunts:** 0
+
+2026-10-25 seed hunt (hit): promoted `normalizeResumeHrefForMatch` in hero resume target dedupe; regression `matches resume targets when hrefs differ only by a trailing slash`; 4 scoped `operator-home-hero-resume-target` vitest passed. Private beta: Invited operators no longer see duplicate Continue actions on home when the hero resume href and rail row href differ only by a trailing slash.
 
 2026-10-25 seed hunt (hit): promoted top-level stickiness mapping when `pilotFunnel` is null; regressions `maps top-level stickiness metrics when pilotFunnel is null` and `treats stickinessSnapshot pilotFunnel null as absent when no top-level metrics exist`; 9 scoped `operator-shell-status-client` vitest passed. Private beta: Invited operators still see pending governance approval and comparison stickiness counts on shell hydrate when the API omits `pilotFunnel` but returns top-level stickiness fields.
 
@@ -5011,6 +5013,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `formatOperatorHomeCompactMetricsLine` — raw metrics snapshot counts interpolate `NaN` into home KPI strip — **hit 2026-10-25 seed hunt:** `normalizeOperatorHomeNonNegativeCount` on active/sealed/findings; regression `normalizes non-finite workspace metric counts in the KPI strip`.
 - [x] (proven) `formatOperatorHomeRecentReviewsOutcome` / `buildOperatorHomeRecentReviewsOutcomeParts` — `visibleCount !== undefined` accepts `NaN` in showing-cap copy — **hit 2026-10-25 seed hunt:** `resolveRecentPreviewCapCounts`; regressions `normalizes non-finite recent preview cap counts in outcome copy` and `normalizes non-finite preview cap counts in structured outcome parts`.
 - [x] (proven) `formatOperatorHomeGovernanceApprovalWarningCount` — `Math.max(0, Math.trunc(count))` leaves `NaN` labels — **hit 2026-10-25 seed hunt:** `Number.isFinite` guard; regression `treats non-finite counts as zero warnings`.
+- [x] (proven) `matchesOperatorHomeHeroResumeTarget` — strict `href` equality misses trailing-slash equivalents — **hit 2026-10-25 seed hunt:** `normalizeResumeHrefForMatch`; regression `matches resume targets when hrefs differ only by a trailing slash`.
 - [x] (proven) `mapStickinessSnapshot` — null `pilotFunnel` drops entire stickiness snapshot including top-level governance/comparison counts — **hit 2026-10-25 seed hunt:** synthetic empty funnel + top-level metrics path; regressions `maps top-level stickiness metrics when pilotFunnel is null` and `treats stickinessSnapshot pilotFunnel null as absent when no top-level metrics exist`.
 - [x] (proven) `resolveRunHomeListTimestampUtc` — non-empty but unparseable `lastModifiedUtc` blocks `createdUtc` fallback — **hit 2026-10-25 seed hunt:** `parseIsoUtcMs` gate before preferring last modified; regressions `falls back to createdUtc when lastModifiedUtc is unparseable` and `returns null when both timestamps are unparseable`.
 - [x] (proven) `formatRunStartedLabel` / `formatRunListTitleWithDisambiguator` — unparseable `createdUtc` echoes raw string in `Started …` suffix — **hit 2026-10-25 seed hunt:** `parseIsoUtcMs` fail-closed; regression `falls back to run id suffix when duplicate titles have unparseable createdUtc`.
