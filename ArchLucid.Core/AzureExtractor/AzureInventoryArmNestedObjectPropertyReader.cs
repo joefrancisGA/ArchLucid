@@ -52,7 +52,19 @@ public static class AzureInventoryArmNestedObjectPropertyReader
         {
             string? text = value.GetString();
 
-            return TryResolveArmReferenceScalar(text) ?? text;
+            if (string.IsNullOrWhiteSpace(text))
+            {
+                return null;
+            }
+
+            string trimmed = text.Trim();
+
+            if (trimmed.StartsWith("{", StringComparison.Ordinal))
+            {
+                return TryResolveArmReferenceScalar(trimmed);
+            }
+
+            return text;
         }
 
         if (value.ValueKind is JsonValueKind.Object)
@@ -106,7 +118,13 @@ public static class AzureInventoryArmNestedObjectPropertyReader
 
             string? armId = property.Value.GetString();
 
-            return string.IsNullOrWhiteSpace(armId) ? null : armId.Trim();
+            if (string.IsNullOrWhiteSpace(armId)
+                || !armId.Contains("/subscriptions/", StringComparison.OrdinalIgnoreCase))
+            {
+                return null;
+            }
+
+            return armId.Trim();
         }
 
         return null;
