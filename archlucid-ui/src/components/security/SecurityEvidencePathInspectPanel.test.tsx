@@ -400,7 +400,9 @@ describe("SecurityEvidencePathInspectPanel", () => {
       "This configuration creates a path from Internet through identity principal:aaaaaaaa to asset sa1.",
     );
     expect(screen.getByTestId("security-evidence-path-weakest-hop-callout")).toBeInTheDocument();
-    expect(screen.getByText("This hop limits how strong the path evidence can be.")).toBeInTheDocument();
+    expect(
+      screen.getByText("This is the stored weakest hop. Evidence strength was not stored."),
+    ).toBeInTheDocument();
     expect(screen.getByTestId("security-evidence-path-weakest-hop-row")).toBeInTheDocument();
     expect(screen.getAllByText("Hop source was not stored.").length).toBeGreaterThan(0);
     expect(screen.getAllByText("Hop destination was not stored.").length).toBeGreaterThan(0);

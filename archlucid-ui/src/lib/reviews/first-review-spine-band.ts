@@ -31,9 +31,7 @@ export type FirstReviewSpineBandSummary = {
   readonly uncitedCount: number;
   readonly evidenceReferenceCountNotStored: boolean;
   readonly topFindingTitle: string | null;
-  readonly topFindingId: string | null;
-  readonly showTopFindingRow: boolean;
-  readonly topFindingPolicyMapped: boolean;
+  readonly topFindingRankLabel: string | null;
   readonly topFindingSeverityLabel: string | null;
   readonly semanticSupportLine: string | null;
   readonly showLaneBHonesty: boolean;
@@ -190,10 +188,13 @@ export function deriveFirstReviewSpineBandSummary(input: {
     checklistCount: classificationCounts.checklist,
     uncitedCount,
     evidenceReferenceCountNotStored,
-    topFindingTitle: topFinding !== null ? resolveTopFindingTitleForSpine(topFinding) : null,
-    topFindingId: topFinding !== null ? topFinding.findingId : null,
-    showTopFindingRow: topFinding !== null,
-    topFindingPolicyMapped: typeof topFinding?.policyRuleId === "string" && topFinding.policyRuleId.trim().length > 0,
+    topFindingTitle: topFinding?.title?.trim() ?? null,
+    topFindingRankLabel:
+      topFinding === null
+        ? null
+        : topFinding.severityValue !== null && topFinding.severityValue !== undefined
+          ? "Highest stored severity:"
+          : "Decision-grade finding:",
     topFindingSeverityLabel:
       topFinding !== null ? severityBadgeLabel(topFinding.severityValue) : null,
     semanticSupportLine,

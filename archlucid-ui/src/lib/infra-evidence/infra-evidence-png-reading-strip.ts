@@ -1,8 +1,11 @@
 import {
+  INFRA_EVIDENCE_DIAGRAM_BUSINESS_CONTINUITY_READING_LEGEND,
+  INFRA_EVIDENCE_DIAGRAM_DATA_ARCHITECTURE_READING_LEGEND,
   INFRA_EVIDENCE_DIAGRAM_LEGEND_DECLARED,
   INFRA_EVIDENCE_DIAGRAM_LEGEND_OBSERVED,
   INFRA_EVIDENCE_DIAGRAM_LEGEND_UNCLASSIFIED_PROVENANCE,
   INFRA_EVIDENCE_DIAGRAM_PNG_CONFIGURATION_RELATIONSHIP_NOTE,
+  INFRA_EVIDENCE_DIAGRAM_PNG_NETWORK_PLACEMENT_NOTE,
 } from "@/lib/infra-evidence/infra-evidence-diagram-copy";
 import { resolveInfraEvidenceDiagramLegendInferredCopy } from "@/lib/infra-evidence/resolve-infra-evidence-diagram-legend-inferred-line";
 import { resolveInfraEvidenceDiagramLegendProbableLine } from "@/lib/infra-evidence/resolve-infra-evidence-diagram-legend-probable-line";
@@ -154,9 +157,12 @@ export function buildInfraEvidencePngReadingStripLines(
   } else if (input.mode === "dataFlow") {
     lines.push("This diagram shows what may connect. It is not observed traffic.");
   } else if (input.mode === "dataArchitecture") {
-    lines.push("This diagram shows what stores data. It is not observed traffic.");
+    lines.push(INFRA_EVIDENCE_DIAGRAM_DATA_ARCHITECTURE_READING_LEGEND);
+  } else if (input.mode === "network") {
+    lines.push(INFRA_EVIDENCE_DIAGRAM_PNG_NETWORK_PLACEMENT_NOTE);
+  } else if (input.mode === "businessContinuity") {
+    lines.push(INFRA_EVIDENCE_DIAGRAM_BUSINESS_CONTINUITY_READING_LEGEND);
   } else if (
-    input.mode === "network" ||
     input.mode === "executive" ||
     input.mode === "identity" ||
     input.mode === "data"
@@ -227,7 +233,7 @@ export function buildInfraMermaidExportLegendCommentLines(
   outline: InfraEvidenceMermaidOutline | null | undefined,
 ): readonly string[] {
   if (outline === null || outline === undefined) {
-    return ["%% Diagram outline was not stored."];
+    return [];
   }
 
   const lines: string[] = [];
@@ -246,10 +252,6 @@ export function buildInfraMermaidExportLegendCommentLines(
 
   if (hasInfraEvidenceInferredDiagramEdges(outline)) {
     lines.push(`%% ${resolveInfraEvidenceDiagramLegendInferredCopy(outline).legendLine}`);
-  }
-
-  if (hasInfraEvidenceUnclassifiedDiagramEdges(outline, null)) {
-    lines.push(`%% ${INFRA_EVIDENCE_DIAGRAM_LEGEND_UNCLASSIFIED_PROVENANCE}`);
   }
 
   return lines;
