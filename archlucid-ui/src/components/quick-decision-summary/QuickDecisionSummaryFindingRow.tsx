@@ -33,6 +33,7 @@ import {
 } from "@/lib/quick-decision-finding-links";
 import {
   formatQuickDecisionFindingOwnerDisplay,
+  formatQuickDecisionConfidenceWorkspaceLabel,
   isKnownQuickDecisionConfidenceLevel,
 } from "@/lib/findings/quick-decision-finding-display";
 import {
@@ -115,6 +116,13 @@ export function QuickDecisionSummaryFindingRow({
         ) : null}
         {isKnownQuickDecisionConfidenceLevel(finding.confidenceLevel) ? (
           <FindingConfidenceBadge level={finding.confidenceLevel} />
+        ) : finding.confidenceLevel === null || finding.confidenceLevel === undefined ? (
+          <StatusTag
+            kind="neutral"
+            label={formatQuickDecisionConfidenceWorkspaceLabel(finding.confidenceLevel)}
+            className="shrink-0"
+            data-testid={`finding-confidence-omitted-${finding.findingId}`}
+          />
         ) : null}
         <AiOutputGovernanceLabel findingId={finding.findingId} />
         <FindingTrustChip finding={finding} />
@@ -266,6 +274,13 @@ export function QuickDecisionSummaryFindingRow({
           data-testid={`finding-evidence-ref-snippets-missing-${finding.findingId}`}
         >
           Evidence ref excerpts were not stored.
+        </p>
+      ) : evidenceRefCount === null || evidenceRefCount === undefined ? (
+        <p
+          className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid={`finding-evidence-ref-count-not-stored-${finding.findingId}`}
+        >
+          Evidence reference count was not stored.
         </p>
       ) : null}
       {(finding.insightDensityScore !== null && finding.insightDensityScore !== undefined) ||

@@ -8,6 +8,7 @@ import {
   validateTier2ConnectionHostedRun,
   type Tier2ConnectionResponse,
 } from "@/lib/api/cloud-connections-api";
+import { formatTier2ConnectionValidationPackageLine } from "@/lib/cloud-connection-import-success-message";
 import {
   CLOUD_CONNECTION_SAVE_FAILURE_MESSAGE,
   CLOUD_CONNECTION_VALIDATION_ACCEPTED_MESSAGE,
@@ -349,7 +350,11 @@ export function useTier2ConnectionWizard({
       setValidationSucceeded(true);
       markVerifiableTopicsVerified();
       setValidationMessage(
-        `${CLOUD_CONNECTION_VALIDATION_ACCEPTED_MESSAGE} Package ${result.packageId} with ${result.resourceCount} resources.`,
+        formatTier2ConnectionValidationPackageLine(
+          CLOUD_CONNECTION_VALIDATION_ACCEPTED_MESSAGE,
+          result.resourceCount,
+          result.packageId,
+        ),
       );
     } catch (error) {
       console.error(error);

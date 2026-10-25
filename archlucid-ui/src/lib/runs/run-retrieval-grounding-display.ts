@@ -3,11 +3,11 @@ import type { RunRetrievalGroundingScoreSummary } from "@/types/agent-forensics"
 /** Per-trace citation coverage — not review-wide completeness (UU-407, UU-501). */
 export function formatRunRetrievalCitationCoverage(citationCoverage: number | null | undefined): string {
   if (citationCoverage === null || citationCoverage === undefined || Number.isNaN(citationCoverage)) {
-    return "Not recorded";
+    return "Citation coverage was not stored.";
   }
 
   if (!Number.isFinite(citationCoverage) || citationCoverage < 0 || citationCoverage > 100) {
-    return "Not recorded";
+    return "Citation coverage was not stored.";
   }
 
   const pct =

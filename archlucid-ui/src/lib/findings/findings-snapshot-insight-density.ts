@@ -8,9 +8,11 @@ export type ChecklistCoverageItem = {
 };
 
 export type InsightDensityCurationCounts = {
-  readonly demotedToChecklistCount: number;
+  readonly demotedToChecklistCount: number | null;
   readonly retainedFindingCount: number | null;
 };
+
+export const INSIGHT_DENSITY_CURATION_COUNTS_NOT_STORED = "Curation counts were not stored." as const;
 
 export type FindingsSnapshotInsightDensityView = {
   readonly checklistCoverage: readonly ChecklistCoverageItem[];
@@ -34,6 +36,12 @@ function readNonNegativeInt(value: unknown): number | null {
 }
 
 function readFindingTitle(record: Record<string, unknown>): string {
+  const title = typeof record.title === "string" ? record.title.trim() : "";
+
+  if (title.length > 0) {
+    return title;
+  }
+
   const message = typeof record.message === "string" ? record.message.trim() : "";
 
   if (message.length > 0) {
@@ -50,12 +58,6 @@ function readFindingTitle(record: Record<string, unknown>): string {
 
   if (findingType.length > 0) {
     return findingType;
-  }
-
-  const findingId = typeof record.findingId === "string" ? record.findingId.trim() : "";
-
-  if (findingId.length > 0) {
-    return findingId;
   }
 
   return "Checklist title was not stored.";
@@ -110,17 +112,10 @@ export function resolveFindingsSnapshotInsightDensityView(detail: RunDetail): Fi
 
     if (demoted !== null || retained !== null) {
       curation = {
-        demotedToChecklistCount: demoted ?? checklistCoverage.length,
+        demotedToChecklistCount: demoted,
         retainedFindingCount: retained,
       };
     }
-  }
-
-  if (curation === null && checklistCoverage.length > 0) {
-    curation = {
-      demotedToChecklistCount: checklistCoverage.length,
-      retainedFindingCount: null,
-    };
   }
 
   return { checklistCoverage, curation };
@@ -155,6 +150,14 @@ const INSIGHT_DENSITY_TYPED_ENGINE_PROTECTED_LEAD =
 export function formatInsightDensityCurationMessage(curation: InsightDensityCurationCounts): string {
   const demoted = curation.demotedToChecklistCount;
   const retained = curation.retainedFindingCount;
+
+  if (demoted === null && retained === null) {
+    return "";
+  }
+
+  if (demoted === null) {
+    return "Demoted finding count was not stored.";
+  }
 
   if (retained === null) {
     return "Retained finding count was not stored.";

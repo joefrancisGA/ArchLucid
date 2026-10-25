@@ -6,7 +6,8 @@ describe("resolveInfraEvidenceDiagramReadingLegend", () => {
   it("uses generic inventory lines for executive mode", () => {
     const lines = resolveInfraEvidenceDiagramReadingLegend("executive");
 
-    expect(lines.boxes).toMatch(/Azure resources/);
+    expect(lines.boxes).toMatch(/cloud resources/i);
+    expect(lines.evidenceKind).toMatch(/not live cloud telemetry/i);
     expect(lines.connectors).toMatch(/relationships already on the diagram/);
     expect(lines.evidenceKind).toMatch(/configuration from inventory/);
   });

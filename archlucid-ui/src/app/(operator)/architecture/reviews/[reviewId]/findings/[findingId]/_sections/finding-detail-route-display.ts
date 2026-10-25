@@ -112,6 +112,10 @@ export function summarizeEvidenceBasis(payload: FindingInspectPayload | null): s
     return "Finding detail has not loaded.";
   }
 
+  if (payload.evidenceListReturned === false) {
+    return "Evidence list was not returned.";
+  }
+
   const evidenceCount = payload.evidence.length;
   const ruleLabel = payload.decisionRuleName ?? payload.decisionRuleId;
   const citationLabel = evidenceCount === 1 ? "citation" : "citations";

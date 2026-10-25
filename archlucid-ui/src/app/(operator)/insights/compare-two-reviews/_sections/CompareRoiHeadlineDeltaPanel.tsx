@@ -3,7 +3,10 @@
 import { cn } from "@/lib/utils";
 
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import type { CompareRoiHeadlineDeltaView } from "@/lib/review-quality/compare-roi-headline-delta";
+import {
+  COMPARE_ROI_NO_ESTIMATED_SAVINGS_LABEL,
+  type CompareRoiHeadlineDeltaView,
+} from "@/lib/review-quality/compare-roi-headline-delta";
 
 export type CompareRoiHeadlineDeltaPanelProps = {
   readonly view: CompareRoiHeadlineDeltaView | null;
@@ -57,7 +60,7 @@ export function CompareRoiHeadlineDeltaPanel(
           >
             <dt className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{side.label}</dt>
             <dd className={cn("m-0 mt-1 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-              {side.savingsLabel ?? "No estimated savings on this run"}
+              {side.savingsLabel ?? COMPARE_ROI_NO_ESTIMATED_SAVINGS_LABEL}
             </dd>
             {side.basisFootnote !== null ? (
               <dd className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>

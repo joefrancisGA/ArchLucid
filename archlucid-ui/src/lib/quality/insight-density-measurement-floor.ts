@@ -337,8 +337,12 @@ export function formatInsightDensityMeasurementFloorPresentation(
 
 export function formatInsightDensityMeasurementFloorBlockedReason(
   enginesSucceeded: number | null | undefined,
-  catalogAdvisoryEngineFailureCount: number = 0,
+  catalogAdvisoryEngineFailureCount?: number | null,
 ): string | null {
+  if (catalogAdvisoryEngineFailureCount === null || catalogAdvisoryEngineFailureCount === undefined) {
+    return "Catalog engine failure count was not stored.";
+  }
+
   if (catalogAdvisoryEngineFailureCount > 0) {
     return catalogAdvisoryEngineFailureCount === 1
       ? "1 catalog engine failed or did not run — career export requires typed findings from every catalog engine that executed."

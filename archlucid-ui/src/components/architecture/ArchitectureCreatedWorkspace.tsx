@@ -35,6 +35,8 @@ import {
   countClarificationGaps,
   countOpenClarifications,
   countOpenQuestionEntities,
+  isOpenQuestionsSectionMissing,
+  OPEN_QUESTION_COUNT_NOT_STORED_LABEL,
 } from "@/lib/architecture/architecture-open-clarifications-count";
 import {
   buildArchitectureCreatedHomeModel,
@@ -144,7 +146,7 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
   const [dismissedClarificationGapIds, setDismissedClarificationGapIds] = useState<ReadonlySet<string>>(
     () => new Set(),
   );
-  const [diagramInferredCount, setDiagramInferredCount] = useState(0);
+  const [diagramInferredCount, setDiagramInferredCount] = useState<number | null>(null);
   const { isWorkingMode } = useWorkspaceMode();
   const [showFindingsLinkedView, setShowFindingsLinkedViewState] = useState(readLinkedViewFromUrl);
   const showFindingsLinkedViewRef = useRef(showFindingsLinkedView);
@@ -230,6 +232,10 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
   );
   const openQuestionCount = useMemo(
     () => countOpenQuestionEntities(props.architectureSourceText, userAssertions),
+    [props.architectureSourceText, userAssertions],
+  );
+  const openQuestionsSectionMissing = useMemo(
+    () => isOpenQuestionsSectionMissing(props.architectureSourceText, userAssertions),
     [props.architectureSourceText, userAssertions],
   );
 
@@ -367,8 +373,12 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
         resolvedTabs={resolvedTabs}
         tabCounts={{
           findings: findingsCount > 0 ? findingsCount : null,
-          decisionsRemediation: clarificationsCount > 0 ? clarificationsCount : null,
-          architecture: diagramInferredCount > 0 ? diagramInferredCount : null,
+          decisionsRemediation:
+            openQuestionsSectionMissing ? null : clarificationsCount > 0 ? clarificationsCount : null,
+          decisionsRemediationHonestyLabel:
+            openQuestionsSectionMissing ? OPEN_QUESTION_COUNT_NOT_STORED_LABEL : null,
+          architecture:
+            diagramInferredCount !== null && diagramInferredCount > 0 ? diagramInferredCount : null,
         }}
         onTabChange={navigateReviewTab}
       />

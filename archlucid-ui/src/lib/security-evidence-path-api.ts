@@ -40,7 +40,7 @@ function mapStoredLabel(value: unknown, omissionLabel: string): string {
 
 function mapHop(raw: Record<string, unknown>): SecurityEvidencePathHop {
   return {
-    hopOrdinal: finiteNumberOrDefault(raw.hopOrdinal, 0),
+    hopOrdinal: finiteNumberOrNull(raw.hopOrdinal),
     fromNodeLabel: mapStoredLabel(raw.fromNodeLabel, "Hop source was not stored."),
     toNodeLabel: mapStoredLabel(raw.toNodeLabel, "Hop destination was not stored."),
     edgeType: mapStoredLabel(raw.edgeType, "Relationship type was not stored"),
@@ -54,7 +54,7 @@ function mapHop(raw: Record<string, unknown>): SecurityEvidencePathHop {
 
 function mapWeakestHop(raw: Record<string, unknown>): SecurityEvidencePathWeakestHop {
   return {
-    hopOrdinal: Number(raw.hopOrdinal ?? 0),
+    hopOrdinal: finiteNumberOrNull(raw.hopOrdinal),
     edgeType: mapStoredLabel(raw.edgeType, "Relationship type was not stored"),
     hopConfidenceBand: String(raw.hopConfidenceBand ?? ""),
     provenanceKind: String(raw.provenanceKind ?? ""),
@@ -105,14 +105,14 @@ function mapRankSummary(raw: Record<string, unknown>): SecurityEvidencePathRankS
   return {
     pathId: String(raw.pathId ?? ""),
     snapshotId: String(raw.snapshotId ?? ""),
-    rankOrder: finiteNumberOrDefault(raw.rankOrder, 0),
+    rankOrder: finiteNumberOrNull(raw.rankOrder),
     ruleVersion: String(raw.ruleVersion ?? ""),
-    technicalExposureScore: finiteNumberOrDefault(raw.technicalExposureScore, 0),
-    privilegeDepthScore: finiteNumberOrDefault(raw.privilegeDepthScore, 0),
-    blastRadiusScore: finiteNumberOrDefault(raw.blastRadiusScore, 0),
+    technicalExposureScore: finiteNumberOrNull(raw.technicalExposureScore),
+    privilegeDepthScore: finiteNumberOrNull(raw.privilegeDepthScore),
+    blastRadiusScore: finiteNumberOrNull(raw.blastRadiusScore),
     businessConsequenceScore: finiteNumberOrNull(raw.businessConsequenceScore),
-    confidenceBandScore: finiteNumberOrDefault(raw.confidenceBandScore, 0),
-    compositeSortScore: finiteNumberOrDefault(raw.compositeSortScore, 0),
+    confidenceBandScore: finiteNumberOrNull(raw.confidenceBandScore),
+    compositeSortScore: finiteNumberOrNull(raw.compositeSortScore),
     explanationSummary: String(raw.explanationSummary ?? ""),
     pathKind: String(raw.pathKind ?? ""),
     pathConfidenceBand: String(raw.pathConfidenceBand ?? ""),
@@ -129,14 +129,14 @@ function mapRankDetail(raw: Record<string, unknown>): SecurityEvidencePathRankDe
   return {
     pathId: String(raw.pathId ?? ""),
     snapshotId: String(raw.snapshotId ?? ""),
-    rankOrder: finiteNumberOrDefault(raw.rankOrder, 0),
+    rankOrder: finiteNumberOrNull(raw.rankOrder),
     ruleVersion: String(raw.ruleVersion ?? ""),
-    technicalExposureScore: finiteNumberOrDefault(raw.technicalExposureScore, 0),
-    privilegeDepthScore: finiteNumberOrDefault(raw.privilegeDepthScore, 0),
-    blastRadiusScore: finiteNumberOrDefault(raw.blastRadiusScore, 0),
+    technicalExposureScore: finiteNumberOrNull(raw.technicalExposureScore),
+    privilegeDepthScore: finiteNumberOrNull(raw.privilegeDepthScore),
+    blastRadiusScore: finiteNumberOrNull(raw.blastRadiusScore),
     businessConsequenceScore: finiteNumberOrNull(raw.businessConsequenceScore),
-    confidenceBandScore: finiteNumberOrDefault(raw.confidenceBandScore, 0),
-    compositeSortScore: finiteNumberOrDefault(raw.compositeSortScore, 0),
+    confidenceBandScore: finiteNumberOrNull(raw.confidenceBandScore),
+    compositeSortScore: finiteNumberOrNull(raw.compositeSortScore),
     explanationSummary: String(raw.explanationSummary ?? ""),
     breakdownJson: String(raw.breakdownJson ?? ""),
     pathKind: String(raw.pathKind ?? ""),
@@ -339,7 +339,7 @@ export async function fetchSecurityEvidencePathDetail(pathId: string): Promise<S
     snapshotId: String(raw.snapshotId ?? ""),
     pathKind: String(raw.pathKind ?? ""),
     pathConfidenceBand: String(raw.pathConfidenceBand ?? ""),
-    weakestHopOrdinal: Number(raw.weakestHopOrdinal ?? 0),
+    weakestHopOrdinal: finiteNumberOrNull(raw.weakestHopOrdinal),
     weakestHopReason: String(raw.weakestHopReason ?? ""),
     hops: hopsRaw
       .filter((item): item is Record<string, unknown> => typeof item === "object" && item !== null)
