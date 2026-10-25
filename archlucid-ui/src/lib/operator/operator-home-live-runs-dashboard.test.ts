@@ -86,6 +86,15 @@ describe("resolveLiveRunsDashboardModel", () => {
     expect(merged.items.map((run) => run.runId)).toEqual(["live-a"]);
   });
 
+  it("uplifts total when live count is positive but below the returned page size", () => {
+    const merged = resolveLiveRunsDashboardModel(ssrModel, {
+      items: [buildRun("live-a"), buildRun("live-b")],
+      totalCount: 1,
+    });
+
+    expect(merged.totalCount).toBe(2);
+  });
+
   it("drops reviews that the refreshed snapshot no longer contains", () => {
     const merged = resolveLiveRunsDashboardModel(ssrModel, { items: [], totalCount: 0 });
 

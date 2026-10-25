@@ -25,6 +25,10 @@ function resolveLiveRunsDashboardTotalCount(
     if (!liveTotalIsFinite || liveTotalCount === 0) {
       return Math.max(upliftedTotal, resolved);
     }
+
+    if (liveTotalCount > 0 && resolved < liveItemCount) {
+      return Math.max(upliftedTotal, resolved);
+    }
   }
 
   return resolved;
