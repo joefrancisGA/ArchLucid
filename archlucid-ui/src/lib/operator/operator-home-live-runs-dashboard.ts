@@ -1,9 +1,5 @@
 import type { OperatorHomeRunsDashboardModel } from "@/app/(operator)/_sections/operator-home-runs-dashboard-model";
-import {
-  countNonArchivedOverviewRuns,
-  resolveOperatorHomeReviewTotalCount,
-  resolveOperatorHomeTenantScopedReviewTotalCount,
-} from "@/lib/operator/operator-home-review-total-resolution";
+import { resolveOperatorHomeTenantScopedReviewTotalCount } from "@/lib/operator/operator-home-review-total-resolution";
 import type { RunSummary } from "@/types/authority";
 
 /** Reviews snapshot reported by the runs dashboard panel after a client load or header Refresh. */
@@ -36,11 +32,10 @@ export function resolveLiveRunsDashboardModel(
   return {
     ...ssrModel,
     items: [...liveSnapshot.items],
-    totalCount: resolveOperatorHomeReviewTotalCount(
+    totalCount: resolveOperatorHomeTenantScopedReviewTotalCount(
+      liveSnapshot.items,
       liveSnapshot.totalCount,
       ssrModel.totalCount,
-      countNonArchivedOverviewRuns(liveSnapshot.items),
-      liveSnapshot.items.length,
     ),
   };
 }

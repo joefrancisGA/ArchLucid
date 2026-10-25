@@ -6,10 +6,7 @@ import {
   deriveHomePreviewTabCounts,
   filterTenantOverviewRuns,
 } from "@/lib/operator/operator-home-recent-reviews-outcome";
-import {
-  countNonArchivedOverviewRuns,
-  resolveOperatorHomeTenantScopedReviewTotalCount,
-} from "@/lib/operator/operator-home-review-total-resolution";
+import { resolveOperatorHomeTenantScopedReviewTotalCount } from "@/lib/operator/operator-home-review-total-resolution";
 import {
   deriveOperatorHomeWorkspaceMetrics,
   type OperatorHomeWorkspaceMetricsSnapshot,

@@ -161,6 +161,33 @@ describe("resolveLiveRunsDashboardModel", () => {
     expect(merged.totalCount).toBe(0);
   });
 
+  it("does not uplift demo-only live snapshots from SSR totals during merge", () => {
+    const merged = resolveLiveRunsDashboardModel(
+      { ...ssrModel, totalCount: 5 },
+      {
+        items: [
+          {
+            ...buildRun("demo-seed"),
+            demoSeededOverviewInject: true,
+            hasGoldenManifest: true,
+          },
+        ],
+        totalCount: resolveOperatorHomeLiveRunsSnapshotTotalCount(
+          [
+            {
+              ...buildRun("demo-seed"),
+              demoSeededOverviewInject: true,
+              hasGoldenManifest: true,
+            },
+          ],
+          5,
+        ),
+      },
+    );
+
+    expect(merged.totalCount).toBe(0);
+  });
+
   it("does not keep stale positive totalCount when the live snapshot is archived-only", () => {
     const merged = resolveLiveRunsDashboardModel(ssrModel, {
       items: [
