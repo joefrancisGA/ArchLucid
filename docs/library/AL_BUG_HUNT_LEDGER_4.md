@@ -1,4 +1,4 @@
-> **Scope:** Hunt ledger for `/al-bug4` (Core, host, persistence, and extraction). Edit this file only from that command. Sync and push `bugsmash-4`. Do not edit the other set ledgers in the same hunt.
+> **Scope:** Contributor-reference — hunt ledger for `/al-bug4` (Core, host, persistence, and extraction). Edit this file only from that command. Sync and push `bugsmash-4`. Do not edit the other set ledgers in the same hunt.
 
 ## Zone: weekly-digest-email
 
