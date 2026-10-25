@@ -184,6 +184,52 @@ describe("securenow-question-queue-api", () => {
     expect(questions[0].isExpired).toBe(true);
   });
 
+  it("maps whitespace-only listed disposition fields to null on list responses", async () => {
+    vi.mocked(proxyJsonGet).mockResolvedValueOnce([
+      {
+        snapshotId: "snapshot-1",
+        questionKey: "unknown-evidence@v1",
+        questionText: "Should this resource connect?",
+        answerCodes: ["NamePeer"],
+        evidenceFingerprint: "fingerprint",
+        dispositionId: "   ",
+        expirationUtc: "  ",
+        answerCode: "   ",
+        answerText: "  ",
+        reason: "   ",
+      },
+    ]);
+
+    const questions = await listSecureNowQuestions("snapshot-1");
+
+    expect(questions[0].dispositionId).toBeNull();
+    expect(questions[0].expirationUtc).toBeNull();
+    expect(questions[0].answerCode).toBeNull();
+    expect(questions[0].answerText).toBeNull();
+    expect(questions[0].reason).toBeNull();
+  });
+
+  it("trims padded listed disposition fields on list responses", async () => {
+    vi.mocked(proxyJsonGet).mockResolvedValueOnce([
+      {
+        snapshotId: "snapshot-1",
+        questionKey: "unknown-evidence@v1",
+        questionText: "Should this resource connect?",
+        answerCodes: ["NamePeer"],
+        evidenceFingerprint: "fingerprint",
+        dispositionId: "  00000000-0000-0000-0000-000000000001  ",
+        answerCode: "  NamePeer  ",
+        reason: "  Operator dismissed.  ",
+      },
+    ]);
+
+    const questions = await listSecureNowQuestions("snapshot-1");
+
+    expect(questions[0].dispositionId).toBe("00000000-0000-0000-0000-000000000001");
+    expect(questions[0].answerCode).toBe("NamePeer");
+    expect(questions[0].reason).toBe("Operator dismissed.");
+  });
+
   it("maps whitespace-only status to null on list responses", async () => {
     vi.mocked(proxyJsonGet).mockResolvedValueOnce([
       {

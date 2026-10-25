@@ -111,6 +111,17 @@ describe("secureNowQuestionQueueInitialReviewFilter", () => {
       isExpired: false,
     }])).toBe("Answered");
   });
+
+  it("opens dismissed when only dismiss disposition rows are reviewable", () => {
+    expect(secureNowQuestionQueueInitialReviewFilter([{
+      status: null,
+      answerCode: null,
+      answerText: null,
+      reason: "Operator chose not to answer.",
+      expirationUtc: "2099-01-01T00:00:00Z",
+      isExpired: false,
+    }])).toBe("Dismissed");
+  });
 });
 
 describe("secureNowQuestionCountsAsOpenQueueRow", () => {

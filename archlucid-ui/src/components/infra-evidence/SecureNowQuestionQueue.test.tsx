@@ -1144,6 +1144,25 @@ describe("SecureNowQuestionQueue", () => {
     expect(screen.getByTestId("infra-diagrams-question-answer")).toHaveTextContent("Name the peer");
   });
 
+  it("shows the review promo and opens dismissed when only dismiss disposition rows are reviewable", async () => {
+    mocks.listQuestions.mockResolvedValue([{
+      ...question,
+      status: null,
+      answerCode: null,
+      answerText: null,
+      reason: "Operator chose not to answer.",
+    }]);
+
+    render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
+
+    expect(await screen.findByTestId("infra-diagrams-question-snapshot-promo")).toBeInTheDocument();
+    expect(screen.getByText("1 question to review")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Review questions" }));
+
+    expect(screen.getByTestId("infra-diagrams-question-disposition-status")).toHaveTextContent("Dismissed");
+    expect(screen.getByRole("button", { name: "Reopen" })).toBeInTheDocument();
+  });
+
   it("hides the open promo when every listed question has unknown disposition status", async () => {
     mocks.listQuestions.mockResolvedValue([{ ...question, status: "Pending" }]);
 

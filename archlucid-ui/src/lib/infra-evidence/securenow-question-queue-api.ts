@@ -74,6 +74,15 @@ function stringOrDefault(value: unknown, fallback = ""): string {
   return typeof value === "string" ? value : fallback;
 }
 
+function mapListedOptionalString(value: unknown): string | null {
+  if (typeof value !== "string") {
+    return null;
+  }
+
+  const trimmed = value.trim();
+  return trimmed.length > 0 ? trimmed : null;
+}
+
 function parseJsonBooleanOrNull(value: unknown): boolean | null {
   if (value === true) {
     return true;
@@ -166,7 +175,7 @@ function mapQuestion(raw: Record<string, unknown>): SecureNowQuestion {
   const questionText = stringOrDefault(raw.questionText).trim();
 
   return {
-    dispositionId: typeof raw.dispositionId === "string" ? raw.dispositionId : null,
+    dispositionId: mapListedOptionalString(raw.dispositionId),
     snapshotId: stringOrDefault(raw.snapshotId),
     subscriptionId: typeof raw.subscriptionId === "string"
       ? raw.subscriptionId
@@ -195,11 +204,11 @@ function mapQuestion(raw: Record<string, unknown>): SecureNowQuestion {
     evidenceFingerprint: typeof raw.evidenceFingerprint === "string"
       ? raw.evidenceFingerprint
       : null,
-    expirationUtc: typeof raw.expirationUtc === "string" ? raw.expirationUtc : null,
+    expirationUtc: mapListedOptionalString(raw.expirationUtc),
     isExpired: mapJsonBooleanOrNull(raw.isExpired),
-    answerCode: typeof raw.answerCode === "string" ? raw.answerCode : null,
-    answerText: typeof raw.answerText === "string" ? raw.answerText : null,
-    reason: typeof raw.reason === "string" ? raw.reason : null,
+    answerCode: mapListedOptionalString(raw.answerCode),
+    answerText: mapListedOptionalString(raw.answerText),
+    reason: mapListedOptionalString(raw.reason),
   };
 }
 
