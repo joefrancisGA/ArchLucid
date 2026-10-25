@@ -1344,7 +1344,12 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                         {hub.evidencePointers.map((pointer, pointerIndex) => (
                           <EnterpriseTableRow key={`${pointer.kind}-${pointer.relativePath}-${pointerIndex}`}>
                             <EnterpriseTableCell>{pointer.kind}</EnterpriseTableCell>
-                            <EnterpriseTableCell className="font-mono text-xs">{pointer.relativePath}</EnterpriseTableCell>
+                            <EnterpriseTableCell className="font-mono text-xs">
+                              {formatStoredInfraEvidenceHubField(
+                                pointer.relativePath,
+                                "Evidence pointer path was not stored.",
+                              )}
+                            </EnterpriseTableCell>
                           </EnterpriseTableRow>
                         ))}
                       </EnterpriseTableBody>

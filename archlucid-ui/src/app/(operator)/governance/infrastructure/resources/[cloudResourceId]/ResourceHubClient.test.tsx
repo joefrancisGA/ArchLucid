@@ -1307,6 +1307,18 @@ describe("ResourceHubClient", () => {
     expect(screen.queryByTestId("infra-resource-hub-open-terraform-work")).not.toBeInTheDocument();
   });
 
+  it("shows evidence pointer path omission copy when relativePath is whitespace-only", async () => {
+    fetchCachedInfraEvidenceResourceHub.mockImplementation(async () =>
+      buildResourceHubTestMockHub({
+        evidencePointers: [{ kind: "inventory", relativePath: "   " }],
+      }),
+    );
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    expect(await screen.findByText("Evidence pointer path was not stored.")).toBeInTheDocument();
+    expect(screen.getByText("inventory")).toBeInTheDocument();
+  });
+
   it("shows network relationship type omission copy when relationshipType is whitespace-only", async () => {
     fetchCachedInfraEvidenceResourceHub.mockImplementation(async () =>
       buildResourceHubTestMockHub({
