@@ -27,7 +27,7 @@ public sealed partial class ArchitectureReviewPdfBuilder
             ArchitectureReviewBoardExportSectionKind.SponsorReport), firstMajorHeading);
 
         if (string.IsNullOrWhiteSpace(model.SponsorReport))
-            AddPlaceholder(column, "Sponsor report content");
+            AddStyledOmissionLine(column, ArchitectureReviewBoardExportHonestyCopy.SponsorReportNotStored);
         else
             AddMultilineBodyText(column, model.SponsorReport);
     }

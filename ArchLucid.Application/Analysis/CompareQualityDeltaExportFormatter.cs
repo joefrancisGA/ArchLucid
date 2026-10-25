@@ -77,21 +77,8 @@ internal static class CompareQualityDeltaExportFormatter
             .ToList();
     }
 
-    internal static string RemoveMarkdownSection(string markdown)
-    {
-        const string heading = "## Compare Quality Delta";
-        int start = markdown.IndexOf(heading, StringComparison.Ordinal);
-
-        if (start < 0)
-            return markdown;
-
-        int nextSection = markdown.IndexOf("\n## ", start + heading.Length, StringComparison.Ordinal);
-
-        if (nextSection < 0)
-            return markdown[..start].TrimEnd();
-
-        return (markdown[..start] + markdown[nextSection..]).Trim();
-    }
+    internal static string RemoveMarkdownSection(string markdown) =>
+        ComparisonExportMarkdownSectionRemover.RemoveSection(markdown, "## Compare Quality Delta");
 
     internal sealed record CompareQualityDeltaExportRow(string Label, int Before, int After);
 }

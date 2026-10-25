@@ -114,12 +114,12 @@ public static class DiagramNodeHumanCaptionFactory
         else if (node.ConnectionState == InventoryDiagramConnectionState.Used)
         {
             combined = string.IsNullOrWhiteSpace(node.ConnectionStateMessage)
-                ? $"{combined} · In use off the diagram. Off-diagram use was not stored."
-                : $"{combined} · In use off the diagram: {node.ConnectionStateMessage.Trim()}";
+                ? $"{combined} · Referenced off this diagram. Use was not observed. Off-diagram use was not stored."
+                : $"{combined} · Referenced off this diagram. Use was not observed: {node.ConnectionStateMessage.Trim()}";
         }
         else if (node.ConnectionState == InventoryDiagramConnectionState.Unconnected)
         {
-            combined = $"{combined} · Stands alone";
+            combined = $"{combined} · No diagram link was stored.";
         }
         else if (node.ConnectionState == InventoryDiagramConnectionState.Unknown
             && node.UnresolvedRelationshipDetails.Count == 0)

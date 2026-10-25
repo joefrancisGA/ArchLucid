@@ -17,8 +17,11 @@ internal static class CapabilityToFlowNarrative
 
     public static string BuildDescription(CapabilityToFlowCandidate candidate)
     {
-        IEnumerable<string> hopDescriptions = candidate.Hops.Select(static hop =>
-            $"{ShortNodeLabel(hop.FromNodeId)} -[{hop.EdgeType}]-> {ShortNodeLabel(hop.ToNodeId)}");
+        IEnumerable<string> hopDescriptions = candidate.Hops.Select(hop =>
+            SecurityEvidencePathHopRelationshipLabel.FormatHopSegment(
+                ShortNodeLabel(hop.FromNodeId),
+                hop.EdgeType,
+                ShortNodeLabel(hop.ToNodeId)));
 
         string pathSummary = string.Join("; ", hopDescriptions);
         string movement = candidate.Hops.Any(static hop =>
@@ -30,7 +33,7 @@ internal static class CapabilityToFlowNarrative
             ? " Workload subnet may reach outbound destinations per cited NSG allow rules."
             : " Outbound egress is not fully verified on the workload subnet.";
 
-        return $"{movement} {pathSummary}.{egress} Business consequence remains Unknown without a human asset assertion.";
+        return $"{movement} {pathSummary}.{egress} Business consequence was not stored without a human asset assertion.";
     }
 
     private static string ShortNodeLabel(string nodeId)

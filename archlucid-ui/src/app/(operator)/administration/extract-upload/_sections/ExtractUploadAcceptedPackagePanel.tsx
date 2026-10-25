@@ -41,7 +41,7 @@ export function ExtractUploadAcceptedPackagePanel(
   props: ExtractUploadAcceptedPackagePanelProps,
 ): React.JSX.Element {
   const { record } = props;
-  const nextAction = extractUploadAcceptedPackageNextAction(props.productLineId);
+  const nextAction = extractUploadAcceptedPackageNextAction(props.productLineId, record.associateRunId);
   const showEvidenceGraphLink = !isSecureNowProductLine(props.productLineId ?? "architecture");
   const { ianaTimeZoneId } = useIanaTimeZonePreference();
   const [copied, setCopied] = useState(false);

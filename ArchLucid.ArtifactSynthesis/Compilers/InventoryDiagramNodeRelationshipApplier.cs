@@ -323,6 +323,7 @@ internal static class InventoryDiagramNodeRelationshipApplier
         Dictionary<string, HashSet<string>> subnetOwnerArmIds = BuildSubnetOwnerArmIdMap(graph, nicOwnerArmIdByNicArmId);
         IReadOnlyList<DiagramNsgInboundRuleChip> chips = InventoryDiagramNsgInboundRuleChipBuilder.BuildVisibleChips(rules);
         HashSet<string> ownerDiagramNodeIds = new(StringComparer.Ordinal);
+        bool hadStoredAssociationTarget = false;
 
         foreach (AzureInventoryNsgAssociation association in associations)
         {
@@ -331,6 +332,7 @@ internal static class InventoryDiagramNodeRelationshipApplier
                 continue;
             }
 
+            hadStoredAssociationTarget = true;
             IReadOnlyList<string> endpointArmIds = ResolveNsgAssociationEndpointArmIds(
                 association,
                 nicOwnerArmIdByNicArmId,
@@ -349,7 +351,9 @@ internal static class InventoryDiagramNodeRelationshipApplier
         {
             ast.LedgerDrops.Add(new DiagramMermaidLedgerDrop
             {
-                Reason = "nsg-unattached",
+                Reason = hadStoredAssociationTarget
+                    ? "nsg-unattached-off-diagram"
+                    : "nsg-unattached-no-association",
                 FromNodeId = nsgNode.NodeId,
                 ToNodeId = null,
             });
@@ -362,6 +366,20 @@ internal static class InventoryDiagramNodeRelationshipApplier
             foreach (DiagramNode owner in ast.Nodes.Where(node => ownerDiagramNodeIds.Contains(node.NodeId)))
             {
                 owner.NsgInboundRuleChips = chips.ToList();
+            }
+        }
+        else if (rules.Count > 0)
+        {
+            List<DiagramNsgInboundRuleChip> outboundOnlyChip =
+            [
+                new DiagramNsgInboundRuleChip(
+                    "Security rules were stored. No inbound rule was listed on this diagram.",
+                    IsRisky: false),
+            ];
+
+            foreach (DiagramNode owner in ast.Nodes.Where(node => ownerDiagramNodeIds.Contains(node.NodeId)))
+            {
+                owner.NsgInboundRuleChips = outboundOnlyChip;
             }
         }
 
@@ -410,6 +428,11 @@ internal static class InventoryDiagramNodeRelationshipApplier
                     ArmResourceIdNormalizer.Normalize(action.TargetArmId),
                     out string? targetDiagramNodeId))
             {
+                string actionName = action.ActionName?.Trim() ?? string.Empty;
+                string detail = actionName.Length > 0
+                    ? $"Workflow action {actionName} target was not on this diagram."
+                    : "Workflow action name was not stored. The target was not on this diagram.";
+                workflowNode.UnresolvedRelationshipDetails.Add(detail);
                 continue;
             }
 
@@ -723,13 +746,22 @@ internal static class InventoryDiagramNodeRelationshipApplier
 
     private static string ReadResourceName(string armId)
     {
+        if (string.IsNullOrWhiteSpace(armId))
+        {
+            return "Endpoint name was not stored";
+        }
+
         int lastSlash = armId.LastIndexOf('/');
 
         if (lastSlash < 0 || lastSlash >= armId.Length - 1)
         {
-            return MermaidIdSanitizer.Sanitize(armId);
+            string fallback = MermaidIdSanitizer.Sanitize(armId).Trim();
+
+            return fallback.Length > 0 ? fallback : "Endpoint name was not stored";
         }
 
-        return armId[(lastSlash + 1)..];
+        string name = armId[(lastSlash + 1)..].Trim();
+
+        return name.Length > 0 ? name : "Endpoint name was not stored";
     }
 }

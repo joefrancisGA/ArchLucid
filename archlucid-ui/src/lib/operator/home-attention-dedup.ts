@@ -5,6 +5,21 @@ import type { UnfinishedWorkRailItem } from "@/lib/unfinished-work-rail";
 const AWAITING_DISPOSITION_RAIL_ID_PREFIX = "awaiting-disposition:";
 const REVIEW_IN_PROGRESS_RAIL_ID_PREFIX = "review-in-progress:";
 
+/** Normalize OpenAPI / queue run id strings for Set membership (trim + drop empty). */
+export function buildTrimmedRunIdSet(runIds: readonly string[]): ReadonlySet<string> {
+  const normalized = new Set<string>();
+
+  for (const runId of runIds) {
+    const trimmed = runId.trim();
+
+    if (trimmed.length > 0) {
+      normalized.add(trimmed);
+    }
+  }
+
+  return normalized;
+}
+
 function runIdFromUnfinishedWorkRailItem(item: UnfinishedWorkRailItem): string | null {
   if (item.kind === "awaiting-disposition") {
     const runId = item.id.startsWith(AWAITING_DISPOSITION_RAIL_ID_PREFIX)
@@ -51,7 +66,7 @@ export function filterRunsForHomeAttentionPreview(
     return runs;
   }
 
-  const excluded = new Set(excludedRunIds);
+  const excluded = buildTrimmedRunIdSet(excludedRunIds);
 
   return runs.filter((run) => {
     const runId = run.runId?.trim() ?? "";

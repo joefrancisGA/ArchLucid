@@ -1,11 +1,10 @@
 import { cn } from "@/lib/utils";
 import type { ReactElement } from "react";
 
-import {
-  resolveBuyerShowcaseResidualRiskNextReviewIso,
-  BUYER_SHOWCASE_RESIDUAL_RISK_OWNER,
-} from "@/lib/buyer/buyer-polish-copy";
 import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+
+const RISK_OWNER_NOT_STORED = "Risk owner was not stored";
+const NEXT_REVIEW_NOT_STORED = "Next review was not stored.";
 
 export type FindingInspectRecommendedActionSectionProps = {
   readonly tone: "detail" | "inspect";
@@ -50,7 +49,7 @@ export function FindingInspectRecommendedActionSection({
             <dt className={cn("text-al-text-secondary", OPERATOR_NAV_GROUP_LABEL)}>
               Risk owner
             </dt>
-            <dd className="m-0 mt-0.5 text-al-text-primary">{BUYER_SHOWCASE_RESIDUAL_RISK_OWNER}</dd>
+            <dd className="m-0 mt-0.5 text-al-text-primary">{RISK_OWNER_NOT_STORED}</dd>
           </div>
           <div>
             <dt className={cn("text-al-text-secondary", OPERATOR_NAV_GROUP_LABEL)}>
@@ -64,7 +63,7 @@ export function FindingInspectRecommendedActionSection({
             <dt className={cn("text-al-text-secondary", OPERATOR_NAV_GROUP_LABEL)}>
               Next review
             </dt>
-            <dd className="m-0 mt-0.5 text-al-text-primary">{resolveBuyerShowcaseResidualRiskNextReviewIso()}</dd>
+            <dd className="m-0 mt-0.5 text-al-text-primary">{NEXT_REVIEW_NOT_STORED}</dd>
           </div>
         </dl>
       ) : null}
