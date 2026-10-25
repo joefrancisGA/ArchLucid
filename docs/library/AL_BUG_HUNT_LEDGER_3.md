@@ -7210,11 +7210,11 @@ ABQ-09 churn hotspot.
 - [x] (valid-no-repro) `ResourceHubClient` remediation instances table — duplicate `patternKey` statuses — **cheap-disproof 2026-10-25 thorough hunt:** React keys use `instanceId`, not `patternKey`.
 - [x] (valid-no-repro) `ResourceHubClient` diagram correspondence — missing `correspondenceId` fallback label — **cheap-disproof 2026-10-25 thorough hunt:** null correspondence renders titled empty state; links require stored `correspondenceId`.
 
-- [ ] (candidate) `ResourceHubClient` evidence pointers table — two pointers sharing `kind` and `relativePath` — locus: React key `${kind}-${relativePath}`; input: integration fixture with colliding keys drops a row.
-- [ ] (candidate) `ResourceHubDriftChangesTable` — two drift rows sharing `changeId` — locus: row key; input: duplicate ids in one hub payload reuse one row.
-- [ ] (candidate) `ResourceHubClient.runCreateRemediationFromFinding` — success message cleared when post-create `loadHub` fails — locus: `retainFindingMessages` + error path; input: reload throws after create succeeds.
-- [ ] (candidate) `ResourceHubClient` findings stream — remediation message for finding id absent after reload — locus: message map vs stream membership; input: finding drops out of stream but message key remains (partially addressed; watch cross-tab retain).
-- [ ] (candidate) `ResourceHubClient` diagram correspondence — empty-string `correspondenceId` with otherwise populated correspondence — locus: reconcile/ask href builders; input: broken deep links.
+- [x] (proven) `ResourceHubClient` evidence pointers table — two pointers sharing `kind` and `relativePath` — **hit 2026-10-25 seed hunt:** see hunt above.
+- [x] (proven) `ResourceHubDriftChangesTable` — two drift rows sharing `changeId` — **hit 2026-10-25 seed hunt:** see hunt above.
+- [x] (valid-no-repro) `ResourceHubClient.runCreateRemediationFromFinding` — success message cleared when post-create `loadHub` fails — **cheap-disproof 2026-10-25 seed hunt:** see hunt above.
+- [x] (valid-no-repro) `ResourceHubClient` findings stream — remediation message for finding id absent after reload — **cheap-disproof 2026-10-25 seed hunt:** see hunt above.
+- [x] (valid-no-repro) `ResourceHubClient` diagram correspondence — empty-string `correspondenceId` with otherwise populated correspondence — **cheap-disproof 2026-10-25 seed hunt:** see hunt above.
 
 - **id:** ui-infra-resource-hub
 - **status:** open
