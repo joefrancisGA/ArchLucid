@@ -286,6 +286,29 @@ public sealed class InMemoryComparisonRecordRepositoryAdditionalCoverageTests
     }
 
     [SkippableFact]
+    public async Task GetByRunIdAsync_trims_padded_comparison_record_id_on_list_rows()
+    {
+        const string canonicalComparisonRecordId = "cmp-legacy-pad-list";
+        const string runId = "run-list-pad";
+
+        InMemoryComparisonRecordRepository sut = new();
+        FieldInfo? itemsField = typeof(InMemoryComparisonRecordRepository).GetField(
+            "_items",
+            BindingFlags.Instance | BindingFlags.NonPublic);
+        itemsField.Should().NotBeNull();
+        List<ComparisonRecord> items = (List<ComparisonRecord>)itemsField!.GetValue(sut)!;
+        ComparisonRecord legacy = Row($"  {canonicalComparisonRecordId}  ", TimeProvider.System.UtcNowDateTime());
+        legacy.LeftRunId = runId;
+        items.Add(legacy);
+
+        IReadOnlyList<ComparisonRecord> list =
+            await sut.GetByRunIdAsync(runId, CancellationToken.None);
+
+        list.Should().ContainSingle();
+        list[0].ComparisonRecordId.Should().Be(canonicalComparisonRecordId);
+    }
+
+    [SkippableFact]
     public async Task GetByIdAsync_canonicalizes_dashed_run_ids_on_read()
     {
         Guid left = Guid.Parse("33333333-3333-3333-3333-333333333333");

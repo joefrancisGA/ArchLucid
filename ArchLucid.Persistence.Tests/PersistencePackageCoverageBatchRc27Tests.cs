@@ -314,14 +314,14 @@ public sealed class PersistencePackageCoverageBatchRc27Tests
         Guid right = Guid.Parse("11111111-2222-3333-4444-555555555555");
         ComparisonRecord row = new()
         {
-            ComparisonRecordId = "cmp-1",
+            ComparisonRecordId = "  cmp-1  ",
             ComparisonType = "manifest",
             LeftRunId = left.ToString("D").ToUpperInvariant(),
             RightRunId = right.ToString("D"),
             LeftManifestVersion = "v1",
             RightManifestVersion = "v2",
-            LeftExportRecordId = "lex",
-            RightExportRecordId = "rex",
+            LeftExportRecordId = "  lex  ",
+            RightExportRecordId = "  rex  ",
             Format = "json",
             SummaryMarkdown = "summary",
             PayloadJson = """{"heavy":true}""",
