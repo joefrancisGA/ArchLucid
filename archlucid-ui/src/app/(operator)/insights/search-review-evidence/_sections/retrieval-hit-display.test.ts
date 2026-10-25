@@ -8,6 +8,7 @@ import {
   resolveRetrievalHitRunId,
   retrievalHitRelevanceTier,
   retrievalHitSourceTypeLabel,
+  resolveRetrievalHitTitle,
 } from "./retrieval-hit-display";
 import type { RetrievalHit } from "./retrieval-hit";
 
@@ -26,6 +27,13 @@ function hit(partial: Partial<RetrievalHit>): RetrievalHit {
     ...partial,
   };
 }
+
+describe("resolveRetrievalHitTitle", () => {
+  it("labels blank titles as not stored", () => {
+    expect(resolveRetrievalHitTitle("")).toBe("Hit title was not stored.");
+    expect(resolveRetrievalHitTitle("  ")).toBe("Hit title was not stored.");
+  });
+});
 
 describe("retrievalHitSourceTypeLabel", () => {
   it("maps manifest finding to Finding", () => {
