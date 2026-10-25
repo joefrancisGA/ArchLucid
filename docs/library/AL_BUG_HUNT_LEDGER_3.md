@@ -4938,7 +4938,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-operator-lib
 
-**Hunts:** 46 · **Bugs found:** 43 · **Consecutive dry hunts:** 0
+**Hunts:** 47 · **Bugs found:** 44 · **Consecutive dry hunts:** 0
+
+2026-10-25 seed hunt (hit): promoted `normalizeOperatorShellNullableCount` for shell `assignedToMeFindingsCount` `?? null` NaN footgun; regressions `maps non-finite counts to null` and `maps non-finite assigned-to-me findings count from shell status JSON to null`; 10 scoped run-home-status + shell-status-client vitest passed. Private beta: Invited operators no longer see `NaN` on assigned-to-me findings affordances when aggregated shell-status JSON carries a non-finite count (hydrated cache matches dedicated count query fail-closed semantics).
 
 2026-10-25 seed hunt (hit): promoted `mapStickinessSnapshot` stickiness count normalization via `normalizeOperatorHomeNonNegativeCount`; regression `normalizes non-finite stickiness funnel counts from shell status JSON to zero`; 6 scoped `operator-shell-status-client` vitest passed. Private beta: Invited operators no longer see `NaN` in shell stickiness funnel metrics when aggregated shell-status JSON carries non-finite numeric fields.
 
@@ -4960,6 +4962,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-10-08 seed hunt (seed-only): re-read continuity hydration, recent-view mapping, workspace metrics, and freshness helpers; no hunt-ready row promoted; scoped `lib/operator` tests completed with known baseline failures outside the reviewed utility behavior.
 
+- [x] (proven) `fetchOperatorShellStatus` — `assignedToMeFindingsCount ?? null` leaves `NaN` on hydrate (`?? 0` in UI still shows NaN) — **hit 2026-10-25 seed hunt:** `normalizeOperatorShellNullableCount`; regressions `maps non-finite assigned-to-me findings count from shell status JSON to null` and `maps non-finite counts to null`.
 - [x] (proven) `mapStickinessSnapshot` — `?? 0` leaves `NaN` stickiness counts on shell hydrate — **hit 2026-10-25 seed hunt:** `normalizeOperatorHomeNonNegativeCount` on funnel and top-level counts; regression `normalizes non-finite stickiness funnel counts from shell status JSON to zero`.
 - [x] (invalid) `shouldHydrateWorkingWorkspaceContinuityFromServer` — malformed non-empty server `updatedAtUtc` is compared as `NaN` — **cheap-disproof 2026-10-25 seed hunt:** `Date.parse` invalid yields `NaN >= local` false, so hydrate is refused (fail-closed); does not overwrite local watermark.
 - [x] (proven) `deriveOperatorHomeWorkspaceMetrics` — non-finite `awaitingApprovalCount` is only lower-bounded, not normalized — **hit 2026-10-25 seed hunt:** `Number.isFinite` guard before `Math.max`/`Math.trunc`; regression `normalizes non-finite awaitingApprovalCount to zero for home KPI totals`.
