@@ -225,17 +225,11 @@ public sealed class ArchitectureAnalysisService(
         string primaryRunId,
         CancellationToken cancellationToken)
     {
-        foreach (string lookupKey in AnalysisRunIdCanonicalization.EnumerateRunIdRepositoryLookupKeys(primaryRunId))
-        {
-            IReadOnlyList<AgentExecutionTrace> traces = await traceRepository
-                .GetByRunIdAsync(scope, lookupKey, cancellationToken)
-                .ConfigureAwait(false);
+        IReadOnlyList<AgentExecutionTrace> traces = await AnalysisRunIdCanonicalization
+            .LoadExecutionTracesByRunIdAsync(traceRepository, scope, primaryRunId, cancellationToken)
+            .ConfigureAwait(false);
 
-            if (traces is { Count: > 0 })
-                return traces.ToList();
-        }
-
-        return [];
+        return traces.ToList();
     }
 
     private async Task<IReadOnlyList<AgentResult>> TryLoadAgentResultsAsync(

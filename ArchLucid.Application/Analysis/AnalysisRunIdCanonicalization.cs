@@ -1,3 +1,7 @@
+using ArchLucid.Contracts.Agents;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Data.Repositories;
+
 namespace ArchLucid.Application.Analysis;
 
 /// <summary>
@@ -55,5 +59,26 @@ internal static class AnalysisRunIdCanonicalization
         string dashed = guid.ToString("D");
         if (!string.Equals(dashed, canonical, StringComparison.Ordinal))
             yield return dashed;
+    }
+
+    internal static async Task<IReadOnlyList<AgentExecutionTrace>> LoadExecutionTracesByRunIdAsync(
+        IAgentExecutionTraceRepository traceRepository,
+        ScopeContext scope,
+        string primaryRunId,
+        CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(traceRepository);
+
+        foreach (string lookupKey in EnumerateRunIdRepositoryLookupKeys(primaryRunId))
+        {
+            IReadOnlyList<AgentExecutionTrace> traces = await traceRepository
+                .GetByRunIdAsync(scope, lookupKey, cancellationToken)
+                .ConfigureAwait(false);
+
+            if (traces is { Count: > 0 })
+                return traces;
+        }
+
+        return [];
     }
 }
