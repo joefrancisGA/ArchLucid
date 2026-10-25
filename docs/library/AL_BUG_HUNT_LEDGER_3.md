@@ -4508,7 +4508,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-operator-lib
 
-**Hunts:** 44 · **Bugs found:** 41 · **Consecutive dry hunts:** 0
+**Hunts:** 45 · **Bugs found:** 42 · **Consecutive dry hunts:** 0
+
+2026-10-25 seed hunt (hit): promoted `normalizeOperatorHomeNonNegativeCount` for awaiting-approval `?? 0` NaN footgun; regressions `normalizes non-finite awaiting-approval tab counts to zero` and `normalizes non-finite workspace awaiting-approval fallback for tab counts`; 22 scoped run-home-status + outcome + tenant-counting vitest passed. Private beta: Invited operators no longer see `NaN` on home awaiting-approval tab labels when attention summary hands through a non-finite count.
 
 2026-10-25 seed hunt (hit): promoted `resolveOperatorHomeResumeAffordancePlan` run-id equality trim; regression `suppresses continue-last when target run id matches rail run id aside from surrounding whitespace`; 5 scoped `operator-home-resume-affordance` vitest passed. Private beta: Invited operators no longer see a duplicate Continue last review CTA when the continue-last target and unfinished-work rail refer to the same run id with different surrounding whitespace.
 
