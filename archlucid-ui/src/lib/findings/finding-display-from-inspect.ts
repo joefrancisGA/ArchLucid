@@ -150,18 +150,18 @@ function isShowcasePrimaryPhiFindingId(findingId: string | null | undefined): bo
 }
 
 export function findingDetailHeadingTitle(payload: FindingInspectPayload): string {
-  const narrative = findingInspectNarrativeFields(payload);
-  const titleCandidate = narrative.title?.trim();
-
-  if (titleCandidate !== undefined && titleCandidate.length > 0) {
-    return titleCandidate;
-  }
-
   const scenario =
     resolveSampleScenarioByHeroFindingId(payload.findingId) ?? resolveSampleScenarioByRunId(payload.runId);
 
   if (isShowcasePrimaryPhiFindingId(payload.findingId) && scenario !== null) {
     return scenario.primaryFindingTitle;
+  }
+
+  const narrative = findingInspectNarrativeFields(payload);
+  const titleCandidate = narrative.title?.trim();
+
+  if (titleCandidate !== undefined && titleCandidate.length > 0) {
+    return titleCandidate;
   }
 
   if (isPhiMinimizationSampleFinding(payload)) {
@@ -278,13 +278,7 @@ export function findingInspectPageEyebrow(payload: FindingInspectPayload): strin
  * Consequence + control + monitoring framing for the PHI sample (when payload lacks richer narrative).
  */
 export function phiMinimizationBuyerConsequenceNarrative(): string {
-  return (
-    "If understated, PHI could accumulate in adapters or caches beyond the intended minimization boundary — " +
-    "expanding breach impact, audit scope, and downstream processing obligations. " +
-    "The finalized review documents classification at ingress, adapter boundaries, and retention controls; " +
-    "the evidence trail shows how those controls tie to this observation. " +
-    "Monitoring owner was not stored. Monitoring cadence was not stored. Next review was not stored."
-  );
+  return "Sample finding. A stored consequence was not stored.";
 }
 
 export function phiMinimizationApprovalNarrative(): string {
@@ -292,19 +286,12 @@ export function phiMinimizationApprovalNarrative(): string {
     return BUYER_FINDING_POST_APPROVAL_VALIDATION;
   }
 
-  return (
-    "Before approval, reviewers need evidence that PHI classification occurs at ingress, adapter boundaries remain " +
-    "stateless or explicitly bounded, unstructured attachments cannot bypass the OCR/control path unnoticed, and " +
-    "post-go-live monitoring will surface exception volume before it becomes an audit or breach exposure."
-  );
+  return "A stored acceptance was not stored on this finding.";
 }
 
 /** Specific recommended actions for the PHI showcase when structured actions are unavailable. */
 export function phiMinimizationRecommendedActionFallback(): string {
-  return (
-    "Validate ingress PHI classification rules, monitor unstructured attachment exception volumes weekly, confirm OCR bypass " +
-    "handling alerts fire before volume thresholds, and schedule a post-go-live review with the privacy office."
-  );
+  return "Recommended action was not stored.";
 }
 
 export function phiMinimizationControlNarrative(): string {
