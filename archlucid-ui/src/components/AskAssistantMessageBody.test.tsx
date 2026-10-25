@@ -76,6 +76,12 @@ describe("AskAssistantMessageBody", () => {
     expect(evidenceLink).toHaveAttribute("href", "/architecture/reviews/22222222-2222-4222-8222-222222222222");
   });
 
+  it("labels a missing operator structured preamble explicitly", () => {
+    render(<AskAssistantMessageBody content={"Risk:\n\nBody.\n\nEvidence:\n\nMore."} />);
+
+    expect(screen.getByText("Answer preamble was not stored.")).toBeInTheDocument();
+  });
+
   it("labels missing structured sections and buyer lead explicitly", () => {
     render(
       <AskAssistantMessageBody

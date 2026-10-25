@@ -3,6 +3,7 @@ import {
   ARCHITECTURE_DIAGRAM_SECTION_ENTITIES_NOT_STORED,
   ARCHITECTURE_DIAGRAM_SECTION_ENTITIES_STORED_EMPTY,
 } from "@/lib/architecture/architecture-diagram-copy";
+import { ARCHITECTURE_DIAGRAM_NODE_LABEL_NOT_STORED } from "@/lib/architecture/architecture-diagram-provenance";
 import type {
   ArchitectureContentProvenance,
   ArchitectureStructuredEntity,
@@ -107,12 +108,12 @@ function addEntityNodes(
   let index = nodes.length;
 
   for (const entity of entities) {
-    if (entity.label.trim().length === 0) {
-      skippedUnlabeled.count += 1;
-      continue;
-    }
+    const trimmedLabel = entity.label.trim();
+    const label = trimmedLabel.length > 0 ? trimmedLabel : ARCHITECTURE_DIAGRAM_NODE_LABEL_NOT_STORED;
 
-    const label = entity.label.trim();
+    if (trimmedLabel.length === 0) {
+      skippedUnlabeled.count += 1;
+    }
 
     nodes.push(createNode(label, kind, entity.provenance, usedIds, index));
     index += 1;

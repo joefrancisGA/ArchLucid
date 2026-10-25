@@ -67,6 +67,7 @@ describe("buildArchitectureDiagramModel", () => {
     );
 
     expect(model.nodes.filter((node) => node.label === "Claims API")).toHaveLength(1);
+    expect(model.nodes.filter((node) => node.label === "Node label was not stored.")).toHaveLength(1);
     expect(model.skippedUnlabeledEntityCount).toBe(1);
   });
 

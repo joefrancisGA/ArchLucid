@@ -497,8 +497,8 @@ describe("formatGoldenManifestMarkdown", () => {
     expect(md).toContain(
       "Full review record JSON was not included in this export. The lines below are summary counts only.",
     );
-    expect(md).toContain("This summary export does not include a component breakdown.");
-    expect(md).toContain("This summary export does not include a security model.");
+    expect(md).toContain("Component breakdown was not stored.");
+    expect(md).toContain("Security model was not stored.");
     expect(md).not.toContain("browser session");
   });
 
