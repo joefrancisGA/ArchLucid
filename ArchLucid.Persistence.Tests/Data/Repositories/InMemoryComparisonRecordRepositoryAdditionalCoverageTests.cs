@@ -286,6 +286,29 @@ public sealed class InMemoryComparisonRecordRepositoryAdditionalCoverageTests
     }
 
     [SkippableFact]
+    public async Task GetByIdAsync_trims_padded_export_record_ids_on_read()
+    {
+        const string comparisonRecordId = "cmp-exp-pad-get";
+
+        InMemoryComparisonRecordRepository sut = new();
+        FieldInfo? itemsField = typeof(InMemoryComparisonRecordRepository).GetField(
+            "_items",
+            BindingFlags.Instance | BindingFlags.NonPublic);
+        itemsField.Should().NotBeNull();
+        List<ComparisonRecord> items = (List<ComparisonRecord>)itemsField!.GetValue(sut)!;
+        ComparisonRecord legacy = Row(comparisonRecordId, TimeProvider.System.UtcNowDateTime());
+        legacy.LeftExportRecordId = "  exp-left  ";
+        legacy.RightExportRecordId = "  exp-right  ";
+        items.Add(legacy);
+
+        ComparisonRecord? loaded = await sut.GetByIdAsync(comparisonRecordId, CancellationToken.None);
+
+        loaded.Should().NotBeNull();
+        loaded!.LeftExportRecordId.Should().Be("exp-left");
+        loaded.RightExportRecordId.Should().Be("exp-right");
+    }
+
+    [SkippableFact]
     public async Task GetByRunIdAsync_trims_padded_comparison_record_id_on_list_rows()
     {
         const string canonicalComparisonRecordId = "cmp-legacy-pad-list";

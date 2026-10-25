@@ -239,10 +239,7 @@ public sealed partial class ComparisonRecordRepository
     private static ComparisonRecord? NormalizeRunIdsNullable(ComparisonRecord? record)
     {
         if (record is not null)
-        {
-            record.ComparisonRecordId = ComparisonRecordIdLookup.NormalizeLookupKey(record.ComparisonRecordId);
-            ComparisonRecordRunIdSql.NormalizeRunIdsForRead(record);
-        }
+            ComparisonRecordPersistNormalizer.NormalizeForPersist(record);
 
         return record;
     }

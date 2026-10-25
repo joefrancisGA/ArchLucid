@@ -50,8 +50,7 @@ public sealed class InMemoryComparisonRecordRepository : IComparisonRecordReposi
                 return Task.FromResult<ComparisonRecord?>(null);
 
             ComparisonRecord clone = ComparisonRecordRepositoryCore.Clone(row);
-            clone.ComparisonRecordId = normalizedComparisonRecordId;
-            ComparisonRecordRunIdSql.NormalizeRunIdsForRead(clone);
+            ComparisonRecordPersistNormalizer.NormalizeForPersist(clone);
             return Task.FromResult<ComparisonRecord?>(clone);
         }
     }
