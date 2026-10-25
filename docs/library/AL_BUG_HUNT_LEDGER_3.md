@@ -4938,7 +4938,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-operator-lib
 
-**Hunts:** 88 · **Bugs found:** 84 · **Consecutive dry hunts:** 0
+**Hunts:** 89 · **Bugs found:** 84 · **Consecutive dry hunts:** 0
+
+2026-10-25 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; regressions `returns no excluded run ids for incomplete-wizard rows even when href parses a review run id`, `lists both row and peer href run ids for awaiting-disposition rail rows`, `normalizes non-finite alerts inbox counts when writing stable cache`, and `clamps negative live snapshot total counts to zero`; 57 scoped attention-dedup, resume, shell-stable-cache, and live-runs-dashboard vitest passed; no production code changed.
 
 2026-10-25 seed hunt (hit): `collectHomeAttentionExcludedRunIdsForRailItem` only unions run ids for TB-2369 review rail kinds so architecture-draft desk `highlightReviewId` hrefs no longer hide unrelated home attention rows; regression `returns no excluded run ids when architecture-draft href carries highlightReviewId`; scoped attention-dedup + resume vitest passed. Private beta: Invited operators in eval-with-drafts (and other modes) still see home attention rows for reviews when an architecture-draft rail link happens to carry a desk highlight query.
 
@@ -5187,11 +5189,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `resolveUnfinishedWorkRailRunIdForMatch` — does not double-count href when canonical already equals href parse — **cheap-disproof 2026-10-25 seed hunt:** default railItem fixtures in attention-dedup suite.
 - [x] (valid-no-repro) `UnfinishedWorkRail` — reports excluded run ids from filtered items only (eval-with-drafts draft omission) — **cheap-disproof 2026-10-25 seed hunt:** architecture-draft rows no longer contribute SN-012 href exclusions after kind guard.
 
-- [ ] (candidate) `isTb2369ReviewWorkRailItem` — excludes incomplete-wizard rows from attention exclusion union — locus: kind guard; input: wizard meta hrefs from `unfinished-work-rail`.
-- [ ] (candidate) `collectHomeAttentionExcludedRunIdsForRailItem` — review-kind union unchanged for peer and desk disagreement — locus: union branches; input: disagreement regressions in attention-dedup suite.
-- [ ] (candidate) `listHomeAttentionPreviewExcludedRunIds` — empty for architecture-draft without highlight query — locus: kind guard; input: architecture-draft regression without query.
-- [ ] (candidate) `filterRunsForHomeAttentionPreview` — still filters review rail disagreements after kind guard — locus: filter helper; input: desk + nested disagreement filter tests.
-- [ ] (candidate) `resolveUnfinishedWorkRailRunIdForMatch` — null for architecture-draft while resume targets use draft ids — locus: resolver kind guard; input: rail resume vitest for draft rows.
+- [x] (valid-no-repro) `isTb2369ReviewWorkRailItem` — excludes incomplete-wizard rows from attention exclusion union — **cheap-disproof 2026-10-25 seed hunt:** regression `returns no excluded run ids for incomplete-wizard rows even when href parses a review run id`.
+- [x] (valid-no-repro) `collectHomeAttentionExcludedRunIdsForRailItem` — review-kind union unchanged for peer and desk disagreement — **cheap-disproof 2026-10-25 seed hunt:** awaiting-disposition + disagreement regressions in attention-dedup suite.
+- [x] (valid-no-repro) `listHomeAttentionPreviewExcludedRunIds` — empty for architecture-draft without highlight query — **cheap-disproof 2026-10-25 seed hunt:** architecture-draft regression without query.
+- [x] (valid-no-repro) `filterRunsForHomeAttentionPreview` — still filters review rail disagreements after kind guard — **cheap-disproof 2026-10-25 seed hunt:** desk + nested disagreement filter tests.
+- [x] (valid-no-repro) `resolveUnfinishedWorkRailRunIdForMatch` — null for architecture-draft while resume targets use draft ids — **cheap-disproof 2026-10-25 seed hunt:** rail resume vitest for draft rows.
+
+- [ ] (candidate) `writeOperatorShellStableCache` — normalizes alerts inbox counts on write, not only on read — locus: `normalizeStableCacheAlertsInboxSummary`; input: write-path regression in shell-stable-cache tests.
+- [ ] (candidate) `resolveLiveRunsDashboardModel` — clamps negative `liveSnapshot.totalCount` — locus: `resolveLiveRunsDashboardTotalCount`; input: negative total regression in live-runs-dashboard tests.
+- [ ] (candidate) `collectHomeAttentionExcludedRunIdsForRailItem` — awaiting-disposition rows share review-kind union with review-in-progress — locus: prefix parsers; input: awaiting-disposition disagreement regression.
+- [ ] (candidate) `readOperatorShellStableCache` — still normalizes poisoned alerts payloads after write-time normalization — locus: read path; input: existing read normalization regression.
+- [ ] (candidate) `listHomeAttentionPreviewExcludedRunIds` — incomplete-wizard with nested review href does not exclude runs — locus: kind guard; input: extend wizard regression to nested review paths.
 
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regression `drops favorite rows when runId is whitespace-only`; 41 scoped continuity, scope-storage, and attention-preview vitest tests passed.
 
