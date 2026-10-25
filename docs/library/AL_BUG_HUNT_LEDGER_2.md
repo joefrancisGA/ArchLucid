@@ -9560,11 +9560,19 @@
 
 2026-10-25 seed hunt (seed-only #84): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
 
-- [ ] (candidate) `RunsController.CreateRun` — whitespace-only `Idempotency-Key` header — locus: trim → null key; input: recycle hunt #74.
-- [ ] (candidate) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` `NotEvaluated` string — locus: `Enum.TryParse`; input: recycle hunt #74.
-- [ ] (candidate) `RunCoverageController.PatchRunCoveragePack` — excluded true with empty-string `ExclusionReason` — locus: service `IsNullOrWhiteSpace` → HTTP 400; input: recycle hunt #74.
-- [ ] (candidate) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `433` — locus: interior bound.
-- [ ] (candidate) `RunsController.ChatIntake` — `RawText` exactly minimum length — locus: inclusive 20-char minimum in `ValidateDraftFreeText`; input: recycle hunt #74.
+- [x] (invalid) `RunsController.CreateRun` — whitespace-only `Idempotency-Key` header — **cheap-disproof 2026-10-25 seed hunt #85:** trim → null key; create proceeds without replay slot by design (recycle hunt #74); regression `CreateRun_proceeds_with_null_idempotency_when_header_is_whitespace_only`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` `NotEvaluated` string — **cheap-disproof 2026-10-25 seed hunt #85:** `Enum.TryParse` accepts `NotEvaluated` (recycle hunt #74); regression `RecordEvaluation_accepts_evaluation_state_not_evaluated_string`.
+- [x] (valid-no-repro) `RunCoverageController.PatchRunCoveragePack` — excluded true with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #85:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #74); regression `PatchRunCoveragePack_returns_bad_request_when_excluded_true_with_empty_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `433` — **cheap-disproof 2026-10-25 seed hunt #85:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_433`.
+- [x] (valid-no-repro) `RunsController.ChatIntake` — `RawText` exactly minimum length — **cheap-disproof 2026-10-25 seed hunt #85:** inclusive 20-char minimum in `ValidateDraftFreeText` (recycle hunt #74); regression `ChatIntake_calls_intake_facade_when_raw_text_is_exactly_minimum_length`.
+
+2026-10-25 seed hunt (seed-only #85): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [ ] (candidate) `RunsController.CreateRunBatch` — whitespace-only `Idempotency-Key` — locus: trim → null key; input: recycle hunt #75.
+- [ ] (candidate) `AdminAgentModelCatalogController.RecordEvaluation` — invalid `EvaluationState` empty string — locus: `Enum.TryParse`; input: recycle hunt #75.
+- [ ] (candidate) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with whitespace-only `ExclusionReason` — locus: service `IsNullOrWhiteSpace` → HTTP 400; input: recycle hunt #75.
+- [ ] (candidate) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `432` — locus: interior bound.
+- [ ] (candidate) `RunsController.ConnectorIntake` — null request body — locus: HTTP 400; input: recycle hunt #75.
 
 2026-10-23 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows from prior reseed; no new hunt-ready promotion (Rephrase null `Items` already shipped on `bugsmash-2` 01857d53eb); seeded five follow-on `(candidate)` rows; 12 scoped RunsController draft/explain + RunCoverage acknowledgement tests passed.
 
@@ -9584,9 +9592,9 @@
 - **aliases:** authority controllers; admin controllers
 - **paths:** ArchLucid.Api/Controllers/Authority/; ArchLucid.Api/Controllers/Admin/
 - **test-filter:** FullyQualifiedName~AuthorityController|FullyQualifiedName~AdminController
-- **hunts:** 148
+- **hunts:** 149
 - **bugs-found:** 58
-- **consecutive-dry-hunts:** 82
+- **consecutive-dry-hunts:** 83
 - **last-hunt:** 2026-10-25
 - **last-bug:** 2026-10-23 — rephrase clarification null item in items array caused 500 instead of validation
 - **related-pd-tb:** none
@@ -9598,9 +9606,9 @@
 - **aliases:** authority controllers; admin controllers
 - **paths:** ArchLucid.Api/Controllers/Authority/; ArchLucid.Api/Controllers/Admin/
 - **test-filter:** FullyQualifiedName~AuthorityController|FullyQualifiedName~AdminController
-- **hunts:** 148
+- **hunts:** 149
 - **bugs-found:** 58
-- **consecutive-dry-hunts:** 82
+- **consecutive-dry-hunts:** 83
 - **last-hunt:** 2026-10-25
 - **last-bug:** 2026-10-23 — rephrase clarification null item in items array caused 500 instead of validation
 - **related-pd-tb:** none
