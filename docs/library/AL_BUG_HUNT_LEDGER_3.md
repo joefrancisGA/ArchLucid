@@ -2334,6 +2334,34 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-oidc
 
+2026-10-25 seed hunt (seed-only): cheap-disproof closed five pass-21 `(candidate)` rows (bell PKCE nonce tamper, hash-only JSON/authorize `error_description`, JSON number `8` token root, BFF refresh `513`); added five regression locks; seeded five follow-on `(candidate)` rows below; scoped `src/lib/oidc` vitest and `CallbackClient.test.tsx` 802/802; no production code changed.
+
+- [x] (valid-no-repro) `readPkceStateForFlow` — PKCE `nonce` with interior bell (`U+0007`) — **cheap-disproof 2026-10-25 seed hunt pass 21:** `pkceStoredValueContainsUnsafeControlCharacters`; regression `rejects PKCE consume when tampered session nonce contains interior bell control characters`.
+- [x] (valid-no-repro) `readOAuthJsonErrorDescription` — hash-only (`U+0023`) JSON `error_description` — **cheap-disproof 2026-10-25 seed hunt pass 21:** regression `returns empty for hash-only token-endpoint JSON error_description values`.
+- [x] (valid-no-repro) `decodeOAuthErrorDescription` — hash-only percent-encoded authorize `error_description` — **cheap-disproof 2026-10-25 seed hunt pass 21:** regression `returns empty for hash-only percent-encoded error descriptions`.
+- [x] (valid-no-repro) `token-client.postTokenForm` — HTTP 200 body is JSON number `8` — **cheap-disproof 2026-10-25 seed hunt pass 21:** regression `throws when a successful token response body is the JSON number 8`.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route returns HTTP `513` — **cheap-disproof 2026-10-25 seed hunt pass 21:** regression `soft-fails refresh without clearing session when the refresh route returns 513 in opaque BFF refresh parity sequence`.
+
+- [ ] (candidate) `readPkceStateForFlow` — PKCE `code_verifier` session value with interior bell (`U+0007`) control character — locus: `pkceStoredValueContainsUnsafeControlCharacters`; input: tampered `archlucid_oidc_code_verifier` key before callback.
+- [ ] (candidate) `readOAuthJsonErrorDescription` — ampersand-only (`U+0026`) JSON `error_description` — locus: readable-detail guard; input: token-endpoint OAuth JSON `"&&"`.
+- [ ] (candidate) `decodeOAuthErrorDescription` — ampersand-only percent-encoded authorize `error_description` — locus: `decodeOAuthErrorDescription`; input: callback `?error_description=%26%26`.
+- [ ] (candidate) `token-client.postTokenForm` — HTTP 200 body is JSON number `9` — locus: `parseOidcTokenResponse`; input: misconfigured IdP returns numeric positive root JSON with 200.
+- [ ] (candidate) `refreshBffSessionCookie` — refresh route returns HTTP `514` without clearing session — locus: BFF refresh soft-fail branch; input: same-origin refresh responds `514` while access token still present.
+
+- **id:** ui-oidc
+- **status:** open
+- **impact:** high
+- **aliases:** oidc authority; sign-in routing; OIDC host
+- **paths:** archlucid-ui/src/lib/oidc/
+- **test-filter:** oidc-authority|oidc
+- **hunts:** 96
+- **bugs-found:** 73
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-25
+- **last-bug:** 2026-10-25 — authorize callback `code` query carried trailing C0 to token exchange
+- **related-pd-tb:** none
+- **code-changed-since:** yes
+
 2026-10-25 seed hunt (seed-only): cheap-disproof closed five pass-20 `(candidate)` rows (form-feed PKCE state tamper, equals-only JSON/authorize `error_description`, JSON number `7` token root, BFF refresh `512`); added five regression locks; seeded five follow-on `(candidate)` rows below; scoped `src/lib/oidc` vitest and `CallbackClient.test.tsx` 797/797; no production code changed.
 
 - [x] (valid-no-repro) `readPkceStateForFlow` — PKCE `state` with interior form-feed (`U+000C`) — **cheap-disproof 2026-10-25 seed hunt pass 20:** `pkceStoredValueContainsUnsafeControlCharacters`; regression `rejects PKCE consume when tampered session state contains interior form-feed control characters`.
@@ -2341,12 +2369,6 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `decodeOAuthErrorDescription` — equals-only percent-encoded authorize `error_description` — **cheap-disproof 2026-10-25 seed hunt pass 20:** regression `returns empty for equals-only percent-encoded error descriptions`.
 - [x] (valid-no-repro) `token-client.postTokenForm` — HTTP 200 body is JSON number `7` — **cheap-disproof 2026-10-25 seed hunt pass 20:** regression `throws when a successful token response body is the JSON number 7`.
 - [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route returns HTTP `512` — **cheap-disproof 2026-10-25 seed hunt pass 20:** regression `soft-fails refresh without clearing session when the refresh route returns 512 in opaque BFF refresh parity sequence`.
-
-- [ ] (candidate) `readPkceStateForFlow` — PKCE `nonce` session value with interior bell (`U+0007`) control character — locus: `pkceStoredValueContainsUnsafeControlCharacters`; input: tampered `archlucid_oidc_nonce` key before callback.
-- [ ] (candidate) `readOAuthJsonErrorDescription` — hash-only (`U+0023`) JSON `error_description` — locus: readable-detail guard; input: token-endpoint OAuth JSON `"##"`.
-- [ ] (candidate) `decodeOAuthErrorDescription` — hash-only percent-encoded authorize `error_description` — locus: `decodeOAuthErrorDescription`; input: callback `?error_description=%23%23`.
-- [ ] (candidate) `token-client.postTokenForm` — HTTP 200 body is JSON number `8` — locus: `parseOidcTokenResponse`; input: misconfigured IdP returns numeric positive root JSON with 200.
-- [ ] (candidate) `refreshBffSessionCookie` — refresh route returns HTTP `513` without clearing session — locus: BFF refresh soft-fail branch; input: same-origin refresh responds `513` while access token still present.
 
 - **id:** ui-oidc
 - **status:** open
