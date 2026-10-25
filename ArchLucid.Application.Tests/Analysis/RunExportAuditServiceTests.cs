@@ -453,6 +453,53 @@ public sealed class RunExportAuditServiceTests
     }
 
     [Fact]
+    public async Task CompareQuality_RecordAsync_canonicalizes_dashed_compare_run_id_in_audit_json_and_record_column()
+    {
+        Guid compareRunGuid = Guid.Parse("33333333-4444-5555-6666-777777777777");
+        string canonicalCompareRunId = compareRunGuid.ToString("N");
+        string dashedCompareRunId = compareRunGuid.ToString("D");
+        const string runId = "deadbeefdeadbeefdeadbeefdeadbeef";
+
+        Mock<IRunExportRecordRepository> repo = new();
+        Mock<IAuditService> audit = new();
+        RunExportAuditService sut = new(repo.Object, audit.Object, NullLogger<RunExportAuditService>.Instance);
+
+        PersistedAnalysisExportRequest analysisRequest = new()
+        {
+            IncludeAgentResultCompare = true,
+            CompareRunId = dashedCompareRunId,
+        };
+
+        await sut.RecordAsync(
+            runId,
+            "analysis-report-docx",
+            "docx",
+            "report.docx",
+            null,
+            null,
+            false,
+            null,
+            null,
+            analysisRequest: analysisRequest,
+            emitArchitectureDocxExportGeneratedAudit: true,
+            cancellationToken: CancellationToken.None);
+
+        audit.Verify(
+            a => a.LogAsync(
+                It.Is<AuditEvent>(e =>
+                    e.EventType == AuditEventTypes.ArchitectureDocxExportGenerated &&
+                    e.DataJson.Contains($"\"compareWithRunId\":\"{canonicalCompareRunId}\"", StringComparison.Ordinal)),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+
+        repo.Verify(
+            r => r.CreateAsync(
+                It.Is<RunExportRecord>(record => record.CompareRunId == canonicalCompareRunId),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
     public async Task RecordAsync_trims_padded_compare_run_id_in_serialized_analysis_request()
     {
         Mock<IRunExportRecordRepository> repo = new();

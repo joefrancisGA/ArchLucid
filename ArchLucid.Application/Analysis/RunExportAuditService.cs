@@ -53,7 +53,13 @@ public sealed class RunExportAuditService(
         notes = PersistedAnalysisExportRequestMetadata.NormalizeOptionalString(notes);
         PersistedAnalysisExportRequestMetadata.TrimOptionalStrings(analysisRequest);
         if (analysisRequest is not null)
+        {
             PersistedAnalysisExportRequestDeterminismNormalizer.ClearIterationsWhenCheckDisabled(analysisRequest);
+
+            if (!string.IsNullOrWhiteSpace(analysisRequest.CompareRunId))
+                analysisRequest.CompareRunId =
+                    AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(analysisRequest.CompareRunId);
+        }
 
         RunExportRecord record = new()
         {
