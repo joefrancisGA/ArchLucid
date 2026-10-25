@@ -147,6 +147,13 @@ function filterQuestions(questions: readonly SecureNowQuestion[], filter: QueueF
   });
 }
 
+function queueFilterHasRows(
+  questions: readonly SecureNowQuestion[],
+  queueFilter: QueueFilter,
+): boolean {
+  return filterQuestions(questions, queueFilter).length > 0;
+}
+
 function findInferredConnection(
   question: SecureNowQuestion,
   connections: readonly OperatorInferredConnectionRow[],
@@ -226,10 +233,18 @@ export function SecureNowQuestionQueueProvider(
       // Snapshot navigation can leave older requests in flight; only the newest request owns queue state.
       if (requestSequence !== loadSequence.current) return;
 
-      setQuestions(questionsResult.value);
+      const loadedQuestions = questionsResult.value;
+      setQuestions(loadedQuestions);
       setQuestionsLoaded(true);
       setSessionSkippedQuestionKeys(new Set());
       setVisitedQuestionKeys(new Set());
+      setFilter((currentFilter) => {
+        if (queueFilterHasRows(loadedQuestions, currentFilter)) {
+          return currentFilter;
+        }
+
+        return secureNowQuestionQueueInitialReviewFilter(loadedQuestions);
+      });
       if (connectionsResult.status === "fulfilled") {
         setInferredConnections(connectionsResult.value);
       } else {

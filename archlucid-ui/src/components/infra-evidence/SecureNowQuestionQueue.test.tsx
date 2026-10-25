@@ -1302,6 +1302,31 @@ describe("SecureNowQuestionQueue", () => {
     expect(screen.getByRole("button", { name: "Reopen" })).toBeInTheDocument();
   });
 
+  it("routes to answered when open filter empties after saving an answer", async () => {
+    const answeredRow = {
+      ...question,
+      status: "Answered",
+      answerCode: "NamePeer",
+      answerText: "Name the peer",
+      reason: "Operator selected the peer.",
+    };
+
+    mocks.listQuestions
+      .mockResolvedValueOnce([question, answeredRow])
+      .mockResolvedValueOnce([answeredRow]);
+
+    render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
+    fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
+    fireEvent.click(screen.getByRole("button", { name: "Name the peer" }));
+    fireEvent.click(screen.getByRole("button", { name: "Save answer" }));
+
+    await waitFor(() => expect(mocks.listQuestions).toHaveBeenCalledTimes(2));
+
+    expect(screen.getByTestId("infra-diagrams-question-disposition-status")).toHaveTextContent("Answered");
+    expect(screen.getByTestId("infra-diagrams-question-answer")).toHaveTextContent("Name the peer");
+    expect(screen.queryByText("No questions match this filter.")).not.toBeInTheDocument();
+  });
+
   it("resets ignore chrome after the queue reloads", async () => {
     const secondQuestion = {
       ...question,
