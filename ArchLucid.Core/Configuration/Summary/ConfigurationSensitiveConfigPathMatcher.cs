@@ -202,6 +202,7 @@ internal static class ConfigurationSensitiveConfigPathMatcher
     private static bool IsExplicitCredentialConfigSegment(ReadOnlySpan<char> segment)
     {
         return segment.Equals("ClientSecret", StringComparison.OrdinalIgnoreCase)
+            || segment.Equals("Pwd", StringComparison.OrdinalIgnoreCase)
             || segment.Equals("PrimaryKey", StringComparison.OrdinalIgnoreCase)
             || segment.Equals("SecondaryKey", StringComparison.OrdinalIgnoreCase)
             || segment.Equals("AccountKey", StringComparison.OrdinalIgnoreCase)
