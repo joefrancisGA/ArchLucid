@@ -6868,6 +6868,20 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-25 seed hunt (seed→hit): proved hunt 289 canonicalized caller run ids before child repository calls but `RunDetailQueryService` still queried agent results with a single lowercase `N` key, so in-memory rows whose persisted `RunId` used legacy uppercase hex were omitted from rollup and full detail loads (breaking end-to-end replay agent diffs among other paths); reuse `AnalysisRunIdCanonicalization.EnumerateRunIdRepositoryLookupKeys` in `LoadAgentResultsForRunLookupAsync`; regression `CompareQuality_GetRunDetailForRollupAsync_loads_results_when_stored_run_id_differs_only_by_casing`; cheap-disproof closed architecture-analysis compare fallback when detail omits results (hunt 293), Lane B compose trace/evidence casing (hunt 292), run-detail child lookup caller casing (hunt 289), SQL run export list-by-run casing (hunt 287), batch zip manifest echo (cosmetic); seeded five follow-on rows; scoped application-analysis + replay filter 395/395. Private beta: run detail and compare rollups surface agent results when persisted result rows use run anchors that differ only by hex letter casing from the canonical lookup key.
+
+- [ ] (candidate) `ComparisonRecordRepository.GetByRunIdAsync` — SQL list-by-run dashed stored — locus: UNIQUEIDENTIFIER column; input: already matches N/D lookup via guid param.
+- [ ] (candidate) `ComparisonRecordRepositoryCore.SerializeTagsForUpdate` — JSON tag order — locus: cosmetic; input: defer.
+- [ ] (candidate) `ComparisonRecordSearchPredicateBuilder` — notes column search — locus: no notes filter today; input: defer.
+- [ ] (candidate) `ApiPaging.TryParseUtcTicksIdCursor` — cursor id segment without trim — locus: HTTP cursor parse; input: padded id after ticks delimiter (alerts inbox and other API surfaces).
+- [ ] (candidate) `ComparisonBatchReplayZipSupport` — manifest failure entries echo pre-trim batch tokens — locus: zip manifest; input: cosmetic id echo only.
+
+- [x] (proven) `RunDetailQueryService` — stored agent-result `RunId` casing — **hit 2026-10-25 seed hunt:** alternate lookup keys; regression above.
+- [x] (valid-no-repro) `ArchitectureAnalysisService.BuildAsync` — compare-run agent results when detail omits results — **cheap-disproof 2026-10-25 seed hunt:** hunt 293.
+- [x] (valid-no-repro) `RunDetailQueryService.GetRunDetailForRollupAsync` — caller run id casing — **cheap-disproof 2026-10-25 seed hunt:** hunt 289 fixed header path; stored row casing was the gap.
+- [x] (invalid) `ApiPaging.TryParseUtcTicksIdCursor` — HTTP cursor id trim — **cheap-disproof 2026-10-25 seed hunt:** comparison search normalizes at application layer.
+- [x] (invalid) `ComparisonBatchReplayZipSupport` — manifest id echo — **cheap-disproof 2026-10-25 seed hunt:** cosmetic only.
+
 2026-10-25 seed hunt (seed→hit): proved `ArchitectureAnalysisService.BuildAsync` agent-result compare fell back to `TryLoadAgentResultsAsync` when the primary preloaded detail omitted results but always passed `compareDetail.Results` through even when empty, so compare diffs were one-sided when run detail omitted the compare slice; mirror the primary fallback for the compare run id; regression `CompareQuality_BuildAsync_loads_compare_agent_results_when_run_detail_omits_results_for_agent_compare`; null-guard repository lists during alternate run-id key retries; cheap-disproof closed Lane B compose trace/evidence casing (hunt 292), architecture-analysis evidence/trace casing (hunt 291), run-detail Lane B invoke casing (hunt 290), SQL run export list-by-run casing (hunt 287), batch zip manifest echo (cosmetic); seeded five follow-on rows; scoped application-analysis + replay filter 394/394. Private beta: architecture analysis agent-result compare hydrates the compare run from persisted results when run detail returns an empty results list.
 
 - [ ] (candidate) `ComparisonRecordRepository.GetByRunIdAsync` — SQL list-by-run dashed stored — locus: UNIQUEIDENTIFIER column; input: already matches N/D lookup via guid param.
