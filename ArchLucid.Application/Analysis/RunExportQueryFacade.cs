@@ -298,6 +298,14 @@ public sealed class RunExportQueryFacade(
         if (!string.IsNullOrWhiteSpace(result.RecordedReplayExportRecordId))
             result.RecordedReplayExportRecordId =
                 RunExportRecordIdNormalizer.NormalizeRequired(result.RecordedReplayExportRecordId);
+
+        result.ExportType = result.ExportType.Trim();
+        result.Format = result.Format.Trim();
+        result.FileName = result.FileName.Trim();
+        result.TemplateProfile = PersistedAnalysisExportRequestMetadata.NormalizeOptionalString(result.TemplateProfile);
+        result.TemplateProfileDisplayName =
+            PersistedAnalysisExportRequestMetadata.NormalizeOptionalString(result.TemplateProfileDisplayName);
+        result.ResolutionReason = PersistedAnalysisExportRequestMetadata.NormalizeOptionalString(result.ResolutionReason);
     }
 
     private async Task<(ExportRecordLoadOutcome Outcome, RunExportRecord? Left, RunExportRecord? Right, string? MissingId)> LoadPairAsync(

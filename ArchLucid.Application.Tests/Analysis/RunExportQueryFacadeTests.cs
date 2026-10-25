@@ -868,6 +868,74 @@ public sealed class RunExportQueryFacadeTests
     }
 
     [Fact]
+    public async Task CompareQuality_ReplayExportAsync_trims_padded_export_type_format_and_template_on_replay_result()
+    {
+        const string canonicalSourceExportId = "source-export-replay-metadata";
+        Guid runGuid = Guid.Parse(RunId);
+        ArchitectureRunDetail scopedDetail = CreateScopedRunDetail();
+        RunDetailDto authorityDetail = CreateAuthorityDetailWithCompleteLifecycle(runGuid);
+
+        Mock<IRunDetailQueryService> runDetails = new();
+        runDetails
+            .Setup(r => r.GetRunDetailAsync(RunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(scopedDetail);
+
+        Mock<IRunExportRecordRepository> exportRecords = new();
+        exportRecords
+            .Setup(r => r.GetByIdAsync(canonicalSourceExportId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(CreateExportRecord(canonicalSourceExportId));
+
+        ArchLucid.Decisioning.Services.ManifestHashService manifestHashService = new();
+        Mock<IAuthorityQueryService> authority = new();
+        SealedExportReceiptTestSupport.ConfigureVerifiedSealedExport(authority, runGuid, manifestHashService);
+        authority
+            .Setup(a => a.GetRunDetailAsync(It.IsAny<ScopeContext>(), runGuid, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(authorityDetail);
+
+        Mock<IExportReplayService> exportReplay = new();
+        exportReplay
+            .Setup(r => r.ReplayAsync(It.IsAny<ReplayExportRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ReplayExportResult
+            {
+                ExportRecordId = canonicalSourceExportId,
+                RunId = RunId,
+                ExportType = "  analysis-report-docx  ",
+                Format = "  docx  ",
+                FileName = "  replay.docx  ",
+                TemplateProfile = "  sponsor  ",
+                Content = [1],
+            });
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(new ScopeContext());
+
+        RunExportQueryFacade sut = new(
+            runDetails.Object,
+            exportRecords.Object,
+            Mock.Of<IComparisonAuditService>(),
+            exportReplay.Object,
+            Mock.Of<IExportRecordDiffService>(),
+            Mock.Of<IExportRecordDiffSummaryFormatter>(),
+            Mock.Of<IAuditService>(),
+            Mock.Of<IRunExportLineageVerifier>(),
+            authority.Object,
+            manifestHashService,
+            scopeProvider.Object,
+            Mock.Of<IRunExportCareerPostureGate>());
+
+        ExportReplayQueryResult result = await sut.ReplayExportAsync(
+            canonicalSourceExportId,
+            new ReplayExportRequest { ExportRecordId = canonicalSourceExportId },
+            CancellationToken.None);
+
+        result.Outcome.Should().Be(ExportRecordLoadOutcome.Success);
+        result.Replay!.ExportType.Should().Be("analysis-report-docx");
+        result.Replay.Format.Should().Be("docx");
+        result.Replay.FileName.Should().Be("replay.docx");
+        result.Replay.TemplateProfile.Should().Be("sponsor");
+    }
+
+    [Fact]
     public async Task CompareQuality_ReplayExportAsync_returns_lineage_unverified_when_lifecycle_incomplete_before_career_gate()
     {
         Guid runGuid = Guid.Parse(RunId);
