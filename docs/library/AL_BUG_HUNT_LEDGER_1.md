@@ -6868,6 +6868,20 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-25 seed hunt (seed→hit): proved hunts 292–296 retried run-detail child lookups but `CareerExportCoverageHonestyMaterialLoader` (export replay career gate) still called `GetByRunIdAsync` for execution traces with a single canonical key, so in-memory traces whose persisted `RunId` used legacy uppercase hex skipped recorded quality-gate resolution; centralize trace retry in `AnalysisRunIdCanonicalization.LoadExecutionTracesByRunIdAsync` and route architecture analysis + career honesty through it; regression `CompareQuality_LoadAsync_resolves_recorded_quality_gate_when_trace_run_id_differs_only_by_casing`; cheap-disproof closed agent task stored `RunId` casing (hunt 296), trace LLM cost stored `RunId` casing (hunt 295), stored agent-result `RunId` casing (hunt 294), run-detail child lookup caller casing (hunt 289), batch zip manifest echo (cosmetic); seeded five follow-on rows; scoped application-analysis + replay filter 398/398. Private beta: export replay career gates read recorded agent quality-gate mode when execution traces use run anchors that differ only by hex letter casing from the canonical lookup key.
+
+- [ ] (candidate) `ComparisonRecordRepository.GetByRunIdAsync` — SQL list-by-run dashed stored — locus: UNIQUEIDENTIFIER column; input: already matches N/D lookup via guid param.
+- [ ] (candidate) `ComparisonRecordRepositoryCore.SerializeTagsForUpdate` — JSON tag order — locus: cosmetic; input: defer.
+- [ ] (candidate) `ComparisonRecordSearchPredicateBuilder` — notes column search — locus: no notes filter today; input: defer.
+- [ ] (candidate) `ApiPaging.TryParseUtcTicksIdCursor` — cursor id segment without trim — locus: HTTP cursor parse; input: padded id after ticks delimiter (alerts inbox and other API surfaces).
+- [ ] (candidate) `ComparisonBatchReplayZipSupport` — manifest failure entries echo pre-trim batch tokens — locus: zip manifest; input: cosmetic id echo only.
+
+- [x] (proven) `CareerExportCoverageHonestyMaterialLoader` — execution trace stored `RunId` casing — **hit 2026-10-25 seed hunt:** shared `LoadExecutionTracesByRunIdAsync`; regression above.
+- [x] (valid-no-repro) `RunDetailQueryService.LoadRunDetailAsync` — agent task stored `RunId` casing — **cheap-disproof 2026-10-25 seed hunt:** hunt 296.
+- [x] (valid-no-repro) `ArchitectureAnalysisService.TryLoadExecutionTracesAsync` — trace run id casing — **cheap-disproof 2026-10-25 seed hunt:** consolidated to shared helper in this hunt.
+- [x] (invalid) `ApiPaging.TryParseUtcTicksIdCursor` — HTTP cursor id trim — **cheap-disproof 2026-10-25 seed hunt:** comparison search normalizes at application layer.
+- [x] (invalid) `ComparisonBatchReplayZipSupport` — manifest id echo — **cheap-disproof 2026-10-25 seed hunt:** cosmetic only.
+
 2026-10-25 seed hunt (seed→hit): proved hunts 294–295 retried agent-result and trace cost lookups but `LoadRunDetailAsync` still queried `IAgentTaskRepository.GetByRunIdAsync` with a single canonical key, so in-memory agent tasks whose persisted `RunId` used legacy uppercase hex were omitted from the `Tasks` slice; reuse `EnumerateRunIdRepositoryLookupKeys` in `LoadAgentTasksForRunLookupAsync`; regression `CompareQuality_GetRunDetailAsync_loads_tasks_when_stored_run_id_differs_only_by_casing`; cheap-disproof closed trace LLM cost stored `RunId` casing (hunt 295), stored agent-result `RunId` casing (hunt 294), architecture-analysis compare fallback when detail omits results (hunt 293), Lane B compose trace/evidence casing (hunt 292), batch zip manifest echo (cosmetic); seeded five follow-on rows; scoped application-analysis + replay filter 397/397. Private beta: run detail lists agent tasks when persisted task rows use run anchors that differ only by hex letter casing from the canonical lookup key.
 
 - [ ] (candidate) `ComparisonRecordRepository.GetByRunIdAsync` — SQL list-by-run dashed stored — locus: UNIQUEIDENTIFIER column; input: already matches N/D lookup via guid param.
