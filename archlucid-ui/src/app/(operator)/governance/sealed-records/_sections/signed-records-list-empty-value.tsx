@@ -1,7 +1,10 @@
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
-import { SIGNED_RECORDS_LIST_VERSION_UNKNOWN } from "./signed-records-list-copy";
+import {
+  SIGNED_RECORDS_LIST_VERSION_NOT_STORED_SCREEN_READER,
+  SIGNED_RECORDS_LIST_VERSION_UNKNOWN,
+} from "./signed-records-list-copy";
 
 export type SignedRecordsListEmptyValueProps = {
   readonly fieldLabel: string;
@@ -12,7 +15,7 @@ export function SignedRecordsListEmptyValue(props: SignedRecordsListEmptyValuePr
   return (
     <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
       <span aria-hidden="true">{SIGNED_RECORDS_LIST_VERSION_UNKNOWN}</span>
-      <span className="sr-only">{`${props.fieldLabel} not available`}</span>
+      <span className="sr-only">{SIGNED_RECORDS_LIST_VERSION_NOT_STORED_SCREEN_READER}</span>
     </span>
   );
 }

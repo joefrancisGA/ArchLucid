@@ -15262,7 +15262,6 @@ heap-disproved mermaid typed-topology candidate.
 - [ ] (candidate) `InMemoryValueReportJobQueue.TryPoll` — unknown phase maps to failed without local — locus: deserialize; input: bogus phase; wrong outcome: hunt #75.
 - [ ] (candidate) `InMemoryValueReportJobQueue.TryPoll` — authoritative distributed failed over pending — locus: merge; input: peer terminal; wrong outcome: hunt #76.
 - [ ] (candidate) `AzureBlobCollectionRunArtifactReader.ListManifestsAsync` — storage error partial list — locus: catch; input: 503; wrong outcome: intentional.
-- [ ] (candidate) `ApiRequestUsageEventBatchFlushHostedService.StopAsync` — cancel tail requeue — locus: snapshot; input: OCE; wrong outcome: hunt #96.
 
 
 2026-10-09 seed hunt (seed→hit): failed usage flush returned events through `Enqueue`, which drops them when metering is disabled. Already-accepted events now use `Requeue`. Regression `StopAsync_keeps_dequeued_usage_events_when_persist_fails_after_metering_disabled` failed first.

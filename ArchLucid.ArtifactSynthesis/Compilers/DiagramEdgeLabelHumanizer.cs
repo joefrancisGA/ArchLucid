@@ -590,7 +590,7 @@ internal static class DiagramEdgeLabelHumanizer
         if (string.Equals(value, GraphEdgeInferenceSources.InventoryFirewallSubnet, StringComparison.OrdinalIgnoreCase)
             || string.Equals(value, AzureInventoryRelationshipAssociationTypes.FirewallToSubnet, StringComparison.OrdinalIgnoreCase))
         {
-            humanized = "protects";
+            humanized = "Firewall is associated with the subnet. Protection was not observed.";
 
             return true;
         }
@@ -661,7 +661,7 @@ internal static class DiagramEdgeLabelHumanizer
 
         if (string.Equals(value, GraphEdgeTypes.UsesIdentity, StringComparison.OrdinalIgnoreCase))
         {
-            humanized = "uses";
+            humanized = "Identity is assigned. Use of that identity was not stored.";
 
             return true;
         }
@@ -703,7 +703,7 @@ internal static class DiagramEdgeLabelHumanizer
 
         if (string.Equals(value, GraphEdgeTypes.CanAssume, StringComparison.OrdinalIgnoreCase))
         {
-            humanized = "can assume";
+            humanized = "May assume this identity. An assumption was not observed.";
 
             return true;
         }

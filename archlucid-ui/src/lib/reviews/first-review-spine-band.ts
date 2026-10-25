@@ -31,6 +31,7 @@ export type FirstReviewSpineBandSummary = {
   readonly uncitedCount: number;
   readonly evidenceReferenceCountNotStored: boolean;
   readonly topFindingTitle: string | null;
+  readonly topFindingId: string | null;
   readonly showTopFindingRow: boolean;
   readonly topFindingPolicyMapped: boolean;
   readonly topFindingSeverityLabel: string | null;
@@ -190,6 +191,7 @@ export function deriveFirstReviewSpineBandSummary(input: {
     uncitedCount,
     evidenceReferenceCountNotStored,
     topFindingTitle: topFinding !== null ? resolveTopFindingTitleForSpine(topFinding) : null,
+    topFindingId: topFinding !== null ? topFinding.findingId : null,
     showTopFindingRow: topFinding !== null,
     topFindingPolicyMapped: typeof topFinding?.policyRuleId === "string" && topFinding.policyRuleId.trim().length > 0,
     topFindingSeverityLabel:

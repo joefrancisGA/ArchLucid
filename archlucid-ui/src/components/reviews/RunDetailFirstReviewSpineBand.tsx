@@ -105,26 +105,16 @@ export function RunDetailFirstReviewSpineBand(props: RunDetailFirstReviewSpineBa
           data-testid="run-detail-first-review-spine-disposition-next-action"
         >
           Record dispositions on open decision-grade findings before sponsor send.{" "}
-          <Link
-            href="/governance/findings"
-            className={OPERATOR_LINK.inline}
-            data-testid="run-detail-first-review-spine-disposition-queue-link"
-          >
-            Open governance queue
-          </Link>
           {props.runId !== null && props.runId !== undefined && props.runId.trim().length > 0 ? (
-            <>
-              {" · "}
-              <Link
-                href={`/architecture/reviews/${encodeURIComponent(props.runId.trim())}?tab=findings`}
-                className={OPERATOR_LINK.inline}
-                data-testid="run-detail-first-review-spine-disposition-findings-link"
-              >
-                Review findings
-              </Link>
-            </>
+            <Link
+              href={`/architecture/reviews/${encodeURIComponent(props.runId.trim())}?tab=findings`}
+              className={OPERATOR_LINK.inline}
+              data-testid="run-detail-first-review-spine-disposition-findings-link"
+            >
+              Open this review&apos;s findings
+            </Link>
           ) : (
-            <> Review id was not stored.</>
+            <>Review id was not stored.</>
           )}
         </p>
       ) : null}
@@ -135,7 +125,24 @@ export function RunDetailFirstReviewSpineBand(props: RunDetailFirstReviewSpineBa
             {summary.topFindingPolicyMapped ? "Top policy-mapped finding:" : "Top finding:"}
           </span>{" "}
           {summary.topFindingSeverityLabel !== null ? `[${summary.topFindingSeverityLabel}] ` : ""}
-          {summary.topFindingTitle}
+          {props.runId !== null
+            && props.runId !== undefined
+            && props.runId.trim().length > 0
+            && summary.topFindingId !== null
+            && summary.topFindingId.trim().length > 0
+            && summary.topFindingTitle !== null
+            && !summary.topFindingTitle.endsWith("was not stored.")
+            && !summary.topFindingTitle.endsWith("was stored empty.") ? (
+            <Link
+              href={`/architecture/reviews/${encodeURIComponent(props.runId.trim())}/findings/${encodeURIComponent(summary.topFindingId.trim())}`}
+              className={OPERATOR_LINK.inline}
+              data-testid="run-detail-first-review-spine-top-finding-link"
+            >
+              {summary.topFindingTitle}
+            </Link>
+          ) : (
+            summary.topFindingTitle
+          )}
         </p>
       ) : null}
 

@@ -9,9 +9,9 @@ export type SecureNowQuestion = {
   readonly source: string | null;
   readonly scopeKind: string | null;
   readonly status: string | null;
-  readonly questionText: string;
+  readonly questionText: string | null;
   readonly resourceType: string;
-  readonly resourceName: string;
+  readonly resourceName: string | null;
   readonly reasonText: string;
   readonly sourceLine: string;
   readonly answerCodes: readonly string[] | null;
@@ -47,8 +47,16 @@ function stringOrDefault(value: unknown, fallback = ""): string {
   return typeof value === "string" ? value : fallback;
 }
 
+function optionalStringField(value: unknown): string | null {
+  if (value === null || value === undefined) {
+    return null;
+  }
+
+  return typeof value === "string" ? value : null;
+}
+
 function mapQuestion(raw: Record<string, unknown>): SecureNowQuestion {
-  const questionText = stringOrDefault(raw.questionText).trim();
+  const questionText = optionalStringField(raw.questionText);
 
   return {
     dispositionId: typeof raw.dispositionId === "string" ? raw.dispositionId : null,
@@ -63,15 +71,13 @@ function mapQuestion(raw: Record<string, unknown>): SecureNowQuestion {
     source: typeof raw.source === "string" ? raw.source : null,
     scopeKind: typeof raw.scopeKind === "string" ? raw.scopeKind : null,
     status: typeof raw.status === "string" ? raw.status : null,
-    questionText: questionText.length > 0 ? questionText : "Question text was not stored",
+    questionText,
     resourceType: stringOrDefault(raw.resourceType),
-    resourceName: stringOrDefault(raw.resourceName),
+    resourceName: optionalStringField(raw.resourceName),
     reasonText: stringOrDefault(raw.reasonText),
     sourceLine: stringOrDefault(raw.sourceLine),
     answerCodes: Array.isArray(raw.answerCodes)
-      ? raw.answerCodes.filter(
-          (value): value is string => typeof value === "string" && value.trim().length > 0,
-        )
+      ? raw.answerCodes.filter((value): value is string => typeof value === "string")
       : null,
     evidenceFingerprint: stringOrDefault(raw.evidenceFingerprint),
     expirationUtc: typeof raw.expirationUtc === "string" ? raw.expirationUtc : null,
