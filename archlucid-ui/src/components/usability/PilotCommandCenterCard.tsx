@@ -117,6 +117,10 @@ export function PilotCommandCenterCard(props: PilotCommandCenterCardProps = {}):
     workspaceActivity.openFindingsCount,
     workspaceMetrics?.openFindings ?? 0,
   );
+  const openFindingsCountForNextAction: number | null =
+    runsDashboard === undefined && useSsrSeedCounts && props.openFindingsCount === undefined
+      ? null
+      : openFindingsCount;
   const governanceWarningsCount = Math.max(
     useSsrSeedCounts ? props.governanceWarningsCount ?? 0 : 0,
     workspaceMetrics?.governanceWarnings ?? 0,
@@ -234,7 +238,7 @@ export function PilotCommandCenterCard(props: PilotCommandCenterCardProps = {}):
     }
 
     return resolvePilotNextBestAction(commitQuery.data, hasCommittedArchitectureReview, {
-      openFindingsCount,
+      openFindingsCount: openFindingsCountForNextAction,
       hasWorkspaceReviews,
     });
   }, [
@@ -243,7 +247,7 @@ export function PilotCommandCenterCard(props: PilotCommandCenterCardProps = {}):
     commitQuery.data,
     hasCommittedArchitectureReview,
     hasWorkspaceReviews,
-    openFindingsCount,
+    openFindingsCountForNextAction,
     workspacePhase,
   ]);
 

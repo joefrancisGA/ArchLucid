@@ -30,6 +30,26 @@ public sealed partial class InMemoryValueReportJobQueue(
     private const string MissingCompletedDocumentErrorMessage =
         "Value report job completed but the document is unavailable — retry the async export.";
 
+    private static bool IsAuthoritativeDistributedTerminalFailure(JobEntry distributed) =>
+        distributed.Phase == JobPhase.Failed &&
+        !string.IsNullOrWhiteSpace(distributed.ErrorMessage) &&
+        !string.Equals(distributed.ErrorMessage, UnknownFailedJobErrorMessage, StringComparison.Ordinal);
+
+    private static JobEntry PreferDistributedPollState(JobEntry local, JobEntry distributed) =>
+        local.Phase switch
+        {
+            JobPhase.Pending when distributed is { Phase: JobPhase.Completed, Bytes: { Length: > 0 } } => distributed,
+            JobPhase.Pending when IsAuthoritativeDistributedTerminalFailure(distributed) => distributed,
+            JobPhase.Completed when distributed.Phase == JobPhase.Failed &&
+                                    local.Bytes is not { Length: > 0 } => distributed,
+            JobPhase.Completed when local.Bytes is not { Length: > 0 } &&
+                                    distributed.Phase == JobPhase.Pending => distributed,
+            JobPhase.Completed when local.Bytes is not { Length: > 0 } &&
+                                    distributed is { Phase: JobPhase.Completed, Bytes: { Length: > 0 } } => distributed,
+            JobPhase.Failed when distributed.Phase is JobPhase.Completed or JobPhase.Failed => distributed,
+            _ => local,
+        };
+
     private void PruneTerminalLocalJobs()
     {
         foreach (Guid jobId in _jobs.Keys.ToArray())
@@ -45,19 +65,22 @@ public sealed partial class InMemoryValueReportJobQueue(
     public ValueReportJobPollResult TryPoll(Guid jobId, Guid scopedTenantId)
     {
         _jobs.TryGetValue(jobId, out JobEntry? entry);
-        JobEntry? distributed = TryReadDistributedState(jobId);
+        DistributedStateReadResult distributedRead = TryReadDistributedState(jobId);
+        JobEntry? distributed = distributedRead.Entry;
 
         if (entry is null)
         {
+            if (distributedRead.CorruptPayload)
+                return new ValueReportJobPollResult(true, false, null, null, UnknownFailedJobErrorMessage);
+
             entry = distributed;
 
             if (entry is null)
                 return new ValueReportJobPollResult(false, false, null, null, null);
         }
-        else if (entry.Phase == JobPhase.Pending &&
-                 distributed is { Phase: JobPhase.Completed or JobPhase.Failed })
+        else if (distributed is not null)
         {
-            entry = distributed;
+            entry = PreferDistributedPollState(entry, distributed);
         }
 
         if (entry.Request.TenantId != scopedTenantId)

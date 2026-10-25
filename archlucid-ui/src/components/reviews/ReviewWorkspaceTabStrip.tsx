@@ -24,6 +24,7 @@ export type ReviewWorkspaceTabCounts = {
   readonly findings?: number | null;
   readonly evidence?: number | null;
   readonly decisionsRemediation?: number | null;
+  readonly decisionsRemediationHonestyLabel?: string | null;
   readonly architecture?: number | null;
 };
 
@@ -75,6 +76,19 @@ function countForTab(
 
   if (tabId === "architecture") {
     return tabCountBadge(counts.architecture, tabId);
+  }
+
+  return null;
+}
+
+function honestyLabelForTab(
+  tabId: ReviewDetailTabId,
+  counts: ReviewWorkspaceTabCounts,
+): string | null {
+  if (tabId === "decisions-remediation") {
+    const label = counts.decisionsRemediationHonestyLabel?.trim() ?? "";
+
+    return label.length > 0 ? label : null;
   }
 
   return null;
@@ -136,6 +150,7 @@ function renderTabTrigger(
   counts: ReviewWorkspaceTabCounts,
 ): React.JSX.Element {
   const count = countForTab(tabId, counts);
+  const honestyLabel = honestyLabelForTab(tabId, counts);
 
   return (
     <TabsTrigger
@@ -153,7 +168,17 @@ function renderTabTrigger(
           />
         ) : null}
       </span>
-      {count !== null ? (
+      {honestyLabel !== null ? (
+        <span
+          className={cn(
+            "ml-2 inline-flex max-w-[12rem] items-center justify-center rounded-full bg-neutral-200 px-1.5 py-0.5 font-semibold text-neutral-700 dark:bg-neutral-800 dark:text-neutral-200",
+            OPERATOR_TYPOGRAPHY.micro,
+          )}
+          data-testid="architecture-workspace-clarifications-count-honesty"
+        >
+          {honestyLabel}
+        </span>
+      ) : count !== null ? (
         <span
           className={cn(
             "ml-2 inline-flex min-w-[1.25rem] items-center justify-center rounded-full bg-neutral-200 px-1.5 py-0.5 font-semibold text-neutral-700 dark:bg-neutral-800 dark:text-neutral-200",

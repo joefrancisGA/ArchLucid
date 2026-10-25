@@ -78,14 +78,17 @@ public sealed class LlmTenantWalletRefillStage(
             if (!CanAutoRefill(state))
                 return false;
 
-            if (string.IsNullOrWhiteSpace(state.StripeCustomerId) || string.IsNullOrWhiteSpace(state.StripePaymentMethodId))
+            string? stripeCustomerId = NormalizeOptionalStripeId(state.StripeCustomerId);
+            string? stripePaymentMethodId = NormalizeOptionalStripeId(state.StripePaymentMethodId);
+
+            if (string.IsNullOrWhiteSpace(stripeCustomerId) || string.IsNullOrWhiteSpace(stripePaymentMethodId))
                 return false;
 
             if (!await _stripeWalletPaymentIdentifierGuard
                     .AllowsWalletUpdateAsync(
                         tenantId,
-                        state.StripeCustomerId,
-                        state.StripePaymentMethodId,
+                        stripeCustomerId,
+                        stripePaymentMethodId,
                         cancellationToken)
                     .ConfigureAwait(false))
             {
@@ -107,12 +110,30 @@ public sealed class LlmTenantWalletRefillStage(
             StripeWalletChargeResult charge = await _stripeWalletGateway
                 .ChargeRefillAsync(
                     tenantId,
-                    state.StripeCustomerId,
-                    state.StripePaymentMethodId,
+                    stripeCustomerId,
+                    stripePaymentMethodId,
                     state.RefillIncrementUsd,
                     correlationId,
                     cancellationToken)
                 .ConfigureAwait(false);
+
+            if (charge.AwaitingPaymentCompletion && !string.IsNullOrWhiteSpace(charge.PaymentIntentId))
+            {
+                PendingRefillCredits[tenantId] = new(charge.PaymentIntentId, state.RefillIncrementUsd, correlationId);
+                _settlementQueue.EnqueueRefillCredit(
+                    tenantId,
+                    state.RefillIncrementUsd,
+                    correlationId,
+                    charge.PaymentIntentId);
+
+                _logger.LogInformation(
+                    "LLM wallet auto-refill deferred for tenant {TenantId}; awaiting Stripe payment intent {PaymentIntentId} ({Status}).",
+                    tenantId,
+                    charge.PaymentIntentId,
+                    charge.ErrorMessage);
+
+                return false;
+            }
 
             if (!charge.Succeeded || string.IsNullOrWhiteSpace(charge.PaymentIntentId))
             {
@@ -279,4 +300,7 @@ public sealed class LlmTenantWalletRefillStage(
     {
         ArchLucidInstrumentation.RecordLlmWalletBalanceUsd(tenantId, balanceUsd);
     }
+
+    private static string? NormalizeOptionalStripeId(string? value) =>
+        string.IsNullOrWhiteSpace(value) ? null : value.Trim();
 }

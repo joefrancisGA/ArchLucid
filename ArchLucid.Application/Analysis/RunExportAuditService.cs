@@ -33,6 +33,10 @@ public sealed class RunExportAuditService(
         ArgumentNullException.ThrowIfNull(exportType);
         ArgumentNullException.ThrowIfNull(format);
         ArgumentNullException.ThrowIfNull(fileName);
+        runId = runId.Trim();
+        exportType = exportType.Trim();
+        format = format.Trim();
+        fileName = fileName.Trim();
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
         ArgumentException.ThrowIfNullOrWhiteSpace(exportType);
         ArgumentException.ThrowIfNullOrWhiteSpace(format);

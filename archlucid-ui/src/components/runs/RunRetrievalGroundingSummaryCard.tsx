@@ -11,7 +11,8 @@ import { OPERATOR_TYPOGRAPHY, operatorConfidenceSurface, operatorSemanticSurface
 import { showError } from "@/lib/toast";
 import type { RunRetrievalGroundingSummary } from "@/types/authority";
 import {
-  formatRetrievalGroundingCount,
+  formatRetrievalRetrievedChunkCount,
+  formatRetrievalTraceRowCount,
   formatRetrievalGroundingRatioPercent,
   resolveRetrievalGroundingDispositionPresentation,
 } from "@/lib/runs/run-retrieval-grounding-summary-display";
@@ -62,10 +63,10 @@ export function RunRetrievalGroundingSummaryCard(props: {
       <CardContent className={cn("space-y-3 pt-0", OPERATOR_TYPOGRAPHY.body)}>
         <dl className="m-0 grid gap-1 sm:grid-cols-[minmax(8rem,auto)_1fr] sm:gap-x-4">
           <dt>Trace rows</dt>
-          <dd className="m-0 tabular-nums sm:justify-self-end">{formatRetrievalGroundingCount(summary.traceCount)}</dd>
+          <dd className="m-0 tabular-nums sm:justify-self-end">{formatRetrievalTraceRowCount(summary.traceCount)}</dd>
           <dt>Retrieved chunks</dt>
           <dd className="m-0 tabular-nums sm:justify-self-end">
-            {formatRetrievalGroundingCount(summary.totalRetrievedChunks)}
+            {formatRetrievalRetrievedChunkCount(summary.totalRetrievedChunks)}
           </dd>
           <dt>Avg citation coverage</dt>
           <dd className="m-0 tabular-nums sm:justify-self-end">

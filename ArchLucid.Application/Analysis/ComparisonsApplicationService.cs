@@ -57,15 +57,28 @@ public sealed partial class ComparisonsApplicationService(
         string exportRecordId,
         CancellationToken ct)
     {
-        if (await LoadScopedExportRecordAsync(exportRecordId, ct) is null)
+        string normalizedExportRecordId = RunExportRecordIdNormalizer.NormalizeRequired(exportRecordId);
+        if (await LoadScopedExportRecordAsync(normalizedExportRecordId, ct) is null)
             return null;
 
-        return await _comparisonRecordRepository.GetByExportRecordIdAsync(exportRecordId, ct);
+        return await _comparisonRecordRepository.GetByExportRecordIdAsync(normalizedExportRecordId, ct);
     }
 
     /// <inheritdoc />
     public Task<ComparisonRecord?> TryGetScopedRecordAsync(string comparisonRecordId, CancellationToken ct) =>
         LoadScopedComparisonRecordAsync(comparisonRecordId, ct);
+
+    /// <inheritdoc />
+    public async Task<ComparisonRecord?> TryGetScopedRecordForArtifactReadAsync(string comparisonRecordId, CancellationToken ct)
+    {
+        ComparisonRecord? record = await LoadScopedComparisonRecordAsync(comparisonRecordId, ct);
+
+        if (record is null)
+            return null;
+
+        await _comparisonReplayService.EnsureArtifactReplayAccessAllowedAsync(record, ct);
+        return record;
+    }
 
     /// <inheritdoc />
     public async Task<ComparisonHistorySearchResult> SearchAsync(
@@ -79,6 +92,8 @@ public sealed partial class ComparisonsApplicationService(
         int limit = criteria.Limit <= 0 ? Core.Pagination.PaginationDefaults.DefaultPageSize : criteria.Limit;
         string? leftRunIdFilter = CanonicalRunIdForLookupOrNull(criteria.LeftRunId);
         string? rightRunIdFilter = CanonicalRunIdForLookupOrNull(criteria.RightRunId);
+        string? leftExportRecordIdFilter = NormalizeExportRecordIdFilterOrNull(criteria.LeftExportRecordId);
+        string? rightExportRecordIdFilter = NormalizeExportRecordIdFilterOrNull(criteria.RightExportRecordId);
 
         IReadOnlyList<ComparisonRecord> records;
 
@@ -90,8 +105,8 @@ public sealed partial class ComparisonsApplicationService(
                 rightRunIdFilter,
                 criteria.CreatedFromUtc,
                 criteria.CreatedToUtc,
-                criteria.LeftExportRecordId,
-                criteria.RightExportRecordId,
+                leftExportRecordIdFilter,
+                rightExportRecordIdFilter,
                 criteria.Label,
                 criteria.Tags.ToList(),
                 criteria.SortBy,
@@ -109,8 +124,8 @@ public sealed partial class ComparisonsApplicationService(
                 rightRunIdFilter,
                 criteria.CreatedFromUtc,
                 criteria.CreatedToUtc,
-                criteria.LeftExportRecordId,
-                criteria.RightExportRecordId,
+                leftExportRecordIdFilter,
+                rightExportRecordIdFilter,
                 criteria.Label,
                 criteria.Tags.ToList(),
                 criteria.SortBy,
@@ -160,7 +175,8 @@ public sealed partial class ComparisonsApplicationService(
         string exportRecordId,
         CancellationToken cancellationToken)
     {
-        RunExportRecord? export = await _runExportRecordRepository.GetByIdAsync(exportRecordId, cancellationToken);
+        string normalizedExportRecordId = RunExportRecordIdNormalizer.NormalizeRequired(exportRecordId);
+        RunExportRecord? export = await _runExportRecordRepository.GetByIdAsync(normalizedExportRecordId, cancellationToken);
 
         if (export is null)
             return null;
@@ -226,4 +242,9 @@ public sealed partial class ComparisonsApplicationService(
 
     private static string? CanonicalRunIdForLookupOrNull(string? runId) =>
         string.IsNullOrWhiteSpace(runId) ? runId : CanonicalRunIdForLookup(runId);
+
+    private static string? NormalizeExportRecordIdFilterOrNull(string? exportRecordId) =>
+        string.IsNullOrWhiteSpace(exportRecordId)
+            ? null
+            : RunExportRecordIdNormalizer.NormalizeRequired(exportRecordId);
 }

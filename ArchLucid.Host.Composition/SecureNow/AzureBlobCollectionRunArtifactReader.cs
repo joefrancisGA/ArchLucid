@@ -66,7 +66,11 @@ public sealed class AzureBlobCollectionRunArtifactReader(
         {
             await package.DownloadToAsync(bytes, cancellationToken);
         }
-        catch (RequestFailedException)
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
+        catch (Exception)
         {
             return null;
         }

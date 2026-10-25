@@ -7,14 +7,14 @@ export function formatRetrievalGroundingRatioPercent(
     const parsed = Number(value);
 
     if (!Number.isFinite(parsed)) {
-      return "Not recorded";
+      return "Average citation coverage was not stored.";
     }
 
     value = parsed;
   }
 
   if (typeof value !== "number" || !Number.isFinite(value)) {
-    return "Not recorded";
+    return "Average citation coverage was not stored.";
   }
 
   const pct = value > 0 && value <= 1 ? Math.round(value * 100) : Math.round(value);
@@ -22,12 +22,25 @@ export function formatRetrievalGroundingRatioPercent(
   return `${pct}%`;
 }
 
-export function formatRetrievalGroundingCount(value: number | null | undefined): string {
+export function formatRetrievalTraceRowCount(value: number | null | undefined): string {
   if (typeof value !== "number" || !Number.isFinite(value)) {
-    return "Not recorded";
+    return "Trace row count was not stored.";
   }
 
   return String(value);
+}
+
+export function formatRetrievalRetrievedChunkCount(value: number | null | undefined): string {
+  if (typeof value !== "number" || !Number.isFinite(value)) {
+    return "Retrieved chunk count was not stored.";
+  }
+
+  return String(value);
+}
+
+/** @deprecated Prefer formatRetrievalTraceRowCount or formatRetrievalRetrievedChunkCount for labeled copy. */
+export function formatRetrievalGroundingCount(value: number | null | undefined): string {
+  return formatRetrievalTraceRowCount(value);
 }
 
 export function resolveRetrievalGroundingDispositionPresentation(
