@@ -39,6 +39,24 @@ public sealed class ReplayComparisonExportsDiffSliceTests
         columnKey.Should().Be(jsonKey);
     }
 
+    [Fact]
+    public void BuildExportPairingKey_treats_column_and_json_template_profile_as_same_pairing_key()
+    {
+        RunExportRecord columnProfile = CreateExport(compareRunId: null);
+        columnProfile.TemplateProfile = "sponsor";
+        columnProfile.CompareManifestVersion = null;
+
+        RunExportRecord jsonProfile = CreateExport(compareRunId: null);
+        jsonProfile.TemplateProfile = null;
+        jsonProfile.CompareManifestVersion = null;
+        jsonProfile.AnalysisRequestJson = """{"templateProfile":"sponsor"}""";
+
+        string columnKey = ReplayComparisonExportsDiffSlice.BuildExportPairingKey(columnProfile);
+        string jsonKey = ReplayComparisonExportsDiffSlice.BuildExportPairingKey(jsonProfile);
+
+        columnKey.Should().Be(jsonKey);
+    }
+
     private static RunExportRecord CreateExport(string? compareRunId)
     {
         return new RunExportRecord
