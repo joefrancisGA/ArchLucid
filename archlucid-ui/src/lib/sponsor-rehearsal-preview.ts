@@ -53,8 +53,12 @@ export const SPONSOR_REHEARSAL_CAUTION =
 
 const EMPTY_SPONSOR =
   "No sponsor report or working sponsor synopsis is available yet for this review.";
+const FINDINGS_NOT_STORED =
+  "Findings list was not stored for this rehearsal preview.";
 const EMPTY_FINDINGS =
   "No key findings are available to paraphrase for a sponsor on this surface yet.";
+const RESIDUAL_RISKS_NOT_STORED =
+  "Residual-risk notes were not stored for this rehearsal preview.";
 const EMPTY_RESIDUAL =
   "No residual-risk notes were supplied with the findings available here.";
 const EXCLUDED_NOTES_NOT_STORED =
@@ -86,7 +90,11 @@ function buildSponsorReportBody(input: SponsorRehearsalPreviewInput): { body: st
 }
 
 function buildKeyFindingsBody(input: SponsorRehearsalPreviewInput): { body: string; isEmpty: boolean } {
-  const findings = input.findings ?? [];
+  if (input.findings === null || input.findings === undefined) {
+    return { body: FINDINGS_NOT_STORED, isEmpty: true };
+  }
+
+  const findings = input.findings;
 
   if (findings.length === 0) {
     return { body: EMPTY_FINDINGS, isEmpty: true };
@@ -124,6 +132,13 @@ function collectResidualLines(input: SponsorRehearsalPreviewInput): string[] {
 }
 
 function buildResidualRisksBody(input: SponsorRehearsalPreviewInput): { body: string; isEmpty: boolean } {
+  if (
+    (input.residualRiskNotes === null || input.residualRiskNotes === undefined)
+    && (input.findings === null || input.findings === undefined)
+  ) {
+    return { body: RESIDUAL_RISKS_NOT_STORED, isEmpty: true };
+  }
+
   const lines = collectResidualLines(input);
 
   if (lines.length === 0) {

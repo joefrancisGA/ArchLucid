@@ -1499,7 +1499,9 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
       </ArchitectureDiagramMermaidViewportFrame>
 
       <p id={`${renderId}-alt`} className="sr-only">
-        {props.textAlternative}
+        {props.textAlternative.trim().length > 0
+          ? props.textAlternative
+          : "Diagram text description was not stored."}
       </p>
 
       <Dialog open={fullscreenOpen} onOpenChange={setFullscreenOpen}>

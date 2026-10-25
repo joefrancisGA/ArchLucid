@@ -1,6 +1,8 @@
 using System.Text;
 
+using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Evidence;
+using ArchLucid.Application.Manifests;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Common;
@@ -62,8 +64,8 @@ public sealed class MarkdownManifestSummaryGenerator(IEvidenceSummaryFormatter e
         foreach (ManifestService service in services.OrderBy(s => s.ServiceName))
         {
             sb.AppendLine($"- **{service.ServiceName}**");
-            sb.AppendLine($"  - Type: {service.ServiceType}");
-            sb.AppendLine($"  - Platform: {service.RuntimePlatform}");
+            sb.AppendLine($"  - Type: {ArchitectureManifestTopologyExport.FormatServiceTypeForExport(service.ServiceType)}");
+            sb.AppendLine($"  - Platform: {ArchitectureManifestTopologyExport.FormatRuntimePlatformForExport(service.RuntimePlatform)}");
             if (!string.IsNullOrWhiteSpace(service.Purpose))
                 sb.AppendLine($"  - Purpose: {service.Purpose}");
             List<string> controls = service.RequiredControls;
@@ -86,12 +88,12 @@ public sealed class MarkdownManifestSummaryGenerator(IEvidenceSummaryFormatter e
         foreach (ManifestDatastore datastore in datastores.OrderBy(d => d.DatastoreName))
         {
             sb.AppendLine($"- **{datastore.DatastoreName}**");
-            sb.AppendLine($"  - Type: {datastore.DatastoreType}");
-            sb.AppendLine($"  - Platform: {datastore.RuntimePlatform}");
+            sb.AppendLine($"  - Type: {ArchitectureManifestTopologyExport.FormatDatastoreTypeForExport(datastore.DatastoreType)}");
+            sb.AppendLine($"  - Platform: {ArchitectureManifestTopologyExport.FormatRuntimePlatformForExport(datastore.RuntimePlatform)}");
             if (!string.IsNullOrWhiteSpace(datastore.Purpose))
                 sb.AppendLine($"  - Purpose: {datastore.Purpose}");
-            sb.AppendLine($"  - Private Endpoint Required: {(datastore.PrivateEndpointRequired ? "Yes" : "No")}");
-            sb.AppendLine($"  - Encryption At Rest Required: {(datastore.EncryptionAtRestRequired ? "Yes" : "No")}");
+            sb.AppendLine($"  - Private Endpoint Required: {ArchitectureManifestDatastoreExport.FormatPrivateEndpointRequiredForExport(datastore.PrivateEndpointRequired)}");
+            sb.AppendLine($"  - Encryption At Rest Required: {ArchitectureManifestDatastoreExport.FormatEncryptionAtRestRequiredForExport(datastore.EncryptionAtRestRequired)}");
         }
 
         sb.AppendLine();
@@ -123,8 +125,16 @@ public sealed class MarkdownManifestSummaryGenerator(IEvidenceSummaryFormatter e
         sb.AppendLine(tags.Count > 0 ? $"- Compliance Tags: {string.Join(", ", tags)}" : "- Compliance Tags: None recorded");
         List<string> constraints = governance?.PolicyConstraints ?? [];
         sb.AppendLine(constraints.Count > 0 ? $"- Policy Constraints: {string.Join(", ", constraints)}" : "- Policy Constraints: None recorded");
-        sb.AppendLine($"- Risk Classification: {governance?.RiskClassification}");
-        sb.AppendLine($"- Cost Classification: {governance?.CostClassification}");
+        if (governance is null)
+        {
+            sb.AppendLine($"- Risk Classification: {ArchitectureManifestGovernanceExport.RiskClassificationNotStoredLabel}");
+            sb.AppendLine($"- Cost Classification: {ArchitectureManifestGovernanceExport.CostClassificationNotStoredLabel}");
+        }
+        else
+        {
+            sb.AppendLine($"- Risk Classification: {ArchitectureManifestGovernanceExport.FormatRiskClassificationForExport(governance)}");
+            sb.AppendLine($"- Cost Classification: {ArchitectureManifestGovernanceExport.FormatCostClassificationForExport(governance)}");
+        }
         sb.AppendLine();
     }
 

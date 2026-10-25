@@ -18,6 +18,7 @@ import {
   formatDispositionHistoryActor,
   formatDispositionHistoryRationale,
   formatDispositionHistoryRecordedTime,
+  formatDispositionHistoryRevisitDue,
 } from "@/lib/findings/finding-disposition-history-display";
 import { cn } from "@/lib/utils";
 
@@ -120,6 +121,12 @@ export function FindingDispositionHistorySection(
             {formatDispositionHistoryRecordedTime(event.occurredAtUtc)}
             {" — "}
             {formatDispositionHistoryRationale(event.rationale)}
+            {event.disposition === "Deferred" ? (
+              <>
+                {" · "}
+                {formatDispositionHistoryRevisitDue(event.revisitDueUtc)}
+              </>
+            ) : null}
           </li>
         ))}
       </ul>

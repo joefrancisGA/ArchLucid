@@ -103,6 +103,7 @@ export type RunDetailFindingsWorkspaceProps = {
   readonly graphSnapshot?: unknown;
   readonly requestAssumptionTexts?: readonly string[];
   readonly withheldFindings?: readonly WithheldFindingRow[];
+  readonly withheldListLoadState?: string | null;
   readonly buyerSummaryOmitsAgentFindings?: boolean;
   readonly structuralExecutionMode?: StructuralExecutionModeInput;
   readonly onNavigateActivity?: () => void;
@@ -476,7 +477,11 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
         structuralExecutionMode={props.structuralExecutionMode}
         testId="run-detail-findings-simulator-rehearsal-caption"
       />
-      <FindingsWithheldBand runId={props.runId} withheld={props.withheldFindings ?? []} />
+      <FindingsWithheldBand
+        runId={props.runId}
+        withheld={props.withheldFindings ?? []}
+        withheldListLoadState={props.withheldListLoadState ?? null}
+      />
       <FindingMergeConflictListCue runId={props.runId} findings={props.findings} />
       {createHomeSurface && props.buyerPolishedShell !== true ? (
         <ArchitectureCreatedFindingsEvidenceOrientationStrip />
