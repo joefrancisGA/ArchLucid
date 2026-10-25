@@ -33,7 +33,11 @@ export type RunDetailEvidenceInventorySectionProps = {
   readonly pagePrimaryOwnedElsewhere?: boolean;
 };
 
-function formatIngestedLabel(iso: string): string {
+function formatIngestedLabel(iso: string | null): string {
+  if (iso === null || iso.trim().length === 0) {
+    return "Ingested time was not stored.";
+  }
+
   const formatted = formatInstantForLocale(iso);
 
   return formatted.length > 0 ? formatted : iso;
@@ -41,10 +45,10 @@ function formatIngestedLabel(iso: string): string {
 
 function formatCitingFindingsCount(count: number): string {
   if (count === 0) {
-    return "Not cited yet";
+    return "0 findings cite this source.";
   }
 
-  return count === 1 ? "1 finding" : `${count} findings`;
+  return count === 1 ? "1 finding cites this source." : `${count} findings cite this source.`;
 }
 
 function resolveCatalogContentType(

@@ -69,9 +69,14 @@ internal static class DiagramPrivateEndpointTargetAnnotator
                 continue;
             }
 
+            string? privateEndpointName = string.IsNullOrWhiteSpace(fromGraphNode.Label)
+                ? null
+                : fromGraphNode.Label.Trim();
+
             foreach (DiagramNode targetNode in targetNodes)
             {
                 targetNode.HasPrivateEndpointAccess = true;
+                targetNode.PrivateEndpointAccessName = privateEndpointName;
             }
 
             string? fromDiagramId = null;

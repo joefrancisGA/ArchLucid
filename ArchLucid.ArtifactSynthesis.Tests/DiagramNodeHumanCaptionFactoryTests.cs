@@ -94,6 +94,34 @@ public sealed class DiagramNodeHumanCaptionFactoryTests
     }
 
     [Fact]
+    public void TryFormatDataFlowTypeCaption_labels_unknown_site_kind_without_claiming_it_was_not_stored()
+    {
+        DiagramNode node = new()
+        {
+            NodeId = "site-1",
+            ArmResourceType = "Microsoft.Web/sites",
+            ArmResourceKind = "workflowapp",
+        };
+
+        DiagramNodeHumanCaptionFactory.TryFormatDataFlowTypeCaption(node).Should()
+            .Be("Site kind workflowapp has no reviewer label.");
+    }
+
+    [Fact]
+    public void TryFormatDataFlowTypeCaption_keeps_blank_site_kind_as_not_stored()
+    {
+        DiagramNode node = new()
+        {
+            NodeId = "site-1",
+            ArmResourceType = "Microsoft.Web/sites",
+            ArmResourceKind = "   ",
+        };
+
+        DiagramNodeHumanCaptionFactory.TryFormatDataFlowTypeCaption(node).Should()
+            .Be("Site kind was not stored.");
+    }
+
+    [Fact]
     public void Create_appends_not_classified_for_unknown_connection_state()
     {
         DiagramNode node = new()

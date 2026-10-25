@@ -55,7 +55,17 @@ export function resolveDependencyNeighborhoodSeedBlockedReason(input: {
     return null;
   }
 
-  const nodeCount = metrics.nodeCount ?? 0;
+  const nodeCount = metrics.nodeCount;
+
+  if (
+    renderResult.status === "Succeeded"
+    && (typeof nodeCount !== "number" || !Number.isFinite(nodeCount))
+  ) {
+    return {
+      title: "Node count was not stored.",
+      message: GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DEPENDENCY_SEED_EMPTY_BODY,
+    };
+  }
 
   if (renderResult.status === "Succeeded" && (mermaidEmpty || nodeCount === 0)) {
     return {

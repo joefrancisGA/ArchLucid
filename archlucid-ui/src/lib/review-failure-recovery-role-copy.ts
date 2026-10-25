@@ -11,6 +11,8 @@ import {
 
 export const REVIEW_FAILURE_ADMIN_CONFIGURATION_PATH = AI_MODELS_SETTINGS_CANONICAL_PATH;
 
+export const COMPLETED_STAGE_COUNT_NOT_STORED_LABEL = "Completed stage count was not stored." as const;
+
 export const REVIEW_FAILURE_AI_USAGE_CONFIGURATION_PATH = AI_USAGE_SETTINGS_PATH;
 
 export type WorkspaceAiRecoveryAudienceInput = {
@@ -46,7 +48,7 @@ export function isWorkspaceAiConfigurationFailure(context: WorkspaceAiFailureCon
   const triageScenarioId = normalizeKey(context.triageScenarioId);
   const failureClass = normalizeKey(context.failureClass);
   const legacyStatus = normalizeKey(context.legacyRunStatus);
-  const completedStages = context.completedStages ?? 0;
+  const completedStages = context.completedStages;
 
   if (
     triageScenarioId === "missingCredentials" ||
@@ -90,6 +92,18 @@ function customerAiConnectionUnavailableDetail(): string {
 export function resolveWorkspaceAiConfigurationSignal(
   context: WorkspaceAiFailureContext,
 ): WorkspaceAiConfigurationSignal | null {
+  const completedStagesHonesty = resolveReviewFailureCompletedStagesHonestyLabel(
+    context.legacyRunStatus,
+    context.completedStages,
+  );
+
+  if (completedStagesHonesty !== null) {
+    return {
+      label: "Review pipeline progress",
+      detail: completedStagesHonesty,
+    };
+  }
+
   if (!isWorkspaceAiConfigurationFailure(context)) {
     return null;
   }
@@ -140,7 +154,26 @@ export function resolveWorkspaceAiConfigurationSignal(
 }
 
 function legacyPreStageFailure(context: WorkspaceAiFailureContext): boolean {
-  return normalizeKey(context.legacyRunStatus) === "Failed" && (context.completedStages ?? 0) === 0;
+  return (
+    normalizeKey(context.legacyRunStatus) === "Failed"
+    && context.completedStages !== undefined
+    && context.completedStages === 0
+  );
+}
+
+export function resolveReviewFailureCompletedStagesHonestyLabel(
+  legacyStatus: string | null | undefined,
+  completedStages?: number,
+): string | null {
+  if (normalizeKey(legacyStatus) !== "Failed") {
+    return null;
+  }
+
+  if (completedStages === undefined) {
+    return COMPLETED_STAGE_COUNT_NOT_STORED_LABEL;
+  }
+
+  return null;
 }
 
 function operatorHandoffIntro(): string {

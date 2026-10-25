@@ -95,6 +95,85 @@ public sealed class PostAuthBootstrapServiceTests
     }
 
     [Fact]
+    public async Task CreateWorkspaceAsync_denies_when_data_region_not_in_supported_list()
+    {
+        Mock<IOptionsMonitor<TenantProvisioningOptions>> options = new();
+        options
+            .Setup(monitor => monitor.CurrentValue)
+            .Returns(new TenantProvisioningOptions { SupportedDataRegions = ["default"] });
+
+        Mock<ITenantProvisioningService> provisioning = new();
+        PostAuthBootstrapService sut = CreateSut(
+            new Mock<ITrialTenantBootstrapService>().Object,
+            provisioning.Object,
+            options.Object);
+
+        PostAuthCreateWorkspaceResult result = await sut.CreateWorkspaceAsync(
+            Guid.NewGuid(),
+            "new@example.com",
+            "new@example.com",
+            new PostAuthCreateWorkspaceRequest
+            {
+                WorkspaceName = "Region Workspace",
+                OrganizationName = "Region Org",
+                TermsAccepted = true,
+                DataRegion = "eastus",
+            },
+            CancellationToken.None);
+
+        Assert.False(result.Succeeded);
+        Assert.Contains("not in the supported list", result.CustomerMessage, StringComparison.OrdinalIgnoreCase);
+        provisioning.Verify(
+            service => service.ProvisionAsync(It.IsAny<TenantProvisioningRequest>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task CreateWorkspaceAsync_denies_when_industry_vertical_not_in_curated_list()
+    {
+        (PostAuthBootstrapService sut, Guid userId, _, _) = CreateSut();
+
+        PostAuthCreateWorkspaceResult result = await sut.CreateWorkspaceAsync(
+            userId,
+            "new@example.com",
+            "new@example.com",
+            new PostAuthCreateWorkspaceRequest
+            {
+                WorkspaceName = "Invalid Vertical Workspace",
+                OrganizationName = "Invalid Org",
+                TermsAccepted = true,
+                IndustryVertical = "Defense",
+            },
+            CancellationToken.None);
+
+        Assert.False(result.Succeeded);
+        Assert.Contains("curated list", result.CustomerMessage, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public async Task CreateWorkspaceAsync_denies_when_other_vertical_without_other_specification()
+    {
+        (PostAuthBootstrapService sut, Guid userId, _, _) = CreateSut();
+
+        PostAuthCreateWorkspaceResult result = await sut.CreateWorkspaceAsync(
+            userId,
+            "new@example.com",
+            "new@example.com",
+            new PostAuthCreateWorkspaceRequest
+            {
+                WorkspaceName = "Other Vertical Workspace",
+                OrganizationName = "Other Org",
+                TermsAccepted = true,
+                IndustryVertical = "Other",
+                IndustryVerticalOther = "   ",
+            },
+            CancellationToken.None);
+
+        Assert.False(result.Succeeded);
+        Assert.Contains("IndustryVerticalOther is required", result.CustomerMessage, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public async Task CreateWorkspaceAsync_denies_without_terms()
     {
         (PostAuthBootstrapService sut, Guid userId, _, _) = CreateSut();
@@ -186,7 +265,7 @@ public sealed class PostAuthBootstrapServiceTests
     [Fact]
     public async Task AcceptInvitationAsync_creates_membership_and_audits_on_success()
     {
-        (PostAuthBootstrapService sut, Guid userId, InMemoryWorkspaceMembershipRepository memberships, InMemoryUserInvitationRepository invitations) = CreateSut(out Mock<IAuditService> audit);
+        (PostAuthBootstrapService sut, Guid userId, InMemoryWorkspaceMembershipRepository memberships, InMemoryUserInvitationRepository invitations, _) = CreateSut(out Mock<IAuditService> audit);
         const string token = "accept-token";
         Guid tenantId = Guid.NewGuid();
         Guid workspaceId = Guid.NewGuid();
@@ -348,14 +427,87 @@ public sealed class PostAuthBootstrapServiceTests
         Assert.Equal(PostAuthBootstrapDestination.Complete, status.Destination);
     }
 
-    private static (PostAuthBootstrapService sut, Guid userId, InMemoryWorkspaceMembershipRepository memberships, InMemoryUserInvitationRepository invitations) CreateSut() =>
-        CreateSut(out _);
-
-    private static (PostAuthBootstrapService sut, Guid userId, InMemoryWorkspaceMembershipRepository memberships, InMemoryUserInvitationRepository invitations) CreateSut(out Mock<IAuditService> audit)
+    private static (PostAuthBootstrapService sut, Guid userId, InMemoryWorkspaceMembershipRepository memberships, InMemoryUserInvitationRepository invitations) CreateSut()
     {
+        (PostAuthBootstrapService sut, Guid userId, InMemoryWorkspaceMembershipRepository memberships, InMemoryUserInvitationRepository invitations, _) =
+            CreateSut(out _);
+
+        return (sut, userId, memberships, invitations);
+    }
+
+    private static PostAuthBootstrapService CreateSut(
+        ITrialTenantBootstrapService trialBootstrap,
+        ITenantProvisioningService provisioning,
+        IOptionsMonitor<TenantProvisioningOptions>? tenantProvisioningOptions = null)
+    {
+        tenantProvisioningOptions ??= CreateDefaultTenantProvisioningOptions();
         InMemoryWorkspaceMembershipRepository memberships = new();
         InMemoryUserInvitationRepository invitations = new();
         InMemoryTenantRepository tenants = new();
+        Mock<IEmailOtpSignInDomainPolicyService> domainPolicy = new();
+        Mock<IAuditService> audit = new();
+
+        domainPolicy
+            .Setup(service => service.EvaluateAsync(It.IsAny<string>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new EmailOtpSignInDomainEvaluation { Decision = EmailOtpSignInDomainDecision.AllowEmailOtp });
+
+        Mock<ISelfServiceTrialAbusePolicy> abusePolicy = new();
+        abusePolicy
+            .Setup(policy =>
+                policy.EvaluateAsync(It.IsAny<SelfServiceTrialAbuseEvaluationRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(SelfServiceTrialAbuseEvaluation.Allow());
+        abusePolicy
+            .Setup(policy => policy.RecordSuccessfulClaimAsync(
+                It.IsAny<string>(),
+                It.IsAny<Guid?>(),
+                It.IsAny<Guid?>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        PostAuthInvitationBootstrapService invitationBootstrap = new(
+            memberships,
+            invitations,
+            new UserInvitationFlowService(
+                invitations,
+                AuthSignInRoutingServiceTestSupport.Create(
+                    new InMemoryTenantSignInEmailDomainRepository(),
+                    new InMemoryTenantSignInEmailDomainRecoveryAdminRepository(),
+                    new InMemoryTenantIdentityProviderConfigurationRepository(),
+                    invitations,
+                    new InMemoryPlatformTenantAuthRecoveryGrantRepository(),
+                    TimeProvider.System),
+                TimeProvider.System),
+            tenants,
+            audit.Object,
+            TimeProvider.System);
+
+        PostAuthWorkspaceBootstrapService workspaceBootstrap = new(
+            memberships,
+            tenants,
+            provisioning,
+            trialBootstrap,
+            domainPolicy.Object,
+            abusePolicy.Object,
+            new WorkspacePackagingLimitEvaluator(Mock.Of<ITenantUsageStatusService>()),
+            audit.Object,
+            tenantProvisioningOptions,
+            TimeProvider.System);
+
+        return new PostAuthBootstrapService(memberships, invitationBootstrap, workspaceBootstrap);
+    }
+
+    private static (
+        PostAuthBootstrapService sut,
+        Guid userId,
+        InMemoryWorkspaceMembershipRepository memberships,
+        InMemoryUserInvitationRepository invitations,
+        InMemoryTenantRepository tenants) CreateSut(out Mock<IAuditService> audit, ITenantRepository? tenantRepository = null)
+    {
+        InMemoryWorkspaceMembershipRepository memberships = new();
+        InMemoryUserInvitationRepository invitations = new();
+        InMemoryTenantRepository tenants = tenantRepository as InMemoryTenantRepository ?? new InMemoryTenantRepository();
+        ITenantRepository tenantStore = tenantRepository ?? tenants;
         Mock<ITenantProvisioningService> provisioning = new();
         Mock<ITrialTenantBootstrapService> trialBootstrap = new();
         Mock<IEmailOtpSignInDomainPolicyService> domainPolicy = new();
@@ -400,18 +552,27 @@ public sealed class PostAuthBootstrapServiceTests
 
         PostAuthWorkspaceBootstrapService workspaceBootstrap = new(
             memberships,
-            tenants,
+            tenantStore,
             provisioning.Object,
             trialBootstrap.Object,
             domainPolicy.Object,
             abusePolicy.Object,
             new WorkspacePackagingLimitEvaluator(Mock.Of<ITenantUsageStatusService>()),
             audit.Object,
+            CreateDefaultTenantProvisioningOptions(),
             TimeProvider.System);
 
         PostAuthBootstrapService sut = new(memberships, invitationBootstrap, workspaceBootstrap);
 
-        return (sut, userId, memberships, invitations);
+        return (sut, userId, memberships, invitations, tenants);
+    }
+
+    private static IOptionsMonitor<TenantProvisioningOptions> CreateDefaultTenantProvisioningOptions()
+    {
+        Mock<IOptionsMonitor<TenantProvisioningOptions>> options = new();
+        options.Setup(monitor => monitor.CurrentValue).Returns(new TenantProvisioningOptions());
+
+        return options.Object;
     }
 
     [Fact]
@@ -475,6 +636,109 @@ public sealed class PostAuthBootstrapServiceTests
         Assert.NotNull(accepted);
         Assert.Equal(workspaceId, accepted.WorkspaceId);
         Assert.NotEqual(ScopeIds.DefaultWorkspace, accepted.WorkspaceId);
+    }
+
+    [Fact]
+    public async Task CreateWorkspaceAsync_strips_industry_vertical_other_when_vertical_is_not_other()
+    {
+        TrialSignupCompanyProfileCapture? capturedProfile = null;
+        Mock<ITrialTenantBootstrapService> trialBootstrap = new();
+        trialBootstrap
+            .Setup(
+                bootstrap => bootstrap.TryBootstrapAfterPostAuthWorkspaceAsync(
+                    It.IsAny<TenantProvisioningResult>(),
+                    It.IsAny<string>(),
+                    It.IsAny<TrialSignupCompanyProfileCapture?>(),
+                    It.IsAny<bool>(),
+                    It.IsAny<CancellationToken>()))
+            .Callback<TenantProvisioningResult, string, TrialSignupCompanyProfileCapture?, bool, CancellationToken>(
+                (_, _, profile, _, _) => capturedProfile = profile)
+            .Returns(Task.CompletedTask);
+
+        Mock<ITenantProvisioningService> provisioning = new();
+        Guid tenantId = Guid.NewGuid();
+        provisioning
+            .Setup(service => service.ProvisionAsync(It.IsAny<TenantProvisioningRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new TenantProvisioningResult
+                {
+                    TenantId = tenantId,
+                    DefaultWorkspaceId = Guid.NewGuid(),
+                    DefaultProjectId = Guid.NewGuid(),
+                });
+
+        PostAuthBootstrapService sut = CreateSut(trialBootstrap.Object, provisioning.Object);
+        Guid userId = Guid.NewGuid();
+
+        PostAuthCreateWorkspaceResult result = await sut.CreateWorkspaceAsync(
+            userId,
+            "new@example.com",
+            "new@example.com",
+            new PostAuthCreateWorkspaceRequest
+            {
+                WorkspaceName = "Healthcare Workspace",
+                OrganizationName = "Healthcare Org",
+                TermsAccepted = true,
+                IndustryVertical = "Healthcare",
+                IndustryVerticalOther = "should-not-persist",
+            },
+            CancellationToken.None);
+
+        Assert.True(result.Succeeded);
+        Assert.NotNull(capturedProfile);
+        Assert.Equal("Healthcare", capturedProfile!.IndustryVertical);
+        Assert.Null(capturedProfile.IndustryVerticalOther);
+    }
+
+    [Fact]
+    public async Task CreateWorkspaceAsync_denies_when_owned_trial_active_status_differs_only_by_casing()
+    {
+        Guid tenantId = Guid.NewGuid();
+        Guid workspaceId = Guid.NewGuid();
+        Mock<ITenantRepository> tenantRepository = new();
+        tenantRepository
+            .Setup(repository => repository.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new TenantRecord
+                {
+                    Id = tenantId,
+                    Name = "Existing Trial Org",
+                    Slug = "existing-trial-org",
+                    Tier = TenantTier.Standard,
+                    DataRegion = TenantDataRegions.Default,
+                    CreatedUtc = DateTimeOffset.UtcNow,
+                    TrialStatus = "active",
+                });
+
+        (PostAuthBootstrapService sut, Guid userId, InMemoryWorkspaceMembershipRepository memberships, _, _) =
+            CreateSut(out _, tenantRepository.Object);
+
+        await memberships.UpsertAsync(
+            new WorkspaceMembershipInsert
+            {
+                UserId = userId,
+                TenantId = tenantId,
+                WorkspaceId = workspaceId,
+                Role = ArchLucidRoles.WorkspaceAdmin,
+                Status = WorkspaceMembershipStatus.Active
+            },
+            DateTimeOffset.UtcNow,
+            CancellationToken.None);
+
+        PostAuthCreateWorkspaceResult result = await sut.CreateWorkspaceAsync(
+            userId,
+            "owner@example.com",
+            "owner@example.com",
+            new PostAuthCreateWorkspaceRequest
+            {
+                WorkspaceName = "Second",
+                OrganizationName = "Second Org",
+                TermsAccepted = true
+            },
+            CancellationToken.None);
+
+        Assert.False(result.Succeeded);
+        Assert.Contains("active evaluation workspace", result.CustomerMessage, StringComparison.OrdinalIgnoreCase);
     }
 
     [Fact]

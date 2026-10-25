@@ -35,6 +35,11 @@ import {
   quickDecisionRecommendationSnippet,
 } from "@/lib/quick-decision-finding-links";
 import {
+  formatQuickDecisionConfidenceWorkspaceLabel,
+  formatQuickDecisionFindingOwnerDisplay,
+  isKnownQuickDecisionConfidenceLevel,
+} from "@/lib/findings/quick-decision-finding-display";
+import {
   humanReviewStatusDisplay,
   severityBadgeLabel,
   severityKindFromNumericValue,
@@ -69,7 +74,11 @@ export function QuickDecisionWorkspacePrimaryFindingCard(
   const badgeLabel = severityBadgeLabel(finding.severityValue);
   const { evidenceRefCount, viewEvidenceHref } = buildQuickDecisionFindingEvidenceLinks(runId, finding);
   const reviewStatus = humanReviewStatusDisplay(finding.humanReviewStatus);
-  const owner = finding.assignedToUserId?.trim() ?? "";
+  const ownerDisplay = formatQuickDecisionFindingOwnerDisplay(
+    finding.assignedToUserId,
+    "Remediation owner was not stored",
+  );
+  const confidenceWorkspaceLabel = formatQuickDecisionConfidenceWorkspaceLabel(finding.confidenceLevel);
   const snippet = quickDecisionRecommendationSnippet(finding);
   const findingActivityAt = resolveFindingActivityAtUtc(finding.aiReasoning);
   const findingWatermarkKey = reviewFindingWatermarkKey(runId, finding.findingId);
@@ -185,7 +194,7 @@ export function QuickDecisionWorkspacePrimaryFindingCard(
             className="m-0 mt-0.5 font-medium text-neutral-800 dark:text-neutral-200"
             data-testid={`finding-owner-${finding.findingId}`}
           >
-            {owner.length > 0 ? owner : "Remediation owner was not stored"}
+            {ownerDisplay}
           </dd>
         </div>
         <div>
@@ -196,12 +205,10 @@ export function QuickDecisionWorkspacePrimaryFindingCard(
             </span>
           </dt>
           <dd className="m-0 mt-0.5">
-            {finding.confidenceLevel === "High" ||
-            finding.confidenceLevel === "Medium" ||
-            finding.confidenceLevel === "Low" ? (
+            {isKnownQuickDecisionConfidenceLevel(finding.confidenceLevel) ? (
               <FindingConfidenceBadge level={finding.confidenceLevel} showScopeLine />
             ) : (
-              <span className="font-medium text-neutral-800 dark:text-neutral-200">Confidence level was not stored</span>
+              <span className="font-medium text-neutral-800 dark:text-neutral-200">{confidenceWorkspaceLabel}</span>
             )}
           </dd>
         </div>

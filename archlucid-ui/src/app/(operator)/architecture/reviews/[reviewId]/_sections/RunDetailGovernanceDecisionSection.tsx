@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { ReactNode } from "react";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -28,6 +29,10 @@ import {
 import { CanonicalObjectSecondaryViewStrip } from "@/components/usability/CanonicalObjectSecondaryViewStrip";
 import { buildCanonicalObjectSecondaryView } from "@/lib/canonical-object-home-registry";
 import { shouldShowRunDetailGovernanceCta, runDetailGovernanceWorkflowHref } from "@/lib/runs/run-detail-governance-cta-visibility";
+import {
+  GOVERNANCE_BLOCKING_FINDING_COUNT_NOT_STORED_LABEL,
+  isGovernanceBlockingFindingCountStored,
+} from "@/lib/governance/governance-blocking-finding-count-display";
 
 export type RunDetailGovernanceDecisionSectionProps = {
   readonly runId: string;
@@ -40,12 +45,35 @@ export type RunDetailGovernanceDecisionSectionProps = {
   readonly manifestStatus: string | null | undefined;
   readonly governanceGateLabel: string | null;
   readonly blockingFindingCount: number;
+  readonly manifestUnresolvedIssueCount?: number | null;
   readonly hasGovernanceWarnings: boolean;
   /** When the review package Do-this-next strip owns the page primary, demote in-section CTAs to outline. */
   readonly pagePrimaryOwnedElsewhere?: boolean;
 };
 
 /** Dedicated governance decision state for the review workspace. */
+function renderBlockingFindingCountCell(
+  blockingFindingCount: number,
+  manifestUnresolvedIssueCount: number | null | undefined,
+  findingsHref: string,
+): ReactNode {
+  const storedOnManifest = isGovernanceBlockingFindingCountStored(manifestUnresolvedIssueCount);
+
+  if (!storedOnManifest && blockingFindingCount === 0) {
+    return GOVERNANCE_BLOCKING_FINDING_COUNT_NOT_STORED_LABEL;
+  }
+
+  if (blockingFindingCount > 0) {
+    return (
+      <Link href={findingsHref} className={cn(OPERATOR_LINK.inline, "font-medium tabular-nums")}>
+        {blockingFindingCount}
+      </Link>
+    );
+  }
+
+  return "0";
+}
+
 export function RunDetailGovernanceDecisionSection(
   props: RunDetailGovernanceDecisionSectionProps,
 ): React.JSX.Element {
@@ -103,12 +131,10 @@ export function RunDetailGovernanceDecisionSection(
             <div>
               <dt className="text-neutral-500 dark:text-neutral-400">Blocking findings</dt>
               <dd className="m-0 mt-1 font-medium tabular-nums text-neutral-900 dark:text-neutral-100">
-                {props.blockingFindingCount > 0 ? (
-                  <Link href={findingsHref} className={cn(OPERATOR_LINK.inline, "font-medium tabular-nums")}>
-                    {props.blockingFindingCount}
-                  </Link>
-                ) : (
-                  "None"
+                {renderBlockingFindingCountCell(
+                  props.blockingFindingCount,
+                  props.manifestUnresolvedIssueCount,
+                  findingsHref,
                 )}
               </dd>
             </div>
@@ -246,12 +272,10 @@ export function RunDetailGovernanceDecisionSection(
         <div>
           <dt className="text-neutral-500 dark:text-neutral-400">Blocking findings</dt>
           <dd className="m-0 mt-1 font-medium tabular-nums text-neutral-900 dark:text-neutral-100">
-            {props.blockingFindingCount > 0 ? (
-              <Link href={findingsHref} className={cn(OPERATOR_LINK.inline, "font-medium tabular-nums")}>
-                {props.blockingFindingCount}
-              </Link>
-            ) : (
-              "None"
+            {renderBlockingFindingCountCell(
+              props.blockingFindingCount,
+              props.manifestUnresolvedIssueCount,
+              findingsHref,
             )}
           </dd>
         </div>

@@ -30,7 +30,7 @@ export function deriveGuidedIntakeCloudTargetForMismatch(
     return "none";
   }
 
-  return normalizeCloudProviderForMismatchCheck(cloudTargetAnswer);
+  return normalizeCloudProviderForMismatchCheck(cloudTargetAnswer) ?? "none";
 }
 
 /** TB-2322 — guided intake parity with quick-start and detailed wizard gates. */

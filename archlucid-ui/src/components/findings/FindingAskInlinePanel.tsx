@@ -232,8 +232,12 @@ export function FindingAskInlinePanel(props: FindingAskInlinePanelProps) {
                     <p className={cn("m-0 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
                       Answer was not stored.
                     </p>
+                  ) : turn.answer.trim().length === 0 ? (
+                    <p className={cn("m-0 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
+                      Answer was stored empty.
+                    </p>
                   ) : (
-                    <AskAssistantMessageBody content={turn.answer} />
+                    <AskAssistantMessageBody content={turn.answer} reviewIdInScope={props.runId} />
                   )}
                   <AskCitedFindingsSemanticSupportBandFootnote
                     referencedFindingIds={[props.findingId]}
