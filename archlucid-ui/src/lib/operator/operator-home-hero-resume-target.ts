@@ -35,6 +35,25 @@ export function normalizeResumeHrefForMatch(href: string): string {
   return withoutQuery.replace(/\/+$/, "") || withoutQuery;
 }
 
+/**
+ * True when two resume hrefs should collapse for dedupe (home CTAs, recent views).
+ * Same path with different SN-012 `highlightReviewId` values stays distinct.
+ */
+export function resumeHrefsEquivalentForDedupe(left: string, right: string): boolean {
+  if (normalizeResumeHrefForMatch(left) !== normalizeResumeHrefForMatch(right)) {
+    return false;
+  }
+
+  const leftRunId = resolveRunIdFromWorkingReviewHref(left);
+  const rightRunId = resolveRunIdFromWorkingReviewHref(right);
+
+  if (leftRunId !== null || rightRunId !== null) {
+    return leftRunId !== null && rightRunId !== null && leftRunId === rightRunId;
+  }
+
+  return true;
+}
+
 function draftIdFromDraftHref(href: string): string | null {
   const match = /^\/architecture\/architectures\/([^/?#]+)/.exec(href.split("?")[0] ?? "");
 
@@ -107,7 +126,7 @@ export function matchesOperatorHomeHeroResumeTarget(
     return false;
   }
 
-  if (normalizeResumeHrefForMatch(target.href) === normalizeResumeHrefForMatch(item.href)) {
+  if (resumeHrefsEquivalentForDedupe(target.href, item.href)) {
     return true;
   }
 
@@ -121,6 +140,14 @@ export function matchesOperatorHomeHeroResumeTarget(
 
   if (targetRunIds.some((left) => itemRunIds.some((right) => left === right))) {
     return true;
+  }
+
+  if (
+    heroRunId !== null
+    && itemHrefRunId !== null
+    && heroRunId !== itemHrefRunId
+  ) {
+    return false;
   }
 
   const targetDraftId = target.draftId?.trim() ?? "";

@@ -39,6 +39,15 @@ describe("operator-home-hero-resume-target", () => {
     ).toBe(false);
   });
 
+  it("does not treat same architecture desk with different highlightReviewId as equivalent", () => {
+    expect(
+      matchesOperatorHomeHeroResumeTarget(
+        { href: "/architecture/architectures/architecture-identity-001?highlightReviewId=run-a" },
+        { href: "/architecture/architectures/architecture-identity-001?highlightReviewId=run-b" },
+      ),
+    ).toBe(false);
+  });
+
   it("matches Working desk highlightReviewId hrefs to peer review rail rows", () => {
     expect(
       matchesOperatorHomeHeroResumeTarget(

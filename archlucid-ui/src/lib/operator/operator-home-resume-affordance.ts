@@ -3,7 +3,7 @@ import type { ArchitectureDraftRegistryEntry } from "@/lib/architecture/architec
 import type { IncompleteWizardSignal } from "@/lib/unfinished-work-rail";
 import { resolveContinueLastArchitectureIdentityTarget } from "@/lib/resolve-continue-last-architecture-identity";
 import { resolveContinueLastReviewPackageTarget } from "@/lib/resolve-continue-last-review-package";
-import { normalizeResumeHrefForMatch } from "@/lib/operator/operator-home-hero-resume-target";
+import { resumeHrefsEquivalentForDedupe } from "@/lib/operator/operator-home-hero-resume-target";
 import { resolveRunIdFromWorkingReviewHref } from "@/lib/system-not-job-portfolio-resume-href";
 import type { RunSummary } from "@/types/authority";
 
@@ -71,10 +71,7 @@ export function resolveOperatorHomeResumeAffordancePlan(
     const railSurfacesSameArchitecture = railSummary.items.some((item) => {
       const targetHref = architectureTarget.href.trim();
 
-      if (
-        targetHref.length > 0
-        && normalizeResumeHrefForMatch(item.href) === normalizeResumeHrefForMatch(targetHref)
-      ) {
+      if (targetHref.length > 0 && resumeHrefsEquivalentForDedupe(item.href, targetHref)) {
         return true;
       }
 
@@ -123,7 +120,7 @@ export function resolveOperatorHomeResumeAffordancePlan(
         return false;
       }
 
-      return normalizeResumeHrefForMatch(item.href) === normalizeResumeHrefForMatch(targetHref);
+      return resumeHrefsEquivalentForDedupe(item.href, targetHref);
     });
 
     if (railSurfacesSameRun) {

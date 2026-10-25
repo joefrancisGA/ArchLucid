@@ -8,6 +8,43 @@ import { OPERATOR_RECENT_VIEWS_STORAGE_KEY } from "@/lib/operator/operator-recen
 import type { RunSummary } from "@/types/authority";
 
 describe("resolveOperatorHomeResumeAffordancePlan", () => {
+  it("keeps continue-last when rail desk highlightReviewId differs from continue target", () => {
+    vi.spyOn(continueLastReviewPackage, "resolveContinueLastReviewPackageTarget").mockReturnValue({
+      runId: "review-a",
+      label: "Payments platform",
+      href: "/architecture/architectures/architecture-identity-001?highlightReviewId=review-a",
+      visitedAtUtc: "2026-01-15T12:00:00.000Z",
+    });
+
+    vi.spyOn(unfinishedWorkRail, "summarizeUnfinishedWorkRailItems").mockReturnValue({
+      items: [
+        {
+          id: "review-in-progress:review-b",
+          kind: "review-in-progress",
+          title: "Other review",
+          href: "/architecture/architectures/architecture-identity-001?highlightReviewId=review-b",
+          statusLabel: "In progress",
+          updatedUtc: null,
+          workTypeLabel: "Architecture review",
+          activityLabel: null,
+          actionLabel: "Continue",
+        },
+      ],
+      totalCount: 1,
+      truncated: false,
+    });
+
+    const plan = resolveOperatorHomeResumeAffordancePlan({
+      runs: [],
+      drafts: [],
+      incompleteWizards: [],
+      workingMode: true,
+    });
+
+    expect(plan.showContinueLast).toBe(true);
+    vi.restoreAllMocks();
+  });
+
   it("suppresses continue-last when rail href matches target href aside from trailing slash", () => {
     vi.spyOn(continueLastReviewPackage, "resolveContinueLastReviewPackageTarget").mockReturnValue({
       runId: "review-42-mismatch",

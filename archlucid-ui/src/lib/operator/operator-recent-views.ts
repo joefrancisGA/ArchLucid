@@ -12,7 +12,7 @@ import { extractArchitectureIdentityIdFromPathname } from "@/lib/desk-continuity
 import { BUYER_TERMINOLOGY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 import { isSponsorDashboardPath } from "@/lib/sponsor/sponsor-dashboard-route";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
-import { normalizeResumeHrefForMatch } from "@/lib/operator/operator-home-hero-resume-target";
+import { resumeHrefsEquivalentForDedupe } from "@/lib/operator/operator-home-hero-resume-target";
 
 export const OPERATOR_RECENT_VIEWS_STORAGE_KEY = "archlucid.operatorRecentViews.v2";
 
@@ -264,9 +264,8 @@ export function recordRecentView(
   }
 
   const nowUtc = new Date().toISOString();
-  const normalizedHrefKey = normalizeResumeHrefForMatch(normalized.href);
   const withoutDup = state.entries.filter(
-    (existing) => normalizeResumeHrefForMatch(existing.href) !== normalizedHrefKey,
+    (existing) => !resumeHrefsEquivalentForDedupe(existing.href, normalized.href),
   );
   const next: OperatorRecentViewEntry = { ...normalized, visitedAtUtc: nowUtc };
 
