@@ -137,6 +137,18 @@ describe("resolveOperatorHomeLiveRunsSnapshotTotalCount", () => {
       ),
     ).toBe(0);
   });
+
+  it("does not keep stale positive explicit totals when the snapshot is archived-only", () => {
+    expect(
+      resolveOperatorHomeLiveRunsSnapshotTotalCount(
+        [
+          { ...buildRun("archived-a"), isArchived: true },
+          { ...buildRun("archived-b"), isArchived: true },
+        ],
+        5,
+      ),
+    ).toBe(0);
+  });
 });
 
 describe("resolveLiveRunsDashboardModel", () => {

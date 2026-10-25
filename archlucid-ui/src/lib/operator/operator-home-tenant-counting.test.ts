@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import { resolveOperatorHomeLiveRunsSnapshotTotalCount } from "@/lib/operator/operator-home-live-runs-dashboard";
 import { deriveOperatorHomeTenantCountingSnapshot } from "@/lib/operator/operator-home-tenant-counting";
 import { deriveOperatorHomeWorkspaceMetricsFromOverviewRuns } from "@/lib/operator/operator-home-workspace-metrics";
+import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import type { RunSummary } from "@/types/authority";
 
 describe("deriveOperatorHomeTenantCountingSnapshot", () => {
@@ -15,6 +16,30 @@ describe("deriveOperatorHomeTenantCountingSnapshot", () => {
 
     expect(snapshot.metrics.reviewPackagesTotal).toBe(8);
     expect(snapshot.metrics.hasReviews).toBe(true);
+  });
+
+  it("aligns preview recent totals with tenant metrics when buyer shell excludes the static showcase id", () => {
+    const items: RunSummary[] = [
+      {
+        runId: "tenant-1",
+        projectId: "default",
+        hasFindingsSnapshot: true,
+      },
+      {
+        runId: SHOWCASE_STATIC_DEMO_RUN_ID,
+        projectId: "default",
+        hasGoldenManifest: true,
+      },
+    ];
+
+    const snapshot = deriveOperatorHomeTenantCountingSnapshot({
+      displayItems: items,
+      previewItems: items,
+      excludeShowcaseRunId: SHOWCASE_STATIC_DEMO_RUN_ID,
+    });
+
+    expect(snapshot.metrics.reviewPackagesTotal).toBe(1);
+    expect(snapshot.previewTabCounts.recentTotalCount).toBe(1);
   });
 
   it("matches live snapshot total resolution when runsDashboardTotalCount is omitted", () => {
