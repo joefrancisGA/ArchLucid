@@ -6868,6 +6868,20 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-25 seed hunt (seed→hit): proved `ExportRecordDiffResultNormalizer.NormalizeDisplayAnchors` left whitespace-only `LeftRunId`/`RightRunId` and nested `CompareRunId` values untouched because `IsNullOrWhiteSpace` skipped canonicalize while hunt 208 fixed export-record id anchors only, so rehydrated export-diff payloads and format/compare surfaces could echo space-only run anchors after payload rehydrate; empty required run ids via `NormalizeRunIdAnchor` and null nested compare-run ids via optional-string normalize before canonicalize; regressions `CompareQuality_ExportRecordDiffResultNormalizer_clears_whitespace_only_run_id_anchors` and `CompareQuality_ExportRecordDiffResultNormalizer_nulls_whitespace_only_nested_compare_run_id`; cheap-disproof closed export id whitespace (hunt 208), audit persist column overwrite (existing serialize path), `ApiPaging.TryParseUtcTicksIdCursor` (comparison search normalizes inbound cursor id), batch zip manifest echo (cosmetic), and Armenian homoglyphs (deferred); seeded five follow-on rows; scoped application-analysis + replay filter 314/314. Private beta: export-record comparison diffs no longer surface whitespace-only run or nested compare-run placeholders after normalize on format, rehydrate, and replay paths.
+
+- [ ] (candidate) `ComparisonRecordRepository.GetByRunIdAsync` — SQL list-by-run dashed stored — locus: UNIQUEIDENTIFIER column; input: already matches N/D lookup via guid param.
+- [ ] (candidate) `ComparisonRecordRepositoryCore.SerializeTagsForUpdate` — JSON tag order — locus: cosmetic; input: defer.
+- [ ] (candidate) `ComparisonRecordSearchPredicateBuilder` — notes column search — locus: no notes filter today; input: defer.
+- [ ] (candidate) `ApiPaging.TryParseUtcTicksIdCursor` — cursor id segment without trim — locus: HTTP cursor parse; input: padded id after ticks delimiter (alerts inbox and other API surfaces).
+- [ ] (candidate) `ComparisonBatchReplayZipSupport` — manifest failure entries echo pre-trim batch tokens — locus: zip manifest; input: cosmetic id echo only.
+
+- [x] (proven) `ExportRecordDiffResultNormalizer` — whitespace-only run and nested compare-run anchors — **hit 2026-10-25 seed hunt:** shared display-anchor normalize; regressions above.
+- [x] (valid-no-repro) `ExportRecordDiffResultNormalizer` — export record id whitespace — **cheap-disproof 2026-10-25 seed hunt:** hunt 208.
+- [x] (valid-no-repro) `ComparisonRecordPayloadRehydrator` — rehydrate-only path — **cheap-disproof 2026-10-25 seed hunt:** delegates to shared normalizer; run ids were still skipped before this fix.
+- [x] (invalid) `ApiPaging.TryParseUtcTicksIdCursor` — HTTP cursor id trim — **cheap-disproof 2026-10-25 seed hunt:** comparison search normalizes at application layer.
+- [x] (invalid) `ComparisonBatchReplayZipSupport` — manifest id echo — **cheap-disproof 2026-10-25 seed hunt:** cosmetic only.
+
 2026-10-25 seed hunt (seed→hit): proved `ExportRecordDiffResultNormalizer.NormalizeDisplayAnchors` skipped whitespace-only `LeftExportRecordId`/`RightExportRecordId` values because `IsNullOrWhiteSpace` guarded trim only, and `RecordExportDiffAsync` copied those anchors straight onto new comparison rows while hunt 207 fixed replay-copy persist only, so export-diff audits could persist space-only export anchors on denormalized columns and inside `PayloadJson`; clear whitespace anchors on the diff DTO and null columns via `NormalizeExportRecordIdColumnOrNull` on persist; regression `CompareQuality_RecordExportDiffAsync_nulls_whitespace_only_export_record_ids_on_persist`; cheap-disproof closed replay-of persist (hunt 207), padded meaningful export ids (existing trim tests), `ApiPaging.TryParseUtcTicksIdCursor` (comparison search normalizes inbound cursor id), batch zip manifest echo (cosmetic), and Armenian homoglyphs (deferred); seeded five follow-on rows; scoped application-analysis + replay filter 312/312. Private beta: export-record comparison audits no longer store whitespace-only export record id placeholders on comparison rows or nested diff payloads.
 
 - [ ] (candidate) `ComparisonRecordRepository.GetByRunIdAsync` — SQL list-by-run dashed stored — locus: UNIQUEIDENTIFIER column; input: already matches N/D lookup via guid param.
@@ -8731,11 +8745,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 208
-- **bugs-found:** 214
+- **hunts:** 209
+- **bugs-found:** 215
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-25
-- **last-bug:** 2026-10-25 — export-diff audit nulls whitespace export ids
+- **last-bug:** 2026-10-25 — export diff normalize clears whitespace run anchors
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
