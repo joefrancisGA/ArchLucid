@@ -12,7 +12,8 @@ export type InsightDensityCurationCounts = {
   readonly retainedFindingCount: number | null;
 };
 
-export const INSIGHT_DENSITY_CURATION_COUNTS_NOT_STORED = "Curation counts were not stored." as const;
+export const FINDINGS_SNAPSHOT_CHECKLIST_FINDING_TITLE_NOT_STORED =
+  "Finding title was not stored." as const;
 
 export type FindingsSnapshotInsightDensityView = {
   readonly checklistCoverage: readonly ChecklistCoverageItem[];
@@ -36,31 +37,19 @@ function readNonNegativeInt(value: unknown): number | null {
 }
 
 function readFindingTitle(record: Record<string, unknown>): string {
-  const title = typeof record.title === "string" ? record.title.trim() : "";
+  const message = typeof record.message === "string" ? record.message : "";
 
-  if (title.length > 0) {
-    return title;
+  if (message.length === 0) {
+    return FINDINGS_SNAPSHOT_CHECKLIST_FINDING_TITLE_NOT_STORED;
   }
 
-  const message = typeof record.message === "string" ? record.message.trim() : "";
+  const trimmed = message.trim();
 
-  if (message.length > 0) {
-    return message;
+  if (trimmed.length === 0) {
+    return "Finding title was stored empty.";
   }
 
-  const category = typeof record.category === "string" ? record.category.trim() : "";
-
-  if (category.length > 0) {
-    return category;
-  }
-
-  const findingType = typeof record.findingType === "string" ? record.findingType.trim() : "";
-
-  if (findingType.length > 0) {
-    return findingType;
-  }
-
-  return "Checklist title was not stored.";
+  return trimmed;
 }
 
 /** Parses TB-384 checklist rows and TB-385 curation counts from hydrated run detail `findingsSnapshot`. */
@@ -152,27 +141,51 @@ export function formatInsightDensityCurationMessage(curation: InsightDensityCura
   const retained = curation.retainedFindingCount;
   const parts: string[] = [];
 
-  if (demoted === null) {
-    parts.push("Demoted count was not stored.");
-  } else if (demoted > 0) {
-    parts.push(
-      `${INSIGHT_DENSITY_DEMOTION_LEAD} ArchLucid moved ${demoted} low-specificity ${demoted === 1 ? "observation" : "observations"} to the coverage checklist (not decision-grade findings on this package).`,
-    );
+  if (demoted === null && retained === null) {
+    return "";
+  }
+
+  const demotedCount = demoted ?? 0;
+  const retainedCount = retained ?? 0;
+
+  if (demotedCount <= 0 && retainedCount <= 0) {
+    const parts: string[] = [];
+
+    if (demoted === null) {
+      parts.push("Demoted-to-checklist count was not stored.");
+    }
+
+    if (retained === null) {
+      parts.push("Retained finding count was not stored.");
+    }
+
+    return parts.join(" ");
+  }
+
+  if (demotedCount > 0 && retainedCount > 0) {
+    const demotedClause =
+      demoted === null
+        ? "Demoted-to-checklist count was not stored"
+        : `${demotedCount} low-specificity ${demotedCount === 1 ? "advisory" : "advisories"}`;
+    const retainedClause =
+      retained === null
+        ? "retained finding count was not stored"
+        : `retained ${retainedCount} decision-grade ${retainedCount === 1 ? "finding" : "findings"}`;
+
+    return `${INSIGHT_DENSITY_DEMOTION_LEAD} ArchLucid moved ${demotedClause} to the coverage checklist and ${retainedClause} on this package.`;
+  }
+
+  if (demotedCount > 0) {
+    if (demoted === null) {
+      return `${INSIGHT_DENSITY_DEMOTION_LEAD} Demoted-to-checklist count was not stored.`;
+    }
+
+    return `${INSIGHT_DENSITY_DEMOTION_LEAD} ArchLucid moved ${demotedCount} low-specificity ${demotedCount === 1 ? "observation" : "observations"} to the coverage checklist (not decision-grade findings on this package).`;
   }
 
   if (retained === null) {
-    parts.push("Retained finding count was not stored.");
-  } else if (retained > 0) {
-    if (demoted !== null && demoted > 0) {
-      parts.push(
-        `ArchLucid retained ${retained} decision-grade ${retained === 1 ? "finding" : "findings"} on this package.`,
-      );
-    } else {
-      parts.push(
-        `${INSIGHT_DENSITY_TYPED_ENGINE_PROTECTED_LEAD} ArchLucid retained ${retained} decision-grade ${retained === 1 ? "finding" : "findings"} after insight-density curation.`,
-      );
-    }
+    return `${INSIGHT_DENSITY_TYPED_ENGINE_PROTECTED_LEAD} Retained finding count was not stored.`;
   }
 
-  return parts.join(" ");
+  return `${INSIGHT_DENSITY_TYPED_ENGINE_PROTECTED_LEAD} ArchLucid retained ${retainedCount} decision-grade ${retainedCount === 1 ? "finding" : "findings"} after insight-density curation.`;
 }
