@@ -7210,11 +7210,11 @@ ABQ-09 churn hotspot.
 - [x] (valid-no-repro) `ResourceHubClient` architecture-review findings actions — **cheap-disproof 2026-10-25 seed hunt:** stream renders Ask action only by design (no remediation factory on architecture review rows).
 - [x] (valid-no-repro) `ResourceHubClient.loadHub` — slow success after fast failure — **cheap-disproof 2026-10-25 seed hunt:** each `loadHub` call bumps request generation; stale responses cannot apply after a newer load starts.
 
-- [ ] (candidate) `ResourceHubClient` evidence pointers table — duplicate `kind` and `relativePath` rows — locus: React key; input: colliding inventory pointers.
-- [ ] (candidate) `ResourceHubClient` recent changes table — duplicate `changeId` across diffs — locus: row key; input: pagination or reload shows wrong change row.
-- [ ] (candidate) `ResourceHubClient` remediation instances table — duplicate `patternKey` statuses — locus: row identity; input: two drafts same pattern.
-- [ ] (candidate) `ResourceHubClient` finding action messages — stale message map after hub reload — locus: `findingActionMessages` state; input: clear on successful reload.
-- [ ] (candidate) `ResourceHubClient` diagram correspondence — missing `correspondenceId` fallback label — locus: diagram tab empty states; input: null correspondence with inventory present.
+- [x] (valid-no-repro) `ResourceHubClient` evidence pointers table — duplicate `kind` and `relativePath` rows — **cheap-disproof 2026-10-25 thorough hunt:** see hunt above.
+- [x] (valid-no-repro) `ResourceHubClient` recent changes table — duplicate `changeId` across diffs — **cheap-disproof 2026-10-25 thorough hunt:** see hunt above.
+- [x] (valid-no-repro) `ResourceHubClient` remediation instances table — duplicate `patternKey` statuses — **cheap-disproof 2026-10-25 thorough hunt:** see hunt above.
+- [x] (proven) `ResourceHubClient` finding action messages — stale message map after hub reload — **hit 2026-10-25 thorough hunt:** superseded by hunt above; `loadHub` clears unless `retainFindingMessages`.
+- [x] (valid-no-repro) `ResourceHubClient` diagram correspondence — missing `correspondenceId` fallback label — **cheap-disproof 2026-10-25 thorough hunt:** see hunt above.
 
 - **id:** ui-infra-resource-hub
 - **status:** open
