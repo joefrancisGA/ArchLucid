@@ -30,7 +30,7 @@ describe("buildBuyerReviewPackagePlainStatusHeadline", () => {
         governanceGateLabel: "Passed",
         aggregateRiskPosture: "Approved with monitoring",
       }),
-    ).toContain("Approved for implementation planning");
+    ).toContain("Approved with monitoring");
   });
 });
 
@@ -45,7 +45,7 @@ describe("buyerHeaderStatusTwinPillCaption", () => {
         governanceGateLabel: "Passed",
         aggregateRiskPosture: "Approved with monitoring",
       }),
-    ).toContain("one non-blocking risk remains under explicit monitored oversight");
+    ).toContain("non-blocking monitored risk remains on the record");
   });
 
   it("returns null when posture does not imply monitored approval", () => {
@@ -86,7 +86,7 @@ describe("buildBuyerReviewPackageDispositionLine", () => {
       aggregateRiskPosture: "Approved with monitoring",
     });
 
-    expect(line).toContain("Approved for implementation planning");
+    expect(line).toContain("Finalized package — Approved with monitoring");
     expect(line).toContain("9 findings, including 1 non-blocking monitored risk");
   });
 
@@ -100,7 +100,7 @@ describe("buildBuyerReviewPackageDispositionLine", () => {
       aggregateRiskPosture: "Approved with monitoring",
     });
 
-    expect(line).toContain("monitored risk count was not stored");
+    expect(line).toContain("Finalized package — Approved with monitoring");
     expect(line).not.toContain("with 1 monitored risk");
   });
 

@@ -263,6 +263,11 @@ public static class InventoryDiagramDataFlowTraversalHopProjector
             return "Routes through";
         }
 
+        if (associationType.Equals(AzureInventoryRelationshipAssociationTypes.PeReachableTarget, StringComparison.OrdinalIgnoreCase))
+        {
+            return InventoryDiagramRelationshipLabelTexts.PeReachableTargetInferredLabel;
+        }
+
         if (associationType.Equals(AzureInventoryRelationshipAssociationTypes.PrivateEndpointTarget, StringComparison.OrdinalIgnoreCase)
             || associationType.Equals(AzureInventoryRelationshipAssociationTypes.PeToSubnet, StringComparison.OrdinalIgnoreCase)
             || associationType.Equals(AzureInventoryRelationshipAssociationTypes.PeToNic, StringComparison.OrdinalIgnoreCase))
@@ -394,7 +399,7 @@ public static class InventoryDiagramDataFlowTraversalHopProjector
             {
                 AssociationType = AzureInventoryRelationshipAssociationTypes.PeReachableTarget,
                 InferenceSource = "inventory-pe-reachable-target",
-                DiagramLabel = "Private network path",
+                DiagramLabel = InventoryDiagramRelationshipLabelTexts.PeReachableTargetInferredLabel,
             };
 
             AddLink(links, linkKeys, edge.FromNodeId, privateEndpointNodeId, evidence);

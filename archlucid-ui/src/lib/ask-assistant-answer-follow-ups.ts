@@ -8,9 +8,9 @@ export const ASK_ASSISTANT_ANSWER_FOLLOW_UP_UNBLOCK_FINALIZE_PROMPT =
 
 /** @deprecated Use {@link resolveAskAssistantAnswerFollowUpPrompts} for answer-aware chips. */
 export const ASK_ASSISTANT_ANSWER_FOLLOW_UP_PROMPTS: readonly string[] = [
-  ASK_ASSISTANT_ANSWER_FOLLOW_UP_TOP_RISK_PROMPT,
-  ASK_ASSISTANT_ANSWER_FOLLOW_UP_EVIDENCE_PROMPT,
-  ASK_ASSISTANT_ANSWER_FOLLOW_UP_UNBLOCK_FINALIZE_PROMPT,
+  "What did this answer cite?",
+  "Which finding is this about?",
+  "What is still open on this review?",
 ];
 
 function answerNamesTopRisk(answerText: string): boolean {
@@ -25,9 +25,14 @@ function answerSaysFinalizeIsBlocked(answerText: string): boolean {
 /** Returns follow-up chips appropriate to the cited assistant answer. */
 export function resolveAskAssistantAnswerFollowUpPrompts(answerText: string): readonly string[] {
   const trimmed = answerText.trim();
+
+  if (trimmed.length === 0) {
+    return [];
+  }
+
   const prompts: string[] = [];
 
-  if (trimmed.length > 0 && answerNamesTopRisk(trimmed)) {
+  if (answerNamesTopRisk(trimmed)) {
     prompts.push(ASK_ASSISTANT_ANSWER_FOLLOW_UP_TOP_RISK_PROMPT);
   }
 

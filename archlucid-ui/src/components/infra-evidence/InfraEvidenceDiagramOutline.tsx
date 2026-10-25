@@ -40,6 +40,7 @@ import {
   INFRA_EVIDENCE_DIAGRAM_OUTLINE_SOURCE_COLUMN,
   INFRA_EVIDENCE_DIAGRAM_OUTLINE_SOURCE_DECLARED,
   INFRA_EVIDENCE_DIAGRAM_OUTLINE_SOURCE_INFERRED,
+  INFRA_EVIDENCE_DIAGRAM_OUTLINE_SOURCE_NOT_STORED,
   INFRA_EVIDENCE_DIAGRAM_OUTLINE_SOURCE_OBSERVED,
   INFRA_EVIDENCE_DIAGRAM_OUTLINE_SOURCE_PROBABLE,
 } from "@/lib/infra-evidence/infra-evidence-diagram-copy";
@@ -109,7 +110,7 @@ function resolveNodeProblem(node: InfraEvidenceMermaidOutlineNode): string {
     const unknownDetails = node.unresolvedRelationshipDetails;
 
     if (unknownDetails === null || unknownDetails === undefined) {
-      return "Unresolved relationship details were not stored.";
+      return GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNKNOWN_SECTION;
     }
 
     if (unknownDetails.length > 0) {
@@ -210,21 +211,19 @@ function formatOutlineCell(value: string | null, missingLabel = "Not recorded"):
   }
 
   if (value.trim().length === 0) {
-    return missingLabel.includes("was not stored")
-      ? missingLabel.replace("was not stored", "was stored empty")
-      : "Entry was stored empty.";
+    return missingLabel;
   }
 
   return value;
 }
 
-function formatOutlineResourceType(resourceType: string | null): string {
-  if (resourceType === null) {
+function formatOutlineResourceType(resourceType: string | null | undefined): string {
+  if (resourceType === null || resourceType === undefined) {
     return "Resource type was not stored";
   }
 
   if (resourceType.trim().length === 0) {
-    return "Resource type was stored empty.";
+    return "Resource type was not stored";
   }
 
   return formatDiagramArmTypeFriendlyName(resourceType) ?? "Resource type was not stored";
@@ -248,7 +247,7 @@ function formatOutlineEdgeSource(
 
   switch (source) {
     case "missing":
-      return "Source was not stored.";
+      return INFRA_EVIDENCE_DIAGRAM_OUTLINE_SOURCE_NOT_STORED;
 
     case "declared":
       return INFRA_EVIDENCE_DIAGRAM_OUTLINE_SOURCE_DECLARED;

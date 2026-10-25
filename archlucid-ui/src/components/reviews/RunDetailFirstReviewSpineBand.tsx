@@ -122,27 +122,15 @@ export function RunDetailFirstReviewSpineBand(props: RunDetailFirstReviewSpineBa
       {summary.showTopFindingRow ? (
         <p className={cn("m-0 mt-2 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)} data-testid="run-detail-first-review-spine-top-finding">
           <span className="font-semibold">
-            {summary.topFindingPolicyMapped ? "Top policy-mapped finding:" : "Top finding:"}
+            {summary.topFindingRankLabel ?? "Decision-grade finding:"}
           </span>{" "}
-          {summary.topFindingSeverityLabel !== null ? `[${summary.topFindingSeverityLabel}] ` : ""}
-          {props.runId !== null
-            && props.runId !== undefined
-            && props.runId.trim().length > 0
-            && summary.topFindingId !== null
-            && summary.topFindingId.trim().length > 0
-            && summary.topFindingTitle !== null
-            && !summary.topFindingTitle.endsWith("was not stored.")
-            && !summary.topFindingTitle.endsWith("was stored empty.") ? (
-            <Link
-              href={`/architecture/reviews/${encodeURIComponent(props.runId.trim())}/findings/${encodeURIComponent(summary.topFindingId.trim())}`}
-              className={OPERATOR_LINK.inline}
-              data-testid="run-detail-first-review-spine-top-finding-link"
-            >
-              {summary.topFindingTitle}
-            </Link>
-          ) : (
-            summary.topFindingTitle
-          )}
+          {summary.topFindingSeverityLabel !== null
+          && !summary.topFindingSeverityLabel.startsWith("Severity")
+            ? `[${summary.topFindingSeverityLabel}] `
+            : summary.topFindingSeverityLabel !== null
+              ? `${summary.topFindingSeverityLabel} `
+              : ""}
+          {summary.topFindingTitle}
         </p>
       ) : null}
 
@@ -175,7 +163,7 @@ export function RunDetailFirstReviewSpineBand(props: RunDetailFirstReviewSpineBa
           className={OPERATOR_LINK.inline}
           data-testid="run-detail-first-review-spine-pack-delta-demo-link"
         >
-          See how a policy-pack change shifts findings
+          Policy-pack delta demo (sample runbook, not this review).
         </Link>
       </p>
     </section>

@@ -19,10 +19,10 @@ public static class DiagramNodeHumanCaptionFactory
 
             return linkedServiceType switch
             {
-                "AzureBlobStorage" or "AzureBlobFS" => "Blob link",
-                "AzureMySql" => "MySQL link",
-                "Sftp" => "SFTP link",
-                "HttpServer" or "Web" or "RestService" => "HTTP link",
+                "AzureBlobStorage" or "AzureBlobFS" => "Blob linked-service type",
+                "AzureMySql" => "MySQL linked-service type",
+                "Sftp" => "SFTP linked-service type",
+                "HttpServer" or "Web" or "RestService" => "HTTP linked-service type",
                 _ => $"Linked service type {linkedServiceType} has no reviewer label.",
             };
         }
@@ -109,13 +109,13 @@ public static class DiagramNodeHumanCaptionFactory
         if (node.ConnectionState == InventoryDiagramConnectionState.Orphaned
             && !string.IsNullOrWhiteSpace(node.ConnectionStateMessage))
         {
-            combined = $"{combined} · Missing a required link: {node.ConnectionStateMessage.Trim()}";
+            combined = $"{combined} · No stored association: {node.ConnectionStateMessage.Trim()}.";
         }
         else if (node.ConnectionState == InventoryDiagramConnectionState.Used)
         {
             combined = string.IsNullOrWhiteSpace(node.ConnectionStateMessage)
-                ? $"{combined} · Referenced off this diagram. Use was not observed. Off-diagram use was not stored."
-                : $"{combined} · Referenced off this diagram. Use was not observed: {node.ConnectionStateMessage.Trim()}";
+                ? $"{combined} · Off-diagram use was not stored."
+                : $"{combined} · In use off the diagram: {node.ConnectionStateMessage.Trim()}";
         }
         else if (node.ConnectionState == InventoryDiagramConnectionState.Unconnected)
         {

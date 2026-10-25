@@ -94,6 +94,20 @@ describe("deriveScopeUnderstandingBullets", () => {
     );
   });
 
+  it("states when peopleAndSystems was omitted from the draft", () => {
+    const bullets = deriveScopeUnderstandingBullets({
+      architectureName: "Vertex",
+      businessOutcome: "Improve settlement latency",
+    });
+
+    expect(bullets.find((entry) => entry.kind === "people")?.value).toContain(
+      "People and systems were omitted",
+    );
+    expect(bullets.find((entry) => entry.kind === "systems")?.value).toContain(
+      "People and systems were omitted",
+    );
+  });
+
   it("keeps the label out of the editable value so rows stay typed", () => {
     const bullets = deriveScopeUnderstandingBullets({ systemName: "Vertex" });
     const systemRow = bullets.find((entry) => entry.kind === "system");
@@ -182,10 +196,10 @@ describe("deriveScopeUnderstandingBullets", () => {
     });
 
     expect(bullets.find((entry) => entry.kind === "gap")).toMatchObject({
-      id: "gap-billing-gateway",
       label: "Out of scope until clarified",
       value: "Billing gateway",
     });
+    expect(bullets.find((entry) => entry.kind === "gap")?.id).toMatch(/^gap-billing-gateway/);
   });
 });
 

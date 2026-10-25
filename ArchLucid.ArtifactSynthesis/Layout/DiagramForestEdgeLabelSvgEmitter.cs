@@ -79,9 +79,13 @@ internal static class DiagramForestEdgeLabelSvgEmitter
         {
             pathAttributes.Add(new XAttribute("stroke-dasharray", "6 4"));
         }
-        else if (visualKind == DiagramEdgeVisualKind.Declared || visualKind == DiagramEdgeVisualKind.Probable)
+        else if (visualKind == DiagramEdgeVisualKind.Declared)
         {
             pathAttributes.Add(new XAttribute("stroke-dasharray", "4 3"));
+        }
+        else if (visualKind == DiagramEdgeVisualKind.Probable)
+        {
+            pathAttributes.Add(new XAttribute("stroke-dasharray", "6 4"));
         }
         else if (visualKind == DiagramEdgeVisualKind.AiInferred || visualKind == DiagramEdgeVisualKind.Inferred)
         {

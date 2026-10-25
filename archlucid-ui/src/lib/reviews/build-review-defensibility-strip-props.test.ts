@@ -42,4 +42,15 @@ describe("buildReviewDefensibilityStripProps", () => {
       verdictKind: null,
     });
   });
+
+  it("returns null trail counts when transparency trail is absent on the verdict", () => {
+    const props = buildReviewDefensibilityStripProps(
+      { kind: "feasible", summary: "Ready", transparencyTrail: undefined } as ManifestFeasibilityVerdict,
+      false,
+    );
+
+    expect(props?.assertedCount).toBeNull();
+    expect(props?.inferredCount).toBeNull();
+    expect(props?.skippedCount).toBeNull();
+  });
 });

@@ -133,7 +133,11 @@ describe("RunDetailOutcomeCards", () => {
     );
 
     expect(screen.getByTestId("buyer-review-decision-summary")).toHaveTextContent("Decision was not stored.");
-    expect(screen.getByTestId("buyer-review-decision-summary")).toHaveTextContent("Citation count was not returned.");
+<<<<<<< HEAD
+    expect(screen.getByTestId("buyer-review-decision-summary")).toHaveTextContent("Finding count was not stored.");
+=======
+    expect(screen.getByTestId("buyer-review-decision-summary")).toHaveTextContent("Finding count was not returned.");
+>>>>>>> origin/master
 
     rerender(
       <RunDetailOutcomeCards
@@ -147,7 +151,11 @@ describe("RunDetailOutcomeCards", () => {
       />,
     );
 
-    expect(screen.getByTestId("buyer-review-decision-summary")).toHaveTextContent("0 citations in evidence trail");
+<<<<<<< HEAD
+    expect(screen.getByTestId("buyer-review-decision-summary")).toHaveTextContent("0 findings on the review record");
+=======
+    expect(screen.getByTestId("buyer-review-decision-summary")).toHaveTextContent("0 findings in evidence trail");
+>>>>>>> origin/master
     expect(screen.getByTestId("buyer-review-decision-summary")).toHaveTextContent("Approved with monitoring");
   });
 });

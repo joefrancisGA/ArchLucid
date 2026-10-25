@@ -44,11 +44,11 @@ export type ReviewMetadataAbsentReasons = {
 
 /** Shown when a finalized review record exists but a specific metadata field is missing. */
 export const REVIEW_METADATA_NOT_RECORDED_REASONS: ReviewMetadataAbsentReasons = {
-  governanceDecisionRecordedBy: "Not recorded — this record does not name who recorded the decision",
-  reviewTemplate: "Not recorded — no review template captured for this package",
-  finalizedAt: "Not recorded — finalization timestamp missing from the finalized review record",
-  packageVersion: "Not recorded — rule set version missing",
-  signedReviewRecordId: "Not recorded — no finalized review record ID",
+  governanceDecisionRecordedBy: "Governance decision recorder was not stored.",
+  reviewTemplate: "Review template was not stored.",
+  finalizedAt: "Finalization time was not stored.",
+  packageVersion: "Package version was not stored.",
+  signedReviewRecordId: "Finalized review record ID was not stored.",
 };
 
 /**
@@ -107,23 +107,6 @@ export function deriveArchitectureSystemName(run: RunSummary, headline: string):
       if (normalizedDisplayName.length > 0) {
         return clampReviewWorkspaceH1Title(normalizedDisplayName);
       }
-    }
-  }
-
-  const description = run.description?.trim() ?? "";
-  const runId = run.runId?.trim() ?? "";
-
-  if (
-    description.length > 0 &&
-    description !== headline &&
-    description !== runId &&
-    description.toLowerCase() !== runId.toLowerCase() &&
-    !isGeneratedIntakeBrief(description)
-  ) {
-    const normalized = toReviewDisplayTitle(description);
-
-    if (normalized.length > 0 && !isUnusableReviewTitleCandidate(normalized)) {
-      return clampReviewWorkspaceH1Title(normalized);
     }
   }
 
@@ -201,13 +184,16 @@ export function deriveLastEvaluatedLabel(
     return completedUtc;
   }
 
+<<<<<<< HEAD
   const manifestUtc = manifestSummary?.createdUtc?.trim() ?? "";
 
   if (manifestUtc.length > 0) {
     return manifestUtc;
   }
 
-  return run.createdUtc;
+=======
+>>>>>>> origin/master
+  return null;
 }
 export function deriveFinalizedAtUtc(
   run: RunDetail["run"],

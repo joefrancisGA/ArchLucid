@@ -66,6 +66,17 @@ describe("run-detail-evidence-inventory", () => {
     expect(countRunDetailEvidenceInventoryItems(items)).toBe(1);
   });
 
+  it("labels inventory-like filenames as submitted evidence, not cloud inventory", () => {
+    const items = deriveRunDetailEvidenceInventory({
+      findings: [],
+      runCreatedUtc: "2026-08-09T12:00:00Z",
+      submittedArchitecturePresent: false,
+      attachedFileNames: ["notes.zip", "inventory-brief.pdf"],
+    });
+
+    expect(items.map((item) => item.kind)).toEqual(["Document", "Submitted evidence"]);
+  });
+
   it("includes submitted architecture brief as an inventory row", () => {
     const items = deriveRunDetailEvidenceInventory({
       findings: [],
@@ -146,6 +157,18 @@ describe("run-detail-evidence-inventory", () => {
     expect(items[0]?.citingFindingCount).toBe(0);
   });
 
+  it("does not treat omitted evidenceRefCount as citing evidence without source names", () => {
+    expect(
+      findingsCiteEvidenceWithoutStoredSourceNames([
+        finding({
+          findingId: "f-omitted",
+          evidenceRefCount: null,
+          evidenceRefSnippets: [],
+        }),
+      ]),
+    ).toBe(false);
+  });
+
   it("detects findings that cite evidence counts without stored source names", () => {
     expect(
       findingsCiteEvidenceWithoutStoredSourceNames([
@@ -193,6 +216,16 @@ describe("run-detail-evidence-inventory", () => {
     );
   });
 
+  it("does not mark trust complete when inventory exists but trust rollup is absent", () => {
+    const readiness = deriveEvidenceScopeReadiness({
+      inventoryCount: 3,
+      trustReadiness: null,
+    });
+
+    expect(readiness.verdict).toBe("gaps");
+    expect(readiness.headline).toBe("Trust evidence was not stored.");
+  });
+
   it("forces gaps readiness when inventory is empty", () => {
     const readiness = deriveEvidenceScopeReadiness({
       inventoryCount: 0,
@@ -214,6 +247,24 @@ describe("run-detail-evidence-inventory", () => {
     const readiness = deriveEvidenceScopeReadiness({
       inventoryCount: 0,
       trustReadiness: null,
+      findingsCiteEvidenceWithoutSourceNames: true,
+    });
+
+    expect(readiness.verdict).toBe("gaps");
+    expect(readiness.headline).toBe(FINDINGS_CITE_EVIDENCE_WITHOUT_SOURCE_NAMES_HEADLINE);
+  });
+
+  it("surfaces citations-without-source-names headline when inventory rows exist (P-19)", () => {
+    const readiness = deriveEvidenceScopeReadiness({
+      inventoryCount: 2,
+      trustReadiness: {
+        verdict: "complete",
+        headline: "Evidence is complete for sponsor handoff.",
+        readyCount: 2,
+        totalCount: 2,
+        exceptions: [],
+        satisfied: [],
+      },
       findingsCiteEvidenceWithoutSourceNames: true,
     });
 

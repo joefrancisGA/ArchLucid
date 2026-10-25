@@ -15,7 +15,7 @@ export function trustEvidenceFieldOrUnavailable(
     return {
       title: fallbackTitle,
       status: "Unavailable",
-      detail: "Evidence field was not returned for this review.",
+      detail: "Evidence field was not stored for this review.",
     };
   }
 

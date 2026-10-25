@@ -98,6 +98,22 @@ describe("groupDiagramNeighborhoodSections", () => {
 
     expect(sections[0]?.heading).toBe("Neighborhood kind was not stored.");
   });
+
+  it("labels an unrecognized neighborhood kind without using the raw code as the heading", () => {
+    const sections = groupDiagramNeighborhoodSections([
+      {
+        id: "custom-bucket",
+        kind: "custom-bucket",
+        title: "t",
+        resourceCount: 1,
+        memberIds: [],
+        frameIds: [],
+        types: [],
+      },
+    ]);
+
+    expect(sections[0]?.heading).toBe("Neighborhood kind custom-bucket has no reviewer label.");
+  });
 });
 
 describe("shouldAutoOpenDiagramNeighborhoodMap", () => {

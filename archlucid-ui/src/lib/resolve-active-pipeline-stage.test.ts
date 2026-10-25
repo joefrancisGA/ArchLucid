@@ -86,4 +86,8 @@ describe("resolveCurrentPipelineStageLabel", () => {
       resolveCurrentPipelineStageLabel(timeline, baseSummary, true),
     ).toBe("Checking policy compliance");
   });
+
+  it("labels missing timeline and summary as not stored", () => {
+    expect(resolveCurrentPipelineStageLabel([], null)).toBe("Current stage was not stored.");
+  });
 });

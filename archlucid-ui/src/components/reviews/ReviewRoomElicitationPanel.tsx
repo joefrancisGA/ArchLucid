@@ -87,14 +87,24 @@ export function ReviewRoomElicitationPanel(
           <ul className="m-0 list-disc space-y-1 pl-5">
             {listPresenterAssertedAnswerEntries(elicitation.transparencyTrail).map((entry) => (
               <li key={entry.key} className={OPERATOR_TYPOGRAPHY.helper}>
-                {entry.value}
-                {entry.responderLabel
-                  ? ` — ${entry.responderLabel}`
-                  : " — Responder was not stored."}
+                {reviewPresenterAssertedCaptureLine(
+                  entry.key,
+                  entry.value,
+                  entry.responderLabel ?? "",
+                )}
               </li>
             ))}
           </ul>
         </div>
+      ) : null}
+
+      {elicitation.questionsLoading ? (
+        <p
+          className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="review-room-elicitation-loading"
+        >
+          Loading draft questions…
+        </p>
       ) : null}
 
       {elicitation.questionsFailure ? <OperatorApiProblem failure={elicitation.questionsFailure} /> : null}

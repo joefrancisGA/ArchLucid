@@ -8,7 +8,6 @@ import type { ArchitectureDraftRegistryEntry } from "@/lib/architecture/architec
 import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer/buyer-facing-review-title";
 import { buyerDemoPackageCardMeta } from "@/lib/buyer/buyer-demo-package-card-meta";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
-import { formatRecurrenceScheduleUtcLabel } from "@/lib/recurrence-schedule-utc-format";
 import type { ReplayValidationOutcome } from "@/lib/replay-validation-workflow";
 import { replayValidationOutcomeLabel } from "@/lib/replay-validation-workflow";
 
@@ -53,7 +52,7 @@ export function reviewPackageArchitectureName(run: RunSummary): string {
     return description;
   }
 
-  return "Architecture review";
+  return "Architecture name was not stored.";
 }
 
 export function reviewPackageStatusLabel(run: RunSummary): string {
@@ -64,12 +63,29 @@ export function reviewPackageStatusLabel(run: RunSummary): string {
   return "In progress";
 }
 
+/** @deprecated Prefer {@link reviewPackageCreatedDateLabel} and {@link reviewPackageFinalizedTimeLabel}. */
 export function reviewPackageFinalizedDateLabel(run: RunSummary): string {
-  if (run.hasGoldenManifest !== true) {
-    return "Not finalized";
+  return reviewPackageCreatedDateLabel(run);
+}
+
+export function reviewPackageCreatedDateLabel(run: RunSummary): string {
+  const created = run.createdUtc?.trim() ?? "";
+
+  if (created.length === 0) {
+    return "Created time was not stored.";
   }
 
   return formatRecurrenceScheduleUtcLabel(run.createdUtc);
+}
+
+export function reviewPackageFinalizedTimeLabel(run: RunSummary): string {
+  const finalized = run.completedUtc?.trim() ?? "";
+
+  if (finalized.length > 0) {
+    return formatRecurrenceScheduleUtcLabel(run.completedUtc!);
+  }
+
+  return "Finalized time was not stored.";
 }
 
 export function lookupArchitectureDraftOwnerLabel(

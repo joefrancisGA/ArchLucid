@@ -33,6 +33,7 @@ export { deriveBlockingApprovalCount } from "./workspace-actions";
 export { deriveRecommendedWorkspaceActions } from "./workspace-actions";
 export { deriveBlockingFindingHref } from "./workspace-actions";
 export { shortenNextActionForPrimaryCta } from "./workspace-actions";
+export { normalizeWorkspaceRecommendedActionOwnerOrRole } from "./workspace-actions";
 export { formatDecisionSnapshotGovernanceOutcome } from "./decision-snapshot";
 export { formatDecisionSnapshotFindingsLine } from "./decision-snapshot";
 export { deriveReviewNextActionLabel } from "./review-presentation";

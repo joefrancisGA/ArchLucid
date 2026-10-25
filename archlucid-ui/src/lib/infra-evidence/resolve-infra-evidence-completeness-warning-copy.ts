@@ -92,7 +92,7 @@ function resolveAksWorkloadImageReasonCopy(
     ? "Re-run hosted collection with a token that can invoke managed cluster run command, or use the Tier 1 PowerShell package."
     : "Re-run the Tier 1 PowerShell package after fixing access, then re-ingest the snapshot.";
   const rbacFix =
-    "Grant Azure Kubernetes Service Cluster Admin Role (or your org's equivalent) on the cluster so the collector can call managedClusters/runCommand. Without this, Pulls image from lines to container registries will not appear.";
+    "Grant Azure Kubernetes Service Cluster Admin Role (or your org's equivalent) on the cluster so the collector can call managedClusters/runCommand. Without this, Image reference lines to container registries will not appear.";
 
   switch (parsed.reason) {
     case AzureInventoryAksWorkloadImageCollectionWarningReasons.InsufficientRbac:

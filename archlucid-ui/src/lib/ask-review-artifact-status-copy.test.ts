@@ -26,6 +26,10 @@ describe("askReviewArtifactStatusCopy", () => {
     expect(askReviewArtifactStatusCopy(resolveAskReviewArtifactStatus({ runMissing: true }))).toMatch(
       /No architecture review/i,
     );
+    expect(askReviewArtifactStatusCopy(resolveAskReviewArtifactStatus({ runMissing: true }))).toMatch(/No architecture review/i);
+    expect(askReviewArtifactStatusCopy(resolveAskReviewArtifactStatus({ runMissing: false }))).toBe(
+      "Finalized state was not stored.",
+    );
   });
 
   it("describes finalized-loading when isFinalized is omitted", () => {

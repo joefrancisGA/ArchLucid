@@ -4,7 +4,11 @@ import { useCallback, useEffect, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { cn } from "@/lib/utils";
-import type { BuyerAskGroundingLink } from "@/lib/ask-buyer-grounding-links";
+import {
+  buildAskAnswerCitationSourceLinks,
+  collectCitedReviewIdsFromAskAnswerRefs,
+  type BuyerAskGroundingLink,
+} from "@/lib/ask-buyer-grounding-links";
 import type { AskCitationActionFollowUp } from "@/lib/ask-citation-action-follow-ups";
 import { AskAssistantMessageBody } from "@/components/AskAssistantMessageBody";
 import { AskCitedFindingsSemanticSupportBandFootnote } from "@/components/ask/AskCitedFindingsSemanticSupportBandFootnote";
@@ -20,6 +24,7 @@ import { ASK_CONVERSATION_EMPTY } from "@/lib/ask-conversation-empty-preset";
 import {
   ASK_REVIEW_STREAMING_PROVISIONAL_MARKER,
   askReviewArtifactStatusCopy,
+  ASK_CITATION_REFS_NOT_STORED_MARKER,
   resolveAskAssistantGroundingCitationMarker,
   resolveAskReviewArtifactStatus,
 } from "@/lib/ask-review-artifact-status-copy";
@@ -68,6 +73,10 @@ function formatAskUserTurnContent(content: string): string {
 }
 
 function askMessageRoleLabel(role: string, buyerPolishedShell: boolean): string {
+  if (role.trim().length === 0) {
+    return "Speaker was not stored.";
+  }
+
   if (!buyerPolishedShell) {
     return role;
   }
@@ -110,7 +119,7 @@ export function AskMessageThreadPanel(props: AskMessageThreadPanelProps) {
     onStarterPromptClick,
     runId,
     retrievalDegraded = false,
-    isFinalizedReview = true,
+    isFinalizedReview = false,
   } = props;
 
   const artifactStatus = resolveAskReviewArtifactStatus({
@@ -217,6 +226,11 @@ export function AskMessageThreadPanel(props: AskMessageThreadPanelProps) {
             message.role.toLowerCase() === "assistant"
               ? parseAskCitationRefsFromMessageMetadata(message.metadataJson)
               : null;
+          const assistantCitationSourceLinks =
+            buyerPolishedShell && assistantCitationRefs !== null
+              ? buildAskAnswerCitationSourceLinks(runId, assistantCitationRefs)
+              : (askAssistantGroundingLinks ?? []);
+          const citedReviewIds = collectCitedReviewIdsFromAskAnswerRefs(runId, assistantCitationRefs);
 
           return (
           <Card
@@ -253,11 +267,25 @@ export function AskMessageThreadPanel(props: AskMessageThreadPanelProps) {
                       </p>
                     ) : null;
                   })()}
+                  {message.metadataJson?.trim() &&
+                  message.metadataJson.trim() !== "{}" &&
+                  assistantCitationRefs === null &&
+                  message.content.trim().length > 0 ? (
+                    <p
+                      className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                      data-testid="ask-citation-refs-not-stored-marker"
+                      role="note"
+                    >
+                      {ASK_CITATION_REFS_NOT_STORED_MARKER}
+                    </p>
+                  ) : null}
                   <AskAssistantMessageBody
                     buyerPolishedLinks={buyerPolishedShell}
                     content={message.content}
-                    groundingLinks={askAssistantGroundingLinks ?? []}
-                    reviewIdInScope={runId}
+                    groundingLinks={
+                      assistantCitationSourceLinks.length > 0 ? assistantCitationSourceLinks : undefined
+                    }
+                    citedReviewIds={citedReviewIds}
                   />
                   <AskCitedFindingsSemanticSupportBandFootnote
                     referencedFindingIds={assistantCitationRefs?.referencedFindings ?? []}

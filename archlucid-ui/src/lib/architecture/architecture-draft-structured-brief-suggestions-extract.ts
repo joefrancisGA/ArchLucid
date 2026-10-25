@@ -6,6 +6,10 @@ const EMPTY_SUGGESTIONS: IncomingStructuredBriefSuggestions = {
   suggestedCapabilities: [],
 };
 
+/** Shown when deterministic extract fills structured-brief chips — inferred from pasted text, not stored brief fields. */
+export const INFERRED_STRUCTURED_BRIEF_SUGGESTIONS_DISCLOSURE =
+  "Suggestions below were inferred from overview text. They are not stored structured-brief answers." as const;
+
 /**
  * Deterministic structured-brief suggestions (ADR 0049-style) when LLM draft intake returns nothing.
  * Handles architecture review packets with ADRs, reliability targets, and markdown sections.
