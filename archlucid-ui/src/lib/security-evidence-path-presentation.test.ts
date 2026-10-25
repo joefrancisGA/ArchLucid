@@ -15,6 +15,10 @@ describe("security-evidence-path-presentation", () => {
     expect(formatSecurityEvidenceProvenanceKindLabel("AiInference")).toBe("AI inference");
     expect(formatSecurityEvidencePathConfidenceBandLabel("HighlyLikely")).toBe("Highly likely");
     expect(formatSecurityEvidencePathConfidenceBandLabel("InsufficientEvidence")).toBe("Insufficient evidence");
+    expect(formatSecurityEvidenceProvenanceKindLabel("")).toBe("Provenance was not stored.");
+    expect(formatSecurityEvidencePathConfidenceBandLabel("")).toBe("Confidence band was not stored.");
+    expect(formatSecurityEvidencePathConfidenceBandLabel("UnknownBand")).toBe("Guessed");
+    expect(formatSecurityEvidenceProvenanceKindLabel("UnknownKind")).toBe("Guessed");
   });
 
   it("labels missing band and provenance honestly (P-13, P-14)", () => {
@@ -40,6 +44,9 @@ describe("security-evidence-path-presentation", () => {
 
   it("uses an explicit absence label when a relationship is not stored", () => {
     expect(formatSecurityEvidencePathRelationshipLabel("RoleAssignment")).toBe("RoleAssignment");
+    expect(formatSecurityEvidencePathRelationshipLabel("CAN_READ")).toBe(
+      "Role allows read. This is not observed use.",
+    );
     expect(formatSecurityEvidencePathRelationshipLabel("")).toBe("Relationship type was not stored");
     expect(formatSecurityEvidencePathRelationshipLabel(null)).toBe("Relationship type was not stored");
   });

@@ -24,7 +24,8 @@ describe("QuickDecisionSummaryEmptyState (P-14)", () => {
       />,
     );
 
-    expect(screen.getByText(/records 3 findings with no unresolved blocking issues/)).toBeInTheDocument();
+    expect(screen.getByText(/records 3 findings on the manifest headline/)).toBeInTheDocument();
+    expect(screen.queryByText(/no unresolved blocking issues/)).not.toBeInTheDocument();
     expect(screen.queryByText(/PHI minimization risk/)).not.toBeInTheDocument();
   });
 });

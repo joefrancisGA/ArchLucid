@@ -50,6 +50,18 @@ describe("formatRemediationPriorityReaderSentence", () => {
     ).toBe(REMEDIATION_PRIORITY_NO_LEADING_FACTOR);
   });
 
+  it("distinguishes missing rollback metadata from a recorded none rollback", () => {
+    const noneRollback = JSON.stringify([
+      { Factor: "RemediationRisk", NormalizedValue: 1, WeightedContribution: 0.1, Source: "none" },
+    ]);
+    const missingRollback = JSON.stringify([
+      { Factor: "RemediationRisk", NormalizedValue: 1, WeightedContribution: 0.1, Source: "unknown" },
+    ]);
+
+    expect(formatRemediationPriorityReaderSentence(noneRollback)).toBe("No rollback recorded.");
+    expect(formatRemediationPriorityReaderSentence(missingRollback)).toBe("Rollback plan was not stored.");
+  });
+
   it("does not put a decimal or a percent sign in the sentence", () => {
     const breakdown = JSON.stringify([
       { Factor: "Exploitability", NormalizedValue: 0.42, WeightedContribution: 0.42, Source: "practical" },

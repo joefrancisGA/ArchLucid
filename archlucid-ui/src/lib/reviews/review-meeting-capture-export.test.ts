@@ -61,7 +61,10 @@ describe("review-meeting-capture-export (PC-09 optional)", () => {
       "Responder was not stored.",
       "Answer recorded time was not stored.",
     ]);
-    expect(buildReviewMeetingCaptureMetaParts(entries[1]!)).toEqual([]);
+    expect(buildReviewMeetingCaptureMetaParts(entries[1]!)).toEqual([
+      "Responder was stored empty.",
+      "Answer recorded time was stored empty.",
+    ]);
   });
 
   it("filters presenter answers from transparency trail", () => {

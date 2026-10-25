@@ -112,6 +112,10 @@ export function summarizeEvidenceBasis(payload: FindingInspectPayload | null): s
     return "Finding detail has not loaded.";
   }
 
+  if (payload.evidenceListReturned === false) {
+    return "Evidence list was not returned.";
+  }
+
   const evidenceCount = payload.evidence.length;
   const ruleLabel = payload.decisionRuleName ?? payload.decisionRuleId;
   const citationLabel = evidenceCount === 1 ? "citation" : "citations";
@@ -198,7 +202,7 @@ export function buyerFindingDecisionPanelCopy(payload: FindingInspectPayload | n
     const status = findingInspectPrimaryLabels(payload).statusLabel;
 
     if (status !== null && status.trim().length > 0) {
-      return `Disposition: ${status}. See acceptance record below for recorded controls.`;
+      return `Disposition: ${status}.`;
     }
   }
 
@@ -208,7 +212,7 @@ export function buyerFindingDecisionPanelCopy(payload: FindingInspectPayload | n
     return "No disposition recorded for this finding.";
   }
 
-  return `Disposition: ${status}. See acceptance record below for recorded controls.`;
+  return `Disposition: ${status}.`;
 }
 
 /** Top-of-page decision impact line for buyer-polished finding detail. */

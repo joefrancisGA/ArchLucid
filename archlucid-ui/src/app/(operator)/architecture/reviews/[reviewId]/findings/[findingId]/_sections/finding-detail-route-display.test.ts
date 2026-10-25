@@ -13,6 +13,7 @@ import {
   mitigationPosture,
   resolveFindingNextReviewLabel,
   resolveFindingRiskOwnerLabel,
+  summarizeEvidenceBasis,
 } from "./finding-detail-route-display";
 
 function emptyPayload(overrides: Partial<FindingInspectPayload> = {}): FindingInspectPayload {

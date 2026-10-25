@@ -3,6 +3,32 @@ import { describe, expect, it } from "vitest";
 import { buildArchitectureDiagramModel } from "@/lib/architecture/architecture-diagram-model";
 
 describe("buildArchitectureDiagramModel", () => {
+  it("counts entities skipped because diagram labels were not stored", () => {
+    const model = buildArchitectureDiagramModel(
+      {
+        sections: [
+          {
+            key: "systems-and-services",
+            title: "Systems and services",
+            narrativeMarkdown: null,
+            entities: [
+              { label: "Claims API", detail: null, provenance: "asserted" },
+              { label: "   ", detail: null, provenance: "asserted" },
+            ],
+            provenance: "asserted",
+          },
+        ],
+        hasPartialParseFailure: false,
+        suppressedArtifactCount: 0,
+        sourceText: "- Claims API",
+      },
+      "Payments",
+    );
+
+    expect(model.nodes.filter((node) => node.label === "Claims API")).toHaveLength(1);
+    expect(model.skippedUnlabeledEntityCount).toBe(1);
+  });
+
   it("preserves data-flow endpoints whose labels contain the word 'to'", () => {
     const model = buildArchitectureDiagramModel(
       {
@@ -123,6 +149,70 @@ describe("buildArchitectureDiagramModel", () => {
         targetId: "system_api",
       }),
     ]);
+  });
+
+  it("does not draw flows when endpoint labels are ambiguous across node kinds (P-05)", () => {
+    const model = buildArchitectureDiagramModel(
+      {
+        sections: [
+          {
+            key: "users-and-stakeholders",
+            title: "Users",
+            narrativeMarkdown: null,
+            entities: [{ label: "Portal", detail: null, provenance: "asserted" }],
+            provenance: "asserted",
+          },
+          {
+            key: "systems-and-services",
+            title: "Systems and services",
+            narrativeMarkdown: null,
+            entities: [
+              { label: "Portal", detail: null, provenance: "asserted" },
+              { label: "API", detail: null, provenance: "asserted" },
+            ],
+            provenance: "asserted",
+          },
+          {
+            key: "data-flows",
+            title: "Data flows",
+            narrativeMarkdown: null,
+            entities: [{ label: "Portal -> API", detail: null, provenance: "asserted" }],
+            provenance: "asserted",
+          },
+        ],
+        hasPartialParseFailure: false,
+        suppressedArtifactCount: 0,
+        sourceText: "- Portal -> API",
+      },
+      "Payments",
+    );
+
+    expect(model.edges).toEqual([]);
+  });
+
+  it("adds the architecture name as an inferred system node when it is not already listed (P-01)", () => {
+    const model = buildArchitectureDiagramModel(
+      {
+        sections: [
+          {
+            key: "systems-and-services",
+            title: "Systems and services",
+            narrativeMarkdown: null,
+            entities: [{ label: "Billing API", detail: null, provenance: "asserted" }],
+            provenance: "asserted",
+          },
+        ],
+        hasPartialParseFailure: false,
+        suppressedArtifactCount: 0,
+        sourceText: "- Billing API",
+      },
+      "Payments edge review",
+    );
+
+    const nameNode = model.nodes.find((node) => node.label === "Payments edge review");
+
+    expect(nameNode?.provenance).toBe("inferred");
+    expect(nameNode?.accepted).toBe(false);
   });
 
   it("materializes pipe-delimited data flows when detail includes a description column", () => {

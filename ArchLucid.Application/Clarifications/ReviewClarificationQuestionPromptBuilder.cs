@@ -9,7 +9,7 @@ public static class ReviewClarificationQuestionPromptBuilder
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(findingType);
 
-        string item = string.IsNullOrWhiteSpace(missingItem) ? "this gap" : $"'{missingItem.Trim()}'";
+        string item = FormatMissingItemReference(missingItem);
 
         if (string.Equals(findingType, FindingTypes.TopologyCoverageFinding, StringComparison.OrdinalIgnoreCase))
             return $"Which system or integration covers the missing topology category {item}?";
@@ -30,5 +30,23 @@ public static class ReviewClarificationQuestionPromptBuilder
             return $"Which topology, security, or requirement evidence satisfies required capability {item}?";
 
         return $"What evidence or design detail resolves assessment gap {item}?";
+    }
+
+    internal static string FormatMissingItemReference(string missingItem)
+    {
+        if (string.IsNullOrWhiteSpace(missingItem))
+        {
+            return "Missing item was not stored.";
+        }
+
+        string trimmed = missingItem.Trim();
+
+        if (trimmed.StartsWith("/subscriptions/", StringComparison.OrdinalIgnoreCase)
+            || trimmed.StartsWith("subscriptions/", StringComparison.OrdinalIgnoreCase))
+        {
+            return $"Resource name was not stored. Stored reference: '{trimmed}'.";
+        }
+
+        return $"'{trimmed}'";
     }
 }

@@ -49,7 +49,7 @@ export function formatSecurityEvidencePathConfidenceBandLabel(band: string | nul
     return "Confidence band was not stored.";
   }
 
-  return PATH_CONFIDENCE_BAND_LABELS[trimmed] ?? trimmed;
+  return PATH_CONFIDENCE_BAND_LABELS[trimmed] ?? "Guessed";
 }
 
 export function formatSecurityEvidenceProvenanceKindLabel(kind: string | null | undefined): string {
@@ -59,13 +59,35 @@ export function formatSecurityEvidenceProvenanceKindLabel(kind: string | null | 
     return "Provenance kind was not stored.";
   }
 
-  return PROVENANCE_KIND_LABELS[trimmed] ?? trimmed;
+  return PROVENANCE_KIND_LABELS[trimmed] ?? "Guessed";
 }
+
+const PATH_RELATIONSHIP_LABELS: Readonly<Record<string, string>> = {
+  CAN_READ: "Role allows read. This is not observed use.",
+  CAN_WRITE: "Role allows write. This is not observed use.",
+  USES_IDENTITY: "uses managed identity",
+  MEMBER_OF: "member of group",
+  PossibleMovement: "possible movement",
+  UnrestrictedEgress: "unrestricted egress (declared NSG allow)",
+  InsufficientEvidenceEgress: "egress not fully verified",
+  SharedControlFanOut: "shared control fan-out",
+  PublicNetworkAccess: "public network exposure",
+};
 
 export function formatSecurityEvidencePathRelationshipLabel(edgeType: string | null | undefined): string {
   const trimmed = edgeType?.trim() ?? "";
 
-  return trimmed.length > 0 ? trimmed : "Relationship type was not stored";
+  if (trimmed.length === 0) {
+    return "Relationship type was not stored";
+  }
+
+  const mapped = PATH_RELATIONSHIP_LABELS[trimmed];
+
+  if (mapped !== undefined) {
+    return mapped;
+  }
+
+  return trimmed;
 }
 
 const PROVENANCE_KIND_MEANINGS: Readonly<Record<string, string>> = {
