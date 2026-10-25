@@ -24,21 +24,22 @@ export type CitationChipsProps = {
 
 function citationHref(c: CitationReference, runId: string, buyerPolishedShell: boolean): string | null {
   const trimmedRunId = runId.trim();
+  const trimmedCitationId = c.id.trim();
 
-  if (trimmedRunId.length === 0) {
+  if (trimmedRunId.length === 0 || trimmedCitationId.length === 0) {
     return null;
   }
 
   switch (c.kind) {
     case "Manifest":
-      return signedRecordDetailPath(c.id);
+      return signedRecordDetailPath(trimmedCitationId);
     case "Finding":
 
       if (buyerPolishedShell) {
-        return `/architecture/reviews/${encodeURIComponent(trimmedRunId)}/findings/${encodeURIComponent(c.id)}`;
+        return `/architecture/reviews/${encodeURIComponent(trimmedRunId)}/findings/${encodeURIComponent(trimmedCitationId)}`;
       }
 
-      return `/architecture/reviews/${encodeURIComponent(trimmedRunId)}#finding-${encodeURIComponent(c.id)}`;
+      return `/architecture/reviews/${encodeURIComponent(trimmedRunId)}#finding-${encodeURIComponent(trimmedCitationId)}`;
     case "DecisionTrace":
     case "GraphSnapshot":
     case "ContextSnapshot":
