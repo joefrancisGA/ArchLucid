@@ -222,10 +222,11 @@ export function ArchitectureIdentityDeskInventoryBindingPanel(
             {" "}
             {binding.snapshotSubscriptionName?.trim().length
               ? binding.snapshotSubscriptionName
-              : binding.snapshotId}
+              : "Subscription name was not stored."}
+            {" · "}
             {binding.snapshotCapturedUtc != null && binding.snapshotCapturedUtc.trim().length > 0
-              ? ` · captured ${formatInfraEvidenceSnapshotCapturedLabel(binding.snapshotCapturedUtc)}`
-              : null}
+              ? `captured ${formatInfraEvidenceSnapshotCapturedLabel(binding.snapshotCapturedUtc)}`
+              : "Snapshot captured time was not stored."}
           </p>
           {staleSnapshotLine !== null ? (
             <div

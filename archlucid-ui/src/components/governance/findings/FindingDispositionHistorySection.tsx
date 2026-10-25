@@ -14,44 +14,17 @@ import {
   INHABIT_DISPOSITION_HISTORY_LOADING,
   INHABIT_DISPOSITION_HISTORY_SECTION_TITLE,
 } from "@/lib/inhabit/inhabit-disposition-history-copy";
+import {
+  formatDispositionHistoryActor,
+  formatDispositionHistoryRationale,
+  formatDispositionHistoryRecordedTime,
+} from "@/lib/findings/finding-disposition-history-display";
 import { cn } from "@/lib/utils";
 
 export type FindingDispositionHistorySectionProps = {
   readonly findingId: string;
   readonly testId?: string;
 };
-
-function formatDispositionHistoryActor(reviewerUserId: string | null | undefined): string {
-  const trimmed = reviewerUserId?.trim() ?? "";
-
-  if (trimmed.length === 0) {
-    return "Reviewer was not stored.";
-  }
-
-  return trimmed;
-}
-
-function formatDispositionHistoryRationale(rationale: string | null | undefined): string {
-  if (rationale === null || rationale === undefined) {
-    return "Rationale was not stored.";
-  }
-
-  if (rationale.length === 0 || rationale.trim().length === 0) {
-    return "Rationale was stored empty.";
-  }
-
-  return rationale.trim();
-}
-
-function formatDispositionHistoryRecordedTime(occurredAtUtc: string | null | undefined): string {
-  const trimmed = occurredAtUtc?.trim() ?? "";
-
-  if (trimmed.length === 0) {
-    return "Recorded time was not stored.";
-  }
-
-  return trimmed;
-}
 
 /** IH-034 — durable disposition trail on Working inspect/panel (not toast-dependent). */
 export function FindingDispositionHistorySection(
