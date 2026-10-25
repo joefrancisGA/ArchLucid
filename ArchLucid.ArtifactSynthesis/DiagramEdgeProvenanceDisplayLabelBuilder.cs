@@ -43,6 +43,11 @@ public static class DiagramEdgeProvenanceDisplayLabelBuilder
                 return "Relationship verb was not stored.";
             }
 
+            if (trimmedVerb.StartsWith("Named in app settings", StringComparison.OrdinalIgnoreCase))
+            {
+                return trimmedVerb;
+            }
+
             return $"likely · {trimmedVerb}";
         }
 
