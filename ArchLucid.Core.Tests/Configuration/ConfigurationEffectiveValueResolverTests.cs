@@ -2191,6 +2191,33 @@ public sealed class ConfigurationEffectiveValueResolverTests
     }
 
     [Fact]
+    public void Resolve_truncates_scalar_without_splitting_thirty_five_supplementary_characters_at_boundary()
+    {
+        const string configPath = "ArchLucid:FallbackLlm:Endpoints";
+        string emojis = "\U0001F4A1\U0001F4A2\U0001F4A3\U0001F4A4\U0001F4A5\U0001F4A6\U0001F4A7\U0001F4A8\U0001F4A9\U0001F4AA\U0001F4AB\U0001F4AC\U0001F4AD\U0001F4AE\U0001F4AF\U0001F4B0\U0001F4B1\U0001F4B2\U0001F4B3\U0001F4B4\U0001F4B5\U0001F4B6\U0001F4B7\U0001F4B8\U0001F4B9\U0001F4BA\U0001F4BB\U0001F4BC\U0001F4BD\U0001F4BE\U0001F4BF\U0001F4C0\U0001F4C1\U0001F4C2\U0001F4C3";
+        string configured = new string('o', 120) + emojis + "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789";
+
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = configured,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            configPath,
+            isSet: true);
+
+        value.Should().NotBeNull();
+        value.Should().EndWith("…");
+        string prefix = value![..^1];
+        prefix.Length.Should().Be(256);
+        TruncatedPrefixIsWellFormed(value).Should().BeTrue();
+        prefix.Should().Be(new string('o', 120) + emojis + "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123");
+    }
+
+    [Fact]
     public void Resolve_preserves_scalar_effective_value_at_exactly_max_length_when_ending_with_valid_surrogate_pair()
     {
         const string configPath = "ArchLucid:FallbackLlm:Endpoints";
