@@ -51,13 +51,19 @@ function formatConnectionStatus(status: OperatorInferredConnectionRow["status"])
   return status;
 }
 
-function formatConnectionSource(source: OperatorInferredConnectionRow["source"]): string {
+function formatConnectionSource(row: OperatorInferredConnectionRow): string {
+  const source = row.source;
+
   if (source === null || source === undefined) {
     return OPERATOR_INFERRED_CONNECTION_SOURCE_NOT_STORED_COPY;
   }
 
   if (source.trim().length === 0) {
     return "Question source was stored empty.";
+  }
+
+  if (source === "upload") {
+    return formatStoredValue(row.sourceFileFormat, "Source file format was not stored.");
   }
 
   return source;
@@ -313,7 +319,7 @@ export function OperatorInferredConnectionsPanel(
                   <EnterpriseTableCell>
                     {formatStoredValue(row.settingName, "Setting name was not stored")}
                   </EnterpriseTableCell>
-                  <EnterpriseTableCell>{formatConnectionSource(row.source)}</EnterpriseTableCell>
+                  <EnterpriseTableCell>{formatConnectionSource(row)}</EnterpriseTableCell>
                   <EnterpriseTableCell>{formatConnectionStatus(row.status)}</EnterpriseTableCell>
                 </EnterpriseTableRow>
               ))}
