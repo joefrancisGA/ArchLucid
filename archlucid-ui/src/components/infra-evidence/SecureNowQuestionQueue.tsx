@@ -116,6 +116,10 @@ function formatSecureNowQuestionSourceLabel(source: string | null): string {
     return "Asked because a connection was inferred. Answering does not store a link.";
   }
 
+  if (trimmed === "PolicyPack") {
+    return "Asked from an assigned policy pack.";
+  }
+
   return `Question source code ${trimmed} has no reviewer label.`;
 }
 
@@ -132,6 +136,14 @@ function formatSecureNowQuestionScopeLabel(scopeKind: string | null): string {
 
   if (trimmed === "Resource") {
     return "This resource.";
+  }
+
+  if (trimmed === "Subscription") {
+    return "This subscription.";
+  }
+
+  if (trimmed === "ResourceGroup") {
+    return "This resource group.";
   }
 
   return `Question scope code ${trimmed} has no reviewer label.`;

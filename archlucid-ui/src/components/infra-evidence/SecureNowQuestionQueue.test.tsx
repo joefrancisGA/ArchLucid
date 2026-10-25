@@ -214,6 +214,26 @@ describe("SecureNowQuestionQueue", () => {
     expect(screen.getByText("Scope: Question scope was not stored.")).toBeInTheDocument();
   });
 
+  it("labels policy pack source and subscription scope in details", async () => {
+    mocks.listQuestions.mockResolvedValue([
+      {
+        ...question,
+        source: "PolicyPack",
+        scopeKind: "Subscription",
+        resourceId: "",
+        questionKey: "subscription-ownership@v1",
+        questionText: "Who owns this subscription workload?",
+        sourceLine: "Policy pack",
+      },
+    ]);
+
+    render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
+    fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
+
+    expect(screen.getByText("Source: Asked from an assigned policy pack.")).toBeInTheDocument();
+    expect(screen.getByText("Scope: This subscription.")).toBeInTheDocument();
+  });
+
   it("preserves missing and unexpected stored question status", async () => {
     mocks.listQuestions.mockResolvedValue([question, { ...question, status: null, resourceName: "" }]);
 
@@ -222,7 +242,7 @@ describe("SecureNowQuestionQueue", () => {
     fireEvent.click(screen.getByRole("button", { name: "Next" }));
 
     expect(screen.getByTestId("infra-diagrams-question-resource-name")).toHaveTextContent(
-      "Resource name was not stored",
+      "Resource name was stored empty.",
     );
     expect(screen.getByText("Question status was not stored")).toBeInTheDocument();
   });
@@ -239,7 +259,7 @@ describe("SecureNowQuestionQueue", () => {
     render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
     fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
 
-    expect(screen.getByTestId("infra-diagrams-question-text")).toHaveTextContent("Question text was not stored");
+    expect(screen.getByTestId("infra-diagrams-question-text")).toHaveTextContent("Question text was stored empty.");
     expect(screen.getByText("Resource type was not stored")).toBeInTheDocument();
     expect(screen.getByTestId("infra-diagrams-question-reason")).toHaveTextContent("Reason was not stored");
     expect(screen.getByText("No answer choices were stored on this question.")).toBeInTheDocument();
