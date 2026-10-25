@@ -536,6 +536,89 @@ public sealed class RunExportQueryFacadeTests
     }
 
     [Fact]
+    public async Task CompareQuality_CompareExportRecordsSummaryAsync_audit_json_trims_padded_export_record_ids()
+    {
+        const string leftExportRecordId = "left-export";
+        const string rightExportRecordId = "right-export";
+        Guid runGuid = Guid.Parse(RunId);
+        RunExportRecord leftRecord = CreateExportRecord(leftExportRecordId);
+        RunExportRecord rightRecord = CreateExportRecord(rightExportRecordId);
+        ArchitectureRunDetail scopedDetail = CreateScopedRunDetail();
+        RunDetailDto authorityDetail = CreateAuthorityDetailWithCompleteLifecycle(runGuid);
+
+        Mock<IRunDetailQueryService> runDetails = new();
+        runDetails
+            .Setup(r => r.GetRunDetailAsync(RunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(scopedDetail);
+
+        Mock<IRunExportRecordRepository> exportRecords = new();
+        exportRecords
+            .Setup(r => r.GetByIdAsync(leftExportRecordId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(leftRecord);
+        exportRecords
+            .Setup(r => r.GetByIdAsync(rightExportRecordId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(rightRecord);
+
+        ArchLucid.Decisioning.Services.ManifestHashService manifestHashService = new();
+        Mock<IAuthorityQueryService> authority = new();
+        SealedExportReceiptTestSupport.ConfigureVerifiedSealedExport(authority, runGuid, manifestHashService);
+        authority
+            .Setup(a => a.GetRunDetailAsync(It.IsAny<ScopeContext>(), runGuid, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(authorityDetail);
+
+        Mock<IExportRecordDiffService> diffService = new();
+        diffService
+            .Setup(d => d.CompareAsync(It.IsAny<RunExportRecord>(), It.IsAny<RunExportRecord>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ExportRecordDiffResult());
+
+        Mock<IExportRecordDiffSummaryFormatter> formatter = new();
+        formatter
+            .Setup(f => f.FormatMarkdown(It.IsAny<ExportRecordDiffResult>()))
+            .Returns("# diff");
+
+        Mock<IComparisonAuditService> comparisonAudit = new();
+        comparisonAudit
+            .Setup(c => c.RecordExportDiffAsync(It.IsAny<ExportRecordDiffResult>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync("cmp-summary-audit");
+
+        AuditEvent? capturedAudit = null;
+        Mock<IAuditService> audit = new();
+        audit
+            .Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .Callback<AuditEvent, CancellationToken>((evt, _) => capturedAudit = evt)
+            .Returns(Task.CompletedTask);
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(new ScopeContext());
+
+        RunExportQueryFacade sut = new(
+            runDetails.Object,
+            exportRecords.Object,
+            comparisonAudit.Object,
+            Mock.Of<IExportReplayService>(),
+            diffService.Object,
+            formatter.Object,
+            audit.Object,
+            Mock.Of<IRunExportLineageVerifier>(),
+            authority.Object,
+            manifestHashService,
+            scopeProvider.Object,
+            Mock.Of<IRunExportCareerPostureGate>());
+
+        ExportRecordDiffSummaryQueryResult result = await sut.CompareExportRecordsSummaryAsync(
+            $"  {leftExportRecordId}  ",
+            $"  {rightExportRecordId}  ",
+            persist: true,
+            CancellationToken.None);
+
+        result.Outcome.Should().Be(ExportRecordLoadOutcome.Success);
+        capturedAudit.Should().NotBeNull();
+        capturedAudit!.DataJson.Should().Contain(leftExportRecordId);
+        capturedAudit.DataJson.Should().Contain(rightExportRecordId);
+        capturedAudit.DataJson.Should().NotContain($"  {leftExportRecordId}  ");
+    }
+
+    [Fact]
     public async Task CompareExportRecordsAsync_throws_when_career_posture_blocks_metadata_read()
     {
         const string leftExportRecordId = "left-export";

@@ -176,6 +176,9 @@ public sealed class RunExportQueryFacade(
 
     public async Task<ExportRecordDiffSummaryQueryResult> CompareExportRecordsSummaryAsync(string leftExportRecordId, string rightExportRecordId, bool persist, CancellationToken cancellationToken = default)
     {
+        leftExportRecordId = RunExportRecordIdNormalizer.NormalizeRequired(leftExportRecordId);
+        rightExportRecordId = RunExportRecordIdNormalizer.NormalizeRequired(rightExportRecordId);
+
         (ExportRecordLoadOutcome outcome, RunExportRecord? left, RunExportRecord? right, string? missingId) =
 
             await LoadPairAsync(leftExportRecordId, rightExportRecordId, cancellationToken);
