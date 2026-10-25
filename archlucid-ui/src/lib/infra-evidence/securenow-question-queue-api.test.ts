@@ -21,6 +21,11 @@ describe("secureNowQuestionListedSnapshotMatchesContext", () => {
   it("rejects a different listed snapshot id after trim", () => {
     expect(secureNowQuestionListedSnapshotMatchesContext("snapshot-2", "snapshot-1")).toBe(false);
   });
+
+  it("rejects an empty listed snapshot id after trim", () => {
+    expect(secureNowQuestionListedSnapshotMatchesContext("", "snapshot-1")).toBe(false);
+    expect(secureNowQuestionListedSnapshotMatchesContext("   ", "snapshot-1")).toBe(false);
+  });
 });
 
 describe("securenow-question-queue-api", () => {
@@ -62,6 +67,22 @@ describe("securenow-question-queue-api", () => {
     const questions = await listSecureNowQuestions("snapshot-1");
 
     expect(questions[0].snapshotId).toBe("");
+  });
+
+  it("maps explicit null answerCodes to null instead of an empty array", async () => {
+    vi.mocked(proxyJsonGet).mockResolvedValueOnce([
+      {
+        snapshotId: "snapshot-1",
+        questionKey: "unknown-evidence@v1",
+        questionText: "Should this resource connect?",
+        answerCodes: null,
+        evidenceFingerprint: "fingerprint",
+      },
+    ]);
+
+    const questions = await listSecureNowQuestions("snapshot-1");
+
+    expect(questions[0].answerCodes).toBeNull();
   });
 
   it("maps answerCodes with only non-string entries to an empty array", async () => {

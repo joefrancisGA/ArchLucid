@@ -1634,6 +1634,24 @@ describe("SecureNowQuestionQueue", () => {
     });
   });
 
+  it("does not post an answer when the listed snapshot id is empty", async () => {
+    mocks.listQuestions.mockResolvedValue([
+      {
+        ...question,
+        snapshotId: "",
+      },
+    ]);
+
+    render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
+    fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
+    fireEvent.click(screen.getByRole("button", { name: "Name the peer" }));
+    fireEvent.click(screen.getByRole("button", { name: "Save answer" }));
+
+    await waitFor(() => {
+      expect(mocks.answerQuestion).not.toHaveBeenCalled();
+    });
+  });
+
   it("answers when list snapshot id is padded but matches the active snapshot", async () => {
     mocks.listQuestions.mockResolvedValue([
       {

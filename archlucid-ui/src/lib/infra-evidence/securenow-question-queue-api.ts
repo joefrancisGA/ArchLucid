@@ -133,7 +133,7 @@ export function secureNowQuestionListedSnapshotMatchesContext(
   const context = contextSnapshotId.trim();
 
   if (listed.length === 0) {
-    return true;
+    return false;
   }
 
   return listed === context;
