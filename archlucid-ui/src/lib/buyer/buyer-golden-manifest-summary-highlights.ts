@@ -7,6 +7,12 @@ const FIXTURE_ALPHA_COST_LINE =
 const BUYER_POLISHED_COST_LINE =
   "Estimated monthly platform operating cost increased with stronger isolation in the updated review.";
 
+const FIXTURE_DECISION_DELTA_LINE =
+  "One decision updated between base and target manifests.";
+
+const BUYER_POLISHED_DECISION_DELTA_LINE =
+  "Recorded decisions changed between the compared review snapshots.";
+
 /**
  * Maps seeded compare summary strings to buyer-facing wording so packaged demos do not expose
  * internal fixture labels in the primary narrative.
@@ -16,5 +22,15 @@ export function applyBuyerPolishedGoldenManifestSummaryHighlights(highlights: re
     return [...highlights];
   }
 
-  return highlights.map((line) => (line === FIXTURE_ALPHA_COST_LINE ? BUYER_POLISHED_COST_LINE : line));
+  return highlights.map((line) => {
+    if (line === FIXTURE_ALPHA_COST_LINE) {
+      return BUYER_POLISHED_COST_LINE;
+    }
+
+    if (line === FIXTURE_DECISION_DELTA_LINE) {
+      return BUYER_POLISHED_DECISION_DELTA_LINE;
+    }
+
+    return line;
+  });
 }

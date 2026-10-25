@@ -32,11 +32,19 @@ internal static class ArchitectureSealDeltaComparer
         TransparencyTrail sealedTrail =
             sealedManifest.FeasibilityVerdict?.TransparencyTrail ?? new TransparencyTrail();
 
-        CompareAssertedTrail(diffs, sealedTrail, draftDocument.TransparencyTrail);
-        CompareInferredTrail(diffs, sealedTrail, draftDocument.TransparencyTrail);
+        TransparencyTrail draftTrail = draftDocument.TransparencyTrail;
+
+        if (TrailHasComparableContent(draftTrail))
+        {
+            CompareAssertedTrail(diffs, sealedTrail, draftTrail);
+            CompareInferredTrail(diffs, sealedTrail, draftTrail);
+        }
 
         return diffs;
     }
+
+    private static bool TrailHasComparableContent(TransparencyTrail trail) =>
+        trail.Asserted.Count > 0 || trail.Inferred.Count > 0 || trail.Skipped.Count > 0;
 
     private static void CompareStringLists(
         List<ArchitectureSealDeltaItem> diffs,

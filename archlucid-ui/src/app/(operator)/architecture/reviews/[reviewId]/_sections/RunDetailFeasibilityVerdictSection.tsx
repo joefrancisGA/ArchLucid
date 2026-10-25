@@ -73,6 +73,7 @@ export function RunDetailFeasibilityVerdictSection(
 
         <FeasibilityVerdictDriversPanel
           drivers={verdictDrivers}
+          transparencyTrail={trail}
           reviewId={reviewId}
           className="mt-4"
         />
