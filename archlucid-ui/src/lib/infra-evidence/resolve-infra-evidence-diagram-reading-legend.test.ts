@@ -14,27 +14,23 @@ describe("resolveInfraEvidenceDiagramReadingLegend", () => {
   it("describes data-flow view without declaring every connector", () => {
     const lines = resolveInfraEvidenceDiagramReadingLegend("dataFlow");
 
-    expect(lines.boxes).toBe("Boxes are resources in this data-flow view.");
-    expect(lines.connectors).toBe("Connectors follow the line label. A line is not observed traffic.");
-    expect(lines.evidenceKind).toMatch(/does not prove reachability or runtime use/);
+    expect(lines.evidenceKind).toMatch(/not observed traffic/i);
+    expect(lines.boxes).toMatch(/what may connect/);
+    expect(lines.connectors).toMatch(/not observed traffic/);
     expect(lines.boxes).not.toMatch(/declared path/);
-    expect(lines.connectors).not.toMatch(/declared wiring/);
   });
 
-  it("describes data-architecture view without calling every box a data store", () => {
+  it("uses data-architecture inventory caption", () => {
     const lines = resolveInfraEvidenceDiagramReadingLegend("dataArchitecture");
 
-    expect(lines.boxes).toBe("Boxes are resources in the data-architecture view.");
-    expect(lines.connectors).toBe(
-      "Connectors are the relationships drawn for that view. They are not observed queries.",
-    );
-    expect(lines.boxes).not.toMatch(/data stores/);
+    expect(lines.boxes).toMatch(/Inventory of data platforms/);
+    expect(lines.connectors).toMatch(/not a data-flow diagram/);
   });
 
-  it("uses the same reachability honesty for network mode", () => {
+  it("uses network placement reachability note", () => {
     const lines = resolveInfraEvidenceDiagramReadingLegend("network");
 
-    expect(lines.evidenceKind).toBe("This view does not prove reachability or runtime use.");
-    expect(lines.evidenceKind).not.toMatch(/configuration from inventory/);
+    expect(lines.boxes).toMatch(/does not prove reachability/);
+    expect(lines.connectors).toMatch(/does not prove reachability/);
   });
 });

@@ -30,7 +30,11 @@ export function formatInfraEvidenceDiagramsSnapshotPickerLabel(
   }
 
   parts.push(captured);
-  parts.push(formatInfraEvidenceSnapshotResourceCountLabel(snapshot.resourceCount));
+  parts.push(
+    typeof snapshot.resourceCount === "number" && Number.isFinite(snapshot.resourceCount)
+      ? `${Math.trunc(snapshot.resourceCount)} resources`
+      : "Resource count was not stored.",
+  );
 
   return parts.join(" · ");
 }
