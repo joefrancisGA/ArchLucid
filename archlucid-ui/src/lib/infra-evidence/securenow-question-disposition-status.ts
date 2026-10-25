@@ -97,7 +97,8 @@ export function secureNowQuestionDispositionShowsAnswerActions(
 export function secureNowQuestionCountsAsOpenQueueRow(
   question: SecureNowQuestionOpenQueueRowFields,
 ): boolean {
-  return !secureNowQuestionDispositionIsAnswered(question.status)
+  return secureNowQuestionDispositionIsOpen(question.status)
+    && !secureNowQuestionDispositionIsAnswered(question.status)
     && !secureNowQuestionDispositionIsDismissed(question.status)
     && !secureNowQuestionShowsExpired(question.expirationUtc, question.isExpired)
     && !secureNowQuestionDispositionShowsStoredAnswerMetadata(question);

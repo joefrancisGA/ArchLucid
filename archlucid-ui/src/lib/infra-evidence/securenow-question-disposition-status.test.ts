@@ -112,6 +112,17 @@ describe("secureNowQuestionCountsAsOpenQueueRow", () => {
       isExpired: false,
     })).toBe(false);
   });
+
+  it("excludes rows with unknown disposition status from the open queue", () => {
+    expect(secureNowQuestionCountsAsOpenQueueRow({
+      status: "Pending",
+      answerCode: null,
+      answerText: null,
+      reason: null,
+      expirationUtc: "2099-01-01T00:00:00Z",
+      isExpired: false,
+    })).toBe(false);
+  });
 });
 
 describe("secureNowQuestionCountsAsAnsweredFilterRow", () => {
