@@ -7,6 +7,7 @@ import {
 } from "@/lib/favorite-reviews";
 import {
   createEmptyRecentViewsState,
+  normalizeOperatorRecentViewKind,
   persistRecentViewsState,
   readStoredRecentViewsState,
   type OperatorRecentViewEntry,
@@ -99,7 +100,7 @@ function toRecentViewEntries(
       const href = row.href?.trim() ?? "";
       const label = row.label?.trim() ?? "";
       const visitedAtUtc = row.visitedAtUtc?.trim() ?? "";
-      const kind = row.kind?.trim() ?? "page";
+      const kind = normalizeOperatorRecentViewKind(row.kind ?? "page");
 
       if (href.length === 0 || label.length === 0 || visitedAtUtc.length === 0) {
         return null;
@@ -111,7 +112,7 @@ function toRecentViewEntries(
       return {
         href,
         label,
-        kind: kind as OperatorRecentViewEntry["kind"],
+        kind,
         visitedAtUtc,
         ...(architectureId !== undefined && architectureId.length > 0 ? { architectureId } : {}),
         ...(parentArchitectureId !== undefined && parentArchitectureId.length > 0
