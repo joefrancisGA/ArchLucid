@@ -100,7 +100,7 @@ public static class ArchitectureMandatedMarkdownSections
                     continue;
 
                 string serviceName = string.IsNullOrWhiteSpace(service.ServiceName)
-                    ? service.ServiceId
+                    ? "Service name was stored empty."
                     : service.ServiceName.Trim();
                 lines.Add($"- Service: {serviceName} ({service.ServiceType})");
             }
@@ -114,7 +114,7 @@ public static class ArchitectureMandatedMarkdownSections
                     continue;
 
                 string datastoreName = string.IsNullOrWhiteSpace(datastore.DatastoreName)
-                    ? datastore.DatastoreId
+                    ? "Datastore name was stored empty."
                     : datastore.DatastoreName.Trim();
                 lines.Add($"- Datastore: {datastoreName} ({datastore.DatastoreType})");
             }
@@ -137,10 +137,10 @@ public static class ArchitectureMandatedMarkdownSections
                     continue;
 
                 string sourceId = string.IsNullOrWhiteSpace(relationship.SourceId)
-                    ? "source"
+                    ? "Relationship source id was not stored."
                     : relationship.SourceId.Trim();
                 string targetId = string.IsNullOrWhiteSpace(relationship.TargetId)
-                    ? "target"
+                    ? "Relationship target id was not stored."
                     : relationship.TargetId.Trim();
                 lines.Add($"- {sourceId} {relationship.RelationshipType} {targetId}");
             }

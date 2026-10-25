@@ -93,6 +93,10 @@ function mapFindingSummaryRowToQuickDecision(
 }
 
 function extractSealedFromFindingSummaries(detail: RunDetail): QuickDecisionFinding[] {
+  if (detail.run.hasFindingsSnapshot === false) {
+    return [];
+  }
+
   const summaries = readFindingSummaries(detail);
   const out: QuickDecisionFinding[] = [];
   let order = 0;

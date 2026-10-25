@@ -37,6 +37,22 @@ describe("quick-decision-finding-stream-resolver (LP-05)", () => {
     expect(isQuickDecisionDerivedFromExplanationTraces(detail, summary)).toBe(false);
   });
 
+  it("does not treat finding summaries as sealed when hasFindingsSnapshot is false", () => {
+    const detail = {
+      run: { runId: "r1", projectId: "p", createdUtc: "2026-01-01T00:00:00Z", hasFindingsSnapshot: false },
+      findingSummaries: [
+        {
+          findingId: "summary-1",
+          title: "Summary row",
+          rationale: "Because",
+          severity: "High",
+        },
+      ],
+    } as unknown as RunDetail;
+
+    expect(extractSealedQuickDecisionFindingsFromRunDetail(detail)).toHaveLength(0);
+  });
+
   it("tags sealed snapshot rows separately from agent results", () => {
     const detail = {
       run: { runId: "r1", projectId: "p", createdUtc: "2026-01-01T00:00:00Z" },
