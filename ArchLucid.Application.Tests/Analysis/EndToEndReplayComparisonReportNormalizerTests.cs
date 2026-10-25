@@ -398,6 +398,34 @@ public sealed class EndToEndReplayComparisonReportNormalizerTests
     }
 
     [Fact]
+    public void CompareQuality_EndToEndReplayComparisonReportNormalizer_clamps_negative_finding_lifecycle_summary_counts()
+    {
+        EndToEndReplayComparisonReport report = new()
+        {
+            LeftRunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            RightRunId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            FindingLifecycle = new CrossReviewFindingLifecycleSummary
+            {
+                NewlyIdentifiedCount = -2,
+                PreviouslyIdentifiedStillPresentCount = 1,
+                ConfirmedResolvedCount = -1,
+                UnverifiedResolvedCount = -3,
+                AbsenceNotInformativeCount = 0,
+                HonestyNote = "counts are illustrative",
+            },
+        };
+
+        EndToEndReplayComparisonReportNormalizer.NormalizePersistedPayload(report);
+
+        report.FindingLifecycle!.NewlyIdentifiedCount.Should().Be(0);
+        report.FindingLifecycle.PreviouslyIdentifiedStillPresentCount.Should().Be(1);
+        report.FindingLifecycle.ConfirmedResolvedCount.Should().Be(0);
+        report.FindingLifecycle.UnverifiedResolvedCount.Should().Be(0);
+        report.FindingLifecycle.AbsenceNotInformativeCount.Should().Be(0);
+        report.FindingLifecycle.HonestyNote.Should().Be("counts are illustrative");
+    }
+
+    [Fact]
     public void CompareQuality_EndToEndReplayComparisonReportNormalizer_trims_nested_compare_input_fingerprints()
     {
         EndToEndReplayComparisonReport report = new()

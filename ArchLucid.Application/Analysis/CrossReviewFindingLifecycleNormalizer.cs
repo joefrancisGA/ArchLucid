@@ -31,14 +31,16 @@ internal static class CrossReviewFindingLifecycleNormalizer
         string? honestyNote = OptionalExportMetadataStringNormalizer.NormalizeOptionalString(summary.HonestyNote);
         report.FindingLifecycle = new CrossReviewFindingLifecycleSummary
         {
-            NewlyIdentifiedCount = summary.NewlyIdentifiedCount,
-            PreviouslyIdentifiedStillPresentCount = summary.PreviouslyIdentifiedStillPresentCount,
-            ConfirmedResolvedCount = summary.ConfirmedResolvedCount,
-            UnverifiedResolvedCount = summary.UnverifiedResolvedCount,
-            AbsenceNotInformativeCount = summary.AbsenceNotInformativeCount,
+            NewlyIdentifiedCount = ClampCount(summary.NewlyIdentifiedCount),
+            PreviouslyIdentifiedStillPresentCount = ClampCount(summary.PreviouslyIdentifiedStillPresentCount),
+            ConfirmedResolvedCount = ClampCount(summary.ConfirmedResolvedCount),
+            UnverifiedResolvedCount = ClampCount(summary.UnverifiedResolvedCount),
+            AbsenceNotInformativeCount = ClampCount(summary.AbsenceNotInformativeCount),
             HonestyNote = honestyNote ?? string.Empty,
         };
     }
+
+    private static int ClampCount(int value) => value < 0 ? 0 : value;
 
     private static CrossReviewFindingLifecycleRecord NormalizeRecord(CrossReviewFindingLifecycleRecord record) =>
         new()
