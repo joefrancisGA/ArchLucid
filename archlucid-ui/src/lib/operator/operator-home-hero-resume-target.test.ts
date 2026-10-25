@@ -39,6 +39,15 @@ describe("operator-home-hero-resume-target", () => {
     ).toBe(false);
   });
 
+  it("matches when the hero run id equals the rail href run id even if paths differ", () => {
+    expect(
+      matchesOperatorHomeHeroResumeTarget(
+        { href: "/architecture/reviews/stale-path", runId: "run-hero" },
+        { href: "/architecture/reviews/run-hero" },
+      ),
+    ).toBe(true);
+  });
+
   it("matches resume targets when hrefs differ only by a trailing slash", () => {
     const target = {
       href: "/architecture/reviews/run-hero",

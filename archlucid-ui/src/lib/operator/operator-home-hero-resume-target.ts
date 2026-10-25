@@ -128,7 +128,10 @@ export function matchesOperatorHomeHeroResumeTarget(
   const heroRunId = resolveRunIdFromWorkingReviewHref(target.href);
   const itemHrefRunId = resolveRunIdFromWorkingReviewHref(item.href);
 
-  if (heroRunId !== null && itemHrefRunId !== null && heroRunId === itemHrefRunId) {
+  const targetRunIds = [targetRunId, heroRunId ?? ""].filter((id) => id.length > 0);
+  const itemRunIds = [itemRunId, itemHrefRunId ?? ""].filter((id) => id.length > 0);
+
+  if (targetRunIds.some((left) => itemRunIds.some((right) => left === right))) {
     return true;
   }
 
