@@ -15,7 +15,8 @@ internal static class ComparisonBatchReplayPinInventoryGuard
         ArgumentNullException.ThrowIfNull(record);
         ArgumentNullException.ThrowIfNull(compareRunsFacade);
 
-        if (!string.Equals(record.ComparisonType, ComparisonTypes.EndToEndReplay, StringComparison.Ordinal))
+        string comparisonType = ComparisonTypeNormalizer.NormalizeForLookup(record.ComparisonType);
+        if (!string.Equals(comparisonType, ComparisonTypes.EndToEndReplay, StringComparison.Ordinal))
             return;
 
         ComparisonReplayMode mode = ComparisonReplayRequestParsing.ParseReplayMode(replayMode);

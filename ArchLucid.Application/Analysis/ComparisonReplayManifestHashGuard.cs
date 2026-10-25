@@ -47,8 +47,9 @@ internal static class ComparisonReplayManifestHashGuard
             return;
 
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        string comparisonType = ComparisonTypeNormalizer.NormalizeForLookup(record.ComparisonType);
 
-        if (string.Equals(record.ComparisonType, ComparisonTypes.EndToEndReplay, StringComparison.Ordinal))
+        if (string.Equals(comparisonType, ComparisonTypes.EndToEndReplay, StringComparison.Ordinal))
         {
             await EnsureRunPairSealedManifestHashesOrThrowAsync(
                 record.LeftRunId,
@@ -61,7 +62,7 @@ internal static class ComparisonReplayManifestHashGuard
             return;
         }
 
-        if (!string.Equals(record.ComparisonType, ComparisonTypes.ExportRecordDiff, StringComparison.Ordinal))
+        if (!string.Equals(comparisonType, ComparisonTypes.ExportRecordDiff, StringComparison.Ordinal))
             return;
 
         if (string.IsNullOrWhiteSpace(record.LeftExportRecordId) || string.IsNullOrWhiteSpace(record.RightExportRecordId))

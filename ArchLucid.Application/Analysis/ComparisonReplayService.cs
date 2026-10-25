@@ -77,7 +77,8 @@ public sealed class ComparisonReplayService(
             _runExportRecordRepository,
             cancellationToken);
 
-        ReplayComparisonResult result = record.ComparisonType switch
+        string comparisonType = ComparisonTypeNormalizer.NormalizeForLookup(record.ComparisonType);
+        ReplayComparisonResult result = comparisonType switch
         {
             ComparisonTypes.EndToEndReplay => await ReplayEndToEndAsync(record, format, profile, mode, cancellationToken),
             ComparisonTypes.ExportRecordDiff => await ReplayExportDiffAsync(record, format, mode, cancellationToken),
@@ -113,7 +114,8 @@ public sealed class ComparisonReplayService(
             _runExportRecordRepository,
             cancellationToken);
 
-        return record.ComparisonType switch
+        string comparisonType = ComparisonTypeNormalizer.NormalizeForLookup(record.ComparisonType);
+        return comparisonType switch
         {
             ComparisonTypes.EndToEndReplay => await AnalyzeDriftEndToEndAsync(record, cancellationToken),
             ComparisonTypes.ExportRecordDiff => await AnalyzeDriftExportDiffAsync(record, cancellationToken),

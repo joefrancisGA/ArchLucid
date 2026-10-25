@@ -103,10 +103,11 @@ public sealed class ComparisonReplayCostEstimator(
 
     private static int ScoreForRecord(ComparisonRecord record, string normalizedFormat, ComparisonReplayMode mode, List<string> factors)
     {
-        if (string.Equals(record.ComparisonType, ComparisonTypes.EndToEndReplay, StringComparison.OrdinalIgnoreCase))
+        string comparisonType = ComparisonTypeNormalizer.NormalizeForLookup(record.ComparisonType);
+        if (string.Equals(comparisonType, ComparisonTypes.EndToEndReplay, StringComparison.OrdinalIgnoreCase))
             return ScoreEndToEnd(normalizedFormat, mode, factors);
 
-        if (string.Equals(record.ComparisonType, ComparisonTypes.ExportRecordDiff, StringComparison.OrdinalIgnoreCase))
+        if (string.Equals(comparisonType, ComparisonTypes.ExportRecordDiff, StringComparison.OrdinalIgnoreCase))
             return ScoreExportDiff(normalizedFormat, mode, factors);
 
         factors.Add($"Comparison type '{record.ComparisonType}' is not replayable via the standard replay API.");

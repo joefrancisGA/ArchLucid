@@ -91,7 +91,7 @@ public sealed class ComparisonAuditService(IComparisonRecordRepository repositor
         ComparisonRecord record = new()
         {
             ComparisonRecordId = Guid.NewGuid().ToString("N"),
-            ComparisonType = NormalizeComparisonType(sourceRecord.ComparisonType),
+            ComparisonType = ComparisonTypeNormalizer.NormalizeForLookup(sourceRecord.ComparisonType),
             LeftRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForPersistenceOrNull(sourceRecord.LeftRunId),
             RightRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForPersistenceOrNull(sourceRecord.RightRunId),
             LeftExportRecordId = NormalizeExportRecordIdColumnOrNull(sourceRecord.LeftExportRecordId),
@@ -163,9 +163,6 @@ public sealed class ComparisonAuditService(IComparisonRecordRepository repositor
             ? exportRecordId
             : RunExportRecordIdNormalizer.NormalizeRequired(exportRecordId);
 
-    private static string NormalizeComparisonType(string comparisonType) =>
-        string.IsNullOrWhiteSpace(comparisonType) ? comparisonType : comparisonType.Trim();
-
     private static string NormalizeRequiredMarkdown(string summaryMarkdown) => summaryMarkdown.Trim();
 
     private static string? NormalizeOptionalMarkdown(string? summaryMarkdown) =>
@@ -184,7 +181,7 @@ public sealed class ComparisonAuditService(IComparisonRecordRepository repositor
         if (string.IsNullOrWhiteSpace(sourceRecord.PayloadJson))
             return sourceRecord.PayloadJson;
 
-        string comparisonType = NormalizeComparisonType(sourceRecord.ComparisonType);
+        string comparisonType = ComparisonTypeNormalizer.NormalizeForLookup(sourceRecord.ComparisonType);
 
         if (string.Equals(comparisonType, ComparisonTypes.ExportRecordDiff, StringComparison.Ordinal))
         {

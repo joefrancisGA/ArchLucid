@@ -96,6 +96,54 @@ public sealed class ComparisonReplayServiceTests
         await act.Should().ThrowAsync<InvalidOperationException>().WithMessage("*unsupported-type*");
     }
 
+    [Fact]
+    public async Task ReplayAsync_end_to_end_artifact_succeeds_when_comparison_type_has_surrounding_whitespace()
+    {
+        EndToEndReplayComparisonReport report = SampleEndToEndReport();
+        ComparisonRecord record = EndToEndRecord("e2e-padded-type", report);
+        record.ComparisonType = $"  {ComparisonTypes.EndToEndReplay}  ";
+        Mock<IComparisonRecordRepository> repo = SetupRepo(record);
+        Mock<IEndToEndReplayComparisonExportService> export = new();
+        export.Setup(e => e.GenerateMarkdown(It.IsAny<EndToEndReplayComparisonReport>(), It.IsAny<string?>())).Returns("# md");
+        ComparisonReplayService sut = CreateSut(comparisonRepo: repo.Object, e2eExport: export.Object);
+
+        ReplayComparisonResult result = await sut.ReplayAsync(
+            new ReplayComparisonRequest
+            {
+                ComparisonRecordId = "e2e-padded-type",
+                Format = "markdown",
+                ReplayMode = "artifact",
+            },
+            CancellationToken.None);
+
+        result.ComparisonRecordId.Should().Be("e2e-padded-type");
+        result.Content.Should().Be("# md");
+    }
+
+    [Fact]
+    public async Task ReplayAsync_export_diff_artifact_succeeds_when_comparison_type_has_surrounding_whitespace()
+    {
+        ExportRecordDiffResult diff = SampleExportDiff();
+        ComparisonRecord record = ExportDiffRecord("diff-padded-type", diff);
+        record.ComparisonType = $"  {ComparisonTypes.ExportRecordDiff}  ";
+        Mock<IComparisonRecordRepository> repo = SetupRepo(record);
+        Mock<IExportRecordDiffSummaryFormatter> formatter = new();
+        formatter.Setup(f => f.FormatMarkdown(It.IsAny<ExportRecordDiffResult>())).Returns("# diff");
+        ComparisonReplayService sut = CreateSut(comparisonRepo: repo.Object, diffFormatter: formatter.Object);
+
+        ReplayComparisonResult result = await sut.ReplayAsync(
+            new ReplayComparisonRequest
+            {
+                ComparisonRecordId = "diff-padded-type",
+                Format = "markdown",
+                ReplayMode = "artifact",
+            },
+            CancellationToken.None);
+
+        result.ComparisonRecordId.Should().Be("diff-padded-type");
+        result.Content.Should().Be("# diff");
+    }
+
     [Theory]
     [InlineData("markdown", "markdown")]
     [InlineData("html", "html")]
