@@ -11,6 +11,15 @@ export const INFRA_EVIDENCE_DIAGRAM_LEGEND_PROBABLE =
 export const INFRA_EVIDENCE_DIAGRAM_LEGEND_PROBABLE_WITH_LOGIC_APP =
   "Dashed — probable authorization, declared wiring, or a Logic App API connection (not runtime traffic)";
 
+export const INFRA_EVIDENCE_DIAGRAM_LEGEND_PROBABLE_PRIVATE_ENDPOINT_DNS =
+  "Dashed — private network path is a DNS-joined private endpoint hop, not authorization and not observed traffic";
+
+export const INFRA_EVIDENCE_DIAGRAM_DATA_ARCHITECTURE_READING_LEGEND =
+  "Inventory of data platforms in this snapshot. Not a data-flow diagram.";
+
+export const INFRA_EVIDENCE_DIAGRAM_BUSINESS_CONTINUITY_READING_LEGEND =
+  "Lines are backup or replication items collected from the vault. Resources with no line have no collected protection item in this snapshot.";
+
 export const INFRA_EVIDENCE_DIAGRAM_PNG_CONFIGURATION_RELATIONSHIP_NOTE =
   "Linked backends, capacity assignments, and diagnostic settings on this diagram are configuration. They are not observed traffic.";
 
@@ -32,12 +41,6 @@ export const INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED =
 export const INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED_HOSTNAME =
   "Dotted — inferred hostname (confirm in configuration)";
 
-export const INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED_LINKED_SERVICE =
-  "Dotted — linked-service text was inferred. A hostname was not stored.";
-
-export const INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED_LINKED_SERVICE_AND_AI =
-  "Dotted — linked-service text was inferred, and an AI inference is present. A hostname was not stored.";
-
 export const INFRA_EVIDENCE_DIAGRAM_LEGEND_APP_SETTINGS =
   "Dashed — named in app settings. This is not observed traffic.";
 
@@ -58,12 +61,6 @@ export const INFRA_EVIDENCE_DIAGRAM_LEGEND_HOSTNAME_FOOTNOTE =
 
 export const INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED_HOSTNAME_FOOTNOTE =
   INFRA_EVIDENCE_DIAGRAM_LEGEND_HOSTNAME_FOOTNOTE;
-
-export const INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED_LINKED_SERVICE_FOOTNOTE =
-  "Dotted linked-service edges are inferred from integration text. They are not observed connections.";
-
-export const INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED_LINKED_SERVICE_AND_AI_FOOTNOTE =
-  "Dotted linked-service and AI inference edges are inferred. They are not observed connections.";
 
 export const INFRA_EVIDENCE_DIAGRAM_LEGEND_APP_SETTINGS_FOOTNOTE =
   "Dashed app-settings edges name a configured host. They are not observed connections.";
@@ -121,6 +118,8 @@ export const INFRA_EVIDENCE_DIAGRAM_OUTLINE_SOURCE_OBSERVED = "Observed";
 export const INFRA_EVIDENCE_DIAGRAM_OUTLINE_SOURCE_PROBABLE = "Probable";
 
 export const INFRA_EVIDENCE_DIAGRAM_OUTLINE_SOURCE_INFERRED = "Inferred";
+
+export const INFRA_EVIDENCE_DIAGRAM_OUTLINE_SOURCE_NOT_STORED = "Not stored";
 
 export const INFRA_EVIDENCE_INVENTORY_EDGE_PANEL_TITLE = "Connection evidence";
 

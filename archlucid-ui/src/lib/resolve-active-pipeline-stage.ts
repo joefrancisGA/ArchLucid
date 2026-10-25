@@ -61,6 +61,10 @@ export function resolveCurrentPipelineStageLabel(
   summary: RunSummary | null,
   buyerLabelsActive: boolean = isBuyerVocabularyPassActive(),
 ): string {
+  if (timeline.length === 0 && summary === null) {
+    return "Current stage was not stored.";
+  }
+
   const activeRow = resolveActivePipelineStageRow(timeline);
 
   if (activeRow !== null) {

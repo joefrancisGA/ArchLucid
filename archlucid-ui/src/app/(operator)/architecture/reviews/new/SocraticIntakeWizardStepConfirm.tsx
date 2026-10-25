@@ -77,11 +77,11 @@ export function SocraticIntakeWizardStepConfirm({
           </li>
         </ul>
         <EvidenceGapForecastPanel presence={guidedIntakeEvidencePresence} presentation="summary" />
-        {confirmedScopeLines.length > 0 ? (
-          <section className={OPERATOR_LAYOUT.sectionHeadingStack} data-testid="socratic-confirmed-scope-summary">
-            <h3 className={cn("m-0 font-semibold", OPERATOR_TYPOGRAPHY.label)}>
-              {GUIDED_INTAKE_CONFIRMED_SCOPE_SUMMARY_HEADING}
-            </h3>
+        <section className={OPERATOR_LAYOUT.sectionHeadingStack} data-testid="socratic-confirmed-scope-summary">
+          <h3 className={cn("m-0 font-semibold", OPERATOR_TYPOGRAPHY.label)}>
+            {GUIDED_INTAKE_CONFIRMED_SCOPE_SUMMARY_HEADING}
+          </h3>
+          {confirmedScopeLines.length > 0 ? (
             <ul
               className={cn(
                 "m-0 list-disc space-y-2 pl-5 text-neutral-700 dark:text-neutral-300",
@@ -92,15 +92,15 @@ export function SocraticIntakeWizardStepConfirm({
                 <li key={line}>{line}</li>
               ))}
             </ul>
-          </section>
-        ) : (
-          <p
-            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-            data-testid="guided-intake-confirmed-scope-not-stored"
-          >
-            {GUIDED_INTAKE_CONFIRMED_SCOPE_NOT_STORED}
-          </p>
-        )}
+          ) : (
+            <p
+              className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="guided-intake-confirmed-scope-not-stored"
+            >
+              {GUIDED_INTAKE_CONFIRMED_SCOPE_NOT_STORED}
+            </p>
+          )}
+        </section>
         {submitError !== null ? <GuidedIntakeRequestError error={submitError} /> : null}
         {policyPackCloudMismatch !== null ? (
           <WizardPolicyPackCloudMismatchCallout detail={policyPackCloudMismatch} />

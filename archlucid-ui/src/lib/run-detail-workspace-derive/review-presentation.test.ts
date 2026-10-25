@@ -41,4 +41,25 @@ describe("deriveReviewNextActionLabel (P-20)", () => {
     expect(label).toContain("Evidence reference count was not stored");
     expect(label).toContain("Public ingress");
   });
+
+  it("uses not-stored copy for next action when findings snapshot is absent", () => {
+    const label = deriveReviewNextActionLabel({
+      recommendedActions: [],
+      primaryConcernFinding: null,
+      blockingFindingCount: 0,
+      hasFindingsSnapshot: false,
+    });
+
+    expect(label).toBe("Next action was not stored.");
+  });
+});
+
+describe("deriveEvidenceCoverageSummary", () => {
+  it("uses not-stored copy when snapshot is absent and there are no open findings", async () => {
+    const { deriveEvidenceCoverageSummary } = await import("./review-presentation");
+
+    const summary = deriveEvidenceCoverageSummary([], { hasFindingsSnapshot: false });
+
+    expect(summary.summaryLine).toBe("Evidence coverage was not stored.");
+  });
 });

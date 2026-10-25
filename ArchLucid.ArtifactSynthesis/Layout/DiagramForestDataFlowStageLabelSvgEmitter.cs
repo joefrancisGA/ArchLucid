@@ -73,7 +73,7 @@ internal static class DiagramForestDataFlowStageLabelSvgEmitter
                     new XAttribute("font-weight", "600"),
                     new XAttribute("font-family", "system-ui, sans-serif"),
                     new XAttribute("fill", "#6b7280"),
-                    "Not connected"));
+                    "No diagram link was stored on this view."));
             }
         }
 

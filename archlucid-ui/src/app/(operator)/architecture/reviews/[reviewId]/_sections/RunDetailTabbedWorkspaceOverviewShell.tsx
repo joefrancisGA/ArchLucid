@@ -49,6 +49,7 @@ export function composeRunDetailTabbedWorkspaceOverviewShell(
     reviewDisplayTitle,
     reviewOwnerLabel,
     reviewStatusSummary,
+    hasFindingsSnapshot,
     quickDecisionFindings,
     severityCounts,
     submittedArchitectureText,
@@ -113,6 +114,7 @@ export function composeRunDetailTabbedWorkspaceOverviewShell(
         evidenceCoverageLine={p.evidenceCoverageSummary.summaryLine}
         primaryConcern={reviewStatusSummary.primaryConcern}
         materialSeverityLine={materialSeverityLine}
+        hasFindingsSnapshot={hasFindingsSnapshot}
         suppressedReason={decisionSnapshotSuppressedReason}
       />
       {executiveBottomLineEl}

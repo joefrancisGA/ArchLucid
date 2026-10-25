@@ -29,13 +29,19 @@ describe("pipelineEventTypeBuyerMilestoneSubtitle", () => {
       "Captures the ingested context used to justify findings and graph evidence.",
     );
     expect(pipelineEventTypeBuyerMilestoneSubtitle("com.archlucid.manifest.finalized.v1")).toBe(
-      "Locks the finalized review as the official version used for approvals, exports, and audit history.",
+      "Finalizes the review record as the authoritative package for decisions, deliverables, and audit.",
     );
   });
 
   it("falls back to a generic assurance line for unmapped types", () => {
     expect(pipelineEventTypeBuyerMilestoneSubtitle("CustomObscureEvent")).toBe(
-      "Recorded on the authoritative audit trail for this review.",
+      "Event meaning was not stored.",
+    );
+  });
+
+  it("maps authority run failed to an explicit collect-path failure line", () => {
+    expect(pipelineEventTypeBuyerMilestoneSubtitle("com.archlucid.authority.run.failed")).toBe(
+      "Records that the review run failed before a finalized package could be sealed.",
     );
   });
 });
