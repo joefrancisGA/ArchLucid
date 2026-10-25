@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   RUN_FINDING_EXPLAINABILITY_EVIDENCE_LINK_OMITTED,
   RUN_FINDING_EXPLAINABILITY_TITLE_OMITTED,
+  RUN_FINDING_EXPLAINABILITY_TRACE_LABEL_OMITTED,
 } from "@/components/runs/RunFindingExplainabilityTable";
 import { formatFindingExplainabilityPolicyRuleDisplay } from "@/lib/findings/finding-explainability-summary";
 
@@ -16,6 +17,7 @@ describe("RunFindingExplainabilityTable omission copy (P-07, P-19)", () => {
     expect(formatFindingExplainabilityPolicyRuleDisplay("")).toBe("Policy rule was not stored.");
     expect(RUN_FINDING_EXPLAINABILITY_EVIDENCE_LINK_OMITTED).toBe("Evidence link was not stored.");
     expect(RUN_FINDING_EXPLAINABILITY_TITLE_OMITTED).toBe("Finding title was not stored.");
+    expect(RUN_FINDING_EXPLAINABILITY_TRACE_LABEL_OMITTED).toBe("Trace label was not stored.");
     expect(RUN_FINDING_EXPLAINABILITY_TRACE_COMPLETENESS_OMITTED).toBe(
       "Trace completeness was not stored.",
     );

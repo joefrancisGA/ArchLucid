@@ -47,6 +47,7 @@ describe("first-review-spine-band", () => {
     expect(summary?.gateOutcomeLabel).toBeTruthy();
     expect(summary?.executionModeLabel).toBe("Simulator");
     expect(summary?.topFindingTitle).toBe("Public endpoint exposed");
+    expect(summary?.topFindingId).toBe("high");
     expect(summary?.uncitedCount).toBe(1);
     expect(summary?.semanticSupportLine).toMatch(/Semantic support/i);
     expect(summary?.treatmentSummaryLine).toMatch(/Decision-grade:/i);
