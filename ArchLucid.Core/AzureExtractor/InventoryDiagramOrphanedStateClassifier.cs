@@ -33,7 +33,7 @@ public static class InventoryDiagramOrphanedStateClassifier
 
         Dictionary<string, GraphNode> armIdToGraphNode = BuildArmIdToGraphNodeMap(graph.Nodes);
         Dictionary<string, string> properties = graphNode.Properties;
-        InventoryDiagramEvidenceCurrency evidenceCurrency = ReadEvidenceCurrency(properties);
+        InventoryDiagramEvidenceCurrency? evidenceCurrency = ReadEvidenceCurrency(properties);
 
         InventoryDiagramConnectionStateResult? orphaned = TryClassifyOrphaned(
             graphNode,
@@ -114,7 +114,7 @@ public static class InventoryDiagramOrphanedStateClassifier
         string armResourceType,
         IReadOnlyDictionary<string, string> properties,
         IReadOnlyDictionary<string, GraphNode> armIdToGraphNode,
-        InventoryDiagramEvidenceCurrency evidenceCurrency)
+        InventoryDiagramEvidenceCurrency? evidenceCurrency)
     {
         if (!IsCurrentEvidence(evidenceCurrency))
         {
@@ -191,7 +191,7 @@ public static class InventoryDiagramOrphanedStateClassifier
     private static InventoryDiagramConnectionStateResult ClassifyWorkflow(
         GraphNode graphNode,
         IReadOnlyDictionary<string, GraphNode> armIdToGraphNode,
-        InventoryDiagramEvidenceCurrency evidenceCurrency)
+        InventoryDiagramEvidenceCurrency? evidenceCurrency)
     {
         if (!IsCurrentEvidence(evidenceCurrency))
         {
@@ -753,7 +753,7 @@ public static class InventoryDiagramOrphanedStateClassifier
         return armResourceType.Equals("Microsoft.Logic/workflows", StringComparison.OrdinalIgnoreCase);
     }
 
-    private static bool IsCurrentEvidence(InventoryDiagramEvidenceCurrency evidenceCurrency)
+    private static bool IsCurrentEvidence(InventoryDiagramEvidenceCurrency? evidenceCurrency)
     {
         return evidenceCurrency is InventoryDiagramEvidenceCurrency.Current
             or InventoryDiagramEvidenceCurrency.Derived;
@@ -1102,7 +1102,7 @@ public static class InventoryDiagramOrphanedStateClassifier
         return false;
     }
 
-    private static InventoryDiagramEvidenceCurrency ReadEvidenceCurrency(IReadOnlyDictionary<string, string> properties)
+    private static InventoryDiagramEvidenceCurrency? ReadEvidenceCurrency(IReadOnlyDictionary<string, string> properties)
     {
         foreach (string key in new[]
                  {
@@ -1120,7 +1120,7 @@ public static class InventoryDiagramOrphanedStateClassifier
             }
         }
 
-        return InventoryDiagramEvidenceCurrency.Current;
+        return null;
     }
 
     private static string ReadArmId(GraphNode node)

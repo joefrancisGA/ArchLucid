@@ -214,8 +214,17 @@ internal static class InventoryDiagramOrphanedStateApplier
 
             if (!string.IsNullOrWhiteSpace(resolvedArmId))
             {
+<<<<<<< HEAD
                 message =
                     $"Attached to {ReadResourceName(resolvedArmId)}. That resource is in this inventory snapshot.";
+=======
+                string resourceName = ReadResourceName(resolvedArmId);
+
+                message = string.IsNullOrWhiteSpace(resourceName)
+                    ? "Attached resource name was not stored."
+                    : $"attached to {resourceName}";
+
+>>>>>>> origin/master
                 return true;
             }
         }
@@ -295,6 +304,6 @@ internal static class InventoryDiagramOrphanedStateApplier
 
         return lastSlash >= 0 && lastSlash < armResourceId.Length - 1
             ? armResourceId[(lastSlash + 1)..]
-            : "parent resource";
+            : string.Empty;
     }
 }
