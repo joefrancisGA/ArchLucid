@@ -437,7 +437,7 @@ public sealed class PersistencePackageCoverageBatchRc27Tests
             label: "release",
             tags: ["tag-a", "  ", "tag-b"]);
 
-        conditions.Should().Contain("LTRIM(RTRIM(ComparisonType)) = @ComparisonType");
+        conditions.Should().Contain("LOWER(LTRIM(RTRIM(ComparisonType))) = LOWER(@ComparisonType)");
         conditions.Should().Contain("LeftRunId = @LeftRunId");
         conditions.Should().Contain("RightRunId = @RightRunId");
         conditions.Should().Contain("CreatedUtc >= @CreatedFromUtc");

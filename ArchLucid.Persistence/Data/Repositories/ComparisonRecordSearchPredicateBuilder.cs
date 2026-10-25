@@ -22,7 +22,8 @@ internal static class ComparisonRecordSearchPredicateBuilder
     {
         if (!string.IsNullOrWhiteSpace(comparisonType))
         {
-            conditions.Add("LTRIM(RTRIM(ComparisonType)) = @ComparisonType");
+            conditions.Add(
+                "LOWER(LTRIM(RTRIM(ComparisonType))) = LOWER(@ComparisonType)");
             parameters.Add("@ComparisonType", comparisonType.Trim());
         }
 

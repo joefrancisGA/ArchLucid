@@ -31,7 +31,7 @@ public sealed class ComparisonRecordSearchPredicateBuilderTests
             label: "release-1",
             tags: ["alpha", " ", "beta"]);
 
-        conditions.Should().Contain("LTRIM(RTRIM(ComparisonType)) = @ComparisonType");
+        conditions.Should().Contain("LOWER(LTRIM(RTRIM(ComparisonType))) = LOWER(@ComparisonType)");
         conditions.Should().Contain("LeftRunId = @LeftRunId");
         conditions.Should().Contain("RightRunId = @RightRunId");
         conditions.Should().Contain("CreatedUtc >= @CreatedFromUtc");
@@ -147,7 +147,7 @@ public sealed class ComparisonRecordSearchPredicateBuilderTests
             label: null,
             tags: null);
 
-        conditions.Should().Contain("LTRIM(RTRIM(ComparisonType)) = @ComparisonType");
+        conditions.Should().Contain("LOWER(LTRIM(RTRIM(ComparisonType))) = LOWER(@ComparisonType)");
         parameters.Get<string>("@ComparisonType").Should().Be("end-to-end-replay");
     }
 
@@ -224,7 +224,7 @@ public sealed class ComparisonRecordSearchPredicateBuilderTests
             label: null,
             tags: null);
 
-        conditions.Should().Contain("LTRIM(RTRIM(ComparisonType)) = @ComparisonType");
+        conditions.Should().Contain("LOWER(LTRIM(RTRIM(ComparisonType))) = LOWER(@ComparisonType)");
         parameters.Get<string>("@ComparisonType").Should().Be("end-to-end-replay");
     }
 

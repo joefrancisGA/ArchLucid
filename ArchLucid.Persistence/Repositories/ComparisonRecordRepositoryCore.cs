@@ -63,7 +63,10 @@ internal static class ComparisonRecordRepositoryCore
             string normalizedComparisonType = comparisonType.Trim();
             query = query.Where(r =>
                 !string.IsNullOrWhiteSpace(r.ComparisonType)
-                && string.Equals(r.ComparisonType.Trim(), normalizedComparisonType, StringComparison.Ordinal));
+                && string.Equals(
+                    r.ComparisonType.Trim(),
+                    normalizedComparisonType,
+                    StringComparison.OrdinalIgnoreCase));
         }
 
         if (!string.IsNullOrWhiteSpace(leftRunId))
