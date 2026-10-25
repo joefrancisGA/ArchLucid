@@ -74,8 +74,8 @@ export function resolveFindingSemanticSupportBandExportFields(
 
   if (rawBand === "") {
     return {
-      semanticSupportBand: "",
-      semanticSupportBandScorerVersion: resolveFindingSemanticSupportBandScorerVersion(finding),
+      semanticSupportBand: "Semantic support band was stored empty.",
+      semanticSupportBandScorerVersion: "Semantic support band scorer version was stored empty.",
     };
   }
 
@@ -170,7 +170,7 @@ export function formatCareerExportSemanticSupportBandMarkdownSection(
   }
 
   const lines = [
-    "## Semantic support",
+    "## Semantic support (decision-grade)",
     "",
     `Scorer version: \`${stamp.scorerVersion}\`.`,
     stamp.stampLine,
