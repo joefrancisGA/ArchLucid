@@ -83,16 +83,24 @@ function parseJsonBooleanOrNull(value: unknown): boolean | null {
     return false;
   }
 
+  if (value === 1) {
+    return true;
+  }
+
+  if (value === 0) {
+    return false;
+  }
+
   if (typeof value !== "string") {
     return null;
   }
 
   const normalized = value.trim().toLowerCase();
-  if (normalized === "true") {
+  if (normalized === "true" || normalized === "1") {
     return true;
   }
 
-  if (normalized === "false") {
+  if (normalized === "false" || normalized === "0") {
     return false;
   }
 
@@ -167,7 +175,12 @@ function mapQuestion(raw: Record<string, unknown>): SecureNowQuestion {
     questionKey: typeof raw.questionKey === "string" ? raw.questionKey : null,
     source: typeof raw.source === "string" ? raw.source : null,
     scopeKind: typeof raw.scopeKind === "string" ? raw.scopeKind : null,
-    status: typeof raw.status === "string" ? raw.status : null,
+    status: typeof raw.status === "string"
+      ? (() => {
+        const trimmed = raw.status.trim();
+        return trimmed.length > 0 ? trimmed : null;
+      })()
+      : null,
     questionText: questionText.length > 0 ? questionText : "Question text was not stored",
     resourceType: typeof raw.resourceType === "string" ? raw.resourceType : null,
     resourceName: typeof raw.resourceName === "string" ? raw.resourceName : null,

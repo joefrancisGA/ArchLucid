@@ -166,6 +166,41 @@ describe("securenow-question-queue-api", () => {
     expect(questions[0].isExpired).toBe(true);
   });
 
+  it("maps numeric isExpired values from list responses", async () => {
+    vi.mocked(proxyJsonGet).mockResolvedValueOnce([
+      {
+        snapshotId: "snapshot-1",
+        questionKey: "unknown-evidence@v1",
+        questionText: "Should this resource connect?",
+        answerCodes: ["NamePeer"],
+        evidenceFingerprint: "fingerprint",
+        isExpired: 1,
+        expirationUtc: "2099-01-01T00:00:00.000Z",
+      },
+    ]);
+
+    const questions = await listSecureNowQuestions("snapshot-1");
+
+    expect(questions[0].isExpired).toBe(true);
+  });
+
+  it("maps whitespace-only status to null on list responses", async () => {
+    vi.mocked(proxyJsonGet).mockResolvedValueOnce([
+      {
+        snapshotId: "snapshot-1",
+        questionKey: "unknown-evidence@v1",
+        questionText: "Should this resource connect?",
+        answerCodes: ["NamePeer"],
+        evidenceFingerprint: "fingerprint",
+        status: "   ",
+      },
+    ]);
+
+    const questions = await listSecureNowQuestions("snapshot-1");
+
+    expect(questions[0].status).toBeNull();
+  });
+
   it("maps padded false string isExpired on disposition responses", () => {
     const disposition = mapSecureNowQuestionDisposition({
       dispositionId: "00000000-0000-0000-0000-000000000001",
