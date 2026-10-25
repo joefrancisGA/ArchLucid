@@ -88,6 +88,24 @@ describe("deriveOperatorHomeWorkspaceMetrics", () => {
     expect(metrics.hasReviews).toBe(false);
   });
 
+  it("treats non-finite totalCount as stale when overview rows are loaded on the page", () => {
+    const items: RunSummary[] = [
+      makeRun({
+        runId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        hasFindingsSnapshot: true,
+      }),
+      makeRun({
+        runId: "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+        hasFindingsSnapshot: true,
+      }),
+    ];
+
+    const metrics = deriveOperatorHomeWorkspaceMetrics(items, Number.NaN);
+
+    expect(metrics.reviewPackagesTotal).toBe(2);
+    expect(metrics.hasReviews).toBe(true);
+  });
+
   it("normalizes non-finite awaitingApprovalCount to zero for home KPI totals", () => {
     const metrics = deriveOperatorHomeWorkspaceMetrics([], 2, Number.NaN);
 

@@ -105,6 +105,21 @@ describe("deriveOperatorHomeWorkspacePhaseSignalsFromOverviewRuns", () => {
     expect(signals.hasOverviewReviewRows).toBe(true);
     expect(signals.openFindingsCount).toBe(0);
   });
+
+  it("treats non-finite totalCount as stale when active overview rows are present", () => {
+    const signals = deriveOperatorHomeWorkspacePhaseSignalsFromOverviewRuns(
+      [
+        {
+          runId: "tenant-1",
+          projectId: "default",
+          hasFindingsSnapshot: true,
+        } as RunSummary,
+      ],
+      Number.NaN,
+    );
+
+    expect(signals.hasOverviewReviewRows).toBe(true);
+  });
 });
 
 describe("resolveOperatorHomeLifecycleEmphasizedPath", () => {

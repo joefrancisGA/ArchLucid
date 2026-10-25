@@ -50,10 +50,15 @@ export function deriveOperatorHomeWorkspacePhaseSignalsFromOverviewRuns(
   const activeItems = items.filter((run) => run.isArchived !== true);
   const tenantItems = activeItems.filter((run) => !isDemoSeededOverviewInjectedRun(run));
   const metrics = deriveOperatorHomeWorkspaceMetrics(tenantItems, tenantItems.length);
-  const resolvedTotalCount = typeof totalCount === "number" ? totalCount : activeItems.length;
+  const reportedTotal =
+    totalCount === undefined
+      ? activeItems.length
+      : Number.isFinite(totalCount)
+        ? Math.max(0, Math.trunc(totalCount))
+        : 0;
 
   return {
-    hasOverviewReviewRows: Math.max(resolvedTotalCount, activeItems.length) > 0,
+    hasOverviewReviewRows: Math.max(reportedTotal, activeItems.length) > 0,
     openFindingsCount: metrics.openFindings,
     governanceWarningsCount: metrics.governanceWarnings,
   };

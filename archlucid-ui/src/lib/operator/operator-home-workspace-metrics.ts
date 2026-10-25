@@ -62,14 +62,25 @@ export type DeriveOperatorHomeWorkspaceMetricsInput = {
 };
 
 /** Aggregates workspace metrics from operator-home runs dashboard data already on the page. */
+function countNonArchivedOverviewRuns(items: readonly RunSummary[]): number {
+  let count = 0;
+
+  for (const run of items) {
+    if (run.isArchived !== true) {
+      count += 1;
+    }
+  }
+
+  return count;
+}
+
 export function deriveOperatorHomeWorkspaceMetrics(
   items: readonly RunSummary[],
   totalCount: number,
   awaitingApprovalCount = 0,
 ): OperatorHomeWorkspaceMetricsSnapshot {
-  const reviewPackagesTotal = Number.isFinite(totalCount)
-    ? Math.max(0, Math.trunc(totalCount))
-    : 0;
+  const reportedTotal = Number.isFinite(totalCount) ? Math.max(0, Math.trunc(totalCount)) : 0;
+  const reviewPackagesTotal = Math.max(reportedTotal, countNonArchivedOverviewRuns(items));
 
   let reviewPackagesCommitted = 0;
   let reviewPackagesActive = 0;

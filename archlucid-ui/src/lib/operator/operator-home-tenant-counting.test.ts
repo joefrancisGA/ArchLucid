@@ -144,6 +144,29 @@ describe("deriveOperatorHomeTenantCountingSnapshot", () => {
     expect(snapshot.metrics.reviewPackagesActive).toBe(1);
   });
 
+  it("uplifts understated runsDashboardTotalCount when more tenant rows are visible than the API total", () => {
+    const displayItems: RunSummary[] = [
+      {
+        runId: "run-1",
+        projectId: "default",
+        hasFindingsSnapshot: true,
+      },
+      {
+        runId: "run-2",
+        projectId: "default",
+        hasFindingsSnapshot: true,
+      },
+    ];
+
+    const snapshot = deriveOperatorHomeTenantCountingSnapshot({
+      displayItems,
+      previewItems: displayItems,
+      runsDashboardTotalCount: 1,
+    });
+
+    expect(snapshot.metrics.reviewPackagesTotal).toBe(2);
+  });
+
   it("treats zero runsDashboardTotalCount as stale when tenant overview rows are loaded", () => {
     const displayItems: RunSummary[] = [
       {
