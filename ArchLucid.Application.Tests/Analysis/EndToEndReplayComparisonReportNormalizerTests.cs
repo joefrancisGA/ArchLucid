@@ -693,6 +693,42 @@ public sealed class EndToEndReplayComparisonReportNormalizerTests
     }
 
     [Fact]
+    public void CompareQuality_EndToEndReplayComparisonReportNormalizer_nulls_empty_nested_export_request_shells_on_export_record_diffs()
+    {
+        EndToEndReplayComparisonReport report = new()
+        {
+            LeftRunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            RightRunId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            ExportDiffs =
+            [
+                new ExportRecordDiffResult
+                {
+                    ChangedTopLevelFields = ["Format"],
+                    RequestDiff = new ExportRecordRequestDiff
+                    {
+                        LeftRequest = new PersistedAnalysisExportRequest { Audience = "   " },
+                        RightRequest = new PersistedAnalysisExportRequest(),
+                    },
+                },
+                new ExportRecordDiffResult
+                {
+                    RequestDiff = new ExportRecordRequestDiff
+                    {
+                        LeftRequest = new PersistedAnalysisExportRequest { TemplateProfile = "\t" },
+                    },
+                },
+            ],
+        };
+
+        EndToEndReplayComparisonReportNormalizer.NormalizePersistedPayload(report);
+
+        report.ExportDiffs.Should().ContainSingle();
+        report.ExportDiffs[0].ChangedTopLevelFields.Should().Equal(["Format"]);
+        report.ExportDiffs[0].RequestDiff.LeftRequest.Should().BeNull();
+        report.ExportDiffs[0].RequestDiff.RightRequest.Should().BeNull();
+    }
+
+    [Fact]
     public void CompareQuality_EndToEndReplayComparisonReportNormalizer_clears_stale_determinism_iterations_on_nested_export_requests()
     {
         EndToEndReplayComparisonReport report = new()
@@ -731,7 +767,7 @@ public sealed class EndToEndReplayComparisonReportNormalizerTests
 
         report.ExportDiffs.Should().ContainSingle();
         report.ExportDiffs[0].ChangedTopLevelFields.Should().Equal(["Format"]);
-        report.ExportDiffs[0].RequestDiff.RightRequest!.DeterminismIterations.Should().Be(0);
+        report.ExportDiffs[0].RequestDiff.RightRequest.Should().BeNull();
     }
 
     [Fact]

@@ -29,8 +29,28 @@ internal static class ExportRecordDiffResultNormalizer
 
         if (diff.RequestDiff.RightRequest is not null)
             PersistedAnalysisExportRequestDeterminismNormalizer.ClearIterationsWhenCheckDisabled(diff.RequestDiff.RightRequest);
+
+        ClearEmptyNestedExportRequestShells(diff.RequestDiff);
+
         CanonicalizeNestedCompareRunId(diff.RequestDiff.LeftRequest);
         CanonicalizeNestedCompareRunId(diff.RequestDiff.RightRequest);
+    }
+
+    private static void ClearEmptyNestedExportRequestShells(ExportRecordRequestDiff requestDiff)
+    {
+        ArgumentNullException.ThrowIfNull(requestDiff);
+
+        if (requestDiff.LeftRequest is not null
+            && PersistedAnalysisExportRequestMetadata.IsPersistedEmptyShell(requestDiff.LeftRequest))
+        {
+            requestDiff.LeftRequest = null;
+        }
+
+        if (requestDiff.RightRequest is not null
+            && PersistedAnalysisExportRequestMetadata.IsPersistedEmptyShell(requestDiff.RightRequest))
+        {
+            requestDiff.RightRequest = null;
+        }
     }
 
     private static string NormalizeExportRecordIdAnchor(string? exportRecordId)

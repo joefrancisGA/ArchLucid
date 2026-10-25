@@ -41,7 +41,7 @@ public sealed class ExportRecordDiffResultNormalizerTests
 
         ExportRecordDiffResultNormalizer.NormalizeDisplayAnchors(diff);
 
-        diff.RequestDiff.LeftRequest!.CompareRunId.Should().BeNull();
+        diff.RequestDiff.LeftRequest.Should().BeNull();
         diff.RequestDiff.RightRequest!.CompareRunId.Should().Be(compareRunGuid.ToString("N"));
     }
 
