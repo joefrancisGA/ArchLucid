@@ -8,6 +8,7 @@ import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { formatDiagramArmTypeFriendlyName } from "@/lib/infra-evidence/format-diagram-arm-type-friendly-name";
 import { normalizeSecureNowResourceNameForDisplay } from "@/lib/infra-evidence/format-azure-resource-display";
 import { secureNowQuestionAnswerLabel } from "@/lib/infra-evidence/securenow-question-answer-label";
+import { secureNowQuestionDispositionMutationResourceId } from "@/lib/infra-evidence/securenow-question-mutation-resource-id";
 import { diagramOutlineIncludesFocusResource } from "@/lib/architecture/architecture-diagram-camera-focus";
 import type { InfraEvidenceMermaidOutline } from "@/lib/infra-evidence/parse-infra-evidence-mermaid-outline";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -273,14 +274,21 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
       : currentQuestion.resourceName.trim().length === 0
         ? "Resource name was stored empty."
         : normalizeSecureNowResourceNameForDisplay(currentQuestion.resourceName);
-  const resourceIdMissing = currentQuestion?.resourceId === null || currentQuestion?.resourceId === undefined;
+  const dispositionMutationResourceId = currentQuestion == null
+    ? null
+    : secureNowQuestionDispositionMutationResourceId(currentQuestion);
+  const resourceIdMissing = dispositionMutationResourceId === null;
   const resourceIdStoredEmpty =
-    currentQuestion?.resourceId !== null
-    && currentQuestion?.resourceId !== undefined
-    && currentQuestion.resourceId.trim().length === 0;
-  const resourceOnDiagram = currentQuestion == null || resourceIdMissing || resourceIdStoredEmpty || outline == null
+    dispositionMutationResourceId !== null
+    && dispositionMutationResourceId.trim().length === 0
+    && currentQuestion?.resourceId !== null
+    && currentQuestion?.resourceId !== undefined;
+  const resourceOnDiagram = currentQuestion == null
+    || dispositionMutationResourceId === null
+    || dispositionMutationResourceId.trim().length === 0
+    || outline == null
     ? true
-    : diagramOutlineIncludesFocusResource(outline, currentQuestion.resourceId);
+    : diagramOutlineIncludesFocusResource(outline, dispositionMutationResourceId);
   const inferredConnectionQuestion =
     currentQuestion?.source?.trim() === "InferredConnection";
 
