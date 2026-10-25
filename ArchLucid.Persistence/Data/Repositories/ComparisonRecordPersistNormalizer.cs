@@ -8,7 +8,7 @@ internal static class ComparisonRecordPersistNormalizer
     {
         ArgumentNullException.ThrowIfNull(record);
 
-        record.ComparisonRecordId = record.ComparisonRecordId.Trim();
+        record.ComparisonRecordId = ComparisonRecordIdLookup.NormalizeLookupKey(record.ComparisonRecordId);
         ComparisonRecordRunIdSql.NormalizeRunIdsForRead(record);
         record.LeftExportRecordId = NormalizeExportRecordIdOrNull(record.LeftExportRecordId);
         record.RightExportRecordId = NormalizeExportRecordIdOrNull(record.RightExportRecordId);

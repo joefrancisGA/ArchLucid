@@ -15,18 +15,21 @@ public sealed partial class ComparisonRecordRepository
         string comparisonRecordId,
         CancellationToken cancellationToken = default)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(comparisonRecordId);
+        string normalizedComparisonRecordId = ComparisonRecordIdLookup.NormalizeLookupKey(comparisonRecordId);
+
         string sql = $"""
                       SELECT TOP 1
                           {ComparisonRecordRunIdSql.ProjectionRow}
                       FROM ComparisonRecords
-                      WHERE ComparisonRecordId = @ComparisonRecordId;
+                      WHERE LTRIM(RTRIM(ComparisonRecordId)) = @ComparisonRecordId;
                       """;
 
         using IDbConnection connection = await _readConnectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         ComparisonRecord? row = await connection.QuerySingleOrDefaultAsync<ComparisonRecord>(new CommandDefinition(
             sql,
-            new { ComparisonRecordId = comparisonRecordId },
+            new { ComparisonRecordId = normalizedComparisonRecordId },
             cancellationToken: cancellationToken));
 
         return NormalizeRunIdsNullable(row);
@@ -233,7 +236,10 @@ public sealed partial class ComparisonRecordRepository
     private static ComparisonRecord? NormalizeRunIdsNullable(ComparisonRecord? record)
     {
         if (record is not null)
+        {
+            record.ComparisonRecordId = ComparisonRecordIdLookup.NormalizeLookupKey(record.ComparisonRecordId);
             ComparisonRecordRunIdSql.NormalizeRunIdsForRead(record);
+        }
 
         return record;
     }

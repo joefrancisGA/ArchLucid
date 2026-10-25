@@ -76,6 +76,23 @@ public abstract class ComparisonRecordRepositoryContractTests
     }
 
     [SkippableFact]
+    public async Task GetById_finds_row_when_lookup_comparison_record_id_has_surrounding_whitespace()
+    {
+        SkipIfSqlServerUnavailable();
+        IComparisonRecordRepository repo = CreateRepository();
+        string canonicalId = "cmp_contract_pad_" + Guid.NewGuid().ToString("N");
+        ComparisonRecord row = CreateRecord(canonicalId);
+
+        await BeforeSqlComparisonRecordPersistAsync(row, CancellationToken.None);
+        await repo.CreateAsync(row, CancellationToken.None);
+
+        ComparisonRecord? loaded = await repo.GetByIdAsync($"  {canonicalId}  ", CancellationToken.None);
+
+        loaded.Should().NotBeNull();
+        loaded!.ComparisonRecordId.Should().Be(canonicalId);
+    }
+
+    [SkippableFact]
     public async Task GetById_nonexistent_returns_null()
     {
         SkipIfSqlServerUnavailable();
