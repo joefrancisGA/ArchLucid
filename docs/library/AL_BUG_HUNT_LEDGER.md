@@ -1,3 +1,38 @@
+2026-10-22 seed hunt (seed-only): `ui-oidc` - no hunt-ready product defect; cheap-disproof closed unauthorized_client fixed authorize UX, refresh 413 parity, and saturated readOAuthJsonErrorDescription regional-indicator glue; parity regressions BFF refresh HTTP 415 and opaque token endpoint 415 without cookie clear, and code exchange opaque HTTP 502 marks authorize retry to preserve return path; scoped `src/lib/oidc` + BFF refresh route vitest 509/509.
+
+- [x] (invalid) humanizeAuthorizeCallbackError - unauthorized_client authorize-query copy - **cheap-disproof 2026-10-22:** fixed registration-route UX; not a defect.
+- [x] (valid-no-repro) refreshBffSessionCookie - refresh 413 shouldClearSession false - **cheap-disproof 2026-10-22:** client + route opaque 413 regressions on trunk.
+- [x] (valid-no-repro) exchangeAuthorizationCode - opaque token endpoint HTTP error marks authorize retry - **regression 2026-10-22:** intentional return-path preservation on proxy/HTML failures.
+- [x] (invalid) readOAuthJsonErrorDescription - multiply-encoded %252B with regional-indicator glue - **cheap-disproof 2026-10-22:** saturated JSON encoding class on trunk.
+
+- [ ] (candidate) humanizeAuthorizeCallbackError - invalid_scope authorize-query copy - locus: fixed-branch UX.
+- [ ] (candidate) refreshBffSessionCookie - refresh 416 shouldClearSession false - locus: proxy transient policy.
+- [ ] (candidate) exchangeAuthorizationCode - non-JSON token response skips authorize retry marker - locus: malformed body policy.
+- [ ] (candidate) initiateOidcRedirect - poisoned unsafe URL with in-flight supplemental Google PKCE - locus: mirror supplemental+primary PKCE parity.
+
+2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed consent_required authorize-query UX, BFF refresh 411 parity, invalid token endpoint skip of authorize-retry marker, and saturated decodeOAuthErrorDescription regional-indicator glue; scoped vitest 473/473.
+
+- [x] (invalid) humanizeAuthorizeCallbackError - consent_required authorize-query copy - **cheap-disproof 2026-10-22:** fixed administrator-consent UX parity test.
+- [x] (valid-no-repro) refreshBffSessionCookie - refresh 411 shouldClearSession false - **cheap-disproof 2026-10-22:** existing client regression on trunk.
+- [x] (valid-no-repro) exchangeAuthorizationCode - invalid token endpoint URL skips authorize retry marker - **cheap-disproof 2026-10-22:** existing token-client regression; misconfiguration not OAuth outcome.
+- [x] (invalid) decodeOAuthErrorDescription - multiply-encoded %252B with regional-indicator glue - **cheap-disproof 2026-10-22:** saturated encoding class; flag emoji copy already covered on trunk.
+
+- [ ] (candidate) humanizeAuthorizeCallbackError - unauthorized_client authorize-query copy - locus: default branch UX.
+- [ ] (candidate) refreshBffSessionCookie - refresh 413 shouldClearSession false - locus: transient refresh parity.
+- [ ] (candidate) exchangeAuthorizationCode - opaque token endpoint HTTP error marks authorize retry - locus: proxy HTML vs OAuth JSON policy.
+- [ ] (candidate) readOAuthJsonErrorDescription - multiply-encoded %252B with regional-indicator glue - locus: saturated JSON encoding class.
+
+2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed interaction_required authorize-query UX, BFF refresh 503 parity, and invalid_grant authorize-retry marking policy; regression Google supplemental sign-in rehydrates authorize-retry snapshot with in-flight primary PKCE + tampered unsafe URL; scoped vitest 470/470.
+
+- [x] (invalid) humanizeAuthorizeCallbackError - interaction_required authorize-query copy - **cheap-disproof 2026-10-22:** fixed interaction-required UX parity with login_required.
+- [x] (valid-no-repro) refreshBffSessionCookie - refresh 503 shouldClearSession false - **cheap-disproof 2026-10-22:** existing client regression on trunk.
+- [x] (valid-no-repro) initiateSupplementalOidcRedirect - poisoned unsafe URL with in-flight primary PKCE state - **regression 2026-10-22:** preparePostSignInReturnUrlForSignInStart purge + snapshot rehydrate before supplemental PKCE replaces primary state.
+- [x] (valid-no-repro) exchangeAuthorizationCode - invalid_grant marks authorize retry - **cheap-disproof 2026-10-22:** existing token-client regression; intentional retry after stale code exchange.
+
+- [ ] (candidate) humanizeAuthorizeCallbackError - consent_required authorize-query copy - locus: default branch UX.
+- [ ] (candidate) refreshBffSessionCookie - refresh 411 shouldClearSession false - locus: transient refresh parity.
+- [ ] (candidate) exchangeAuthorizationCode - invalid token endpoint URL skips authorize retry marker - locus: misconfiguration vs OAuth outcome.
+- [ ] (candidate) decodeOAuthErrorDescription - multiply-encoded %252B with regional-indicator glue - locus: saturated encoding class.
 2026-10-22 seed hunt (seed-only): `ui-oidc` - no hunt-ready product defect; cheap-disproof closed interaction_required fixed authorize UX, invalid_grant exchange retry policy, and BFF refresh 503 client parity; parity regressions opaque token endpoint 503/414 without cookie clear, BFF client 414 soft-fail, zero-width-only post-sign-in purge at sign-in start during retry, and supplemental Google rehydrate with in-flight primary PKCE + tampered URL; scoped `src/lib/oidc` + BFF refresh route vitest 502/502.
 
 - [x] (invalid) humanizeAuthorizeCallbackError - interaction_required authorize-query copy - **cheap-disproof 2026-10-22:** fixed interaction-required UX; not a defect.
