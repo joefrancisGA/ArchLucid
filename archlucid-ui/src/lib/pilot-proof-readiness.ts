@@ -147,11 +147,14 @@ export function isAgentOutputPilotStrictSponsorSafe(
   const satisfied = payload?.proofPackageCompleteness?.agentOutputPilotStrictEvidenceSatisfied;
 
   if (satisfied === undefined) {
-    return true;
+    return false;
   }
 
   return satisfied === true;
 }
+
+export const PILOT_STRICT_EVIDENCE_NOT_STORED_LABEL =
+  "Strict AI evidence was not stored for this review." as const;
 
 export function describeSponsorProofReadiness(
   payload: PilotRunDeltasProofSummaryJson | null,

@@ -23,13 +23,6 @@ export function formatInfraEvidenceCompletenessSummaryBannerLine(
       : summary.hiddenHopsUsedCount > 0
         ? ` (${summary.hiddenHopsUsedCount} from hidden attachment hops)`
         : "";
-  const collocation =
-    summary.likelyInCollocationEdgeCount === null
-      ? " Likely-in collocation count was not stored."
-      : summary.likelyInCollocationEdgeCount > 0
-        ? ` ${summary.likelyInCollocationEdgeCount} likely-in collocation edges.`
-        : "";
-
   if (
     summary.visibleNodeCount === null
     || summary.connectedComponentCount === null
@@ -45,5 +38,12 @@ export function formatInfraEvidenceCompletenessSummaryBannerLine(
         ? ` Missing: ${summary.missingClasses.join("; ")}.`
         : "";
 
-  return `${visibleNodeCount} resources in ${connectedComponentCount} connected components. ${visibleEdgeCount} visible relationships${hiddenHops}.${collocation}${missing}`;
+  const collocationPart =
+    summary.likelyInCollocationEdgeCount === null
+      ? ", including likely-in collocation count was not stored."
+      : summary.likelyInCollocationEdgeCount > 0
+        ? `, including ${summary.likelyInCollocationEdgeCount} same-resource-group guesses that are not stored connections.`
+        : ".";
+
+  return `${visibleNodeCount} resources in ${connectedComponentCount} connected components. ${visibleEdgeCount} lines on the diagram${hiddenHops}${collocationPart}${missing}`;
 }

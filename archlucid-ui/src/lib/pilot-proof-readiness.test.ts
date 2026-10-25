@@ -113,14 +113,14 @@ describe("isAgentOutputPilotStrictSponsorSafe", () => {
     ).toBe(false);
   });
 
-  it("returns true when satisfied or field is absent", () => {
+  it("returns true only when strict evidence is explicitly satisfied", () => {
     expect(
       isAgentOutputPilotStrictSponsorSafe({
         proofPackageCompleteness: { agentOutputPilotStrictEvidenceSatisfied: true },
       }),
     ).toBe(true);
 
-    expect(isAgentOutputPilotStrictSponsorSafe({ proofPackageCompleteness: {} })).toBe(true);
+    expect(isAgentOutputPilotStrictSponsorSafe({ proofPackageCompleteness: {} })).toBe(false);
   });
 });
 

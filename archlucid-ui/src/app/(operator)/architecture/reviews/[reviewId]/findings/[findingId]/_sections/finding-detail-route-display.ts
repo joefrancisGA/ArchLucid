@@ -3,7 +3,6 @@ import {
   typedPayloadLookupString,
   isPhiMinimizationFindingId,
   isPhiMinimizationSampleFinding,
-  phiMinimizationApprovalNarrative,
   phiMinimizationRecommendedActionFallback,
 } from "@/lib/findings/finding-display-from-inspect";
 import { buyerFindingSeverityDisplayLabel } from "@/lib/buyer/buyer-finding-severity-display";
@@ -63,7 +62,7 @@ export function resolveFindingRiskOwnerLabel(
   const assigned = payload?.assignedToUserId?.trim() ?? "";
 
   if (assigned.length > 0) {
-    return assigned;
+    return `Risk owner name was not stored. Assignee id ${assigned}.`;
   }
 
   return RISK_OWNER_NOT_ASSIGNED;
@@ -173,10 +172,6 @@ export function fallbackSeverity(payload: FindingInspectPayload | null, findingI
     }
   }
 
-  if (isPhiMinimizationFindingId(findingId)) {
-    return resolveProductionEvalChromeFromStorage() ? "High" : "High severity";
-  }
-
   return SEVERITY_NOT_STORED;
 }
 
@@ -209,7 +204,7 @@ export function buyerFindingDecisionPanelCopy(payload: FindingInspectPayload | n
   const status = fallbackStatus(payload, findingId);
 
   if (status === STATUS_NOT_STORED) {
-    return "No disposition recorded for this finding.";
+    return "Disposition was not stored.";
   }
 
   return `Disposition: ${status}.`;
@@ -278,28 +273,12 @@ export function buyerFindingNextStepCopy(payload: FindingInspectPayload | null, 
     if (action !== null && action.trim().length > 0) {
       return action;
     }
-
-    if (isPhiMinimizationSampleFinding(payload)) {
-      return phiMinimizationRecommendedActionFallback();
-    }
-  }
-
-  if (isPhiMinimizationFindingId(findingId)) {
-    return phiMinimizationRecommendedActionFallback();
   }
 
   return mitigationPosture(payload, findingId);
 }
 
-export function validationRequirement(payload: FindingInspectPayload | null, findingId: string): string {
-  if (payload !== null && isPhiMinimizationSampleFinding(payload)) {
-    return phiMinimizationApprovalNarrative();
-  }
-
-  if (isPhiMinimizationFindingId(findingId)) {
-    return phiMinimizationApprovalNarrative();
-  }
-
+export function validationRequirement(_payload: FindingInspectPayload | null, _findingId: string): string {
   return "No audit requirement was stored on this finding.";
 }
 

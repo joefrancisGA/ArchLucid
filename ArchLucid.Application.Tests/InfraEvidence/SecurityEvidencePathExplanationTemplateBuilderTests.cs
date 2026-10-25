@@ -87,7 +87,8 @@ public sealed class SecurityEvidencePathExplanationTemplateBuilderTests
 
         template.ProposedChange.Should().Be("network restrict public");
         template.Verify.Should().Be("snapshot:verify-public-closure");
-        template.ArchitectSentence.Should().Contain("Change network restrict public will break the path");
+        template.ArchitectSentence.Should().Contain("Proposed change: network restrict public");
+        template.ArchitectSentence.Should().Contain("Effect on the path was not stored");
         template.ArchitectSentence.Should().Contain("Verify using snapshot:verify-public-closure.");
     }
 

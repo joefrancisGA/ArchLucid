@@ -382,13 +382,17 @@ internal sealed class InfraEvidenceAskEvidenceCollector(
         DiagramInfrastructureCorrespondenceRow row)
     {
         string correspondenceId = string.IsNullOrWhiteSpace(row.CorrespondenceId)
-            ? Guid.NewGuid().ToString("D")
+            ? InfraEvidenceAskCitationHonestyCopy.CorrespondenceIdNotStored
             : row.CorrespondenceId;
+
+        string citationTitle = string.IsNullOrWhiteSpace(row.DiagramNodeLabel)
+            ? InfraEvidenceAskCitationHonestyCopy.DiagramNodeLabelNotStored
+            : row.DiagramNodeLabel;
 
         bundle.AddCitation(
             InfraEvidenceAskCitationKinds.DiagramCorrespondenceId,
             correspondenceId,
-            row.DiagramNodeLabel ?? row.AzureResourceId,
+            citationTitle,
             $"correspondenceId={correspondenceId} matchKind={row.MatchKind} azureResourceId={row.AzureResourceId}");
     }
 }

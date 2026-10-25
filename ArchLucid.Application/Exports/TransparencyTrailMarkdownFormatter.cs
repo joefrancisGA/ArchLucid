@@ -13,7 +13,18 @@ public static class TransparencyTrailMarkdownFormatter
     public const string ExportIncompleteBanner =
         "> **Career export blocked (ADR 0073):** This sealed record does not include a complete transparency trail (asserted, inferred, skipped). Do not treat this artifact as a defensible stamp.";
 
-    public static bool IsComplete(TransparencyTrail? trail) => trail is not null;
+    public const string SkippedQuestionsNotRecordedCopy =
+        "Skipped questions were not recorded on this transparency trail.";
+
+    public static bool IsComplete(TransparencyTrail? trail)
+    {
+        if (trail is null)
+        {
+            return false;
+        }
+
+        return trail.Asserted is not null && trail.Inferred is not null && trail.Skipped is not null;
+    }
 
     public static void AppendMarkdownSection(StringBuilder sb, TransparencyTrail? trail)
     {
@@ -117,6 +128,14 @@ public static class TransparencyTrailMarkdownFormatter
                 sb.AppendLine($"- {entry.QuestionKey}");
             }
 
+            sb.AppendLine();
+        }
+
+        if (mustSkipped.Count == 0 && shouldSkipped.Count == 0)
+        {
+            sb.AppendLine("### Skipped questions (0)");
+            sb.AppendLine();
+            sb.AppendLine($"_{SkippedQuestionsNotRecordedCopy}_");
             sb.AppendLine();
         }
     }

@@ -143,7 +143,7 @@ export function humanReviewStatusDisplay(
       return { label: "Human review status was not stored", statusKind: "neutral" };
     default:
       return {
-        label: `Stored human review status (${value}) has no reviewer label.`,
+        label: "Human review status was not a recognized stored value.",
         statusKind: "neutral",
       };
   }

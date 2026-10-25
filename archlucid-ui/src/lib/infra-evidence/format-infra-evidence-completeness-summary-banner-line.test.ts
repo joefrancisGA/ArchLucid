@@ -27,6 +27,8 @@ describe("formatInfraEvidenceCompletenessSummaryBannerLine", () => {
     );
 
     expect(line).toContain("10 resources in 3 connected components.");
+    expect(line).toContain("4 lines on the diagram");
+    expect(line).not.toContain("visible relationships");
     expect(line).toContain("Missing: Missing NIC subnet ids.");
   });
 
@@ -38,13 +40,18 @@ describe("formatInfraEvidenceCompletenessSummaryBannerLine", () => {
     expect(line).toContain("(2 from hidden attachment hops)");
   });
 
+<<<<<<< HEAD
   it("labels omitted missing resource classes as not stored", () => {
+=======
+  it("labels null collocation count as not stored on the diagram line", () => {
+>>>>>>> origin/master
     const line = formatInfraEvidenceCompletenessSummaryBannerLine({
       mode: "network",
       visibleNodeCount: 10,
       visibleEdgeCount: 4,
       connectedComponentCount: 3,
       hiddenHopsUsedCount: 0,
+<<<<<<< HEAD
       likelyInCollocationEdgeCount: 0,
       collectedClasses: [],
       missingClasses: null,
@@ -57,8 +64,14 @@ describe("formatInfraEvidenceCompletenessSummaryBannerLine", () => {
     const line = formatInfraEvidenceCompletenessSummaryBannerLine(
       summary({ hiddenHopsUsedCount: null, likelyInCollocationEdgeCount: null }),
     );
+=======
+      likelyInCollocationEdgeCount: null,
+      collectedClasses: [],
+      missingClasses: [],
+    });
+>>>>>>> origin/master
 
-    expect(line).toContain("Hidden attachment hop count was not stored.");
-    expect(line).toContain("Likely-in collocation count was not stored.");
+    expect(line).toContain("4 lines on the diagram");
+    expect(line).toContain("likely-in collocation count was not stored");
   });
 });
