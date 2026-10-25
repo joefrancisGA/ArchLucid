@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   DECISION_REGISTER_EXPORT_DISPOSITION_HONESTY_HEADER,
+  DECISION_REGISTER_EXPORT_SUPPORTING_FINDING_IDS_NOT_STORED,
   buildDecisionRegisterExportDocument,
   formatDecisionRegisterExportCsv,
   formatDecisionRegisterExportJson,
@@ -65,6 +66,21 @@ describe("decision-register-export (FC-79)", () => {
     expect(csv).toContain("Buyer confidence source was not stored.");
   });
 
+  it("uses omission copy when supportingFindingIds is omitted", () => {
+    const omitted = [
+      {
+        ...decisions[0],
+        supportingFindingIds: undefined,
+      },
+    ];
+
+    const json = formatDecisionRegisterExportJson(omitted);
+    const csv = formatDecisionRegisterExportCsv(omitted);
+
+    expect(json).toContain(`"supportingFindingIds": null`);
+    expect(csv).toContain(DECISION_REGISTER_EXPORT_SUPPORTING_FINDING_IDS_NOT_STORED);
+  });
+
   it("preserves stored zero and Unknown source values", () => {
     const stored = [
       {
@@ -96,6 +112,7 @@ describe("decision-register-export (FC-79)", () => {
         enforcementTier: "PolicyViolation",
         classification: FINDING_CLASSIFICATION_DECISION_GRADE,
         semanticSupportBand: "Supported",
+        semanticSupportBandScorerVersion: FINDING_SEMANTIC_SUPPORT_BAND_SCORER_VERSION,
       },
     ];
     const document = buildDecisionRegisterExportDocument(decisions, { findings });

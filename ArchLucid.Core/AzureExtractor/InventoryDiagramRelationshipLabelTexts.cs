@@ -13,11 +13,17 @@ public static class InventoryDiagramRelationshipLabelTexts
     public const string AppAuthorizedAccessLabel =
         "Authorization may allow access. Observed use was not stored.";
 
+    public const string AppToKeyVaultRefLabel =
+        "App setting names Key Vault. Observed secret access was not stored.";
+
     public const string SqlPrincipalAuthorizedAccessLabel =
         "SQL principal authorization may allow access. An observed query was not stored.";
 
     public const string HostnameInferredTargetLabel =
         "App setting hostname was inferred. A stored resource link was not stored.";
+
+    public const string PeReachableTargetInferredLabel =
+        "Private endpoint target was inferred. Reachability was not stored.";
 
     public const string PublicExposureCaption = "Public IP is attached; its card is hidden on this diagram.";
 
@@ -129,6 +135,19 @@ public static class InventoryDiagramRelationshipLabelTexts
     public const string CaptureConfiguredObservedCaptureNotStored =
         "Capture is configured. Observed capture was not stored.";
 
+    public const string AdfTriggerConfiguredObservedRunNotStored =
+        "Trigger is configured. This is not an observed run.";
+
+    public const string AdfIntegrationRuntimeConfiguredObservedRunNotStored =
+        "Integration runtime in configuration. This is not an observed run.";
+
+    public static string FormatDiagnosticSettingDestinationLabel(string destinationName)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(destinationName);
+
+        return $"Diagnostic setting destination is {destinationName.Trim()}. This is not observed log delivery.";
+    }
+
     public const string PrivateEndpointTargetStoredReachabilityNotObserved =
         "Private endpoint target was stored. Reachability was not observed.";
 
@@ -157,32 +176,9 @@ public static class InventoryDiagramRelationshipLabelTexts
 
     public static string FormatSendsTrafficToBackend(int? backendPort)
     {
-        return FormatBackendPoolMembershipConfigured(backendPort);
-    }
-
-    public static string FormatDiagnosticSettingStorageLabel(string? settingName)
-    {
-        if (string.IsNullOrWhiteSpace(settingName))
-        {
-            return DiagnosticSettingNameNotStoredLogDeliveryNotObserved;
-        }
-
-        if (string.Equals(
-                settingName.Trim(),
-                DiagnosticSettingStorageNamesNotListedQualifier,
-                StringComparison.OrdinalIgnoreCase))
-        {
-            return DiagnosticSettingNamesNotListedLogDeliveryNotObserved;
-        }
-
-        return $"{settingName.Trim()}. Log delivery was not observed.";
-    }
-
-    public static string FormatRoleAssignmentAccessLabel(string roleName)
-    {
-        ArgumentException.ThrowIfNullOrWhiteSpace(roleName);
-
-        return $"Role assignment: {roleName.Trim()}. {RoleAssignmentObservedUseNotStoredSuffix}";
+        return backendPort is null
+            ? "Configured backend pool member. Backend port was not stored."
+            : $"Configured backend pool member on port {backendPort.Value}.";
     }
 
     public static string FormatBackendOffCanvasOutline(string backendName)

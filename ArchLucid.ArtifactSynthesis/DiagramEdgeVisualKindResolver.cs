@@ -63,10 +63,4 @@ public static class DiagramEdgeVisualKindResolver
             GraphEdgeInferenceSources.HumanDeclaredConnection,
             StringComparison.OrdinalIgnoreCase);
     }
-
-    private static bool IsAppSettingsHostInferenceSource(string? inferenceSource)
-    {
-        return string.Equals(inferenceSource, GraphEdgeInferenceSources.InventoryHostnameInferredTarget, StringComparison.OrdinalIgnoreCase)
-            || string.Equals(inferenceSource, GraphEdgeInferenceSources.InventoryStorageHostRef, StringComparison.OrdinalIgnoreCase);
-    }
 }

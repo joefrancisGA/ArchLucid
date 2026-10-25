@@ -14,6 +14,8 @@ import {
 import { isApiRequestError } from "@/lib/api-request-error";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 
+import { buildMissingDraftActorsPlaceholderSet } from "@/lib/draft-intake/draft-intake-actor-honesty";
+
 import { apiGet, apiPatchJson, apiPostJson } from "./http";
 import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
 
@@ -50,20 +52,9 @@ export async function getPriorPackageSemanticCounts(
   }
 }
 
-/** Default asserted actor so structural admission can pass without a separate actor UI step. */
+/** Structural admission placeholder when intake omitted actors — not a confirmed operator name. */
 export function buildDefaultActorSet(): ActorSet {
-  return {
-    actors: [
-      {
-        label: "Primary operator",
-        kind: "Human",
-        trustOrigin: "Internal",
-        contract: "Sync",
-        origin: "Asserted",
-        confidence: 100,
-      },
-    ],
-  };
+  return buildMissingDraftActorsPlaceholderSet();
 }
 
 export async function createDraftRequest(

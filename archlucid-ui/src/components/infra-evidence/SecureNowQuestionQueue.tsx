@@ -6,7 +6,10 @@ import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { formatDiagramArmTypeFriendlyName } from "@/lib/infra-evidence/format-diagram-arm-type-friendly-name";
-import { normalizeSecureNowResourceNameForDisplay } from "@/lib/infra-evidence/format-azure-resource-display";
+import {
+  isSecureNowResourceDisplayNameMissing,
+  normalizeSecureNowResourceNameForDisplay,
+} from "@/lib/infra-evidence/format-azure-resource-display";
 import { secureNowQuestionAnswerLabel } from "@/lib/infra-evidence/securenow-question-answer-label";
 import { diagramOutlineIncludesFocusResource } from "@/lib/architecture/architecture-diagram-camera-focus";
 import type { InfraEvidenceMermaidOutline } from "@/lib/infra-evidence/parse-infra-evidence-mermaid-outline";
@@ -127,7 +130,7 @@ function formatSecureNowQuestionScopeLabel(scopeKind: string | null): string {
   const trimmed = scopeKind.trim();
 
   if (trimmed.length === 0) {
-    return "Question scope was not stored.";
+    return "Question scope was stored empty.";
   }
 
   if (trimmed === "Resource") {
@@ -259,8 +262,15 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
     currentQuestion?.resourceName === null || currentQuestion?.resourceName === undefined
       ? "Resource name was not stored."
       : currentQuestion.resourceName.trim().length === 0
-        ? "Resource name was stored empty."
+<<<<<<< HEAD
+        ? "Resource name was not stored"
         : normalizeSecureNowResourceNameForDisplay(currentQuestion.resourceName);
+=======
+        ? "Resource name was stored empty."
+        : isSecureNowResourceDisplayNameMissing(currentQuestion.resourceName)
+          ? "Resource name was not stored."
+          : normalizeSecureNowResourceNameForDisplay(currentQuestion.resourceName);
+>>>>>>> origin/master
   const resourceIdMissing = currentQuestion?.resourceId === null || currentQuestion?.resourceId === undefined;
   const resourceIdStoredEmpty =
     currentQuestion?.resourceId !== null
@@ -297,7 +307,7 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
               {currentQuestion.questionText === null || currentQuestion.questionText === undefined
                 ? "Question text was not stored."
                 : currentQuestion.questionText.trim().length === 0
-                  ? "Question text was stored empty."
+                  ? "Question text was not stored."
                   : currentQuestion.questionText}
             </p>
           ) : null}

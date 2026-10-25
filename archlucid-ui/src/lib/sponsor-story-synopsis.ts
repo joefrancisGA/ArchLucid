@@ -5,6 +5,7 @@ export type SponsorStoryDispositionCounts = {
   readonly needsEvidence: number;
   readonly remediated: number;
   readonly undisposed: number;
+  readonly dispositionNotReturned: number;
 };
 
 export const SPONSOR_STORY_SYNOPSIS_WORKING_LABEL =
@@ -20,10 +21,16 @@ export function buildSponsorStoryDispositionCountsFromRows(
     needsEvidence: 0,
     remediated: 0,
     undisposed: 0,
+    dispositionNotReturned: 0,
   };
 
   for (const row of rows) {
-    const disposition = (row.latestDisposition ?? "").trim();
+    if (row.latestDisposition === null || row.latestDisposition === undefined) {
+      counts.dispositionNotReturned += 1;
+      continue;
+    }
+
+    const disposition = row.latestDisposition.trim();
 
     switch (disposition) {
       case "Accepted":
@@ -90,5 +97,10 @@ export function buildSponsorStorySynopsisParagraph(input: {
       ? ` ${counts.undisposed} finding${counts.undisposed === 1 ? "" : "s"} still undisposed.`
       : " All findings have a recorded disposition.";
 
-  return `Working sponsor synopsis for "${packageTitle}": ${dispositionPhrase}.${undisposedPhrase}`;
+  const dispositionNotReturnedPhrase =
+    counts.dispositionNotReturned > 0
+      ? ` ${counts.dispositionNotReturned} finding${counts.dispositionNotReturned === 1 ? "" : "s"} had disposition status not returned.`
+      : "";
+
+  return `Working sponsor synopsis for "${packageTitle}": ${dispositionPhrase}.${undisposedPhrase}${dispositionNotReturnedPhrase}`;
 }

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  INFRA_DIAGRAMS_BUYER_CAPTION_NOT_STORED,
   INFRA_DIAGRAMS_DATA_FLOW_HONESTY_PREFIX,
   INFRA_DIAGRAMS_DATA_FLOW_NOT_STORED_CAPTION,
   isInfraEvidenceDataFlowMermaid,
@@ -100,7 +101,7 @@ describe("infra-evidence-data-flow-diagram", () => {
     ]);
   });
 
-  it("uses the default honesty prefix when no buyer caption comment exists (P-17)", () => {
+  it("uses the default honesty prefix when no buyer caption comment exists (P-04)", () => {
     const mermaid = [
       "flowchart LR",
       "    %% al-type=microsoft.app/containerapps al-rg=rg-app",
@@ -109,6 +110,7 @@ describe("infra-evidence-data-flow-diagram", () => {
 
     expect(parseInfraDiagramsDataFlowCaptionPresentation(mermaid).honestyCaptions).toEqual([
       INFRA_DIAGRAMS_DATA_FLOW_HONESTY_PREFIX,
+      INFRA_DIAGRAMS_BUYER_CAPTION_NOT_STORED,
     ]);
   });
 });

@@ -39,7 +39,7 @@ export function resolveFindingClassificationLabel(
     }
 
     if (treatment !== null && treatment !== undefined && treatment !== 0) {
-      return String(treatment);
+      return "Treatment was not recognized.";
     }
 
     return FINDING_CLASSIFICATION_CHECKLIST_LABEL;

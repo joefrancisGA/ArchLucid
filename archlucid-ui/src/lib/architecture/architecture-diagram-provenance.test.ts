@@ -125,6 +125,25 @@ describe("architecture diagram element provenance", () => {
     ).toBe("accepted-inference");
   });
 
+  it("does not name the architecture brief for inferred elements", () => {
+    const inferredNode = model.nodes[0]!;
+
+    expect(
+      buildArchitectureDiagramNodeProvenanceDetail({
+        runId: "run-1",
+        node: inferredNode,
+        diagramVersionSource: null,
+      }).sentence,
+    ).not.toMatch(/architecture brief/i);
+    expect(
+      buildArchitectureDiagramNodeProvenanceDetail({
+        runId: "run-1",
+        node: inferredNode,
+        diagramVersionSource: null,
+      }).sentence,
+    ).toContain("An inference source was not stored on the element.");
+  });
+
   it("prefixes regenerated diagram versions in provenance copy", () => {
     const assertedNode = model.nodes[2]!;
 

@@ -130,7 +130,7 @@ internal static class DiagramForestDataFlowStageSummarySvgEmitter
 
         if (notStagedCount > 0)
         {
-            summary.Append(CultureInfo.InvariantCulture, $" · {notStagedCount} not staged");
+            summary.Append(CultureInfo.InvariantCulture, $" · {notStagedCount} Stage was not stored.");
         }
 
         double leftX = columns.Min(column => column.LeftX);

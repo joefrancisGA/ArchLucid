@@ -53,7 +53,7 @@ export function FindingDetailDecisionSummary(props: FindingDetailDecisionSummary
           <dd className="m-0 mt-0.5 text-al-text-primary">{summary.businessImpact}</dd>
         </div>
         <div className="sm:col-span-2">
-          <dt className={cn("text-neutral-500 dark:text-neutral-400", OPERATOR_KPI_CARD_TITLE)}>Required monitoring</dt>
+          <dt className={cn("text-neutral-500 dark:text-neutral-400", OPERATOR_KPI_CARD_TITLE)}>Recommended action</dt>
           <dd className="m-0 mt-0.5 text-al-text-primary">{summary.requiredMonitoring}</dd>
         </div>
         <div>
@@ -69,7 +69,7 @@ export function FindingDetailDecisionSummary(props: FindingDetailDecisionSummary
           </dd>
         </div>
         <div>
-          <dt className={cn("text-neutral-500 dark:text-neutral-400", OPERATOR_KPI_CARD_TITLE)}>Next review</dt>
+          <dt className={cn("text-neutral-500 dark:text-neutral-400", OPERATOR_KPI_CARD_TITLE)}>Remediation due</dt>
           <dd className="m-0 mt-0.5 font-medium text-al-text-primary">{summary.nextReview}</dd>
         </div>
         <div>

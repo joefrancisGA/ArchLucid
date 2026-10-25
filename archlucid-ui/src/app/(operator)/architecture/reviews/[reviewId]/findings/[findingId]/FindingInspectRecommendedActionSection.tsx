@@ -4,13 +4,15 @@ import type { ReactElement } from "react";
 import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 const RISK_OWNER_NOT_STORED = "Risk owner was not stored";
-const NEXT_REVIEW_NOT_STORED = "Next review was not stored.";
+const NEXT_REVIEW_NOT_STORED = "Remediation due date was not stored.";
 
 export type FindingInspectRecommendedActionSectionProps = {
   readonly tone: "detail" | "inspect";
   readonly structuredActions: string[];
   readonly recommendedActionParagraph: string;
   readonly showOwnerCadence?: boolean;
+  readonly riskOwnerLabel?: string;
+  readonly nextReviewLabel?: string;
 };
 
 const toneSurfaces: Record<FindingInspectRecommendedActionSectionProps["tone"], string> = {
@@ -26,7 +28,17 @@ export function FindingInspectRecommendedActionSection({
   structuredActions,
   recommendedActionParagraph,
   showOwnerCadence = false,
+  riskOwnerLabel,
+  nextReviewLabel,
 }: FindingInspectRecommendedActionSectionProps): ReactElement {
+  const resolvedRiskOwner =
+    riskOwnerLabel !== undefined && riskOwnerLabel.trim().length > 0
+      ? riskOwnerLabel.trim()
+      : RISK_OWNER_NOT_STORED;
+  const resolvedNextReview =
+    nextReviewLabel !== undefined && nextReviewLabel.trim().length > 0
+      ? nextReviewLabel.trim()
+      : NEXT_REVIEW_NOT_STORED;
   const panelCls = toneSurfaces[tone];
 
   return (
@@ -49,7 +61,7 @@ export function FindingInspectRecommendedActionSection({
             <dt className={cn("text-al-text-secondary", OPERATOR_NAV_GROUP_LABEL)}>
               Risk owner
             </dt>
-            <dd className="m-0 mt-0.5 text-al-text-primary">{RISK_OWNER_NOT_STORED}</dd>
+            <dd className="m-0 mt-0.5 text-al-text-primary">{resolvedRiskOwner}</dd>
           </div>
           <div>
             <dt className={cn("text-al-text-secondary", OPERATOR_NAV_GROUP_LABEL)}>
@@ -63,7 +75,7 @@ export function FindingInspectRecommendedActionSection({
             <dt className={cn("text-al-text-secondary", OPERATOR_NAV_GROUP_LABEL)}>
               Next review
             </dt>
-            <dd className="m-0 mt-0.5 text-al-text-primary">{NEXT_REVIEW_NOT_STORED}</dd>
+            <dd className="m-0 mt-0.5 text-al-text-primary">{resolvedNextReview}</dd>
           </div>
         </dl>
       ) : null}
