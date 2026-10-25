@@ -252,7 +252,7 @@ internal static class DiagramEdgeLabelHumanizer
             return true;
         }
 
-        label = "Observed in logs";
+        label = "Observed dependency. Read/write direction was not stored.";
 
         return true;
     }

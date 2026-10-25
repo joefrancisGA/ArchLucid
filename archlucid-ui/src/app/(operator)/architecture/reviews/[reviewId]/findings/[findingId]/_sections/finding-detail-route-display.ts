@@ -173,10 +173,6 @@ export function fallbackSeverity(payload: FindingInspectPayload | null, findingI
     }
   }
 
-  if (isPhiMinimizationFindingId(findingId)) {
-    return resolveProductionEvalChromeFromStorage() ? "High" : "High severity";
-  }
-
   return SEVERITY_NOT_STORED;
 }
 
@@ -209,7 +205,7 @@ export function buyerFindingDecisionPanelCopy(payload: FindingInspectPayload | n
   const status = fallbackStatus(payload, findingId);
 
   if (status === STATUS_NOT_STORED) {
-    return "No disposition recorded for this finding.";
+    return "Disposition was not stored.";
   }
 
   return `Disposition: ${status}.`;
