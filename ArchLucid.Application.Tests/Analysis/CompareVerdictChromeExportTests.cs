@@ -132,6 +132,22 @@ public sealed class CompareVerdictChromeExportTests
     }
 
     [Fact]
+    public void CompareQuality_CompareVerdictChromeExportFormatter_whitespace_only_savings_labels_use_omission_copy()
+    {
+        CompareVerdictChromeDelta delta = SampleDelta();
+        delta.RoiHeadline!.BaselineSavingsLabel = "   ";
+        delta.RoiHeadline.TargetSavingsLabel = "\t\n";
+
+        StringBuilder markdownBuilder = new();
+        CompareVerdictChromeExportFormatter.AppendMarkdown(markdownBuilder, delta);
+        string markdown = markdownBuilder.ToString();
+
+        markdown.Should().Contain("Baseline savings was not stored.");
+        markdown.Should().Contain("Updated savings was not stored.");
+        markdown.Should().NotContain("| Baseline review |    |");
+    }
+
+    [Fact]
     public void Roi_headline_missing_labels_uses_omission_copy_across_export_lines()
     {
         CompareVerdictChromeDelta delta = SampleDelta();
