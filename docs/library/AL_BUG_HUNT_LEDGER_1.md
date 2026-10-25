@@ -6868,6 +6868,20 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-25 seed hunt (seed→hit): proved `ReplayComparisonExportsDiffSlice.BuildExportPairingKey` keyed end-to-end export pairing only on denormalized `CompareRunId`/`CompareManifestVersion` columns while legacy rows often store compare anchors solely in `AnalysisRequestJson`, so run-pair export diff slices could emit false left-only/right-only export warnings and skip diffs when one side had column anchors and the other had JSON-only anchors; resolve compare anchors via `AnalysisExportRequestRehydrator` fallback before pairing; regression `BuildExportPairingKey_treats_column_and_json_compare_run_id_as_same_pairing_key`; cheap-disproof closed dashed-vs-N column canonicalize (existing slice test), export diff compare normalize (hunt 196), `ApiPaging.TryParseUtcTicksIdCursor` (comparison search normalizes inbound cursor id), batch zip manifest echo (cosmetic), and Armenian homoglyphs (deferred); seeded five follow-on rows; scoped application-analysis + replay filter 356/356. Private beta: end-to-end run comparison reports pair architecture exports for diffing even when compare-run metadata lives only in persisted request JSON on one side of the pair.
+
+- [ ] (candidate) `ComparisonRecordRepository.GetByRunIdAsync` — SQL list-by-run dashed stored — locus: UNIQUEIDENTIFIER column; input: already matches N/D lookup via guid param.
+- [ ] (candidate) `ComparisonRecordRepositoryCore.SerializeTagsForUpdate` — JSON tag order — locus: cosmetic; input: defer.
+- [ ] (candidate) `ComparisonRecordSearchPredicateBuilder` — notes column search — locus: no notes filter today; input: defer.
+- [ ] (candidate) `ApiPaging.TryParseUtcTicksIdCursor` — cursor id segment without trim — locus: HTTP cursor parse; input: padded id after ticks delimiter (alerts inbox and other API surfaces).
+- [ ] (candidate) `ComparisonBatchReplayZipSupport` — manifest failure entries echo pre-trim batch tokens — locus: zip manifest; input: cosmetic id echo only.
+
+- [x] (proven) `BuildExportPairingKey` — JSON-only compare run id breaks pairing — **hit 2026-10-25 seed hunt:** rehydrate fallback; regression above.
+- [x] (valid-no-repro) `NormalizeCompareRunIdForPairing` — dashed column anchors — **cheap-disproof 2026-10-25 seed hunt:** existing dashed-vs-N pairing test.
+- [x] (valid-no-repro) `RunExportRecordScopedReadNormalizer` — scoped export read — **cheap-disproof 2026-10-25 seed hunt:** does not backfill JSON-only compare anchors for pairing.
+- [x] (invalid) `ApiPaging.TryParseUtcTicksIdCursor` — HTTP cursor id trim — **cheap-disproof 2026-10-25 seed hunt:** comparison search normalizes at application layer.
+- [x] (invalid) `ComparisonBatchReplayZipSupport` — manifest id echo — **cheap-disproof 2026-10-25 seed hunt:** cosmetic only.
+
 2026-10-25 seed hunt (seed→hit): proved `ExportRecordDiffService.Compare` returned `ExportRecordDiffResult` with dashed or padded nested `compareRunId` values on `RequestDiff` requests while `ExportRecordDiffResultNormalizer` already canonicalized anchors for markdown/docx formatters and persist paths, so `GET /v1/architecture/review/exports/compare` could echo non-canonical compare-run anchors when operators diffed legacy export rows; invoke `NormalizeDisplayAnchors` on compare results before return; regression `CompareQuality_export_record_diff_canonicalizes_nested_compare_run_id_in_request_diff`; cheap-disproof closed formatter-only normalize (hunt 7473 ledger), facade scoped export loads, `ApiPaging.TryParseUtcTicksIdCursor` (comparison search normalizes inbound cursor id), batch zip manifest echo (cosmetic), and Armenian homoglyphs (deferred); seeded five follow-on rows; scoped application-analysis + replay filter 355/355. Private beta: export-record comparison API responses return canonical compare-run ids inside nested request diff metadata matching comparison replay and persist surfaces.
 
 - [ ] (candidate) `ComparisonRecordRepository.GetByRunIdAsync` — SQL list-by-run dashed stored — locus: UNIQUEIDENTIFIER column; input: already matches N/D lookup via guid param.
@@ -8563,11 +8577,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 196
-- **bugs-found:** 202
+- **hunts:** 197
+- **bugs-found:** 203
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-25
-- **last-bug:** 2026-10-25 — export diff compare canonicalizes nested compare run id
+- **last-bug:** 2026-10-25 — E2E export pairing honors JSON compare anchors
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
