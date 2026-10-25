@@ -10,7 +10,10 @@ import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 import type { OperatorScopeQueryKey } from "@/lib/operator/operator-scope-query-key";
 import type { TeamExpansionNudgeStatusPayload } from "@/lib/team-expansion-nudge-trigger";
 import type { TenantTrialStatusClientPayload } from "@/lib/tenant-trial-status-client";
-import { normalizeOperatorHomeNonNegativeCount } from "@/lib/operator/run-home-status";
+import {
+  normalizeOperatorHomeNonNegativeCount,
+  normalizeOperatorShellNullableCount,
+} from "@/lib/operator/run-home-status";
 import type { OperatorStickinessSnapshotDto } from "@/types/operate-rhythm";
 import type { TenantHomepageSettingsResponse } from "@/types/tenant-homepage-settings";
 
@@ -134,7 +137,7 @@ export async function fetchOperatorShellStatus(): Promise<OperatorShellStatusPay
     usageStatus: dto.usageStatus ?? null,
     homepageSettings: mapHomepageSettings(dto.homepageSettings),
     stickinessSnapshot: mapStickinessSnapshot(dto.stickinessSnapshot),
-    assignedToMeFindingsCount: dto.assignedToMeFindingsCount ?? null,
+    assignedToMeFindingsCount: normalizeOperatorShellNullableCount(dto.assignedToMeFindingsCount),
     reviewsAwaitingAction: dto.reviewsAwaitingAction ?? null,
   };
 }

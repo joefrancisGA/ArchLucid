@@ -49,6 +49,15 @@ export function normalizeOperatorHomeNonNegativeCount(value: number | undefined)
   return Math.max(0, Math.trunc(value));
 }
 
+/** Matches dedicated governance count queries: absent or non-finite becomes null. */
+export function normalizeOperatorShellNullableCount(value: number | null | undefined): number | null {
+  if (value === null || value === undefined || !Number.isFinite(value)) {
+    return null;
+  }
+
+  return Math.max(0, Math.trunc(value));
+}
+
 export function deriveRunsDashboardTabCounts(
   items: readonly RunSummary[],
   awaitingApprovalCount = 0,

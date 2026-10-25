@@ -115,6 +115,24 @@ describe("operator shell status client", () => {
     expect(queryClient.getQueryData(operatorQueryKeys.governanceReviewsAwaitingAction(SCOPE))?.items).toHaveLength(1);
   });
 
+  it("maps non-finite assigned-to-me findings count from shell status JSON to null", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        new Response(JSON.stringify({ assignedToMeFindingsCount: Number.NaN }), {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        }),
+      ),
+    );
+
+    const queryClient = createOperatorQueryClient();
+    const payload = await fetchAndHydrateOperatorShellStatus(queryClient, SCOPE);
+
+    expect(payload.assignedToMeFindingsCount).toBeNull();
+    expect(queryClient.getQueryData(operatorQueryKeys.governanceAssignedToMeFindingsCount(SCOPE))).toBeUndefined();
+  });
+
   it("normalizes non-finite stickiness funnel counts from shell status JSON to zero", async () => {
     vi.stubGlobal(
       "fetch",
