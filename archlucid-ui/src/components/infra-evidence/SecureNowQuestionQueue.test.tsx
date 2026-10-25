@@ -18,12 +18,16 @@ const mocks = vi.hoisted(() => ({
   dismissConnection: vi.fn(),
 }));
 
-vi.mock("@/lib/infra-evidence/securenow-question-queue-api", () => ({
-  listSecureNowQuestions: mocks.listQuestions,
-  answerSecureNowQuestion: mocks.answerQuestion,
-  ignoreSecureNowQuestion: mocks.ignoreQuestion,
-  reopenSecureNowQuestion: mocks.reopenQuestion,
-}));
+vi.mock("@/lib/infra-evidence/securenow-question-queue-api", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/infra-evidence/securenow-question-queue-api")>();
+  return {
+    ...actual,
+    listSecureNowQuestions: mocks.listQuestions,
+    answerSecureNowQuestion: mocks.answerQuestion,
+    ignoreSecureNowQuestion: mocks.ignoreQuestion,
+    reopenSecureNowQuestion: mocks.reopenQuestion,
+  };
+});
 
 vi.mock("@/lib/infra-evidence/operator-inferred-connection-api", () => ({
   listOperatorInferredConnections: mocks.listConnections,
@@ -850,6 +854,26 @@ describe("SecureNowQuestionQueue", () => {
 
     expect(screen.queryByText("Resource id was not stored.")).not.toBeInTheDocument();
     expect(screen.queryByText("Resource id was stored empty.")).not.toBeInTheDocument();
+  });
+
+  it("answers when list snapshot id is padded but matches the active snapshot", async () => {
+    mocks.listQuestions.mockResolvedValue([
+      {
+        ...question,
+        snapshotId: "  snapshot-1  ",
+      },
+    ]);
+
+    render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
+    fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
+    fireEvent.click(screen.getByRole("button", { name: "Name the peer" }));
+    fireEvent.click(screen.getByRole("button", { name: "Save answer" }));
+
+    await waitFor(() => {
+      expect(mocks.answerQuestion).toHaveBeenCalledWith("snapshot-1", expect.objectContaining({
+        questionKey: "unknown-evidence@v1",
+      }));
+    });
   });
 
   it("answers a subscription-scope pack question when resource id is null", async () => {

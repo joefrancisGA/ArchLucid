@@ -4,6 +4,7 @@ import {
   answerSecureNowQuestion,
   listSecureNowQuestions,
   mapSecureNowQuestionDisposition,
+  secureNowQuestionListedSnapshotMatchesContext,
 } from "@/lib/infra-evidence/securenow-question-queue-api";
 import { proxyJsonGet, proxyJsonPost } from "@/lib/proxy-json-client";
 
@@ -11,6 +12,16 @@ vi.mock("@/lib/proxy-json-client", () => ({
   proxyJsonGet: vi.fn(),
   proxyJsonPost: vi.fn(),
 }));
+
+describe("secureNowQuestionListedSnapshotMatchesContext", () => {
+  it("treats padded listed snapshot ids as matching the active context", () => {
+    expect(secureNowQuestionListedSnapshotMatchesContext("  snapshot-1  ", "snapshot-1")).toBe(true);
+  });
+
+  it("rejects a different listed snapshot id after trim", () => {
+    expect(secureNowQuestionListedSnapshotMatchesContext("snapshot-2", "snapshot-1")).toBe(false);
+  });
+});
 
 describe("securenow-question-queue-api", () => {
   beforeEach(() => {

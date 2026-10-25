@@ -17,6 +17,7 @@ import {
   ignoreSecureNowQuestion,
   listSecureNowQuestions,
   reopenSecureNowQuestion,
+  secureNowQuestionListedSnapshotMatchesContext,
   type SecureNowQuestion,
 } from "@/lib/infra-evidence/securenow-question-queue-api";
 import {
@@ -285,8 +286,7 @@ export function SecureNowQuestionQueueProvider(
   const submitAction = useCallback(async (action: DrawerAction = drawerAction) => {
     if (!questionsLoaded || currentQuestion == null || busy) return;
 
-    if (currentQuestion.snapshotId.trim().length > 0
-      && currentQuestion.snapshotId !== snapshotId) {
+    if (!secureNowQuestionListedSnapshotMatchesContext(currentQuestion.snapshotId, snapshotId)) {
       return;
     }
     if (action === "ignore" && reason.trim().length === 0) return;

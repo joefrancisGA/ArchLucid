@@ -74,6 +74,21 @@ function stringOrDefault(value: unknown, fallback = ""): string {
   return typeof value === "string" ? value : fallback;
 }
 
+/** Whether a listed question's snapshot id matches the active queue context after trim. */
+export function secureNowQuestionListedSnapshotMatchesContext(
+  listedSnapshotId: string,
+  contextSnapshotId: string,
+): boolean {
+  const listed = listedSnapshotId.trim();
+  const context = contextSnapshotId.trim();
+
+  if (listed.length === 0) {
+    return true;
+  }
+
+  return listed === context;
+}
+
 export function mapSecureNowQuestionDisposition(raw: Record<string, unknown>): SecureNowQuestionDisposition {
   return {
     dispositionId: stringOrDefault(raw.dispositionId),
