@@ -44,7 +44,15 @@ public static class ComparisonRecordPayloadRehydrator
             if (diff is null)
                 return null;
 
-            CanonicalizeExportDiffRunIds(diff);
+            ExportRecordDiffResultNormalizer.NormalizeDisplayAnchors(diff);
+
+            if (!ExportRecordDiffMateriality.HasMaterialChanges(diff)
+                && diff.LeftExportRecordId.Length == 0
+                && diff.RightExportRecordId.Length == 0)
+            {
+                return null;
+            }
+
             return diff;
         }
         catch (JsonException ex)
@@ -55,6 +63,4 @@ public static class ComparisonRecordPayloadRehydrator
         }
     }
 
-    private static void CanonicalizeExportDiffRunIds(ExportRecordDiffResult diff) =>
-        ExportRecordDiffResultNormalizer.NormalizeDisplayAnchors(diff);
 }
