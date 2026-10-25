@@ -461,6 +461,7 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
                       setFilter(option);
                       setCurrentIndex(0);
                       setSelectedAnswer(null);
+                      setReason("");
                       setDrawerAction("answer");
                     }}
                   >

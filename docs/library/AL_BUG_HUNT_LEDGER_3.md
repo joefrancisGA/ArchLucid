@@ -7328,6 +7328,8 @@ ABQ-09 churn hotspot.
 
 ## Zone: securenow-question-queue
 
+2026-10-25 seed hunt (seed→hit): promoted question filter tabs reusing draft `reason` state — switching Open/Answered/Dismissed cleared `selectedAnswer` but left ignore/reopen text in `reason`, so operators could reopen with another row's draft ignore reason; clear `reason` on filter changes; regressions `clears draft reason when switching question filters` and `routes Ignored disposition status into the dismissed filter`; scoped SecureNow queue vitest 156/156. Private beta: filter tabs no longer carry draft ignore text into reopen on answered or dismissed rows.
+
 2026-10-25 seed hunt (seed→hit): promoted `loadQuestions` leaving `visitedQuestionKeys` at the visit cap after disposition mutations — operators who reached the ten-question visit limit then saved an answer still saw Next disabled on the reloaded open queue; clear visit tracking on successful queue reload alongside session skips; regression `clears the visit limit after the queue reloads`; scoped SecureNow queue vitest 154/154. Private beta: saving a question after browsing many open rows resets navigation so operators can continue reviewing the remaining queue.
 
 2026-10-25 seed hunt (seed→hit): promoted `beginQuestionReview` leaving `visitedQuestionKeys` at the visit cap — after browsing ten questions, closing the drawer, and clicking Review questions again, Next stayed disabled because the cap counter never reset; clear visit tracking when a new review pass starts; regression `clears the visit limit when review starts again`; scoped SecureNow queue vitest 153/153. Private beta: operators can start a fresh review pass after closing the drawer instead of being stuck with Next disabled at the visit limit.

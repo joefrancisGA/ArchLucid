@@ -1286,6 +1286,46 @@ describe("SecureNowQuestionQueue", () => {
     expect(screen.getByRole("button", { name: "Reopen" })).toBeInTheDocument();
   });
 
+  it("routes Ignored disposition status into the dismissed filter", async () => {
+    mocks.listQuestions.mockResolvedValue([{
+      ...question,
+      status: "Ignored",
+      answerCode: null,
+      answerText: null,
+      reason: "Operator chose not to answer.",
+    }]);
+
+    render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
+    fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
+
+    expect(screen.getByTestId("infra-diagrams-question-disposition-status")).toHaveTextContent("Dismissed");
+    expect(screen.getByRole("button", { name: "Reopen" })).toBeInTheDocument();
+  });
+
+  it("clears draft reason when switching question filters", async () => {
+    mocks.listQuestions.mockResolvedValue([
+      question,
+      {
+        ...question,
+        status: "Answered",
+        answerCode: "NamePeer",
+        answerText: "Name the peer",
+        reason: "Operator selected the peer.",
+      },
+    ]);
+
+    render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
+    fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
+    fireEvent.click(screen.getByRole("button", { name: "Don't ask again" }));
+    fireEvent.change(screen.getByRole("textbox", { name: "Reason for not asking again" }), {
+      target: { value: "Draft ignore reason" },
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: "Answered" }));
+
+    expect(screen.getByRole("textbox", { name: "Reason for reopening" })).toHaveValue("");
+  });
+
   it("hides the open promo when every listed question has unknown disposition status", async () => {
     mocks.listQuestions.mockResolvedValue([{ ...question, status: "Pending" }]);
 
