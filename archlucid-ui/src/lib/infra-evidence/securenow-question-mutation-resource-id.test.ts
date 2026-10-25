@@ -5,6 +5,7 @@ import {
   secureNowQuestionDispositionMutationResourceId,
   secureNowQuestionDispositionMutationScopeKind,
   secureNowQuestionDispositionMutationSource,
+  secureNowQuestionDispositionMutationSubscriptionId,
   secureNowQuestionHasPackStyleDispositionScope,
   secureNowQuestionPackScopeKindFromPrompt,
 } from "@/lib/infra-evidence/securenow-question-mutation-resource-id";
@@ -31,6 +32,17 @@ const baseQuestion: SecureNowQuestion = {
   answerText: null,
   reason: null,
 };
+
+describe("secureNowQuestionDispositionMutationSubscriptionId", () => {
+  it("returns null for missing or blank subscription ids", () => {
+    expect(secureNowQuestionDispositionMutationSubscriptionId(null)).toBeNull();
+    expect(secureNowQuestionDispositionMutationSubscriptionId("   ")).toBeNull();
+  });
+
+  it("returns trimmed subscription ids for mutations", () => {
+    expect(secureNowQuestionDispositionMutationSubscriptionId(" sub-1 ")).toBe("sub-1");
+  });
+});
 
 describe("secureNowQuestionDispositionMutationResourceId", () => {
   it("returns empty string for subscription scope when resource id is null", () => {

@@ -23,6 +23,7 @@ import {
   secureNowQuestionDispositionMutationResourceId,
   secureNowQuestionDispositionMutationScopeKind,
   secureNowQuestionDispositionMutationSource,
+  secureNowQuestionDispositionMutationSubscriptionId,
 } from "@/lib/infra-evidence/securenow-question-mutation-resource-id";
 import { secureNowQuestionShowsExpired } from "@/lib/infra-evidence/securenow-question-expiration";
 import {
@@ -277,6 +278,19 @@ export function SecureNowQuestionQueueProvider(
     if (action === "reopen" && reason.trim().length === 0) return;
     if (action === "answer" && selectedAnswer == null) return;
 
+    const mutationSubscriptionId =
+      secureNowQuestionDispositionMutationSubscriptionId(currentQuestion.subscriptionId);
+    if (mutationSubscriptionId === null) {
+      setError(
+        operatorInferredConnectionPanelErrorFromUnknown(
+          new Error("Subscription id was not stored."),
+          "Could not save the question update.",
+          "mutation",
+        ),
+      );
+      return;
+    }
+
     const mutationResourceId = secureNowQuestionDispositionMutationResourceId(currentQuestion);
     if (mutationResourceId === null) {
       setError(
@@ -319,7 +333,7 @@ export function SecureNowQuestionQueueProvider(
     try {
       if (action === "ignore") {
         await ignoreSecureNowQuestion(snapshotId, {
-          subscriptionId: currentQuestion.subscriptionId ?? "",
+          subscriptionId: mutationSubscriptionId,
           resourceId: mutationResourceId,
           questionKey: currentQuestion.questionKey,
           source: mutationSource!,
@@ -329,7 +343,7 @@ export function SecureNowQuestionQueueProvider(
         });
       } else if (action === "reopen") {
         await reopenSecureNowQuestion(snapshotId, {
-          subscriptionId: currentQuestion.subscriptionId ?? "",
+          subscriptionId: mutationSubscriptionId,
           resourceId: mutationResourceId,
           questionKey: currentQuestion.questionKey,
           reason: reason.trim(),
@@ -347,7 +361,7 @@ export function SecureNowQuestionQueueProvider(
         }
       } else {
         await answerSecureNowQuestion(snapshotId, {
-          subscriptionId: currentQuestion.subscriptionId ?? "",
+          subscriptionId: mutationSubscriptionId,
           resourceId: mutationResourceId,
           questionKey: currentQuestion.questionKey,
           source: mutationSource!,

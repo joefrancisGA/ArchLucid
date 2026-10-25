@@ -114,9 +114,7 @@ function mapQuestion(raw: Record<string, unknown>): SecureNowQuestion {
     snapshotId: stringOrDefault(raw.snapshotId),
     subscriptionId: typeof raw.subscriptionId === "string"
       ? raw.subscriptionId
-      : raw.subscriptionId === null || raw.subscriptionId === undefined
-        ? null
-        : "",
+      : null,
     resourceId: raw.resourceId === null || raw.resourceId === undefined ? null : stringOrDefault(raw.resourceId),
     questionKey: stringOrDefault(raw.questionKey),
     source: typeof raw.source === "string" ? raw.source : null,
