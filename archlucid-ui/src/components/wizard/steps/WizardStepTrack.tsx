@@ -36,6 +36,35 @@ function stageDone(flag: boolean | undefined): boolean {
   return flag === true;
 }
 
+type WizardTrackStageStatus = "complete" | "pending" | "not-stored";
+
+function resolveWizardTrackStageStatus(flag: boolean | undefined): WizardTrackStageStatus {
+  if (flag === true) {
+    return "complete";
+  }
+
+  if (flag === false) {
+    return "pending";
+  }
+
+  return "not-stored";
+}
+
+function wizardTrackStageStatusTag(status: WizardTrackStageStatus): {
+  readonly kind: "ready" | "in-progress" | "neutral";
+  readonly label: string;
+} {
+  if (status === "complete") {
+    return { kind: "ready", label: "Complete" };
+  }
+
+  if (status === "not-stored") {
+    return { kind: "neutral", label: "Stage status was not stored." };
+  }
+
+  return { kind: "in-progress", label: "Pending" };
+}
+
 function allStagesReady(summary: RunSummary | null | undefined): boolean {
   if (summary === null || summary === undefined) {
     return false;
@@ -54,10 +83,14 @@ function allStagesReady(summary: RunSummary | null | undefined): boolean {
  */
 export function WizardStepTrack({ runId, pollSummary, onRetryPolling }: WizardStepTrackProps) {
   const buyerPolished = isBuyerPolishedOperatorShellEnv();
-  const ctx = stageDone(pollSummary?.hasContextSnapshot);
-  const graph = stageDone(pollSummary?.hasGraphSnapshot);
-  const findings = stageDone(pollSummary?.hasFindingsSnapshot);
-  const manifest = stageDone(pollSummary?.hasGoldenManifest);
+  const ctxStatus = resolveWizardTrackStageStatus(pollSummary?.hasContextSnapshot);
+  const graphStatus = resolveWizardTrackStageStatus(pollSummary?.hasGraphSnapshot);
+  const findingsStatus = resolveWizardTrackStageStatus(pollSummary?.hasFindingsSnapshot);
+  const manifestStatus = resolveWizardTrackStageStatus(pollSummary?.hasGoldenManifest);
+  const ctx = ctxStatus === "complete";
+  const graph = graphStatus === "complete";
+  const findings = findingsStatus === "complete";
+  const manifest = manifestStatus === "complete";
   const pollEnabled = !manifest;
 
   const [clientPhase, setClientPhase] = useState<"polling" | "complete" | "timeout">(() =>
@@ -139,25 +172,25 @@ export function WizardStepTrack({ runId, pollSummary, onRetryPolling }: WizardSt
           <span className={cn("w-36 font-medium", OPERATOR_TYPOGRAPHY.body)}>
             <GlossaryTooltip termKey="context_snapshot">Source context captured</GlossaryTooltip>
           </span>
-          <StatusTag kind={ctx ? "ready" : "in-progress"} label={ctx ? "Complete" : "Pending"} />
+          <StatusTag {...wizardTrackStageStatusTag(ctxStatus)} />
         </li>
         <li className="flex flex-wrap items-center gap-2">
           <span className={cn("w-36 font-medium", OPERATOR_TYPOGRAPHY.body)}>
             <GlossaryTooltip termKey="knowledge_graph">Evidence graph ready</GlossaryTooltip>
           </span>
-          <StatusTag kind={graph ? "ready" : "in-progress"} label={graph ? "Complete" : "Pending"} />
+          <StatusTag {...wizardTrackStageStatusTag(graphStatus)} />
         </li>
         <li className="flex flex-wrap items-center gap-2">
           <span className={cn("w-36 font-medium", OPERATOR_TYPOGRAPHY.body)}>
             <GlossaryTooltip termKey="findings">Findings complete</GlossaryTooltip>
           </span>
-          <StatusTag kind={findings ? "ready" : "in-progress"} label={findings ? "Complete" : "Pending"} />
+          <StatusTag {...wizardTrackStageStatusTag(findingsStatus)} />
         </li>
         <li className="flex flex-wrap items-center gap-2">
           <span className={cn("w-36 font-medium", OPERATOR_TYPOGRAPHY.body)}>
             <GlossaryTooltip termKey="golden_manifest">{SIGNED_MANIFEST_LABEL} ready</GlossaryTooltip>
           </span>
-          <StatusTag kind={manifest ? "ready" : "in-progress"} label={manifest ? "Complete" : "Pending"} />
+          <StatusTag {...wizardTrackStageStatusTag(manifestStatus)} />
         </li>
       </ul>
 

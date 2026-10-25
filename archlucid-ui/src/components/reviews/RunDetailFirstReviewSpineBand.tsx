@@ -124,25 +124,13 @@ export function RunDetailFirstReviewSpineBand(props: RunDetailFirstReviewSpineBa
           <span className="font-semibold">
             {summary.topFindingRankLabel ?? "Decision-grade finding:"}
           </span>{" "}
-          {summary.topFindingSeverityLabel !== null ? `[${summary.topFindingSeverityLabel}] ` : ""}
-          {props.runId !== null
-            && props.runId !== undefined
-            && props.runId.trim().length > 0
-            && summary.topFindingId !== null
-            && summary.topFindingId.trim().length > 0
-            && summary.topFindingTitle !== null
-            && !summary.topFindingTitle.endsWith("was not stored.")
-            && !summary.topFindingTitle.endsWith("was stored empty.") ? (
-            <Link
-              href={`/architecture/reviews/${encodeURIComponent(props.runId.trim())}/findings/${encodeURIComponent(summary.topFindingId.trim())}`}
-              className={OPERATOR_LINK.inline}
-              data-testid="run-detail-first-review-spine-top-finding-link"
-            >
-              {summary.topFindingTitle}
-            </Link>
-          ) : (
-            summary.topFindingTitle
-          )}
+          {summary.topFindingSeverityLabel !== null
+          && !summary.topFindingSeverityLabel.startsWith("Severity")
+            ? `[${summary.topFindingSeverityLabel}] `
+            : summary.topFindingSeverityLabel !== null
+              ? `${summary.topFindingSeverityLabel} `
+              : ""}
+          {summary.topFindingTitle}
         </p>
       ) : null}
 

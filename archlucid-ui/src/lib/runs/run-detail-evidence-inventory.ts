@@ -266,13 +266,14 @@ export function deriveEvidenceScopeReadiness(input: {
   readonly trustReadiness: TrustEvidenceReadiness | null;
   readonly findingsCiteEvidenceWithoutSourceNames?: boolean;
 }): { readonly verdict: TrustEvidenceReadinessVerdict; readonly headline: string } {
+  if (input.findingsCiteEvidenceWithoutSourceNames === true) {
+    return {
+      verdict: "gaps",
+      headline: FINDINGS_CITE_EVIDENCE_WITHOUT_SOURCE_NAMES_HEADLINE,
+    };
+  }
+
   if (input.inventoryCount === 0) {
-    if (input.findingsCiteEvidenceWithoutSourceNames === true) {
-      return {
-        verdict: "gaps",
-        headline: FINDINGS_CITE_EVIDENCE_WITHOUT_SOURCE_NAMES_HEADLINE,
-      };
-    }
 
     if (input.trustReadiness !== null && input.trustReadiness.verdict === "gaps") {
       return {
