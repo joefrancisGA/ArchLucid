@@ -62,7 +62,7 @@ public sealed class ArchitectureRunFindingsCsvFormatterTests
         string csv = ArchitectureRunFindingsCsvFormatter.BuildCsvContent(detail);
 
         csv.Should().Contain("f-1,r-9,t-2,Compliance,Warning,cat,");
-        csv.Should().Contain(",muted,noise,0.5,,,");
+        csv.Should().Contain(",muted,noise,0.5,Trust label was not stored.,Trust label reason was not stored.,");
         csv.Should().Contain(ArchitectureRunFindingsCsvFormatter.TrustLabelHeaderSuffix);
 
         string escapedMessage = ExportFormatterService.EscapeCsvField(finding.Message);
@@ -111,7 +111,8 @@ public sealed class ArchitectureRunFindingsCsvFormatterTests
         string csv = ArchitectureRunFindingsCsvFormatter.BuildCsvContent(detail, tracking);
 
         csv.Should().Contain(
-            "f-itsm,r-1,t-1,Compliance,Critical,security,Rotate keys,,active,,,,,"
+            "f-itsm,r-1,t-1,Compliance,Critical,security,Rotate keys,Estimated savings were not stored.,active,,"
+            + "Confidence score was not stored.,Trust label was not stored.,Trust label reason was not stored.,"
             + "Jira,SEC-42,https://example.atlassian.net/browse/SEC-42,Pending,Deferred,"
             + revisit.ToString("O")
             + ",Jira:SEC-42; ServiceNow:INC001");
@@ -190,6 +191,40 @@ public sealed class ArchitectureRunFindingsCsvFormatterTests
     {
         ArchitectureRunFindingsCsvFormatter.FormatFindingStatus(true).Should().Be("muted");
         ArchitectureRunFindingsCsvFormatter.FormatFindingStatus(false).Should().Be("active");
+    }
+
+    [Fact]
+    public void BuildCsvContent_labels_omitted_scalar_fields_as_not_stored()
+    {
+        ArchitectureFinding finding = new()
+        {
+            FindingId = "f-honest",
+            Severity = FindingSeverity.Warning,
+        };
+        finding.Category = null!;
+        finding.Message = null!;
+        finding.TrustLabel = null!;
+        finding.TrustLabelReason = null!;
+
+        AgentResult result = new()
+        {
+            ResultId = "r-1",
+            TaskId = "t-1",
+            AgentType = AgentType.Compliance,
+            Findings = [finding],
+        };
+
+        string csv = ArchitectureRunFindingsCsvFormatter.BuildCsvContent(new ArchitectureRunDetail { Results = [result] });
+
+        csv.Should().Contain(ArchitectureRunFindingsCsvFormatter.CategoryNotStoredLabel);
+        csv.Should().Contain(ArchitectureRunFindingsCsvFormatter.FindingMessageNotStoredLabel);
+        csv.Should().Contain(ArchitectureRunFindingsCsvFormatter.TrustLabelNotStoredLabel);
+        csv.Should().Contain(ArchitectureRunFindingsCsvFormatter.TrustLabelReasonNotStoredLabel);
+        csv.Should().Contain(ArchitectureRunFindingsCsvFormatter.ConfidenceScoreNotStoredLabel);
+        csv.Should().Contain(ArchitectureRunFindingsCsvFormatter.EstimatedSavingsNotStoredLabel);
+        csv.Should().Contain(ArchitectureRunFindingsCsvFormatter.HumanReviewStatusNotStoredLabel);
+        csv.Should().Contain(ArchitectureRunFindingsCsvFormatter.DispositionNotStoredLabel);
+        csv.Should().Contain(ArchitectureRunFindingsCsvFormatter.RevisitTimeNotStoredLabel);
     }
 
     [Fact]

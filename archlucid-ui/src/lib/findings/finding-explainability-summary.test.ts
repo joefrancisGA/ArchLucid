@@ -177,6 +177,17 @@ describe("finding-explainability-summary", () => {
       expect(explanation.reason).toContain("Confidence was not stored.");
     });
 
+    it("does not claim a complete trace when missingTraceFields was omitted", () => {
+      const explanation = findingConfidenceExplanation({
+        level: "High",
+        evidenceRefCount: 2,
+        missingTraceFieldCount: null,
+      });
+
+      expect(explanation.reason).toContain("Reasoning trace fields were not stored.");
+      expect(explanation.reason).not.toContain("every part of the reasoning trace was captured");
+    });
+
     it("does not claim zero sources when evidence was omitted", () => {
       const explanation = findingConfidenceExplanation({
         level: "Low",

@@ -10,7 +10,12 @@ export const INFERRED_TRAIL_VALUE_NOT_STORED = "Inferred value was not stored." 
 export const INFERRED_TRAIL_CONFIDENCE_NOT_STORED = "Confidence was not stored." as const;
 
 function formatInferredTrailConfidence(confidence: number | null | undefined): string {
-  if (typeof confidence === "number" && Number.isFinite(confidence)) {
+  if (
+    typeof confidence === "number"
+    && Number.isFinite(confidence)
+    && confidence >= 1
+    && confidence <= 100
+  ) {
     return `confidence ${confidence}`;
   }
 

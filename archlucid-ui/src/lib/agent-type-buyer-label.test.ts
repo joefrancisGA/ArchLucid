@@ -21,6 +21,7 @@ describe("buyerLabelForAgentType", () => {
   it("handles blank and unknown values", () => {
     expect(buyerLabelForAgentType(null)).toBe(AGENT_TYPE_NOT_STORED_LABEL);
     expect(buyerLabelForAgentType("")).toBe(AGENT_TYPE_NOT_STORED_LABEL);
+    expect(buyerLabelForAgentType("Unknown")).toBe(AGENT_TYPE_NOT_STORED_LABEL);
     expect(buyerLabelForAgentType("SecurityReviewer")).toBe("Agent (SecurityReviewer)");
     expect(buyerLabelForAgentType(99)).toBe("AgentType(99)");
   });

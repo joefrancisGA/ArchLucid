@@ -38,6 +38,16 @@ describe("formatInferredTrailEntryLabel (FC-14)", () => {
     expect(label).not.toMatch(/^finding\.blocking\./);
   });
 
+  it("treats confidence outside 1-100 as not stored", () => {
+    expect(
+      formatInferredTrailEntryLabel({
+        key: "signal",
+        value: "Observed",
+        confidence: 0,
+      }),
+    ).toContain("Confidence was not stored.");
+  });
+
   it("labels omitted inferred confidence and value", () => {
     const label = formatInferredTrailEntryLabel({
       key: "policy.violation.CIS-1.1",

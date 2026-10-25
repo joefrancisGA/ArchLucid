@@ -90,6 +90,8 @@ import { useDocumentDarkMode } from '@/lib/use-document-dark-mode';
 import { cn } from '@/lib/utils';
 
 const ZOOM_STEP = 0.1;
+const DIAGRAM_EDGE_ENDPOINT_NOT_STORED = 'Edge endpoint was not stored.';
+const DIAGRAM_MEMBER_NAME_NOT_STORED = 'Diagram member name was not stored.';
 const MAX_INITIAL_FIT_RETRIES = 8;
 const INITIAL_FIT_RETRY_DELAY_MS = 120;
 const EMPTY_FOCUS_NODE_IDS: readonly string[] = [];
@@ -638,6 +640,7 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
     name: string;
     memberNames?: readonly string[];
   } | null>(null);
+  const [connectorFocusNotice, setConnectorFocusNotice] = useState<string | null>(null);
   const [diagramSurface, setDiagramSurface] = useState<'map' | 'plate' | 'neighborhood'>('plate');
   const [openNeighborhoodId, setOpenNeighborhoodId] = useState<string | null>(null);
   const [renderGeneration, setRenderGeneration] = useState(0);
@@ -1068,6 +1071,7 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
     );
     const clearFocus = (): void => {
       setClickFocus(null);
+      setConnectorFocusNotice(null);
     };
 
     if (sanitizedSvg === null || layoutSvg?.trim().length === 0) {
@@ -1154,7 +1158,10 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
         const label = edge.querySelector('title')?.textContent?.trim() ?? null;
 
         if (from.length > 0 && to.length > 0) {
+          setConnectorFocusNotice(null);
           onSelectConnector?.({ from, to, label });
+        } else {
+          setConnectorFocusNotice(DIAGRAM_EDGE_ENDPOINT_NOT_STORED);
         }
 
         return;
@@ -1175,17 +1182,18 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
       }
 
       const title = node.querySelector('title')?.textContent?.trim() ?? "";
-      const rawMemberNames = node.getAttribute('data-member-names');
-      const memberNames = rawMemberNames === null
-        ? undefined
-        : rawMemberNames.split('|').map((member) => {
-            const trimmed = member.trim();
-            return trimmed.length > 0 ? trimmed : 'Member name was stored empty.';
-          });
+      const rawMemberNames = (node.getAttribute('data-member-names') ?? '').split('|');
+      const memberNames = rawMemberNames.length > 0
+        ? rawMemberNames.map((member) => {
+          const trimmed = member.trim();
+
+          return trimmed.length > 0 ? trimmed : DIAGRAM_MEMBER_NAME_NOT_STORED;
+        })
+        : undefined;
       setClickFocus({
         id,
         name: title,
-        memberNames: memberNames !== undefined && memberNames.length > 0 ? memberNames : undefined,
+        memberNames,
       });
     };
 
@@ -1382,6 +1390,16 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
       {canvasStale ? (
         <p className={cn('mb-2 text-amber-800 dark:text-amber-200', OPERATOR_TYPOGRAPHY.helper)}>
           Canvas may be stale while a new render loads.
+        </p>
+      ) : null}
+
+      {connectorFocusNotice !== null && clickFocus === null ? (
+        <p
+          className={cn('mb-2 text-al-text-secondary', OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="diagram-connector-focus-notice"
+          aria-live="polite"
+        >
+          {connectorFocusNotice}
         </p>
       ) : null}
 
