@@ -176,6 +176,10 @@ internal static class SecurityEvidencePathExplanationTemplateBuilder
             sentence.Append(subject.Trim());
             sentence.Append(' ');
         }
+        else
+        {
+            sentence.Append("Actor was not stored. ");
+        }
 
         sentence.Append("to access ");
 
@@ -186,7 +190,7 @@ internal static class SecurityEvidencePathExplanationTemplateBuilder
         }
         else
         {
-            sentence.Append("a cited data-bearing asset");
+            sentence.Append("Asset was not stored.");
         }
 
         if (!string.IsNullOrWhiteSpace(network))

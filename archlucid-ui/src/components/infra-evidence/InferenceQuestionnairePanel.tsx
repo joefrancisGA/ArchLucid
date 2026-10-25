@@ -295,36 +295,44 @@ export function InferenceQuestionnairePanel(
                 </div>
               </>
             ) : (
-            <div className="flex flex-wrap gap-2">
-              <Button
-                type="button"
-                size="sm"
-                variant={choice === "yes" ? "primary" : "outline"}
-                onClick={() => setChoice("yes")}
-                data-testid="inference-questionnaire-yes"
-              >
-                Yes
-              </Button>
-              <Button
-                type="button"
-                size="sm"
-                variant={choice === "no" ? "primary" : "outline"}
-                onClick={() => setChoice("no")}
-                data-testid="inference-questionnaire-no"
-              >
-                No
-              </Button>
-              <Button
-                type="button"
-                size="sm"
-                variant={choice === "skip" ? "primary" : "outline"}
-                onClick={() => setChoice("skip")}
-                data-testid="inference-questionnaire-skip"
-                aria-label="Skip is not saved. This question stays unanswered."
-              >
-                Skip
-              </Button>
-            </div>
+              <>
+                <div className="flex flex-wrap gap-2">
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant={choice === "yes" ? "primary" : "outline"}
+                    onClick={() => setChoice("yes")}
+                    data-testid="inference-questionnaire-yes"
+                  >
+                    Yes
+                  </Button>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant={choice === "no" ? "primary" : "outline"}
+                    onClick={() => setChoice("no")}
+                    data-testid="inference-questionnaire-no"
+                  >
+                    No
+                  </Button>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant={choice === "skip" ? "primary" : "outline"}
+                    onClick={() => setChoice("skip")}
+                    data-testid="inference-questionnaire-skip"
+                    aria-label="Skip is not saved. This question stays unanswered."
+                  >
+                    Skip
+                  </Button>
+                </div>
+                <p
+                  className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                  data-testid="inference-questionnaire-yes-no-caption"
+                >
+                  Yes confirms the inferred connection for audit export. No dismisses it. Skip leaves this question unanswered for this session.
+                </p>
+              </>
             )}
 
             {choice === "yes" && requiresCatalogChoice ? (

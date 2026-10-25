@@ -48,6 +48,41 @@ public sealed class RunExportAuditServiceTests
     }
 
     [Fact]
+    public async Task RecordAsync_trims_surrounding_whitespace_on_metadata_before_persist()
+    {
+        Mock<IRunExportRecordRepository> repo = new();
+        RunExportRecord? captured = null;
+        repo
+            .Setup(r => r.CreateAsync(It.IsAny<RunExportRecord>(), It.IsAny<CancellationToken>()))
+            .Callback<RunExportRecord, CancellationToken>((record, _) => captured = record)
+            .Returns(Task.CompletedTask);
+
+        RunExportAuditService sut = new(
+            repo.Object,
+            Mock.Of<IAuditService>(),
+            NullLogger<RunExportAuditService>.Instance);
+
+        await sut.RecordAsync(
+            "  deadbeefdeadbeefdeadbeefdeadbeef  ",
+            "  analysis-report-docx  ",
+            "  docx  ",
+            "  report.docx  ",
+            null,
+            null,
+            false,
+            null,
+            null,
+            emitArchitectureDocxExportGeneratedAudit: false,
+            cancellationToken: CancellationToken.None);
+
+        captured.Should().NotBeNull();
+        captured!.RunId.Should().Be("deadbeefdeadbeefdeadbeefdeadbeef");
+        captured.ExportType.Should().Be("analysis-report-docx");
+        captured.Format.Should().Be("docx");
+        captured.FileName.Should().Be("report.docx");
+    }
+
+    [Fact]
     public async Task RecordAsync_WhenEmitAuditFalse_SkipsDurableDocxExportRow()
     {
         Mock<IRunExportRecordRepository> repo = new();

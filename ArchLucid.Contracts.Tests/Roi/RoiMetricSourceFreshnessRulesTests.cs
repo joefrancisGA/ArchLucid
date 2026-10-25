@@ -42,6 +42,24 @@ public sealed class RoiMetricSourceFreshnessRulesTests
     }
 
     [Fact]
+    public void Positive_savings_with_sources_but_null_extractor_timestamp_is_hold()
+    {
+        IReadOnlyList<RoiMetricSourceRow> sources =
+        [
+            new("hours", "Hours", "4", RoiMetricSourceKind.CustomerProvided, "tenant"),
+        ];
+
+        string disposition = RoiMetricSourceFreshnessRules.ResolveDisposition(
+            extractorCollectionTimestampUtc: null,
+            isDemoTenant: false,
+            estimatedUsdSavings: 900m,
+            sources: sources,
+            utcNow: UtcNow);
+
+        disposition.Should().Be("HOLD");
+    }
+
+    [Fact]
     public void Benchmark_only_savings_is_warn()
     {
         IReadOnlyList<RoiMetricSourceRow> sources =

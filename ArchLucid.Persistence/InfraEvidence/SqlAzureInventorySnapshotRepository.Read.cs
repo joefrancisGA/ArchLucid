@@ -91,6 +91,40 @@ public sealed partial class SqlAzureInventorySnapshotRepository
                                        MinimalSeverity, NotificationRoles, SourceEvidenceReference
                                 FROM dbo.AzureInventoryDefenderSecurityContacts
                                 WHERE TenantId = @TenantId AND SnapshotId = @SnapshotId;
+
+                                SELECT SubscriptionId, AssessmentKey, ResourceId, Owner, RemediationDueUtc,
+                                       IsGracePeriod, AssignmentStatus, SourceEvidenceReference
+                                FROM dbo.AzureInventoryDefenderGovernanceAssignments
+                                WHERE TenantId = @TenantId AND SnapshotId = @SnapshotId;
+
+                                SELECT SubscriptionId, StandardName, State, PassedControlCount, FailedControlCount,
+                                       SkippedControlCount, SourceEvidenceReference
+                                FROM dbo.AzureInventoryDefenderComplianceStandards
+                                WHERE TenantId = @TenantId AND SnapshotId = @SnapshotId;
+
+                                SELECT SubscriptionId, StandardName, ControlName, State, FailedAssessmentCount,
+                                       SourceEvidenceReference
+                                FROM dbo.AzureInventoryDefenderComplianceControls
+                                WHERE TenantId = @TenantId AND SnapshotId = @SnapshotId;
+
+                                SELECT SubscriptionId, AlertId, DisplayName, Severity, Status, Intent, AlertType,
+                                       StartTimeUtc, ResourceId, SourceEvidenceReference
+                                FROM dbo.AzureInventoryDefenderAlerts
+                                WHERE TenantId = @TenantId AND SnapshotId = @SnapshotId;
+
+                                SELECT SubscriptionId, AttackPathId, DisplayName, RiskLevel, EntryResourceIds,
+                                       TargetResourceIds, SourceEvidenceReference
+                                FROM dbo.AzureInventoryDefenderAttackPaths
+                                WHERE TenantId = @TenantId AND SnapshotId = @SnapshotId;
+
+                                SELECT SubscriptionId, ResourceId, CriticalCount, HighCount, MediumCount, LowCount,
+                                       SourceEvidenceReference
+                                FROM dbo.AzureInventoryDefenderVulnerabilityCounts
+                                WHERE TenantId = @TenantId AND SnapshotId = @SnapshotId;
+
+                                SELECT SubscriptionId, ResourceId, Severity, FindingId, DisplayName, SourceEvidenceReference
+                                FROM dbo.AzureInventoryDefenderVulnerabilityFindings
+                                WHERE TenantId = @TenantId AND SnapshotId = @SnapshotId;
                                 """;
 
         using SqlMapper.GridReader reader = await conn.QueryMultipleAsync(
@@ -150,6 +184,20 @@ public sealed partial class SqlAzureInventorySnapshotRepository
             (await reader.ReadAsync<AzureInventoryDefenderAssessmentCountReadModel>()).ToList();
         List<AzureInventoryDefenderSecurityContactReadModel> defenderSecurityContacts =
             (await reader.ReadAsync<AzureInventoryDefenderSecurityContactReadModel>()).ToList();
+        List<AzureInventoryDefenderGovernanceAssignmentReadModel> defenderGovernanceAssignments =
+            (await reader.ReadAsync<AzureInventoryDefenderGovernanceAssignmentReadModel>()).ToList();
+        List<AzureInventoryDefenderComplianceStandardReadModel> defenderComplianceStandards =
+            (await reader.ReadAsync<AzureInventoryDefenderComplianceStandardReadModel>()).ToList();
+        List<AzureInventoryDefenderComplianceControlReadModel> defenderComplianceControls =
+            (await reader.ReadAsync<AzureInventoryDefenderComplianceControlReadModel>()).ToList();
+        List<AzureInventoryDefenderAlertReadModel> defenderAlerts =
+            (await reader.ReadAsync<AzureInventoryDefenderAlertReadModel>()).ToList();
+        List<AzureInventoryDefenderAttackPathReadModel> defenderAttackPaths =
+            (await reader.ReadAsync<AzureInventoryDefenderAttackPathReadModel>()).ToList();
+        List<AzureInventoryDefenderVulnerabilityCountReadModel> defenderVulnerabilityCounts =
+            (await reader.ReadAsync<AzureInventoryDefenderVulnerabilityCountReadModel>()).ToList();
+        List<AzureInventoryDefenderVulnerabilityFindingReadModel> defenderVulnerabilityFindings =
+            (await reader.ReadAsync<AzureInventoryDefenderVulnerabilityFindingReadModel>()).ToList();
 
         return new AzureInventorySnapshotDetailReadModel
         {
@@ -167,6 +215,13 @@ public sealed partial class SqlAzureInventorySnapshotRepository
             DefenderAssessments = defenderAssessments,
             DefenderAssessmentCounts = defenderAssessmentCounts,
             DefenderSecurityContacts = defenderSecurityContacts,
+            DefenderGovernanceAssignments = defenderGovernanceAssignments,
+            DefenderComplianceStandards = defenderComplianceStandards,
+            DefenderComplianceControls = defenderComplianceControls,
+            DefenderAlerts = defenderAlerts,
+            DefenderAttackPaths = defenderAttackPaths,
+            DefenderVulnerabilityCounts = defenderVulnerabilityCounts,
+            DefenderVulnerabilityFindings = defenderVulnerabilityFindings,
         };
     }
 

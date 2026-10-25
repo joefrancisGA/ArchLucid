@@ -82,7 +82,13 @@ public sealed partial class InMemoryValueReportJobQueue
 
             DistributedJobState? state = JsonSerializer.Deserialize<DistributedJobState>(payload, SerializerOptions);
 
-            if (state is null)
+            if (state is null ||
+                state.TenantId == Guid.Empty ||
+                state.WorkspaceId == Guid.Empty ||
+                state.ProjectId == Guid.Empty ||
+                state.FromUtcInclusive == default ||
+                state.ToUtcExclusive == default ||
+                state.FromUtcInclusive >= state.ToUtcExclusive)
                 return new DistributedStateReadResult(null, true);
 
             ValueReportJobRequest request = new(
@@ -129,6 +135,10 @@ public sealed partial class InMemoryValueReportJobQueue
                 new JobEntry(request, phase, bytes, state.FileName, state.ErrorMessage),
                 false);
         }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
         catch (JsonException ex)
         {
             if (_logger.IsEnabled(LogLevel.Warning))
@@ -141,12 +151,9 @@ public sealed partial class InMemoryValueReportJobQueue
             if (_logger.IsEnabled(LogLevel.Warning))
                 _logger.LogWarning(ex, "Failed to read value report job {JobId} from distributed cache.", jobId);
 
-            return new DistributedStateReadResult(null, false);
+            return new DistributedStateReadResult(null, true);
         }
     }
-
-    private static JobEntry CreateCorruptDistributedFailureEntry(ValueReportJobRequest request) =>
-        new(request, JobPhase.Failed, null, null, UnknownFailedJobErrorMessage);
 
     private static string GetCacheKey(Guid jobId) => $"archlucid:value-report-job:{jobId:N}";
 
