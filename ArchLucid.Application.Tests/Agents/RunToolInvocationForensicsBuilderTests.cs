@@ -11,6 +11,33 @@ namespace ArchLucid.Application.Tests.Agents;
 public sealed class RunToolInvocationForensicsBuilderTests
 {
     [Fact]
+    public void Build_skips_null_trace_entries()
+    {
+        DateTime t0 = new(2026, 5, 1, 12, 0, 0, DateTimeKind.Utc);
+
+        IReadOnlyList<AgentExecutionTrace> traces =
+        [
+            null!,
+            new AgentExecutionTrace
+            {
+                TraceId = "a",
+                RunId = "run-1",
+                TaskId = "task-1",
+                AgentType = AgentType.Topology,
+                UserPrompt = "first",
+                ParseSucceeded = true,
+                CreatedUtc = t0,
+            },
+        ];
+
+        Func<RunToolInvocationForensicsResponse> act = () => RunToolInvocationForensicsBuilder.Build("run-1", traces);
+
+        act.Should().NotThrow();
+        act().Rows.Should().ContainSingle();
+        act().Rows[0].TraceId.Should().Be("a");
+    }
+
+    [Fact]
     public void Build_orders_traces_and_sets_duration_from_prior_row()
     {
         DateTime t0 = new(2026, 5, 1, 12, 0, 0, DateTimeKind.Utc);

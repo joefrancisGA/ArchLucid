@@ -7,7 +7,11 @@ import type {
 
 export type ArchitectureDiagramElementKind = "node" | "edge";
 
-export type ArchitectureDiagramProvenanceClass = "evidence-backed" | "inferred" | "user-drawn";
+export type ArchitectureDiagramProvenanceClass =
+  | "evidence-backed"
+  | "accepted-inference"
+  | "inferred"
+  | "user-drawn";
 
 export type ArchitectureDiagramElementProvenanceDetail = {
   readonly kind: ArchitectureDiagramElementKind;
@@ -25,6 +29,9 @@ export type ArchitectureDiagramProvenanceSummary = {
   readonly inferredEdgeCount: number;
   readonly unconfirmedInferredCount: number;
 };
+
+export const ARCHITECTURE_DIAGRAM_USER_EDIT_VERSION_HONESTY =
+  "This diagram version was edited by an architect. That edit does not by itself show that this component was drawn by hand." as const;
 
 export function summarizeArchitectureDiagramProvenance(
   model: ArchitectureDiagramModel | null,
@@ -59,13 +66,13 @@ export function summarizeArchitectureDiagramProvenance(
 
 export function resolveNodeProvenanceClass(
   node: ArchitectureDiagramNode,
-  diagramVersionSource: ArchitectureDiagramVersionSource | null,
+  _diagramVersionSource: ArchitectureDiagramVersionSource | null,
 ): ArchitectureDiagramProvenanceClass {
-  if (diagramVersionSource === "user-edit") {
-    return "user-drawn";
+  if (node.provenance === "inferred" && node.accepted) {
+    return "accepted-inference";
   }
 
-  if (node.provenance === "asserted" || node.accepted) {
+  if (node.provenance === "asserted") {
     return "evidence-backed";
   }
 
@@ -74,12 +81,8 @@ export function resolveNodeProvenanceClass(
 
 export function resolveEdgeProvenanceClass(
   edge: ArchitectureDiagramEdge,
-  diagramVersionSource: ArchitectureDiagramVersionSource | null,
+  _diagramVersionSource: ArchitectureDiagramVersionSource | null,
 ): ArchitectureDiagramProvenanceClass {
-  if (diagramVersionSource === "user-edit") {
-    return "user-drawn";
-  }
-
   if (edge.provenance === "asserted") {
     return "evidence-backed";
   }
@@ -94,7 +97,7 @@ function buildEvidenceSourceHref(runId: string, provenanceClass: ArchitectureDia
     return null;
   }
 
-  if (provenanceClass === "evidence-backed") {
+  if (provenanceClass === "evidence-backed" || provenanceClass === "accepted-inference") {
     return `/architecture/reviews/${encodeURIComponent(trimmedRunId)}?reviewTab=evidence`;
   }
 
@@ -108,7 +111,12 @@ export function buildArchitectureDiagramNodeProvenanceDetail(input: {
 }): ArchitectureDiagramElementProvenanceDetail {
   const provenanceClass = resolveNodeProvenanceClass(input.node, input.diagramVersionSource);
   const displayLabel = resolveArchitectureDiagramNodeDisplayLabel(input.node.label);
-  const sentence = buildProvenanceSentence("node", displayLabel, provenanceClass, input.node.accepted);
+  const sentence = buildProvenanceSentence(
+    "node",
+    displayLabel,
+    provenanceClass,
+    input.diagramVersionSource,
+  );
 
   return {
     kind: "node",
@@ -164,7 +172,12 @@ export function buildArchitectureDiagramEdgeProvenanceDetail(input: {
 }): ArchitectureDiagramElementProvenanceDetail {
   const provenanceClass = resolveEdgeProvenanceClass(input.edge, input.diagramVersionSource);
   const displayLabel = resolveArchitectureDiagramEdgeDisplayLabel(input.edge);
-  const sentence = buildProvenanceSentence("edge", displayLabel, provenanceClass, false);
+  const sentence = buildProvenanceSentence(
+    "edge",
+    displayLabel,
+    provenanceClass,
+    input.diagramVersionSource,
+  );
 
   return {
     kind: "edge",
@@ -180,23 +193,24 @@ function buildProvenanceSentence(
   kind: ArchitectureDiagramElementKind,
   label: string,
   provenanceClass: ArchitectureDiagramProvenanceClass,
-  accepted: boolean,
+  diagramVersionSource: ArchitectureDiagramVersionSource | null,
 ): string {
   const subject = kind === "node" ? "This component" : "This connection";
+  let core: string;
 
-  if (provenanceClass === "user-drawn") {
-    return `${subject} (${label}) was placed or edited by an architect in the diagram editor — it is not auto-generated from evidence.`;
+  if (provenanceClass === "accepted-inference") {
+    core = `${subject} (${label}) was inferred from the brief and accepted for this review.`;
+  } else if (provenanceClass === "evidence-backed") {
+    core = `${subject} (${label}) is backed by asserted architecture content or evidence on this review.`;
+  } else {
+    core = `${subject} (${label}) was inferred from the architecture brief and still needs architect confirmation before export.`;
   }
 
-  if (provenanceClass === "evidence-backed") {
-    if (accepted) {
-      return `${subject} (${label}) was inferred from the brief and accepted as evidence-backed for this review.`;
-    }
-
-    return `${subject} (${label}) is backed by asserted architecture content or evidence on this review.`;
+  if (diagramVersionSource === "regenerated") {
+    return `This diagram version was regenerated. ${core}`;
   }
 
-  return `${subject} (${label}) was inferred from the architecture brief and still needs architect confirmation before export.`;
+  return core;
 }
 
 export function listSelectableArchitectureDiagramElements(

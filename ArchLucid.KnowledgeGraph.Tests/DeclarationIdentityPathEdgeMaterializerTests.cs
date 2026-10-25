@@ -131,6 +131,45 @@ public sealed class DeclarationIdentityPathEdgeMaterializerTests
     }
 
     [Fact]
+    public void Materialize_emits_data_flow_path_when_datastore_category_has_surrounding_whitespace()
+    {
+        GraphNode ingress = BuildTopology(
+            "obj-ingress",
+            "public-ingress",
+            new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["k8s.kind"] = "ingress",
+                ["k8s.name"] = "public",
+                ["declarationBackendNodeId"] = "app-api",
+            });
+        GraphNode compute = BuildTopology(
+            "obj-app",
+            "app-api",
+            new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["category"] = GraphTopologyCategories.Compute,
+                ["connectedToNodeIds"] = "pay_ledger",
+            });
+        GraphNode datastore = BuildTopology(
+            "obj-ledger",
+            "pay_ledger",
+            new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["category"] = $"  {GraphTopologyCategories.Data}  ",
+            });
+        GraphNode actor = BuildExternalActor("actor-ingress", "public-ingress", ingress.NodeId);
+
+        IReadOnlyList<GraphEdge> edges = DeclarationIdentityPathEdgeMaterializer.Materialize(
+            [ingress, compute, datastore, actor]);
+
+        edges.Should().Contain(edge =>
+            edge.FromNodeId == compute.NodeId
+            && edge.ToNodeId == datastore.NodeId
+            && edge.EdgeType == GraphEdgeTypes.ConnectsTo
+            && edge.InferenceSource == GraphEdgeInferenceSources.DeclarationIdentityDataFlowPath);
+    }
+
+    [Fact]
     public void Materialize_emits_data_flow_path_for_external_ingress_backend_and_datastore()
     {
         GraphNode ingress = BuildTopology(

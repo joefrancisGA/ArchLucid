@@ -13,12 +13,19 @@ internal static class GraphNodePropertyReader
         ArgumentNullException.ThrowIfNull(properties);
         ArgumentException.ThrowIfNullOrWhiteSpace(key);
 
+        string normalizedKey = key.Trim();
+
         foreach (KeyValuePair<string, string> entry in properties)
         {
-            if (string.Equals(entry.Key, key, StringComparison.OrdinalIgnoreCase)
+            if (string.IsNullOrWhiteSpace(entry.Key))
+            {
+                continue;
+            }
+
+            if (string.Equals(entry.Key.Trim(), normalizedKey, StringComparison.OrdinalIgnoreCase)
                 && !string.IsNullOrWhiteSpace(entry.Value))
             {
-                value = entry.Value;
+                value = entry.Value.Trim();
                 return true;
             }
         }

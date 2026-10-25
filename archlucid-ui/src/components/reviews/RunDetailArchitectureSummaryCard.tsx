@@ -101,12 +101,12 @@ function sectionSummary(section: ArchitectureStructuredSection): string {
   return normalized.length > 240 ? `${normalized.slice(0, 237)}…` : normalized;
 }
 
-function sectionProvenanceLabel(section: ArchitectureStructuredSection): string | null {
+function sectionProvenanceLabel(section: ArchitectureStructuredSection): string {
   if (section.provenance === "asserted") {
     return "Operator-asserted";
   }
 
-  return null;
+  return "Inferred from submitted text.";
 }
 
 function findSection(
@@ -194,7 +194,7 @@ export function RunDetailArchitectureSummaryCard(
           <div className="sm:col-span-2">
             <dt className="text-neutral-500 dark:text-neutral-400">
               Purpose
-              {sectionProvenanceLabel(purposeSection) !== null ? (
+              {purposeSection !== undefined ? (
                 <span className="ml-1 font-normal">({sectionProvenanceLabel(purposeSection)})</span>
               ) : null}
             </dt>
@@ -205,7 +205,7 @@ export function RunDetailArchitectureSummaryCard(
           <div className="sm:col-span-2">
             <dt className="text-neutral-500 dark:text-neutral-400">
               Business outcome
-              {sectionProvenanceLabel(outcomeSection) !== null ? (
+              {outcomeSection !== undefined ? (
                 <span className="ml-1 font-normal">({sectionProvenanceLabel(outcomeSection)})</span>
               ) : null}
             </dt>
@@ -216,7 +216,7 @@ export function RunDetailArchitectureSummaryCard(
           <div>
             <dt className="text-neutral-500 dark:text-neutral-400">
               Scope
-              {sectionProvenanceLabel(scopeSection) !== null ? (
+              {scopeSection !== undefined ? (
                 <span className="ml-1 font-normal">({sectionProvenanceLabel(scopeSection)})</span>
               ) : null}
             </dt>
@@ -227,7 +227,7 @@ export function RunDetailArchitectureSummaryCard(
           <div>
             <dt className="text-neutral-500 dark:text-neutral-400">
               Major systems
-              {sectionProvenanceLabel(domainsSection) !== null ? (
+              {domainsSection !== undefined ? (
                 <span className="ml-1 font-normal">({sectionProvenanceLabel(domainsSection)})</span>
               ) : null}
             </dt>

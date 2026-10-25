@@ -10,6 +10,10 @@ import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 import type { OperatorScopeQueryKey } from "@/lib/operator/operator-scope-query-key";
 import type { TeamExpansionNudgeStatusPayload } from "@/lib/team-expansion-nudge-trigger";
 import type { TenantTrialStatusClientPayload } from "@/lib/tenant-trial-status-client";
+import {
+  normalizeOperatorHomeNonNegativeCount,
+  normalizeOperatorShellNullableCount,
+} from "@/lib/operator/run-home-status";
 import type { OperatorStickinessSnapshotDto } from "@/types/operate-rhythm";
 import type { TenantHomepageSettingsResponse } from "@/types/tenant-homepage-settings";
 
@@ -69,10 +73,10 @@ function mapAlertsInboxSummary(dto: AlertsInboxSummaryApiDto | null | undefined)
   }
 
   return {
-    open: dto.openCount,
-    acknowledged: dto.acknowledgedCount,
-    resolved: dto.resolvedCount,
-    blocking: dto.blockingCount,
+    open: normalizeOperatorHomeNonNegativeCount(dto.openCount),
+    acknowledged: normalizeOperatorHomeNonNegativeCount(dto.acknowledgedCount),
+    resolved: normalizeOperatorHomeNonNegativeCount(dto.resolvedCount),
+    blocking: normalizeOperatorHomeNonNegativeCount(dto.blockingCount),
     lastEvaluatedUtc: dto.lastEvaluatedUtc ?? null,
   };
 }
@@ -109,13 +113,15 @@ function mapStickinessSnapshot(
       firstComparisonUtc: dto.pilotFunnel.firstComparisonUtc ?? null,
       firstArtifactOrBundleDownloadUtc: dto.pilotFunnel.firstArtifactOrBundleDownloadUtc ?? null,
       firstReplayUtc: dto.pilotFunnel.firstReplayUtc ?? null,
-      totalRunsInScope: dto.pilotFunnel.totalRunsInScope ?? 0,
-      committedRunsInScope: dto.pilotFunnel.committedRunsInScope ?? 0,
-      productLearningSignalsLast90Days: dto.pilotFunnel.productLearningSignalsLast90Days ?? 0,
+      totalRunsInScope: normalizeOperatorHomeNonNegativeCount(dto.pilotFunnel.totalRunsInScope),
+      committedRunsInScope: normalizeOperatorHomeNonNegativeCount(dto.pilotFunnel.committedRunsInScope),
+      productLearningSignalsLast90Days: normalizeOperatorHomeNonNegativeCount(
+        dto.pilotFunnel.productLearningSignalsLast90Days,
+      ),
     },
     latestRunId: dto.latestRunId ?? null,
-    comparisonEventsLast30Days: dto.comparisonEventsLast30Days ?? 0,
-    pendingGovernanceApprovals: dto.pendingGovernanceApprovals ?? 0,
+    comparisonEventsLast30Days: normalizeOperatorHomeNonNegativeCount(dto.comparisonEventsLast30Days),
+    pendingGovernanceApprovals: normalizeOperatorHomeNonNegativeCount(dto.pendingGovernanceApprovals),
   };
 }
 
@@ -131,7 +137,7 @@ export async function fetchOperatorShellStatus(): Promise<OperatorShellStatusPay
     usageStatus: dto.usageStatus ?? null,
     homepageSettings: mapHomepageSettings(dto.homepageSettings),
     stickinessSnapshot: mapStickinessSnapshot(dto.stickinessSnapshot),
-    assignedToMeFindingsCount: dto.assignedToMeFindingsCount ?? null,
+    assignedToMeFindingsCount: normalizeOperatorShellNullableCount(dto.assignedToMeFindingsCount),
     reviewsAwaitingAction: dto.reviewsAwaitingAction ?? null,
   };
 }

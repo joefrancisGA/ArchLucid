@@ -21,13 +21,18 @@ export type AskAssistantGroundingLink = {
 };
 
 const ASK_ANSWER_NOT_STORED = "Answer was not stored";
+const ASK_GROUNDING_SOURCES_NOT_STORED = "Sources in this review were not stored on this answer.";
 const ASK_ANSWER_STORED_EMPTY = "Answer was stored empty.";
 const ASK_ANSWER_LEAD_NOT_STORED = "Answer lead was not stored.";
 const ASK_GROUNDING_SOURCE_LABEL_STORED_EMPTY = "Source label was stored empty.";
 
-function renderAskSectionBody(body: string, buyerPolishedLinks: boolean): ReactNode {
+function renderAskSectionBody(
+  body: string,
+  buyerPolishedLinks: boolean,
+  reviewIdInScope?: string | null,
+): ReactNode {
   return body.trim().length > 0
-    ? renderTextWithUuidReviewLinks(body, buyerPolishedLinks)
+    ? renderTextWithUuidReviewLinks(body, buyerPolishedLinks, reviewIdInScope)
     : ASK_ANSWER_STORED_EMPTY;
 }
 
@@ -60,9 +65,11 @@ function renderTextWithUuidReviewLinks(
 
     const id = m[0];
     const idMatchesScope =
-      scopedReviewId.length > 0 && id.toLowerCase() === scopedReviewId;
+      scopedReviewId.length === 0 || id.toLowerCase() === scopedReviewId;
 
-    if (idMatchesScope) {
+    const shouldLinkReviewUuid = scopedReviewId.length === 0 || idMatchesScope;
+
+    if (shouldLinkReviewUuid) {
       const linkChildren = buyerPolishedLinks ? "Open linked review" : id;
 
       parts.push(
@@ -250,7 +257,7 @@ export function AskAssistantMessageBody(props: {
             <h4 className={cn("m-0 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>{section.title}</h4>
             <div className={`${bodyClass} mt-2`}>
               {section.body.length > 0
-                ? renderAskSectionBody(section.body, buyerPolishedLinks)
+                ? renderAskSectionBody(section.body, buyerPolishedLinks, reviewIdInScope)
                 : ASK_ANSWER_NOT_STORED}
             </div>
           </section>
@@ -276,7 +283,7 @@ export function AskAssistantMessageBody(props: {
             </h4>
             <div className={`${bodyClass} mt-2`}>
               {section.body.length > 0
-                ? renderAskSectionBody(section.body, buyerPolishedLinks)
+                ? renderAskSectionBody(section.body, buyerPolishedLinks, reviewIdInScope)
                 : ASK_ANSWER_NOT_STORED}
             </div>
           </section>
