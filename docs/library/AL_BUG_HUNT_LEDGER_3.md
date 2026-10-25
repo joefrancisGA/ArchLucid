@@ -4938,7 +4938,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-operator-lib
 
-**Hunts:** 84 · **Bugs found:** 81 · **Consecutive dry hunts:** 0
+**Hunts:** 85 · **Bugs found:** 82 · **Consecutive dry hunts:** 0
+
+2026-10-25 seed hunt (hit): `listHomeAttentionPreviewExcludedRunIds` unions SN-012 href run ids when they disagree with TB-2369 row ids so home attention preview drops both identities; regressions `lists both row and peer href run ids when TB-2369 row id disagrees with review href` and `filters home attention preview when peer review href run id disagrees with TB-2369 row id`; scoped attention-dedup + resume vitest passed. Private beta: Invited operators no longer see a duplicate home attention row for a run whose unfinished-work rail link targets a different review id than the row prefix encodes.
 
 2026-10-25 seed hunt (hit): consolidated `resolveUnfinishedWorkRailRunIdForMatch` for TB-2369 row id + href resolution (desk `highlightReviewId` wins on conflict; row id wins for stale peer hrefs); wired `listHomeAttentionPreviewExcludedRunIds` to href fallback when row id suffix is empty; regressions `lists run id from rail href when row id suffix is empty` and `filters home attention preview when rail row id suffix is empty but href encodes the run`; scoped attention-dedup + rail-resume vitest passed. Private beta: Invited operators no longer see duplicate home attention rows for a review already on the unfinished-work rail when the row id suffix is malformed but the href still points at the run.
 
@@ -5153,11 +5155,19 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) `listHomeAttentionPreviewExcludedRunIds` — only read TB-2369 row id prefix and omitted href run ids when suffix empty — **hit 2026-10-25 seed hunt:** `resolveUnfinishedWorkRailRunIdForMatch`; regressions `lists run id from rail href when row id suffix is empty` and `filters home attention preview when rail row id suffix is empty but href encodes the run`.
 
-- [ ] (candidate) `resolveUnfinishedWorkRailRunIdForMatch` — prefers desk `highlightReviewId` only when href is architecture desk with query — locus: conflict branch; input: desk conflict regressions in rail resume tests.
-- [ ] (candidate) `resolveUnfinishedWorkRailRunIdForMatch` — prefers row id when peer href disagrees with TB-2369 id — locus: conflict branch; input: `lists active review run ids from unfinished-work rail items`.
-- [ ] (candidate) `listHomeAttentionPreviewExcludedRunIds` — uses shared resolver for awaiting-disposition and review-in-progress — locus: exclusion list; input: href suffix-empty regressions.
-- [ ] (candidate) `resolveOperatorUnfinishedWorkRailItemResumeTarget` — delegates run id to `resolveUnfinishedWorkRailRunIdForMatch` — locus: rail resume target module; input: existing rail resume vitest suite.
-- [ ] (candidate) `filterRunsForHomeAttentionPreview` — trims excluded ids via `buildTrimmedRunIdSet` when exclusions come from shared resolver — locus: filter helper; input: whitespace exclusion regression.
+- [x] (valid-no-repro) `resolveUnfinishedWorkRailRunIdForMatch` — prefers desk `highlightReviewId` only when href is architecture desk with query — **cheap-disproof 2026-10-25 seed hunt:** desk conflict regressions in rail resume vitest.
+- [x] (valid-no-repro) `resolveUnfinishedWorkRailRunIdForMatch` — prefers row id when peer href disagrees with TB-2369 id — **cheap-disproof 2026-10-25 seed hunt:** regression `lists active review run ids from unfinished-work rail items`.
+- [x] (valid-no-repro) `listHomeAttentionPreviewExcludedRunIds` — uses shared resolver for awaiting-disposition and review-in-progress — **cheap-disproof 2026-10-25 seed hunt:** href suffix-empty regressions.
+- [x] (valid-no-repro) `resolveOperatorUnfinishedWorkRailItemResumeTarget` — delegates run id to `resolveUnfinishedWorkRailRunIdForMatch` — **cheap-disproof 2026-10-25 seed hunt:** rail resume vitest suite.
+- [x] (valid-no-repro) `filterRunsForHomeAttentionPreview` — trims excluded ids via `buildTrimmedRunIdSet` — **cheap-disproof 2026-10-25 seed hunt:** whitespace exclusion regression.
+
+- [x] (proven) `listHomeAttentionPreviewExcludedRunIds` — omitted href-parsed run id when TB-2369 row id disagreed with peer review href — **hit 2026-10-25 seed hunt:** href union on conflict; regressions `lists both row and peer href run ids when TB-2369 row id disagrees with review href` and `filters home attention preview when peer review href run id disagrees with TB-2369 row id`.
+
+- [ ] (candidate) `listHomeAttentionPreviewExcludedRunIds` — unions desk `highlightReviewId` when row id omits href run on architecture desk conflict — locus: exclusion union; input: desk highlight conflict fixtures.
+- [ ] (candidate) `resolveUnfinishedWorkRailRunIdForMatch` — keeps single canonical id for resume targets while exclusion list unions href — locus: resolver vs exclusion; input: peer disagreement regressions.
+- [ ] (candidate) `filterRunsForHomeAttentionPreview` — dedupes excluded run ids when union introduces duplicates across rail rows — locus: Set in exclusion list; input: `lists active review run ids from unfinished-work rail items`.
+- [ ] (candidate) `resolveOperatorUnfinishedWorkRailItemResumeTarget` — run id stays row-priority on peer href disagreement — locus: resume target; input: `prefers TB-2369 row id when href does not parse a run id`.
+- [ ] (candidate) `matchesOperatorHomeHeroResumeTarget` — hero dedupe unchanged when exclusion list unions href run id — locus: hero match; input: desk conflict + peer disagreement affordance regressions.
 
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regression `drops favorite rows when runId is whitespace-only`; 41 scoped continuity, scope-storage, and attention-preview vitest tests passed.
 

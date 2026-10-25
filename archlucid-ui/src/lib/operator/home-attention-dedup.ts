@@ -69,17 +69,23 @@ export function resolveUnfinishedWorkRailRunIdForMatch(item: UnfinishedWorkRailI
 export function listHomeAttentionPreviewExcludedRunIds(
   unfinishedRailItems: readonly UnfinishedWorkRailItem[],
 ): readonly string[] {
-  const runIds: string[] = [];
+  const runIds = new Set<string>();
 
   for (const item of unfinishedRailItems) {
     const runId = resolveUnfinishedWorkRailRunIdForMatch(item);
 
     if (runId !== null) {
-      runIds.push(runId);
+      runIds.add(runId);
+    }
+
+    const hrefRunId = resolveRunIdFromWorkingReviewHref(item.href)?.trim() ?? "";
+
+    if (hrefRunId.length > 0 && hrefRunId !== runId) {
+      runIds.add(hrefRunId);
     }
   }
 
-  return runIds;
+  return [...runIds];
 }
 
 /** Removes runs already shown on the unfinished-work rail from home attention previews. */

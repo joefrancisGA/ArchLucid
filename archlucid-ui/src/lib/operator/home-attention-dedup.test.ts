@@ -94,6 +94,32 @@ describe("home-attention-dedup (TB-2369)", () => {
     expect(runIds).toEqual(["run-1", "run-3"]);
   });
 
+  it("lists both row and peer href run ids when TB-2369 row id disagrees with review href", () => {
+    const item = {
+      ...railItem("review-in-progress", "review-in-progress:run-a"),
+      href: "/architecture/reviews/run-b",
+    };
+
+    expect(listHomeAttentionPreviewExcludedRunIds([item])).toEqual(["run-a", "run-b"]);
+  });
+
+  it("filters home attention preview when peer review href run id disagrees with TB-2369 row id", () => {
+    const runs = [
+      { runId: "run-a", projectId: "default" },
+      { runId: "run-b", projectId: "default" },
+      { runId: "run-c", projectId: "default" },
+    ] as RunSummary[];
+
+    const excluded = listHomeAttentionPreviewExcludedRunIds([
+      {
+        ...railItem("review-in-progress", "review-in-progress:run-a"),
+        href: "/architecture/reviews/run-b",
+      },
+    ]);
+
+    expect(filterRunsForHomeAttentionPreview(runs, excluded).map((run) => run.runId)).toEqual(["run-c"]);
+  });
+
   it("filters home attention preview when rail row id suffix is empty but href encodes the run", () => {
     const runs = [
       { runId: "run-1", projectId: "default" },
