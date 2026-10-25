@@ -41,7 +41,7 @@ public static class DiagramEdgeVisualKindResolver
             return DiagramEdgeVisualKind.Unclassified;
         }
 
-        return DiagramEdgeVisualKind.Observed;
+        return DiagramEdgeVisualKind.Unclassified;
     }
 
     public static bool IsDeclared(string? provenanceKind, string? inferenceSource)

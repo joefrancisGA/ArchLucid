@@ -21,6 +21,7 @@ export type AskAssistantGroundingLink = {
 };
 
 const ASK_ANSWER_NOT_STORED = "Answer was not stored";
+const ASK_GROUNDING_SOURCES_NOT_STORED = "Sources in this review were not stored on this answer.";
 const ASK_ANSWER_STORED_EMPTY = "Answer was stored empty.";
 const ASK_ANSWER_LEAD_NOT_STORED = "Answer lead was not stored.";
 const ASK_GROUNDING_SOURCE_LABEL_STORED_EMPTY = "Source label was stored empty.";

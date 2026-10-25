@@ -86,6 +86,14 @@ public sealed class DiagramEdgeVisualKindResolverTests
     }
 
     [Fact]
+    public void From_blank_provenance_with_inventory_inference_returns_unclassified()
+    {
+        DiagramEdgeVisualKindResolver.From(null, GraphEdgeInferenceSources.InventoryFirewallSubnet)
+            .Should()
+            .Be(DiagramEdgeVisualKind.Unclassified);
+    }
+
+    [Fact]
     public void Build_unclassified_provenance_label_is_not_stored_sentence()
     {
         DiagramEdgeProvenanceDisplayLabelBuilder.Build("connects", DiagramEdgeVisualKind.Unclassified)

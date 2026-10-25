@@ -24,9 +24,9 @@ function totalWorkCount(row: CloudResourceSummary): number {
   }
 
   return (
-    workCounts.openOperationalFindingsCount
-    + workCounts.openRemediationInstancesCount
-    + workCounts.inventoryDriftChangeCount
+    (workCounts.openOperationalFindingsCount ?? 0)
+    + (workCounts.openRemediationInstancesCount ?? 0)
+    + (workCounts.inventoryDriftChangeCount ?? 0)
   );
 }
 

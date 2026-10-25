@@ -36,15 +36,15 @@ export function resolveInfraEvidenceDiagramReadingLegend(mode: string): InfraEvi
       };
     case "data":
       return {
-        boxes: "Boxes are data resources in the infrastructure forest.",
-        connectors: "Connectors are the forest relationships already drawn.",
-        evidenceKind: "Evidence kind is configuration.",
+        boxes: "Boxes are resources in this inventory view.",
+        connectors: "Each connector is only as strong as its own line.",
+        evidenceKind: "This view does not prove reachability or runtime use.",
       };
     default:
       return {
-        boxes: "Boxes are Azure resources in this view.",
-        connectors: "Connectors are relationships already on the diagram.",
-        evidenceKind: "Evidence kind is configuration from inventory.",
+        boxes: "Boxes are resources in this inventory view.",
+        connectors: "Each connector is only as strong as its own line.",
+        evidenceKind: "This view does not prove reachability or runtime use.",
       };
   }
 }

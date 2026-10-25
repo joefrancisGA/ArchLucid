@@ -49,6 +49,78 @@ public sealed class ProvenanceGraphViewMapperTests
     }
 
     [Fact]
+    public void ToViewModel_MapsNodes_Trims_surrounding_whitespace_on_metadata_values()
+    {
+        Guid nodeId = Guid.NewGuid();
+        DecisionProvenanceGraph graph = new()
+        {
+            Nodes =
+            [
+                new ProvenanceNode
+                {
+                    Id = nodeId,
+                    Name = "Finding",
+                    Type = ProvenanceNodeType.Finding,
+                    ReferenceId = "find-1",
+                    Metadata = new Dictionary<string, string> { ["findingType"] = "  Compliance  " },
+                },
+            ],
+        };
+
+        GraphViewModel vm = ProvenanceGraphViewMapper.ToViewModel(graph);
+
+        vm.Nodes.Should().ContainSingle().Which.Metadata!["findingType"].Should().Be("Compliance");
+    }
+
+    [Fact]
+    public void ToViewModel_MapsNodes_Trims_surrounding_whitespace_on_agent_execution_trace_id()
+    {
+        const string traceId = "abc123def456";
+        Guid nodeId = Guid.NewGuid();
+        DecisionProvenanceGraph graph = new()
+        {
+            Nodes =
+            [
+                new ProvenanceNode
+                {
+                    Id = nodeId,
+                    Name = "Finding",
+                    Type = ProvenanceNodeType.Finding,
+                    ReferenceId = "find-1",
+                    AgentExecutionTraceId = $"  {traceId}  ",
+                },
+            ],
+        };
+
+        GraphViewModel vm = ProvenanceGraphViewMapper.ToViewModel(graph);
+
+        vm.Nodes.Should().ContainSingle().Which.AgentExecutionTraceId.Should().Be(traceId);
+    }
+
+    [Fact]
+    public void ToViewModel_MapsNodes_Trims_surrounding_whitespace_on_label()
+    {
+        Guid nodeId = Guid.NewGuid();
+        DecisionProvenanceGraph graph = new()
+        {
+            Nodes =
+            [
+                new ProvenanceNode
+                {
+                    Id = nodeId,
+                    Name = "  Node A  ",
+                    Type = ProvenanceNodeType.Decision,
+                    ReferenceId = "ref",
+                },
+            ],
+        };
+
+        GraphViewModel vm = ProvenanceGraphViewMapper.ToViewModel(graph);
+
+        vm.Nodes.Should().ContainSingle().Which.Label.Should().Be("Node A");
+    }
+
+    [Fact]
     public void ToViewModel_MapsNodes_WithMetadataAndTypes()
     {
         Guid nodeId = Guid.Parse("a1b2c3d4-e5f6-7890-abcd-ef1234567890");

@@ -3,15 +3,15 @@ import { describe, expect, it } from "vitest";
 import { resolveInfraEvidenceDiagramReadingLegend } from "@/lib/infra-evidence/resolve-infra-evidence-diagram-reading-legend";
 
 describe("resolveInfraEvidenceDiagramReadingLegend", () => {
-  it("uses generic inventory lines for executive mode", () => {
+  it("uses configured-not-action inventory lines for executive mode", () => {
     const lines = resolveInfraEvidenceDiagramReadingLegend("executive");
 
-    expect(lines.boxes).toMatch(/Azure resources/);
-    expect(lines.connectors).toMatch(/relationships already on the diagram/);
-    expect(lines.evidenceKind).toMatch(/configuration from inventory/);
+    expect(lines.boxes).toBe("Boxes are resources in this inventory view.");
+    expect(lines.connectors).toBe("Each connector is only as strong as its own line.");
+    expect(lines.evidenceKind).toBe("This view does not prove reachability or runtime use.");
   });
 
-  it("keeps data-flow honesty about observed traffic", () => {
+  it("describes data-flow view without declaring every connector", () => {
     const lines = resolveInfraEvidenceDiagramReadingLegend("dataFlow");
 
     expect(lines.evidenceKind).toMatch(/not observed traffic/i);

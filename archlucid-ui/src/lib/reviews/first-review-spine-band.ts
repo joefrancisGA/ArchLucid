@@ -108,6 +108,25 @@ function formatTreatmentSummaryLine(
   return segments.join(" · ");
 }
 
+const TOP_FINDING_TITLE_NOT_STORED = "Top finding title was not stored.";
+const TOP_FINDING_TITLE_STORED_EMPTY = "Top finding title was stored empty.";
+
+function resolveTopFindingTitleForSpine(finding: QuickDecisionFinding): string {
+  const title = finding.title;
+
+  if (title === null || title === undefined) {
+    return TOP_FINDING_TITLE_NOT_STORED;
+  }
+
+  const trimmed = title.trim();
+
+  if (trimmed.length === 0) {
+    return TOP_FINDING_TITLE_STORED_EMPTY;
+  }
+
+  return trimmed;
+}
+
 /** Compact first-viewport spine: gate outcome, execution mode, classification counts, top finding. */
 export function deriveFirstReviewSpineBandSummary(input: {
   readonly feasibilityVerdict: ManifestFeasibilityVerdict | null | undefined;
@@ -140,7 +159,7 @@ export function deriveFirstReviewSpineBandSummary(input: {
         ? "Verdict summary was not stored."
         : feasibilityVerdict.summary.trim().length > 0
           ? feasibilityVerdict.summary.trim()
-          : null;
+          : "Verdict summary was stored empty.";
   const executionModeLabel =
     input.structuralExecutionMode === null || input.structuralExecutionMode === undefined
       ? "Execution mode was not stored"

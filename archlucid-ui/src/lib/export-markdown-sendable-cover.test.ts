@@ -31,6 +31,7 @@ describe("formatSendableExportCoverMarkdown", () => {
     const withoutRows = formatSendableExportCoverMarkdown({ runId: "run-1", sponsorRoiRowCount: 0 });
     const withRows = formatSendableExportCoverMarkdown({ runId: "run-1", sponsorRoiRowCount: 2 });
 
+    expect(withoutRows).toContain("Sponsor savings were not stored on this export cover.");
     expect(withoutRows).not.toContain("headline savings");
     expect(withRows).toContain("do not sum to the headline");
   });
@@ -73,8 +74,8 @@ describe("formatSendableExportCoverMarkdown", () => {
     });
 
     expect(missing).toContain("Verdict summary was not stored.");
+    expect(storedEmpty).toContain("Verdict summary was stored empty.");
     expect(storedEmpty).not.toContain("Verdict summary was not stored.");
-    expect(storedEmpty).not.toContain("Gate summary:");
   });
 
   it("reports an omitted verdict kind and preserves unexpected stored kinds", () => {
