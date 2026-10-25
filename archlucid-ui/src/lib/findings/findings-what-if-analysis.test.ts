@@ -22,10 +22,10 @@ function buildFinding(findingId: string, wireJson: string): QuickDecisionFinding
 }
 
 describe("findings-what-if-analysis", () => {
-  it("readFindingProjectedImpactUsd returns 0 for unparsable or absent impact", () => {
-    expect(readFindingProjectedImpactUsd(buildFinding("f1", "not json"))).toBe(0);
-    expect(readFindingProjectedImpactUsd(buildFinding("f2", "{}"))).toBe(0);
-    expect(readFindingProjectedImpactUsd(buildFinding("f3", '{"projectedImpactUsd":"1200"}'))).toBe(0);
+  it("readFindingProjectedImpactUsd returns null for unparsable or absent impact", () => {
+    expect(readFindingProjectedImpactUsd(buildFinding("f1", "not json"))).toBeNull();
+    expect(readFindingProjectedImpactUsd(buildFinding("f2", "{}"))).toBeNull();
+    expect(readFindingProjectedImpactUsd(buildFinding("f3", '{"projectedImpactUsd":"1200"}'))).toBeNull();
   });
 
   it("readFindingProjectedImpactUsd reads the finite wire value", () => {

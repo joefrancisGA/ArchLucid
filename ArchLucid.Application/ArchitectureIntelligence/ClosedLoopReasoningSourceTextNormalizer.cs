@@ -1,5 +1,7 @@
+using System.Text;
 using ArchLucid.ContextIngestion;
 using ArchLucid.Contracts.ArchitectureIntelligence;
+using ArchLucid.Core.Persistence.Graph;
 
 namespace ArchLucid.Application.ArchitectureIntelligence;
 
@@ -9,10 +11,11 @@ internal static class ClosedLoopReasoningSourceTextNormalizer
     {
         ArgumentNullException.ThrowIfNull(source);
 
-        string contentType = SupportedContextDocumentContentTypes.NormalizeContentTypeForLookup(source.ContentType);
+        string contentType = NormalizeUnicodeSpaces(
+            SupportedContextDocumentContentTypes.NormalizeContentTypeForLookup(source.ContentType));
 
         if (contentType.Length > 0)
-            contentType = contentType.ToLowerInvariant();
+            contentType = CollapseInteriorAsciiSpaces(contentType).ToLowerInvariant();
 
         string fileName = NormalizeFileNameForHash(source.FileName);
 
@@ -23,7 +26,9 @@ internal static class ClosedLoopReasoningSourceTextNormalizer
             // Normalize platform line endings so equivalent uploaded documents share a cache key.
             Content = string.IsNullOrWhiteSpace(source.Content)
                 ? string.Empty
-                : StripUtf8Bom(NormalizeLineEndings(source.Content.Trim())),
+                : StripInvisibleFormatCharacters(
+                    CollapseInteriorAsciiSpaces(
+                        NormalizeUnicodeSpaces(StripUtf8Bom(NormalizeLineEndings(source.Content.Trim()))))),
         };
     }
 
@@ -34,66 +39,48 @@ internal static class ClosedLoopReasoningSourceTextNormalizer
         if (fileName.Length == 0)
             return fileName;
 
-        fileName = DecodePercentEncodedFileNameTokens(fileName);
-        fileName = fileName.Replace('\\', '/');
+        fileName = GraphSnapshotCanonicalFingerprint.NormalizeReviewCachePathLikeToken(fileName);
 
-        while (fileName.StartsWith("./", StringComparison.Ordinal))
-            fileName = fileName[2..];
-
-        while (fileName.Contains("//", StringComparison.Ordinal))
-            fileName = fileName.Replace("//", "/", StringComparison.Ordinal);
-
-        while (fileName.Contains("/./", StringComparison.Ordinal))
-            fileName = fileName.Replace("/./", "/", StringComparison.Ordinal);
-
-        while (fileName.StartsWith('/'))
-            fileName = fileName[1..];
-
-        while (fileName.EndsWith('/') && fileName.Length > 1)
-            fileName = fileName[..^1];
-
-        return CollapseParentPathSegments(fileName);
-    }
-
-    private static string CollapseParentPathSegments(string fileName)
-    {
         if (fileName.Length == 0)
             return fileName;
 
-        string[] rawSegments = fileName.Split('/');
-        List<string> segments = [];
+        string normalized = CollapseInteriorAsciiSpaces(NormalizeUnicodeSpaces(fileName)).Normalize(NormalizationForm.FormC);
 
-        foreach (string segment in rawSegments)
-        {
-
-            if (segment.Length == 0 || string.Equals(segment, ".", StringComparison.Ordinal))
-                continue;
-
-            if (string.Equals(segment, "..", StringComparison.Ordinal))
-            {
-
-                if (segments.Count > 0)
-                    segments.RemoveAt(segments.Count - 1);
-
-                continue;
-            }
-
-            segments.Add(segment);
-        }
-
-        if (segments.Count == 0)
-            return string.Empty;
-
-        return string.Join('/', segments);
+        return normalized.ToLowerInvariant();
     }
+
+    private static ReadOnlySpan<char> UnicodeLineBreakScalars =>
+    [
+        '\0',
+        '\u000b',
+        '\u000c',
+        '\r',
+        '\u001c',
+        '\u001d',
+        '\u001e',
+        '\u001f',
+        '\u0084',
+        '\u0085',
+        '\u007f',
+        '\u200b',
+        '\u2028',
+        '\u2029',
+    ];
 
     private static string NormalizeLineEndings(string content)
     {
-        return content
-            .Replace("\r\n", "\n")
-            .Replace('\r', '\n')
-            .Replace('\u2028', '\n')
-            .Replace('\u2029', '\n');
+        content = content.Replace("\r\n", "\n");
+
+        foreach (char lineBreak in UnicodeLineBreakScalars)
+            content = content.Replace(lineBreak, '\n');
+
+        for (int c1Control = 0x80; c1Control <= 0x9F; c1Control++)
+            content = content.Replace((char)c1Control, '\n');
+
+        for (int c0Control = 0x01; c0Control <= 0x1F; c0Control++)
+            content = content.Replace((char)c0Control, '\n');
+
+        return content;
     }
 
     private static string StripUtf8Bom(string content)
@@ -107,20 +94,36 @@ internal static class ClosedLoopReasoningSourceTextNormalizer
         return content;
     }
 
-    private static string DecodePercentEncodedFileNameTokens(string fileName)
+    private static string CollapseInteriorAsciiSpaces(string content)
     {
-        string decoded = fileName;
+        if (content.Length == 0)
+            return content;
 
-        while (decoded.Contains('%', StringComparison.Ordinal))
-        {
-            string next = Uri.UnescapeDataString(decoded);
+        while (content.Contains("  ", StringComparison.Ordinal))
+            content = content.Replace("  ", " ", StringComparison.Ordinal);
 
-            if (string.Equals(next, decoded, StringComparison.Ordinal))
-                break;
-
-            decoded = next;
-        }
-
-        return decoded;
+        return content;
     }
+
+    private static string NormalizeUnicodeSpaces(string content)
+    {
+        if (content.Length == 0)
+            return content;
+
+        return content
+            .Replace('\u00a0', ' ')
+            .Replace('\u202f', ' ');
+    }
+
+    private static string StripInvisibleFormatCharacters(string content)
+    {
+        if (content.Length == 0)
+            return content;
+
+        return content
+            .Replace("\u200c", string.Empty, StringComparison.Ordinal)
+            .Replace("\u200d", string.Empty, StringComparison.Ordinal)
+            .Replace("\ufeff", string.Empty, StringComparison.Ordinal);
+    }
+
 }

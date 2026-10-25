@@ -81,9 +81,12 @@ public static class ApiRequestNullCollectionElementsGuard
         return VisitObject(value, visited);
     }
 
-    private static bool VisitCollection(IEnumerable enumerable, PropertyInfo owningProperty, HashSet<object> visited)
+    private static bool VisitCollection(IEnumerable enumerable, PropertyInfo owningProperty, HashSet<object> visited) =>
+        VisitCollection(enumerable, NullabilityContext.Create(owningProperty), visited);
+
+    private static bool VisitCollection(IEnumerable enumerable, NullabilityInfo collectionNullability, HashSet<object> visited)
     {
-        bool allowNullElements = AllowsNullElements(NullabilityContext.Create(owningProperty));
+        bool allowNullElements = AllowsNullElements(collectionNullability);
 
         foreach (object? element in enumerable)
         {
@@ -97,7 +100,80 @@ public static class ApiRequestNullCollectionElementsGuard
                 return true;
             }
 
+            if (TryVisitDictionaryEntryValue(element, collectionNullability, visited, out bool entryInvalid))
+            {
+                if (entryInvalid)
+                    return true;
+
+                continue;
+            }
+
+            Type elementRuntimeType = element.GetType();
+
+            if (IsEnumerableCollection(elementRuntimeType))
+            {
+                NullabilityInfo? nestedCollectionNullability = collectionNullability.ElementType;
+
+                if (nestedCollectionNullability is not null
+                    && VisitCollection((IEnumerable)element, nestedCollectionNullability, visited))
+                {
+                    return true;
+                }
+
+                continue;
+            }
+
             if (VisitObject(element, visited))
+                return true;
+        }
+
+        return false;
+    }
+
+    private static bool TryVisitDictionaryEntryValue(
+        object element,
+        NullabilityInfo collectionNullability,
+        HashSet<object> visited,
+        out bool entryInvalid)
+    {
+        entryInvalid = false;
+        Type elementType = element.GetType();
+
+        if (!elementType.IsGenericType || elementType.GetGenericTypeDefinition() != typeof(KeyValuePair<,>))
+            return false;
+
+        PropertyInfo? valueProperty = elementType.GetProperty(
+            nameof(KeyValuePair<object, object>.Value),
+            BindingFlags.Instance | BindingFlags.Public);
+
+        if (valueProperty is null)
+            return true;
+
+        object? entryValue = valueProperty.GetValue(element);
+
+        if (entryValue is null)
+        {
+            entryInvalid = !DictionaryValueAllowsNull(collectionNullability);
+
+            return true;
+        }
+
+        entryInvalid = VisitObject(entryValue, visited);
+
+        return true;
+    }
+
+    private static bool DictionaryValueAllowsNull(NullabilityInfo dictionaryNullability)
+    {
+        NullabilityInfo nullability = dictionaryNullability;
+
+        if (nullability.GenericTypeArguments.Length >= 2)
+            return AllowsNullProperty(nullability.GenericTypeArguments[1]);
+
+        foreach (NullabilityInfo genericArgument in nullability.GenericTypeArguments)
+        {
+
+            if (genericArgument.ReadState == NullabilityState.Nullable)
                 return true;
         }
 

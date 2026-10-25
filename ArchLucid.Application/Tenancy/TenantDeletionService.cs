@@ -120,6 +120,117 @@ public sealed class TenantDeletionService(
             };
         }
 
+        TenantRecord? tenantBeforeDeletionAuditAppend =
+            await _tenantRepository.GetByIdAsync(tenantId, cancellationToken);
+
+        if (tenantBeforeDeletionAuditAppend?.TenantErasureApprovedUtc is null)
+        {
+            return new TenantDeletionResult
+            {
+                TenantId = tenantId,
+                SqlRowsDeleted = purge.RowsDeleted,
+                SqlRowCountsByTable = purge.RowCountsByTable,
+                BlobsDeletedByContainer = blobs.BlobsDeletedByContainer
+            };
+        }
+
+        utcNow = _timeProvider.GetUtcNow();
+
+        if (tenantBeforeDeletionAuditAppend.LegalHoldUntilUtc is { } holdUntilAppend && holdUntilAppend > utcNow)
+        {
+            return new TenantDeletionResult
+            {
+                TenantId = tenantId,
+                SqlRowsDeleted = purge.RowsDeleted,
+                SqlRowCountsByTable = purge.RowCountsByTable,
+                BlobsDeletedByContainer = blobs.BlobsDeletedByContainer
+            };
+        }
+
+        TenantRecord? tenantImmediatelyBeforeDeletionAuditAppend =
+            await _tenantRepository.GetByIdAsync(tenantId, cancellationToken);
+
+        if (tenantImmediatelyBeforeDeletionAuditAppend?.TenantErasureApprovedUtc is null)
+        {
+            return new TenantDeletionResult
+            {
+                TenantId = tenantId,
+                SqlRowsDeleted = purge.RowsDeleted,
+                SqlRowCountsByTable = purge.RowCountsByTable,
+                BlobsDeletedByContainer = blobs.BlobsDeletedByContainer
+            };
+        }
+
+        utcNow = _timeProvider.GetUtcNow();
+
+        if (tenantImmediatelyBeforeDeletionAuditAppend.LegalHoldUntilUtc is { } holdUntilImmediateAppend
+            && holdUntilImmediateAppend > utcNow)
+        {
+            return new TenantDeletionResult
+            {
+                TenantId = tenantId,
+                SqlRowsDeleted = purge.RowsDeleted,
+                SqlRowCountsByTable = purge.RowCountsByTable,
+                BlobsDeletedByContainer = blobs.BlobsDeletedByContainer
+            };
+        }
+
+        TenantRecord? tenantBeforePlatformDeletionAuditAppend =
+            await _tenantRepository.GetByIdAsync(tenantId, cancellationToken);
+
+        if (tenantBeforePlatformDeletionAuditAppend?.TenantErasureApprovedUtc is null)
+        {
+            return new TenantDeletionResult
+            {
+                TenantId = tenantId,
+                SqlRowsDeleted = purge.RowsDeleted,
+                SqlRowCountsByTable = purge.RowCountsByTable,
+                BlobsDeletedByContainer = blobs.BlobsDeletedByContainer
+            };
+        }
+
+        utcNow = _timeProvider.GetUtcNow();
+
+        if (tenantBeforePlatformDeletionAuditAppend.LegalHoldUntilUtc is { } holdUntilPlatformAppend
+            && holdUntilPlatformAppend > utcNow)
+        {
+            return new TenantDeletionResult
+            {
+                TenantId = tenantId,
+                SqlRowsDeleted = purge.RowsDeleted,
+                SqlRowCountsByTable = purge.RowCountsByTable,
+                BlobsDeletedByContainer = blobs.BlobsDeletedByContainer
+            };
+        }
+
+        TenantRecord? tenantImmediatelyBeforePlatformDeletionAuditAppend =
+            await _tenantRepository.GetByIdAsync(tenantId, cancellationToken);
+
+        if (tenantImmediatelyBeforePlatformDeletionAuditAppend?.TenantErasureApprovedUtc is null)
+        {
+            return new TenantDeletionResult
+            {
+                TenantId = tenantId,
+                SqlRowsDeleted = purge.RowsDeleted,
+                SqlRowCountsByTable = purge.RowCountsByTable,
+                BlobsDeletedByContainer = blobs.BlobsDeletedByContainer
+            };
+        }
+
+        utcNow = _timeProvider.GetUtcNow();
+
+        if (tenantImmediatelyBeforePlatformDeletionAuditAppend.LegalHoldUntilUtc is { } holdUntilFinalAppend
+            && holdUntilFinalAppend > utcNow)
+        {
+            return new TenantDeletionResult
+            {
+                TenantId = tenantId,
+                SqlRowsDeleted = purge.RowsDeleted,
+                SqlRowCountsByTable = purge.RowCountsByTable,
+                BlobsDeletedByContainer = blobs.BlobsDeletedByContainer
+            };
+        }
+
         await _platformAuditRepository
             .AppendAsync(
                 new PlatformAuditEvent

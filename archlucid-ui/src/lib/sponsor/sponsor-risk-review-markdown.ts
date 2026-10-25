@@ -83,7 +83,9 @@ export function buildSponsorRiskReviewMarkdown(
   const faithfulnessWarning =
     summary.faithfulnessWarning === null || summary.faithfulnessWarning === undefined
       ? "Faithfulness warning was not stored."
-      : summary.faithfulnessWarning;
+      : summary.faithfulnessWarning.trim().length === 0
+        ? "Faithfulness warning was stored empty."
+        : summary.faithfulnessWarning;
   const deterministicFallbackMissing =
     summary.deterministicFallbackUsed === null || summary.deterministicFallbackUsed === undefined;
 
@@ -117,12 +119,12 @@ export function buildSponsorRiskReviewMarkdown(
       : summary.unresolvedIssueCount === null || summary.unresolvedIssueCount === undefined
         ? "Unresolved issue count was not stored."
       : null,
-    typeof summary.complianceGapCount === "number" &&
-    Number.isFinite(summary.complianceGapCount) &&
-    Math.trunc(summary.complianceGapCount) > 0
-      ? `${Math.trunc(summary.complianceGapCount)} compliance gap${
-          Math.trunc(summary.complianceGapCount) === 1 ? "" : "s"
-        } in the aggregate assessment.`
+    typeof summary.complianceGapCount === "number" && Number.isFinite(summary.complianceGapCount)
+      ? Math.trunc(summary.complianceGapCount) === 0
+        ? "0 compliance gaps were stored."
+        : `${Math.trunc(summary.complianceGapCount)} compliance gap${
+            Math.trunc(summary.complianceGapCount) === 1 ? "" : "s"
+          } in the aggregate assessment.`
       : summary.complianceGapCount === null || summary.complianceGapCount === undefined
         ? "Compliance gap count was not stored."
       : null,

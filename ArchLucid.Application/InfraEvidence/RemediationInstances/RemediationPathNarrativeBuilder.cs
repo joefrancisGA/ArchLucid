@@ -133,12 +133,18 @@ public sealed class RemediationPathNarrativeBuilder(
         SecurityEvidencePathRecord path,
         IReadOnlyList<SecurityEvidencePathHopRecord> hops)
     {
-        string terminal = ShortNodeLabel(hops.LastOrDefault()?.ToNodeId ?? "unknown-target");
+        string? terminalNodeId = hops.LastOrDefault()?.ToNodeId;
+        string terminal = string.IsNullOrWhiteSpace(terminalNodeId)
+            ? "Endpoint was not stored."
+            : ShortNodeLabel(terminalNodeId);
+        string weakestLink = string.IsNullOrWhiteSpace(path.WeakestHopReason)
+            ? "Weakest-hop reason was not stored."
+            : path.WeakestHopReason.Trim();
 
         return path.PathKind switch
         {
             PathKind.Privilege =>
-                $"Transitive privilege path {path.PathId:D} grants access ending at {terminal}. Weakest link: {path.WeakestHopReason}.",
+                $"Transitive privilege path {path.PathId:D} grants access ending at {terminal}. Weakest link: {weakestLink}.",
             PathKind.IntendedReachability =>
                 $"Intended reachability path {path.PathId:D} exposes a control-plane route from public exposure to {terminal}.",
             PathKind.ToxicCombination =>
