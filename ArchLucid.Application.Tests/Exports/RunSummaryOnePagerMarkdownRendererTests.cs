@@ -16,6 +16,9 @@ public sealed class RunSummaryOnePagerMarkdownRendererTests
         {
             RunId = "run-abc",
             SystemName = "Payments",
+            SystemNameDisplay = "Payments",
+            RunIdDisplay = "run-abc",
+            SealedFindingsSection = RunSummaryOnePagerHonestyCopy.FormatSealedFindingsSection(false, null, 0),
             CriticalCount = 1,
             HighCount = 2,
             MediumCount = 3,
@@ -45,6 +48,9 @@ public sealed class RunSummaryOnePagerMarkdownRendererTests
         {
             RunId = "run-abc",
             SystemName = "Payments",
+            SystemNameDisplay = "Payments",
+            RunIdDisplay = "run-abc",
+            SealedFindingsSection = RunSummaryOnePagerHonestyCopy.FormatSealedFindingsSection(false, null, 0),
             CriticalCount = 0,
             HighCount = 0,
             MediumCount = 0,
@@ -72,6 +78,12 @@ public sealed class RunSummaryOnePagerMarkdownRendererTests
         {
             RunId = "run-abc",
             SystemName = "Payments",
+            SystemNameDisplay = "Payments",
+            RunIdDisplay = "run-abc",
+            SealedFindingsSection = RunSummaryOnePagerHonestyCopy.FormatSealedFindingsSection(
+                true,
+                snapshotId.ToString("D"),
+                12),
             CriticalCount = 0,
             HighCount = 0,
             MediumCount = 0,
@@ -96,6 +108,9 @@ public sealed class RunSummaryOnePagerMarkdownRendererTests
         {
             RunId = "run-abc",
             SystemName = "Payments",
+            SystemNameDisplay = "Payments",
+            RunIdDisplay = "run-abc",
+            SealedFindingsSection = RunSummaryOnePagerHonestyCopy.FormatSealedFindingsSection(false, null, 0),
             CriticalCount = 1,
             HighCount = 0,
             MediumCount = 0,
@@ -121,6 +136,9 @@ public sealed class RunSummaryOnePagerMarkdownRendererTests
         {
             RunId = "run-abc",
             SystemName = "Payments",
+            SystemNameDisplay = "Payments",
+            RunIdDisplay = "run-abc",
+            SealedFindingsSection = RunSummaryOnePagerHonestyCopy.FormatSealedFindingsSection(false, null, 0),
             CriticalCount = 0,
             HighCount = 0,
             MediumCount = 0,
@@ -135,5 +153,33 @@ public sealed class RunSummaryOnePagerMarkdownRendererTests
         markdown.Should().Contain("## Sendable export cover");
         markdown.Should().Contain("Policy pack: azure-waf @ 2024.1");
         markdown.Should().Contain("Execution mode: Simulator");
+    }
+
+    [Fact]
+    public void Render_labels_missing_system_name_and_run_id()
+    {
+        RunSummaryOnePagerDocumentModel model = new()
+        {
+            RunId = "",
+            SystemName = null,
+            SystemNameDisplay = RunSummaryOnePagerHonestyCopy.SystemNameNotStored,
+            RunIdDisplay = RunSummaryOnePagerHonestyCopy.RunIdNotStored,
+            SealedFindingsSection = RunSummaryOnePagerHonestyCopy.FormatSealedFindingsSection(
+                hasSealedSnapshot: false,
+                findingsSnapshotId: null,
+                sealedFindingCount: 0),
+            CriticalCount = 0,
+            HighCount = 0,
+            MediumCount = 0,
+            LowCount = 0,
+            SponsorReport = "Summary.",
+            TopFindingTitles = [],
+        };
+
+        string markdown = RunSummaryOnePagerMarkdownRenderer.Render(model);
+
+        markdown.Should().Contain(RunSummaryOnePagerHonestyCopy.SystemNameNotStored);
+        markdown.Should().Contain(RunSummaryOnePagerHonestyCopy.RunIdNotStored);
+        markdown.Should().Contain("No sealed findings snapshot on this run yet");
     }
 }
