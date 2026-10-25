@@ -35,7 +35,14 @@ export function FindingInsightDensityDisclosure(props: FindingInsightDensityDisc
     ? String(Math.trunc(props.insightDensityScore ?? 0))
     : "Insight density score was not stored.";
   const bandLabel = formatInsightDensityBandLabel(props.insightDensityScore);
-  const whyText = props.whyThisIsNotGeneric?.trim() ?? "";
+  const whyRaw = props.whyThisIsNotGeneric;
+  const whyText = whyRaw?.trim() ?? "";
+  const whyDisplay =
+    whyRaw === null
+      ? "Why this is not generic was not stored."
+      : whyText.length > 0
+        ? whyText
+        : "Why this is not generic was stored empty.";
 
   const syncOpenToUrl = useCallback(
     (detailsOpen: boolean) => {
@@ -110,12 +117,12 @@ export function FindingInsightDensityDisclosure(props: FindingInsightDensityDisc
           <dt className="font-semibold text-al-text-primary">Insight density score</dt>
           <dd className="m-0 tabular-nums text-al-text-secondary">{scoreDisplay}</dd>
         </div>
-        {whyText.length > 0 ? (
-          <div>
-            <dt className="font-semibold text-al-text-primary">Why this is not generic</dt>
-            <dd className="m-0 leading-relaxed text-al-text-secondary">{whyText}</dd>
-          </div>
-        ) : null}
+        <div>
+          <dt className="font-semibold text-al-text-primary">Why this is not generic</dt>
+          <dd className="m-0 leading-relaxed text-al-text-secondary">
+            {whyDisplay}
+          </dd>
+        </div>
         <div>
           <dt className="font-semibold text-al-text-primary">Typed-engine insight density</dt>
           <dd

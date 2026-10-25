@@ -1170,14 +1170,17 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
       }
 
       const title = node.querySelector('title')?.textContent?.trim() ?? "";
-      const memberNames = (node.getAttribute('data-member-names') ?? '')
-        .split('|')
-        .map((member) => member.trim())
-        .filter(Boolean);
+      const rawMemberNames = node.getAttribute('data-member-names');
+      const memberNames = rawMemberNames === null
+        ? undefined
+        : rawMemberNames.split('|').map((member) => {
+            const trimmed = member.trim();
+            return trimmed.length > 0 ? trimmed : 'Member name was stored empty.';
+          });
       setClickFocus({
         id,
         name: title,
-        memberNames: memberNames.length > 0 ? memberNames : undefined,
+        memberNames: memberNames !== undefined && memberNames.length > 0 ? memberNames : undefined,
       });
     };
 
