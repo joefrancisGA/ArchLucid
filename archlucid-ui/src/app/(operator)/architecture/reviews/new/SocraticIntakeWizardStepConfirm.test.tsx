@@ -37,5 +37,6 @@ describe("SocraticIntakeWizardStepConfirm", () => {
     expect(panel.querySelector('[class*="border-t"]')).toBeTruthy();
     expect(screen.getByTestId("socratic-submit")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Back to questions" })).toBeInTheDocument();
+    expect(screen.getByTestId("guided-intake-confirmed-scope-not-stored")).toBeInTheDocument();
   });
 });
