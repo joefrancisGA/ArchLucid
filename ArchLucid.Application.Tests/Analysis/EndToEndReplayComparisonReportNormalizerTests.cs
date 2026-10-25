@@ -1435,6 +1435,53 @@ public sealed class EndToEndReplayComparisonReportNormalizerTests
     }
 
     [Fact]
+    public void CompareQuality_EndToEndReplayComparisonReportNormalizer_resets_unknown_compare_input_fingerprint_algorithm_version()
+    {
+        EndToEndReplayComparisonReport report = new()
+        {
+            LeftRunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            RightRunId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            AgentResultDiff = new AgentResultDiffResult
+            {
+                LeftRunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                RightRunId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+                InputFingerprints = new CompareInputFingerprints
+                {
+                    ComparisonAlgorithmVersion = "legacyPlaceholder",
+                    BaseManifestHashSha256 = "abcdef",
+                },
+            },
+        };
+
+        EndToEndReplayComparisonReportNormalizer.NormalizePersistedPayload(report);
+
+        report.AgentResultDiff!.InputFingerprints!.ComparisonAlgorithmVersion
+            .Should().Be(CompareInputFingerprints.AlgorithmVersion);
+        report.AgentResultDiff.InputFingerprints.BaseManifestHashSha256.Should().Be("abcdef");
+    }
+
+    [Fact]
+    public void CompareQuality_EndToEndReplayComparisonReportNormalizer_nulls_agent_diff_when_only_unknown_fingerprint_algorithm_version_remains()
+    {
+        EndToEndReplayComparisonReport report = new()
+        {
+            LeftRunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            RightRunId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            AgentResultDiff = new AgentResultDiffResult
+            {
+                InputFingerprints = new CompareInputFingerprints
+                {
+                    ComparisonAlgorithmVersion = "  legacyPlaceholder  ",
+                },
+            },
+        };
+
+        EndToEndReplayComparisonReportNormalizer.NormalizePersistedPayload(report);
+
+        report.AgentResultDiff.Should().BeNull();
+    }
+
+    [Fact]
     public void CompareQuality_EndToEndReplayComparisonReportNormalizer_clamps_negative_compare_quality_delta_counts()
     {
         EndToEndReplayComparisonReport report = new()

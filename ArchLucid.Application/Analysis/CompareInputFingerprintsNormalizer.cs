@@ -13,9 +13,8 @@ internal static class CompareInputFingerprintsNormalizer
         if (fingerprints is null)
             return;
 
-        string? algorithmVersion =
-            OptionalExportMetadataStringNormalizer.NormalizeOptionalString(fingerprints.ComparisonAlgorithmVersion);
-        fingerprints.ComparisonAlgorithmVersion = algorithmVersion ?? CompareInputFingerprints.AlgorithmVersion;
+        fingerprints.ComparisonAlgorithmVersion =
+            NormalizeComparisonAlgorithmVersion(fingerprints.ComparisonAlgorithmVersion);
 
         fingerprints.BasePolicyPackPinHashSha256 = NormalizeOptionalHash(fingerprints.BasePolicyPackPinHashSha256);
         fingerprints.TargetPolicyPackPinHashSha256 = NormalizeOptionalHash(fingerprints.TargetPolicyPackPinHashSha256);
@@ -53,4 +52,15 @@ internal static class CompareInputFingerprintsNormalizer
 
     private static string? NormalizeOptionalHash(string? value) =>
         OptionalExportMetadataStringNormalizer.NormalizeOptionalString(value);
+
+    private static string NormalizeComparisonAlgorithmVersion(string value)
+    {
+        string? normalized = OptionalExportMetadataStringNormalizer.NormalizeOptionalString(value);
+        if (normalized is null)
+            return CompareInputFingerprints.AlgorithmVersion;
+
+        return string.Equals(normalized, CompareInputFingerprints.AlgorithmVersion, StringComparison.Ordinal)
+            ? normalized
+            : CompareInputFingerprints.AlgorithmVersion;
+    }
 }
