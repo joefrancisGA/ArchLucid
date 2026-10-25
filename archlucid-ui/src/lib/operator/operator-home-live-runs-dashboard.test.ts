@@ -49,6 +49,17 @@ describe("resolveOperatorHomeRunsPanelReportedTotalCount", () => {
     ).toBe(12);
   });
 
+  it("is idempotent when loadedTotalCount is already panel-normalized on archived-only pages", () => {
+    const items = [
+      { ...buildRun("archived-a"), isArchived: true, hasGoldenManifest: true },
+      { ...buildRun("archived-b"), isArchived: true, hasGoldenManifest: true },
+    ];
+    const normalized = resolveOperatorHomeRunsPanelReportedTotalCount(items, 12);
+
+    expect(normalized).toBe(0);
+    expect(resolveOperatorHomeRunsPanelReportedTotalCount(items, normalized)).toBe(0);
+  });
+
   it("clamps negative loaded totals to zero before uplifting from visible active tenant rows", () => {
     expect(
       resolveOperatorHomeRunsPanelReportedTotalCount([buildRun("active-a"), buildRun("active-b")], -3),

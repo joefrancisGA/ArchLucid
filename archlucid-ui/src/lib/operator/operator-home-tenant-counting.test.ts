@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 
+import { resolveOperatorHomeLiveRunsSnapshotTotalCount } from "@/lib/operator/operator-home-live-runs-dashboard";
 import { deriveOperatorHomeTenantCountingSnapshot } from "@/lib/operator/operator-home-tenant-counting";
+import { deriveOperatorHomeWorkspaceMetricsFromOverviewRuns } from "@/lib/operator/operator-home-workspace-metrics";
 import type { RunSummary } from "@/types/authority";
 
 describe("deriveOperatorHomeTenantCountingSnapshot", () => {
@@ -13,6 +15,31 @@ describe("deriveOperatorHomeTenantCountingSnapshot", () => {
 
     expect(snapshot.metrics.reviewPackagesTotal).toBe(8);
     expect(snapshot.metrics.hasReviews).toBe(true);
+  });
+
+  it("matches live snapshot total resolution when runsDashboardTotalCount is omitted", () => {
+    const items: RunSummary[] = [
+      {
+        runId: "tenant-a",
+        projectId: "default",
+        hasFindingsSnapshot: true,
+      },
+      {
+        runId: "tenant-b",
+        projectId: "default",
+        hasFindingsSnapshot: true,
+      },
+    ];
+
+    const snapshot = deriveOperatorHomeTenantCountingSnapshot({
+      displayItems: items,
+      previewItems: items,
+    });
+    const liveSnapshotTotal = resolveOperatorHomeLiveRunsSnapshotTotalCount(items);
+    const overviewMetrics = deriveOperatorHomeWorkspaceMetricsFromOverviewRuns(items);
+
+    expect(snapshot.metrics.reviewPackagesTotal).toBe(liveSnapshotTotal);
+    expect(overviewMetrics.reviewPackagesTotal).toBe(liveSnapshotTotal);
   });
 
   it("normalizes non-finite awaitingApprovalCount to zero in metrics", () => {
