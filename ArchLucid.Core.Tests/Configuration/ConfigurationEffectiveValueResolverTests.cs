@@ -949,6 +949,46 @@ public sealed class ConfigurationEffectiveValueResolverTests
     }
 
     [Fact]
+    public void Resolve_redacts_json_object_effective_values_when_property_name_is_password_and_value_is_empty()
+    {
+        const string configPath = "ArchLucid:SomeFeature:Settings";
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = """{"Password":""}""",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(configuration, configPath, isSet: true);
+
+        value.Should().Be("***");
+    }
+
+    [Fact]
+    public void Resolve_keeps_truncated_effective_value_well_formed_when_cut_ends_on_unpaired_high_surrogate()
+    {
+        const string configPath = "ArchLucid:FallbackLlm:Endpoints";
+        string configured = new string('n', 255) + "\uD800-tail";
+
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = configured,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            configPath,
+            isSet: true);
+
+        value.Should().NotBeNull();
+        value.Should().EndWith("…");
+        value.Should().Be(new string('n', 255) + "…");
+        TruncatedPrefixIsWellFormed(value!).Should().BeTrue();
+    }
+
+    [Fact]
     public void Resolve_keeps_truncated_effective_value_well_formed_when_cut_ends_on_unpaired_low_surrogate()
     {
         const string configPath = "ArchLucid:FallbackLlm:Endpoints";

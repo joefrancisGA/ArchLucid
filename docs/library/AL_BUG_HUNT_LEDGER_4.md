@@ -6982,11 +6982,11 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** configuration summary; config paths; split from archlucid-core
 - **paths:** ArchLucid.Core/Configuration/
 - **test-filter:** FullyQualifiedName~Configuration
-- **hunts:** 89
-- **bugs-found:** 88
+- **hunts:** 90
+- **bugs-found:** 91
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-25
-- **last-bug:** 2026-10-25 — FE6B/FFF9 delimiters and thirty-two-pass percent-decode for config summary redaction
+- **last-bug:** 2026-10-25 — FFE5/FFFA delimiters and forty-eight-pass percent-decode for config summary redaction
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
