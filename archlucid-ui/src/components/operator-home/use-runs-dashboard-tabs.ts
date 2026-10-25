@@ -233,6 +233,11 @@ export function useRunsDashboardTabs({
 
   const homeAttentionPartitionLabel = hideHeading ? operatorAttentionKindLabel("unfinished-work") : undefined;
 
+  const runsPanelReportedTotalCount = useMemo(
+    () => resolveOperatorHomeRunsPanelReportedTotalCount(effectiveItems, loadedTotalCount),
+    [effectiveItems, loadedTotalCount],
+  );
+
   const statusTabCounts = useMemo(() => {
     if (!hideHeading) {
       return deriveRunsDashboardTabCounts(filteredItems, awaitingApprovalTabItems.length);
@@ -248,7 +253,7 @@ export function useRunsDashboardTabs({
     return deriveOperatorHomeTenantCountingSnapshot({
       displayItems,
       previewItems: filterTenantOverviewRuns(homeAttentionPreviewItems),
-      runsDashboardTotalCount: loadedTotalCount,
+      runsDashboardTotalCount: runsPanelReportedTotalCount,
       excludeShowcaseRunId,
       awaitingApprovalCount,
       awaitingApprovalRunIds,
@@ -262,7 +267,7 @@ export function useRunsDashboardTabs({
     filteredItems,
     hideHeading,
     homeAttentionPreviewItems,
-    loadedTotalCount,
+    runsPanelReportedTotalCount,
     phase,
     showcaseDemoRun,
   ]);
@@ -279,12 +284,9 @@ export function useRunsDashboardTabs({
 
   useEffect(() => {
     if (phase === "ready" || phase === "error") {
-      reportWorkspaceReviews(
-        effectiveItems,
-        resolveOperatorHomeRunsPanelReportedTotalCount(effectiveItems, loadedTotalCount),
-      );
+      reportWorkspaceReviews(effectiveItems, runsPanelReportedTotalCount);
     }
-  }, [effectiveItems, loadedTotalCount, phase, reportWorkspaceReviews]);
+  }, [effectiveItems, phase, reportWorkspaceReviews, runsPanelReportedTotalCount]);
 
   const openAllReviewsHref = resolveRunsDashboardOpenAllReviewsHref(projectId);
   const statusTabIds = resolveRunsDashboardStatusTabIds(buyerPolishedShell, statusTabCounts);
@@ -301,7 +303,7 @@ export function useRunsDashboardTabs({
     const tenantSnapshot = deriveOperatorHomeTenantCountingSnapshot({
       displayItems,
       previewItems: displayItems,
-      runsDashboardTotalCount: loadedTotalCount,
+      runsDashboardTotalCount: runsPanelReportedTotalCount,
       awaitingApprovalCount,
       awaitingApprovalRunIds,
     });
@@ -326,7 +328,7 @@ export function useRunsDashboardTabs({
     awaitingApprovalRunIds,
     displayItems,
     hideHeading,
-    loadedTotalCount,
+    runsPanelReportedTotalCount,
     phase,
     promotedAttentionKind,
     sampleReviewsVisible,
@@ -341,11 +343,11 @@ export function useRunsDashboardTabs({
     return deriveOperatorHomeTenantCountingSnapshot({
       displayItems,
       previewItems: displayItems,
-      runsDashboardTotalCount: loadedTotalCount,
+      runsDashboardTotalCount: runsPanelReportedTotalCount,
       awaitingApprovalCount,
       awaitingApprovalRunIds,
     }).metrics;
-  }, [awaitingApprovalCount, awaitingApprovalRunIds, displayItems, loadedTotalCount, phase]);
+  }, [awaitingApprovalCount, awaitingApprovalRunIds, displayItems, phase, runsPanelReportedTotalCount]);
 
   const recentReviewsOutcomeOptions = useMemo(() => {
     if (phase !== "ready" && phase !== "error") {
@@ -359,7 +361,7 @@ export function useRunsDashboardTabs({
     const tenantSnapshot = deriveOperatorHomeTenantCountingSnapshot({
       displayItems,
       previewItems: displayItems,
-      runsDashboardTotalCount: loadedTotalCount,
+      runsDashboardTotalCount: runsPanelReportedTotalCount,
       awaitingApprovalCount,
       awaitingApprovalRunIds,
     });
@@ -381,7 +383,7 @@ export function useRunsDashboardTabs({
     awaitingApprovalRunIds,
     displayItems,
     hideHeading,
-    loadedTotalCount,
+    runsPanelReportedTotalCount,
     phase,
     promotedAttentionKind,
     sampleReviewsVisible,

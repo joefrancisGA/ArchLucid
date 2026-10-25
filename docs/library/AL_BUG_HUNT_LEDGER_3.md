@@ -4938,7 +4938,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-operator-lib
 
-**Hunts:** 106 · **Bugs found:** 101 · **Consecutive dry hunts:** 0
+**Hunts:** 107 · **Bugs found:** 102 · **Consecutive dry hunts:** 0
+
+2026-10-25 seed hunt (hit): `filterTenantOverviewRuns` excludes showcase story rows matched by the customer-intake description token; `use-runs-dashboard-tabs` routes tenant counting through `resolveOperatorHomeRunsPanelReportedTotalCount` for parity with activity publish; regression `excludes showcase story rows matched by description from tenant metrics`; cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; 65 scoped recent-reviews-outcome, tenant-counting, live-runs-dashboard, and workspace-metrics vitest passed. Private beta: Invited operators whose Overview lists a live API showcase story (not only the static demo id) no longer see workspace KPI and outcome copy count that sample as a tenant review.
 
 2026-10-25 seed hunt (hit): `resolveOperatorHomeRunsPanelReportedTotalCount` replaces raw `effectiveItems.length` floor when the runs panel reports workspace reviews (fixes archived rows inflating live totals when API `totalCount` is omitted); regression `does not use archived rows when uplifting omitted API totals for the runs panel report`; cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; 63 scoped live-runs-dashboard, review-total-resolution, tenant-counting, workspace-metrics, and workspace-activity-context vitest passed. Private beta: Invited operators who refresh onto a home page mixing archived rows with one active review no longer publish inflated workspace review totals to hero KPIs and live dashboard merge when pagination metadata was still zero.
 
@@ -5326,11 +5328,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `UnfinishedWorkRail` — test helper reports `runs.length` without pagination total — **cheap-disproof 2026-10-25 seed hunt:** test-only double; production path uses `resolveOperatorHomeRunsPanelReportedTotalCount`.
 - [x] (valid-no-repro) `resolveOperatorHomeLiveRunsSnapshotTotalCount` — explicit zero total with active tenant rows on page — **cheap-disproof 2026-10-25 seed hunt:** regression `uplifts stale zero totals from visible active rows and SSR floor`.
 
-- [ ] (candidate) `deriveOperatorHomeTenantCountingSnapshot` — `runsDashboardTotalCount` still passed raw from tabs hook while activity context normalizes publish totals — locus: `use-runs-dashboard-tabs` tenant snapshot input; input: archived rows on page with positive `loadedTotalCount`.
-- [ ] (candidate) `resolveLiveRunsDashboardModel` — SSR `totalCount` floor during merge when live snapshot passes normalized zero — locus: third `ssrModel.totalCount` argument; input: archived-only live refresh after SSR positive total.
-- [ ] (candidate) `operator-home-workspace-activity-context` — `hasWorkspaceReviews` still keyed on `realItems.length` while metrics use overview derive — locus: TB-1039 split; input: showcase visible with tenant-only KPI totals.
-- [ ] (candidate) `filterTenantOverviewRuns` — showcase static ids excluded but buyer-polished showcase story rows remain — locus: tenant filter; input: `runIsShowcaseHomeExampleStory` rows in `effectiveItems`.
-- [ ] (candidate) `deriveHomePreviewTabCounts` — `recentTotalCount` uses preview list length not pagination metadata — locus: `recentTotalCount`; input: partial overview page with workspace `totalCount` greater than preview rows.
+- [x] (proven) `deriveOperatorHomeTenantCountingSnapshot` — `runsDashboardTotalCount` still passed raw from tabs hook while activity context normalizes publish totals — **hit 2026-10-25 seed hunt:** shared `runsPanelReportedTotalCount` memo via `resolveOperatorHomeRunsPanelReportedTotalCount`.
+- [x] (valid-no-repro) `resolveLiveRunsDashboardModel` — SSR `totalCount` floor during merge when live snapshot passes normalized zero — **cheap-disproof 2026-10-25 seed hunt:** regression `does not keep stale positive totalCount when the live snapshot is archived-only`.
+- [x] (valid-no-repro) `operator-home-workspace-activity-context` — `hasWorkspaceReviews` still keyed on `realItems.length` while metrics use overview derive — **cheap-disproof 2026-10-25 seed hunt:** intentional TB-1039 empty-home vs tenant KPI split; showcase excluded from `realItems` when samples hidden.
+- [x] (proven) `filterTenantOverviewRuns` — showcase static ids excluded but buyer-polished showcase story rows remain — **hit 2026-10-25 seed hunt:** `runMatchesOperatorHomeExampleDescription`; regression `excludes showcase story rows matched by description from tenant metrics`.
+- [x] (valid-no-repro) `deriveHomePreviewTabCounts` — `recentTotalCount` uses preview list length not pagination metadata — **cheap-disproof 2026-10-25 seed hunt:** intentional featured-cap label contract (`Recent (2 of N)`); workspace total flows through metrics `reviewPackagesTotal`.
+
+- [ ] (candidate) `isExampleOnlyOverviewRunList` — description-matched example without findings still flips example-only outcome — locus: outcome formatter; input: showcase story row with zero KPI fields.
+- [ ] (candidate) `runMatchesOperatorHomeExampleDescription` — substring false positive on unrelated descriptions containing customer intake — locus: token match; input: tenant review brief mentioning intake modernization.
+- [ ] (candidate) `deriveOperatorHomeWorkspaceMetricsFromOverviewRuns` — tenant filter change drops open findings from description-matched showcase rows — locus: metrics loop; input: showcase story with `findingCount` on home refresh.
+- [ ] (candidate) `resolveOperatorHomeRunsPanelReportedTotalCount` — empty `displayItems` with positive loaded total before catalog hydrate — locus: reported total memo; input: dependency neighborhood awaiting seed with SSR pagination metadata.
+- [ ] (candidate) `filterRunsForHomeAttentionPreview` — excluded rail ids do not include description-matched showcase run ids — locus: attention dedupe; input: TB-2369 rail row plus API showcase story duplicate.
 
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regression `drops favorite rows when runId is whitespace-only`; 41 scoped continuity, scope-storage, and attention-preview vitest tests passed.
 

@@ -9,6 +9,7 @@ import { OPERATOR_HOME_RECENT_REVIEWS_EXAMPLE_ONLY_OUTCOME } from "@/lib/buyer/b
 import { OPERATOR_HOME_SEALED_REVIEW_RECORD_NOUN } from "@/lib/metric-count-presentation";
 import { isDemoSeededOverviewInjectedRun } from "@/lib/demo-seeded-overview";
 import { isShowcaseSampleOfAnyKind } from "@/lib/demo-run-canonical";
+import { runMatchesOperatorHomeExampleDescription } from "@/lib/operator/operator-home-example-request";
 import {
   normalizeOperatorHomeWorkspaceMetricsForDisplay,
   type OperatorHomeWorkspaceMetricsSnapshot,
@@ -225,16 +226,23 @@ export function isExampleOnlyOverviewRunList(items: readonly RunSummary[]): bool
 
   return items.every(
     (run) =>
-      isDemoSeededOverviewInjectedRun(run) || isShowcaseSampleOfAnyKind(run.runId ?? ""),
+      isDemoSeededOverviewInjectedRun(run)
+      || isShowcaseSampleOfAnyKind(run.runId ?? "")
+      || runMatchesOperatorHomeExampleDescription(run),
   );
 }
 
-/** Tenant-authored rows only — excludes demo inject and the curated showcase sample. */
-export function filterTenantOverviewRuns(items: readonly RunSummary[]): RunSummary[] {
-  return items.filter(
-    (run) =>
-      !isDemoSeededOverviewInjectedRun(run) && !isShowcaseSampleOfAnyKind(run.runId ?? ""),
+function isNonTenantOverviewRun(run: RunSummary): boolean {
+  return (
+    isDemoSeededOverviewInjectedRun(run)
+    || isShowcaseSampleOfAnyKind(run.runId ?? "")
+    || runMatchesOperatorHomeExampleDescription(run)
   );
+}
+
+/** Tenant-authored rows only — excludes demo inject, curated showcase sample, and description-matched example stories. */
+export function filterTenantOverviewRuns(items: readonly RunSummary[]): RunSummary[] {
+  return items.filter((run) => !isNonTenantOverviewRun(run));
 }
 
 /** Featured recent-review rows on Overview (full list lives on Architecture packages). */

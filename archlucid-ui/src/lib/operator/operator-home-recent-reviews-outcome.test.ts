@@ -9,6 +9,7 @@ import {
   isExampleOnlyOverviewRunList,
   OPERATOR_HOME_RECENT_FEATURED_LIMIT,
 } from "@/lib/operator/operator-home-recent-reviews-outcome";
+import { deriveOperatorHomeTenantCountingSnapshot } from "@/lib/operator/operator-home-tenant-counting";
 import type { OperatorHomeWorkspaceMetricsSnapshot } from "@/lib/operator/operator-home-workspace-metrics";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import type { RunSummary } from "@/types/authority";
@@ -265,6 +266,28 @@ describe("isExampleOnlyOverviewRunList", () => {
 
     expect(isExampleOnlyOverviewRunList(items)).toBe(true);
     expect(filterTenantOverviewRuns(items)).toEqual([]);
+  });
+
+  it("excludes showcase story rows matched by description from tenant metrics", () => {
+    const items: RunSummary[] = [
+      {
+        runId: "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+        projectId: "default",
+        description: "Enterprise customer intake modernization review",
+        hasFindingsSnapshot: true,
+        findingCount: 4,
+      },
+    ];
+
+    expect(isExampleOnlyOverviewRunList(items)).toBe(true);
+    expect(filterTenantOverviewRuns(items)).toEqual([]);
+    expect(
+      deriveOperatorHomeTenantCountingSnapshot({
+        displayItems: items,
+        previewItems: items,
+        runsDashboardTotalCount: 1,
+      }).metrics.reviewPackagesTotal,
+    ).toBe(0);
   });
 
   it("returns false when a tenant review is present", () => {
