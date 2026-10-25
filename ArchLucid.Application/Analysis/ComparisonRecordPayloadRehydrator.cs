@@ -21,10 +21,15 @@ public static class ComparisonRecordPayloadRehydrator
             if (report is null)
                 return null;
 
+            bool payloadHadRunIdAnchors =
+                !string.IsNullOrEmpty(report.LeftRunId) || !string.IsNullOrEmpty(report.RightRunId);
+
             EndToEndReplayComparisonReportNormalizer.NormalizePersistedPayload(report);
             EndToEndReplayComparisonReportNormalizer.ApplyComparisonRecordRunIdAnchorsInPlace(report, record);
 
-            return EndToEndReplayComparisonReportNormalizer.IsPersistedImmaterialRehydrateShell(report)
+            return EndToEndReplayComparisonReportNormalizer.IsPersistedImmaterialRehydrateShell(
+                    report,
+                    ignoreRunIdAnchors: !payloadHadRunIdAnchors)
                 ? null
                 : report;
         }

@@ -88,6 +88,30 @@ public sealed class ComparisonRecordPayloadRehydratorTests
     }
 
     [Fact]
+    public void CompareQuality_RehydrateEndToEnd_returns_null_when_payload_is_immaterial_and_record_only_supplies_run_anchors()
+    {
+        EndToEndReplayComparisonReport report = new()
+        {
+            RunDiff = new RunMetadataDiffResult
+            {
+                ChangedFields = ["legacyPlaceholder"],
+                StatusDiffers = true,
+                RequestIdsDiffer = true,
+            },
+        };
+        string json = JsonSerializer.Serialize(report, new JsonSerializerOptions(JsonSerializerDefaults.Web));
+        ComparisonRecord record = new()
+        {
+            ComparisonRecordId = "c-immaterial-e2e-record-anchors",
+            LeftRunId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+            RightRunId = "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+            PayloadJson = json,
+        };
+
+        ComparisonRecordPayloadRehydrator.RehydrateEndToEnd(record).Should().BeNull();
+    }
+
+    [Fact]
     public void CompareQuality_RehydrateEndToEnd_backfills_report_run_ids_from_comparison_record_columns()
     {
         Guid leftGuid = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");

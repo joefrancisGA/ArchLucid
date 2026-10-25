@@ -86,14 +86,16 @@ internal static class EndToEndReplayComparisonReportNormalizer
             BackfillExportDiffRunIdsFromReport(diff, report);
     }
 
-    internal static bool IsPersistedImmaterialRehydrateShell(EndToEndReplayComparisonReport report)
+    internal static bool IsPersistedImmaterialRehydrateShell(
+        EndToEndReplayComparisonReport report,
+        bool ignoreRunIdAnchors = false)
     {
         ArgumentNullException.ThrowIfNull(report);
 
         if (report.Warnings.Count > 0 || report.InterpretationNotes.Count > 0)
             return false;
 
-        if (report.LeftRunId.Length > 0 || report.RightRunId.Length > 0)
+        if (!ignoreRunIdAnchors && (report.LeftRunId.Length > 0 || report.RightRunId.Length > 0))
             return false;
 
         RunMetadataDiffResult runDiff = report.RunDiff;
