@@ -370,7 +370,11 @@ export function CompareResultsPanelDiffStack({
               </h2>
             </summary>
             <div className="border-t border-neutral-200 px-4 pb-2 dark:border-neutral-700">
-              <AiComparisonExplanationView explanation={aiExplanation} />
+              <AiComparisonExplanationView
+                explanation={aiExplanation}
+                structuredSecurityChangeCount={golden?.securityChanges.length ?? null}
+                structuredCostChangeCount={golden?.costChanges.length ?? null}
+              />
             </div>
           </details>
         ) : null}

@@ -46,9 +46,12 @@ function normalizeOperatorBillingAiBudgetRemainingPercent(value: number | null):
   return Math.max(0, Math.trunc(value));
 }
 
+export const OPERATOR_BILLING_TRIAL_DAYS_NOT_STORED =
+  "Trial days remaining were not stored." as const;
+
 function formatTenantTrialDaysRemainingLine(daysRemaining: number | null | undefined): string {
   if (typeof daysRemaining !== "number" || !Number.isFinite(daysRemaining) || daysRemaining < 0) {
-    return "Trial is active. No paid plan is selected yet.";
+    return OPERATOR_BILLING_TRIAL_DAYS_NOT_STORED;
   }
 
   const wholeDays = Math.trunc(daysRemaining);

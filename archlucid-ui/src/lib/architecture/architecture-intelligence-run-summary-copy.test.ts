@@ -93,6 +93,14 @@ describe("architecture-intelligence-run-summary-copy", () => {
     ).toBe("Structured detail count was not stored.");
   });
 
+  it("labels omitted AI budget facts when the run was not budget-rejected (P-04)", () => {
+    const aiUsage = listArchitectureIntelligenceRunTechnicalDetails(
+      sampleResult({ budgetRejected: false }),
+    ).find((row) => row.label === "AI usage");
+
+    expect(aiUsage?.value).toBe("AI budget facts were not stored on this run.");
+  });
+
   it("describes fresh analysis runs in technical details", () => {
     const resultSource = listArchitectureIntelligenceRunTechnicalDetails(sampleResult()).find(
       (row) => row.label === "Result source",
