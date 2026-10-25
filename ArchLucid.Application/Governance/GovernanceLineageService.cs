@@ -50,7 +50,7 @@ public sealed class GovernanceLineageService(
         GovernanceLineageManifestSummary? manifestSummary = null;
         List<GovernanceLineageFindingSummary> topFindings = [];
         string? riskPosture = null;
-        if (!Guid.TryParseExact(approval.RunId, "N", out Guid authorityRunId))
+        if (!Guid.TryParse(approval.RunId, out Guid authorityRunId))
             return new GovernanceLineageResult
             {
                 ApprovalRequest = approval,

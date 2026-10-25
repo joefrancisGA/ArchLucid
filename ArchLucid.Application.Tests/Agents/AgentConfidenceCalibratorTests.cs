@@ -88,6 +88,23 @@ public sealed class AgentConfidenceCalibratorTests
     }
 
     [Fact]
+    public void BuildIsotonicKnots_skips_null_sample_rows()
+    {
+        List<AgentConfidenceCalibrationSampleRow> rows =
+        [
+            null!,
+            new() { RawConfidence = 0.2, SemanticScore = 0.9 },
+            new() { RawConfidence = 0.8, SemanticScore = 0.85 },
+        ];
+
+        Func<IReadOnlyList<AgentConfidenceCalibrator.CalibrationKnot>> act = () =>
+            AgentConfidenceCalibrator.BuildIsotonicKnots(rows);
+
+        act.Should().NotThrow();
+        act().Should().HaveCount(2);
+    }
+
+    [Fact]
     public void BuildIsotonicKnots_enforces_monotonic_mapping()
     {
         List<AgentConfidenceCalibrationSampleRow> rows =

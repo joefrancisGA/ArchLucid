@@ -204,7 +204,11 @@ export function formatAskCitedFindingsSemanticSupportBandFootnote(
   }
 
   if (resolution.weakestBand === null) {
-    return null;
+    return (
+      `${FINDING_SEMANTIC_SUPPORT_BAND_NOT_STORED_COPY} ` +
+      "Ask cannot sound more certain than cited findings. " +
+      ASK_CITED_FINDINGS_SEMANTIC_SUPPORT_NOT_SEALED_COPY
+    );
   }
 
   return formatAskCitedFindingsSemanticSupportBandFootnote(resolution.weakestBand);

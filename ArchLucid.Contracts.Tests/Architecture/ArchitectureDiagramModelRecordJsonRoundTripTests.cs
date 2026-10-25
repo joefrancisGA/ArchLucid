@@ -84,6 +84,32 @@ public sealed class ArchitectureDiagramModelRecordJsonRoundTripTests
     }
 
     [Fact]
+    public void TryValidate_accepts_edge_and_subgraph_references_when_ids_differ_only_by_case()
+    {
+        ArchitectureDiagramModelRecord model = new()
+        {
+            Subgraphs =
+            [
+                new ArchitectureDiagramSubgraphRecord { Id = "corp", Label = "Corporate network" },
+            ],
+            Nodes =
+            [
+                new ArchitectureDiagramNodeRecord { Id = "api", Label = "API", SubgraphId = "CORP" },
+                new ArchitectureDiagramNodeRecord { Id = "sql", Label = "SQL" },
+            ],
+            Edges =
+            [
+                new ArchitectureDiagramEdgeRecord { Id = "e1", SourceId = "API", TargetId = "sql" },
+            ],
+        };
+
+        bool valid = ArchitectureDiagramModelValidator.TryValidate(model, out string? failureReason);
+
+        valid.Should().BeTrue();
+        failureReason.Should().BeNull();
+    }
+
+    [Fact]
     public void TryValidate_rejects_unknown_node_kind()
     {
         ArchitectureDiagramModelRecord model = new()

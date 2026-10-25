@@ -178,6 +178,8 @@ public static class SecurityEvidencePathRankCalculator
             explanationSummary += " Weak controls: " + string.Join(", ", hopPosture.WeakControlNames);
         }
 
+        explanationSummary = AppendDefenderHopFacts(explanationSummary, hops, hopPosture);
+
         string breakdownJson = JsonSerializer.Serialize(
             contributions.Select(item => new
             {
@@ -383,7 +385,9 @@ public static class SecurityEvidencePathRankCalculator
             DefenderSecureScoreRankAdjustment.BlastRadiusPostureAdjustment(subscriptionDefenderBand);
         decimal hopAdjustment = 0m;
 
-        if (hopPosture is not null && HopMatches(hops, hopPosture.HighAssessmentCloudResourceIds))
+        if (hopPosture is not null
+            && (HopMatches(hops, hopPosture.HighAssessmentCloudResourceIds)
+                || HopMatches(hops, hopPosture.HighAlertCloudResourceIds)))
         {
             hopAdjustment = 0.75m;
         }
@@ -395,8 +399,57 @@ public static class SecurityEvidencePathRankCalculator
         return Math.Max(subscriptionAdjustment, hopAdjustment);
     }
 
-    private static bool HopMatches(IReadOnlyList<SecurityEvidencePathHopRecord> hops, IReadOnlySet<Guid> cloudResourceIds) =>
-        hops.Any(hop => hop.CloudResourceId is Guid cloudResourceId && cloudResourceIds.Contains(cloudResourceId));
+    private static bool HopMatches(IReadOnlyList<SecurityEvidencePathHopRecord> hops, IReadOnlySet<Guid>? cloudResourceIds) =>
+        cloudResourceIds is not null
+        && hops.Any(hop => hop.CloudResourceId is Guid cloudResourceId && cloudResourceIds.Contains(cloudResourceId));
+
+    private static string AppendDefenderHopFacts(
+        string explanationSummary,
+        IReadOnlyList<SecurityEvidencePathHopRecord> hops,
+        DefenderHopPostureEvidence? hopPosture)
+    {
+        if (hopPosture is null)
+        {
+            return explanationSummary;
+        }
+
+        List<string> notes = [];
+
+        foreach (SecurityEvidencePathHopRecord hop in hops)
+        {
+            if (hop.CloudResourceId is not Guid cloudResourceId)
+            {
+                continue;
+            }
+
+            if (hopPosture.AttackPathCitationByCloudResourceId.TryGetValue(cloudResourceId, out string? citation)
+                && !notes.Contains("Attack path " + citation, StringComparer.Ordinal))
+            {
+                notes.Add("Attack path " + citation);
+            }
+
+            if (hopPosture.CriticalOrHighVulnerabilityCountByCloudResourceId.TryGetValue(cloudResourceId, out int findingCount)
+                && findingCount > 0)
+            {
+                string findingNote = FormattableString.Invariant($"{findingCount} critical or high vulnerability findings");
+
+                if (!notes.Contains(findingNote, StringComparer.Ordinal))
+                {
+                    notes.Add(findingNote);
+                }
+            }
+
+            if (hopPosture.GovernanceDueByCloudResourceId.TryGetValue(cloudResourceId, out string? due)
+                && !notes.Contains("Governance due " + due, StringComparer.Ordinal))
+            {
+                notes.Add("Governance due " + due);
+            }
+        }
+
+        return notes.Count == 0
+            ? explanationSummary
+            : explanationSummary + " " + string.Join(" ", notes);
+    }
 
     private static (decimal? Score, string Source) ScoreBusinessConsequence(
         SecurityEvidencePathRecord path,
@@ -525,6 +578,13 @@ public static class SecurityEvidencePathRankCalculator
     {
         decimal subscriptionAdjustment =
             DefenderSecureScoreRankAdjustment.BlastRadiusPostureAdjustment(subscriptionDefenderBand);
+
+        if (hopPosture is not null
+            && HopMatches(hops, hopPosture.HighAlertCloudResourceIds)
+            && 0.75m >= subscriptionAdjustment)
+        {
+            return "defender-alert-high";
+        }
 
         if (hopPosture is not null
             && HopMatches(hops, hopPosture.HighAssessmentCloudResourceIds)

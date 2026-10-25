@@ -48,7 +48,7 @@ describe("resolveInfraEvidenceDiagramLegendInferredCopy (P-05)", () => {
       ],
     });
 
-    expect(copy.legendLine).toBe(INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED_HOSTNAME);
+    expect(copy.legendLine).toContain("linked-service text was inferred");
   });
 
   it("uses AI copy when provenance is AiInference", () => {

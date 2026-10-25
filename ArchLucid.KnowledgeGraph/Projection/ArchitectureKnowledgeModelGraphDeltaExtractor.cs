@@ -16,19 +16,26 @@ public static class ArchitectureKnowledgeModelGraphDeltaExtractor
         ArgumentNullException.ThrowIfNull(before);
         ArgumentNullException.ThrowIfNull(after);
 
-        HashSet<string> beforeNodeIds = before.Nodes
-            .Select(static node => node.NodeId)
-            .ToHashSet(StringComparer.Ordinal);
+        IReadOnlyList<GraphNode> beforeNodes = before.Nodes ?? [];
+        IReadOnlyList<GraphNode> afterNodes = after.Nodes ?? [];
 
-        HashSet<string> afterNodeIds = after.Nodes
-            .Select(static node => node.NodeId)
-            .ToHashSet(StringComparer.Ordinal);
+        HashSet<string> beforeNodeIds = beforeNodes
+            .Select(static node => NormalizeNodeId(node.NodeId))
+            .Where(static nodeId => nodeId.Length > 0)
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+        HashSet<string> afterNodeIds = afterNodes
+            .Select(static node => NormalizeNodeId(node.NodeId))
+            .Where(static nodeId => nodeId.Length > 0)
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
         List<ArchitectureModelDiffEntry> entries = [];
 
-        foreach (GraphNode node in after.Nodes)
+        foreach (GraphNode node in afterNodes)
         {
-            if (beforeNodeIds.Contains(node.NodeId))
+            string normalizedNodeId = NormalizeNodeId(node.NodeId);
+
+            if (normalizedNodeId.Length == 0 || beforeNodeIds.Contains(normalizedNodeId))
                 continue;
 
             entries.Add(new ArchitectureModelDiffEntry
@@ -40,9 +47,11 @@ public static class ArchitectureKnowledgeModelGraphDeltaExtractor
             });
         }
 
-        foreach (GraphNode node in before.Nodes)
+        foreach (GraphNode node in beforeNodes)
         {
-            if (afterNodeIds.Contains(node.NodeId))
+            string normalizedNodeId = NormalizeNodeId(node.NodeId);
+
+            if (normalizedNodeId.Length == 0 || afterNodeIds.Contains(normalizedNodeId))
                 continue;
 
             entries.Add(new ArchitectureModelDiffEntry
@@ -57,28 +66,31 @@ public static class ArchitectureKnowledgeModelGraphDeltaExtractor
         return entries;
     }
 
+    private static string NormalizeNodeId(string nodeId) => nodeId.Trim();
+
     private static string FromGraphNodeId(string nodeId)
     {
+        string normalized = NormalizeNodeId(nodeId);
         const string prefix = "akm:";
 
-        if (nodeId.StartsWith(prefix, StringComparison.Ordinal))
-            return nodeId[prefix.Length..];
+        if (normalized.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
+            return normalized[prefix.Length..];
 
-        return nodeId;
+        return normalized;
     }
 
     private static ArchitectureElementKind InferElementKind(GraphNode node)
     {
-        if (node.NodeType == GraphNodeTypes.TrustBoundary)
+        if (string.Equals(node.NodeType, GraphNodeTypes.TrustBoundary, StringComparison.OrdinalIgnoreCase))
             return ArchitectureElementKind.TrustBoundary;
 
-        if (node.NodeType == GraphNodeTypes.PolicyControl)
+        if (string.Equals(node.NodeType, GraphNodeTypes.PolicyControl, StringComparison.OrdinalIgnoreCase))
             return ArchitectureElementKind.ComplianceObligation;
 
-        if (node.NodeType == GraphNodeTypes.FailureMode)
+        if (string.Equals(node.NodeType, GraphNodeTypes.FailureMode, StringComparison.OrdinalIgnoreCase))
             return ArchitectureElementKind.FailureMode;
 
-        if (node.NodeType == GraphNodeTypes.CostConstraint)
+        if (string.Equals(node.NodeType, GraphNodeTypes.CostConstraint, StringComparison.OrdinalIgnoreCase))
             return ArchitectureElementKind.CostDriver;
 
         return ArchitectureElementKind.Component;

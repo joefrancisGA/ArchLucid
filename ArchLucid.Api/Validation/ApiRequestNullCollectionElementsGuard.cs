@@ -81,9 +81,12 @@ public static class ApiRequestNullCollectionElementsGuard
         return VisitObject(value, visited);
     }
 
-    private static bool VisitCollection(IEnumerable enumerable, PropertyInfo owningProperty, HashSet<object> visited)
+    private static bool VisitCollection(IEnumerable enumerable, PropertyInfo owningProperty, HashSet<object> visited) =>
+        VisitCollection(enumerable, NullabilityContext.Create(owningProperty), visited);
+
+    private static bool VisitCollection(IEnumerable enumerable, NullabilityInfo collectionNullability, HashSet<object> visited)
     {
-        bool allowNullElements = AllowsNullElements(NullabilityContext.Create(owningProperty));
+        bool allowNullElements = AllowsNullElements(collectionNullability);
 
         foreach (object? element in enumerable)
         {
@@ -97,10 +100,25 @@ public static class ApiRequestNullCollectionElementsGuard
                 return true;
             }
 
-            if (TryVisitDictionaryEntryValue(element, owningProperty, visited, out bool entryInvalid))
+            if (TryVisitDictionaryEntryValue(element, collectionNullability, visited, out bool entryInvalid))
             {
                 if (entryInvalid)
                     return true;
+
+                continue;
+            }
+
+            Type elementRuntimeType = element.GetType();
+
+            if (IsEnumerableCollection(elementRuntimeType))
+            {
+                NullabilityInfo? nestedCollectionNullability = collectionNullability.ElementType;
+
+                if (nestedCollectionNullability is not null
+                    && VisitCollection((IEnumerable)element, nestedCollectionNullability, visited))
+                {
+                    return true;
+                }
 
                 continue;
             }
@@ -114,7 +132,7 @@ public static class ApiRequestNullCollectionElementsGuard
 
     private static bool TryVisitDictionaryEntryValue(
         object element,
-        PropertyInfo owningProperty,
+        NullabilityInfo collectionNullability,
         HashSet<object> visited,
         out bool entryInvalid)
     {
@@ -135,7 +153,7 @@ public static class ApiRequestNullCollectionElementsGuard
 
         if (entryValue is null)
         {
-            entryInvalid = !DictionaryValueAllowsNull(owningProperty);
+            entryInvalid = !DictionaryValueAllowsNull(collectionNullability);
 
             return true;
         }
@@ -145,9 +163,9 @@ public static class ApiRequestNullCollectionElementsGuard
         return true;
     }
 
-    private static bool DictionaryValueAllowsNull(PropertyInfo dictionaryProperty)
+    private static bool DictionaryValueAllowsNull(NullabilityInfo dictionaryNullability)
     {
-        NullabilityInfo nullability = NullabilityContext.Create(dictionaryProperty);
+        NullabilityInfo nullability = dictionaryNullability;
 
         if (nullability.GenericTypeArguments.Length >= 2)
             return AllowsNullProperty(nullability.GenericTypeArguments[1]);

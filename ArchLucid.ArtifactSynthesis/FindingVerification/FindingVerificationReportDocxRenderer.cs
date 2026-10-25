@@ -43,7 +43,7 @@ public static class FindingVerificationReportDocxRenderer
                     ("Created (UTC)", model.CreatedUtc.ToString("O", CultureInfo.InvariantCulture)),
                     (
                         "Verification findings snapshot",
-                        model.VerificationFindingsSnapshotId?.ToString("D") ?? "(none)"),
+                        model.VerificationFindingsSnapshotId?.ToString("D") ?? "Findings snapshot id was not stored."),
                 ]);
 
             WordDocumentBuilder.AddSpacer(body);
@@ -70,8 +70,12 @@ public static class FindingVerificationReportDocxRenderer
         return stream.ToArray();
     }
 
-    private static string SanitizeFindingCell(string? text) =>
-        LlmArtifactFreeTextSanitizer.Sanitize(text ?? string.Empty);
+    private static string SanitizeFindingCell(string? text)
+    {
+        string sanitized = LlmArtifactFreeTextSanitizer.Sanitize(text ?? string.Empty);
+
+        return string.IsNullOrWhiteSpace(sanitized) ? "Value was not stored." : sanitized;
+    }
 
     private static void AppendSummary(Body body, Core.Findings.FindingVerificationReportConfirmedRateSummary summary)
     {

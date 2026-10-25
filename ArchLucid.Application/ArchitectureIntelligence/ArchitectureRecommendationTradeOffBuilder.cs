@@ -85,8 +85,23 @@ internal static class ArchitectureRecommendationTradeOffBuilder
             ?? throw new InvalidOperationException(
                 $"No recommendation exists for trade-off dimensions {firstDimension} and {secondDimension}.");
 
-        bool prefersFirst = PriorityListPrefersDimension(declaredPriorities, firstDimension);
-        bool prefersSecond = PriorityListPrefersDimension(declaredPriorities, secondDimension);
+        bool prefersFirst;
+        bool prefersSecond;
+        if (TryResolveDeclaredPairPrecedence(
+                declaredPriorities,
+                firstDimension,
+                secondDimension,
+                out bool explicitPrefersFirstDimension))
+        {
+            prefersFirst = explicitPrefersFirstDimension;
+            prefersSecond = !explicitPrefersFirstDimension;
+        }
+        else
+        {
+            prefersFirst = PriorityListPrefersDimension(declaredPriorities, firstDimension);
+            prefersSecond = PriorityListPrefersDimension(declaredPriorities, secondDimension);
+        }
+
         string preferredResolution = BuildPreferredResolution(
             prefersFirst,
             prefersSecond,
@@ -171,7 +186,141 @@ internal static class ArchitectureRecommendationTradeOffBuilder
         if (TryResolveExplicitDimensionPrecedence(priority, dimensionToken, out bool explicitPrefers))
             return explicitPrefers;
 
-        return CreateDimensionWordPattern(dimensionToken).IsMatch(priority);
+        if (!CreateDimensionWordPattern(dimensionToken).IsMatch(priority))
+            return false;
+
+        if (dimensionToken.Equals("Cost", StringComparison.OrdinalIgnoreCase)
+            && (IsCostTokenInHyphenatedCompoundAdjective(priority)
+                || IsCostTokenInSpacedModifierPhrase(priority)
+                || IsCostTokenInEconomyModifierPhrase(priority)
+                || IsCostTokenInPrepositionalCostPhrase(priority)
+                || IsCostTokenInCostCenterPhrase(priority)
+                || IsCostTokenInQualifiedCostNounPhrase(priority)
+                || IsCostTokenInPerQualifierCostPhrase(priority)
+                || IsCostTokenInMultiWordQualifiedCostPhrase(priority)
+                || IsCostTokenInCostOfDimensionGoalPhrase(priority)
+                || IsCostTokenInPriceOfDimensionGoalPhrase(priority)))
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    private static bool IsCostTokenInSpacedModifierPhrase(string priority) =>
+        Regex.IsMatch(
+            priority,
+            @"\bCost\s+(optimized|optimization|optimizing|effective|efficiency|efficient|conscious|control|controls|containment|savings?|reduction|reducing|management|governance)\b",
+            RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    private static bool IsCostTokenInEconomyModifierPhrase(string priority) =>
+        Regex.IsMatch(
+            priority,
+            @"\b(?:low|minimal|reduced|cheaper)\s+cost\b",
+            RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    private static bool IsCostTokenInPrepositionalCostPhrase(string priority) =>
+        Regex.IsMatch(
+            priority,
+            @"\b(?:at|for|on)\s+cost\b",
+            RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    private static bool IsCostTokenInCostCenterPhrase(string priority) =>
+        Regex.IsMatch(
+            priority,
+            @"\bcost\s+center\b",
+            RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    private static bool IsCostTokenInQualifiedCostNounPhrase(string priority) =>
+        Regex.IsMatch(
+            priority,
+            @"\b(?:unit|total|marginal|average|variable|incremental|fixed|direct|opportunity|capital|sunk|lifecycle|operating|carrying)\s+cost\b",
+            RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    private static bool IsCostTokenInPerQualifierCostPhrase(string priority) =>
+        Regex.IsMatch(
+            priority,
+            @"\bper\s+\w+\s+cost\b",
+            RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    private static bool IsCostTokenInMultiWordQualifiedCostPhrase(string priority) =>
+        Regex.IsMatch(
+            priority,
+            @"\b(?:fully\s+loaded|total\s+landed)\s+cost\b",
+            RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    private static bool IsCostTokenInCostOfDimensionGoalPhrase(string priority) =>
+        Regex.IsMatch(
+            priority,
+            @"\bcost\s+of\s+(?:security|reliability|operations|compliance|ownership|delivery|quality)\b",
+            RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    private static bool IsCostTokenInPriceOfDimensionGoalPhrase(string priority) =>
+        Regex.IsMatch(
+            priority,
+            @"\bprice\s+of\s+(?:security|reliability|operations|compliance)\b",
+            RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    private static bool TryResolveDeclaredPairPrecedence(
+        IReadOnlyList<string> declaredPriorities,
+        QualityDimension firstDimension,
+        QualityDimension secondDimension,
+        out bool prefersFirstDimension)
+    {
+        prefersFirstDimension = false;
+        bool found = false;
+        string firstToken = firstDimension.ToString();
+        string secondToken = secondDimension.ToString();
+
+        foreach (string priority in declaredPriorities)
+        {
+            if (string.IsNullOrWhiteSpace(priority))
+                continue;
+
+            Match? match = ExplicitDimensionOverDimensionPattern().Match(priority);
+
+            if (!match.Success)
+                match = ExplicitDimensionBeforeDimensionPattern().Match(priority);
+
+            if (!match.Success)
+                continue;
+
+            string left = match.Groups[1].Value;
+            string right = match.Groups[2].Value;
+
+            if (left.Equals(firstToken, StringComparison.OrdinalIgnoreCase)
+                && right.Equals(secondToken, StringComparison.OrdinalIgnoreCase))
+            {
+                prefersFirstDimension = true;
+                found = true;
+            }
+            else if (left.Equals(secondToken, StringComparison.OrdinalIgnoreCase)
+                && right.Equals(firstToken, StringComparison.OrdinalIgnoreCase))
+            {
+                prefersFirstDimension = false;
+                found = true;
+            }
+        }
+
+        return found;
+    }
+
+    private static bool IsCostTokenInHyphenatedCompoundAdjective(string priority)
+    {
+        Match match = Regex.Match(
+            priority,
+            @"\bCost[-\u2010\u2011\u2012\u2013\u2014\u2015\u2212\uFE58\uFE63\uFF0D]([\p{L}\p{N}]+)",
+            RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+        if (!match.Success)
+            return false;
+
+        string hyphenSuffix = match.Groups[1].Value;
+
+        if (hyphenSuffix.Equals("first", StringComparison.OrdinalIgnoreCase))
+            return false;
+
+        return true;
     }
 
     private static bool TryResolveExplicitDimensionPrecedence(

@@ -187,13 +187,23 @@ export function PilotRoiValidationHandoffCard(props: PilotRoiValidationHandoffCa
             label={readiness.title}
           />
         ) : null}
-        {roiSourceFreshness.length > 0 ? (
-          <StatusTag
-            kind={roiSourceFreshness.toUpperCase() === "PASS" ? "ready" : roiSourceFreshness.toUpperCase() === "WARN" ? "needs-attention" : "blocked"}
-            label={`ROI source freshness: ${roiSourceFreshness.toUpperCase()}`}
-            data-testid="pilot-roi-validation-freshness-tag"
-          />
-        ) : null}
+        <StatusTag
+          kind={
+            roiSourceFreshness.length === 0
+              ? "neutral"
+              : roiSourceFreshness.toUpperCase() === "PASS"
+                ? "ready"
+                : roiSourceFreshness.toUpperCase() === "WARN"
+                  ? "needs-attention"
+                  : "blocked"
+          }
+          label={
+            roiSourceFreshness.length > 0
+              ? `ROI source freshness: ${roiSourceFreshness.toUpperCase()}`
+              : "ROI source freshness disposition was not stored."
+          }
+          data-testid="pilot-roi-validation-freshness-tag"
+        />
       </div>
 
       <p className={cn("m-0 mt-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>{roi.meaning}</p>

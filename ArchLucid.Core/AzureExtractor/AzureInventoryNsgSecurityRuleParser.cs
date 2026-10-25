@@ -58,6 +58,7 @@ public static class AzureInventoryNsgSecurityRuleParser
                 Protocol = ReadRuleProperty(properties, index, InventoryDiagramNodeRelationshipPropertyKeys.NsgRuleProtocolSuffix),
                 SourcePortRange = ReadRuleProperty(properties, index, InventoryDiagramNodeRelationshipPropertyKeys.NsgRuleSourcePortRangeSuffix),
                 DestinationPortRange = ReadRuleProperty(properties, index, InventoryDiagramNodeRelationshipPropertyKeys.NsgRuleDestinationPortRangeSuffix),
+                DestinationPortRanges = ReadRulePortRangesProperty(properties, index),
                 Direction = ReadRuleProperty(properties, index, InventoryDiagramNodeRelationshipPropertyKeys.NsgRuleDirectionSuffix),
                 Access = ReadRuleProperty(properties, index, InventoryDiagramNodeRelationshipPropertyKeys.NsgRuleAccessSuffix),
                 Priority = ReadRuleProperty(properties, index, InventoryDiagramNodeRelationshipPropertyKeys.NsgRulePrioritySuffix),
@@ -99,6 +100,7 @@ public static class AzureInventoryNsgSecurityRuleParser
                     Protocol = TryReadString(propertiesElement, "protocol"),
                     SourcePortRange = TryReadString(propertiesElement, "sourcePortRange"),
                     DestinationPortRange = TryReadString(propertiesElement, "destinationPortRange"),
+                    DestinationPortRanges = TryReadStringArray(propertiesElement, "destinationPortRanges"),
                     Direction = TryReadString(propertiesElement, "direction"),
                     Access = TryReadString(propertiesElement, "access"),
                     Priority = TryReadString(propertiesElement, "priority"),
@@ -115,6 +117,52 @@ public static class AzureInventoryNsgSecurityRuleParser
         }
 
         return rules;
+    }
+
+    private static IReadOnlyList<string> ReadRulePortRangesProperty(
+        IReadOnlyDictionary<string, string> properties,
+        string index)
+    {
+        string keyPrefix = $"{InventoryDiagramNodeRelationshipPropertyKeys.NsgRulePrefix}{index}";
+        string exactKey = $"{keyPrefix}.destinationPortRanges";
+
+        if (!properties.TryGetValue(exactKey, out string? rangesJson) || string.IsNullOrWhiteSpace(rangesJson))
+        {
+            return [];
+        }
+
+        try
+        {
+            using JsonDocument document = JsonDocument.Parse(rangesJson);
+
+            if (document.RootElement.ValueKind is not JsonValueKind.Array)
+            {
+                return [];
+            }
+
+            List<string> values = [];
+
+            foreach (JsonElement entry in document.RootElement.EnumerateArray())
+            {
+                if (entry.ValueKind is not JsonValueKind.String)
+                {
+                    continue;
+                }
+
+                string? parsed = entry.GetString();
+
+                if (!string.IsNullOrWhiteSpace(parsed))
+                {
+                    values.Add(parsed.Trim());
+                }
+            }
+
+            return values;
+        }
+        catch (JsonException)
+        {
+            return [];
+        }
     }
 
     private static string? ReadRuleProperty(

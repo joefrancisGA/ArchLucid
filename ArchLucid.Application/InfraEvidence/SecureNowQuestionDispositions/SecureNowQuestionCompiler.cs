@@ -118,7 +118,7 @@ public sealed class SecureNowQuestionCompiler
                     QuestionKey = questionKey,
                     Source = SecureNowQuestionSource.InferredConnection,
                     ScopeKind = SecureNowQuestionScopeKind.Resource,
-                    QuestionText = inferred.QuestionText ?? "Should SecureNow record this inferred connection?",
+                    QuestionText = inferred.QuestionText ?? "Question text was not stored.",
                     SourceLine = "Inferred connection",
                     AnswerCodes = ["Yes", "No", "NotSure"],
                     EvidenceFingerprint = fingerprint,

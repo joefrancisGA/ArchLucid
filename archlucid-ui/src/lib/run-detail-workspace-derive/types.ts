@@ -54,6 +54,7 @@ export type FindingSeverityCounts = {
   readonly high: number;
   readonly medium: number;
   readonly low: number;
+  readonly info: number;
 }
 export type RunDetailWorkspaceRecommendedAction = {
   readonly id: string;

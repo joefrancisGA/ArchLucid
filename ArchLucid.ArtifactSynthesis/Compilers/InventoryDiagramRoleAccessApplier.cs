@@ -88,11 +88,11 @@ internal static class InventoryDiagramRoleAccessApplier
 
             if (distinctRoleNames.Count > 1)
             {
-                return "Role names were not listed on this line.";
+                return "More than one role name was stored. This line does not list them.";
             }
         }
 
-        return roleNames[0];
+        return InventoryDiagramRelationshipLabelTexts.FormatRoleAssignmentAccessLabel(roleNames[0]);
     }
 
     private static bool IsRoleAssignmentEdge(GraphEdge edge)
@@ -154,9 +154,7 @@ internal static class InventoryDiagramRoleAccessApplier
         }
 
         string normalizedScope = ArmResourceIdNormalizer.Normalize(scope);
-        string sentence = normalizedScope.Contains("/resourceGroups/", StringComparison.OrdinalIgnoreCase)
-            ? $"Has {roleName} on resource group {ReadResourceName(normalizedScope)}"
-            : $"Has {roleName} on this subscription";
+        string sentence = FormatBroadScopeOutline(roleName, normalizedScope);
 
         if (!sourceNode.UnresolvedRelationshipDetails.Contains(sentence, StringComparer.Ordinal))
         {
@@ -198,6 +196,40 @@ internal static class InventoryDiagramRoleAccessApplier
             : null;
     }
 
+    private static string FormatBroadScopeOutline(string roleName, string normalizedScope)
+    {
+        bool roleNameMissing = string.Equals(
+            roleName,
+            "Role name was not stored.",
+            StringComparison.Ordinal);
+
+        if (normalizedScope.Contains("/resourceGroups/", StringComparison.OrdinalIgnoreCase))
+        {
+            string resourceGroupName = ReadResourceName(normalizedScope);
+
+            if (roleNameMissing)
+            {
+                return $"Role name was not stored. Scope is resource group {resourceGroupName}.";
+            }
+
+            return $"{roleName} on resource group {resourceGroupName}";
+        }
+
+        string subscriptionId = ReadSubscriptionId(normalizedScope);
+
+        if (string.Equals(subscriptionId, "Subscription id was not stored.", StringComparison.Ordinal))
+        {
+            return subscriptionId;
+        }
+
+        if (roleNameMissing)
+        {
+            return $"Role name was not stored. Scope is subscription {subscriptionId}.";
+        }
+
+        return $"{roleName} on subscription {subscriptionId}";
+    }
+
     private static string ReadResourceName(string scope)
     {
         int lastSlash = scope.LastIndexOf('/');
@@ -205,5 +237,28 @@ internal static class InventoryDiagramRoleAccessApplier
         return lastSlash >= 0 && lastSlash < scope.Length - 1
             ? scope[(lastSlash + 1)..]
             : scope;
+    }
+
+    private static string ReadSubscriptionId(string scope)
+    {
+        const string prefix = "/subscriptions/";
+
+        if (!scope.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
+        {
+            return "Subscription id was not stored.";
+        }
+
+        int end = scope.IndexOf('/', prefix.Length);
+
+        if (end < 0)
+        {
+            string trailing = scope[prefix.Length..].Trim();
+
+            return trailing.Length > 0 ? trailing : "Subscription id was not stored.";
+        }
+
+        string subscriptionId = scope[prefix.Length..end].Trim();
+
+        return subscriptionId.Length > 0 ? subscriptionId : "Subscription id was not stored.";
     }
 }

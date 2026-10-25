@@ -62,7 +62,7 @@ public static class DiagramNodeHumanCaptionFactory
                 return "App Service";
             }
 
-            return "Site kind was not stored.";
+            return $"Site kind {siteKind} has no reviewer label.";
         }
 
         return DiagramArmTypeFriendlyName.TryFormat(node.ArmResourceType);
@@ -92,9 +92,18 @@ public static class DiagramNodeHumanCaptionFactory
             combined = $"{combined} · {string.Join(" · ", node.ParentAttachmentDetails)}";
         }
 
+        if (node.HasPrivateEndpointAccess)
+        {
+            string privateEndpointCaption = string.IsNullOrWhiteSpace(node.PrivateEndpointAccessName)
+                ? "Private endpoint name was not stored."
+                : node.PrivateEndpointAccessName.Trim();
+            combined = $"{combined} · {privateEndpointCaption}";
+        }
+
         if (node.HasPublicInternetExposure)
         {
-            combined = $"{combined} · {InventoryDiagramRelationshipLabelTexts.PublicExposureCaption}";
+            combined =
+                $"{combined} · {InventoryDiagramRelationshipLabelTexts.FormatHiddenPublicIpCaption(node.HiddenPublicIpAddress)}";
         }
 
         if (node.ConnectionState == InventoryDiagramConnectionState.Orphaned
@@ -105,12 +114,12 @@ public static class DiagramNodeHumanCaptionFactory
         else if (node.ConnectionState == InventoryDiagramConnectionState.Used)
         {
             combined = string.IsNullOrWhiteSpace(node.ConnectionStateMessage)
-                ? $"{combined} · In use off the diagram. Off-diagram use was not stored."
-                : $"{combined} · In use off the diagram: {node.ConnectionStateMessage.Trim()}";
+                ? $"{combined} · Referenced off this diagram. Use was not observed. Off-diagram use was not stored."
+                : $"{combined} · Referenced off this diagram. Use was not observed: {node.ConnectionStateMessage.Trim()}";
         }
         else if (node.ConnectionState == InventoryDiagramConnectionState.Unconnected)
         {
-            combined = $"{combined} · Stands alone";
+            combined = $"{combined} · No diagram link was stored.";
         }
         else if (node.ConnectionState == InventoryDiagramConnectionState.Unknown
             && node.UnresolvedRelationshipDetails.Count == 0)

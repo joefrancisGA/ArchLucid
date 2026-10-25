@@ -1,8 +1,10 @@
 using System.Text.Json;
 
+using ArchLucid.Application;
 using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Exports;
 using ArchLucid.Contracts.Architecture;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Scoping;
@@ -330,6 +332,83 @@ public sealed class ComparisonReplayServiceTests
     }
 
     [Fact]
+    public async Task ReplayAsync_end_to_end_artifact_throws_when_career_posture_blocks_metadata_read()
+    {
+        EndToEndReplayComparisonReport report = SampleEndToEndReport();
+        ComparisonRecord record = EndToEndRecord("e2e-career-artifact", report);
+        Mock<IComparisonRecordRepository> repo = SetupRepo(record);
+        Guid leftRunGuid = Guid.Parse(report.LeftRunId);
+        Mock<IRunExportCareerPostureGate> careerGate = new();
+        careerGate
+            .Setup(g => g.EnsureAllowsExportRecordMetadataOrThrowAsync(
+                leftRunGuid,
+                It.IsAny<ScopeContext>(),
+                It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new CareerArtifactExportBlockedException(
+                SimulatorCareerHonestyPresenter.SimulatorRehearsalBlockedMessage,
+                CareerArtifactCompletenessValidator.SimulatorRehearsalCode));
+        Mock<IEndToEndReplayComparisonExportService> export = new();
+        ManifestHashService manifestHashService = new();
+        Mock<IAuthorityQueryService> authority = new();
+        SetupSealedManifestForRuns(authority, manifestHashService, report.LeftRunId, report.RightRunId);
+        ComparisonReplayService sut = CreateSut(
+            comparisonRepo: repo.Object,
+            e2eExport: export.Object,
+            authorityQuery: authority.Object,
+            manifestHash: manifestHashService,
+            careerGate: careerGate.Object);
+
+        Func<Task> act = () => sut.ReplayAsync(
+            new ReplayComparisonRequest { ComparisonRecordId = "e2e-career-artifact", ReplayMode = "artifact" },
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<CareerArtifactExportBlockedException>();
+        export.Verify(e => e.GenerateMarkdown(It.IsAny<EndToEndReplayComparisonReport>(), It.IsAny<string?>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task CompareQuality_ReplayAsync_end_to_end_artifact_throws_conflict_when_lifecycle_incomplete_before_career_gate()
+    {
+        EndToEndReplayComparisonReport report = SampleEndToEndReport();
+        ComparisonRecord record = EndToEndRecord("e2e-lifecycle-artifact", report);
+        Mock<IComparisonRecordRepository> repo = SetupRepo(record);
+        Guid leftRunGuid = Guid.Parse(report.LeftRunId);
+        Mock<IRunExportCareerPostureGate> careerGate = new();
+        careerGate
+            .Setup(g => g.EnsureAllowsExportRecordMetadataOrThrowAsync(
+                leftRunGuid,
+                It.IsAny<ScopeContext>(),
+                It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new CareerArtifactExportBlockedException(
+                SimulatorCareerHonestyPresenter.SimulatorRehearsalBlockedMessage,
+                CareerArtifactCompletenessValidator.SimulatorRehearsalCode));
+        Mock<IEndToEndReplayComparisonExportService> export = new();
+        ManifestHashService manifestHashService = new();
+        Mock<IAuthorityQueryService> authority = new();
+        SetupSealedManifestForRuns(authority, manifestHashService, report.LeftRunId, report.RightRunId);
+        SetupAuthorityLifecycleInProgress(authority, report.LeftRunId);
+        ComparisonReplayService sut = CreateSut(
+            comparisonRepo: repo.Object,
+            e2eExport: export.Object,
+            authorityQuery: authority.Object,
+            manifestHash: manifestHashService,
+            careerGate: careerGate.Object);
+
+        Func<Task> act = () => sut.ReplayAsync(
+            new ReplayComparisonRequest { ComparisonRecordId = "e2e-lifecycle-artifact", ReplayMode = "artifact" },
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<ConflictException>();
+        careerGate.Verify(
+            g => g.EnsureAllowsExportRecordMetadataOrThrowAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<ScopeContext>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+        export.Verify(e => e.GenerateMarkdown(It.IsAny<EndToEndReplayComparisonReport>(), It.IsAny<string?>()), Times.Never);
+    }
+
+    [Fact]
     public async Task ReplayAsync_export_diff_regenerate()
     {
         ExportRecordDiffResult stored = SampleExportDiff();
@@ -393,6 +472,45 @@ public sealed class ComparisonReplayServiceTests
             CancellationToken.None);
 
         result.VerificationPassed.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task ReplayAsync_export_diff_regenerate_trims_padded_export_record_ids_before_lookup()
+    {
+        ExportRecordDiffResult diff = SampleExportDiff();
+        ComparisonRecord record = ExportDiffRecord("diff-padded", diff);
+        record.LeftExportRecordId = $"  {diff.LeftExportRecordId}  ";
+        record.RightExportRecordId = $"  {diff.RightExportRecordId}  ";
+        RunExportRecord left = new() { ExportRecordId = diff.LeftExportRecordId, RunId = diff.LeftRunId };
+        RunExportRecord right = new() { ExportRecordId = diff.RightExportRecordId, RunId = diff.RightRunId };
+        Mock<IComparisonRecordRepository> repo = SetupRepo(record);
+        Mock<IRunExportRecordRepository> exports = new();
+        exports.Setup(r => r.GetByIdAsync(diff.LeftExportRecordId, It.IsAny<CancellationToken>())).ReturnsAsync(left);
+        exports.Setup(r => r.GetByIdAsync(diff.RightExportRecordId, It.IsAny<CancellationToken>())).ReturnsAsync(right);
+        exports.Setup(r => r.GetByIdAsync(It.Is<string>(id => id != diff.LeftExportRecordId && id != diff.RightExportRecordId), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((RunExportRecord?)null);
+        Mock<IExportRecordDiffService> diffService = new();
+        diffService.Setup(s => s.CompareAsync(left, right, It.IsAny<CancellationToken>())).ReturnsAsync(diff);
+        Mock<IExportRecordDiffSummaryFormatter> formatter = new();
+        formatter.Setup(f => f.FormatMarkdown(It.IsAny<ExportRecordDiffResult>())).Returns("# padded");
+        ManifestHashService manifestHashService = new();
+        Mock<IAuthorityQueryService> authority = new();
+        SetupSealedManifestForRuns(authority, manifestHashService, diff.LeftRunId, diff.RightRunId);
+        ComparisonReplayService sut = CreateSut(
+            comparisonRepo: repo.Object,
+            runExports: exports.Object,
+            diffService: diffService.Object,
+            diffFormatter: formatter.Object,
+            authorityQuery: authority.Object,
+            manifestHash: manifestHashService);
+
+        ReplayComparisonResult result = await sut.ReplayAsync(
+            new ReplayComparisonRequest { ComparisonRecordId = "diff-padded", ReplayMode = "regenerate" },
+            CancellationToken.None);
+
+        result.Content.Should().Be("# padded");
+        exports.Verify(r => r.GetByIdAsync(diff.LeftExportRecordId, It.IsAny<CancellationToken>()), Times.AtLeastOnce);
+        exports.Verify(r => r.GetByIdAsync(diff.RightExportRecordId, It.IsAny<CancellationToken>()), Times.AtLeastOnce);
     }
 
     [Fact]
@@ -691,6 +809,22 @@ public sealed class ComparisonReplayServiceTests
         drift.Setup(d => d.Analyze(It.IsAny<object>(), It.IsAny<object>())).Returns(NoDrift());
 
         return drift.Object;
+    }
+
+    private static void SetupAuthorityLifecycleInProgress(Mock<IAuthorityQueryService> authority, string runId)
+    {
+        Guid guid = Guid.Parse(runId);
+        authority
+            .Setup(a => a.GetRunDetailAsync(It.IsAny<ScopeContext>(), guid, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunDetailDto
+            {
+                Run = new RunRecord
+                {
+                    RunId = guid,
+                    LegacyRunStatus = nameof(ArchitectureRunStatus.ReadyForCommit),
+                    GoldenManifestId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+                },
+            });
     }
 
     private static void SetupSealedManifestForRuns(

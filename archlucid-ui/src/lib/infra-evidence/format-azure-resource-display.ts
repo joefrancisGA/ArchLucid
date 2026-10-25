@@ -13,6 +13,8 @@ export type CloudResourceDisplayNameInput = {
 
 const EMPTY_RESOURCE_NAME_PLACEHOLDER = "—";
 
+export const AZURE_RESOURCE_NAME_NOT_STORED_LABEL = "Resource name was not stored." as const;
+
 export const SECURE_NOW_RESOURCE_NAME_NOT_STORED_LABEL = "Node name was not stored" as const;
 
 export function isSecureNowResourceDisplayNameMissing(resourceName: string | null | undefined): boolean {
@@ -32,7 +34,7 @@ export function normalizeSecureNowResourceNameForDisplay(resourceName: string): 
   const trimmed = resourceName.trim();
 
   if (trimmed.length === 0 || trimmed === EMPTY_RESOURCE_NAME_PLACEHOLDER) {
-    return trimmed.length > 0 ? trimmed : EMPTY_RESOURCE_NAME_PLACEHOLDER;
+    return trimmed.length > 0 ? AZURE_RESOURCE_NAME_NOT_STORED_LABEL : AZURE_RESOURCE_NAME_NOT_STORED_LABEL;
   }
 
   return trimmed.toLowerCase();

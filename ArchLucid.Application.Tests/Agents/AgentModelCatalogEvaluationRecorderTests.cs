@@ -17,6 +17,42 @@ namespace ArchLucid.Application.Tests.Agents;
 public sealed class AgentModelCatalogEvaluationRecorderTests
 {
     [Fact]
+    public async Task RecordTaskEvaluationAsync_trims_surrounding_whitespace_on_alias_id()
+    {
+        InMemoryAgentModelCatalogRepository repository = new();
+        AgentModelCatalogRow seed = new()
+        {
+            AliasId = AgentModelAliasIds.StandardGeneral,
+            ProviderConnectionKind = AgentModelAliasProviderKinds.ArchLucidManagedAzureOpenAi,
+            DeploymentName = "gpt-eval",
+            TierBinding = "Standard",
+            CapabilityTags = [AgentModelAliasCapabilities.StructuredOutput],
+            ApprovedTaskTypes = [AgentModelTaskTypes.Primary],
+            Evaluations = [],
+        };
+
+        await repository.UpsertAsync(seed, CancellationToken.None);
+
+        AgentModelCatalogEvaluationRecorder recorder = new(
+            repository,
+            new NoOpAgentModelCatalogCacheInvalidator(),
+            new NoOpAuditService(),
+            new FixedScopeContextProvider(),
+            new FixedActorContext("operator@test"));
+
+        AgentModelCatalogRow saved = await recorder.RecordTaskEvaluationAsync(
+            $"  {AgentModelAliasIds.StandardGeneral}  ",
+            AgentModelTaskTypes.Primary,
+            AgentModelEvaluationStateKind.Evaluated,
+            """{"source":"operator"}""",
+            "operator@test",
+            CancellationToken.None);
+
+        Assert.Single(saved.Evaluations);
+        Assert.Equal(AgentModelEvaluationStateKind.Evaluated, saved.Evaluations[0].EvaluationState);
+    }
+
+    [Fact]
     public async Task RecordTaskEvaluationAsync_keeps_tokenizer_settings_and_usd_rates()
     {
         InMemoryAgentModelCatalogRepository repository = new();
