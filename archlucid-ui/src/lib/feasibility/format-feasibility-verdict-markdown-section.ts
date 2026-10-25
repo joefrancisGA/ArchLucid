@@ -67,9 +67,12 @@ function formatHardCitationLines(verdict: ManifestFeasibilityVerdict): string[] 
     lines.push("");
   }
 
-  const unsatCore = verdict.unsatCoreInvariantKeys ?? [];
+  const unsatCore = verdict.unsatCoreInvariantKeys;
 
-  if (unsatCore.length > 0) {
+  if (unsatCore === null || unsatCore === undefined) {
+    lines.push("**Unsat core:** Unsat core was not stored.");
+    lines.push("");
+  } else if (unsatCore.length > 0) {
     lines.push(`**Unsat core:** ${unsatCore.join(", ")}`);
     lines.push("");
   }

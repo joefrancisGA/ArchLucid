@@ -147,7 +147,11 @@ export function formatSandboxStyleGoldenManifest(m: Record<string, unknown>): st
         lines.push(`- **Decision id:** \`${hid}\``);
       }
 
-      if (category) {
+      if (h.category === null || h.category === undefined) {
+        lines.push("- Category was not stored.");
+      } else if (typeof h.category === "string" && h.category.length === 0) {
+        lines.push("- Category was stored empty.");
+      } else if (category) {
         lines.push(`- **Category:** ${category}`);
       }
 
@@ -159,7 +163,11 @@ export function formatSandboxStyleGoldenManifest(m: Record<string, unknown>): st
         lines.push(`- **Disposition:** ${disposition ?? ""}`);
       }
 
-      if (rationale) {
+      if (h.rationale === null || h.rationale === undefined) {
+        lines.push("- Rationale was not stored.");
+      } else if (typeof h.rationale === "string" && h.rationale.length === 0) {
+        lines.push("- Rationale was stored empty.");
+      } else if (rationale) {
         lines.push("");
         lines.push(rationale);
       }

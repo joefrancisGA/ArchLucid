@@ -36,6 +36,18 @@ function asTrimmedStrings(values: unknown): string[] {
     .map((s) => s.trim());
 }
 
+function asTrimmedStringsOrAbsent(values: unknown): string[] | null {
+  if (values === null || values === undefined) {
+    return null;
+  }
+
+  if (!Array.isArray(values)) {
+    return null;
+  }
+
+  return asTrimmedStrings(values);
+}
+
 /**
  * Maps aggregate explanation API shape into a JSON-safe slice for ADR drafting.
  */
@@ -66,10 +78,10 @@ export function buildAdrExplanationSlice(summary: RunExplanationSummary | null):
     riskPosture: typeof summary.riskPosture === "string" ? summary.riskPosture.trim() : "",
     themeSummaries: asTrimmedStrings(summary.themeSummaries),
     summary: typeof exp?.summary === "string" ? exp.summary.trim() : "",
-    keyDrivers: asTrimmedStrings(exp?.keyDrivers),
-    riskImplications: asTrimmedStrings(exp?.riskImplications),
-    costImplications: asTrimmedStrings(exp?.costImplications),
-    complianceImplications: asTrimmedStrings(exp?.complianceImplications),
+    keyDrivers: asTrimmedStringsOrAbsent(exp?.keyDrivers),
+    riskImplications: asTrimmedStringsOrAbsent(exp?.riskImplications),
+    costImplications: asTrimmedStringsOrAbsent(exp?.costImplications),
+    complianceImplications: asTrimmedStringsOrAbsent(exp?.complianceImplications),
     detailedNarrative: typeof exp?.detailedNarrative === "string" ? exp.detailedNarrative.trim() : "",
     structuredReasoning: typeof structured?.reasoning === "string" ? structured.reasoning.trim() : null,
     alternativesConsidered:

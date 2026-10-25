@@ -89,7 +89,7 @@ describe("finding-source-evidence-links", () => {
       evidenceItemId: "evidence-mermaid-1",
       shapeOrEdgeId: "api",
     });
-    expect(link?.label).toBe("Open diagram shape api");
+    expect(link?.label).toBe("Cited shape id api. A display name was not stored.");
   });
 
   it("buildSourceEvidenceLinksFromInspectEvidence honors artifact section anchors", () => {
