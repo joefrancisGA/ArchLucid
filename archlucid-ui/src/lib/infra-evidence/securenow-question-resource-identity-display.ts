@@ -2,11 +2,13 @@ import type { SecureNowQuestion } from "@/lib/infra-evidence/securenow-question-
 import { formatDiagramArmTypeFriendlyName } from "@/lib/infra-evidence/format-diagram-arm-type-friendly-name";
 import { normalizeSecureNowResourceNameForDisplay } from "@/lib/infra-evidence/format-azure-resource-display";
 
-import { secureNowQuestionHasPackStyleDispositionScope } from "@/lib/infra-evidence/securenow-question-mutation-resource-id";
+import {
+  secureNowQuestionIsPolicyPackDispositionRow,
+  secureNowQuestionPackScopeKindFromPrompt,
+} from "@/lib/infra-evidence/securenow-question-mutation-resource-id";
 
 function isPolicyPackQuestion(question: SecureNowQuestion): boolean {
-  return question.source?.trim() === "PolicyPack"
-    && secureNowQuestionHasPackStyleDispositionScope(question.scopeKind);
+  return secureNowQuestionIsPolicyPackDispositionRow(question);
 }
 
 export function secureNowQuestionResourceTypeLabel(question: SecureNowQuestion): string | null {
@@ -29,7 +31,13 @@ export function secureNowQuestionResourceDisplayName(question: SecureNowQuestion
       return "Resource group question";
     }
 
-    return "Subscription question";
+    if (normalizedScope === "subscription") {
+      return "Subscription question";
+    }
+
+    return secureNowQuestionPackScopeKindFromPrompt(question.questionText) === "ResourceGroup"
+      ? "Resource group question"
+      : "Subscription question";
   }
 
   if (question.resourceName === null || question.resourceName === undefined) {

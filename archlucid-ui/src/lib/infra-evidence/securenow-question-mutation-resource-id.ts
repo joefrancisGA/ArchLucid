@@ -20,7 +20,7 @@ export function secureNowQuestionHasPackStyleDispositionScope(
   return normalized === "subscription" || normalized === "resourcegroup";
 }
 
-function secureNowQuestionIsPolicyPackDispositionRow(
+export function secureNowQuestionIsPolicyPackDispositionRow(
   question: Pick<SecureNowQuestion, "source" | "scopeKind">,
 ): boolean {
   if (secureNowQuestionHasPackStyleDispositionScope(question.scopeKind)) {

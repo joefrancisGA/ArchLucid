@@ -44,6 +44,21 @@ describe("secureNowQuestionResourceIdentityDisplay", () => {
     expect(secureNowQuestionResourceDisplayName(packQuestion)).toBe("Subscription question");
   });
 
+  it("infers pack identity copy when policy pack source omits scopeKind", () => {
+    const packQuestion: SecureNowQuestion = {
+      ...baseQuestion,
+      source: "PolicyPack",
+      scopeKind: null,
+      resourceId: "",
+      resourceType: "",
+      resourceName: "",
+      questionText: "Which resource group owns this workload?",
+    };
+
+    expect(secureNowQuestionResourceTypeLabel(packQuestion)).toBeNull();
+    expect(secureNowQuestionResourceDisplayName(packQuestion)).toBe("Resource group question");
+  });
+
   it("labels resource group pack questions distinctly", () => {
     const packQuestion: SecureNowQuestion = {
       ...baseQuestion,
