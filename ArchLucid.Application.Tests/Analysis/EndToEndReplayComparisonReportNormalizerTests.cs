@@ -264,6 +264,51 @@ public sealed class EndToEndReplayComparisonReportNormalizerTests
         report.RunDiff.StatusDiffers.Should().BeFalse();
         report.RunDiff.ManifestVersionsDiffer.Should().BeFalse();
         report.RunDiff.ExecutionModesDiffer.Should().BeFalse();
+        report.RunDiff.SharedNonRealExecutionMode.Should().BeTrue();
+    }
+
+    [Fact]
+    public void CompareQuality_EndToEndReplayComparisonReportNormalizer_syncs_run_metadata_diff_flags_from_changed_field_names()
+    {
+        EndToEndReplayComparisonReport report = new()
+        {
+            LeftRunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            RightRunId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            RunDiff = new RunMetadataDiffResult
+            {
+                ChangedFields = ["Status", "CurrentManifestVersion"],
+                RequestIdsDiffer = true,
+                StatusDiffers = false,
+                ManifestVersionsDiffer = false,
+                SharedNonRealExecutionMode = true,
+            },
+        };
+
+        EndToEndReplayComparisonReportNormalizer.NormalizePersistedPayload(report);
+
+        report.RunDiff.RequestIdsDiffer.Should().BeFalse();
+        report.RunDiff.StatusDiffers.Should().BeTrue();
+        report.RunDiff.ManifestVersionsDiffer.Should().BeTrue();
+        report.RunDiff.SharedNonRealExecutionMode.Should().BeTrue();
+    }
+
+    [Fact]
+    public void CompareQuality_EndToEndReplayComparisonReportNormalizer_clears_shared_non_real_execution_mode_when_execution_mode_differs()
+    {
+        EndToEndReplayComparisonReport report = new()
+        {
+            LeftRunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            RightRunId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            RunDiff = new RunMetadataDiffResult
+            {
+                ChangedFields = ["StructuralExecutionMode"],
+                SharedNonRealExecutionMode = true,
+            },
+        };
+
+        EndToEndReplayComparisonReportNormalizer.NormalizePersistedPayload(report);
+
+        report.RunDiff.ExecutionModesDiffer.Should().BeTrue();
         report.RunDiff.SharedNonRealExecutionMode.Should().BeFalse();
     }
 
