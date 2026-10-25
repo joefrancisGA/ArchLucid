@@ -1,20 +1,5 @@
-import { resolveRunIdFromUnfinishedWorkRailItem } from "@/lib/operator/home-attention-dedup";
-import { collectResumeRunIdsForMatch } from "@/lib/operator/operator-home-hero-resume-target";
-import { resolveRunIdFromWorkingReviewHref } from "@/lib/system-not-job-portfolio-resume-href";
+import { resolveUnfinishedWorkRailRunIdForMatch } from "@/lib/operator/home-attention-dedup";
 import type { UnfinishedWorkRailItem } from "@/lib/unfinished-work-rail";
-
-function resolvePrimaryResumeRunIdForRailItem(item: UnfinishedWorkRailItem): string | undefined {
-  const railRunId = resolveRunIdFromUnfinishedWorkRailItem(item)?.trim() ?? "";
-  const hrefRunId = resolveRunIdFromWorkingReviewHref(item.href)?.trim() ?? "";
-
-  if (railRunId.length > 0 && hrefRunId.length > 0 && railRunId !== hrefRunId) {
-    return hrefRunId;
-  }
-
-  const runIds = collectResumeRunIdsForMatch(item.href, railRunId.length > 0 ? railRunId : null);
-
-  return runIds[0] ?? undefined;
-}
 
 export type OperatorUnfinishedWorkRailResumeTarget = {
   readonly href: string;
@@ -37,6 +22,6 @@ export function resolveOperatorUnfinishedWorkRailItemResumeTarget(
 
   return {
     href: item.href,
-    runId: resolvePrimaryResumeRunIdForRailItem(item),
+    runId: resolveUnfinishedWorkRailRunIdForMatch(item) ?? undefined,
   };
 }

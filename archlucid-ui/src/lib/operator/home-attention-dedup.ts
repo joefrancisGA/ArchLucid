@@ -1,5 +1,7 @@
 import type { RunSummary } from "@/types/authority";
 
+import { collectResumeRunIdsForMatch } from "@/lib/operator/operator-home-hero-resume-target";
+import { resolveRunIdFromWorkingReviewHref } from "@/lib/system-not-job-portfolio-resume-href";
 import type { UnfinishedWorkRailItem } from "@/lib/unfinished-work-rail";
 
 const AWAITING_DISPOSITION_RAIL_ID_PREFIX = "awaiting-disposition:";
@@ -41,6 +43,28 @@ export function resolveRunIdFromUnfinishedWorkRailItem(item: UnfinishedWorkRailI
   return null;
 }
 
+/** Canonical run id for TB-2369 rail rows (row id + href, with href winning on conflict). */
+export function resolveUnfinishedWorkRailRunIdForMatch(item: UnfinishedWorkRailItem): string | null {
+  if (item.kind !== "awaiting-disposition" && item.kind !== "review-in-progress") {
+    return null;
+  }
+
+  const railRunId = resolveRunIdFromUnfinishedWorkRailItem(item)?.trim() ?? "";
+  const hrefRunId = resolveRunIdFromWorkingReviewHref(item.href)?.trim() ?? "";
+
+  if (railRunId.length > 0 && hrefRunId.length > 0 && railRunId !== hrefRunId) {
+    const deskPath = (item.href.split("?")[0] ?? "").replace(/\/+$/, "");
+    const hrefHighlightsReviewOnDesk =
+      /^\/architecture\/architectures\/[^/]+/.test(deskPath) && item.href.includes("?");
+
+    return hrefHighlightsReviewOnDesk ? hrefRunId : railRunId;
+  }
+
+  const runIds = collectResumeRunIdsForMatch(item.href, railRunId.length > 0 ? railRunId : null);
+
+  return runIds[0] ?? null;
+}
+
 /** Run ids already surfaced on home unfinished-work rail rows (TB-2369). */
 export function listHomeAttentionPreviewExcludedRunIds(
   unfinishedRailItems: readonly UnfinishedWorkRailItem[],
@@ -48,7 +72,7 @@ export function listHomeAttentionPreviewExcludedRunIds(
   const runIds: string[] = [];
 
   for (const item of unfinishedRailItems) {
-    const runId = resolveRunIdFromUnfinishedWorkRailItem(item);
+    const runId = resolveUnfinishedWorkRailRunIdForMatch(item);
 
     if (runId !== null) {
       runIds.push(runId);

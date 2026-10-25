@@ -85,12 +85,25 @@ describe("home-attention-dedup (TB-2369)", () => {
     ).toBeNull();
   });
 
-  it("omits rail items whose id prefix does not yield a run id", () => {
+  it("lists run id from rail href when row id suffix is empty", () => {
     const runIds = listHomeAttentionPreviewExcludedRunIds([
       railItem("review-in-progress", "review-in-progress:"),
       railItem("awaiting-disposition", "awaiting-disposition:run-3"),
     ]);
 
-    expect(runIds).toEqual(["run-3"]);
+    expect(runIds).toEqual(["run-1", "run-3"]);
+  });
+
+  it("filters home attention preview when rail row id suffix is empty but href encodes the run", () => {
+    const runs = [
+      { runId: "run-1", projectId: "default" },
+      { runId: "run-2", projectId: "default" },
+    ] as RunSummary[];
+
+    const excluded = listHomeAttentionPreviewExcludedRunIds([
+      railItem("review-in-progress", "review-in-progress:"),
+    ]);
+
+    expect(filterRunsForHomeAttentionPreview(runs, excluded).map((run) => run.runId)).toEqual(["run-2"]);
   });
 });
