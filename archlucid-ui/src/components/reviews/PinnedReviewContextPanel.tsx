@@ -29,6 +29,33 @@ export function formatPinnedReviewFindingsCount(findingsCount: number | null): s
   return `${findingsCount} assessment finding${findingsCount === 1 ? "" : "s"}`;
 }
 
+export function formatPinnedReviewPanelTitle(summary: UsePinnedReviewContextResult["summary"]): string {
+  if (summary === null) {
+    return "Pinned review title was not returned.";
+  }
+
+  return buyerFacingReviewTitleFromSummary(summary);
+}
+
+export function formatPinnedReviewFindingListTitle(
+  title: string | null | undefined,
+  findingId: string,
+): string {
+  const trimmed = title?.trim() ?? "";
+
+  if (trimmed.length > 0) {
+    return trimmed;
+  }
+
+  if (title !== null && title !== undefined && trimmed.length === 0) {
+    return "Finding title was stored empty.";
+  }
+
+  const id = findingId.trim();
+
+  return id.length > 0 ? `Finding title was not stored. Finding id: ${id}.` : "Finding title was not stored.";
+}
+
 function PinnedReviewFindingInspect({
   runId,
   findingId,
@@ -142,7 +169,9 @@ function PinnedReviewFindingsList({
               onInspect(finding.findingId);
             }}
           >
-            <span className="font-medium text-al-text-primary">{finding.title}</span>
+            <span className="font-medium text-al-text-primary">
+              {formatPinnedReviewFindingListTitle(finding.title, finding.findingId)}
+            </span>
             <span className={cn("mt-1 block text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
               Open in this pane
             </span>
@@ -159,8 +188,7 @@ export function PinnedReviewContextPanel(props: PinnedReviewContextPanelProps): 
   const pathname = usePathname() ?? "";
   const [inspectFindingId, setInspectFindingId] = useState<string | null>(null);
   const pinRunId = context.pinRunId ?? "";
-  const headline =
-    context.summary !== null ? buyerFacingReviewTitleFromSummary(context.summary) : "Pinned review";
+  const headline = formatPinnedReviewPanelTitle(context.summary);
 
   const architectureId = resolveReviewWorkspaceArchitectureId(null, pathname);
   const makePrimaryHref = resolveArchitectureReviewHref(pinRunId, architectureId);
@@ -198,9 +226,10 @@ export function PinnedReviewContextPanel(props: PinnedReviewContextPanelProps): 
           <PinnedReviewFindingInspect
             runId={pinRunId}
             findingId={inspectFindingId}
-            findingTitle={
-              context.findings.find((row) => row.findingId === inspectFindingId)?.title ?? inspectFindingId
-            }
+            findingTitle={formatPinnedReviewFindingListTitle(
+              context.findings.find((row) => row.findingId === inspectFindingId)?.title,
+              inspectFindingId,
+            )}
             onBack={() => {
               setInspectFindingId(null);
             }}

@@ -29,8 +29,10 @@ describe("buyer-demo-persona-labels (TB-273 / 5CZ-demo)", () => {
   });
 
   it("redacts demo-prefixed technical ids", () => {
-    expect(buyerSafeTechnicalIdLabel("demo-jordan")).toBe("Recorded in workspace audit trail");
-    expect(buyerSafeTechnicalIdLabel("corr-intake-demo-request")).toBe("Recorded in workspace audit trail");
+    expect(buyerSafeTechnicalIdLabel("demo-jordan")).toBe("Demo seed id — not a customer audit record.");
+    expect(buyerSafeTechnicalIdLabel("corr-intake-demo-request")).toBe(
+      "Demo seed id — not a customer audit record.",
+    );
     expect(buyerSafeTechnicalIdLabel("evt-abc-123")).toBe("evt-abc-123");
   });
 

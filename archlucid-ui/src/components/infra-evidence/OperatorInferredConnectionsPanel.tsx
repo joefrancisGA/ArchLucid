@@ -87,7 +87,18 @@ function formatEndpoint(row: OperatorInferredConnectionRow): string {
     return `${formatStoredValue(row.toHost, "Host name was not stored")} / ${row.toCatalog}`;
   }
 
-  return formatStoredValue(row.toHost ?? row.toArmId, "Destination was not stored");
+  const host = row.toHost?.trim() ?? "";
+  const armId = row.toArmId?.trim() ?? "";
+
+  if (host.length > 0) {
+    return host;
+  }
+
+  if (armId.length > 0) {
+    return `Host name was not stored. Resource id: ${armId}`;
+  }
+
+  return "Destination was not stored";
 }
 
 export function OperatorInferredConnectionsPanel(
