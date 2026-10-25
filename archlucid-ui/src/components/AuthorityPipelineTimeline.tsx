@@ -56,7 +56,7 @@ function actorLabel(name: string): string {
   const n = name.trim();
 
   if (n.length === 0) {
-    return "Actor unknown";
+    return "Actor was not stored.";
   }
 
   if (n.toLowerCase() === "system") {
