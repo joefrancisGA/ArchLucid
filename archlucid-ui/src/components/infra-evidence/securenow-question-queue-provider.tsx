@@ -19,7 +19,11 @@ import {
   reopenSecureNowQuestion,
   type SecureNowQuestion,
 } from "@/lib/infra-evidence/securenow-question-queue-api";
-import { secureNowQuestionDispositionMutationResourceId } from "@/lib/infra-evidence/securenow-question-mutation-resource-id";
+import {
+  secureNowQuestionDispositionMutationResourceId,
+  secureNowQuestionDispositionMutationScopeKind,
+  secureNowQuestionDispositionMutationSource,
+} from "@/lib/infra-evidence/securenow-question-mutation-resource-id";
 import { secureNowQuestionShowsExpired } from "@/lib/infra-evidence/securenow-question-expiration";
 import {
   confirmOperatorInferredConnection,
@@ -285,6 +289,19 @@ export function SecureNowQuestionQueueProvider(
       return;
     }
 
+    const mutationSource = secureNowQuestionDispositionMutationSource(currentQuestion);
+    const mutationScopeKind = secureNowQuestionDispositionMutationScopeKind(currentQuestion);
+    if (action !== "reopen" && (mutationSource === null || mutationScopeKind === null)) {
+      setError(
+        operatorInferredConnectionPanelErrorFromUnknown(
+          new Error("Question source or scope was not stored."),
+          "Could not save the question update.",
+          "mutation",
+        ),
+      );
+      return;
+    }
+
     setBusy(true);
     setError(null);
     try {
@@ -293,8 +310,8 @@ export function SecureNowQuestionQueueProvider(
           subscriptionId: currentQuestion.subscriptionId ?? "",
           resourceId: mutationResourceId,
           questionKey: currentQuestion.questionKey,
-          source: currentQuestion.source ?? "",
-          scopeKind: currentQuestion.scopeKind ?? "",
+          source: mutationSource!,
+          scopeKind: mutationScopeKind!,
           reason: reason.trim(),
           evidenceFingerprint: currentQuestion.evidenceFingerprint,
         });
@@ -305,7 +322,7 @@ export function SecureNowQuestionQueueProvider(
           questionKey: currentQuestion.questionKey,
           reason: reason.trim(),
         });
-      } else if (currentQuestion.source === "InferredConnection") {
+      } else if (mutationSource === "InferredConnection") {
         const connection = findInferredConnection(currentQuestion, inferredConnections);
         if (connection == null || (selectedAnswer !== "Yes" && selectedAnswer !== "No")) {
           throw new Error("The inferred connection for this question is no longer available.");
@@ -320,8 +337,8 @@ export function SecureNowQuestionQueueProvider(
           subscriptionId: currentQuestion.subscriptionId ?? "",
           resourceId: mutationResourceId,
           questionKey: currentQuestion.questionKey,
-          source: currentQuestion.source ?? "",
-          scopeKind: currentQuestion.scopeKind ?? "",
+          source: mutationSource!,
+          scopeKind: mutationScopeKind!,
           answerCode: selectedAnswer,
           answerText: selectedAnswer,
           reason: "Answered in the SecureNow subscription question queue.",

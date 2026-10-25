@@ -604,6 +604,39 @@ describe("SecureNowQuestionQueue", () => {
     });
   });
 
+  it("answers a subscription-scope pack question when source is null", async () => {
+    mocks.listQuestions.mockResolvedValue([
+      {
+        ...question,
+        resourceId: null,
+        scopeKind: "Subscription",
+        source: null,
+        questionKey: "subscription-ownership@v1",
+        questionText: "Who owns this subscription workload?",
+        answerCodes: ["Register", "Keep"],
+      },
+    ]);
+
+    render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
+    fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
+    fireEvent.click(screen.getByRole("button", { name: "Register" }));
+    fireEvent.click(screen.getByRole("button", { name: "Save answer" }));
+
+    await waitFor(() => {
+      expect(mocks.answerQuestion).toHaveBeenCalledWith("snapshot-1", {
+        subscriptionId: "subscription-1",
+        resourceId: "",
+        questionKey: "subscription-ownership@v1",
+        source: "PolicyPack",
+        scopeKind: "Subscription",
+        answerCode: "Register",
+        answerText: "Register",
+        reason: "Answered in the SecureNow subscription question queue.",
+        evidenceFingerprint: "fingerprint",
+      });
+    });
+  });
+
   it("requires a reason before ignoring a question", async () => {
     mocks.listQuestions.mockResolvedValue([question]);
 

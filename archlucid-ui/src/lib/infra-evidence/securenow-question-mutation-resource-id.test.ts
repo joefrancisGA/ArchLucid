@@ -3,6 +3,8 @@ import { describe, expect, it } from "vitest";
 import type { SecureNowQuestion } from "@/lib/infra-evidence/securenow-question-queue-api";
 import {
   secureNowQuestionDispositionMutationResourceId,
+  secureNowQuestionDispositionMutationScopeKind,
+  secureNowQuestionDispositionMutationSource,
   secureNowQuestionHasPackStyleDispositionScope,
 } from "@/lib/infra-evidence/securenow-question-mutation-resource-id";
 
@@ -55,5 +57,49 @@ describe("secureNowQuestionDispositionMutationResourceId", () => {
         scopeKind: "Resource",
       }),
     ).toBeNull();
+  });
+});
+
+describe("secureNowQuestionDispositionMutationSource", () => {
+  it("infers PolicyPack when subscription scope omits source", () => {
+    expect(
+      secureNowQuestionDispositionMutationSource({
+        source: null,
+        scopeKind: "Subscription",
+        questionKey: "subscription-ownership@v1",
+      }),
+    ).toBe("PolicyPack");
+  });
+
+  it("infers InventoryEvidence for resource scope when source is omitted", () => {
+    expect(
+      secureNowQuestionDispositionMutationSource({
+        source: null,
+        scopeKind: "Resource",
+        questionKey: "unknown-evidence@v1",
+      }),
+    ).toBe("InventoryEvidence");
+  });
+
+  it("infers InferredConnection from question key when source is omitted", () => {
+    expect(
+      secureNowQuestionDispositionMutationSource({
+        source: null,
+        scopeKind: "Resource",
+        questionKey: "unresolved-host-0123456789abcdef0123456789abcdef@v1",
+      }),
+    ).toBe("InferredConnection");
+  });
+});
+
+describe("secureNowQuestionDispositionMutationScopeKind", () => {
+  it("keeps subscription scope for pack rows", () => {
+    expect(
+      secureNowQuestionDispositionMutationScopeKind({
+        source: null,
+        scopeKind: "Subscription",
+        questionKey: "subscription-ownership@v1",
+      }),
+    ).toBe("Subscription");
   });
 });
