@@ -196,6 +196,70 @@ public sealed class EndToEndReplayComparisonReportNormalizerTests
         report.CompareVerdictChromeDelta.GateOutcome.TargetGateLabel.Should().Be("Soft infeasible");
         report.CompareVerdictChromeDelta.PackAssignment!.BaselineSummaryLine.Should().Be("No pack assignment recorded");
         report.CompareVerdictChromeDelta.PackAssignment.TargetSummaryLine.Should().Be("pack-a@1");
+        report.CompareVerdictChromeDelta.GateOutcome.Changed.Should().BeTrue();
+        report.CompareVerdictChromeDelta.PackAssignment.Changed.Should().BeTrue();
+    }
+
+    [Fact]
+    public void CompareQuality_EndToEndReplayComparisonReportNormalizer_syncs_verdict_chrome_changed_flags_from_normalized_labels()
+    {
+        EndToEndReplayComparisonReport report = new()
+        {
+            LeftRunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            RightRunId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            CompareVerdictChromeDelta = new CompareVerdictChromeDelta
+            {
+                GateOutcome = new CompareVerdictChromeGateOutcomeDelta
+                {
+                    BaselineGateLabel = "Gate pending",
+                    TargetGateLabel = "  Gate pending  ",
+                    Changed = true,
+                },
+                ExecutionMode = new CompareVerdictChromeExecutionModeDelta
+                {
+                    BaselineModeLabel = "Real",
+                    TargetModeLabel = "  Real  ",
+                    Changed = true,
+                    AdvisoryParagraph = "stale advisory",
+                },
+            },
+        };
+
+        EndToEndReplayComparisonReportNormalizer.NormalizePersistedPayload(report);
+
+        report.CompareVerdictChromeDelta!.GateOutcome!.Changed.Should().BeFalse();
+        report.CompareVerdictChromeDelta.ExecutionMode!.Changed.Should().BeFalse();
+        report.CompareVerdictChromeDelta.ExecutionMode.AdvisoryParagraph.Should().BeNull();
+    }
+
+    [Fact]
+    public void CompareQuality_EndToEndReplayComparisonReportNormalizer_nulls_pack_assignment_when_both_sides_are_no_pack_recorded()
+    {
+        EndToEndReplayComparisonReport report = new()
+        {
+            LeftRunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            RightRunId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            CompareVerdictChromeDelta = new CompareVerdictChromeDelta
+            {
+                GateOutcome = new CompareVerdictChromeGateOutcomeDelta
+                {
+                    BaselineGateLabel = "Soft infeasible",
+                    TargetGateLabel = "Gate pending",
+                    Changed = true,
+                },
+                PackAssignment = new CompareVerdictChromePackAssignmentDelta
+                {
+                    BaselineSummaryLine = "   ",
+                    TargetSummaryLine = "\t",
+                    Changed = true,
+                },
+            },
+        };
+
+        EndToEndReplayComparisonReportNormalizer.NormalizePersistedPayload(report);
+
+        report.CompareVerdictChromeDelta!.PackAssignment.Should().BeNull();
+        report.CompareVerdictChromeDelta.GateOutcome.Should().NotBeNull();
     }
 
     [Fact]

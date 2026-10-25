@@ -47,6 +47,7 @@ internal static class CompareVerdictChromeDeltaNormalizer
         CompareVerdictChromeGateOutcomeDelta gate = delta.GateOutcome;
         gate.BaselineGateLabel = NormalizeGateLabelOrDefault(gate.BaselineGateLabel);
         gate.TargetGateLabel = NormalizeGateLabelOrDefault(gate.TargetGateLabel);
+        gate.Changed = !string.Equals(gate.BaselineGateLabel, gate.TargetGateLabel, StringComparison.Ordinal);
     }
 
     private static void NormalizePackAssignmentInPlace(CompareVerdictChromeDelta delta)
@@ -57,6 +58,15 @@ internal static class CompareVerdictChromeDeltaNormalizer
         CompareVerdictChromePackAssignmentDelta pack = delta.PackAssignment;
         pack.BaselineSummaryLine = NormalizePackSummaryLineOrDefault(pack.BaselineSummaryLine);
         pack.TargetSummaryLine = NormalizePackSummaryLineOrDefault(pack.TargetSummaryLine);
+
+        if (pack.BaselineSummaryLine == NoPackAssignmentRecorded
+            && pack.TargetSummaryLine == NoPackAssignmentRecorded)
+        {
+            delta.PackAssignment = null;
+            return;
+        }
+
+        pack.Changed = !string.Equals(pack.BaselineSummaryLine, pack.TargetSummaryLine, StringComparison.Ordinal);
     }
 
     private static void NormalizeExecutionModeInPlace(CompareVerdictChromeDelta delta)
@@ -69,6 +79,10 @@ internal static class CompareVerdictChromeDeltaNormalizer
         mode.TargetModeLabel = NormalizeRequiredDisplayLabel(mode.TargetModeLabel);
         mode.AdvisoryParagraph =
             OptionalExportMetadataStringNormalizer.NormalizeOptionalString(mode.AdvisoryParagraph);
+        mode.Changed = !string.Equals(mode.BaselineModeLabel, mode.TargetModeLabel, StringComparison.Ordinal);
+
+        if (!mode.Changed)
+            mode.AdvisoryParagraph = null;
     }
 
     private static string NormalizeGateLabelOrDefault(string value)
