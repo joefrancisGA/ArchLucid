@@ -11,6 +11,22 @@ export type OperatorHomeLiveRunsSnapshot = {
   readonly totalCount: number;
 };
 
+/** Normalizes live snapshot totals before context consumers merge them onto the SSR dashboard model. */
+export function resolveOperatorHomeLiveRunsSnapshotTotalCount(
+  items: readonly RunSummary[],
+  totalCount?: number,
+): number {
+  const visibleActiveCount = countNonArchivedOverviewRuns(items);
+  const reportedTotal = typeof totalCount === "number" ? totalCount : visibleActiveCount;
+
+  return resolveOperatorHomeReviewTotalCount(
+    reportedTotal,
+    0,
+    visibleActiveCount,
+    items.length,
+  );
+}
+
 /**
  * Overlays the client-refreshed reviews snapshot onto the server-rendered dashboard model so every
  * runs-derived home surface (continue rail, hero KPIs, workspace metrics) reflects the same data as

@@ -6,7 +6,10 @@ import { useSampleReviewsOnOverviewVisible } from "@/components/SampleReviewsOnO
 import { isRunNeedingAttention } from "@/components/operator-home/runs-dashboard-helpers";
 import { isShowcaseStaticDemoRunId } from "@/lib/demo-run-canonical";
 import { isDemoSeededOverviewInjectedRun } from "@/lib/demo-seeded-overview";
-import type { OperatorHomeLiveRunsSnapshot } from "@/lib/operator/operator-home-live-runs-dashboard";
+import {
+  type OperatorHomeLiveRunsSnapshot,
+  resolveOperatorHomeLiveRunsSnapshotTotalCount,
+} from "@/lib/operator/operator-home-live-runs-dashboard";
 import { deriveOperatorHomeWorkspaceMetrics } from "@/lib/operator/operator-home-workspace-metrics";
 import type { RunSummary } from "@/types/authority";
 
@@ -110,7 +113,7 @@ export function OperatorHomeWorkspaceActivityProvider(
     setOpenFindingsCount(metrics.openFindings);
     setRecentRunIds(overviewVisibleItems.map((run) => run.runId));
 
-    const nextTotalCount = typeof totalCount === "number" ? totalCount : items.length;
+    const nextTotalCount = resolveOperatorHomeLiveRunsSnapshotTotalCount(items, totalCount);
 
     // Reuse the previous snapshot object when nothing moved, so a repeated report does not
     // re-render every runs-derived consumer with an equivalent value.

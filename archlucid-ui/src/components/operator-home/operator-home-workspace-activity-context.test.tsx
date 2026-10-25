@@ -141,6 +141,37 @@ describe("OperatorHomeWorkspaceActivityProvider", () => {
     expect(screen.getByTestId("live-snapshot-total")).toHaveTextContent("2");
   });
 
+  it("stores zero live snapshot total when only archived rows are reported without an explicit total", () => {
+    function Reporter(): React.JSX.Element {
+      const { reportWorkspaceReviews } = useOperatorHomeWorkspaceActivity();
+
+      return (
+        <button
+          type="button"
+          onClick={() =>
+            reportWorkspaceReviews([
+              buildRunSummary("77777777-aaaa-bbbb-cccc-dddddddddddd", true),
+              buildRunSummary("88888888-aaaa-bbbb-cccc-dddddddddddd", true),
+            ])
+          }
+        >
+          Report archived
+        </button>
+      );
+    }
+
+    render(
+      <OperatorHomeWorkspaceActivityProvider initialHasReviews={false}>
+        <Probe />
+        <Reporter />
+      </OperatorHomeWorkspaceActivityProvider>,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Report archived" }));
+
+    expect(screen.getByTestId("live-snapshot-total")).toHaveTextContent("0");
+  });
+
   it("keeps empty-home false when only a demo-seeded Overview inject is reported (TB-1039)", () => {
     function Reporter(): React.JSX.Element {
       const { reportWorkspaceReviews } = useOperatorHomeWorkspaceActivity();

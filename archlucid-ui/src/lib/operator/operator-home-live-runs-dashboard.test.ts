@@ -1,7 +1,10 @@
 import { describe, expect, it } from "vitest";
 
 import type { OperatorHomeRunsDashboardModel } from "@/app/(operator)/_sections/operator-home-runs-dashboard-model";
-import { resolveLiveRunsDashboardModel } from "@/lib/operator/operator-home-live-runs-dashboard";
+import {
+  resolveLiveRunsDashboardModel,
+  resolveOperatorHomeLiveRunsSnapshotTotalCount,
+} from "@/lib/operator/operator-home-live-runs-dashboard";
 import type { RunSummary } from "@/types/authority";
 
 function buildRun(runId: string): RunSummary {
@@ -24,6 +27,25 @@ const ssrModel: OperatorHomeRunsDashboardModel = {
   usedStaticRunsFallback: false,
   buyerPolishedShell: false,
 };
+
+describe("resolveOperatorHomeLiveRunsSnapshotTotalCount", () => {
+  it("does not use archived row count when no explicit total is supplied", () => {
+    expect(
+      resolveOperatorHomeLiveRunsSnapshotTotalCount(
+        [
+          { ...buildRun("archived-a"), isArchived: true },
+          { ...buildRun("archived-b"), isArchived: true },
+        ],
+      ),
+    ).toBe(0);
+  });
+
+  it("falls back to visible active rows when no explicit total is supplied", () => {
+    expect(
+      resolveOperatorHomeLiveRunsSnapshotTotalCount([buildRun("live-a"), buildRun("live-b")]),
+    ).toBe(2);
+  });
+});
 
 describe("resolveLiveRunsDashboardModel", () => {
   it("returns the server model unchanged before the runs panel reports", () => {
