@@ -21,6 +21,13 @@ describe("security-evidence-path-presentation", () => {
     expect(formatSecurityEvidenceProvenanceKindLabel("UnknownKind")).toBe("Guessed");
   });
 
+  it("labels missing band and provenance honestly (P-13, P-14)", () => {
+    expect(formatSecurityEvidencePathConfidenceBandLabel("")).toBe("Confidence band was not stored.");
+    expect(formatSecurityEvidencePathConfidenceBandLabel(null)).toBe("Confidence band was not stored.");
+    expect(formatSecurityEvidenceProvenanceKindLabel("")).toBe("Provenance kind was not stored.");
+    expect(formatSecurityEvidenceProvenanceKindLabel(null)).toBe("Provenance kind was not stored.");
+  });
+
   it("maps path kinds to reader-facing labels and preserves unknown values", () => {
     expect(formatSecurityEvidencePathKindLabel("IntendedReachability")).toBe("Can reach");
     expect(formatSecurityEvidencePathKindLabel("Privilege")).toBe("Privilege");
