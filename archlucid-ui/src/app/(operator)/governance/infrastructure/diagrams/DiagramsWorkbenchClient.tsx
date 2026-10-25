@@ -3040,7 +3040,7 @@ export function DiagramsWorkbenchClient() {
               className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
               data-testid="infra-diagrams-evidence-family-empty"
             >
-              No connectors in this family on this diagram. Connectors in other families are still listed under All.
+              No relationships in this family on this diagram. Relationships in other families are still listed under All.
             </p>
           ) : null}
           <InfraEvidenceDiagramReadingLegend mode={selectedMode} />

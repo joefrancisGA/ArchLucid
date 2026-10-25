@@ -202,3 +202,72 @@ describe("deriveRecommendedWorkspaceActions blocking counts", () => {
     expect(blocking?.relatedFindingCount).toBe(1);
   });
 });
+
+describe("deriveRecommendedWorkspaceActions first-review-next-step copy", () => {
+  it("names diagram, findings, and question before finalize (P-10)", () => {
+    const actions = deriveRecommendedWorkspaceActions({
+      runId: "run-1",
+      findings: [],
+      manifestId: null,
+      showProgressTracker: false,
+      hasCommitBlockingFailures: false,
+      blockingFindingCount: 0,
+      buyerPolishedArtifactTable: false,
+      operatorGovernanceDecision: null,
+      manifestStatus: null,
+      runCompleted: true,
+    });
+
+    const finalize = actions.find((action) => action.id === "finalize-review");
+
+    expect(finalize?.reason).toMatch(/diagram and findings/i);
+    expect(finalize?.reason).toMatch(/ask one question/i);
+  });
+
+  it("opens findings instead of assigning owners inline (P-17)", () => {
+    const actions = deriveRecommendedWorkspaceActions({
+      runId: "run-1",
+      findings: [
+        sampleFinding({
+          findingId: "f-high",
+          severityValue: 2,
+          assignedToUserId: "",
+        }),
+      ],
+      manifestId: null,
+      showProgressTracker: false,
+      hasCommitBlockingFailures: false,
+      blockingFindingCount: 0,
+      buyerPolishedArtifactTable: false,
+      operatorGovernanceDecision: null,
+      manifestStatus: null,
+      runCompleted: true,
+    });
+
+    const assign = actions.find((action) => action.id === "assign-owners");
+
+    expect(assign?.title).toBe("Open findings");
+    expect(assign?.actionLabel).toBe("Open findings");
+    expect(assign?.href).toContain("reviewTab=findings");
+  });
+
+  it("labels approval workflow as open queue (P-18)", () => {
+    const actions = deriveRecommendedWorkspaceActions({
+      runId: "run-1",
+      findings: [],
+      manifestId: "manifest-1",
+      showProgressTracker: false,
+      hasCommitBlockingFailures: false,
+      blockingFindingCount: 0,
+      buyerPolishedArtifactTable: false,
+      operatorGovernanceDecision: null,
+      manifestStatus: "Draft",
+      runCompleted: true,
+    });
+
+    const approval = actions.find((action) => action.id === "request-approval");
+
+    expect(approval?.actionLabel).toBe("Open approval queue");
+    expect(approval?.href).toContain("approval-queue");
+  });
+});

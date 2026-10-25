@@ -142,12 +142,24 @@ function mapRankDetail(raw: Record<string, unknown>): SecurityEvidencePathRankDe
     pathKind: String(raw.pathKind ?? ""),
     pathConfidenceBand: String(raw.pathConfidenceBand ?? ""),
     dimensionProse: {
-      technicalExposure: String(dimensionProseRaw?.technicalExposure ?? ""),
-      privilegeDepth: String(dimensionProseRaw?.privilegeDepth ?? ""),
-      blastRadius: String(dimensionProseRaw?.blastRadius ?? ""),
-      businessConsequence: String(dimensionProseRaw?.businessConsequence ?? ""),
-      confidenceBand: String(dimensionProseRaw?.confidenceBand ?? ""),
-      overall: String(dimensionProseRaw?.overall ?? ""),
+      technicalExposure: mapStoredLabel(
+        dimensionProseRaw?.technicalExposure,
+        "Technical exposure prose was not stored.",
+      ),
+      privilegeDepth: mapStoredLabel(
+        dimensionProseRaw?.privilegeDepth,
+        "Privilege depth prose was not stored.",
+      ),
+      blastRadius: mapStoredLabel(dimensionProseRaw?.blastRadius, "Blast radius prose was not stored."),
+      businessConsequence: mapStoredLabel(
+        dimensionProseRaw?.businessConsequence,
+        "Business consequence prose was not stored.",
+      ),
+      confidenceBand: mapStoredLabel(
+        dimensionProseRaw?.confidenceBand,
+        "Confidence band prose was not stored.",
+      ),
+      overall: mapStoredLabel(dimensionProseRaw?.overall, "Overall rank prose was not stored."),
     },
     computedUtc: String(raw.computedUtc ?? ""),
   };

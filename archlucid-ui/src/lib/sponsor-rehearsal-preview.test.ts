@@ -63,6 +63,26 @@ describe("sponsor-rehearsal-preview (TB-2208)", () => {
     expect(byId["what-is-excluded"].body).toContain("Internal CLI usage metrics");
   });
 
+  it("labels stored-empty exclusion notes separately from omitted notes", () => {
+    const preview = buildSponsorRehearsalPreview({ excludedNotes: [] });
+    const section = preview.sections.find((row) => row.id === "what-is-excluded");
+
+    expect(section?.isEmpty).toBe(true);
+    expect(section?.body).toContain("stored empty");
+  });
+
+  it("labels null findings and residual inputs as not stored", () => {
+    const preview = buildSponsorRehearsalPreview({
+      findings: null,
+      residualRiskNotes: null,
+    });
+
+    const byId = Object.fromEntries(preview.sections.map((section) => [section.id, section]));
+
+    expect(byId["key-findings-plain-english"].body).toContain("Findings list was not stored");
+    expect(byId["residual-risks"].body).toContain("Residual-risk notes were not stored");
+  });
+
   it("prefers explicit SponsorReport over synopsis", () => {
     const preview = buildSponsorRehearsalPreview({
       SponsorReport: "Board-ready summary paragraph.",

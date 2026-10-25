@@ -80,6 +80,30 @@ function parseWithheldRow(value: unknown): WithheldFindingRow | null {
   };
 }
 
+export const FINDINGS_WITHHELD_LIST_NOT_STORED_LABEL =
+  "Withheld findings list was not stored." as const;
+
+/** When findings snapshot exists but withheldFindings was omitted on the wire. */
+export function describeFindingsWithheldListLoadState(detail: RunDetail): string | null {
+  const snapshot = readRecord((detail as Record<string, unknown>).findingsSnapshot);
+
+  if (snapshot === null) {
+    return null;
+  }
+
+  const withheldRaw = snapshot.withheldFindings;
+
+  if (withheldRaw === undefined) {
+    return FINDINGS_WITHHELD_LIST_NOT_STORED_LABEL;
+  }
+
+  if (!Array.isArray(withheldRaw)) {
+    return FINDINGS_WITHHELD_LIST_NOT_STORED_LABEL;
+  }
+
+  return null;
+}
+
 /** Parses DR-02 withheld rows from hydrated run detail `findingsSnapshot`. */
 export function resolveFindingsWithheldRows(detail: RunDetail): readonly WithheldFindingRow[] {
   const snapshot = readRecord((detail as Record<string, unknown>).findingsSnapshot);

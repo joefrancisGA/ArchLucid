@@ -7,6 +7,8 @@ import {
   formatStampWithheldHonestyLine,
   formatWithheldFindingReasonLabel,
   resolveFindingsWithheldRows,
+  describeFindingsWithheldListLoadState,
+  FINDINGS_WITHHELD_LIST_NOT_STORED_LABEL,
 } from "@/lib/findings/findings-withheld-band";
 
 describe("findings-withheld-band (DR-02)", () => {
@@ -153,6 +155,15 @@ describe("findings-withheld-band (DR-02)", () => {
 
     expect(rows).toHaveLength(1);
     expect(formatWithheldFindingReasonLabel(rows[0]!.reason)).toContain("Compliance tag from prose");
+  });
+
+  it("labels omitted withheldFindings arrays when snapshot exists (P-16)", () => {
+    expect(
+      describeFindingsWithheldListLoadState({
+        run: { runId: "run-1" },
+        findingsSnapshot: {},
+      } as never),
+    ).toBe(FINDINGS_WITHHELD_LIST_NOT_STORED_LABEL);
   });
 
   it("formats catalog engine failure stamp honesty line", () => {
