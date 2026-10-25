@@ -7328,6 +7328,8 @@ ABQ-09 churn hotspot.
 
 ## Zone: securenow-question-queue
 
+2026-10-25 seed hunt (seed→hit): promoted `SecureNowQuestionQueueProvider.questionIdentity` collapsing distinct open rows when `questionKey` was null — session skip and visit-cap keys used only subscription/resource and treated every omitted-key row as the same question; disambiguate with `missing-key:` plus normalized question text when `secureNowQuestionDispositionMutationQuestionKey` is null; regression `skips only the active question when multiple open rows omit question keys`; scoped SecureNow queue vitest 94/94. Private beta: operators using Not sure on one malformed open question no longer hide sibling open questions that also omitted question keys.
+
 2026-10-25 seed hunt (seed→hit): promoted `SecureNowQuestionQueueProvider.submitAction` comparing listed `snapshotId` with strict equality — padded list snapshot ids such as `"  snapshot-1  "` failed the guard and silently dropped answer/ignore/reopen; `secureNowQuestionListedSnapshotMatchesContext` trims before compare; regressions `treats padded listed snapshot ids as matching the active context` and `answers when list snapshot id is padded but matches the active snapshot`; scoped SecureNow queue vitest 93/93. Private beta: operators can save disposition updates when list JSON stored padded snapshot ids that still refer to the active diagram snapshot.
 
 2026-10-25 seed hunt (seed→hit): promoted `SecureNowQuestionQueueProvider` / `filterQuestions` comparing disposition `status` with strict equality — list JSON with padded values such as `"  Answered  "` stayed in the Open queue and skipped Answered/Dismissed filters; shared `securenow-question-disposition-status` trim helpers for filters, open-count, closed answer chrome, and status labels; regressions `trims stored disposition status before comparisons` and `routes padded answered status into the answered filter`; scoped SecureNow queue vitest 90/90. Private beta: operators no longer see answered or dismissed questions resurfacing in the open queue when list JSON stored padded status strings.
@@ -7396,11 +7398,11 @@ ABQ-09 churn hotspot.
 - **aliases:** securenow question queue; question disposition
 - **paths:** ArchLucid.Application/InfraEvidence/SecureNowQuestionDispositions/; ArchLucid.Api/Controllers/InfraEvidence/InfraEvidenceSecureNowQuestionsController.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/ISecureNowQuestionDispositionRepository.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/ISecureNowQuestionDispositionService.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/SecureNowQuestionDispositionRecord.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/SecureNowQuestionRecord.cs; ArchLucid.Persistence/InfraEvidence/NoOpSecureNowQuestionDispositionRepository.cs; ArchLucid.Persistence/InfraEvidence/SqlSecureNowQuestionDispositionRepository.cs; ArchLucid.Contracts/InfraEvidence/SecureNowQuestionDispositionContracts.cs; archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx; archlucid-ui/src/lib/infra-evidence/securenow-question-queue-api.ts
 - **test-filter:** SecureNowQuestion
-- **hunts:** 74
-- **bugs-found:** 51
+- **hunts:** 75
+- **bugs-found:** 52
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-25
-- **last-bug:** 2026-10-25 — padded snapshot id mutation guard
+- **last-bug:** 2026-10-25 — null questionKey session identity collision
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -7558,6 +7560,7 @@ ABQ-09 churn hotspot.
 - [x] (proven) `secureNowQuestionDispositionMutationSource` / `inferredConnectionIdFromQuestionKey` — null `questionKey` on resource-scope rows threw while resolving mutation source for details chrome; null-safe key parsing before inferred-connection id detection; regressions `infers inventory evidence when resource scope omits question key` and `renders inventory source and scope details when question key is omitted`.
 - [x] (proven) `SecureNowQuestionQueueProvider.filterQuestions` / `openQuestions` — padded disposition `status` strings bypassed Answered/Dismissed filters and stayed in Open; `securenow-question-disposition-status` trim helpers; regressions `trims stored disposition status before comparisons` and `routes padded answered status into the answered filter`.
 - [x] (proven) `SecureNowQuestionQueueProvider.submitAction` — padded listed `snapshotId` failed strict equality against the active snapshot and silently dropped mutations; `secureNowQuestionListedSnapshotMatchesContext`; regressions `treats padded listed snapshot ids as matching the active context` and `answers when list snapshot id is padded but matches the active snapshot`.
+- [x] (proven) `SecureNowQuestionQueueProvider.questionIdentity` — null `questionKey` rows on the same resource shared one session-skip key; include normalized question text when mutation question key is null; regression `skips only the active question when multiple open rows omit question keys`.
 - [x] (proven) `SecureNowQuestionQueue` / `securenow-question-queue-provider` — list payloads could carry `isExpired: false` while `expirationUtc` was already in the past, so details read “Not expired” and open filtering kept stale rows until reload; `secureNowQuestionShowsExpired`; regressions `returns true when expirationUtc is in the past even if isExpired is false` and `marks expiration as expired in details when expirationUtc is past but isExpired is false`.
 - (candidate) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` writes for the same identity hash may surface duplicate-key or lost-update failures under parallel operator mutations; requires SQL integration or concurrent repro (prior valid-no-repro when SQL host unavailable).
 - (candidate) `securenow-question-queue-provider` / disposition mutation responses — provider always reloads after POST and ignores `SecureNowQuestionDisposition` payloads; a future optimistic merge that patches list state from mutation JSON without reloading could reintroduce missing display fields unless it uses `mapSecureNowQuestionDisposition` only.

@@ -582,6 +582,22 @@ describe("SecureNowQuestionQueue", () => {
     expect(mocks.ignoreQuestion).not.toHaveBeenCalled();
   });
 
+  it("skips only the active question when multiple open rows omit question keys", async () => {
+    mocks.listQuestions.mockResolvedValue([
+      { ...question, questionKey: null, questionText: "First question without a stored key?" },
+      { ...question, questionKey: null, questionText: "Second question without a stored key?" },
+    ]);
+
+    render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
+    fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
+
+    expect(screen.getByText("First question without a stored key?")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Not sure. This does not store an answer." }));
+
+    expect(await screen.findByText("Second question without a stored key?")).toBeInTheDocument();
+    expect(screen.queryByText("No questions match this filter.")).not.toBeInTheDocument();
+  });
+
   it("ignores an inferred connection when list JSON omits source on a legacy question key", async () => {
     const inferredQuestion = {
       ...question,

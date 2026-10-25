@@ -109,7 +109,11 @@ function connectionIdFromQuestionKey(questionKey: string): string | null {
 }
 
 function questionIdentity(question: SecureNowQuestion): string {
-  return `${normalize(question.subscriptionId ?? "")}|${normalize(question.resourceId ?? "")}|${normalize(question.questionKey ?? "")}`;
+  const mutationQuestionKey =
+    secureNowQuestionDispositionMutationQuestionKey(question.questionKey);
+  const keySegment = mutationQuestionKey ?? `missing-key:${normalize(question.questionText)}`;
+
+  return `${normalize(question.subscriptionId ?? "")}|${normalize(question.resourceId ?? "")}|${keySegment}`;
 }
 
 function filterQuestions(questions: readonly SecureNowQuestion[], filter: QueueFilter): SecureNowQuestion[] {
