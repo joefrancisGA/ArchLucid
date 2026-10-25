@@ -6868,6 +6868,20 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-25 seed hunt (seed→hit): proved `EndToEndReplayComparisonReportNormalizer` trimmed run ids and nested export diffs but left `Warnings` and `InterpretationNotes` list entries untouched while comparison record tag normalize already dropped whitespace slots on scoped reads, so rehydrated E2E payloads could persist blank bullets that markdown/HTML/PDF exports rendered as empty list rows; remove whitespace-only entries and trim meaningful lines in place on `NormalizePersistedPayload`; regression `CompareQuality_EndToEndReplayComparisonReportNormalizer_removes_whitespace_only_warnings_and_interpretation_notes`; cheap-disproof closed nested export diff anchors (existing loop), verdict chrome normalize (hunts 212–218), `ApiPaging.TryParseUtcTicksIdCursor` (comparison search normalizes inbound cursor id), batch zip manifest echo (cosmetic), and Armenian homoglyphs (deferred); seeded five follow-on rows; scoped application-analysis + replay filter 335/335. Private beta: end-to-end comparison exports no longer list whitespace-only warning or interpretation placeholders from legacy stored JSON.
+
+- [ ] (candidate) `ComparisonRecordRepository.GetByRunIdAsync` — SQL list-by-run dashed stored — locus: UNIQUEIDENTIFIER column; input: already matches N/D lookup via guid param.
+- [ ] (candidate) `ComparisonRecordRepositoryCore.SerializeTagsForUpdate` — JSON tag order — locus: cosmetic; input: defer.
+- [ ] (candidate) `ComparisonRecordSearchPredicateBuilder` — notes column search — locus: no notes filter today; input: defer.
+- [ ] (candidate) `ApiPaging.TryParseUtcTicksIdCursor` — cursor id segment without trim — locus: HTTP cursor parse; input: padded id after ticks delimiter (alerts inbox and other API surfaces).
+- [ ] (candidate) `ComparisonBatchReplayZipSupport` — manifest failure entries echo pre-trim batch tokens — locus: zip manifest; input: cosmetic id echo only.
+
+- [x] (proven) `EndToEndReplayComparisonReportNormalizer` — whitespace warning/interpretation list entries — **hit 2026-10-25 seed hunt:** list trim parity; regression above.
+- [x] (valid-no-repro) `ComparisonRecordScopedReadNormalizer` — tag list trim — **cheap-disproof 2026-10-25 seed hunt:** hunt 203; E2E report lists were separate.
+- [x] (valid-no-repro) `MarkdownEndToEndReplayComparisonSummaryFormatter` — list render — **cheap-disproof 2026-10-25 seed hunt:** display path; payload still stored blanks before normalize.
+- [x] (invalid) `ApiPaging.TryParseUtcTicksIdCursor` — HTTP cursor id trim — **cheap-disproof 2026-10-25 seed hunt:** comparison search normalizes at application layer.
+- [x] (invalid) `ComparisonBatchReplayZipSupport` — manifest id echo — **cheap-disproof 2026-10-25 seed hunt:** cosmetic only.
+
 2026-10-25 seed hunt (seed→hit): proved `ComparisonAuditService.NormalizeReplayPayloadJson` echoed `sourceRecord.PayloadJson` when export-diff or end-to-end rehydrate returned null while hunt 213 cleared whitespace-only payload at the guard only, so replay-of legacy rows with JSON `null` literals or other non-object payloads could persist the same junk on the new comparison row; return `string.Empty` when typed rehydrate yields no document; regression `CompareQuality_RecordReplayOfAsync_clears_payload_json_when_typed_rehydrate_returns_null`; cheap-disproof closed whitespace guard (hunt 213), successful rehydrate rewrite (existing export-diff payload tests), `ApiPaging.TryParseUtcTicksIdCursor` (comparison search normalizes inbound cursor id), batch zip manifest echo (cosmetic), and Armenian homoglyphs (deferred); seeded five follow-on rows; scoped application-analysis + replay filter 334/334. Private beta: comparison replay copies store empty payload JSON instead of echoing JSON null literals when export-diff or end-to-end rehydrate cannot build a document.
 
 - [ ] (candidate) `ComparisonRecordRepository.GetByRunIdAsync` — SQL list-by-run dashed stored — locus: UNIQUEIDENTIFIER column; input: already matches N/D lookup via guid param.
