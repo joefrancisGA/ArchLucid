@@ -6868,6 +6868,20 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-25 seed hunt (seed→hit): proved SQL `ComparisonRecordRepository.UpdateLabelAndTagsAsync` matched `ComparisonRecordId` with exact equality after a simple `.Trim()` on the lookup key while hunt 177 fixed padded primary-key tolerance on `GetById` and in-memory `UpdateLabelAndTagsAsync` already used `ComparisonRecordIdLookup`, so label/tag edits from the API could return null after a successful scoped read when legacy SQL rows retained surrounding whitespace on the primary key; normalize lookup keys and filter with `ComparisonRecordIdSql.TrimmedColumnExpression`; regression `UpdateLabelAndTagsAsync_finds_legacy_row_when_stored_comparison_record_id_has_padding`; cheap-disproof closed in-memory update path (already aligned), manifest-version column trim (audit copy path normalizes), `ApiPaging.TryParseUtcTicksIdCursor` (comparison search normalizes inbound cursor id), batch zip manifest echo (cosmetic), and Armenian homoglyphs (deferred); seeded five follow-on rows; scoped application-analysis + replay filter 341/341 plus persistence update regression. Private beta: operators can edit comparison labels and tags when legacy storage used padded comparison record ids.
+
+- [ ] (candidate) `ComparisonRecordRepository.GetByRunIdAsync` — SQL list-by-run dashed stored — locus: UNIQUEIDENTIFIER column; input: already matches N/D lookup via guid param.
+- [ ] (candidate) `ComparisonRecordPersistNormalizer` — manifest version columns on read — locus: optional string columns; input: audit replay copy already trims.
+- [ ] (candidate) `ComparisonRecordSearchPredicateBuilder` — notes column search — locus: no notes filter today; input: defer.
+- [ ] (candidate) `ApiPaging.TryParseUtcTicksIdCursor` — cursor id segment without trim — locus: HTTP cursor parse; input: padded id after ticks delimiter (alerts inbox and other API surfaces).
+- [ ] (candidate) `ComparisonBatchReplayZipSupport` — manifest failure entries echo pre-trim batch tokens — locus: zip manifest; input: cosmetic id echo only.
+
+- [x] (proven) `UpdateLabelAndTagsAsync` — SQL padded comparison record id lookup — **hit 2026-10-25 seed hunt:** `ComparisonRecordIdLookup` + trimmed SQL WHERE; regression above.
+- [x] (valid-no-repro) `UpdateLabelAndTagsAsync` — in-memory padded id — **cheap-disproof 2026-10-25 seed hunt:** already used lookup helper before SQL fix.
+- [x] (valid-no-repro) `TryUpdateLabelAndTagsAsync` — application scoped read — **cheap-disproof 2026-10-25 seed hunt:** facade trims id; SQL write was the gap.
+- [x] (invalid) `ApiPaging.TryParseUtcTicksIdCursor` — HTTP cursor id trim — **cheap-disproof 2026-10-25 seed hunt:** comparison search normalizes at application layer.
+- [x] (invalid) `ComparisonBatchReplayZipSupport` — manifest id echo — **cheap-disproof 2026-10-25 seed hunt:** cosmetic only.
+
 2026-10-25 seed hunt (seed→hit): proved `ComparisonRecordSearchPredicateBuilder` OPENJSON tag filters and `ComparisonRecordRepositoryCore.FilterInMemory` tag needles used exact equality on stored tag strings while hunt 182 fixed label/type stored padding and an earlier hunt trimmed query-side tag tokens only, so SQL and in-memory comparison history search missed legacy rows when stored JSON tags retained surrounding whitespace; trim stored tags in OPENJSON predicates and in-memory conjunction filters, normalize tag strings on read via `ComparisonRecordPersistNormalizer`, and route SQL `GetByRunIdAsync` lookup through `ComparisonRecordRunIdSql.ToNullableSqlGuid`; regressions `FilterInMemory_finds_row_when_stored_tag_has_surrounding_whitespace`, `SearchAsync_finds_row_when_stored_tag_has_surrounding_whitespace`, and trimmed OPENJSON assertion in `AppendFilters_trims_padded_tag_query_parameters`; cheap-disproof closed query-side tag trim (prior hunt), run id dashed-vs-N SQL storage (UNIQUEIDENTIFIER equality), `ApiPaging.TryParseUtcTicksIdCursor` (comparison search normalizes inbound cursor id), batch zip manifest echo (cosmetic), and Armenian homoglyphs (deferred); seeded five follow-on rows; scoped application-analysis + replay filter 341/341 plus persistence tag-search regressions. Private beta: comparison history tag filters find legacy rows when stored tags kept padding, and list rows return trimmed tag values.
 
 - [ ] (candidate) `ComparisonRecordRepository.GetByRunIdAsync` — SQL list-by-run dashed stored — locus: UNIQUEIDENTIFIER column; input: already matches N/D lookup via guid param.
@@ -8381,11 +8395,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 183
-- **bugs-found:** 189
+- **hunts:** 184
+- **bugs-found:** 190
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-25
-- **last-bug:** 2026-10-25 — comparison search stored tag trim
+- **last-bug:** 2026-10-25 — SQL update label/tags padded id lookup
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
