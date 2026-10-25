@@ -6868,6 +6868,20 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-25 seed hunt (seed→hit): proved hunt 235 dropped immaterial agent-result deltas but left duplicate `AgentResultDelta` rows for the same `AgentType` untouched on `NormalizePersistedPayload`, so corrupt legacy JSON could persist repeated per-agent sections in markdown/HTML/PDF exports; dedupe agent deltas by `AgentType` in first-seen order inside `AgentResultDiffNormalizer` after list normalize and immaterial drop; regression `CompareQuality_EndToEndReplayComparisonReportNormalizer_dedupes_duplicate_agent_result_deltas_by_agent_type`; cheap-disproof closed run-metadata changed-field dedupe (hunt 241), live `AgentResultDiffService` compare output (generator emits at most one delta per agent type), `ApiPaging.TryParseUtcTicksIdCursor` (comparison search normalizes inbound cursor id), batch zip manifest echo (cosmetic), and Armenian homoglyphs (deferred); seeded five follow-on rows; scoped application-analysis + replay filter 336/336. Private beta: end-to-end comparison exports no longer repeat corrupt legacy duplicate per-agent delta rows for the same agent type in stored JSON.
+
+- [ ] (candidate) `ComparisonRecordRepository.GetByRunIdAsync` — SQL list-by-run dashed stored — locus: UNIQUEIDENTIFIER column; input: already matches N/D lookup via guid param.
+- [ ] (candidate) `ComparisonRecordRepositoryCore.SerializeTagsForUpdate` — JSON tag order — locus: cosmetic; input: defer.
+- [ ] (candidate) `ComparisonRecordSearchPredicateBuilder` — notes column search — locus: no notes filter today; input: defer.
+- [ ] (candidate) `ApiPaging.TryParseUtcTicksIdCursor` — cursor id segment without trim — locus: HTTP cursor parse; input: padded id after ticks delimiter (alerts inbox and other API surfaces).
+- [ ] (candidate) `ComparisonBatchReplayZipSupport` — manifest failure entries echo pre-trim batch tokens — locus: zip manifest; input: cosmetic id echo only.
+
+- [x] (proven) `AgentResultDiffNormalizer` — duplicate agent-result deltas per agent type — **hit 2026-10-25 seed hunt:** first-seen dedupe after immaterial drop; regression above.
+- [x] (valid-no-repro) `RunMetadataDiffNormalizer` — duplicate changed-field names — **cheap-disproof 2026-10-25 seed hunt:** hunt 241; agent-type dedupe was separate nested surface.
+- [x] (valid-no-repro) `AgentResultDiffService` — agent-result delta generation — **cheap-disproof 2026-10-25 seed hunt:** compare emits one delta per agent type; gap was corrupt rehydrated JSON.
+- [x] (invalid) `ApiPaging.TryParseUtcTicksIdCursor` — HTTP cursor id trim — **cheap-disproof 2026-10-25 seed hunt:** comparison search normalizes at application layer.
+- [x] (invalid) `ComparisonBatchReplayZipSupport` — manifest id echo — **cheap-disproof 2026-10-25 seed hunt:** cosmetic only.
+
 2026-10-25 seed hunt (seed→hit): proved hunts 239–240 aligned run-metadata diff flags with changed-field names but left duplicate `RunMetadataDiffResult.ChangedFields` entries untouched on `NormalizePersistedPayload`, so corrupt legacy JSON could persist repeated field bullets that markdown/HTML/PDF summaries counted as multiple changed fields; dedupe changed-field names in first-seen order inside `RunMetadataDiffNormalizer` after list trim; regression `CompareQuality_EndToEndReplayComparisonReportNormalizer_dedupes_run_metadata_changed_fields`; cheap-disproof closed run-metadata flag sync (hunt 240), live `EndToEndReplayComparisonService.BuildRunDiff` output (generator never emits duplicate field names), `ApiPaging.TryParseUtcTicksIdCursor` (comparison search normalizes inbound cursor id), batch zip manifest echo (cosmetic), and Armenian homoglyphs (deferred); seeded five follow-on rows; scoped application-analysis + replay filter 335/335. Private beta: end-to-end comparison exports no longer inflate run-metadata changed-field counts from corrupt legacy duplicate field names in stored JSON.
 
 - [ ] (candidate) `ComparisonRecordRepository.GetByRunIdAsync` — SQL list-by-run dashed stored — locus: UNIQUEIDENTIFIER column; input: already matches N/D lookup via guid param.
