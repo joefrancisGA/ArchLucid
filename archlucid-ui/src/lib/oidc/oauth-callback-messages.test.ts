@@ -1060,6 +1060,13 @@ describe("humanizeAuthorizeCallbackError", () => {
     expect(message).not.toContain("+++");
   });
 
+  it("uses fixed copy for unauthorized_client authorize-query errors", () => {
+    const message = humanizeAuthorizeCallbackError("unauthorized_client", "");
+
+    expect(message).toContain("not enabled");
+    expect(message).not.toContain("unauthorized_client");
+  });
+
   it("uses fixed copy for unauthorized_client regardless of oversized error_description", () => {
     const oversized = `${"Policy ".repeat(80)}end`;
     const message = humanizeAuthorizeCallbackError("unauthorized_client", oversized);
