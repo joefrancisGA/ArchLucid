@@ -66,7 +66,7 @@ export function sponsorSeverityUrgencyClause(severity: string | null | undefined
 
 function buildHeadline(title: string | null, severity: string | null): string {
   if (title !== null && severity !== null) {
-    return `${severity} finding: ${title}`;
+    return `Recorded severity ${severity}: ${title}`;
   }
 
   if (title !== null) {
@@ -74,7 +74,7 @@ function buildHeadline(title: string | null, severity: string | null): string {
   }
 
   if (severity !== null) {
-    return `${severity} architecture finding`;
+    return `Recorded severity ${severity} — finding title was not stored.`;
   }
 
   return "Finding title was not stored.";

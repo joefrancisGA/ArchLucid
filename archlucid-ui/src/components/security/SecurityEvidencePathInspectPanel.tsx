@@ -391,7 +391,7 @@ function RecommendedActionSection(props: {
       value:
         props.path.weakestHop?.reason?.trim() ||
         props.path.hops[0]?.evidenceReference?.trim() ||
-        "Not cited.",
+        "Evidence citation was not stored.",
     },
     {
       label: "Consequence",
@@ -422,8 +422,8 @@ function RecommendedActionSection(props: {
         return "How to check was not stored.";
       }
 
-      if (line.value === "Not cited.") {
-        return "Not cited.";
+      if (line.value === "Evidence citation was not stored.") {
+        return "Evidence citation was not stored.";
       }
 
       return line.value;
@@ -436,8 +436,10 @@ function RecommendedActionSection(props: {
     ...line,
     display: displayForLine(line),
   }));
-  const notCitedLabels = linesWithDisplay.filter((line) => line.display === "Not cited.").map((line) => line.label);
-  const citedLines = linesWithDisplay.filter((line) => line.display !== "Not cited.");
+  const notCitedLabels = linesWithDisplay
+    .filter((line) => line.display === "Evidence citation was not stored.")
+    .map((line) => line.label);
+  const citedLines = linesWithDisplay.filter((line) => line.display !== "Evidence citation was not stored.");
   const showSingleNotCitedLine = notCitedLabels.length === 1;
   const showNotCitedSummary = notCitedLabels.length >= 2;
 
@@ -446,7 +448,7 @@ function RecommendedActionSection(props: {
       <h3 className={OPERATOR_TYPOGRAPHY.cardTitle}>Recommended action</h3>
       {showNotCitedSummary ? (
         <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)} data-testid="security-evidence-path-recommended-action-not-cited-summary">
-          Not cited: {notCitedLabels.join(", ")}.
+          Evidence citation was not stored: {notCitedLabels.join(", ")}.
         </p>
       ) : null}
       <dl className="m-0 space-y-2">
@@ -459,7 +461,7 @@ function RecommendedActionSection(props: {
         {showSingleNotCitedLine ? (
           <div>
             <dt className={cn("font-medium", OPERATOR_TYPOGRAPHY.helper)}>{notCitedLabels[0]}</dt>
-            <dd className={cn("m-0 mt-0.5", OPERATOR_TYPOGRAPHY.body)}>Not cited.</dd>
+            <dd className={cn("m-0 mt-0.5", OPERATOR_TYPOGRAPHY.body)}>Evidence citation was not stored.</dd>
           </div>
         ) : null}
       </dl>

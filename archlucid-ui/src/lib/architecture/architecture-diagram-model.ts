@@ -93,7 +93,7 @@ function findNodeIdByLabel(
     }
   }
 
-  return matches[0]!.id;
+  return null;
 }
 
 function mergeEndpointLabels(
@@ -276,7 +276,7 @@ export function buildArchitectureDiagramModel(
   addEntityNodes(byKey.get("external-integrations")?.entities ?? [], "external", nodes, usedIds);
 
   if (architectureNameAddsDiagramNode(architectureName, nodes.map((node) => node.label))) {
-    nodes.push(createNode(architectureName.trim(), "system", "asserted", usedIds, nodes.length));
+    nodes.push(createNode(architectureName.trim(), "system", "inferred", usedIds, nodes.length));
   }
 
   addFlowEdges(parseResult, nodes, edges);
