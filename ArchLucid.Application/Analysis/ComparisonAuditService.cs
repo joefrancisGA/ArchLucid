@@ -158,18 +158,21 @@ public sealed class ComparisonAuditService(IComparisonRecordRepository repositor
         }
     }
 
-    private static string? NormalizeExportRecordIdColumnOrNull(string? exportRecordId) =>
-        string.IsNullOrWhiteSpace(exportRecordId)
-            ? exportRecordId
-            : RunExportRecordIdNormalizer.NormalizeRequired(exportRecordId);
+    private static string? NormalizeExportRecordIdColumnOrNull(string? exportRecordId)
+    {
+        if (string.IsNullOrWhiteSpace(exportRecordId))
+            return null;
+
+        return RunExportRecordIdNormalizer.NormalizeRequired(exportRecordId);
+    }
 
     private static string NormalizeRequiredMarkdown(string summaryMarkdown) => summaryMarkdown.Trim();
 
     private static string? NormalizeOptionalMarkdown(string? summaryMarkdown) =>
-        string.IsNullOrWhiteSpace(summaryMarkdown) ? summaryMarkdown : summaryMarkdown.Trim();
+        OptionalExportMetadataStringNormalizer.NormalizeOptionalString(summaryMarkdown);
 
     private static string NormalizeFormatColumn(string format) =>
-        string.IsNullOrWhiteSpace(format) ? format : format.Trim();
+        string.IsNullOrWhiteSpace(format) ? string.Empty : format.Trim();
 
     private static string NormalizeReplayNotes(string? notes, string sourceComparisonRecordId) =>
         string.IsNullOrWhiteSpace(notes)

@@ -153,6 +153,39 @@ public sealed class ComparisonAuditServiceTests
     }
 
     [Fact]
+    public async Task CompareQuality_RecordReplayOfAsync_nulls_whitespace_only_export_ids_summary_and_format_on_persist()
+    {
+        ComparisonRecord? persisted = null;
+        Mock<IComparisonRecordRepository> repo = new();
+        repo
+            .Setup(r => r.CreateAsync(It.IsAny<ComparisonRecord>(), It.IsAny<CancellationToken>()))
+            .Callback<ComparisonRecord, CancellationToken>((record, _) => persisted = record)
+            .Returns(Task.CompletedTask);
+        ComparisonAuditService sut = new(repo.Object, Mock.Of<IAuditService>());
+        ComparisonRecord source = new()
+        {
+            ComparisonRecordId = "dddddddddddddddddddddddddddddddd",
+            ComparisonType = ComparisonTypes.ExportRecordDiff,
+            LeftRunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            RightRunId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            LeftExportRecordId = "   ",
+            RightExportRecordId = "  right-anchor  ",
+            Format = "   ",
+            SummaryMarkdown = "   ",
+            PayloadJson = "{}",
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+        };
+
+        await sut.RecordReplayOfAsync(source, "replay note", CancellationToken.None);
+
+        persisted.Should().NotBeNull();
+        persisted!.LeftExportRecordId.Should().BeNull();
+        persisted.RightExportRecordId.Should().Be("right-anchor");
+        persisted.Format.Should().BeEmpty();
+        persisted.SummaryMarkdown.Should().BeNull();
+    }
+
+    [Fact]
     public async Task RecordReplayOfAsync_trims_padded_export_record_anchors_on_persist()
     {
         ComparisonRecord? persisted = null;
