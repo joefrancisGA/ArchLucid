@@ -738,6 +738,43 @@ public sealed class EndToEndReplayComparisonReportNormalizerTests
     }
 
     [Fact]
+    public void CompareQuality_EndToEndReplayComparisonReportNormalizer_removes_unknown_export_record_diff_field_names()
+    {
+        EndToEndReplayComparisonReport report = new()
+        {
+            LeftRunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            RightRunId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            ExportDiffs =
+            [
+                new ExportRecordDiffResult
+                {
+                    ChangedTopLevelFields = ["Format", "legacyPlaceholder", "  legacyPlaceholder  "],
+                    RequestDiff = new ExportRecordRequestDiff
+                    {
+                        ChangedFlags = ["IncludeSummary", "NotARealFlag"],
+                        ChangedValues = ["Audience", "bogus"],
+                    },
+                },
+                new ExportRecordDiffResult
+                {
+                    ChangedTopLevelFields = ["corruptOnly"],
+                    RequestDiff = new ExportRecordRequestDiff
+                    {
+                        ChangedFlags = ["  "],
+                    },
+                },
+            ],
+        };
+
+        EndToEndReplayComparisonReportNormalizer.NormalizePersistedPayload(report);
+
+        report.ExportDiffs.Should().ContainSingle();
+        report.ExportDiffs[0].ChangedTopLevelFields.Should().Equal(["Format"]);
+        report.ExportDiffs[0].RequestDiff.ChangedFlags.Should().Equal(["IncludeSummary"]);
+        report.ExportDiffs[0].RequestDiff.ChangedValues.Should().Equal(["Audience"]);
+    }
+
+    [Fact]
     public void CompareQuality_EndToEndReplayComparisonReportNormalizer_nulls_empty_nested_export_request_shells_on_export_record_diffs()
     {
         EndToEndReplayComparisonReport report = new()

@@ -7,6 +7,57 @@ namespace ArchLucid.Application.Analysis;
 /// </summary>
 internal static class ExportRecordDiffResultNormalizer
 {
+    private static readonly HashSet<string> KnownTopLevelChangedFields = new(StringComparer.Ordinal)
+    {
+        "ExportType",
+        "Format",
+        "FileName",
+        "TemplateProfile",
+        "TemplateProfileDisplayName",
+        "WasAutoSelected",
+        "ResolutionReason",
+        "ManifestVersion",
+        "Notes",
+        "IncludedEvidence",
+        "IncludedExecutionTraces",
+        "IncludedManifest",
+        "IncludedDiagram",
+        "IncludedSummary",
+        "IncludedDeterminismCheck",
+        "DeterminismIterations",
+        "IncludedManifestCompare",
+        "CompareManifestVersion",
+        "IncludedAgentResultCompare",
+        "CompareRunId",
+    };
+
+    private static readonly HashSet<string> KnownRequestChangedFlags = new(StringComparer.Ordinal)
+    {
+        "ExternalDelivery",
+        "ExecutiveFriendly",
+        "RegulatedEnvironment",
+        "NeedDetailedEvidence",
+        "NeedExecutionTraces",
+        "NeedDeterminismOrCompareAppendices",
+        "IncludeEvidence",
+        "IncludeExecutionTraces",
+        "IncludeManifest",
+        "IncludeDiagram",
+        "IncludeSummary",
+        "IncludeDeterminismCheck",
+        "IncludeManifestCompare",
+        "IncludeAgentResultCompare",
+    };
+
+    private static readonly HashSet<string> KnownRequestChangedValues = new(StringComparer.Ordinal)
+    {
+        "TemplateProfile",
+        "Audience",
+        "DeterminismIterations",
+        "CompareManifestVersion",
+        "CompareRunId",
+    };
+
     internal static void NormalizeDisplayAnchors(ExportRecordDiffResult diff)
     {
         ArgumentNullException.ThrowIfNull(diff);
@@ -21,6 +72,7 @@ internal static class ExportRecordDiffResultNormalizer
         ComparisonPersistedStringListNormalizer.NormalizeInPlace(diff.ChangedTopLevelFields);
         ComparisonPersistedStringListNormalizer.NormalizeInPlace(diff.RequestDiff.ChangedFlags);
         ComparisonPersistedStringListNormalizer.NormalizeInPlace(diff.RequestDiff.ChangedValues);
+        RemoveUnknownExportDiffFieldNamesInPlace(diff);
 
         PersistedAnalysisExportRequestMetadata.TrimOptionalStrings(diff.RequestDiff.LeftRequest);
         PersistedAnalysisExportRequestMetadata.TrimOptionalStrings(diff.RequestDiff.RightRequest);
@@ -34,6 +86,22 @@ internal static class ExportRecordDiffResultNormalizer
 
         CanonicalizeNestedCompareRunId(diff.RequestDiff.LeftRequest);
         CanonicalizeNestedCompareRunId(diff.RequestDiff.RightRequest);
+    }
+
+    private static void RemoveUnknownExportDiffFieldNamesInPlace(ExportRecordDiffResult diff)
+    {
+        RemoveUnknownFieldNamesInPlace(diff.ChangedTopLevelFields, KnownTopLevelChangedFields);
+        RemoveUnknownFieldNamesInPlace(diff.RequestDiff.ChangedFlags, KnownRequestChangedFlags);
+        RemoveUnknownFieldNamesInPlace(diff.RequestDiff.ChangedValues, KnownRequestChangedValues);
+    }
+
+    private static void RemoveUnknownFieldNamesInPlace(List<string> fieldNames, HashSet<string> knownFieldNames)
+    {
+        for (int i = fieldNames.Count - 1; i >= 0; i--)
+        {
+            if (!knownFieldNames.Contains(fieldNames[i]))
+                fieldNames.RemoveAt(i);
+        }
     }
 
     private static void ClearEmptyNestedExportRequestShells(ExportRecordRequestDiff requestDiff)

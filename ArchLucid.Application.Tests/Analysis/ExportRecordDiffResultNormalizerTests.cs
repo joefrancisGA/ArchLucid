@@ -51,13 +51,13 @@ public sealed class ExportRecordDiffResultNormalizerTests
         ExportRecordDiffResult diff = new()
         {
             Warnings = ["   ", "  drift on title  ", "\t"],
-            ChangedTopLevelFields = [" ", "  summaryMarkdown  ", ""],
+            ChangedTopLevelFields = [" ", "  Format  ", ""],
         };
 
         ExportRecordDiffResultNormalizer.NormalizeDisplayAnchors(diff);
 
         diff.Warnings.Should().Equal("drift on title");
-        diff.ChangedTopLevelFields.Should().Equal("summaryMarkdown");
+        diff.ChangedTopLevelFields.Should().Equal("Format");
     }
 
     [Fact]
@@ -68,13 +68,13 @@ public sealed class ExportRecordDiffResultNormalizerTests
             RequestDiff = new ExportRecordRequestDiff
             {
                 ChangedFlags = ["   ", "  IncludeManifest  "],
-                ChangedValues = ["\t", "  TemplateProfile: executive  "],
+                ChangedValues = ["\t", "  TemplateProfile  "],
             },
         };
 
         ExportRecordDiffResultNormalizer.NormalizeDisplayAnchors(diff);
 
         diff.RequestDiff.ChangedFlags.Should().Equal("IncludeManifest");
-        diff.RequestDiff.ChangedValues.Should().Equal("TemplateProfile: executive");
+        diff.RequestDiff.ChangedValues.Should().Equal("TemplateProfile");
     }
 }
