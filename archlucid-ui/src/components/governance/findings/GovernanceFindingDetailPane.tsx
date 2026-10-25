@@ -25,6 +25,7 @@ import { cn } from "@/lib/utils";
 
 import {
   formatGovernanceQueueRecordKind,
+  formatGovernanceQueueRecordRoleHonesty,
   type GovernanceFindingQueueRow,
 } from "@/app/(operator)/governance/findings/governance-finding-queue-row";
 import { GOVERNANCE_QUEUE_LINKED_REVIEW_RECORD_NOT_STORED } from "@/components/governance/findings/governance-findings-row-omission-copy";
@@ -37,6 +38,7 @@ import {
 } from "@/components/governance/findings/governance-findings-buyer-labels";
 import { GovernanceFindingsQueueOperationalActions } from "@/components/governance/findings/governance-findings-queue-operational-actions";
 import { ItsmLinkedTicketStatusChip } from "@/components/findings/ItsmLinkedTicketStatusChip";
+import { formatQuickDecisionConfidenceWorkspaceLabel } from "@/lib/findings/quick-decision-finding-display";
 
 export type GovernanceFindingDetailPaneProps = {
   readonly row: GovernanceFindingQueueRow;
@@ -107,7 +109,9 @@ function GovernanceFindingDetailPaneComponent({
               row.traceConfidenceLevel === "Low" ? (
                 <FindingConfidenceBadge level={row.traceConfidenceLevel} />
               ) : (
-                <span className="text-neutral-500">—</span>
+                <span className="text-neutral-500">
+                  {formatQuickDecisionConfidenceWorkspaceLabel(null)}
+                </span>
               )}
             </p>
             <p className="m-0 mt-2">
@@ -156,6 +160,9 @@ function GovernanceFindingDetailPaneComponent({
         </span>
         <p className="m-0 mt-0.5 text-al-text-secondary">
           {formatGovernanceQueueRecordKind(row.recordKind, buyerPolishedShell)}
+        </p>
+        <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+          {formatGovernanceQueueRecordRoleHonesty(row.recordKind)}
         </p>
       </div>
       <div>

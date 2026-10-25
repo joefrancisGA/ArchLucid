@@ -7,7 +7,9 @@ export const ROI_DISPOSITION_TRAINING_TOOLTIP_HINT = manifest.operatorHints.disp
 
 export const ROI_HEADLINE_MATH_TOOLTIP_LABEL = "Portfolio headline savings";
 
-export const ROI_HEADLINE_MATH_TOOLTIP_HINT = manifest.operatorHints.headlineMath;
+export const ROI_HEADLINE_MATH_TOOLTIP_HINT = `${manifest.operatorHints.headlineMath} ${manifest.operatorHints.staleCostEvidence}`;
+
+export const ROI_STALE_COST_EVIDENCE_TOOLTIP_HINT = manifest.operatorHints.staleCostEvidence;
 
 export const ROI_SYSTEM_ROW_MATH_TOOLTIP_LABEL = "Per-system estimated savings";
 
