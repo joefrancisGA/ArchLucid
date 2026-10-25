@@ -48,6 +48,18 @@ describe("resolveOperatorHomeRunsPanelReportedTotalCount", () => {
       resolveOperatorHomeRunsPanelReportedTotalCount([buildRun("active-a"), buildRun("active-b")], 12),
     ).toBe(12);
   });
+
+  it("does not keep stale positive loaded totals when only archived tenant rows are on the page", () => {
+    expect(
+      resolveOperatorHomeRunsPanelReportedTotalCount(
+        [
+          { ...buildRun("archived-a"), isArchived: true, hasGoldenManifest: true },
+          { ...buildRun("archived-b"), isArchived: true, hasGoldenManifest: true },
+        ],
+        12,
+      ),
+    ).toBe(0);
+  });
 });
 
 describe("resolveOperatorHomeLiveRunsSnapshotTotalCount", () => {

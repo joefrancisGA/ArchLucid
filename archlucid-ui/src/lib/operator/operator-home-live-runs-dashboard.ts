@@ -21,8 +21,9 @@ export function resolveOperatorHomeLiveRunsSnapshotTotalCount(
 }
 
 /**
- * Pagination total the runs panel passes into workspace activity before tenant/demo/archived normalization.
- * Uses tenant-scoped active row count — not raw `items.length` — so archived rows cannot inflate the floor.
+ * Pagination total the runs panel reports into tenant counting and workspace activity.
+ * Uplifts omitted/zero API totals from visible active tenant rows, then normalizes through the
+ * shared tenant-scoped resolver so archived-only and demo-only pages cannot keep stale metadata.
  */
 export function resolveOperatorHomeRunsPanelReportedTotalCount(
   items: readonly RunSummary[],
@@ -32,8 +33,9 @@ export function resolveOperatorHomeRunsPanelReportedTotalCount(
     ? Math.max(0, Math.trunc(loadedTotalCount))
     : 0;
   const visibleActiveTenantCount = countNonArchivedOverviewRuns(filterTenantOverviewRuns(items));
+  const upliftedTotal = Math.max(normalizedLoaded, visibleActiveTenantCount);
 
-  return Math.max(normalizedLoaded, visibleActiveTenantCount);
+  return resolveOperatorHomeTenantScopedReviewTotalCount(items, upliftedTotal);
 }
 
 /**
