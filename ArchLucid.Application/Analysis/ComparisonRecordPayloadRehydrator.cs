@@ -23,7 +23,10 @@ public static class ComparisonRecordPayloadRehydrator
 
             EndToEndReplayComparisonReportNormalizer.NormalizePersistedPayload(report);
             EndToEndReplayComparisonReportNormalizer.ApplyComparisonRecordRunIdAnchorsInPlace(report, record);
-            return report;
+
+            return EndToEndReplayComparisonReportNormalizer.IsPersistedImmaterialRehydrateShell(report)
+                ? null
+                : report;
         }
         catch (JsonException ex)
         {

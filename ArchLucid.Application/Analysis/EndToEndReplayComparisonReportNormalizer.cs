@@ -86,6 +86,43 @@ internal static class EndToEndReplayComparisonReportNormalizer
             BackfillExportDiffRunIdsFromReport(diff, report);
     }
 
+    internal static bool IsPersistedImmaterialRehydrateShell(EndToEndReplayComparisonReport report)
+    {
+        ArgumentNullException.ThrowIfNull(report);
+
+        if (report.Warnings.Count > 0 || report.InterpretationNotes.Count > 0)
+            return false;
+
+        if (report.LeftRunId.Length > 0 || report.RightRunId.Length > 0)
+            return false;
+
+        RunMetadataDiffResult runDiff = report.RunDiff;
+        if (runDiff.ChangedFields.Count > 0
+            || runDiff.RequestIdsDiffer
+            || runDiff.ManifestVersionsDiffer
+            || runDiff.StatusDiffers
+            || runDiff.CompletionStateDiffers
+            || runDiff.ExecutionModesDiffer
+            || runDiff.ModelAliasIdsDiffer)
+        {
+            return false;
+        }
+
+        if (report.AgentResultDiff is not null
+            || report.ManifestDiff is not null
+            || report.ExportDiffs.Count > 0
+            || report.FindingCorrelation is not null
+            || report.FindingLifecycle is not null
+            || report.FindingLifecycleRecords.Count > 0
+            || report.CompareQualityDelta is not null
+            || report.CompareVerdictChromeDelta is not null)
+        {
+            return false;
+        }
+
+        return true;
+    }
+
     private static string NormalizeReportRunIdAnchor(string runId) =>
         string.IsNullOrWhiteSpace(runId) ? string.Empty : AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(runId);
 
