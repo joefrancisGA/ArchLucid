@@ -99,6 +99,7 @@ public sealed class CompareQualityExportRecordDiffTests
         ExportRecordDiffResult result = sut.Compare(left, right);
 
         result.ChangedTopLevelFields.Should().NotContain("ExportType");
+        result.Warnings.Should().NotContain(w => w.Contains("different export types", StringComparison.OrdinalIgnoreCase));
     }
 
     [Fact]

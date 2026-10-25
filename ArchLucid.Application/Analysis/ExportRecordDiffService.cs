@@ -20,6 +20,9 @@ public sealed class ExportRecordDiffService : IExportRecordDiffService
         ArgumentNullException.ThrowIfNull(left);
         ArgumentNullException.ThrowIfNull(right);
 
+        RunExportRecordScopedReadNormalizer.NormalizeInPlace(left);
+        RunExportRecordScopedReadNormalizer.NormalizeInPlace(right);
+
         ExportRecordDiffResult result = new()
         {
             LeftExportRecordId = RunExportRecordIdNormalizer.NormalizeRequired(left.ExportRecordId),
