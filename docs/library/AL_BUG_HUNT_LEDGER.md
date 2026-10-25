@@ -1,3 +1,8 @@
+2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed invalid_state authorize-query UX (existing parity) and saturated readOAuthJsonErrorDescription ZWJ multiply-encoded glue (existing parity); regression documents BFF refresh 498 parity (client + route opaque 498) and soft-hyphen replacement-character variation-selector-16-only access_token rejection (existing parity); scoped vitest 781/781.
+
+- [x] (invalid) humanizeAuthorizeCallbackError - invalid_state authorize-query copy - **cheap-disproof 2026-10-22:** existing readable default-branch UX parity test.
+- [x] (valid-no-repro) refreshBffSessionCookie - refresh 498 shouldClearSession false - **regression 2026-10-22:** client soft-fail plus BFF route opaque 498 without cookie clear.
+- [x] (valid-no-repro) exchangeAuthorizationCode - access_token JSON string soft-hyphen replacement-character and variation-selector-16-only skips authorize retry marker - **cheap-disproof 2026-10-22:** existing normalizeTokenString strip parity test.
 2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed invalid_saml_subject authorize-query UX, BFF refresh 454 parity (client + route opaque 454), and saturated readOAuthJsonErrorDescription punctuation-space multiply-encoded glue; regression documents authorize-retry marking when authorization code exchange returns en-space-only access_token; scoped vitest 655/655.
 
 - [x] (invalid) humanizeAuthorizeCallbackError - invalid_saml_subject authorize-query copy - **cheap-disproof 2026-10-22:** readable default-branch UX parity test.
@@ -501,6 +506,9 @@ Zone bodies live in the set ledgers below. `/al-bug1` through `/al-bug4` each hu
 
 - [ ] (candidate) humanizeAuthorizeCallbackError - state_mismatch authorize-query copy - locus: default branch UX.
 - [ ] (candidate) refreshBffSessionCookie - refresh 499 shouldClearSession false - locus: transient refresh parity.
+- [ ] (candidate) exchangeAuthorizationCode - access_token JSON string soft-hyphen and object-replacement-only skips authorize retry marker - locus: literal whitespace token shape.
+- [ ] (candidate) decodeOAuthErrorDescription - multiply-encoded %252B with ZWJ glue - locus: saturated encoding class.
+
 - [ ] (candidate) exchangeAuthorizationCode - access_token JSON string object-replacement replacement-character and variation-selector-16-only skips authorize retry marker - locus: literal whitespace token shape.
 - [ ] (candidate) decodeOAuthErrorDescription - multiply-encoded %252B with ZWJ glue - locus: saturated encoding class.
 
