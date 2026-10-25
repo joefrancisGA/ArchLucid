@@ -13,6 +13,13 @@ internal static class RunExportRecordScopedReadNormalizer
 
         record.ExportRecordId = RunExportRecordIdNormalizer.NormalizeRequired(record.ExportRecordId);
         record.RunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(record.RunId);
+
+        if (!string.IsNullOrWhiteSpace(record.CompareRunId))
+            record.CompareRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(record.CompareRunId);
+
+        record.CompareManifestVersion =
+            PersistedAnalysisExportRequestMetadata.NormalizeOptionalString(record.CompareManifestVersion);
+
         PersistedAnalysisExportRequestDeterminismNormalizer.NormalizeRunExportRecordDenormalizedColumns(record);
     }
 }

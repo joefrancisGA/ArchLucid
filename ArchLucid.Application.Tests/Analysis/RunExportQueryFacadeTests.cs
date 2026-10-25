@@ -138,6 +138,45 @@ public sealed class RunExportQueryFacadeTests
     }
 
     [Fact]
+    public async Task CompareQuality_GetExportRecordAsync_canonicalizes_dashed_compare_run_id_from_stored_row()
+    {
+        Guid compareRunGuid = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");
+        string canonicalCompareRunId = compareRunGuid.ToString("N");
+        Guid runGuid = Guid.Parse(RunId);
+        ArchitectureRunDetail scopedDetail = CreateScopedRunDetail();
+        RunDetailDto authorityDetail = CreateAuthorityDetailWithCompleteLifecycle(runGuid);
+        RunExportRecord export = CreateExportRecord();
+        export.CompareRunId = compareRunGuid.ToString("D");
+        export.CompareManifestVersion = "  v2  ";
+
+        Mock<IRunDetailQueryService> runDetails = new();
+        runDetails
+            .Setup(r => r.GetRunDetailAsync(RunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(scopedDetail);
+
+        Mock<IRunExportRecordRepository> exportRecords = new();
+        exportRecords
+            .Setup(r => r.GetByIdAsync(ExportRecordId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(export);
+
+        ArchLucid.Decisioning.Services.ManifestHashService manifestHashService = new();
+        Mock<IAuthorityQueryService> authority = new();
+        SealedExportReceiptTestSupport.ConfigureVerifiedSealedExport(authority, runGuid, manifestHashService);
+        authority
+            .Setup(a => a.GetRunDetailAsync(It.IsAny<ScopeContext>(), runGuid, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(authorityDetail);
+
+        RunExportQueryFacade sut = CreateFacade(runDetails, exportRecords, authority, manifestHashService);
+
+        ScopedExportRecordLoadResult result =
+            await sut.GetExportRecordAsync(ExportRecordId, CancellationToken.None);
+
+        result.Outcome.Should().Be(ExportRecordLoadOutcome.Success);
+        result.Record!.CompareRunId.Should().Be(canonicalCompareRunId);
+        result.Record.CompareManifestVersion.Should().Be("v2");
+    }
+
+    [Fact]
     public async Task GetRunExportHistoryAsync_returns_run_not_found_for_whitespace_run_id_without_calling_detail_query()
     {
         Mock<IRunDetailQueryService> runDetails = new();
