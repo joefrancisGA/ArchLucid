@@ -1,4 +1,9 @@
-import { INFRA_EVIDENCE_DIAGRAM_OUTLINE_SOURCE_OBSERVED } from "@/lib/infra-evidence/infra-evidence-diagram-copy";
+import {
+  INFRA_EVIDENCE_DIAGRAM_OUTLINE_SOURCE_DECLARED,
+  INFRA_EVIDENCE_DIAGRAM_OUTLINE_SOURCE_INFERRED,
+  INFRA_EVIDENCE_DIAGRAM_OUTLINE_SOURCE_OBSERVED,
+  INFRA_EVIDENCE_DIAGRAM_OUTLINE_SOURCE_PROBABLE,
+} from "@/lib/infra-evidence/infra-evidence-diagram-copy";
 import { normalizeSecureNowResourceNameForDisplay } from "@/lib/infra-evidence/format-azure-resource-display";
 import { findUnquotedMermaidCommentIndex } from "@/lib/mermaid/find-unquoted-mermaid-comment-index";
 
@@ -308,8 +313,26 @@ function emptyOutlineEdgeMetadata(): OutlineEdgeMetadata {
 }
 
 export function formatInfraEvidenceOutlineProvenanceReviewerBand(provenanceKind: string): string {
-  if (provenanceKind === "ObservedFact") {
+  const normalized = provenanceKind.trim();
+
+  if (normalized.length === 0) {
+    return "Provenance was not stored.";
+  }
+
+  if (normalized === "ObservedFact") {
     return INFRA_EVIDENCE_DIAGRAM_OUTLINE_SOURCE_OBSERVED;
+  }
+
+  if (normalized === "HumanAssertion") {
+    return INFRA_EVIDENCE_DIAGRAM_OUTLINE_SOURCE_DECLARED;
+  }
+
+  if (normalized === "DerivedFact") {
+    return INFRA_EVIDENCE_DIAGRAM_OUTLINE_SOURCE_PROBABLE;
+  }
+
+  if (normalized === "DeterministicInference" || normalized === "AiInference") {
+    return INFRA_EVIDENCE_DIAGRAM_OUTLINE_SOURCE_INFERRED;
   }
 
   return `Provenance "${provenanceKind}" has no reviewer band.`;
@@ -396,11 +419,21 @@ function resolveEdgeSourceFromArrow(line: string, metadata: OutlineEdgeMetadata)
   return "missing";
 }
 
+function edgeIsHumanDeclaredConnection(edge: InfraEvidenceMermaidOutlineEdge): boolean {
+  const provenance = edge.provenanceKind?.trim().toLowerCase() ?? "";
+
+  if (provenance === "humanassertion") {
+    return true;
+  }
+
+  return edge.inferenceSource?.trim().toLowerCase() === "human-declared-connection";
+}
+
 export function hasInfraEvidenceDeclaredDiagramEdges(
   outline: InfraEvidenceMermaidOutline | null,
   mermaidSource?: string | null,
 ): boolean {
-  if (outline != null && outline.edges.some((edge) => edge.source === "declared")) {
+  if (outline != null && outline.edges.some((edge) => edgeIsHumanDeclaredConnection(edge))) {
     return true;
   }
 
@@ -410,7 +443,10 @@ export function hasInfraEvidenceDeclaredDiagramEdges(
     return false;
   }
 
-  return source.includes("-.->") || /declared\s·/u.test(source);
+  return (
+    /al-provenance=HumanAssertion/iu.test(source)
+    || /al-inference=human-declared-connection/iu.test(source)
+  );
 }
 
 export function hasInfraEvidenceProbableDiagramEdges(

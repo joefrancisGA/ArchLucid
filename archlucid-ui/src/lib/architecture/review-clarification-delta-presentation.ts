@@ -15,7 +15,7 @@ export function buildReviewClarificationDeltaPresentation(
       resolvedByEvidenceCount: 0,
       resolvedByAssertionCount: 0,
       stillOpenCount: 0,
-      summary: null,
+      summary: "Clarification delta from the prior review was not stored.",
     };
   }
 

@@ -59,7 +59,11 @@ function normalizeCloudProviderForWizard(raw: string | undefined): WizardFormVal
 
 /** Maps SECOND_RUN `environment` to a wizard `<Select>` value (identity step options). */
 export function normalizeEnvironmentForWizard(raw: string | undefined): string {
-  const e = (raw ?? "staging").trim().toLowerCase();
+  const e = (raw ?? "").trim().toLowerCase();
+
+  if (e.length === 0) {
+    return "";
+  }
 
   if (e === "prod" || e === "production") {
     return "production";
@@ -77,7 +81,7 @@ export function normalizeEnvironmentForWizard(raw: string | undefined): string {
     return "sandbox";
   }
 
-  return "staging";
+  return "";
 }
 
 /**
@@ -155,7 +159,10 @@ export function applySecondRunPasteToWizard(raw: string, defaults: WizardFormVal
     requestId,
     systemName: name,
     description,
-    environment: normalizeEnvironmentForWizard(readString(record, "environment", "Environment")),
+    environment:
+      readString(record, "environment", "Environment") !== undefined
+        ? normalizeEnvironmentForWizard(readString(record, "environment", "Environment"))
+        : defaults.environment,
     cloudProvider:
       normalizeCloudProviderForWizard(
         readString(record, "cloud_provider", "cloudProvider", "CloudProvider"),

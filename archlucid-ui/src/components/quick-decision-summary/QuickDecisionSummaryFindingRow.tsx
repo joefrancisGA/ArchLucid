@@ -24,6 +24,7 @@ import { Button } from "@/components/ui/button";
 import { SeverityTag } from "@/components/ui/severity-tag";
 import { StatusTag } from "@/components/ui/status-tag";
 import { findingEnforcementTierLabel } from "@/lib/findings/finding-enforcement-tier";
+import { formatQuickDecisionEvaluationTraceLabel } from "@/lib/findings/finding-evaluation-trace-copy";
 import { buildFindingPolicyEvidenceCitationsFromQuickDecision } from "@/lib/findings/finding-policy-evidence-citations";
 import { getFindingDetailHref } from "@/lib/findings/finding-evidence-navigation";
 import {
@@ -32,8 +33,8 @@ import {
   quickDecisionWorkItemSeverityLabel,
 } from "@/lib/quick-decision-finding-links";
 import {
-  formatQuickDecisionFindingOwnerDisplay,
   formatQuickDecisionConfidenceWorkspaceLabel,
+  formatQuickDecisionFindingOwnerDisplay,
   isKnownQuickDecisionConfidenceLevel,
 } from "@/lib/findings/quick-decision-finding-display";
 import {
@@ -116,14 +117,11 @@ export function QuickDecisionSummaryFindingRow({
         ) : null}
         {isKnownQuickDecisionConfidenceLevel(finding.confidenceLevel) ? (
           <FindingConfidenceBadge level={finding.confidenceLevel} />
-        ) : finding.confidenceLevel === null || finding.confidenceLevel === undefined ? (
-          <StatusTag
-            kind="neutral"
-            label={formatQuickDecisionConfidenceWorkspaceLabel(finding.confidenceLevel)}
-            className="shrink-0"
-            data-testid={`finding-confidence-omitted-${finding.findingId}`}
-          />
-        ) : null}
+        ) : (
+          <span className="text-al-text-secondary text-sm">
+            {formatQuickDecisionConfidenceWorkspaceLabel(finding.confidenceLevel)}
+          </span>
+        )}
         <AiOutputGovernanceLabel findingId={finding.findingId} />
         <FindingTrustChip finding={finding} />
         <FindingClassificationChip
@@ -232,13 +230,12 @@ export function QuickDecisionSummaryFindingRow({
           {INSIGHT_DENSITY_TYPED_ENGINE_HONESTY_LINE}
         </p>
       ) : null}
-      {finding.traceConfidenceLabel !== null &&
-      finding.traceConfidenceLabel !== undefined &&
-      finding.traceConfidenceLabel.trim().length > 0 ? (
-        <p className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-          Evaluation trace: {finding.traceConfidenceLabel}
-        </p>
-      ) : null}
+      <p
+        className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+        data-testid={`quick-decision-evaluation-trace-${finding.findingId}`}
+      >
+        Evaluation trace: {formatQuickDecisionEvaluationTraceLabel(finding.traceConfidenceLabel)}
+      </p>
       {finding.evaluationConfidenceScore !== null &&
       finding.evaluationConfidenceScore !== undefined &&
       Number.isFinite(finding.evaluationConfidenceScore) ? (
@@ -274,13 +271,6 @@ export function QuickDecisionSummaryFindingRow({
           data-testid={`finding-evidence-ref-snippets-missing-${finding.findingId}`}
         >
           Evidence ref excerpts were not stored.
-        </p>
-      ) : evidenceRefCount === null || evidenceRefCount === undefined ? (
-        <p
-          className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-          data-testid={`finding-evidence-ref-count-not-stored-${finding.findingId}`}
-        >
-          Evidence reference count was not stored.
         </p>
       ) : null}
       {(finding.insightDensityScore !== null && finding.insightDensityScore !== undefined) ||
