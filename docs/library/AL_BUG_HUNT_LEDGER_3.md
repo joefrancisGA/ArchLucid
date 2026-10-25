@@ -7328,6 +7328,8 @@ ABQ-09 churn hotspot.
 
 ## Zone: securenow-question-queue
 
+2026-10-25 seed hunt (seed→hit): `ReopenAsync` resolved disposition identity with hardcoded `Resource` scope while subscription policy-pack questions list empty `ResourceId` and answer/ignore already use subscription disposition identity — reachable `POST /reopen` after answering a pack question failed with `ResourceId is required.`; `SecureNowQuestionDispositionResourceIdResolver.ResolveForReopen`; regression `Subscription_scope_pack_question_accepts_empty_resource_id_on_reopen`; `SecureNowQuestionDispositionServiceTests` 21/21. Private beta: operators can reopen subscription-scope SecureNow pack questions they previously answered instead of hitting a validation error.
+
 2026-10-21 thorough hunt (hit, lane C): promoted subscription/resource-group pack elicitation questions with empty listed `ResourceId` — `ValidateIdentity` rejected empty resource id on answer/ignore while compiler disposition identity used an empty resource segment, blocking reachable pack mutations and preventing disposition join; shared `SecureNowQuestionDispositionResourceIdResolver`; regression `Subscription_scope_pack_question_accepts_empty_resource_id_on_answer`; Application SecureNowQuestion filter 32/32.
 
 2026-10-21 seed hunt (seed→hit): promoted `ReopenAsync` leaving prior disposition `Reason` on listed Open questions after answer fields were cleared; reopen now clears stored reason and compiler omits answer/reason metadata unless status is Answered/Ignored; extended regression `Reopen_clears_prior_answer_fields_from_listed_questions`; Application SecureNowQuestion filter 31/31.
@@ -7338,11 +7340,11 @@ ABQ-09 churn hotspot.
 - **aliases:** securenow question queue; question disposition
 - **paths:** ArchLucid.Application/InfraEvidence/SecureNowQuestionDispositions/; ArchLucid.Api/Controllers/InfraEvidence/InfraEvidenceSecureNowQuestionsController.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/ISecureNowQuestionDispositionRepository.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/ISecureNowQuestionDispositionService.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/SecureNowQuestionDispositionRecord.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/SecureNowQuestionRecord.cs; ArchLucid.Persistence/InfraEvidence/NoOpSecureNowQuestionDispositionRepository.cs; ArchLucid.Persistence/InfraEvidence/SqlSecureNowQuestionDispositionRepository.cs; ArchLucid.Contracts/InfraEvidence/SecureNowQuestionDispositionContracts.cs; archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx; archlucid-ui/src/lib/infra-evidence/securenow-question-queue-api.ts
 - **test-filter:** SecureNowQuestion
-- **hunts:** 45
-- **bugs-found:** 23
+- **hunts:** 46
+- **bugs-found:** 24
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 - trim AgentModelTiers AgentTypeTiers keys after configuration bind
+- **last-hunt:** 2026-10-25
+- **last-bug:** 2026-10-25 — reopen on subscription-scope pack questions with empty listed resource id
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -7471,6 +7473,7 @@ ABQ-09 churn hotspot.
 - [x] (proven) `SecureNowQuestionQueueProvider` — while a new `snapshotId` request was in flight, the old question remained actionable, so a queue mutation could submit the old question identity under the new snapshot; fixed by clearing queue state on snapshot change, requiring `questionsLoaded`, and rejecting mismatched `currentQuestion.snapshotId`; regression `does not persist a question from the previous snapshot while the next snapshot is loading`.
 - (candidate) `securenow-question-queue-api.answerSecureNowQuestion` / `ignoreSecureNowQuestion` / `reopenSecureNowQuestion` — mutation helpers declare a full `SecureNowQuestion` response although the controller returns `SecureNowQuestionDispositionResponse` without display fields; a future reachable caller consuming the mutation response could replace queue state with an incomplete question object. Current provider reloads and ignores the response, so this remains a bounded contract-drift candidate.
 - [x] (proven) `SecureNowQuestionDispositionService.WriteAsync` / `SecureNowQuestionCompiler` — policy-pack `Must` elicitation questions with subscription or resource-group scope listed empty `ResourceId` but disposition mutations required a non-empty resource id, so reachable answers failed validation and dispositions did not join listed rows; fixed with `SecureNowQuestionDispositionResourceIdResolver` using normalized subscription id for disposition identity; regression `Subscription_scope_pack_question_accepts_empty_resource_id_on_answer`.
+- [x] (proven) `SecureNowQuestionDispositionService.ReopenAsync` — subscription-scope pack questions with empty listed `ResourceId` failed reopen with `ResourceId is required.` because reopen hardcoded `Resource` scope for disposition identity while answer/ignore used subscription identity; `ResolveForReopen` on the shared resolver; regression `Subscription_scope_pack_question_accepts_empty_resource_id_on_reopen`.
 - [x] (proven) `SecureNowQuestionDispositionService.ReopenAsync` / `SecureNowQuestionCompiler.AddQuestion` — a reachable `POST /reopen` after `POST /answer` set `Status` to `Open` but copied prior `AnswerCode` and `AnswerText`, so `ListQuestionsAsync` still joined stale answer metadata; fixed by clearing answer fields on reopen; regression `Reopen_clears_prior_answer_fields_from_listed_questions`.
 
 ## Zone: infra-evidence-diagrams

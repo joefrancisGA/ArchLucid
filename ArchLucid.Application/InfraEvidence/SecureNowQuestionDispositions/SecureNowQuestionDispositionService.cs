@@ -170,10 +170,10 @@ public sealed class SecureNowQuestionDispositionService(
         ArgumentNullException.ThrowIfNull(scope);
         ArgumentNullException.ThrowIfNull(request);
 
-        string dispositionResourceId = ResolveDispositionResourceId(
-            request.SubscriptionId,
-            request.ResourceId,
-            SecureNowQuestionScopeKind.Resource);
+        string dispositionResourceId =
+            SecureNowQuestionDispositionResourceIdResolver.ResolveForReopen(
+                request.SubscriptionId,
+                request.ResourceId);
 
         string? validationError = ValidateIdentity(
             request.SubscriptionId,
