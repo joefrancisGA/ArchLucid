@@ -411,6 +411,44 @@ describe("SecureNowQuestionQueue", () => {
     expect(mocks.ignoreQuestion).not.toHaveBeenCalled();
   });
 
+  it("ignores an inferred connection when list JSON omits source on a legacy question key", async () => {
+    const inferredQuestion = {
+      ...question,
+      source: null,
+      questionKey: "unresolved-host@v1",
+      answerCodes: ["Yes", "No", "NotSure"],
+    };
+    mocks.listQuestions.mockResolvedValue([inferredQuestion]);
+    mocks.listConnections.mockResolvedValue([
+      {
+        connectionId: "connection-1",
+        fromArmId: question.resourceId,
+        ruleName: "Unresolved host",
+      },
+    ]);
+    mocks.ignoreQuestion.mockResolvedValue(undefined);
+
+    render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
+    fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
+    fireEvent.click(screen.getByRole("button", { name: "Don't ask again" }));
+    fireEvent.change(screen.getByRole("textbox", { name: "Reason for not asking again" }), {
+      target: { value: "Connection already reviewed with the network team." },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Save" }));
+
+    await waitFor(() => {
+      expect(mocks.ignoreQuestion).toHaveBeenCalledWith("snapshot-1", {
+        subscriptionId: "subscription-1",
+        resourceId: question.resourceId,
+        questionKey: "unresolved-host@v1",
+        source: "InferredConnection",
+        scopeKind: "Resource",
+        reason: "Connection already reviewed with the network team.",
+        evidenceFingerprint: "fingerprint",
+      });
+    });
+  });
+
   it("confirms an inferred connection when list JSON omits source on a legacy question key", async () => {
     const inferredQuestion = {
       ...question,

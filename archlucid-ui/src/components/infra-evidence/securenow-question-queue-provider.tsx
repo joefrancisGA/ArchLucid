@@ -328,6 +328,15 @@ export function SecureNowQuestionQueueProvider(
       return;
     }
 
+    const dispositionInferredConnection = findInferredConnection(
+      currentQuestion,
+      inferredConnections,
+    );
+    const dispositionMutationSource =
+      dispositionInferredConnection != null ? "InferredConnection" : mutationSource!;
+    const dispositionMutationScopeKind =
+      dispositionInferredConnection != null ? "Resource" : mutationScopeKind!;
+
     setBusy(true);
     setError(null);
     try {
@@ -336,8 +345,8 @@ export function SecureNowQuestionQueueProvider(
           subscriptionId: mutationSubscriptionId,
           resourceId: mutationResourceId,
           questionKey: currentQuestion.questionKey,
-          source: mutationSource!,
-          scopeKind: mutationScopeKind!,
+          source: dispositionMutationSource,
+          scopeKind: dispositionMutationScopeKind,
           reason: reason.trim(),
           evidenceFingerprint: currentQuestion.evidenceFingerprint,
         });
