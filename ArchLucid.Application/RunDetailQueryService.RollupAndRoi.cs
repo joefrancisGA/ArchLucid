@@ -43,7 +43,7 @@ public sealed partial class RunDetailQueryService
         }
 
         Task<IReadOnlyList<AgentResult>> resultsTask =
-            resultRepository.GetRollupProjectionByRunIdAsync(scope, lookupRunId, cancellationToken);
+            LoadAgentResultsForRunLookupAsync(scope, lookupRunId, useRollupProjection: true, cancellationToken);
         Task<GoldenManifest?> manifestTask =
             unifiedGoldenManifestReader.ReadByRunIdAsync(scope, runGuid, cancellationToken);
 

@@ -49,9 +49,8 @@ public sealed partial class RunDetailQueryService
 
         Task<IReadOnlyList<AgentTask>> tasksTask =
             taskRepository.GetByRunIdAsync(scope, lookupRunId, cancellationToken);
-        Task<IReadOnlyList<AgentResult>> resultsTask = useRollupProjection
-            ? resultRepository.GetRollupProjectionByRunIdAsync(scope, lookupRunId, cancellationToken)
-            : resultRepository.GetByRunIdAsync(scope, lookupRunId, cancellationToken);
+        Task<IReadOnlyList<AgentResult>> resultsTask =
+            LoadAgentResultsForRunLookupAsync(scope, lookupRunId, useRollupProjection, cancellationToken);
         Task<GoldenManifest?> manifestTask =
             unifiedGoldenManifestReader.ReadByRunIdAsync(scope, runGuid, cancellationToken);
         Task<IReadOnlyList<AgentExecutionTraceLlmCostSlice>> costSlicesTask =
