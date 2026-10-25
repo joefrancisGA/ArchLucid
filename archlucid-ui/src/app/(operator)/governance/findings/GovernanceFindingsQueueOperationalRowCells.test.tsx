@@ -29,6 +29,20 @@ function baseRow(overrides: Partial<GovernanceFindingQueueRow> = {}): Governance
 }
 
 describe("GovernanceFindingsQueueOperationalRowCells", () => {
+  it("does not render policy area fallback when category is whitespace-only", () => {
+    render(
+      <table>
+        <tbody>
+          <tr>
+            <GovernanceFindingsQueueOperationalRowCells row={baseRow({ category: "   " })} />
+          </tr>
+        </tbody>
+      </table>,
+    );
+
+    expect(screen.queryByText(/Policy area:/)).toBeNull();
+  });
+
   it("uses a trimmed run id in the review column link when the row carries padding", () => {
     render(
       <table>

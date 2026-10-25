@@ -65,6 +65,11 @@ export function governanceFindingQueueRowHasPolicyRuleId(row: GovernanceFindingQ
   return row.policyRuleId != null && row.policyRuleId.trim().length > 0;
 }
 
+/** Policy-area fallback copy must not render for whitespace-only category strings on queue rows. */
+export function governanceFindingQueueRowHasDisplayCategory(row: GovernanceFindingQueueRow): boolean {
+  return row.recordKind === "finding" && row.category.trim().length > 0;
+}
+
 export function formatGovernanceQueueRecordKind(
   kind: GovernanceFindingQueueRecordKind,
   buyerPolishedShell: boolean,

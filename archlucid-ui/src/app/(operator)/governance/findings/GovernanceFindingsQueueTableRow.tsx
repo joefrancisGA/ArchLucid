@@ -36,6 +36,7 @@ import type { GovernanceFindingsQueueMode } from "@/lib/governance/governance-fi
 
 import {
   formatGovernanceQueueRecordKind,
+  governanceFindingQueueRowHasDisplayCategory,
   governanceFindingQueueRowHasPolicyRuleId,
   governanceFindingQueueRowHasStoredRunId,
   governanceFindingQueueRowReviewHref,
@@ -156,7 +157,7 @@ export function GovernanceFindingsQueueTableRow(props: GovernanceFindingsQueueTa
                   {...buildPolicyTraceabilityLinksFromRuleId(row.policyRuleId!, row.category || row.policyRuleId!)}
                 />
               </div>
-            ) : row.category && row.recordKind === "finding" ? (
+            ) : governanceFindingQueueRowHasDisplayCategory(row) ? (
               <div className={cn("mt-0.5 font-normal text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>
                 Policy area: {row.category}
               </div>
