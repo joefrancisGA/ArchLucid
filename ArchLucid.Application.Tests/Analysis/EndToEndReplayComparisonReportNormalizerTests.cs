@@ -43,7 +43,7 @@ public sealed class EndToEndReplayComparisonReportNormalizerTests
 
         EndToEndReplayComparisonReportNormalizer.NormalizePersistedPayload(report);
 
-        report.CompareVerdictChromeDelta!.RoiHeadline.Should().BeNull();
+        report.CompareVerdictChromeDelta.Should().BeNull();
     }
 
     [Fact]
@@ -71,7 +71,7 @@ public sealed class EndToEndReplayComparisonReportNormalizerTests
     }
 
     [Fact]
-    public void CompareQuality_EndToEndReplayComparisonReportNormalizer_restores_default_honesty_lines_when_whitespace_only()
+    public void CompareQuality_EndToEndReplayComparisonReportNormalizer_restores_default_honesty_lines_when_whitespace_only_and_a_section_exists()
     {
         EndToEndReplayComparisonReport report = new()
         {
@@ -81,11 +81,17 @@ public sealed class EndToEndReplayComparisonReportNormalizerTests
             {
                 Wk21Line = "   ",
                 NonSummingLine = "\t",
+                RoiHeadline = new CompareVerdictChromeRoiHeadlineDelta
+                {
+                    BaselineSavingsLabel = "$10.00",
+                    TargetSavingsLabel = null,
+                },
             },
         };
 
         EndToEndReplayComparisonReportNormalizer.NormalizePersistedPayload(report);
 
+        report.CompareVerdictChromeDelta.Should().NotBeNull();
         report.CompareVerdictChromeDelta!.Wk21Line.Should().Be(SendableExportCoverComposer.PolicyPackInfluenceHonestyLine);
         report.CompareVerdictChromeDelta.NonSummingLine.Should().Be(SendableExportCoverComposer.SponsorRoiNonSummingHeadlineLine);
     }
@@ -168,5 +174,29 @@ public sealed class EndToEndReplayComparisonReportNormalizerTests
 
         report.CompareVerdictChromeDelta!.ExecutionMode!.BaselineModeLabel.Should().BeEmpty();
         report.CompareVerdictChromeDelta.ExecutionMode.TargetModeLabel.Should().Be("Real");
+    }
+
+    [Fact]
+    public void CompareQuality_EndToEndReplayComparisonReportNormalizer_nulls_verdict_chrome_delta_when_all_sections_empty_after_normalize()
+    {
+        EndToEndReplayComparisonReport report = new()
+        {
+            LeftRunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            RightRunId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            CompareVerdictChromeDelta = new CompareVerdictChromeDelta
+            {
+                Wk21Line = "   ",
+                NonSummingLine = "\t",
+                RoiHeadline = new CompareVerdictChromeRoiHeadlineDelta
+                {
+                    BaselineSavingsLabel = "   ",
+                    TargetSavingsLabel = " ",
+                },
+            },
+        };
+
+        EndToEndReplayComparisonReportNormalizer.NormalizePersistedPayload(report);
+
+        report.CompareVerdictChromeDelta.Should().BeNull();
     }
 }
