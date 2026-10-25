@@ -4938,7 +4938,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-operator-lib
 
-**Hunts:** 76 · **Bugs found:** 73 · **Consecutive dry hunts:** 0
+**Hunts:** 77 · **Bugs found:** 74 · **Consecutive dry hunts:** 0
+
+2026-10-25 seed hunt (hit): promoted `highlightReviewId` parsing in `resolveRunIdFromWorkingReviewHref` for SN-012 Working desk hrefs; regressions `parses run id from Working architecture desk highlightReviewId query (SN-012)` and `matches Working desk highlightReviewId hrefs to peer review rail rows`; scoped vitest passed. Private beta: Invited operators in Working mode no longer see duplicate Continue on home when the hero resume href uses an architecture desk `highlightReviewId` link and the unfinished-work rail still lists the peer review path.
 
 2026-10-25 seed hunt (hit): promoted `architectureDeskIdFromHref` in Working-mode architecture continue-last rail dedupe when draft rail ids differ from identity ids; regression `suppresses architecture continue-last when rail href carries the target architecture id`; 8 scoped `operator-home-resume-affordance` vitest passed. Private beta: Invited operators in Working mode no longer see duplicate Continue architecture CTAs when the unfinished-work rail row points at the same architecture identity desk via href but a different draft id prefix.
 
@@ -5025,6 +5027,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `formatOperatorHomeCompactMetricsLine` — raw metrics snapshot counts interpolate `NaN` into home KPI strip — **hit 2026-10-25 seed hunt:** `normalizeOperatorHomeNonNegativeCount` on active/sealed/findings; regression `normalizes non-finite workspace metric counts in the KPI strip`.
 - [x] (proven) `formatOperatorHomeRecentReviewsOutcome` / `buildOperatorHomeRecentReviewsOutcomeParts` — `visibleCount !== undefined` accepts `NaN` in showing-cap copy — **hit 2026-10-25 seed hunt:** `resolveRecentPreviewCapCounts`; regressions `normalizes non-finite recent preview cap counts in outcome copy` and `normalizes non-finite preview cap counts in structured outcome parts`.
 - [x] (proven) `formatOperatorHomeGovernanceApprovalWarningCount` — `Math.max(0, Math.trunc(count))` leaves `NaN` labels — **hit 2026-10-25 seed hunt:** `Number.isFinite` guard; regression `treats non-finite counts as zero warnings`.
+- [x] (proven) `resolveRunIdFromWorkingReviewHref` / `matchesOperatorHomeHeroResumeTarget` — SN-012 Working desk hrefs with `highlightReviewId` did not parse a run id, so hero/rail resume dedupe missed peer review rows — **hit 2026-10-25 seed hunt:** query param parse; regressions `parses run id from Working architecture desk highlightReviewId query (SN-012)` and `matches Working desk highlightReviewId hrefs to peer review rail rows`.
 - [x] (proven) `matchesOperatorHomeHeroResumeTarget` — explicit hero `draftId` did not match rail rows that only exposed the draft id via href parsing when paths diverged — **hit 2026-10-25 seed hunt:** cross-field draft id equality; regression `matches when the hero draft id equals the rail href draft id even if paths differ`.
 - [x] (proven) `matchesOperatorHomeHeroResumeTarget` — explicit hero `runId` did not match rail rows that only exposed the run id via href parsing when paths diverged — **hit 2026-10-25 seed hunt:** cross-field run id equality; regression `matches when the hero run id equals the rail href run id even if paths differ`.
 - [x] (proven) `recordRecentView` — strict `href` equality let trailing-slash revisits create duplicate recent-view rows — **hit 2026-10-25 seed hunt:** `normalizeResumeHrefForMatch` dedupe key; regression `dedupes recent views when hrefs differ only by a trailing slash`.
