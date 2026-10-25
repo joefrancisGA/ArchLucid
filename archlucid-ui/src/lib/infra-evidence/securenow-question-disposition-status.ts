@@ -1,4 +1,84 @@
 import { secureNowQuestionAnswerLabel } from "@/lib/infra-evidence/securenow-question-answer-label";
+import { secureNowQuestionShowsExpired } from "@/lib/infra-evidence/securenow-question-expiration";
+
+export type SecureNowQuestionDispositionChromeFields = {
+  readonly status: string | null;
+  readonly answerCode: string | null;
+  readonly answerText: string | null;
+  readonly reason: string | null;
+};
+
+export type SecureNowQuestionOpenQueueRowFields = SecureNowQuestionDispositionChromeFields & {
+  readonly expirationUtc: string | null;
+  readonly isExpired: boolean | null;
+};
+
+function secureNowQuestionDispositionFieldWasStored(
+  value: string | null | undefined,
+): boolean {
+  return value !== null && value !== undefined;
+}
+
+function secureNowQuestionDispositionHasInferredClosedFields(
+  question: SecureNowQuestionDispositionChromeFields,
+): boolean {
+  if (secureNowQuestionDispositionStatusTrimmed(question.status) !== null) {
+    return false;
+  }
+
+  return secureNowQuestionDispositionFieldWasStored(question.answerCode)
+    || secureNowQuestionDispositionFieldWasStored(question.answerText)
+    || secureNowQuestionDispositionFieldWasStored(question.reason);
+}
+
+export function secureNowQuestionDispositionShowsStoredAnswerMetadata(
+  question: SecureNowQuestionDispositionChromeFields,
+): boolean {
+  return secureNowQuestionDispositionIsClosed(question.status)
+    || secureNowQuestionDispositionHasInferredClosedFields(question);
+}
+
+export function secureNowQuestionDispositionShowsAnswerActions(
+  question: SecureNowQuestionDispositionChromeFields,
+): boolean {
+  return secureNowQuestionDispositionIsOpen(question.status)
+    && !secureNowQuestionDispositionShowsStoredAnswerMetadata(question);
+}
+
+export function secureNowQuestionCountsAsOpenQueueRow(
+  question: SecureNowQuestionOpenQueueRowFields,
+): boolean {
+  return !secureNowQuestionDispositionIsAnswered(question.status)
+    && !secureNowQuestionDispositionIsDismissed(question.status)
+    && !secureNowQuestionShowsExpired(question.expirationUtc, question.isExpired)
+    && !secureNowQuestionDispositionShowsStoredAnswerMetadata(question);
+}
+
+export function secureNowQuestionCountsAsAnsweredFilterRow(
+  question: SecureNowQuestionDispositionChromeFields,
+): boolean {
+  return secureNowQuestionDispositionIsAnswered(question.status)
+    || (secureNowQuestionDispositionStatusTrimmed(question.status) === null
+      && (secureNowQuestionDispositionFieldWasStored(question.answerCode)
+        || secureNowQuestionDispositionFieldWasStored(question.answerText)));
+}
+
+export function secureNowQuestionCountsAsDismissedFilterRow(
+  question: SecureNowQuestionDispositionChromeFields,
+): boolean {
+  if (secureNowQuestionDispositionIsDismissed(question.status)) {
+    return true;
+  }
+
+  if (secureNowQuestionDispositionStatusTrimmed(question.status) !== null) {
+    return false;
+  }
+
+  const hasAnswerMetadata = secureNowQuestionDispositionFieldWasStored(question.answerCode)
+    || secureNowQuestionDispositionFieldWasStored(question.answerText);
+
+  return secureNowQuestionDispositionFieldWasStored(question.reason) && !hasAnswerMetadata;
+}
 
 export function secureNowQuestionDispositionStatusTrimmed(
   status: string | null | undefined,

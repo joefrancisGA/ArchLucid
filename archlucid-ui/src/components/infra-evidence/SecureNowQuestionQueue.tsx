@@ -15,8 +15,8 @@ import {
   secureNowQuestionReviewerSubscriptionLabel,
 } from "@/lib/infra-evidence/securenow-question-mutation-resource-id";
 import {
-  secureNowQuestionDispositionIsClosed,
-  secureNowQuestionDispositionIsOpen,
+  secureNowQuestionDispositionShowsAnswerActions,
+  secureNowQuestionDispositionShowsStoredAnswerMetadata,
   secureNowQuestionDispositionStatusTrimmed,
   secureNowQuestionReviewerClosedAnswerCodeLine,
   secureNowQuestionReviewerClosedAnswerTextLine,
@@ -59,7 +59,7 @@ type ClosedQuestionAnswerFields = {
 };
 
 function closedSecureNowQuestionAnswerLines(question: ClosedQuestionAnswerFields): readonly string[] {
-  if (!secureNowQuestionDispositionIsClosed(question.status)) {
+  if (!secureNowQuestionDispositionShowsStoredAnswerMetadata(question)) {
     return [];
   }
 
@@ -262,7 +262,7 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
                   : currentQuestion.questionText.trim()}
             </p>
           ) : null}
-          {currentQuestion != null && secureNowQuestionDispositionIsClosed(currentQuestion.status) ? (
+          {currentQuestion != null && secureNowQuestionDispositionShowsStoredAnswerMetadata(currentQuestion) ? (
             <div
               className={cn("m-0 space-y-0.5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
               data-testid="infra-diagrams-question-answer"
@@ -320,7 +320,7 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
 
       {currentQuestion != null ? (
         <div className="mt-2 space-y-2">
-          {secureNowQuestionDispositionIsOpen(currentQuestion.status) ? (
+          {secureNowQuestionDispositionShowsAnswerActions(currentQuestion) ? (
             <>
               {currentQuestion.answerCodes === null ? (
                 <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>

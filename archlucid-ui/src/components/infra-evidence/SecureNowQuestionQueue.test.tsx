@@ -606,6 +606,27 @@ describe("SecureNowQuestionQueue", () => {
     expect(screen.queryByPlaceholderText("Reason required to reopen")).not.toBeInTheDocument();
   });
 
+  it("shows stored answer metadata instead of answer actions when status is omitted but answer fields are stored", async () => {
+    mocks.listQuestions.mockResolvedValue([
+      { ...question, status: null },
+      {
+        ...question,
+        status: null,
+        answerCode: "NamePeer",
+        answerText: "Name the peer",
+        reason: "Operator selected the peer.",
+      },
+    ]);
+
+    render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
+    fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
+    fireEvent.click(screen.getByRole("button", { name: "Answered" }));
+
+    expect(screen.getByTestId("infra-diagrams-question-answer")).toHaveTextContent("Name the peer");
+    expect(screen.queryByRole("button", { name: "Name the peer" })).not.toBeInTheDocument();
+    expect(screen.getByPlaceholderText("Reason required to reopen")).toBeInTheDocument();
+  });
+
   it("labels missing question copy, type, reason, and choices", async () => {
     mocks.listQuestions.mockResolvedValue([{
       ...question,

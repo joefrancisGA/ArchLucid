@@ -29,10 +29,10 @@ import {
   secureNowQuestionDispositionMutationSubscriptionId,
 } from "@/lib/infra-evidence/securenow-question-mutation-resource-id";
 import {
-  secureNowQuestionDispositionIsAnswered,
-  secureNowQuestionDispositionIsDismissed,
+  secureNowQuestionCountsAsAnsweredFilterRow,
+  secureNowQuestionCountsAsDismissedFilterRow,
+  secureNowQuestionCountsAsOpenQueueRow,
 } from "@/lib/infra-evidence/securenow-question-disposition-status";
-import { secureNowQuestionShowsExpired } from "@/lib/infra-evidence/securenow-question-expiration";
 import {
   confirmOperatorInferredConnection,
   dismissOperatorInferredConnection,
@@ -133,14 +133,12 @@ function questionIdentity(question: SecureNowQuestion): string {
 function filterQuestions(questions: readonly SecureNowQuestion[], filter: QueueFilter): SecureNowQuestion[] {
   return questions.filter((question) => {
     if (filter === "Open") {
-      return !secureNowQuestionDispositionIsAnswered(question.status)
-        && !secureNowQuestionDispositionIsDismissed(question.status)
-        && !secureNowQuestionShowsExpired(question.expirationUtc, question.isExpired);
+      return secureNowQuestionCountsAsOpenQueueRow(question);
     }
     if (filter === "Answered") {
-      return secureNowQuestionDispositionIsAnswered(question.status);
+      return secureNowQuestionCountsAsAnsweredFilterRow(question);
     }
-    return secureNowQuestionDispositionIsDismissed(question.status);
+    return secureNowQuestionCountsAsDismissedFilterRow(question);
   });
 }
 
@@ -262,11 +260,7 @@ export function SecureNowQuestionQueueProvider(
   }, [loadQuestions]);
 
   const openQuestions = useMemo(
-    () => questions.filter(
-      (question) => !secureNowQuestionDispositionIsAnswered(question.status)
-        && !secureNowQuestionDispositionIsDismissed(question.status)
-        && !secureNowQuestionShowsExpired(question.expirationUtc, question.isExpired),
-    ),
+    () => questions.filter((question) => secureNowQuestionCountsAsOpenQueueRow(question)),
     [questions],
   );
   const filteredQuestions = useMemo(

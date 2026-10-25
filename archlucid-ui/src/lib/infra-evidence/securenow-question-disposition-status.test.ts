@@ -1,10 +1,14 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  secureNowQuestionCountsAsAnsweredFilterRow,
+  secureNowQuestionCountsAsOpenQueueRow,
   secureNowQuestionDispositionIsAnswered,
   secureNowQuestionDispositionIsClosed,
   secureNowQuestionDispositionIsDismissed,
   secureNowQuestionDispositionIsOpen,
+  secureNowQuestionDispositionShowsAnswerActions,
+  secureNowQuestionDispositionShowsStoredAnswerMetadata,
   secureNowQuestionDispositionStatusTrimmed,
   secureNowQuestionReviewerClosedAnswerCodeLine,
   secureNowQuestionReviewerClosedAnswerTextLine,
@@ -34,6 +38,52 @@ describe("secureNowQuestionDispositionIsOpen", () => {
 
   it("treats padded Open status as open", () => {
     expect(secureNowQuestionDispositionIsOpen("  Open  ")).toBe(true);
+  });
+});
+
+describe("secureNowQuestionDispositionShowsStoredAnswerMetadata", () => {
+  it("infers stored answer metadata when status is omitted but answer fields are present", () => {
+    expect(secureNowQuestionDispositionShowsStoredAnswerMetadata({
+      status: null,
+      answerCode: "NamePeer",
+      answerText: null,
+      reason: null,
+    })).toBe(true);
+  });
+});
+
+describe("secureNowQuestionDispositionShowsAnswerActions", () => {
+  it("hides answer actions when omitted status still carries stored answer metadata", () => {
+    expect(secureNowQuestionDispositionShowsAnswerActions({
+      status: null,
+      answerCode: "NamePeer",
+      answerText: "Name the peer",
+      reason: "Operator selected the peer.",
+    })).toBe(false);
+  });
+});
+
+describe("secureNowQuestionCountsAsOpenQueueRow", () => {
+  it("excludes rows with omitted status but stored answer metadata from the open queue", () => {
+    expect(secureNowQuestionCountsAsOpenQueueRow({
+      status: null,
+      answerCode: "NamePeer",
+      answerText: null,
+      reason: null,
+      expirationUtc: "2099-01-01T00:00:00Z",
+      isExpired: false,
+    })).toBe(false);
+  });
+});
+
+describe("secureNowQuestionCountsAsAnsweredFilterRow", () => {
+  it("includes rows with omitted status when answer metadata was stored", () => {
+    expect(secureNowQuestionCountsAsAnsweredFilterRow({
+      status: null,
+      answerCode: "NamePeer",
+      answerText: null,
+      reason: null,
+    })).toBe(true);
   });
 });
 
