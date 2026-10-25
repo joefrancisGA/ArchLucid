@@ -7489,6 +7489,34 @@ ABQ-09 churn hotspot.
 
 ## Zone: securenow-question-queue
 
+2026-10-25 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows (SQL MERGE deferred, optimistic merge future-risk, non-string `snapshotId` coercion + guard/error, ignore/reopen snapshot guard parity, embedded-connection-id dismiss reload focus); added three regression locks; seeded five follow-on `(candidate)` rows below; scoped SecureNow queue vitest 182/182; no production code changed.
+
+- [x] (invalid) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` — **cheap-disproof 2026-10-25 seed hunt:** integration host unavailable; candidate reseeded below.
+- [x] (invalid) `securenow-question-queue-provider` — optimistic merge from disposition JSON — **cheap-disproof 2026-10-25 seed hunt:** reload-only provider; candidate reseeded below.
+- [x] (valid-no-repro) `securenow-question-queue-api.mapQuestion` — non-string list `snapshotId` — **cheap-disproof 2026-10-25 seed hunt:** maps to `""` and mutation guard surfaces inline error; regression `maps non-string snapshotId to empty string without throwing`.
+- [x] (valid-no-repro) `SecureNowQuestionQueueProvider.submitAction` — snapshot guard on ignore/reopen — **cheap-disproof 2026-10-25 seed hunt:** shared guard before action branch; regressions `does not post an ignore when the listed snapshot id differs from the active snapshot` and `does not post a reopen when the listed snapshot id differs from the active snapshot`.
+- [x] (valid-no-repro) `SecureNowQuestionQueueProvider` — embedded connection-id dismiss focus — **cheap-disproof 2026-10-25 seed hunt:** regression `focuses the embedded-connection question after dismiss when another open inferred row exists`.
+
+- [ ] (candidate) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` identity hash collision — locus: SQL repository; input: integration repro when SQL host available.
+- [ ] (candidate) `securenow-question-queue-provider` — optimistic merge from disposition JSON — locus: future post-mutation path; input: must use `mapSecureNowQuestionDisposition` only.
+- [ ] (candidate) `securenow-question-queue-api.listSecureNowQuestions` — proxy error when list JSON is not an array — locus: list boundary; input: malformed top-level shape should not throw uncaught.
+- [ ] (candidate) `SecureNowQuestionQueueProvider` — embedded connection-id confirm focus with two open rows — locus: `connectionIdFromQuestionKey`; input: mirror embedded dismiss regression with Yes path.
+- [ ] (candidate) `SecureNowQuestionQueueProvider.submitAction` — clear mutation error when snapshot guard passes after prior failure — locus: error state; input: successful retry clears `operator-mutation-inline-error`.
+
+- **id:** securenow-question-queue
+- **status:** open
+- **impact:** medium
+- **aliases:** securenow question queue; question disposition
+- **paths:** archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx; archlucid-ui/src/lib/infra-evidence/securenow-question-queue-api.ts
+- **test-filter:** SecureNowQuestion
+- **hunts:** 100
+- **bugs-found:** 72
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-25
+- **last-bug:** 2026-10-25 — silent snapshot guard on SecureNow save
+- **related-pd-tb:** none
+- **code-changed-since:** yes
+
 2026-10-25 seed hunt (seed→hit): promoted `SecureNowQuestionQueueProvider.submitAction` returning silently when listed snapshot id failed `secureNowQuestionListedSnapshotMatchesContext` — Save appeared to do nothing on mismatched, empty, or whitespace-only listed snapshot ids; surface `operator-mutation-inline-error` with listed-snapshot mismatch copy; trim listed `snapshotId` strings in `mapQuestion`; regressions for mismatch/empty/whitespace save paths plus `focuses the inferred question after confirm when another open inferred row exists`; cheap-disproof closed SQL MERGE deferred, optimistic merge future-risk, mapper trim row, inferred confirm focus; seeded five follow-on `(candidate)` rows below; scoped SecureNow queue vitest 179/179. Private beta: operators see a clear inline error when a SecureNow question row’s listed snapshot id does not match the snapshot they are reviewing instead of a no-op Save.
 
 - [x] (proven) `SecureNowQuestionQueueProvider.submitAction` — silent return on snapshot guard failure — **hit 2026-10-25 seed hunt:** `setError` on mismatch; UI regressions for empty, whitespace, and cross-snapshot rows.

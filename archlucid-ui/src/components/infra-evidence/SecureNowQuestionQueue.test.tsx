@@ -1033,6 +1033,59 @@ describe("SecureNowQuestionQueue", () => {
     expect(screen.queryByText(otherInferred.questionText)).not.toBeInTheDocument();
   });
 
+  it("focuses the embedded-connection question after dismiss when another open inferred row exists", async () => {
+    const embeddedConnectionId = "aabbccdd-eeff-0011-2233-445566778899";
+    const otherConnectionId = "11223344-5566-7788-9900-aabbccddeeff";
+    const otherInferred = {
+      ...question,
+      resourceId:
+        "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.DataFactory/factories/other-resource",
+      resourceName: "other-resource",
+      questionText: "Should other-resource connect to a peer, or stand alone?",
+      source: "InferredConnection",
+      questionKey: `inferred-11223344556677889900aabbccddeeff@v1`,
+      answerCodes: ["Yes", "No", "NotSure"],
+    };
+    const inferredQuestion = {
+      ...question,
+      source: "InferredConnection",
+      questionKey: `inferred-aabbccddeeff00112233445566778899@v1`,
+      answerCodes: ["Yes", "No", "NotSure"],
+    };
+
+    mocks.listQuestions
+      .mockResolvedValueOnce([inferredQuestion, otherInferred])
+      .mockResolvedValueOnce([inferredQuestion, otherInferred]);
+    mocks.listConnections.mockResolvedValue([
+      {
+        connectionId: embeddedConnectionId,
+        fromArmId: question.resourceId,
+        ruleName: "Embedded connection",
+      },
+      {
+        connectionId: otherConnectionId,
+        fromArmId: otherInferred.resourceId,
+        ruleName: "Other embedded connection",
+      },
+    ]);
+    mocks.dismissConnection.mockResolvedValue(undefined);
+
+    render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
+    fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
+    fireEvent.click(screen.getByRole("button", { name: "No" }));
+    fireEvent.click(screen.getByRole("button", { name: "Save answer" }));
+
+    await waitFor(() => expect(mocks.listQuestions).toHaveBeenCalledTimes(2));
+    await waitFor(() => {
+      expect(mocks.dismissConnection).toHaveBeenCalledWith("snapshot-1", {
+        connectionId: embeddedConnectionId,
+      });
+    });
+
+    expect(screen.getByTestId("infra-diagrams-question-text")).toHaveTextContent(question.questionText);
+    expect(screen.queryByText(otherInferred.questionText)).not.toBeInTheDocument();
+  });
+
   it("confirms an inferred connection when its rule name contains spaces", async () => {
     const inferredQuestion = {
       ...question,
@@ -1797,6 +1850,56 @@ describe("SecureNowQuestionQueue", () => {
       );
     });
     expect(mocks.answerQuestion).not.toHaveBeenCalled();
+  });
+
+  it("does not post an ignore when the listed snapshot id differs from the active snapshot", async () => {
+    mocks.listQuestions.mockResolvedValue([
+      {
+        ...question,
+        snapshotId: "snapshot-2",
+      },
+    ]);
+
+    render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
+    fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
+    fireEvent.click(screen.getByRole("button", { name: "Don't ask again" }));
+    fireEvent.change(screen.getByRole("textbox", { name: "Reason for not asking again" }), {
+      target: { value: "Already reviewed." },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Save" }));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("operator-mutation-inline-error")).toHaveTextContent(
+        "Listed snapshot id does not match the active evidence snapshot.",
+      );
+    });
+    expect(mocks.ignoreQuestion).not.toHaveBeenCalled();
+  });
+
+  it("does not post a reopen when the listed snapshot id differs from the active snapshot", async () => {
+    mocks.listQuestions.mockResolvedValue([
+      {
+        ...question,
+        snapshotId: "snapshot-2",
+        status: "Ignored",
+        reason: "Operator chose not to answer.",
+      },
+    ]);
+
+    render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
+    fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
+    fireEvent.click(screen.getByRole("button", { name: "Dismissed" }));
+    fireEvent.change(screen.getByRole("textbox", { name: "Reason for reopening" }), {
+      target: { value: "Needs another look." },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Reopen" }));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("operator-mutation-inline-error")).toHaveTextContent(
+        "Listed snapshot id does not match the active evidence snapshot.",
+      );
+    });
+    expect(mocks.reopenQuestion).not.toHaveBeenCalled();
   });
 
   it("answers when list snapshot id is padded but matches the active snapshot", async () => {
