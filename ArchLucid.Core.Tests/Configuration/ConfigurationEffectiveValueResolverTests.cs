@@ -3163,6 +3163,33 @@ public sealed class ConfigurationEffectiveValueResolverTests
     }
 
     [Fact]
+    public void Resolve_truncates_scalar_without_splitting_seventy_one_supplementary_characters_at_boundary()
+    {
+        const string configPath = "ArchLucid:FallbackLlm:Endpoints";
+        string emojis = "\U0001F4A1\U0001F4A2\U0001F4A3\U0001F4A4\U0001F4A5\U0001F4A6\U0001F4A7\U0001F4A8\U0001F4A9\U0001F4AA\U0001F4AB\U0001F4AC\U0001F4AD\U0001F4AE\U0001F4AF\U0001F4B0\U0001F4B1\U0001F4B2\U0001F4B3\U0001F4B4\U0001F4B5\U0001F4B6\U0001F4B7\U0001F4B8\U0001F4B9\U0001F4BA\U0001F4BB\U0001F4BC\U0001F4BD\U0001F4BE\U0001F4BF\U0001F4C0\U0001F4C1\U0001F4C2\U0001F4C3\U0001F4C4\U0001F4C5\U0001F4C6\U0001F4C7\U0001F4C8\U0001F4C9\U0001F4CA\U0001F4CB\U0001F4CC\U0001F4CD\U0001F4CE\U0001F4CF\U0001F4D0\U0001F4D1\U0001F4D2\U0001F4D3\U0001F4D4\U0001F4D5\U0001F4D6\U0001F4D7\U0001F4D8\U0001F4D9\U0001F4DA\U0001F4DB\U0001F4DC\U0001F4DD\U0001F4DE\U0001F4DF\U0001F4E0\U0001F4E1\U0001F4E2\U0001F4E3\U0001F4E4\U0001F4E5\U0001F4E6\U0001F4E7";
+        string configured = new string('o', 141) + emojis + "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789";
+
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = configured,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            configPath,
+            isSet: true);
+
+        value.Should().NotBeNull();
+        value.Should().EndWith("…");
+        string prefix = value![..^1];
+        prefix.Length.Should().Be(255);
+        TruncatedPrefixIsWellFormed(value).Should().BeTrue();
+        prefix.Should().Be(new string('o', 141) + emojis[..114]);
+    }
+
+    [Fact]
     public void Resolve_preserves_scalar_effective_value_at_exactly_max_length_when_ending_with_valid_surrogate_pair()
     {
         const string configPath = "ArchLucid:FallbackLlm:Endpoints";
