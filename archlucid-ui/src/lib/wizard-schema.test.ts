@@ -1,11 +1,22 @@
 import { describe, expect, it } from "vitest";
 
-import { buildDefaultWizardValues, wizardFormSchema } from "./wizard-schema";
+import { buildDefaultWizardValues, wizardFormSchema, type WizardFormValues } from "./wizard-schema";
+
+function validRequiredWizardFields(): Pick<WizardFormValues, "description" | "systemName" | "environment"> {
+  return {
+    description: "Valid architecture brief for unit tests.",
+    systemName: "TestSystem",
+    environment: "staging",
+  };
+}
 
 describe("wizardFormSchema", () => {
-  it("accepts buildDefaultWizardValues", () => {
+  it("buildDefaultWizardValues starts empty until the operator fills required fields", () => {
     const v = buildDefaultWizardValues();
-    expect(() => wizardFormSchema.parse(v)).not.toThrow();
+    expect(v.systemName).toBe("");
+    expect(v.environment).toBe("");
+    expect(v.description).toBe("");
+    expect(wizardFormSchema.safeParse(v).success).toBe(false);
   });
 
   it("requires systemName with at least 2 non-whitespace characters", () => {
@@ -48,7 +59,7 @@ describe("wizardFormSchema", () => {
   });
 
   it("trims systemName and description on parse", () => {
-    const base = buildDefaultWizardValues();
+    const base = { ...buildDefaultWizardValues(), ...validRequiredWizardFields() };
     const parsed = wizardFormSchema.parse({
       ...base,
       systemName: "  OrderSvc  ",
@@ -63,7 +74,7 @@ describe("wizardFormSchema", () => {
   });
 
   it("accepts None as a first-class cloud target without Azure evidence (TB-340)", () => {
-    const base = buildDefaultWizardValues();
+    const base = { ...buildDefaultWizardValues(), ...validRequiredWizardFields() };
     const parsed = wizardFormSchema.parse({
       ...base,
       cloudProvider: "None",
@@ -74,7 +85,7 @@ describe("wizardFormSchema", () => {
   });
 
   it("accepts Aws and Gcp for Phase 1 multi-cloud intent capture", () => {
-    const base = buildDefaultWizardValues();
+    const base = { ...buildDefaultWizardValues(), ...validRequiredWizardFields() };
 
     expect(wizardFormSchema.parse({ ...base, cloudProvider: "Aws" }).cloudProvider).toBe("Aws");
     expect(wizardFormSchema.parse({ ...base, cloudProvider: "Gcp" }).cloudProvider).toBe("Gcp");

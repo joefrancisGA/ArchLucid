@@ -10,6 +10,9 @@ import {
   buildPackagePrintPath,
   buildPackagePrintPresentation,
   buildPackagePrintSponsorSynopsis,
+  formatPackagePrintDraftSynopsisBody,
+  resolvePackagePrintSynopsisBody,
+  resolvePackagePrintSynopsisHeading,
   printPackagePage,
   resolvePackagePrintSemanticSupportBandStampLine,
   resolvePackagePrintStatusLabel,
@@ -46,6 +49,15 @@ describe("package-print-view (TB-2205)", () => {
     expect(buildPackagePrintPath("abc/def")).toBe("/architecture/reviews/abc%2Fdef/print");
     expect(buildPackagePrintBackHref("abc")).toBe("/architecture/reviews/abc?reviewTab=review-package");
     expect(buildPackagePrintPath("  ")).toBe("/architecture/reviews/print");
+  });
+
+  it("labels omitted governance warning flags on finalized print status (P-09)", () => {
+    expect(
+      resolvePackagePrintStatusLabel(
+        summary({ hasGovernanceWarnings: undefined }),
+      ),
+    ).toBe("Finalized. Governance warning flags were not stored.");
+    expect(resolvePackagePrintStatusLabel(summary({ hasGovernanceWarnings: false }))).toBe("Finalized");
   });
 
   it("resolves status and presentation for a finalized package", () => {
@@ -159,6 +171,24 @@ describe("package-print-view (TB-2205)", () => {
     const line = resolvePackagePrintSemanticSupportBandStampLine(findings);
 
     expect(line).toContain("1 Supported");
+  });
+
+  it("labels draft working synopsis as not published", () => {
+    expect(formatPackagePrintDraftSynopsisBody("Working paragraph.")).toContain("not published");
+    expect(formatPackagePrintDraftSynopsisBody(null)).toBe("Draft sponsor synopsis was not stored.");
+    expect(resolvePackagePrintSynopsisHeading("Draft")).toContain("draft");
+    const body = resolvePackagePrintSynopsisBody({
+      title: "Draft",
+      statusLabel: "Draft",
+      statusKind: "draft",
+      findingsSummary: "x",
+      sponsorSynopsis: null,
+      draftWorkingSynopsisParagraph: "Working paragraph.",
+      createdUtc: "2026-01-01T00:00:00Z",
+      runId: "r1",
+    });
+
+    expect(body).toContain("Working paragraph.");
   });
 
   it("buildPackagePrintPresentation carries semantic support stamp line", () => {

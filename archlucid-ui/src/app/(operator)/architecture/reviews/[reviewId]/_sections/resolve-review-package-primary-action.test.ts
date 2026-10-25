@@ -60,7 +60,7 @@ describe("resolveReviewPackagePrimaryAction", () => {
     });
 
     expect(action.kind).toBe("send-to-sponsor");
-    expect(action.label).toBe("Send sponsor briefing export");
+    expect(action.label).toBe("Open sponsor briefing");
     expect(action.href).toBe(
       "/architecture/reviews/run-abc?reviewTab=review-package#sponsor-handoff",
     );
@@ -94,7 +94,7 @@ describe("resolveReviewPackagePrimaryAction", () => {
     });
 
     expect(action.kind).toBe("export-decision-receipt");
-    expect(action.label).toBe("Export decision receipt");
+    expect(action.label).toBe("Open decision receipt");
     expect(action.href).toBe(
       "/architecture/reviews/run-abc?reviewTab=evidence#artifacts-exports",
     );
@@ -126,6 +126,17 @@ describe("resolveReviewPackagePrimaryAction", () => {
 
     expect(action.kind).toBe("open-governance-decision");
     expect(action.label).not.toContain("Confirm evidence");
+  });
+
+  it("keeps Review findings when next-action names a different short action (P-16)", () => {
+    const action = resolveReviewPackagePrimaryAction({
+      ...baseInput,
+      hasCommitBlockingFailures: true,
+      nextAction: "Add evidence — link citations for open findings.",
+    });
+
+    expect(action.kind).toBe("review-findings");
+    expect(action.label).toBe("Review findings");
   });
 
   it("falls back to Review findings when next-action copy is too long for a button", () => {
