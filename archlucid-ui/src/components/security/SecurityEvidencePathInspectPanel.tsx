@@ -202,7 +202,7 @@ function PathHopsTable(props: {
               <EnterpriseTableCell>{formatSecurityEvidencePathRelationshipLabel(hop.edgeType)}</EnterpriseTableCell>
               <EnterpriseTableCell data-testid="security-evidence-path-hop-provenance">
                 {formatSecurityEvidenceProvenanceKindLabel(hop.provenanceKind)}
-                {hop.hopOrdinal === 1 && explainSecurityEvidenceProvenanceKind(hop.provenanceKind) != null ? (
+                {explainSecurityEvidenceProvenanceKind(hop.provenanceKind) != null ? (
                   <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}>
                     {explainSecurityEvidenceProvenanceKind(hop.provenanceKind)}
                   </p>
@@ -492,7 +492,11 @@ function InspectSelectionIdentityHeader(props: {
     return (
       <div className="space-y-2" data-testid="security-evidence-path-inspect-identity">
         <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
-          Path rank {props.pathSummary.rankOrder} · {formatSecurityEvidencePathKindLabel(props.pathSummary.pathKind)}
+          Path rank{" "}
+          {props.pathSummary.rankOrder !== null && props.pathSummary.rankOrder !== undefined
+            ? props.pathSummary.rankOrder
+            : "was not stored"}{" "}
+          · {formatSecurityEvidencePathKindLabel(props.pathSummary.pathKind)}
         </p>
         <SecurityEvidencePathRankReaderDisclosures rank={props.pathSummary} />
         <Link
