@@ -19,8 +19,12 @@ function resolveLiveRunsDashboardTotalCount(
     ? Math.max(0, Math.trunc(liveTotalCount))
     : normalizedSsrTotal;
 
-  if (liveTotalIsFinite && liveTotalCount === 0 && liveItemCount > 0) {
-    return Math.max(liveItemCount, normalizedSsrTotal);
+  if (liveItemCount > 0) {
+    const upliftedTotal = Math.max(liveItemCount, normalizedSsrTotal);
+
+    if (!liveTotalIsFinite || liveTotalCount === 0) {
+      return Math.max(upliftedTotal, resolved);
+    }
   }
 
   return resolved;

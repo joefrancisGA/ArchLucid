@@ -57,6 +57,15 @@ describe("resolveLiveRunsDashboardModel", () => {
     expect(merged.totalCount).toBe(1);
   });
 
+  it("treats non-finite live total count as stale when snapshot items exceed the server total", () => {
+    const merged = resolveLiveRunsDashboardModel(ssrModel, {
+      items: [buildRun("live-a"), buildRun("live-b")],
+      totalCount: Number.NaN,
+    });
+
+    expect(merged.totalCount).toBe(2);
+  });
+
   it("treats zero live total count as stale when snapshot items are present", () => {
     const merged = resolveLiveRunsDashboardModel(ssrModel, {
       items: [buildRun("live-a"), buildRun("live-b")],
