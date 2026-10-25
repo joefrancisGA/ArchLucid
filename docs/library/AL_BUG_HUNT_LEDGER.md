@@ -1,3 +1,17 @@
+2026-10-22 seed hunt (seed-only): `ui-oidc` - no hunt-ready product defect; cheap-disproof closed slow_down authorize UX, authorization_pending code-exchange retry policy, and refresh 408 client/route parity; parity regressions BFF refresh HTTP 411 and opaque token endpoint 411 without cookie clear, authorize-retry snapshot preserved when sign-in restarts during retry without returnUrl; scoped `src/lib/oidc` + BFF refresh route vitest 484/484.
+
+- [x] (invalid) humanizeAuthorizeCallbackError - slow_down authorize-query copy - **cheap-disproof 2026-10-22:** readable default-branch UX; not a security defect.
+- [x] (valid-no-repro) refreshBffSessionCookie - refresh 408 shouldClearSession false - **cheap-disproof 2026-10-22:** client HTTP 408 + route opaque 408 already regression-covered.
+- [x] (valid-no-repro) exchangeAuthorizationCode - authorization_pending marks authorize retry - **cheap-disproof 2026-10-22:** `token-client.test.ts` marks retry on transient authorization_pending exchange.
+- [x] (valid-no-repro) clearAbandonedPostSignInReturnUrl - tampered unsafe during retry - **regression 2026-10-22:** retry restart preserves snapshot; tamper purge covered by prepare helper tests.
+- [x] (invalid) readOAuthJsonErrorDescription - multiply-encoded %252B with ZWJ glue - **cheap-disproof 2026-10-22:** saturated encoding class on trunk.
+
+- [ ] (candidate) humanizeAuthorizeCallbackError - temporarily_unavailable authorize-query copy - locus: fixed-branch UX vs default.
+- [ ] (candidate) refreshBffSessionCookie - refresh 412 shouldClearSession false - locus: proxy transient policy.
+- [ ] (candidate) exchangeAuthorizationCode - slow_down marks authorize retry - locus: transient exchange policy.
+- [ ] (candidate) preparePostSignInReturnUrlForSignInStart - idle desk when snapshot unsafe - locus: rehydrate ordering.
+
+2026-10-22 seed hunt (seed-only): `ui-oidc` - no hunt-ready product defect; cheap-disproof closed authorization_pending authorize UX and clearOidcSession retry-snapshot policy without signed-in identity; parity regressions zero-width-only authorize-retry snapshot purge, snapshot preserved on unsigned session clear, BFF refresh HTTP 410 and opaque token endpoint 410 without cookie clear; removed duplicate BFF client 425 test; scoped `src/lib/oidc` + BFF refresh route vitest 480/480.
 2026-10-22 seed hunt (seed-only): `ui-oidc` - no hunt-ready product defect; cheap-disproof closed authorization_pending authorize UX and clearOidcSession retry-snapshot policy without signed-in identity; parity regressions zero-width-only authorize-retry snapshot purge, snapshot preserved on unsigned session clear, BFF refresh HTTP 410 and opaque token endpoint 410 without cookie clear; removed duplicate BFF client 425 test; scoped `src/lib/oidc` + BFF refresh route vitest 480/480.
 
 - [x] (invalid) humanizeAuthorizeCallbackError - authorization_pending authorize-query copy - **cheap-disproof 2026-10-22:** readable default-branch UX; not a security defect.

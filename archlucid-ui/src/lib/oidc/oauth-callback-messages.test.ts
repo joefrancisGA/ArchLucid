@@ -1014,6 +1014,13 @@ describe("humanizeAuthorizeCallbackError", () => {
     expect(message).toContain("Sign-in did not finish");
   });
 
+  it("uses readable default copy for slow_down authorize-query errors", () => {
+    const message = humanizeAuthorizeCallbackError("slow_down", "");
+
+    expect(message).toContain("slow down");
+    expect(message).toContain("Sign-in did not finish");
+  });
+
   it("uses fixed copy for login_required regardless of oversized error_description", () => {
     const oversized = `${"Policy ".repeat(80)}end`;
     const message = humanizeAuthorizeCallbackError("login_required", oversized);
