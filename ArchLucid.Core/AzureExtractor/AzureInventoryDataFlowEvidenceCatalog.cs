@@ -30,13 +30,8 @@ public static class AzureInventoryDataFlowEvidenceCatalog
         Row(AzureInventoryRelationshipAssociationTypes.AppAuthorizedAccess, AzureInventoryDataFlowEvidenceFamily.AuthorizedAccess, PathConfidenceBand.Probable, AzureInventoryDataFlowEdgeDirection.MayAccess, "May access"),
         Row(AzureInventoryRelationshipAssociationTypes.SqlDatabasePrincipal, AzureInventoryDataFlowEvidenceFamily.AuthorizedAccess, PathConfidenceBand.Probable, AzureInventoryDataFlowEdgeDirection.MayAccess, "May access"),
         Row(AzureInventoryRelationshipAssociationTypes.ObservedDependency, AzureInventoryDataFlowEvidenceFamily.ObservedRuntime, PathConfidenceBand.Confirmed, AzureInventoryDataFlowEdgeDirection.Undeclared, "Observed in logs"),
-<<<<<<< HEAD
         Row(AzureInventoryRelationshipAssociationTypes.AppToKeyVaultRef, AzureInventoryDataFlowEvidenceFamily.AuthorizedAccess, PathConfidenceBand.Probable, AzureInventoryDataFlowEdgeDirection.MayAccess, InventoryDiagramRelationshipLabelTexts.AppToKeyVaultRefLabel),
         Row(AzureInventoryRelationshipAssociationTypes.HostnameInferredTarget, AzureInventoryDataFlowEvidenceFamily.InferredHostname, PathConfidenceBand.Confirmed, AzureInventoryDataFlowEdgeDirection.Undeclared, InventoryDiagramRelationshipLabelTexts.HostnameInferredTargetLabel),
-=======
-        Row(AzureInventoryRelationshipAssociationTypes.AppToKeyVaultRef, AzureInventoryDataFlowEvidenceFamily.AuthorizedAccess, PathConfidenceBand.Probable, AzureInventoryDataFlowEdgeDirection.MayAccess, "Key Vault host named in app settings. This is not an access grant."),
-        Row(AzureInventoryRelationshipAssociationTypes.HostnameInferredTarget, AzureInventoryDataFlowEvidenceFamily.InferredHostname, PathConfidenceBand.Confirmed, AzureInventoryDataFlowEdgeDirection.Undeclared, "From app settings"),
->>>>>>> origin/master
         Row(AzureInventoryRelationshipAssociationTypes.OperatorConfirmedConnection, AzureInventoryDataFlowEvidenceFamily.HumanConfirmed, PathConfidenceBand.Confirmed, AzureInventoryDataFlowEdgeDirection.Undeclared, "Confirmed connection"),
         Row(AzureInventoryRelationshipAssociationTypes.ServiceConnectorLink, AzureInventoryDataFlowEvidenceFamily.DeclaredMovement, PathConfidenceBand.Confirmed, AzureInventoryDataFlowEdgeDirection.Undeclared, "Connected to"),
         Row(AzureInventoryRelationshipAssociationTypes.PeReachableTarget, AzureInventoryDataFlowEvidenceFamily.StructuralNetworkPath, PathConfidenceBand.Probable, AzureInventoryDataFlowEdgeDirection.NetworkPath, InventoryDiagramRelationshipLabelTexts.PrivateEndpointTargetStoredReachabilityNotObserved),
