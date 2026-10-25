@@ -10,6 +10,7 @@ import {
   secureNowQuestionDispositionMutationResourceId,
   secureNowQuestionDispositionMutationSource,
   secureNowQuestionIsPolicyPackDispositionRow,
+  secureNowQuestionShowsInferredConnectionReviewerCopy,
   secureNowQuestionPackScopeKindFromPrompt,
 } from "@/lib/infra-evidence/securenow-question-mutation-resource-id";
 import type { SecureNowQuestion } from "@/lib/infra-evidence/securenow-question-queue-api";
@@ -109,7 +110,12 @@ function openQuestionsCountLabel(count: number): string {
 
 function formatSecureNowQuestionSourceLabel(
   question: Pick<SecureNowQuestion, "source" | "scopeKind" | "questionKey">,
+  matchesInferredConnection: boolean,
 ): string {
+  if (secureNowQuestionShowsInferredConnectionReviewerCopy(question, matchesInferredConnection)) {
+    return "Asked because a connection was inferred. Answering does not store a link.";
+  }
+
   const resolvedSource = secureNowQuestionDispositionMutationSource(question);
   if (resolvedSource) {
     if (resolvedSource === "InventoryEvidence") {
@@ -304,6 +310,7 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
     filteredQuestions,
     advanceWithoutPersistence,
     submitAction,
+    currentQuestionMatchesInferredConnection,
   } = useSecureNowQuestionQueue();
 
   if (!drawerOpen) {
@@ -333,9 +340,6 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
     || outline == null
     ? true
     : diagramOutlineIncludesFocusResource(outline, dispositionMutationResourceId);
-  const inferredConnectionQuestion =
-    currentQuestion?.source?.trim() === "InferredConnection";
-
   return (
     <div
       id="infra-diagrams-question-bar"
@@ -438,7 +442,7 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
               <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                 Not sure moves to the next question without storing an answer.
               </p>
-              {inferredConnectionQuestion ? (
+              {currentQuestionMatchesInferredConnection ? (
                 <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                   Asked because a connection was inferred. Answering does not store a link.
                 </p>
@@ -601,7 +605,10 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
                   : "Source line was not stored"}
               </p>
               <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                Source: {formatSecureNowQuestionSourceLabel(currentQuestion)}
+                Source: {formatSecureNowQuestionSourceLabel(
+                  currentQuestion,
+                  currentQuestionMatchesInferredConnection,
+                )}
               </p>
               <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                 Scope: {formatSecureNowQuestionScopeLabel(currentQuestion)}

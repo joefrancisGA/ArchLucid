@@ -63,6 +63,7 @@ type SecureNowQuestionQueueContextValue = {
   readonly drawerAction: DrawerAction;
   readonly visitedQuestionKeys: ReadonlySet<string>;
   readonly busy: boolean;
+  readonly currentQuestionMatchesInferredConnection: boolean;
   readonly setFilter: (filter: QueueFilter) => void;
   readonly setDrawerOpen: (open: boolean) => void;
   readonly setCurrentIndex: (index: number | ((current: number) => number)) => void;
@@ -247,6 +248,11 @@ export function SecureNowQuestionQueueProvider(
     [filter, questions, sessionSkippedQuestionKeys],
   );
   const currentQuestion = filteredQuestions[currentIndex] ?? null;
+  const currentQuestionMatchesInferredConnection = useMemo(
+    () => currentQuestion != null
+      && findInferredConnection(currentQuestion, inferredConnections) != null,
+    [currentQuestion, inferredConnections],
+  );
 
   useEffect(() => {
     if (!drawerOpen || currentQuestion == null) return;
@@ -424,6 +430,7 @@ export function SecureNowQuestionQueueProvider(
       drawerAction,
       visitedQuestionKeys,
       busy,
+      currentQuestionMatchesInferredConnection,
       setFilter,
       setDrawerOpen,
       setCurrentIndex,
@@ -438,6 +445,7 @@ export function SecureNowQuestionQueueProvider(
       busy,
       currentIndex,
       currentQuestion,
+      currentQuestionMatchesInferredConnection,
       drawerAction,
       drawerOpen,
       filter,

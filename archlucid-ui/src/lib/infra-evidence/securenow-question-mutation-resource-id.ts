@@ -97,6 +97,17 @@ export function secureNowQuestionDispositionMutationSource(
 /**
  * Scope sent on disposition mutations when list JSON omitted `scopeKind` but the row is still a pack elicitation question.
  */
+export function secureNowQuestionShowsInferredConnectionReviewerCopy(
+  question: Pick<SecureNowQuestion, "source">,
+  matchesInferredConnection: boolean,
+): boolean {
+  if (question.source?.trim() === "InferredConnection") {
+    return true;
+  }
+
+  return matchesInferredConnection;
+}
+
 export function secureNowQuestionDispositionMutationScopeKind(
   question: Pick<SecureNowQuestion, "source" | "scopeKind" | "questionKey" | "questionText">,
 ): string | null {

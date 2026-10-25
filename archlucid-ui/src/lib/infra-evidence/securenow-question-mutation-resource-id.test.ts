@@ -5,6 +5,7 @@ import {
   secureNowQuestionDispositionMutationResourceId,
   secureNowQuestionDispositionMutationScopeKind,
   secureNowQuestionDispositionMutationSource,
+  secureNowQuestionShowsInferredConnectionReviewerCopy,
   secureNowQuestionDispositionMutationSubscriptionId,
   secureNowQuestionHasPackStyleDispositionScope,
   secureNowQuestionPackScopeKindFromPrompt,
@@ -70,6 +71,26 @@ describe("secureNowQuestionDispositionMutationResourceId", () => {
         scopeKind: "Resource",
       }),
     ).toBeNull();
+  });
+});
+
+describe("secureNowQuestionShowsInferredConnectionReviewerCopy", () => {
+  it("returns true when a proposed connection matches the question", () => {
+    expect(
+      secureNowQuestionShowsInferredConnectionReviewerCopy(
+        { source: null },
+        true,
+      ),
+    ).toBe(true);
+  });
+
+  it("returns false when source is omitted and no connection match exists", () => {
+    expect(
+      secureNowQuestionShowsInferredConnectionReviewerCopy(
+        { source: null },
+        false,
+      ),
+    ).toBe(false);
   });
 });
 

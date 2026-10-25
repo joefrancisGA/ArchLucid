@@ -508,6 +508,11 @@ describe("SecureNowQuestionQueue", () => {
 
     render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
     fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
+
+    expect(screen.getByText("Source: Asked because a connection was inferred. Answering does not store a link.")).toBeInTheDocument();
+    expect(screen.getByText("Asked because a connection was inferred. Answering does not store a link.")).toBeInTheDocument();
+    expect(screen.queryByText("Source: Asked from inventory evidence.")).not.toBeInTheDocument();
+
     fireEvent.click(screen.getByRole("button", { name: "Yes" }));
     fireEvent.click(screen.getByRole("button", { name: "Save answer" }));
 
