@@ -172,12 +172,10 @@ public sealed class ComparisonRecordSearchPredicateBuilderTests
 
         conditions.Should().ContainSingle(c =>
             c.Contains("OPENJSON", StringComparison.Ordinal)
-            && c.Contains("LTRIM(RTRIM(t.value))", StringComparison.Ordinal)
-            && c.Contains("@Tag0"));
+            && c.Contains("LOWER(LTRIM(RTRIM(t.value))) = LOWER(@Tag0)", StringComparison.Ordinal));
         conditions.Should().ContainSingle(c =>
             c.Contains("OPENJSON", StringComparison.Ordinal)
-            && c.Contains("LTRIM(RTRIM(t.value))", StringComparison.Ordinal)
-            && c.Contains("@Tag2"));
+            && c.Contains("LOWER(LTRIM(RTRIM(t.value))) = LOWER(@Tag2)", StringComparison.Ordinal));
         parameters.Get<string>("@Tag0").Should().Be("alpha");
         parameters.Get<string>("@Tag2").Should().Be("beta");
     }

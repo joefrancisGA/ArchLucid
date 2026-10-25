@@ -100,7 +100,7 @@ internal static class ComparisonRecordSearchPredicateBuilder
             string paramName = $"@Tag{i}";
             parameters.Add(paramName, t.Trim());
             conditions.Add(
-                $"EXISTS (SELECT 1 FROM OPENJSON(ISNULL(Tags, '[]')) AS t WHERE LTRIM(RTRIM(t.value)) = {paramName})");
+                $"EXISTS (SELECT 1 FROM OPENJSON(ISNULL(Tags, '[]')) AS t WHERE LOWER(LTRIM(RTRIM(t.value))) = LOWER({paramName}))");
         }
     }
 }

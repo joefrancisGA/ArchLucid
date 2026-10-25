@@ -136,7 +136,10 @@ internal static class ComparisonRecordRepositoryCore
                     static (current, needle) => current.Where(r =>
                         r.Tags.Any(x =>
                             !string.IsNullOrWhiteSpace(x)
-                            && string.Equals(x.Trim(), needle, StringComparison.Ordinal))));
+                            && string.Equals(
+                                x.Trim(),
+                                needle,
+                                StringComparison.OrdinalIgnoreCase))));
         }
 
         return query;
