@@ -437,14 +437,14 @@ public sealed class PersistencePackageCoverageBatchRc27Tests
             label: "release",
             tags: ["tag-a", "  ", "tag-b"]);
 
-        conditions.Should().Contain("ComparisonType = @ComparisonType");
+        conditions.Should().Contain("LTRIM(RTRIM(ComparisonType)) = @ComparisonType");
         conditions.Should().Contain("LeftRunId = @LeftRunId");
         conditions.Should().Contain("RightRunId = @RightRunId");
         conditions.Should().Contain("CreatedUtc >= @CreatedFromUtc");
         conditions.Should().Contain("CreatedUtc <= @CreatedToUtc");
         conditions.Should().Contain("LTRIM(RTRIM(LeftExportRecordId)) = @LeftExportRecordId");
         conditions.Should().Contain("LTRIM(RTRIM(RightExportRecordId)) = @RightExportRecordId");
-        conditions.Should().Contain("Label = @Label");
+        conditions.Should().Contain("LTRIM(RTRIM(Label)) = @Label");
         conditions.Should().Contain(c => c.Contains("@Tag0", StringComparison.Ordinal));
         conditions.Should().Contain(c => c.Contains("@Tag2", StringComparison.Ordinal));
         conditions.Should().NotContain(c => c.Contains("@Tag1", StringComparison.Ordinal));

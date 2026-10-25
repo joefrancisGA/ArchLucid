@@ -79,6 +79,38 @@ public sealed class InMemoryComparisonRecordRepositoryAdditionalCoverageTests
     }
 
     [SkippableFact]
+    public async Task SearchAsync_finds_row_when_stored_label_has_surrounding_whitespace()
+    {
+        InMemoryComparisonRecordRepository sut = new();
+        FieldInfo? itemsField = typeof(InMemoryComparisonRecordRepository).GetField(
+            "_items",
+            BindingFlags.Instance | BindingFlags.NonPublic);
+        itemsField.Should().NotBeNull();
+        List<ComparisonRecord> items = (List<ComparisonRecord>)itemsField!.GetValue(sut)!;
+        ComparisonRecord legacy = Row("cmp-label-pad", TimeProvider.System.UtcNowDateTime(), label: "  pilot  ");
+        items.Add(legacy);
+
+        IReadOnlyList<ComparisonRecord> page = await sut.SearchAsync(
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            "pilot",
+            null,
+            null,
+            null,
+            0,
+            10,
+            CancellationToken.None);
+
+        page.Should().ContainSingle(r => r.ComparisonRecordId == "cmp-label-pad");
+        page[0].Label.Should().Be("pilot");
+    }
+
+    [SkippableFact]
     public async Task SearchAsync_finds_row_when_stored_left_run_id_uses_dashed_guid_and_filter_uses_n_format()
     {
         Guid runKey = Guid.Parse("66666666-6666-6666-6666-666666666666");

@@ -31,14 +31,14 @@ public sealed class ComparisonRecordSearchPredicateBuilderTests
             label: "release-1",
             tags: ["alpha", " ", "beta"]);
 
-        conditions.Should().Contain("ComparisonType = @ComparisonType");
+        conditions.Should().Contain("LTRIM(RTRIM(ComparisonType)) = @ComparisonType");
         conditions.Should().Contain("LeftRunId = @LeftRunId");
         conditions.Should().Contain("RightRunId = @RightRunId");
         conditions.Should().Contain("CreatedUtc >= @CreatedFromUtc");
         conditions.Should().Contain("CreatedUtc <= @CreatedToUtc");
         conditions.Should().Contain("LTRIM(RTRIM(LeftExportRecordId)) = @LeftExportRecordId");
         conditions.Should().Contain("LTRIM(RTRIM(RightExportRecordId)) = @RightExportRecordId");
-        conditions.Should().Contain("Label = @Label");
+        conditions.Should().Contain("LTRIM(RTRIM(Label)) = @Label");
         conditions.Should().ContainSingle(c => c.Contains("OPENJSON", StringComparison.Ordinal) && c.Contains("@Tag0"));
         conditions.Should().ContainSingle(c => c.Contains("OPENJSON", StringComparison.Ordinal) && c.Contains("@Tag2"));
         conditions.Should().NotContain(c => c.Contains("@Tag1", StringComparison.Ordinal));
@@ -147,7 +147,7 @@ public sealed class ComparisonRecordSearchPredicateBuilderTests
             label: null,
             tags: null);
 
-        conditions.Should().Contain("ComparisonType = @ComparisonType");
+        conditions.Should().Contain("LTRIM(RTRIM(ComparisonType)) = @ComparisonType");
         parameters.Get<string>("@ComparisonType").Should().Be("end-to-end-replay");
     }
 
@@ -195,8 +195,31 @@ public sealed class ComparisonRecordSearchPredicateBuilderTests
             label: "  release-1  ",
             tags: null);
 
-        conditions.Should().Contain("Label = @Label");
+        conditions.Should().Contain("LTRIM(RTRIM(Label)) = @Label");
         parameters.Get<string>("@Label").Should().Be("release-1");
+    }
+
+    [Fact]
+    public void AppendFilters_trims_padded_comparison_type_query_parameter_against_trimmed_column()
+    {
+        List<string> conditions = [];
+        DynamicParameters parameters = new();
+
+        ComparisonRecordSearchPredicateBuilder.AppendFilters(
+            conditions,
+            parameters,
+            comparisonType: "  end-to-end-replay  ",
+            leftRunId: null,
+            rightRunId: null,
+            createdFromUtc: null,
+            createdToUtc: null,
+            leftExportRecordId: null,
+            rightExportRecordId: null,
+            label: null,
+            tags: null);
+
+        conditions.Should().Contain("LTRIM(RTRIM(ComparisonType)) = @ComparisonType");
+        parameters.Get<string>("@ComparisonType").Should().Be("end-to-end-replay");
     }
 
     [Fact]

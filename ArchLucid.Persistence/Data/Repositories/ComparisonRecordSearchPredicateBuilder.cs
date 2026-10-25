@@ -22,7 +22,7 @@ internal static class ComparisonRecordSearchPredicateBuilder
     {
         if (!string.IsNullOrWhiteSpace(comparisonType))
         {
-            conditions.Add("ComparisonType = @ComparisonType");
+            conditions.Add("LTRIM(RTRIM(ComparisonType)) = @ComparisonType");
             parameters.Add("@ComparisonType", comparisonType.Trim());
         }
 
@@ -84,7 +84,7 @@ internal static class ComparisonRecordSearchPredicateBuilder
 
         if (!string.IsNullOrWhiteSpace(label))
         {
-            conditions.Add("Label = @Label");
+            conditions.Add("LTRIM(RTRIM(Label)) = @Label");
             parameters.Add("@Label", label.Trim());
         }
 

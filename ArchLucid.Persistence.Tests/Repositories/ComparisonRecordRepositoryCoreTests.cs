@@ -70,6 +70,19 @@ public sealed class ComparisonRecordRepositoryCoreTests
     }
 
     [Fact]
+    public void FilterInMemory_finds_row_when_stored_label_has_surrounding_whitespace()
+    {
+        ComparisonRecord match = Record("labeled", label: "  release-1  ");
+        ComparisonRecord other = Record("other", label: "release-2");
+
+        List<ComparisonRecord> filtered = ComparisonRecordRepositoryCore
+            .FilterInMemory([match, other], null, null, null, null, null, null, null, "release-1", null)
+            .ToList();
+
+        filtered.Should().ContainSingle().Which.ComparisonRecordId.Should().Be("labeled");
+    }
+
+    [Fact]
     public void FilterInMemory_trims_padded_comparison_type_filter()
     {
         ComparisonRecord match = Record("typed", comparisonType: "end-to-end-replay");

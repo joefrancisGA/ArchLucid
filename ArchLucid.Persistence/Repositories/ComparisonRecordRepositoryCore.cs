@@ -61,7 +61,9 @@ internal static class ComparisonRecordRepositoryCore
         if (!string.IsNullOrWhiteSpace(comparisonType))
         {
             string normalizedComparisonType = comparisonType.Trim();
-            query = query.Where(r => string.Equals(r.ComparisonType, normalizedComparisonType, StringComparison.Ordinal));
+            query = query.Where(r =>
+                !string.IsNullOrWhiteSpace(r.ComparisonType)
+                && string.Equals(r.ComparisonType.Trim(), normalizedComparisonType, StringComparison.Ordinal));
         }
 
         if (!string.IsNullOrWhiteSpace(leftRunId))
@@ -113,7 +115,9 @@ internal static class ComparisonRecordRepositoryCore
         if (!string.IsNullOrWhiteSpace(label))
         {
             string normalizedLabel = label.Trim();
-            query = query.Where(r => string.Equals(r.Label, normalizedLabel, StringComparison.Ordinal));
+            query = query.Where(r =>
+                !string.IsNullOrWhiteSpace(r.Label)
+                && string.Equals(r.Label.Trim(), normalizedLabel, StringComparison.Ordinal));
         }
 
         if (tags is { Count: > 0 })
