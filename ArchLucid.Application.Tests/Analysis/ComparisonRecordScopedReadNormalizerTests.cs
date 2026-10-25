@@ -54,4 +54,24 @@ public sealed class ComparisonRecordScopedReadNormalizerTests
 
         record.Label.Should().BeNull();
     }
+
+    [Fact]
+    public void CompareQuality_comparison_record_scoped_read_normalizer_clears_whitespace_only_format_type_summary_and_tags()
+    {
+        ComparisonRecord record = new()
+        {
+            ComparisonRecordId = "cmp-whitespace-text-columns",
+            Format = "   ",
+            ComparisonType = "  ",
+            SummaryMarkdown = "   ",
+            Tags = ["  alpha  ", "   ", " beta "],
+        };
+
+        ComparisonRecordScopedReadNormalizer.NormalizeInPlace(record);
+
+        record.Format.Should().BeEmpty();
+        record.ComparisonType.Should().BeEmpty();
+        record.SummaryMarkdown.Should().BeNull();
+        record.Tags.Should().BeEquivalentTo(["alpha", "beta"]);
+    }
 }

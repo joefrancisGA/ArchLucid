@@ -33,27 +33,32 @@ internal static class ComparisonRecordScopedReadNormalizer
             OptionalExportMetadataStringNormalizer.NormalizeOptionalString(record.RightManifestVersion);
         record.Notes = OptionalExportMetadataStringNormalizer.NormalizeOptionalString(record.Notes);
 
-        if (!string.IsNullOrWhiteSpace(record.Format))
-            record.Format = record.Format.Trim();
-
-        if (!string.IsNullOrWhiteSpace(record.ComparisonType))
-            record.ComparisonType = record.ComparisonType.Trim();
+        record.Format = NormalizeRequiredStringColumn(record.Format);
+        record.ComparisonType = NormalizeRequiredStringColumn(record.ComparisonType);
 
         record.Label = OptionalExportMetadataStringNormalizer.NormalizeOptionalString(record.Label);
         NormalizeTagsInPlace(record.Tags);
 
-        if (!string.IsNullOrWhiteSpace(record.SummaryMarkdown))
-            record.SummaryMarkdown = record.SummaryMarkdown.Trim();
+        record.SummaryMarkdown =
+            OptionalExportMetadataStringNormalizer.NormalizeOptionalString(record.SummaryMarkdown);
     }
 
     private static void NormalizeTagsInPlace(List<string> tags)
     {
-        for (int i = 0; i < tags.Count; i++)
+        for (int i = tags.Count - 1; i >= 0; i--)
         {
-            if (!string.IsNullOrWhiteSpace(tags[i]))
-                tags[i] = tags[i].Trim();
+            if (string.IsNullOrWhiteSpace(tags[i]))
+            {
+                tags.RemoveAt(i);
+                continue;
+            }
+
+            tags[i] = tags[i].Trim();
         }
     }
+
+    private static string NormalizeRequiredStringColumn(string value) =>
+        string.IsNullOrWhiteSpace(value) ? string.Empty : value.Trim();
 
     private static string? NormalizeRunIdColumnOrNull(string? runId)
     {
