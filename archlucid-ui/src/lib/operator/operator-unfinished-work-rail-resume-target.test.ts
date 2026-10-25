@@ -27,6 +27,33 @@ describe("resolveOperatorUnfinishedWorkRailItemResumeTarget", () => {
     expect(target.runId).toBe("review-42");
   });
 
+  it("prefers href-encoded run id when TB-2369 row id conflicts with desk highlightReviewId", () => {
+    const target = resolveOperatorUnfinishedWorkRailItemResumeTarget(
+      reviewRailItem(
+        "review-in-progress:run-a",
+        "/architecture/architectures/architecture-identity-001?highlightReviewId=run-b",
+      ),
+    );
+
+    expect(target.runId).toBe("run-b");
+  });
+
+  it("does not suppress hero Continue when row id conflicts with desk highlightReviewId", () => {
+    const railTarget = resolveOperatorUnfinishedWorkRailItemResumeTarget(
+      reviewRailItem(
+        "review-in-progress:run-a",
+        "/architecture/architectures/architecture-identity-001?highlightReviewId=run-b",
+      ),
+    );
+
+    expect(
+      matchesOperatorHomeHeroResumeTarget(
+        { href: "/architecture/reviews/run-a", runId: "run-a" },
+        railTarget,
+      ),
+    ).toBe(false);
+  });
+
   it("suppresses duplicate Continue when hero matches rail row id but not href", () => {
     const railTarget = resolveOperatorUnfinishedWorkRailItemResumeTarget(
       reviewRailItem("review-in-progress:run-hero", "/architecture/reviews/new"),

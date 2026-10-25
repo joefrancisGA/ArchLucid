@@ -4938,7 +4938,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-operator-lib
 
-**Hunts:** 82 · **Bugs found:** 79 · **Consecutive dry hunts:** 0
+**Hunts:** 83 · **Bugs found:** 80 · **Consecutive dry hunts:** 0
+
+2026-10-25 seed hunt (hit): promoted `resolvePrimaryResumeRunIdForRailItem` so rail resume targets prefer href-encoded SN-012 `highlightReviewId` when TB-2369 row id disagrees; regressions `prefers href-encoded run id when TB-2369 row id conflicts with desk highlightReviewId` and `does not suppress hero Continue when row id conflicts with desk highlightReviewId`; scoped rail-resume vitest passed. Private beta: Invited operators keep Continue on unfinished-work rows whose desk link highlights a different review than a stale row id would imply.
 
 2026-10-25 seed hunt (hit): path-scoped SN-012 `highlightReviewId` guard in `matchesOperatorHomeHeroResumeTarget` runs before run-id cross-match so same-desk highlights differ without suppressing peer-path stale href matches; regression `does not match when desk highlightReviewId differs even if explicit runId matches hero`; scoped hero-resume-target vitest passed. Private beta: Invited operators keep Continue on unfinished-work rows that highlight a different review on the same architecture desk when the row id still carries an older run id.
 
@@ -5135,10 +5137,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) `matchesOperatorHomeHeroResumeTarget` — run-id cross-match ran before same-desk distinct `highlightReviewId` guard — **hit 2026-10-25 seed hunt:** path-scoped guard before cross-match; regression `does not match when desk highlightReviewId differs even if explicit runId matches hero`.
 
-- [ ] (candidate) `matchesOperatorHomeHeroResumeTarget` — same-desk highlight guard does not block peer-path stale href cross-match — locus: guard + `normalizeResumeHrefForMatch`; input: `matches when the hero run id equals the rail href run id even if paths differ`.
-- [ ] (candidate) `resolveOperatorUnfinishedWorkRailItemResumeTarget` — prefers TB-2369 row id when href is `/architecture/reviews/new` — locus: rail resume resolver; input: rail resume target tests.
-- [ ] (candidate) `collectResumeRunIdsForMatch` — explicit run id preserved when href is empty — locus: helper; input: empty href + explicit run id.
-- [ ] (candidate) `resumeHrefsEquivalentForDedupe` — peer review trailing-slash equivalence unchanged — locus: normalize path; input: trailing-slash hero/rail tests.
+- [x] (valid-no-repro) `matchesOperatorHomeHeroResumeTarget` — same-desk highlight guard does not block peer-path stale href cross-match — **cheap-disproof 2026-10-25 seed hunt:** path-scoped guard; regression `matches when the hero run id equals the rail href run id even if paths differ`.
+- [x] (valid-no-repro) `resolveOperatorUnfinishedWorkRailItemResumeTarget` — prefers TB-2369 row id when href is `/architecture/reviews/new` — **cheap-disproof 2026-10-25 seed hunt:** regression `prefers TB-2369 row id when href does not parse a run id`.
+- [x] (valid-no-repro) `collectResumeRunIdsForMatch` — explicit run id preserved when href is empty — **cheap-disproof 2026-10-25 seed hunt:** explicit-only branch; regression `collectResumeRunIdsForMatch ignores whitespace-only explicit run ids` (peer href case).
+- [x] (valid-no-repro) `resumeHrefsEquivalentForDedupe` — peer review trailing-slash equivalence unchanged — **cheap-disproof 2026-10-25 seed hunt:** regression `matches resume targets when hrefs differ only by a trailing slash`.
+- [x] (proven) `resolveOperatorUnfinishedWorkRailItemResumeTarget` — `collectResumeRunIdsForMatch` first id preferred stale TB-2369 row id over desk `highlightReviewId` — **hit 2026-10-25 seed hunt:** `resolvePrimaryResumeRunIdForRailItem`; regressions `prefers href-encoded run id when TB-2369 row id conflicts with desk highlightReviewId` and `does not suppress hero Continue when row id conflicts with desk highlightReviewId`.
+
+- [ ] (candidate) `resolvePrimaryResumeRunIdForRailItem` — falls back to rail row id when href parses no run id — locus: rail resume resolver; input: `/architecture/reviews/new` + `review-in-progress:run-42`.
+- [ ] (candidate) `resolveOperatorHomeResumeAffordancePlan` — review dedupe inherits href-priority via shared rail resume resolver — locus: affordance review branch; input: conflict regressions above.
+- [ ] (candidate) `matchesOperatorHomeHeroResumeTarget` — path-scoped highlight guard + href-priority rail target avoid double false positive — locus: hero match + resolver; input: conflict + stale-path regressions together.
+- [ ] (candidate) `collectResumeRunIdsForMatch` — does not emit two ids when explicit conflicts with href (resolver bypasses union) — locus: primary resolver; input: conflicting rail row fixture.
 - [ ] (candidate) `resolveOperatorHomeResumeAffordancePlan` — architecture continue-last dedupe independent of highlight guard — locus: architecture branch; input: architecture affordance regressions.
 
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regression `drops favorite rows when runId is whitespace-only`; 41 scoped continuity, scope-storage, and attention-preview vitest tests passed.
