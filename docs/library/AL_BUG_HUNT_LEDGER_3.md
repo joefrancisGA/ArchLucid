@@ -4938,7 +4938,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-operator-lib
 
-**Hunts:** 67 · **Bugs found:** 64 · **Consecutive dry hunts:** 0
+**Hunts:** 68 · **Bugs found:** 65 · **Consecutive dry hunts:** 0
+
+2026-10-25 seed hunt (hit): promoted `createdUtc` fallback in `resolveRunHomeListTimestampUtc` when `lastModifiedUtc` is unparseable; regressions `falls back to createdUtc when lastModifiedUtc is unparseable` and `returns null when both timestamps are unparseable`; 7 scoped `operator-home-run-list-insight` vitest passed. Private beta: Invited operators regain sensible “updated” labels on home run rows when `lastModifiedUtc` is garbage but `createdUtc` is still valid.
 
 2026-10-25 seed hunt (hit): promoted unparseable `createdUtc` guard in `formatRunStartedLabel` for list title disambiguation; regression `falls back to run id suffix when duplicate titles have unparseable createdUtc`; 2 scoped `run-home-list-disambiguator` vitest passed. Private beta: Invited operators no longer see `Started not-an-instant` disambiguators on duplicate home/reviews list titles when run metadata carries non-ISO `createdUtc` values.
 
@@ -5007,6 +5009,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `formatOperatorHomeCompactMetricsLine` — raw metrics snapshot counts interpolate `NaN` into home KPI strip — **hit 2026-10-25 seed hunt:** `normalizeOperatorHomeNonNegativeCount` on active/sealed/findings; regression `normalizes non-finite workspace metric counts in the KPI strip`.
 - [x] (proven) `formatOperatorHomeRecentReviewsOutcome` / `buildOperatorHomeRecentReviewsOutcomeParts` — `visibleCount !== undefined` accepts `NaN` in showing-cap copy — **hit 2026-10-25 seed hunt:** `resolveRecentPreviewCapCounts`; regressions `normalizes non-finite recent preview cap counts in outcome copy` and `normalizes non-finite preview cap counts in structured outcome parts`.
 - [x] (proven) `formatOperatorHomeGovernanceApprovalWarningCount` — `Math.max(0, Math.trunc(count))` leaves `NaN` labels — **hit 2026-10-25 seed hunt:** `Number.isFinite` guard; regression `treats non-finite counts as zero warnings`.
+- [x] (proven) `resolveRunHomeListTimestampUtc` — non-empty but unparseable `lastModifiedUtc` blocks `createdUtc` fallback — **hit 2026-10-25 seed hunt:** `parseIsoUtcMs` gate before preferring last modified; regressions `falls back to createdUtc when lastModifiedUtc is unparseable` and `returns null when both timestamps are unparseable`.
 - [x] (proven) `formatRunStartedLabel` / `formatRunListTitleWithDisambiguator` — unparseable `createdUtc` echoes raw string in `Started …` suffix — **hit 2026-10-25 seed hunt:** `parseIsoUtcMs` fail-closed; regression `falls back to run id suffix when duplicate titles have unparseable createdUtc`.
 - [x] (proven) `formatRunHomeListUpdatedLabel` — unparseable `lastModifiedUtc` / `createdUtc` strings render as raw relative labels — **hit 2026-10-25 seed hunt:** `parseIsoUtcMs` fail-closed; regression `returns null when the chosen timestamp is not a parseable instant`.
 - [x] (proven) `readOperatorShellStableCache` / `hydrateOperatorShellStableCache` — session JSON alerts inbox counts bypass `mapAlertsInboxSummary` normalization — **hit 2026-10-25 seed hunt:** `normalizeStableCacheAlertsInboxSummary`; regression `normalizes non-finite alerts inbox counts when reading stable cache`.
