@@ -1413,6 +1413,50 @@ describe("SecureNowQuestionQueue", () => {
     expect(screen.queryByText("No questions match this filter.")).not.toBeInTheDocument();
   });
 
+  it("focuses the answered question after reload when another answered row exists", async () => {
+    const answeredRow = {
+      ...question,
+      status: "Answered",
+      answerCode: "NamePeer",
+      answerText: "Name the peer",
+      reason: "Operator selected the peer.",
+    };
+    const otherOpen = {
+      ...question,
+      resourceId:
+        "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.DataFactory/factories/other-resource",
+      resourceName: "other-resource",
+      questionText: "Should other-resource connect to a peer, or stand alone?",
+      reasonText:
+        "SecureNow found no connection to or from other-resource. Data factory is not treated as a shared service that can stand alone.",
+    };
+
+    mocks.listQuestions
+      .mockResolvedValueOnce([answeredRow, otherOpen])
+      .mockResolvedValueOnce([
+        answeredRow,
+        {
+          ...otherOpen,
+          status: "Answered",
+          answerCode: "StandsAlone",
+          answerText: "Stands alone",
+          reason: "Operator selected stands alone.",
+        },
+      ]);
+
+    render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
+    fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
+    fireEvent.click(screen.getByRole("button", { name: "It stands alone" }));
+    fireEvent.click(screen.getByRole("button", { name: "Save answer" }));
+
+    await waitFor(() => expect(mocks.listQuestions).toHaveBeenCalledTimes(2));
+    await waitFor(() => expect(mocks.answerQuestion).toHaveBeenCalled());
+
+    expect(screen.getByTestId("infra-diagrams-question-disposition-status")).toHaveTextContent("Answered");
+    expect(screen.getByTestId("infra-diagrams-question-text")).toHaveTextContent(otherOpen.questionText);
+    expect(screen.queryByText(question.questionText)).not.toBeInTheDocument();
+  });
+
   it("resets ignore chrome after the queue reloads", async () => {
     const secondQuestion = {
       ...question,

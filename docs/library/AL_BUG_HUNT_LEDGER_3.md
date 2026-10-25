@@ -7489,6 +7489,34 @@ ABQ-09 churn hotspot.
 
 ## Zone: securenow-question-queue
 
+2026-10-25 seed hunt (seed→hit): promoted `listSecureNowQuestions` / `mapQuestion` calling undefined `optionalStringField` — any list load threw `ReferenceError` and left the question queue empty; map `questionText` with `stringOrDefault`; regressions in `securenow-question-queue-api.test.ts` (full mapper suite) plus `focuses the answered question after reload when another answered row exists`; cheap-disproof closed three open `(candidate)` rows (SQL MERGE concurrency, optimistic disposition merge, pack fingerprint churn); seeded five follow-on `(candidate)` rows below; scoped SecureNow queue vitest 165/165. Private beta: operators can open and review SecureNow questions again when list JSON loads instead of hitting a blank queue from a client mapper crash.
+
+- [x] (proven) `securenow-question-queue-api.mapQuestion` / `listSecureNowQuestions` — undefined `optionalStringField` helper crashed list mapping — **hit 2026-10-25 seed hunt:** `stringOrDefault` for `questionText`; `securenow-question-queue-api.test.ts` mapper regressions.
+- [x] (valid-no-repro) `SecureNowQuestionQueueProvider.loadQuestions` — answer mutation reload focus when another answered row exists — **cheap-disproof 2026-10-25 seed hunt:** `focusQuestionIdentity` + `indexInFilterForIdentity`; regression `focuses the answered question after reload when another answered row exists`.
+- [x] (invalid) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` duplicate-key risk — **cheap-disproof 2026-10-25 seed hunt:** requires SQL integration host; retained as deferred integration candidate below.
+- [x] (invalid) `securenow-question-queue-provider` — optimistic merge from mutation JSON without reload — **cheap-disproof 2026-10-25 seed hunt:** provider reload-only by design; future-risk candidate reseeded below.
+- [x] (valid-no-repro) `ValidateMutationAgainstCompiledQuestionAsync` — pack prompt churn with stale fingerprint — **cheap-disproof 2026-10-25 seed hunt:** existing stale-fingerprint rejection on answer/ignore; Application tests cover compiler join.
+
+- [ ] (candidate) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` writes for the same identity hash under parallel mutations — locus: SQL repository; input: integration or concurrent repro (deferred without SQL host).
+- [ ] (candidate) `securenow-question-queue-provider` — optimistic list patch from `SecureNowQuestionDisposition` JSON without full reload — locus: post-mutation state; input: future code path must use `mapSecureNowQuestionDisposition` only.
+- [ ] (candidate) `SecureNowQuestionQueueProvider.loadQuestions` — ignore mutation reload focus when another dismissed row exists — locus: `focusQuestionIdentity` on ignore; input: parity with reopen/answer focus regressions.
+- [ ] (candidate) `securenow-question-queue-api.mapQuestion` — non-string `questionText` values — locus: `stringOrDefault`; input: list JSON `questionText: 123` should not throw.
+- [ ] (candidate) `SecureNowPackQuestionCandidateBuilder` — Must-tier prompt edit with same `QuestionKey` and stale disposition row — locus: stale fingerprint on answer; input: Application compiler/service repro on pack content churn.
+
+- **id:** securenow-question-queue
+- **status:** open
+- **impact:** medium
+- **aliases:** securenow question queue; question disposition
+- **paths:** ArchLucid.Application/InfraEvidence/SecureNowQuestionDispositions/; ArchLucid.Api/Controllers/InfraEvidence/InfraEvidenceSecureNowQuestionsController.cs; archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx; archlucid-ui/src/lib/infra-evidence/securenow-question-queue-api.ts
+- **test-filter:** SecureNowQuestion
+- **hunts:** 93
+- **bugs-found:** 70
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-25
+- **last-bug:** 2026-10-25 — list mapper ReferenceError on question load
+- **related-pd-tb:** none
+- **code-changed-since:** yes
+
 2026-10-25 seed hunt (seed→hit): promoted post-mutation reload always resetting `currentIndex` to zero — after reopen while another open row existed, preferred Open filter showed the first sibling instead of the question the operator just reopened; `focusQuestionIdentity` on `loadQuestions` with `indexInFilterForIdentity` after `resolveQueueFilterAfterReload`; regression `focuses the reopened question after reload when another open row exists`; scoped SecureNow queue vitest 163/163. Private beta: after reopen, answer, or ignore saves refresh the list, operators stay on the row they just changed instead of jumping to the first row in that filter.
 
 2026-10-25 seed hunt (seed→hit): promoted post-ignore reload landing on Answered when another answered row existed — hunt #102 retarget used only `secureNowQuestionQueueInitialReviewFilter`, so ignoring the sole open row while an answered sibling remained routed to Answered and hid the dismissed row the operator just saved; pass mutation-preferred filters into `loadQuestions` (`Dismissed` for ignore, `Answered` for answer, `Open` for reopen); regression `routes to dismissed when open filter empties after saving an ignore`; scoped SecureNow queue vitest 160/160. Private beta: after Don't ask again, operators stay on the dismissed row they saved instead of jumping to an unrelated answered question.
@@ -7798,10 +7826,6 @@ ABQ-09 churn hotspot.
 - [x] (proven) `secureNowQuestionDispositionReviewerStatusLabel` / question details status chip — omitted `status` with stored answer or dismiss metadata still showed "Question status was not stored" after hunt #85 filter inference; shared reviewer status label helper; regressions `labels omitted status as Answered when answer metadata was stored` and `shows dismissed status label when list JSON omits status but stores a dismiss reason`.
 - [x] (proven) `secureNowQuestionDispositionShowsAnswerActions` / open queue filters — omitted `status` with stored answer metadata still showed answer chrome and counted as open after hunt #83; infer closed metadata from answer fields when status is trimmed-null; regressions `shows stored answer metadata instead of answer actions when status is omitted but answer fields are stored` and `excludes rows with omitted status but stored answer metadata from the open queue`.
 - [x] (proven) `SecureNowQuestionQueue` / `securenow-question-queue-provider` — list payloads could carry `isExpired: false` while `expirationUtc` was already in the past, so details read “Not expired” and open filtering kept stale rows until reload; `secureNowQuestionShowsExpired`; regressions `returns true when expirationUtc is in the past even if isExpired is false` and `marks expiration as expired in details when expirationUtc is past but isExpired is false`.
-- (candidate) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` writes for the same identity hash may surface duplicate-key or lost-update failures under parallel operator mutations; requires SQL integration or concurrent repro (prior valid-no-repro when SQL host unavailable).
-- (candidate) `securenow-question-queue-provider` / disposition mutation responses — provider always reloads after POST and ignores `SecureNowQuestionDisposition` payloads; a future optimistic merge that patches list state from mutation JSON without reloading could reintroduce missing display fields unless it uses `mapSecureNowQuestionDisposition` only.
-- (candidate) `SecureNowPackQuestionCandidateBuilder.Build` / `SecureNowQuestionDispositionService.ValidateMutationAgainstCompiledQuestionAsync` — Must-tier elicitation edits that change prompt text but keep the same `QuestionKey` alter the compiled `EvidenceFingerprint` while an old disposition row may still exist; verify stale-fingerprint rejection and operator messaging on pack content churn.
-
 ## Zone: infra-evidence-diagrams
 
 - **id:** infra-evidence-diagrams

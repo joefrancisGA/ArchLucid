@@ -172,7 +172,7 @@ export function mapSecureNowQuestionDisposition(raw: Record<string, unknown>): S
 }
 
 function mapQuestion(raw: Record<string, unknown>): SecureNowQuestion {
-  const questionText = optionalStringField(raw.questionText);
+  const questionText = stringOrDefault(raw.questionText);
 
   return {
     dispositionId: mapListedOptionalString(raw.dispositionId),

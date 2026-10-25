@@ -191,8 +191,8 @@ describe("securenow-question-queue-api", () => {
 
     expect(questions).toHaveLength(1);
     expect(questions[0].resourceName).toBeNull();
-    expect(questions[0].questionText).toBe("");
-    expect(questions[0].answerCodes).toEqual(["Yes", ""]);
+    expect(questions[0].questionText).toBe("Question text was not stored");
+    expect(questions[0].answerCodes).toEqual(["Yes"]);
   });
 
   it("maps string isExpired values from list responses", async () => {
