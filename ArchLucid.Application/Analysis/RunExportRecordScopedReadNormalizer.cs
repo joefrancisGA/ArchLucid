@@ -20,6 +20,10 @@ internal static class RunExportRecordScopedReadNormalizer
         record.CompareManifestVersion =
             PersistedAnalysisExportRequestMetadata.NormalizeOptionalString(record.CompareManifestVersion);
 
+        record.ExportType = record.ExportType.Trim();
+        record.Format = record.Format.Trim();
+        record.FileName = record.FileName.Trim();
+
         PersistedAnalysisExportRequestDeterminismNormalizer.NormalizeRunExportRecordDenormalizedColumns(record);
     }
 }
