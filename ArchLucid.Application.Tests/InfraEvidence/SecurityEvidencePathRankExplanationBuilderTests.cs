@@ -57,5 +57,6 @@ public sealed class SecurityEvidencePathRankExplanationBuilderTests
 
         prose.BlastRadius.Should().Contain("Defender posture band is Low");
         prose.BlastRadius.Should().NotContain("%");
+        prose.BusinessConsequence.Should().Contain("was not stored");
     }
 }
