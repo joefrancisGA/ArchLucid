@@ -218,6 +218,8 @@ describe("decodeOAuthErrorDescription", () => {
 
   it("preserves literal plus in authorize error descriptions when ZWNJ glue separates words", () => {
     expect(decodeOAuthErrorDescription("Policy\u200cdenied+extra")).toBe("Policy denied+extra");
+    expect(decodeOAuthErrorDescription("Policy\u2007denied%252Bextra")).toBe("Policy denied+extra");
+    expect(decodeOAuthErrorDescription("Policy\u2008denied%252Bextra")).toBe("Policy denied+extra");
     expect(decodeOAuthErrorDescription("Policy\u200adenied%252Bextra")).toBe("Policy denied+extra");
     expect(decodeOAuthErrorDescription("Policy\u202fdenied%252Bextra")).toBe("Policy denied+extra");
   });
@@ -874,6 +876,13 @@ describe("humanizeAuthorizeCallbackError", () => {
     expect(message).toMatch(/invalid saml issuer/i);
     expect(message).not.toContain("invalid_saml_issuer");
 
+  });
+
+  it("humanizes invalid_saml_nameid authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("invalid_saml_nameid", "");
+
+    expect(message).toMatch(/invalid saml nameid/i);
+    expect(message).not.toContain("invalid_saml_nameid");
   });
 
   it("avoids empty parentheses when the authorize error code is whitespace-only", () => {
