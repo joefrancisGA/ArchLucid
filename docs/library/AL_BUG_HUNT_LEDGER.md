@@ -1,3 +1,11 @@
+2026-10-22 seed hunt (seed-only): `ui-oidc` - no hunt-ready product defect; cheap-disproof closed authorization_pending authorize UX and clearOidcSession retry-snapshot policy without signed-in identity; parity regressions zero-width-only authorize-retry snapshot purge, snapshot preserved on unsigned session clear, BFF refresh HTTP 410 and opaque token endpoint 410 without cookie clear; removed duplicate BFF client 425 test; scoped `src/lib/oidc` + BFF refresh route vitest 480/480.
+
+- [x] (invalid) humanizeAuthorizeCallbackError - authorization_pending authorize-query copy - **cheap-disproof 2026-10-22:** readable default-branch UX; not a security defect.
+- [x] (valid-no-repro) clearOidcSession - clear retry snapshot without signed-in identity - **cheap-disproof 2026-10-22:** snapshot + retry marker intentionally preserved for unsigned retry flow.
+- [x] (valid-no-repro) readAuthorizeRetryReturnPathSnapshot - ZWSP-only snapshot purge - **regression 2026-10-22:** parity with post-sign-in zero-width tamper purge.
+- [x] (valid-no-repro) refreshBffSessionCookie - refresh 410 shouldClearSession false - **regression 2026-10-22:** non-401/403 refresh failures soft-fail without cookie clear.
+- [x] (invalid) readOAuthJsonErrorDescription - multiply-encoded %252B with ZWJ glue - **cheap-disproof 2026-10-22:** saturated encoding class on trunk.
+
 2026-10-22 seed hunt (seed-only): `ui-oidc` - no hunt-ready product defect; cheap-disproof closed invalid_request authorize-query UX, refresh 415 parity, and saturated readOAuthJsonErrorDescription skin-tone glue; parity regressions BFF refresh HTTP 416 and opaque token endpoint 416 without cookie clear, and code exchange JSON without access_token marks authorize retry; scoped `src/lib/oidc` + BFF refresh route vitest 516/516.
 
 - [x] (invalid) humanizeAuthorizeCallbackError - invalid_request authorize-query copy - **cheap-disproof 2026-10-22:** bounded invalid-request UX tests on trunk.
