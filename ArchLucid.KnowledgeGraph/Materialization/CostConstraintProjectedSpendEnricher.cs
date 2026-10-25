@@ -101,8 +101,12 @@ internal static class GraphTopologyInfrastructureCostNodes
             string? sku = ReadProperty(topologyNode, "sku", "azurePricingSku", "pricingSku");
             int quantity = TryReadQuantity(topologyNode);
 
+            string category = string.IsNullOrWhiteSpace(topologyNode.Category)
+                ? "TopologyResource"
+                : topologyNode.Category.Trim();
+
             nodes.Add(new InfrastructureCostQueryNode(
-                topologyNode.Category ?? "TopologyResource",
+                category,
                 displayName,
                 platform,
                 region,
@@ -123,7 +127,7 @@ internal static class GraphTopologyInfrastructureCostNodes
             return parsed;
         }
 
-        string category = topologyNode.Category ?? string.Empty;
+        string category = (topologyNode.Category ?? string.Empty).Trim();
 
         if (string.Equals(category, GraphTopologyCategories.Compute, StringComparison.OrdinalIgnoreCase))
             return RuntimePlatform.Vm;

@@ -12,6 +12,7 @@ import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 import {
   countRunDetailEvidenceInventoryItems,
   deriveRunDetailEvidenceInventory,
+  findingsCiteEvidenceWithoutStoredSourceNames,
 } from "@/lib/runs/run-detail-evidence-inventory";
 import type { RunDetailEvidenceInventoryItem } from "@/lib/runs/run-detail-evidence-inventory";
 import type { EvidenceCoverageSummary, RunDetailWorkspaceStatus } from "@/lib/run-detail-workspace-derive";
@@ -31,6 +32,7 @@ export type RunDetailEvidencePresentation = {
   readonly evidenceCoverageSummary: EvidenceCoverageSummary;
   readonly evidenceInventoryItems: readonly RunDetailEvidenceInventoryItem[];
   readonly evidenceInventoryCount: number;
+  readonly findingsCiteEvidenceWithoutSourceNames: boolean;
   readonly evidenceReviewDateLabel: string;
   readonly showArchitectureCreatedHome: boolean;
   readonly createHomeAnalysisStagesComplete: boolean;
@@ -112,6 +114,9 @@ export function buildRunDetailEvidencePresentation(
     evidenceCoverageSummary: workspaceDerive.deriveEvidenceCoverageSummary(input.quickDecisionFindings),
     evidenceInventoryItems,
     evidenceInventoryCount: countRunDetailEvidenceInventoryItems(evidenceInventoryItems),
+    findingsCiteEvidenceWithoutSourceNames: findingsCiteEvidenceWithoutStoredSourceNames(
+      input.quickDecisionFindings,
+    ),
     evidenceReviewDateLabel:
       formatInstantForLocale(model.resolvedDetail.run.completedUtc ?? model.resolvedDetail.run.createdUtc) ||
       model.createdLabel,

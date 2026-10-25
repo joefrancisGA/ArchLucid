@@ -14,22 +14,18 @@ import {
   INHABIT_DISPOSITION_HISTORY_LOADING,
   INHABIT_DISPOSITION_HISTORY_SECTION_TITLE,
 } from "@/lib/inhabit/inhabit-disposition-history-copy";
+import {
+  formatDispositionHistoryActor,
+  formatDispositionHistoryRationale,
+  formatDispositionHistoryRecordedTime,
+  formatDispositionHistoryRevisitDue,
+} from "@/lib/findings/finding-disposition-history-display";
 import { cn } from "@/lib/utils";
 
 export type FindingDispositionHistorySectionProps = {
   readonly findingId: string;
   readonly testId?: string;
 };
-
-function formatDispositionHistoryActor(reviewerUserId: string | null | undefined): string {
-  const trimmed = reviewerUserId?.trim() ?? "";
-
-  if (trimmed.length === 0) {
-    return "Unknown reviewer";
-  }
-
-  return trimmed;
-}
 
 /** IH-034 — durable disposition trail on Working inspect/panel (not toast-dependent). */
 export function FindingDispositionHistorySection(
@@ -122,10 +118,15 @@ export function FindingDispositionHistorySection(
             {" · "}
             {formatDispositionHistoryActor(event.reviewerUserId)}
             {" · "}
-            {event.occurredAtUtc}
-            {event.rationale !== null && event.rationale !== undefined && event.rationale.trim().length > 0
-              ? ` — ${event.rationale.trim()}`
-              : ""}
+            {formatDispositionHistoryRecordedTime(event.occurredAtUtc)}
+            {" — "}
+            {formatDispositionHistoryRationale(event.rationale)}
+            {event.disposition === "Deferred" ? (
+              <>
+                {" · "}
+                {formatDispositionHistoryRevisitDue(event.revisitDueUtc)}
+              </>
+            ) : null}
           </li>
         ))}
       </ul>

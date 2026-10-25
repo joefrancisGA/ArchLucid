@@ -91,6 +91,45 @@ public sealed class PolicyPacksControllerSimulateTests
     }
 
     [Fact]
+    public async Task Simulate_accepts_run_id_when_padding_makes_raw_length_exceed_64_but_trimmed_id_is_valid()
+    {
+        Guid runId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+        string canonicalRunId = runId.ToString("D");
+        string paddedRunId = new string(' ', 30) + canonicalRunId;
+        paddedRunId.Length.Should().BeGreaterThan(GovernanceRequestValidationRules.RunIdMaxLength);
+
+        string? forwardedRunId = null;
+        Mock<IPolicyPackHttpFacade> httpFacade = new(MockBehavior.Strict);
+
+        httpFacade
+            .Setup(f => f.SimulateAsync(
+                It.IsAny<PolicyPackContentDocument>(),
+                canonicalRunId,
+                It.IsAny<bool?>(),
+                It.IsAny<int?>(),
+                It.IsAny<Guid?>(),
+                It.IsAny<CancellationToken>()))
+            .Callback<PolicyPackContentDocument, string, bool?, int?, Guid?, CancellationToken>(
+                (_, forwarded, _, _, _, _) => forwardedRunId = forwarded)
+            .ReturnsAsync(PolicyPackHttpResult<PolicyPackGovernanceDryRunResult>.Success(
+                new PolicyPackGovernanceDryRunResult { ResolvedRunId = canonicalRunId }));
+
+        PolicyPacksController sut = PolicyPacksControllerTestSupport.CreateController(httpFacade);
+
+        IActionResult action = await sut.Simulate(
+            new PolicyPackSimulateRequest
+            {
+                RunId = paddedRunId,
+                Content = new(),
+            },
+            CancellationToken.None);
+
+        action.Should().BeOfType<OkObjectResult>();
+        forwardedRunId.Should().Be(canonicalRunId);
+        httpFacade.VerifyAll();
+    }
+
+    [Fact]
     public async Task Simulate_returns_bad_request_when_run_id_missing()
     {
         Mock<IPolicyPackHttpFacade> httpFacade = new(MockBehavior.Strict);

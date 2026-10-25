@@ -69,7 +69,9 @@ export function InfraEvidenceCompletenessWarningsBanner(
         <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
           {formatInfraEvidenceCompletenessSummaryBannerLine(summary)}
         </p>
-      ) : null}
+      ) : (
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>Completeness counts were not stored.</p>
+      )}
       {tier1HostsIncluded ? (
         <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
           App setting hostnames are included in this package (values are never collected).

@@ -21,15 +21,17 @@ function decisionConfidenceEncodingNote(confidence: number): string {
 }
 
 /** Labels confidence with encoding so 1.0 is not confused with 100 points (UU-425). */
+export const DECISION_CONFIDENCE_NOT_STORED_LABEL = "Decision confidence was not stored." as const;
+
 export function formatRecordedDecisionConfidence(confidence: number | null): string {
   if (confidence === null || !Number.isFinite(confidence)) {
-    return "Not recorded";
+    return DECISION_CONFIDENCE_NOT_STORED_LABEL;
   }
 
   const percent = normalizeDecisionConfidencePercent(confidence);
 
   if (percent === null) {
-    return "Not recorded";
+    return DECISION_CONFIDENCE_NOT_STORED_LABEL;
   }
 
   return `${percent}% (${decisionConfidenceEncodingNote(confidence)})`;
@@ -49,7 +51,7 @@ export function formatDecisionPipelineBuyerLabel(pipeline: string): string {
   const normalized = pipeline.trim().toLowerCase();
 
   if (normalized.length === 0) {
-    return "Review pipeline";
+    return "Pipeline was not stored.";
   }
 
   if (normalized === "pipeline was not stored.") {
@@ -68,7 +70,9 @@ export function formatDecisionPipelineBuyerLabel(pipeline: string): string {
     return "Review record";
   }
 
-  return "Review pipeline";
+  const original = pipeline.trim();
+
+  return `Pipeline ${original} has no reviewer label.`;
 }
 
 export function resolveRecordedDecisionConfidenceNote(input: {
@@ -80,7 +84,7 @@ export function resolveRecordedDecisionConfidenceNote(input: {
   const selected = input.selectedOption.trim().toLowerCase();
 
   if (confidencePercent === null) {
-    return null;
+    return selected.length > 0 ? "Pipeline confidence was not stored on this decision." : null;
   }
 
   if (confidencePercent >= LOW_RECORDED_DECISION_CONFIDENCE_THRESHOLD) {

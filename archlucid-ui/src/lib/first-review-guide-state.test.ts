@@ -87,7 +87,7 @@ describe("first-review-guide-state", () => {
 
     expect(steps[2]?.status).toBe("current");
     expect(steps[0]?.status).toBe("complete");
-    expect(steps[2]?.title).toBe("Evaluate the architecture");
+    expect(steps[2]?.title).toBe("Work findings on the inhabited document");
   });
 
   it("uses distinct walkthrough actions instead of repeating start review", () => {
@@ -205,7 +205,7 @@ describe("first-review-guide-state", () => {
     const title = FIRST_REVIEW_GUIDE_STEPS[2]?.title ?? "";
 
     expect(title.toLowerCase()).not.toMatch(/\brun\b/);
-    expect(title).toMatch(/Evaluate/i);
+    expect(title).toMatch(/findings|inhabited/i);
   });
 
   it("strips mutating step actions after the review record is sealed", () => {
@@ -364,5 +364,15 @@ describe("first-review-guide-state", () => {
 
     expect(readiness.kind).toBe("completed");
     expect(readiness.headline).toBe("First review completed");
+  });
+});
+
+describe("FIRST_REVIEW_GUIDE_STEPS inventory evidence copy (P-02)", () => {
+  it("places inventory ZIP before seal in step 6", () => {
+    const step = FIRST_REVIEW_GUIDE_STEPS[5];
+
+    expect(step?.title).toBe("Add inventory evidence when needed");
+    expect(step?.explanation.toLowerCase()).toMatch(/before seal/);
+    expect(step?.explanation.toLowerCase()).not.toMatch(/follow seal/);
   });
 });

@@ -2535,7 +2535,7 @@ export function DiagramReconcileWorkbenchClient() {
           open={ingestConfirmOpen}
           reviewTitle={sealedReviewRecord.reviewTitle}
           runId={sealedReviewRecord.runId}
-          existingNodeCount={modelNodeCount ?? 0}
+          existingNodeCount={modelNodeCount}
           onOpenChange={setIngestConfirmOpen}
           onConfirm={() => {
             void executeIngest();

@@ -65,6 +65,131 @@ public sealed class ArchitectureInventoryObservedFactGraphOverlayDiagramRebinder
     }
 
     [Fact]
+    public void Rebind_trims_padded_non_remapped_edge_endpoints_after_diagram_node_rebind()
+    {
+        GraphSnapshot overlay = BuildOverlayNode(label: "pay-sql-prod", armResourceId: ArmResourceId);
+        string cloudNodeId = CloudResourceId.ToString("D");
+
+        GraphSnapshot merged = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = ContextSnapshotId,
+            RunId = RunId,
+            Nodes =
+            [
+                BuildDiagramNode("diagram-node:sql", "pay-sql-prod"),
+                overlay.Nodes[0],
+                new GraphNode
+                {
+                    NodeId = "context-node",
+                    NodeType = GraphNodeTypes.ContextSnapshot,
+                    Label = "Context",
+                },
+            ],
+            Edges =
+            [
+                new GraphEdge
+                {
+                    EdgeId = "e1",
+                    FromNodeId = "diagram-node:sql",
+                    ToNodeId = "  context-node  ",
+                    EdgeType = GraphEdgeTypes.ConnectsTo,
+                },
+            ],
+        };
+
+        GraphSnapshot rebound = ArchitectureInventoryObservedFactGraphOverlayDiagramRebinder
+            .RebindLeftoverDiagramNodes(merged, overlay);
+
+        rebound.Edges.Should().ContainSingle(edge =>
+            edge.FromNodeId == cloudNodeId && edge.ToNodeId == "context-node");
+    }
+
+    [Fact]
+    public void Rebind_remaps_leftover_diagram_node_when_diagram_node_id_has_surrounding_whitespace()
+    {
+        GraphSnapshot overlay = BuildOverlayNode(label: "pay-sql-prod", armResourceId: ArmResourceId);
+        string cloudNodeId = CloudResourceId.ToString("D");
+        const string PaddedDiagramNodeId = "  diagram-node:sql  ";
+
+        GraphSnapshot merged = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = ContextSnapshotId,
+            RunId = RunId,
+            Nodes =
+            [
+                BuildDiagramNode(PaddedDiagramNodeId, "pay-sql-prod"),
+                overlay.Nodes[0],
+                new GraphNode
+                {
+                    NodeId = "context-node",
+                    NodeType = GraphNodeTypes.ContextSnapshot,
+                    Label = "Context",
+                },
+            ],
+            Edges =
+            [
+                new GraphEdge
+                {
+                    EdgeId = "e1",
+                    FromNodeId = PaddedDiagramNodeId,
+                    ToNodeId = "context-node",
+                    EdgeType = GraphEdgeTypes.ConnectsTo,
+                },
+            ],
+        };
+
+        GraphSnapshot rebound = ArchitectureInventoryObservedFactGraphOverlayDiagramRebinder
+            .RebindLeftoverDiagramNodes(merged, overlay);
+
+        rebound.Nodes.Should().NotContain(node => node.NodeId.Trim().StartsWith("diagram-node:", StringComparison.Ordinal));
+        rebound.Edges.Should().ContainSingle(edge =>
+            edge.FromNodeId == cloudNodeId && edge.ToNodeId == "context-node");
+    }
+
+    [Fact]
+    public void Rebind_remaps_diagram_edge_when_from_endpoint_has_surrounding_whitespace()
+    {
+        GraphSnapshot overlay = BuildOverlayNode(label: "pay-sql-prod", armResourceId: ArmResourceId);
+        string cloudNodeId = CloudResourceId.ToString("D");
+
+        GraphSnapshot merged = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = ContextSnapshotId,
+            RunId = RunId,
+            Nodes =
+            [
+                BuildDiagramNode("diagram-node:sql", "pay-sql-prod"),
+                overlay.Nodes[0],
+                new GraphNode
+                {
+                    NodeId = "context-node",
+                    NodeType = GraphNodeTypes.ContextSnapshot,
+                    Label = "Context",
+                },
+            ],
+            Edges =
+            [
+                new GraphEdge
+                {
+                    EdgeId = "e1",
+                    FromNodeId = "  diagram-node:sql  ",
+                    ToNodeId = "  context-node  ",
+                    EdgeType = GraphEdgeTypes.ConnectsTo,
+                },
+            ],
+        };
+
+        GraphSnapshot rebound = ArchitectureInventoryObservedFactGraphOverlayDiagramRebinder
+            .RebindLeftoverDiagramNodes(merged, overlay);
+
+        rebound.Edges.Should().ContainSingle(edge =>
+            edge.FromNodeId == cloudNodeId && edge.ToNodeId == "context-node");
+    }
+
+    [Fact]
     public void Rebind_armLabel_bindsViaArmResourceId()
     {
         GraphSnapshot overlay = BuildOverlayNode(label: "pay-sql-prod", armResourceId: ArmResourceId);
@@ -117,6 +242,66 @@ public sealed class ArchitectureInventoryObservedFactGraphOverlayDiagramRebinder
             .RebindLeftoverDiagramNodes(merged, overlay);
 
         rebound.Nodes.Should().NotContain(node => node.NodeId == "diagram-node:sql");
+    }
+
+    [Fact]
+    public void Rebind_classifies_inventory_overlay_when_classification_property_keys_have_surrounding_whitespace()
+    {
+        GraphSnapshot overlay = BuildOverlayNode(label: "pay-sql-prod", armResourceId: ArmResourceId);
+        GraphNode overlayNode = overlay.Nodes[0];
+        string snapshotId = overlayNode.Properties["inventory.snapshotId"];
+        overlayNode.SourceType = "legacy-inventory";
+        overlayNode.Properties.Clear();
+        overlayNode.Properties[$"  {StructuredDiagramGraphPropertyKeys.ProvenanceKind}  "] =
+            StructuredDiagramGraphProvenanceKinds.ObservedFact;
+        overlayNode.Properties[$"  inventory.snapshotId  "] = snapshotId;
+
+        GraphSnapshot merged = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = ContextSnapshotId,
+            RunId = RunId,
+            Nodes =
+            [
+                BuildDiagramNode("diagram-node:sql", "pay-sql-prod"),
+                overlayNode,
+            ],
+            Edges = [],
+        };
+
+        GraphSnapshot rebound = ArchitectureInventoryObservedFactGraphOverlayDiagramRebinder
+            .RebindLeftoverDiagramNodes(merged, overlay);
+
+        rebound.Nodes.Should().NotContain(node => node.NodeId == "diagram-node:sql");
+        rebound.Nodes.Should().ContainSingle(node => node.NodeId == CloudResourceId.ToString("D"));
+    }
+
+    [Fact]
+    public void Rebind_classifies_inventory_overlay_when_source_type_has_surrounding_whitespace_and_no_property_markers()
+    {
+        GraphSnapshot overlay = BuildOverlayNode(label: "pay-sql-prod", armResourceId: ArmResourceId);
+        GraphNode overlayNode = overlay.Nodes[0];
+        overlayNode.SourceType = $"  {ArchitectureInventoryGraphSourceTypes.AzureInventorySnapshot}  ";
+        overlayNode.Properties.Clear();
+
+        GraphSnapshot merged = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = ContextSnapshotId,
+            RunId = RunId,
+            Nodes =
+            [
+                BuildDiagramNode("diagram-node:sql", "pay-sql-prod"),
+                overlayNode,
+            ],
+            Edges = [],
+        };
+
+        GraphSnapshot rebound = ArchitectureInventoryObservedFactGraphOverlayDiagramRebinder
+            .RebindLeftoverDiagramNodes(merged, overlay);
+
+        rebound.Nodes.Should().NotContain(node => node.NodeId == "diagram-node:sql");
+        rebound.Nodes.Should().ContainSingle(node => node.NodeId == CloudResourceId.ToString("D"));
     }
 
     [Fact]
@@ -205,6 +390,57 @@ public sealed class ArchitectureInventoryObservedFactGraphOverlayDiagramRebinder
                     FromNodeId = "diagram-node:sql",
                     ToNodeId = "context-node",
                     EdgeType = GraphEdgeTypes.ConnectsTo,
+                },
+            ],
+        };
+
+        GraphSnapshot rebound = ArchitectureInventoryObservedFactGraphOverlayDiagramRebinder
+            .RebindLeftoverDiagramNodes(merged, overlay);
+
+        rebound.Edges.Should().ContainSingle(edge =>
+            edge.FromNodeId == cloudNodeId
+            && edge.ToNodeId == "context-node"
+            && edge.EdgeType == GraphEdgeTypes.ConnectsTo);
+    }
+
+    [Fact]
+    public void Rebind_deduplicates_parallel_edges_when_edge_type_differs_only_by_surrounding_whitespace_after_remap()
+    {
+        GraphSnapshot overlay = BuildOverlayNode(label: "pay-sql-prod", armResourceId: ArmResourceId);
+        string cloudNodeId = CloudResourceId.ToString("D");
+        string paddedEdgeType = $"  {GraphEdgeTypes.ConnectsTo}  ";
+
+        GraphSnapshot merged = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = ContextSnapshotId,
+            RunId = RunId,
+            Nodes =
+            [
+                BuildDiagramNode("diagram-node:sql", "pay-sql-prod"),
+                overlay.Nodes[0],
+                new GraphNode
+                {
+                    NodeId = "context-node",
+                    NodeType = GraphNodeTypes.ContextSnapshot,
+                    Label = "Context",
+                },
+            ],
+            Edges =
+            [
+                new GraphEdge
+                {
+                    EdgeId = "inventory-edge",
+                    FromNodeId = cloudNodeId,
+                    ToNodeId = "context-node",
+                    EdgeType = GraphEdgeTypes.ConnectsTo,
+                },
+                new GraphEdge
+                {
+                    EdgeId = "diagram-edge",
+                    FromNodeId = "diagram-node:sql",
+                    ToNodeId = "context-node",
+                    EdgeType = paddedEdgeType,
                 },
             ],
         };

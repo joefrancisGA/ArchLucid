@@ -26,6 +26,12 @@ describe("operator-home-run-list-insight", () => {
     expect(formatRunHomeListInsightLine(run)).toContain("package finalized");
   });
 
+  it("does not treat finding counts as stored without a findings snapshot", () => {
+    const run = stubRun({ findingCount: 5, hasFindingsSnapshot: false });
+
+    expect(resolveRunFindingCountDisplay(run)).toBeNull();
+  });
+
   it("describes in-progress reviews without a finalized manifest", () => {
     const run = stubRun({
       hasFindingsSnapshot: true,

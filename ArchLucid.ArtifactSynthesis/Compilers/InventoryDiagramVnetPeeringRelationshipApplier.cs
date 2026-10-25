@@ -59,6 +59,7 @@ internal static class InventoryDiagramVnetPeeringRelationshipApplier
             {
                 if (string.IsNullOrWhiteSpace(peering.RemoteVirtualNetworkArmId))
                 {
+                    AddUnresolvedDetail(localDiagramNode, "Remote network id was not stored.");
                     continue;
                 }
 
@@ -66,13 +67,10 @@ internal static class InventoryDiagramVnetPeeringRelationshipApplier
 
                 if (!AzureInventoryVnetPeeringParser.IsConnectedPeeringState(peering.PeeringState))
                 {
-                    string outlineSentence = InventoryDiagramRelationshipLabelTexts.FormatPeeringNotConnected(remoteName);
-
-                    if (!localDiagramNode.UnresolvedRelationshipDetails.Contains(outlineSentence, StringComparer.Ordinal))
-                    {
-                        localDiagramNode.UnresolvedRelationshipDetails.Add(outlineSentence);
-                    }
-
+                    string outlineSentence = string.IsNullOrWhiteSpace(peering.PeeringState)
+                        ? InventoryDiagramRelationshipLabelTexts.FormatPeeringStateNotStored(remoteName)
+                        : InventoryDiagramRelationshipLabelTexts.FormatPeeringNotConnected(remoteName);
+                    AddUnresolvedDetail(localDiagramNode, outlineSentence);
                     continue;
                 }
 
@@ -80,6 +78,9 @@ internal static class InventoryDiagramVnetPeeringRelationshipApplier
                         ArmResourceIdNormalizer.Normalize(peering.RemoteVirtualNetworkArmId),
                         out string? remoteDiagramNodeId))
                 {
+                    AddUnresolvedDetail(
+                        localDiagramNode,
+                        InventoryDiagramRelationshipLabelTexts.FormatPeeringConnectedOffCanvas(remoteName));
                     continue;
                 }
 
@@ -146,6 +147,14 @@ internal static class InventoryDiagramVnetPeeringRelationshipApplier
         }
 
         return armIdToDiagramNodeId;
+    }
+
+    private static void AddUnresolvedDetail(DiagramNode diagramNode, string outlineSentence)
+    {
+        if (!diagramNode.UnresolvedRelationshipDetails.Contains(outlineSentence, StringComparer.Ordinal))
+        {
+            diagramNode.UnresolvedRelationshipDetails.Add(outlineSentence);
+        }
     }
 
     private static string BuildUndirectedPairKey(string leftId, string rightId)
