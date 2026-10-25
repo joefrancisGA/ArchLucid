@@ -146,6 +146,7 @@ import {
 } from "@/lib/infra-evidence/parse-infra-evidence-mermaid-outline";
 import {
   dependencyNeighborhoodRequiresAppliedSeed,
+  shouldHydrateInfraDiagramSeedCandidatesFromVisibleOutline,
   resolveDependencyNeighborhoodSeedBlockedReason,
   type DependencyNeighborhoodSeedBlockedReason,
 } from "@/lib/infra-evidence/infra-evidence-diagrams-dependency-seed";
@@ -1251,12 +1252,18 @@ export function DiagramsWorkbenchClient() {
   }, [selectedSnapshotId]);
 
   useEffect(() => {
+    if (
+      !shouldHydrateInfraDiagramSeedCandidatesFromVisibleOutline(selectedMode, appliedSeedNodeId)
+    ) {
+      return;
+    }
+
     if (visibleMermaidOutline == null || visibleMermaidOutline.nodes.length === 0) {
       return;
     }
 
     setSeedCandidateNodes([...visibleMermaidOutline.nodes]);
-  }, [visibleMermaidOutline]);
+  }, [appliedSeedNodeId, selectedMode, visibleMermaidOutline]);
 
   useEffect(() => {
     if (

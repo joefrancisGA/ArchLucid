@@ -17,6 +17,22 @@ export function dependencyNeighborhoodRequiresAppliedSeed(
   return mode === "dependencyNeighborhood" && appliedSeedNodeId.trim().length === 0;
 }
 
+/** Visible-outline hydration must not clobber executive catalog seeds while operators still pick a starting resource. */
+export function shouldHydrateInfraDiagramSeedCandidatesFromVisibleOutline(
+  mode: string,
+  appliedSeedNodeId: string,
+): boolean {
+  if (dependencyNeighborhoodRequiresAppliedSeed(mode, appliedSeedNodeId)) {
+    return false;
+  }
+
+  if (mode === "selectedResources" && appliedSeedNodeId.trim().length === 0) {
+    return false;
+  }
+
+  return true;
+}
+
 export function resolveDependencyNeighborhoodSeedBlockedReason(input: {
   readonly appliedSeedNodeId: string;
   readonly loadError: string | null;

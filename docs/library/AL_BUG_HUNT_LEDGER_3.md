@@ -7458,13 +7458,15 @@ ABQ-09 churn hotspot.
 - **aliases:** infra evidence diagrams; inventory mermaid; diagrams workbench
 - **paths:** archlucid-ui/src/lib/infra-evidence/; archlucid-ui/src/components/infra-evidence/; ArchLucid.Application/InfraEvidence/Mermaid/; ArchLucid.Api/Controllers/InfraEvidence/InfraEvidenceSnapshotsController.cs; archlucid-ui/src/app/(operator)/governance/infrastructure/diagrams/
 - **test-filter:** InfraEvidence
-- **hunts:** 11
-- **bugs-found:** 10
+- **hunts:** 12
+- **bugs-found:** 11
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-25
-- **last-bug:** 2026-10-25 — dependency-neighborhood seed catalog listed executive overflow rollup nodes absent from display canvas
+- **last-bug:** 2026-10-25 — dependency-neighborhood seed picker clobbered executive catalog rows with stale visible-outline hydration
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-25 thorough hunt (hit): `shouldHydrateInfraDiagramSeedCandidatesFromVisibleOutline` stops visible-outline seed hydration while dependency neighborhood awaits a starting resource (fixes executive catalog seeds replaced by stale executive canvas nodes after mode switch); regressions `skips visible-outline seed hydration while dependency neighborhood awaits a starting resource` and `keeps executive catalog seeds when switching into dependency neighborhood before a seed is applied`; cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; scoped dependency-seed, seed-catalog, strip-overflow, and workbench vitest passed. Private beta: Invited operators switching to dependency neighborhood before choosing a starting resource keep the full executive catalog in the seed picker instead of a truncated list copied from the previous diagram view.
 
 2026-10-25 thorough hunt (hit): dependency-neighborhood seed catalog parsed raw executive mermaid while the workbench canvas strips overflow rollups and normalizes labels, so the starting-resource picker listed phantom “+N more …” nodes operators could not match on the rendered diagram; `resolveInfraEvidenceSeedCatalogOutlineFromExecutiveMermaid` applies the same strip + display normalization before parse; regressions `strips executive overflow rollup nodes before parsing the seed catalog outline` and `normalizes edge labels to match display mermaid before outline parse`; cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; scoped seed-catalog, diagram-family, display-parity, and workbench vitest passed. Private beta: Invited operators choosing a dependency-neighborhood starting resource no longer see executive overflow rollup rows in the seed picker that never appear on the SecureNow-normalized diagram canvas.
 
@@ -7503,11 +7505,17 @@ ABQ-09 churn hotspot.
 - [x] (valid-no-repro) `resolveInfraEvidenceDiagramFamily` — private endpoint inference sources map to StructuralNetworkPath chip — **cheap-disproof 2026-10-25 thorough hunt:** intentional `inventory-private-endpoint` → Private network path mapping; label fallback includes private endpoint copy.
 - [x] (valid-no-repro) `normalizeInfraEvidenceLayoutSvgForDisplay` — lowercases SVG text nodes independently of mermaid outline parity — **cheap-disproof 2026-10-25 thorough hunt:** intentional SecureNow display normalization; `normalize-infra-evidence-mermaid-display.test.ts` covers SVG text lowercasing.
 
-- [ ] (candidate) `DiagramsWorkbenchClient` — seed candidate list still hydrates from `visibleMermaidOutline` before executive catalog fetch completes — locus: `setSeedCandidateNodes` effect; input: dependency neighborhood with slow catalog response.
-- [ ] (candidate) `resolveInfraEvidenceSeedCatalogOutlineFromExecutiveMermaid` — outline-only metadata nodes remain when `al-outline-only=true` — locus: strip helper; input: executive catalog with NSG outline-only rows.
-- [ ] (candidate) `ArchitectureDiagramViewer.applyConnectorVisibility` — empty `visibleConnectors` array hides every edge when family chip desyncs for one frame — locus: visibility apply; input: race between URL family param and `effectiveEvidenceFamily` sync effect.
-- [ ] (candidate) `InfraEvidenceDiagramLegend` — family-filtered outline drops observed edges while layout SVG still shows observed accent swatches — locus: legend props with `familyFilteredOutline`; input: ObservedRuntime filter on mixed graph.
-- [ ] (candidate) `fetchInfraEvidenceMermaidRender` — dependency neighborhood render uses raw mermaid for outline side panel while canvas uses display source — locus: workbench render path; input: mixed-case edge labels in neighborhood mode.
+- [x] (proven) `DiagramsWorkbenchClient` — seed candidate list still hydrates from `visibleMermaidOutline` before executive catalog fetch completes — **hit 2026-10-25 thorough hunt:** `shouldHydrateInfraDiagramSeedCandidatesFromVisibleOutline`; regression `keeps executive catalog seeds when switching into dependency neighborhood before a seed is applied`.
+- [x] (valid-no-repro) `resolveInfraEvidenceSeedCatalogOutlineFromExecutiveMermaid` — outline-only metadata nodes remain when `al-outline-only=true` — **cheap-disproof 2026-10-25 thorough hunt:** `stripExecutiveOverflowNodesFromInfraEvidenceMermaid` removes outline-only nodes before seed catalog parse; regression `removes outline-only metadata nodes and their edges from display mermaid`.
+- [x] (valid-no-repro) `ArchitectureDiagramViewer.applyConnectorVisibility` — empty `visibleConnectors` array hides every edge when family chip desyncs for one frame — **cheap-disproof 2026-10-25 thorough hunt:** `resolveSelectableInfraEvidenceDiagramFamily` resets invalid deep links before empty connector filters apply.
+- [x] (valid-no-repro) `InfraEvidenceDiagramLegend` — family-filtered outline drops observed edges while layout SVG still shows observed accent swatches — **cheap-disproof 2026-10-25 thorough hunt:** legend rows derive from filtered outline props; observed swatches are layout-level accents independent of family chip filtering.
+- [x] (valid-no-repro) `fetchInfraEvidenceMermaidRender` — dependency neighborhood render uses raw mermaid for outline side panel while canvas uses display source — **cheap-disproof 2026-10-25 thorough hunt:** workbench parses `displayMermaidSource` for `mermaidOutline` after strip + display normalization on every render response.
+
+- [ ] (candidate) `DiagramsWorkbenchClient` — executive catalog fetch races snapshot change and can apply seeds to the wrong snapshot id — locus: `loadSeedCatalog` effect; input: rapid snapshot picker change while dependency neighborhood awaits seed.
+- [ ] (candidate) `shouldHydrateInfraDiagramSeedCandidatesFromVisibleOutline` — selected-resources mode still hydrates from visible outline after catalog path added — locus: helper guard; input: selected-resources awaiting multi-select with partial render visible.
+- [ ] (candidate) `resolveInfraEvidenceSeedCatalogOutlineFromExecutiveMermaid` — never-show ARM types still appear when `includeNeverShow` false on catalog fetch — locus: catalog effect filter; input: executive catalog containing SQL database never-show rows.
+- [ ] (candidate) `InfraEvidenceDiagramOutline` — selected edge detail survives seed catalog refresh — locus: outline panel state; input: operator selects edge then catalog reload replaces outline nodes.
+- [ ] (candidate) `normalizeInfraEvidenceMermaidSourceForDisplay` — lowercases edge labels after seed catalog parse so picker labels diverge from ARM paste validation — locus: display normalization order; input: mixed-case executive edge labels in catalog mermaid.
 
 - **id:** infra-evidence-diagrams
 - **status:** open
