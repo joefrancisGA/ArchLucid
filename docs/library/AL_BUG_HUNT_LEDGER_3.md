@@ -7174,6 +7174,34 @@ ABQ-09 churn hotspot.
 
 ## Zone: ui-infra-resource-hub
 
+2026-10-25 seed hunt (seed→hit): promoted whitespace-only captured hub text shown as real values — generation method, diagram explanation, and remediation status (and terraform address label) bypassed trim while findings titles already omitted whitespace; add `formatStoredInfraEvidenceHubField` and align remediation status with findings trim parity; regressions for terraform method, diagram explain, remediation status, and finding title whitespace; cheap-disproof closed remediation tab `hasMore` with empty items (caption suppressed; factory link only; regression from prior hunt) and duplicate pagination affordances; scoped ResourceHubClient + display tests 78/78. Private beta: resource hub shows honest not-stored copy for whitespace-only terraform generation method, correspondence explanation, and remediation status.
+
+- [x] (proven) `ResourceHubClient` terraform tab — `terraformGenerationMethod` whitespace-only — **hit 2026-10-25 seed hunt:** `formatStoredInfraEvidenceHubField`; regression whitespace fixture.
+- [x] (proven) `ResourceHubClient` diagram correspondence — `explainText` whitespace-only — **hit 2026-10-25 seed hunt:** shared helper; regression diagram tab fixture.
+- [x] (proven) `ResourceHubClient` remediation instances — `status` whitespace-only — **hit 2026-10-25 seed hunt:** trim + omission copy; regression remediation tab fixture.
+- [x] (valid-no-repro) `ResourceHubClient` findings stream items — `title` whitespace-only — **cheap-disproof 2026-10-25 seed hunt:** existing trim gate; regression `shows finding title omission copy when the captured title is whitespace-only`.
+- [x] (valid-no-repro) `ResourceHubClient` remediation tab — `hasMore` with empty `items` — **cheap-disproof 2026-10-25 seed hunt:** caption hidden; `Open remediation factory` remains; regression `does not show paginated caption on remediation tab when the instance list is empty`.
+
+- [ ] (candidate) `ResourceHubClient` configuration properties — property value whitespace-only — locus: properties table value cell; input: blank mono value without omission copy.
+- [ ] (candidate) `ResourceHubClient` configuration tags — tag value whitespace-only — locus: tags table; input: blank tag value display.
+- [ ] (candidate) `ResourceHubClient` diagram correspondence — `matchKind` whitespace-only — locus: `StatusTag` label; input: empty match kind chip.
+- [ ] (candidate) `ResourceHubClient` RBAC assignments — `scope` whitespace-only — locus: scope column; input: blank scope cell.
+- [ ] (candidate) `ResourceHubClient` network relationships — `relationshipType` whitespace-only — locus: type column; input: blank relationship type label.
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **aliases:** resource hub; infrastructure resource detail
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 49
+- **bugs-found:** 29
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-25
+- **last-bug:** 2026-10-25 — whitespace-only hub field omission copy parity
+- **related-pd-tb:** none
+- **code-changed-since:** yes
+
 2026-10-25 seed hunt (seed→hit): promoted misleading pagination caption when hub streams render zero rows — `formatResourceHubFindingStreamCaption` returned `Showing 0 of N` while findings and remediation tabs showed empty states; require `visibleCount &gt; 0` before emitting caption; regressions in `infra-evidence-resource-hub-display.test.ts` and `does not show paginated caption on remediation tab when the instance list is empty` / `does not show findings stream pagination link when the stream has no rows`; cheap-disproof closed duplicate configuration property keys (JSON objects cannot retain duplicate keys), whitespace-only `terraformGenerationMethod` / `explainText` / remediation `status` (display-only gaps; not promoted this hunt), and configuration property duplicate-key row loss (not reachable from parsed hub JSON); scoped ResourceHubClient + display tests 73/73. Private beta: resource hub findings and remediation tabs no longer show a “Showing 0 of N” pagination line above an empty list.
 
 - [x] (proven) `ResourceHubClient` findings stream pagination caption — `hasMore` with zero `items.length` — **hit 2026-10-25 seed hunt:** `formatResourceHubFindingStreamCaption` requires visible rows; integration regressions on findings and remediation tabs.
@@ -7210,11 +7238,11 @@ ABQ-09 churn hotspot.
 - [x] (valid-no-repro) `ResourceHubClient` overview drift preview — sixth change hidden without view-all — **cheap-disproof 2026-10-25 seed hunt:** by design with `View all N in Drift` when length &gt; 5; regression `preserves explorer workQueue on overview view all drift hub tab link`.
 - [x] (valid-no-repro) `ResourceHubClient` audit scope chip — empty `controlId` in URL — **cheap-disproof 2026-10-25 seed hunt:** `resolvedAuditLineage` null when resolved control id length is 0.
 
-- [ ] (candidate) `ResourceHubClient` configuration properties table — duplicate property keys in captured JSON — locus: `Object.entries` row keys; input: later key wins in object but only one row renders.
-- [ ] (candidate) `ResourceHubClient` terraform tab — `terraformGenerationMethod` whitespace-only vs null — locus: generation method disclosure; input: misleading empty method label.
-- [ ] (candidate) `ResourceHubClient` findings stream pagination caption — `hasMore` with zero `items.length` — locus: `formatResourceHubFindingStreamCaption`; input: misleading “more” link on empty stream.
-- [ ] (candidate) `ResourceHubClient` diagram correspondence — `explainText` whitespace-only — locus: correspondence body copy; input: blank explanation paragraph.
-- [ ] (candidate) `ResourceHubClient` remediation instances — `status` whitespace-only — locus: `StatusTag` label; input: empty status chip.
+- [x] (valid-no-repro) `ResourceHubClient` configuration properties table — duplicate property keys in captured JSON — **cheap-disproof 2026-10-25 seed hunt:** see hunt above.
+- [x] (valid-no-repro) `ResourceHubClient` terraform tab — `terraformGenerationMethod` whitespace-only vs null — **cheap-disproof 2026-10-25 seed hunt:** see hunt above.
+- [x] (proven) `ResourceHubClient` findings stream pagination caption — `hasMore` with zero `items.length` — **hit 2026-10-25 seed hunt:** see hunt above.
+- [x] (valid-no-repro) `ResourceHubClient` diagram correspondence — `explainText` whitespace-only — **cheap-disproof 2026-10-25 seed hunt:** see hunt above.
+- [x] (valid-no-repro) `ResourceHubClient` remediation instances — `status` whitespace-only — **cheap-disproof 2026-10-25 seed hunt:** see hunt above.
 
 - **id:** ui-infra-resource-hub
 - **status:** open

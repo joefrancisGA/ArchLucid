@@ -1049,6 +1049,76 @@ describe("ResourceHubClient", () => {
     );
   });
 
+  it("treats whitespace-only terraform generation method as not stored", async () => {
+    fetchCachedInfraEvidenceResourceHub.mockImplementation(async () =>
+      buildResourceHubTestMockHub({ terraformGenerationMethod: "  \t " }),
+    );
+    searchParams = new URLSearchParams(`tab=terraform&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}`);
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    expect(await screen.findByText("Terraform generation method was not stored.")).toBeInTheDocument();
+  });
+
+  it("treats whitespace-only diagram correspondence explanation as not stored", async () => {
+    fetchCachedInfraEvidenceResourceHub.mockImplementation(async () =>
+      buildResourceHubTestMockHub({
+        diagramCorrespondence: {
+          ...buildResourceHubTestMockHub().diagramCorrespondence!,
+          explainText: "   ",
+        },
+      }),
+    );
+    searchParams = new URLSearchParams(`tab=diagram&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}`);
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    expect(await screen.findByText("Correspondence explanation was not stored.")).toBeInTheDocument();
+  });
+
+  it("treats whitespace-only remediation instance status as not stored", async () => {
+    fetchCachedInfraEvidenceResourceHub.mockImplementation(async () =>
+      buildResourceHubTestMockHub({
+        remediationInstances: {
+          ...buildResourceHubTestMockHub().remediationInstances,
+          items: [
+            {
+              instanceId: "instance-1",
+              patternKey: "public-ip-restrict",
+              status: "   ",
+            },
+          ],
+        },
+      }),
+    );
+    searchParams = new URLSearchParams(`tab=remediation&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}`);
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    expect(await screen.findByText("Remediation status was not stored.")).toBeInTheDocument();
+  });
+
+  it("shows finding title omission copy when the captured title is whitespace-only", async () => {
+    fetchCachedInfraEvidenceResourceHub.mockImplementation(async () =>
+      buildResourceHubTestMockHub({
+        operationalSecurityFindings: {
+          ...buildResourceHubTestMockHub().operationalSecurityFindings,
+          items: [
+            {
+              id: "finding-whitespace-title",
+              title: "   ",
+              severity: "High",
+              status: "Open",
+              streamKind: "OperationalSecurity",
+              streamLabel: "Operational security",
+            },
+          ],
+        },
+      }),
+    );
+    searchParams = new URLSearchParams(`tab=findings&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}`);
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    expect(await screen.findByText("Finding title was not stored.")).toBeInTheDocument();
+  });
+
   it("does not show paginated caption on remediation tab when the instance list is empty", async () => {
     fetchCachedInfraEvidenceResourceHub.mockImplementation(async () =>
       buildResourceHubTestMockHub({

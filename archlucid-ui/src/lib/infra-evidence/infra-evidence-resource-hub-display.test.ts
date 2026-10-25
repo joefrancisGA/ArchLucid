@@ -3,12 +3,25 @@ import { describe, expect, it } from "vitest";
 import {
   formatDiagramCorrespondenceConfidenceBandLabel,
   formatResourceHubFindingStreamCaption,
+  formatStoredInfraEvidenceHubField,
   remediationInstanceStatusTagKind,
   resolveDiagramCorrespondenceConfidenceStatusKind,
   resolveDiagramCorrespondenceStatusKind,
 } from "@/lib/infra-evidence/infra-evidence-resource-hub-display";
 
 describe("infra-evidence-resource-hub-display", () => {
+  it("formats stored hub fields with omission copy for whitespace-only values", () => {
+    expect(formatStoredInfraEvidenceHubField("advisory", "Terraform generation method was not stored.")).toBe(
+      "advisory",
+    );
+    expect(formatStoredInfraEvidenceHubField("   ", "Terraform generation method was not stored.")).toBe(
+      "Terraform generation method was not stored.",
+    );
+    expect(formatStoredInfraEvidenceHubField(null, "Correspondence explanation was not stored.")).toBe(
+      "Correspondence explanation was not stored.",
+    );
+  });
+
   it("maps diagram correspondence match kinds to status tag kinds", () => {
     expect(resolveDiagramCorrespondenceStatusKind("Exact", "Confirmed")).toBe("ready");
     expect(resolveDiagramCorrespondenceStatusKind("Probable", "Likely")).toBe("ready");

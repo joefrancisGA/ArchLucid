@@ -126,6 +126,7 @@ import type {
 } from "@/lib/infra-evidence/infra-evidence-hub-types";
 import {
   formatResourceHubFindingStreamCaption,
+  formatStoredInfraEvidenceHubField,
   remediationInstanceStatusTagKind,
   formatDiagramCorrespondenceConfidenceBandLabel,
   resolveDiagramCorrespondenceConfidenceStatusKind,
@@ -671,13 +672,29 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
     return hub.operationalSecurityFindings.totalCount + hub.architectureReviewFindings.totalCount;
   }, [hub]);
 
-  const trimmedTerraformAddress = useMemo(() => hub?.terraformAddress?.trim() ?? "", [hub?.terraformAddress]);
-
-  const hasTerraformMapping = trimmedTerraformAddress.length > 0;
-
   const terraformAddressDisplayLabel = useMemo(
-    () => (trimmedTerraformAddress.length > 0 ? trimmedTerraformAddress : "Terraform address was not stored."),
-    [trimmedTerraformAddress],
+    () => formatStoredInfraEvidenceHubField(hub?.terraformAddress, "Terraform address was not stored."),
+    [hub?.terraformAddress],
+  );
+
+  const hasTerraformMapping = terraformAddressDisplayLabel !== "Terraform address was not stored.";
+
+  const terraformGenerationMethodDisplayLabel = useMemo(
+    () =>
+      formatStoredInfraEvidenceHubField(
+        hub?.terraformGenerationMethod,
+        "Terraform generation method was not stored.",
+      ),
+    [hub?.terraformGenerationMethod],
+  );
+
+  const diagramCorrespondenceExplainDisplayLabel = useMemo(
+    () =>
+      formatStoredInfraEvidenceHubField(
+        hub?.diagramCorrespondence?.explainText,
+        "Correspondence explanation was not stored.",
+      ),
+    [hub?.diagramCorrespondence?.explainText],
   );
 
   const diagramCorrespondenceRemediationHref = useMemo(() => {
@@ -1443,7 +1460,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                   Match kind describes how the captured resource and diagram item correspond. Confidence band describes the evidence strength for that correspondence.
                 </p>
                 <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
-                  {hub.diagramCorrespondence.explainText ?? "Correspondence explanation was not stored."}
+                  {diagramCorrespondenceExplainDisplayLabel}
                 </p>
                 <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
                   This explanation describes the recorded correspondence result, not observed runtime traffic.
@@ -1538,7 +1555,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                   <dd className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
                     How this Terraform mapping was produced from captured evidence.
                   </dd>
-                  <dd>{hub.terraformGenerationMethod ?? "Terraform generation method was not stored."}</dd>
+                  <dd>{terraformGenerationMethodDisplayLabel}</dd>
                 </div>
               </dl>
               <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1">
@@ -1790,11 +1807,21 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                   </EnterpriseTableRow>
                 </EnterpriseTableHead>
                 <EnterpriseTableBody>
-                  {hub.remediationInstances.items.map((item) => (
+                  {hub.remediationInstances.items.map((item) => {
+                    const remediationStatusLabel = item.status?.trim() ?? "";
+
+                    return (
                     <EnterpriseTableRow key={item.instanceId}>
                       <EnterpriseTableCell className="font-mono text-xs">{item.patternKey}</EnterpriseTableCell>
                       <EnterpriseTableCell>
-                        <StatusTag kind={remediationInstanceStatusTagKind(item.status)} label={item.status} />
+                        {remediationStatusLabel.length > 0 ? (
+                          <StatusTag
+                            kind={remediationInstanceStatusTagKind(remediationStatusLabel)}
+                            label={remediationStatusLabel}
+                          />
+                        ) : (
+                          "Remediation status was not stored."
+                        )}
                       </EnterpriseTableCell>
                       <EnterpriseTableCell>
                         <div className="flex flex-wrap gap-2">
@@ -1823,7 +1850,8 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                         </div>
                       </EnterpriseTableCell>
                     </EnterpriseTableRow>
-                  ))}
+                    );
+                  })}
                 </EnterpriseTableBody>
               </EnterpriseTable>
             )}
