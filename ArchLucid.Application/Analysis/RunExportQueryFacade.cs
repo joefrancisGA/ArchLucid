@@ -329,6 +329,8 @@ public sealed class RunExportQueryFacade(
 
     private static RunExportRecord NormalizeLoadedExportRecord(RunExportRecord record)
     {
+        record.ExportRecordId = RunExportRecordIdNormalizer.NormalizeRequired(record.ExportRecordId);
+        record.RunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(record.RunId);
         PersistedAnalysisExportRequestDeterminismNormalizer.NormalizeRunExportRecordDenormalizedColumns(record);
         return record;
     }
