@@ -25,6 +25,7 @@ const model: ArchitectureDiagramModel = {
   ],
   edges: [],
   trustBoundaryLabels: [],
+  skippedUnlabeledEntityCount: 0,
   unmatchedDataFlows: [],
 };
 
