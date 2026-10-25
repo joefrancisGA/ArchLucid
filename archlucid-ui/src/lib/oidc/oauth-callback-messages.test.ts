@@ -148,6 +148,8 @@ describe("readOAuthJsonErrorDescription", () => {
     expect(readOAuthJsonErrorDescription("Policy%20denied%2Bextra")).toBe("Policy denied+extra");
     expect(readOAuthJsonErrorDescription("User+denied%2B👍🏻")).toBe("User+denied+👍🏻");
     expect(readOAuthJsonErrorDescription("Policy\u3000denied%252Bextra")).toBe("Policy denied+extra");
+    expect(readOAuthJsonErrorDescription("Policy\u2007denied%252Bextra")).toBe("Policy denied+extra");
+    expect(readOAuthJsonErrorDescription("Policy\u2008denied%252Bextra")).toBe("Policy denied+extra");
   });
 
   it("preserves percent-decoded plus in JSON when thin-space glue separates words", () => {
@@ -168,10 +170,6 @@ describe("readOAuthJsonErrorDescription", () => {
 
   it("preserves percent-decoded plus in JSON when ZWJ glue separates words", () => {
     expect(readOAuthJsonErrorDescription("Policy\u200ddenied%252Bextra")).toBe("Policy denied+extra");
-  });
-
-  it("preserves percent-decoded plus in JSON when ideographic-space glue separates words", () => {
-    expect(readOAuthJsonErrorDescription("Policy\u3000denied%252Bextra")).toBe("Policy denied+extra");
   });
 });
 
@@ -883,6 +881,20 @@ describe("humanizeAuthorizeCallbackError", () => {
 
     expect(message).toMatch(/invalid saml nameid/i);
     expect(message).not.toContain("invalid_saml_nameid");
+  });
+
+  it("humanizes invalid_saml_nameid authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("invalid_saml_nameid", "");
+
+    expect(message).toMatch(/invalid saml nameid/i);
+    expect(message).not.toContain("invalid_saml_nameid");
+  });
+
+  it("humanizes invalid_saml_subject authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("invalid_saml_subject", "");
+
+    expect(message).toMatch(/invalid saml subject/i);
+    expect(message).not.toContain("invalid_saml_subject");
   });
 
   it("avoids empty parentheses when the authorize error code is whitespace-only", () => {
