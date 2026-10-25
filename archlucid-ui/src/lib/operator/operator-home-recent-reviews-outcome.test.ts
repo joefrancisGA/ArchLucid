@@ -53,6 +53,20 @@ describe("formatOperatorHomeRecentReviewsOutcome", () => {
     );
   });
 
+  it("uses workspace pagination total in the headline while preview cap counts stay in the recent pool", () => {
+    const metrics: OperatorHomeWorkspaceMetricsSnapshot = {
+      ...emptyMetrics,
+      reviewPackagesTotal: 42,
+      reviewPackagesActive: 1,
+      evidenceSources: 1,
+      hasReviews: true,
+    };
+
+    expect(
+      formatOperatorHomeRecentReviewsOutcome(metrics, { visibleCount: 2, recentTotalCount: 2 }),
+    ).toBe("42 reviews · 1 active · 0 open findings · showing 2");
+  });
+
   it("normalizes non-finite workspace metrics in recent reviews outcome copy", () => {
     const metrics: OperatorHomeWorkspaceMetricsSnapshot = {
       ...emptyMetrics,
@@ -230,6 +244,18 @@ describe("deriveHomePreviewTabCounts", () => {
     expect(counts.recentVisibleCount).toBe(2);
     expect(counts.recentTotalCount).toBe(3);
     expect(counts.approved).toBe(0);
+  });
+
+  it("keeps awaiting-approval tab at zero when queue ids omit preview rows and workspace count is zero", () => {
+    const items: RunSummary[] = [{ runId: "run-1", projectId: "default" }];
+
+    const counts = deriveHomePreviewTabCounts({
+      previewItems: items,
+      awaitingApprovalRunIds: ["other-run"],
+      awaitingApprovalCount: 0,
+    });
+
+    expect(counts["awaiting-approval"]).toBe(0);
   });
 
   it("excludes archived runs from attention and approved tab counts", () => {

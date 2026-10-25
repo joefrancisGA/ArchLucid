@@ -49,6 +49,12 @@ describe("resolveOperatorHomeRunsPanelReportedTotalCount", () => {
     ).toBe(12);
   });
 
+  it("uplifts undercounted loaded totals from visible active tenant rows on the current page", () => {
+    expect(
+      resolveOperatorHomeRunsPanelReportedTotalCount([buildRun("active-a"), buildRun("active-b")], 1),
+    ).toBe(2);
+  });
+
   it("is idempotent when loadedTotalCount is already panel-normalized on archived-only pages", () => {
     const items = [
       { ...buildRun("archived-a"), isArchived: true, hasGoldenManifest: true },
