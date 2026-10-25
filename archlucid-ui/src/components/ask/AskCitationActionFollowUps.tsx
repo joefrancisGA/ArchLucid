@@ -49,19 +49,32 @@ export function AskCitationActionFollowUps(props: AskCitationActionFollowUpsProp
         Open cited evidence
       </p>
       <div className="flex flex-wrap gap-2">
-        {chips.map((chip) => (
-          <Link
-            key={`${chip.kind}-${chip.citationId}-${chip.href}`}
-            href={chip.href}
-            data-testid={`ask-citation-action-${chip.kind}`}
-            className={cn(
-              "inline-flex h-auto max-w-full items-center rounded-md border border-neutral-300 bg-white px-2.5 py-1.5 font-medium text-al-text-primary no-underline hover:bg-neutral-50 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800",
-              OPERATOR_TYPOGRAPHY.helper,
-            )}
-          >
-            {chip.label}
-          </Link>
-        ))}
+        {chips.map((chip) =>
+          chip.href !== null && chip.href.length > 0 ? (
+            <Link
+              key={`${chip.kind}-${chip.citationId}-${chip.href}`}
+              href={chip.href}
+              data-testid={`ask-citation-action-${chip.kind}`}
+              className={cn(
+                "inline-flex h-auto max-w-full items-center rounded-md border border-neutral-300 bg-white px-2.5 py-1.5 font-medium text-al-text-primary no-underline hover:bg-neutral-50 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800",
+                OPERATOR_TYPOGRAPHY.helper,
+              )}
+            >
+              {chip.label}
+            </Link>
+          ) : (
+            <span
+              key={`${chip.kind}-${chip.citationId}-text`}
+              data-testid={`ask-citation-action-${chip.kind}`}
+              className={cn(
+                "inline-flex h-auto max-w-full items-center rounded-md border border-neutral-300 bg-white px-2.5 py-1.5 font-medium text-al-text-secondary dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-300",
+                OPERATOR_TYPOGRAPHY.helper,
+              )}
+            >
+              {chip.label}
+            </span>
+          ),
+        )}
       </div>
     </div>
   );
