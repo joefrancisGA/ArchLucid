@@ -8,12 +8,17 @@ namespace ArchLucid.Application.Analysis;
 /// </summary>
 internal static class CompareVerdictChromeDeltaNormalizer
 {
+    private const string GatePendingLabel = "Gate pending";
+    private const string NoPackAssignmentRecorded = "No pack assignment recorded";
+
     internal static void NormalizeInPlace(CompareVerdictChromeDelta? delta)
     {
         if (delta is null)
             return;
 
         NormalizeHonestyLinesInPlace(delta);
+        NormalizeGateOutcomeInPlace(delta);
+        NormalizePackAssignmentInPlace(delta);
         NormalizeExecutionModeInPlace(delta);
         NormalizeRoiHeadlineInPlace(delta);
     }
@@ -34,14 +39,52 @@ internal static class CompareVerdictChromeDeltaNormalizer
         return normalized ?? defaultLine;
     }
 
+    private static void NormalizeGateOutcomeInPlace(CompareVerdictChromeDelta delta)
+    {
+        if (delta.GateOutcome is null)
+            return;
+
+        CompareVerdictChromeGateOutcomeDelta gate = delta.GateOutcome;
+        gate.BaselineGateLabel = NormalizeGateLabelOrDefault(gate.BaselineGateLabel);
+        gate.TargetGateLabel = NormalizeGateLabelOrDefault(gate.TargetGateLabel);
+    }
+
+    private static void NormalizePackAssignmentInPlace(CompareVerdictChromeDelta delta)
+    {
+        if (delta.PackAssignment is null)
+            return;
+
+        CompareVerdictChromePackAssignmentDelta pack = delta.PackAssignment;
+        pack.BaselineSummaryLine = NormalizePackSummaryLineOrDefault(pack.BaselineSummaryLine);
+        pack.TargetSummaryLine = NormalizePackSummaryLineOrDefault(pack.TargetSummaryLine);
+    }
+
     private static void NormalizeExecutionModeInPlace(CompareVerdictChromeDelta delta)
     {
         if (delta.ExecutionMode is null)
             return;
 
-        delta.ExecutionMode.AdvisoryParagraph =
-            OptionalExportMetadataStringNormalizer.NormalizeOptionalString(delta.ExecutionMode.AdvisoryParagraph);
+        CompareVerdictChromeExecutionModeDelta mode = delta.ExecutionMode;
+        mode.BaselineModeLabel = NormalizeRequiredDisplayLabel(mode.BaselineModeLabel);
+        mode.TargetModeLabel = NormalizeRequiredDisplayLabel(mode.TargetModeLabel);
+        mode.AdvisoryParagraph =
+            OptionalExportMetadataStringNormalizer.NormalizeOptionalString(mode.AdvisoryParagraph);
     }
+
+    private static string NormalizeGateLabelOrDefault(string value)
+    {
+        string? normalized = OptionalExportMetadataStringNormalizer.NormalizeOptionalString(value);
+        return normalized ?? GatePendingLabel;
+    }
+
+    private static string NormalizePackSummaryLineOrDefault(string value)
+    {
+        string? normalized = OptionalExportMetadataStringNormalizer.NormalizeOptionalString(value);
+        return normalized ?? NoPackAssignmentRecorded;
+    }
+
+    private static string NormalizeRequiredDisplayLabel(string value) =>
+        string.IsNullOrWhiteSpace(value) ? string.Empty : value.Trim();
 
     private static void NormalizeRoiHeadlineInPlace(CompareVerdictChromeDelta delta)
     {

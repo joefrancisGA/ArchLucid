@@ -113,4 +113,60 @@ public sealed class EndToEndReplayComparisonReportNormalizerTests
 
         report.CompareVerdictChromeDelta!.ExecutionMode!.AdvisoryParagraph.Should().BeNull();
     }
+
+    [Fact]
+    public void CompareQuality_EndToEndReplayComparisonReportNormalizer_restores_gate_and_pack_defaults_for_whitespace_labels()
+    {
+        EndToEndReplayComparisonReport report = new()
+        {
+            LeftRunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            RightRunId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            CompareVerdictChromeDelta = new CompareVerdictChromeDelta
+            {
+                GateOutcome = new CompareVerdictChromeGateOutcomeDelta
+                {
+                    BaselineGateLabel = "   ",
+                    TargetGateLabel = " Soft infeasible ",
+                    Changed = true,
+                },
+                PackAssignment = new CompareVerdictChromePackAssignmentDelta
+                {
+                    BaselineSummaryLine = "\t",
+                    TargetSummaryLine = "  pack-a@1  ",
+                    Changed = true,
+                },
+            },
+        };
+
+        EndToEndReplayComparisonReportNormalizer.NormalizePersistedPayload(report);
+
+        report.CompareVerdictChromeDelta!.GateOutcome!.BaselineGateLabel.Should().Be("Gate pending");
+        report.CompareVerdictChromeDelta.GateOutcome.TargetGateLabel.Should().Be("Soft infeasible");
+        report.CompareVerdictChromeDelta.PackAssignment!.BaselineSummaryLine.Should().Be("No pack assignment recorded");
+        report.CompareVerdictChromeDelta.PackAssignment.TargetSummaryLine.Should().Be("pack-a@1");
+    }
+
+    [Fact]
+    public void CompareQuality_EndToEndReplayComparisonReportNormalizer_clears_whitespace_only_execution_mode_labels()
+    {
+        EndToEndReplayComparisonReport report = new()
+        {
+            LeftRunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            RightRunId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            CompareVerdictChromeDelta = new CompareVerdictChromeDelta
+            {
+                ExecutionMode = new CompareVerdictChromeExecutionModeDelta
+                {
+                    BaselineModeLabel = "   ",
+                    TargetModeLabel = "  Real  ",
+                    Changed = true,
+                },
+            },
+        };
+
+        EndToEndReplayComparisonReportNormalizer.NormalizePersistedPayload(report);
+
+        report.CompareVerdictChromeDelta!.ExecutionMode!.BaselineModeLabel.Should().BeEmpty();
+        report.CompareVerdictChromeDelta.ExecutionMode.TargetModeLabel.Should().Be("Real");
+    }
 }
