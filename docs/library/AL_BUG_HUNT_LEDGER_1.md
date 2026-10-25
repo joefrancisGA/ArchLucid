@@ -6868,6 +6868,19 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-25 seed hunt (seed→hit): proved hunt 283 fixed comparison-record SQL list-by-export casing but `RunExportRecordRepository.GetByIdAsync` still matched `ExportRecordId` with ordinal trimmed equality so scoped export loads, replay, and diff entry points on SQL missed rows when lookup hex differed only by letter casing while in-memory export hosts already matched case-insensitively; align SQL get-by-id with `ComparisonExportRecordIdLookup` using `LOWER` on the primary key column; regressions `GetById_matches_when_lookup_export_id_differs_only_by_casing`, `GetById_matches_when_lookup_export_id_differs_only_by_casing` (in-memory), and `CompareQuality_GetExportRecordAsync_succeeds_when_export_id_differs_only_by_casing`; cheap-disproof closed export history run id casing (hunt 285), comparison list-by-run casing (hunt 284), comparison SQL list-by-export (hunt 283), `ApiPaging.TryParseUtcTicksIdCursor` (comparison search normalizes at app layer), batch zip manifest echo (cosmetic); seeded five follow-on rows; scoped application-analysis + replay filter 388/388. Private beta: scoped export record loads on SQL succeed when the export id differs only by hex letter casing from the request.
+
+- [ ] (candidate) `ComparisonRecordRepository.GetByRunIdAsync` — SQL list-by-run dashed stored — locus: UNIQUEIDENTIFIER column; input: already matches N/D lookup via guid param.
+- [ ] (candidate) `ComparisonRecordRepositoryCore.SerializeTagsForUpdate` — JSON tag order — locus: cosmetic; input: defer.
+- [ ] (candidate) `ComparisonRecordSearchPredicateBuilder` — notes column search — locus: no notes filter today; input: defer.
+- [ ] (candidate) `ApiPaging.TryParseUtcTicksIdCursor` — cursor id segment without trim — locus: HTTP cursor parse; input: padded id after ticks delimiter (alerts inbox and other API surfaces).
+- [ ] (candidate) `ComparisonBatchReplayZipSupport` — manifest failure entries echo pre-trim batch tokens — locus: zip manifest; input: cosmetic id echo only.
+
+- [x] (proven) `RunExportRecordRepository.GetByIdAsync` — SQL export record id casing — **hit 2026-10-25 seed hunt:** `LOWER` trim match; regressions above.
+- [x] (valid-no-repro) `RunExportQueryFacade.GetRunExportHistoryAsync` — run id casing — **cheap-disproof 2026-10-25 seed hunt:** hunt 285.
+- [x] (invalid) `ApiPaging.TryParseUtcTicksIdCursor` — HTTP cursor id trim — **cheap-disproof 2026-10-25 seed hunt:** comparison search normalizes at application layer.
+- [x] (invalid) `ComparisonBatchReplayZipSupport` — manifest id echo — **cheap-disproof 2026-10-25 seed hunt:** cosmetic only.
+
 2026-10-25 seed hunt (seed→hit): proved `RunExportQueryFacade.GetRunExportHistoryAsync` repeated hunt 284’s list-by-run mistake—run-detail, lineage, lifecycle, career, and export-repository loads used the trimmed query run id instead of `AnalysisRunIdCanonicalization.CanonicalRunIdForLookup`, so uppercase hex run ids returned run-not-found before export history loaded; canonicalize once and thread `lookupRunId` through the history path; regression `CompareQuality_GetRunExportHistoryAsync_succeeds_when_run_id_differs_only_by_casing`; cheap-disproof closed comparison list-by-run casing (hunt 284), SQL list-by-export casing (hunt 283), `GetByRunIdAsync` repository guid match (already canonical), `ApiPaging.TryParseUtcTicksIdCursor` (comparison search normalizes at app layer), batch zip manifest echo (cosmetic); seeded five follow-on rows; scoped application-analysis + replay filter 387/387. Private beta: run export history loads when the requested run id differs only by hex letter casing from the canonical run key.
 
 - [ ] (candidate) `ComparisonRecordRepository.GetByRunIdAsync` — SQL list-by-run dashed stored — locus: UNIQUEIDENTIFIER column; input: already matches N/D lookup via guid param.
