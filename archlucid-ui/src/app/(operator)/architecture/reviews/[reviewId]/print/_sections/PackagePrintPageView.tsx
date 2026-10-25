@@ -40,7 +40,8 @@ import {
   PACKAGE_PRINT_META_CREATED_LABEL,
   PACKAGE_PRINT_PAGE_TITLE,
   PACKAGE_PRINT_STATUS_HEADING,
-  PACKAGE_PRINT_SYNOPSIS_HEADING,
+  resolvePackagePrintSynopsisBody,
+  resolvePackagePrintSynopsisHeading,
   PACKAGE_PRINT_COVERAGE_HONESTY_LINE,
   PACKAGE_PRINT_SEMANTIC_SUPPORT_HEADING,
   buildPackagePrintPath,
@@ -162,13 +163,13 @@ export function PackagePrintPageView(props: PackagePrintPageViewProps): React.JS
 
       <section className="space-y-2" aria-labelledby="package-print-synopsis-heading">
         <h2 id="package-print-synopsis-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
-          {PACKAGE_PRINT_SYNOPSIS_HEADING}
+          {resolvePackagePrintSynopsisHeading(presentation.statusLabel)}
         </h2>
         <p
           className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
           data-testid="package-print-sponsor-synopsis"
         >
-          {presentation.sponsorSynopsis ?? "Sponsor synopsis was not stored on this print."}
+          {resolvePackagePrintSynopsisBody(presentation)}
         </p>
       </section>
 

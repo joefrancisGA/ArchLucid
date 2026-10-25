@@ -7,8 +7,6 @@ import {
   collectAskCitationFindingIds,
   parseAskCitationRefsFromMessageMetadata,
 } from "@/lib/ask-citation-action-follow-ups";
-import { GOVERNANCE_DECISION_REGISTER_PATH } from "@/lib/governance/governance-route-paths";
-
 describe("buildAskCitationActionFollowUps", () => {
   it("returns honest empty when run id is missing", () => {
     const chips = buildAskCitationActionFollowUps({
@@ -39,12 +37,13 @@ describe("buildAskCitationActionFollowUps", () => {
 
     expect(chips.map((c) => c.kind)).toEqual(["finding", "evidence", "disposition"]);
     expect(chips[0]?.href).toBe("/architecture/reviews/run-a/findings/finding-123");
-    expect(chips[1]?.href).toBe("/architecture/reviews/run-a/findings/finding-123/evidence-trace");
+    expect(chips[1]?.href).toBeNull();
     expect(chips[2]?.href).toBe(
       "/architecture/reviews/run-a/findings/finding-123/evidence-trace#governance-disposition-heading",
     );
     expect(chips[0]?.label.toLowerCase()).toContain("finding");
     expect(chips[1]?.label).toBe("Evidence link was not stored.");
+    expect(chips[1]?.href).toBeNull();
     expect(chips[2]?.label.toLowerCase()).toContain("disposition");
   });
 
@@ -58,7 +57,7 @@ describe("buildAskCitationActionFollowUps", () => {
     expect(chips[0]?.href).toBe(
       "/architecture/architectures/arch-1/findings?runId=run-a&focusedFinding=finding-123",
     );
-    expect(chips[1]?.href).toBe("/architecture/reviews/run-a/findings/finding-123/evidence-trace");
+    expect(chips[1]?.href).toBeNull();
     expect(chips[2]?.href).toBe(
       "/architecture/architectures/arch-1/findings?runId=run-a&focusedFinding=finding-123",
     );
@@ -82,7 +81,7 @@ describe("buildAskCitationActionFollowUps", () => {
     expect(chips.some((c) => c.kind === "finding" && c.href.includes("/findings/sensitive-data-minimization-risk"))).toBe(
       true,
     );
-    expect(chips.some((c) => c.kind === "evidence" && c.href.endsWith("/evidence-trace"))).toBe(true);
+    expect(chips.some((c) => c.kind === "evidence" && c.href === null)).toBe(true);
     expect(chips.some((c) => c.kind === "disposition")).toBe(true);
   });
 
@@ -128,7 +127,8 @@ describe("buildAskCitationActionFollowUps", () => {
     });
 
     expect(chips.every((c) => c.kind === "disposition")).toBe(true);
-    expect(chips.every((c) => c.href === GOVERNANCE_DECISION_REGISTER_PATH)).toBe(true);
+    expect(chips.every((c) => c.label === "Decision link was not stored.")).toBe(true);
+    expect(chips.every((c) => c.href === null)).toBe(true);
     expect(chips.length).toBe(1);
   });
 

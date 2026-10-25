@@ -120,7 +120,7 @@ export function PilotValueReportMetricsSection(props: Props) {
                 ? "Review list was not stored."
                 : (timelineRows?.length ?? 0) > 0
                   ? String(timelineRows?.length ?? 0)
-                  : "Not available"
+                  : "No systems were recorded."
             }
           />
         </div>
