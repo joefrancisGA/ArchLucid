@@ -6868,6 +6868,20 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-25 seed hunt (seed→hit): proved `ComparisonAuditService.NormalizeReplayPayloadJson` chose export-diff and end-to-end rehydrate branches using raw `sourceRecord.ComparisonType` while hunt 188 trimmed the persisted type column and hunt 147 rewrote payload JSON when the type matched exactly, so replay-of legacy rows with padded type tokens skipped rehydration and copied padded export anchors inside `PayloadJson`; normalize comparison type before branch checks via `NormalizeComparisonType`; regression `RecordReplayOfAsync_rewrites_export_diff_payload_when_source_comparison_type_has_padding`; cheap-disproof closed audit persist column trim (hunt 188 — output type trimmed but payload rewrite still gated on raw type), verbatim payload copy when type already canonical (hunt 147), `ApiPaging.TryParseUtcTicksIdCursor` (comparison search normalizes inbound cursor id), batch zip manifest echo (cosmetic), and Armenian homoglyphs (deferred); seeded five follow-on rows; scoped application-analysis + replay filter 346/346. Private beta: comparison replay persist rewrites stored payload JSON through export-diff and end-to-end rehydrate paths even when the source row's comparison type column still has surrounding whitespace.
+
+- [ ] (candidate) `ComparisonRecordRepository.GetByRunIdAsync` — SQL list-by-run dashed stored — locus: UNIQUEIDENTIFIER column; input: already matches N/D lookup via guid param.
+- [ ] (candidate) `ComparisonRecordRepositoryCore.SerializeTagsForUpdate` — JSON tag order — locus: cosmetic; input: defer.
+- [ ] (candidate) `ComparisonRecordSearchPredicateBuilder` — notes column search — locus: no notes filter today; input: defer.
+- [ ] (candidate) `ApiPaging.TryParseUtcTicksIdCursor` — cursor id segment without trim — locus: HTTP cursor parse; input: padded id after ticks delimiter (alerts inbox and other API surfaces).
+- [ ] (candidate) `ComparisonBatchReplayZipSupport` — manifest failure entries echo pre-trim batch tokens — locus: zip manifest; input: cosmetic id echo only.
+
+- [x] (proven) `ComparisonAuditService.NormalizeReplayPayloadJson` — padded comparison type skipped payload rehydrate — **hit 2026-10-25 seed hunt:** `NormalizeComparisonType` before branch; regression above.
+- [x] (valid-no-repro) `ComparisonAuditService.RecordReplayOfAsync` — persisted type column trim — **cheap-disproof 2026-10-25 seed hunt:** hunt 188 fixed column; payload rewrite branch still used raw type.
+- [x] (valid-no-repro) `NormalizeReplayPayloadJson` — end-to-end branch with padded type — **cheap-disproof 2026-10-25 seed hunt:** same fix covers both export-diff and end-to-end string equality.
+- [x] (invalid) `ApiPaging.TryParseUtcTicksIdCursor` — HTTP cursor id trim — **cheap-disproof 2026-10-25 seed hunt:** comparison search normalizes at application layer.
+- [x] (invalid) `ComparisonBatchReplayZipSupport` — manifest id echo — **cheap-disproof 2026-10-25 seed hunt:** cosmetic only.
+
 2026-10-25 seed hunt (seed→hit): proved `ComparisonAuditService.RecordReplayOfAsync`, `RecordEndToEndAsync`, and `RecordExportDiffAsync` forwarded padded `ComparisonType`, `Format`, `SummaryMarkdown`, and replay notes while manifest and export anchors were already normalized at the audit write boundary, so persisted comparison rows and audit payloads could retain surrounding whitespace when repositories did not re-trim on create; trim required markdown and replay text columns before `CreateAsync`; regressions `RecordReplayOfAsync_trims_padded_comparison_type_format_summary_and_notes_on_persist` and `RecordEndToEndAsync_trims_padded_summary_markdown_on_persist`; cheap-disproof closed repository create normalizer (defense in depth), scoped read trim (hunt 187), `ApiPaging.TryParseUtcTicksIdCursor` (comparison search normalizes inbound cursor id), batch zip manifest echo (cosmetic), and Armenian homoglyphs (deferred); seeded five follow-on rows; scoped application-analysis + replay filter 345/345. Private beta: newly persisted comparison audit rows store trimmed summary markdown and replay metadata when source reports or replay notes included surrounding whitespace.
 
 - [ ] (candidate) `ComparisonRecordRepository.GetByRunIdAsync` — SQL list-by-run dashed stored — locus: UNIQUEIDENTIFIER column; input: already matches N/D lookup via guid param.
@@ -8451,11 +8465,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 188
-- **bugs-found:** 194
+- **hunts:** 189
+- **bugs-found:** 195
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-25
-- **last-bug:** 2026-10-25 — comparison audit persist text trim
+- **last-bug:** 2026-10-25 — replay payload normalize uses trimmed comparison type
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
