@@ -1445,6 +1445,46 @@ public sealed class CompareQualityComparisonsApplicationServiceTests
     }
 
     [Fact]
+    public async Task CompareQuality_in_memory_comparison_repository_create_canonicalizes_dashed_left_run_id()
+    {
+        Guid leftKey = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+        string canonicalLeftRunId = leftKey.ToString("N");
+        const string comparisonRecordId = "cmp-inmem-create-canonical";
+
+        InMemoryComparisonRecordRepository comparisonRecords = new();
+        await comparisonRecords.CreateAsync(
+            new ComparisonRecord
+            {
+                ComparisonRecordId = comparisonRecordId,
+                ComparisonType = ComparisonTypes.EndToEndReplay,
+                LeftRunId = leftKey.ToString("D"),
+                RightRunId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+                CreatedUtc = DateTime.UtcNow,
+            },
+            CancellationToken.None);
+
+        Mock<IRunDetailQueryService> runDetail = new();
+        runDetail
+            .Setup(s => s.GetRunDetailAsync(canonicalLeftRunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchitectureRunDetail { Run = new() { RunId = canonicalLeftRunId } });
+
+        ComparisonsApplicationService sut = new(
+            runDetail.Object,
+            new Mock<IRunExportRecordRepository>().Object,
+            comparisonRecords,
+            new Mock<IComparisonReplayService>().Object,
+            new Mock<ICompareRunsApplicationFacade>().Object,
+            new Mock<IComparisonReplayCostEstimator>().Object,
+            new Mock<IDriftReportFormatter>().Object,
+            new DriftReportDocxExport());
+
+        ComparisonRecord? scoped = await sut.TryGetScopedRecordAsync(comparisonRecordId, CancellationToken.None);
+
+        scoped.Should().NotBeNull();
+        scoped!.LeftRunId.Should().Be(canonicalLeftRunId);
+    }
+
+    [Fact]
     public async Task CompareQuality_in_memory_export_repository_get_by_id_canonicalizes_dashed_compare_run_id()
     {
         const string exportId = "exp-repo-dashed-compare";

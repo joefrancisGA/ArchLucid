@@ -129,6 +129,51 @@ public sealed class InMemoryComparisonRecordRepositoryAdditionalCoverageTests
     }
 
     [SkippableFact]
+    public async Task CreateAsync_canonicalizes_dashed_run_ids_and_trims_comparison_record_id()
+    {
+        Guid left = Guid.Parse("88888888-8888-8888-8888-888888888888");
+        Guid right = Guid.Parse("99999999-9999-9999-9999-999999999999");
+        const string canonicalComparisonRecordId = "cmp-create-normalize";
+
+        InMemoryComparisonRecordRepository sut = new();
+        await sut.CreateAsync(
+            Row(
+                $"  {canonicalComparisonRecordId}  ",
+                TimeProvider.System.UtcNowDateTime(),
+                leftRun: left.ToString("D"),
+                rightRun: $"  {right:N}  "),
+            CancellationToken.None);
+
+        ComparisonRecord? loaded = await sut.GetByIdAsync(canonicalComparisonRecordId, CancellationToken.None);
+
+        loaded.Should().NotBeNull();
+        loaded!.ComparisonRecordId.Should().Be(canonicalComparisonRecordId);
+        loaded.LeftRunId.Should().Be(left.ToString("N"));
+        loaded.RightRunId.Should().Be(right.ToString("N"));
+    }
+
+    [SkippableFact]
+    public async Task UpdateLabelAndTagsAsync_finds_row_when_create_used_padded_comparison_record_id()
+    {
+        const string canonicalComparisonRecordId = "cmp-update-trim-id";
+
+        InMemoryComparisonRecordRepository sut = new();
+        await sut.CreateAsync(
+            Row($"  {canonicalComparisonRecordId}  ", TimeProvider.System.UtcNowDateTime()),
+            CancellationToken.None);
+
+        bool updated = await sut.UpdateLabelAndTagsAsync(
+            canonicalComparisonRecordId,
+            "normalized-label",
+            null,
+            CancellationToken.None);
+
+        updated.Should().BeTrue();
+        ComparisonRecord? loaded = await sut.GetByIdAsync(canonicalComparisonRecordId, CancellationToken.None);
+        loaded!.Label.Should().Be("normalized-label");
+    }
+
+    [SkippableFact]
     public async Task GetByRunIdAsync_matches_when_stored_left_run_id_uses_dashed_guid_and_lookup_uses_n_format()
     {
         Guid runKey = Guid.Parse("22222222-2222-2222-2222-222222222222");

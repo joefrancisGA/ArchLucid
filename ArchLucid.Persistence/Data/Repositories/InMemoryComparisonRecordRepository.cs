@@ -25,7 +25,9 @@ public sealed class InMemoryComparisonRecordRepository : IComparisonRecordReposi
             if (_items.Count >= MaxEntries)
                 _items.RemoveAt(0);
 
-            _items.Add(ComparisonRecordRepositoryCore.Clone(record));
+            ComparisonRecord stored = ComparisonRecordRepositoryCore.Clone(record);
+            ComparisonRecordPersistNormalizer.NormalizeForPersist(stored);
+            _items.Add(stored);
         }
 
         return Task.CompletedTask;
@@ -37,10 +39,12 @@ public sealed class InMemoryComparisonRecordRepository : IComparisonRecordReposi
     {
         cancellationToken.ThrowIfCancellationRequested();
 
+        string normalizedComparisonRecordId = comparisonRecordId.Trim();
+
         lock (_gate)
         {
             ComparisonRecord? row = _items.FirstOrDefault(r =>
-                string.Equals(r.ComparisonRecordId, comparisonRecordId, StringComparison.Ordinal));
+                string.Equals(r.ComparisonRecordId, normalizedComparisonRecordId, StringComparison.Ordinal));
 
             if (row is null)
                 return Task.FromResult<ComparisonRecord?>(null);
@@ -210,10 +214,12 @@ public sealed class InMemoryComparisonRecordRepository : IComparisonRecordReposi
         ArgumentException.ThrowIfNullOrWhiteSpace(comparisonRecordId);
         cancellationToken.ThrowIfCancellationRequested();
 
+        string normalizedComparisonRecordId = comparisonRecordId.Trim();
+
         lock (_gate)
         {
             int i = _items.FindIndex(r =>
-                string.Equals(r.ComparisonRecordId, comparisonRecordId, StringComparison.Ordinal));
+                string.Equals(r.ComparisonRecordId, normalizedComparisonRecordId, StringComparison.Ordinal));
 
             if (i < 0)
                 return Task.FromResult(false);
