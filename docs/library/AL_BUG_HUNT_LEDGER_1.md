@@ -6868,6 +6868,20 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-25 seed hunt (seed→hit): proved `RunExportRecordScopedReadNormalizer` canonicalized `RunId` and trimmed `ExportRecordId` on scoped export reads but left legacy dashed `CompareRunId` and padded `CompareManifestVersion` denormalized columns untouched while hunt 169 canonicalized compare-run ids on new `RecordAsync` writes, so export detail/history/replay loads of legacy rows echoed non-canonical compare anchors; canonicalize `CompareRunId` and trim `CompareManifestVersion` in the shared read normalizer; regression `CompareQuality_GetExportRecordAsync_canonicalizes_dashed_compare_run_id_from_stored_row`; cheap-disproof closed new persist path (hunt 169), `ReplayExportAsync` audit defensive trim (idempotent after hunts 166–169), `ApiPaging.TryParseUtcTicksIdCursor` (comparison search normalizes inbound cursor id), batch zip manifest echo (cosmetic), and Armenian homoglyphs (deferred); seeded five follow-on rows; scoped application-analysis + replay filter 334/334. Private beta: export record detail and replay loads return canonical compare-run ids and trimmed manifest version metadata matching comparison surfaces.
+
+- [ ] (candidate) `RunExportQueryFacade.ReplayExportAsync` — defensive trim on `ReplayExportRecorded` audit JSON — locus: facade; input: idempotent after replay service normalizers.
+- [ ] (candidate) `RunExportRecordPersistNormalizer` — persistence read path compare run id — locus: repository; input: overlaps scoped read normalizer when facade loads rows.
+- [ ] (candidate) `ApiPaging.TryParseUtcTicksIdCursor` — cursor id segment without trim — locus: HTTP cursor parse; input: padded id after ticks delimiter (alerts inbox and other API surfaces).
+- [ ] (candidate) `ComparisonBatchReplayZipSupport` — manifest failure entries echo pre-trim batch tokens — locus: zip manifest; input: cosmetic id echo only.
+- [ ] (candidate) `ComparisonExportMarkdownSectionRemover` — Armenian homoglyphs — locus: deferred expansion.
+
+- [x] (proven) `RunExportRecordScopedReadNormalizer` — dashed compare run id on scoped export read — **hit 2026-10-25 seed hunt:** canonicalize compare column; regression above.
+- [x] (valid-no-repro) `RecordAsync` — new export compare run id — **cheap-disproof 2026-10-25 seed hunt:** hunt 169 persist canonicalize.
+- [x] (valid-no-repro) `ExportReplayService` — replay load normalizer — **cheap-disproof 2026-10-25 seed hunt:** uses same scoped read normalizer.
+- [x] (invalid) `ApiPaging.TryParseUtcTicksIdCursor` — HTTP cursor id trim — **cheap-disproof 2026-10-25 seed hunt:** comparison search normalizes at application layer.
+- [x] (invalid) `ComparisonBatchReplayZipSupport` — manifest id echo — **cheap-disproof 2026-10-25 seed hunt:** cosmetic only.
+
 2026-10-25 seed hunt (seed→hit): proved `RunExportAuditService.RecordAsync` trimmed padded `CompareRunId` in persisted analysis requests but left dashed GUID strings on the denormalized `CompareRunId` column and `ArchitectureDocxExportGenerated` audit `compareWithRunId` while comparison and replay paths canonicalize compare-run anchors, so export audit telemetry could disagree with compare/replay lookups; canonicalize compare run id via `AnalysisRunIdCanonicalization.CanonicalRunIdForLookup` after `TrimOptionalStrings`; regression `CompareQuality_RecordAsync_canonicalizes_dashed_compare_run_id_in_audit_json_and_record_column`; cheap-disproof closed primary `runId` canonicalize (hunt 167), `RecordFailureAsync` (hunt 168), `ReplayExportAsync` route export id trim, `ApiPaging.TryParseUtcTicksIdCursor` (comparison search normalizes inbound cursor id), batch zip manifest echo (cosmetic), and Armenian homoglyphs (deferred); seeded five follow-on rows; scoped application-analysis + replay filter 333/333. Private beta: architecture export generated audits and persisted compare-run anchors use canonical run ids aligned with comparison and replay surfaces.
 
 - [ ] (candidate) `RunExportRecordScopedReadNormalizer` — legacy `CompareRunId` column without canonicalize on read — locus: export row read; input: DB legacy dashed compare id.
@@ -8185,11 +8199,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 169
-- **bugs-found:** 175
+- **hunts:** 170
+- **bugs-found:** 176
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-25
-- **last-bug:** 2026-10-25 — export audit canonicalizes compare run id
+- **last-bug:** 2026-10-25 — scoped export read canonicalizes compare run id
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
