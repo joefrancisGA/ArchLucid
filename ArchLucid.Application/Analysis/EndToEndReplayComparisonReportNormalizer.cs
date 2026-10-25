@@ -21,8 +21,14 @@ internal static class EndToEndReplayComparisonReportNormalizer
         AgentResultDiffNormalizer.NormalizeInPlace(report.AgentResultDiff);
         ManifestDiffNormalizer.NormalizeInPlace(report.ManifestDiff);
 
-        foreach (ExportRecordDiffResult diff in report.ExportDiffs)
+        for (int i = report.ExportDiffs.Count - 1; i >= 0; i--)
+        {
+            ExportRecordDiffResult diff = report.ExportDiffs[i];
             ExportRecordDiffResultNormalizer.NormalizeDisplayAnchors(diff);
+
+            if (!ExportRecordDiffMateriality.HasMaterialChanges(diff))
+                report.ExportDiffs.RemoveAt(i);
+        }
 
         ComparisonFindingCorrelationMetadataNormalizer.NormalizeInPlace(report.FindingCorrelation);
         if (report.FindingCorrelation is not null
