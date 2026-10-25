@@ -4938,7 +4938,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-operator-lib
 
-**Hunts:** 75 · **Bugs found:** 72 · **Consecutive dry hunts:** 0
+**Hunts:** 76 · **Bugs found:** 73 · **Consecutive dry hunts:** 0
+
+2026-10-25 seed hunt (hit): promoted `architectureDeskIdFromHref` in Working-mode architecture continue-last rail dedupe when draft rail ids differ from identity ids; regression `suppresses architecture continue-last when rail href carries the target architecture id`; 8 scoped `operator-home-resume-affordance` vitest passed. Private beta: Invited operators in Working mode no longer see duplicate Continue architecture CTAs when the unfinished-work rail row points at the same architecture identity desk via href but a different draft id prefix.
 
 2026-10-25 seed hunt (hit): promoted cross-field draft-id matching in `matchesOperatorHomeHeroResumeTarget`; regression `matches when the hero draft id equals the rail href draft id even if paths differ`; 6 scoped `operator-home-hero-resume-target` vitest passed. Private beta: Invited operators no longer see duplicate Continue on architecture-draft rail rows when the hero target keeps a stale architectures href but the same draft id as the rail row.
 
@@ -5026,6 +5028,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `matchesOperatorHomeHeroResumeTarget` — explicit hero `draftId` did not match rail rows that only exposed the draft id via href parsing when paths diverged — **hit 2026-10-25 seed hunt:** cross-field draft id equality; regression `matches when the hero draft id equals the rail href draft id even if paths differ`.
 - [x] (proven) `matchesOperatorHomeHeroResumeTarget` — explicit hero `runId` did not match rail rows that only exposed the run id via href parsing when paths diverged — **hit 2026-10-25 seed hunt:** cross-field run id equality; regression `matches when the hero run id equals the rail href run id even if paths differ`.
 - [x] (proven) `recordRecentView` — strict `href` equality let trailing-slash revisits create duplicate recent-view rows — **hit 2026-10-25 seed hunt:** `normalizeResumeHrefForMatch` dedupe key; regression `dedupes recent views when hrefs differ only by a trailing slash`.
+- [x] (proven) `resolveOperatorHomeResumeAffordancePlan` — architecture continue-last dedupe ignored rail href architecture identity when `architecture-draft:` id differed from CA-38 identity id — **hit 2026-10-25 seed hunt:** `architectureDeskIdFromHref`; regression `suppresses architecture continue-last when rail href carries the target architecture id`.
 - [x] (proven) `resolveOperatorHomeResumeAffordancePlan` — Working-mode architecture continue-last skipped rail dedupe, duplicating CTAs when rail href matched aside from trailing slash — **hit 2026-10-25 seed hunt:** architecture branch href + `architecture-draft:` id match; regression `suppresses architecture continue-last when rail href matches target aside from trailing slash`.
 - [x] (proven) `resolveOperatorHomeResumeAffordancePlan` — rail dedupe compares run ids only and misses trailing-slash href equivalents — **hit 2026-10-25 seed hunt:** shared `normalizeResumeHrefForMatch` fallback; regression `suppresses continue-last when rail href matches target href aside from trailing slash`.
 - [x] (proven) `matchesOperatorHomeHeroResumeTarget` — strict `href` equality misses trailing-slash equivalents — **hit 2026-10-25 seed hunt:** `normalizeResumeHrefForMatch`; regression `matches resume targets when hrefs differ only by a trailing slash`.
