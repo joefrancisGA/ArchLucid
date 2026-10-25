@@ -65,14 +65,12 @@ export function EvidenceExtractionProgressCard(props: EvidenceExtractionProgress
             {isProcessing ? EVIDENCE_EXTRACTION_PROCESSING_HEADLINE : EVIDENCE_EXTRACTION_COMPLETE_HEADLINE}
           </p>
 
-          {documentLine.length > 0 ? (
-            <p
-              className={cn("m-0 break-all text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-              data-testid="evidence-extraction-document-line"
-            >
-              {documentLine}
-            </p>
-          ) : null}
+          <p
+            className={cn("m-0 break-all text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="evidence-extraction-document-line"
+          >
+            {documentLine}
+          </p>
 
           {isProcessing ? (
             <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
