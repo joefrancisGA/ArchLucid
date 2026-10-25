@@ -39,6 +39,15 @@ describe("operator-home-hero-resume-target", () => {
     ).toBe(false);
   });
 
+  it("matches Working desk highlightReviewId hrefs to peer review rail rows", () => {
+    expect(
+      matchesOperatorHomeHeroResumeTarget(
+        { href: "/architecture/architectures/architecture-identity-001?highlightReviewId=run-hero" },
+        { href: "/architecture/reviews/run-hero", runId: "run-hero" },
+      ),
+    ).toBe(true);
+  });
+
   it("matches when the hero draft id equals the rail href draft id even if paths differ", () => {
     expect(
       matchesOperatorHomeHeroResumeTarget(
