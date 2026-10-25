@@ -122,7 +122,7 @@ export function RunDetailFirstReviewSpineBand(props: RunDetailFirstReviewSpineBa
       {summary.showTopFindingRow ? (
         <p className={cn("m-0 mt-2 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)} data-testid="run-detail-first-review-spine-top-finding">
           <span className="font-semibold">
-            {summary.topFindingPolicyMapped ? "Top policy-mapped finding:" : "Top finding:"}
+            {summary.topFindingRankLabel ?? "Decision-grade finding:"}
           </span>{" "}
           {summary.topFindingSeverityLabel !== null ? `[${summary.topFindingSeverityLabel}] ` : ""}
           {props.runId !== null
@@ -175,7 +175,7 @@ export function RunDetailFirstReviewSpineBand(props: RunDetailFirstReviewSpineBa
           className={OPERATOR_LINK.inline}
           data-testid="run-detail-first-review-spine-pack-delta-demo-link"
         >
-          See how a policy-pack change shifts findings
+          Policy-pack delta demo (sample runbook, not this review).
         </Link>
       </p>
     </section>

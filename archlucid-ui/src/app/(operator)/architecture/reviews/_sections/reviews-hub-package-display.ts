@@ -197,7 +197,11 @@ function reviewGovernanceState(run: RunSummary): string {
     return "Monitoring";
   }
 
-  return "Ready for governance";
+  if (run.hasGovernanceWarnings === false) {
+    return "Ready for governance";
+  }
+
+  return "Governance outcome was not stored.";
 }
 
 function reviewEvidenceCount(run: RunSummary): number | null {

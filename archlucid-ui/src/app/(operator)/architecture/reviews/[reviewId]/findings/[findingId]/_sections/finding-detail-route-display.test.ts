@@ -75,7 +75,9 @@ describe("finding-detail-route-display buyer summary copy", () => {
       remediationDueUtc: "2026-09-15T00:00:00Z",
     });
 
-    expect(resolveFindingRiskOwnerLabel(payload, "generic-finding")).toBe("privacy.office@example.com");
+    expect(resolveFindingRiskOwnerLabel(payload, "generic-finding")).toBe(
+      "Risk owner name was not stored. Assignee id privacy.office@example.com.",
+    );
     expect(resolveFindingNextReviewLabel(payload, "generic-finding")).toBe(
       formatFindingRemediationDueLabel("2026-09-15T00:00:00Z"),
     );
