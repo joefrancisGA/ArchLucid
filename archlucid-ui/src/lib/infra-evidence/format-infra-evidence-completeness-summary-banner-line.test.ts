@@ -11,8 +11,10 @@ function summary(
     visibleNodeCount: partial.visibleNodeCount ?? 10,
     visibleEdgeCount: partial.visibleEdgeCount ?? 4,
     connectedComponentCount: partial.connectedComponentCount ?? 3,
-    hiddenHopsUsedCount: partial.hiddenHopsUsedCount ?? 0,
-    likelyInCollocationEdgeCount: partial.likelyInCollocationEdgeCount ?? 0,
+    hiddenHopsUsedCount:
+      partial.hiddenHopsUsedCount === undefined ? 0 : partial.hiddenHopsUsedCount,
+    likelyInCollocationEdgeCount:
+      partial.likelyInCollocationEdgeCount === undefined ? 0 : partial.likelyInCollocationEdgeCount,
     collectedClasses: partial.collectedClasses ?? [],
     missingClasses: partial.missingClasses ?? [],
   };
@@ -34,6 +36,21 @@ describe("formatInfraEvidenceCompletenessSummaryBannerLine", () => {
     );
 
     expect(line).toContain("(2 from hidden attachment hops)");
+  });
+
+  it("labels omitted missing resource classes as not stored", () => {
+    const line = formatInfraEvidenceCompletenessSummaryBannerLine({
+      mode: "network",
+      visibleNodeCount: 10,
+      visibleEdgeCount: 4,
+      connectedComponentCount: 3,
+      hiddenHopsUsedCount: 0,
+      likelyInCollocationEdgeCount: 0,
+      collectedClasses: [],
+      missingClasses: null,
+    });
+
+    expect(line).toContain("Missing resource classes were not stored.");
   });
 
   it("labels null hidden-hop and collocation counts as not stored (P-19)", () => {

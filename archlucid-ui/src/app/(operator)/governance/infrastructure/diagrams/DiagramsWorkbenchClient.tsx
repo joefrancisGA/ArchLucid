@@ -10,7 +10,6 @@ import { DiagramsWorkbenchSecureNowQuestionBarFallback } from "@/app/(operator)/
 import { type ArchitectureDiagramConnectorSelection } from "@/components/architecture/ArchitectureDiagramViewer";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { CopyIdButton } from "@/components/CopyIdButton";
-import { SponsorExportSendHonestyStrip } from "@/components/exports/SponsorExportSendHonestyStrip";
 import { InfraDiagramsExportHonestyStrip } from "@/components/infra-evidence/InfraDiagramsExportHonestyStrip";
 import { PageShortcutsDisclosure } from "@/components/usability/PageShortcutsDisclosure";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
@@ -533,7 +532,9 @@ export function DiagramsWorkbenchClient() {
   const [dependencySeedBlockedDialog, setDependencySeedBlockedDialog] =
     useState<DependencyNeighborhoodSeedBlockedReason | null>(null);
   const [modePreviews, setModePreviews] = useState<InfraEvidenceMermaidModePreview[]>([]);
-  const [snapshotCompletenessWarnings, setSnapshotCompletenessWarnings] = useState<string[]>([]);
+  const [snapshotCompletenessWarnings, setSnapshotCompletenessWarnings] = useState<string[] | undefined>(
+    undefined,
+  );
   const [renderResult, setRenderResult] = useState<InfraEvidenceMermaidRenderResponse | null>(null);
   const [loadingSnapshots, setLoadingSnapshots] = useState(true);
   const [loadingPreview, setLoadingPreview] = useState(false);
@@ -1010,10 +1011,13 @@ export function DiagramsWorkbenchClient() {
 
   const renderStatus = renderResult?.status ?? activeModePreview?.status ?? "";
 
-  const completenessWarnings = useMemo(
-    () => renderResult?.completenessWarnings ?? snapshotCompletenessWarnings,
-    [renderResult?.completenessWarnings, snapshotCompletenessWarnings],
-  );
+  const completenessWarnings = useMemo(() => {
+    if (renderResult?.completenessWarnings !== undefined) {
+      return renderResult.completenessWarnings;
+    }
+
+    return snapshotCompletenessWarnings;
+  }, [renderResult?.completenessWarnings, snapshotCompletenessWarnings]);
   const completenessSummary = renderResult?.completenessSummary ?? null;
 
   const renderStatusPresentation = useMemo(() => {
@@ -2766,7 +2770,6 @@ export function DiagramsWorkbenchClient() {
 
       <section className={cn("flex flex-col gap-3", cnCard)} aria-label="Diagram export actions" data-testid="infra-diagrams-export">
         <InfraDiagramsExportHonestyStrip />
-        <SponsorExportSendHonestyStrip className="max-w-xl" testIdPrefix="infra-diagrams-export" />
         <InfraEvidenceWorkbenchBuildProvenanceStrip testId="infra-diagrams-build-provenance-limitation" />
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="flex min-w-0 flex-col gap-2">

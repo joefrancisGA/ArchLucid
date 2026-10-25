@@ -130,6 +130,15 @@ describe("describeSponsorProofReadiness", () => {
     expect(describeSponsorProofReadiness(null)).toBeNull();
   });
 
+  it("labels omitted proof sendability fields as not stored", () => {
+    const copy = describeSponsorProofReadiness({
+      isDemoTenant: false,
+      proofPackageCompleteness: {},
+    });
+
+    expect(copy?.detail).toBe("Proof sendability was not stored.");
+  });
+
   it("uses persisted sponsorProofReadiness Sendable when present", () => {
     const copy = describeSponsorProofReadiness({
       isDemoTenant: false,

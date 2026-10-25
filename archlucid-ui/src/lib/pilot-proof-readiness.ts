@@ -207,6 +207,15 @@ export function describeSponsorProofReadiness(
 
   const sendability = (c.proofSendability ?? "").trim();
 
+  if (classification.length === 0 && sendability.length === 0) {
+    return {
+      variant: "unknown",
+      classification: null,
+      title: "Proof sendability unknown",
+      detail: "Proof sendability was not stored.",
+    };
+  }
+
   if (sendability === "NotSendable") {
     return {
       variant: "blocked",

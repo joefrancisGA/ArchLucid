@@ -85,6 +85,10 @@ export function RunDetailDecisionDeltaPanel(props: RunDetailDecisionDeltaPanelPr
                 <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                   Evidence anchor: {row.evidenceAnchorHint}
                 </p>
+              ) : row.evidenceRefCountNotStored ? (
+                <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                  Evidence reference count was not stored.
+                </p>
               ) : null}
             </li>
           ))}

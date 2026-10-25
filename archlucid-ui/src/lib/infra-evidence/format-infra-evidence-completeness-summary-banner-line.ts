@@ -39,9 +39,11 @@ export function formatInfraEvidenceCompletenessSummaryBannerLine(
   }
 
   const missing =
-    summary.missingClasses && summary.missingClasses.length > 0
-      ? ` Missing: ${summary.missingClasses.join("; ")}.`
-      : "";
+    summary.missingClasses === null || summary.missingClasses === undefined
+      ? " Missing resource classes were not stored."
+      : summary.missingClasses.length > 0
+        ? ` Missing: ${summary.missingClasses.join("; ")}.`
+        : "";
 
   return `${visibleNodeCount} resources in ${connectedComponentCount} connected components. ${visibleEdgeCount} visible relationships${hiddenHops}.${collocation}${missing}`;
 }

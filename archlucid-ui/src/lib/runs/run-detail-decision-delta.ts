@@ -15,6 +15,9 @@ export const RUN_DETAIL_DECISION_DELTA_TOP_N = 3;
 
 export const RUN_DETAIL_DECISION_DELTA_MESSAGE_TRUNCATE = 180;
 
+export const RUN_DETAIL_DECISION_DELTA_EMPTY_MESSAGE =
+  "No open finding titles are listed on this card — the sealed manifest decision count is not repeated here.";
+
 export type RunDetailDecisionDeltaRow = {
   readonly rank: number;
   readonly findingId: string;
@@ -23,6 +26,7 @@ export type RunDetailDecisionDeltaRow = {
   readonly policyRuleId: string | null;
   readonly evidenceRefCount: number | null;
   readonly evidenceAnchorHint: string | null;
+  readonly evidenceRefCountNotStored: boolean;
   readonly trustChipSet: FindingTrustChipSet;
   readonly compareDeltaTrustLabels: { readonly origin: string; readonly grounding: string };
 };
@@ -67,6 +71,10 @@ function resolveEvidenceAnchorHint(finding: QuickDecisionFinding): string | null
 
   const count = finding.evidenceRefCount;
 
+  if (count === null || count === undefined) {
+    return null;
+  }
+
   if (typeof count === "number" && Number.isFinite(count) && count > 0) {
     return `${count} evidence reference${count === 1 ? "" : "s"} on finding record`;
   }
@@ -99,6 +107,8 @@ export function buildRunDetailDecisionDeltaRow(
         ? Math.trunc(finding.evidenceRefCount)
         : null,
     evidenceAnchorHint: resolveEvidenceAnchorHint(finding),
+    evidenceRefCountNotStored:
+      finding.evidenceRefCount === null || finding.evidenceRefCount === undefined,
     trustChipSet: trustPresentation.chipSet,
     compareDeltaTrustLabels: formatFindingTrustCompareDeltaLabels(trustPresentation.chipSet),
   };
@@ -118,8 +128,7 @@ export function resolveRunDetailDecisionDeltaView(
     return {
       isCommitted: true,
       rows: [],
-      emptyMessage:
-        "No active findings recorded — ArchLucid did not surface a material recommended change in this review.",
+      emptyMessage: RUN_DETAIL_DECISION_DELTA_EMPTY_MESSAGE,
     };
   }
 

@@ -174,7 +174,9 @@ export function ReviewPackageSponsorHandoffStrip(
         {RUN_DETAIL_SPONSOR_HANDOFF_TITLE}
       </h2>
       <p className={cn("m-0 mt-1 text-neutral-700 dark:text-neutral-300", OPERATOR_SHORT_HELPER_MEASURE_CLASS, OPERATOR_TYPOGRAPHY.body)}>
-        {RUN_DETAIL_SPONSOR_HANDOFF_LEAD}
+        {!lowExtractionConfidenceCountKnown
+          ? "A sponsor download is not available until the low-confidence field count loads."
+          : RUN_DETAIL_SPONSOR_HANDOFF_LEAD}
       </p>
       <SponsorRoiBaselineGateNotice isFinalized />
       {!lowExtractionConfidenceCountKnown ? (

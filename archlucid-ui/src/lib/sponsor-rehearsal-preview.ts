@@ -134,7 +134,11 @@ function buildResidualRisksBody(input: SponsorRehearsalPreviewInput): { body: st
 }
 
 function buildExcludedBody(input: SponsorRehearsalPreviewInput): { body: string; isEmpty: boolean } {
-  const notes = (input.excludedNotes ?? [])
+  if (input.excludedNotes === null || input.excludedNotes === undefined) {
+    return { body: "Excluded notes were not stored for this rehearsal.", isEmpty: true };
+  }
+
+  const notes = input.excludedNotes
     .map((note) => nonEmpty(note))
     .filter((note): note is string => note !== null);
 
