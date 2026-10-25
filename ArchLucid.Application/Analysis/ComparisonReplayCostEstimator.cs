@@ -60,6 +60,8 @@ public sealed class ComparisonReplayCostEstimator(
         if (record is null)
             return null;
 
+        ComparisonRecordScopedReadNormalizer.NormalizeInPlace(record);
+
         List<string> factors = [];
         int score = ScoreForRecord(record, normalizedFormat, mode, factors);
         score += ComparisonReplayPayloadComplexity.ScorePayloadComplexity(record.PayloadJson, factors);
@@ -84,7 +86,7 @@ public sealed class ComparisonReplayCostEstimator(
         return new ComparisonReplayCostEstimate
         {
             ComparisonRecordId = ComparisonRecordIdNormalizer.NormalizeRequired(record.ComparisonRecordId),
-            ComparisonType = ComparisonTypeNormalizer.NormalizeForLookup(record.ComparisonType),
+            ComparisonType = record.ComparisonType,
             Format = normalizedFormat,
             ReplayMode = ComparisonReplayRequestParsing.FormatReplayMode(mode),
             PersistReplay = persistReplay,

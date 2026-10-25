@@ -90,6 +90,26 @@ public sealed class ComparisonReplayCostEstimatorTests
     }
 
     [SkippableFact]
+    public async Task CompareQuality_TryEstimateAsync_canonicalizes_known_comparison_type_casing_from_stored_row()
+    {
+        Mock<IComparisonRecordRepository> repo = new();
+        repo.Setup(r => r.GetByIdAsync("c1", It.IsAny<CancellationToken>())).ReturnsAsync(
+            new ComparisonRecord
+            {
+                ComparisonRecordId = "c1",
+                ComparisonType = "  END-TO-END-REPLAY  ",
+                PayloadJson = "{}",
+            });
+        ComparisonReplayCostEstimator sut = CreateSut(repo.Object);
+
+        ComparisonReplayCostEstimate? result =
+            await sut.TryEstimateAsync("c1", "markdown", "artifact", false, CancellationToken.None);
+
+        result.Should().NotBeNull();
+        result!.ComparisonType.Should().Be(ComparisonTypes.EndToEndReplay);
+    }
+
+    [SkippableFact]
     public async Task CompareQuality_TryEstimateAsync_returns_empty_comparison_type_when_stored_row_is_whitespace_only()
     {
         Mock<IComparisonRecordRepository> repo = new();
