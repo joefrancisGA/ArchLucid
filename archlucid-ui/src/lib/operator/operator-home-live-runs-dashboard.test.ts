@@ -49,6 +49,12 @@ describe("resolveOperatorHomeRunsPanelReportedTotalCount", () => {
     ).toBe(12);
   });
 
+  it("uplifts omitted loaded totals from visible active tenant rows when loaded total is non-finite", () => {
+    expect(
+      resolveOperatorHomeRunsPanelReportedTotalCount([buildRun("active-a"), buildRun("active-b")], Number.NaN),
+    ).toBe(2);
+  });
+
   it("returns zero for description-matched showcase rows even when loaded total is positive", () => {
     expect(
       resolveOperatorHomeRunsPanelReportedTotalCount(

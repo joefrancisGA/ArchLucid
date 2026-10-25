@@ -19,6 +19,16 @@ function makeRun(overrides: Partial<RunSummary> = {}): RunSummary {
 }
 
 describe("deriveOperatorHomeWorkspaceMetricsFromOverviewRuns", () => {
+  it("uplifts review totals from visible tenant rows when reportedTotalCount is omitted", () => {
+    const metrics = deriveOperatorHomeWorkspaceMetricsFromOverviewRuns([
+      makeRun({ runId: "tenant-a", hasFindingsSnapshot: true }),
+      makeRun({ runId: "tenant-b", hasFindingsSnapshot: true }),
+    ]);
+
+    expect(metrics.reviewPackagesTotal).toBe(2);
+    expect(metrics.hasReviews).toBe(true);
+  });
+
   it("does not treat demo-only overview rows as tenant reviews when totalCount is zero", () => {
     const metrics = deriveOperatorHomeWorkspaceMetricsFromOverviewRuns(
       [

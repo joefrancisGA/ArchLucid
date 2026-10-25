@@ -1,9 +1,5 @@
 import { filterTenantOverviewRuns } from "@/lib/operator/operator-home-recent-reviews-outcome";
-import {
-  countNonArchivedOverviewRuns,
-  resolveOperatorHomeReviewTotalCount,
-  resolveOperatorHomeTenantScopedReviewTotalCount,
-} from "@/lib/operator/operator-home-review-total-resolution";
+import { resolveOperatorHomeTenantScopedReviewTotalCount } from "@/lib/operator/operator-home-review-total-resolution";
 import { resolveRunFindingCountDisplay } from "@/lib/operator/operator-home-run-list-insight";
 import { formatOperatorHomeApprovalCheckWarningCount } from "@/lib/operator/operator-home-approval-check-warning-copy";
 import { normalizeOperatorHomeNonNegativeCount, resolveRunHomeStatusTag } from "@/lib/operator/run-home-status";
@@ -73,30 +69,20 @@ export function deriveOperatorHomeWorkspaceMetricsFromOverviewRuns(
   reportedTotalCount?: number,
   awaitingApprovalCount = 0,
 ): OperatorHomeWorkspaceMetricsSnapshot {
-  const reviewPackagesTotal = resolveOperatorHomeTenantScopedReviewTotalCount(
-    overviewItems,
-    reportedTotalCount,
-  );
-
-  return deriveOperatorHomeWorkspaceMetrics(overviewItems, reviewPackagesTotal, awaitingApprovalCount);
+  return deriveOperatorHomeWorkspaceMetrics(overviewItems, reportedTotalCount, awaitingApprovalCount);
 }
 
 /** Aggregates workspace metrics from operator-home runs dashboard data already on the page. */
 export function deriveOperatorHomeWorkspaceMetrics(
   items: readonly RunSummary[],
-  totalCount: number,
+  reportedTotalCount?: number,
   awaitingApprovalCount = 0,
 ): OperatorHomeWorkspaceMetricsSnapshot {
   const tenantItems = filterTenantOverviewRuns(items);
-  const reviewPackagesTotal =
-    tenantItems.length === items.length
-      ? resolveOperatorHomeReviewTotalCount(
-          totalCount,
-          0,
-          countNonArchivedOverviewRuns(tenantItems),
-          tenantItems.length,
-        )
-      : resolveOperatorHomeTenantScopedReviewTotalCount(items, totalCount);
+  const reviewPackagesTotal = resolveOperatorHomeTenantScopedReviewTotalCount(
+    items,
+    reportedTotalCount,
+  );
 
   let reviewPackagesCommitted = 0;
   let reviewPackagesActive = 0;
