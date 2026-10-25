@@ -4508,7 +4508,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-operator-lib
 
-**Hunts:** 40 · **Bugs found:** 37 · **Consecutive dry hunts:** 0
+**Hunts:** 41 · **Bugs found:** 38 · **Consecutive dry hunts:** 0
+
+2026-10-25 seed hunt (hit): promoted working-workspace continuity invalid `updatedAtUtc` watermark handling; regressions `does not persist invalid server updatedAtUtc as the continuity watermark` and `hydrates when local continuity watermark is unparseable and server sends a valid timestamp`; 16 scoped `working-workspace-continuity-sync` vitest passed. Private beta: Invited operators can recover working-desk pins and recents after a bad continuity timestamp instead of staying stuck behind a poisoned local watermark on the next explicit hydrate.
 
 2026-10-25 seed hunt (hit): promoted `deriveOperatorHomeWorkspaceMetrics` non-finite `awaitingApprovalCount`; regression `normalizes non-finite awaitingApprovalCount to zero for home KPI totals`; 8 scoped `operator-home-workspace-metrics` vitest passed. Private beta: Operator home awaiting-approval KPIs no longer show `NaN` when the dashboard passes a non-finite approval count, keeping governance queue copy trustworthy for invited pilots.
 
@@ -4520,6 +4522,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (invalid) `shouldHydrateWorkingWorkspaceContinuityFromServer` — malformed non-empty server `updatedAtUtc` is compared as `NaN` — **cheap-disproof 2026-10-25 seed hunt:** `Date.parse` invalid yields `NaN >= local` false, so hydrate is refused (fail-closed); does not overwrite local watermark.
 - [x] (proven) `deriveOperatorHomeWorkspaceMetrics` — non-finite `awaitingApprovalCount` is only lower-bounded, not normalized — **hit 2026-10-25 seed hunt:** `Number.isFinite` guard before `Math.max`/`Math.trunc`; regression `normalizes non-finite awaitingApprovalCount to zero for home KPI totals`.
+- [x] (proven) `applyWorkingWorkspaceContinuityFromServer` / `shouldHydrateWorkingWorkspaceContinuityFromServer` — invalid `updatedAtUtc` poisons local watermark and blocks later hydrates — **hit 2026-10-25 seed hunt:** `parseContinuityInstantMs` guards persist + hydrate compare; regressions `does not persist invalid server updatedAtUtc as the continuity watermark` and `hydrates when local continuity watermark is unparseable and server sends a valid timestamp`.
 - [ ] (candidate) `toRecentViewEntries` — server-provided `kind` is cast into `OperatorRecentViewKind` without runtime validation — locus: `working-workspace-continuity-sync.ts`; input: continuity API row with an unrecognized kind; wrong outcome: invalid kind is persisted into local recent-view state; reachability: `OperatorRecentViewEntryDto.kind` is an API response string.
 - [x] (proven) `deriveOperatorHomeWorkspaceMetrics` — non-finite `totalCount` is only lower-bounded, not normalized — **hit 2026-10-25 seed hunt:** `Number.isFinite` guard before `Math.max`/`Math.trunc`; regression `normalizes non-finite totalCount to zero for home KPI totals`.
 - [x] (proven) `operatorLastRefreshedLabel` — invalid `Date` input is passed to `toISOString` through relative-time formatting — **hit 2026-10-21 thorough hunt lane D:** `isRenderableRefreshedInstant` fail-closed; regression `treats an invalid Date like a missing refresh instead of throwing`.
