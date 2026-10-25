@@ -4508,7 +4508,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-operator-lib
 
-**Hunts:** 43 · **Bugs found:** 40 · **Consecutive dry hunts:** 0
+**Hunts:** 44 · **Bugs found:** 41 · **Consecutive dry hunts:** 0
+
+2026-10-25 seed hunt (hit): promoted `resolveOperatorHomeResumeAffordancePlan` run-id equality trim; regression `suppresses continue-last when target run id matches rail run id aside from surrounding whitespace`; 5 scoped `operator-home-resume-affordance` vitest passed. Private beta: Invited operators no longer see a duplicate Continue last review CTA when the continue-last target and unfinished-work rail refer to the same run id with different surrounding whitespace.
 
 2026-10-25 seed hunt (hit): promoted home run-id Set normalization (`buildTrimmedRunIdSet`); regressions `filters home attention preview when excluded run ids have surrounding whitespace` and `counts awaiting-approval tab rows when queue run ids have surrounding whitespace`; 20 scoped dedup + outcome vitest passed. Private beta: Invited operators no longer see duplicate home attention rows or wrong awaiting-approval tab counts when governance queue run ids are loosely formatted strings.
 
@@ -4543,8 +4545,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `readOperatorScopeFromStorage` — returns null when `tenantId` is whitespace-only — **cheap-disproof 2026-10-25 seed hunt:** `isNonEmptyId` rejects whitespace tenant ids (~87).
 - [x] (proven) `filterRunsForHomeAttentionPreview` / `countAwaitingApprovalPreviewRuns` — untrimmed queue or exclusion ids do not match trimmed run ids — **hit 2026-10-25 seed hunt:** `buildTrimmedRunIdSet`; regressions `filters home attention preview when excluded run ids have surrounding whitespace` and `counts awaiting-approval tab rows when queue run ids have surrounding whitespace`.
 - [x] (valid-no-repro) `listHomeAttentionPreviewExcludedRunIds` — preserves duplicate run ids when rail lists repeat the same run — **cheap-disproof 2026-10-25 seed hunt:** duplicate tokens do not change `Set` membership in `filterRunsForHomeAttentionPreview`.
-- [ ] (candidate) `isDevDefaultScopeRecord` — returns false when only workspace id matches dev default — locus: triple equality ~291–296 (`operator-scope-storage.ts`); input: dev workspace with non-dev tenant/project.
-- [ ] (candidate) `resolveAttentionPartitionPreview` — `unfinished-work` skips archived runs when choosing fallback title — locus: `runs.find((row) => row.isArchived !== true)` ~22–28 (`resolve-attention-partition-preview.ts`); input: only archived runs in `runs` array.
+- [x] (valid-no-repro) `isDevDefaultScopeRecord` — returns false when only workspace id matches dev default — **cheap-disproof 2026-10-25 seed hunt:** intentional dev triple-id match for default scope detection (~291–296).
+- [x] (valid-no-repro) `resolveAttentionPartitionPreview` — `unfinished-work` skips archived runs when choosing fallback title — **cheap-disproof 2026-10-25 seed hunt:** regression `skips archived runs when falling back to the first active run title` documents intentional archived skip.
+- [x] (proven) `resolveOperatorHomeResumeAffordancePlan` — strict run-id equality misses rail duplicates when target id has surrounding whitespace — **hit 2026-10-25 seed hunt:** trim both sides before compare; regression `suppresses continue-last when target run id matches rail run id aside from surrounding whitespace`.
 
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions `readOperatorScopeFromStorage_returns_null_when_local_storage_json_is_invalid`, `returns all runs when excluded run id list is empty`, and `omits rail items whose id prefix does not yield a run id`; 52 scoped operator vitest tests passed.
 
