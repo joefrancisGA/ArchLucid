@@ -71,6 +71,55 @@ describe("operator shell stable cache", () => {
     expect(readOperatorShellStableCache()).toBeNull();
   });
 
+  it("normalizes non-finite alerts inbox counts when reading stable cache", () => {
+    writeOperatorShellStableCache({
+      trialStatus: { status: "None" },
+      catalogMigration: { inMigration: false },
+      alertsInboxSummary: {
+        open: 2,
+        acknowledged: 0,
+        resolved: 0,
+        blocking: 1,
+        lastEvaluatedUtc: null,
+      },
+    });
+
+    const cached = readOperatorShellStableCache();
+
+    expect(cached).not.toBeNull();
+
+    sessionStorage.setItem(
+      "archlucid:operator-shell-stable:v1",
+      JSON.stringify({
+        ...cached,
+        alertsInboxSummary: {
+          open: Number.NaN,
+          acknowledged: 1,
+          resolved: 0,
+          blocking: Number.NaN,
+          lastEvaluatedUtc: null,
+        },
+      }),
+    );
+
+    const reread = readOperatorShellStableCache();
+
+    expect(reread?.alertsInboxSummary).toEqual({
+      open: 0,
+      acknowledged: 1,
+      resolved: 0,
+      blocking: 0,
+      lastEvaluatedUtc: null,
+    });
+
+    const queryClient = getOperatorQueryClient();
+    hydrateOperatorShellStableCache(queryClient, "tenant:workspace:project");
+
+    expect(queryClient.getQueryData(operatorQueryKeys.alertsInboxSummary("tenant:workspace:project"))).toEqual(
+      reread?.alertsInboxSummary,
+    );
+  });
+
   it("does not persist alerts inbox summary without a stable shell snapshot", () => {
     writeOperatorShellStableCache({
       trialStatus: { status: "Active", daysRemaining: 5 },
