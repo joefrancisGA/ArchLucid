@@ -20,7 +20,8 @@ export function buildTrimmedRunIdSet(runIds: readonly string[]): ReadonlySet<str
   return normalized;
 }
 
-function runIdFromUnfinishedWorkRailItem(item: UnfinishedWorkRailItem): string | null {
+/** Run id encoded in TB-2369 unfinished-work rail row ids (independent of href drift). */
+export function resolveRunIdFromUnfinishedWorkRailItem(item: UnfinishedWorkRailItem): string | null {
   if (item.kind === "awaiting-disposition") {
     const runId = item.id.startsWith(AWAITING_DISPOSITION_RAIL_ID_PREFIX)
       ? item.id.slice(AWAITING_DISPOSITION_RAIL_ID_PREFIX.length)
@@ -47,7 +48,7 @@ export function listHomeAttentionPreviewExcludedRunIds(
   const runIds: string[] = [];
 
   for (const item of unfinishedRailItems) {
-    const runId = runIdFromUnfinishedWorkRailItem(item);
+    const runId = resolveRunIdFromUnfinishedWorkRailItem(item);
 
     if (runId !== null) {
       runIds.push(runId);

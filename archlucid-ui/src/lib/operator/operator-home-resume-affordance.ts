@@ -3,6 +3,7 @@ import type { ArchitectureDraftRegistryEntry } from "@/lib/architecture/architec
 import type { IncompleteWizardSignal } from "@/lib/unfinished-work-rail";
 import { resolveContinueLastArchitectureIdentityTarget } from "@/lib/resolve-continue-last-architecture-identity";
 import { resolveContinueLastReviewPackageTarget } from "@/lib/resolve-continue-last-review-package";
+import { resolveRunIdFromUnfinishedWorkRailItem } from "@/lib/operator/home-attention-dedup";
 import {
   collectResumeRunIdsForMatch,
   resumeHrefsEquivalentForDedupe,
@@ -115,9 +116,14 @@ export function resolveOperatorHomeResumeAffordancePlan(
       }
 
       const targetRunIds = collectResumeRunIdsForMatch(targetHref, reviewTarget?.runId);
-      const railRunIds = collectResumeRunIdsForMatch(item.href);
+      const railRunIds = new Set(collectResumeRunIdsForMatch(item.href));
+      const railIdRunId = resolveRunIdFromUnfinishedWorkRailItem(item)?.trim() ?? "";
 
-      if (railRunIds.some((railRunId) => targetRunIds.includes(railRunId))) {
+      if (railIdRunId.length > 0) {
+        railRunIds.add(railIdRunId);
+      }
+
+      if ([...railRunIds].some((railRunId) => targetRunIds.includes(railRunId))) {
         return true;
       }
 

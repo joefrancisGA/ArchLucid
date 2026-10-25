@@ -1,8 +1,10 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  collectResumeRunIdsForMatch,
   matchesOperatorHomeHeroResumeTarget,
   resolveOperatorHomeHeroResumeTarget,
+  resumeHrefsEquivalentForDedupe,
 } from "@/lib/operator/operator-home-hero-resume-target";
 import type { ArchitectureDraftRegistryEntry } from "@/lib/architecture/architecture-draft-registry";
 
@@ -37,6 +39,29 @@ describe("operator-home-hero-resume-target", () => {
         { href: "/architecture/architectures/other" },
       ),
     ).toBe(false);
+  });
+
+  it("resumeHrefsEquivalentForDedupe treats desk highlight URLs as equivalent aside from trailing slash", () => {
+    expect(
+      resumeHrefsEquivalentForDedupe(
+        "/architecture/architectures/architecture-identity-001?highlightReviewId=run-a",
+        "/architecture/architectures/architecture-identity-001/?highlightReviewId=run-a",
+      ),
+    ).toBe(true);
+  });
+
+  it("collectResumeRunIdsForMatch ignores whitespace-only explicit run ids", () => {
+    expect(collectResumeRunIdsForMatch("/architecture/reviews/run-hero", "   ")).toEqual(["run-hero"]);
+    expect(collectResumeRunIdsForMatch("/architecture/first-review-guide", "   ")).toEqual([]);
+  });
+
+  it("matches when hero runId is whitespace-only but href encodes the rail run id", () => {
+    expect(
+      matchesOperatorHomeHeroResumeTarget(
+        { href: "/architecture/reviews/run-hero", runId: "   " },
+        { href: "/architecture/reviews/run-hero" },
+      ),
+    ).toBe(true);
   });
 
   it("does not treat same architecture desk with different highlightReviewId as equivalent", () => {

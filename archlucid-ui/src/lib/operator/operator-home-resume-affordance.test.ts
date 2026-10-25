@@ -8,6 +8,42 @@ import { OPERATOR_RECENT_VIEWS_STORAGE_KEY } from "@/lib/operator/operator-recen
 import type { RunSummary } from "@/types/authority";
 
 describe("resolveOperatorHomeResumeAffordancePlan", () => {
+  it("suppresses continue-last when rail row id encodes the run id but href does not parse a run", () => {
+    vi.spyOn(continueLastReviewPackage, "resolveContinueLastReviewPackageTarget").mockReturnValue({
+      runId: "review-42",
+      label: "Payments platform",
+      href: "/architecture/reviews/review-42",
+      visitedAtUtc: "2026-01-15T12:00:00.000Z",
+    });
+
+    vi.spyOn(unfinishedWorkRail, "summarizeUnfinishedWorkRailItems").mockReturnValue({
+      items: [
+        {
+          id: "review-in-progress:review-42",
+          kind: "review-in-progress",
+          title: "Payments platform",
+          href: "/architecture/reviews/new",
+          statusLabel: "In progress",
+          updatedUtc: null,
+          workTypeLabel: "Architecture review",
+          activityLabel: null,
+          actionLabel: "Continue",
+        },
+      ],
+      totalCount: 1,
+      truncated: false,
+    });
+
+    const plan = resolveOperatorHomeResumeAffordancePlan({
+      runs: [],
+      drafts: [],
+      incompleteWizards: [],
+    });
+
+    expect(plan.showContinueLast).toBe(false);
+    vi.restoreAllMocks();
+  });
+
   it("suppresses continue-last when target href encodes the rail run id but runId field is stale", () => {
     vi.spyOn(continueLastReviewPackage, "resolveContinueLastReviewPackageTarget").mockReturnValue({
       runId: "stale-run-id",
