@@ -27,6 +27,10 @@ import {
   secureNowQuestionDispositionMutationSource,
   secureNowQuestionDispositionMutationSubscriptionId,
 } from "@/lib/infra-evidence/securenow-question-mutation-resource-id";
+import {
+  secureNowQuestionDispositionIsAnswered,
+  secureNowQuestionDispositionIsDismissed,
+} from "@/lib/infra-evidence/securenow-question-disposition-status";
 import { secureNowQuestionShowsExpired } from "@/lib/infra-evidence/securenow-question-expiration";
 import {
   confirmOperatorInferredConnection,
@@ -107,19 +111,17 @@ function questionIdentity(question: SecureNowQuestion): string {
   return `${normalize(question.subscriptionId ?? "")}|${normalize(question.resourceId ?? "")}|${normalize(question.questionKey ?? "")}`;
 }
 
-function isDismissed(question: SecureNowQuestion): boolean {
-  return question.status === "Ignored" || question.status === "Dismissed";
-}
-
 function filterQuestions(questions: readonly SecureNowQuestion[], filter: QueueFilter): SecureNowQuestion[] {
   return questions.filter((question) => {
     if (filter === "Open") {
-      return question.status !== "Answered"
-        && !isDismissed(question)
+      return !secureNowQuestionDispositionIsAnswered(question.status)
+        && !secureNowQuestionDispositionIsDismissed(question.status)
         && !secureNowQuestionShowsExpired(question.expirationUtc, question.isExpired);
     }
-    if (filter === "Answered") return question.status === "Answered";
-    return isDismissed(question);
+    if (filter === "Answered") {
+      return secureNowQuestionDispositionIsAnswered(question.status);
+    }
+    return secureNowQuestionDispositionIsDismissed(question.status);
   });
 }
 
@@ -242,8 +244,8 @@ export function SecureNowQuestionQueueProvider(
 
   const openQuestions = useMemo(
     () => questions.filter(
-      (question) => question.status !== "Answered"
-        && !isDismissed(question)
+      (question) => !secureNowQuestionDispositionIsAnswered(question.status)
+        && !secureNowQuestionDispositionIsDismissed(question.status)
         && !secureNowQuestionShowsExpired(question.expirationUtc, question.isExpired),
     ),
     [questions],

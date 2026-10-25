@@ -13,6 +13,11 @@ import {
   secureNowQuestionReviewerScopeLabel,
   secureNowQuestionShowsInferredConnectionReviewerCopy,
 } from "@/lib/infra-evidence/securenow-question-mutation-resource-id";
+import {
+  secureNowQuestionDispositionIsClosed,
+  secureNowQuestionDispositionIsOpen,
+  secureNowQuestionDispositionStatusTrimmed,
+} from "@/lib/infra-evidence/securenow-question-disposition-status";
 import type { SecureNowQuestion } from "@/lib/infra-evidence/securenow-question-queue-api";
 import {
   secureNowQuestionResourceDisplayName,
@@ -46,12 +51,8 @@ type ClosedQuestionAnswerFields = {
   readonly reason: string | null | undefined;
 };
 
-function isClosedSecureNowQuestionStatus(status: string | null): boolean {
-  return status === "Answered" || status === "Ignored" || status === "Dismissed";
-}
-
 function closedSecureNowQuestionAnswerLines(question: ClosedQuestionAnswerFields): readonly string[] {
-  if (!isClosedSecureNowQuestionStatus(question.status)) {
+  if (!secureNowQuestionDispositionIsClosed(question.status)) {
     return [];
   }
 
@@ -85,19 +86,20 @@ function closedSecureNowQuestionAnswerLines(question: ClosedQuestionAnswerFields
 }
 
 function questionStatusLabel(status: string | null): string {
-  if (status == null || status.trim().length === 0) {
+  const normalized = secureNowQuestionDispositionStatusTrimmed(status);
+  if (normalized == null) {
     return "Question status was not stored";
   }
 
-  if (status === "Answered") {
+  if (normalized === "Answered") {
     return "Answered";
   }
 
-  if (status === "Ignored" || status === "Dismissed") {
+  if (normalized === "Ignored" || normalized === "Dismissed") {
     return "Dismissed";
   }
 
-  return `Question status "${status}" has no reviewer label.`;
+  return `Question status "${normalized}" has no reviewer label.`;
 }
 
 function openQuestionsCountLabel(count: number): string {
@@ -334,7 +336,7 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
                   : currentQuestion.questionText}
             </p>
           ) : null}
-          {currentQuestion != null && isClosedSecureNowQuestionStatus(currentQuestion.status) ? (
+          {currentQuestion != null && secureNowQuestionDispositionIsClosed(currentQuestion.status) ? (
             <div
               className={cn("m-0 space-y-0.5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
               data-testid="infra-diagrams-question-answer"
@@ -392,7 +394,7 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
 
       {currentQuestion != null ? (
         <div className="mt-2 space-y-2">
-          {currentQuestion.status === "Open" ? (
+          {secureNowQuestionDispositionIsOpen(currentQuestion.status) ? (
             <>
               {currentQuestion.answerCodes === null ? (
                 <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
