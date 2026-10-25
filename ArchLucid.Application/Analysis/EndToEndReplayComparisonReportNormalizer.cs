@@ -24,6 +24,8 @@ internal static class EndToEndReplayComparisonReportNormalizer
         foreach (ExportRecordDiffResult diff in report.ExportDiffs)
             ExportRecordDiffResultNormalizer.NormalizeDisplayAnchors(diff);
 
+        ComparisonFindingCorrelationMetadataNormalizer.NormalizeInPlace(report.FindingCorrelation);
+
         CompareVerdictChromeDeltaNormalizer.NormalizeInPlace(report.CompareVerdictChromeDelta);
 
         if (report.CompareVerdictChromeDelta is { HasAnySection: false })

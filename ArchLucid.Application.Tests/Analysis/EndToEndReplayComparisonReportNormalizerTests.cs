@@ -312,4 +312,24 @@ public sealed class EndToEndReplayComparisonReportNormalizerTests
         relationship.RelationshipType.Should().Be("connects_to");
         relationship.Description.Should().Be("edge note");
     }
+
+    [Fact]
+    public void CompareQuality_EndToEndReplayComparisonReportNormalizer_trims_finding_correlation_metadata_strings()
+    {
+        EndToEndReplayComparisonReport report = new()
+        {
+            LeftRunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            RightRunId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            FindingCorrelation = new ComparisonFindingCorrelationMetadata
+            {
+                PrimaryCorrelationMethod = "   ",
+                HonestyNote = "  fuzzy matches are advisory  ",
+            },
+        };
+
+        EndToEndReplayComparisonReportNormalizer.NormalizePersistedPayload(report);
+
+        report.FindingCorrelation!.PrimaryCorrelationMethod.Should().Be("PolicyRuleAndFingerprint");
+        report.FindingCorrelation.HonestyNote.Should().Be("fuzzy matches are advisory");
+    }
 }
