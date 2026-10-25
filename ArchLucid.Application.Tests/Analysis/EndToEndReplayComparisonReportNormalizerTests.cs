@@ -405,6 +405,44 @@ public sealed class EndToEndReplayComparisonReportNormalizerTests
     }
 
     [Fact]
+    public void CompareQuality_EndToEndReplayComparisonReportNormalizer_dedupes_duplicate_agent_result_deltas_by_agent_type()
+    {
+        EndToEndReplayComparisonReport report = new()
+        {
+            LeftRunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            RightRunId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            AgentResultDiff = new AgentResultDiffResult
+            {
+                AgentDeltas =
+                [
+                    new AgentResultDelta
+                    {
+                        AgentType = AgentType.Cost,
+                        AddedClaims = ["baseline claim"],
+                    },
+                    new AgentResultDelta
+                    {
+                        AgentType = AgentType.Cost,
+                        AddedClaims = ["duplicate row"],
+                    },
+                    new AgentResultDelta
+                    {
+                        AgentType = AgentType.Topology,
+                        AddedFindings = ["drift"],
+                    },
+                ],
+            },
+        };
+
+        EndToEndReplayComparisonReportNormalizer.NormalizePersistedPayload(report);
+
+        report.AgentResultDiff!.AgentDeltas.Should().HaveCount(2);
+        report.AgentResultDiff.AgentDeltas[0].AgentType.Should().Be(AgentType.Cost);
+        report.AgentResultDiff.AgentDeltas[0].AddedClaims.Should().Equal(["baseline claim"]);
+        report.AgentResultDiff.AgentDeltas[1].AgentType.Should().Be(AgentType.Topology);
+    }
+
+    [Fact]
     public void CompareQuality_EndToEndReplayComparisonReportNormalizer_drops_immaterial_export_record_diffs()
     {
         EndToEndReplayComparisonReport report = new()

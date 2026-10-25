@@ -1,4 +1,5 @@
 using ArchLucid.Application.Diffs;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Metadata;
 
 namespace ArchLucid.Application.Analysis;
@@ -26,7 +27,32 @@ internal static class AgentResultDiffNormalizer
                 diff.AgentDeltas.RemoveAt(i);
         }
 
+        DedupeAgentDeltasByAgentTypeKeepFirstInPlace(diff.AgentDeltas);
+
         CompareInputFingerprintsNormalizer.NormalizeInPlace(diff.InputFingerprints);
+    }
+
+    private static void DedupeAgentDeltasByAgentTypeKeepFirstInPlace(List<AgentResultDelta> agentDeltas)
+    {
+        if (agentDeltas.Count < 2)
+            return;
+
+        HashSet<AgentType> seen = [];
+        List<AgentResultDelta> distinct = [];
+
+        foreach (AgentResultDelta delta in agentDeltas)
+        {
+            if (!seen.Add(delta.AgentType))
+                continue;
+
+            distinct.Add(delta);
+        }
+
+        if (distinct.Count == agentDeltas.Count)
+            return;
+
+        agentDeltas.Clear();
+        agentDeltas.AddRange(distinct);
     }
 
     internal static bool IsPersistedEmptyShell(AgentResultDiffResult diff) =>
