@@ -7,6 +7,27 @@ import { normalizeResumeHrefForMatch } from "@/lib/operator/operator-home-hero-r
 import { resolveRunIdFromWorkingReviewHref } from "@/lib/system-not-job-portfolio-resume-href";
 import type { RunSummary } from "@/types/authority";
 
+function architectureDeskIdFromHref(href: string): string | null {
+  const path = (href.split("?")[0] ?? "").replace(/\/+$/, "");
+  const match = /^\/architecture\/architectures\/([^/?#]+)/.exec(path);
+
+  if (match === null) {
+    return null;
+  }
+
+  try {
+    const architectureId = decodeURIComponent(match[1]).trim();
+
+    if (architectureId.length === 0 || architectureId === "new" || architectureId.includes("/")) {
+      return null;
+    }
+
+    return architectureId;
+  } catch {
+    return null;
+  }
+}
+
 export type OperatorHomeResumeAffordancePlan = {
   readonly showContinueLast: boolean;
   readonly continueLastVariant: "primary" | "outline";
@@ -66,6 +87,15 @@ export function resolveOperatorHomeResumeAffordancePlan(
         : "";
 
       if (draftIdFromRailId.length > 0 && draftIdFromRailId === targetArchitectureId) {
+        return true;
+      }
+
+      const architectureIdFromRailHref = architectureDeskIdFromHref(item.href);
+
+      if (
+        architectureIdFromRailHref !== null
+        && architectureIdFromRailHref === targetArchitectureId
+      ) {
         return true;
       }
 

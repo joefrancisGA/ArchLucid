@@ -187,6 +187,45 @@ describe("resolveOperatorHomeResumeAffordancePlan", () => {
     expect(plan.continueLastKind).toBe("review");
   });
 
+  it("suppresses architecture continue-last when rail href carries the target architecture id", () => {
+    vi.spyOn(continueLastArchitectureIdentity, "resolveContinueLastArchitectureIdentityTarget").mockReturnValue({
+      architectureId: "architecture-identity-001",
+      label: "Payments platform",
+      href: "/architecture/architectures/stale-path",
+      visitedAtUtc: "2026-01-15T12:00:00.000Z",
+    });
+
+    vi.spyOn(continueLastReviewPackage, "resolveContinueLastReviewPackageTarget").mockReturnValue(null);
+
+    vi.spyOn(unfinishedWorkRail, "summarizeUnfinishedWorkRailItems").mockReturnValue({
+      items: [
+        {
+          id: "architecture-draft:draft-001",
+          kind: "architecture-draft",
+          title: "Payments platform",
+          href: "/architecture/architectures/architecture-identity-001",
+          statusLabel: "Draft",
+          updatedUtc: null,
+          workTypeLabel: "Architecture draft",
+          activityLabel: null,
+          actionLabel: "Continue",
+        },
+      ],
+      totalCount: 1,
+      truncated: false,
+    });
+
+    const plan = resolveOperatorHomeResumeAffordancePlan({
+      runs: [],
+      drafts: [],
+      incompleteWizards: [],
+      workingMode: true,
+    });
+
+    expect(plan.showContinueLast).toBe(false);
+    vi.restoreAllMocks();
+  });
+
   it("suppresses architecture continue-last when rail href matches target aside from trailing slash", () => {
     vi.spyOn(continueLastArchitectureIdentity, "resolveContinueLastArchitectureIdentityTarget").mockReturnValue({
       architectureId: "architecture-identity-001",
