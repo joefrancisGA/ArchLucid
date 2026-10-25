@@ -94,6 +94,40 @@ describe("home-attention-dedup (TB-2369)", () => {
     expect(runIds).toEqual(["run-1", "run-3"]);
   });
 
+  it("filters home attention preview when nested review href run id disagrees with TB-2369 row id", () => {
+    const runs = [
+      { runId: "run-a", projectId: "default" },
+      { runId: "run-b", projectId: "default" },
+      { runId: "run-c", projectId: "default" },
+    ] as RunSummary[];
+
+    const excluded = listHomeAttentionPreviewExcludedRunIds([
+      {
+        ...railItem("review-in-progress", "review-in-progress:run-a"),
+        href: "/architecture/architectures/architecture-identity-001/reviews/run-b",
+      },
+    ]);
+
+    expect(filterRunsForHomeAttentionPreview(runs, excluded).map((run) => run.runId)).toEqual(["run-c"]);
+  });
+
+  it("filters home attention preview when desk highlightReviewId disagrees with TB-2369 row id", () => {
+    const runs = [
+      { runId: "run-a", projectId: "default" },
+      { runId: "run-b", projectId: "default" },
+      { runId: "run-c", projectId: "default" },
+    ] as RunSummary[];
+
+    const excluded = listHomeAttentionPreviewExcludedRunIds([
+      {
+        ...railItem("review-in-progress", "review-in-progress:run-a"),
+        href: "/architecture/architectures/architecture-identity-001?highlightReviewId=run-b",
+      },
+    ]);
+
+    expect(filterRunsForHomeAttentionPreview(runs, excluded).map((run) => run.runId)).toEqual(["run-c"]);
+  });
+
   it("lists both row and desk highlight run ids when TB-2369 row id disagrees with highlightReviewId", () => {
     const item = {
       ...railItem("review-in-progress", "review-in-progress:run-a"),
@@ -127,6 +161,22 @@ describe("home-attention-dedup (TB-2369)", () => {
     ]);
 
     expect(filterRunsForHomeAttentionPreview(runs, excluded).map((run) => run.runId)).toEqual(["run-c"]);
+  });
+
+  it("returns no excluded run ids for architecture-draft unfinished-work rail rows", () => {
+    const draftItem: UnfinishedWorkRailItem = {
+      id: "architecture-draft:draft-identity-001",
+      kind: "architecture-draft",
+      title: "Payments draft",
+      href: "/architecture/architectures/draft-identity-001",
+      statusLabel: "Draft",
+      updatedUtc: null,
+      workTypeLabel: "Architecture",
+      activityLabel: null,
+      actionLabel: "Continue",
+    };
+
+    expect(listHomeAttentionPreviewExcludedRunIds([draftItem])).toEqual([]);
   });
 
   it("filters home attention preview when rail row id suffix is empty but href encodes the run", () => {
