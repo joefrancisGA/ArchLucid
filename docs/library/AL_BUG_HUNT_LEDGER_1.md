@@ -6868,6 +6868,20 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-25 seed hunt (seed→hit): proved `RunExportAuditService.RecordAsync` trimmed padded `CompareRunId` in persisted analysis requests but left dashed GUID strings on the denormalized `CompareRunId` column and `ArchitectureDocxExportGenerated` audit `compareWithRunId` while comparison and replay paths canonicalize compare-run anchors, so export audit telemetry could disagree with compare/replay lookups; canonicalize compare run id via `AnalysisRunIdCanonicalization.CanonicalRunIdForLookup` after `TrimOptionalStrings`; regression `CompareQuality_RecordAsync_canonicalizes_dashed_compare_run_id_in_audit_json_and_record_column`; cheap-disproof closed primary `runId` canonicalize (hunt 167), `RecordFailureAsync` (hunt 168), `ReplayExportAsync` route export id trim, `ApiPaging.TryParseUtcTicksIdCursor` (comparison search normalizes inbound cursor id), batch zip manifest echo (cosmetic), and Armenian homoglyphs (deferred); seeded five follow-on rows; scoped application-analysis + replay filter 333/333. Private beta: architecture export generated audits and persisted compare-run anchors use canonical run ids aligned with comparison and replay surfaces.
+
+- [ ] (candidate) `RunExportRecordScopedReadNormalizer` — legacy `CompareRunId` column without canonicalize on read — locus: export row read; input: DB legacy dashed compare id.
+- [ ] (candidate) `RunExportQueryFacade.ReplayExportAsync` — defensive trim on `ReplayExportRecorded` audit JSON — locus: facade; input: idempotent after hunts 166–167.
+- [ ] (candidate) `ApiPaging.TryParseUtcTicksIdCursor` — cursor id segment without trim — locus: HTTP cursor parse; input: padded id after ticks delimiter (alerts inbox and other API surfaces).
+- [ ] (candidate) `ComparisonBatchReplayZipSupport` — manifest failure entries echo pre-trim batch tokens — locus: zip manifest; input: cosmetic id echo only.
+- [ ] (candidate) `RunExportRecordPersistNormalizer` — persistence-layer read normalize — locus: repository; input: overlaps app-layer normalizer.
+
+- [x] (proven) `RunExportAuditService.RecordAsync` — dashed compare run id in audit JSON/column — **hit 2026-10-25 seed hunt:** canonicalize compare run id; regression above.
+- [x] (valid-no-repro) `RecordAsync` — primary run id — **cheap-disproof 2026-10-25 seed hunt:** hunt 167.
+- [x] (valid-no-repro) `RecordFailureAsync` — failure audit run id — **cheap-disproof 2026-10-25 seed hunt:** hunt 168.
+- [x] (invalid) `ApiPaging.TryParseUtcTicksIdCursor` — HTTP cursor id trim — **cheap-disproof 2026-10-25 seed hunt:** comparison search normalizes at application layer.
+- [x] (invalid) `ComparisonBatchReplayZipSupport` — manifest id echo — **cheap-disproof 2026-10-25 seed hunt:** cosmetic only.
+
 2026-10-25 seed hunt (seed→hit): proved `RunExportAuditService.RecordFailureAsync` logged `RunExportFailed` audit `DataJson` with trim-only dashed `runId` while hunt 167 canonicalized success-path `RecordAsync`, so failed export telemetry could reference non-canonical run anchors operators cannot correlate with export history keyed by N-format ids; canonicalize via `AnalysisRunIdCanonicalization.CanonicalRunIdForLookup` before audit serialization; regression `CompareQuality_RecordFailureAsync_canonicalizes_dashed_run_id_in_audit_json`; cheap-disproof closed `RecordAsync` success path (hunt 167), `ReplayExportAsync` route export id trim, `ApiPaging.TryParseUtcTicksIdCursor` (comparison search normalizes inbound cursor id), batch zip manifest echo (cosmetic), and Armenian homoglyphs (deferred); seeded five follow-on rows; scoped application-analysis + replay filter 332/332. Private beta: failed architecture export audits record canonical run ids matching successful export and replay surfaces.
 
 - [ ] (candidate) `RunExportQueryFacade.ReplayExportAsync` — defensive trim on `ReplayExportRecorded` audit JSON — locus: facade; input: idempotent after hunts 166–167.
@@ -8171,11 +8185,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 168
-- **bugs-found:** 174
+- **hunts:** 169
+- **bugs-found:** 175
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-25
-- **last-bug:** 2026-10-25 — export failure audit canonicalizes run id
+- **last-bug:** 2026-10-25 — export audit canonicalizes compare run id
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
