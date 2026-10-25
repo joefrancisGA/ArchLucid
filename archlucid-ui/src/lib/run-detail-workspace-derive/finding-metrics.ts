@@ -35,7 +35,7 @@ export function countFindingsBySeverity(findings: readonly QuickDecisionFinding[
   let high = 0;
   let medium = 0;
   let low = 0;
-
+  let info = 0;
   for (const finding of findings) {
     if (finding.isMuted) {
       continue;
@@ -51,19 +51,21 @@ export function countFindingsBySeverity(findings: readonly QuickDecisionFinding[
       high += 1;
     } else if (finding.severityValue === 1) {
       medium += 1;
+    } else if (finding.severityValue === 0) {
+      info += 1;
     } else {
       low += 1;
     }
   }
 
-  return { critical, high, medium, low };
+  return { critical, high, medium, low, info };
 }
 export function deriveHighestFindingSeverityLabel(
   findings: readonly QuickDecisionFinding[],
   fallback: string | null,
 ): string | null {
   const counts = countFindingsBySeverity(findings);
-  const total = counts.critical + counts.high + counts.medium + counts.low;
+  const total = counts.critical + counts.high + counts.medium + counts.low + counts.info;
 
   if (total === 0) {
     return findings.length > 0 ? "Severity was not stored" : fallback;
@@ -79,6 +81,10 @@ export function deriveHighestFindingSeverityLabel(
 
   if (counts.medium > 0) {
     return "Medium";
+  }
+
+  if (counts.info > 0) {
+    return "Info";
   }
 
   return "Low";

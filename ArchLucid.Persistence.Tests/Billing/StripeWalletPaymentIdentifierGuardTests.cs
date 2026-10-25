@@ -85,4 +85,104 @@ public sealed class StripeWalletPaymentIdentifierGuardTests
 
         allowed.Should().BeFalse();
     }
+
+    [SkippableFact]
+    public async Task AllowsWalletUpdate_false_when_linked_customer_unresolved_but_customer_id_supplied()
+    {
+        Guid tenantId = Guid.NewGuid();
+        Mock<IStripeLinkedCustomerResolver> resolver = new();
+        resolver
+            .Setup(r => r.TryResolveLinkedCustomerIdAsync(tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((string?)null);
+
+        Mock<IOptionsMonitor<BillingOptions>> options = new();
+        options.Setup(o => o.CurrentValue).Returns(new BillingOptions
+        {
+            Stripe = new StripeBillingOptions { SecretKey = "test-secret" },
+        });
+
+        StripeWalletPaymentIdentifierGuard guard = new(resolver.Object, options.Object);
+
+        bool allowed = await guard.AllowsWalletUpdateAsync(
+            tenantId,
+            "cus_linked",
+            null,
+            CancellationToken.None);
+
+        allowed.Should().BeFalse();
+    }
+
+    [SkippableFact]
+    public async Task AllowsWalletUpdate_false_when_secret_key_missing_but_payment_method_supplied()
+    {
+        Guid tenantId = Guid.NewGuid();
+        Mock<IStripeLinkedCustomerResolver> resolver = new();
+        resolver
+            .Setup(r => r.TryResolveLinkedCustomerIdAsync(tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync("cus_linked");
+
+        Mock<IOptionsMonitor<BillingOptions>> options = new();
+        options.Setup(o => o.CurrentValue).Returns(new BillingOptions
+        {
+            Stripe = new StripeBillingOptions { SecretKey = null },
+        });
+
+        StripeWalletPaymentIdentifierGuard guard = new(resolver.Object, options.Object);
+
+        bool allowed = await guard.AllowsWalletUpdateAsync(
+            tenantId,
+            null,
+            "pm_test",
+            CancellationToken.None);
+
+        allowed.Should().BeFalse();
+    }
+
+    [SkippableFact]
+    public async Task AllowsWalletUpdate_true_when_customer_id_matches_linked_and_payment_method_omitted()
+    {
+        Guid tenantId = Guid.NewGuid();
+        Mock<IStripeLinkedCustomerResolver> resolver = new();
+        resolver
+            .Setup(r => r.TryResolveLinkedCustomerIdAsync(tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync("cus_linked");
+
+        Mock<IOptionsMonitor<BillingOptions>> options = new();
+        options.Setup(o => o.CurrentValue).Returns(new BillingOptions
+        {
+            Stripe = new StripeBillingOptions { SecretKey = "test-secret" },
+        });
+
+        StripeWalletPaymentIdentifierGuard guard = new(resolver.Object, options.Object);
+
+        bool allowed = await guard.AllowsWalletUpdateAsync(
+            tenantId,
+            "cus_linked",
+            null,
+            CancellationToken.None);
+
+        allowed.Should().BeTrue();
+    }
+
+    [SkippableFact]
+    public async Task AllowsWalletUpdate_true_when_stripe_ids_are_whitespace_only()
+    {
+        Guid tenantId = Guid.NewGuid();
+        Mock<IStripeLinkedCustomerResolver> resolver = new();
+        Mock<IOptionsMonitor<BillingOptions>> options = new();
+        options.Setup(o => o.CurrentValue).Returns(new BillingOptions());
+
+        StripeWalletPaymentIdentifierGuard guard = new(resolver.Object, options.Object);
+
+        bool allowed = await guard.AllowsWalletUpdateAsync(
+            tenantId,
+            "   ",
+            "\t",
+            CancellationToken.None);
+
+        allowed.Should().BeTrue();
+        resolver.Verify(
+            r => r.TryResolveLinkedCustomerIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
 }

@@ -268,5 +268,27 @@ export function formatLinkedComponentStatus(
     return ARCHITECTURE_FINDINGS_DUAL_PANE_NO_NODE_MATCH;
   }
 
+  if (sync.matchKind === "label-heuristic") {
+    return `Title overlap only — no stored diagram link for ${sync.matchedNodeLabel}.`;
+  }
+
   return `${ARCHITECTURE_FINDINGS_DUAL_PANE_MATCHED_NODE_PREFIX}: ${sync.matchedNodeLabel}`;
+}
+
+export function formatFindingDiagramMatchRowLabel(
+  sync: ArchitectureFindingsDiagramSelectionSync,
+): string | null {
+  if (sync.matchedNodeLabel === null) {
+    return null;
+  }
+
+  if (sync.matchKind === "label-heuristic") {
+    return `Name overlap, not a stored link: ${sync.matchedNodeLabel}`;
+  }
+
+  if (sync.matchKind === "node-id") {
+    return `${ARCHITECTURE_FINDINGS_DUAL_PANE_MATCHED_NODE_PREFIX}: ${sync.matchedNodeLabel}`;
+  }
+
+  return null;
 }

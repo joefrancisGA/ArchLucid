@@ -1,3 +1,5 @@
+using System.Reflection;
+
 using ArchLucid.Application.Value;
 using ArchLucid.ArtifactSynthesis.Docx;
 using ArchLucid.Contracts.ValueReports;
@@ -85,6 +87,74 @@ public sealed class HostCompositionPackageCoverageBatch4Tests
         completed!.DocxBytes.Should().NotBeEmpty();
         completed.FileName.Should().Contain("ArchLucid-value-report");
         audit.Verify(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()), Times.AtLeastOnce);
+    }
+
+    [Fact]
+    public async Task InMemoryValueReportJobQueue_prunes_terminal_local_jobs_on_enqueue_but_keeps_distributed_poll_state()
+    {
+        ServiceCollection services = new();
+        Mock<IValueReportMetricsReader> metrics = new();
+        metrics
+            .Setup(m => m.ReadAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<DateTimeOffset>(),
+                It.IsAny<DateTimeOffset>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ValueReportRawMetrics([], 1, 1, 0, 0, 0, 0, null, null, null, null, 0, null, null, null));
+        services.AddSingleton(metrics.Object);
+        services.AddSingleton<IOptionsMonitor<ValueReportComputationOptions>>(
+            new TestOptionsMonitor<ValueReportComputationOptions>(new ValueReportComputationOptions()));
+        services.AddSingleton<ValueReportBuilder>();
+        Mock<IValueReportRenderer> renderer = new();
+        renderer
+            .Setup(r => r.RenderAsync(It.IsAny<ValueReportSnapshot>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([0x50, 0x4B, 0x03, 0x04]);
+        services.AddSingleton(renderer.Object);
+        Mock<IAuditService> audit = new();
+        audit.Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+        services.AddSingleton(audit.Object);
+        services.AddDistributedMemoryCache();
+        services.AddSingleton<IValueReportJobPollStateCache>(static sp =>
+            new DistributedCacheValueReportJobPollStateCache(sp.GetRequiredService<IDistributedCache>()));
+        ServiceProvider provider = services.BuildServiceProvider();
+        IServiceScopeFactory scopeFactory = provider.GetRequiredService<IServiceScopeFactory>();
+        InMemoryValueReportJobQueue sut = new(
+            scopeFactory,
+            provider.GetRequiredService<IValueReportJobPollStateCache>(),
+            NullLogger<InMemoryValueReportJobQueue>.Instance);
+        Guid tenantId = Guid.NewGuid();
+        ValueReportJobRequest request = new(
+            tenantId,
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            DateTimeOffset.UtcNow.AddDays(-7),
+            DateTimeOffset.UtcNow);
+
+        Guid firstJobId = sut.Enqueue(request);
+
+        for (int attempt = 0; attempt < 40; attempt++)
+        {
+            ValueReportJobPollResult poll = sut.TryPoll(firstJobId, tenantId);
+
+            if (poll.Completed && poll.DocxBytes is not null)
+                break;
+
+            await Task.Delay(25);
+        }
+
+        LocalJobCount(sut).Should().Be(1);
+
+        sut.Enqueue(request);
+
+        LocalJobCount(sut).Should().Be(1);
+
+        ValueReportJobPollResult rediscovered = sut.TryPoll(firstJobId, tenantId);
+
+        rediscovered.Found.Should().BeTrue();
+        rediscovered.Completed.Should().BeTrue();
+        rediscovered.DocxBytes.Should().NotBeEmpty();
     }
 
     [Fact]
@@ -247,6 +317,18 @@ public sealed class HostCompositionPackageCoverageBatch4Tests
 
         completed.Should().NotBeNull();
         completed!.DocxBytes.Should().NotBeEmpty();
+    }
+
+    private static int LocalJobCount(InMemoryValueReportJobQueue queue)
+    {
+        FieldInfo field = typeof(InMemoryValueReportJobQueue).GetField(
+            "_jobs",
+            BindingFlags.Instance | BindingFlags.NonPublic)
+            ?? throw new InvalidOperationException("_jobs field not found.");
+
+        System.Collections.ICollection jobs = (System.Collections.ICollection)field.GetValue(queue)!;
+
+        return jobs.Count;
     }
 
     private sealed class TestOptionsMonitor<T>(T value) : IOptionsMonitor<T>

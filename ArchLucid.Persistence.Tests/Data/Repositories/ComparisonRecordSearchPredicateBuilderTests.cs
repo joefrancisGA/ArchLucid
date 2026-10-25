@@ -36,8 +36,8 @@ public sealed class ComparisonRecordSearchPredicateBuilderTests
         conditions.Should().Contain("RightRunId = @RightRunId");
         conditions.Should().Contain("CreatedUtc >= @CreatedFromUtc");
         conditions.Should().Contain("CreatedUtc <= @CreatedToUtc");
-        conditions.Should().Contain("LeftExportRecordId = @LeftExportRecordId");
-        conditions.Should().Contain("RightExportRecordId = @RightExportRecordId");
+        conditions.Should().Contain("LTRIM(RTRIM(LeftExportRecordId)) = @LeftExportRecordId");
+        conditions.Should().Contain("LTRIM(RTRIM(RightExportRecordId)) = @RightExportRecordId");
         conditions.Should().Contain("Label = @Label");
         conditions.Should().ContainSingle(c => c.Contains("OPENJSON", StringComparison.Ordinal) && c.Contains("@Tag0"));
         conditions.Should().ContainSingle(c => c.Contains("OPENJSON", StringComparison.Ordinal) && c.Contains("@Tag2"));
@@ -99,5 +99,30 @@ public sealed class ComparisonRecordSearchPredicateBuilderTests
 
         conditions.Should().BeEmpty();
         parameters.ParameterNames.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void AppendFilters_trims_padded_export_record_id_query_parameters()
+    {
+        List<string> conditions = [];
+        DynamicParameters parameters = new();
+
+        ComparisonRecordSearchPredicateBuilder.AppendFilters(
+            conditions,
+            parameters,
+            comparisonType: null,
+            leftRunId: null,
+            rightRunId: null,
+            createdFromUtc: null,
+            createdToUtc: null,
+            leftExportRecordId: "  left-export  ",
+            rightExportRecordId: "  right-export  ",
+            label: null,
+            tags: null);
+
+        conditions.Should().Contain("LTRIM(RTRIM(LeftExportRecordId)) = @LeftExportRecordId");
+        conditions.Should().Contain("LTRIM(RTRIM(RightExportRecordId)) = @RightExportRecordId");
+        parameters.Get<string>("@LeftExportRecordId").Should().Be("left-export");
+        parameters.Get<string>("@RightExportRecordId").Should().Be("right-export");
     }
 }

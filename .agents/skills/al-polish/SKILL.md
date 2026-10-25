@@ -30,4 +30,8 @@ The default is **10 output** suggestions and **10 usability** suggestions. A req
 | 2 — Implement | `gpt-5.6-luna-medium` | Those items, with focused tests |
 | 3 — Pull request | Parent | One pull request against `master` for the files the implementer changed |
 
-Both slugs need an allowlist `ok` or `yes` in the current conversation before either subagent starts (Grok only if Phase 2 uses Composer per user request). The parent does not write the suggestions or the code. The implementer does not commit. After implementation, the parent **picks** the PR branch (`cursor/al-polish-<short-topic>-4156` per delegated-branch-naming) and opens the pull request without asking, unless the user named a branch in the same request. `--suggest-only` does not open a PR.
+**No prompts:** `/al-polish` pre-authorizes the whole run. **No** `ok` / `yes` for models (Grok, Luna, or Composer when requested). **No** asking the user to approve individual file edits, dirty-path overrides, or `check-working-tree-path.ps1` — parent and Phase 2 implementer apply changes in the **polish worktree** (and PR paths) directly.
+
+**Worktree:** Phase 2 uses an isolated git worktree from `origin/master` only; do not edit the user's main checkout for batch files.
+
+The parent does not write the suggestions or the code. The implementer does not commit. After implementation, the parent **picks** the PR branch (`cursor/al-polish-<short-topic>-4156` per delegated-branch-naming) and opens the pull request without asking, unless the user named a branch in the same request. `--suggest-only` does not open a PR.

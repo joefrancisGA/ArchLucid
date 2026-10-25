@@ -332,6 +332,71 @@ public sealed class SecurityEvidencePathRankCalculatorTests
             .Subject.Source.Should().Contain("defender-assessment-medium");
     }
 
+    [Fact]
+    public void Evaluate_high_alert_cites_attack_path_and_vulnerability_count_without_stacking()
+    {
+        Guid cloudResourceId = Guid.NewGuid();
+        IReadOnlyList<SecurityEvidencePathHopRecord> hops =
+        [
+            new SecurityEvidencePathHopRecord
+            {
+                HopRowId = Guid.NewGuid(),
+                PathId = PathIdA,
+                TenantId = TenantId,
+                HopOrdinal = 1,
+                FromNodeId = SecureNowArchitectConstants.InternetPublicExposureNodeId,
+                ToNodeId = "resource:vm/vm1",
+                EdgeType = SecureNowArchitectConstants.PublicNetworkAccessHopEdgeType,
+                ProvenanceKind = ProvenanceKind.ObservedFact,
+                HopConfidenceBand = PathConfidenceBand.Confirmed,
+                EvidenceReference = "test:public",
+                CloudResourceId = cloudResourceId,
+            },
+        ];
+        SecurityEvidencePathRecord path = BuildPath(
+            PathIdA,
+            PathKind.ToxicCombination,
+            PathConfidenceBand.Confirmed,
+            crownJewelAssertionId: null,
+            hops);
+        SecurityEvidencePathRankEvaluation highBand =
+            SecurityEvidencePathRankCalculator.Evaluate(
+                path,
+                hops,
+                subscriptionDefenderBand: DefenderSecureScoreOrdinalBand.High);
+        SecurityEvidencePathRankEvaluation withFacts =
+            SecurityEvidencePathRankCalculator.Evaluate(
+                path,
+                hops,
+                subscriptionDefenderBand: DefenderSecureScoreOrdinalBand.High,
+                hopPosture: new DefenderHopPostureEvidence
+                {
+                    HighAlertCloudResourceIds = new HashSet<Guid> { cloudResourceId },
+                    AttackPathCitationByCloudResourceId = new Dictionary<Guid, string>
+                    {
+                        [cloudResourceId] = "path-9 High",
+                    },
+                    CriticalOrHighVulnerabilityCountByCloudResourceId = new Dictionary<Guid, int>
+                    {
+                        [cloudResourceId] = 2,
+                    },
+                    GovernanceDueByCloudResourceId = new Dictionary<Guid, string>
+                    {
+                        [cloudResourceId] = "key-1 2026-11-01",
+                    },
+                });
+
+        withFacts.BlastRadiusScore.Should().Be(highBand.BlastRadiusScore + 0.75m);
+        withFacts.Contributions
+            .Should()
+            .ContainSingle(item => item.Dimension == SecurityEvidencePathRankDimension.BlastRadius)
+            .Subject.Source.Should().Contain("defender-alert-high");
+        withFacts.ExplanationSummary.Should().Contain("path-9");
+        withFacts.ExplanationSummary.Should().Contain("2 critical or high vulnerability findings");
+        withFacts.ExplanationSummary.Should().Contain("key-1 2026-11-01");
+        withFacts.ExplanationSummary.Should().NotContain("CVE-");
+    }
+
     private static SecurityEvidencePathRecord BuildPath(
         Guid pathId,
         PathKind pathKind,
