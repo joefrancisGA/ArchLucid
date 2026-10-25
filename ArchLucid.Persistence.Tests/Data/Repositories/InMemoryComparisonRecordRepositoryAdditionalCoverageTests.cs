@@ -547,6 +547,20 @@ public sealed class InMemoryComparisonRecordRepositoryAdditionalCoverageTests
     }
 
     [SkippableFact]
+    public async Task GetByExportRecordIdAsync_matches_when_lookup_export_id_differs_only_by_casing()
+    {
+        InMemoryComparisonRecordRepository sut = new();
+        ComparisonRecord r = Row("c-export-casing", TimeProvider.System.UtcNowDateTime());
+        r.LeftExportRecordId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+        await sut.CreateAsync(r, CancellationToken.None);
+
+        IReadOnlyList<ComparisonRecord> list =
+            await sut.GetByExportRecordIdAsync("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", CancellationToken.None);
+
+        list.Should().ContainSingle(x => x.ComparisonRecordId == "c-export-casing");
+    }
+
+    [SkippableFact]
     public async Task UpdateLabelAndTags_unknown_id_returns_false()
     {
         InMemoryComparisonRecordRepository sut = new();

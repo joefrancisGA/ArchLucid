@@ -402,6 +402,52 @@ public sealed class CompareQualityComparisonsApplicationServiceTests
     }
 
     [Fact]
+    public async Task CompareQuality_TryListByExportRecordIdAsync_lists_records_when_query_differs_only_by_casing()
+    {
+        const string storedExportRecordId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+        const string lookupExportRecordId = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
+        const string runId = "dddddddddddddddddddddddddddddddd";
+
+        InMemoryComparisonRecordRepository comparisonRecords = new();
+        await comparisonRecords.CreateAsync(
+            new ComparisonRecord
+            {
+                ComparisonRecordId = "cmp-by-export-casing",
+                ComparisonType = ComparisonTypes.ExportRecordDiff,
+                LeftExportRecordId = storedExportRecordId,
+                RightExportRecordId = "other-export",
+                CreatedUtc = DateTime.UtcNow,
+            },
+            CancellationToken.None);
+
+        Mock<IRunExportRecordRepository> exportRecords = new();
+        exportRecords
+            .Setup(r => r.GetByIdAsync(lookupExportRecordId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunExportRecord { ExportRecordId = storedExportRecordId, RunId = runId });
+
+        Mock<IRunDetailQueryService> runDetail = new();
+        runDetail
+            .Setup(s => s.GetRunDetailAsync(runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchitectureRunDetail { Run = new() { RunId = runId } });
+
+        ComparisonsApplicationService sut = new(
+            runDetail.Object,
+            exportRecords.Object,
+            comparisonRecords,
+            new Mock<IComparisonReplayService>().Object,
+            new Mock<ICompareRunsApplicationFacade>().Object,
+            new Mock<IComparisonReplayCostEstimator>().Object,
+            new Mock<IDriftReportFormatter>().Object,
+            new DriftReportDocxExport());
+
+        IReadOnlyList<ComparisonRecord>? listed =
+            await sut.TryListByExportRecordIdAsync(lookupExportRecordId, CancellationToken.None);
+
+        listed.Should().NotBeNull();
+        listed!.Should().ContainSingle(r => r.ComparisonRecordId == "cmp-by-export-casing");
+    }
+
+    [Fact]
     public async Task CompareQuality_TryListByExportRecordIdAsync_lists_records_when_query_uses_padded_export_record_id()
     {
         const string exportRecordId = "export-anchor-id";

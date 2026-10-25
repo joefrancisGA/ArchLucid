@@ -72,8 +72,8 @@ public sealed partial class ComparisonRecordRepository
                       SELECT TOP 200
                           {ComparisonRecordListSql.SelectColumnsWithoutPayloadJson}
                       FROM ComparisonRecords
-                      WHERE LTRIM(RTRIM(LeftExportRecordId)) = @ExportRecordId
-                         OR LTRIM(RTRIM(RightExportRecordId)) = @ExportRecordId
+                      WHERE LOWER(LTRIM(RTRIM(LeftExportRecordId))) = LOWER(@ExportRecordId)
+                         OR LOWER(LTRIM(RTRIM(RightExportRecordId))) = LOWER(@ExportRecordId)
                       ORDER BY CreatedUtc DESC;
                       """;
 

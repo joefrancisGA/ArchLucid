@@ -105,6 +105,28 @@ public abstract class ComparisonRecordRepositoryContractTests
     }
 
     [SkippableFact]
+    public async Task GetByExportRecordIdAsync_finds_row_when_lookup_export_id_differs_only_by_casing()
+    {
+        SkipIfSqlServerUnavailable();
+        IComparisonRecordRepository repo = CreateRepository();
+        const string storedExportRecordId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+        const string lookupExportRecordId = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
+        ComparisonRecord row = CreateRecord(
+            "cmp_exp_case_" + Guid.NewGuid().ToString("N"),
+            "export-record-diff");
+        row.LeftExportRecordId = storedExportRecordId;
+        row.RightExportRecordId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb";
+
+        await BeforeSqlComparisonRecordPersistAsync(row, CancellationToken.None);
+        await repo.CreateAsync(row, CancellationToken.None);
+
+        IReadOnlyList<ComparisonRecord> list =
+            await repo.GetByExportRecordIdAsync(lookupExportRecordId, CancellationToken.None);
+
+        list.Should().ContainSingle(r => r.ComparisonRecordId == row.ComparisonRecordId);
+    }
+
+    [SkippableFact]
     public async Task GetByRunId_returns_matches()
     {
         SkipIfSqlServerUnavailable();
