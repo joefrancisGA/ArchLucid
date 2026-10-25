@@ -1131,7 +1131,7 @@
 - [x] (valid-no-repro) `AzureInventoryVnetCustomDnsIndex.AppendDnsServersFromJsonArray` — numeric JSON elements skipped — **cheap-disproof 2026-10-23 seed hunt #108:** numeric octet, packed uint32, and object-shaped elements covered by `AzureInventoryVnetCustomDnsIndexTests`.
 - [x] (valid-no-repro) `AzureInventoryPrivateEndpointDnsJoinIndex.BuildComputeToVnetMap` — VNet ARM ids not normalized — **cheap-disproof 2026-10-23 seed hunt #108:** `ArmResourceIdNormalizer.Normalize` applied on assignment.
 - [x] (valid-no-repro) `AzureInventoryReachabilityEdgeControlIndex.Build` — AGW/Front Door relationship ids not normalized — **cheap-disproof 2026-10-23 seed hunt #108:** `FromAzureResourceId` / `ToAzureResourceId` normalized at ingest.
-- [ ] (candidate) `AzureInventoryAdfLinkedServiceTargetResolver` — Managed Redis `redis.azure.net` private-link alias list — locus: `WithPrivateLinkAlias`; input: ADF linked service pointing at `*.redis.azure.net`; wrong outcome: dependency target host omitted vs legacy cache domain.
+- [x] (proven) `AzureInventoryAdfLinkedServiceTargetResolver.ExtractKnownHosts` — Managed Redis `redis.azure.net` hostnames omitted from `BuildHostIndex` — **hit 2026-10-25 core-azure-extractor seed hunt:** index `{name}.{location}.redis.azure.net` with privatelink alias when ARM location present; regressions `BuildHostIndex_maps_managed_redis_azure_net_host_when_location_present`, `TryResolveTargetArmId_infers_redis_linked_service_from_managed_redis_hostname`.
 - [ ] (candidate) `AzureInventoryAppSettingHostConnectionStringParser.ServiceBusEndpointRegex` — `amqps://` Service Bus connection strings — locus: `AppendServiceBusHost`; input: AMQP TLS endpoint URI; wrong outcome: no host row when only `amqps://` form is stored.
 - [ ] (candidate) `InventoryDiagramConnectionPostureCatalog` — `app-settings-hosts-container-apps-env-missing` completeness copy — locus: warning code to diagram posture resolver; input: container app env host collection warning on enrichment row; wrong outcome: generic unknown posture instead of catalog sentence.
 - [ ] (candidate) `AzureInventoryReachabilityEdgeControlIndex.RouteTableRequiresUnmodeledEdgeControl` — explicit routes without next hop suppress routes JSON — locus: `ExplicitRoutesSpecifyNextHop`; input: address-only explicit flattened routes plus appliance `routes` JSON; wrong outcome: JSON next hop ignored.
@@ -6365,13 +6365,15 @@
 - **aliases:** azure extractor; manifest schema; split from archlucid-core
 - **paths:** ArchLucid.Core/AzureExtractor/
 - **test-filter:** FullyQualifiedName~AzureExtractor
-- **hunts:** 57
-- **bugs-found:** 37
+- **hunts:** 58
+- **bugs-found:** 38
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 — Event Hub capture storage id nested under destination.properties
+- **last-hunt:** 2026-10-25
+- **last-bug:** 2026-10-25 — ADF host index omitted Managed Redis redis.azure.net hostnames
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-25 seed hunt (seed→hit): promoted ADF `BuildHostIndex` Managed Redis gap; `Microsoft.Cache/redis` rows only indexed `*.redis.cache.windows.net` so ADF linked services targeting `*.{region}.redis.azure.net` never inferred a dependency edge; index managed-redis public and privatelink hosts when `location` is present; regressions `BuildHostIndex_maps_managed_redis_azure_net_host_when_location_present` and `TryResolveTargetArmId_infers_redis_linked_service_from_managed_redis_hostname`; seeded five follow-on `(candidate)` rows; 11 `AzureInventoryAdfLinkedServiceTargetResolver` tests passed. Private beta: invited operators reviewing infra-evidence Data Factory dependencies see Redis linked services resolve to Azure Managed Redis caches on the `redis.azure.net` hostname pattern, not only legacy `redis.cache.windows.net` endpoints.
 
 2026-10-21 seed hunt (seed→hit): lane B; Event Hub capture destination.properties nesting; 1573 Core scoped tests passed.
 
@@ -6439,6 +6441,14 @@
 Split from retired `archlucid-core` (ABQ-08).
 
 ### Hypotheses
+
+- [x] (proven) `AzureInventoryAdfLinkedServiceTargetResolver.ExtractKnownHosts` — `Microsoft.Cache/redis` inventory rows only indexed `*.redis.cache.windows.net`, so ADF linked services with `TargetHost` `*.{region}.redis.azure.net` never matched `BuildHostIndex` — **hit 2026-10-25 seed hunt:** also index `{name}.{locationSlug}.redis.azure.net` and privatelink alias when ARM `location` is present; regressions `BuildHostIndex_maps_managed_redis_azure_net_host_when_location_present`, `TryResolveTargetArmId_infers_redis_linked_service_from_managed_redis_hostname`.
+
+- [ ] (candidate) `AzureInventoryAppSettingHostConnectionStringParser.ServiceBusEndpointRegex` — `Endpoint=amqps://` Service Bus connection strings — locus: `AppendServiceBusHost`; input: AMQP TLS `Endpoint=amqps://namespace.servicebus.windows.net/` from App Service / Container Apps settings; wrong outcome: no host row when operators store the TLS endpoint form instead of `sb://`.
+- [ ] (candidate) `AzureInventoryReachabilityEdgeControlIndex.RouteTableRequiresUnmodeledEdgeControl` — explicit flattened routes without `nextHopArmId` still suppress co-located `routes` JSON appliance hops — locus: `ExplicitRoutesSpecifyNextHop`; input: route table enrichment with address-only explicit keys plus virtual-appliance `routes` JSON from hosted extract; wrong outcome: JSON next hop ignored for reachability warnings.
+- [ ] (candidate) `AzureInventoryRouteTableRouteParser.CollectExplicitRouteIndexes` — non-numeric explicit route property suffixes dropped — locus: index extraction loop; input: flattened `inventory.policy.route*` keys whose suffix is not an integer; wrong outcome: explicit route omitted from NSG reachability index.
+- [ ] (candidate) `AzureInventoryMessagingAssociationExtractor.TryExtractServiceBusChild` — `forwardTo` on Service Bus **subscription** resources under topics — locus: `TryReadString(properties, "forwardTo")`; input: ARM `Microsoft.ServiceBus/namespaces/topics/subscriptions` child with `properties.forwardTo`; wrong outcome: subscription forward edge missing while queue forwards map correctly.
+- [ ] (candidate) `AzureInventoryDiagnosticDestinationParser.TryNormalizeEventHubDestination` — diagnostic setting `eventHubAuthorizationRuleId` without separate `eventHubName` — locus: Event Hub diagnostic destination normalization; input: ARM diagnostic settings JSON referencing only the authorization rule ARM id; wrong outcome: Event Hub destination host omitted from diagnostic fan-out edges.
 
 - [x] (proven) `AzureInventoryLoadBalancerBackendTrafficResolver.ResolveApplicationGatewayBackends` — Application Gateway `backendIPConfigurations` were ignored when `backendAddresses` was absent — **hit 2026-10-09 seed hunt:** resolve pool ip configurations to the NIC and keep address targets; regression `ResolveApplicationGatewayBackends_reads_ip_configuration_from_backend_pool`.
 - [x] (proven) `AzureInventoryLoadBalancerBackendTrafficResolver.ResolveLoadBalancerBackends` — Standard load balancer `loadBalancerBackendAddresses` NIC configurations were ignored — **hit 2026-10-09 seed hunt:** resolve `networkInterfaceIPConfiguration` the same way as `backendIPConfigurations`; regression `ResolveLoadBalancerBackends_reads_ip_configuration_from_backend_addresses`.
