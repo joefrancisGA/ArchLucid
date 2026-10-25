@@ -17,6 +17,8 @@ describe("security-evidence-path-presentation", () => {
     expect(formatSecurityEvidencePathConfidenceBandLabel("InsufficientEvidence")).toBe("Insufficient evidence");
     expect(formatSecurityEvidenceProvenanceKindLabel("")).toBe("Provenance was not stored.");
     expect(formatSecurityEvidencePathConfidenceBandLabel("")).toBe("Confidence band was not stored.");
+    expect(formatSecurityEvidencePathConfidenceBandLabel("UnknownBand")).toBe("Guessed");
+    expect(formatSecurityEvidenceProvenanceKindLabel("UnknownKind")).toBe("Guessed");
   });
 
   it("maps path kinds to reader-facing labels and preserves unknown values", () => {

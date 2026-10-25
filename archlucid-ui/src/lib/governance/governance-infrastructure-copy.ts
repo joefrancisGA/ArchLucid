@@ -218,7 +218,7 @@ export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SUBSCRIPTION_CHANGE_DIALOG_CONFI
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EMPTY_SNAPSHOTS_TITLE = "No inventory snapshots yet" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EMPTY_SNAPSHOTS_BODY =
-  "Connect a read-only cloud account and wait for the first inventory capture before rendering diagrams." as const;
+  "Upload an inventory ZIP on the review, or connect a read-only cloud account. This page draws a diagram after a snapshot exists." as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_RENDER_FAILED_TITLE = "Diagram render failed" as const;
 
@@ -257,10 +257,10 @@ export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_CONNECTED_SECTION =
   "Connected on the diagram" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_USED_SECTION =
-  "Referenced off this diagram. Use was not observed." as const;
+  "Named in inventory, not drawn on this diagram" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_ORPHANED_SECTION =
-  "Missing a required link" as const;
+  "No relationship stored on this diagram" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNCONNECTED_SECTION =
   "No diagram link was stored." as const;
