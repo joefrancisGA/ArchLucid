@@ -1462,7 +1462,7 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
             {ARCHITECTURE_DIAGRAM_MAP_LABEL}
           </Button>
           <span className={cn('text-al-text-secondary', OPERATOR_TYPOGRAPHY.helper)}>
-            {activeNeighborhood.title.trim().length > 0
+            {(activeNeighborhood.title ?? "").trim().length > 0
               ? activeNeighborhood.title
               : "Neighborhood title was not stored."}
           </span>
