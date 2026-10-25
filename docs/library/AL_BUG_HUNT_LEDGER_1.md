@@ -6868,6 +6868,20 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-25 seed hunt (seed→hit): proved `ComparisonRecordRepository.SearchAsync` and `ComparisonRecordRepositoryCore.OrderInMemory` used raw `ComparisonRecordId` as the sort tiebreaker while hunt 178 fixed cursor SQL ordering, so offset-paged comparison history on SQL and in-memory hosts could reorder or drop rows that share `CreatedUtc` when legacy storage left padding on primary keys; reuse `ComparisonRecordIdSql.TrimmedColumnExpression` on SQL offset `ORDER BY` and `ComparisonRecordIdLookup.TiebreakerSortKey` in shared in-memory ordering; regressions `OrderInMemory_uses_trimmed_comparison_record_id_tiebreaker_when_created_utc_equal`, `SearchAsync_orders_by_trimmed_comparison_record_id_tiebreaker_when_created_utc_equal`, and `CompareQuality_SearchAsync_offset_paging_uses_trimmed_comparison_record_id_tiebreaker`; cheap-disproof closed cursor paging (hunt 178), export id filters (`ComparisonExportRecordIdLookup`), `ApiPaging.TryParseUtcTicksIdCursor` (comparison search normalizes inbound cursor id), batch zip manifest echo (cosmetic), and Armenian homoglyphs (deferred); seeded five follow-on rows; scoped application-analysis + replay filter 341/341. Private beta: comparison history offset paging returns stable pages when legacy rows used padded comparison record ids with identical timestamps.
+
+- [ ] (candidate) `ComparisonRecordSearchPredicateBuilder` — run id SQL filters vs dashed stored — locus: SQL search; input: GUID columns coerce shapes.
+- [ ] (candidate) `ComparisonRecordListProjection` — trim comparison id on list materialize only — locus: read path; input: covered by GetById hunt 177.
+- [ ] (candidate) `ApiPaging.TryParseUtcTicksIdCursor` — cursor id segment without trim — locus: HTTP cursor parse; input: padded id after ticks delimiter (alerts inbox and other API surfaces).
+- [ ] (candidate) `ComparisonBatchReplayZipSupport` — manifest failure entries echo pre-trim batch tokens — locus: zip manifest; input: cosmetic id echo only.
+- [ ] (candidate) `ComparisonExportMarkdownSectionRemover` — Armenian homoglyphs — locus: deferred expansion.
+
+- [x] (proven) `SearchAsync` / `OrderInMemory` — padded comparison id sort tiebreaker — **hit 2026-10-25 seed hunt:** `TiebreakerSortKey` + SQL trim expression; regressions above.
+- [x] (valid-no-repro) `SearchByCursorAsync` — cursor order — **cheap-disproof 2026-10-25 seed hunt:** hunt 178.
+- [x] (valid-no-repro) `ComparisonRecordSearchPredicateBuilder` — export id trim — **cheap-disproof 2026-10-25 seed hunt:** existing lookup helper.
+- [x] (invalid) `ApiPaging.TryParseUtcTicksIdCursor` — HTTP cursor id trim — **cheap-disproof 2026-10-25 seed hunt:** comparison search normalizes at application layer.
+- [x] (invalid) `ComparisonBatchReplayZipSupport` — manifest id echo — **cheap-disproof 2026-10-25 seed hunt:** cosmetic only.
+
 2026-10-25 seed hunt (seed→hit): proved `ComparisonRecordRepository.SearchByCursorAsync` compared raw `ComparisonRecordId` values in SQL cursor tiebreakers while hunt 177 fixed `GetById` and hunt 176 trimmed only the cursor parameter, so legacy padded primary keys could skip or duplicate rows on SQL comparison-history cursor pages, and `ReplacePayloadJsonForIntegrationTest` still used ordinal id equality; centralize trimmed id SQL via `ComparisonRecordIdSql.TrimmedColumnExpression`, normalize cursor lookup keys, and reuse `ComparisonRecordIdLookup` on the integration payload hook; regressions `SearchByCursorAsync_pages_when_legacy_stored_comparison_record_id_has_padding` (in-memory parity) and `ReplacePayloadJsonForIntegrationTest_finds_row_when_stored_comparison_record_id_has_padding`; cheap-disproof closed app-layer cursor id trim (hunt 176), `ApiPaging.TryParseUtcTicksIdCursor` (comparison search normalizes inbound cursor id), batch zip manifest echo (cosmetic), and Armenian homoglyphs (deferred); seeded five follow-on rows; scoped application-analysis + replay filter 340/340. Private beta: SQL comparison-history cursor paging and integration payload updates stay aligned with trimmed comparison record ids when legacy storage used padded keys.
 
 - [ ] (candidate) `ComparisonRecordRepository.SearchAsync` — SQL offset paging ORDER BY raw ComparisonRecordId — locus: non-cursor search; input: tiebreaker only.
@@ -8311,11 +8325,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 178
-- **bugs-found:** 184
+- **hunts:** 179
+- **bugs-found:** 185
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-25
-- **last-bug:** 2026-10-25 — SQL comparison cursor padded id parity
+- **last-bug:** 2026-10-25 — comparison search sort tiebreaker trim
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
