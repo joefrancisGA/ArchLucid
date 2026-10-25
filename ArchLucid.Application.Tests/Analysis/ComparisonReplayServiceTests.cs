@@ -117,6 +117,7 @@ public sealed class ComparisonReplayServiceTests
             CancellationToken.None);
 
         result.ComparisonRecordId.Should().Be("e2e-padded-type");
+        result.ComparisonType.Should().Be(ComparisonTypes.EndToEndReplay);
         result.Content.Should().Be("# md");
     }
 
@@ -141,6 +142,7 @@ public sealed class ComparisonReplayServiceTests
             CancellationToken.None);
 
         result.ComparisonRecordId.Should().Be("diff-padded-type");
+        result.ComparisonType.Should().Be(ComparisonTypes.ExportRecordDiff);
         result.Content.Should().Be("# diff");
     }
 

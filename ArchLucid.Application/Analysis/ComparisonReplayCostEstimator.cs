@@ -84,7 +84,7 @@ public sealed class ComparisonReplayCostEstimator(
         return new ComparisonReplayCostEstimate
         {
             ComparisonRecordId = ComparisonRecordIdNormalizer.NormalizeRequired(record.ComparisonRecordId),
-            ComparisonType = record.ComparisonType,
+            ComparisonType = ComparisonTypeNormalizer.NormalizeForLookup(record.ComparisonType),
             Format = normalizedFormat,
             ReplayMode = ComparisonReplayRequestParsing.FormatReplayMode(mode),
             PersistReplay = persistReplay,
