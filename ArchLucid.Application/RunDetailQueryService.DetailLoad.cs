@@ -48,7 +48,7 @@ public sealed partial class RunDetailQueryService
         }
 
         Task<IReadOnlyList<AgentTask>> tasksTask =
-            taskRepository.GetByRunIdAsync(scope, lookupRunId, cancellationToken);
+            LoadAgentTasksForRunLookupAsync(scope, lookupRunId, cancellationToken);
         Task<IReadOnlyList<AgentResult>> resultsTask =
             LoadAgentResultsForRunLookupAsync(scope, lookupRunId, useRollupProjection, cancellationToken);
         Task<GoldenManifest?> manifestTask =

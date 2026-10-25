@@ -127,6 +127,69 @@ public sealed class RunDetailQueryServiceApplicationTests
     }
 
     [Fact]
+    public async Task CompareQuality_GetRunDetailAsync_loads_tasks_when_stored_run_id_differs_only_by_casing()
+    {
+        ScopeContext scope = NewScope();
+        Guid runGuid = Guid.Parse("bcbcbcbc-bcbc-bcbc-bcbc-bcbcbcbcbcbc");
+        string runN = runGuid.ToString("N");
+
+        Mock<IRunRepository> runRepo = new();
+        Mock<IScopeContextProvider> scopeProvider = new();
+        Mock<IUnifiedGoldenManifestReader> unifiedReader = new();
+        Mock<IAgentResultEnrichmentRepository> enrichmentRepo = new();
+        InMemoryAgentTaskRepository taskRepo = new();
+
+        enrichmentRepo
+            .Setup(r => r.GetByResultIdsAsync(It.IsAny<IReadOnlyList<string>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new Dictionary<string, AgentResultEnrichmentRecord>(StringComparer.Ordinal));
+        InMemoryAgentResultRepository resultRepo = new(enrichmentRepo.Object);
+
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(scope);
+
+        RunRecord record = new()
+        {
+            RunId = runGuid,
+            TenantId = scope.TenantId,
+            WorkspaceId = scope.WorkspaceId,
+            ScopeProjectId = scope.ProjectId,
+            ProjectId = "p",
+            ArchitectureRequestId = "req-task-casing",
+            LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+        };
+
+        runRepo.Setup(r => r.GetByIdAsync(scope, runGuid, It.IsAny<CancellationToken>())).ReturnsAsync(record);
+        unifiedReader
+            .Setup(r => r.ReadByRunIdAsync(scope, runGuid, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((GoldenManifest?)null);
+
+        await taskRepo.CreateManyAsync(
+            [new AgentTask { RunId = runN.ToUpperInvariant(), TaskId = "task-casing-1", AgentType = AgentType.Topology }],
+            CancellationToken.None);
+
+        RunDetailQueryService sut = new(
+            runRepo.Object,
+            scopeProvider.Object,
+            taskRepo,
+            resultRepo,
+            unifiedReader.Object,
+            Mock.Of<IDecisionTraceRepository>(),
+            Mock.Of<IFindingRecordMuteRepository>(),
+            Mock.Of<IAgentExecutionTraceRepository>(),
+            Mock.Of<ILlmCostEstimator>(),
+            new FindingTrustLabelMapper(),
+            Mock.Of<IRunStageOutcomesRepository>(),
+            new RunStateTransitionService(),
+            Mock.Of<ILogger<RunDetailQueryService>>());
+
+        ArchitectureRunDetail? detail = await sut.GetRunDetailAsync(runN);
+
+        detail.Should().NotBeNull();
+        detail!.Tasks.Should().ContainSingle();
+        detail.Tasks[0].TaskId.Should().Be("task-casing-1");
+    }
+
+    [Fact]
     public async Task CompareQuality_GetRunDetailAsync_loads_llm_cost_when_trace_run_id_differs_only_by_casing()
     {
         ScopeContext scope = NewScope();

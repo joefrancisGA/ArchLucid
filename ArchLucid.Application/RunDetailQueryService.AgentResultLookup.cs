@@ -7,6 +7,24 @@ namespace ArchLucid.Application;
 
 public sealed partial class RunDetailQueryService
 {
+    private async Task<IReadOnlyList<AgentTask>> LoadAgentTasksForRunLookupAsync(
+        ScopeContext scope,
+        string primaryLookupRunId,
+        CancellationToken cancellationToken)
+    {
+        foreach (string lookupKey in AnalysisRunIdCanonicalization.EnumerateRunIdRepositoryLookupKeys(primaryLookupRunId))
+        {
+            IReadOnlyList<AgentTask> tasks = await taskRepository
+                .GetByRunIdAsync(scope, lookupKey, cancellationToken)
+                .ConfigureAwait(false);
+
+            if (tasks is { Count: > 0 })
+                return tasks;
+        }
+
+        return [];
+    }
+
     private async Task<IReadOnlyList<AgentResult>> LoadAgentResultsForRunLookupAsync(
         ScopeContext scope,
         string primaryLookupRunId,
