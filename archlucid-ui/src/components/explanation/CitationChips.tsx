@@ -32,14 +32,14 @@ function citationHref(c: CitationReference, runId: string, buyerPolishedShell: b
 
   switch (c.kind) {
     case "Manifest":
-      return signedRecordDetailPath(c.id);
+      return signedRecordDetailPath(trimmedCitationId);
     case "Finding":
 
       if (buyerPolishedShell) {
-        return `/architecture/reviews/${encodeURIComponent(trimmedRunId)}/findings/${encodeURIComponent(c.id)}`;
+        return `/architecture/reviews/${encodeURIComponent(trimmedRunId)}/findings/${encodeURIComponent(trimmedCitationId)}`;
       }
 
-      return `/architecture/reviews/${encodeURIComponent(trimmedRunId)}#finding-${encodeURIComponent(c.id)}`;
+      return `/architecture/reviews/${encodeURIComponent(trimmedRunId)}#finding-${encodeURIComponent(trimmedCitationId)}`;
     case "DecisionTrace":
     case "GraphSnapshot":
     case "ContextSnapshot":

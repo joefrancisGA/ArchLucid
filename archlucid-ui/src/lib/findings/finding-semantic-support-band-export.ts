@@ -170,7 +170,7 @@ export function formatCareerExportSemanticSupportBandMarkdownSection(
   }
 
   const lines = [
-    "## Semantic support",
+    "## Semantic support (decision-grade)",
     "",
     `Scorer version: \`${stamp.scorerVersion}\`.`,
     stamp.stampLine,
