@@ -11,33 +11,7 @@ export type FindingSeverityInspectCopy = {
   suggestedNext: string;
 };
 
-function severityLabelForHonestyCopy(severityRaw: string): string {
-  const trimmed = severityRaw.trim();
-  const lowered = trimmed.toLowerCase();
-
-  if (lowered.includes("critical") || lowered.includes(" blocker") || lowered === "blocking") {
-    return "Critical";
-  }
-
-  if (lowered.includes("high")) {
-    return "High";
-  }
-
-  if (lowered.includes("medium") || lowered.includes("moderate")) {
-    return "Medium";
-  }
-
-  if (
-    lowered.includes("low")
-    || lowered.includes("info")
-    || lowered.includes("informational")
-    || lowered.includes("minor")
-  ) {
-    return "Low";
-  }
-
-  return trimmed;
-}
+const NEXT_STEP_NOT_STORED_WITH_SEVERITY = "A next step was not stored with this severity label.";
 
 export function findingSeverityAudienceCopy(severityRaw: string): FindingSeverityInspectCopy {
   const trimmed = severityRaw.trim();
@@ -46,11 +20,9 @@ export function findingSeverityAudienceCopy(severityRaw: string): FindingSeverit
     return { meaningForOperators: "", suggestedNext: "" };
   }
 
-  const label = severityLabelForHonestyCopy(trimmed);
-
   return {
-    meaningForOperators: `This sentence reads the severity label ${label}. A stored impact was not stored.`,
-    suggestedNext: "A next step was not stored.",
+    meaningForOperators: `Stored severity is ${trimmed}.`,
+    suggestedNext: NEXT_STEP_NOT_STORED_WITH_SEVERITY,
   };
 }
 
@@ -61,19 +33,7 @@ export function findingTraceCompletenessPlainEnglish(ratioPct: number): string {
     return "Unavailable — this review did not record a completeness score.";
   }
 
-  if (r >= 90) {
-    return "Most explainability fields were present. A quality rating was not stored.";
-  }
-
-  if (r >= 60) {
-    return "Core explainability fields were present. A quality rating was not stored.";
-  }
-
-  if (r >= 30) {
-    return "Some explainability fields were present. A quality rating was not stored.";
-  }
-
-  return "Few explainability fields were present. A quality rating was not stored.";
+  return "Trace field fill was stored. It does not confirm the finding.";
 }
 
 /** Operator-facing policy rule id from explainability payloads (unspecified → honesty). */
@@ -221,19 +181,11 @@ function traceDimensionClause(missingCount: number): string {
 }
 
 function confidenceLeadIn(label: string | null): string {
-  if (label === "High") {
-    return "The conclusion is well corroborated:";
+  if (label === "High" || label === "Medium" || label === "Low") {
+    return `Stored confidence is ${label}.`;
   }
 
-  if (label === "Medium") {
-    return "The conclusion is partly corroborated:";
-  }
-
-  if (label === "Low") {
-    return "The conclusion is stated clearly, but weakly corroborated:";
-  }
-
-  return "This review did not score confidence for the finding:";
+  return "Confidence was not stored.";
 }
 
 /**

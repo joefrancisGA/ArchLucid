@@ -381,7 +381,7 @@ internal static class DiagramEdgeLabelHumanizer
             || string.Equals(value, GraphEdgeInferenceSources.InventoryNicSubnet, StringComparison.OrdinalIgnoreCase)
             || string.Equals(value, GraphEdgeInferenceSources.InventoryPeSubnet, StringComparison.OrdinalIgnoreCase))
         {
-            humanized = "in";
+            humanized = "Subnet placement.";
 
             return true;
         }
@@ -476,7 +476,7 @@ internal static class DiagramEdgeLabelHumanizer
         if (string.Equals(value, GraphEdgeInferenceSources.InventoryIdentityRoleAssignment, StringComparison.OrdinalIgnoreCase)
             || string.Equals(value, AzureInventoryRelationshipAssociationTypes.IdentityToRoleAssignment, StringComparison.OrdinalIgnoreCase))
         {
-            humanized = "Uses identity";
+            humanized = "Identity role assignment. This is not observed use.";
 
             return true;
         }
@@ -493,7 +493,7 @@ internal static class DiagramEdgeLabelHumanizer
         if (string.Equals(value, GraphEdgeInferenceSources.InventoryAppKeyVaultRef, StringComparison.OrdinalIgnoreCase)
             || string.Equals(value, AzureInventoryRelationshipAssociationTypes.AppToKeyVaultRef, StringComparison.OrdinalIgnoreCase))
         {
-            humanized = "Uses vault";
+            humanized = "Key Vault host named in app settings. This is not an access grant.";
 
             return true;
         }
@@ -574,7 +574,7 @@ internal static class DiagramEdgeLabelHumanizer
         if (string.Equals(value, GraphEdgeInferenceSources.InventoryFirewallSubnet, StringComparison.OrdinalIgnoreCase)
             || string.Equals(value, AzureInventoryRelationshipAssociationTypes.FirewallToSubnet, StringComparison.OrdinalIgnoreCase))
         {
-            humanized = "Firewall is associated with the subnet. Protection was not observed.";
+            humanized = "Firewall subnet association. This is not observed filtering.";
 
             return true;
         }
