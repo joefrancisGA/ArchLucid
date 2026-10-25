@@ -76,6 +76,21 @@ public sealed class ComparisonRecordScopedReadNormalizerTests
     }
 
     [Fact]
+    public void CompareQuality_comparison_record_scoped_read_normalizer_dedupes_tags_that_differ_only_by_casing()
+    {
+        ComparisonRecord record = new()
+        {
+            ComparisonRecordId = "cmp-tag-dedupe-casing",
+            ComparisonType = ComparisonTypes.EndToEndReplay,
+            Tags = ["Release-Alpha", "release-alpha", "beta"],
+        };
+
+        ComparisonRecordScopedReadNormalizer.NormalizeInPlace(record);
+
+        record.Tags.Should().Equal("Release-Alpha", "beta");
+    }
+
+    [Fact]
     public void CompareQuality_comparison_record_scoped_read_normalizer_clears_unknown_comparison_type_and_format()
     {
         ComparisonRecord record = new()

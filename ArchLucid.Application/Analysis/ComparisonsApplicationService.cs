@@ -184,6 +184,12 @@ public sealed partial class ComparisonsApplicationService(
 
         string? normalizedLabel = NormalizeLabelForPersistOrNull(label);
         IReadOnlyList<string>? normalizedTags = tags is null ? null : NormalizeSearchTags(tags);
+        if (normalizedTags is { Count: > 0 })
+        {
+            List<string> tagList = [.. normalizedTags];
+            ComparisonPersistedStringListNormalizer.NormalizeInPlace(tagList);
+            normalizedTags = tagList;
+        }
 
         bool updated = await _comparisonRecordRepository.UpdateLabelAndTagsAsync(
             normalizedComparisonRecordId,

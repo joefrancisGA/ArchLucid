@@ -26,7 +26,7 @@ internal static class ComparisonPersistedStringListNormalizer
         if (items.Count < 2)
             return;
 
-        HashSet<string> seen = new(StringComparer.Ordinal);
+        HashSet<string> seen = new(StringComparer.OrdinalIgnoreCase);
         List<string> distinct = [];
 
         foreach (string item in items)

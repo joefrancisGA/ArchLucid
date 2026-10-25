@@ -1241,6 +1241,55 @@ public sealed class CompareQualityComparisonsApplicationServiceTests
     }
 
     [Fact]
+    public async Task CompareQuality_TryUpdateLabelAndTagsAsync_dedupes_tags_that_differ_only_by_casing()
+    {
+        const string comparisonRecordId = "cmp-update-tag-dedupe";
+        const string runId = "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee";
+
+        InMemoryComparisonRecordRepository comparisonRecords = new();
+        await comparisonRecords.CreateAsync(
+            new ComparisonRecord
+            {
+                ComparisonRecordId = comparisonRecordId,
+                ComparisonType = ComparisonTypes.EndToEndReplay,
+                LeftRunId = runId,
+                RightRunId = "ffffffffffffffffffffffffffffffff",
+                CreatedUtc = DateTime.UtcNow,
+            },
+            CancellationToken.None);
+
+        Mock<IRunDetailQueryService> runDetail = new();
+        runDetail
+            .Setup(s => s.GetRunDetailAsync(runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchitectureRunDetail { Run = new() { RunId = runId } });
+
+        ComparisonsApplicationService sut = new(
+            runDetail.Object,
+            new Mock<IRunExportRecordRepository>().Object,
+            comparisonRecords,
+            new Mock<IComparisonReplayService>().Object,
+            new Mock<ICompareRunsApplicationFacade>().Object,
+            new Mock<IComparisonReplayCostEstimator>().Object,
+            new Mock<IDriftReportFormatter>().Object,
+            new DriftReportDocxExport());
+
+        ComparisonRecord? updated = await sut.TryUpdateLabelAndTagsAsync(
+            comparisonRecordId,
+            label: null,
+            tags: ["release-alpha", "Release-Alpha", "beta"],
+            CancellationToken.None);
+
+        updated.Should().NotBeNull();
+        updated!.Tags.Should().Equal("release-alpha", "beta");
+
+        ComparisonHistorySearchResult search = await sut.SearchAsync(
+            new ComparisonHistorySearchCriteria { Tags = ["RELEASE-ALPHA"], Limit = 10 },
+            CancellationToken.None);
+
+        search.Records.Should().ContainSingle(r => r.ComparisonRecordId == comparisonRecordId);
+    }
+
+    [Fact]
     public async Task CompareQuality_TryUpdateLabelAndTagsAsync_trims_label_and_tags_on_persist()
     {
         const string comparisonRecordId = "cmp-update-trim";
