@@ -19,6 +19,7 @@ import {
   readFindingProjectedImpactInterval,
   readFindingProjectedImpactUsd,
 } from "@/lib/findings/findings-what-if-analysis";
+import { RUN_FINDING_EXPLAINABILITY_TITLE_OMITTED } from "@/components/runs/RunFindingExplainabilityTable";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 import { Label } from "@/components/ui/label";
 
@@ -218,7 +219,11 @@ export function FindingsWhatIfAnalysisPanel(props: FindingsWhatIfAnalysisPanelPr
                   onChange={() => toggleFinding(row.finding.findingId)}
                 />
                 <span className="min-w-0 flex-1">
-                  <span className="font-medium">{row.finding.title}</span>
+                  <span className="font-medium">
+                    {row.finding.title.trim().length > 0
+                      ? row.finding.title
+                      : RUN_FINDING_EXPLAINABILITY_TITLE_OMITTED}
+                  </span>
                   {row.savingsUsd === null ? (
                     <span className={cn("ml-2 text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>
                       Projected savings were not stored.

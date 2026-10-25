@@ -51,15 +51,19 @@ function addEntityNodes(
   kind: ArchitectureDiagramNodeKind,
   nodes: ArchitectureDiagramNode[],
   usedIds: Set<string>,
+  skippedUnlabeled: { count: number },
 ): void {
   let index = nodes.length;
 
   for (const entity of entities) {
     if (entity.label.trim().length === 0) {
+      skippedUnlabeled.count += 1;
       continue;
     }
 
-    nodes.push(createNode(entity.label, kind, entity.provenance, usedIds, index));
+    const label = entity.label.trim();
+
+    nodes.push(createNode(label, kind, entity.provenance, usedIds, index));
     index += 1;
   }
 }
@@ -212,6 +216,7 @@ function addFlowEdges(
   parseResult: ArchitectureStructuredParseResult,
   nodes: readonly ArchitectureDiagramNode[],
   edges: ArchitectureDiagramEdge[],
+  unmatchedDataFlows: string[],
 ): void {
   const flowSection = parseResult.sections.find((section) => section.key === "data-flows");
 
@@ -221,10 +226,24 @@ function addFlowEdges(
 
   let edgeIndex = edges.length;
 
+  const recordUnmatchedFlow = (raw: string): void => {
+    const normalized = raw.trim();
+
+    if (normalized.length > 0) {
+      unmatchedDataFlows.push(normalized);
+    }
+  };
+
   for (const entity of flowSection.entities ?? []) {
     const { flowText, trailingEdgeLabel } = resolveEntityFlowParseText(entity);
+    const parsedEndpoints = parseFlowEndpoints(flowText, nodes);
 
-    for (const endpoints of parseFlowEndpoints(flowText, nodes)) {
+    if (parsedEndpoints.length === 0) {
+      recordUnmatchedFlow(flowText);
+      continue;
+    }
+
+    for (const endpoints of parsedEndpoints) {
       const edgeLabel = endpoints.label.length > 0
         ? endpoints.label
         : trailingEdgeLabel.length > 0
@@ -247,7 +266,14 @@ function addFlowEdges(
     const lines = flowSection.narrativeMarkdown.split(/\r?\n/);
 
     for (const line of lines) {
-      for (const endpoints of parseFlowEndpoints(line, nodes)) {
+      const parsedLineEndpoints = parseFlowEndpoints(line, nodes);
+
+      if (parsedLineEndpoints.length === 0) {
+        recordUnmatchedFlow(line);
+        continue;
+      }
+
+      for (const endpoints of parsedLineEndpoints) {
         edges.push({
           id: `edge_${edgeIndex}`,
           sourceId: endpoints.sourceId,
@@ -269,17 +295,19 @@ export function buildArchitectureDiagramModel(
   const byKey = new Map(parseResult.sections.map((section) => [section.key, section]));
   const nodes: ArchitectureDiagramNode[] = [];
   const edges: ArchitectureDiagramEdge[] = [];
+  const unmatchedDataFlows: string[] = [];
   const usedIds = new Set<string>();
+  const skippedUnlabeled = { count: 0 };
 
-  addEntityNodes(byKey.get("users-and-stakeholders")?.entities ?? [], "user", nodes, usedIds);
-  addEntityNodes(byKey.get("systems-and-services")?.entities ?? [], "system", nodes, usedIds);
-  addEntityNodes(byKey.get("external-integrations")?.entities ?? [], "external", nodes, usedIds);
+  addEntityNodes(byKey.get("users-and-stakeholders")?.entities ?? [], "user", nodes, usedIds, skippedUnlabeled);
+  addEntityNodes(byKey.get("systems-and-services")?.entities ?? [], "system", nodes, usedIds, skippedUnlabeled);
+  addEntityNodes(byKey.get("external-integrations")?.entities ?? [], "external", nodes, usedIds, skippedUnlabeled);
 
   if (architectureNameAddsDiagramNode(architectureName, nodes.map((node) => node.label))) {
     nodes.push(createNode(architectureName.trim(), "system", "asserted", usedIds, nodes.length));
   }
 
-  addFlowEdges(parseResult, nodes, edges);
+  addFlowEdges(parseResult, nodes, edges, unmatchedDataFlows);
 
   const trustBoundaryLabels =
     byKey.get("trust-boundaries")?.entities?.map((entity) => entity.label).filter((label) => label.trim().length > 0) ?? [];
@@ -288,6 +316,8 @@ export function buildArchitectureDiagramModel(
     nodes,
     edges,
     trustBoundaryLabels,
+    skippedUnlabeledEntityCount: skippedUnlabeled.count,
+    unmatchedDataFlows,
   };
 }
 
@@ -305,5 +335,7 @@ export function applyArchitectureDiagramOverrides(
       .map((edge) => edgeOverrideMap.get(edge.id) ?? edge)
       .filter((edge) => !edge.removed),
     trustBoundaryLabels: model.trustBoundaryLabels,
+    skippedUnlabeledEntityCount: model.skippedUnlabeledEntityCount,
+    unmatchedDataFlows: model.unmatchedDataFlows,
   };
 }
