@@ -65,7 +65,7 @@ export function formatInsightDensityBandLabel(score: number | null | undefined):
   }
 
   if (score === null || score === undefined || !Number.isFinite(score)) {
-    return `${band.label} band · Score not returned`;
+    return `${band.label} band · Insight density score was not stored.`;
   }
 
   return `${band.label} band · score ${Math.trunc(score)}`;

@@ -6,3 +6,7 @@ export const GOVERNANCE_QUEUE_DECISION_CATEGORY_NOT_STORED = "Decision category 
 export const GOVERNANCE_QUEUE_DECISION_TITLE_NOT_STORED = "Decision title was not stored." as const;
 export const GOVERNANCE_QUEUE_DECISION_STATUS_NOT_STORED = "Decision status was not stored." as const;
 export const GOVERNANCE_QUEUE_REVIEW_NAME_NOT_STORED = "Review name was not stored." as const;
+export const GOVERNANCE_QUEUE_REVIEW_TITLE_NOT_STORED = "Review title was not stored." as const;
+export const GOVERNANCE_QUEUE_CATEGORY_NOT_STORED = "Category was not stored." as const;
+export const GOVERNANCE_QUEUE_LINKED_REVIEW_RECORD_NOT_STORED =
+  "Linked review record was not stored." as const;

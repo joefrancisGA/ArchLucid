@@ -94,7 +94,7 @@ public sealed class PrivilegePathEngine(
                 ProjectId = scope.ProjectId,
                 SnapshotId = snapshotId,
                 PathKind = PathKind.Privilege,
-                PathConfidenceBand = PathConfidenceBand.Confirmed,
+                PathConfidenceBand = SecurityEvidencePathConfidenceBandResolver.ResolveWeakestHopBand(hopRecords),
                 CreatedUtc = utcNow,
                 UpdatedUtc = utcNow,
             };

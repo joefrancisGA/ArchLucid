@@ -21,7 +21,8 @@ internal static class SharedControlBlastRadiusNarrative
         };
 
         return $"Centralization improves consistency and increases correlated failure. "
-               + $"This {controlKind} cites {candidate.DependentCount} snapshot dependents via observed assignments.";
+               + $"This {controlKind} cites {candidate.DependentCount} snapshot dependents via derived fan-out edges "
+               + "(not observed runtime assignments).";
     }
 
     private static string ShortNodeLabel(string nodeId)

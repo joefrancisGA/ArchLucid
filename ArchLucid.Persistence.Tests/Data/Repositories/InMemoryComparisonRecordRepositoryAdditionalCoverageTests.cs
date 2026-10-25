@@ -112,6 +112,20 @@ public sealed class InMemoryComparisonRecordRepositoryAdditionalCoverageTests
     }
 
     [SkippableFact]
+    public async Task GetByExportRecordIdAsync_matches_when_stored_anchor_has_surrounding_whitespace()
+    {
+        InMemoryComparisonRecordRepository sut = new();
+        ComparisonRecord r = Row("c-padded", TimeProvider.System.UtcNowDateTime());
+        r.LeftExportRecordId = "  exp-left  ";
+        await sut.CreateAsync(r, CancellationToken.None);
+
+        IReadOnlyList<ComparisonRecord> list =
+            await sut.GetByExportRecordIdAsync("exp-left", CancellationToken.None);
+
+        list.Should().ContainSingle(x => x.ComparisonRecordId == "c-padded");
+    }
+
+    [SkippableFact]
     public async Task UpdateLabelAndTags_unknown_id_returns_false()
     {
         InMemoryComparisonRecordRepository sut = new();

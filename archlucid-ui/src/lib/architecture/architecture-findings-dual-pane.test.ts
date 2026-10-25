@@ -74,7 +74,8 @@ describe("architecture-findings-dual-pane SoT", () => {
 
     expect(sync.matchKind).toBe("label-heuristic");
     expect(sync.matchedNodeId).toBe("claims_api");
-    expect(formatLinkedComponentStatus(sync)).toContain("Claims API");
+    expect(formatLinkedComponentStatus(sync)).toContain("Title overlap only");
+    expect(formatLinkedComponentStatus(sync)).not.toContain("Linked component:");
   });
 
   it("returns none when nothing matches", () => {

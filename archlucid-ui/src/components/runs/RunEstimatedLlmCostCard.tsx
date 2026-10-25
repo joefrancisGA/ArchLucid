@@ -32,9 +32,9 @@ function formatCostEstimationBasis(basis: string): string {
     case "estimation-disabled":
       return "Estimation disabled on host";
     case "unavailable":
-      return "Unavailable";
+      return "Estimation basis was not stored.";
     default:
-      return basis.trim().length > 0 ? basis : "Unavailable";
+      return basis.trim().length > 0 ? basis : "Estimation basis was not stored.";
   }
 }
 
@@ -112,9 +112,9 @@ export function RunEstimatedLlmCostCard(props: {
         ) : (
           <>
             <p className="m-0 font-medium tabular-nums text-neutral-900 dark:text-neutral-100">
-              {telemetry.prompt + telemetry.completion > 0 && telemetry.rawCost !== undefined
+              {telemetry.rawCost !== undefined
                 ? formatUsd(telemetry.rawCost)
-                : "USD estimate unavailable"}
+                : "Estimated cost was not stored."}
             </p>
             <dl className="m-0 grid gap-1 sm:grid-cols-[minmax(7rem,auto)_1fr] sm:gap-x-4">
               <dt className="text-neutral-600 dark:text-neutral-400">Total tokens</dt>

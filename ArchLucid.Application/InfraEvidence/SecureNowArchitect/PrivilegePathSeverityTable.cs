@@ -24,6 +24,17 @@ public static class PrivilegePathSeverityTable
         }
 
         string normalizedRole = roleName?.Trim() ?? string.Empty;
+
+        if (normalizedRole.Length == 0)
+        {
+            return new PrivilegePathSeverityResult
+            {
+                Severity = string.Empty,
+                BusinessCriticality = "Unknown",
+                BlastRadius = "Unknown",
+            };
+        }
+
         string severity = ResolveBaseSeverity(normalizedRole);
 
         if (scopeTaggedProduction && IsElevatedRole(normalizedRole))
