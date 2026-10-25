@@ -856,6 +856,18 @@ describe("consumePkceState", () => {
       flow: "primary",
     });
   });
+
+  it("rejects PKCE consume when tampered session state contains interior vertical-tab control characters", () => {
+    storePkceState("desk\u000Bstate", "primary-verifier", "primary-nonce", "primary");
+
+    expect(consumePkceState("desk\u000Bstate")).toBeNull();
+  });
+
+  it("rejects PKCE consume when tampered session verifier contains interior vertical-tab control characters", () => {
+    storePkceState("primary-state", "ver\u000Bifier", "primary-nonce", "primary");
+
+    expect(consumePkceState("primary-state")).toBeNull();
+  });
 });
 
 describe("clearOidcSession", () => {

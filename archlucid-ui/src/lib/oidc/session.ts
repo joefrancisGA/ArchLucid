@@ -322,6 +322,10 @@ function pkceStorageKeys(flow: OidcPkceFlow): {
   };
 }
 
+function pkceStoredValueContainsUnsafeControlCharacters(value: string): boolean {
+  return /[\u0000-\u001F\u007F\u2028\u2029\u0085]/u.test(value);
+}
+
 function readPkceStateForFlow(flow: OidcPkceFlow): Omit<StoredPkceState, "flow"> | null {
   const keys = pkceStorageKeys(flow);
   const state = readSessionKey(keys.stateKey);
@@ -329,6 +333,14 @@ function readPkceStateForFlow(flow: OidcPkceFlow): Omit<StoredPkceState, "flow">
   const nonce = readSessionKey(keys.nonceKey);
 
   if (!state || !codeVerifier || !nonce) {
+    return null;
+  }
+
+  if (
+    pkceStoredValueContainsUnsafeControlCharacters(state)
+    || pkceStoredValueContainsUnsafeControlCharacters(codeVerifier)
+    || pkceStoredValueContainsUnsafeControlCharacters(nonce)
+  ) {
     return null;
   }
 
