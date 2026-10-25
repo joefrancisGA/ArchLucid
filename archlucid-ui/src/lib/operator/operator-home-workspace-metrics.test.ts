@@ -80,6 +80,13 @@ describe("deriveOperatorHomeWorkspaceMetrics", () => {
     expect(metrics.hasReviews).toBe(true);
   });
 
+  it("normalizes non-finite totalCount to zero for home KPI totals", () => {
+    const metrics = deriveOperatorHomeWorkspaceMetrics([], Number.NaN);
+
+    expect(metrics.reviewPackagesTotal).toBe(0);
+    expect(metrics.hasReviews).toBe(false);
+  });
+
   it("excludes archived runs from workspace metrics aggregates", () => {
     const items: RunSummary[] = [
       makeRun({

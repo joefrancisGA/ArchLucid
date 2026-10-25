@@ -4508,7 +4508,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-operator-lib
 
-**Hunts:** 38 · **Bugs found:** 35 · **Consecutive dry hunts:** 0
+**Hunts:** 39 · **Bugs found:** 36 · **Consecutive dry hunts:** 0
+
+2026-10-25 seed hunt (hit): promoted `deriveOperatorHomeWorkspaceMetrics` non-finite `totalCount`; regression `normalizes non-finite totalCount to zero for home KPI totals`; 7 scoped `operator-home-workspace-metrics` vitest passed. Private beta: Operator home workspace KPI totals no longer show `NaN` when the runs dashboard hands through a non-finite total count, so invited pilots see stable review totals on first meaningful action at home.
 
 2026-10-21 thorough hunt (hit, lane D): promoted `operatorLastRefreshedLabel` invalid-`Date` guard; 18 scoped `operator-last-refreshed-label` vitest passed.
 
@@ -4516,7 +4518,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [ ] (candidate) `shouldHydrateWorkingWorkspaceContinuityFromServer` — malformed non-empty server `updatedAtUtc` is compared as `NaN` — locus: `Date.parse` comparison in `working-workspace-continuity-sync.ts`; input: API continuity payload with an invalid timestamp and an existing local watermark; wrong outcome: hydration decision may overwrite local state instead of failing closed; reachability: `updatedAtUtc` is a nullable server DTO string.
 - [ ] (candidate) `toRecentViewEntries` — server-provided `kind` is cast into `OperatorRecentViewKind` without runtime validation — locus: `working-workspace-continuity-sync.ts`; input: continuity API row with an unrecognized kind; wrong outcome: invalid kind is persisted into local recent-view state; reachability: `OperatorRecentViewEntryDto.kind` is an API response string.
-- [ ] (candidate) `deriveOperatorHomeWorkspaceMetrics` — non-finite `totalCount` is only lower-bounded, not normalized — locus: `operator-home-workspace-metrics.ts`; input: dashboard response whose `totalCount` is `NaN` or infinite; wrong outcome: home metrics expose a non-finite review total; reachability: `totalCount` is consumed from the loaded runs-dashboard response.
+- [x] (proven) `deriveOperatorHomeWorkspaceMetrics` — non-finite `totalCount` is only lower-bounded, not normalized — **hit 2026-10-25 seed hunt:** `Number.isFinite` guard before `Math.max`/`Math.trunc`; regression `normalizes non-finite totalCount to zero for home KPI totals`.
 - [x] (proven) `operatorLastRefreshedLabel` — invalid `Date` input is passed to `toISOString` through relative-time formatting — **hit 2026-10-21 thorough hunt lane D:** `isRenderableRefreshedInstant` fail-closed; regression `treats an invalid Date like a missing refresh instead of throwing`.
 
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions `readOperatorScopeFromStorage_returns_null_when_project_id_missing`, `defaultLabelsForScopeIds_uses_development_workspace_label_for_dev_workspace_id`, `defaultLabelsForScopeIds_uses_primary_project_label_for_dev_project_id`, and `retains runs whose runId is whitespace-only when exclusions are nonempty`; 58 scoped operator vitest tests passed.

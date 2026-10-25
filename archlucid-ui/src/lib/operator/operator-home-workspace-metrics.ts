@@ -49,7 +49,9 @@ export function deriveOperatorHomeWorkspaceMetrics(
   totalCount: number,
   awaitingApprovalCount = 0,
 ): OperatorHomeWorkspaceMetricsSnapshot {
-  const reviewPackagesTotal = Math.max(0, totalCount);
+  const reviewPackagesTotal = Number.isFinite(totalCount)
+    ? Math.max(0, Math.trunc(totalCount))
+    : 0;
 
   let reviewPackagesCommitted = 0;
   let reviewPackagesActive = 0;
