@@ -4938,7 +4938,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-operator-lib
 
-**Hunts:** 87 · **Bugs found:** 83 · **Consecutive dry hunts:** 0
+**Hunts:** 88 · **Bugs found:** 84 · **Consecutive dry hunts:** 0
+
+2026-10-25 seed hunt (hit): `collectHomeAttentionExcludedRunIdsForRailItem` only unions run ids for TB-2369 review rail kinds so architecture-draft desk `highlightReviewId` hrefs no longer hide unrelated home attention rows; regression `returns no excluded run ids when architecture-draft href carries highlightReviewId`; scoped attention-dedup + resume vitest passed. Private beta: Invited operators in eval-with-drafts (and other modes) still see home attention rows for reviews when an architecture-draft rail link happens to carry a desk highlight query.
 
 2026-10-25 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; regressions `filters home attention preview when nested review href run id disagrees with TB-2369 row id`, `filters home attention preview when desk highlightReviewId disagrees with TB-2369 row id`, and `returns no excluded run ids for architecture-draft unfinished-work rail rows`; 42 scoped attention-dedup + resume vitest passed; no production code changed.
 
@@ -5179,11 +5181,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `filterRunsForHomeAttentionPreview` — filters desk-highlight and row-id exclusions together — **cheap-disproof 2026-10-25 seed hunt:** regression `filters home attention preview when desk highlightReviewId disagrees with TB-2369 row id`.
 - [x] (valid-no-repro) `resolveOperatorHomeResumeAffordancePlan` — continue-last suppression independent of attention exclusion union — **cheap-disproof 2026-10-25 seed hunt:** scoped affordance vitest suite unchanged.
 
-- [ ] (candidate) `collectHomeAttentionExcludedRunIdsForRailItem` — unions row, href, and canonical ids only for awaiting-disposition and review-in-progress — locus: kind guard; input: review rail disagreement fixtures.
-- [ ] (candidate) `listHomeAttentionPreviewExcludedRunIds` — preserves first-seen insertion order across multiple rail rows — locus: outer Set merge; input: multi-row active review fixture.
-- [ ] (candidate) `filterRunsForHomeAttentionPreview` — peer disagreement exclusion removes both identities from preview pool — locus: end-to-end filter; input: peer disagreement filter regression.
-- [ ] (candidate) `resolveUnfinishedWorkRailRunIdForMatch` — does not double-count href when canonical already equals href parse — locus: agreement path; input: default railItem href aligns with row id.
-- [ ] (candidate) `UnfinishedWorkRail` — reports excluded run ids from filtered items only (eval-with-drafts draft omission) — locus: `excludeKinds` filter; input: component props / rail summary tests.
+- [x] (proven) `collectHomeAttentionExcludedRunIdsForRailItem` — parsed SN-012 href run ids for non-review rail kinds — **hit 2026-10-25 seed hunt:** `isTb2369ReviewWorkRailItem` guard; regression `returns no excluded run ids when architecture-draft href carries highlightReviewId`.
+- [x] (valid-no-repro) `listHomeAttentionPreviewExcludedRunIds` — preserves first-seen insertion order across multiple rail rows — **cheap-disproof 2026-10-25 seed hunt:** regression `lists active review run ids from unfinished-work rail items`.
+- [x] (valid-no-repro) `filterRunsForHomeAttentionPreview` — peer disagreement exclusion removes both identities from preview pool — **cheap-disproof 2026-10-25 seed hunt:** regression `filters home attention preview when peer review href run id disagrees with TB-2369 row id`.
+- [x] (valid-no-repro) `resolveUnfinishedWorkRailRunIdForMatch` — does not double-count href when canonical already equals href parse — **cheap-disproof 2026-10-25 seed hunt:** default railItem fixtures in attention-dedup suite.
+- [x] (valid-no-repro) `UnfinishedWorkRail` — reports excluded run ids from filtered items only (eval-with-drafts draft omission) — **cheap-disproof 2026-10-25 seed hunt:** architecture-draft rows no longer contribute SN-012 href exclusions after kind guard.
+
+- [ ] (candidate) `isTb2369ReviewWorkRailItem` — excludes incomplete-wizard rows from attention exclusion union — locus: kind guard; input: wizard meta hrefs from `unfinished-work-rail`.
+- [ ] (candidate) `collectHomeAttentionExcludedRunIdsForRailItem` — review-kind union unchanged for peer and desk disagreement — locus: union branches; input: disagreement regressions in attention-dedup suite.
+- [ ] (candidate) `listHomeAttentionPreviewExcludedRunIds` — empty for architecture-draft without highlight query — locus: kind guard; input: architecture-draft regression without query.
+- [ ] (candidate) `filterRunsForHomeAttentionPreview` — still filters review rail disagreements after kind guard — locus: filter helper; input: desk + nested disagreement filter tests.
+- [ ] (candidate) `resolveUnfinishedWorkRailRunIdForMatch` — null for architecture-draft while resume targets use draft ids — locus: resolver kind guard; input: rail resume vitest for draft rows.
 
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regression `drops favorite rows when runId is whitespace-only`; 41 scoped continuity, scope-storage, and attention-preview vitest tests passed.
 
