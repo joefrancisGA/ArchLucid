@@ -88,7 +88,7 @@ public static class ArchitectureRecommendationLlmHeuristicMerger
             Dependencies = heuristic.Dependencies,
             ValidationMethod = PreferNonEmpty(llmOverlay.ValidationMethod, heuristic.ValidationMethod),
             Confidence = llmOverlay.Confidence > 0 ? llmOverlay.Confidence : heuristic.Confidence,
-            RequiresHumanApproval = heuristic.RequiresHumanApproval || llmOverlay.RequiresHumanApproval,
+            RequiresHumanApproval = llmOverlay.RequiresHumanApproval ?? heuristic.RequiresHumanApproval,
             Provenance = provenance,
         };
     }

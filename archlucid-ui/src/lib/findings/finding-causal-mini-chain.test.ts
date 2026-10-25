@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   FINDING_CAUSAL_EVIDENCE_MISSING,
   FINDING_CAUSAL_RECOMMENDATION_MISSING,
+  FINDING_CAUSAL_RECOMMENDATION_STORED_EMPTY,
   FINDING_CAUSAL_RULE_MISSING,
   buildFindingCausalMiniChain,
   findingCausalMiniChainFromGovernanceQueueRow,
@@ -53,6 +54,14 @@ describe("buildFindingCausalMiniChain (TB-2217)", () => {
     expect(chain.steps[1]?.value).toContain("2 cited evidence references");
     expect(chain.steps[1]?.value).toContain("Trace confidence: High");
     expect(chain.steps[1]?.value).toContain("This is not a cited evidence artifact");
+  });
+
+  it("labels a stored-empty recommendation separately from a missing recommendation", () => {
+    const storedEmpty = buildFindingCausalMiniChain({ recommendation: "" });
+    const missing = buildFindingCausalMiniChain({});
+
+    expect(storedEmpty.steps[2]?.value).toBe(FINDING_CAUSAL_RECOMMENDATION_STORED_EMPTY);
+    expect(missing.steps[2]?.value).toBeNull();
   });
 
   it("preserves a stored zero evidence reference count", () => {
