@@ -1816,20 +1816,29 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-host-gate
 
+2026-10-25 seed hunt (seed→hit): promoted split-host marketing requests for legacy `/quick-start` bookmark staying `next` instead of redirecting to the app origin — `LEGACY_QUICK_START_PATH` was in retired redirect shims but missing from `LEGACY_OPERATOR_PATH_PREFIXES`; added prefix import; regressions `treats legacy bookmark paths as operator paths` and `redirects marketing-host legacy quick-start bookmark to the app origin`; scoped host-gate vitest 16/16. Private beta: invited users opening `/quick-start` on the public marketing host are forwarded to the app origin under split-site hosting instead of seeing marketing 404 chrome.
+
+- [x] (proven) `LEGACY_OPERATOR_PATH_PREFIXES` — `/quick-start` omitted from split-host operator handoff — **hit 2026-10-25 seed hunt:** import `LEGACY_QUICK_START_PATH`; `host-gate.test.ts` classifier + redirect regressions.
+
+- [ ] (candidate) `LEGACY_OPERATOR_PATH_PREFIXES` — audit remaining `RETIRED_REDIRECT_SHIM_TRAFFIC_PATHS` vs `canonicalizeLegacyOperatorRoutePath` exports — locus: prefix list; input: no shim path left marketing-only on split host.
+- [ ] (candidate) `decideHostGateRedirect` — uppercase Host header normalization — locus: `normalizeRequestHost`; input: mixed-case host still matches configured origins.
+- [ ] (candidate) `isMarketingOnlyPath` — `/get-started` vs marketing sitemap membership — locus: funnel paths; input: split-host app host should not treat canonical get-started as marketing-only incorrectly.
+- [ ] (candidate) `decideHostGateRedirect` — `www.` public host operator redirect preserves query on nested legacy paths — locus: `hostsMatch`; input: matrix test for www marketing host.
+- [ ] (candidate) `pathMatchesPrefix` — trailing-slash prefix edge on `/auth/` — locus: classifier; input: `/auth` without trailing slash still operator.
+
 - **id:** ui-host-gate
 - **status:** open
 - **impact:** medium
 - **aliases:** host gate; split site host
 - **paths:** archlucid-ui/src/lib/host-gate.ts
 - **test-filter:** host-gate
-- **hunts:** 4
-- **bugs-found:** 3
+- **hunts:** 5
+- **bugs-found:** 4
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 — legacy bookmarks (/alert-rules, executive dashboards, internal-operations, DLQ) missing from split-host operator prefixes
+- **last-hunt:** 2026-10-25
+- **last-bug:** 2026-10-25 — `/quick-start` legacy bookmark missing from split-host operator prefixes
 - **related-pd-tb:** none
-- **code-changed-since:** 0
-
+- **code-changed-since:** yes
 
 2026-10-21 seed hunt (seed→hit, lane C): re-read `host-gate.ts` vs `canonicalizeLegacyOperatorRoutePath`; proved six legacy bookmarks canonicalized on the app host were absent from `LEGACY_OPERATOR_PATH_PREFIXES`, so split-site marketing requests stayed `next` and served marketing 404 chrome; aligned prefixes via exported legacy path constants; regressions `host-gate.test.ts` (15); scoped host-gate vitest passed.
 ### Hypotheses
