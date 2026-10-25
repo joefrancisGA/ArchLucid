@@ -38,6 +38,16 @@ function isActiveTenantTrialStatus(status: TenantTrialStatusPayload["status"] | 
   return status === "Active" || status === "ReadOnly" || status === "ExportOnly";
 }
 
+function formatTenantTrialDaysRemainingLine(daysRemaining: number | null | undefined): string {
+  if (typeof daysRemaining !== "number" || !Number.isFinite(daysRemaining) || daysRemaining < 0) {
+    return "Trial is active. No paid plan is selected yet.";
+  }
+
+  const wholeDays = Math.trunc(daysRemaining);
+
+  return `${wholeDays} day${wholeDays === 1 ? "" : "s"} remaining in trial.`;
+}
+
 export function resolveOperatorBillingCurrentPlan(
   input: ResolveOperatorBillingCurrentPlanInput,
 ): OperatorBillingCurrentPlanView {
@@ -125,10 +135,7 @@ export function resolveOperatorBillingCurrentPlan(
   }
 
   if (isActiveTenantTrialStatus(input.trialStatus) && input.isTrialUsage !== false) {
-    const daysLine =
-      typeof input.trialDaysRemaining === "number" && input.trialDaysRemaining >= 0
-        ? `${input.trialDaysRemaining} day${input.trialDaysRemaining === 1 ? "" : "s"} remaining in trial.`
-        : "Trial is active. No paid plan is selected yet.";
+    const daysLine = formatTenantTrialDaysRemainingLine(input.trialDaysRemaining);
 
     return {
       planKind: "tenant-trial",

@@ -34,6 +34,33 @@ describe("resolveOperatorBillingCurrentPlan", () => {
     expect(view.supportingLine).toContain("12 days remaining");
   });
 
+  it("falls back when trial days remaining is non-finite", () => {
+    const view = resolveOperatorBillingCurrentPlan({
+      isDemoMode: false,
+      isFrictionlessTrial: false,
+      trialStatus: "Active",
+      trialDaysRemaining: Number.POSITIVE_INFINITY,
+      workspaceLabel: null,
+      aiBudgetRemainingPercent: null,
+    });
+
+    expect(view.planKind).toBe("tenant-trial");
+    expect(view.supportingLine).toBe("Trial is active. No paid plan is selected yet.");
+  });
+
+  it("truncates fractional trial days remaining for display", () => {
+    const view = resolveOperatorBillingCurrentPlan({
+      isDemoMode: false,
+      isFrictionlessTrial: false,
+      trialStatus: "Active",
+      trialDaysRemaining: 12.9,
+      workspaceLabel: null,
+      aiBudgetRemainingPercent: null,
+    });
+
+    expect(view.supportingLine).toContain("12 days remaining");
+  });
+
   it("returns no paid plan copy when no trial or demo applies", () => {
     const view = resolveOperatorBillingCurrentPlan({
       isDemoMode: false,
