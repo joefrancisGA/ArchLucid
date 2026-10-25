@@ -869,6 +869,12 @@ describe("consumePkceState", () => {
     expect(consumePkceState("primary-state")).toBeNull();
   });
 
+  it("rejects PKCE consume when tampered session verifier contains interior form-feed control characters", () => {
+    storePkceState("primary-state", "ver\u000Cifier", "primary-nonce", "primary");
+
+    expect(consumePkceState("primary-state")).toBeNull();
+  });
+
   it("returns normalized PKCE verifier and nonce values read from sessionStorage", () => {
     storePkceState("primary-state", `\u200bprimary-verifier\u200b`, `\u200bprimary-nonce\u200b`, "primary");
 

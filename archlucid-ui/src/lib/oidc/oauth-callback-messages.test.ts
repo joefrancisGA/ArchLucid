@@ -136,6 +136,10 @@ describe("readOAuthJsonErrorDescription", () => {
     expect(readOAuthJsonErrorDescription("\u2021\u2021")).toBe("");
   });
 
+  it("returns empty for asterisk-only token-endpoint JSON error_description values", () => {
+    expect(readOAuthJsonErrorDescription("**")).toBe("");
+  });
+
   it("preserves ZWNJ in Persian token error_description copy", () => {
     const detail = "دسترسی\u200cرد";
 
@@ -389,6 +393,10 @@ describe("decodeOAuthErrorDescription", () => {
 
   it("returns empty for double-dagger-only percent-encoded error descriptions", () => {
     expect(decodeOAuthErrorDescription("%E2%80%A1")).toBe("");
+  });
+
+  it("returns empty for asterisk-only percent-encoded error descriptions", () => {
+    expect(decodeOAuthErrorDescription("%2A%2A")).toBe("");
   });
 
   it("returns empty for percent-encoded punctuation-only error descriptions", () => {

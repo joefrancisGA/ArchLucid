@@ -2334,19 +2334,19 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-oidc
 
-2026-10-25 seed hunt (seed-only): cheap-disproof closed five pass-18 `(candidate)` rows (backspace PKCE nonce tamper, double-dagger-only JSON/authorize `error_description`, JSON number `5` token root, BFF refresh `510`); added five regression locks; seeded five follow-on `(candidate)` rows below; scoped `src/lib/oidc` vitest and `CallbackClient.test.tsx` 779/779; no production code changed.
+2026-10-25 seed hunt (seed-only): cheap-disproof closed five pass-19 `(candidate)` rows (form-feed PKCE verifier tamper, asterisk-only JSON/authorize `error_description`, JSON number `6` token root, BFF refresh `511`); added five regression locks; seeded five follow-on `(candidate)` rows below; scoped `src/lib/oidc` vitest and `CallbackClient.test.tsx` 792/792; no production code changed.
 
-- [x] (valid-no-repro) `readPkceStateForFlow` — PKCE `nonce` with interior backspace (`U+0008`) — **cheap-disproof 2026-10-25 seed hunt pass 18:** `pkceStoredValueContainsUnsafeControlCharacters`; regression `rejects PKCE consume when tampered session nonce contains interior backspace control characters`.
-- [x] (valid-no-repro) `readOAuthJsonErrorDescription` — double-dagger-only (`U+2021`) JSON `error_description` — **cheap-disproof 2026-10-25 seed hunt pass 18:** regression `returns empty for double-dagger-only token-endpoint JSON error_description values`.
-- [x] (valid-no-repro) `decodeOAuthErrorDescription` — double-dagger-only percent-encoded authorize `error_description` — **cheap-disproof 2026-10-25 seed hunt pass 18:** regression `returns empty for double-dagger-only percent-encoded error descriptions`.
-- [x] (valid-no-repro) `token-client.postTokenForm` — HTTP 200 body is JSON number `5` — **cheap-disproof 2026-10-25 seed hunt pass 18:** regression `throws when a successful token response body is the JSON number 5`.
-- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route returns HTTP `510` — **cheap-disproof 2026-10-25 seed hunt pass 18:** regression `soft-fails refresh without clearing session when the refresh route returns 510 in opaque BFF refresh parity sequence`.
+- [x] (valid-no-repro) `readPkceStateForFlow` — PKCE `code_verifier` with interior form-feed (`U+000C`) — **cheap-disproof 2026-10-25 seed hunt pass 19:** `pkceStoredValueContainsUnsafeControlCharacters`; regression `rejects PKCE consume when tampered session verifier contains interior form-feed control characters`.
+- [x] (valid-no-repro) `readOAuthJsonErrorDescription` — asterisk-only (`U+002A`) JSON `error_description` — **cheap-disproof 2026-10-25 seed hunt pass 19:** regression `returns empty for asterisk-only token-endpoint JSON error_description values`.
+- [x] (valid-no-repro) `decodeOAuthErrorDescription` — asterisk-only percent-encoded authorize `error_description` — **cheap-disproof 2026-10-25 seed hunt pass 19:** regression `returns empty for asterisk-only percent-encoded error descriptions`.
+- [x] (valid-no-repro) `token-client.postTokenForm` — HTTP 200 body is JSON number `6` — **cheap-disproof 2026-10-25 seed hunt pass 19:** regression `throws when a successful token response body is the JSON number 6`.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route returns HTTP `511` — **cheap-disproof 2026-10-25 seed hunt pass 19:** regression `soft-fails refresh without clearing session when the refresh route returns 511 in opaque BFF refresh parity sequence`.
 
-- [ ] (candidate) `readPkceStateForFlow` — PKCE `code_verifier` session value with interior form-feed (`U+000C`) control character — locus: `pkceStoredValueContainsUnsafeControlCharacters`; input: tampered `archlucid_oidc_code_verifier` key before callback.
-- [ ] (candidate) `readOAuthJsonErrorDescription` — asterisk-only (`U+002A`) JSON `error_description` — locus: readable-detail guard; input: token-endpoint OAuth JSON `"**"`.
-- [ ] (candidate) `decodeOAuthErrorDescription` — asterisk-only percent-encoded authorize `error_description` — locus: `decodeOAuthErrorDescription`; input: callback `?error_description=%2A%2A`.
-- [ ] (candidate) `token-client.postTokenForm` — HTTP 200 body is JSON number `6` — locus: `parseOidcTokenResponse`; input: misconfigured IdP returns numeric positive root JSON with 200.
-- [ ] (candidate) `refreshBffSessionCookie` — refresh route returns HTTP `511` without clearing session — locus: BFF refresh soft-fail branch; input: same-origin refresh responds `511` while access token still present.
+- [ ] (candidate) `readPkceStateForFlow` — PKCE `state` session value with interior form-feed (`U+000C`) control character — locus: `pkceStoredValueContainsUnsafeControlCharacters`; input: tampered `archlucid_oidc_oauth_state` key before callback.
+- [ ] (candidate) `readOAuthJsonErrorDescription` — equals-only (`U+003D`) JSON `error_description` — locus: readable-detail guard; input: token-endpoint OAuth JSON `"=="`.
+- [ ] (candidate) `decodeOAuthErrorDescription` — equals-only percent-encoded authorize `error_description` — locus: `decodeOAuthErrorDescription`; input: callback `?error_description=%3D%3D`.
+- [ ] (candidate) `token-client.postTokenForm` — HTTP 200 body is JSON number `7` — locus: `parseOidcTokenResponse`; input: misconfigured IdP returns numeric positive root JSON with 200.
+- [ ] (candidate) `refreshBffSessionCookie` — refresh route returns HTTP `512` without clearing session — locus: BFF refresh soft-fail branch; input: same-origin refresh responds `512` while access token still present.
 
 - **id:** ui-oidc
 - **status:** open
@@ -2354,13 +2354,21 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 93
+- **hunts:** 94
 - **bugs-found:** 73
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-25
 - **last-bug:** 2026-10-25 — authorize callback `code` query carried trailing C0 to token exchange
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-25 seed hunt (seed-only): cheap-disproof closed five pass-18 `(candidate)` rows (backspace PKCE nonce tamper, double-dagger-only JSON/authorize `error_description`, JSON number `5` token root, BFF refresh `510`); added five regression locks; seeded five follow-on `(candidate)` rows below; scoped `src/lib/oidc` vitest and `CallbackClient.test.tsx` 779/779; no production code changed.
+
+- [x] (valid-no-repro) `readPkceStateForFlow` — PKCE `nonce` with interior backspace (`U+0008`) — **cheap-disproof 2026-10-25 seed hunt pass 18:** `pkceStoredValueContainsUnsafeControlCharacters`; regression `rejects PKCE consume when tampered session nonce contains interior backspace control characters`.
+- [x] (valid-no-repro) `readOAuthJsonErrorDescription` — double-dagger-only (`U+2021`) JSON `error_description` — **cheap-disproof 2026-10-25 seed hunt pass 18:** regression `returns empty for double-dagger-only token-endpoint JSON error_description values`.
+- [x] (valid-no-repro) `decodeOAuthErrorDescription` — double-dagger-only percent-encoded authorize `error_description` — **cheap-disproof 2026-10-25 seed hunt pass 18:** regression `returns empty for double-dagger-only percent-encoded error descriptions`.
+- [x] (valid-no-repro) `token-client.postTokenForm` — HTTP 200 body is JSON number `5` — **cheap-disproof 2026-10-25 seed hunt pass 18:** regression `throws when a successful token response body is the JSON number 5`.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route returns HTTP `510` — **cheap-disproof 2026-10-25 seed hunt pass 18:** regression `soft-fails refresh without clearing session when the refresh route returns 510 in opaque BFF refresh parity sequence`.
 
 2026-10-25 seed hunt (seed→hit): promoted `CallbackClient` posting the raw authorize `code` query value to token exchange when the IdP echoed trailing C0 control characters — exchange failed with `invalid_grant` despite a valid code; normalize with `normalizeOidcOpaqueOAuthString` before `exchangeAuthorizationCode`; regression `trims accidental control characters from the authorization code before token exchange`; cheap-disproof closed five pass-17 `(candidate)` rows (backspace PKCE verifier tamper, dagger-only JSON/authorize `error_description`, JSON number `4` token root, BFF refresh `509`); seeded five follow-on `(candidate)` rows below; scoped `src/lib/oidc` vitest and `CallbackClient.test.tsx` 782/782. Private beta: sign-in can finish when the IdP returns an authorization code query value with accidental trailing control characters.
 
