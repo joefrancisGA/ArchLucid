@@ -1,4 +1,5 @@
 using ArchLucid.Application.Findings;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Metadata;
 
@@ -19,6 +20,8 @@ internal static class CrossReviewFindingLifecycleNormalizer
                 .Select(NormalizeRecord)
                 .Where(record => !IsDisplayEmptyShell(record))
                 .ToList();
+
+            DedupeLifecycleRecordsKeepFirstInPlace(normalizedRecords);
 
             report.FindingLifecycleRecords = normalizedRecords;
 
@@ -81,4 +84,53 @@ internal static class CrossReviewFindingLifecycleNormalizer
 
     private static string NormalizeRequiredDisplayLabel(string value) =>
         string.IsNullOrWhiteSpace(value) ? string.Empty : value.Trim();
+
+    private static void DedupeLifecycleRecordsKeepFirstInPlace(List<CrossReviewFindingLifecycleRecord> records)
+    {
+        if (records.Count < 2)
+            return;
+
+        HashSet<LifecycleRecordIdentity> seen = [];
+        List<CrossReviewFindingLifecycleRecord> distinct = [];
+
+        foreach (CrossReviewFindingLifecycleRecord record in records)
+        {
+            if (!seen.Add(LifecycleRecordIdentity.From(record)))
+                continue;
+
+            distinct.Add(record);
+        }
+
+        if (distinct.Count == records.Count)
+            return;
+
+        records.Clear();
+        records.AddRange(distinct);
+    }
+
+    private readonly record struct LifecycleRecordIdentity(
+        CrossReviewFindingLifecycleState State,
+        CrossReviewFindingResolutionBasis ResolutionBasis,
+        FindingCorrelationMethod CorrelationMethod,
+        FindingSeverity Severity,
+        AgentType SourceAgent,
+        FindingDisposition? LatestDisposition,
+        string PriorFindingId,
+        string CurrentFindingId,
+        string Category,
+        string Message)
+    {
+        internal static LifecycleRecordIdentity From(CrossReviewFindingLifecycleRecord record) =>
+            new(
+                record.State,
+                record.ResolutionBasis,
+                record.CorrelationMethod,
+                record.Severity,
+                record.SourceAgent,
+                record.LatestDisposition,
+                record.PriorFindingId ?? string.Empty,
+                record.CurrentFindingId ?? string.Empty,
+                record.Category,
+                record.Message);
+    }
 }

@@ -887,6 +887,47 @@ public sealed class EndToEndReplayComparisonReportNormalizerTests
     }
 
     [Fact]
+    public void CompareQuality_EndToEndReplayComparisonReportNormalizer_dedupes_duplicate_finding_lifecycle_records()
+    {
+        EndToEndReplayComparisonReport report = new()
+        {
+            LeftRunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            RightRunId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            FindingLifecycleRecords =
+            [
+                new CrossReviewFindingLifecycleRecord
+                {
+                    State = CrossReviewFindingLifecycleState.NewlyIdentified,
+                    ResolutionBasis = CrossReviewFindingResolutionBasis.NotApplicable,
+                    CorrelationMethod = FindingCorrelationMethod.PolicyRuleAndFingerprint,
+                    Severity = FindingSeverity.Warning,
+                    SourceAgent = AgentType.Topology,
+                    Category = "topology",
+                    Message = "new gap",
+                    CurrentFindingId = "cccccccccccccccccccccccccccccccc",
+                },
+                new CrossReviewFindingLifecycleRecord
+                {
+                    State = CrossReviewFindingLifecycleState.NewlyIdentified,
+                    ResolutionBasis = CrossReviewFindingResolutionBasis.NotApplicable,
+                    CorrelationMethod = FindingCorrelationMethod.PolicyRuleAndFingerprint,
+                    Severity = FindingSeverity.Warning,
+                    SourceAgent = AgentType.Topology,
+                    Category = "  topology  ",
+                    Message = "  new gap  ",
+                    CurrentFindingId = "  cccccccccccccccccccccccccccccccc  ",
+                },
+            ],
+        };
+
+        EndToEndReplayComparisonReportNormalizer.NormalizePersistedPayload(report);
+
+        report.FindingLifecycleRecords.Should().ContainSingle();
+        report.FindingLifecycle!.NewlyIdentifiedCount.Should().Be(1);
+        report.FindingLifecycleRecords[0].CurrentFindingId.Should().Be("cccccccccccccccccccccccccccccccc");
+    }
+
+    [Fact]
     public void CompareQuality_EndToEndReplayComparisonReportNormalizer_trims_nested_compare_input_fingerprints()
     {
         EndToEndReplayComparisonReport report = new()
