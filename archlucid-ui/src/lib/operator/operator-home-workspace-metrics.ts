@@ -131,11 +131,12 @@ export type OperatorHomeCompactMetricsLineInput = {
 export function formatOperatorHomeCompactMetricsLine(
   input: OperatorHomeCompactMetricsLineInput,
 ): string {
-  const activeReviews = input.metrics.reviewPackagesActive;
+  const activeReviews = normalizeOperatorHomeNonNegativeCount(input.metrics.reviewPackagesActive);
   const activeLabel = `${activeReviews} Active review${activeReviews === 1 ? "" : "s"}`;
-  const sealedCount = input.metrics.reviewPackagesCommitted;
+  const sealedCount = normalizeOperatorHomeNonNegativeCount(input.metrics.reviewPackagesCommitted);
   const sealedLabel = `${sealedCount} ${sealedCount === 1 ? OPERATOR_HOME_SEALED_REVIEW_RECORD_NOUN.singular : OPERATOR_HOME_SEALED_REVIEW_RECORD_NOUN.plural}`;
-  const findingsLabel = `${input.metrics.openFindings} Open finding${input.metrics.openFindings === 1 ? "" : "s"}`;
+  const openFindings = normalizeOperatorHomeNonNegativeCount(input.metrics.openFindings);
+  const findingsLabel = `${openFindings} Open finding${openFindings === 1 ? "" : "s"}`;
   const warningsLabel = formatOperatorHomeApprovalCheckWarningCount(input.metrics.governanceWarnings);
   const setupLabel = input.setupReadinessLoading
     ? "Setup …"
