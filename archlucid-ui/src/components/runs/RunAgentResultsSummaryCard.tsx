@@ -33,8 +33,23 @@ function formatAgentExecutionOutcomeLabel(outcome: string | null | undefined): s
   return trimmed;
 }
 
-function countArray(value: readonly unknown[] | null | undefined): number {
-  return Array.isArray(value) ? value.length : 0;
+function formatAgentResultCollectionCount(
+  value: readonly unknown[] | null | undefined,
+  labels: { readonly zero: string; readonly one: string; readonly many: (count: number) => string; readonly notStored: string },
+): string {
+  if (!Array.isArray(value)) {
+    return labels.notStored;
+  }
+
+  if (value.length === 0) {
+    return labels.zero;
+  }
+
+  if (value.length === 1) {
+    return labels.one;
+  }
+
+  return labels.many(value.length);
 }
 
 function topologyExemplarLink(summary: RunRetrievalGroundingSummary | null | undefined): ReactElement | null {
@@ -153,9 +168,24 @@ export function RunAgentResultsSummaryCard(props: {
         ) : (
           <ul className="m-0 list-none space-y-2 p-0">
             {rows.map((result) => {
-              const claims = countArray(result.claims);
-              const findings = countArray(result.findings);
-              const evidenceRefs = countArray(result.evidenceRefs);
+              const claims = formatAgentResultCollectionCount(result.claims, {
+                zero: "0 claims",
+                one: "1 claim",
+                many: (count) => `${count} claims`,
+                notStored: "Claims were not stored.",
+              });
+              const findings = formatAgentResultCollectionCount(result.findings, {
+                zero: "0 findings",
+                one: "1 finding",
+                many: (count) => `${count} findings`,
+                notStored: "Findings were not stored.",
+              });
+              const evidenceRefs = formatAgentResultCollectionCount(result.evidenceRefs, {
+                zero: "0 evidence refs",
+                one: "1 evidence ref",
+                many: (count) => `${count} evidence refs`,
+                notStored: "Evidence refs were not stored.",
+              });
               const confidence =
                 typeof result.confidence === "number" && Number.isFinite(result.confidence)
                   ? result.confidence.toFixed(2)
@@ -174,12 +204,12 @@ export function RunAgentResultsSummaryCard(props: {
                     {buyerLabelForAgentType(result.agentType)}
                   </p>
                   <p className="m-0 mt-1 text-neutral-600 dark:text-neutral-400">
-                    {claims} claim{claims === 1 ? "" : "s"}
+                    {claims}
                     {" · "}
-                    {findings} finding{findings === 1 ? "" : "s"}
+                    {findings}
                     {" · "}
-                    {evidenceRefs} evidence ref{evidenceRefs === 1 ? "" : "s"}
-                    {confidence !== null ? ` · confidence ${confidence}` : null}
+                    {evidenceRefs}
+                    {confidence !== null ? ` · confidence ${confidence}` : " · Agent confidence was not stored."}
                   </p>
                   {result.agentType === "Topology"
                     ? topologyExemplarLink(props.retrievalGroundingSummary)

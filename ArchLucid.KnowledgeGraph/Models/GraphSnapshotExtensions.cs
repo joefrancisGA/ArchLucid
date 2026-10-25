@@ -8,8 +8,10 @@ public static class GraphSnapshotExtensions
         {
             ArgumentNullException.ThrowIfNull(snapshot);
 
+            string normalizedNodeType = NormalizeGraphField(nodeType);
+
             return snapshot.Nodes
-                .Where(x => string.Equals(x.NodeType, nodeType, StringComparison.OrdinalIgnoreCase))
+                .Where(x => string.Equals(NormalizeGraphField(x.NodeType), normalizedNodeType, StringComparison.OrdinalIgnoreCase))
                 .ToList();
         }
 
@@ -17,8 +19,10 @@ public static class GraphSnapshotExtensions
         {
             ArgumentNullException.ThrowIfNull(snapshot);
 
+            string normalizedEdgeType = NormalizeGraphField(edgeType);
+
             return snapshot.Edges
-                .Where(x => string.Equals(x.EdgeType, edgeType, StringComparison.OrdinalIgnoreCase))
+                .Where(x => string.Equals(NormalizeGraphField(x.EdgeType), normalizedEdgeType, StringComparison.OrdinalIgnoreCase))
                 .ToList();
         }
 
@@ -29,11 +33,12 @@ public static class GraphSnapshotExtensions
             ArgumentNullException.ThrowIfNull(snapshot);
 
             string normalizedFromNodeId = NormalizeNodeId(fromNodeId);
+            string normalizedEdgeType = NormalizeGraphField(edgeType);
 
             HashSet<string> targetIds = snapshot.Edges
                 .Where(x =>
                     string.Equals(NormalizeNodeId(x.FromNodeId), normalizedFromNodeId, StringComparison.OrdinalIgnoreCase) &&
-                    string.Equals(x.EdgeType, edgeType, StringComparison.OrdinalIgnoreCase) &&
+                    string.Equals(NormalizeGraphField(x.EdgeType), normalizedEdgeType, StringComparison.OrdinalIgnoreCase) &&
                     x.Weight >= minWeightInclusive)
                 .Select(x => NormalizeNodeId(x.ToNodeId))
                 .ToHashSet(StringComparer.OrdinalIgnoreCase);
@@ -52,11 +57,12 @@ public static class GraphSnapshotExtensions
             ArgumentNullException.ThrowIfNull(snapshot);
 
             string normalizedToNodeId = NormalizeNodeId(toNodeId);
+            string normalizedEdgeType = NormalizeGraphField(edgeType);
 
             HashSet<string> sourceIds = snapshot.Edges
                 .Where(x =>
                     string.Equals(NormalizeNodeId(x.ToNodeId), normalizedToNodeId, StringComparison.OrdinalIgnoreCase) &&
-                    string.Equals(x.EdgeType, edgeType, StringComparison.OrdinalIgnoreCase))
+                    string.Equals(NormalizeGraphField(x.EdgeType), normalizedEdgeType, StringComparison.OrdinalIgnoreCase))
                 .Select(x => NormalizeNodeId(x.FromNodeId))
                 .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
@@ -67,4 +73,6 @@ public static class GraphSnapshotExtensions
     }
 
     private static string NormalizeNodeId(string nodeId) => nodeId.Trim();
+
+    private static string NormalizeGraphField(string value) => (value ?? string.Empty).Trim();
 }

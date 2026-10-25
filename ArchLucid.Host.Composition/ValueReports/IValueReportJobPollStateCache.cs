@@ -10,4 +10,6 @@ public interface IValueReportJobPollStateCache
     void Set(string key, byte[] payload, DistributedCacheEntryOptions options);
 
     byte[]? Get(string key);
+
+    void Remove(string key);
 }

@@ -113,7 +113,7 @@ internal static class InventoryDiagramIndirectRelationshipApplier
             InventoryDiagramEvidenceCurrency.Observed => ProvenanceKind.ObservedFact.ToString(),
             InventoryDiagramEvidenceCurrency.Configured => ProvenanceKind.DeterministicInference.ToString(),
             InventoryDiagramEvidenceCurrency.Current => ProvenanceKind.ObservedFact.ToString(),
-            _ => ProvenanceKind.ObservedFact.ToString(),
+            _ => string.Empty,
         };
     }
 

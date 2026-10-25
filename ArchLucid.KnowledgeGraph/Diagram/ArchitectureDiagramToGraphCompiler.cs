@@ -32,7 +32,7 @@ public sealed class ArchitectureDiagramToGraphCompiler : IArchitectureDiagramToG
             CreatedUtc = options.CreatedUtc,
         };
 
-        Dictionary<string, string> nodeIdMap = new(StringComparer.Ordinal);
+        Dictionary<string, string> nodeIdMap = new(StringComparer.OrdinalIgnoreCase);
         Dictionary<string, SubgraphCompileContext> subgraphContexts = BuildSubgraphContexts(model.Subgraphs);
         int unlabeledShapeCount = 0;
 
@@ -120,7 +120,10 @@ public sealed class ArchitectureDiagramToGraphCompiler : IArchitectureDiagramToG
 
             foreach (ArchitectureDiagramNodeRecord node in model.Nodes.Where(
                          candidate => !candidate.Removed
-                                      && string.Equals(candidate.SubgraphId?.Trim(), subgraph.Id.Trim(), StringComparison.Ordinal)))
+                                      && string.Equals(
+                                          candidate.SubgraphId?.Trim(),
+                                          subgraph.Id.Trim(),
+                                          StringComparison.OrdinalIgnoreCase)))
             {
                 if (!nodeIdMap.TryGetValue(node.Id.Trim(), out string? memberNodeId))
                 {
@@ -361,7 +364,7 @@ public sealed class ArchitectureDiagramToGraphCompiler : IArchitectureDiagramToG
     private static Dictionary<string, SubgraphCompileContext> BuildSubgraphContexts(
         IReadOnlyList<ArchitectureDiagramSubgraphRecord> subgraphs)
     {
-        Dictionary<string, SubgraphCompileContext> contexts = new(StringComparer.Ordinal);
+        Dictionary<string, SubgraphCompileContext> contexts = new(StringComparer.OrdinalIgnoreCase);
 
         foreach (ArchitectureDiagramSubgraphRecord subgraph in subgraphs)
         {
