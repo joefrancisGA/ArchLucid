@@ -4938,7 +4938,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-operator-lib
 
-**Hunts:** 59 · **Bugs found:** 56 · **Consecutive dry hunts:** 0
+**Hunts:** 60 · **Bugs found:** 57 · **Consecutive dry hunts:** 0
+
+2026-10-25 seed hunt (hit): promoted `normalizeOperatorConnectivityHttpStatus` in connectivity technical details; regression `omits non-finite http status from technical details`; 6 scoped `operator-connectivity-error-present` vitest passed. Private beta: Invited operators no longer see `HTTP NaN` (or similar) in workspace connectivity troubleshooting details when failure payloads carry non-finite status codes.
 
 2026-10-25 seed hunt (hit): promoted setup readiness count normalization in home workspace metrics formatters; regression `normalizes non-finite setup readiness counts to zero`; scoped `operator-home-workspace-metrics` vitest passed. Private beta: Invited operators no longer see `Setup NaN/NaN` or `NaN of NaN ready` on home workspace metrics when finish-setup readiness hands through non-finite counts.
 
@@ -4992,6 +4994,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `resolveOperatorBillingCurrentPlan` — non-finite `aiBudgetRemainingPercent` passes through to `NaN%` UI — **hit 2026-10-25 seed hunt:** `normalizeOperatorBillingAiBudgetRemainingPercent`; regression `omits non-finite ai budget remaining percent from the plan view`.
 - [x] (proven) `resolveOperatorBillingCurrentPlan` — `trialDaysRemaining >= 0` accepts `Infinity` and fractional days in trial copy — **hit 2026-10-25 seed hunt:** `formatTenantTrialDaysRemainingLine`; regressions `falls back when trial days remaining is non-finite` and `truncates fractional trial days remaining for display`.
 - [x] (proven) `operatorAttentionChipNeedsAction` / `formatOperatorAttentionChipAriaLabel` / `resolveHighestNonZeroAttentionKind` — `countsByKind[kind] ?? 0` passes `NaN` into chip UI — **hit 2026-10-25 seed hunt:** `resolveOperatorAttentionChipCount`; regressions `normalizes non-finite chip counts to zero for display and aria` and `ignores non-finite counts when resolving the highest attention kind`.
+- [x] (proven) `resolveOperatorConnectivityTechnicalDetails` — `httpStatus ?? problem.status` passes `NaN` into technical details — **hit 2026-10-25 seed hunt:** `normalizeOperatorConnectivityHttpStatus`; regression `omits non-finite http status from technical details`.
 - [x] (proven) `formatSetupReadinessLabel` / compact / complete helpers — raw counts interpolate `NaN` into home setup copy — **hit 2026-10-25 seed hunt:** `normalizeSetupReadinessCount`; regression `normalizes non-finite setup readiness counts to zero`.
 - [x] (proven) `resolveOperatorBillingSeatRow` — non-finite `seatsLimit` passes `typeof === "number"` and renders `of NaN` — **hit 2026-10-25 seed hunt:** `Number.isFinite(seatsLimit)`; regression `omits the billing seat row when seatsLimit is non-finite`.
 - [x] (proven) `resolveOperatorBillingSeatRow` — `seatsUsed ?? 0` leaves `NaN` in seat copy — **hit 2026-10-25 seed hunt:** `normalizeOperatorHomeNonNegativeCount`; regression `normalizes non-finite seatsUsed for the billing seat row`.
