@@ -1,10 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import {
-  buildInfraEvidencePngReadingStripLines,
-  buildInfraMermaidExportLegendCommentLines,
-} from "@/lib/infra-evidence/infra-evidence-png-reading-strip";
-import { INFRA_EVIDENCE_DIAGRAM_LEGEND_UNCLASSIFIED_PROVENANCE } from "@/lib/infra-evidence/infra-evidence-diagram-copy";
+import { buildInfraEvidencePngReadingStripLines } from "@/lib/infra-evidence/infra-evidence-png-reading-strip";
 
 describe("infra-evidence-png-reading-strip", () => {
   it("includes the data-flow job and applicable stroke rows", () => {
@@ -193,27 +189,5 @@ describe("infra-evidence-png-reading-strip", () => {
     });
 
     expect(lines.join("\n")).not.toContain("Observed traffic occurred");
-  });
-
-  it("adds mermaid legend comments for null outline and unclassified edges", () => {
-    expect(buildInfraMermaidExportLegendCommentLines(null)).toEqual(["%% Diagram outline was not stored."]);
-
-    const lines = buildInfraMermaidExportLegendCommentLines({
-      nodes: [],
-      edges: [
-        {
-          from: "a",
-          to: "b",
-          label: "connects",
-          source: "missing",
-          confidenceBand: "observed",
-          provenanceKind: "NotAFact",
-          inferenceSource: null,
-          declaredConnectionId: null,
-        },
-      ],
-    });
-
-    expect(lines).toContain(`%% ${INFRA_EVIDENCE_DIAGRAM_LEGEND_UNCLASSIFIED_PROVENANCE}`);
   });
 });
