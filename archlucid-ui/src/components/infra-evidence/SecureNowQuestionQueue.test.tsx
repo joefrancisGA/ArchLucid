@@ -628,6 +628,27 @@ describe("SecureNowQuestionQueue", () => {
     expect(screen.getByTestId("infra-diagrams-question-disposition-status")).toHaveTextContent("Answered");
   });
 
+  it("routes Open status with stored answer metadata into the answered filter", async () => {
+    mocks.listQuestions.mockResolvedValue([
+      { ...question, status: "Open" },
+      {
+        ...question,
+        status: "Open",
+        answerCode: "NamePeer",
+        answerText: "Name the peer",
+        reason: "Operator selected the peer.",
+      },
+    ]);
+
+    render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
+    fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
+    fireEvent.click(screen.getByRole("button", { name: "Answered" }));
+
+    expect(screen.getByTestId("infra-diagrams-question-disposition-status")).toHaveTextContent("Answered");
+    expect(screen.getByTestId("infra-diagrams-question-answer")).toHaveTextContent("Name the peer");
+    expect(screen.queryByRole("button", { name: "Name the peer" })).not.toBeInTheDocument();
+  });
+
   it("shows dismissed status label when list JSON omits status but stores a dismiss reason", async () => {
     mocks.listQuestions.mockResolvedValue([
       { ...question, status: null },

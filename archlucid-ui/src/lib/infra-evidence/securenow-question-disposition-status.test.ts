@@ -51,6 +51,15 @@ describe("secureNowQuestionDispositionShowsStoredAnswerMetadata", () => {
       reason: null,
     })).toBe(true);
   });
+
+  it("infers stored answer metadata when status is Open but answer fields are present", () => {
+    expect(secureNowQuestionDispositionShowsStoredAnswerMetadata({
+      status: "Open",
+      answerCode: "NamePeer",
+      answerText: null,
+      reason: null,
+    })).toBe(true);
+  });
 });
 
 describe("secureNowQuestionDispositionShowsAnswerActions", () => {
@@ -75,6 +84,17 @@ describe("secureNowQuestionCountsAsOpenQueueRow", () => {
       isExpired: false,
     })).toBe(false);
   });
+
+  it("excludes rows with Open status but stored answer metadata from the open queue", () => {
+    expect(secureNowQuestionCountsAsOpenQueueRow({
+      status: "Open",
+      answerCode: "NamePeer",
+      answerText: null,
+      reason: null,
+      expirationUtc: "2099-01-01T00:00:00Z",
+      isExpired: false,
+    })).toBe(false);
+  });
 });
 
 describe("secureNowQuestionCountsAsAnsweredFilterRow", () => {
@@ -84,6 +104,15 @@ describe("secureNowQuestionCountsAsAnsweredFilterRow", () => {
       answerCode: "NamePeer",
       answerText: null,
       reason: null,
+    })).toBe(true);
+  });
+
+  it("includes rows with Open status when answer metadata was stored", () => {
+    expect(secureNowQuestionCountsAsAnsweredFilterRow({
+      status: "Open",
+      answerCode: "NamePeer",
+      answerText: "Name the peer",
+      reason: "Operator selected the peer.",
     })).toBe(true);
   });
 });

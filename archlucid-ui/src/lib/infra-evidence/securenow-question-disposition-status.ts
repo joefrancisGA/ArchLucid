@@ -19,10 +19,17 @@ function secureNowQuestionDispositionFieldWasStored(
   return value !== null && value !== undefined;
 }
 
+function secureNowQuestionDispositionStatusAllowsStoredMetadataInference(
+  status: string | null | undefined,
+): boolean {
+  const normalized = secureNowQuestionDispositionStatusTrimmed(status);
+  return normalized === null || normalized === "Open";
+}
+
 function secureNowQuestionDispositionHasInferredClosedFields(
   question: SecureNowQuestionDispositionChromeFields,
 ): boolean {
-  if (secureNowQuestionDispositionStatusTrimmed(question.status) !== null) {
+  if (!secureNowQuestionDispositionStatusAllowsStoredMetadataInference(question.status)) {
     return false;
   }
 
@@ -57,10 +64,16 @@ export function secureNowQuestionCountsAsOpenQueueRow(
 export function secureNowQuestionCountsAsAnsweredFilterRow(
   question: SecureNowQuestionDispositionChromeFields,
 ): boolean {
-  return secureNowQuestionDispositionIsAnswered(question.status)
-    || (secureNowQuestionDispositionStatusTrimmed(question.status) === null
-      && (secureNowQuestionDispositionFieldWasStored(question.answerCode)
-        || secureNowQuestionDispositionFieldWasStored(question.answerText)));
+  if (secureNowQuestionDispositionIsAnswered(question.status)) {
+    return true;
+  }
+
+  if (!secureNowQuestionDispositionStatusAllowsStoredMetadataInference(question.status)) {
+    return false;
+  }
+
+  return secureNowQuestionDispositionFieldWasStored(question.answerCode)
+    || secureNowQuestionDispositionFieldWasStored(question.answerText);
 }
 
 export function secureNowQuestionDispositionReviewerStatusLabel(
@@ -87,6 +100,16 @@ export function secureNowQuestionDispositionReviewerStatusLabel(
     return "Dismissed";
   }
 
+  if (normalized === "Open") {
+    if (secureNowQuestionCountsAsAnsweredFilterRow(question)) {
+      return "Answered";
+    }
+
+    if (secureNowQuestionCountsAsDismissedFilterRow(question)) {
+      return "Dismissed";
+    }
+  }
+
   return `Question status "${normalized}" has no reviewer label.`;
 }
 
@@ -97,7 +120,7 @@ export function secureNowQuestionCountsAsDismissedFilterRow(
     return true;
   }
 
-  if (secureNowQuestionDispositionStatusTrimmed(question.status) !== null) {
+  if (!secureNowQuestionDispositionStatusAllowsStoredMetadataInference(question.status)) {
     return false;
   }
 

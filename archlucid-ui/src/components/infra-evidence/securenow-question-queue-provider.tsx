@@ -32,6 +32,7 @@ import {
   secureNowQuestionCountsAsAnsweredFilterRow,
   secureNowQuestionCountsAsDismissedFilterRow,
   secureNowQuestionCountsAsOpenQueueRow,
+  secureNowQuestionDispositionShowsAnswerActions,
 } from "@/lib/infra-evidence/securenow-question-disposition-status";
 import {
   confirmOperatorInferredConnection,
@@ -304,6 +305,12 @@ export function SecureNowQuestionQueueProvider(
     if (action === "ignore" && reason.trim().length === 0) return;
     if (action === "reopen" && reason.trim().length === 0) return;
     if (action === "answer" && (selectedAnswer == null || selectedAnswer.trim().length === 0)) return;
+    if (
+      (action === "answer" || action === "ignore")
+      && !secureNowQuestionDispositionShowsAnswerActions(currentQuestion)
+    ) {
+      return;
+    }
 
     const mutationQuestionKey =
       secureNowQuestionDispositionMutationQuestionKey(currentQuestion.questionKey);
