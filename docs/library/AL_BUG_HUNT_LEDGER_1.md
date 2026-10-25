@@ -6868,6 +6868,20 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-25 seed hunt (seed→hit): proved `ComparisonsApplicationService.TryReplaySummaryMarkdownAsync` returned stored-summary fast-path `ReplayComparisonResult` with padded `ComparisonRecordId` and `FileName` copied from the scoped row while `TryReplayAsync` and `ComparisonReplayService` already normalized replay metadata (hunts 157–158), so summary-only replay skipped the replay service normalizer; trim via `ComparisonRecordIdNormalizer` on the fast path; regression `CompareQuality_TryReplaySummaryMarkdownAsync_trims_comparison_record_id_on_stored_summary_fast_path`; cheap-disproof closed full `ReplayAsync` path (already normalized), `ApiPaging.TryParseUtcTicksIdCursor` (comparison search normalizes cursor id), batch zip manifest echo (cosmetic), Armenian homoglyphs (deferred), and persistence-layer determinism normalize (deferred); seeded five follow-on rows; scoped application-analysis + replay filter 321/321. Private beta: summary-only comparison replay returns trimmed record ids and download filenames when stored markdown is returned without regenerating artifacts.
+
+- [ ] (candidate) `ComparisonsApplicationService.TryEstimateReplayCostAsync` — passes untrimmed `record.ComparisonRecordId` to estimator — locus: cost estimate; input: cosmetic id echo in estimate factors only.
+- [ ] (candidate) `ApiPaging.TryParseUtcTicksIdCursor` — cursor id segment without trim — locus: HTTP cursor parse; input: padded id after ticks delimiter (alerts inbox and other API surfaces).
+- [ ] (candidate) `ComparisonBatchReplayZipSupport` — manifest failure entries echo pre-trim batch tokens — locus: zip manifest; input: cosmetic id echo only.
+- [ ] (candidate) `ComparisonExportMarkdownSectionRemover` — Armenian homoglyphs in delta headings — locus: `UnicodeLatinHomoglyphMapper`; input: deferred expansion.
+- [ ] (candidate) `RunExportRecordPersistNormalizer` — persistence-layer determinism column normalize — locus: repository read; input: consolidation at DB boundary.
+
+- [x] (proven) `ComparisonsApplicationService.TryReplaySummaryMarkdownAsync` — padded comparison record id on stored-summary fast path — **hit 2026-10-25 seed hunt:** normalize on fast path; regression above.
+- [x] (valid-no-repro) `TryReplaySummaryMarkdownAsync` — full replay delegate path — **cheap-disproof 2026-10-25 seed hunt:** `ReplayAsync` normalizes metadata.
+- [x] (invalid) `ApiPaging.TryParseUtcTicksIdCursor` — HTTP cursor id trim — **cheap-disproof 2026-10-25 seed hunt:** comparison search normalizes at application layer.
+- [x] (invalid) `ComparisonBatchReplayZipSupport` — manifest id echo — **cheap-disproof 2026-10-25 seed hunt:** cosmetic only.
+- [x] (invalid) `UnicodeLatinHomoglyphMapper` — Armenian homoglyphs — **cheap-disproof 2026-10-25 seed hunt:** deferred.
+
 2026-10-25 seed hunt (seed→hit): proved `ComparisonAuditService.RecordReplayOfAsync` interpolated untrimmed `sourceRecord.ComparisonRecordId` into default `Notes` and `ComparisonReplayPersisted` audit `sourceComparisonRecordId` while replay lookup and result metadata already normalized ids (hunt 157), so replay-persisted rows and audit trails could reference padded legacy source ids; normalize source id via `ComparisonRecordIdNormalizer.NormalizeRequired` before notes and audit serialization; regression `RecordReplayOfAsync_default_notes_and_audit_trim_source_comparison_record_id`; cheap-disproof closed explicit caller `notes` override (operator-provided text), `ApiPaging.TryParseUtcTicksIdCursor` (comparison search normalizes cursor id), batch zip manifest echo (cosmetic), Armenian homoglyphs (deferred), and persistence-layer determinism normalize (deferred); seeded five follow-on rows; scoped application-analysis + replay filter 320/320. Private beta: replay-persisted comparison notes and audit events reference trimmed source comparison record ids.
 
 - [ ] (candidate) `ComparisonReplayService.ReplayAsync` — `PersistedReplayRecordId` display without trim — locus: persist replay response; input: new guid only (no padding).
@@ -8031,11 +8045,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 158
-- **bugs-found:** 164
+- **hunts:** 159
+- **bugs-found:** 165
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-25
-- **last-bug:** 2026-10-25 — replay persist trims source comparison record id in notes/audit
+- **last-bug:** 2026-10-25 — summary replay fast path trims comparison record id
 - **related-pd-tb:** none
 - **code-changed-since:** no
 

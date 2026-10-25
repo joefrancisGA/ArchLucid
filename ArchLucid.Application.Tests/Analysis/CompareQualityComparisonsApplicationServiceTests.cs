@@ -991,6 +991,53 @@ public sealed class CompareQualityComparisonsApplicationServiceTests
     }
 
     [Fact]
+    public async Task CompareQuality_TryReplaySummaryMarkdownAsync_trims_comparison_record_id_on_stored_summary_fast_path()
+    {
+        const string runId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb";
+        const string canonicalComparisonRecordId = "cmp-stored-summary";
+        ComparisonRecord record = new()
+        {
+            ComparisonRecordId = $"  {canonicalComparisonRecordId}  ",
+            ComparisonType = ComparisonTypes.ExportRecordDiff,
+            LeftRunId = runId,
+            RightRunId = "cccccccccccccccccccccccccccccccc",
+            SummaryMarkdown = "## Stored summary",
+            CreatedUtc = DateTime.UtcNow,
+        };
+        Mock<IComparisonRecordRepository> comparisonRecords = new();
+        comparisonRecords
+            .Setup(r => r.GetByIdAsync(canonicalComparisonRecordId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(record);
+
+        Mock<IRunDetailQueryService> runDetail = new();
+        runDetail
+            .Setup(s => s.GetRunDetailAsync(runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchitectureRunDetail { Run = new() { RunId = runId } });
+
+        Mock<IComparisonReplayService> replay = new();
+        replay
+            .Setup(s => s.EnsureArtifactReplayAccessAllowedAsync(record, It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        ComparisonsApplicationService sut = new(
+            runDetail.Object,
+            new Mock<IRunExportRecordRepository>().Object,
+            comparisonRecords.Object,
+            replay.Object,
+            new Mock<ICompareRunsApplicationFacade>().Object,
+            new Mock<IComparisonReplayCostEstimator>().Object,
+            new Mock<IDriftReportFormatter>().Object,
+            new DriftReportDocxExport());
+
+        ReplayComparisonResult? result = await sut.TryReplaySummaryMarkdownAsync(canonicalComparisonRecordId, CancellationToken.None);
+
+        result.Should().NotBeNull();
+        result!.ComparisonRecordId.Should().Be(canonicalComparisonRecordId);
+        result.FileName.Should().Be($"comparison_{canonicalComparisonRecordId}.md");
+        result.Content.Should().Be("## Stored summary");
+    }
+
+    [Fact]
     public async Task CompareQuality_TryReplaySummaryMarkdownAsync_applies_career_gate_when_summary_markdown_is_already_stored()
     {
         const string runId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb";

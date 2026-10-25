@@ -41,13 +41,15 @@ public sealed partial class ComparisonsApplicationService
 
         if (!string.IsNullOrWhiteSpace(record.SummaryMarkdown))
         {
+            string normalizedComparisonRecordId = ComparisonRecordIdNormalizer.NormalizeRequired(record.ComparisonRecordId);
+
             return new ReplayComparisonResult
             {
-                ComparisonRecordId = record.ComparisonRecordId,
+                ComparisonRecordId = normalizedComparisonRecordId,
                 ComparisonType = record.ComparisonType,
                 Format = "markdown",
                 Content = record.SummaryMarkdown,
-                FileName = $"comparison_{record.ComparisonRecordId}.md",
+                FileName = $"comparison_{normalizedComparisonRecordId}.md",
             };
         }
 
