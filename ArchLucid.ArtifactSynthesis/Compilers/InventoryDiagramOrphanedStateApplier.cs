@@ -160,7 +160,7 @@ internal static class InventoryDiagramOrphanedStateApplier
                     GraphEdgeInferenceSources.InventoryHiddenSubnetVnetPlacement,
                     StringComparison.OrdinalIgnoreCase))
             {
-                message = "hidden subnet placement";
+                message = "Placed on a subnet that is hidden on this diagram.";
                 return true;
             }
 
@@ -173,7 +173,8 @@ internal static class InventoryDiagramOrphanedStateApplier
                     GraphEdgeInferenceSources.InventoryEffectiveRoutes,
                     StringComparison.OrdinalIgnoreCase))
             {
-                message = "effective network control";
+                message =
+                    "An effective route or network security group is stored. Observed use was not stored.";
                 return true;
             }
         }
@@ -213,12 +214,17 @@ internal static class InventoryDiagramOrphanedStateApplier
 
             if (!string.IsNullOrWhiteSpace(resolvedArmId))
             {
+<<<<<<< HEAD
+                message =
+                    $"Attached to {ReadResourceName(resolvedArmId)}. That resource is in this inventory snapshot.";
+=======
                 string resourceName = ReadResourceName(resolvedArmId);
 
                 message = string.IsNullOrWhiteSpace(resourceName)
                     ? "Attached resource name was not stored."
                     : $"attached to {resourceName}";
 
+>>>>>>> origin/master
                 return true;
             }
         }
