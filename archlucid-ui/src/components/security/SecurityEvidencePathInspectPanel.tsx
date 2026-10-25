@@ -86,7 +86,7 @@ import { InlineGlossaryChip } from "@/components/InlineGlossaryChip";
 
 function PathHopsTable(props: {
   readonly hops: ReadonlyArray<SecurityEvidencePathHop>;
-  readonly weakestHopOrdinal: number;
+  readonly weakestHopOrdinal: number | null;
   readonly snapshotId: string;
 }) {
   const internetHopOrdinal = props.hops.find(
