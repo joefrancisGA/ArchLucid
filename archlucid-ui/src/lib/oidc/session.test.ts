@@ -897,6 +897,12 @@ describe("consumePkceState", () => {
 
     expect(consumePkceState("primary-state")).toBeNull();
   });
+
+  it("rejects PKCE consume when tampered session nonce contains interior backspace control characters", () => {
+    storePkceState("primary-state", "primary-verifier", "nonce\u0008value", "primary");
+
+    expect(consumePkceState("primary-state")).toBeNull();
+  });
 });
 
 describe("clearOidcSession", () => {

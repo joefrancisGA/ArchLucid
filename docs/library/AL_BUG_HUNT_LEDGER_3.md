@@ -2334,6 +2334,34 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-oidc
 
+2026-10-25 seed hunt (seed-only): cheap-disproof closed five pass-18 `(candidate)` rows (backspace PKCE nonce tamper, double-dagger-only JSON/authorize `error_description`, JSON number `5` token root, BFF refresh `510`); added five regression locks; seeded five follow-on `(candidate)` rows below; scoped `src/lib/oidc` vitest and `CallbackClient.test.tsx` 779/779; no production code changed.
+
+- [x] (valid-no-repro) `readPkceStateForFlow` — PKCE `nonce` with interior backspace (`U+0008`) — **cheap-disproof 2026-10-25 seed hunt pass 18:** `pkceStoredValueContainsUnsafeControlCharacters`; regression `rejects PKCE consume when tampered session nonce contains interior backspace control characters`.
+- [x] (valid-no-repro) `readOAuthJsonErrorDescription` — double-dagger-only (`U+2021`) JSON `error_description` — **cheap-disproof 2026-10-25 seed hunt pass 18:** regression `returns empty for double-dagger-only token-endpoint JSON error_description values`.
+- [x] (valid-no-repro) `decodeOAuthErrorDescription` — double-dagger-only percent-encoded authorize `error_description` — **cheap-disproof 2026-10-25 seed hunt pass 18:** regression `returns empty for double-dagger-only percent-encoded error descriptions`.
+- [x] (valid-no-repro) `token-client.postTokenForm` — HTTP 200 body is JSON number `5` — **cheap-disproof 2026-10-25 seed hunt pass 18:** regression `throws when a successful token response body is the JSON number 5`.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route returns HTTP `510` — **cheap-disproof 2026-10-25 seed hunt pass 18:** regression `soft-fails refresh without clearing session when the refresh route returns 510 in opaque BFF refresh parity sequence`.
+
+- [ ] (candidate) `readPkceStateForFlow` — PKCE `code_verifier` session value with interior form-feed (`U+000C`) control character — locus: `pkceStoredValueContainsUnsafeControlCharacters`; input: tampered `archlucid_oidc_code_verifier` key before callback.
+- [ ] (candidate) `readOAuthJsonErrorDescription` — asterisk-only (`U+002A`) JSON `error_description` — locus: readable-detail guard; input: token-endpoint OAuth JSON `"**"`.
+- [ ] (candidate) `decodeOAuthErrorDescription` — asterisk-only percent-encoded authorize `error_description` — locus: `decodeOAuthErrorDescription`; input: callback `?error_description=%2A%2A`.
+- [ ] (candidate) `token-client.postTokenForm` — HTTP 200 body is JSON number `6` — locus: `parseOidcTokenResponse`; input: misconfigured IdP returns numeric positive root JSON with 200.
+- [ ] (candidate) `refreshBffSessionCookie` — refresh route returns HTTP `511` without clearing session — locus: BFF refresh soft-fail branch; input: same-origin refresh responds `511` while access token still present.
+
+- **id:** ui-oidc
+- **status:** open
+- **impact:** high
+- **aliases:** oidc authority; sign-in routing; OIDC host
+- **paths:** archlucid-ui/src/lib/oidc/
+- **test-filter:** oidc-authority|oidc
+- **hunts:** 93
+- **bugs-found:** 73
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-25
+- **last-bug:** 2026-10-25 — authorize callback `code` query carried trailing C0 to token exchange
+- **related-pd-tb:** none
+- **code-changed-since:** yes
+
 2026-10-25 seed hunt (seed→hit): promoted `CallbackClient` posting the raw authorize `code` query value to token exchange when the IdP echoed trailing C0 control characters — exchange failed with `invalid_grant` despite a valid code; normalize with `normalizeOidcOpaqueOAuthString` before `exchangeAuthorizationCode`; regression `trims accidental control characters from the authorization code before token exchange`; cheap-disproof closed five pass-17 `(candidate)` rows (backspace PKCE verifier tamper, dagger-only JSON/authorize `error_description`, JSON number `4` token root, BFF refresh `509`); seeded five follow-on `(candidate)` rows below; scoped `src/lib/oidc` vitest and `CallbackClient.test.tsx` 782/782. Private beta: sign-in can finish when the IdP returns an authorization code query value with accidental trailing control characters.
 
 - [x] (proven) `CallbackClient` / `exchangeAuthorizationCode` — authorize `code` query carried trailing C0 control characters verbatim to the token endpoint — **hit 2026-10-25 seed hunt pass 17:** `normalizeOidcOpaqueOAuthString` on callback `code`; regression `trims accidental control characters from the authorization code before token exchange`.
@@ -2342,12 +2370,6 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `decodeOAuthErrorDescription` — dagger-only percent-encoded authorize `error_description` — **cheap-disproof 2026-10-25 seed hunt pass 17:** regression `returns empty for dagger-only percent-encoded error descriptions`.
 - [x] (valid-no-repro) `token-client.postTokenForm` — HTTP 200 body is JSON number `4` — **cheap-disproof 2026-10-25 seed hunt pass 17:** regression `throws when a successful token response body is the JSON number 4`.
 - [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route returns HTTP `509` — **cheap-disproof 2026-10-25 seed hunt pass 17:** regression `soft-fails refresh without clearing session when the refresh route returns 509 in opaque BFF refresh parity sequence`.
-
-- [ ] (candidate) `readPkceStateForFlow` — PKCE `nonce` session value with interior backspace (`U+0008`) control character — locus: `pkceStoredValueContainsUnsafeControlCharacters`; input: tampered `archlucid_oidc_nonce` key before callback.
-- [ ] (candidate) `readOAuthJsonErrorDescription` — double-dagger-only (`U+2021`) JSON `error_description` — locus: readable-detail guard; input: token-endpoint OAuth JSON `"\\u2021\\u2021"`.
-- [ ] (candidate) `decodeOAuthErrorDescription` — double-dagger-only percent-encoded authorize `error_description` — locus: `decodeOAuthErrorDescription`; input: callback `?error_description=%E2%80%A1`.
-- [ ] (candidate) `token-client.postTokenForm` — HTTP 200 body is JSON number `5` — locus: `parseOidcTokenResponse`; input: misconfigured IdP returns numeric positive root JSON with 200.
-- [ ] (candidate) `refreshBffSessionCookie` — refresh route returns HTTP `510` without clearing session — locus: BFF refresh soft-fail branch; input: same-origin refresh responds `510` while access token still present.
 
 2026-10-25 seed hunt (seed→hit): promoted `normalizePkceCallbackQueryValue` stripping only zero-width glue while the authorize callback `state` query carried trailing C0 control characters — `consumePkceState` failed against clean stored PKCE state when the IdP echoed accidental control bytes; shared `normalizeOidcOpaqueOAuthString` for PKCE callback values and id_token nonce claims; regressions `matches stored PKCE state when the callback state query value has trailing control characters` and `rejects PKCE consume when tampered session state contains interior backspace control characters`; cheap-disproof closed five pass-16 `(candidate)` rows (reference-mark-only JSON/authorize `error_description`, JSON number `3` token root, BFF refresh `508`, backspace PKCE tamper); seeded five follow-on `(candidate)` rows below; scoped `src/lib/oidc` vitest 769/769. Private beta: sign-in can finish when the IdP echoes a PKCE state query value with accidental trailing control characters that match the stored state after normalization.
 
