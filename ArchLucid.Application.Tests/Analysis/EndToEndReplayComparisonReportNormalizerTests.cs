@@ -648,6 +648,57 @@ public sealed class EndToEndReplayComparisonReportNormalizerTests
     }
 
     [Fact]
+    public void CompareQuality_EndToEndReplayComparisonReportNormalizer_dedupes_duplicate_manifest_relationship_diff_items()
+    {
+        EndToEndReplayComparisonReport report = new()
+        {
+            LeftRunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            RightRunId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            ManifestDiff = new ManifestDiffResult
+            {
+                AddedRelationships =
+                [
+                    new RelationshipDiffItem
+                    {
+                        SourceId = "src",
+                        TargetId = "tgt",
+                        RelationshipType = "connects_to",
+                        Description = "first note",
+                    },
+                    new RelationshipDiffItem
+                    {
+                        SourceId = "  src  ",
+                        TargetId = "  tgt  ",
+                        RelationshipType = "  connects_to  ",
+                        Description = "duplicate row",
+                    },
+                ],
+                RemovedRelationships =
+                [
+                    new RelationshipDiffItem
+                    {
+                        SourceId = "a",
+                        TargetId = "b",
+                        RelationshipType = "depends_on",
+                    },
+                    new RelationshipDiffItem
+                    {
+                        SourceId = "a",
+                        TargetId = "b",
+                        RelationshipType = "depends_on",
+                    },
+                ],
+            },
+        };
+
+        EndToEndReplayComparisonReportNormalizer.NormalizePersistedPayload(report);
+
+        report.ManifestDiff!.AddedRelationships.Should().ContainSingle();
+        report.ManifestDiff.AddedRelationships[0].Description.Should().Be("first note");
+        report.ManifestDiff.RemovedRelationships.Should().ContainSingle();
+    }
+
+    [Fact]
     public void CompareQuality_EndToEndReplayComparisonReportNormalizer_trims_finding_correlation_metadata_strings()
     {
         EndToEndReplayComparisonReport report = new()

@@ -43,6 +43,34 @@ internal static class ManifestDiffNormalizer
             if (item.SourceId.Length == 0 && item.TargetId.Length == 0 && item.RelationshipType.Length == 0)
                 relationships.RemoveAt(i);
         }
+
+        DedupeRelationshipsByEndpointPairInPlace(relationships);
+    }
+
+    private static void DedupeRelationshipsByEndpointPairInPlace(List<RelationshipDiffItem> relationships)
+    {
+        if (relationships.Count < 2)
+            return;
+
+        HashSet<(string SourceId, string TargetId, string RelationshipType)> seen = new();
+        List<RelationshipDiffItem> distinct = [];
+
+        foreach (RelationshipDiffItem item in relationships)
+        {
+            (string SourceId, string TargetId, string RelationshipType) key =
+                (item.SourceId, item.TargetId, item.RelationshipType);
+
+            if (!seen.Add(key))
+                continue;
+
+            distinct.Add(item);
+        }
+
+        if (distinct.Count == relationships.Count)
+            return;
+
+        relationships.Clear();
+        relationships.AddRange(distinct);
     }
 
     private static string NormalizeRequiredDisplayLabel(string value) =>
