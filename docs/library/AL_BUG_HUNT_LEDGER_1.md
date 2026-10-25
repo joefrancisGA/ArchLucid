@@ -6868,6 +6868,20 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-25 seed hunt (seed→hit): proved `ComparisonRecordRepository.SearchByCursorAsync` compared raw `ComparisonRecordId` values in SQL cursor tiebreakers while hunt 177 fixed `GetById` and hunt 176 trimmed only the cursor parameter, so legacy padded primary keys could skip or duplicate rows on SQL comparison-history cursor pages, and `ReplacePayloadJsonForIntegrationTest` still used ordinal id equality; centralize trimmed id SQL via `ComparisonRecordIdSql.TrimmedColumnExpression`, normalize cursor lookup keys, and reuse `ComparisonRecordIdLookup` on the integration payload hook; regressions `SearchByCursorAsync_pages_when_legacy_stored_comparison_record_id_has_padding` (in-memory parity) and `ReplacePayloadJsonForIntegrationTest_finds_row_when_stored_comparison_record_id_has_padding`; cheap-disproof closed app-layer cursor id trim (hunt 176), `ApiPaging.TryParseUtcTicksIdCursor` (comparison search normalizes inbound cursor id), batch zip manifest echo (cosmetic), and Armenian homoglyphs (deferred); seeded five follow-on rows; scoped application-analysis + replay filter 340/340. Private beta: SQL comparison-history cursor paging and integration payload updates stay aligned with trimmed comparison record ids when legacy storage used padded keys.
+
+- [ ] (candidate) `ComparisonRecordRepository.SearchAsync` — SQL offset paging ORDER BY raw ComparisonRecordId — locus: non-cursor search; input: tiebreaker only.
+- [ ] (candidate) `ComparisonRecordSearchPredicateBuilder` — export id filters — locus: already uses export lookup helper.
+- [ ] (candidate) `ApiPaging.TryParseUtcTicksIdCursor` — cursor id segment without trim — locus: HTTP cursor parse; input: padded id after ticks delimiter (alerts inbox and other API surfaces).
+- [ ] (candidate) `ComparisonBatchReplayZipSupport` — manifest failure entries echo pre-trim batch tokens — locus: zip manifest; input: cosmetic id echo only.
+- [ ] (candidate) `ComparisonExportMarkdownSectionRemover` — Armenian homoglyphs — locus: deferred expansion.
+
+- [x] (proven) `SearchByCursorAsync` — SQL cursor tiebreaker vs padded stored id — **hit 2026-10-25 seed hunt:** `ComparisonRecordIdSql`; regression above.
+- [x] (proven) `ReplacePayloadJsonForIntegrationTest` — ordinal comparison record id lookup — **hit 2026-10-25 seed hunt:** `ComparisonRecordIdLookup`; regression above.
+- [x] (valid-no-repro) `GetByIdAsync` — padded key load — **cheap-disproof 2026-10-25 seed hunt:** hunt 177.
+- [x] (invalid) `ApiPaging.TryParseUtcTicksIdCursor` — HTTP cursor id trim — **cheap-disproof 2026-10-25 seed hunt:** comparison search normalizes at application layer.
+- [x] (invalid) `ComparisonBatchReplayZipSupport` — manifest id echo — **cheap-disproof 2026-10-25 seed hunt:** cosmetic only.
+
 2026-10-25 seed hunt (seed→hit): proved `ComparisonRecordRepository.GetByIdAsync` and in-memory `GetByIdAsync` matched `ComparisonRecordId` with exact equality while legacy SQL/in-memory rows could retain surrounding whitespace on the primary key and scoped reads always trim lookup ids at the application layer, so replay cost estimates and scoped comparison loads could miss persisted rows until a list projection normalized elsewhere; add `ComparisonRecordIdLookup`, trim lookup keys, match stored ids with padding tolerance, SQL `LTRIM(RTRIM(ComparisonRecordId))` filter, and trim returned ids in `NormalizeRunIdsNullable`; regressions `GetByIdAsync_finds_legacy_row_when_stored_comparison_record_id_has_padding`, `GetById_finds_row_when_lookup_comparison_record_id_has_surrounding_whitespace`, and `CompareQuality_TryGetScopedRecordAsync_finds_legacy_padded_comparison_record_id_in_repository`; cheap-disproof closed SQL create normalizer (hunt 176), integration test hook `ReplacePayloadJsonForIntegrationTest`, `ApiPaging.TryParseUtcTicksIdCursor` (comparison search normalizes inbound cursor id), batch zip manifest echo (cosmetic), and Armenian homoglyphs (deferred); seeded five follow-on rows; scoped application-analysis + replay filter 340/340. Private beta: comparison detail, replay, and drift loads resolve records when legacy storage used padded comparison record ids or callers pass padded lookup keys.
 
 - [ ] (candidate) `ComparisonRecordRepository.SearchByCursorAsync` — SQL cursor id vs padded stored key — locus: SQL cursor; input: cursor param already trimmed in hunt 176.
@@ -8297,11 +8311,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 177
-- **bugs-found:** 183
+- **hunts:** 178
+- **bugs-found:** 184
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-25
-- **last-bug:** 2026-10-25 — comparison get-by-id padded key parity
+- **last-bug:** 2026-10-25 — SQL comparison cursor padded id parity
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
