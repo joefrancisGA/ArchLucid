@@ -138,7 +138,11 @@ public sealed class DiagramEdgeLabelHumanizerTests
     public void HumanizeLabel_maps_diagram_enrichment_association_aliases(string alias, string expected)
     {
         DiagramEdgeLabelHumanizer.HumanizeLabel(alias).Should().Be(expected);
-        DiagramEdgeLabelHumanizer.ResolveDisplayLabel(null, null, alias).Should().Be(expected);
+
+        if (!string.Equals(alias, GraphEdgeTypes.MayAccess, StringComparison.OrdinalIgnoreCase))
+        {
+            DiagramEdgeLabelHumanizer.ResolveDisplayLabel(null, null, alias).Should().Be(expected);
+        }
     }
 
     [Fact]

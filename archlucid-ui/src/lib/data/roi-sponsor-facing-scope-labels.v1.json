@@ -19,7 +19,8 @@
   "nonAdditivityCaveat": "Per-system rows do not sum to the portfolio headline.",
   "operatorHints": {
     "dispositionTraining": "Headline savings follow finding dispositions — for example, accepted risk and waived items are excluded from realized value. Portfolio totals deduplicate overlapping findings by stable FindingId. Per-system rows are pre-disposition snapshots and do not add up to the portfolio headline because of shared infrastructure and overlapping findings.",
-    "headlineMath": "Headline savings are disposition-aware: accepted risk, waived, deferred, and not-applicable findings are excluded from realized totals. Open and needs-evidence amounts use portfolio finding deduplication by stable FindingId (not cross-review compare correlation) so shared infrastructure is not counted twice.",
-    "systemRowMath": "Each row is a pre-disposition snapshot from that system's latest committed review. Row amounts do not sum to the portfolio headline because headline totals apply disposition rules and deduplicate overlapping findings by FindingId."
+    "headlineMath": "Headline savings are disposition-aware: accepted risk, waived, deferred, and not-applicable findings are excluded from realized totals. Open and needs-evidence amounts use portfolio finding deduplication by stable FindingId (not cross-review compare correlation) so shared infrastructure is not counted twice. When savings pricing basis or EA multiplier were not stored on the ROI summary, the dashboard labels them instead of defaulting to retail list pricing.",
+    "systemRowMath": "Each row is a pre-disposition snapshot from that system's latest committed review. Row amounts do not sum to the portfolio headline because headline totals apply disposition rules and deduplicate overlapping findings by FindingId.",
+    "staleCostEvidence": "Stale or missing uploaded inventory cost evidence means savings may rely on retail catalog or heuristic estimates until you refresh cloud cost evidence. Executive and sponsor charts surface that state instead of implying measured spend."
   }
 }

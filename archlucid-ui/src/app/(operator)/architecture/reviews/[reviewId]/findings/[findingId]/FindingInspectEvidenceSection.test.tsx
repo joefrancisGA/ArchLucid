@@ -94,7 +94,7 @@ describe("FindingInspectEvidenceSection", () => {
           policy: null,
           evidence: [
             {
-              label: "Open diagram shape api",
+              label: "Cited shape id api. A display name was not stored.",
               detail: "diagram:evidence-mermaid-1:api",
               href: "#diagram-citation-preview",
               diagramCitation: {
@@ -110,7 +110,7 @@ describe("FindingInspectEvidenceSection", () => {
     const link = screen.getByTestId("finding-diagram-citation-link");
 
     expect(link).toHaveAttribute("href", expect.stringContaining("diagramCitationPreview=evidence-mermaid-1%7Capi"));
-    expect(link).toHaveTextContent("Open diagram shape api");
+    expect(link).toHaveTextContent("Cited shape id api. A display name was not stored.");
   });
 
   it("keeps evidence-only layout when no policy context is available", () => {

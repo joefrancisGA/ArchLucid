@@ -46,7 +46,7 @@ export function buildReviewPackageShareWhenToSharePreview(): ReviewPackageShareW
         id: "print",
         label: "Print / Save as PDF",
         occasion:
-          "Use when you need a clean package summary for a meeting or binder — not a signed export artifact.",
+          "Use when you need a clean package summary for a meeting or binder — not a signed export artifact and not a substitute for the sealed review record.",
       },
       {
         id: "export",
