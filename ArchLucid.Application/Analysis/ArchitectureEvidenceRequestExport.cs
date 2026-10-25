@@ -15,13 +15,13 @@ internal static class ArchitectureEvidenceRequestExport
 
     internal const string MissingEvidencePackageIdCopy = "Evidence package id was not stored.";
 
-    internal const string ConstraintsNotStoredCopy = "Constraints were not stored.";
+    internal const string ConstraintsNotRecordedCopy = "Constraints were not recorded.";
 
-    internal const string RequiredCapabilitiesNotStoredCopy = "Required capabilities were not stored.";
+    internal const string RequiredCapabilitiesNotRecordedCopy = "Required capabilities were not recorded.";
 
-    internal const string AssumptionsNotStoredCopy = "Assumptions were not stored.";
+    internal const string AssumptionsNotRecordedCopy = "Assumptions were not recorded.";
 
-    internal const string PolicyEvidenceNotStoredCopy = "Policy evidence was not stored.";
+    internal const string PolicyEvidenceNotRecordedCopy = "Policy evidence was not recorded.";
 
     internal const string PolicySummaryNotStoredCopy = "Policy summary was not stored.";
 

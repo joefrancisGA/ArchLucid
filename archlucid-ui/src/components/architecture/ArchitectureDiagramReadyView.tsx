@@ -15,6 +15,7 @@ import {
   ARCHITECTURE_DIAGRAM_REGENERATE_ACTION,
   ARCHITECTURE_DIAGRAM_VIEW_MERMAID_ACTION,
 } from "@/lib/architecture/architecture-diagram-copy";
+import { formatArchitectureDiagramMermaidSourceForDisclosure } from "@/lib/architecture/format-architecture-diagram-mermaid-source-display";
 import {
   architectureDiagramMermaidSourceDisclosureHrefFromSearch,
   parseArchitectureDiagramMermaidSourceOpenFromSearch,
@@ -163,7 +164,9 @@ export function ArchitectureDiagramReadyView(props: ArchitectureDiagramReadyView
             <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
               {ARCHITECTURE_DIAGRAM_MERMAID_SOURCE_DISCLOSURE}
             </p>
-            <pre className="max-h-48 overflow-auto rounded-md bg-neutral-50 p-3 text-xs dark:bg-neutral-900">{panel.mermaidSource}</pre>
+            <pre className="max-h-48 overflow-auto rounded-md bg-neutral-50 p-3 text-xs dark:bg-neutral-900">
+              {formatArchitectureDiagramMermaidSourceForDisclosure(panel.mermaidSource)}
+            </pre>
             <div className="flex flex-wrap gap-2">
               <Button type="button" variant="outline" size="sm" onClick={() => void panel.copyMermaid()}>
                 {panel.copied ? "Copied" : ARCHITECTURE_DIAGRAM_COPY_MERMAID_ACTION}
