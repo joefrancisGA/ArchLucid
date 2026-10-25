@@ -218,6 +218,8 @@ describe("decodeOAuthErrorDescription", () => {
 
   it("preserves literal plus in authorize error descriptions when ZWNJ glue separates words", () => {
     expect(decodeOAuthErrorDescription("Policy\u200cdenied+extra")).toBe("Policy denied+extra");
+    expect(decodeOAuthErrorDescription("Policy\u200adenied%252Bextra")).toBe("Policy denied+extra");
+    expect(decodeOAuthErrorDescription("Policy\u202fdenied%252Bextra")).toBe("Policy denied+extra");
   });
 
   it("preserves literal plus in authorize error descriptions when emoji ZWJ sequences are present", () => {
