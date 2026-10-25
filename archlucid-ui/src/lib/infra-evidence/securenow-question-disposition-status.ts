@@ -14,7 +14,13 @@ export function secureNowQuestionDispositionStatusTrimmed(
 export function secureNowQuestionDispositionIsOpen(
   status: string | null | undefined,
 ): boolean {
-  return secureNowQuestionDispositionStatusTrimmed(status) === "Open";
+  const normalized = secureNowQuestionDispositionStatusTrimmed(status);
+  if (normalized === null) {
+    // List JSON may omit status on actionable open rows while they still appear in the Open filter.
+    return true;
+  }
+
+  return normalized === "Open";
 }
 
 export function secureNowQuestionDispositionIsAnswered(

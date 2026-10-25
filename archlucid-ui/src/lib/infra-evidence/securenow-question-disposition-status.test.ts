@@ -4,6 +4,7 @@ import {
   secureNowQuestionDispositionIsAnswered,
   secureNowQuestionDispositionIsClosed,
   secureNowQuestionDispositionIsDismissed,
+  secureNowQuestionDispositionIsOpen,
   secureNowQuestionDispositionStatusTrimmed,
   secureNowQuestionReviewerClosedAnswerCodeLine,
   secureNowQuestionReviewerClosedAnswerTextLine,
@@ -22,6 +23,17 @@ describe("secureNowQuestionDispositionStatusTrimmed", () => {
 describe("secureNowQuestionDispositionIsAnswered", () => {
   it("treats padded answered status as answered", () => {
     expect(secureNowQuestionDispositionIsAnswered("  Answered  ")).toBe(true);
+  });
+});
+
+describe("secureNowQuestionDispositionIsOpen", () => {
+  it("treats omitted status as open for answer chrome", () => {
+    expect(secureNowQuestionDispositionIsOpen(null)).toBe(true);
+    expect(secureNowQuestionDispositionIsOpen("   ")).toBe(true);
+  });
+
+  it("treats padded Open status as open", () => {
+    expect(secureNowQuestionDispositionIsOpen("  Open  ")).toBe(true);
   });
 });
 

@@ -596,6 +596,16 @@ describe("SecureNowQuestionQueue", () => {
     expect(screen.getByText("Question status was not stored")).toBeInTheDocument();
   });
 
+  it("shows answer actions when list JSON omits question status on an open row", async () => {
+    mocks.listQuestions.mockResolvedValue([{ ...question, status: null }]);
+
+    render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
+    fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
+
+    expect(screen.getByRole("button", { name: "Name the peer" })).toBeInTheDocument();
+    expect(screen.queryByPlaceholderText("Reason required to reopen")).not.toBeInTheDocument();
+  });
+
   it("labels missing question copy, type, reason, and choices", async () => {
     mocks.listQuestions.mockResolvedValue([{
       ...question,

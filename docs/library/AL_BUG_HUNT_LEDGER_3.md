@@ -7328,6 +7328,8 @@ ABQ-09 churn hotspot.
 
 ## Zone: securenow-question-queue
 
+2026-10-25 seed hunt (seed→hit): promoted `secureNowQuestionDispositionIsOpen` requiring explicit `Open` status — open-filter rows with omitted or whitespace-only `status` showed reopen chrome instead of answer actions; treat trimmed-null status as open for action chrome while status labels still report not stored; regressions `treats omitted status as open for answer chrome` and `shows answer actions when list JSON omits question status on an open row`; scoped SecureNow queue vitest 117/117. Private beta: operators can answer questions that appear in the open queue when list JSON omitted disposition status instead of being steered to reopen.
+
 2026-10-25 seed hunt (seed→hit): promoted `mapJsonBooleanOrNull` only accepting lowercase `"true"`/`"false"` — padded or capitalized string `isExpired` values such as `" TRUE "` still coerced to null and kept expired rows in the open queue; `parseJsonBooleanOrNull` trims and lowercases string booleans for list and disposition mapping; regressions `maps string isExpired values from list responses` (padded `TRUE`) and `maps padded false string isExpired on disposition responses`; scoped SecureNow queue vitest 114/114. Private beta: expired questions still drop out of the open promo when list JSON sends isExpired with surrounding spaces or mixed case.
 
 2026-10-25 seed hunt (seed→hit): promoted `securenow-question-queue-api.mapQuestion` treating string `isExpired` values as null — list JSON `"true"`/`"false"` from mis-serialized proxies was ignored so expired questions stayed in the open queue; `mapJsonBooleanOrNull` for list rows and `mapJsonBoolean` on disposition responses; regressions `maps string isExpired values from list responses` and `hides expired questions from the open promo when isExpired is true`; scoped SecureNow queue vitest 113/113. Private beta: expired questions drop out of the open-queue promo when list JSON carries isExpired as a string boolean.
@@ -7412,11 +7414,11 @@ ABQ-09 churn hotspot.
 - **aliases:** securenow question queue; question disposition
 - **paths:** ArchLucid.Application/InfraEvidence/SecureNowQuestionDispositions/; ArchLucid.Api/Controllers/InfraEvidence/InfraEvidenceSecureNowQuestionsController.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/ISecureNowQuestionDispositionRepository.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/ISecureNowQuestionDispositionService.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/SecureNowQuestionDispositionRecord.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/SecureNowQuestionRecord.cs; ArchLucid.Persistence/InfraEvidence/NoOpSecureNowQuestionDispositionRepository.cs; ArchLucid.Persistence/InfraEvidence/SqlSecureNowQuestionDispositionRepository.cs; ArchLucid.Contracts/InfraEvidence/SecureNowQuestionDispositionContracts.cs; archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx; archlucid-ui/src/lib/infra-evidence/securenow-question-queue-api.ts
 - **test-filter:** SecureNowQuestion
-- **hunts:** 82
-- **bugs-found:** 59
+- **hunts:** 83
+- **bugs-found:** 60
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-25
-- **last-bug:** 2026-10-25 — padded/case isExpired string coercion
+- **last-bug:** 2026-10-25 — omitted status reopen chrome
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -7582,6 +7584,7 @@ ABQ-09 churn hotspot.
 - [x] (proven) `securenow-question-queue-api.mapQuestion` / `answerSecureNowQuestion` — padded `answerCodes` preserved on list rows and posted verbatim on answer; trim in `mapQuestion`, normalize bar selection, trim on answer POST; regressions `trims padded answer code entries from list responses` and `posts trimmed answer codes when list JSON stored padded answer choices`.
 - [x] (proven) `securenow-question-queue-api.mapQuestion` — string `isExpired` list values coerced to null so expired rows stayed open; `mapJsonBooleanOrNull` / `mapJsonBoolean`; regressions `maps string isExpired values from list responses` and `hides expired questions from the open promo when isExpired is true`.
 - [x] (proven) `parseJsonBooleanOrNull` — only exact lowercase `"true"`/`"false"` matched, so padded/capitalized string `isExpired` still mapped to null; trim + lowercase string boolean parsing; regressions `maps string isExpired values from list responses` (`TRUE`) and `maps padded false string isExpired on disposition responses`.
+- [x] (proven) `secureNowQuestionDispositionIsOpen` / `SecureNowQuestionQueue` — omitted `status` on open-filter rows showed reopen UI instead of answer actions; treat null/whitespace status as open for chrome; regression `shows answer actions when list JSON omits question status on an open row`.
 - [x] (proven) `SecureNowQuestionQueue` / `securenow-question-queue-provider` — list payloads could carry `isExpired: false` while `expirationUtc` was already in the past, so details read “Not expired” and open filtering kept stale rows until reload; `secureNowQuestionShowsExpired`; regressions `returns true when expirationUtc is in the past even if isExpired is false` and `marks expiration as expired in details when expirationUtc is past but isExpired is false`.
 - (candidate) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` writes for the same identity hash may surface duplicate-key or lost-update failures under parallel operator mutations; requires SQL integration or concurrent repro (prior valid-no-repro when SQL host unavailable).
 - (candidate) `securenow-question-queue-provider` / disposition mutation responses — provider always reloads after POST and ignores `SecureNowQuestionDisposition` payloads; a future optimistic merge that patches list state from mutation JSON without reloading could reintroduce missing display fields unless it uses `mapSecureNowQuestionDisposition` only.
