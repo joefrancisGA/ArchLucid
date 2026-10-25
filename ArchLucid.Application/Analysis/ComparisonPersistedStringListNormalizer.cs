@@ -17,5 +17,30 @@ internal static class ComparisonPersistedStringListNormalizer
 
             items[i] = items[i].Trim();
         }
+
+        DedupeInPlace(items);
+    }
+
+    private static void DedupeInPlace(List<string> items)
+    {
+        if (items.Count < 2)
+            return;
+
+        HashSet<string> seen = new(StringComparer.Ordinal);
+        List<string> distinct = [];
+
+        foreach (string item in items)
+        {
+            if (!seen.Add(item))
+                continue;
+
+            distinct.Add(item);
+        }
+
+        if (distinct.Count == items.Count)
+            return;
+
+        items.Clear();
+        items.AddRange(distinct);
     }
 }

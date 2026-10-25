@@ -262,6 +262,23 @@ public sealed class EndToEndReplayComparisonReportNormalizerTests
     }
 
     [Fact]
+    public void CompareQuality_EndToEndReplayComparisonReportNormalizer_dedupes_duplicate_top_level_warnings_and_interpretation_notes()
+    {
+        EndToEndReplayComparisonReport report = new()
+        {
+            LeftRunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            RightRunId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            Warnings = ["partial coverage", "  partial coverage  ", "drift"],
+            InterpretationNotes = ["note-a", "note-a", "  note-b  "],
+        };
+
+        EndToEndReplayComparisonReportNormalizer.NormalizePersistedPayload(report);
+
+        report.Warnings.Should().Equal(["partial coverage", "drift"]);
+        report.InterpretationNotes.Should().Equal(["note-a", "note-b"]);
+    }
+
+    [Fact]
     public void CompareQuality_EndToEndReplayComparisonReportNormalizer_clears_run_metadata_flags_when_changed_fields_empty()
     {
         EndToEndReplayComparisonReport report = new()
