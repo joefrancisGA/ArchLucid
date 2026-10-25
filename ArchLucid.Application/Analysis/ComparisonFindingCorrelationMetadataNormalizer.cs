@@ -24,6 +24,14 @@ internal static class ComparisonFindingCorrelationMetadataNormalizer
         metadata.UnmatchedRightCount = ClampCount(metadata.UnmatchedRightCount);
     }
 
+    internal static bool IsPersistedEmptyShell(ComparisonFindingCorrelationMetadata metadata) =>
+        metadata.PolicyRuleMatchCount == 0
+        && metadata.FuzzyMatchCount == 0
+        && metadata.UnmatchedLeftCount == 0
+        && metadata.UnmatchedRightCount == 0
+        && metadata.HonestyNote.Length == 0
+        && metadata.PrimaryCorrelationMethod == DefaultPrimaryCorrelationMethod;
+
     private static string NormalizePrimaryCorrelationMethod(string value) =>
         OptionalExportMetadataStringNormalizer.NormalizeOptionalString(value) ?? DefaultPrimaryCorrelationMethod;
 

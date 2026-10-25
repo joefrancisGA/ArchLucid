@@ -25,6 +25,10 @@ internal static class EndToEndReplayComparisonReportNormalizer
             ExportRecordDiffResultNormalizer.NormalizeDisplayAnchors(diff);
 
         ComparisonFindingCorrelationMetadataNormalizer.NormalizeInPlace(report.FindingCorrelation);
+        if (report.FindingCorrelation is not null
+            && ComparisonFindingCorrelationMetadataNormalizer.IsPersistedEmptyShell(report.FindingCorrelation))
+            report.FindingCorrelation = null;
+
         CrossReviewFindingLifecycleNormalizer.NormalizeOnReport(report);
         CompareQualityDeltaCountsNormalizer.NormalizeInPlace(report.CompareQualityDelta);
 
