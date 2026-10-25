@@ -87,6 +87,12 @@ describe("deriveOperatorHomeWorkspaceMetrics", () => {
     expect(metrics.hasReviews).toBe(false);
   });
 
+  it("normalizes non-finite awaitingApprovalCount to zero for home KPI totals", () => {
+    const metrics = deriveOperatorHomeWorkspaceMetrics([], 2, Number.NaN);
+
+    expect(metrics.reviewPackagesAwaitingApproval).toBe(0);
+  });
+
   it("excludes archived runs from workspace metrics aggregates", () => {
     const items: RunSummary[] = [
       makeRun({

@@ -86,7 +86,9 @@ export function deriveOperatorHomeWorkspaceMetrics(
     }
   }
 
-  const normalizedAwaitingApproval = Math.max(0, Math.trunc(awaitingApprovalCount));
+  const normalizedAwaitingApproval = Number.isFinite(awaitingApprovalCount)
+    ? Math.max(0, Math.trunc(awaitingApprovalCount))
+    : 0;
 
   return {
     reviewPackagesTotal,
