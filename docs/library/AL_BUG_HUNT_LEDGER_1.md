@@ -6868,6 +6868,20 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-25 seed hunt (seed→hit): proved `ComparisonRecordRepository.CreateAsync` inserted caller-supplied `ComparisonRecordId`/export anchors and dashed run strings while hunt 175 only normalized in-memory creates, and `ComparisonRecordRepositoryCore.MatchesCursor` compared untrimmed stored `ComparisonRecordId` values on createdUtc tiebreakers so legacy padded rows could break cursor paging; apply `ComparisonRecordPersistNormalizer.NormalizeForPersist` on SQL create, trim update lookup ids, and trim stored ids in `MatchesCursor`; regressions `Create_trims_comparison_record_id_on_persist`, `MatchesCursor_trims_padded_stored_comparison_record_id_on_tiebreaker`, and `SearchByCursorAsync_pages_when_legacy_stored_comparison_record_id_has_padding`; cheap-disproof closed in-memory create normalizer (hunt 175), integration test hook `ReplacePayloadJsonForIntegrationTest`, `ApiPaging.TryParseUtcTicksIdCursor` (comparison search normalizes inbound cursor id), batch zip manifest echo (cosmetic), and Armenian homoglyphs (deferred); seeded five follow-on rows; scoped application-analysis + replay filter 339/339. Private beta: SQL and in-memory comparison persistence and cursor paging agree on trimmed record keys and canonical run anchors.
+
+- [ ] (candidate) `ComparisonRecordRepository.GetByIdAsync` — SQL lookup without trim on parameter — locus: SQL read; input: app layer normalizes before call.
+- [ ] (candidate) `InMemoryComparisonRecordRepository.ReplacePayloadJsonForIntegrationTest` — bypasses persist normalizer — locus: test hook only.
+- [ ] (candidate) `ApiPaging.TryParseUtcTicksIdCursor` — cursor id segment without trim — locus: HTTP cursor parse; input: padded id after ticks delimiter (alerts inbox and other API surfaces).
+- [ ] (candidate) `ComparisonBatchReplayZipSupport` — manifest failure entries echo pre-trim batch tokens — locus: zip manifest; input: cosmetic id echo only.
+- [ ] (candidate) `ComparisonExportMarkdownSectionRemover` — Armenian homoglyphs — locus: deferred expansion.
+
+- [x] (proven) `ComparisonRecordRepository.CreateAsync` — SQL write without persist normalizer — **hit 2026-10-25 seed hunt:** shared `ComparisonRecordPersistNormalizer`; regressions above.
+- [x] (proven) `MatchesCursor` — padded stored comparison id tiebreaker — **hit 2026-10-25 seed hunt:** trim stored id; regressions above.
+- [x] (valid-no-repro) `InMemoryComparisonRecordRepository.CreateAsync` — in-memory write — **cheap-disproof 2026-10-25 seed hunt:** hunt 175.
+- [x] (invalid) `ApiPaging.TryParseUtcTicksIdCursor` — HTTP cursor id trim — **cheap-disproof 2026-10-25 seed hunt:** comparison search normalizes at application layer.
+- [x] (invalid) `ComparisonBatchReplayZipSupport` — manifest id echo — **cheap-disproof 2026-10-25 seed hunt:** cosmetic only.
+
 2026-10-25 seed hunt (seed→hit): proved `InMemoryComparisonRecordRepository.CreateAsync` cloned comparison rows verbatim while SQL stores `UNIQUEIDENTIFIER` run anchors and hunts 173–174 only fixed read/search matching, so in-memory hosts persisted dashed or padded `ComparisonRecordId`/run/export anchors and `UpdateLabelAndTagsAsync`/`GetByIdAsync` could miss rows until a read path normalized; consolidate write normalization in `ComparisonRecordPersistNormalizer.NormalizeForPersist` on create and trim lookup ids on in-memory get/update; regressions `CreateAsync_canonicalizes_dashed_run_ids_and_trims_comparison_record_id`, `UpdateLabelAndTagsAsync_finds_row_when_create_used_padded_comparison_record_id`, and `CompareQuality_in_memory_comparison_repository_create_canonicalizes_dashed_left_run_id`; cheap-disproof closed search filter row-side parity (hunt 174), list-by-run parity (hunt 173), `ApiPaging.TryParseUtcTicksIdCursor` (comparison search normalizes inbound cursor id), batch zip manifest echo (cosmetic), and Armenian homoglyphs (deferred); seeded five follow-on rows; scoped application-analysis + replay filter 339/339. Private beta: comparison records created in dev/in-memory hosts store canonical run ids and trimmed record keys like SQL, so scoped reads and label updates stay consistent.
 
 - [ ] (candidate) `ComparisonRecordRepository.Writes.CreateAsync` — SQL insert without pre-canonicalize string columns — locus: SQL write; input: UNIQUEIDENTIFIER coercion already canonicalizes run ids.
@@ -8269,11 +8283,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 175
-- **bugs-found:** 181
+- **hunts:** 176
+- **bugs-found:** 182
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-25
-- **last-bug:** 2026-10-25 — in-memory comparison create persist normalize
+- **last-bug:** 2026-10-25 — SQL comparison persist and cursor tiebreaker trim
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
