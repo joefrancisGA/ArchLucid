@@ -66,14 +66,18 @@ internal static class ComparisonRecordSearchPredicateBuilder
 
         if (!string.IsNullOrWhiteSpace(leftExportRecordId))
         {
-            conditions.Add("LeftExportRecordId = @LeftExportRecordId");
-            parameters.Add("@LeftExportRecordId", leftExportRecordId);
+            string normalizedLeftExportRecordId =
+                ComparisonExportRecordIdLookup.NormalizeLookupKey(leftExportRecordId);
+            conditions.Add("LTRIM(RTRIM(LeftExportRecordId)) = @LeftExportRecordId");
+            parameters.Add("@LeftExportRecordId", normalizedLeftExportRecordId);
         }
 
         if (!string.IsNullOrWhiteSpace(rightExportRecordId))
         {
-            conditions.Add("RightExportRecordId = @RightExportRecordId");
-            parameters.Add("@RightExportRecordId", rightExportRecordId);
+            string normalizedRightExportRecordId =
+                ComparisonExportRecordIdLookup.NormalizeLookupKey(rightExportRecordId);
+            conditions.Add("LTRIM(RTRIM(RightExportRecordId)) = @RightExportRecordId");
+            parameters.Add("@RightExportRecordId", normalizedRightExportRecordId);
         }
 
         if (!string.IsNullOrWhiteSpace(label))

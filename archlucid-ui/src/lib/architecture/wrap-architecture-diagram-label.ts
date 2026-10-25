@@ -1,6 +1,7 @@
 import {
   ARCHITECTURE_DIAGRAM_MERMAID_WRAPPING_WIDTH,
 } from "@/lib/architecture/architecture-diagram-mermaid-config";
+import { ARCHITECTURE_DIAGRAM_NODE_LABEL_NOT_STORED } from "@/lib/architecture/architecture-diagram-provenance";
 
 /** Matches mermaid `themeVariables.fontSize` for architecture and inventory diagrams. */
 export const ARCHITECTURE_DIAGRAM_LABEL_FONT_SIZE_PX = 15;
@@ -263,10 +264,14 @@ export function wrapArchitectureDiagramLabelForMermaidSource(
   raw: string,
   peerResourceNames: readonly string[] = [],
 ): string {
+  if (raw.trim().length === 0) {
+    return ARCHITECTURE_DIAGRAM_NODE_LABEL_NOT_STORED;
+  }
+
   const lines = formatArchitectureDiagramCanvasLabelLines(raw, peerResourceNames);
 
   if (lines.length === 0) {
-    return raw;
+    return ARCHITECTURE_DIAGRAM_NODE_LABEL_NOT_STORED;
   }
 
   if (lines.length === 1) {

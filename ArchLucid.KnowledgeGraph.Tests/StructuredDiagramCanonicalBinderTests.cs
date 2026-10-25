@@ -243,6 +243,127 @@ public sealed class StructuredDiagramCanonicalBinderTests
     }
 
     [Fact]
+    public void BindToCanonicalNodes_remaps_edges_when_both_canonical_targets_have_surrounding_whitespace_on_node_id()
+    {
+        GraphNode apiNode = CreateTopologyNode("  obj-api-1  ", "API Gateway", []);
+        GraphNode sqlNode = CreateTopologyNode(
+            "  obj-sql-1  ",
+            "pay-sql",
+            new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["azureResourceId"] = ArmSqlServerId,
+            });
+
+        ArchitectureDiagramToGraphCompiler compiler = new();
+        StructuredDiagramGraphCompileResult compileResult = compiler.Compile(
+            new ArchitectureDiagramModelRecord
+            {
+                Nodes =
+                [
+                    new ArchitectureDiagramNodeRecord
+                    {
+                        Id = "api",
+                        Label = "API Gateway",
+                        Kind = ArchitectureDiagramNodeKinds.System,
+                        Provenance = ArchitectureDiagramProvenanceKinds.Inferred,
+                    },
+                    new ArchitectureDiagramNodeRecord
+                    {
+                        Id = "sql",
+                        Label = ArmSqlServerId,
+                        Kind = ArchitectureDiagramNodeKinds.System,
+                        Provenance = ArchitectureDiagramProvenanceKinds.Inferred,
+                    },
+                ],
+                Edges =
+                [
+                    new ArchitectureDiagramEdgeRecord
+                    {
+                        Id = "e1",
+                        SourceId = "api",
+                        TargetId = "sql",
+                        Provenance = ArchitectureDiagramProvenanceKinds.Inferred,
+                    },
+                ],
+                ExtractionMethod = DiagramExtractionMethods.StructuredParse,
+            },
+            CreateCompileOptions());
+
+        StructuredDiagramGraphCompileResult bound = StructuredDiagramCompiledGraphBinder.BindToCanonicalNodes(
+            compileResult,
+            [apiNode, sqlNode]);
+
+        bound.Snapshot.Edges.Should().ContainSingle(edge =>
+            edge.FromNodeId == "obj-api-1"
+            && edge.ToNodeId == "obj-sql-1");
+    }
+
+    [Fact]
+    public void BindToCanonicalNodes_trims_padded_canonical_node_id_when_remapping_edges()
+    {
+        GraphNode apiNode = CreateTopologyNode("obj-api-1", "API Gateway", []);
+        GraphNode sqlNode = CreateTopologyNode(
+            "  obj-sql-1  ",
+            "pay-sql",
+            new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["azureResourceId"] = ArmSqlServerId,
+            });
+
+        ArchitectureDiagramToGraphCompiler compiler = new();
+        StructuredDiagramGraphCompileResult compileResult = compiler.Compile(
+            new ArchitectureDiagramModelRecord
+            {
+                Nodes =
+                [
+                    new ArchitectureDiagramNodeRecord
+                    {
+                        Id = "api",
+                        Label = "API Gateway",
+                        Kind = ArchitectureDiagramNodeKinds.System,
+                        Provenance = ArchitectureDiagramProvenanceKinds.Inferred,
+                    },
+                    new ArchitectureDiagramNodeRecord
+                    {
+                        Id = "sql",
+                        Label = ArmSqlServerId,
+                        Kind = ArchitectureDiagramNodeKinds.System,
+                        Provenance = ArchitectureDiagramProvenanceKinds.Inferred,
+                    },
+                ],
+                Edges =
+                [
+                    new ArchitectureDiagramEdgeRecord
+                    {
+                        Id = "e1",
+                        SourceId = "api",
+                        TargetId = "sql",
+                        Provenance = ArchitectureDiagramProvenanceKinds.Inferred,
+                    },
+                ],
+                ExtractionMethod = DiagramExtractionMethods.StructuredParse,
+            },
+            CreateCompileOptions());
+
+        StructuredDiagramGraphCompileResult bound = StructuredDiagramCompiledGraphBinder.BindToCanonicalNodes(
+            compileResult,
+            [apiNode, sqlNode]);
+
+        bound.CanonicalBindings.Should().Contain(binding =>
+            binding.CanonicalGraphNodeId == "obj-sql-1"
+            && binding.DiagramSourceId == "sql");
+        bound.Snapshot.Edges.Should().ContainSingle(edge =>
+            edge.FromNodeId == "obj-api-1"
+            && edge.ToNodeId == "obj-sql-1");
+
+        StructuredDiagramCompiledGraphBinder.ApplyBindingsToGraphNodes(
+            [sqlNode],
+            bound.CanonicalBindings);
+
+        sqlNode.Properties[StructuredDiagramGraphPropertyKeys.BoundDiagramNodeId].Should().Be("sql");
+    }
+
+    [Fact]
     public void BindToCanonicalNodes_remaps_edges_to_bound_canonical_nodes()
     {
         GraphNode apiNode = CreateTopologyNode("obj-api-1", "API Gateway", []);
@@ -369,6 +490,306 @@ public sealed class StructuredDiagramCanonicalBinderTests
             edge.FromNodeId == "obj-api-1"
             && edge.ToNodeId == "obj-sql-1"
             && edge.EdgeType == GraphEdgeTypes.ConnectsTo);
+    }
+
+    [Fact]
+    public void ApplyBindingsToGraphNodes_collapses_padded_inference_confidence_alias_when_stamping_bind_metadata()
+    {
+        string paddedConfidenceKey = $"  {StructuredDiagramGraphPropertyKeys.InferenceConfidence}  ";
+        GraphNode inventoryNode = CreateTopologyNode(
+            "obj-api-1",
+            "API Gateway",
+            new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                [paddedConfidenceKey] = "0.5",
+            });
+
+        ArchitectureDiagramToGraphCompiler compiler = new();
+        StructuredDiagramGraphCompileResult compileResult = compiler.Compile(
+            new ArchitectureDiagramModelRecord
+            {
+                Nodes =
+                [
+                    new ArchitectureDiagramNodeRecord
+                    {
+                        Id = "api",
+                        Label = "API Gateway",
+                        Kind = ArchitectureDiagramNodeKinds.System,
+                        Provenance = ArchitectureDiagramProvenanceKinds.Inferred,
+                    },
+                ],
+                ExtractionMethod = DiagramExtractionMethods.StructuredParse,
+            },
+            CreateCompileOptions());
+
+        StructuredDiagramGraphCompileResult bound = StructuredDiagramCompiledGraphBinder.BindToCanonicalNodes(
+            compileResult,
+            [inventoryNode]);
+
+        StructuredDiagramCompiledGraphBinder.ApplyBindingsToGraphNodes(
+            [inventoryNode],
+            bound.CanonicalBindings);
+
+        inventoryNode.Properties.Keys
+            .Count(key => string.Equals(
+                key.Trim(),
+                StructuredDiagramGraphPropertyKeys.InferenceConfidence,
+                StringComparison.OrdinalIgnoreCase))
+            .Should()
+            .Be(1);
+
+        GraphNodePropertyReader.TryGetPropertyValue(
+                inventoryNode.Properties,
+                StructuredDiagramGraphPropertyKeys.InferenceConfidence,
+                out string? confidence)
+            .Should()
+            .BeTrue();
+        confidence.Should().Be("1");
+        inventoryNode.Properties[StructuredDiagramGraphPropertyKeys.InferenceConfidence].Should().Be("1");
+    }
+
+    [Fact]
+    public void ApplyBindingsToGraphNodes_collapses_padded_provenance_kind_alias_when_stamping_bind_metadata()
+    {
+        string paddedProvenanceKey = $"  {StructuredDiagramGraphPropertyKeys.ProvenanceKind}  ";
+        GraphNode inventoryNode = CreateTopologyNode(
+            "obj-api-1",
+            "API Gateway",
+            new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                [paddedProvenanceKey] = StructuredDiagramGraphProvenanceKinds.DeterministicInference,
+            });
+
+        ArchitectureDiagramToGraphCompiler compiler = new();
+        StructuredDiagramGraphCompileResult compileResult = compiler.Compile(
+            new ArchitectureDiagramModelRecord
+            {
+                Nodes =
+                [
+                    new ArchitectureDiagramNodeRecord
+                    {
+                        Id = "api",
+                        Label = "API Gateway",
+                        Kind = ArchitectureDiagramNodeKinds.System,
+                        Provenance = ArchitectureDiagramProvenanceKinds.Inferred,
+                    },
+                ],
+                ExtractionMethod = DiagramExtractionMethods.StructuredParse,
+            },
+            CreateCompileOptions());
+
+        StructuredDiagramGraphCompileResult bound = StructuredDiagramCompiledGraphBinder.BindToCanonicalNodes(
+            compileResult,
+            [inventoryNode]);
+
+        StructuredDiagramCompiledGraphBinder.ApplyBindingsToGraphNodes(
+            [inventoryNode],
+            bound.CanonicalBindings);
+
+        inventoryNode.Properties.Keys
+            .Count(key => string.Equals(
+                key.Trim(),
+                StructuredDiagramGraphPropertyKeys.ProvenanceKind,
+                StringComparison.OrdinalIgnoreCase))
+            .Should()
+            .Be(1);
+
+        GraphNodePropertyReader.TryGetPropertyValue(
+                inventoryNode.Properties,
+                StructuredDiagramGraphPropertyKeys.ProvenanceKind,
+                out string? provenanceKind)
+            .Should()
+            .BeTrue();
+        provenanceKind.Should().Be(StructuredDiagramGraphProvenanceKinds.ObservedFact);
+        inventoryNode.Properties[StructuredDiagramGraphPropertyKeys.ProvenanceKind]
+            .Should()
+            .Be(StructuredDiagramGraphProvenanceKinds.ObservedFact);
+    }
+
+    [Fact]
+    public void BindToCanonicalNodes_remaps_edges_when_diagram_node_id_and_endpoints_have_surrounding_whitespace()
+    {
+        GraphNode inventoryNode = CreateTopologyNode("obj-api-1", "API Gateway", []);
+        const string PaddedDiagramNodeId = "  diagram-node:api  ";
+        StructuredDiagramGraphCompileOptions options = CreateCompileOptions();
+
+        StructuredDiagramGraphCompileResult compileResult = new()
+        {
+            Snapshot = new GraphSnapshot
+            {
+                GraphSnapshotId = options.GraphSnapshotId,
+                ContextSnapshotId = options.ContextSnapshotId,
+                RunId = options.RunId,
+                CreatedUtc = options.CreatedUtc,
+                Nodes =
+                [
+                    new GraphNode
+                    {
+                        NodeId = PaddedDiagramNodeId,
+                        NodeType = GraphNodeTypes.TopologyResource,
+                        Label = "API Gateway",
+                        SourceType = StructuredDiagramGraphSourceTypes.StructuredDiagram,
+                        SourceId = "api",
+                    },
+                ],
+                Edges =
+                [
+                    new GraphEdge
+                    {
+                        EdgeId = "edge-1",
+                        FromNodeId = PaddedDiagramNodeId,
+                        ToNodeId = "diagram-node:context",
+                        EdgeType = GraphEdgeTypes.ConnectsTo,
+                    },
+                ],
+            },
+            Warnings = [],
+        };
+
+        StructuredDiagramGraphCompileResult bound = StructuredDiagramCompiledGraphBinder.BindToCanonicalNodes(
+            compileResult,
+            [inventoryNode]);
+
+        bound.Snapshot.Nodes.Should().BeEmpty();
+        bound.Snapshot.Edges.Should().ContainSingle(edge =>
+            edge.FromNodeId == "obj-api-1" && edge.ToNodeId == "diagram-node:context");
+    }
+
+    [Fact]
+    public void ApplyBindingsToGraphNodes_collapses_padded_bound_diagram_id_aliases_when_stamping_bind_metadata()
+    {
+        string paddedBoundSourceKey = $"  {StructuredDiagramGraphPropertyKeys.BoundDiagramNodeId}  ";
+        string paddedBoundGraphKey = $"  {StructuredDiagramGraphPropertyKeys.BoundDiagramGraphNodeId}  ";
+        GraphNode inventoryNode = CreateTopologyNode(
+            "obj-api-1",
+            "API Gateway",
+            new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                [paddedBoundSourceKey] = "stale-diagram-source",
+                [paddedBoundGraphKey] = "stale-diagram-graph-node",
+            });
+
+        ArchitectureDiagramToGraphCompiler compiler = new();
+        StructuredDiagramGraphCompileResult compileResult = compiler.Compile(
+            new ArchitectureDiagramModelRecord
+            {
+                Nodes =
+                [
+                    new ArchitectureDiagramNodeRecord
+                    {
+                        Id = "api",
+                        Label = "API Gateway",
+                        Kind = ArchitectureDiagramNodeKinds.System,
+                        Provenance = ArchitectureDiagramProvenanceKinds.Inferred,
+                    },
+                ],
+                ExtractionMethod = DiagramExtractionMethods.StructuredParse,
+            },
+            CreateCompileOptions());
+
+        StructuredDiagramGraphCompileResult bound = StructuredDiagramCompiledGraphBinder.BindToCanonicalNodes(
+            compileResult,
+            [inventoryNode]);
+
+        StructuredDiagramCompiledGraphBinder.ApplyBindingsToGraphNodes(
+            [inventoryNode],
+            bound.CanonicalBindings);
+
+        inventoryNode.Properties.Keys
+            .Count(key => string.Equals(
+                key.Trim(),
+                StructuredDiagramGraphPropertyKeys.BoundDiagramNodeId,
+                StringComparison.OrdinalIgnoreCase))
+            .Should()
+            .Be(1);
+        inventoryNode.Properties.Keys
+            .Count(key => string.Equals(
+                key.Trim(),
+                StructuredDiagramGraphPropertyKeys.BoundDiagramGraphNodeId,
+                StringComparison.OrdinalIgnoreCase))
+            .Should()
+            .Be(1);
+
+        GraphNodePropertyReader.TryGetPropertyValue(
+                inventoryNode.Properties,
+                StructuredDiagramGraphPropertyKeys.BoundDiagramNodeId,
+                out string? boundSourceId)
+            .Should()
+            .BeTrue();
+        boundSourceId.Should().Be("api");
+
+        GraphNodePropertyReader.TryGetPropertyValue(
+                inventoryNode.Properties,
+                StructuredDiagramGraphPropertyKeys.BoundDiagramGraphNodeId,
+                out string? boundGraphNodeId)
+            .Should()
+            .BeTrue();
+        boundGraphNodeId.Should().Be("diagram-node:api");
+
+        inventoryNode.Properties[StructuredDiagramGraphPropertyKeys.BoundDiagramNodeId].Should().Be("api");
+        inventoryNode.Properties[StructuredDiagramGraphPropertyKeys.BoundDiagramGraphNodeId]
+            .Should()
+            .Be("diagram-node:api");
+    }
+
+    [Fact]
+    public void ApplyBindingsToGraphNodes_collapses_padded_source_evidence_alias_when_stamping_bind_metadata()
+    {
+        const string EvidenceItemId = "doc-bind-evidence-fresh";
+        string paddedEvidenceKey = $"  {StructuredDiagramGraphPropertyKeys.SourceEvidenceItemId}  ";
+        GraphNode inventoryNode = CreateTopologyNode(
+            "obj-api-1",
+            "API Gateway",
+            new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                [paddedEvidenceKey] = "stale-doc-evidence",
+            });
+
+        ArchitectureDiagramToGraphCompiler compiler = new();
+        StructuredDiagramGraphCompileResult compileResult = compiler.Compile(
+            new ArchitectureDiagramModelRecord
+            {
+                Nodes =
+                [
+                    new ArchitectureDiagramNodeRecord
+                    {
+                        Id = "api",
+                        Label = "API Gateway",
+                        Kind = ArchitectureDiagramNodeKinds.System,
+                        Provenance = ArchitectureDiagramProvenanceKinds.Inferred,
+                    },
+                ],
+                ExtractionMethod = DiagramExtractionMethods.StructuredParse,
+                SourceEvidenceItemId = EvidenceItemId,
+            },
+            CreateCompileOptions());
+
+        StructuredDiagramGraphCompileResult bound = StructuredDiagramCompiledGraphBinder.BindToCanonicalNodes(
+            compileResult,
+            [inventoryNode]);
+
+        StructuredDiagramCompiledGraphBinder.ApplyBindingsToGraphNodes(
+            [inventoryNode],
+            bound.CanonicalBindings);
+
+        inventoryNode.Properties.Keys
+            .Count(key => string.Equals(
+                key.Trim(),
+                StructuredDiagramGraphPropertyKeys.SourceEvidenceItemId,
+                StringComparison.OrdinalIgnoreCase))
+            .Should()
+            .Be(1);
+
+        GraphNodePropertyReader.TryGetPropertyValue(
+                inventoryNode.Properties,
+                StructuredDiagramGraphPropertyKeys.SourceEvidenceItemId,
+                out string? evidenceItemId)
+            .Should()
+            .BeTrue();
+        evidenceItemId.Should().Be(EvidenceItemId);
+        inventoryNode.Properties[StructuredDiagramGraphPropertyKeys.SourceEvidenceItemId]
+            .Should()
+            .Be(EvidenceItemId);
     }
 
     private static GraphNode CreateTopologyNode(

@@ -89,6 +89,64 @@ public sealed class DeclarationSegmentationPathEdgeMaterializerTests
     }
 
     [Fact]
+    public void Materialize_connects_subnet_to_datastore_when_category_has_surrounding_whitespace()
+    {
+        GraphNode nsg = new()
+        {
+            NodeId = "obj-nsg",
+            NodeType = GraphNodeTypes.SecurityBaseline,
+            Label = "edge",
+            Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["terraformType"] = "azurerm_network_security_group",
+            },
+        };
+        GraphNode subnet = new()
+        {
+            NodeId = "obj-subnet",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "app",
+            Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["terraformType"] = "azurerm_subnet",
+                ["category"] = GraphTopologyCategories.Network,
+                ["connectedToNodeIds"] = "pay_ledger",
+            },
+        };
+        GraphNode datastore = new()
+        {
+            NodeId = "obj-ledger",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "pay_ledger",
+            Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["category"] = $"  {GraphTopologyCategories.Data}  ",
+            },
+        };
+        GraphNode association = new()
+        {
+            NodeId = "obj-assoc",
+            NodeType = GraphNodeTypes.SecurityBaseline,
+            Label = "edge_app",
+            Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["terraformType"] = "azurerm_subnet_network_security_group_association",
+                ["declarationSegmentationControlId"] = "edge",
+                ["declarationAssociatedNodeId"] = "app",
+            },
+        };
+
+        IReadOnlyList<GraphEdge> edges = DeclarationSegmentationPathEdgeMaterializer.Materialize(
+            [nsg, subnet, datastore, association]);
+
+        edges.Should().Contain(edge =>
+            edge.FromNodeId == subnet.NodeId
+            && edge.ToNodeId == datastore.NodeId
+            && edge.EdgeType == GraphEdgeTypes.ConnectsTo
+            && edge.InferenceSource == GraphEdgeInferenceSources.DeclarationSegmentationPath);
+    }
+
+    [Fact]
     public void Materialize_emits_no_edges_when_associated_subnet_missing()
     {
         GraphNode nsg = new()

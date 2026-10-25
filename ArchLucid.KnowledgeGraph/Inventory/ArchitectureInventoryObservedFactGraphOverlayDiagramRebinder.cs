@@ -55,10 +55,11 @@ public static class ArchitectureInventoryObservedFactGraphOverlayDiagramRebinder
                 continue;
             }
 
-            diagramNodeIdRemap[node.NodeId] = boundTarget.NodeId;
+            string diagramGraphNodeId = node.NodeId.Trim();
+            diagramNodeIdRemap[diagramGraphNodeId] = boundTarget.NodeId;
             bindings.Add(new StructuredDiagramCanonicalBinding
             {
-                DiagramGraphNodeId = node.NodeId,
+                DiagramGraphNodeId = diagramGraphNodeId,
                 DiagramSourceId = diagramSourceId,
                 CanonicalGraphNodeId = boundTarget.NodeId,
                 SourceEvidenceItemId = TryReadSourceEvidenceItemId(node),
@@ -91,8 +92,9 @@ public static class ArchitectureInventoryObservedFactGraphOverlayDiagramRebinder
 
     private static bool IsInventoryObservedFact(GraphNode node)
     {
-        if (string.Equals(
-                node.SourceType,
+        if (!string.IsNullOrWhiteSpace(node.SourceType)
+            && string.Equals(
+                node.SourceType.Trim(),
                 ArchitectureInventoryGraphSourceTypes.AzureInventorySnapshot,
                 StringComparison.OrdinalIgnoreCase))
         {
@@ -129,7 +131,7 @@ public static class ArchitectureInventoryObservedFactGraphOverlayDiagramRebinder
 
     private static bool IsLeftoverDiagramTopologyNode(GraphNode node)
     {
-        return node.NodeId.StartsWith("diagram-node:", StringComparison.Ordinal);
+        return node.NodeId.Trim().StartsWith("diagram-node:", StringComparison.Ordinal);
     }
 
     private static string? TryReadSourceEvidenceItemId(GraphNode diagramNode)
@@ -168,7 +170,8 @@ public static class ArchitectureInventoryObservedFactGraphOverlayDiagramRebinder
                 continue;
             }
 
-            string edgeKey = $"{fromNodeId}|{toNodeId}|{edge.EdgeType}";
+            string edgeType = (edge.EdgeType ?? string.Empty).Trim();
+            string edgeKey = $"{fromNodeId}|{toNodeId}|{edgeType}";
 
             if (!edgeKeys.Add(edgeKey))
             {
@@ -180,7 +183,7 @@ public static class ArchitectureInventoryObservedFactGraphOverlayDiagramRebinder
                 EdgeId = edge.EdgeId,
                 FromNodeId = fromNodeId,
                 ToNodeId = toNodeId,
-                EdgeType = edge.EdgeType,
+                EdgeType = edgeType,
                 Label = edge.Label,
                 Weight = edge.Weight,
                 InferenceSource = edge.InferenceSource,
@@ -196,11 +199,12 @@ public static class ArchitectureInventoryObservedFactGraphOverlayDiagramRebinder
 
     private static string RemapEndpoint(string nodeId, IReadOnlyDictionary<string, string> diagramNodeIdRemap)
     {
-        if (diagramNodeIdRemap.TryGetValue(nodeId, out string? remapped))
+        if (diagramNodeIdRemap.TryGetValue(nodeId, out string? remapped)
+            || diagramNodeIdRemap.TryGetValue(nodeId.Trim(), out remapped))
         {
-            return remapped;
+            return remapped.Trim();
         }
 
-        return nodeId;
+        return nodeId.Trim();
     }
 }

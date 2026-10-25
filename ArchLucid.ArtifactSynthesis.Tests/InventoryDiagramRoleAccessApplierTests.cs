@@ -35,7 +35,7 @@ public sealed class InventoryDiagramRoleAccessApplierTests
             });
 
         ast.Edges.Should().ContainSingle(edge =>
-            edge.Label == InventoryDiagramRelationshipLabelTexts.HasAccess
+            edge.Label == "Role assignment: Reader. Observed use was not stored."
             && edge.ProvenanceKind == ProvenanceKind.ObservedFact.ToString());
     }
 
@@ -59,7 +59,7 @@ public sealed class InventoryDiagramRoleAccessApplierTests
 
         ast.Edges.Should().BeEmpty();
         ast.Nodes.Single(node => node.NodeId == "vm").UnresolvedRelationshipDetails.Should()
-            .Contain("Has Contributor on resource group rg");
+            .Contain("Contributor on resource group rg");
     }
 
     [Fact]
@@ -82,7 +82,7 @@ public sealed class InventoryDiagramRoleAccessApplierTests
 
         ast.Edges.Should().BeEmpty();
         ast.Nodes.Single(node => node.NodeId == "vm").UnresolvedRelationshipDetails.Should()
-            .Contain("Has Reader on this subscription");
+            .Contain("Reader on subscription sub");
     }
 
     [Fact]
@@ -102,7 +102,7 @@ public sealed class InventoryDiagramRoleAccessApplierTests
             new Dictionary<string, string>(StringComparer.Ordinal) { ["vm"] = "vm" });
 
         ast.Nodes.Single(node => node.NodeId == "vm").UnresolvedRelationshipDetails.Should()
-            .Contain("Has Role name was not stored. on this subscription");
+            .Contain("Role name was not stored. Scope is subscription sub.");
     }
 
     [Fact]
@@ -130,7 +130,7 @@ public sealed class InventoryDiagramRoleAccessApplierTests
         var mapping = new Dictionary<string, string>(StringComparer.Ordinal) { ["vm"] = "vm", ["vault"] = "vault" };
         InventoryDiagramRoleAccessApplier.Apply(ast, graph, mapping);
         InventoryDiagramRoleAccessApplier.Apply(ast, graph, mapping);
-        ast.Edges.Should().ContainSingle().Which.Label.Should().Be(InventoryDiagramRelationshipLabelTexts.HasAccess);
+        ast.Edges.Should().ContainSingle().Which.Label.Should().Be("Role names were not listed on this line.");
         graph.Edges.Should().HaveCount(2);
         graph.Edges.Select(edge => edge.Properties["roleName"]).Should().BeEquivalentTo("Reader", "Owner");
     }
@@ -146,7 +146,7 @@ public sealed class InventoryDiagramRoleAccessApplierTests
         InventoryDiagramRoleAccessApplier.Apply(ast, graph, mapping);
         ast.Edges.Should().BeEmpty();
         ast.Nodes.Single(node => node.NodeId == "vm").UnresolvedRelationshipDetails.Should()
-            .BeEquivalentTo("Has Reader on this subscription", "Has Owner on this subscription");
+            .BeEquivalentTo("Reader on subscription sub", "Owner on subscription sub");
     }
 
     private static DiagramAst CreateAst()

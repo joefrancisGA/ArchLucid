@@ -8,7 +8,7 @@ internal static class PrivilegePathNarrative
     public static string BuildTitle(PrivilegePathCandidate candidate)
     {
         string action = candidate.HasInsufficientEvidenceHop
-            ? "unknown role actions"
+            ? "Role actions were not stored."
             : ResolveActionLabel(candidate);
         string scope = ShortNodeLabel(candidate.TerminalScopeNodeId);
 
@@ -29,8 +29,11 @@ internal static class PrivilegePathNarrative
 
     public static string BuildDescription(PrivilegePathCandidate candidate)
     {
-        IEnumerable<string> hopDescriptions = candidate.Hops.Select(static hop =>
-            $"{ShortNodeLabel(hop.FromNodeId)} -[{hop.EdgeType}]-> {ShortNodeLabel(hop.ToNodeId)}");
+        IEnumerable<string> hopDescriptions = candidate.Hops.Select(hop =>
+            SecurityEvidencePathHopRelationshipLabel.FormatHopSegment(
+                ShortNodeLabel(hop.FromNodeId),
+                hop.EdgeType,
+                ShortNodeLabel(hop.ToNodeId)));
 
         string pathSummary = string.Join("; ", hopDescriptions);
 
@@ -64,12 +67,16 @@ internal static class PrivilegePathNarrative
                 ? string.Empty
                 : $" ({candidate.EffectiveRoleName})";
 
-            return actionHop.EdgeType == GraphEdgeTypes.CanWrite
-                ? $"write access{roleSuffix}"
-                : $"read access{roleSuffix}";
+            string actionLabel = actionHop.EdgeType == GraphEdgeTypes.CanWrite
+                ? "Role allows write. This is not observed use."
+                : "Role allows read. This is not observed use.";
+
+            return $"{actionLabel}{roleSuffix}";
         }
 
-        return candidate.EffectiveRoleName ?? "privileged access";
+        return string.IsNullOrWhiteSpace(candidate.EffectiveRoleName)
+            ? "Role name was not stored."
+            : candidate.EffectiveRoleName;
     }
 
     private static string ShortNodeLabel(string nodeId)

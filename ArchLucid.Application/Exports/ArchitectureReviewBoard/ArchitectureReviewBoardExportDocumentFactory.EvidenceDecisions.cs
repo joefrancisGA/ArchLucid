@@ -13,11 +13,17 @@ public static partial class ArchitectureReviewBoardExportDocumentFactory
         GoldenManifest? m = report.Manifest ?? detail.Manifest;
 
         if (m is null)
-            return [];
+        {
+            return ["Architecture snapshot was not stored."];
+        }
+
+        string systemLabel = string.IsNullOrWhiteSpace(m.SystemName)
+            ? "System name was not stored."
+            : m.SystemName.Trim();
 
         List<string> lines =
         [
-            $"Architecture snapshot covers system «{m.SystemName}» with {m.Services.Count} services and {m.Datastores.Count} datastores.",
+            $"Architecture snapshot covers system «{systemLabel}» with {m.Services.Count} services and {m.Datastores.Count} datastores.",
             $"Relationships modeled: {m.Relationships.Count}. Governance risk tier: {m.Governance.RiskClassification}; cost tier: {m.Governance.CostClassification}.",
             $"Compliance tags: {(m.Governance.ComplianceTags.Count > 0 ? string.Join(", ", m.Governance.ComplianceTags) : "none recorded")}."
         ];
@@ -64,7 +70,13 @@ public static partial class ArchitectureReviewBoardExportDocumentFactory
             if (trace is RunEventTraceDto runEvent)
             {
                 RunEventTracePayload payload = runEvent.RunEvent;
-                detailText = $"{payload.EventType}: {payload.EventDescription}".Trim();
+                string eventType = string.IsNullOrWhiteSpace(payload.EventType)
+                    ? "Event type was not stored."
+                    : payload.EventType.Trim();
+                string eventDescription = string.IsNullOrWhiteSpace(payload.EventDescription)
+                    ? "Event description was not stored."
+                    : payload.EventDescription.Trim();
+                detailText = $"{eventType}: {eventDescription}";
             }
             else if (trace is RuleAuditTraceDto ruleAudit)
             {
@@ -77,7 +89,7 @@ public static partial class ArchitectureReviewBoardExportDocumentFactory
                 new ArchitectureReviewBoardExportDecisionRow
                 {
                     Title = title,
-                    Detail = string.IsNullOrWhiteSpace(detailText) ? null : detailText
+                    Detail = string.IsNullOrWhiteSpace(detailText) ? "Decision detail was not stored." : detailText
                 });
 
             if (rows.Count >= 40)

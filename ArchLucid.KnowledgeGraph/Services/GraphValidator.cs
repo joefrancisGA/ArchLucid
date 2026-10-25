@@ -9,7 +9,11 @@ public class GraphValidator : IGraphValidator
     {
         ArgumentNullException.ThrowIfNull(snapshot);
 
-        HashSet<string> nodeIds = new(snapshot.Nodes.Select(x => x.NodeId), StringComparer.OrdinalIgnoreCase);
+        HashSet<string> nodeIds = new(
+            snapshot.Nodes
+                .Select(static node => (node.NodeId ?? string.Empty).Trim())
+                .Where(static nodeId => nodeId.Length > 0),
+            StringComparer.OrdinalIgnoreCase);
 
         foreach (GraphNode node in snapshot.Nodes)
         {
@@ -20,16 +24,51 @@ public class GraphValidator : IGraphValidator
                 throw new InvalidOperationException($"Graph node '{node.NodeId}' is missing NodeType.");
         }
 
+        IGrouping<string, GraphNode>? duplicateNodeIdGroup = snapshot.Nodes
+            .Where(static node => !string.IsNullOrWhiteSpace(node.NodeId))
+            .GroupBy(
+                static node => (node.NodeId ?? string.Empty).Trim(),
+                StringComparer.OrdinalIgnoreCase)
+            .FirstOrDefault(static group => group.Count() > 1);
+
+        if (duplicateNodeIdGroup is not null)
+        {
+            throw new InvalidOperationException(
+                $"Graph snapshot lists duplicate node ids for '{duplicateNodeIdGroup.Key}'.");
+        }
+
+        IGrouping<string, GraphEdge>? duplicateDirectedEdgeGroup = snapshot.Edges
+            .GroupBy(BuildDirectedEdgeKey, StringComparer.OrdinalIgnoreCase)
+            .FirstOrDefault(static group => group.Count() > 1);
+
+        if (duplicateDirectedEdgeGroup is not null)
+        {
+            throw new InvalidOperationException(
+                $"Graph snapshot lists duplicate directed edges for '{duplicateDirectedEdgeGroup.Key}'.");
+        }
+
         foreach (GraphEdge edge in snapshot.Edges)
         {
             if (string.IsNullOrWhiteSpace(edge.EdgeType))
                 throw new InvalidOperationException("Graph edge EdgeType is required.");
 
-            if (!nodeIds.Contains(edge.FromNodeId))
+            string fromNodeId = (edge.FromNodeId ?? string.Empty).Trim();
+            string toNodeId = (edge.ToNodeId ?? string.Empty).Trim();
+
+            if (!nodeIds.Contains(fromNodeId))
                 throw new InvalidOperationException($"Graph edge source node '{edge.FromNodeId}' does not exist.");
 
-            if (!nodeIds.Contains(edge.ToNodeId))
+            if (!nodeIds.Contains(toNodeId))
                 throw new InvalidOperationException($"Graph edge target node '{edge.ToNodeId}' does not exist.");
         }
+    }
+
+    private static string BuildDirectedEdgeKey(GraphEdge edge)
+    {
+        string fromNodeId = (edge.FromNodeId ?? string.Empty).Trim();
+        string toNodeId = (edge.ToNodeId ?? string.Empty).Trim();
+        string edgeType = (edge.EdgeType ?? string.Empty).Trim();
+
+        return $"{fromNodeId}|{toNodeId}|{edgeType}";
     }
 }

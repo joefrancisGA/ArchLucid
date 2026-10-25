@@ -35,11 +35,14 @@ public sealed class AgentModelCatalogFaithfulnessHarnessImporter(
         ArgumentException.ThrowIfNullOrWhiteSpace(aliasId);
         ArgumentException.ThrowIfNullOrWhiteSpace(actorUserId);
 
-        AgentModelCatalogRow? existing = await _catalogRepository.TryGetAsync(aliasId, cancellationToken).ConfigureAwait(false);
+        string normalizedAliasId = aliasId.Trim();
+        string normalizedActorUserId = actorUserId.Trim();
+
+        AgentModelCatalogRow? existing = await _catalogRepository.TryGetAsync(normalizedAliasId, cancellationToken).ConfigureAwait(false);
 
         if (existing is null)
         {
-            throw new KeyNotFoundException($"Model alias '{aliasId}' is not registered.");
+            throw new KeyNotFoundException($"Model alias '{normalizedAliasId}' is not registered.");
         }
 
         FaithfulnessHarnessSummary? summary =
@@ -56,6 +59,8 @@ public sealed class AgentModelCatalogFaithfulnessHarnessImporter(
             throw new InvalidOperationException(
                 "Faithfulness harness summary reports zero evaluated cases. Re-run scripts/ci/eval_agent_faithfulness.py before import.");
         }
+
+        EnsureHarnessSummaryRatiosAreValid(summary);
 
         AgentModelEvaluationStateKind evaluationState =
             summary.PositiveReadinessSupportRatio >= summary.FloorMinSupportRatio
@@ -83,7 +88,7 @@ public sealed class AgentModelCatalogFaithfulnessHarnessImporter(
         if (taskTypes.Count == 0)
         {
             throw new InvalidOperationException(
-                $"Model alias '{aliasId}' has no approved task types to attach faithfulness harness evidence.");
+                $"Model alias '{normalizedAliasId}' has no approved task types to attach faithfulness harness evidence.");
         }
 
         AgentModelCatalogRow updated = existing;
@@ -92,17 +97,46 @@ public sealed class AgentModelCatalogFaithfulnessHarnessImporter(
         {
             updated = await _evaluationRecorder
                 .RecordTaskEvaluationAsync(
-                    aliasId,
+                    normalizedAliasId,
                     taskType,
                     evaluationState,
                     evidenceJson,
-                    actorUserId,
+                    normalizedActorUserId,
                     cancellationToken)
                 .ConfigureAwait(false);
         }
 
         return updated;
     }
+
+    private static void EnsureHarnessSummaryRatiosAreValid(FaithfulnessHarnessSummary summary)
+    {
+        if (!AreAllSupportRatiosFinite(summary))
+        {
+            throw new InvalidOperationException(
+                "Faithfulness harness summary contains non-finite support ratios. Re-run scripts/ci/eval_agent_faithfulness.py before import.");
+        }
+
+        if (!AreAllSupportRatiosInUnitInterval(summary))
+        {
+            throw new InvalidOperationException(
+                "Faithfulness harness summary contains support ratios outside the [0,1] range. Re-run scripts/ci/eval_agent_faithfulness.py before import.");
+        }
+    }
+
+    private static bool AreAllSupportRatiosFinite(FaithfulnessHarnessSummary summary) =>
+        double.IsFinite(summary.PositiveReadinessSupportRatio)
+        && double.IsFinite(summary.NegativeControlSupportRatio)
+        && double.IsFinite(summary.CombinedDiagnosticSupportRatio)
+        && double.IsFinite(summary.FloorMinSupportRatio);
+
+    private static bool AreAllSupportRatiosInUnitInterval(FaithfulnessHarnessSummary summary) =>
+        IsUnitIntervalRatio(summary.PositiveReadinessSupportRatio)
+        && IsUnitIntervalRatio(summary.NegativeControlSupportRatio)
+        && IsUnitIntervalRatio(summary.CombinedDiagnosticSupportRatio)
+        && IsUnitIntervalRatio(summary.FloorMinSupportRatio);
+
+    private static bool IsUnitIntervalRatio(double value) => value >= 0d && value <= 1d;
 
     private static List<string> CollectApprovedTaskTypes(IReadOnlyList<string>? approvedTaskTypes)
     {

@@ -293,6 +293,78 @@ public sealed class AzureInventorySnapshotMaterializeWriteRequest
         get;
         init;
     } = [];
+
+    public IReadOnlyList<AzureInventoryDefenderPricingWrite> DefenderPricings
+    {
+        get;
+        init;
+    } = [];
+
+    public IReadOnlyList<AzureInventoryDefenderScoreControlWrite> DefenderScoreControls
+    {
+        get;
+        init;
+    } = [];
+
+    public IReadOnlyList<AzureInventoryDefenderAssessmentWrite> DefenderAssessments
+    {
+        get;
+        init;
+    } = [];
+
+    public IReadOnlyList<AzureInventoryDefenderAssessmentCountWrite> DefenderAssessmentCounts
+    {
+        get;
+        init;
+    } = [];
+
+    public IReadOnlyList<AzureInventoryDefenderSecurityContactWrite> DefenderSecurityContacts
+    {
+        get;
+        init;
+    } = [];
+
+    public IReadOnlyList<AzureInventoryDefenderGovernanceAssignmentWrite> DefenderGovernanceAssignments
+    {
+        get;
+        init;
+    } = [];
+
+    public IReadOnlyList<AzureInventoryDefenderComplianceStandardWrite> DefenderComplianceStandards
+    {
+        get;
+        init;
+    } = [];
+
+    public IReadOnlyList<AzureInventoryDefenderComplianceControlWrite> DefenderComplianceControls
+    {
+        get;
+        init;
+    } = [];
+
+    public IReadOnlyList<AzureInventoryDefenderAlertWrite> DefenderAlerts
+    {
+        get;
+        init;
+    } = [];
+
+    public IReadOnlyList<AzureInventoryDefenderAttackPathWrite> DefenderAttackPaths
+    {
+        get;
+        init;
+    } = [];
+
+    public IReadOnlyList<AzureInventoryDefenderVulnerabilityCountWrite> DefenderVulnerabilityCounts
+    {
+        get;
+        init;
+    } = [];
+
+    public IReadOnlyList<AzureInventoryDefenderVulnerabilityFindingWrite> DefenderVulnerabilityFindings
+    {
+        get;
+        init;
+    } = [];
 }
 
 public sealed class AzureInventoryResourcePropertyWrite

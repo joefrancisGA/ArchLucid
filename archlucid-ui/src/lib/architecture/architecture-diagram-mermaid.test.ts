@@ -45,6 +45,8 @@ const modelWithBoundary: ArchitectureDiagramModel = {
     },
   ],
   trustBoundaryLabels: ["Corporate network"],
+  skippedUnlabeledEntityCount: 0,
+  unmatchedDataFlows: [],
 };
 
 describe("architectureDiagramModelToMermaid", () => {
@@ -89,6 +91,8 @@ describe("architectureDiagramModelToMermaid", () => {
       ],
       edges: [],
       trustBoundaryLabels: ["Corporate network"],
+      skippedUnlabeledEntityCount: 0,
+      unmatchedDataFlows: [],
     };
 
     const mermaid = architectureDiagramModelToMermaid(externalOnly);
@@ -127,6 +131,8 @@ describe("architectureDiagramModelToMermaid", () => {
         },
       ],
       trustBoundaryLabels: [],
+      skippedUnlabeledEntityCount: 0,
+      unmatchedDataFlows: [],
     };
 
     const alternative = architectureDiagramModelToTextAlternative(removedNodeModel);
@@ -151,6 +157,8 @@ describe("architectureDiagramModelToMermaid", () => {
       ],
       edges: [],
       trustBoundaryLabels: [],
+      skippedUnlabeledEntityCount: 0,
+      unmatchedDataFlows: [],
     };
 
     const mermaid = architectureDiagramModelToMermaid(longName);
