@@ -12,7 +12,8 @@ public sealed partial class MarkdownArchitectureAnalysisExportService
         {
             sb.AppendLine("## Architecture Manifest");
             sb.AppendLine();
-            sb.AppendLine($"- System Name: {report.Manifest.SystemName}");
+            sb.AppendLine(
+                $"- System Name: {ArchitectureEvidenceRequestExport.FormatIdentityField(report.Manifest.SystemName, ArchitectureEvidenceRequestExport.MissingSystemNameCopy)}");
             sb.AppendLine($"- Run ID: {report.Manifest.RunId}");
             sb.AppendLine($"- Manifest Version: {report.Manifest.Metadata.ManifestVersion}");
 
@@ -81,22 +82,30 @@ public sealed partial class MarkdownArchitectureAnalysisExportService
             }
         }
 
+        sb.AppendLine("## Diagram");
+        sb.AppendLine();
+
         if (!string.IsNullOrWhiteSpace(report.Diagram))
         {
-            sb.AppendLine("## Diagram");
-            sb.AppendLine();
             sb.AppendLine("```mermaid");
             sb.AppendLine(report.Diagram);
             sb.AppendLine("```");
-            sb.AppendLine();
+        }
+        else
+        {
+            sb.AppendLine(ArchitectureEvidenceRequestExport.DiagramNotStoredCopy);
         }
 
+        sb.AppendLine();
+
+        sb.AppendLine("## Architecture Summary");
+        sb.AppendLine();
+
         if (!string.IsNullOrWhiteSpace(report.Summary))
-        {
-            sb.AppendLine("## Architecture Summary");
-            sb.AppendLine();
             sb.AppendLine(report.Summary.Trim());
-            sb.AppendLine();
-        }
+        else
+            sb.AppendLine(ArchitectureEvidenceRequestExport.ArchitectureSummaryNotStoredCopy);
+
+        sb.AppendLine();
     }
 }
