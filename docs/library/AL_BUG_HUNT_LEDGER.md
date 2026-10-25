@@ -1,3 +1,11 @@
+2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed invalid_client_secret authorize-query UX (existing parity) and saturated decodeOAuthErrorDescription ZWJ multiply-encoded glue; regression documents BFF refresh 475 parity (client + route opaque 475) and variation-selector-8-only access_token rejection; scoped vitest 724/724.
+
+- [x] (invalid) humanizeAuthorizeCallbackError - invalid_client_secret authorize-query copy - **cheap-disproof 2026-10-22:** existing readable default-branch UX parity test.
+- [x] (valid-no-repro) refreshBffSessionCookie - refresh 475 shouldClearSession false - **regression 2026-10-22:** client soft-fail plus BFF route opaque 475 without cookie clear.
+- [x] (valid-no-repro) exchangeAuthorizationCode - access_token JSON string variation-selector-8-only skips authorize retry marker - **regression 2026-10-22:** variation-selector strip parity (U+FE07).
+- [x] (invalid) decodeOAuthErrorDescription - multiply-encoded %252B with ZWJ glue - **cheap-disproof 2026-10-22:** saturated encoding class.
+
+- [ ] (candidate) humanizeAuthorizeCallbackError - invalid_client authorize-query copy - locus: default branch UX.
 2026-10-22 seed hunt (seed-only): `ui-oidc` - no hunt-ready product defect; cheap-disproof closed saturated pictograph encoding, temporarily_unavailable fixed authorize copy, and BFF refresh 502 parity; parity regressions BFF refresh HTTP 413 and opaque token endpoint 413 without cookie clear, backslash-prefixed post-sign-in purge during retry, and supplemental Google poisoned unsafe return purge at sign-in start; scoped `src/lib/oidc` + BFF refresh route vitest 493/493.
 
 - [x] (invalid) decodeOAuthErrorDescription - multiply-encoded %252B with pictograph glue - **cheap-disproof 2026-10-22:** saturated encoding class on trunk.
