@@ -796,6 +796,47 @@ public sealed class ConfigurationEffectiveValueResolverTests
     }
 
     [Fact]
+    public void Resolve_redacts_json_array_effective_values_when_string_element_contains_api_key_pair()
+    {
+        const string configPath = "ArchLucid:SomeFeature:Settings";
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = """["prefix;ApiKey=x"]""",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(configuration, configPath, isSet: true);
+
+        value.Should().Be("***");
+    }
+
+    [Fact]
+    public void Resolve_keeps_truncated_effective_value_well_formed_when_length_exceeds_bound_with_emoji_and_variation_selector()
+    {
+        const string configPath = "ArchLucid:FallbackLlm:Endpoints";
+        string supplementary = "\U0001F4A1";
+        string variationSelector = "\uFE0F";
+        string configured = new string('d', 256) + supplementary + variationSelector + "-tail";
+
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = configured,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            configPath,
+            isSet: true);
+
+        value.Should().NotBeNull();
+        value.Should().EndWith("…");
+        TruncatedPrefixIsWellFormed(value!).Should().BeTrue();
+    }
+
+    [Fact]
     public void Resolve_keeps_truncated_effective_value_well_formed_when_length_exceeds_bound_with_trailing_combining_mark()
     {
         const string configPath = "ArchLucid:SomeFeature:Settings";
