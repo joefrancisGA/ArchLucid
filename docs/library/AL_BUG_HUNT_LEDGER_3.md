@@ -7328,6 +7328,8 @@ ABQ-09 churn hotspot.
 
 ## Zone: securenow-question-queue
 
+2026-10-25 seed hunt (seed→hit): promoted `securenow-question-queue-api.mapQuestion` coercing omitted `questionKey` to empty string and posting blank keys on disposition mutations — list JSON `null` or whitespace-only keys reached answer/ignore/reopen; preserve null, resolve via `secureNowQuestionDispositionMutationQuestionKey`, and harden `questionIdentity` for null keys; regressions `maps null questionKey to null instead of empty string` and `does not post a mutation when question key was not stored`; scoped SecureNow queue vitest 83/83. Private beta: operators see a clear question-key error instead of failed disposition POSTs when list JSON omitted the key.
+
 2026-10-25 seed hunt (seed→hit): promoted `secureNowQuestionDispositionMutationResourceId` accepting whitespace-only listed `resourceId` values on inventory rows — answer/ignore could POST blank resource ids; trim listed ids, treat whitespace-only inventory values as missing while pack rows still resolve to empty string; regressions `returns null for resource scope when resource id is whitespace-only` and `does not post a mutation when resource id was stored as whitespace on inventory rows`; scoped SecureNow queue vitest 79/79. Private beta: operators cannot submit inventory mutations when list JSON stored only whitespace in resource id.
 
 2026-10-25 seed hunt (seed→hit): promoted `securenow-question-queue-api.mapQuestion` coercing non-string `resourceId` values to empty string — malformed list JSON could fabricate `resourceId: ""` and let inventory mutations post blank resource ids instead of blocking; map invalid types to `null` like `subscriptionId`; regression `maps non-string resourceId values to null instead of empty string` plus `does not post a mutation when resource id was not stored on inventory rows`; scoped SecureNow queue vitest 76/76. Private beta: operators with malformed list resource ids see missing-resource blocking instead of opaque failed disposition POSTs.
@@ -7388,11 +7390,11 @@ ABQ-09 churn hotspot.
 - **aliases:** securenow question queue; question disposition
 - **paths:** ArchLucid.Application/InfraEvidence/SecureNowQuestionDispositions/; ArchLucid.Api/Controllers/InfraEvidence/InfraEvidenceSecureNowQuestionsController.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/ISecureNowQuestionDispositionRepository.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/ISecureNowQuestionDispositionService.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/SecureNowQuestionDispositionRecord.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/SecureNowQuestionRecord.cs; ArchLucid.Persistence/InfraEvidence/NoOpSecureNowQuestionDispositionRepository.cs; ArchLucid.Persistence/InfraEvidence/SqlSecureNowQuestionDispositionRepository.cs; ArchLucid.Contracts/InfraEvidence/SecureNowQuestionDispositionContracts.cs; archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx; archlucid-ui/src/lib/infra-evidence/securenow-question-queue-api.ts
 - **test-filter:** SecureNowQuestion
-- **hunts:** 70
-- **bugs-found:** 47
+- **hunts:** 71
+- **bugs-found:** 48
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-25
-- **last-bug:** 2026-10-25 — whitespace-only resourceId on inventory mutations
+- **last-bug:** 2026-10-25 — mapQuestion null questionKey coercion
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -7546,6 +7548,7 @@ ABQ-09 churn hotspot.
 - [x] (proven) `securenow-question-queue-api.mapQuestion` / `SecureNowQuestionQueueProvider.submitAction` — JSON `null` `evidenceFingerprint` coerced to `""` and answer/ignore posted blank fingerprints; preserve null and resolve via `secureNowQuestionDispositionMutationEvidenceFingerprint`; regressions `maps null evidenceFingerprint to null instead of empty string` and `does not post a mutation when evidence fingerprint was not stored`.
 - [x] (proven) `securenow-question-queue-api.mapQuestion` / `secureNowQuestionDispositionMutationResourceId` — non-string `resourceId` values coerced to `""` so inventory rows could post blank resource ids; map invalid types to `null`; regressions `maps non-string resourceId values to null instead of empty string` and `does not post a mutation when resource id was not stored on inventory rows`.
 - [x] (proven) `secureNowQuestionDispositionMutationResourceId` / `SecureNowQuestionQueueProvider.submitAction` — whitespace-only listed `resourceId` values on inventory rows posted blank resource ids; trim and reject whitespace-only inventory ids while pack rows still use empty string; regressions `returns null for resource scope when resource id is whitespace-only` and `does not post a mutation when resource id was stored as whitespace on inventory rows`.
+- [x] (proven) `securenow-question-queue-api.mapQuestion` / `SecureNowQuestionQueueProvider.submitAction` — omitted or whitespace-only `questionKey` values coerced to `""` and disposition mutations posted blank keys; preserve null and gate with `secureNowQuestionDispositionMutationQuestionKey`; regressions `maps null questionKey to null instead of empty string` and `does not post a mutation when question key was not stored`.
 - [x] (proven) `SecureNowQuestionQueue` / `securenow-question-queue-provider` — list payloads could carry `isExpired: false` while `expirationUtc` was already in the past, so details read “Not expired” and open filtering kept stale rows until reload; `secureNowQuestionShowsExpired`; regressions `returns true when expirationUtc is in the past even if isExpired is false` and `marks expiration as expired in details when expirationUtc is past but isExpired is false`.
 - (candidate) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` writes for the same identity hash may surface duplicate-key or lost-update failures under parallel operator mutations; requires SQL integration or concurrent repro (prior valid-no-repro when SQL host unavailable).
 - (candidate) `securenow-question-queue-provider` / disposition mutation responses — provider always reloads after POST and ignores `SecureNowQuestionDisposition` payloads; a future optimistic merge that patches list state from mutation JSON without reloading could reintroduce missing display fields unless it uses `mapSecureNowQuestionDisposition` only.

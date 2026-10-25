@@ -5,6 +5,7 @@ import {
   secureNowQuestionDispositionMutationResourceId,
   secureNowQuestionDispositionMutationScopeKind,
   secureNowQuestionDispositionMutationEvidenceFingerprint,
+  secureNowQuestionDispositionMutationQuestionKey,
   secureNowQuestionDispositionMutationSource,
   secureNowQuestionReviewerScopeLabel,
   secureNowQuestionShowsInferredConnectionReviewerCopy,
@@ -35,6 +36,19 @@ const baseQuestion: SecureNowQuestion = {
   answerText: null,
   reason: null,
 };
+
+describe("secureNowQuestionDispositionMutationQuestionKey", () => {
+  it("returns null when question key is omitted or whitespace-only", () => {
+    expect(secureNowQuestionDispositionMutationQuestionKey(null)).toBeNull();
+    expect(secureNowQuestionDispositionMutationQuestionKey("   ")).toBeNull();
+  });
+
+  it("returns trimmed question keys for mutations", () => {
+    expect(secureNowQuestionDispositionMutationQuestionKey(" unknown-evidence@v1 ")).toBe(
+      "unknown-evidence@v1",
+    );
+  });
+});
 
 describe("secureNowQuestionDispositionMutationSubscriptionId", () => {
   it("returns null for missing or blank subscription ids", () => {

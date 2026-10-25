@@ -53,6 +53,17 @@ export function secureNowQuestionDispositionMutationEvidenceFingerprint(
   return trimmed.length > 0 ? trimmed : null;
 }
 
+export function secureNowQuestionDispositionMutationQuestionKey(
+  questionKey: string | null | undefined,
+): string | null {
+  if (questionKey === null || questionKey === undefined) {
+    return null;
+  }
+
+  const trimmed = questionKey.trim();
+  return trimmed.length > 0 ? trimmed : null;
+}
+
 export function secureNowQuestionDispositionMutationSubscriptionId(
   subscriptionId: string | null | undefined,
 ): string | null {

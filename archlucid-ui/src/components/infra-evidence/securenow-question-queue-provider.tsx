@@ -21,6 +21,7 @@ import {
 } from "@/lib/infra-evidence/securenow-question-queue-api";
 import {
   secureNowQuestionDispositionMutationEvidenceFingerprint,
+  secureNowQuestionDispositionMutationQuestionKey,
   secureNowQuestionDispositionMutationResourceId,
   secureNowQuestionDispositionMutationScopeKind,
   secureNowQuestionDispositionMutationSource,
@@ -103,7 +104,7 @@ function connectionIdFromQuestionKey(questionKey: string): string | null {
 }
 
 function questionIdentity(question: SecureNowQuestion): string {
-  return `${normalize(question.subscriptionId ?? "")}|${normalize(question.resourceId ?? "")}|${normalize(question.questionKey)}`;
+  return `${normalize(question.subscriptionId ?? "")}|${normalize(question.resourceId ?? "")}|${normalize(question.questionKey ?? "")}`;
 }
 
 function isDismissed(question: SecureNowQuestion): boolean {
@@ -126,7 +127,12 @@ function findInferredConnection(
   question: SecureNowQuestion,
   connections: readonly OperatorInferredConnectionRow[],
 ): OperatorInferredConnectionRow | null {
-  const embeddedConnectionId = connectionIdFromQuestionKey(question.questionKey);
+  const questionKey = question.questionKey?.trim() ?? "";
+  if (questionKey.length === 0) {
+    return null;
+  }
+
+  const embeddedConnectionId = connectionIdFromQuestionKey(questionKey);
 
   if (embeddedConnectionId != null) {
     return connections.find((connection) =>
@@ -134,7 +140,7 @@ function findInferredConnection(
     ) ?? null;
   }
 
-  const ruleKey = normalize(question.questionKey.split("@", 1)[0]);
+  const ruleKey = normalize(questionKey.split("@", 1)[0]);
   return connections.find((connection) => {
     const resourceMatches =
       normalize(connection.fromArmId ?? "") === normalize(question.resourceId ?? "")
@@ -285,6 +291,19 @@ export function SecureNowQuestionQueueProvider(
     if (action === "reopen" && reason.trim().length === 0) return;
     if (action === "answer" && selectedAnswer == null) return;
 
+    const mutationQuestionKey =
+      secureNowQuestionDispositionMutationQuestionKey(currentQuestion.questionKey);
+    if (mutationQuestionKey === null) {
+      setError(
+        operatorInferredConnectionPanelErrorFromUnknown(
+          new Error("Question key was not stored."),
+          "Could not save the question update.",
+          "mutation",
+        ),
+      );
+      return;
+    }
+
     const mutationSubscriptionId =
       secureNowQuestionDispositionMutationSubscriptionId(currentQuestion.subscriptionId);
     if (mutationSubscriptionId === null) {
@@ -369,7 +388,7 @@ export function SecureNowQuestionQueueProvider(
         await ignoreSecureNowQuestion(snapshotId, {
           subscriptionId: mutationSubscriptionId,
           resourceId: mutationResourceId,
-          questionKey: currentQuestion.questionKey,
+          questionKey: mutationQuestionKey,
           source: dispositionMutationSource,
           scopeKind: dispositionMutationScopeKind,
           reason: reason.trim(),
@@ -379,7 +398,7 @@ export function SecureNowQuestionQueueProvider(
         await reopenSecureNowQuestion(snapshotId, {
           subscriptionId: mutationSubscriptionId,
           resourceId: mutationResourceId,
-          questionKey: currentQuestion.questionKey,
+          questionKey: mutationQuestionKey,
           reason: reason.trim(),
         });
       } else if (mutationSource === "InferredConnection" || usesInferredConnectionConfirm) {
@@ -397,7 +416,7 @@ export function SecureNowQuestionQueueProvider(
         await answerSecureNowQuestion(snapshotId, {
           subscriptionId: mutationSubscriptionId,
           resourceId: mutationResourceId,
-          questionKey: currentQuestion.questionKey,
+          questionKey: mutationQuestionKey,
           source: mutationSource!,
           scopeKind: mutationScopeKind!,
           answerCode: selectedAnswer,
