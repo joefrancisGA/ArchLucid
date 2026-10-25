@@ -51,6 +51,7 @@ export function composeRunDetailOverviewTab(
     reviewDisplayTitle,
     reviewOwnerLabel,
     reviewStatusSummary,
+    hasFindingsSnapshot,
     severityCounts,
     submittedArchitectureText,
     workspaceStatus,
@@ -86,6 +87,7 @@ export function composeRunDetailOverviewTab(
         evidenceCoverageLine={evidenceCoverageSummary.summaryLine}
         primaryConcern={reviewStatusSummary.primaryConcern}
         materialSeverityLine={materialSeverityLine}
+        hasFindingsSnapshot={hasFindingsSnapshot}
         suppressedReason={decisionSnapshotSuppressedReason}
       />
       {executiveBottomLineEl}

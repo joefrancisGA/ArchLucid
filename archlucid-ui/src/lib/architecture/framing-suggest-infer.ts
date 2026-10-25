@@ -332,6 +332,28 @@ export function inferFramingAnswer(
   }
 }
 
+/** Wording-only inference — show beside the question, do not write into the answer field (P-20). */
+export function shouldAutoApplyFramingSuggestion(answer: string): boolean {
+  const trimmed = answer.trim();
+
+  if (trimmed.length === 0) {
+    return false;
+  }
+
+  if (
+    trimmed === "Availability and security called out in source material." ||
+    trimmed === "Must-not-fail constraints referenced in source material."
+  ) {
+    return false;
+  }
+
+  if (/^(?:Migration|Greenfield|Extension|Modernization)$/i.test(trimmed)) {
+    return false;
+  }
+
+  return acceptSuggestedAnswer(trimmed) !== null;
+}
+
 export function acceptSuggestedAnswer(answer: string | null): string | null {
   if (answer === null) {
     return null;

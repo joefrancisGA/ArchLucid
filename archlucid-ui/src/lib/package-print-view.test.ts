@@ -9,6 +9,7 @@ import {
   buildPackagePrintFindingsSummary,
   buildPackagePrintPath,
   buildPackagePrintPresentation,
+  packagePrintPipelineStageFlagsOmitted,
   buildPackagePrintSponsorSynopsis,
   formatPackagePrintDraftSynopsisBody,
   resolvePackagePrintSynopsisBody,
@@ -100,10 +101,11 @@ describe("package-print-view (TB-2205)", () => {
     expect(line).toContain("Warning count was not stored.");
   });
 
-  it("does not append warning omission when warning count is stored as zero", () => {
+  it("states zero warnings when warning count is stored as zero", () => {
     const line = buildPackagePrintFindingsSummary(summary({ findingCount: 3, warningCount: 0 }));
 
     expect(line).toContain("3 findings");
+    expect(line).toContain("0 warnings were stored.");
     expect(line).not.toContain("Warning count was not stored.");
   });
 
@@ -188,11 +190,12 @@ describe("package-print-view (TB-2205)", () => {
     expect(line).toContain("1 Supported");
   });
 
-  it("labels omitted governance warning flags on finalized print status (P-11)", () => {
-    expect(resolvePackagePrintStatusLabel(summary({ hasGovernanceWarnings: undefined }))).toBe(
-      "Finalized. Governance warning flags were not stored.",
-    );
-    expect(resolvePackagePrintStatusLabel(summary({ hasGovernanceWarnings: false }))).toBe("Finalized");
+  it("surfaces pipeline stage flag omission on print presentation", () => {
+    expect(packagePrintPipelineStageFlagsOmitted(summary({ hasGoldenManifest: false }))).toBe(true);
+
+    const presentation = buildPackagePrintPresentation(summary({ hasGoldenManifest: false }));
+
+    expect(presentation.pipelineStageFlagsOmittedLine).toContain("Assessment step flags were not stored");
   });
 
   it("buildPackagePrintPresentation carries semantic support stamp line", () => {

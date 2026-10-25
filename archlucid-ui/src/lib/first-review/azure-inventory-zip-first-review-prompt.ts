@@ -116,8 +116,8 @@ export function hasAzureInventoryZipHeldCheckAsk(input: {
   return (input.proseAssumptionHeldCheckAsks ?? []).some((ask) => ask.inputCode === "azureInventoryZip");
 }
 
-export function hasAzureInventoryZipEvidence(items: readonly { readonly kind: string }[]): boolean {
-  return items.some((item) => item.kind === "Cloud inventory");
+export function hasAzureInventoryZipEvidence(_items: readonly { readonly kind: string }[]): boolean {
+  return false;
 }
 
 /** Soft first-review prompt — advisory only; finalize and engines stay fail-closed without inventory. */

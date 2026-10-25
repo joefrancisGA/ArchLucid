@@ -117,6 +117,38 @@ function normalizeInline(value: string): string {
   return value.replace(/\|/g, "/").replace(/\r\n/g, "\n").replace(/\n/g, " ").trim();
 }
 
+function formatSponsorSystemicIssueSeverity(severity: string | null | undefined): string {
+  if (severity === null || severity === undefined) {
+    return "Severity was not stored.";
+  }
+
+  const trimmed = severity.trim();
+
+  if (trimmed.length === 0) {
+    return "Severity was stored empty.";
+  }
+
+  if (trimmed.toLowerCase() === "none") {
+    return "No severity band was stored.";
+  }
+
+  return normalizeInline(trimmed);
+}
+
+function formatSponsorSystemRowName(systemName: string | null | undefined): string {
+  if (systemName === null || systemName === undefined) {
+    return "System name was not stored.";
+  }
+
+  const trimmed = systemName.trim();
+
+  if (trimmed.length === 0) {
+    return "System name was stored empty.";
+  }
+
+  return normalizeInline(trimmed);
+}
+
 /**
  * Client-side sponsor report markdown export from `/v1/roi/sponsor-report`.
  */
@@ -199,7 +231,9 @@ export function buildSponsorSummaryMarkdown(
     lines.push("| --- | --- | ---: |");
 
     for (const issue of summary.topSystemicIssues) {
-      lines.push(`| ${normalizeInline(issue.category)} | ${normalizeInline(issue.severity)} | ${issue.count} |`);
+      lines.push(
+        `| ${normalizeInline(issue.category)} | ${formatSponsorSystemicIssueSeverity(issue.severity)} | ${issue.count} |`,
+      );
     }
 
     lines.push("");
@@ -280,7 +314,7 @@ export function buildSponsorSummaryMarkdown(
 
     for (const system of summary.systems) {
       lines.push(
-        `| ${normalizeInline(system.systemName)} | \`${normalizeInline(system.runId)}\` | ${formatUsd(system.estimatedUsdSavings)} |`,
+        `| ${formatSponsorSystemRowName(system.systemName)} | \`${normalizeInline(system.runId)}\` | ${formatUsd(system.estimatedUsdSavings)} |`,
       );
     }
   }

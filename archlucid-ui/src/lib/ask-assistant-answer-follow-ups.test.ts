@@ -8,6 +8,10 @@ import {
 } from "@/lib/ask-assistant-answer-follow-ups";
 
 describe("ask-assistant-answer-follow-ups", () => {
+  it("returns no follow-ups when the assistant answer was omitted (P-18)", () => {
+    expect(resolveAskAssistantAnswerFollowUpPrompts("   ")).toEqual([]);
+  });
+
   it("always offers evidence follow-up", () => {
     expect(resolveAskAssistantAnswerFollowUpPrompts("A short answer.")).toEqual([
       ASK_ASSISTANT_ANSWER_FOLLOW_UP_EVIDENCE_PROMPT,

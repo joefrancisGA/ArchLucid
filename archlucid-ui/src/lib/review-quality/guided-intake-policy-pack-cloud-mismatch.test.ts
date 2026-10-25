@@ -14,6 +14,12 @@ describe("guided-intake-policy-pack-cloud-mismatch (TB-2322)", () => {
     expect(refs).toEqual(["cis-azure"]);
   });
 
+  it("flags cloud target not stored when intake omits cloud target but pack is cloud-specific (P-17, P-18)", () => {
+    const mismatch = deriveGuidedIntakePolicyPackCloudMismatch(false, "cis-azure", {});
+
+    expect(mismatch).toBe("Cloud target was not stored.");
+  });
+
   it("flags Azure deeplink pack when cloud target is AWS", () => {
     const mismatch = deriveGuidedIntakePolicyPackCloudMismatch(false, "cis-azure", {
       [CLOUD_TARGET_QUESTION_KEY]: "Aws",

@@ -104,14 +104,14 @@ export function buildPolicyRulePreviewFallback(input: {
   const packId = nonEmptyString(input.packId);
   const explicitPackName = nonEmptyString(input.packName);
   const inferredPackName = inferPolicyPackDisplayNameFromComplianceRuleKey(ruleId);
-  const packName = explicitPackName ?? inferredPackName ?? packId ?? "Policy pack";
-  const packVersion = nonEmptyString(input.packVersion) ?? "";
+  const packName = explicitPackName ?? inferredPackName ?? packId ?? "Policy pack name was not stored.";
+  const packVersion = nonEmptyString(input.packVersion) ?? "Policy pack version was not stored.";
 
   return {
     ruleId,
     ruleTitle: ruleLabel ?? ruleId,
     description:
-      "Full rule text is stored in the assigned policy pack. Open policy packs to inspect the rule definition and thresholds.",
+      "Curated rule text was not stored on the effective policy pack. Open policy packs to inspect the rule definition and thresholds.",
     remediationGuidance: "",
     severity: null,
     packId: packId ?? packName,

@@ -6,7 +6,7 @@ describe("resolveInfraEvidenceDiagramReadingLegend", () => {
   it("uses configured-not-action inventory lines for executive mode", () => {
     const lines = resolveInfraEvidenceDiagramReadingLegend("executive");
 
-    expect(lines.boxes).toBe("Boxes are resources in this inventory view.");
+    expect(lines.boxes).toBe("Azure resources");
     expect(lines.connectors).toBe("Each connector is only as strong as its own line.");
     expect(lines.evidenceKind).toBe("This view does not prove reachability or runtime use.");
   });

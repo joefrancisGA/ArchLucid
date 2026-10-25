@@ -7,7 +7,7 @@ namespace ArchLucid.ArtifactSynthesis.Compilers;
 /// <summary>Labels observed network security perimeter resource-association relationships (NR-37).</summary>
 internal static class InventoryDiagramNetworkSecurityPerimeterRelationshipApplier
 {
-    public const string Label = "Secures";
+    public const string Label = "Network security perimeter association";
 
     public static void Apply(DiagramAst ast)
     {

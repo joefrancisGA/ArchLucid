@@ -45,4 +45,23 @@ describe("RunDetailWorkspaceSummaryStrip", () => {
     expect(screen.queryByText("Not assessed")).not.toBeInTheDocument();
     expect(screen.queryByText("No unresolved findings")).not.toBeInTheDocument();
   });
+
+  it("uses not-stored copy when findings snapshot was not persisted", () => {
+    render(
+      <RunDetailWorkspaceSummaryStrip
+        outcomeHeading="Review posture"
+        reviewOutcome="Not assessed"
+        highestUnresolvedSeverity={null}
+        findingsSummaryLine="Findings snapshot was not stored."
+        evidenceCoverageLine="Evidence coverage was not stored."
+        primaryConcern={null}
+        hasFindingsSnapshot={false}
+      />,
+    );
+
+    expect(screen.getByText("Primary concern was not stored.")).toBeInTheDocument();
+    expect(screen.getByText("Highest unresolved severity was not stored.")).toBeInTheDocument();
+    expect(screen.queryByText("None")).not.toBeInTheDocument();
+    expect(screen.queryByText("No unresolved findings")).not.toBeInTheDocument();
+  });
 });

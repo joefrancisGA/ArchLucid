@@ -572,22 +572,22 @@ public sealed class SecureNowQuestionDispositionService(
                 || IsSharedServiceType(resource.ResourceType))
                 continue;
 
-            if (!string.IsNullOrWhiteSpace(resource.ParentResourceId)
-                && !resourceIds.Contains(Normalize(resource.ParentResourceId)))
-            {
-                continue;
-            }
+            bool hasParentResourceId = !string.IsNullOrWhiteSpace(resource.ParentResourceId);
+            bool parentMissingFromSnapshot = hasParentResourceId
+                && !resourceIds.Contains(Normalize(resource.ParentResourceId));
 
             candidates.Add(new SecureNowDiagramQuestionCandidate
             {
                 SubscriptionId = Normalize(resource.SubscriptionId ?? snapshot.Header.SubscriptionId),
                 ResourceId = resourceId,
                 ResourceType = resource.ResourceType,
-                IsOrphanIntent = !string.IsNullOrWhiteSpace(resource.ParentResourceId),
-                IsUnknownEvidence = string.IsNullOrWhiteSpace(resource.ParentResourceId),
-                ProblemText = string.IsNullOrWhiteSpace(resource.ParentResourceId)
-                    ? "No cited connection, and this type is not on the shared-service list."
-                    : "Required parent relationship is not cited.",
+                IsOrphanIntent = hasParentResourceId,
+                IsUnknownEvidence = !hasParentResourceId,
+                ProblemText = parentMissingFromSnapshot
+                    ? "Required parent is not in this inventory snapshot."
+                    : string.IsNullOrWhiteSpace(resource.ParentResourceId)
+                        ? "No cited connection, and this type is not on the shared-service list."
+                        : "Required parent relationship is not cited.",
             });
         }
 
