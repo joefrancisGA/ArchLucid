@@ -48,7 +48,7 @@ export function FindingEvidenceGraphOutline(props: FindingEvidenceGraphOutlinePr
       </table>
       {rows.length === 0 ? (
         <p className={cn("m-0 px-3 py-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-          No graph nodes match the examined set for this finding.
+          Graph nodes were not stored.
         </p>
       ) : null}
     </div>

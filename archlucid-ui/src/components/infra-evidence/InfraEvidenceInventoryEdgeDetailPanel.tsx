@@ -82,9 +82,15 @@ function formatConfidenceBand(edge: InfraEvidenceMermaidOutlineEdge): string {
 
 
 
-    default:
+    case "observed":
 
       return "Observed";
+
+
+
+    default:
+
+      return "Confidence band was not classified.";
 
   }
 

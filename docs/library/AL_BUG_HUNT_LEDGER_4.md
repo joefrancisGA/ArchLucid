@@ -14862,11 +14862,11 @@ heap-disproved mermaid typed-topology candidate.
 - **aliases:** host composition; DI registration; startup modules
 - **paths:** ArchLucid.Host.Composition/
 - **test-filter:** FullyQualifiedName~Host.Composition|FullyQualifiedName~ServiceCollectionExtensions
-- **hunts:** 76
-- **bugs-found:** 60
+- **hunts:** 75
+- **bugs-found:** 59
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-23
-- **last-bug:** 2026-10-23 — corrupt local completed poll hid distributed terminal state
+- **last-bug:** 2026-10-23 — value report poll stuck on local pending over distributed terminal
 - **code-changed-since:** yes
 
 2026-10-23 thorough hunt (seed→hit): proved `FlushPendingAsync` dropped later snapshot batches when `RecordBatchAsync` threw `OperationCanceledException`, losing usage events dequeued for the flush; requeue unprocessed snapshot tail on cancel; regression `StopAsync_requeues_unflushed_snapshot_tail_when_persist_is_canceled`; cheap-disproof closed four sibling `(candidate)` rows; scoped metering flush tests 7 passed (`RunAnalyzers=false`).
@@ -15126,17 +15126,11 @@ heap-disproved mermaid typed-topology candidate.
 - [x] (valid-no-repro) `AzureBlobCollectionRunArtifactReader.ParseManifestContent` — `schemaVersion` numeric JSON number coercion — **cheap-disproof 2026-10-23 thorough hunt #75:** `GetString`/`GetInt` handle JSON numbers; regression `ParseManifestContent_parses_numeric_schemaVersion`.
 - [x] (valid-no-repro) `DistributedCacheValueReportJobPollStateCache.Remove` — pass-through remove when key missing is silent — **cheap-disproof 2026-10-23 thorough hunt #75:** `IDistributedCache.Remove` is idempotent by design.
 
-- [x] (proven) `InMemoryValueReportJobQueue.TryPoll` — local terminal `Completed` not refreshed when distributed state has newer failure — **hit 2026-10-23 thorough hunt #76:** `PreferDistributedPollState` prefers distributed `Failed` over local `Completed` without bytes and distributed completed bytes over empty local completed; regressions `TryPoll_prefers_distributed_failure_when_local_completed_has_no_document_bytes` and `TryPoll_prefers_distributed_completed_bytes_when_local_completed_has_no_document`.
-- [x] (valid-no-repro) `InMemoryValueReportJobQueue.RunJobAsync` — unhandled exception after partial `TryWriteDistributedState` success — **cheap-disproof 2026-10-23 thorough hunt #76:** `RunJobAsync` try/catch wraps the whole job; audit failure routes to failed terminal state before returning.
-- [x] (valid-no-repro) `CollectionRunIngestService.IngestAsync` — `HasImportedHashAsync` true but different `runId` — **cheap-disproof 2026-10-23 thorough hunt #76:** hash dedupe is intentional idempotency per ADR-0103; duplicate zip content should not import twice.
-- [x] (valid-no-repro) `AzureBlobCollectionRunArtifactReader.ListManifestsAsync` — prefix filter omits manifests outside `runs/` layout — **cheap-disproof 2026-10-23 thorough hunt #76:** `CollectionRunStorageOptions.Prefix` is operator configuration for handoff layout, not a defect.
-- [x] (valid-no-repro) `ApiRequestUsageEventBatchFlushHostedService` — `ReturnBatchToBuffer` order not preserved under concurrency — **cheap-disproof 2026-10-23 thorough hunt #76:** metering batches are idempotent via `IdempotencyKey`; ordering is not a correctness invariant.
-
-- [ ] (candidate) `InMemoryValueReportJobQueue.TryPoll` — local `Completed` with bytes not overridden when distributed `Failed` — locus: `PreferDistributedPollState`; input: divergent terminal states with both carrying bytes; wrong outcome: ambiguous download (rare split-brain).
-- [ ] (candidate) `InMemoryValueReportJobQueue.Enqueue` — `PruneTerminalLocalJobs` removes terminal state still needed for same-job poll on single-process host — locus: prune before enqueue; input: no distributed cache; wrong outcome: not-found after second enqueue (mitigated by poll cache).
-- [ ] (candidate) `PollingCollectionRunDiscovery.DiscoverAsync` — same `runId` twice in one list invokes ingest twice — locus: foreach; input: duplicate manifest blobs; wrong outcome: redundant work (bounded by idempotency).
-- [ ] (candidate) `CollectionRunIngestService.IngestAsync` — rejected runs still upsert repository rows without operator metrics — locus: `UpsertAsync` on reject paths; input: bad manifests batch; wrong outcome: DB churn only (intentional audit trail).
-- [ ] (candidate) `ProcessSharedValueReportJobPollStateCache.Get` — expired entry removal only on read — locus: lazy expiry; input: never-polled expired keys between `Set` prunes; wrong outcome: memory until next `Set` (mitigated by hunt #72 prune-on-set).
+- [ ] (candidate) `InMemoryValueReportJobQueue.TryPoll` — local terminal `Completed` not refreshed when distributed state has newer failure — locus: local-before-distributed for non-pending; input: corrupt local completed bytes + distributed failed; wrong outcome: serves bad local completed.
+- [ ] (candidate) `InMemoryValueReportJobQueue.RunJobAsync` — unhandled exception after partial `TryWriteDistributedState` success — locus: `RunJobAsync` catch; input: audit throws after completed write; wrong outcome: duplicate terminal states.
+- [ ] (candidate) `CollectionRunIngestService.IngestAsync` — `HasImportedHashAsync` true but different `runId` — locus: hash dedupe; input: two manifests same zip hash; wrong outcome: second run not linked (may be correct dedupe).
+- [ ] (candidate) `AzureBlobCollectionRunArtifactReader.ListManifestsAsync` — prefix filter omits manifests outside `runs/` layout — locus: `ManifestPrefix`; input: custom prefix config; wrong outcome: zero discovery (configuration).
+- [ ] (candidate) `ApiRequestUsageEventBatchFlushHostedService` — `ReturnBatchToBuffer` order not preserved under concurrency — locus: requeue loop; input: parallel API requests during flush; wrong outcome: usage event ordering (if relevant).
 
 
 2026-10-09 seed hunt (seed→hit): failed usage flush returned events through `Enqueue`, which drops them when metering is disabled. Already-accepted events now use `Requeue`. Regression `StopAsync_keeps_dequeued_usage_events_when_persist_fails_after_metering_disabled` failed first.
