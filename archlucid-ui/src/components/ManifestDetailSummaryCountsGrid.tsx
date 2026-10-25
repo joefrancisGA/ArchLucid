@@ -56,7 +56,9 @@ export function ManifestDetailSummaryCountsGrid({
       <div className="rounded-lg border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-800 dark:bg-neutral-900/40">
         <p className={manifestTileLabelClass}>Decisions</p>
         <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.kpiValue)}>
-          {finiteIntegerCountDisplay(summary.decisionCount)}
+          {finiteIntegerCountDisplay(summary.decisionCount, {
+            notStoredLabel: "Decision count was not stored.",
+          })}
         </p>
       </div>
       <div className="rounded-lg border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-800 dark:bg-neutral-900/40">
@@ -64,13 +66,17 @@ export function ManifestDetailSummaryCountsGrid({
           {buyerPolishedLayout && isCuratedDemo ? "Monitored risks" : "Warnings"}
         </p>
         <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.kpiValue)}>
-          {finiteIntegerCountDisplay(summary.warningCount)}
+          {finiteIntegerCountDisplay(summary.warningCount, {
+            notStoredLabel: "Warning count was not stored.",
+          })}
         </p>
       </div>
       <div className="rounded-lg border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-800 dark:bg-neutral-900/40">
         <p className={manifestTileLabelClass}>Unresolved</p>
         <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.kpiValue)}>
-          {finiteIntegerCountDisplay(summary.unresolvedIssueCount)}
+          {finiteIntegerCountDisplay(summary.unresolvedIssueCount, {
+            notStoredLabel: "Unresolved issue count was not stored.",
+          })}
         </p>
       </div>
       {includeShowcaseTrailTiles ? (

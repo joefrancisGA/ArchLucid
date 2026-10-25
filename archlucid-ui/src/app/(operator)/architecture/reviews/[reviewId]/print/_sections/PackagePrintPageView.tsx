@@ -30,6 +30,8 @@ import {
   REVIEW_MEETING_CAPTURE_DISCLAIMER,
   hasReviewMeetingCapture,
   buildReviewMeetingCaptureMetaParts,
+  formatReviewMeetingCaptureAnswer,
+  formatReviewMeetingCaptureQuestionLabel,
 } from "@/lib/reviews/review-meeting-capture-export";
 import {
   PACKAGE_PRINT_BACK_LABEL,
@@ -38,7 +40,8 @@ import {
   PACKAGE_PRINT_META_CREATED_LABEL,
   PACKAGE_PRINT_PAGE_TITLE,
   PACKAGE_PRINT_STATUS_HEADING,
-  PACKAGE_PRINT_SYNOPSIS_HEADING,
+  resolvePackagePrintSynopsisBody,
+  resolvePackagePrintSynopsisHeading,
   PACKAGE_PRINT_COVERAGE_HONESTY_LINE,
   PACKAGE_PRINT_SEMANTIC_SUPPORT_HEADING,
   buildPackagePrintPath,
@@ -158,19 +161,17 @@ export function PackagePrintPageView(props: PackagePrintPageViewProps): React.JS
         </p>
       </section>
 
-      {presentation.sponsorSynopsis !== null ? (
-        <section className="space-y-2" aria-labelledby="package-print-synopsis-heading">
-          <h2 id="package-print-synopsis-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
-            {PACKAGE_PRINT_SYNOPSIS_HEADING}
-          </h2>
-          <p
-            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
-            data-testid="package-print-sponsor-synopsis"
-          >
-            {presentation.sponsorSynopsis}
-          </p>
-        </section>
-      ) : null}
+      <section className="space-y-2" aria-labelledby="package-print-synopsis-heading">
+        <h2 id="package-print-synopsis-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
+          {resolvePackagePrintSynopsisHeading(presentation.statusLabel)}
+        </h2>
+        <p
+          className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+          data-testid="package-print-sponsor-synopsis"
+        >
+          {resolvePackagePrintSynopsisBody(presentation)}
+        </p>
+      </section>
 
       {presentation.semanticSupportBandStampLine?.trim().length ? (
         <section className="space-y-2" aria-labelledby="package-print-semantic-support-heading">
@@ -209,9 +210,11 @@ export function PackagePrintPageView(props: PackagePrintPageViewProps): React.JS
               return (
               <li key={`${entry.questionLabel}:${entry.answer}`} className="space-y-1">
                 <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-                  {entry.questionLabel}
+                  {formatReviewMeetingCaptureQuestionLabel(entry.questionLabel)}
                 </p>
-                <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{entry.answer}</p>
+                <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+                  {formatReviewMeetingCaptureAnswer(entry.answer)}
+                </p>
                 {meetingCaptureMeta.length > 0 ? (
                   <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                     {meetingCaptureMeta.join(" · ")}

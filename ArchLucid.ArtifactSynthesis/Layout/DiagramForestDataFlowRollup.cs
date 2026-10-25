@@ -205,9 +205,10 @@ internal static class DiagramForestDataFlowRollup
         string title = string.Equals(typeCaption, "Resource type was not stored", StringComparison.Ordinal)
             ? $"{members.Count} resources; resource type was not stored"
             : $"{members.Count} {PluralizeTypeCaption(typeCaption)}";
-        int used = members.Count(member => neighborIdsByNodeId[member.NodeId].Count > 0);
+        int withNeighbor = members.Count(member => neighborIdsByNodeId[member.NodeId].Count > 0);
+        int withoutNeighbor = members.Count - withNeighbor;
         string? statusLine = IsConsumerStatusResource(first.ArmResourceType)
-            ? $"{used} used · {members.Count - used} no consumer found"
+            ? $"{withNeighbor} with a diagram neighbor on this view · {withoutNeighbor} with no diagram neighbor on this view"
             : null;
         List<string> factoryNames = members
             .SelectMany(member => member.ExternalFactoryNames)
@@ -286,7 +287,9 @@ internal static class DiagramForestDataFlowRollup
 
         if (remainder > 0)
         {
-            chips.Add(new DiagramNsgInboundRuleChip($"+{remainder}", IsRisky: false));
+            chips.Add(new DiagramNsgInboundRuleChip(
+                $"{remainder} more inbound rules were not listed on this card.",
+                IsRisky: false));
         }
 
         return chips;

@@ -17,7 +17,8 @@ public class GraphNodeFactory : IGraphNodeFactory
 
         try
         {
-            properties = new Dictionary<string, string>(properties, StringComparer.OrdinalIgnoreCase);
+            properties = NormalizePropertyBag(
+                new Dictionary<string, string>(properties, StringComparer.OrdinalIgnoreCase));
         }
         catch (ArgumentException ex)
         {
@@ -29,15 +30,42 @@ public class GraphNodeFactory : IGraphNodeFactory
 
         properties.TryGetValue("category", out string? category);
 
+        string objectId = item.ObjectId.Trim();
+        string nodeType = item.ObjectType.Trim();
+
         return new GraphNode
         {
-            NodeId = $"obj-{item.ObjectId}",
-            NodeType = item.ObjectType,
-            Label = item.Name,
-            Category = category,
-            SourceType = item.SourceType,
-            SourceId = item.SourceId,
+            NodeId = $"obj-{objectId}",
+            NodeType = nodeType,
+            Label = item.Name.Trim(),
+            Category = string.IsNullOrWhiteSpace(category) ? category : category.Trim(),
+            SourceType = string.IsNullOrWhiteSpace(item.SourceType) ? item.SourceType : item.SourceType.Trim(),
+            SourceId = string.IsNullOrWhiteSpace(item.SourceId) ? item.SourceId : item.SourceId.Trim(),
             Properties = properties
         };
+    }
+
+    private static Dictionary<string, string> NormalizePropertyBag(Dictionary<string, string> properties)
+    {
+        Dictionary<string, string> normalized = new(properties.Comparer);
+
+        foreach (KeyValuePair<string, string> entry in properties)
+        {
+            string key = string.IsNullOrWhiteSpace(entry.Key) ? entry.Key : entry.Key.Trim();
+            string value = string.IsNullOrWhiteSpace(entry.Value)
+                ? entry.Value
+                : entry.Value.Trim();
+
+            if (normalized.TryGetValue(key, out string? existing)
+                && !string.Equals(existing, value, StringComparison.Ordinal))
+            {
+                throw new ArgumentException(
+                    "CanonicalObject.Properties contains duplicate keys that collide under ordinal case-insensitive comparison.");
+            }
+
+            normalized[key] = value;
+        }
+
+        return normalized;
     }
 }

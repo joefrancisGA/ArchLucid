@@ -29,7 +29,13 @@ public sealed class PilotValueReportMarkdownFormatter(ExportFormatterService exp
         sb.AppendLine(
             CultureInfo.InvariantCulture,
             $"| Window (UTC) | `{_exportFormatter.FormatIso8601Utc(r.FromUtc)}` inclusive → `{_exportFormatter.FormatIso8601Utc(r.ToUtc)}` exclusive |");
-        if (r.CommittedRunsInventoryTruncated)
+        if (RunDetailSampleLoadedNoRows(r))
+        {
+            sb.AppendLine(
+                CultureInfo.InvariantCulture,
+                $"| Committed runs | {r.TotalRunsCommitted} (0 loaded for detail in partial sample) |");
+        }
+        else if (r.CommittedRunsInventoryTruncated)
         {
             sb.AppendLine(
                 CultureInfo.InvariantCulture,
@@ -88,7 +94,9 @@ public sealed class PilotValueReportMarkdownFormatter(ExportFormatterService exp
             sb.AppendLine(CultureInfo.InvariantCulture, $"| Total findings | {r.TotalFindings} |");
         }
 
-        string avgCompletionCell = FormatAvgSeconds(r.AveragePipelineCompletionSeconds);
+        string avgCompletionCell = RunDetailSampleLoadedNoRows(r)
+            ? "not computed — no committed runs loaded for detail in the partial sample"
+            : FormatAvgSeconds(r.AveragePipelineCompletionSeconds);
 
         if (r.RunDetailsTruncated && !RunDetailSampleLoadedNoRows(r))
             avgCompletionCell = $"{avgCompletionCell} {PartialRunDetailSampleFragment(r.RunDetailCap)}";
@@ -122,15 +130,18 @@ public sealed class PilotValueReportMarkdownFormatter(ExportFormatterService exp
             sb.AppendLine();
         }
 
-        _exportFormatter.AppendMarkdownTwoColumnTableStart(sb, "Severity", "Count");
-        sb.AppendLine(CultureInfo.InvariantCulture, $"| Critical | {r.FindingsBySeverity.Critical} |");
-        sb.AppendLine(CultureInfo.InvariantCulture, $"| High | {r.FindingsBySeverity.High} |");
-        sb.AppendLine(CultureInfo.InvariantCulture, $"| Medium | {r.FindingsBySeverity.Medium} |");
-        sb.AppendLine(CultureInfo.InvariantCulture, $"| Low | {r.FindingsBySeverity.Low} |");
-        sb.AppendLine(CultureInfo.InvariantCulture, $"| Info | {r.FindingsBySeverity.Info} |");
-        sb.AppendLine();
-        AppendSeverityNote(sb);
-        sb.AppendLine();
+        if (!RunDetailSampleLoadedNoRows(r))
+        {
+            _exportFormatter.AppendMarkdownTwoColumnTableStart(sb, "Severity", "Count");
+            sb.AppendLine(CultureInfo.InvariantCulture, $"| Critical | {r.FindingsBySeverity.Critical} |");
+            sb.AppendLine(CultureInfo.InvariantCulture, $"| High | {r.FindingsBySeverity.High} |");
+            sb.AppendLine(CultureInfo.InvariantCulture, $"| Medium | {r.FindingsBySeverity.Medium} |");
+            sb.AppendLine(CultureInfo.InvariantCulture, $"| Low | {r.FindingsBySeverity.Low} |");
+            sb.AppendLine(CultureInfo.InvariantCulture, $"| Info | {r.FindingsBySeverity.Info} |");
+            sb.AppendLine();
+            AppendSeverityNote(sb);
+            sb.AppendLine();
+        }
 
         sb.AppendLine("## Agent types observed");
         sb.AppendLine();
@@ -145,7 +156,12 @@ public sealed class PilotValueReportMarkdownFormatter(ExportFormatterService exp
 
         if (r.UniqueAgentTypes.Count == 0)
         {
-            if (r.RunDetailsTruncated)
+            if (RunDetailSampleLoadedNoRows(r))
+            {
+                sb.AppendLine(
+                    "Agent types were not computed — no committed runs loaded for detail in the partial sample.");
+            }
+            else if (r.RunDetailsTruncated)
             {
                 sb.AppendLine(
                     CultureInfo.InvariantCulture,
@@ -162,7 +178,17 @@ public sealed class PilotValueReportMarkdownFormatter(ExportFormatterService exp
         }
         sb.AppendLine();
 
-        if (r.RunDetailsTruncated)
+        if (RunDetailSampleLoadedNoRows(r))
+        {
+            string committedRunsHeading = r.RunDetailsTruncated
+                ? FormattableString.Invariant(
+                    $"## Committed runs (sample: 0 of {r.TotalRunsCommitted} in-window committed runs loaded for detail)")
+                : FormattableString.Invariant(
+                    $"## Committed runs (0 of {r.TotalRunsCommitted} in-window committed runs loaded for detail)");
+
+            sb.AppendLine(committedRunsHeading);
+        }
+        else if (r.RunDetailsTruncated)
         {
             sb.AppendLine(
                 CultureInfo.InvariantCulture,
@@ -194,7 +220,7 @@ public sealed class PilotValueReportMarkdownFormatter(ExportFormatterService exp
     }
 
     private static bool RunDetailSampleLoadedNoRows(PilotValueReport report) =>
-        report.RunDetailsTruncated && report.CommittedRunsTimeline.Count == 0 && report.TotalRunsCommitted > 0;
+        report.CommittedRunsTimeline.Count == 0 && report.TotalRunsCommitted > 0;
 
     private static string PartialRunDetailSampleFragment(int runDetailCap) =>
         FormattableString.Invariant($"(partial run-detail sample: newest {runDetailCap} committed runs by CreatedUtc)");

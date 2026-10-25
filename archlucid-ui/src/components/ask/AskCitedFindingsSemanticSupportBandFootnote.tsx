@@ -27,8 +27,9 @@ export function AskCitedFindingsSemanticSupportBandFootnote(
   });
   const footnote = formatAskCitedFindingsSemanticSupportBandFootnote(bandResolution);
   const weakestBand = bandResolution.weakestBand;
+  const hasReferencedFindings = props.referencedFindingIds.some((id) => id.trim().length > 0);
 
-  if (footnote === null) {
+  if (footnote === null || !hasReferencedFindings) {
     return null;
   }
 

@@ -2,7 +2,9 @@ import { describe, expect, it } from "vitest";
 
 import {
   ARCHITECTURE_RISK_REGISTER_EVIDENCE_LINK_NOT_STORED,
+  ARCHITECTURE_RISK_REGISTER_LAST_REVIEWED_NOT_STORED,
   ARCHITECTURE_RISK_REGISTER_OWNER_NOT_STORED,
+  ARCHITECTURE_RISK_REGISTER_STALE_FLAG_NOT_STORED,
   buildArchitectureRiskRegisterCsv,
 } from "@/lib/architecture/architecture-risk-register-csv";
 
@@ -87,5 +89,41 @@ describe("buildArchitectureRiskRegisterCsv", () => {
     expect(csv).toContain(ARCHITECTURE_RISK_REGISTER_OWNER_NOT_STORED);
     expect(csv).toContain(ARCHITECTURE_RISK_REGISTER_EVIDENCE_LINK_NOT_STORED);
     expect(csv).not.toContain("f-orphan,");
+  });
+
+  it("does not treat omitted stale flag as no", () => {
+    const csv = buildArchitectureRiskRegisterCsv([
+      {
+        recordKind: "finding",
+        runId: "run-1",
+        findingId: "f-1",
+        title: "Stale unknown",
+        severity: "Medium",
+        category: "Claims intake",
+        status: "Open",
+        recommended: "Review",
+      },
+    ]);
+
+    expect(csv).toContain(ARCHITECTURE_RISK_REGISTER_STALE_FLAG_NOT_STORED);
+    expect(csv).not.toMatch(/,no,\r?\n/);
+  });
+
+  it("labels missing last reviewed without a blank cell", () => {
+    const csv = buildArchitectureRiskRegisterCsv([
+      {
+        recordKind: "finding",
+        runId: "run-1",
+        findingId: "f-1",
+        title: "Never reviewed",
+        severity: "Low",
+        category: "Claims intake",
+        status: "Open",
+        recommended: "Review",
+        isStale: false,
+      },
+    ]);
+
+    expect(csv).toContain(ARCHITECTURE_RISK_REGISTER_LAST_REVIEWED_NOT_STORED);
   });
 });

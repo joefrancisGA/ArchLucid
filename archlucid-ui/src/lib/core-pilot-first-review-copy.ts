@@ -14,7 +14,7 @@ export const OPERATOR_SAMPLE_PACKAGE_SHORTCUTS_HEADING = "Sample review shortcut
 
 /** High-level flow; technical terms (manifest, run ID) stay in step bodies and tooltips. */
 export const CORE_PILOT_WORKFLOW_SUMMARY_LINE =
-  "New architecture review → Analyze → Finalize → Upload ZIP → ROI & audit proof";
+  "Attach evidence → Open the inventory diagram → Read findings → Ask one question → Export the sponsor briefing";
 
 /**
  * Four plain steps for default first-session copy (no manifest / Operate jargon). Shown in collapsed diagnostics on Home

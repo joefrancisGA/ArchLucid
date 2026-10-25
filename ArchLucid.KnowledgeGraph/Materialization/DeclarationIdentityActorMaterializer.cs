@@ -411,13 +411,15 @@ public static class DeclarationIdentityActorMaterializer
     private static TrustOrigin ResolveTrustOrigin(GraphNode node)
     {
         if (GraphNodePropertyReader.TryGetPropertyValue(node.Properties, "anonymous", out string? anonymous)
-            && string.Equals(anonymous, "true", StringComparison.OrdinalIgnoreCase))
+            && !string.IsNullOrWhiteSpace(anonymous)
+            && string.Equals(anonymous.Trim(), "true", StringComparison.OrdinalIgnoreCase))
         {
             return TrustOrigin.PublicAnonymous;
         }
 
         if (GraphNodePropertyReader.TryGetPropertyValue(node.Properties, "trustOrigin", out string? trustOrigin)
-            && Enum.TryParse(trustOrigin, ignoreCase: true, out TrustOrigin parsed))
+            && !string.IsNullOrWhiteSpace(trustOrigin)
+            && Enum.TryParse(trustOrigin.Trim(), ignoreCase: true, out TrustOrigin parsed))
         {
             return parsed;
         }
@@ -430,9 +432,11 @@ public static class DeclarationIdentityActorMaterializer
                 continue;
             }
 
-            if (string.Equals(entry.Value, "true", StringComparison.OrdinalIgnoreCase)
-                || string.Equals(entry.Value, "enabled", StringComparison.OrdinalIgnoreCase)
-                || string.Equals(entry.Value, "allow", StringComparison.OrdinalIgnoreCase))
+            string flagValue = entry.Value.Trim();
+
+            if (string.Equals(flagValue, "true", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(flagValue, "enabled", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(flagValue, "allow", StringComparison.OrdinalIgnoreCase))
             {
                 return TrustOrigin.External;
             }

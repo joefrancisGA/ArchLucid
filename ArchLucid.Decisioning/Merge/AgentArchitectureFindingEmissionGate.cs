@@ -22,6 +22,9 @@ public static class AgentArchitectureFindingEmissionGate
 
         foreach (AgentResult result in results)
         {
+            if (result is null)
+                continue;
+
             if (result.Findings is not { Count: > 0 } findings)
                 continue;
 
@@ -31,6 +34,9 @@ public static class AgentArchitectureFindingEmissionGate
 
             foreach (ArchitectureFinding finding in findings)
             {
+                if (finding is null)
+                    continue;
+
                 if (HasTypedEmission(finding))
                 {
                     retained.Add(finding);

@@ -15,6 +15,40 @@ public sealed class CreatePolicyPackRequestValidatorTests
     private readonly CreatePolicyPackRequestValidator _validator = new();
 
     [Fact]
+    public void Validate_passes_when_name_padding_makes_raw_length_exceed_300_but_trimmed_name_is_valid()
+    {
+        string paddedName = new string(' ', 298) + "Pack";
+        paddedName.Length.Should().BeGreaterThan(PolicyPackRequestValidationRules.PackNameMaxLength);
+
+        CreatePolicyPackRequest request = new()
+        {
+            Name = paddedName,
+            PackType = PolicyPackType.TenantCustom,
+            InitialContentJson = "{}",
+        };
+
+        ValidationResult result = _validator.Validate(request);
+
+        result.IsValid.Should().BeTrue();
+    }
+
+    [Fact]
+    public void Validate_fails_when_name_is_whitespace_only()
+    {
+        CreatePolicyPackRequest request = new()
+        {
+            Name = "   ",
+            PackType = PolicyPackType.TenantCustom,
+            InitialContentJson = "{}",
+        };
+
+        ValidationResult result = _validator.Validate(request);
+
+        result.IsValid.Should().BeFalse();
+        result.Errors.Should().Contain(e => e.PropertyName == nameof(CreatePolicyPackRequest.Name));
+    }
+
+    [Fact]
     public void Valid_request_passes()
     {
         CreatePolicyPackRequest request = new()
@@ -57,6 +91,23 @@ public sealed class CreatePolicyPackRequestValidatorTests
         ValidationResult result = _validator.Validate(request);
 
         result.IsValid.Should().BeFalse();
+    }
+
+    [Fact]
+    public void Whitespace_only_initial_content_json_fails()
+    {
+        CreatePolicyPackRequest request = new()
+        {
+            Name = "Pack",
+            PackType = PolicyPackType.TenantCustom,
+            InitialContentJson = "   ",
+        };
+
+        ValidationResult result = _validator.Validate(request);
+
+        result.IsValid.Should().BeFalse();
+        result.Errors.Should().Contain(e => e.PropertyName == nameof(CreatePolicyPackRequest.InitialContentJson));
+        result.Errors.Should().Contain(e => e.ErrorMessage.Contains("InitialContentJson is required"));
     }
 
     [Fact]
