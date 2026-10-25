@@ -166,7 +166,7 @@ export function plainLanguageFailureCauseSentence(args: {
 
 function resolveFailureStagePrefix(completedStages: number | null | undefined): string {
   if (completedStages === null || completedStages === undefined || !Number.isFinite(completedStages)) {
-    return "Pipeline stage count was not stored.";
+    return "Assessment stage count was not stored.";
   }
 
   return resolveFailureStageReachedPhrase(Math.trunc(completedStages));
