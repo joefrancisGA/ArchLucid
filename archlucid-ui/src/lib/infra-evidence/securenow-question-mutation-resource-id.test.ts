@@ -161,6 +161,15 @@ describe("secureNowQuestionDispositionMutationEvidenceFingerprint", () => {
 });
 
 describe("secureNowQuestionDispositionMutationSource", () => {
+  it("infers inventory evidence when resource scope omits question key", () => {
+    expect(
+      secureNowQuestionDispositionMutationSource({
+        source: "InventoryEvidence",
+        scopeKind: "Resource",
+        questionKey: null,
+      }),
+    ).toBe("InventoryEvidence");
+  });
   it("infers PolicyPack when subscription scope omits source", () => {
     expect(
       secureNowQuestionDispositionMutationSource({

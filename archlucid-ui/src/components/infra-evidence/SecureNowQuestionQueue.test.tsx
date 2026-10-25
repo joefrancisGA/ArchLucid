@@ -178,6 +178,23 @@ describe("SecureNowQuestionQueue", () => {
     expect(screen.getByText(/Expiration status was not stored/)).toBeInTheDocument();
   });
 
+  it("renders inventory source and scope details when question key is omitted", async () => {
+    mocks.listQuestions.mockResolvedValue([
+      {
+        ...question,
+        questionKey: null,
+        source: "InventoryEvidence",
+        scopeKind: "Resource",
+      },
+    ]);
+
+    render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
+    fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
+
+    expect(screen.getByText("Source: Asked from inventory evidence.")).toBeInTheDocument();
+    expect(screen.getByText("Scope: This resource.")).toBeInTheDocument();
+  });
+
   it("does not post a mutation when question key was not stored", async () => {
     mocks.listQuestions.mockResolvedValue([{ ...question, questionKey: null }]);
 

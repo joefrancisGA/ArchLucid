@@ -1,8 +1,13 @@
 import type { SecureNowQuestion } from "@/lib/infra-evidence/securenow-question-queue-api";
 
-function inferredConnectionIdFromQuestionKey(questionKey: string): string | null {
-  const versionIndex = questionKey.toLowerCase().lastIndexOf("@v");
-  const base = versionIndex >= 0 ? questionKey.slice(0, versionIndex) : questionKey;
+function inferredConnectionIdFromQuestionKey(questionKey: string | null | undefined): string | null {
+  const normalized = questionKey?.trim() ?? "";
+  if (normalized.length === 0) {
+    return null;
+  }
+
+  const versionIndex = normalized.toLowerCase().lastIndexOf("@v");
+  const base = versionIndex >= 0 ? normalized.slice(0, versionIndex) : normalized;
   const suffix = base.split("-").pop() ?? "";
 
   if (!/^[0-9a-f]{32}$/i.test(suffix)) {
