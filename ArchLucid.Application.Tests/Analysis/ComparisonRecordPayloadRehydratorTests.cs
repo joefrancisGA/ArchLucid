@@ -350,6 +350,34 @@ public sealed class ComparisonRecordPayloadRehydratorTests
     }
 
     [Fact]
+    public void CompareQuality_RehydrateExportDiff_returns_null_when_payload_is_immaterial_and_record_only_supplies_anchors()
+    {
+        ExportRecordDiffResult diff = new()
+        {
+            ChangedTopLevelFields = ["legacyPlaceholder"],
+            RequestDiff = new ExportRecordRequestDiff
+            {
+                ChangedFlags = ["NotARealFlag"],
+                ChangedValues = ["bogus"],
+            },
+        };
+        string json = JsonSerializer.Serialize(diff, new JsonSerializerOptions(JsonSerializerDefaults.Web));
+        ComparisonRecord record = new()
+        {
+            ComparisonRecordId = "c2-immaterial-anchors",
+            LeftExportRecordId = "left-export",
+            RightExportRecordId = "right-export",
+            LeftRunId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+            RightRunId = "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+            PayloadJson = json,
+        };
+
+        ExportRecordDiffResult? result = ComparisonRecordPayloadRehydrator.RehydrateExportDiff(record);
+
+        result.Should().BeNull();
+    }
+
+    [Fact]
     public void RehydrateExportDiff_corrupt_json_throws_InvalidOperationException()
     {
         ComparisonRecord record = new() { ComparisonRecordId = "bad-diff", PayloadJson = "[]" };

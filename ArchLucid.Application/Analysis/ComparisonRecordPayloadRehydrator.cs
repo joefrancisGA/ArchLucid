@@ -49,14 +49,12 @@ public static class ComparisonRecordPayloadRehydrator
                 return null;
 
             ExportRecordDiffResultNormalizer.NormalizeDisplayAnchors(diff);
+            bool payloadAnchoredExportRecords =
+                diff.LeftExportRecordId.Length > 0 || diff.RightExportRecordId.Length > 0;
             ExportRecordDiffResultNormalizer.ApplyComparisonRecordAnchorsInPlace(diff, record);
 
-            if (!ExportRecordDiffMateriality.HasMaterialChanges(diff)
-                && diff.LeftExportRecordId.Length == 0
-                && diff.RightExportRecordId.Length == 0)
-            {
+            if (!ExportRecordDiffMateriality.HasMaterialChanges(diff) && !payloadAnchoredExportRecords)
                 return null;
-            }
 
             return diff;
         }
