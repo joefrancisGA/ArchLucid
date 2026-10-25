@@ -1220,7 +1220,9 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                       </EnterpriseTableHead>
                       <EnterpriseTableBody>
                         {hub.rbacAssignments.map((assignment) => (
-                          <EnterpriseTableRow key={`${assignment.principalId}-${assignment.roleDefinitionId}`}>
+                          <EnterpriseTableRow
+                            key={`${assignment.principalId}-${assignment.roleDefinitionId}-${assignment.scope}`}
+                          >
                             <EnterpriseTableCell className="font-mono text-xs">{assignment.principalId}</EnterpriseTableCell>
                             <EnterpriseTableCell className="font-mono text-xs">{assignment.roleDefinitionId}</EnterpriseTableCell>
                             <EnterpriseTableCell className="font-mono text-xs">{assignment.scope}</EnterpriseTableCell>
@@ -1260,7 +1262,9 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                       </EnterpriseTableHead>
                       <EnterpriseTableBody>
                         {hub.networkRelationships.map((relationship) => (
-                          <EnterpriseTableRow key={`${relationship.fromAzureResourceId}-${relationship.toAzureResourceId}`}>
+                          <EnterpriseTableRow
+                            key={`${relationship.fromAzureResourceId}-${relationship.toAzureResourceId}-${relationship.relationshipType}`}
+                          >
                             <EnterpriseTableCell>{relationship.relationshipType}</EnterpriseTableCell>
                             <EnterpriseTableCell className="font-mono text-xs">{relationship.fromAzureResourceId}</EnterpriseTableCell>
                             <EnterpriseTableCell className="font-mono text-xs">{relationship.toAzureResourceId}</EnterpriseTableCell>
@@ -1871,7 +1875,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                             || match.controlId !== resolvedAuditLineage.controlId,
                         )
                         .map((match: CloudResourceAuditLineageMatch) => (
-                        <li key={`${match.controlId}-${match.auditEvidenceSnapshotId}`}>
+                        <li key={`${match.assessmentId}-${match.auditEvidenceSnapshotId}-${match.controlId}`}>
                           <div className="flex flex-wrap items-center gap-2">
                             <Link
                               className="text-al-link hover:underline"

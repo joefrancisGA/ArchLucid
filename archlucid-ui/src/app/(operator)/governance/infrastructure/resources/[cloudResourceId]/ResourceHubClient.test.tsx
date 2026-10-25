@@ -287,6 +287,93 @@ describe("ResourceHubClient", () => {
     expect(screen.getByText("snapshots/222/properties.json")).toBeInTheDocument();
   });
 
+  it("renders RBAC rows that share principal and role but differ in scope", async () => {
+    fetchCachedInfraEvidenceResourceHub.mockImplementation(async () =>
+      buildResourceHubTestMockHub({
+        rbacAssignments: [
+          {
+            principalId: "principal-1",
+            roleDefinitionId: "role-reader",
+            scope: "/subscriptions/sub",
+          },
+          {
+            principalId: "principal-1",
+            roleDefinitionId: "role-reader",
+            scope: "/subscriptions/sub/resourceGroups/rg-net",
+          },
+        ],
+      }),
+    );
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    await screen.findByText("RBAC assignments");
+    expect(screen.getByText("/subscriptions/sub")).toBeInTheDocument();
+    expect(screen.getByText("/subscriptions/sub/resourceGroups/rg-net")).toBeInTheDocument();
+  });
+
+  it("renders network relationships that share endpoints but differ in type", async () => {
+    const sharedFrom =
+      "/subscriptions/sub/resourceGroups/rg-net/providers/Microsoft.Network/virtualNetworks/vnet-a";
+    const sharedTo =
+      "/subscriptions/sub/resourceGroups/rg-net/providers/Microsoft.Network/virtualNetworks/vnet-b";
+    fetchCachedInfraEvidenceResourceHub.mockImplementation(async () =>
+      buildResourceHubTestMockHub({
+        networkRelationships: [
+          {
+            relationshipType: "Peering",
+            fromAzureResourceId: sharedFrom,
+            toAzureResourceId: sharedTo,
+          },
+          {
+            relationshipType: "PrivateEndpoint",
+            fromAzureResourceId: sharedFrom,
+            toAzureResourceId: sharedTo,
+          },
+        ],
+      }),
+    );
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    await screen.findByText("Network relationships");
+    expect(screen.getByText("Peering")).toBeInTheDocument();
+    expect(screen.getByText("PrivateEndpoint")).toBeInTheDocument();
+  });
+
+  it("lists cross-assessment audit controls that share control and snapshot ids", async () => {
+    fetchCachedInfraEvidenceResourceHub.mockImplementation(async () =>
+      buildResourceHubTestMockHub({
+        auditLineageLink: {
+          ...buildResourceHubTestMockHub().auditLineageLink,
+          matches: [
+            {
+              assessmentId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+              auditEvidenceSnapshotId: "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+              controlId: "cccccccc-cccc-cccc-cccc-cccccccccccc",
+              controlNumber: "AC-2",
+              controlTitle: "Account management",
+              snapshotCreatedUtc: "2026-01-01T00:00:00Z",
+            },
+            {
+              assessmentId: "eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee",
+              auditEvidenceSnapshotId: "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+              controlId: "cccccccc-cccc-cccc-cccc-cccccccccccc",
+              controlNumber: "AC-2",
+              controlTitle: "Account management (other assessment)",
+              snapshotCreatedUtc: "2026-01-02T00:00:00Z",
+            },
+          ],
+        },
+      }),
+    );
+    searchParams = new URLSearchParams(
+      `tab=audit&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}${RESOURCE_HUB_TEST_AUDIT_SUFFIX}`,
+    );
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    expect(await screen.findByText("Other linked controls")).toBeInTheDocument();
+    expect(screen.getByText("AC-2 · Account management (other assessment)")).toBeInTheDocument();
+  });
+
   it("uses shared drift table with old and new values on overview and drift tab", async () => {
     render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
 

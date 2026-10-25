@@ -7174,6 +7174,34 @@ ABQ-09 churn hotspot.
 
 ## Zone: ui-infra-resource-hub
 
+2026-10-25 seed hunt (seed→hit): promoted non-unique React keys on RBAC assignments, network relationships, and audit “Other linked controls” lists — colliding `principalId-roleDefinitionId`, endpoint pair, or `controlId-snapshotId` keys dropped scoped rows or cross-assessment controls under reconciliation; include `scope`, `relationshipType`, and `assessmentId` in row keys; regressions for scoped RBAC, typed network pairs, and cross-assessment audit list; cheap-disproof closed architecture-review action parity (Ask-only by design) and loadHub generation gate on failure; scoped ResourceHubClient vitest 61/61. Private beta: operators reviewing a resource hub see every captured RBAC scope, network relationship type, and linked audit control row instead of silently collapsed duplicates.
+
+- [x] (proven) `ResourceHubClient` RBAC assignments table — duplicate principal/role keys — **hit 2026-10-25 seed hunt:** key includes `scope`; regression `renders RBAC rows that share principal and role but differ in scope`.
+- [x] (proven) `ResourceHubClient` network relationships table — duplicate endpoint keys — **hit 2026-10-25 seed hunt:** key includes `relationshipType`; regression `renders network relationships that share endpoints but differ in type`.
+- [x] (proven) `ResourceHubClient` audit “Other linked controls” — cross-assessment key collision — **hit 2026-10-25 seed hunt:** key includes `assessmentId`; regression `lists cross-assessment audit controls that share control and snapshot ids`.
+- [x] (valid-no-repro) `ResourceHubClient` architecture-review findings actions — **cheap-disproof 2026-10-25 seed hunt:** stream renders Ask action only by design (no remediation factory on architecture review rows).
+- [x] (valid-no-repro) `ResourceHubClient.loadHub` — slow success after fast failure — **cheap-disproof 2026-10-25 seed hunt:** each `loadHub` call bumps request generation; stale responses cannot apply after a newer load starts.
+
+- [ ] (candidate) `ResourceHubClient` evidence pointers table — duplicate `kind` and `relativePath` rows — locus: React key; input: colliding inventory pointers.
+- [ ] (candidate) `ResourceHubClient` recent changes table — duplicate `changeId` across diffs — locus: row key; input: pagination or reload shows wrong change row.
+- [ ] (candidate) `ResourceHubClient` remediation instances table — duplicate `patternKey` statuses — locus: row identity; input: two drafts same pattern.
+- [ ] (candidate) `ResourceHubClient` finding action messages — stale message map after hub reload — locus: `findingActionMessages` state; input: clear on successful reload.
+- [ ] (candidate) `ResourceHubClient` diagram correspondence — missing `correspondenceId` fallback label — locus: diagram tab empty states; input: null correspondence with inventory present.
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **aliases:** resource hub; infrastructure resource detail
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 44
+- **bugs-found:** 24
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-25
+- **last-bug:** 2026-10-25 — non-unique React keys collapsed RBAC/network/audit rows
+- **related-pd-tb:** none
+- **code-changed-since:** yes
+
 2026-10-25 seed hunt (seed→hit): promoted architecture-review findings stream pagination linking to remediation workbench — `hasMore` caption for `ArchitectureReview` used `buildResourceScopedWorkbenchHref(..., "remediation")` instead of the resource hub findings tab; route architecture review to `"findings"` while operational security stays on remediation; regressions `links architecture review pagination to the resource hub findings tab` and operational href assertion on `shows paginated finding stream caption when hasMore`; scoped ResourceHubClient vitest 58/58. Private beta: operators paging architecture-review findings on a resource hub land on that resource’s findings tab instead of the remediation factory.
 
 - [x] (proven) `ResourceHubClient` architecture-review findings stream pagination — **hit 2026-10-25 seed hunt:** stream-kind-specific `buildResourceScopedWorkbenchHref`; `ResourceHubClient.test.tsx`.
