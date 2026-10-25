@@ -57,6 +57,43 @@ public sealed class ReplayComparisonExportsDiffSliceTests
         columnKey.Should().Be(jsonKey);
     }
 
+    [Fact]
+    public void BuildExportPairingKey_treats_whitespace_only_compare_run_column_as_json_anchor()
+    {
+        Guid compareRunId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
+
+        RunExportRecord whitespaceColumn = CreateExport(compareRunId: "   ");
+        whitespaceColumn.CompareManifestVersion = null;
+        whitespaceColumn.AnalysisRequestJson =
+            $$"""{"includeAgentResultCompare":true,"compareRunId":"{{compareRunId.ToString("N")}}"}""";
+
+        RunExportRecord canonicalColumn = CreateExport(compareRunId: compareRunId.ToString("N"));
+        canonicalColumn.CompareManifestVersion = null;
+
+        string whitespaceKey = ReplayComparisonExportsDiffSlice.BuildExportPairingKey(whitespaceColumn);
+        string canonicalKey = ReplayComparisonExportsDiffSlice.BuildExportPairingKey(canonicalColumn);
+
+        whitespaceKey.Should().Be(canonicalKey);
+    }
+
+    [Fact]
+    public void BuildExportPairingKey_treats_column_and_json_compare_manifest_version_as_same_pairing_key()
+    {
+        RunExportRecord columnVersion = CreateExport(compareRunId: null);
+        columnVersion.CompareManifestVersion = "v2";
+        columnVersion.TemplateProfile = null;
+
+        RunExportRecord jsonVersion = CreateExport(compareRunId: null);
+        jsonVersion.CompareManifestVersion = null;
+        jsonVersion.TemplateProfile = null;
+        jsonVersion.AnalysisRequestJson = """{"includeManifestCompare":true,"compareManifestVersion":"v2"}""";
+
+        string columnKey = ReplayComparisonExportsDiffSlice.BuildExportPairingKey(columnVersion);
+        string jsonKey = ReplayComparisonExportsDiffSlice.BuildExportPairingKey(jsonVersion);
+
+        columnKey.Should().Be(jsonKey);
+    }
+
     private static RunExportRecord CreateExport(string? compareRunId)
     {
         return new RunExportRecord

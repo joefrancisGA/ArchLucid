@@ -81,8 +81,9 @@ public sealed class ReplayComparisonExportsDiffSlice(IExportRecordDiffService ex
 
     private static string? ResolveCompareRunIdForPairing(RunExportRecord record)
     {
-        if (!string.IsNullOrWhiteSpace(record.CompareRunId))
-            return record.CompareRunId;
+        string? fromColumn = PersistedAnalysisExportRequestMetadata.NormalizeOptionalString(record.CompareRunId);
+        if (!string.IsNullOrEmpty(fromColumn))
+            return fromColumn;
 
         PersistedAnalysisExportRequest? request = AnalysisExportRequestRehydrator.Rehydrate(record);
         return request?.CompareRunId;
