@@ -28,6 +28,8 @@ import {
   GOVERNANCE_QUEUE_REVIEW_TITLE_NOT_STORED,
   GOVERNANCE_QUEUE_RULE_ID_NOT_STORED,
   GOVERNANCE_QUEUE_SEVERITY_NOT_STORED,
+  GOVERNANCE_QUEUE_RECOMMENDED_ACTION_NOT_STORED,
+  GOVERNANCE_QUEUE_RATIONALE_NOT_STORED,
 } from "@/components/governance/findings/governance-findings-row-omission-copy";
 
 function resolveGovernanceQueueReviewLabel(systemName: string, runId: string): string {

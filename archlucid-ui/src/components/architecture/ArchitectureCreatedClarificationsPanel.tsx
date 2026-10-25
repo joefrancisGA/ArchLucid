@@ -247,8 +247,8 @@ export function ArchitectureCreatedClarificationsPanel(
 
       {!isZeroGapSuccess ? (
         <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
-          Unresolved clarifications reduce assessment confidence. Answer open questions or add evidence before sharing
-          with sponsors or creating work items.
+          These clarifications are still open. Answer them or add evidence before sharing with sponsors or creating
+          work items.
         </p>
       ) : null}
 

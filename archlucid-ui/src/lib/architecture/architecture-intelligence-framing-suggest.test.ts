@@ -22,6 +22,17 @@ describe("architecture-intelligence-framing-suggest", () => {
     });
   });
 
+  it("does not promote confirmedAnswer fields as inferred overview suggestions", () => {
+    const suggestions = suggestFramingAnswersFromOverview(
+      [{ questionId: "fixed-decisions", prompt: "Fixed?", confirmedAnswer: "Azure-only deployment" }],
+      {
+        combinedSourceText: "Overview only",
+      },
+    );
+
+    expect(suggestions).toEqual({});
+  });
+
   it("uses confirmed constraints for fixed-decisions suggestions", () => {
     const brief = emptyArchitectureDraftStructuredBrief();
     const structuredBrief = {

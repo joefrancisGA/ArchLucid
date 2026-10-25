@@ -24,8 +24,8 @@ import { ASK_CONVERSATION_EMPTY } from "@/lib/ask-conversation-empty-preset";
 import {
   ASK_REVIEW_STREAMING_PROVISIONAL_MARKER,
   askReviewArtifactStatusCopy,
-  countAskAnswerCitationIds,
-  messageHasUncitedAssistantOutput,
+  ASK_CITATION_REFS_NOT_STORED_MARKER,
+  resolveAskAssistantGroundingCitationMarker,
   resolveAskReviewArtifactStatus,
 } from "@/lib/ask-review-artifact-status-copy";
 import {
@@ -226,7 +226,6 @@ export function AskMessageThreadPanel(props: AskMessageThreadPanelProps) {
             message.role.toLowerCase() === "assistant"
               ? parseAskCitationRefsFromMessageMetadata(message.metadataJson)
               : null;
-          const assistantCitationIdCount = countAskAnswerCitationIds(assistantCitationRefs);
           const assistantCitationSourceLinks =
             buyerPolishedShell && assistantCitationRefs !== null
               ? buildAskAnswerCitationSourceLinks(runId, assistantCitationRefs)
@@ -252,13 +251,32 @@ export function AskMessageThreadPanel(props: AskMessageThreadPanelProps) {
               </div>
               {message.role.toLowerCase() === "assistant" ? (
                 <>
-                  {messageHasUncitedAssistantOutput(message.content, assistantCitationIdCount) ? (
+                  {(() => {
+                    const groundingMarker = resolveAskAssistantGroundingCitationMarker(
+                      message.content,
+                      askAssistantGroundingLinks,
+                    );
+
+                    return groundingMarker !== null ? (
+                      <p
+                        className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                        data-testid="ask-uncited-assistant-marker"
+                        role="note"
+                      >
+                        {groundingMarker}
+                      </p>
+                    ) : null;
+                  })()}
+                  {message.metadataJson?.trim() &&
+                  message.metadataJson.trim() !== "{}" &&
+                  assistantCitationRefs === null &&
+                  message.content.trim().length > 0 ? (
                     <p
                       className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-                      data-testid="ask-uncited-assistant-marker"
+                      data-testid="ask-citation-refs-not-stored-marker"
                       role="note"
                     >
-                      {ASK_REVIEW_UNCITED_RESPONSE_MARKER}
+                      {ASK_CITATION_REFS_NOT_STORED_MARKER}
                     </p>
                   ) : null}
                   <AskAssistantMessageBody

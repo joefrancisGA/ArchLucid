@@ -76,6 +76,14 @@ public sealed class DiagramEdgeLabelHumanizerTests
     }
 
     [Fact]
+    public void HumanizeLabel_maps_may_access_to_authorized_access_honesty_label()
+    {
+        DiagramEdgeLabelHumanizer.HumanizeLabel(GraphEdgeTypes.MayAccess)
+            .Should()
+            .Be(InventoryDiagramRelationshipLabelTexts.AppAuthorizedAccessLabel);
+    }
+
+    [Fact]
     public void HumanizeLabel_preserves_custom_non_canonical_labels()
     {
         DiagramEdgeLabelHumanizer.HumanizeLabel("reads").Should().Be("reads");
@@ -129,8 +137,8 @@ public sealed class DiagramEdgeLabelHumanizerTests
     [InlineData(AzureInventoryRelationshipAssociationTypes.AppAuthorizedAccess, InventoryDiagramRelationshipLabelTexts.AppAuthorizedAccessLabel)]
     [InlineData(GraphEdgeTypes.MayAccess, InventoryDiagramRelationshipLabelTexts.AppAuthorizedAccessLabel)]
     [InlineData(AzureInventoryRelationshipAssociationTypes.EventGridToDestination, InventoryDiagramRelationshipLabelTexts.EventSubscriptionNamesDestinationObservedDeliveryNotStored)]
-    [InlineData(AzureInventoryRelationshipAssociationTypes.AdfTriggerSource, "Trigger is configured. This is not an observed run.")]
-    [InlineData(AzureInventoryRelationshipAssociationTypes.AdfIntegrationRuntime, "Integration runtime in configuration. This is not an observed run.")]
+    [InlineData(AzureInventoryRelationshipAssociationTypes.AdfTriggerSource, InventoryDiagramRelationshipLabelTexts.AdfTriggerConfiguredObservedRunNotStored)]
+    [InlineData(AzureInventoryRelationshipAssociationTypes.AdfIntegrationRuntime, InventoryDiagramRelationshipLabelTexts.AdfIntegrationRuntimeConfiguredObservedRunNotStored)]
     [InlineData(AzureInventoryRelationshipAssociationTypes.EventHubCapture, InventoryDiagramRelationshipLabelTexts.CaptureConfiguredObservedCaptureNotStored)]
     [InlineData(AzureInventoryRelationshipAssociationTypes.AvdSessionHostToVm, "AVD session host")]
     [InlineData(GraphEdgeInferenceSources.InventoryFirewallSubnet, "Firewall is associated with the subnet. Protection was not observed.")]
@@ -146,6 +154,17 @@ public sealed class DiagramEdgeLabelHumanizerTests
     }
 
     [Fact]
+    public void ResolveDisplayLabel_observed_dependency_without_direction_is_explicit_about_missing_read_write()
+    {
+        DiagramEdgeLabelHumanizer.ResolveDisplayLabel(
+                null,
+                GraphEdgeTypes.ConnectsTo,
+                GraphEdgeInferenceSources.InventoryObservedDependency)
+            .Should()
+            .Be("Observed dependency. Read/write direction was not stored.");
+    }
+
+    [Fact]
     public void ResolveDisplayLabel_maps_qualified_diagnostic_destination_to_sends_diagnostics_sentence()
     {
         DiagramEdgeLabelHumanizer.ResolveDisplayLabel(
@@ -155,6 +174,6 @@ public sealed class DiagramEdgeLabelHumanizerTests
                     GraphEdgeInferenceSources.InventoryDiagnosticDestination,
                     "storage-account-logs"))
             .Should()
-            .Be("Diagnostic setting destination is storage-account-logs. This is not observed log delivery.");
+            .Be(InventoryDiagramRelationshipLabelTexts.FormatDiagnosticSettingDestinationLabel("storage-account-logs"));
     }
 }

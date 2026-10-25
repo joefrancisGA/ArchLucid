@@ -1,3 +1,7 @@
+import { getFindingEvidenceTraceHref } from "@/lib/findings/finding-evidence-navigation";
+
+export const ARCHITECTURE_RISK_REGISTER_SYSTEM_NAME_NOT_STORED = "System name was not stored." as const;
+
 export const ARCHITECTURE_RISK_REGISTER_OWNER_NOT_STORED = "Owner was not stored." as const;
 
 export const ARCHITECTURE_RISK_REGISTER_EVIDENCE_LINK_NOT_STORED = "Evidence link was not stored." as const;
@@ -31,6 +35,7 @@ export type ArchitectureRiskRegisterCsvRow = {
   title: string;
   severity: string;
   category: string;
+  systemName?: string | null;
   status: string;
   recommended: string;
   ownerUserId?: string | null;
@@ -78,7 +83,7 @@ export function buildArchitectureRiskRegisterCsv(rows: readonly ArchitectureRisk
     }
 
     const cells = [
-      row.category,
+      formatRiskRegisterSystemNameCell(row.systemName),
       row.title,
       row.severity,
       formatRiskRegisterOwnerCell(row.ownerUserId),
@@ -161,6 +166,16 @@ function formatRiskRegisterItsmLinkageCell(itsmLinkedTicketsSummary: string | nu
   }
 
   return itsmLinkedTicketsSummary;
+}
+
+function formatRiskRegisterSystemNameCell(systemName: string | null | undefined): string {
+  const trimmed = systemName?.trim() ?? "";
+
+  if (trimmed.length === 0) {
+    return ARCHITECTURE_RISK_REGISTER_SYSTEM_NAME_NOT_STORED;
+  }
+
+  return trimmed;
 }
 
 function formatRiskRegisterOwnerCell(ownerUserId: string | null | undefined): string {

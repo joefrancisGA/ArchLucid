@@ -109,7 +109,13 @@ export const ARCHITECTURE_DIAGRAM_ZOOM_PERCENT_LABEL = "Diagram zoom percentage"
 
 export const ARCHITECTURE_DIAGRAM_FIT_IN_VIEW_LABEL = "Fit in view" as const;
 
-export const ARCHITECTURE_DIAGRAM_SUBSCRIPTION_MAP_LABEL = "Subscription map" as const;
+export const ARCHITECTURE_DIAGRAM_NEIGHBORHOOD_MAP_LABEL = "Neighborhood map" as const;
+
+export const ARCHITECTURE_DIAGRAM_SUBSCRIPTION_NAME_NOT_STORED_ON_MAP =
+  "Subscription name was not stored on this map." as const;
+
+/** @deprecated Use {@link ARCHITECTURE_DIAGRAM_NEIGHBORHOOD_MAP_LABEL}. */
+export const ARCHITECTURE_DIAGRAM_SUBSCRIPTION_MAP_LABEL = ARCHITECTURE_DIAGRAM_NEIGHBORHOOD_MAP_LABEL;
 
 export const ARCHITECTURE_DIAGRAM_MAP_LABEL = "Map" as const;
 

@@ -9,6 +9,26 @@ import {
 } from "@/lib/architecture/architecture-risk-register-csv";
 
 describe("buildArchitectureRiskRegisterCsv", () => {
+  it("maps system name column separately from category", () => {
+    const csv = buildArchitectureRiskRegisterCsv([
+      {
+        recordKind: "finding",
+        runId: "run-1",
+        findingId: "f-1",
+        title: "PHI exposure",
+        severity: "High",
+        category: "Network",
+        systemName: "Claims platform",
+        status: "Open",
+        recommended: "Review with security owner",
+      },
+    ]);
+
+    const dataLine = csv.split("\r\n")[1] ?? "";
+    expect(dataLine.startsWith("Claims platform,")).toBe(true);
+    expect(dataLine).toContain("PHI exposure");
+  });
+
   it("maps last reviewed and next review columns separately from waiver expiry", () => {
     const csv = buildArchitectureRiskRegisterCsv([
       {
@@ -18,6 +38,7 @@ describe("buildArchitectureRiskRegisterCsv", () => {
         title: "PHI exposure",
         severity: "High",
         category: "Claims intake",
+        systemName: "Claims platform",
         status: "Accepted · monitoring",
         recommended: "Review with security owner",
         ownerUserId: "owner-1",

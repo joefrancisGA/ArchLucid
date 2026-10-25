@@ -305,7 +305,7 @@ public sealed class AgentModelCatalogFaithfulnessHarnessImporterTests
         "operator@test",
         CancellationToken.None));
 
-    Assert.Contains("ratio", exception.Message, StringComparison.OrdinalIgnoreCase);
+    Assert.Contains("non-finite", exception.Message, StringComparison.OrdinalIgnoreCase);
 
     AgentModelCatalogRow? saved = await repository.TryGetAsync(AgentModelAliasIds.StandardGeneral, CancellationToken.None);
 

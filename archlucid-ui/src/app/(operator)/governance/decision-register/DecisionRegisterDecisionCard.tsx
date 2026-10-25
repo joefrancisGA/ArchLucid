@@ -9,7 +9,12 @@ import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { signedRecordDetailPath } from "@/lib/signed-records-paths";
 import { finiteIntegerCountDisplay } from "@/lib/finite-count-display";
 
-import { DECISION_REGISTER_GOVERNANCE_STATUS_SIGNED, DECISION_REGISTER_OPEN_DECISION_LABEL } from "./decision-register-copy";
+import {
+  DECISION_REGISTER_CONFIDENCE_NOT_STORED_LABEL,
+  DECISION_REGISTER_GOVERNANCE_STATUS_SIGNED,
+  DECISION_REGISTER_OPEN_DECISION_LABEL,
+  DECISION_REGISTER_SUPPORTING_FINDINGS_NOT_STORED_LABEL,
+} from "./decision-register-copy";
 
 function formatRecordedAt(value: string | null | undefined): string {
   const raw = value?.trim() ?? "";
@@ -38,7 +43,11 @@ function formatConfidence(decision: ArchitectureDecisionRegisterEntry): string {
     return String(decision.confidence);
   }
 
-  return "Confidence was not stored.";
+  if (decision.buyerConfidenceSource !== null && decision.buyerConfidenceSource !== undefined) {
+    return `Unknown (${decision.buyerConfidenceSource})`;
+  }
+
+  return DECISION_REGISTER_CONFIDENCE_NOT_STORED_LABEL;
 }
 
 type DecisionRegisterDecisionCardProps = {
@@ -106,7 +115,9 @@ export function DecisionRegisterDecisionCard(props: DecisionRegisterDecisionCard
           <div>
             <dt className="text-al-text-secondary">Supporting findings</dt>
             <dd className="m-0 font-medium text-al-text-primary">
-              {finiteIntegerCountDisplay(findingCount, { missingLabel: "not-returned" })}
+              {finiteIntegerCountDisplay(findingCount, {
+                notStoredLabel: DECISION_REGISTER_SUPPORTING_FINDINGS_NOT_STORED_LABEL,
+              })}
             </dd>
             <dd className="m-0 text-al-text-secondary text-xs">
               These are findings linked to the recorded decision.

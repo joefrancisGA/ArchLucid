@@ -34,7 +34,13 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
             .OrderBy(DiagramAstGraphNodeClassifier.ReadArmId, StringComparer.Ordinal)
             .ToList();
 
-        List<GraphNode> topologyNodes = ApplyModeNodeFilter(graph, allTopologyNodes.ToList(), mode, options);
+        bool executiveSparseResourceFallback = false;
+        List<GraphNode> topologyNodes = ApplyModeNodeFilter(
+            graph,
+            allTopologyNodes.ToList(),
+            mode,
+            options,
+            ref executiveSparseResourceFallback);
 
         if (isDataArchitectureMode)
         {
@@ -330,6 +336,13 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
                     "Lines are backup or replication items collected from the vault. Resources with no line have no collected protection item in this snapshot.",
                 ];
         }
+        else if (mode == DiagramMode.Executive && executiveSparseResourceFallback)
+        {
+            ast.CaptionLines =
+            [
+                "This view is the first 12 resources in the snapshot. It is not a sponsor summary.",
+            ];
+        }
 
         return ast;
     }
@@ -566,16 +579,19 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
         GraphSnapshot graph,
         List<GraphNode> nodes,
         DiagramMode mode,
-        DiagramAstCompileOptions options)
+        DiagramAstCompileOptions options,
+        ref bool executiveSparseResourceFallback)
     {
         switch (mode)
         {
             case DiagramMode.Executive:
+                ExecutiveFilterResult executiveFilter = ApplyExecutiveFilter(nodes, options);
+                executiveSparseResourceFallback = executiveFilter.UsedSparseResourceFallback;
+
                 return ApplyNetworkInterfaceCollapse(
                     graph,
                     mode,
-                    NetworkDiagramNodeFilter.ExcludeNetworkInterfaces(
-                        ApplyExecutiveFilter(nodes, options)));
+                    NetworkDiagramNodeFilter.ExcludeNetworkInterfaces(executiveFilter.Nodes));
             case DiagramMode.Architecture:
                 return ApplyNetworkInterfaceCollapse(
                     graph,
@@ -709,7 +725,9 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
     /// Executive = all VNet / subscription / RG summary nodes followed by the always-show tiers (IDL-06).
     /// Tier order is preserved so the flat grid reads workloads → databases → storage → data factories.
     /// </summary>
-    private static List<GraphNode> ApplyExecutiveFilter(List<GraphNode> nodes, DiagramAstCompileOptions options)
+    private sealed record ExecutiveFilterResult(List<GraphNode> Nodes, bool UsedSparseResourceFallback);
+
+    private static ExecutiveFilterResult ApplyExecutiveFilter(List<GraphNode> nodes, DiagramAstCompileOptions options)
     {
         List<GraphNode> summaryNodes = nodes
             .Where(DiagramAstGraphNodeClassifier.IsExecutiveSummaryNode)
@@ -720,14 +738,18 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
         if (summaryNodes.Count == 0 && alwaysShowNodes.Count == 0)
         {
             // Snapshot has neither VNets nor tiered resources — show something rather than an empty canvas.
-            return nodes
-                .Take(DiagramAstFromGraphCompilerConstants.ExecutiveMaxResourceNodes)
-                .ToList();
+            return new ExecutiveFilterResult(
+                nodes
+                    .Take(DiagramAstFromGraphCompilerConstants.ExecutiveMaxResourceNodes)
+                    .ToList(),
+                true);
         }
 
-        return summaryNodes
-            .Concat(alwaysShowNodes)
-            .ToList();
+        return new ExecutiveFilterResult(
+            summaryNodes
+                .Concat(alwaysShowNodes)
+                .ToList(),
+            false);
     }
 
     private static List<GraphNode> IncludeInventoryConnectedVirtualMachines(

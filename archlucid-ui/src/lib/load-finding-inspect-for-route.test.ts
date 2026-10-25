@@ -91,6 +91,40 @@ describe("load-finding-inspect-for-route", () => {
     expect(findingIdsAlignForInspectRoute("one", "two")).toBe(false);
   });
 
+  it("does not merge curated demo fields into a sparse live inspect payload", async () => {
+    getInspect.mockResolvedValue({
+      findingId: "live-finding",
+      typedPayload: {},
+      decisionRuleId: null,
+      decisionRuleName: null,
+      evidence: [],
+      recommendedActions: [],
+      auditRowId: null,
+      runId: "customer-intake-modernization",
+      manifestVersion: null,
+    });
+
+    tryStatic.mockReturnValue({
+      findingId: "sensitive-data-minimization-risk",
+      typedPayload: { title: "demo title" },
+      decisionRuleId: "demo-rule",
+      decisionRuleName: "Demo rule",
+      evidence: [],
+      recommendedActions: ["demo action"],
+      auditRowId: "audit-1",
+      runId: "customer-intake-modernization",
+      manifestVersion: "v-demo",
+      confidenceLevel: "High",
+    });
+
+    const r = await loadFindingInspectForRoute("customer-intake-modernization", "live-finding");
+
+    expect(r.payload?.decisionRuleId).toBeNull();
+    expect(r.payload?.evidence).toEqual([]);
+    expect(r.payload?.recommendedActions).toEqual([]);
+    expect(r.payload?.typedPayload).toEqual({});
+  });
+
   it("normalizeFindingInspectRecommendedActions defaults missing recommendations to empty array", () => {
     const malformed: FindingInspectPayload = {
       findingId: "f",

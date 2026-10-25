@@ -127,33 +127,41 @@ function renderAssignmentRow(
 
 /** Explainable assurance coverage preview from POST /v1/governance/coverage/preview. */
 export function AssuranceCoveragePreviewPanel(props: AssuranceCoveragePreviewPanelProps): React.JSX.Element {
-  const requestBody = useMemo(
-    () =>
-      buildCoveragePreviewRequest({
-        cloudProvider: mapNormalizedCloudProvider(props.cloudProvider ?? "None"),
-        focusedPilotModeEnabled: props.focusedPilotModeEnabled,
-        securityIntakeAnswer: props.securityIntakeAnswer,
-        descriptionText: props.descriptionText,
-        userOverrides: props.packOverrides,
-      }),
-    [
-      props.cloudProvider,
-      props.focusedPilotModeEnabled,
-      props.securityIntakeAnswer,
-      props.descriptionText,
-      props.packOverrides,
-    ],
-  );
+  const cloudHonesty = resolveCoveragePreviewCloudHonesty(props.cloudProvider);
+  const cloudMissing = cloudHonesty !== null;
+
+  const requestBody = useMemo(() => {
+    if (cloudMissing) {
+      return null;
+    }
+
+    const trimmedCloud = props.cloudProvider?.trim() ?? "";
+
+    return buildCoveragePreviewRequest({
+      cloudProvider: mapNormalizedCloudProvider(trimmedCloud),
+      focusedPilotModeEnabled: props.focusedPilotModeEnabled,
+      securityIntakeAnswer: props.securityIntakeAnswer,
+      descriptionText: props.descriptionText,
+      userOverrides: props.packOverrides,
+    });
+  }, [
+    cloudMissing,
+    props.cloudProvider,
+    props.focusedPilotModeEnabled,
+    props.securityIntakeAnswer,
+    props.descriptionText,
+    props.packOverrides,
+  ]);
 
   const previewQuery = useQuery({
     queryKey: ["coverage-preview", requestBody],
-    queryFn: () => postCoveragePreview(requestBody),
+    queryFn: () => postCoveragePreview(requestBody!),
+    enabled: requestBody !== null,
     staleTime: 30_000,
   });
 
   const response: CoveragePreviewResponse | undefined = previewQuery.data;
   const groups = groupCoveragePreviewAssignments(response?.assignments ?? []);
-  const cloudHonesty = resolveCoveragePreviewCloudHonesty(props.cloudProvider);
 
   return (
     <section
@@ -179,7 +187,7 @@ export function AssuranceCoveragePreviewPanel(props: AssuranceCoveragePreviewPan
             {cloudHonesty}
           </p>
         ) : null}
-        {response ? (
+        {response && !cloudMissing ? (
           <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper, "text-neutral-600 dark:text-neutral-400")}>
             {formatCoveragePreviewScopeNote(response)}
           </p>
@@ -194,7 +202,7 @@ export function AssuranceCoveragePreviewPanel(props: AssuranceCoveragePreviewPan
         ) : null}
       </div>
 
-      {response ? (
+      {response && !cloudMissing ? (
         <div className={OPERATOR_LAYOUT.sectionStack}>
           {GROUP_ORDER.map((groupKey) => {
             const rows = groups[groupKey];

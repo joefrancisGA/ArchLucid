@@ -15,6 +15,8 @@ import {
   GOVERNANCE_QUEUE_REVIEW_NAME_NOT_STORED,
   GOVERNANCE_QUEUE_RULE_ID_NOT_STORED,
   GOVERNANCE_QUEUE_SEVERITY_NOT_STORED,
+  GOVERNANCE_QUEUE_RECOMMENDED_ACTION_NOT_STORED,
+  GOVERNANCE_QUEUE_RATIONALE_NOT_STORED,
 } from "./governance-findings-row-omission-copy";
 import { decisionRegisterRows, riskRegisterRows, traceRowsForRun } from "./governance-findings-row-mappers";
 
@@ -89,6 +91,25 @@ describe("riskRegisterRows", () => {
     expect(row?.title).toBe(GOVERNANCE_QUEUE_FINDING_TITLE_NOT_STORED);
     expect(row?.severity).toBe(GOVERNANCE_QUEUE_SEVERITY_NOT_STORED);
     expect(() => (row === undefined ? false : matchesRiskRegisterFilter(row, "open"))).not.toThrow();
+  });
+
+  it("labels missing risk-register category without blank CSV cells (P-14)", () => {
+    const [row] = riskRegisterRows([
+      {
+        findingId: "finding-category",
+        runId: "run-1",
+        manifestId: "manifest-1",
+        title: "Category gap",
+        severity: "High",
+        category: "",
+        statusLabel: "Open",
+        agingDays: 1,
+        isStale: false,
+        evidenceHref: "/graph?runId=run-1",
+      } as ArchitectureRiskRegisterEntry,
+    ]);
+
+    expect(row?.category).toBe(GOVERNANCE_QUEUE_CATEGORY_NOT_STORED);
   });
 
   it("labels missing risk-register owners without unassigned (P-06)", () => {
