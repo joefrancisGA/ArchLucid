@@ -85,7 +85,8 @@ describe("AskAssistantMessageBody", () => {
     );
 
     expect(screen.getByText("Answer lead was not stored.")).toBeInTheDocument();
-    expect(screen.getByRole("region", { name: "Risk" })).toHaveTextContent("Answer was not stored");
+    expect(screen.getByRole("region", { name: "Risk" })).toHaveTextContent("This section was stored empty.");
+    expect(screen.getByRole("region", { name: "Evidence" })).toHaveTextContent("Stored evidence.");
   });
 
   it("labels an empty answer body explicitly", () => {

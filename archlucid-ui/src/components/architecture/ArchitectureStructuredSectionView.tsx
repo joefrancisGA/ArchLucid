@@ -12,6 +12,8 @@ import {
   ARCHITECTURE_STRUCTURED_CORRECT_LABEL,
   ARCHITECTURE_STRUCTURED_INFERRED_LABEL,
   ARCHITECTURE_STRUCTURED_SECTION_EMPTY_LABEL,
+  ARCHITECTURE_STRUCTURED_SECTION_ENTITIES_NOT_STORED,
+  ARCHITECTURE_STRUCTURED_SECTION_ENTITIES_STORED_EMPTY,
 } from "@/lib/architecture/architecture-structured-content-copy";
 import {
   ARCHITECTURE_STRUCTURED_SECTION_KEY_PARAM,
@@ -93,9 +95,13 @@ export function ArchitectureStructuredSectionView(
   );
   const { section } = props;
   const hasNarrative = (section.narrativeMarkdown?.trim().length ?? 0) > 0;
+  const entitiesOmitted = section.entities === undefined;
   const entities = section.entities ?? [];
   const hasEntities = entities.length > 0;
-  const isEmpty = !hasNarrative && !hasEntities;
+  const isEmpty = !hasNarrative && (entitiesOmitted || !hasEntities);
+  const emptyEntityCopy = entitiesOmitted
+    ? ARCHITECTURE_STRUCTURED_SECTION_ENTITIES_NOT_STORED
+    : ARCHITECTURE_STRUCTURED_SECTION_ENTITIES_STORED_EMPTY;
   const sectionOpen =
     openSectionKey === section.key || (openSectionKey === "" && props.defaultOpen === true);
 
@@ -140,7 +146,7 @@ export function ArchitectureStructuredSectionView(
       <div className="mt-3 space-y-3">
         {isEmpty ? (
           <p className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-            {ARCHITECTURE_STRUCTURED_SECTION_EMPTY_LABEL}
+            {!hasNarrative && !hasEntities ? emptyEntityCopy : ARCHITECTURE_STRUCTURED_SECTION_EMPTY_LABEL}
           </p>
         ) : null}
 

@@ -146,6 +146,18 @@ describe("run-detail-evidence-inventory", () => {
     expect(items[0]?.citingFindingCount).toBe(0);
   });
 
+  it("does not treat null evidenceRefCount as citing evidence without source names (P-08)", () => {
+    expect(
+      findingsCiteEvidenceWithoutStoredSourceNames([
+        finding({
+          findingId: "f-null-count",
+          evidenceRefCount: null,
+          evidenceRefSnippets: [],
+        }),
+      ]),
+    ).toBe(false);
+  });
+
   it("detects findings that cite evidence counts without stored source names", () => {
     expect(
       findingsCiteEvidenceWithoutStoredSourceNames([

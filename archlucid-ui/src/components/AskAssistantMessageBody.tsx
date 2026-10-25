@@ -25,6 +25,7 @@ const ASK_GROUNDING_SOURCES_NOT_STORED = "Sources in this review were not stored
 const ASK_ANSWER_STORED_EMPTY = "Answer was stored empty.";
 const ASK_ANSWER_LEAD_NOT_STORED = "Answer lead was not stored.";
 const ASK_GROUNDING_SOURCE_LABEL_STORED_EMPTY = "Source label was stored empty.";
+const ASK_SECTION_STORED_EMPTY = "This section was stored empty." as const;
 
 function renderAskSectionBody(
   body: string,
@@ -258,7 +259,7 @@ export function AskAssistantMessageBody(props: {
             <div className={`${bodyClass} mt-2`}>
               {section.body.length > 0
                 ? renderAskSectionBody(section.body, buyerPolishedLinks, reviewIdInScope)
-                : ASK_ANSWER_NOT_STORED}
+                : ASK_SECTION_STORED_EMPTY}
             </div>
           </section>
         ))}
@@ -284,7 +285,7 @@ export function AskAssistantMessageBody(props: {
             <div className={`${bodyClass} mt-2`}>
               {section.body.length > 0
                 ? renderAskSectionBody(section.body, buyerPolishedLinks, reviewIdInScope)
-                : ASK_ANSWER_NOT_STORED}
+                : ASK_SECTION_STORED_EMPTY}
             </div>
           </section>
         ))}

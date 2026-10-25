@@ -140,7 +140,9 @@ export function architectureDiagramModelToTextAlternative(model: ArchitectureDia
     (flow) => `${ARCHITECTURE_DIAGRAM_DATA_FLOW_NOT_MATCHED_PREFIX} ${flow}`,
   );
 
-  return [nodeLines.join("; "), edgeLines.join("; "), boundaryLine, ...unmatchedLines]
+  const honestyLines = model.entitySectionHonestyLines;
+
+  return [nodeLines.join("; "), edgeLines.join("; "), boundaryLine, ...honestyLines, ...unmatchedLines]
     .filter((line) => line !== null && line.length > 0)
     .join(". ");
 }

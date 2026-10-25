@@ -5,6 +5,7 @@ import type { RunDetail } from "@/types/authority";
 import {
   formatInsightDensityCurationMessage,
   hasFindingsSnapshotInsightDensityContent,
+  INSIGHT_DENSITY_CURATION_COUNTS_NOT_STORED,
   resolveFindingsSnapshotInsightDensityView,
 } from "./findings-snapshot-insight-density";
 
@@ -86,21 +87,21 @@ describe("findings-snapshot-insight-density", () => {
   });
 
   it("formatInsightDensityCurationMessage states when counts were not stored", () => {
-    expect(formatInsightDensityCurationMessage({ demotedToChecklistCount: null, retainedFindingCount: null })).toContain(
-      "Demoted count was not stored.",
+    expect(formatInsightDensityCurationMessage({ demotedToChecklistCount: null, retainedFindingCount: null })).toBe(
+      INSIGHT_DENSITY_CURATION_COUNTS_NOT_STORED,
     );
     expect(
       formatInsightDensityCurationMessage({
         demotedToChecklistCount: null,
         retainedFindingCount: 2,
       }),
-    ).toContain("Demoted count was not stored.");
+    ).toBe(INSIGHT_DENSITY_CURATION_COUNTS_NOT_STORED);
     expect(
       formatInsightDensityCurationMessage({
         demotedToChecklistCount: 2,
         retainedFindingCount: null,
       }),
-    ).toContain("Retained finding count was not stored.");
+    ).toBe(INSIGHT_DENSITY_CURATION_COUNTS_NOT_STORED);
   });
 
   it("hasFindingsSnapshotInsightDensityContent is true for checklist rows or curation copy", () => {

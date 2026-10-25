@@ -49,10 +49,10 @@ export function findingsCiteEvidenceWithoutStoredSourceNames(
   findings: readonly QuickDecisionFinding[],
 ): boolean {
   return findings.some((finding) => {
-    const refCount = finding.evidenceRefCount ?? 0;
+    const refCount = finding.evidenceRefCount;
     const snippets = finding.evidenceRefSnippets ?? [];
 
-    return refCount > 0 && snippets.length === 0;
+    return refCount != null && refCount > 0 && snippets.length === 0;
   });
 }
 
@@ -190,8 +190,9 @@ export function deriveRunDetailEvidenceInventory(input: {
 
   for (const finding of input.findings) {
     const snippets = finding.evidenceRefSnippets ?? [];
+    const evidenceRefCount = finding.evidenceRefCount;
 
-    if (snippets.length === 0 && (finding.evidenceRefCount ?? 0) > 0) {
+    if (snippets.length === 0 && evidenceRefCount != null && evidenceRefCount > 0) {
       continue;
     }
 

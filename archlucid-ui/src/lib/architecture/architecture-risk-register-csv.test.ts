@@ -69,6 +69,27 @@ describe("buildArchitectureRiskRegisterCsv", () => {
     expect(csv).toContain("yes");
   });
 
+  it("does not invent inspect-path evidence URLs when href is omitted (P-06)", () => {
+    const csv = buildArchitectureRiskRegisterCsv([
+      {
+        recordKind: "finding",
+        runId: "run-1",
+        findingId: "f-1",
+        title: "Risk",
+        severity: "High",
+        category: "Claims intake",
+        status: "Open",
+        recommended: "Review",
+        ownerUserId: "owner-1",
+        agingDays: 1,
+        isStale: false,
+      },
+    ]);
+
+    expect(csv).toContain(ARCHITECTURE_RISK_REGISTER_EVIDENCE_LINK_NOT_STORED);
+    expect(csv).not.toContain("/findings/");
+  });
+
   it("labels missing owner and evidence link without inventing values (P-06, P-07)", () => {
     const csv = buildArchitectureRiskRegisterCsv([
       {

@@ -679,7 +679,7 @@ export function DeclaredConnectionsWorkbenchClient() {
                               Revoke
                             </Button>
                           ) : (
-                            "—"
+                            <span className="text-al-text-secondary">Revoke applies to active declarations only.</span>
                           )}
                         </EnterpriseTableCell>
                       </EnterpriseTableRow>
@@ -689,7 +689,9 @@ export function DeclaredConnectionsWorkbenchClient() {
                             <dl className="m-0 grid gap-2 md:grid-cols-2">
                               <div>
                                 <dt className="font-medium">Rationale</dt>
-                                <dd className="m-0 text-al-text-secondary">{row.rationale}</dd>
+                                <dd className="m-0 text-al-text-secondary">
+                                  {row.rationale.trim().length > 0 ? row.rationale : "Rationale was not stored."}
+                                </dd>
                               </div>
                               <div>
                                 <dt className="font-medium">Evidence reference</dt>
