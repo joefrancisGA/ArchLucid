@@ -329,6 +329,25 @@ public sealed class MarkdownArchitectureAnalysisExportServiceTests
     }
 
     [Fact]
+    public void GenerateMarkdown_labels_missing_manifest_with_committed_manifest_honesty()
+    {
+        ArchitectureAnalysisReport report = new()
+        {
+            Run = new ArchitectureRun
+            {
+                RunId = "a1b2c3d4e5f678901234567890abcd",
+                RequestId = "req-1",
+                Status = ArchitectureRunStatus.Committed,
+            },
+        };
+
+        string md = _sut.GenerateMarkdown(report);
+
+        md.Should().Contain("## Architecture Manifest");
+        md.Should().Contain(ConsultingDocxExportHonestyCopy.CommittedManifestNotStored);
+    }
+
+    [Fact]
     public void GenerateMarkdown_uses_omission_copy_for_missing_evidence_description()
     {
         ArchitectureAnalysisReport report = new()
