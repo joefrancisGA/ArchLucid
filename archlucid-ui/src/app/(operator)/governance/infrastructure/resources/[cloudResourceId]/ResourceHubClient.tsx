@@ -411,9 +411,12 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
     [resourcesPath, workQueue],
   );
 
-  const loadHub = useCallback(async () => {
+  const loadHub = useCallback(async (options?: { retainFindingMessages?: boolean }) => {
     const requestGeneration = loadRequestGeneration.current + 1;
     loadRequestGeneration.current = requestGeneration;
+    if (!options?.retainFindingMessages) {
+      setFindingActionMessages({});
+    }
     setLoading(true);
     setLoadError(null);
 
@@ -730,7 +733,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
       }));
 
       invalidateInfraEvidenceResourceHubCacheForResource(cloudResourceId);
-      await loadHub();
+      await loadHub({ retainFindingMessages: true });
     } catch (error: unknown) {
       setFindingActionMessages((current) => ({
         ...current,

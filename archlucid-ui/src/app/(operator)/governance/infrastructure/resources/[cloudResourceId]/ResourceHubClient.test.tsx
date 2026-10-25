@@ -434,6 +434,31 @@ describe("ResourceHubClient", () => {
     expect(screen.queryByTestId("infra-resource-hub-finding-message-finding-1")).not.toBeInTheDocument();
   });
 
+  it("clears per-finding remediation message when the hub reloads for a new snapshot scope", async () => {
+    const alternateSnapshotId = "snapshot-scope-2";
+    searchParams = new URLSearchParams(`tab=findings&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}`);
+    const { rerender } = render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    fireEvent.click(await screen.findByTestId("infra-resource-hub-create-remediation-finding-1"));
+    fireEvent.click(screen.getByTestId("infra-resource-hub-create-remediation-confirm"));
+    await waitFor(() => {
+      expect(screen.getByTestId("infra-resource-hub-finding-message-finding-1")).toHaveTextContent(
+        "Remediation instance created.",
+      );
+    });
+
+    searchParams = new URLSearchParams(`tab=findings&snapshotId=${alternateSnapshotId}`);
+    rerender(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    await waitFor(() => {
+      expect(fetchCachedInfraEvidenceResourceHub).toHaveBeenCalledWith(
+        RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID,
+        expect.objectContaining({ snapshotId: alternateSnapshotId }),
+      );
+    });
+    expect(screen.queryByTestId("infra-resource-hub-finding-message-finding-1")).not.toBeInTheDocument();
+  });
+
   it("registers Alt+number tab shortcuts in page shortcuts disclosure", async () => {
     render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
 

@@ -7174,6 +7174,34 @@ ABQ-09 churn hotspot.
 
 ## Zone: ui-infra-resource-hub
 
+2026-10-25 thorough hunt (seed→hit): promoted stale `findingActionMessages` after evidence hub reload — `loadHub` left per-finding remediation success/error copy on the findings tab when snapshot scope changed or the hub refetched without a tab change; clear the map on ordinary reloads and retain messages only for the post-create `loadHub` via `retainFindingMessages`; regression `clears per-finding remediation message when the hub reloads for a new snapshot scope`; cheap-disproof closed duplicate evidence-pointer React keys (single-pointer fixture), duplicate drift `changeId` rows (table already keys by `changeId` with unique regression data), remediation `patternKey` row identity (rows keyed by `instanceId`), and diagram correspondence empty state (explicit empty copy when correspondence absent); scoped ResourceHubClient vitest 62/62. Private beta: operators who change snapshot scope or reload the resource hub no longer see remediation action messages from the prior capture context on the findings tab.
+
+- [x] (proven) `ResourceHubClient` finding action messages — stale map after hub reload — **hit 2026-10-25 thorough hunt:** `loadHub` clears `findingActionMessages` unless `retainFindingMessages`; regression snapshot-scope reload test.
+- [x] (valid-no-repro) `ResourceHubClient` evidence pointers table — duplicate `kind` and `relativePath` rows — **cheap-disproof 2026-10-25 thorough hunt:** default mock exposes one pointer; collision remains integration-risk without multi-row fixture.
+- [x] (valid-no-repro) `ResourceHubClient` recent changes table — duplicate `changeId` across diffs — **cheap-disproof 2026-10-25 thorough hunt:** `ResourceHubDriftChangesTable` keys by `changeId`; pagination regression uses distinct ids.
+- [x] (valid-no-repro) `ResourceHubClient` remediation instances table — duplicate `patternKey` statuses — **cheap-disproof 2026-10-25 thorough hunt:** React keys use `instanceId`, not `patternKey`.
+- [x] (valid-no-repro) `ResourceHubClient` diagram correspondence — missing `correspondenceId` fallback label — **cheap-disproof 2026-10-25 thorough hunt:** null correspondence renders titled empty state; links require stored `correspondenceId`.
+
+- [ ] (candidate) `ResourceHubClient` evidence pointers table — two pointers sharing `kind` and `relativePath` — locus: React key `${kind}-${relativePath}`; input: integration fixture with colliding keys drops a row.
+- [ ] (candidate) `ResourceHubDriftChangesTable` — two drift rows sharing `changeId` — locus: row key; input: duplicate ids in one hub payload reuse one row.
+- [ ] (candidate) `ResourceHubClient.runCreateRemediationFromFinding` — success message cleared when post-create `loadHub` fails — locus: `retainFindingMessages` + error path; input: reload throws after create succeeds.
+- [ ] (candidate) `ResourceHubClient` findings stream — remediation message for finding id absent after reload — locus: message map vs stream membership; input: finding drops out of stream but message key remains (partially addressed; watch cross-tab retain).
+- [ ] (candidate) `ResourceHubClient` diagram correspondence — empty-string `correspondenceId` with otherwise populated correspondence — locus: reconcile/ask href builders; input: broken deep links.
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **aliases:** resource hub; infrastructure resource detail
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 45
+- **bugs-found:** 25
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-25
+- **last-bug:** 2026-10-25 — stale finding action messages after evidence hub reload
+- **related-pd-tb:** none
+- **code-changed-since:** yes
+
 2026-10-25 seed hunt (seed→hit): promoted non-unique React keys on RBAC assignments, network relationships, and audit “Other linked controls” lists — colliding `principalId-roleDefinitionId`, endpoint pair, or `controlId-snapshotId` keys dropped scoped rows or cross-assessment controls under reconciliation; include `scope`, `relationshipType`, and `assessmentId` in row keys; regressions for scoped RBAC, typed network pairs, and cross-assessment audit list; cheap-disproof closed architecture-review action parity (Ask-only by design) and loadHub generation gate on failure; scoped ResourceHubClient vitest 61/61. Private beta: operators reviewing a resource hub see every captured RBAC scope, network relationship type, and linked audit control row instead of silently collapsed duplicates.
 
 - [x] (proven) `ResourceHubClient` RBAC assignments table — duplicate principal/role keys — **hit 2026-10-25 seed hunt:** key includes `scope`; regression `renders RBAC rows that share principal and role but differ in scope`.
