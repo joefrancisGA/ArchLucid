@@ -218,7 +218,7 @@ export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SUBSCRIPTION_CHANGE_DIALOG_CONFI
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EMPTY_SNAPSHOTS_TITLE = "No inventory snapshots yet" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EMPTY_SNAPSHOTS_BODY =
-  "Connect a read-only cloud account and wait for the first inventory capture before rendering diagrams." as const;
+  "Upload an inventory ZIP on the review, or connect a read-only cloud account. This page draws a diagram after a snapshot exists." as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_RENDER_FAILED_TITLE = "Diagram render failed" as const;
 
@@ -257,10 +257,10 @@ export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_CONNECTED_SECTION =
   "Connected on the diagram" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_USED_SECTION =
-  "In use off the diagram" as const;
+  "Named in inventory, not drawn on this diagram" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_ORPHANED_SECTION =
-  "Missing a required link" as const;
+  "No relationship stored on this diagram" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNCONNECTED_SECTION =
   "No diagram link was stored." as const;
@@ -295,8 +295,15 @@ export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNKNOWN_SECTION_COUNT_FI
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_LEDGER_DISCLOSURE_LABEL =
   "Dropped imports" as const;
 
+/** @deprecated Prefer NSG_NO_ASSOCIATION / NSG_OFF_DIAGRAM_TARGET drop-gate labels. */
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNATTACHED_NSG_LABEL =
-  "Unattached NSG" as const;
+  "No subnet or network interface association was stored." as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_NSG_NO_ASSOCIATION_LABEL =
+  "No subnet or network interface association was stored." as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_NSG_OFF_DIAGRAM_TARGET_LABEL =
+  "This NSG names a target that is not on this diagram." as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DEPENDENCY_SEED_REQUIRED_TITLE =
   "Pick a starting resource before rendering" as const;

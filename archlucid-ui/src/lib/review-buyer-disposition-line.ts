@@ -27,8 +27,16 @@ export function buildBuyerReviewPackagePlainStatusHeadline(input: BuyerReviewDis
   const warnings = clampNonNegativeInt(input.warningCountDisplay);
   const unresolved = clampNonNegativeInt(input.unresolvedIssueCountDisplay);
 
-  if (postureRaw === "approved with monitoring" && warnings === 1 && (unresolved === null || unresolved === 0)) {
-    return "Approved for implementation planning. No blocking issues. One PHI minimization risk accepted with weekly monitoring.";
+  if (
+    postureRaw === "approved with monitoring"
+    && warnings === 1
+    && unresolved === 0
+  ) {
+    return "Approved for implementation planning. No blocking issues remain open. One monitored risk is accepted with weekly oversight.";
+  }
+
+  if (postureRaw === "approved with monitoring" && warnings === 1 && unresolved === null) {
+    return "Approved for implementation planning. One monitored risk is recorded; unresolved issue count was not stored.";
   }
 
   if (postureRaw === "approved with monitoring") {
@@ -81,7 +89,9 @@ export function buildBuyerReviewPackageDispositionLine(input: BuyerReviewDisposi
         ? `${findings} finding${findings === 1 ? "" : "s"} recorded with ${unresolved} unresolved issue${unresolved === 1 ? "" : "s"} still tracked on the manifest.`
         : includesMonitoredRiskInFindingPhrase && findings !== null
           ? `${findings} finding${findings === 1 ? "" : "s"}, including ${warnings} non-blocking monitored risk${warnings === 1 ? "" : "s"}.`
-          : `${findings} finding${findings === 1 ? "" : "s"} recorded with no blocking items left open for this review.`;
+          : unresolved === null
+            ? `${findings} finding${findings === 1 ? "" : "s"} recorded; unresolved issue count was not stored.`
+            : `${findings} finding${findings === 1 ? "" : "s"} recorded with no blocking items left open for this review.`;
 
   const warningPhrase =
     warnings !== null && warnings > 0 && unresolved !== null && unresolved > 0
@@ -95,7 +105,7 @@ export function buildBuyerReviewPackageDispositionLine(input: BuyerReviewDisposi
         : `Approved for implementation planning with ${warnings} monitored risk${warnings === 1 ? "" : "s"} under active oversight.`
       : posture !== null
         ? `Finalized package — ${posture}.`
-        : "Finalized package — approval complete.";
+        : "Finalized package — risk posture was not stored.";
 
   return `${lead} ${findingPhrase}${warningPhrase}`;
 }

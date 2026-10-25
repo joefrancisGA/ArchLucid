@@ -273,6 +273,36 @@ public sealed class ArchitectureRunExecuteOrchestratorOwnershipTests
         releaseToken.Should().Be(CancellationToken.None);
     }
 
+    [Fact]
+    public async Task ExecuteRunAsync_when_release_throws_in_finally_after_agent_failure_throws_release_exception()
+    {
+        Guid runGuid = Guid.Parse("77777777-7777-7777-7777-777777777777");
+        string runId = runGuid.ToString("N");
+
+        Mock<IRunExecuteOwnershipLeaseService> ownership = CreateEnabledOwnershipMock(runGuid);
+        ownership
+            .Setup(s => s.ReleaseAsync(runGuid, It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("release failed"));
+
+        Mock<IAgentExecutor> executor = new();
+        executor
+            .Setup(e => e.ExecuteAsync(
+                It.IsAny<string>(),
+                It.IsAny<ArchitectureRequest>(),
+                It.IsAny<AgentEvidencePackage>(),
+                It.IsAny<IReadOnlyList<AgentTask>>(),
+                It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("agent failed"));
+
+        ArchitectureRunExecuteOrchestrator sut = CreateSut(runId, runGuid, executor.Object, ownership.Object);
+
+        Func<Task> act = () => sut.ExecuteRunAsync(runId);
+
+        await act.Should().ThrowAsync<InvalidOperationException>().WithMessage("*release failed*");
+
+        ownership.Verify(s => s.ReleaseAsync(runGuid, It.IsAny<CancellationToken>()), Times.Once);
+    }
+
     private sealed class RecordingRenewalScope(Action onDispose) : IAsyncDisposable
     {
         public ValueTask DisposeAsync()
@@ -307,6 +337,10 @@ public sealed class ArchitectureRunExecuteOrchestratorOwnershipTests
             .WithMessage("*not acquired*");
 
         ownership.Verify(s => s.BeginRenewalScope(runGuid, It.IsAny<CancellationTokenSource>()), Times.Never);
+        ownership.Verify(
+            s => s.ReleaseAsync(runGuid, It.IsAny<CancellationToken>()),
+            Times.Never,
+            "local-hold guard throws before renewal scope; ownership finally must not run");
     }
 
     private static Mock<IRunExecuteOwnershipLeaseService> CreateEnabledOwnershipMock(Guid runGuid)

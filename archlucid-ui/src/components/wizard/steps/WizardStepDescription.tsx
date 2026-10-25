@@ -198,6 +198,7 @@ export function WizardStepDescription() {
                 id="wizard-description"
                 rows={8}
                 className="min-h-[140px]"
+                placeholder="Describe the system, scope, and what the architecture must achieve (at least ten characters)."
                 {...field}
                 onChange={(e) => {
                   clearErrors("description");

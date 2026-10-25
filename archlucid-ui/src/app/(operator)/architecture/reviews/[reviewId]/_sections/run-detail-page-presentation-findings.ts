@@ -9,6 +9,7 @@ import type { FindingSeverityCounts } from "@/lib/run-detail-workspace-derive";
 import { deriveRunDetailFindingsTriageCounts } from "@/lib/runs/run-detail-findings-triage-counts";
 import {
   countEngineFailureAdvisoryWithheldRows,
+  describeFindingsWithheldListLoadState,
   resolveFindingsWithheldRows,
   type WithheldFindingRow,
 } from "@/lib/findings/findings-withheld-band";
@@ -34,6 +35,7 @@ export type RunDetailFindingsPresentation = {
   readonly blockingApprovalCount: number;
   readonly lowExtractionConfidenceCount: number;
   readonly withheldFindings: readonly WithheldFindingRow[];
+  readonly withheldListLoadState: string | null;
   readonly catalogAdvisoryEngineFailureCount: number;
 };
 
@@ -56,6 +58,7 @@ export function buildRunDetailFindingsPresentation(
   });
 
   const withheldFindings = resolveFindingsWithheldRows(model.resolvedDetail);
+  const withheldListLoadState = describeFindingsWithheldListLoadState(model.resolvedDetail);
 
   return {
     quickDecisionFindings,
@@ -78,6 +81,7 @@ export function buildRunDetailFindingsPresentation(
         finding.confidenceLevel === "Low",
     ).length,
     withheldFindings,
+    withheldListLoadState,
     catalogAdvisoryEngineFailureCount: countEngineFailureAdvisoryWithheldRows(withheldFindings),
   };
 }

@@ -5,6 +5,11 @@ import {
 } from "@/lib/architecture/architecture-open-questions-export-honesty";
 import type { TransparencyTrail } from "@/types/feasibility-verdict";
 
+import { formatInferredTrailEntryLabel } from "@/lib/feasibility/format-inferred-trail-entry-label";
+import {
+  formatAssertedTrailLine,
+  formatSkippedTrailQuestionKey,
+} from "@/lib/feasibility/format-transparency-trail-entry-display";
 import { isTransparencyTrailComplete } from "@/lib/feasibility/transparency-trail-completeness";
 
 export const TRANSPARENCY_TRAIL_EXPORT_INCOMPLETE_BANNER =
@@ -78,7 +83,7 @@ export function formatTransparencyTrailMarkdownSection(
             ? " — Answer recorded time was not stored."
             : "";
 
-      lines.push(`- ${entry.key}: ${entry.value}${responder}${questionId}${recordedUtc}`);
+      lines.push(`- ${formatAssertedTrailLine(entry)}${responder}${questionId}${recordedUtc}`);
     }
   } else {
     lines.push("_None recorded._");
@@ -90,7 +95,7 @@ export function formatTransparencyTrailMarkdownSection(
 
   if (section.inferred.length > 0) {
     for (const entry of section.inferred) {
-      lines.push(`- ${entry.key}: ${entry.value} (confidence ${entry.confidence})`);
+      lines.push(`- ${formatInferredTrailEntryLabel(entry)}`);
     }
   } else {
     lines.push("_None recorded._");
@@ -105,7 +110,7 @@ export function formatTransparencyTrailMarkdownSection(
     lines.push("");
 
     for (const entry of mustSkipped) {
-      lines.push(`- ${entry.questionKey}`);
+      lines.push(`- ${formatSkippedTrailQuestionKey(entry.questionKey)}`);
     }
   }
 
@@ -115,8 +120,15 @@ export function formatTransparencyTrailMarkdownSection(
     lines.push("");
 
     for (const entry of shouldSkipped) {
-      lines.push(`- ${entry.questionKey}`);
+      lines.push(`- ${formatSkippedTrailQuestionKey(entry.questionKey)}`);
     }
+  }
+
+  if (mustSkipped.length === 0 && shouldSkipped.length === 0) {
+    lines.push("");
+    lines.push("### Skipped questions (0)");
+    lines.push("");
+    lines.push("Skipped questions were not recorded on this transparency trail.");
   }
 
   const workingDocumentMarkdown = formatOpenQuestionsWorkingDocumentMarkdownSection(

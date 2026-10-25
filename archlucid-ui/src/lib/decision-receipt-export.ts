@@ -53,8 +53,8 @@ export type DecisionReceiptDocument = {
   transparencyTrail: TransparencyTrailExportSection | null;
   costStory: {
     label: typeof DECISION_RECEIPT_COST_ESTIMATE_LABEL;
-    sessionCostUsdEstimate: number;
-    avoidedHumanArchitectCostUsdEstimate: number;
+    sessionCostUsdEstimate: string;
+    avoidedHumanArchitectCostUsdEstimate: string;
     avoidedCalendarWeeksEstimate: string;
     narrative: string;
   };

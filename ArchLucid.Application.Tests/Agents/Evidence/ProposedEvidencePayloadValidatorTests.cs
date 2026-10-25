@@ -8,6 +8,28 @@ namespace ArchLucid.Application.Tests.Agents.Evidence;
 public sealed class ProposedEvidencePayloadValidatorTests
 {
     [Fact]
+    public void TryParseValid_WhenTitleHasSurroundingWhitespace_returns_trimmed_payload()
+    {
+        bool ok = ProposedEvidencePayloadValidator.TryParseValid(
+            """{"type":"Policy","title":" Encrypt data at rest ","description":"All storage accounts use CMK.","rationale":"Gap in catalog."}""",
+            out ProposedEvidencePayload payload);
+
+        ok.Should().BeTrue();
+        payload.Title.Should().Be("Encrypt data at rest");
+    }
+
+    [Fact]
+    public void TryParseValid_WhenTypeHasSurroundingWhitespace_ReturnsTrue()
+    {
+        bool ok = ProposedEvidencePayloadValidator.TryParseValid(
+            """{"type":" Policy","title":"Encrypt data at rest","description":"All storage accounts use CMK.","rationale":"Gap in catalog."}""",
+            out ProposedEvidencePayload payload);
+
+        ok.Should().BeTrue();
+        payload.Type.Should().Be("Policy");
+    }
+
+    [Fact]
     public void TryParseValid_WhenPolicyShape_ReturnsTrue()
     {
         bool ok = ProposedEvidencePayloadValidator.TryParseValid(

@@ -194,6 +194,56 @@ public sealed class GraphSnapshotKnowledgeModelMergerTests
     }
 
     [Fact]
+    public void Merge_uses_last_non_empty_model_label_when_model_lists_duplicate_node_ids()
+    {
+        GraphSnapshot contextGraph = new()
+        {
+            Nodes = [],
+        };
+
+        GraphSnapshot modelGraph = new()
+        {
+            GraphSnapshotId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+            Nodes =
+            [
+                new GraphNode { NodeId = "shared", NodeType = "model", Label = string.Empty },
+                new GraphNode { NodeId = "shared", NodeType = "model", Label = "model-shared" },
+            ],
+        };
+
+        GraphSnapshot merged = GraphSnapshotKnowledgeModelMerger.Merge(contextGraph, modelGraph);
+
+        merged.Nodes.Should().ContainSingle(node =>
+            node.NodeId == "shared"
+            && node.Label == "model-shared");
+    }
+
+    [Fact]
+    public void Merge_preserves_context_label_when_later_duplicate_context_row_omits_label()
+    {
+        GraphSnapshot contextGraph = new()
+        {
+            Nodes =
+            [
+                new GraphNode { NodeId = "shared", NodeType = "context", Label = "context-shared" },
+                new GraphNode { NodeId = "shared", NodeType = "context", Label = string.Empty },
+            ],
+        };
+
+        GraphSnapshot modelGraph = new()
+        {
+            GraphSnapshotId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+            Nodes = [],
+        };
+
+        GraphSnapshot merged = GraphSnapshotKnowledgeModelMerger.Merge(contextGraph, modelGraph);
+
+        merged.Nodes.Should().ContainSingle(node =>
+            node.NodeId == "shared"
+            && node.Label == "context-shared");
+    }
+
+    [Fact]
     public void Merge_deduplicates_context_edges_when_endpoints_differ_only_by_outer_whitespace()
     {
         GraphSnapshot contextGraph = new()
@@ -235,6 +285,272 @@ public sealed class GraphSnapshotKnowledgeModelMergerTests
             edge.EdgeType == "depends-on"
             && edge.FromNodeId.Trim().Equals("foo", StringComparison.OrdinalIgnoreCase)
             && edge.ToNodeId.Trim().Equals("bar", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public void Merge_uses_last_non_empty_model_edge_label_when_model_lists_duplicate_edges()
+    {
+        GraphSnapshot contextGraph = new()
+        {
+            Nodes = [],
+            Edges = [],
+        };
+
+        GraphSnapshot modelGraph = new()
+        {
+            GraphSnapshotId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+            Nodes =
+            [
+                new GraphNode { NodeId = "foo", NodeType = "model", Label = "foo" },
+                new GraphNode { NodeId = "bar", NodeType = "model", Label = "bar" },
+            ],
+            Edges =
+            [
+                new GraphEdge
+                {
+                    EdgeId = "e1",
+                    FromNodeId = "foo",
+                    ToNodeId = "bar",
+                    EdgeType = "ConnectsTo",
+                    Label = string.Empty,
+                },
+                new GraphEdge
+                {
+                    EdgeId = "e1",
+                    FromNodeId = "foo",
+                    ToNodeId = "bar",
+                    EdgeType = "ConnectsTo",
+                    Label = "HTTPS data flow",
+                },
+            ],
+        };
+
+        GraphSnapshot merged = GraphSnapshotKnowledgeModelMerger.Merge(contextGraph, modelGraph);
+
+        merged.Edges.Should().ContainSingle(edge =>
+            edge.EdgeType == "ConnectsTo"
+            && edge.FromNodeId == "foo"
+            && edge.ToNodeId == "bar"
+            && edge.Label == "HTTPS data flow");
+    }
+
+    [Fact]
+    public void Merge_preserves_context_edge_label_when_later_duplicate_context_row_omits_label()
+    {
+        GraphSnapshot contextGraph = new()
+        {
+            Nodes =
+            [
+                new GraphNode { NodeId = "foo", NodeType = "context", Label = "foo" },
+                new GraphNode { NodeId = "bar", NodeType = "context", Label = "bar" },
+            ],
+            Edges =
+            [
+                new GraphEdge
+                {
+                    EdgeId = "e1",
+                    FromNodeId = "foo",
+                    ToNodeId = "bar",
+                    EdgeType = "depends-on",
+                    Label = "context link",
+                },
+                new GraphEdge
+                {
+                    EdgeId = "e1",
+                    FromNodeId = "foo",
+                    ToNodeId = "bar",
+                    EdgeType = "depends-on",
+                    Label = string.Empty,
+                },
+            ],
+        };
+
+        GraphSnapshot modelGraph = new()
+        {
+            GraphSnapshotId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+            Nodes = [],
+            Edges = [],
+        };
+
+        GraphSnapshot merged = GraphSnapshotKnowledgeModelMerger.Merge(contextGraph, modelGraph);
+
+        merged.Edges.Should().ContainSingle(edge =>
+            edge.EdgeType == "depends-on"
+            && edge.Label == "context link");
+    }
+
+    [Fact]
+    public void Merge_enriches_model_edge_label_from_context_when_model_edge_is_unlabeled()
+    {
+        GraphSnapshot contextGraph = new()
+        {
+            Nodes =
+            [
+                new GraphNode { NodeId = "foo", NodeType = "context", Label = "foo" },
+                new GraphNode { NodeId = "bar", NodeType = "context", Label = "bar" },
+            ],
+            Edges =
+            [
+                new GraphEdge
+                {
+                    EdgeId = "e-ctx",
+                    FromNodeId = "foo",
+                    ToNodeId = "bar",
+                    EdgeType = "depends-on",
+                    Label = "context link",
+                },
+            ],
+        };
+
+        GraphSnapshot modelGraph = new()
+        {
+            GraphSnapshotId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+            Nodes =
+            [
+                new GraphNode { NodeId = "foo", NodeType = "model", Label = "foo" },
+                new GraphNode { NodeId = "bar", NodeType = "model", Label = "bar" },
+            ],
+            Edges =
+            [
+                new GraphEdge
+                {
+                    EdgeId = "e-model",
+                    FromNodeId = "foo",
+                    ToNodeId = "bar",
+                    EdgeType = "depends-on",
+                    Label = string.Empty,
+                },
+            ],
+        };
+
+        GraphSnapshot merged = GraphSnapshotKnowledgeModelMerger.Merge(contextGraph, modelGraph);
+
+        merged.Edges.Should().ContainSingle(edge =>
+            edge.EdgeType == "depends-on"
+            && edge.EdgeId == "e-model"
+            && edge.Label == "context link");
+    }
+
+    [Fact]
+    public void Merge_enriches_model_node_label_from_context_when_model_node_is_unlabeled()
+    {
+        GraphSnapshot contextGraph = new()
+        {
+            Nodes =
+            [
+                new GraphNode { NodeId = "shared", NodeType = "context", Label = "context-shared" },
+            ],
+        };
+
+        GraphSnapshot modelGraph = new()
+        {
+            GraphSnapshotId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+            Nodes =
+            [
+                new GraphNode { NodeId = "shared", NodeType = "model", Label = string.Empty },
+            ],
+        };
+
+        GraphSnapshot merged = GraphSnapshotKnowledgeModelMerger.Merge(contextGraph, modelGraph);
+
+        merged.Nodes.Should().ContainSingle(node =>
+            node.NodeId == "shared"
+            && node.NodeType == "model"
+            && node.Label == "context-shared");
+    }
+
+    [Fact]
+    public void Merge_enriches_model_node_category_from_context_when_model_label_is_populated()
+    {
+        GraphSnapshot contextGraph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "shared",
+                    NodeType = "context",
+                    Label = "context-shared",
+                    Category = "network",
+                },
+            ],
+        };
+
+        GraphSnapshot modelGraph = new()
+        {
+            GraphSnapshotId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "shared",
+                    NodeType = "model",
+                    Label = "model-shared",
+                    Category = string.Empty,
+                },
+            ],
+        };
+
+        GraphSnapshot merged = GraphSnapshotKnowledgeModelMerger.Merge(contextGraph, modelGraph);
+
+        merged.Nodes.Should().ContainSingle(node =>
+            node.NodeId == "shared"
+            && node.Label == "model-shared"
+            && node.Category == "network");
+    }
+
+    [Fact]
+    public void Merge_enriches_model_edge_weight_from_context_when_model_edge_already_has_label()
+    {
+        GraphSnapshot contextGraph = new()
+        {
+            Nodes =
+            [
+                new GraphNode { NodeId = "foo", NodeType = "context", Label = "foo" },
+                new GraphNode { NodeId = "bar", NodeType = "context", Label = "bar" },
+            ],
+            Edges =
+            [
+                new GraphEdge
+                {
+                    EdgeId = "e-ctx",
+                    FromNodeId = "foo",
+                    ToNodeId = "bar",
+                    EdgeType = "depends-on",
+                    Label = "context link",
+                    Weight = 1.0,
+                },
+            ],
+        };
+
+        GraphSnapshot modelGraph = new()
+        {
+            GraphSnapshotId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+            Nodes =
+            [
+                new GraphNode { NodeId = "foo", NodeType = "model", Label = "foo" },
+                new GraphNode { NodeId = "bar", NodeType = "model", Label = "bar" },
+            ],
+            Edges =
+            [
+                new GraphEdge
+                {
+                    EdgeId = "e-model",
+                    FromNodeId = "foo",
+                    ToNodeId = "bar",
+                    EdgeType = "depends-on",
+                    Label = "model link",
+                    Weight = 0.25,
+                },
+            ],
+        };
+
+        GraphSnapshot merged = GraphSnapshotKnowledgeModelMerger.Merge(contextGraph, modelGraph);
+
+        merged.Edges.Should().ContainSingle(edge =>
+            edge.EdgeType == "depends-on"
+            && edge.Label == "model link"
+            && edge.Weight == 1.0);
     }
 
     [Fact]

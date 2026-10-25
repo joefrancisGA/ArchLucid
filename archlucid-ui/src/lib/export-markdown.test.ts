@@ -494,6 +494,12 @@ describe("formatGoldenManifestMarkdown", () => {
     expect(md).toContain("**Decisions:** 4");
     expect(md).toContain("One-line operator summary.");
     expect(md).toContain("Measurement floor");
+    expect(md).toContain(
+      "Full review record JSON was not included in this export. The lines below are summary counts only.",
+    );
+    expect(md).toContain("This summary export does not include a component breakdown.");
+    expect(md).toContain("This summary export does not include a security model.");
+    expect(md).not.toContain("browser session");
   });
 
   it("distinguishes a missing operator summary from a stored empty summary", () => {

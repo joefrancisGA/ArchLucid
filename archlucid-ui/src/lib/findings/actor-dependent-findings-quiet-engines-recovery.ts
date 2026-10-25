@@ -5,6 +5,9 @@ import { REVIEWS_NEW_GUIDED_INTAKE_HREF } from "@/lib/reviews-new-path-copy";
 export const ACTOR_DEPENDENT_FINDINGS_QUIET_ENGINES_BODY =
   "Trust-boundary, privileged-access, and external-exposure engines did not run because this graph has no Actor nodes. IaC uploads alone do not create actors.";
 
+export const ACTOR_DEPENDENT_FINDINGS_ACTOR_COUNT_NOT_STORED_BODY =
+  "Actor node count was not stored. Actor-dependent engines may not have run; do not treat this package as an empty Actor graph.";
+
 export const ACTOR_DEPENDENT_FINDINGS_QUIET_ENGINES_WORKING_RECOVERY =
   "Add people and systems on the Architecture tab for this review.";
 

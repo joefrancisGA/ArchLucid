@@ -118,6 +118,10 @@ export function operatorLastRefreshedExactLabel(
  * Avoids second-level precision that reads like a live stream beside day-old review rows.
  */
 export function operatorHomeDataCurrencyValue(lastRefreshedAt: Date): string {
+  if (!isRenderableRefreshedInstant(lastRefreshedAt)) {
+    return OPERATOR_NOT_REFRESHED_LABEL;
+  }
+
   const relativeLabel = operatorLastRefreshedLabel(lastRefreshedAt);
   const clockLabel = operatorLastRefreshedClockLabel(lastRefreshedAt);
   const isToday = new Date().toDateString() === lastRefreshedAt.toDateString();
@@ -144,6 +148,10 @@ export function operatorHomeDataCurrencyStaleCue(
   lastRefreshedAt: Date,
   nowMs = Date.now(),
 ): string | null {
+  if (!isRenderableRefreshedInstant(lastRefreshedAt)) {
+    return null;
+  }
+
   if (nowMs - lastRefreshedAt.getTime() <= OPERATOR_HOME_DATA_STALE_THRESHOLD_MS) {
     return null;
   }

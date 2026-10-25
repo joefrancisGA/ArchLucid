@@ -88,17 +88,16 @@ export type WizardFormValues = z.infer<typeof wizardFormSchema>;
 
 /**
  * Fresh wizard state: new `requestId` (32-char hex, no dashes — aligns with .NET `Guid.ToString("N")`),
- * None + staging for evidence-first intake, empty lists, placeholder text satisfying validation minima.
+ * empty identity fields (placeholders live in the UI only), and empty advanced lists.
  */
 export function buildDefaultWizardValues(): WizardFormValues {
   const requestId: string = crypto.randomUUID().replace(/-/g, "");
 
-  return wizardFormSchema.parse({
+  return {
     requestId,
-    description:
-      "Describe the system, scope, and what the architecture must achieve (at least ten characters).",
-    systemName: "TargetSystem",
-    environment: "staging",
+    description: "",
+    systemName: "",
+    environment: "",
     cloudProvider: "None",
     priorManifestVersion: "",
     constraints: [],
@@ -112,5 +111,5 @@ export function buildDefaultWizardValues(): WizardFormValues {
     infrastructureDeclarations: [],
     modelExecutionProfileOverride: "WorkspaceDefault",
     modelAliasOverride: "",
-  });
+  };
 }
