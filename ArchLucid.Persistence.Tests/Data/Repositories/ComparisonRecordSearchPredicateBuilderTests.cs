@@ -36,8 +36,8 @@ public sealed class ComparisonRecordSearchPredicateBuilderTests
         conditions.Should().Contain("RightRunId = @RightRunId");
         conditions.Should().Contain("CreatedUtc >= @CreatedFromUtc");
         conditions.Should().Contain("CreatedUtc <= @CreatedToUtc");
-        conditions.Should().Contain("LTRIM(RTRIM(LeftExportRecordId)) = @LeftExportRecordId");
-        conditions.Should().Contain("LTRIM(RTRIM(RightExportRecordId)) = @RightExportRecordId");
+        conditions.Should().Contain("LOWER(LTRIM(RTRIM(LeftExportRecordId))) = LOWER(@LeftExportRecordId)");
+        conditions.Should().Contain("LOWER(LTRIM(RTRIM(RightExportRecordId))) = LOWER(@RightExportRecordId)");
         conditions.Should().Contain("LOWER(LTRIM(RTRIM(Label))) = LOWER(@Label)");
         conditions.Should().ContainSingle(c => c.Contains("OPENJSON", StringComparison.Ordinal) && c.Contains("@Tag0"));
         conditions.Should().ContainSingle(c => c.Contains("OPENJSON", StringComparison.Ordinal) && c.Contains("@Tag2"));
@@ -245,8 +245,8 @@ public sealed class ComparisonRecordSearchPredicateBuilderTests
             label: null,
             tags: null);
 
-        conditions.Should().Contain("LTRIM(RTRIM(LeftExportRecordId)) = @LeftExportRecordId");
-        conditions.Should().Contain("LTRIM(RTRIM(RightExportRecordId)) = @RightExportRecordId");
+        conditions.Should().Contain("LOWER(LTRIM(RTRIM(LeftExportRecordId))) = LOWER(@LeftExportRecordId)");
+        conditions.Should().Contain("LOWER(LTRIM(RTRIM(RightExportRecordId))) = LOWER(@RightExportRecordId)");
         parameters.Get<string>("@LeftExportRecordId").Should().Be("left-export");
         parameters.Get<string>("@RightExportRecordId").Should().Be("right-export");
     }

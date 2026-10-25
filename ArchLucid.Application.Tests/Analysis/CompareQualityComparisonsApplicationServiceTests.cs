@@ -513,6 +513,42 @@ public sealed class CompareQualityComparisonsApplicationServiceTests
     }
 
     [Fact]
+    public async Task CompareQuality_SearchAsync_finds_records_when_left_export_filter_differs_only_by_casing()
+    {
+        const string storedExportRecordId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+        const string filterExportRecordId = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
+
+        InMemoryComparisonRecordRepository comparisonRecords = new();
+        await comparisonRecords.CreateAsync(
+            new ComparisonRecord
+            {
+                ComparisonRecordId = "cmp-search-export-casing",
+                ComparisonType = ComparisonTypes.ExportRecordDiff,
+                LeftExportRecordId = storedExportRecordId,
+                RightExportRecordId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+                CreatedUtc = DateTime.UtcNow,
+            },
+            CancellationToken.None);
+
+        ComparisonsApplicationService sut = new(
+            new Mock<IRunDetailQueryService>().Object,
+            new Mock<IRunExportRecordRepository>().Object,
+            comparisonRecords,
+            new Mock<IComparisonReplayService>().Object,
+            new Mock<ICompareRunsApplicationFacade>().Object,
+            new Mock<IComparisonReplayCostEstimator>().Object,
+            new Mock<IDriftReportFormatter>().Object,
+            new DriftReportDocxExport());
+
+        ComparisonHistorySearchResult result = await sut.SearchAsync(
+            new ComparisonHistorySearchCriteria { LeftExportRecordId = filterExportRecordId, Limit = 10 },
+            CancellationToken.None);
+
+        result.Records.Should().ContainSingle(r => r.ComparisonRecordId == "cmp-search-export-casing");
+        result.Records[0].LeftExportRecordId.Should().Be(storedExportRecordId);
+    }
+
+    [Fact]
     public async Task CompareQuality_SearchAsync_finds_records_when_left_export_filter_is_padded_and_stored_anchor_has_padding()
     {
         const string exportRecordId = "search-left-export";

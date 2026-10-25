@@ -71,7 +71,8 @@ internal static class ComparisonRecordSearchPredicateBuilder
         {
             string normalizedLeftExportRecordId =
                 ComparisonExportRecordIdLookup.NormalizeLookupKey(leftExportRecordId);
-            conditions.Add("LTRIM(RTRIM(LeftExportRecordId)) = @LeftExportRecordId");
+            conditions.Add(
+                "LOWER(LTRIM(RTRIM(LeftExportRecordId))) = LOWER(@LeftExportRecordId)");
             parameters.Add("@LeftExportRecordId", normalizedLeftExportRecordId);
         }
 
@@ -79,7 +80,8 @@ internal static class ComparisonRecordSearchPredicateBuilder
         {
             string normalizedRightExportRecordId =
                 ComparisonExportRecordIdLookup.NormalizeLookupKey(rightExportRecordId);
-            conditions.Add("LTRIM(RTRIM(RightExportRecordId)) = @RightExportRecordId");
+            conditions.Add(
+                "LOWER(LTRIM(RTRIM(RightExportRecordId))) = LOWER(@RightExportRecordId)");
             parameters.Add("@RightExportRecordId", normalizedRightExportRecordId);
         }
 
