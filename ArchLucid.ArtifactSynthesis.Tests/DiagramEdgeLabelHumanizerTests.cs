@@ -20,10 +20,10 @@ public sealed class DiagramEdgeLabelHumanizerTests
     [InlineData(GraphEdgeTypes.DependsOn, "depends on")]
     [InlineData(GraphEdgeTypes.Exposes, "exposes")]
     [InlineData(GraphEdgeTypes.HasRole, "has role")]
-    [InlineData(GraphEdgeTypes.UsesIdentity, "uses")]
+    [InlineData(GraphEdgeTypes.UsesIdentity, "Identity is assigned. Use of that identity was not stored.")]
     [InlineData(GraphEdgeTypes.CanRead, "Role allows read. This is not observed use.")]
     [InlineData(GraphEdgeTypes.CanWrite, "Role allows write. This is not observed use.")]
-    [InlineData(GraphEdgeTypes.CanAssume, "can assume")]
+    [InlineData(GraphEdgeTypes.CanAssume, "May assume this identity. An assumption was not observed.")]
     [InlineData(GraphEdgeTypes.CanControlCode, "Role can control code. This is not an observed deployment.")]
     [InlineData(GraphEdgeTypes.RoutesTo, "routes to")]
     [InlineData(GraphEdgeTypes.FederatesAs, "federates")]
@@ -135,6 +135,8 @@ public sealed class DiagramEdgeLabelHumanizerTests
     [InlineData(AzureInventoryRelationshipAssociationTypes.AdfIntegrationRuntime, "Integration runtime in configuration. This is not an observed run.")]
     [InlineData(AzureInventoryRelationshipAssociationTypes.EventHubCapture, InventoryDiagramRelationshipLabelTexts.CaptureConfiguredObservedCaptureNotStored)]
     [InlineData(AzureInventoryRelationshipAssociationTypes.AvdSessionHostToVm, "AVD session host")]
+    [InlineData(GraphEdgeInferenceSources.InventoryFirewallSubnet, "Firewall is associated with the subnet. Protection was not observed.")]
+    [InlineData(AzureInventoryRelationshipAssociationTypes.FirewallToSubnet, "Firewall is associated with the subnet. Protection was not observed.")]
     public void HumanizeLabel_maps_diagram_enrichment_association_aliases(string alias, string expected)
     {
         DiagramEdgeLabelHumanizer.HumanizeLabel(alias).Should().Be(expected);

@@ -12,6 +12,10 @@ function clampNonNegativeInt(value: number | null | undefined): number | null {
 }
 
 export function resolveRunFindingCountDisplay(run: RunSummary): number | null {
+  if (run.hasFindingsSnapshot !== true && run.hasGoldenManifest !== true) {
+    return null;
+  }
+
   const fromRun = clampNonNegativeInt(run.findingCount);
 
   if (fromRun !== null) {
