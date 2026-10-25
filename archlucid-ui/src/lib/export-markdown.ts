@@ -250,12 +250,12 @@ function formatManifestSummaryFallback(
 
   lines.push("## Component breakdown");
   lines.push("");
-  lines.push("This summary export does not include a component breakdown.");
+  lines.push("Component breakdown was not stored.");
   lines.push("");
 
   lines.push("## Security model");
   lines.push("");
-  lines.push("This summary export does not include a security model.");
+  lines.push("Security model was not stored.");
   lines.push("");
 
   const honestyInput = resolveCareerExportHonestyInput(options, summary);
