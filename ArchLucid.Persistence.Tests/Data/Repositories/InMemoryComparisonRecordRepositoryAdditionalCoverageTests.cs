@@ -422,6 +422,39 @@ public sealed class InMemoryComparisonRecordRepositoryAdditionalCoverageTests
     }
 
     [SkippableFact]
+    public async Task CompareQuality_GetByIdAsync_nulls_whitespace_only_export_ids_and_text_placeholders_on_read()
+    {
+        const string comparisonRecordId = "cmp-whitespace-persist-read";
+
+        InMemoryComparisonRecordRepository sut = new();
+        FieldInfo? itemsField = typeof(InMemoryComparisonRecordRepository).GetField(
+            "_items",
+            BindingFlags.Instance | BindingFlags.NonPublic);
+        itemsField.Should().NotBeNull();
+        List<ComparisonRecord> items = (List<ComparisonRecord>)itemsField!.GetValue(sut)!;
+        ComparisonRecord legacy = Row(comparisonRecordId, TimeProvider.System.UtcNowDateTime());
+        legacy.LeftExportRecordId = "   ";
+        legacy.RightExportRecordId = "  exp-right  ";
+        legacy.Format = "   ";
+        legacy.ComparisonType = "  ";
+        legacy.SummaryMarkdown = "   ";
+        legacy.Label = "   ";
+        legacy.Tags = ["  alpha  ", "   "];
+        items.Add(legacy);
+
+        ComparisonRecord? loaded = await sut.GetByIdAsync(comparisonRecordId, CancellationToken.None);
+
+        loaded.Should().NotBeNull();
+        loaded!.LeftExportRecordId.Should().BeNull();
+        loaded.RightExportRecordId.Should().Be("exp-right");
+        loaded.Format.Should().BeEmpty();
+        loaded.ComparisonType.Should().BeEmpty();
+        loaded.SummaryMarkdown.Should().BeNull();
+        loaded.Label.Should().BeNull();
+        loaded.Tags.Should().BeEquivalentTo("alpha");
+    }
+
+    [SkippableFact]
     public async Task GetByIdAsync_trims_padded_export_record_ids_on_read()
     {
         const string comparisonRecordId = "cmp-exp-pad-get";

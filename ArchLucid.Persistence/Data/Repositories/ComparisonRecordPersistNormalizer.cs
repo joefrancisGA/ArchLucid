@@ -12,10 +12,9 @@ internal static class ComparisonRecordPersistNormalizer
         ComparisonRecordRunIdSql.NormalizeRunIdsForRead(record);
         record.LeftExportRecordId = NormalizeExportRecordIdOrNull(record.LeftExportRecordId);
         record.RightExportRecordId = NormalizeExportRecordIdOrNull(record.RightExportRecordId);
-        if (!string.IsNullOrWhiteSpace(record.ComparisonType))
-            record.ComparisonType = record.ComparisonType.Trim();
+        record.ComparisonType = NormalizeRequiredStringColumn(record.ComparisonType);
 
-        record.Label = TrimLabelOrNull(record.Label);
+        record.Label = OptionalExportMetadataStringNormalizer.NormalizeOptionalString(record.Label);
         NormalizeTagsInPlace(record.Tags);
         record.LeftManifestVersion =
             OptionalExportMetadataStringNormalizer.NormalizeOptionalString(record.LeftManifestVersion);
@@ -23,27 +22,33 @@ internal static class ComparisonRecordPersistNormalizer
             OptionalExportMetadataStringNormalizer.NormalizeOptionalString(record.RightManifestVersion);
         record.Notes = OptionalExportMetadataStringNormalizer.NormalizeOptionalString(record.Notes);
 
-        if (!string.IsNullOrWhiteSpace(record.Format))
-            record.Format = record.Format.Trim();
-
-        if (!string.IsNullOrWhiteSpace(record.SummaryMarkdown))
-            record.SummaryMarkdown = record.SummaryMarkdown.Trim();
+        record.Format = NormalizeRequiredStringColumn(record.Format);
+        record.SummaryMarkdown =
+            OptionalExportMetadataStringNormalizer.NormalizeOptionalString(record.SummaryMarkdown);
     }
 
     private static void NormalizeTagsInPlace(List<string> tags)
     {
-        for (int i = 0; i < tags.Count; i++)
+        for (int i = tags.Count - 1; i >= 0; i--)
         {
-            if (!string.IsNullOrWhiteSpace(tags[i]))
-                tags[i] = tags[i].Trim();
+            if (string.IsNullOrWhiteSpace(tags[i]))
+            {
+                tags.RemoveAt(i);
+                continue;
+            }
+
+            tags[i] = tags[i].Trim();
         }
     }
 
-    private static string? TrimLabelOrNull(string? value) =>
-        string.IsNullOrWhiteSpace(value) ? value : value.Trim();
+    private static string NormalizeRequiredStringColumn(string value) =>
+        string.IsNullOrWhiteSpace(value) ? string.Empty : value.Trim();
 
-    private static string? NormalizeExportRecordIdOrNull(string? exportRecordId) =>
-        string.IsNullOrWhiteSpace(exportRecordId)
-            ? exportRecordId
-            : ComparisonExportRecordIdLookup.NormalizeLookupKey(exportRecordId);
+    private static string? NormalizeExportRecordIdOrNull(string? exportRecordId)
+    {
+        if (string.IsNullOrWhiteSpace(exportRecordId))
+            return null;
+
+        return ComparisonExportRecordIdLookup.NormalizeLookupKey(exportRecordId);
+    }
 }
