@@ -6,10 +6,7 @@ export function buildDiagramWalkthrough(outline: InfraEvidenceMermaidOutline): s
   const edgeCount = outline.edges.length;
   const componentCount = countDiagramOutlineComponents(outline, { includeTrivial: true });
 
-  const componentSummary =
-    componentCount === 1
-      ? "1 diagram group"
-      : `${componentCount} separate diagram groups. These groups are not joined to each other on this diagram`;
+  const groupLabel = componentCount === 1 ? "group" : "groups";
   const sourceCounts = [
     { source: "observed", count: outline.edges.filter((edge) => edge.source === "observed").length },
     { source: "declared", count: outline.edges.filter((edge) => edge.source === "declared").length },
@@ -29,5 +26,5 @@ export function buildDiagramWalkthrough(outline: InfraEvidenceMermaidOutline): s
     ? ` ${edgeCount} relationships (${relationshipSourceSummary}).`
     : ` ${edgeCount} relationships.`;
 
-  return `${nodeCount} resources in ${componentSummary}.${relationshipSummary}${notObservedSentence}`;
+  return `${nodeCount} resources in ${componentCount} ${groupLabel}. A group can be one resource with no relationship on this diagram.${relationshipSummary}${notObservedSentence}`;
 }

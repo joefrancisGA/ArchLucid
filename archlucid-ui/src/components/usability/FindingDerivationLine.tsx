@@ -66,11 +66,15 @@ export function FindingDerivationLine(props: FindingDerivationLineProps): React.
   } = props;
   const evidenceLink =
     evidenceHref !== null && evidenceHref !== undefined && evidenceHref.trim().length > 0 ? evidenceHref : null;
-  const citedEvidenceCount =
-    typeof evidenceRefCount === "number" && Number.isFinite(evidenceRefCount)
-      ? Math.max(0, Math.trunc(evidenceRefCount))
-      : 0;
-  const evidenceActionLabel = citedEvidenceCount > 0 ? "Show evidence" : "Open finding";
+  const evidenceRefCountStored =
+    typeof evidenceRefCount === "number" && Number.isFinite(evidenceRefCount);
+  const citedEvidenceCount = evidenceRefCountStored ? Math.max(0, Math.trunc(evidenceRefCount)) : 0;
+  const evidenceActionLabel =
+    evidenceRefCount === null || evidenceRefCount === undefined
+      ? "Evidence reference count was not stored"
+      : citedEvidenceCount > 0
+        ? "Show evidence"
+        : "Open finding";
   const sentence = derivation.synthesised && !derivation.sentence.startsWith(FINDING_DERIVATION_ASSEMBLED_PREFIX)
     ? `${FINDING_DERIVATION_ASSEMBLED_PREFIX} ${derivation.sentence}`
     : derivation.sentence;
@@ -145,7 +149,7 @@ export function FindingDerivationLine(props: FindingDerivationLineProps): React.
               className={cn("font-medium", OPERATOR_LINK.inline)}
               data-testid={`${testId}-evidence-link`}
             >
-              Open evidence trail
+              {citedEvidenceCount > 0 ? "Open evidence trail" : evidenceActionLabel}
             </Link>
           </p>
         </details>

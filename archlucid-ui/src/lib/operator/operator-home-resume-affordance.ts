@@ -47,7 +47,9 @@ export function resolveOperatorHomeResumeAffordancePlan(
     const railSurfacesSameRun = railSummary.items.some((item) => {
       const runId = resolveRunIdFromWorkingReviewHref(item.href);
 
-      return runId !== null && runId === reviewTarget?.runId;
+      const targetRunId = reviewTarget?.runId?.trim() ?? "";
+
+      return runId !== null && targetRunId.length > 0 && runId.trim() === targetRunId;
     });
 
     if (railSurfacesSameRun) {

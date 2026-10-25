@@ -64,4 +64,13 @@ public sealed class AzureOpenAiEndpointNormalizerTests
 
         normalized.Should().StartWith("http://evil.example.com");
     }
+
+    [SkippableFact]
+    public void NormalizeForChatCompletions_preserves_classic_openai_host_when_path_contains_unicode_line_separator()
+    {
+        string endpoint = "https://oai-archlucid-dev.openai.azure.com/openai" + '\u2028' + "deployments";
+        string normalized = AzureOpenAiEndpointNormalizer.NormalizeForChatCompletions(endpoint);
+
+        normalized.Should().Be("https://oai-archlucid-dev.openai.azure.com/");
+    }
 }

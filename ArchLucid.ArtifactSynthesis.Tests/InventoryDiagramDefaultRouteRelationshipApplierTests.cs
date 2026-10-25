@@ -20,7 +20,7 @@ public sealed class InventoryDiagramDefaultRouteRelationshipApplierTests
 
         DiagramAst ast = compiler.Compile(graph, DiagramMode.FullSubscription);
 
-        RequireVmToFirewallEdge(ast).Label.Should().Be("Routed through fw-app");
+        RequireVmToFirewallEdge(ast).Label.Should().Be("Default route next hop is fw-app. This is not observed traffic.");
     }
 
     [Fact]
@@ -32,7 +32,7 @@ public sealed class InventoryDiagramDefaultRouteRelationshipApplierTests
 
         AssertNoVmToFirewallEdge(ast);
         DiagramNode vm = ast.Nodes.Single(node => node.Label == "vm-app");
-        vm.UnresolvedRelationshipDetails.Should().Contain("Traffic to 10.20.0.0/16 goes through fw-app");
+        vm.UnresolvedRelationshipDetails.Should().Contain("Route to 10.20.0.0/16 names fw-app as the next hop. This is not observed traffic.");
     }
 
     [Fact]
@@ -54,7 +54,7 @@ public sealed class InventoryDiagramDefaultRouteRelationshipApplierTests
         DiagramAst ast = compiler.Compile(graph, DiagramMode.FullSubscription);
 
         DiagramNode vm = ast.Nodes.Single(node => node.Label == "vm-app");
-        vm.UnresolvedRelationshipDetails.Should().Contain("Traffic to 10.30.0.0/16 is dropped");
+        vm.UnresolvedRelationshipDetails.Should().Contain("Route to 10.30.0.0/16 uses next hop type None. This is not observed traffic.");
     }
 
     [Fact]

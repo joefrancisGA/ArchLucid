@@ -106,7 +106,11 @@ function resolveNodeProblem(node: InfraEvidenceMermaidOutlineNode): string {
   }
 
   if (node.connectionState === "Unknown") {
-    const unknownDetails = node.unresolvedRelationshipDetails ?? [];
+    const unknownDetails = node.unresolvedRelationshipDetails;
+
+    if (unknownDetails === null || unknownDetails === undefined) {
+      return "Unresolved relationship details were not stored.";
+    }
 
     if (unknownDetails.length > 0) {
       return unknownDetails.join(" ");
@@ -158,7 +162,11 @@ function formatLedgerDropLabel(
   const fromLabel = resolveInfraEvidenceOutlineNodeLabel(nodes, drop.from);
   const reasonLabel = formatInfraEvidenceDiagramDropGateReasonLabel(drop.reason);
 
-  if (drop.reason === "nsg-unattached") {
+  if (
+    drop.reason === "nsg-unattached"
+    || drop.reason === "nsg-unattached-no-association"
+    || drop.reason === "nsg-unattached-off-diagram"
+  ) {
     return `${reasonLabel} · ${fromLabel}`;
   }
 
@@ -219,7 +227,7 @@ function formatOutlineResourceType(resourceType: string | null): string {
     return "Resource type was stored empty.";
   }
 
-  return formatDiagramArmTypeFriendlyName(resourceType);
+  return formatDiagramArmTypeFriendlyName(resourceType) ?? "Resource type was not stored";
 }
 
 function formatOutlineEdgeSource(
@@ -240,7 +248,7 @@ function formatOutlineEdgeSource(
 
   switch (source) {
     case "missing":
-      return "Confidence band was not stored";
+      return "Source was not stored.";
 
     case "declared":
       return INFRA_EVIDENCE_DIAGRAM_OUTLINE_SOURCE_DECLARED;
@@ -1119,8 +1127,7 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
             <ul className={cn("m-0 list-disc pl-5", OPERATOR_TYPOGRAPHY.body)}>
               {outline.dropGateRows.map((row, index) => (
                 <li key={`${row.from}-${row.to}-${row.reason}-${index}`}>
-                  {formatInfraEvidenceDiagramDropGateReasonLabel(row.reason)}: {resolveInfraEvidenceOutlineNodeLabel(outline.nodes, row.from)} →{" "}
-                  {row.to === "_" ? "Destination was not stored" : resolveInfraEvidenceOutlineNodeLabel(outline.nodes, row.to)}
+                  {formatLedgerDropLabel(row, outline.nodes)}
                 </li>
               ))}
             </ul>

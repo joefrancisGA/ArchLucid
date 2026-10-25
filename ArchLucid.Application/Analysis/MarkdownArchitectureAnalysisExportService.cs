@@ -17,9 +17,10 @@ public sealed partial class MarkdownArchitectureAnalysisExportService : IArchite
         sb.AppendLine($"- Run Status: {report.Run.Status}");
         sb.AppendLine($"- Created UTC: {report.Run.CreatedUtc:O}");
 
-        if (report.Run.CompletedUtc.HasValue)
-
-            sb.AppendLine($"- Completed UTC: {report.Run.CompletedUtc.Value:O}");
+        sb.AppendLine(
+            report.Run.CompletedUtc.HasValue
+                ? $"- Completed UTC: {report.Run.CompletedUtc.Value:O}"
+                : $"- Completed UTC: {ArchitectureEvidenceRequestExport.MissingCompletedTimeCopy}");
 
         if (!string.IsNullOrWhiteSpace(report.Run.CurrentManifestVersion))
 
