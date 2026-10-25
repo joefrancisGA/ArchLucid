@@ -4,6 +4,9 @@ import {
   findingDetailLeadSentence,
   findingDetailHeadingTitle,
   findingWhyThisMattersText,
+  phiMinimizationApprovalNarrative,
+  phiMinimizationBuyerConsequenceNarrative,
+  phiMinimizationRecommendedActionFallback,
   typedPayloadLookupString,
 } from "@/lib/findings/finding-display-from-inspect";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
@@ -73,6 +76,19 @@ describe("findingWhyThisMattersText", () => {
 
   it("returns null when absent", () => {
     expect(findingWhyThisMattersText(payloadWithTyped({ severity: "High" }))).toBeNull();
+  });
+});
+
+describe("phi minimization sample copy (P-02–P-04)", () => {
+  it("does not invent consequence, acceptance, or recommended action prose", () => {
+    expect(phiMinimizationBuyerConsequenceNarrative()).toBe("Sample finding. A stored consequence was not stored.");
+    expect(phiMinimizationBuyerConsequenceNarrative()).not.toContain("PHI");
+
+    expect(phiMinimizationApprovalNarrative()).toBe("A stored acceptance was not stored on this finding.");
+    expect(phiMinimizationApprovalNarrative()).not.toContain("Recorded acceptance");
+
+    expect(phiMinimizationRecommendedActionFallback()).toBe("Recommended action was not stored.");
+    expect(phiMinimizationRecommendedActionFallback()).not.toContain("privacy office");
   });
 });
 

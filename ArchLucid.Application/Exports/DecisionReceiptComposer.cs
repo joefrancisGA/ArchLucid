@@ -80,24 +80,20 @@ public static class DecisionReceiptComposer
         return $"archlucid-decision-receipt-{id}-{stamp}.json";
     }
 
-    private static DecisionReceiptIntakeContext? BuildIntakeContext(DraftRequestDocument document)
+    private static DecisionReceiptIntakeContext BuildIntakeContext(DraftRequestDocument document)
     {
         ArgumentNullException.ThrowIfNull(document);
 
-        if (string.IsNullOrWhiteSpace(document.FreeTextIntent)
-            && string.IsNullOrWhiteSpace(document.BusinessOutcome)
-            && string.IsNullOrWhiteSpace(document.SystemName))
-        {
-            return null;
-        }
-
         return new DecisionReceiptIntakeContext
         {
-            FreeTextIntent = string.IsNullOrWhiteSpace(document.FreeTextIntent) ? null : document.FreeTextIntent.Trim(),
-            BusinessOutcome = string.IsNullOrWhiteSpace(document.BusinessOutcome) ? null : document.BusinessOutcome.Trim(),
-            SystemName = string.IsNullOrWhiteSpace(document.SystemName) ? null : document.SystemName.Trim(),
+            FreeTextIntent = StoredIntakeField(document.FreeTextIntent, "Free-text intent was not stored."),
+            BusinessOutcome = StoredIntakeField(document.BusinessOutcome, "Business outcome was not stored."),
+            SystemName = StoredIntakeField(document.SystemName, "System name was not stored."),
         };
     }
+
+    private static string StoredIntakeField(string? value, string notStoredLabel) =>
+        string.IsNullOrWhiteSpace(value) ? notStoredLabel : value.Trim();
 
     private static DecisionReceiptCostStory BuildCostStory() => new();
 }

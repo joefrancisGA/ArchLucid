@@ -36,15 +36,17 @@ internal static class SecureNowQuestionDisplayCopy
 
         if (string.Equals(question.QuestionKey, "orphan-still-needed@v1", StringComparison.OrdinalIgnoreCase))
         {
+            string idTail = ReadResourceIdTailSegment(resourceArmId);
+            string questionText = idTail.Length > 0
+                ? $"Resource id ends with {idTail}. A separate display name was not stored. Is this resource still needed?"
+                : "Resource name was not stored. Is this resource still needed?";
             return question with
             {
                 ResourceType = resourceType,
                 ResourceName = resourceName,
-                QuestionText = resourceName.Length > 0
-                    ? $"Is {resourceName} still needed?"
-                    : "Resource name was not stored. Is this resource still needed?",
-                ReasonText = resourceName.Length > 0
-                    ? $"A parent for {resourceName} was not stored."
+                QuestionText = questionText,
+                ReasonText = idTail.Length > 0
+                    ? $"A parent for {idTail} was not stored."
                     : "Resource name was not stored. A parent was not stored.",
             };
         }
@@ -59,7 +61,7 @@ internal static class SecureNowQuestionDisplayCopy
                 : "Resource type was not stored. Connection evidence was not stored.";
             string questionText = resourceName.Length > 0
                 ? $"Should {resourceName} connect to a peer, or stand alone?"
-                : "Resource name was not stored.";
+                : "Resource name was not stored. Should this resource connect to a peer, or stand alone?";
             return question with
             {
                 ResourceType = resourceType,
@@ -115,6 +117,18 @@ internal static class SecureNowQuestionDisplayCopy
         string[] segments = trimmed.Split('/', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
         string lastSegment = segments.Length > 0 ? segments[^1] : trimmed;
 
-        return lastSegment.ToLowerInvariant();
+        return lastSegment;
+    }
+
+    private static string ReadResourceIdTailSegment(string armResourceId)
+    {
+        string trimmed = armResourceId.Trim();
+
+        if (trimmed.Length == 0)
+            return string.Empty;
+
+        string[] segments = trimmed.Split('/', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
+        return segments.Length > 0 ? segments[^1] : trimmed;
     }
 }

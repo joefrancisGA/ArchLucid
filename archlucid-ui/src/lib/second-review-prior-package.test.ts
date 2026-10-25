@@ -37,6 +37,17 @@ describe("second-review-prior-package", () => {
     ).toBe("Retail API modernization review");
   });
 
+  it("labels omitted semantic counts without implying zero carry-forward", () => {
+    expect(
+      priorPackageInheritedSemanticSummary({
+        actorCount: null,
+        assumptionCount: null,
+        decisionCount: null,
+        requirementCount: null,
+      }),
+    ).toBe("Semantic object counts from the prior package were not stored.");
+  });
+
   it("formats inherited semantic counts for the prior-package strip", () => {
     expect(
       priorPackageInheritedSemanticSummary({
