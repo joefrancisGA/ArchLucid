@@ -107,6 +107,27 @@ public sealed class AzureInventoryArmNestedObjectPropertyMatrixTests
                 """,
                 StorageAccountId
             },
+            {
+                $$"""
+                {
+                  "id": "{{NamespaceId}}/eventhubs/orders",
+                  "name": "orders",
+                  "properties": {
+                    "captureDescription": {
+                      "enabled": true,
+                      "destination": {
+                        "properties": {
+                          "storageAccountResourceId": {
+                            "id": "{{StorageAccountId}}"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+                """,
+                StorageAccountId
+            },
         };
 
     [Theory]

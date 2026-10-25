@@ -43,6 +43,29 @@ public static class AzureInventoryArmNestedObjectPropertyReader
             return null;
         }
 
-        return value.ValueKind is JsonValueKind.String ? value.GetString() : value.GetRawText().Trim('"');
+        return TryReadScalarString(value);
+    }
+
+    public static string? TryReadScalarString(JsonElement value)
+    {
+        if (value.ValueKind is JsonValueKind.String)
+        {
+            return value.GetString();
+        }
+
+        if (value.ValueKind is JsonValueKind.Object)
+        {
+            if (value.TryGetProperty("id", out JsonElement idElement)
+                && idElement.ValueKind is JsonValueKind.String)
+            {
+                string? armId = idElement.GetString();
+
+                return string.IsNullOrWhiteSpace(armId) ? null : armId.Trim();
+            }
+
+            return null;
+        }
+
+        return value.GetRawText().Trim('"');
     }
 }
