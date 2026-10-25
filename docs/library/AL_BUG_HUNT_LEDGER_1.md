@@ -6868,6 +6868,20 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-25 seed hunt (seed→hit): proved `RunExportQueryFacade.NormalizeReplayExportResultMetadata` trimmed export record and run ids on facade replay responses (hunts 164–171) but left padded `ExportType`, `Format`, `FileName`, and optional template metadata on `ReplayExportResult` straight from `IExportReplayService`, so export replay API payloads could echo legacy whitespace and padded `Format` could break downstream artifact response equality; extend facade replay metadata normalize with required-column trim and `PersistedAnalysisExportRequestMetadata.NormalizeOptionalString` parity before audit and return; regression `CompareQuality_ReplayExportAsync_trims_padded_export_type_format_and_template_on_replay_result`; cheap-disproof closed scoped export read normalizer on loaded rows (hunts 192–193), replay service persist path (hunt 166), `ApiPaging.TryParseUtcTicksIdCursor` (comparison search normalizes inbound cursor id), batch zip manifest echo (cosmetic), and Armenian homoglyphs (deferred); seeded five follow-on rows; scoped application-analysis + replay filter 354/354. Private beta: architecture export replay API responses return trimmed export type, format, file name, and template metadata when the replay delegate still surfaces surrounding whitespace on legacy rows.
+
+- [ ] (candidate) `ComparisonRecordRepository.GetByRunIdAsync` — SQL list-by-run dashed stored — locus: UNIQUEIDENTIFIER column; input: already matches N/D lookup via guid param.
+- [ ] (candidate) `ComparisonRecordRepositoryCore.SerializeTagsForUpdate` — JSON tag order — locus: cosmetic; input: defer.
+- [ ] (candidate) `ComparisonRecordSearchPredicateBuilder` — notes column search — locus: no notes filter today; input: defer.
+- [ ] (candidate) `ApiPaging.TryParseUtcTicksIdCursor` — cursor id segment without trim — locus: HTTP cursor parse; input: padded id after ticks delimiter (alerts inbox and other API surfaces).
+- [ ] (candidate) `ComparisonBatchReplayZipSupport` — manifest failure entries echo pre-trim batch tokens — locus: zip manifest; input: cosmetic id echo only.
+
+- [x] (proven) `NormalizeReplayExportResultMetadata` — padded export type/format/template on replay result — **hit 2026-10-25 seed hunt:** trim required and optional replay metadata; regression above.
+- [x] (valid-no-repro) `RunExportRecordScopedReadNormalizer` — scoped export row load — **cheap-disproof 2026-10-25 seed hunt:** hunts 192–193; facade replay result still leaked delegate padding.
+- [x] (valid-no-repro) `ExportReplayService.ReplayAsync` — service-layer metadata — **cheap-disproof 2026-10-25 seed hunt:** hunts 164–166; facade normalizer closes delegate gaps.
+- [x] (invalid) `ApiPaging.TryParseUtcTicksIdCursor` — HTTP cursor id trim — **cheap-disproof 2026-10-25 seed hunt:** comparison search normalizes at application layer.
+- [x] (invalid) `ComparisonBatchReplayZipSupport` — manifest id echo — **cheap-disproof 2026-10-25 seed hunt:** cosmetic only.
+
 2026-10-25 seed hunt (seed→hit): proved `ExportRecordDiffService.Compare` compared raw `ExportType` for cross-run warnings while `AddIfChangedTrimmed` already ignored padding-only top-level deltas, so export-record diff summaries could emit a false "different export types" warning when one side still had surrounding whitespace on the type column; normalize both operands via `RunExportRecordScopedReadNormalizer.NormalizeInPlace` before diff assembly; regression extended `CompareQuality_export_record_diff_ignores_padding_only_export_type_on_top_level_columns` to assert warnings stay clean; cheap-disproof closed scoped read trim on facade-loaded rows (defense in depth for direct Compare callers), `ApiPaging.TryParseUtcTicksIdCursor` (comparison search normalizes inbound cursor id), batch zip manifest echo (cosmetic), and Armenian homoglyphs (deferred); seeded five follow-on rows; scoped application-analysis + replay filter 353/353. Private beta: export-record comparison no longer warns about mismatched export types when the only difference is surrounding whitespace on stored type metadata.
 
 - [ ] (candidate) `ComparisonRecordRepository.GetByRunIdAsync` — SQL list-by-run dashed stored — locus: UNIQUEIDENTIFIER column; input: already matches N/D lookup via guid param.
@@ -8535,11 +8549,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 194
-- **bugs-found:** 200
+- **hunts:** 195
+- **bugs-found:** 201
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-25
-- **last-bug:** 2026-10-25 — export diff ignores padded export type warnings
+- **last-bug:** 2026-10-25 — export replay facade trims padded replay metadata
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
