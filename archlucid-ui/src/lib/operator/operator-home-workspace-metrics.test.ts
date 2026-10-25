@@ -124,6 +124,11 @@ describe("formatSetupReadinessLabel", () => {
   it("formats ready counts", () => {
     expect(formatSetupReadinessLabel(2, 4)).toBe("2 of 4 ready");
   });
+
+  it("normalizes non-finite setup readiness counts to zero", () => {
+    expect(formatSetupReadinessLabel(Number.NaN, 4)).toBe("0 of 4 ready");
+    expect(formatSetupReadinessLabel(2, Number.NaN)).toBe("2 of 0 ready");
+  });
 });
 
 describe("formatSetupReadinessCompleteLabel", () => {
