@@ -1003,6 +1003,37 @@ describe("SecureNowQuestionQueue", () => {
     );
   });
 
+  it("clears the visit limit after the queue reloads", async () => {
+    const manyQuestions = Array.from({ length: 11 }, (_, index) => ({
+      ...question,
+      resourceId:
+        `/subscriptions/sub/resourceGroups/rg/providers/Microsoft.DataFactory/factories/factory-${index}`,
+      resourceName: `factory-${index}`,
+      questionText: `Should factory-${index} connect to a peer, or stand alone?`,
+    }));
+
+    mocks.listQuestions
+      .mockResolvedValueOnce(manyQuestions)
+      .mockResolvedValueOnce(manyQuestions.slice(0, 10));
+
+    render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
+    fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
+
+    const nextButton = screen.getByRole("button", { name: "Next" });
+    for (let step = 0; step < 9; step += 1) {
+      fireEvent.click(nextButton);
+    }
+
+    expect(nextButton).toBeDisabled();
+
+    fireEvent.click(screen.getByRole("button", { name: "Name the peer" }));
+    fireEvent.click(screen.getByRole("button", { name: "Save answer" }));
+
+    await waitFor(() => expect(mocks.listQuestions).toHaveBeenCalledTimes(2));
+
+    expect(screen.getByRole("button", { name: "Next" })).not.toBeDisabled();
+  });
+
   it("clears the visit limit when review starts again", async () => {
     const manyQuestions = Array.from({ length: 11 }, (_, index) => ({
       ...question,
