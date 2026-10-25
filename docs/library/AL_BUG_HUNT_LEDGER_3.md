@@ -4938,7 +4938,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-operator-lib
 
-**Hunts:** 68 · **Bugs found:** 65 · **Consecutive dry hunts:** 0
+**Hunts:** 69 · **Bugs found:** 66 · **Consecutive dry hunts:** 0
+
+2026-10-25 seed hunt (hit): promoted top-level stickiness mapping when `pilotFunnel` is null; regressions `maps top-level stickiness metrics when pilotFunnel is null` and `treats stickinessSnapshot pilotFunnel null as absent when no top-level metrics exist`; 9 scoped `operator-shell-status-client` vitest passed. Private beta: Invited operators still see pending governance approval and comparison stickiness counts on shell hydrate when the API omits `pilotFunnel` but returns top-level stickiness fields.
 
 2026-10-25 seed hunt (hit): promoted `createdUtc` fallback in `resolveRunHomeListTimestampUtc` when `lastModifiedUtc` is unparseable; regressions `falls back to createdUtc when lastModifiedUtc is unparseable` and `returns null when both timestamps are unparseable`; 7 scoped `operator-home-run-list-insight` vitest passed. Private beta: Invited operators regain sensible “updated” labels on home run rows when `lastModifiedUtc` is garbage but `createdUtc` is still valid.
 
@@ -5009,6 +5011,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `formatOperatorHomeCompactMetricsLine` — raw metrics snapshot counts interpolate `NaN` into home KPI strip — **hit 2026-10-25 seed hunt:** `normalizeOperatorHomeNonNegativeCount` on active/sealed/findings; regression `normalizes non-finite workspace metric counts in the KPI strip`.
 - [x] (proven) `formatOperatorHomeRecentReviewsOutcome` / `buildOperatorHomeRecentReviewsOutcomeParts` — `visibleCount !== undefined` accepts `NaN` in showing-cap copy — **hit 2026-10-25 seed hunt:** `resolveRecentPreviewCapCounts`; regressions `normalizes non-finite recent preview cap counts in outcome copy` and `normalizes non-finite preview cap counts in structured outcome parts`.
 - [x] (proven) `formatOperatorHomeGovernanceApprovalWarningCount` — `Math.max(0, Math.trunc(count))` leaves `NaN` labels — **hit 2026-10-25 seed hunt:** `Number.isFinite` guard; regression `treats non-finite counts as zero warnings`.
+- [x] (proven) `mapStickinessSnapshot` — null `pilotFunnel` drops entire stickiness snapshot including top-level governance/comparison counts — **hit 2026-10-25 seed hunt:** synthetic empty funnel + top-level metrics path; regressions `maps top-level stickiness metrics when pilotFunnel is null` and `treats stickinessSnapshot pilotFunnel null as absent when no top-level metrics exist`.
 - [x] (proven) `resolveRunHomeListTimestampUtc` — non-empty but unparseable `lastModifiedUtc` blocks `createdUtc` fallback — **hit 2026-10-25 seed hunt:** `parseIsoUtcMs` gate before preferring last modified; regressions `falls back to createdUtc when lastModifiedUtc is unparseable` and `returns null when both timestamps are unparseable`.
 - [x] (proven) `formatRunStartedLabel` / `formatRunListTitleWithDisambiguator` — unparseable `createdUtc` echoes raw string in `Started …` suffix — **hit 2026-10-25 seed hunt:** `parseIsoUtcMs` fail-closed; regression `falls back to run id suffix when duplicate titles have unparseable createdUtc`.
 - [x] (proven) `formatRunHomeListUpdatedLabel` — unparseable `lastModifiedUtc` / `createdUtc` strings render as raw relative labels — **hit 2026-10-25 seed hunt:** `parseIsoUtcMs` fail-closed; regression `returns null when the chosen timestamp is not a parseable instant`.
