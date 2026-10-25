@@ -158,12 +158,10 @@ export function findingDetailHeadingTitle(payload: FindingInspectPayload): strin
   }
 
   const scenario =
-    resolveSampleScenarioByHeroFindingId(payload.findingId) ??
-    resolveSampleScenarioByRunId(payload.runId) ??
-    getActiveSampleScenario();
+    resolveSampleScenarioByHeroFindingId(payload.findingId) ?? resolveSampleScenarioByRunId(payload.runId);
 
-  if (isShowcasePrimaryPhiFindingId(payload.findingId)) {
-    return (resolveSampleScenarioByHeroFindingId(payload.findingId) ?? scenario).primaryFindingTitle;
+  if (isShowcasePrimaryPhiFindingId(payload.findingId) && scenario !== null) {
+    return scenario.primaryFindingTitle;
   }
 
   if (isPhiMinimizationSampleFinding(payload)) {
@@ -189,14 +187,13 @@ export function findingDetailHeadingTitleForRoute(
 
   const scenario =
     resolveSampleScenarioByHeroFindingId(findingId) ??
-    (payload !== null ? resolveSampleScenarioByRunId(payload.runId) : null) ??
-    getActiveSampleScenario();
+    (payload !== null ? resolveSampleScenarioByRunId(payload.runId) : null);
 
-  if (isShowcasePrimaryPhiFindingId(findingId)) {
-    return (resolveSampleScenarioByHeroFindingId(findingId) ?? scenario).primaryFindingTitle;
+  if (isShowcasePrimaryPhiFindingId(findingId) && scenario !== null) {
+    return scenario.primaryFindingTitle;
   }
 
-  if (isPhiMinimizationFindingId(findingId)) {
+  if (payload !== null && isPhiMinimizationSampleFinding(payload)) {
     return residualMinimizationRiskHeading(resolveFindingSampleScenario(payload, findingId));
   }
 

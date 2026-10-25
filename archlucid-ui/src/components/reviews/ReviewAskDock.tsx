@@ -224,7 +224,7 @@ export function ReviewAskDock(props: ReviewAskDockProps): ReactElement {
         ...current,
         {
           question: trimmed,
-          answer: response.answer.trim().length > 0 ? response.answer : "Answer was not stored",
+          answer: response.answer.trim().length > 0 ? response.answer : "Answer was not stored.",
         },
       ]);
       setQuestion("");

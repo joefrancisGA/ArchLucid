@@ -129,6 +129,17 @@ public sealed class DiagramEdgeLabelHumanizerTests
     }
 
     [Fact]
+    public void ResolveDisplayLabel_observed_dependency_without_direction_is_explicit_about_missing_read_write()
+    {
+        DiagramEdgeLabelHumanizer.ResolveDisplayLabel(
+                null,
+                GraphEdgeTypes.ConnectsTo,
+                GraphEdgeInferenceSources.InventoryObservedDependency)
+            .Should()
+            .Be("Observed dependency. Read/write direction was not stored.");
+    }
+
+    [Fact]
     public void ResolveDisplayLabel_maps_qualified_diagnostic_destination_to_sends_diagnostics_sentence()
     {
         DiagramEdgeLabelHumanizer.ResolveDisplayLabel(

@@ -30,7 +30,7 @@ describe("findingDetailHeadingTitle", () => {
       findingId: SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID,
     };
 
-    expect(findingDetailHeadingTitle(payload)).toBe("Sensitive Data Minimization Risk");
+    expect(findingDetailHeadingTitle(payload)).toBe("Some engine title");
   });
 
   it("does not promote a rule id into the title", () => {
