@@ -122,6 +122,18 @@ describe("buildOperatorHomeRecentReviewsOutcomeParts", () => {
 });
 
 describe("deriveHomePreviewTabCounts", () => {
+  it("normalizes non-finite workspace awaiting-approval fallback for tab counts", () => {
+    const items: RunSummary[] = [{ runId: "run-1", projectId: "default" }];
+
+    const counts = deriveHomePreviewTabCounts({
+      previewItems: items,
+      awaitingApprovalRunIds: ["missing-run"],
+      awaitingApprovalCount: Number.NaN,
+    });
+
+    expect(counts["awaiting-approval"]).toBe(0);
+  });
+
   it("counts awaiting-approval tab rows when queue run ids have surrounding whitespace", () => {
     const items: RunSummary[] = [{ runId: "run-a", projectId: "default" }];
 

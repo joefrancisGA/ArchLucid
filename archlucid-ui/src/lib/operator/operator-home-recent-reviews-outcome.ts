@@ -1,6 +1,7 @@
 import type { RunsDashboardTabId } from "@/components/operator-home/runs-dashboard-load-phase";
 import {
   deriveRunsDashboardTabCounts,
+  normalizeOperatorHomeNonNegativeCount,
   type RunsDashboardTabCounts,
 } from "@/lib/operator/run-home-status";
 import { formatOperatorHomeGovernanceApprovalWarningCount } from "@/lib/operator/operator-home-governance-approval-warning-copy";
@@ -62,7 +63,7 @@ export function formatOperatorHomeRecentReviewsOutcome(
     parts.push(`with ${formatOperatorHomeGovernanceApprovalWarningCount(metrics.governanceWarnings)}`);
   }
 
-  const awaitingApprovalCount = options?.awaitingApprovalCount ?? 0;
+  const awaitingApprovalCount = normalizeOperatorHomeNonNegativeCount(options?.awaitingApprovalCount);
 
   if (awaitingApprovalCount > 0 && options?.suppressAwaitingApprovalCount !== true) {
     parts.push(
@@ -156,7 +157,7 @@ export function buildOperatorHomeRecentReviewsOutcomeParts(
     });
   }
 
-  const awaitingApprovalCount = options?.awaitingApprovalCount ?? 0;
+  const awaitingApprovalCount = normalizeOperatorHomeNonNegativeCount(options?.awaitingApprovalCount);
 
   if (awaitingApprovalCount > 0 && options?.suppressAwaitingApprovalCount !== true) {
     parts.push({
@@ -256,7 +257,7 @@ export function deriveHomePreviewTabCounts(input: DeriveHomePreviewTabCountsInpu
   const baseCounts = deriveRunsDashboardTabCounts(listItems);
   const awaitingApprovalRunIds = input.awaitingApprovalRunIds;
   const previewAwaitingApproval = countAwaitingApprovalPreviewRuns(listItems, awaitingApprovalRunIds);
-  const workspaceAwaitingApproval = input.awaitingApprovalCount ?? 0;
+  const workspaceAwaitingApproval = normalizeOperatorHomeNonNegativeCount(input.awaitingApprovalCount);
 
   let awaitingApproval = previewAwaitingApproval;
 
