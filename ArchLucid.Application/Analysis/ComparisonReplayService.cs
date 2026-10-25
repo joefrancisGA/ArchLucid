@@ -64,6 +64,8 @@ public sealed class ComparisonReplayService(
         string comparisonRecordId = ComparisonRecordIdNormalizer.NormalizeRequired(request.ComparisonRecordId);
         ComparisonRecord record = await _comparisonRecordRepository.GetByIdAsync(comparisonRecordId, cancellationToken) ??
                                   throw new InvalidOperationException($"Comparison record '{comparisonRecordId}' was not found.");
+        string unsupportedComparisonTypeLabel = ComparisonTypeNormalizer.NormalizeForLookup(record.ComparisonType);
+        ComparisonRecordScopedReadNormalizer.NormalizeInPlace(record);
         string format = ComparisonReplayRequestParsing.NormalizeFormat(request.Format);
         string profile = EndToEndComparisonExportProfile.Normalize(request.Profile);
         ComparisonReplayMode mode = ComparisonReplayRequestParsing.ParseReplayMode(request.ReplayMode);
@@ -77,12 +79,12 @@ public sealed class ComparisonReplayService(
             _runExportRecordRepository,
             cancellationToken);
 
-        string comparisonType = ComparisonTypeNormalizer.NormalizeForLookup(record.ComparisonType);
+        string comparisonType = record.ComparisonType;
         ReplayComparisonResult result = comparisonType switch
         {
             ComparisonTypes.EndToEndReplay => await ReplayEndToEndAsync(record, format, profile, mode, cancellationToken),
             ComparisonTypes.ExportRecordDiff => await ReplayExportDiffAsync(record, format, mode, cancellationToken),
-            _ => throw new InvalidOperationException($"Replay is not supported for comparison type '{record.ComparisonType}'.")
+            _ => throw new InvalidOperationException($"Replay is not supported for comparison type '{unsupportedComparisonTypeLabel}'.")
         };
 
         if (request.PersistReplay)
@@ -105,6 +107,8 @@ public sealed class ComparisonReplayService(
         string normalizedComparisonRecordId = ComparisonRecordIdNormalizer.NormalizeRequired(comparisonRecordId);
         ComparisonRecord record = await _comparisonRecordRepository.GetByIdAsync(normalizedComparisonRecordId, cancellationToken) ??
                                   throw new InvalidOperationException($"Comparison record '{normalizedComparisonRecordId}' was not found.");
+        string unsupportedComparisonTypeLabel = ComparisonTypeNormalizer.NormalizeForLookup(record.ComparisonType);
+        ComparisonRecordScopedReadNormalizer.NormalizeInPlace(record);
 
         await ComparisonReplayManifestHashGuard.EnsureDriftAnalyzeSealedManifestHashesOrThrowAsync(
             record,
@@ -114,12 +118,12 @@ public sealed class ComparisonReplayService(
             _runExportRecordRepository,
             cancellationToken);
 
-        string comparisonType = ComparisonTypeNormalizer.NormalizeForLookup(record.ComparisonType);
+        string comparisonType = record.ComparisonType;
         return comparisonType switch
         {
             ComparisonTypes.EndToEndReplay => await AnalyzeDriftEndToEndAsync(record, cancellationToken),
             ComparisonTypes.ExportRecordDiff => await AnalyzeDriftExportDiffAsync(record, cancellationToken),
-            _ => throw new InvalidOperationException($"Drift analysis is not supported for comparison type '{record.ComparisonType}'.")
+            _ => throw new InvalidOperationException($"Drift analysis is not supported for comparison type '{unsupportedComparisonTypeLabel}'.")
         };
     }
 
@@ -377,7 +381,7 @@ public sealed class ComparisonReplayService(
     private static void SetRecordMetadata(ReplayComparisonResult r, ComparisonRecord record, string? formatProfile)
     {
         r.ComparisonRecordId = ComparisonRecordIdNormalizer.NormalizeRequired(record.ComparisonRecordId);
-        r.ComparisonType = ComparisonTypeNormalizer.NormalizeForLookup(record.ComparisonType);
+        r.ComparisonType = record.ComparisonType;
         r.LeftRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookupOrNull(record.LeftRunId);
         r.RightRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookupOrNull(record.RightRunId);
         r.LeftExportRecordId = NormalizeExportRecordIdMetadataOrNull(record.LeftExportRecordId);

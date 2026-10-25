@@ -122,6 +122,30 @@ public sealed class ComparisonReplayServiceTests
     }
 
     [Fact]
+    public async Task CompareQuality_ReplayAsync_end_to_end_artifact_succeeds_when_comparison_type_has_legacy_casing()
+    {
+        EndToEndReplayComparisonReport report = SampleEndToEndReport();
+        ComparisonRecord record = EndToEndRecord("e2e-legacy-type-casing", report);
+        record.ComparisonType = "  END-TO-END-REPLAY  ";
+        Mock<IComparisonRecordRepository> repo = SetupRepo(record);
+        Mock<IEndToEndReplayComparisonExportService> export = new();
+        export.Setup(e => e.GenerateMarkdown(It.IsAny<EndToEndReplayComparisonReport>(), It.IsAny<string?>())).Returns("# md");
+        ComparisonReplayService sut = CreateSut(comparisonRepo: repo.Object, e2eExport: export.Object);
+
+        ReplayComparisonResult result = await sut.ReplayAsync(
+            new ReplayComparisonRequest
+            {
+                ComparisonRecordId = "e2e-legacy-type-casing",
+                Format = "markdown",
+                ReplayMode = "artifact",
+            },
+            CancellationToken.None);
+
+        result.ComparisonType.Should().Be(ComparisonTypes.EndToEndReplay);
+        result.Content.Should().Be("# md");
+    }
+
+    [Fact]
     public async Task ReplayAsync_export_diff_artifact_succeeds_when_comparison_type_has_surrounding_whitespace()
     {
         ExportRecordDiffResult diff = SampleExportDiff();
