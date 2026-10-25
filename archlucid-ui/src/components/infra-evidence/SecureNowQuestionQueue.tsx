@@ -9,7 +9,6 @@ import { secureNowQuestionAnswerLabel } from "@/lib/infra-evidence/securenow-que
 import {
   secureNowQuestionDispositionMutationResourceId,
   secureNowQuestionDispositionMutationSource,
-  secureNowQuestionHasPackStyleDispositionScope,
   secureNowQuestionIsPolicyPackDispositionRow,
   secureNowQuestionPackScopeKindFromPrompt,
 } from "@/lib/infra-evidence/securenow-question-mutation-resource-id";
@@ -326,7 +325,8 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
     && dispositionMutationResourceId.trim().length === 0
     && currentQuestion?.resourceId !== null
     && currentQuestion?.resourceId !== undefined
-    && !secureNowQuestionHasPackStyleDispositionScope(currentQuestion.scopeKind);
+    && currentQuestion != null
+    && !secureNowQuestionIsPolicyPackDispositionRow(currentQuestion);
   const resourceOnDiagram = currentQuestion == null
     || dispositionMutationResourceId === null
     || dispositionMutationResourceId.trim().length === 0
