@@ -16,6 +16,22 @@ describe("operator-recent-views", () => {
     window.localStorage.clear();
   });
 
+  it("dedupes recent views when hrefs differ only by a trailing slash", () => {
+    const once = recordRecentView(parseStoredRecentViews(null), {
+      href: "/architecture/reviews/abc",
+      label: "Review",
+      kind: "review",
+    });
+    const twice = recordRecentView(once, {
+      href: "/architecture/reviews/abc/",
+      label: "Review",
+      kind: "review",
+    });
+
+    expect(twice.entries).toHaveLength(1);
+    expect(twice.entries[0]?.href).toBe("/architecture/reviews/abc/");
+  });
+
   it("records and dedupes recent views", () => {
     const initial = parseStoredRecentViews(null);
     const once = recordRecentView(initial, {
