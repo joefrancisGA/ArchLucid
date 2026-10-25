@@ -212,7 +212,7 @@ public sealed partial class ComparisonsApplicationService(
         if (await _runDetailQueryService.GetRunDetailAsync(lookupRunId, cancellationToken) is null)
             return null;
 
-        PersistedAnalysisExportRequestDeterminismNormalizer.NormalizeRunExportRecordDenormalizedColumns(export);
+        RunExportRecordScopedReadNormalizer.NormalizeInPlace(export);
         return export;
     }
 

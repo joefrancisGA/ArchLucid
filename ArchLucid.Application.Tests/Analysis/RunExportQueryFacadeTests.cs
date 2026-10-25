@@ -440,6 +440,43 @@ public sealed class RunExportQueryFacadeTests
     }
 
     [Fact]
+    public async Task CompareQuality_GetExportRecordAsync_trims_padded_template_profile_from_stored_row()
+    {
+        Guid runGuid = Guid.Parse(RunId);
+        RunExportRecord record = CreateExportRecord();
+        record.TemplateProfile = "  sponsor  ";
+        record.TemplateProfileDisplayName = "  Sponsor pack  ";
+        ArchitectureRunDetail scopedDetail = CreateScopedRunDetail();
+        RunDetailDto authorityDetail = CreateAuthorityDetailWithCompleteLifecycle(runGuid);
+
+        Mock<IRunDetailQueryService> runDetails = new();
+        runDetails
+            .Setup(r => r.GetRunDetailAsync(RunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(scopedDetail);
+
+        Mock<IRunExportRecordRepository> exportRecords = new();
+        exportRecords
+            .Setup(r => r.GetByIdAsync(ExportRecordId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(record);
+
+        ArchLucid.Decisioning.Services.ManifestHashService manifestHashService = new();
+        Mock<IAuthorityQueryService> authority = new();
+        SealedExportReceiptTestSupport.ConfigureVerifiedSealedExport(authority, runGuid, manifestHashService);
+        authority
+            .Setup(a => a.GetRunDetailAsync(It.IsAny<ScopeContext>(), runGuid, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(authorityDetail);
+
+        RunExportQueryFacade sut = CreateFacade(runDetails, exportRecords, authority, manifestHashService);
+
+        ScopedExportRecordLoadResult result =
+            await sut.GetExportRecordAsync(ExportRecordId, CancellationToken.None);
+
+        result.Outcome.Should().Be(ExportRecordLoadOutcome.Success);
+        result.Record!.TemplateProfile.Should().Be("sponsor");
+        result.Record.TemplateProfileDisplayName.Should().Be("Sponsor pack");
+    }
+
+    [Fact]
     public async Task CompareQuality_GetExportRecordAsync_trims_padded_export_record_id_before_lookup()
     {
         Guid runGuid = Guid.Parse(RunId);

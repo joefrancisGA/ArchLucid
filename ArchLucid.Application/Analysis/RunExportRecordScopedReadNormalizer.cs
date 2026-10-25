@@ -23,6 +23,12 @@ internal static class RunExportRecordScopedReadNormalizer
         record.ExportType = record.ExportType.Trim();
         record.Format = record.Format.Trim();
         record.FileName = record.FileName.Trim();
+        record.TemplateProfile = PersistedAnalysisExportRequestMetadata.NormalizeOptionalString(record.TemplateProfile);
+        record.TemplateProfileDisplayName =
+            PersistedAnalysisExportRequestMetadata.NormalizeOptionalString(record.TemplateProfileDisplayName);
+        record.ResolutionReason = PersistedAnalysisExportRequestMetadata.NormalizeOptionalString(record.ResolutionReason);
+        record.ManifestVersion = PersistedAnalysisExportRequestMetadata.NormalizeOptionalString(record.ManifestVersion);
+        record.Notes = PersistedAnalysisExportRequestMetadata.NormalizeOptionalString(record.Notes);
 
         PersistedAnalysisExportRequestDeterminismNormalizer.NormalizeRunExportRecordDenormalizedColumns(record);
     }
