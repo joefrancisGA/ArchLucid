@@ -1,8 +1,6 @@
 import {
   BUYER_FINDING_POST_APPROVAL_LEAD,
   BUYER_FINDING_POST_APPROVAL_VALIDATION,
-  resolveBuyerShowcaseResidualRiskNextReviewIso,
-  BUYER_SHOWCASE_RESIDUAL_RISK_OWNER,
 } from "@/lib/buyer/buyer-polish-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
@@ -152,6 +150,13 @@ function isShowcasePrimaryPhiFindingId(findingId: string | null | undefined): bo
 }
 
 export function findingDetailHeadingTitle(payload: FindingInspectPayload): string {
+  const narrative = findingInspectNarrativeFields(payload);
+  const titleCandidate = narrative.title?.trim();
+
+  if (titleCandidate !== undefined && titleCandidate.length > 0) {
+    return titleCandidate;
+  }
+
   const scenario =
     resolveSampleScenarioByHeroFindingId(payload.findingId) ??
     resolveSampleScenarioByRunId(payload.runId) ??
@@ -165,13 +170,6 @@ export function findingDetailHeadingTitle(payload: FindingInspectPayload): strin
     return residualMinimizationRiskHeading(resolveFindingSampleScenario(payload));
   }
 
-  const narrative = findingInspectNarrativeFields(payload);
-  const titleCandidate = narrative.title?.trim();
-
-  if (titleCandidate !== undefined && titleCandidate.length > 0) {
-    return titleCandidate;
-  }
-
   return "Finding title was not stored";
 }
 
@@ -180,6 +178,15 @@ export function findingDetailHeadingTitleForRoute(
   findingId: string,
   payload: FindingInspectPayload | null
 ): string {
+  if (payload !== null) {
+    const narrative = findingInspectNarrativeFields(payload);
+    const titleCandidate = narrative.title?.trim();
+
+    if (titleCandidate !== undefined && titleCandidate.length > 0) {
+      return titleCandidate;
+    }
+  }
+
   const scenario =
     resolveSampleScenarioByHeroFindingId(findingId) ??
     (payload !== null ? resolveSampleScenarioByRunId(payload.runId) : null) ??
@@ -197,20 +204,20 @@ export function findingDetailHeadingTitleForRoute(
     return findingDetailHeadingTitle(payload);
   }
 
-  return BUYER_SURFACE_VOCABULARY.finding;
+  return "Finding title was not stored";
 }
 
 /** Short user-facing primer under the title when structured description is unavailable. */
 export function findingDetailLeadSentence(payload: FindingInspectPayload): string {
-  if (isPhiMinimizationSampleFinding(payload) && isBuyerPolishedOperatorShellEnv()) {
-    return BUYER_FINDING_POST_APPROVAL_LEAD;
-  }
-
   const narrative = findingInspectNarrativeFields(payload);
   const description = narrative.description?.trim();
 
   if (description !== undefined && description.length > 0) {
     return description;
+  }
+
+  if (isPhiMinimizationSampleFinding(payload) && isBuyerPolishedOperatorShellEnv()) {
+    return BUYER_FINDING_POST_APPROVAL_LEAD;
   }
 
   return "Finding description was not stored.";
@@ -221,10 +228,15 @@ export function findingWhyThisMattersText(payload: FindingInspectPayload): strin
   return (
     typedPayloadLookupString(payload, "whyThisMatters") ??
     typedPayloadLookupString(payload, "WhyThisMatters") ??
+    null
+  );
+}
+
+/** Separate disposition rationale — not shown under the why-this-matters heading. */
+export function findingInspectTypedRationaleText(payload: FindingInspectPayload): string | null {
+  return (
     typedPayloadLookupString(payload, "rationale") ??
     typedPayloadLookupString(payload, "Rationale") ??
-    typedPayloadLookupString(payload, "businessImpact") ??
-    typedPayloadLookupString(payload, "impact") ??
     null
   );
 }
@@ -274,7 +286,7 @@ export function phiMinimizationBuyerConsequenceNarrative(): string {
     "expanding breach impact, audit scope, and downstream processing obligations. " +
     "The finalized review documents classification at ingress, adapter boundaries, and retention controls; " +
     "the evidence trail shows how those controls tie to this observation. " +
-    `Monitoring owner ${BUYER_SHOWCASE_RESIDUAL_RISK_OWNER} tracks exception paths, attachment volume, and OCR bypass rates. Monitoring cadence was not stored.; next review ${resolveBuyerShowcaseResidualRiskNextReviewIso()}.`
+    "Monitoring owner was not stored. Monitoring cadence was not stored. Next review was not stored."
   );
 }
 

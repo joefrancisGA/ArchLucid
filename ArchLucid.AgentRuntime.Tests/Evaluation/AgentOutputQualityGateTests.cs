@@ -328,6 +328,20 @@ public sealed class AgentOutputQualityGateTests
     }
 
     [SkippableFact]
+    public void ResolveRejectReasonCategory_maps_finding_citation_coverage_below_floor_to_semantic()
+    {
+        AgentOutputQualityGate sut = new(Options.Create(new AgentOutputQualityGateOptions { Enabled = true }));
+
+        string category = sut.ResolveRejectReasonCategory(
+            AgentOutputQualityGateOutcome.Rejected,
+            Structural(AgentType.Topology, 1.0),
+            Semantic(AgentType.Topology, 1.0),
+            "finding_citation_coverage_below_floor");
+
+        category.Should().Be(AgentOutputQualityGateTelemetry.RejectReasonSemantic);
+    }
+
+    [SkippableFact]
     public void PilotStrict_CitationCoverageBelow_Floor_Rejects()
     {
         AgentOutputQualityGateOptions options = new()

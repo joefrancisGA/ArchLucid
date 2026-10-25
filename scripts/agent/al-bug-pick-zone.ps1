@@ -29,6 +29,12 @@
 .PARAMETER SkipGit
   Do not call git. Churn comes from the ledger code-changed-since field (Pester).
 
+.PARAMETER Set
+  Restrict the hunt to zone set 1, 2, 3, or 4. Default 0 hunts the full catalog.
+
+.PARAMETER SetConfigPath
+  Override scripts/agent/al-bug-zone-sets.json (tests).
+
 .PARAMETER RepoRoot
   Optional repository root. Default: walk up from this script looking for .git.
 
@@ -68,7 +74,11 @@ param(
 
     [string] $AtUtc,
 
-    [string] $RepoRoot
+    [string] $RepoRoot,
+
+    [int] $Set = 0,
+
+    [string] $SetConfigPath
 )
 
 Set-StrictMode -Version Latest
@@ -87,6 +97,14 @@ if (-not (Test-Path -LiteralPath $runLogUtilsScript)) {
 }
 
 . $runLogUtilsScript
+
+$zoneSetScript = Join-Path $PSScriptRoot 'al-bug-zone-set.ps1'
+
+if (-not (Test-Path -LiteralPath $zoneSetScript)) {
+    throw "Missing zone set helper: '$zoneSetScript'."
+}
+
+. $zoneSetScript
 
 function Get-RepoRoot {
     param([string] $ExplicitRoot)
@@ -289,7 +307,8 @@ function Read-AlBugHuntRunLog {
 
             Get-RunLogEntryIsoTimestamp -Entry $entry -SourceLineNumber $lineNumber -SourcePath $Path | Out-Null
 
-            if ((-not (Test-JsonEntryHasProperty -InputObject $entry -PropertyName 'zoneId')) -and (Test-JsonEntryHasProperty -InputObject $entry -PropertyName 'zone')) {
+            if ((-not (Test-JsonEntryHasProperty -InputObject $entry -PropertyName 'zoneId')) -and
+                (Test-JsonEntryHasProperty -InputObject $entry -PropertyName 'zone')) {
                 $entry | Add-Member -NotePropertyName zoneId -NotePropertyValue ([string]$entry.zone) -Force
             }
 
@@ -1021,7 +1040,11 @@ function Get-HypothesisPrecision {
 }
 
 function Read-AlBugHuntLedger {
-    param([string] $Path)
+    param(
+        [string] $Path,
+
+        [int] $FileIndexStart = 0
+    )
 
     if (-not (Test-Path -LiteralPath $Path)) {
         throw "Hunt ledger not found: $Path"
@@ -1030,7 +1053,7 @@ function Read-AlBugHuntLedger {
     $raw = Get-Content -LiteralPath $Path -Raw -Encoding UTF8
     $parts = [regex]::Split($raw, '(?m)^## Zone:')
     $zones = New-Object System.Collections.ArrayList
-    $fileIndex = 0
+    $fileIndex = $FileIndexStart
 
     foreach ($part in $parts) {
         if ($part -notmatch '(?m)^\s*-\s+\*\*id:\*\*') {
@@ -1987,6 +2010,12 @@ function Write-ZonePreview {
     Write-Host ('| Field | Value |')
     Write-Host ('| --- | --- |')
     Write-Host ("| Zone | `{0}` |" -f $Result.zoneId)
+    if ($Result.PSObject.Properties.Name -contains 'set' -and $null -ne $Result.set) {
+        Write-Host ("| Set | {0} |" -f $Result.set)
+        Write-Host ("| Branch | `{0}` |" -f $Result.targetBranch)
+        Write-Host ("| Ledger | `{0}` |" -f $Result.ledgerPath)
+        Write-Host ("| Run log | `{0}` |" -f $Result.runLogPath)
+    }
     Write-Host ("| Status | {0} |" -f $Result.status)
     Write-Host ("| Seed hunt | {0} |" -f $Result.seedHunt)
     Write-Host ("| Score | {0} |" -f $Result.score)
@@ -2026,21 +2055,96 @@ function Write-ZonePreview {
 }
 
 $resolvedRoot = Get-RepoRoot -ExplicitRoot $RepoRoot
+
+if ($Set -ne 0 -and ($Set -lt 1 -or $Set -gt 4)) {
+    throw "Zone set must be 1, 2, 3, or 4. Received $Set."
+}
+
+$requestedSet = $null
+
+if ($Set -gt 0) {
+    $requestedSet = Get-AlBugZoneSet -Id $Set -ConfigPath $SetConfigPath -RepoRoot $resolvedRoot
+}
+
 $resolvedLedger = $LedgerPath
 
 if ([string]::IsNullOrWhiteSpace($resolvedLedger)) {
-    $resolvedLedger = Join-Path $resolvedRoot 'docs\library\AL_BUG_HUNT_LEDGER.md'
+    if ($null -ne $requestedSet) {
+        $resolvedLedger = Join-Path $resolvedRoot ($requestedSet.ledger -replace '/', [IO.Path]::DirectorySeparatorChar)
+    }
 }
 elseif (-not [IO.Path]::IsPathRooted($resolvedLedger)) {
     $resolvedLedger = Join-Path $resolvedRoot ($resolvedLedger -replace '/', [IO.Path]::DirectorySeparatorChar)
 }
 
-$zones = Read-AlBugHuntLedger -Path $resolvedLedger
+if ([string]::IsNullOrWhiteSpace($resolvedLedger)) {
+    $catalog = Read-AlBugZoneSetCatalog -ConfigPath $SetConfigPath -RepoRoot $resolvedRoot
+    $setLedgerPaths = New-Object System.Collections.Generic.List[string]
+    $allPresent = $true
+
+    foreach ($setSpec in @($catalog.sets)) {
+        $setPath = Join-Path $resolvedRoot ([string]$setSpec.ledger -replace '/', [IO.Path]::DirectorySeparatorChar)
+
+        if (-not (Test-Path -LiteralPath $setPath)) {
+            $allPresent = $false
+            break
+        }
+
+        $setLedgerPaths.Add($setPath)
+    }
+
+    if ($allPresent -and $setLedgerPaths.Count -gt 0) {
+        $zones = New-Object System.Collections.ArrayList
+        $nextIndex = 0
+
+        foreach ($setPath in $setLedgerPaths) {
+            $chunk = Read-AlBugHuntLedger -Path $setPath -FileIndexStart $nextIndex
+            $added = 0
+
+            foreach ($zone in $chunk) {
+                [void]$zones.Add($zone)
+                $added++
+            }
+
+            $nextIndex += $added
+        }
+    }
+    else {
+        $resolvedLedger = Join-Path $resolvedRoot 'docs\library\AL_BUG_HUNT_LEDGER.md'
+        $zones = Read-AlBugHuntLedger -Path $resolvedLedger
+    }
+}
+else {
+    $zones = Read-AlBugHuntLedger -Path $resolvedLedger
+}
+
+if ($null -ne $requestedSet) {
+    $allowed = New-Object 'System.Collections.Generic.HashSet[string]' -ArgumentList ([StringComparer]::OrdinalIgnoreCase)
+
+    foreach ($zoneId in @($requestedSet.zones)) {
+        [void]$allowed.Add([string]$zoneId)
+    }
+
+    $filtered = New-Object System.Collections.ArrayList
+
+    foreach ($zone in @($zones)) {
+        if ($allowed.Contains([string]$zone.Id)) {
+            [void]$filtered.Add($zone)
+        }
+    }
+
+    $zones = $filtered
+}
 
 $resolvedRunLog = $RunLogPath
 
 if ([string]::IsNullOrWhiteSpace($resolvedRunLog)) {
-    $resolvedRunLog = Get-DefaultHuntRunLogPath -Root $resolvedRoot
+    if ($null -ne $requestedSet) {
+        $resolvedRunLog = Join-Path $resolvedRoot ($requestedSet.runLog -replace '/', [IO.Path]::DirectorySeparatorChar)
+    }
+    else {
+        $resolvedRunLog = Get-DefaultHuntRunLogPath -Root $resolvedRoot
+    }
 }
 elseif (-not [IO.Path]::IsPathRooted($resolvedRunLog)) {
     $resolvedRunLog = Join-Path $resolvedRoot ($resolvedRunLog -replace '/', [IO.Path]::DirectorySeparatorChar)
@@ -2124,6 +2228,14 @@ if (-not [string]::IsNullOrWhiteSpace($Hint)) {
     $matched = @($zones | Where-Object { Test-HintMatchesZone -Zone $_ -Hint $Hint })
 
     if ($matched.Count -eq 0) {
+        if ($Set -gt 0) {
+            $owner = Get-AlBugZoneSetForZoneId -ZoneId $Hint -ConfigPath $SetConfigPath -RepoRoot $resolvedRoot
+
+            if ($null -ne $owner -and [int]$owner.id -ne $Set) {
+                throw "Hunt hint '$Hint' belongs to set $($owner.id) ($($owner.command)). This run is set $Set ($($requestedSet.command))."
+            }
+        }
+
         $ids = ($zones | ForEach-Object { $_.Id }) -join ', '
         throw "Hunt hint '$Hint' did not match a ledger zone. Known ids: $ids"
     }
@@ -2147,6 +2259,7 @@ $result = ConvertTo-PickResult `
     -RefreshRequested ([bool]$Refresh)
 
 $result | Add-Member -NotePropertyName saturatedClasses -NotePropertyValue (ConvertTo-ObjectArray -Value $saturatedClasses) -Force
+Add-AlBugZoneSetResultFields -Result $result -RequestedSet $Set -ConfigPath $SetConfigPath -RepoRoot $resolvedRoot | Out-Null
 
 if ($Status -or $Preview) {
     Write-ZonePreview -Result $result

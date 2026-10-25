@@ -9,6 +9,32 @@ namespace ArchLucid.KnowledgeGraph.Tests;
 public sealed class TopologySensitivityClassifierTests
 {
     [Fact]
+    public void Classify_identity_category_with_surrounding_whitespace_returns_identity()
+    {
+        Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["category"] = $"  {GraphTopologyCategories.Identity}  ",
+        };
+
+        TopologySensitivityClassifier.Classify("entra-app", properties)
+            .Should()
+            .Be(TopologySensitivityLevels.Identity);
+    }
+
+    [Fact]
+    public void Classify_data_category_with_surrounding_whitespace_returns_data_bearing()
+    {
+        Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["category"] = $"  {GraphTopologyCategories.Data}  ",
+        };
+
+        TopologySensitivityClassifier.Classify("sql-primary", properties)
+            .Should()
+            .Be(TopologySensitivityLevels.DataBearing);
+    }
+
+    [Fact]
     public void Classify_data_category_returns_data_bearing()
     {
         Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
@@ -51,6 +77,32 @@ public sealed class TopologySensitivityClassifierTests
         };
 
         TopologySensitivityClassifier.Classify("internal-api", properties)
+            .Should()
+            .Be(TopologySensitivityLevels.PublicEdge);
+    }
+
+    [Fact]
+    public void Classify_when_resource_type_has_surrounding_whitespace_returns_public_edge()
+    {
+        Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["resourceType"] = "  Microsoft.Web/sites  ",
+        };
+
+        TopologySensitivityClassifier.Classify("internal-service", properties)
+            .Should()
+            .Be(TopologySensitivityLevels.PublicEdge);
+    }
+
+    [Fact]
+    public void Classify_when_public_network_access_value_has_surrounding_whitespace_returns_public_edge()
+    {
+        Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["publicNetworkAccess"] = "  true  ",
+        };
+
+        TopologySensitivityClassifier.Classify("internal-service", properties)
             .Should()
             .Be(TopologySensitivityLevels.PublicEdge);
     }

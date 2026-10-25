@@ -31,6 +31,8 @@ export type FirstReviewSpineBandSummary = {
   readonly uncitedCount: number;
   readonly evidenceReferenceCountNotStored: boolean;
   readonly topFindingTitle: string | null;
+  readonly topFindingId: string | null;
+  readonly showTopFindingRow: boolean;
   readonly topFindingPolicyMapped: boolean;
   readonly topFindingSeverityLabel: string | null;
   readonly semanticSupportLine: string | null;
@@ -108,6 +110,25 @@ function formatTreatmentSummaryLine(
   return segments.join(" · ");
 }
 
+const TOP_FINDING_TITLE_NOT_STORED = "Top finding title was not stored.";
+const TOP_FINDING_TITLE_STORED_EMPTY = "Top finding title was stored empty.";
+
+function resolveTopFindingTitleForSpine(finding: QuickDecisionFinding): string {
+  const title = finding.title;
+
+  if (title === null || title === undefined) {
+    return TOP_FINDING_TITLE_NOT_STORED;
+  }
+
+  const trimmed = title.trim();
+
+  if (trimmed.length === 0) {
+    return TOP_FINDING_TITLE_STORED_EMPTY;
+  }
+
+  return trimmed;
+}
+
 /** Compact first-viewport spine: gate outcome, execution mode, classification counts, top finding. */
 export function deriveFirstReviewSpineBandSummary(input: {
   readonly feasibilityVerdict: ManifestFeasibilityVerdict | null | undefined;
@@ -140,7 +161,7 @@ export function deriveFirstReviewSpineBandSummary(input: {
         ? "Verdict summary was not stored."
         : feasibilityVerdict.summary.trim().length > 0
           ? feasibilityVerdict.summary.trim()
-          : null;
+          : "Verdict summary was stored empty.";
   const executionModeLabel =
     input.structuralExecutionMode === null || input.structuralExecutionMode === undefined
       ? "Execution mode was not stored"
@@ -169,7 +190,9 @@ export function deriveFirstReviewSpineBandSummary(input: {
     checklistCount: classificationCounts.checklist,
     uncitedCount,
     evidenceReferenceCountNotStored,
-    topFindingTitle: topFinding?.title?.trim() ?? null,
+    topFindingTitle: topFinding !== null ? resolveTopFindingTitleForSpine(topFinding) : null,
+    topFindingId: topFinding !== null ? topFinding.findingId : null,
+    showTopFindingRow: topFinding !== null,
     topFindingPolicyMapped: typeof topFinding?.policyRuleId === "string" && topFinding.policyRuleId.trim().length > 0,
     topFindingSeverityLabel:
       topFinding !== null ? severityBadgeLabel(topFinding.severityValue) : null,

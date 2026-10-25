@@ -23,10 +23,10 @@ public sealed class ExecutiveVnetPeeringEdgeBuilderTests
             Array.Empty<GraphNode>(),
             new Dictionary<string, string>(StringComparer.Ordinal));
 
-        DiagramEdge peering = ast.Edges.Single();
-        peering.Label.Should().Be("peering");
-        peering.InferenceSource.Should().Be(GraphEdgeInferenceSources.InventoryVnetPeering);
-        peering.ProvenanceKind.Should().Be("ObservedFact");
+        DiagramEdge edge = ast.Edges.Single();
+        edge.Label.Should().BeEmpty();
+        edge.InferenceSource.Should().BeNull();
+        edge.ProvenanceKind.Should().BeNull();
     }
 
     [Fact]
@@ -75,10 +75,10 @@ public sealed class ExecutiveVnetPeeringEdgeBuilderTests
             Array.Empty<GraphNode>(),
             new Dictionary<string, string>(StringComparer.Ordinal));
 
-        DiagramEdge peering = ast.Edges.Single();
-        peering.Label.Should().Be("peering");
-        peering.InferenceSource.Should().Be(GraphEdgeInferenceSources.InventoryVnetPeering);
-        peering.ProvenanceKind.Should().Be("ObservedFact");
+        DiagramEdge edge = ast.Edges.Single();
+        edge.Label.Should().Be(DiagramConnectionTypeAnnotator.RelationshipNotStoredLabel);
+        edge.InferenceSource.Should().BeNull();
+        edge.ProvenanceKind.Should().BeNull();
     }
 
     [Fact]
