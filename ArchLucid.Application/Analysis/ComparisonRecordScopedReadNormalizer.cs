@@ -22,11 +22,8 @@ internal static class ComparisonRecordScopedReadNormalizer
 
         record.ComparisonRecordId = ComparisonRecordIdNormalizer.NormalizeRequired(record.ComparisonRecordId);
 
-        if (!string.IsNullOrWhiteSpace(record.LeftRunId))
-            record.LeftRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(record.LeftRunId);
-
-        if (!string.IsNullOrWhiteSpace(record.RightRunId))
-            record.RightRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(record.RightRunId);
+        record.LeftRunId = NormalizeRunIdColumnOrNull(record.LeftRunId);
+        record.RightRunId = NormalizeRunIdColumnOrNull(record.RightRunId);
 
         record.LeftExportRecordId = NormalizeExportRecordIdOrNull(record.LeftExportRecordId);
         record.RightExportRecordId = NormalizeExportRecordIdOrNull(record.RightExportRecordId);
@@ -56,6 +53,15 @@ internal static class ComparisonRecordScopedReadNormalizer
             if (!string.IsNullOrWhiteSpace(tags[i]))
                 tags[i] = tags[i].Trim();
         }
+    }
+
+    private static string? NormalizeRunIdColumnOrNull(string? runId)
+    {
+        string? normalized = OptionalExportMetadataStringNormalizer.NormalizeOptionalString(runId);
+        if (string.IsNullOrEmpty(normalized))
+            return null;
+
+        return AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(normalized);
     }
 
     private static string? NormalizeExportRecordIdOrNull(string? exportRecordId)

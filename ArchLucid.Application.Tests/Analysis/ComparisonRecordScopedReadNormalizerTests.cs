@@ -25,6 +25,23 @@ public sealed class ComparisonRecordScopedReadNormalizerTests
     }
 
     [Fact]
+    public void CompareQuality_comparison_record_scoped_read_normalizer_nulls_whitespace_only_run_id_columns_and_canonicalizes_padded_guids()
+    {
+        Guid rightRunGuid = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");
+        ComparisonRecord record = new()
+        {
+            ComparisonRecordId = "cmp-whitespace-run-ids",
+            LeftRunId = "   ",
+            RightRunId = $"  {rightRunGuid:D}  ",
+        };
+
+        ComparisonRecordScopedReadNormalizer.NormalizeInPlace(record);
+
+        record.LeftRunId.Should().BeNull();
+        record.RightRunId.Should().Be(rightRunGuid.ToString("N"));
+    }
+
+    [Fact]
     public void CompareQuality_comparison_record_scoped_read_normalizer_nulls_whitespace_only_label()
     {
         ComparisonRecord record = new()
