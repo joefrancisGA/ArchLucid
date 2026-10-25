@@ -45,7 +45,7 @@ export function deriveOperatorHomeTenantCountingSnapshot(
   const awaitingApprovalCount = normalizeOperatorHomeNonNegativeCount(input.awaitingApprovalCount);
   const visibleActiveTenantCount = countNonArchivedOverviewRuns(tenantItems);
   const dashboardTotal = input.runsDashboardTotalCount;
-  const reviewPackagesTotal =
+  let reviewPackagesTotal =
     dashboardTotal === undefined
       ? visibleActiveTenantCount
       : resolveOperatorHomeReviewTotalCount(
@@ -54,6 +54,14 @@ export function deriveOperatorHomeTenantCountingSnapshot(
           visibleActiveTenantCount,
           tenantItems.length,
         );
+  // TB-1039: injected overview samples are visible in Recent reviews but must not inherit workspace totals.
+  if (
+    tenantItems.length === 0
+    && visibleActiveTenantCount === 0
+    && input.displayItems.length > 0
+  ) {
+    reviewPackagesTotal = 0;
+  }
   const metrics = deriveOperatorHomeWorkspaceMetrics(tenantItems, reviewPackagesTotal, awaitingApprovalCount);
   const previewTabCounts = deriveHomePreviewTabCounts({
     previewItems: previewTenantItems,

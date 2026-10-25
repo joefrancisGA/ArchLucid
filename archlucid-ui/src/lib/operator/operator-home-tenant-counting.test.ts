@@ -4,6 +4,27 @@ import { deriveOperatorHomeTenantCountingSnapshot } from "@/lib/operator/operato
 import type { RunSummary } from "@/types/authority";
 
 describe("deriveOperatorHomeTenantCountingSnapshot", () => {
+  it("does not apply workspace totalCount when only demo-seeded overview rows are on the page (TB-1039)", () => {
+    const items: RunSummary[] = [
+      {
+        runId: "demo-seed",
+        projectId: "default",
+        demoSeededOverviewInject: true,
+        hasGoldenManifest: true,
+      },
+    ];
+
+    const snapshot = deriveOperatorHomeTenantCountingSnapshot({
+      displayItems: items,
+      previewItems: items,
+      runsDashboardTotalCount: 5,
+    });
+
+    expect(snapshot.tenantItems).toHaveLength(0);
+    expect(snapshot.metrics.reviewPackagesTotal).toBe(0);
+    expect(snapshot.metrics.hasReviews).toBe(false);
+  });
+
   it("scopes metrics and preview counts to tenant-authored reviews", () => {
     const items: RunSummary[] = [
       {
