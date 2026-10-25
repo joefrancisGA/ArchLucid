@@ -10,6 +10,9 @@ const OMITTED_STRUCTURED_ELEMENT_COUNT_LABEL = "Structured detail count was not 
 
 const OMITTED_FINDING_COUNT_LABEL = "Finding count was not stored.";
 
+export const ARCHITECTURE_INTELLIGENCE_AI_BUDGET_NOT_STORED =
+  "AI budget facts were not stored on this run." as const;
+
 function resolveIntegrityPassedFindingCount(result: ClosedLoopReasoningResult): number | null {
   if (result.integrityPassedFindingIds === undefined || result.integrityPassedFindingIds === null) {
     return null;
@@ -94,6 +97,11 @@ export function listArchitectureIntelligenceRunTechnicalDetails(
     details.push({
       label: "AI usage",
       value: spendSummary,
+    });
+  } else if (!result.budgetRejected) {
+    details.push({
+      label: "AI usage",
+      value: ARCHITECTURE_INTELLIGENCE_AI_BUDGET_NOT_STORED,
     });
   }
 
