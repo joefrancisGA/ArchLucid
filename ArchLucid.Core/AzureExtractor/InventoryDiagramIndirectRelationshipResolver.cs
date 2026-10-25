@@ -51,7 +51,7 @@ public static class InventoryDiagramIndirectRelationshipResolver
             graphNodesById.TryGetValue(edge.FromNodeId, out GraphNode? fromNode);
             graphNodesById.TryGetValue(edge.ToNodeId, out GraphNode? toNode);
 
-            InventoryDiagramEvidenceCurrency evidenceCurrency = ResolveEvidenceCurrency(edge, fromNode);
+            InventoryDiagramEvidenceCurrency? evidenceCurrency = ResolveEvidenceCurrency(edge, fromNode);
             string relationshipLabel = ResolveRelationshipLabel(edge, fromNode, toNode);
             string resolvedKey = BuildResolvedKey(fromDiagramNodeId, toDiagramNodeId, edge.InferenceSource);
 
@@ -84,7 +84,7 @@ public static class InventoryDiagramIndirectRelationshipResolver
         return resolved;
     }
 
-    public static InventoryDiagramEvidenceCurrency ResolveEvidenceCurrency(
+    public static InventoryDiagramEvidenceCurrency? ResolveEvidenceCurrency(
         GraphEdge edge,
         GraphNode? fromNode)
     {
@@ -123,7 +123,7 @@ public static class InventoryDiagramIndirectRelationshipResolver
             return parsedNodeCurrency;
         }
 
-        return InventoryDiagramEvidenceCurrency.Current;
+        return null;
     }
 
     public static bool IsCitedEdge(GraphEdge edge)

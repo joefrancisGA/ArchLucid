@@ -101,7 +101,7 @@ internal static class InventoryDiagramIndirectRelationshipApplier
             relationshipLabel);
     }
 
-    private static string ResolveProvenanceKind(InventoryDiagramEvidenceCurrency evidenceCurrency)
+    private static string ResolveProvenanceKind(InventoryDiagramEvidenceCurrency? evidenceCurrency)
     {
         // ProvenanceKind must stay a machine enum. DisplayLabelApplier treats unrecognized
         // strings as Unclassified and replaces the relationship verb with
@@ -109,11 +109,12 @@ internal static class InventoryDiagramIndirectRelationshipApplier
         // InventoryDiagramEvidenceCurrencyLabels.Format, not this field.
         return evidenceCurrency switch
         {
+            null => ProvenanceKind.Unclassified.ToString(),
             InventoryDiagramEvidenceCurrency.Derived => ProvenanceKind.DerivedFact.ToString(),
             InventoryDiagramEvidenceCurrency.Observed => ProvenanceKind.ObservedFact.ToString(),
             InventoryDiagramEvidenceCurrency.Configured => ProvenanceKind.DeterministicInference.ToString(),
             InventoryDiagramEvidenceCurrency.Current => ProvenanceKind.ObservedFact.ToString(),
-            _ => string.Empty,
+            _ => ProvenanceKind.Unclassified.ToString(),
         };
     }
 
