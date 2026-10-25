@@ -1013,6 +1013,22 @@ public sealed class ConfigurationEffectiveValueResolverTests
     }
 
     [Fact]
+    public void Resolve_redacts_json_object_effective_values_when_property_name_is_password_and_value_is_boolean()
+    {
+        const string configPath = "ArchLucid:SomeFeature:Settings";
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = """{"Password":true}""",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(configuration, configPath, isSet: true);
+
+        value.Should().Be("***");
+    }
+
+    [Fact]
     public void Resolve_truncates_scalar_without_splitting_valid_surrogate_pair_across_boundary()
     {
         const string configPath = "ArchLucid:FallbackLlm:Endpoints";
@@ -1057,6 +1073,30 @@ public sealed class ConfigurationEffectiveValueResolverTests
         value.Should().NotBeNull();
         value.Should().EndWith("…");
         value.Should().Be(new string('a', 254) + "\U0001F4A1" + "…");
+        TruncatedPrefixIsWellFormed(value!).Should().BeTrue();
+    }
+
+    [Fact]
+    public void Resolve_truncates_scalar_without_splitting_two_supplementary_characters_at_boundary()
+    {
+        const string configPath = "ArchLucid:FallbackLlm:Endpoints";
+        string configured = new string('b', 252) + "\U0001F4A1\U0001F4A2" + "xyz";
+
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = configured,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            configPath,
+            isSet: true);
+
+        value.Should().NotBeNull();
+        value.Should().EndWith("…");
+        value.Should().Be(new string('b', 252) + "\U0001F4A1\U0001F4A2" + "…");
         TruncatedPrefixIsWellFormed(value!).Should().BeTrue();
     }
 
