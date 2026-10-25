@@ -162,7 +162,12 @@ function formatSecureNowQuestionSourceLabel(
 
 function formatSecureNowQuestionScopeLabel(
   question: Pick<SecureNowQuestion, "scopeKind" | "source" | "questionText">,
+  matchesInferredConnection: boolean,
 ): string {
+  if (matchesInferredConnection) {
+    return "This resource.";
+  }
+
   const scopeKind = question.scopeKind;
 
   if (scopeKind === null) {
@@ -611,7 +616,10 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
                 )}
               </p>
               <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                Scope: {formatSecureNowQuestionScopeLabel(currentQuestion)}
+                Scope: {formatSecureNowQuestionScopeLabel(
+                  currentQuestion,
+                  currentQuestionMatchesInferredConnection,
+                )}
               </p>
               <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                 Subscription:{" "}
