@@ -16,6 +16,39 @@ describe("operator-recent-views", () => {
     window.localStorage.clear();
   });
 
+  it("keeps separate recent views when architecture desk highlightReviewId differs", () => {
+    const once = recordRecentView(parseStoredRecentViews(null), {
+      href: "/architecture/architectures/architecture-identity-001?highlightReviewId=run-a",
+      label: "Review A",
+      kind: "review",
+      parentArchitectureId: "architecture-identity-001",
+    });
+    const twice = recordRecentView(once, {
+      href: "/architecture/architectures/architecture-identity-001?highlightReviewId=run-b",
+      label: "Review B",
+      kind: "review",
+      parentArchitectureId: "architecture-identity-001",
+    });
+
+    expect(twice.entries).toHaveLength(2);
+  });
+
+  it("dedupes recent views when hrefs differ only by a trailing slash", () => {
+    const once = recordRecentView(parseStoredRecentViews(null), {
+      href: "/architecture/reviews/abc",
+      label: "Review",
+      kind: "review",
+    });
+    const twice = recordRecentView(once, {
+      href: "/architecture/reviews/abc/",
+      label: "Review",
+      kind: "review",
+    });
+
+    expect(twice.entries).toHaveLength(1);
+    expect(twice.entries[0]?.href).toBe("/architecture/reviews/abc/");
+  });
+
   it("records and dedupes recent views", () => {
     const initial = parseStoredRecentViews(null);
     const once = recordRecentView(initial, {

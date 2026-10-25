@@ -362,11 +362,12 @@ function applyConnectorVisibility(
     const from = edge.getAttribute('data-from') ?? '';
     const to = edge.getAttribute('data-to') ?? '';
     const label = edge.querySelector('title')?.textContent?.trim() ?? null;
+    const normalizedLabel = label.toLowerCase();
     const isVisible = visibleConnectors.some(
       (connector) =>
         normalizeDiagramFocusToken(connector.from) === normalizeDiagramFocusToken(from)
         && normalizeDiagramFocusToken(connector.to) === normalizeDiagramFocusToken(to)
-        && (connector.label?.trim() ?? null) === label,
+        && (connector.label?.trim().toLowerCase() ?? "") === normalizedLabel,
     );
 
     if (!isVisible) {

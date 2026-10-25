@@ -124,6 +124,37 @@ describe("CallbackClient", () => {
     expect(loadDiscoveryDocument).toHaveBeenCalledWith("https://accounts.google.com");
   });
 
+  it("trims accidental control characters from the authorization code before token exchange", async () => {
+    searchParamsMock.value = new URLSearchParams({
+      code: "auth-code\u000B",
+      state: "state-value",
+    });
+
+    vi.mocked(consumePkceState).mockReturnValueOnce({
+      state: "state-value",
+      codeVerifier: "verifier",
+      nonce: "nonce",
+      flow: "primary",
+    });
+    vi.mocked(exchangeAuthorizationCode).mockResolvedValueOnce({
+      access_token: "access-token",
+      expires_in: 3600,
+    });
+
+    const replaceMock = vi.fn();
+    vi.stubGlobal("location", { replace: replaceMock });
+
+    render(<CallbackClient />);
+
+    await waitFor(() => {
+      expect(exchangeAuthorizationCode).toHaveBeenCalledWith(
+        expect.objectContaining({
+          code: "auth-code",
+        }),
+      );
+    });
+  });
+
   it("does not mark authorize callback failed when token exchange rejects an invalid token endpoint URL", async () => {
     searchParamsMock.value = new URLSearchParams({
       code: "auth-code",

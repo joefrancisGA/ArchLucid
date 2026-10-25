@@ -77,6 +77,20 @@ describe("useGovernanceFindingsQueueBulkActions SecureNow path inspect cursor", 
     );
   });
 
+  it("hydrates selection from a padded findingId query value", () => {
+    searchQuery.value = "architectureId=customer-intake&findingId=%20finding-a%20";
+
+    const { result } = renderHook(() =>
+      useGovernanceFindingsQueueBulkActions({
+        refresh: vi.fn(),
+        mode: "tenant",
+        availableFindingIds: new Set(["finding-a"]),
+      }),
+    );
+
+    expect(result.current.selectedFindingIds).toEqual(new Set(["finding-a"]));
+  });
+
   it("hydrates selection from findingId when bulkFindings is absent", () => {
     searchQuery.value = "architectureId=customer-intake&findingId=finding-a";
 
@@ -90,7 +104,7 @@ describe("useGovernanceFindingsQueueBulkActions SecureNow path inspect cursor", 
 
     expect(result.current.selectedFindingIds).toEqual(new Set(["finding-a"]));
     expect(routerReplaceMock).toHaveBeenCalledWith(
-      "/governance/findings?architectureId=customer-intake&bulkFindings=finding-a&findingId=finding-a",
+      "/governance/findings?architectureId=customer-intake&findingId=finding-a&bulkFindings=finding-a",
       { scroll: false },
     );
   });

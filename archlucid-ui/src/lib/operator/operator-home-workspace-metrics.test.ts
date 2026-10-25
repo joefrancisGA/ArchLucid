@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   deriveOperatorHomeWorkspaceMetrics,
+  deriveOperatorHomeWorkspaceMetricsFromOverviewRuns,
   formatOperatorHomeCompactMetricsLine,
   formatSetupReadinessCompleteLabel,
   formatSetupReadinessLabel,
@@ -17,7 +18,96 @@ function makeRun(overrides: Partial<RunSummary> = {}): RunSummary {
   };
 }
 
+describe("deriveOperatorHomeWorkspaceMetricsFromOverviewRuns", () => {
+  it("treats non-finite reportedTotalCount as stale when overview rows are loaded on the page", () => {
+    const metrics = deriveOperatorHomeWorkspaceMetricsFromOverviewRuns(
+      [
+        makeRun({ runId: "tenant-a", hasFindingsSnapshot: true }),
+        makeRun({ runId: "tenant-b", hasFindingsSnapshot: true }),
+      ],
+      Number.NaN,
+    );
+
+    expect(metrics.reviewPackagesTotal).toBe(2);
+    expect(metrics.hasReviews).toBe(true);
+  });
+
+  it("uplifts review totals from visible tenant rows when reportedTotalCount is omitted", () => {
+    const metrics = deriveOperatorHomeWorkspaceMetricsFromOverviewRuns([
+      makeRun({ runId: "tenant-a", hasFindingsSnapshot: true }),
+      makeRun({ runId: "tenant-b", hasFindingsSnapshot: true }),
+    ]);
+
+    expect(metrics.reviewPackagesTotal).toBe(2);
+    expect(metrics.hasReviews).toBe(true);
+  });
+
+  it("does not treat demo-only overview rows as tenant reviews when totalCount is zero", () => {
+    const metrics = deriveOperatorHomeWorkspaceMetricsFromOverviewRuns(
+      [
+        {
+          runId: "demo-seed",
+          projectId: "default",
+          demoSeededOverviewInject: true,
+          hasGoldenManifest: true,
+        },
+      ],
+      0,
+    );
+
+    expect(metrics.reviewPackagesTotal).toBe(0);
+    expect(metrics.hasReviews).toBe(false);
+  });
+});
+
 describe("deriveOperatorHomeWorkspaceMetrics", () => {
+  it("ignores description-matched showcase rows when mixed overview items are passed directly (TB-1039)", () => {
+    const metrics = deriveOperatorHomeWorkspaceMetrics(
+      [
+        makeRun({
+          runId: "showcase-story",
+          description: "Enterprise customer intake modernization review",
+          findingCount: 50,
+          hasFindingsSnapshot: true,
+        }),
+        makeRun({
+          runId: "tenant-1",
+          hasFindingsSnapshot: true,
+          findingCount: 2,
+        }),
+      ],
+      2,
+    );
+
+    expect(metrics.openFindings).toBe(2);
+    expect(metrics.reviewPackagesActive).toBe(1);
+    expect(metrics.reviewPackagesTotal).toBe(2);
+  });
+
+  it("ignores demo-seeded showcase rows when mixed overview items are passed directly (TB-1039)", () => {
+    const metrics = deriveOperatorHomeWorkspaceMetrics(
+      [
+        makeRun({
+          runId: "demo-seed",
+          demoSeededOverviewInject: true,
+          hasGoldenManifest: true,
+          findingCount: 99,
+          hasFindingsSnapshot: true,
+        }),
+        makeRun({
+          runId: "tenant-1",
+          hasFindingsSnapshot: true,
+          findingCount: 1,
+        }),
+      ],
+      1,
+    );
+
+    expect(metrics.openFindings).toBe(1);
+    expect(metrics.reviewPackagesActive).toBe(1);
+    expect(metrics.reviewPackagesTotal).toBe(1);
+  });
+
   it("returns zeroed metrics for an empty workspace", () => {
     const metrics = deriveOperatorHomeWorkspaceMetrics([], 0);
 
@@ -88,10 +178,77 @@ describe("deriveOperatorHomeWorkspaceMetrics", () => {
     expect(metrics.hasReviews).toBe(false);
   });
 
+  it("treats non-finite totalCount as stale when overview rows are loaded on the page", () => {
+    const items: RunSummary[] = [
+      makeRun({
+        runId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        hasFindingsSnapshot: true,
+      }),
+      makeRun({
+        runId: "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+        hasFindingsSnapshot: true,
+      }),
+    ];
+
+    const metrics = deriveOperatorHomeWorkspaceMetrics(items, Number.NaN);
+
+    expect(metrics.reviewPackagesTotal).toBe(2);
+    expect(metrics.hasReviews).toBe(true);
+  });
+
   it("normalizes non-finite awaitingApprovalCount to zero for home KPI totals", () => {
     const metrics = deriveOperatorHomeWorkspaceMetrics([], 2, Number.NaN);
 
     expect(metrics.reviewPackagesAwaitingApproval).toBe(0);
+  });
+
+  it("does not keep stale positive totalCount when overview rows are archived-only", () => {
+    const items: RunSummary[] = [
+      makeRun({
+        runId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        isArchived: true,
+        hasGoldenManifest: true,
+      }),
+    ];
+
+    const metrics = deriveOperatorHomeWorkspaceMetrics(items, 12);
+
+    expect(metrics.reviewPackagesTotal).toBe(0);
+    expect(metrics.hasReviews).toBe(false);
+  });
+
+  it("does not uplift stale zero totalCount using archived-only overview rows", () => {
+    const items: RunSummary[] = [
+      makeRun({
+        runId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        isArchived: true,
+        hasGoldenManifest: true,
+      }),
+      makeRun({
+        runId: "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+        isArchived: true,
+        hasGoldenManifest: true,
+      }),
+    ];
+
+    const metrics = deriveOperatorHomeWorkspaceMetrics(items, 0);
+
+    expect(metrics.reviewPackagesTotal).toBe(0);
+    expect(metrics.hasReviews).toBe(false);
+  });
+
+  it("treats zero totalCount as stale when active overview rows are loaded on the page", () => {
+    const items: RunSummary[] = [
+      makeRun({
+        runId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        hasFindingsSnapshot: true,
+      }),
+    ];
+
+    const metrics = deriveOperatorHomeWorkspaceMetrics(items, 0);
+
+    expect(metrics.reviewPackagesTotal).toBe(1);
+    expect(metrics.hasReviews).toBe(true);
   });
 
   it("excludes archived runs from workspace metrics aggregates", () => {

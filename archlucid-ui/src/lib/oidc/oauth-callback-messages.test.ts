@@ -116,6 +116,42 @@ describe("readOAuthJsonErrorDescription", () => {
     expect(readOAuthJsonErrorDescription("\u00b7\u00b7")).toBe("");
   });
 
+  it("returns empty for multiplication-sign-only token-endpoint JSON error_description values", () => {
+    expect(readOAuthJsonErrorDescription("\u00d7\u00d7")).toBe("");
+  });
+
+  it("returns empty for prime-only token-endpoint JSON error_description values", () => {
+    expect(readOAuthJsonErrorDescription("\u2032\u2032")).toBe("");
+  });
+
+  it("returns empty for reference-mark-only token-endpoint JSON error_description values", () => {
+    expect(readOAuthJsonErrorDescription("\u203b\u203b")).toBe("");
+  });
+
+  it("returns empty for dagger-only token-endpoint JSON error_description values", () => {
+    expect(readOAuthJsonErrorDescription("\u2020\u2020")).toBe("");
+  });
+
+  it("returns empty for double-dagger-only token-endpoint JSON error_description values", () => {
+    expect(readOAuthJsonErrorDescription("\u2021\u2021")).toBe("");
+  });
+
+  it("returns empty for asterisk-only token-endpoint JSON error_description values", () => {
+    expect(readOAuthJsonErrorDescription("**")).toBe("");
+  });
+
+  it("returns empty for equals-only token-endpoint JSON error_description values", () => {
+    expect(readOAuthJsonErrorDescription("==")).toBe("");
+  });
+
+  it("returns empty for hash-only token-endpoint JSON error_description values", () => {
+    expect(readOAuthJsonErrorDescription("##")).toBe("");
+  });
+
+  it("returns empty for ampersand-only token-endpoint JSON error_description values", () => {
+    expect(readOAuthJsonErrorDescription("&&")).toBe("");
+  });
+
   it("preserves ZWNJ in Persian token error_description copy", () => {
     const detail = "دسترسی\u200cرد";
 
@@ -349,6 +385,42 @@ describe("decodeOAuthErrorDescription", () => {
 
   it("returns empty for middle-dot-only percent-encoded error descriptions", () => {
     expect(decodeOAuthErrorDescription("%C2%B7")).toBe("");
+  });
+
+  it("returns empty for multiplication-sign-only percent-encoded error descriptions", () => {
+    expect(decodeOAuthErrorDescription("%C3%97")).toBe("");
+  });
+
+  it("returns empty for prime-only percent-encoded error descriptions", () => {
+    expect(decodeOAuthErrorDescription("%E2%80%B2")).toBe("");
+  });
+
+  it("returns empty for reference-mark-only percent-encoded error descriptions", () => {
+    expect(decodeOAuthErrorDescription("%E2%80%BB")).toBe("");
+  });
+
+  it("returns empty for dagger-only percent-encoded error descriptions", () => {
+    expect(decodeOAuthErrorDescription("%E2%80%A0")).toBe("");
+  });
+
+  it("returns empty for double-dagger-only percent-encoded error descriptions", () => {
+    expect(decodeOAuthErrorDescription("%E2%80%A1")).toBe("");
+  });
+
+  it("returns empty for asterisk-only percent-encoded error descriptions", () => {
+    expect(decodeOAuthErrorDescription("%2A%2A")).toBe("");
+  });
+
+  it("returns empty for equals-only percent-encoded error descriptions", () => {
+    expect(decodeOAuthErrorDescription("%3D%3D")).toBe("");
+  });
+
+  it("returns empty for hash-only percent-encoded error descriptions", () => {
+    expect(decodeOAuthErrorDescription("%23%23")).toBe("");
+  });
+
+  it("returns empty for ampersand-only percent-encoded error descriptions", () => {
+    expect(decodeOAuthErrorDescription("%26%26")).toBe("");
   });
 
   it("returns empty for percent-encoded punctuation-only error descriptions", () => {

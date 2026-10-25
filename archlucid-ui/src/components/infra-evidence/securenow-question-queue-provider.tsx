@@ -17,8 +17,25 @@ import {
   ignoreSecureNowQuestion,
   listSecureNowQuestions,
   reopenSecureNowQuestion,
+  secureNowQuestionListedSnapshotMatchesContext,
   type SecureNowQuestion,
 } from "@/lib/infra-evidence/securenow-question-queue-api";
+import {
+  secureNowQuestionDispositionMutationEvidenceFingerprint,
+  secureNowQuestionDispositionMutationQuestionKey,
+  secureNowQuestionDispositionMutationResourceId,
+  secureNowQuestionDispositionMutationScopeKind,
+  secureNowQuestionDispositionMutationSource,
+  secureNowQuestionDispositionMutationSubscriptionId,
+} from "@/lib/infra-evidence/securenow-question-mutation-resource-id";
+import {
+  secureNowQuestionCountsAsAnsweredFilterRow,
+  secureNowQuestionCountsAsDismissedFilterRow,
+  secureNowQuestionCountsAsOpenQueueRow,
+  secureNowQuestionCountsAsReviewableQueueRow,
+  secureNowQuestionDispositionShowsAnswerActions,
+  secureNowQuestionQueueInitialReviewFilter,
+} from "@/lib/infra-evidence/securenow-question-disposition-status";
 import {
   confirmOperatorInferredConnection,
   dismissOperatorInferredConnection,
@@ -34,6 +51,11 @@ import type { OperatorInferredConnectionRow } from "@/lib/infra-evidence/operato
 type QueueFilter = "Open" | "Answered" | "Dismissed";
 type DrawerAction = "answer" | "ignore" | "reopen";
 
+type LoadQuestionsOptions = {
+  readonly preferredFilter?: QueueFilter;
+  readonly focusQuestionIdentity?: string;
+};
+
 const VISIT_CAP = 10;
 
 export type SecureNowQuestionQueueProviderProps = {
@@ -46,6 +68,7 @@ type SecureNowQuestionQueueContextValue = {
   readonly questionsLoaded: boolean;
   readonly loadError: boolean;
   readonly openQuestions: readonly SecureNowQuestion[];
+  readonly reviewableQuestions: readonly SecureNowQuestion[];
   readonly filteredQuestions: readonly SecureNowQuestion[];
   readonly currentQuestion: SecureNowQuestion | null;
   readonly currentIndex: number;
@@ -56,6 +79,7 @@ type SecureNowQuestionQueueContextValue = {
   readonly drawerAction: DrawerAction;
   readonly visitedQuestionKeys: ReadonlySet<string>;
   readonly busy: boolean;
+  readonly currentQuestionMatchesInferredConnection: boolean;
   readonly setFilter: (filter: QueueFilter) => void;
   readonly setDrawerOpen: (open: boolean) => void;
   readonly setCurrentIndex: (index: number | ((current: number) => number)) => void;
@@ -63,6 +87,7 @@ type SecureNowQuestionQueueContextValue = {
   readonly setReason: (reason: string) => void;
   readonly setDrawerAction: (action: DrawerAction) => void;
   readonly advanceWithoutPersistence: () => void;
+  readonly beginQuestionReview: () => void;
   readonly submitAction: (action?: DrawerAction) => Promise<void>;
 };
 
@@ -94,28 +119,83 @@ function connectionIdFromQuestionKey(questionKey: string): string | null {
 }
 
 function questionIdentity(question: SecureNowQuestion): string {
-  return `${normalize(question.subscriptionId ?? "")}|${normalize(question.resourceId ?? "")}|${normalize(question.questionKey)}`;
-}
+  const mutationQuestionKey =
+    secureNowQuestionDispositionMutationQuestionKey(question.questionKey);
+  let keySegment: string;
+  if (mutationQuestionKey !== null) {
+    keySegment = mutationQuestionKey;
+  } else {
+    const dispositionId = question.dispositionId?.trim() ?? "";
+    if (dispositionId.length > 0) {
+      keySegment = `missing-key:disposition:${normalize(dispositionId)}`;
+    } else {
+      const fingerprint =
+        secureNowQuestionDispositionMutationEvidenceFingerprint(question.evidenceFingerprint);
+      keySegment = fingerprint !== null
+        ? `missing-key:fingerprint:${normalize(fingerprint)}`
+        : `missing-key:${normalize(question.questionText)}`;
+    }
+  }
 
-function isDismissed(question: SecureNowQuestion): boolean {
-  return question.status === "Ignored" || question.status === "Dismissed";
+  return `${normalize(question.subscriptionId ?? "")}|${normalize(question.resourceId ?? "")}|${keySegment}`;
 }
 
 function filterQuestions(questions: readonly SecureNowQuestion[], filter: QueueFilter): SecureNowQuestion[] {
   return questions.filter((question) => {
     if (filter === "Open") {
-      return question.status !== "Answered" && !isDismissed(question) && question.isExpired !== true;
+      return secureNowQuestionCountsAsOpenQueueRow(question);
     }
-    if (filter === "Answered") return question.status === "Answered";
-    return isDismissed(question);
+    if (filter === "Answered") {
+      return secureNowQuestionCountsAsAnsweredFilterRow(question);
+    }
+    return secureNowQuestionCountsAsDismissedFilterRow(question);
   });
+}
+
+function queueFilterHasRows(
+  questions: readonly SecureNowQuestion[],
+  queueFilter: QueueFilter,
+): boolean {
+  return filterQuestions(questions, queueFilter).length > 0;
+}
+
+function resolveQueueFilterAfterReload(
+  loadedQuestions: readonly SecureNowQuestion[],
+  currentFilter: QueueFilter,
+  preferredFilter?: QueueFilter,
+): QueueFilter {
+  if (preferredFilter != null && queueFilterHasRows(loadedQuestions, preferredFilter)) {
+    return preferredFilter;
+  }
+
+  if (queueFilterHasRows(loadedQuestions, currentFilter)) {
+    return currentFilter;
+  }
+
+  return secureNowQuestionQueueInitialReviewFilter(loadedQuestions);
+}
+
+function indexInFilterForIdentity(
+  questions: readonly SecureNowQuestion[],
+  queueFilter: QueueFilter,
+  identity: string,
+): number {
+  const index = filterQuestions(questions, queueFilter).findIndex(
+    (question) => questionIdentity(question) === identity,
+  );
+  return index >= 0 ? index : 0;
 }
 
 function findInferredConnection(
   question: SecureNowQuestion,
   connections: readonly OperatorInferredConnectionRow[],
 ): OperatorInferredConnectionRow | null {
-  const embeddedConnectionId = connectionIdFromQuestionKey(question.questionKey);
+  const questionKey = question.questionKey?.trim() ?? "";
+  if (questionKey.length === 0) {
+    return null;
+  }
+
+  const embeddedConnectionId = connectionIdFromQuestionKey(questionKey);
 
   if (embeddedConnectionId != null) {
     return connections.find((connection) =>
@@ -123,7 +203,7 @@ function findInferredConnection(
     ) ?? null;
   }
 
-  const ruleKey = normalize(question.questionKey.split("@", 1)[0]);
+  const ruleKey = normalize(questionKey.split("@", 1)[0]);
   return connections.find((connection) => {
     const resourceMatches =
       normalize(connection.fromArmId ?? "") === normalize(question.resourceId ?? "")
@@ -141,6 +221,7 @@ export function SecureNowQuestionQueueProvider(
   const [questions, setQuestions] = useState<SecureNowQuestion[]>([]);
   const [inferredConnections, setInferredConnections] = useState<OperatorInferredConnectionRow[]>([]);
   const [filter, setFilter] = useState<QueueFilter>("Open");
+  const filterRef = useRef<QueueFilter>(filter);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
@@ -167,7 +248,11 @@ export function SecureNowQuestionQueueProvider(
     setReason("");
   }, [snapshotId]);
 
-  const loadQuestions = useCallback(async () => {
+  useEffect(() => {
+    filterRef.current = filter;
+  }, [filter]);
+
+  const loadQuestions = useCallback(async (options?: LoadQuestionsOptions) => {
     if (snapshotId.trim().length === 0) return;
     const requestSequence = ++loadSequence.current;
     setLoading(true);
@@ -185,8 +270,17 @@ export function SecureNowQuestionQueueProvider(
       // Snapshot navigation can leave older requests in flight; only the newest request owns queue state.
       if (requestSequence !== loadSequence.current) return;
 
-      setQuestions(questionsResult.value);
+      const loadedQuestions = questionsResult.value;
+      setQuestions(loadedQuestions);
       setQuestionsLoaded(true);
+      setSessionSkippedQuestionKeys(new Set());
+      setVisitedQuestionKeys(new Set());
+      const nextFilter = resolveQueueFilterAfterReload(
+        loadedQuestions,
+        filterRef.current,
+        options?.preferredFilter,
+      );
+      setFilter(nextFilter);
       if (connectionsResult.status === "fulfilled") {
         setInferredConnections(connectionsResult.value);
       } else {
@@ -199,9 +293,15 @@ export function SecureNowQuestionQueueProvider(
           ),
         );
       }
-      setCurrentIndex(0);
+      const focusIdentity = options?.focusQuestionIdentity;
+      setCurrentIndex(
+        focusIdentity != null
+          ? indexInFilterForIdentity(loadedQuestions, nextFilter, focusIdentity)
+          : 0,
+      );
       setSelectedAnswer(null);
       setReason("");
+      setDrawerAction("answer");
     } catch (loadError) {
       if (requestSequence !== loadSequence.current) return;
 
@@ -224,9 +324,11 @@ export function SecureNowQuestionQueueProvider(
   }, [loadQuestions]);
 
   const openQuestions = useMemo(
-    () => questions.filter(
-      (question) => question.status !== "Answered" && !isDismissed(question) && question.isExpired !== true,
-    ),
+    () => questions.filter((question) => secureNowQuestionCountsAsOpenQueueRow(question)),
+    [questions],
+  );
+  const reviewableQuestions = useMemo(
+    () => questions.filter((question) => secureNowQuestionCountsAsReviewableQueueRow(question)),
     [questions],
   );
   const filteredQuestions = useMemo(
@@ -236,6 +338,15 @@ export function SecureNowQuestionQueueProvider(
     [filter, questions, sessionSkippedQuestionKeys],
   );
   const currentQuestion = filteredQuestions[currentIndex] ?? null;
+  const currentQuestionMatchesInferredConnection = useMemo(
+    () => currentQuestion != null
+      && findInferredConnection(currentQuestion, inferredConnections) != null,
+    [currentQuestion, inferredConnections],
+  );
+
+  const currentQuestionIdentity = currentQuestion == null
+    ? null
+    : questionIdentity(currentQuestion);
 
   useEffect(() => {
     if (!drawerOpen || currentQuestion == null) return;
@@ -248,6 +359,16 @@ export function SecureNowQuestionQueueProvider(
     });
   }, [currentQuestion, drawerOpen]);
 
+  useEffect(() => {
+    if (!drawerOpen || currentQuestionIdentity == null) {
+      return;
+    }
+
+    setSelectedAnswer(null);
+    setReason("");
+    setDrawerAction("answer");
+  }, [currentQuestionIdentity, drawerOpen]);
+
   const advanceWithoutPersistence = useCallback(() => {
     if (currentQuestion == null) return;
     setSessionSkippedQuestionKeys((current) => new Set(current).add(questionIdentity(currentQuestion)));
@@ -256,17 +377,68 @@ export function SecureNowQuestionQueueProvider(
     setCurrentIndex((current) => Math.min(current, Math.max(filteredQuestions.length - 2, 0)));
   }, [currentQuestion, filteredQuestions.length]);
 
+  const beginQuestionReview = useCallback(() => {
+    setSessionSkippedQuestionKeys(new Set());
+    setVisitedQuestionKeys(new Set());
+    setFilter(secureNowQuestionQueueInitialReviewFilter(questions));
+    setCurrentIndex(0);
+    setSelectedAnswer(null);
+    setReason("");
+    setDrawerAction("answer");
+    setDrawerOpen(true);
+  }, [questions]);
+
   const submitAction = useCallback(async (action: DrawerAction = drawerAction) => {
     if (!questionsLoaded || currentQuestion == null || busy) return;
 
-    if (currentQuestion.snapshotId.trim().length > 0
-      && currentQuestion.snapshotId !== snapshotId) {
+    if (!secureNowQuestionListedSnapshotMatchesContext(currentQuestion.snapshotId, snapshotId)) {
+      setError(
+        operatorInferredConnectionPanelErrorFromUnknown(
+          new Error("Listed snapshot id does not match the active evidence snapshot."),
+          "Could not save the question update.",
+          "mutation",
+        ),
+      );
       return;
     }
     if (action === "ignore" && reason.trim().length === 0) return;
     if (action === "reopen" && reason.trim().length === 0) return;
-    if (action === "answer" && selectedAnswer == null) return;
-    if (currentQuestion.resourceId === null || currentQuestion.resourceId === undefined) {
+    if (action === "answer" && (selectedAnswer == null || selectedAnswer.trim().length === 0)) return;
+    if (
+      (action === "answer" || action === "ignore")
+      && !secureNowQuestionDispositionShowsAnswerActions(currentQuestion)
+    ) {
+      return;
+    }
+
+    const mutationQuestionKey =
+      secureNowQuestionDispositionMutationQuestionKey(currentQuestion.questionKey);
+    if (mutationQuestionKey === null) {
+      setError(
+        operatorInferredConnectionPanelErrorFromUnknown(
+          new Error("Question key was not stored."),
+          "Could not save the question update.",
+          "mutation",
+        ),
+      );
+      return;
+    }
+
+    const mutationSubscriptionId =
+      secureNowQuestionDispositionMutationSubscriptionId(currentQuestion.subscriptionId);
+    if (mutationSubscriptionId === null) {
+      setError(
+        operatorInferredConnectionPanelErrorFromUnknown(
+          new Error("Subscription id was not stored."),
+          "Could not save the question update.",
+          "mutation",
+        ),
+      );
+      return;
+    }
+
+    const mutationResourceId = secureNowQuestionDispositionMutationResourceId(currentQuestion);
+    if (mutationResourceId === null) {
       setError(
         operatorInferredConnectionPanelErrorFromUnknown(
           new Error("Resource id was not stored."),
@@ -277,28 +449,81 @@ export function SecureNowQuestionQueueProvider(
       return;
     }
 
+    const mutationSource = secureNowQuestionDispositionMutationSource(currentQuestion);
+    const mutationScopeKind = secureNowQuestionDispositionMutationScopeKind(currentQuestion);
+    const matchedInferredConnection =
+      action === "answer"
+        ? findInferredConnection(currentQuestion, inferredConnections)
+        : null;
+    const usesInferredConnectionConfirm =
+      matchedInferredConnection != null
+      && (selectedAnswer === "Yes" || selectedAnswer === "No");
+
+    const mutationEvidenceFingerprint =
+      secureNowQuestionDispositionMutationEvidenceFingerprint(currentQuestion.evidenceFingerprint);
+
+    if (
+      action !== "reopen"
+      && !usesInferredConnectionConfirm
+      && mutationEvidenceFingerprint === null
+    ) {
+      setError(
+        operatorInferredConnectionPanelErrorFromUnknown(
+          new Error("Evidence fingerprint was not stored."),
+          "Could not save the question update.",
+          "mutation",
+        ),
+      );
+      return;
+    }
+
+    if (
+      action !== "reopen"
+      && !usesInferredConnectionConfirm
+      && (mutationSource === null || mutationScopeKind === null)
+    ) {
+      setError(
+        operatorInferredConnectionPanelErrorFromUnknown(
+          new Error("Question source or scope was not stored."),
+          "Could not save the question update.",
+          "mutation",
+        ),
+      );
+      return;
+    }
+
+    const dispositionInferredConnection = findInferredConnection(
+      currentQuestion,
+      inferredConnections,
+    );
+    const dispositionMutationSource =
+      dispositionInferredConnection != null ? "InferredConnection" : mutationSource!;
+    const dispositionMutationScopeKind =
+      dispositionInferredConnection != null ? "Resource" : mutationScopeKind!;
+
     setBusy(true);
     setError(null);
     try {
       if (action === "ignore") {
         await ignoreSecureNowQuestion(snapshotId, {
-          subscriptionId: currentQuestion.subscriptionId ?? "",
-          resourceId: currentQuestion.resourceId,
-          questionKey: currentQuestion.questionKey,
-          source: currentQuestion.source ?? "",
-          scopeKind: currentQuestion.scopeKind ?? "",
+          subscriptionId: mutationSubscriptionId,
+          resourceId: mutationResourceId,
+          questionKey: mutationQuestionKey,
+          source: dispositionMutationSource,
+          scopeKind: dispositionMutationScopeKind,
           reason: reason.trim(),
-          evidenceFingerprint: currentQuestion.evidenceFingerprint,
+          evidenceFingerprint: mutationEvidenceFingerprint!,
         });
       } else if (action === "reopen") {
         await reopenSecureNowQuestion(snapshotId, {
-          subscriptionId: currentQuestion.subscriptionId ?? "",
-          resourceId: currentQuestion.resourceId,
-          questionKey: currentQuestion.questionKey,
+          subscriptionId: mutationSubscriptionId,
+          resourceId: mutationResourceId,
+          questionKey: mutationQuestionKey,
           reason: reason.trim(),
         });
-      } else if (currentQuestion.source === "InferredConnection") {
-        const connection = findInferredConnection(currentQuestion, inferredConnections);
+      } else if (mutationSource === "InferredConnection" || usesInferredConnectionConfirm) {
+        const connection = matchedInferredConnection
+          ?? findInferredConnection(currentQuestion, inferredConnections);
         if (connection == null || (selectedAnswer !== "Yes" && selectedAnswer !== "No")) {
           throw new Error("The inferred connection for this question is no longer available.");
         }
@@ -308,19 +533,32 @@ export function SecureNowQuestionQueueProvider(
           await dismissOperatorInferredConnection(snapshotId, { connectionId: connection.connectionId });
         }
       } else {
+        const trimmedAnswer = selectedAnswer!.trim();
         await answerSecureNowQuestion(snapshotId, {
-          subscriptionId: currentQuestion.subscriptionId ?? "",
-          resourceId: currentQuestion.resourceId,
-          questionKey: currentQuestion.questionKey,
-          source: currentQuestion.source ?? "",
-          scopeKind: currentQuestion.scopeKind ?? "",
-          answerCode: selectedAnswer,
-          answerText: selectedAnswer,
+          subscriptionId: mutationSubscriptionId,
+          resourceId: mutationResourceId,
+          questionKey: mutationQuestionKey,
+          source: mutationSource!,
+          scopeKind: mutationScopeKind!,
+          answerCode: trimmedAnswer,
+          answerText: trimmedAnswer,
           reason: "Answered in the SecureNow subscription question queue.",
-          evidenceFingerprint: currentQuestion.evidenceFingerprint,
+          evidenceFingerprint: mutationEvidenceFingerprint!,
         });
       }
-      await loadQuestions();
+      let preferredFilter: QueueFilter | undefined;
+      if (action === "answer") {
+        preferredFilter = "Answered";
+      } else if (action === "ignore") {
+        preferredFilter = "Dismissed";
+      } else if (action === "reopen") {
+        preferredFilter = "Open";
+      }
+
+      await loadQuestions({
+        preferredFilter,
+        focusQuestionIdentity: questionIdentity(currentQuestion),
+      });
       setSelectedAnswer(null);
       setReason("");
       setDrawerAction("answer");
@@ -353,6 +591,7 @@ export function SecureNowQuestionQueueProvider(
       questionsLoaded,
       loadError: error !== null,
       openQuestions,
+      reviewableQuestions,
       filteredQuestions,
       currentQuestion,
       currentIndex,
@@ -363,6 +602,7 @@ export function SecureNowQuestionQueueProvider(
       drawerAction,
       visitedQuestionKeys,
       busy,
+      currentQuestionMatchesInferredConnection,
       setFilter,
       setDrawerOpen,
       setCurrentIndex,
@@ -370,13 +610,16 @@ export function SecureNowQuestionQueueProvider(
       setReason,
       setDrawerAction,
       advanceWithoutPersistence,
+      beginQuestionReview,
       submitAction,
     }),
     [
       advanceWithoutPersistence,
+      beginQuestionReview,
       busy,
       currentIndex,
       currentQuestion,
+      currentQuestionMatchesInferredConnection,
       drawerAction,
       drawerOpen,
       filter,
@@ -385,6 +628,7 @@ export function SecureNowQuestionQueueProvider(
       questionsLoaded,
       error,
       openQuestions,
+      reviewableQuestions,
       reason,
       selectedAnswer,
       submitAction,

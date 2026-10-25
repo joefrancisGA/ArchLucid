@@ -51,8 +51,10 @@ import {
 } from "@/components/governance/findings/governance-findings-row-omission-copy";
 
 import {
+  governanceFindingQueueRowHasDisplayCategory,
   governanceFindingQueueRowHasPolicyRuleId,
   governanceFindingQueueRowHasStoredRunId,
+  governanceFindingQueueRowReviewHref,
   type GovernanceFindingQueueRow,
 } from "./governance-finding-queue-row";
 
@@ -188,7 +190,7 @@ export function GovernanceFindingsQueueOperationalRowCells(props: GovernanceFind
               {...buildPolicyTraceabilityLinksFromRuleId(row.policyRuleId!, row.category || row.policyRuleId!)}
             />
           </div>
-        ) : row.category && row.recordKind === "finding" ? (
+        ) : governanceFindingQueueRowHasDisplayCategory(row) ? (
           <div className={cn("mt-0.5 font-normal text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>
             Policy area: {row.category}
           </div>
@@ -260,7 +262,7 @@ export function GovernanceFindingsQueueOperationalRowCells(props: GovernanceFind
       </EnterpriseTableCell>
       <EnterpriseTableCell>
         {row.runId.trim().length > 0 ? (
-          <Link className={OPERATOR_LINK.inline} href={`/architecture/reviews/${encodeURIComponent(row.runId)}`}>
+          <Link className={OPERATOR_LINK.inline} href={governanceFindingQueueRowReviewHref(row.runId)}>
             {row.runLabel}
           </Link>
         ) : (
