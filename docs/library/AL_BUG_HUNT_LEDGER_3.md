@@ -4508,7 +4508,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-operator-lib
 
-**Hunts:** 42 · **Bugs found:** 39 · **Consecutive dry hunts:** 0
+**Hunts:** 43 · **Bugs found:** 40 · **Consecutive dry hunts:** 0
+
+2026-10-25 seed hunt (hit): promoted home run-id Set normalization (`buildTrimmedRunIdSet`); regressions `filters home attention preview when excluded run ids have surrounding whitespace` and `counts awaiting-approval tab rows when queue run ids have surrounding whitespace`; 20 scoped dedup + outcome vitest passed. Private beta: Invited operators no longer see duplicate home attention rows or wrong awaiting-approval tab counts when governance queue run ids are loosely formatted strings.
 
 2026-10-25 seed hunt (hit): promoted `toRecentViewEntries` unknown `kind` coercion; regression `coerces unknown recent-view kinds to page on server hydrate`; 26 scoped continuity + recent-views vitest passed. Private beta: Invited operators resuming from account continuity no longer store bogus recent-view kind tokens that break architecture-only resume strips on home.
 
@@ -4538,9 +4540,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `writeOperatorScopeToStorage` — clears operator recent views without clearing continuity sync watermark — **cheap-disproof 2026-10-07 seed hunt #43:** scope write side effects; regression `writeOperatorScopeToStorage_leaves_working_workspace_continuity_sync_watermark`.
 - [x] (valid-no-repro) `runWorkQueueAttentionPartition` — maps `committed` queue group to `awaiting-approval` partition — **cheap-disproof 2026-10-07 seed hunt #43:** TB-2369 partition map; regression `maps run work queue groups to attention partitions`.
 
-- [ ] (candidate) `readOperatorScopeFromStorage` — returns null when `tenantId` is whitespace-only — locus: `isNonEmptyId` ~49–52 (`operator-scope-storage.ts`); input: JSON scope with `"tenantId": "   "` and valid workspace/project ids.
-- [ ] (candidate) `filterRunsForHomeAttentionPreview` — untrimmed exclusion ids do not match trimmed run ids — locus: `Set` membership without trim on exclusions ~54–63 (`home-attention-dedup.ts`); input: exclude `[" run-1 "]` while run id is `run-1`.
-- [ ] (candidate) `listHomeAttentionPreviewExcludedRunIds` — preserves duplicate run ids when rail lists repeat the same run — locus: push loop ~34–39; input: two rail items resolving to same run id.
+- [x] (valid-no-repro) `readOperatorScopeFromStorage` — returns null when `tenantId` is whitespace-only — **cheap-disproof 2026-10-25 seed hunt:** `isNonEmptyId` rejects whitespace tenant ids (~87).
+- [x] (proven) `filterRunsForHomeAttentionPreview` / `countAwaitingApprovalPreviewRuns` — untrimmed queue or exclusion ids do not match trimmed run ids — **hit 2026-10-25 seed hunt:** `buildTrimmedRunIdSet`; regressions `filters home attention preview when excluded run ids have surrounding whitespace` and `counts awaiting-approval tab rows when queue run ids have surrounding whitespace`.
+- [x] (valid-no-repro) `listHomeAttentionPreviewExcludedRunIds` — preserves duplicate run ids when rail lists repeat the same run — **cheap-disproof 2026-10-25 seed hunt:** duplicate tokens do not change `Set` membership in `filterRunsForHomeAttentionPreview`.
 - [ ] (candidate) `isDevDefaultScopeRecord` — returns false when only workspace id matches dev default — locus: triple equality ~291–296 (`operator-scope-storage.ts`); input: dev workspace with non-dev tenant/project.
 - [ ] (candidate) `resolveAttentionPartitionPreview` — `unfinished-work` skips archived runs when choosing fallback title — locus: `runs.find((row) => row.isArchived !== true)` ~22–28 (`resolve-attention-partition-preview.ts`); input: only archived runs in `runs` array.
 
