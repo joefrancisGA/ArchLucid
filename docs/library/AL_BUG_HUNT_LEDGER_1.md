@@ -6868,6 +6868,20 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-25 seed hunt (seed→hit): proved `ComparisonRecordScopedReadNormalizer` trimmed ids, run/export anchors, and manifest metadata but left `ComparisonType`, `Label`, `Tags`, and `SummaryMarkdown` untouched while persistence read paths already normalized those fields on some repository implementations, so scoped comparison reads and summary replay could echo padded text when `GetByIdAsync` returned legacy rows or test doubles skipped repository normalization; extend scoped read normalization and trim `SummaryMarkdown` on persistence read materialize; regressions `CompareQuality_TryGetScopedRecordAsync_trims_padded_label_type_tags_and_summary_from_repository_row` and extended `GetByIdAsync_trims_padded_manifest_versions_and_notes_on_read`; cheap-disproof closed repository-only normalize (list/get already called persist normalizer), update label/tags write (hunt 186), `ApiPaging.TryParseUtcTicksIdCursor` (comparison search normalizes inbound cursor id), batch zip manifest echo (cosmetic), and Armenian homoglyphs (deferred); seeded five follow-on rows; scoped application-analysis + replay filter 343/343 plus persistence get-by-id regression. Private beta: comparison detail and summary replay see trimmed type, label, tags, and summary markdown when stored rows kept surrounding whitespace.
+
+- [ ] (candidate) `ComparisonRecordRepository.GetByRunIdAsync` — SQL list-by-run dashed stored — locus: UNIQUEIDENTIFIER column; input: already matches N/D lookup via guid param.
+- [ ] (candidate) `ComparisonRecordRepositoryCore.SerializeTagsForUpdate` — JSON tag order — locus: cosmetic; input: defer.
+- [ ] (candidate) `ComparisonRecordSearchPredicateBuilder` — notes column search — locus: no notes filter today; input: defer.
+- [ ] (candidate) `ApiPaging.TryParseUtcTicksIdCursor` — cursor id segment without trim — locus: HTTP cursor parse; input: padded id after ticks delimiter (alerts inbox and other API surfaces).
+- [ ] (candidate) `ComparisonBatchReplayZipSupport` — manifest failure entries echo pre-trim batch tokens — locus: zip manifest; input: cosmetic id echo only.
+
+- [x] (proven) `ComparisonRecordScopedReadNormalizer` — label/type/tags/summary padding — **hit 2026-10-25 seed hunt:** scoped read trim parity; regressions above.
+- [x] (valid-no-repro) `ComparisonRecordPersistNormalizer` — read materialize — **cheap-disproof 2026-10-25 seed hunt:** repository paths; facade still needed for doubles/alternate repos.
+- [x] (valid-no-repro) `GetByRunIdAsync` — SQL dashed run storage — **cheap-disproof 2026-10-25 seed hunt:** GUID column param equality.
+- [x] (invalid) `ApiPaging.TryParseUtcTicksIdCursor` — HTTP cursor id trim — **cheap-disproof 2026-10-25 seed hunt:** comparison search normalizes at application layer.
+- [x] (invalid) `ComparisonBatchReplayZipSupport` — manifest id echo — **cheap-disproof 2026-10-25 seed hunt:** cosmetic only.
+
 2026-10-25 seed hunt (seed→hit): proved `ComparisonRecordRepository.UpdateLabelAndTagsAsync` (SQL and in-memory) persisted `Label` and `Tags` exactly as callers supplied while `TryUpdateLabelAndTagsAsync` trimmed at the application facade only, so direct repository updates or future callers could store padded labels and tag JSON that search filters then missed; centralize `NormalizeLabelAndTagsForUpdate` in `ComparisonRecordRepositoryCore` using `OptionalExportMetadataStringNormalizer`; regressions `NormalizeLabelAndTagsForUpdate_trims_label_and_tags`, `UpdateLabelAndTagsAsync_persists_trimmed_label_and_tags_when_caller_passes_padding`, and existing `CompareQuality_TryUpdateLabelAndTagsAsync_trims_label_and_tags_on_persist`; cheap-disproof closed padded comparison id lookup (hunt 184), manifest read trim (hunt 185), `ApiPaging.TryParseUtcTicksIdCursor` (comparison search normalizes inbound cursor id), batch zip manifest echo (cosmetic), and Armenian homoglyphs (deferred); seeded five follow-on rows; scoped application-analysis + replay filter 342/342 plus persistence update regressions. Private beta: comparison label and tag edits persist trimmed values even when a caller bypasses the application service.
 
 - [ ] (candidate) `ComparisonRecordRepository.GetByRunIdAsync` — SQL list-by-run dashed stored — locus: UNIQUEIDENTIFIER column; input: already matches N/D lookup via guid param.
@@ -8423,11 +8437,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 186
-- **bugs-found:** 192
+- **hunts:** 187
+- **bugs-found:** 193
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-25
-- **last-bug:** 2026-10-25 — comparison update label/tags repository trim
+- **last-bug:** 2026-10-25 — comparison scoped read text field trim
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
