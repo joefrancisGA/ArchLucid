@@ -7174,6 +7174,34 @@ ABQ-09 churn hotspot.
 
 ## Zone: ui-infra-resource-hub
 
+2026-10-25 seed hunt (seed→hit): promoted whitespace-only configuration tag values shown as blank mono cells on the overview tags table — tag values rendered raw while property values already used `formatStoredInfraEvidenceHubField`; regression `shows tag value omission copy when a captured tag value is whitespace-only`; cheap-disproof closed property value whitespace (prior hit), RBAC `scope` and network `relationshipType` whitespace (raw cells; seeded below), and evidence pointer `relativePath` whitespace (seeded); scoped ResourceHubClient vitest 79/79. Private beta: operators reviewing captured tags on a resource hub see “Tag value was not stored.” instead of an empty cell when capture stored only whitespace.
+
+- [x] (proven) `ResourceHubClient` configuration tags — tag value whitespace-only — **hit 2026-10-25 seed hunt:** `formatStoredInfraEvidenceHubField` on tag value cells; regression whitespace tag fixture.
+- [x] (valid-no-repro) `ResourceHubClient` configuration properties — property value whitespace-only — **cheap-disproof 2026-10-25 seed hunt:** prior hunt; regression lock retained.
+- [x] (valid-no-repro) `ResourceHubClient` RBAC assignments — `scope` whitespace-only — **cheap-disproof 2026-10-25 seed hunt:** scope column still raw; seeded below.
+- [x] (valid-no-repro) `ResourceHubClient` network relationships — `relationshipType` whitespace-only — **cheap-disproof 2026-10-25 seed hunt:** type column still raw; seeded below.
+- [x] (valid-no-repro) `ResourceHubClient` evidence pointers — `relativePath` whitespace-only — **cheap-disproof 2026-10-25 seed hunt:** path column raw; seeded below.
+
+- [ ] (candidate) `ResourceHubClient` RBAC assignments — `scope` whitespace-only — locus: scope column; input: blank scope cell without omission copy.
+- [ ] (candidate) `ResourceHubClient` network relationships — `relationshipType` whitespace-only — locus: type column; input: blank relationship type label.
+- [ ] (candidate) `ResourceHubClient` evidence pointers — `relativePath` whitespace-only — locus: path column; input: blank path cell.
+- [ ] (candidate) `ResourceHubClient` configuration properties — property key whitespace-only — locus: property name column; input: blank key display.
+- [ ] (candidate) `ResourceHubClient` evidence pointers — `kind` whitespace-only — locus: kind column; input: blank kind label.
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **aliases:** resource hub; infrastructure resource detail
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 53
+- **bugs-found:** 32
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-25
+- **last-bug:** 2026-10-25 — whitespace-only configuration tag values on overview
+- **related-pd-tb:** none
+- **code-changed-since:** yes
+
 2026-10-25 seed hunt (seed→hit): promoted whitespace-only configuration property values shown as blank mono cells on the overview configuration table — property values rendered raw while findings and terraform fields already used `formatStoredInfraEvidenceHubField`; regression `shows property value omission copy when a captured property value is whitespace-only`; cheap-disproof closed tag value whitespace (same helper pattern; seeded below), RBAC `scope` whitespace (table still shows blank scope without omission copy; seeded), network `relationshipType` whitespace (seeded), and architecture-review `status` whitespace (existing trim gate; regression lock from prior hunt); scoped ResourceHubClient vitest 78/78. Private beta: operators reviewing captured configuration on a resource hub see “Property value was not stored.” instead of an empty cell when capture stored only whitespace.
 
 - [x] (proven) `ResourceHubClient` configuration properties — property value whitespace-only — **hit 2026-10-25 seed hunt:** `formatStoredInfraEvidenceHubField` on property value cells; regression whitespace property fixture.

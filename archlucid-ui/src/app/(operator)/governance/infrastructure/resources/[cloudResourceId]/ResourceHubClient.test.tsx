@@ -1307,6 +1307,23 @@ describe("ResourceHubClient", () => {
     expect(screen.queryByTestId("infra-resource-hub-open-terraform-work")).not.toBeInTheDocument();
   });
 
+  it("shows tag value omission copy when a captured tag value is whitespace-only", async () => {
+    fetchCachedInfraEvidenceResourceHub.mockImplementation(async () =>
+      buildResourceHubTestMockHub({
+        currentConfiguration: {
+          ...buildResourceHubTestMockHub().currentConfiguration,
+          tags: {
+            costCenter: "   ",
+          },
+        },
+      }),
+    );
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    expect(await screen.findByText("Tag value was not stored.")).toBeInTheDocument();
+    expect(screen.getByText("costCenter")).toBeInTheDocument();
+  });
+
   it("shows property value omission copy when a captured property value is whitespace-only", async () => {
     fetchCachedInfraEvidenceResourceHub.mockImplementation(async () =>
       buildResourceHubTestMockHub({
