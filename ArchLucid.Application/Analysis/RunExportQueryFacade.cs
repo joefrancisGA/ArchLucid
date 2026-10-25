@@ -273,6 +273,7 @@ public sealed class RunExportQueryFacade(
         await EnsureCareerAllowsExportRecordMetadataOrThrowAsync(record.RunId, cancellationToken);
 
         ReplayExportResult result = await _exportReplayService.ReplayAsync(request, cancellationToken);
+        NormalizeReplayExportResultMetadata(result);
 
         if (request.RecordReplayExport && !string.IsNullOrWhiteSpace(result.RecordedReplayExportRecordId))
         {
@@ -285,6 +286,18 @@ public sealed class RunExportQueryFacade(
             }, cancellationToken);
         }
         return new ExportReplayQueryResult { Outcome = ExportRecordLoadOutcome.Success, Replay = result };
+    }
+
+    private static void NormalizeReplayExportResultMetadata(ReplayExportResult result)
+    {
+        ArgumentNullException.ThrowIfNull(result);
+
+        result.ExportRecordId = RunExportRecordIdNormalizer.NormalizeRequired(result.ExportRecordId);
+        result.RunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(result.RunId);
+
+        if (!string.IsNullOrWhiteSpace(result.RecordedReplayExportRecordId))
+            result.RecordedReplayExportRecordId =
+                RunExportRecordIdNormalizer.NormalizeRequired(result.RecordedReplayExportRecordId);
     }
 
     private async Task<(ExportRecordLoadOutcome Outcome, RunExportRecord? Left, RunExportRecord? Right, string? MissingId)> LoadPairAsync(

@@ -754,6 +754,83 @@ public sealed class RunExportQueryFacadeTests
     }
 
     [Fact]
+    public async Task CompareQuality_ReplayExportAsync_trims_padded_replay_result_and_audit_json_when_record_replay_export()
+    {
+        const string canonicalSourceExportId = "source-export-replay-audit";
+        const string canonicalRecordedExportId = "recorded-export-replay-audit";
+        Guid runGuid = Guid.Parse(RunId);
+        ArchitectureRunDetail scopedDetail = CreateScopedRunDetail();
+        RunDetailDto authorityDetail = CreateAuthorityDetailWithCompleteLifecycle(runGuid);
+
+        Mock<IRunDetailQueryService> runDetails = new();
+        runDetails
+            .Setup(r => r.GetRunDetailAsync(RunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(scopedDetail);
+
+        Mock<IRunExportRecordRepository> exportRecords = new();
+        exportRecords
+            .Setup(r => r.GetByIdAsync(canonicalSourceExportId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(CreateExportRecord(canonicalSourceExportId));
+
+        ArchLucid.Decisioning.Services.ManifestHashService manifestHashService = new();
+        Mock<IAuthorityQueryService> authority = new();
+        SealedExportReceiptTestSupport.ConfigureVerifiedSealedExport(authority, runGuid, manifestHashService);
+        authority
+            .Setup(a => a.GetRunDetailAsync(It.IsAny<ScopeContext>(), runGuid, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(authorityDetail);
+
+        Mock<IExportReplayService> exportReplay = new();
+        exportReplay
+            .Setup(r => r.ReplayAsync(It.IsAny<ReplayExportRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ReplayExportResult
+            {
+                ExportRecordId = $"  {canonicalSourceExportId}  ",
+                RecordedReplayExportRecordId = $"  {canonicalRecordedExportId}  ",
+                RunId = RunId,
+                Format = "docx",
+                FileName = "replay.docx",
+                Content = [],
+            });
+
+        AuditEvent? capturedAudit = null;
+        Mock<IAuditService> audit = new();
+        audit
+            .Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .Callback<AuditEvent, CancellationToken>((evt, _) => capturedAudit = evt)
+            .Returns(Task.CompletedTask);
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(new ScopeContext());
+
+        RunExportQueryFacade sut = new(
+            runDetails.Object,
+            exportRecords.Object,
+            Mock.Of<IComparisonAuditService>(),
+            exportReplay.Object,
+            Mock.Of<IExportRecordDiffService>(),
+            Mock.Of<IExportRecordDiffSummaryFormatter>(),
+            audit.Object,
+            Mock.Of<IRunExportLineageVerifier>(),
+            authority.Object,
+            manifestHashService,
+            scopeProvider.Object,
+            Mock.Of<IRunExportCareerPostureGate>());
+
+        ExportReplayQueryResult result = await sut.ReplayExportAsync(
+            canonicalSourceExportId,
+            new ReplayExportRequest { ExportRecordId = canonicalSourceExportId, RecordReplayExport = true },
+            CancellationToken.None);
+
+        result.Outcome.Should().Be(ExportRecordLoadOutcome.Success);
+        result.Replay!.ExportRecordId.Should().Be(canonicalSourceExportId);
+        result.Replay.RecordedReplayExportRecordId.Should().Be(canonicalRecordedExportId);
+        capturedAudit.Should().NotBeNull();
+        capturedAudit!.DataJson.Should().Contain(canonicalSourceExportId);
+        capturedAudit.DataJson.Should().Contain(canonicalRecordedExportId);
+        capturedAudit.DataJson.Should().NotContain($"  {canonicalSourceExportId}  ");
+    }
+
+    [Fact]
     public async Task CompareQuality_ReplayExportAsync_returns_lineage_unverified_when_lifecycle_incomplete_before_career_gate()
     {
         Guid runGuid = Guid.Parse(RunId);
