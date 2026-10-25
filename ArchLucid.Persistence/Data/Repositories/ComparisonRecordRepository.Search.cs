@@ -22,7 +22,7 @@ public sealed partial class ComparisonRecordRepository
                       SELECT TOP 1
                           {ComparisonRecordRunIdSql.ProjectionRow}
                       FROM ComparisonRecords
-                      WHERE LTRIM(RTRIM(ComparisonRecordId)) = @ComparisonRecordId;
+                      WHERE {ComparisonRecordIdSql.TrimmedColumnExpression} = @ComparisonRecordId;
                       """;
 
         using IDbConnection connection = await _readConnectionFactory.CreateOpenConnectionAsync(cancellationToken);
@@ -206,12 +206,15 @@ public sealed partial class ComparisonRecordRepository
         if (cursorCreatedUtc is not null && !string.IsNullOrWhiteSpace(cursorComparisonRecordId))
         {
             parameters.Add("@CursorCreatedUtc", cursorCreatedUtc);
-            parameters.Add("@CursorId", cursorComparisonRecordId.Trim());
+            parameters.Add(
+                "@CursorId",
+                ComparisonRecordIdLookup.NormalizeLookupKey(cursorComparisonRecordId));
+            string trimmedComparisonRecordId = ComparisonRecordIdSql.TrimmedColumnExpression;
             // For DESC: fetch items strictly "after" cursor in DESC order => older than cursor.
             // For ASC: fetch items strictly "after" cursor in ASC order => newer than cursor.
             conditions.Add(sortDescending
-                ? "(CreatedUtc < @CursorCreatedUtc OR (CreatedUtc = @CursorCreatedUtc AND ComparisonRecordId < @CursorId))"
-                : "(CreatedUtc > @CursorCreatedUtc OR (CreatedUtc = @CursorCreatedUtc AND ComparisonRecordId > @CursorId))");
+                ? $"(CreatedUtc < @CursorCreatedUtc OR (CreatedUtc = @CursorCreatedUtc AND {trimmedComparisonRecordId} < @CursorId))"
+                : $"(CreatedUtc > @CursorCreatedUtc OR (CreatedUtc = @CursorCreatedUtc AND {trimmedComparisonRecordId} > @CursorId))");
         }
 
         string sql = baseSql;
@@ -220,8 +223,8 @@ public sealed partial class ComparisonRecordRepository
             sql += " AND " + string.Join(" AND ", conditions);
 
         sql += sortDescending
-            ? $" ORDER BY {orderColumn} DESC, ComparisonRecordId DESC"
-            : $" ORDER BY {orderColumn} ASC, ComparisonRecordId ASC";
+            ? $" ORDER BY {orderColumn} DESC, {ComparisonRecordIdSql.TrimmedColumnExpression} DESC"
+            : $" ORDER BY {orderColumn} ASC, {ComparisonRecordIdSql.TrimmedColumnExpression} ASC";
 
         sql += " OFFSET 0 ROWS FETCH NEXT @Limit ROWS ONLY;";
 

@@ -335,6 +335,23 @@ public sealed class InMemoryComparisonRecordRepositoryAdditionalCoverageTests
     }
 
     [SkippableFact]
+    public async Task ReplacePayloadJsonForIntegrationTest_finds_row_when_stored_comparison_record_id_has_padding()
+    {
+        InMemoryComparisonRecordRepository sut = new();
+        FieldInfo? itemsField = typeof(InMemoryComparisonRecordRepository).GetField(
+            "_items",
+            BindingFlags.Instance | BindingFlags.NonPublic);
+        itemsField.Should().NotBeNull();
+        List<ComparisonRecord> items = (List<ComparisonRecord>)itemsField!.GetValue(sut)!;
+        items.Add(Row("  p-pad  ", TimeProvider.System.UtcNowDateTime()));
+
+        sut.ReplacePayloadJsonForIntegrationTest("p-pad", "{\"k\":2}");
+
+        ComparisonRecord? loaded = await sut.GetByIdAsync("p-pad", CancellationToken.None);
+        loaded!.PayloadJson.Should().Be("{\"k\":2}");
+    }
+
+    [SkippableFact]
     public void ReplacePayloadJsonForIntegrationTest_missing_throws()
     {
         InMemoryComparisonRecordRepository sut = new();

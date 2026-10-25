@@ -246,8 +246,9 @@ public sealed class InMemoryComparisonRecordRepository : IComparisonRecordReposi
 
         lock (_gate)
         {
+            string normalizedComparisonRecordId = ComparisonRecordIdLookup.NormalizeLookupKey(comparisonRecordId);
             ComparisonRecord? row = _items.FirstOrDefault(r =>
-                string.Equals(r.ComparisonRecordId, comparisonRecordId, StringComparison.Ordinal));
+                ComparisonRecordIdLookup.StoredValueMatchesLookup(r.ComparisonRecordId, normalizedComparisonRecordId));
 
             if (row is null)
                 throw new InvalidOperationException($"Comparison record '{comparisonRecordId}' was not found.");
