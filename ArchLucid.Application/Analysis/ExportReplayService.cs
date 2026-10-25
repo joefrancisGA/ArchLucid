@@ -224,7 +224,8 @@ public sealed class ExportReplayService(
             record.TemplateProfile, record.TemplateProfileDisplayName, record.WasAutoSelected, record.ResolutionReason,
             report.Manifest?.Metadata.ManifestVersion, persistedRequest, $"Replay generated from export record {record.ExportRecordId}.",
             emitArchitectureDocxExportGeneratedAudit: false, cancellationToken);
-        recordedReplayExportRecordId = persisted.ExportRecordId;
+        recordedReplayExportRecordId =
+            RunExportRecordIdNormalizer.NormalizeRequired(persisted.ExportRecordId);
         return new ReplayExportResult
         {
             ExportRecordId = record.ExportRecordId,

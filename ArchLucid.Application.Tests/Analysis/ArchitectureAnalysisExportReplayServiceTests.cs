@@ -277,6 +277,102 @@ public sealed class ArchitectureAnalysisExportReplayServiceTests
     }
 
     [Fact]
+    public async Task ReplayAsync_trims_padded_recorded_replay_export_record_id_when_persisting_replay()
+    {
+        const string canonicalExportRecordId = "export-source-replay-persist";
+        const string canonicalRecordedExportRecordId = "export-recorded-replay-row";
+        Guid runGuid = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+        string canonicalRunId = runGuid.ToString("N");
+
+        Mock<IRunExportRecordRepository> repo = new();
+        RunExportRecord record = new()
+        {
+            ExportRecordId = canonicalExportRecordId,
+            RunId = canonicalRunId,
+            ExportType = "analysis-report-consulting-docx",
+            Format = "docx",
+            FileName = "base.docx",
+            AnalysisRequestJson = JsonSerializer.Serialize(new PersistedAnalysisExportRequest
+            {
+                IncludeEvidence = false,
+                IncludeManifest = true,
+                IncludeSummary = true,
+            }, PersistJsonOptions),
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+        };
+
+        repo.Setup(r => r.GetByIdAsync(canonicalExportRecordId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(record);
+
+        Mock<IArchitectureAnalysisService> analysis = new();
+        analysis
+            .Setup(a => a.BuildAsync(It.IsAny<ArchitectureAnalysisRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchitectureAnalysisReport());
+
+        Mock<IArchitectureAnalysisConsultingDocxExportService> consultingDocx = new();
+        consultingDocx
+            .Setup(c => c.GenerateDocxAsync(
+                It.IsAny<ArchitectureAnalysisReport>(),
+                It.IsAny<ConsultingDocxExportBranding?>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([1, 2, 3]);
+
+        Mock<IRunExportAuditService> exportAudit = new();
+        exportAudit
+            .Setup(a => a.RecordAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string?>(),
+                It.IsAny<string?>(),
+                It.IsAny<bool>(),
+                It.IsAny<string?>(),
+                It.IsAny<string?>(),
+                It.IsAny<PersistedAnalysisExportRequest?>(),
+                It.IsAny<string?>(),
+                It.IsAny<bool>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunExportRecord
+            {
+                ExportRecordId = $"  {canonicalRecordedExportRecordId}  ",
+                RunId = canonicalRunId,
+            });
+
+        Mock<IAuthorityQueryService> authority = new();
+        ArchLucid.Decisioning.Services.ManifestHashService manifestHashService = new();
+        SealedExportReceiptTestSupport.ConfigureVerifiedSealedExport(authority, runGuid, manifestHashService);
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(new ScopeContext());
+
+        ExportReplayService sut = new(
+            repo.Object,
+            analysis.Object,
+            Mock.Of<IArchitectureAnalysisDocxExportService>(),
+            consultingDocx.Object,
+            exportAudit.Object,
+            authority.Object,
+            manifestHashService,
+            scopeProvider.Object,
+            Mock.Of<IRunDetailQueryService>(),
+            Mock.Of<IGraphSnapshotRepository>(),
+            SealedExportReceiptTestSupport.CreateEmptyAgentExecutionTraceRepository(),
+            SealedExportReceiptTestSupport.CreateSuccessfulExportHonestyConfiguration(),
+            Mock.Of<ArchLucid.Persistence.Interfaces.IRunRepository>(),
+            Mock.Of<ArchLucid.Core.Persistence.ApplicationPorts.Architecture.IArchitectureInventoryBindingRepository>());
+
+        ReplayExportResult result = await sut.ReplayAsync(
+            new ReplayExportRequest
+            {
+                ExportRecordId = canonicalExportRecordId,
+                RecordReplayExport = true,
+            });
+
+        result.RecordedReplayExportRecordId.Should().Be(canonicalRecordedExportRecordId);
+    }
+
+    [Fact]
     public async Task ReplayAsync_canonicalizes_stored_dashed_padded_run_id_before_build_request()
     {
         Guid runGuid = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
