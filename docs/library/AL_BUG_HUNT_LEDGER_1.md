@@ -6868,6 +6868,20 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-25 seed hunt (seed→hit): proved `ComparisonRecordScopedReadNormalizer` trimmed padded `Format`, `ComparisonType`, `SummaryMarkdown`, and tag entries but left whitespace-only required `Format`/`ComparisonType` columns and optional summary/tags untouched because `IsNullOrWhiteSpace` skipped trim while hunt 202 fixed run id columns only, so comparison list/detail/search could echo space placeholders and blank tag slots that `NormalizeSearchTags` and replay metadata paths already drop; empty required text via `NormalizeRequiredStringColumn`, null summaries via `OptionalExportMetadataStringNormalizer`, and remove whitespace-only tags in place; regression `CompareQuality_comparison_record_scoped_read_normalizer_clears_whitespace_only_format_type_summary_and_tags`; cheap-disproof closed run id whitespace (hunt 202), export id and label whitespace (hunt 201), `ApiPaging.TryParseUtcTicksIdCursor` (comparison search normalizes inbound cursor id), batch zip manifest echo (cosmetic), and Armenian homoglyphs (deferred); seeded five follow-on rows; scoped application-analysis + replay filter 306/306. Private beta: comparison history and detail no longer show whitespace-only format, type, summary, or tag placeholders on legacy rows.
+
+- [ ] (candidate) `ComparisonRecordRepository.GetByRunIdAsync` — SQL list-by-run dashed stored — locus: UNIQUEIDENTIFIER column; input: already matches N/D lookup via guid param.
+- [ ] (candidate) `ComparisonRecordRepositoryCore.SerializeTagsForUpdate` — JSON tag order — locus: cosmetic; input: defer.
+- [ ] (candidate) `ComparisonRecordSearchPredicateBuilder` — notes column search — locus: no notes filter today; input: defer.
+- [ ] (candidate) `ApiPaging.TryParseUtcTicksIdCursor` — cursor id segment without trim — locus: HTTP cursor parse; input: padded id after ticks delimiter (alerts inbox and other API surfaces).
+- [ ] (candidate) `ComparisonBatchReplayZipSupport` — manifest failure entries echo pre-trim batch tokens — locus: zip manifest; input: cosmetic id echo only.
+
+- [x] (proven) `ComparisonRecordScopedReadNormalizer` — whitespace-only format/type/summary/tags — **hit 2026-10-25 seed hunt:** required/optional string parity; regression above.
+- [x] (valid-no-repro) `NormalizeRunIdColumnOrNull` — run id whitespace — **cheap-disproof 2026-10-25 seed hunt:** hunt 202.
+- [x] (valid-no-repro) `ComparisonRecordPersistNormalizer` — persist-layer format trim — **cheap-disproof 2026-10-25 seed hunt:** same guard pattern; scoped read still needed for repository bypass doubles.
+- [x] (invalid) `ApiPaging.TryParseUtcTicksIdCursor` — HTTP cursor id trim — **cheap-disproof 2026-10-25 seed hunt:** comparison search normalizes at application layer.
+- [x] (invalid) `ComparisonBatchReplayZipSupport` — manifest id echo — **cheap-disproof 2026-10-25 seed hunt:** cosmetic only.
+
 2026-10-25 seed hunt (seed→hit): proved `ComparisonRecordScopedReadNormalizer` left whitespace-only `LeftRunId`/`RightRunId` columns untouched because `IsNullOrWhiteSpace` skipped canonicalize while padded dashed GUID strings were not normalized when the guard passed, so comparison history/search could echo space placeholders and non-canonical run anchors after hunt 201 fixed export ids only; normalize run id columns via optional-string null then `CanonicalRunIdForLookup`; regression `CompareQuality_comparison_record_scoped_read_normalizer_nulls_whitespace_only_run_id_columns_and_canonicalizes_padded_guids`; cheap-disproof closed export id whitespace (hunt 201), export-row compare run id (hunt 200), `ApiPaging.TryParseUtcTicksIdCursor` (comparison search normalizes inbound cursor id), batch zip manifest echo (cosmetic), and Armenian homoglyphs (deferred); seeded five follow-on rows; scoped application-analysis + replay filter 364/364. Private beta: comparison record surfaces return null run anchors instead of whitespace placeholders and canonical run ids for legacy padded dashed values.
 
 - [ ] (candidate) `ComparisonRecordRepository.GetByRunIdAsync` — SQL list-by-run dashed stored — locus: UNIQUEIDENTIFIER column; input: already matches N/D lookup via guid param.
@@ -8647,11 +8661,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 202
-- **bugs-found:** 208
+- **hunts:** 203
+- **bugs-found:** 209
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-25
-- **last-bug:** 2026-10-25 — comparison scoped read nulls whitespace run ids
+- **last-bug:** 2026-10-25 — comparison scoped read clears whitespace format/type/summary/tags
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
