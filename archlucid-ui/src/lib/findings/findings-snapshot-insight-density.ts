@@ -151,8 +151,16 @@ export function formatInsightDensityCurationMessage(curation: InsightDensityCura
   const demoted = curation.demotedToChecklistCount;
   const retained = curation.retainedFindingCount;
 
-  if (demoted === null || retained === null) {
-    return INSIGHT_DENSITY_CURATION_COUNTS_NOT_STORED;
+  if (demoted === null && retained === null) {
+    return "";
+  }
+
+  if (demoted === null) {
+    return "Demoted finding count was not stored.";
+  }
+
+  if (retained === null) {
+    return "Retained finding count was not stored.";
   }
 
   if (demoted <= 0 && retained <= 0) {
