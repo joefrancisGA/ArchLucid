@@ -3,7 +3,10 @@ import { describe, expect, it } from "vitest";
 import {
   ASK_REVIEW_GROUNDING_LINKS_NOT_STORED_MARKER,
   ASK_REVIEW_UNCITED_RESPONSE_MARKER,
+  askReviewArtifactStatusCopy,
+  messageHasUncitedAssistantOutput,
   resolveAskAssistantGroundingCitationMarker,
+  resolveAskReviewArtifactStatus,
 } from "./ask-review-artifact-status-copy";
 
 describe("resolveAskAssistantGroundingCitationMarker", () => {
@@ -15,5 +18,21 @@ describe("resolveAskAssistantGroundingCitationMarker", () => {
       ASK_REVIEW_UNCITED_RESPONSE_MARKER,
     );
     expect(resolveAskAssistantGroundingCitationMarker("Answer text", [{ findingId: "f-1" }])).toBeNull();
+  });
+});
+
+describe("askReviewArtifactStatusCopy", () => {
+  it("describes missing review context", () => {
+    expect(askReviewArtifactStatusCopy(resolveAskReviewArtifactStatus({ runMissing: true }))).toMatch(
+      /No architecture review/i,
+    );
+  });
+});
+
+describe("messageHasUncitedAssistantOutput", () => {
+  it("flags assistant output without grounding links", () => {
+    expect(messageHasUncitedAssistantOutput("Answer without links", 0)).toBe(true);
+    expect(messageHasUncitedAssistantOutput("Answer with links", 2)).toBe(false);
+    expect(messageHasUncitedAssistantOutput("Answer without links", null)).toBe(false);
   });
 });

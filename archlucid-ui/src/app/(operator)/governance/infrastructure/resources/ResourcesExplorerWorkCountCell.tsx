@@ -20,7 +20,7 @@ const WORK_MARKER_ABBREVIATIONS: Readonly<Record<CloudResourceExplorerWorkCountB
 };
 
 function workMarkerAccessibleLabel(badge: CloudResourceExplorerWorkCountBadge): string {
-  return `${badge.label}: ${badge.count}`;
+  return badge.count === null ? badge.label : `${badge.label}: ${badge.count}`;
 }
 
 export type ResourcesExplorerWorkCountCellProps = {
@@ -57,7 +57,9 @@ export function ResourcesExplorerWorkCountCell(props: ResourcesExplorerWorkCount
           )}
           data-testid={`infra-resource-work-count-${props.row.cloudResourceId}-${badge.kind}`}
         >
-          <span aria-hidden="true">{WORK_MARKER_ABBREVIATIONS[badge.kind]}:{badge.count}</span>
+          <span aria-hidden="true">
+            {badge.count === null ? badge.label : `${WORK_MARKER_ABBREVIATIONS[badge.kind]}:${badge.count}`}
+          </span>
         </Link>
       ))}
     </div>

@@ -125,22 +125,20 @@ export function plainLanguageFailureCauseSentence(args: {
   readonly failureClass?: string | null;
   readonly triageScenarioId?: string | null;
   readonly reasonCode?: string | null;
-  readonly completedStages?: number;
+  readonly completedStages?: number | null;
 }): string {
   const triageTitle = plainLanguageTriageTitle(args.triageScenarioId);
+  const stagePrefix = resolveFailureStagePrefix(args.completedStages);
 
   if (triageTitle !== null) {
-    const stagePrefix = resolveFailureStageReachedPhrase(args.completedStages ?? 0);
     const resolutionHint = resolveFailureResolutionHint(args.failureClass, args.reasonCode);
 
     return `${stagePrefix} ${triageTitle}${resolutionHint.length > 0 ? ` (${resolutionHint})` : ""}`;
   }
 
   const failureClass = (args.failureClass ?? "").trim();
-  const completedStages = args.completedStages ?? 0;
 
   if (failureClass.length > 0 && FAILURE_CLASS_CAUSE_SENTENCES[failureClass] !== undefined) {
-    const stagePrefix = resolveFailureStageReachedPhrase(completedStages);
     const cause = FAILURE_CLASS_CAUSE_SENTENCES[failureClass];
     const resolutionHint = resolveFailureResolutionHint(failureClass, args.reasonCode);
 
@@ -151,8 +149,6 @@ export function plainLanguageFailureCauseSentence(args: {
     const label = plainLanguageFailureClassLabel(failureClass).toLowerCase();
 
     if (label === "invalid operation") {
-      const stagePrefix = resolveFailureStageReachedPhrase(completedStages);
-
       return `${stagePrefix} Processing stopped for a configuration or scheduling issue — re-run after your workspace AI setup is confirmed, or share the review ID with support.`;
     }
 
@@ -166,6 +162,14 @@ export function plainLanguageFailureCauseSentence(args: {
   }
 
   return FAILURE_CLASS_CAUSE_SENTENCES.unknown;
+}
+
+function resolveFailureStagePrefix(completedStages: number | null | undefined): string {
+  if (completedStages === null || completedStages === undefined || !Number.isFinite(completedStages)) {
+    return "Pipeline stage count was not stored.";
+  }
+
+  return resolveFailureStageReachedPhrase(Math.trunc(completedStages));
 }
 
 function resolveFailureStageReachedPhrase(completedStages: number): string {

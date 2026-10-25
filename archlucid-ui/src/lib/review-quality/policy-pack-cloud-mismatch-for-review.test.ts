@@ -12,6 +12,8 @@ describe("policy-pack-cloud-mismatch-for-review (TB-2322)", () => {
     expect(normalizeCloudProviderForMismatchCheck("Gcp")).toBe("gcp");
     expect(normalizeCloudProviderForMismatchCheck("Azure")).toBe("azure");
     expect(normalizeCloudProviderForMismatchCheck("None")).toBe("none");
+    expect(normalizeCloudProviderForMismatchCheck(undefined)).toBeNull();
+    expect(normalizeCloudProviderForMismatchCheck(null)).toBeNull();
   });
 
   it("collects rule set, request refs, and pack-at-commit assignments", () => {
@@ -25,6 +27,18 @@ describe("policy-pack-cloud-mismatch-for-review (TB-2322)", () => {
     expect(refs).toEqual(
       expect.arrayContaining(["cis-azure", "cis-azure@2.0", "soc2-architecture-themes", "azure-security"]),
     );
+  });
+
+  it("does not call cloud-neutral when cloud target was omitted", () => {
+    const mismatch = evaluatePolicyPackCloudMismatchForReview(
+      null,
+      "cis-azure",
+      "2.0",
+      [],
+      [{ policyPackId: "cis-azure", policyPackVersion: "2.0", scopeLevel: "tenant" }],
+    );
+
+    expect(mismatch).toBe("Cloud target was not stored.");
   });
 
   it("flags Azure packs when cloud target is AWS on committed review", () => {

@@ -122,6 +122,43 @@ describe("buildOperatorHomeRecentReviewsOutcomeParts", () => {
 });
 
 describe("deriveHomePreviewTabCounts", () => {
+  it("normalizes non-finite workspace awaiting-approval fallback for tab counts", () => {
+    const items: RunSummary[] = [{ runId: "run-1", projectId: "default" }];
+
+    const counts = deriveHomePreviewTabCounts({
+      previewItems: items,
+      awaitingApprovalRunIds: ["missing-run"],
+      awaitingApprovalCount: Number.NaN,
+    });
+
+    expect(counts["awaiting-approval"]).toBe(0);
+  });
+
+  it("counts awaiting-approval tab rows when queue run ids have surrounding whitespace", () => {
+    const items: RunSummary[] = [{ runId: "run-a", projectId: "default" }];
+
+    const counts = deriveHomePreviewTabCounts({
+      previewItems: items,
+      awaitingApprovalRunIds: [" run-a "],
+    });
+
+    expect(counts["awaiting-approval"]).toBe(1);
+  });
+
+  it("excludes showcase rows when the showcase run id token has surrounding whitespace", () => {
+    const items: RunSummary[] = [
+      { runId: "run-1", projectId: "default" },
+      { runId: "showcase", projectId: "default" },
+    ];
+
+    const counts = deriveHomePreviewTabCounts({
+      previewItems: items,
+      excludeShowcaseRunId: " showcase ",
+    });
+
+    expect(counts.recentTotalCount).toBe(1);
+  });
+
   it("caps the Recent tab at the featured limit and excludes showcase rows", () => {
     const items: RunSummary[] = [
       { runId: "run-1", projectId: "default" },

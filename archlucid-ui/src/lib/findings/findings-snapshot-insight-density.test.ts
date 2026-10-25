@@ -74,23 +74,33 @@ describe("findings-snapshot-insight-density", () => {
     ).toBe(false);
   });
 
-  it("does not infer curation counts from checklist rows when counts are omitted", () => {
-    const detail = {
+  it("labels checklist rows without a stored title", () => {
+    const view = resolveFindingsSnapshotInsightDensityView({
       run: { runId: "r1", projectId: "p", createdUtc: "2026-01-01T00:00:00Z" },
       findingsSnapshot: {
-        checklistCoverage: [{ findingId: "chk-1", message: "Row", category: null }],
+        checklistCoverage: [{ findingId: "chk-1" }],
       },
-    } as RunDetail;
+    } as never);
 
-    const view = resolveFindingsSnapshotInsightDensityView(detail);
-
-    expect(view.curation).toBeNull();
+    expect(view.checklistCoverage[0]?.title).toBe("Checklist title was not stored.");
   });
 
   it("formatInsightDensityCurationMessage states when counts were not stored", () => {
     expect(formatInsightDensityCurationMessage({ demotedToChecklistCount: null, retainedFindingCount: null })).toContain(
       "Demoted count was not stored.",
     );
+    expect(
+      formatInsightDensityCurationMessage({
+        demotedToChecklistCount: null,
+        retainedFindingCount: 2,
+      }),
+    ).toContain("Demoted count was not stored.");
+    expect(
+      formatInsightDensityCurationMessage({
+        demotedToChecklistCount: 1,
+        retainedFindingCount: null,
+      }),
+    ).toContain("Retained finding count was not stored.");
   });
 
   it("hasFindingsSnapshotInsightDensityContent is true for checklist rows or curation copy", () => {

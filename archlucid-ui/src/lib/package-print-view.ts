@@ -250,9 +250,11 @@ export function buildPackagePrintPresentation(
   const statusLabel = resolvePackagePrintStatusLabel(summary);
   const findingsTotalCount = finiteCount(summary.findingCount);
   const findingsListedCount =
-    options?.findingsListedCount === undefined || options?.findingsListedCount === null
+    options?.findingsListedCount === undefined
       ? findingsTotalCount
-      : finiteCount(options.findingsListedCount);
+      : options.findingsListedCount === null
+        ? null
+        : finiteCount(options.findingsListedCount);
   const baseSummary = buildPackagePrintFindingsSummary(summary);
   const inventoryLine =
     findingsListedCount !== null &&
@@ -260,12 +262,21 @@ export function buildPackagePrintPresentation(
     findingsListedCount < findingsTotalCount
       ? formatInventoryShowingLine(findingsListedCount, findingsTotalCount)
       : null;
+  const listedCountOmissionLine =
+    options?.findingsListedCount === null && findingsTotalCount !== null
+      ? "Listed finding count was not stored."
+      : null;
 
   return {
     title: buyerFacingReviewTitleFromSummary(summary),
     statusLabel,
     statusKind: resolvePackagePrintStatusKind(statusLabel),
-    findingsSummary: inventoryLine !== null ? `${baseSummary} ${inventoryLine}.` : baseSummary,
+    findingsSummary:
+      listedCountOmissionLine !== null
+        ? `${baseSummary} ${listedCountOmissionLine}`
+        : inventoryLine !== null
+          ? `${baseSummary} ${inventoryLine}.`
+          : baseSummary,
     findingsListedCount,
     findingsTotalCount,
     sponsorSynopsis: buildPackagePrintSponsorSynopsis(summary),

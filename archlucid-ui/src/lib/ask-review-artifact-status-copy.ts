@@ -49,10 +49,17 @@ export function askReviewArtifactStatusCopy(status: AskReviewArtifactStatus): st
   }
 }
 
-export function messageHasUncitedAssistantOutput(content: string, groundingLinkCount: number): boolean {
+export function messageHasUncitedAssistantOutput(
+  content: string,
+  groundingLinkCount: number | null,
+): boolean {
   const trimmed = content.trim();
 
   if (trimmed.length === 0) {
+    return false;
+  }
+
+  if (groundingLinkCount === null) {
     return false;
   }
 
@@ -79,4 +86,8 @@ export function resolveAskAssistantGroundingCitationMarker(
   }
 
   return null;
+}
+
+export function messageCitationLinksNotStored(groundingLinkCount: number | null): boolean {
+  return groundingLinkCount === null;
 }

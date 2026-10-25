@@ -19,6 +19,7 @@ import {
   readFindingProjectedImpactInterval,
   readFindingProjectedImpactUsd,
 } from "@/lib/findings/findings-what-if-analysis";
+import { RUN_FINDING_EXPLAINABILITY_TITLE_OMITTED } from "@/components/runs/RunFindingExplainabilityTable";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 import { Label } from "@/components/ui/label";
 
@@ -218,19 +219,28 @@ export function FindingsWhatIfAnalysisPanel(props: FindingsWhatIfAnalysisPanelPr
                   onChange={() => toggleFinding(row.finding.findingId)}
                 />
                 <span className="min-w-0 flex-1">
-                  <span className="font-medium">{row.finding.title}</span>
-                  {row.savingsUsd !== null && row.savingsUsd > 0 ? (
+                  <span className="font-medium">
+                    {row.finding.title.trim().length > 0
+                      ? row.finding.title
+                      : RUN_FINDING_EXPLAINABILITY_TITLE_OMITTED}
+                  </span>
+                  {row.savingsUsd === null ? (
+                    <span className={cn("ml-2 text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>
+                      {row.interval !== null
+                        ? "Projected impact was not stored."
+                        : "Projected savings were not stored."}
+                    </span>
+                  ) : row.savingsUsd > 0 ? (
                     <span className={cn("ml-2 text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>
                       −{formatUsd(row.savingsUsd)}
                       {row.interval && (
                         <span className="ml-1 opacity-75">
-                          (Range: {row.interval.lower !== null ? formatUsd(row.interval.lower) : "Lower bound was not stored."} - {row.interval.upper !== null ? formatUsd(row.interval.upper) : "Upper bound was not stored."})
+                          (Range:{" "}
+                          {row.interval.lower !== null ? formatUsd(row.interval.lower) : "Lower bound was not stored."}{" "}
+                          -{" "}
+                          {row.interval.upper !== null ? formatUsd(row.interval.upper) : "Upper bound was not stored."})
                         </span>
                       )}
-                    </span>
-                  ) : row.savingsUsd === null && row.interval !== null ? (
-                    <span className={cn("ml-2 text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>
-                      Projected impact was not stored.
                     </span>
                   ) : null}
                   {row.interval?.reasoning && (

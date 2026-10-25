@@ -40,10 +40,10 @@ export function manifestWarningsSecondaryCopy(warningCountDisplay: number | null
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
 
   if (buyerPolishedShell) {
-    return `${n} monitored risk${n === 1 ? "" : "s"} (PHI minimization)`;
+    return `${n} monitored risk${n === 1 ? "" : "s"}`;
   }
 
-  return `${n} review warning${n === 1 ? "" : "s"} (PHI minimization)`;
+  return `${n} review warning${n === 1 ? "" : "s"}`;
 }
 
 function buyerFindingSeveritySignal(

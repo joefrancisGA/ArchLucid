@@ -70,8 +70,11 @@ export function buildSponsorScorecardRecommendedActions(
 ): SponsorScorecardRecommendedAction[] {
   const candidates: SponsorScorecardRecommendedAction[] = [];
   const orphan = input.orphanCandidates;
-  const orphanCount = orphan?.candidateCount ?? 0;
-  const orphanSavings = orphan?.annualSavingsUsd ?? 0;
+  const orphanCount =
+    typeof orphan?.candidateCount === "number" && Number.isFinite(orphan.candidateCount)
+      ? orphan.candidateCount
+      : null;
+  const orphanSavings = orphan?.annualSavingsUsd;
 
   if (input.complianceDriftChangeCount > 0) {
     const n = input.complianceDriftChangeCount;
@@ -85,7 +88,7 @@ export function buildSponsorScorecardRecommendedActions(
     });
   }
 
-  if (orphanCount > 0 && typeof orphanSavings === "number" && Number.isFinite(orphanSavings) && orphanSavings > 0) {
+  if (orphanCount !== null && orphanCount > 0 && typeof orphanSavings === "number" && Number.isFinite(orphanSavings) && orphanSavings > 0) {
     candidates.push({
       id: "orphan-candidates",
       headline: `Reclaim ${formatUsdCompact(orphanSavings)} in orphan candidates`,
@@ -93,11 +96,15 @@ export function buildSponsorScorecardRecommendedActions(
       href: "/architecture/reviews?filter=orphan-candidates",
       sortWeight: orphanSavings,
     });
-  } else if (orphanCount > 0) {
+  } else if (orphanCount !== null && orphanCount > 0) {
+    const savingsNote =
+      typeof orphanSavings === "number" && Number.isFinite(orphanSavings)
+        ? ""
+        : " Annual savings were not stored.";
     candidates.push({
       id: "orphan-candidates",
       headline: `Review ${orphanCount} orphan ${orphanCount === 1 ? "candidate" : "candidates"}`,
-      explanation: "Open the reviews list filtered to orphan-candidate evidence from your latest ROI summary.",
+      explanation: `Open the reviews list filtered to orphan-candidate evidence from your latest ROI summary.${savingsNote}`,
       href: "/architecture/reviews?filter=orphan-candidates",
       sortWeight: orphanCount,
     });
@@ -112,6 +119,17 @@ export function buildSponsorScorecardRecommendedActions(
       explanation: `'${overdue.systemName}' has been pending for ${overdue.daysPending} days.`,
       href: `/architecture/reviews/${encodeURIComponent(overdue.runId)}`,
       sortWeight: overdue.daysPending,
+    });
+  }
+
+  if (candidates.length === 0 && orphanCount === null) {
+    candidates.push({
+      id: "orphan-count-not-stored",
+      headline: "Orphan candidate count was not stored.",
+      explanation:
+        "The sponsor ROI summary did not include an orphan candidate count for this range — open workspace health or refresh the summary before prioritizing decommission work.",
+      href: GOVERNANCE_WORKSPACE_HEALTH_HREF,
+      sortWeight: 0,
     });
   }
 
