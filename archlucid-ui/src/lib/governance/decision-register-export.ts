@@ -11,6 +11,9 @@ import type { StructuralExecutionModeInput } from "@/lib/structural-execution-mo
 export const DECISION_REGISTER_EXPORT_DISPOSITION_HONESTY_HEADER =
   "Disposition honesty: confidenceSource and buyerConfidenceSource describe how each row's confidence was determined — do not treat Unknown or heuristic basis as evidence-backed without review.";
 
+export const DECISION_REGISTER_EXPORT_SUPPORTING_FINDING_IDS_NOT_STORED =
+  "Supporting finding ids were not stored." as const;
+
 export type DecisionRegisterExportContext = {
   readonly findings?: readonly QuickDecisionFinding[];
   readonly structuralExecutionMode?: StructuralExecutionModeInput;
@@ -47,7 +50,7 @@ export type DecisionRegisterExportRow = {
   readonly recordedAtUtc: string;
   readonly runId: string;
   readonly manifestId: string;
-  readonly supportingFindingIds: readonly string[];
+  readonly supportingFindingIds: readonly string[] | null;
   readonly supportingFindingSemanticSupportBands?: Record<string, FindingSemanticSupportBandValue>;
 };
 
@@ -101,9 +104,12 @@ export function mapDecisionRegisterExportRows(
   const findings = context?.findings ?? [];
 
   return decisions.map((decision) => {
-    const supportingFindingIds = decision.supportingFindingIds ?? [];
+    const supportingFindingIds =
+      decision.supportingFindingIds === undefined || decision.supportingFindingIds === null
+        ? null
+        : [...decision.supportingFindingIds];
     const supportingFindingSemanticSupportBands =
-      findings.length === 0
+      findings.length === 0 || supportingFindingIds === null
         ? undefined
         : resolveSupportingFindingSemanticSupportBands(supportingFindingIds, findings);
 
@@ -183,7 +189,11 @@ export function formatDecisionRegisterExportCsv(
         escapeCsvCell(row.recordedAtUtc),
         escapeCsvCell(row.runId),
         escapeCsvCell(row.manifestId),
-        escapeCsvCell(row.supportingFindingIds.join(";")),
+        escapeCsvCell(
+          row.supportingFindingIds === null
+            ? DECISION_REGISTER_EXPORT_SUPPORTING_FINDING_IDS_NOT_STORED
+            : row.supportingFindingIds.join(";"),
+        ),
       ].join(","),
     );
   }

@@ -242,7 +242,8 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
     }
 
     private const string SharedServicesFrameCellId = "shared-services";
-    private const string SharedServicesFrameTitle = "Shared services";
+    private const string SharedServicesFrameTitle =
+        "Shared service types. This frame is not a resource group.";
 
     private static List<NodePlacement> BuildVnetPrimaryPlacements(
         IReadOnlyList<DiagramNode> nodes,

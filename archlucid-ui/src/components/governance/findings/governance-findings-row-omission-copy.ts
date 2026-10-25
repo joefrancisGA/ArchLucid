@@ -8,5 +8,7 @@ export const GOVERNANCE_QUEUE_DECISION_STATUS_NOT_STORED = "Decision status was 
 export const GOVERNANCE_QUEUE_REVIEW_NAME_NOT_STORED = "Review name was not stored." as const;
 export const GOVERNANCE_QUEUE_REVIEW_TITLE_NOT_STORED = "Review title was not stored." as const;
 export const GOVERNANCE_QUEUE_CATEGORY_NOT_STORED = "Category was not stored." as const;
+export const GOVERNANCE_QUEUE_RECOMMENDED_ACTION_NOT_STORED = "Recommended action was not stored." as const;
+export const GOVERNANCE_QUEUE_RATIONALE_NOT_STORED = "Rationale was not stored." as const;
 export const GOVERNANCE_QUEUE_LINKED_REVIEW_RECORD_NOT_STORED =
   "Linked review record was not stored." as const;

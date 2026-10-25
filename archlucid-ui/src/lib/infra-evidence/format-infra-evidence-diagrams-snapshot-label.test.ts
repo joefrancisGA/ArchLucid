@@ -62,4 +62,10 @@ describe("formatInfraEvidenceDiagramsSnapshotPickerLabel", () => {
     expect(emptyName).toBe(withName);
     expect(withName).not.toMatch(/architecture/i);
   });
+
+  it("states when resource count was not stored", () => {
+    expect(
+      formatInfraEvidenceDiagramsSnapshotPickerLabel(snapshot({ resourceCount: undefined as never })),
+    ).toContain("Resource count was not stored.");
+  });
 });

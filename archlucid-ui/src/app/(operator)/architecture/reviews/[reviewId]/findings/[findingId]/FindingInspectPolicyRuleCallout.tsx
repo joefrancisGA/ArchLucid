@@ -56,7 +56,10 @@ export function FindingInspectPolicyRuleCallout(props: FindingInspectPolicyRuleC
     );
   }, [effective, pack, policy]);
 
-  const violationLabel = pack !== null ? `Policy violation: ${pack.packName}` : "Policy violation";
+  const violationLabel =
+    pack !== null && pack.packName.trim().length > 0
+      ? `Policy violation: ${pack.packName}`
+      : "Policy pack name was not stored.";
 
   return (
     <div
@@ -96,6 +99,11 @@ export function FindingInspectPolicyRuleCallout(props: FindingInspectPolicyRuleC
           >
             {preview.description}
           </p>
+          {preview.hasCuratedRuleText ? null : (
+            <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} role="note">
+              Curated rule text was not stored on the effective policy pack for this finding.
+            </p>
+          )}
           {preview.remediationGuidance.trim().length > 0 ? (
             <p className={cn("m-0 mt-2 leading-relaxed text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
               <span className="font-medium text-al-text-primary">Remediation: </span>

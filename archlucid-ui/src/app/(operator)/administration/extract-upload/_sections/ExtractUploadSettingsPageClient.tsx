@@ -73,7 +73,6 @@ import {
   EXTRACT_UPLOAD_SETTINGS_SKIP_LINK_LABEL,
   EXTRACT_UPLOAD_SETTINGS_SKIP_TARGET_ID,
 } from "@/lib/extract-upload-settings-page-copy";
-import { truncateExtractUploadPackageId } from "@/lib/extract-upload-accepted-package-record";
 import { ExtractUploadSettingsPageHeader } from "./ExtractUploadSettingsPageHeader";
 import { ExtractUploadSettingsBuyerChrome } from "./ExtractUploadSettingsBuyerChrome";
 import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
@@ -96,7 +95,7 @@ function reviewBindingStepLabel(associateRunId: string | null): string | null {
     return null;
   }
 
-  return `${EXTRACT_UPLOAD_REVIEW_BINDING_PREFIX} ${truncateExtractUploadPackageId(trimmed, 12)}`;
+  return `${EXTRACT_UPLOAD_REVIEW_BINDING_PREFIX} ${trimmed}.`;
 }
 
 /**

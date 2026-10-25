@@ -102,7 +102,7 @@ function proofChainFindingField(card: RunTrustEvidenceCard): TrustEvidenceFieldS
     return {
       title: "Top finding evidence chain",
       status: "Missing",
-      detail: "No top finding evidence-chain pointer is available.",
+      detail: "Top finding evidence chain was not stored for this review.",
     };
   }
 

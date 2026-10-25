@@ -148,6 +148,22 @@ Describe 'start-local-api-and-ui.helpers.ps1' {
         $command | Should -Match "Set-Location -LiteralPath 'C:\\O''Brien\\archlucid-ui'"
     }
 
+    It 'prepends Node tools to PATH in spawned UI windows when the starter resolved node outside PATH' {
+        [string]$command = Get-LocalUiWindowCommand `
+            -UiRoot 'C:\ArchLucid\archlucid-ui' `
+            -NodeToolsDirectory 'C:\Program Files\nodejs'
+
+        $command | Should -Match '\$env:PATH = ''C:\\Program Files\\nodejs;'' \+ \$env:PATH'
+    }
+
+    It 'builds a PATH prepend command with escaped apostrophes in the Node directory' {
+        [string]$nodeDir = "C:\O'Brien\nodejs"
+        [string]$prepend = Get-LocalDevNodePathPrependCommand -NodeToolsDirectory $nodeDir
+        [string]$expected = '$env:PATH = ' + (ConvertTo-PowerShellSingleQuotedLiteral -Value ($nodeDir + ';')) + ' + $env:PATH'
+
+        $prepend | Should -Be $expected
+    }
+
     It 'lists Architecture :3000 and Security :3001 by default' {
         $sites = @(Get-LocalUiSiteSpecs)
 

@@ -29,7 +29,7 @@ internal static class DiagramForestDataFlowColumnLayout
         IReadOnlyList<NodePlacement> Placements,
         IReadOnlyList<ColumnInfo> Columns);
 
-    internal const string NotStagedColumnLabel = "Not staged";
+    internal const string NotStagedColumnLabel = "Stage was not stored.";
 
     public static Result Plan(
         IReadOnlyList<DiagramNode> nodes,
@@ -272,6 +272,6 @@ internal static class DiagramForestDataFlowColumnLayout
             return NotStagedColumnLabel;
         }
 
-        return orderedSubgraphs[stageIndex].Label;
+        return DiagramSubgraphLabelFormatter.FormatForDiagram(orderedSubgraphs[stageIndex].Label);
     }
 }

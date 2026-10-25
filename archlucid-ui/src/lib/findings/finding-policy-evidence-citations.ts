@@ -12,7 +12,8 @@ import {
   runDetailSectionHref,
 } from "@/lib/findings/finding-source-evidence-links";
 import { graphTrailHrefWithOptionalNode } from "@/lib/graph-finding-deep-links";
-import { policyPackBuyerLabel } from "@/lib/policy/policy-pack-buyer-label";
+import { policyPackBuyerDisplayNameFromId } from "@/lib/policy/policy-pack-buyer-label";
+import { resolveSampleScenarioByPolicyPackId } from "@/lib/samples/registry";
 import { policyPacksEditHref, policyPacksRuleHref } from "@/lib/policy/policy-packs-deep-link";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 import type { FindingInspectEvidence, FindingInspectPayload } from "@/types/finding-inspect";
@@ -82,8 +83,20 @@ export function resolvePolicyRuleIdFromInspect(payload: FindingInspectPayload): 
   );
 }
 
+export const FINDING_POLICY_RULE_NAME_NOT_STORED = "Rule name was not stored." as const;
+
 export function resolvePolicyRuleLabelFromInspect(payload: FindingInspectPayload, ruleId: string | null): string | null {
-  return nonEmptyString(payload.decisionRuleName) ?? ruleId;
+  const ruleName = nonEmptyString(payload.decisionRuleName);
+
+  if (ruleName !== null) {
+    return ruleName;
+  }
+
+  if (ruleId !== null) {
+    return FINDING_POLICY_RULE_NAME_NOT_STORED;
+  }
+
+  return null;
 }
 
 export function resolvePolicyPackIdFromInspect(payload: FindingInspectPayload): string | null {
@@ -120,9 +133,23 @@ export function resolvePolicyPackNameFromInspect(
     return null;
   }
 
-  const version = resolvePolicyPackVersionFromInspect(payload) ?? "";
+  const scenario = resolveSampleScenarioByPolicyPackId(packId);
 
-  return policyPackBuyerLabel(packId, version);
+  if (scenario !== null) {
+    const version = nonEmptyString(resolvePolicyPackVersionFromInspect(payload));
+
+    return version !== null
+      ? `${scenario.policyPackDisplayLabel} v${version}`
+      : scenario.policyPackDisplayLabel;
+  }
+
+  const displayFromId = policyPackBuyerDisplayNameFromId(packId);
+
+  if (displayFromId !== null) {
+    return displayFromId;
+  }
+
+  return "Policy pack name was not stored.";
 }
 
 /** First non-empty reasoning excerpt suitable for policy provenance UI. */
