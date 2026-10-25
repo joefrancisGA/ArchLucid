@@ -863,6 +863,12 @@ describe("consumePkceState", () => {
     expect(consumePkceState("desk\u0008state")).toBeNull();
   });
 
+  it("rejects PKCE consume when tampered session verifier contains interior backspace control characters", () => {
+    storePkceState("primary-state", "ver\u0008ifier", "primary-nonce", "primary");
+
+    expect(consumePkceState("primary-state")).toBeNull();
+  });
+
   it("returns normalized PKCE verifier and nonce values read from sessionStorage", () => {
     storePkceState("primary-state", `\u200bprimary-verifier\u200b`, `\u200bprimary-nonce\u200b`, "primary");
 
