@@ -127,6 +127,83 @@ public sealed class RunDetailQueryServiceApplicationTests
     }
 
     [Fact]
+    public async Task CompareQuality_GetRunDetailAsync_loads_llm_cost_when_trace_run_id_differs_only_by_casing()
+    {
+        ScopeContext scope = NewScope();
+        Guid runGuid = Guid.Parse("abababab-abab-abab-abab-abababababab");
+        string runN = runGuid.ToString("N");
+
+        Mock<IRunRepository> runRepo = new();
+        Mock<IScopeContextProvider> scopeProvider = new();
+        Mock<IAgentTaskRepository> taskRepo = new();
+        Mock<IUnifiedGoldenManifestReader> unifiedReader = new();
+        Mock<IAgentResultEnrichmentRepository> enrichmentRepo = new();
+        InMemoryAgentExecutionTraceRepository traceRepo = new();
+
+        enrichmentRepo
+            .Setup(r => r.GetByResultIdsAsync(It.IsAny<IReadOnlyList<string>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new Dictionary<string, AgentResultEnrichmentRecord>(StringComparer.Ordinal));
+        InMemoryAgentResultRepository resultRepo = new(enrichmentRepo.Object);
+
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(scope);
+
+        RunRecord record = new()
+        {
+            RunId = runGuid,
+            TenantId = scope.TenantId,
+            WorkspaceId = scope.WorkspaceId,
+            ScopeProjectId = scope.ProjectId,
+            ProjectId = "p",
+            ArchitectureRequestId = "req-trace-cost-casing",
+            LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+        };
+
+        runRepo.Setup(r => r.GetByIdAsync(scope, runGuid, It.IsAny<CancellationToken>())).ReturnsAsync(record);
+        taskRepo.Setup(r => r.GetByRunIdAsync(scope, runN, It.IsAny<CancellationToken>())).ReturnsAsync([]);
+        unifiedReader
+            .Setup(r => r.ReadByRunIdAsync(scope, runGuid, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((GoldenManifest?)null);
+
+        await traceRepo.CreateAsync(
+            new AgentExecutionTrace
+            {
+                TraceId = "trace-cost-casing",
+                RunId = runN.ToUpperInvariant(),
+                ModelDeploymentName = "gpt-4o",
+                InputTokenCount = 100,
+                OutputTokenCount = 20,
+            },
+            CancellationToken.None);
+
+        Mock<ILlmCostEstimator> llmCostEstimator = new();
+        llmCostEstimator
+            .Setup(e => e.EstimateUsd(100, 20, 0, "gpt-4o"))
+            .Returns(0.42m);
+
+        RunDetailQueryService sut = new(
+            runRepo.Object,
+            scopeProvider.Object,
+            taskRepo.Object,
+            resultRepo,
+            unifiedReader.Object,
+            Mock.Of<IDecisionTraceRepository>(),
+            Mock.Of<IFindingRecordMuteRepository>(),
+            traceRepo,
+            llmCostEstimator.Object,
+            new FindingTrustLabelMapper(),
+            Mock.Of<IRunStageOutcomesRepository>(),
+            new RunStateTransitionService(),
+            Mock.Of<ILogger<RunDetailQueryService>>());
+
+        ArchitectureRunDetail? detail = await sut.GetRunDetailAsync(runN);
+
+        detail.Should().NotBeNull();
+        detail!.AgentExecutionLlmCostEstimate.Should().NotBeNull();
+        detail.AgentExecutionLlmCostEstimate!.EstimatedCostUsd.Should().Be(0.42m);
+    }
+
+    [Fact]
     public async Task CompareQuality_GetRunDetailForRollupAsync_loads_results_when_run_id_differs_only_by_casing()
     {
         ScopeContext scope = NewScope();

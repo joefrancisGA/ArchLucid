@@ -54,7 +54,7 @@ public sealed partial class RunDetailQueryService
         Task<GoldenManifest?> manifestTask =
             unifiedGoldenManifestReader.ReadByRunIdAsync(scope, runGuid, cancellationToken);
         Task<IReadOnlyList<AgentExecutionTraceLlmCostSlice>> costSlicesTask =
-            _agentExecutionTraceRepository.GetLlmCostSlicesByRunIdAsync(scope, lookupRunId, cancellationToken);
+            LoadLlmCostSlicesForRunLookupAsync(scope, lookupRunId, cancellationToken);
 
         Task<IReadOnlyDictionary<string, FindingMuteFlag>> muteFlagsTask =
             record.FindingsSnapshotId is { } findingsSnapshotId
