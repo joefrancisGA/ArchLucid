@@ -614,6 +614,32 @@ describe("SecureNowQuestionQueue", () => {
     expect(screen.queryByText("No questions match this filter.")).not.toBeInTheDocument();
   });
 
+  it("skips only the active row when omitted keys share question text but disposition ids differ", async () => {
+    mocks.listQuestions.mockResolvedValue([
+      {
+        ...question,
+        questionKey: null,
+        questionText: "Shared prompt without a stored key?",
+        dispositionId: "disposition-1",
+      },
+      {
+        ...question,
+        questionKey: null,
+        questionText: "Shared prompt without a stored key?",
+        dispositionId: "disposition-2",
+      },
+    ]);
+
+    render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
+    fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
+
+    expect(screen.getAllByText("Shared prompt without a stored key?")).toHaveLength(1);
+    fireEvent.click(screen.getByRole("button", { name: "Not sure. This does not store an answer." }));
+
+    expect(await screen.findByText("Shared prompt without a stored key?")).toBeInTheDocument();
+    expect(screen.queryByText("No questions match this filter.")).not.toBeInTheDocument();
+  });
+
   it("ignores an inferred connection when list JSON omits source on a legacy question key", async () => {
     const inferredQuestion = {
       ...question,

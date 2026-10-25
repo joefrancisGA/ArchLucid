@@ -111,7 +111,15 @@ function connectionIdFromQuestionKey(questionKey: string): string | null {
 function questionIdentity(question: SecureNowQuestion): string {
   const mutationQuestionKey =
     secureNowQuestionDispositionMutationQuestionKey(question.questionKey);
-  const keySegment = mutationQuestionKey ?? `missing-key:${normalize(question.questionText)}`;
+  let keySegment: string;
+  if (mutationQuestionKey !== null) {
+    keySegment = mutationQuestionKey;
+  } else {
+    const dispositionId = question.dispositionId?.trim() ?? "";
+    keySegment = dispositionId.length > 0
+      ? `missing-key:disposition:${normalize(dispositionId)}`
+      : `missing-key:${normalize(question.questionText)}`;
+  }
 
   return `${normalize(question.subscriptionId ?? "")}|${normalize(question.resourceId ?? "")}|${keySegment}`;
 }

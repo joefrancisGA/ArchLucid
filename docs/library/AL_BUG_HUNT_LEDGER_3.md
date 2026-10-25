@@ -7328,6 +7328,8 @@ ABQ-09 churn hotspot.
 
 ## Zone: securenow-question-queue
 
+2026-10-25 seed hunt (seed→hit): promoted `SecureNowQuestionQueueProvider.questionIdentity` still collapsing distinct open rows when `questionKey` was null but `dispositionId` differed — session skip keyed only on question text after hunt #75; prefer `missing-key:disposition:` plus normalized disposition id when present; regression `skips only the active row when omitted keys share question text but disposition ids differ`; scoped SecureNow queue vitest 98/98. Private beta: operators using Not sure on one malformed open question no longer hide another open row that shares prompt text but has a different disposition id.
+
 2026-10-25 seed hunt (seed→hit): promoted `SecureNowQuestionQueue` details showing raw padded `subscriptionId` and `evidenceFingerprint` while mutations trimmed the same fields — reviewer copy disagreed with answer/ignore payloads; shared `secureNowQuestionReviewerSubscriptionLabel`, `secureNowQuestionReviewerEvidenceFingerprintLine`, and consolidated `secureNowQuestionReviewerSourceLabel`; regressions `shows the trimmed subscription id used on mutations`, `shows the trimmed fingerprint used on mutations`, and `shows trimmed subscription and fingerprint values in details`; scoped SecureNow queue vitest 97/97. Private beta: operators reviewing question details see the same subscription and fingerprint values the queue sends on disposition mutations.
 
 2026-10-25 seed hunt (seed→hit): promoted `SecureNowQuestionQueueProvider.questionIdentity` collapsing distinct open rows when `questionKey` was null — session skip and visit-cap keys used only subscription/resource and treated every omitted-key row as the same question; disambiguate with `missing-key:` plus normalized question text when `secureNowQuestionDispositionMutationQuestionKey` is null; regression `skips only the active question when multiple open rows omit question keys`; scoped SecureNow queue vitest 94/94. Private beta: operators using Not sure on one malformed open question no longer hide sibling open questions that also omitted question keys.
@@ -7400,11 +7402,11 @@ ABQ-09 churn hotspot.
 - **aliases:** securenow question queue; question disposition
 - **paths:** ArchLucid.Application/InfraEvidence/SecureNowQuestionDispositions/; ArchLucid.Api/Controllers/InfraEvidence/InfraEvidenceSecureNowQuestionsController.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/ISecureNowQuestionDispositionRepository.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/ISecureNowQuestionDispositionService.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/SecureNowQuestionDispositionRecord.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/SecureNowQuestionRecord.cs; ArchLucid.Persistence/InfraEvidence/NoOpSecureNowQuestionDispositionRepository.cs; ArchLucid.Persistence/InfraEvidence/SqlSecureNowQuestionDispositionRepository.cs; ArchLucid.Contracts/InfraEvidence/SecureNowQuestionDispositionContracts.cs; archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx; archlucid-ui/src/lib/infra-evidence/securenow-question-queue-api.ts
 - **test-filter:** SecureNowQuestion
-- **hunts:** 76
-- **bugs-found:** 53
+- **hunts:** 77
+- **bugs-found:** 54
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-25
-- **last-bug:** 2026-10-25 — padded subscription/fingerprint details parity
+- **last-bug:** 2026-10-25 — null questionKey dispositionId identity
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -7564,6 +7566,7 @@ ABQ-09 churn hotspot.
 - [x] (proven) `SecureNowQuestionQueueProvider.submitAction` — padded listed `snapshotId` failed strict equality against the active snapshot and silently dropped mutations; `secureNowQuestionListedSnapshotMatchesContext`; regressions `treats padded listed snapshot ids as matching the active context` and `answers when list snapshot id is padded but matches the active snapshot`.
 - [x] (proven) `SecureNowQuestionQueueProvider.questionIdentity` — null `questionKey` rows on the same resource shared one session-skip key; include normalized question text when mutation question key is null; regression `skips only the active question when multiple open rows omit question keys`.
 - [x] (proven) `SecureNowQuestionQueue` details subscription/fingerprint lines — padded list values displayed with surrounding whitespace while mutations trimmed; `secureNowQuestionReviewerSubscriptionLabel` and `secureNowQuestionReviewerEvidenceFingerprintLine` plus consolidated `secureNowQuestionReviewerSourceLabel`; regressions `shows trimmed subscription and fingerprint values in details`.
+- [x] (proven) `SecureNowQuestionQueueProvider.questionIdentity` — null `questionKey` rows with the same question text but different `dispositionId` still shared one session-skip key; include disposition id in missing-key identity; regression `skips only the active row when omitted keys share question text but disposition ids differ`.
 - [x] (proven) `SecureNowQuestionQueue` / `securenow-question-queue-provider` — list payloads could carry `isExpired: false` while `expirationUtc` was already in the past, so details read “Not expired” and open filtering kept stale rows until reload; `secureNowQuestionShowsExpired`; regressions `returns true when expirationUtc is in the past even if isExpired is false` and `marks expiration as expired in details when expirationUtc is past but isExpired is false`.
 - (candidate) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` writes for the same identity hash may surface duplicate-key or lost-update failures under parallel operator mutations; requires SQL integration or concurrent repro (prior valid-no-repro when SQL host unavailable).
 - (candidate) `securenow-question-queue-provider` / disposition mutation responses — provider always reloads after POST and ignores `SecureNowQuestionDisposition` payloads; a future optimistic merge that patches list state from mutation JSON without reloading could reintroduce missing display fields unless it uses `mapSecureNowQuestionDisposition` only.
