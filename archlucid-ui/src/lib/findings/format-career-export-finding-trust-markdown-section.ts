@@ -21,7 +21,8 @@ export function formatCareerExportFindingTrustMarkdownSection(
 
   for (const finding of exportable) {
     const trustLine = formatFindingTrustExportLine(finding);
-    const title = finding.title.trim().length > 0 ? finding.title.trim() : finding.findingId;
+    const title =
+      finding.title.trim().length > 0 ? finding.title.trim() : "Finding title was not stored.";
 
     lines.push(
       `- **${finding.findingId}** — ${title}: ${trustLine ?? "Trust label unavailable on this snapshot."}`,

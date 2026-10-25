@@ -124,6 +124,13 @@ export function formatTransparencyTrailMarkdownSection(
     }
   }
 
+  if (mustSkipped.length === 0 && shouldSkipped.length === 0) {
+    lines.push("");
+    lines.push("### Skipped questions (0)");
+    lines.push("");
+    lines.push("Skipped questions were not recorded on this transparency trail.");
+  }
+
   const workingDocumentMarkdown = formatOpenQuestionsWorkingDocumentMarkdownSection(
     section.workingDocumentOpenQuestions,
   );

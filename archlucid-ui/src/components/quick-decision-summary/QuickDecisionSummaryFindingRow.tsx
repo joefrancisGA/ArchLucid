@@ -33,6 +33,7 @@ import {
 } from "@/lib/quick-decision-finding-links";
 import {
   formatQuickDecisionFindingOwnerDisplay,
+  formatQuickDecisionConfidenceWorkspaceLabel,
   isKnownQuickDecisionConfidenceLevel,
 } from "@/lib/findings/quick-decision-finding-display";
 import {
@@ -115,6 +116,13 @@ export function QuickDecisionSummaryFindingRow({
         ) : null}
         {isKnownQuickDecisionConfidenceLevel(finding.confidenceLevel) ? (
           <FindingConfidenceBadge level={finding.confidenceLevel} />
+        ) : finding.confidenceLevel === null || finding.confidenceLevel === undefined ? (
+          <StatusTag
+            kind="neutral"
+            label={formatQuickDecisionConfidenceWorkspaceLabel(finding.confidenceLevel)}
+            className="shrink-0"
+            data-testid={`finding-confidence-omitted-${finding.findingId}`}
+          />
         ) : null}
         <AiOutputGovernanceLabel findingId={finding.findingId} />
         <FindingTrustChip finding={finding} />

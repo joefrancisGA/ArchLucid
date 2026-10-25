@@ -1,7 +1,10 @@
 import { DEFAULT_IANA_TIME_ZONE_ID } from "@/lib/default-iana-time-zone";
 import { formatInstantInPreferredTimeZoneMilitary } from "@/lib/locale-datetime";
 import type { InfraEvidenceSnapshotSummary } from "@/lib/infra-evidence/infra-evidence-drift-types";
-import { formatInfraEvidenceSubscriptionLabel } from "@/lib/infra-evidence/format-infra-evidence-snapshot-label";
+import {
+  formatInfraEvidenceSnapshotResourceCountLabel,
+  formatInfraEvidenceSubscriptionLabel,
+} from "@/lib/infra-evidence/format-infra-evidence-snapshot-label";
 
 /** Capture label for diagrams snapshot picker options in the operator's preferred zone. */
 export function formatInfraEvidenceDiagramsSnapshotPickerLabel(
@@ -22,7 +25,7 @@ export function formatInfraEvidenceDiagramsSnapshotPickerLabel(
   }
 
   parts.push(captured);
-  parts.push(`${snapshot.resourceCount} resources`);
+  parts.push(formatInfraEvidenceSnapshotResourceCountLabel(snapshot.resourceCount));
 
   return parts.join(" · ");
 }

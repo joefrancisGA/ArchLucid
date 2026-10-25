@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   formatInfraEvidenceDiffLabel,
+  formatInfraEvidenceDiffTotalChangesPhrase,
   formatInfraEvidenceScopeFreshnessLine,
   formatInfraEvidenceSnapshotCapturedLabel,
   formatInfraEvidenceSnapshotFreshness,
@@ -52,6 +53,12 @@ describe("formatInfraEvidenceSnapshotLabel", () => {
     expect(formatInfraEvidenceSnapshotLabel(unlabeled)).toContain("8aa56f3b-18bc-43ca-ad45-bad9e811d33b");
     expect(formatInfraEvidenceSnapshotLabel(unlabeled)).toContain("61 resources");
   });
+
+  it("states when subscription fields were not stored", () => {
+    const missing = snapshot({ subscriptionName: null, subscriptionId: null });
+
+    expect(formatInfraEvidenceSnapshotLabel(missing)).toContain("Subscription was not stored.");
+  });
 });
 
 describe("formatInfraEvidenceSubscriptionLabel", () => {
@@ -80,6 +87,12 @@ describe("formatInfraEvidenceSnapshotCapturedLabel", () => {
 
     expect(label).toBe("9/8/2026, 6:44 PM EDT");
     expect(label).not.toMatch(/:\d{2}:\d{2}/u);
+  });
+});
+
+describe("formatInfraEvidenceDiffTotalChangesPhrase", () => {
+  it("states when total change count was not returned", () => {
+    expect(formatInfraEvidenceDiffTotalChangesPhrase(undefined)).toBe("Change count was not returned");
   });
 });
 

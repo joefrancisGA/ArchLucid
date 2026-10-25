@@ -84,7 +84,7 @@ export function resolveRecordedDecisionConfidenceNote(input: {
   const selected = input.selectedOption.trim().toLowerCase();
 
   if (confidencePercent === null) {
-    return null;
+    return selected.length > 0 ? "Pipeline confidence was not stored on this decision." : null;
   }
 
   if (confidencePercent >= LOW_RECORDED_DECISION_CONFIDENCE_THRESHOLD) {

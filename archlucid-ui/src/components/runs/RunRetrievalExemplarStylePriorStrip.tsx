@@ -13,8 +13,11 @@ export function RunRetrievalExemplarStylePriorStrip(
   props: RunRetrievalExemplarStylePriorStripProps,
 ): ReactElement {
   const summary = props.summary;
-  const exemplarCount = summary.topologyReferenceArchitectureExemplarCount;
-  const exemplarCountStored = typeof exemplarCount === "number" && Number.isFinite(exemplarCount);
+  const rawExemplarCount = summary.topologyReferenceArchitectureExemplarCount;
+  const exemplarCountStored = typeof rawExemplarCount === "number" && Number.isFinite(rawExemplarCount);
+  const exemplarCountDisplay = exemplarCountStored
+    ? String(Math.trunc(rawExemplarCount))
+    : "Exemplar chunk count was not stored.";
   const exemplarMissing = summary.topologyReferenceArchitectureExemplarMissing === true;
   const documentIdsRaw = summary.topologyReferenceArchitectureExemplarDocumentIds;
   const documentIdsStored = documentIdsRaw !== null && documentIdsRaw !== undefined;
@@ -40,9 +43,7 @@ export function RunRetrievalExemplarStylePriorStrip(
         <>
           <dl className="m-0 mt-2 grid gap-1 sm:grid-cols-[minmax(10rem,auto)_1fr] sm:gap-x-4">
             <dt>Exemplar chunks</dt>
-            <dd className="m-0 tabular-nums sm:justify-self-end">
-              {exemplarCountStored ? exemplarCount : "Exemplar chunk count was not stored."}
-            </dd>
+            <dd className="m-0 tabular-nums sm:justify-self-end">{exemplarCountDisplay}</dd>
             <dt>Exemplar documents</dt>
             <dd className={cn("m-0 break-all font-mono sm:justify-self-end", OPERATOR_TYPOGRAPHY.micro)}>
               {!documentIdsStored

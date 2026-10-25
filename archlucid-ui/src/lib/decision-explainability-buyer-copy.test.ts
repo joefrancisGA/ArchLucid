@@ -39,4 +39,14 @@ describe("decision-explainability-buyer-copy", () => {
   it("labels omitted decision confidence", () => {
     expect(formatRecordedDecisionConfidence(null)).toBe("Decision confidence was not stored.");
   });
+
+  it("notes when pipeline confidence is missing on a recorded decision (P-10)", () => {
+    expect(
+      resolveRecordedDecisionConfidenceNote({
+        selectedOption: "Accepted",
+        confidence: null,
+        buyerConfidenceSource: null,
+      }),
+    ).toBe("Pipeline confidence was not stored on this decision.");
+  });
 });
