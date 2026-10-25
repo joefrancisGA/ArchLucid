@@ -43,11 +43,18 @@ export function formatDecisionSnapshotGovernanceOutcome(input: {
 
   return `${label} · blocked by ${input.blockingFindingCount} unresolved ${noun}`;
 }
+export const FINDINGS_SNAPSHOT_NOT_STORED_LINE = "Findings snapshot was not stored." as const;
+
 export function formatDecisionSnapshotFindingsLine(
   openCount: number,
   blockingCount: number,
   awaitingActionCount: number,
+  options?: { readonly findingsSnapshotCaptured?: boolean },
 ): string {
+  if (options?.findingsSnapshotCaptured === false) {
+    return FINDINGS_SNAPSHOT_NOT_STORED_LINE;
+  }
+
   if (openCount <= 0) {
     return "None open";
   }

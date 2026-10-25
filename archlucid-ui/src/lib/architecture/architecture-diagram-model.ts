@@ -1,4 +1,5 @@
 import { architectureNameAddsDiagramNode } from "@/lib/architecture/architecture-diagram-named-node";
+import { ARCHITECTURE_DIAGRAM_NODE_LABEL_NOT_STORED } from "@/lib/architecture/architecture-diagram-provenance";
 import type { ArchitectureContentProvenance, ArchitectureStructuredEntity, ArchitectureStructuredParseResult } from "@/lib/architecture/architecture-structured-content-types";
 import type {
   ArchitectureDiagramEdge,
@@ -56,12 +57,12 @@ function addEntityNodes(
   let index = nodes.length;
 
   for (const entity of entities) {
-    if (entity.label.trim().length === 0) {
-      skippedUnlabeled.count += 1;
-      continue;
-    }
+    const trimmedLabel = entity.label.trim();
+    const label = trimmedLabel.length > 0 ? trimmedLabel : ARCHITECTURE_DIAGRAM_NODE_LABEL_NOT_STORED;
 
-    const label = entity.label.trim();
+    if (trimmedLabel.length === 0) {
+      skippedUnlabeled.count += 1;
+    }
 
     nodes.push(createNode(label, kind, entity.provenance, usedIds, index));
     index += 1;

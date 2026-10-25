@@ -128,7 +128,7 @@ function PinnedReviewFindingInspect({
         <>
           <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>{findingTitle}</h3>
           <p className={cn("m-0 whitespace-pre-wrap text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-            {body !== null && body.length > 0 ? body : "No inspect summary on this finding."}
+            {body !== null && body.length > 0 ? body : "Inspect summary was not stored."}
           </p>
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
             Read-only pin context. Open this review as primary to edit dispositions.
@@ -141,11 +141,24 @@ function PinnedReviewFindingInspect({
 
 function PinnedReviewFindingsList({
   findings,
+  findingTraceRowsOmitted,
   onInspect,
 }: {
   readonly findings: readonly GovernanceFindingQueueRow[];
+  readonly findingTraceRowsOmitted: boolean;
   readonly onInspect: (findingId: string) => void;
 }): React.JSX.Element {
+  if (findingTraceRowsOmitted) {
+    return (
+      <p
+        className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+        data-testid="pinned-review-findings-traces-omitted"
+      >
+        Finding rows were not returned for this pinned review.
+      </p>
+    );
+  }
+
   if (findings.length === 0) {
     return (
       <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="pinned-review-findings-empty">
@@ -237,6 +250,7 @@ export function PinnedReviewContextPanel(props: PinnedReviewContextPanelProps): 
         ) : (
           <PinnedReviewFindingsList
             findings={context.findings}
+            findingTraceRowsOmitted={context.findingTraceRowsOmitted}
             onInspect={(findingId) => {
               setInspectFindingId(findingId);
             }}

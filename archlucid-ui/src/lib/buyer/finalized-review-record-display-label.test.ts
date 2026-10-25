@@ -58,9 +58,9 @@ describe("finalizedReviewRecordDisplayLabel", () => {
     );
   });
 
-  it("returns Untitled review when neither title nor manifest id is available", () => {
+  it("returns honesty copy when neither title nor manifest id is available (P-12)", () => {
     expect(finalizedReviewRecordDisplayLabel(summary({ runId: "other-run", description: "" }), null)).toBe(
-      "Untitled review",
+      "Review title was not stored.",
     );
   });
 });
