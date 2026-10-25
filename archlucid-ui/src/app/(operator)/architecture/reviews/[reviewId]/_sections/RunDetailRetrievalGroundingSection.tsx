@@ -31,7 +31,7 @@ export function RunDetailRetrievalGroundingSection(props: RunDetailRetrievalGrou
       payload={payload ?? null}
       failure={failure}
       blockedReason={
-        rowsNotReturned ? "Retrieval rows not returned" : runRetrievalGroundingBlockedReason(failure) ?? blockedReason
+        rowsNotReturned ? "Retrieval grounding rows were not stored" : runRetrievalGroundingBlockedReason(failure) ?? blockedReason
       }
       sectionId="run-retrieval-grounding"
       title="Retrieval grounding"

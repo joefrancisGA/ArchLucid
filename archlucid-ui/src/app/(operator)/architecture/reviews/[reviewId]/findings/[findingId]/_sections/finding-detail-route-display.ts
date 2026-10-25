@@ -304,11 +304,7 @@ export function validationRequirement(payload: FindingInspectPayload | null, fin
 }
 
 /** Buyer-polished fallback when inspect payload has not loaded yet. */
-export function findingDetailLeadFallback(findingId: string): string {
-  if (isPhiMinimizationFindingId(findingId) && resolveProductionEvalChromeFromStorage()) {
-    return "Residual risk record for the finalized Claims Intake review.";
-  }
-
+export function findingDetailLeadFallback(_findingId: string): string {
   return "Finding detail has not loaded.";
 }
 

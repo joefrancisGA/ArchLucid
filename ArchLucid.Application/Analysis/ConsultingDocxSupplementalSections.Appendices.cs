@@ -92,6 +92,12 @@ internal static partial class ConsultingDocxSupplementalSections
             ConsultingDocxOpenXmlPrimitives.AddBullet(body,
                 $"Manifest Warnings: {report.ManifestDiff.Warnings.Count}");
         }
+        else
+        {
+            ConsultingDocxOpenXmlPrimitives.AddSpacer(body);
+            ConsultingDocxOpenXmlPrimitives.AddStyledParagraph(body, ConsultingDocxAppendixHonestyCopy.ManifestDiffNotStored,
+                "BodyText");
+        }
 
         else
         {

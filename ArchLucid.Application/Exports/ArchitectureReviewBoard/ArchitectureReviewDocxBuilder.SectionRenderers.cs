@@ -132,7 +132,7 @@ public sealed partial class ArchitectureReviewDocxBuilder
 
         foreach (ArchitectureReviewBoardExportRiskRow risk in risks)
         {
-            string severity = string.IsNullOrWhiteSpace(risk.SeverityLabel) ? "Severity n/a" : risk.SeverityLabel.Trim();
+            string severity = string.IsNullOrWhiteSpace(risk.SeverityLabel) ? "Severity was not stored." : risk.SeverityLabel.Trim();
             string summaryText = string.IsNullOrWhiteSpace(risk.Summary)
                 ? "Risk summary was not stored."
                 : risk.Summary.Trim();
@@ -204,10 +204,11 @@ public sealed partial class ArchitectureReviewDocxBuilder
 
         foreach (ArchitectureReviewBoardExportDispositionItem item in items)
         {
-            if (string.IsNullOrWhiteSpace(item.Summary))
-                continue;
+            string summaryText = string.IsNullOrWhiteSpace(item.Summary)
+                ? "Disposition summary was not stored."
+                : item.Summary.Trim();
 
-            ArchitectureReviewDocxOpenXmlPrimitives.AddStyledParagraph(body, item.Summary.Trim(), "BodyText");
+            ArchitectureReviewDocxOpenXmlPrimitives.AddStyledParagraph(body, summaryText, "BodyText");
 
             if (!string.IsNullOrWhiteSpace(item.Context))
                 ArchitectureReviewDocxOpenXmlPrimitives.AddStyledParagraph(body, item.Context.Trim(), "Subtle");

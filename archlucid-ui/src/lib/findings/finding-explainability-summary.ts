@@ -11,40 +11,20 @@ export type FindingSeverityInspectCopy = {
   suggestedNext: string;
 };
 
-export function findingSeverityAudienceCopy(severityRaw: string): FindingSeverityInspectCopy {
+function severityLabelForHonestyCopy(severityRaw: string): string {
   const trimmed = severityRaw.trim();
-
-  if (trimmed.length === 0 || trimmed === "Severity was not stored") {
-    return { meaningForOperators: "", suggestedNext: "" };
-  }
-
   const lowered = trimmed.toLowerCase();
 
   if (lowered.includes("critical") || lowered.includes(" blocker") || lowered === "blocking") {
-    return {
-      meaningForOperators:
-        "Highest urgency — this signals material delivery, compliance, or security risk if it is left unaddressed.",
-      suggestedNext:
-        "Get an explicit owner decision (fix it, grant a time-bound waiver, or accept the residual risk) before rollout.",
-    };
+    return "Critical";
   }
 
   if (lowered.includes("high")) {
-    return {
-      meaningForOperators:
-        "Elevated urgency — this is likely to affect a rollout decision or stakeholder trust if it goes unexplained.",
-      suggestedNext:
-        "Confirm it with the owning team soon, and rank it against the other findings rather than shelving it.",
-    };
+    return "High";
   }
 
   if (lowered.includes("medium") || lowered.includes("moderate")) {
-    return {
-      meaningForOperators:
-        "Normal planning priority — a real gap, but not one that should stop work today.",
-      suggestedNext:
-        "Schedule the fix, or write down why you are accepting it, while the context is still fresh.",
-    };
+    return "Medium";
   }
 
   if (
@@ -53,17 +33,24 @@ export function findingSeverityAudienceCopy(severityRaw: string): FindingSeverit
     || lowered.includes("informational")
     || lowered.includes("minor")
   ) {
-    return {
-      meaningForOperators:
-        "Low urgency — an improvement opportunity rather than a risk that needs attention now.",
-      suggestedNext:
-        "Handle it with the rest of your backlog cleanup, unless another decision is waiting on it.",
-    };
+    return "Low";
   }
 
+  return trimmed;
+}
+
+export function findingSeverityAudienceCopy(severityRaw: string): FindingSeverityInspectCopy {
+  const trimmed = severityRaw.trim();
+
+  if (trimmed.length === 0 || trimmed === "Severity was not stored") {
+    return { meaningForOperators: "", suggestedNext: "" };
+  }
+
+  const label = severityLabelForHonestyCopy(trimmed);
+
   return {
-    meaningForOperators: `This review reported severity "${trimmed}", which is outside the standard scale.`,
-    suggestedNext: "Compare it against the other findings — relative order tells you more than the label does.",
+    meaningForOperators: `This sentence reads the severity label ${label}. A stored impact was not stored.`,
+    suggestedNext: "A next step was not stored.",
   };
 }
 
@@ -75,18 +62,18 @@ export function findingTraceCompletenessPlainEnglish(ratioPct: number): string {
   }
 
   if (r >= 90) {
-    return "Strong — most trace fields used for explainability were populated.";
+    return "Most explainability fields were present. A quality rating was not stored.";
   }
 
   if (r >= 60) {
-    return "Moderate — core trace fields exist; some optional detail was not captured.";
+    return "Core explainability fields were present. A quality rating was not stored.";
   }
 
   if (r >= 30) {
-    return "Thin — read the technical audit below before relying on this finding on its own.";
+    return "Some explainability fields were present. A quality rating was not stored.";
   }
 
-  return "Minimal — sparse trace fields; use as a prompt to inspect evidence, not as a settled conclusion.";
+  return "Few explainability fields were present. A quality rating was not stored.";
 }
 
 /** Operator-facing policy rule id from explainability payloads (unspecified → honesty). */
@@ -112,10 +99,10 @@ export function findingEvidenceCountPlainLine(evidenceRefs: readonly string[] | 
   }
 
   if (n === 1) {
-    return "1 structured source supports this finding.";
+    return "1 evidence reference was stored.";
   }
 
-  return `${n} structured sources support this finding.`;
+  return `${n} evidence references were stored.`;
 }
 
 /**

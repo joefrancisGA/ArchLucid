@@ -14,6 +14,21 @@ function baseProps(overrides: Partial<QuickDecisionSummaryProps> = {}): QuickDec
 }
 
 describe("QuickDecisionSummaryEmptyState (P-14)", () => {
+  it("labels omitted headline finding count on committed reviews", () => {
+    render(
+      <QuickDecisionSummaryEmptyState
+        props={baseProps({ analysisStagesComplete: true })}
+        buyerPolishedShell={false}
+        headlineFindingCount={null}
+        headlineWarningCount={0}
+      />,
+    );
+
+    expect(screen.getByTestId("quick-decision-headline-count-not-stored")).toHaveTextContent(
+      "Manifest headline finding count was not stored.",
+    );
+  });
+
   it("does not imply zero monitored risks when warning count is omitted", () => {
     render(
       <QuickDecisionSummaryEmptyState

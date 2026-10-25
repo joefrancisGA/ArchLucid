@@ -11,31 +11,37 @@ import {
 } from "./finding-explainability-summary";
 
 describe("finding-explainability-summary", () => {
-  it("maps common severities to inspect-first posture", () => {
-    expect(findingSeverityAudienceCopy("Critical").meaningForOperators.length).toBeGreaterThan(20);
-    expect(findingSeverityAudienceCopy("High").suggestedNext.length).toBeGreaterThan(20);
-    expect(findingSeverityAudienceCopy("Medium").meaningForOperators).toContain("planning");
-    expect(findingSeverityAudienceCopy("Low").meaningForOperators).toContain("urgency");
-    expect(findingSeverityAudienceCopy("Informational").meaningForOperators).toContain("urgency");
+  it("maps common severities without inventing impact or next steps (P-01, P-11)", () => {
+    expect(findingSeverityAudienceCopy("Critical").meaningForOperators).toBe(
+      "This sentence reads the severity label Critical. A stored impact was not stored.",
+    );
+    expect(findingSeverityAudienceCopy("Critical").suggestedNext).toBe("A next step was not stored.");
+    expect(findingSeverityAudienceCopy("High").meaningForOperators).toContain("severity label High");
+    expect(findingSeverityAudienceCopy("Medium").meaningForOperators).toContain("severity label Medium");
+    expect(findingSeverityAudienceCopy("Low").meaningForOperators).toContain("severity label Low");
+    expect(findingSeverityAudienceCopy("Critical").meaningForOperators).not.toContain("compliance");
 
     expect(findingSeverityAudienceCopy("CustomSeverity").meaningForOperators).toContain("CustomSeverity");
-    expect(findingSeverityAudienceCopy("CustomSeverity").suggestedNext.length).toBeGreaterThan(20);
+    expect(findingSeverityAudienceCopy("CustomSeverity").suggestedNext).toBe("A next step was not stored.");
   });
 
-  it("converts completeness ratios into plain-language guardrails", () => {
-    expect(findingTraceCompletenessPlainEnglish(95)).toContain("Strong");
-    expect(findingTraceCompletenessPlainEnglish(72)).toContain("Moderate");
-    expect(findingTraceCompletenessPlainEnglish(42)).toContain("Thin");
-    expect(findingTraceCompletenessPlainEnglish(15)).toContain("Minimal");
+  it("converts completeness ratios without quality ratings (P-05)", () => {
+    expect(findingTraceCompletenessPlainEnglish(95)).toBe(
+      "Most explainability fields were present. A quality rating was not stored.",
+    );
+    expect(findingTraceCompletenessPlainEnglish(95)).not.toContain("Strong");
+    expect(findingTraceCompletenessPlainEnglish(72)).toContain("Core explainability");
+    expect(findingTraceCompletenessPlainEnglish(42)).toContain("Some explainability");
+    expect(findingTraceCompletenessPlainEnglish(15)).toContain("Few explainability");
     expect(findingTraceCompletenessPlainEnglish(NaN)).toContain("Unavailable");
   });
 
-  it("summarizes evidence ref counts deterministically", () => {
+  it("summarizes evidence ref counts without support claims (P-06)", () => {
     expect(findingEvidenceCountPlainLine(undefined)).toContain("not stored");
     expect(findingEvidenceCountPlainLine(null)).toContain("not stored");
     expect(findingEvidenceCountPlainLine([])).toContain("No structured");
-    expect(findingEvidenceCountPlainLine(["a"])).toContain("1 structured");
-    expect(findingEvidenceCountPlainLine(["a", "b"])).toContain("2 structured");
+    expect(findingEvidenceCountPlainLine(["a"])).toBe("1 evidence reference was stored.");
+    expect(findingEvidenceCountPlainLine(["a", "b"])).toBe("2 evidence references were stored.");
   });
 
   describe("stripFindingNarrativePreamble", () => {
