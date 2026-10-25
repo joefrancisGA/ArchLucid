@@ -1,3 +1,5 @@
+using System.Reflection;
+
 using ArchLucid.Application;
 using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Exports;
@@ -1361,5 +1363,39 @@ public sealed class CompareQualityComparisonsApplicationServiceTests
             CancellationToken.None);
 
         await act.Should().ThrowAsync<ComparisonVerificationFailedException>();
+    }
+
+    [Fact]
+    public async Task CompareQuality_in_memory_export_repository_get_by_id_canonicalizes_dashed_compare_run_id()
+    {
+        const string exportId = "exp-repo-dashed-compare";
+        Guid runGuid = Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff");
+        Guid compareGuid = Guid.Parse("11111111-1111-1111-1111-111111111111");
+
+        InMemoryRunExportRecordRepository repository = new();
+        RunExportRecord legacy = new()
+        {
+            ExportRecordId = exportId,
+            RunId = runGuid.ToString("D"),
+            ExportType = "ArchitectureAnalysis",
+            Format = "Markdown",
+            FileName = "report.md",
+            CompareRunId = compareGuid.ToString("D"),
+            CreatedUtc = DateTime.UtcNow,
+        };
+
+        FieldInfo? byExportIdField = typeof(InMemoryRunExportRecordRepository).GetField(
+            "_byExportId",
+            BindingFlags.Instance | BindingFlags.NonPublic);
+        byExportIdField.Should().NotBeNull();
+        Dictionary<string, RunExportRecord> byExportId =
+            (Dictionary<string, RunExportRecord>)byExportIdField!.GetValue(repository)!;
+        byExportId[exportId] = legacy;
+
+        RunExportRecord? loaded = await repository.GetByIdAsync(exportId, CancellationToken.None);
+
+        loaded.Should().NotBeNull();
+        loaded!.RunId.Should().Be(runGuid.ToString("N"));
+        loaded.CompareRunId.Should().Be(compareGuid.ToString("N"));
     }
 }

@@ -67,4 +67,26 @@ public sealed class RunExportRecordPersistNormalizerTests
         record.Format.Should().Be("Markdown");
         record.FileName.Should().Be("report.md");
     }
+
+    [Fact]
+    public void NormalizeLoadedRecord_canonicalizes_dashed_run_id_and_compare_run_id()
+    {
+        Guid runGuid = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+        Guid compareGuid = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
+
+        RunExportRecord record = new()
+        {
+            ExportRecordId = "exp-canonical-read",
+            RunId = $"  {runGuid:D}  ",
+            ExportType = "ArchitectureAnalysis",
+            Format = "Markdown",
+            FileName = "report.md",
+            CompareRunId = $"  {compareGuid:D}  ",
+        };
+
+        RunExportRecordPersistNormalizer.NormalizeLoadedRecord(record);
+
+        record.RunId.Should().Be(runGuid.ToString("N"));
+        record.CompareRunId.Should().Be(compareGuid.ToString("N"));
+    }
 }

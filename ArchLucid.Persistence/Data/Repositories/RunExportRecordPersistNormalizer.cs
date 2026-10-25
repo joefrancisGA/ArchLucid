@@ -9,7 +9,7 @@ internal static class RunExportRecordPersistNormalizer
         ArgumentNullException.ThrowIfNull(record);
 
         record.ExportRecordId = ComparisonExportRecordIdLookup.NormalizeLookupKey(record.ExportRecordId);
-        record.RunId = record.RunId.Trim();
+        record.RunId = RunExportRecordRunIdSql.NormalizeRunIdForRead(record.RunId);
         TrimOptionalStringColumns(record);
     }
 
@@ -28,6 +28,6 @@ internal static class RunExportRecordPersistNormalizer
         record.Notes = OptionalExportMetadataStringNormalizer.NormalizeOptionalString(record.Notes);
         record.CompareManifestVersion =
             OptionalExportMetadataStringNormalizer.NormalizeOptionalString(record.CompareManifestVersion);
-        record.CompareRunId = OptionalExportMetadataStringNormalizer.NormalizeOptionalString(record.CompareRunId);
+        record.CompareRunId = ComparisonRecordRunIdSql.ToCanonicalRunIdStringOrNull(record.CompareRunId);
     }
 }

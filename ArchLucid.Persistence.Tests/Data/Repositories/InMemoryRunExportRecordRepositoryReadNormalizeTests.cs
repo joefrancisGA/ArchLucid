@@ -42,4 +42,37 @@ public sealed class InMemoryRunExportRecordRepositoryReadNormalizeTests
         loaded.FileName.Should().Be("legacy-report.md");
         loaded.Notes.Should().Be("legacy note");
     }
+
+    [Fact]
+    public async Task GetById_canonicalizes_dashed_compare_run_id_on_legacy_row()
+    {
+        const string exportId = "exp-legacy-dashed-compare";
+        Guid runGuid = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+        Guid compareGuid = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+
+        InMemoryRunExportRecordRepository repository = new();
+        RunExportRecord legacy = new()
+        {
+            ExportRecordId = exportId,
+            RunId = runGuid.ToString("N"),
+            ExportType = "ArchitectureAnalysis",
+            Format = "Markdown",
+            FileName = "legacy-report.md",
+            CompareRunId = compareGuid.ToString("D"),
+            CreatedUtc = new DateTime(2026, 4, 6, 12, 0, 0, DateTimeKind.Utc),
+        };
+
+        FieldInfo? byExportIdField = typeof(InMemoryRunExportRecordRepository).GetField(
+            "_byExportId",
+            BindingFlags.Instance | BindingFlags.NonPublic);
+        byExportIdField.Should().NotBeNull();
+        Dictionary<string, RunExportRecord> byExportId =
+            (Dictionary<string, RunExportRecord>)byExportIdField!.GetValue(repository)!;
+        byExportId[exportId] = legacy;
+
+        RunExportRecord? loaded = await repository.GetByIdAsync(exportId, CancellationToken.None);
+
+        loaded.Should().NotBeNull();
+        loaded!.CompareRunId.Should().Be(compareGuid.ToString("N"));
+    }
 }
