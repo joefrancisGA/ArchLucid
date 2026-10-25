@@ -20,6 +20,12 @@ const GENERATED_BRIEF_DEFAULT_OUTCOME =
 
 const ATTACHED_FILES_MARKERS = ["\n\nAttached files:", "\n\nAttached architecture evidence:"] as const;
 
+export const PRIOR_PACKAGE_PREFILL_SYSTEM_NAME_NOT_STORED = "System name was not stored." as const;
+
+export function formatPriorPackagePrefillSystemNameLabel(systemName: string): string {
+  return systemName.trim().length > 0 ? systemName.trim() : PRIOR_PACKAGE_PREFILL_SYSTEM_NAME_NOT_STORED;
+}
+
 export type PriorPackageGuidedIntakePrefill = {
   readonly systemName: string;
   readonly freeTextIntent: string;

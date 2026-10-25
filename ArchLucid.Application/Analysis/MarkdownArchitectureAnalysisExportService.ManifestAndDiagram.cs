@@ -8,13 +8,24 @@ public sealed partial class MarkdownArchitectureAnalysisExportService
 {
     private static void AppendManifestAndDiagram(StringBuilder sb, ArchitectureAnalysisReport report)
     {
-        if (report.Manifest is not null)
+        if (report.Manifest is null)
         {
             sb.AppendLine("## Architecture Manifest");
             sb.AppendLine();
-            sb.AppendLine($"- System Name: {report.Manifest.SystemName}");
+            sb.AppendLine($"- {ConsultingDocxExportHonestyCopy.CommittedManifestNotStored}");
+            sb.AppendLine();
+        }
+        else
+        {
+            sb.AppendLine("## Architecture Manifest");
+            sb.AppendLine();
+            string systemName = ConsultingDocxExportHonestyCopy.ResolveSystemName(
+                report.Evidence?.SystemName,
+                report.Manifest.SystemName);
+            sb.AppendLine($"- System Name: {systemName}");
             sb.AppendLine($"- Run ID: {report.Manifest.RunId}");
-            sb.AppendLine($"- Manifest Version: {report.Manifest.Metadata.ManifestVersion}");
+            sb.AppendLine(
+                $"- Manifest Version: {ConsultingDocxExportHonestyCopy.ResolveManifestVersionLabel(report.Manifest.Metadata.ManifestVersion)}");
 
             if (!string.IsNullOrWhiteSpace(report.Manifest.Metadata.ParentManifestVersion))
 

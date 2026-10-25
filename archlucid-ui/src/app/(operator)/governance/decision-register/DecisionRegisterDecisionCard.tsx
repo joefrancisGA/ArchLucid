@@ -38,11 +38,7 @@ function formatConfidence(decision: ArchitectureDecisionRegisterEntry): string {
     return String(decision.confidence);
   }
 
-  if (decision.buyerConfidenceSource !== null && decision.buyerConfidenceSource !== undefined) {
-    return `Unknown (${decision.buyerConfidenceSource})`;
-  }
-
-  return "Not recorded";
+  return "Confidence was not stored.";
 }
 
 type DecisionRegisterDecisionCardProps = {
@@ -135,9 +131,11 @@ export function DecisionRegisterDecisionCard(props: DecisionRegisterDecisionCard
             </dd>
           </div>
         </dl>
-        {decision.rationale.trim().length > 0 ? (
-          <p className={cn("m-0 mt-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{decision.rationale}</p>
-        ) : null}
+        <p className={cn("m-0 mt-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+          {decision.rationale?.trim().length > 0
+            ? decision.rationale
+            : "Decision rationale was not stored."}
+        </p>
       </CardContent>
     </Card>
   );

@@ -57,7 +57,18 @@ function topologyExemplarLink(summary: RunRetrievalGroundingSummary | null | und
     return null;
 
   const missing = summary.topologyReferenceArchitectureExemplarMissing === true;
-  const count = summary.topologyReferenceArchitectureExemplarCount ?? 0;
+  const rawCount = summary.topologyReferenceArchitectureExemplarCount;
+  const countStored = typeof rawCount === "number" && Number.isFinite(rawCount);
+  const count = countStored ? Math.trunc(rawCount) : 0;
+
+  if (!missing && !countStored)
+    return (
+      <p className="m-0 mt-1">
+        <a className="font-medium underline underline-offset-2" href="#run-retrieval-exemplar-style-prior">
+          Exemplar chunk count was not stored — open retrieval grounding
+        </a>
+      </p>
+    );
 
   if (!missing && count === 0)
     return null;
