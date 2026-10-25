@@ -113,18 +113,6 @@ export function matchesOperatorHomeHeroResumeTarget(
 
   const targetRunId = target.runId?.trim() ?? "";
   const itemRunId = item.runId?.trim() ?? "";
-
-  if (targetRunId.length > 0 && itemRunId.length > 0 && targetRunId === itemRunId) {
-    return true;
-  }
-
-  const targetDraftId = target.draftId?.trim() ?? "";
-  const itemDraftId = item.draftId?.trim() ?? "";
-
-  if (targetDraftId.length > 0 && itemDraftId.length > 0 && targetDraftId === itemDraftId) {
-    return true;
-  }
-
   const heroRunId = resolveRunIdFromWorkingReviewHref(target.href);
   const itemHrefRunId = resolveRunIdFromWorkingReviewHref(item.href);
 
@@ -135,10 +123,15 @@ export function matchesOperatorHomeHeroResumeTarget(
     return true;
   }
 
+  const targetDraftId = target.draftId?.trim() ?? "";
+  const itemDraftId = item.draftId?.trim() ?? "";
   const heroDraftId = draftIdFromDraftHref(target.href);
   const itemHrefDraftId = draftIdFromDraftHref(item.href);
 
-  if (heroDraftId !== null && itemHrefDraftId !== null && heroDraftId === itemHrefDraftId) {
+  const targetDraftIds = [targetDraftId, heroDraftId ?? ""].filter((id) => id.length > 0);
+  const itemDraftIds = [itemDraftId, itemHrefDraftId ?? ""].filter((id) => id.length > 0);
+
+  if (targetDraftIds.some((left) => itemDraftIds.some((right) => left === right))) {
     return true;
   }
 

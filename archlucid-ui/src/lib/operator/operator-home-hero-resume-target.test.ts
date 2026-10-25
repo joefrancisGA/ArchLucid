@@ -39,6 +39,15 @@ describe("operator-home-hero-resume-target", () => {
     ).toBe(false);
   });
 
+  it("matches when the hero draft id equals the rail href draft id even if paths differ", () => {
+    expect(
+      matchesOperatorHomeHeroResumeTarget(
+        { href: "/architecture/architectures/stale-path", draftId: "draft-hero" },
+        { href: "/architecture/architectures/draft-hero" },
+      ),
+    ).toBe(true);
+  });
+
   it("matches when the hero run id equals the rail href run id even if paths differ", () => {
     expect(
       matchesOperatorHomeHeroResumeTarget(
