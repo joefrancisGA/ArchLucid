@@ -15,7 +15,7 @@ describe("sponsor-plain-english-finding (TB-2192)", () => {
       severity: "High",
     });
 
-    expect(result.headline).toBe("High finding: Public ingress on intake API");
+    expect(result.headline).toBe("Recorded severity High: Public ingress on intake API");
     expect(result.plainEnglish).toContain("elevated concern");
     expect(result.plainEnglish).toContain(
       "In plain terms: The intake API accepts traffic from the public internet.",
@@ -81,7 +81,7 @@ describe("sponsor-plain-english-finding (TB-2192)", () => {
       severity: "Low",
     });
 
-    expect(result.headline).toBe("Low finding: Missing private endpoint");
+    expect(result.headline).toBe("Recorded severity Low: Missing private endpoint");
     expect(result.plainEnglish).toContain('The recorded finding is titled "Missing private endpoint".');
   });
 });
