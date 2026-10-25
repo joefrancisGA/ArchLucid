@@ -16,6 +16,8 @@ internal static class EndToEndReplayComparisonReportNormalizer
 
         foreach (ExportRecordDiffResult diff in report.ExportDiffs)
             ExportRecordDiffResultNormalizer.NormalizeDisplayAnchors(diff);
+
+        CompareVerdictChromeDeltaNormalizer.NormalizeInPlace(report.CompareVerdictChromeDelta);
     }
 
     private static string NormalizeReportRunIdAnchor(string runId) =>
