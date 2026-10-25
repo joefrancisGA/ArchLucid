@@ -257,13 +257,13 @@ export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_CONNECTED_SECTION =
   "Connected on the diagram" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_USED_SECTION =
-  "In use off the diagram" as const;
+  "Referenced off this diagram. Use was not observed." as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_ORPHANED_SECTION =
   "Missing a required link" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNCONNECTED_SECTION =
-  "Stands alone" as const;
+  "No diagram link was stored." as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNKNOWN_SECTION =
   "Connection state was not classified." as const;
@@ -295,8 +295,15 @@ export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNKNOWN_SECTION_COUNT_FI
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_LEDGER_DISCLOSURE_LABEL =
   "Dropped imports" as const;
 
+/** @deprecated Prefer NSG_NO_ASSOCIATION / NSG_OFF_DIAGRAM_TARGET drop-gate labels. */
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNATTACHED_NSG_LABEL =
-  "Unattached NSG" as const;
+  "No subnet or network interface association was stored." as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_NSG_NO_ASSOCIATION_LABEL =
+  "No subnet or network interface association was stored." as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_NSG_OFF_DIAGRAM_TARGET_LABEL =
+  "This NSG names a target that is not on this diagram." as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DEPENDENCY_SEED_REQUIRED_TITLE =
   "Pick a starting resource before rendering" as const;

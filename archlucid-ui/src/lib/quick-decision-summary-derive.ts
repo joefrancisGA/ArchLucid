@@ -20,6 +20,8 @@ export {
   resolveRunDetailFindingStreams,
   extractIacStubForFinding,
   findingHasNoSourceEvidence,
+  findingHasMissingEvidenceRefCount,
+  findingHasStoredZeroEvidenceRefCount,
   sortQuickDecisionFindings,
   partitionQuickDecisionFindings,
   buildWorkspaceCardRenderedFindings,

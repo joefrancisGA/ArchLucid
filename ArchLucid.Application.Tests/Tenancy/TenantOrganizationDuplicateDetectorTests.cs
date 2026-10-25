@@ -42,4 +42,23 @@ public sealed class TenantOrganizationDuplicateDetectorTests
             .Should()
             .BeTrue();
     }
+
+    [SkippableFact]
+    public void IsDuplicateOrganization_detects_ix_index_name_on_outer_exception_message()
+    {
+        TenantOrganizationDuplicateDetector.IsDuplicateOrganization(
+                new InvalidOperationException("Violation of UNIQUE KEY constraint 'IX_Tenants_Slug'"))
+            .Should()
+            .BeTrue();
+    }
+
+    [SkippableFact]
+    public void IsDuplicateOrganization_detects_duplicate_text_on_inner_exception_only()
+    {
+        Exception wrapped = new InvalidOperationException(
+            "Registration failed.",
+            new InvalidOperationException("duplicate key value violates unique constraint"));
+
+        TenantOrganizationDuplicateDetector.IsDuplicateOrganization(wrapped).Should().BeTrue();
+    }
 }

@@ -1,10 +1,38 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { resolveOperatorHomeResumeAffordancePlan } from "@/lib/operator/operator-home-resume-affordance";
+import * as continueLastReviewPackage from "@/lib/resolve-continue-last-review-package";
 import { OPERATOR_RECENT_VIEWS_STORAGE_KEY } from "@/lib/operator/operator-recent-views";
 import type { RunSummary } from "@/types/authority";
 
 describe("resolveOperatorHomeResumeAffordancePlan", () => {
+  it("suppresses continue-last when target run id matches rail run id aside from surrounding whitespace", () => {
+    const runs: RunSummary[] = [
+      {
+        runId: "review-42",
+        projectId: "default",
+        description: "Payments platform",
+        hasFindingsSnapshot: true,
+      },
+    ];
+
+    vi.spyOn(continueLastReviewPackage, "resolveContinueLastReviewPackageTarget").mockReturnValue({
+      runId: " review-42 ",
+      label: "Payments platform",
+      href: "/architecture/reviews/review-42",
+      visitedAtUtc: "2026-01-15T12:00:00.000Z",
+    });
+
+    const plan = resolveOperatorHomeResumeAffordancePlan({
+      runs,
+      drafts: [],
+      incompleteWizards: [],
+    });
+
+    expect(plan.showContinueLast).toBe(false);
+    vi.restoreAllMocks();
+  });
+
   it("suppresses continue-last when unfinished work already surfaces the same review", () => {
     const runs: RunSummary[] = [
       {

@@ -1,4 +1,7 @@
-import type { RunsDashboardTabCounts } from "@/lib/operator/run-home-status";
+import {
+  normalizeOperatorHomeNonNegativeCount,
+  type RunsDashboardTabCounts,
+} from "@/lib/operator/run-home-status";
 import {
   deriveHomePreviewTabCounts,
   filterTenantOverviewRuns,
@@ -35,8 +38,16 @@ export function deriveOperatorHomeTenantCountingSnapshot(
 ): OperatorHomeTenantCountingSnapshot {
   const tenantItems = filterTenantOverviewRuns(input.displayItems);
   const previewTenantItems = filterTenantOverviewRuns(input.previewItems);
-  const awaitingApprovalCount = input.awaitingApprovalCount ?? 0;
-  const reviewPackagesTotal = input.runsDashboardTotalCount ?? tenantItems.length;
+  const awaitingApprovalCount = normalizeOperatorHomeNonNegativeCount(input.awaitingApprovalCount);
+  const tenantReviewCount = tenantItems.length;
+  const dashboardTotal = input.runsDashboardTotalCount;
+  const reviewPackagesTotal =
+    dashboardTotal === undefined
+      ? tenantReviewCount
+      : Math.max(
+          Number.isFinite(dashboardTotal) ? Math.max(0, Math.trunc(dashboardTotal)) : 0,
+          tenantReviewCount,
+        );
   const metrics = deriveOperatorHomeWorkspaceMetrics(tenantItems, reviewPackagesTotal, awaitingApprovalCount);
   const previewTabCounts = deriveHomePreviewTabCounts({
     previewItems: previewTenantItems,
