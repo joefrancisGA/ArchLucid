@@ -48,7 +48,11 @@ export function findingsCiteEvidenceWithoutStoredSourceNames(
     const refCount = finding.evidenceRefCount;
     const snippets = finding.evidenceRefSnippets ?? [];
 
+<<<<<<< HEAD
     return refCount != null && refCount > 0 && snippets.length === 0;
+=======
+    return typeof refCount === "number" && Number.isFinite(refCount) && refCount > 0 && snippets.length === 0;
+>>>>>>> origin/master
   });
 }
 
@@ -188,7 +192,18 @@ export function deriveRunDetailEvidenceInventory(input: {
     const snippets = finding.evidenceRefSnippets ?? [];
     const evidenceRefCount = finding.evidenceRefCount;
 
+<<<<<<< HEAD
     if (snippets.length === 0 && evidenceRefCount != null && evidenceRefCount > 0) {
+=======
+    const refCount = finding.evidenceRefCount;
+
+    if (
+      snippets.length === 0
+      && typeof refCount === "number"
+      && Number.isFinite(refCount)
+      && refCount > 0
+    ) {
+>>>>>>> origin/master
       continue;
     }
 

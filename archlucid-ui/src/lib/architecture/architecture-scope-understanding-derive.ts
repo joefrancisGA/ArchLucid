@@ -1,4 +1,5 @@
 import {
+  PEOPLE_AND_SYSTEMS_OMITTED_SCOPE_VALUE,
   SCOPE_CONTEXT_PREVIEW_MAX_LENGTH,
   scopeBulletBehavior,
   stripScopeUnderstandingSection,
@@ -149,19 +150,31 @@ export function deriveScopeUnderstandingBullets(
     pushUniqueBullet(bullets, "context", "context", excerpt);
   }
 
+  const peopleAndSystemsOmitted = input.peopleAndSystems === undefined;
+  const peopleSource = input.peopleAndSystems ?? [];
   const people = uniqueScopeLabels(
-    (input.peopleAndSystems ?? [])
+    peopleSource
       .filter((entry) => entry.kind === "Human" || entry.kind === "Both")
       .map((entry) => actorScopeDisplayLabel(entry)),
   );
   const systems = uniqueScopeLabels(
-    (input.peopleAndSystems ?? [])
+    peopleSource
       .filter((entry) => entry.kind === "Machine" || entry.kind === "Both")
       .map((entry) => actorScopeDisplayLabel(entry)),
   );
+  const hasScopeAnchor =
+    architectureName.length > 0 ||
+    outcome.length > 0 ||
+    overview.length > 0 ||
+    (input.missingItemLabels?.length ?? 0) > 0;
 
-  pushUniqueBullet(bullets, "people", "people", people.slice(0, 4).join(", "));
-  pushUniqueBullet(bullets, "systems", "systems", systems.slice(0, 4).join(", "));
+  if (peopleAndSystemsOmitted && hasScopeAnchor) {
+    pushUniqueBullet(bullets, "people", "people", PEOPLE_AND_SYSTEMS_OMITTED_SCOPE_VALUE);
+    pushUniqueBullet(bullets, "systems", "systems", PEOPLE_AND_SYSTEMS_OMITTED_SCOPE_VALUE);
+  } else if (!peopleAndSystemsOmitted) {
+    pushUniqueBullet(bullets, "people", "people", people.slice(0, 4).join(", "));
+    pushUniqueBullet(bullets, "systems", "systems", systems.slice(0, 4).join(", "));
+  }
 
   for (const label of input.missingItemLabels ?? []) {
     pushUniqueBullet(bullets, "gap", gapBulletId(label), label);

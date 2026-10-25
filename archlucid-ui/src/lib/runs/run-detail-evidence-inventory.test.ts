@@ -157,11 +157,19 @@ describe("run-detail-evidence-inventory", () => {
     expect(items[0]?.citingFindingCount).toBe(0);
   });
 
+<<<<<<< HEAD
   it("does not treat null evidenceRefCount as citing evidence without source names (P-08)", () => {
     expect(
       findingsCiteEvidenceWithoutStoredSourceNames([
         finding({
           findingId: "f-null-count",
+=======
+  it("does not treat omitted evidenceRefCount as citing evidence without source names", () => {
+    expect(
+      findingsCiteEvidenceWithoutStoredSourceNames([
+        finding({
+          findingId: "f-omitted",
+>>>>>>> origin/master
           evidenceRefCount: null,
           evidenceRefSnippets: [],
         }),
