@@ -213,7 +213,12 @@ internal static class InventoryDiagramOrphanedStateApplier
 
             if (!string.IsNullOrWhiteSpace(resolvedArmId))
             {
-                message = $"attached to {ReadResourceName(resolvedArmId)}";
+                string resourceName = ReadResourceName(resolvedArmId);
+
+                message = string.IsNullOrWhiteSpace(resourceName)
+                    ? "Attached resource name was not stored."
+                    : $"attached to {resourceName}";
+
                 return true;
             }
         }
@@ -293,6 +298,6 @@ internal static class InventoryDiagramOrphanedStateApplier
 
         return lastSlash >= 0 && lastSlash < armResourceId.Length - 1
             ? armResourceId[(lastSlash + 1)..]
-            : "parent resource";
+            : string.Empty;
     }
 }

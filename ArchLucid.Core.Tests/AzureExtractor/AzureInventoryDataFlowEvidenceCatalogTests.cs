@@ -112,7 +112,7 @@ public sealed class AzureInventoryDataFlowEvidenceCatalogTests
 
         evidence!.IncludeOnDataFlow.Should().BeTrue();
         evidence.Family.Should().Be(AzureInventoryDataFlowEvidenceFamily.StructuralNetworkPath);
-        evidence.DiagramLabel.Should().Be("Private network path");
+        evidence.DiagramLabel.Should().Be(InventoryDiagramRelationshipLabelTexts.PeReachableTargetInferredLabel);
     }
 
     [Theory]

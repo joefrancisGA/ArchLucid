@@ -76,6 +76,7 @@ import { buildInfraEvidenceClearAuditScopeHref } from "@/lib/infra-evidence/infr
 import { sanitizeResourceHubQueryForTab } from "@/lib/infra-evidence/infra-evidence-hub-tab-query";
 import { formatInfraEvidenceHubApiError } from "@/lib/infra-evidence/infra-evidence-hub-api";
 import { normalizeSecureNowResourceNameForDisplay } from "@/lib/infra-evidence/format-azure-resource-display";
+import { isUuidLike } from "@/lib/resolve-governance-finding-resource-group";
 import {
   createRemediationInstance,
   formatInfraEvidenceRemediationApiError,
@@ -472,7 +473,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
 
   const resourceTitle = useMemo(() => {
     if (hub == null) {
-      return cloudResourceId;
+      return isUuidLike(cloudResourceId) ? "Resource name was not stored." : cloudResourceId;
     }
 
     const configResourceId = hub.currentConfiguration?.azureResourceId;
@@ -483,6 +484,10 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
     const externalResourceName =
       !hub.externalResourceId.endsWith("/") ? hub.externalResourceId.split("/").filter(Boolean).pop() : undefined;
     const rawTitle = configName ?? externalResourceName ?? cloudResourceId;
+
+    if (rawTitle === cloudResourceId && isUuidLike(rawTitle)) {
+      return "Resource name was not stored.";
+    }
 
     return normalizeSecureNowResourceNameForDisplay(rawTitle);
   }, [cloudResourceId, hub]);

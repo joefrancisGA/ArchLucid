@@ -22,6 +22,9 @@ public static class InventoryDiagramRelationshipLabelTexts
     public const string HostnameInferredTargetLabel =
         "App setting hostname was inferred. A stored resource link was not stored.";
 
+    public const string PeReachableTargetInferredLabel =
+        "Private endpoint target was inferred. Reachability was not stored.";
+
     public const string PublicExposureCaption = "Public IP is attached; its card is hidden on this diagram.";
 
     public const string PublicIpAddressNotStored = "Public IP address was not stored.";
