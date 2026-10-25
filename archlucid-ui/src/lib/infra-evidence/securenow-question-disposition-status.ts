@@ -19,6 +19,17 @@ function secureNowQuestionDispositionFieldWasStored(
   return value !== null && value !== undefined;
 }
 
+/** Non-empty after trim — whitespace-only disposition fields must not infer answered/dismissed rows. */
+function secureNowQuestionDispositionFieldContributesToInference(
+  value: string | null | undefined,
+): boolean {
+  if (!secureNowQuestionDispositionFieldWasStored(value)) {
+    return false;
+  }
+
+  return value.trim().length > 0;
+}
+
 function secureNowQuestionDispositionStatusAllowsStoredMetadataInference(
   status: string | null | undefined,
 ): boolean {
@@ -33,9 +44,9 @@ function secureNowQuestionDispositionHasInferredClosedFields(
     return false;
   }
 
-  return secureNowQuestionDispositionFieldWasStored(question.answerCode)
-    || secureNowQuestionDispositionFieldWasStored(question.answerText)
-    || secureNowQuestionDispositionFieldWasStored(question.reason);
+  return secureNowQuestionDispositionFieldContributesToInference(question.answerCode)
+    || secureNowQuestionDispositionFieldContributesToInference(question.answerText)
+    || secureNowQuestionDispositionFieldContributesToInference(question.reason);
 }
 
 export function secureNowQuestionDispositionShowsStoredAnswerMetadata(
@@ -72,8 +83,8 @@ export function secureNowQuestionCountsAsAnsweredFilterRow(
     return false;
   }
 
-  return secureNowQuestionDispositionFieldWasStored(question.answerCode)
-    || secureNowQuestionDispositionFieldWasStored(question.answerText);
+  return secureNowQuestionDispositionFieldContributesToInference(question.answerCode)
+    || secureNowQuestionDispositionFieldContributesToInference(question.answerText);
 }
 
 export function secureNowQuestionDispositionReviewerStatusLabel(
@@ -124,10 +135,10 @@ export function secureNowQuestionCountsAsDismissedFilterRow(
     return false;
   }
 
-  const hasAnswerMetadata = secureNowQuestionDispositionFieldWasStored(question.answerCode)
-    || secureNowQuestionDispositionFieldWasStored(question.answerText);
+  const hasAnswerMetadata = secureNowQuestionDispositionFieldContributesToInference(question.answerCode)
+    || secureNowQuestionDispositionFieldContributesToInference(question.answerText);
 
-  return secureNowQuestionDispositionFieldWasStored(question.reason) && !hasAnswerMetadata;
+  return secureNowQuestionDispositionFieldContributesToInference(question.reason) && !hasAnswerMetadata;
 }
 
 export function secureNowQuestionDispositionStatusTrimmed(

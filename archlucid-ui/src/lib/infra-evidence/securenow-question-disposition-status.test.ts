@@ -63,6 +63,15 @@ describe("secureNowQuestionDispositionShowsStoredAnswerMetadata", () => {
 });
 
 describe("secureNowQuestionDispositionShowsAnswerActions", () => {
+  it("shows answer actions when omitted status only has whitespace disposition fields", () => {
+    expect(secureNowQuestionDispositionShowsAnswerActions({
+      status: null,
+      answerCode: "   ",
+      answerText: "",
+      reason: "   ",
+    })).toBe(true);
+  });
+
   it("hides answer actions when omitted status still carries stored answer metadata", () => {
     expect(secureNowQuestionDispositionShowsAnswerActions({
       status: null,

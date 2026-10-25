@@ -628,6 +628,22 @@ describe("SecureNowQuestionQueue", () => {
     expect(screen.getByTestId("infra-diagrams-question-disposition-status")).toHaveTextContent("Answered");
   });
 
+  it("keeps open answer chrome when list JSON omits status but stores whitespace-only disposition fields", async () => {
+    mocks.listQuestions.mockResolvedValue([{
+      ...question,
+      status: null,
+      answerCode: "   ",
+      answerText: "",
+      reason: "   ",
+    }]);
+
+    render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
+    fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
+
+    expect(screen.getByRole("button", { name: "Name the peer" })).toBeInTheDocument();
+    expect(screen.queryByTestId("infra-diagrams-question-answer")).not.toBeInTheDocument();
+  });
+
   it("routes Open status with stored answer metadata into the answered filter", async () => {
     mocks.listQuestions.mockResolvedValue([
       { ...question, status: "Open" },
