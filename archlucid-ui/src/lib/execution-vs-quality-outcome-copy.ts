@@ -136,7 +136,7 @@ export function plainLanguageFailureCauseSentence(args: {
   readonly completedStages?: number | null;
 }): string {
   const triageTitle = plainLanguageTriageTitle(args.triageScenarioId);
-  const stagePrefix = resolveFailureStageReachedPrefix(args.completedStages);
+  const stagePrefix = resolveFailureStagePrefix(args.completedStages);
 
   if (triageTitle !== null) {
     const resolutionHint = resolveFailureResolutionHint(args.failureClass, args.reasonCode);
@@ -176,12 +176,12 @@ export function plainLanguageFailureCauseSentence(args: {
   return FAILURE_CLASS_CAUSE_SENTENCES.unknown;
 }
 
-function resolveFailureStageReachedPrefix(completedStages: number | null | undefined): string {
-  if (completedStages === null || completedStages === undefined) {
-    return FAILURE_STAGE_COUNT_NOT_STORED_LABEL;
+function resolveFailureStagePrefix(completedStages: number | null | undefined): string {
+  if (completedStages === null || completedStages === undefined || !Number.isFinite(completedStages)) {
+    return "Pipeline stage count was not stored.";
   }
 
-  return resolveFailureStageReachedPhrase(completedStages);
+  return resolveFailureStageReachedPhrase(Math.trunc(completedStages));
 }
 
 function resolveFailureStageReachedPhrase(completedStages: number): string {

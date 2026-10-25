@@ -39,6 +39,8 @@ export type BuildArchitectureCreatedHomeModelInput = {
 const MIN_STRONG_OVERVIEW_CHARS = 100;
 const MIN_CLARIFICATION_OVERVIEW_CHARS = 40;
 const MIN_OUTCOME_CHARS = 10;
+const SUMMARY_LIST_VISIBLE_LIMIT = 4;
+const SUMMARY_BUSINESS_PURPOSE_CHAR_LIMIT = 220;
 
 export const ARCHITECTURE_CREATED_BUSINESS_PURPOSE_NOT_STORED =
   "Business purpose was not stored." as const;
@@ -57,14 +59,37 @@ export const DEFAULT_GAP_ASSERTION: ArchitectureGapAssertionFlags = {
   peopleAndSystems: true,
 };
 
-function truncateSummary(value: string, maxLength: number): string {
+function formatSummaryList(labels: readonly string[], notStoredCopy: string): string {
+  const trimmed = labels.map((label) => label.trim()).filter((label) => label.length > 0);
+
+  if (trimmed.length === 0) {
+    return notStoredCopy;
+  }
+
+  if (trimmed.length <= SUMMARY_LIST_VISIBLE_LIMIT) {
+    return trimmed.join(", ");
+  }
+
+  const visible = trimmed.slice(0, SUMMARY_LIST_VISIBLE_LIMIT).join(", ");
+  const remaining = trimmed.length - SUMMARY_LIST_VISIBLE_LIMIT;
+
+  return `${visible} (${remaining} more ${remaining === 1 ? "entry was" : "entries were"} stored.)`;
+}
+
+function formatBusinessPurposeSummary(value: string): string {
   const trimmed = value.trim();
 
-  if (trimmed.length <= maxLength) {
+  if (trimmed.length === 0) {
+    return ARCHITECTURE_CREATED_BUSINESS_PURPOSE_NOT_STORED;
+  }
+
+  if (trimmed.length <= SUMMARY_BUSINESS_PURPOSE_CHAR_LIMIT) {
     return trimmed;
   }
 
-  return `${trimmed.slice(0, maxLength - 1).trimEnd()}…`;
+  const visible = trimmed.slice(0, SUMMARY_BUSINESS_PURPOSE_CHAR_LIMIT).trimEnd();
+
+  return `${visible}… (Full business purpose was stored.)`;
 }
 
 export function deriveDefinitionStatus(
@@ -97,42 +122,26 @@ export function buildSummaryFields(input: BuildArchitectureCreatedHomeModelInput
     .filter((entry) => entry.kind === "Machine" || entry.kind === "Both")
     .map((entry) => entry.label);
   const integrations = input.peopleAndSystems
-    .filter((entry) => entry.kind === "Machine")
+    .filter((entry) => entry.kind === "Both")
     .map((entry) => entry.label);
 
-  const businessPurpose =
-    input.businessOutcome.trim().length > 0
-      ? truncateSummary(input.businessOutcome, 220)
-      : ARCHITECTURE_CREATED_BUSINESS_PURPOSE_NOT_STORED;
+  const businessPurpose = formatBusinessPurposeSummary(input.businessOutcome);
 
   fields.push({ label: ARCHITECTURE_SUMMARY_LABELS.businessPurpose, value: businessPurpose });
 
   fields.push({
     label: ARCHITECTURE_SUMMARY_LABELS.primaryUsers,
-    value:
-      humans.length > 0
-        ? humans.slice(0, 4).join(", ")
-        : ARCHITECTURE_CREATED_PRIMARY_USERS_NOT_STORED,
+    value: formatSummaryList(humans, ARCHITECTURE_CREATED_PRIMARY_USERS_NOT_STORED),
   });
 
-  if (systems.length > 0) {
-    fields.push({
-      label: ARCHITECTURE_SUMMARY_LABELS.majorSystems,
-      value: systems.slice(0, 4).join(", "),
-    });
-  } else {
-    fields.push({
-      label: ARCHITECTURE_SUMMARY_LABELS.majorSystems,
-      value: ARCHITECTURE_CREATED_MAJOR_SYSTEMS_NOT_STORED,
-    });
-  }
+  fields.push({
+    label: ARCHITECTURE_SUMMARY_LABELS.majorSystems,
+    value: formatSummaryList(systems, ARCHITECTURE_CREATED_MAJOR_SYSTEMS_NOT_STORED),
+  });
 
   fields.push({
     label: ARCHITECTURE_SUMMARY_LABELS.keyIntegrations,
-    value:
-      integrations.length > 0
-        ? integrations.slice(0, 4).join(", ")
-        : ARCHITECTURE_CREATED_KEY_INTEGRATIONS_NOT_STORED,
+    value: formatSummaryList(integrations, ARCHITECTURE_CREATED_KEY_INTEGRATIONS_NOT_STORED),
   });
 
   return fields;

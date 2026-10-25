@@ -20,6 +20,27 @@ export function formatInfraEvidenceSnapshotCapturedLabel(
   return formatted;
 }
 
+export function formatInfraEvidenceSnapshotResourceCountLabel(
+  resourceCount: number | null | undefined,
+): string {
+  if (typeof resourceCount === "number" && Number.isFinite(resourceCount)) {
+    return `${resourceCount} resources`;
+  }
+
+  return "Resource count was not stored.";
+}
+
+export function formatInfraEvidenceSnapshotFiniteCountCell(
+  value: number | null | undefined,
+  notStoredLabel: string,
+): string {
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return String(value);
+  }
+
+  return notStoredLabel;
+}
+
 export function formatInfraEvidenceSubscriptionLabel(
   subscriptionName: string | null | undefined,
   subscriptionId: string | null | undefined,
@@ -46,10 +67,12 @@ export function formatInfraEvidenceSnapshotLabel(snapshot: InfraEvidenceSnapshot
 
   if (subscription != null) {
     parts.push(subscription);
+  } else {
+    parts.push("Subscription was not stored.");
   }
 
   parts.push(captured);
-  parts.push(`${snapshot.resourceCount} resources`);
+  parts.push(formatInfraEvidenceSnapshotResourceCountLabel(snapshot.resourceCount));
 
   return parts.join(" · ");
 }
@@ -61,12 +84,22 @@ export function formatInfraEvidenceSnapshotFreshness(snapshot: InfraEvidenceSnap
 
   if (subscription != null) {
     parts.push(subscription);
+  } else {
+    parts.push("Subscription was not stored.");
   }
 
   parts.push(`captured ${captured}`);
-  parts.push(`${snapshot.resourceCount} resources`);
+  parts.push(formatInfraEvidenceSnapshotResourceCountLabel(snapshot.resourceCount));
 
   return parts.join(" · ");
+}
+
+export function formatInfraEvidenceDiffTotalChangesPhrase(totalChanges: number | undefined): string {
+  if (totalChanges === undefined || !Number.isFinite(totalChanges)) {
+    return "Change count was not returned";
+  }
+
+  return `${totalChanges} changes`;
 }
 
 export function formatInfraEvidenceDiffLabel(
@@ -81,7 +114,7 @@ export function formatInfraEvidenceDiffLabel(
       ? formatInfraEvidenceSnapshotCapturedLabel(otherSnapshot.capturedUtc)
       : formatInfraEvidenceSnapshotCapturedLabel(diff.createdUtc);
 
-  return `${diff.totalChanges} changes vs ${otherCaptured}`;
+  return `${formatInfraEvidenceDiffTotalChangesPhrase(diff.totalChanges)} vs ${otherCaptured}`;
 }
 
 export function formatInfraEvidenceScopeFreshnessLine(input: {
@@ -95,7 +128,7 @@ export function formatInfraEvidenceScopeFreshnessLine(input: {
   }
 
   if (input.selectedDiff != null) {
-    parts.push(`${input.selectedDiff.totalChanges} changes`);
+    parts.push(formatInfraEvidenceDiffTotalChangesPhrase(input.selectedDiff.totalChanges));
   }
 
   if (parts.length === 0) {

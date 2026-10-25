@@ -35,7 +35,7 @@ function readFiniteNumber(value: unknown): number | null {
   return null;
 }
 
-/** Projected annual USD savings on the finding wire payload — null when absent or unparsable. */
+/** Projected annual USD savings on the finding wire payload, or null when omitted or unparsable. */
 export function readFindingProjectedImpactUsd(finding: QuickDecisionFinding): number | null {
   const parsed = parseFindingWireCostData(finding);
 

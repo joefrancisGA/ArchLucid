@@ -36,6 +36,8 @@ const model: ArchitectureDiagramModel = {
     },
   ],
   trustBoundaryLabels: [],
+  skippedUnlabeledEntityCount: 0,
+  unmatchedDataFlows: [],
 };
 
 describe("ArchitectureDiagramProvenancePanel", () => {

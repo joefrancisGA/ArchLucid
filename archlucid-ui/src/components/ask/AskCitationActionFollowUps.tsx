@@ -17,17 +17,14 @@ export type AskCitationActionFollowUpsProps = {
  * Post-answer deep-link chips for cited findings / evidence / disposition (TB-2219).
  */
 export function AskCitationActionFollowUps(props: AskCitationActionFollowUpsProps) {
-  const { chips, showHonestEmpty = false, reviewId } = props;
+  const { chips, showHonestEmpty = false } = props;
 
   if (chips.length === 0) {
     if (!showHonestEmpty) {
       return null;
     }
 
-    const emptyNote =
-      reviewId === undefined || reviewId.trim().length === 0
-        ? "Review id was not stored."
-        : "No linked finding, evidence, or decision to open from this answer.";
+    const emptyNote = "No linked finding, evidence, or decision to open from this answer.";
 
     return (
       <div

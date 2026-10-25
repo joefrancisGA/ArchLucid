@@ -36,6 +36,12 @@ function readNonNegativeInt(value: unknown): number | null {
 }
 
 function readFindingTitle(record: Record<string, unknown>): string {
+  const title = typeof record.title === "string" ? record.title.trim() : "";
+
+  if (title.length > 0) {
+    return title;
+  }
+
   const message = typeof record.message === "string" ? record.message.trim() : "";
 
   if (message.length > 0) {
@@ -54,13 +60,7 @@ function readFindingTitle(record: Record<string, unknown>): string {
     return findingType;
   }
 
-  const findingId = typeof record.findingId === "string" ? record.findingId.trim() : "";
-
-  if (findingId.length > 0) {
-    return findingId;
-  }
-
-  return "Checklist observation";
+  return "Checklist title was not stored.";
 }
 
 /** Parses TB-384 checklist rows and TB-385 curation counts from hydrated run detail `findingsSnapshot`. */
@@ -151,8 +151,16 @@ export function formatInsightDensityCurationMessage(curation: InsightDensityCura
   const demoted = curation.demotedToChecklistCount;
   const retained = curation.retainedFindingCount;
 
-  if (demoted === null || retained === null) {
-    return INSIGHT_DENSITY_CURATION_COUNTS_NOT_STORED;
+  if (demoted === null && retained === null) {
+    return "";
+  }
+
+  if (demoted === null) {
+    return "Demoted finding count was not stored.";
+  }
+
+  if (retained === null) {
+    return "Retained finding count was not stored.";
   }
 
   if (demoted <= 0 && retained <= 0) {
