@@ -130,7 +130,7 @@ function formatSecureNowQuestionScopeLabel(scopeKind: string | null): string {
   const trimmed = scopeKind.trim();
 
   if (trimmed.length === 0) {
-    return "Question scope was not stored.";
+    return "Question scope was stored empty.";
   }
 
   if (trimmed === "Resource") {
