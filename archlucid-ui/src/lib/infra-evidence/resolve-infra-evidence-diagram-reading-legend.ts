@@ -28,6 +28,12 @@ export function resolveInfraEvidenceDiagramReadingLegend(mode: string): InfraEvi
         connectors: "Each connector is only as strong as its own line.",
         evidenceKind: "This view does not prove reachability or runtime use.",
       };
+    case "executive":
+      return {
+        boxes: "Azure resources",
+        connectors: "Each connector is only as strong as its own line.",
+        evidenceKind: "This view does not prove reachability or runtime use.",
+      };
     default:
       return {
         boxes: "Boxes are resources in this inventory view.",

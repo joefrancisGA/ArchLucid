@@ -66,7 +66,7 @@ export function sponsorSeverityUrgencyClause(severity: string | null | undefined
 
 function buildHeadline(title: string | null, severity: string | null): string {
   if (title !== null && severity !== null) {
-    return `Recorded severity ${severity}: ${title}`;
+    return `${severity} finding: ${title}`;
   }
 
   if (title !== null) {

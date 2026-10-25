@@ -259,7 +259,7 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
     currentQuestion?.resourceName === null || currentQuestion?.resourceName === undefined
       ? "Resource name was not stored."
       : currentQuestion.resourceName.trim().length === 0
-        ? "Resource name was stored empty."
+        ? "Resource name was not stored"
         : normalizeSecureNowResourceNameForDisplay(currentQuestion.resourceName);
   const resourceIdMissing = currentQuestion?.resourceId === null || currentQuestion?.resourceId === undefined;
   const resourceIdStoredEmpty =
@@ -297,7 +297,7 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
               {currentQuestion.questionText === null || currentQuestion.questionText === undefined
                 ? "Question text was not stored."
                 : currentQuestion.questionText.trim().length === 0
-                  ? "Question text was stored empty."
+                  ? "Question text was not stored."
                   : currentQuestion.questionText}
             </p>
           ) : null}
