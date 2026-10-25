@@ -17,6 +17,7 @@ public sealed class EndToEndReplayComparisonExportService(IEndToEndReplayCompari
     public string GenerateMarkdown(EndToEndReplayComparisonReport report, string? profile = null)
     {
         ArgumentNullException.ThrowIfNull(report);
+        EndToEndReplayComparisonReportNormalizer.NormalizePersistedPayload(report);
         return EndToEndReplayComparisonMarkdownExportFormatter.Generate(_summaryFormatter, report, profile);
     }
 
@@ -27,6 +28,7 @@ public sealed class EndToEndReplayComparisonExportService(IEndToEndReplayCompari
     public string GenerateHtml(EndToEndReplayComparisonReport report, string? profile = null)
     {
         ArgumentNullException.ThrowIfNull(report);
+        EndToEndReplayComparisonReportNormalizer.NormalizePersistedPayload(report);
         return EndToEndReplayComparisonHtmlExportFormatter.Generate(_summaryFormatter, report, profile);
     }
 
@@ -37,6 +39,7 @@ public sealed class EndToEndReplayComparisonExportService(IEndToEndReplayCompari
     public Task<byte[]> GenerateDocxAsync(EndToEndReplayComparisonReport report, CancellationToken cancellationToken = default, string? profile = null)
     {
         ArgumentNullException.ThrowIfNull(report);
+        EndToEndReplayComparisonReportNormalizer.NormalizePersistedPayload(report);
         return EndToEndReplayComparisonDocxExportFormatter.GenerateAsync(_summaryFormatter, report, cancellationToken, profile);
     }
 
@@ -47,6 +50,7 @@ public sealed class EndToEndReplayComparisonExportService(IEndToEndReplayCompari
     public Task<byte[]> GeneratePdfAsync(EndToEndReplayComparisonReport report, CancellationToken cancellationToken = default, string? profile = null)
     {
         ArgumentNullException.ThrowIfNull(report);
+        EndToEndReplayComparisonReportNormalizer.NormalizePersistedPayload(report);
         return EndToEndReplayComparisonPdfExportFormatter.GenerateAsync(_summaryFormatter, report, cancellationToken, profile);
     }
 }

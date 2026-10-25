@@ -46,7 +46,7 @@ internal static class ComparisonRecordRunIdSql
         if (string.IsNullOrWhiteSpace(value))
             return;
 
-        if (!Guid.TryParse(value, out _))
+        if (!Guid.TryParse(value.Trim(), out _))
             throw new ArgumentException("Run id must be empty or parseable as a RFC GUID when using SQL persistence.", paramName);
     }
 
@@ -55,6 +55,6 @@ internal static class ComparisonRecordRunIdSql
         if (string.IsNullOrWhiteSpace(value))
             return null;
 
-        return Guid.TryParse(value, out Guid g) ? g : null;
+        return Guid.TryParse(value.Trim(), out Guid g) ? g : null;
     }
 }

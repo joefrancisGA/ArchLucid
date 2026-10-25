@@ -1,3 +1,5 @@
+using ArchLucid.Core.Persistence.Graph;
+
 namespace ArchLucid.Application.ArchitectureIntelligence;
 
 internal static class ClosedLoopRunIdComparer
@@ -6,7 +8,23 @@ internal static class ClosedLoopRunIdComparer
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
 
-        return runId.Replace("-", string.Empty, StringComparison.Ordinal).ToLowerInvariant();
+        string trimmed = CollapseInteriorAsciiSpaces(NormalizeUnicodeSpaces(runId.Trim()));
+        string pathCanonical = GraphSnapshotCanonicalFingerprint.NormalizeReviewCachePathLikeToken(trimmed.ToLowerInvariant());
+
+        return pathCanonical.Replace("-", string.Empty, StringComparison.Ordinal);
+    }
+
+    private static string NormalizeUnicodeSpaces(string value) =>
+        value
+            .Replace('\u00a0', ' ')
+            .Replace('\u202f', ' ');
+
+    private static string CollapseInteriorAsciiSpaces(string content)
+    {
+        while (content.Contains("  ", StringComparison.Ordinal))
+            content = content.Replace("  ", " ", StringComparison.Ordinal);
+
+        return content;
     }
 
     public static bool Equals(string left, string right)

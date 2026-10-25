@@ -2,6 +2,8 @@ using System.Text.Json;
 
 using ArchLucid.Contracts.Metadata;
 
+using ArchLucid.Persistence.Data.Repositories;
+
 namespace ArchLucid.Persistence.Repositories;
 
 /// <summary>
@@ -57,13 +59,30 @@ internal static class ComparisonRecordRepositoryCore
         IEnumerable<ComparisonRecord> query = source;
 
         if (!string.IsNullOrWhiteSpace(comparisonType))
-            query = query.Where(r => string.Equals(r.ComparisonType, comparisonType, StringComparison.Ordinal));
+        {
+            string normalizedComparisonType = comparisonType.Trim();
+            query = query.Where(r => string.Equals(r.ComparisonType, normalizedComparisonType, StringComparison.Ordinal));
+        }
 
         if (!string.IsNullOrWhiteSpace(leftRunId))
-            query = query.Where(r => string.Equals(r.LeftRunId, leftRunId, StringComparison.Ordinal));
+        {
+            string? normalizedLeftRunId = ComparisonRecordRunIdSql.ToCanonicalRunIdStringOrNull(leftRunId);
+            if (normalizedLeftRunId is not null)
+            {
+                query = query.Where(r =>
+                    string.Equals(r.LeftRunId, normalizedLeftRunId, StringComparison.Ordinal));
+            }
+        }
 
         if (!string.IsNullOrWhiteSpace(rightRunId))
-            query = query.Where(r => string.Equals(r.RightRunId, rightRunId, StringComparison.Ordinal));
+        {
+            string? normalizedRightRunId = ComparisonRecordRunIdSql.ToCanonicalRunIdStringOrNull(rightRunId);
+            if (normalizedRightRunId is not null)
+            {
+                query = query.Where(r =>
+                    string.Equals(r.RightRunId, normalizedRightRunId, StringComparison.Ordinal));
+            }
+        }
 
         if (createdFromUtc is not null)
             query = query.Where(r => r.CreatedUtc >= createdFromUtc.Value);
@@ -72,18 +91,36 @@ internal static class ComparisonRecordRepositoryCore
             query = query.Where(r => r.CreatedUtc <= createdToUtc.Value);
 
         if (!string.IsNullOrWhiteSpace(leftExportRecordId))
-            query = query.Where(r => string.Equals(r.LeftExportRecordId, leftExportRecordId, StringComparison.Ordinal));
+        {
+            string normalizedLeftExportRecordId =
+                ComparisonExportRecordIdLookup.NormalizeLookupKey(leftExportRecordId);
+            query = query.Where(r =>
+                ComparisonExportRecordIdLookup.StoredValueMatchesLookup(
+                    r.LeftExportRecordId,
+                    normalizedLeftExportRecordId));
+        }
 
         if (!string.IsNullOrWhiteSpace(rightExportRecordId))
-            query = query.Where(r => string.Equals(r.RightExportRecordId, rightExportRecordId, StringComparison.Ordinal));
+        {
+            string normalizedRightExportRecordId =
+                ComparisonExportRecordIdLookup.NormalizeLookupKey(rightExportRecordId);
+            query = query.Where(r =>
+                ComparisonExportRecordIdLookup.StoredValueMatchesLookup(
+                    r.RightExportRecordId,
+                    normalizedRightExportRecordId));
+        }
 
         if (!string.IsNullOrWhiteSpace(label))
-            query = query.Where(r => string.Equals(r.Label, label, StringComparison.Ordinal));
+        {
+            string normalizedLabel = label.Trim();
+            query = query.Where(r => string.Equals(r.Label, normalizedLabel, StringComparison.Ordinal));
+        }
 
         if (tags is { Count: > 0 })
         {
             query = tags
                 .Where(static t => !string.IsNullOrWhiteSpace(t))
+                .Select(static t => t.Trim())
                 .Aggregate(
                     query,
                     static (current, needle) => current.Where(r =>
@@ -134,13 +171,21 @@ internal static class ComparisonRecordRepositoryCore
         ArgumentNullException.ThrowIfNull(record);
         ArgumentException.ThrowIfNullOrWhiteSpace(cursorComparisonRecordId);
 
+        string normalizedCursorComparisonRecordId = cursorComparisonRecordId.Trim();
+
         return sortDescending
             ? record.CreatedUtc < cursorCreatedUtc
               || (record.CreatedUtc == cursorCreatedUtc
-                  && string.Compare(record.ComparisonRecordId, cursorComparisonRecordId, StringComparison.Ordinal) < 0)
+                  && string.Compare(
+                      record.ComparisonRecordId,
+                      normalizedCursorComparisonRecordId,
+                      StringComparison.Ordinal) < 0)
             : record.CreatedUtc > cursorCreatedUtc
               || (record.CreatedUtc == cursorCreatedUtc
-                  && string.Compare(record.ComparisonRecordId, cursorComparisonRecordId, StringComparison.Ordinal) > 0);
+                  && string.Compare(
+                      record.ComparisonRecordId,
+                      normalizedCursorComparisonRecordId,
+                      StringComparison.Ordinal) > 0);
     }
 
     public static ComparisonRecord Clone(ComparisonRecord record)

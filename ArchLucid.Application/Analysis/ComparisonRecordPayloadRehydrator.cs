@@ -15,7 +15,14 @@ public static class ComparisonRecordPayloadRehydrator
             return null;
         try
         {
-            return JsonSerializer.Deserialize<EndToEndReplayComparisonReport>(record.PayloadJson, JsonOptions);
+            EndToEndReplayComparisonReport? report =
+                JsonSerializer.Deserialize<EndToEndReplayComparisonReport>(record.PayloadJson, JsonOptions);
+
+            if (report is null)
+                return null;
+
+            EndToEndReplayComparisonReportNormalizer.NormalizePersistedPayload(report);
+            return report;
         }
         catch (JsonException ex)
         {
@@ -32,7 +39,13 @@ public static class ComparisonRecordPayloadRehydrator
             return null;
         try
         {
-            return JsonSerializer.Deserialize<ExportRecordDiffResult>(record.PayloadJson, JsonOptions);
+            ExportRecordDiffResult? diff = JsonSerializer.Deserialize<ExportRecordDiffResult>(record.PayloadJson, JsonOptions);
+
+            if (diff is null)
+                return null;
+
+            CanonicalizeExportDiffRunIds(diff);
+            return diff;
         }
         catch (JsonException ex)
         {
@@ -41,4 +54,7 @@ public static class ComparisonRecordPayloadRehydrator
                 "The stored JSON may be corrupt.", ex);
         }
     }
+
+    private static void CanonicalizeExportDiffRunIds(ExportRecordDiffResult diff) =>
+        ExportRecordDiffResultNormalizer.NormalizeDisplayAnchors(diff);
 }

@@ -12,11 +12,15 @@ public sealed partial class ComparisonsApplicationService
         bool persistReplay,
         CancellationToken ct)
     {
-        if (await LoadScopedComparisonRecordAsync(comparisonRecordId, ct) is null)
+        ComparisonRecord? record = await LoadScopedComparisonRecordAsync(comparisonRecordId, ct);
+
+        if (record is null)
             return null;
 
+        await _comparisonReplayService.EnsureArtifactReplayAccessAllowedAsync(record, ct);
+
         return await _comparisonReplayCostEstimator.TryEstimateAsync(
-            comparisonRecordId,
+            record.ComparisonRecordId,
             format,
             replayMode,
             persistReplay,
@@ -33,6 +37,8 @@ public sealed partial class ComparisonsApplicationService
         if (record is null)
             return null;
 
+        await _comparisonReplayService.EnsureArtifactReplayAccessAllowedAsync(record, ct);
+
         if (!string.IsNullOrWhiteSpace(record.SummaryMarkdown))
         {
             return new ReplayComparisonResult
@@ -48,7 +54,7 @@ public sealed partial class ComparisonsApplicationService
         return await _comparisonReplayService.ReplayAsync(
             new ReplayComparisonRequest
             {
-                ComparisonRecordId = comparisonRecordId,
+                ComparisonRecordId = record.ComparisonRecordId,
                 Format = "markdown",
                 ReplayMode = "artifact",
                 PersistReplay = false,
@@ -61,8 +67,26 @@ public sealed partial class ComparisonsApplicationService
         ReplayComparisonRequest request,
         CancellationToken ct)
     {
-        if (await LoadScopedComparisonRecordAsync(request.ComparisonRecordId, ct) is null)
+        string normalizedComparisonRecordId =
+            ComparisonRecordIdNormalizer.NormalizeRequired(request.ComparisonRecordId);
+
+        if (await LoadScopedComparisonRecordAsync(normalizedComparisonRecordId, ct) is null)
             return null;
+
+        if (!string.Equals(
+                normalizedComparisonRecordId,
+                request.ComparisonRecordId,
+                StringComparison.Ordinal))
+        {
+            request = new ReplayComparisonRequest
+            {
+                ComparisonRecordId = normalizedComparisonRecordId,
+                Format = request.Format,
+                ReplayMode = request.ReplayMode,
+                PersistReplay = request.PersistReplay,
+                Profile = request.Profile,
+            };
+        }
 
         return await _comparisonReplayService.ReplayAsync(request, ct);
     }

@@ -30,6 +30,43 @@ public sealed class RunExportQueryFacadeTests
     private const string ExportRecordId = "export-record-id";
 
     [Fact]
+    public async Task CompareQuality_GetRunExportHistoryAsync_trims_padded_run_id_before_history_load()
+    {
+        Guid runGuid = Guid.Parse(RunId);
+        ArchitectureRunDetail scopedDetail = CreateScopedRunDetail();
+        RunDetailDto authorityDetail = CreateAuthorityDetailWithCompleteLifecycle(runGuid);
+        RunExportRecord export = CreateExportRecord();
+
+        Mock<IRunDetailQueryService> runDetails = new();
+        runDetails
+            .Setup(r => r.GetRunDetailAsync(RunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(scopedDetail);
+
+        Mock<IRunExportRecordRepository> exportRecords = new();
+        exportRecords
+            .Setup(r => r.GetByRunIdAsync(RunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([export]);
+
+        ArchLucid.Decisioning.Services.ManifestHashService manifestHashService = new();
+        Mock<IAuthorityQueryService> authority = new();
+        SealedExportReceiptTestSupport.ConfigureVerifiedSealedExport(authority, runGuid, manifestHashService);
+        authority
+            .Setup(a => a.GetRunDetailAsync(It.IsAny<ScopeContext>(), runGuid, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(authorityDetail);
+
+        RunExportQueryFacade sut = CreateFacade(runDetails, exportRecords, authority, manifestHashService);
+
+        RunExportHistoryQueryResult result =
+            await sut.GetRunExportHistoryAsync($"  {RunId}  ", CancellationToken.None);
+
+        result.Outcome.Should().Be(ExportRecordLoadOutcome.Success);
+        result.Exports.Should().ContainSingle(e => e.ExportRecordId == ExportRecordId);
+        result.MissingRunId.Should().BeNull();
+        exportRecords.Verify(r => r.GetByRunIdAsync(RunId, It.IsAny<CancellationToken>()), Times.Once);
+        runDetails.Verify(r => r.GetRunDetailAsync(RunId, It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
     public async Task GetRunExportHistoryAsync_returns_run_not_found_for_whitespace_run_id_without_calling_detail_query()
     {
         Mock<IRunDetailQueryService> runDetails = new();
@@ -84,6 +121,91 @@ public sealed class RunExportQueryFacadeTests
     }
 
     [Fact]
+    public async Task CompareQuality_GetRunExportHistoryAsync_returns_lineage_unverified_when_sealed_manifest_hash_mismatches()
+    {
+        Guid runGuid = Guid.Parse(RunId);
+        ArchitectureRunDetail scopedDetail = CreateScopedRunDetail();
+        RunDetailDto authorityDetail = CreateAuthorityDetailWithCompleteLifecycle(runGuid);
+
+        Mock<IRunDetailQueryService> runDetails = new();
+        runDetails
+            .Setup(r => r.GetRunDetailAsync(RunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(scopedDetail);
+
+        Mock<IRunExportRecordRepository> exportRecords = new();
+        exportRecords
+            .Setup(r => r.GetByRunIdAsync(RunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([CreateExportRecord()]);
+
+        ArchLucid.Decisioning.Services.ManifestHashService manifestHashService = new();
+        Mock<IAuthorityQueryService> authority = new();
+        ManifestDocument goldenManifest =
+            SealedExportReceiptTestSupport.ConfigureVerifiedSealedExport(authority, runGuid, manifestHashService);
+        goldenManifest.ManifestHash = "DEADBEEFDEADBEEFDEADBEEFDEADBEEFDEADBEEFDEADBEEFDEADBEEFDEADBEEF";
+        authority
+            .Setup(a => a.GetRunDetailAsync(It.IsAny<ScopeContext>(), runGuid, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(authorityDetail);
+
+        RunExportQueryFacade sut = CreateFacade(runDetails, exportRecords, authority, manifestHashService);
+
+        RunExportHistoryQueryResult result =
+            await sut.GetRunExportHistoryAsync(RunId, CancellationToken.None);
+
+        result.Outcome.Should().Be(ExportRecordLoadOutcome.LineageUnverified);
+        result.MissingRunId.Should().Be(RunId);
+        result.Exports.Should().BeNull();
+        exportRecords.Verify(
+            r => r.GetByRunIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task CompareQuality_GetRunExportHistoryAsync_throws_when_career_posture_blocks_metadata_read()
+    {
+        Guid runGuid = Guid.Parse(RunId);
+        ArchitectureRunDetail scopedDetail = CreateScopedRunDetail();
+        RunDetailDto authorityDetail = CreateAuthorityDetailWithCompleteLifecycle(runGuid);
+
+        Mock<IRunDetailQueryService> runDetails = new();
+        runDetails
+            .Setup(r => r.GetRunDetailAsync(RunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(scopedDetail);
+
+        Mock<IRunExportRecordRepository> exportRecords = new();
+        exportRecords
+            .Setup(r => r.GetByRunIdAsync(RunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([CreateExportRecord()]);
+
+        ArchLucid.Decisioning.Services.ManifestHashService manifestHashService = new();
+        Mock<IAuthorityQueryService> authority = new();
+        SealedExportReceiptTestSupport.ConfigureVerifiedSealedExport(authority, runGuid, manifestHashService);
+        authority
+            .Setup(a => a.GetRunDetailAsync(It.IsAny<ScopeContext>(), runGuid, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(authorityDetail);
+
+        Mock<IRunExportCareerPostureGate> careerGate = new();
+        careerGate
+            .Setup(g => g.EnsureAllowsExportRecordMetadataOrThrowAsync(runGuid, It.IsAny<ScopeContext>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new CareerArtifactExportBlockedException(
+                SimulatorCareerHonestyPresenter.SimulatorRehearsalBlockedMessage,
+                CareerArtifactCompletenessValidator.SimulatorRehearsalCode));
+
+        RunExportQueryFacade sut = CreateFacade(
+            runDetails,
+            exportRecords,
+            authority,
+            manifestHashService,
+            careerGate);
+
+        Func<Task> act = () => sut.GetRunExportHistoryAsync(RunId, CancellationToken.None);
+
+        await act.Should().ThrowAsync<CareerArtifactExportBlockedException>();
+        exportRecords.Verify(
+            r => r.GetByRunIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task GetExportRecordAsync_throws_when_career_posture_blocks_metadata_read()
     {
         Guid runGuid = Guid.Parse(RunId);
@@ -125,6 +247,221 @@ public sealed class RunExportQueryFacadeTests
         Func<Task> act = () => sut.GetExportRecordAsync(ExportRecordId, CancellationToken.None);
 
         await act.Should().ThrowAsync<CareerArtifactExportBlockedException>();
+    }
+
+    [Fact]
+    public async Task CompareQuality_GetExportRecordAsync_loads_record_when_stored_run_id_has_surrounding_whitespace()
+    {
+        Guid runGuid = Guid.Parse(RunId);
+        RunExportRecord record = CreateExportRecord();
+        record.RunId = $"  {RunId}  ";
+        ArchitectureRunDetail scopedDetail = CreateScopedRunDetail();
+        RunDetailDto authorityDetail = CreateAuthorityDetailWithCompleteLifecycle(runGuid);
+
+        Mock<IRunDetailQueryService> runDetails = new();
+        runDetails
+            .Setup(r => r.GetRunDetailAsync(RunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(scopedDetail);
+
+        Mock<IRunExportRecordRepository> exportRecords = new();
+        exportRecords
+            .Setup(r => r.GetByIdAsync(ExportRecordId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(record);
+
+        ArchLucid.Decisioning.Services.ManifestHashService manifestHashService = new();
+        Mock<IAuthorityQueryService> authority = new();
+        SealedExportReceiptTestSupport.ConfigureVerifiedSealedExport(authority, runGuid, manifestHashService);
+        authority
+            .Setup(a => a.GetRunDetailAsync(It.IsAny<ScopeContext>(), runGuid, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(authorityDetail);
+
+        RunExportQueryFacade sut = CreateFacade(runDetails, exportRecords, authority, manifestHashService);
+
+        ScopedExportRecordLoadResult result =
+            await sut.GetExportRecordAsync(ExportRecordId, CancellationToken.None);
+
+        result.Outcome.Should().Be(ExportRecordLoadOutcome.Success);
+        result.Record!.RunId.Should().Be(RunId);
+        runDetails.Verify(r => r.GetRunDetailAsync(RunId, It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task CompareQuality_GetExportRecordAsync_loads_record_when_stored_run_id_is_dashed_guid_with_padding()
+    {
+        Guid runGuid = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
+        string canonicalRunId = runGuid.ToString("N");
+        string dashedPaddedRunId = $"{runGuid:D}  ";
+
+        RunExportRecord record = CreateExportRecord();
+        record.RunId = dashedPaddedRunId;
+        ArchitectureRunDetail scopedDetail = new()
+        {
+            Run = new() { RunId = canonicalRunId },
+        };
+        RunDetailDto authorityDetail = CreateAuthorityDetailWithCompleteLifecycle(runGuid);
+
+        Mock<IRunDetailQueryService> runDetails = new();
+        runDetails
+            .Setup(r => r.GetRunDetailAsync(canonicalRunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(scopedDetail);
+
+        Mock<IRunExportRecordRepository> exportRecords = new();
+        exportRecords
+            .Setup(r => r.GetByIdAsync(ExportRecordId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(record);
+
+        ArchLucid.Decisioning.Services.ManifestHashService manifestHashService = new();
+        Mock<IAuthorityQueryService> authority = new();
+        SealedExportReceiptTestSupport.ConfigureVerifiedSealedExport(authority, runGuid, manifestHashService);
+        authority
+            .Setup(a => a.GetRunDetailAsync(It.IsAny<ScopeContext>(), runGuid, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(authorityDetail);
+
+        RunExportQueryFacade sut = CreateFacade(runDetails, exportRecords, authority, manifestHashService);
+
+        ScopedExportRecordLoadResult result =
+            await sut.GetExportRecordAsync(ExportRecordId, CancellationToken.None);
+
+        result.Outcome.Should().Be(ExportRecordLoadOutcome.Success);
+        result.Record!.RunId.Should().Be(canonicalRunId);
+        runDetails.Verify(
+            r => r.GetRunDetailAsync(canonicalRunId, It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task CompareQuality_GetExportRecordAsync_trims_padded_export_record_id_before_lookup()
+    {
+        Guid runGuid = Guid.Parse(RunId);
+        RunExportRecord record = CreateExportRecord();
+        ArchitectureRunDetail scopedDetail = CreateScopedRunDetail();
+        RunDetailDto authorityDetail = CreateAuthorityDetailWithCompleteLifecycle(runGuid);
+
+        Mock<IRunDetailQueryService> runDetails = new();
+        runDetails
+            .Setup(r => r.GetRunDetailAsync(RunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(scopedDetail);
+
+        Mock<IRunExportRecordRepository> exportRecords = new();
+        exportRecords
+            .Setup(r => r.GetByIdAsync(ExportRecordId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(record);
+        exportRecords
+            .Setup(r => r.GetByIdAsync(It.Is<string>(id => id != ExportRecordId), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((RunExportRecord?)null);
+
+        ArchLucid.Decisioning.Services.ManifestHashService manifestHashService = new();
+        Mock<IAuthorityQueryService> authority = new();
+        SealedExportReceiptTestSupport.ConfigureVerifiedSealedExport(authority, runGuid, manifestHashService);
+        authority
+            .Setup(a => a.GetRunDetailAsync(It.IsAny<ScopeContext>(), runGuid, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(authorityDetail);
+
+        RunExportQueryFacade sut = CreateFacade(runDetails, exportRecords, authority, manifestHashService);
+
+        ScopedExportRecordLoadResult result =
+            await sut.GetExportRecordAsync($"  {ExportRecordId}  ", CancellationToken.None);
+
+        result.Outcome.Should().Be(ExportRecordLoadOutcome.Success);
+        result.Record!.ExportRecordId.Should().Be(ExportRecordId);
+        exportRecords.Verify(r => r.GetByIdAsync(ExportRecordId, It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task GetExportRecordAsync_clears_stale_denormalized_determinism_iterations_when_check_disabled()
+    {
+        Guid runGuid = Guid.Parse(RunId);
+        RunExportRecord record = CreateExportRecord();
+        record.IncludedDeterminismCheck = false;
+        record.DeterminismIterations = 4;
+        ArchitectureRunDetail scopedDetail = CreateScopedRunDetail();
+        RunDetailDto authorityDetail = CreateAuthorityDetailWithCompleteLifecycle(runGuid);
+
+        Mock<IRunDetailQueryService> runDetails = new();
+        runDetails
+            .Setup(r => r.GetRunDetailAsync(RunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(scopedDetail);
+
+        Mock<IRunExportRecordRepository> exportRecords = new();
+        exportRecords
+            .Setup(r => r.GetByIdAsync(ExportRecordId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(record);
+
+        ArchLucid.Decisioning.Services.ManifestHashService manifestHashService = new();
+        Mock<IAuthorityQueryService> authority = new();
+        SealedExportReceiptTestSupport.ConfigureVerifiedSealedExport(authority, runGuid, manifestHashService);
+        authority
+            .Setup(a => a.GetRunDetailAsync(It.IsAny<ScopeContext>(), runGuid, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(authorityDetail);
+
+        RunExportQueryFacade sut = CreateFacade(runDetails, exportRecords, authority, manifestHashService);
+
+        ScopedExportRecordLoadResult result =
+            await sut.GetExportRecordAsync(ExportRecordId, CancellationToken.None);
+
+        result.Outcome.Should().Be(ExportRecordLoadOutcome.Success);
+        result.Record!.DeterminismIterations.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task CompareExportRecordsAsync_passes_normalized_denormalized_determinism_columns_to_diff()
+    {
+        const string leftExportRecordId = "left-export";
+        const string rightExportRecordId = "right-export";
+        Guid runGuid = Guid.Parse(RunId);
+        RunExportRecord leftRecord = CreateExportRecord(leftExportRecordId);
+        leftRecord.IncludedDeterminismCheck = false;
+        leftRecord.DeterminismIterations = 5;
+        RunExportRecord rightRecord = CreateExportRecord(rightExportRecordId);
+        ArchitectureRunDetail scopedDetail = CreateScopedRunDetail();
+        RunDetailDto authorityDetail = CreateAuthorityDetailWithCompleteLifecycle(runGuid);
+
+        Mock<IRunDetailQueryService> runDetails = new();
+        runDetails
+            .Setup(r => r.GetRunDetailAsync(RunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(scopedDetail);
+
+        Mock<IRunExportRecordRepository> exportRecords = new();
+        exportRecords
+            .Setup(r => r.GetByIdAsync(leftExportRecordId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(leftRecord);
+        exportRecords
+            .Setup(r => r.GetByIdAsync(rightExportRecordId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(rightRecord);
+
+        ArchLucid.Decisioning.Services.ManifestHashService manifestHashService = new();
+        Mock<IAuthorityQueryService> authority = new();
+        SealedExportReceiptTestSupport.ConfigureVerifiedSealedExport(authority, runGuid, manifestHashService);
+        authority
+            .Setup(a => a.GetRunDetailAsync(It.IsAny<ScopeContext>(), runGuid, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(authorityDetail);
+
+        RunExportRecord? capturedLeft = null;
+        RunExportRecord? capturedRight = null;
+        Mock<IExportRecordDiffService> diffService = new();
+        diffService
+            .Setup(d => d.CompareAsync(It.IsAny<RunExportRecord>(), It.IsAny<RunExportRecord>(), It.IsAny<CancellationToken>()))
+            .Callback<RunExportRecord, RunExportRecord, CancellationToken>((left, right, _) =>
+            {
+                capturedLeft = left;
+                capturedRight = right;
+            })
+            .ReturnsAsync(new ExportRecordDiffResult());
+
+        RunExportQueryFacade sut = CreateFacade(
+            runDetails,
+            exportRecords,
+            authority,
+            manifestHashService,
+            exportRecordDiffService: diffService);
+
+        ExportRecordDiffQueryResult result =
+            await sut.CompareExportRecordsAsync(leftExportRecordId, rightExportRecordId, CancellationToken.None);
+
+        result.Outcome.Should().Be(ExportRecordLoadOutcome.Success);
+        capturedLeft.Should().NotBeNull();
+        capturedLeft!.DeterminismIterations.Should().BeNull();
+        capturedRight!.DeterminismIterations.Should().BeNull();
     }
 
     [Fact]
@@ -223,13 +560,80 @@ public sealed class RunExportQueryFacadeTests
         result.Record.Should().BeNull();
     }
 
+    [Fact]
+    public async Task CompareQuality_ReplayExportAsync_returns_lineage_unverified_when_lifecycle_incomplete_before_career_gate()
+    {
+        Guid runGuid = Guid.Parse(RunId);
+        RunExportRecord record = CreateExportRecord();
+        ArchitectureRunDetail scopedDetail = CreateScopedRunDetail();
+        RunDetailDto authorityDetail = CreateAuthorityDetailWithInProgressLifecycle(runGuid);
+
+        Mock<IRunDetailQueryService> runDetails = new();
+        runDetails
+            .Setup(r => r.GetRunDetailAsync(RunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(scopedDetail);
+
+        Mock<IRunExportRecordRepository> exportRecords = new();
+        exportRecords
+            .Setup(r => r.GetByIdAsync(ExportRecordId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(record);
+
+        ArchLucid.Decisioning.Services.ManifestHashService manifestHashService = new();
+        Mock<IAuthorityQueryService> authority = new();
+        SealedExportReceiptTestSupport.ConfigureVerifiedSealedExport(authority, runGuid, manifestHashService);
+        authority
+            .Setup(a => a.GetRunDetailAsync(It.IsAny<ScopeContext>(), runGuid, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(authorityDetail);
+
+        Mock<IRunExportCareerPostureGate> careerGate = new();
+        careerGate
+            .Setup(g => g.EnsureAllowsExportRecordMetadataOrThrowAsync(
+                runGuid,
+                It.IsAny<ScopeContext>(),
+                It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new CareerArtifactExportBlockedException(
+                SimulatorCareerHonestyPresenter.SimulatorRehearsalBlockedMessage,
+                CareerArtifactCompletenessValidator.SimulatorRehearsalCode));
+
+        Mock<IExportReplayService> exportReplay = new();
+        exportReplay
+            .Setup(r => r.ReplayAsync(It.IsAny<ReplayExportRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ReplayExportResult { ExportRecordId = ExportRecordId, RunId = RunId });
+
+        RunExportQueryFacade sut = CreateFacade(
+            runDetails,
+            exportRecords,
+            authority,
+            manifestHashService,
+            careerGate,
+            exportReplayService: exportReplay);
+
+        ExportReplayQueryResult result = await sut.ReplayExportAsync(
+            ExportRecordId,
+            new ReplayExportRequest { ExportRecordId = ExportRecordId },
+            CancellationToken.None);
+
+        result.Outcome.Should().Be(ExportRecordLoadOutcome.LineageUnverified);
+        result.MissingId.Should().Be(RunId);
+        careerGate.Verify(
+            g => g.EnsureAllowsExportRecordMetadataOrThrowAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<ScopeContext>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+        exportReplay.Verify(
+            r => r.ReplayAsync(It.IsAny<ReplayExportRequest>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
     private static RunExportQueryFacade CreateFacade(
         Mock<IRunDetailQueryService> runDetails,
         Mock<IRunExportRecordRepository>? exportRecords = null,
         Mock<IAuthorityQueryService>? authority = null,
         IManifestHashService? manifestHashService = null,
         Mock<IRunExportCareerPostureGate>? careerGate = null,
-        Mock<IExportRecordDiffService>? exportRecordDiffService = null)
+        Mock<IExportRecordDiffService>? exportRecordDiffService = null,
+        Mock<IExportReplayService>? exportReplayService = null)
     {
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(new ScopeContext());
@@ -238,7 +642,7 @@ public sealed class RunExportQueryFacadeTests
             runDetails.Object,
             (exportRecords ?? new Mock<IRunExportRecordRepository>()).Object,
             Mock.Of<IComparisonAuditService>(),
-            Mock.Of<IExportReplayService>(),
+            (exportReplayService ?? new Mock<IExportReplayService>()).Object,
             (exportRecordDiffService ?? new Mock<IExportRecordDiffService>()).Object,
             Mock.Of<IExportRecordDiffSummaryFormatter>(),
             Mock.Of<IAuditService>(),

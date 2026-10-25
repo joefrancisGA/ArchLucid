@@ -95,7 +95,9 @@ public sealed partial class DifficultyBasedExtractionRouter
             || ContainsPhraseMarker(sourceText, "future state")
             || ContainsPhraseMarker(sourceText, "present state")
             || ContainsTokenMarker(sourceText, "to-be")
+            || ContainsPhraseMarker(sourceText, "to be")
             || ContainsTokenMarker(sourceText, "as-is")
+            || ContainsPhraseMarker(sourceText, "as is")
             || ContainsPhraseMarker(sourceText, "trust boundary")
             || ContainsContradictMarker(sourceText);
     }

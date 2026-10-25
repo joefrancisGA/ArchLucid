@@ -21,6 +21,7 @@ public sealed class ComparisonAuditService(IComparisonRecordRepository repositor
     {
         ArgumentNullException.ThrowIfNull(summaryMarkdown);
         ArgumentNullException.ThrowIfNull(report);
+        EndToEndReplayComparisonReportNormalizer.NormalizePersistedPayload(report);
         string leftRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForPersistence(report.LeftRunId);
         string rightRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForPersistence(report.RightRunId);
         ComparisonRecord record = new()
@@ -60,6 +61,7 @@ public sealed class ComparisonAuditService(IComparisonRecordRepository repositor
     {
         ArgumentNullException.ThrowIfNull(summaryMarkdown);
         ArgumentNullException.ThrowIfNull(diff);
+        ExportRecordDiffResultNormalizer.NormalizeDisplayAnchors(diff);
         string? leftRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForPersistenceOrNull(diff.LeftRunId);
         string? rightRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForPersistenceOrNull(diff.RightRunId);
         ComparisonRecord record = new()
@@ -91,13 +93,13 @@ public sealed class ComparisonAuditService(IComparisonRecordRepository repositor
             ComparisonType = sourceRecord.ComparisonType,
             LeftRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForPersistenceOrNull(sourceRecord.LeftRunId),
             RightRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForPersistenceOrNull(sourceRecord.RightRunId),
-            LeftExportRecordId = sourceRecord.LeftExportRecordId,
-            RightExportRecordId = sourceRecord.RightExportRecordId,
-            LeftManifestVersion = sourceRecord.LeftManifestVersion,
-            RightManifestVersion = sourceRecord.RightManifestVersion,
+            LeftExportRecordId = NormalizeExportRecordIdColumnOrNull(sourceRecord.LeftExportRecordId),
+            RightExportRecordId = NormalizeExportRecordIdColumnOrNull(sourceRecord.RightExportRecordId),
+            LeftManifestVersion = PersistedAnalysisExportRequestMetadata.NormalizeOptionalString(sourceRecord.LeftManifestVersion),
+            RightManifestVersion = PersistedAnalysisExportRequestMetadata.NormalizeOptionalString(sourceRecord.RightManifestVersion),
             Format = sourceRecord.Format,
             SummaryMarkdown = sourceRecord.SummaryMarkdown,
-            PayloadJson = sourceRecord.PayloadJson,
+            PayloadJson = NormalizeReplayPayloadJson(sourceRecord),
             Notes = notes ?? $"Replay of comparison record {sourceRecord.ComparisonRecordId}.",
             CreatedUtc = TimeProvider.System.UtcNowDateTime()
         };
@@ -153,6 +155,33 @@ public sealed class ComparisonAuditService(IComparisonRecordRepository repositor
             report.LeftRunId = originalLeft;
             report.RightRunId = originalRight;
         }
+    }
+
+    private static string? NormalizeExportRecordIdColumnOrNull(string? exportRecordId) =>
+        string.IsNullOrWhiteSpace(exportRecordId)
+            ? exportRecordId
+            : RunExportRecordIdNormalizer.NormalizeRequired(exportRecordId);
+
+    private static string NormalizeReplayPayloadJson(ComparisonRecord sourceRecord)
+    {
+        if (string.IsNullOrWhiteSpace(sourceRecord.PayloadJson))
+            return sourceRecord.PayloadJson;
+
+        if (string.Equals(sourceRecord.ComparisonType, ComparisonTypes.ExportRecordDiff, StringComparison.Ordinal))
+        {
+            ExportRecordDiffResult? diff = ComparisonRecordPayloadRehydrator.RehydrateExportDiff(sourceRecord);
+
+            return diff is null ? sourceRecord.PayloadJson : JsonSerializer.Serialize(diff, JsonOptions);
+        }
+
+        if (string.Equals(sourceRecord.ComparisonType, ComparisonTypes.EndToEndReplay, StringComparison.Ordinal))
+        {
+            EndToEndReplayComparisonReport? report = ComparisonRecordPayloadRehydrator.RehydrateEndToEnd(sourceRecord);
+
+            return report is null ? sourceRecord.PayloadJson : JsonSerializer.Serialize(report, JsonOptions);
+        }
+
+        return sourceRecord.PayloadJson;
     }
 
     private static string SerializeExportDiffPayload(

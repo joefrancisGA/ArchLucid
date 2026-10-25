@@ -61,9 +61,9 @@ public sealed class ComparisonReplayService(
     public async Task<ReplayComparisonResult> ReplayAsync(ReplayComparisonRequest request, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(request);
-        ArgumentException.ThrowIfNullOrWhiteSpace(request.ComparisonRecordId);
-        ComparisonRecord record = await _comparisonRecordRepository.GetByIdAsync(request.ComparisonRecordId, cancellationToken) ??
-                                  throw new InvalidOperationException($"Comparison record '{request.ComparisonRecordId}' was not found.");
+        string comparisonRecordId = ComparisonRecordIdNormalizer.NormalizeRequired(request.ComparisonRecordId);
+        ComparisonRecord record = await _comparisonRecordRepository.GetByIdAsync(comparisonRecordId, cancellationToken) ??
+                                  throw new InvalidOperationException($"Comparison record '{comparisonRecordId}' was not found.");
         string format = ComparisonReplayRequestParsing.NormalizeFormat(request.Format);
         string profile = EndToEndComparisonExportProfile.Normalize(request.Profile);
         ComparisonReplayMode mode = ComparisonReplayRequestParsing.ParseReplayMode(request.ReplayMode);
@@ -92,11 +92,18 @@ public sealed class ComparisonReplayService(
         return result;
     }
 
+    /// <inheritdoc />
+    public Task EnsureArtifactReplayAccessAllowedAsync(ComparisonRecord record, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(record);
+        return EnsureArtifactReplayAccessAllowedCoreAsync(record, cancellationToken);
+    }
+
     public async Task<DriftAnalysisResult> AnalyzeDriftAsync(string comparisonRecordId, CancellationToken cancellationToken = default)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(comparisonRecordId);
-        ComparisonRecord record = await _comparisonRecordRepository.GetByIdAsync(comparisonRecordId, cancellationToken) ??
-                                  throw new InvalidOperationException($"Comparison record '{comparisonRecordId}' was not found.");
+        string normalizedComparisonRecordId = ComparisonRecordIdNormalizer.NormalizeRequired(comparisonRecordId);
+        ComparisonRecord record = await _comparisonRecordRepository.GetByIdAsync(normalizedComparisonRecordId, cancellationToken) ??
+                                  throw new InvalidOperationException($"Comparison record '{normalizedComparisonRecordId}' was not found.");
 
         await ComparisonReplayManifestHashGuard.EnsureDriftAnalyzeSealedManifestHashesOrThrowAsync(
             record,
@@ -114,10 +121,19 @@ public sealed class ComparisonReplayService(
         };
     }
 
+    private async Task EnsureArtifactReplayAccessAllowedCoreAsync(ComparisonRecord record, CancellationToken cancellationToken)
+    {
+        string leftRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookupOrNull(record.LeftRunId) ?? string.Empty;
+        string rightRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookupOrNull(record.RightRunId) ?? string.Empty;
+
+        await EnsureRunPairLifecycleCompleteOrThrowAsync(leftRunId, rightRunId, cancellationToken);
+        await EnsureCareerAllowsExportRecordMetadataOrThrowAsync(leftRunId, cancellationToken);
+        await EnsureCareerAllowsExportRecordMetadataOrThrowAsync(rightRunId, cancellationToken);
+    }
+
     private async Task<DriftAnalysisResult> AnalyzeDriftEndToEndAsync(ComparisonRecord record, CancellationToken cancellationToken)
     {
-        await EnsureCareerAllowsExportRecordMetadataOrThrowAsync(record.LeftRunId ?? string.Empty, cancellationToken);
-        await EnsureCareerAllowsExportRecordMetadataOrThrowAsync(record.RightRunId ?? string.Empty, cancellationToken);
+        await EnsureArtifactReplayAccessAllowedCoreAsync(record, cancellationToken);
 
         EndToEndReplayComparisonReport stored = ComparisonRecordPayloadRehydrator.RehydrateEndToEnd(record) ??
                                                 throw new InvalidOperationException(
@@ -128,8 +144,7 @@ public sealed class ComparisonReplayService(
 
     private async Task<DriftAnalysisResult> AnalyzeDriftExportDiffAsync(ComparisonRecord record, CancellationToken cancellationToken)
     {
-        await EnsureCareerAllowsExportRecordMetadataOrThrowAsync(record.LeftRunId ?? string.Empty, cancellationToken);
-        await EnsureCareerAllowsExportRecordMetadataOrThrowAsync(record.RightRunId ?? string.Empty, cancellationToken);
+        await EnsureArtifactReplayAccessAllowedCoreAsync(record, cancellationToken);
 
         ExportRecordDiffResult stored = ComparisonRecordPayloadRehydrator.RehydrateExportDiff(record) ??
                                         throw new InvalidOperationException(
@@ -141,6 +156,8 @@ public sealed class ComparisonReplayService(
     private async Task<ReplayComparisonResult> ReplayEndToEndAsync(ComparisonRecord record, string format, string profile, ComparisonReplayMode mode,
         CancellationToken cancellationToken)
     {
+        await EnsureArtifactReplayAccessAllowedCoreAsync(record, cancellationToken);
+
         EndToEndReplayComparisonReport report;
         switch (mode)
         {
@@ -181,9 +198,12 @@ public sealed class ComparisonReplayService(
             throw new InvalidOperationException(
                 $"Comparison record '{record.ComparisonRecordId}' has no LeftRunId/RightRunId; cannot regenerate end-to-end comparison.");
 
-        await EnsureRunPairLifecycleCompleteOrThrowAsync(record.LeftRunId, record.RightRunId, cancellationToken);
+        string leftRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(record.LeftRunId);
+        string rightRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(record.RightRunId);
 
-        return await _endToEndReplayComparisonService.BuildAsync(record.LeftRunId, record.RightRunId, cancellationToken);
+        await EnsureRunPairLifecycleCompleteOrThrowAsync(leftRunId, rightRunId, cancellationToken);
+
+        return await _endToEndReplayComparisonService.BuildAsync(leftRunId, rightRunId, cancellationToken);
     }
 
     private async Task EnsureRunPairLifecycleCompleteOrThrowAsync(
@@ -191,6 +211,12 @@ public sealed class ComparisonReplayService(
         string rightRunId,
         CancellationToken cancellationToken)
     {
+        if (!string.IsNullOrWhiteSpace(leftRunId))
+            leftRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(leftRunId);
+
+        if (!string.IsNullOrWhiteSpace(rightRunId))
+            rightRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(rightRunId);
+
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
 
         if (Guid.TryParse(leftRunId, out Guid leftGuid))
@@ -276,8 +302,7 @@ public sealed class ComparisonReplayService(
     private async Task<ReplayComparisonResult> ReplayExportDiffAsync(ComparisonRecord record, string format, ComparisonReplayMode mode,
         CancellationToken cancellationToken)
     {
-        await EnsureCareerAllowsExportRecordMetadataOrThrowAsync(record.LeftRunId ?? string.Empty, cancellationToken);
-        await EnsureCareerAllowsExportRecordMetadataOrThrowAsync(record.RightRunId ?? string.Empty, cancellationToken);
+        await EnsureArtifactReplayAccessAllowedCoreAsync(record, cancellationToken);
 
         ExportRecordDiffResult diff;
         switch (mode)
@@ -349,23 +374,36 @@ public sealed class ComparisonReplayService(
 
     private static void SetRecordMetadata(ReplayComparisonResult r, ComparisonRecord record, string? formatProfile)
     {
-        r.LeftRunId = record.LeftRunId;
-        r.RightRunId = record.RightRunId;
-        r.LeftExportRecordId = record.LeftExportRecordId;
-        r.RightExportRecordId = record.RightExportRecordId;
+        r.LeftRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookupOrNull(record.LeftRunId);
+        r.RightRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookupOrNull(record.RightRunId);
+        r.LeftExportRecordId = NormalizeExportRecordIdMetadataOrNull(record.LeftExportRecordId);
+        r.RightExportRecordId = NormalizeExportRecordIdMetadataOrNull(record.RightExportRecordId);
         r.CreatedUtc = record.CreatedUtc;
         r.FormatProfile = formatProfile;
     }
+
+    private static string? NormalizeExportRecordIdMetadataOrNull(string? exportRecordId) =>
+        string.IsNullOrWhiteSpace(exportRecordId)
+            ? exportRecordId
+            : RunExportRecordIdNormalizer.NormalizeRequired(exportRecordId);
 
     private async Task<ExportRecordDiffResult> RegenerateExportDiffAsync(ComparisonRecord record, CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(record.LeftExportRecordId) || string.IsNullOrWhiteSpace(record.RightExportRecordId))
             throw new InvalidOperationException(
                 $"Comparison record '{record.ComparisonRecordId}' has no LeftExportRecordId/RightExportRecordId; cannot regenerate export-record diff.");
-        RunExportRecord left = await _runExportRecordRepository.GetByIdAsync(record.LeftExportRecordId, cancellationToken) ??
-                               throw new InvalidOperationException($"Export record '{record.LeftExportRecordId}' was not found.");
-        RunExportRecord right = await _runExportRecordRepository.GetByIdAsync(record.RightExportRecordId, cancellationToken) ??
-                                throw new InvalidOperationException($"Export record '{record.RightExportRecordId}' was not found.");
+        string leftExportRecordId = RunExportRecordIdNormalizer.NormalizeRequired(record.LeftExportRecordId);
+        string rightExportRecordId = RunExportRecordIdNormalizer.NormalizeRequired(record.RightExportRecordId);
+        RunExportRecord left = await _runExportRecordRepository.GetByIdAsync(leftExportRecordId, cancellationToken) ??
+                               throw new InvalidOperationException($"Export record '{leftExportRecordId}' was not found.");
+        RunExportRecord right = await _runExportRecordRepository.GetByIdAsync(rightExportRecordId, cancellationToken) ??
+                                throw new InvalidOperationException($"Export record '{rightExportRecordId}' was not found.");
+
+        PersistedAnalysisExportRequestDeterminismNormalizer.NormalizeRunExportRecordDenormalizedColumns(left);
+        PersistedAnalysisExportRequestDeterminismNormalizer.NormalizeRunExportRecordDenormalizedColumns(right);
+
+        left.RunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(left.RunId);
+        right.RunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(right.RunId);
 
         await EnsureRunPairLifecycleCompleteOrThrowAsync(left.RunId, right.RunId, cancellationToken);
 
@@ -378,6 +416,8 @@ public sealed class ComparisonReplayService(
     {
         if (string.IsNullOrWhiteSpace(runId))
             return;
+
+        runId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(runId);
 
         if (!Guid.TryParse(runId, out Guid runGuid))
             return;

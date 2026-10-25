@@ -61,19 +61,21 @@ public sealed partial class ComparisonRecordRepository
         string exportRecordId,
         CancellationToken cancellationToken = default)
     {
+        string normalizedExportRecordId = ComparisonExportRecordIdLookup.NormalizeLookupKey(exportRecordId);
         using IDbConnection connection = await _readConnectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         string sql = $"""
                       SELECT TOP 200
                           {ComparisonRecordListSql.SelectColumnsWithoutPayloadJson}
                       FROM ComparisonRecords
-                      WHERE LeftExportRecordId = @ExportRecordId OR RightExportRecordId = @ExportRecordId
+                      WHERE LTRIM(RTRIM(LeftExportRecordId)) = @ExportRecordId
+                         OR LTRIM(RTRIM(RightExportRecordId)) = @ExportRecordId
                       ORDER BY CreatedUtc DESC;
                       """;
 
         IEnumerable<ComparisonRecord> rows = await connection.QueryAsync<ComparisonRecord>(new CommandDefinition(
             sql,
-            new { ExportRecordId = exportRecordId },
+            new { ExportRecordId = normalizedExportRecordId },
             cancellationToken: cancellationToken));
 
         return ComparisonRecordListProjection.MaterializeWithoutPayloadJson(rows);
@@ -201,7 +203,7 @@ public sealed partial class ComparisonRecordRepository
         if (cursorCreatedUtc is not null && !string.IsNullOrWhiteSpace(cursorComparisonRecordId))
         {
             parameters.Add("@CursorCreatedUtc", cursorCreatedUtc);
-            parameters.Add("@CursorId", cursorComparisonRecordId);
+            parameters.Add("@CursorId", cursorComparisonRecordId.Trim());
             // For DESC: fetch items strictly "after" cursor in DESC order => older than cursor.
             // For ASC: fetch items strictly "after" cursor in ASC order => newer than cursor.
             conditions.Add(sortDescending
