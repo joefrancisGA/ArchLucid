@@ -137,6 +137,26 @@ describe("WizardStepReview", () => {
     expect(advancedSection?.textContent).toContain("Architecture hints were stored empty.");
   });
 
+  it("labels whitespace-only list entries as stored empty (P-16–P-19)", () => {
+    render(
+      <DirectWizardFormProvider
+        values={{
+          inlineRequirements: ["Rate limits", "   "],
+          constraints: ["EU-only", " "],
+          requiredCapabilities: ["TLS 1.2+", ""],
+          assumptions: ["SRE on-call", "\t"],
+        }}
+      >
+        <WizardStepReview />
+      </DirectWizardFormProvider>,
+    );
+
+    expect(screen.getByText("Requirement was stored empty.")).toBeInTheDocument();
+    expect(screen.getByText("Constraint was stored empty.")).toBeInTheDocument();
+    expect(screen.getByText("Required capability was stored empty.")).toBeInTheDocument();
+    expect(screen.getByText("Assumption was stored empty.")).toBeInTheDocument();
+  });
+
   it("distinguishes missing declarations and capabilities from stored empty lists", () => {
     const { unmount } = render(
       <DirectWizardFormProvider values={{ infrastructureDeclarations: null, requiredCapabilities: null }}>

@@ -572,6 +572,31 @@ describe('ArchitectureDiagramViewer', () => {
     expect(screen.getByTestId('diagram-click-focus-status')).not.toHaveTextContent('Hostname match in app settings');
   });
 
+  it('labels blank rollup member tokens as stored empty', async () => {
+    const forestLayoutSvg = [
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 120">',
+      '  <g class="node" id="node-rollup" data-member-names="storage-a · rg-a|"><title>6 storage accounts</title><rect class="node-card" width="80" height="20"/></g>',
+      '</svg>',
+    ].join('');
+
+    render(
+      <ArchitectureDiagramViewer
+        mermaidSource={'flowchart TD\n  a["A"]'}
+        layoutSvg={forestLayoutSvg}
+        outline={{ nodes: [], edges: [] }}
+        textAlternative="Inventory topology"
+        viewportAriaLabel="Inventory topology"
+      />,
+    );
+
+    const host = await screen.findByTestId('architecture-diagram-svg-host');
+    fireEvent.click(host.querySelector('#node-rollup')!);
+
+    await waitFor(() => {
+      expect(screen.getByText('Member name was stored empty.')).toBeInTheDocument();
+    });
+  });
+
   it('labels a rollup focus with its member-list title', async () => {
     const forestLayoutSvg = [
       '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 120">',

@@ -20,6 +20,10 @@ function wizardConfirmIdentityField(value: string, notStoredLabel: string): stri
   return value.trim().length > 0 ? value : notStoredLabel;
 }
 
+function wizardConfirmListEntry(value: string, storedEmptyLabel: string): string {
+  return value.trim().length > 0 ? value.trim() : storedEmptyLabel;
+}
+
 function wizardConfirmCloudProviderField(value: string): string {
   const trimmed = value.trim();
 
@@ -190,12 +194,11 @@ export function WizardStepReview(props: { readonly focusedPilotModeEnabled?: boo
             <div className="mt-2">
               <p className={cn("m-0 font-medium text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>Inline requirements</p>
               <ul className="mt-1 list-disc pl-5">
-                {v.inlineRequirements
-                  .map((s) => s.trim())
-                  .filter(Boolean)
-                  .map((line) => (
-                    <li key={line}>{line}</li>
-                  ))}
+                {v.inlineRequirements.map((line, index) => (
+                  <li key={`inline-requirement-${index}`}>
+                    {wizardConfirmListEntry(line, "Requirement was stored empty.")}
+                  </li>
+                ))}
               </ul>
             </div>
           ) : (
@@ -213,8 +216,10 @@ export function WizardStepReview(props: { readonly focusedPilotModeEnabled?: boo
             <p className="m-0">Constraints were stored empty.</p>
           ) : (
             <ul className="mt-1 list-disc pl-5">
-              {v.constraints.map((c) => (
-                <li key={c}>{c}</li>
+              {v.constraints.map((c, index) => (
+                <li key={`constraint-${index}`}>
+                  {wizardConfirmListEntry(c, "Constraint was stored empty.")}
+                </li>
               ))}
             </ul>
           )}
@@ -227,8 +232,10 @@ export function WizardStepReview(props: { readonly focusedPilotModeEnabled?: boo
             <p className="m-0">Required capabilities were stored empty.</p>
           ) : (
             <ul className="mt-1 list-disc pl-5">
-              {v.requiredCapabilities.map((c) => (
-                <li key={c}>{c}</li>
+              {v.requiredCapabilities.map((c, index) => (
+                <li key={`required-capability-${index}`}>
+                  {wizardConfirmListEntry(c, "Required capability was stored empty.")}
+                </li>
               ))}
             </ul>
           )}
@@ -239,8 +246,10 @@ export function WizardStepReview(props: { readonly focusedPilotModeEnabled?: boo
             <p className="m-0">Assumptions were stored empty.</p>
           ) : (
             <ul className="mt-1 list-disc pl-5">
-              {v.assumptions.map((c) => (
-                <li key={c}>{c}</li>
+              {v.assumptions.map((c, index) => (
+                <li key={`assumption-${index}`}>
+                  {wizardConfirmListEntry(c, "Assumption was stored empty.")}
+                </li>
               ))}
             </ul>
           )}
