@@ -7210,11 +7210,11 @@ ABQ-09 churn hotspot.
 - [x] (valid-no-repro) `ResourceHubClient` findings stream — remediation message for finding id absent after reload — **cheap-disproof 2026-10-25 seed hunt:** `loadHub` clears `findingActionMessages` unless `retainFindingMessages`.
 - [x] (valid-no-repro) `ResourceHubClient` diagram correspondence — empty-string `correspondenceId` — **cheap-disproof 2026-10-25 seed hunt:** section gated on `diagramCorrespondence != null`; empty id not modeled in regressions.
 
-- [ ] (candidate) `ResourceHubClient` findings stream — duplicate finding `id` across `OperationalSecurity` and `ArchitectureReview` streams — locus: stream row keys; input: one stream omits a row.
-- [ ] (candidate) `ResourceHubClient` create-remediation confirm dialog — `pendingRemediationFinding` survives hub reload while dialog open — locus: dialog state vs `loadHub`; input: stale finding title after refresh.
-- [ ] (candidate) `ResourceHubClient` overview drift preview — fifth change row hidden without “view all” when exactly six changes — locus: `slice(0, 5)` caption; input: operator misses sixth change on overview.
-- [ ] (candidate) `ResourceHubClient` terraform tab — whitespace-only `terraformAddress` vs null — locus: advisory mapping disclosure; input: misleading empty address label.
-- [ ] (candidate) `ResourceHubClient` audit scope chip — active audit query params with empty `controlId` — locus: `resolvedAuditLineage`; input: chip shows misleading control label.
+- [x] (valid-no-repro) `ResourceHubClient` findings stream — duplicate finding `id` across `OperationalSecurity` and `ArchitectureReview` streams — **cheap-disproof 2026-10-25 seed hunt:** see hunt above.
+- [x] (valid-no-repro) `ResourceHubClient` create-remediation confirm dialog — `pendingRemediationFinding` survives hub reload while dialog open — **cheap-disproof 2026-10-25 seed hunt:** see hunt above.
+- [x] (valid-no-repro) `ResourceHubClient` overview drift preview — fifth change row hidden without “view all” when exactly six changes — **cheap-disproof 2026-10-25 seed hunt:** see hunt above.
+- [x] (proven) `ResourceHubClient` terraform tab — whitespace-only `terraformAddress` vs null — **hit 2026-10-25 seed hunt:** see hunt above.
+- [x] (valid-no-repro) `ResourceHubClient` audit scope chip — active audit query params with empty `controlId` — **cheap-disproof 2026-10-25 seed hunt:** see hunt above.
 
 - **id:** ui-infra-resource-hub
 - **status:** open
