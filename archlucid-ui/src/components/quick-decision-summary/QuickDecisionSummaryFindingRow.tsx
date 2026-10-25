@@ -238,7 +238,14 @@ export function QuickDecisionSummaryFindingRow({
         <p className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
           Evaluation trace: {finding.traceConfidenceLabel}
         </p>
-      ) : null}
+      ) : (
+        <p
+          className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid={`finding-trace-confidence-not-stored-${finding.findingId}`}
+        >
+          Evaluation trace label was not stored.
+        </p>
+      )}
       {finding.evaluationConfidenceScore !== null &&
       finding.evaluationConfidenceScore !== undefined &&
       Number.isFinite(finding.evaluationConfidenceScore) ? (

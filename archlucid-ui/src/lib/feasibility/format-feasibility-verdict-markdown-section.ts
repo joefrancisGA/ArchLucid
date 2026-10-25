@@ -49,14 +49,18 @@ function formatHardCitationLines(verdict: ManifestFeasibilityVerdict): string[] 
 
       if (reference.length > 0) {
         lines.push(`- ${reference}${kind.length > 0 ? ` — ${kind}` : ""}${suffix}`);
-      }
-
-      if (citation.reference === null || citation.reference === undefined) {
+      } else if (citation.reference === null || citation.reference === undefined) {
         lines.push("- Citation reference was not stored.");
+      } else {
+        lines.push("- Citation reference was stored empty.");
       }
 
-      if (citation.kind === null || citation.kind === undefined) {
+      if (kind.length > 0) {
+        // kind already rendered on the citation line when reference is present.
+      } else if (citation.kind === null || citation.kind === undefined) {
         lines.push("- Citation kind was not stored.");
+      } else {
+        lines.push("- Citation kind was stored empty.");
       }
 
       if (invariantKeys === null || invariantKeys === undefined) {
@@ -67,11 +71,16 @@ function formatHardCitationLines(verdict: ManifestFeasibilityVerdict): string[] 
     lines.push("");
   }
 
-  const unsatCore = verdict.unsatCoreInvariantKeys ?? [];
-
-  if (unsatCore.length > 0) {
-    lines.push(`**Unsat core:** ${unsatCore.join(", ")}`);
+  if (verdict.unsatCoreInvariantKeys === null || verdict.unsatCoreInvariantKeys === undefined) {
+    lines.push("Unsat core was not stored.");
     lines.push("");
+  } else {
+    const unsatCore = verdict.unsatCoreInvariantKeys;
+
+    if (unsatCore.length > 0) {
+      lines.push(`**Unsat core:** ${unsatCore.join(", ")}`);
+      lines.push("");
+    }
   }
 
   return lines;
@@ -158,6 +167,8 @@ export function formatFeasibilityVerdictMarkdownSection(
   lines.push("");
   if (verdict.summary === null || verdict.summary === undefined) {
     lines.push("Verdict summary was not stored.");
+  } else if (verdict.summary.trim().length === 0) {
+    lines.push("Verdict summary was stored empty.");
   } else {
     lines.push(verdict.summary.trim());
   }
