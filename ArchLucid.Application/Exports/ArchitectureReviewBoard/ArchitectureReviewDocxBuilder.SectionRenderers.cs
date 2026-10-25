@@ -26,7 +26,10 @@ public sealed partial class ArchitectureReviewDocxBuilder
         ArchitectureReviewDocxOpenXmlPrimitives.AddHeading1(body, "Sponsor report");
 
         if (string.IsNullOrWhiteSpace(model.SponsorReport))
-            ArchitectureReviewDocxOpenXmlPrimitives.AddEmptyPlaceholder(body, "Sponsor report content");
+            ArchitectureReviewDocxOpenXmlPrimitives.AddStyledParagraph(
+                body,
+                ArchitectureReviewBoardExportHonestyCopy.SponsorReportNotStored,
+                "Subtle");
         else
             ArchitectureReviewDocxOpenXmlPrimitives.AddMultilineBodyText(body, model.SponsorReport);
     }
