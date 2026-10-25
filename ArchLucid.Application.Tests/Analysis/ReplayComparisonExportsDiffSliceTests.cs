@@ -23,7 +23,23 @@ public sealed class ReplayComparisonExportsDiffSliceTests
         dashedKey.Should().Be(canonicalKey);
     }
 
-    private static RunExportRecord CreateExport(string compareRunId)
+    [Fact]
+    public void BuildExportPairingKey_treats_column_and_json_compare_run_id_as_same_pairing_key()
+    {
+        Guid compareRunId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
+
+        RunExportRecord columnAnchor = CreateExport(compareRunId: compareRunId.ToString("N"));
+        RunExportRecord jsonAnchor = CreateExport(compareRunId: null);
+        jsonAnchor.AnalysisRequestJson =
+            $$"""{"includeAgentResultCompare":true,"compareRunId":"{{compareRunId.ToString("D")}}"}""";
+
+        string columnKey = ReplayComparisonExportsDiffSlice.BuildExportPairingKey(columnAnchor);
+        string jsonKey = ReplayComparisonExportsDiffSlice.BuildExportPairingKey(jsonAnchor);
+
+        columnKey.Should().Be(jsonKey);
+    }
+
+    private static RunExportRecord CreateExport(string? compareRunId)
     {
         return new RunExportRecord
         {
