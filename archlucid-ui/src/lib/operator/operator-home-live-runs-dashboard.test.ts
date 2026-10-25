@@ -49,6 +49,22 @@ describe("resolveOperatorHomeRunsPanelReportedTotalCount", () => {
     ).toBe(12);
   });
 
+  it("returns zero for description-matched showcase rows even when loaded total is positive", () => {
+    expect(
+      resolveOperatorHomeRunsPanelReportedTotalCount(
+        [
+          {
+            ...buildRun("showcase-story"),
+            description: "Enterprise customer intake modernization review",
+            hasFindingsSnapshot: true,
+            findingCount: 4,
+          },
+        ],
+        5,
+      ),
+    ).toBe(0);
+  });
+
   it("does not keep stale positive loaded totals when only archived tenant rows are on the page", () => {
     expect(
       resolveOperatorHomeRunsPanelReportedTotalCount(

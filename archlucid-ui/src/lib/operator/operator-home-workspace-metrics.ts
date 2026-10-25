@@ -73,13 +73,12 @@ export function deriveOperatorHomeWorkspaceMetricsFromOverviewRuns(
   reportedTotalCount?: number,
   awaitingApprovalCount = 0,
 ): OperatorHomeWorkspaceMetricsSnapshot {
-  const tenantItems = filterTenantOverviewRuns(overviewItems);
   const reviewPackagesTotal = resolveOperatorHomeTenantScopedReviewTotalCount(
     overviewItems,
     reportedTotalCount,
   );
 
-  return deriveOperatorHomeWorkspaceMetrics(tenantItems, reviewPackagesTotal, awaitingApprovalCount);
+  return deriveOperatorHomeWorkspaceMetrics(overviewItems, reviewPackagesTotal, awaitingApprovalCount);
 }
 
 /** Aggregates workspace metrics from operator-home runs dashboard data already on the page. */

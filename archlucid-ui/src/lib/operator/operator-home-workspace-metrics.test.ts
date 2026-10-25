@@ -38,6 +38,29 @@ describe("deriveOperatorHomeWorkspaceMetricsFromOverviewRuns", () => {
 });
 
 describe("deriveOperatorHomeWorkspaceMetrics", () => {
+  it("ignores description-matched showcase rows when mixed overview items are passed directly (TB-1039)", () => {
+    const metrics = deriveOperatorHomeWorkspaceMetrics(
+      [
+        makeRun({
+          runId: "showcase-story",
+          description: "Enterprise customer intake modernization review",
+          findingCount: 50,
+          hasFindingsSnapshot: true,
+        }),
+        makeRun({
+          runId: "tenant-1",
+          hasFindingsSnapshot: true,
+          findingCount: 2,
+        }),
+      ],
+      2,
+    );
+
+    expect(metrics.openFindings).toBe(2);
+    expect(metrics.reviewPackagesActive).toBe(1);
+    expect(metrics.reviewPackagesTotal).toBe(2);
+  });
+
   it("ignores demo-seeded showcase rows when mixed overview items are passed directly (TB-1039)", () => {
     const metrics = deriveOperatorHomeWorkspaceMetrics(
       [
