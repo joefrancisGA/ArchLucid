@@ -92,8 +92,14 @@ export function mapInspectPayloadToQuickDecisionFinding(payload: FindingInspectP
   const narrative = findingInspectNarrativeFields(payload);
   const labels = findingInspectPrimaryLabels(payload);
   const typed = readTypedRecord(payload);
-  const title = narrative.title ?? payload.findingId;
-  const recommendation = labels.recommendedAction ?? narrative.description ?? "";
+  const title =
+    narrative.title !== null && narrative.title.trim().length > 0
+      ? narrative.title
+      : "Finding title was not stored.";
+  const recommendation =
+    labels.recommendedAction !== null && labels.recommendedAction.trim().length > 0
+      ? labels.recommendedAction
+      : "Recommended action was not stored.";
   const reasoningTrace = payload.reasoningTrace ?? payload.reasoningSummary ?? "";
   const enforcementTierRaw = typed?.enforcementTier ?? typed?.EnforcementTier;
   const classification = mapInspectExportClassification(resolveFindingInspectExportClassification(payload));

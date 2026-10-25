@@ -1,3 +1,5 @@
+using System.Globalization;
+
 using ArchLucid.Contracts.Findings;
 using ArchLucid.KnowledgeGraph;
 using ArchLucid.KnowledgeGraph.Models;
@@ -18,10 +20,11 @@ public static class PolicyExpectationCostGraphReader
     if (contextNode is null)
       return false;
 
-    if (!contextNode.Properties.TryGetValue(ContextGraphPropertyKeys.PolicyCostRequireBudgetCap, out string? raw))
+    if (!contextNode.Properties.TryGetValue(ContextGraphPropertyKeys.PolicyCostRequireBudgetCap, out string? raw)
+        || string.IsNullOrWhiteSpace(raw))
       return false;
 
-    return raw.Equals("true", StringComparison.OrdinalIgnoreCase);
+    return raw.Trim().Equals("true", StringComparison.OrdinalIgnoreCase);
   }
 
   public static FindingSeverity? ResolveBreachSeverityOverride(GraphSnapshot graphSnapshot)
@@ -67,7 +70,12 @@ public static class PolicyExpectationCostGraphReader
         continue;
 
       if (node.Properties.TryGetValue("maxMonthlyCost", out string? maxCostRaw)
-          && decimal.TryParse(maxCostRaw, out _))
+          && !string.IsNullOrWhiteSpace(maxCostRaw)
+          && decimal.TryParse(
+              maxCostRaw.Trim(),
+              NumberStyles.Number,
+              CultureInfo.InvariantCulture,
+              out _))
       {
         return true;
       }

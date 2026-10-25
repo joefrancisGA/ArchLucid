@@ -75,6 +75,55 @@ public sealed class RegistrationApplicationServiceTests
     }
 
     [Fact]
+    public async Task RegisterAsync_strips_industry_vertical_other_when_vertical_is_not_other()
+    {
+        Guid tenantId = Guid.NewGuid();
+        Mock<IAuditService> audit = new();
+        Mock<ITenantProvisioningService> prov = new();
+        prov
+            .Setup(p => p.ProvisionAsync(It.IsAny<TenantProvisioningRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new TenantProvisioningResult
+                {
+                    TenantId = tenantId,
+                    DefaultWorkspaceId = Guid.NewGuid(),
+                    DefaultProjectId = Guid.NewGuid(),
+                });
+
+        TrialSignupCompanyProfileCapture? capturedProfile = null;
+        Mock<ITrialTenantBootstrapService> bootstrap = new();
+        bootstrap
+            .Setup(
+                b => b.TryBootstrapAfterSelfRegistrationAsync(
+                    It.IsAny<TenantProvisioningResult>(),
+                    It.IsAny<string>(),
+                    It.IsAny<TrialSignupBaselineReviewCycleCapture?>(),
+                    It.IsAny<TrialSignupCompanyProfileCapture?>(),
+                    It.IsAny<CancellationToken>()))
+            .Callback<TenantProvisioningResult, string, TrialSignupBaselineReviewCycleCapture?, TrialSignupCompanyProfileCapture?, CancellationToken>(
+                (_, _, _, profile, _) => capturedProfile = profile)
+            .Returns(Task.CompletedTask);
+
+        RegistrationApplicationService sut = CreateSut(prov.Object, audit.Object, bootstrap: bootstrap.Object);
+
+        RegistrationResult result = await sut.RegisterAsync(
+            new TenantSelfRegistrationRequest
+            {
+                OrganizationName = "Acme " + Guid.NewGuid().ToString("N")[..8],
+                AdminEmail = "admin@acme.test",
+                AdminDisplayName = "Admin",
+                IndustryVertical = "Healthcare",
+                IndustryVerticalOther = "should-not-persist",
+            },
+            CancellationToken.None);
+
+        result.Outcome.Should().Be(RegistrationOutcome.Created);
+        capturedProfile.Should().NotBeNull();
+        capturedProfile!.IndustryVertical.Should().Be("Healthcare");
+        capturedProfile.IndustryVerticalOther.Should().BeNull();
+    }
+
+    [Fact]
     public async Task RegisterAsync_invite_only_does_not_audit_or_provision()
     {
         Mock<IAuditService> audit = new();
@@ -100,7 +149,8 @@ public sealed class RegistrationApplicationServiceTests
     private static RegistrationApplicationService CreateSut(
         ITenantProvisioningService provisioning,
         IAuditService audit,
-        PublicSignupOptions? publicSignup = null)
+        PublicSignupOptions? publicSignup = null,
+        ITrialTenantBootstrapService? bootstrap = null)
     {
         Mock<ISelfServiceTrialAbusePolicy> abusePolicy = new();
         abusePolicy
@@ -127,7 +177,7 @@ public sealed class RegistrationApplicationServiceTests
             provisioning,
             tenants.Object,
             audit,
-            Mock.Of<ITrialTenantBootstrapService>(),
+            bootstrap ?? Mock.Of<ITrialTenantBootstrapService>(),
             abusePolicy.Object,
             Options.Create(publicSignup ?? new PublicSignupOptions { Mode = PublicSignupMode.PublicSelfService }),
             TimeProvider.System);

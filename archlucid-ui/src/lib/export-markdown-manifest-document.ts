@@ -190,6 +190,8 @@ export function formatManifestDocumentShape(m: Record<string, unknown>): string 
 
     if (constraints.preferences === null || constraints.preferences === undefined) {
       lines.push("Preferences were not stored.");
+    } else if (Array.isArray(constraints.preferences) && constraints.preferences.length === 0) {
+      lines.push("Preferences were stored as an empty list.");
     } else {
       pushBulletLines(lines, constraints.preferences, undefined);
     }
@@ -227,8 +229,21 @@ export function formatManifestDocumentShape(m: Record<string, unknown>): string 
   if (cost !== null) {
     lines.push("### Cost");
     lines.push("");
-    pushBulletLines(lines, cost.notes, undefined);
-    pushBulletLines(lines, cost.costRisks, undefined);
+    if (cost.notes === null || cost.notes === undefined) {
+      lines.push("Cost notes were not stored.");
+    } else if (Array.isArray(cost.notes) && cost.notes.length === 0) {
+      lines.push("Cost notes were stored as an empty list.");
+    } else {
+      pushBulletLines(lines, cost.notes, undefined);
+    }
+
+    if (cost.costRisks === null || cost.costRisks === undefined) {
+      lines.push("Cost risks were not stored.");
+    } else if (Array.isArray(cost.costRisks) && cost.costRisks.length === 0) {
+      lines.push("Cost risks were stored as an empty list.");
+    } else {
+      pushBulletLines(lines, cost.costRisks, undefined);
+    }
 
     if (typeof cost.maxMonthlyCost === "number") {
       lines.push(`- **Max monthly cost (estimate):** ${cost.maxMonthlyCost}`);
@@ -560,6 +575,8 @@ export function formatManifestDocumentShape(m: Record<string, unknown>): string 
 
   if (m.warnings === null || m.warnings === undefined) {
     lines.push("Warnings were not stored.");
+  } else if (Array.isArray(m.warnings) && m.warnings.length === 0) {
+    lines.push("Warnings were stored as an empty list.");
   } else {
     pushBulletLines(lines, m.warnings, undefined);
   }

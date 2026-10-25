@@ -46,10 +46,14 @@ export function mapDraftSummaryToRegistryEntry(summary: DraftRequestSummary): Ar
       ? "ready-for-review"
       : fieldBasedStatus;
 
+  const createdByUserId = summary.createdByUserId?.trim() ?? "";
+  const ownerLabel =
+    createdByUserId.length > 0 ? createdByUserId : ARCHITECTURE_DRAFT_OWNER_NOT_STORED_LABEL;
+
   const entry = buildArchitectureDraftRegistryEntry(draft, {
     customerStatus,
     linkedReviewId,
-    ownerLabel: ARCHITECTURE_DRAFT_OWNER_NOT_STORED_LABEL,
+    ownerLabel,
   });
 
   const architectureId = summary.architectureId?.trim() ?? "";

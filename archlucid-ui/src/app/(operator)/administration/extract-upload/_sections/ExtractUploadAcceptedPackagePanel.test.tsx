@@ -35,6 +35,19 @@ describe("ExtractUploadAcceptedPackagePanel", () => {
     });
   });
 
+  it("labels blank upload id and disables copy", async () => {
+    render(<ExtractUploadAcceptedPackagePanel record={{ ...sampleRecord, packageId: "   " }} />);
+
+    expect(screen.getByTestId("extract-upload-accepted-package-id-full")).toHaveTextContent(
+      "Upload id was stored empty.",
+    );
+    expect(screen.getByTestId("extract-upload-accepted-package-id-copy")).toBeDisabled();
+
+    fireEvent.click(screen.getByTestId("extract-upload-accepted-package-id-copy"));
+    expect(navigator.clipboard.writeText).not.toHaveBeenCalled();
+    expect(showSuccess).not.toHaveBeenCalled();
+  });
+
   it("shows the accepted time in the selected time zone", () => {
     render(<ExtractUploadAcceptedPackagePanel record={sampleRecord} />);
 

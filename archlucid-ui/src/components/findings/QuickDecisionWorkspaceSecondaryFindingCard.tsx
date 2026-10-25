@@ -175,14 +175,18 @@ export function QuickDecisionWorkspaceSecondaryFindingCard(
                 />
               </>
             ) : null}
-            {finding.classification !== null && finding.classification !== undefined ? (
+            {finding.classification === null || finding.classification === undefined ? (
+              <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                Classification was not stored
+              </span>
+            ) : (
               <FindingClassificationChip
                 classification={finding.classification}
                 treatment={finding.treatment}
                 findingId={finding.findingId}
                 showReason
               />
-            ) : null}
+            )}
             {isDecisionGradeFinding(finding) ? (
               <p
                 className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}

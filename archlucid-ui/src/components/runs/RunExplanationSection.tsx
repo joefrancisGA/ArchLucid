@@ -277,7 +277,7 @@ export function RunExplanationSection({
     if (citationsMissing || citationCount > 0) {
       items.push({
         id: "doc-explanation-evidence-cited",
-        label: citationsMissing ? "Evidence cited (not returned)" : "Evidence cited",
+        label: citationsMissing ? "Evidence cited was not stored." : "Evidence cited",
       });
     }
 
@@ -431,7 +431,7 @@ export function RunExplanationSection({
         </p>
       ) : (
         <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
-          Faithfulness ratio not recorded for this explanation.
+          Faithfulness support ratio was not stored.
         </p>
       )}
 

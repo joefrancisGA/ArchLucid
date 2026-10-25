@@ -14,6 +14,43 @@ public sealed class RetrievalToolsTests
     private static readonly Guid TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
 
     [Fact]
+    public async Task PriceRowLookupAsync_matches_corpus_kind_with_mixed_case_labels()
+    {
+        Mock<IRetrievalQueryService> queryService = new();
+        queryService
+            .Setup(q => q.SearchAsync(It.IsAny<RetrievalQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new RetrievalHit
+                {
+                    ChunkId = "price-chunk-1",
+                    DocumentId = "price-doc-1",
+                    Title = "D4s v3 East US",
+                    Text = "Azure retail price row",
+                    Score = 0.9,
+                    CorpusKind = "azureretailprice",
+                    SourceType = "AzureRetail",
+                    SourceId = "price-1"
+                }
+            ]);
+
+        RetrievalTools sut = new(queryService.Object);
+        RetrievalMcpToolRequest request = new()
+        {
+            TenantId = TenantId,
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+            QueryText = "D4s v3",
+            TopK = 1
+        };
+
+        IReadOnlyList<RetrievalMcpToolHit> hits =
+            await sut.PriceRowLookupAsync(request, CancellationToken.None);
+
+        hits.Should().ContainSingle();
+    }
+
+    [Fact]
     public async Task PriceRowLookupAsync_returns_retail_hits_when_they_rank_below_requested_topk()
     {
         Mock<IRetrievalQueryService> queryService = new();
@@ -68,6 +105,78 @@ public sealed class RetrievalToolsTests
         hits.Should().ContainSingle();
         hits[0].CorpusKind.Should().Be(CorpusKind.AzureRetailPrice.ToString());
         hits[0].Title.Should().Be("D4s v3 East US");
+    }
+
+    [Fact]
+    public async Task PolicyPackSearchAsync_returns_empty_snippet_when_hit_text_is_null()
+    {
+        Mock<IRetrievalQueryService> queryService = new();
+        queryService
+            .Setup(q => q.SearchAsync(It.IsAny<RetrievalQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new RetrievalHit
+                {
+                    ChunkId = "chunk-1",
+                    DocumentId = "doc-1",
+                    Title = "Policy baseline",
+                    Text = null!,
+                    Score = 0.9,
+                    CorpusKind = CorpusKind.PolicyPack.ToString(),
+                    SourceType = "Manifest",
+                    SourceId = "policy-1"
+                }
+            ]);
+
+        RetrievalTools sut = new(queryService.Object);
+        RetrievalMcpToolRequest request = new()
+        {
+            TenantId = TenantId,
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+            QueryText = "network baseline"
+        };
+
+        IReadOnlyList<RetrievalMcpToolHit> hits =
+            await sut.PolicyPackSearchAsync(request, CancellationToken.None);
+
+        hits.Should().ContainSingle().Subject.Snippet.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task PolicyPackSearchAsync_returns_empty_title_when_hit_title_is_null()
+    {
+        Mock<IRetrievalQueryService> queryService = new();
+        queryService
+            .Setup(q => q.SearchAsync(It.IsAny<RetrievalQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new RetrievalHit
+                {
+                    ChunkId = "chunk-1",
+                    DocumentId = "doc-1",
+                    Title = null!,
+                    Text = "policy baseline",
+                    Score = 0.9,
+                    CorpusKind = CorpusKind.PolicyPack.ToString(),
+                    SourceType = "Manifest",
+                    SourceId = "policy-1"
+                }
+            ]);
+
+        RetrievalTools sut = new(queryService.Object);
+        RetrievalMcpToolRequest request = new()
+        {
+            TenantId = TenantId,
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+            QueryText = "network baseline"
+        };
+
+        IReadOnlyList<RetrievalMcpToolHit> hits =
+            await sut.PolicyPackSearchAsync(request, CancellationToken.None);
+
+        hits.Should().ContainSingle().Subject.Title.Should().BeEmpty();
     }
 
     [Fact]

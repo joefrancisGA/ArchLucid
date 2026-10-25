@@ -2,8 +2,6 @@ import { describe, expect, it } from "vitest";
 
 import type { FindingInspectPayload } from "@/types/finding-inspect";
 
-import { resolveBuyerShowcaseResidualRiskNextReviewIso } from "@/lib/buyer/buyer-polish-copy";
-
 import {
   buyerFindingDecisionImpactCopy,
   buyerFindingNextStepCopy,
@@ -14,6 +12,7 @@ import {
   mitigationPosture,
   resolveFindingNextReviewLabel,
   resolveFindingRiskOwnerLabel,
+  summarizeEvidenceBasis,
 } from "./finding-detail-route-display";
 
 function emptyPayload(overrides: Partial<FindingInspectPayload> = {}): FindingInspectPayload {
@@ -32,36 +31,45 @@ function emptyPayload(overrides: Partial<FindingInspectPayload> = {}): FindingIn
 }
 
 describe("finding-detail-route-display buyer summary copy", () => {
-  it("returns decision impact and next step for the PHI showcase finding", () => {
-    expect(buyerFindingDecisionImpactCopy(null, "sensitive-data-minimization-risk")).toContain("Non-blocking for package approval");
-    expect(buyerFindingNextStepCopy(null, "sensitive-data-minimization-risk")).toContain("ingress PHI classification");
+  it("states when the inspect payload omitted the evidence list", () => {
+    expect(
+      summarizeEvidenceBasis(
+        emptyPayload({
+          evidenceListReturned: false,
+        }),
+      ),
+    ).toBe("Evidence list was not returned.");
   });
 
-  it("does not invent owner, status, or monitoring for PHI showcase finding id without payload (P-13–P-14, P-20)", () => {
+  it("does not invent business impact for PHI showcase finding id without payload", () => {
+    expect(buyerFindingDecisionImpactCopy(null, "sensitive-data-minimization-risk")).toBe(
+      "Business impact was not stored",
+    );
+  });
+
+  it("does not invent owner, status, or monitoring for PHI showcase finding id without payload", () => {
     const summary = deriveFindingDecisionSummary(null, "sensitive-data-minimization-risk");
 
     expect(summary.disposition).toBe("Status was not stored");
     expect(summary.riskOwner).toBe("Risk owner was not stored");
-    expect(summary.requiredMonitoring).toBe("No recommended action recorded for this finding.");
-    expect(summary.nextReview).toBe(resolveBuyerShowcaseResidualRiskNextReviewIso(new Date("2026-08-22T12:00:00Z")));
+    expect(summary.requiredMonitoring).toBe("Recommended action was not stored.");
+    expect(summary.nextReview).toBe("Remediation due date was not stored.");
   });
 
-  it("uses showcase next review when persisted remediation due is in the past", () => {
+  it("keeps a past stored remediation due date on the finding", () => {
     const payload = emptyPayload({
       remediationDueUtc: "2024-02-14T00:00:00Z",
     });
 
     expect(resolveFindingNextReviewLabel(payload, "sensitive-data-minimization-risk")).toBe(
-      resolveBuyerShowcaseResidualRiskNextReviewIso(new Date("2026-08-22T12:00:00Z")),
+      formatFindingRemediationDueLabel("2024-02-14T00:00:00Z"),
     );
   });
 
   it("does not invent PHI monitoring for non-PHI findings", () => {
-    expect(mitigationPosture(null, "some-other-finding")).toBe(
-      "No recommended action recorded for this finding.",
-    );
+    expect(mitigationPosture(null, "some-other-finding")).toBe("Recommended action was not stored.");
     expect(findingRecommendedActionParagraph(emptyPayload(), "some-other-finding")).toBe(
-      "No recommended action recorded for this finding.",
+      "Recommended action was not stored.",
     );
   });
 
@@ -101,5 +109,17 @@ describe("finding-detail-route-display buyer summary copy", () => {
     expect(fallbackImpactedScope(emptyPayload(), "generic-finding")).toBe(
       "Impacted area was not stored.",
     );
+  });
+
+  it("distinguishes missing and stored-empty business impact on buyer decision copy", () => {
+    expect(buyerFindingDecisionImpactCopy(emptyPayload(), "generic-finding")).toBe(
+      "Business impact was not stored",
+    );
+    expect(
+      buyerFindingDecisionImpactCopy(
+        emptyPayload({ typedPayload: { businessImpact: "" } as FindingInspectPayload["typedPayload"] }),
+        "generic-finding",
+      ),
+    ).toBe("Business impact was stored empty.");
   });
 });

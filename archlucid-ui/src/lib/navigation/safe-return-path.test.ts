@@ -1,7 +1,11 @@
 import { describe, expect, it } from "vitest";
 
 import { SPONSOR_DASHBOARD_HREF } from "@/lib/sponsor/sponsor-dashboard-route";
-import { isSafeReturnPath, resolveSafeReturnPath } from "@/lib/navigation/safe-return-path";
+import {
+  canonicalSafeReturnPath,
+  isSafeReturnPath,
+  resolveSafeReturnPath,
+} from "@/lib/navigation/safe-return-path";
 
 describe("isSafeReturnPath", () => {
   it("accepts a simple local path", () => {
@@ -144,9 +148,19 @@ describe("isSafeReturnPath", () => {
   });
 });
 
+describe("canonicalSafeReturnPath", () => {
+  it("strips smuggled control characters from an otherwise safe path", () => {
+    expect(canonicalSafeReturnPath("/desk\u000B/reviews")).toBe("/desk/reviews");
+  });
+});
+
 describe("resolveSafeReturnPath", () => {
   it("returns the candidate when it is safe", () => {
     expect(resolveSafeReturnPath(SPONSOR_DASHBOARD_HREF)).toBe(SPONSOR_DASHBOARD_HREF);
+  });
+
+  it("returns a control-stripped path when the candidate only becomes safe after stripping", () => {
+    expect(resolveSafeReturnPath("/desk\u000B/reviews")).toBe("/desk/reviews");
   });
 
   it("falls back to '/' when the candidate is unsafe", () => {
