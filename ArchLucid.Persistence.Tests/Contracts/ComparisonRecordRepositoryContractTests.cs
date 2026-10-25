@@ -39,6 +39,23 @@ public abstract class ComparisonRecordRepositoryContractTests
     }
 
     [SkippableFact]
+    public async Task Create_trims_comparison_record_id_on_persist()
+    {
+        SkipIfSqlServerUnavailable();
+        IComparisonRecordRepository repo = CreateRepository();
+        string canonicalId = "cmp_contract_trim_" + Guid.NewGuid().ToString("N");
+        ComparisonRecord row = CreateRecord($"  {canonicalId}  ");
+
+        await BeforeSqlComparisonRecordPersistAsync(row, CancellationToken.None);
+        await repo.CreateAsync(row, CancellationToken.None);
+
+        ComparisonRecord? loaded = await repo.GetByIdAsync(canonicalId, CancellationToken.None);
+
+        loaded.Should().NotBeNull();
+        loaded!.ComparisonRecordId.Should().Be(canonicalId);
+    }
+
+    [SkippableFact]
     public async Task Create_then_GetById_returns_same_record()
     {
         SkipIfSqlServerUnavailable();

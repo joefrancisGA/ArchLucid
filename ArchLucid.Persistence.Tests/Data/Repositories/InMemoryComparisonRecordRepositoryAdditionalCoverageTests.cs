@@ -1,3 +1,5 @@
+using System.Reflection;
+
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Persistence.Data.Repositories;
 
@@ -98,6 +100,44 @@ public sealed class InMemoryComparisonRecordRepositoryAdditionalCoverageTests
             CancellationToken.None);
 
         page.Select(p => p.Label).Should().ContainInOrder("a", "b");
+    }
+
+    [SkippableFact]
+    public async Task SearchByCursorAsync_pages_when_legacy_stored_comparison_record_id_has_padding()
+    {
+        DateTime oldest = new(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        DateTime middle = new(2026, 1, 2, 0, 0, 0, DateTimeKind.Utc);
+        DateTime newest = new(2026, 1, 3, 0, 0, 0, DateTimeKind.Utc);
+
+        InMemoryComparisonRecordRepository sut = new();
+        FieldInfo? itemsField = typeof(InMemoryComparisonRecordRepository).GetField(
+            "_items",
+            BindingFlags.Instance | BindingFlags.NonPublic);
+        itemsField.Should().NotBeNull();
+        List<ComparisonRecord> items = (List<ComparisonRecord>)itemsField!.GetValue(sut)!;
+        items.Add(Row("cmp-cursor-oldest", oldest));
+        items.Add(Row("  cmp-cursor-middle  ", middle));
+        items.Add(Row("cmp-cursor-newest", newest));
+
+        IReadOnlyList<ComparisonRecord> page = await sut.SearchByCursorAsync(
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            "createdUtc",
+            "desc",
+            newest,
+            "cmp-cursor-newest",
+            1,
+            CancellationToken.None);
+
+        page.Should().ContainSingle();
+        page[0].ComparisonRecordId.Trim().Should().Be("cmp-cursor-middle");
     }
 
     [SkippableFact]

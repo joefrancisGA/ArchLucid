@@ -172,18 +172,19 @@ internal static class ComparisonRecordRepositoryCore
         ArgumentException.ThrowIfNullOrWhiteSpace(cursorComparisonRecordId);
 
         string normalizedCursorComparisonRecordId = cursorComparisonRecordId.Trim();
+        string normalizedRecordComparisonRecordId = record.ComparisonRecordId.Trim();
 
         return sortDescending
             ? record.CreatedUtc < cursorCreatedUtc
               || (record.CreatedUtc == cursorCreatedUtc
                   && string.Compare(
-                      record.ComparisonRecordId,
+                      normalizedRecordComparisonRecordId,
                       normalizedCursorComparisonRecordId,
                       StringComparison.Ordinal) < 0)
             : record.CreatedUtc > cursorCreatedUtc
               || (record.CreatedUtc == cursorCreatedUtc
                   && string.Compare(
-                      record.ComparisonRecordId,
+                      normalizedRecordComparisonRecordId,
                       normalizedCursorComparisonRecordId,
                       StringComparison.Ordinal) > 0);
     }

@@ -112,6 +112,21 @@ public sealed class ComparisonRecordRepositoryCoreTests
     }
 
     [Fact]
+    public void MatchesCursor_trims_padded_stored_comparison_record_id_on_tiebreaker()
+    {
+        DateTime sharedTime = new(2026, 1, 2, 0, 0, 0, DateTimeKind.Utc);
+        ComparisonRecord duplicateCursorRow = Record("cmp-anchor  ", createdUtc: sharedTime);
+
+        ComparisonRecordRepositoryCore.MatchesCursor(
+                duplicateCursorRow,
+                sharedTime,
+                "cmp-anchor",
+                sortDescending: true)
+            .Should()
+            .BeFalse();
+    }
+
+    [Fact]
     public void MatchesCursor_respects_desc_order()
     {
         ComparisonRecord older = Record("older", createdUtc: new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc));
