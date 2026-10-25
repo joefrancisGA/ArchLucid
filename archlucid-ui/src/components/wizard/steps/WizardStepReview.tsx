@@ -297,7 +297,9 @@ export function WizardStepReview(props: { readonly focusedPilotModeEnabled?: boo
         <Separator />
 
         <ReadOnlyBlock title="Request id">
-          <code className={OPERATOR_TYPOGRAPHY.helper}>{v.requestId}</code>
+          <code className={OPERATOR_TYPOGRAPHY.helper}>
+            {wizardConfirmIdentityField(v.requestId, "Request id was not stored.")}
+          </code>
         </ReadOnlyBlock>
       </div>
     </WizardStepPanel>

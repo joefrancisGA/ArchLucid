@@ -12,6 +12,7 @@ import {
   retrievalHitRelevanceLabel,
   retrievalHitRelevanceTier,
   retrievalHitSourceTypeLabel,
+  resolveRetrievalHitTitle,
 } from "./retrieval-hit-display";
 import type { RetrievalHit } from "./retrieval-hit";
 
@@ -34,7 +35,9 @@ export function SearchRetrievalHitCard(props: SearchRetrievalHitCardProps) {
       <CardContent className="space-y-3 p-4">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="min-w-0 space-y-1">
-            <div className={cn("font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>{hit.title}</div>
+            <div className={cn("font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
+              {resolveRetrievalHitTitle(hit.title)}
+            </div>
             {runId !== null ? (
               <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                 <span className="font-medium text-al-text-primary">Review:</span> {runId}
