@@ -7489,6 +7489,34 @@ ABQ-09 churn hotspot.
 
 ## Zone: securenow-question-queue
 
+2026-10-25 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows (SQL MERGE deferred, optimistic merge future-risk, non-string `snapshotId` coercion blocked by empty-listed guard, inferred dismiss reload focus with two open inferred rows, whitespace-only listed `snapshotId` blocked after trim); added four regression locks; seeded five follow-on `(candidate)` rows below; scoped SecureNow queue vitest 177/177; no production code changed.
+
+- [x] (invalid) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` — **cheap-disproof 2026-10-25 seed hunt:** integration host unavailable; candidate reseeded below.
+- [x] (invalid) `securenow-question-queue-provider` — optimistic merge from disposition JSON — **cheap-disproof 2026-10-25 seed hunt:** reload-only provider; candidate reseeded below.
+- [x] (valid-no-repro) `securenow-question-queue-api.mapQuestion` — non-string list `snapshotId` — **cheap-disproof 2026-10-25 seed hunt:** coerces to `""` and empty-listed guard blocks mutations; regression `maps non-string snapshotId to empty string without throwing`.
+- [x] (valid-no-repro) `SecureNowQuestionQueueProvider` — inferred dismiss focus with two open inferred rows — **cheap-disproof 2026-10-25 seed hunt:** regression `focuses the inferred question after dismiss when another open inferred row exists`.
+- [x] (valid-no-repro) `securenow-question-queue-api.mapQuestion` — whitespace-only listed `snapshotId` — **cheap-disproof 2026-10-25 seed hunt:** guard trims before compare; regressions `maps whitespace-only snapshotId to empty string without throwing` and `does not post an answer when the listed snapshot id is whitespace only`.
+
+- [ ] (candidate) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` identity hash collision — locus: SQL repository; input: integration repro when SQL host available.
+- [ ] (candidate) `securenow-question-queue-provider` — optimistic merge from disposition JSON — locus: future post-mutation path; input: must use `mapSecureNowQuestionDisposition` only.
+- [ ] (candidate) `securenow-question-queue-api.mapQuestion` — trim listed `snapshotId` at mapper — locus: list identity; input: `"   "` stored trimmed to `""` for consistent UI copy.
+- [ ] (candidate) `SecureNowQuestionQueueProvider.submitAction` — silent return when snapshot guard fails — locus: mutation guard; input: surface inline error instead of no-op save.
+- [ ] (candidate) `SecureNowQuestionQueueProvider` — inferred confirm focus with two open inferred rows — locus: `focusQuestionIdentity` after `confirmOperatorInferredConnection`; input: mirror dismiss regression with Yes path.
+
+- **id:** securenow-question-queue
+- **status:** open
+- **impact:** medium
+- **aliases:** securenow question queue; question disposition
+- **paths:** archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx; archlucid-ui/src/lib/infra-evidence/securenow-question-queue-api.ts
+- **test-filter:** SecureNowQuestion
+- **hunts:** 98
+- **bugs-found:** 71
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-25
+- **last-bug:** 2026-10-25 — empty listed snapshot id bypassed mutation guard
+- **related-pd-tb:** none
+- **code-changed-since:** yes
+
 2026-10-25 seed hunt (seed→hit): promoted `secureNowQuestionListedSnapshotMatchesContext` treating empty or whitespace-only listed snapshot ids as matching any active context — list rows with omitted or coerced blank `snapshotId` could still post answer/ignore/reopen against the wrong snapshot; empty listed ids now fail the guard; regressions `rejects an empty listed snapshot id after trim` and `does not post an answer when the listed snapshot id is empty`; cheap-disproof closed SQL MERGE deferred, optimistic merge future-risk, explicit `null` `answerCodes` mapping, inferred dismiss reload focus via shared `submitAction` path; seeded five follow-on `(candidate)` rows below; scoped SecureNow queue vitest 174/174. Private beta: operators answering SecureNow questions no longer send disposition POSTs when list JSON carried a blank listed snapshot id that did not match the active evidence snapshot.
 
 - [x] (proven) `secureNowQuestionListedSnapshotMatchesContext` — empty listed `snapshotId` bypassed snapshot guard — **hit 2026-10-25 seed hunt:** reject empty/whitespace listed ids; `securenow-question-queue-api.ts` + UI regression.
