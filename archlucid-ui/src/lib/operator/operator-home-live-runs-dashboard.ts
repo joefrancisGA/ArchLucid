@@ -10,12 +10,20 @@ export type OperatorHomeLiveRunsSnapshot = {
 function resolveLiveRunsDashboardTotalCount(
   liveTotalCount: number,
   ssrTotalCount: number,
+  liveItemCount: number,
 ): number {
-  if (!Number.isFinite(liveTotalCount)) {
-    return Number.isFinite(ssrTotalCount) ? Math.max(0, Math.trunc(ssrTotalCount)) : 0;
+  const normalizedSsrTotal = Number.isFinite(ssrTotalCount) ? Math.max(0, Math.trunc(ssrTotalCount)) : 0;
+  const liveTotalIsFinite = Number.isFinite(liveTotalCount);
+
+  const resolved = liveTotalIsFinite
+    ? Math.max(0, Math.trunc(liveTotalCount))
+    : normalizedSsrTotal;
+
+  if (liveTotalIsFinite && liveTotalCount === 0 && liveItemCount > 0) {
+    return Math.max(liveItemCount, normalizedSsrTotal);
   }
 
-  return Math.max(0, Math.trunc(liveTotalCount));
+  return resolved;
 }
 
 /**
@@ -34,6 +42,10 @@ export function resolveLiveRunsDashboardModel(
   return {
     ...ssrModel,
     items: [...liveSnapshot.items],
-    totalCount: resolveLiveRunsDashboardTotalCount(liveSnapshot.totalCount, ssrModel.totalCount),
+    totalCount: resolveLiveRunsDashboardTotalCount(
+      liveSnapshot.totalCount,
+      ssrModel.totalCount,
+      liveSnapshot.items.length,
+    ),
   };
 }

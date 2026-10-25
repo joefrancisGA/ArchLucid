@@ -4938,7 +4938,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-operator-lib
 
-**Hunts:** 89 · **Bugs found:** 84 · **Consecutive dry hunts:** 0
+**Hunts:** 90 · **Bugs found:** 85 · **Consecutive dry hunts:** 0
+
+2026-10-25 seed hunt (hit): `resolveLiveRunsDashboardTotalCount` treats explicit live `totalCount: 0` as stale when the refreshed snapshot still returns rows (aligns with home tenant counting); regression `treats zero live total count as stale when snapshot items are present`; scoped live-runs-dashboard + attention-dedup vitest passed. Private beta: Invited operators who refresh home reviews no longer see workspace KPI totals drop to zero while the recent-reviews list still shows loaded rows.
 
 2026-10-25 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; regressions `returns no excluded run ids for incomplete-wizard rows even when href parses a review run id`, `lists both row and peer href run ids for awaiting-disposition rail rows`, `normalizes non-finite alerts inbox counts when writing stable cache`, and `clamps negative live snapshot total counts to zero`; 57 scoped attention-dedup, resume, shell-stable-cache, and live-runs-dashboard vitest passed; no production code changed.
 
@@ -5195,11 +5197,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `filterRunsForHomeAttentionPreview` — still filters review rail disagreements after kind guard — **cheap-disproof 2026-10-25 seed hunt:** desk + nested disagreement filter tests.
 - [x] (valid-no-repro) `resolveUnfinishedWorkRailRunIdForMatch` — null for architecture-draft while resume targets use draft ids — **cheap-disproof 2026-10-25 seed hunt:** rail resume vitest for draft rows.
 
-- [ ] (candidate) `writeOperatorShellStableCache` — normalizes alerts inbox counts on write, not only on read — locus: `normalizeStableCacheAlertsInboxSummary`; input: write-path regression in shell-stable-cache tests.
-- [ ] (candidate) `resolveLiveRunsDashboardModel` — clamps negative `liveSnapshot.totalCount` — locus: `resolveLiveRunsDashboardTotalCount`; input: negative total regression in live-runs-dashboard tests.
-- [ ] (candidate) `collectHomeAttentionExcludedRunIdsForRailItem` — awaiting-disposition rows share review-kind union with review-in-progress — locus: prefix parsers; input: awaiting-disposition disagreement regression.
-- [ ] (candidate) `readOperatorShellStableCache` — still normalizes poisoned alerts payloads after write-time normalization — locus: read path; input: existing read normalization regression.
-- [ ] (candidate) `listHomeAttentionPreviewExcludedRunIds` — incomplete-wizard with nested review href does not exclude runs — locus: kind guard; input: extend wizard regression to nested review paths.
+- [x] (valid-no-repro) `writeOperatorShellStableCache` — normalizes alerts inbox counts on write — **cheap-disproof 2026-10-25 seed hunt:** regression `normalizes non-finite alerts inbox counts when writing stable cache`.
+- [x] (proven) `resolveLiveRunsDashboardModel` — zero `liveSnapshot.totalCount` with nonempty items left KPI total at 0 — **hit 2026-10-25 seed hunt:** `resolveLiveRunsDashboardTotalCount` stale-zero uplift; regression `treats zero live total count as stale when snapshot items are present`.
+- [x] (valid-no-repro) `resolveLiveRunsDashboardModel` — clamps negative `liveSnapshot.totalCount` — **cheap-disproof 2026-10-25 seed hunt:** regression `clamps negative live snapshot total counts to zero`.
+- [x] (valid-no-repro) `collectHomeAttentionExcludedRunIdsForRailItem` — awaiting-disposition rows share review-kind union — **cheap-disproof 2026-10-25 seed hunt:** regression `lists both row and peer href run ids for awaiting-disposition rail rows`.
+- [x] (valid-no-repro) `listHomeAttentionPreviewExcludedRunIds` — incomplete-wizard nested review href does not exclude runs — **cheap-disproof 2026-10-25 seed hunt:** regression `returns no excluded run ids for incomplete-wizard rows with nested review href`.
+
+- [ ] (candidate) `resolveLiveRunsDashboardTotalCount` — does not uplift zero totals when live item count is zero — locus: stale-zero guard; input: empty snapshot regression in live-runs-dashboard tests.
+- [ ] (candidate) `resolveLiveRunsDashboardTotalCount` — preserves non-zero live totals without item-count uplift — locus: happy path; input: overlay live items and total count regression.
+- [ ] (candidate) `readOperatorShellStableCache` — still normalizes poisoned alerts payloads on read — locus: read path; input: existing read normalization regression.
+- [ ] (candidate) `isTb2369ReviewWorkRailItem` — blocks incomplete-wizard and architecture-draft from attention unions — locus: kind guard; input: wizard + draft regressions in attention-dedup suite.
+- [ ] (candidate) `deriveOperatorHomeWorkspaceMetrics` — consumes live dashboard total after stale-zero uplift — locus: home metrics pipeline; input: workspace-metrics + tenant-counting tests.
 
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regression `drops favorite rows when runId is whitespace-only`; 41 scoped continuity, scope-storage, and attention-preview vitest tests passed.
 

@@ -57,6 +57,16 @@ describe("resolveLiveRunsDashboardModel", () => {
     expect(merged.totalCount).toBe(1);
   });
 
+  it("treats zero live total count as stale when snapshot items are present", () => {
+    const merged = resolveLiveRunsDashboardModel(ssrModel, {
+      items: [buildRun("live-a"), buildRun("live-b")],
+      totalCount: 0,
+    });
+
+    expect(merged.items).toHaveLength(2);
+    expect(merged.totalCount).toBe(2);
+  });
+
   it("clamps negative live snapshot total counts to zero", () => {
     const merged = resolveLiveRunsDashboardModel(ssrModel, {
       items: [buildRun("live-a")],

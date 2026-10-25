@@ -179,6 +179,22 @@ describe("home-attention-dedup (TB-2369)", () => {
     expect(listHomeAttentionPreviewExcludedRunIds([draftItem])).toEqual([]);
   });
 
+  it("returns no excluded run ids for incomplete-wizard rows with nested review href", () => {
+    const wizardItem: UnfinishedWorkRailItem = {
+      id: "incomplete-wizard:reviewsNewQuickStart",
+      kind: "incomplete-wizard",
+      title: "New architecture review (quick start)",
+      href: "/architecture/architectures/arch-1/reviews/run-nested-leak",
+      statusLabel: "In progress",
+      updatedUtc: null,
+      workTypeLabel: "Setup wizard",
+      activityLabel: null,
+      actionLabel: "Continue",
+    };
+
+    expect(listHomeAttentionPreviewExcludedRunIds([wizardItem])).toEqual([]);
+  });
+
   it("returns no excluded run ids for incomplete-wizard rows even when href parses a review run id", () => {
     const wizardItem: UnfinishedWorkRailItem = {
       id: "incomplete-wizard:reviewsNewQuickStart",
