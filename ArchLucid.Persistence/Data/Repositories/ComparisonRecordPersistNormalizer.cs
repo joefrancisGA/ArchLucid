@@ -17,6 +17,14 @@ internal static class ComparisonRecordPersistNormalizer
 
         record.Label = TrimLabelOrNull(record.Label);
         NormalizeTagsInPlace(record.Tags);
+        record.LeftManifestVersion =
+            OptionalExportMetadataStringNormalizer.NormalizeOptionalString(record.LeftManifestVersion);
+        record.RightManifestVersion =
+            OptionalExportMetadataStringNormalizer.NormalizeOptionalString(record.RightManifestVersion);
+        record.Notes = OptionalExportMetadataStringNormalizer.NormalizeOptionalString(record.Notes);
+
+        if (!string.IsNullOrWhiteSpace(record.Format))
+            record.Format = record.Format.Trim();
     }
 
     private static void NormalizeTagsInPlace(List<string> tags)

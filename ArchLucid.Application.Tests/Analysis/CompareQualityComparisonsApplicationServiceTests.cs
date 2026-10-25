@@ -1543,6 +1543,53 @@ public sealed class CompareQualityComparisonsApplicationServiceTests
     }
 
     [Fact]
+    public async Task CompareQuality_TryGetScopedRecordAsync_trims_padded_manifest_versions_from_stored_row()
+    {
+        const string runId = "cccccccccccccccccccccccccccccccc";
+        const string comparisonRecordId = "cmp-scoped-manifest-pad";
+
+        InMemoryComparisonRecordRepository comparisonRecords = new();
+        FieldInfo? itemsField = typeof(InMemoryComparisonRecordRepository).GetField(
+            "_items",
+            BindingFlags.Instance | BindingFlags.NonPublic);
+        itemsField.Should().NotBeNull();
+        List<ComparisonRecord> items = (List<ComparisonRecord>)itemsField!.GetValue(comparisonRecords)!;
+        items.Add(
+            new ComparisonRecord
+            {
+                ComparisonRecordId = comparisonRecordId,
+                ComparisonType = ComparisonTypes.EndToEndReplay,
+                LeftRunId = runId,
+                RightRunId = "dddddddddddddddddddddddddddddddd",
+                LeftManifestVersion = "  left-v  ",
+                RightManifestVersion = "  right-v  ",
+                CreatedUtc = DateTime.UtcNow,
+            });
+
+        Mock<IRunDetailQueryService> runDetail = new();
+        runDetail
+            .Setup(s => s.GetRunDetailAsync(runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchitectureRunDetail { Run = new() { RunId = runId } });
+
+        ComparisonsApplicationService sut = new(
+            runDetail.Object,
+            new Mock<IRunExportRecordRepository>().Object,
+            comparisonRecords,
+            new Mock<IComparisonReplayService>().Object,
+            new Mock<ICompareRunsApplicationFacade>().Object,
+            new Mock<IComparisonReplayCostEstimator>().Object,
+            new Mock<IDriftReportFormatter>().Object,
+            new DriftReportDocxExport());
+
+        ComparisonRecord? scoped =
+            await sut.TryGetScopedRecordAsync(comparisonRecordId, CancellationToken.None);
+
+        scoped.Should().NotBeNull();
+        scoped!.LeftManifestVersion.Should().Be("left-v");
+        scoped.RightManifestVersion.Should().Be("right-v");
+    }
+
+    [Fact]
     public async Task CompareQuality_in_memory_comparison_repository_create_canonicalizes_dashed_left_run_id()
     {
         Guid leftKey = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");

@@ -375,6 +375,33 @@ public sealed class InMemoryComparisonRecordRepositoryAdditionalCoverageTests
     }
 
     [SkippableFact]
+    public async Task GetByIdAsync_trims_padded_manifest_versions_and_notes_on_read()
+    {
+        const string comparisonRecordId = "cmp-manifest-pad-get";
+
+        InMemoryComparisonRecordRepository sut = new();
+        FieldInfo? itemsField = typeof(InMemoryComparisonRecordRepository).GetField(
+            "_items",
+            BindingFlags.Instance | BindingFlags.NonPublic);
+        itemsField.Should().NotBeNull();
+        List<ComparisonRecord> items = (List<ComparisonRecord>)itemsField!.GetValue(sut)!;
+        ComparisonRecord legacy = Row(comparisonRecordId, TimeProvider.System.UtcNowDateTime());
+        legacy.LeftManifestVersion = "  v-left  ";
+        legacy.RightManifestVersion = "  v-right  ";
+        legacy.Notes = "  audit note  ";
+        legacy.Format = "  json  ";
+        items.Add(legacy);
+
+        ComparisonRecord? loaded = await sut.GetByIdAsync(comparisonRecordId, CancellationToken.None);
+
+        loaded.Should().NotBeNull();
+        loaded!.LeftManifestVersion.Should().Be("v-left");
+        loaded.RightManifestVersion.Should().Be("v-right");
+        loaded.Notes.Should().Be("audit note");
+        loaded.Format.Should().Be("json");
+    }
+
+    [SkippableFact]
     public async Task GetByIdAsync_trims_padded_export_record_ids_on_read()
     {
         const string comparisonRecordId = "cmp-exp-pad-get";

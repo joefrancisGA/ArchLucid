@@ -30,6 +30,14 @@ internal static class ComparisonRecordScopedReadNormalizer
 
         record.LeftExportRecordId = NormalizeExportRecordIdOrNull(record.LeftExportRecordId);
         record.RightExportRecordId = NormalizeExportRecordIdOrNull(record.RightExportRecordId);
+        record.LeftManifestVersion =
+            OptionalExportMetadataStringNormalizer.NormalizeOptionalString(record.LeftManifestVersion);
+        record.RightManifestVersion =
+            OptionalExportMetadataStringNormalizer.NormalizeOptionalString(record.RightManifestVersion);
+        record.Notes = OptionalExportMetadataStringNormalizer.NormalizeOptionalString(record.Notes);
+
+        if (!string.IsNullOrWhiteSpace(record.Format))
+            record.Format = record.Format.Trim();
     }
 
     private static string? NormalizeExportRecordIdOrNull(string? exportRecordId) =>
