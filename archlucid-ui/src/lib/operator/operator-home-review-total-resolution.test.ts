@@ -1,0 +1,32 @@
+import { describe, expect, it } from "vitest";
+
+import {
+  countNonArchivedOverviewRuns,
+  resolveOperatorHomeReviewTotalCount,
+} from "@/lib/operator/operator-home-review-total-resolution";
+import type { RunSummary } from "@/types/authority";
+
+describe("resolveOperatorHomeReviewTotalCount", () => {
+  it("uplifts stale zero totals from visible active rows and SSR floor", () => {
+    expect(resolveOperatorHomeReviewTotalCount(0, 5, 2)).toBe(5);
+  });
+
+  it("does not uplift stale zero totals when only archived rows are visible", () => {
+    expect(resolveOperatorHomeReviewTotalCount(0, 5, 0)).toBe(0);
+  });
+
+  it("uplifts positive undercounts using visible active rows only", () => {
+    expect(resolveOperatorHomeReviewTotalCount(1, 0, 2)).toBe(2);
+  });
+});
+
+describe("countNonArchivedOverviewRuns", () => {
+  it("counts runs without isArchived as active overview rows", () => {
+    const items = [
+      { runId: "active", projectId: "default" },
+      { runId: "archived", projectId: "default", isArchived: true },
+    ] as RunSummary[];
+
+    expect(countNonArchivedOverviewRuns(items)).toBe(1);
+  });
+});
