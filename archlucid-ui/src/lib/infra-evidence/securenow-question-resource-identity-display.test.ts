@@ -30,6 +30,22 @@ const baseQuestion: SecureNowQuestion = {
 };
 
 describe("secureNowQuestionResourceIdentityDisplay", () => {
+  it("distinguishes omitted resource name from stored empty string", () => {
+    expect(
+      secureNowQuestionResourceDisplayName({
+        ...baseQuestion,
+        resourceName: null,
+      }),
+    ).toBe("Resource name was not stored.");
+
+    expect(
+      secureNowQuestionResourceDisplayName({
+        ...baseQuestion,
+        resourceName: "",
+      }),
+    ).toBe("Resource name was stored empty.");
+  });
+
   it("uses pack-friendly identity copy instead of empty-resource warnings", () => {
     const packQuestion: SecureNowQuestion = {
       ...baseQuestion,

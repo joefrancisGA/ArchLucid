@@ -16,6 +16,10 @@ export function secureNowQuestionResourceTypeLabel(question: SecureNowQuestion):
     return null;
   }
 
+  if (question.resourceType === null || question.resourceType === undefined) {
+    return "Resource type was not stored";
+  }
+
   if (question.resourceType.trim().length === 0) {
     return "Resource type was not stored";
   }

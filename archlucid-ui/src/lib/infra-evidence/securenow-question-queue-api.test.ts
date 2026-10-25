@@ -35,6 +35,25 @@ describe("securenow-question-queue-api", () => {
     expect(questions[0].subscriptionId).toBeNull();
   });
 
+  it("maps null resourceName to null instead of empty string", async () => {
+    vi.mocked(proxyJsonGet).mockResolvedValueOnce([
+      {
+        snapshotId: "snapshot-1",
+        questionKey: "unknown-evidence@v1",
+        questionText: "Should this resource connect?",
+        resourceName: null,
+        resourceType: null,
+        answerCodes: ["NamePeer"],
+        evidenceFingerprint: "fingerprint",
+      },
+    ]);
+
+    const questions = await listSecureNowQuestions("snapshot-1");
+
+    expect(questions[0].resourceName).toBeNull();
+    expect(questions[0].resourceType).toBeNull();
+  });
+
   it("drops blank answer code entries from list responses", async () => {
     vi.mocked(proxyJsonGet).mockResolvedValueOnce([
       {
