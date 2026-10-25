@@ -1104,6 +1104,27 @@ describe("SecureNowQuestionQueue", () => {
     expect(screen.queryByText("Resource id was stored empty.")).not.toBeInTheDocument();
   });
 
+  it("routes unknown status with stored answer metadata into the answered filter", async () => {
+    mocks.listQuestions.mockResolvedValue([
+      { ...question, status: "Open" },
+      {
+        ...question,
+        status: "Pending",
+        answerCode: "NamePeer",
+        answerText: "Name the peer",
+        reason: "Operator selected the peer.",
+      },
+    ]);
+
+    render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
+    fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
+    fireEvent.click(screen.getByRole("button", { name: "Answered" }));
+
+    expect(screen.getByTestId("infra-diagrams-question-disposition-status")).toHaveTextContent("Answered");
+    expect(screen.getByTestId("infra-diagrams-question-answer")).toHaveTextContent("Name the peer");
+    expect(screen.queryByRole("button", { name: "Name the peer" })).not.toBeInTheDocument();
+  });
+
   it("hides the open promo when every listed question has unknown disposition status", async () => {
     mocks.listQuestions.mockResolvedValue([{ ...question, status: "Pending" }]);
 

@@ -51,6 +51,15 @@ describe("secureNowQuestionDispositionIsOpen", () => {
 });
 
 describe("secureNowQuestionDispositionShowsStoredAnswerMetadata", () => {
+  it("infers stored answer metadata when status is unknown but answer fields are present", () => {
+    expect(secureNowQuestionDispositionShowsStoredAnswerMetadata({
+      status: "Pending",
+      answerCode: "NamePeer",
+      answerText: null,
+      reason: null,
+    })).toBe(true);
+  });
+
   it("infers stored answer metadata when status is omitted but answer fields are present", () => {
     expect(secureNowQuestionDispositionShowsStoredAnswerMetadata({
       status: null,
@@ -141,6 +150,15 @@ describe("secureNowQuestionCountsAsAnsweredFilterRow", () => {
       answerCode: "NamePeer",
       answerText: "Name the peer",
       reason: "Operator selected the peer.",
+    })).toBe(true);
+  });
+
+  it("includes rows with unknown status when answer metadata was stored", () => {
+    expect(secureNowQuestionCountsAsAnsweredFilterRow({
+      status: "Pending",
+      answerCode: "NamePeer",
+      answerText: null,
+      reason: null,
     })).toBe(true);
   });
 });

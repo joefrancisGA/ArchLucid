@@ -61,17 +61,17 @@ function secureNowQuestionDispositionStatusCanonical(
   return "other";
 }
 
-function secureNowQuestionDispositionStatusAllowsStoredMetadataInference(
+function secureNowQuestionDispositionStatusAllowsOutcomeFieldInference(
   status: string | null | undefined,
 ): boolean {
   const canonical = secureNowQuestionDispositionStatusCanonical(status);
-  return canonical === "missing" || canonical === "open";
+  return canonical === "missing" || canonical === "open" || canonical === "other";
 }
 
 function secureNowQuestionDispositionHasInferredClosedFields(
   question: SecureNowQuestionDispositionChromeFields,
 ): boolean {
-  if (!secureNowQuestionDispositionStatusAllowsStoredMetadataInference(question.status)) {
+  if (!secureNowQuestionDispositionStatusAllowsOutcomeFieldInference(question.status)) {
     return false;
   }
 
@@ -107,12 +107,12 @@ export function secureNowQuestionCountsAsOpenQueueRow(
 export function secureNowQuestionCountsAsAnsweredFilterRow(
   question: SecureNowQuestionDispositionChromeFields,
 ): boolean {
-  if (secureNowQuestionDispositionIsAnswered(question.status)) {
-    return true;
+  if (secureNowQuestionDispositionIsDismissed(question.status)) {
+    return false;
   }
 
-  if (!secureNowQuestionDispositionStatusAllowsStoredMetadataInference(question.status)) {
-    return false;
+  if (secureNowQuestionDispositionIsAnswered(question.status)) {
+    return true;
   }
 
   return secureNowQuestionDispositionFieldContributesToInference(question.answerCode)
@@ -145,7 +145,7 @@ export function secureNowQuestionDispositionReviewerStatusLabel(
     return "Dismissed";
   }
 
-  if (canonical === "open") {
+  if (canonical === "open" || canonical === "other") {
     if (secureNowQuestionCountsAsAnsweredFilterRow(question)) {
       return "Answered";
     }
@@ -165,7 +165,7 @@ export function secureNowQuestionCountsAsDismissedFilterRow(
     return true;
   }
 
-  if (!secureNowQuestionDispositionStatusAllowsStoredMetadataInference(question.status)) {
+  if (secureNowQuestionDispositionIsAnswered(question.status)) {
     return false;
   }
 
