@@ -177,13 +177,11 @@ function mapQuestion(raw: Record<string, unknown>): SecureNowQuestion {
   return {
     dispositionId: mapListedOptionalString(raw.dispositionId),
     snapshotId: stringOrDefault(raw.snapshotId),
-    subscriptionId: typeof raw.subscriptionId === "string"
-      ? raw.subscriptionId
-      : null,
-    resourceId: typeof raw.resourceId === "string" ? raw.resourceId : null,
-    questionKey: typeof raw.questionKey === "string" ? raw.questionKey : null,
-    source: typeof raw.source === "string" ? raw.source : null,
-    scopeKind: typeof raw.scopeKind === "string" ? raw.scopeKind : null,
+    subscriptionId: mapListedOptionalString(raw.subscriptionId),
+    resourceId: mapListedOptionalString(raw.resourceId),
+    questionKey: mapListedOptionalString(raw.questionKey),
+    source: mapListedOptionalString(raw.source),
+    scopeKind: mapListedOptionalString(raw.scopeKind),
     status: typeof raw.status === "string"
       ? (() => {
         const trimmed = raw.status.trim();
@@ -191,8 +189,8 @@ function mapQuestion(raw: Record<string, unknown>): SecureNowQuestion {
       })()
       : null,
     questionText: questionText.length > 0 ? questionText : "Question text was not stored",
-    resourceType: typeof raw.resourceType === "string" ? raw.resourceType : null,
-    resourceName: typeof raw.resourceName === "string" ? raw.resourceName : null,
+    resourceType: mapListedOptionalString(raw.resourceType),
+    resourceName: mapListedOptionalString(raw.resourceName),
     reasonText: stringOrDefault(raw.reasonText),
     sourceLine: stringOrDefault(raw.sourceLine),
     answerCodes: Array.isArray(raw.answerCodes)
@@ -201,9 +199,7 @@ function mapQuestion(raw: Record<string, unknown>): SecureNowQuestion {
         .map((value) => value.trim())
         .filter((value) => value.length > 0)
       : null,
-    evidenceFingerprint: typeof raw.evidenceFingerprint === "string"
-      ? raw.evidenceFingerprint
-      : null,
+    evidenceFingerprint: mapListedOptionalString(raw.evidenceFingerprint),
     expirationUtc: mapListedOptionalString(raw.expirationUtc),
     isExpired: mapJsonBooleanOrNull(raw.isExpired),
     answerCode: mapListedOptionalString(raw.answerCode),

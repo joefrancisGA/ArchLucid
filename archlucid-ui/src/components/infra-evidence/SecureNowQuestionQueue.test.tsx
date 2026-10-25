@@ -315,6 +315,22 @@ describe("SecureNowQuestionQueue", () => {
     expect(screen.getByText("Scope: This resource.")).toBeInTheDocument();
   });
 
+  it("does not post a mutation when question key was stored as whitespace", async () => {
+    mocks.listQuestions.mockResolvedValue([{ ...question, questionKey: "   " }]);
+
+    render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
+    fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
+    fireEvent.click(screen.getByRole("button", { name: "Name the peer" }));
+    fireEvent.click(screen.getByRole("button", { name: "Save answer" }));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("operator-mutation-inline-error")).toHaveTextContent(
+        "Question key was not stored.",
+      );
+    });
+    expect(mocks.answerQuestion).not.toHaveBeenCalled();
+  });
+
   it("does not post a mutation when question key was not stored", async () => {
     mocks.listQuestions.mockResolvedValue([{ ...question, questionKey: null }]);
 

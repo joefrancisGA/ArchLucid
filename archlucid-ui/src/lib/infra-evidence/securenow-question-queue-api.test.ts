@@ -29,6 +29,50 @@ describe("securenow-question-queue-api", () => {
     vi.mocked(proxyJsonPost).mockReset();
   });
 
+  it("maps whitespace-only questionKey to null on list responses", async () => {
+    vi.mocked(proxyJsonGet).mockResolvedValueOnce([
+      {
+        snapshotId: "snapshot-1",
+        questionKey: "   ",
+        questionText: "Should this resource connect?",
+        answerCodes: ["NamePeer"],
+        evidenceFingerprint: "fingerprint",
+      },
+    ]);
+
+    const questions = await listSecureNowQuestions("snapshot-1");
+
+    expect(questions[0].questionKey).toBeNull();
+  });
+
+  it("maps whitespace-only identity fields to null on list responses", async () => {
+    vi.mocked(proxyJsonGet).mockResolvedValueOnce([
+      {
+        snapshotId: "snapshot-1",
+        subscriptionId: "  ",
+        resourceId: "   ",
+        questionKey: "unknown-evidence@v1",
+        questionText: "Should this resource connect?",
+        answerCodes: ["NamePeer"],
+        evidenceFingerprint: "   ",
+        source: "  ",
+        scopeKind: " ",
+        resourceType: "  ",
+        resourceName: "   ",
+      },
+    ]);
+
+    const questions = await listSecureNowQuestions("snapshot-1");
+
+    expect(questions[0].subscriptionId).toBeNull();
+    expect(questions[0].resourceId).toBeNull();
+    expect(questions[0].evidenceFingerprint).toBeNull();
+    expect(questions[0].source).toBeNull();
+    expect(questions[0].scopeKind).toBeNull();
+    expect(questions[0].resourceType).toBeNull();
+    expect(questions[0].resourceName).toBeNull();
+  });
+
   it("maps null questionKey to null instead of empty string", async () => {
     vi.mocked(proxyJsonGet).mockResolvedValueOnce([
       {
