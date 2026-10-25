@@ -25,6 +25,8 @@ import {
   GOVERNANCE_QUEUE_REVIEW_TITLE_NOT_STORED,
   GOVERNANCE_QUEUE_RULE_ID_NOT_STORED,
   GOVERNANCE_QUEUE_SEVERITY_NOT_STORED,
+  GOVERNANCE_QUEUE_RECOMMENDED_ACTION_NOT_STORED,
+  GOVERNANCE_QUEUE_RATIONALE_NOT_STORED,
 } from "@/components/governance/findings/governance-findings-row-omission-copy";
 
 function resolveGovernanceQueueReviewLabel(systemName: string, runId: string): string {
@@ -73,7 +75,7 @@ export function riskRegisterRows(entries: ArchitectureRiskRegisterEntry[]): Gove
     const recommended =
       entry.latestDisposition !== null && entry.latestDisposition !== undefined
         ? `Latest disposition: ${entry.latestDisposition}. Owner: ${formatRiskRegisterQueueOwner(entry.ownerUserId)}.`
-        : "Open evidence trace to record disposition or a time-bounded waiver.";
+        : GOVERNANCE_QUEUE_RECOMMENDED_ACTION_NOT_STORED;
     const runLabel = resolveGovernanceQueueReviewLabel(systemName, runId);
     const resolvedTitle = title.length > 0 ? title : GOVERNANCE_QUEUE_FINDING_TITLE_NOT_STORED;
     const resolvedSeverity = severity.length > 0 ? severity : GOVERNANCE_QUEUE_SEVERITY_NOT_STORED;
@@ -85,7 +87,7 @@ export function riskRegisterRows(entries: ArchitectureRiskRegisterEntry[]): Gove
       findingId,
       title: resolvedTitle,
       severity: resolvedSeverity,
-      category,
+      category: category.length > 0 ? category : GOVERNANCE_QUEUE_CATEGORY_NOT_STORED,
       status: resolveRiskRegisterQueueStatus(statusLabel, entry.isStale),
       recommended,
       recordKind: "finding",
@@ -124,8 +126,8 @@ export function decisionRegisterRows(entries: ArchitectureDecisionRegisterEntry[
       rationale.length > 0
         ? rationale
         : selectedOption.length > 0
-          ? `Selected: ${selectedOption}`
-          : "Open the finalized review record for decision context and supporting findings.";
+          ? `${GOVERNANCE_QUEUE_RATIONALE_NOT_STORED} Selected option: ${selectedOption}.`
+          : GOVERNANCE_QUEUE_RATIONALE_NOT_STORED;
 
     return {
       runId,
@@ -171,8 +173,8 @@ export function traceRowsForRun(run: RunSummary, traces: FindingTraceConfidenceD
         status: GOVERNANCE_QUEUE_FINDING_STATUS_NOT_STORED,
         recommended:
           ruleHint.length > 0
-            ? `Review finding tied to rule ${ruleHint}.`
-            : "Open the finding to review rationale, evidence, and recommended next steps.",
+            ? `${GOVERNANCE_QUEUE_RECOMMENDED_ACTION_NOT_STORED} Rule id: ${ruleHint}.`
+            : GOVERNANCE_QUEUE_RECOMMENDED_ACTION_NOT_STORED,
         recordKind: "finding",
         traceConfidenceLevel: normalizeFindingConfidenceLevel(t.confidenceLevel),
         evidenceRefCount:
