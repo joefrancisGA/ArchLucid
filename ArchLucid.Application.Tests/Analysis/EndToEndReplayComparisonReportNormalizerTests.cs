@@ -1,5 +1,7 @@
 using ArchLucid.Application.Analysis;
+using ArchLucid.Application.Diffs;
 using ArchLucid.Application.Exports;
+using ArchLucid.Contracts.Common;
 
 using FluentAssertions;
 
@@ -233,5 +235,40 @@ public sealed class EndToEndReplayComparisonReportNormalizerTests
         EndToEndReplayComparisonReportNormalizer.NormalizePersistedPayload(report);
 
         report.RunDiff.ChangedFields.Should().Equal(["Status"]);
+    }
+
+    [Fact]
+    public void CompareQuality_EndToEndReplayComparisonReportNormalizer_removes_whitespace_only_agent_result_diff_lists()
+    {
+        Guid rightRunGuid = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+        EndToEndReplayComparisonReport report = new()
+        {
+            LeftRunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            RightRunId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            AgentResultDiff = new AgentResultDiffResult
+            {
+                LeftRunId = "   ",
+                RightRunId = $"  {rightRunGuid:D}  ",
+                Warnings = ["  ", "  partial agent coverage  "],
+                AgentDeltas =
+                [
+                    new AgentResultDelta
+                    {
+                        AgentType = AgentType.Cost,
+                        AddedClaims = ["   ", "  claim-a  "],
+                        RemovedWarnings = ["\t"],
+                    },
+                ],
+            },
+        };
+
+        EndToEndReplayComparisonReportNormalizer.NormalizePersistedPayload(report);
+
+        report.AgentResultDiff!.LeftRunId.Should().BeEmpty();
+        report.AgentResultDiff.RightRunId.Should().Be(rightRunGuid.ToString("N"));
+        report.AgentResultDiff.Warnings.Should().Equal(["partial agent coverage"]);
+        AgentResultDelta delta = report.AgentResultDiff.AgentDeltas[0];
+        delta.AddedClaims.Should().Equal(["claim-a"]);
+        delta.RemovedWarnings.Should().BeEmpty();
     }
 }

@@ -18,6 +18,8 @@ internal static class EndToEndReplayComparisonReportNormalizer
         ComparisonPersistedStringListNormalizer.NormalizeInPlace(report.InterpretationNotes);
         ComparisonPersistedStringListNormalizer.NormalizeInPlace(report.RunDiff.ChangedFields);
 
+        AgentResultDiffNormalizer.NormalizeInPlace(report.AgentResultDiff);
+
         foreach (ExportRecordDiffResult diff in report.ExportDiffs)
             ExportRecordDiffResultNormalizer.NormalizeDisplayAnchors(diff);
 
