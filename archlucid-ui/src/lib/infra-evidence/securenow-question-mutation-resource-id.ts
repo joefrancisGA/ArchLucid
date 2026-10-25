@@ -20,6 +20,25 @@ export function secureNowQuestionHasPackStyleDispositionScope(
   return normalized === "subscription" || normalized === "resourcegroup";
 }
 
+function secureNowQuestionIsPolicyPackDispositionRow(
+  question: Pick<SecureNowQuestion, "source" | "scopeKind">,
+): boolean {
+  if (secureNowQuestionHasPackStyleDispositionScope(question.scopeKind)) {
+    return true;
+  }
+
+  return question.source?.trim() === "PolicyPack";
+}
+
+/** Mirrors `SecureNowPackQuestionScopeKindResolver.ResolveFromPrompt` on the API. */
+export function secureNowQuestionPackScopeKindFromPrompt(questionText: string): "Subscription" | "ResourceGroup" {
+  if (questionText.toLowerCase().includes("resource group")) {
+    return "ResourceGroup";
+  }
+
+  return "Subscription";
+}
+
 /**
  * Resource id sent on disposition mutations. Pack elicitation rows may list a null resource id while the API accepts an empty string.
  */
@@ -30,7 +49,11 @@ export function secureNowQuestionDispositionMutationResourceId(
     return question.resourceId;
   }
 
-  return secureNowQuestionHasPackStyleDispositionScope(question.scopeKind) ? "" : null;
+  if (secureNowQuestionIsPolicyPackDispositionRow(question)) {
+    return "";
+  }
+
+  return null;
 }
 
 /**
@@ -64,7 +87,7 @@ export function secureNowQuestionDispositionMutationSource(
  * Scope sent on disposition mutations when list JSON omitted `scopeKind` but the row is still a pack elicitation question.
  */
 export function secureNowQuestionDispositionMutationScopeKind(
-  question: Pick<SecureNowQuestion, "source" | "scopeKind" | "questionKey">,
+  question: Pick<SecureNowQuestion, "source" | "scopeKind" | "questionKey" | "questionText">,
 ): string | null {
   const trimmed = question.scopeKind?.trim();
   if (trimmed && trimmed.length > 0) {
@@ -73,7 +96,7 @@ export function secureNowQuestionDispositionMutationScopeKind(
 
   const mutationSource = secureNowQuestionDispositionMutationSource(question);
   if (mutationSource === "PolicyPack") {
-    return null;
+    return secureNowQuestionPackScopeKindFromPrompt(question.questionText);
   }
 
   if (mutationSource === "InventoryEvidence" || mutationSource === "InferredConnection") {

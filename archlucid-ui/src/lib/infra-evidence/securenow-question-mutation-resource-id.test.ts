@@ -6,6 +6,7 @@ import {
   secureNowQuestionDispositionMutationScopeKind,
   secureNowQuestionDispositionMutationSource,
   secureNowQuestionHasPackStyleDispositionScope,
+  secureNowQuestionPackScopeKindFromPrompt,
 } from "@/lib/infra-evidence/securenow-question-mutation-resource-id";
 
 const baseQuestion: SecureNowQuestion = {
@@ -99,7 +100,33 @@ describe("secureNowQuestionDispositionMutationScopeKind", () => {
         source: null,
         scopeKind: "Subscription",
         questionKey: "subscription-ownership@v1",
+        questionText: "Who owns this subscription?",
       }),
     ).toBe("Subscription");
+  });
+
+  it("infers resource group scope from prompt when pack source omits scopeKind", () => {
+    expect(secureNowQuestionPackScopeKindFromPrompt("Which resource group owns this workload?")).toBe(
+      "ResourceGroup",
+    );
+    expect(
+      secureNowQuestionDispositionMutationScopeKind({
+        source: "PolicyPack",
+        scopeKind: null,
+        questionKey: "rg-scope@v1",
+        questionText: "Which resource group owns this workload?",
+      }),
+    ).toBe("ResourceGroup");
+  });
+
+  it("returns empty resource id for policy pack rows when scopeKind is omitted", () => {
+    expect(
+      secureNowQuestionDispositionMutationResourceId({
+        ...baseQuestion,
+        resourceId: null,
+        source: "PolicyPack",
+        scopeKind: null,
+      }),
+    ).toBe("");
   });
 });

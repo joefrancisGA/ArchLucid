@@ -604,6 +604,39 @@ describe("SecureNowQuestionQueue", () => {
     });
   });
 
+  it("answers a resource-group pack question when scopeKind is null", async () => {
+    mocks.listQuestions.mockResolvedValue([
+      {
+        ...question,
+        resourceId: null,
+        scopeKind: null,
+        source: "PolicyPack",
+        questionKey: "rg-scope@v1",
+        questionText: "Which resource group owns this workload?",
+        answerCodes: ["Register", "Keep"],
+      },
+    ]);
+
+    render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
+    fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
+    fireEvent.click(screen.getByRole("button", { name: "Register" }));
+    fireEvent.click(screen.getByRole("button", { name: "Save answer" }));
+
+    await waitFor(() => {
+      expect(mocks.answerQuestion).toHaveBeenCalledWith("snapshot-1", {
+        subscriptionId: "subscription-1",
+        resourceId: "",
+        questionKey: "rg-scope@v1",
+        source: "PolicyPack",
+        scopeKind: "ResourceGroup",
+        answerCode: "Register",
+        answerText: "Register",
+        reason: "Answered in the SecureNow subscription question queue.",
+        evidenceFingerprint: "fingerprint",
+      });
+    });
+  });
+
   it("answers a subscription-scope pack question when source is null", async () => {
     mocks.listQuestions.mockResolvedValue([
       {
