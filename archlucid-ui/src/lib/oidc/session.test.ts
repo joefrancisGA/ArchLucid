@@ -868,6 +868,12 @@ describe("consumePkceState", () => {
 
     expect(consumePkceState("primary-state")).toBeNull();
   });
+
+  it("rejects PKCE consume when tampered session nonce contains interior form-feed control characters", () => {
+    storePkceState("primary-state", "primary-verifier", "nonce\u000Cvalue", "primary");
+
+    expect(consumePkceState("primary-state")).toBeNull();
+  });
 });
 
 describe("clearOidcSession", () => {

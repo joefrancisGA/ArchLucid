@@ -3,6 +3,11 @@ import {
   stripOAuthInvisibleFormatChars,
 } from "@/lib/oidc/oauth-callback-messages";
 
+/** Collapses accidental control/glue characters in id_token nonce claims before PKCE equality checks. */
+function normalizeOidcNonceClaim(value: string): string {
+  return normalizeOidcDisplayString(stripOAuthInvisibleFormatChars(value.trim()).trim());
+}
+
 /**
  * Decode JWT payload for display only (no signature verification — server validates on API calls).
  */
@@ -46,7 +51,7 @@ export function readNonceFromPayload(payload: Record<string, unknown> | null): s
     return null;
   }
 
-  const normalized = stripOAuthInvisibleFormatChars(nonce.trim()).trim();
+  const normalized = normalizeOidcNonceClaim(nonce);
 
   if (normalized.length === 0) {
     return null;

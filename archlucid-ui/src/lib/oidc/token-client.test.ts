@@ -233,6 +233,23 @@ describe("refreshAccessToken", () => {
     ).rejects.toThrow(/missing access_token/i);
   });
 
+  it("throws when a successful token response body is the JSON number 2", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      text: async () => JSON.stringify(2),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      refreshAccessToken({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        refreshToken: "rt",
+      }),
+    ).rejects.toThrow(/missing access_token/i);
+  });
+
   it("throws when a successful token response body is the JSON literal false", async () => {
     const fetchMock = vi.fn(async () => ({
       ok: true,
