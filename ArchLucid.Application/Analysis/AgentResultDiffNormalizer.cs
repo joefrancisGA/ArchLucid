@@ -65,6 +65,9 @@ internal static class AgentResultDiffNormalizer
 
     private static void NormalizeDeltaInPlace(AgentResultDelta delta)
     {
+        delta.LeftConfidence = NormalizeOptionalConfidence(delta.LeftConfidence);
+        delta.RightConfidence = NormalizeOptionalConfidence(delta.RightConfidence);
+
         ComparisonPersistedStringListNormalizer.NormalizeInPlace(delta.AddedClaims);
         ComparisonPersistedStringListNormalizer.NormalizeInPlace(delta.RemovedClaims);
         ComparisonPersistedStringListNormalizer.NormalizeInPlace(delta.AddedEvidenceRefs);
@@ -79,4 +82,16 @@ internal static class AgentResultDiffNormalizer
 
     private static string NormalizeRunIdAnchor(string runId) =>
         string.IsNullOrWhiteSpace(runId) ? string.Empty : AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(runId);
+
+    private static double? NormalizeOptionalConfidence(double? confidence)
+    {
+        if (!confidence.HasValue)
+            return null;
+
+        double value = confidence.Value;
+        if (double.IsNaN(value) || double.IsInfinity(value) || value < 0d || value > 1d)
+            return null;
+
+        return value;
+    }
 }

@@ -576,6 +576,53 @@ public sealed class EndToEndReplayComparisonReportNormalizerTests
     }
 
     [Fact]
+    public void CompareQuality_EndToEndReplayComparisonReportNormalizer_nulls_invalid_agent_result_confidence_values()
+    {
+        EndToEndReplayComparisonReport report = new()
+        {
+            LeftRunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            RightRunId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            AgentResultDiff = new AgentResultDiffResult
+            {
+                AgentDeltas =
+                [
+                    new AgentResultDelta
+                    {
+                        AgentType = AgentType.Cost,
+                        LeftConfidence = double.NaN,
+                        RightConfidence = 1.5,
+                        AddedClaims = ["spend drift"],
+                    },
+                    new AgentResultDelta
+                    {
+                        AgentType = AgentType.Topology,
+                        LeftConfidence = double.NegativeInfinity,
+                        RightConfidence = -0.01,
+                    },
+                    new AgentResultDelta
+                    {
+                        AgentType = AgentType.Compliance,
+                        LeftConfidence = 0.42,
+                        RightConfidence = 0.88,
+                    },
+                ],
+            },
+        };
+
+        EndToEndReplayComparisonReportNormalizer.NormalizePersistedPayload(report);
+
+        report.AgentResultDiff!.AgentDeltas.Should().HaveCount(2);
+        AgentResultDelta costDelta = report.AgentResultDiff.AgentDeltas.Single(d => d.AgentType == AgentType.Cost);
+        costDelta.LeftConfidence.Should().BeNull();
+        costDelta.RightConfidence.Should().BeNull();
+        costDelta.AddedClaims.Should().Equal(["spend drift"]);
+
+        AgentResultDelta complianceDelta = report.AgentResultDiff.AgentDeltas.Single(d => d.AgentType == AgentType.Compliance);
+        complianceDelta.LeftConfidence.Should().Be(0.42);
+        complianceDelta.RightConfidence.Should().Be(0.88);
+    }
+
+    [Fact]
     public void CompareQuality_EndToEndReplayComparisonReportNormalizer_dedupes_duplicate_agent_result_deltas_by_agent_type()
     {
         EndToEndReplayComparisonReport report = new()
