@@ -13,7 +13,6 @@ import {
 } from "@/lib/findings/finding-source-evidence-links";
 import { graphTrailHrefWithOptionalNode } from "@/lib/graph-finding-deep-links";
 import { policyPackBuyerLabel } from "@/lib/policy/policy-pack-buyer-label";
-import { inferPolicyPackDisplayNameFromComplianceRuleKey } from "@/lib/policy/policy-pack-rule-key-prefix-catalog";
 import { policyPacksEditHref, policyPacksRuleHref } from "@/lib/policy/policy-packs-deep-link";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 import type { FindingInspectEvidence, FindingInspectPayload } from "@/types/finding-inspect";
@@ -65,7 +64,7 @@ export function findingInspectEvidenceCitationLabel(row: FindingInspectEvidence)
   const artifact = row.artifactId?.trim() ?? "";
 
   if (artifact.length > 0) {
-    return artifact.replace(/-/g, " ");
+    return `Evidence artifact id ${artifact}. A citation title was not stored.`;
   }
 
   return "Evidence excerpt was not stored.";
@@ -221,17 +220,7 @@ export function buildPolicyTraceabilityLinksFromRuleId(
     href: policyPacksRuleHref(normalizedRuleId),
   };
 
-  const packName = inferPolicyPackDisplayNameFromComplianceRuleKey(normalizedRuleId);
-  const pack =
-    packName !== null
-      ? {
-          packId: normalizedRuleId,
-          packName,
-          href: policyPacksRuleHref(normalizedRuleId),
-        }
-      : null;
-
-  return { pack, policy };
+  return { pack: null, policy };
 }
 
 export function buildFindingPolicyEvidenceCitationsFromQuickDecision(
