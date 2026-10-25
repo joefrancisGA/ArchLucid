@@ -24,6 +24,7 @@ const ASK_ANSWER_NOT_STORED = "Answer was not stored";
 const ASK_GROUNDING_SOURCES_NOT_STORED = "Sources in this review were not stored on this answer.";
 const ASK_ANSWER_STORED_EMPTY = "Answer was stored empty.";
 const ASK_ANSWER_LEAD_NOT_STORED = "Answer lead was not stored.";
+const ASK_ANSWER_PREAMBLE_NOT_STORED = "Answer preamble was not stored.";
 const ASK_GROUNDING_SOURCE_LABEL_STORED_EMPTY = "Source label was stored empty.";
 
 function renderAskSectionBody(
@@ -265,9 +266,17 @@ export function AskAssistantMessageBody(props: {
 
     return (
       <div className="space-y-4">
+<<<<<<< HEAD
         {structured.preamble.length > 0 ? (
           <p className={bodyClass}>{renderTextWithUuidReviewLinks(structured.preamble, buyerPolishedLinks, citedReviewIds)}</p>
         ) : null}
+=======
+        {structured.preamble.trim().length > 0 ? (
+          <p className={bodyClass}>{renderTextWithUuidReviewLinks(structured.preamble, buyerPolishedLinks, reviewIdInScope)}</p>
+        ) : (
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{ASK_ANSWER_PREAMBLE_NOT_STORED}</p>
+        )}
+>>>>>>> origin/master
         {structured.sections.map((section, index) => (
           <section key={`${section.key}-${index}`} aria-label={section.title} className="border-t border-neutral-100 pt-3 dark:border-neutral-800">
             <h4 className={cn("m-0 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>
