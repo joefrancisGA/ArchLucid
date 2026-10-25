@@ -4,6 +4,17 @@ import { deriveOperatorHomeTenantCountingSnapshot } from "@/lib/operator/operato
 import type { RunSummary } from "@/types/authority";
 
 describe("deriveOperatorHomeTenantCountingSnapshot", () => {
+  it("keeps workspace totalCount when the overview page is empty but pagination metadata is present", () => {
+    const snapshot = deriveOperatorHomeTenantCountingSnapshot({
+      displayItems: [],
+      previewItems: [],
+      runsDashboardTotalCount: 8,
+    });
+
+    expect(snapshot.metrics.reviewPackagesTotal).toBe(8);
+    expect(snapshot.metrics.hasReviews).toBe(true);
+  });
+
   it("does not apply workspace totalCount when only demo-seeded overview rows are on the page (TB-1039)", () => {
     const items: RunSummary[] = [
       {

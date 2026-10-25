@@ -45,6 +45,21 @@ describe("resolveOperatorHomeLiveRunsSnapshotTotalCount", () => {
       resolveOperatorHomeLiveRunsSnapshotTotalCount([buildRun("live-a"), buildRun("live-b")]),
     ).toBe(2);
   });
+
+  it("returns zero for demo-only items even when an explicit workspace total is supplied", () => {
+    expect(
+      resolveOperatorHomeLiveRunsSnapshotTotalCount(
+        [
+          {
+            ...buildRun("demo-seed"),
+            demoSeededOverviewInject: true,
+            hasGoldenManifest: true,
+          },
+        ],
+        5,
+      ),
+    ).toBe(0);
+  });
 });
 
 describe("resolveLiveRunsDashboardModel", () => {

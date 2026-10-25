@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   countNonArchivedOverviewRuns,
   resolveOperatorHomeReviewTotalCount,
+  resolveOperatorHomeTenantScopedReviewTotalCount,
 } from "@/lib/operator/operator-home-review-total-resolution";
 import type { RunSummary } from "@/types/authority";
 
@@ -29,6 +30,28 @@ describe("resolveOperatorHomeReviewTotalCount", () => {
 
   it("uplifts positive undercounts using visible active rows only", () => {
     expect(resolveOperatorHomeReviewTotalCount(1, 0, 2)).toBe(2);
+  });
+});
+
+describe("resolveOperatorHomeTenantScopedReviewTotalCount", () => {
+  it("returns zero for demo-only overview rows even when workspace totalCount is populated", () => {
+    expect(
+      resolveOperatorHomeTenantScopedReviewTotalCount(
+        [
+          {
+            runId: "demo-seed",
+            projectId: "default",
+            demoSeededOverviewInject: true,
+            hasGoldenManifest: true,
+          },
+        ],
+        5,
+      ),
+    ).toBe(0);
+  });
+
+  it("keeps pagination totals when the overview page is empty", () => {
+    expect(resolveOperatorHomeTenantScopedReviewTotalCount([], 8)).toBe(8);
   });
 });
 

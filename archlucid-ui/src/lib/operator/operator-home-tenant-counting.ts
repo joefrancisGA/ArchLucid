@@ -8,7 +8,7 @@ import {
 } from "@/lib/operator/operator-home-recent-reviews-outcome";
 import {
   countNonArchivedOverviewRuns,
-  resolveOperatorHomeReviewTotalCount,
+  resolveOperatorHomeTenantScopedReviewTotalCount,
 } from "@/lib/operator/operator-home-review-total-resolution";
 import {
   deriveOperatorHomeWorkspaceMetrics,
@@ -43,25 +43,10 @@ export function deriveOperatorHomeTenantCountingSnapshot(
   const tenantItems = filterTenantOverviewRuns(input.displayItems);
   const previewTenantItems = filterTenantOverviewRuns(input.previewItems);
   const awaitingApprovalCount = normalizeOperatorHomeNonNegativeCount(input.awaitingApprovalCount);
-  const visibleActiveTenantCount = countNonArchivedOverviewRuns(tenantItems);
-  const dashboardTotal = input.runsDashboardTotalCount;
-  let reviewPackagesTotal =
-    dashboardTotal === undefined
-      ? visibleActiveTenantCount
-      : resolveOperatorHomeReviewTotalCount(
-          dashboardTotal,
-          0,
-          visibleActiveTenantCount,
-          tenantItems.length,
-        );
-  // TB-1039: injected overview samples are visible in Recent reviews but must not inherit workspace totals.
-  if (
-    tenantItems.length === 0
-    && visibleActiveTenantCount === 0
-    && input.displayItems.length > 0
-  ) {
-    reviewPackagesTotal = 0;
-  }
+  const reviewPackagesTotal = resolveOperatorHomeTenantScopedReviewTotalCount(
+    input.displayItems,
+    input.runsDashboardTotalCount,
+  );
   const metrics = deriveOperatorHomeWorkspaceMetrics(tenantItems, reviewPackagesTotal, awaitingApprovalCount);
   const previewTabCounts = deriveHomePreviewTabCounts({
     previewItems: previewTenantItems,

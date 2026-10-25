@@ -2,6 +2,7 @@ import type { OperatorHomeRunsDashboardModel } from "@/app/(operator)/_sections/
 import {
   countNonArchivedOverviewRuns,
   resolveOperatorHomeReviewTotalCount,
+  resolveOperatorHomeTenantScopedReviewTotalCount,
 } from "@/lib/operator/operator-home-review-total-resolution";
 import type { RunSummary } from "@/types/authority";
 
@@ -16,15 +17,7 @@ export function resolveOperatorHomeLiveRunsSnapshotTotalCount(
   items: readonly RunSummary[],
   totalCount?: number,
 ): number {
-  const visibleActiveCount = countNonArchivedOverviewRuns(items);
-  const reportedTotal = typeof totalCount === "number" ? totalCount : visibleActiveCount;
-
-  return resolveOperatorHomeReviewTotalCount(
-    reportedTotal,
-    0,
-    visibleActiveCount,
-    items.length,
-  );
+  return resolveOperatorHomeTenantScopedReviewTotalCount(items, totalCount);
 }
 
 /**

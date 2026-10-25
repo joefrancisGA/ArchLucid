@@ -1,3 +1,4 @@
+import { filterTenantOverviewRuns } from "@/lib/operator/operator-home-recent-reviews-outcome";
 import type { RunSummary } from "@/types/authority";
 
 /** Non-archived rows on the current overview page — stale-total uplift must not count sealed/archived rows. */
@@ -47,4 +48,32 @@ export function resolveOperatorHomeReviewTotalCount(
   }
 
   return resolved;
+}
+
+/** Tenant-scoped home totals: TB-1039 demo-only pages must not inherit workspace pagination metadata. */
+export function resolveOperatorHomeTenantScopedReviewTotalCount(
+  overviewItems: readonly RunSummary[],
+  reportedTotalCount?: number,
+  ssrTotalCount = 0,
+): number {
+  const tenantItems = filterTenantOverviewRuns(overviewItems);
+  const visibleActiveTenantCount = countNonArchivedOverviewRuns(tenantItems);
+
+  if (
+    tenantItems.length === 0
+    && visibleActiveTenantCount === 0
+    && overviewItems.length > 0
+  ) {
+    return 0;
+  }
+
+  const reportedTotal =
+    reportedTotalCount === undefined ? visibleActiveTenantCount : reportedTotalCount;
+
+  return resolveOperatorHomeReviewTotalCount(
+    reportedTotal,
+    ssrTotalCount,
+    visibleActiveTenantCount,
+    tenantItems.length,
+  );
 }
