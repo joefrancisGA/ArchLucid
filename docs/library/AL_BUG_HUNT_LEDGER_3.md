@@ -7210,11 +7210,11 @@ ABQ-09 churn hotspot.
 - [x] (valid-no-repro) `ResourceHubClient` diagram correspondence — `explainText` whitespace-only — **cheap-disproof 2026-10-25 seed hunt:** `??` fallback does not trim; low-severity display-only; seeded below.
 - [x] (valid-no-repro) `ResourceHubClient` remediation instances — `status` whitespace-only — **cheap-disproof 2026-10-25 seed hunt:** findings rows trim status; remediation `StatusTag` does not yet; seeded below.
 
-- [ ] (candidate) `ResourceHubClient` terraform tab — `terraformGenerationMethod` whitespace-only — locus: generation method `dd`; input: blank method line with non-null capture.
-- [ ] (candidate) `ResourceHubClient` diagram correspondence — `explainText` whitespace-only — locus: correspondence body; input: empty explanation paragraph.
-- [ ] (candidate) `ResourceHubClient` remediation instances — `status` whitespace-only — locus: `StatusTag` label; input: empty status chip vs findings tab trim parity.
-- [ ] (candidate) `ResourceHubClient` findings stream items — `title` whitespace-only — locus: title cell; input: falls back to “Finding title was not stored.” only when trim empty (verify parity).
-- [ ] (candidate) `ResourceHubClient` remediation tab — `hasMore` true with empty `items` still shows factory link only — locus: caption vs `hasMore` wrapper; input: ensure no duplicate pagination affordances after caption fix.
+- [x] (proven) `ResourceHubClient` terraform tab — `terraformGenerationMethod` whitespace-only — **hit 2026-10-25 seed hunt:** see hunt above.
+- [x] (proven) `ResourceHubClient` diagram correspondence — `explainText` whitespace-only — **hit 2026-10-25 seed hunt:** see hunt above.
+- [x] (proven) `ResourceHubClient` remediation instances — `status` whitespace-only — **hit 2026-10-25 seed hunt:** see hunt above.
+- [x] (valid-no-repro) `ResourceHubClient` findings stream items — `title` whitespace-only — **cheap-disproof 2026-10-25 seed hunt:** see hunt above.
+- [x] (valid-no-repro) `ResourceHubClient` remediation tab — `hasMore` true with empty `items` still shows factory link only — **cheap-disproof 2026-10-25 seed hunt:** see hunt above.
 
 - **id:** ui-infra-resource-hub
 - **status:** open

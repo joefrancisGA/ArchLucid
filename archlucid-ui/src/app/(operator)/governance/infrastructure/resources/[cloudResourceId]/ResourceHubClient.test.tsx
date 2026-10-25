@@ -1136,6 +1136,16 @@ describe("ResourceHubClient", () => {
 
     await screen.findByTestId("infra-resource-hub-remediation-empty");
     expect(screen.queryByText("Showing 0 of 50")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("infra-resource-hub-remediation-stream-caption")).not.toBeInTheDocument();
+  });
+
+  it("shows remediation stream caption when instances are visible and more exist off-page", async () => {
+    searchParams = new URLSearchParams(`tab=remediation&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}`);
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    expect(await screen.findByTestId("infra-resource-hub-remediation-stream-caption")).toHaveTextContent(
+      "Showing 1 of 50",
+    );
   });
 
   it("does not show findings stream pagination link when the stream has no rows", async () => {

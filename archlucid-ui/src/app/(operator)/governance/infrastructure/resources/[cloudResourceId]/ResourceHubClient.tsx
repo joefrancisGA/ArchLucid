@@ -1767,15 +1767,22 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
             >
               Open remediation factory
             </Link>
-            {hub.remediationInstances.hasMore ? (
-              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
-                {formatResourceHubFindingStreamCaption(
-                  hub.remediationInstances.items.length,
-                  hub.remediationInstances.totalCount,
-                  hub.remediationInstances.hasMore,
-                )}
-              </p>
-            ) : null}
+            {(() => {
+              const remediationStreamCaption = formatResourceHubFindingStreamCaption(
+                hub.remediationInstances.items.length,
+                hub.remediationInstances.totalCount,
+                hub.remediationInstances.hasMore,
+              );
+
+              return remediationStreamCaption != null ? (
+                <p
+                  className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
+                  data-testid="infra-resource-hub-remediation-stream-caption"
+                >
+                  {remediationStreamCaption}
+                </p>
+              ) : null;
+            })()}
             {hub.remediationInstances.items.length === 0 ? (
               <EnterpriseCompactEmptyState
                 title={GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_REMEDIATION_EMPTY_TITLE}
