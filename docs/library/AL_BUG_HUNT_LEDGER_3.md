@@ -4938,7 +4938,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-operator-lib
 
-**Hunts:** 51 · **Bugs found:** 48 · **Consecutive dry hunts:** 0
+**Hunts:** 52 · **Bugs found:** 49 · **Consecutive dry hunts:** 0
+
+2026-10-25 seed hunt (hit): promoted `resolveOperatorAttentionChipCount` for attention chip `?? 0` NaN footgun; regressions `normalizes non-finite chip counts to zero for display and aria` and `ignores non-finite counts when resolving the highest attention kind`; scoped `operator-attention-chip-needs-action` vitest passed; `OperatorAttentionKindChip` uses normalized count for visible badge. Private beta: Invited operators no longer see `(NaN)` on home attention chips or misleading promoted-partition emphasis when rollup inputs carry non-finite counts.
 
 2026-10-25 seed hunt (hit): promoted `resolveOperatorBillingSeatRow` `seatsUsed ?? 0` NaN footgun; regression `normalizes non-finite seatsUsed for the billing seat row`; 9 scoped `operator-billing-subscription-resolution` vitest passed. Private beta: Invited operators no longer see `NaN of N in use` on the billing current-plan seat row when usage status JSON carries a non-finite `seatsUsed` value.
 
@@ -4970,6 +4972,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-10-08 seed hunt (seed-only): re-read continuity hydration, recent-view mapping, workspace metrics, and freshness helpers; no hunt-ready row promoted; scoped `lib/operator` tests completed with known baseline failures outside the reviewed utility behavior.
 
+- [x] (proven) `operatorAttentionChipNeedsAction` / `formatOperatorAttentionChipAriaLabel` / `resolveHighestNonZeroAttentionKind` — `countsByKind[kind] ?? 0` passes `NaN` into chip UI — **hit 2026-10-25 seed hunt:** `resolveOperatorAttentionChipCount`; regressions `normalizes non-finite chip counts to zero for display and aria` and `ignores non-finite counts when resolving the highest attention kind`.
 - [x] (proven) `resolveOperatorBillingSeatRow` — `seatsUsed ?? 0` leaves `NaN` in seat copy — **hit 2026-10-25 seed hunt:** `normalizeOperatorHomeNonNegativeCount`; regression `normalizes non-finite seatsUsed for the billing seat row`.
 - [x] (proven) `presentOperatorSessionsToFinalizedPercent` — negative finite ratios clamp to `0%` display — **hit 2026-10-25 seed hunt:** reject `r < 0` like `r > 1`; regression `rejects negative ratios instead of showing 0%`.
 - [x] (proven) `deriveOperatorHomeTenantCountingSnapshot` — `runsDashboardTotalCount ?? tenantItems.length` keeps `0` when dashboard total is stale — **hit 2026-10-25 seed hunt:** `Math.max(normalizedDashboardTotal, tenantReviewCount)`; regression `treats zero runsDashboardTotalCount as stale when tenant overview rows are loaded`.
