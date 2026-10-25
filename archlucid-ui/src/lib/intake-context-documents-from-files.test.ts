@@ -146,6 +146,7 @@ describe("buildIntakeContextDocumentsFromEvidenceFiles", () => {
       edges: [{ id: "e1", sourceId: "api", targetId: "db", label: "queries" }],
       trustBoundaryLabels: [],
       skippedUnlabeledEntityCount: 0,
+      unmatchedDataFlows: [],
       extractionMethod: "StructuredParse",
     });
     const file = new File([diagramJson], "topology.diagram.json", { type: "application/json" });
@@ -166,6 +167,7 @@ describe("buildIntakeContextDocumentsFromEvidenceFiles", () => {
       edges: [],
       trustBoundaryLabels: [],
       skippedUnlabeledEntityCount: 0,
+      unmatchedDataFlows: [],
     });
     const file = new File([diagramJson], "topology.json", { type: "application/json" });
     const documents = await buildIntakeContextDocumentsFromEvidenceFiles([file]);

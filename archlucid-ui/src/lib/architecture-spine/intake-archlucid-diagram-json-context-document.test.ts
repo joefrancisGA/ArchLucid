@@ -18,6 +18,7 @@ describe("intake-archlucid-diagram-json-context-document", () => {
       edges: [],
       trustBoundaryLabels: [],
       skippedUnlabeledEntityCount: 0,
+      unmatchedDataFlows: [],
       extractionMethod: "StructuredParse",
     });
 

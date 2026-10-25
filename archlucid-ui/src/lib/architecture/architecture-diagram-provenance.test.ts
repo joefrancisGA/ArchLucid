@@ -55,7 +55,8 @@ const model: ArchitectureDiagramModel = {
     },
   ],
   trustBoundaryLabels: [],
-      skippedUnlabeledEntityCount: 0,
+  skippedUnlabeledEntityCount: 0,
+  unmatchedDataFlows: [],
 };
 
 describe("summarizeArchitectureDiagramProvenance", () => {

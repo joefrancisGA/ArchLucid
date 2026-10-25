@@ -36,6 +36,12 @@ function readNonNegativeInt(value: unknown): number | null {
 }
 
 function readFindingTitle(record: Record<string, unknown>): string {
+  const title = typeof record.title === "string" ? record.title.trim() : "";
+
+  if (title.length > 0) {
+    return title;
+  }
+
   const message = typeof record.message === "string" ? record.message.trim() : "";
 
   if (message.length > 0) {
