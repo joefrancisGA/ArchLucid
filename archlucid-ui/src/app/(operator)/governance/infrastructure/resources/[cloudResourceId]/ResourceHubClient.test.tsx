@@ -1095,6 +1095,36 @@ describe("ResourceHubClient", () => {
     expect(await screen.findByText("Remediation status was not stored.")).toBeInTheDocument();
   });
 
+  it("shows findings stream section label omission copy when streamLabel is whitespace-only", async () => {
+    fetchCachedInfraEvidenceResourceHub.mockImplementation(async () =>
+      buildResourceHubTestMockHub({
+        operationalSecurityFindings: {
+          ...buildResourceHubTestMockHub().operationalSecurityFindings,
+          streamLabel: "   ",
+        },
+      }),
+    );
+    searchParams = new URLSearchParams(`tab=findings&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}`);
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    expect(await screen.findByText("Findings stream label was not stored.")).toBeInTheDocument();
+  });
+
+  it("shows diagram match kind omission copy when matchKind is whitespace-only", async () => {
+    fetchCachedInfraEvidenceResourceHub.mockImplementation(async () =>
+      buildResourceHubTestMockHub({
+        diagramCorrespondence: {
+          ...buildResourceHubTestMockHub().diagramCorrespondence!,
+          matchKind: "  ",
+        },
+      }),
+    );
+    searchParams = new URLSearchParams(`tab=diagram&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}`);
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    expect(await screen.findByText("Match kind was not stored.")).toBeInTheDocument();
+  });
+
   it("shows severity omission copy when the captured severity is whitespace-only", async () => {
     fetchCachedInfraEvidenceResourceHub.mockImplementation(async () =>
       buildResourceHubTestMockHub({
@@ -1117,6 +1147,30 @@ describe("ResourceHubClient", () => {
     render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
 
     expect(await screen.findByText("Severity was not stored.")).toBeInTheDocument();
+  });
+
+  it("shows finding status omission copy on architecture review rows when status is whitespace-only", async () => {
+    fetchCachedInfraEvidenceResourceHub.mockImplementation(async () =>
+      buildResourceHubTestMockHub({
+        architectureReviewFindings: {
+          ...buildResourceHubTestMockHub().architectureReviewFindings,
+          items: [
+            {
+              id: "arch-finding-whitespace-status",
+              title: "Missing subnet segmentation",
+              severity: "Medium",
+              status: "   ",
+              streamKind: "ArchitectureReview",
+              streamLabel: "Architecture review",
+            },
+          ],
+        },
+      }),
+    );
+    searchParams = new URLSearchParams(`tab=findings&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}`);
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    expect(await screen.findByText("Finding status was not stored.")).toBeInTheDocument();
   });
 
   it("shows finding title omission copy when the captured title is whitespace-only", async () => {

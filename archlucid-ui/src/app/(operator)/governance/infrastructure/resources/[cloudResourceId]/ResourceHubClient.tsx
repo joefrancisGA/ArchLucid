@@ -697,6 +697,15 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
     [hub?.diagramCorrespondence?.explainText],
   );
 
+  const diagramCorrespondenceMatchKindDisplayLabel = useMemo(
+    () =>
+      formatStoredInfraEvidenceHubField(
+        hub?.diagramCorrespondence?.matchKind,
+        "Match kind was not stored.",
+      ),
+    [hub?.diagramCorrespondence?.matchKind],
+  );
+
   const diagramCorrespondenceRemediationHref = useMemo(() => {
     if (hub?.diagramCorrespondence == null) {
       return null;
@@ -1449,7 +1458,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                       hub.diagramCorrespondence.matchKind ?? "",
                       hub.diagramCorrespondence.confidenceBand,
                     )}
-                    label={hub.diagramCorrespondence.matchKind ?? "Match kind was not stored."}
+                    label={diagramCorrespondenceMatchKindDisplayLabel}
                   />
                   <StatusTag
                     kind={resolveDiagramCorrespondenceConfidenceStatusKind(hub.diagramCorrespondence.confidenceBand)}
@@ -1585,11 +1594,17 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
           </EnterpriseTabsContent>
 
           <EnterpriseTabsContent value="findings" className="mt-4 space-y-4">
-            {[hub.operationalSecurityFindings, hub.architectureReviewFindings].map((stream) => (
+            {[hub.operationalSecurityFindings, hub.architectureReviewFindings].map((stream) => {
+              const findingsStreamSectionLabel = formatStoredInfraEvidenceHubField(
+                stream.streamLabel,
+                "Findings stream label was not stored.",
+              );
+
+              return (
               <section key={stream.streamKind} className={cnCard}>
                 <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
                   <h2 className={OPERATOR_TYPOGRAPHY.sectionTitle}>
-                    {stream.streamLabel ?? "Findings stream label was not stored."}
+                    {findingsStreamSectionLabel}
                   </h2>
                   {formatResourceHubFindingStreamCaption(stream.items.length, stream.totalCount, stream.hasMore) != null ? (
                     <Link
@@ -1618,7 +1633,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                   />
                 ) : (
                   <EnterpriseTable
-                    ariaLabel={`${stream.streamLabel ?? "Findings stream label was not stored."} findings`}
+                    ariaLabel={`${findingsStreamSectionLabel} findings`}
                   >
                     <EnterpriseTableHead>
                       <EnterpriseTableRow>
@@ -1756,7 +1771,8 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                   </EnterpriseTable>
                 )}
               </section>
-            ))}
+              );
+            })}
           </EnterpriseTabsContent>
 
           <EnterpriseTabsContent value="remediation" className="mt-4 space-y-3">
