@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 
-import { resolveOperatorHomeLiveRunsSnapshotTotalCount } from "@/lib/operator/operator-home-live-runs-dashboard";
+import {
+  resolveOperatorHomeLiveRunsSnapshotTotalCount,
+  resolveOperatorHomeRunsPanelReportedTotalCount,
+} from "@/lib/operator/operator-home-live-runs-dashboard";
 import { deriveOperatorHomeTenantCountingSnapshot } from "@/lib/operator/operator-home-tenant-counting";
 import { deriveOperatorHomeWorkspaceMetricsFromOverviewRuns } from "@/lib/operator/operator-home-workspace-metrics";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
@@ -16,6 +19,31 @@ describe("deriveOperatorHomeTenantCountingSnapshot", () => {
 
     expect(snapshot.metrics.reviewPackagesTotal).toBe(8);
     expect(snapshot.metrics.hasReviews).toBe(true);
+  });
+
+  it("matches panel-reported totals when runsDashboardTotalCount undercounts visible tenant rows", () => {
+    const items: RunSummary[] = [
+      {
+        runId: "tenant-a",
+        projectId: "default",
+        hasFindingsSnapshot: true,
+      },
+      {
+        runId: "tenant-b",
+        projectId: "default",
+        hasFindingsSnapshot: true,
+      },
+    ];
+
+    const snapshot = deriveOperatorHomeTenantCountingSnapshot({
+      displayItems: items,
+      previewItems: items,
+      runsDashboardTotalCount: 1,
+    });
+
+    expect(snapshot.metrics.reviewPackagesTotal).toBe(
+      resolveOperatorHomeRunsPanelReportedTotalCount(items, 1),
+    );
   });
 
   it("aligns preview recent totals with tenant metrics when buyer shell excludes the static showcase id", () => {

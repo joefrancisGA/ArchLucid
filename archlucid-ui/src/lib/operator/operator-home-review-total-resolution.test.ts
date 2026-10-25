@@ -20,6 +20,10 @@ describe("resolveOperatorHomeReviewTotalCount", () => {
     expect(resolveOperatorHomeReviewTotalCount(10, 5, 0, 2)).toBe(0);
   });
 
+  it("does not keep stale positive reported totals when only archived rows are on the page", () => {
+    expect(resolveOperatorHomeReviewTotalCount(8, 0, 0, 2)).toBe(0);
+  });
+
   it("keeps positive totals when the page is empty but pagination metadata is present", () => {
     expect(resolveOperatorHomeReviewTotalCount(10, 5, 0, 0)).toBe(10);
   });

@@ -167,6 +167,33 @@ describe("buildOperatorHomeRecentReviewsOutcomeParts", () => {
     });
   });
 
+  it("keeps workspace pagination total on reviews-total while preview cap stays in the recent pool", () => {
+    const metrics: OperatorHomeWorkspaceMetricsSnapshot = {
+      ...emptyMetrics,
+      reviewPackagesTotal: 42,
+      reviewPackagesActive: 1,
+      evidenceSources: 1,
+      hasReviews: true,
+    };
+
+    const parts = buildOperatorHomeRecentReviewsOutcomeParts(metrics, {
+      visibleCount: 2,
+      recentTotalCount: 2,
+    });
+
+    expect(parts.find((part) => part.key === "reviews-total")).toEqual({
+      key: "reviews-total",
+      text: "42 reviews",
+      hrefKind: "all-reviews",
+    });
+    expect(parts.find((part) => part.key === "showing")).toEqual({
+      key: "showing",
+      text: "showing 2",
+      hrefKind: "tab",
+      tabId: "all",
+    });
+  });
+
   it("renders showing-cap as plain text without a link target", () => {
     const metrics: OperatorHomeWorkspaceMetricsSnapshot = {
       ...emptyMetrics,

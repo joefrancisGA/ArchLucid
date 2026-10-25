@@ -234,6 +234,16 @@ describe("resolveLiveRunsDashboardModel", () => {
     expect(merged.totalCount).toBe(0);
   });
 
+  it("does not revive SSR pagination totals when the live snapshot clears items", () => {
+    const merged = resolveLiveRunsDashboardModel(
+      { ...ssrModel, totalCount: 12 },
+      { items: [], totalCount: 0 },
+    );
+
+    expect(merged.items).toEqual([]);
+    expect(merged.totalCount).toBe(0);
+  });
+
   it("does not uplift stale zero totalCount using archived-only snapshot rows", () => {
     const merged = resolveLiveRunsDashboardModel(ssrModel, {
       items: [
