@@ -50,6 +50,8 @@ public sealed class ExportRecordDiffService : IExportRecordDiffService
 
             result.Warnings.Add("One or both export records did not contain a persisted analysis request.");
 
+        ExportRecordDiffResultNormalizer.NormalizeDisplayAnchors(result);
+
         return result;
     }
 

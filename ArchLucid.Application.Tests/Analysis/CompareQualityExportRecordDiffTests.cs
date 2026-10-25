@@ -103,6 +103,38 @@ public sealed class CompareQualityExportRecordDiffTests
     }
 
     [Fact]
+    public void CompareQuality_export_record_diff_canonicalizes_nested_compare_run_id_in_request_diff()
+    {
+        Guid compareRunId = Guid.Parse("33333333-3333-3333-3333-333333333333");
+        ExportRecordDiffService sut = new();
+        RunExportRecord left = new()
+        {
+            ExportRecordId = "left",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = "ArchitectureAnalysis",
+            Format = "Markdown",
+            FileName = "a.md",
+            AnalysisRequestJson =
+                $$"""{"includeAgentResultCompare":true,"compareRunId":"  {{compareRunId.ToString("D")}}  "}""",
+        };
+        RunExportRecord right = new()
+        {
+            ExportRecordId = "right",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = "ArchitectureAnalysis",
+            Format = "Markdown",
+            FileName = "b.md",
+            AnalysisRequestJson =
+                $$"""{"includeAgentResultCompare":true,"compareRunId":"  {{compareRunId.ToString("D")}}  "}""",
+        };
+
+        ExportRecordDiffResult result = sut.Compare(left, right);
+
+        result.RequestDiff.LeftRequest!.CompareRunId.Should().Be(compareRunId.ToString("N"));
+        result.RequestDiff.RightRequest!.CompareRunId.Should().Be(compareRunId.ToString("N"));
+    }
+
+    [Fact]
     public void CompareQuality_export_record_diff_ignores_padding_only_notes_on_top_level_columns()
     {
         ExportRecordDiffService sut = new();
