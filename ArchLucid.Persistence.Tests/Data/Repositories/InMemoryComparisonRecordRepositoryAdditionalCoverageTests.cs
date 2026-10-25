@@ -312,6 +312,31 @@ public sealed class InMemoryComparisonRecordRepositoryAdditionalCoverageTests
     }
 
     [SkippableFact]
+    public async Task UpdateLabelAndTagsAsync_finds_legacy_row_when_stored_comparison_record_id_has_padding()
+    {
+        const string canonicalComparisonRecordId = "cmp-update-legacy-pad";
+
+        InMemoryComparisonRecordRepository sut = new();
+        FieldInfo? itemsField = typeof(InMemoryComparisonRecordRepository).GetField(
+            "_items",
+            BindingFlags.Instance | BindingFlags.NonPublic);
+        itemsField.Should().NotBeNull();
+        List<ComparisonRecord> items = (List<ComparisonRecord>)itemsField!.GetValue(sut)!;
+        items.Add(Row($"  {canonicalComparisonRecordId}  ", TimeProvider.System.UtcNowDateTime()));
+
+        bool updated = await sut.UpdateLabelAndTagsAsync(
+            canonicalComparisonRecordId,
+            "legacy-label",
+            ["tag-a"],
+            CancellationToken.None);
+
+        updated.Should().BeTrue();
+        ComparisonRecord? loaded = await sut.GetByIdAsync(canonicalComparisonRecordId, CancellationToken.None);
+        loaded!.Label.Should().Be("legacy-label");
+        loaded.Tags.Should().BeEquivalentTo("tag-a");
+    }
+
+    [SkippableFact]
     public async Task GetByRunIdAsync_matches_when_stored_left_run_id_uses_dashed_guid_and_lookup_uses_n_format()
     {
         Guid runKey = Guid.Parse("22222222-2222-2222-2222-222222222222");

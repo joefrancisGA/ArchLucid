@@ -95,20 +95,25 @@ public sealed partial class ComparisonRecordRepository
         CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(comparisonRecordId);
-        comparisonRecordId = comparisonRecordId.Trim();
+        string normalizedComparisonRecordId = ComparisonRecordIdLookup.NormalizeLookupKey(comparisonRecordId);
 
-        const string sql = """
-                           UPDATE ComparisonRecords
-                           SET Label = @Label,
-                               Tags = @Tags
-                           WHERE ComparisonRecordId = @ComparisonRecordId;
-                           """;
+        string sql = $"""
+                      UPDATE ComparisonRecords
+                      SET Label = @Label,
+                          Tags = @Tags
+                      WHERE {ComparisonRecordIdSql.TrimmedColumnExpression} = @ComparisonRecordId;
+                      """;
 
         using IDbConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
         string? tagsJson = ComparisonRecordRepositoryCore.SerializeTagsForUpdate(tags);
         int rows = await connection.ExecuteAsync(new CommandDefinition(
             sql,
-            new { ComparisonRecordId = comparisonRecordId, Label = label ?? (object)DBNull.Value, Tags = tagsJson ?? (object)DBNull.Value },
+            new
+            {
+                ComparisonRecordId = normalizedComparisonRecordId,
+                Label = label ?? (object)DBNull.Value,
+                Tags = tagsJson ?? (object)DBNull.Value
+            },
             cancellationToken: cancellationToken));
         return rows > 0;
     }
