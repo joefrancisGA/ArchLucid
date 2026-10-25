@@ -1,5 +1,5 @@
 export const ASK_REVIEW_ARTIFACT_STATUS_FINALIZED =
-  "Grounded in a finalized architecture review — citations link to committed evidence." as const;
+  "This architecture review is finalized." as const;
 
 export const ASK_REVIEW_ARTIFACT_STATUS_DRAFT =
   "Draft review context — answers are advisory until the review is finalized." as const;
@@ -58,21 +58,30 @@ export function askReviewArtifactStatusCopy(status: AskReviewArtifactStatus): st
   }
 }
 
-export function messageHasUncitedAssistantOutput(
-  content: string,
-  groundingLinkCount: number | null,
-): boolean {
+export function messageHasUncitedAssistantOutput(content: string, citationIdCount: number): boolean {
   const trimmed = content.trim();
 
   if (trimmed.length === 0) {
     return false;
   }
 
-  if (groundingLinkCount === null) {
-    return false;
+  return citationIdCount <= 0;
+}
+
+export function countAskAnswerCitationIds(input: {
+  readonly referencedFindings?: readonly string[] | null;
+  readonly referencedDecisions?: readonly string[] | null;
+  readonly referencedArtifacts?: readonly string[] | null;
+} | null): number {
+  if (input === null) {
+    return 0;
   }
 
-  return groundingLinkCount <= 0;
+  return (
+    (input.referencedFindings?.length ?? 0)
+    + (input.referencedDecisions?.length ?? 0)
+    + (input.referencedArtifacts?.length ?? 0)
+  );
 }
 
 /** Live marker under assistant answers when grounding links are omitted vs stored empty. */

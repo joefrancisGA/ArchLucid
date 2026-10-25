@@ -1,4 +1,11 @@
 import { INFRA_DIAGRAMS_DATA_FLOW_HONESTY_PREFIX } from "@/lib/infra-evidence/infra-evidence-data-flow-diagram";
+import {
+  INFRA_EVIDENCE_DIAGRAM_DATA_ARCHITECTURE_READING_LEGEND,
+  INFRA_EVIDENCE_DIAGRAM_PNG_NETWORK_PLACEMENT_NOTE,
+} from "@/lib/infra-evidence/infra-evidence-diagram-copy";
+
+const DATA_FLOW_READING_HEDGE_BOXES = "This diagram shows what may connect.";
+const DATA_FLOW_READING_HEDGE_CONNECTORS = "It is not observed traffic.";
 
 export type InfraEvidenceDiagramReadingLegendLines = {
   readonly boxes: string;
@@ -11,16 +18,21 @@ export function resolveInfraEvidenceDiagramReadingLegend(mode: string): InfraEvi
   switch (mode) {
     case "dataFlow":
       return {
-        boxes: "Boxes are resources in this data-flow view.",
-        connectors: "Connectors follow the line label. A line is not observed traffic.",
-        evidenceKind: `${INFRA_DIAGRAMS_DATA_FLOW_HONESTY_PREFIX} This view does not prove reachability or runtime use.`,
+        boxes: DATA_FLOW_READING_HEDGE_BOXES,
+        connectors: DATA_FLOW_READING_HEDGE_CONNECTORS,
+        evidenceKind: `${INFRA_DIAGRAMS_DATA_FLOW_HONESTY_PREFIX} Evidence kind is configuration, not observed traffic.`,
       };
     case "dataArchitecture":
       return {
-        boxes: "Boxes are resources in the data-architecture view.",
-        connectors:
-          "Connectors are the relationships drawn for that view. They are not observed queries.",
-        evidenceKind: "This view does not prove reachability or runtime use.",
+        boxes: INFRA_EVIDENCE_DIAGRAM_DATA_ARCHITECTURE_READING_LEGEND,
+        connectors: INFRA_EVIDENCE_DIAGRAM_DATA_ARCHITECTURE_READING_LEGEND,
+        evidenceKind: "Evidence kind is configuration.",
+      };
+    case "network":
+      return {
+        boxes: INFRA_EVIDENCE_DIAGRAM_PNG_NETWORK_PLACEMENT_NOTE,
+        connectors: INFRA_EVIDENCE_DIAGRAM_PNG_NETWORK_PLACEMENT_NOTE,
+        evidenceKind: "Evidence kind is configuration from inventory.",
       };
     case "data":
       return {

@@ -50,14 +50,46 @@ function PrivateEndpointAccessGlyph(): React.JSX.Element {
   );
 }
 
-function DiagramStrokeSample(props: { readonly style: "solid" | "dashed" | "dotted" }): React.JSX.Element {
+function DiagramStrokeSample(props: {
+  readonly style: "solid" | "declared" | "probable" | "dotted";
+}): React.JSX.Element {
+  if (props.style === "solid") {
+    return (
+      <span
+        aria-hidden="true"
+        className="inline-block w-10 shrink-0 border-t-2 border-neutral-500 dark:border-neutral-300"
+        data-testid="infra-evidence-diagram-legend-stroke-solid"
+        style={{ borderTopStyle: "solid" }}
+      />
+    );
+  }
+
+  const strokeDasharray =
+    props.style === "declared" ? "4 3" : props.style === "probable" ? "6 4" : "1 3";
+  const testId =
+    props.style === "declared"
+      ? "infra-evidence-diagram-legend-stroke-dashed"
+      : props.style === "probable"
+        ? "infra-evidence-diagram-legend-stroke-probable"
+        : "infra-evidence-diagram-legend-stroke-dotted";
+
   return (
-    <span
+    <svg
       aria-hidden="true"
-      className="inline-block w-10 shrink-0 border-t-2 border-neutral-500 dark:border-neutral-300"
-      data-testid={`infra-evidence-diagram-legend-stroke-${props.style}`}
-      style={{ borderTopStyle: props.style }}
-    />
+      className="h-2 w-10 shrink-0 text-neutral-500 dark:text-neutral-300"
+      data-testid={testId}
+      viewBox="0 0 40 4"
+    >
+      <line
+        x1="0"
+        y1="2"
+        x2="40"
+        y2="2"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeDasharray={strokeDasharray}
+      />
+    </svg>
   );
 }
 
@@ -105,13 +137,13 @@ export function InfraEvidenceDiagramLegend(props: InfraEvidenceDiagramLegendProp
               ) : null}
               {hasDeclared ? (
                 <li className="flex items-center gap-2">
-                  <DiagramStrokeSample style="dashed" />
+                  <DiagramStrokeSample style="declared" />
                   <span>{INFRA_EVIDENCE_DIAGRAM_LEGEND_DECLARED}</span>
                 </li>
               ) : null}
               {hasProbable ? (
                 <li className="flex items-center gap-2">
-                  <DiagramStrokeSample style="dashed" />
+                  <DiagramStrokeSample style="probable" />
                   <span>{probableLegendLine}</span>
                 </li>
               ) : null}
