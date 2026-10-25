@@ -93,9 +93,8 @@ public sealed partial class ComparisonsApplicationService(
         ComparisonHistorySearchCriteria criteria,
         CancellationToken ct)
     {
-        string? normalizedType = string.IsNullOrWhiteSpace(criteria.ComparisonType)
-            ? null
-            : criteria.ComparisonType.Trim();
+        string? normalizedType =
+            ComparisonRecordScopedReadNormalizer.CanonicalizeComparisonTypeSearchFilter(criteria.ComparisonType);
 
         string? normalizedLabel = string.IsNullOrWhiteSpace(criteria.Label)
             ? null

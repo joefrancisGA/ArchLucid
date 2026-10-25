@@ -46,7 +46,7 @@ public sealed partial class ComparisonsApplicationService
             return new ReplayComparisonResult
             {
                 ComparisonRecordId = normalizedComparisonRecordId,
-                ComparisonType = ComparisonTypeNormalizer.NormalizeForLookup(record.ComparisonType),
+                ComparisonType = record.ComparisonType,
                 Format = "markdown",
                 Content = record.SummaryMarkdown,
                 FileName = $"comparison_{normalizedComparisonRecordId}.md",

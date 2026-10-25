@@ -16,6 +16,24 @@ internal static class ComparisonRecordScopedReadNormalizer
             NormalizeInPlace(record);
     }
 
+    internal static string? CanonicalizeComparisonTypeSearchFilter(string? comparisonType)
+    {
+        if (string.IsNullOrWhiteSpace(comparisonType))
+            return null;
+
+        string trimmed = NormalizeRequiredStringColumn(comparisonType);
+        if (trimmed.Length == 0)
+            return null;
+
+        if (string.Equals(trimmed, ComparisonTypes.EndToEndReplay, StringComparison.OrdinalIgnoreCase))
+            return ComparisonTypes.EndToEndReplay;
+
+        if (string.Equals(trimmed, ComparisonTypes.ExportRecordDiff, StringComparison.OrdinalIgnoreCase))
+            return ComparisonTypes.ExportRecordDiff;
+
+        return trimmed;
+    }
+
     internal static void NormalizeInPlace(ComparisonRecord record)
     {
         ArgumentNullException.ThrowIfNull(record);

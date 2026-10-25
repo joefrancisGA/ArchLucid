@@ -850,6 +850,38 @@ public sealed class CompareQualityComparisonsApplicationServiceTests
     }
 
     [Fact]
+    public async Task CompareQuality_SearchAsync_finds_records_when_comparison_type_filter_has_legacy_casing()
+    {
+        InMemoryComparisonRecordRepository comparisonRecords = new();
+        await comparisonRecords.CreateAsync(
+            new ComparisonRecord
+            {
+                ComparisonRecordId = "cmp-search-type-casing",
+                ComparisonType = ComparisonTypes.EndToEndReplay,
+                LeftRunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                RightRunId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+                CreatedUtc = DateTime.UtcNow,
+            },
+            CancellationToken.None);
+
+        ComparisonsApplicationService sut = new(
+            new Mock<IRunDetailQueryService>().Object,
+            new Mock<IRunExportRecordRepository>().Object,
+            comparisonRecords,
+            new Mock<IComparisonReplayService>().Object,
+            new Mock<ICompareRunsApplicationFacade>().Object,
+            new Mock<IComparisonReplayCostEstimator>().Object,
+            new Mock<IDriftReportFormatter>().Object,
+            new DriftReportDocxExport());
+
+        ComparisonHistorySearchResult result = await sut.SearchAsync(
+            new ComparisonHistorySearchCriteria { ComparisonType = "  END-TO-END-REPLAY  ", Limit = 10 },
+            CancellationToken.None);
+
+        result.Records.Should().ContainSingle(r => r.ComparisonRecordId == "cmp-search-type-casing");
+    }
+
+    [Fact]
     public async Task CompareQuality_SearchAsync_finds_records_when_tag_filter_has_trailing_whitespace()
     {
         const string tag = "release-alpha";
