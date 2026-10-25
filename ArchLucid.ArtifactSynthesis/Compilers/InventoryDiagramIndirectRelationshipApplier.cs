@@ -109,12 +109,12 @@ internal static class InventoryDiagramIndirectRelationshipApplier
         // InventoryDiagramEvidenceCurrencyLabels.Format, not this field.
         return evidenceCurrency switch
         {
-            null => ProvenanceKind.Unclassified.ToString(),
+            null => "Unclassified",
             InventoryDiagramEvidenceCurrency.Derived => ProvenanceKind.DerivedFact.ToString(),
             InventoryDiagramEvidenceCurrency.Observed => ProvenanceKind.ObservedFact.ToString(),
             InventoryDiagramEvidenceCurrency.Configured => ProvenanceKind.DeterministicInference.ToString(),
             InventoryDiagramEvidenceCurrency.Current => ProvenanceKind.ObservedFact.ToString(),
-            _ => ProvenanceKind.Unclassified.ToString(),
+            _ => "Unclassified",
         };
     }
 

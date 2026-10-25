@@ -237,6 +237,76 @@ public sealed class AzureInventoryAdfLinkedServiceTargetResolverTests
     }
 
     [Fact]
+    public void BuildHostIndex_maps_managed_redis_azure_net_host_when_location_present()
+    {
+        const string redisArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Cache/redis/myaccount";
+
+        List<AzureExtractorExtendedResourceRow> resources =
+        [
+            new()
+            {
+                AzureResourceId = redisArmId,
+                ResourceType = "Microsoft.Cache/redis",
+                Name = "myaccount",
+                Location = "eastus",
+            },
+        ];
+
+        Dictionary<string, string> hostIndex =
+            AzureInventoryAdfLinkedServiceTargetResolver.BuildHostIndex(resources);
+
+        hostIndex.Should().ContainKey("myaccount.redis.cache.windows.net");
+        hostIndex.Should().ContainKey("myaccount.eastus.redis.azure.net");
+        hostIndex.Should().ContainKey("myaccount.privatelink.eastus.redis.azure.net");
+        hostIndex["myaccount.eastus.redis.azure.net"].Should().Be(ArmResourceIdNormalizer.Normalize(redisArmId));
+    }
+
+    [Fact]
+    public void TryResolveTargetArmId_infers_redis_linked_service_from_managed_redis_hostname()
+    {
+        const string factoryArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.DataFactory/factories/adf1";
+        const string redisArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Cache/redis/myaccount";
+
+        List<AzureExtractorExtendedResourceRow> resources =
+        [
+            new()
+            {
+                AzureResourceId = redisArmId,
+                ResourceType = "Microsoft.Cache/redis",
+                Name = "myaccount",
+                Location = "eastus",
+            },
+        ];
+
+        Dictionary<string, string> visibleArmIds =
+            AzureInventoryAdfLinkedServiceTargetResolver.BuildVisibleArmIdSet(resources);
+        Dictionary<string, string> hostIndex =
+            AzureInventoryAdfLinkedServiceTargetResolver.BuildHostIndex(resources);
+        AzureInventoryAdfLinkedServiceRow row = new()
+        {
+            FactoryResourceId = factoryArmId,
+            LinkedServiceName = "RedisLinkedService",
+            LinkedServiceType = "AzureRedisCache",
+            TargetHost = "myaccount.eastus.redis.azure.net",
+        };
+
+        bool resolved = AzureInventoryAdfLinkedServiceTargetResolver.TryResolveTargetArmId(
+            row,
+            visibleArmIds,
+            hostIndex,
+            out string? targetArmId,
+            out ProvenanceKind provenanceKind,
+            out _);
+
+        resolved.Should().BeTrue();
+        targetArmId.Should().Be(ArmResourceIdNormalizer.Normalize(redisArmId));
+        provenanceKind.Should().Be(ProvenanceKind.DeterministicInference);
+    }
+
+    [Fact]
     public void TryResolveTargetArmId_infers_cosmos_linked_service_from_unique_host()
     {
         const string factoryArmId =
