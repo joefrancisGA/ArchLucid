@@ -43,12 +43,11 @@ export function deriveOperatorHomeTenantCountingSnapshot(
   const tenantItems = filterTenantOverviewRuns(input.displayItems);
   const previewTenantItems = filterTenantOverviewRuns(input.previewItems);
   const awaitingApprovalCount = normalizeOperatorHomeNonNegativeCount(input.awaitingApprovalCount);
-  const tenantReviewCount = tenantItems.length;
   const visibleActiveTenantCount = countNonArchivedOverviewRuns(tenantItems);
   const dashboardTotal = input.runsDashboardTotalCount;
   const reviewPackagesTotal =
     dashboardTotal === undefined
-      ? tenantReviewCount
+      ? visibleActiveTenantCount
       : resolveOperatorHomeReviewTotalCount(dashboardTotal, 0, visibleActiveTenantCount);
   const metrics = deriveOperatorHomeWorkspaceMetrics(tenantItems, reviewPackagesTotal, awaitingApprovalCount);
   const previewTabCounts = deriveHomePreviewTabCounts({

@@ -4938,7 +4938,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-operator-lib
 
-**Hunts:** 95 · **Bugs found:** 90 · **Consecutive dry hunts:** 0
+**Hunts:** 96 · **Bugs found:** 91 · **Consecutive dry hunts:** 0
+
+2026-10-25 seed hunt (hit): `deriveOperatorHomeTenantCountingSnapshot` defaults omitted `runsDashboardTotalCount` to non-archived tenant rows only (not raw `tenantItems.length`); regression `does not treat archived-only tenant rows as reviews when runsDashboardTotalCount is omitted`; cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; 75 scoped tenant-counting, review-total-resolution, live-runs-dashboard, workspace-metrics, workspace-phase, and recent-reviews-outcome vitest passed. Private beta: Invited operators no longer see active-review KPIs and portfolio outcome copy when the home page only shows archived overview rows and the runs dashboard total has not hydrated yet.
 
 2026-10-25 seed hunt (hit): `deriveOperatorHomeTenantCountingSnapshot` uses shared `resolveOperatorHomeReviewTotalCount` so stale-zero `runsDashboardTotalCount` no longer uplifts from archived-only tenant rows; regression `does not uplift stale zero runsDashboardTotalCount using archived-only tenant rows`; scoped tenant-counting + review-total-resolution vitest passed. Private beta: Invited operators no longer see mismatched home KPI totals between the merged runs dashboard and the workspace metrics strip when the visible page is archived-only and the API still reports zero reviews.
 
@@ -5250,11 +5252,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `deriveOperatorHomeWorkspacePhaseSignalsFromOverviewRuns` — archived-only rows do not set `hasOverviewReviewRows` when total is zero — **cheap-disproof 2026-10-25 seed hunt:** regression `does not mark overview occupied when only archived rows are visible and totalCount is zero`.
 - [x] (valid-no-repro) `countNonArchivedOverviewRuns` — treats `isArchived` undefined as active — **cheap-disproof 2026-10-25 seed hunt:** regression `counts runs without isArchived as active overview rows`.
 
-- [ ] (candidate) `deriveOperatorHomeTenantCountingSnapshot` — undefined `runsDashboardTotalCount` still counts archived tenant rows on the page — locus: `tenantReviewCount` default; input: archived-only display without dashboard total.
-- [ ] (candidate) `resolveOperatorHomeReviewTotalCount` — SSR floor applies on stale-zero uplift when visible active rows are present — locus: `upliftedTotal`; input: `uplifts stale zero totals from visible active rows and SSR floor`.
-- [ ] (candidate) `deriveOperatorHomeWorkspaceMetrics` — positive undercount with mixed archived and active rows — locus: shared visible count; input: mixed-row fixture with `totalCount: 1`.
-- [ ] (candidate) `formatOperatorHomeRecentReviewsOutcome` — archived-only tenant metrics still render portfolio copy when dashboard total undefined — locus: tenant counting default branch; input: archived-only tenant snapshot.
-- [ ] (candidate) `filterTenantOverviewRuns` — archived rows remain in preview tab pools — locus: tenant filter; input: existing preview tab regressions.
+- [x] (proven) `deriveOperatorHomeTenantCountingSnapshot` — undefined `runsDashboardTotalCount` still counts archived tenant rows on the page — **hit 2026-10-25 seed hunt:** omitted dashboard total uses `visibleActiveTenantCount`; regression `does not treat archived-only tenant rows as reviews when runsDashboardTotalCount is omitted`.
+- [x] (valid-no-repro) `resolveOperatorHomeReviewTotalCount` — SSR floor applies on stale-zero uplift when visible active rows are present — **cheap-disproof 2026-10-25 seed hunt:** regression `uplifts stale zero totals from visible active rows and SSR floor`.
+- [x] (valid-no-repro) `deriveOperatorHomeWorkspaceMetrics` — positive undercount with mixed archived and active rows — **cheap-disproof 2026-10-25 seed hunt:** regression `uplifts positive undercounts using visible active rows only` on shared resolver.
+- [x] (valid-no-repro) `formatOperatorHomeRecentReviewsOutcome` — archived-only tenant metrics still render portfolio copy when dashboard total undefined — **cheap-disproof 2026-10-25 seed hunt:** tenant counting fix drives `hasReviews: false`; outcome regressions already normalize metrics snapshots.
+- [x] (valid-no-repro) `filterTenantOverviewRuns` — archived rows remain in preview tab pools — **cheap-disproof 2026-10-25 seed hunt:** archived filtering is metrics/total contract only; preview tab pools intentionally retain archived tenant rows for tab counts.
+
+- [ ] (candidate) `deriveOperatorHomeTenantCountingSnapshot` — omitted `runsDashboardTotalCount` undercounts when active rows exist only on a later dashboard page — locus: `visibleActiveTenantCount` default; input: first paint with empty display items but SSR hint of totals.
+- [ ] (candidate) `resolveOperatorHomeReviewTotalCount` — negative `ssrTotalCount` skews uplift floor when reported total is finite — locus: `normalizedSsrTotal`; input: negative SSR floor with visible active rows.
+- [ ] (candidate) `deriveOperatorHomeWorkspaceMetrics` — `hasReviews` true when `reviewPackagesTotal` uplifted but every visible row is archived — locus: `countNonArchivedOverviewRuns` in `Math.max`; input: impossible mixed state after tenant counting wiring.
+- [ ] (candidate) `deriveHomePreviewTabCounts` — awaiting-approval tab uses queue ids while metrics use normalized count — locus: preview vs metrics inputs; input: `awaitingApprovalCount` set without `awaitingApprovalRunIds`.
+- [ ] (candidate) `mergeLiveRunsDashboardSnapshot` — live merge drops archived rows but keeps stale positive total — locus: merge + `resolveLiveRunsDashboardTotalCount`; input: archived-only snapshot with positive `totalCount`.
 
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regression `drops favorite rows when runId is whitespace-only`; 41 scoped continuity, scope-storage, and attention-preview vitest tests passed.
 
