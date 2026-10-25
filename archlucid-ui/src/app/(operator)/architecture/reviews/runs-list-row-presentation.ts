@@ -4,7 +4,10 @@ import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { resolveProductionEvalChromeFromStorage } from "@/lib/resolve-production-eval-chrome-from-storage";
 import { formatOperatorProjectIdDisplay } from "@/lib/operator/operator-project-display";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator/operator-static-demo";
+import { parseIsoUtcMs } from "@/lib/format-iso-utc";
 import { formatRelativeTime } from "@/lib/relative-time";
+
+export const RUN_CREATED_TIME_NOT_STORED_COPY = "Created time was not stored." as const;
 import { SHOWCASE_STATIC_DEMO_RUN_ID, SHOWCASE_STATIC_DEMO_SPINE_COUNTS } from "@/lib/showcase-static-demo";
 import type { RunSummary } from "@/types/authority";
 
@@ -176,17 +179,27 @@ export function inspectorTitle(run: RunSummary | null): string {
 }
 
 export function displayRelativeCreated(run: RunSummary): string {
+  const createdUtc = run.createdUtc?.trim() ?? "";
+
+  if (createdUtc.length === 0) {
+    return RUN_CREATED_TIME_NOT_STORED_COPY;
+  }
+
+  if (Number.isNaN(parseIsoUtcMs(createdUtc))) {
+    return RUN_CREATED_TIME_NOT_STORED_COPY;
+  }
+
   if (
     isNextPublicDemoMode() ||
     isStaticDemoPayloadFallbackEnabled() ||
     canonicalizeDemoRunId(run.runId) === SHOWCASE_STATIC_DEMO_RUN_ID
   ) {
-    return new Date(run.createdUtc).toLocaleDateString(undefined, {
+    return new Date(createdUtc).toLocaleDateString(undefined, {
       year: "numeric",
       month: "short",
       day: "numeric",
     });
   }
 
-  return formatRelativeTime(run.createdUtc);
+  return formatRelativeTime(createdUtc);
 }

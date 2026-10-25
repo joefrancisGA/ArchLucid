@@ -83,3 +83,10 @@ export const DECISION_REGISTER_EMPTY_ACTION_GOVERNANCE = "Open approval";
 export const DECISION_REGISTER_OPEN_DECISION_LABEL = "Open decision";
 
 export const DECISION_REGISTER_GOVERNANCE_STATUS_SIGNED = "Signed";
+
+export const DECISION_REGISTER_CONFIDENCE_NOT_STORED_LABEL = "Decision confidence was not stored.";
+
+export const DECISION_REGISTER_SUPPORTING_FINDINGS_NOT_STORED_LABEL =
+  "Supporting finding count was not stored.";
+
+export const DECISION_REGISTER_LAST_RECORDED_NOT_STORED_LABEL = "Last recorded decision was not stored.";

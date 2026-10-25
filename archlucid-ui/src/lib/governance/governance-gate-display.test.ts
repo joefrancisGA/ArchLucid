@@ -61,9 +61,9 @@ describe("buyerGovernanceApprovalDisplayLabel", () => {
     expect(buyerGovernanceApprovalDisplayLabel("Failed")).toBe("Failed");
   });
 
-  it("returns Not configured for empty strings", () => {
-    expect(buyerGovernanceApprovalDisplayLabel(null)).toBe("Not configured");
-    expect(buyerGovernanceApprovalDisplayLabel("")).toBe("Not configured");
-    expect(buyerGovernanceApprovalDisplayLabel("   ")).toBe("Not configured");
+  it("returns not-stored copy for empty strings", () => {
+    expect(buyerGovernanceApprovalDisplayLabel(null)).toBe("Approval check was not stored.");
+    expect(buyerGovernanceApprovalDisplayLabel("")).toBe("Approval check was not stored.");
+    expect(buyerGovernanceApprovalDisplayLabel("   ")).toBe("Approval check was not stored.");
   });
 });

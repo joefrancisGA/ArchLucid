@@ -64,15 +64,15 @@ describe("FindingPolicyProvenancePanel", () => {
     expect(screen.getByTestId("finding-policy-provenance-panel")).toHaveClass("border-neutral-200");
   });
 
-  it("labels missing policy pack name when only rule context is stored", () => {
+  it("labels missing pack name when policy context exists without pack metadata (P-03)", () => {
     render(
       <FindingPolicyProvenancePanel
         model={{
           pack: null,
           policy: {
-            ruleId: "sec-base-001",
-            ruleLabel: "Security baseline ingress rule",
-            href: "/governance/policy-packs?ruleId=sec-base-001",
+            ruleId: "sec-001",
+            ruleLabel: "SEC-001",
+            href: "/governance/policy-packs?ruleId=sec-001",
           },
           evidence: [],
         }}

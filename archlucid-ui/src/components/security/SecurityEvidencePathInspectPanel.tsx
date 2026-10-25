@@ -854,7 +854,7 @@ export function SecurityEvidencePathInspectPanel(props: {
             >
               <h3 className={OPERATOR_TYPOGRAPHY.cardTitle}>{SECURENOW_PATH_INSPECT_WEAKEST_HOP_TITLE}</h3>
               <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}>
-                This hop limits how strong the path evidence can be.
+                This is the stored weakest hop. Evidence strength was not stored.
               </p>
               <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.body)}>
                 Hop {pathQuery.data.weakestHop.hopOrdinal ?? "Hop order was not stored."}:{" "}

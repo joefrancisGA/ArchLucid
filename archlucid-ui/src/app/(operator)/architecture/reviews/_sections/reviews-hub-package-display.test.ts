@@ -163,6 +163,17 @@ describe("toReviewsHubReviewRowDisplay", () => {
     expect(row.evidenceCount).toBe(0);
   });
 
+  it("does not guess governance outcome when warning flag is omitted on a sealed review", () => {
+    const row = toReviewsHubReviewRowDisplay({
+      runId: "sealed-unknown-governance",
+      projectId: "default",
+      createdUtc: "2026-01-20T12:00:00.000Z",
+      hasGoldenManifest: true,
+    } satisfies RunSummary);
+
+    expect(row.governanceState).toBe("Governance outcome was not stored.");
+  });
+
   it("labels unlinked jobs honestly in Working inbox rows (AO-49)", () => {
     const row = toReviewsHubReviewRowDisplay(
       {

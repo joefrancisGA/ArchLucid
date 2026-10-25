@@ -81,7 +81,22 @@ export function collectionRunStatusLabel(status: CollectionRun["status"]): strin
     return "Capture status was not stored.";
   }
 
-  return status;
+  switch (status) {
+    case "Succeeded":
+      return "Collection succeeded.";
+    case "Failed":
+      return "Collection failed.";
+    case "Rejected":
+      return "Collection was rejected.";
+    case "Running":
+      return "Collection is running.";
+    case "Imported":
+      return "Collection was imported.";
+    case "PartiallySucceeded":
+      return "Partially succeeded. Collection did not finish.";
+    default:
+      return status;
+  }
 }
 
 export function collectionRunStartedUtcDisplay(startedUtc: string | undefined): string {
@@ -177,7 +192,7 @@ export function CollectionAgentPageClient(): React.JSX.Element {
     ? null
     : toApiLoadFailure(triggerMutation.error);
   const successfulRunLabel = health.successfulRun === null
-    ? "No successful run recorded"
+    ? "No successful run was stored."
     : health.successfulRun.finishedUtc === null || health.successfulRun.finishedUtc === undefined
       ? "Last successful run finish time was not stored."
       : `Last successful run ${formatRelativeTime(health.successfulRun.finishedUtc)}`;
@@ -245,7 +260,7 @@ export function CollectionAgentPageClient(): React.JSX.Element {
         <section className="space-y-3 rounded-md border border-neutral-200 p-4 dark:border-neutral-800" aria-labelledby="collection-agent-empty-heading">
           <h2 id="collection-agent-empty-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>No collection runs yet.</h2>
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-            Set up scheduled collection or use a package while the agent is not available.
+            No collection runs were stored. Set up scheduled collection, or upload a package.
           </p>
           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
             <Link href={inAppHelpHref("cloud-connections-azure")} className={cn(OPERATOR_LINK.inline, "font-medium")}>Collection agent setup help</Link>

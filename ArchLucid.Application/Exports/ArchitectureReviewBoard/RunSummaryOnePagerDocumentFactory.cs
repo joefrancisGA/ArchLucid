@@ -38,6 +38,12 @@ public static class RunSummaryOnePagerDocumentFactory
         {
             RunId = runId,
             SystemName = detail.Manifest?.SystemName,
+            SystemNameDisplay = RunSummaryOnePagerHonestyCopy.ResolveSystemName(detail.Manifest?.SystemName),
+            RunIdDisplay = RunSummaryOnePagerHonestyCopy.ResolveRunId(runId),
+            SealedFindingsSection = RunSummaryOnePagerHonestyCopy.FormatSealedFindingsSection(
+                hasSealedSnapshot,
+                hasSealedSnapshot ? detail.Run.FindingsSnapshotId!.Value.ToString("D") : null,
+                hasSealedSnapshot ? Math.Max(0, sealedFindingCount) : 0),
             CriticalCount = counts.Critical,
             HighCount = counts.High,
             MediumCount = counts.Medium,

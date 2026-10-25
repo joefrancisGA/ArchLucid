@@ -66,7 +66,7 @@ function identityForNeighborhoodKind(kind: string | null): { readonly id: string
     return { id: "unspecified", heading: "Neighborhood kind was not stored." };
   }
 
-  return { id: trimmed, heading: trimmed };
+  return { id: trimmed, heading: `Neighborhood kind ${trimmed} has no reviewer label.` };
 }
 
 function neighborhoodSectionRank(id: string): number {

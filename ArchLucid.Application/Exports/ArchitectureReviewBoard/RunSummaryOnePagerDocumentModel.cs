@@ -15,6 +15,24 @@ public sealed class RunSummaryOnePagerDocumentModel
         init;
     }
 
+    public string SystemNameDisplay
+    {
+        get;
+        init;
+    } = "";
+
+    public string RunIdDisplay
+    {
+        get;
+        init;
+    } = "";
+
+    public string SealedFindingsSection
+    {
+        get;
+        init;
+    } = "";
+
     public int CriticalCount
     {
         get;
