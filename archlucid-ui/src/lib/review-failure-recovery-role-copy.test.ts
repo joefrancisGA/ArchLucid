@@ -12,6 +12,14 @@ import {
 } from "./review-failure-recovery-role-copy";
 
 describe("review-failure-recovery-role-copy", () => {
+  it("surfaces honesty when failed reviews omit completed stage count", () => {
+    const signal = resolveWorkspaceAiConfigurationSignal({
+      legacyRunStatus: "Failed",
+    });
+
+    expect(signal?.detail).toBe("Completed stage count was not stored.");
+  });
+
   it("detects workspace AI configuration failures", () => {
     expect(
       isWorkspaceAiConfigurationFailure({

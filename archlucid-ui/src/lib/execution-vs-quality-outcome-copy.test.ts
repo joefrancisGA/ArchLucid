@@ -51,6 +51,16 @@ describe("execution-vs-quality-outcome-copy (TB-965)", () => {
     expect(copy.remediation.toLowerCase()).not.toContain("intake fields");
   });
 
+  it("does not invent stage zero when completedStages was omitted", () => {
+    const sentence = plainLanguageFailureCauseSentence({
+      failureClass: "timeout",
+      completedStages: null,
+    });
+
+    expect(sentence).toContain("Pipeline stage count was not stored");
+    expect(sentence.toLowerCase()).not.toContain("before the first assessment stage");
+  });
+
   it("keeps buyer what-failed copy to one processing-stopped sentence without speculative scheduling jargon", () => {
     const sentence = plainLanguageFailureCauseSentence({
       failureClass: "invalidOperation",

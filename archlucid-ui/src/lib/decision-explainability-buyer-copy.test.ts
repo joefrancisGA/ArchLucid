@@ -35,4 +35,14 @@ describe("decision-explainability-buyer-copy", () => {
   it("labels fraction-encoded confidence", () => {
     expect(formatRecordedDecisionConfidence(0.42)).toBe("42% (recorded as a 0–1 fraction)");
   });
+
+  it("notes when pipeline confidence is missing on a recorded decision (P-10)", () => {
+    expect(
+      resolveRecordedDecisionConfidenceNote({
+        selectedOption: "Accepted",
+        confidence: null,
+        buyerConfidenceSource: null,
+      }),
+    ).toBe("Pipeline confidence was not stored on this decision.");
+  });
 });
