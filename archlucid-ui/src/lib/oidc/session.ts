@@ -35,6 +35,7 @@ import { canonicalSafeReturnPath } from "@/lib/navigation/safe-return-path";
 import {
   normalizeOidcConfigurationString,
   normalizeOidcDisplayString,
+  normalizeOidcOpaqueOAuthString,
   parseOidcEpochMsHint,
   stripOAuthInvisibleFormatChars,
 } from "@/lib/oidc/oauth-callback-messages";
@@ -52,7 +53,7 @@ type StoredPkceState = {
 const EXPIRY_SKEW_MS = 60_000;
 
 function normalizePkceCallbackQueryValue(value: string): string {
-  return stripOAuthInvisibleFormatChars(value.trim()).trim();
+  return normalizeOidcOpaqueOAuthString(value);
 }
 
 let refreshInFlight: Promise<void> | null = null;

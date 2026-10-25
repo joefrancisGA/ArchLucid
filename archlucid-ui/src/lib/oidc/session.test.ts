@@ -846,6 +846,23 @@ describe("consumePkceState", () => {
     });
   });
 
+  it("matches stored PKCE state when the callback state query value has trailing control characters", () => {
+    storePkceState("primary-state", "primary-verifier", "primary-nonce", "primary");
+
+    expect(consumePkceState("primary-state\u000B")).toEqual({
+      state: "primary-state",
+      codeVerifier: "primary-verifier",
+      nonce: "primary-nonce",
+      flow: "primary",
+    });
+  });
+
+  it("rejects PKCE consume when tampered session state contains interior backspace control characters", () => {
+    storePkceState("desk\u0008state", "primary-verifier", "primary-nonce", "primary");
+
+    expect(consumePkceState("desk\u0008state")).toBeNull();
+  });
+
   it("returns normalized PKCE verifier and nonce values read from sessionStorage", () => {
     storePkceState("primary-state", `\u200bprimary-verifier\u200b`, `\u200bprimary-nonce\u200b`, "primary");
 
