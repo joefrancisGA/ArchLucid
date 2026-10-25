@@ -25,6 +25,9 @@ internal static class ComparisonRecordPersistNormalizer
 
         if (!string.IsNullOrWhiteSpace(record.Format))
             record.Format = record.Format.Trim();
+
+        if (!string.IsNullOrWhiteSpace(record.SummaryMarkdown))
+            record.SummaryMarkdown = record.SummaryMarkdown.Trim();
     }
 
     private static void NormalizeTagsInPlace(List<string> tags)

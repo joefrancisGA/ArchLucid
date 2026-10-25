@@ -1590,6 +1590,53 @@ public sealed class CompareQualityComparisonsApplicationServiceTests
     }
 
     [Fact]
+    public async Task CompareQuality_TryGetScopedRecordAsync_trims_padded_label_type_tags_and_summary_from_repository_row()
+    {
+        const string runId = "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee";
+        const string comparisonRecordId = "cmp-scoped-text-pad";
+
+        Mock<IComparisonRecordRepository> comparisonRecords = new();
+        comparisonRecords
+            .Setup(r => r.GetByIdAsync(comparisonRecordId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new ComparisonRecord
+                {
+                    ComparisonRecordId = comparisonRecordId,
+                    ComparisonType = "  end-to-end-replay  ",
+                    LeftRunId = runId,
+                    RightRunId = "ffffffffffffffffffffffffffffffff",
+                    Label = "  release-1  ",
+                    Tags = ["  alpha  "],
+                    SummaryMarkdown = "  # summary  ",
+                    CreatedUtc = DateTime.UtcNow,
+                });
+
+        Mock<IRunDetailQueryService> runDetail = new();
+        runDetail
+            .Setup(s => s.GetRunDetailAsync(runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchitectureRunDetail { Run = new() { RunId = runId } });
+
+        ComparisonsApplicationService sut = new(
+            runDetail.Object,
+            new Mock<IRunExportRecordRepository>().Object,
+            comparisonRecords.Object,
+            new Mock<IComparisonReplayService>().Object,
+            new Mock<ICompareRunsApplicationFacade>().Object,
+            new Mock<IComparisonReplayCostEstimator>().Object,
+            new Mock<IDriftReportFormatter>().Object,
+            new DriftReportDocxExport());
+
+        ComparisonRecord? scoped =
+            await sut.TryGetScopedRecordAsync(comparisonRecordId, CancellationToken.None);
+
+        scoped.Should().NotBeNull();
+        scoped!.ComparisonType.Should().Be(ComparisonTypes.EndToEndReplay);
+        scoped.Label.Should().Be("release-1");
+        scoped.Tags.Should().BeEquivalentTo("alpha");
+        scoped.SummaryMarkdown.Should().Be("# summary");
+    }
+
+    [Fact]
     public async Task CompareQuality_in_memory_comparison_repository_create_canonicalizes_dashed_left_run_id()
     {
         Guid leftKey = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");

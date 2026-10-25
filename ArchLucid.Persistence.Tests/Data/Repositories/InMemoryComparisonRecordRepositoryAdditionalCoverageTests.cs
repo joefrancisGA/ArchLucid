@@ -408,12 +408,14 @@ public sealed class InMemoryComparisonRecordRepositoryAdditionalCoverageTests
         legacy.RightManifestVersion = "  v-right  ";
         legacy.Notes = "  audit note  ";
         legacy.Format = "  json  ";
+        legacy.SummaryMarkdown = "  # summary  ";
         items.Add(legacy);
 
         ComparisonRecord? loaded = await sut.GetByIdAsync(comparisonRecordId, CancellationToken.None);
 
         loaded.Should().NotBeNull();
         loaded!.LeftManifestVersion.Should().Be("v-left");
+        loaded.SummaryMarkdown.Should().Be("# summary");
         loaded.RightManifestVersion.Should().Be("v-right");
         loaded.Notes.Should().Be("audit note");
         loaded.Format.Should().Be("json");
