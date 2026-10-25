@@ -17,6 +17,7 @@ describe("intake-archlucid-diagram-json-context-document", () => {
       nodes: [{ id: "api", label: "API Gateway", kind: "system" }],
       edges: [],
       trustBoundaryLabels: [],
+      unmatchedDataFlows: [],
       extractionMethod: "StructuredParse",
     });
 

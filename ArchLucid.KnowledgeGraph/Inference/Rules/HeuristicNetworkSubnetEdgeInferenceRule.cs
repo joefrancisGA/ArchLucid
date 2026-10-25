@@ -9,7 +9,7 @@ internal sealed class HeuristicNetworkSubnetEdgeInferenceRule : IGraphEdgeInfere
     public void InferEdges(GraphEdgeInferenceContext context, List<GraphEdge> edges)
     {
         List<GraphNode> networks = context.TopologyNodes
-            .Where(x => string.Equals(x.Category, GraphTopologyCategories.Network, StringComparison.OrdinalIgnoreCase))
+            .Where(static node => CategoryEquals(node.Category, GraphTopologyCategories.Network))
             .ToList();
 
         List<GraphNode> subnets = context.TopologyNodes
@@ -38,16 +38,19 @@ internal sealed class HeuristicNetworkSubnetEdgeInferenceRule : IGraphEdgeInfere
     {
         if (GraphNodePropertyReader.TryGetPropertyValue(subnet.Properties, "parentNodeId", out string? parentId)
             && !string.IsNullOrWhiteSpace(parentId)
-            && string.Equals(parentId.Trim(), network.NodeId, StringComparison.OrdinalIgnoreCase))
+            && string.Equals(parentId.Trim(), network.NodeId.Trim(), StringComparison.OrdinalIgnoreCase))
             return true;
 
         if (networkCount == 1)
             return true;
 
-        string netLabel = network.Label;
-        if (string.IsNullOrWhiteSpace(netLabel) || netLabel.Length < 3)
+        string netLabel = (network.Label ?? string.Empty).Trim();
+        if (netLabel.Length < 3)
             return false;
 
         return subnet.Label.Contains(netLabel, StringComparison.OrdinalIgnoreCase);
     }
+
+    private static bool CategoryEquals(string? actual, string expected) =>
+        string.Equals((actual ?? string.Empty).Trim(), expected, StringComparison.OrdinalIgnoreCase);
 }

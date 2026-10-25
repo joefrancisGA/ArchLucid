@@ -8,7 +8,7 @@ internal static class PrivilegePathNarrative
     public static string BuildTitle(PrivilegePathCandidate candidate)
     {
         string action = candidate.HasInsufficientEvidenceHop
-            ? "unknown role actions"
+            ? "Role actions were not stored."
             : ResolveActionLabel(candidate);
         string scope = ShortNodeLabel(candidate.TerminalScopeNodeId);
 
@@ -69,7 +69,9 @@ internal static class PrivilegePathNarrative
                 : $"read access{roleSuffix}";
         }
 
-        return candidate.EffectiveRoleName ?? "privileged access";
+        return string.IsNullOrWhiteSpace(candidate.EffectiveRoleName)
+            ? "Role name was not stored."
+            : candidate.EffectiveRoleName;
     }
 
     private static string ShortNodeLabel(string nodeId)

@@ -187,7 +187,9 @@ export function RunDecisionExplainabilitySection(props: {
                   <p className={cn("m-0 mt-0.5 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.navHelper)}>{row.rationale}</p>
                 </EnterpriseTableCell>
                 <EnterpriseTableCell className="align-top">
-                  {formatRecordedDecisionConfidenceWithPipeline(row.confidence, row.pipeline)}
+                  {row.confidence === null
+                    ? "Confidence was not stored."
+                    : formatRecordedDecisionConfidenceWithPipeline(row.confidence, row.pipeline)}
                 </EnterpriseTableCell>
                 <EnterpriseTableCell className={cn("align-top", buyerPolishedShell ? OPERATOR_TYPOGRAPHY.helper : "font-mono", OPERATOR_TYPOGRAPHY.micro)}>
                   {buyerPolishedShell ? formatDecisionPipelineBuyerLabel(row.pipeline) : row.pipeline}

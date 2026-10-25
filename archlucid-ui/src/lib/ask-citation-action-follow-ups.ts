@@ -174,7 +174,7 @@ export function buildAskCitationActionFollowUps(
     });
     pushChip(chips, {
       kind: "evidence",
-      label: "Open evidence",
+      label: evidenceArtifacts ? "Open evidence" : "Evidence link was not stored.",
       href: getFindingEvidenceTraceHref(runId, findingId),
       citationId: findingId,
     });

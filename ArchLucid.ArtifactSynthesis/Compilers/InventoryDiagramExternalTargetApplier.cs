@@ -168,18 +168,19 @@ internal static class InventoryDiagramExternalTargetApplier
                     continue;
                 }
 
-                string externalNodeId = GetOrCreateExternalNode(
-                    ast,
-                    targetArmId,
-                    externalDiagramNodeIdByArmId,
-                    ref nextOrderKey);
-                InventoryDiagramRelationshipEdgeHelper.ReplaceOrAddDirectedEdge(
-                    ast,
-                    sourceDiagramNodeId,
-                    externalNodeId,
-                    InventoryDiagramRelationshipLabelTexts.FormatBackendPoolNames(backendTarget.RulePort),
-                    GraphEdgeInferenceSources.InventoryLbBackend,
-                    ProvenanceKind.ObservedFact.ToString());
+                DiagramNode? sourceDiagramNode = ast.Nodes.FirstOrDefault(node =>
+                    string.Equals(node.NodeId, sourceDiagramNodeId, StringComparison.Ordinal));
+
+                if (sourceDiagramNode is not null)
+                {
+                    string backendName = ReadBackendResourceName(targetArmId);
+                    string outlineSentence = InventoryDiagramRelationshipLabelTexts.FormatBackendOffCanvasOutline(backendName);
+
+                    if (!sourceDiagramNode.UnresolvedRelationshipDetails.Contains(outlineSentence, StringComparer.Ordinal))
+                    {
+                        sourceDiagramNode.UnresolvedRelationshipDetails.Add(outlineSentence);
+                    }
+                }
             }
         }
     }
@@ -521,5 +522,17 @@ internal static class InventoryDiagramExternalTargetApplier
     private static string FormatOutsideSubscriptionLabel()
     {
         return "Outside this subscription. Resource name was not stored.";
+    }
+
+    private static string ReadBackendResourceName(string armId)
+    {
+        int lastSlash = armId.LastIndexOf('/');
+
+        if (lastSlash < 0 || lastSlash >= armId.Length - 1)
+        {
+            return "Backend name was not stored.";
+        }
+
+        return armId[(lastSlash + 1)..];
     }
 }

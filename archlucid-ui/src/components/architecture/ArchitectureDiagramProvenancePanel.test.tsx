@@ -36,6 +36,7 @@ const model: ArchitectureDiagramModel = {
     },
   ],
   trustBoundaryLabels: [],
+  unmatchedDataFlows: [],
 };
 
 describe("ArchitectureDiagramProvenancePanel", () => {
@@ -69,5 +70,26 @@ describe("ArchitectureDiagramProvenancePanel", () => {
     expect(screen.getByTestId("architecture-diagram-provenance-detail")).toHaveTextContent("Inferred");
     expect(screen.queryByTestId("architecture-diagram-provenance-source-link")).not.toBeInTheDocument();
     expect(screen.getByText("Source evidence link was not stored")).toBeInTheDocument();
+  });
+
+  it("shows missing review id copy for evidence-backed selection without run id", () => {
+    function Harness(): React.JSX.Element {
+      return (
+        <ArchitectureDiagramProvenancePanel
+          runId="   "
+          model={model}
+          diagramVersionSource={null}
+          selectedKind="node"
+          selectedId="api"
+          onSelect={() => undefined}
+        />
+      );
+    }
+
+    render(<Harness />);
+
+    expect(screen.getByTestId("architecture-diagram-provenance-missing-review-id")).toHaveTextContent(
+      "Review id was not stored, so the evidence link is not available.",
+    );
   });
 });

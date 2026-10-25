@@ -44,7 +44,7 @@ describe("buildAskCitationActionFollowUps", () => {
       "/architecture/reviews/run-a/findings/finding-123/evidence-trace#governance-disposition-heading",
     );
     expect(chips[0]?.label.toLowerCase()).toContain("finding");
-    expect(chips[1]?.label.toLowerCase()).toContain("evidence");
+    expect(chips[1]?.label).toBe("Evidence link was not stored.");
     expect(chips[2]?.label.toLowerCase()).toContain("disposition");
   });
 

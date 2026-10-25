@@ -5,9 +5,60 @@ public static class InventoryDiagramRelationshipLabelTexts
 {
     public const string HasAccess = "Has access";
 
-    public const string PrivateAccess = "Private access";
+    public const string PrivateAccess = "Private endpoint. This is not observed traffic.";
+
+    public const string ServiceConnectorConfiguredLabel =
+        "Service connector is configured. An observed connection was not stored.";
+
+    public const string AppAuthorizedAccessLabel =
+        "Authorization may allow access. Observed use was not stored.";
+
+    public const string SqlPrincipalAuthorizedAccessLabel =
+        "SQL principal authorization may allow access. An observed query was not stored.";
+
+    public const string HostnameInferredTargetLabel =
+        "App setting hostname was inferred. A stored resource link was not stored.";
 
     public const string PublicExposureCaption = "Public IP is attached; its card is hidden on this diagram.";
+
+    public const string PublicIpAddressNotStored = "Public IP address was not stored.";
+
+    public const string PrivateEndpointConnectionStatusNotStored =
+        "Private endpoint connection status was not stored.";
+
+    public static string FormatHiddenPublicIpCaption(string? ipAddress)
+    {
+        if (string.IsNullOrWhiteSpace(ipAddress))
+        {
+            return $"{PublicExposureCaption} {PublicIpAddressNotStored}";
+        }
+
+        return $"{PublicExposureCaption} {ipAddress.Trim()}";
+    }
+
+    public static string FormatPrivateEndpointConnectionLabel(string? connectionStatus)
+    {
+        if (string.IsNullOrWhiteSpace(connectionStatus))
+        {
+            return PrivateEndpointConnectionStatusNotStored;
+        }
+
+        string status = connectionStatus.Trim();
+
+        if (status.Equals("Approved", StringComparison.OrdinalIgnoreCase))
+        {
+            return "Private endpoint connection: Approved.";
+        }
+
+        if (status.Equals("Rejected", StringComparison.OrdinalIgnoreCase)
+            || status.Equals("Disconnected", StringComparison.OrdinalIgnoreCase)
+            || status.Equals("Pending", StringComparison.OrdinalIgnoreCase))
+        {
+            return $"Private endpoint connection: {status}";
+        }
+
+        return $"Private endpoint connection: {status}";
+    }
 
     public const string Peered = "Peered";
 
@@ -19,7 +70,7 @@ public static class InventoryDiagramRelationshipLabelTexts
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(nextHopResourceName);
 
-        return $"Routed through {nextHopResourceName.Trim()}";
+        return $"Default route next hop is {nextHopResourceName.Trim()}. This is not observed traffic.";
     }
 
     public static string FormatSendsTrafficTo(int? backendPort)
@@ -47,5 +98,33 @@ public static class InventoryDiagramRelationshipLabelTexts
         ArgumentException.ThrowIfNullOrWhiteSpace(remoteVirtualNetworkName);
 
         return $"Peering to {remoteVirtualNetworkName.Trim()} is not connected";
+    }
+
+    public static string FormatPeeringStateNotStored(string remoteVirtualNetworkName)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(remoteVirtualNetworkName);
+
+        return $"Peering state was not stored for {remoteVirtualNetworkName.Trim()}.";
+    }
+
+    public static string FormatPeeringConnectedOffCanvas(string remoteVirtualNetworkName)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(remoteVirtualNetworkName);
+
+        return $"Peering to {remoteVirtualNetworkName.Trim()} is connected. The remote network is not on this diagram.";
+    }
+
+    public static string FormatSendsTrafficToBackend(int? backendPort)
+    {
+        return backendPort is null
+            ? "Sends traffic to this backend. Backend port was not stored."
+            : $"Sends traffic to this backend on port {backendPort.Value}.";
+    }
+
+    public static string FormatBackendOffCanvasOutline(string backendName)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(backendName);
+
+        return $"Backend {backendName.Trim()} is not on this diagram.";
     }
 }

@@ -1,5 +1,6 @@
 using ArchLucid.Application.Identity;
 using ArchLucid.Application.Tenancy;
+using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Admin;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
@@ -8,6 +9,8 @@ using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Identity;
 
 using FluentAssertions;
+
+using Microsoft.Extensions.Options;
 
 using Moq;
 
@@ -71,6 +74,8 @@ public sealed class PostAuthWorkspaceBootstrapServiceSelectTests
             abusePolicy.Object,
             new WorkspacePackagingLimitEvaluator(Mock.Of<ITenantUsageStatusService>()),
             audit.Object,
+            Mock.Of<IOptionsMonitor<TenantProvisioningOptions>>(monitor =>
+                monitor.CurrentValue == new TenantProvisioningOptions()),
             TimeProvider.System);
     }
 }

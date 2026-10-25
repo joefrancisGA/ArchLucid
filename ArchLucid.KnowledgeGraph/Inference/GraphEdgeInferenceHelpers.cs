@@ -15,8 +15,8 @@ internal static class GraphEdgeInferenceHelpers
         return new GraphEdge
         {
             EdgeId = Guid.NewGuid().ToString("N"),
-            FromNodeId = fromNodeId,
-            ToNodeId = toNodeId,
+            FromNodeId = fromNodeId.Trim(),
+            ToNodeId = toNodeId.Trim(),
             EdgeType = edgeType,
             Label = label,
             Weight = weight,
@@ -44,7 +44,8 @@ internal static class GraphEdgeInferenceHelpers
     {
         return edges
             .GroupBy(
-                x => $"{x.FromNodeId}|{x.ToNodeId}|{x.EdgeType}",
+                static edge =>
+                    $"{edge.FromNodeId.Trim()}|{edge.ToNodeId.Trim()}|{(edge.EdgeType ?? string.Empty).Trim()}",
                 StringComparer.OrdinalIgnoreCase)
             .Select(g => g.OrderByDescending(e => e.Weight).First())
             .ToList();
