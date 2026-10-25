@@ -4938,7 +4938,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-operator-lib
 
-**Hunts:** 93 · **Bugs found:** 88 · **Consecutive dry hunts:** 0
+**Hunts:** 94 · **Bugs found:** 89 · **Consecutive dry hunts:** 0
+
+2026-10-25 seed hunt (hit): consolidated `resolveOperatorHomeReviewTotalCount` / `countNonArchivedOverviewRuns` so live dashboard stale-total uplift ignores archived-only snapshot rows (aligned with workspace metrics); regressions `does not uplift stale zero totalCount using archived-only snapshot rows` and `does not uplift stale zero totalCount using archived-only overview rows`; scoped live-runs-dashboard and workspace-metrics vitest passed. Private beta: Invited operators no longer see inflated home review totals when a refreshed page shows only archived rows and the API still reports `totalCount: 0`.
 
 2026-10-25 seed hunt (hit): `deriveOperatorHomeWorkspaceMetrics` and `deriveOperatorHomeWorkspacePhaseSignalsFromOverviewRuns` treat non-finite `totalCount` as stale when non-archived overview rows are loaded (fixes `Math.max(NaN, n)` hiding occupancy); regressions `treats non-finite totalCount as stale when overview rows are loaded on the page` and `treats non-finite totalCount as stale when active overview rows are present`; scoped workspace-metrics, workspace-phase, and tenant-counting vitest passed. Private beta: Invited operators no longer flash eval-empty hero chrome on first paint when the runs dashboard already lists reviews but the total metadata is non-finite.
 
@@ -5232,11 +5234,19 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `deriveOperatorHomeWorkspaceMetrics` — non-finite `totalCount` zeroed `hasReviews` while overview rows were loaded — **hit 2026-10-25 seed hunt:** stale uplift via `max(reportedTotal, visibleActiveCount)`; regression `treats non-finite totalCount as stale when overview rows are loaded on the page`.
 - [x] (proven) `deriveOperatorHomeWorkspacePhaseSignalsFromOverviewRuns` — non-finite `totalCount` made `hasOverviewReviewRows` false via `Math.max(NaN, n)` — **hit 2026-10-25 seed hunt:** finite reported total normalization; regression `treats non-finite totalCount as stale when active overview rows are present`.
 
-- [ ] (candidate) `deriveOperatorHomeWorkspaceMetrics` — zero `totalCount` with loaded rows uplifts `reviewPackagesTotal` — locus: `max(reportedTotal, visibleActiveCount)`; input: extend stale-zero case beyond tenant counting wrapper.
-- [ ] (candidate) `deriveOperatorHomeWorkspaceMetrics` — archived rows do not inflate stale-total uplift floor — locus: `countNonArchivedOverviewRuns`; input: archived-only visible rows with `totalCount: 0`.
-- [ ] (candidate) `BuyerPolishedHomeHeroSection` — live merge + workspace metrics share the same total contract — locus: hero section wiring; input: workspace-metrics regressions with non-finite totals.
-- [ ] (candidate) `formatOperatorHomeRecentReviewsOutcome` — `hasReviews` false when metrics snapshot not normalized — locus: outcome copy guard; input: workspace-metrics normalization tests.
-- [ ] (candidate) `resolveLiveRunsDashboardTotalCount` — negative totals still skip uplift after workspace-metrics stale uplift — locus: dashboard merge; input: negative clamp regression unchanged.
+- [x] (valid-no-repro) `deriveOperatorHomeWorkspaceMetrics` — zero `totalCount` with loaded rows uplifts `reviewPackagesTotal` — **cheap-disproof 2026-10-25 seed hunt:** regression `treats zero totalCount as stale when active overview rows are loaded on the page`.
+- [x] (proven) `deriveOperatorHomeWorkspaceMetrics` — archived rows inflated stale-total uplift floor — **hit 2026-10-25 seed hunt:** shared `countNonArchivedOverviewRuns`; regression `does not uplift stale zero totalCount using archived-only overview rows`.
+- [x] (valid-no-repro) `BuyerPolishedHomeHeroSection` — live merge + workspace metrics share the same total contract — **cheap-disproof 2026-10-25 seed hunt:** shared `resolveOperatorHomeReviewTotalCount` module feeds dashboard merge and workspace metrics floor.
+- [x] (valid-no-repro) `formatOperatorHomeRecentReviewsOutcome` — `hasReviews` false when metrics snapshot not normalized — **cheap-disproof 2026-10-25 seed hunt:** existing `normalizes non-finite workspace metrics in recent reviews outcome copy`.
+- [x] (valid-no-repro) `resolveOperatorHomeReviewTotalCount` — negative totals still skip uplift — **cheap-disproof 2026-10-25 seed hunt:** regression `clamps negative live snapshot total counts to zero` unchanged on dashboard merge.
+
+- [x] (proven) `resolveLiveRunsDashboardModel` — stale-zero uplift used raw `items.length` and counted archived rows — **hit 2026-10-25 seed hunt:** non-archived visible count in merge; regression `does not uplift stale zero totalCount using archived-only snapshot rows`.
+
+- [ ] (candidate) `resolveOperatorHomeReviewTotalCount` — non-finite reported totals still uplift from SSR + visible active rows — locus: shared resolver; input: non-finite live dashboard regressions.
+- [ ] (candidate) `resolveOperatorHomeReviewTotalCount` — positive undercount uplift uses visible active rows only — locus: undercount branch; input: undercount live dashboard + workspace metrics tests.
+- [ ] (candidate) `deriveOperatorHomeTenantCountingSnapshot` — tenant row count still includes archived rows for stale uplift — locus: tenant filter; input: tenant-counting archived fixture.
+- [ ] (candidate) `deriveOperatorHomeWorkspacePhaseSignalsFromOverviewRuns` — archived-only rows do not set `hasOverviewReviewRows` when total is zero — locus: occupancy `max`; input: archived-only phase fixture.
+- [ ] (candidate) `countNonArchivedOverviewRuns` — treats `isArchived` undefined as active — locus: strict equality check; input: runs without `isArchived` field.
 
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regression `drops favorite rows when runId is whitespace-only`; 41 scoped continuity, scope-storage, and attention-preview vitest tests passed.
 
