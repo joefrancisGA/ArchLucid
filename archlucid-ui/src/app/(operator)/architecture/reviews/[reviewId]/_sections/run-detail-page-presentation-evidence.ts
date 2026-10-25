@@ -17,6 +17,7 @@ import {
 import type { RunDetailEvidenceInventoryItem } from "@/lib/runs/run-detail-evidence-inventory";
 import type { EvidenceCoverageSummary, RunDetailWorkspaceStatus } from "@/lib/run-detail-workspace-derive";
 import { buildBuyerReviewPackageDispositionLine } from "@/lib/review-buyer-disposition-line";
+import { formatSubmittedArchitectureTextForSummary } from "@/lib/reviews/submitted-architecture-text-honesty";
 
 import { analysisStagesCompleteOnSummary } from "./pipeline-complete-on-summary";
 import type { RunDetailPageModel } from "./run-detail-page-model";
@@ -89,7 +90,10 @@ export function buildRunDetailEvidencePresentation(
   const architectureCreatedBaseline: BuildArchitectureCreatedHomeModelInput = {
     runId: model.resolvedDetail.run.runId,
     architectureName: input.systemName ?? input.reviewDisplayTitle,
-    architectureOverview: submittedArchitectureText ?? "",
+    architectureOverview: formatSubmittedArchitectureTextForSummary(
+      submittedArchitectureText,
+      input.runSummaryForBadge.description,
+    ),
     businessOutcome: derivedGapBaseline.businessOutcome,
     peopleAndSystems: derivedGapBaseline.peopleAndSystems,
     ownerLabel: workspaceDerive.deriveReviewOwnerLabel(model.resolvedDetail.run),
@@ -118,8 +122,9 @@ export function buildRunDetailEvidencePresentation(
       input.quickDecisionFindings,
     ),
     evidenceReviewDateLabel:
-      formatInstantForLocale(model.resolvedDetail.run.completedUtc ?? model.resolvedDetail.run.createdUtc) ||
-      model.createdLabel,
+      lastEvaluatedUtc !== null
+        ? formatInstantForLocale(lastEvaluatedUtc) || "Review date was not stored."
+        : "Review date was not stored.",
     showArchitectureCreatedHome,
     createHomeAnalysisStagesComplete,
     createHomePreFinalizeReadyToFinalize: showArchitectureCreatedHome && createHomeAnalysisStagesComplete,
@@ -131,9 +136,8 @@ export function buildRunDetailEvidencePresentation(
       governanceGateLabel: model.governanceGateLabel,
       aggregateRiskPosture: model.explanationSummary?.riskPosture ?? null,
     }),
-    createHomeActivityProvenanceAsOfLabel: formatInstantForLocale(
-      model.resolvedDetail.run.completedUtc ?? model.resolvedDetail.run.createdUtc,
-    ),
+    createHomeActivityProvenanceAsOfLabel:
+      formatInstantForLocale(model.resolvedDetail.run.completedUtc ?? "") || "Not recorded",
     architectureCreatedBaseline,
     architectureCreatedHomeModel: showArchitectureCreatedHome
       ? buildArchitectureCreatedHomeModel(architectureCreatedBaseline)

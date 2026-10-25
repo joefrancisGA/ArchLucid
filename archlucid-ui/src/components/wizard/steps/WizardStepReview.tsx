@@ -20,6 +20,20 @@ function wizardConfirmIdentityField(value: string, notStoredLabel: string): stri
   return value.trim().length > 0 ? value : notStoredLabel;
 }
 
+function wizardConfirmCloudProviderField(value: string): string {
+  const trimmed = value.trim();
+
+  if (trimmed.length === 0) {
+    return "Cloud was not stored.";
+  }
+
+  if (trimmed === "None") {
+    return "Evidence-only (no cloud target)";
+  }
+
+  return trimmed;
+}
+
 function wizardConfirmNamedAttachmentSummary(
   entries: ReadonlyArray<{ readonly name: string }> | null | undefined,
   options: { readonly countNotStoredLabel: string; readonly unitLabel: string; readonly nameNotStoredLabel: string },
@@ -142,7 +156,7 @@ export function WizardStepReview(props: { readonly focusedPilotModeEnabled?: boo
             <dt className="text-neutral-500">Environment</dt>
             <dd className="m-0">{wizardConfirmIdentityField(v.environment, "Environment was not stored.")}</dd>
             <dt className="text-neutral-500">Cloud</dt>
-            <dd className="m-0">{wizardConfirmIdentityField(v.cloudProvider, "Cloud was not stored.")}</dd>
+            <dd className="m-0">{wizardConfirmCloudProviderField(v.cloudProvider)}</dd>
             <dt className="text-neutral-500">Prior manifest</dt>
             <dd className="m-0">
               {v.priorManifestVersion === null || v.priorManifestVersion === undefined

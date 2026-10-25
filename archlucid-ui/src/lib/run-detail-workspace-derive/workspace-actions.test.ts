@@ -2,7 +2,11 @@ import { describe, expect, it } from "vitest";
 
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 
-import { deriveBlockingApprovalCount, deriveRecommendedWorkspaceActions } from "./workspace-actions";
+import {
+  deriveBlockingApprovalCount,
+  deriveRecommendedWorkspaceActions,
+  normalizeWorkspaceRecommendedActionOwnerOrRole,
+} from "./workspace-actions";
 
 function sampleFinding(
   partial: Partial<QuickDecisionFinding> & Pick<QuickDecisionFinding, "findingId">,
@@ -24,6 +28,14 @@ function sampleFinding(
     },
   };
 }
+
+describe("normalizeWorkspaceRecommendedActionOwnerOrRole (P-15)", () => {
+  it("treats whitespace-only owners as omitted", () => {
+    expect(normalizeWorkspaceRecommendedActionOwnerOrRole(null)).toBeNull();
+    expect(normalizeWorkspaceRecommendedActionOwnerOrRole("   ")).toBeNull();
+    expect(normalizeWorkspaceRecommendedActionOwnerOrRole("Remediation lead")).toBe("Remediation lead");
+  });
+});
 
 describe("deriveRecommendedWorkspaceActions", () => {
   it("does not recommend owner assignment for disposition-closed high findings", () => {
@@ -127,6 +139,33 @@ describe("deriveRecommendedWorkspaceActions evidence ref honesty (P-05 / P-09)",
 
     expect(actions.some((action) => action.id === "add-evidence")).toBe(false);
     expect(actions.some((action) => action.id === "evidence-ref-count-not-stored")).toBe(true);
+  });
+});
+
+describe("deriveRecommendedWorkspaceActions blocking counts (P-05)", () => {
+  it("does not invent a blocking count when the metric was omitted", () => {
+    const actions = deriveRecommendedWorkspaceActions({
+      runId: "run-1",
+      findings: [
+        sampleFinding({
+          findingId: "f-medium-policy",
+          severityValue: 1,
+          enforcementTier: "PolicyViolation",
+        }),
+      ],
+      manifestId: null,
+      showProgressTracker: false,
+      hasCommitBlockingFailures: true,
+      buyerPolishedArtifactTable: false,
+      operatorGovernanceDecision: null,
+      manifestStatus: null,
+      runCompleted: true,
+    });
+
+    const blocking = actions.find((action) => action.id === "review-blocking");
+
+    expect(blocking?.reason).toContain("Blocking finding count was not stored");
+    expect(blocking?.relatedFindingCount).toBeNull();
   });
 });
 

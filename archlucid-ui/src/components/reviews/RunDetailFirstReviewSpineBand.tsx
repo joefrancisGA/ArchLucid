@@ -134,7 +134,12 @@ export function RunDetailFirstReviewSpineBand(props: RunDetailFirstReviewSpineBa
           <span className="font-semibold">
             {summary.topFindingPolicyMapped ? "Top policy-mapped finding:" : "Top finding:"}
           </span>{" "}
-          {summary.topFindingSeverityLabel !== null ? `[${summary.topFindingSeverityLabel}] ` : ""}
+          {summary.topFindingSeverityLabel !== null
+          && !summary.topFindingSeverityLabel.startsWith("Severity")
+            ? `[${summary.topFindingSeverityLabel}] `
+            : summary.topFindingSeverityLabel !== null
+              ? `${summary.topFindingSeverityLabel} `
+              : ""}
           {summary.topFindingTitle}
         </p>
       ) : null}

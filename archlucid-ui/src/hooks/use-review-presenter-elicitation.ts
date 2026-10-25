@@ -47,6 +47,7 @@ export type UseReviewPresenterElicitationResult = {
   readonly questionsFailure: ApiLoadFailureState | null;
   readonly questionListStored: boolean;
   readonly questionListMissing: boolean;
+  readonly questionsLoading: boolean;
 };
 
 function selectPrimaryPendingQuestion(
@@ -190,6 +191,7 @@ export function useReviewPresenterElicitation(
     questionsFailure,
     questionListStored,
     questionListMissing: query.isSuccess && trimmedDraftId.length > 0 && !questionListStored,
+    questionsLoading: trimmedDraftId.length > 0 && query.isLoading,
   };
 }
 

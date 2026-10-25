@@ -25,9 +25,14 @@ function answerSaysFinalizeIsBlocked(answerText: string): boolean {
 /** Returns follow-up chips appropriate to the cited assistant answer. */
 export function resolveAskAssistantAnswerFollowUpPrompts(answerText: string): readonly string[] {
   const trimmed = answerText.trim();
+
+  if (trimmed.length === 0) {
+    return [];
+  }
+
   const prompts: string[] = [];
 
-  if (trimmed.length > 0 && answerNamesTopRisk(trimmed)) {
+  if (answerNamesTopRisk(trimmed)) {
     prompts.push(ASK_ASSISTANT_ANSWER_FOLLOW_UP_TOP_RISK_PROMPT);
   }
 

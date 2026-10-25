@@ -207,7 +207,7 @@ export function deriveLastEvaluatedLabel(
     return manifestUtc;
   }
 
-  return run.createdUtc;
+  return null;
 }
 export function deriveFinalizedAtUtc(
   run: RunDetail["run"],

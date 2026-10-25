@@ -54,6 +54,18 @@ describe("buildSponsorSummaryMarkdown realized value honesty", () => {
     expect(markdown).toContain("Orphan candidate count was not stored.");
   });
 
+  it("labels None severity and missing system names in export tables (P-04, P-09)", () => {
+    const markdown = buildSponsorSummaryMarkdown(
+      minimalSummary({
+        topSystemicIssues: [{ category: "Cost", severity: "None", count: 2 }],
+        systems: [{ systemName: "", runId: "run-a", committedUtc: null, estimatedUsdSavings: null }],
+      }),
+    );
+
+    expect(markdown).toContain("No severity band was stored.");
+    expect(markdown).toContain("System name was stored empty.");
+  });
+
   it("prints zero median when stored as zero", () => {
     const markdown = buildSponsorSummaryMarkdown(
       minimalSummary({

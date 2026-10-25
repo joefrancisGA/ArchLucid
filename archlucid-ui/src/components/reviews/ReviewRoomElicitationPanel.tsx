@@ -97,6 +97,15 @@ export function ReviewRoomElicitationPanel(
         </div>
       ) : null}
 
+      {elicitation.questionsLoading ? (
+        <p
+          className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="review-room-elicitation-loading"
+        >
+          Loading draft questions…
+        </p>
+      ) : null}
+
       {elicitation.questionsFailure ? <OperatorApiProblem failure={elicitation.questionsFailure} /> : null}
       {elicitation.questionsBlockedReason ? (
         <p

@@ -58,6 +58,17 @@ describe("WizardStepReview", () => {
     expect(screen.getByText("1 attached document")).toBeInTheDocument();
   });
 
+  it("labels evidence-only cloud target without showing raw None (P-16)", () => {
+    render(
+      <WizardFormTestHarness values={{ cloudProvider: "None" }}>
+        <WizardStepReview />
+      </WizardFormTestHarness>,
+    );
+
+    expect(screen.getByText("Evidence-only (no cloud target)")).toBeInTheDocument();
+    expect(screen.queryByText("None")).not.toBeInTheDocument();
+  });
+
   it("labels blank identity draft fields as not stored", () => {
     render(
       <DirectWizardFormProvider

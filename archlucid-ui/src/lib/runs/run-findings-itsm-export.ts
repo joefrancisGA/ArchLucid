@@ -2,6 +2,7 @@ import {
   buildTraceRowWorkItemBody,
   type FindingWorkItemJsonDocument,
 } from "@/lib/copy-finding-as-work-item";
+import { workItemStoredText } from "@/lib/copy-finding-as-work-item-types";
 import {
   buildSemanticSupportBandExportStamp,
   resolveFindingSemanticSupportBandScorerVersion,
@@ -142,7 +143,7 @@ export function buildQuickDecisionFindingsCsv(
       finding.findingId,
       runId,
       severityLabelFromQuickDecisionFinding(finding),
-      escapeCsvCell(finding.title),
+      escapeCsvCell(workItemStoredText(finding.title, "Finding title was not stored.")),
       escapeCsvCell(formatItsmFindingRecommendationCell(finding.recommendation)),
       finding.confidenceLevel ?? "Confidence level was not stored",
       finding.policyRuleId?.trim() || "Policy rule was not stored",

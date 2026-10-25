@@ -48,9 +48,14 @@ export function buildClarificationGapSourcePresentation(input: {
   readonly fromHandoff: boolean;
   readonly findingsDerived?: boolean;
 }): ClarificationGapSourcePresentation {
+  const capturedAtLabel =
+    input.findingsDerived === true && input.capturedAtUtc === null
+      ? null
+      : formatGapCapturedAtLabel(input.capturedAtUtc);
+
   return {
     label: input.findingsDerived === true ? "From assessment findings" : ARCHITECTURE_STRUCTURED_ASSERTED_LABEL,
-    capturedAtLabel: formatGapCapturedAtLabel(input.capturedAtUtc),
+    capturedAtLabel,
   };
 }
 

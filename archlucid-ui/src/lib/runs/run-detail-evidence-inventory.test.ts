@@ -220,4 +220,22 @@ describe("run-detail-evidence-inventory", () => {
     expect(readiness.verdict).toBe("gaps");
     expect(readiness.headline).toBe(FINDINGS_CITE_EVIDENCE_WITHOUT_SOURCE_NAMES_HEADLINE);
   });
+
+  it("surfaces citations-without-source-names headline when inventory rows exist (P-19)", () => {
+    const readiness = deriveEvidenceScopeReadiness({
+      inventoryCount: 2,
+      trustReadiness: {
+        verdict: "complete",
+        headline: "Evidence is complete for sponsor handoff.",
+        readyCount: 2,
+        totalCount: 2,
+        exceptions: [],
+        satisfied: [],
+      },
+      findingsCiteEvidenceWithoutSourceNames: true,
+    });
+
+    expect(readiness.verdict).toBe("gaps");
+    expect(readiness.headline).toBe(FINDINGS_CITE_EVIDENCE_WITHOUT_SOURCE_NAMES_HEADLINE);
+  });
 });
