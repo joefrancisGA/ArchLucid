@@ -55,4 +55,25 @@ public sealed class AzureInventoryArmNestedObjectPropertyReaderTests
             .Should()
             .Be("/nested");
     }
+
+    [Fact]
+    public void TryReadScalarString_returns_null_for_json_reference_without_subscription_arm_id()
+    {
+        using JsonDocument document = JsonDocument.Parse("""{"id":"not-an-arm-id"}""");
+
+        AzureInventoryArmNestedObjectPropertyReader.TryReadScalarString(document.RootElement)
+            .Should()
+            .BeNull();
+    }
+
+    [Fact]
+    public void TryReadScalarString_returns_null_for_json_string_scalar_without_subscription_arm_id()
+    {
+        string jsonBlob = JsonSerializer.Serialize(new { id = "not-an-arm-id" });
+        using JsonDocument document = JsonDocument.Parse(JsonSerializer.Serialize(jsonBlob));
+
+        AzureInventoryArmNestedObjectPropertyReader.TryReadScalarString(document.RootElement)
+            .Should()
+            .BeNull();
+    }
 }
