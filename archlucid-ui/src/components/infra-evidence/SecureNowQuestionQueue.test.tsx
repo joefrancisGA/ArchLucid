@@ -296,6 +296,26 @@ describe("SecureNowQuestionQueue", () => {
     expect(screen.getByTestId("infra-diagrams-question-resource-name")).toHaveTextContent("Subscription question");
   });
 
+  it("labels resource group scope in details when scopeKind is omitted on policy pack rows", async () => {
+    mocks.listQuestions.mockResolvedValue([
+      {
+        ...question,
+        source: "PolicyPack",
+        scopeKind: null,
+        resourceId: "",
+        questionKey: "rg-scope@v1",
+        questionText: "Which resource group owns this workload?",
+        sourceLine: "Policy pack",
+      },
+    ]);
+
+    render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
+    fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
+
+    expect(screen.getByText("Scope: This resource group.")).toBeInTheDocument();
+    expect(screen.queryByText("Scope: Question scope was not stored.")).not.toBeInTheDocument();
+  });
+
   it("labels policy pack source and subscription scope in details", async () => {
     mocks.listQuestions.mockResolvedValue([
       {

@@ -9,7 +9,10 @@ import { secureNowQuestionAnswerLabel } from "@/lib/infra-evidence/securenow-que
 import {
   secureNowQuestionDispositionMutationResourceId,
   secureNowQuestionHasPackStyleDispositionScope,
+  secureNowQuestionIsPolicyPackDispositionRow,
+  secureNowQuestionPackScopeKindFromPrompt,
 } from "@/lib/infra-evidence/securenow-question-mutation-resource-id";
+import type { SecureNowQuestion } from "@/lib/infra-evidence/securenow-question-queue-api";
 import {
   secureNowQuestionResourceDisplayName,
   secureNowQuestionResourceTypeLabel,
@@ -130,14 +133,30 @@ function formatSecureNowQuestionSourceLabel(source: string | null): string {
   return `Question source code ${trimmed} has no reviewer label.`;
 }
 
-function formatSecureNowQuestionScopeLabel(scopeKind: string | null): string {
+function formatSecureNowQuestionScopeLabel(
+  question: Pick<SecureNowQuestion, "scopeKind" | "source" | "questionText">,
+): string {
+  const scopeKind = question.scopeKind;
+
   if (scopeKind === null) {
+    if (secureNowQuestionIsPolicyPackDispositionRow(question)) {
+      return secureNowQuestionPackScopeKindFromPrompt(question.questionText) === "ResourceGroup"
+        ? "This resource group."
+        : "This subscription.";
+    }
+
     return "Question scope was not stored.";
   }
 
   const trimmed = scopeKind.trim();
 
   if (trimmed.length === 0) {
+    if (secureNowQuestionIsPolicyPackDispositionRow(question)) {
+      return secureNowQuestionPackScopeKindFromPrompt(question.questionText) === "ResourceGroup"
+        ? "This resource group."
+        : "This subscription.";
+    }
+
     return "Question scope was not stored.";
   }
 
@@ -563,7 +582,7 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
                 Source: {formatSecureNowQuestionSourceLabel(currentQuestion.source)}
               </p>
               <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                Scope: {formatSecureNowQuestionScopeLabel(currentQuestion.scopeKind)}
+                Scope: {formatSecureNowQuestionScopeLabel(currentQuestion)}
               </p>
               <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                 Subscription:{" "}
