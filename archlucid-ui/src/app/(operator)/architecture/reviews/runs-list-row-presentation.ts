@@ -50,9 +50,14 @@ export function runRowExplicitCountsLine(run: RunSummary, buyerPolished: boolean
   const numeric = runRowNumericCountsLine(run, buyerPolished);
 
   if (numeric !== null) {
-    const pkgWord = "Package";
+    const packageSealSuffix =
+      run.hasGoldenManifest === true
+        ? "Package finalized"
+        : run.hasGoldenManifest === false
+          ? "Package pending"
+          : null;
 
-    return `${numeric} · ${pkgWord} ${run.hasGoldenManifest ? "finalized" : "pending"}`;
+    return packageSealSuffix !== null ? `${numeric} · ${packageSealSuffix}` : numeric;
   }
 
   return null;

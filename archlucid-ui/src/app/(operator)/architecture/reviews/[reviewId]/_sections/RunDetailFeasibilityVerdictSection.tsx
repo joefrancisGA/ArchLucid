@@ -14,6 +14,7 @@ import {
   formatFeasibilityEnvelopeDescription,
   formatFeasibilitySoftAssumption,
 } from "@/lib/feasibility/format-feasibility-soft-envelope-display";
+import { formatFeasibilityVerdictSummaryForDisplay } from "@/lib/feasibility/format-feasibility-verdict-summary-display";
 import { resolveFeasibilityVerdictForDisplay } from "@/lib/feasibility/resolve-feasibility-verdict-for-display";
 import { LIVELIHOOD_GRADE_NO_DESK_FALSE_HARD_DEMOTED_LINE } from "@/lib/livelihood-grade-no-desk-false-hard-copy";
 import type { ManifestFeasibilityVerdict } from "@/types/feasibility-verdict";
@@ -66,7 +67,9 @@ export function RunDetailFeasibilityVerdictSection(
           </div>
         ) : null}
         <p className={cn("m-0 font-semibold", OPERATOR_TYPOGRAPHY.body)}>{display.kindLabel}</p>
-        <p className={cn("mt-2 leading-relaxed", OPERATOR_TYPOGRAPHY.body)}>{verdict.summary}</p>
+        <p className={cn("mt-2 leading-relaxed", OPERATOR_TYPOGRAPHY.body)}>
+          {formatFeasibilityVerdictSummaryForDisplay(verdict.summary)}
+        </p>
 
         <FeasibilityVerdictDriversPanel
           drivers={verdictDrivers}
@@ -119,7 +122,9 @@ export function RunDetailFeasibilityVerdictSection(
               ))}
             </ul>
           </div>
-        ) : null}
+        ) : (
+          <p className={cn("mt-3", OPERATOR_TYPOGRAPHY.body)}>Proposed relaxations were stored empty.</p>
+        )}
 
         {verdict.unsatCoreInvariantKeys === null || verdict.unsatCoreInvariantKeys === undefined ? (
           <p className={cn("mt-3", OPERATOR_TYPOGRAPHY.body)}>Unsat core was not stored.</p>
@@ -127,7 +132,9 @@ export function RunDetailFeasibilityVerdictSection(
           <p className={cn("mt-3", OPERATOR_TYPOGRAPHY.body)}>
             Unsat core: {verdict.unsatCoreInvariantKeys.join(", ")}
           </p>
-        ) : null}
+        ) : (
+          <p className={cn("mt-3", OPERATOR_TYPOGRAPHY.body)}>Unsat core was stored empty.</p>
+        )}
 
         {isExportableDecisionVerdict(verdict.kind) ? (
           <div className="mt-4">

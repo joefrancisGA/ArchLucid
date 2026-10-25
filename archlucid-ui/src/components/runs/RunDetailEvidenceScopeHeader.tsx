@@ -43,14 +43,12 @@ export function RunDetailEvidenceScopeHeader(props: RunDetailEvidenceScopeHeader
           <dt className="text-al-text-secondary">Review date</dt>
           <dd className="m-0 mt-0.5 font-semibold text-al-text-primary">{props.reviewDateLabel}</dd>
         </div>
-        {showEvidenceItems ? (
-          <div>
-            <dt className="text-al-text-secondary">Evidence items</dt>
-            <dd className="m-0 mt-0.5 font-semibold tabular-nums text-al-text-primary">
-              {props.evidenceItemCount}
-            </dd>
-          </div>
-        ) : null}
+        <div>
+          <dt className="text-al-text-secondary">Evidence items</dt>
+          <dd className="m-0 mt-0.5 font-semibold tabular-nums text-al-text-primary">
+            {showEvidenceItems ? props.evidenceItemCount : "No submitted source documents are listed."}
+          </dd>
+        </div>
         {showDeliverables ? (
           <div>
             <dt className="text-al-text-secondary">Deliverables</dt>

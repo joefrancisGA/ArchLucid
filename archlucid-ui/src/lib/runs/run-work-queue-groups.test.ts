@@ -81,6 +81,6 @@ describe("workQueueSectionHeading", () => {
   it("returns canonical buyer labels when vocabulary pass is on", () => {
     expect(workQueueSectionHeading("needs-attention", true)).toBe("Needs attention");
     expect(workQueueSectionHeading("in-progress", true)).toBe("In progress");
-    expect(workQueueSectionHeading("committed", true)).toBe("Ready");
+    expect(workQueueSectionHeading("committed", true)).toBe("Finalized");
   });
 });

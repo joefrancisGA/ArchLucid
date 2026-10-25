@@ -65,7 +65,7 @@ export function workQueueSectionHeading(
         return "In progress";
 
       case "committed":
-        return "Ready";
+        return "Finalized";
 
       default: {
         const _exhaustive: never = groupId;

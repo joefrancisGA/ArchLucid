@@ -53,6 +53,9 @@ export function buildReviewClarificationDeltaPresentation(
     resolvedByEvidenceCount,
     resolvedByAssertionCount,
     stillOpenCount,
-    summary: parts.length > 0 ? parts.join(" · ") : null,
+    summary:
+      parts.length > 0
+        ? parts.join(" · ")
+        : "Clarification carry-forward was stored with no resolved or open questions.",
   };
 }
