@@ -58,11 +58,13 @@ public sealed class RunExportQueryFacade(
         if (!AuthorityRunIdentifier.TryParse(runId, out _))
             return new RunExportHistoryQueryResult { Outcome = ExportRecordLoadOutcome.RunNotFound, MissingRunId = runId };
 
-        if (await _runDetailQueryService.GetRunDetailAsync(runId, cancellationToken) is null)
+        string lookupRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(runId);
+
+        if (await _runDetailQueryService.GetRunDetailAsync(lookupRunId, cancellationToken) is null)
             return new RunExportHistoryQueryResult { Outcome = ExportRecordLoadOutcome.RunNotFound, MissingRunId = runId };
 
         ExportRecordLoadOutcome? lineageOutcome =
-            await TryEnsureExportRunLineageAndSealedHashAsync(runId, cancellationToken);
+            await TryEnsureExportRunLineageAndSealedHashAsync(lookupRunId, cancellationToken);
 
         if (lineageOutcome is not null)
         {
@@ -74,7 +76,7 @@ public sealed class RunExportQueryFacade(
         }
 
         ExportRecordLoadOutcome? lifecycleOutcome =
-            await TryEnsureExportRunLifecycleCompleteAsync(runId, cancellationToken);
+            await TryEnsureExportRunLifecycleCompleteAsync(lookupRunId, cancellationToken);
 
         if (lifecycleOutcome is not null)
         {
@@ -85,9 +87,9 @@ public sealed class RunExportQueryFacade(
             };
         }
 
-        await EnsureCareerAllowsExportRecordMetadataOrThrowAsync(runId, cancellationToken);
+        await EnsureCareerAllowsExportRecordMetadataOrThrowAsync(lookupRunId, cancellationToken);
 
-        IReadOnlyList<RunExportRecord> records = await _runExportRecordRepository.GetByRunIdAsync(runId, cancellationToken);
+        IReadOnlyList<RunExportRecord> records = await _runExportRecordRepository.GetByRunIdAsync(lookupRunId, cancellationToken);
         List<RunExportRecord> normalized = records.Select(NormalizeLoadedExportRecord).ToList();
         return new RunExportHistoryQueryResult { Outcome = ExportRecordLoadOutcome.Success, Exports = normalized };
     }

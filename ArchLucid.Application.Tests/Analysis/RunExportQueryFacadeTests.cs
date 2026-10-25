@@ -30,6 +30,43 @@ public sealed class RunExportQueryFacadeTests
     private const string ExportRecordId = "export-record-id";
 
     [Fact]
+    public async Task CompareQuality_GetRunExportHistoryAsync_succeeds_when_run_id_differs_only_by_casing()
+    {
+        const string uppercaseRunId = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
+        Guid runGuid = Guid.Parse(RunId);
+        ArchitectureRunDetail scopedDetail = CreateScopedRunDetail();
+        RunDetailDto authorityDetail = CreateAuthorityDetailWithCompleteLifecycle(runGuid);
+        RunExportRecord export = CreateExportRecord();
+
+        Mock<IRunDetailQueryService> runDetails = new();
+        runDetails
+            .Setup(r => r.GetRunDetailAsync(RunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(scopedDetail);
+
+        Mock<IRunExportRecordRepository> exportRecords = new();
+        exportRecords
+            .Setup(r => r.GetByRunIdAsync(RunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([export]);
+
+        ArchLucid.Decisioning.Services.ManifestHashService manifestHashService = new();
+        Mock<IAuthorityQueryService> authority = new();
+        SealedExportReceiptTestSupport.ConfigureVerifiedSealedExport(authority, runGuid, manifestHashService);
+        authority
+            .Setup(a => a.GetRunDetailAsync(It.IsAny<ScopeContext>(), runGuid, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(authorityDetail);
+
+        RunExportQueryFacade sut = CreateFacade(runDetails, exportRecords, authority, manifestHashService);
+
+        RunExportHistoryQueryResult result =
+            await sut.GetRunExportHistoryAsync(uppercaseRunId, CancellationToken.None);
+
+        result.Outcome.Should().Be(ExportRecordLoadOutcome.Success);
+        result.Exports.Should().ContainSingle(e => e.ExportRecordId == ExportRecordId);
+        runDetails.Verify(r => r.GetRunDetailAsync(RunId, It.IsAny<CancellationToken>()), Times.Once);
+        exportRecords.Verify(r => r.GetByRunIdAsync(RunId, It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
     public async Task CompareQuality_GetRunExportHistoryAsync_trims_padded_run_id_before_history_load()
     {
         Guid runGuid = Guid.Parse(RunId);
