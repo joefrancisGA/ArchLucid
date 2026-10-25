@@ -2956,7 +2956,7 @@ export function DiagramsWorkbenchClient() {
             dataFlowEdgeCountUnknown
               ? "Diagram metrics were not stored for this snapshot — an empty canvas does not mean zero edges."
               : dataFlowHasNoResourcesOrConnections
-                ? "This data-flow canvas has no resources and no connections."
+                ? "No paintable data-flow resources or edges are in this snapshot."
                 : dataFlowHasNoConnections
                 ? "The snapshot has inventory and no declared connection to draw."
                 : GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EMPTY_CONTENT_BODY
