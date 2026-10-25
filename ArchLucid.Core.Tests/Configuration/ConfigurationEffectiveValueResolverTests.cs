@@ -876,6 +876,47 @@ public sealed class ConfigurationEffectiveValueResolverTests
     }
 
     [Fact]
+    public void Resolve_redacts_json_object_effective_values_when_string_property_client_secret_pair_is_prefixed_with_bom()
+    {
+        const string configPath = "ArchLucid:SomeFeature:Settings";
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = """{"v":"\uFEFFClientSecret=x"}""",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(configuration, configPath, isSet: true);
+
+        value.Should().Be("***");
+    }
+
+    [Fact]
+    public void Resolve_strips_dangling_high_surrogate_when_scalar_effective_value_is_exactly_max_length()
+    {
+        const string configPath = "ArchLucid:FallbackLlm:Endpoints";
+        string highSurrogate = "\uD800";
+        string configured = new string('j', 255) + highSurrogate;
+
+        configured.Length.Should().Be(256);
+
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = configured,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            configPath,
+            isSet: true);
+
+        value.Should().Be(new string('j', 255));
+        TruncatedPrefixIsWellFormed(value!).Should().BeTrue();
+    }
+
+    [Fact]
     public void Resolve_keeps_truncated_effective_value_well_formed_when_supplementary_char_starts_at_index_255()
     {
         const string configPath = "ArchLucid:FallbackLlm:Endpoints";
