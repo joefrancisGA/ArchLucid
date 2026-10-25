@@ -26,5 +26,20 @@ public sealed class ArchitectureIntelligenceLlmResponseMapperMissingValueTests
         recommendation.Effort.Band.Should().Be("Effort band was not stored.");
         recommendation.Effort.ImplementationEstimateAvailable.Should().BeFalse();
         recommendation.RiskReduction.Level.Should().Be("Risk reduction was not stored.");
+        recommendation.RequiresHumanApproval.Should().BeNull();
+    }
+
+    [Fact]
+    public void MapReviewFinding_labels_missing_severity_without_defaulting_to_medium()
+    {
+        SpecialistReviewFinding finding = ArchitectureIntelligenceLlmResponseMapper.MapReviewFinding(
+            new ArchitectureIntelligenceLlmResponseShapes.ReviewFindingShape
+            {
+                Title = "Gap",
+                Rationale = "Because",
+            },
+            QualityDimension.Security);
+
+        finding.Severity.Should().Be("Severity was not stored.");
     }
 }

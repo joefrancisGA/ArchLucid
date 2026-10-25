@@ -319,8 +319,7 @@ describe("parseInfraEvidenceMermaidOutline", () => {
 
   it("maps provenance tokens to reviewer bands (P-03)", () => {
     expect(formatInfraEvidenceOutlineProvenanceReviewerBand("ObservedFact")).toBe("Observed");
-    expect(formatInfraEvidenceOutlineProvenanceReviewerBand("DerivedFact")).toBe(
-      'Provenance "DerivedFact" has no reviewer band.',
-    );
+    expect(formatInfraEvidenceOutlineProvenanceReviewerBand("DerivedFact")).toBe("Probable");
+    expect(formatInfraEvidenceOutlineProvenanceReviewerBand("")).toBe("Provenance was not stored.");
   });
 });
