@@ -178,7 +178,7 @@ export function buildMadrMarkdownFromRun(
   const decisionFromDrivers =
     decisionDrivers.length > 0
       ? `We record the following decision drivers from the automated assessment:\n\n${bulletBlock(decisionDrivers)}\nBased on these drivers and the cited findings, we **${status === "accepted" ? "accept" : "propose"}** aligning implementation and governance with the review recommendations, pending human approval.`
-      : `Based on the ${input.findings.length > 0 ? "captured findings" : "available run metadata"} and ${exp !== null ? "the aggregate assessment" : "operator context"}, we **${status === "accepted" ? "accept" : "propose"}** treating this review as the architecture decision record draft until stakeholders ratify it outside ArchLucid.`;
+      : "Decision text was not stored.";
 
   const consequencesSections: string[] = [];
 

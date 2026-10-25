@@ -222,7 +222,7 @@ describe("SecureNowQuestionQueue", () => {
     fireEvent.click(screen.getByRole("button", { name: "Next" }));
 
     expect(screen.getByTestId("infra-diagrams-question-resource-name")).toHaveTextContent(
-      "Resource name was not stored",
+      "Resource name was stored empty.",
     );
     expect(screen.getByText("Question status was not stored")).toBeInTheDocument();
   });
@@ -239,10 +239,19 @@ describe("SecureNowQuestionQueue", () => {
     render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
     fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
 
-    expect(screen.getByTestId("infra-diagrams-question-text")).toHaveTextContent("Question text was not stored");
+    expect(screen.getByTestId("infra-diagrams-question-text")).toHaveTextContent("Question text was stored empty.");
     expect(screen.getByText("Resource type was not stored")).toBeInTheDocument();
     expect(screen.getByTestId("infra-diagrams-question-reason")).toHaveTextContent("Reason was not stored");
     expect(screen.getByText("No answer choices were stored on this question.")).toBeInTheDocument();
+  });
+
+  it("shows a stored empty answer choice line", async () => {
+    mocks.listQuestions.mockResolvedValue([{ ...question, answerCodes: ["Yes", ""] }]);
+
+    render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
+    fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
+
+    expect(screen.getByRole("button", { name: "Answer choice was stored empty." })).toBeInTheDocument();
   });
 
   it("does not show missing-choice copy for a stored empty choice list", async () => {

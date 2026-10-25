@@ -44,9 +44,9 @@ function coerceCandidate(payload: ApiFeaturedCompletedSampleCandidate): Featured
 
   return {
     runId,
-    reviewTitle: payload.reviewTitle?.trim() || "Completed review",
-    architectureName: payload.architectureName?.trim() || "Architecture review",
-    completedUtc: payload.completedUtc ?? "",
+    reviewTitle: payload.reviewTitle?.trim() || "Review title was not stored.",
+    architectureName: payload.architectureName?.trim() || "Architecture name was not stored.",
+    completedUtc: payload.completedUtc?.trim() || "Completed time was not stored.",
     isSampleApproved: payload.isSampleApproved === true,
   };
 }

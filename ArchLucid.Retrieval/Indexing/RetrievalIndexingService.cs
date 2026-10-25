@@ -169,31 +169,14 @@ public sealed class RetrievalIndexingService(
 
         if (chunks.Count > 0)
         {
-            await _vectorIndex.UpsertChunksAsync(chunks, ct).ConfigureAwait(false);
-
-            foreach ((RetrievalDocument doc, IReadOnlyList<string> split, _) in work)
+            foreach ((RetrievalDocument doc, _, _) in work)
             {
                 ct.ThrowIfCancellationRequested();
 
-                if (_indexCatalog.TryGet(doc.DocumentId, out RetrievalDocumentIndexState? prior)
-                    && prior.IndexedChunkCount > split.Count)
-                {
-                    List<string> staleChunkIds = [];
+                if (_indexCatalog.TryGet(doc.DocumentId, out _))
+                    continue;
 
-                    for (int ordinal = split.Count; ordinal < prior.IndexedChunkCount; ordinal++)
-                        staleChunkIds.Add($"{doc.DocumentId}-chunk-{ordinal}");
-
-                    await _vectorIndex.RemoveChunkIdsAsync(staleChunkIds, ct).ConfigureAwait(false);
-                }
-            }
-        }
-
-        foreach ((RetrievalDocument doc, string fingerprint) in emptyDocuments)
-        {
-            ct.ThrowIfCancellationRequested();
-
-            if (_indexCatalog.TryGet(doc.DocumentId, out _))
-            {
+                // Replace document vectors wholesale when the catalog has no row (index/catalog drift).
                 await _vectorIndex.RemoveChunksForDocumentAsync(
                     doc.DocumentId,
                     doc.TenantId,
@@ -201,6 +184,39 @@ public sealed class RetrievalIndexingService(
                     doc.ProjectId,
                     ct).ConfigureAwait(false);
             }
+
+            await _vectorIndex.UpsertChunksAsync(chunks, ct).ConfigureAwait(false);
+
+            foreach ((RetrievalDocument doc, IReadOnlyList<string> split, _) in work)
+            {
+                ct.ThrowIfCancellationRequested();
+
+                if (!_indexCatalog.TryGet(doc.DocumentId, out RetrievalDocumentIndexState? prior)
+                    || split.Count == 0)
+                    continue;
+
+                // Catalog IndexedChunkCount can understate live vectors; always sweep higher ordinals after upsert.
+                int sweepExclusive = split.Count + Math.Max(prior.IndexedChunkCount, split.Count) + 16;
+                List<string> staleChunkIds = [];
+
+                for (int ordinal = split.Count; ordinal < sweepExclusive; ordinal++)
+                    staleChunkIds.Add($"{doc.DocumentId}-chunk-{ordinal}");
+
+                await _vectorIndex.RemoveChunkIdsAsync(staleChunkIds, ct).ConfigureAwait(false);
+            }
+        }
+
+        foreach ((RetrievalDocument doc, string fingerprint) in emptyDocuments)
+        {
+            ct.ThrowIfCancellationRequested();
+
+            // Remove even when the catalog has no row (index/catalog drift or partial prior failures).
+            await _vectorIndex.RemoveChunksForDocumentAsync(
+                doc.DocumentId,
+                doc.TenantId,
+                doc.WorkspaceId,
+                doc.ProjectId,
+                ct).ConfigureAwait(false);
 
             _indexCatalog.RecordIndexed(doc, fingerprint, indexedUtc, indexedChunkCount: 0);
             ArchLucidInstrumentation.RecordRetrievalIndexDocumentReindexed();

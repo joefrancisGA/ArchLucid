@@ -117,3 +117,11 @@ export const ARCHITECTURE_DIAGRAM_PLATE_LABEL = "Full plate" as const;
 
 export const ARCHITECTURE_DIAGRAM_VIEWPORT_HINT =
   "Focus the diagram, then Ctrl+scroll to zoom. + / − keys zoom. 0 or Fit in view resets to the fitted 100%." as const;
+
+export const ARCHITECTURE_DIAGRAM_COMPONENT_NAME_NOT_STORED = "Component name was not stored." as const;
+
+export const ARCHITECTURE_DIAGRAM_DATA_FLOW_NOT_MATCHED_PREFIX =
+  "Data flow was not matched to diagram components:" as const;
+
+export const ARCHITECTURE_DIAGRAM_NOT_GENERATED_MESSAGE =
+  "Architecture diagram was not generated." as const;
