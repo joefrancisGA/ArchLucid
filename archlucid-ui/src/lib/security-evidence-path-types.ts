@@ -1,5 +1,5 @@
 export type SecurityEvidencePathHop = {
-  hopOrdinal: number;
+  hopOrdinal: number | null;
   fromNodeLabel: string;
   toNodeLabel: string;
   edgeType: string;
@@ -10,15 +10,22 @@ export type SecurityEvidencePathHop = {
   cloudResourceId: string | null;
 };
 
+export const SECURITY_EVIDENCE_PATH_NODE_NAME_NOT_STORED = "Node name was not stored." as const;
+
 export function securityEvidencePathHopNodeName(label: string): string {
   const trimmed = label.trim();
+
+  if (trimmed.length === 0) {
+    return SECURITY_EVIDENCE_PATH_NODE_NAME_NOT_STORED;
+  }
+
   const lastSegment = trimmed.split("/").filter((segment) => segment.length > 0).at(-1);
 
   return lastSegment ?? trimmed;
 }
 
 export type SecurityEvidencePathWeakestHop = {
-  hopOrdinal: number;
+  hopOrdinal: number | null;
   edgeType: string;
   hopConfidenceBand: string;
   provenanceKind: string;
@@ -64,7 +71,7 @@ export type SecurityEvidencePathDetail = {
   snapshotId: string;
   pathKind: string;
   pathConfidenceBand: string;
-  weakestHopOrdinal: number;
+  weakestHopOrdinal: number | null;
   weakestHopReason: string;
   hops: ReadonlyArray<SecurityEvidencePathHop>;
   weakestHop: SecurityEvidencePathWeakestHop | null;
@@ -82,14 +89,14 @@ export type OperationalSecurityFindingDetail = {
 export type SecurityEvidencePathRankSummary = {
   pathId: string;
   snapshotId: string;
-  rankOrder: number;
+  rankOrder: number | null;
   ruleVersion: string;
-  technicalExposureScore: number;
-  privilegeDepthScore: number;
-  blastRadiusScore: number;
+  technicalExposureScore: number | null;
+  privilegeDepthScore: number | null;
+  blastRadiusScore: number | null;
   businessConsequenceScore: number | null;
-  confidenceBandScore: number;
-  compositeSortScore: number;
+  confidenceBandScore: number | null;
+  compositeSortScore: number | null;
   explanationSummary: string;
   pathKind: string;
   pathConfidenceBand: string;
@@ -124,14 +131,14 @@ export type SecurityEvidencePathAttackPathReport = {
 export type SecurityEvidencePathRankDetail = {
   pathId: string;
   snapshotId: string;
-  rankOrder: number;
+  rankOrder: number | null;
   ruleVersion: string;
-  technicalExposureScore: number;
-  privilegeDepthScore: number;
-  blastRadiusScore: number;
+  technicalExposureScore: number | null;
+  privilegeDepthScore: number | null;
+  blastRadiusScore: number | null;
   businessConsequenceScore: number | null;
-  confidenceBandScore: number;
-  compositeSortScore: number;
+  confidenceBandScore: number | null;
+  compositeSortScore: number | null;
   explanationSummary: string;
   breakdownJson: string;
   pathKind: string;

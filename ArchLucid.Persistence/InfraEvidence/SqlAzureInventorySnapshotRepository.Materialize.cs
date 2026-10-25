@@ -307,6 +307,127 @@ public sealed partial class SqlAzureInventorySnapshotRepository
                 }),
                 cancellationToken);
 
+            await SqlBufferedBulkCopy.WriteAsync(
+                sqlConn, tx, "dbo.AzureInventoryDefenderGovernanceAssignments",
+                writeRequest.DefenderGovernanceAssignments.Select(row => new
+                {
+                    DefenderGovernanceAssignmentRowId = Guid.NewGuid(),
+                    SnapshotId = snapshotId,
+                    scope.TenantId,
+                    row.SubscriptionId,
+                    row.AssessmentKey,
+                    row.ResourceId,
+                    row.Owner,
+                    row.RemediationDueUtc,
+                    row.IsGracePeriod,
+                    row.AssignmentStatus,
+                    row.SourceEvidenceReference,
+                }),
+                cancellationToken);
+
+            await SqlBufferedBulkCopy.WriteAsync(
+                sqlConn, tx, "dbo.AzureInventoryDefenderComplianceStandards",
+                writeRequest.DefenderComplianceStandards.Select(row => new
+                {
+                    DefenderComplianceStandardRowId = Guid.NewGuid(),
+                    SnapshotId = snapshotId,
+                    scope.TenantId,
+                    row.SubscriptionId,
+                    row.StandardName,
+                    row.State,
+                    row.PassedControlCount,
+                    row.FailedControlCount,
+                    row.SkippedControlCount,
+                    row.SourceEvidenceReference,
+                }),
+                cancellationToken);
+
+            await SqlBufferedBulkCopy.WriteAsync(
+                sqlConn, tx, "dbo.AzureInventoryDefenderComplianceControls",
+                writeRequest.DefenderComplianceControls.Select(row => new
+                {
+                    DefenderComplianceControlRowId = Guid.NewGuid(),
+                    SnapshotId = snapshotId,
+                    scope.TenantId,
+                    row.SubscriptionId,
+                    row.StandardName,
+                    row.ControlName,
+                    row.State,
+                    row.FailedAssessmentCount,
+                    row.SourceEvidenceReference,
+                }),
+                cancellationToken);
+
+            await SqlBufferedBulkCopy.WriteAsync(
+                sqlConn, tx, "dbo.AzureInventoryDefenderAlerts",
+                writeRequest.DefenderAlerts.Select(row => new
+                {
+                    DefenderAlertRowId = Guid.NewGuid(),
+                    SnapshotId = snapshotId,
+                    scope.TenantId,
+                    row.SubscriptionId,
+                    row.AlertId,
+                    row.DisplayName,
+                    row.Severity,
+                    row.Status,
+                    row.Intent,
+                    row.AlertType,
+                    row.StartTimeUtc,
+                    row.ResourceId,
+                    row.SourceEvidenceReference,
+                }),
+                cancellationToken);
+
+            await SqlBufferedBulkCopy.WriteAsync(
+                sqlConn, tx, "dbo.AzureInventoryDefenderAttackPaths",
+                writeRequest.DefenderAttackPaths.Select(row => new
+                {
+                    DefenderAttackPathRowId = Guid.NewGuid(),
+                    SnapshotId = snapshotId,
+                    scope.TenantId,
+                    row.SubscriptionId,
+                    row.AttackPathId,
+                    row.DisplayName,
+                    row.RiskLevel,
+                    row.EntryResourceIds,
+                    row.TargetResourceIds,
+                    row.SourceEvidenceReference,
+                }),
+                cancellationToken);
+
+            await SqlBufferedBulkCopy.WriteAsync(
+                sqlConn, tx, "dbo.AzureInventoryDefenderVulnerabilityCounts",
+                writeRequest.DefenderVulnerabilityCounts.Select(row => new
+                {
+                    DefenderVulnerabilityCountRowId = Guid.NewGuid(),
+                    SnapshotId = snapshotId,
+                    scope.TenantId,
+                    row.SubscriptionId,
+                    row.ResourceId,
+                    row.CriticalCount,
+                    row.HighCount,
+                    row.MediumCount,
+                    row.LowCount,
+                    row.SourceEvidenceReference,
+                }),
+                cancellationToken);
+
+            await SqlBufferedBulkCopy.WriteAsync(
+                sqlConn, tx, "dbo.AzureInventoryDefenderVulnerabilityFindings",
+                writeRequest.DefenderVulnerabilityFindings.Select(row => new
+                {
+                    DefenderVulnerabilityFindingRowId = Guid.NewGuid(),
+                    SnapshotId = snapshotId,
+                    scope.TenantId,
+                    row.SubscriptionId,
+                    row.ResourceId,
+                    row.Severity,
+                    row.FindingId,
+                    row.DisplayName,
+                    row.SourceEvidenceReference,
+                }),
+                cancellationToken);
+
             tx.Commit();
         }
         catch

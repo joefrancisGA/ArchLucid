@@ -96,6 +96,62 @@ public sealed class ArchitectureRunExecuteOrchestratorSelectiveOwnershipTests
     }
 
     [Fact]
+    public async Task ExecuteSelectiveRunAsync_when_agent_execute_cancelled_releases_lease_with_non_cancellable_token()
+    {
+        Guid runGuid = Guid.Parse("12121212-1212-1212-1212-121212121212");
+        string runId = runGuid.ToString("N");
+        using CancellationTokenSource cts = new();
+        CancellationToken? releaseToken = null;
+
+        Mock<IRunExecuteOwnershipLeaseService> ownership = new();
+        ownership.SetupGet(s => s.IsEnabled).Returns(true);
+        ownership.Setup(s => s.IsLocallyHoldingExecuteOwnership(runGuid)).Returns(true);
+        ownership
+            .Setup(s => s.AcquireAsync(runGuid, It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+        ownership
+            .Setup(s => s.BeginRenewalScope(runGuid, It.IsAny<CancellationTokenSource>()))
+            .Returns(new RecordingRenewalScope());
+        ownership
+            .Setup(s => s.ReleaseAsync(runGuid, It.IsAny<CancellationToken>()))
+            .Callback<Guid, CancellationToken>((_, token) => releaseToken = token)
+            .Returns(Task.CompletedTask);
+
+        Mock<IAgentResultRepository> resultRepo = new();
+        resultRepo
+            .Setup(r => r.GetByRunIdAsync(It.IsAny<ScopeContext>(), runId, It.IsAny<CancellationToken>(), null, null))
+            .ReturnsAsync([]);
+
+        Mock<IAgentExecutor> executor = new();
+        executor
+            .Setup(e => e.ExecuteAsync(
+                It.IsAny<string>(),
+                It.IsAny<ArchitectureRequest>(),
+                It.IsAny<AgentEvidencePackage>(),
+                It.IsAny<IReadOnlyList<AgentTask>>(),
+                It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new OperationCanceledException(cts.Token));
+
+        ArchitectureRunExecuteOrchestrator sut = CreateSut(
+            runId,
+            runGuid,
+            executor.Object,
+            resultRepo.Object,
+            ownership.Object);
+
+        Func<Task> act = () => sut.ExecuteSelectiveRunAsync(
+            runId,
+            new SelectiveAgentExecuteRequest { AgentTypes = ["Cost"] },
+            cts.Token);
+
+        await act.Should().ThrowAsync<OperationCanceledException>();
+
+        ownership.Verify(s => s.AcquireAsync(runGuid, cts.Token), Times.Once);
+        ownership.Verify(s => s.ReleaseAsync(runGuid, It.IsAny<CancellationToken>()), Times.Once);
+        releaseToken.Should().Be(CancellationToken.None);
+    }
+
+    [Fact]
     public async Task ExecuteSelectiveRunAsync_does_not_delete_results_when_run_becomes_committed_before_prep()
     {
         Guid runGuid = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");

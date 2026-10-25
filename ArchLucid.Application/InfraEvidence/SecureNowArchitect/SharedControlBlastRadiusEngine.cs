@@ -74,7 +74,7 @@ public sealed class SharedControlBlastRadiusEngine(
                 ProjectId = scope.ProjectId,
                 SnapshotId = snapshotId,
                 PathKind = PathKind.SharedControlBlastRadius,
-                PathConfidenceBand = PathConfidenceBand.Confirmed,
+                PathConfidenceBand = SecurityEvidencePathConfidenceBandResolver.ResolveWeakestHopBand(hopRecords),
                 CreatedUtc = utcNow,
                 UpdatedUtc = utcNow,
             };

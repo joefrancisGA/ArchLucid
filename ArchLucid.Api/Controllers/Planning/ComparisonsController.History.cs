@@ -3,6 +3,7 @@ using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
 using ArchLucid.Application.Analysis;
+using ArchLucid.Application.Exports;
 using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
@@ -86,7 +87,7 @@ public sealed partial class ComparisonsController
         try
         {
             ArchLucid.Contracts.Metadata.ComparisonRecord? record =
-                await _comparisons.TryGetScopedRecordAsync(comparisonRecordId, cancellationToken);
+                await _comparisons.TryGetScopedRecordForArtifactReadAsync(comparisonRecordId, cancellationToken);
 
             if (record is null)
                 return this.NotFoundProblem($"Comparison record '{comparisonRecordId}' was not found.", ProblemTypes.ResourceNotFound);
@@ -102,6 +103,10 @@ public sealed partial class ComparisonsController
         catch (ConflictException ex)
         {
             return MapComparisonReplaySealedManifestConflict(ex);
+        }
+        catch (CareerArtifactExportBlockedException ex)
+        {
+            return this.CareerArtifactBlockedProblem(ex.Message, ex.BlockReasonCode);
         }
     }
 
@@ -143,6 +148,10 @@ public sealed partial class ComparisonsController
         catch (ConflictException ex)
         {
             return MapComparisonReplaySealedManifestConflict(ex);
+        }
+        catch (CareerArtifactExportBlockedException ex)
+        {
+            return this.CareerArtifactBlockedProblem(ex.Message, ex.BlockReasonCode);
         }
     }
 

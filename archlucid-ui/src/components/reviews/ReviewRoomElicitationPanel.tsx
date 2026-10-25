@@ -2,7 +2,10 @@
 
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
-import type { UseReviewPresenterElicitationResult } from "@/hooks/use-review-presenter-elicitation";
+import {
+  REVIEW_PRESENTER_QUESTION_LIST_NOT_STORED_BODY,
+  type UseReviewPresenterElicitationResult,
+} from "@/hooks/use-review-presenter-elicitation";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { listPresenterAssertedAnswerEntries } from "@/lib/reviews/review-presenter-asserted-trail";
 import {
@@ -34,7 +37,11 @@ export function ReviewRoomElicitationPanel(
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0 space-y-1">
           <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>{elicitation.title}</h2>
-          {elicitation.readyToFinalize ? (
+          {elicitation.questionListMissing ? (
+            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+              {REVIEW_PRESENTER_QUESTION_LIST_NOT_STORED_BODY}
+            </p>
+          ) : elicitation.readyToFinalize ? (
             <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
               No pending MUST or SHOULD questions. Return to the review to finalize when the package is ready.
             </p>
@@ -81,7 +88,9 @@ export function ReviewRoomElicitationPanel(
             {listPresenterAssertedAnswerEntries(elicitation.transparencyTrail).map((entry) => (
               <li key={entry.key} className={OPERATOR_TYPOGRAPHY.helper}>
                 {entry.value}
-                {entry.responderLabel ? ` — ${entry.responderLabel}` : ""}
+                {entry.responderLabel
+                  ? ` — ${entry.responderLabel}`
+                  : " — Responder was not stored."}
               </li>
             ))}
           </ul>

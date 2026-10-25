@@ -104,25 +104,7 @@ public static partial class StructuredExplanationParser
             return null;
 
         if (element.ValueKind == JsonValueKind.Array)
-        {
-            JsonElement? soleEntry = null;
-
-            foreach (JsonElement item in element.EnumerateArray())
-            {
-                if (item.ValueKind == JsonValueKind.Null)
-                    continue;
-
-                if (soleEntry is not null)
-                    return null;
-
-                soleEntry = item;
-            }
-
-            if (soleEntry is JsonElement single)
-                return TryReadStructuredConfidence(single);
-
-            return null;
-        }
+            return TryReadStructuredConfidenceFromArrayItems(element);
 
         string? raw = element.ValueKind == JsonValueKind.String ? element.GetString()?.Trim() : null;
 
@@ -135,6 +117,35 @@ public static partial class StructuredExplanationParser
         }
 
         return RunExplanationAggregateJsonReader.TryReadFiniteDouble(element);
+    }
+
+    private static double? TryReadStructuredConfidenceFromArrayItems(JsonElement confidenceArray)
+    {
+        foreach (JsonElement item in confidenceArray.EnumerateArray())
+        {
+            if (item.ValueKind == JsonValueKind.Null)
+                continue;
+
+            if (item.ValueKind == JsonValueKind.Array)
+            {
+                double? nestedConfidence = TryReadStructuredConfidenceFromArrayItems(item);
+
+                if (nestedConfidence is not null)
+                    return nestedConfidence;
+
+                continue;
+            }
+
+            if (item.ValueKind is JsonValueKind.True or JsonValueKind.False)
+                continue;
+
+            double? parsed = TryReadStructuredConfidence(item);
+
+            if (parsed is not null)
+                return parsed;
+        }
+
+        return null;
     }
 
     /// <summary>
