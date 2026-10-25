@@ -44,6 +44,31 @@ public sealed class InMemoryRunExportRecordRepositoryReadNormalizeTests
     }
 
     [Fact]
+    public async Task GetById_matches_when_lookup_export_id_differs_only_by_casing()
+    {
+        const string storedExportId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+        const string lookupExportId = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
+        const string runId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb";
+        InMemoryRunExportRecordRepository repository = new();
+        await repository.CreateAsync(
+            new RunExportRecord
+            {
+                ExportRecordId = storedExportId,
+                RunId = runId,
+                ExportType = "ArchitectureAnalysis",
+                Format = "Markdown",
+                FileName = "report.md",
+                CreatedUtc = new DateTime(2026, 4, 6, 12, 0, 0, DateTimeKind.Utc),
+            },
+            CancellationToken.None);
+
+        RunExportRecord? loaded = await repository.GetByIdAsync(lookupExportId, CancellationToken.None);
+
+        loaded.Should().NotBeNull();
+        loaded!.ExportRecordId.Should().Be(storedExportId);
+    }
+
+    [Fact]
     public async Task GetById_canonicalizes_dashed_compare_run_id_on_legacy_row()
     {
         const string exportId = "exp-legacy-dashed-compare";

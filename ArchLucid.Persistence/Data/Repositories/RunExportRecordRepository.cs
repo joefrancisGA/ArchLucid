@@ -207,7 +207,7 @@ public sealed class RunExportRecordRepository(IDbConnectionFactory connectionFac
         const string sql = """
                            SELECT RecordJson
                            FROM RunExportRecords
-                           WHERE LTRIM(RTRIM(ExportRecordId)) = @ExportRecordId;
+                           WHERE LOWER(LTRIM(RTRIM(ExportRecordId))) = LOWER(@ExportRecordId);
                            """;
 
         using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
