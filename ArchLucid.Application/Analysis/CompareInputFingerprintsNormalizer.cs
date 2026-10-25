@@ -36,6 +36,21 @@ internal static class CompareInputFingerprintsNormalizer
             NormalizeOptionalHash(fingerprints.TargetCommittedArtifactInventoryHashSha256);
     }
 
+    internal static bool IsPersistedEmptyShell(CompareInputFingerprints fingerprints) =>
+        fingerprints.ComparisonAlgorithmVersion == CompareInputFingerprints.AlgorithmVersion
+        && fingerprints.BasePolicyPackPinHashSha256 is null
+        && fingerprints.TargetPolicyPackPinHashSha256 is null
+        && fingerprints.BaseEvidencePackagePinHashSha256 is null
+        && fingerprints.TargetEvidencePackagePinHashSha256 is null
+        && fingerprints.BaseArchitectureVersionContentHashSha256 is null
+        && fingerprints.TargetArchitectureVersionContentHashSha256 is null
+        && fingerprints.BaseKnowledgeModelContentHashSha256 is null
+        && fingerprints.TargetKnowledgeModelContentHashSha256 is null
+        && fingerprints.BaseManifestHashSha256 is null
+        && fingerprints.TargetManifestHashSha256 is null
+        && fingerprints.BaseCommittedArtifactInventoryHashSha256 is null
+        && fingerprints.TargetCommittedArtifactInventoryHashSha256 is null;
+
     private static string? NormalizeOptionalHash(string? value) =>
         OptionalExportMetadataStringNormalizer.NormalizeOptionalString(value);
 }

@@ -1,3 +1,4 @@
+using ArchLucid.Application.Diffs;
 using ArchLucid.Contracts.Metadata;
 
 namespace ArchLucid.Application.Analysis;
@@ -19,7 +20,15 @@ internal static class EndToEndReplayComparisonReportNormalizer
         ComparisonPersistedStringListNormalizer.NormalizeInPlace(report.RunDiff.ChangedFields);
 
         AgentResultDiffNormalizer.NormalizeInPlace(report.AgentResultDiff);
+        if (report.AgentResultDiff is not null && AgentResultDiffNormalizer.IsPersistedEmptyShell(report.AgentResultDiff))
+            report.AgentResultDiff = null;
+
         ManifestDiffNormalizer.NormalizeInPlace(report.ManifestDiff);
+        if (report.ManifestDiff is not null
+            && !ManifestDiffMateriality.HasMaterialChanges(report.ManifestDiff)
+            && (report.ManifestDiff.InputFingerprints is null
+                || CompareInputFingerprintsNormalizer.IsPersistedEmptyShell(report.ManifestDiff.InputFingerprints)))
+            report.ManifestDiff = null;
 
         for (int i = report.ExportDiffs.Count - 1; i >= 0; i--)
         {

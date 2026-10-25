@@ -29,6 +29,14 @@ internal static class AgentResultDiffNormalizer
         CompareInputFingerprintsNormalizer.NormalizeInPlace(diff.InputFingerprints);
     }
 
+    internal static bool IsPersistedEmptyShell(AgentResultDiffResult diff) =>
+        diff.AgentDeltas.Count == 0
+        && diff.Warnings.Count == 0
+        && diff.LeftRunId.Length == 0
+        && diff.RightRunId.Length == 0
+        && (diff.InputFingerprints is null
+            || CompareInputFingerprintsNormalizer.IsPersistedEmptyShell(diff.InputFingerprints));
+
     private static void NormalizeDeltaInPlace(AgentResultDelta delta)
     {
         ComparisonPersistedStringListNormalizer.NormalizeInPlace(delta.AddedClaims);
