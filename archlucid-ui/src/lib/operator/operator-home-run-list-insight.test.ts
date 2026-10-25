@@ -65,6 +65,12 @@ describe("operator-home-run-list-insight", () => {
     vi.useRealTimers();
   });
 
+  it("returns null when the chosen timestamp is not a parseable instant", () => {
+    const run = stubRun({ lastModifiedUtc: "not-an-instant" });
+
+    expect(formatRunHomeListUpdatedLabel(run)).toBeNull();
+  });
+
   it("falls back to createdUtc when lastModifiedUtc is absent", () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date("2026-06-16T12:00:00Z"));

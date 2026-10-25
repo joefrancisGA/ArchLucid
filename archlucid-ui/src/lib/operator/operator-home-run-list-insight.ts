@@ -1,4 +1,5 @@
 import { isShowcaseStaticDemoRunId } from "@/lib/demo-run-canonical";
+import { parseIsoUtcMs } from "@/lib/format-iso-utc";
 import { formatAbsoluteUpdatedAtTitle, formatRelativeTime } from "@/lib/relative-time";
 import { SHOWCASE_STATIC_DEMO_SPINE_COUNTS } from "@/lib/showcase-static-demo";
 import type { RunSummary } from "@/types/authority";
@@ -71,6 +72,10 @@ export function formatRunHomeListUpdatedLabel(
   const timestamp = resolveRunHomeListTimestampUtc(run);
 
   if (timestamp === null) {
+    return null;
+  }
+
+  if (Number.isNaN(parseIsoUtcMs(timestamp.isoUtc))) {
     return null;
   }
 
