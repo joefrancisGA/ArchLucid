@@ -3,6 +3,7 @@ import type { ArchitectureDraftRegistryEntry } from "@/lib/architecture/architec
 import type { IncompleteWizardSignal } from "@/lib/unfinished-work-rail";
 import { resolveContinueLastArchitectureIdentityTarget } from "@/lib/resolve-continue-last-architecture-identity";
 import { resolveContinueLastReviewPackageTarget } from "@/lib/resolve-continue-last-review-package";
+import { normalizeResumeHrefForMatch } from "@/lib/operator/operator-home-hero-resume-target";
 import { resolveRunIdFromWorkingReviewHref } from "@/lib/system-not-job-portfolio-resume-href";
 import type { RunSummary } from "@/types/authority";
 
@@ -49,7 +50,17 @@ export function resolveOperatorHomeResumeAffordancePlan(
 
       const targetRunId = reviewTarget?.runId?.trim() ?? "";
 
-      return runId !== null && targetRunId.length > 0 && runId.trim() === targetRunId;
+      if (runId !== null && targetRunId.length > 0 && runId.trim() === targetRunId) {
+        return true;
+      }
+
+      const targetHref = reviewTarget?.href?.trim() ?? "";
+
+      if (targetHref.length === 0) {
+        return false;
+      }
+
+      return normalizeResumeHrefForMatch(item.href) === normalizeResumeHrefForMatch(targetHref);
     });
 
     if (railSurfacesSameRun) {

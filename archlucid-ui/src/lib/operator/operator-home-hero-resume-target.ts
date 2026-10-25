@@ -24,7 +24,7 @@ export type ResolveOperatorHomeHeroResumeTargetInput = {
 };
 
 /** Compare resume targets without query/hash noise or trailing-slash drift. */
-function normalizeResumeHrefForMatch(href: string): string {
+export function normalizeResumeHrefForMatch(href: string): string {
   const withoutFragment = href.split("#")[0] ?? href;
   const withoutQuery = withoutFragment.split("?")[0]?.trim() ?? "";
 
