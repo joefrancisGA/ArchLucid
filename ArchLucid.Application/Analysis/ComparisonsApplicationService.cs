@@ -44,12 +44,10 @@ public sealed partial class ComparisonsApplicationService(
     /// <inheritdoc />
     public async Task<IReadOnlyList<ComparisonRecord>?> TryListByRunIdAsync(string runId, CancellationToken ct)
     {
-        runId = runId.Trim();
-
-        if (await _runDetailQueryService.GetRunDetailAsync(runId, ct) is null)
-            return null;
-
         string lookupRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(runId);
+
+        if (await _runDetailQueryService.GetRunDetailAsync(lookupRunId, ct) is null)
+            return null;
 
         IReadOnlyList<ComparisonRecord> records =
             await _comparisonRecordRepository.GetByRunIdAsync(lookupRunId, ct);

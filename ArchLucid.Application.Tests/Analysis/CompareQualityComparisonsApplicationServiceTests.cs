@@ -19,6 +19,46 @@ namespace ArchLucid.Application.Tests.Analysis;
 public sealed class CompareQualityComparisonsApplicationServiceTests
 {
     [Fact]
+    public async Task CompareQuality_TryListByRunIdAsync_lists_records_when_query_run_id_differs_only_by_casing()
+    {
+        const string canonicalRunId = "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee";
+        const string uppercaseRunId = "EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE";
+
+        InMemoryComparisonRecordRepository comparisonRecords = new();
+        await comparisonRecords.CreateAsync(
+            new ComparisonRecord
+            {
+                ComparisonRecordId = "cmp-list-run-casing",
+                ComparisonType = ComparisonTypes.EndToEndReplay,
+                LeftRunId = canonicalRunId,
+                RightRunId = "ffffffffffffffffffffffffffffffff",
+                CreatedUtc = DateTime.UtcNow,
+            },
+            CancellationToken.None);
+
+        Mock<IRunDetailQueryService> runDetail = new();
+        runDetail
+            .Setup(s => s.GetRunDetailAsync(canonicalRunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchitectureRunDetail { Run = new() { RunId = canonicalRunId } });
+
+        ComparisonsApplicationService sut = new(
+            runDetail.Object,
+            new Mock<IRunExportRecordRepository>().Object,
+            comparisonRecords,
+            new Mock<IComparisonReplayService>().Object,
+            new Mock<ICompareRunsApplicationFacade>().Object,
+            new Mock<IComparisonReplayCostEstimator>().Object,
+            new Mock<IDriftReportFormatter>().Object,
+            new DriftReportDocxExport());
+
+        IReadOnlyList<ComparisonRecord>? records =
+            await sut.TryListByRunIdAsync(uppercaseRunId, CancellationToken.None);
+
+        records.Should().NotBeNull();
+        records!.Should().ContainSingle(r => r.ComparisonRecordId == "cmp-list-run-casing");
+    }
+
+    [Fact]
     public async Task CompareQuality_TryListByRunIdAsync_lists_records_when_persisted_left_uses_dashed_guid_and_query_uses_n_format()
     {
         Guid runKey = Guid.Parse("55555555-5555-5555-5555-555555555555");
@@ -81,7 +121,7 @@ public sealed class CompareQualityComparisonsApplicationServiceTests
 
         Mock<IRunDetailQueryService> runDetail = new();
         runDetail
-            .Setup(s => s.GetRunDetailAsync(dashedRunId, It.IsAny<CancellationToken>()))
+            .Setup(s => s.GetRunDetailAsync(canonicalRunId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ArchitectureRunDetail { Run = new() { RunId = canonicalRunId } });
 
         ComparisonsApplicationService sut = new(
@@ -1310,7 +1350,7 @@ public sealed class CompareQualityComparisonsApplicationServiceTests
 
         Mock<IRunDetailQueryService> runDetail = new();
         runDetail
-            .Setup(s => s.GetRunDetailAsync(dashedLeftRunId, It.IsAny<CancellationToken>()))
+            .Setup(s => s.GetRunDetailAsync(canonicalLeftRunId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ArchitectureRunDetail { Run = new() { RunId = canonicalLeftRunId } });
 
         ComparisonsApplicationService sut = new(
