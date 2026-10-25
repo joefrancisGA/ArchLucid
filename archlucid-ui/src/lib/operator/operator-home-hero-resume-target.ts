@@ -153,19 +153,21 @@ export function matchesOperatorHomeHeroResumeTarget(
 
   const heroRunId = resolveRunIdFromWorkingReviewHref(target.href);
   const itemHrefRunId = resolveRunIdFromWorkingReviewHref(item.href);
+
+  if (
+    normalizeResumeHrefForMatch(target.href) === normalizeResumeHrefForMatch(item.href)
+    && heroRunId !== null
+    && itemHrefRunId !== null
+    && heroRunId !== itemHrefRunId
+  ) {
+    return false;
+  }
+
   const targetRunIds = collectResumeRunIdsForMatch(target.href, target.runId);
   const itemRunIds = collectResumeRunIdsForMatch(item.href, item.runId);
 
   if (targetRunIds.some((left) => itemRunIds.includes(left))) {
     return true;
-  }
-
-  if (
-    heroRunId !== null
-    && itemHrefRunId !== null
-    && heroRunId !== itemHrefRunId
-  ) {
-    return false;
   }
 
   const targetDraftId = target.draftId?.trim() ?? "";

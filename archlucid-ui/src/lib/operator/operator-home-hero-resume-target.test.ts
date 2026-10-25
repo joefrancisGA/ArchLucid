@@ -68,6 +68,18 @@ describe("operator-home-hero-resume-target", () => {
     ).toBe(true);
   });
 
+  it("does not match when desk highlightReviewId differs even if explicit runId matches hero", () => {
+    expect(
+      matchesOperatorHomeHeroResumeTarget(
+        { href: "/architecture/architectures/architecture-identity-001?highlightReviewId=run-a" },
+        {
+          href: "/architecture/architectures/architecture-identity-001?highlightReviewId=run-b",
+          runId: "run-a",
+        },
+      ),
+    ).toBe(false);
+  });
+
   it("does not treat same architecture desk with different highlightReviewId as equivalent", () => {
     expect(
       matchesOperatorHomeHeroResumeTarget(

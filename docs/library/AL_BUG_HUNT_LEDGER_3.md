@@ -4938,7 +4938,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-operator-lib
 
-**Hunts:** 80 · **Bugs found:** 77 · **Consecutive dry hunts:** 0
+**Hunts:** 82 · **Bugs found:** 79 · **Consecutive dry hunts:** 0
+
+2026-10-25 seed hunt (hit): path-scoped SN-012 `highlightReviewId` guard in `matchesOperatorHomeHeroResumeTarget` runs before run-id cross-match so same-desk highlights differ without suppressing peer-path stale href matches; regression `does not match when desk highlightReviewId differs even if explicit runId matches hero`; scoped hero-resume-target vitest passed. Private beta: Invited operators keep Continue on unfinished-work rows that highlight a different review on the same architecture desk when the row id still carries an older run id.
+
+2026-10-25 seed hunt (hit): promoted `resolveOperatorUnfinishedWorkRailItemResumeTarget` so unfinished-work rail rows pass TB-2369 row ids into hero Continue dedupe (not href-only); trimmed `resolveRunIdFromUnfinishedWorkRailItem` suffixes; regressions `prefers TB-2369 row id when href does not parse a run id`, `suppresses duplicate Continue when hero matches rail row id but not href`, and `resolveRunIdFromUnfinishedWorkRailItem returns null when id suffix is whitespace-only`; scoped vitest passed. Private beta: Invited operators no longer see duplicate Continue on home unfinished-work rows when the row id still identifies the same review as the hero resume target but the row href is stale.
 
 2026-10-25 seed hunt (hit): promoted `resolveRunIdFromUnfinishedWorkRailItem` in continue-last review rail dedupe when rail `href` no longer parses a run id but the TB-2369 row id still encodes it; regression `suppresses continue-last when rail row id encodes the run id but href does not parse a run`; scoped affordance + attention-dedup vitest passed. Private beta: Invited operators no longer see duplicate Continue last review on home when the unfinished-work rail row id still points at the same run but the row href is stale or non-review shaped.
 
@@ -5123,11 +5127,19 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) `resolveOperatorHomeResumeAffordancePlan` — review rail dedupe ignored TB-2369 `review-in-progress:` row id when href failed `resolveRunIdFromWorkingReviewHref` — **hit 2026-10-25 seed hunt:** exported `resolveRunIdFromUnfinishedWorkRailItem`; regression `suppresses continue-last when rail row id encodes the run id but href does not parse a run`.
 
-- [ ] (candidate) `resolveRunIdFromUnfinishedWorkRailItem` — returns null for `awaiting-disposition:` rows with whitespace-only suffix — locus: `home-attention-dedup.ts`; input: `awaiting-disposition:   ` id.
-- [ ] (candidate) `collectResumeRunIdsForMatch` — unions href + explicit without duplicating when both encode the same run — locus: Set dedupe in helper; input: peer href + matching explicit `runId`.
-- [ ] (candidate) `resolveOperatorHomeResumeAffordancePlan` — review branch unions rail id run ids before href equivalence fallback — locus: review dedupe ~117; input: regression `suppresses continue-last when rail row id encodes the run id but href does not parse a run`.
-- [ ] (candidate) `matchesOperatorHomeHeroResumeTarget` — should union rail-style explicit `item.runId` with href ids for table row dedupe — locus: hero resume target; input: row supplies `runId` field separate from href (P1-11).
-- [ ] (candidate) `listHomeAttentionPreviewExcludedRunIds` — stays aligned with continue-last rail run id extraction after export rename — locus: `resolveRunIdFromUnfinishedWorkRailItem`; input: existing `home-attention-dedup` regressions.
+- [x] (proven) `resolveRunIdFromUnfinishedWorkRailItem` — returned whitespace-only suffix instead of null — **hit 2026-10-25 seed hunt:** `.trim()` on id suffix; regression `resolveRunIdFromUnfinishedWorkRailItem returns null when id suffix is whitespace-only`.
+- [x] (valid-no-repro) `collectResumeRunIdsForMatch` — unions href + explicit without duplicating when both encode the same run — **cheap-disproof 2026-10-25 seed hunt:** `Set` dedupe; regression `collectResumeRunIdsForMatch dedupes when href and explicit encode the same run`.
+- [x] (proven) `resolveOperatorHomeResumeAffordancePlan` — review branch unions rail id run ids before href equivalence fallback — **hit 2026-10-25 seed hunt:** `resolveOperatorUnfinishedWorkRailItemResumeTarget`.
+- [x] (proven) `matchesOperatorHomeHeroResumeTarget` / `UnfinishedWorkRail` — href-only rail resume target omitted TB-2369 row id — **hit 2026-10-25 seed hunt:** `resolveOperatorUnfinishedWorkRailItemResumeTarget`; regressions `prefers TB-2369 row id when href does not parse a run id` and `suppresses duplicate Continue when hero matches rail row id but not href`.
+- [x] (valid-no-repro) `listHomeAttentionPreviewExcludedRunIds` — stays aligned with continue-last rail run id extraction after export rename — **cheap-disproof 2026-10-25 seed hunt:** regression `lists active review run ids from unfinished-work rail items`.
+
+- [x] (proven) `matchesOperatorHomeHeroResumeTarget` — run-id cross-match ran before same-desk distinct `highlightReviewId` guard — **hit 2026-10-25 seed hunt:** path-scoped guard before cross-match; regression `does not match when desk highlightReviewId differs even if explicit runId matches hero`.
+
+- [ ] (candidate) `matchesOperatorHomeHeroResumeTarget` — same-desk highlight guard does not block peer-path stale href cross-match — locus: guard + `normalizeResumeHrefForMatch`; input: `matches when the hero run id equals the rail href run id even if paths differ`.
+- [ ] (candidate) `resolveOperatorUnfinishedWorkRailItemResumeTarget` — prefers TB-2369 row id when href is `/architecture/reviews/new` — locus: rail resume resolver; input: rail resume target tests.
+- [ ] (candidate) `collectResumeRunIdsForMatch` — explicit run id preserved when href is empty — locus: helper; input: empty href + explicit run id.
+- [ ] (candidate) `resumeHrefsEquivalentForDedupe` — peer review trailing-slash equivalence unchanged — locus: normalize path; input: trailing-slash hero/rail tests.
+- [ ] (candidate) `resolveOperatorHomeResumeAffordancePlan` — architecture continue-last dedupe independent of highlight guard — locus: architecture branch; input: architecture affordance regressions.
 
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regression `drops favorite rows when runId is whitespace-only`; 41 scoped continuity, scope-storage, and attention-preview vitest tests passed.
 
