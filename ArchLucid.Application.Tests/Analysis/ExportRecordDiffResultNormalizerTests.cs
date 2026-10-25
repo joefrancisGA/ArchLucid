@@ -44,4 +44,19 @@ public sealed class ExportRecordDiffResultNormalizerTests
         diff.RequestDiff.LeftRequest!.CompareRunId.Should().BeNull();
         diff.RequestDiff.RightRequest!.CompareRunId.Should().Be(compareRunGuid.ToString("N"));
     }
+
+    [Fact]
+    public void CompareQuality_ExportRecordDiffResultNormalizer_removes_whitespace_only_warnings_and_changed_top_level_fields()
+    {
+        ExportRecordDiffResult diff = new()
+        {
+            Warnings = ["   ", "  drift on title  ", "\t"],
+            ChangedTopLevelFields = [" ", "  summaryMarkdown  ", ""],
+        };
+
+        ExportRecordDiffResultNormalizer.NormalizeDisplayAnchors(diff);
+
+        diff.Warnings.Should().Equal("drift on title");
+        diff.ChangedTopLevelFields.Should().Equal("summaryMarkdown");
+    }
 }

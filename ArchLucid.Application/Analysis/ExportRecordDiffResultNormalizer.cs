@@ -17,6 +17,9 @@ internal static class ExportRecordDiffResultNormalizer
         diff.LeftRunId = NormalizeRunIdAnchor(diff.LeftRunId);
         diff.RightRunId = NormalizeRunIdAnchor(diff.RightRunId);
 
+        ComparisonPersistedStringListNormalizer.NormalizeInPlace(diff.Warnings);
+        ComparisonPersistedStringListNormalizer.NormalizeInPlace(diff.ChangedTopLevelFields);
+
         PersistedAnalysisExportRequestMetadata.TrimOptionalStrings(diff.RequestDiff.LeftRequest);
         PersistedAnalysisExportRequestMetadata.TrimOptionalStrings(diff.RequestDiff.RightRequest);
         CanonicalizeNestedCompareRunId(diff.RequestDiff.LeftRequest);
