@@ -4938,7 +4938,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-operator-lib
 
-**Hunts:** 49 · **Bugs found:** 46 · **Consecutive dry hunts:** 0
+**Hunts:** 50 · **Bugs found:** 47 · **Consecutive dry hunts:** 0
+
+2026-10-25 seed hunt (hit): promoted `presentOperatorSessionsToFinalizedPercent` negative-ratio guard; regression `rejects negative ratios instead of showing 0%`; 4 scoped `operator-sessions-to-finalized-percent-display` vitest passed. Private beta: Invited operators no longer see a misleading `0%` session-to-finalize conversion tile when diagnostics APIs return a negative ratio.
 
 2026-10-25 seed hunt (hit): promoted `deriveOperatorHomeTenantCountingSnapshot` `runsDashboardTotalCount` floor against loaded tenant rows; regression `treats zero runsDashboardTotalCount as stale when tenant overview rows are loaded`; scoped `operator-home-tenant-counting` vitest passed. Private beta: Invited operators no longer get an empty-home metrics strip and “no reviews yet” outcome copy when the runs dashboard reports `totalCount` 0 while real overview rows are already on screen.
 
@@ -4966,6 +4968,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-10-08 seed hunt (seed-only): re-read continuity hydration, recent-view mapping, workspace metrics, and freshness helpers; no hunt-ready row promoted; scoped `lib/operator` tests completed with known baseline failures outside the reviewed utility behavior.
 
+- [x] (proven) `presentOperatorSessionsToFinalizedPercent` — negative finite ratios clamp to `0%` display — **hit 2026-10-25 seed hunt:** reject `r < 0` like `r > 1`; regression `rejects negative ratios instead of showing 0%`.
 - [x] (proven) `deriveOperatorHomeTenantCountingSnapshot` — `runsDashboardTotalCount ?? tenantItems.length` keeps `0` when dashboard total is stale — **hit 2026-10-25 seed hunt:** `Math.max(normalizedDashboardTotal, tenantReviewCount)`; regression `treats zero runsDashboardTotalCount as stale when tenant overview rows are loaded`.
 - [x] (proven) `mapAlertsInboxSummary` — raw DTO counts propagate `NaN` into alerts inbox cache — **hit 2026-10-25 seed hunt:** `normalizeOperatorHomeNonNegativeCount` on open/acknowledged/resolved/blocking; regression `normalizes non-finite alerts inbox summary counts from shell status JSON to zero`.
 - [x] (proven) `fetchOperatorShellStatus` — `assignedToMeFindingsCount ?? null` leaves `NaN` on hydrate (`?? 0` in UI still shows NaN) — **hit 2026-10-25 seed hunt:** `normalizeOperatorShellNullableCount`; regressions `maps non-finite assigned-to-me findings count from shell status JSON to null` and `maps non-finite counts to null`.
