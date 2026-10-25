@@ -11,8 +11,10 @@ function summary(
     visibleNodeCount: partial.visibleNodeCount ?? 10,
     visibleEdgeCount: partial.visibleEdgeCount ?? 4,
     connectedComponentCount: partial.connectedComponentCount ?? 3,
-    hiddenHopsUsedCount: partial.hiddenHopsUsedCount ?? 0,
-    likelyInCollocationEdgeCount: partial.likelyInCollocationEdgeCount ?? 0,
+    hiddenHopsUsedCount:
+      partial.hiddenHopsUsedCount === undefined ? 0 : partial.hiddenHopsUsedCount,
+    likelyInCollocationEdgeCount:
+      partial.likelyInCollocationEdgeCount === undefined ? 0 : partial.likelyInCollocationEdgeCount,
     collectedClasses: partial.collectedClasses ?? [],
     missingClasses: partial.missingClasses ?? [],
   };
