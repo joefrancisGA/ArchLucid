@@ -45,6 +45,40 @@ public sealed class InMemoryComparisonRecordRepositoryAdditionalCoverageTests
     }
 
     [SkippableFact]
+    public async Task SearchAsync_orders_by_trimmed_comparison_record_id_tiebreaker_when_created_utc_equal()
+    {
+        DateTime sharedTime = new(2026, 1, 2, 0, 0, 0, DateTimeKind.Utc);
+
+        InMemoryComparisonRecordRepository sut = new();
+        FieldInfo? itemsField = typeof(InMemoryComparisonRecordRepository).GetField(
+            "_items",
+            BindingFlags.Instance | BindingFlags.NonPublic);
+        itemsField.Should().NotBeNull();
+        List<ComparisonRecord> items = (List<ComparisonRecord>)itemsField!.GetValue(sut)!;
+        items.Add(Row("cmp-a", sharedTime));
+        items.Add(Row("  cmp-b  ", sharedTime));
+
+        IReadOnlyList<ComparisonRecord> page = await sut.SearchAsync(
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            "createdUtc",
+            "desc",
+            0,
+            1,
+            CancellationToken.None);
+
+        page.Should().ContainSingle();
+        page[0].ComparisonRecordId.Trim().Should().Be("cmp-b");
+    }
+
+    [SkippableFact]
     public async Task SearchAsync_finds_row_when_stored_left_run_id_uses_dashed_guid_and_filter_uses_n_format()
     {
         Guid runKey = Guid.Parse("66666666-6666-6666-6666-666666666666");

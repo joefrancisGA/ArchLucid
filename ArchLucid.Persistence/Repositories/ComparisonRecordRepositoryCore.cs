@@ -143,20 +143,30 @@ internal static class ComparisonRecordRepositoryCore
         IOrderedEnumerable<ComparisonRecord> ordered = col.ToLowerInvariant() switch
         {
             "comparisontype" or "type" => desc
-                ? source.OrderByDescending(static r => r.ComparisonType).ThenByDescending(static r => r.ComparisonRecordId)
-                : source.OrderBy(static r => r.ComparisonType).ThenBy(static r => r.ComparisonRecordId),
+                ? source.OrderByDescending(static r => r.ComparisonType)
+                    .ThenByDescending(static r => ComparisonRecordIdLookup.TiebreakerSortKey(r.ComparisonRecordId))
+                : source.OrderBy(static r => r.ComparisonType)
+                    .ThenBy(static r => ComparisonRecordIdLookup.TiebreakerSortKey(r.ComparisonRecordId)),
             "label" => desc
-                ? source.OrderByDescending(static r => r.Label).ThenByDescending(static r => r.ComparisonRecordId)
-                : source.OrderBy(static r => r.Label).ThenBy(static r => r.ComparisonRecordId),
+                ? source.OrderByDescending(static r => r.Label)
+                    .ThenByDescending(static r => ComparisonRecordIdLookup.TiebreakerSortKey(r.ComparisonRecordId))
+                : source.OrderBy(static r => r.Label)
+                    .ThenBy(static r => ComparisonRecordIdLookup.TiebreakerSortKey(r.ComparisonRecordId)),
             "leftrunid" => desc
-                ? source.OrderByDescending(static r => r.LeftRunId).ThenByDescending(static r => r.ComparisonRecordId)
-                : source.OrderBy(static r => r.LeftRunId).ThenBy(static r => r.ComparisonRecordId),
+                ? source.OrderByDescending(static r => r.LeftRunId)
+                    .ThenByDescending(static r => ComparisonRecordIdLookup.TiebreakerSortKey(r.ComparisonRecordId))
+                : source.OrderBy(static r => r.LeftRunId)
+                    .ThenBy(static r => ComparisonRecordIdLookup.TiebreakerSortKey(r.ComparisonRecordId)),
             "rightrunid" => desc
-                ? source.OrderByDescending(static r => r.RightRunId).ThenByDescending(static r => r.ComparisonRecordId)
-                : source.OrderBy(static r => r.RightRunId).ThenBy(static r => r.ComparisonRecordId),
+                ? source.OrderByDescending(static r => r.RightRunId)
+                    .ThenByDescending(static r => ComparisonRecordIdLookup.TiebreakerSortKey(r.ComparisonRecordId))
+                : source.OrderBy(static r => r.RightRunId)
+                    .ThenBy(static r => ComparisonRecordIdLookup.TiebreakerSortKey(r.ComparisonRecordId)),
             _ => desc
-                ? source.OrderByDescending(static r => r.CreatedUtc).ThenByDescending(static r => r.ComparisonRecordId)
-                : source.OrderBy(static r => r.CreatedUtc).ThenBy(static r => r.ComparisonRecordId),
+                ? source.OrderByDescending(static r => r.CreatedUtc)
+                    .ThenByDescending(static r => ComparisonRecordIdLookup.TiebreakerSortKey(r.ComparisonRecordId))
+                : source.OrderBy(static r => r.CreatedUtc)
+                    .ThenBy(static r => ComparisonRecordIdLookup.TiebreakerSortKey(r.ComparisonRecordId)),
         };
 
         return ordered;

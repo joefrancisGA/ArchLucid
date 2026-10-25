@@ -11,4 +11,6 @@ internal static class ComparisonRecordIdLookup
     internal static bool StoredValueMatchesLookup(string? storedComparisonRecordId, string normalizedLookupKey) =>
         !string.IsNullOrWhiteSpace(storedComparisonRecordId)
         && string.Equals(storedComparisonRecordId.Trim(), normalizedLookupKey, StringComparison.Ordinal);
+
+    internal static string TiebreakerSortKey(string comparisonRecordId) => comparisonRecordId.Trim();
 }

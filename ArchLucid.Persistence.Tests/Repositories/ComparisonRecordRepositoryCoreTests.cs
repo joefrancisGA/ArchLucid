@@ -97,6 +97,20 @@ public sealed class ComparisonRecordRepositoryCoreTests
     }
 
     [Fact]
+    public void OrderInMemory_uses_trimmed_comparison_record_id_tiebreaker_when_created_utc_equal()
+    {
+        DateTime sharedTime = new(2026, 1, 2, 0, 0, 0, DateTimeKind.Utc);
+        ComparisonRecord paddedB = Record("  cmp-b  ", createdUtc: sharedTime);
+        ComparisonRecord plainA = Record("cmp-a", createdUtc: sharedTime);
+
+        List<ComparisonRecord> ordered = ComparisonRecordRepositoryCore
+            .OrderInMemory([paddedB, plainA], "createdUtc", "desc")
+            .ToList();
+
+        ordered.Select(r => r.ComparisonRecordId.Trim()).Should().ContainInOrder("cmp-b", "cmp-a");
+    }
+
+    [Fact]
     public void MatchesCursor_trims_padded_comparison_record_id()
     {
         DateTime cursorTime = new(2026, 1, 2, 0, 0, 0, DateTimeKind.Utc);

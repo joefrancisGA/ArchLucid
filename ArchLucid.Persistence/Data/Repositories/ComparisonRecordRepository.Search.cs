@@ -141,8 +141,8 @@ public sealed partial class ComparisonRecordRepository
         // Ensure stable paging by always appending ComparisonRecordId as a tiebreaker.
         // Without this, records with identical CreatedUtc could reorder between pages.
         sql += sortDescending
-            ? $" ORDER BY {orderColumn} DESC, ComparisonRecordId DESC"
-            : $" ORDER BY {orderColumn} ASC, ComparisonRecordId ASC";
+            ? $" ORDER BY {orderColumn} DESC, {ComparisonRecordIdSql.TrimmedColumnExpression} DESC"
+            : $" ORDER BY {orderColumn} ASC, {ComparisonRecordIdSql.TrimmedColumnExpression} ASC";
         sql += " OFFSET @Skip ROWS FETCH NEXT @Limit ROWS ONLY;";
 
         IEnumerable<ComparisonRecord> rows = await connection.QueryAsync<ComparisonRecord>(new CommandDefinition(

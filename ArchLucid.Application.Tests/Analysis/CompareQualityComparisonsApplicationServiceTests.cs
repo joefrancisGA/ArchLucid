@@ -669,6 +669,60 @@ public sealed class CompareQualityComparisonsApplicationServiceTests
     }
 
     [Fact]
+    public async Task CompareQuality_SearchAsync_offset_paging_uses_trimmed_comparison_record_id_tiebreaker()
+    {
+        DateTime sharedTime = new(2026, 2, 1, 0, 0, 0, DateTimeKind.Utc);
+
+        InMemoryComparisonRecordRepository comparisonRecords = new();
+        FieldInfo? itemsField = typeof(InMemoryComparisonRecordRepository).GetField(
+            "_items",
+            BindingFlags.Instance | BindingFlags.NonPublic);
+        itemsField.Should().NotBeNull();
+        List<ComparisonRecord> items = (List<ComparisonRecord>)itemsField!.GetValue(comparisonRecords)!;
+        items.Add(
+            new ComparisonRecord
+            {
+                ComparisonRecordId = "cmp-offset-a",
+                ComparisonType = ComparisonTypes.EndToEndReplay,
+                LeftRunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                RightRunId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+                CreatedUtc = sharedTime,
+            });
+        items.Add(
+            new ComparisonRecord
+            {
+                ComparisonRecordId = "  cmp-offset-b  ",
+                ComparisonType = ComparisonTypes.EndToEndReplay,
+                LeftRunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                RightRunId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+                CreatedUtc = sharedTime,
+            });
+
+        ComparisonsApplicationService sut = new(
+            new Mock<IRunDetailQueryService>().Object,
+            new Mock<IRunExportRecordRepository>().Object,
+            comparisonRecords,
+            new Mock<IComparisonReplayService>().Object,
+            new Mock<ICompareRunsApplicationFacade>().Object,
+            new Mock<IComparisonReplayCostEstimator>().Object,
+            new Mock<IDriftReportFormatter>().Object,
+            new DriftReportDocxExport());
+
+        ComparisonHistorySearchResult page = await sut.SearchAsync(
+            new ComparisonHistorySearchCriteria
+            {
+                SortBy = "createdUtc",
+                SortDir = "desc",
+                Skip = 0,
+                Limit = 1,
+            },
+            CancellationToken.None);
+
+        page.Records.Should().ContainSingle();
+        page.Records[0].ComparisonRecordId.Should().Be("cmp-offset-b");
+    }
+
+    [Fact]
     public async Task CompareQuality_SearchAsync_sorts_ascending_when_sort_dir_has_surrounding_whitespace()
     {
         DateTime oldest = new(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
