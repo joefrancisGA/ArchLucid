@@ -68,8 +68,12 @@ public sealed class ComparisonAuditService(IComparisonRecordRepository repositor
             ComparisonType = ComparisonTypes.ExportRecordDiff,
             LeftRunId = leftRunId,
             RightRunId = rightRunId,
-            LeftExportRecordId = diff.LeftExportRecordId,
-            RightExportRecordId = diff.RightExportRecordId,
+            LeftExportRecordId = string.IsNullOrWhiteSpace(diff.LeftExportRecordId)
+                ? diff.LeftExportRecordId
+                : diff.LeftExportRecordId.Trim(),
+            RightExportRecordId = string.IsNullOrWhiteSpace(diff.RightExportRecordId)
+                ? diff.RightExportRecordId
+                : diff.RightExportRecordId.Trim(),
             Format = ComparisonTypes.FormatJsonMarkdown,
             SummaryMarkdown = summaryMarkdown,
             PayloadJson = SerializeExportDiffPayload(diff, leftRunId, rightRunId),

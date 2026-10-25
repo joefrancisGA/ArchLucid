@@ -4,7 +4,7 @@ export const OPERATOR_HOME_GOVERNANCE_APPROVAL_WARNING_SINGULAR = "approval warn
 export const OPERATOR_HOME_GOVERNANCE_APPROVAL_WARNING_PLURAL = "approval warnings" as const;
 
 export function formatOperatorHomeGovernanceApprovalWarningCount(count: number): string {
-  const safeCount = Math.max(0, Math.trunc(count));
+  const safeCount = !Number.isFinite(count) ? 0 : Math.max(0, Math.trunc(count));
 
   if (safeCount === 1) {
     return `1 ${OPERATOR_HOME_GOVERNANCE_APPROVAL_WARNING_SINGULAR}`;

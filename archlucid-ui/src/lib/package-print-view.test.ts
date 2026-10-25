@@ -10,6 +10,9 @@ import {
   buildPackagePrintPath,
   buildPackagePrintPresentation,
   buildPackagePrintSponsorSynopsis,
+  formatPackagePrintDraftSynopsisBody,
+  resolvePackagePrintSynopsisBody,
+  resolvePackagePrintSynopsisHeading,
   printPackagePage,
   resolvePackagePrintSemanticSupportBandStampLine,
   resolvePackagePrintStatusLabel,
@@ -51,7 +54,7 @@ describe("package-print-view (TB-2205)", () => {
   it("resolves status and presentation for a finalized package", () => {
     const presentation = buildPackagePrintPresentation(summary());
 
-    expect(resolvePackagePrintStatusLabel(summary())).toBe("Active");
+    expect(resolvePackagePrintStatusLabel(summary())).toBe("Finalized. Governance warnings were stored.");
     expect(presentation.title).toBe("Payments edge");
     expect(presentation.findingsSummary).toContain("3 findings");
     expect(presentation.findingsSummary).toContain("1 warning");
@@ -121,6 +124,15 @@ describe("package-print-view (TB-2205)", () => {
     printMock.mockRestore();
   });
 
+  it("labels omitted listed finding count without implying full inventory (P-09)", () => {
+    const presentation = buildPackagePrintPresentation(summary({ findingCount: 25 }), {
+      findingsListedCount: null,
+    });
+
+    expect(presentation.findingsSummary).toContain("Listed finding count was not stored.");
+    expect(presentation.findingsSummary).not.toContain("Showing 25 of 25");
+  });
+
   it("CA-41: adds showing N of M when listed findings are fewer than the run total", () => {
     const presentation = buildPackagePrintPresentation(summary({ findingCount: 25 }), {
       findingsListedCount: 20,
@@ -150,6 +162,24 @@ describe("package-print-view (TB-2205)", () => {
     const line = resolvePackagePrintSemanticSupportBandStampLine(findings);
 
     expect(line).toContain("1 Supported");
+  });
+
+  it("labels draft working synopsis as not published", () => {
+    expect(formatPackagePrintDraftSynopsisBody("Working paragraph.")).toContain("not published");
+    expect(formatPackagePrintDraftSynopsisBody(null)).toBe("Draft sponsor synopsis was not stored.");
+    expect(resolvePackagePrintSynopsisHeading("Draft")).toContain("draft");
+    const body = resolvePackagePrintSynopsisBody({
+      title: "Draft",
+      statusLabel: "Draft",
+      statusKind: "draft",
+      findingsSummary: "x",
+      sponsorSynopsis: null,
+      draftWorkingSynopsisParagraph: "Working paragraph.",
+      createdUtc: "2026-01-01T00:00:00Z",
+      runId: "r1",
+    });
+
+    expect(body).toContain("Working paragraph.");
   });
 
   it("buildPackagePrintPresentation carries semantic support stamp line", () => {

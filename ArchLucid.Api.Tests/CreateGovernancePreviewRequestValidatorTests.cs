@@ -29,6 +29,23 @@ public sealed class CreateGovernancePreviewRequestValidatorTests
     }
 
     [Theory]
+    [InlineData(" dev ")]
+    [InlineData("PROD")]
+    public void Environment_with_surrounding_whitespace_or_different_casing_passes(string environment)
+    {
+        CreateGovernancePreviewRequest request = new()
+        {
+            RunId = Guid.NewGuid().ToString("D"),
+            ManifestVersion = "1.0.0",
+            Environment = environment,
+        };
+
+        ValidationResult result = _validator.Validate(request);
+
+        result.IsValid.Should().BeTrue();
+    }
+
+    [Theory]
     [InlineData("staging")]
     [InlineData("")]
     public void Invalid_environment_fails(string environment)

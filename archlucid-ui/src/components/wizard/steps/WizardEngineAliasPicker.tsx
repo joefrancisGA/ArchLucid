@@ -26,7 +26,7 @@ export function WizardEngineAliasPicker(): ReactElement | null {
     <div className="space-y-2 rounded-lg border border-neutral-200 bg-neutral-50/50 p-4 dark:border-neutral-700 dark:bg-neutral-900/30">
       <WizardFieldHint
         label="Engine alias"
-        hint="Optional per-review engine within the workspace allowed set. Defaults to the workspace standard engine."
+        hint="Optional per-review engine within the workspace allowed set. Defaults to the workspace standard engine. Alias ids are technical registry keys — evaluation state is shown beside each option."
       />
       <Controller
         name="modelAliasOverride"
