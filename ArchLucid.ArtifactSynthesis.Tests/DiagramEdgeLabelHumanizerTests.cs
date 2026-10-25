@@ -18,7 +18,7 @@ public sealed class DiagramEdgeLabelHumanizerTests
     [InlineData(GraphEdgeTypes.AppliesTo, "applies")]
     [InlineData(GraphEdgeTypes.RelatesTo, "relates to")]
     [InlineData(GraphEdgeTypes.DependsOn, "depends on")]
-    [InlineData(GraphEdgeTypes.Exposes, "exposes")]
+    [InlineData(GraphEdgeTypes.Exposes, "Public IP is attached.")]
     [InlineData(GraphEdgeTypes.HasRole, "has role")]
     [InlineData(GraphEdgeTypes.UsesIdentity, "Identity is assigned. Use of that identity was not stored.")]
     [InlineData(GraphEdgeTypes.CanRead, "Role allows read. This is not observed use.")]
@@ -26,7 +26,7 @@ public sealed class DiagramEdgeLabelHumanizerTests
     [InlineData(GraphEdgeTypes.CanAssume, "May assume this identity. An assumption was not observed.")]
     [InlineData(GraphEdgeTypes.CanControlCode, "Role can control code. This is not an observed deployment.")]
     [InlineData(GraphEdgeTypes.RoutesTo, "routes to")]
-    [InlineData(GraphEdgeTypes.FederatesAs, "federates")]
+    [InlineData(GraphEdgeTypes.FederatesAs, "Federated credential is configured. This is not an observed sign-in.")]
     [InlineData(GraphEdgeTypes.MemberOf, "member of")]
     public void ResolveDisplayLabel_humanizes_known_graph_edge_types(string edgeType, string expected)
     {
@@ -41,14 +41,12 @@ public sealed class DiagramEdgeLabelHumanizerTests
     [InlineData(AzureInventoryRelationshipAssociationTypes.NicToSubnet, "in")]
     [InlineData(AzureInventoryRelationshipAssociationTypes.AdfLinkedService, "Linked service")]
     [InlineData(GraphEdgeInferenceSources.InventoryLogicAppConnection, "API connection")]
-    [InlineData(GraphEdgeInferenceSources.InventoryDiagnosticSettingStorage, InventoryDiagramRelationshipLabelTexts.DiagnosticSettingNameNotStoredLogDeliveryNotObserved)]
-    [InlineData(AzureInventoryRelationshipAssociationTypes.AdfLinkedServiceInferred, "No stored link; hostname or linked-service text was inferred.")]
-    [InlineData(AzureInventoryRelationshipAssociationTypes.AdfReadsFrom, InventoryDiagramRelationshipLabelTexts.PipelineDatasetConfiguredReadObservedReadNotStored)]
-    [InlineData(AzureInventoryRelationshipAssociationTypes.AdfWritesTo, InventoryDiagramRelationshipLabelTexts.PipelineDatasetConfiguredWriteObservedWriteNotStored)]
-    [InlineData(GraphEdgeInferenceSources.InventoryAdfReadsFrom, InventoryDiagramRelationshipLabelTexts.PipelineDatasetConfiguredReadObservedReadNotStored)]
-    [InlineData(GraphEdgeInferenceSources.InventoryAdfWritesTo, InventoryDiagramRelationshipLabelTexts.PipelineDatasetConfiguredWriteObservedWriteNotStored)]
-    [InlineData(GraphEdgeInferenceSources.InventoryServiceConnectorLink, InventoryDiagramRelationshipLabelTexts.ServiceConnectorConfiguredLabel)]
-    [InlineData(GraphEdgeInferenceSources.InventoryHostnameInferredTarget, InventoryDiagramRelationshipLabelTexts.HostnameInferredTargetLabel)]
+    [InlineData(GraphEdgeInferenceSources.InventoryDiagnosticSettingStorage, "Diagnostic setting name was not stored.")]
+    [InlineData(AzureInventoryRelationshipAssociationTypes.AdfLinkedServiceInferred, "No stored link yet; inferred from resource group.")]
+    [InlineData(AzureInventoryRelationshipAssociationTypes.AdfReadsFrom, "Reads from")]
+    [InlineData(AzureInventoryRelationshipAssociationTypes.AdfWritesTo, "Writes to")]
+    [InlineData(GraphEdgeInferenceSources.InventoryAdfReadsFrom, "Reads from")]
+    [InlineData(GraphEdgeInferenceSources.InventoryAdfWritesTo, "Writes to")]
     public void HumanizeLabel_maps_inventory_association_and_inference_aliases(string alias, string expected)
     {
         DiagramEdgeLabelHumanizer.HumanizeLabel(alias).Should().Be(expected);
@@ -145,6 +143,17 @@ public sealed class DiagramEdgeLabelHumanizerTests
         {
             DiagramEdgeLabelHumanizer.ResolveDisplayLabel(null, null, alias).Should().Be(expected);
         }
+    }
+
+    [Fact]
+    public void ResolveDisplayLabel_observed_dependency_without_direction_is_explicit_about_missing_read_write()
+    {
+        DiagramEdgeLabelHumanizer.ResolveDisplayLabel(
+                null,
+                GraphEdgeTypes.ConnectsTo,
+                GraphEdgeInferenceSources.InventoryObservedDependency)
+            .Should()
+            .Be("Observed dependency. Read/write direction was not stored.");
     }
 
     [Fact]

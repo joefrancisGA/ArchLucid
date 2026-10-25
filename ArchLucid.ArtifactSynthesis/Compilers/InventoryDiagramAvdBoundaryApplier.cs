@@ -99,7 +99,7 @@ internal static class InventoryDiagramAvdBoundaryApplier
             {
                 FromNodeId = fromAvdOnly ? boundaryDiagramNodeId : sharedDiagramNodeId,
                 ToNodeId = fromAvdOnly ? sharedDiagramNodeId : boundaryDiagramNodeId,
-                Label = InventoryDiagramAvdResourceMapping.CollapsedBoundaryLabel,
+                Label = InventoryDiagramAvdResourceMapping.CollapsedBoundaryEdgeLabel,
             });
         }
 
@@ -109,7 +109,9 @@ internal static class InventoryDiagramAvdBoundaryApplier
             boundaryNodes[boundaryDiagramNodeId] = new DiagramNode
             {
                 NodeId = boundaryDiagramNodeId,
-                Label = InventoryDiagramAvdResourceMapping.HostPoolNameNotStored,
+                Label = InventoryDiagramAvdResourceMapping.FormatOmittedAvdSummaryBoundaryLabel(
+                    hostPoolCount,
+                    sessionHostCount),
                 NodeType = "avd-boundary",
                 OrderKey = ast.Nodes.Count,
                 IsAvdCollapsedBoundary = true,

@@ -62,7 +62,7 @@ export function resolveFindingRiskOwnerLabel(
   const assigned = payload?.assignedToUserId?.trim() ?? "";
 
   if (assigned.length > 0) {
-    return assigned;
+    return `Risk owner name was not stored. Assignee id ${assigned}.`;
   }
 
   return RISK_OWNER_NOT_ASSIGNED;
@@ -167,6 +167,9 @@ export function fallbackSeverity(payload: FindingInspectPayload | null, findingI
       return severity;
     }
 
+    if (isPhiMinimizationSampleFinding(payload)) {
+      return "High";
+    }
   }
 
   return SEVERITY_NOT_STORED;
@@ -201,7 +204,7 @@ export function buyerFindingDecisionPanelCopy(payload: FindingInspectPayload | n
   const status = fallbackStatus(payload, findingId);
 
   if (status === STATUS_NOT_STORED) {
-    return "No disposition recorded for this finding.";
+    return "Disposition was not stored.";
   }
 
   return `Disposition: ${status}.`;
