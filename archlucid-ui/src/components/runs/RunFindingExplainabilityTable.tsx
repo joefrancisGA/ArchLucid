@@ -50,6 +50,14 @@ export const RUN_FINDING_EXPLAINABILITY_EVIDENCE_LINK_OMITTED = "Evidence link w
 
 export const RUN_FINDING_EXPLAINABILITY_TITLE_OMITTED = "Finding title was not stored." as const;
 
+export const RUN_FINDING_EXPLAINABILITY_TRACE_LABEL_OMITTED = "Trace label was not stored." as const;
+
+function formatExplainabilityTraceLabel(label: string | null | undefined): string {
+  const trimmed = label?.trim() ?? "";
+
+  return trimmed.length > 0 ? trimmed : RUN_FINDING_EXPLAINABILITY_TRACE_LABEL_OMITTED;
+}
+
 export type RunFindingExplainabilityTableProps = {
   runId: string;
   rows: FindingTraceConfidenceDto[];
@@ -474,7 +482,9 @@ export function RunFindingExplainabilityTable({
                     RUN_FINDING_EXPLAINABILITY_EVIDENCE_LINK_OMITTED
                   )}
                 </div>
-                <div className={cn("min-w-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>{row.traceConfidenceLabel}</div>
+                <div className={cn("min-w-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
+                  {formatExplainabilityTraceLabel(row.traceConfidenceLabel)}
+                </div>
                 <div className={cn("tabular-nums text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>{tracePctDisplay}</div>
                 <div className={cn("min-w-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>{confidenceSlot}</div>
                 <div className={cn("min-w-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>

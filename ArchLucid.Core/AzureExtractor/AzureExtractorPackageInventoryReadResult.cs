@@ -118,6 +118,78 @@ public sealed class AzureExtractorPackageInventoryReadResult
         init;
     } = [];
 
+    public IReadOnlyList<JsonElement> DefenderPricings
+    {
+        get;
+        init;
+    } = [];
+
+    public IReadOnlyList<JsonElement> DefenderScoreControls
+    {
+        get;
+        init;
+    } = [];
+
+    public IReadOnlyList<JsonElement> DefenderAssessments
+    {
+        get;
+        init;
+    } = [];
+
+    public IReadOnlyList<JsonElement> DefenderAssessmentCounts
+    {
+        get;
+        init;
+    } = [];
+
+    public IReadOnlyList<JsonElement> DefenderSecurityContacts
+    {
+        get;
+        init;
+    } = [];
+
+    public IReadOnlyList<JsonElement> DefenderGovernanceAssignments
+    {
+        get;
+        init;
+    } = [];
+
+    public IReadOnlyList<JsonElement> DefenderComplianceStandards
+    {
+        get;
+        init;
+    } = [];
+
+    public IReadOnlyList<JsonElement> DefenderComplianceControls
+    {
+        get;
+        init;
+    } = [];
+
+    public IReadOnlyList<JsonElement> DefenderAlerts
+    {
+        get;
+        init;
+    } = [];
+
+    public IReadOnlyList<JsonElement> DefenderAttackPaths
+    {
+        get;
+        init;
+    } = [];
+
+    public IReadOnlyList<JsonElement> DefenderVulnerabilityCounts
+    {
+        get;
+        init;
+    } = [];
+
+    public IReadOnlyList<JsonElement> DefenderVulnerabilityFindings
+    {
+        get;
+        init;
+    } = [];
+
     public IReadOnlyList<AzureInventoryEffectiveNetworkControlRow> EffectiveNetworkControls
     {
         get;

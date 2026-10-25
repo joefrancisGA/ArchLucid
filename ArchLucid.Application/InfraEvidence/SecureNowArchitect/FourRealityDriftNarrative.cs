@@ -4,6 +4,11 @@ namespace ArchLucid.Application.InfraEvidence.SecureNowArchitect;
 
 internal static class FourRealityDriftNarrative
 {
+    internal const string SeverityNotScoredLabel = "Severity was not scored for four-reality drift.";
+
+    internal const string BusinessCriticalityNotStoredLabel = "Business criticality was not stored.";
+
+    internal const string BlastRadiusNotMeasuredLabel = "Blast radius was not measured.";
     public static string BuildTitle(FourRealityDriftCandidate candidate) =>
         $"Four-reality drift: observed Azure widened access on {ShortResourceName(candidate.AzureResourceId)}";
 

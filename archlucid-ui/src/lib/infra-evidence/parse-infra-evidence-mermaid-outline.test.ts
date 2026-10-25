@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   formatInfraEvidenceOutlineProvenanceReviewerBand,
   parseInfraEvidenceMermaidOutline,
+  INFRA_EVIDENCE_OUTLINE_REFERENCED_OFF_DIAGRAM_EDGE_LABEL,
   resolveInfraEvidenceOutlineEdgeLabel,
   resolveInfraEvidenceOutlineNodeLabel,
   resolveInfraEvidenceOutlineSeedNodeId,
@@ -259,6 +260,22 @@ describe("parseInfraEvidenceMermaidOutline", () => {
       },
     ]);
     expect(resolveInfraEvidenceOutlineEdgeLabel(outline.edges[0]!, outline.nodes)).toBeNull();
+  });
+
+  it("labels outline-only endpoints when the edge has no stored label", () => {
+    const outline = parseInfraEvidenceMermaidOutline(
+      [
+        "flowchart TD",
+        '    api["api"]',
+        "    %% al-outline-only=true",
+        '    off["off-canvas target"]',
+        "    api --> off",
+      ].join("\n"),
+    );
+
+    expect(resolveInfraEvidenceOutlineEdgeLabel(outline.edges[0]!, outline.nodes)).toBe(
+      INFRA_EVIDENCE_OUTLINE_REFERENCED_OFF_DIAGRAM_EDGE_LABEL,
+    );
   });
 
   it("falls back to RG subgraph labels when metadata comments are absent", () => {

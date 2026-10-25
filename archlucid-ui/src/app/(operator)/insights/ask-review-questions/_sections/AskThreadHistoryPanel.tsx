@@ -33,10 +33,13 @@ export function AskThreadHistoryPanel(props: AskThreadHistoryPanelProps) {
     onSelectThread,
   } = props;
 
+  const trimmedRunId = runId.trim();
   const scopedPackageLabel =
-    canonicalizeDemoRunId(runId.trim()) === SHOWCASE_STATIC_DEMO_RUN_ID
-      ? `Scoped to ${SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE}`
-      : "Scoped to the selected review";
+    trimmedRunId.length === 0
+      ? "No review is selected for these saved questions."
+      : canonicalizeDemoRunId(trimmedRunId) === SHOWCASE_STATIC_DEMO_RUN_ID
+        ? `Scoped to ${SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE}`
+        : "Scoped to the selected review. Review title is not on this list.";
   const threadListNavLabel = buyerPolishedShell
     ? ASK_THREAD_HISTORY_NAV_LABEL_BUYER
     : ASK_THREAD_HISTORY_NAV_LABEL_OPERATOR;

@@ -31,7 +31,8 @@ public static partial class StructuredExplanationParser
                 string? objectEntry = TryReadStringListEntry(
                     arrayElement,
                     propertyName,
-                    evidenceRefBlankTextWithIdIsInArrayPoison: false);
+                    evidenceRefBlankTextWithIdIsInArrayPoison: false,
+                    proseBlankTextWithIdIsPoison: false);
 
                 return string.IsNullOrWhiteSpace(objectEntry) ? null : [objectEntry.Trim()];
             }
@@ -77,7 +78,8 @@ public static partial class StructuredExplanationParser
     private static string? TryReadStringListEntry(
         JsonElement item,
         string listPropertyName,
-        bool evidenceRefBlankTextWithIdIsInArrayPoison = true)
+        bool evidenceRefBlankTextWithIdIsInArrayPoison = true,
+        bool proseBlankTextWithIdIsPoison = true)
     {
         if (item.ValueKind == JsonValueKind.String)
             return item.GetString();
@@ -94,7 +96,9 @@ public static partial class StructuredExplanationParser
                     evidenceRefBlankTextWithIdIsInArrayPoison);
             }
 
-            return RunExplanationAggregateJsonReader.TryReadProseListObjectStringProperty(item);
+            return RunExplanationAggregateJsonReader.TryReadProseListObjectStringProperty(
+                item,
+                proseBlankTextWithIdIsPoison);
         }
 
         return RunExplanationAggregateJsonReader.TryReadNonEmptyTextToken(item, out string? scalar)
@@ -108,7 +112,9 @@ public static partial class StructuredExplanationParser
             return reasoningElement.GetString();
 
         if (reasoningElement.ValueKind == JsonValueKind.Object)
-            return RunExplanationAggregateJsonReader.TryReadProseListObjectStringProperty(reasoningElement);
+            return RunExplanationAggregateJsonReader.TryReadProseListObjectStringProperty(
+                reasoningElement,
+                blankTextWithIdIsPoison: false);
 
         if (reasoningElement.ValueKind is JsonValueKind.True or JsonValueKind.False)
             return null;

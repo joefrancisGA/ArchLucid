@@ -14,9 +14,7 @@ public sealed class PolicyPackSimulateRequestValidator : AbstractValidator<Polic
     {
         RuleFor(x => x.RunId)
             .NotEmpty()
-            .WithMessage("runId is required.")
-            .MaximumLength(64)
-            .WithMessage("runId must not exceed 64 characters.");
+            .WithMessage("runId is required.");
 
         RuleFor(x => x.Content)
             .NotNull()
@@ -26,5 +24,9 @@ public sealed class PolicyPackSimulateRequestValidator : AbstractValidator<Polic
             .InclusiveBetween(0, 3)
             .When(x => x.BlockCommitMinimumSeverity.HasValue)
             .WithMessage("blockCommitMinimumSeverity must be between 0 (Info) and 3 (Critical).");
+
+        RuleFor(x => x.ProposedPolicyPackId)
+            .Must(id => id is null or { } value when value != Guid.Empty)
+            .WithMessage("proposedPolicyPackId must not be the empty guid when provided.");
     }
 }

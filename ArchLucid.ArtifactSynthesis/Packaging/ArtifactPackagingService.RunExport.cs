@@ -42,9 +42,10 @@ public partial class ArtifactPackagingService
 
             RecordTextEntry(archive, recordedEntries, "manifest.json", manifestJson);
 
-            if (!string.IsNullOrWhiteSpace(traceJson))
+            bool includesDecisionTrace = !string.IsNullOrWhiteSpace(traceJson);
 
-                RecordTextEntry(archive, recordedEntries, "decision-trace.json", traceJson);
+            if (includesDecisionTrace)
+                RecordTextEntry(archive, recordedEntries, "decision-trace.json", traceJson!);
 
             StringBuilder readme = new StringBuilder()
                 .AppendLine("ArchLucid run export package")
@@ -92,7 +93,10 @@ public partial class ArtifactPackagingService
             readme.AppendLine();
             readme.AppendLine("Contents:");
             readme.AppendLine("  manifest.json             — committed GoldenManifest (JSON)");
-            readme.AppendLine("  decision-trace.json       — authority decision trace when the API included one");
+            readme.AppendLine(
+                includesDecisionTrace
+                    ? "  decision-trace.json       — authority decision trace included in this export"
+                    : "  decision-trace.json       — not included (authority decision trace was not stored for this export)");
             readme.AppendLine("  artifacts/                — synthesized artifact files (UTF-8 text)");
             readme.AppendLine("  artifacts/architecture-graph.png — optional raster of the bundled Mermaid diagram when Mermaid CLI is enabled");
             readme.AppendLine("  package-metadata.json     — export metadata (UTC timestamp, ids, counts)");

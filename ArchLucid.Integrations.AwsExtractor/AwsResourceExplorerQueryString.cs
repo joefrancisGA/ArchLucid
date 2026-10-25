@@ -6,6 +6,20 @@ internal static class AwsResourceExplorerQueryString
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(regionSystemName);
 
+        regionSystemName = regionSystemName.Trim();
+
+        if (regionSystemName.StartsWith("us-isob-", StringComparison.OrdinalIgnoreCase))
+            return "arn:aws-iso-b:*";
+
+        if (regionSystemName.StartsWith("us-isof-", StringComparison.OrdinalIgnoreCase))
+            return "arn:aws-iso-f:*";
+
+        if (regionSystemName.StartsWith("eu-isoe-", StringComparison.OrdinalIgnoreCase))
+            return "arn:aws-iso-e:*";
+
+        if (regionSystemName.StartsWith("us-iso-", StringComparison.OrdinalIgnoreCase))
+            return "arn:aws-iso:*";
+
         if (regionSystemName.StartsWith("us-gov-", StringComparison.OrdinalIgnoreCase))
             return "arn:aws-us-gov:*";
 

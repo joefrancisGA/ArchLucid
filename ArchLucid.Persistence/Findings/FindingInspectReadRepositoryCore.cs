@@ -177,7 +177,7 @@ internal static class FindingInspectReadRepositoryCore
     ///     Trims whitespace and leading/trailing format/control characters so persisted enum tokens with
     ///     invisible prefixes (for example U+200B before <c>Supported</c>) still parse as the overlay value.
     /// </summary>
-    private static string? NormalizeInspectEnumToken(string? value)
+    internal static string? NormalizeInspectEnumToken(string? value)
     {
         if (string.IsNullOrWhiteSpace(value))
             return null;
