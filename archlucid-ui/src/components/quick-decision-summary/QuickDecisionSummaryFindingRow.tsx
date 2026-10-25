@@ -275,6 +275,13 @@ export function QuickDecisionSummaryFindingRow({
         >
           Evidence ref excerpts were not stored.
         </p>
+      ) : evidenceRefCount === null || evidenceRefCount === undefined ? (
+        <p
+          className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid={`finding-evidence-ref-count-not-stored-${finding.findingId}`}
+        >
+          Evidence reference count was not stored.
+        </p>
       ) : null}
       {(finding.insightDensityScore !== null && finding.insightDensityScore !== undefined) ||
       (finding.whyThisIsNotGeneric !== null &&
