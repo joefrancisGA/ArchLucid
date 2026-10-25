@@ -6868,6 +6868,20 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-25 seed hunt (seed→hit): proved `ComparisonReplayService.SetRecordMetadata` copied denormalized `LeftExportRecordId`/`RightExportRecordId` (and non-canonical run ids) verbatim onto `ReplayComparisonResult` for artifact/regenerate/verify replay responses while regenerate lookup already trimmed anchors (hunt 147), so API replay payloads could echo padded legacy comparison columns; normalize export anchors via `RunExportRecordIdNormalizer` and run ids via `AnalysisRunIdCanonicalization` on result metadata; regression `ReplayAsync_export_diff_artifact_returns_trimmed_export_record_ids_on_result_metadata`; cheap-disproof closed markdown/docx body content (formatters normalize diff objects), `ApiPaging.TryParseUtcTicksIdCursor` (comparison search normalizes cursor id), batch zip manifest echo (cosmetic), Armenian homoglyphs (deferred), and persistence-layer determinism normalize (deferred); seeded five follow-on rows; scoped application-analysis + replay filter 318/318. Private beta: comparison replay API responses return trimmed export anchors and canonical run ids on result metadata for legacy padded rows.
+
+- [ ] (candidate) `ReplayComparisonResult.ComparisonRecordId` — padded route id echo on metadata — locus: replay result; input: legacy padded comparison record id column.
+- [ ] (candidate) `ApiPaging.TryParseUtcTicksIdCursor` — cursor id segment without trim — locus: HTTP cursor parse; input: padded id after ticks delimiter (alerts inbox and other API surfaces).
+- [ ] (candidate) `ComparisonBatchReplayZipSupport` — manifest failure entries echo pre-trim batch tokens — locus: zip manifest; input: cosmetic id echo only.
+- [ ] (candidate) `ComparisonExportMarkdownSectionRemover` — Armenian homoglyphs in delta headings — locus: `UnicodeLatinHomoglyphMapper`; input: deferred expansion.
+- [ ] (candidate) `RunExportRecordPersistNormalizer` — persistence-layer determinism column normalize — locus: repository read; input: consolidation at DB boundary.
+
+- [x] (proven) `ComparisonReplayService.SetRecordMetadata` — padded export anchors on replay result metadata — **hit 2026-10-25 seed hunt:** trim/canonicalize on metadata; regression above.
+- [x] (valid-no-repro) `ReplayComparisonResult` — artifact body padding — **cheap-disproof 2026-10-25 seed hunt:** diff formatters normalize content diff object.
+- [x] (invalid) `ApiPaging.TryParseUtcTicksIdCursor` — HTTP cursor id trim — **cheap-disproof 2026-10-25 seed hunt:** comparison search normalizes at application layer.
+- [x] (invalid) `ComparisonBatchReplayZipSupport` — manifest id echo — **cheap-disproof 2026-10-25 seed hunt:** cosmetic only.
+- [x] (invalid) `UnicodeLatinHomoglyphMapper` — Armenian homoglyphs — **cheap-disproof 2026-10-25 seed hunt:** deferred.
+
 2026-10-25 seed hunt (seed→hit): proved `EndToEndReplayComparisonExportService` and nested markdown/html/docx/pdf formatters rendered E2E export-diff sections from in-memory `ExportDiffs` with padded `LeftExportRecordId`/`RightExportRecordId` when callers bypassed persist/rehydrate (hunt 154), echoing the standalone export-diff format gap fixed in hunt 151; normalize via `EndToEndReplayComparisonReportNormalizer.NormalizePersistedPayload` at each `EndToEndReplayComparisonExportService` export entrypoint; regression `GenerateMarkdown_detailed_profile_uses_trimmed_nested_export_record_ids_in_export_diff_section`; cheap-disproof closed direct formatter-only callers (production replay uses export service), `ApiPaging.TryParseUtcTicksIdCursor` (comparison search normalizes cursor id), batch zip manifest echo (cosmetic), Armenian homoglyphs (deferred), and persistence-layer determinism normalize (deferred); seeded five follow-on rows; scoped application-analysis + replay filter 317/317. Private beta: end-to-end comparison markdown/html/docx/pdf downloads show trimmed nested export anchors when formatting in-memory E2E reports.
 
 - [ ] (candidate) `EndToEndReplayComparisonMarkdownExportFormatter` — direct `Generate` without export service — locus: test-only callers; input: bypass `EndToEndReplayComparisonExportService`.
@@ -7989,11 +8003,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 155
-- **bugs-found:** 161
+- **hunts:** 156
+- **bugs-found:** 162
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-25
-- **last-bug:** 2026-10-25 — E2E comparison exports trim nested export anchors
+- **last-bug:** 2026-10-25 — replay result metadata trims export anchors
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
