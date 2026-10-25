@@ -1,5 +1,6 @@
 using System.Text;
 
+using ArchLucid.Application.Manifests;
 using ArchLucid.Contracts.Manifest;
 
 namespace ArchLucid.Application.Analysis;
@@ -34,8 +35,8 @@ public sealed partial class MarkdownArchitectureAnalysisExportService
                 foreach (ManifestService service in report.Manifest.Services.OrderBy(x => x.ServiceName))
                 {
                     sb.AppendLine($"- **{service.ServiceName}**");
-                    sb.AppendLine($"  - Type: {service.ServiceType}");
-                    sb.AppendLine($"  - Platform: {service.RuntimePlatform}");
+                    sb.AppendLine($"  - Type: {ArchitectureManifestTopologyExport.FormatServiceTypeForExport(service.ServiceType)}");
+                    sb.AppendLine($"  - Platform: {ArchitectureManifestTopologyExport.FormatRuntimePlatformForExport(service.RuntimePlatform)}");
 
                     if (!string.IsNullOrWhiteSpace(service.Purpose))
 
@@ -57,12 +58,12 @@ public sealed partial class MarkdownArchitectureAnalysisExportService
                 foreach (ManifestDatastore datastore in report.Manifest.Datastores.OrderBy(x => x.DatastoreName))
                 {
                     sb.AppendLine($"- **{datastore.DatastoreName}**");
-                    sb.AppendLine($"  - Type: {datastore.DatastoreType}");
-                    sb.AppendLine($"  - Platform: {datastore.RuntimePlatform}");
+                    sb.AppendLine($"  - Type: {ArchitectureManifestTopologyExport.FormatDatastoreTypeForExport(datastore.DatastoreType)}");
+                    sb.AppendLine($"  - Platform: {ArchitectureManifestTopologyExport.FormatRuntimePlatformForExport(datastore.RuntimePlatform)}");
                     sb.AppendLine(
-                        $"  - Private Endpoint Required: {(datastore.PrivateEndpointRequired ? "Yes" : "No")}");
+                        $"  - Private Endpoint Required: {ArchitectureManifestDatastoreExport.FormatPrivateEndpointRequiredForExport(datastore.PrivateEndpointRequired)}");
                     sb.AppendLine(
-                        $"  - Encryption At Rest Required: {(datastore.EncryptionAtRestRequired ? "Yes" : "No")}");
+                        $"  - Encryption At Rest Required: {ArchitectureManifestDatastoreExport.FormatEncryptionAtRestRequiredForExport(datastore.EncryptionAtRestRequired)}");
                 }
 
                 sb.AppendLine();
@@ -76,8 +77,10 @@ public sealed partial class MarkdownArchitectureAnalysisExportService
                 sb.AppendLine($"- Compliance Tags: {string.Join(", ", report.Manifest.Governance.ComplianceTags)}");
                 sb.AppendLine(
                     $"- Policy Constraints: {string.Join(", ", report.Manifest.Governance.PolicyConstraints)}");
-                sb.AppendLine($"- Risk Classification: {report.Manifest.Governance.RiskClassification}");
-                sb.AppendLine($"- Cost Classification: {report.Manifest.Governance.CostClassification}");
+                sb.AppendLine(
+                    $"- Risk Classification: {ArchitectureManifestGovernanceExport.FormatRiskClassificationForExport(report.Manifest.Governance)}");
+                sb.AppendLine(
+                    $"- Cost Classification: {ArchitectureManifestGovernanceExport.FormatCostClassificationForExport(report.Manifest.Governance)}");
                 sb.AppendLine();
             }
         }
