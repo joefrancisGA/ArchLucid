@@ -23,6 +23,18 @@ export type ResolveOperatorHomeHeroResumeTargetInput = {
   readonly includeRecommendedUnfinishedItem?: boolean;
 };
 
+/** Compare resume targets without query/hash noise or trailing-slash drift. */
+function normalizeResumeHrefForMatch(href: string): string {
+  const withoutFragment = href.split("#")[0] ?? href;
+  const withoutQuery = withoutFragment.split("?")[0]?.trim() ?? "";
+
+  if (withoutQuery.length === 0) {
+    return href.trim();
+  }
+
+  return withoutQuery.replace(/\/+$/, "") || withoutQuery;
+}
+
 function draftIdFromDraftHref(href: string): string | null {
   const match = /^\/architecture\/architectures\/([^/?#]+)/.exec(href.split("?")[0] ?? "");
 
@@ -95,7 +107,7 @@ export function matchesOperatorHomeHeroResumeTarget(
     return false;
   }
 
-  if (target.href === item.href) {
+  if (normalizeResumeHrefForMatch(target.href) === normalizeResumeHrefForMatch(item.href)) {
     return true;
   }
 

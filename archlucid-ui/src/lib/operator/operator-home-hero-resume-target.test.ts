@@ -39,6 +39,20 @@ describe("operator-home-hero-resume-target", () => {
     ).toBe(false);
   });
 
+  it("matches resume targets when hrefs differ only by a trailing slash", () => {
+    const target = {
+      href: "/architecture/reviews/run-hero",
+      runId: "run-hero",
+    };
+
+    expect(
+      matchesOperatorHomeHeroResumeTarget(target, {
+        href: "/architecture/reviews/run-hero/",
+        runId: "run-hero",
+      }),
+    ).toBe(true);
+  });
+
   it("matches draft and review rows that share the hero href", () => {
     const target = {
       href: "/architecture/reviews/run-hero",
