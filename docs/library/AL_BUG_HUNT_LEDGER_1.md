@@ -6868,6 +6868,20 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-25 seed hunt (seed→hit): proved `ComparisonAuditService.RecordReplayOfAsync` copied whitespace-only `LeftExportRecordId`/`RightExportRecordId`, `Format`, and `SummaryMarkdown` through helpers that returned blank placeholders unchanged while hunt 206 fixed repository read normalize only, so persisted replay audit rows could store space-only export anchors and text when operators replayed legacy comparison records; null whitespace export ids, optional summaries via `OptionalExportMetadataStringNormalizer`, and empty required format columns on replay persist; regression `CompareQuality_RecordReplayOfAsync_nulls_whitespace_only_export_ids_summary_and_format_on_persist`; cheap-disproof closed repository read parity (hunt 206), padded meaningful replay copy (existing trim tests), `ApiPaging.TryParseUtcTicksIdCursor` (comparison search normalizes inbound cursor id), batch zip manifest echo (cosmetic), and Armenian homoglyphs (deferred); seeded five follow-on rows; scoped application-analysis + replay filter 311/311. Private beta: persisted comparison replay copies no longer store whitespace-only export anchors, format, or summary placeholders from legacy source rows.
+
+- [ ] (candidate) `ComparisonRecordRepository.GetByRunIdAsync` — SQL list-by-run dashed stored — locus: UNIQUEIDENTIFIER column; input: already matches N/D lookup via guid param.
+- [ ] (candidate) `ComparisonRecordRepositoryCore.SerializeTagsForUpdate` — JSON tag order — locus: cosmetic; input: defer.
+- [ ] (candidate) `ComparisonRecordSearchPredicateBuilder` — notes column search — locus: no notes filter today; input: defer.
+- [ ] (candidate) `ApiPaging.TryParseUtcTicksIdCursor` — cursor id segment without trim — locus: HTTP cursor parse; input: padded id after ticks delimiter (alerts inbox and other API surfaces).
+- [ ] (candidate) `ComparisonBatchReplayZipSupport` — manifest failure entries echo pre-trim batch tokens — locus: zip manifest; input: cosmetic id echo only.
+
+- [x] (proven) `ComparisonAuditService.RecordReplayOfAsync` — whitespace-only columns on replay persist — **hit 2026-10-25 seed hunt:** null/empty replay copy normalize; regression above.
+- [x] (valid-no-repro) `ComparisonRecordPersistNormalizer` — repository read — **cheap-disproof 2026-10-25 seed hunt:** hunt 206; write path still copied source whitespace.
+- [x] (valid-no-repro) `ComparisonReplayService.SetRecordMetadata` — replay response metadata — **cheap-disproof 2026-10-25 seed hunt:** hunt 204; persist replay row was separate.
+- [x] (invalid) `ApiPaging.TryParseUtcTicksIdCursor` — HTTP cursor id trim — **cheap-disproof 2026-10-25 seed hunt:** comparison search normalizes at application layer.
+- [x] (invalid) `ComparisonBatchReplayZipSupport` — manifest id echo — **cheap-disproof 2026-10-25 seed hunt:** cosmetic only.
+
 2026-10-25 seed hunt (seed→hit): proved `ComparisonRecordPersistNormalizer` trimmed padded export ids, labels, and manifest metadata but returned whitespace-only `LeftExportRecordId`/`RightExportRecordId`, `Format`/`ComparisonType`, `SummaryMarkdown`, `Label`, and tag entries unchanged while hunt 203–205 fixed scoped application reads and replay metadata only, so `ComparisonReplayService` and drift paths loading `IComparisonRecordRepository.GetByIdAsync` directly could still echo space placeholders before facade normalization; align persist read normalize with scoped read null/empty/tag compaction semantics; regression `CompareQuality_GetByIdAsync_nulls_whitespace_only_export_ids_and_text_placeholders_on_read`; cheap-disproof closed facade scoped read (defense in depth), padded meaningful columns (existing trim tests), `ApiPaging.TryParseUtcTicksIdCursor` (comparison search normalizes inbound cursor id), batch zip manifest echo (cosmetic), and Armenian homoglyphs (deferred); seeded five follow-on rows; scoped application-analysis + replay filter 310/310 plus persistence regression 1/1. Private beta: comparison records read from storage no longer surface whitespace-only export anchors, text placeholders, or blank tag slots on replay and drift flows that bypass the comparisons facade.
 
 - [ ] (candidate) `ComparisonRecordRepository.GetByRunIdAsync` — SQL list-by-run dashed stored — locus: UNIQUEIDENTIFIER column; input: already matches N/D lookup via guid param.
@@ -8703,11 +8717,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 206
-- **bugs-found:** 212
+- **hunts:** 207
+- **bugs-found:** 213
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-25
-- **last-bug:** 2026-10-25 — comparison persist read clears whitespace text columns
+- **last-bug:** 2026-10-25 — comparison replay persist nulls whitespace columns
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
