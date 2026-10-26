@@ -51,9 +51,9 @@ import {
 } from "@/lib/insights/ask-canned-prompt-follow-ups-disclosure-url";
 import type { ConversationMessage } from "@/types/conversation";
 
-function askMessageHasStoredCitationRefs(refs: AskAnswerCitationRefs | null): boolean {
+function askMessageHasStoredCitationRefs(refs: AskAnswerCitationRefs | null): boolean | null {
   if (refs === null) {
-    return false;
+    return null;
   }
 
   const hasFinding = refs.referencedFindings.some((findingId) => findingId.trim().length > 0);

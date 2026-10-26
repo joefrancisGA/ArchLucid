@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   ARCHITECTURE_CREATED_BUSINESS_PURPOSE_NOT_STORED,
-  ARCHITECTURE_CREATED_INTEGRATIONS_NOT_STORED_SEPARATELY,
+  ARCHITECTURE_CREATED_KEY_INTEGRATIONS_NOT_STORED,
   ARCHITECTURE_CREATED_MAJOR_SYSTEMS_NOT_STORED,
   ARCHITECTURE_CREATED_PRIMARY_USERS_NOT_STORED,
   buildSummaryFields,
@@ -49,7 +49,7 @@ describe("buildSummaryFields (al-polish P-04, P-05)", () => {
     });
     expect(fields).toContainEqual({
       label: "Key integrations",
-      value: ARCHITECTURE_CREATED_INTEGRATIONS_NOT_STORED_SEPARATELY,
+      value: ARCHITECTURE_CREATED_KEY_INTEGRATIONS_NOT_STORED,
     });
     expect(fields.some((field) => field.value.includes("Payments platform"))).toBe(false);
     expect(fields.some((field) => field.value.includes("long overview"))).toBe(false);
@@ -67,5 +67,18 @@ describe("buildSummaryFields (al-polish P-04, P-05)", () => {
       true,
     );
     expect(fields).toContainEqual({ label: "Major systems", value: "Ledger API" });
+  });
+
+  it("lists stored integration names (P-08)", () => {
+    const fields = buildSummaryFields(
+      baseInput({
+        keyIntegrations: ["Payment gateway"],
+      }),
+    );
+
+    expect(fields).toContainEqual({
+      label: "Key integrations",
+      value: "Payment gateway (submitted text, not operator-asserted)",
+    });
   });
 });

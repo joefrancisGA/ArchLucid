@@ -181,12 +181,6 @@ export function mergeUserAssertions(
       draft.provenance = "asserted";
     }
 
-    const scopeDraft = drafts.get("scope");
-
-    if (scopeDraft !== undefined && scopeDraft.narrativeLines.length === 0 && scopeDraft.entities.length === 0) {
-      scopeDraft.narrativeLines.push(overview);
-      scopeDraft.provenance = "asserted";
-    }
   }
 
   if (outcome.length > 0) {

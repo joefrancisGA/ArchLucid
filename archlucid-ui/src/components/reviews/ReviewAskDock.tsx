@@ -34,7 +34,7 @@ import {
 } from "@/lib/reviews/review-ask-dock-url";
 import { formatWhyDisabledCtaMessage, type WhyDisabledCtaReason } from "@/lib/why-disabled-cta";
 
-const DEFAULT_REVIEW_QUESTION =
+const DEFAULT_REVIEW_QUESTION_PLACEHOLDER =
   "What are the top unresolved risks in this review and what evidence supports them?";
 
 export type ReviewAskDockProps = {
@@ -51,7 +51,34 @@ type AskTurn = {
   referencedFindings: readonly string[];
   referencedDecisions: readonly string[];
   referencedArtifacts: readonly string[];
+  citationRefsOmitted: boolean;
 };
+
+function buildCitedReviewIdsFromTurn(turn: AskTurn): ReadonlySet<string> {
+  const ids = new Set<string>();
+
+  for (const id of [...turn.referencedFindings, ...turn.referencedDecisions, ...turn.referencedArtifacts]) {
+    const trimmed = id.trim();
+
+    if (trimmed.length > 0) {
+      ids.add(trimmed.toLowerCase());
+    }
+  }
+
+  return ids;
+}
+
+function askResponseCitationRefsOmitted(response: {
+  referencedFindings?: readonly string[] | null;
+  referencedDecisions?: readonly string[] | null;
+  referencedArtifacts?: readonly string[] | null;
+}): boolean {
+  return (
+    response.referencedFindings === undefined
+    && response.referencedDecisions === undefined
+    && response.referencedArtifacts === undefined
+  );
+}
 
 /** Review-scoped Ask dock: grounded Q&A without leaving the review detail page. */
 export function ReviewAskDock(props: ReviewAskDockProps): ReactElement {
@@ -67,7 +94,7 @@ export function ReviewAskDock(props: ReviewAskDockProps): ReactElement {
   const [open, setOpenState] = useState(urlAskDockOpen);
   const openRef = useRef(open);
   openRef.current = open;
-  const [question, setQuestion] = useState(DEFAULT_REVIEW_QUESTION);
+  const [question, setQuestion] = useState("");
   const [turns, setTurns] = useState<AskTurn[]>([]);
   const [threadId, setThreadIdState] = useState<string | null>(null);
   const disabledCleanupAttemptedRef = useRef(false);
@@ -225,6 +252,8 @@ export function ReviewAskDock(props: ReviewAskDockProps): ReactElement {
         setThreadId(response.threadId);
       }
 
+      const citationRefsOmitted = askResponseCitationRefsOmitted(response);
+
       setTurns((current) => [
         ...current,
         {
@@ -233,6 +262,7 @@ export function ReviewAskDock(props: ReviewAskDockProps): ReactElement {
           referencedFindings: response.referencedFindings ?? [],
           referencedDecisions: response.referencedDecisions ?? [],
           referencedArtifacts: response.referencedArtifacts ?? [],
+          citationRefsOmitted,
         },
       ]);
       setQuestion("");
@@ -299,8 +329,9 @@ export function ReviewAskDock(props: ReviewAskDockProps): ReactElement {
               Ask about this review
             </DialogTitle>
             <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-              Grounded answers cite indexed evidence from{" "}
-              <span className="font-medium text-al-text-primary">{reviewTitleForGrounding}</span>.
+              Answers for{" "}
+              <span className="font-medium text-al-text-primary">{reviewTitleForGrounding}</span>{" "}
+              cite indexed evidence only when citations were stored on the answer.
             </p>
           </DialogHeader>
 
@@ -316,9 +347,11 @@ export function ReviewAskDock(props: ReviewAskDockProps): ReactElement {
                     referencedArtifacts: turn.referencedArtifacts,
                   });
                   const refsPresentInWire =
-                    turn.referencedFindings.length > 0
-                    || turn.referencedDecisions.length > 0
-                    || turn.referencedArtifacts.length > 0;
+                    !turn.citationRefsOmitted
+                    && (turn.referencedFindings.length > 0
+                      || turn.referencedDecisions.length > 0
+                      || turn.referencedArtifacts.length > 0);
+                  const citedReviewIds = buildCitedReviewIdsFromTurn(turn);
 
                   return (
                   <li
@@ -332,7 +365,11 @@ export function ReviewAskDock(props: ReviewAskDockProps): ReactElement {
                     <p className={cn("m-0 font-semibold uppercase tracking-wide text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>
                       Answer
                     </p>
-                    <AskAssistantMessageBody content={turn.answer} groundingLinks={refsPresentInWire ? [] : undefined} />
+                    <AskAssistantMessageBody
+                      content={turn.answer}
+                      groundingLinks={refsPresentInWire ? [] : undefined}
+                      citedReviewIds={citedReviewIds}
+                    />
                     {refsPresentInWire ? (
                       <AskCitationActionFollowUps chips={citationChips} showHonestEmpty reviewId={runId} />
                     ) : (
@@ -372,6 +409,7 @@ export function ReviewAskDock(props: ReviewAskDockProps): ReactElement {
                 value={question}
                 rows={3}
                 disabled={isStreaming}
+                placeholder={DEFAULT_REVIEW_QUESTION_PLACEHOLDER}
                 onChange={(event) => {
                   setQuestion(event.target.value);
                 }}
