@@ -48,13 +48,13 @@ export const PACKAGE_PRINT_SEMANTIC_SUPPORT_NO_DECISION_GRADE_LINE =
 export const PACKAGE_PRINT_SYNOPSIS_HEADING = "Sponsor synopsis";
 export const PACKAGE_PRINT_DRAFT_SYNOPSIS_HEADING = "Working sponsor synopsis (draft)";
 export const PACKAGE_PRINT_DRAFT_SYNOPSIS_NOT_PUBLISHED =
-  "Draft sponsor synopsis is not published with a finalized architecture review package.";
+  "Draft sponsor synopsis is not published with a finalized architecture package.";
 export const PACKAGE_PRINT_META_CREATED_LABEL = "Created";
 export const PACKAGE_PRINT_LOADING_LABEL = "Loading review for print…";
 export const PACKAGE_PRINT_ERROR_FALLBACK = "This architecture review could not be loaded for print.";
 
 export const PACKAGE_PRINT_PIPELINE_STAGE_FLAGS_OMITTED_LINE =
-  "Assessment step flags were not stored on this summary — package status may not reflect pipeline progress.";
+  "Assessment step flags were not stored on this summary — review status may not reflect pipeline progress.";
 
 export type PackagePrintStatusLabel =
   | "Draft"
@@ -63,7 +63,7 @@ export type PackagePrintStatusLabel =
   | "Finalized"
   | "Finalized. Governance warnings were stored."
   | "Finalized. Governance warning flags were not stored."
-  | "Package status was not stored."
+  | "Review status was not stored."
   | "Archived";
 
 /** Builds the dedicated print path for a review (`/architecture/reviews/{runId}/print`). */
@@ -184,7 +184,7 @@ export function resolvePackagePrintStatusLabel(summary: RunSummary): PackagePrin
   ];
 
   if (draftFlags.some((flag) => flag === undefined)) {
-    return "Package status was not stored.";
+    return "Review status was not stored.";
   }
 
   return "Draft";
@@ -204,7 +204,7 @@ export function resolvePackagePrintStatusKind(status: PackagePrintStatusLabel): 
       return "approved";
     case "Archived":
       return "neutral";
-    case "Package status was not stored.":
+    case "Review status was not stored.":
       return "draft";
     default: {
       const _exhaustive: never = status;

@@ -94,7 +94,7 @@ describe("package-print-view (TB-2205)", () => {
           hasContextSnapshot: undefined,
         }),
       ),
-    ).toBe("Package status was not stored.");
+    ).toBe("Review status was not stored.");
   });
 
   it("appends warning count omission to findings summary when warning count is missing", () => {
