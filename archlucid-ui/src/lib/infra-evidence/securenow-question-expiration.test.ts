@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  secureNowQuestionDispositionPostExpirationContradicts,
   secureNowQuestionReviewerExpirationUtcStamp,
   secureNowQuestionShowsExpired,
 } from "./securenow-question-expiration";
@@ -10,6 +11,44 @@ describe("secureNowQuestionReviewerExpirationUtcStamp", () => {
     expect(secureNowQuestionReviewerExpirationUtcStamp("  2026-10-25T12:00:00.000Z  ")).toBe(
       "2026-10-25T12:00:00.000Z",
     );
+  });
+});
+
+describe("secureNowQuestionDispositionPostExpirationContradicts", () => {
+  const now = Date.parse("2026-10-25T12:00:00.000Z");
+
+  it("returns false when isExpired is false", () => {
+    expect(
+      secureNowQuestionDispositionPostExpirationContradicts(
+        "2099-01-01T00:00:00.000Z",
+        false,
+        now,
+      ),
+    ).toBe(false);
+  });
+
+  it("returns true when isExpired is true and expiration is in the future", () => {
+    expect(
+      secureNowQuestionDispositionPostExpirationContradicts(
+        "2099-01-01T00:00:00.000Z",
+        true,
+        now,
+      ),
+    ).toBe(true);
+  });
+
+  it("returns false when isExpired is true and expiration is in the past", () => {
+    expect(
+      secureNowQuestionDispositionPostExpirationContradicts(
+        "2026-10-25T11:00:00.000Z",
+        true,
+        now,
+      ),
+    ).toBe(false);
+  });
+
+  it("returns true when isExpired is true but expiration is blank after trim", () => {
+    expect(secureNowQuestionDispositionPostExpirationContradicts("   ", true, now)).toBe(true);
   });
 });
 

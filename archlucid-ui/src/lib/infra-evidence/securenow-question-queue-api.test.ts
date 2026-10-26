@@ -267,6 +267,30 @@ describe("secureNowQuestionDispositionResponseIsUsable", () => {
     ).toBe(true);
   });
 
+  it("rejects answered dispositions when isExpired is true but expiration is in the future", () => {
+    expect(
+      secureNowQuestionDispositionResponseIsUsable({
+        ...baseDisposition,
+        expirationUtc: "2099-01-01T00:00:00.000Z",
+        isExpired: true,
+      }),
+    ).toBe(false);
+  });
+
+  it("rejects dismissed dispositions when isExpired is true but expiration is in the future", () => {
+    expect(
+      secureNowQuestionDispositionResponseIsUsable({
+        ...baseDisposition,
+        status: "Ignored",
+        answerCode: null,
+        answerText: null,
+        reason: "Operator chose not to answer.",
+        expirationUtc: "2099-01-01T00:00:00.000Z",
+        isExpired: true,
+      }),
+    ).toBe(false);
+  });
+
   it("rejects blank operator metadata fields after trim", () => {
     for (const field of secureNowQuestionDispositionResponseRequiredOperatorMetadataFields) {
       expect(
@@ -1909,6 +1933,42 @@ describe("securenow-question-queue-api", () => {
       isExpired: false,
       evidenceFingerprint: "fingerprint",
       actorKey: "   ",
+      updatedUtc: "2026-11-01T00:00:00.000Z",
+      auditEntries: [],
+    });
+
+    const disposition = await answerSecureNowQuestion("snapshot-1", {
+      subscriptionId: "sub-1",
+      resourceId: "",
+      questionKey: "subscription-ownership@v1",
+      source: "PolicyPack",
+      scopeKind: "Subscription",
+      answerCode: "Owner",
+      answerText: "Owner",
+      reason: "Reviewed.",
+      evidenceFingerprint: "fingerprint",
+    });
+
+    expect(disposition).toBeUndefined();
+  });
+
+  it("returns undefined when POST answer response has isExpired true with a future expiration", async () => {
+    vi.mocked(proxyJsonPost).mockResolvedValueOnce({
+      dispositionId: "00000000-0000-0000-0000-000000000001",
+      snapshotId: "snapshot-1",
+      subscriptionId: "sub-1",
+      resourceId: "",
+      questionKey: "subscription-ownership@v1",
+      source: "PolicyPack",
+      scopeKind: "Subscription",
+      status: "Answered",
+      answerCode: "Owner",
+      answerText: "Owner",
+      reason: "Reviewed.",
+      expirationUtc: "2099-01-01T00:00:00.000Z",
+      isExpired: true,
+      evidenceFingerprint: "fingerprint",
+      actorKey: "reviewer",
       updatedUtc: "2026-11-01T00:00:00.000Z",
       auditEntries: [],
     });

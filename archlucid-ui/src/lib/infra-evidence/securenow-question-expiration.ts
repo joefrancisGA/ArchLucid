@@ -28,6 +28,32 @@ export function secureNowQuestionShowsExpired(
   return parsed <= nowMs;
 }
 
+/**
+ * Whether a mutation POST disposition contradicts itself: `isExpired` is true while
+ * `expirationUtc` is missing, unparsable, or still in the future.
+ */
+export function secureNowQuestionDispositionPostExpirationContradicts(
+  expirationUtc: string,
+  isExpired: boolean,
+  nowMs: number = Date.now(),
+): boolean {
+  if (!isExpired) {
+    return false;
+  }
+
+  const trimmed = expirationUtc.trim();
+  if (trimmed.length === 0) {
+    return true;
+  }
+
+  const parsed = Date.parse(trimmed);
+  if (Number.isNaN(parsed)) {
+    return true;
+  }
+
+  return parsed > nowMs;
+}
+
 export function secureNowQuestionReviewerExpirationUtcStamp(
   expirationUtc: string | null | undefined,
 ): string | null {
