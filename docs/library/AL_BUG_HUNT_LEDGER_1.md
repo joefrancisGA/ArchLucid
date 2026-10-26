@@ -6868,6 +6868,16 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-26 seed hunt (seed→hit): reseeded `application-analysis` with zero hunt-ready rows; cheap-disproof closed execute evidence readiness gate merge (prior hunt); promoted ledger follow-on `BulkEvidenceUploadService` bulk attach metadata; proved `TryUpdateEvidenceBundleMetadataAsync` still used single-key `IAgentTaskRepository.GetByRunIdAsync` with lowercase `N`, so post-upload `EvidenceBundle` metadata was not updated when agent tasks lived only under legacy uppercase hex run-id keys; route through `AnalysisRunIdCanonicalization.LoadAgentTasksByRunIdAsync`; regression `CompareQuality_UploadBulkEvidenceAsync_updates_bundle_metadata_when_tasks_use_legacy_run_id_key`; cheap-disproof closed evidence gate (prior hunt); seeded five follow-on rows; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` filter 366/366 (`RunAnalyzers=false` on VM build). Private beta: Bulk evidence uploads update attached-file counts on the run evidence bundle when agent tasks use legacy run-id key formats.
+
+- [ ] (candidate) `AzureExtractorPreparedZipPersistStage` — extractor attach — locus: `runGuid.ToString("N")` task enumeration.
+- [ ] (candidate) `BulkEvidenceUploadService` — regression guard — locus: zip-expand path task lookup if any.
+- [ ] (candidate) `ExecuteEvidenceReadinessGate` — regression guard — locus: confirm merge helper on gate path.
+- [ ] (candidate) `AgentLoopPrepareStage` — regression guard — locus: confirm merge helper on prepare path.
+- [ ] (candidate) `ArchitectureRunCreateIdempotencyHelper` — regression guard — locus: confirm rehydrate merge helper.
+
+- [x] (proven) `BulkEvidenceUploadService` — post-upload bundle metadata task lookup — **hit 2026-10-26 seed hunt:** `LoadAgentTasksByRunIdAsync`; regression above.
+
 2026-10-26 seed hunt (seed→hit): reseeded `application-analysis` with zero hunt-ready rows; cheap-disproof closed execute prepare task merge (prior hunt); promoted ledger follow-on `ExecuteEvidenceReadinessGate` pre-execute evidence readiness; proved gate still used single-key `IAgentTaskRepository.GetByRunIdAsync` with lowercase `N`, so `EvidenceBundleRef` on tasks stored only under legacy uppercase hex run-id keys was missed and execute was blocked despite attached bulk evidence on the bundle; route through `AnalysisRunIdCanonicalization.LoadAgentTasksByRunIdAsync`; regression `CompareQuality_EnsureReadyAsync_succeeds_when_task_bundle_ref_uses_legacy_run_id_key`; cheap-disproof closed agent loop prepare (prior hunt); seeded five follow-on rows; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` filter 365/365 (`RunAnalyzers=false` on VM build). Private beta: Execute readiness checks honor evidence bundle refs on agent tasks when tasks use legacy run-id key formats.
 
 - [ ] (candidate) `BulkEvidenceUploadService` — bulk upload attach — locus: agent task lookup before attach.
