@@ -3,6 +3,7 @@ using ArchLucid.Application.Common;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Agents;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Transactions;
 using ArchLucid.Persistence.Agents;
@@ -16,6 +17,61 @@ namespace ArchLucid.Application.Tests.Agents;
 [Trait("Suite", "Core")]
 public sealed class AgentModelCatalogEvaluationRecorderTests
 {
+    [Fact]
+    public async Task RecordTaskEvaluationAsync_skips_null_evaluation_entries_when_merging()
+    {
+        AgentModelCatalogRow corruptRow = new()
+        {
+            AliasId = AgentModelAliasIds.StandardGeneral,
+            ProviderConnectionKind = AgentModelAliasProviderKinds.ArchLucidManagedAzureOpenAi,
+            DeploymentName = "gpt-eval",
+            TierBinding = "Standard",
+            CapabilityTags = [AgentModelAliasCapabilities.StructuredOutput],
+            ApprovedTaskTypes = [AgentModelTaskTypes.Primary, AgentModelTaskTypes.Ask],
+            Evaluations =
+            [
+                null!,
+                new AgentModelCatalogEvaluationRow
+                {
+                    TaskType = AgentModelTaskTypes.Ask,
+                    EvaluationState = AgentModelEvaluationStateKind.NotEvaluated,
+                },
+            ],
+        };
+
+        AgentModelCatalogRow? storedRow = corruptRow;
+        Mock<IAgentModelCatalogRepository> catalog = new();
+        catalog
+            .Setup(r => r.TryGetAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(() => storedRow);
+        catalog
+            .Setup(r => r.UpsertAsync(It.IsAny<AgentModelCatalogRow>(), It.IsAny<CancellationToken>()))
+            .Callback<AgentModelCatalogRow, CancellationToken>((row, _) => storedRow = row)
+            .Returns(Task.CompletedTask);
+
+        AgentModelCatalogEvaluationRecorder recorder = new(
+            catalog.Object,
+            new NoOpAgentModelCatalogCacheInvalidator(),
+            new NoOpAuditService(),
+            new FixedScopeContextProvider(),
+            new FixedActorContext("operator@test"));
+
+        AgentModelCatalogRow saved = await recorder.RecordTaskEvaluationAsync(
+            corruptRow.AliasId,
+            AgentModelTaskTypes.Primary,
+            AgentModelEvaluationStateKind.Evaluated,
+            """{"source":"operator"}""",
+            "operator@test",
+            CancellationToken.None);
+
+        saved.Evaluations.Should().HaveCount(2);
+        saved.Evaluations.Should().OnlyContain(row => row != null);
+        saved.Evaluations.Should().Contain(row =>
+            row.TaskType == AgentModelTaskTypes.Primary
+            && row.EvaluationState == AgentModelEvaluationStateKind.Evaluated);
+        saved.Evaluations.Should().Contain(row => row.TaskType == AgentModelTaskTypes.Ask);
+    }
+
     [Fact]
     public async Task RecordTaskEvaluationAsync_trims_surrounding_whitespace_on_alias_id()
     {
