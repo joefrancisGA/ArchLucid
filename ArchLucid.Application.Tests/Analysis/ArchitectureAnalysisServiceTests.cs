@@ -1288,4 +1288,87 @@ public sealed class ArchitectureAnalysisServiceTests
         report.Evidence!.EvidencePackageId.Should().Be("pkg-casing");
         report.Warnings.Should().NotContain("Evidence package was not found for this run.");
     }
+
+    [Fact]
+    public async Task CompareQuality_BuildAsync_loads_evidence_when_package_run_id_uses_uppercase_dashed_guid()
+    {
+        Guid primaryRunId = Guid.Parse("15151515-1515-1515-1515-151515151515");
+        string canonicalRunId = primaryRunId.ToString("N");
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+            WorkspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+            ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
+        };
+
+        ArchitectureRunDetail preloadedDetail = new()
+        {
+            Run = new ArchitectureRun { RunId = canonicalRunId },
+        };
+
+        InMemoryAgentEvidencePackageRepository evidenceRepository = new();
+        AgentEvidencePackage evidencePackage = new()
+        {
+            EvidencePackageId = "pkg-dashed-upper",
+            RunId = primaryRunId.ToString("D").ToUpperInvariant(),
+            RequestId = "req-dashed-upper",
+            SystemName = "Sys",
+            Environment = "prod",
+            CloudProvider = "Azure",
+            Request = new RequestEvidence { Description = "d" },
+        };
+        await evidenceRepository.CreateAsync(evidencePackage, CancellationToken.None);
+
+        Mock<IAuthorityQueryService> authority = new();
+        authority
+            .Setup(service => service.GetRunDetailForManifestCompareAsync(
+                It.IsAny<ScopeContext>(),
+                primaryRunId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunDetailDto
+            {
+                Run = new RunRecord { RunId = primaryRunId },
+                GoldenManifest = new ManifestDocument
+                {
+                    RunId = primaryRunId,
+                    ManifestHash = "ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789",
+                },
+            });
+
+        Mock<IManifestHashService> manifestHash = new();
+        manifestHash
+            .Setup(service => service.ComputeHash(It.IsAny<ManifestDocument>()))
+            .Returns("ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789");
+
+        ArchitectureAnalysisService sut = new(
+            Mock.Of<IRunDetailQueryService>(),
+            Mock.Of<IScopeContextProvider>(provider => provider.GetCurrentScope() == scope),
+            Mock.Of<IUnifiedGoldenManifestReader>(),
+            evidenceRepository,
+            Mock.Of<IAgentExecutionTraceRepository>(),
+            Mock.Of<IAgentResultRepository>(),
+            Mock.Of<IDiagramGenerator>(),
+            Mock.Of<IManifestSummaryGenerator>(),
+            Mock.Of<IDeterminismCheckService>(),
+            Mock.Of<IManifestDiffService>(),
+            Mock.Of<IAgentResultDiffService>(),
+            authority.Object,
+            manifestHash.Object);
+
+        ArchitectureAnalysisReport report = await sut.BuildAsync(
+            new ArchitectureAnalysisRequest
+            {
+                RunId = canonicalRunId,
+                PreloadedRunDetail = preloadedDetail,
+                IncludeEvidence = true,
+                IncludeExecutionTraces = false,
+                IncludeManifest = false,
+                IncludeDiagram = false,
+                IncludeSummary = false,
+            });
+
+        report.Evidence.Should().NotBeNull();
+        report.Evidence!.EvidencePackageId.Should().Be("pkg-dashed-upper");
+        report.Warnings.Should().NotContain("Evidence package was not found for this run.");
+    }
 }

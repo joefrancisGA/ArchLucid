@@ -62,6 +62,11 @@ internal static class AnalysisRunIdCanonicalization
         string dashed = guid.ToString("D");
         if (!string.Equals(dashed, canonical, StringComparison.Ordinal))
             yield return dashed;
+
+        string dashedUpper = guid.ToString("D").ToUpperInvariant();
+        if (!string.Equals(dashedUpper, dashed, StringComparison.Ordinal)
+            && !string.Equals(dashedUpper, canonical, StringComparison.Ordinal))
+            yield return dashedUpper;
     }
 
     internal static async Task<IReadOnlyList<AgentExecutionTrace>> LoadExecutionTracesByRunIdAsync(

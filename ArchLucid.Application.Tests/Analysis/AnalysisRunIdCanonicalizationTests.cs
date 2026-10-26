@@ -26,4 +26,16 @@ public sealed class AnalysisRunIdCanonicalizationTests
     {
         AnalysisRunIdCanonicalization.CanonicalRunIdForLookupOrNull("  ").Should().BeNull();
     }
+
+    [Fact]
+    public void EnumerateRunIdRepositoryLookupKeys_includes_uppercase_dashed_guid()
+    {
+        Guid runKey = Guid.Parse("14141414-1414-1414-1414-141414141414");
+        string canonical = runKey.ToString("N");
+        string dashedUpper = runKey.ToString("D").ToUpperInvariant();
+
+        AnalysisRunIdCanonicalization.EnumerateRunIdRepositoryLookupKeys(canonical)
+            .Should()
+            .Contain(dashedUpper);
+    }
 }
