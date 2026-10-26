@@ -319,11 +319,7 @@ public static class AzureInventoryRouteTableRouteParser
             return null;
         }
 
-        string? normalizedArmOrReference = TryParseFlattenedArmIdValue(raw);
-
-        return !string.IsNullOrWhiteSpace(normalizedArmOrReference)
-            ? normalizedArmOrReference
-            : raw.Trim();
+        return ResolveNextHopIpAddressScalar(raw);
     }
 
     private static string? ReadFlattenedPropertyValue(
@@ -463,11 +459,83 @@ public static class AzureInventoryRouteTableRouteParser
             return null;
         }
 
-        string? normalizedArmOrReference = TryParseFlattenedArmIdValue(parsed);
+        return ResolveNextHopIpAddressScalar(parsed);
+    }
 
-        return !string.IsNullOrWhiteSpace(normalizedArmOrReference)
-            ? normalizedArmOrReference
-            : parsed.Trim();
+    private static string? ResolveNextHopIpAddressScalar(string raw)
+    {
+        string? normalized = TryParseFlattenedArmIdValue(raw);
+
+        if (!string.IsNullOrWhiteSpace(normalized))
+        {
+            return normalized;
+        }
+
+        string decoded = PercentDecodeUntilStable(raw.Trim());
+        normalized = TryParseFlattenedArmIdValue(decoded);
+
+        if (!string.IsNullOrWhiteSpace(normalized))
+        {
+            return normalized;
+        }
+
+        string? fromReferenceJson = TryReadLiteralScalarFromReferenceJson(decoded);
+
+        return fromReferenceJson ?? decoded;
+    }
+
+    private static string? TryReadLiteralScalarFromReferenceJson(string text)
+    {
+        if (!text.StartsWith("{", StringComparison.Ordinal))
+        {
+            return null;
+        }
+
+        try
+        {
+            using JsonDocument document = JsonDocument.Parse(text);
+            JsonElement root = document.RootElement;
+
+            if (root.ValueKind is not JsonValueKind.Object)
+            {
+                return null;
+            }
+
+            string? fromId = TryReadStringPropertyIgnoreCase(root, "id");
+
+            if (!string.IsNullOrWhiteSpace(fromId))
+            {
+                return fromId.Trim();
+            }
+
+            string? fromResourceId = TryReadStringPropertyIgnoreCase(root, "resourceId");
+
+            if (!string.IsNullOrWhiteSpace(fromResourceId))
+            {
+                return fromResourceId.Trim();
+            }
+        }
+        catch (JsonException)
+        {
+        }
+
+        return null;
+    }
+
+    private static string? TryReadStringPropertyIgnoreCase(JsonElement element, string propertyName)
+    {
+        foreach (JsonProperty property in element.EnumerateObject())
+        {
+            if (!property.Name.Equals(propertyName, StringComparison.OrdinalIgnoreCase)
+                || property.Value.ValueKind is not JsonValueKind.String)
+            {
+                continue;
+            }
+
+            return property.Value.GetString();
+        }
+
+        return null;
     }
 
     private static string? TryParseFlattenedArmIdValue(string? rawValue)

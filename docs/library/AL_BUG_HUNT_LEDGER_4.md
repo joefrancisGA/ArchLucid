@@ -6358,6 +6358,20 @@
 
 ## Zone: core-azure-extractor
 
+2026-10-26 seed hunt (seed→hit): reseeded `core-azure-extractor` after picker `seedHunt`; promoted five open `(candidate)` rows from prior seed; explicit flattened `nextHopIpAddress` percent-encoded JSON reference scalars wrapping plain IPv4 were left as encoded blobs because `ReadRouteNextHopIpAddress` fell back to undecoded `raw.Trim()` when `NormalizeArmId` rejected non-ARM `id` values; `ResolveNextHopIpAddressScalar` + `TryReadLiteralScalarFromReferenceJson`; regression `Parse_reads_next_hop_ip_address_when_explicit_flattened_next_hop_ip_address_is_percent_encoded_json_reference_scalar_wrapping_plain_ipv4`; cheap-disproof closed EventHub top-level `resourceId` percent-encoded JSON reference scalar (`Extract_reads_event_hub_destination_resource_id_when_top_level_resource_id_is_percent_encoded_json_reference_scalar`), full HTTPS bracketed IPv6 trailing dot before port (`TryExtractHost_reads_host_when_full_https_webhook_url_percent_encodes_bracketed_ipv6_trailing_dot_before_port`), PostgreSQL `server` with whitespace-only `connectionString` (`Extract_reads_postgresql_host_from_percent_encoded_server_when_connection_string_is_whitespace_only`), and percent-encoded plain subscription ARM path with trailing slash (`TryReadScalarString_reads_percent_encoded_plain_subscription_arm_path_scalar_with_trailing_slash`); seeded five follow-on `(candidate)` rows; hunt regressions passed (Release). Private beta: invited operators keep route next-hop IP addresses when inventory stores percent-encoded JSON reference scalars wrapping literal IPv4 on flattened `nextHopIpAddress` suffixes.
+
+- [x] (proven) `AzureInventoryRouteTableRouteParser` — explicit flattened `routes.{n}.nextHopIpAddress` percent-encoded JSON reference scalar wrapping plain IPv4 — **hit 2026-10-26 seed hunt:** `ResolveNextHopIpAddressScalar`; regression `Parse_reads_next_hop_ip_address_when_explicit_flattened_next_hop_ip_address_is_percent_encoded_json_reference_scalar_wrapping_plain_ipv4`. [class:fail-open-validation]
+- [x] (valid-no-repro) `AzureInventoryEventGridDestinationExtractor` — EventHub destination `resourceId` percent-encoded JSON reference scalar on top-level destination (not properties bag) — **cheap-disproof 2026-10-26 seed hunt:** `TryReadString` on destination root; regression `Extract_reads_event_hub_destination_resource_id_when_top_level_resource_id_is_percent_encoded_json_reference_scalar`.
+- [x] (valid-no-repro) `AzureInventoryEventGridWebhookHostExtractor` — full HTTPS webhook URL with percent-encoded bracketed IPv6 trailing dot before port (`https://%5B2001%3Adb8%3A%3A1%5D.%2E%3A443/callback`) — **cheap-disproof 2026-10-26 seed hunt:** decode + dot-before-port trim; regression `TryExtractHost_reads_host_when_full_https_webhook_url_percent_encodes_bracketed_ipv6_trailing_dot_before_port`.
+- [x] (valid-no-repro) `AzureInventoryAdfLinkedServiceTargetExtractor` — Azure PostgreSQL `server` property percent-encoded with trailing dot when `connectionString` is whitespace-only — **cheap-disproof 2026-10-26 seed hunt:** `server` before `connectionString`; regression `Extract_reads_postgresql_host_from_percent_encoded_server_when_connection_string_is_whitespace_only`.
+- [x] (valid-no-repro) `AzureInventoryArmNestedObjectPropertyReader.TryReadScalarString` — percent-encoded plain subscription ARM path scalar with trailing slash (not JSON wrapper) — **cheap-disproof 2026-10-26 seed hunt:** `TryNormalizePlainArmStringScalar`; regression `TryReadScalarString_reads_percent_encoded_plain_subscription_arm_path_scalar_with_trailing_slash`.
+
+- [ ] (candidate) `AzureInventoryRouteTableRouteParser` — `routes` JSON `nextHopIpAddress` percent-encoded JSON reference scalar wrapping plain IPv4 — locus: `TryReadNextHopIpAddress`; input: encoded JSON reference on nested IP property; wrong outcome: null or wrong IP.
+- [ ] (candidate) `AzureInventoryEventGridDestinationExtractor` — ServiceBusQueue destination `eventHubResourceId` percent-encoded JSON reference scalar on top-level destination — locus: `TryReadString`; input: encoded reference on wrong property name; wrong outcome: null resource id.
+- [ ] (candidate) `AzureInventoryEventGridWebhookHostExtractor` — scheme-less webhook with percent-encoded global IPv6 literal and trailing dot before port (`2001%3Adb8%3A%3A1.%2E%3A443/callback`) — locus: `TryExtractHost`; input: encoded unbracketed ipv6 dot+port; wrong outcome: host null.
+- [ ] (candidate) `AzureInventoryAdfLinkedServiceTargetExtractor` — Azure Synapse `server` property percent-encoded with trailing dot when `connectionString` is whitespace-only — locus: `NormalizeHost`; input: encoded server with whitespace CS; wrong outcome: host null.
+- [ ] (candidate) `AzureInventoryArmNestedObjectPropertyReader.TryReadScalarString` — percent-encoded plain ARM path scalar with trailing slash on `resourceId` property nested under `properties` bag — locus: nested bag read; input: encoded path in nested bag; wrong outcome: null.
+
 2026-10-26 seed hunt (seed-only): reseeded `core-azure-extractor` after picker `seedHunt`; promoted five open `(candidate)` rows from prior seed; cheap-disproof closed explicit flattened `nextHopIpAddress` percent-encoded plain IPv4 scalar (`Parse_reads_next_hop_ip_address_when_explicit_flattened_next_hop_ip_address_is_percent_encoded_plain_ipv4_scalar`), Azure Function `resourceId` percent-encoded JSON reference scalar (`Extract_reads_azure_function_destination_resource_id_when_properties_resource_id_is_percent_encoded_json_reference_scalar`), scheme-less percent-encoded bracketed IPv6 with trailing dot before port (`TryExtractHost_reads_host_when_scheme_less_webhook_url_percent_encodes_bracketed_ipv6_trailing_dot_before_port`), Azure SQL `server` with whitespace-only `connectionString` (`Extract_reads_sql_host_from_percent_encoded_server_when_connection_string_is_whitespace_only`), and percent-encoded JSON dual-key reference with doubly percent-encoded ARM paths on both keys (`TryReadScalarString_reads_percent_encoded_json_string_scalar_wrapping_dual_key_reference_with_doubly_percent_encoded_arm_paths`); seeded five follow-on `(candidate)` rows; hunt regressions passed (Release). Private beta: n/a — no product fix.
 
 - [x] (valid-no-repro) `AzureInventoryRouteTableRouteParser` — explicit flattened `routes.{n}.nextHopIpAddress` percent-encoded plain IPv4 scalar — **cheap-disproof 2026-10-26 seed hunt:** `ReadRouteNextHopIpAddress`; regression `Parse_reads_next_hop_ip_address_when_explicit_flattened_next_hop_ip_address_is_percent_encoded_plain_ipv4_scalar`.
@@ -6647,11 +6661,11 @@
 - **aliases:** azure extractor; manifest schema; split from archlucid-core
 - **paths:** ArchLucid.Core/AzureExtractor/
 - **test-filter:** FullyQualifiedName~AzureExtractor
-- **hunts:** 96
-- **bugs-found:** 84
+- **hunts:** 97
+- **bugs-found:** 85
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-26
-- **last-bug:** 2026-10-26 — scheme-less webhook dot+port
+- **last-bug:** 2026-10-26 — flattened nextHopIp JSON IPv4 ref
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
