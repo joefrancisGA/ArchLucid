@@ -203,6 +203,18 @@ describe("ResourceHubClient", () => {
     });
   });
 
+  it("closes create-remediation dialog when switching hub tabs", async () => {
+    searchParams = new URLSearchParams(`tab=findings&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}`);
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    fireEvent.click(await screen.findByTestId("infra-resource-hub-create-remediation-finding-1"));
+    expect(await screen.findByTestId("infra-resource-hub-create-remediation-dialog")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByTestId("infra-resource-hub-tab-overview"));
+
+    expect(screen.queryByTestId("infra-resource-hub-create-remediation-dialog")).not.toBeInTheDocument();
+  });
+
   it("ignores in-flight create remediation when cloudResourceId changes before the API returns", async () => {
     const otherCloudResourceId = "55555555-5555-5555-5555-555555555555";
     let resolveCreate: (() => void) | undefined;

@@ -7223,6 +7223,33 @@ ABQ-09 churn hotspot.
 
 ## Zone: ui-infra-resource-hub
 
+2026-10-26 seed hunt (seed→hit): promoted **create-remediation confirm dialog left open after hub tab switch** — `setActiveTab` cleared finding action toasts but not `pendingRemediationFinding`, so leaving Findings with the confirm open and selecting another hub tab left a modal scoped to the prior tab’s finding; dismiss pending remediation on tab change; regression `closes create-remediation dialog when switching hub tabs`; cheap-disproof closed `suppressLinkedAuditScopeRefetch` skip (scope reset clears suppress), technical-key URL normalize (bookmark parity), whitespace terraform address (existing regression), hub tab badges (saturated monitor), and remediation cache invalidate (scope guards); scoped ResourceHubClient vitest 137/137. Private beta: operators switching resource-hub sections no longer see a stale “Create remediation instance?” confirm for a finding from the tab they left.
+
+- [x] (proven) `ResourceHubClient` `setActiveTab` — pending remediation dialog after tab change — **hit 2026-10-26 seed hunt #116:** clear `pendingRemediationFinding`; regression above.
+- [x] (valid-no-repro) `ResourceHubClient` `loadHub` — `suppressLinkedAuditScopeRefetch` early exit — **cheap-disproof 2026-10-26 seed hunt #116:** scope-key effect resets suppress; Retry only on load error.
+- [x] (valid-no-repro) `ResourceHubClient` `infraResourceHubTechnicalKey` — no resource-switch URL normalize — **cheap-disproof 2026-10-26 seed hunt #116:** tab sanitize clears wrong-tab keys; deep-link param is intentional.
+- [x] (valid-no-repro) `ResourceHubClient` `hasTerraformMapping` — whitespace-only `terraformAddress` — **cheap-disproof 2026-10-26 seed hunt #116:** regression `treats whitespace-only terraform address as not stored on the terraform tab`.
+- [x] (valid-no-repro) `ResourceHubClient` `hubTabs` — badge counts from hub row — **cheap-disproof 2026-10-26 seed hunt #116:** monitor; saturated `[state-machine-gap]`.
+- [x] (valid-no-repro) `ResourceHubClient` `runCreateRemediationFromFinding` — cache invalidate target — **cheap-disproof 2026-10-26 seed hunt #116:** `isHubScopeStillCurrent` before invalidate/load.
+
+- [ ] (candidate) `ResourceHubClient` `setActiveTab` — keyboard shortcut tab jumps — locus: `useResourceHubShortcuts` + `setActiveTab`; input: G then section key while confirm dialog open.
+- [ ] (candidate) `ResourceHubClient` audit scope chip href — `workbenchLinkAuditContext` when `deferUrlAuditScopeUntilHubLoads` — locus: `auditScopeChipHref` useMemo (~1030).
+- [ ] (candidate) `ResourceHubClient` findings stream — `findingActionMessages` survive tab round-trip — locus: `setActiveTab` clears messages; input: success toast then switch tab and return.
+- [ ] (candidate) `ResourceHubClient` diagram tab — reconcile remediation href when correspondence id whitespace — locus: `diagramCorrespondenceIdTrimmed` (~1148).
+- [ ] (candidate) `ResourceHubClient` explorer work-queue banner — `workQueue` deep link after audit clear — locus: `buildInfraEvidenceClearAuditScopeHref` + workQueue preserve.
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 116
+- **bugs-found:** 92
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-26
+- **last-bug:** 2026-10-26 — create-remediation confirm dialog after hub tab switch
+- **code-changed-since:** yes
+
 2026-10-26 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below (terraform overview quick link polish, `resourceTitle` hub reset parity with `clears prior hub evidence when cloudResourceId changes`, manual Retry `loadRequestGeneration` guard, cold snapshot bookmark remount monitor, drift change-id trim defer); seeded five follow-on `(candidate)` rows; scoped ResourceHubClient vitest 136/136; no production or test code changed.
 
 - [x] (valid-no-repro) `ResourceHubClient` overview — quick link to terraform tab when mapped — **cheap-disproof 2026-10-26 seed hunt #115:** navigation polish; no incorrect data path.

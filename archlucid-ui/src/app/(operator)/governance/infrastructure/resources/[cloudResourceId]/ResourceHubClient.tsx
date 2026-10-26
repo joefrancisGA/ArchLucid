@@ -642,6 +642,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
 
   const setActiveTab = useCallback((tab: ResourceHubTab) => {
     setFindingActionMessages({});
+    setPendingRemediationFinding(null);
     const sanitizedSearch = sanitizeResourceHubQueryForTab(searchParams.toString(), tab);
     const nextHref = resourceHubFilterHrefFromSearch(cloudResourceId, sanitizedSearch, {
       tab,
