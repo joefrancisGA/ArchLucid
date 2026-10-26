@@ -7209,6 +7209,32 @@ ABQ-09 churn hotspot.
 
 ## Zone: ui-infra-resource-hub
 
+2026-10-26 seed hunt (seed→hit): promoted whitespace-only / padded **architecture-review finding id** on Ask handoff — architecture stream still passed raw `item.id` into `buildHubFindingAskHref` and test ids while operational rows already used `findingIdTrimmed`, so whitespace-only ids rendered a broken Ask link and padded ids could ship encoded spaces in `findingId`; reuse trim gate with omission copy; regressions `shows finding id omission copy on architecture review rows when finding id is whitespace-only` and padded Ask `href`; cheap-disproof closed operational finding id (prior hit), overview audit `degradedReason` banner parity (component trims; audit tab uses formatter), and remediation blocker join mix; scoped ResourceHubClient vitest 107/107. Private beta: architecture-review finding rows on the resource hub findings tab no longer expose a misleading Ask link when capture stored only whitespace in finding `id`, and padded ids open Infrastructure Ask with a trimmed `findingId`.
+
+- [x] (proven) `ResourceHubClient` findings tab — architecture-review `item.id` whitespace-only / padded Ask — **hit 2026-10-26 seed hunt:** `findingIdTrimmed` on architecture Ask link; regressions whitespace omission and padded href.
+- [x] (valid-no-repro) `ResourceHubClient` findings tab — operational-security `item.id` — **cheap-disproof 2026-10-26 seed hunt:** prior hit retained.
+- [x] (valid-no-repro) `ResourceHubClient` overview audit banner — whitespace-only `degradedReason` — **cheap-disproof 2026-10-26 seed hunt:** `InfraAuditLineageUnavailableBanner` trims; audit tab uses `formatStoredInfraEvidenceHubField`.
+- [x] (valid-no-repro) `ResourceHubClient` `runCreateRemediationFromFinding` — mixed empty/trimmed blockers — **cheap-disproof 2026-10-26 seed hunt:** trim/filter join retains real blocker text.
+- [x] (valid-no-repro) `ResourceHubDriftChangesTable` — `changeType` whitespace — **cheap-disproof 2026-10-26 seed hunt:** normalize maps trim-empty to stored label.
+
+- [ ] (candidate) `ResourceHubClient` overview — `resourceGroup` / `region` via `formatStoredInfraEvidenceHubField` — locus: copy string parity with other hub fields.
+- [ ] (candidate) `ResourceHubDriftChangesTable` — exotic unknown `changeType` StatusTag — locus: neutral kind for unrecognized keys.
+- [ ] (candidate) `ResourceHubClient` overview vs audit — align default `degradedReason` copy when hub omits reason — locus: banner suffix vs audit tab paragraph.
+- [ ] (candidate) `ResourceHubClient` findings stream pagination — `streamLabel` whitespace on “more” link — locus: stream caption helpers.
+- [ ] (candidate) `ResourceHubClient` evidence pointers — duplicate relative paths in list — locus: pointer row keys.
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 77
+- **bugs-found:** 56
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-26
+- **last-bug:** 2026-10-26 — architecture-review finding id on Ask handoff
+- **code-changed-since:** yes
+
 2026-10-26 seed hunt (seed→hit): promoted whitespace-only **operational finding id** on findings rows — operational-security actions used raw `item.id` for factory/Ask/create links and `findingActionMessages` lookup while create flow keyed messages by trimmed id, so whitespace-only ids showed broken actions and padded ids could miss status text; trim gate shows omission copy and hides actions; regressions `shows finding id omission copy and hides operational actions when finding id is whitespace-only` and padded-id API/message parity; cheap-disproof closed remediation failure blockers (prior hit), overview `resourceGroup`/`region` formatter parity candidate deferred, and drift `changeType` exotic tag; scoped ResourceHubClient vitest 105/105. Private beta: on the resource hub findings tab, operators see “Finding id was not stored.” instead of dead factory or create links when capture stored only whitespace in finding `id`, and padded ids still wire remediation actions and status messages correctly.
 
 - [x] (proven) `ResourceHubClient` findings tab — operational-security `item.id` whitespace-only / padded — **hit 2026-10-26 seed hunt:** `findingIdTrimmed` for actions, messages, and row keys; regressions whitespace id omission and padded id create flow.
