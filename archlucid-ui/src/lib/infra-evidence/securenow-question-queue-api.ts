@@ -1,4 +1,5 @@
 import {
+  secureNowQuestionCountsAsReviewableQueueRow,
   secureNowQuestionDispositionIsAnswered,
   secureNowQuestionDispositionIsDismissed,
   secureNowQuestionDispositionIsOpen,
@@ -531,6 +532,13 @@ export function secureNowListedQuestionRowPassesOpenMutationPreflight(
   return secureNowQuestionDispositionMutationEvidenceFingerprint(question.evidenceFingerprint) !== null;
 }
 
+/** Listed rows must appear in at least one review filter (Open/Answered/Dismissed/Status not stored). */
+export function secureNowListedQuestionRowCountsAsReviewableQueueRow(
+  question: SecureNowQuestion,
+): boolean {
+  return secureNowQuestionCountsAsReviewableQueueRow(question);
+}
+
 function mapQuestion(raw: Record<string, unknown>): SecureNowQuestion {
   const questionText = stringOrDefault(raw.questionText);
 
@@ -583,6 +591,7 @@ export async function listSecureNowQuestions(snapshotId: string): Promise<Secure
         secureNowQuestionListedSnapshotMatchesContext(question.snapshotId, contextSnapshotId))
       .filter(secureNowListedQuestionRowHasStoredIdentity)
       .filter(secureNowListedQuestionRowPassesOpenMutationPreflight)
+      .filter(secureNowListedQuestionRowCountsAsReviewableQueueRow)
     : [];
 }
 

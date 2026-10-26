@@ -14,6 +14,7 @@ import {
   secureNowListedQuestionRowShapeIsUsable,
   secureNowListedQuestionRowHasStoredIdentity,
   secureNowListedQuestionRowPassesOpenMutationPreflight,
+  secureNowListedQuestionRowCountsAsReviewableQueueRow,
   secureNowQuestionDispositionResponseAuditEntriesShapeIsUsable,
   secureNowQuestionListedSnapshotMatchesContext,
   secureNowQuestionDispositionResponseListedDispositionIdMatches,
@@ -785,6 +786,50 @@ describe("secureNowListedQuestionRowPassesOpenMutationPreflight", () => {
   });
 });
 
+describe("secureNowListedQuestionRowCountsAsReviewableQueueRow", () => {
+  const baseRow = {
+    dispositionId: null,
+    snapshotId: "snapshot-1",
+    subscriptionId: "sub-1",
+    resourceId: "/subscriptions/sub-1/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa",
+    questionKey: "unknown-evidence@v1",
+    source: "InventoryEvidence",
+    scopeKind: "Resource",
+    status: "Open",
+    questionText: "Should this resource connect?",
+    resourceType: null,
+    resourceName: null,
+    reasonText: "",
+    sourceLine: "",
+    answerCodes: ["NamePeer"],
+    evidenceFingerprint: "fingerprint",
+    expirationUtc: null,
+    isExpired: null,
+    answerCode: null,
+    answerText: null,
+    reason: null,
+  };
+
+  it("rejects expired open rows that no review filter can show", () => {
+    vi.setSystemTime(new Date("2026-10-25T12:00:00.000Z"));
+    expect(secureNowListedQuestionRowCountsAsReviewableQueueRow({
+      ...baseRow,
+      expirationUtc: "2026-10-25T11:00:00.000Z",
+      isExpired: null,
+    })).toBe(false);
+    vi.useRealTimers();
+  });
+
+  it("keeps answered rows that the Answered filter can show", () => {
+    expect(secureNowListedQuestionRowCountsAsReviewableQueueRow({
+      ...baseRow,
+      status: "Answered",
+      answerCode: "Owner",
+      answerText: "Owner",
+    })).toBe(true);
+  });
+});
+
 describe("secureNowQuestionListedSnapshotMatchesContext", () => {
   it("treats padded listed snapshot ids as matching the active context", () => {
     expect(secureNowQuestionListedSnapshotMatchesContext("  snapshot-1  ", "snapshot-1")).toBe(true);
@@ -812,6 +857,46 @@ describe("securenow-question-queue-api", () => {
     const questions = await listSecureNowQuestions("snapshot-1");
 
     expect(questions).toEqual([]);
+  });
+
+  it("omits expired open list rows that cannot appear in any review filter", async () => {
+    vi.setSystemTime(new Date("2026-10-25T12:00:00.000Z"));
+    vi.mocked(proxyJsonGet).mockResolvedValueOnce([
+      {
+        snapshotId: "snapshot-1",
+        subscriptionId: "sub-1",
+        resourceId: "/subscriptions/sub-1/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa",
+        source: "InventoryEvidence",
+        scopeKind: "Resource",
+        questionKey: "unknown-evidence@v1",
+        status: "Open",
+        questionText: "Should this resource connect?",
+        answerCodes: ["NamePeer"],
+        evidenceFingerprint: "fingerprint",
+        expirationUtc: "2026-10-25T11:00:00.000Z",
+        isExpired: false,
+      },
+      {
+        snapshotId: "snapshot-1",
+        subscriptionId: "sub-1",
+        resourceId: "",
+        source: "PolicyPack",
+        scopeKind: "Subscription",
+        questionKey: "subscription-ownership@v1",
+        status: "Open",
+        questionText: "Who owns this subscription?",
+        answerCodes: ["Owner"],
+        evidenceFingerprint: "fingerprint-2",
+        expirationUtc: "2099-01-01T00:00:00.000Z",
+        isExpired: false,
+      },
+    ]);
+
+    const questions = await listSecureNowQuestions("snapshot-1");
+
+    expect(questions).toHaveLength(1);
+    expect(questions[0].questionKey).toBe("subscription-ownership@v1");
+    vi.useRealTimers();
   });
 
   it("omits open list rows missing evidence fingerprint when a question key is stored", async () => {
