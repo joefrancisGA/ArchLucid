@@ -11944,6 +11944,17 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 ---
 
 ## Zone: decisioning
+
+2026-10-26 seed hunt (seed→hit): promoted delimiter-split scope keyword `network` in constraint `non-network sandbox integrations only`; proved `TopologyExpectedCategoryResolver.TokenContainsKeyword` honored `no` but not `non` before split tokens, falsely adding `network-isolation` workload theme; treat `non` like `no` in `IsNegatedDelimiterPart`; regression `ResolveExpectedThemes_WhenConstraintMentionsNonNetworkSandbox_DoesNotAddNetworkIsolationTheme`; scoped `FullyQualifiedName~Decisioning|FullyQualifiedName~FindingsMerge` 1,345/1,359 passed (`RunAnalyzers=false`, 14 unrelated baseline failures); seeded five follow-on `(candidate)` rows. Private beta: workload-conditioned requirement themes on pilot reviews no longer demand network-isolation when scope constraints explicitly describe a non-network sandbox.
+
+- [ ] (candidate) `TopologyExpectedCategoryResolver.TokenContainsKeyword` — hyphenated `non-vpn` single segment before split may still affirm `vpn` — locus: delimiter split; input: constraint `non-vpn dev slice`.
+- [ ] (candidate) `TopologyExpectedCategoryResolver.MentionsNetworkIsolation` — bare `network` token in `internetworking` product phrase — locus: five-letter prefix rule; input: capability mentions internetworking only.
+- [ ] (candidate) `WorkloadConditionedSecurityControlFamilyResolver` — `vulnerab` substring in `invulnerability` label — locus: `DelimitedTextContainsAnyKeyword`; input: security program label with invulnerability wording.
+- [ ] (candidate) `SecurityControlsDecisionStrategy` — `Strengthen` rationale `private link optional` affirms private endpoints — locus: `TextAffirmsPrivateEndpoint`; input: optional private link phrasing.
+- [ ] (candidate) `TopologyExpectedCategoryResolver.SuggestsServerlessWorkload` — removes Network category but `network` keyword in constraints still adds `network-isolation` theme — locus: category vs theme parity; input: serverless capability with explicit `no network` constraint (verify theme drop).
+
+- [x] (proven) `TopologyExpectedCategoryResolver.TokenContainsKeyword` — `non-network` constraint false `network-isolation` theme — **hit 2026-10-26 seed hunt:** `IsNegatedDelimiterPart` includes `non`; regression above. [class:other]
+
 2026-10-16 seed hunt (seed→hit): `DecisioningTextTokenMatcher` `do not require private endpoint` scope negation; regression `ResolveExpectedThemes_WhenConstraintSaysDoNotRequirePrivateEndpoint_DoesNotAddNetworkIsolationTheme`.
 
 - [x] (proven) `WorkloadConditionedRequirementExpectationResolver` / `DecisioningTextTokenMatcher` — constraint `Do not require private endpoint connectivity…` false `network-isolation` theme — **hit 2026-10-16 seed hunt:** `private endpoint` phrase matched without `do not require` negation; `IsDoNotRequirePhraseNegation`; regression `ResolveExpectedThemes_WhenConstraintSaysDoNotRequirePrivateEndpoint_DoesNotAddNetworkIsolationTheme`.
@@ -11971,11 +11982,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** decisioning engine; findings merge; advisory alerts
 - **paths:** ArchLucid.Decisioning/
 - **test-filter:** FullyQualifiedName~Decisioning|FullyQualifiedName~FindingsMerge
-- **hunts:** 53
-- **bugs-found:** 44
+- **hunts:** 54
+- **bugs-found:** 45
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-09
-- **last-bug:** 2026-10-09 — Terraform cosmosdb account skipped RPO checks
+- **last-hunt:** 2026-10-26
+- **last-bug:** 2026-10-26 — non-network constraint false network-isolation theme
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
