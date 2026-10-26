@@ -9573,6 +9573,34 @@ ABQ-09 churn hotspot.
 
 ## Zone: securenow-question-queue
 
+2026-10-26 seed hunt (seed→hit): promoted `securenow-question-queue-api.mapSecureNowQuestionDisposition` **mutation response mapper left padded disposition fields untrimmed** — POST `/answer` JSON with whitespace-padded ids and answer codes mapped verbatim while list responses trim the same fields, so any consumer comparing mutation payloads to listed rows could treat padded and trimmed values as different dispositions; trim required disposition strings and map optional answer fields with the same `mapListedOptionalString` helper as list rows; regressions `trims padded disposition id on mutation responses` and `maps whitespace-only answerCode on disposition responses to null`; cheap-disproof closed padded listed `snapshotId` guard (existing trim + mismatch regressions), SQL MERGE deferred, optimistic merge future-risk, service validation copy (shared `operatorInferredConnectionPanelErrorFromUnknown`); scoped SecureNow queue vitest 132/132. Private beta: no direct pilot-path change today; hardens disposition POST mapping before any optimistic merge reuses mutation JSON.
+
+- [x] (proven) `securenow-question-queue-api.mapSecureNowQuestionDisposition` — padded mutation response fields — **hit 2026-10-26 seed hunt:** `mapDispositionRequiredString` + optional trim parity; regressions above.
+- [x] (valid-no-repro) `securenow-question-queue-api.mapQuestion` — padded listed `snapshotId` vs active context — **cheap-disproof 2026-10-26 seed hunt:** trim at mapper + `secureNowQuestionListedSnapshotMatchesContext`; existing save-guard regressions.
+- [x] (valid-no-repro) `SecureNowQuestionDispositionService` — mutation validation errors surfaced in UI toast — **cheap-disproof 2026-10-26 seed hunt:** provider maps `ApiLoadFailureState.message` on mutation catch; parity with inference questionnaire panel helper.
+- [x] (invalid) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` — **cheap-disproof 2026-10-26 seed hunt:** integration host unavailable; candidate reseeded below.
+- [x] (invalid) `securenow-question-queue-provider` — optimistic merge from disposition JSON — **cheap-disproof 2026-10-26 seed hunt:** reload-only provider; candidate reseeded below.
+
+- [ ] (candidate) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` identity hash collision — locus: SQL repository; input: integration repro when SQL host available.
+- [ ] (candidate) `securenow-question-queue-provider` — optimistic merge from disposition JSON — locus: future post-mutation path; input: must use trimmed `mapSecureNowQuestionDisposition` only.
+- [ ] (candidate) `securenow-question-queue-api.postSecureNowQuestionDisposition` — reject empty disposition id after trim — locus: POST mapper; input: return undefined when `dispositionId` blank.
+- [ ] (candidate) `SecureNowQuestionQueue.test.tsx` — mutation ApiLoadFailureState inline error lock — locus: save answer catch; input: mirror inference questionnaire governance-mutation regression.
+- [ ] (candidate) `securenow-question-queue-api.mapSecureNowQuestionDisposition` — malformed `auditEntries` element shapes — locus: audit array map; input: non-object entries should not throw.
+
+2026-10-26 seed hunt (seed→hit): promoted `SecureNowQuestionQueueProvider` **post-mutation reload cleared connection warning prematurely** — starting a post-save list reload or submit cleared load-class inline errors before the retry finished, hiding connection refresh failures while the queue was still reloading; skip `setError(null)` on post-mutation reload start and clear only mutation errors at submit start; regression `keeps a prior connection load warning visible while a post-answer reload is in flight`; cheap-disproof closed preserve-warning on list failure (catch replaces error), blank disposition mapper, SQL MERGE deferred; scoped SecureNow queue vitest 130/130. Private beta: operators retrying a SecureNow save still see the prior connection warning until the refresh completes or succeeds.
+
+- [x] (proven) `SecureNowQuestionQueueProvider` — premature error clear on post-mutation reload — **hit 2026-10-26 seed hunt:** defer load-error clear for `reloadAfterMutation`; mutation-only clear on submit; regression above.
+- [x] (valid-no-repro) `SecureNowQuestionQueueProvider` — preserve connection warning when later list reload fails — **cheap-disproof 2026-10-26 seed hunt:** list failure catch replaces prior load error with list refresh copy.
+- [x] (valid-no-repro) `securenow-question-queue-api.mapSecureNowQuestionDisposition` — reject blank disposition id — **cheap-disproof 2026-10-26 seed hunt:** mutation return unused; monitor.
+- [x] (invalid) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` — **cheap-disproof 2026-10-26 seed hunt:** integration host unavailable; candidate reseeded below.
+- [x] (invalid) `securenow-question-queue-provider` — optimistic merge from disposition JSON — **cheap-disproof 2026-10-26 seed hunt:** reload-only provider; candidate reseeded below.
+
+- [ ] (candidate) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` identity hash collision — locus: SQL repository; input: integration repro when SQL host available.
+- [ ] (candidate) `securenow-question-queue-provider` — optimistic merge from disposition JSON — locus: future post-mutation path; input: must use `mapSecureNowQuestionDisposition` only.
+- [ ] (candidate) `securenow-question-queue-api.mapSecureNowQuestionDisposition` — reject blank disposition id on write responses — locus: post mapper; input: return undefined for invalid payloads.
+- [ ] (candidate) `securenow-question-queue-api.mapQuestion` — padded listed `snapshotId` vs active context — locus: list identity; input: trim parity with save guard regressions.
+- [ ] (candidate) `SecureNowQuestionDispositionService` — mutation validation errors surfaced in UI toast — locus: API detail; input: proxy maps ProblemDetails on failed POST.
+
 2026-10-26 seed hunt (seed→hit): promoted `SecureNowQuestionQueueProvider.loadQuestions` **stale list-load error after successful post-mutation question reload** — a failed post-save question-list refresh left the inline error visible even after a later reload applied fresh rows; clear the error when `reloadAfterMutation` applies an updated list and again when inferred connections refresh succeeds; regression `clears a stale list-load error after a post-answer question reload succeeds`; cheap-disproof closed blank disposition id mapper (reload-only provider), SQL MERGE deferred, optimistic merge future-risk, service validation copy (API-only); scoped SecureNow queue vitest 129/129. Private beta: operators who recover from a SecureNow refresh error no longer see the old failure banner after the queue successfully reloads.
 
 - [x] (proven) `SecureNowQuestionQueueProvider.loadQuestions` — stale list error after post-mutation reload success — **hit 2026-10-26 seed hunt:** clear error on `reloadAfterMutation` success + connections fulfilled; regression above.
@@ -9762,11 +9790,11 @@ ABQ-09 churn hotspot.
 - **aliases:** securenow question queue; question disposition
 - **paths:** archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx; archlucid-ui/src/lib/infra-evidence/securenow-question-queue-api.ts
 - **test-filter:** SecureNowQuestion
-- **hunts:** 112
-- **bugs-found:** 84
+- **hunts:** 114
+- **bugs-found:** 86
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-26
-- **last-bug:** 2026-10-26 — stale list error after post-mutation reload success
+- **last-bug:** 2026-10-26 — mutation response mapper trim parity
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 

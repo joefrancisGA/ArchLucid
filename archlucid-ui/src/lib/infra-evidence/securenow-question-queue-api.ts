@@ -74,6 +74,14 @@ function stringOrDefault(value: unknown, fallback = ""): string {
   return typeof value === "string" ? value : fallback;
 }
 
+function mapDispositionRequiredString(value: unknown, fallback = ""): string {
+  if (typeof value !== "string") {
+    return fallback;
+  }
+
+  return value.trim();
+}
+
 function mapListedOptionalString(value: unknown): string | null {
   if (typeof value !== "string") {
     return null;
@@ -141,30 +149,30 @@ export function secureNowQuestionListedSnapshotMatchesContext(
 
 export function mapSecureNowQuestionDisposition(raw: Record<string, unknown>): SecureNowQuestionDisposition {
   return {
-    dispositionId: stringOrDefault(raw.dispositionId),
-    snapshotId: stringOrDefault(raw.snapshotId),
-    subscriptionId: stringOrDefault(raw.subscriptionId),
-    resourceId: stringOrDefault(raw.resourceId),
-    questionKey: stringOrDefault(raw.questionKey),
-    source: stringOrDefault(raw.source),
-    scopeKind: stringOrDefault(raw.scopeKind),
-    status: stringOrDefault(raw.status),
-    answerCode: typeof raw.answerCode === "string" ? raw.answerCode : null,
-    answerText: typeof raw.answerText === "string" ? raw.answerText : null,
-    reason: stringOrDefault(raw.reason),
-    expirationUtc: stringOrDefault(raw.expirationUtc),
+    dispositionId: mapDispositionRequiredString(raw.dispositionId),
+    snapshotId: mapDispositionRequiredString(raw.snapshotId),
+    subscriptionId: mapDispositionRequiredString(raw.subscriptionId),
+    resourceId: mapDispositionRequiredString(raw.resourceId),
+    questionKey: mapDispositionRequiredString(raw.questionKey),
+    source: mapDispositionRequiredString(raw.source),
+    scopeKind: mapDispositionRequiredString(raw.scopeKind),
+    status: mapDispositionRequiredString(raw.status),
+    answerCode: mapListedOptionalString(raw.answerCode),
+    answerText: mapListedOptionalString(raw.answerText),
+    reason: mapDispositionRequiredString(raw.reason),
+    expirationUtc: mapDispositionRequiredString(raw.expirationUtc),
     isExpired: mapJsonBoolean(raw.isExpired),
-    evidenceFingerprint: stringOrDefault(raw.evidenceFingerprint),
-    actorKey: stringOrDefault(raw.actorKey),
-    updatedUtc: stringOrDefault(raw.updatedUtc),
+    evidenceFingerprint: mapDispositionRequiredString(raw.evidenceFingerprint),
+    actorKey: mapDispositionRequiredString(raw.actorKey),
+    updatedUtc: mapDispositionRequiredString(raw.updatedUtc),
     auditEntries: Array.isArray(raw.auditEntries)
       ? raw.auditEntries.map((entry) => {
           const audit = (entry ?? {}) as Record<string, unknown>;
           return {
-            action: stringOrDefault(audit.action),
-            actorKey: stringOrDefault(audit.actorKey),
-            occurredUtc: stringOrDefault(audit.occurredUtc),
-            reason: stringOrDefault(audit.reason),
+            action: mapDispositionRequiredString(audit.action),
+            actorKey: mapDispositionRequiredString(audit.actorKey),
+            occurredUtc: mapDispositionRequiredString(audit.occurredUtc),
+            reason: mapDispositionRequiredString(audit.reason),
           };
         })
       : [],

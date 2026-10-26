@@ -445,6 +445,58 @@ describe("securenow-question-queue-api", () => {
     expect(disposition.isExpired).toBe(false);
   });
 
+  it("trims padded disposition id on mutation responses", () => {
+    const disposition = mapSecureNowQuestionDisposition({
+      dispositionId: "  00000000-0000-0000-0000-000000000001  ",
+      snapshotId: "  00000000-0000-0000-0000-000000000002  ",
+      subscriptionId: "  sub-1  ",
+      resourceId: "  sub-1  ",
+      questionKey: "  subscription-ownership@v1  ",
+      source: "  PolicyPack  ",
+      scopeKind: "  Subscription  ",
+      status: "  Answered  ",
+      reason: "  Answered in queue.  ",
+      expirationUtc: "  2099-01-01T00:00:00.000Z  ",
+      isExpired: false,
+      evidenceFingerprint: "  fingerprint  ",
+      actorKey: "  operator  ",
+      updatedUtc: "  2026-10-25T12:00:00.000Z  ",
+      answerCode: "  Owner  ",
+      answerText: "  Owner  ",
+      auditEntries: [],
+    });
+
+    expect(disposition.dispositionId).toBe("00000000-0000-0000-0000-000000000001");
+    expect(disposition.snapshotId).toBe("00000000-0000-0000-0000-000000000002");
+    expect(disposition.answerCode).toBe("Owner");
+    expect(disposition.reason).toBe("Answered in queue.");
+  });
+
+  it("maps whitespace-only answerCode on disposition responses to null", () => {
+    const disposition = mapSecureNowQuestionDisposition({
+      dispositionId: "00000000-0000-0000-0000-000000000001",
+      snapshotId: "00000000-0000-0000-0000-000000000002",
+      subscriptionId: "sub-1",
+      resourceId: "sub-1",
+      questionKey: "subscription-ownership@v1",
+      source: "PolicyPack",
+      scopeKind: "Subscription",
+      status: "Answered",
+      reason: "Reviewed.",
+      expirationUtc: "2026-12-01T00:00:00.000Z",
+      isExpired: false,
+      evidenceFingerprint: "fingerprint",
+      actorKey: "reviewer",
+      updatedUtc: "2026-11-01T00:00:00.000Z",
+      answerCode: "   ",
+      answerText: "   ",
+      auditEntries: [],
+    });
+
+    expect(disposition.answerCode).toBeNull();
+    expect(disposition.answerText).toBeNull();
+  });
+
   it("trims padded answer code entries from list responses", async () => {
     vi.mocked(proxyJsonGet).mockResolvedValueOnce([
       {
