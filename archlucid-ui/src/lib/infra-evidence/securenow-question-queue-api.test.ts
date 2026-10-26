@@ -11,6 +11,7 @@ import {
   secureNowQuestionDispositionResponseRequiredOperatorMetadataFields,
   secureNowQuestionDispositionScopeRequiresResourceId,
   secureNowQuestionDispositionPostResponseBodyIsUsable,
+  secureNowListedQuestionRowShapeIsUsable,
   secureNowQuestionDispositionResponseAuditEntriesShapeIsUsable,
   secureNowQuestionListedSnapshotMatchesContext,
   secureNowQuestionDispositionResponseListedDispositionIdMatches,
@@ -660,7 +661,19 @@ describe("secureNowQuestionDispositionPostResponseBodyIsUsable", () => {
   it("rejects array and primitive POST bodies", () => {
     expect(secureNowQuestionDispositionPostResponseBodyIsUsable([])).toBe(false);
     expect(secureNowQuestionDispositionPostResponseBodyIsUsable("answered")).toBe(false);
+    expect(secureNowQuestionDispositionPostResponseBodyIsUsable(42)).toBe(false);
+    expect(secureNowQuestionDispositionPostResponseBodyIsUsable(true)).toBe(false);
     expect(secureNowQuestionDispositionPostResponseBodyIsUsable({ status: "Answered" })).toBe(true);
+  });
+});
+
+describe("secureNowListedQuestionRowShapeIsUsable", () => {
+  it("rejects null, primitives, and arrays", () => {
+    expect(secureNowListedQuestionRowShapeIsUsable(null)).toBe(false);
+    expect(secureNowListedQuestionRowShapeIsUsable(42)).toBe(false);
+    expect(secureNowListedQuestionRowShapeIsUsable("open")).toBe(false);
+    expect(secureNowListedQuestionRowShapeIsUsable([])).toBe(false);
+    expect(secureNowListedQuestionRowShapeIsUsable({ questionKey: "k@v1" })).toBe(true);
   });
 });
 
@@ -691,6 +704,26 @@ describe("securenow-question-queue-api", () => {
     const questions = await listSecureNowQuestions("snapshot-1");
 
     expect(questions).toEqual([]);
+  });
+
+  it("skips primitive and null elements when the proxy returns a mixed array", async () => {
+    vi.mocked(proxyJsonGet).mockResolvedValueOnce([
+      null,
+      42,
+      "not-a-row",
+      {
+        snapshotId: "snapshot-1",
+        questionKey: "unknown-evidence@v1",
+        questionText: "Should this resource connect?",
+        answerCodes: ["NamePeer"],
+        evidenceFingerprint: "fingerprint",
+      },
+    ]);
+
+    const questions = await listSecureNowQuestions("snapshot-1");
+
+    expect(questions).toHaveLength(1);
+    expect(questions[0].questionKey).toBe("unknown-evidence@v1");
   });
 
   it("maps non-string reasonText and sourceLine to empty strings without throwing", async () => {
@@ -2364,6 +2397,42 @@ describe("securenow-question-queue-api", () => {
       updatedUtc: "2026-11-01T00:00:00.000Z",
       auditEntries: ["not-an-object"],
     });
+
+    const disposition = await answerSecureNowQuestion("snapshot-1", {
+      subscriptionId: "sub-1",
+      resourceId: "",
+      questionKey: "subscription-ownership@v1",
+      source: "PolicyPack",
+      scopeKind: "Subscription",
+      answerCode: "Owner",
+      answerText: "Owner",
+      reason: "Reviewed.",
+      evidenceFingerprint: "fingerprint",
+    });
+
+    expect(disposition).toBeUndefined();
+  });
+
+  it("returns undefined when POST answer response body is a JSON number", async () => {
+    vi.mocked(proxyJsonPost).mockResolvedValueOnce(42);
+
+    const disposition = await answerSecureNowQuestion("snapshot-1", {
+      subscriptionId: "sub-1",
+      resourceId: "",
+      questionKey: "subscription-ownership@v1",
+      source: "PolicyPack",
+      scopeKind: "Subscription",
+      answerCode: "Owner",
+      answerText: "Owner",
+      reason: "Reviewed.",
+      evidenceFingerprint: "fingerprint",
+    });
+
+    expect(disposition).toBeUndefined();
+  });
+
+  it("returns undefined when POST answer response body is a JSON boolean", async () => {
+    vi.mocked(proxyJsonPost).mockResolvedValueOnce(true);
 
     const disposition = await answerSecureNowQuestion("snapshot-1", {
       subscriptionId: "sub-1",

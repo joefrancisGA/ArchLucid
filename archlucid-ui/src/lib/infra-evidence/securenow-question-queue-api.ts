@@ -474,6 +474,11 @@ export function mapSecureNowQuestionDisposition(raw: Record<string, unknown>): S
   };
 }
 
+/** List GET rows must be JSON objects; primitives and arrays are not question records. */
+export function secureNowListedQuestionRowShapeIsUsable(raw: unknown): boolean {
+  return raw !== null && typeof raw === "object" && !Array.isArray(raw);
+}
+
 function mapQuestion(raw: Record<string, unknown>): SecureNowQuestion {
   const questionText = stringOrDefault(raw.questionText);
 
@@ -518,7 +523,9 @@ function questionPath(snapshotId: string): string {
 export async function listSecureNowQuestions(snapshotId: string): Promise<SecureNowQuestion[]> {
   const raw = await proxyJsonGet<unknown>(questionPath(snapshotId));
   return Array.isArray(raw)
-    ? raw.map((item) => mapQuestion((item ?? {}) as Record<string, unknown>))
+    ? raw
+      .filter(secureNowListedQuestionRowShapeIsUsable)
+      .map((item) => mapQuestion(item as Record<string, unknown>))
     : [];
 }
 
