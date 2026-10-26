@@ -1,4 +1,5 @@
 import {
+  ARCHITECTURE_DIAGRAM_NOT_OPERATOR_ASSERTED_SUFFIX,
   formatArchitectureDiagramUnlabeledComponentsNotice,
   formatUnmatchedArchitectureDataFlowLine,
 } from "@/lib/architecture/architecture-diagram-copy";
@@ -41,7 +42,7 @@ export type ArchitectureDiagramMermaidOptions = {
 };
 
 const MERMAID_LABEL_MAX_CHARS = 160;
-const MERMAID_INFERRED_SUFFIX = " (inferred)";
+const MERMAID_INFERRED_SUFFIX = ARCHITECTURE_DIAGRAM_NOT_OPERATOR_ASSERTED_SUFFIX;
 
 function escapeMermaidLabel(raw: string, peerResourceNames: readonly string[]): string {
   const singleLine = raw.replace(/\s+/g, " ").trim();
@@ -88,7 +89,8 @@ function renderNodeLine(
   peerResourceNames: readonly string[],
 ): string {
   const className = nodeClassNames(node);
-  const suffix = node.provenance === "inferred" && !node.accepted ? " (inferred)" : "";
+  const suffix =
+    node.provenance === "inferred" && !node.accepted ? ARCHITECTURE_DIAGRAM_NOT_OPERATOR_ASSERTED_SUFFIX : "";
   const displayLabel = resolveArchitectureDiagramNodeDisplayLabel(node.label);
   const label = escapeMermaidLabel(`${displayLabel}${suffix}`, peerResourceNames);
 
@@ -125,7 +127,8 @@ export function architectureDiagramModelToMermaid(
       continue;
     }
 
-    const inferredSuffix = edge.provenance === "inferred" ? " (inferred)" : "";
+    const inferredSuffix =
+      edge.provenance === "inferred" ? ARCHITECTURE_DIAGRAM_NOT_OPERATOR_ASSERTED_SUFFIX : "";
     const displayLabel = resolveArchitectureDiagramEdgeDisplayLabel(edge);
     const label = escapeMermaidLabel(`${displayLabel}${inferredSuffix}`, peerResourceNames);
     const edgeStyle = edge.provenance === "inferred" ? "-.->" : "-->";
@@ -151,7 +154,8 @@ export function architectureDiagramModelToTextAlternative(model: ArchitectureDia
   }
 
   const nodeLines = activeNodes.map((node) => {
-    const inferred = node.provenance === "inferred" && !node.accepted ? " (inferred)" : "";
+    const inferred =
+      node.provenance === "inferred" && !node.accepted ? ARCHITECTURE_DIAGRAM_NOT_OPERATOR_ASSERTED_SUFFIX : "";
     const displayLabel = resolveArchitectureDiagramNodeDisplayLabel(node.label);
 
     return `${architectureDiagramTextAlternativeSectionPrefix(node.kind)} ${displayLabel}${inferred}`;
@@ -163,7 +167,8 @@ export function architectureDiagramModelToTextAlternative(model: ArchitectureDia
     const targetLabel = resolveArchitectureDiagramNodeDisplayLabel(
       nodeLabelById.get(edge.targetId) ?? edge.targetId,
     );
-    const inferred = edge.provenance === "inferred" ? " (inferred)" : "";
+    const inferred =
+      edge.provenance === "inferred" ? ARCHITECTURE_DIAGRAM_NOT_OPERATOR_ASSERTED_SUFFIX : "";
     const displayEdgeLabel = resolveArchitectureDiagramEdgeDisplayLabel(edge);
     const detail =
       displayEdgeLabel === "Connection label was not stored." ||

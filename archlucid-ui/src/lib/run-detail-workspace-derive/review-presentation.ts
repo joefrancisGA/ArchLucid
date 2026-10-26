@@ -55,25 +55,18 @@ export function deriveReviewNextActionLabel(input: {
     const isUnresolved = status?.label !== "Approved" && status?.label !== "Overridden";
 
     if (isUnresolved) {
-      if (primary.severityValue === null) {
-        return "Confirm evidence and remediation ownership for the open finding. Severity was not stored.";
+      const evidenceRefCount = primary.evidenceRefCount;
+
+      if (evidenceRefCount === null || evidenceRefCount === undefined) {
+        return `Evidence reference count was not stored for ${primary.title}.`;
       }
 
-      const severity = severityBadgeLabel(primary.severityValue).toLowerCase();
-
-      return `Confirm evidence and remediation ownership for the open ${severity}-severity finding`;
+      if (evidenceRefCount > 0) {
+        // Evidence is linked — do not invent a missing-evidence next action.
+      } else {
+        return `Confirm evidence and remediation ownership for ${primary.title}`;
+      }
     }
-  }
-
-  if (
-    primary !== null &&
-    (primary.evidenceRefCount === null || primary.evidenceRefCount === undefined)
-  ) {
-    return `Evidence reference count was not stored for ${primary.title}. Confirm remediation ownership when counts are available.`;
-  }
-
-  if (primary !== null && primary.evidenceRefCount === 0) {
-    return `Confirm evidence and remediation ownership for ${primary.title}`;
   }
 
   const evidenceAction = input.recommendedActions.find((action) => action.id === "add-evidence");

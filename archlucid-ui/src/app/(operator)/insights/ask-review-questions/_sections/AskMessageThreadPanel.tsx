@@ -14,7 +14,10 @@ import { AskAssistantMessageBody } from "@/components/AskAssistantMessageBody";
 import { AskCitedFindingsSemanticSupportBandFootnote } from "@/components/ask/AskCitedFindingsSemanticSupportBandFootnote";
 import { AskCitationActionFollowUps } from "@/components/ask/AskCitationActionFollowUps";
 import { useAskCitedFindingsBandsQuery } from "@/hooks/use-ask-cited-findings-bands-query";
-import { parseAskCitationRefsFromMessageMetadata } from "@/lib/ask-citation-action-follow-ups";
+import {
+  parseAskCitationRefsFromMessageMetadata,
+  resolveAskCitationRefsEmptyState,
+} from "@/lib/ask-citation-action-follow-ups";
 import { AiOutputGovernanceLabel } from "@/components/AiOutputGovernanceLabel";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { Button } from "@/components/ui/button";
@@ -151,6 +154,10 @@ export function AskMessageThreadPanel(props: AskMessageThreadPanelProps) {
     citationHostMessage === null
       ? null
       : parseAskCitationRefsFromMessageMetadata(citationHostMessage.metadataJson);
+  const citationHostEmptyState =
+    citationHostMessage === null
+      ? { citationRefsOmitted: true, citationRefsStoredEmpty: false }
+      : resolveAskCitationRefsEmptyState(citationHostMessage.metadataJson);
   const assistantAnswerFollowUpPrompts = resolveAskAssistantAnswerFollowUpPrompts(
     citationHostMessage?.content ?? "",
     { hasCitations: askMessageHasStoredCitationRefs(citationHostCitationRefs) },
@@ -321,6 +328,8 @@ export function AskMessageThreadPanel(props: AskMessageThreadPanelProps) {
                     <AskCitationActionFollowUps
                       chips={askCitationActionFollowUps}
                       showHonestEmpty={showPostAssistantFollowUps}
+                      citationRefsOmitted={citationHostEmptyState.citationRefsOmitted}
+                      citationRefsStoredEmpty={citationHostEmptyState.citationRefsStoredEmpty}
                       reviewId={runId}
                     />
                   ) : null}
