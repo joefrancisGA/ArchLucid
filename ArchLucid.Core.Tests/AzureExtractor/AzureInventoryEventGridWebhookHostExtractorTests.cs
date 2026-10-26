@@ -141,6 +141,14 @@ public sealed class AzureInventoryEventGridWebhookHostExtractorTests
     }
 
     [Fact]
+    public void TryExtractHost_reads_host_when_full_https_webhook_url_percent_encodes_trailing_dot_and_port()
+    {
+        AzureInventoryEventGridWebhookHostExtractor.TryExtractHost("https://hooks.example.com.%2E%3A443/callback")
+            .Should()
+            .Be("hooks.example.com");
+    }
+
+    [Fact]
     public void TryExtractHost_reads_host_when_scheme_less_webhook_url_percent_encodes_trailing_dot_before_path()
     {
         AzureInventoryEventGridWebhookHostExtractor.TryExtractHost("hooks.example.com.%2E/callback")

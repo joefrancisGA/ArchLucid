@@ -107,7 +107,8 @@ public static class AzureInventoryAdfLinkedServiceTargetExtractor
         if (linkedServiceType.Equals("AzureSqlMI", StringComparison.OrdinalIgnoreCase))
         {
             string? host = NormalizeHost(
-                AzureInventoryAdfTypePropertyReader.TryReadAllowedScalar(typePropertiesElement, "instanceName"));
+                AzureInventoryAdfTypePropertyReader.TryReadAllowedScalar(typePropertiesElement, "instanceName")
+                ?? AzureInventoryAdfTypePropertyReader.TryReadAllowedScalar(typePropertiesElement, "server"));
 
             if (!string.IsNullOrWhiteSpace(host))
             {

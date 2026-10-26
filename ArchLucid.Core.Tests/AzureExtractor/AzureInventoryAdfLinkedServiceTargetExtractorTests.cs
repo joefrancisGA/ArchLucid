@@ -259,6 +259,22 @@ public sealed class AzureInventoryAdfLinkedServiceTargetExtractorTests
     }
 
     [Fact]
+    public void Extract_reads_sql_mi_host_from_percent_encoded_server_property_with_encoded_trailing_dot()
+    {
+        const string host = "sqlmi1.public.eastus.database.windows.net";
+        string encodedHost = Uri.EscapeDataString(host + ".%2E");
+
+        using JsonDocument document = JsonDocument.Parse(
+            $$"""{ "server": {{JsonSerializer.Serialize(encodedHost)}} }""");
+
+        (string? targetResourceId, string? targetHost) =
+            AzureInventoryAdfLinkedServiceTargetExtractor.Extract(document.RootElement, "AzureSqlMI");
+
+        targetResourceId.Should().BeNull();
+        targetHost.Should().Be(host);
+    }
+
+    [Fact]
     public void Extract_reads_sql_mi_host_from_percent_encoded_connection_string_server_with_encoded_trailing_dot()
     {
         const string host = "sqlmi1.public.eastus.database.windows.net";

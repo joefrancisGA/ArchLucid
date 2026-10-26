@@ -30,6 +30,7 @@ public static class AzureInventoryEventGridWebhookHostExtractor
             trimmed = decoded;
         }
 
+        trimmed = TrimTrailingDotBeforePortInAbsoluteAuthority(trimmed);
         trimmed = TrimTrailingDotFromSchemeLessAuthority(trimmed);
         trimmed = TryBracketUnbracketedIpv6Authority(trimmed);
 
@@ -71,6 +72,31 @@ public static class AzureInventoryEventGridWebhookHostExtractor
         }
 
         return host;
+    }
+
+    private static string TrimTrailingDotBeforePortInAbsoluteAuthority(string trimmed)
+    {
+        int schemeSeparator = trimmed.IndexOf("://", StringComparison.Ordinal);
+
+        if (schemeSeparator < 0)
+        {
+            return trimmed;
+        }
+
+        int authorityStart = schemeSeparator + 3;
+        int pathIndex = trimmed.IndexOf('/', authorityStart);
+        int authorityEnd = pathIndex >= 0 ? pathIndex : trimmed.Length;
+        string authority = trimmed[authorityStart..authorityEnd];
+        int portSeparator = authority.LastIndexOf(':');
+
+        if (portSeparator <= 0 || authority[portSeparator - 1] != '.')
+        {
+            return trimmed;
+        }
+
+        string fixedAuthority = authority.Remove(portSeparator - 1, 1);
+
+        return trimmed[..authorityStart] + fixedAuthority + trimmed[authorityEnd..];
     }
 
     private static string TrimTrailingDotFromSchemeLessAuthority(string trimmed)
