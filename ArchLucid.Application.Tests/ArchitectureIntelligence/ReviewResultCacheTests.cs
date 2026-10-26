@@ -567,6 +567,30 @@ public sealed class ReviewResultCacheTests
         waiterResult.CacheHit.Should().BeTrue();
         waiterResult.CacheReuseReason.Should().Be("dependency-manifest-match");
         waiterResult.RunId.Should().Be("storedrun");
+
+        cache.TryGet(manifest, out ClosedLoopReasoningResult? cachedEntry).Should().BeTrue();
+        cachedEntry!.CacheHit.Should().BeFalse();
+        cachedEntry.CacheReuseReason.Should().BeNull();
+    }
+
+    [Fact]
+    public void Set_skips_insert_for_tombstoned_run_id_while_pin_holds_storage_key()
+    {
+        ReviewResultCache cache = new();
+        ReviewCacheDependencyManifest manifest = new() { ContentHash = "hash-tombstone-set-skip" };
+        string storageKey = ReviewCacheKeyBuilder.Build(manifest);
+        const string runId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+
+        cache.Set(manifest, new ClosedLoopReasoningResult { RunId = runId });
+        cache.PinStorageKey(storageKey);
+        cache.InvalidateForRun(runId);
+
+        cache.Set(manifest, new ClosedLoopReasoningResult { RunId = runId, Model = new ArchitectureKnowledgeModel { RunId = runId } });
+
+        cache.TryGet(manifest, out ClosedLoopReasoningResult? _).Should().BeFalse();
+
+        cache.UnpinStorageKey(storageKey);
+        cache.TryGet(manifest, out ClosedLoopReasoningResult? _).Should().BeFalse();
     }
 
     [Fact]
