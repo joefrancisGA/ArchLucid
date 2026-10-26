@@ -672,6 +672,25 @@ public sealed class ReviewResultCacheTests
     }
 
     [Fact]
+    public void Set_inserts_when_cache_full_because_distinct_pin_cap_prevents_pinning_every_entry()
+    {
+        ReviewResultCache cache = new();
+
+        for (int index = 0; index < 128; index++)
+        {
+            ReviewCacheDependencyManifest manifest = new() { ContentHash = $"pin-cap-vs-max-{index}" };
+            cache.Set(manifest, new ClosedLoopReasoningResult { RunId = $"run-{index}" });
+            cache.PinStorageKey(ReviewCacheKeyBuilder.Build(manifest));
+        }
+
+        ReviewCacheDependencyManifest overflowManifest = new() { ContentHash = "pin-cap-vs-max-overflow" };
+        cache.Set(overflowManifest, new ClosedLoopReasoningResult { RunId = "overflow-run" });
+
+        cache.TryGet(overflowManifest, out ClosedLoopReasoningResult? overflow).Should().BeTrue();
+        overflow!.RunId.Should().Be("overflowrun");
+    }
+
+    [Fact]
     public void PinStorageKey_refuses_new_distinct_keys_when_at_cap()
     {
         ReviewResultCache cache = new();
