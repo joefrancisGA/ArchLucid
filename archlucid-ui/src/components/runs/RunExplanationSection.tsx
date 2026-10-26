@@ -504,7 +504,7 @@ export function RunExplanationSection({
               This explanation only — not the full review evidence graph.
             </span>
           </h3>
-          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>Citations not returned</p>
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>Evidence cited was not stored.</p>
         </div>
       ) : summary.citations.length > 0 ? (
         <div id="doc-explanation-evidence-cited">

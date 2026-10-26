@@ -11,6 +11,8 @@ internal static class MarkdownPackageExportHonestyCopy
 
     internal const string EvidencePackageIdNotStored = "Evidence package id was not stored.";
 
+    internal const string EvidencePackageNotStored = "Evidence package was not stored.";
+
     internal const string RunIdNotStored = "Run ID was not stored.";
 
     internal const string RequestIdNotStored = "Request ID was not stored.";

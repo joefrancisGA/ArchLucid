@@ -9,6 +9,7 @@ import {
   isExampleOnlyOverviewRunList,
   OPERATOR_HOME_RECENT_FEATURED_LIMIT,
 } from "@/lib/operator/operator-home-recent-reviews-outcome";
+import { deriveOperatorHomeTenantCountingSnapshot } from "@/lib/operator/operator-home-tenant-counting";
 import type { OperatorHomeWorkspaceMetricsSnapshot } from "@/lib/operator/operator-home-workspace-metrics";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import type { RunSummary } from "@/types/authority";
@@ -50,6 +51,55 @@ describe("formatOperatorHomeRecentReviewsOutcome", () => {
     expect(formatOperatorHomeRecentReviewsOutcome(metrics, { visibleCount: 2, recentTotalCount: 4 })).toBe(
       "4 reviews · 3 sealed review records · 1 active · 0 open findings · showing 2 of 4",
     );
+  });
+
+  it("omits awaiting-approval copy when suppressAwaitingApprovalCount is set", () => {
+    const metrics: OperatorHomeWorkspaceMetricsSnapshot = {
+      ...emptyMetrics,
+      reviewPackagesTotal: 2,
+      reviewPackagesCommitted: 1,
+      evidenceSources: 1,
+      hasReviews: true,
+    };
+
+    expect(
+      formatOperatorHomeRecentReviewsOutcome(metrics, {
+        awaitingApprovalCount: 3,
+        suppressAwaitingApprovalCount: true,
+      }),
+    ).toBe("2 reviews · 1 sealed review record · 0 open findings");
+    expect(
+      formatOperatorHomeRecentReviewsOutcome(metrics, {
+        awaitingApprovalCount: 3,
+        suppressAwaitingApprovalCount: true,
+      }),
+    ).not.toContain("awaiting approval");
+  });
+
+  it("uses workspace pagination total in the headline while preview cap counts stay in the recent pool", () => {
+    const metrics: OperatorHomeWorkspaceMetricsSnapshot = {
+      ...emptyMetrics,
+      reviewPackagesTotal: 42,
+      reviewPackagesActive: 1,
+      evidenceSources: 1,
+      hasReviews: true,
+    };
+
+    expect(
+      formatOperatorHomeRecentReviewsOutcome(metrics, { visibleCount: 2, recentTotalCount: 2 }),
+    ).toBe("42 reviews · 1 active · 0 open findings · showing 2");
+  });
+
+  it("normalizes non-finite workspace metrics in recent reviews outcome copy", () => {
+    const metrics: OperatorHomeWorkspaceMetricsSnapshot = {
+      ...emptyMetrics,
+      reviewPackagesTotal: Number.NaN,
+      openFindings: Number.NaN,
+      hasReviews: true,
+    };
+
+    expect(formatOperatorHomeRecentReviewsOutcome(metrics)).toBe("0 reviews · 0 open findings");
+    expect(formatOperatorHomeRecentReviewsOutcome(metrics)).not.toMatch(/NaN/);
   });
 
   it("normalizes non-finite recent preview cap counts in outcome copy", () => {
@@ -140,6 +190,50 @@ describe("buildOperatorHomeRecentReviewsOutcomeParts", () => {
     });
   });
 
+  it("omits structured awaiting-approval part when suppressAwaitingApprovalCount is set", () => {
+    const metrics: OperatorHomeWorkspaceMetricsSnapshot = {
+      ...emptyMetrics,
+      reviewPackagesTotal: 2,
+      reviewPackagesCommitted: 1,
+      evidenceSources: 1,
+      hasReviews: true,
+    };
+
+    const parts = buildOperatorHomeRecentReviewsOutcomeParts(metrics, {
+      awaitingApprovalCount: 3,
+      suppressAwaitingApprovalCount: true,
+    });
+
+    expect(parts.find((part) => part.key === "awaiting-approval")).toBeUndefined();
+  });
+
+  it("keeps workspace pagination total on reviews-total while preview cap stays in the recent pool", () => {
+    const metrics: OperatorHomeWorkspaceMetricsSnapshot = {
+      ...emptyMetrics,
+      reviewPackagesTotal: 42,
+      reviewPackagesActive: 1,
+      evidenceSources: 1,
+      hasReviews: true,
+    };
+
+    const parts = buildOperatorHomeRecentReviewsOutcomeParts(metrics, {
+      visibleCount: 2,
+      recentTotalCount: 2,
+    });
+
+    expect(parts.find((part) => part.key === "reviews-total")).toEqual({
+      key: "reviews-total",
+      text: "42 reviews",
+      hrefKind: "all-reviews",
+    });
+    expect(parts.find((part) => part.key === "showing")).toEqual({
+      key: "showing",
+      text: "showing 2",
+      hrefKind: "tab",
+      tabId: "all",
+    });
+  });
+
   it("renders showing-cap as plain text without a link target", () => {
     const metrics: OperatorHomeWorkspaceMetricsSnapshot = {
       ...emptyMetrics,
@@ -219,6 +313,18 @@ describe("deriveHomePreviewTabCounts", () => {
     expect(counts.approved).toBe(0);
   });
 
+  it("keeps awaiting-approval tab at zero when queue ids omit preview rows and workspace count is zero", () => {
+    const items: RunSummary[] = [{ runId: "run-1", projectId: "default" }];
+
+    const counts = deriveHomePreviewTabCounts({
+      previewItems: items,
+      awaitingApprovalRunIds: ["other-run"],
+      awaitingApprovalCount: 0,
+    });
+
+    expect(counts["awaiting-approval"]).toBe(0);
+  });
+
   it("excludes archived runs from attention and approved tab counts", () => {
     const items: RunSummary[] = [
       {
@@ -253,6 +359,28 @@ describe("isExampleOnlyOverviewRunList", () => {
 
     expect(isExampleOnlyOverviewRunList(items)).toBe(true);
     expect(filterTenantOverviewRuns(items)).toEqual([]);
+  });
+
+  it("excludes showcase story rows matched by description from tenant metrics", () => {
+    const items: RunSummary[] = [
+      {
+        runId: "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+        projectId: "default",
+        description: "Enterprise customer intake modernization review",
+        hasFindingsSnapshot: true,
+        findingCount: 4,
+      },
+    ];
+
+    expect(isExampleOnlyOverviewRunList(items)).toBe(true);
+    expect(filterTenantOverviewRuns(items)).toEqual([]);
+    expect(
+      deriveOperatorHomeTenantCountingSnapshot({
+        displayItems: items,
+        previewItems: items,
+        runsDashboardTotalCount: 1,
+      }).metrics.reviewPackagesTotal,
+    ).toBe(0);
   });
 
   it("returns false when a tenant review is present", () => {

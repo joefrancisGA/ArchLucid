@@ -220,6 +220,15 @@ export const RUN_DELIVERABLES_PENDING_FINALIZE_COMPACT: EnterpriseCompactEmptySt
   actions: [],
 };
 
+/** Run detail deliverables when the package is sealed but the artifact descriptor list is empty. */
+export const RUN_DELIVERABLES_SEALED_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps = {
+  testId: "run-deliverables-sealed-empty-state",
+  title: "No artifacts listed for this review",
+  description:
+    "The finalized review record is sealed, but the artifact descriptor list is empty. Bundle or markdown export may still be available when the backend stored those files.",
+  actions: [],
+};
+
 /** Run detail deliverables when a negative feasibility decision is the complete deliverable. */
 export const RUN_DETAIL_DECISION_RECEIPT_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps = {
   testId: "run-detail-decision-receipt-empty-state",

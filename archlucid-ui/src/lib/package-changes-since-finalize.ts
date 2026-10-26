@@ -245,6 +245,9 @@ export function buildPackageChangesSinceFinalize(
 export const PACKAGE_CHANGES_SINCE_FINALIZE_EMPTY_COPY =
   "No recorded changes since finalize yet.";
 
+export const PACKAGE_CHANGES_SINCE_FINALIZE_EVENTS_NOT_STORED_COPY =
+  "Change events after finalize were not stored for this package.";
+
 export const PACKAGE_CHANGES_SINCE_FINALIZE_TITLE = "What changed since finalize";
 
 export const PACKAGE_CHANGES_SINCE_FINALIZE_INTRO =

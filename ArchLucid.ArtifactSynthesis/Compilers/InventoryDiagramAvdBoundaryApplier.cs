@@ -2,6 +2,7 @@ using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.ArtifactSynthesis.Renderers;
 using ArchLucid.Contracts.Persistence.Graph;
 using ArchLucid.Core.AzureExtractor;
+using ArchLucid.Core.InfraEvidence;
 using ArchLucid.KnowledgeGraph;
 
 namespace ArchLucid.ArtifactSynthesis.Compilers;

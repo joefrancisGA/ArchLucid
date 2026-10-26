@@ -20,7 +20,7 @@ import {
   resolveRunSummaryPackageOrigin,
   type ArchitecturePackageOriginToken,
 } from "@/lib/architecture/architecture-package-origin";
-import { OPERATOR_HOME_EXAMPLE_RUN_DESCRIPTION_TOKEN } from "@/lib/operator/operator-home-example-request";
+import { runMatchesOperatorHomeExampleDescription } from "@/lib/operator/operator-home-example-request";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import type { GovernanceReviewAwaitingActionItem } from "@/lib/api/governance-stickiness-api";
 import type { RunSummary } from "@/types/authority";
@@ -314,7 +314,5 @@ export function runIsShowcaseHomeExampleStory(run: RunSummary): boolean {
     return true;
   }
 
-  return (run.description ?? "")
-    .toLowerCase()
-    .includes(OPERATOR_HOME_EXAMPLE_RUN_DESCRIPTION_TOKEN.toLowerCase());
+  return runMatchesOperatorHomeExampleDescription(run);
 }

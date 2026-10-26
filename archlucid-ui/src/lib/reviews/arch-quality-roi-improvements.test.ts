@@ -30,6 +30,20 @@ describe("first-review-spine-band", () => {
     expect(countUncitedFindings(findings)).toBe(1);
   });
 
+  it("withholds classification counts when findings snapshot was not stored", () => {
+    const summary = deriveFirstReviewSpineBandSummary({
+      feasibilityVerdict: null,
+      structuralExecutionMode: "Simulator",
+      findings: [finding({ findingId: "high", title: "Issue", severityValue: 3 })],
+      hasFindingsSnapshot: false,
+    });
+
+    expect(summary?.gateOutcomeDetail).toContain("Findings snapshot was not stored");
+    expect(summary?.classificationCountsStored).toBe(false);
+    expect(summary?.dispositionCountsStored).toBe(false);
+    expect(summary?.showTopFindingRow).toBe(false);
+  });
+
   it("derives gate, execution mode, and top finding for the stamp spine", () => {
     const summary = deriveFirstReviewSpineBandSummary({
       feasibilityVerdict: {

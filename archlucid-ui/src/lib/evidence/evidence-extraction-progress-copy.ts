@@ -6,7 +6,8 @@ export const EVIDENCE_EXTRACTION_COMPLETE_HEADLINE = "Evidence processed";
  * Elapsed-time framing rather than a percentage: the extraction API reports no measurable
  * progress, and a frozen fake percentage reads worse than an honest indeterminate bar.
  */
-export const EVIDENCE_EXTRACTION_DURATION_EXPECTATION = "This usually takes 10–30 seconds.";
+export const EVIDENCE_EXTRACTION_DURATION_EXPECTATION =
+  "Duration is not stored. Processing continues until the extraction response returns.";
 
 export const EVIDENCE_EXTRACTION_CONTINUE_EDITING_NOTE =
   "You can continue editing while ArchLucid processes this evidence.";

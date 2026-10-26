@@ -39,6 +39,11 @@ export type FirstReviewSpineBandSummary = {
   readonly recordedDispositionCount: number;
   readonly openDecisionGradeDispositionCount: number;
   readonly showDispositionNextAction: boolean;
+  readonly classificationCountsStored: boolean;
+  readonly dispositionCountsStored: boolean;
+  readonly showTopFindingRow: boolean;
+  readonly topFindingId: string | null;
+  readonly topFindingPolicyMapped: boolean;
 };
 
 export function countUncitedFindings(findings: readonly QuickDecisionFinding[]): number {
@@ -128,11 +133,52 @@ function resolveTopFindingTitleForSpine(finding: QuickDecisionFinding): string {
 }
 
 /** Compact first-viewport spine: gate outcome, execution mode, classification counts, top finding. */
+export const FIRST_REVIEW_SPINE_FINDINGS_SNAPSHOT_NOT_STORED =
+  "Findings snapshot was not stored — classification counts are withheld." as const;
+
+export const FIRST_REVIEW_SPINE_CLASSIFICATION_COUNTS_NOT_STORED =
+  "Classification counts were not stored." as const;
+
+export const FIRST_REVIEW_SPINE_DISPOSITIONS_NOT_STORED = "Dispositions were not stored." as const;
+
 export function deriveFirstReviewSpineBandSummary(input: {
   readonly feasibilityVerdict: ManifestFeasibilityVerdict | null | undefined;
   readonly structuralExecutionMode: StructuralExecutionModeInput;
   readonly findings: readonly QuickDecisionFinding[];
+  readonly hasFindingsSnapshot?: boolean;
 }): FirstReviewSpineBandSummary | null {
+  if (input.hasFindingsSnapshot === false) {
+    const feasibilityVerdict = input.feasibilityVerdict ?? null;
+
+    return {
+      gateOutcomeLabel:
+        feasibilityVerdict !== null ? feasibilityVerdictKindLabel(feasibilityVerdict.kind) : "Gate outcome was not stored",
+      gateOutcomeTone: feasibilityVerdict !== null ? feasibilityVerdictTone(feasibilityVerdict.kind) : "warning",
+      gateOutcomeDetail: FIRST_REVIEW_SPINE_FINDINGS_SNAPSHOT_NOT_STORED,
+      executionModeLabel:
+        input.structuralExecutionMode === null || input.structuralExecutionMode === undefined
+          ? "Execution mode was not stored"
+          : formatStructuralExecutionModeLabel(input.structuralExecutionMode),
+      decisionGradeCount: 0,
+      checklistCount: 0,
+      uncitedCount: 0,
+      evidenceReferenceCountNotStored: true,
+      topFindingTitle: null,
+      topFindingId: null,
+      showTopFindingRow: false,
+      topFindingPolicyMapped: false,
+      topFindingSeverityLabel: null,
+      semanticSupportLine: null,
+      showLaneBHonesty: false,
+      treatmentSummaryLine: null,
+      recordedDispositionCount: 0,
+      openDecisionGradeDispositionCount: 0,
+      showDispositionNextAction: false,
+      classificationCountsStored: false,
+      dispositionCountsStored: false,
+    };
+  }
+
   const findings = input.findings;
   const classificationCounts = countFindingsByClassificationBand(findings);
   const uncitedCount = countUncitedFindings(findings);
@@ -188,7 +234,10 @@ export function deriveFirstReviewSpineBandSummary(input: {
     checklistCount: classificationCounts.checklist,
     uncitedCount,
     evidenceReferenceCountNotStored,
-    topFindingTitle: topFinding?.title?.trim() ?? null,
+    topFindingTitle: topFinding === null ? null : resolveTopFindingTitleForSpine(topFinding),
+    topFindingId: topFinding?.findingId ?? null,
+    showTopFindingRow: topFinding !== null,
+    topFindingPolicyMapped: topFinding?.policyRuleId !== null && topFinding?.policyRuleId !== undefined,
     topFindingRankLabel:
       topFinding === null
         ? null
@@ -203,5 +252,7 @@ export function deriveFirstReviewSpineBandSummary(input: {
     recordedDispositionCount: dispositionStats.recordedCount,
     openDecisionGradeDispositionCount: dispositionStats.openDecisionGradeCount,
     showDispositionNextAction: dispositionStats.openDecisionGradeCount > 0,
+    classificationCountsStored: true,
+    dispositionCountsStored: true,
   };
 }

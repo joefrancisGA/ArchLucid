@@ -14,11 +14,15 @@ import {
 describe("review-chain-of-custody-display", () => {
   it("labels missing policy pack and version honestly", () => {
     expect(reviewChainOfCustodyPolicyPackAppliedLabel(null)).toBe(POLICY_PACK_WAS_NOT_STORED);
+    expect(reviewChainOfCustodyPolicyPackAppliedLabel("cis-azure")).toBe("cis-azure");
     expect(reviewChainOfCustodyPolicyPackVersionLabel(null, null)).toBeNull();
     expect(reviewChainOfCustodyPolicyPackVersionLabel("soc2-pack", null)).toBe(
       POLICY_PACK_VERSION_WAS_NOT_STORED,
     );
     expect(reviewChainOfCustodyPolicyPackVersionLabel("soc2-pack", "2.1.0")).toBe("v2.1.0");
+    expect(reviewChainOfCustodyPolicyPackVersionLabel("cis-azure", null)).toBe(
+      POLICY_PACK_VERSION_WAS_NOT_STORED,
+    );
   });
 
   it("labels missing trigger source without defaulting to Web UI", () => {

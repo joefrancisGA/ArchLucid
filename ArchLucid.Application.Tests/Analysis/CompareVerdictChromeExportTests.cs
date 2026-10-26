@@ -86,6 +86,19 @@ public sealed class CompareVerdictChromeExportTests
     }
 
     [Fact]
+    public void RemoveMarkdownSection_strips_through_duplicate_verdict_chrome_heading_until_next_distinct_section()
+    {
+        string markdown =
+            "intro\n## Compare Verdict Chrome Delta\n### Gate\n\n## Compare Verdict Chrome Delta\n### Dup\n\n## Warnings\n";
+
+        string result = CompareVerdictChromeExportFormatter.RemoveMarkdownSection(markdown);
+
+        result.Should().NotContain("Compare Verdict Chrome Delta");
+        result.Should().NotContain("### Dup");
+        result.Should().Contain("## Warnings");
+    }
+
+    [Fact]
     public void RemoveMarkdownSection_strips_verdict_chrome_when_heading_uses_nbsp_after_hashes()
     {
         string markdown = "intro\n##\u00A0Compare Verdict Chrome Delta\n### Gate\n\n## Warnings\n";
@@ -116,6 +129,22 @@ public sealed class CompareVerdictChromeExportTests
 
         html.Split("<h2>Compare Verdict Chrome Delta</h2>", StringSplitOptions.None).Length.Should().Be(2,
             "NBSP-prefixed verdict chrome headings must be stripped before HTML re-appends the delta section");
+    }
+
+    [Fact]
+    public void CompareQuality_CompareVerdictChromeExportFormatter_whitespace_only_savings_labels_use_omission_copy()
+    {
+        CompareVerdictChromeDelta delta = SampleDelta();
+        delta.RoiHeadline!.BaselineSavingsLabel = "   ";
+        delta.RoiHeadline.TargetSavingsLabel = "\t\n";
+
+        StringBuilder markdownBuilder = new();
+        CompareVerdictChromeExportFormatter.AppendMarkdown(markdownBuilder, delta);
+        string markdown = markdownBuilder.ToString();
+
+        markdown.Should().Contain("Baseline savings was not stored.");
+        markdown.Should().Contain("Updated savings was not stored.");
+        markdown.Should().NotContain("| Baseline review |    |");
     }
 
     [Fact]

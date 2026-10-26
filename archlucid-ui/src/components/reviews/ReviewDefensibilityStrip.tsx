@@ -4,6 +4,10 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { formatReviewDefensibilityCriticLabel } from "@/lib/reviews/review-defensibility-critic-display";
 import { cn } from "@/lib/utils";
 
+export const REVIEW_DEFENSIBILITY_ASSERTED_COUNT_NOT_STORED = "Asserted count was not stored." as const;
+export const REVIEW_DEFENSIBILITY_INFERRED_COUNT_NOT_STORED = "Inferred count was not stored." as const;
+export const REVIEW_DEFENSIBILITY_SKIPPED_MUST_COUNT_NOT_STORED = "Skipped MUST count was not stored." as const;
+
 export type ReviewDefensibilityStripProps = {
   readonly assertedCount: number | null;
   readonly inferredCount: number | null;
@@ -37,31 +41,31 @@ export function ReviewDefensibilityStrip(props: ReviewDefensibilityStripProps): 
         )}
       >
         <li data-testid="review-defensibility-asserted">
-          {props.assertedCount === null
-            ? "Asserted count was not stored."
-            : (
-              <>
-                Asserted: <span className="font-semibold tabular-nums">{props.assertedCount}</span>
-              </>
-            )}
+          {props.assertedCount === null ? (
+            <span className="font-semibold">{REVIEW_DEFENSIBILITY_ASSERTED_COUNT_NOT_STORED}</span>
+          ) : (
+            <>
+              Asserted: <span className="font-semibold tabular-nums">{props.assertedCount}</span>
+            </>
+          )}
         </li>
         <li data-testid="review-defensibility-inferred">
-          {props.inferredCount === null
-            ? "Inferred count was not stored."
-            : (
-              <>
-                Inferred: <span className="font-semibold tabular-nums">{props.inferredCount}</span>
-              </>
-            )}
+          {props.inferredCount === null ? (
+            <span className="font-semibold">{REVIEW_DEFENSIBILITY_INFERRED_COUNT_NOT_STORED}</span>
+          ) : (
+            <>
+              Inferred: <span className="font-semibold tabular-nums">{props.inferredCount}</span>
+            </>
+          )}
         </li>
         <li data-testid="review-defensibility-skipped">
-          {props.skippedCount === null
-            ? "Skipped MUST count was not stored."
-            : (
-              <>
-                Skipped MUST: <span className="font-semibold tabular-nums">{props.skippedCount}</span>
-              </>
-            )}
+          {props.skippedCount === null ? (
+            <span className="font-semibold">{REVIEW_DEFENSIBILITY_SKIPPED_MUST_COUNT_NOT_STORED}</span>
+          ) : (
+            <>
+              Skipped MUST: <span className="font-semibold tabular-nums">{props.skippedCount}</span>
+            </>
+          )}
         </li>
         <li data-testid="review-defensibility-critic">
           Critic:{" "}

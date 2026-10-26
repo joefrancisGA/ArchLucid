@@ -91,12 +91,17 @@ export function safeCommittedRunWindowCount(count: unknown): number | null {
 
 /** Per-row findings caption for delta lists (never surfaces "NaN finding(s)"). */
 export function formatPerRunFindingsLine(totalFindings: unknown): string {
-  const numeric = typeof totalFindings === "number" ? totalFindings : Number(totalFindings);
-  const formatted = formatFindings(numeric);
-
-  if (formatted === "Count not returned") {
-    return "Not enough data yet";
+  if (totalFindings === null || totalFindings === undefined) {
+    return "Finding count was not stored.";
   }
+
+  const numeric = typeof totalFindings === "number" ? totalFindings : Number(totalFindings);
+
+  if (!Number.isFinite(numeric)) {
+    return "Finding count was not stored.";
+  }
+
+  const formatted = formatFindings(numeric);
 
   return `${formatted} finding${formatted === "1" ? "" : "s"}`;
 }

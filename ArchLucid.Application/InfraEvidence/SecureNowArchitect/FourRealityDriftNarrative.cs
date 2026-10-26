@@ -9,6 +9,8 @@ internal static class FourRealityDriftNarrative
     internal const string BusinessCriticalityNotStoredLabel = "Business criticality was not stored.";
 
     internal const string BlastRadiusNotMeasuredLabel = "Blast radius was not measured.";
+
+    internal const string NodeNameNotStoredLabel = "Node name was not stored.";
     public static string BuildTitle(FourRealityDriftCandidate candidate) =>
         $"Four-reality drift: observed Azure widened access on {ShortResourceName(candidate.AzureResourceId)}";
 

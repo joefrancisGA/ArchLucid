@@ -43,7 +43,14 @@ function formatIngestedLabel(iso: string | null): string {
   return formatted.length > 0 ? formatted : iso;
 }
 
-function formatCitingFindingsCount(count: number): string {
+export const RUN_DETAIL_EVIDENCE_CITING_FINDING_COUNT_NOT_STORED =
+  "Cited-by finding count was not stored." as const;
+
+function formatCitingFindingsCount(count: number | null | undefined): string {
+  if (count === null || count === undefined) {
+    return RUN_DETAIL_EVIDENCE_CITING_FINDING_COUNT_NOT_STORED;
+  }
+
   if (count === 0) {
     return "0 findings cite this source.";
   }

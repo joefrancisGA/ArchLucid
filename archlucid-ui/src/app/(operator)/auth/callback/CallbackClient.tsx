@@ -30,6 +30,7 @@ import {
 import {
   decodeOAuthErrorDescription,
   humanizeAuthorizeCallbackError,
+  normalizeOidcOpaqueOAuthString,
 } from "@/lib/oidc/oauth-callback-messages";
 import {
   consumePkceState,
@@ -154,7 +155,9 @@ export function CallbackClient() {
       };
     }
 
-    if (!code || !state) {
+    const normalizedCode = code === null ? null : normalizeOidcOpaqueOAuthString(code);
+
+    if (normalizedCode === null || normalizedCode.length === 0 || !state) {
       if (state) {
         consumePkceState(state);
       }
@@ -193,7 +196,7 @@ export function CallbackClient() {
         const tokens = await exchangeAuthorizationCode({
           tokenEndpoint: doc.token_endpoint,
           clientId,
-          code,
+          code: normalizedCode,
           redirectUri,
           codeVerifier: stored.codeVerifier,
         });

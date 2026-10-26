@@ -846,6 +846,47 @@ describe("consumePkceState", () => {
     });
   });
 
+  it("matches stored PKCE state when the callback state query value has trailing control characters", () => {
+    storePkceState("primary-state", "primary-verifier", "primary-nonce", "primary");
+
+    expect(consumePkceState("primary-state\u000B")).toEqual({
+      state: "primary-state",
+      codeVerifier: "primary-verifier",
+      nonce: "primary-nonce",
+      flow: "primary",
+    });
+  });
+
+  it("rejects PKCE consume when tampered session state contains interior backspace control characters", () => {
+    storePkceState("desk\u0008state", "primary-verifier", "primary-nonce", "primary");
+
+    expect(consumePkceState("desk\u0008state")).toBeNull();
+  });
+
+  it("rejects PKCE consume when tampered session state contains interior form-feed control characters", () => {
+    storePkceState("desk\u000Cstate", "primary-verifier", "primary-nonce", "primary");
+
+    expect(consumePkceState("desk\u000Cstate")).toBeNull();
+  });
+
+  it("rejects PKCE consume when tampered session verifier contains interior backspace control characters", () => {
+    storePkceState("primary-state", "ver\u0008ifier", "primary-nonce", "primary");
+
+    expect(consumePkceState("primary-state")).toBeNull();
+  });
+
+  it("rejects PKCE consume when tampered session verifier contains interior form-feed control characters", () => {
+    storePkceState("primary-state", "ver\u000Cifier", "primary-nonce", "primary");
+
+    expect(consumePkceState("primary-state")).toBeNull();
+  });
+
+  it("rejects PKCE consume when tampered session verifier contains interior bell control characters", () => {
+    storePkceState("primary-state", "ver\u0007ifier", "primary-nonce", "primary");
+
+    expect(consumePkceState("primary-state")).toBeNull();
+  });
+
   it("returns normalized PKCE verifier and nonce values read from sessionStorage", () => {
     storePkceState("primary-state", `\u200bprimary-verifier\u200b`, `\u200bprimary-nonce\u200b`, "primary");
 
@@ -855,6 +896,36 @@ describe("consumePkceState", () => {
       nonce: "primary-nonce",
       flow: "primary",
     });
+  });
+
+  it("rejects PKCE consume when tampered session state contains interior vertical-tab control characters", () => {
+    storePkceState("desk\u000Bstate", "primary-verifier", "primary-nonce", "primary");
+
+    expect(consumePkceState("desk\u000Bstate")).toBeNull();
+  });
+
+  it("rejects PKCE consume when tampered session verifier contains interior vertical-tab control characters", () => {
+    storePkceState("primary-state", "ver\u000Bifier", "primary-nonce", "primary");
+
+    expect(consumePkceState("primary-state")).toBeNull();
+  });
+
+  it("rejects PKCE consume when tampered session nonce contains interior form-feed control characters", () => {
+    storePkceState("primary-state", "primary-verifier", "nonce\u000Cvalue", "primary");
+
+    expect(consumePkceState("primary-state")).toBeNull();
+  });
+
+  it("rejects PKCE consume when tampered session nonce contains interior backspace control characters", () => {
+    storePkceState("primary-state", "primary-verifier", "nonce\u0008value", "primary");
+
+    expect(consumePkceState("primary-state")).toBeNull();
+  });
+
+  it("rejects PKCE consume when tampered session nonce contains interior bell control characters", () => {
+    storePkceState("primary-state", "primary-verifier", "nonce\u0007value", "primary");
+
+    expect(consumePkceState("primary-state")).toBeNull();
   });
 });
 

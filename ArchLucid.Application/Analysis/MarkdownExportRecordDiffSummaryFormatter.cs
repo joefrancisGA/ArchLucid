@@ -12,6 +12,7 @@ public sealed class MarkdownExportRecordDiffSummaryFormatter : IExportRecordDiff
     public string FormatMarkdown(ExportRecordDiffResult diff)
     {
         ArgumentNullException.ThrowIfNull(diff);
+        ExportRecordDiffResultNormalizer.NormalizeDisplayAnchors(diff);
 
         StringBuilder sb = new();
 

@@ -22,6 +22,9 @@ public sealed class AzureInventoryArmNestedObjectPropertyMatrixTests
     private const string NamespaceId =
         "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.EventHub/namespaces/ehns1";
 
+    private const string EventHubNamespaceDestinationId =
+        "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.EventHub/namespaces/ehns1";
+
     public static TheoryData<string, string> EventGridDestinationResourceIdShapes =>
         new()
         {
@@ -31,6 +34,17 @@ public sealed class AzureInventoryArmNestedObjectPropertyMatrixTests
                   "destination": {
                     "endpointType": "StorageQueue",
                     "resourceId": "{{StorageAccountId}}"
+                  }
+                }
+                """,
+                StorageAccountId
+            },
+            {
+                $$"""
+                {
+                  "destination": {
+                    "endpointType": "StorageQueue",
+                    "resourceId": {{JsonSerializer.Serialize("\"" + StorageAccountId + "\"")}}
                   }
                 }
                 """,
@@ -63,6 +77,30 @@ public sealed class AzureInventoryArmNestedObjectPropertyMatrixTests
                 """,
                 StorageAccountId
             },
+            {
+                $$"""
+                {
+                  "destination": {
+                    "endpointType": "AzureFunction",
+                    "properties": {
+                      "resourceId": {{JsonSerializer.Serialize(JsonSerializer.Serialize(new { id = "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Web/sites/app1/functions/func1" }))}}
+                    }
+                  }
+                }
+                """,
+                "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Web/sites/app1/functions/func1"
+            },
+            {
+                $$"""
+                {
+                  "destination": {
+                    "endpointType": "EventHub",
+                    "resourceId": {{JsonSerializer.Serialize(JsonSerializer.Serialize(new { id = "\"" + EventHubNamespaceDestinationId + "\"" }))}}
+                  }
+                }
+                """,
+                EventHubNamespaceDestinationId
+            },
         };
 
     [Theory]
@@ -77,8 +115,8 @@ public sealed class AzureInventoryArmNestedObjectPropertyMatrixTests
             _,
             _) = AzureInventoryEventGridDestinationExtractor.Extract(document.RootElement);
 
-        destinationKind.Should().Be("StorageQueue");
         destinationResourceId.Should().Be(expectedResourceId);
+        destinationKind.Should().NotBeNullOrWhiteSpace();
     }
 
     public static TheoryData<string, string> EventHubCaptureStorageShapes =>

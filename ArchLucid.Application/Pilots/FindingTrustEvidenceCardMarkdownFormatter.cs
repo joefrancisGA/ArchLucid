@@ -42,7 +42,9 @@ public static class FindingTrustEvidenceCardMarkdownFormatter
         sb.AppendLine();
         sb.AppendLine("| Field | Value |");
         sb.AppendLine("| --- | --- |");
-        sb.AppendLine(CultureInfo.InvariantCulture, $"| Finding id | `{deltas.TopFindingId}` |");
+        sb.AppendLine(
+            CultureInfo.InvariantCulture,
+            $"| Finding id | `{(string.IsNullOrWhiteSpace(deltas.TopFindingId) ? "Finding id was not stored." : deltas.TopFindingId.Trim())}` |");
         sb.AppendLine(CultureInfo.InvariantCulture,
             $"| Severity (selected for excerpt) | `{deltas.TopFindingSeverity ?? "Severity was not stored."}` |");
 
@@ -81,11 +83,11 @@ public static class FindingTrustEvidenceCardMarkdownFormatter
 
             sb.AppendLine(
                 CultureInfo.InvariantCulture,
-                $"| Related graph nodes | {chain.RelatedGraphNodeIds.Count} |");
+                $"| Related graph nodes | {(chain.RelatedGraphNodeIds.Count == 0 ? "Related graph node ids were not stored." : chain.RelatedGraphNodeIds.Count.ToString(CultureInfo.InvariantCulture))} |");
 
             sb.AppendLine(
                 CultureInfo.InvariantCulture,
-                $"| Agent execution traces | {chain.AgentExecutionTraceIds.Count} |");
+                $"| Agent execution traces | {(chain.AgentExecutionTraceIds.Count == 0 ? "Agent execution trace ids were not stored." : chain.AgentExecutionTraceIds.Count.ToString(CultureInfo.InvariantCulture))} |");
         }
 
         sb.AppendLine(

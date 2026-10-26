@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   buildWithheldFindingDeepLink,
+  formatWithheldFindingOpenLinkLabel,
   formatStampCatalogEngineFailureHonestyLine,
   formatStampWithheldHonestyLine,
   formatWithheldFindingReasonLabel,
@@ -33,6 +34,21 @@ describe("findings-withheld-band (DR-02)", () => {
     expect(rows[0]?.reason).toBe("prose-only-emission");
     expect(rows[0]?.reasonDisplay).toContain("Prose-only");
     expect(formatWithheldFindingReasonLabel(rows[0]!.reason)).toContain("Prose-only");
+  });
+
+  it("labels engine-failure rows without trace targets honestly", () => {
+    expect(
+      formatWithheldFindingOpenLinkLabel({
+        withheldFindingId: "engine-failure-cost-constraint-cost",
+        reason: "engine-failure-advisory",
+        reasonDisplay: "Engine did not run (advisory failure)",
+        originEngineType: "CostConstraint",
+        originAgentType: null,
+        title: "Engine failure",
+        traceTargetId: null,
+        conflictFindingId: null,
+      }),
+    ).toBe("Open findings. A trace target was not stored.");
   });
 
   it("builds merge-conflict deep links to finding inspect", () => {

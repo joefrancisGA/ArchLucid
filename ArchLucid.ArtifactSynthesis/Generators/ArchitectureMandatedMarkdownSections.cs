@@ -1,5 +1,7 @@
 using System.Text;
 
+using ArchLucid.ArtifactSynthesis.Docx;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Manifest.Sections;
@@ -162,7 +164,12 @@ public static class ArchitectureMandatedMarkdownSections
                 if (control is null)
                     continue;
 
-                lines.Add($"- {control.ControlId} {control.ControlName} ({control.Impact}): {control.Status}");
+                string controlId = DocxManifestFieldPresentation.FormatManifestTableCell(control.ControlId, "Control id");
+                string controlName =
+                    DocxManifestFieldPresentation.FormatManifestTableCell(control.ControlName, "Control name");
+                string impact = DocxManifestFieldPresentation.FormatManifestTableCell(control.Impact, "Impact");
+                string status = DocxManifestFieldPresentation.FormatManifestTableCell(control.Status, "Control status");
+                lines.Add($"- {controlId} {controlName} ({impact}): {status}");
             }
         }
 
@@ -191,8 +198,14 @@ public static class ArchitectureMandatedMarkdownSections
                 if (control is null)
                     continue;
 
-                lines.Add(
-                    $"- {control.ControlId} {control.ControlName} [{control.AppliesToCategory}]: {control.Status}");
+                string controlId = DocxManifestFieldPresentation.FormatManifestTableCell(control.ControlId, "Control id");
+                string controlName =
+                    DocxManifestFieldPresentation.FormatManifestTableCell(control.ControlName, "Control name");
+                string appliesTo = DocxManifestFieldPresentation.FormatManifestTableCell(
+                    control.AppliesToCategory,
+                    "Applies-to category");
+                string status = DocxManifestFieldPresentation.FormatManifestTableCell(control.Status, "Control status");
+                lines.Add($"- {controlId} {controlName} [{appliesTo}]: {status}");
             }
         }
 
