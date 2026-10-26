@@ -6868,6 +6868,18 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-26 seed hunt (seed→hit): reseeded `application-analysis` with zero open hunt-ready rows; promoted execution-trace merge follow-on after hunt 326 finding evidence chain; proved `FinalizeReadinessService` Real/PilotStrict agent output quality evaluation still called `GetByRunIdAsync` with the route run id only, so finalize readiness surfaced a false `agent_output_quality` block (“no agent execution traces to prove quality-gate evaluation”) when accepted traces lived under legacy uppercase hex keys; canonicalize the run id and load through `AnalysisRunIdCanonicalization.LoadExecutionTracesByRunIdAsync`; regression `CompareQuality_BuildAsync_merges_traces_for_agent_output_quality_when_stored_under_legacy_run_id_key`; cheap-disproof closed finding evidence chain trace merge (hunt 326), run-detail LLM cost enrich tests; seeded five follow-on rows; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` filter 319/319. Private beta: finalize readiness and commit gates evaluate agent output quality when execution traces use legacy run-id key formats.
+
+- [ ] (candidate) `CommitOutputIntegrityService` — execution trace run key — locus: post-commit evidence pass; input: traces under legacy uppercase hex key when canonical route id is `N`.
+- [ ] (candidate) `FindingIacStubGenerator` — agent result run key — locus: stub generation reload; input: existing IaC agent rows under legacy key only.
+- [ ] (candidate) `RunDetailRetrievalGroundingEnrichmentSlice` — retrieval trace run key — locus: Guid-scoped reader; input: defer unless string RunId ordinal store proven.
+- [ ] (candidate) `ComparisonRecordRepository.GetByRunIdAsync` — SQL list-by-run dashed stored — locus: UNIQUEIDENTIFIER column; input: already matches N/D lookup via guid param.
+- [ ] (candidate) `ComparisonRecordRepositoryCore.SerializeTagsForUpdate` — JSON tag order — locus: cosmetic; input: defer.
+
+- [x] (proven) `FinalizeReadinessService` — single-key trace load for agent output quality — **hit 2026-10-26 seed hunt:** `LoadExecutionTracesByRunIdAsync`; regression above.
+- [x] (valid-no-repro) `FindingEvidenceChainService.BuildAsync` — trace merge — **cheap-disproof 2026-10-26 seed hunt:** hunt 326.
+- [x] (invalid) `ComparisonRecordSearchPredicateBuilder` — notes column search — **cheap-disproof 2026-10-26 seed hunt:** no notes filter today.
+
 2026-10-26 seed hunt (seed-only): re-read `ArchLucid.Application/Analysis/` and compare-quality regressions after parallel hits on execution-trace merge; no hunt-ready mechanism-backed wrong outcome met the bar (multi-key merge loaders, compare reload, export/comparison history, and governance recurrence paths remain covered by existing `CompareQuality_*` / `ArchitectureAnalysis*` tests); cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on rows; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` filter 316/316 (`RunAnalyzers=false`); no production code changed. Private beta: n/a.
 
 - [ ] (candidate) `AnalysisRunIdCanonicalization.ResolveAgentResultsForCompareReadAsync` — repository-empty fallback to anchored hydration — locus: compare read always reloads from repository; input: defer unless offline/demo path without persistence is in scope.
