@@ -157,7 +157,7 @@ public sealed class DiagramNodeHumanCaptionFactoryTests
         };
 
         DiagramNodeHumanCaptionFactory.Create(usedWithoutMessage).CombinedPlainText.Should()
-            .Contain("Off-diagram reference was not stored.");
+            .Contain("Off-diagram use was not stored.");
 
         DiagramNode orphaned = new()
         {
