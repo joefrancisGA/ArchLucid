@@ -6868,6 +6868,18 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-26 seed hunt (seed→hit): reseeded `application-analysis` with zero open hunt-ready rows; promoted agent-result merge follow-on after hunt 323 recurrence rollup; proved `AgentConfidenceCalibrationService.ApplyCalibratedConfidenceForRunAsync` still called `GetByRunIdAsync` with the caller run id only, so post-run calibrated confidence enrichment skipped agent results persisted under legacy uppercase hex keys; route through `AnalysisRunIdCanonicalization.LoadAgentResultsByRunIdAsync` after canonicalizing the run id; regression `CompareQuality_ApplyCalibratedConfidenceForRunAsync_merges_results_when_stored_under_legacy_run_id_key`; cheap-disproof closed recurrence governance merge (hunt 323), compare read always-merge (hunt 321); seeded five follow-on rows; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` filter 316/316. Private beta: run detail and analysis surfaces show calibrated agent confidence when persisted results use legacy run-id key formats.
+
+- [ ] (candidate) `RunDetailRetrievalGroundingEnrichmentSlice` — retrieval trace run key — locus: Guid-scoped reader; input: defer unless string RunId ordinal store proven.
+- [ ] (candidate) `ComparisonRecordRepository.GetByRunIdAsync` — SQL list-by-run dashed stored — locus: UNIQUEIDENTIFIER column; input: already matches N/D lookup via guid param.
+- [ ] (candidate) `ComparisonRecordRepositoryCore.SerializeTagsForUpdate` — JSON tag order — locus: cosmetic; input: defer.
+- [ ] (candidate) `ComparisonRecordSearchPredicateBuilder` — notes column search — locus: no notes filter today; input: defer.
+- [ ] (candidate) `ApiPaging.TryParseUtcTicksIdCursor` — cursor id segment without trim — locus: HTTP cursor parse; input: padded id after ticks delimiter (alerts inbox and other API surfaces).
+
+- [x] (proven) `AgentConfidenceCalibrationService.ApplyCalibratedConfidenceForRunAsync` — single-key agent load — **hit 2026-10-26 seed hunt:** `LoadAgentResultsByRunIdAsync`; regression above.
+- [x] (valid-no-repro) `ReviewsAwaitingActionQueryService` — recurrence rollup merge — **cheap-disproof 2026-10-26 seed hunt:** hunt 323.
+- [x] (invalid) `ApiPaging.TryParseUtcTicksIdCursor` — HTTP cursor id trim — **cheap-disproof 2026-10-26 seed hunt:** comparison search normalizes at application layer.
+
 2026-10-26 seed hunt (seed→hit): reseeded `application-analysis` with zero open hunt-ready rows; promoted agent-result merge follow-on after hunt 321 compare reload; proved governance recurrence surfaces (`ReviewsAwaitingActionQueryService`, `RecurrenceCompletionNotificationService`) still called `GetRollupProjectionByRunIdAsync` once per canonical run id, so recurrence “new findings” counts and completion emails compared against empty agent lists when rollup rows lived under legacy uppercase hex keys; route both sides through `AnalysisRunIdCanonicalization.LoadAgentResultsByRunIdAsync` with rollup projection; regression `CompareQuality_ListAsync_merges_recurrence_agent_results_when_stored_under_legacy_run_id_key`; cheap-disproof closed HTTP compare-agents facade merge (hunt 305), provenance decision-node merge (hunt 322); seeded five follow-on rows; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` filter 315/315. Private beta: governance recurrence inbox rows and completion notifications reflect finding deltas when agent rollup results are stored under legacy run-id key formats.
 
 - [ ] (candidate) `RunDetailRetrievalGroundingEnrichmentSlice` — retrieval trace run key — locus: Guid-scoped reader; input: defer unless string RunId ordinal store proven.
