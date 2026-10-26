@@ -1553,6 +1553,20 @@ describe("ResourceHubClient", () => {
     expect(screen.getByText("skuName")).toBeInTheDocument();
   });
 
+  it("shows resource type omission copy when resourceType is whitespace-only", async () => {
+    fetchCachedInfraEvidenceResourceHub.mockImplementation(async () =>
+      buildResourceHubTestMockHub({
+        currentConfiguration: {
+          ...buildResourceHubTestMockHub().currentConfiguration,
+          resourceType: "   ",
+        },
+      }),
+    );
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    expect(await screen.findByText("Resource type was not stored.")).toBeInTheDocument();
+  });
+
   it("labels missing resource group and region with omission copy (P-13)", async () => {
     fetchCachedInfraEvidenceResourceHub.mockImplementation(async () =>
       buildResourceHubTestMockHub({

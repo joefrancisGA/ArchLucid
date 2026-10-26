@@ -1119,7 +1119,12 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                       <dd className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
                         The Azure type recorded for this resource.
                       </dd>
-                      <dd>{hub.currentConfiguration.resourceType}</dd>
+                      <dd>
+                        {formatStoredInfraEvidenceHubField(
+                          hub.currentConfiguration.resourceType,
+                          "Resource type was not stored.",
+                        )}
+                      </dd>
                     </div>
                     <div>
                       <dt className="font-medium">Resource group</dt>

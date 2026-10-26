@@ -7174,6 +7174,34 @@ ABQ-09 churn hotspot.
 
 ## Zone: ui-infra-resource-hub
 
+2026-10-26 seed hunt (seed→hit): promoted whitespace-only overview **resource type** shown as blank metadata — `resourceType` rendered raw while resource group and region already trimmed to omission copy; regression `shows resource type omission copy when resourceType is whitespace-only`; cheap-disproof closed diagram `diagramNodeLabel` (not rendered on hub), `confidenceBand` whitespace (`formatDiagramCorrespondenceConfidenceBandLabel` already returns “Confidence not recorded”), and overview rg/region whitespace (existing trim); scoped ResourceHubClient vitest 92/92. Private beta: overview configuration metadata shows “Resource type was not stored.” instead of a blank type line when capture stored only whitespace.
+
+- [x] (proven) `ResourceHubClient` overview — `resourceType` whitespace-only — **hit 2026-10-26 seed hunt:** `formatStoredInfraEvidenceHubField` on resource type; regression whitespace type fixture.
+- [x] (invalid) `ResourceHubClient` diagram correspondence — `diagramNodeLabel` whitespace-only — **cheap-disproof 2026-10-26 seed hunt:** label not surfaced in `ResourceHubClient` diagram tab UI.
+- [x] (valid-no-repro) `ResourceHubClient` diagram correspondence — `confidenceBand` whitespace-only — **cheap-disproof 2026-10-26 seed hunt:** `formatDiagramCorrespondenceConfidenceBandLabel` trims to “Confidence not recorded”.
+- [x] (valid-no-repro) `ResourceHubClient` overview — `resourceGroup` / `region` whitespace-only — **cheap-disproof 2026-10-26 seed hunt:** `?.trim() ||` omission copy already present.
+- [x] (valid-no-repro) `ResourceHubClient` remediation instances — `patternKey` whitespace-only — **cheap-disproof 2026-10-26 seed hunt:** prior hit; regression lock retained.
+
+- [ ] (candidate) `ResourceHubDriftChangesTable` — unknown `changeType` string whitespace-only — locus: change type tag; input: whitespace change type key displays blank label.
+- [ ] (candidate) `ResourceHubClient` audit lineage — `controlNumber` / `controlTitle` whitespace-only — locus: audit tab active control label; input: blank control heading parts.
+- [ ] (candidate) `ResourceHubClient` header — `externalResourceId` whitespace-only — locus: page title / disclosure; input: blank resource identifier display.
+- [ ] (candidate) `ResourceHubClient` findings stream — `streamKind` display whitespace — locus: stream metadata; input: unreachable from API enums; confirm before promoting.
+- [ ] (candidate) `ResourceHubClient` diagram correspondence — `correspondenceId` whitespace-only — locus: reconcile links; input: links may still fire with whitespace id.
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **aliases:** resource hub; infrastructure resource detail
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 64
+- **bugs-found:** 43
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-26
+- **last-bug:** 2026-10-26 — whitespace-only overview resource type
+- **related-pd-tb:** none
+- **code-changed-since:** yes
+
 2026-10-26 seed hunt (seed→hit): promoted whitespace-only remediation **`patternKey`** shown as blank pattern cells — pattern key rendered raw while remediation `status` already trimmed to omission copy; regression `shows remediation pattern omission copy when patternKey is whitespace-only`; cheap-disproof closed drift field whitespace (prior hit), diagram label/band whitespace (seeded below), and remediation status whitespace (prior hit; regression lock retained); scoped ResourceHubClient vitest 91/91. Private beta: remediation instance tables show “Remediation pattern was not stored.” instead of a blank pattern cell when capture stored only whitespace.
 
 - [x] (proven) `ResourceHubClient` remediation instances — `patternKey` whitespace-only — **hit 2026-10-26 seed hunt:** `formatStoredInfraEvidenceHubField` on pattern column; regression whitespace pattern fixture.
