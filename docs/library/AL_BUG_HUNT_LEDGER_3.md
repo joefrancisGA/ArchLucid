@@ -7209,6 +7209,32 @@ ABQ-09 churn hotspot.
 
 ## Zone: ui-infra-resource-hub
 
+2026-10-26 seed hunt (seed→hit): promoted whitespace-only / padded **`diagramCorrespondence.correspondenceId`** on diagram tab actions — reconciliation, remediation factory, and Ask buttons always rendered when correspondence payload was non-null even though workbench/ask URL builders drop whitespace-only ids, so operators saw scoped actions without a usable `correspondenceId`; trim gate hides actions and shows omission copy; suppress conflict remediation href when trim empty; regressions whitespace omission and padded Ask `href`; cheap-disproof closed overview audit degradedReason (prior hit), drift Ask `diffId` trim at URL layer, and pagination caption when `totalCount <= visibleCount`; scoped ResourceHubClient vitest 110/110. Private beta: on the resource hub diagram tab, operators no longer see reconciliation or Ask controls that omit correspondence context when capture stored only whitespace in `correspondenceId`.
+
+- [x] (proven) `ResourceHubClient` diagram tab — `correspondenceId` whitespace-only / padded — **hit 2026-10-26 seed hunt:** `diagramCorrespondenceIdTrimmed` gates actions + remediation href; regressions whitespace omission and padded Ask handoff.
+- [x] (valid-no-repro) `ResourceHubClient` overview — audit `degradedReason` whitespace banner — **cheap-disproof 2026-10-26 seed hunt:** prior hit retained.
+- [x] (valid-no-repro) `ResourceHubDriftChangesTable` — drift Ask `diffId` — **cheap-disproof 2026-10-26 seed hunt:** `buildInfrastructureAskHandoffHref` trims before set.
+- [x] (valid-no-repro) `formatResourceHubFindingStreamCaption` — `totalCount <= visibleCount` — **cheap-disproof 2026-10-26 seed hunt:** returns null; no misleading “more” link.
+- [x] (valid-no-repro) `ResourceHubClient` overview — `resourceGroup` / `region` whitespace — **cheap-disproof 2026-10-26 seed hunt:** inline trim omission copy.
+
+- [ ] (candidate) `ResourceHubClient` overview — `resourceGroup` / `region` via `formatStoredInfraEvidenceHubField` — locus: DRY call sites only.
+- [ ] (candidate) `ResourceHubDriftChangesTable` — whitespace-only `changeId` in row test id only — locus: cosmetic test id vs href trim parity.
+- [ ] (candidate) `ResourceHubClient` diagram tab — padded `diagramNodeId` in diagrams workbench handoff — locus: overview diagrams link.
+- [ ] (candidate) `ResourceHubClient` audit tab — custom non-empty `degradedReason` on overview banner prefix — locus: banner colon suffix UX.
+- [ ] (candidate) `ResourceHubClient` findings stream — `hasMore` true with zero items — locus: empty table vs pagination caption.
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 79
+- **bugs-found:** 58
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-26
+- **last-bug:** 2026-10-26 — diagram correspondenceId on diagram tab actions
+- **code-changed-since:** yes
+
 2026-10-26 seed hunt (seed→hit): promoted overview **audit lineage unavailable** copy when `degradedReason` is whitespace-only — overview passed raw `degradedReason` into `InfraAuditLineageUnavailableBanner` so whitespace fell through to the generic “hub and workbench links stay resource-scoped only” suffix while the audit tab already used `formatStoredInfraEvidenceHubField` with the default “No audit evidence snapshot rows…” paragraph; align overview with the same formatter/default; regression `shows default audit degraded copy on overview when degradedReason is whitespace-only`; cheap-disproof closed architecture finding id Ask (prior hit), overview `resourceGroup` inline trim, and exotic drift `changeType` tag kind; scoped ResourceHubClient vitest 108/108. Private beta: on the resource hub overview tab, operators see the same honest audit-lineage unavailable explanation as on the audit tab when capture stored only whitespace in `degradedReason`.
 
 - [x] (proven) `ResourceHubClient` overview — `auditLineageLink.degradedReason` whitespace-only banner — **hit 2026-10-26 seed hunt:** `formatStoredInfraEvidenceHubField` before `InfraAuditLineageUnavailableBanner`; regression overview whitespace fixture.
