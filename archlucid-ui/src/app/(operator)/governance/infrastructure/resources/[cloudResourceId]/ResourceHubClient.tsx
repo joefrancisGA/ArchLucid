@@ -1732,20 +1732,22 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                 </div>
               </dl>
               <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1">
-                <Link
-                  className={OPERATOR_LINK.inline}
-                  href={buildTerraformWorkbenchHref({
-                    cloudResourceId,
-                    snapshotId: resolvedSnapshotId,
-                    runId: runId.length > 0 ? runId : undefined,
-                    assessmentId: workbenchLinkAuditContext?.assessmentId ?? null,
-                    auditEvidenceSnapshotId: workbenchLinkAuditContext?.auditEvidenceSnapshotId ?? null,
-                    controlId: workbenchLinkAuditContext?.controlId ?? null,
-                  })}
-                  data-testid="infra-resource-hub-terraform-open-workbench"
-                >
-                  Open terraform workbench
-                </Link>
+                {hasTerraformMapping ? (
+                  <Link
+                    className={OPERATOR_LINK.inline}
+                    href={buildTerraformWorkbenchHref({
+                      cloudResourceId,
+                      snapshotId: resolvedSnapshotId,
+                      runId: runId.length > 0 ? runId : undefined,
+                      assessmentId: workbenchLinkAuditContext?.assessmentId ?? null,
+                      auditEvidenceSnapshotId: workbenchLinkAuditContext?.auditEvidenceSnapshotId ?? null,
+                      controlId: workbenchLinkAuditContext?.controlId ?? null,
+                    })}
+                    data-testid="infra-resource-hub-terraform-open-workbench"
+                  >
+                    Open terraform workbench
+                  </Link>
+                ) : null}
                 <Link
                   className={OPERATOR_LINK.inline}
                   href={buildResourceHubDriftWorkbenchHref(resolvedSnapshotId, cloudResourceId, workbenchLinkAuditContext, runId)}
