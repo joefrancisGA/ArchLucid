@@ -140,8 +140,10 @@ public sealed class DocxArchitectureAnalysisExportService(IDiagramImageRenderer 
                 foreach (ManifestService service in report.Manifest.Services.OrderBy(x => x.ServiceName))
                 {
                     builder.AddParagraph(service.ServiceName, true);
-                    builder.AddBullet($"Type: {service.ServiceType}");
-                    builder.AddBullet($"Platform: {service.RuntimePlatform}");
+                    builder.AddBullet(
+                        $"Type: {ArchitectureManifestTopologyExport.FormatServiceTypeForExport(service.ServiceType)}");
+                    builder.AddBullet(
+                        $"Platform: {ArchitectureManifestTopologyExport.FormatRuntimePlatformForExport(service.RuntimePlatform)}");
                     if (!string.IsNullOrWhiteSpace(service.Purpose))
                         builder.AddBullet($"Purpose: {service.Purpose}");
                     if (service.RequiredControls.Count > 0)
@@ -157,8 +159,10 @@ public sealed class DocxArchitectureAnalysisExportService(IDiagramImageRenderer 
                 foreach (ManifestDatastore datastore in report.Manifest.Datastores.OrderBy(x => x.DatastoreName))
                 {
                     builder.AddParagraph(datastore.DatastoreName, true);
-                    builder.AddBullet($"Type: {datastore.DatastoreType}");
-                    builder.AddBullet($"Platform: {datastore.RuntimePlatform}");
+                    builder.AddBullet(
+                        $"Type: {ArchitectureManifestTopologyExport.FormatDatastoreTypeForExport(datastore.DatastoreType)}");
+                    builder.AddBullet(
+                        $"Platform: {ArchitectureManifestTopologyExport.FormatRuntimePlatformForExport(datastore.RuntimePlatform)}");
                     builder.AddBullet(
                         $"Private Endpoint Required: {ArchitectureManifestDatastoreExport.FormatPrivateEndpointRequiredForExport(datastore.PrivateEndpointRequired)}");
                     builder.AddBullet(
@@ -173,11 +177,16 @@ public sealed class DocxArchitectureAnalysisExportService(IDiagramImageRenderer 
             if (ArchitectureManifestGovernanceExport.ShouldRender(governance))
             {
                 builder.AddHeading("Governance", 3);
-                builder.AddBullet($"Required Controls: {string.Join(", ", governance.RequiredControls)}");
-                builder.AddBullet($"Compliance Tags: {string.Join(", ", governance.ComplianceTags)}");
-                builder.AddBullet($"Policy Constraints: {string.Join(", ", governance.PolicyConstraints)}");
-                builder.AddBullet($"Risk Classification: {governance.RiskClassification}");
-                builder.AddBullet($"Cost Classification: {governance.CostClassification}");
+                builder.AddBullet(
+                    $"Required Controls: {ArchitectureManifestGovernanceExport.FormatRequiredControlsForExport(governance.RequiredControls)}");
+                builder.AddBullet(
+                    $"Compliance Tags: {ArchitectureManifestGovernanceExport.FormatComplianceTagsForExport(governance.ComplianceTags)}");
+                builder.AddBullet(
+                    $"Policy Constraints: {ArchitectureManifestGovernanceExport.FormatPolicyConstraintsForExport(governance.PolicyConstraints)}");
+                builder.AddBullet(
+                    $"Risk Classification: {ArchitectureManifestGovernanceExport.FormatRiskClassificationForExport(governance)}");
+                builder.AddBullet(
+                    $"Cost Classification: {ArchitectureManifestGovernanceExport.FormatCostClassificationForExport(governance)}");
                 builder.AddSpacer();
             }
         }
