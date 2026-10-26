@@ -479,15 +479,11 @@ export function secureNowListedQuestionRowShapeIsUsable(raw: unknown): boolean {
   return raw !== null && typeof raw === "object" && !Array.isArray(raw);
 }
 
-/** Listed rows need a stored question key, disposition id, or evidence fingerprint to be queue-actionable. */
+/** Listed rows need a stored question key or disposition id; fingerprint alone is not enough to mutate. */
 export function secureNowListedQuestionRowHasStoredIdentity(
-  question: Pick<SecureNowQuestion, "questionKey" | "dispositionId" | "evidenceFingerprint">,
+  question: Pick<SecureNowQuestion, "questionKey" | "dispositionId">,
 ): boolean {
   if (secureNowQuestionDispositionMutationQuestionKey(question.questionKey) !== null) {
-    return true;
-  }
-
-  if (secureNowQuestionDispositionMutationEvidenceFingerprint(question.evidenceFingerprint) !== null) {
     return true;
   }
 
