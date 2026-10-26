@@ -598,38 +598,6 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
     router.replace(nextHref);
   }, [activeTab, cloudResourceId, resolvedSnapshotId, router, runId, searchParams]);
 
-  const askAuditContext = useMemo((): InfrastructureAskAuditContext => {
-    if (resolvedAuditLineage != null) {
-      return {
-        assessmentId: resolvedAuditLineage.assessmentId,
-        auditEvidenceSnapshotId: resolvedAuditLineage.auditEvidenceSnapshotId,
-        controlId: resolvedAuditLineage.controlId,
-      };
-    }
-
-    const payloadContext = hub?.auditLineageLink.available === true
-      ? {
-          assessmentId: hub.auditLineageLink.assessmentId ?? undefined,
-          auditEvidenceSnapshotId: hub.auditLineageLink.auditEvidenceSnapshotId ?? undefined,
-          controlId: hub.auditLineageLink.controlId ?? undefined,
-        }
-      : null;
-
-    return resolveInfrastructureAskAuditContext(
-      {
-        assessmentId,
-        auditEvidenceSnapshotId,
-        controlId,
-      },
-      payloadContext,
-    );
-  }, [assessmentId, auditEvidenceSnapshotId, controlId, hub, resolvedAuditLineage]);
-
-  const workbenchLinkAuditContext = useMemo(
-    () => toWorkbenchLinkAuditContext(askAuditContext),
-    [askAuditContext],
-  );
-
   const hasStaleAuditUrlParams = useMemo(
     () => hasStaleInfraEvidenceAuditUrlParams(searchParams),
     [searchParams],
@@ -653,6 +621,43 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
   }, [hub, searchParams]);
 
   const showStaleAuditScopeBanner = hasStaleAuditUrlParams || hasUnlinkedAuditScopeInUrl;
+
+  const askAuditContext = useMemo((): InfrastructureAskAuditContext => {
+    if (resolvedAuditLineage != null) {
+      return {
+        assessmentId: resolvedAuditLineage.assessmentId,
+        auditEvidenceSnapshotId: resolvedAuditLineage.auditEvidenceSnapshotId,
+        controlId: resolvedAuditLineage.controlId,
+      };
+    }
+
+    const payloadContext = hub?.auditLineageLink.available === true
+      ? {
+          assessmentId: hub.auditLineageLink.assessmentId ?? undefined,
+          auditEvidenceSnapshotId: hub.auditLineageLink.auditEvidenceSnapshotId ?? undefined,
+          controlId: hub.auditLineageLink.controlId ?? undefined,
+        }
+      : null;
+
+    const urlAuditContext = showStaleAuditScopeBanner
+      ? {
+          assessmentId: "",
+          auditEvidenceSnapshotId: "",
+          controlId: "",
+        }
+      : {
+          assessmentId,
+          auditEvidenceSnapshotId,
+          controlId,
+        };
+
+    return resolveInfrastructureAskAuditContext(urlAuditContext, payloadContext);
+  }, [assessmentId, auditEvidenceSnapshotId, controlId, hub, resolvedAuditLineage, showStaleAuditScopeBanner]);
+
+  const workbenchLinkAuditContext = useMemo(
+    () => toWorkbenchLinkAuditContext(askAuditContext),
+    [askAuditContext],
+  );
 
   const auditScopeChipHref = useMemo(() => {
     if (!auditScopeActive) {
