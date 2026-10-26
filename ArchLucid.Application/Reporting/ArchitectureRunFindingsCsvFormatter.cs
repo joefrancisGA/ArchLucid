@@ -33,6 +33,10 @@ public static class ArchitectureRunFindingsCsvFormatter
 
     internal const string RevisitTimeNotStoredLabel = "Revisit time was not stored.";
 
+    internal const string FindingIdNotStoredLabel = "Finding id was not stored.";
+
+    internal const string ResultIdNotStoredLabel = "Result id was not stored.";
+
     internal const string LegacyHeaderLine =
         "FindingId,ResultId,TaskId,SourceAgent,Severity,Category,Message,EstimatedUsdSavings,Status,MuteReason,ConfidenceScore";
 
@@ -193,8 +197,8 @@ public static class ArchitectureRunFindingsCsvFormatter
 
         sb.AppendJoin(
                 ',',
-                ExportFormatterService.EscapeCsvField(finding.FindingId),
-                ExportFormatterService.EscapeCsvField(result.ResultId),
+                ExportFormatterService.EscapeCsvField(FormatFindingId(finding.FindingId)),
+                ExportFormatterService.EscapeCsvField(FormatResultId(result.ResultId)),
                 ExportFormatterService.EscapeCsvField(result.TaskId),
                 ExportFormatterService.EscapeCsvField(
                     AgentResultEnvelopeAgentTypeResolver.ResolveAgentType(result).ToString()),
@@ -216,6 +220,12 @@ public static class ArchitectureRunFindingsCsvFormatter
                 ExportFormatterService.EscapeCsvField(tracking?.ItsmLinkedTicketsSummary))
             .Append('\n');
     }
+
+    private static string FormatFindingId(string? findingId) =>
+        string.IsNullOrWhiteSpace(findingId) ? FindingIdNotStoredLabel : findingId.Trim();
+
+    private static string FormatResultId(string? resultId) =>
+        string.IsNullOrWhiteSpace(resultId) ? ResultIdNotStoredLabel : resultId.Trim();
 
     private static string FormatEstimatedUsdSavings(ArchitectureFinding finding)
     {

@@ -93,7 +93,7 @@ internal static class DiagramEdgeLabelHumanizer
 
         if (string.Equals(inferenceSource, GraphEdgeInferenceSources.InventoryLogicAppConnection, StringComparison.OrdinalIgnoreCase))
         {
-            return string.Equals(label, "API connection", StringComparison.OrdinalIgnoreCase);
+            return string.Equals(label, DiagramRelationshipVerbCatalog.InventoryLogicAppConnectionConfiguredLabel, StringComparison.OrdinalIgnoreCase);
         }
 
         if (string.Equals(inferenceSource, GraphEdgeInferenceSources.InventoryDiagnosticSettingStorage, StringComparison.OrdinalIgnoreCase)
@@ -135,7 +135,7 @@ internal static class DiagramEdgeLabelHumanizer
                 GraphEdgeInferenceSources.InventoryLogicAppConnection,
                 StringComparison.OrdinalIgnoreCase))
         {
-            return "API connection";
+            return DiagramRelationshipVerbCatalog.InventoryLogicAppConnectionConfiguredLabel;
         }
 
         if (TryResolveDiagnosticSettingStorageLabel(inferenceSource, out string diagnosticStorageLabel))
@@ -385,11 +385,6 @@ internal static class DiagramEdgeLabelHumanizer
             return aliased;
         }
 
-        if (DiagramRelationshipVerbCatalog.TryResolve(trimmed, out string catalogVerb))
-        {
-            return catalogVerb;
-        }
-
         return trimmed;
     }
 
@@ -417,7 +412,7 @@ internal static class DiagramEdgeLabelHumanizer
         if (string.Equals(value, GraphEdgeInferenceSources.InventoryLogicAppConnection, StringComparison.OrdinalIgnoreCase)
             || string.Equals(value, AzureInventoryRelationshipAssociationTypes.LogicAppConnection, StringComparison.OrdinalIgnoreCase))
         {
-            humanized = "API connection";
+            humanized = DiagramRelationshipVerbCatalog.InventoryLogicAppConnectionConfiguredLabel;
 
             return true;
         }
@@ -617,7 +612,7 @@ internal static class DiagramEdgeLabelHumanizer
         if (string.Equals(value, GraphEdgeTypes.Contains, StringComparison.OrdinalIgnoreCase)
             || string.Equals(value, GraphEdgeTypes.ContainsResource, StringComparison.OrdinalIgnoreCase))
         {
-            humanized = "contains";
+            humanized = DiagramRelationshipVerbCatalog.InventoryDiagramLayoutContainsLabel;
 
             return true;
         }

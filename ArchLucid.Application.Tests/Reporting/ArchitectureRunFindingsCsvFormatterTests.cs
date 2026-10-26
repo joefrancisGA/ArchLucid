@@ -147,6 +147,32 @@ public sealed class ArchitectureRunFindingsCsvFormatterTests
     }
 
     [Fact]
+    public void BuildCsvContent_blank_finding_and_result_ids_use_not_stored_labels()
+    {
+        AgentResult result = new()
+        {
+            ResultId = "  ",
+            TaskId = "t-1",
+            AgentType = AgentType.Compliance,
+            Findings =
+            [
+                new ArchitectureFinding
+                {
+                    FindingId = "",
+                    Severity = FindingSeverity.Warning,
+                    Category = "security",
+                    Message = "Rotate keys",
+                },
+            ],
+        };
+
+        string csv = ArchitectureRunFindingsCsvFormatter.BuildCsvContent(new ArchitectureRunDetail { Results = [result] });
+
+        csv.Should().Contain(ArchitectureRunFindingsCsvFormatter.FindingIdNotStoredLabel);
+        csv.Should().Contain(ArchitectureRunFindingsCsvFormatter.ResultIdNotStoredLabel);
+    }
+
+    [Fact]
     public void BuildCsvContent_omits_checklist_coverage_rows()
     {
         ArchitectureFinding decisionGrade = new()

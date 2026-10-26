@@ -9,9 +9,11 @@ type ModelOverrides = {
   readonly hasCommitBlockingFailures?: boolean;
   readonly failedEngineLabels?: readonly string[];
   readonly operatorGovernanceDecision?: string | null;
+  readonly hasFindingsSnapshot?: boolean;
   readonly findings?: readonly Record<string, unknown>[];
   readonly artifacts?: readonly unknown[];
   readonly trustEvidenceCard?: unknown;
+  readonly explanationSummary?: { readonly riskPosture?: string | null } | null;
 };
 
 function model(overrides: ModelOverrides = {}): RunDetailPageModel {
@@ -21,6 +23,7 @@ function model(overrides: ModelOverrides = {}): RunDetailPageModel {
     completedUtc: "2026-08-01T12:30:00Z",
     description: "Claims intake modernization",
     operatorGovernanceDecision: overrides.operatorGovernanceDecision ?? null,
+    hasFindingsSnapshot: overrides.hasFindingsSnapshot ?? false,
   };
 
   return {
@@ -57,7 +60,7 @@ function model(overrides: ModelOverrides = {}): RunDetailPageModel {
     artifacts: overrides.artifacts ?? [],
     artifactsFailure: null,
     artifactsMalformed: null,
-    explanationSummary: null,
+    explanationSummary: overrides.explanationSummary ?? null,
     explanationFailure: null,
     runDetailNavSections: [],
     findingCountDisplay: 0,
@@ -297,5 +300,25 @@ describe("buildRunDetailPresentation", () => {
     );
 
     expect(presentation.findingsTriageVisibleCount).toBe(1);
+  });
+
+  it("does not substitute risk posture for highest unresolved severity when findings snapshot is captured", async () => {
+    const presentation = await buildRunDetailPresentation(
+      model({
+        hasFindingsSnapshot: true,
+        explanationSummary: { riskPosture: "Approved with monitoring" },
+        findings: [
+          {
+            findingId: "f-resolved",
+            message: "Resolved",
+            severity: 2,
+            humanReviewStatus: 2,
+          },
+        ],
+      }),
+      false,
+    );
+
+    expect(presentation.highestSeverity).toBeNull();
   });
 });

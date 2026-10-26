@@ -469,7 +469,7 @@ describe("InfraEvidenceDiagramOutline", () => {
     const nodesTable = getNodesTable();
 
     expect(screen.getByText("Connected on the diagram (2)")).toBeTruthy();
-    expect(within(getUnconnectedNodesList()).getByText("Stands alone (1)")).toBeTruthy();
+    expect(within(getUnconnectedNodesList()).getByText("No line on this diagram was stored. (1)")).toBeTruthy();
     expect(
       countNodeDataRows(nodesTable)
       + countNodeDataRows(within(getUnconnectedNodesList()).getByRole("table")),

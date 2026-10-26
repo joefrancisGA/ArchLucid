@@ -75,7 +75,7 @@ internal static class InventoryDiagramRelationshipEdgeHelper
         return trimmed.Equals("Connected", StringComparison.OrdinalIgnoreCase)
             || trimmed.Equals("in", StringComparison.OrdinalIgnoreCase)
             || trimmed.Equals("Routes to", StringComparison.OrdinalIgnoreCase)
-            || trimmed.StartsWith("via NIC:", StringComparison.OrdinalIgnoreCase);
+            || trimmed.StartsWith("Derived through NIC ", StringComparison.OrdinalIgnoreCase);
     }
 
     private static string BuildUndirectedPairKey(string leftId, string rightId)

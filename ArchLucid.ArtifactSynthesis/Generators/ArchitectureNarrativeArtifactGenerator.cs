@@ -81,9 +81,16 @@ public class ArchitectureNarrativeArtifactGenerator : IArtifactGenerator
         else
 
             foreach (SecurityPostureItem control in manifest.Security.Controls)
-
+            {
+                string impact = ArchitectureManifestNarrativeHonestyCopy.FormatOptionalField(
+                    control.Impact,
+                    ArchitectureManifestNarrativeHonestyCopy.ImpactNotStored);
+                string status = ArchitectureManifestNarrativeHonestyCopy.FormatOptionalField(
+                    control.Status,
+                    ArchitectureManifestNarrativeHonestyCopy.StatusNotStored);
                 sb.AppendLine(
-                    $"- {control.ControlId} {control.ControlName} ({control.Impact}): {control.Status}");
+                    $"- {control.ControlId} {control.ControlName} ({impact}): {status}");
+            }
 
         foreach (string gap in manifest.Security.Gaps)
 
@@ -112,7 +119,7 @@ public class ArchitectureNarrativeArtifactGenerator : IArtifactGenerator
 
         sb.AppendLine("## Cost Posture");
         sb.AppendLine(
-            $"- Max Monthly Cost: {(manifest.Cost.MaxMonthlyCost.HasValue ? manifest.Cost.MaxMonthlyCost.Value.ToString("0.00") : "Max monthly cost was not stored.")}");
+            $"- Max Monthly Cost: {(manifest.Cost.MaxMonthlyCost.HasValue ? manifest.Cost.MaxMonthlyCost.Value.ToString("0.00") : ArchitectureManifestNarrativeHonestyCopy.MaxMonthlyCostNotStored)}");
 
         foreach (string risk in manifest.Cost.CostRisks)
 
@@ -178,8 +185,20 @@ public class ArchitectureNarrativeArtifactGenerator : IArtifactGenerator
                     ? string.Empty
                     : $" (supporting findings: {string.Join(", ", issue.SupportingFindingIds)})";
 
+                string severity = ArchitectureManifestNarrativeHonestyCopy.FormatOptionalField(
+                    issue.Severity,
+                    ArchitectureManifestNarrativeHonestyCopy.IssueSeverityNotStored);
+                string issueType = ArchitectureManifestNarrativeHonestyCopy.FormatOptionalField(
+                    issue.IssueType,
+                    ArchitectureManifestNarrativeHonestyCopy.IssueTypeNotStored);
+                string title = ArchitectureManifestNarrativeHonestyCopy.FormatOptionalField(
+                    issue.Title,
+                    ArchitectureManifestNarrativeHonestyCopy.IssueTitleNotStored);
+                string description = ArchitectureManifestNarrativeHonestyCopy.FormatOptionalField(
+                    issue.Description,
+                    ArchitectureManifestNarrativeHonestyCopy.IssueDescriptionNotStored);
                 sb.AppendLine(
-                    $"- [{issue.Severity}] {issue.IssueType} {issue.Title}: {issue.Description}{findingSuffix}");
+                    $"- [{severity}] {issueType} {title}: {description}{findingSuffix}");
             }
 
         sb.AppendLine();
@@ -212,7 +231,14 @@ public class ArchitectureNarrativeArtifactGenerator : IArtifactGenerator
             ? "Selected option was not stored."
             : decision.SelectedOption.Trim();
 
-        return $"- {decision.Category}: {decision.Title} -> {selectedOption}";
+        string category = ArchitectureManifestNarrativeHonestyCopy.FormatOptionalField(
+            decision.Category,
+            ArchitectureManifestNarrativeHonestyCopy.DecisionCategoryNotStored);
+        string title = ArchitectureManifestNarrativeHonestyCopy.FormatOptionalField(
+            decision.Title,
+            ArchitectureManifestNarrativeHonestyCopy.DecisionTitleNotStored);
+
+        return $"- {category}: {title} -> {selectedOption}";
     }
 
     private static string FormatRequirementLine(string prefix, RequirementCoverageItem item)

@@ -127,6 +127,11 @@ public sealed partial class MarkdownArchitectureAnalysisExportService
                     {
                         sb.AppendLine($"  - Recommended Use Cases: {string.Join(", ", service.RecommendedUseCases)}");
                     }
+                    else
+                    {
+                        sb.AppendLine(
+                            $"  - Recommended Use Cases: {ArchitectureEvidenceRequestExport.RecommendedUseCasesNotStoredCopy}");
+                    }
                 }
             }
             else
@@ -180,7 +185,10 @@ public sealed partial class MarkdownArchitectureAnalysisExportService
                          .OrderBy(x => x.AgentType)
                          .ThenBy(x => x.CreatedUtc))
             {
-                sb.AppendLine($"### {trace.AgentType} — Task {trace.TaskId}");
+                string taskLabel = string.IsNullOrWhiteSpace(trace.TaskId)
+                    ? ArchitectureEvidenceRequestExport.TraceTaskIdNotStoredCopy
+                    : trace.TaskId.Trim();
+                sb.AppendLine($"### {trace.AgentType} — Task {taskLabel}");
                 sb.AppendLine();
                 sb.AppendLine($"- Trace ID: {trace.TraceId}");
                 sb.AppendLine($"- Parse Succeeded: {(trace.ParseSucceeded ? "Yes" : "No")}");
@@ -224,13 +232,14 @@ public sealed partial class MarkdownArchitectureAnalysisExportService
                 sb.AppendLine("```");
                 sb.AppendLine();
 
-                if (string.IsNullOrWhiteSpace(trace.ParsedResultJson))
-                    continue;
-
                 sb.AppendLine("#### Parsed Result");
                 sb.AppendLine();
                 sb.AppendLine("```json");
-                sb.AppendLine(trace.ParsedResultJson);
+                sb.AppendLine(
+                    ArchitectureEvidenceRequestExport.FormatTraceField(
+                        trace.ParsedResultJson,
+                        ArchitectureEvidenceRequestExport.TraceParsedResultNotStoredCopy,
+                        ArchitectureEvidenceRequestExport.TraceParsedResultStoredEmptyCopy));
                 sb.AppendLine("```");
                 sb.AppendLine();
             }

@@ -4,7 +4,7 @@
  */
 export function findingSeverityLabel(severity: number | undefined): string {
   if (severity === undefined) {
-    return "Severity not returned";
+    return "Severity was not stored.";
   }
 
   switch (severity) {
