@@ -22,6 +22,9 @@ public sealed class AzureInventoryArmNestedObjectPropertyMatrixTests
     private const string NamespaceId =
         "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.EventHub/namespaces/ehns1";
 
+    private const string EventHubNamespaceDestinationId =
+        "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.EventHub/namespaces/ehns1";
+
     public static TheoryData<string, string> EventGridDestinationResourceIdShapes =>
         new()
         {
@@ -86,6 +89,17 @@ public sealed class AzureInventoryArmNestedObjectPropertyMatrixTests
                 }
                 """,
                 "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Web/sites/app1/functions/func1"
+            },
+            {
+                $$"""
+                {
+                  "destination": {
+                    "endpointType": "EventHub",
+                    "resourceId": {{JsonSerializer.Serialize(JsonSerializer.Serialize(new { id = "\"" + EventHubNamespaceDestinationId + "\"" }))}}
+                  }
+                }
+                """,
+                EventHubNamespaceDestinationId
             },
         };
 
