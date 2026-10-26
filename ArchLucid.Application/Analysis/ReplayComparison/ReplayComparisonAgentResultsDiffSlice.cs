@@ -57,13 +57,11 @@ public sealed class ReplayComparisonAgentResultsDiffSlice(
         ScopeContext scope,
         CancellationToken cancellationToken)
     {
-        if (AnalysisRunIdCanonicalization.AgentResultsAppearAnchoredToRun(hydratedResults, runId))
-            return hydratedResults;
-
         IReadOnlyList<AgentResult> loaded = await AnalysisRunIdCanonicalization
-            .LoadAgentResultsByRunIdAsync(
+            .ResolveAgentResultsForCompareReadAsync(
                 _agentResultRepository,
                 scope,
+                hydratedResults,
                 runId,
                 useRollupProjection: true,
                 cancellationToken)

@@ -109,6 +109,25 @@ internal static class AnalysisRunIdCanonicalization
             yield return bracedUpper;
     }
 
+    internal static async Task<IReadOnlyList<AgentResult>> ResolveAgentResultsForCompareReadAsync(
+        IAgentResultRepository resultRepository,
+        ScopeContext scope,
+        IReadOnlyList<AgentResult> hydratedResults,
+        string runId,
+        bool useRollupProjection,
+        CancellationToken cancellationToken)
+    {
+        if (AgentResultsAppearAnchoredToRun(hydratedResults, runId))
+            return hydratedResults;
+
+        return await LoadAgentResultsByRunIdAsync(
+            resultRepository,
+            scope,
+            runId,
+            useRollupProjection,
+            cancellationToken).ConfigureAwait(false);
+    }
+
     internal static async Task<IReadOnlyList<AgentResult>> LoadAgentResultsByRunIdAsync(
         IAgentResultRepository resultRepository,
         ScopeContext scope,
