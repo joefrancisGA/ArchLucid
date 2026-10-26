@@ -6868,6 +6868,20 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-26 seed hunt (seed-only): re-read `ArchLucid.Application/Analysis/` after hunt 327 finalize-readiness trace merge; confirmed every run-scoped repository read in the zone routes through `AnalysisRunIdCanonicalization` merge helpers (list/search canonicalize filters; replay/export guards canonicalize run ids before authority reads); no hunt-ready mechanism-backed wrong outcome in-zone (trace/agent-result merge class saturated — defer `CommitOutputIntegrityService` and other out-of-zone single-key callers to `commit-output-integrity` / `application-agents` rather than another synonym hit); cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on rows; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` filter 319/319 (`RunAnalyzers=false`); no production code changed. Private beta: n/a.
+
+- [ ] (candidate) `CommitOutputIntegrityService` — execution trace run key — locus: `Runs/Orchestration`; input: legacy uppercase hex trace key at commit (defer to `commit-output-integrity` set hunt; use existing `LoadExecutionTracesByRunIdAsync`).
+- [ ] (candidate) `PilotRunDeltaComputer` — trace delta single-key — locus: `Pilots/`; input: pilot diff when traces only on legacy key.
+- [ ] (candidate) `DecisionEngineV2NodeMaterializer` — agent results/tasks/evidence single-key — locus: orchestration commit path; input: decision graph materialization with split keys.
+- [ ] (candidate) `AuthorityDrivenArchitectureRunCommitOrchestrator` — pre-commit agent result load — locus: commit orchestrator; input: rollup rows under legacy key only.
+- [ ] (candidate) `ReplayRunPrepareStage` — evidence package single-key — locus: replay prepare; input: package row under dashed vs `N` key mismatch.
+
+- [x] (valid-no-repro) `CommitOutputIntegrityService` — in-zone Analysis paths — **cheap-disproof 2026-10-26 seed hunt:** service lives outside `Analysis/`; hunt 327 ledger row kept as cross-zone follow-on.
+- [x] (valid-no-repro) `FindingIacStubGenerator` — agent result run key — **cheap-disproof 2026-10-26 seed hunt:** `application-agents` zone path.
+- [x] (valid-no-repro) `RunDetailRetrievalGroundingEnrichmentSlice` — retrieval trace run key — **cheap-disproof 2026-10-26 seed hunt:** Guid-scoped reader; prior hunts.
+- [x] (valid-no-repro) `ComparisonRecordRepository.GetByRunIdAsync` — SQL GUID column — **cheap-disproof 2026-10-26 seed hunt:** `StoredRunIdMatchesLookup` + list-by-run merge loader.
+- [x] (invalid) `ComparisonRecordRepositoryCore.SerializeTagsForUpdate` — JSON tag order — **cheap-disproof 2026-10-26 seed hunt:** cosmetic only.
+
 2026-10-26 seed hunt (seed→hit): reseeded `application-analysis` with zero open hunt-ready rows; promoted execution-trace merge follow-on after hunt 326 finding evidence chain; proved `FinalizeReadinessService` Real/PilotStrict agent output quality evaluation still called `GetByRunIdAsync` with the route run id only, so finalize readiness surfaced a false `agent_output_quality` block (“no agent execution traces to prove quality-gate evaluation”) when accepted traces lived under legacy uppercase hex keys; canonicalize the run id and load through `AnalysisRunIdCanonicalization.LoadExecutionTracesByRunIdAsync`; regression `CompareQuality_BuildAsync_merges_traces_for_agent_output_quality_when_stored_under_legacy_run_id_key`; cheap-disproof closed finding evidence chain trace merge (hunt 326), run-detail LLM cost enrich tests; seeded five follow-on rows; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` filter 319/319. Private beta: finalize readiness and commit gates evaluate agent output quality when execution traces use legacy run-id key formats.
 
 - [ ] (candidate) `CommitOutputIntegrityService` — execution trace run key — locus: post-commit evidence pass; input: traces under legacy uppercase hex key when canonical route id is `N`.
