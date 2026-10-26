@@ -458,6 +458,33 @@ public sealed class AzureInventoryEventGridDestinationExtractorTests
     }
 
     [Fact]
+    public void Extract_reads_storage_queue_destination_resource_id_when_top_level_resource_id_is_percent_encoded_plain_arm_scalar()
+    {
+        const string queueId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1/queueServices/default/queues/q1";
+        string encodedArmId = Uri.EscapeDataString(queueId);
+
+        using JsonDocument document = JsonDocument.Parse(
+            $$"""
+            {
+              "destination": {
+                "endpointType": "StorageQueue",
+                "resourceId": {{JsonSerializer.Serialize(encodedArmId)}}
+              }
+            }
+            """);
+
+        (
+            string destinationKind,
+            string? destinationResourceId,
+            _,
+            _) = AzureInventoryEventGridDestinationExtractor.Extract(document.RootElement);
+
+        destinationKind.Should().Be("StorageQueue");
+        destinationResourceId.Should().Be(queueId.ToLowerInvariant());
+    }
+
+    [Fact]
     public void Extract_reads_event_hub_destination_resource_id_when_top_level_resource_id_is_percent_encoded_json_reference_scalar()
     {
         const string eventHubId =

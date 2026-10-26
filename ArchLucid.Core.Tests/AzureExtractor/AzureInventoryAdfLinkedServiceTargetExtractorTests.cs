@@ -136,6 +136,22 @@ public sealed class AzureInventoryAdfLinkedServiceTargetExtractorTests
     }
 
     [Fact]
+    public void Extract_reads_blob_host_from_percent_encoded_account_uri_when_service_endpoint_is_whitespace_only()
+    {
+        const string host = "sa2.blob.core.windows.net";
+        string encodedAccountUri = Uri.EscapeDataString($"https://{host}.");
+
+        using JsonDocument document = JsonDocument.Parse(
+            $$"""{ "serviceEndpoint": "   ", "accountUri": {{JsonSerializer.Serialize(encodedAccountUri)}} }""");
+
+        (string? targetResourceId, string? targetHost) =
+            AzureInventoryAdfLinkedServiceTargetExtractor.Extract(document.RootElement, "AzureBlobStorage");
+
+        targetResourceId.Should().BeNull();
+        targetHost.Should().Be(host);
+    }
+
+    [Fact]
     public void Extract_reads_databricks_host_from_percent_encoded_workspace_url_when_domain_is_whitespace_only()
     {
         const string host = "adb-1234567890123456.7.azuredatabricks.net";
