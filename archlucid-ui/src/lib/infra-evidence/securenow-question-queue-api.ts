@@ -147,16 +147,23 @@ export function secureNowQuestionListedSnapshotMatchesContext(
   return listed === context;
 }
 
+export const secureNowQuestionDispositionResponseRequiredStringFields = [
+  "dispositionId",
+  "snapshotId",
+  "subscriptionId",
+  "questionKey",
+  "evidenceFingerprint",
+  "source",
+  "scopeKind",
+  "status",
+] as const satisfies readonly (keyof SecureNowQuestionDisposition)[];
+
 export function secureNowQuestionDispositionResponseIsUsable(
   disposition: SecureNowQuestionDisposition,
 ): boolean {
-  return disposition.dispositionId.length > 0
-    && disposition.questionKey.length > 0
-    && disposition.snapshotId.length > 0
-    && disposition.evidenceFingerprint.length > 0
-    && disposition.source.length > 0
-    && disposition.scopeKind.length > 0
-    && disposition.status.length > 0;
+  return secureNowQuestionDispositionResponseRequiredStringFields.every(
+    (field) => disposition[field].length > 0,
+  );
 }
 
 export function mapSecureNowQuestionDisposition(raw: Record<string, unknown>): SecureNowQuestionDisposition {
