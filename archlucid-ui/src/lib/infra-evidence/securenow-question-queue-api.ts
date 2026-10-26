@@ -14,6 +14,7 @@ import {
   secureNowQuestionDispositionMutationScopeKind,
   secureNowQuestionDispositionMutationSource,
   secureNowQuestionDispositionMutationSubscriptionId,
+  secureNowQuestionDispositionQuestionKeyImpliesInferredConnection,
 } from "@/lib/infra-evidence/securenow-question-mutation-resource-id";
 import { proxyJsonGet, proxyJsonPost } from "@/lib/proxy-json-client";
 
@@ -519,8 +520,15 @@ export function secureNowListedQuestionRowPassesOpenMutationPreflight(
 
   const mutationSource = secureNowQuestionDispositionMutationSource(question);
   const mutationScopeKind = secureNowQuestionDispositionMutationScopeKind(question);
+  if (mutationSource === null || mutationScopeKind === null) {
+    return false;
+  }
 
-  return mutationSource !== null && mutationScopeKind !== null;
+  if (secureNowQuestionDispositionQuestionKeyImpliesInferredConnection(question.questionKey)) {
+    return true;
+  }
+
+  return secureNowQuestionDispositionMutationEvidenceFingerprint(question.evidenceFingerprint) !== null;
 }
 
 function mapQuestion(raw: Record<string, unknown>): SecureNowQuestion {

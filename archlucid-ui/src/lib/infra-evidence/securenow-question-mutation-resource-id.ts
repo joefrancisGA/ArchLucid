@@ -17,6 +17,13 @@ function inferredConnectionIdFromQuestionKey(questionKey: string | null | undefi
   return suffix.replace(/-/g, "").toLowerCase();
 }
 
+/** Whether the listed question key suffix encodes an inferred-connection identity. */
+export function secureNowQuestionDispositionQuestionKeyImpliesInferredConnection(
+  questionKey: string | null | undefined,
+): boolean {
+  return inferredConnectionIdFromQuestionKey(questionKey) !== null;
+}
+
 export function secureNowQuestionHasPackStyleDispositionScope(
   scopeKind: string | null | undefined,
 ): boolean {

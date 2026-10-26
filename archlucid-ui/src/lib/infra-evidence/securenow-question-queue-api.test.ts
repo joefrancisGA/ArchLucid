@@ -756,6 +756,21 @@ describe("secureNowListedQuestionRowPassesOpenMutationPreflight", () => {
     })).toBe(true);
   });
 
+  it("requires a stored evidence fingerprint on open keyed rows unless the key implies inferred connection", () => {
+    expect(secureNowListedQuestionRowPassesOpenMutationPreflight({
+      ...baseRow,
+      evidenceFingerprint: null,
+    })).toBe(false);
+    expect(secureNowListedQuestionRowPassesOpenMutationPreflight({
+      ...baseRow,
+      evidenceFingerprint: null,
+      questionKey: "peer-012345678901234567890123456789ab@v1",
+      source: "InferredConnection",
+      scopeKind: "Resource",
+      resourceId: "/subscriptions/sub-1/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa",
+    })).toBe(true);
+  });
+
   it("skips subscription and resource checks for disposition-only rows", () => {
     expect(secureNowListedQuestionRowPassesOpenMutationPreflight({
       ...baseRow,
@@ -797,6 +812,40 @@ describe("securenow-question-queue-api", () => {
     const questions = await listSecureNowQuestions("snapshot-1");
 
     expect(questions).toEqual([]);
+  });
+
+  it("omits open list rows missing evidence fingerprint when a question key is stored", async () => {
+    vi.mocked(proxyJsonGet).mockResolvedValueOnce([
+      {
+        snapshotId: "snapshot-1",
+        subscriptionId: "sub-1",
+        resourceId: "",
+        source: "PolicyPack",
+        scopeKind: "Subscription",
+        questionKey: "unknown-evidence@v1",
+        status: "Open",
+        questionText: "Should this resource connect?",
+        answerCodes: ["NamePeer"],
+        evidenceFingerprint: null,
+      },
+      {
+        snapshotId: "snapshot-1",
+        subscriptionId: "sub-1",
+        resourceId: "",
+        source: "PolicyPack",
+        scopeKind: "Subscription",
+        questionKey: "subscription-ownership@v1",
+        status: "Open",
+        questionText: "Who owns this subscription?",
+        answerCodes: ["Owner"],
+        evidenceFingerprint: "fingerprint-2",
+      },
+    ]);
+
+    const questions = await listSecureNowQuestions("snapshot-1");
+
+    expect(questions).toHaveLength(1);
+    expect(questions[0].questionKey).toBe("subscription-ownership@v1");
   });
 
   it("omits open list rows missing source or scope when a question key is stored", async () => {
