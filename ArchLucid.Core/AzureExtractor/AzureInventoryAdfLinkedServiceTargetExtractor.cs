@@ -106,7 +106,21 @@ public static class AzureInventoryAdfLinkedServiceTargetExtractor
 
         if (linkedServiceType.Equals("AzureSqlMI", StringComparison.OrdinalIgnoreCase))
         {
-            return NormalizeHost(AzureInventoryAdfTypePropertyReader.TryReadAllowedScalar(typePropertiesElement, "instanceName"));
+            string? host = NormalizeHost(
+                AzureInventoryAdfTypePropertyReader.TryReadAllowedScalar(typePropertiesElement, "instanceName"));
+
+            if (!string.IsNullOrWhiteSpace(host))
+            {
+                return host;
+            }
+
+            if (typePropertiesElement.TryGetProperty("connectionString", out JsonElement connectionString)
+                && connectionString.ValueKind is JsonValueKind.String)
+            {
+                return TryExtractConnectionStringHost(connectionString.GetString());
+            }
+
+            return null;
         }
 
         if (linkedServiceType.Equals("AzureSynapseAnalytics", StringComparison.OrdinalIgnoreCase))

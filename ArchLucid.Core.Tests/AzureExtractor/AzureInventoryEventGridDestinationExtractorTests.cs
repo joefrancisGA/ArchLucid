@@ -11,6 +11,38 @@ namespace ArchLucid.Core.Tests.AzureExtractor;
 public sealed class AzureInventoryEventGridDestinationExtractorTests
 {
     [Fact]
+    public void Extract_reads_webhook_destination_resource_id_from_nested_properties_object_with_resource_id_key_only()
+    {
+        const string storageId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1";
+
+        using JsonDocument document = JsonDocument.Parse(
+            $$"""
+            {
+              "destination": {
+                "endpointType": "WebHook",
+                "properties": {
+                  "resourceId": {
+                    "resourceId": "{{storageId}}"
+                  }
+                },
+                "endpointUrl": "https://hooks.example.com/callback"
+              }
+            }
+            """);
+
+        (
+            string destinationKind,
+            string? destinationResourceId,
+            string? destinationHost,
+            _) = AzureInventoryEventGridDestinationExtractor.Extract(document.RootElement);
+
+        destinationKind.Should().Be("WebHook");
+        destinationResourceId.Should().Be(storageId.ToLowerInvariant());
+        destinationHost.Should().Be("hooks.example.com");
+    }
+
+    [Fact]
     public void Extract_reads_azure_function_destination_resource_id_from_nested_properties_object_with_resource_id_key_only()
     {
         const string functionId =
