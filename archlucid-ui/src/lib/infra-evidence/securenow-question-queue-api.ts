@@ -6,6 +6,7 @@ import {
 import {
   secureNowQuestionDispositionMutationEvidenceFingerprint,
   secureNowQuestionDispositionMutationQuestionKey,
+  secureNowQuestionDispositionMutationSubscriptionId,
 } from "@/lib/infra-evidence/securenow-question-mutation-resource-id";
 import { proxyJsonGet, proxyJsonPost } from "@/lib/proxy-json-client";
 
@@ -188,6 +189,21 @@ export function secureNowQuestionDispositionResponseEvidenceFingerprintMatchesRe
   }
 
   return responseFingerprint === requestFingerprint;
+}
+
+/** Whether a POST disposition's subscription id matches the submitted mutation request after trim. */
+export function secureNowQuestionDispositionResponseSubscriptionIdMatchesRequest(
+  dispositionSubscriptionId: string,
+  requestSubscriptionId: string | null,
+): boolean {
+  const responseId = secureNowQuestionDispositionMutationSubscriptionId(dispositionSubscriptionId);
+  const requestId = secureNowQuestionDispositionMutationSubscriptionId(requestSubscriptionId);
+
+  if (responseId === null || requestId === null) {
+    return false;
+  }
+
+  return responseId === requestId;
 }
 
 export const secureNowQuestionDispositionResponseRequiredStringFields = [
@@ -390,6 +406,15 @@ async function postSecureNowQuestionDisposition(
     !secureNowQuestionDispositionResponseQuestionKeyMatchesRequest(
       disposition.questionKey,
       request.questionKey,
+    )
+  ) {
+    return undefined;
+  }
+
+  if (
+    !secureNowQuestionDispositionResponseSubscriptionIdMatchesRequest(
+      disposition.subscriptionId,
+      request.subscriptionId,
     )
   ) {
     return undefined;
