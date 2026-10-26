@@ -1442,6 +1442,23 @@ describe("ResourceHubClient", () => {
     expect(screen.getByText("principal-1")).toBeInTheDocument();
   });
 
+  it("shows tag key omission copy when a captured tag key is whitespace-only", async () => {
+    fetchCachedInfraEvidenceResourceHub.mockImplementation(async () =>
+      buildResourceHubTestMockHub({
+        currentConfiguration: {
+          ...buildResourceHubTestMockHub().currentConfiguration,
+          tags: {
+            "   ": "prod-tag-value-for-whitespace-key",
+          },
+        },
+      }),
+    );
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    expect(await screen.findByText("Tag key was not stored.")).toBeInTheDocument();
+    expect(screen.getByText("prod-tag-value-for-whitespace-key")).toBeInTheDocument();
+  });
+
   it("shows tag value omission copy when a captured tag value is whitespace-only", async () => {
     fetchCachedInfraEvidenceResourceHub.mockImplementation(async () =>
       buildResourceHubTestMockHub({

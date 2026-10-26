@@ -1202,7 +1202,9 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                         <EnterpriseTableBody>
                           {Object.entries(hub.currentConfiguration.tags).map(([key, value]) => (
                             <EnterpriseTableRow key={key}>
-                              <EnterpriseTableCell className="font-mono text-xs">{key}</EnterpriseTableCell>
+                              <EnterpriseTableCell className="font-mono text-xs">
+                                {formatStoredInfraEvidenceHubField(key, "Tag key was not stored.")}
+                              </EnterpriseTableCell>
                               <EnterpriseTableCell className="font-mono text-xs">
                                 {formatStoredInfraEvidenceHubField(value, "Tag value was not stored.")}
                               </EnterpriseTableCell>
