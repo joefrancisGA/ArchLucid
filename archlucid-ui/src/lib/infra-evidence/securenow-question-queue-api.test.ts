@@ -362,6 +362,22 @@ describe("secureNowQuestionDispositionResponseIsUsable", () => {
     ).toBe(false);
   });
 
+  it("rejects dispositions with audit entries whose occurredUtc does not parse", () => {
+    expect(
+      secureNowQuestionDispositionResponseIsUsable({
+        ...baseDisposition,
+        auditEntries: [
+          {
+            action: "Answered",
+            actorKey: "reviewer",
+            occurredUtc: "not-a-date",
+            reason: "",
+          },
+        ],
+      }),
+    ).toBe(false);
+  });
+
   it("allows dispositions with empty audit entry lists", () => {
     expect(
       secureNowQuestionDispositionResponseIsUsable({
@@ -1792,6 +1808,49 @@ describe("securenow-question-queue-api", () => {
       actorKey: "reviewer",
       updatedUtc: "2026-11-01T00:00:00.000Z",
       auditEntries: [],
+    });
+
+    const disposition = await answerSecureNowQuestion("snapshot-1", {
+      subscriptionId: "sub-1",
+      resourceId: "",
+      questionKey: "subscription-ownership@v1",
+      source: "PolicyPack",
+      scopeKind: "Subscription",
+      answerCode: "Owner",
+      answerText: "Owner",
+      reason: "Reviewed.",
+      evidenceFingerprint: "fingerprint",
+    });
+
+    expect(disposition).toBeUndefined();
+  });
+
+  it("returns undefined when POST answer response has audit entries with unparsable occurredUtc", async () => {
+    vi.mocked(proxyJsonPost).mockResolvedValueOnce({
+      dispositionId: "00000000-0000-0000-0000-000000000001",
+      snapshotId: "snapshot-1",
+      subscriptionId: "sub-1",
+      resourceId: "",
+      questionKey: "subscription-ownership@v1",
+      source: "PolicyPack",
+      scopeKind: "Subscription",
+      status: "Answered",
+      answerCode: "Owner",
+      answerText: "Owner",
+      reason: "Reviewed.",
+      expirationUtc: "2026-12-01T00:00:00.000Z",
+      isExpired: false,
+      evidenceFingerprint: "fingerprint",
+      actorKey: "reviewer",
+      updatedUtc: "2026-11-01T00:00:00.000Z",
+      auditEntries: [
+        {
+          action: "Answered",
+          actorKey: "reviewer",
+          occurredUtc: "not-a-date",
+          reason: "Reviewed.",
+        },
+      ],
     });
 
     const disposition = await answerSecureNowQuestion("snapshot-1", {

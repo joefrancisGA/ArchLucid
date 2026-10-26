@@ -312,13 +312,24 @@ const secureNowQuestionDispositionAuditEntryRequiredStringFields = [
   "occurredUtc",
 ] as const satisfies readonly (keyof SecureNowQuestionDispositionAudit)[];
 
+function secureNowQuestionDispositionAuditEntryOccurredUtcIsUsable(
+  occurredUtc: string,
+): boolean {
+  const trimmed = occurredUtc.trim();
+  if (trimmed.length === 0) {
+    return false;
+  }
+
+  return !secureNowQuestionDispositionPostExpirationTimestampUnparsable(trimmed);
+}
+
 function secureNowQuestionDispositionAuditEntriesAreUsable(
   auditEntries: readonly SecureNowQuestionDispositionAudit[],
 ): boolean {
   return auditEntries.every((entry) =>
     secureNowQuestionDispositionAuditEntryRequiredStringFields.every(
       (field) => entry[field].trim().length > 0,
-    ),
+    ) && secureNowQuestionDispositionAuditEntryOccurredUtcIsUsable(entry.occurredUtc),
   );
 }
 

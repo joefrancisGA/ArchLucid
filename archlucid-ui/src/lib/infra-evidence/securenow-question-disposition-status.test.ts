@@ -179,6 +179,17 @@ describe("secureNowQuestionCountsAsOpenQueueRow", () => {
       isExpired: false,
     })).toBe(false);
   });
+
+  it("excludes open rows with past expirationUtc when isExpired is omitted", () => {
+    expect(secureNowQuestionCountsAsOpenQueueRow({
+      status: "Open",
+      answerCode: null,
+      answerText: null,
+      reason: null,
+      expirationUtc: "2020-01-01T00:00:00.000Z",
+      isExpired: null,
+    })).toBe(false);
+  });
 });
 
 describe("secureNowQuestionCountsAsAnsweredFilterRow", () => {
