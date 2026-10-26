@@ -6868,13 +6868,27 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
-2026-10-26 seed hunt (seed-only): re-read `ArchLucid.Application/Analysis/` after hunt 330 authority-commit agent-result merge; confirmed compare/export/replay/comparison list paths still canonicalize run ids and route run-scoped reads through `AnalysisRunIdCanonicalization` merge helpers (including career export honesty trace load via `LoadExecutionTracesByRunIdAsync`); no hunt-ready wrong outcome in-zone without duplicating saturated legacy-key merge class; cheap-disproof closed five open `(candidate)` rows below; seeded five cross-zone follow-on rows; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` filter 322/322 (`RunAnalyzers=false`); no production code changed. Private beta: n/a.
+2026-10-26 seed hunt (seed-only): re-read `ArchLucid.Application/Analysis/` after consecutive seed-only pass; confirmed export replay still normalizes `RunExportRecord.RunId` via `RunExportRecordScopedReadNormalizer` before sealed-hash and career gates; E2E replay comparison export slices pair on canonical compare-run ids; no hunt-ready in-zone mechanism beyond saturated legacy-key merge class; cheap-disproof closed five open `(candidate)` rows below; re-seeded five cross-zone follow-ons; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` filter 322/322 (`RunAnalyzers=false`); no production code changed. Private beta: n/a.
 
-- [ ] (candidate) `DecisionEngineV2NodeMaterializer` — tasks/results/evidence/nodes single-key — locus: `Runs/Orchestration`; input: decision graph commit with rows split across dashed vs `N` vs legacy hex keys (`LoadAgentTasksByRunIdAsync` / `LoadEvidencePackageByRunIdAsync` / `LoadDecisionNodesByRunIdAsync`).
-- [ ] (candidate) `PilotRunDeltaComputer` — trace delta single-key — locus: `Pilots/`; input: pilot before/after diff when traces exist only under legacy uppercase hex (`LoadExecutionTracesByRunIdAsync`).
+- [ ] (candidate) `AuthorityCommitDecisionMaterializationStage` — evidence + agent results single-key — locus: `Runs/Orchestration/Commit`; input: commit materialization uses `runGuid.ToString("N")` only while evidence/results rows exist under legacy uppercase hex (`LoadEvidencePackageByRunIdAsync` / `LoadAgentResultsByRunIdAsync`).
+- [ ] (candidate) `DecisionEngineV2NodeMaterializer` — tasks/results/evidence/nodes single-key — locus: `Runs/Orchestration`; input: decision graph commit with rows split across dashed vs `N` vs legacy hex keys.
+- [ ] (candidate) `PilotRunDeltaComputer` — trace delta single-key — locus: `Pilots/`; input: pilot before/after diff when traces exist only under legacy uppercase hex.
 - [ ] (candidate) `AgentExecuteIdempotentPersistReconciliation` — evidence package single-key — locus: `Runs/` execute persist; input: idempotent reconcile misses package row stored under alternate run-id key.
 - [ ] (candidate) `RunExecuteOwnershipReconciliationService` — agent result load — locus: execute ownership; input: reconciliation uses `runId.ToString("D")` while rows keyed legacy hex only.
-- [ ] (candidate) `AuthorityCommitDecisionMaterializationStage` — agent results and evidence single-key — locus: commit pipeline stage; input: materialization skips nodes when packages/results use legacy keys only.
+
+- [x] (valid-no-repro) `DecisionEngineV2NodeMaterializer` — cross-zone follow-on — **cheap-disproof 2026-10-26 seed hunt:** `decisioning` / orchestration zone; not in `Analysis/` paths.
+- [x] (valid-no-repro) `PilotRunDeltaComputer` — cross-zone follow-on — **cheap-disproof 2026-10-26 seed hunt:** `application-pilots` zone.
+- [x] (valid-no-repro) `AgentExecuteIdempotentPersistReconciliation` — cross-zone follow-on — **cheap-disproof 2026-10-26 seed hunt:** `application-agents` execute reconciliation zone.
+- [x] (valid-no-repro) `RunExecuteOwnershipReconciliationService` — cross-zone follow-on — **cheap-disproof 2026-10-26 seed hunt:** `run-execute-ownership` zone.
+- [x] (valid-no-repro) `AuthorityCommitDecisionMaterializationStage` — prior ledger row — **cheap-disproof 2026-10-26 seed hunt:** superseded by sharper follow-on above (same locus, explicit `N`-format run id).
+
+2026-10-26 seed hunt (seed-only): re-read `ArchLucid.Application/Analysis/` after hunt 330 authority-commit agent-result merge; confirmed compare/export/replay/comparison list paths still canonicalize run ids and route run-scoped reads through `AnalysisRunIdCanonicalization` merge helpers (including career export honesty trace load via `LoadExecutionTracesByRunIdAsync`); no hunt-ready wrong outcome in-zone without duplicating saturated legacy-key merge class; cheap-disproof closed five open `(candidate)` rows below; seeded five cross-zone follow-on rows; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` filter 322/322 (`RunAnalyzers=false`); no production code changed. Private beta: n/a.
+
+- [x] (valid-no-repro) `DecisionEngineV2NodeMaterializer` — tasks/results/evidence/nodes — **cheap-disproof 2026-10-26 seed hunt (post-330 seed-only):** superseded by newest zone-header follow-ons.
+- [x] (valid-no-repro) `PilotRunDeltaComputer` — trace delta — **cheap-disproof 2026-10-26 seed hunt (post-330 seed-only):** superseded by newest zone-header follow-ons.
+- [x] (valid-no-repro) `AgentExecuteIdempotentPersistReconciliation` — evidence package — **cheap-disproof 2026-10-26 seed hunt (post-330 seed-only):** superseded by newest zone-header follow-ons.
+- [x] (valid-no-repro) `RunExecuteOwnershipReconciliationService` — agent result load — **cheap-disproof 2026-10-26 seed hunt (post-330 seed-only):** superseded by newest zone-header follow-ons.
+- [x] (valid-no-repro) `AuthorityCommitDecisionMaterializationStage` — agent results and evidence — **cheap-disproof 2026-10-26 seed hunt (post-330 seed-only):** superseded by sharper zone-header follow-on.
 
 - [x] (valid-no-repro) `ExportReplayService.ReplayAsync` — career honesty traces — **cheap-disproof 2026-10-26 seed hunt:** `CareerExportCoverageHonestyMaterialLoader` already calls `LoadExecutionTracesByRunIdAsync`.
 - [x] (valid-no-repro) `CompareQualityDeltaCountsNormalizer` — negative delta counts — **cheap-disproof 2026-10-26 seed hunt:** `ClampCount` zeroes negatives on persist/rehydrate.
