@@ -170,6 +170,12 @@ export function AskMessageThreadPanel(props: AskMessageThreadPanelProps) {
           {buyerPolishedShell ? "Evidence Q&A exchange" : "Conversation"}
         </h3>
         <StatusTag kind="neutral" label={artifactStatusCopy} data-testid="ask-review-artifact-status" />
+        <span
+          className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="ask-review-id"
+        >
+          {runId.trim().length > 0 ? `Review id: ${runId.trim()}` : "Review id was not stored."}
+        </span>
         {retrievalDegraded ? (
           <StatusTag
             kind="needs-attention"

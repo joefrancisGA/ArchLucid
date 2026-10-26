@@ -275,15 +275,21 @@ export function resolvePackagePrintSynopsisHeading(statusLabel: PackagePrintStat
 }
 
 export function resolvePackagePrintSynopsisBody(presentation: PackagePrintPresentation): string {
+  const storedSynopsis = presentation.sponsorSynopsis?.trim() ?? "";
+
+  if (storedSynopsis.length > 0) {
+    return storedSynopsis;
+  }
+
   if (
     presentation.statusLabel === "Draft"
     || presentation.statusLabel === "Active"
     || presentation.statusLabel === "Awaiting approval"
   ) {
-    return formatPackagePrintDraftSynopsisBody(presentation.draftWorkingSynopsisParagraph);
+    return "Sponsor synopsis was not stored on this print.";
   }
 
-  return presentation.sponsorSynopsis ?? "Sponsor synopsis was not stored on this print.";
+  return "Sponsor synopsis was not stored on this print.";
 }
 
 export function buildPackagePrintSponsorSynopsis(summary: RunSummary): string | null {

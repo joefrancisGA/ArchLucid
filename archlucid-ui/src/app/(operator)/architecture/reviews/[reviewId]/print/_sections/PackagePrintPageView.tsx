@@ -246,14 +246,16 @@ export function PackagePrintPageView(props: PackagePrintPageViewProps): React.JS
             ? presentation.coverageHonestyLine
             : PACKAGE_PRINT_COVERAGE_HONESTY_LINE}
         </p>
-      ) : presentation.coverageHonestyLine?.trim().length ? (
+      ) : (
         <p
           className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
           data-testid="package-print-coverage-honesty"
         >
-          {presentation.coverageHonestyLine}
+          {presentation.coverageHonestyLine?.trim().length
+            ? presentation.coverageHonestyLine
+            : PACKAGE_PRINT_COVERAGE_HONESTY_LINE}
         </p>
-      ) : null}
+      )}
     </>
   );
 

@@ -101,6 +101,17 @@ public sealed class MarkdownExportFormattingTests
     }
 
     [SkippableFact]
+    public void MarkdownArchitectureExportService_labels_missing_evidence_package_when_null()
+    {
+        MarkdownArchitectureExportService svc = new();
+        GoldenManifest m = new() { SystemName = "Sys" };
+
+        string md = svc.GenerateMarkdownPackage(m, "graph TD\nA-->B", "Summary", null);
+
+        md.Should().Contain("Evidence package was not stored.");
+    }
+
+    [SkippableFact]
     public void MarkdownArchitectureExportService_labels_missing_system_diagram_summary_and_evidence_ids()
     {
         MarkdownArchitectureExportService svc = new();
