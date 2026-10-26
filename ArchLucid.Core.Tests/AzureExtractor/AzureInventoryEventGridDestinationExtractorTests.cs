@@ -539,6 +539,33 @@ public sealed class AzureInventoryEventGridDestinationExtractorTests
     }
 
     [Fact]
+    public void Extract_reads_partner_destination_resource_id_when_top_level_resource_id_is_percent_encoded_plain_arm_scalar()
+    {
+        const string partnerId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.EventGrid/partnerTopics/partner1";
+        string encodedArmId = Uri.EscapeDataString(partnerId);
+
+        using JsonDocument document = JsonDocument.Parse(
+            $$"""
+            {
+              "destination": {
+                "endpointType": "Partner",
+                "resourceId": {{JsonSerializer.Serialize(encodedArmId)}}
+              }
+            }
+            """);
+
+        (
+            string destinationKind,
+            string? destinationResourceId,
+            _,
+            _) = AzureInventoryEventGridDestinationExtractor.Extract(document.RootElement);
+
+        destinationKind.Should().Be("Partner");
+        destinationResourceId.Should().Be(partnerId.ToLowerInvariant());
+    }
+
+    [Fact]
     public void Extract_reads_event_hub_destination_resource_id_when_top_level_resource_id_is_percent_encoded_json_reference_scalar()
     {
         const string eventHubId =

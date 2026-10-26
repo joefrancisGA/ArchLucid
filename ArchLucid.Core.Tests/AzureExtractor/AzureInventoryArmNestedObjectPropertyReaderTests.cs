@@ -482,6 +482,31 @@ public sealed class AzureInventoryArmNestedObjectPropertyReaderTests
     }
 
     [Fact]
+    public void TryReadScalarString_reads_triply_percent_encoded_resource_id_when_dual_key_reference_id_is_percent_encoded_whitespace_from_nested_properties_bag()
+    {
+        const string armPath =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa2";
+        string encodedOnce = Uri.EscapeDataString(armPath);
+        string encodedTwice = Uri.EscapeDataString(encodedOnce);
+        string encodedThrice = Uri.EscapeDataString(encodedTwice);
+        string encodedWhitespaceId = Uri.EscapeDataString("   ");
+        string referenceJson = JsonSerializer.Serialize(new { id = encodedWhitespaceId, resourceId = encodedThrice });
+        string encodedReference = Uri.EscapeDataString(referenceJson);
+        using JsonDocument document = JsonDocument.Parse(
+            $$"""
+            {
+              "properties": {
+                "resourceId": {{JsonSerializer.Serialize(encodedReference)}}
+              }
+            }
+            """);
+
+        AzureInventoryArmNestedObjectPropertyReader.TryReadString(document.RootElement, "resourceId")
+            .Should()
+            .Be("/subscriptions/sub/resourcegroups/rg/providers/microsoft.storage/storageaccounts/sa2");
+    }
+
+    [Fact]
     public void TryReadScalarString_reads_percent_encoded_json_string_scalar_wrapping_plain_arm_path_with_trailing_slash_from_nested_properties_bag()
     {
         const string armPath = "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1/";

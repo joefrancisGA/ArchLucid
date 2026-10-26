@@ -397,13 +397,25 @@ public static class AzureInventoryRouteTableRouteParser
         {
             AddressPrefix = TryReadString(propertiesElement, "addressPrefix"),
             NextHopType = TryReadString(propertiesElement, "nextHopType"),
-            NextHopIpAddress = TryReadNextHopIpAddress(propertiesElement, "nextHopIpAddress"),
+            NextHopIpAddress = TryReadNextHopIpAddress(propertiesElement, "nextHopIpAddress")
+                ?? TryReadNestedNextHopIpAddressWhenNotArmId(propertiesElement, "nextHop")
+                ?? TryReadNestedNextHopIpAddressWhenNotArmId(propertiesElement, "nextHopReference"),
             NextHopArmId = TryReadNestedArmId(propertiesElement, "nextHop")
                 ?? TryReadNestedArmId(propertiesElement, "nextHopArmId")
                 ?? TryReadNestedArmId(propertiesElement, "nextHopReference"),
         };
 
         return true;
+    }
+
+    private static string? TryReadNestedNextHopIpAddressWhenNotArmId(JsonElement propertiesElement, string propertyName)
+    {
+        if (TryReadNestedArmId(propertiesElement, propertyName) is not null)
+        {
+            return null;
+        }
+
+        return TryReadNextHopIpAddress(propertiesElement, propertyName);
     }
 
     private static bool TryResolveRoutePropertiesElement(

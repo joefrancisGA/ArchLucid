@@ -355,6 +355,22 @@ public sealed class AzureInventoryAdfLinkedServiceTargetExtractorTests
     }
 
     [Fact]
+    public void Extract_reads_data_lake_store_host_from_percent_encoded_data_lake_store_uri_when_service_principal_id_is_whitespace_only()
+    {
+        const string host = "adlsgen1.azuredatalakestore.net";
+        string encodedUri = Uri.EscapeDataString($"https://{host}.");
+
+        using JsonDocument document = JsonDocument.Parse(
+            $$"""{ "servicePrincipalId": "   ", "dataLakeStoreUri": {{JsonSerializer.Serialize(encodedUri)}} }""");
+
+        (string? targetResourceId, string? targetHost) =
+            AzureInventoryAdfLinkedServiceTargetExtractor.Extract(document.RootElement, "AzureDataLakeStore");
+
+        targetResourceId.Should().BeNull();
+        targetHost.Should().Be(host);
+    }
+
+    [Fact]
     public void Extract_reads_blob_host_from_percent_encoded_service_endpoint_url()
     {
         const string host = "sa1.blob.core.windows.net";
