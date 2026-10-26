@@ -112,4 +112,97 @@ public sealed class ReplayComparisonAgentResultsDiffSliceTests
             Times.Once);
         report.Warnings.Should().NotContain("Neither run contained agent results.");
     }
+
+    [Fact]
+    public async Task CompareQuality_ApplyAsync_reloads_agent_results_when_hydrated_lists_are_empty()
+    {
+        Guid leftRunId = Guid.Parse("35353535-3535-3535-3535-353535353535");
+        Guid rightRunId = Guid.Parse("46464646-4646-4646-4646-464646464646");
+        string leftCanonical = leftRunId.ToString("N");
+        string rightCanonical = rightRunId.ToString("N");
+
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+            WorkspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+            ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
+        };
+
+        Mock<IAgentResultEnrichmentRepository> enrichmentRepo = new();
+        enrichmentRepo
+            .Setup(r => r.GetByResultIdsAsync(It.IsAny<IReadOnlyList<string>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new Dictionary<string, AgentResultEnrichmentRecord>(StringComparer.Ordinal));
+        InMemoryAgentResultRepository resultRepository = new(enrichmentRepo.Object);
+
+        await resultRepository.CreateAsync(
+            new AgentResult
+            {
+                ResultId = Guid.NewGuid().ToString("N"),
+                RunId = leftCanonical,
+                TaskId = Guid.NewGuid().ToString("N"),
+                AgentType = AgentType.Compliance,
+                Claims = ["ok"],
+                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+            },
+            CancellationToken.None);
+        await resultRepository.CreateAsync(
+            new AgentResult
+            {
+                ResultId = Guid.NewGuid().ToString("N"),
+                RunId = rightCanonical,
+                TaskId = Guid.NewGuid().ToString("N"),
+                AgentType = AgentType.Topology,
+                Claims = ["ok"],
+                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+            },
+            CancellationToken.None);
+
+        AgentResultDiffResult diffResult = new();
+        Mock<IAgentResultDiffService> agentDiff = new();
+        agentDiff
+            .Setup(s => s.Compare(
+                leftCanonical,
+                It.IsAny<IReadOnlyList<AgentResult>>(),
+                rightCanonical,
+                It.IsAny<IReadOnlyList<AgentResult>>()))
+            .Returns(diffResult);
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(p => p.GetCurrentScope()).Returns(scope);
+
+        ReplayComparisonAgentResultsDiffSlice slice = new(
+            agentDiff.Object,
+            resultRepository,
+            scopeProvider.Object);
+
+        EndToEndReplayComparisonReport report = new()
+        {
+            LeftRunId = leftCanonical,
+            RightRunId = rightCanonical,
+        };
+
+        ReplayComparisonBuildContext context = new()
+        {
+            LeftRunId = leftCanonical,
+            RightRunId = rightCanonical,
+            LeftDetail = new ArchitectureRunDetail
+            {
+                Run = new ArchitectureRun { RunId = leftCanonical },
+                Results = [],
+            },
+            RightDetail = new ArchitectureRunDetail
+            {
+                Run = new ArchitectureRun { RunId = rightCanonical },
+                Results = [],
+            },
+            LeftExports = [],
+            RightExports = [],
+            Report = report,
+        };
+
+        await slice.ApplyAsync(context, CancellationToken.None);
+
+        report.AgentResultDiff.Should().BeSameAs(diffResult);
+        report.Warnings.Should().NotContain("Neither run contained agent results.");
+    }
 }

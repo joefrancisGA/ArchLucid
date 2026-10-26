@@ -26,25 +26,30 @@ public static class ConsultingDocxExportWhitelabelPrefill
             return;
         }
 
-        IReadOnlyList<RunExportRecord> records = await repository.GetByRunIdAsync(runId, cancellationToken);
-
-        foreach (RunExportRecord record in records)
+        foreach (string lookupKey in AnalysisRunIdCanonicalization.EnumerateRunIdRepositoryLookupKeys(runId))
         {
-            PersistedAnalysisExportRequest? prior = AnalysisExportRequestRehydrator.Rehydrate(record);
+            IReadOnlyList<RunExportRecord> records = await repository
+                .GetByRunIdAsync(lookupKey, cancellationToken)
+                .ConfigureAwait(false);
 
-            if (prior is null || string.IsNullOrWhiteSpace(prior.ReviewBoardWhitelabelFirmDisplayName))
+            foreach (RunExportRecord record in records)
             {
-                continue;
+                PersistedAnalysisExportRequest? prior = AnalysisExportRequestRehydrator.Rehydrate(record);
+
+                if (prior is null || string.IsNullOrWhiteSpace(prior.ReviewBoardWhitelabelFirmDisplayName))
+                {
+                    continue;
+                }
+
+                hints.FirmDisplayName = prior.ReviewBoardWhitelabelFirmDisplayName;
+
+                if (string.IsNullOrWhiteSpace(hints.ClientEngagementTitle))
+                {
+                    hints.ClientEngagementTitle = prior.ReviewBoardWhitelabelClientEngagementTitle;
+                }
+
+                return;
             }
-
-            hints.FirmDisplayName = prior.ReviewBoardWhitelabelFirmDisplayName;
-
-            if (string.IsNullOrWhiteSpace(hints.ClientEngagementTitle))
-            {
-                hints.ClientEngagementTitle = prior.ReviewBoardWhitelabelClientEngagementTitle;
-            }
-
-            return;
         }
     }
 }

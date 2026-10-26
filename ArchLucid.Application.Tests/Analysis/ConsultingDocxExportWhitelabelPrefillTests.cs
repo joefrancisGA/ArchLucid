@@ -292,6 +292,46 @@ public sealed class ConsultingDocxExportWhitelabelPrefillTests
     }
 
     [Fact]
+    public async Task CompareQuality_ApplyMissingFromPriorExportsAsync_finds_prior_export_when_repository_matches_only_alternate_run_id_key()
+    {
+        Guid runKey = Guid.Parse("34343434-3434-3434-3434-343434343434");
+        string canonicalRunId = runKey.ToString("N");
+        string legacyUpperRunId = canonicalRunId.ToUpperInvariant();
+
+        RunExportRecord prior = new()
+        {
+            ExportRecordId = Guid.NewGuid().ToString("N"),
+            RunId = canonicalRunId,
+            ExportType = "ArchitectureAnalysis",
+            Format = "Markdown",
+            FileName = "seed.md",
+            AnalysisRequestJson = """{"reviewBoardWhitelabelFirmDisplayName":"Alternate Key Firm"}""",
+        };
+
+        Mock<IRunExportRecordRepository> repository = new();
+        repository
+            .Setup(r => r.GetByRunIdAsync(canonicalRunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Array.Empty<RunExportRecord>());
+        repository
+            .Setup(r => r.GetByRunIdAsync(legacyUpperRunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([prior]);
+        repository
+            .Setup(r => r.GetByRunIdAsync(It.Is<string>(id => id != canonicalRunId && id != legacyUpperRunId), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Array.Empty<RunExportRecord>());
+
+        ConsultingDocxWhitelabelHints hints = new();
+
+        await ConsultingDocxExportWhitelabelPrefill.ApplyMissingFromPriorExportsAsync(
+            canonicalRunId,
+            hints,
+            repository.Object,
+            CancellationToken.None);
+
+        hints.FirmDisplayName.Should().Be("Alternate Key Firm");
+        repository.Verify(r => r.GetByRunIdAsync(legacyUpperRunId, It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
     public async Task ApplyMissingFromPriorExportsAsync_leaves_existing_firm_display_name_unchanged()
     {
         InMemoryRunExportRecordRepository repository = new();
