@@ -311,6 +311,31 @@ describe("secureNowQuestionDispositionResponseIsUsable", () => {
     ).toBe(false);
   });
 
+  it("rejects dispositions when updatedUtc does not parse", () => {
+    expect(
+      secureNowQuestionDispositionResponseIsUsable({
+        ...baseDisposition,
+        updatedUtc: "not-a-date",
+      }),
+    ).toBe(false);
+  });
+
+  it("rejects dispositions with audit entries whose occurredUtc is blank after trim", () => {
+    expect(
+      secureNowQuestionDispositionResponseIsUsable({
+        ...baseDisposition,
+        auditEntries: [
+          {
+            action: "Answered",
+            actorKey: "reviewer",
+            occurredUtc: "   ",
+            reason: "",
+          },
+        ],
+      }),
+    ).toBe(false);
+  });
+
   it("rejects blank operator metadata fields after trim", () => {
     for (const field of secureNowQuestionDispositionResponseRequiredOperatorMetadataFields) {
       expect(
@@ -2210,6 +2235,42 @@ describe("securenow-question-queue-api", () => {
       evidenceFingerprint: "fingerprint",
       actorKey: "reviewer",
       updatedUtc: "   ",
+      auditEntries: [],
+    });
+
+    const disposition = await answerSecureNowQuestion("snapshot-1", {
+      subscriptionId: "sub-1",
+      resourceId: "",
+      questionKey: "subscription-ownership@v1",
+      source: "PolicyPack",
+      scopeKind: "Subscription",
+      answerCode: "Owner",
+      answerText: "Owner",
+      reason: "Reviewed.",
+      evidenceFingerprint: "fingerprint",
+    });
+
+    expect(disposition).toBeUndefined();
+  });
+
+  it("returns undefined when POST answer response has unparsable updatedUtc", async () => {
+    vi.mocked(proxyJsonPost).mockResolvedValueOnce({
+      dispositionId: "00000000-0000-0000-0000-000000000001",
+      snapshotId: "snapshot-1",
+      subscriptionId: "sub-1",
+      resourceId: "",
+      questionKey: "subscription-ownership@v1",
+      source: "PolicyPack",
+      scopeKind: "Subscription",
+      status: "Answered",
+      answerCode: "Owner",
+      answerText: "Owner",
+      reason: "Reviewed.",
+      expirationUtc: "2026-12-01T00:00:00.000Z",
+      isExpired: false,
+      evidenceFingerprint: "fingerprint",
+      actorKey: "reviewer",
+      updatedUtc: "not-a-date",
       auditEntries: [],
     });
 
