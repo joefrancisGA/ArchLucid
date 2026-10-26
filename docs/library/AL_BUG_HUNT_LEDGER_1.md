@@ -6868,6 +6868,16 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-26 seed hunt (seed→hit): reseeded `application-analysis` with zero hunt-ready rows; cheap-disproof closed create-run idempotency rehydrate merge (prior hunt); promoted ledger follow-on `AgentLoopPrepareStage` execute prepare; proved `PrepareAsync` still used single-key `IAgentTaskRepository.GetByRunIdAsync` with caller `runId`, so execute failed with `NoScheduledAgentTasksException` when tasks lived only under legacy uppercase hex run-id keys; route through `AnalysisRunIdCanonicalization.LoadAgentTasksByRunIdAsync`; regression `CompareQuality_PrepareAsync_loads_tasks_when_stored_under_legacy_run_id_key`; cheap-disproof closed authority reader task merge (prior hunt); seeded five follow-on rows; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` filter 364/364 (`RunAnalyzers=false` on VM build). Private beta: Run execute loads scheduled agent tasks when persistence uses legacy run-id key formats.
+
+- [ ] (candidate) `ExecuteEvidenceReadinessGate` — evidence readiness — locus: `runGuid.ToString("N")` task load.
+- [ ] (candidate) `BulkEvidenceUploadService` — bulk upload attach — locus: agent task lookup before attach.
+- [ ] (candidate) `AzureExtractorPreparedZipPersistStage` — extractor attach — locus: `runGuid.ToString("N")` task enumeration.
+- [ ] (candidate) `ArchitectureRunCreateIdempotencyHelper` — regression guard — locus: confirm no remaining direct task reads on rehydrate path.
+- [ ] (candidate) `AgentLoopPrepareStage` — regression guard — locus: spot-check execute prepare callers pass canonical run id strings.
+
+- [x] (proven) `AgentLoopPrepareStage` — execute prepare task load — **hit 2026-10-26 seed hunt:** `LoadAgentTasksByRunIdAsync`; regression above.
+
 2026-10-26 seed hunt (seed→hit): reseeded `application-analysis` with zero hunt-ready rows; cheap-disproof closed materialize task/ledger merges (prior hunts); promoted ledger follow-on `ArchitectureRunCreateIdempotencyHelper` idempotent create replay; proved `RehydrateCreateRunResultAsync` still used single-key `IAgentTaskRepository.GetByRunIdAsync`, so idempotent HTTP replay threw “no tasks” when starter tasks lived only under legacy uppercase hex run-id keys; route rehydrate through `AnalysisRunIdCanonicalization.LoadAgentTasksByRunIdAsync` and align `ArchitectureRunAuthorityReader` task loads with the same merge helper; regression `CompareQuality_TryReplayFromIdempotencyAsync_rehydrates_tasks_when_stored_under_legacy_run_id_key`; cheap-disproof closed agent handler ledger injection paths (prior hunt); seeded five follow-on rows; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` filter 363/363 (`RunAnalyzers=false` on VM build). Private beta: Create-run idempotency replay returns the original starter tasks when agent tasks use legacy run-id key formats.
 
 - [ ] (candidate) `AgentLoopPrepareStage` — execute prepare — locus: task load `runId` string; input: legacy key merge.
