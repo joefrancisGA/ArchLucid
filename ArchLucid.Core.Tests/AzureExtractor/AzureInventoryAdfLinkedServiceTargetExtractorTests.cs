@@ -11,6 +11,22 @@ namespace ArchLucid.Core.Tests.AzureExtractor;
 public sealed class AzureInventoryAdfLinkedServiceTargetExtractorTests
 {
     [Fact]
+    public void Extract_reads_synapse_host_from_percent_encoded_endpoint_url()
+    {
+        const string host = "mysynapse.sql.azuresynapse.net";
+        string encodedEndpoint = Uri.EscapeDataString($"https://{host}/");
+
+        using JsonDocument document = JsonDocument.Parse(
+            $$"""{ "endpoint": "{{encodedEndpoint}}" }""");
+
+        (string? targetResourceId, string? targetHost) =
+            AzureInventoryAdfLinkedServiceTargetExtractor.Extract(document.RootElement, "AzureSynapseAnalytics");
+
+        targetResourceId.Should().BeNull();
+        targetHost.Should().Be(host);
+    }
+
+    [Fact]
     public void Extract_reads_databricks_host_from_percent_encoded_workspace_url()
     {
         const string host = "adb-1234567890123456.7.azuredatabricks.net";
