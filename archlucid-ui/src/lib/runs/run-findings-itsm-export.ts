@@ -185,7 +185,7 @@ export function buildQuickDecisionFindingsCsv(
             : "Trust label was not stored"
         : "Trust label was not stored",
       "trustLabelReason" in trustFields
-        ? trustFields.trustLabelReason === null
+        ? trustFields.trustLabelReason === null || trustFields.trustLabelReason === undefined
           ? "Trust label reason was not stored"
           : trustFields.trustLabelReason.trim().length > 0
             ? trustFields.trustLabelReason

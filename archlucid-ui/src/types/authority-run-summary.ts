@@ -51,6 +51,8 @@ export type RunSummaryWireExtensions = {
   enginesSucceeded?: number | null;
   /** Detail merge: typed-engine attempt count when critical-page bundle projects pipeline coverage. */
   enginesAttempted?: number | null;
+  /** Detail merge: operator governance decision when run detail is projected onto summary props. */
+  operatorGovernanceDecision?: string | null;
 };
 
 /**
@@ -61,6 +63,6 @@ export type RunSummary = Omit<components["schemas"]["RunSummaryResponse"], "degr
     runId: string;
     projectId: string;
     createdUtc: string;
+    /** OpenAPI lists this as mutable; run-detail projections keep the stored order read-only. */
     degradedExecutionAgents?: readonly string[];
-    operatorGovernanceDecision?: string | null;
   };

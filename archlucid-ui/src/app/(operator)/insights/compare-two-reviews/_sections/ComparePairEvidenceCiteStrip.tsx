@@ -26,12 +26,12 @@ function SideCiteBlock(props: { readonly side: ComparePairSideGrounding }) {
           .filter((link): link is typeof link & { href: string } =>
             typeof link.href === "string" && link.href.length > 0)
           .map((link) => (
-          <li key={`${side.sideLabel}-${link.href}`}>
-            <Link className={cn(OPERATOR_LINK.inline, "font-medium")} href={link.href}>
-              {link.label}
-            </Link>
-          </li>
-        ))}
+            <li key={`${side.sideLabel}-${link.href}`}>
+              <Link className={cn(OPERATOR_LINK.inline, "font-medium")} href={link.href}>
+                {link.label}
+              </Link>
+            </li>
+          ))}
       </ul>
     </div>
   );
