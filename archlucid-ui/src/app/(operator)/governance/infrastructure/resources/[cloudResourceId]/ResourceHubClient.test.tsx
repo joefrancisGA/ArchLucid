@@ -375,6 +375,31 @@ describe("ResourceHubClient", () => {
     });
   });
 
+  it("ignores URL snapshotId pin on hub fetch immediately after cloudResourceId changes", async () => {
+    const otherCloudResourceId = "88888888-8888-8888-8888-888888888888";
+    const staleSnapshotId = "99999999-9999-9999-9999-999999999999";
+
+    searchParams = new URLSearchParams(`tab=overview&snapshotId=${staleSnapshotId}`);
+    const { rerender } = render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    await waitFor(() => {
+      expect(fetchCachedInfraEvidenceResourceHub).toHaveBeenCalledWith(
+        RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID,
+        expect.objectContaining({ snapshotId: staleSnapshotId }),
+      );
+    });
+
+    fetchCachedInfraEvidenceResourceHub.mockClear();
+    rerender(<ResourceHubClient cloudResourceId={otherCloudResourceId} />);
+
+    await waitFor(() => {
+      expect(fetchCachedInfraEvidenceResourceHub).toHaveBeenCalledWith(
+        otherCloudResourceId,
+        expect.objectContaining({ snapshotId: "" }),
+      );
+    });
+  });
+
   it("clears prior hub evidence when cloudResourceId changes", async () => {
     const otherCloudResourceId = "33333333-3333-3333-3333-333333333333";
 

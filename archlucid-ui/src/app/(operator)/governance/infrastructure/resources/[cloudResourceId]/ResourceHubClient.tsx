@@ -448,6 +448,10 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
   const committedHubClientScopeKeyRef = useRef(hubClientScopeKey);
   const skipInitialHubScopeResetRef = useRef(true);
   const lastResolvedHubSnapshotIdRef = useRef("");
+  const committedUrlSnapshotPinRef = useRef(snapshotId);
+  const urlSnapshotPinForCloudResourceIdRef = useRef<string | null>(
+    snapshotId.length > 0 ? cloudResourceId : null,
+  );
 
   useEffect(() => {
     if (skipInitialHubScopeResetRef.current) {
@@ -464,6 +468,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
     const previousCloudResourceId = committedHubClientScopeKeyRef.current.split("\u0000")[0] ?? "";
     if (previousCloudResourceId !== cloudResourceId) {
       lastResolvedHubSnapshotIdRef.current = "";
+      urlSnapshotPinForCloudResourceIdRef.current = null;
     }
 
     committedHubClientScopeKeyRef.current = hubClientScopeKey;
@@ -479,8 +484,20 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
     setLoading(true);
   }, [cloudResourceId, hubClientScopeKey]);
 
+  useEffect(() => {
+    if (snapshotId === committedUrlSnapshotPinRef.current) {
+      return;
+    }
+
+    committedUrlSnapshotPinRef.current = snapshotId;
+    urlSnapshotPinForCloudResourceIdRef.current = snapshotId.length > 0 ? cloudResourceId : null;
+  }, [cloudResourceId, snapshotId]);
+
   const resolvedSnapshotId = useMemo(() => {
-    if (snapshotId.length > 0) {
+    if (
+      snapshotId.length > 0
+      && urlSnapshotPinForCloudResourceIdRef.current === cloudResourceId
+    ) {
       return snapshotId;
     }
 
@@ -490,7 +507,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
     }
 
     return lastResolvedHubSnapshotIdRef.current;
-  }, [hub?.currentConfiguration?.snapshotId, snapshotId]);
+  }, [cloudResourceId, hub?.currentConfiguration?.snapshotId, snapshotId]);
 
   useEffect(() => {
     const snapshotFromHub = hub?.currentConfiguration?.snapshotId?.trim() ?? "";
@@ -751,7 +768,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
     loadRequestGeneration.current = requestGeneration;
 
     try {
-      const snapshotForFetch = resolvedSnapshotId.length > 0 ? resolvedSnapshotId : snapshotId;
+      const snapshotForFetch = resolvedSnapshotId;
       const urlAuditScope = parseInfraEvidenceWorkbenchAuditScopeFromSearch(searchParams);
       const staleAuditUrlParams = hasStaleInfraEvidenceAuditUrlParams(searchParams);
 
