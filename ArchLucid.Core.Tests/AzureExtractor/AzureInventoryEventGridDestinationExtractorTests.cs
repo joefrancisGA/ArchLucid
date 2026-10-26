@@ -259,6 +259,36 @@ public sealed class AzureInventoryEventGridDestinationExtractorTests
     }
 
     [Fact]
+    public void Extract_reads_event_hub_destination_resource_id_when_properties_event_hub_resource_id_is_percent_encoded_json_reference_scalar()
+    {
+        const string eventHubId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.EventHub/namespaces/eh1";
+        string referenceJson = JsonSerializer.Serialize(new { resourceId = eventHubId });
+        string encodedReference = Uri.EscapeDataString(referenceJson);
+
+        using JsonDocument document = JsonDocument.Parse(
+            $$"""
+            {
+              "destination": {
+                "endpointType": "EventHub",
+                "properties": {
+                  "eventHubResourceId": {{JsonSerializer.Serialize(encodedReference)}}
+                }
+              }
+            }
+            """);
+
+        (
+            string destinationKind,
+            string? destinationResourceId,
+            _,
+            _) = AzureInventoryEventGridDestinationExtractor.Extract(document.RootElement);
+
+        destinationKind.Should().Be("EventHub");
+        destinationResourceId.Should().Be(eventHubId.ToLowerInvariant());
+    }
+
+    [Fact]
     public void Extract_reads_event_hub_destination_resource_id_from_nested_properties_event_hub_resource_id_object()
     {
         const string eventHubId =
