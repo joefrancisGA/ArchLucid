@@ -23,7 +23,7 @@ public sealed class AzureDevOpsRunSummaryMarkdownTests
 
         string md = AzureDevOpsRunSummaryMarkdown.Format(runId, manifestId, findings, operatorRunDeepLink: null);
 
-        int unknownIx = md.IndexOf("**Unknown:** 2", StringComparison.Ordinal);
+        int unknownIx = md.IndexOf("**Severity was not stored:** 2", StringComparison.Ordinal);
         int lowIx = md.IndexOf("**Low:** 1", StringComparison.Ordinal);
         int highIx = md.IndexOf("**High:** 1", StringComparison.Ordinal);
 
