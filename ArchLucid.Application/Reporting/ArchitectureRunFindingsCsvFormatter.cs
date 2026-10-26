@@ -29,6 +29,8 @@ public static class ArchitectureRunFindingsCsvFormatter
 
     internal const string HumanReviewStatusNotStoredLabel = "Human review status was not stored.";
 
+    internal const string TaskIdNotStoredLabel = "Task id was not stored.";
+
     internal const string DispositionNotStoredLabel = "Disposition was not stored.";
 
     internal const string RevisitTimeNotStoredLabel = "Revisit time was not stored.";
@@ -195,7 +197,7 @@ public static class ArchitectureRunFindingsCsvFormatter
                 ',',
                 ExportFormatterService.EscapeCsvField(finding.FindingId),
                 ExportFormatterService.EscapeCsvField(result.ResultId),
-                ExportFormatterService.EscapeCsvField(result.TaskId),
+                ExportFormatterService.EscapeCsvField(FormatTaskId(result.TaskId)),
                 ExportFormatterService.EscapeCsvField(
                     AgentResultEnvelopeAgentTypeResolver.ResolveAgentType(result).ToString()),
                 ExportFormatterService.EscapeCsvField(finding.Severity.ToString()),
@@ -281,5 +283,10 @@ public static class ArchitectureRunFindingsCsvFormatter
             return RevisitTimeNotStoredLabel;
 
         return tracking.RevisitDueUtc.Value.ToString("O", CultureInfo.InvariantCulture);
+    }
+
+    private static string FormatTaskId(string? taskId)
+    {
+        return string.IsNullOrWhiteSpace(taskId) ? TaskIdNotStoredLabel : taskId.Trim();
     }
 }

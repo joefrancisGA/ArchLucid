@@ -35,6 +35,18 @@ export const INFRA_EVIDENCE_INVENTORY_EDGE_PANEL_DIAGNOSTIC_STORAGE_HINT =
 export const INFRA_EVIDENCE_INVENTORY_EDGE_PANEL_LOGIC_APP_CONNECTION_HINT =
   "Logic App API connection reference. This is not a data pipeline and not observed traffic.";
 
+export const INFRA_EVIDENCE_INVENTORY_EDGE_PANEL_AKS_SERVICE_LB_HINT =
+  "Kubernetes service load balancer in configuration. This is not observed traffic.";
+
+export const INFRA_EVIDENCE_INVENTORY_EDGE_PANEL_NSP_ASSOCIATION_HINT =
+  "Network security perimeter association in configuration. This is not observed traffic.";
+
+export const INFRA_EVIDENCE_INVENTORY_EDGE_PANEL_NODE_POOL_HINT =
+  "AKS node pool scale set in configuration. This is not observed traffic.";
+
+export const INFRA_EVIDENCE_INVENTORY_EDGE_PANEL_AMPLS_SCOPED_RESOURCE_HINT =
+  "Azure Monitor private link scope member in configuration. This is not observed traffic.";
+
 export const INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED =
   "Dotted — inferred hostname or AI inference (confirm in configuration)";
 
@@ -82,12 +94,6 @@ export const INFRA_EVIDENCE_DIAGRAM_LEGEND_UNCLASSIFIED_PROVENANCE =
 
 export const INFRA_EVIDENCE_DIAGRAM_LEGEND_PRIVATE_ENDPOINT =
   "Private endpoint access in inventory. This is not observed traffic.";
-
-export const INFRA_EVIDENCE_DIAGRAM_DATA_ARCHITECTURE_READING_LEGEND =
-  "Inventory of data platforms in this snapshot. Not a data-flow diagram.";
-
-export const INFRA_EVIDENCE_DIAGRAM_BUSINESS_CONTINUITY_READING_LEGEND =
-  "Lines are backup or replication items collected from the vault. Resources with no line have no collected protection item in this snapshot.";
 
 export const INFRA_EVIDENCE_DIAGRAM_PNG_DATA_ARCHITECTURE_INVENTORY_NOTE =
   "This diagram shows how data stores relate in inventory. It is not a data-movement map.";

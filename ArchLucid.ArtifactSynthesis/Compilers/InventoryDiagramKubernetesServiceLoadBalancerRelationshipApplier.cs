@@ -24,7 +24,7 @@ internal static class InventoryDiagramKubernetesServiceLoadBalancerRelationshipA
             }
 
             edge.Label = Label;
-            edge.ProvenanceKind = ProvenanceKind.ObservedFact.ToString();
+            edge.ProvenanceKind = ProvenanceKind.DeterministicInference.ToString();
         }
     }
 }

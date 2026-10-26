@@ -1,3 +1,5 @@
+using System.Globalization;
+
 using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Diagrams;
 
@@ -17,16 +19,22 @@ internal static partial class ConsultingDocxSupplementalSections
 
         string systemName = ConsultingDocxExportHonestyCopy.ResolveSystemName(report);
 
-        int serviceCount = report.Manifest?.Services.Count ?? 0;
-        int datastoreCount = report.Manifest?.Datastores.Count ?? 0;
-        int controlCount = report.Manifest?.Governance.RequiredControls.Count ?? 0;
+        string serviceCountLabel = report.Manifest is null
+            ? ConsultingDocxExportHonestyCopy.ManifestServiceCountNotStored
+            : report.Manifest.Services.Count.ToString(CultureInfo.InvariantCulture);
+        string datastoreCountLabel = report.Manifest is null
+            ? ConsultingDocxExportHonestyCopy.ManifestDatastoreCountNotStored
+            : report.Manifest.Datastores.Count.ToString(CultureInfo.InvariantCulture);
+        string controlCountLabel = report.Manifest?.Governance is null
+            ? ConsultingDocxExportHonestyCopy.ManifestRequiredControlCountNotStored
+            : report.Manifest.Governance.RequiredControls.Count.ToString(CultureInfo.InvariantCulture);
 
         string text = options.SponsorReportTextTemplate
             .Replace("{SystemName}", systemName, StringComparison.OrdinalIgnoreCase)
             .Replace("{OrganizationName}", options.OrganizationName, StringComparison.OrdinalIgnoreCase)
-            .Replace("{ServiceCount}", serviceCount.ToString(), StringComparison.OrdinalIgnoreCase)
-            .Replace("{DatastoreCount}", datastoreCount.ToString(), StringComparison.OrdinalIgnoreCase)
-            .Replace("{ControlCount}", controlCount.ToString(), StringComparison.OrdinalIgnoreCase);
+            .Replace("{ServiceCount}", serviceCountLabel, StringComparison.OrdinalIgnoreCase)
+            .Replace("{DatastoreCount}", datastoreCountLabel, StringComparison.OrdinalIgnoreCase)
+            .Replace("{ControlCount}", controlCountLabel, StringComparison.OrdinalIgnoreCase);
 
         ConsultingDocxOpenXmlPrimitives.AddStyledParagraph(body, text, "BodyText");
 

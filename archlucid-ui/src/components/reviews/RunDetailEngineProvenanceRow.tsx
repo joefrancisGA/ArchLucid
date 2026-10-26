@@ -46,9 +46,14 @@ export function RunDetailEngineProvenanceRow(props: RunDetailEngineProvenanceRow
   const [open, setOpenState] = useState(urlEngineProvenanceOpen);
   const openRef = useRef(open);
   openRef.current = open;
+  const deploymentLabel =
+    provenance.deploymentOrModelId?.trim().length > 0
+      ? provenance.deploymentOrModelId.trim()
+      : "Deployment was not stored.";
+  const providerLabel = formatReviewEngineProviderLabel(provenance.providerKind);
   const engineLabel = provenance.modelAliasId
-    ? `${provenance.modelAliasId} (${formatReviewEngineProviderLabel(provenance.providerKind)} / ${provenance.deploymentOrModelId})`
-    : `${formatReviewEngineProviderLabel(provenance.providerKind)} / ${provenance.deploymentOrModelId}`;
+    ? `${provenance.modelAliasId} (${providerLabel} / ${deploymentLabel})`
+    : `${providerLabel} / ${deploymentLabel}`;
   const costLabel = formatReviewEngineCostUsd(provenance.estimatedCostUsd);
 
   const syncOpenToUrl = useCallback(

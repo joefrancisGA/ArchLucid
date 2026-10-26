@@ -13,7 +13,7 @@ export type InsightDensityCurationCounts = {
 };
 
 export const FINDINGS_SNAPSHOT_CHECKLIST_FINDING_TITLE_NOT_STORED =
-  "Finding title was not stored." as const;
+  "Checklist title was not stored." as const;
 
 export type FindingsSnapshotInsightDensityView = {
   readonly checklistCoverage: readonly ChecklistCoverageItem[];
@@ -142,50 +142,35 @@ export function formatInsightDensityCurationMessage(curation: InsightDensityCura
   const parts: string[] = [];
 
   if (demoted === null && retained === null) {
-    return "";
+    return "Demoted count was not stored. Retained finding count was not stored.";
+  }
+
+  if (demoted === null) {
+    parts.push("Demoted count was not stored.");
+  }
+
+  if (retained === null) {
+    parts.push("Retained finding count was not stored.");
+  }
+
+  if (parts.length > 0) {
+    return parts.join(" ");
   }
 
   const demotedCount = demoted ?? 0;
   const retainedCount = retained ?? 0;
 
-  if (demotedCount <= 0 && retainedCount <= 0) {
-    const parts: string[] = [];
-
-    if (demoted === null) {
-      parts.push("Demoted-to-checklist count was not stored.");
-    }
-
-    if (retained === null) {
-      parts.push("Retained finding count was not stored.");
-    }
-
-    return parts.join(" ");
-  }
-
   if (demotedCount > 0 && retainedCount > 0) {
-    const demotedClause =
-      demoted === null
-        ? "Demoted-to-checklist count was not stored"
-        : `${demotedCount} low-specificity ${demotedCount === 1 ? "advisory" : "advisories"}`;
-    const retainedClause =
-      retained === null
-        ? "retained finding count was not stored"
-        : `retained ${retainedCount} decision-grade ${retainedCount === 1 ? "finding" : "findings"}`;
-
-    return `${INSIGHT_DENSITY_DEMOTION_LEAD} ArchLucid moved ${demotedClause} to the coverage checklist and ${retainedClause} on this package.`;
+    return `${INSIGHT_DENSITY_DEMOTION_LEAD} ArchLucid moved ${demotedCount} low-specificity ${demotedCount === 1 ? "advisory" : "advisories"} to the coverage checklist and retained ${retainedCount} decision-grade ${retainedCount === 1 ? "finding" : "findings"} on this package.`;
   }
 
   if (demotedCount > 0) {
-    if (demoted === null) {
-      return `${INSIGHT_DENSITY_DEMOTION_LEAD} Demoted-to-checklist count was not stored.`;
-    }
-
     return `${INSIGHT_DENSITY_DEMOTION_LEAD} ArchLucid moved ${demotedCount} low-specificity ${demotedCount === 1 ? "observation" : "observations"} to the coverage checklist (not decision-grade findings on this package).`;
   }
 
-  if (retained === null) {
-    return `${INSIGHT_DENSITY_TYPED_ENGINE_PROTECTED_LEAD} Retained finding count was not stored.`;
+  if (retainedCount > 0) {
+    return `${INSIGHT_DENSITY_TYPED_ENGINE_PROTECTED_LEAD} ArchLucid retained ${retainedCount} decision-grade ${retainedCount === 1 ? "finding" : "findings"} after insight-density curation.`;
   }
 
-  return `${INSIGHT_DENSITY_TYPED_ENGINE_PROTECTED_LEAD} ArchLucid retained ${retainedCount} decision-grade ${retainedCount === 1 ? "finding" : "findings"} after insight-density curation.`;
+  return "";
 }

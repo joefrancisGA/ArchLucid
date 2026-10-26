@@ -68,7 +68,7 @@ describe("findings-snapshot-insight-density", () => {
 
     const view = resolveFindingsSnapshotInsightDensityView(detail);
 
-    expect(view.checklistCoverage[0]?.title).toBe("Finding title was not stored.");
+    expect(view.checklistCoverage[0]?.title).toBe("Checklist title was not stored.");
   });
 
   it("formatInsightDensityCurationMessage does not imply demotion when only findings were retained (FC-26)", () => {
