@@ -6868,6 +6868,16 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-26 seed hunt (seed→hit): reseeded `application-analysis` with zero hunt-ready rows; cheap-disproof closed bulk evidence metadata merge (prior hunt); promoted ledger follow-on `AzureExtractorPreparedZipPersistStage` extractor evidence attach; proved `TryAttachEvidenceBundleAsync` still used single-key `IAgentTaskRepository.GetByRunIdAsync` with lowercase `N`, so Azure extractor ingest did not merge package provenance onto the run evidence bundle when agent tasks lived only under legacy uppercase hex run-id keys; route through `AnalysisRunIdCanonicalization.LoadAgentTasksByRunIdAsync`; regression `CompareQuality_PersistAsync_attaches_extractor_metadata_when_tasks_use_legacy_run_id_key`; cheap-disproof closed bulk upload path (prior hunt); seeded five follow-on rows; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` filter 367/367 (`RunAnalyzers=false` on VM build). Private beta: Azure extractor zip ingest attaches package metadata to the run evidence bundle when agent tasks use legacy run-id key formats.
+
+- [ ] (candidate) `ArchitectureRunCreateIdempotencyHelper` — regression guard — locus: rehydrate merge helper still wired.
+- [ ] (candidate) `AgentLoopPrepareStage` — regression guard — locus: prepare merge helper still wired.
+- [ ] (candidate) `ExecuteEvidenceReadinessGate` — regression guard — locus: readiness merge helper still wired.
+- [ ] (candidate) `BulkEvidenceUploadService` — zip-expand path — locus: any secondary task lookup during zip expand.
+- [ ] (candidate) `RunStarterInventoryEvidenceBundleMerger` — inventory merge — locus: task/bundle resolution under legacy keys during starter merge.
+
+- [x] (proven) `AzureExtractorPreparedZipPersistStage` — evidence bundle attach task lookup — **hit 2026-10-26 seed hunt:** `LoadAgentTasksByRunIdAsync`; regression above.
+
 2026-10-26 seed hunt (seed→hit): reseeded `application-analysis` with zero hunt-ready rows; cheap-disproof closed execute evidence readiness gate merge (prior hunt); promoted ledger follow-on `BulkEvidenceUploadService` bulk attach metadata; proved `TryUpdateEvidenceBundleMetadataAsync` still used single-key `IAgentTaskRepository.GetByRunIdAsync` with lowercase `N`, so post-upload `EvidenceBundle` metadata was not updated when agent tasks lived only under legacy uppercase hex run-id keys; route through `AnalysisRunIdCanonicalization.LoadAgentTasksByRunIdAsync`; regression `CompareQuality_UploadBulkEvidenceAsync_updates_bundle_metadata_when_tasks_use_legacy_run_id_key`; cheap-disproof closed evidence gate (prior hunt); seeded five follow-on rows; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` filter 366/366 (`RunAnalyzers=false` on VM build). Private beta: Bulk evidence uploads update attached-file counts on the run evidence bundle when agent tasks use legacy run-id key formats.
 
 - [ ] (candidate) `AzureExtractorPreparedZipPersistStage` — extractor attach — locus: `runGuid.ToString("N")` task enumeration.
