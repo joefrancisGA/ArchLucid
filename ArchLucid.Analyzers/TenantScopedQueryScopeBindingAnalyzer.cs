@@ -166,7 +166,8 @@ public sealed class TenantScopedQueryScopeBindingAnalyzer : DiagnosticAnalyzer
             ISymbol? symbol = semanticModel.GetSymbolInfo(identifier).Symbol;
             SyntaxReference? reference = symbol?.DeclaringSyntaxReferences.FirstOrDefault();
 
-            if (reference?.GetSyntax() is VariableDeclaratorSyntax declarator)
+            if (reference?.GetSyntax() is VariableDeclaratorSyntax declarator &&
+                ReferenceEquals(declarator.SyntaxTree, semanticModel.SyntaxTree))
             {
                 if (declarator.Initializer?.Value is ExpressionSyntax initializer)
                     sqlExpression = initializer;
@@ -194,6 +195,9 @@ public sealed class TenantScopedQueryScopeBindingAnalyzer : DiagnosticAnalyzer
         SyntaxReference? syntaxReference = local.DeclaringSyntaxReferences.FirstOrDefault();
 
         if (syntaxReference?.GetSyntax() is not VariableDeclaratorSyntax declarator)
+            return null;
+
+        if (!ReferenceEquals(declarator.SyntaxTree, semanticModel.SyntaxTree))
             return null;
 
         BlockSyntax? block = declarator.FirstAncestorOrSelf<BlockSyntax>();
@@ -252,10 +256,25 @@ public sealed class TenantScopedQueryScopeBindingAnalyzer : DiagnosticAnalyzer
         if (TenantScopeExemptSymbolHelper.TryGetExemption(containingSymbol, context.Compilation) is not null)
             return;
 
-        sqlExpression = UnwrapCommandDefinitionSqlExpression(sqlExpression, context.SemanticModel);
+        try
+        {
+            sqlExpression = UnwrapCommandDefinitionSqlExpression(sqlExpression, context.SemanticModel);
+        }
+        catch (ArgumentException)
+        {
+            return;
+        }
 
-        TenantScopedSqlExpressionResolver.ResolutionResult resolution =
-            TenantScopedSqlExpressionResolver.Resolve(sqlExpression, context.SemanticModel);
+        TenantScopedSqlExpressionResolver.ResolutionResult resolution;
+
+        try
+        {
+            resolution = TenantScopedSqlExpressionResolver.Resolve(sqlExpression, context.SemanticModel);
+        }
+        catch (ArgumentException)
+        {
+            return;
+        }
 
         IReadOnlyList<string> sqlTexts = resolution.GetSqlTextsToAnalyze().ToList();
 
@@ -419,4 +438,5 @@ public sealed class TenantScopedQueryScopeBindingAnalyzer : DiagnosticAnalyzer
         return string.Equals(containingType.Name, "SqlMapper", StringComparison.Ordinal) &&
                string.Equals(containingType.ContainingNamespace.ToDisplayString(), "Dapper", StringComparison.Ordinal);
     }
+
 }

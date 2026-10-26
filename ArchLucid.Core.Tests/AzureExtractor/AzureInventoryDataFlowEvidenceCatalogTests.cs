@@ -21,6 +21,21 @@ public sealed class AzureInventoryDataFlowEvidenceCatalogTests
         }
     }
 
+    [Theory]
+    [InlineData(
+        AzureInventoryRelationshipAssociationTypes.EventGridToDestination,
+        InventoryDiagramRelationshipLabelTexts.EventSubscriptionNamesDestinationObservedDeliveryNotStored)]
+    [InlineData(
+        AzureInventoryRelationshipAssociationTypes.EventHubCapture,
+        InventoryDiagramRelationshipLabelTexts.CaptureConfiguredObservedCaptureNotStored)]
+    public void Event_grid_and_event_hub_capture_use_honesty_labels(string associationType, string expectedLabel)
+    {
+        AzureInventoryDataFlowEvidenceCatalog.TryGetDataFlowEvidence(associationType, out AzureInventoryDataFlowEvidenceAssociation? evidence)
+            .Should()
+            .BeTrue();
+        evidence!.DiagramLabel.Should().Be(expectedLabel);
+    }
+
     [Fact]
     public void AppToKeyVaultRef_uses_key_vault_honesty_label()
     {
@@ -50,10 +65,22 @@ public sealed class AzureInventoryDataFlowEvidenceCatalogTests
     }
 
     [Theory]
-    [InlineData(AzureInventoryRelationshipAssociationTypes.EventHubMayPublish, AzureInventoryDataFlowEdgeDirection.MayWrite, "May publish")]
-    [InlineData(AzureInventoryRelationshipAssociationTypes.EventHubMayConsume, AzureInventoryDataFlowEdgeDirection.MayRead, "May consume")]
-    [InlineData(AzureInventoryRelationshipAssociationTypes.ServiceBusMaySend, AzureInventoryDataFlowEdgeDirection.MayWrite, "May send")]
-    [InlineData(AzureInventoryRelationshipAssociationTypes.ServiceBusMayReceive, AzureInventoryDataFlowEdgeDirection.MayRead, "May receive")]
+    [InlineData(
+        AzureInventoryRelationshipAssociationTypes.EventHubMayPublish,
+        AzureInventoryDataFlowEdgeDirection.MayWrite,
+        "Authorization may allow publish. This is not observed messaging.")]
+    [InlineData(
+        AzureInventoryRelationshipAssociationTypes.EventHubMayConsume,
+        AzureInventoryDataFlowEdgeDirection.MayRead,
+        InventoryDiagramRelationshipLabelTexts.AuthorizationMayAllowConsumeObservedMessagingNotStored)]
+    [InlineData(
+        AzureInventoryRelationshipAssociationTypes.ServiceBusMaySend,
+        AzureInventoryDataFlowEdgeDirection.MayWrite,
+        InventoryDiagramRelationshipLabelTexts.AuthorizationMayAllowSendObservedMessagingNotStored)]
+    [InlineData(
+        AzureInventoryRelationshipAssociationTypes.ServiceBusMayReceive,
+        AzureInventoryDataFlowEdgeDirection.MayRead,
+        InventoryDiagramRelationshipLabelTexts.AuthorizationMayAllowReceiveObservedMessagingNotStored)]
     public void Messaging_authorization_associations_are_catalogued_for_data_flow(
         string associationType,
         AzureInventoryDataFlowEdgeDirection direction,
@@ -112,7 +139,8 @@ public sealed class AzureInventoryDataFlowEvidenceCatalogTests
 
         evidence!.IncludeOnDataFlow.Should().BeTrue();
         evidence.Family.Should().Be(AzureInventoryDataFlowEvidenceFamily.StructuralNetworkPath);
-        evidence.DiagramLabel.Should().Be(InventoryDiagramRelationshipLabelTexts.PeReachableTargetInferredLabel);
+        evidence.DiagramLabel.Should().Be(
+            InventoryDiagramRelationshipLabelTexts.PrivateEndpointTargetStoredReachabilityNotObserved);
     }
 
     [Theory]
@@ -120,22 +148,22 @@ public sealed class AzureInventoryDataFlowEvidenceCatalogTests
         AzureInventoryRelationshipAssociationTypes.EventHubMayPublish,
         GraphEdgeInferenceSources.InventoryEventHubMayPublish,
         AzureInventoryDataFlowEdgeDirection.MayWrite,
-        "May publish")]
+        "Authorization may allow publish. This is not observed messaging.")]
     [InlineData(
         AzureInventoryRelationshipAssociationTypes.EventHubMayConsume,
         GraphEdgeInferenceSources.InventoryEventHubMayConsume,
         AzureInventoryDataFlowEdgeDirection.MayRead,
-        "May consume")]
+        InventoryDiagramRelationshipLabelTexts.AuthorizationMayAllowConsumeObservedMessagingNotStored)]
     [InlineData(
         AzureInventoryRelationshipAssociationTypes.ServiceBusMaySend,
         GraphEdgeInferenceSources.InventoryServiceBusMaySend,
         AzureInventoryDataFlowEdgeDirection.MayWrite,
-        "May send")]
+        InventoryDiagramRelationshipLabelTexts.AuthorizationMayAllowSendObservedMessagingNotStored)]
     [InlineData(
         AzureInventoryRelationshipAssociationTypes.ServiceBusMayReceive,
         GraphEdgeInferenceSources.InventoryServiceBusMayReceive,
         AzureInventoryDataFlowEdgeDirection.MayRead,
-        "May receive")]
+        InventoryDiagramRelationshipLabelTexts.AuthorizationMayAllowReceiveObservedMessagingNotStored)]
     public void Messaging_rbac_verbs_resolve_by_association_type_and_inference_source(
         string associationType,
         string inferenceSource,
@@ -174,6 +202,6 @@ public sealed class AzureInventoryDataFlowEvidenceCatalogTests
         evidence!.IncludeOnDataFlow.Should().BeTrue();
         evidence.Family.Should().Be(AzureInventoryDataFlowEvidenceFamily.DeclaredMovement);
         evidence.Direction.Should().Be(AzureInventoryDataFlowEdgeDirection.DeclaredWrite);
-        evidence.DiagramLabel.Should().Be("Routes to");
+        evidence.DiagramLabel.Should().Be("Configured route. This is not observed traffic.");
     }
 }

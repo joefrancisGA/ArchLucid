@@ -264,7 +264,7 @@ public sealed class MarkdownArchitectureAnalysisExportServiceTests
         md.Should().Contain(ArchitectureEvidenceRequestExport.MissingEvidencePackageCopy);
         md.Should().Contain($"- Completed UTC: {ArchitectureEvidenceRequestExport.MissingCompletedTimeCopy}");
         md.Should().Contain("## Diagram");
-        md.Should().Contain(ArchitectureEvidenceRequestExport.DiagramNotStoredCopy);
+        md.Should().Contain(ConsultingDocxAppendixHonestyCopy.MermaidSourceNotStored);
         md.Should().Contain("## Architecture Summary");
         md.Should().Contain(ArchitectureEvidenceRequestExport.ArchitectureSummaryNotStoredCopy);
     }

@@ -55,17 +55,43 @@ describe("architectureDiagramModelToMermaid", () => {
     expect(isValidMermaidArchitectureDiagram("not a diagram")).toBe(false);
   });
 
-  it("keeps external and user nodes outside the trust boundary subgraph", () => {
+  it("does not wrap system nodes in a trust-boundary subgraph (P-03)", () => {
     const mermaid = architectureDiagramModelToMermaid(modelWithBoundary);
+    const alt = architectureDiagramModelToTextAlternative({
+      ...modelWithBoundary,
+      diagramHonestyNotes: [
+        "Trust boundary names were stored without component membership: Corporate network.",
+      ],
+    });
 
-    expect(mermaid).toContain('subgraph trustBoundary["Corporate network"]');
-    expect(mermaid).not.toContain('subgraph trustBoundary["Trust boundary"]');
-    expect(mermaid).toContain('    system_api["Claims API"]');
+    expect(mermaid).not.toContain("subgraph trustBoundary");
+    expect(mermaid).toContain('  system_api["Claims API"]');
     expect(mermaid).toContain('  user_analyst["Claims analyst"]');
-    expect(mermaid).toContain('  external_gateway["Payment gateway"]');
-    const subgraphBody = mermaid.split("  end")[0] ?? "";
-    expect(subgraphBody).not.toContain("external_gateway");
-    expect(subgraphBody).not.toContain("user_analyst");
+    expect(alt).toContain("Trust boundary names were stored without component membership: Corporate network.");
+  });
+
+  it("labels empty edge connections in mermaid and text alternative", () => {
+    const emptyEdgeModel: ArchitectureDiagramModel = {
+      ...modelWithBoundary,
+      edges: [
+        {
+          id: "edge_empty",
+          sourceId: "user_analyst",
+          targetId: "system_api",
+          label: "",
+          provenance: "asserted",
+          removed: false,
+        },
+      ],
+    };
+
+    const mermaid = architectureDiagramModelToMermaid(emptyEdgeModel);
+    const alt = architectureDiagramModelToTextAlternative(emptyEdgeModel);
+
+    expect(mermaid.replace(/\\n/g, " ").replace(/\s+/g, " ")).toContain(
+      "Connection label was not stored.",
+    );
+    expect(alt).toContain("Connection label was not stored.");
   });
 
   it("marks inferred edges in labels and text alternative with human names", () => {
@@ -139,6 +165,84 @@ describe("architectureDiagramModelToMermaid", () => {
 
     expect(alternative).not.toContain("removed_system");
     expect(alternative).not.toContain("old flow");
+  });
+
+  it("preserves the inferred suffix when truncating long labels (P-16)", () => {
+    const longCore =
+      "Enterprise payments orchestration service with extended governance and operations description segment ";
+    const longLabel = longCore.repeat(3);
+    const longInferred: ArchitectureDiagramModel = {
+      nodes: [
+        {
+          id: "long_inferred",
+          label: longLabel,
+          kind: "system",
+          provenance: "inferred",
+          removed: false,
+          accepted: false,
+        },
+      ],
+      edges: [],
+      trustBoundaryLabels: [],
+      skippedUnlabeledEntityCount: 0,
+      unmatchedDataFlows: [],
+    };
+
+    const mermaid = architectureDiagramModelToMermaid(longInferred);
+
+    expect(mermaid).toContain("(inferred)");
+    expect(mermaid).toMatch(/\.\.\./);
+  });
+
+  it("renders an explicit empty diagram placeholder", () => {
+    const empty: ArchitectureDiagramModel = {
+      nodes: [],
+      edges: [],
+      trustBoundaryLabels: [],
+      skippedUnlabeledEntityCount: 0,
+      unmatchedDataFlows: [],
+    };
+
+    expect(
+      architectureDiagramModelToMermaid(empty).replace(/\\n/g, " ").replace(/\s+/g, " "),
+    ).toContain("No architecture components were recorded.");
+    expect(architectureDiagramModelToTextAlternative(empty)).toBe(
+      "No architecture components were recorded.",
+    );
+  });
+
+  it("labels empty edge relationships in the text alternative", () => {
+    const unlabeledEdge: ArchitectureDiagramModel = {
+      ...modelWithBoundary,
+      edges: [
+        {
+          id: "edge_unlabeled",
+          sourceId: "user_analyst",
+          targetId: "system_api",
+          label: "",
+          provenance: "asserted",
+          removed: false,
+        },
+      ],
+    };
+
+    const alt = architectureDiagramModelToTextAlternative(unlabeledEdge);
+
+    expect(alt).toContain("Connection label was not stored.");
+    expect(architectureDiagramModelToTextAlternative(modelWithBoundary)).toContain("(submit claim)");
+  });
+
+  it("appends skipped unlabeled entity disclosure when count is positive", () => {
+    const skipped: ArchitectureDiagramModel = {
+      ...modelWithBoundary,
+      skippedUnlabeledEntityCount: 1,
+    };
+
+    const alt = architectureDiagramModelToTextAlternative(skipped);
+
+    expect(alt).toContain("The diagram includes 1 component whose names were not stored.");
+
+    expect(architectureDiagramModelToTextAlternative(modelWithBoundary)).not.toContain("Skipped");
   });
 
   it("inserts mermaid line breaks so long human names wrap inside wrappingWidth boxes", () => {

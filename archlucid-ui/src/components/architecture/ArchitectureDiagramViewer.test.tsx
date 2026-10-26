@@ -11,6 +11,7 @@ import {
   ARCHITECTURE_DIAGRAM_VIEWPORT_HINT,
   ARCHITECTURE_DIAGRAM_ZOOM_IN_LABEL,
   ARCHITECTURE_DIAGRAM_ZOOM_OUT_LABEL,
+  ARCHITECTURE_DIAGRAM_DATA_FLOW_NOT_MATCHED_PREFIX,
   ARCHITECTURE_DIAGRAM_ZOOM_PERCENT_LABEL,
 } from '@/lib/architecture/architecture-diagram-copy';
 
@@ -401,6 +402,78 @@ describe('ArchitectureDiagramViewer', () => {
     });
   });
 
+  it('reports when a connector edge is missing an endpoint', async () => {
+    const forestLayoutSvg = [
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 120">',
+      '  <g class="edge" data-from="" data-to="sql"><title>May access</title><path d="M20 20L80 20"/></g>',
+      '</svg>',
+    ].join('');
+
+    render(
+      <ArchitectureDiagramViewer
+        mermaidSource={'flowchart TD\n  app["app"] --> sql["sql"]'}
+        layoutSvg={forestLayoutSvg}
+        outline={{ nodes: [], edges: [] }}
+        textAlternative="Inventory topology"
+      />,
+    );
+
+    const host = await screen.findByTestId('architecture-diagram-svg-host');
+    fireEvent.click(host.querySelector('g.edge path')!);
+
+    expect(screen.getByTestId('diagram-connector-focus-notice')).toHaveTextContent(
+      'Edge endpoint was not stored.',
+    );
+  });
+
+  it('does not show member-name omission when data-member-names is absent', async () => {
+    const forestLayoutSvg = [
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 120">',
+      '  <g class="node" id="node-plain"><title>App tier</title><rect class="node-card" width="80" height="20"/></g>',
+      '</svg>',
+    ].join('');
+
+    render(
+      <ArchitectureDiagramViewer
+        mermaidSource={'flowchart TD\n  a["A"]'}
+        layoutSvg={forestLayoutSvg}
+        outline={{ nodes: [], edges: [] }}
+        textAlternative="Inventory topology"
+      />,
+    );
+
+    const host = await screen.findByTestId('architecture-diagram-svg-host');
+    fireEvent.click(host.querySelector('#node-plain')!);
+
+    const status = await screen.findByTestId('diagram-click-focus-status');
+    expect(status).not.toHaveTextContent('Diagram member name was not stored.');
+  });
+
+  it('labels blank rollup member names as not stored', async () => {
+    const forestLayoutSvg = [
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 120">',
+      '  <g class="node" id="node-rollup" data-member-names=" |storage-b"><title>6 storage accounts</title><rect class="node-card" width="80" height="20"/></g>',
+      '</svg>',
+    ].join('');
+
+    render(
+      <ArchitectureDiagramViewer
+        mermaidSource={'flowchart TD\n  a["A"]'}
+        layoutSvg={forestLayoutSvg}
+        outline={{ nodes: [], edges: [] }}
+        textAlternative="Inventory topology"
+      />,
+    );
+
+    const host = await screen.findByTestId('architecture-diagram-svg-host');
+    fireEvent.click(host.querySelector('#node-rollup')!);
+
+    expect(await screen.findByTestId('diagram-click-focus-status')).toHaveTextContent(
+      'Diagram member name was not stored.',
+    );
+    expect(screen.getByTestId('diagram-click-focus-status')).toHaveTextContent('storage-b');
+  });
+
   it('reports connector clicks and dims other connectors when selected', async () => {
     const onSelectConnector = vi.fn();
     const forestLayoutSvg = [
@@ -521,31 +594,6 @@ describe('ArchitectureDiagramViewer', () => {
     );
     expect(screen.getByTestId('diagram-click-focus-status')).not.toHaveTextContent('Authorization from managed identity');
     expect(screen.getByTestId('diagram-click-focus-status')).not.toHaveTextContent('Hostname match in app settings');
-  });
-
-  it('labels blank rollup member tokens as stored empty', async () => {
-    const forestLayoutSvg = [
-      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 120">',
-      '  <g class="node" id="node-rollup" data-member-names="storage-a · rg-a|"><title>6 storage accounts</title><rect class="node-card" width="80" height="20"/></g>',
-      '</svg>',
-    ].join('');
-
-    render(
-      <ArchitectureDiagramViewer
-        mermaidSource={'flowchart TD\n  a["A"]'}
-        layoutSvg={forestLayoutSvg}
-        outline={{ nodes: [], edges: [] }}
-        textAlternative="Inventory topology"
-        viewportAriaLabel="Inventory topology"
-      />,
-    );
-
-    const host = await screen.findByTestId('architecture-diagram-svg-host');
-    fireEvent.click(host.querySelector('#node-rollup')!);
-
-    await waitFor(() => {
-      expect(screen.getByText('Member name was stored empty.')).toBeInTheDocument();
-    });
   });
 
   it('labels a rollup focus with its member-list title', async () => {
@@ -1279,5 +1327,25 @@ describe('ArchitectureDiagramViewer', () => {
     expect(Number(svg?.getAttribute('height') ?? 0)).toBeGreaterThanOrEqual(
       helpMermaid.MERMAID_VIEWPORT_MIN_INK_HEIGHT_PX,
     );
+  });
+
+  it('renders unmatched data-flow honesty lines outside sr-only text (P-04)', async () => {
+    render(
+      <ArchitectureDiagramViewer
+        mermaidSource={'flowchart TB\n  a["A"]'}
+        textAlternative="user: A"
+        unmatchedDataFlows={['Portal -> Missing service']}
+        viewportAriaLabel="Architecture diagram"
+        fullscreenTitle="Diagram"
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId('architecture-diagram-viewport')).toBeInTheDocument();
+    });
+
+    const visibleLine = screen.getByTestId('architecture-diagram-unmatched-data-flow');
+    expect(visibleLine).toHaveTextContent(ARCHITECTURE_DIAGRAM_DATA_FLOW_NOT_MATCHED_PREFIX);
+    expect(visibleLine.className.split(/\s+/u)).not.toContain('sr-only');
   });
 });

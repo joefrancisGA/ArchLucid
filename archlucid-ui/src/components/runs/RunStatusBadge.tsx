@@ -57,11 +57,19 @@ export function RunStatusBadge({ run, className, finalizeHonesty }: RunStatusBad
     />
   );
 
-  if (buyerPolished && run.hasGovernanceWarnings === true && run.hasGoldenManifest === true) {
+  if (run.hasGovernanceWarnings === true && run.hasGoldenManifest === true) {
     return (
       <span className="inline-flex flex-wrap items-center gap-1">
         {pipelineTag}
-        <StatusTag kind="approved-with-monitoring" label="Monitoring active" />
+        <StatusTag
+          kind="approved-with-monitoring"
+          label={buyerPolished ? "Monitoring active" : "Warnings"}
+          aria-label={
+            buyerPolished
+              ? "Review status: Monitoring active"
+              : "Architecture review pipeline status: Warnings on sealed review"
+          }
+        />
       </span>
     );
   }

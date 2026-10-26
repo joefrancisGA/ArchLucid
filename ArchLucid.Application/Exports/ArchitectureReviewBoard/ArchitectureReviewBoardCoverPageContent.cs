@@ -22,6 +22,12 @@ public sealed record ArchitectureReviewBoardCoverPageContent(
 
     internal const string PreparedForTenantNameNotStoredNotice = "Prepared for tenant name was not stored.";
 
+    internal const string PreparedForTenantNameStoredEmptyNotice = "Prepared for tenant name was stored empty.";
+
+    internal const string FirmDisplayNameNotStoredNotice = "Firm display name was not stored.";
+
+    internal const string ClientEngagementTitleNotStoredNotice = "Client engagement title was not stored.";
+
     internal const string LogoPlaceholderLabel = "[Logo placeholder — upload tenant cover logo in settings]";
 
     internal const string DirectionalEstimatesFooter = "Directional estimates — see methodology";
@@ -48,8 +54,12 @@ public sealed record ArchitectureReviewBoardCoverPageContent(
 
         if (whitelabel is not null)
         {
-            title = whitelabel.FirmDisplayName.Trim();
-            subtitle = whitelabel.ClientEngagementTitle.Trim();
+            title = string.IsNullOrWhiteSpace(whitelabel.FirmDisplayName)
+                ? FirmDisplayNameNotStoredNotice
+                : whitelabel.FirmDisplayName.Trim();
+            subtitle = string.IsNullOrWhiteSpace(whitelabel.ClientEngagementTitle)
+                ? ClientEngagementTitleNotStoredNotice
+                : whitelabel.ClientEngagementTitle.Trim();
         }
         else
         {

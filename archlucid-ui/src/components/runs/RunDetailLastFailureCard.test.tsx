@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 
 import { RunDetailLastFailureCard } from "@/components/runs/RunDetailLastFailureCard";
+import { AGENT_TYPE_NOT_STORED_LABEL } from "@/lib/agent-type-buyer-label";
 import { findForbiddenQualityOutagePhrases } from "@/lib/execution-vs-quality-outcome-copy";
 
 const useReviewPipelineReRunInFlightMock = vi.hoisted(() => vi.fn(() => false));
@@ -80,7 +81,7 @@ describe("RunDetailLastFailureCard (TB-965)", () => {
     expect(screen.getByTestId("run-detail-last-failure-recorded-at")).toHaveTextContent(
       "Failure recorded time was not stored.",
     );
-    expect(screen.getByTestId("run-detail-last-failure-agent")).toHaveTextContent("Agent was not stored.");
+    expect(screen.getByTestId("run-detail-last-failure-agent")).toHaveTextContent(AGENT_TYPE_NOT_STORED_LABEL);
   });
 
   it("hides stale failure details while a re-run attempt is in flight", () => {

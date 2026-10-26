@@ -137,7 +137,9 @@ export function GraphViewerNodeDetailPanel({
             selectedNode.label === undefined ||
             selectedNode.label.trim().length === 0
               ? "Node label was not stored."
-              : selectedNode.label}
+              : selectedNode.label.trim().length === 0
+                ? "Node label was stored empty."
+                : selectedNode.label}
           </p>
         </>
       )}
@@ -235,6 +237,10 @@ export function GraphViewerNodeDetailPanel({
             <p>Metadata was not stored on this node.</p>
           )}
         </>
+      ) : buyerTrailPanel && (!selectedNode.metadata || Object.keys(selectedNode.metadata).length === 0) ? (
+        <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+          Metadata was not stored on this graph node.
+        </p>
       ) : selectedNode.metadata && Object.keys(selectedNode.metadata).length > 0 ? (
         (() => {
           const { summaryLines, technicalLines } = graphBuyerTrailMetadataLines(selectedNode.metadata);

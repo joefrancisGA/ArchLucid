@@ -54,28 +54,7 @@ export function sanitizeTransparencyTrailForCareerExport(
 export function demoteOpenQuestionsStructuredSectionProvenance(
   section: ArchitectureStructuredSection,
 ): ArchitectureStructuredSection {
-  if (section.key !== "open-questions") {
-    return section;
-  }
-
-  const entities = section.entities ?? [];
-
-  if (section.provenance === "inferred" && entities.every((entity) => entity.provenance === "inferred")) {
-    return section;
-  }
-
-  return {
-    ...section,
-    provenance: "inferred",
-    ...(section.entities === undefined
-      ? {}
-      : {
-          entities: section.entities.map((entity) => ({
-            ...entity,
-            provenance: "inferred",
-          })),
-        }),
-  };
+  return section;
 }
 
 export function formatOpenQuestionsWorkingDocumentMarkdownSection(

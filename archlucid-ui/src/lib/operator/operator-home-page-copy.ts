@@ -4,7 +4,10 @@ import {
 } from "@/lib/buyer/buyer-polish-copy";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { formatOperatorHomeGovernanceApprovalWarningCount } from "@/lib/operator/operator-home-governance-approval-warning-copy";
-import type { OperatorHomeWorkspaceMetricsSnapshot } from "@/lib/operator/operator-home-workspace-metrics";
+import {
+  normalizeOperatorHomeWorkspaceMetricsForDisplay,
+  type OperatorHomeWorkspaceMetricsSnapshot,
+} from "@/lib/operator/operator-home-workspace-metrics";
 
 export const OPERATOR_HOME_PAGE_TITLE = OPERATOR_NAV_LINK_LABELS.home;
 
@@ -33,7 +36,9 @@ function resolveOperatorHomeWorkingPageSubtitle(
     return OPERATOR_HOME_WORKING_EMPTY_PAGE_SUBTITLE;
   }
 
-  if (metrics.reviewPackagesActive > 0) {
+  const displayMetrics = normalizeOperatorHomeWorkspaceMetricsForDisplay(metrics);
+
+  if (displayMetrics.reviewPackagesActive > 0) {
     return OPERATOR_HOME_WORKING_PAGE_SUBTITLE;
   }
 
@@ -45,20 +50,23 @@ function formatOperatorHomePressureSubtitle(metrics: OperatorHomeWorkspaceMetric
     return null;
   }
 
+  const displayMetrics = normalizeOperatorHomeWorkspaceMetricsForDisplay(metrics);
   const parts: string[] = [];
 
-  if (metrics.reviewPackagesActive > 0) {
+  if (displayMetrics.reviewPackagesActive > 0) {
     parts.push(
-      `${metrics.reviewPackagesActive} active review${metrics.reviewPackagesActive === 1 ? "" : "s"}`,
+      `${displayMetrics.reviewPackagesActive} active review${displayMetrics.reviewPackagesActive === 1 ? "" : "s"}`,
     );
   }
 
-  if (metrics.openFindings > 0) {
-    parts.push(`${metrics.openFindings} open finding${metrics.openFindings === 1 ? "" : "s"}`);
+  if (displayMetrics.openFindings > 0) {
+    parts.push(
+      `${displayMetrics.openFindings} open finding${displayMetrics.openFindings === 1 ? "" : "s"}`,
+    );
   }
 
-  if (metrics.governanceWarnings > 0) {
-    parts.push(formatOperatorHomeGovernanceApprovalWarningCount(metrics.governanceWarnings));
+  if (displayMetrics.governanceWarnings > 0) {
+    parts.push(formatOperatorHomeGovernanceApprovalWarningCount(displayMetrics.governanceWarnings));
   }
 
   if (parts.length === 0) {

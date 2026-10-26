@@ -5,6 +5,7 @@ using ArchLucid.Application.Agents;
 using ArchLucid.Application.Findings;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Findings;
 
@@ -15,6 +16,49 @@ namespace ArchLucid.Application.Reporting;
 /// </summary>
 public static class ArchitectureRunFindingsCsvFormatter
 {
+    internal const string ConfidenceScoreNotStoredLabel = "Confidence score was not stored.";
+
+    internal const string EstimatedSavingsNotStoredLabel = "Estimated savings were not stored.";
+
+    internal const string CategoryNotStoredLabel = "Category was not stored.";
+
+    internal const string FindingMessageNotStoredLabel = "Finding message was not stored.";
+
+    internal const string TrustLabelNotStoredLabel = "Trust label was not stored.";
+
+    internal const string TrustLabelReasonNotStoredLabel = "Trust label reason was not stored.";
+
+    internal const string HumanReviewStatusNotStoredLabel = "Human review status was not stored.";
+
+    internal const string DispositionNotStoredLabel = "Disposition was not stored.";
+
+    internal const string RevisitTimeNotStoredLabel = "Revisit time was not stored.";
+
+    internal const string FindingIdNotStoredLabel = "Finding id was not stored.";
+
+    internal const string ResultIdNotStoredLabel = "Result id was not stored.";
+
+    internal const string TaskIdNotStoredLabel = "Task id was not stored.";
+
+    internal const string CategoryStoredEmptyLabel = "Category was stored empty.";
+
+    internal const string FindingMessageStoredEmptyLabel = "Finding message was stored empty.";
+
+    internal const string MuteReasonNotStoredLabel = "Mute reason was not stored.";
+
+    internal const string ExternalProviderNotStoredLabel = "ITSM provider was not stored.";
+
+    internal const string ExternalKeyNotStoredLabel = "ITSM external key was not stored.";
+
+    internal const string ExternalUrlNotStoredLabel = "ITSM external URL was not stored.";
+
+    internal const string LinkedTicketsSummaryNotStoredLabel = "ITSM linked tickets summary was not stored.";
+
+    internal const string SourceAgentNotStoredLabel = "Source agent was not stored.";
+
+    internal const string MuteReasonNotApplicableLabel =
+        "Mute reason was not stored because the finding is not muted.";
+
     internal const string LegacyHeaderLine =
         "FindingId,ResultId,TaskId,SourceAgent,Severity,Category,Message,EstimatedUsdSavings,Status,MuteReason,ConfidenceScore";
 
@@ -162,10 +206,7 @@ public static class ArchitectureRunFindingsCsvFormatter
         ArchitectureFinding finding,
         IReadOnlyDictionary<string, RunFindingExternalTrackingProjection>? trackingByFindingId)
     {
-        string confidence =
-            finding.ConfidenceScore.HasValue
-                ? finding.ConfidenceScore.Value.ToString(CultureInfo.InvariantCulture)
-                : string.Empty;
+        string confidence = FormatConfidenceScore(finding);
 
         RunFindingExternalTrackingProjection? tracking = null;
 
@@ -178,29 +219,68 @@ public static class ArchitectureRunFindingsCsvFormatter
 
         sb.AppendJoin(
                 ',',
-                ExportFormatterService.EscapeCsvField(finding.FindingId),
-                ExportFormatterService.EscapeCsvField(result.ResultId),
-                ExportFormatterService.EscapeCsvField(result.TaskId),
-                ExportFormatterService.EscapeCsvField(
-                    AgentResultEnvelopeAgentTypeResolver.ResolveAgentType(result).ToString()),
+                ExportFormatterService.EscapeCsvField(FormatFindingId(finding.FindingId)),
+                ExportFormatterService.EscapeCsvField(FormatResultId(result.ResultId)),
+                ExportFormatterService.EscapeCsvField(FormatTaskId(result.TaskId)),
+                ExportFormatterService.EscapeCsvField(FormatSourceAgent(result)),
                 ExportFormatterService.EscapeCsvField(finding.Severity.ToString()),
-                ExportFormatterService.EscapeCsvField(finding.Category),
-                ExportFormatterService.EscapeCsvField(finding.Message),
+                ExportFormatterService.EscapeCsvField(FormatCategory(finding.Category)),
+                ExportFormatterService.EscapeCsvField(FormatMessage(finding.Message)),
                 ExportFormatterService.EscapeCsvField(FormatEstimatedUsdSavings(finding)),
                 ExportFormatterService.EscapeCsvField(FormatFindingStatus(finding.IsMuted)),
-                ExportFormatterService.EscapeCsvField(finding.MuteReason),
+                ExportFormatterService.EscapeCsvField(FormatMuteReason(finding.IsMuted, finding.MuteReason)),
                 ExportFormatterService.EscapeCsvField(confidence),
-                ExportFormatterService.EscapeCsvField(finding.TrustLabel),
-                ExportFormatterService.EscapeCsvField(finding.TrustLabelReason),
-                ExportFormatterService.EscapeCsvField(tracking?.Provider),
-                ExportFormatterService.EscapeCsvField(tracking?.ExternalKey),
-                ExportFormatterService.EscapeCsvField(tracking?.ExternalUrl),
+                ExportFormatterService.EscapeCsvField(FormatTrustLabel(finding.TrustLabel)),
+                ExportFormatterService.EscapeCsvField(FormatTrustLabelReason(finding.TrustLabelReason)),
+                ExportFormatterService.EscapeCsvField(FormatTrackingProvider(tracking)),
+                ExportFormatterService.EscapeCsvField(FormatTrackingExternalKey(tracking)),
+                ExportFormatterService.EscapeCsvField(FormatTrackingExternalUrl(tracking)),
                 ExportFormatterService.EscapeCsvField(FormatHumanReviewStatus(tracking)),
                 ExportFormatterService.EscapeCsvField(FormatDisposition(tracking)),
                 ExportFormatterService.EscapeCsvField(FormatRevisitDueUtc(tracking)),
-                ExportFormatterService.EscapeCsvField(tracking?.ItsmLinkedTicketsSummary))
+                ExportFormatterService.EscapeCsvField(FormatLinkedTicketsSummary(tracking)))
             .Append('\n');
     }
+
+    private static string FormatFindingId(string? findingId) =>
+        string.IsNullOrWhiteSpace(findingId) ? FindingIdNotStoredLabel : findingId.Trim();
+
+    private static string FormatResultId(string? resultId) =>
+        string.IsNullOrWhiteSpace(resultId) ? ResultIdNotStoredLabel : resultId.Trim();
+
+    private static string FormatTaskId(string? taskId) =>
+        string.IsNullOrWhiteSpace(taskId) ? TaskIdNotStoredLabel : taskId.Trim();
+
+    private static string FormatMuteReason(bool isMuted, string? muteReason)
+    {
+        if (!isMuted)
+        {
+            return MuteReasonNotApplicableLabel;
+        }
+
+        return string.IsNullOrWhiteSpace(muteReason) ? MuteReasonNotStoredLabel : muteReason.Trim();
+    }
+
+    private static string FormatSourceAgent(AgentResult result)
+    {
+        AgentType agentType = AgentResultEnvelopeAgentTypeResolver.ResolveAgentType(result);
+
+        return agentType == default ? SourceAgentNotStoredLabel : agentType.ToString();
+    }
+
+    private static string FormatTrackingProvider(RunFindingExternalTrackingProjection? tracking) =>
+        string.IsNullOrWhiteSpace(tracking?.Provider) ? ExternalProviderNotStoredLabel : tracking!.Provider.Trim();
+
+    private static string FormatTrackingExternalKey(RunFindingExternalTrackingProjection? tracking) =>
+        string.IsNullOrWhiteSpace(tracking?.ExternalKey) ? ExternalKeyNotStoredLabel : tracking!.ExternalKey.Trim();
+
+    private static string FormatTrackingExternalUrl(RunFindingExternalTrackingProjection? tracking) =>
+        string.IsNullOrWhiteSpace(tracking?.ExternalUrl) ? ExternalUrlNotStoredLabel : tracking!.ExternalUrl.Trim();
+
+    private static string FormatLinkedTicketsSummary(RunFindingExternalTrackingProjection? tracking) =>
+        string.IsNullOrWhiteSpace(tracking?.ItsmLinkedTicketsSummary)
+            ? LinkedTicketsSummaryNotStoredLabel
+            : tracking!.ItsmLinkedTicketsSummary.Trim();
 
     private static string FormatEstimatedUsdSavings(ArchitectureFinding finding)
     {
@@ -209,13 +289,53 @@ public static class ArchitectureRunFindingsCsvFormatter
             return finding.EstimatedUsdSavings.Value.ToString(CultureInfo.InvariantCulture);
         }
 
-        return string.Empty;
+        return EstimatedSavingsNotStoredLabel;
+    }
+
+    private static string FormatConfidenceScore(ArchitectureFinding finding)
+    {
+        if (!finding.ConfidenceScore.HasValue)
+        {
+            return ConfidenceScoreNotStoredLabel;
+        }
+
+        return finding.ConfidenceScore.Value.ToString(CultureInfo.InvariantCulture);
+    }
+
+    private static string FormatCategory(string? category)
+    {
+        if (category is null)
+        {
+            return CategoryNotStoredLabel;
+        }
+
+        return string.IsNullOrWhiteSpace(category) ? CategoryStoredEmptyLabel : category.Trim();
+    }
+
+    private static string FormatMessage(string? message)
+    {
+        if (message is null)
+        {
+            return FindingMessageNotStoredLabel;
+        }
+
+        return string.IsNullOrWhiteSpace(message) ? FindingMessageStoredEmptyLabel : message.Trim();
+    }
+
+    private static string FormatTrustLabel(string? trustLabel)
+    {
+        return trustLabel is null ? TrustLabelNotStoredLabel : trustLabel;
+    }
+
+    private static string FormatTrustLabelReason(string? trustLabelReason)
+    {
+        return trustLabelReason is null ? TrustLabelReasonNotStoredLabel : trustLabelReason;
     }
 
     private static string FormatHumanReviewStatus(RunFindingExternalTrackingProjection? tracking)
     {
         if (tracking is null)
-            return string.Empty;
+            return HumanReviewStatusNotStoredLabel;
 
         return FindingHumanReviewDispositionDivergence.FormatHumanReviewStatusForExport(
             tracking.HumanReviewStatus,
@@ -224,16 +344,16 @@ public static class ArchitectureRunFindingsCsvFormatter
 
     private static string FormatDisposition(RunFindingExternalTrackingProjection? tracking)
     {
-        if (tracking?.LatestDisposition is null)
-            return string.Empty;
+        if (tracking is null || tracking.LatestDisposition is null)
+            return DispositionNotStoredLabel;
 
         return tracking.LatestDisposition.Value.ToString();
     }
 
     private static string FormatRevisitDueUtc(RunFindingExternalTrackingProjection? tracking)
     {
-        if (tracking?.RevisitDueUtc is null)
-            return string.Empty;
+        if (tracking is null || tracking.RevisitDueUtc is null)
+            return RevisitTimeNotStoredLabel;
 
         return tracking.RevisitDueUtc.Value.ToString("O", CultureInfo.InvariantCulture);
     }

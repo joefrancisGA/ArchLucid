@@ -92,6 +92,8 @@ export function collectionRunStatusLabel(status: CollectionRun["status"]): strin
       return "Collection is running.";
     case "Imported":
       return "Collection was imported.";
+    case "PartiallySucceeded":
+      return "Partially succeeded. Collection did not finish.";
     default:
       return status;
   }

@@ -78,6 +78,21 @@ public sealed class FirstValueReportSemanticSupportBandSummaryTests
     }
 
     [Fact]
+    public void FormatStampSemanticSupportBandLine_compact_includes_not_scored_when_present()
+    {
+        FirstValueReportSemanticSupportBandSummary.SemanticSupportBandStampCounts counts = new(
+            Supported: 1,
+            Unchecked: 0,
+            Unsupported: 0,
+            NotScored: 2,
+            DecisionGradeTotal: 3);
+
+        string? line = FirstValueReportSemanticSupportBandSummary.FormatStampSemanticSupportBandLine(counts, compact: true);
+
+        line.Should().Be("Semantic support: 1 Supported · 0 Unchecked · 0 Unsupported · 2 Not scored");
+    }
+
+    [Fact]
     public void StampSemanticSupportShowsAllClear_is_false_when_unsupported_present()
     {
         FirstValueReportSemanticSupportBandSummary.SemanticSupportBandStampCounts counts = new(

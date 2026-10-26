@@ -8,7 +8,7 @@ import type {
 export type ArchitectureDiagramElementKind = "node" | "edge";
 
 export type ArchitectureDiagramProvenanceClass =
-  | "evidence-backed"
+  | "brief-asserted"
   | "accepted-inference"
   | "inferred"
   | "user-drawn";
@@ -24,6 +24,7 @@ export type ArchitectureDiagramElementProvenanceDetail = {
 
 export type ArchitectureDiagramProvenanceSummary = {
   readonly assertedNodeCount: number;
+  readonly acceptedInferenceNodeCount: number;
   readonly inferredNodeCount: number;
   readonly assertedEdgeCount: number;
   readonly inferredEdgeCount: number;
@@ -42,6 +43,7 @@ export function summarizeArchitectureDiagramProvenance(
   if (model === null) {
     return {
       assertedNodeCount: 0,
+      acceptedInferenceNodeCount: 0,
       inferredNodeCount: 0,
       assertedEdgeCount: 0,
       inferredEdgeCount: 0,
@@ -51,7 +53,10 @@ export function summarizeArchitectureDiagramProvenance(
 
   const activeNodes = model.nodes.filter((node) => !node.removed);
   const activeEdges = model.edges.filter((edge) => !edge.removed);
-  const assertedNodeCount = activeNodes.filter((node) => node.provenance === "asserted" || node.accepted).length;
+  const assertedNodeCount = activeNodes.filter((node) => node.provenance === "asserted").length;
+  const acceptedInferenceNodeCount = activeNodes.filter(
+    (node) => node.provenance === "inferred" && node.accepted,
+  ).length;
   const inferredNodeCount = activeNodes.filter(
     (node) => node.provenance === "inferred" && !node.accepted,
   ).length;
@@ -60,6 +65,7 @@ export function summarizeArchitectureDiagramProvenance(
 
   return {
     assertedNodeCount,
+    acceptedInferenceNodeCount,
     inferredNodeCount,
     assertedEdgeCount,
     inferredEdgeCount,
@@ -76,7 +82,7 @@ export function resolveNodeProvenanceClass(
   }
 
   if (node.provenance === "asserted") {
-    return "evidence-backed";
+    return "brief-asserted";
   }
 
   return "inferred";
@@ -87,23 +93,13 @@ export function resolveEdgeProvenanceClass(
   _diagramVersionSource: ArchitectureDiagramVersionSource | null,
 ): ArchitectureDiagramProvenanceClass {
   if (edge.provenance === "asserted") {
-    return "evidence-backed";
+    return "brief-asserted";
   }
 
   return "inferred";
 }
 
-function buildEvidenceSourceHref(runId: string, provenanceClass: ArchitectureDiagramProvenanceClass): string | null {
-  const trimmedRunId = runId.trim();
-
-  if (trimmedRunId.length === 0 || provenanceClass === "user-drawn") {
-    return null;
-  }
-
-  if (provenanceClass === "evidence-backed" || provenanceClass === "accepted-inference") {
-    return `/architecture/reviews/${encodeURIComponent(trimmedRunId)}?reviewTab=evidence`;
-  }
-
+function buildEvidenceSourceHref(_runId: string, _provenanceClass: ArchitectureDiagramProvenanceClass): string | null {
   return null;
 }
 
@@ -156,7 +152,7 @@ export function resolveArchitectureDiagramNodeDisplayLabel(label: string): strin
   return label;
 }
 
-function resolveArchitectureDiagramEdgeDisplayLabel(edge: ArchitectureDiagramEdge): string {
+export function resolveArchitectureDiagramEdgeDisplayLabel(edge: ArchitectureDiagramEdge): string {
   if (edge.label.length === 0) {
     return ARCHITECTURE_DIAGRAM_CONNECTION_LABEL_NOT_STORED;
   }
@@ -202,9 +198,9 @@ function buildProvenanceSentence(
   let core: string;
 
   if (provenanceClass === "accepted-inference") {
-    core = `${subject} (${label}) was marked inferred and accepted for this review. An inference source was not stored on the element.`;
-  } else if (provenanceClass === "evidence-backed") {
-    core = `${subject} (${label}) is backed by asserted architecture content or evidence on this review.`;
+    core = `${subject} (${label}) was accepted on this diagram. A source evidence link was not stored.`;
+  } else if (provenanceClass === "brief-asserted") {
+    core = `${subject} (${label}) was asserted in the brief. An evidence artifact link was not stored.`;
   } else {
     core = `${subject} (${label}) was marked inferred and still needs architect confirmation before export. An inference source was not stored on the element.`;
   }

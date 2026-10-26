@@ -8,8 +8,7 @@ namespace ArchLucid.ArtifactSynthesis.Compilers;
 /// <summary>Labels observed network security perimeter resource-association relationships (NR-37).</summary>
 internal static class InventoryDiagramNetworkSecurityPerimeterRelationshipApplier
 {
-    public const string Label =
-        InventoryDiagramRelationshipLabelTexts.NetworkSecurityPerimeterAssociationConfiguredObservedEnforcementNotStored;
+    public const string Label = InventoryDiagramRelationshipLabelTexts.NetworkSecurityPerimeterAssociationStoredObservedEnforcementNotStored;
 
     public static void Apply(DiagramAst ast)
     {
@@ -26,7 +25,7 @@ internal static class InventoryDiagramNetworkSecurityPerimeterRelationshipApplie
             }
 
             edge.Label = Label;
-            edge.ProvenanceKind = ProvenanceKind.ObservedFact.ToString();
+            edge.ProvenanceKind = ProvenanceKind.DerivedFact.ToString();
         }
     }
 }

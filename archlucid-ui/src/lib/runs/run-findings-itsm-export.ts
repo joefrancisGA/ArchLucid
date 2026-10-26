@@ -2,6 +2,7 @@ import {
   buildTraceRowWorkItemBody,
   type FindingWorkItemJsonDocument,
 } from "@/lib/copy-finding-as-work-item";
+import { workItemStoredText } from "@/lib/copy-finding-as-work-item-types";
 import {
   buildSemanticSupportBandExportStamp,
   resolveFindingSemanticSupportBandScorerVersion,

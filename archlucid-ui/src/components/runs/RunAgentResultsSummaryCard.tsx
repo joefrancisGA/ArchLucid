@@ -7,6 +7,7 @@ import { useState, type ReactElement } from "react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { buyerLabelForAgentType } from "@/lib/agent-type-buyer-label";
+import { formatAgentExecutionLimitationSuffix } from "@/lib/reviews/agent-execution-degradation-display";
 import { executeArchitectureRunSelectiveInFlight } from "@/lib/api/architecture-runs";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { reviewSelectiveExecuteMutationBlockedReason } from "@/lib/runs/review-selective-execute-mutation-blocked-reason";
@@ -168,9 +169,7 @@ export function RunAgentResultsSummaryCard(props: {
                   </p>
                   <p className="m-0 mt-1 text-neutral-600 dark:text-neutral-400">
                     Outcome: {outcomeLabel}
-                    {outcome.degradationReasonCode
-                      ? ` · degradation ${outcome.degradationReasonCode}`
-                      : null}
+                    {formatAgentExecutionLimitationSuffix(outcome.degradationReasonCode)}
                   </p>
                 </li>
               );

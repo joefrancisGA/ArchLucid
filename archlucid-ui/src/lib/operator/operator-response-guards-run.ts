@@ -7,7 +7,7 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
-const runSummaryRowSchema = z.object({ runId: z.string() }).passthrough();
+const runSummaryRowSchema = z.object({ runId: z.string().trim().min(1) }).passthrough();
 
 /**
  * Ensures the runs list endpoint returned an array of objects with runId (malformed vs empty list).

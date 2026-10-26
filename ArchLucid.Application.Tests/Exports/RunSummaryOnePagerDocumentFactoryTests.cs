@@ -94,6 +94,58 @@ public sealed class RunSummaryOnePagerDocumentFactoryTests
     }
 
     [Fact]
+    public void Create_excludes_muted_findings_from_severity_counts()
+    {
+        ArchitectureRunDetail detail = new()
+        {
+            Run = new ArchitectureRun { RunId = "run-1" },
+            Results =
+            [
+                new AgentResult
+                {
+                    Findings =
+                    [
+                        new ArchitectureFinding
+                        {
+                            Severity = FindingSeverity.Critical,
+                            Message = "Muted critical",
+                            IsMuted = true,
+                        },
+                        new ArchitectureFinding
+                        {
+                            Severity = FindingSeverity.Error,
+                            Message = "Active high",
+                        },
+                    ],
+                },
+            ],
+        };
+
+        RunSummaryOnePagerDocumentModel model =
+            RunSummaryOnePagerDocumentFactory.Create(detail, "Summary.", []);
+
+        model.CriticalCount.Should().Be(0);
+        model.HighCount.Should().Be(1);
+        model.MutedFindingCount.Should().Be(1);
+        model.SeverityCountsFootnote.Should().Contain("Muted findings are excluded");
+    }
+
+    [Fact]
+    public void Create_sets_top_findings_empty_copy_when_no_titles()
+    {
+        ArchitectureRunDetail detail = new()
+        {
+            Run = new ArchitectureRun { RunId = "run-1" },
+            Results = [],
+        };
+
+        RunSummaryOnePagerDocumentModel model =
+            RunSummaryOnePagerDocumentFactory.Create(detail, "Summary.", []);
+
+        model.TopFindingsEmptyCopy.Should().Be(RunSummaryOnePagerHonestyCopy.TopFindingTitlesNotStored);
+    }
+
+    [Fact]
     public void SelectTopHighCriticalFindings_excludes_muted_findings()
     {
         ArchitectureRunDetail detail = new()

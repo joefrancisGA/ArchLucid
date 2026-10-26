@@ -106,7 +106,8 @@ public sealed partial class MarkdownArchitectureAnalysisExportService
         }
         else
         {
-            sb.AppendLine(ArchitectureEvidenceRequestExport.DiagramNotStoredCopy);
+            sb.AppendLine(ConsultingDocxAppendixHonestyCopy.MermaidSourceNotStored);
+            sb.AppendLine();
         }
 
         sb.AppendLine();

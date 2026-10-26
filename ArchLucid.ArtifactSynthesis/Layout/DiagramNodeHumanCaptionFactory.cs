@@ -95,8 +95,8 @@ public static class DiagramNodeHumanCaptionFactory
         if (node.HasPrivateEndpointAccess)
         {
             string privateEndpointCaption = string.IsNullOrWhiteSpace(node.PrivateEndpointAccessName)
-                ? "Private endpoint name was not stored."
-                : node.PrivateEndpointAccessName.Trim();
+                ? DiagramForestPrivateEndpointEdgeAccessibility.FormatEdgeTitle(null)
+                : DiagramForestPrivateEndpointEdgeAccessibility.FormatEdgeTitle(node.PrivateEndpointAccessName);
             combined = $"{combined} · {privateEndpointCaption}";
         }
 
@@ -114,8 +114,8 @@ public static class DiagramNodeHumanCaptionFactory
         else if (node.ConnectionState == InventoryDiagramConnectionState.Used)
         {
             combined = string.IsNullOrWhiteSpace(node.ConnectionStateMessage)
-                ? $"{combined} · Off-diagram reference was not stored."
-                : $"{combined} · Referenced off this diagram: {node.ConnectionStateMessage.Trim()}.";
+                ? $"{combined} · Off-diagram use was not stored."
+                : $"{combined} · In use off the diagram: {node.ConnectionStateMessage.Trim()}";
         }
         else if (node.ConnectionState == InventoryDiagramConnectionState.Unconnected)
         {

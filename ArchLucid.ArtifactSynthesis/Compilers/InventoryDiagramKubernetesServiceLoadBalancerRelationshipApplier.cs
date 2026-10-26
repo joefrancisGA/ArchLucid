@@ -8,7 +8,7 @@ namespace ArchLucid.ArtifactSynthesis.Compilers;
 /// <summary>Labels AKS managed cluster to Kubernetes service load balancer edges (NR-39).</summary>
 internal static class InventoryDiagramKubernetesServiceLoadBalancerRelationshipApplier
 {
-    public const string Label = InventoryDiagramRelationshipLabelTexts.AksServiceLoadBalancerConfiguredObservedTrafficNotStored;
+    public const string Label = InventoryDiagramRelationshipLabelTexts.KubernetesServiceLoadBalancerConfiguredObservedTrafficNotStored;
 
     public static void Apply(DiagramAst ast)
     {
@@ -25,7 +25,7 @@ internal static class InventoryDiagramKubernetesServiceLoadBalancerRelationshipA
             }
 
             edge.Label = Label;
-            edge.ProvenanceKind = ProvenanceKind.ObservedFact.ToString();
+            edge.ProvenanceKind = ProvenanceKind.DerivedFact.ToString();
         }
     }
 }

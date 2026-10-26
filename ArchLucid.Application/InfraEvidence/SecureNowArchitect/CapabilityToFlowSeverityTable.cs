@@ -12,7 +12,7 @@ internal static class CapabilityToFlowSeverityTable
             return new PrivilegePathSeverityResult
             {
                 Severity = "Medium",
-                BusinessCriticality = "Unknown",
+                BusinessCriticality = FourRealityDriftNarrative.BusinessCriticalityNotStoredLabel,
                 BlastRadius = "PossibleMovement",
             };
         }
@@ -22,7 +22,7 @@ internal static class CapabilityToFlowSeverityTable
             return new PrivilegePathSeverityResult
             {
                 Severity = "High",
-                BusinessCriticality = "Unknown",
+                BusinessCriticality = FourRealityDriftNarrative.BusinessCriticalityNotStoredLabel,
                 BlastRadius = "PossibleMovement",
             };
         }
@@ -30,7 +30,7 @@ internal static class CapabilityToFlowSeverityTable
         return new PrivilegePathSeverityResult
         {
             Severity = "Medium",
-            BusinessCriticality = "Unknown",
+            BusinessCriticality = FourRealityDriftNarrative.BusinessCriticalityNotStoredLabel,
             BlastRadius = "PossibleMovement",
         };
     }

@@ -1,7 +1,10 @@
 export const ARCHITECTURE_DIAGRAM_SECTION_HEADING = "Architecture diagram" as const;
 
 export const ARCHITECTURE_DIAGRAM_DRAFT_LABEL =
-  "Generated from the information provided. Review inferred components and connections." as const;
+  "Generated from the information provided. Review inferred components and lines." as const;
+
+export const ARCHITECTURE_DIAGRAM_LEGEND_PROVENANCE_NOTE =
+  "Counts list components and lines recorded in your brief versus inferred on this diagram." as const;
 
 export const ARCHITECTURE_DIAGRAM_NOT_AUTHORITATIVE =
   "Draft diagram — confirm or edit before treating this as authoritative." as const;
@@ -64,13 +67,16 @@ export const ARCHITECTURE_DIAGRAM_STORAGE_WRITE_FAILURE =
 
 export const ARCHITECTURE_DIAGRAM_LEGEND_HEADING = "Diagram legend" as const;
 
-export const ARCHITECTURE_DIAGRAM_LEGEND_ASSERTED = "Solid — asserted in your brief" as const;
+export const ARCHITECTURE_DIAGRAM_LEGEND_ASSERTED =
+  "Solid — asserted in your brief (accepted inferences are solid only after you accept them on this diagram)" as const;
 
 export const ARCHITECTURE_DIAGRAM_LEGEND_INFERRED = "Dashed — inferred; confirm or remove" as const;
 
 export const ARCHITECTURE_DIAGRAM_PROVENANCE_SUMMARY_ASSERTED = "Asserted" as const;
 
 export const ARCHITECTURE_DIAGRAM_PROVENANCE_SUMMARY_INFERRED = "Inferred" as const;
+
+export const ARCHITECTURE_DIAGRAM_PROVENANCE_SUMMARY_ACCEPTED_INFERENCE = "Accepted inference" as const;
 
 export const ARCHITECTURE_DIAGRAM_RESTORE_INFERRED_ACTION = "Restore" as const;
 
@@ -109,7 +115,13 @@ export const ARCHITECTURE_DIAGRAM_ZOOM_PERCENT_LABEL = "Diagram zoom percentage"
 
 export const ARCHITECTURE_DIAGRAM_FIT_IN_VIEW_LABEL = "Fit in view" as const;
 
-export const ARCHITECTURE_DIAGRAM_SUBSCRIPTION_MAP_LABEL = "Subscription map" as const;
+export const ARCHITECTURE_DIAGRAM_NEIGHBORHOOD_MAP_LABEL = "Neighborhood map" as const;
+
+export const ARCHITECTURE_DIAGRAM_SUBSCRIPTION_NAME_NOT_STORED_ON_MAP =
+  "Subscription name was not stored on this map." as const;
+
+/** @deprecated Use {@link ARCHITECTURE_DIAGRAM_NEIGHBORHOOD_MAP_LABEL}. */
+export const ARCHITECTURE_DIAGRAM_SUBSCRIPTION_MAP_LABEL = ARCHITECTURE_DIAGRAM_NEIGHBORHOOD_MAP_LABEL;
 
 export const ARCHITECTURE_DIAGRAM_MAP_LABEL = "Map" as const;
 
@@ -120,8 +132,32 @@ export const ARCHITECTURE_DIAGRAM_VIEWPORT_HINT =
 
 export const ARCHITECTURE_DIAGRAM_COMPONENT_NAME_NOT_STORED = "Component name was not stored." as const;
 
+export const ARCHITECTURE_DIAGRAM_SECTION_ENTITIES_NOT_STORED =
+  "Entities were not stored." as const;
+
+export const ARCHITECTURE_DIAGRAM_SECTION_ENTITIES_STORED_EMPTY =
+  "Entities were stored empty." as const;
+
 export const ARCHITECTURE_DIAGRAM_DATA_FLOW_NOT_MATCHED_PREFIX =
   "Data flow was not matched to diagram components:" as const;
+
+export function formatArchitectureDiagramUnlabeledComponentsNotice(entityCount: number): string {
+  const noun = entityCount === 1 ? "component" : "components";
+
+  return `The diagram includes ${entityCount} ${noun} whose names were not stored.`;
+}
+
+export function formatTrustBoundaryWithoutMembershipNote(boundaryNames: readonly string[]): string {
+  return `Trust boundary names were stored without component membership: ${boundaryNames.join(", ")}.`;
+}
+
+export function formatReviewTitleNotCollectedSystemNote(reviewTitle: string): string {
+  return `Review title: ${reviewTitle}. This title is not a collected system.`;
+}
+
+export function formatUnmatchedArchitectureDataFlowLine(flow: string): string {
+  return `${ARCHITECTURE_DIAGRAM_DATA_FLOW_NOT_MATCHED_PREFIX} ${flow}`;
+}
 
 export const ARCHITECTURE_DIAGRAM_NOT_GENERATED_MESSAGE =
   "Architecture diagram was not generated." as const;

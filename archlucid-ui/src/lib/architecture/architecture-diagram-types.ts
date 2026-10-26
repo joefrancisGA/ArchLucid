@@ -27,6 +27,10 @@ export type ArchitectureDiagramModel = {
   readonly skippedUnlabeledEntityCount: number;
   /** Parsed data-flow lines that could not be matched to diagram nodes (omission copy only). */
   readonly unmatchedDataFlows: readonly string[];
+  /** Per-section entity omission honesty for diagram brief exports. */
+  readonly entitySectionHonestyLines: readonly string[];
+  /** Operator-visible honesty lines rendered under the diagram (not drawn in Mermaid). */
+  readonly diagramHonestyNotes?: readonly string[];
 };
 
 export type ArchitectureDiagramMissingCategory =

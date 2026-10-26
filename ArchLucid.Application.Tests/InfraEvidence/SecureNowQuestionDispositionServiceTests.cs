@@ -569,6 +569,58 @@ public async Task Foreign_snapshot_cannot_read_or_write()
     }
 
     [Fact]
+    public async Task Subscription_scope_pack_question_accepts_empty_resource_id_on_reopen()
+    {
+        InMemoryDispositionRepository repository = new();
+        SecureNowQuestionDispositionService sut = CreateSut(
+            repository,
+            includeInventoryQuestion: false,
+            includePackElicitation: true);
+
+        IReadOnlyList<SecureNowQuestionRecord> listed =
+            await sut.ListQuestionsAsync(Scope, SnapshotId);
+        SecureNowQuestionRecord packQuestion = listed.Should().ContainSingle().Subject;
+
+        SecureNowQuestionDispositionWriteRequest answerRequest =
+            new()
+            {
+                SubscriptionId = "sub-1",
+                ResourceId = string.Empty,
+                QuestionKey = packQuestion.QuestionKey,
+                Source = SecureNowQuestionSource.PolicyPack,
+                ScopeKind = SecureNowQuestionScopeKind.Subscription,
+                AnswerCode = packQuestion.AnswerCodes[0],
+                AnswerText = packQuestion.AnswerCodes[0],
+                Reason = "Pack elicitation reviewed.",
+                EvidenceFingerprint = packQuestion.EvidenceFingerprint,
+            };
+
+        await sut.AnswerAsync(Scope, SnapshotId, answerRequest, "actor");
+
+        SecureNowQuestionDispositionMutationResult reopened = await sut.ReopenAsync(
+            Scope,
+            SnapshotId,
+            new SecureNowQuestionDispositionReopenRequest
+            {
+                SubscriptionId = answerRequest.SubscriptionId,
+                ResourceId = string.Empty,
+                QuestionKey = answerRequest.QuestionKey,
+                Reason = "Need to revise the pack answer.",
+            },
+            "reviewer");
+
+        reopened.Succeeded.Should().BeTrue();
+        reopened.Record!.Status.Should().Be(SecureNowQuestionDispositionStatus.Open);
+        reopened.Record.AnswerCode.Should().BeNull();
+
+        IReadOnlyList<SecureNowQuestionRecord> afterReopen =
+            await sut.ListQuestionsAsync(Scope, SnapshotId);
+        afterReopen.Should().ContainSingle();
+        afterReopen[0].Status.Should().Be(SecureNowQuestionDispositionStatus.Open);
+        afterReopen[0].AnswerCode.Should().BeNull();
+    }
+
+    [Fact]
     public async Task Inventory_answer_does_not_depend_on_inferred_connection_availability()
     {
         InMemoryDispositionRepository repository = new();

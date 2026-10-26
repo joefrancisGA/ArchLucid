@@ -291,7 +291,7 @@ public sealed class DiagramForestDataFlowEdgeRouterTests
         DiagramForestLayoutResult result = renderer.Render(ast);
         result.Succeeded.Should().BeTrue();
         result.Svg.Should().NotBeNull();
-        CountOccurrences(result.Svg!, "Not connected").Should().Be(1);
+        CountOccurrences(result.Svg!, "No diagram link was stored on this view.").Should().Be(1);
     }
 
     private static DiagramForestDataFlowColumnLayout.Result BuildThreeColumnLayout(DiagramForestLayoutOptions options)

@@ -31,6 +31,45 @@ function readStringList(record: Record<string, unknown>, ...keys: string[]): str
   return [];
 }
 
+function resolveCloudProviderFromPaste(
+  record: Record<string, unknown>,
+  defaults: WizardFormValues,
+): SecondRunPasteResult | { ok: true; cloudProvider: WizardFormValues["cloudProvider"] } {
+  const keys = ["cloud_provider", "cloudProvider", "CloudProvider"] as const;
+
+  for (const key of keys) {
+    if (!(key in record)) {
+      continue;
+    }
+
+    const raw = record[key];
+
+    if (raw === null || raw === undefined) {
+      return { ok: true, cloudProvider: defaults.cloudProvider };
+    }
+
+    if (typeof raw !== "string") {
+      return { ok: false, error: "cloud_provider must be a string." };
+    }
+
+    const trimmed = raw.trim();
+
+    if (trimmed.length === 0) {
+      return { ok: true, cloudProvider: defaults.cloudProvider };
+    }
+
+    const normalized = normalizeCloudProviderForWizard(trimmed);
+
+    if (normalized === undefined) {
+      return { ok: false, error: `cloud_provider '${trimmed}' is not recognized.` };
+    }
+
+    return { ok: true, cloudProvider: normalized };
+  }
+
+  return { ok: true, cloudProvider: defaults.cloudProvider };
+}
+
 function normalizeCloudProviderForWizard(raw: string | undefined): WizardFormValues["cloudProvider"] | undefined {
   const normalized = (raw ?? "").trim().toLowerCase();
 
@@ -154,6 +193,12 @@ export function applySecondRunPasteToWizard(raw: string, defaults: WizardFormVal
     requestId = compact;
   }
 
+  const cloudProviderResult = resolveCloudProviderFromPaste(record, defaults);
+
+  if (!cloudProviderResult.ok) {
+    return cloudProviderResult;
+  }
+
   const merged: WizardFormValues = {
     ...defaults,
     requestId,
@@ -163,10 +208,7 @@ export function applySecondRunPasteToWizard(raw: string, defaults: WizardFormVal
       readString(record, "environment", "Environment") !== undefined
         ? normalizeEnvironmentForWizard(readString(record, "environment", "Environment"))
         : defaults.environment,
-    cloudProvider:
-      normalizeCloudProviderForWizard(
-        readString(record, "cloud_provider", "cloudProvider", "CloudProvider"),
-      ) ?? defaults.cloudProvider,
+    cloudProvider: cloudProviderResult.cloudProvider,
     requiredCapabilities: components,
     constraints,
     assumptions,

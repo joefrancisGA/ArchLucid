@@ -138,11 +138,14 @@ export function ArchitectureCreatedClarificationsPanel(
   const showIntakeOpenQuestions = hasOpenQuestions && !preferModelInterviewQuestions;
   const clarificationBlockedReason = props.clarificationQuestionsBlockedReason?.trim() ?? "";
   const hasClarificationBlockedReason = clarificationBlockedReason.length > 0;
+  const openQuestionsEntitiesOmitted =
+    openQuestions !== undefined && openQuestions.entities == null;
   const isZeroGapSuccess =
     !hasClarificationBlockedReason
     && !parseResult.hasPartialParseFailure
     && !hasVisibleWorkQueue
-    && !showIntakeOpenQuestions;
+    && !showIntakeOpenQuestions
+    && !openQuestionsEntitiesOmitted;
   const reviewDiagramVariant = props.pagePrimaryOwnedElsewhere === true ? "outline" : "primary";
   const deltaPresentation = buildReviewClarificationDeltaPresentation(props.clarificationDelta);
   const clarificationQuestions = props.clarificationQuestions ?? [];
@@ -244,8 +247,8 @@ export function ArchitectureCreatedClarificationsPanel(
 
       {!isZeroGapSuccess ? (
         <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
-          Unresolved clarifications reduce assessment confidence. Answer open questions or add evidence before sharing
-          with sponsors or creating work items.
+          These clarifications are still open. Answer them or add evidence before sharing with sponsors or creating
+          work items.
         </p>
       ) : null}
 
@@ -427,11 +430,11 @@ export function ArchitectureCreatedClarificationsPanel(
       {!isZeroGapSuccess ? (
         <div className="rounded-lg border border-neutral-200 bg-al-surface-raised p-4 dark:border-neutral-800">
           <h3 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
-            Confidence impact
+            Missing brief or evidence fields
           </h3>
           <p className={cn("m-0 mt-2 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
-            Each missing business outcome, system boundary, or evidence artifact lowers how confidently ArchLucid can
-            assess risks and recommend remediation. Clarify gaps before running a final assessment or sponsor share.
+            These rows list brief or evidence fields that were not stored. This panel does not store a confidence score.
+            Clarify gaps before running a final assessment or sponsor share.
           </p>
           <p className={cn("m-0 mt-3", OPERATOR_TYPOGRAPHY.helper)}>
             <Link href={continueClarifyingHref} className={OPERATOR_LINK.inline}>

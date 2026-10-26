@@ -16,6 +16,9 @@ public sealed partial class CompareRunsApplicationFacade
         string rightRunId,
         CancellationToken ct)
     {
+        leftRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(leftRunId);
+        rightRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(rightRunId);
+
         Task<ArchitectureRunDetail?> leftDetailTask =
             _runDetailQueryService.GetRunDetailForRollupAsync(leftRunId, ct);
         Task<ArchitectureRunDetail?> rightDetailTask =

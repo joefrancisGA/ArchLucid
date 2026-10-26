@@ -52,6 +52,7 @@ export {
 export {
   canConfirmScopeUnderstanding,
   scopeBriefLines,
+  scopeConfirmBriefLines,
   validateScopeUnderstandingItem,
 } from "./architecture-scope-understanding-validate";
 export {

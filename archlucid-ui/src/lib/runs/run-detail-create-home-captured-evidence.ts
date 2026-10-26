@@ -154,10 +154,7 @@ export function mergeCapturedEvidenceUploadOutcomes(
       continue;
     }
 
-    const fileName =
-      outcome.fileName === null || outcome.fileName === undefined
-        ? RUN_DETAIL_CAPTURED_EVIDENCE_FILE_NAME_NOT_STORED_COPY
-        : outcome.fileName;
+    const fileName = resolveCapturedEvidenceFileName(outcome.fileName ?? "");
     const evidenceItemId = evidenceItemIds[evidenceIdIndex] ?? null;
 
     evidenceIdIndex += 1;

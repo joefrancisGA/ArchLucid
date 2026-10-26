@@ -33,6 +33,8 @@ public static class InventoryDiagramAvdResourceMapping
 
     public const string HostPoolNameNotStoredCaption = "Host pool name was not stored.";
 
+    public const string HostPoolNameNotStored = "Host pool name was not stored.";
+
     public const string CollapsedBoundaryNodeIdPrefix = "avd-boundary-";
 
     public static string FormatHostPoolBoundaryLabel(string? hostPoolArmId)

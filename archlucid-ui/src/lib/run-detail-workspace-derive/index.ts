@@ -12,6 +12,10 @@ export { derivePrimaryConcernLabel } from "./finding-metrics";
 export { countFindingsAwaitingAction } from "./finding-metrics";
 export { severityLabelForFinding } from "./finding-metrics";
 export { deriveArchitectureSystemName } from "./review-metadata";
+export {
+  resolveRunDetailActionsSystemNameLabel,
+  RUN_DETAIL_ACTIONS_SYSTEM_NAME_NOT_STORED,
+} from "./review-metadata";
 export { deriveSubmittedArchitectureText } from "./review-metadata";
 export { deriveHasSubmittedArchitectureDescription } from "./review-metadata";
 export { deriveReviewOwnerLabel } from "./review-metadata";
@@ -33,6 +37,7 @@ export { deriveBlockingApprovalCount } from "./workspace-actions";
 export { deriveRecommendedWorkspaceActions } from "./workspace-actions";
 export { deriveBlockingFindingHref } from "./workspace-actions";
 export { shortenNextActionForPrimaryCta } from "./workspace-actions";
+export { normalizeWorkspaceRecommendedActionOwnerOrRole } from "./workspace-actions";
 export { formatDecisionSnapshotGovernanceOutcome } from "./decision-snapshot";
 export { formatDecisionSnapshotFindingsLine } from "./decision-snapshot";
 export { deriveReviewNextActionLabel } from "./review-presentation";

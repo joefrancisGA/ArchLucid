@@ -18,16 +18,22 @@ export function formatRunRetrievalCitationCoverage(citationCoverage: number | nu
   return `${pct}%`;
 }
 
+export const RUN_RETRIEVAL_SCORE_METADATA_MALFORMED_LABEL =
+  "Score metadata could not be parsed." as const;
+
+export const RUN_RETRIEVAL_DOCUMENT_METADATA_MALFORMED_LABEL =
+  "Document metadata could not be parsed." as const;
+
 export function formatRunRetrievalGroundingScoresLabel(
   scoreMetadataMalformed: boolean,
   scoreSummaries: readonly RunRetrievalGroundingScoreSummary[],
 ): string {
   if (scoreMetadataMalformed) {
-    return "degraded";
+    return RUN_RETRIEVAL_SCORE_METADATA_MALFORMED_LABEL;
   }
 
   if (scoreSummaries.length === 0) {
-    return "Not scored";
+    return "Scores were not stored.";
   }
 
   return scoreSummaries

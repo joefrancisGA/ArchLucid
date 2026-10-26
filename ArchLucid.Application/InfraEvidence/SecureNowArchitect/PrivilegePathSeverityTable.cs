@@ -17,7 +17,7 @@ public static class PrivilegePathSeverityTable
         {
             return new PrivilegePathSeverityResult
             {
-                Severity = "Medium",
+                Severity = string.Empty,
                 BusinessCriticality = "Unknown",
                 BlastRadius = "Unknown",
             };
@@ -75,7 +75,7 @@ public static class PrivilegePathSeverityTable
             return "Medium";
         }
 
-        return "Medium";
+        return string.Empty;
     }
 
     private static bool IsElevatedRole(string roleName) =>

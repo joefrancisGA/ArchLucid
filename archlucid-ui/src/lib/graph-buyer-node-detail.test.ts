@@ -21,7 +21,7 @@ describe("graphBuyerTrailRecordTypeLine", () => {
     };
 
     expect(graphBuyerTrailRecordTypeLine(node)).toEqual({
-      primary: "Finding: Sensitive data minimization",
+      primary: "Finding: Sensitive data minimization risk",
       secondary: { label: "Risk area", value: "Risk area was not stored." },
     });
   });
@@ -35,7 +35,7 @@ describe("graphBuyerTrailRecordTypeLine", () => {
     };
 
     expect(graphBuyerTrailRecordTypeLine(node)).toEqual({
-      primary: "Finding: Sensitive data minimization",
+      primary: "Finding: Sensitive data minimization risk",
       secondary: { label: "Risk area", value: "Risk area was not stored." },
     });
   });
@@ -49,7 +49,7 @@ describe("graphBuyerTrailRecordTypeLine", () => {
     };
 
     expect(graphBuyerTrailRecordTypeLine(node)).toEqual({
-      primary: "Finding: Sensitive data minimization",
+      primary: "Finding: Sensitive data minimization risk",
       secondary: { label: "Risk area", value: "Stored risk" },
     });
   });
@@ -66,6 +66,20 @@ describe("graphBuyerTrailRecordTypeLine", () => {
     );
   });
 
+  it("labels topology resource nodes for buyer trail panel title", () => {
+    const node: GraphNodeVm = {
+      id: "topo-1",
+      type: "TopologyResource",
+      label: "vm-prod-01",
+    };
+
+    expect(graphBuyerTrailPanelTitle(node)).toBe("Selected inventory resource: vm-prod-01");
+    expect(graphBuyerTrailRecordTypeLine(node)).toEqual({
+      primary: "Inventory resource",
+      secondary: null,
+    });
+  });
+
   it("labels generic finding nodes as Finding", () => {
     const node: GraphNodeVm = {
       id: "finding-other",
@@ -74,7 +88,7 @@ describe("graphBuyerTrailRecordTypeLine", () => {
     };
 
     expect(graphBuyerTrailRecordTypeLine(node)).toEqual({
-      primary: "Finding",
+      primary: "Finding: Other finding",
       secondary: null,
     });
   });
