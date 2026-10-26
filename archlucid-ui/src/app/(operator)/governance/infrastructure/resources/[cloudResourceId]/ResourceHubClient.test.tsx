@@ -1355,6 +1355,18 @@ describe("ResourceHubClient", () => {
     expect(askLink.getAttribute("href")).not.toContain("assessmentId=");
   });
 
+  it("omits duplicate stale tab params on drift Infrastructure Ask links", async () => {
+    searchParams = new URLSearchParams(
+      `tab=not-a-real-tab&tab=drift&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}&runId=run-1`,
+    );
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    await screen.findByTestId("infra-resource-hub-drift-tab-change-change-1-0");
+    const askLink = await screen.findByTestId("infra-resource-hub-drift-tab-ask-change-1-0");
+    expect(askLink.getAttribute("href")).not.toContain("not-a-real-tab");
+    expect(askLink.getAttribute("href")).toContain("tab=drift");
+  });
+
   it("preserves explorer workQueue on drift Infrastructure Ask links", async () => {
     searchParams = new URLSearchParams(
       `tab=overview&workQueue=open-findings&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}&runId=run-1`,

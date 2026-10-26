@@ -969,7 +969,15 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
   }, [loadHub]);
 
   const infrastructureAskHandoffSearch = useMemo(() => {
-    const serialized = searchParams.toString();
+    const scopedHubHref = resourceHubFilterHrefFromSearch(cloudResourceId, searchParams.toString(), {
+      tab: activeTab,
+      snapshotId: resolvedSnapshotId.length > 0 ? resolvedSnapshotId : undefined,
+      runId: resolvedRunId.length > 0 ? resolvedRunId : undefined,
+      workQueue: workQueue !== "all" ? workQueue : undefined,
+    });
+    let serialized = scopedHubHref.includes("?")
+      ? scopedHubHref.slice(scopedHubHref.indexOf("?") + 1)
+      : "";
 
     if (!showStaleAuditScopeBanner) {
       return serialized;
@@ -982,7 +990,15 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
     params.delete(RESOURCE_HUB_CONTROL_ID_PARAM);
 
     return params.toString();
-  }, [searchParams, showStaleAuditScopeBanner]);
+  }, [
+    activeTab,
+    cloudResourceId,
+    resolvedRunId,
+    resolvedSnapshotId,
+    searchParams,
+    showStaleAuditScopeBanner,
+    workQueue,
+  ]);
 
   const askAuditContext = useMemo((): InfrastructureAskAuditContext => {
     if (resolvedAuditLineage != null) {

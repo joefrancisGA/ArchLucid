@@ -7223,6 +7223,32 @@ ABQ-09 churn hotspot.
 
 ## Zone: ui-infra-resource-hub
 
+2026-10-26 seed hunt (seed→hit): promoted **Infrastructure Ask handoff kept duplicate stale `tab` params** — `infrastructureAskHandoffSearch` serialized raw `searchParams` before tab dedupe `router.replace` finished, so Ask links could carry `tab=not-a-real-tab&tab=drift` even while `activeTab` was Drift; build handoff search from scoped `resourceHubFilterHrefFromSearch` using `activeTab`; regression `omits duplicate stale tab params on drift Infrastructure Ask links`; cheap-disproof closed two-valid-tab last-wins policy (intentional hunt 120), normalize race (monitor), hub tab badges (saturated), drift change ids (defer); scoped ResourceHubClient vitest 141/141. Private beta: Infrastructure Ask from the resource hub no longer embeds stale duplicate tab query keys in overlay handoff URLs.
+
+- [x] (proven) `ResourceHubClient` infrastructure Ask — duplicate stale `tab` in handoff search — **hit 2026-10-26 seed hunt #121:** canonical scoped handoff search; regression above.
+- [x] (valid-no-repro) `ResourceHubClient` `readResourceHubTabFromSearchParams` — first of two valid tabs — **cheap-disproof 2026-10-26 seed hunt #121:** last-wins policy by design (hunt 120).
+- [x] (valid-no-repro) `ResourceHubClient` tab normalize — race with snapshot normalize — **cheap-disproof 2026-10-26 seed hunt #121:** monitor; both use scoped href builder.
+- [x] (valid-no-repro) `ResourceHubClient` `hubTabs` — badge counts from hub row — **cheap-disproof 2026-10-26 seed hunt #121:** saturated `[state-machine-gap]` monitor.
+- [x] (valid-no-repro) `ResourceHubDriftChangesTable` — drift change ids — **cheap-disproof 2026-10-26 seed hunt #121:** defer trim class.
+
+- [ ] (candidate) `ResourceHubClient` workbench exits — raw `searchParams` on cross-hub links — locus: href builders using `searchParams.toString()` without scoped tab; input: duplicate `tab` before normalize.
+- [ ] (candidate) `ResourceHubClient` `setActiveTab` — in-flight create remediation on tab switch — locus: `findingActionBusyId`; monitor.
+- [ ] (candidate) `ResourceHubClient` invalid audit partial URL — locus: stale banner + Ask; existing regressions; monitor.
+- [ ] (candidate) `ResourceHubClient` snapshot scope strip — pinned label during duplicate tab dedupe — monitor.
+- [ ] (candidate) `ResourceHubDriftChangesTable` — change id trim — defer.
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 121
+- **bugs-found:** 96
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-26
+- **last-bug:** 2026-10-26 — Infrastructure Ask handoff duplicate stale tab params
+- **code-changed-since:** yes
+
 2026-10-26 seed hunt (seed→hit): promoted **duplicate `tab` query keys ignored trailing value** — `URLSearchParams.get` and `activeTab` used the first `tab` entry, so bookmarks like `tab=not-a-real-tab&tab=drift` opened Overview while a valid Drift tab was last; resolve active tab from the last `tab` value via `readResourceHubTabFromSearchParams` and dedupe on load; regression `uses the last tab query value and canonicalizes duplicate tab params on load`; cheap-disproof closed tab casing (normalize effect), empty `tab=` (whitespace normalize), manual Retry (generation guard), and terraform method-without-address (empty-state boundary); scoped ResourceHubClient vitest 140/140 plus filter-url unit test. Private beta: duplicated hub tab query keys in shared links honor the last tab segment and collapse to a single canonical param.
 
 - [x] (proven) `ResourceHubClient` duplicate `tab` query keys — first value won over last — **hit 2026-10-26 seed hunt #120:** `readResourceHubTabFromSearchParams` + dedupe normalize; regression above.
