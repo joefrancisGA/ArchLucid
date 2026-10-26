@@ -7209,6 +7209,32 @@ ABQ-09 churn hotspot.
 
 ## Zone: ui-infra-resource-hub
 
+2026-10-26 seed hunt (seed→hit): promoted **partial URL audit params** blocking match backfill — `urlSpecifiesAuditScope` treated any single audit query param as a full scope, so a lone `assessmentId` in the URL skipped primary-match backfill for empty snapshot/control ids when hub link ids were whitespace-only and lineage failed; require all three URL audit params before treating scope as URL-complete; regression `resolves audit lineage when URL has only assessmentId and hub link audit ids are whitespace-only`; cheap-disproof closed ask context from lineage (prior hit), overview resourceGroup trim, and full triple URL scope; scoped ResourceHubClient vitest 115/115. Private beta: operators with a partial audit query on the resource hub still get lineage and workbench audit scope when capture left link ids blank but listed valid matches.
+
+- [x] (proven) `ResourceHubClient` `resolvedAuditLineage` — partial URL audit params vs backfill — **hit 2026-10-26 seed hunt:** `urlSpecifiesFullAuditScope` requires all three params; regression lone `assessmentId` + whitespace link ids.
+- [x] (valid-no-repro) `ResourceHubClient` `askAuditContext` — lineage-derived scope — **cheap-disproof 2026-10-26 seed hunt:** prior hit retained.
+- [x] (valid-no-repro) `parseInfraEvidenceWorkbenchAuditScopeFromSearch` — partial URL — **cheap-disproof 2026-10-26 seed hunt:** returns null until all three params present.
+- [x] (valid-no-repro) `ResourceHubClient` overview — `resourceGroup` / `region` whitespace — **cheap-disproof 2026-10-26 seed hunt:** inline trim omission copy.
+- [x] (valid-no-repro) `ResourceHubClient` stale audit scope — full URL triple — **cheap-disproof 2026-10-26 seed hunt:** existing stale-scope regression retained.
+
+- [ ] (candidate) `ResourceHubClient` overview — `resourceGroup` / `region` via `formatStoredInfraEvidenceHubField` — locus: DRY only.
+- [ ] (candidate) `ResourceHubClient` overview — `hasTerraformMapping` quick link — locus: unused computed flag.
+- [ ] (candidate) `ResourceHubClient` partial URL — backfill only when lone param matches a match row — locus: wrong assessmentId in URL.
+- [ ] (candidate) `ResourceHubDriftChangesTable` — drift actions without change ids — locus: saturated trim class; defer.
+- [ ] (candidate) `ResourceHubClient` audit tab — lineage when full URL scope invalid — locus: stale banner precedence.
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 83
+- **bugs-found:** 62
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-26
+- **last-bug:** 2026-10-26 — partial URL audit params blocked match backfill
+- **code-changed-since:** yes
+
 2026-10-26 seed hunt (seed→hit): promoted **workbench/Ask audit context** missing after whitespace-only hub link ids — `resolvedAuditLineage` backfilled ids from `matches` but `askAuditContext` still read raw link fields through `resolveInfrastructureAskAuditContext`, so overview remediation and other workbench exits dropped audit query params when link ids trimmed empty; prefer `resolvedAuditLineage` ids when lineage resolves; regression `includes resolved audit scope on overview remediation link when hub link audit ids are whitespace-only`; cheap-disproof closed primary-match backfill (prior hit), audit scope chip path, and `resourceHubFilterHrefFromSearch` trim; scoped ResourceHubClient vitest 114/114. Private beta: cross-workbench links keep assessment audit scope when capture stored whitespace-only link ids but valid match rows still resolve lineage.
 
 - [x] (proven) `ResourceHubClient` `askAuditContext` — whitespace-only link ids with resolved lineage — **hit 2026-10-26 seed hunt:** derive context from `resolvedAuditLineage` when non-null; regression overview remediation href with audit suffix.
