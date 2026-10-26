@@ -707,6 +707,11 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
     [hub?.diagramCorrespondence?.matchKind],
   );
 
+  const externalResourceIdDisplayLabel = useMemo(
+    () => formatStoredInfraEvidenceHubField(hub?.externalResourceId, "ARM resource path was not stored."),
+    [hub?.externalResourceId],
+  );
+
   const diagramCorrespondenceRemediationHref = useMemo(() => {
     if (hub?.diagramCorrespondence == null) {
       return null;
@@ -844,7 +849,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
             onToggle={(open) => setInfraResourceHubTechnicalKey(open ? "armResourcePath" : null)}
           >
             <p className={cn("m-0 font-mono text-xs break-all text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-              {hub?.externalResourceId ?? cloudResourceId}
+              {hub != null ? externalResourceIdDisplayLabel : cloudResourceId}
             </p>
           </CollapsibleSection>
         </section>
@@ -868,7 +873,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
             <div>
               <dt className="font-medium">{GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_ARM_RESOURCE_PATH_LABEL}</dt>
               <dd className="m-0 inline-flex items-center gap-1 font-mono text-xs break-all text-al-text-secondary">
-                {hub?.externalResourceId ?? cloudResourceId}
+                {hub != null ? externalResourceIdDisplayLabel : cloudResourceId}
                 <CopyIdButton
                   value={hub?.externalResourceId ?? cloudResourceId}
                   aria-label="Copy ARM resource path"

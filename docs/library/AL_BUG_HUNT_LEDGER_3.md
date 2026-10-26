@@ -7174,6 +7174,34 @@ ABQ-09 churn hotspot.
 
 ## Zone: ui-infra-resource-hub
 
+2026-10-26 seed hunt (seed→hit): promoted whitespace-only **`externalResourceId`** in ARM path disclosure — identifier strip and buyer-polished ARM collapsible rendered raw path while page title already normalized whitespace via `normalizeSecureNowResourceNameForDisplay`; add `externalResourceIdDisplayLabel`; regression `shows ARM resource path omission copy when externalResourceId is whitespace-only`; cheap-disproof closed audit other-linked labels (prior hit), scope bar default control props (delegated to `InfraEvidenceAuditScopeBar`; not promoted), and correspondence id hrefs (seeded below); scoped ResourceHubClient vitest 94/94. Private beta: resource hub identifier chrome shows “ARM resource path was not stored.” instead of a blank path when capture stored only whitespace.
+
+- [x] (proven) `ResourceHubClient` identifier strip — `externalResourceId` whitespace-only — **hit 2026-10-26 seed hunt:** `externalResourceIdDisplayLabel` via `formatStoredInfraEvidenceHubField`; regression whitespace ARM path fixture.
+- [x] (valid-no-repro) `ResourceHubClient` `resourceTitle` — whitespace-only external path segment — **cheap-disproof 2026-10-26 seed hunt:** `normalizeSecureNowResourceNameForDisplay` already maps empty trim to not-stored label.
+- [x] (valid-no-repro) `ResourceHubClient` audit other-linked controls — control fields whitespace-only — **cheap-disproof 2026-10-26 seed hunt:** prior hit; regression lock retained.
+- [x] (valid-no-repro) `ResourceHubClient` audit scope bar — default control label props whitespace-only — **cheap-disproof 2026-10-26 seed hunt:** not changed in this hunt; bar component owns copy.
+- [x] (valid-no-repro) `ResourceHubClient` diagram correspondence — `correspondenceId` whitespace-only — **cheap-disproof 2026-10-26 seed hunt:** not promoted; seeded below.
+
+- [ ] (candidate) `ResourceHubClient` diagram correspondence — `correspondenceId` whitespace-only — locus: reconcile/deep links; input: href built with whitespace id.
+- [ ] (candidate) `ResourceHubClient` findings — per-item `id` whitespace-only — locus: action test ids and factory links; input: blank finding id in UI actions.
+- [ ] (candidate) `ResourceHubClient` `currentConfiguration.azureResourceId` whitespace-only — locus: config-derived title path; input: blank segment before external fallback.
+- [ ] (candidate) `InfraEvidenceAuditScopeBar` — `controlNumber` / `controlTitle` props whitespace-only — locus: scope bar chrome when passed from hub defaults.
+- [ ] (candidate) `ResourceHubClient` hub load error — `loadError` message whitespace-only — locus: error banner; input: blank operator-facing error string.
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **aliases:** resource hub; infrastructure resource detail
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 66
+- **bugs-found:** 45
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-26
+- **last-bug:** 2026-10-26 — whitespace-only ARM resource path in identifier strip
+- **related-pd-tb:** none
+- **code-changed-since:** yes
+
 2026-10-26 seed hunt (seed→hit): promoted whitespace-only audit **other linked controls** labels — list links rendered raw `controlNumber · controlTitle` while active lineage label already filtered trimmed parts; add `formatAuditLineageControlLinkLabel`; regression `shows audit control omission copy on other linked controls when control fields are whitespace-only`; cheap-disproof closed drift `changeType` whitespace (`normalizeInfraEvidenceChangeTypeKey` maps to stored label), overview resource type (prior hit), and external resource id header (not promoted this hunt); scoped ResourceHubClient vitest 93/93. Private beta: audit tab “Other linked controls” links show not-stored copy for whitespace-only control numbers or titles instead of blank segments.
 
 - [x] (proven) `ResourceHubClient` audit “Other linked controls” — `controlNumber` / `controlTitle` whitespace-only — **hit 2026-10-26 seed hunt:** `formatAuditLineageControlLinkLabel`; regression audit-tab fixture.

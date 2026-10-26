@@ -109,6 +109,17 @@ describe("ResourceHubClient", () => {
     searchParams = new URLSearchParams(`tab=overview&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}`);
   });
 
+  it("shows ARM resource path omission copy when externalResourceId is whitespace-only", async () => {
+    fetchCachedInfraEvidenceResourceHub.mockImplementation(async () =>
+      buildResourceHubTestMockHub({
+        externalResourceId: "   ",
+      }),
+    );
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    expect(await screen.findByText("ARM resource path was not stored.")).toBeInTheDocument();
+  });
+
   it("falls back to the external resource name when the configuration id has a trailing slash", async () => {
     fetchCachedInfraEvidenceResourceHub.mockImplementationOnce(async () =>
       buildResourceHubTestMockHub({
