@@ -106,7 +106,7 @@ internal static class DiagramRelationshipVerbCatalog
 
         if (normalized.Equals(GraphEdgeTypes.MemberOf, StringComparison.OrdinalIgnoreCase))
         {
-            label = "member of";
+            label = InventoryDiagramRelationshipLabelTexts.MemberOfStoredObservedUseNotStoredLabel;
             return true;
         }
 
@@ -146,7 +146,7 @@ internal static class DiagramRelationshipVerbCatalog
 
         if (normalized.Equals(GraphEdgeInferenceSources.InventoryAppKeyVaultRef, StringComparison.OrdinalIgnoreCase))
         {
-            label = "likely · in";
+            label = InventoryDiagramRelationshipLabelTexts.AppToKeyVaultRefLabel;
             return true;
         }
 

@@ -16,6 +16,24 @@ public static class InventoryDiagramRelationshipLabelTexts
     public const string AppToKeyVaultRefLabel =
         "App setting names Key Vault. Observed secret access was not stored.";
 
+    public const string ConnectionStoredObservedTrafficNotStoredLabel =
+        "Connection was stored. Observed traffic was not stored.";
+
+    public const string RouteStoredObservedTrafficNotStoredLabel =
+        "Route was stored. Observed traffic was not stored.";
+
+    public const string AvdSessionHostStoredObservedSessionNotStoredLabel =
+        "AVD session host was stored. An observed session was not stored.";
+
+    public const string MemberOfStoredObservedUseNotStoredLabel =
+        "Membership was stored. Observed use of that membership was not stored.";
+
+    public const string DependencyStoredObservedUseNotStoredLabel =
+        "Dependency was stored. Observed use was not stored.";
+
+    public const string RelatesToStoredNotSpecificLabel =
+        "A relates-to link was stored. A more specific relationship was not stored.";
+
     public const string SqlPrincipalAuthorizedAccessLabel =
         "SQL principal authorization may allow access. An observed query was not stored.";
 
