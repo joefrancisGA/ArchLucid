@@ -155,7 +155,8 @@ export function secureNowQuestionDispositionResponseIsUsable(
     && disposition.snapshotId.length > 0
     && disposition.evidenceFingerprint.length > 0
     && disposition.source.length > 0
-    && disposition.scopeKind.length > 0;
+    && disposition.scopeKind.length > 0
+    && disposition.status.length > 0;
 }
 
 export function mapSecureNowQuestionDisposition(raw: Record<string, unknown>): SecureNowQuestionDisposition {
