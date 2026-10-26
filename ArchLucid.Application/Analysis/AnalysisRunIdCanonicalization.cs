@@ -130,9 +130,6 @@ internal static class AnalysisRunIdCanonicalization
         bool useRollupProjection,
         CancellationToken cancellationToken)
     {
-        if (AgentResultsAppearAnchoredToRun(hydratedResults, runId))
-            return hydratedResults;
-
         return await LoadAgentResultsByRunIdAsync(
             resultRepository,
             scope,

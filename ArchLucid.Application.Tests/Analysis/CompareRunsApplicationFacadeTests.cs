@@ -137,6 +137,27 @@ public sealed class CompareRunsApplicationFacadeTests
         };
         AgentResultDiffResult expected = new();
 
+        Mock<IAgentResultRepository> agentResults = new();
+        agentResults
+            .Setup(r => r.GetRollupProjectionByRunIdAsync(
+                Scope,
+                "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(left.Results);
+        agentResults
+            .Setup(r => r.GetRollupProjectionByRunIdAsync(
+                Scope,
+                "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(right.Results);
+        agentResults
+            .Setup(r => r.GetRollupProjectionByRunIdAsync(
+                Scope,
+                It.Is<string>(id => id != "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                    && id != "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
         diffService
             .Setup(s => s.Compare(
                 "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
@@ -145,7 +166,9 @@ public sealed class CompareRunsApplicationFacadeTests
                 right.Results))
             .Returns(expected);
 
-        CompareRunsApplicationFacade sut = CreateSut(agentResultDiff: diffService.Object);
+        CompareRunsApplicationFacade sut = CreateSut(
+            agentResultDiff: diffService.Object,
+            agentResultRepository: agentResults.Object);
 
         AgentResultDiffResult result = await sut.CompareAgentResultsAsync(
             left.Run.RunId,

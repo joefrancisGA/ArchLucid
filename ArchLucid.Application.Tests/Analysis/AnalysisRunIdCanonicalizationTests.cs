@@ -116,6 +116,71 @@ public sealed class AnalysisRunIdCanonicalizationTests
     }
 
     [Fact]
+    public async Task CompareQuality_ResolveAgentResultsForCompareReadAsync_reloads_when_hydrated_subset_omits_persisted_results()
+    {
+        Guid runKey = Guid.Parse("24242424-2424-2424-2424-242424242424");
+        string canonical = runKey.ToString("N");
+
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+            WorkspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+            ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
+        };
+
+        AgentResult persistedA = new()
+        {
+            ResultId = "result-subset-a",
+            RunId = canonical,
+            TaskId = "task-a",
+            AgentType = AgentType.Topology,
+            CreatedUtc = DateTime.UtcNow,
+        };
+        AgentResult persistedB = new()
+        {
+            ResultId = "result-subset-b",
+            RunId = canonical,
+            TaskId = "task-b",
+            AgentType = AgentType.Compliance,
+            CreatedUtc = DateTime.UtcNow,
+        };
+
+        Mock<IAgentResultRepository> resultRepository = new();
+        resultRepository
+            .Setup(r => r.GetRollupProjectionByRunIdAsync(scope, canonical, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([persistedA, persistedB]);
+        resultRepository
+            .Setup(r => r.GetRollupProjectionByRunIdAsync(
+                scope,
+                It.Is<string>(id => id != canonical),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        IReadOnlyList<AgentResult> hydrated =
+        [
+            new AgentResult
+            {
+                ResultId = "result-subset-a",
+                RunId = canonical,
+                TaskId = "task-a",
+                AgentType = AgentType.Topology,
+            },
+        ];
+
+        IReadOnlyList<AgentResult> resolved =
+            await AnalysisRunIdCanonicalization.ResolveAgentResultsForCompareReadAsync(
+                resultRepository.Object,
+                scope,
+                hydrated,
+                canonical,
+                useRollupProjection: true,
+                CancellationToken.None);
+
+        resolved.Should().HaveCount(2);
+        resolved.Should().Contain(r => r.ResultId == "result-subset-b");
+    }
+
+    [Fact]
     public async Task CompareQuality_ResolveAgentResultsForCompareReadAsync_reloads_when_hydrated_rows_are_all_null()
     {
         Guid runKey = Guid.Parse("22222222-2222-2222-2222-222222222222");
