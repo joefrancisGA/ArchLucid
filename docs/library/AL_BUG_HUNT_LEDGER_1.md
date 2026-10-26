@@ -13114,6 +13114,22 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: run-execute-ownership
 
+2026-10-26 seed hunt (seed→hit): promoted shutdown-drain vs in-flight execute; proved `RunExecuteOwnershipLeaseRenewalScope` kept renewing after `ReleaseAllHeldByThisInstanceAsync` cleared local admission while the heartbeat loop waited on `PeriodicTimer`, so `RenewAsync` no-opped and the linked execute token was never cancelled even though SQL leases were released; cancel linked execute when local admission is absent before or after each renew; regression `BeginRenewalScope_cancels_linked_execute_when_shutdown_clears_local_admission`; cheap-disproof closed five open `(candidate)` rows from hunt #177; seeded five follow-on `(candidate)` rows; scoped `FullyQualifiedName~RunExecuteOwnership|FullyQualifiedName~ArchitectureRunExecuteOrchestrator` 83/84 (`RunAnalyzers=false`, one unrelated reconciliation assertion). Private beta: SIGTERM drain no longer leaves in-flight architecture executes running without cancelling after local execute-ownership admission is cleared.
+
+- [ ] (candidate) `RunExecuteOwnershipLeaseRenewalScope` — `ConflictException` renew loss path still omits warning log — locus: catch branch parity with generic exception logging.
+- [ ] (candidate) `RunExecuteOwnershipLeaseService.AcquireAsync` — `TryAdmit` pins current `processInstanceId` at admit time — locus: rotation mid-acquire; input: re-verify `ReleaseAsync_when_process_instance_id_rotates_after_acquire_releases_original_holder`.
+- [ ] (candidate) `ArchitectureRunExecuteOrchestrator.ExecuteSelectiveRunAsync` — six pre-acquire validation passes vs full-run double-check — locus: intentional race guards; input: no distinct failure beyond existing regressions.
+- [ ] (candidate) `RunExecuteOwnershipLeaseService.ReleaseAsync` — in-memory storage no-op while registry could retain admission if misconfigured — locus: `IsInMemory` early return; input: paired with orchestrator `IsEnabled` gate.
+- [ ] (candidate) `WorkerHostDrainGate` — in-flight renew allowed while acquire blocked — locus: TB-961 drain semantics; input: document vs cancel-on-clear behavior.
+
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseService.AcquireAsync` — `TryAdmit` rotation mid-acquire — **cheap-disproof 2026-10-26 seed hunt:** rotation release regression already pins holder at admit.
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseService` — shared registry singleton — **cheap-disproof 2026-10-26 seed hunt:** intentional process-wide admission; `AcquireAsync_second_scope_sharing_registry_does_not_renew_sql_lease`.
+- [x] (valid-no-repro) `ArchitectureRunExecuteOrchestrator.ExecuteSelectiveRunAsync` — renewal scope ordering — **cheap-disproof 2026-10-26 seed hunt:** same acquire/renew/release pattern as full execute.
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseRenewalScope.RunRenewalLoopAsync` — `ConflictException` without warning log — **cheap-disproof 2026-10-26 seed hunt:** intentional quiet cancel; execute still cancelled.
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseService.ReleaseAsync` — in-memory no-op release — **cheap-disproof 2026-10-26 seed hunt:** `IsEnabled` false skips orchestrator ownership branch.
+
+- [x] (proven) `RunExecuteOwnershipLeaseRenewalScope` — drain clears local admission while renewal loop idle on timer — **hit 2026-10-26 seed hunt:** cancel when `IsLocallyHoldingExecuteOwnership` is false; regression above. [class:other]
+
 2026-10-23 seed hunt (seed-only): cheap-disproof closed five `(candidate)` rows from hunt #177; extended `ExecuteRunAsync_throws_conflict_when_ownership_not_held_locally_after_acquire` to assert `ReleaseAsync` is not invoked when local-hold guard fails; re-read drain renewal and bulk-release holder-id union; seeded five mechanism-backed `(candidate)` rows below; 81 scoped ownership/orchestrator tests passed.
 
 - [x] (invalid) `RunExecuteOwnershipLeaseService.AcquireAsync` — peer vs local conflict message divergence — **cheap-disproof 2026-10-23 seed hunt:** intentional distinct `ConflictException` text for operators; not a wrong outcome.

@@ -2387,3 +2387,4 @@
 {"at":"2026-10-26T22:00:53.7765593Z","zoneId":"application-agents","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-26T22:12:33.5604211Z","zoneId":"application-agents","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-26T22:22:59.2994076Z","zoneId":"application-agents","outcome":"seed-only","productLine":"archlucid-shared"}
+{"at":"2026-10-26T22:35:12.8230274Z","zoneId":"decisioning","outcome":"hit","productLine":"archlucid-shared"}

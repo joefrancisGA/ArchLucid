@@ -86,7 +86,21 @@ public sealed class RunExecuteOwnershipLeaseRenewalScope : IAsyncDisposable
 
             do
             {
+                if (!_leaseService.IsLocallyHoldingExecuteOwnership(_runId))
+                {
+                    _executeCancellationSource.Cancel();
+
+                    return;
+                }
+
                 await _leaseService.RenewAsync(_runId, cancellationToken).ConfigureAwait(false);
+
+                if (!_leaseService.IsLocallyHoldingExecuteOwnership(_runId))
+                {
+                    _executeCancellationSource.Cancel();
+
+                    return;
+                }
             }
             while (await timer.WaitForNextTickAsync(cancellationToken).ConfigureAwait(false));
         }
