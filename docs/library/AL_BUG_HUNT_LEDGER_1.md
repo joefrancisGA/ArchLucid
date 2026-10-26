@@ -6868,6 +6868,16 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-26 seed hunt (seed→hit): reseeded `application-analysis` with zero hunt-ready rows; cheap-disproof closed execute prepare task merge (prior hunt); promoted ledger follow-on `ExecuteEvidenceReadinessGate` pre-execute evidence readiness; proved gate still used single-key `IAgentTaskRepository.GetByRunIdAsync` with lowercase `N`, so `EvidenceBundleRef` on tasks stored only under legacy uppercase hex run-id keys was missed and execute was blocked despite attached bulk evidence on the bundle; route through `AnalysisRunIdCanonicalization.LoadAgentTasksByRunIdAsync`; regression `CompareQuality_EnsureReadyAsync_succeeds_when_task_bundle_ref_uses_legacy_run_id_key`; cheap-disproof closed agent loop prepare (prior hunt); seeded five follow-on rows; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` filter 365/365 (`RunAnalyzers=false` on VM build). Private beta: Execute readiness checks honor evidence bundle refs on agent tasks when tasks use legacy run-id key formats.
+
+- [ ] (candidate) `BulkEvidenceUploadService` — bulk upload attach — locus: agent task lookup before attach.
+- [ ] (candidate) `AzureExtractorPreparedZipPersistStage` — extractor attach — locus: `runGuid.ToString("N")` task enumeration.
+- [ ] (candidate) `ArchitectureRunCreateIdempotencyHelper` — regression guard — locus: confirm rehydrate path stays on merge helper.
+- [ ] (candidate) `AgentLoopPrepareStage` — regression guard — locus: spot-check prepare path stays on merge helper.
+- [ ] (candidate) `ExecuteEvidenceReadinessGate` — regression guard — locus: verify no alternate entry points bypass merge.
+
+- [x] (proven) `ExecuteEvidenceReadinessGate` — pre-execute task/bundle resolution — **hit 2026-10-26 seed hunt:** `LoadAgentTasksByRunIdAsync`; regression above.
+
 2026-10-26 seed hunt (seed→hit): reseeded `application-analysis` with zero hunt-ready rows; cheap-disproof closed create-run idempotency rehydrate merge (prior hunt); promoted ledger follow-on `AgentLoopPrepareStage` execute prepare; proved `PrepareAsync` still used single-key `IAgentTaskRepository.GetByRunIdAsync` with caller `runId`, so execute failed with `NoScheduledAgentTasksException` when tasks lived only under legacy uppercase hex run-id keys; route through `AnalysisRunIdCanonicalization.LoadAgentTasksByRunIdAsync`; regression `CompareQuality_PrepareAsync_loads_tasks_when_stored_under_legacy_run_id_key`; cheap-disproof closed authority reader task merge (prior hunt); seeded five follow-on rows; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` filter 364/364 (`RunAnalyzers=false` on VM build). Private beta: Run execute loads scheduled agent tasks when persistence uses legacy run-id key formats.
 
 - [ ] (candidate) `ExecuteEvidenceReadinessGate` — evidence readiness — locus: `runGuid.ToString("N")` task load.
