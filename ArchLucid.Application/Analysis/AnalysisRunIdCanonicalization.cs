@@ -391,32 +391,13 @@ internal static class AnalysisRunIdCanonicalization
     {
         ArgumentNullException.ThrowIfNull(promotionRecordRepository);
 
-        Dictionary<string, GovernancePromotionRecord> merged = new(StringComparer.OrdinalIgnoreCase);
+        string lookupRunId = CanonicalRunIdForLookup(primaryRunId);
 
-        foreach (string lookupKey in EnumerateRunIdRepositoryLookupKeys(primaryRunId))
-        {
-            IReadOnlyList<GovernancePromotionRecord> records = await promotionRecordRepository
-                .GetByRunIdAsync(lookupKey, cancellationToken)
-                .ConfigureAwait(false);
+        IReadOnlyList<GovernancePromotionRecord> records = await promotionRecordRepository
+            .GetByRunIdAsync(lookupRunId, cancellationToken)
+            .ConfigureAwait(false);
 
-            if (records is not { Count: > 0 })
-                continue;
-
-            foreach (GovernancePromotionRecord record in records)
-            {
-                if (record is null || string.IsNullOrWhiteSpace(record.PromotionRecordId))
-                    continue;
-
-                PreferNewerByCreatedUtc(merged, record.PromotionRecordId, record, static r => r.PromotedUtc);
-            }
-        }
-
-        return merged.Count == 0
-            ? []
-            : merged.Values
-                .OrderByDescending(static record => record.PromotedUtc)
-                .ThenBy(static record => record.PromotionRecordId, StringComparer.OrdinalIgnoreCase)
-                .ToList();
+        return records ?? [];
     }
 
     internal static async Task<IReadOnlyList<GovernanceApprovalRequest>> LoadGovernanceApprovalRequestsByRunIdAsync(

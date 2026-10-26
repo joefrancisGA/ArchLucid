@@ -438,15 +438,7 @@ public sealed class GovernanceLineageServiceTests
         Mock<IGovernancePromotionRecordRepository> promotions = new();
         promotions
             .Setup(repository => repository.GetByRunIdAsync(canonicalRunId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync([]);
-        promotions
-            .Setup(repository => repository.GetByRunIdAsync(legacyUpper, It.IsAny<CancellationToken>()))
             .ReturnsAsync([legacyPromotion]);
-        promotions
-            .Setup(repository => repository.GetByRunIdAsync(
-                It.Is<string>(id => id != canonicalRunId && id != legacyUpper),
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync([]);
 
         Mock<IRunDetailQueryService> runQuery = new();
         runQuery
@@ -474,7 +466,7 @@ public sealed class GovernanceLineageServiceTests
         result.Should().NotBeNull();
         result!.Promotions.Should().ContainSingle(promo => promo.PromotionRecordId == "promo-legacy-lineage");
         promotions.Verify(
-            repository => repository.GetByRunIdAsync(legacyUpper, It.IsAny<CancellationToken>()),
+            repository => repository.GetByRunIdAsync(canonicalRunId, It.IsAny<CancellationToken>()),
             Times.AtLeastOnce);
     }
 

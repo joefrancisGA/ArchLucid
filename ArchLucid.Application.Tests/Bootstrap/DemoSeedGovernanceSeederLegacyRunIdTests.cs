@@ -107,6 +107,7 @@ public sealed class DemoSeedGovernanceSeederLegacyRunIdTests
 
         IReadOnlyList<GovernancePromotionRecord> canonicalLookup =
             await promotionRepository.GetByRunIdAsync(runIdN, CancellationToken.None);
-        canonicalLookup.Should().BeEmpty();
+        canonicalLookup.Should().ContainSingle();
+        canonicalLookup[0].PromotionRecordId.Should().Be(demo.PromotionRecord);
     }
 }

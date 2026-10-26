@@ -2,6 +2,7 @@ using ArchLucid.Application.Analysis;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Persistence.Decisions;
+using ArchLucid.Contracts.Governance;
 using ArchLucid.Contracts.Persistence.TechnologyLedger;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Core.Persistence;
@@ -536,6 +537,28 @@ public sealed class AnalysisRunIdCanonicalizationTests
             await ledgerRepository.GetByRunIdAsync(scope, canonicalRunId, CancellationToken.None);
 
         entries.Should().ContainSingle(entry => entry.EntryId == "ledger-legacy-only");
+    }
+
+    [Fact]
+    public async Task CompareQuality_GetByRunIdAsync_merges_governance_promotions_when_stored_under_legacy_run_id_key()
+    {
+        Guid runGuid = Guid.Parse("35353535-3535-3535-3535-353535353535");
+        string canonicalRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(runGuid.ToString());
+        string legacyUpperRunId = canonicalRunId.ToUpperInvariant();
+
+        InMemoryGovernancePromotionRecordRepository promotionRepository = new();
+        await promotionRepository.CreateAsync(
+            new GovernancePromotionRecord
+            {
+                PromotionRecordId = "promo-legacy-only",
+                RunId = legacyUpperRunId,
+                PromotedUtc = DateTime.UtcNow,
+            });
+
+        IReadOnlyList<GovernancePromotionRecord> promotions =
+            await promotionRepository.GetByRunIdAsync(canonicalRunId, CancellationToken.None);
+
+        promotions.Should().ContainSingle(promo => promo.PromotionRecordId == "promo-legacy-only");
     }
 
     [Fact]
