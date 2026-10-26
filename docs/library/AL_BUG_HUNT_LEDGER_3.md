@@ -7209,6 +7209,56 @@ ABQ-09 churn hotspot.
 
 ## Zone: ui-infra-resource-hub
 
+2026-10-26 seed hunt (seed→hit): promoted **hub fetch** sending unlinked URL audit scope before lineage loads — `hubFetchAuditScope` forwarded the in-URL audit triple on the first fetch while `hub` was still null, so the evidence hub API/cache could key off a control id the UI later flags as unlinked; defer URL audit scope until hub payload is available and keep a stable empty scope object so unrelated reloads do not retrigger `loadHub`; regression `never passes unlinked URL audit controlId to hub fetch`; cheap-disproof closed terraform overview quick link (polish), drift change-id trim (deferred), and double-fetch monitor row; scoped ResourceHubClient vitest 125/125. Private beta: landing with a broken audit control in the URL no longer triggers a scoped hub API call with that invalid triple before the stale-scope banner appears.
+
+- [x] (proven) `ResourceHubClient` `hubFetchAuditScope` — unlinked URL audit before lineage — **hit 2026-10-26 seed hunt:** defer audit triple until `hub` loaded; regression unlinked controlId never sent.
+- [x] (valid-no-repro) `ResourceHubClient` overview — terraform tab quick link — **cheap-disproof 2026-10-26 seed hunt:** navigation polish.
+- [x] (valid-no-repro) `ResourceHubDriftChangesTable` — drift change ids — **cheap-disproof 2026-10-26 seed hunt:** saturated trim class; deferred.
+- [x] (valid-no-repro) `ResourceHubClient` hub fetch — double fetch on unlinked audit — **cheap-disproof 2026-10-26 seed hunt:** intentional refetch after lineage; monitor API load.
+
+- [ ] (candidate) `ResourceHubClient` overview — quick link to terraform tab when mapped — locus: navigation polish.
+- [ ] (candidate) `ResourceHubClient` overview — terraform workbench in cross-workbench row — locus: intentionally omitted per regression.
+- [ ] (candidate) `ResourceHubDriftChangesTable` — drift actions without change ids — locus: saturated trim class; defer.
+- [ ] (candidate) `ResourceHubClient` buyer-polished identifier disclosures — ARM copy affordance — locus: disclosures omit copy today.
+- [ ] (candidate) `ResourceHubClient` hub fetch — linked audit scope second fetch after deferral — locus: monitor extra fetch when URL audit is valid.
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 94
+- **bugs-found:** 73
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-26
+- **last-bug:** 2026-10-26 — hub fetch unlinked audit before lineage
+- **code-changed-since:** yes
+
+2026-10-26 seed hunt (seed→hit): promoted **hub fetch** omitting resolved snapshot when URL has no `snapshotId` — `loadHub` always passed raw URL `snapshotId` (empty when omitted) so the evidence hub API/cache never received the configuration snapshot the UI already surfaces via `resolvedSnapshotId`; pass `resolvedSnapshotId` when non-empty and refetch when hub payload pins the default snapshot; regression `passes resolved snapshot id to hub fetch when URL omits snapshotId`; cheap-disproof closed terraform overview quick link (polish), resourceGroup DRY helper, and drift change-id trim (deferred); scoped ResourceHubClient vitest 124/124. Private beta: opening a resource hub without `snapshotId` in the URL still loads evidence for the snapshot shown in the scope strip instead of an unscoped cache/API call.
+
+- [x] (proven) `ResourceHubClient` `loadHub` — snapshot id when URL omits `snapshotId` — **hit 2026-10-26 seed hunt:** hub fetch uses `resolvedSnapshotId`; regression URL without snapshotId fixture.
+- [x] (valid-no-repro) `ResourceHubClient` overview — terraform tab quick link — **cheap-disproof 2026-10-26 seed hunt:** navigation polish.
+- [x] (valid-no-repro) `ResourceHubClient` overview — `resourceGroup` / `region` DRY helper — **cheap-disproof 2026-10-26 seed hunt:** DRY only.
+- [x] (valid-no-repro) `ResourceHubDriftChangesTable` — drift change ids — **cheap-disproof 2026-10-26 seed hunt:** saturated trim class; deferred.
+
+- [ ] (candidate) `ResourceHubClient` overview — quick link to terraform tab when mapped — locus: navigation polish.
+- [ ] (candidate) `ResourceHubClient` overview — terraform workbench in cross-workbench row — locus: intentionally omitted per regression.
+- [ ] (candidate) `ResourceHubDriftChangesTable` — drift actions without change ids — locus: saturated trim class; defer.
+- [ ] (candidate) `ResourceHubClient` hub fetch — double fetch on unlinked audit scope — locus: intentional refetch after lineage; monitor API load.
+- [ ] (candidate) `ResourceHubClient` buyer-polished identifier disclosures — ARM copy affordance — locus: disclosures omit copy today.
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 93
+- **bugs-found:** 72
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-26
+- **last-bug:** 2026-10-26 — hub fetch snapshot when URL omits snapshotId
+- **code-changed-since:** yes
+
 2026-10-26 seed hunt (seed→hit): promoted **hub fetch** scoped with invalid URL audit params — `loadHub` forwarded raw `assessmentId` / snapshot / `controlId` query segments even when the URL only had partial audit params or an unlinked triple, so the evidence hub API/cache key used audit scope the UI already treated as stale; derive `hubFetchAuditScope` from a full linked URL scope only and refetch without audit params once unlinked scope is detected; regressions `omits partial stale URL assessmentId from hub fetch` and `omits unlinked URL audit scope from hub fetch after lineage loads`; cheap-disproof closed drift/finding Ask partial inheritance (hunt #91 handoff base), terraform overview link polish, and drift change-id trim (deferred); scoped ResourceHubClient vitest 123/123. Private beta: resource hub evidence loads no longer key off broken partial or unlinked audit query params that the stale-scope banner already flags.
 
 - [x] (proven) `ResourceHubClient` `loadHub` / hub fetch — partial and unlinked URL audit scope — **hit 2026-10-26 seed hunt:** `hubFetchAuditScope`; regressions partial stale and unlinked refetch fixtures.
