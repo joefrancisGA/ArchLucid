@@ -100,7 +100,7 @@ public sealed partial class GetOnlyHostedAzureArmReadClient
         string listingPath = $"subscriptions/{subscriptionId}/providers/Microsoft.Security/pricings";
         bool failed = false;
 
-        await ReadDefenderPagesAsync(
+        bool pageTruncated = await ReadDefenderPagesAsync(
             accessToken,
             subscriptionId,
             listingPath,
@@ -122,6 +122,10 @@ public sealed partial class GetOnlyHostedAzureArmReadClient
         if (failed)
         {
             pricings.Clear();
+        }
+        else if (pageTruncated)
+        {
+            warnings.Add("defender-pricings-truncated");
         }
     }
 
@@ -400,39 +404,64 @@ public sealed partial class GetOnlyHostedAzureArmReadClient
 
             await using Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
 
-            using JsonDocument? document =
-                await TryParseArmPaginationPageAsync(stream, accepted, cancellationToken).ConfigureAwait(false);
+            JsonDocument? document;
+
+            try
+            {
+                document = await TryParseArmPaginationPageAsync(stream, accepted, cancellationToken).ConfigureAwait(false);
+            }
+            catch (JsonException)
+            {
+                warnings.Add($"{companionName} collection failed; invalid JSON");
+
+                if (accepted == 0)
+                {
+                    onFailed();
+                }
+
+                break;
+            }
 
             if (document is null)
             {
                 warnings.Add($"{companionName} collection failed; invalid JSON");
+
+                if (accepted == 0)
+                {
+                    onFailed();
+                }
+
                 break;
             }
 
-            if (document.RootElement.TryGetProperty("value", out JsonElement valueElement)
-                && valueElement.ValueKind == JsonValueKind.Array)
+            using (document)
             {
-                foreach (JsonElement item in valueElement.EnumerateArray())
+
+                if (document.RootElement.TryGetProperty("value", out JsonElement valueElement)
+                    && valueElement.ValueKind == JsonValueKind.Array)
                 {
-                    onItem(item);
-                    accepted++;
+                    foreach (JsonElement item in valueElement.EnumerateArray())
+                    {
+                        onItem(item);
+                        accepted++;
+                    }
                 }
-            }
 
-            nextLink = null;
+                nextLink = null;
 
-            if (document.RootElement.TryGetProperty("nextLink", out JsonElement nextLinkElement)
-                && nextLinkElement.ValueKind == JsonValueKind.String)
-            {
-                string? candidateNextLink = nextLinkElement.GetString();
-
-                if (!string.IsNullOrWhiteSpace(candidateNextLink))
+                if (document.RootElement.TryGetProperty("nextLink", out JsonElement nextLinkElement)
+                    && nextLinkElement.ValueKind == JsonValueKind.String)
                 {
-                    HostedAzureArmNextLinkValidator.EnsureTargetsSubscription(candidateNextLink, subscriptionId);
-                    HostedAzureArmNextLinkValidator.EnsureTargetsArmRelativeListingPath(
-                        candidateNextLink,
-                        listingRelativePath);
-                    nextLink = candidateNextLink;
+                    string? candidateNextLink = nextLinkElement.GetString();
+
+                    if (!string.IsNullOrWhiteSpace(candidateNextLink))
+                    {
+                        HostedAzureArmNextLinkValidator.EnsureTargetsSubscription(candidateNextLink, subscriptionId);
+                        HostedAzureArmNextLinkValidator.EnsureTargetsArmRelativeListingPath(
+                            candidateNextLink,
+                            listingRelativePath);
+                        nextLink = candidateNextLink;
+                    }
                 }
             }
         }

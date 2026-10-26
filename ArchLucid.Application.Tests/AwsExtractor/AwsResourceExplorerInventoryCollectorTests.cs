@@ -90,6 +90,36 @@ public sealed class AwsResourceExplorerInventoryCollectorTests
     }
 
     [Fact]
+    public async Task CollectAsync_trims_connection_region_when_resource_region_missing()
+    {
+        Mock<IAmazonResourceExplorer2> explorerClient = new();
+
+        explorerClient
+            .Setup(c => c.SearchAsync(It.IsAny<SearchRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new SearchResponse
+            {
+                Resources =
+                [
+                    new Resource
+                    {
+                        Arn = "arn:aws-cn:s3:::bucket-1",
+                        ResourceType = "AWS::S3::Bucket",
+                        Region = null
+                    }
+                ],
+                NextToken = null
+            });
+
+        List<AwsInventoryResourceEntry> resources = await AwsResourceExplorerInventoryCollector.CollectAsync(
+            explorerClient.Object,
+            " cn-north-1 ",
+            CancellationToken.None);
+
+        resources.Should().ContainSingle();
+        resources[0].Location.Should().Be("cn-north-1");
+    }
+
+    [Fact]
     public async Task CollectAsync_uses_iso_b_partition_query_for_us_isob_region()
     {
         Mock<IAmazonResourceExplorer2> explorerClient = new();
