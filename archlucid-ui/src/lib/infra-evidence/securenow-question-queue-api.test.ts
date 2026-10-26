@@ -8,6 +8,7 @@ import {
   mapSecureNowQuestionDisposition,
   secureNowQuestionDispositionResponseIsUsable,
   secureNowQuestionDispositionResponseRequiredStringFields,
+  secureNowQuestionDispositionResponseRequiredOperatorMetadataFields,
   secureNowQuestionDispositionScopeRequiresResourceId,
   secureNowQuestionListedSnapshotMatchesContext,
   secureNowQuestionDispositionResponseQuestionKeyMatchesRequest,
@@ -222,6 +223,25 @@ describe("secureNowQuestionDispositionResponseIsUsable", () => {
         reason: "Operator chose not to answer.",
       }),
     ).toBe(false);
+  });
+
+  it("rejects blank operator metadata fields after trim", () => {
+    for (const field of secureNowQuestionDispositionResponseRequiredOperatorMetadataFields) {
+      expect(
+        secureNowQuestionDispositionResponseIsUsable({
+          ...baseDisposition,
+          [field]: "",
+        }),
+        field,
+      ).toBe(false);
+      expect(
+        secureNowQuestionDispositionResponseIsUsable({
+          ...baseDisposition,
+          [field]: "   ",
+        }),
+        field,
+      ).toBe(false);
+    }
   });
 
   it("rejects dispositions with audit entries whose action is blank after trim", () => {
@@ -1737,6 +1757,78 @@ describe("securenow-question-queue-api", () => {
       evidenceFingerprint: "fingerprint",
       actorKey: "reviewer",
       updatedUtc: "2026-11-01T00:00:00.000Z",
+      auditEntries: [],
+    });
+
+    const disposition = await answerSecureNowQuestion("snapshot-1", {
+      subscriptionId: "sub-1",
+      resourceId: "",
+      questionKey: "subscription-ownership@v1",
+      source: "PolicyPack",
+      scopeKind: "Subscription",
+      answerCode: "Owner",
+      answerText: "Owner",
+      reason: "Reviewed.",
+      evidenceFingerprint: "fingerprint",
+    });
+
+    expect(disposition).toBeUndefined();
+  });
+
+  it("returns undefined when POST answer response has whitespace-only actor key", async () => {
+    vi.mocked(proxyJsonPost).mockResolvedValueOnce({
+      dispositionId: "00000000-0000-0000-0000-000000000001",
+      snapshotId: "snapshot-1",
+      subscriptionId: "sub-1",
+      resourceId: "",
+      questionKey: "subscription-ownership@v1",
+      source: "PolicyPack",
+      scopeKind: "Subscription",
+      status: "Answered",
+      answerCode: "Owner",
+      answerText: "Owner",
+      reason: "Reviewed.",
+      expirationUtc: "2026-12-01T00:00:00.000Z",
+      isExpired: false,
+      evidenceFingerprint: "fingerprint",
+      actorKey: "   ",
+      updatedUtc: "2026-11-01T00:00:00.000Z",
+      auditEntries: [],
+    });
+
+    const disposition = await answerSecureNowQuestion("snapshot-1", {
+      subscriptionId: "sub-1",
+      resourceId: "",
+      questionKey: "subscription-ownership@v1",
+      source: "PolicyPack",
+      scopeKind: "Subscription",
+      answerCode: "Owner",
+      answerText: "Owner",
+      reason: "Reviewed.",
+      evidenceFingerprint: "fingerprint",
+    });
+
+    expect(disposition).toBeUndefined();
+  });
+
+  it("returns undefined when POST answer response has whitespace-only updated timestamp", async () => {
+    vi.mocked(proxyJsonPost).mockResolvedValueOnce({
+      dispositionId: "00000000-0000-0000-0000-000000000001",
+      snapshotId: "snapshot-1",
+      subscriptionId: "sub-1",
+      resourceId: "",
+      questionKey: "subscription-ownership@v1",
+      source: "PolicyPack",
+      scopeKind: "Subscription",
+      status: "Answered",
+      answerCode: "Owner",
+      answerText: "Owner",
+      reason: "Reviewed.",
+      expirationUtc: "2026-12-01T00:00:00.000Z",
+      isExpired: false,
+      evidenceFingerprint: "fingerprint",
+      actorKey: "reviewer",
+      updatedUtc: "   ",
       auditEntries: [],
     });
 

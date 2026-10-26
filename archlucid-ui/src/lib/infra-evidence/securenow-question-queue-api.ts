@@ -254,6 +254,11 @@ export const secureNowQuestionDispositionResponseRequiredStringFields = [
   "status",
 ] as const satisfies readonly (keyof SecureNowQuestionDisposition)[];
 
+export const secureNowQuestionDispositionResponseRequiredOperatorMetadataFields = [
+  "actorKey",
+  "updatedUtc",
+] as const satisfies readonly (keyof SecureNowQuestionDisposition)[];
+
 export function secureNowQuestionDispositionScopeRequiresResourceId(
   scopeKind: string,
 ): boolean {
@@ -337,6 +342,14 @@ export function secureNowQuestionDispositionResponseIsUsable(
   }
 
   if (!secureNowQuestionDispositionAuditEntriesAreUsable(disposition.auditEntries)) {
+    return false;
+  }
+
+  if (
+    !secureNowQuestionDispositionResponseRequiredOperatorMetadataFields.every(
+      (field) => disposition[field].trim().length > 0,
+    )
+  ) {
     return false;
   }
 
