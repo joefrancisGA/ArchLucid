@@ -68,4 +68,31 @@ public sealed class InMemoryAgentExecutionTraceLlmCostLegacyRunIdTests
 
         slices.Should().ContainSingle(slice => slice.InputTokenCount == 42);
     }
+
+    [Fact]
+    public async Task CompareQuality_LoadMergedLlmCostSlicesByRunIdAsync_merges_slices_when_loader_returns_rows_on_legacy_key_only()
+    {
+        Guid runGuid = Guid.Parse("17171717-1717-1717-1717-171717171717");
+        string canonicalRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(runGuid.ToString());
+        string legacyUpper = canonicalRunId.ToUpperInvariant();
+
+        IReadOnlyList<AgentExecutionTraceLlmCostSlice> slices =
+            await AgentExecutionTraceQueryPatchCore.LoadMergedLlmCostSlicesByRunIdAsync(
+                canonicalRunId,
+                (lookupKey, _) => Task.FromResult<IReadOnlyList<AgentExecutionTraceLlmCostSlice>>(
+                    string.Equals(lookupKey, legacyUpper, StringComparison.Ordinal)
+                        ?
+                        [
+                            new AgentExecutionTraceLlmCostSlice
+                            {
+                                ModelDeploymentName = "gpt-test",
+                                InputTokenCount = 77,
+                                OutputTokenCount = 11,
+                            },
+                        ]
+                        : []),
+                CancellationToken.None);
+
+        slices.Should().ContainSingle(slice => slice.InputTokenCount == 77);
+    }
 }

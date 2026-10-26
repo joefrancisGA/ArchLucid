@@ -64,6 +64,7 @@
     <InternalsVisibleTo Include="ArchLucid.Decisioning.Tests" />
     <InternalsVisibleTo Include="ArchLucid.Api.Tests" />
     <InternalsVisibleTo Include="ArchLucid.Persistence.Tests" />
+    <InternalsVisibleTo Include="ArchLucid.Application.Tests" />
   </ItemGroup>
 
   <ItemGroup>

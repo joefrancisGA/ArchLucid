@@ -69,6 +69,36 @@ internal static class AgentExecutionTraceQueryPatchCore
         return merged.Values.ToList();
     }
 
+    internal static async Task<IReadOnlyList<AgentExecutionTraceLlmCostSlice>> LoadMergedLlmCostSlicesByRunIdAsync(
+        string primaryRunId,
+        Func<string, CancellationToken, Task<IReadOnlyList<AgentExecutionTraceLlmCostSlice>>> loadSlicesForKeyAsync,
+        CancellationToken cancellationToken)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(primaryRunId);
+        ArgumentNullException.ThrowIfNull(loadSlicesForKeyAsync);
+
+        Dictionary<string, AgentExecutionTraceLlmCostSlice> merged = new(StringComparer.Ordinal);
+
+        foreach (string lookupKey in TechnologyLedgerRunIdLookup.EnumerateRunIdRepositoryLookupKeys(primaryRunId))
+        {
+            IReadOnlyList<AgentExecutionTraceLlmCostSlice> slices =
+                await loadSlicesForKeyAsync(lookupKey, cancellationToken).ConfigureAwait(false);
+
+            if (slices is not { Count: > 0 })
+                continue;
+
+            foreach (AgentExecutionTraceLlmCostSlice slice in slices)
+            {
+                if (slice is null)
+                    continue;
+
+                merged.TryAdd(LlmCostSliceMergeKey(slice), slice);
+            }
+        }
+
+        return merged.Values.ToList();
+    }
+
     public static (IReadOnlyList<T> Page, int TotalCount) PageInMemory<T>(
         IReadOnlyList<T> ordered,
         int offset,
