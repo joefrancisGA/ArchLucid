@@ -31,6 +31,50 @@ public sealed class AzureInventoryAdfLinkedServiceTargetResolverTests
     }
 
     [Fact]
+    public void TryResolveTargetArmId_resolves_blob_linked_service_when_host_uses_uppercase_domain()
+    {
+        const string storageArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1";
+        const string factoryArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.DataFactory/factories/adf1";
+
+        List<AzureExtractorExtendedResourceRow> resources =
+        [
+            new()
+            {
+                AzureResourceId = storageArmId,
+                ResourceType = "Microsoft.Storage/storageAccounts",
+                Name = "sa1",
+            },
+        ];
+
+        AzureInventoryAdfLinkedServiceRow linkedService = new()
+        {
+            FactoryResourceId = factoryArmId,
+            LinkedServiceName = "BlobLs",
+            TargetHost = "SA1.BLOB.CORE.WINDOWS.NET",
+            CollectionStatus = AzureInventoryAdfLinkedServiceCollectionStatus.Succeeded,
+        };
+
+        Dictionary<string, string> visibleArmIds =
+            AzureInventoryAdfLinkedServiceTargetResolver.BuildVisibleArmIdSet(resources);
+        Dictionary<string, string> hostIndex =
+            AzureInventoryAdfLinkedServiceTargetResolver.BuildHostIndex(resources);
+
+        bool resolved = AzureInventoryAdfLinkedServiceTargetResolver.TryResolveTargetArmId(
+            linkedService,
+            visibleArmIds,
+            hostIndex,
+            out string? targetArmId,
+            out ProvenanceKind provenanceKind,
+            out _);
+
+        resolved.Should().BeTrue();
+        targetArmId.Should().Be(ArmResourceIdNormalizer.Normalize(storageArmId));
+        provenanceKind.Should().Be(ProvenanceKind.DeterministicInference);
+    }
+
+    [Fact]
     public void BuildHostIndex_omits_ambiguous_storage_hosts()
     {
         List<AzureExtractorExtendedResourceRow> resources =

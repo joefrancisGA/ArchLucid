@@ -125,15 +125,7 @@ public static class AzureInventoryArmNestedObjectPropertyReader
                 return null;
             }
 
-            armId = UnwrapJsonEncodedArmId(armId);
-
-            if (string.IsNullOrWhiteSpace(armId)
-                || !armId.Contains("/subscriptions/", StringComparison.OrdinalIgnoreCase))
-            {
-                return null;
-            }
-
-            return armId.Trim();
+            return TryNormalizePlainArmStringScalar(armId);
         }
 
         return null;
