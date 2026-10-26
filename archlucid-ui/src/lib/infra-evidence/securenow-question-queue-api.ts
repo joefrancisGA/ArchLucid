@@ -373,6 +373,14 @@ export function secureNowQuestionDispositionResponseIsUsable(
     return false;
   }
 
+  if (
+    (secureNowQuestionDispositionIsAnswered(disposition.status)
+      || secureNowQuestionDispositionIsDismissed(disposition.status))
+    && disposition.expirationUtc.trim().length === 0
+  ) {
+    return false;
+  }
+
   return true;
 }
 
