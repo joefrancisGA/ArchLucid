@@ -149,7 +149,11 @@ export function RunWizardCostPreviewCard(props: RunWizardCostPreviewCardProps = 
           Illustrative rate flag was not stored.
         </p>
       ) : null}
-      <p className={cn("mt-2 mb-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{data.estimatedCostBasis}</p>
+      <p className={cn("mt-2 mb-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+        {data.estimatedCostBasis.trim().length > 0
+          ? data.estimatedCostBasis
+          : "Cost estimate basis was not stored."}
+      </p>
       <p className={cn("mt-2 mb-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
         Methodology:{" "}
         <Link className={OPERATOR_LINK.inline} href={DOCS_URL}>
