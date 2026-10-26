@@ -96,32 +96,10 @@ internal static class AgentExecuteIdempotentPersistReconciliation
                 cancellationToken).ConfigureAwait(false);
         }
 
-        Dictionary<string, AgentResult> merged = new(StringComparer.OrdinalIgnoreCase);
+        IReadOnlyList<AgentResult> results = await resultRepository
+            .GetByRunIdAsync(scope, lookupRunId, cancellationToken, connection, transaction)
+            .ConfigureAwait(false);
 
-        foreach (string lookupKey in AnalysisRunIdCanonicalization.EnumerateRunIdRepositoryLookupKeys(lookupRunId))
-        {
-            IReadOnlyList<AgentResult> results = await resultRepository
-                .GetByRunIdAsync(scope, lookupKey, cancellationToken, connection, transaction)
-                .ConfigureAwait(false);
-
-            if (results is not { Count: > 0 })
-                continue;
-
-            foreach (AgentResult result in results)
-            {
-                if (result is null)
-                    continue;
-
-                string mergeKey = string.IsNullOrWhiteSpace(result.ResultId)
-                    ? $"{result.AgentType}:{result.TaskId}"
-                    : result.ResultId;
-
-                if (!merged.TryGetValue(mergeKey, out AgentResult? existing)
-                    || result.CreatedUtc > existing.CreatedUtc)
-                    merged[mergeKey] = result;
-            }
-        }
-
-        return merged.Count == 0 ? [] : merged.Values.ToList();
+        return results ?? [];
     }
 }

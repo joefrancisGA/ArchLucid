@@ -491,6 +491,48 @@ public sealed class AnalysisRunIdCanonicalizationTests
     }
 
     [Fact]
+    public async Task CompareQuality_GetByRunIdAsync_prefers_newer_task_when_alternate_keys_repeat_task_id()
+    {
+        Guid runGuid = Guid.Parse("77777777-7777-7777-7777-777777777777");
+        string canonicalRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(runGuid.ToString());
+        string legacyUpperRunId = canonicalRunId.ToUpperInvariant();
+        const string taskId = "task-shared-across-keys";
+        ScopeContext scope = new();
+
+        DateTime olderUtc = new(2026, 2, 1, 8, 0, 0, DateTimeKind.Utc);
+        DateTime newerUtc = new(2026, 2, 2, 8, 0, 0, DateTimeKind.Utc);
+
+        InMemoryAgentTaskRepository taskRepository = new();
+        await taskRepository.CreateManyAsync(
+            [
+                new AgentTask
+                {
+                    TaskId = taskId,
+                    RunId = canonicalRunId,
+                    AgentType = AgentType.Compliance,
+                    Status = AgentTaskStatus.Created,
+                    CreatedUtc = olderUtc,
+                },
+                new AgentTask
+                {
+                    TaskId = taskId,
+                    RunId = legacyUpperRunId,
+                    AgentType = AgentType.Topology,
+                    Status = AgentTaskStatus.Completed,
+                    CreatedUtc = newerUtc,
+                },
+            ],
+            CancellationToken.None);
+
+        IReadOnlyList<AgentTask> tasks =
+            await taskRepository.GetByRunIdAsync(scope, canonicalRunId, CancellationToken.None);
+
+        tasks.Should().ContainSingle();
+        tasks[0].AgentType.Should().Be(AgentType.Topology);
+        tasks[0].Status.Should().Be(AgentTaskStatus.Completed);
+    }
+
+    [Fact]
     public async Task CompareQuality_GetByRunIdAsync_merges_tasks_when_stored_under_legacy_run_id_key()
     {
         Guid runGuid = Guid.Parse("66666666-6666-6666-6666-666666666666");
