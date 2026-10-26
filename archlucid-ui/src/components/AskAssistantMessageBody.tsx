@@ -32,9 +32,13 @@ function renderAskSectionBody(
   buyerPolishedLinks: boolean,
   citedReviewIds?: ReadonlySet<string>,
 ): ReactNode {
-  return body.trim().length > 0
-    ? renderTextWithUuidReviewLinks(body, buyerPolishedLinks, citedReviewIds)
-    : ASK_ANSWER_STORED_EMPTY;
+  const trimmed = body.trim();
+
+  if (trimmed.length === 0) {
+    return body.length > 0 ? ASK_ANSWER_STORED_EMPTY : ASK_ANSWER_NOT_STORED;
+  }
+
+  return renderTextWithUuidReviewLinks(body, buyerPolishedLinks, citedReviewIds);
 }
 
 function renderGroundingLinkLabel(label: string): string {
@@ -64,7 +68,10 @@ function renderTextWithUuidReviewLinks(
     }
 
     const id = m[0];
-    const isCitedReview = citedReviewIds?.has(id.toLowerCase()) === true;
+    const isCitedReview =
+      citedReviewIds === undefined
+        ? true
+        : citedReviewIds.has(id.toLowerCase());
 
     if (!isCitedReview) {
       parts.push(<Fragment key={`id-${m.index}-${id}`}>{id}</Fragment>);
@@ -193,8 +200,14 @@ export function AskAssistantMessageBody(props: {
   readonly buyerPolishedLinks?: boolean;
   readonly groundingLinks?: readonly AskAssistantGroundingLink[];
   readonly citedReviewIds?: ReadonlySet<string>;
+  /** When set, only UUIDs matching this review id are linkified. */
+  readonly reviewIdInScope?: string | null;
 }) {
-  const { content, buyerPolishedLinks = false, groundingLinks, citedReviewIds } = props;
+  const { content, buyerPolishedLinks = false, groundingLinks, citedReviewIds: citedReviewIdsProp, reviewIdInScope } = props;
+  const citedReviewIds =
+    reviewIdInScope !== undefined && reviewIdInScope !== null && reviewIdInScope.trim().length > 0
+      ? new Set([reviewIdInScope.trim().toLowerCase()])
+      : citedReviewIdsProp;
   const structured = parseAskAssistantStructuredSections(content);
   const footer =
     groundingLinks !== undefined && groundingLinks.length > 0 ? (
@@ -266,9 +279,13 @@ export function AskAssistantMessageBody(props: {
 
     return (
       <div className="space-y-4">
-        {structured.preamble.length > 0 ? (
+        {structured.preamble.trim().length > 0 ? (
           <p className={bodyClass}>{renderTextWithUuidReviewLinks(structured.preamble, buyerPolishedLinks, citedReviewIds)}</p>
-        ) : null}
+        ) : (
+          <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+            {ASK_ANSWER_PREAMBLE_NOT_STORED}
+          </p>
+        )}
         {structured.sections.map((section, index) => (
           <section key={`${section.key}-${index}`} aria-label={section.title} className="border-t border-neutral-100 pt-3 dark:border-neutral-800">
             <h4 className={cn("m-0 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>

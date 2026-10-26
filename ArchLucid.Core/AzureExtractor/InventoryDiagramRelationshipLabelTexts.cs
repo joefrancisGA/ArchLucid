@@ -164,6 +164,31 @@ public static class InventoryDiagramRelationshipLabelTexts
 
     public const string DiagnosticSettingStorageNamesNotListedQualifier = "names-not-listed";
 
+    public static string FormatDiagnosticSettingStorageLabel(string? settingName)
+    {
+        if (string.IsNullOrWhiteSpace(settingName))
+        {
+            return DiagnosticSettingNameNotStoredLogDeliveryNotObserved;
+        }
+
+        if (string.Equals(
+                settingName.Trim(),
+                DiagnosticSettingStorageNamesNotListedQualifier,
+                StringComparison.OrdinalIgnoreCase))
+        {
+            return DiagnosticSettingNamesNotListedLogDeliveryNotObserved;
+        }
+
+        return $"{settingName.Trim()}. Log delivery was not observed.";
+    }
+
+    public static string FormatRoleAssignmentAccessLabel(string roleName)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(roleName);
+
+        return $"Role assignment: {roleName.Trim()}. {RoleAssignmentObservedUseNotStoredSuffix}";
+    }
+
     public static string FormatBackendPoolMembershipConfigured(int? backendPort)
     {
         if (backendPort is null)
@@ -186,5 +211,15 @@ public static class InventoryDiagramRelationshipLabelTexts
         ArgumentException.ThrowIfNullOrWhiteSpace(backendName);
 
         return $"Backend {backendName.Trim()} is not on this diagram.";
+    }
+
+    public static string FormatRecoveryServicesReplicatesLabel(string? targetRegion)
+    {
+        if (string.IsNullOrWhiteSpace(targetRegion))
+        {
+            return $"{AzureInventoryRecoveryServices.ReplicateEdgeLabel}. Replication target region was not stored.";
+        }
+
+        return $"{AzureInventoryRecoveryServices.ReplicateEdgeLabel} to {targetRegion.Trim()}.";
     }
 }

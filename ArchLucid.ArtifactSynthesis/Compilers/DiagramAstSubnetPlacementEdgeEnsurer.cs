@@ -74,7 +74,7 @@ internal static class DiagramAstSubnetPlacementEdgeEnsurer
                 {
                     FromNodeId = vmDiagramId,
                     ToNodeId = subnetDiagramId,
-                    Label = "in",
+                    Label = "Subnet placement.",
                     InferenceSource = GraphEdgeInferenceSources.InventoryLayoutVmVnet,
                 });
             }

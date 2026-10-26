@@ -228,6 +228,44 @@ public sealed class ArchitectureRunFindingsCsvFormatterTests
     }
 
     [Fact]
+    public void BuildCsvContent_labels_muted_without_reason_and_missing_tracking_fields()
+    {
+        ArchitectureFinding finding = new()
+        {
+            FindingId = "f-muted",
+            Severity = FindingSeverity.Warning,
+            Category = "cat",
+            Message = "msg",
+            IsMuted = true,
+        };
+
+        AgentResult result = new()
+        {
+            ResultId = "r-1",
+            TaskId = "t-1",
+            AgentType = AgentType.Compliance,
+            Findings = [finding],
+        };
+
+        Dictionary<string, RunFindingExternalTrackingProjection> tracking = new(StringComparer.Ordinal)
+        {
+            ["f-muted"] = new RunFindingExternalTrackingProjection
+            {
+                HumanReviewStatus = FindingHumanReviewStatus.Pending,
+                LatestDisposition = FindingDisposition.Deferred,
+            },
+        };
+
+        string csv = ArchitectureRunFindingsCsvFormatter.BuildCsvContent(
+            new ArchitectureRunDetail { Results = [result] },
+            tracking);
+
+        csv.Should().Contain(ArchitectureRunFindingsCsvFormatter.MuteReasonNotStoredLabel);
+        csv.Should().Contain(ArchitectureRunFindingsCsvFormatter.TrackingProviderNotStoredLabel);
+        csv.Should().Contain(ArchitectureRunFindingsCsvFormatter.TrackingExternalKeyNotStoredLabel);
+    }
+
+    [Fact]
     public void CollectFindingIds_returns_distinct_ids()
     {
         ArchitectureRunDetail detail = new()

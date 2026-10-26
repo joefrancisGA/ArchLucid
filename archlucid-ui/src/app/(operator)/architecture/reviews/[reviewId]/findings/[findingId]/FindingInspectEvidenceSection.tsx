@@ -143,7 +143,7 @@ function EvidenceCitationList(props: {
                 diagramCitation,
                 props.pathname,
               )
-            : (citationRow?.href ?? reviewContextHref);
+            : citationRow?.href ?? null;
         const linkLabel =
           citationRow?.label
           ?? evidenceLinkLabel(row, reviewContextLabel, diagramCitation !== null);
@@ -217,15 +217,24 @@ function EvidenceCitationList(props: {
               </>
             )}
             <div className="mt-2">
-              <Link
-                href={href}
-                className={OPERATOR_LINK.optional}
-                data-testid={
-                  diagramCitation !== null ? "finding-diagram-citation-link" : "finding-source-evidence-link"
-                }
-              >
-                {linkLabel}
-              </Link>
+              {href !== null ? (
+                <Link
+                  href={href}
+                  className={OPERATOR_LINK.optional}
+                  data-testid={
+                    diagramCitation !== null ? "finding-diagram-citation-link" : "finding-source-evidence-link"
+                  }
+                >
+                  {linkLabel}
+                </Link>
+              ) : (
+                <p
+                  className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                  data-testid="finding-source-evidence-link-missing"
+                >
+                  {FINDING_INSPECT_EVIDENCE_LINK_NOT_STORED}
+                </p>
+              )}
             </div>
           </li>
         );
@@ -396,7 +405,7 @@ export function FindingInspectEvidenceSection({
         </h3>
       ) : null}
 
-      {evidenceListReturned !== true ? (
+      {evidenceListReturned === false ? (
         <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
           Evidence list was not stored.
         </p>

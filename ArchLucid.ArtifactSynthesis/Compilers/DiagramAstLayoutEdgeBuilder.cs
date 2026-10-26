@@ -115,7 +115,7 @@ internal static class DiagramAstLayoutEdgeBuilder
         {
             FromNodeId = fromDiagramId,
             ToNodeId = toDiagramId,
-            Label = "in",
+            Label = "Subnet placement.",
             InferenceSource = GraphEdgeInferenceSources.InventoryLayoutVmVnet,
         });
 
