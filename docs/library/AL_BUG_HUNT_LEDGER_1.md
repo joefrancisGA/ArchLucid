@@ -6868,6 +6868,18 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-26 seed hunt (seed→hit): proved hunt 304 gated architecture analysis agent-result compare on `AgentResultsAppearAnchoredToRun` but `ReplayComparisonAgentResultsDiffSlice` still trusted any non-empty hydrated `Results` for end-to-end replay, so placeholder rows without `RunId` skipped `LoadAgentResultsByRunIdAsync` and omitted agent diffs; align slice with anchor gate + rollup reload; regression `CompareQuality_ApplyAsync_reloads_agent_results_when_hydrated_rows_lack_run_anchor`; cheap-disproof closed architecture analysis unanchored compare (hunt 304), braced run-id enumeration (hunt 303); seeded five follow-on rows; scoped application-analysis + replay filter 406/406. Private beta: end-to-end run comparison reports include agent-result diffs when hydrated rollup detail rows lack run anchors.
+
+- [ ] (candidate) `RunDetailRetrievalGroundingEnrichmentSlice` — retrieval trace run key — locus: Guid-scoped reader; input: defer unless string RunId ordinal store proven.
+- [ ] (candidate) `ComparisonRecordRepository.GetByRunIdAsync` — SQL list-by-run dashed stored — locus: UNIQUEIDENTIFIER column; input: already matches N/D lookup via guid param.
+- [ ] (candidate) `ComparisonRecordRepositoryCore.SerializeTagsForUpdate` — JSON tag order — locus: cosmetic; input: defer.
+- [ ] (candidate) `ComparisonRecordSearchPredicateBuilder` — notes column search — locus: no notes filter today; input: defer.
+- [ ] (candidate) `ApiPaging.TryParseUtcTicksIdCursor` — cursor id segment without trim — locus: HTTP cursor parse; input: padded id after ticks delimiter (alerts inbox and other API surfaces).
+
+- [x] (proven) `ReplayComparisonAgentResultsDiffSlice` — unanchored hydrated agent rows — **hit 2026-10-26 seed hunt:** anchor gate + rollup reload; regression above.
+- [x] (valid-no-repro) `ArchitectureAnalysisService` — agent-result compare trusts unanchored hydrated rows — **cheap-disproof 2026-10-26 seed hunt:** hunt 304.
+- [x] (invalid) `ApiPaging.TryParseUtcTicksIdCursor` — HTTP cursor id trim — **cheap-disproof 2026-10-26 seed hunt:** comparison search normalizes at application layer.
+
 2026-10-26 seed hunt (seed→hit): proved hunt 303 extended run-id retry keys but `ArchitectureAnalysisService` agent-result compare still treated any non-empty `Results` list as authoritative, so hydrated compare run detail with placeholder agent rows missing `RunId` skipped repository reload and produced empty or misleading diffs; gate on `AgentResultsAppearAnchoredToRun` before trusting preloaded/hydrated results; regression `CompareQuality_BuildAsync_reloads_compare_agent_results_when_run_detail_results_lack_run_anchor`; cheap-disproof closed braced run-id enumeration (hunt 303), Lane B null trace retry (hunt 302); seeded five follow-on rows; scoped application-analysis + replay filter 405/405. Private beta: analysis agent-result compare reloads persisted results when hydrated run-detail rows are not anchored to the requested run id.
 
 - [ ] (candidate) `RunDetailRetrievalGroundingEnrichmentSlice` — retrieval trace run key — locus: Guid-scoped reader; input: defer unless string RunId ordinal store proven.
