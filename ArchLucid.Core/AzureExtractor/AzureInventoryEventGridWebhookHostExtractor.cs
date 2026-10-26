@@ -28,6 +28,8 @@ public static class AzureInventoryEventGridWebhookHostExtractor
             trimmed = decoded;
         }
 
+        trimmed = TryBracketUnbracketedIpv6Authority(trimmed);
+
         Uri? uri = null;
 
         if (Uri.TryCreate(trimmed, UriKind.Absolute, out Uri? absoluteUri)
@@ -66,5 +68,29 @@ public static class AzureInventoryEventGridWebhookHostExtractor
         }
 
         return host;
+    }
+
+    private static string TryBracketUnbracketedIpv6Authority(string trimmed)
+    {
+        if (trimmed.Contains("://", StringComparison.Ordinal)
+            || trimmed.StartsWith("[", StringComparison.Ordinal)
+            || trimmed.Contains('.', StringComparison.Ordinal)
+            || !trimmed.Contains("::", StringComparison.Ordinal))
+        {
+            return trimmed;
+        }
+
+        int pathIndex = trimmed.IndexOf('/');
+        string authority = pathIndex >= 0 ? trimmed[..pathIndex] : trimmed;
+        string pathSuffix = pathIndex >= 0 ? trimmed[pathIndex..] : string.Empty;
+
+        int portSeparator = authority.LastIndexOf(':');
+        if (portSeparator > 0
+            && authority[(portSeparator + 1)..].All(static c => char.IsAsciiDigit(c)))
+        {
+            return $"[{authority[..portSeparator]}]{authority[portSeparator..]}{pathSuffix}";
+        }
+
+        return $"[{authority}]{pathSuffix}";
     }
 }

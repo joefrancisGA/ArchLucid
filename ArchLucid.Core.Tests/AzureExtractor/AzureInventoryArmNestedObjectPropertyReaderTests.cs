@@ -135,6 +135,21 @@ public sealed class AzureInventoryArmNestedObjectPropertyReaderTests
     }
 
     [Fact]
+    public void TryReadScalarString_reads_resource_id_when_id_is_empty_string_on_reference_object()
+    {
+        const string armId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/store";
+
+        string referenceJson = JsonSerializer.Serialize(new { id = string.Empty, resourceId = armId });
+        using JsonDocument document = JsonDocument.Parse(
+            $"{{\"resourceId\":{JsonSerializer.Serialize(referenceJson)}}}");
+
+        AzureInventoryArmNestedObjectPropertyReader.TryReadString(document.RootElement, "resourceId")
+            .Should()
+            .Be(armId);
+    }
+
+    [Fact]
     public void TryReadScalarString_reads_resource_id_when_id_is_whitespace_on_reference_object()
     {
         const string armId =
