@@ -31,6 +31,35 @@ describe("CitationChips", () => {
     expect(link.getAttribute("href")).toBe("/architecture/reviews/run-a#finding-finding-123");
   });
 
+  it("does not invent review deep links when run id is missing (P-07)", () => {
+    demoUiEnvMock.buyerPolishedShell = true;
+    render(<CitationChips citations={[base]} runId="   " />);
+
+    expect(screen.queryByRole("link")).toBeNull();
+    expect(screen.getByText(/Example finding/)).toBeInTheDocument();
+  });
+
+  it("does not link citations with empty ids", () => {
+    demoUiEnvMock.buyerPolishedShell = false;
+    render(
+      <CitationChips
+        citations={[{ kind: "Finding", id: "  ", label: "Example finding" }]}
+        runId="run-a"
+      />,
+    );
+
+    expect(screen.queryByRole("link")).toBeNull();
+    expect(screen.getByText(/Citation id was not stored on this explanation\./)).toBeInTheDocument();
+  });
+
+  it("does not link citations when citation id is empty (P-20)", () => {
+    demoUiEnvMock.buyerPolishedShell = true;
+    render(<CitationChips citations={[{ kind: "Finding", id: "   ", label: "Example finding" }]} runId="run-a" />);
+
+    expect(screen.queryByRole("link")).toBeNull();
+    expect(screen.getByText(/Example finding/)).toBeInTheDocument();
+  });
+
   it("links Finding citations to the findings route in buyer-polished shells", () => {
     demoUiEnvMock.buyerPolishedShell = true;
     render(<CitationChips citations={[base]} runId="run-a" />);

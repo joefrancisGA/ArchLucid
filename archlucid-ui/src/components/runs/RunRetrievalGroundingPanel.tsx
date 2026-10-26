@@ -164,7 +164,7 @@ export function RunRetrievalGroundingPanel(props: RunRetrievalGroundingPanelProp
             className={cn("text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}
             data-testid="run-retrieval-grounding-rows-not-returned"
           >
-            Retrieval rows not returned for this review.
+            Retrieval grounding rows were not stored for this review.
           </p>
         ) : null}
 
@@ -260,10 +260,20 @@ export function RunRetrievalGroundingPanel(props: RunRetrievalGroundingPanelProp
                       : row.corpusKind}
                   </EnterpriseTableCell>
                   <EnterpriseTableCell className={cn("max-w-[14rem] break-all font-mono", OPERATOR_TYPOGRAPHY.micro)}>
-                    {row.retrievedChunkIds.length > 0 ? row.retrievedChunkIds.join(", ") : "-"}
+                    {row.retrievedChunkIds == null
+                      ? "Chunk ids were not stored."
+                      : row.retrievedChunkIds.length > 0
+                        ? row.retrievedChunkIds.join(", ")
+                        : "Chunk ids were stored empty."}
                   </EnterpriseTableCell>
                   <EnterpriseTableCell className={cn("max-w-[12rem] break-all font-mono", OPERATOR_TYPOGRAPHY.micro)}>
-                    {row.documentMetadataMalformed ? "degraded" : row.documentIds.length > 0 ? row.documentIds.join(", ") : "-"}
+                    {row.documentMetadataMalformed
+                      ? "degraded"
+                      : row.documentIds == null
+                        ? "Document ids were not stored."
+                        : row.documentIds.length > 0
+                          ? row.documentIds.join(", ")
+                          : "Document ids were stored empty."}
                   </EnterpriseTableCell>
                   <EnterpriseTableCell className={cn("max-w-[12rem] font-mono", OPERATOR_TYPOGRAPHY.micro)}>
                     {formatRunRetrievalGroundingScoresLabel(row.scoreMetadataMalformed, row.scoreSummaries)}
@@ -281,7 +291,9 @@ export function RunRetrievalGroundingPanel(props: RunRetrievalGroundingPanelProp
                   </EnterpriseTableCell>
                   <EnterpriseTableCell className={cn("whitespace-nowrap", OPERATOR_TYPOGRAPHY.helper)}>{graphRagSummary(row)}</EnterpriseTableCell>
                   <EnterpriseTableCell className={cn("max-w-[12rem] break-all font-mono", OPERATOR_TYPOGRAPHY.micro)}>
-                    {row.agentExecutionTraceId?.trim() || row.traceId}
+                    {row.agentExecutionTraceId?.trim()
+                      ? row.agentExecutionTraceId.trim()
+                      : "Agent execution trace id was not stored."}
                   </EnterpriseTableCell>
                   <EnterpriseTableCell className={cn("whitespace-nowrap text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                     {formatInstantForLocale(row.createdUtc)}

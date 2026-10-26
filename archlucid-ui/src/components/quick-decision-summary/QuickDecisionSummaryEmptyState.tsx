@@ -113,13 +113,21 @@ export function QuickDecisionSummaryEmptyState({
 
     const warningPhrase =
       warningN !== null && warningN > 0
-        ? " One monitored PHI minimization risk remains in this review record — review severity and controls below."
+        ? ` ${warningN} monitored risk${warningN === 1 ? "" : "s"} ${warningN === 1 ? "is" : "are"} recorded on this review — review severity and controls below.`
         : "";
 
     return (
       <p className="m-0 text-neutral-600 dark:text-neutral-400">
-        {`This finalized review records ${n} finding${n === 1 ? "" : "s"} with no unresolved blocking issues.`}
+        {`This finalized review records ${n} finding${n === 1 ? "" : "s"} on the manifest headline — open the findings list for disposition detail.`}
         {warningPhrase}
+      </p>
+    );
+  }
+
+  if (headlineFindingCount === null || headlineFindingCount === undefined) {
+    return (
+      <p className="m-0 text-neutral-600 dark:text-neutral-400" data-testid="quick-decision-headline-count-not-stored">
+        Manifest headline finding count was not stored.
       </p>
     );
   }

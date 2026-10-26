@@ -31,7 +31,7 @@ export type CareerExportCoverageHonestyInput = SponsorReviewCoverageHonestyInput
   readonly enginesSucceeded?: number | null;
   readonly workingDesk?: boolean;
   readonly classificationCounts?: CareerExportClassificationCounts | null;
-  readonly catalogAdvisoryEngineFailureCount?: number;
+  readonly catalogAdvisoryEngineFailureCount?: number | null;
   readonly preCommitGateEnabled?: boolean | null;
   readonly structuralExecutionMode?: StructuralExecutionModeInput;
   readonly isSample?: boolean | null;
@@ -66,7 +66,9 @@ export function resolveCareerExportCoverageHonesty(
   );
   const measurementFloorBlockedReason = formatInsightDensityMeasurementFloorBlockedReason(
     input.enginesSucceeded ?? null,
-    input.catalogAdvisoryEngineFailureCount ?? 0,
+    input.catalogAdvisoryEngineFailureCount === undefined
+      ? 0
+      : input.catalogAdvisoryEngineFailureCount,
   );
   const preCommitGateBlockedReason = formatPreCommitGateDisabledCareerBlockedReason(
     input.preCommitGateEnabled,

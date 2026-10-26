@@ -17,7 +17,7 @@ export type AskCitationActionKind = "finding" | "evidence" | "disposition";
 export type AskCitationActionFollowUp = {
   readonly kind: AskCitationActionKind;
   readonly label: string;
-  readonly href: string;
+  readonly href: string | null;
   /** Stable id used for dedupe and test keys. */
   readonly citationId: string;
 };
@@ -134,11 +134,58 @@ function hasEvidenceArtifactRefs(input: AskCitationActionFollowUpsInput): boolea
   return false;
 }
 
+function findingHasEvidenceTraceCitation(input: AskCitationActionFollowUpsInput, findingId: string): boolean {
+  const normalizedFindingId = findingId.trim().toLowerCase();
+
+  if (normalizedFindingId.length === 0) {
+    return false;
+  }
+
+  for (const link of input.groundingLinks ?? []) {
+    const href = trimId(link.href);
+
+    if (href.length === 0) {
+      continue;
+    }
+
+    const match = FINDING_PATH_RE.exec(href);
+
+    if (match?.[1] === undefined || match[2]?.toLowerCase() !== "evidence-trace") {
+      continue;
+    }
+
+    try {
+      if (decodeURIComponent(match[1]).toLowerCase() === normalizedFindingId) {
+        return true;
+      }
+    } catch {
+      continue;
+    }
+  }
+
+  for (const citation of input.citations ?? []) {
+    if (citation.kind !== "EvidenceBundle" && citation.kind !== "GraphSnapshot") {
+      continue;
+    }
+
+    if (trimId(citation.id).length > 0) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 function pushChip(
   chips: AskCitationActionFollowUp[],
   chip: AskCitationActionFollowUp,
 ): void {
-  if (chips.some((existing) => existing.href === chip.href && existing.kind === chip.kind)) {
+  if (
+    chips.some(
+      (existing) =>
+        existing.href === chip.href && existing.kind === chip.kind && existing.label === chip.label,
+    )
+  ) {
     return;
   }
 
@@ -172,12 +219,14 @@ export function buildAskCitationActionFollowUps(
       href: resolveQuickDecisionFindingInspectHref(runId, findingId, inspectHrefOptions),
       citationId: findingId,
     });
-    pushChip(chips, {
-      kind: "evidence",
-      label: evidenceArtifacts ? "Open evidence" : "Evidence link was not stored.",
-      href: getFindingEvidenceTraceHref(runId, findingId),
-      citationId: findingId,
-    });
+    if (findingHasEvidenceTraceCitation(input, findingId)) {
+      pushChip(chips, {
+        kind: "evidence",
+        label: "Open evidence",
+        href: getFindingEvidenceTraceHref(runId, findingId),
+        citationId: findingId,
+      });
+    }
     pushChip(chips, {
       kind: "disposition",
       label: "Record disposition",
@@ -190,8 +239,8 @@ export function buildAskCitationActionFollowUps(
     for (const decisionId of decisionIds) {
       pushChip(chips, {
         kind: "disposition",
-        label: `Open ${ARCHITECTURE_DECISION_LABEL.toLowerCase()} register`,
-        href: GOVERNANCE_DECISION_REGISTER_PATH,
+        label: "Decision link was not stored.",
+        href: null,
         citationId: decisionId,
       });
     }

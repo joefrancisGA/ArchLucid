@@ -1,9 +1,14 @@
 import type { RunDetail } from "@/types/authority";
 
+import { normalizeFindingEnforcementTier } from "@/lib/findings/finding-enforcement-tier";
 import {
   extractQuickDecisionFindingsFromRunDetail,
   type QuickDecisionFinding,
 } from "@/lib/quick-decision-finding-from-detail";
+import {
+  coerceQuickDecisionFindingSeverityFromWire,
+  resolveQuickDecisionFindingPresentation,
+} from "@/lib/quick-decision-finding-wire-fields";
 
 export type FindingStreamBand = "sealed" | "agent";
 
@@ -58,8 +63,13 @@ function mapFindingSummaryRowToQuickDecision(
     return null;
   }
 
-  const title = typeof row.title === "string" ? row.title.trim() : "";
-  const message = title.length > 0 ? title : "Finding title was not stored.";
+  const { title, recommendation } = resolveQuickDecisionFindingPresentation(row);
+  const category =
+    typeof row.category === "string"
+      ? row.category.trim().length > 0
+        ? row.category.trim()
+        : ""
+      : null;
   const policyRuleId =
     typeof row.policyRuleId === "string" && row.policyRuleId.trim().length > 0
       ? row.policyRuleId.trim()
@@ -75,20 +85,25 @@ function mapFindingSummaryRowToQuickDecision(
 
   return {
     findingId,
-    title: message,
-    recommendation: "",
-    severityValue: 1,
+    title,
+    category,
+    recommendation,
+    severityValue: coerceQuickDecisionFindingSeverityFromWire(row.severity),
     findingOrder: order,
     aiReasoning: { wireJson, reasoningTrace: "" },
     isMuted: false,
     muteReason: null,
-    enforcementTier: "PolicyViolation",
+    enforcementTier: normalizeFindingEnforcementTier(row.enforcementTier),
     policyRuleId,
     streamBand: "sealed",
   };
 }
 
 function extractSealedFromFindingSummaries(detail: RunDetail): QuickDecisionFinding[] {
+  if (detail.run.hasFindingsSnapshot === false) {
+    return [];
+  }
+
   const summaries = readFindingSummaries(detail);
   const out: QuickDecisionFinding[] = [];
   let order = 0;

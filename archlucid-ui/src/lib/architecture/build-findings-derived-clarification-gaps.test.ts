@@ -22,6 +22,7 @@ describe("buildFindingsDerivedClarificationGaps", () => {
 
     expect(gaps).toHaveLength(1);
     expect(gaps[0]?.source.label).toBe("From assessment findings");
+    expect(gaps[0]?.source.capturedAtLabel).toBeNull();
     expect(gaps[0]?.href).toContain("rerun=");
     expect(gaps[0]?.href).toContain("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb");
   });

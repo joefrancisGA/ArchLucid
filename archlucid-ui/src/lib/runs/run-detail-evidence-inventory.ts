@@ -11,6 +11,11 @@ export type RunStoredEvidenceCatalogEntry = {
   readonly createdUtc?: string;
 };
 
+export const RUN_DETAIL_EVIDENCE_KIND_NOT_STORED = "Evidence kind was not stored." as const;
+
+export const FINDINGS_CITE_EVIDENCE_WITHOUT_SOURCE_NAMES_HEADLINE =
+  "Findings cite evidence, but source names were not stored." as const;
+
 export type RunDetailEvidenceInventoryItem = {
   readonly key: string;
   readonly sourceName: string;
@@ -20,7 +25,7 @@ export type RunDetailEvidenceInventoryItem = {
   readonly inventoryKind: RunDetailEvidenceInventoryKind;
   /** Set when inventoryKind is stored-file. */
   readonly evidenceItemId: string | null;
-  readonly ingestedUtc: string;
+  readonly ingestedUtc: string | null;
   readonly citingFindingCount: number;
 };
 
@@ -29,28 +34,22 @@ const ARCHITECTURE_BRIEF_KEY = "__architecture-brief__";
 function inferEvidenceKind(sourceName: string): string {
   const lower = sourceName.toLowerCase();
 
-  if (lower.includes("inventory") || lower.endsWith(".zip")) {
-    return "Cloud inventory";
-  }
-
   if (lower.includes(".bicep") || lower.includes(".tf") || lower.includes("terraform")) {
     return "Infrastructure as code";
   }
 
-  if (
-    lower.includes("brief")
-    || lower.endsWith(".md")
-    || lower.endsWith(".docx")
-    || lower.endsWith(".pdf")
-  ) {
-    return "Document";
-  }
+  return createdUtc.length > 0 ? createdUtc : null;
+}
 
-  if (lower.includes("manifest") || lower.includes("snapshot") || lower.includes("graph")) {
-    return "Persisted snapshot";
-  }
+export function findingsCiteEvidenceWithoutStoredSourceNames(
+  findings: readonly QuickDecisionFinding[],
+): boolean {
+  return findings.some((finding) => {
+    const refCount = finding.evidenceRefCount;
+    const snippets = finding.evidenceRefSnippets ?? [];
 
-  return "Submitted evidence";
+    return typeof refCount === "number" && Number.isFinite(refCount) && refCount > 0 && snippets.length === 0;
+  });
 }
 
 function extractSourceName(snippet: string): string {
@@ -178,7 +177,7 @@ export function deriveRunDetailEvidenceInventory(input: {
 
     map.set(key, {
       sourceName,
-      kind: inferEvidenceKind(sourceName),
+      kind: RUN_DETAIL_EVIDENCE_KIND_NOT_STORED,
       inventoryKind: inspectKind.inventoryKind,
       evidenceItemId: inspectKind.evidenceItemId,
       findingIds: new Set(),
@@ -188,7 +187,14 @@ export function deriveRunDetailEvidenceInventory(input: {
   for (const finding of input.findings) {
     const snippets = finding.evidenceRefSnippets ?? [];
 
-    if (snippets.length === 0 && (finding.evidenceRefCount ?? 0) > 0) {
+    const refCount = finding.evidenceRefCount;
+
+    if (
+      snippets.length === 0
+      && typeof refCount === "number"
+      && Number.isFinite(refCount)
+      && refCount > 0
+    ) {
       continue;
     }
 
@@ -211,7 +217,7 @@ export function deriveRunDetailEvidenceInventory(input: {
         map,
         key,
         sourceName,
-        inferEvidenceKind(sourceName),
+        RUN_DETAIL_EVIDENCE_KIND_NOT_STORED,
         inspectKind.inventoryKind,
         inspectKind.evidenceItemId,
         finding.findingId,
@@ -226,7 +232,7 @@ export function deriveRunDetailEvidenceInventory(input: {
       kind: value.kind,
       inventoryKind: value.inventoryKind,
       evidenceItemId: value.evidenceItemId,
-      ingestedUtc: input.runCreatedUtc,
+      ingestedUtc: resolveIngestedUtcForEvidenceItem(value.evidenceItemId, input.storedEvidenceCatalog),
       citingFindingCount: value.findingIds.size,
     }))
     .sort((left, right) => left.sourceName.localeCompare(right.sourceName, undefined, { sensitivity: "base" }));
@@ -265,8 +271,17 @@ export function deriveEvidenceScopeCoverageLine(input: EvidenceScopeCoverageInpu
 export function deriveEvidenceScopeReadiness(input: {
   readonly inventoryCount: number;
   readonly trustReadiness: TrustEvidenceReadiness | null;
+  readonly findingsCiteEvidenceWithoutSourceNames?: boolean;
 }): { readonly verdict: TrustEvidenceReadinessVerdict; readonly headline: string } {
+  if (input.findingsCiteEvidenceWithoutSourceNames === true) {
+    return {
+      verdict: "gaps",
+      headline: FINDINGS_CITE_EVIDENCE_WITHOUT_SOURCE_NAMES_HEADLINE,
+    };
+  }
+
   if (input.inventoryCount === 0) {
+
     if (input.trustReadiness !== null && input.trustReadiness.verdict === "gaps") {
       return {
         verdict: "gaps",
@@ -288,7 +303,7 @@ export function deriveEvidenceScopeReadiness(input: {
   }
 
   return {
-    verdict: "complete",
-    headline: "Evidence is available for review.",
+    verdict: "gaps",
+    headline: "Trust evidence was not stored.",
   };
 }

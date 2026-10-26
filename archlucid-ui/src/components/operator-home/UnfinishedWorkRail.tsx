@@ -47,8 +47,8 @@ import {
 import {
   matchesOperatorHomeHeroResumeTarget,
   resolveOperatorHomeHeroResumeTarget,
-  resolveRunIdFromHomeReviewHref,
 } from "@/lib/operator/operator-home-hero-resume-target";
+import { resolveOperatorUnfinishedWorkRailItemResumeTarget } from "@/lib/operator/operator-unfinished-work-rail-resume-target";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { resolveOperatorHomeWorkspacePhase } from "@/lib/resolve-operator-home-workspace-phase";
 import { listHomeAttentionPreviewExcludedRunIds } from "@/lib/operator/home-attention-dedup";
@@ -125,28 +125,6 @@ function resolveContinueCtaLabel(item: UnfinishedWorkRailItem, workingMode: bool
     default:
       return item.actionLabel;
   }
-}
-
-function resolveRailItemResumeTarget(item: UnfinishedWorkRailItem): {
-  readonly href: string;
-  readonly draftId?: string;
-  readonly runId?: string;
-} {
-  if (item.kind === "architecture-draft") {
-    const draftId = item.id.replace(/^architecture-draft:/, "").trim();
-
-    return {
-      href: item.href,
-      draftId: draftId.length > 0 ? draftId : undefined,
-    };
-  }
-
-  const runId = resolveRunIdFromHomeReviewHref(item.href);
-
-  return {
-    href: item.href,
-    runId: runId ?? undefined,
-  };
 }
 
 function UnfinishedWorkRailTableRow(props: {
@@ -229,7 +207,7 @@ function UnfinishedWorkRailList(props: {
               workingMode={props.workingMode}
               suppressContinueAction={matchesOperatorHomeHeroResumeTarget(
                 props.heroResumeTarget,
-                resolveRailItemResumeTarget(item),
+                resolveOperatorUnfinishedWorkRailItemResumeTarget(item),
               )}
             />
           ))}

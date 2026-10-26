@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { useArchitectureDeskDiagramSourcesQuery } from "@/hooks/use-architecture-desk-diagram-sources-query";
 import {
   ARCHITECTURE_IDENTITY_DESK_DIAGRAM_SOURCES_EMPTY,
+  ARCHITECTURE_IDENTITY_DESK_DIAGRAM_SOURCES_SNAPSHOT_NOT_STORED,
   ARCHITECTURE_IDENTITY_DESK_DIAGRAM_SOURCES_ERROR_LABEL,
   ARCHITECTURE_IDENTITY_DESK_DIAGRAM_SOURCES_LATEST_REVIEW_LABEL,
   ARCHITECTURE_IDENTITY_DESK_DIAGRAM_SOURCES_LOADING_LABEL,
@@ -29,7 +30,8 @@ export function ArchitectureIdentityDeskDiagramSourcesStrip(
   const latestReviewId = props.latestReviewId?.trim() ?? "";
   const enabled = isWorkingMode && latestReviewId.length > 0;
   const query = useArchitectureDeskDiagramSourcesQuery(latestReviewId, { enabled });
-  const rows = query.data ?? [];
+  const snapshotStored = query.data?.snapshotStored === true;
+  const rows = query.data?.rows ?? [];
 
   if (!enabled) {
     return null;
@@ -95,7 +97,14 @@ export function ArchitectureIdentityDeskDiagramSourcesStrip(
           {ARCHITECTURE_IDENTITY_DESK_DIAGRAM_SOURCES_LATEST_REVIEW_LABEL}
         </p>
       </div>
-      {rows.length === 0 ? (
+      {!snapshotStored ? (
+        <p
+          className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="architecture-identity-desk-diagram-sources-snapshot-not-stored"
+        >
+          {ARCHITECTURE_IDENTITY_DESK_DIAGRAM_SOURCES_SNAPSHOT_NOT_STORED}
+        </p>
+      ) : rows.length === 0 ? (
         <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)} data-testid="architecture-identity-desk-diagram-sources-empty">
           {ARCHITECTURE_IDENTITY_DESK_DIAGRAM_SOURCES_EMPTY}
         </p>

@@ -9,7 +9,11 @@ import {
   buildPackagePrintFindingsSummary,
   buildPackagePrintPath,
   buildPackagePrintPresentation,
+  packagePrintPipelineStageFlagsOmitted,
   buildPackagePrintSponsorSynopsis,
+  formatPackagePrintDraftSynopsisBody,
+  resolvePackagePrintSynopsisBody,
+  resolvePackagePrintSynopsisHeading,
   printPackagePage,
   resolvePackagePrintSemanticSupportBandStampLine,
   resolvePackagePrintStatusLabel,
@@ -48,6 +52,15 @@ describe("package-print-view (TB-2205)", () => {
     expect(buildPackagePrintPath("  ")).toBe("/architecture/reviews/print");
   });
 
+  it("labels omitted governance warning flags on finalized print status (P-09)", () => {
+    expect(
+      resolvePackagePrintStatusLabel(
+        summary({ hasGovernanceWarnings: undefined }),
+      ),
+    ).toBe("Finalized. Governance warning flags were not stored.");
+    expect(resolvePackagePrintStatusLabel(summary({ hasGovernanceWarnings: false }))).toBe("Finalized");
+  });
+
   it("resolves status and presentation for a finalized package", () => {
     const presentation = buildPackagePrintPresentation(summary());
 
@@ -59,11 +72,26 @@ describe("package-print-view (TB-2205)", () => {
     expect(presentation.sponsorSynopsis).toContain("Payments edge");
   });
 
-  it("includes finding count omission in findings summary when count is missing", () => {
+  it("includes finding count omission in package print rollup when count is missing (P-01)", () => {
     const line = buildPackagePrintFindingsSummary(summary({ findingCount: null, warningCount: 0 }));
 
     expect(line).toContain("Finding count was not stored.");
     expect(line).not.toContain("0 findings");
+    expect(line).not.toContain("Included in the finalized architecture review.");
+    expect(line).toContain("Package is finalized.");
+  });
+
+  it("labels omitted snapshot flags as package status not stored (P-11)", () => {
+    expect(
+      resolvePackagePrintStatusLabel(
+        summary({
+          hasGoldenManifest: undefined,
+          hasFindingsSnapshot: undefined,
+          hasGraphSnapshot: undefined,
+          hasContextSnapshot: undefined,
+        }),
+      ),
+    ).toBe("Package status was not stored.");
   });
 
   it("appends warning count omission to findings summary when warning count is missing", () => {
@@ -73,10 +101,11 @@ describe("package-print-view (TB-2205)", () => {
     expect(line).toContain("Warning count was not stored.");
   });
 
-  it("does not append warning omission when warning count is stored as zero", () => {
+  it("states zero warnings when warning count is stored as zero", () => {
     const line = buildPackagePrintFindingsSummary(summary({ findingCount: 3, warningCount: 0 }));
 
     expect(line).toContain("3 findings");
+    expect(line).toContain("0 warnings were stored.");
     expect(line).not.toContain("Warning count was not stored.");
   });
 
@@ -121,6 +150,15 @@ describe("package-print-view (TB-2205)", () => {
     printMock.mockRestore();
   });
 
+  it("labels omitted listed finding count without implying full inventory (P-09)", () => {
+    const presentation = buildPackagePrintPresentation(summary({ findingCount: 25 }), {
+      findingsListedCount: null,
+    });
+
+    expect(presentation.findingsSummary).toContain("Listed finding count was not stored.");
+    expect(presentation.findingsSummary).not.toContain("Showing 25 of 25");
+  });
+
   it("CA-41: adds showing N of M when listed findings are fewer than the run total", () => {
     const presentation = buildPackagePrintPresentation(summary({ findingCount: 25 }), {
       findingsListedCount: 20,
@@ -150,6 +188,14 @@ describe("package-print-view (TB-2205)", () => {
     const line = resolvePackagePrintSemanticSupportBandStampLine(findings);
 
     expect(line).toContain("1 Supported");
+  });
+
+  it("surfaces pipeline stage flag omission on print presentation", () => {
+    expect(packagePrintPipelineStageFlagsOmitted(summary({ hasGoldenManifest: false }))).toBe(true);
+
+    const presentation = buildPackagePrintPresentation(summary({ hasGoldenManifest: false }));
+
+    expect(presentation.pipelineStageFlagsOmittedLine).toContain("Assessment step flags were not stored");
   });
 
   it("buildPackagePrintPresentation carries semantic support stamp line", () => {

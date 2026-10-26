@@ -29,6 +29,20 @@ import type {
 } from "./types";
 import { countFindingsBySeverity, derivePrimaryConcernFinding, filterUnresolvedFindings } from "./finding-metrics";
 import { isFindingResolved } from "./internal";
+import { resolveBlockingFindingCountPresentation } from "./blocking-finding-count-display";
+
+export function normalizeWorkspaceRecommendedActionOwnerOrRole(
+  ownerOrRole: string | null | undefined,
+): string | null {
+  if (ownerOrRole === null || ownerOrRole === undefined) {
+    return null;
+  }
+
+  const trimmed = ownerOrRole.trim();
+
+  return trimmed.length > 0 ? trimmed : null;
+}
+
 export function deriveBlockingApprovalCount(input: {
   readonly unresolvedIssueCount: number | null | undefined;
   readonly hasCommitBlockingFailures: boolean;
@@ -59,7 +73,7 @@ export function deriveRecommendedWorkspaceActions(input: {
   readonly manifestId: string | null | undefined;
   readonly showProgressTracker: boolean;
   readonly hasCommitBlockingFailures: boolean;
-  readonly blockingFindingCount: number;
+  readonly blockingFindingCount?: number;
   readonly buyerPolishedArtifactTable: boolean;
   readonly operatorGovernanceDecision: string | null | undefined;
   readonly manifestStatus: string | null | undefined;
@@ -110,21 +124,39 @@ export function deriveRecommendedWorkspaceActions(input: {
     });
   }
 
-  if (input.hasCommitBlockingFailures || input.blockingFindingCount > 0) {
-    const count = Math.max(input.blockingFindingCount, severityCounts.critical + severityCounts.high);
+  const blockingPresentation = resolveBlockingFindingCountPresentation(input.blockingFindingCount);
+  const hasKnownBlockingCount = blockingPresentation.known && blockingPresentation.value > 0;
+  const severityBlockingCount = severityCounts.critical + severityCounts.high;
 
+  if (input.hasCommitBlockingFailures || hasKnownBlockingCount || severityBlockingCount > 0) {
     if (!input.skipDuplicateFindingsActions) {
-      const verb = count === 1 ? "blocks" : "block";
+      if (!blockingPresentation.known && input.hasCommitBlockingFailures) {
+        actions.push({
+          id: "review-blocking",
+          title: "Review blocking findings",
+          reason:
+            "Blocking finding count was not stored — review open findings before approval or finalization.",
+          relatedFindingCount: null,
+          ownerOrRole: null,
+          href: buildReviewDetailTabHref(input.runId, "findings"),
+          actionLabel: "Review findings",
+        });
+      } else {
+        const count = blockingPresentation.known
+          ? Math.max(blockingPresentation.value, severityBlockingCount)
+          : severityBlockingCount;
+        const verb = count === 1 ? "blocks" : "block";
 
-      actions.push({
-        id: "review-blocking",
-        title: "Review blocking findings",
-        reason: `${count} unresolved finding${count === 1 ? "" : "s"} currently ${verb} approval or finalization.`,
-        relatedFindingCount: count,
-        ownerOrRole: null,
-        href: buildReviewDetailTabHref(input.runId, "findings"),
-        actionLabel: "Review findings",
-      });
+        actions.push({
+          id: "review-blocking",
+          title: "Review blocking findings",
+          reason: `${count} unresolved finding${count === 1 ? "" : "s"} currently ${verb} approval or finalization.`,
+          relatedFindingCount: count,
+          ownerOrRole: null,
+          href: buildReviewDetailTabHref(input.runId, "findings"),
+          actionLabel: "Review findings",
+        });
+      }
     }
   } else if (severityCounts.critical > 0 || severityCounts.high > 0) {
     const count = severityCounts.critical + severityCounts.high;
@@ -145,12 +177,12 @@ export function deriveRecommendedWorkspaceActions(input: {
   if (unassignedHigh > 0) {
     actions.push({
       id: "assign-owners",
-      title: `Assign owners to ${unassignedHigh} high finding${unassignedHigh === 1 ? "" : "s"}`,
-      reason: "Remediation owners are not set for important findings.",
+      title: "Open findings",
+      reason: "Owner was not stored for important findings.",
       relatedFindingCount: unassignedHigh,
       ownerOrRole: "Remediation lead",
       href: buildReviewDetailTabHref(input.runId, "findings"),
-      actionLabel: "Assign owners",
+      actionLabel: "Open findings",
     });
   }
 
@@ -208,7 +240,7 @@ export function deriveRecommendedWorkspaceActions(input: {
       relatedFindingCount: null,
       ownerOrRole: "Approval lead",
       href: `/governance/approval-queue?runId=${encodeURIComponent(input.runId)}`,
-      actionLabel: "Record decision",
+      actionLabel: "Open approval queue",
     });
   }
 
@@ -218,7 +250,8 @@ export function deriveRecommendedWorkspaceActions(input: {
     actions.push({
       id: "finalize-review",
       title: "Finalize review",
-      reason: "Analysis is complete — finalize to create the shareable review.",
+      reason:
+        "The run has finished. Read the diagram and findings, ask one question, then finalize the shareable review.",
       relatedFindingCount: null,
       ownerOrRole: "Review owner",
       href: buildReviewDetailTabHref(input.runId, "review-package"),

@@ -43,14 +43,23 @@ export function formatGapCapturedAtLabel(utc: string | null): string | null {
   return `captured ${capturedAt}`;
 }
 
+export const ARCHITECTURE_INTAKE_HEURISTIC_GAP_SOURCE_LABEL =
+  "Checked on this page — not a line from the brief." as const;
+
 export function buildClarificationGapSourcePresentation(input: {
   readonly capturedAtUtc: string | null;
   readonly fromHandoff: boolean;
   readonly findingsDerived?: boolean;
+  readonly heuristicDerived?: boolean;
 }): ClarificationGapSourcePresentation {
+  const capturedAtLabel =
+    input.findingsDerived === true && input.capturedAtUtc === null
+      ? null
+      : formatGapCapturedAtLabel(input.capturedAtUtc);
+
   return {
     label: input.findingsDerived === true ? "From assessment findings" : ARCHITECTURE_STRUCTURED_ASSERTED_LABEL,
-    capturedAtLabel: formatGapCapturedAtLabel(input.capturedAtUtc),
+    capturedAtLabel,
   };
 }
 

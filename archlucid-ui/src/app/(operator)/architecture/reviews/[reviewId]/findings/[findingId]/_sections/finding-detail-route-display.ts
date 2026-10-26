@@ -3,7 +3,6 @@ import {
   typedPayloadLookupString,
   isPhiMinimizationFindingId,
   isPhiMinimizationSampleFinding,
-  phiMinimizationApprovalNarrative,
   phiMinimizationRecommendedActionFallback,
 } from "@/lib/findings/finding-display-from-inspect";
 import { buyerFindingSeverityDisplayLabel } from "@/lib/buyer/buyer-finding-severity-display";
@@ -63,7 +62,7 @@ export function resolveFindingRiskOwnerLabel(
   const assigned = payload?.assignedToUserId?.trim() ?? "";
 
   if (assigned.length > 0) {
-    return assigned;
+    return `Risk owner name was not stored. Assignee id ${assigned}.`;
   }
 
   return RISK_OWNER_NOT_ASSIGNED;
@@ -110,6 +109,10 @@ export function formatFindingRemediationDueLabel(remediationDueUtc: string | nul
 export function summarizeEvidenceBasis(payload: FindingInspectPayload | null): string {
   if (payload === null) {
     return "Finding detail has not loaded.";
+  }
+
+  if (payload.evidenceListReturned === false) {
+    return "Evidence list was not returned.";
   }
 
   const evidenceCount = payload.evidence.length;
@@ -169,10 +172,6 @@ export function fallbackSeverity(payload: FindingInspectPayload | null, findingI
     }
   }
 
-  if (isPhiMinimizationFindingId(findingId)) {
-    return resolveProductionEvalChromeFromStorage() ? "High" : "High severity";
-  }
-
   return SEVERITY_NOT_STORED;
 }
 
@@ -205,7 +204,7 @@ export function buyerFindingDecisionPanelCopy(payload: FindingInspectPayload | n
   const status = fallbackStatus(payload, findingId);
 
   if (status === STATUS_NOT_STORED) {
-    return "No disposition recorded for this finding.";
+    return "Disposition was not stored.";
   }
 
   return `Disposition: ${status}.`;
@@ -274,37 +273,17 @@ export function buyerFindingNextStepCopy(payload: FindingInspectPayload | null, 
     if (action !== null && action.trim().length > 0) {
       return action;
     }
-
-    if (isPhiMinimizationSampleFinding(payload)) {
-      return phiMinimizationRecommendedActionFallback();
-    }
-  }
-
-  if (isPhiMinimizationFindingId(findingId)) {
-    return phiMinimizationRecommendedActionFallback();
   }
 
   return mitigationPosture(payload, findingId);
 }
 
-export function validationRequirement(payload: FindingInspectPayload | null, findingId: string): string {
-  if (payload !== null && isPhiMinimizationSampleFinding(payload)) {
-    return phiMinimizationApprovalNarrative();
-  }
-
-  if (isPhiMinimizationFindingId(findingId)) {
-    return phiMinimizationApprovalNarrative();
-  }
-
+export function validationRequirement(_payload: FindingInspectPayload | null, _findingId: string): string {
   return "No audit requirement was stored on this finding.";
 }
 
 /** Buyer-polished fallback when inspect payload has not loaded yet. */
-export function findingDetailLeadFallback(findingId: string): string {
-  if (isPhiMinimizationFindingId(findingId) && resolveProductionEvalChromeFromStorage()) {
-    return "Residual risk record for the finalized Claims Intake review.";
-  }
-
+export function findingDetailLeadFallback(_findingId: string): string {
   return "Finding detail has not loaded.";
 }
 

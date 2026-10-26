@@ -24,6 +24,7 @@ import { Button } from "@/components/ui/button";
 import { SeverityTag } from "@/components/ui/severity-tag";
 import { StatusTag } from "@/components/ui/status-tag";
 import { findingEnforcementTierLabel } from "@/lib/findings/finding-enforcement-tier";
+import { formatQuickDecisionEvaluationTraceLabel } from "@/lib/findings/finding-evaluation-trace-copy";
 import { buildFindingPolicyEvidenceCitationsFromQuickDecision } from "@/lib/findings/finding-policy-evidence-citations";
 import { getFindingDetailHref } from "@/lib/findings/finding-evidence-navigation";
 import {
@@ -32,6 +33,7 @@ import {
   quickDecisionWorkItemSeverityLabel,
 } from "@/lib/quick-decision-finding-links";
 import {
+  formatQuickDecisionConfidenceWorkspaceLabel,
   formatQuickDecisionFindingOwnerDisplay,
   isKnownQuickDecisionConfidenceLevel,
 } from "@/lib/findings/quick-decision-finding-display";
@@ -115,7 +117,11 @@ export function QuickDecisionSummaryFindingRow({
         ) : null}
         {isKnownQuickDecisionConfidenceLevel(finding.confidenceLevel) ? (
           <FindingConfidenceBadge level={finding.confidenceLevel} />
-        ) : null}
+        ) : (
+          <span className="text-al-text-secondary text-sm">
+            {formatQuickDecisionConfidenceWorkspaceLabel(finding.confidenceLevel)}
+          </span>
+        )}
         <AiOutputGovernanceLabel findingId={finding.findingId} />
         <FindingTrustChip finding={finding} />
         <FindingClassificationChip
@@ -224,13 +230,12 @@ export function QuickDecisionSummaryFindingRow({
           {INSIGHT_DENSITY_TYPED_ENGINE_HONESTY_LINE}
         </p>
       ) : null}
-      {finding.traceConfidenceLabel !== null &&
-      finding.traceConfidenceLabel !== undefined &&
-      finding.traceConfidenceLabel.trim().length > 0 ? (
-        <p className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-          Evaluation trace: {finding.traceConfidenceLabel}
-        </p>
-      ) : null}
+      <p
+        className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+        data-testid={`quick-decision-evaluation-trace-${finding.findingId}`}
+      >
+        Evaluation trace: {formatQuickDecisionEvaluationTraceLabel(finding.traceConfidenceLabel)}
+      </p>
       {finding.evaluationConfidenceScore !== null &&
       finding.evaluationConfidenceScore !== undefined &&
       Number.isFinite(finding.evaluationConfidenceScore) ? (

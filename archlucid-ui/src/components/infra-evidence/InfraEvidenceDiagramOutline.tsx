@@ -40,6 +40,7 @@ import {
   INFRA_EVIDENCE_DIAGRAM_OUTLINE_SOURCE_COLUMN,
   INFRA_EVIDENCE_DIAGRAM_OUTLINE_SOURCE_DECLARED,
   INFRA_EVIDENCE_DIAGRAM_OUTLINE_SOURCE_INFERRED,
+  INFRA_EVIDENCE_DIAGRAM_OUTLINE_SOURCE_NOT_STORED,
   INFRA_EVIDENCE_DIAGRAM_OUTLINE_SOURCE_OBSERVED,
   INFRA_EVIDENCE_DIAGRAM_OUTLINE_SOURCE_PROBABLE,
 } from "@/lib/infra-evidence/infra-evidence-diagram-copy";
@@ -106,7 +107,11 @@ function resolveNodeProblem(node: InfraEvidenceMermaidOutlineNode): string {
   }
 
   if (node.connectionState === "Unknown") {
-    const unknownDetails = node.unresolvedRelationshipDetails ?? [];
+    const unknownDetails = node.unresolvedRelationshipDetails;
+
+    if (unknownDetails === null || unknownDetails === undefined) {
+      return GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNKNOWN_SECTION;
+    }
 
     if (unknownDetails.length > 0) {
       return unknownDetails.join(" ");
@@ -116,6 +121,10 @@ function resolveNodeProblem(node: InfraEvidenceMermaidOutlineNode): string {
   }
 
   const details = node.unresolvedRelationshipDetails ?? [];
+
+  if (node.connectionState === "Orphaned" && details.length === 0) {
+    return "Missing a required link. The missing-link reason was not stored.";
+  }
 
   if (details.length > 0) {
     return details.join(" ");
@@ -154,7 +163,11 @@ function formatLedgerDropLabel(
   const fromLabel = resolveInfraEvidenceOutlineNodeLabel(nodes, drop.from);
   const reasonLabel = formatInfraEvidenceDiagramDropGateReasonLabel(drop.reason);
 
-  if (drop.reason === "nsg-unattached") {
+  if (
+    drop.reason === "nsg-unattached"
+    || drop.reason === "nsg-unattached-no-association"
+    || drop.reason === "nsg-unattached-off-diagram"
+  ) {
     return `${reasonLabel} · ${fromLabel}`;
   }
 
@@ -198,24 +211,22 @@ function formatOutlineCell(value: string | null, missingLabel = "Not recorded"):
   }
 
   if (value.trim().length === 0) {
-    return missingLabel.includes("was not stored")
-      ? missingLabel.replace("was not stored", "was stored empty")
-      : "Entry was stored empty.";
+    return missingLabel;
   }
 
   return value;
 }
 
-function formatOutlineResourceType(resourceType: string | null): string {
-  if (resourceType === null) {
+function formatOutlineResourceType(resourceType: string | null | undefined): string {
+  if (resourceType === null || resourceType === undefined) {
     return "Resource type was not stored";
   }
 
   if (resourceType.trim().length === 0) {
-    return "Resource type was stored empty.";
+    return "Resource type was not stored";
   }
 
-  return formatDiagramArmTypeFriendlyName(resourceType);
+  return formatDiagramArmTypeFriendlyName(resourceType) ?? "Resource type was not stored";
 }
 
 function formatOutlineEdgeSource(
@@ -236,7 +247,7 @@ function formatOutlineEdgeSource(
 
   switch (source) {
     case "missing":
-      return "Confidence band was not stored";
+      return INFRA_EVIDENCE_DIAGRAM_OUTLINE_SOURCE_NOT_STORED;
 
     case "declared":
       return INFRA_EVIDENCE_DIAGRAM_OUTLINE_SOURCE_DECLARED;
@@ -1115,8 +1126,7 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
             <ul className={cn("m-0 list-disc pl-5", OPERATOR_TYPOGRAPHY.body)}>
               {outline.dropGateRows.map((row, index) => (
                 <li key={`${row.from}-${row.to}-${row.reason}-${index}`}>
-                  {formatInfraEvidenceDiagramDropGateReasonLabel(row.reason)}: {resolveInfraEvidenceOutlineNodeLabel(outline.nodes, row.from)} →{" "}
-                  {row.to === "_" ? "Destination was not stored" : resolveInfraEvidenceOutlineNodeLabel(outline.nodes, row.to)}
+                  {formatLedgerDropLabel(row, outline.nodes)}
                 </li>
               ))}
             </ul>

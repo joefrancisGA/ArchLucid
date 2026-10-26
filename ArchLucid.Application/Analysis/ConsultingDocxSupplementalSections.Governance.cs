@@ -1,3 +1,4 @@
+using ArchLucid.Application.Manifests;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Manifest;
@@ -54,9 +55,9 @@ internal static partial class ConsultingDocxSupplementalSections
                 ConsultingDocxOpenXmlPrimitives.AddBullet(body, $"Type: {datastore.DatastoreType}");
                 ConsultingDocxOpenXmlPrimitives.AddBullet(body, $"Platform: {datastore.RuntimePlatform}");
                 ConsultingDocxOpenXmlPrimitives.AddBullet(body,
-                    $"Private Endpoint Required: {(datastore.PrivateEndpointRequired ? "Yes" : "No")}");
+                    $"Private Endpoint Required: {ArchitectureManifestDatastoreExport.FormatPrivateEndpointRequiredForExport(datastore.PrivateEndpointRequired)}");
                 ConsultingDocxOpenXmlPrimitives.AddBullet(body,
-                    $"Encryption At Rest Required: {(datastore.EncryptionAtRestRequired ? "Yes" : "No")}");
+                    $"Encryption At Rest Required: {ArchitectureManifestDatastoreExport.FormatEncryptionAtRestRequiredForExport(datastore.EncryptionAtRestRequired)}");
                 ConsultingDocxOpenXmlPrimitives.AddSpacer(body);
             }
         }
@@ -98,8 +99,8 @@ internal static partial class ConsultingDocxSupplementalSections
         ManifestGovernance gov = report.Manifest.Governance;
 
         ConsultingDocxOpenXmlPrimitives.AddKeyValueTable(body, [
-            ("Risk Classification", gov.RiskClassification),
-            ("Cost Classification", gov.CostClassification),
+            ("Risk Classification", ArchitectureManifestGovernanceExport.FormatRiskClassificationForExport(gov)),
+            ("Cost Classification", ArchitectureManifestGovernanceExport.FormatCostClassificationForExport(gov)),
             ("Required Controls", gov.RequiredControls.Count > 0 ? string.Join(", ", gov.RequiredControls) : "None"),
             ("Compliance Tags", gov.ComplianceTags.Count > 0 ? string.Join(", ", gov.ComplianceTags) : "None"),
             ("Policy Constraints", gov.PolicyConstraints.Count > 0 ? string.Join(", ", gov.PolicyConstraints) : "None")

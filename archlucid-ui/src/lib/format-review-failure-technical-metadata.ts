@@ -29,29 +29,43 @@ function normalize(value: string | null | undefined): string {
   return (value ?? "").trim();
 }
 
-function completedPipelineStages(summary: RunSummary | null | undefined): number {
-  if (summary === null || summary === undefined) {
-    return 0;
+function formatPipelineStageFlag(
+  label: string,
+  value: boolean | null | undefined,
+  notStoredLabel: string,
+): string {
+  if (value === null || value === undefined) {
+    return `${label}=${notStoredLabel}`;
   }
 
-  return [
+  return `${label}=${value === true ? "yes" : "no"}`;
+}
+
+function formatAssessmentProgressValue(summary: RunSummary | null | undefined): string {
+  if (summary === null || summary === undefined) {
+    return "Assessment progress was not stored.";
+  }
+
+  const completed = [
     summary.hasContextSnapshot === true,
     summary.hasGraphSnapshot === true,
     summary.hasFindingsSnapshot === true,
     summary.hasGoldenManifest === true,
   ].filter(Boolean).length;
+
+  return `${completed} / 4 assessment steps`;
 }
 
 function formatPipelineStageFlags(summary: RunSummary | null | undefined): string {
   if (summary === null || summary === undefined) {
-    return "context=no, graph=no, findings=no, manifest=no";
+    return "Assessment progress was not stored.";
   }
 
   return [
-    `context=${summary.hasContextSnapshot === true ? "yes" : "no"}`,
-    `graph=${summary.hasGraphSnapshot === true ? "yes" : "no"}`,
-    `findings=${summary.hasFindingsSnapshot === true ? "yes" : "no"}`,
-    `manifest=${summary.hasGoldenManifest === true ? "yes" : "no"}`,
+    formatPipelineStageFlag("context", summary.hasContextSnapshot, "Context snapshot status was not stored."),
+    formatPipelineStageFlag("graph", summary.hasGraphSnapshot, "Graph snapshot status was not stored."),
+    formatPipelineStageFlag("findings", summary.hasFindingsSnapshot, "Findings snapshot status was not stored."),
+    formatPipelineStageFlag("manifest", summary.hasGoldenManifest, "Package snapshot status was not stored."),
   ].join(", ");
 }
 
@@ -150,7 +164,15 @@ export function formatReviewFailureTechnicalMetadataRows(
   const failureClass = normalize(summary?.failureClass);
   const reasonCode = normalize(summary?.reasonCode);
   const legacyRunStatus = normalize(diagnosticContext?.legacyRunStatus);
-  const completedStages = completedPipelineStages(pipelineSummary);
+  const completedStages =
+    pipelineSummary === null || pipelineSummary === undefined
+      ? null
+      : [
+          pipelineSummary.hasContextSnapshot === true,
+          pipelineSummary.hasGraphSnapshot === true,
+          pipelineSummary.hasFindingsSnapshot === true,
+          pipelineSummary.hasGoldenManifest === true,
+        ].filter(Boolean).length;
   const axis = resolveExecutionVsQualityAxis({
     failureClass: summary?.failureClass,
     legacyRunStatus: diagnosticContext?.legacyRunStatus,
@@ -165,7 +187,7 @@ export function formatReviewFailureTechnicalMetadataRows(
   );
   pushRow(rows, "Review outcome", legacyRunStatus, true);
   pushRow(rows, "Failure axis", axis, true);
-  pushRow(rows, "Assessment progress", `${completedStages} / 4 assessment steps`);
+  pushRow(rows, "Assessment progress", formatAssessmentProgressValue(pipelineSummary));
   pushRow(rows, "Assessment step flags", formatPipelineStageFlags(pipelineSummary), true);
   pushRow(rows, "Failure class", failureClass, true);
   pushRow(rows, "Failure class (label)", plainLanguageFailureClassLabel(summary?.failureClass));
@@ -197,7 +219,7 @@ export function formatReviewFailureTechnicalMetadataRows(
   const likelyCause = resolveLikelyCauseSentence({
     failureClass,
     reasonCode,
-    completedStages,
+    completedStages: completedStages ?? 0,
   });
 
   pushRow(rows, "Likely cause", likelyCause ?? undefined);

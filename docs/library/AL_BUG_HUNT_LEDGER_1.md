@@ -1,4 +1,4 @@
-> **Scope:** Hunt ledger for `/al-bug1` (Orchestration and topology). Edit this file only from that command. Sync and push `bugsmash-1`. Do not edit the other set ledgers in the same hunt.
+> **Scope:** Contributor-reference — hunt ledger for `/al-bug1` (Orchestration and topology). Edit this file only from that command. Sync and push `bugsmash-1`. Do not edit the other set ledgers in the same hunt.
 
 ## Zone: topology-proposal-merge
 2026-10-21 thorough hunt (dry, lane C): cheap-disproof closed five follow-on `(candidate)` rows; three regressions; seeded five follow-on rows; 1,623 scoped tests passed (`RunAnalyzers=false`).

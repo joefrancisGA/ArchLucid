@@ -76,16 +76,26 @@ export function RunDetailDecisionDeltaPanel(props: RunDetailDecisionDeltaPanelPr
                   <FindingPolicyRuleBadge policyRuleId={row.policyRuleId} />
                 ) : (
                   <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                    No mapped compliance rule key
+                    Compliance rule was not stored.
                   </span>
                 )}
               </div>
 
+<<<<<<< HEAD
               {row.evidenceAnchorHint !== null ? (
                 <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                   Evidence anchor: {row.evidenceAnchorHint}
                 </p>
+              ) : row.evidenceRefCountNotStored ? (
+                <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                  Evidence reference count was not stored.
+                </p>
               ) : null}
+=======
+              <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                Evidence anchor: {row.evidenceAnchorHint ?? "Evidence anchor was not stored."}
+              </p>
+>>>>>>> origin/master
             </li>
           ))}
         </ol>

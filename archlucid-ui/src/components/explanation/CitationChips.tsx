@@ -22,25 +22,32 @@ export type CitationChipsProps = {
   runId: string;
 };
 
-function citationHref(c: CitationReference, runId: string, buyerPolishedShell: boolean): string {
+function citationHref(c: CitationReference, runId: string, buyerPolishedShell: boolean): string | null {
+  const trimmedRunId = runId.trim();
+  const trimmedCitationId = c.id?.trim() ?? "";
+
+  if (trimmedRunId.length === 0 || trimmedCitationId.length === 0) {
+    return null;
+  }
+
   switch (c.kind) {
     case "Manifest":
-      return signedRecordDetailPath(c.id);
+      return signedRecordDetailPath(trimmedCitationId);
     case "Finding":
 
       if (buyerPolishedShell) {
-        return `/architecture/reviews/${encodeURIComponent(runId)}/findings/${encodeURIComponent(c.id)}`;
+        return `/architecture/reviews/${encodeURIComponent(trimmedRunId)}/findings/${encodeURIComponent(trimmedCitationId)}`;
       }
 
-      return `/architecture/reviews/${encodeURIComponent(runId)}#finding-${encodeURIComponent(c.id)}`;
+      return `/architecture/reviews/${encodeURIComponent(trimmedRunId)}#finding-${encodeURIComponent(trimmedCitationId)}`;
     case "DecisionTrace":
     case "GraphSnapshot":
     case "ContextSnapshot":
-      return `/architecture/reviews/${encodeURIComponent(runId)}/provenance`;
+      return `/architecture/reviews/${encodeURIComponent(trimmedRunId)}/provenance`;
     case "EvidenceBundle":
-      return `/architecture/reviews/${encodeURIComponent(runId)}`;
+      return `/architecture/reviews/${encodeURIComponent(trimmedRunId)}`;
     default:
-      return `/architecture/reviews/${encodeURIComponent(runId)}`;
+      return `/architecture/reviews/${encodeURIComponent(trimmedRunId)}`;
   }
 }
 
@@ -86,21 +93,42 @@ export function CitationChips({ citations, runId }: CitationChipsProps) {
       </h4>
       <ul className="m-0 flex list-none flex-wrap gap-2 p-0">
         {citations.map((c) => {
+          const citationIdTrimmed = c.id?.trim() ?? "";
+          const citationIdMissing = citationIdTrimmed.length === 0;
           const href = citationHref(c, runId, buyerPolished);
           const kindLabel = citationKindBuyerLabel(c.kind);
           const display = formatCitationBuyerDisplay(c, buyerPolished);
           const citationKey = `${c.kind}-${c.id}`;
           const technicalDetailsOpen = openCitationKey === citationKey;
+          const chipClassName = cn(
+            "inline-block rounded-md border border-neutral-200 bg-neutral-50 px-2 py-1 font-medium text-neutral-800 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100",
+            href !== null ? "hover:bg-neutral-100 dark:hover:bg-neutral-800" : "cursor-default opacity-90",
+            OPERATOR_TYPOGRAPHY.helper,
+          );
 
           return (
             <li key={`${c.kind}-${c.id}`}>
+              {href !== null ? (
               <Link
                 href={href}
-                className={cn("inline-block rounded-md border border-neutral-200 bg-neutral-50 px-2 py-1 font-medium text-neutral-800 hover:bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800", OPERATOR_TYPOGRAPHY.helper)}
+                className={chipClassName}
                 aria-label={`${kindLabel}: ${display.headline}`}
               >
                 <span className="text-neutral-500 dark:text-neutral-400">{kindLabel}</span> · {display.headline}
               </Link>
+              ) : (
+              <span
+                className={chipClassName}
+                aria-label={
+                  citationIdMissing
+                    ? `${kindLabel}: ${display.headline}. Citation id was not stored on this explanation.`
+                    : `${kindLabel}: ${display.headline}. Review id was not stored.`
+                }
+              >
+                <span className="text-neutral-500 dark:text-neutral-400">{kindLabel}</span> ·{" "}
+                {citationIdMissing ? "Citation id was not stored on this explanation." : display.headline}
+              </span>
+              )}
               {buyerPolished && display.technicalId !== null ? (
                 <details
                   className="mt-1"

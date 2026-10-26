@@ -7,7 +7,8 @@ import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   formatLastValidationOutcomeLabel,
   reviewPackageArchitectureName,
-  reviewPackageFinalizedDateLabel,
+  reviewPackageCreatedDateLabel,
+  reviewPackageFinalizedTimeLabel,
   reviewPackageOwnerLabel,
   reviewPackageStatusLabel,
 } from "@/lib/review-package-validation-picker";
@@ -59,8 +60,12 @@ export function ReplaySelectedPackageSummary(props: ReplaySelectedPackageSummary
           </dd>
         </div>
         <div>
+          <dt className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>Created</dt>
+          <dd className="m-0">{reviewPackageCreatedDateLabel(selectedRun)}</dd>
+        </div>
+        <div>
           <dt className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>Finalized</dt>
-          <dd className="m-0">{reviewPackageFinalizedDateLabel(selectedRun)}</dd>
+          <dd className="m-0">{reviewPackageFinalizedTimeLabel(selectedRun)}</dd>
         </div>
         <div>
           <dt className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>Owner</dt>

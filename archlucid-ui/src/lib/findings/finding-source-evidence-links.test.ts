@@ -57,6 +57,25 @@ describe("finding-source-evidence-links", () => {
 
     expect(link?.kind).toBe("manifestRecord");
     expect(link?.href).toContain(`/governance/sealed-records/${SHOWCASE_STATIC_DEMO_MANIFEST_ID}#manifest-decisions`);
+    expect(link?.label).toBe("Open review record section.");
+  });
+
+  it("uses finalized wording only when review finalized status is stored", () => {
+    const link = parseEvidenceRefToSourceLink(`manifest:${SHOWCASE_STATIC_DEMO_MANIFEST_ID}`, {
+      ...ctx,
+      reviewManifestFinalized: true,
+    });
+
+    expect(link?.label).toBe("Open finalized record section");
+  });
+
+  it("labels unresolved evidence refs without implying a specific citation", () => {
+    const link = parseEvidenceRefToSourceLink("unknown-token-without-prefix", {
+      runId: "run-1",
+      findingId: "finding-1",
+    });
+
+    expect(link?.label).toBe("This evidence reference did not resolve to a stored artifact.");
   });
 
   it("parses diagram evidence refs into diagram shape links", () => {
@@ -70,7 +89,7 @@ describe("finding-source-evidence-links", () => {
       evidenceItemId: "evidence-mermaid-1",
       shapeOrEdgeId: "api",
     });
-    expect(link?.label).toBe("Open diagram shape api");
+    expect(link?.label).toBe("Cited shape id api. A display name was not stored.");
   });
 
   it("buildSourceEvidenceLinksFromInspectEvidence honors artifact section anchors", () => {

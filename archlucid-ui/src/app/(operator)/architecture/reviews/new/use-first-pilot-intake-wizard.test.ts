@@ -355,6 +355,7 @@ describe("useFirstPilotIntakeWizard prior-run prefill", () => {
       "intent=revised-clone&rerun=run-second-review&priorRunId=run-second-review";
     useRunSummaryQuery.mockReturnValue({
       data: { displayName: "Second review inherited title", description: null },
+      isFetched: true,
     });
 
     const { result } = renderHook(() => useFirstPilotIntakeWizard({}));
@@ -366,17 +367,52 @@ describe("useFirstPilotIntakeWizard prior-run prefill", () => {
     expect(result.current.inheritedPriorTitle).toBe("Second review inherited title");
   });
 
+  it("does not apply stale run summary data while the new prior run summary is still fetching", async () => {
+    useRunSummaryQuery.mockImplementation((runId: string) => {
+      if (runId === "run-second") {
+        return {
+          data: { displayName: "Wrong prior title", description: null },
+          isFetching: true,
+          isPending: true,
+          isFetched: false,
+        };
+      }
+
+      return { data: undefined, isFetching: false, isPending: false, isFetched: false };
+    });
+
+    scopeGateSearchParamsHarness.state.query =
+      "intent=revised-clone&rerun=run-second&priorRunId=run-second";
+
+    const { result } = renderHook(() => useFirstPilotIntakeWizard({}), {
+      wrapper: ScopeGateSearchParamsRerenderHost,
+    });
+
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    expect(result.current.runTitle).toBe("");
+    expect(result.current.inheritedPriorTitle).toBeNull();
+  });
+
   it("prefills the run title from the new prior run when rerun= changes after the first title loaded", async () => {
     useRunSummaryQuery.mockImplementation((runId: string) => {
       if (runId === "run-first") {
-        return { data: { displayName: "First inherited title", description: null } };
+        return {
+          data: { displayName: "First inherited title", description: null },
+          isFetched: true,
+        };
       }
 
       if (runId === "run-second") {
-        return { data: { displayName: "Second inherited title", description: null } };
+        return {
+          data: { displayName: "Second inherited title", description: null },
+          isFetched: true,
+        };
       }
 
-      return { data: undefined };
+      return { data: undefined, isFetched: false };
     });
 
     scopeGateSearchParamsHarness.state.query =

@@ -5,7 +5,7 @@ import {
   stripScopeUnderstandingSection,
   type ScopeUnderstandingBullet,
 } from "@/lib/architecture/architecture-scope-understanding-check";
-import { buildDefaultActorSet } from "@/lib/api/draft-intake-api";
+import { buildMissingDraftActorsPlaceholderSet } from "@/lib/draft-intake/draft-intake-actor-honesty";
 import { extractAttachedIntakeFileNames } from "@/lib/intake-attached-file-names";
 import {
   extractGeneratedIntakeBriefTitle,
@@ -15,10 +15,13 @@ import type { ActorDescriptor, ActorSet } from "@/types/draft-intake";
 
 const BUSINESS_OUTCOME_MARKER = "\n\nBusiness outcome: ";
 
-const GENERATED_BRIEF_DEFAULT_OUTCOME =
-  "Evaluate the attached materials for architecture structure, cost, compliance, security, and policy-pack violations.";
-
 const ATTACHED_FILES_MARKERS = ["\n\nAttached files:", "\n\nAttached architecture evidence:"] as const;
+
+export const PRIOR_PACKAGE_PREFILL_SYSTEM_NAME_NOT_STORED = "System name was not stored." as const;
+
+export function formatPriorPackagePrefillSystemNameLabel(systemName: string): string {
+  return systemName.trim().length > 0 ? systemName.trim() : PRIOR_PACKAGE_PREFILL_SYSTEM_NAME_NOT_STORED;
+}
 
 export type PriorPackageGuidedIntakePrefill = {
   readonly systemName: string;
@@ -96,7 +99,6 @@ function splitDraftIntakeDescription(description: string): {
 function resolveBusinessOutcome(
   parsedOutcome: string,
   inlineRequirements: readonly string[] | null | undefined,
-  generatedBrief: boolean,
 ): string {
   const trimmedOutcome = parsedOutcome.trim();
 
@@ -111,7 +113,7 @@ function resolveBusinessOutcome(
   }
 
   if (generatedBrief) {
-    return GENERATED_BRIEF_DEFAULT_OUTCOME;
+    return "";
   }
 
   return "";
@@ -123,7 +125,7 @@ function actorSetFromDraftActors(draftActors: readonly ApiActorDescriptor[] | nu
     .filter((actor): actor is ActorDescriptor => actor !== null);
 
   if (actors.length === 0) {
-    return buildDefaultActorSet();
+    return buildMissingDraftActorsPlaceholderSet();
   }
 
   return { actors: [...actors] };
@@ -186,11 +188,7 @@ export function derivePriorPackageGuidedIntakePrefill(
   const freeTextIntent = generatedBrief
     ? stripAttachedFilesSection(stripScopeUnderstandingSection(description))
     : parsed.freeTextIntent.trim();
-  const businessOutcome = resolveBusinessOutcome(
-    parsed.businessOutcome,
-    request.inlineRequirements,
-    generatedBrief,
-  );
+  const businessOutcome = resolveBusinessOutcome(parsed.businessOutcome, request.inlineRequirements);
   const actorSet = actorSetFromDraftActors(request.draftActors);
 
   if (systemName.length === 0 && freeTextIntent.length === 0 && businessOutcome.length === 0) {

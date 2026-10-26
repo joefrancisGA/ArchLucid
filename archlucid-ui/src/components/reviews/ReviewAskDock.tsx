@@ -7,6 +7,8 @@ import { usePathname, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState, type ReactElement } from "react";
 
 import { AskAssistantMessageBody } from "@/components/AskAssistantMessageBody";
+import { AskCitationActionFollowUps } from "@/components/ask/AskCitationActionFollowUps";
+import { buildAskCitationActionFollowUps } from "@/lib/ask-citation-action-follow-ups";
 import { AskRunCoverageHonestyStrip } from "@/components/ask/AskRunCoverageHonestyStrip";
 import { HelpDrawerContent } from "@/components/help/HelpDrawerContent";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
@@ -45,8 +47,34 @@ export type ReviewAskDockProps = {
 
 type AskTurn = {
   question: string;
-  answer: string;
+  answer: string | null;
+  referencedFindings: readonly string[] | null;
+  referencedDecisions: readonly string[] | null;
+  referencedArtifacts: readonly string[] | null;
 };
+
+const REVIEW_ASK_ANSWER_NOT_STORED = "Answer was not stored.";
+const REVIEW_ASK_ANSWER_STORED_EMPTY = "Answer was stored empty.";
+const REVIEW_ASK_SOURCES_NOT_STORED = "Ask sources were not stored on this answer.";
+const REVIEW_ASK_SOURCES_STORED_EMPTY = "Ask sources were stored empty on this answer.";
+
+function resolveReviewAskSourcesHonestyLine(turn: AskTurn): string | null {
+  const arrays = [turn.referencedFindings, turn.referencedDecisions, turn.referencedArtifacts];
+
+  if (arrays.every((value) => value === null)) {
+    return REVIEW_ASK_SOURCES_NOT_STORED;
+  }
+
+  const findings = turn.referencedFindings ?? [];
+  const decisions = turn.referencedDecisions ?? [];
+  const artifacts = turn.referencedArtifacts ?? [];
+
+  if (findings.length === 0 && decisions.length === 0 && artifacts.length === 0) {
+    return REVIEW_ASK_SOURCES_STORED_EMPTY;
+  }
+
+  return null;
+}
 
 /** Review-scoped Ask dock: grounded Q&A without leaving the review detail page. */
 export function ReviewAskDock(props: ReviewAskDockProps): ReactElement {
@@ -224,7 +252,10 @@ export function ReviewAskDock(props: ReviewAskDockProps): ReactElement {
         ...current,
         {
           question: trimmed,
-          answer: response.answer.trim().length > 0 ? response.answer : "Answer was not stored",
+          answer: response.answer,
+          referencedFindings: response.referencedFindings,
+          referencedDecisions: response.referencedDecisions,
+          referencedArtifacts: response.referencedArtifacts,
         },
       ]);
       setQuestion("");
@@ -300,7 +331,20 @@ export function ReviewAskDock(props: ReviewAskDockProps): ReactElement {
             <AskRunCoverageHonestyStrip runId={runId} />
             {turns.length > 0 ? (
               <ol className="m-0 list-none space-y-4 p-0">
-                {turns.map((turn, index) => (
+                {turns.map((turn, index) => {
+                  const findings = turn.referencedFindings ?? [];
+                  const decisions = turn.referencedDecisions ?? [];
+                  const artifacts = turn.referencedArtifacts ?? [];
+                  const citationChips = buildAskCitationActionFollowUps({
+                    runId,
+                    referencedFindings: findings,
+                    referencedDecisions: decisions,
+                    referencedArtifacts: artifacts,
+                  });
+                  const sourcesHonestyLine = resolveReviewAskSourcesHonestyLine(turn);
+                  const refsPresentInWire = sourcesHonestyLine === null;
+
+                  return (
                   <li
                     key={`${index}-${turn.question.slice(0, 24)}`}
                     className="space-y-2 rounded-lg border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-700 dark:bg-neutral-900/40"
@@ -312,9 +356,26 @@ export function ReviewAskDock(props: ReviewAskDockProps): ReactElement {
                     <p className={cn("m-0 font-semibold uppercase tracking-wide text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>
                       Answer
                     </p>
-                    <AskAssistantMessageBody content={turn.answer} />
+                    {turn.answer === null ? (
+                      <p className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>{REVIEW_ASK_ANSWER_NOT_STORED}</p>
+                    ) : turn.answer.trim().length === 0 ? (
+                      <p className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>{REVIEW_ASK_ANSWER_STORED_EMPTY}</p>
+                    ) : (
+                      <AskAssistantMessageBody content={turn.answer} groundingLinks={refsPresentInWire ? [] : undefined} />
+                    )}
+                    {refsPresentInWire ? (
+                      <AskCitationActionFollowUps chips={citationChips} showHonestEmpty reviewId={runId} />
+                    ) : (
+                      <p
+                        className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                        data-testid="review-ask-dock-sources-not-stored"
+                      >
+                        {sourcesHonestyLine}
+                      </p>
+                    )}
                   </li>
-                ))}
+                  );
+                })}
               </ol>
             ) : null}
 

@@ -2,6 +2,7 @@ import {
   buildTraceRowWorkItemBody,
   type FindingWorkItemJsonDocument,
 } from "@/lib/copy-finding-as-work-item";
+import { workItemStoredText } from "@/lib/copy-finding-as-work-item-types";
 import {
   buildSemanticSupportBandExportStamp,
   resolveFindingSemanticSupportBandScorerVersion,
@@ -47,6 +48,36 @@ export type GovernanceFindingsItsmJsonExportDocument = {
 
 function severityLabelFromQuickDecisionFinding(finding: QuickDecisionFinding): string {
   return severityBadgeLabel(finding.severityValue);
+}
+
+function formatItsmFindingTitleCell(title: string | null | undefined): string {
+  if (title === null || title === undefined || title.length === 0) {
+    return "Finding title was not stored.";
+  }
+
+  if (title.trim().length === 0) {
+    return "Finding title was stored empty.";
+  }
+
+  return title;
+}
+
+function formatItsmFindingConfidenceCell(confidence: string | null | undefined): string {
+  if (confidence === null || confidence === undefined) {
+    return "Confidence level was not stored";
+  }
+
+  const trimmed = confidence.trim();
+
+  if (trimmed.length === 0) {
+    return "Confidence level was stored empty.";
+  }
+
+  if (trimmed.toLowerCase() === "unknown") {
+    return "Confidence level was not recognized.";
+  }
+
+  return trimmed;
 }
 
 function triggerBinaryDownload(content: string, mimeType: string, filename: string): void {
@@ -142,9 +173,9 @@ export function buildQuickDecisionFindingsCsv(
       finding.findingId,
       runId,
       severityLabelFromQuickDecisionFinding(finding),
-      escapeCsvCell(finding.title),
+      escapeCsvCell(formatItsmFindingTitleCell(finding.title)),
       escapeCsvCell(formatItsmFindingRecommendationCell(finding.recommendation)),
-      finding.confidenceLevel ?? "Confidence level was not stored",
+      formatItsmFindingConfidenceCell(finding.confidenceLevel),
       finding.policyRuleId?.trim() || "Policy rule was not stored",
       "trustLabel" in trustFields && trustFields.trustLabel.trim().length > 0
         ? trustFields.trustLabel

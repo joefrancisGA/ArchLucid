@@ -76,6 +76,7 @@ import { buildInfraEvidenceClearAuditScopeHref } from "@/lib/infra-evidence/infr
 import { sanitizeResourceHubQueryForTab } from "@/lib/infra-evidence/infra-evidence-hub-tab-query";
 import { formatInfraEvidenceHubApiError } from "@/lib/infra-evidence/infra-evidence-hub-api";
 import { normalizeSecureNowResourceNameForDisplay } from "@/lib/infra-evidence/format-azure-resource-display";
+import { isUuidLike } from "@/lib/resolve-governance-finding-resource-group";
 import {
   createRemediationInstance,
   formatInfraEvidenceRemediationApiError,
@@ -125,6 +126,7 @@ import type {
 } from "@/lib/infra-evidence/infra-evidence-hub-types";
 import {
   formatResourceHubFindingStreamCaption,
+  formatStoredInfraEvidenceHubField,
   remediationInstanceStatusTagKind,
   formatDiagramCorrespondenceConfidenceBandLabel,
   resolveDiagramCorrespondenceConfidenceStatusKind,
@@ -410,9 +412,12 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
     [resourcesPath, workQueue],
   );
 
-  const loadHub = useCallback(async () => {
+  const loadHub = useCallback(async (options?: { retainFindingMessages?: boolean }) => {
     const requestGeneration = loadRequestGeneration.current + 1;
     loadRequestGeneration.current = requestGeneration;
+    if (!options?.retainFindingMessages) {
+      setFindingActionMessages({});
+    }
     setLoading(true);
     setLoadError(null);
 
@@ -472,7 +477,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
 
   const resourceTitle = useMemo(() => {
     if (hub == null) {
-      return cloudResourceId;
+      return isUuidLike(cloudResourceId) ? "Resource name was not stored." : cloudResourceId;
     }
 
     const configResourceId = hub.currentConfiguration?.azureResourceId;
@@ -483,6 +488,10 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
     const externalResourceName =
       !hub.externalResourceId.endsWith("/") ? hub.externalResourceId.split("/").filter(Boolean).pop() : undefined;
     const rawTitle = configName ?? externalResourceName ?? cloudResourceId;
+
+    if (rawTitle === cloudResourceId && isUuidLike(rawTitle)) {
+      return "Resource name was not stored.";
+    }
 
     return normalizeSecureNowResourceNameForDisplay(rawTitle);
   }, [cloudResourceId, hub]);
@@ -663,15 +672,39 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
     return hub.operationalSecurityFindings.totalCount + hub.architectureReviewFindings.totalCount;
   }, [hub]);
 
-  const hasTerraformMapping = useMemo(() => {
-    if (hub == null) {
-      return false;
-    }
+  const terraformAddressDisplayLabel = useMemo(
+    () => formatStoredInfraEvidenceHubField(hub?.terraformAddress, "Terraform address was not stored."),
+    [hub?.terraformAddress],
+  );
 
-    const terraformAddress = hub.terraformAddress?.trim() ?? "";
+  const hasTerraformMapping = terraformAddressDisplayLabel !== "Terraform address was not stored.";
 
-    return terraformAddress.length > 0;
-  }, [hub]);
+  const terraformGenerationMethodDisplayLabel = useMemo(
+    () =>
+      formatStoredInfraEvidenceHubField(
+        hub?.terraformGenerationMethod,
+        "Terraform generation method was not stored.",
+      ),
+    [hub?.terraformGenerationMethod],
+  );
+
+  const diagramCorrespondenceExplainDisplayLabel = useMemo(
+    () =>
+      formatStoredInfraEvidenceHubField(
+        hub?.diagramCorrespondence?.explainText,
+        "Correspondence explanation was not stored.",
+      ),
+    [hub?.diagramCorrespondence?.explainText],
+  );
+
+  const diagramCorrespondenceMatchKindDisplayLabel = useMemo(
+    () =>
+      formatStoredInfraEvidenceHubField(
+        hub?.diagramCorrespondence?.matchKind,
+        "Match kind was not stored.",
+      ),
+    [hub?.diagramCorrespondence?.matchKind],
+  );
 
   const diagramCorrespondenceRemediationHref = useMemo(() => {
     if (hub?.diagramCorrespondence == null) {
@@ -725,7 +758,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
       }));
 
       invalidateInfraEvidenceResourceHubCacheForResource(cloudResourceId);
-      await loadHub();
+      await loadHub({ retainFindingMessages: true });
     } catch (error: unknown) {
       setFindingActionMessages((current) => ({
         ...current,
@@ -1130,7 +1163,9 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                           {Object.entries(hub.currentConfiguration.properties).map(([key, value]) => (
                             <EnterpriseTableRow key={key}>
                               <EnterpriseTableCell className="font-mono text-xs">{key}</EnterpriseTableCell>
-                              <EnterpriseTableCell className="font-mono text-xs">{value}</EnterpriseTableCell>
+                              <EnterpriseTableCell className="font-mono text-xs">
+                                {formatStoredInfraEvidenceHubField(value, "Property value was not stored.")}
+                              </EnterpriseTableCell>
                             </EnterpriseTableRow>
                           ))}
                         </EnterpriseTableBody>
@@ -1215,7 +1250,9 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                       </EnterpriseTableHead>
                       <EnterpriseTableBody>
                         {hub.rbacAssignments.map((assignment) => (
-                          <EnterpriseTableRow key={`${assignment.principalId}-${assignment.roleDefinitionId}`}>
+                          <EnterpriseTableRow
+                            key={`${assignment.principalId}-${assignment.roleDefinitionId}-${assignment.scope}`}
+                          >
                             <EnterpriseTableCell className="font-mono text-xs">{assignment.principalId}</EnterpriseTableCell>
                             <EnterpriseTableCell className="font-mono text-xs">{assignment.roleDefinitionId}</EnterpriseTableCell>
                             <EnterpriseTableCell className="font-mono text-xs">{assignment.scope}</EnterpriseTableCell>
@@ -1255,7 +1292,9 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                       </EnterpriseTableHead>
                       <EnterpriseTableBody>
                         {hub.networkRelationships.map((relationship) => (
-                          <EnterpriseTableRow key={`${relationship.fromAzureResourceId}-${relationship.toAzureResourceId}`}>
+                          <EnterpriseTableRow
+                            key={`${relationship.fromAzureResourceId}-${relationship.toAzureResourceId}-${relationship.relationshipType}`}
+                          >
                             <EnterpriseTableCell>{relationship.relationshipType}</EnterpriseTableCell>
                             <EnterpriseTableCell className="font-mono text-xs">{relationship.fromAzureResourceId}</EnterpriseTableCell>
                             <EnterpriseTableCell className="font-mono text-xs">{relationship.toAzureResourceId}</EnterpriseTableCell>
@@ -1293,8 +1332,8 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                         </EnterpriseTableRow>
                       </EnterpriseTableHead>
                       <EnterpriseTableBody>
-                        {hub.evidencePointers.map((pointer) => (
-                          <EnterpriseTableRow key={`${pointer.kind}-${pointer.relativePath}`}>
+                        {hub.evidencePointers.map((pointer, pointerIndex) => (
+                          <EnterpriseTableRow key={`${pointer.kind}-${pointer.relativePath}-${pointerIndex}`}>
                             <EnterpriseTableCell>{pointer.kind}</EnterpriseTableCell>
                             <EnterpriseTableCell className="font-mono text-xs">{pointer.relativePath}</EnterpriseTableCell>
                           </EnterpriseTableRow>
@@ -1421,7 +1460,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                       hub.diagramCorrespondence.matchKind ?? "",
                       hub.diagramCorrespondence.confidenceBand,
                     )}
-                    label={hub.diagramCorrespondence.matchKind ?? "Match kind was not stored."}
+                    label={diagramCorrespondenceMatchKindDisplayLabel}
                   />
                   <StatusTag
                     kind={resolveDiagramCorrespondenceConfidenceStatusKind(hub.diagramCorrespondence.confidenceBand)}
@@ -1432,7 +1471,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                   Match kind describes how the captured resource and diagram item correspond. Confidence band describes the evidence strength for that correspondence.
                 </p>
                 <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
-                  {hub.diagramCorrespondence.explainText ?? "Correspondence explanation was not stored."}
+                  {diagramCorrespondenceExplainDisplayLabel}
                 </p>
                 <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
                   This explanation describes the recorded correspondence result, not observed runtime traffic.
@@ -1505,12 +1544,12 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                   <CollapsibleSection
                     title={GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_TERRAFORM_ADDRESS_LABEL}
                     sectionTestId="infra-resource-hub-terraform-address-disclosure"
-                    summaryLine={hub.terraformAddress ?? "Terraform address was not stored."}
+                    summaryLine={terraformAddressDisplayLabel}
                     open={infraResourceHubTechnicalKey === "terraformAddress"}
                     onToggle={(open) => setInfraResourceHubTechnicalKey(open ? "terraformAddress" : null)}
                   >
                     <p className={cn("m-0 font-mono text-xs break-all text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                      {hub.terraformAddress ?? "Terraform address was not stored."}
+                      {terraformAddressDisplayLabel}
                     </p>
                   </CollapsibleSection>
                 ) : (
@@ -1519,7 +1558,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                   <dd className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
                     The advisory address used to identify this resource in Terraform.
                   </dd>
-                    <dd className="font-mono text-xs">{hub.terraformAddress ?? "Terraform address was not stored."}</dd>
+                    <dd className="font-mono text-xs">{terraformAddressDisplayLabel}</dd>
                   </div>
                 )}
                 <div>
@@ -1527,7 +1566,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                   <dd className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
                     How this Terraform mapping was produced from captured evidence.
                   </dd>
-                  <dd>{hub.terraformGenerationMethod ?? "Terraform generation method was not stored."}</dd>
+                  <dd>{terraformGenerationMethodDisplayLabel}</dd>
                 </div>
               </dl>
               <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1">
@@ -1557,16 +1596,28 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
           </EnterpriseTabsContent>
 
           <EnterpriseTabsContent value="findings" className="mt-4 space-y-4">
-            {[hub.operationalSecurityFindings, hub.architectureReviewFindings].map((stream) => (
+            {[hub.operationalSecurityFindings, hub.architectureReviewFindings].map((stream) => {
+              const findingsStreamSectionLabel = formatStoredInfraEvidenceHubField(
+                stream.streamLabel,
+                "Findings stream label was not stored.",
+              );
+
+              return (
               <section key={stream.streamKind} className={cnCard}>
                 <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
                   <h2 className={OPERATOR_TYPOGRAPHY.sectionTitle}>
-                    {stream.streamLabel ?? "Findings stream label was not stored."}
+                    {findingsStreamSectionLabel}
                   </h2>
                   {formatResourceHubFindingStreamCaption(stream.items.length, stream.totalCount, stream.hasMore) != null ? (
                     <Link
                       className={OPERATOR_LINK.inline}
-                      href={buildResourceScopedWorkbenchHref(cloudResourceId, "remediation", resolvedSnapshotId, workbenchLinkAuditContext, runId)}
+                      href={buildResourceScopedWorkbenchHref(
+                        cloudResourceId,
+                        stream.streamKind === "ArchitectureReview" ? "findings" : "remediation",
+                        resolvedSnapshotId,
+                        workbenchLinkAuditContext,
+                        runId,
+                      )}
                       data-testid={`infra-resource-hub-findings-stream-more-${stream.streamKind}`}
                     >
                       {formatResourceHubFindingStreamCaption(stream.items.length, stream.totalCount, stream.hasMore)}
@@ -1584,7 +1635,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                   />
                 ) : (
                   <EnterpriseTable
-                    ariaLabel={`${stream.streamLabel ?? "Findings stream label was not stored."} findings`}
+                    ariaLabel={`${findingsStreamSectionLabel} findings`}
                   >
                     <EnterpriseTableHead>
                       <EnterpriseTableRow>
@@ -1654,7 +1705,11 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                             </div>
                           </EnterpriseTableCell>
                           <EnterpriseTableCell>
-                            {item.severity != null ? <SeverityTag severity={item.severity} /> : "Severity not recorded"}
+                            {item.severity != null && item.severity.trim().length > 0 ? (
+                              <SeverityTag severity={item.severity} />
+                            ) : (
+                              "Severity was not stored."
+                            )}
                           </EnterpriseTableCell>
                           <EnterpriseTableCell>
                             {item.status != null && item.status.trim().length > 0 ? (
@@ -1718,7 +1773,8 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                   </EnterpriseTable>
                 )}
               </section>
-            ))}
+              );
+            })}
           </EnterpriseTabsContent>
 
           <EnterpriseTabsContent value="remediation" className="mt-4 space-y-3">
@@ -1729,15 +1785,22 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
             >
               Open remediation factory
             </Link>
-            {hub.remediationInstances.hasMore ? (
-              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
-                {formatResourceHubFindingStreamCaption(
-                  hub.remediationInstances.items.length,
-                  hub.remediationInstances.totalCount,
-                  hub.remediationInstances.hasMore,
-                )}
-              </p>
-            ) : null}
+            {(() => {
+              const remediationStreamCaption = formatResourceHubFindingStreamCaption(
+                hub.remediationInstances.items.length,
+                hub.remediationInstances.totalCount,
+                hub.remediationInstances.hasMore,
+              );
+
+              return remediationStreamCaption != null ? (
+                <p
+                  className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
+                  data-testid="infra-resource-hub-remediation-stream-caption"
+                >
+                  {remediationStreamCaption}
+                </p>
+              ) : null;
+            })()}
             {hub.remediationInstances.items.length === 0 ? (
               <EnterpriseCompactEmptyState
                 title={GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_REMEDIATION_EMPTY_TITLE}
@@ -1769,11 +1832,21 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                   </EnterpriseTableRow>
                 </EnterpriseTableHead>
                 <EnterpriseTableBody>
-                  {hub.remediationInstances.items.map((item) => (
+                  {hub.remediationInstances.items.map((item) => {
+                    const remediationStatusLabel = item.status?.trim() ?? "";
+
+                    return (
                     <EnterpriseTableRow key={item.instanceId}>
                       <EnterpriseTableCell className="font-mono text-xs">{item.patternKey}</EnterpriseTableCell>
                       <EnterpriseTableCell>
-                        <StatusTag kind={remediationInstanceStatusTagKind(item.status)} label={item.status} />
+                        {remediationStatusLabel.length > 0 ? (
+                          <StatusTag
+                            kind={remediationInstanceStatusTagKind(remediationStatusLabel)}
+                            label={remediationStatusLabel}
+                          />
+                        ) : (
+                          "Remediation status was not stored."
+                        )}
                       </EnterpriseTableCell>
                       <EnterpriseTableCell>
                         <div className="flex flex-wrap gap-2">
@@ -1802,7 +1875,8 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                         </div>
                       </EnterpriseTableCell>
                     </EnterpriseTableRow>
-                  ))}
+                    );
+                  })}
                 </EnterpriseTableBody>
               </EnterpriseTable>
             )}
@@ -1856,7 +1930,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                             || match.controlId !== resolvedAuditLineage.controlId,
                         )
                         .map((match: CloudResourceAuditLineageMatch) => (
-                        <li key={`${match.controlId}-${match.auditEvidenceSnapshotId}`}>
+                        <li key={`${match.assessmentId}-${match.auditEvidenceSnapshotId}-${match.controlId}`}>
                           <div className="flex flex-wrap items-center gap-2">
                             <Link
                               className="text-al-link hover:underline"

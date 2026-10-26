@@ -13,11 +13,17 @@ public static class InventoryDiagramRelationshipLabelTexts
     public const string AppAuthorizedAccessLabel =
         "Authorization may allow access. Observed use was not stored.";
 
+    public const string AppToKeyVaultRefLabel =
+        "App setting names Key Vault. Observed secret access was not stored.";
+
     public const string SqlPrincipalAuthorizedAccessLabel =
         "SQL principal authorization may allow access. An observed query was not stored.";
 
     public const string HostnameInferredTargetLabel =
         "App setting hostname was inferred. A stored resource link was not stored.";
+
+    public const string PeReachableTargetInferredLabel =
+        "Private endpoint target was inferred. Reachability was not stored.";
 
     public const string PublicExposureCaption = "Public IP is attached; its card is hidden on this diagram.";
 
@@ -114,11 +120,65 @@ public static class InventoryDiagramRelationshipLabelTexts
         return $"Peering to {remoteVirtualNetworkName.Trim()} is connected. The remote network is not on this diagram.";
     }
 
+    public const string BackendPoolMembershipConfiguredObservedTrafficNotStored =
+        "Backend pool membership is configured. Observed traffic was not stored.";
+
+    public const string PipelineDatasetConfiguredReadObservedReadNotStored =
+        "Pipeline dataset is configured to read. An observed read was not stored.";
+
+    public const string PipelineDatasetConfiguredWriteObservedWriteNotStored =
+        "Pipeline dataset is configured to write. An observed write was not stored.";
+
+    public const string EventSubscriptionNamesDestinationObservedDeliveryNotStored =
+        "Event subscription names this destination. Observed delivery was not stored.";
+
+    public const string CaptureConfiguredObservedCaptureNotStored =
+        "Capture is configured. Observed capture was not stored.";
+
+    public const string AdfTriggerConfiguredObservedRunNotStored =
+        "Trigger is configured. This is not an observed run.";
+
+    public const string AdfIntegrationRuntimeConfiguredObservedRunNotStored =
+        "Integration runtime in configuration. This is not an observed run.";
+
+    public static string FormatDiagnosticSettingDestinationLabel(string destinationName)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(destinationName);
+
+        return $"Diagnostic setting destination is {destinationName.Trim()}. This is not observed log delivery.";
+    }
+
+    public const string PrivateEndpointTargetStoredReachabilityNotObserved =
+        "Private endpoint target was stored. Reachability was not observed.";
+
+    public const string DiagnosticSettingNameNotStoredLogDeliveryNotObserved =
+        "Diagnostic setting name was not stored. Log delivery was not observed.";
+
+    public const string DiagnosticSettingNamesNotListedLogDeliveryNotObserved =
+        "Diagnostic setting names were not listed on this line. Log delivery was not observed.";
+
+    public const string ImageReferenceStoredImagePullNotObserved =
+        "Image reference was stored. An image pull was not observed.";
+
+    public const string RoleAssignmentObservedUseNotStoredSuffix = "Observed use was not stored.";
+
+    public const string DiagnosticSettingStorageNamesNotListedQualifier = "names-not-listed";
+
+    public static string FormatBackendPoolMembershipConfigured(int? backendPort)
+    {
+        if (backendPort is null)
+        {
+            return BackendPoolMembershipConfiguredObservedTrafficNotStored;
+        }
+
+        return $"Backend pool membership is configured on port {backendPort.Value}. Observed traffic was not stored.";
+    }
+
     public static string FormatSendsTrafficToBackend(int? backendPort)
     {
         return backendPort is null
-            ? "Sends traffic to this backend. Backend port was not stored."
-            : $"Sends traffic to this backend on port {backendPort.Value}.";
+            ? "Configured backend pool member. Backend port was not stored."
+            : $"Configured backend pool member on port {backendPort.Value}.";
     }
 
     public static string FormatBackendOffCanvasOutline(string backendName)

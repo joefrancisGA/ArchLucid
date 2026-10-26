@@ -36,8 +36,10 @@ import type { GovernanceFindingsQueueMode } from "@/lib/governance/governance-fi
 
 import {
   formatGovernanceQueueRecordKind,
+  governanceFindingQueueRowHasDisplayCategory,
   governanceFindingQueueRowHasPolicyRuleId,
   governanceFindingQueueRowHasStoredRunId,
+  governanceFindingQueueRowReviewHref,
   type GovernanceFindingQueueRow,
 } from "./governance-finding-queue-row";
 import { GovernanceFindingsQueueAssignedToMeRowCells } from "./GovernanceFindingsQueueAssignedToMeRowCells";
@@ -155,7 +157,7 @@ export function GovernanceFindingsQueueTableRow(props: GovernanceFindingsQueueTa
                   {...buildPolicyTraceabilityLinksFromRuleId(row.policyRuleId!, row.category || row.policyRuleId!)}
                 />
               </div>
-            ) : row.category && row.recordKind === "finding" ? (
+            ) : governanceFindingQueueRowHasDisplayCategory(row) ? (
               <div className={cn("mt-0.5 font-normal text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>
                 Policy area: {row.category}
               </div>
@@ -182,7 +184,7 @@ export function GovernanceFindingsQueueTableRow(props: GovernanceFindingsQueueTa
           </EnterpriseTableCell>
           <EnterpriseTableCell>
             {row.runId.trim().length > 0 ? (
-              <Link className={OPERATOR_LINK.inline} href={`/architecture/reviews/${encodeURIComponent(row.runId)}`}>
+              <Link className={OPERATOR_LINK.inline} href={governanceFindingQueueRowReviewHref(row.runId)}>
                 {row.runLabel}
               </Link>
             ) : (

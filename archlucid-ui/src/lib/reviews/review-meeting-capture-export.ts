@@ -39,13 +39,17 @@ export function buildReviewMeetingCaptureMetaParts(
 
   if (entry.responderLabel === null) {
     parts.push("Responder was not stored.");
-  } else if (entry.responderLabel.length > 0) {
+  } else if (entry.responderLabel.length === 0) {
+    parts.push("Responder was stored empty.");
+  } else {
     parts.push(entry.responderLabel);
   }
 
   if (entry.recordedUtc === null) {
     parts.push("Answer recorded time was not stored.");
-  } else if (entry.recordedUtc.trim().length > 0 && entry.recordedAtLabel !== null) {
+  } else if (entry.recordedUtc.trim().length === 0) {
+    parts.push("Answer recorded time was stored empty.");
+  } else if (entry.recordedAtLabel !== null) {
     parts.push(entry.recordedAtLabel);
   }
 
@@ -126,7 +130,7 @@ export function formatReviewMeetingCapturePlainText(
   const lines: string[] = [REVIEW_MEETING_CAPTURE_DISCLAIMER, ""];
 
   for (const entry of entries) {
-    lines.push(`Q: ${formatReviewMeetingCaptureQuestionLabel(entry.questionLabel)}`);
+    lines.push(`Q: ${formatReviewMeetingCaptureQuestionLine(entry.questionLabel)}`);
     lines.push(`A: ${formatReviewMeetingCaptureAnswer(entry.answer)}`);
 
     const metaParts = buildReviewMeetingCaptureMetaParts(entry);

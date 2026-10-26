@@ -9,6 +9,15 @@ import {
   buildTransparencyTrailExportSection,
   TRANSPARENCY_TRAIL_EXPORT_INCOMPLETE_BANNER,
 } from "@/lib/feasibility/export-transparency-trail-section";
+import { formatInferredTrailEntryLabel } from "@/lib/feasibility/format-inferred-trail-entry-label";
+import {
+  formatAssertedTrailLine,
+<<<<<<< HEAD
+  formatSkippedTrailExportLine,
+=======
+  formatSkippedTrailQuestionKey,
+>>>>>>> origin/master
+} from "@/lib/feasibility/format-transparency-trail-entry-display";
 import { isTransparencyTrailComplete } from "@/lib/feasibility/transparency-trail-completeness";
 import { cn } from "@/lib/utils";
 import type { TransparencyTrail } from "@/types/feasibility-verdict";
@@ -17,11 +26,20 @@ export type PackagePrintTransparencyTrailSectionProps = {
   readonly trail: TransparencyTrail | null | undefined;
 };
 
+function mustSkippedEntries(trail: TransparencyTrail): TransparencyTrail["skipped"] {
+  return trail.skipped.filter((entry) => entry.tier === "Must");
+}
+
+function shouldSkippedEntries(trail: TransparencyTrail): TransparencyTrail["skipped"] {
+  return trail.skipped.filter((entry) => entry.tier === "Should");
+}
+
 /** FC-53: print-visible asserted / inferred / skipped trail sections for meeting packets. */
 export function PackagePrintTransparencyTrailSection(
   props: PackagePrintTransparencyTrailSectionProps,
 ): React.JSX.Element | null {
   const { trail } = props;
+  const incompleteBannerBody = TRANSPARENCY_TRAIL_EXPORT_INCOMPLETE_BANNER.replace(/^>\s*\*\*[^*]+\*\*:\s*/, "");
 
   if (trail === null || trail === undefined) {
     return (
@@ -33,9 +51,7 @@ export function PackagePrintTransparencyTrailSection(
         <h2 id="package-print-trail-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
           Transparency trail
         </h2>
-        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-          {TRANSPARENCY_TRAIL_EXPORT_INCOMPLETE_BANNER.replace(/^>\s*\*\*[^*]+\*\*:\s*/, "")}
-        </p>
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{incompleteBannerBody}</p>
       </section>
     );
   }
@@ -50,9 +66,7 @@ export function PackagePrintTransparencyTrailSection(
         <h2 id="package-print-trail-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
           Transparency trail
         </h2>
-        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-          {TRANSPARENCY_TRAIL_EXPORT_INCOMPLETE_BANNER.replace(/^>\s*\*\*[^*]+\*\*:\s*/, "")}
-        </p>
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{incompleteBannerBody}</p>
       </section>
     );
   }
@@ -62,6 +76,9 @@ export function PackagePrintTransparencyTrailSection(
   if (section === null) {
     return null;
   }
+
+  const mustSkipped = mustSkippedEntries(trail);
+  const shouldSkipped = shouldSkippedEntries(trail);
 
   return (
     <section
@@ -73,7 +90,7 @@ export function PackagePrintTransparencyTrailSection(
         Transparency trail
       </h2>
       <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-        What was asserted, inferred, and skipped for this review.
+        What was asserted, inferred, and skipped for this review. This print summary is not a signed export artifact.
       </p>
 
       <div className="space-y-2" data-testid="package-print-trail-asserted">
@@ -82,7 +99,22 @@ export function PackagePrintTransparencyTrailSection(
           <ul className="m-0 list-disc space-y-1 pl-5">
             {section.asserted.map((entry) => (
               <li key={`${entry.key}:${entry.value}`}>
-                {entry.key}: {entry.value}
+                {formatAssertedTrailLine(entry)}
+                {typeof entry.responderLabel === "string" && entry.responderLabel.length > 0
+                  ? ` — ${entry.responderLabel}`
+                  : entry.responderLabel === null || entry.responderLabel === undefined
+                    ? " — Responder was not stored."
+                    : ""}
+                {typeof entry.questionId === "string" && entry.questionId.length > 0
+                  ? ` — Question id: ${entry.questionId}`
+                  : entry.questionId === null || entry.questionId === undefined
+                    ? " — Question id was not stored."
+                    : ""}
+                {typeof entry.recordedUtc === "string" && entry.recordedUtc.length > 0
+                  ? ` — Answer recorded time: ${entry.recordedUtc}`
+                  : entry.recordedUtc === null || entry.recordedUtc === undefined
+                    ? " — Answer recorded time was not stored."
+                    : ""}
               </li>
             ))}
           </ul>
@@ -96,9 +128,7 @@ export function PackagePrintTransparencyTrailSection(
         {section.inferred.length > 0 ? (
           <ul className="m-0 list-disc space-y-1 pl-5">
             {section.inferred.map((entry) => (
-              <li key={`${entry.key}:${entry.value}`}>
-                {entry.key}: {entry.value} (confidence {entry.confidence})
-              </li>
+              <li key={`${entry.key}:${entry.value}`}>{formatInferredTrailEntryLabel(entry)}</li>
             ))}
           </ul>
         ) : (
@@ -106,18 +136,52 @@ export function PackagePrintTransparencyTrailSection(
         )}
       </div>
 
-      {section.skipped.length > 0 ? (
-        <div className="space-y-2" data-testid="package-print-trail-skipped">
-          <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>Skipped ({section.skipped.length})</h3>
-          <ul className="m-0 list-disc space-y-1 pl-5">
-            {section.skipped.map((entry) => (
-              <li key={entry.questionKey}>
-                {entry.questionKey} ({entry.tier})
-              </li>
-            ))}
-          </ul>
-        </div>
-      ) : null}
+      <div className="space-y-2" data-testid="package-print-trail-skipped">
+        {mustSkipped.length > 0 ? (
+          <>
+            <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>Skipped MUST questions ({mustSkipped.length})</h3>
+            <ul className="m-0 list-disc space-y-1 pl-5">
+              {mustSkipped.map((entry, index) => (
+<<<<<<< HEAD
+                <li key={`${entry.questionKey ?? "missing"}-${index}`}>{formatSkippedTrailExportLine(entry)}</li>
+=======
+                <li key={`${entry.questionKey ?? "missing"}-${index}`}>
+                  {formatSkippedTrailQuestionKey(entry.questionKey)}
+                </li>
+>>>>>>> origin/master
+              ))}
+            </ul>
+          </>
+        ) : (
+          <>
+            <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>Skipped MUST questions (0)</h3>
+            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>None recorded.</p>
+          </>
+        )}
+        {shouldSkipped.length > 0 ? (
+          <>
+            <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
+              Skipped SHOULD questions ({shouldSkipped.length})
+            </h3>
+            <ul className="m-0 list-disc space-y-1 pl-5">
+              {shouldSkipped.map((entry, index) => (
+                <li key={`${entry.questionKey ?? "missing"}-should-${index}`}>
+<<<<<<< HEAD
+                  {formatSkippedTrailExportLine(entry)}
+=======
+                  {formatSkippedTrailQuestionKey(entry.questionKey)}
+>>>>>>> origin/master
+                </li>
+              ))}
+            </ul>
+          </>
+        ) : null}
+        {mustSkipped.length === 0 && shouldSkipped.length === 0 ? (
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+            Skipped questions were not recorded on this transparency trail.
+          </p>
+        ) : null}
+      </div>
 
       {section.workingDocumentOpenQuestions.length > 0 ? (
         <div className="space-y-2" data-testid="package-print-trail-working-open-questions">

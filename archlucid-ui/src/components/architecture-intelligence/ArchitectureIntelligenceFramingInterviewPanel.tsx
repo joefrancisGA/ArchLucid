@@ -20,6 +20,7 @@ import {
   countFramingSuggestionsApplied,
   suggestFramingAnswersFromOverview,
 } from "@/lib/architecture/architecture-intelligence-framing-suggest";
+import { shouldAutoApplyFramingSuggestion } from "@/lib/architecture/framing-suggest-infer";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
@@ -74,7 +75,7 @@ export function ArchitectureIntelligenceFramingInterviewPanel(
       const current = nextAnswers[question.questionId]?.trim() ?? "";
       const suggested = suggestions[question.questionId]?.trim() ?? "";
 
-      if (current.length === 0 && suggested.length > 0) {
+      if (current.length === 0 && suggested.length > 0 && shouldAutoApplyFramingSuggestion(suggested)) {
         nextAnswers[question.questionId] = suggested;
       }
     }
@@ -178,7 +179,13 @@ export function ArchitectureIntelligenceFramingInterviewPanel(
               <Textarea
                 id={`${prefix}-${question.questionId}`}
                 data-testid={`${prefix}-${question.questionId}`}
-                value={props.answers[question.questionId] ?? question.confirmedAnswer ?? ""}
+                value={props.answers[question.questionId] ?? ""}
+                placeholder={
+                  (question.confirmedAnswer?.trim().length ?? 0) > 0 &&
+                  (props.answers[question.questionId]?.trim().length ?? 0) === 0
+                    ? `Stored answer was not loaded in this field: ${question.confirmedAnswer?.trim()}`
+                    : undefined
+                }
                 onChange={(event) => {
                   props.onAnswerChange(question.questionId, event.target.value);
 

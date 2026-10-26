@@ -50,6 +50,19 @@ public sealed class AzureInventoryArmNestedObjectPropertyMatrixTests
                 """,
                 StorageAccountId
             },
+            {
+                $$"""
+                {
+                  "destination": {
+                    "endpointType": "StorageQueue",
+                    "resourceId": {
+                      "id": "{{StorageAccountId}}"
+                    }
+                  }
+                }
+                """,
+                StorageAccountId
+            },
         };
 
     [Theory]
@@ -99,6 +112,47 @@ public sealed class AzureInventoryArmNestedObjectPropertyMatrixTests
                         "name": "EventHubCaptureDestination",
                         "properties": {
                           "storageAccountResourceId": "{{StorageAccountId}}"
+                        }
+                      }
+                    }
+                  }
+                }
+                """,
+                StorageAccountId
+            },
+            {
+                $$"""
+                {
+                  "id": "{{NamespaceId}}/eventhubs/orders",
+                  "name": "orders",
+                  "properties": {
+                    "captureDescription": {
+                      "enabled": true,
+                      "destination": {
+                        "properties": {
+                          "storageAccountResourceId": {
+                            "id": "{{StorageAccountId}}"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+                """,
+                StorageAccountId
+            },
+            {
+                $$"""
+                {
+                  "id": "{{NamespaceId}}/eventhubs/orders",
+                  "name": "orders",
+                  "properties": {
+                    "captureDescription": {
+                      "destination": {
+                        "properties": {
+                          "storageAccountResourceId": {
+                            "Id": "{{StorageAccountId}}"
+                          }
                         }
                       }
                     }

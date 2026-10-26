@@ -76,6 +76,12 @@ describe("AskAssistantMessageBody", () => {
     expect(evidenceLink).toHaveAttribute("href", "/architecture/reviews/22222222-2222-4222-8222-222222222222");
   });
 
+  it("labels a missing operator structured preamble explicitly", () => {
+    render(<AskAssistantMessageBody content={"Risk:\n\nBody.\n\nEvidence:\n\nMore."} />);
+
+    expect(screen.getByText("Answer preamble was not stored.")).toBeInTheDocument();
+  });
+
   it("labels missing structured sections and buyer lead explicitly", () => {
     render(
       <AskAssistantMessageBody
@@ -107,6 +113,35 @@ describe("AskAssistantMessageBody", () => {
     expect(execLead?.textContent).toBe("Approved with monitoring.");
     expect(screen.getByText(/Evidence cites manifest section 4/)).toBeInTheDocument();
     expect(screen.queryByText("Based on the evidence indexed for this review:")).not.toBeInTheDocument();
+  });
+
+  it("does not link foreign review UUIDs when reviewIdInScope is set", () => {
+    const foreignId = "22222222-2222-4222-8222-222222222222";
+
+    render(
+      <AskAssistantMessageBody
+        content={`See run ${foreignId} for detail.`}
+        reviewIdInScope={sampleId}
+      />,
+    );
+
+    expect(screen.queryByRole("link", { name: foreignId })).toBeNull();
+    expect(screen.getByText(foreignId, { exact: false })).toBeInTheDocument();
+  });
+
+  it("only linkifies UUIDs that match reviewIdInScope when scope is provided (P-15)", () => {
+    render(
+      <AskAssistantMessageBody
+        content={`Related review ${sampleId} and other ${"22222222-2222-4222-8222-222222222222"}.`}
+        reviewIdInScope={sampleId}
+      />,
+    );
+
+    const links = screen.getAllByRole("link");
+
+    expect(links).toHaveLength(1);
+    expect(links[0]).toHaveAttribute("href", `/architecture/reviews/${encodeURIComponent(sampleId)}`);
+    expect(links[0]).toHaveTextContent(sampleId);
   });
 
   it("renders grounding links footer when provided", () => {

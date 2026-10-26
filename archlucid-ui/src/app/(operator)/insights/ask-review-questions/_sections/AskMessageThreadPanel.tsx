@@ -4,7 +4,11 @@ import { useCallback, useEffect, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { cn } from "@/lib/utils";
-import type { BuyerAskGroundingLink } from "@/lib/ask-buyer-grounding-links";
+import {
+  buildAskAnswerCitationSourceLinks,
+  collectCitedReviewIdsFromAskAnswerRefs,
+  type BuyerAskGroundingLink,
+} from "@/lib/ask-buyer-grounding-links";
 import type { AskCitationActionFollowUp } from "@/lib/ask-citation-action-follow-ups";
 import { AskAssistantMessageBody } from "@/components/AskAssistantMessageBody";
 import { AskCitedFindingsSemanticSupportBandFootnote } from "@/components/ask/AskCitedFindingsSemanticSupportBandFootnote";
@@ -19,9 +23,9 @@ import { StatusTag } from "@/components/ui/status-tag";
 import { ASK_CONVERSATION_EMPTY } from "@/lib/ask-conversation-empty-preset";
 import {
   ASK_REVIEW_STREAMING_PROVISIONAL_MARKER,
-  ASK_REVIEW_UNCITED_RESPONSE_MARKER,
   askReviewArtifactStatusCopy,
-  messageHasUncitedAssistantOutput,
+  ASK_CITATION_REFS_NOT_STORED_MARKER,
+  resolveAskAssistantGroundingCitationMarker,
   resolveAskReviewArtifactStatus,
 } from "@/lib/ask-review-artifact-status-copy";
 import {
@@ -34,7 +38,7 @@ import {
   ASK_BUYER_PROMPT_GROUPS,
   ASK_EMPTY_THREAD_REVIEW_STARTER_PROMPTS,
 } from "@/app/(operator)/insights/ask-review-questions/_sections/ask-page-constants";
-import { ASK_ASSISTANT_ANSWER_FOLLOW_UP_PROMPTS } from "@/lib/ask-assistant-answer-follow-ups";
+import { resolveAskAssistantAnswerFollowUpPrompts } from "@/lib/ask-assistant-answer-follow-ups";
 import {
   askCannedPromptFollowUpsDisclosureHrefFromSearch,
   parseAskCannedPromptFollowUpsOpenFromSearch,
@@ -53,7 +57,7 @@ export type AskMessageThreadPanelProps = {
   onStarterPromptClick?: (line: string) => void;
   runId: string;
   retrievalDegraded?: boolean;
-  isFinalizedReview?: boolean;
+  isFinalizedReview?: boolean | undefined;
 };
 
 function formatAskUserTurnContent(content: string): string {
@@ -69,6 +73,10 @@ function formatAskUserTurnContent(content: string): string {
 }
 
 function askMessageRoleLabel(role: string, buyerPolishedShell: boolean): string {
+  if (role.trim().length === 0) {
+    return "Speaker was not stored.";
+  }
+
   if (!buyerPolishedShell) {
     return role;
   }
@@ -111,7 +119,7 @@ export function AskMessageThreadPanel(props: AskMessageThreadPanelProps) {
     onStarterPromptClick,
     runId,
     retrievalDegraded = false,
-    isFinalizedReview = true,
+    isFinalizedReview = false,
   } = props;
 
   const artifactStatus = resolveAskReviewArtifactStatus({
@@ -119,8 +127,14 @@ export function AskMessageThreadPanel(props: AskMessageThreadPanelProps) {
     isFinalized: isFinalizedReview,
   });
   const artifactStatusCopy = askReviewArtifactStatusCopy(artifactStatus);
-  const groundingLinkCount = askAssistantGroundingLinks?.length ?? 0;
   const citationHostMessageId = lastAssistantMessageId(messages);
+  const citationHostMessage =
+    citationHostMessageId === null
+      ? null
+      : messages.find((message) => message.messageId === citationHostMessageId) ?? null;
+  const assistantAnswerFollowUpPrompts = resolveAskAssistantAnswerFollowUpPrompts(
+    citationHostMessage?.content ?? "",
+  );
   const showCitationActionsOnAnswer =
     streamingAssistantContent === null && citationHostMessageId !== null;
   const citedFindingsBandsQuery = useAskCitedFindingsBandsQuery(runId, {
@@ -212,6 +226,11 @@ export function AskMessageThreadPanel(props: AskMessageThreadPanelProps) {
             message.role.toLowerCase() === "assistant"
               ? parseAskCitationRefsFromMessageMetadata(message.metadataJson)
               : null;
+          const assistantCitationSourceLinks =
+            buyerPolishedShell && assistantCitationRefs !== null
+              ? buildAskAnswerCitationSourceLinks(runId, assistantCitationRefs)
+              : (askAssistantGroundingLinks ?? []);
+          const citedReviewIds = collectCitedReviewIdsFromAskAnswerRefs(runId, assistantCitationRefs);
 
           return (
           <Card
@@ -232,20 +251,41 @@ export function AskMessageThreadPanel(props: AskMessageThreadPanelProps) {
               </div>
               {message.role.toLowerCase() === "assistant" ? (
                 <>
-                  {messageHasUncitedAssistantOutput(message.content, groundingLinkCount) ? (
+                  {(() => {
+                    const groundingMarker = resolveAskAssistantGroundingCitationMarker(
+                      message.content,
+                      askAssistantGroundingLinks,
+                    );
+
+                    return groundingMarker !== null ? (
+                      <p
+                        className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                        data-testid="ask-uncited-assistant-marker"
+                        role="note"
+                      >
+                        {groundingMarker}
+                      </p>
+                    ) : null;
+                  })()}
+                  {message.metadataJson?.trim() &&
+                  message.metadataJson.trim() !== "{}" &&
+                  assistantCitationRefs === null &&
+                  message.content.trim().length > 0 ? (
                     <p
                       className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-                      data-testid="ask-uncited-assistant-marker"
+                      data-testid="ask-citation-refs-not-stored-marker"
                       role="note"
                     >
-                      {ASK_REVIEW_UNCITED_RESPONSE_MARKER}
+                      {ASK_CITATION_REFS_NOT_STORED_MARKER}
                     </p>
                   ) : null}
                   <AskAssistantMessageBody
                     buyerPolishedLinks={buyerPolishedShell}
                     content={message.content}
-                    groundingLinks={askAssistantGroundingLinks ?? []}
-                    reviewIdInScope={runId}
+                    groundingLinks={
+                      assistantCitationSourceLinks.length > 0 ? assistantCitationSourceLinks : undefined
+                    }
+                    citedReviewIds={citedReviewIds}
                   />
                   <AskCitedFindingsSemanticSupportBandFootnote
                     referencedFindingIds={assistantCitationRefs?.referencedFindings ?? []}
@@ -301,7 +341,7 @@ export function AskMessageThreadPanel(props: AskMessageThreadPanelProps) {
               {buyerPolishedShell ? "Suggested follow-ups" : "Follow up on this answer"}
             </p>
             <div className="flex flex-wrap gap-1.5" role="group" aria-label="Suggested follow-up questions">
-              {ASK_ASSISTANT_ANSWER_FOLLOW_UP_PROMPTS.map((line) => (
+              {assistantAnswerFollowUpPrompts.map((line) => (
                 <Button
                   key={line}
                   type="button"

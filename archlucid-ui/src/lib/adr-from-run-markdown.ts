@@ -174,38 +174,62 @@ export function buildMadrMarkdownFromRun(
           "",
         ].join("\n");
 
-  const decisionDrivers = exp !== null ? exp.keyDrivers : [];
+  const decisionDrivers = exp !== null && exp.keyDrivers !== null ? exp.keyDrivers : [];
   const decisionFromDrivers =
     decisionDrivers.length > 0
       ? `We record the following decision drivers from the automated assessment:\n\n${bulletBlock(decisionDrivers)}\nBased on these drivers and the cited findings, we **${status === "accepted" ? "accept" : "propose"}** aligning implementation and governance with the review recommendations, pending human approval.`
-      : `Based on the ${input.findings.length > 0 ? "captured findings" : "available run metadata"} and ${exp !== null ? "the aggregate assessment" : "operator context"}, we **${status === "accepted" ? "accept" : "propose"}** treating this review as the architecture decision record draft until stakeholders ratify it outside ArchLucid.`;
+      : "Decision text was not stored.";
+
+  function consequenceListSection(
+    heading: string,
+    values: readonly string[] | null,
+    notStoredLabel: string,
+    storedEmptyLabel: string,
+  ): string {
+    if (values === null) {
+      return `${heading}\n\n${notStoredLabel}`;
+    }
+
+    if (values.length === 0) {
+      return `${heading}\n\n${storedEmptyLabel}`;
+    }
+
+    return `${heading}\n\n${bulletBlock(values)}`;
+  }
 
   const consequencesSections: string[] = [];
 
   if (exp !== null) {
-    if (exp.riskImplications.length > 0) {
-      consequencesSections.push(`### Risk implications\n\n${bulletBlock(exp.riskImplications)}`);
-    }
-
-    if (exp.costImplications.length > 0) {
-      consequencesSections.push(`### Cost / operations\n\n${bulletBlock(exp.costImplications)}`);
-    }
-
-    if (exp.complianceImplications.length > 0) {
-      consequencesSections.push(`### Compliance / governance\n\n${bulletBlock(exp.complianceImplications)}`);
-    }
+    consequencesSections.push(
+      consequenceListSection(
+        "### Risk implications",
+        exp.riskImplications,
+        "Risk implications were not stored.",
+        "Risk implications were stored empty.",
+      ),
+    );
+    consequencesSections.push(
+      consequenceListSection(
+        "### Cost / operations",
+        exp.costImplications,
+        "Cost implications were not stored.",
+        "Cost implications were stored empty.",
+      ),
+    );
+    consequencesSections.push(
+      consequenceListSection(
+        "### Compliance / governance",
+        exp.complianceImplications,
+        "Compliance implications were not stored.",
+        "Compliance implications were stored empty.",
+      ),
+    );
 
     if (exp.alternativesConsidered === null) {
       consequencesSections.push("Alternatives considered were not stored.");
     } else if (exp.alternativesConsidered.length > 0) {
       consequencesSections.push(`### Alternatives considered (model-reported)\n\n${bulletBlock(exp.alternativesConsidered)}`);
     }
-  }
-
-  if (consequencesSections.length === 0) {
-    consequencesSections.push(
-      "_No structured consequence lists were returned._ Capture operational, security, and cost follow-ups manually after team review.",
-    );
   }
 
   const caveatLines: string[] = [

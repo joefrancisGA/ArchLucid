@@ -73,7 +73,7 @@ export function graphBuyerTrailDispositionLine(
   const scenario = resolveHeroFindingReferenceScenario(referenceId, referencedSlug);
 
   if (scenario !== null) {
-    return "Accepted with monitoring — non-blocking for go-live; approval cadence covers unstructured attachment exceptions.";
+    return "Disposition was not stored on this showcase finding — open the linked finding for the recorded resolve decision.";
   }
 
   return null;
@@ -165,7 +165,10 @@ export function graphBuyerTrailMetadataLines(
     }
 
     if (lower === "riskarea" || lower === "risk_domain" || lower === "riskdomain") {
-      summaryLines.push({ label: "Risk area", value });
+      summaryLines.push({
+        label: "Risk area",
+        value: value.length > 0 ? value : "Risk area was not stored.",
+      });
 
       continue;
     }
@@ -218,13 +221,19 @@ export function graphBuyerTrailMetadataLines(
     }
 
     if (lower === "impact" || lower === "decisionimpact") {
-      summaryLines.push({ label: "Decision impact", value });
+      summaryLines.push({
+        label: "Decision impact",
+        value: value.length > 0 ? value : "Decision impact was not stored.",
+      });
 
       continue;
     }
 
     if (lower === "nextaction" || lower === "nextsteps") {
-      summaryLines.push({ label: "Next action", value });
+      summaryLines.push({
+        label: "Next action",
+        value: value.length > 0 ? value : "Next action was not stored.",
+      });
 
       continue;
     }
@@ -235,39 +244,24 @@ export function graphBuyerTrailMetadataLines(
       lower === "isblocking" ||
       lower === "blocking"
     ) {
-      summaryLines.push({ label: "Blocking status", value });
+      summaryLines.push({
+        label: "Blocking status",
+        value: value.length > 0 ? value : "Blocking status was not stored.",
+      });
 
       continue;
     }
 
     if (lower === "monitoringcadence" || lower === "monitoring_cadence") {
-      summaryLines.push({ label: "Monitoring cadence", value });
+      summaryLines.push({
+        label: "Monitoring cadence",
+        value: value.length > 0 ? value : "Monitoring cadence was not stored.",
+      });
 
       continue;
     }
 
     technicalLines.push({ label: key, value });
-  }
-
-  const referenceId = metadataValue(metadata, "referenceId");
-  const referencedSlug = metadataValue(metadata, "referenced");
-  const inferredSampleHeroFinding = resolveHeroFindingReferenceScenario(referenceId, referencedSlug);
-
-  if (inferredSampleHeroFinding !== null) {
-    const summaryLabelsPresent = new Set(summaryLines.map((row) => row.label));
-
-    const attachStructuredField = (label: string, value: string): void => {
-      if (!summaryLabelsPresent.has(label)) {
-        summaryLines.push({ label, value });
-        summaryLabelsPresent.add(label);
-      }
-    };
-
-    attachStructuredField("Severity", "High");
-    attachStructuredField("Decision", "Accepted with monitoring");
-    attachStructuredField("Blocking status", "Non-blocking");
-    attachStructuredField("Monitoring cadence", "Monitoring cadence was not stored.");
-    attachStructuredField("Risk area", "Risk area was not stored.");
   }
 
   return { summaryLines, technicalLines };

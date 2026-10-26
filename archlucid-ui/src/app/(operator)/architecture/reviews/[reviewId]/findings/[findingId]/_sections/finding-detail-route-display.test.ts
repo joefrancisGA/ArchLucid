@@ -6,12 +6,14 @@ import {
   buyerFindingDecisionImpactCopy,
   buyerFindingNextStepCopy,
   deriveFindingDecisionSummary,
+  findingDetailLeadFallback,
   findingRecommendedActionParagraph,
   fallbackImpactedScope,
   formatFindingRemediationDueLabel,
   mitigationPosture,
   resolveFindingNextReviewLabel,
   resolveFindingRiskOwnerLabel,
+  summarizeEvidenceBasis,
 } from "./finding-detail-route-display";
 
 function emptyPayload(overrides: Partial<FindingInspectPayload> = {}): FindingInspectPayload {
@@ -30,6 +32,11 @@ function emptyPayload(overrides: Partial<FindingInspectPayload> = {}): FindingIn
 }
 
 describe("finding-detail-route-display buyer summary copy", () => {
+  it("does not name Claims Intake before inspect payload loads (P-20)", () => {
+    expect(findingDetailLeadFallback("sensitive-data-minimization-risk")).toBe("Finding detail has not loaded.");
+    expect(findingDetailLeadFallback("sensitive-data-minimization-risk")).not.toContain("Claims Intake");
+  });
+
   it("does not invent business impact for PHI showcase finding id without payload", () => {
     expect(buyerFindingDecisionImpactCopy(null, "sensitive-data-minimization-risk")).toBe(
       "Business impact was not stored",
@@ -68,7 +75,9 @@ describe("finding-detail-route-display buyer summary copy", () => {
       remediationDueUtc: "2026-09-15T00:00:00Z",
     });
 
-    expect(resolveFindingRiskOwnerLabel(payload, "generic-finding")).toBe("privacy.office@example.com");
+    expect(resolveFindingRiskOwnerLabel(payload, "generic-finding")).toBe(
+      "Risk owner name was not stored. Assignee id privacy.office@example.com.",
+    );
     expect(resolveFindingNextReviewLabel(payload, "generic-finding")).toBe(
       formatFindingRemediationDueLabel("2026-09-15T00:00:00Z"),
     );

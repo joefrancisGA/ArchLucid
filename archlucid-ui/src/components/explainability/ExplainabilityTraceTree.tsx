@@ -105,7 +105,7 @@ export function ExplainabilityTraceTree(props: ExplainabilityTraceTreeProps) {
   const decisionText =
     data.decisionsTaken.length > 0
       ? data.decisionsTaken[0]
-      : (data.evidence?.conclusion?.trim() ?? "No decision recorded in trace.");
+      : (data.evidence?.conclusion?.trim() ?? "Decision text was not stored.");
 
   const confidenceLabel = normalizeFindingConfidenceLevel(data.confidenceLevel ?? null);
   const evidenceRefs = data.evidence?.evidenceRefs;
@@ -113,11 +113,15 @@ export function ExplainabilityTraceTree(props: ExplainabilityTraceTreeProps) {
   const missingTraceFields = data.missingTraceFields?.filter((field) => field.trim().length > 0) ?? [];
   const evidenceRefCount =
     evidenceRefs === null || evidenceRefs === undefined ? null : evidenceRefs.length;
+  const missingTraceFieldCount =
+    data.missingTraceFields === null || data.missingTraceFields === undefined
+      ? null
+      : missingTraceFields.length;
 
   const confidence = findingConfidenceExplanation({
     level: confidenceLabel,
     evidenceRefCount,
-    missingTraceFieldCount: missingTraceFields.length,
+    missingTraceFieldCount,
   });
 
   return (

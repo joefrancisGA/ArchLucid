@@ -18,6 +18,9 @@ export const DECISION_RECEIPT_SCHEMA_VERSION = "archlucid.decision-receipt.v2";
 export const DECISION_RECEIPT_COST_ESTIMATE_LABEL =
   "Estimated — not audited financial advice (SAQ-011)";
 
+export const DECISION_RECEIPT_COST_FIGURES_NOT_STORED =
+  "Cost figures were not stored for this review.";
+
 export type DecisionReceiptSource = "draft-admission" | "committed-run";
 
 export type DecisionReceiptContext = {
@@ -50,8 +53,8 @@ export type DecisionReceiptDocument = {
   transparencyTrail: TransparencyTrailExportSection | null;
   costStory: {
     label: typeof DECISION_RECEIPT_COST_ESTIMATE_LABEL;
-    sessionCostUsdEstimate: number;
-    avoidedHumanArchitectCostUsdEstimate: number;
+    sessionCostUsdEstimate: string;
+    avoidedHumanArchitectCostUsdEstimate: string;
     avoidedCalendarWeeksEstimate: string;
     narrative: string;
   };
@@ -95,11 +98,10 @@ export function buildDecisionReceiptDocument(context: DecisionReceiptContext): D
     transparencyTrail: buildTransparencyTrailExportSection(context.verdict.transparencyTrail),
     costStory: {
       label: DECISION_RECEIPT_COST_ESTIMATE_LABEL,
-      sessionCostUsdEstimate: 1,
-      avoidedHumanArchitectCostUsdEstimate: 25_000,
-      avoidedCalendarWeeksEstimate: "2–4",
-      narrative:
-        "A defensible decision delivered in minutes at low compute cost versus weeks of human architecture review.",
+      sessionCostUsdEstimate: 0,
+      avoidedHumanArchitectCostUsdEstimate: 0,
+      avoidedCalendarWeeksEstimate: "",
+      narrative: DECISION_RECEIPT_COST_FIGURES_NOT_STORED,
     },
     careerPosture,
   };

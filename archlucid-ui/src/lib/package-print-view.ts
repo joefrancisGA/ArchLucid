@@ -42,9 +42,15 @@ export const PACKAGE_PRINT_STATUS_HEADING = "Status";
 export const PACKAGE_PRINT_FINDINGS_HEADING = "Key findings summary";
 export const PACKAGE_PRINT_SEMANTIC_SUPPORT_HEADING = "Semantic support";
 export const PACKAGE_PRINT_SYNOPSIS_HEADING = "Sponsor synopsis";
+export const PACKAGE_PRINT_DRAFT_SYNOPSIS_HEADING = "Working sponsor synopsis (draft)";
+export const PACKAGE_PRINT_DRAFT_SYNOPSIS_NOT_PUBLISHED =
+  "Draft sponsor synopsis is not published with a finalized architecture review package.";
 export const PACKAGE_PRINT_META_CREATED_LABEL = "Created";
 export const PACKAGE_PRINT_LOADING_LABEL = "Loading review for print…";
 export const PACKAGE_PRINT_ERROR_FALLBACK = "This architecture review could not be loaded for print.";
+
+export const PACKAGE_PRINT_PIPELINE_STAGE_FLAGS_OMITTED_LINE =
+  "Assessment step flags were not stored on this summary — package status may not reflect pipeline progress.";
 
 export type PackagePrintStatusLabel =
   | "Draft"
@@ -52,6 +58,8 @@ export type PackagePrintStatusLabel =
   | "Awaiting approval"
   | "Finalized"
   | "Finalized. Governance warnings were stored."
+  | "Finalized. Governance warning flags were not stored."
+  | "Package status was not stored."
   | "Archived";
 
 /** Builds the dedicated print path for a review (`/architecture/reviews/{runId}/print`). */
@@ -96,6 +104,8 @@ export type PackagePrintPresentation = {
   readonly findingsListedCount?: number | null;
   readonly findingsTotalCount?: number | null;
   readonly sponsorSynopsis: string | null;
+  /** TB-2183 working synopsis paragraph when the package is not finalized. */
+  readonly draftWorkingSynopsisParagraph?: string | null;
   readonly createdUtc: string;
   readonly runId: string;
   readonly coverageHonestyLine?: string | null;
@@ -105,7 +115,24 @@ export type PackagePrintPresentation = {
   readonly transparencyTrail?: TransparencyTrail | null;
   readonly showQuietEnginesHint?: boolean;
   readonly rehearsalHonestyStrip?: PackagePrintRehearsalHonestyStrip | null;
+  readonly pipelineStageFlagsOmittedLine?: string | null;
 };
+
+function pipelineStageFlagIsKnown(value: boolean | null | undefined): boolean {
+  return value !== null && value !== undefined;
+}
+
+export function packagePrintPipelineStageFlagsOmitted(summary: RunSummary): boolean {
+  if (summary.hasGoldenManifest === true) {
+    return false;
+  }
+
+  return (
+    !pipelineStageFlagIsKnown(summary.hasContextSnapshot)
+    && !pipelineStageFlagIsKnown(summary.hasGraphSnapshot)
+    && !pipelineStageFlagIsKnown(summary.hasFindingsSnapshot)
+  );
+}
 
 function finiteCount(value: number | null | undefined): number | null {
   if (typeof value !== "number" || !Number.isFinite(value)) {
@@ -126,7 +153,11 @@ export function resolvePackagePrintStatusLabel(summary: RunSummary): PackagePrin
       return "Finalized. Governance warnings were stored.";
     }
 
-    return "Finalized";
+    if (summary.hasGovernanceWarnings === false) {
+      return "Finalized";
+    }
+
+    return "Finalized. Governance warning flags were not stored.";
   }
 
   if (
@@ -135,6 +166,18 @@ export function resolvePackagePrintStatusLabel(summary: RunSummary): PackagePrin
     || summary.hasContextSnapshot === true
   ) {
     return "Active";
+  }
+
+  const draftFlags = [
+    summary.isArchived,
+    summary.hasGoldenManifest,
+    summary.hasFindingsSnapshot,
+    summary.hasGraphSnapshot,
+    summary.hasContextSnapshot,
+  ];
+
+  if (draftFlags.some((flag) => flag === undefined)) {
+    return "Package status was not stored.";
   }
 
   return "Draft";
@@ -150,9 +193,12 @@ export function resolvePackagePrintStatusKind(status: PackagePrintStatusLabel): 
       return "needs-attention";
     case "Finalized":
     case "Finalized. Governance warnings were stored.":
+    case "Finalized. Governance warning flags were not stored.":
       return "approved";
     case "Archived":
       return "neutral";
+    case "Package status was not stored.":
+      return "draft";
     default: {
       const _exhaustive: never = status;
 
@@ -175,6 +221,8 @@ export function buildPackagePrintFindingsSummary(summary: RunSummary): string {
 
   if (warnings !== null && warnings > 0) {
     parts.push(`${warnings} warning${warnings === 1 ? "" : "s"}`);
+  } else if (warnings === 0) {
+    parts.push("0 warnings were stored.");
   } else if (warnings === null) {
     parts.push("Warning count was not stored.");
   }
@@ -194,6 +242,10 @@ export function buildPackagePrintFindingsSummary(summary: RunSummary): string {
   const base = parts.join(" · ");
 
   if (summary.hasGoldenManifest === true) {
+    if (findings === null || warnings === null) {
+      return `${base}. Package is finalized.`;
+    }
+
     return `${base}. Included in the finalized architecture review.`;
   }
 
@@ -204,6 +256,36 @@ export function buildPackagePrintFindingsSummary(summary: RunSummary): string {
  * Short sponsor-facing synopsis when a finalized package exists.
  * Returns null when there is nothing honest to say (pre-finalize drafts).
  */
+export function formatPackagePrintDraftSynopsisBody(paragraph: string | null | undefined): string {
+  const trimmed = paragraph?.trim() ?? "";
+
+  if (trimmed.length === 0) {
+    return "Draft sponsor synopsis was not stored.";
+  }
+
+  return `${PACKAGE_PRINT_DRAFT_SYNOPSIS_NOT_PUBLISHED} ${trimmed}`;
+}
+
+export function resolvePackagePrintSynopsisHeading(statusLabel: PackagePrintStatusLabel): string {
+  if (statusLabel === "Draft" || statusLabel === "Active" || statusLabel === "Awaiting approval") {
+    return PACKAGE_PRINT_DRAFT_SYNOPSIS_HEADING;
+  }
+
+  return PACKAGE_PRINT_SYNOPSIS_HEADING;
+}
+
+export function resolvePackagePrintSynopsisBody(presentation: PackagePrintPresentation): string {
+  if (
+    presentation.statusLabel === "Draft"
+    || presentation.statusLabel === "Active"
+    || presentation.statusLabel === "Awaiting approval"
+  ) {
+    return formatPackagePrintDraftSynopsisBody(presentation.draftWorkingSynopsisParagraph);
+  }
+
+  return presentation.sponsorSynopsis ?? "Sponsor synopsis was not stored on this print.";
+}
+
 export function buildPackagePrintSponsorSynopsis(summary: RunSummary): string | null {
   if (summary.hasGoldenManifest !== true) {
     return null;
@@ -245,14 +327,17 @@ export function buildPackagePrintPresentation(
     readonly transparencyTrail?: TransparencyTrail | null;
     readonly showQuietEnginesHint?: boolean;
     readonly rehearsalHonestyStrip?: PackagePrintRehearsalHonestyStrip | null;
+    readonly draftWorkingSynopsisParagraph?: string | null;
   },
 ): PackagePrintPresentation {
   const statusLabel = resolvePackagePrintStatusLabel(summary);
   const findingsTotalCount = finiteCount(summary.findingCount);
   const findingsListedCount =
-    options?.findingsListedCount === undefined || options?.findingsListedCount === null
+    options?.findingsListedCount === undefined
       ? findingsTotalCount
-      : finiteCount(options.findingsListedCount);
+      : options.findingsListedCount === null
+        ? null
+        : finiteCount(options.findingsListedCount);
   const baseSummary = buildPackagePrintFindingsSummary(summary);
   const inventoryLine =
     findingsListedCount !== null &&
@@ -260,15 +345,25 @@ export function buildPackagePrintPresentation(
     findingsListedCount < findingsTotalCount
       ? formatInventoryShowingLine(findingsListedCount, findingsTotalCount)
       : null;
+  const listedCountOmissionLine =
+    options?.findingsListedCount === null && findingsTotalCount !== null
+      ? "Listed finding count was not stored."
+      : null;
 
   return {
     title: buyerFacingReviewTitleFromSummary(summary),
     statusLabel,
     statusKind: resolvePackagePrintStatusKind(statusLabel),
-    findingsSummary: inventoryLine !== null ? `${baseSummary} ${inventoryLine}.` : baseSummary,
+    findingsSummary:
+      listedCountOmissionLine !== null
+        ? `${baseSummary} ${listedCountOmissionLine}`
+        : inventoryLine !== null
+          ? `${baseSummary} ${inventoryLine}.`
+          : baseSummary,
     findingsListedCount,
     findingsTotalCount,
     sponsorSynopsis: buildPackagePrintSponsorSynopsis(summary),
+    draftWorkingSynopsisParagraph: options?.draftWorkingSynopsisParagraph ?? null,
     createdUtc: summary.createdUtc,
     runId: summary.runId,
     coverageHonestyLine: options?.coverageHonestyLine ?? null,
@@ -277,6 +372,9 @@ export function buildPackagePrintPresentation(
     transparencyTrail: options?.transparencyTrail ?? null,
     showQuietEnginesHint: options?.showQuietEnginesHint ?? false,
     rehearsalHonestyStrip: options?.rehearsalHonestyStrip ?? null,
+    pipelineStageFlagsOmittedLine: packagePrintPipelineStageFlagsOmitted(summary)
+      ? PACKAGE_PRINT_PIPELINE_STAGE_FLAGS_OMITTED_LINE
+      : null,
     manifestVersionForGuard:
       summary.currentManifestVersion?.trim()
       ?? summary.goldenManifestId?.trim()

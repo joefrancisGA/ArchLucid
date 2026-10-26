@@ -1,6 +1,16 @@
 import type { EnterpriseStatusKind } from "@/lib/design-tokens";
 import { DIAGRAM_INFRASTRUCTURE_MATCH_KINDS } from "@/lib/infra-evidence/infra-evidence-diagram-reconcile-types";
 
+/** Trim captured hub text; return `emptyLabel` when absent or whitespace-only. */
+export function formatStoredInfraEvidenceHubField(
+  value: string | null | undefined,
+  emptyLabel: string,
+): string {
+  const trimmed = value?.trim() ?? "";
+
+  return trimmed.length > 0 ? trimmed : emptyLabel;
+}
+
 /** Map diagram correspondence match kind + confidence to enterprise status tag kind. */
 export function resolveDiagramCorrespondenceStatusKind(
   matchKind: string,
@@ -114,7 +124,7 @@ export function formatResourceHubFindingStreamCaption(
   totalCount: number,
   hasMore: boolean,
 ): string | null {
-  if (!hasMore || totalCount <= visibleCount) {
+  if (!hasMore || visibleCount <= 0 || totalCount <= visibleCount) {
     return null;
   }
 

@@ -7,7 +7,7 @@ import {
 
 describe("run-retrieval-grounding-display", () => {
   it("labels missing coverage as not recorded", () => {
-    expect(formatRunRetrievalCitationCoverage(null)).toBe("Not recorded");
+    expect(formatRunRetrievalCitationCoverage(null)).toBe("Citation coverage was not stored.");
   });
 
   it("normalizes 0–1 and 0–100 citation coverage", () => {

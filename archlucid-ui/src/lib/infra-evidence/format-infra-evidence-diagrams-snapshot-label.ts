@@ -1,7 +1,11 @@
 import { DEFAULT_IANA_TIME_ZONE_ID } from "@/lib/default-iana-time-zone";
 import { formatInstantInPreferredTimeZoneMilitary } from "@/lib/locale-datetime";
 import type { InfraEvidenceSnapshotSummary } from "@/lib/infra-evidence/infra-evidence-drift-types";
-import { formatInfraEvidenceSubscriptionLabel } from "@/lib/infra-evidence/format-infra-evidence-snapshot-label";
+import {
+  formatInfraEvidenceSnapshotResourceCountLabel,
+  formatInfraEvidenceSubscriptionLabel,
+} from "@/lib/infra-evidence/format-infra-evidence-snapshot-label";
+import { isUuidLike } from "@/lib/resolve-governance-finding-resource-group";
 
 /** Capture label for diagrams snapshot picker options in the operator's preferred zone. */
 export function formatInfraEvidenceDiagramsSnapshotPickerLabel(
@@ -13,16 +17,24 @@ export function formatInfraEvidenceDiagramsSnapshotPickerLabel(
       ? formatInstantInPreferredTimeZoneMilitary(snapshot.capturedUtc, ianaTimeZoneId)
       : "Captured time was not stored";
   const subscription = formatInfraEvidenceSubscriptionLabel(snapshot.subscriptionName, snapshot.subscriptionId);
+  const subscriptionId = snapshot.subscriptionId?.trim() ?? "";
+  const subscriptionName = snapshot.subscriptionName?.trim() ?? "";
   const parts: string[] = [];
 
-  if (subscription !== null) {
-    parts.push(subscription);
-  } else {
+  if (subscription === null) {
     parts.push("Subscription was not stored.");
+  } else if (subscriptionName.length === 0 && isUuidLike(subscriptionId)) {
+    // Omit raw subscription GUIDs from the diagrams picker label.
+  } else {
+    parts.push(subscription);
   }
 
   parts.push(captured);
-  parts.push(`${snapshot.resourceCount} resources`);
+  parts.push(
+    typeof snapshot.resourceCount === "number" && Number.isFinite(snapshot.resourceCount)
+      ? `${Math.trunc(snapshot.resourceCount)} resources`
+      : "Resource count was not stored.",
+  );
 
   return parts.join(" · ");
 }

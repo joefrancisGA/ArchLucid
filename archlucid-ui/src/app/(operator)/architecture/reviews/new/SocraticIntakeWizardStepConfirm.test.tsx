@@ -2,7 +2,10 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { CREATE_REVIEW_PACKAGE_HEADING } from "@/lib/buyer/buyer-polish-copy";
-import { GUIDED_INTAKE_STEP2_SUBMIT_DESCRIPTION } from "@/lib/guided-intake-copy";
+import {
+  GUIDED_INTAKE_CONFIRMED_SCOPE_NOT_STORED,
+  GUIDED_INTAKE_STEP2_SUBMIT_DESCRIPTION,
+} from "@/lib/guided-intake-copy";
 
 import { SocraticIntakeWizardStepConfirm } from "./SocraticIntakeWizardStepConfirm";
 
@@ -37,5 +40,6 @@ describe("SocraticIntakeWizardStepConfirm", () => {
     expect(panel.querySelector('[class*="border-t"]')).toBeTruthy();
     expect(screen.getByTestId("socratic-submit")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Back to questions" })).toBeInTheDocument();
+    expect(screen.getByTestId("guided-intake-confirmed-scope-not-stored")).toBeInTheDocument();
   });
 });

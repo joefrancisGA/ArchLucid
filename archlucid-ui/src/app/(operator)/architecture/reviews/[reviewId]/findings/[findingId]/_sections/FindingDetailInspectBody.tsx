@@ -16,9 +16,11 @@ import { FINDING_DETAIL_CLAIM_DISCIPLINE } from "@/lib/findings/finding-detail-e
 import { FindingPolicyCitationHero } from "@/components/findings/FindingPolicyCitationHero";
 import { FindingClassificationChip } from "@/components/findings/FindingClassificationChip";
 import { FindingSemanticSupportBandChip } from "@/components/findings/FindingSemanticSupportBandChip";
+import { FindingConfidenceBadge } from "@/components/findings/FindingConfidenceBadge";
 import { SeverityTag } from "@/components/ui/severity-tag";
 import { StatusTag } from "@/components/ui/status-tag";
 import { phiMinimizationBuyerConsequenceNarrative } from "@/lib/findings/finding-display-from-inspect";
+import { FINDING_NO_EVIDENCE_TRAIL_SENTENCE } from "@/lib/findings/finding-inspect-graph-evidence";
 import { resolveFindingInspectExportClassification, resolveFindingInspectExportTreatment } from "@/lib/findings/finding-inspect-export-classification";
 import { mapInspectPayloadToQuickDecisionFinding } from "@/lib/findings/finding-inspect-job-view";
 import { findingStatusTagKind } from "./finding-detail-route-display";
@@ -66,6 +68,7 @@ export function FindingDetailInspectBody({ presentation }: Props) {
     policyProvenanceModel,
     policyTraceExcerpt,
     severityRationale,
+    confidenceLevel,
     graphEvidenceHref,
     linkedManifestHref,
     inspectHref,
@@ -166,6 +169,24 @@ export function FindingDetailInspectBody({ presentation }: Props) {
                   ) : null}
                 </div>
               ) : null}
+              {inspectPayload !== null ? (
+                confidenceLevel === "High" || confidenceLevel === "Medium" || confidenceLevel === "Low" ? (
+                  <FindingConfidenceBadge level={confidenceLevel} />
+                ) : confidenceLevel === null || confidenceLevel === undefined ? (
+                  <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                    Confidence was not stored.
+                  </p>
+                ) : (
+                  <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                    Stored confidence level: {confidenceLevel}.
+                  </p>
+                )
+              ) : null}
+              {graphEvidenceHref === null && inspectPayload !== null ? (
+                <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                  {FINDING_NO_EVIDENCE_TRAIL_SENTENCE}
+                </p>
+              ) : null}
             </OperatorPageHeader>
 
             {findingIsPhi ? (
@@ -236,6 +257,8 @@ export function FindingDetailInspectBody({ presentation }: Props) {
               structuredActions={[...buyerStructuredActions]}
               recommendedActionParagraph={buyerRecommendedActionParagraph}
               showOwnerCadence
+              riskOwnerLabel={decisionSummary.riskOwner}
+              nextReviewLabel={decisionSummary.nextReview}
             />
           ) : null}
 

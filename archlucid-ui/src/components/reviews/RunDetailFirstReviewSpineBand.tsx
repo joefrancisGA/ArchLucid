@@ -105,26 +105,16 @@ export function RunDetailFirstReviewSpineBand(props: RunDetailFirstReviewSpineBa
           data-testid="run-detail-first-review-spine-disposition-next-action"
         >
           Record dispositions on open decision-grade findings before sponsor send.{" "}
-          <Link
-            href="/governance/findings"
-            className={OPERATOR_LINK.inline}
-            data-testid="run-detail-first-review-spine-disposition-queue-link"
-          >
-            Open governance queue
-          </Link>
           {props.runId !== null && props.runId !== undefined && props.runId.trim().length > 0 ? (
-            <>
-              {" · "}
-              <Link
-                href={`/architecture/reviews/${encodeURIComponent(props.runId.trim())}?tab=findings`}
-                className={OPERATOR_LINK.inline}
-                data-testid="run-detail-first-review-spine-disposition-findings-link"
-              >
-                Review findings
-              </Link>
-            </>
+            <Link
+              href={`/architecture/reviews/${encodeURIComponent(props.runId.trim())}?tab=findings`}
+              className={OPERATOR_LINK.inline}
+              data-testid="run-detail-first-review-spine-disposition-findings-link"
+            >
+              Open this review&apos;s findings
+            </Link>
           ) : (
-            <> Review id was not stored.</>
+            <>Review id was not stored.</>
           )}
         </p>
       ) : null}
@@ -132,9 +122,14 @@ export function RunDetailFirstReviewSpineBand(props: RunDetailFirstReviewSpineBa
       {summary.showTopFindingRow ? (
         <p className={cn("m-0 mt-2 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)} data-testid="run-detail-first-review-spine-top-finding">
           <span className="font-semibold">
-            {summary.topFindingPolicyMapped ? "Top policy-mapped finding:" : "Top finding:"}
+            {summary.topFindingRankLabel ?? "Decision-grade finding:"}
           </span>{" "}
-          {summary.topFindingSeverityLabel !== null ? `[${summary.topFindingSeverityLabel}] ` : ""}
+          {summary.topFindingSeverityLabel !== null
+          && !summary.topFindingSeverityLabel.startsWith("Severity")
+            ? `[${summary.topFindingSeverityLabel}] `
+            : summary.topFindingSeverityLabel !== null
+              ? `${summary.topFindingSeverityLabel} `
+              : ""}
           {summary.topFindingTitle}
         </p>
       ) : null}
@@ -168,7 +163,7 @@ export function RunDetailFirstReviewSpineBand(props: RunDetailFirstReviewSpineBa
           className={OPERATOR_LINK.inline}
           data-testid="run-detail-first-review-spine-pack-delta-demo-link"
         >
-          See how a policy-pack change shifts findings
+          Policy-pack delta demo (sample runbook, not this review).
         </Link>
       </p>
     </section>

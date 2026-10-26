@@ -51,11 +51,22 @@ describe("WizardStepReview", () => {
     expect(screen.getByRole("heading", { name: "Review & submit" })).toBeInTheDocument();
     expect(screen.getByText("AcmeOrderApi")).toBeInTheDocument();
     expect(screen.getByText("production")).toBeInTheDocument();
-    expect(screen.getByText("Azure")).toBeInTheDocument();
+    expect(screen.getByText("Microsoft Azure")).toBeInTheDocument();
     expect(screen.getByText("Rate limits on public endpoints")).toBeInTheDocument();
     expect(screen.getByText("EU-only data")).toBeInTheDocument();
     expect(screen.getByText("policy-pack:default")).toBeInTheDocument();
-    expect(screen.getByText("1 attached")).toBeInTheDocument();
+    expect(screen.getByText("1 attached document")).toBeInTheDocument();
+  });
+
+  it("labels evidence-only cloud target without showing raw None (P-16)", () => {
+    render(
+      <WizardFormTestHarness values={{ cloudProvider: "None" }}>
+        <WizardStepReview />
+      </WizardFormTestHarness>,
+    );
+
+    expect(screen.getByText("Evidence-only (no cloud target)")).toBeInTheDocument();
+    expect(screen.queryByText("None")).not.toBeInTheDocument();
   });
 
   it("labels blank identity draft fields as not stored", () => {
@@ -93,10 +104,10 @@ describe("WizardStepReview", () => {
     );
 
     const priorRow = screen.getByText("Prior manifest").closest("dl");
-    expect(priorRow?.textContent).toContain("No prior manifest recorded");
+    expect(priorRow?.textContent).toContain("Prior manifest was stored empty.");
 
     const advancedSection = screen.getByRole("heading", { name: "Advanced" }).closest("section");
-    expect(advancedSection?.textContent).toContain("None recorded on this draft");
+    expect(advancedSection?.textContent).toContain("Policy references were stored empty.");
     expect(advancedSection?.textContent).toContain("0 attached");
   });
 
@@ -131,10 +142,30 @@ describe("WizardStepReview", () => {
     );
 
     expect(screen.queryByText("Assumptions were not stored.")).not.toBeInTheDocument();
-    expect(screen.getByText("No prior manifest recorded")).toBeInTheDocument();
+    expect(screen.getByText("Prior manifest was stored empty.")).toBeInTheDocument();
 
     const advancedSection = screen.getByRole("heading", { name: "Advanced" }).closest("section");
-    expect(advancedSection?.textContent).toContain("None recorded on this draft");
+    expect(advancedSection?.textContent).toContain("Architecture hints were stored empty.");
+  });
+
+  it("labels whitespace-only list entries as stored empty (P-16–P-19)", () => {
+    render(
+      <DirectWizardFormProvider
+        values={{
+          inlineRequirements: ["Rate limits", "   "],
+          constraints: ["EU-only", " "],
+          requiredCapabilities: ["TLS 1.2+", ""],
+          assumptions: ["SRE on-call", "\t"],
+        }}
+      >
+        <WizardStepReview />
+      </DirectWizardFormProvider>,
+    );
+
+    expect(screen.getByText("Requirement was stored empty.")).toBeInTheDocument();
+    expect(screen.getByText("Constraint was stored empty.")).toBeInTheDocument();
+    expect(screen.getByText("Required capability was stored empty.")).toBeInTheDocument();
+    expect(screen.getByText("Assumption was stored empty.")).toBeInTheDocument();
   });
 
   it("distinguishes missing declarations and capabilities from stored empty lists", () => {
@@ -154,7 +185,7 @@ describe("WizardStepReview", () => {
       </DirectWizardFormProvider>,
     );
 
-    expect(screen.getByText("0 declaration(s)")).toBeInTheDocument();
+    expect(screen.getByText("0 declarations")).toBeInTheDocument();
     expect(screen.queryByText("Required capabilities were not stored.")).not.toBeInTheDocument();
   });
 

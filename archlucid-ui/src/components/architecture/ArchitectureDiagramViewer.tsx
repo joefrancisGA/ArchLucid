@@ -80,13 +80,18 @@ import {
   resolveMermaidViewportDefaultZoom,
   sanitizeMermaidRenderId,
 } from '@/lib/help/help-mermaid';
-import { applySecureNowQuestionSubjectHighlight } from '@/lib/architecture/architecture-diagram-question-subject';
+import {
+  applySecureNowQuestionSubjectHighlight,
+  ARCHITECTURE_DIAGRAM_QUESTION_SUBJECT_NOT_FOUND,
+} from '@/lib/architecture/architecture-diagram-question-subject';
 import { renderMermaidSvgMarkup } from '@/lib/mermaid/mermaid-safe-render';
 import { OPERATOR_TYPOGRAPHY } from '@/lib/design-tokens';
 import { useDocumentDarkMode } from '@/lib/use-document-dark-mode';
 import { cn } from '@/lib/utils';
 
 const ZOOM_STEP = 0.1;
+const DIAGRAM_EDGE_ENDPOINT_NOT_STORED = 'Edge endpoint was not stored.';
+const DIAGRAM_MEMBER_NAME_NOT_STORED = 'Diagram member name was not stored.';
 const MAX_INITIAL_FIT_RETRIES = 8;
 const INITIAL_FIT_RETRY_DELAY_MS = 120;
 const EMPTY_FOCUS_NODE_IDS: readonly string[] = [];
@@ -359,11 +364,12 @@ function applyConnectorVisibility(
     const from = edge.getAttribute('data-from') ?? '';
     const to = edge.getAttribute('data-to') ?? '';
     const label = edge.querySelector('title')?.textContent?.trim() ?? null;
+    const normalizedLabel = label.toLowerCase();
     const isVisible = visibleConnectors.some(
       (connector) =>
         normalizeDiagramFocusToken(connector.from) === normalizeDiagramFocusToken(from)
         && normalizeDiagramFocusToken(connector.to) === normalizeDiagramFocusToken(to)
-        && (connector.label?.trim() ?? null) === label,
+        && (connector.label?.trim().toLowerCase() ?? "") === normalizedLabel,
     );
 
     if (!isVisible) {
@@ -627,12 +633,14 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
       new URLSearchParams(typeof window === 'undefined' ? '' : window.location.search).get('diagFullscreen'),
     );
   const [svgMarkup, setSvgMarkup] = useState<string | null>(null);
+  const [questionSubjectNotOnDiagram, setQuestionSubjectNotOnDiagram] = useState(false);
   const [renderError, setRenderError] = useState<string | null>(null);
   const [clickFocus, setClickFocus] = useState<{
     id: string;
     name: string;
     memberNames?: readonly string[];
   } | null>(null);
+  const [connectorFocusNotice, setConnectorFocusNotice] = useState<string | null>(null);
   const [diagramSurface, setDiagramSurface] = useState<'map' | 'plate' | 'neighborhood'>('plate');
   const [openNeighborhoodId, setOpenNeighborhoodId] = useState<string | null>(null);
   const [renderGeneration, setRenderGeneration] = useState(0);
@@ -819,7 +827,8 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
       return;
     }
 
-    applySecureNowQuestionSubjectHighlight(svg, questionSubjectNodeId);
+    const subjectFound = applySecureNowQuestionSubjectHighlight(svg, questionSubjectNodeId);
+    setQuestionSubjectNotOnDiagram(!subjectFound);
   }, [questionSubjectNodeId, sanitizedSvg, focusNonce]);
 
   const syncInlineViewportCamera = useCallback((): boolean => {
@@ -1062,6 +1071,7 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
     );
     const clearFocus = (): void => {
       setClickFocus(null);
+      setConnectorFocusNotice(null);
     };
 
     if (sanitizedSvg === null || layoutSvg?.trim().length === 0) {
@@ -1135,7 +1145,7 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
         }
 
         const chip = stub.querySelector('text')?.textContent?.trim() ?? '';
-        const name = chip.replace(/^[→←]\s*/u, '') || id;
+        const name = chip.replace(/^[→←]\s*/u, '');
         setClickFocus({ id, name });
         return;
       }
@@ -1148,7 +1158,10 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
         const label = edge.querySelector('title')?.textContent?.trim() ?? null;
 
         if (from.length > 0 && to.length > 0) {
+          setConnectorFocusNotice(null);
           onSelectConnector?.({ from, to, label });
+        } else {
+          setConnectorFocusNotice(DIAGRAM_EDGE_ENDPOINT_NOT_STORED);
         }
 
         return;
@@ -1168,15 +1181,19 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
         return;
       }
 
-      const title = node.querySelector('title')?.textContent?.trim() ?? id;
-      const memberNames = (node.getAttribute('data-member-names') ?? '')
-        .split('|')
-        .map((member) => member.trim())
-        .filter(Boolean);
+      const title = node.querySelector('title')?.textContent?.trim() ?? "";
+      const rawMemberNames = (node.getAttribute('data-member-names') ?? '').split('|');
+      const memberNames = rawMemberNames.length > 0
+        ? rawMemberNames.map((member) => {
+          const trimmed = member.trim();
+
+          return trimmed.length > 0 ? trimmed : DIAGRAM_MEMBER_NAME_NOT_STORED;
+        })
+        : undefined;
       setClickFocus({
         id,
         name: title,
-        memberNames: memberNames.length > 0 ? memberNames : undefined,
+        memberNames,
       });
     };
 
@@ -1376,6 +1393,16 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
         </p>
       ) : null}
 
+      {connectorFocusNotice !== null && clickFocus === null ? (
+        <p
+          className={cn('mb-2 text-al-text-secondary', OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="diagram-connector-focus-notice"
+          aria-live="polite"
+        >
+          {connectorFocusNotice}
+        </p>
+      ) : null}
+
       {clickFocus !== null ? (
         <div
           className={cn('mb-2 text-al-text-secondary', OPERATOR_TYPOGRAPHY.helper)}
@@ -1393,11 +1420,17 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
             <p className="m-0 mt-1">{focusedNodeConnectionHint}</p>
           ) : null}
           {clickFocus.memberNames !== undefined ? (
-            <ul className="m-0 mt-1 list-disc pl-5">
-              {clickFocus.memberNames.map((memberName) => (
-                <li key={memberName}>{memberName}</li>
-              ))}
-            </ul>
+            clickFocus.memberNames.length > 0 ? (
+              <ul className="m-0 mt-1 list-disc pl-5" data-testid="diagram-click-focus-cluster-members">
+                {clickFocus.memberNames.map((memberName) => (
+                  <li key={memberName}>{memberName}</li>
+                ))}
+              </ul>
+            ) : (
+              <p className="m-0 mt-1" data-testid="diagram-click-focus-cluster-members-empty">
+                Cluster member names were not stored.
+              </p>
+            )
           ) : null}
         </div>
       ) : null}
@@ -1462,7 +1495,7 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
             {ARCHITECTURE_DIAGRAM_MAP_LABEL}
           </Button>
           <span className={cn('text-al-text-secondary', OPERATOR_TYPOGRAPHY.helper)}>
-            {activeNeighborhood.title.trim().length > 0
+            {(activeNeighborhood.title ?? "").trim().length > 0
               ? activeNeighborhood.title
               : "Neighborhood title was not stored."}
           </span>
@@ -1471,6 +1504,15 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
 
       {neighborhoodMap !== null && effectiveSurface === 'map' ? (
         <DiagramNeighborhoodMapView map={neighborhoodMap} onOpenNeighborhood={openNeighborhood} />
+      ) : null}
+
+      {questionSubjectNotOnDiagram ? (
+        <p
+          className={cn('mb-2 text-al-text-secondary', OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="architecture-diagram-question-subject-missing"
+        >
+          {ARCHITECTURE_DIAGRAM_QUESTION_SUBJECT_NOT_FOUND}
+        </p>
       ) : null}
 
       <ArchitectureDiagramMermaidViewportFrame
@@ -1491,7 +1533,9 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
       </ArchitectureDiagramMermaidViewportFrame>
 
       <p id={`${renderId}-alt`} className="sr-only">
-        {props.textAlternative}
+        {props.textAlternative.trim().length > 0
+          ? props.textAlternative
+          : "Diagram text description was not stored."}
       </p>
 
       <Dialog open={fullscreenOpen} onOpenChange={setFullscreenOpen}>

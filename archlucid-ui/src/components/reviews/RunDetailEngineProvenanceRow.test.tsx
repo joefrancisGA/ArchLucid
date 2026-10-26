@@ -54,6 +54,25 @@ describe("RunDetailEngineProvenanceRow", () => {
     }
   });
 
+  it("labels omitted prompt pack, policy pack, catalog alias, and cost (P-14–P-16)", () => {
+    render(
+      <RunDetailEngineProvenanceRow
+        provenance={{
+          ...sampleProvenance,
+          modelAliasId: null,
+          promptPackVersion: null,
+          policyPackVersion: null,
+          estimatedCostUsd: null,
+        }}
+      />,
+    );
+
+    expect(screen.getByText("Catalog alias was not stored.")).toBeInTheDocument();
+    expect(screen.getByText("Prompt pack version was not stored.")).toBeInTheDocument();
+    expect(screen.getByText("Policy pack version was not stored.")).toBeInTheDocument();
+    expect(screen.getByText("Estimated cost was not stored.")).toBeInTheDocument();
+  });
+
   it("renders engine profile and task evaluation provenance honestly", () => {
     render(
       <RunDetailEngineProvenanceRow

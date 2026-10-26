@@ -1,9 +1,12 @@
 import type { SponsorScorecardRecommendedAction } from "@/lib/sponsor/sponsor-scorecard-recommended-actions";
 
+export const SPONSOR_VALUE_NARRATIVE_REVIEWS_COUNT_NOT_STORED =
+  "Review count was not stored." as const;
+
 export type BuildSponsorValueNarrativeInput = {
-  readonly reviewsCount: number;
-  readonly findingsCount: number;
-  readonly estimatedHoursSaved: number;
+  readonly reviewsCount: number | null;
+  readonly findingsCount: number | null;
+  readonly estimatedHoursSaved: number | null;
   readonly estimatedUsdSavings: number | null;
   readonly topRecommendedAction: SponsorScorecardRecommendedAction | null;
   /** When true, hours saved are labeled as an estimate (buyer-polished shell). */
@@ -20,9 +23,16 @@ function formatUsdCompact(value: number): string {
 
 /** Deterministic synthesis line for sponsor scorecard and dashboard (TB-268). */
 export function buildSponsorValueNarrative(input: BuildSponsorValueNarrativeInput): string {
-  const reviewsLabel = input.reviewsCount === 1 ? "review" : "reviews";
-  const findingsLabel = input.findingsCount === 1 ? "finding" : "findings";
-  const hoursRounded = Math.round(input.estimatedHoursSaved);
+  const reviewsPhrase =
+    input.reviewsCount === null
+      ? SPONSOR_VALUE_NARRATIVE_REVIEWS_COUNT_NOT_STORED
+      : `${input.reviewsCount} ${input.reviewsCount === 1 ? "review" : "reviews"}`;
+  const findingsPhrase =
+    input.findingsCount === null
+      ? "Finding count was not stored."
+      : `${input.findingsCount} ${input.findingsCount === 1 ? "finding" : "findings"}`;
+  const hoursRounded =
+    input.estimatedHoursSaved === null ? null : Math.round(input.estimatedHoursSaved);
   const savingsFragment =
     input.estimatedUsdSavings !== null && input.estimatedUsdSavings > 0
       ? `~${formatUsdCompact(input.estimatedUsdSavings)} / `
@@ -34,12 +44,11 @@ export function buildSponsorValueNarrative(input: BuildSponsorValueNarrativeInpu
       : "";
 
   const hoursFragment =
-    input.qualifyEstimatedHours === true
-      ? `~${hoursRounded} h saved (estimated)`
-      : `${hoursRounded} h saved`;
+    hoursRounded === null
+      ? "Hours estimate was not stored."
+      : input.qualifyEstimatedHours === true
+        ? `~${hoursRounded} h saved (estimated)`
+        : `${hoursRounded} h saved`;
 
-  return (
-    `This period: ${input.reviewsCount} ${reviewsLabel}, ${input.findingsCount} ${findingsLabel}, ` +
-    `${savingsFragment}${hoursFragment}.${topActionFragment}`
-  );
+  return `This period: ${reviewsPhrase}, ${findingsPhrase}, ${savingsFragment}${hoursFragment}.${topActionFragment}`;
 }

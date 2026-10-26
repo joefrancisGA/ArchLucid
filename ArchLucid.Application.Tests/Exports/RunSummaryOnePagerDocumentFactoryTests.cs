@@ -1,3 +1,4 @@
+using ArchLucid.Application.Exports;
 using ArchLucid.Application.Exports.ArchitectureReviewBoard;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
@@ -73,6 +74,23 @@ public sealed class RunSummaryOnePagerDocumentFactoryTests
             RunSummaryOnePagerDocumentFactory.Create(detail, "Summary text.", titles);
 
         model.TopFindingTitles.Should().Equal(titles);
+    }
+
+    [Fact]
+    public void Create_sets_display_fields_for_missing_system_name_and_run_id()
+    {
+        ArchitectureRunDetail detail = new()
+        {
+            Run = new ArchitectureRun { RunId = "" },
+            Results = [],
+        };
+
+        RunSummaryOnePagerDocumentModel model =
+            RunSummaryOnePagerDocumentFactory.Create(detail, "Summary.", []);
+
+        model.SystemNameDisplay.Should().Be(RunSummaryOnePagerHonestyCopy.SystemNameNotStored);
+        model.RunIdDisplay.Should().Be(RunSummaryOnePagerHonestyCopy.RunIdNotStored);
+        model.SealedFindingsSection.Should().Contain("No sealed findings snapshot");
     }
 
     [Fact]

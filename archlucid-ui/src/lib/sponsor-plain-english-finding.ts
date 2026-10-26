@@ -40,7 +40,7 @@ export function sponsorSeverityUrgencyClause(severity: string | null | undefined
   const raw = nonEmpty(severity);
 
   if (raw === null) {
-    return "This review recorded a finding that still needs a human resolve decision.";
+    return "Severity was not stored.";
   }
 
   const key = normalizeSeverityKey(raw);
@@ -74,7 +74,7 @@ function buildHeadline(title: string | null, severity: string | null): string {
   }
 
   if (severity !== null) {
-    return `${severity} architecture finding`;
+    return `Severity ${severity} — finding title was not stored.`;
   }
 
   return "Finding title was not stored.";
@@ -112,7 +112,7 @@ export function buildSponsorPlainEnglishFinding(
   } else if (title !== null) {
     parts.push(`The recorded finding is titled "${title}".`);
   } else {
-    parts.push("No export-ready finding summary was supplied beyond severity and related notes.");
+    parts.push("Finding summary was not stored.");
   }
 
   if (derivation !== null) {

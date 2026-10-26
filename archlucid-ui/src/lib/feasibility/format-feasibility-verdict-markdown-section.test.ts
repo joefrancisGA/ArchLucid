@@ -205,6 +205,29 @@ describe("formatFeasibilityVerdictMarkdownSection (FC-30 / FC-31)", () => {
     expect(storedEmpty).not.toContain("Authority citations were not stored.");
   });
 
+  it("labels stored-empty verdict summary and omitted unsat core on hard infeasible exports", () => {
+    const emptySummary = formatFeasibilityVerdictMarkdownSection({
+      kind: "HardInfeasible",
+      summary: "   ",
+      hardCitations: [{ kind: "Law", reference: "CAP theorem partition tolerance" }],
+      unsatCoreInvariantKeys: null,
+    });
+
+    expect(emptySummary).toContain("Verdict summary was stored empty.");
+    expect(emptySummary).toContain("Unsat core was not stored.");
+  });
+
+  it("reports an omitted unsat core without treating null as an empty list", () => {
+    const markdown = formatFeasibilityVerdictMarkdownSection({
+      kind: "HardInfeasible",
+      summary: "Blocked.",
+      hardCitations: [{ kind: "Law", reference: "CAP" }],
+      unsatCoreInvariantKeys: null,
+    });
+
+    expect(markdown).toContain("Unsat core was not stored.");
+  });
+
   it("reports an omitted verdict kind and preserves unexpected stored kinds", () => {
     const missing = formatFeasibilityVerdictMarkdownSection({
       kind: undefined as never,

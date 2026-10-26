@@ -7,10 +7,12 @@ import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   ACTOR_DEPENDENT_FINDINGS_QUIET_ENGINES_ARCHITECTURE_LINK_LABEL,
+  ACTOR_DEPENDENT_FINDINGS_ACTOR_COUNT_NOT_STORED_BODY,
   ACTOR_DEPENDENT_FINDINGS_QUIET_ENGINES_BODY,
   buildActorDependentQuietEnginesArchitectureHref,
 } from "@/lib/findings/actor-dependent-findings-quiet-engines-recovery";
 import { countActorNodesInGraphSnapshot } from "@/lib/graph-snapshot-actor-count";
+import { describeSkippedMustMeasurementGap } from "@/lib/intake/universal-intake-must-engine-coverage";
 import { listSkippedMustQuestionKeys } from "@/lib/review-quality/list-skipped-must-question-keys";
 import type { TransparencyTrail } from "@/types/feasibility-verdict";
 import { cn } from "@/lib/utils";
@@ -29,11 +31,12 @@ export function RunDetailSealDeskCoverageStrip(
 ): ReactElement | null {
   const { isWorkingMode } = useWorkspaceMode();
   const actorNodeCount = countActorNodesInGraphSnapshot(props.graphSnapshot);
+  const showActorCountNotStored = props.analysisStagesComplete === true && actorNodeCount === null;
   const showQuietEngines =
     props.analysisStagesComplete === true && actorNodeCount === 0;
   const skippedMustKeys = listSkippedMustQuestionKeys(props.transparencyTrail);
 
-  if (!isWorkingMode || (!showQuietEngines && skippedMustKeys.length === 0)) {
+  if (!isWorkingMode || (!showQuietEngines && !showActorCountNotStored && skippedMustKeys.length === 0)) {
     return null;
   }
 
@@ -46,6 +49,11 @@ export function RunDetailSealDeskCoverageStrip(
       role="status"
     >
       <p className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>Coverage</p>
+      {showActorCountNotStored ? (
+        <div data-testid="run-detail-seal-desk-actor-count-not-stored-line">
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{ACTOR_DEPENDENT_FINDINGS_ACTOR_COUNT_NOT_STORED_BODY}</p>
+        </div>
+      ) : null}
       {showQuietEngines ? (
         <div data-testid="run-detail-seal-desk-quiet-engines-line">
           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{ACTOR_DEPENDENT_FINDINGS_QUIET_ENGINES_BODY}</p>
@@ -63,7 +71,7 @@ export function RunDetailSealDeskCoverageStrip(
           </p>
           <ul className={cn("m-0 mt-2 list-disc space-y-1 pl-5", OPERATOR_TYPOGRAPHY.body)}>
             {skippedMustKeys.map((questionKey) => (
-              <li key={questionKey}>{questionKey}</li>
+              <li key={questionKey}>{describeSkippedMustMeasurementGap(questionKey)}</li>
             ))}
           </ul>
         </div>

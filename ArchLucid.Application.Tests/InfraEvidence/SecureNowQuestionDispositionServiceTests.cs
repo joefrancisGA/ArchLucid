@@ -435,6 +435,49 @@ public async Task Foreign_snapshot_cannot_read_or_write()
     }
 
     [Fact]
+    public async Task Orphan_question_is_emitted_when_parent_is_missing_from_snapshot_P11()
+    {
+        InMemoryDispositionRepository repository = new();
+        const string childResourceId =
+            "/subscriptions/sub-1/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm-child";
+        const string missingParentId =
+            "/subscriptions/sub-1/resourceGroups/rg/providers/Microsoft.Compute/virtualMachineScaleSets/vmss-missing";
+        Mock<IAzureInventorySnapshotRepository> snapshots = new();
+        snapshots
+            .Setup(item => item.TryGetSnapshotDetailAsync(
+                Scope,
+                SnapshotId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new AzureInventorySnapshotDetailReadModel
+            {
+                Header = new AzureInventorySnapshotRecord
+                {
+                    SubscriptionId = "sub-1",
+                    TenantId = Scope.TenantId,
+                    WorkspaceId = Scope.WorkspaceId,
+                    ProjectId = Scope.ProjectId,
+                },
+                Resources =
+                [
+                    new AzureInventoryResourceRecord
+                    {
+                        AzureResourceId = childResourceId,
+                        ResourceType = "Microsoft.Compute/virtualMachines",
+                        ParentResourceId = missingParentId,
+                    },
+                ],
+            });
+        SecureNowQuestionDispositionService sut = new(repository, snapshots.Object, new Mock<IAuditService>().Object);
+
+        IReadOnlyList<SecureNowQuestionRecord> questions =
+            await sut.ListQuestionsAsync(Scope, SnapshotId);
+
+        questions.Should().ContainSingle(question =>
+            question.QuestionKey == "orphan-still-needed@v1"
+            && question.ResourceId == childResourceId);
+    }
+
+    [Fact]
     public async Task Unknown_evidence_question_is_emitted_when_relationship_peer_is_not_in_snapshot()
     {
         InMemoryDispositionRepository repository = new();
@@ -523,6 +566,58 @@ public async Task Foreign_snapshot_cannot_read_or_write()
         afterAnswer.Should().ContainSingle();
         afterAnswer[0].Status.Should().Be(SecureNowQuestionDispositionStatus.Answered);
         afterAnswer[0].AnswerCode.Should().Be(packQuestion.AnswerCodes[0]);
+    }
+
+    [Fact]
+    public async Task Subscription_scope_pack_question_accepts_empty_resource_id_on_reopen()
+    {
+        InMemoryDispositionRepository repository = new();
+        SecureNowQuestionDispositionService sut = CreateSut(
+            repository,
+            includeInventoryQuestion: false,
+            includePackElicitation: true);
+
+        IReadOnlyList<SecureNowQuestionRecord> listed =
+            await sut.ListQuestionsAsync(Scope, SnapshotId);
+        SecureNowQuestionRecord packQuestion = listed.Should().ContainSingle().Subject;
+
+        SecureNowQuestionDispositionWriteRequest answerRequest =
+            new()
+            {
+                SubscriptionId = "sub-1",
+                ResourceId = string.Empty,
+                QuestionKey = packQuestion.QuestionKey,
+                Source = SecureNowQuestionSource.PolicyPack,
+                ScopeKind = SecureNowQuestionScopeKind.Subscription,
+                AnswerCode = packQuestion.AnswerCodes[0],
+                AnswerText = packQuestion.AnswerCodes[0],
+                Reason = "Pack elicitation reviewed.",
+                EvidenceFingerprint = packQuestion.EvidenceFingerprint,
+            };
+
+        await sut.AnswerAsync(Scope, SnapshotId, answerRequest, "actor");
+
+        SecureNowQuestionDispositionMutationResult reopened = await sut.ReopenAsync(
+            Scope,
+            SnapshotId,
+            new SecureNowQuestionDispositionReopenRequest
+            {
+                SubscriptionId = answerRequest.SubscriptionId,
+                ResourceId = string.Empty,
+                QuestionKey = answerRequest.QuestionKey,
+                Reason = "Need to revise the pack answer.",
+            },
+            "reviewer");
+
+        reopened.Succeeded.Should().BeTrue();
+        reopened.Record!.Status.Should().Be(SecureNowQuestionDispositionStatus.Open);
+        reopened.Record.AnswerCode.Should().BeNull();
+
+        IReadOnlyList<SecureNowQuestionRecord> afterReopen =
+            await sut.ListQuestionsAsync(Scope, SnapshotId);
+        afterReopen.Should().ContainSingle();
+        afterReopen[0].Status.Should().Be(SecureNowQuestionDispositionStatus.Open);
+        afterReopen[0].AnswerCode.Should().BeNull();
     }
 
     [Fact]

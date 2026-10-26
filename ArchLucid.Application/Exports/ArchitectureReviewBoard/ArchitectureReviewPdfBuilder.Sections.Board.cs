@@ -60,7 +60,7 @@ public sealed partial class ArchitectureReviewPdfBuilder
 
         foreach (ArchitectureReviewBoardExportRiskRow risk in risks)
         {
-            string severity = string.IsNullOrWhiteSpace(risk.SeverityLabel) ? "Severity n/a" : risk.SeverityLabel.Trim();
+            string severity = string.IsNullOrWhiteSpace(risk.SeverityLabel) ? "Severity was not stored." : risk.SeverityLabel.Trim();
             string summaryText = string.IsNullOrWhiteSpace(risk.Summary)
                 ? "Risk summary was not stored."
                 : risk.Summary.Trim();
@@ -94,7 +94,7 @@ public sealed partial class ArchitectureReviewPdfBuilder
         foreach (ArchitectureReviewBoardExportPolicyFindingRow row in findings)
         {
             string pack = string.IsNullOrWhiteSpace(row.PolicyPackNameOrId)
-                ? "Policy pack was not stored."
+                ? "Policy pack name was not stored."
                 : row.PolicyPackNameOrId.Trim();
             string outcome = string.IsNullOrWhiteSpace(row.Outcome)
                 ? "Policy outcome was not stored."

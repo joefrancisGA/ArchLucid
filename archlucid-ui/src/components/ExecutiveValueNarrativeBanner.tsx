@@ -21,19 +21,22 @@ import {
 } from "@/lib/sponsor-time-range";
 import { hoursSurfaced } from "@/lib/roi-assumptions";
 
-const AVERAGE_MANUAL_REVIEW_HOURS = 3;
-
 function sumDriftChanges(points: { changeCount: number }[]): number {
   return points.reduce((sum, point) => sum + (Number.isFinite(point.changeCount) ? point.changeCount : 0), 0);
 }
 
 function buildFallbackNarrativeFromSummary(summary: SponsorRoiSummary): string {
-  const reviewsCount = summary.latestRunCount ?? summary.systemCount ?? 0;
+  const reviewsCount =
+    typeof summary.latestRunCount === "number" && Number.isFinite(summary.latestRunCount)
+      ? summary.latestRunCount
+      : typeof summary.systemCount === "number" && Number.isFinite(summary.systemCount)
+        ? summary.systemCount
+        : null;
 
   return buildSponsorValueNarrative({
     reviewsCount,
-    findingsCount: 0,
-    estimatedHoursSaved: reviewsCount * AVERAGE_MANUAL_REVIEW_HOURS,
+    findingsCount: null,
+    estimatedHoursSaved: null,
     estimatedUsdSavings: summary.totalEstimatedUsdSavings ?? null,
     topRecommendedAction: null,
     qualifyEstimatedHours: isBuyerPolishedOperatorShellEnv(),
@@ -90,19 +93,36 @@ export function SponsorValueNarrativeBanner({ timeRange, roiSummary }: SponsorVa
         committedRunsTimeline: report.committedRunsTimeline,
       });
 
-    const hoursRoi = hoursSurfaced({
-      critical: report.findingsBySeverity.critical,
-      high: report.findingsBySeverity.high,
-      medium: report.findingsBySeverity.medium,
-      precommitBlocks: blockedQuery.data.count,
-    });
+    const severity = report.findingsBySeverity;
+    const severityStoredForHours =
+      typeof severity.critical === "number"
+      && typeof severity.high === "number"
+      && typeof severity.medium === "number";
 
-    const estimatedHours =
-      hoursRoi > 0 ? hoursRoi : report.totalRunsCommitted * AVERAGE_MANUAL_REVIEW_HOURS;
+    const hoursRoi = severityStoredForHours
+      ? hoursSurfaced({
+          critical: severity.critical,
+          high: severity.high,
+          medium: severity.medium,
+          precommitBlocks: blockedQuery.data.count,
+        })
+      : null;
+
+    const estimatedHours = hoursRoi;
+
+    const findingsCount =
+      typeof report.totalFindings === "number" && Number.isFinite(report.totalFindings)
+        ? report.totalFindings
+        : null;
+
+    const reviewsCount =
+      typeof report.totalRunsCommitted === "number" && Number.isFinite(report.totalRunsCommitted)
+        ? report.totalRunsCommitted
+        : null;
 
     return buildSponsorValueNarrative({
-      reviewsCount: report.totalRunsCommitted,
-      findingsCount: report.totalFindings,
+      reviewsCount,
+      findingsCount,
       estimatedHoursSaved: estimatedHours,
       estimatedUsdSavings: SponsorReport?.totalEstimatedUsdSavings ?? null,
       topRecommendedAction: recommendedActions[0] ?? null,
