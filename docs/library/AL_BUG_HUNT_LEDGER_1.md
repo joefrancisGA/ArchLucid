@@ -6868,6 +6868,17 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-26 seed hunt (seed→hit): reseeded `application-analysis` with zero hunt-ready rows; promoted ledger follow-on `PilotRunDeltaComputer` execution-trace delta; proved sponsor pilot deltas still used `CountByRunIdAsync` / single-key `GetByRunIdAsync`, so `LlmCallCount` and PilotStrict posture read zero/unresolved when traces lived only under legacy uppercase hex keys; route count and full-trace paths through `AnalysisRunIdCanonicalization.LoadExecutionTracesByRunIdAsync` after canonicalizing the run id; regression `CompareQuality_ComputeAsync_merges_trace_count_when_stored_under_legacy_run_id_key`; cheap-disproof closed V2 decision materializer merge (prior hunt); seeded five follow-on rows; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` filter 325/325. Private beta: sponsor pilot reports and first-value deltas show correct LLM call counts and PilotStrict attestation when execution traces use legacy run-id key formats.
+
+- [ ] (candidate) `AgentExecuteIdempotentPersistReconciliation` — evidence package single-key — locus: `Runs/` execute persist; input: idempotent reconcile misses package row stored under alternate run-id key.
+- [ ] (candidate) `RunExecuteOwnershipReconciliationService` — agent result load — locus: execute ownership; input: reconciliation uses `runId.ToString("D")` while rows keyed legacy hex only.
+- [ ] (candidate) `ReRunExecuteSealedManifestPinGuard` — agent result load — locus: re-run execute guard; input: sealed pin check misses commit-ready results under legacy key only.
+- [ ] (candidate) `ArchitectureRunExecuteIdempotencyStage` — result/task reload — locus: execute idempotency; input: partial rows under alternate keys.
+- [ ] (candidate) `FindingIacStubGenerator` — agent result load — locus: `application-agents`; input: stub generation when rows exist only under legacy key.
+
+- [x] (proven) `PilotRunDeltaComputer` — trace delta single-key — **hit 2026-10-26 seed hunt:** `LoadExecutionTracesByRunIdAsync`; regression above.
+- [x] (valid-no-repro) `DecisionEngineV2NodeMaterializer` — multi-repository merge — **cheap-disproof 2026-10-26 seed hunt:** prior hunt same session.
+
 2026-10-26 seed hunt (seed→hit): reseeded `application-analysis` with zero hunt-ready rows; promoted ledger follow-on `DecisionEngineV2NodeMaterializer` post-commit decision node materialization; proved `MaterializeIfMissingAsync` still called single-key `GetByRunIdAsync` for tasks, evidence, results, and existing decision nodes, so review decisions never materialized when rows lived under legacy uppercase hex keys; canonicalize run id and route through `LoadDecisionNodesByRunIdAsync`, `LoadAgentTasksByRunIdAsync`, `LoadEvidencePackageByRunIdAsync`, and `LoadAgentResultsByRunIdAsync`; regression `CompareQuality_MaterializeIfMissingAsync_merges_inputs_when_stored_under_legacy_run_id_key`; cheap-disproof closed commit materialization merge (prior hunt); seeded five follow-on rows; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` filter 324/324. Private beta: post-commit decision review nodes populate when persisted agent tasks, evidence, and results use legacy run-id key formats.
 
 - [ ] (candidate) `PilotRunDeltaComputer` — trace delta single-key — locus: `Pilots/`; input: pilot before/after diff when traces exist only under legacy uppercase hex.
