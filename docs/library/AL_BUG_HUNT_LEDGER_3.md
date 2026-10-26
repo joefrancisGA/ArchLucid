@@ -7209,6 +7209,32 @@ ABQ-09 churn hotspot.
 
 ## Zone: ui-infra-resource-hub
 
+2026-10-26 seed hunt (seed→hit): promoted **stale hub on pinned snapshot change** — hub reset ran only on `cloudResourceId` change, so changing `snapshotId` / run / audit URL scope reused the client and left the prior snapshot’s tables and title visible until the next fetch completed; reset hub, generation, and remediation UI state on any `buildResourceHubClientScopeKey` change (consolidated scope effect); regression `clears prior hub evidence when pinned snapshotId changes`; cheap-disproof closed terraform tab quick link (polish), drift change-id trim (deferred), technical disclosure carryover (URL sync), double-fetch on unlinked audit (intentional), and terraform workbench row (omitted); scoped ResourceHubClient vitest 128/128. Private beta: changing pinned snapshot on a resource hub no longer flashes the previous snapshot’s evidence while the new scope loads.
+
+- [x] (proven) `ResourceHubClient` — stale hub on scope key change — **hit 2026-10-26 seed hunt:** unified hub scope reset effect; regression above.
+- [x] (valid-no-repro) `ResourceHubClient` overview — terraform tab quick link — **cheap-disproof 2026-10-26 seed hunt:** navigation polish.
+- [x] (valid-no-repro) `ResourceHubDriftChangesTable` — drift change ids — **cheap-disproof 2026-10-26 seed hunt:** saturated trim class; deferred.
+- [x] (valid-no-repro) `ResourceHubClient` `infraResourceHubTechnicalKey` — disclosure on navigation — **cheap-disproof 2026-10-26 seed hunt:** URL-driven via `useEffect`.
+- [x] (valid-no-repro) `ResourceHubClient` hub fetch — double fetch on unlinked audit — **cheap-disproof 2026-10-26 seed hunt:** intentional refetch after lineage.
+
+- [ ] (candidate) `ResourceHubClient` overview — quick link to terraform tab when mapped — locus: navigation polish.
+- [ ] (candidate) `ResourceHubClient` overview — terraform workbench in cross-workbench row — locus: intentionally omitted per regression.
+- [ ] (candidate) `ResourceHubClient` buyer-polished identifier disclosures — ARM copy affordance — locus: polish.
+- [ ] (candidate) `ResourceHubDriftChangesTable` — drift actions without change ids — locus: saturated trim class; defer.
+- [ ] (candidate) `ResourceHubClient` manual Retry — concurrent scope change — locus: retry + generation guard; monitor.
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 103
+- **bugs-found:** 82
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-26
+- **last-bug:** 2026-10-26 — stale hub when pinned snapshot changes
+- **code-changed-since:** no
+
 2026-10-26 seed hunt (seed→hit): promoted **stuck “Creating…”** on findings after hub URL scope change during in-flight remediation — scope-key guards skipped success UI but `finally` only cleared `findingActionBusyId` when scope still matched, so changing pinned snapshot (without `cloudResourceId` change) left the create-remediation button disabled with “Creating…” after the ignored async completed; always clear busy/dialog in `finally`; extended regression `ignores in-flight create remediation when snapshot scope changes before the API returns`; cheap-disproof closed manual Retry race (generation guard), terraform tab quick link (polish), drift change-id trim (deferred), technical disclosure carryover (URL sync), and ARM copy polish; scoped ResourceHubClient vitest 127/127. Private beta: changing snapshot scope mid remediation create no longer leaves the findings action stuck in a permanent busy state.
 
 - [x] (proven) `ResourceHubClient` `runCreateRemediationFromFinding` — busy state after scope change — **hit 2026-10-26 seed hunt:** unconditional `finally` busy clear; regression above.
