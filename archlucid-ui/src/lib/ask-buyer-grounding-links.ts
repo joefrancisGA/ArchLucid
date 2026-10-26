@@ -126,7 +126,7 @@ export function buildAskAnswerCitationSourceLinks(
     }
 
     links.push({
-      label: `Open ${ARCHITECTURE_DECISION_LABEL.toLowerCase()} ${trimmed}`,
+      label: `Decision ${trimmed} was cited. This link opens the decision register, not that decision.`,
       href: GOVERNANCE_DECISION_REGISTER_PATH,
     });
   }

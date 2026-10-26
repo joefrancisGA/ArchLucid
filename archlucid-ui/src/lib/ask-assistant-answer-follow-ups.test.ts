@@ -4,6 +4,7 @@ import {
   ASK_ASSISTANT_ANSWER_FOLLOW_UP_EVIDENCE_PROMPT,
   ASK_ASSISTANT_ANSWER_FOLLOW_UP_TOP_RISK_PROMPT,
   ASK_ASSISTANT_ANSWER_FOLLOW_UP_UNBLOCK_FINALIZE_PROMPT,
+  ASK_ASSISTANT_ANSWER_FOLLOW_UP_UNCITED_PROMPT,
   resolveAskAssistantAnswerFollowUpPrompts,
 } from "@/lib/ask-assistant-answer-follow-ups";
 
@@ -12,21 +13,42 @@ describe("ask-assistant-answer-follow-ups", () => {
     expect(resolveAskAssistantAnswerFollowUpPrompts("   ")).toEqual([]);
   });
 
-  it("always offers evidence follow-up", () => {
-    expect(resolveAskAssistantAnswerFollowUpPrompts("A short answer.")).toEqual([
+  it("offers evidence follow-up when citations were stored", () => {
+    expect(resolveAskAssistantAnswerFollowUpPrompts("A short answer.", { hasCitations: true })).toEqual([
       ASK_ASSISTANT_ANSWER_FOLLOW_UP_EVIDENCE_PROMPT,
     ]);
   });
 
+  it("offers uncited honesty chip when the answer has no citations (P-18)", () => {
+    expect(resolveAskAssistantAnswerFollowUpPrompts("A short answer.", { hasCitations: false })).toEqual([
+      ASK_ASSISTANT_ANSWER_FOLLOW_UP_UNCITED_PROMPT,
+    ]);
+  });
+
+  it("does not offer top-risk follow-up when the answer says no top risk was stored (P-17)", () => {
+    expect(resolveAskAssistantAnswerFollowUpPrompts("No top risk was stored for this review.")).toEqual([
+      ASK_ASSISTANT_ANSWER_FOLLOW_UP_UNCITED_PROMPT,
+    ]);
+    expect(
+      resolveAskAssistantAnswerFollowUpPrompts("No top risk was stored for this review."),
+    ).not.toContain(ASK_ASSISTANT_ANSWER_FOLLOW_UP_TOP_RISK_PROMPT);
+  });
+
   it("offers top-risk follow-up only when the answer names a top risk", () => {
-    expect(resolveAskAssistantAnswerFollowUpPrompts("The top risk is exposed storage.")).toEqual([
+    expect(
+      resolveAskAssistantAnswerFollowUpPrompts("The top risk is exposed storage.", { hasCitations: true }),
+    ).toEqual([
       ASK_ASSISTANT_ANSWER_FOLLOW_UP_TOP_RISK_PROMPT,
       ASK_ASSISTANT_ANSWER_FOLLOW_UP_EVIDENCE_PROMPT,
     ]);
   });
 
   it("offers finalize follow-up only when finalize is blocked", () => {
-    expect(resolveAskAssistantAnswerFollowUpPrompts("Finalize is blocked until evidence is attached.")).toEqual([
+    expect(
+      resolveAskAssistantAnswerFollowUpPrompts("Finalize is blocked until evidence is attached.", {
+        hasCitations: true,
+      }),
+    ).toEqual([
       ASK_ASSISTANT_ANSWER_FOLLOW_UP_EVIDENCE_PROMPT,
       ASK_ASSISTANT_ANSWER_FOLLOW_UP_UNBLOCK_FINALIZE_PROMPT,
     ]);

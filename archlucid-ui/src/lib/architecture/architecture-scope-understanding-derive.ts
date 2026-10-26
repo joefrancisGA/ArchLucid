@@ -26,13 +26,30 @@ export function actorScopeDisplayLabel(actor: ScopeActorInput): string {
     return "";
   }
 
-  const trustOrigin = actor.trustOrigin?.trim() ?? "";
+  return `Actor name was not stored (${kind}).`;
+}
 
-  if (trustOrigin.length > 0 && trustOrigin !== "Internal") {
-    return `${kind} (${trustOrigin})`;
+const SCOPE_NAME_LIST_VISIBLE_LIMIT = 4;
+
+function formatScopeNameListLine(names: readonly string[]): string {
+  if (names.length === 0) {
+    return "";
   }
 
-  return kind;
+  const visible = names.slice(0, SCOPE_NAME_LIST_VISIBLE_LIMIT);
+  const line = visible.join(", ");
+  const remaining = names.length - visible.length;
+
+  if (remaining <= 0) {
+    return line;
+  }
+
+  const remainderCopy =
+    remaining === 1
+      ? "1 more name was stored and is not in this line."
+      : `${remaining} more names were stored and are not in this line.`;
+
+  return `${line}. ${remainderCopy}`;
 }
 
 function uniqueScopeLabels(labels: readonly string[]): string[] {
@@ -172,8 +189,8 @@ export function deriveScopeUnderstandingBullets(
     pushUniqueBullet(bullets, "people", "people", PEOPLE_AND_SYSTEMS_OMITTED_SCOPE_VALUE);
     pushUniqueBullet(bullets, "systems", "systems", PEOPLE_AND_SYSTEMS_OMITTED_SCOPE_VALUE);
   } else if (!peopleAndSystemsOmitted) {
-    pushUniqueBullet(bullets, "people", "people", people.slice(0, 4).join(", "));
-    pushUniqueBullet(bullets, "systems", "systems", systems.slice(0, 4).join(", "));
+    pushUniqueBullet(bullets, "people", "people", formatScopeNameListLine(people));
+    pushUniqueBullet(bullets, "systems", "systems", formatScopeNameListLine(systems));
   }
 
   for (const label of input.missingItemLabels ?? []) {

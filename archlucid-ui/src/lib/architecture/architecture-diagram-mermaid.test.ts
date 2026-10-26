@@ -55,17 +55,19 @@ describe("architectureDiagramModelToMermaid", () => {
     expect(isValidMermaidArchitectureDiagram("not a diagram")).toBe(false);
   });
 
-  it("keeps external and user nodes outside the trust boundary subgraph", () => {
+  it("does not wrap system nodes in a trust-boundary subgraph (P-03)", () => {
     const mermaid = architectureDiagramModelToMermaid(modelWithBoundary);
+    const alt = architectureDiagramModelToTextAlternative({
+      ...modelWithBoundary,
+      diagramHonestyNotes: [
+        "Trust boundary names were stored without component membership: Corporate network.",
+      ],
+    });
 
-    expect(mermaid).toContain('subgraph trustBoundary["Corporate network"]');
-    expect(mermaid).not.toContain('subgraph trustBoundary["Trust boundary"]');
-    expect(mermaid).toContain('    system_api["Claims API"]');
+    expect(mermaid).not.toContain("subgraph trustBoundary");
+    expect(mermaid).toContain('  system_api["Claims API"]');
     expect(mermaid).toContain('  user_analyst["Claims analyst"]');
-    expect(mermaid).toContain('  external_gateway["Payment gateway"]');
-    const subgraphBody = mermaid.split("  end")[0] ?? "";
-    expect(subgraphBody).not.toContain("external_gateway");
-    expect(subgraphBody).not.toContain("user_analyst");
+    expect(alt).toContain("Trust boundary names were stored without component membership: Corporate network.");
   });
 
   it("marks inferred edges in labels and text alternative with human names", () => {
@@ -139,6 +141,33 @@ describe("architectureDiagramModelToMermaid", () => {
 
     expect(alternative).not.toContain("removed_system");
     expect(alternative).not.toContain("old flow");
+  });
+
+  it("preserves the inferred suffix when truncating long labels (P-16)", () => {
+    const longCore =
+      "Enterprise payments orchestration service with extended governance and operations description segment ";
+    const longLabel = longCore.repeat(3);
+    const longInferred: ArchitectureDiagramModel = {
+      nodes: [
+        {
+          id: "long_inferred",
+          label: longLabel,
+          kind: "system",
+          provenance: "inferred",
+          removed: false,
+          accepted: false,
+        },
+      ],
+      edges: [],
+      trustBoundaryLabels: [],
+      skippedUnlabeledEntityCount: 0,
+      unmatchedDataFlows: [],
+    };
+
+    const mermaid = architectureDiagramModelToMermaid(longInferred);
+
+    expect(mermaid).toContain("(inferred)");
+    expect(mermaid).toMatch(/\.\.\./);
   });
 
   it("inserts mermaid line breaks so long human names wrap inside wrappingWidth boxes", () => {

@@ -75,7 +75,7 @@ export function ArchitectureCreatedCompactFirstViewport(
   const mode = props.mode ?? "full";
   const primaryAction = model.primaryActions.find((action) => action.primary) ?? model.primaryActions[0];
   const secondaryActions = model.primaryActions.filter((action) => action !== primaryAction);
-  const summaryFields = model.summaryFields.slice(0, 3);
+  const summaryFields = model.summaryFields;
   const compactPrimaryVariant = props.pagePrimaryOwnedElsewhere === true ? "outline" : "primary";
 
   if (mode === "context-bar") {

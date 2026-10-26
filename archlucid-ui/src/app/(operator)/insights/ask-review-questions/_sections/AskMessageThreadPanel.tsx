@@ -38,12 +38,27 @@ import {
   ASK_BUYER_PROMPT_GROUPS,
   ASK_EMPTY_THREAD_REVIEW_STARTER_PROMPTS,
 } from "@/app/(operator)/insights/ask-review-questions/_sections/ask-page-constants";
-import { resolveAskAssistantAnswerFollowUpPrompts } from "@/lib/ask-assistant-answer-follow-ups";
+import {
+  resolveAskAssistantAnswerFollowUpPrompts,
+} from "@/lib/ask-assistant-answer-follow-ups";
+import type { AskAnswerCitationRefs } from "@/lib/ask-buyer-grounding-links";
 import {
   askCannedPromptFollowUpsDisclosureHrefFromSearch,
   parseAskCannedPromptFollowUpsOpenFromSearch,
 } from "@/lib/insights/ask-canned-prompt-follow-ups-disclosure-url";
 import type { ConversationMessage } from "@/types/conversation";
+
+function askMessageHasStoredCitationRefs(refs: AskAnswerCitationRefs | null): boolean {
+  if (refs === null) {
+    return false;
+  }
+
+  const hasFinding = refs.referencedFindings.some((findingId) => findingId.trim().length > 0);
+  const hasDecision = refs.referencedDecisions.some((decisionId) => decisionId.trim().length > 0);
+  const hasArtifact = refs.referencedArtifacts.some((artifactId) => artifactId.trim().length > 0);
+
+  return hasFinding || hasDecision || hasArtifact;
+}
 
 export type AskMessageThreadPanelProps = {
   buyerPolishedShell: boolean;
@@ -132,8 +147,13 @@ export function AskMessageThreadPanel(props: AskMessageThreadPanelProps) {
     citationHostMessageId === null
       ? null
       : messages.find((message) => message.messageId === citationHostMessageId) ?? null;
+  const citationHostCitationRefs =
+    citationHostMessage === null
+      ? null
+      : parseAskCitationRefsFromMessageMetadata(citationHostMessage.metadataJson);
   const assistantAnswerFollowUpPrompts = resolveAskAssistantAnswerFollowUpPrompts(
     citationHostMessage?.content ?? "",
+    { hasCitations: askMessageHasStoredCitationRefs(citationHostCitationRefs) },
   );
   const showCitationActionsOnAnswer =
     streamingAssistantContent === null && citationHostMessageId !== null;

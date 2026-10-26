@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   canConfirmScopeUnderstanding,
+  actorScopeDisplayLabel,
   deriveScopeUnderstandingBullets,
   isScopeBulletEditable,
   isScopeBulletRemovable,
@@ -55,6 +56,13 @@ describe("scopeBulletBehavior", () => {
   });
 });
 
+describe("actorScopeDisplayLabel", () => {
+  it("uses honesty copy for blank actor labels instead of the kind word alone (P-02)", () => {
+    expect(actorScopeDisplayLabel({ label: "", kind: "Both" })).toBe("Actor name was not stored (Both).");
+    expect(actorScopeDisplayLabel({ label: "", kind: "Both" })).not.toBe("Both");
+  });
+});
+
 describe("deriveScopeUnderstandingBullets", () => {
   it("renders typed rows from fixture brief fields", () => {
     const bullets = deriveScopeUnderstandingBullets({
@@ -75,6 +83,21 @@ describe("deriveScopeUnderstandingBullets", () => {
     );
     expect(bullets.find((entry) => entry.kind === "people")?.value).toBe("Claims adjuster");
     expect(bullets.find((entry) => entry.kind === "systems")?.value).toBe("Policy API");
+  });
+
+  it("appends a remainder when more than four people names were stored (P-12)", () => {
+    const bullets = deriveScopeUnderstandingBullets({
+      architectureName: "Vertex",
+      peopleAndSystems: [
+        { label: "Person 1", kind: "Human" },
+        { label: "Person 2", kind: "Human" },
+        { label: "Person 3", kind: "Human" },
+        { label: "Person 4", kind: "Human" },
+        { label: "Person 5", kind: "Human" },
+      ],
+    });
+
+    expect(bullets.find((entry) => entry.kind === "people")?.value).toContain("1 more name was stored");
   });
 
   it("lists every confirmed actor in the mirrored people and systems rows", () => {
