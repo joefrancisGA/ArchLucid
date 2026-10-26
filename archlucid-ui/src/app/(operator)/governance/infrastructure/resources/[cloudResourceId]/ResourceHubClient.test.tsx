@@ -1606,6 +1606,68 @@ describe("ResourceHubClient", () => {
     expect(screen.getByTestId(`infra-resource-hub-architecture-finding-ask-${sharedFindingId}`)).toBeInTheDocument();
   });
 
+  it("shows finding id omission copy on architecture review rows when finding id is whitespace-only", async () => {
+    fetchCachedInfraEvidenceResourceHub.mockImplementation(async () =>
+      buildResourceHubTestMockHub({
+        operationalSecurityFindings: {
+          ...buildResourceHubTestMockHub().operationalSecurityFindings,
+          items: [],
+          totalCount: 0,
+        },
+        architectureReviewFindings: {
+          ...buildResourceHubTestMockHub().architectureReviewFindings,
+          items: [
+            {
+              id: "   ",
+              title: "Architecture finding without id",
+              severity: "Medium",
+              status: "Open",
+              streamKind: "ArchitectureReview",
+              streamLabel: "Architecture review",
+            },
+          ],
+        },
+      }),
+    );
+    searchParams = new URLSearchParams(`tab=findings&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}`);
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    expect(await screen.findByText("Architecture finding without id")).toBeInTheDocument();
+    expect(screen.getByText("Finding id was not stored.")).toBeInTheDocument();
+    expect(screen.queryByTestId(/^infra-resource-hub-architecture-finding-ask-/)).not.toBeInTheDocument();
+  });
+
+  it("uses trimmed architecture finding id on Ask handoff when id is padded", async () => {
+    fetchCachedInfraEvidenceResourceHub.mockImplementation(async () =>
+      buildResourceHubTestMockHub({
+        operationalSecurityFindings: {
+          ...buildResourceHubTestMockHub().operationalSecurityFindings,
+          items: [],
+          totalCount: 0,
+        },
+        architectureReviewFindings: {
+          ...buildResourceHubTestMockHub().architectureReviewFindings,
+          items: [
+            {
+              id: "  arch-finding-padded  ",
+              title: "Padded architecture finding",
+              severity: "Low",
+              status: "Open",
+              streamKind: "ArchitectureReview",
+              streamLabel: "Architecture review",
+            },
+          ],
+        },
+      }),
+    );
+    searchParams = new URLSearchParams(`tab=findings&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}`);
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    const askLink = await screen.findByTestId("infra-resource-hub-architecture-finding-ask-arch-finding-padded");
+    expect(askLink).toHaveAttribute("href", expect.stringContaining("findingId=arch-finding-padded"));
+    expect(askLink.getAttribute("href")).not.toMatch(/findingId=%20/);
+  });
+
   it("omits terraform mapping from overview when address is absent", async () => {
     fetchCachedInfraEvidenceResourceHub.mockImplementation(async () =>
       buildResourceHubTestMockHub({ terraformAddress: null, terraformGenerationMethod: null }),

@@ -1847,15 +1847,26 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                               ) : (
                                 "Finding id was not stored."
                               )
-                            ) : (
+                            ) : findingIdTrimmed.length > 0 ? (
                               <Button asChild size="sm" variant="outline">
                                 <Link
-                                  href={buildHubFindingAskHref(pathname, infrastructureAskHandoffSearch, cloudResourceId, resolvedSnapshotId, runId, item.id, askAuditContext, workQueue)}
-                                  data-testid={`infra-resource-hub-architecture-finding-ask-${item.id}`}
+                                  href={buildHubFindingAskHref(
+                                    pathname,
+                                    infrastructureAskHandoffSearch,
+                                    cloudResourceId,
+                                    resolvedSnapshotId,
+                                    runId,
+                                    findingIdTrimmed,
+                                    askAuditContext,
+                                    workQueue,
+                                  )}
+                                  data-testid={`infra-resource-hub-architecture-finding-ask-${findingIdTrimmed}`}
                                 >
                                   Ask
                                 </Link>
                               </Button>
+                            ) : (
+                              "Finding id was not stored."
                             )}
                           </EnterpriseTableCell>
                         </EnterpriseTableRow>
