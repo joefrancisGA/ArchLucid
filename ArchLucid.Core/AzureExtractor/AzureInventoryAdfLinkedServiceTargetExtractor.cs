@@ -95,7 +95,8 @@ public static class AzureInventoryAdfLinkedServiceTargetExtractor
                 return NormalizeHost(server);
             }
 
-            if (linkedServiceType.Equals("AzureMySql", StringComparison.OrdinalIgnoreCase)
+            if ((linkedServiceType.Equals("AzureMySql", StringComparison.OrdinalIgnoreCase)
+                 || linkedServiceType.Equals("AzurePostgreSql", StringComparison.OrdinalIgnoreCase))
                 && typePropertiesElement.TryGetProperty("connectionString", out JsonElement connectionString)
                 && connectionString.ValueKind is JsonValueKind.String)
             {
@@ -351,7 +352,8 @@ public static class AzureInventoryAdfLinkedServiceTargetExtractor
             }
 
             string key = segment[..separator].Trim();
-            if (!key.Equals("server", StringComparison.OrdinalIgnoreCase))
+            if (!key.Equals("server", StringComparison.OrdinalIgnoreCase)
+                && !key.Equals("host", StringComparison.OrdinalIgnoreCase))
             {
                 continue;
             }

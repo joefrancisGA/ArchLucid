@@ -135,6 +135,19 @@ public sealed class AzureInventoryArmNestedObjectPropertyReaderTests
     }
 
     [Fact]
+    public void TryReadScalarString_reads_percent_encoded_subscription_arm_path_with_trailing_slash()
+    {
+        const string armPath = "/subscriptions/sub/resourceGroups/rg/";
+        string encoded = Uri.EscapeDataString(armPath);
+        using JsonDocument document = JsonDocument.Parse(
+            $"{{\"resourceId\":{JsonSerializer.Serialize(encoded)}}}");
+
+        AzureInventoryArmNestedObjectPropertyReader.TryReadString(document.RootElement, "resourceId")
+            .Should()
+            .Be("/subscriptions/sub/resourcegroups/rg");
+    }
+
+    [Fact]
     public void TryReadScalarString_reads_resource_id_when_id_key_missing_on_percent_encoded_reference_scalar()
     {
         const string armId =

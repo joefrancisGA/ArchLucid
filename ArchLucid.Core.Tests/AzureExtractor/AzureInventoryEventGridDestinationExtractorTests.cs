@@ -11,6 +11,36 @@ namespace ArchLucid.Core.Tests.AzureExtractor;
 public sealed class AzureInventoryEventGridDestinationExtractorTests
 {
     [Fact]
+    public void Extract_reads_service_bus_destination_resource_id_from_nested_properties_object_with_resource_id_key_only()
+    {
+        const string serviceBusId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.ServiceBus/namespaces/sb1";
+
+        using JsonDocument document = JsonDocument.Parse(
+            $$"""
+            {
+              "destination": {
+                "endpointType": "ServiceBusQueue",
+                "properties": {
+                  "resourceId": {
+                    "resourceId": "{{serviceBusId}}"
+                  }
+                }
+              }
+            }
+            """);
+
+        (
+            string destinationKind,
+            string? destinationResourceId,
+            _,
+            _) = AzureInventoryEventGridDestinationExtractor.Extract(document.RootElement);
+
+        destinationKind.Should().Be("ServiceBusQueue");
+        destinationResourceId.Should().Be(serviceBusId.ToLowerInvariant());
+    }
+
+    [Fact]
     public void Extract_does_not_read_storage_queue_properties_queue_name_object_as_destination_arm_id()
     {
         const string queueId =
