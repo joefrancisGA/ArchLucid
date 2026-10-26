@@ -7209,6 +7209,32 @@ ABQ-09 churn hotspot.
 
 ## Zone: ui-infra-resource-hub
 
+2026-10-26 seed hunt (seed→hit): promoted **stuck “Creating…”** on findings after hub URL scope change during in-flight remediation — scope-key guards skipped success UI but `finally` only cleared `findingActionBusyId` when scope still matched, so changing pinned snapshot (without `cloudResourceId` change) left the create-remediation button disabled with “Creating…” after the ignored async completed; always clear busy/dialog in `finally`; extended regression `ignores in-flight create remediation when snapshot scope changes before the API returns`; cheap-disproof closed manual Retry race (generation guard), terraform tab quick link (polish), drift change-id trim (deferred), technical disclosure carryover (URL sync), and ARM copy polish; scoped ResourceHubClient vitest 127/127. Private beta: changing snapshot scope mid remediation create no longer leaves the findings action stuck in a permanent busy state.
+
+- [x] (proven) `ResourceHubClient` `runCreateRemediationFromFinding` — busy state after scope change — **hit 2026-10-26 seed hunt:** unconditional `finally` busy clear; regression above.
+- [x] (valid-no-repro) `ResourceHubClient` manual Retry — `loadHub` vs scope change — **cheap-disproof 2026-10-26 seed hunt:** `loadRequestGeneration` aborts stale responses.
+- [x] (valid-no-repro) `ResourceHubClient` overview — terraform tab quick link — **cheap-disproof 2026-10-26 seed hunt:** navigation polish.
+- [x] (valid-no-repro) `ResourceHubDriftChangesTable` — drift change ids — **cheap-disproof 2026-10-26 seed hunt:** saturated trim class; deferred.
+- [x] (valid-no-repro) `ResourceHubClient` buyer-polished disclosures — ARM copy — **cheap-disproof 2026-10-26 seed hunt:** polish.
+
+- [ ] (candidate) `ResourceHubClient` overview — quick link to terraform tab when mapped — locus: navigation polish.
+- [ ] (candidate) `ResourceHubClient` overview — terraform workbench in cross-workbench row — locus: intentionally omitted per regression.
+- [ ] (candidate) `ResourceHubClient` `infraResourceHubTechnicalKey` — disclosure open state on resource navigation — locus: URL-driven; input: same query string on different `cloudResourceId`.
+- [ ] (candidate) `ResourceHubDriftChangesTable` — drift actions without change ids — locus: saturated trim class; defer.
+- [ ] (candidate) `ResourceHubClient` hub fetch — double fetch on unlinked audit scope — locus: intentional refetch after lineage.
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 102
+- **bugs-found:** 81
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-26
+- **last-bug:** 2026-10-26 — stuck Creating after hub URL scope change during remediation
+- **code-changed-since:** no
+
 2026-10-26 seed hunt (seed→hit): promoted **in-flight create remediation** after hub URL scope change (snapshot / run / audit params) — the prior `cloudResourceId`-only guard missed snapshot-scope navigation on the same resource, so a completing remediation could still apply success messages and call a stale `loadHub` closure for the old snapshot; capture `buildResourceHubClientScopeKey` at confirm time and compare against `hubClientScopeKeyRef` after each await; regression `ignores in-flight create remediation when snapshot scope changes before the API returns`; cheap-disproof closed terraform tab quick link (polish), drift change-id trim (deferred), double-fetch on unlinked audit (intentional), retainFindingMessages-only snapshot reload (covered by scope key), and terraform workbench row (omitted per regression); scoped ResourceHubClient vitest 127/127. Private beta: changing pinned snapshot or audit scope on a resource hub during remediation create no longer shows a success banner for the prior scope or reloads evidence for the wrong snapshot.
 
 - [x] (proven) `ResourceHubClient` `runCreateRemediationFromFinding` — stale async after URL scope change — **hit 2026-10-26 seed hunt:** hub scope key ref guard; regression above.
