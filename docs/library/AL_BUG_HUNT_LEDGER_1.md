@@ -6868,6 +6868,18 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-26 seed hunt (seed→hit): reseeded `application-analysis` with zero open hunt-ready rows; promoted anchor-gate follow-on after hunt 319 all-null hydration; proved `AgentResultsAppearAnchoredToRun` still skipped reload when hydrated lists mixed **null slots with a single anchored row**, so end-to-end replay agent diffs compared only the placeholder row and omitted sibling persisted results; treat any null hydrated slot as not anchored; regressions `CompareQuality_AgentResultsAppearAnchoredToRun_returns_false_when_hydrated_list_contains_null_with_anchored_sibling` and `CompareQuality_ApplyAsync_reloads_agent_results_when_hydrated_list_contains_null_slots`; cheap-disproof closed all-null-only lists (hunt 319), empty `RunId` anchor (existing test); seeded five follow-on rows; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` filter 312/312. Private beta: end-to-end replay and compare-quality agent diffs reload the full result set when hydrated rollup lists contain null holes beside anchored rows.
+
+- [ ] (candidate) `RunDetailRetrievalGroundingEnrichmentSlice` — retrieval trace run key — locus: Guid-scoped reader; input: defer unless string RunId ordinal store proven.
+- [ ] (candidate) `ComparisonRecordRepository.GetByRunIdAsync` — SQL list-by-run dashed stored — locus: UNIQUEIDENTIFIER column; input: already matches N/D lookup via guid param.
+- [ ] (candidate) `ComparisonRecordRepositoryCore.SerializeTagsForUpdate` — JSON tag order — locus: cosmetic; input: defer.
+- [ ] (candidate) `ComparisonRecordSearchPredicateBuilder` — notes column search — locus: no notes filter today; input: defer.
+- [ ] (candidate) `ApiPaging.TryParseUtcTicksIdCursor` — cursor id segment without trim — locus: HTTP cursor parse; input: padded id after ticks delimiter (alerts inbox and other API surfaces).
+
+- [x] (proven) `AgentResultsAppearAnchoredToRun` — null slots beside anchored rows — **hit 2026-10-26 seed hunt:** null => not anchored; regressions above.
+- [x] (valid-no-repro) `AgentResultsAppearAnchoredToRun` — all-null hydrated rows — **cheap-disproof 2026-10-26 seed hunt:** hunt 319.
+- [x] (invalid) `ApiPaging.TryParseUtcTicksIdCursor` — HTTP cursor id trim — **cheap-disproof 2026-10-26 seed hunt:** comparison search normalizes at application layer.
+
 2026-10-26 seed hunt (seed→hit): reseeded `application-analysis` with zero open hunt-ready rows; promoted anchor-gate follow-on after hunt 318 merge freshness; proved `AgentResultsAppearAnchoredToRun` returned true when hydrated compare/replay `Results` contained only null slots (non-zero `Count`), so `ResolveAgentResultsForCompareReadAsync` skipped repository reload and compare-quality paths kept empty agent diffs; require at least one non-null result anchored to the expected run id; regressions `CompareQuality_AgentResultsAppearAnchoredToRun_returns_false_when_all_results_are_null` and `CompareQuality_ResolveAgentResultsForCompareReadAsync_reloads_when_hydrated_rows_are_all_null`; cheap-disproof closed prefer-newer merge (hunt 318), unanchored empty `RunId` (existing test); seeded five follow-on rows; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` filter 310/310. Private beta: architecture compare, HTTP compare-agents, and end-to-end replay reload agent results when hydrated rollup lists contain only null placeholders.
 
 - [ ] (candidate) `RunDetailRetrievalGroundingEnrichmentSlice` — retrieval trace run key — locus: Guid-scoped reader; input: defer unless string RunId ordinal store proven.
