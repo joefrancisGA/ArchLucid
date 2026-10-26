@@ -60,6 +60,13 @@ type LoadQuestionsOptions = {
 
 const VISIT_CAP = 10;
 
+function secureNowQueueLoadAffectsActiveSnapshot(
+  loadingSnapshotId: string,
+  activeSnapshotId: string,
+): boolean {
+  return loadingSnapshotId === activeSnapshotId;
+}
+
 export type SecureNowQuestionQueueProviderProps = {
   readonly snapshotId: string;
   readonly children: ReactNode;
@@ -265,8 +272,13 @@ export function SecureNowQuestionQueueProvider(
   const loadQuestions = useCallback(async (options?: LoadQuestionsOptions) => {
     if (snapshotId.trim().length === 0) return;
     const loadingSnapshotId = snapshotId;
-    const requestSequence = ++loadSequence.current;
-    const affectsActiveSnapshot = loadingSnapshotId === snapshotIdRef.current;
+    const affectsActiveSnapshot = secureNowQueueLoadAffectsActiveSnapshot(
+      loadingSnapshotId,
+      snapshotIdRef.current,
+    );
+    const requestSequence = affectsActiveSnapshot
+      ? ++loadSequence.current
+      : loadSequence.current;
     if (affectsActiveSnapshot) {
       setLoading(true);
       setQuestionsLoaded(false);
@@ -281,9 +293,9 @@ export function SecureNowQuestionQueueProvider(
         throw questionsResult.reason;
       }
 
-      // Snapshot navigation can leave older requests in flight; only the newest request owns queue state.
-      if (requestSequence !== loadSequence.current) return;
-      if (loadingSnapshotId !== snapshotIdRef.current) return;
+      // Snapshot navigation can leave older requests in flight; only the newest active load owns queue state.
+      if (affectsActiveSnapshot && requestSequence !== loadSequence.current) return;
+      if (!secureNowQueueLoadAffectsActiveSnapshot(loadingSnapshotId, snapshotIdRef.current)) return;
 
       const loadedQuestions = questionsResult.value;
       setQuestions(loadedQuestions);
@@ -318,8 +330,8 @@ export function SecureNowQuestionQueueProvider(
       setReason("");
       setDrawerAction("answer");
     } catch (loadError) {
-      if (requestSequence !== loadSequence.current) return;
-      if (loadingSnapshotId !== snapshotIdRef.current) return;
+      if (affectsActiveSnapshot && requestSequence !== loadSequence.current) return;
+      if (!secureNowQueueLoadAffectsActiveSnapshot(loadingSnapshotId, snapshotIdRef.current)) return;
 
       setError(
         operatorInferredConnectionPanelErrorFromUnknown(
@@ -329,7 +341,11 @@ export function SecureNowQuestionQueueProvider(
         ),
       );
     } finally {
-      if (requestSequence === loadSequence.current) {
+      if (
+        affectsActiveSnapshot
+        && requestSequence === loadSequence.current
+        && secureNowQueueLoadAffectsActiveSnapshot(loadingSnapshotId, snapshotIdRef.current)
+      ) {
         setLoading(false);
       }
     }

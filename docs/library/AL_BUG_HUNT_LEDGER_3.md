@@ -9573,6 +9573,20 @@ ABQ-09 churn hotspot.
 
 ## Zone: securenow-question-queue
 
+2026-10-26 seed hunt (seed→hit): promoted `SecureNowQuestionQueueProvider.loadQuestions` **stale post-mutation reload left active snapshot loading stuck or cleared early** — inactive snapshot reloads bumped the shared load sequence so the active snapshot’s in-flight list never cleared `loading` in `finally`, and could clear loading while the active snapshot was still loading; centralize active-snapshot checks in `secureNowQueueLoadAffectsActiveSnapshot`, only increment load sequence for active loads, and gate `setLoading(false)` on active snapshot; regression `keeps the active snapshot loading state when a stale snapshot reload finishes first`; cheap-disproof closed foreign-snapshot API copy (different failure mode), disposition id on write response (reload-only provider), SQL MERGE deferred, optimistic merge future-risk; scoped SecureNow queue vitest 126/126. Private beta: switching evidence snapshots during a save no longer leaves the question queue spinner stuck or drops it early while the new snapshot is still loading.
+
+- [x] (proven) `SecureNowQuestionQueueProvider.loadQuestions` — stale reload sequence superseded active load loading flag — **hit 2026-10-26 seed hunt:** active-only sequence bump + shared active-snapshot helper; regression above.
+- [x] (valid-no-repro) `SecureNowQuestionDispositionService` — foreign snapshot write error copy — **cheap-disproof 2026-10-26 seed hunt:** API returns “Snapshot was not found.”; UI listed-snapshot guard is separate path.
+- [x] (valid-no-repro) `securenow-question-queue-api.mapSecureNowQuestionDisposition` — missing disposition id on write response — **cheap-disproof 2026-10-26 seed hunt:** provider reloads list; answer return value unused.
+- [x] (invalid) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` — **cheap-disproof 2026-10-26 seed hunt:** integration host unavailable; candidate reseeded below.
+- [x] (invalid) `securenow-question-queue-provider` — optimistic merge from disposition JSON — **cheap-disproof 2026-10-26 seed hunt:** reload-only provider; candidate reseeded below.
+
+- [ ] (candidate) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` identity hash collision — locus: SQL repository; input: integration repro when SQL host available.
+- [ ] (candidate) `securenow-question-queue-provider` — optimistic merge from disposition JSON — locus: future post-mutation path; input: must use `mapSecureNowQuestionDisposition` only.
+- [ ] (candidate) `securenow-question-queue-api.mapSecureNowQuestionDisposition` — trim whitespace-only disposition id to reject invalid write payloads — locus: post mapper; input: future optimistic merge must not accept blank ids.
+- [ ] (candidate) `SecureNowQuestionQueueProvider.loadQuestions` — overlapping active loads on same snapshot — locus: double `loadQuestions` without navigation; monitor sequence guard.
+- [ ] (candidate) `securenow-question-queue-api.listSecureNowQuestions` — surface proxy 5xx as load error instead of empty list — locus: `proxyJsonGet` throw path; input: operator-visible failure vs silent empty.
+
 2026-10-26 seed hunt (seed→hit): promoted `SecureNowQuestionQueueProvider.loadQuestions` **inactive snapshot reload toggled loading on active snapshot** — stale post-mutation reloads for a prior snapshot still called `setLoading(true)` even when `affectsActiveSnapshot` was false; gate loading/loaded/error resets together; regression lock `returns an empty list when the proxy response is not an array`; cheap-disproof closed busy-stuck on stale sequence (submit `finally`), non-array operator error (contract maps to empty list by design), SQL MERGE deferred; scoped SecureNow queue vitest 125/125. Private beta: background reloads from a prior snapshot no longer flash loading state on the snapshot you are reviewing.
 
 - [x] (proven) `SecureNowQuestionQueueProvider.loadQuestions` — inactive snapshot reload sets loading — **hit 2026-10-26 seed hunt:** gate `setLoading(true)` on `affectsActiveSnapshot`; complements prior stale-load guards.
@@ -9692,11 +9706,11 @@ ABQ-09 churn hotspot.
 - **aliases:** securenow question queue; question disposition
 - **paths:** archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx; archlucid-ui/src/lib/infra-evidence/securenow-question-queue-api.ts
 - **test-filter:** SecureNowQuestion
-- **hunts:** 107
-- **bugs-found:** 79
+- **hunts:** 108
+- **bugs-found:** 80
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-26
-- **last-bug:** 2026-10-26 — inactive snapshot reload toggled loading
+- **last-bug:** 2026-10-26 — stale reload broke active snapshot loading flag
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 

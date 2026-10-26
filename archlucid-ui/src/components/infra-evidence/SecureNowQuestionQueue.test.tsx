@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
   SecureNowQuestionQueue,
+  SecureNowQuestionQueueBar,
   SecureNowQuestionQueueProvider,
   SecureNowQuestionQueueSnapshotPromo,
   useSecureNowQuestionQueue,
@@ -1238,6 +1239,74 @@ describe("SecureNowQuestionQueue", () => {
     expect(
       await screen.findByText("Should other-resource connect to a peer, or stand alone?"),
     ).toBeInTheDocument();
+  });
+
+  it("keeps the active snapshot loading state when a stale snapshot reload finishes first", async () => {
+    const snapshotOneQuestion = {
+      ...question,
+      snapshotId: "snapshot-1",
+    };
+    let resolveAnswer!: () => void;
+    let resolveSnapshotTwoLoad: ((value: typeof question[]) => void) | undefined;
+    const snapshotTwoLoad = new Promise<typeof question[]>((resolve) => {
+      resolveSnapshotTwoLoad = resolve;
+    });
+
+    mocks.listQuestions.mockImplementation(async (snapshotId: string) => {
+      if (snapshotId === "snapshot-1") {
+        return [snapshotOneQuestion];
+      }
+
+      if (snapshotId === "snapshot-2") {
+        return snapshotTwoLoad;
+      }
+
+      return [];
+    });
+    mocks.answerQuestion.mockImplementation(
+      () =>
+        new Promise<void>((resolve) => {
+          resolveAnswer = () => resolve();
+        }),
+    );
+
+    function LoadingProbe() {
+      const { loading } = useSecureNowQuestionQueue();
+      return (
+        <div data-testid="securenow-queue-loading-probe">{loading ? "loading" : "idle"}</div>
+      );
+    }
+
+    function QueueWithLoadingProbe({ snapshotId }: { snapshotId: string }) {
+      return (
+        <SecureNowQuestionQueueProvider snapshotId={snapshotId}>
+          <LoadingProbe />
+          <SecureNowQuestionQueueSnapshotPromo />
+          <SecureNowQuestionQueueBar outline={null} />
+        </SecureNowQuestionQueueProvider>
+      );
+    }
+
+    const view = render(<QueueWithLoadingProbe snapshotId="snapshot-1" />);
+    await waitFor(() => expect(mocks.listQuestions).toHaveBeenCalledWith("snapshot-1"));
+    fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
+    fireEvent.click(screen.getByRole("button", { name: "Name the peer" }));
+    fireEvent.click(screen.getByRole("button", { name: "Save answer" }));
+
+    view.rerender(<QueueWithLoadingProbe snapshotId="snapshot-2" />);
+    await waitFor(() => expect(mocks.listQuestions).toHaveBeenCalledWith("snapshot-2"));
+    expect(screen.getByTestId("securenow-queue-loading-probe")).toHaveTextContent("loading");
+
+    resolveAnswer();
+    await waitFor(() => expect(mocks.answerQuestion).toHaveBeenCalledWith("snapshot-1", expect.anything()));
+    await waitFor(() => expect(mocks.listQuestions).toHaveBeenCalledTimes(3));
+
+    expect(screen.getByTestId("securenow-queue-loading-probe")).toHaveTextContent("loading");
+
+    resolveSnapshotTwoLoad?.([]);
+    await waitFor(() => {
+      expect(screen.getByTestId("securenow-queue-loading-probe")).toHaveTextContent("idle");
+    });
   });
 
   it("does not apply a stale snapshot question reload after the active snapshot changes during save", async () => {
