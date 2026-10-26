@@ -7223,6 +7223,32 @@ ABQ-09 churn hotspot.
 
 ## Zone: ui-infra-resource-hub
 
+2026-10-26 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below (keyboard tab shortcuts share `setActiveTab` with hunt 116 dialog dismiss, audit scope chip hidden when `hasUnlinkedAuditScopeInUrl` during defer load, finding action messages intentionally cleared on tab change, diagram whitespace correspondence id covered by regression, workQueue on audit clear covered by regressions); seeded five follow-on `(candidate)` rows; scoped ResourceHubClient vitest 137/137; no production or test code changed.
+
+- [x] (valid-no-repro) `ResourceHubClient` `setActiveTab` — keyboard shortcut tab jumps — **cheap-disproof 2026-10-26 seed hunt #117:** Alt+number handlers call `setActiveTab` (clears `pendingRemediationFinding` since hunt 116).
+- [x] (valid-no-repro) `ResourceHubClient` audit scope chip href — `deferUrlAuditScopeUntilHubLoads` — **cheap-disproof 2026-10-26 seed hunt #117:** chip gated on `!hasUnlinkedAuditScopeInUrl`; loading hub null marks scope unlinked.
+- [x] (valid-no-repro) `ResourceHubClient` findings stream — `findingActionMessages` tab round-trip — **cheap-disproof 2026-10-26 seed hunt #117:** intentional toast reset on tab change (parity with dialog dismiss).
+- [x] (valid-no-repro) `ResourceHubClient` diagram tab — reconcile remediation href whitespace correspondence id — **cheap-disproof 2026-10-26 seed hunt #117:** regression `shows correspondence id omission copy and hides diagram actions when correspondenceId is whitespace-only`.
+- [x] (valid-no-repro) `ResourceHubClient` explorer work-queue banner — `workQueue` after audit clear — **cheap-disproof 2026-10-26 seed hunt #117:** regressions `preserves explorer workQueue when clearing active audit scope` and stale-banner clear link.
+
+- [ ] (candidate) `ResourceHubClient` `setActiveTab` — in-flight create remediation on tab switch — locus: `findingActionBusyId` not cleared in `setActiveTab`; input: confirm create then Alt+tab before API returns (monitor).
+- [ ] (candidate) `ResourceHubCreateRemediationConfirmDialog` — dismiss while `busy` — locus: `onOpenChange` when `busy` true; input: escape/outside click during Creating.
+- [ ] (candidate) `ResourceHubClient` invalid `tab` query — locus: `parseResourceHubTabFromSearch` defaults without URL normalize; input: `tab=not-a-hub-tab` deep link.
+- [ ] (candidate) `ResourceHubClient` operational findings — concurrent create on two finding ids — locus: `findingActionBusyId` single-id gate; input: deferred create on finding-1 then confirm finding-2.
+- [ ] (candidate) `ResourceHubClient` overview drift preview — tab badge count vs `slice(0, 5)` table — locus: `hubTabs` drift label uses full `recentChanges.length`; monitor only.
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 117
+- **bugs-found:** 92
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-26
+- **last-bug:** 2026-10-26 — create-remediation confirm dialog after hub tab switch
+- **code-changed-since:** no
+
 2026-10-26 seed hunt (seed→hit): promoted **create-remediation confirm dialog left open after hub tab switch** — `setActiveTab` cleared finding action toasts but not `pendingRemediationFinding`, so leaving Findings with the confirm open and selecting another hub tab left a modal scoped to the prior tab’s finding; dismiss pending remediation on tab change; regression `closes create-remediation dialog when switching hub tabs`; cheap-disproof closed `suppressLinkedAuditScopeRefetch` skip (scope reset clears suppress), technical-key URL normalize (bookmark parity), whitespace terraform address (existing regression), hub tab badges (saturated monitor), and remediation cache invalidate (scope guards); scoped ResourceHubClient vitest 137/137. Private beta: operators switching resource-hub sections no longer see a stale “Create remediation instance?” confirm for a finding from the tab they left.
 
 - [x] (proven) `ResourceHubClient` `setActiveTab` — pending remediation dialog after tab change — **hit 2026-10-26 seed hunt #116:** clear `pendingRemediationFinding`; regression above.
