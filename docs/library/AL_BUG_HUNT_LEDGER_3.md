@@ -7209,6 +7209,32 @@ ABQ-09 churn hotspot.
 
 ## Zone: ui-infra-resource-hub
 
+2026-10-26 seed hunt (seed→hit): promoted **lost implicit snapshot pin** when audit scope changes without URL `snapshotId` — scope reset cleared `hub` so `resolvedSnapshotId` became empty and the next `loadHub` called the API without the hub-derived snapshot the operator was already viewing; retain `lastResolvedHubSnapshotIdRef` across scope reloads on the same resource and clear it only on `cloudResourceId` change; regression `retains implicit snapshot pin on hub fetch when audit scope changes and URL omits snapshotId`; cheap-disproof closed load-error scope transition (scope effect clears), tab badge counts (scoped fetch), shortcuts while loading (`hub != null` gate), and snapshot strip label (tracks resolved id); scoped ResourceHubClient vitest 129/129. Private beta: operators who change audit scope on an unpinned resource hub keep viewing the same captured snapshot instead of silently re-querying without a snapshot id.
+
+- [x] (proven) `ResourceHubClient` `resolvedSnapshotId` — implicit snapshot pin — **hit 2026-10-26 seed hunt:** `lastResolvedHubSnapshotIdRef`; regression above.
+- [x] (valid-no-repro) `ResourceHubClient` `loadError` — scope transition — **cheap-disproof 2026-10-26 seed hunt:** scope effect clears error before reload.
+- [x] (valid-no-repro) `ResourceHubClient` `hubTabs` badge counts — **cheap-disproof 2026-10-26 seed hunt:** scoped fetch + inline hydrate tests cover counts.
+- [x] (valid-no-repro) `ResourceHubClient` `setActiveTab` — shortcuts while loading — **cheap-disproof 2026-10-26 seed hunt:** `useResourceHubShortcuts` gated on `hub != null`.
+- [x] (valid-no-repro) `ResourceHubClient` `ResourceHubSnapshotScopeStrip` — unpinned label — **cheap-disproof 2026-10-26 seed hunt:** uses `resolvedSnapshotId` (now retains implicit pin).
+
+- [ ] (candidate) `ResourceHubClient` overview — quick link to terraform tab when mapped — locus: navigation polish.
+- [ ] (candidate) `ResourceHubClient` overview — terraform workbench in cross-workbench row — locus: intentionally omitted per regression.
+- [ ] (candidate) `ResourceHubClient` buyer-polished identifier disclosures — ARM copy affordance — locus: polish.
+- [ ] (candidate) `ResourceHubDriftChangesTable` — drift actions without change ids — locus: saturated trim class; defer.
+- [ ] (candidate) `ResourceHubClient` manual Retry — concurrent scope change — locus: generation guard; monitor.
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 105
+- **bugs-found:** 83
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-26
+- **last-bug:** 2026-10-26 — implicit snapshot pin lost on audit scope change
+- **code-changed-since:** no
+
 2026-10-26 seed hunt (seed-only): re-read `ResourceHubClient.tsx` after unified `hubClientScopeKey` reset (hunt 103); confirmed scope transitions clear hub/load error/remediation UI and in-flight remediation uses scope-key ref + unconditional `finally` busy clear; no new hunt-ready defect without another `[state-machine-gap]` synonym (saturated 14d); cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on rows; scoped `FullyQualifiedName~ResourceHubClient` filter 128/128; no production code changed. Private beta: n/a.
 
 - [ ] (candidate) `ResourceHubClient` `resolvedSnapshotId` — implicit snapshot pin — locus: URL omits `snapshotId`; input: audit-scope change after hub-derived pin (verify links during reload).
