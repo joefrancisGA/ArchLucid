@@ -153,6 +153,16 @@ describe("ResourceHubClient", () => {
     expect(await screen.findByTestId("infra-resource-hub-page-title")).toHaveTextContent("gateway");
   });
 
+  it("shows load error omission copy when the hub load error message is whitespace-only", async () => {
+    fetchCachedInfraEvidenceResourceHub.mockImplementation(async () => {
+      throw "   ";
+    });
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    expect(await screen.findByTestId("infra-resource-hub-load-error")).toBeInTheDocument();
+    expect(screen.getByText("Captured evidence could not be loaded.")).toBeInTheDocument();
+  });
+
   it("clears hub evidence when a newer URL selection fails to load", async () => {
     const nextSnapshotId = "33333333-3333-3333-3333-333333333333";
 

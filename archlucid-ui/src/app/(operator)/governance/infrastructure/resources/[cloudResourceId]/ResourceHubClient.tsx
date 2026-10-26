@@ -946,7 +946,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
           <EnterpriseCompactEmptyState
             role="alert"
             title={GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_LOAD_ERROR_TITLE}
-            description={loadError}
+            description={formatStoredInfraEvidenceHubField(loadError, "Captured evidence could not be loaded.")}
             testId="infra-resource-hub-load-error"
             footer={
               <Button type="button" variant="outline" size="sm" onClick={() => void loadHub()}>
