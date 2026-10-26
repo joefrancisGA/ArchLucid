@@ -7209,6 +7209,32 @@ ABQ-09 churn hotspot.
 
 ## Zone: ui-infra-resource-hub
 
+2026-10-26 seed hunt (seed→hit): promoted overview **audit lineage unavailable** copy when `degradedReason` is whitespace-only — overview passed raw `degradedReason` into `InfraAuditLineageUnavailableBanner` so whitespace fell through to the generic “hub and workbench links stay resource-scoped only” suffix while the audit tab already used `formatStoredInfraEvidenceHubField` with the default “No audit evidence snapshot rows…” paragraph; align overview with the same formatter/default; regression `shows default audit degraded copy on overview when degradedReason is whitespace-only`; cheap-disproof closed architecture finding id Ask (prior hit), overview `resourceGroup` inline trim, and exotic drift `changeType` tag kind; scoped ResourceHubClient vitest 108/108. Private beta: on the resource hub overview tab, operators see the same honest audit-lineage unavailable explanation as on the audit tab when capture stored only whitespace in `degradedReason`.
+
+- [x] (proven) `ResourceHubClient` overview — `auditLineageLink.degradedReason` whitespace-only banner — **hit 2026-10-26 seed hunt:** `formatStoredInfraEvidenceHubField` before `InfraAuditLineageUnavailableBanner`; regression overview whitespace fixture.
+- [x] (valid-no-repro) `ResourceHubClient` findings tab — architecture-review finding id Ask — **cheap-disproof 2026-10-26 seed hunt:** prior hit retained.
+- [x] (valid-no-repro) `ResourceHubClient` overview — `resourceGroup` / `region` whitespace — **cheap-disproof 2026-10-26 seed hunt:** inline trim omission copy matches formatter strings.
+- [x] (valid-no-repro) `ResourceHubDriftChangesTable` — exotic unknown `changeType` — **cheap-disproof 2026-10-26 seed hunt:** `resolveInfraEvidenceChangeTypeStatusKind` returns neutral.
+- [x] (valid-no-repro) `ResourceHubClient` audit tab — whitespace-only `degradedReason` — **cheap-disproof 2026-10-26 seed hunt:** prior regression retained.
+
+- [ ] (candidate) `ResourceHubClient` overview — `resourceGroup` / `region` via `formatStoredInfraEvidenceHubField` — locus: DRY call sites only.
+- [ ] (candidate) `ResourceHubClient` overview vs audit — `degradedReason` null omits banner suffix parity — locus: null hub reason on overview after formatter default.
+- [ ] (candidate) `ResourceHubDriftChangesTable` — whitespace-only `changeId` in Ask test id — locus: drift row actions.
+- [ ] (candidate) `ResourceHubClient` findings stream pagination — `totalCount` less than `items.length` caption — locus: `formatResourceHubFindingStreamCaption`.
+- [ ] (candidate) `ResourceHubClient` diagram tab — padded `diagramNodeId` in workbench handoff — locus: diagram correspondence links.
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 78
+- **bugs-found:** 57
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-26
+- **last-bug:** 2026-10-26 — overview audit degradedReason whitespace banner
+- **code-changed-since:** yes
+
 2026-10-26 seed hunt (seed→hit): promoted whitespace-only / padded **architecture-review finding id** on Ask handoff — architecture stream still passed raw `item.id` into `buildHubFindingAskHref` and test ids while operational rows already used `findingIdTrimmed`, so whitespace-only ids rendered a broken Ask link and padded ids could ship encoded spaces in `findingId`; reuse trim gate with omission copy; regressions `shows finding id omission copy on architecture review rows when finding id is whitespace-only` and padded Ask `href`; cheap-disproof closed operational finding id (prior hit), overview audit `degradedReason` banner parity (component trims; audit tab uses formatter), and remediation blocker join mix; scoped ResourceHubClient vitest 107/107. Private beta: architecture-review finding rows on the resource hub findings tab no longer expose a misleading Ask link when capture stored only whitespace in finding `id`, and padded ids open Infrastructure Ask with a trimmed `findingId`.
 
 - [x] (proven) `ResourceHubClient` findings tab — architecture-review `item.id` whitespace-only / padded Ask — **hit 2026-10-26 seed hunt:** `findingIdTrimmed` on architecture Ask link; regressions whitespace omission and padded href.
