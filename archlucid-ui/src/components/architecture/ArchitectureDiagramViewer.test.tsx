@@ -11,6 +11,7 @@ import {
   ARCHITECTURE_DIAGRAM_VIEWPORT_HINT,
   ARCHITECTURE_DIAGRAM_ZOOM_IN_LABEL,
   ARCHITECTURE_DIAGRAM_ZOOM_OUT_LABEL,
+  ARCHITECTURE_DIAGRAM_DATA_FLOW_NOT_MATCHED_PREFIX,
   ARCHITECTURE_DIAGRAM_ZOOM_PERCENT_LABEL,
 } from '@/lib/architecture/architecture-diagram-copy';
 
@@ -1351,5 +1352,25 @@ describe('ArchitectureDiagramViewer', () => {
     expect(Number(svg?.getAttribute('height') ?? 0)).toBeGreaterThanOrEqual(
       helpMermaid.MERMAID_VIEWPORT_MIN_INK_HEIGHT_PX,
     );
+  });
+
+  it('renders unmatched data-flow honesty lines outside sr-only text (P-04)', async () => {
+    render(
+      <ArchitectureDiagramViewer
+        mermaidSource={'flowchart TB\n  a["A"]'}
+        textAlternative="user: A"
+        unmatchedDataFlows={['Portal -> Missing service']}
+        viewportAriaLabel="Architecture diagram"
+        fullscreenTitle="Diagram"
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId('architecture-diagram-viewport')).toBeInTheDocument();
+    });
+
+    const visibleLine = screen.getByTestId('architecture-diagram-unmatched-data-flow');
+    expect(visibleLine).toHaveTextContent(ARCHITECTURE_DIAGRAM_DATA_FLOW_NOT_MATCHED_PREFIX);
+    expect(visibleLine.className.split(/\s+/u)).not.toContain('sr-only');
   });
 });

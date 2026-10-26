@@ -38,7 +38,7 @@ describe("buyerAskGroundingLinksForRun", () => {
     expect(buyerAskGroundingLinksForRun("   ")).toBeNull();
   });
 
-  it("buildAskAnswerCitationSourceLinks does not link decisions to the register", () => {
+  it("buildAskAnswerCitationSourceLinks links decisions to the register with disclosure copy", () => {
     const links = buildAskAnswerCitationSourceLinks("run-a", {
       referencedFindings: [],
       referencedDecisions: ["decision-9"],
@@ -46,9 +46,10 @@ describe("buyerAskGroundingLinksForRun", () => {
     });
 
     expect(links).toHaveLength(1);
-    expect(links[0]?.label).toBe("Decision link was not stored for decision-9.");
-    expect(links[0]?.href).toBeNull();
-    expect(links.some((link) => link.href === GOVERNANCE_DECISION_REGISTER_PATH)).toBe(false);
+    expect(links[0]?.label).toBe(
+      "Decision decision-9 was cited. This link opens the decision register, not that decision.",
+    );
+    expect(links[0]?.href).toBe(GOVERNANCE_DECISION_REGISTER_PATH);
   });
 
   it("buildAskAnswerCitationSourceLinks keeps Open review for review id artifacts only", () => {

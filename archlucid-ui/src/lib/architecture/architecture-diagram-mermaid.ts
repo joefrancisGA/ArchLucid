@@ -1,5 +1,5 @@
 import {
-  ARCHITECTURE_DIAGRAM_DATA_FLOW_NOT_MATCHED_PREFIX,
+  formatUnmatchedArchitectureDataFlowLine,
 } from "@/lib/architecture/architecture-diagram-copy";
 import type { ArchitectureDiagramModel, ArchitectureDiagramNode } from "@/lib/architecture/architecture-diagram-types";
 import {
@@ -8,18 +8,30 @@ import {
 } from "@/lib/architecture/architecture-diagram-provenance";
 import { wrapArchitectureDiagramLabelForMermaidSource } from "@/lib/architecture/wrap-architecture-diagram-label";
 
-const TRUST_BOUNDARY_LABEL_NOT_STORED = "Trust boundary label was not stored.";
 const NO_ARCHITECTURE_COMPONENTS_RECORDED = "No architecture components were recorded.";
 
 export type ArchitectureDiagramMermaidOptions = {
   readonly dark?: boolean;
 };
 
+const MERMAID_LABEL_MAX_CHARS = 160;
+const MERMAID_INFERRED_SUFFIX = " (inferred)";
+
 function escapeMermaidLabel(raw: string, peerResourceNames: readonly string[]): string {
   const singleLine = raw.replace(/\s+/g, " ").trim();
-  const escaped = singleLine.replace(/"/g, "'").slice(0, 160);
+  const escaped = singleLine.replace(/"/g, "'");
+  const hasInferredSuffix = escaped.endsWith(MERMAID_INFERRED_SUFFIX);
+  const core = hasInferredSuffix
+    ? escaped.slice(0, -MERMAID_INFERRED_SUFFIX.length)
+    : escaped;
+  const maxCoreLength = hasInferredSuffix
+    ? MERMAID_LABEL_MAX_CHARS - MERMAID_INFERRED_SUFFIX.length
+    : MERMAID_LABEL_MAX_CHARS;
+  const truncatedCore =
+    core.length > maxCoreLength ? `${core.slice(0, maxCoreLength - 3)}...` : core;
+  const label = hasInferredSuffix ? `${truncatedCore}${MERMAID_INFERRED_SUFFIX}` : truncatedCore;
 
-  return wrapArchitectureDiagramLabelForMermaidSource(escaped, peerResourceNames);
+  return wrapArchitectureDiagramLabelForMermaidSource(label, peerResourceNames);
 }
 
 function nodeClassNames(node: ArchitectureDiagramNode): string {
@@ -42,15 +54,6 @@ function mermaidClassDefLines(dark: boolean): string[] {
     "  classDef assertedNode fill:#ecfeff,stroke:#0f766e,stroke-width:2px,color:#0f172a",
     "  classDef inferredNode fill:#f8fafc,stroke:#64748b,stroke-width:1px,stroke-dasharray:5 5,color:#0f172a",
   ];
-}
-
-function formatTrustBoundarySubgraphLabel(labels: readonly string[], peerResourceNames: readonly string[]): string {
-  const joined = labels
-    .map((label) => escapeMermaidLabel(label, peerResourceNames))
-    .filter((label) => label.length > 0)
-    .join(" / ");
-
-  return joined.length > 0 ? joined : TRUST_BOUNDARY_LABEL_NOT_STORED;
 }
 
 function renderNodeLine(
@@ -82,25 +85,7 @@ export function architectureDiagramModelToMermaid(
 
   lines.push(...mermaidClassDefLines(dark));
 
-  const boundaryNodes = activeNodes.filter((node) => node.kind === "system");
-  const outsideBoundaryNodes = activeNodes.filter((node) => node.kind !== "system");
-  const hasTrustBoundary = model.trustBoundaryLabels.length > 0 && boundaryNodes.length > 0;
-
-  if (hasTrustBoundary) {
-    lines.push(`  subgraph trustBoundary["${formatTrustBoundarySubgraphLabel(model.trustBoundaryLabels, peerResourceNames)}"]`);
-
-    for (const node of boundaryNodes) {
-      lines.push(renderNodeLine(node, "    ", peerResourceNames));
-    }
-
-    lines.push("  end");
-  } else {
-    for (const node of boundaryNodes) {
-      lines.push(renderNodeLine(node, "  ", peerResourceNames));
-    }
-  }
-
-  for (const node of outsideBoundaryNodes) {
+  for (const node of activeNodes) {
     lines.push(renderNodeLine(node, "  ", peerResourceNames));
   }
 
@@ -162,9 +147,7 @@ export function architectureDiagramModelToTextAlternative(model: ArchitectureDia
   });
   const boundaryLine =
     model.trustBoundaryLabels.length > 0 ? `Trust boundaries: ${model.trustBoundaryLabels.join(", ")}` : null;
-  const unmatchedLines = model.unmatchedDataFlows.map(
-    (flow) => `${ARCHITECTURE_DIAGRAM_DATA_FLOW_NOT_MATCHED_PREFIX} ${flow}`,
-  );
+  const unmatchedLines = model.unmatchedDataFlows.map((flow) => formatUnmatchedArchitectureDataFlowLine(flow));
   const skippedUnlabeledLine =
     model.skippedUnlabeledEntityCount > 0
       ? `Skipped ${model.skippedUnlabeledEntityCount} unlabeled ${
@@ -177,6 +160,7 @@ export function architectureDiagramModelToTextAlternative(model: ArchitectureDia
     edgeLines.join("; "),
     boundaryLine,
     skippedUnlabeledLine,
+    ...(model.diagramHonestyNotes ?? []),
     ...unmatchedLines,
   ]
     .filter((line) => line !== null && line.length > 0)

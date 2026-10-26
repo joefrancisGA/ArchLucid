@@ -49,18 +49,14 @@ export function NewRunWizardStepRecap(props: NewRunWizardStepRecapProps): React.
       {systemName.length > 0 ? (
         <span>
           <span className="text-neutral-600 dark:text-neutral-400">System</span> {systemName}
-          {environment.length > 0 ? (
-            <>
-              {" "}
-              · <span className="text-neutral-600 dark:text-neutral-400">Env</span> {environment}
-            </>
-          ) : null}
-          {cloud.length > 0 ? (
-            <>
-              {" "}
-              · <span className="text-neutral-600 dark:text-neutral-400">Cloud</span> {cloud}
-            </>
-          ) : null}
+          {" "}
+          ·{" "}
+          <span className="text-neutral-600 dark:text-neutral-400">Env</span>{" "}
+          {environment.length > 0 ? environment : "Environment was not stored."}
+          {" "}
+          ·{" "}
+          <span className="text-neutral-600 dark:text-neutral-400">Cloud</span>{" "}
+          {cloud.length > 0 && cloud !== "None" ? cloud : "Cloud was not selected."}
         </span>
       ) : (
         <span className="text-neutral-600 dark:text-neutral-400">Add identity on this step.</span>

@@ -12,7 +12,9 @@ type FindingEvidenceGraphOutlineProps = {
 /** Structured list alternative to the React Flow canvas (WCAG 1.1.1 peer affordance). */
 export function FindingEvidenceGraphOutline(props: FindingEvidenceGraphOutlineProps): React.JSX.Element {
   const examinedSet = new Set(props.graphNodeIdsExamined);
+  const totalNodes = props.graph.nodes.length;
   const rows = props.graph.nodes.slice(0, 200);
+  const hiddenNodeCount = totalNodes - rows.length;
 
   return (
     <div data-testid="finding-evidence-graph-outline" className="overflow-x-auto rounded-md border border-neutral-200 dark:border-neutral-700">
@@ -49,6 +51,14 @@ export function FindingEvidenceGraphOutline(props: FindingEvidenceGraphOutlinePr
       {rows.length === 0 ? (
         <p className={cn("m-0 px-3 py-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
           Graph nodes were not stored.
+        </p>
+      ) : null}
+      {hiddenNodeCount > 0 ? (
+        <p
+          className={cn("m-0 px-3 py-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="finding-evidence-graph-outline-remainder"
+        >
+          Showing 200 of {totalNodes} nodes. The rest were not listed in this outline.
         </p>
       ) : null}
     </div>

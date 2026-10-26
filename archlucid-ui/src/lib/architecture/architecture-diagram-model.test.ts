@@ -191,7 +191,7 @@ describe("buildArchitectureDiagramModel", () => {
     expect(model.edges).toEqual([]);
   });
 
-  it("adds the architecture name as an inferred system node when it is not already listed (P-01)", () => {
+  it("does not add the review title as a system node when it is not already listed (P-10)", () => {
     const model = buildArchitectureDiagramModel(
       {
         sections: [
@@ -210,10 +210,51 @@ describe("buildArchitectureDiagramModel", () => {
       "Payments edge review",
     );
 
-    const nameNode = model.nodes.find((node) => node.label === "Payments edge review");
+    expect(model.nodes.some((node) => node.label === "Payments edge review")).toBe(false);
+    expect(model.diagramHonestyNotes).toContain(
+      "Review title: Payments edge review. This title is not a collected system.",
+    );
+  });
 
-    expect(nameNode?.provenance).toBe("inferred");
-    expect(nameNode?.accepted).toBe(false);
+  it("labels middle hops when relationship text is stored on the last hop (P-15)", () => {
+    const model = buildArchitectureDiagramModel(
+      {
+        sections: [
+          {
+            key: "systems-and-services",
+            title: "Systems and services",
+            narrativeMarkdown: null,
+            entities: [
+              { label: "Payment API", detail: null, provenance: "asserted" },
+              { label: "Queue", detail: null, provenance: "asserted" },
+              { label: "Worker", detail: null, provenance: "asserted" },
+            ],
+            provenance: "asserted",
+          },
+          {
+            key: "data-flows",
+            title: "Data flows",
+            narrativeMarkdown: null,
+            entities: [
+              {
+                label: "Payment API -> Queue",
+                detail: "Worker · encrypted backlog",
+                provenance: "asserted",
+              },
+            ],
+            provenance: "asserted",
+          },
+        ],
+        hasPartialParseFailure: false,
+        suppressedArtifactCount: 0,
+        sourceText: "Payment API -> Queue | Worker | encrypted backlog",
+      },
+      "Payments",
+    );
+
+    expect(model.edges).toHaveLength(2);
+    expect(model.edges[0]?.label).toBe("Relationship text was stored on the last hop of this chain.");
+    expect(model.edges[0]?.label).not.toBe("Relationship was not stored");
   });
 
   it("materializes pipe-delimited data flows when detail includes a description column", () => {

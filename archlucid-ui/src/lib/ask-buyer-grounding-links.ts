@@ -8,7 +8,10 @@ import {
 } from "@/lib/buyer/buyer-safe-review-navigation";
 import { BUYER_COMPARE_OPEN_FULL_LINK_LABEL } from "@/lib/buyer/buyer-polish-copy";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
-import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
+import {
+  GOVERNANCE_AUDIT_PATH,
+  GOVERNANCE_DECISION_REGISTER_PATH,
+} from "@/lib/governance/governance-route-paths";
 import {
   SHOWCASE_STATIC_DEMO_POLICY_PACK_DETAIL_HREF,
   SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID,
@@ -124,8 +127,8 @@ export function buildAskAnswerCitationSourceLinks(
     }
 
     links.push({
-      label: `Decision link was not stored for ${trimmed}.`,
-      href: null,
+      label: `Decision ${trimmed} was cited. This link opens the decision register, not that decision.`,
+      href: GOVERNANCE_DECISION_REGISTER_PATH,
     });
   }
 

@@ -93,5 +93,11 @@ export function extractCounterfactualFromQuickDecisionFinding(input: {
 
 /** Sentence case for operator helper copy — counterfactual templates already start with "If". */
 export function formatFindingCounterfactualPresentation(line: string): string {
-  return line.trim();
+  const sentence = line.trim();
+
+  if (sentence.length === 0) {
+    return "";
+  }
+
+  return `Counterfactual, not a recorded outcome: ${sentence}`;
 }
