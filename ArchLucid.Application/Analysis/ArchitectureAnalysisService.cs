@@ -64,7 +64,7 @@ public sealed class ArchitectureAnalysisService(
 
         if (primaryDetail is not null)
         {
-            if (!RunIdsReferToSameRun(primaryDetail.Run.RunId, request.RunId))
+            if (!AnalysisRunIdCanonicalization.RunIdsReferToSameRun(primaryDetail.Run.RunId, request.RunId))
                 throw new ArgumentException("PreloadedRunDetail.Run.RunId must match RunId.", nameof(request));
 
             run = primaryDetail.Run;
@@ -99,7 +99,7 @@ public sealed class ArchitectureAnalysisService(
         {
             report.Manifest = primaryDetail?.Manifest;
 
-            if (report.Manifest is not null && !RunIdsReferToSameRun(report.Manifest.RunId, run.RunId))
+            if (report.Manifest is not null && !AnalysisRunIdCanonicalization.RunIdsReferToSameRun(report.Manifest.RunId, run.RunId))
                 report.Manifest = null;
 
             string manifestVersionKey = string.IsNullOrWhiteSpace(run.CurrentManifestVersion)
@@ -110,7 +110,7 @@ public sealed class ArchitectureAnalysisService(
             {
                 report.Manifest = await unifiedGoldenManifestReader.GetByVersionAsync(manifestVersionKey, cancellationToken);
 
-                if (report.Manifest is not null && !RunIdsReferToSameRun(report.Manifest.RunId, run.RunId))
+                if (report.Manifest is not null && !AnalysisRunIdCanonicalization.RunIdsReferToSameRun(report.Manifest.RunId, run.RunId))
                     report.Manifest = null;
             }
 
@@ -157,7 +157,7 @@ public sealed class ArchitectureAnalysisService(
 
                 if (compareManifest is null)
                     report.Warnings.Add($"Compare manifest '{compareManifestVersion}' was not found.");
-                else if (!RunIdsReferToSameRun(compareManifest.RunId, report.Manifest.RunId))
+                else if (!AnalysisRunIdCanonicalization.RunIdsReferToSameRun(compareManifest.RunId, report.Manifest.RunId))
                 {
                     report.Warnings.Add(
                         $"Compare manifest '{compareManifestVersion}' does not belong to run '{report.Manifest.RunId}'.");
@@ -187,12 +187,15 @@ public sealed class ArchitectureAnalysisService(
                     _manifestHashService,
                     cancellationToken);
 
-                IReadOnlyList<AgentResult> leftResults = primaryDetail is not null && primaryDetail.Results.Count > 0
-                    ? primaryDetail.Results
-                    : await TryLoadAgentResultsAsync(scope, primaryRunId, cancellationToken);
-                IReadOnlyList<AgentResult> rightResults = compareDetail.Results.Count > 0
-                    ? compareDetail.Results
-                    : await TryLoadAgentResultsAsync(scope, compareRunId, cancellationToken);
+                IReadOnlyList<AgentResult> leftResults =
+                    primaryDetail is not null
+                    && AnalysisRunIdCanonicalization.AgentResultsAppearAnchoredToRun(primaryDetail.Results, primaryRunId)
+                        ? primaryDetail.Results
+                        : await TryLoadAgentResultsAsync(scope, primaryRunId, cancellationToken);
+                IReadOnlyList<AgentResult> rightResults =
+                    AnalysisRunIdCanonicalization.AgentResultsAppearAnchoredToRun(compareDetail.Results, compareRunId)
+                        ? compareDetail.Results
+                        : await TryLoadAgentResultsAsync(scope, compareRunId, cancellationToken);
                 report.AgentResultDiff = agentResultDiffService.Compare(primaryRunId, leftResults, compareRunId, rightResults);
             }
         }
@@ -233,17 +236,6 @@ public sealed class ArchitectureAnalysisService(
             primaryRunId,
             useRollupProjection: false,
             cancellationToken);
-
-    private static bool RunIdsReferToSameRun(string preloadedRunId, string requestRunId)
-    {
-        if (string.Equals(preloadedRunId, requestRunId, StringComparison.Ordinal))
-            return true;
-
-        if (Guid.TryParse(preloadedRunId, out Guid preloadedGuid) && Guid.TryParse(requestRunId, out Guid requestGuid))
-            return preloadedGuid == requestGuid;
-
-        return false;
-    }
 
     private static string CanonicalRunIdForLookup(string runId) =>
         AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(runId);

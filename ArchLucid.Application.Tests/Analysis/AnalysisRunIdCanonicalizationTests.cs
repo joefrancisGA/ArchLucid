@@ -1,4 +1,7 @@
 using ArchLucid.Application.Analysis;
+using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Common;
+using ArchLucid.Core.AgentEvaluation;
 
 using FluentAssertions;
 
@@ -49,5 +52,24 @@ public sealed class AnalysisRunIdCanonicalizationTests
         AnalysisRunIdCanonicalization.EnumerateRunIdRepositoryLookupKeys(canonical)
             .Should()
             .Contain(bracedUpper);
+    }
+
+    [Fact]
+    public void AgentResultsAppearAnchoredToRun_returns_false_when_any_result_lacks_run_anchor()
+    {
+        Guid runKey = Guid.Parse("19191919-1919-1919-1919-191919191919");
+        string canonical = runKey.ToString("N");
+
+        AnalysisRunIdCanonicalization.AgentResultsAppearAnchoredToRun(
+                [new AgentResult { RunId = string.Empty, AgentType = AgentType.Topology }],
+                canonical)
+            .Should()
+            .BeFalse();
+
+        AnalysisRunIdCanonicalization.AgentResultsAppearAnchoredToRun(
+                [new AgentResult { RunId = canonical, AgentType = AgentType.Topology }],
+                canonical)
+            .Should()
+            .BeTrue();
     }
 }

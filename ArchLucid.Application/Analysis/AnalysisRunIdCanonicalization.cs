@@ -44,6 +44,37 @@ internal static class AnalysisRunIdCanonicalization
         return CanonicalRunIdForLookup(runId);
     }
 
+    internal static bool RunIdsReferToSameRun(string leftRunId, string rightRunId)
+    {
+        if (string.Equals(leftRunId, rightRunId, StringComparison.Ordinal))
+            return true;
+
+        if (Guid.TryParse(leftRunId, out Guid leftGuid) && Guid.TryParse(rightRunId, out Guid rightGuid))
+            return leftGuid == rightGuid;
+
+        return false;
+    }
+
+    internal static bool AgentResultsAppearAnchoredToRun(IReadOnlyList<AgentResult> results, string expectedRunId)
+    {
+        if (results is not { Count: > 0 })
+            return false;
+
+        foreach (AgentResult result in results)
+        {
+            if (result is null)
+                continue;
+
+            if (string.IsNullOrWhiteSpace(result.RunId))
+                return false;
+
+            if (!RunIdsReferToSameRun(result.RunId, expectedRunId))
+                return false;
+        }
+
+        return true;
+    }
+
     /// <summary>
     ///     Repository run-id keys to try when hosts store legacy casing (for example uppercase hex on in-memory rows).
     /// </summary>
