@@ -11,6 +11,22 @@ namespace ArchLucid.Core.Tests.AzureExtractor;
 public sealed class AzureInventoryAdfLinkedServiceTargetExtractorTests
 {
     [Fact]
+    public void Extract_reads_event_hub_host_from_percent_encoded_fully_qualified_namespace_with_trailing_dot()
+    {
+        const string host = "eh1.servicebus.windows.net";
+        string encodedNamespace = Uri.EscapeDataString(host + ".");
+
+        using JsonDocument document = JsonDocument.Parse(
+            $$"""{ "fullyQualifiedNamespace": "{{encodedNamespace}}" }""");
+
+        (string? targetResourceId, string? targetHost) =
+            AzureInventoryAdfLinkedServiceTargetExtractor.Extract(document.RootElement, "AzureEventHub");
+
+        targetResourceId.Should().BeNull();
+        targetHost.Should().Be(host);
+    }
+
+    [Fact]
     public void Extract_reads_service_bus_host_from_percent_encoded_fully_qualified_namespace()
     {
         const string host = "eh1.servicebus.windows.net";

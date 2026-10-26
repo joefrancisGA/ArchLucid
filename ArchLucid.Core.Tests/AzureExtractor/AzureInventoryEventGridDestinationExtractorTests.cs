@@ -177,6 +177,30 @@ public sealed class AzureInventoryEventGridDestinationExtractorTests
     }
 
     [Fact]
+    public void Extract_reads_webhook_host_from_percent_encoded_endpoint_url_when_endpoint_base_url_missing()
+    {
+        string encodedUrl = Uri.EscapeDataString("https://hooks.example.com/callback?token=x");
+
+        using JsonDocument document = JsonDocument.Parse(
+            $$"""
+            {
+              "destination": {
+                "endpointType": "WebHook",
+                "endpointUrl": "{{encodedUrl}}"
+              }
+            }
+            """);
+
+        (
+            _,
+            _,
+            string? destinationHost,
+            _) = AzureInventoryEventGridDestinationExtractor.Extract(document.RootElement);
+
+        destinationHost.Should().Be("hooks.example.com");
+    }
+
+    [Fact]
     public void Extract_reads_webhook_host_from_endpoint_url_when_endpoint_base_url_is_percent_encoded()
     {
         string encodedBaseUrl = Uri.EscapeDataString("fallback.example.com/path?token=x");

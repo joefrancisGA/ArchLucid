@@ -1,3 +1,5 @@
+using System.Net;
+
 namespace ArchLucid.Core.AzureExtractor;
 
 /// <summary>
@@ -84,13 +86,40 @@ public static class AzureInventoryEventGridWebhookHostExtractor
         string authority = pathIndex >= 0 ? trimmed[..pathIndex] : trimmed;
         string pathSuffix = pathIndex >= 0 ? trimmed[pathIndex..] : string.Empty;
 
-        int portSeparator = authority.LastIndexOf(':');
-        if (portSeparator > 0
-            && authority[(portSeparator + 1)..].All(static c => char.IsAsciiDigit(c)))
+        if (TrySplitTrailingNumericPort(authority, out string hostAuthority, out string? portSuffix))
         {
-            return $"[{authority[..portSeparator]}]{authority[portSeparator..]}{pathSuffix}";
+            return $"[{hostAuthority}]{portSuffix}{pathSuffix}";
         }
 
         return $"[{authority}]{pathSuffix}";
+    }
+
+    private static bool TrySplitTrailingNumericPort(string authority, out string hostAuthority, out string? portSuffix)
+    {
+        hostAuthority = authority;
+        portSuffix = null;
+
+        int portSeparator = authority.LastIndexOf(':');
+        if (portSeparator <= 0)
+        {
+            return false;
+        }
+
+        string portDigits = authority[(portSeparator + 1)..];
+        if (portDigits.Length == 0 || !portDigits.All(static c => char.IsAsciiDigit(c)))
+        {
+            return false;
+        }
+
+        string candidateHost = authority[..portSeparator];
+        if (!candidateHost.Contains("::", StringComparison.Ordinal)
+            || !IPAddress.TryParse(candidateHost, out _))
+        {
+            return false;
+        }
+
+        hostAuthority = candidateHost;
+        portSuffix = ":" + portDigits;
+        return true;
     }
 }
