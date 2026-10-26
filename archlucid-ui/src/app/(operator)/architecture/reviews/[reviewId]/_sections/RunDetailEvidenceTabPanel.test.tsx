@@ -117,7 +117,7 @@ describe("RunDetailEvidenceTabPanel", () => {
     );
 
     const scopeSentence = screen.getByTestId("run-detail-evidence-tab-scope");
-    expect(scopeSentence).toHaveTextContent("Evidence here is what this review used.");
+    expect(scopeSentence).toHaveTextContent("This list is the submitted evidence stored on the review.");
     const submittedEvidenceNav = screen.getByRole("link", { name: "Submitted evidence" });
     expect(scopeSentence.compareDocumentPosition(submittedEvidenceNav) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(submittedEvidenceNav).toHaveAttribute("href", "#submitted-evidence-inventory");

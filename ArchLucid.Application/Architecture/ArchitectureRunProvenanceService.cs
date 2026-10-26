@@ -1,3 +1,4 @@
+using ArchLucid.Application.Analysis;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Requests;
@@ -34,8 +35,12 @@ public sealed partial class ArchitectureRunProvenanceService(
             return null;
         ArchitectureRequest? request = await _requestRepository.GetByIdAsync(detail.Run.RequestId, cancellationToken);
         EvidenceBundle? bundle = await TryResolveEvidenceBundleAsync(detail, _evidenceBundleRepository, cancellationToken);
+        string canonicalRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(runId);
         IReadOnlyList<DecisionNode> decisionNodes = DecisionRecordMapper.ToDomain(
-            await _decisionNodeRepository.GetByRunIdAsync(runId, cancellationToken));
+            await AnalysisRunIdCanonicalization.LoadDecisionNodesByRunIdAsync(
+                _decisionNodeRepository,
+                canonicalRunId,
+                cancellationToken).ConfigureAwait(false));
         return BuildGraph(detail, request, bundle, decisionNodes);
     }
 

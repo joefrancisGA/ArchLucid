@@ -84,6 +84,30 @@ describe("PackagePrintPageView (TB-2205)", () => {
     );
 
     expect(screen.getByTestId("package-print-semantic-support-band-line")).toHaveTextContent(
+      "Semantic support stamp was not stored on this print.",
+    );
+  });
+
+  it("labels zero decision-grade findings only when a findings snapshot is present", () => {
+    render(
+      <PackagePrintPageView
+        presentation={{
+          title: "Payments edge",
+          statusLabel: "Finalized",
+          statusKind: "approved",
+          findingsSummary: "3 findings",
+          sponsorSynopsis: null,
+          createdUtc: "2026-08-01T12:00:00Z",
+          runId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+          manifestVersionForGuard: "manifest-1",
+          semanticSupportBandStampLine: null,
+          semanticSupportFindingsSnapshotPresent: true,
+          semanticSupportDecisionGradeCount: 0,
+        }}
+      />,
+    );
+
+    expect(screen.getByTestId("package-print-semantic-support-band-line")).toHaveTextContent(
       "No decision-grade findings were stored for semantic support.",
     );
   });

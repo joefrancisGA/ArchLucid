@@ -1,5 +1,6 @@
 using System.Data;
 
+using ArchLucid.Application.Analysis;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
@@ -26,8 +27,13 @@ internal static class AgentExecuteIdempotentPersistReconciliation
             return;
 
         string runId = candidates[0].RunId;
-        IReadOnlyList<AgentResult> persisted =
-            await resultRepository.GetByRunIdAsync(scope, runId, cancellationToken, connection, transaction);
+        IReadOnlyList<AgentResult> persisted = await LoadPersistedAgentResultsForReconcileAsync(
+            resultRepository,
+            scope,
+            runId,
+            cancellationToken,
+            connection,
+            transaction).ConfigureAwait(false);
 
         IReadOnlyDictionary<string, AgentResult> latestByTaskId =
             AgentExecuteIdempotentResultIndex.BuildLatestByTaskId(persisted);
@@ -62,9 +68,60 @@ internal static class AgentExecuteIdempotentPersistReconciliation
         ArgumentNullException.ThrowIfNull(evidencePackageRepository);
         ArgumentNullException.ThrowIfNull(evidence);
 
-        AgentEvidencePackage? existing =
-            await evidencePackageRepository.GetByRunIdAsync(evidence.RunId, cancellationToken);
+        string lookupRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(evidence.RunId);
+        AgentEvidencePackage? existing = await AnalysisRunIdCanonicalization
+            .LoadEvidencePackageByRunIdAsync(evidencePackageRepository, lookupRunId, cancellationToken)
+            .ConfigureAwait(false);
 
         return existing is null;
+    }
+
+    private static async Task<IReadOnlyList<AgentResult>> LoadPersistedAgentResultsForReconcileAsync(
+        IAgentResultRepository resultRepository,
+        ScopeContext scope,
+        string runId,
+        CancellationToken cancellationToken,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null)
+    {
+        string lookupRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(runId);
+
+        if (connection is null && transaction is null)
+        {
+            return await AnalysisRunIdCanonicalization.LoadAgentResultsByRunIdAsync(
+                resultRepository,
+                scope,
+                lookupRunId,
+                useRollupProjection: false,
+                cancellationToken).ConfigureAwait(false);
+        }
+
+        Dictionary<string, AgentResult> merged = new(StringComparer.OrdinalIgnoreCase);
+
+        foreach (string lookupKey in AnalysisRunIdCanonicalization.EnumerateRunIdRepositoryLookupKeys(lookupRunId))
+        {
+            IReadOnlyList<AgentResult> results = await resultRepository
+                .GetByRunIdAsync(scope, lookupKey, cancellationToken, connection, transaction)
+                .ConfigureAwait(false);
+
+            if (results is not { Count: > 0 })
+                continue;
+
+            foreach (AgentResult result in results)
+            {
+                if (result is null)
+                    continue;
+
+                string mergeKey = string.IsNullOrWhiteSpace(result.ResultId)
+                    ? $"{result.AgentType}:{result.TaskId}"
+                    : result.ResultId;
+
+                if (!merged.TryGetValue(mergeKey, out AgentResult? existing)
+                    || result.CreatedUtc > existing.CreatedUtc)
+                    merged[mergeKey] = result;
+            }
+        }
+
+        return merged.Count == 0 ? [] : merged.Values.ToList();
     }
 }

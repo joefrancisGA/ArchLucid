@@ -25,7 +25,8 @@ public static class FirstValueReportRunSectionFormatter
         sb.AppendLine("| --- | --- |");
         sb.AppendLine($"| Support run id | `{run.RunId}` |");
         sb.AppendLine($"| Status | `{run.Status}` |");
-        sb.AppendLine($"| Request id | `{run.RequestId}` |");
+        sb.AppendLine(
+            $"| Request id | `{(string.IsNullOrWhiteSpace(run.RequestId) ? "Request id was not stored." : run.RequestId.Trim())}` |");
         sb.AppendLine($"| Created (UTC) | `{run.CreatedUtc:O}` |");
         sb.AppendLine(
             $"| Completed (UTC) | `{(run.CompletedUtc is null ? "Completed time was not stored." : run.CompletedUtc.Value.ToString("O", CultureInfo.InvariantCulture))}` |");
@@ -36,8 +37,10 @@ public static class FirstValueReportRunSectionFormatter
             return;
         }
 
-        sb.AppendLine($"| System | `{manifest.SystemName}` |");
-        sb.AppendLine($"| Manifest version | `{manifest.Metadata.ManifestVersion}` |");
+        sb.AppendLine(
+            $"| System | `{(string.IsNullOrWhiteSpace(manifest.SystemName) ? "System name was not stored." : manifest.SystemName.Trim())}` |");
+        sb.AppendLine(
+            $"| Manifest version | `{(string.IsNullOrWhiteSpace(manifest.Metadata.ManifestVersion) ? "Manifest version was not stored." : manifest.Metadata.ManifestVersion.Trim())}` |");
         sb.AppendLine($"| Commit snapshot (UTC) | `{manifest.Metadata.CreatedUtc:O}` |");
         sb.AppendLine("| Environment (capture) | Environment was not stored. |");
         sb.AppendLine();

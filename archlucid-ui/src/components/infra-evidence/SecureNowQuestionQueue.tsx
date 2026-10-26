@@ -55,7 +55,7 @@ type ClosedQuestionAnswerFields = {
   readonly status: string | null;
   readonly answerCode: string | null;
   readonly answerText: string | null;
-  readonly reason: string | null | undefined;
+  readonly reason: string | null;
 };
 
 function closedSecureNowQuestionAnswerLines(question: ClosedQuestionAnswerFields): readonly string[] {
@@ -66,7 +66,7 @@ function closedSecureNowQuestionAnswerLines(question: ClosedQuestionAnswerFields
   return [
     secureNowQuestionReviewerClosedAnswerCodeLine(question.answerCode),
     secureNowQuestionReviewerClosedAnswerTextLine(question.answerText),
-    secureNowQuestionReviewerClosedDispositionReasonLine(question.reason),
+    secureNowQuestionReviewerClosedDispositionReasonLine(question.reason ?? null),
   ];
 }
 

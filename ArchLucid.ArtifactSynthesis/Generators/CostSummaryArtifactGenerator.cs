@@ -74,7 +74,9 @@ public sealed class CostSummaryArtifactGenerator(IInfrastructureCostArtifactAugm
                 RuntimePlatform = line.Platform == RuntimePlatform.Unknown
                     ? "Runtime platform was not stored."
                     : line.Platform.ToString(),
-                AzureProductLabel = line.AzureProductLabel,
+                AzureProductLabel = string.IsNullOrWhiteSpace(line.AzureProductLabel)
+                    ? "Azure product label was not stored."
+                    : line.AzureProductLabel.Trim(),
                 EstimatedUsdPerMonth = line.EstimatedUsdPerMonth,
                 PriceSource = line.PriceSource == InfrastructureCostPriceSource.Unknown
                     ? "Price source was not stored."

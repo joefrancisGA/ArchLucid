@@ -107,6 +107,18 @@ alpha|beta|gamma|delta|epsilon|zeta`;
     expect(result.sourceText).toContain("\\n");
   });
 
+  it("records actor-kind omissions without inventing people or system entities", () => {
+    const result = parseArchitectureGeneratedContent("## Systems and services\n- Billing API", {
+      ...userAssertions,
+      peopleAndSystems: [{ label: "Partner portal", kind: "" }],
+    });
+    const systems = result.sections.find((section) => section.key === "systems-and-services");
+
+    expect(systems?.entities?.some((entity) => entity.label === "Partner portal")).toBe(false);
+    expect(result.assertionDiagramHonestyNotes?.[0]).toContain("Partner portal");
+    expect(systems?.entities?.some((entity) => entity.label === "Claims platform")).toBe(false);
+  });
+
   it("does not treat HTML or script injection as executable markup in structured narrative", () => {
     const source = `## Risks
 <script>alert('xss')</script>

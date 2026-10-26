@@ -17,16 +17,22 @@ internal static partial class ConsultingDocxSupplementalSections
 
         string systemName = ConsultingDocxExportHonestyCopy.ResolveSystemName(report);
 
-        int serviceCount = report.Manifest?.Services.Count ?? 0;
-        int datastoreCount = report.Manifest?.Datastores.Count ?? 0;
-        int controlCount = report.Manifest?.Governance.RequiredControls.Count ?? 0;
+        string serviceCountToken = report.Manifest is null
+            ? "Service count was not stored."
+            : report.Manifest.Services.Count.ToString();
+        string datastoreCountToken = report.Manifest is null
+            ? "Datastore count was not stored."
+            : report.Manifest.Datastores.Count.ToString();
+        string controlCountToken = report.Manifest is null
+            ? "Required control count was not stored."
+            : report.Manifest.Governance.RequiredControls.Count.ToString();
 
         string text = options.SponsorReportTextTemplate
             .Replace("{SystemName}", systemName, StringComparison.OrdinalIgnoreCase)
             .Replace("{OrganizationName}", options.OrganizationName, StringComparison.OrdinalIgnoreCase)
-            .Replace("{ServiceCount}", serviceCount.ToString(), StringComparison.OrdinalIgnoreCase)
-            .Replace("{DatastoreCount}", datastoreCount.ToString(), StringComparison.OrdinalIgnoreCase)
-            .Replace("{ControlCount}", controlCount.ToString(), StringComparison.OrdinalIgnoreCase);
+            .Replace("{ServiceCount}", serviceCountToken, StringComparison.OrdinalIgnoreCase)
+            .Replace("{DatastoreCount}", datastoreCountToken, StringComparison.OrdinalIgnoreCase)
+            .Replace("{ControlCount}", controlCountToken, StringComparison.OrdinalIgnoreCase);
 
         ConsultingDocxOpenXmlPrimitives.AddStyledParagraph(body, text, "BodyText");
 
@@ -61,7 +67,14 @@ internal static partial class ConsultingDocxSupplementalSections
         ConsultingDocxOpenXmlPrimitives.AddStyledParagraph(body, options.ArchitectureOverviewIntro, "BodyText");
 
         if (string.IsNullOrWhiteSpace(report.Diagram))
+        {
+            ConsultingDocxOpenXmlPrimitives.AddStyledParagraph(
+                body,
+                ConsultingDocxAppendixHonestyCopy.MermaidSourceNotStored,
+                "BodyText");
+
             return;
+        }
 
         byte[]? imageBytes = await diagramImageRenderer.RenderMermaidPngAsync(
             report.Diagram,

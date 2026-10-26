@@ -52,6 +52,30 @@ describe("AuthorityPipelineTimeline", () => {
     expect(screen.getByText(/No events recorded/)).toBeInTheDocument();
   });
 
+  it("labels missing and unreadable event times honestly (P-18)", () => {
+    const items: PipelineTimelineItem[] = [
+      {
+        eventId: "11111111-1111-1111-1111-111111111111",
+        occurredUtc: "",
+        eventType: "RunStarted",
+        actorUserName: "system",
+        correlationId: null,
+      },
+      {
+        eventId: "22222222-2222-2222-2222-222222222222",
+        occurredUtc: "not-a-timestamp",
+        eventType: "RunCompleted",
+        actorUserName: "system",
+        correlationId: null,
+      },
+    ];
+
+    render(<AuthorityPipelineTimeline items={items} omitEventTechnicalDetails />);
+
+    expect(screen.getByText("Event time was not stored.")).toBeInTheDocument();
+    expect(screen.getByText("Event time was not readable.")).toBeInTheDocument();
+  });
+
   it("shows load error message when provided", () => {
     render(
       <AuthorityPipelineTimeline items={null} loadErrorMessage="unauthorized" />,

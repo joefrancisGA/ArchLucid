@@ -16,6 +16,24 @@ public static class InventoryDiagramRelationshipLabelTexts
     public const string AppToKeyVaultRefLabel =
         "App setting names Key Vault. Observed secret access was not stored.";
 
+    public const string ConnectionStoredObservedTrafficNotStoredLabel =
+        "Connection was stored. Observed traffic was not stored.";
+
+    public const string RouteStoredObservedTrafficNotStoredLabel =
+        "Route was stored. Observed traffic was not stored.";
+
+    public const string AvdSessionHostStoredObservedSessionNotStoredLabel =
+        "AVD session host was stored. An observed session was not stored.";
+
+    public const string MemberOfStoredObservedUseNotStoredLabel =
+        "Membership was stored. Observed use of that membership was not stored.";
+
+    public const string DependencyStoredObservedUseNotStoredLabel =
+        "Dependency was stored. Observed use was not stored.";
+
+    public const string RelatesToStoredNotSpecificLabel =
+        "A relates-to link was stored. A more specific relationship was not stored.";
+
     public const string SqlPrincipalAuthorizedAccessLabel =
         "SQL principal authorization may allow access. An observed query was not stored.";
 
@@ -66,7 +84,22 @@ public static class InventoryDiagramRelationshipLabelTexts
         return $"Private endpoint connection: {status}";
     }
 
-    public const string Peered = "Peered";
+    public const string Peered = "Peering is connected. Observed traffic was not stored.";
+
+    public const string PeeringRemoteNetworkIdStoredPeeringStateNotStored =
+        "A remote network id was stored. Peering state was not stored.";
+
+    public const string ProtectionLinkStoredObservedProtectionNotStored =
+        "Protection link was stored. Observed protection was not stored.";
+
+    public const string RoleLinkStoredNameAndUseNotStored =
+        "Role link was stored. Role name and use were not stored.";
+
+    public const string AppliesToLinkStoredEnforcementNotObserved =
+        "Applies-to link was stored. Enforcement was not observed.";
+
+    public const string SubnetPlacementStoredReachabilityNotObserved =
+        "Subnet placement was stored. Reachability was not observed.";
 
     public const string SendsTrafficTo = "Sends traffic to";
 
@@ -163,9 +196,61 @@ public static class InventoryDiagramRelationshipLabelTexts
     public const string ImageReferenceStoredImagePullNotObserved =
         "Image reference was stored. An image pull was not observed.";
 
+    public const string AuthorizationMayAllowConsumeObservedMessagingNotStored =
+        "Authorization may allow consume. Observed messaging was not stored.";
+
+    public const string AuthorizationMayAllowSendObservedMessagingNotStored =
+        "Authorization may allow send. Observed messaging was not stored.";
+
+    public const string AuthorizationMayAllowReceiveObservedMessagingNotStored =
+        "Authorization may allow receive. Observed messaging was not stored.";
+
+    public const string LinkedServiceConfiguredObservedRunNotStored =
+        "Linked service is configured. An observed run was not stored.";
+
+    public const string ApiConnectionConfiguredObservedCallNotStored =
+        "API connection is configured. An observed call was not stored.";
+
+    public const string ServiceBusForwardConfiguredObservedDeliveryNotStored =
+        "Forwarding is configured. Observed delivery was not stored.";
+
+    public const string ServiceBusForwardDeadLetterConfiguredObservedDeliveryNotStored =
+        "Dead-letter forwarding is configured. Observed delivery was not stored.";
+
+    public const string KubernetesServiceLoadBalancerConfiguredObservedTrafficNotStored =
+        "Kubernetes service load balancer is configured. Observed traffic was not stored.";
+
+    public const string NetworkSecurityPerimeterAssociationStoredObservedEnforcementNotStored =
+        "Network security perimeter association was stored. Observed enforcement was not stored.";
+
     public const string RoleAssignmentObservedUseNotStoredSuffix = "Observed use was not stored.";
 
     public const string DiagnosticSettingStorageNamesNotListedQualifier = "names-not-listed";
+
+    public static string FormatDiagnosticSettingStorageLabel(string? settingName)
+    {
+        if (string.IsNullOrWhiteSpace(settingName))
+        {
+            return DiagnosticSettingNameNotStoredLogDeliveryNotObserved;
+        }
+
+        if (string.Equals(
+                settingName.Trim(),
+                DiagnosticSettingStorageNamesNotListedQualifier,
+                StringComparison.OrdinalIgnoreCase))
+        {
+            return DiagnosticSettingNamesNotListedLogDeliveryNotObserved;
+        }
+
+        return $"{settingName.Trim()}. Log delivery was not observed.";
+    }
+
+    public static string FormatRoleAssignmentAccessLabel(string roleName)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(roleName);
+
+        return $"Role assignment: {roleName.Trim()}. {RoleAssignmentObservedUseNotStoredSuffix}";
+    }
 
     public static string FormatBackendPoolMembershipConfigured(int? backendPort)
     {
@@ -184,31 +269,6 @@ public static class InventoryDiagramRelationshipLabelTexts
             : $"Configured backend pool member on port {backendPort.Value}.";
     }
 
-    public static string FormatDiagnosticSettingStorageLabel(string? settingName)
-    {
-        if (string.IsNullOrWhiteSpace(settingName))
-        {
-            return DiagnosticSettingNameNotStoredLogDeliveryNotObserved;
-        }
-
-        if (string.Equals(
-                settingName.Trim(),
-                DiagnosticSettingStorageNamesNotListedQualifier,
-                StringComparison.OrdinalIgnoreCase))
-        {
-            return DiagnosticSettingNamesNotListedLogDeliveryNotObserved;
-        }
-
-        return $"{settingName.Trim()}. Log delivery was not observed.";
-    }
-
-    public static string FormatRoleAssignmentAccessLabel(string roleName)
-    {
-        ArgumentException.ThrowIfNullOrWhiteSpace(roleName);
-
-        return $"Role assignment: {roleName.Trim()}. {RoleAssignmentObservedUseNotStoredSuffix}";
-    }
-
     public static string FormatBackendOffCanvasOutline(string backendName)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(backendName);
@@ -216,28 +276,13 @@ public static class InventoryDiagramRelationshipLabelTexts
         return $"Backend {backendName.Trim()} is not on this diagram.";
     }
 
-    public static string FormatDiagnosticSettingStorageLabel(string? settingName)
+    public static string FormatRecoveryServicesReplicatesLabel(string? targetRegion)
     {
-        if (string.IsNullOrWhiteSpace(settingName))
+        if (string.IsNullOrWhiteSpace(targetRegion))
         {
-            return DiagnosticSettingNameNotStoredLogDeliveryNotObserved;
+            return $"{AzureInventoryRecoveryServices.ReplicateEdgeLabel}. Replication target region was not stored.";
         }
 
-        if (string.Equals(
-                settingName.Trim(),
-                DiagnosticSettingStorageNamesNotListedQualifier,
-                StringComparison.OrdinalIgnoreCase))
-        {
-            return DiagnosticSettingNamesNotListedLogDeliveryNotObserved;
-        }
-
-        return $"{settingName.Trim()}. Log delivery was not observed.";
-    }
-
-    public static string FormatRoleAssignmentAccessLabel(string roleName)
-    {
-        ArgumentException.ThrowIfNullOrWhiteSpace(roleName);
-
-        return $"Role assignment: {roleName.Trim()}. {RoleAssignmentObservedUseNotStoredSuffix}";
+        return $"{AzureInventoryRecoveryServices.ReplicateEdgeLabel} to {targetRegion.Trim()}.";
     }
 }

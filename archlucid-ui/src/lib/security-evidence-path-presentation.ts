@@ -49,7 +49,7 @@ export function formatSecurityEvidencePathConfidenceBandLabel(band: string | nul
     return "Confidence band was not stored.";
   }
 
-  return PATH_CONFIDENCE_BAND_LABELS[trimmed] ?? "Guessed";
+  return PATH_CONFIDENCE_BAND_LABELS[trimmed] ?? "Confidence band was not recognized.";
 }
 
 export function formatSecurityEvidenceProvenanceKindLabel(kind: string | null | undefined): string {
@@ -59,15 +59,15 @@ export function formatSecurityEvidenceProvenanceKindLabel(kind: string | null | 
     return "Provenance kind was not stored.";
   }
 
-  return PROVENANCE_KIND_LABELS[trimmed] ?? "Guessed";
+  return PROVENANCE_KIND_LABELS[trimmed] ?? "Provenance kind was not recognized.";
 }
 
 const PATH_RELATIONSHIP_LABELS: Readonly<Record<string, string>> = {
   CAN_READ: "Role allows read. This is not observed use.",
   CAN_WRITE: "Role allows write. This is not observed use.",
-  USES_IDENTITY: "uses managed identity",
-  MEMBER_OF: "member of group",
-  PossibleMovement: "possible movement",
+  USES_IDENTITY: "Identity is assigned. Use of that identity was not stored.",
+  MEMBER_OF: "Group membership was stored. Observed use of that membership was not stored.",
+  PossibleMovement: "Possible movement. An observed move was not stored.",
   UnrestrictedEgress: "unrestricted egress (declared NSG allow)",
   InsufficientEvidenceEgress: "egress not fully verified",
   SharedControlFanOut: "shared control fan-out",

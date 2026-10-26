@@ -41,16 +41,20 @@ export const PACKAGE_PRINT_BACK_LABEL = "Back to review";
 export const PACKAGE_PRINT_STATUS_HEADING = "Status";
 export const PACKAGE_PRINT_FINDINGS_HEADING = "Key findings summary";
 export const PACKAGE_PRINT_SEMANTIC_SUPPORT_HEADING = "Semantic support";
+export const PACKAGE_PRINT_SEMANTIC_SUPPORT_STAMP_NOT_STORED_LINE =
+  "Semantic support stamp was not stored on this print." as const;
+export const PACKAGE_PRINT_SEMANTIC_SUPPORT_NO_DECISION_GRADE_LINE =
+  "No decision-grade findings were stored for semantic support." as const;
 export const PACKAGE_PRINT_SYNOPSIS_HEADING = "Sponsor synopsis";
 export const PACKAGE_PRINT_DRAFT_SYNOPSIS_HEADING = "Working sponsor synopsis (draft)";
 export const PACKAGE_PRINT_DRAFT_SYNOPSIS_NOT_PUBLISHED =
-  "Draft sponsor synopsis is not published with a finalized architecture review package.";
+  "Draft sponsor synopsis is not published with a finalized architecture package.";
 export const PACKAGE_PRINT_META_CREATED_LABEL = "Created";
 export const PACKAGE_PRINT_LOADING_LABEL = "Loading review for print…";
 export const PACKAGE_PRINT_ERROR_FALLBACK = "This architecture review could not be loaded for print.";
 
 export const PACKAGE_PRINT_PIPELINE_STAGE_FLAGS_OMITTED_LINE =
-  "Assessment step flags were not stored on this summary — package status may not reflect pipeline progress.";
+  "Assessment step flags were not stored on this summary — review status may not reflect pipeline progress.";
 
 export type PackagePrintStatusLabel =
   | "Draft"
@@ -59,7 +63,7 @@ export type PackagePrintStatusLabel =
   | "Finalized"
   | "Finalized. Governance warnings were stored."
   | "Finalized. Governance warning flags were not stored."
-  | "Package status was not stored."
+  | "Review status was not stored."
   | "Archived";
 
 /** Builds the dedicated print path for a review (`/architecture/reviews/{runId}/print`). */
@@ -110,6 +114,8 @@ export type PackagePrintPresentation = {
   readonly runId: string;
   readonly coverageHonestyLine?: string | null;
   readonly semanticSupportBandStampLine?: string | null;
+  readonly semanticSupportFindingsSnapshotPresent?: boolean;
+  readonly semanticSupportDecisionGradeCount?: number | null;
   readonly manifestVersionForGuard?: string | null;
   readonly meetingCaptureEntries?: readonly ReviewMeetingCaptureEntry[] | null;
   readonly transparencyTrail?: TransparencyTrail | null;
@@ -178,7 +184,7 @@ export function resolvePackagePrintStatusLabel(summary: RunSummary): PackagePrin
   ];
 
   if (draftFlags.some((flag) => flag === undefined)) {
-    return "Package status was not stored.";
+    return "Review status was not stored.";
   }
 
   return "Draft";
@@ -198,7 +204,7 @@ export function resolvePackagePrintStatusKind(status: PackagePrintStatusLabel): 
       return "approved";
     case "Archived":
       return "neutral";
-    case "Package status was not stored.":
+    case "Review status was not stored.":
       return "draft";
     default: {
       const _exhaustive: never = status;
@@ -315,6 +321,31 @@ export function buildPackagePrintSponsorSynopsis(summary: RunSummary): string | 
   return `Sponsor synopsis for "${title}": finalized architecture review with ${findingsPhrase}.${warningsPhrase}`;
 }
 
+export function resolvePackagePrintSemanticSupportBandDisplayLine(
+  stampLine: string | null | undefined,
+  options?: {
+    readonly findingsSnapshotPresent?: boolean;
+    readonly decisionGradeCount?: number | null;
+  },
+): string {
+  const trimmedStamp = stampLine?.trim() ?? "";
+
+  if (trimmedStamp.length > 0) {
+    return trimmedStamp;
+  }
+
+  if (
+    options?.findingsSnapshotPresent === true
+    && options.decisionGradeCount !== null
+    && options.decisionGradeCount !== undefined
+    && options.decisionGradeCount === 0
+  ) {
+    return PACKAGE_PRINT_SEMANTIC_SUPPORT_NO_DECISION_GRADE_LINE;
+  }
+
+  return PACKAGE_PRINT_SEMANTIC_SUPPORT_STAMP_NOT_STORED_LINE;
+}
+
 /** Stamp line aligned with review-package semantic support counts (AS-071). */
 export function resolvePackagePrintSemanticSupportBandStampLine(
   findings: readonly QuickDecisionFinding[],
@@ -330,6 +361,8 @@ export function buildPackagePrintPresentation(
     readonly findingsListedCount?: number | null;
     readonly coverageHonestyLine?: string | null;
     readonly semanticSupportBandStampLine?: string | null;
+    readonly semanticSupportFindingsSnapshotPresent?: boolean;
+    readonly semanticSupportDecisionGradeCount?: number | null;
     readonly meetingCaptureEntries?: readonly ReviewMeetingCaptureEntry[] | null;
     readonly transparencyTrail?: TransparencyTrail | null;
     readonly showQuietEnginesHint?: boolean;
@@ -376,6 +409,8 @@ export function buildPackagePrintPresentation(
     runId: summary.runId,
     coverageHonestyLine: options?.coverageHonestyLine ?? null,
     semanticSupportBandStampLine: options?.semanticSupportBandStampLine ?? null,
+    semanticSupportFindingsSnapshotPresent: options?.semanticSupportFindingsSnapshotPresent ?? false,
+    semanticSupportDecisionGradeCount: options?.semanticSupportDecisionGradeCount ?? null,
     meetingCaptureEntries: options?.meetingCaptureEntries ?? null,
     transparencyTrail: options?.transparencyTrail ?? null,
     showQuietEnginesHint: options?.showQuietEnginesHint ?? false,

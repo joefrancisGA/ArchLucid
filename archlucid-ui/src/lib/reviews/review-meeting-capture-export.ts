@@ -15,7 +15,11 @@ export const REVIEW_MEETING_CAPTURE_QUESTION_NOT_STORED = "Question was not stor
 export const REVIEW_MEETING_CAPTURE_ANSWER_NOT_STORED = "Answer was not stored." as const;
 
 export function formatReviewMeetingCaptureQuestionLabel(questionLabel: string): string {
-  return questionLabel.trim().length > 0 ? questionLabel : REVIEW_MEETING_CAPTURE_QUESTION_NOT_STORED;
+  if (questionLabel.trim().length === 0) {
+    return REVIEW_MEETING_CAPTURE_QUESTION_NOT_STORED;
+  }
+
+  return formatReviewMeetingCaptureQuestionLine(questionLabel);
 }
 
 export function formatReviewMeetingCaptureAnswer(answer: string): string {

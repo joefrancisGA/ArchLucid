@@ -208,6 +208,7 @@ export function FindingAskInlinePanel(props: FindingAskInlinePanelProps) {
               props.findingId,
               props.semanticSupportBand,
             )}
+            openFindingContext
           />
           <AskVsFrontierAiDifferentiationStrip variant="compact" />
           <p
@@ -251,7 +252,7 @@ export function FindingAskInlinePanel(props: FindingAskInlinePanelProps) {
                       Answer was stored empty.
                     </p>
                   ) : (
-                    <AskAssistantMessageBody content={turn.answer} reviewIdInScope={props.runId} />
+                    <AskAssistantMessageBody content={turn.answer} />
                   )}
                   <AskCitedFindingsSemanticSupportBandFootnote
                     referencedFindingIds={[props.findingId]}
@@ -259,6 +260,7 @@ export function FindingAskInlinePanel(props: FindingAskInlinePanelProps) {
                       props.findingId,
                       props.semanticSupportBand,
                     )}
+                    openFindingContext
                   />
                 </li>
               ))}

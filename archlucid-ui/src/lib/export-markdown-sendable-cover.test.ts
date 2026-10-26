@@ -27,12 +27,14 @@ describe("formatSendableExportCoverMarkdown", () => {
     expect(markdown).not.toContain("headline savings");
   });
 
-  it("includes sponsor ROI honesty only when ROI rows are present", () => {
-    const withoutRows = formatSendableExportCoverMarkdown({ runId: "run-1", sponsorRoiRowCount: 0 });
+  it("distinguishes omitted sponsor ROI from a stored zero row count", () => {
+    const omitted = formatSendableExportCoverMarkdown({ runId: "run-1" });
+    const storedZero = formatSendableExportCoverMarkdown({ runId: "run-1", sponsorRoiRowCount: 0 });
     const withRows = formatSendableExportCoverMarkdown({ runId: "run-1", sponsorRoiRowCount: 2 });
 
-    expect(withoutRows).toContain("Sponsor savings were not stored on this export cover.");
-    expect(withoutRows).not.toContain("headline savings");
+    expect(omitted).toContain("Sponsor savings were not stored on this export cover.");
+    expect(storedZero).toContain("No sponsor savings rows were stored.");
+    expect(storedZero).not.toContain("Sponsor savings were not stored on this export cover.");
     expect(withRows).toContain("do not sum to the headline");
   });
 

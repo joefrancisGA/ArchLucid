@@ -19,7 +19,10 @@ import {
   BULK_EVIDENCE_UPLOAD_MAX_FILES,
   RUN_DETAIL_EVIDENCE_CAPTURE_SECTION_TITLE,
 } from "@/lib/bulk-evidence-upload-copy";
-import type { BulkEvidenceUploadSummary } from "@/lib/bulk-evidence-upload-outcome";
+import {
+  resolveBulkEvidenceFailureReason,
+  type BulkEvidenceUploadSummary,
+} from "@/lib/bulk-evidence-upload-outcome";
 import {
   BULK_EVIDENCE_UPLOAD_ERROR_DIAGNOSTICS_OPEN_PARAM,
   bulkEvidenceUploadErrorDiagnosticsDisclosureHrefFromSearch,
@@ -249,9 +252,10 @@ export function BulkEvidenceUpload({ runId, embedded = false, onUploadSummary }:
                   .map((outcome) => (
                     <li key={outcome.fileName} className={OPERATOR_TYPOGRAPHY.helper}>
                       <span className="font-medium">{outcome.fileName}</span>
-                      {outcome.reason ? (
-                        <span className="text-amber-900 dark:text-amber-200"> — {outcome.reason}</span>
-                      ) : null}
+                      <span className="text-amber-900 dark:text-amber-200">
+                        {" "}
+                        — {resolveBulkEvidenceFailureReason(outcome.reason)}
+                      </span>
                     </li>
                   ))}
               </ul>

@@ -14,6 +14,22 @@ describe("wizard-presets — TB-644 cloud-neutral defaults", () => {
     expect(architectureDomainAdmissionRegex.test(greenfield!.values.description ?? "")).toBe(true);
   });
 
+  it("named starter presets include a lifecycle environment so step-0 Next can pass", () => {
+    const allowedEnvironments: readonly string[] = ["staging", "production", "development", "sandbox"];
+
+    for (const preset of wizardPresets) {
+
+      if (preset.id === "blank-advanced") {
+        continue;
+      }
+
+      const merged = applyWizardPreset(buildDefaultWizardValues(), preset.values);
+
+      expect(merged.environment.length, preset.id).toBeGreaterThan(0);
+      expect(allowedEnvironments, preset.id).toContain(merged.environment);
+    }
+  });
+
   it("does not pre-select Azure cloudProvider on starter presets", () => {
     const azurePresetIds = ["greenfield-web-app", "event-driven-integration", "data-lake-analytics"];
 
