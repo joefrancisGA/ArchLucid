@@ -494,4 +494,63 @@ public sealed class AnalysisRunIdCanonicalizationTests
         merged.Should().Contain(s => s.ModelDeploymentName == "gpt-4o" && s.InputTokenCount == 80);
         merged.Should().Contain(s => s.ModelDeploymentName == "gpt-4o-mini" && s.InputTokenCount == 40);
     }
+
+    [Fact]
+    public async Task CompareQuality_LoadAgentResultsByRunIdAsync_prefers_newer_row_when_alternate_keys_repeat_result_id()
+    {
+        const string canonicalRunId = "edededededededededededededededed";
+        const string legacyUpperRunId = "EDEDEDEDEDEDEDEDEDEDEDEDEDEDEDED";
+        const string resultId = "result-shared-across-keys";
+
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+            WorkspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+            ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
+        };
+
+        AgentResult olderCanonical = new()
+        {
+            ResultId = resultId,
+            RunId = canonicalRunId,
+            TaskId = "task-shared",
+            AgentType = AgentType.Compliance,
+            Claims = ["stale"],
+            CreatedUtc = new DateTime(2026, 1, 1, 8, 0, 0, DateTimeKind.Utc),
+        };
+        AgentResult newerLegacy = new()
+        {
+            ResultId = resultId,
+            RunId = legacyUpperRunId,
+            TaskId = "task-shared",
+            AgentType = AgentType.Compliance,
+            Claims = ["fresh"],
+            CreatedUtc = new DateTime(2026, 1, 2, 8, 0, 0, DateTimeKind.Utc),
+        };
+
+        Mock<IAgentResultRepository> resultRepository = new();
+        resultRepository
+            .Setup(r => r.GetByRunIdAsync(scope, canonicalRunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([olderCanonical]);
+        resultRepository
+            .Setup(r => r.GetByRunIdAsync(scope, legacyUpperRunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([newerLegacy]);
+        resultRepository
+            .Setup(r => r.GetByRunIdAsync(
+                scope,
+                It.Is<string>(id => id != canonicalRunId && id != legacyUpperRunId),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        IReadOnlyList<AgentResult> merged =
+            await AnalysisRunIdCanonicalization.LoadAgentResultsByRunIdAsync(
+                resultRepository.Object,
+                scope,
+                canonicalRunId,
+                useRollupProjection: false,
+                CancellationToken.None);
+
+        merged.Should().ContainSingle();
+        merged[0].Claims.Should().ContainSingle(c => c == "fresh");
+    }
 }

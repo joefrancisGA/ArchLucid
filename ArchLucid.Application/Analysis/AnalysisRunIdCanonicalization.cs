@@ -174,7 +174,7 @@ internal static class AnalysisRunIdCanonicalization
                     ? $"{result.AgentType}:{result.TaskId}"
                     : result.ResultId;
 
-                merged.TryAdd(mergeKey, result);
+                PreferNewerByCreatedUtc(merged, mergeKey, result, static r => r.CreatedUtc);
             }
         }
 
@@ -210,7 +210,7 @@ internal static class AnalysisRunIdCanonicalization
                 if (task is null || string.IsNullOrWhiteSpace(task.TaskId))
                     continue;
 
-                merged.TryAdd(task.TaskId, task);
+                PreferNewerByCreatedUtc(merged, task.TaskId, task, static t => t.CreatedUtc);
             }
         }
 
@@ -246,7 +246,7 @@ internal static class AnalysisRunIdCanonicalization
                 if (trace is null || string.IsNullOrWhiteSpace(trace.TraceId))
                     continue;
 
-                merged.TryAdd(trace.TraceId, trace);
+                PreferNewerByCreatedUtc(merged, trace.TraceId, trace, static t => t.CreatedUtc);
             }
         }
 
@@ -317,7 +317,7 @@ internal static class AnalysisRunIdCanonicalization
                     ? marker.AgentType.ToString()
                     : marker.ResultId;
 
-                merged.TryAdd(mergeKey, marker);
+                PreferNewerByCreatedUtc(merged, mergeKey, marker, static m => m.CreatedUtc);
             }
         }
 
@@ -383,7 +383,7 @@ internal static class AnalysisRunIdCanonicalization
                     ? $"{node.Topic}:{node.RunId}"
                     : node.DecisionId;
 
-                merged.TryAdd(mergeKey, node);
+                PreferNewerByCreatedUtc(merged, mergeKey, node, static n => n.CreatedUtc);
             }
         }
 
@@ -418,7 +418,7 @@ internal static class AnalysisRunIdCanonicalization
                 if (record is null || string.IsNullOrWhiteSpace(record.ExportRecordId))
                     continue;
 
-                merged.TryAdd(record.ExportRecordId, record);
+                PreferNewerByCreatedUtc(merged, record.ExportRecordId, record, static r => r.CreatedUtc);
             }
         }
 
@@ -453,7 +453,7 @@ internal static class AnalysisRunIdCanonicalization
                 if (record is null || string.IsNullOrWhiteSpace(record.ComparisonRecordId))
                     continue;
 
-                merged.TryAdd(record.ComparisonRecordId, record);
+                PreferNewerByCreatedUtc(merged, record.ComparisonRecordId, record, static r => r.CreatedUtc);
             }
         }
 
@@ -463,5 +463,18 @@ internal static class AnalysisRunIdCanonicalization
                 .OrderByDescending(static record => record.CreatedUtc)
                 .ThenBy(static record => record.ComparisonRecordId, StringComparer.OrdinalIgnoreCase)
                 .ToList();
+    }
+
+    private static void PreferNewerByCreatedUtc<T>(
+        Dictionary<string, T> merged,
+        string mergeKey,
+        T candidate,
+        Func<T, DateTime> readCreatedUtc)
+    {
+        if (merged.TryGetValue(mergeKey, out T? existing)
+            && readCreatedUtc(candidate) <= readCreatedUtc(existing))
+            return;
+
+        merged[mergeKey] = candidate;
     }
 }
