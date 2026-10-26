@@ -12144,6 +12144,20 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-agents
 
+2026-10-26 seed hunt (seed→hit): promoted ledger follow-on `RunToolInvocationForensicsBuilder.Build`; proved tool-invocation forensics chose the structured path whenever `structuredRecords.Count > 0` even when every entry was null after the structured-row filter, returning an empty structured response instead of trace-derived rows operators could still see; require at least one non-null structured record before `BuildFromStructured`, else fall back to traces; regression `Build_falls_back_to_traces_when_structured_records_are_all_null`; cheap-disproof closed `ReviewModelAliasResolver` null capability tags, `AgentCuratedEvidenceProposer` null proposal slots, `PromptVariantStatsService` duplicate null-row guard (prior hit), and slice-path aggregator parity (already filtered); seeded five follow-on `(candidate)` rows; scoped `FullyQualifiedName~Application.Tests.Agents` filter 178/178 (`RunAnalyzers=false`). Private beta: Run tool-invocation forensics still shows trace-derived rows when the structured ledger list is present but contains only null slots.
+
+- [ ] (candidate) `ReviewModelAliasResolver.ResolveForRunCreateAsync` — null `CapabilityTags` elements during allowlist walk — locus: resolver tag iteration.
+- [ ] (candidate) `AgentCuratedEvidenceProposer.BuildUserPrompt` — null `AddedServices`/`AddedDatastores` on topology proposals — locus: proposal serialization loops.
+- [ ] (candidate) `AgentExecutionTraceRunLlmCostAggregator.Compute` — slice overload null-slot parity audit vs trace overload — locus: `Compute` slice path.
+- [ ] (candidate) `TopologyProposalDualModelConsensusEnricher` — null endpoint keys in `CollectKnownEndpointKeys` after prior hits — locus: shared collector regression gap.
+- [ ] (candidate) `ModelExecutionProfileResolver.ResolveForRunCreateAsync` — null elements in configured override list parsing — locus: parser/token walk.
+
+- [x] (proven) `RunToolInvocationForensicsBuilder.Build` structured all-null fallback — **hit 2026-10-26 seed hunt:** non-null structured row required before structured path; regression above.
+- [x] (valid-no-repro) `ReviewModelAliasResolver.ResolveForRunCreateAsync` null capability tags — **cheap-disproof 2026-10-26 seed hunt:** no failing repro.
+- [x] (valid-no-repro) `AgentCuratedEvidenceProposer.BuildUserPrompt` null proposal slots — **cheap-disproof 2026-10-26 seed hunt:** existing guards.
+- [x] (valid-no-repro) `PromptVariantStatsService.GetStatsAsync` null rows — **cheap-disproof 2026-10-26 seed hunt:** proven 2026-10-23.
+- [x] (valid-no-repro) `AgentExecutionTraceRunLlmCostAggregator.Compute` slice null slots — **cheap-disproof 2026-10-26 seed hunt:** prior hit on slice overload.
+
 2026-10-26 seed hunt (seed→hit): promoted ledger follow-on `CompositeAgentResultPostExecutionEnricher.EnrichAsync`; proved post-LLM enrichment still invoked every registered enricher without filtering null DI slots, so a null entry in the enricher collection aborted the whole run finalize path; skip null enrichers in the composite loop (parity with `RegisteredAgentHandlersInspector`); regression `EnrichAsync_skips_null_enricher_entries`; cheap-disproof closed `RunToolInvocationForensicsBuilder.Build` all-null structured gate, `ReviewModelAliasResolver` null capability tags, `AgentCuratedEvidenceProposer` null proposal list slots, and `RegisteredAgentHandlersInspector` lazy-enumerable parity (already filters on iterate); seeded five follow-on `(candidate)` rows; scoped `FullyQualifiedName~Application.Tests.Agents` filter 177/177 (`RunAnalyzers=false`). Private beta: Review runs complete post-agent enrichment when the DI enricher list contains a null slot instead of failing the finalize pipeline.
 
 - [ ] (candidate) `RunToolInvocationForensicsBuilder.Build` — fall back to trace-derived forensics when structured list is non-empty but all entries are null after filter — locus: `Build` gate ~27.
