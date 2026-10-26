@@ -6501,6 +6501,8 @@ ABQ-09 churn hotspot; review detail route tree.
 ---
 
 ## Zone: ui-review-intake-wizards
+2026-10-26 thorough hunt (hit): promoted `useGuidedIntakeDraftSubmit` **operator-home cache invalidation failure** after successful draft submit — `await invalidateOperatorHomeRunsCaches()` sat in the submit `try`, so a rejected invalidation hit the outer `catch`, set `submitError`, and skipped navigation even though the run was created; wrap invalidation in best-effort try/catch; regression `still navigates to generation when operator-home cache invalidation fails after draft submit`; 1/1 `use-guided-intake-draft-submit` test. Cheap-disproof closed picker template-restore ordering and guided-intake popstate (prior passes). Private beta: guided intake draft submit still hands off to review generation when operator-home cache refresh fails.
+
 2026-10-26 thorough hunt (hit): promoted `useNewRunWizardSubmit.recheckUnresolvedRun` **over-broad catch** — the recheck `try/catch` wrapped post-resume `clearWizardSession` and pending-evidence upload, so storage cleanup or upload exceptions after `markResumed()` called `creationProgress.fail()` even though the run had resumed; narrow the catch to the unresolved replay request only and best-effort session cleanup on submit/recheck success paths; regressions `still resumes unresolved create when clearing wizard session throws on recheck` and `reports recheck failure only when the unresolved replay request throws`; 6/6 `use-new-run-wizard-submit` tests. Cheap-disproof closed picker template-restore vs query-prefill ordering and guided-intake popstate race (prior pass). Private beta: full guided wizard “check again” recovery no longer shows a false creation failure after the run is found when session cleanup fails.
 
 2026-10-26 thorough hunt (hit): promoted `useFirstPilotIntakeSubmit` post-create **`clearWizardSession` throw** — after `creationProgress.succeed()`, a storage failure from session cleanup fell into the outer `catch` and called `creationProgress.fail`, so operators saw a failed start even though the architecture run was created; wrap cleanup in best-effort try/catch on submit and unresolved-recheck resume paths; regression `still navigates after successful create when clearing the wizard session throws`; 3/3 `use-first-pilot-intake-submit` tests. Cheap-disproof closed picker `NewRunWizardTemplateRestore` vs query-prefill ordering (restore is user-driven; `data-wizard-ready` is intentional mount signal) and guided-intake `popstate` vs `useSearchParams` (existing URL-sync regressions). Private beta: quick-start review creation still navigates to generation when browser session cleanup fails after a successful create.
@@ -6511,6 +6513,7 @@ ABQ-09 churn hotspot; review detail route tree.
 
 2026-10-16 thorough hunt (hit): promoted pending document upload generation on `setPendingDocumentFiles`; 10/10 pending-evidence tests.
 
+- [x] (proven) `useGuidedIntakeDraftSubmit` — cache invalidation failure after draft submit blocks navigation — **hit 2026-10-26 thorough hunt:** best-effort `invalidateOperatorHomeRunsCaches`; regression cache-invalidation reject fixture.
 - [x] (proven) `useNewRunWizardSubmit.recheckUnresolvedRun` — post-resume cleanup/upload errors reported as create failure — **hit 2026-10-26 thorough hunt:** narrow recheck catch; best-effort `clearWizardSession`; regressions recheck clear throw + API-only fail.
 - [x] (proven) `useFirstPilotIntakeSubmit` — `clearWizardSession` throw after successful create — **hit 2026-10-26 thorough hunt:** best-effort cleanup; regression storage-throw fixture.
 - [x] (valid-no-repro) `NewRunWizardTemplateRestore` / `useNewRunWizardQueryPrefill` — restored step before policy deeplink prefill — **cheap-disproof 2026-10-26 thorough hunt:** template restore via explicit accept; policy prefill one-shot on mount; prior policy-after-reset hit retained.
@@ -6520,7 +6523,7 @@ ABQ-09 churn hotspot; review detail route tree.
 
 - [ ] (candidate) `useFirstPilotIntakeWizard` — example-template prefill overwrites restored quick-start title when both apply on one mount — locus: example effect vs `onRestore`; input: `template=` deeplink plus accepted session restore.
 - [ ] (candidate) `useNewRunWizardSubmit.recheckUnresolvedRun` — pending evidence upload rejection after resume — locus: `recheckUnresolvedRun` await upload; input: compare submitRun upload throw handling.
-- [ ] (candidate) `useGuidedIntakeDraftSubmit` — cache invalidation failure after draft admission — locus: post-admit invalidation; input: rejected operator-home cache invalidation.
+- [x] (valid-no-repro) `useGuidedIntakeDraftSubmit` — cache invalidation failure after draft admission — **cheap-disproof 2026-10-26 thorough hunt:** prior hit; regression lock retained.
 - [ ] (candidate) `useFirstPilotIntakeWizard.setScopeGateOpen` — URL write skipped when ref matches resolved but React state lags — locus: ref vs state divergence on external URL edits.
 - [ ] (candidate) `useGuidedIntakeWizard` — `rerunAutoSubmitStartedRef` suppresses second eligible rerun without remount — locus: one-shot guard; input: switch `priorRunId` deeplink in place.
 
@@ -6533,10 +6536,10 @@ ABQ-09 churn hotspot; review detail route tree.
 - **bugs-found:** 36
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-26
-- **last-bug:** 2026-10-26 — recheck resume misreported failure after session cleanup throw
+- **last-bug:** 2026-10-26 — draft submit blocked when operator-home cache invalidation failed
 - **code-changed-since:** yes
 
-**Hunts:** 65 · **Bugs found:** 36 · **Consecutive dry hunts:** 0
+**Hunts:** 66 · **Bugs found:** 37 · **Consecutive dry hunts:** 0
 
 2026-10-09 seed hunt (seed-only): `ui-review-intake-wizards` — re-read full and quick submit orchestration, draft admission, evidence handoff, and scope-gate URL synchronization; no new hypothesis met the same-run failing-repro bar without repeating a saturated unhandled-rejection or post-create handoff class. Seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
 

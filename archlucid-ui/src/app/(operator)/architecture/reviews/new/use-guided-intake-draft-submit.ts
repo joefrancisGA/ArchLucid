@@ -64,7 +64,11 @@ export function useGuidedIntakeDraftSubmit(options: Options) {
       upsertArchitectureDraftRegistryEntry(
         buildArchitectureDraftRegistryEntry(submittedDraft, { linkedReviewId: result.runId }),
       );
-      await invalidateOperatorHomeRunsCaches();
+      try {
+        await invalidateOperatorHomeRunsCaches();
+      } catch {
+        // Operator-home list freshness is best-effort; do not block handoff after admit.
+      }
       recordFirstTenantFunnelEvent("first_run_started");
       trackReviewPipelineInFlight(result.runId, {
         architectureId: submittedDraft.architectureId ?? null,
