@@ -98,7 +98,9 @@ describe("architectureDiagramModelToMermaid", () => {
     const mermaid = architectureDiagramModelToMermaid(modelWithBoundary);
     const alt = architectureDiagramModelToTextAlternative(modelWithBoundary);
 
-    expect(mermaid).toContain("submit claim (submitted text, not operator-asserted)");
+    expect(mermaid.replace(/\\n/g, " ")).toContain(
+      "submit claim (submitted text, not operator-asserted)",
+    );
     expect(alt).toContain(
       "Claims analyst to Claims API (submit claim) (submitted text, not operator-asserted)",
     );
@@ -192,7 +194,7 @@ describe("architectureDiagramModelToMermaid", () => {
 
     const mermaid = architectureDiagramModelToMermaid(longInferred);
 
-    expect(mermaid).toContain("(submitted text, not operator-asserted)");
+    expect(mermaid.replace(/\n/g, " ")).toContain("(submitted text, not operator-asserted)");
     expect(mermaid).toMatch(/\.\.\./);
   });
 
