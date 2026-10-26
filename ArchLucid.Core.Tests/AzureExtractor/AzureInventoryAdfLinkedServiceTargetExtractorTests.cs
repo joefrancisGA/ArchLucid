@@ -11,6 +11,22 @@ namespace ArchLucid.Core.Tests.AzureExtractor;
 public sealed class AzureInventoryAdfLinkedServiceTargetExtractorTests
 {
     [Fact]
+    public void Extract_reads_cosmos_host_from_percent_encoded_account_endpoint_url()
+    {
+        const string host = "acct.documents.azure.com";
+        string encodedEndpoint = Uri.EscapeDataString($"https://{host}:443/");
+
+        using JsonDocument document = JsonDocument.Parse(
+            $$"""{ "accountEndpoint": "{{encodedEndpoint}}" }""");
+
+        (string? targetResourceId, string? targetHost) =
+            AzureInventoryAdfLinkedServiceTargetExtractor.Extract(document.RootElement, "AzureCosmosDb");
+
+        targetResourceId.Should().BeNull();
+        targetHost.Should().Be(host);
+    }
+
+    [Fact]
     public void Extract_reads_blob_host_from_account_uri_when_service_endpoint_is_localhost()
     {
         const string host = "sa2.blob.core.windows.net";
