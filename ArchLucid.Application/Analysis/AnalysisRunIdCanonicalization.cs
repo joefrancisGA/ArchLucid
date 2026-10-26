@@ -132,6 +132,26 @@ internal static class AnalysisRunIdCanonicalization
         return [];
     }
 
+    internal static async Task<AgentEvidencePackage?> LoadEvidencePackageByRunIdAsync(
+        IAgentEvidencePackageRepository evidencePackageRepository,
+        string primaryRunId,
+        CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(evidencePackageRepository);
+
+        foreach (string lookupKey in EnumerateRunIdRepositoryLookupKeys(primaryRunId))
+        {
+            AgentEvidencePackage? evidence = await evidencePackageRepository
+                .GetByRunIdAsync(lookupKey, cancellationToken)
+                .ConfigureAwait(false);
+
+            if (evidence is not null)
+                return evidence;
+        }
+
+        return null;
+    }
+
     internal static async Task<IReadOnlyList<DecisionNodeRecord>> LoadDecisionNodesByRunIdAsync(
         IDecisionNodeRepository decisionNodeRepository,
         string primaryRunId,

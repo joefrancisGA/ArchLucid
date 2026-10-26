@@ -203,22 +203,13 @@ public sealed class ArchitectureAnalysisService(
     /// <summary>
     ///     Route parameters may use dashed GUIDs while persisted run rows use canonical N-format ids.
     /// </summary>
-    private async Task<AgentEvidencePackage?> TryLoadEvidencePackageAsync(
+    private Task<AgentEvidencePackage?> TryLoadEvidencePackageAsync(
         string primaryRunId,
-        CancellationToken cancellationToken)
-    {
-        foreach (string lookupKey in AnalysisRunIdCanonicalization.EnumerateRunIdRepositoryLookupKeys(primaryRunId))
-        {
-            AgentEvidencePackage? evidence = await evidenceRepository
-                .GetByRunIdAsync(lookupKey, cancellationToken)
-                .ConfigureAwait(false);
-
-            if (evidence is not null)
-                return evidence;
-        }
-
-        return null;
-    }
+        CancellationToken cancellationToken) =>
+        AnalysisRunIdCanonicalization.LoadEvidencePackageByRunIdAsync(
+            evidenceRepository,
+            primaryRunId,
+            cancellationToken);
 
     private async Task<List<AgentExecutionTrace>> TryLoadExecutionTracesAsync(
         ScopeContext scope,
