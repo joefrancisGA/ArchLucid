@@ -31,7 +31,15 @@ public sealed class AgentConfidenceCalibrator(
                 .GetRecentByAgentTypeAsync(agentType, _options.SampleCount, cancellationToken)
                 .ConfigureAwait(false);
 
-        if (samples.Count < _options.MinimumSamplesForCalibration)
+        int usableSampleCount = 0;
+
+        foreach (AgentConfidenceCalibrationSampleRow sample in samples)
+        {
+            if (sample is not null)
+                usableSampleCount++;
+        }
+
+        if (usableSampleCount < _options.MinimumSamplesForCalibration)
             return ClampUnit(rawConfidence);
 
         IReadOnlyList<CalibrationKnot> knots = BuildIsotonicKnots(samples);
