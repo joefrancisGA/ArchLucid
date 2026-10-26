@@ -751,10 +751,22 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
       const result = await createRemediationInstance(trimmedFindingId);
 
       if (!result.succeeded) {
+        const blockerMessage = result.blockers
+          .map((blocker) => blocker.trim())
+          .filter((blocker) => blocker.length > 0)
+          .join(" ");
+        const trimmedErrorMessage = result.errorMessage?.trim() ?? "";
+        const failureMessage =
+          blockerMessage.length > 0
+            ? blockerMessage
+            : trimmedErrorMessage.length > 0
+              ? trimmedErrorMessage
+              : "Remediation create failed.";
+
         setFindingActionMessages((current) => ({
           ...current,
           [trimmedFindingId]: {
-            message: result.blockers.join(" ") || result.errorMessage || "Remediation create failed.",
+            message: failureMessage,
             instanceId: null,
           },
         }));

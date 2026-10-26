@@ -578,7 +578,26 @@ describe("ResourceHubClient", () => {
     expect(screen.queryByTestId("infra-resource-hub-finding-created-factory-finding-1")).not.toBeInTheDocument();
   });
 
-  it("shows remediation action omission copy when create remediation returns whitespace-only errorMessage", async () => {
+  it("shows generic remediation create failed when blockers are whitespace-only", async () => {
+    searchParams = new URLSearchParams(`tab=findings&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}`);
+    createRemediationInstance.mockResolvedValueOnce({
+      succeeded: false,
+      instanceId: null,
+      blockers: ["   ", "  "],
+      errorMessage: null as string | null,
+    });
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    fireEvent.click(await screen.findByTestId("infra-resource-hub-create-remediation-finding-1"));
+    fireEvent.click(screen.getByTestId("infra-resource-hub-create-remediation-confirm"));
+    await waitFor(() => {
+      expect(screen.getByTestId("infra-resource-hub-finding-message-finding-1")).toHaveTextContent(
+        "Remediation create failed.",
+      );
+    });
+  });
+
+  it("shows generic remediation create failed when create remediation returns whitespace-only errorMessage", async () => {
     searchParams = new URLSearchParams(`tab=findings&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}`);
     createRemediationInstance.mockResolvedValueOnce({
       succeeded: false,
@@ -592,7 +611,7 @@ describe("ResourceHubClient", () => {
     fireEvent.click(screen.getByTestId("infra-resource-hub-create-remediation-confirm"));
     await waitFor(() => {
       expect(screen.getByTestId("infra-resource-hub-finding-message-finding-1")).toHaveTextContent(
-        "Remediation action message was not stored.",
+        "Remediation create failed.",
       );
     });
   });

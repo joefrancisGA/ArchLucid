@@ -7209,6 +7209,32 @@ ABQ-09 churn hotspot.
 
 ## Zone: ui-infra-resource-hub
 
+2026-10-26 seed hunt (seed→hit): promoted whitespace-only **remediation create failure blockers** — `blockers.join(" ")` stayed truthy for whitespace-only entries so the UI skipped `errorMessage` and the generic `"Remediation create failed."` fallback and instead showed omission copy after `formatStoredInfraEvidenceHubField`; trim/filter blockers before join and trim `errorMessage` before fallback; regressions `shows generic remediation create failed when blockers are whitespace-only` and whitespace-only `errorMessage`; cheap-disproof closed remediation tab `instanceId` (prior hit), overview `resourceGroup`/`region` inline trim, and drift `changeType` normalize; scoped ResourceHubClient vitest 103/103. Private beta: after a failed create-remediation from a finding, operators see the generic failure line instead of “Remediation action message was not stored.” when the API returns only whitespace blockers or error text.
+
+- [x] (proven) `ResourceHubClient` `runCreateRemediationFromFinding` — whitespace-only `blockers` / `errorMessage` — **hit 2026-10-26 seed hunt:** trim/filter join + trimmed fallback chain; regressions whitespace blocker and errorMessage fixtures.
+- [x] (valid-no-repro) `ResourceHubClient` remediation tab — `instanceId` whitespace — **cheap-disproof 2026-10-26 seed hunt:** prior hit retained.
+- [x] (valid-no-repro) `ResourceHubClient` overview — `resourceGroup` / `region` whitespace — **cheap-disproof 2026-10-26 seed hunt:** inline trim omission copy.
+- [x] (valid-no-repro) `ResourceHubDriftChangesTable` — `changeType` whitespace — **cheap-disproof 2026-10-26 seed hunt:** normalize maps trim-empty to stored label.
+- [x] (valid-no-repro) `ResourceHubClient` confirm dialog — `resourceTitle` edge — **cheap-disproof 2026-10-26 seed hunt:** path segment trim + display normalizer.
+
+- [ ] (candidate) `ResourceHubClient` overview — `resourceGroup` / `region` via `formatStoredInfraEvidenceHubField` — locus: copy string parity with other hub fields.
+- [ ] (candidate) `ResourceHubClient` remediation failure — padded blocker strings in join — locus: join separator spacing when mix of empty trim segments; input: `["", "Blocked"]`.
+- [ ] (candidate) `ResourceHubDriftChangesTable` — exotic unknown `changeType` StatusTag — locus: neutral kind for unrecognized keys.
+- [ ] (candidate) `ResourceHubClient` findings factory link — existing `instanceId` on finding row whitespace — locus: findings tab deep links separate from create flow.
+- [ ] (candidate) `ResourceHubClient` audit overview — `degradedReason` banner parity — locus: overview vs audit tab.
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 75
+- **bugs-found:** 54
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-26
+- **last-bug:** 2026-10-26 — whitespace-only remediation create failure blockers/errorMessage
+- **code-changed-since:** yes
+
 2026-10-26 seed hunt (seed→hit): promoted whitespace-only **remediation tab instanceId** on listed instances — remediation rows always rendered factory/Ask links using raw `item.instanceId` so whitespace-only ids produced broken workbench handoffs; trim gate hides actions and shows omission copy; regression `does not show remediation tab factory links when instanceId is whitespace-only`; cheap-disproof closed create-from-finding `instanceId` (prior hit), failure `blockers.join` (status formatter), and overview `resourceGroup` inline trim; scoped ResourceHubClient vitest 102/102. Private beta: on the resource hub remediation tab, operators see “Remediation instance id was not stored.” instead of misleading factory links when capture stored only whitespace in `instanceId`.
 
 - [x] (proven) `ResourceHubClient` remediation tab — `instanceId` whitespace-only — **hit 2026-10-26 seed hunt:** trim before links; regression whitespace instance row fixture.
