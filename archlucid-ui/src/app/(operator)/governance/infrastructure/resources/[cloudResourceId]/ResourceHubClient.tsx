@@ -452,6 +452,8 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
   const urlSnapshotPinForCloudResourceIdRef = useRef<string | null>(
     snapshotId.length > 0 ? cloudResourceId : null,
   );
+  const urlSnapshotPinBootstrappedForResourceRef = useRef<string | null>(null);
+  const urlSnapshotPinBootstrapIsResourceSwitchRef = useRef(false);
 
   useEffect(() => {
     if (skipInitialHubScopeResetRef.current) {
@@ -469,6 +471,8 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
     if (previousCloudResourceId !== cloudResourceId) {
       lastResolvedHubSnapshotIdRef.current = "";
       urlSnapshotPinForCloudResourceIdRef.current = null;
+      urlSnapshotPinBootstrappedForResourceRef.current = null;
+      urlSnapshotPinBootstrapIsResourceSwitchRef.current = true;
     }
 
     committedHubClientScopeKeyRef.current = hubClientScopeKey;
@@ -485,6 +489,18 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
   }, [cloudResourceId, hubClientScopeKey]);
 
   useEffect(() => {
+    if (urlSnapshotPinBootstrappedForResourceRef.current !== cloudResourceId) {
+      const isResourceSwitch = urlSnapshotPinBootstrapIsResourceSwitchRef.current;
+      urlSnapshotPinBootstrapIsResourceSwitchRef.current = false;
+      urlSnapshotPinBootstrappedForResourceRef.current = cloudResourceId;
+      committedUrlSnapshotPinRef.current = snapshotId;
+      if (isResourceSwitch) {
+        urlSnapshotPinForCloudResourceIdRef.current = null;
+      }
+
+      return;
+    }
+
     if (snapshotId === committedUrlSnapshotPinRef.current) {
       return;
     }
@@ -524,6 +540,10 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
   );
 
   useEffect(() => {
+    if (urlSnapshotPinBootstrappedForResourceRef.current !== cloudResourceId) {
+      return;
+    }
+
     if (snapshotId.length === 0) {
       return;
     }

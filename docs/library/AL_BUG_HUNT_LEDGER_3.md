@@ -7209,6 +7209,32 @@ ABQ-09 churn hotspot.
 
 ## Zone: ui-infra-resource-hub
 
+2026-10-26 seed hunt (seed→hit): promoted **URL snapshot pin re-established on in-app resource switch** — the pin ref initializer treated any URL `snapshotId` as pinned for the current `cloudResourceId`, and the bootstrap path could run before inactive-pin URL normalization, so client-side hub navigation could briefly honor another resource’s snapshot query again; track per-resource bootstrap, clear the pin on `cloudResourceId` change without re-pinning from a carried query, and defer inactive-pin `router.replace` until bootstrap completes; scoped ResourceHubClient vitest 132/132 (existing regressions for stale fetch, URL normalize, and scope strip). Private beta: switching between resource hubs in one session no longer re-applies a carried snapshot query as a pin for the new resource.
+
+- [x] (proven) `ResourceHubClient` URL snapshot pin bootstrap — resource switch — **hit 2026-10-26 seed hunt:** `urlSnapshotPinBootstrappedForResourceRef` + `urlSnapshotPinBootstrapIsResourceSwitchRef`; normalize gated on bootstrap.
+- [x] (valid-no-repro) `ResourceHubClient` deep link — cold load wrong bookmark — **cheap-disproof 2026-10-26 seed hunt:** full remount still uses init pin; monitor only.
+- [x] (valid-no-repro) `ResourceHubClient` overview — terraform tab quick link — **cheap-disproof 2026-10-26 seed hunt:** polish.
+- [x] (valid-no-repro) `ResourceHubClient` manual Retry — concurrent scope change — **cheap-disproof 2026-10-26 seed hunt:** generation guard.
+- [x] (valid-no-repro) `ResourceHubDriftChangesTable` — drift change ids — **cheap-disproof 2026-10-26 seed hunt:** defer.
+
+- [ ] (candidate) `ResourceHubClient` overview — quick link to terraform tab when mapped — locus: navigation polish.
+- [ ] (candidate) `ResourceHubClient` overview — terraform workbench in cross-workbench row — locus: intentionally omitted per regression.
+- [ ] (candidate) `ResourceHubClient` buyer-polished identifier disclosures — ARM copy affordance — locus: polish.
+- [ ] (candidate) `ResourceHubClient` cold navigation — wrong snapshot bookmark on remount — locus: init pin on new component instance; monitor.
+- [ ] (candidate) `ResourceHubDriftChangesTable` — drift actions without change ids — locus: saturated trim class; defer.
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 110
+- **bugs-found:** 87
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-26
+- **last-bug:** 2026-10-26 — URL snapshot pin bootstrap on resource switch
+- **code-changed-since:** yes
+
 2026-10-26 seed hunt (seed→hit): promoted **stale `snapshotId` left in browser URL** after `cloudResourceId` change — hunts 106–107 ignored inactive URL pins for fetch and scope-strip copy, but the address bar still carried the prior resource’s `snapshotId` until the operator switched tabs, so copied/bookmarked links reopened the wrong pin; `router.replace` via `resourceHubFilterHrefFromSearch` when URL `snapshotId` is present but the per-resource pin ref is cleared, rewriting to `resolvedSnapshotId` (or dropping the param); regression `normalizes stale URL snapshotId via router after cloudResourceId changes`; cheap-disproof closed scope-key monitor row, terraform quick link (polish), ARM copy (polish), and drift change-id trim (defer); scoped ResourceHubClient vitest 132/132. Private beta: copying the resource hub URL after switching to another cloud resource no longer preserves another resource’s snapshot id in the query string.
 
 - [x] (proven) `ResourceHubClient` router URL — inactive URL `snapshotId` after resource navigation — **hit 2026-10-26 seed hunt:** normalize query on pin ref mismatch; regression above.
