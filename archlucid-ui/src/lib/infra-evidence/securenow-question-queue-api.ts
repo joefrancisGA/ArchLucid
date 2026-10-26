@@ -1,6 +1,7 @@
 import {
   secureNowQuestionDispositionIsAnswered,
   secureNowQuestionDispositionIsDismissed,
+  secureNowQuestionDispositionIsOpen,
 } from "@/lib/infra-evidence/securenow-question-disposition-status";
 import { proxyJsonGet, proxyJsonPost } from "@/lib/proxy-json-client";
 
@@ -202,6 +203,20 @@ export function secureNowQuestionDispositionResponseIsUsable(
   if (
     secureNowQuestionDispositionIsDismissed(disposition.status)
     && disposition.reason.trim().length === 0
+  ) {
+    return false;
+  }
+
+  if (
+    secureNowQuestionDispositionIsDismissed(disposition.status)
+    && secureNowQuestionDispositionAnswerMetadataPresent(disposition)
+  ) {
+    return false;
+  }
+
+  if (
+    secureNowQuestionDispositionIsOpen(disposition.status)
+    && secureNowQuestionDispositionAnswerMetadataPresent(disposition)
   ) {
     return false;
   }
