@@ -6358,6 +6358,20 @@
 
 ## Zone: core-azure-extractor
 
+2026-10-26 seed hunt (seed→hit): reseeded `core-azure-extractor` after picker `seedHunt`; promoted five open `(candidate)` rows from prior seed; ADF `server` values that percent-encode a trailing dot (`.%2E`) kept a trailing dot because `NormalizeHost` trimmed dots only before a single `Uri.UnescapeDataString` pass; bounded percent-decode loop then re-trim; regression `Extract_reads_sql_host_from_percent_encoded_server_property_with_encoded_trailing_dot`; cheap-disproof closed explicit flattened `nextHopIpAddress` JSON object with `resourceId` only (`Parse_reads_next_hop_ip_address_when_explicit_flattened_next_hop_ip_address_is_json_object_with_resource_id_only`), scheme-less global unbracketed IPv6 without port (`TryExtractHost_reads_host_when_scheme_less_unbracketed_global_ipv6_has_path_without_port`), and percent-encoded reference scalar with empty `id` (`TryReadScalarString_reads_resource_id_when_id_is_empty_string_on_percent_encoded_reference_scalar`); closed Event Hub `properties.resourceGroup` object as non-contract destination id shape (`Extract_does_not_read_event_hub_properties_resource_group_object_as_destination_arm_id`); seeded five follow-on `(candidate)` rows; hunt regressions passed (Release). Private beta: invited operators keep Azure SQL linked-service host indexing when ADF `server` properties percent-encode DNS trailing-dot suffixes.
+
+- [x] (proven) `AzureInventoryAdfLinkedServiceTargetExtractor` — Azure SQL `server` property percent-encoded with internal trailing dot — **hit 2026-10-26 seed hunt:** `NormalizeHost` decode loop + re-trim; regression `Extract_reads_sql_host_from_percent_encoded_server_property_with_encoded_trailing_dot`. [class:fail-open-validation]
+- [x] (valid-no-repro) `AzureInventoryRouteTableRouteParser` — explicit flattened `routes.{n}.nextHopIpAddress` JSON object reference with `resourceId` only — **cheap-disproof 2026-10-26 seed hunt:** `ReadRouteNextHopIpAddress` + `TryParseFlattenedArmIdValue`; regression `Parse_reads_next_hop_ip_address_when_explicit_flattened_next_hop_ip_address_is_json_object_with_resource_id_only`.
+- [x] (invalid) `AzureInventoryEventGridDestinationExtractor` — Event Hub `resourceGroup` nested under `properties` as ARM reference object — **invalid 2026-10-26 seed hunt:** Azure Event Hub destination contract uses `resourceId` / `eventHubResourceId`, not `properties.resourceGroup` objects; regression `Extract_does_not_read_event_hub_properties_resource_group_object_as_destination_arm_id`.
+- [x] (valid-no-repro) `AzureInventoryEventGridWebhookHostExtractor` — scheme-less unbracketed global IPv6 without port (`2001:db8::1/callback`) — **cheap-disproof 2026-10-26 seed hunt:** IPv6 bracket path; regression `TryExtractHost_reads_host_when_scheme_less_unbracketed_global_ipv6_has_path_without_port`.
+- [x] (valid-no-repro) `AzureInventoryArmNestedObjectPropertyReader.TryReadScalarString` — percent-encoded JSON scalar reference with empty `id` string and valid `resourceId` — **cheap-disproof 2026-10-26 seed hunt:** `id` empty guard + `resourceId` fallback; regression `TryReadScalarString_reads_resource_id_when_id_is_empty_string_on_percent_encoded_reference_scalar`.
+
+- [ ] (candidate) `AzureInventoryRouteTableRouteParser` — explicit flattened `routes.{n}.nextHopReference` JSON object with `resourceId` only when `nextHopIpAddress` empty — locus: `TryParseFlattenedNextHopArmId`; input: reference suffix only row; wrong outcome: null next-hop ARM id.
+- [ ] (candidate) `AzureInventoryEventGridDestinationExtractor` — Storage Queue destination `queueName` nested under `properties` as ARM reference object — locus: nested bag keys; input: properties.queueName object; wrong outcome: null.
+- [ ] (candidate) `AzureInventoryEventGridWebhookHostExtractor` — scheme-less webhook with percent-encoded global IPv6 port (`2001:db8::1%3A443/callback`) — locus: `TryBracketUnbracketedIpv6Authority`; input: encoded port; wrong outcome: host null.
+- [ ] (candidate) `AzureInventoryAdfLinkedServiceTargetExtractor` — MySQL `connectionString` `Server=` host percent-encoded with trailing dot — locus: `NormalizeHost`; input: encoded host with `.%2E`; wrong outcome: host null.
+- [ ] (candidate) `AzureInventoryArmNestedObjectPropertyReader.TryReadScalarString` — percent-encoded JSON scalar reference with missing `id` key and valid `resourceId` — locus: precedence; input: encoded object; wrong outcome: null.
+
 2026-10-26 seed hunt (seed→hit): reseeded `core-azure-extractor` after picker `seedHunt`; promoted five open `(candidate)` rows from prior seed; explicit flattened `routes.{n}.nextHopIpAddress` percent-encoded JSON reference scalars stayed encoded because `ReadRouteProperty` only trimmed strings; `ReadRouteNextHopIpAddress` runs `TryParseFlattenedArmIdValue` with literal fallback; regression `Parse_reads_next_hop_ip_address_when_explicit_flattened_next_hop_ip_address_is_percent_encoded_json_reference_scalar`; Event Hub destinations with `properties.eventHubResourceId` reference objects were ignored because `Extract` read only top-level `resourceId`; fall back to `eventHubResourceId` via nested bag reader; regression `Extract_reads_event_hub_destination_resource_id_from_nested_properties_event_hub_resource_id_object`; cheap-disproof closed scheme-less unbracketed link-local IPv6 with port (`TryExtractHost_reads_host_when_scheme_less_unbracketed_link_local_ipv6_has_explicit_port_and_path`), plain SQL `server` trailing dot (`Extract_reads_sql_host_from_server_property_with_trailing_dot`), and whitespace-only `id` on percent-encoded reference scalars (`TryReadScalarString_reads_resource_id_when_id_is_whitespace_only_on_percent_encoded_reference_scalar`); seeded five follow-on `(candidate)` rows; hunt regressions passed (Release). Private beta: invited operators keep route-table VA next hops on flattened inventory rows and Event Grid Event Hub subscription edges when ARM stores `eventHubResourceId` under destination properties.
 
 - [x] (proven) `AzureInventoryRouteTableRouteParser` — explicit flattened `routes.{n}.nextHopIpAddress` percent-encoded JSON reference scalar — **hit 2026-10-26 seed hunt:** `ReadRouteNextHopIpAddress`; regression `Parse_reads_next_hop_ip_address_when_explicit_flattened_next_hop_ip_address_is_percent_encoded_json_reference_scalar`. [class:fail-open-validation]
@@ -6545,11 +6559,11 @@
 - **aliases:** azure extractor; manifest schema; split from archlucid-core
 - **paths:** ArchLucid.Core/AzureExtractor/
 - **test-filter:** FullyQualifiedName~AzureExtractor
-- **hunts:** 84
-- **bugs-found:** 69
+- **hunts:** 85
+- **bugs-found:** 70
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-26
-- **last-bug:** 2026-10-26 — flattened nextHopIpAddress + Event Hub eventHubResourceId
+- **last-bug:** 2026-10-26 — ADF SQL server percent-encoded trailing dot
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 

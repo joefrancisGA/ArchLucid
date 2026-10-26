@@ -301,9 +301,16 @@ public static class AzureInventoryAdfLinkedServiceTargetExtractor
 
         string trimmed = host.Trim().TrimEnd('.');
 
-        if (trimmed.Contains('%', StringComparison.Ordinal))
+        for (int pass = 0; pass < MaxUrlPercentDecodePasses && trimmed.Contains('%', StringComparison.Ordinal); pass++)
         {
-            trimmed = Uri.UnescapeDataString(trimmed);
+            string decoded = Uri.UnescapeDataString(trimmed);
+
+            if (string.Equals(decoded, trimmed, StringComparison.Ordinal))
+            {
+                break;
+            }
+
+            trimmed = decoded.Trim().TrimEnd('.');
         }
 
         if (trimmed.StartsWith("tcp:", StringComparison.OrdinalIgnoreCase))
