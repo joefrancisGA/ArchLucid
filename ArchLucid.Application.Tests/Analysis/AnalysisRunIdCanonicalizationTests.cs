@@ -449,45 +449,63 @@ public sealed class AnalysisRunIdCanonicalizationTests
     [Fact]
     public async Task CompareQuality_LoadDecisionNodesByRunIdAsync_merges_nodes_when_rows_are_split_across_alternate_run_id_keys()
     {
-        const string canonicalRunId = "dddddddddddddddddddddddddddddddd";
-        const string legacyUpperRunId = "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD";
+        Guid runGuid = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+        string canonicalRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(runGuid.ToString());
+        string legacyUpperRunId = canonicalRunId.ToUpperInvariant();
 
-        DecisionNodeRecord canonicalKeyed = new()
-        {
-            DecisionId = "decision-canonical-repo-key",
-            RunId = canonicalRunId,
-            Topic = "TopologyAcceptance",
-            CreatedUtc = DateTime.UtcNow,
-        };
-        DecisionNodeRecord legacyKeyed = new()
-        {
-            DecisionId = "decision-legacy-repo-key",
-            RunId = legacyUpperRunId,
-            Topic = "SecurityGate",
-            CreatedUtc = DateTime.UtcNow,
-        };
-
-        Mock<IDecisionNodeRepository> decisionNodeRepository = new();
-        decisionNodeRepository
-            .Setup(r => r.GetByRunIdAsync(canonicalRunId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync([canonicalKeyed]);
-        decisionNodeRepository
-            .Setup(r => r.GetByRunIdAsync(legacyUpperRunId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync([legacyKeyed]);
-        decisionNodeRepository
-            .Setup(r => r.GetByRunIdAsync(
-                It.Is<string>(id => id != canonicalRunId && id != legacyUpperRunId),
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync([]);
+        InMemoryDecisionNodeRepository decisionNodeRepository = new();
+        await decisionNodeRepository.CreateManyAsync(
+            [
+                new DecisionNodeRecord
+                {
+                    DecisionId = "decision-canonical-repo-key",
+                    RunId = canonicalRunId,
+                    Topic = "TopologyAcceptance",
+                    CreatedUtc = DateTime.UtcNow,
+                },
+                new DecisionNodeRecord
+                {
+                    DecisionId = "decision-legacy-repo-key",
+                    RunId = legacyUpperRunId,
+                    Topic = "SecurityGate",
+                    CreatedUtc = DateTime.UtcNow,
+                },
+            ],
+            CancellationToken.None);
 
         IReadOnlyList<DecisionNodeRecord> merged =
             await AnalysisRunIdCanonicalization.LoadDecisionNodesByRunIdAsync(
-                decisionNodeRepository.Object,
+                decisionNodeRepository,
                 canonicalRunId,
                 CancellationToken.None);
 
         merged.Should().Contain(n => n.DecisionId == "decision-canonical-repo-key");
         merged.Should().Contain(n => n.DecisionId == "decision-legacy-repo-key");
+    }
+
+    [Fact]
+    public async Task CompareQuality_GetByRunIdAsync_merges_decision_nodes_when_stored_under_legacy_run_id_key()
+    {
+        Guid runGuid = Guid.Parse("13131313-1313-1313-1313-131313131313");
+        string canonicalRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(runGuid.ToString());
+        string legacyUpperRunId = canonicalRunId.ToUpperInvariant();
+
+        InMemoryDecisionNodeRepository decisionNodeRepository = new();
+        await decisionNodeRepository.CreateManyAsync(
+            [
+                new DecisionNodeRecord
+                {
+                    DecisionId = "decision-legacy-only",
+                    RunId = legacyUpperRunId,
+                    Topic = "SecurityGate",
+                },
+            ],
+            CancellationToken.None);
+
+        IReadOnlyList<DecisionNodeRecord> nodes =
+            await decisionNodeRepository.GetByRunIdAsync(canonicalRunId, CancellationToken.None);
+
+        nodes.Should().ContainSingle(n => n.DecisionId == "decision-legacy-only");
     }
 
     [Fact]

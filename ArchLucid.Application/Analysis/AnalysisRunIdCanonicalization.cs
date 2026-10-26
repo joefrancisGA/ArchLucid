@@ -324,36 +324,13 @@ internal static class AnalysisRunIdCanonicalization
     {
         ArgumentNullException.ThrowIfNull(decisionNodeRepository);
 
-        Dictionary<string, DecisionNodeRecord> merged = new(StringComparer.OrdinalIgnoreCase);
+        string lookupRunId = CanonicalRunIdForLookup(primaryRunId);
 
-        foreach (string lookupKey in EnumerateRunIdRepositoryLookupKeys(primaryRunId))
-        {
-            IReadOnlyList<DecisionNodeRecord> nodes = await decisionNodeRepository
-                .GetByRunIdAsync(lookupKey, cancellationToken)
-                .ConfigureAwait(false);
+        IReadOnlyList<DecisionNodeRecord> nodes = await decisionNodeRepository
+            .GetByRunIdAsync(lookupRunId, cancellationToken)
+            .ConfigureAwait(false);
 
-            if (nodes is not { Count: > 0 })
-                continue;
-
-            foreach (DecisionNodeRecord node in nodes)
-            {
-                if (node is null)
-                    continue;
-
-                string mergeKey = string.IsNullOrWhiteSpace(node.DecisionId)
-                    ? $"{node.Topic}:{node.RunId}"
-                    : node.DecisionId;
-
-                PreferNewerByCreatedUtc(merged, mergeKey, node, static n => n.CreatedUtc);
-            }
-        }
-
-        return merged.Count == 0
-            ? []
-            : merged.Values
-                .OrderByDescending(static node => node.CreatedUtc)
-                .ThenBy(static node => node.DecisionId, StringComparer.OrdinalIgnoreCase)
-                .ToList();
+        return nodes ?? [];
     }
 
     internal static async Task<IReadOnlyList<RunExportRecord>> LoadRunExportRecordsByRunIdAsync(
