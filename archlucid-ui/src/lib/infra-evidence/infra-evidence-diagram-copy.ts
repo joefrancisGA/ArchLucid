@@ -1,6 +1,7 @@
 export const INFRA_EVIDENCE_DIAGRAM_LEGEND_HEADING = "Diagram legend";
 
-export const INFRA_EVIDENCE_DIAGRAM_LEGEND_OBSERVED = "Solid — observed in Azure inventory";
+export const INFRA_EVIDENCE_DIAGRAM_LEGEND_OBSERVED =
+  "Solid — stored Azure inventory relationship (not live traffic or reachability proof)";
 
 export const INFRA_EVIDENCE_DIAGRAM_LEGEND_DECLARED =
   "Dashed — declared (human assertion; not an ARM fact)";
@@ -34,6 +35,15 @@ export const INFRA_EVIDENCE_INVENTORY_EDGE_PANEL_DIAGNOSTIC_STORAGE_HINT =
 
 export const INFRA_EVIDENCE_INVENTORY_EDGE_PANEL_LOGIC_APP_CONNECTION_HINT =
   "Logic App API connection reference. This is not a data pipeline and not observed traffic.";
+
+export const INFRA_EVIDENCE_INVENTORY_EDGE_PANEL_ROUTE_TABLE_ROUTE_HINT =
+  "Route table next hop from configuration. This is not observed forwarding.";
+
+export const INFRA_EVIDENCE_INVENTORY_EDGE_PANEL_WORKFLOW_ACTION_HINT =
+  "Logic App workflow action target from configuration. This is not an observed run.";
+
+export const INFRA_EVIDENCE_INVENTORY_EDGE_PANEL_OBSERVED_FACT_READER_HINT =
+  "ObservedFact marks what inventory stored. It is not proof of live traffic.";
 
 export const INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED =
   "Dotted — inferred hostname or AI inference (confirm in configuration)";
@@ -82,12 +92,6 @@ export const INFRA_EVIDENCE_DIAGRAM_LEGEND_UNCLASSIFIED_PROVENANCE =
 
 export const INFRA_EVIDENCE_DIAGRAM_LEGEND_PRIVATE_ENDPOINT =
   "Private endpoint access in inventory. This is not observed traffic.";
-
-export const INFRA_EVIDENCE_DIAGRAM_DATA_ARCHITECTURE_READING_LEGEND =
-  "Inventory of data platforms in this snapshot. Not a data-flow diagram.";
-
-export const INFRA_EVIDENCE_DIAGRAM_BUSINESS_CONTINUITY_READING_LEGEND =
-  "Lines are backup or replication items collected from the vault. Resources with no line have no collected protection item in this snapshot.";
 
 export const INFRA_EVIDENCE_DIAGRAM_PNG_DATA_ARCHITECTURE_INVENTORY_NOTE =
   "This diagram shows how data stores relate in inventory. It is not a data-movement map.";

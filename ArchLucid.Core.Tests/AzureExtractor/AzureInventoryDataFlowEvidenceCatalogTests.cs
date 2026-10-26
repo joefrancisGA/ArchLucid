@@ -50,22 +50,10 @@ public sealed class AzureInventoryDataFlowEvidenceCatalogTests
     }
 
     [Theory]
-    [InlineData(
-        AzureInventoryRelationshipAssociationTypes.EventHubMayPublish,
-        AzureInventoryDataFlowEdgeDirection.MayWrite,
-        "Authorization may allow publish. This is not observed messaging.")]
-    [InlineData(
-        AzureInventoryRelationshipAssociationTypes.EventHubMayConsume,
-        AzureInventoryDataFlowEdgeDirection.MayRead,
-        "Authorization may allow consume. This is not observed messaging.")]
-    [InlineData(
-        AzureInventoryRelationshipAssociationTypes.ServiceBusMaySend,
-        AzureInventoryDataFlowEdgeDirection.MayWrite,
-        "Authorization may allow send. This is not observed messaging.")]
-    [InlineData(
-        AzureInventoryRelationshipAssociationTypes.ServiceBusMayReceive,
-        AzureInventoryDataFlowEdgeDirection.MayRead,
-        "Authorization may allow receive. This is not observed messaging.")]
+    [InlineData(AzureInventoryRelationshipAssociationTypes.EventHubMayPublish, AzureInventoryDataFlowEdgeDirection.MayWrite, "Authorization may allow publish. This is not observed messaging.")]
+    [InlineData(AzureInventoryRelationshipAssociationTypes.EventHubMayConsume, AzureInventoryDataFlowEdgeDirection.MayRead, "Authorization may allow consume. This is not observed messaging.")]
+    [InlineData(AzureInventoryRelationshipAssociationTypes.ServiceBusMaySend, AzureInventoryDataFlowEdgeDirection.MayWrite, "Authorization may allow send. This is not observed messaging.")]
+    [InlineData(AzureInventoryRelationshipAssociationTypes.ServiceBusMayReceive, AzureInventoryDataFlowEdgeDirection.MayRead, "Authorization may allow receive. This is not observed messaging.")]
     public void Messaging_authorization_associations_are_catalogued_for_data_flow(
         string associationType,
         AzureInventoryDataFlowEdgeDirection direction,
@@ -124,8 +112,7 @@ public sealed class AzureInventoryDataFlowEvidenceCatalogTests
 
         evidence!.IncludeOnDataFlow.Should().BeTrue();
         evidence.Family.Should().Be(AzureInventoryDataFlowEvidenceFamily.StructuralNetworkPath);
-        evidence.DiagramLabel.Should().Be(
-            InventoryDiagramRelationshipLabelTexts.PrivateEndpointTargetStoredReachabilityNotObserved);
+        evidence.DiagramLabel.Should().Be(InventoryDiagramRelationshipLabelTexts.PeReachableTargetInferredLabel);
     }
 
     [Theory]
@@ -187,6 +174,6 @@ public sealed class AzureInventoryDataFlowEvidenceCatalogTests
         evidence!.IncludeOnDataFlow.Should().BeTrue();
         evidence.Family.Should().Be(AzureInventoryDataFlowEvidenceFamily.DeclaredMovement);
         evidence.Direction.Should().Be(AzureInventoryDataFlowEdgeDirection.DeclaredWrite);
-        evidence.DiagramLabel.Should().Be("Configured route. This is not observed traffic.");
+        evidence.DiagramLabel.Should().Be("Routes to");
     }
 }

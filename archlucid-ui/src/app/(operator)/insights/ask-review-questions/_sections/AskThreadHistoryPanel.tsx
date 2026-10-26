@@ -100,7 +100,7 @@ export function AskThreadHistoryPanel(props: AskThreadHistoryPanelProps) {
                     onClick={() => void onSelectThread(thread.threadId)}
                   >
                     <span>
-                      {thread.title}
+                      {thread.title.trim().length > 0 ? thread.title : "Conversation title was not stored."}
                       <div className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                         {listDateFormatter(thread.lastUpdatedUtc)}
                       </div>

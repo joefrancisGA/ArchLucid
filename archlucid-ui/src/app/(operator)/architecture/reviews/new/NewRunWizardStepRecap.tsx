@@ -63,7 +63,7 @@ export function NewRunWizardStepRecap(props: NewRunWizardStepRecapProps): React.
           ) : null}
         </span>
       ) : (
-        <span className="text-neutral-600 dark:text-neutral-400">Add identity on this step.</span>
+        <span className="text-neutral-600 dark:text-neutral-400">System name was not stored yet.</span>
       )}
       {props.stepIndex >= 3 && description.length > 0 ? (
         <span className="mt-1 block text-neutral-700 dark:text-neutral-300">
