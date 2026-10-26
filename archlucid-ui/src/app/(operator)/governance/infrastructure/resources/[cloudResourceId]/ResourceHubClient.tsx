@@ -416,52 +416,6 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
     [resourcesPath, workQueue],
   );
 
-  const loadHub = useCallback(async (options?: { retainFindingMessages?: boolean }) => {
-    const requestGeneration = loadRequestGeneration.current + 1;
-    loadRequestGeneration.current = requestGeneration;
-    if (!options?.retainFindingMessages) {
-      setFindingActionMessages({});
-    }
-    setLoading(true);
-    setLoadError(null);
-
-    try {
-      const response = await fetchCachedInfraEvidenceResourceHub(cloudResourceId, {
-        runId,
-        snapshotId,
-        assessmentId,
-        auditEvidenceSnapshotId,
-        controlId,
-      });
-
-      // A URL change can leave an older request in flight; only its latest generation may update the hub.
-      if (requestGeneration !== loadRequestGeneration.current) {
-        return;
-      }
-
-      setHub(response);
-    } catch (error: unknown) {
-
-      if (requestGeneration !== loadRequestGeneration.current) {
-        return;
-      }
-
-      setLoadError(formatInfraEvidenceHubApiError(error));
-      setHub(null);
-    } finally {
-
-      if (requestGeneration !== loadRequestGeneration.current) {
-        return;
-      }
-
-      setLoading(false);
-    }
-  }, [assessmentId, auditEvidenceSnapshotId, cloudResourceId, controlId, runId, snapshotId]);
-
-  useEffect(() => {
-    void loadHub();
-  }, [loadHub]);
-
   const setActiveTab = useCallback((tab: ResourceHubTab) => {
     setFindingActionMessages({});
     const sanitizedSearch = sanitizeResourceHubQueryForTab(searchParams.toString(), tab);
@@ -624,6 +578,68 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
   }, [hub, searchParams]);
 
   const showStaleAuditScopeBanner = hasStaleAuditUrlParams || hasUnlinkedAuditScopeInUrl;
+
+  const hubFetchAuditScope = useMemo(() => {
+    const urlScope = parseInfraEvidenceWorkbenchAuditScopeFromSearch(searchParams);
+
+    if (urlScope == null || hasUnlinkedAuditScopeInUrl) {
+      return {
+        assessmentId: "",
+        auditEvidenceSnapshotId: "",
+        controlId: "",
+      };
+    }
+
+    return {
+      assessmentId: urlScope.assessmentId,
+      auditEvidenceSnapshotId: urlScope.auditEvidenceSnapshotId,
+      controlId: urlScope.controlId,
+    };
+  }, [hasUnlinkedAuditScopeInUrl, searchParams]);
+
+  const loadHub = useCallback(async (options?: { retainFindingMessages?: boolean }) => {
+    const requestGeneration = loadRequestGeneration.current + 1;
+    loadRequestGeneration.current = requestGeneration;
+    if (!options?.retainFindingMessages) {
+      setFindingActionMessages({});
+    }
+    setLoading(true);
+    setLoadError(null);
+
+    try {
+      const response = await fetchCachedInfraEvidenceResourceHub(cloudResourceId, {
+        runId,
+        snapshotId,
+        ...hubFetchAuditScope,
+      });
+
+      // A URL change can leave an older request in flight; only its latest generation may update the hub.
+      if (requestGeneration !== loadRequestGeneration.current) {
+        return;
+      }
+
+      setHub(response);
+    } catch (error: unknown) {
+
+      if (requestGeneration !== loadRequestGeneration.current) {
+        return;
+      }
+
+      setLoadError(formatInfraEvidenceHubApiError(error));
+      setHub(null);
+    } finally {
+
+      if (requestGeneration !== loadRequestGeneration.current) {
+        return;
+      }
+
+      setLoading(false);
+    }
+  }, [cloudResourceId, hubFetchAuditScope, runId, snapshotId]);
+
+  useEffect(() => {
+    void loadHub();
+  }, [loadHub]);
 
   const infrastructureAskHandoffSearch = useMemo(() => {
     const serialized = searchParams.toString();
