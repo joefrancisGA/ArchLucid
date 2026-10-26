@@ -19,7 +19,10 @@ import {
   findingInspectDiagramCitationPreviewHrefFromSearch,
   parseDiagramCitationPreviewParam,
 } from "@/lib/findings/finding-inspect-diagram-citation-preview-url";
-import type { FindingPolicyEvidenceCitationModel } from "@/lib/findings/finding-policy-evidence-citations";
+import {
+  findingInspectEvidenceExcerptTitle,
+  type FindingPolicyEvidenceCitationModel,
+} from "@/lib/findings/finding-policy-evidence-citations";
 import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 import type { FindingInspectEvidence } from "@/types/finding-inspect";
 
@@ -54,13 +57,7 @@ function evidenceCitationTitle(row: FindingInspectEvidence): string {
   }
 
   if (excerpt.length > 0) {
-    const firstClause = excerpt.split(/[.—]/)[0]?.trim() ?? excerpt;
-
-    if (firstClause.length > 0 && firstClause.length <= 80) {
-      return firstClause;
-    }
-
-    return excerpt.length > 80 ? `${excerpt.slice(0, 77)}…` : excerpt;
+    return findingInspectEvidenceExcerptTitle(excerpt);
   }
 
   return FINDING_INSPECT_EVIDENCE_EXCERPT_NOT_STORED;
@@ -143,7 +140,7 @@ function EvidenceCitationList(props: {
                 diagramCitation,
                 props.pathname,
               )
-            : (citationRow?.href ?? reviewContextHref);
+            : citationRow?.href ?? null;
         const linkLabel =
           citationRow?.label
           ?? evidenceLinkLabel(row, reviewContextLabel, diagramCitation !== null);
@@ -217,15 +214,24 @@ function EvidenceCitationList(props: {
               </>
             )}
             <div className="mt-2">
-              <Link
-                href={href}
-                className={OPERATOR_LINK.optional}
-                data-testid={
-                  diagramCitation !== null ? "finding-diagram-citation-link" : "finding-source-evidence-link"
-                }
-              >
-                {linkLabel}
-              </Link>
+              {href !== null ? (
+                <Link
+                  href={href}
+                  className={OPERATOR_LINK.optional}
+                  data-testid={
+                    diagramCitation !== null ? "finding-diagram-citation-link" : "finding-source-evidence-link"
+                  }
+                >
+                  {linkLabel}
+                </Link>
+              ) : (
+                <p
+                  className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                  data-testid="finding-source-evidence-link-missing"
+                >
+                  {FINDING_INSPECT_EVIDENCE_LINK_NOT_STORED}
+                </p>
+              )}
             </div>
           </li>
         );
@@ -396,7 +402,7 @@ export function FindingInspectEvidenceSection({
         </h3>
       ) : null}
 
-      {evidenceListReturned !== true ? (
+      {evidenceListReturned === false ? (
         <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
           Evidence list was not stored.
         </p>

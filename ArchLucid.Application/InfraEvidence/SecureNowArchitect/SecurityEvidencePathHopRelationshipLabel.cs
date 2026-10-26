@@ -27,17 +27,17 @@ internal static class SecurityEvidencePathHopRelationshipLabel
 
         if (normalized.Equals(GraphEdgeTypes.UsesIdentity, StringComparison.OrdinalIgnoreCase))
         {
-            return "uses managed identity";
+            return "Identity is assigned. Use of that identity was not stored.";
         }
 
         if (normalized.Equals(GraphEdgeTypes.MemberOf, StringComparison.OrdinalIgnoreCase))
         {
-            return "member of group";
+            return "Group membership was stored. Observed use of that membership was not stored.";
         }
 
         if (normalized.Equals(SecureNowArchitectConstants.PossibleMovementHopEdgeType, StringComparison.OrdinalIgnoreCase))
         {
-            return "possible movement";
+            return "Possible movement. An observed move was not stored.";
         }
 
         if (normalized.Equals(SecureNowArchitectConstants.UnrestrictedEgressHopEdgeType, StringComparison.OrdinalIgnoreCase))

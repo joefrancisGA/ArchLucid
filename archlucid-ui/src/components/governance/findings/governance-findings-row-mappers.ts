@@ -16,16 +16,18 @@ import { governanceFindingsDemoPhiRow } from "@/components/governance/findings/g
 import { ARCHITECTURE_RISK_REGISTER_OWNER_NOT_STORED } from "@/lib/architecture/architecture-risk-register-csv";
 import {
   GOVERNANCE_QUEUE_DECISION_CATEGORY_NOT_STORED,
+  GOVERNANCE_QUEUE_DECISION_RATIONALE_NOT_STORED,
   GOVERNANCE_QUEUE_DECISION_STATUS_NOT_STORED,
   GOVERNANCE_QUEUE_DECISION_TITLE_NOT_STORED,
   GOVERNANCE_QUEUE_FINDING_STATUS_NOT_STORED,
   GOVERNANCE_QUEUE_FINDING_TITLE_NOT_STORED,
   GOVERNANCE_QUEUE_CATEGORY_NOT_STORED,
+  GOVERNANCE_QUEUE_CATEGORY_STORED_EMPTY,
+  GOVERNANCE_QUEUE_RECOMMENDED_ACTION_NOT_STORED,
   GOVERNANCE_QUEUE_REVIEW_NAME_NOT_STORED,
   GOVERNANCE_QUEUE_REVIEW_TITLE_NOT_STORED,
   GOVERNANCE_QUEUE_RULE_ID_NOT_STORED,
   GOVERNANCE_QUEUE_SEVERITY_NOT_STORED,
-  GOVERNANCE_QUEUE_RECOMMENDED_ACTION_NOT_STORED,
   GOVERNANCE_QUEUE_RATIONALE_NOT_STORED,
 } from "@/components/governance/findings/governance-findings-row-omission-copy";
 
@@ -70,7 +72,8 @@ export function riskRegisterRows(entries: ArchitectureRiskRegisterEntry[]): Gove
     const resourceId = (entry.resourceId ?? "").trim();
     const title = (entry.title ?? "").trim();
     const severity = (entry.severity ?? "").trim();
-    const category = (entry.category ?? "").trim();
+    const categoryRaw = entry.category ?? "";
+    const category = categoryRaw.trim();
     const statusLabel = (entry.statusLabel ?? "").trim();
     const recommended =
       entry.latestDisposition !== null && entry.latestDisposition !== undefined
@@ -79,6 +82,12 @@ export function riskRegisterRows(entries: ArchitectureRiskRegisterEntry[]): Gove
     const runLabel = resolveGovernanceQueueReviewLabel(systemName, runId);
     const resolvedTitle = title.length > 0 ? title : GOVERNANCE_QUEUE_FINDING_TITLE_NOT_STORED;
     const resolvedSeverity = severity.length > 0 ? severity : GOVERNANCE_QUEUE_SEVERITY_NOT_STORED;
+    const resolvedCategory =
+      category.length > 0
+        ? category
+        : categoryRaw.length > 0
+          ? GOVERNANCE_QUEUE_CATEGORY_STORED_EMPTY
+          : GOVERNANCE_QUEUE_CATEGORY_NOT_STORED;
 
     return {
       runId,
@@ -87,7 +96,7 @@ export function riskRegisterRows(entries: ArchitectureRiskRegisterEntry[]): Gove
       findingId,
       title: resolvedTitle,
       severity: resolvedSeverity,
-      category: category.length > 0 ? category : GOVERNANCE_QUEUE_CATEGORY_NOT_STORED,
+      category: resolvedCategory,
       status: resolveRiskRegisterQueueStatus(statusLabel, entry.isStale),
       recommended,
       recordKind: "finding",
@@ -108,7 +117,7 @@ export function riskRegisterRows(entries: ArchitectureRiskRegisterEntry[]): Gove
           : null,
       systemName: systemName.length > 0 ? systemName : null,
       resourceId: resourceId.length > 0 ? resourceId : null,
-      policyRuleId: coerceComplianceRuleKey(category),
+      policyRuleId: null,
     };
   });
 }
@@ -126,8 +135,8 @@ export function decisionRegisterRows(entries: ArchitectureDecisionRegisterEntry[
       rationale.length > 0
         ? rationale
         : selectedOption.length > 0
-          ? `${GOVERNANCE_QUEUE_RATIONALE_NOT_STORED} Selected option: ${selectedOption}.`
-          : GOVERNANCE_QUEUE_RATIONALE_NOT_STORED;
+          ? `Selected: ${selectedOption}`
+          : GOVERNANCE_QUEUE_DECISION_RATIONALE_NOT_STORED;
 
     return {
       runId,
@@ -136,7 +145,12 @@ export function decisionRegisterRows(entries: ArchitectureDecisionRegisterEntry[
       findingId: decisionId,
       title: titleRaw.length > 0 ? titleRaw : GOVERNANCE_QUEUE_DECISION_TITLE_NOT_STORED,
       severity: GOVERNANCE_QUEUE_SEVERITY_NOT_STORED,
-      category: categoryRaw.length > 0 ? categoryRaw : GOVERNANCE_QUEUE_DECISION_CATEGORY_NOT_STORED,
+      category:
+        categoryRaw.length > 0
+          ? categoryRaw
+          : entry.category === ""
+            ? GOVERNANCE_QUEUE_CATEGORY_STORED_EMPTY
+            : GOVERNANCE_QUEUE_DECISION_CATEGORY_NOT_STORED,
       status: GOVERNANCE_QUEUE_DECISION_STATUS_NOT_STORED,
       recommended,
       recordKind: "decision",
@@ -175,7 +189,7 @@ export function traceRowsForRun(run: RunSummary, traces: FindingTraceConfidenceD
         status: GOVERNANCE_QUEUE_FINDING_STATUS_NOT_STORED,
         recommended:
           ruleHint.length > 0
-            ? `${GOVERNANCE_QUEUE_RECOMMENDED_ACTION_NOT_STORED} Rule id: ${ruleHint}.`
+            ? `Review finding tied to rule ${ruleHint}.`
             : GOVERNANCE_QUEUE_RECOMMENDED_ACTION_NOT_STORED,
         recordKind: "finding",
         traceConfidenceLevel: normalizeFindingConfidenceLevel(t.confidenceLevel),

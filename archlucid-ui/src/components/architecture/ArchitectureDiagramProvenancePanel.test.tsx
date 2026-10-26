@@ -3,7 +3,10 @@ import { useState } from "react";
 import { describe, expect, it } from "vitest";
 
 import { ArchitectureDiagramProvenancePanel } from "@/components/architecture/ArchitectureDiagramProvenancePanel";
-import type { ArchitectureDiagramElementKind } from "@/lib/architecture/architecture-diagram-provenance";
+import {
+  ARCHITECTURE_DIAGRAM_REVIEW_ID_NOT_STORED_EVIDENCE_LINK,
+  type ArchitectureDiagramElementKind,
+} from "@/lib/architecture/architecture-diagram-provenance";
 import type { ArchitectureDiagramModel } from "@/lib/architecture/architecture-diagram-types";
 
 const model: ArchitectureDiagramModel = {
@@ -41,7 +44,7 @@ const model: ArchitectureDiagramModel = {
 };
 
 describe("ArchitectureDiagramProvenancePanel", () => {
-  it("shows evidence-backed vs inferred chips for selected elements", () => {
+  it("shows brief-asserted vs inferred chips for selected elements", () => {
     function Harness(): React.JSX.Element {
       const [selectedKind, setSelectedKind] = useState<ArchitectureDiagramElementKind | null>(null);
       const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -64,33 +67,19 @@ describe("ArchitectureDiagramProvenancePanel", () => {
     render(<Harness />);
 
     fireEvent.click(screen.getByTestId("architecture-diagram-select-node-api"));
-    expect(screen.getByTestId("architecture-diagram-provenance-detail")).toHaveTextContent("Evidence-backed");
-    expect(screen.getByTestId("architecture-diagram-provenance-source-link")).toBeInTheDocument();
+    expect(screen.getByTestId("architecture-diagram-provenance-detail")).toHaveTextContent("Asserted in brief");
+    expect(screen.getByTestId("architecture-diagram-provenance-missing-review-id")).toHaveTextContent(
+      ARCHITECTURE_DIAGRAM_REVIEW_ID_NOT_STORED_EVIDENCE_LINK,
+    );
+    expect(screen.queryByTestId("architecture-diagram-provenance-source-link")).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByTestId("architecture-diagram-select-node-queue"));
     expect(screen.getByTestId("architecture-diagram-provenance-detail")).toHaveTextContent("Inferred");
-    expect(screen.queryByTestId("architecture-diagram-provenance-source-link")).not.toBeInTheDocument();
-    expect(screen.getByText("Source evidence link was not stored")).toBeInTheDocument();
-  });
-
-  it("shows missing review id copy for evidence-backed selection without run id", () => {
-    function Harness(): React.JSX.Element {
-      return (
-        <ArchitectureDiagramProvenancePanel
-          runId="   "
-          model={model}
-          diagramVersionSource={null}
-          selectedKind="node"
-          selectedId="api"
-          onSelect={() => undefined}
-        />
-      );
-    }
-
-    render(<Harness />);
-
-    expect(screen.getByTestId("architecture-diagram-provenance-missing-review-id")).toHaveTextContent(
-      "Review id was not stored, so the evidence link is not available.",
+    expect(screen.getByTestId("architecture-diagram-provenance-detail")).toHaveTextContent(
+      "Inferred items do not include a source evidence link.",
     );
+    expect(screen.queryByTestId("architecture-diagram-provenance-missing-review-id")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("architecture-diagram-provenance-source-link")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("architecture-diagram-provenance-missing-review-id")).not.toBeInTheDocument();
   });
 });

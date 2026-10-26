@@ -3,6 +3,8 @@ import { describe, expect, it } from "vitest";
 import {
   ACTION_ACTOR_UNAVAILABLE,
   formatActionActorName,
+  GOVERNANCE_DECISION_OWNER_NAME_NOT_STORED,
+  resolveGovernanceDecisionOwnerCell,
   resolveOperatorPrincipalOwnerLabel,
 } from "@/lib/action-actor-display";
 
@@ -27,6 +29,23 @@ describe("resolveOperatorPrincipalOwnerLabel", () => {
 
   it("returns null when no identity is available", () => {
     expect(resolveOperatorPrincipalOwnerLabel({ name: null, meClaims: [] })).toBeNull();
+  });
+});
+
+describe("resolveGovernanceDecisionOwnerCell", () => {
+  it("shows omission copy and user id when only a uuid owner is stored (P-13)", () => {
+    const ownerId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+    const cell = resolveGovernanceDecisionOwnerCell(ownerId);
+
+    expect(cell.nameLabel).toBe(GOVERNANCE_DECISION_OWNER_NAME_NOT_STORED);
+    expect(cell.userId).toBe(ownerId);
+  });
+
+  it("keeps display names unchanged", () => {
+    expect(resolveGovernanceDecisionOwnerCell("Jordan Lee")).toEqual({
+      nameLabel: "Jordan Lee",
+      userId: null,
+    });
   });
 });
 

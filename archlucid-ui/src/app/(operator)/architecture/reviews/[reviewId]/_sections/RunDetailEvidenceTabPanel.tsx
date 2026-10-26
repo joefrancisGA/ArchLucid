@@ -93,7 +93,7 @@ export function RunDetailEvidenceTabPanel(props: RunDetailEvidenceTabPanelProps)
         className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
         data-testid="run-detail-evidence-tab-scope"
       >
-        Evidence here is what this review used.
+        This list is the submitted evidence stored on the review.
       </p>
       <RunDetailSectionNav runId={props.runId} sections={sectionNavSections} />
       <RunDetailEvidenceScopeHeader

@@ -236,7 +236,10 @@ internal static class InventoryDiagramNodeRelationshipApplier
 
                 if (emitPolicyEdges)
                 {
-                    string edgeLabel = BuildRouteEdgeLabel(route);
+                    string? resolvedNextHopName = ast.Nodes
+                        .FirstOrDefault(node => string.Equals(node.NodeId, nextHopDiagramNodeId, StringComparison.Ordinal))
+                        ?.Label;
+                    string edgeLabel = BuildRouteEdgeLabel(route, resolvedNextHopName);
                     ast.Edges.Add(new DiagramEdge
                     {
                         FromNodeId = subnetDiagramNodeId,
@@ -285,11 +288,14 @@ internal static class InventoryDiagramNodeRelationshipApplier
                         continue;
                     }
 
+                    string? resolvedNextHopName = ast.Nodes
+                        .FirstOrDefault(node => string.Equals(node.NodeId, nextHopDiagramNodeId, StringComparison.Ordinal))
+                        ?.Label;
                     ast.Edges.Add(new DiagramEdge
                     {
                         FromNodeId = ownerDiagramNodeId,
                         ToNodeId = nextHopDiagramNodeId,
-                        Label = BuildRouteEdgeLabel(route),
+                        Label = BuildRouteEdgeLabel(route, resolvedNextHopName),
                         ProvenanceKind = ProvenanceKind.DeterministicInference.ToString(),
                         InferenceSource = GraphEdgeInferenceSources.InventoryEffectiveRoutes,
                     });
@@ -486,8 +492,15 @@ internal static class InventoryDiagramNodeRelationshipApplier
         return armIdToDiagramNodeId;
     }
 
-    private static string BuildRouteEdgeLabel(AzureInventoryRouteTableRoute route)
+    private static string BuildRouteEdgeLabel(AzureInventoryRouteTableRoute route, string? resolvedNextHopName = null)
     {
+        string? outline = InventoryDiagramRouteOutlineSentenceFormatter.TryFormat(route, resolvedNextHopName);
+
+        if (!string.IsNullOrWhiteSpace(outline))
+        {
+            return outline;
+        }
+
         string addressPrefix = string.IsNullOrWhiteSpace(route.AddressPrefix)
             ? "Address prefix was not stored"
             : route.AddressPrefix.Trim();
@@ -495,7 +508,7 @@ internal static class InventoryDiagramNodeRelationshipApplier
             ? "Next hop type was not stored"
             : route.NextHopType.Trim();
 
-        return $"{addressPrefix} → {nextHopType}";
+        return $"{addressPrefix} → {nextHopType}. This is not observed traffic.";
     }
 
     internal static string BuildNsgAttachmentLabel(IReadOnlyList<AzureInventoryNsgSecurityRule> rules)
@@ -504,7 +517,7 @@ internal static class InventoryDiagramNodeRelationshipApplier
 
         if (firstRule is null)
         {
-            return "NSG attached";
+            return "NSG attached. Security rules were not stored.";
         }
 
         string protocol = string.IsNullOrWhiteSpace(firstRule.Protocol)

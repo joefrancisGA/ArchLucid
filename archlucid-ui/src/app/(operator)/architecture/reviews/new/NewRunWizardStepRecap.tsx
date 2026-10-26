@@ -51,6 +51,7 @@ export function NewRunWizardStepRecap(props: NewRunWizardStepRecapProps): React.
           .join(", ")
       : "";
 
+  const identityStepReached = props.stepIndex >= 1;
   const hasConstraintsArray =
     Array.isArray(constraintsList) && constraintsList.length > 0;
 
@@ -66,10 +67,15 @@ export function NewRunWizardStepRecap(props: NewRunWizardStepRecapProps): React.
       {systemName.length > 0 ? (
         <span>
           <span className="text-neutral-600 dark:text-neutral-400">System</span> {systemName}
-          {environment.length > 0 ? (
+          {identityStepReached ? (
             <>
               {" "}
-              · <span className="text-neutral-600 dark:text-neutral-400">Env</span> {environment}
+              · <span className="text-neutral-600 dark:text-neutral-400">Env</span>{" "}
+              {environment.length > 0 ? (
+                environment
+              ) : (
+                <span className="text-neutral-600 dark:text-neutral-400">Environment was not stored yet.</span>
+              )}
             </>
           ) : (
             <>
@@ -78,9 +84,19 @@ export function NewRunWizardStepRecap(props: NewRunWizardStepRecapProps): React.
               <span className="text-neutral-600 dark:text-neutral-400">Environment was not stored yet.</span>
             </>
           )}
-          {" "}
-          · <span className="text-neutral-600 dark:text-neutral-400">Cloud</span>{" "}
-          {formatCloudProviderLabel(String(cloudRaw))}
+          {identityStepReached ? (
+            <>
+              {" "}
+              · <span className="text-neutral-600 dark:text-neutral-400">Cloud</span>{" "}
+              {formatCloudProviderLabel(String(cloudRaw))}
+            </>
+          ) : (
+            <>
+              {" "}
+              · <span className="text-neutral-600 dark:text-neutral-400">Cloud</span>{" "}
+              <span className="text-neutral-600 dark:text-neutral-400">Cloud was not stored yet.</span>
+            </>
+          )}
         </span>
       ) : (
         <span className="text-neutral-600 dark:text-neutral-400">System name was not stored yet.</span>

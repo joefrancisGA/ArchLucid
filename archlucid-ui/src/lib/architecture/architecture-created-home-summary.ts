@@ -54,6 +54,9 @@ export const ARCHITECTURE_CREATED_PRIMARY_USERS_NOT_STORED =
 export const ARCHITECTURE_CREATED_KEY_INTEGRATIONS_NOT_STORED =
   "Key integrations were not stored." as const;
 
+export const ARCHITECTURE_CREATED_INTEGRATIONS_NOT_STORED_SEPARATELY =
+  "Integrations were not stored separately from actors." as const;
+
 export const DEFAULT_GAP_ASSERTION: ArchitectureGapAssertionFlags = {
   businessOutcome: true,
   peopleAndSystems: true,
@@ -121,10 +124,6 @@ export function buildSummaryFields(input: BuildArchitectureCreatedHomeModelInput
   const systems = input.peopleAndSystems
     .filter((entry) => entry.kind === "Machine" || entry.kind === "Both")
     .map((entry) => entry.label);
-  const integrations = input.peopleAndSystems
-    .filter((entry) => entry.kind === "Both")
-    .map((entry) => entry.label);
-
   const businessPurpose = formatBusinessPurposeSummary(input.businessOutcome);
 
   fields.push({ label: ARCHITECTURE_SUMMARY_LABELS.businessPurpose, value: businessPurpose });
@@ -141,7 +140,7 @@ export function buildSummaryFields(input: BuildArchitectureCreatedHomeModelInput
 
   fields.push({
     label: ARCHITECTURE_SUMMARY_LABELS.keyIntegrations,
-    value: formatSummaryList(integrations, ARCHITECTURE_CREATED_KEY_INTEGRATIONS_NOT_STORED),
+    value: ARCHITECTURE_CREATED_INTEGRATIONS_NOT_STORED_SEPARATELY,
   });
 
   return fields;

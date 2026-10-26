@@ -38,13 +38,13 @@ describe("invitee-first-orientation (TB-2182)", () => {
     expect(resolveInviteeOrientationContext(operatorPrincipal).isInviteeReviewer).toBe(false);
   });
 
-  it("does not invent an architecture owner when package owner was omitted", () => {
+  it("does not invent an architecture owner when review owner was omitted", () => {
     const copy = resolveInviteeFirstOrientationCopy({
       packageOwnerLabel: null,
       runId: "run-abc",
     });
 
-    expect(copy.jobSentence).toContain("Package owner was not stored.");
+    expect(copy.jobSentence).toContain("Review owner was not stored.");
     expect(copy.jobSentence).not.toContain("the architecture owner");
   });
 

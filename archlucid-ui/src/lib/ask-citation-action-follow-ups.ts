@@ -6,9 +6,7 @@ import {
   resolveQuickDecisionFindingDispositionHref,
   resolveQuickDecisionFindingInspectHref,
 } from "@/lib/findings/finding-evidence-navigation";
-import { evidenceGraphHref } from "@/lib/evidence-graph-route";
-import { GOVERNANCE_DECISION_REGISTER_PATH } from "@/lib/governance/governance-route-paths";
-import { ARCHITECTURE_DECISION_LABEL } from "@/lib/usability/canonical-product-terms";
+import { ASK_CITATION_REFS_NOT_STORED_MARKER } from "@/lib/ask-review-artifact-status-copy";
 import { BUYER_SURFACE_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 
 /** Chip kinds for post-answer Ask citation follow-ups (TB-2219). */
@@ -116,22 +114,70 @@ function collectDecisionIds(input: AskCitationActionFollowUpsInput): readonly st
   return ids;
 }
 
-function hasEvidenceArtifactRefs(input: AskCitationActionFollowUpsInput): boolean {
+function hasBlankFindingReference(input: AskCitationActionFollowUpsInput): boolean {
   for (const citation of input.citations ?? []) {
-    if (citation.kind === "EvidenceBundle" || citation.kind === "GraphSnapshot") {
-      if (trimId(citation.id).length > 0) {
-        return true;
-      }
+    if (citation.kind === "Finding" && trimId(citation.id).length === 0) {
+      return true;
     }
   }
 
-  for (const artifactId of input.referencedArtifacts ?? []) {
-    if (trimId(artifactId).length > 0) {
+  for (const findingId of input.referencedFindings ?? []) {
+    if (trimId(findingId).length === 0) {
       return true;
     }
   }
 
   return false;
+}
+
+function collectEvidenceArtifactIds(input: AskCitationActionFollowUpsInput): readonly string[] {
+  const ids: string[] = [];
+
+  for (const citation of input.citations ?? []) {
+    if (citation.kind === "EvidenceBundle" || citation.kind === "GraphSnapshot") {
+      pushUniqueId(ids, trimId(citation.id));
+    }
+  }
+
+  for (const artifactId of input.referencedArtifacts ?? []) {
+    pushUniqueId(ids, trimId(artifactId));
+  }
+
+  return ids;
+}
+
+function hasBlankDecisionReference(input: AskCitationActionFollowUpsInput): boolean {
+  for (const citation of input.citations ?? []) {
+    if (citation.kind === "DecisionTrace" && trimId(citation.id).length === 0) {
+      return true;
+    }
+  }
+
+  for (const decisionId of input.referencedDecisions ?? []) {
+    if (trimId(decisionId).length === 0) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+export const ASK_CITATION_FOLLOW_UPS_EMPTY_STORED_COPY =
+  "No finding, evidence, or decision id was stored on this answer." as const;
+
+export function resolveAskCitationFollowUpsEmptyNote(input: {
+  readonly citationRefsOmitted: boolean;
+  readonly citationRefsStoredEmpty: boolean;
+}): string {
+  if (input.citationRefsOmitted) {
+    return ASK_CITATION_REFS_NOT_STORED_MARKER;
+  }
+
+  if (input.citationRefsStoredEmpty) {
+    return ASK_CITATION_FOLLOW_UPS_EMPTY_STORED_COPY;
+  }
+
+  return "No linked finding, evidence, or decision to open from this answer.";
 }
 
 function findingHasEvidenceTraceCitation(input: AskCitationActionFollowUpsInput, findingId: string): boolean {
@@ -160,16 +206,6 @@ function findingHasEvidenceTraceCitation(input: AskCitationActionFollowUpsInput,
       }
     } catch {
       continue;
-    }
-  }
-
-  for (const citation of input.citations ?? []) {
-    if (citation.kind !== "EvidenceBundle" && citation.kind !== "GraphSnapshot") {
-      continue;
-    }
-
-    if (trimId(citation.id).length > 0) {
-      return true;
     }
   }
 
@@ -207,7 +243,7 @@ export function buildAskCitationActionFollowUps(
 
   const findingIds = collectAskCitationFindingIds(input);
   const decisionIds = collectDecisionIds(input);
-  const evidenceArtifacts = hasEvidenceArtifactRefs(input);
+  const evidenceArtifactIds = collectEvidenceArtifactIds(input);
   const chips: AskCitationActionFollowUp[] = [];
 
   const inspectHrefOptions = input.inspectHrefOptions;
@@ -235,24 +271,56 @@ export function buildAskCitationActionFollowUps(
     });
   }
 
+  if (findingIds.length === 0 && hasBlankFindingReference(input)) {
+    pushChip(chips, {
+      kind: "finding",
+      label: "Finding id was not stored.",
+      href: null,
+      citationId: "finding-id-not-stored",
+    });
+    pushChip(chips, {
+      kind: "evidence",
+      label: "Evidence link was not stored.",
+      href: null,
+      citationId: "finding-id-not-stored",
+    });
+    pushChip(chips, {
+      kind: "disposition",
+      label: "Disposition link was not stored.",
+      href: null,
+      citationId: "finding-id-not-stored",
+    });
+  }
+
+  if (findingIds.length === 0 && hasBlankDecisionReference(input)) {
+    pushChip(chips, {
+      kind: "disposition",
+      label: "Decision id was stored empty.",
+      href: null,
+      citationId: "decision-id-stored-empty",
+    });
+  }
+
   if (findingIds.length === 0 && decisionIds.length > 0) {
     for (const decisionId of decisionIds) {
       pushChip(chips, {
         kind: "disposition",
-        label: "Decision link was not stored.",
+        label: `Decision ${decisionId} — link was not stored.`,
         href: null,
         citationId: decisionId,
       });
     }
   }
 
-  if (findingIds.length === 0 && evidenceArtifacts) {
-    pushChip(chips, {
-      kind: "evidence",
-      label: `Open ${BUYER_SURFACE_VOCABULARY.evidenceGraph.toLowerCase()}`,
-      href: evidenceGraphHref({ runId }),
-      citationId: runId,
-    });
+  if (findingIds.length === 0) {
+    for (const artifactId of evidenceArtifactIds) {
+      pushChip(chips, {
+        kind: "evidence",
+        label: `${artifactId} — ${BUYER_SURFACE_VOCABULARY.evidenceGraph.toLowerCase()} link was not stored.`,
+        href: null,
+        citationId: artifactId,
+      });
+    }
   }
 
   return chips;
@@ -262,11 +330,15 @@ export function buildAskCitationActionFollowUps(
  * Best-effort parse of Ask reference lists from conversation message metadataJson.
  * Returns null when metadata is absent, invalid, or has no actionable reference keys.
  */
-export function parseAskCitationRefsFromMessageMetadata(metadataJson: string | null | undefined): {
+export type AskCitationRefsFromMessageMetadata = {
   readonly referencedFindings: readonly string[];
   readonly referencedDecisions: readonly string[];
   readonly referencedArtifacts: readonly string[];
-} | null {
+};
+
+export function parseAskCitationRefsFromMessageMetadata(
+  metadataJson: string | null | undefined,
+): AskCitationRefsFromMessageMetadata | null {
   const raw = metadataJson?.trim() ?? "";
 
   if (raw.length === 0 || raw === "{}") {
@@ -286,24 +358,45 @@ export function parseAskCitationRefsFromMessageMetadata(metadataJson: string | n
   }
 
   const record = parsed as Record<string, unknown>;
+  const hasCitationKeys =
+    "referencedFindings" in record || "referencedDecisions" in record || "referencedArtifacts" in record;
+
+  if (!hasCitationKeys) {
+    return null;
+  }
 
   const referencedFindings = readStringArray(record.referencedFindings);
   const referencedDecisions = readStringArray(record.referencedDecisions);
   const referencedArtifacts = readStringArray(record.referencedArtifacts);
-
-  if (
-    referencedFindings.length === 0 &&
-    referencedDecisions.length === 0 &&
-    referencedArtifacts.length === 0
-  ) {
-    return null;
-  }
 
   return {
     referencedFindings,
     referencedDecisions,
     referencedArtifacts,
   };
+}
+
+export function resolveAskCitationRefsEmptyState(
+  metadataJson: string | null | undefined,
+): { readonly citationRefsOmitted: boolean; readonly citationRefsStoredEmpty: boolean } {
+  const raw = metadataJson?.trim() ?? "";
+
+  if (raw.length === 0 || raw === "{}") {
+    return { citationRefsOmitted: true, citationRefsStoredEmpty: false };
+  }
+
+  const parsed = parseAskCitationRefsFromMessageMetadata(metadataJson);
+
+  if (parsed === null) {
+    return { citationRefsOmitted: true, citationRefsStoredEmpty: false };
+  }
+
+  const storedEmpty =
+    parsed.referencedFindings.length === 0 &&
+    parsed.referencedDecisions.length === 0 &&
+    parsed.referencedArtifacts.length === 0;
+
+  return { citationRefsOmitted: false, citationRefsStoredEmpty: storedEmpty };
 }
 
 function readStringArray(value: unknown): readonly string[] {

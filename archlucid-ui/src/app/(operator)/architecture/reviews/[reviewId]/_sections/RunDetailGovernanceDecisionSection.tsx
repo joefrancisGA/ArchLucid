@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
 import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY, operatorSemanticSurface } from "@/lib/design-tokens";
 import { buildArchitectureActivityFinalizeReadinessHref } from "@/lib/architecture/architecture-created-finalize-readiness-href";
-import { formatGovernanceDecisionOwnerName } from "@/lib/action-actor-display";
+import { resolveGovernanceDecisionOwnerCell } from "@/lib/action-actor-display";
 import { buildReviewWorkspaceTabHref } from "@/lib/unified-review-workspace-tabs";
 import {
   RUN_DETAIL_GOVERNANCE_PRE_COMMIT_APPROVAL_GATE_LABEL,
@@ -15,6 +15,7 @@ import {
   RUN_DETAIL_GOVERNANCE_PRE_COMMIT_CLAIM_DISCIPLINE_HEADING,
   RUN_DETAIL_GOVERNANCE_PRE_COMMIT_GOVERNANCE_WARNINGS_BODY,
   RUN_DETAIL_GOVERNANCE_PRE_COMMIT_GOVERNANCE_WARNINGS_TITLE,
+  RUN_DETAIL_GOVERNANCE_WARNING_FLAGS_NOT_STORED,
   RUN_DETAIL_GOVERNANCE_PRE_COMMIT_HELP_CITES_INTRO,
   RUN_DETAIL_GOVERNANCE_PRE_COMMIT_PRIMARY_CTA,
   RUN_DETAIL_GOVERNANCE_PRE_COMMIT_SECONDARY_CTA,
@@ -46,7 +47,7 @@ export type RunDetailGovernanceDecisionSectionProps = {
   readonly governanceGateLabel: string | null;
   readonly blockingFindingCount: number;
   readonly manifestUnresolvedIssueCount?: number | null;
-  readonly hasGovernanceWarnings: boolean;
+  readonly hasGovernanceWarnings?: boolean | null;
   /** When the review package Do-this-next strip owns the page primary, demote in-section CTAs to outline. */
   readonly pagePrimaryOwnedElsewhere?: boolean;
 };
@@ -80,7 +81,9 @@ export function RunDetailGovernanceDecisionSection(
   const pagePrimaryOwnedElsewhere = props.pagePrimaryOwnedElsewhere === true;
   const decision = (props.operatorGovernanceDecision ?? "").trim();
   const rationale = (props.operatorGovernanceDecisionRationale ?? "").trim();
-  const decisionBy = formatGovernanceDecisionOwnerName(props.operatorGovernanceDecisionByUserId);
+  const decisionOwner = resolveGovernanceDecisionOwnerCell(props.operatorGovernanceDecisionByUserId);
+  const governanceWarningsStored =
+    props.hasGovernanceWarnings === true || props.hasGovernanceWarnings === false;
   const manifestFinalized = (props.manifestId ?? "").trim().length > 0;
   const showGovernanceCta = shouldShowRunDetailGovernanceCta({
     runId: props.runId,
@@ -114,7 +117,7 @@ export function RunDetailGovernanceDecisionSection(
             {RUN_DETAIL_GOVERNANCE_PRE_COMMIT_BODY}
           </p>
 
-          {props.hasGovernanceWarnings ? (
+          {props.hasGovernanceWarnings === true ? (
             <div
               className={cn(DESIGN_TOKENS.callout.warn, "mt-4 px-4 py-3")}
               role="alert"
@@ -138,11 +141,18 @@ export function RunDetailGovernanceDecisionSection(
                 )}
               </dd>
             </div>
-            {props.hasGovernanceWarnings ? (
+            {props.hasGovernanceWarnings === true ? (
               <div>
                 <dt className="text-neutral-500 dark:text-neutral-400">Open exceptions</dt>
                 <dd className="m-0 mt-1">
                   <StatusTag kind="needs-attention" label="Needs attention" />
+                </dd>
+              </div>
+            ) : !governanceWarningsStored ? (
+              <div>
+                <dt className="text-neutral-500 dark:text-neutral-400">Governance warnings</dt>
+                <dd className="m-0 mt-1 text-neutral-800 dark:text-neutral-200">
+                  {RUN_DETAIL_GOVERNANCE_WARNING_FLAGS_NOT_STORED}
                 </dd>
               </div>
             ) : null}
@@ -267,7 +277,14 @@ export function RunDetailGovernanceDecisionSection(
         </div>
         <div>
           <dt className="text-neutral-500 dark:text-neutral-400">Decision owner</dt>
-          <dd className="m-0 mt-1 text-neutral-800 dark:text-neutral-200">{decisionBy}</dd>
+          <dd className="m-0 mt-1 text-neutral-800 dark:text-neutral-200">
+            {decisionOwner.nameLabel}
+            {decisionOwner.userId !== null ? (
+              <span className="mt-1 block font-mono text-sm text-neutral-600 dark:text-neutral-400">
+                {decisionOwner.userId}
+              </span>
+            ) : null}
+          </dd>
         </div>
         <div>
           <dt className="text-neutral-500 dark:text-neutral-400">Blocking findings</dt>
@@ -279,11 +296,18 @@ export function RunDetailGovernanceDecisionSection(
             )}
           </dd>
         </div>
-        {props.hasGovernanceWarnings ? (
+        {props.hasGovernanceWarnings === true ? (
           <div>
             <dt className="text-neutral-500 dark:text-neutral-400">Open exceptions</dt>
             <dd className="m-0 mt-1">
               <StatusTag kind="needs-attention" label="Monitoring active" />
+            </dd>
+          </div>
+        ) : !governanceWarningsStored ? (
+          <div>
+            <dt className="text-neutral-500 dark:text-neutral-400">Governance warnings</dt>
+            <dd className="m-0 mt-1 text-neutral-800 dark:text-neutral-200">
+              {RUN_DETAIL_GOVERNANCE_WARNING_FLAGS_NOT_STORED}
             </dd>
           </div>
         ) : null}

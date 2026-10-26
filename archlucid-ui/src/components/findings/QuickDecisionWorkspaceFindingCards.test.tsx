@@ -175,7 +175,7 @@ describe("QuickDecisionWorkspace finding cards (PC-10)", () => {
       />,
     );
 
-    expect(screen.getByText("Evidence reference count was not stored")).toBeInTheDocument();
+    expect(screen.getAllByText("Evidence reference count was not stored").length).toBeGreaterThan(0);
     expect(screen.getByText("Remediation owner was not stored")).toBeInTheDocument();
     expect(screen.getAllByText("Human review status was not stored").length).toBeGreaterThan(0);
 
@@ -192,5 +192,23 @@ describe("QuickDecisionWorkspace finding cards (PC-10)", () => {
     );
 
     expect(screen.getAllByText("0 references").length).toBeGreaterThan(0);
+  });
+
+  it("labels missing evidence navigation target without hiding the omission", () => {
+    const finding = buildFinding(JSON.stringify({}));
+
+    render(
+      <QuickDecisionWorkspacePrimaryFindingCard
+        context={cardContext}
+        finding={{ ...finding, evidenceRefCount: null }}
+        canMutate={false}
+        askPanelOpen={false}
+        onToggleAskPanel={vi.fn()}
+        onViewReasoning={vi.fn()}
+        onMute={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByText("Evidence link was not stored")).toBeInTheDocument();
   });
 });

@@ -82,7 +82,7 @@ public sealed class MermaidDiagramArtifactGeneratorTests
         renderer.Verify(
             x => x.Render(It.Is<Models.DiagramAst>(a =>
                 a.Nodes.Any(n => n.NodeId == "issue_0" && n.Label == "open issue")
-                && a.Edges.Any(e => e.FromNodeId == "manifest" && e.ToNodeId == "issue_0" && e.Label == "flags"))),
+                && a.Edges.Any(e => e.FromNodeId == "manifest" && e.ToNodeId == "issue_0" && e.Label == MermaidManifestDiagramHonestyCopy.IssueEdgeLabel))),
             Times.Once);
     }
 

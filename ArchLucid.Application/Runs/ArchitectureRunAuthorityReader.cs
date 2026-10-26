@@ -1,3 +1,4 @@
+using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Runs.Mapping;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
@@ -35,7 +36,12 @@ public static class ArchitectureRunAuthorityReader
         if (record is null)
             return null;
         // Implementations (and loose test doubles) may return null; treat as no tasks so callers still get a run shape.
-        IReadOnlyList<AgentTask> tasks = await taskRepository.GetByRunIdAsync(scope, runId, cancellationToken);
+        string lookupRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(runId);
+        IReadOnlyList<AgentTask> tasks = await AnalysisRunIdCanonicalization.LoadAgentTasksByRunIdAsync(
+            taskRepository,
+            scope,
+            lookupRunId,
+            cancellationToken);
         IReadOnlyList<string> taskIds = tasks.Select(t => t.TaskId).ToList();
         return RunRecordToArchitectureRunMapper.ToArchitectureRun(record, taskIds);
     }
@@ -55,7 +61,12 @@ public static class ArchitectureRunAuthorityReader
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
         ArgumentNullException.ThrowIfNull(record);
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
-        IReadOnlyList<AgentTask> tasks = await taskRepository.GetByRunIdAsync(scope, runId, cancellationToken);
+        string lookupRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(runId);
+        IReadOnlyList<AgentTask> tasks = await AnalysisRunIdCanonicalization.LoadAgentTasksByRunIdAsync(
+            taskRepository,
+            scope,
+            lookupRunId,
+            cancellationToken);
         IReadOnlyList<string> taskIds = tasks.Select(t => t.TaskId).ToList();
         return RunRecordToArchitectureRunMapper.ToArchitectureRun(record, taskIds);
     }

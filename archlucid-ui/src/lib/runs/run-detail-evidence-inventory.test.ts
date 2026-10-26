@@ -5,6 +5,7 @@ import {
   deriveEvidenceScopeCoverageLine,
   deriveEvidenceScopeReadiness,
   deriveRunDetailEvidenceInventory,
+  formatRunDetailEvidenceCitingFindingCount,
   findingsCiteEvidenceWithoutStoredSourceNames,
   FINDINGS_CITE_EVIDENCE_WITHOUT_SOURCE_NAMES_HEADLINE,
   RUN_DETAIL_EVIDENCE_KIND_NOT_STORED,
@@ -26,6 +27,21 @@ function finding(partial: Partial<QuickDecisionFinding> & Pick<QuickDecisionFind
 }
 
 describe("run-detail-evidence-inventory", () => {
+  it("withholds citing finding counts when findings snapshot was not stored (P-09)", () => {
+    const items = deriveRunDetailEvidenceInventory({
+      findings: [],
+      runCreatedUtc: "2026-08-09T12:00:00Z",
+      submittedArchitecturePresent: false,
+      attachedFileNames: ["policy.pdf"],
+      hasFindingsSnapshot: false,
+    });
+
+    expect(items[0]?.citingFindingCountStored).toBe(false);
+    expect(
+      formatRunDetailEvidenceCitingFindingCount(items[0]?.citingFindingCount ?? 0, items[0]?.citingFindingCountStored ?? false),
+    ).toBe("Citing finding count was not stored.");
+  });
+
   it("does not invent a persisted citation row when only evidence counts are stored", () => {
     const items = deriveRunDetailEvidenceInventory({
       findings: [
@@ -66,7 +82,7 @@ describe("run-detail-evidence-inventory", () => {
     expect(countRunDetailEvidenceInventoryItems(items)).toBe(1);
   });
 
-  it("labels inventory-like filenames as submitted evidence, not cloud inventory", () => {
+  it("does not infer evidence kind from inventory-like filenames", () => {
     const items = deriveRunDetailEvidenceInventory({
       findings: [],
       runCreatedUtc: "2026-08-09T12:00:00Z",
@@ -74,7 +90,10 @@ describe("run-detail-evidence-inventory", () => {
       attachedFileNames: ["notes.zip", "inventory-brief.pdf"],
     });
 
-    expect(items.map((item) => item.kind)).toEqual(["Document", "Submitted evidence"]);
+    expect(items.map((item) => item.kind)).toEqual([
+      RUN_DETAIL_EVIDENCE_KIND_NOT_STORED,
+      RUN_DETAIL_EVIDENCE_KIND_NOT_STORED,
+    ]);
   });
 
   it("includes submitted architecture brief as an inventory row", () => {
@@ -157,11 +176,11 @@ describe("run-detail-evidence-inventory", () => {
     expect(items[0]?.citingFindingCount).toBe(0);
   });
 
-  it("does not treat omitted evidenceRefCount as citing evidence without source names", () => {
+  it("does not treat null evidenceRefCount as citing evidence without source names (P-08)", () => {
     expect(
       findingsCiteEvidenceWithoutStoredSourceNames([
         finding({
-          findingId: "f-omitted",
+          findingId: "f-null-count",
           evidenceRefCount: null,
           evidenceRefSnippets: [],
         }),
@@ -226,7 +245,7 @@ describe("run-detail-evidence-inventory", () => {
     expect(readiness.headline).toBe("Trust evidence was not stored.");
   });
 
-  it("forces gaps readiness when inventory is empty", () => {
+  it("keeps stored trust verdict when inventory is empty and adds empty-list copy", () => {
     const readiness = deriveEvidenceScopeReadiness({
       inventoryCount: 0,
       trustReadiness: {
@@ -239,8 +258,27 @@ describe("run-detail-evidence-inventory", () => {
       },
     });
 
-    expect(readiness.verdict).toBe("gaps");
-    expect(readiness.headline).toBe("Submitted evidence inventory is empty.");
+    expect(readiness.verdict).toBe("complete");
+    expect(readiness.headline).toContain("Evidence is complete for sponsor handoff.");
+    expect(readiness.headline).toContain("Submitted evidence inventory is empty.");
+  });
+
+  it("labels zip and bicep attached files without filename inference (P-03)", () => {
+    const zipItem = deriveRunDetailEvidenceInventory({
+      findings: [],
+      runCreatedUtc: "2026-08-09T12:00:00Z",
+      submittedArchitecturePresent: false,
+      attachedFileNames: ["bundle.zip"],
+    })[0];
+    const bicepItem = deriveRunDetailEvidenceInventory({
+      findings: [],
+      runCreatedUtc: "2026-08-09T12:00:00Z",
+      submittedArchitecturePresent: false,
+      attachedFileNames: ["main.bicep"],
+    })[0];
+
+    expect(zipItem?.kind).toBe(RUN_DETAIL_EVIDENCE_KIND_NOT_STORED);
+    expect(bicepItem?.kind).toBe(RUN_DETAIL_EVIDENCE_KIND_NOT_STORED);
   });
 
   it("surfaces citations-without-source-names headline when inventory is empty", () => {

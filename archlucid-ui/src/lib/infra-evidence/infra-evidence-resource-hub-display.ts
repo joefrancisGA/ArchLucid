@@ -11,6 +11,17 @@ export function formatStoredInfraEvidenceHubField(
   return trimmed.length > 0 ? trimmed : emptyLabel;
 }
 
+/** Operator-facing audit lineage control link label (number · title). */
+export function formatAuditLineageControlLinkLabel(
+  controlNumber: string | null | undefined,
+  controlTitle: string | null | undefined,
+): string {
+  return [
+    formatStoredInfraEvidenceHubField(controlNumber, "Control number was not stored."),
+    formatStoredInfraEvidenceHubField(controlTitle, "Control title was not stored."),
+  ].join(" · ");
+}
+
 /** Map diagram correspondence match kind + confidence to enterprise status tag kind. */
 export function resolveDiagramCorrespondenceStatusKind(
   matchKind: string,

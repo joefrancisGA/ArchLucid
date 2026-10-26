@@ -47,7 +47,7 @@ function formatExpiration(value: string | null | undefined): string {
   const parsed = new Date(value);
 
   if (Number.isNaN(parsed.getTime())) {
-    return value;
+    return "Expiration was not a readable time.";
   }
 
   return parsed.toLocaleString();
@@ -171,7 +171,9 @@ export function InfraEvidenceDeclaredConnectionDetailPanel(
               ? formatUnavailableConnectionField("Rationale", props)
               : matchedConnection.rationale === null || matchedConnection.rationale === undefined
                 ? "Rationale was not stored."
-                : formatStoredField(matchedConnection.rationale, "Rationale")}
+                : matchedConnection.rationale.trim().length === 0
+                  ? "Rationale was stored empty."
+                  : matchedConnection.rationale}
           </dd>
         </div>
         <div>

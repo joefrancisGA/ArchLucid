@@ -100,7 +100,7 @@ public sealed partial class GetOnlyHostedAzureArmReadClient
         string listingPath = $"subscriptions/{subscriptionId}/providers/Microsoft.Security/pricings";
         bool failed = false;
 
-        await ReadDefenderPagesAsync(
+        bool pageTruncated = await ReadDefenderPagesAsync(
             accessToken,
             subscriptionId,
             listingPath,
@@ -123,6 +123,10 @@ public sealed partial class GetOnlyHostedAzureArmReadClient
         {
             pricings.Clear();
         }
+        else if (pageTruncated)
+        {
+            warnings.Add("defender-pricings-truncated");
+        }
     }
 
     private async Task ReadDefenderScoreControlsAsync(
@@ -134,9 +138,10 @@ public sealed partial class GetOnlyHostedAzureArmReadClient
     {
         List<string> scoreNames = [];
         bool scoresFailed = false;
+        bool scoreNamesTruncated = false;
         string scoresPath = $"subscriptions/{subscriptionId}/providers/Microsoft.Security/secureScores";
 
-        await ReadDefenderPagesAsync(
+        bool scoresPageTruncated = await ReadDefenderPagesAsync(
             accessToken,
             subscriptionId,
             scoresPath,
@@ -147,11 +152,19 @@ public sealed partial class GetOnlyHostedAzureArmReadClient
             {
                 string? name = TryReadName(item);
 
-                if (!string.IsNullOrWhiteSpace(name)
-                    && scoreNames.FindIndex(existing => string.Equals(existing, name, StringComparison.OrdinalIgnoreCase)) < 0
-                    && scoreNames.Count < DefenderScoreNameCap)
+                if (string.IsNullOrWhiteSpace(name)
+                    || scoreNames.FindIndex(existing => string.Equals(existing, name, StringComparison.OrdinalIgnoreCase)) >= 0)
+                {
+                    return;
+                }
+
+                if (scoreNames.Count < DefenderScoreNameCap)
                 {
                     scoreNames.Add(name);
+                }
+                else
+                {
+                    scoreNamesTruncated = true;
                 }
             },
             () => scoresFailed = true,
@@ -161,6 +174,11 @@ public sealed partial class GetOnlyHostedAzureArmReadClient
         {
             scoreControls.Clear();
             return;
+        }
+
+        if (scoresPageTruncated || scoreNamesTruncated)
+        {
+            warnings.Add("defender-score-controls-truncated");
         }
 
         if (scoreNames.FindIndex(name => string.Equals(name, "ascScore", StringComparison.OrdinalIgnoreCase)) < 0)
@@ -400,39 +418,64 @@ public sealed partial class GetOnlyHostedAzureArmReadClient
 
             await using Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
 
-            using JsonDocument? document =
-                await TryParseArmPaginationPageAsync(stream, accepted, cancellationToken).ConfigureAwait(false);
+            JsonDocument? document;
+
+            try
+            {
+                document = await TryParseArmPaginationPageAsync(stream, accepted, cancellationToken).ConfigureAwait(false);
+            }
+            catch (JsonException)
+            {
+                warnings.Add($"{companionName} collection failed; invalid JSON");
+
+                if (accepted == 0)
+                {
+                    onFailed();
+                }
+
+                break;
+            }
 
             if (document is null)
             {
                 warnings.Add($"{companionName} collection failed; invalid JSON");
+
+                if (accepted == 0)
+                {
+                    onFailed();
+                }
+
                 break;
             }
 
-            if (document.RootElement.TryGetProperty("value", out JsonElement valueElement)
-                && valueElement.ValueKind == JsonValueKind.Array)
+            using (document)
             {
-                foreach (JsonElement item in valueElement.EnumerateArray())
+
+                if (document.RootElement.TryGetProperty("value", out JsonElement valueElement)
+                    && valueElement.ValueKind == JsonValueKind.Array)
                 {
-                    onItem(item);
-                    accepted++;
+                    foreach (JsonElement item in valueElement.EnumerateArray())
+                    {
+                        onItem(item);
+                        accepted++;
+                    }
                 }
-            }
 
-            nextLink = null;
+                nextLink = null;
 
-            if (document.RootElement.TryGetProperty("nextLink", out JsonElement nextLinkElement)
-                && nextLinkElement.ValueKind == JsonValueKind.String)
-            {
-                string? candidateNextLink = nextLinkElement.GetString();
-
-                if (!string.IsNullOrWhiteSpace(candidateNextLink))
+                if (document.RootElement.TryGetProperty("nextLink", out JsonElement nextLinkElement)
+                    && nextLinkElement.ValueKind == JsonValueKind.String)
                 {
-                    HostedAzureArmNextLinkValidator.EnsureTargetsSubscription(candidateNextLink, subscriptionId);
-                    HostedAzureArmNextLinkValidator.EnsureTargetsArmRelativeListingPath(
-                        candidateNextLink,
-                        listingRelativePath);
-                    nextLink = candidateNextLink;
+                    string? candidateNextLink = nextLinkElement.GetString();
+
+                    if (!string.IsNullOrWhiteSpace(candidateNextLink))
+                    {
+                        HostedAzureArmNextLinkValidator.EnsureTargetsSubscription(candidateNextLink, subscriptionId);
+                        HostedAzureArmNextLinkValidator.EnsureTargetsArmRelativeListingPath(
+                            candidateNextLink,
+                            listingRelativePath);
+                        nextLink = candidateNextLink;
+                    }
                 }
             }
         }

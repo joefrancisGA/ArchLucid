@@ -133,9 +133,9 @@ export function resolveRunDecisionExplainabilityFromDetail(
               return {
                 pipeline: readString(record.pipeline) ?? "Pipeline was not stored.",
                 decisionId: readString(record.decisionId) ?? "Decision id was not stored.",
-                category: readString(record.category) ?? "Category not returned",
+                category: readString(record.category) ?? "Decision category was not stored.",
                 title: readString(record.title) ?? "Decision title was not stored.",
-                selectedOption: readString(record.selectedOption) ?? "Selected option not returned",
+                selectedOption: readString(record.selectedOption) ?? "Selected option was not stored.",
                 rationale: readString(record.rationale) ?? "Decision rationale was not stored.",
                 confidence: readFiniteNumber(record.confidence),
                 confidenceSource: readString(record.confidenceSource),
@@ -184,16 +184,9 @@ export function resolveRunDecisionExplainabilityFromDetail(
               }
 
               const record = row as Record<string, unknown>;
-              const engineType = readString(record.engineType);
-              const category = readString(record.category);
-
-              if (engineType === null || category === null) {
-                return null;
-              }
-
               return {
-                engineType,
-                category,
+                engineType: readString(record.engineType) ?? "Engine type was not stored.",
+                category: readString(record.category) ?? "Failure category was not stored.",
                 exceptionType: readString(record.exceptionType) ?? "Exception type was not stored.",
                 errorMessage: readString(record.errorMessage) ?? "Error message was not stored.",
                 durationMs: readFiniteNumber(record.durationMs),
@@ -214,8 +207,8 @@ export function resolveRunDecisionExplainabilityFromDetail(
     authorityRuleAudit = {
       pipeline: readString(record.pipeline) ?? "Pipeline was not stored.",
       decisionTraceId: readGuid(record.decisionTraceId),
-      ruleSetId: readString(record.ruleSetId) ?? "Rule set id not returned",
-      ruleSetVersion: readString(record.ruleSetVersion) ?? "Rule set version not returned",
+      ruleSetId: readString(record.ruleSetId) ?? "Rule set id was not stored.",
+      ruleSetVersion: readString(record.ruleSetVersion) ?? "Rule set version was not stored.",
       appliedRuleIds: readOptionalStringArray(record.appliedRuleIds),
       acceptedFindingIds: readOptionalStringArray(record.acceptedFindingIds),
       rejectedFindingIds: readStringArray(record.rejectedFindingIds),

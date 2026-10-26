@@ -11,7 +11,7 @@ export function createDemoAskThread(): ConversationThread {
     workspaceId: "demo",
     projectId: "default",
     runId: SHOWCASE_STATIC_DEMO_RUN_ID,
-    title: "Review briefing thread",
+    title: "Sample thread — not a stored conversation.",
     createdUtc: "2026-01-12T10:06:00.000Z",
     lastUpdatedUtc: "2026-01-12T10:06:12.000Z",
   };

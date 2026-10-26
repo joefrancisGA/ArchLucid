@@ -9,6 +9,8 @@ namespace ArchLucid.ArtifactSynthesis.Docx.Builders;
 
 public static class WordDocumentBuilder
 {
+    public const string MermaidSourceStoredEmptyCopy = "Mermaid source was stored empty.";
+
     private static string Sanitize(string? text)
     {
         return text?.Replace("\r\n", " ", StringComparison.Ordinal)

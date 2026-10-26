@@ -32,7 +32,7 @@ public sealed class ArchitectureManifestDatastoreExportTests
     }
 
     [Fact]
-    public void Format_private_endpoint_uses_omission_sentence_when_false()
+    public void Format_private_endpoint_uses_not_required_omission_sentence_when_false()
     {
         ArchitectureManifestDatastoreExport.FormatPrivateEndpointRequiredForExport(false)
             .Should()

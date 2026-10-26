@@ -50,8 +50,26 @@ public sealed class BuyerProofPackArtifactSummaryBuilderTests
 
         string markdown = BuyerProofPackArtifactSummaryBuilder.Build(deltasJson);
 
-        markdown.Should().Contain("`llmCallCount` | `null`");
+        markdown.Should().Contain("`llmCallCount` | Value was not stored.");
         markdown.Should().NotContain("`llmCallCount` | 0");
+    }
+
+    [Fact]
+    public void Build_when_severity_or_count_missing_uses_not_stored_labels()
+    {
+        const string deltasJson = """
+                                  {
+                                    "findingsBySeverity": [
+                                      { "severity": "", "count": 0 },
+                                      { "severity": "Warning" }
+                                    ]
+                                  }
+                                  """;
+
+        string markdown = BuyerProofPackArtifactSummaryBuilder.Build(deltasJson);
+
+        markdown.Should().Contain("Severity was not stored.");
+        markdown.Should().Contain("Count was not stored.");
     }
 
     [Fact]

@@ -26,7 +26,7 @@ function structuralExecutionModeLabel(payload: PilotRunDeltasProofSummaryJson | 
   }
 
   if (raw === "") {
-    return "";
+    return "Execution mode was stored empty.";
   }
 
   if (raw === 0 || raw === "0" || raw === "Simulator") {
@@ -97,7 +97,7 @@ function roiBasisLabel(payload: PilotRunDeltasProofSummaryJson | null): string {
     return "HOLD — estimated savings without source catalog";
   }
 
-  return "Not collected — no unsourced dollar claims";
+  return "ROI source basis was not stored.";
 }
 
 function proofPacketLabel(readiness: ReturnType<typeof describeSponsorProofReadiness>): string {
@@ -164,8 +164,8 @@ function buildWhySafeToSendBullets(
     bullets.push(`Execution mode is ${executionMode} with strict AI quality checks satisfied.`);
     if (roiLabel.startsWith("Classified") || roiLabel.startsWith("HOLD")) {
       bullets.push(roiLabel);
-    } else if (roiLabel.startsWith("Not collected")) {
-      bullets.push("Projected dollar claim basis was not collected for this review.");
+    } else if (roiLabel === "ROI source basis was not stored.") {
+      bullets.push(roiLabel);
     } else {
       bullets.push("No unsourced projected dollar claims detected.");
     }

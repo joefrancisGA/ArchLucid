@@ -2,6 +2,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 
+using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Findings;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Decisioning.Merge;
@@ -60,7 +61,14 @@ public sealed class FindingIacStubGenerator(
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-        IReadOnlyList<AgentResult> existingResults = await _agentResultRepository.GetByRunIdAsync(scope, runId, cancellationToken);
+        string canonicalRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(runId);
+        IReadOnlyList<AgentResult> existingResults =
+            await AnalysisRunIdCanonicalization.LoadAgentResultsByRunIdAsync(
+                _agentResultRepository,
+                scope,
+                canonicalRunId,
+                useRollupProjection: false,
+                cancellationToken).ConfigureAwait(false);
 
         if (existingResults.Count == 0)
             return;

@@ -73,97 +73,65 @@ public sealed partial class MarkdownArchitectureAnalysisExportService
 
             sb.AppendLine();
 
-            sb.AppendLine("### Policy Evidence");
-            sb.AppendLine();
-
             if (evidence.Policies.Count > 0)
             {
+                sb.AppendLine("### Policy Evidence");
+                sb.AppendLine();
+
                 foreach (PolicyEvidence policy in evidence.Policies.OrderBy(x => x.Title))
                 {
-                    string policyTitle = ArchitectureEvidenceRequestExport.FormatIdentityField(
-                        policy.Title,
-                        ArchitectureEvidenceRequestExport.PolicyTitleNotStoredCopy);
-                    sb.AppendLine($"- **{policyTitle}**");
-                    sb.AppendLine(
-                        $"  - Policy ID: {ArchitectureEvidenceRequestExport.FormatIdentityField(policy.PolicyId, ArchitectureEvidenceRequestExport.PolicyIdNotStoredCopy)}");
+                    sb.AppendLine($"- **{policy.Title}**");
+                    sb.AppendLine($"  - Policy ID: {policy.PolicyId}");
                     sb.AppendLine(
                         $"  - Summary: {ArchitectureEvidenceRequestExport.FormatSummary(policy.Summary, ArchitectureEvidenceRequestExport.PolicySummaryNotStoredCopy)}");
 
                     if (policy.RequiredControls.Count > 0)
-                    {
+
                         sb.AppendLine($"  - Required Controls: {string.Join(", ", policy.RequiredControls)}");
-                    }
-                    else
-                    {
-                        sb.AppendLine(
-                            $"  - Required Controls: {ArchitectureEvidenceRequestExport.RequiredControlsNotRecordedCopy}");
-                    }
                 }
-            }
-            else
-            {
-                sb.AppendLine(ArchitectureEvidenceRequestExport.PolicyEvidenceNotRecordedCopy);
-            }
 
-            sb.AppendLine();
-
-            sb.AppendLine("### Service Catalog Hints");
-            sb.AppendLine();
+                sb.AppendLine();
+            }
 
             if (evidence.ServiceCatalog.Count > 0)
             {
+                sb.AppendLine("### Service Catalog Hints");
+                sb.AppendLine();
+
                 foreach (ServiceCatalogEvidence service in evidence.ServiceCatalog.OrderBy(x => x.ServiceName))
                 {
-                    string serviceName = ArchitectureEvidenceRequestExport.FormatIdentityField(
-                        service.ServiceName,
-                        ArchitectureEvidenceRequestExport.ServiceNameNotStoredCopy);
-                    sb.AppendLine($"- **{serviceName}**");
-                    sb.AppendLine(
-                        $"  - Category: {ArchitectureEvidenceRequestExport.FormatIdentityField(service.Category, ArchitectureEvidenceRequestExport.ServiceCategoryNotStoredCopy)}");
+                    sb.AppendLine($"- **{service.ServiceName}**");
+                    sb.AppendLine($"  - Category: {service.Category}");
                     sb.AppendLine(
                         $"  - Summary: {ArchitectureEvidenceRequestExport.FormatSummary(service.Summary, ArchitectureEvidenceRequestExport.ServiceCatalogSummaryNotStoredCopy)}");
 
                     if (service.RecommendedUseCases.Count > 0)
-                    {
+
                         sb.AppendLine($"  - Recommended Use Cases: {string.Join(", ", service.RecommendedUseCases)}");
-                    }
                 }
-            }
-            else
-            {
-                sb.AppendLine(ArchitectureEvidenceRequestExport.ServiceCatalogEvidenceNotRecordedCopy);
-            }
 
-            sb.AppendLine();
-
-            sb.AppendLine("### Pattern Hints");
-            sb.AppendLine();
+                sb.AppendLine();
+            }
 
             if (evidence.Patterns.Count > 0)
             {
+                sb.AppendLine("### Pattern Hints");
+                sb.AppendLine();
+
                 foreach (PatternEvidence pattern in evidence.Patterns.OrderBy(x => x.Name))
                 {
-                    string patternName = ArchitectureEvidenceRequestExport.FormatIdentityField(
-                        pattern.Name,
-                        ArchitectureEvidenceRequestExport.PatternNameNotStoredCopy);
-                    sb.AppendLine($"- **{patternName}**");
-                    sb.AppendLine(
-                        $"  - Pattern ID: {ArchitectureEvidenceRequestExport.FormatIdentityField(pattern.PatternId, ArchitectureEvidenceRequestExport.PatternIdNotStoredCopy)}");
+                    sb.AppendLine($"- **{pattern.Name}**");
+                    sb.AppendLine($"  - Pattern ID: {pattern.PatternId}");
                     sb.AppendLine(
                         $"  - Summary: {ArchitectureEvidenceRequestExport.FormatSummary(pattern.Summary, ArchitectureEvidenceRequestExport.PatternSummaryNotStoredCopy)}");
 
                     if (pattern.SuggestedServices.Count > 0)
-                    {
-                        sb.AppendLine($"  - Suggested Services: {string.Join(", ", pattern.SuggestedServices)}");
-                    }
-                }
-            }
-            else
-            {
-                sb.AppendLine(ArchitectureEvidenceRequestExport.PatternEvidenceNotRecordedCopy);
-            }
 
-            sb.AppendLine();
+                        sb.AppendLine($"  - Suggested Services: {string.Join(", ", pattern.SuggestedServices)}");
+                }
+
+                sb.AppendLine();
+            }
         }
 
         sb.AppendLine("## Agent Execution Traces");
@@ -194,33 +162,21 @@ public sealed partial class MarkdownArchitectureAnalysisExportService
                 sb.AppendLine("#### System Prompt");
                 sb.AppendLine();
                 sb.AppendLine("```text");
-                sb.AppendLine(
-                    ArchitectureEvidenceRequestExport.FormatTraceField(
-                        trace.SystemPrompt,
-                        ArchitectureEvidenceRequestExport.TraceSystemPromptNotStoredCopy,
-                        ArchitectureEvidenceRequestExport.TraceSystemPromptStoredEmptyCopy));
+                sb.AppendLine(trace.SystemPrompt);
                 sb.AppendLine("```");
                 sb.AppendLine();
 
                 sb.AppendLine("#### User Prompt");
                 sb.AppendLine();
                 sb.AppendLine("```text");
-                sb.AppendLine(
-                    ArchitectureEvidenceRequestExport.FormatTraceField(
-                        trace.UserPrompt,
-                        ArchitectureEvidenceRequestExport.TraceUserPromptNotStoredCopy,
-                        ArchitectureEvidenceRequestExport.TraceUserPromptStoredEmptyCopy));
+                sb.AppendLine(trace.UserPrompt);
                 sb.AppendLine("```");
                 sb.AppendLine();
 
                 sb.AppendLine("#### Raw Response");
                 sb.AppendLine();
                 sb.AppendLine("```json");
-                sb.AppendLine(
-                    ArchitectureEvidenceRequestExport.FormatTraceField(
-                        trace.RawResponse,
-                        ArchitectureEvidenceRequestExport.TraceRawResponseNotStoredCopy,
-                        ArchitectureEvidenceRequestExport.TraceRawResponseStoredEmptyCopy));
+                sb.AppendLine(trace.RawResponse);
                 sb.AppendLine("```");
                 sb.AppendLine();
 
