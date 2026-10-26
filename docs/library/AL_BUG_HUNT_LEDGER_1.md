@@ -6868,6 +6868,19 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-26 seed hunt (seed→hit): reseeded `application-analysis` with zero hunt-ready rows; cheap-disproof closed `FindingEvidenceChainService` regression guard (prior trace delegation hit); promoted ledger follow-ons `InMemoryAgentResultRepository.GetAgentTypeMarkersByRunIdAsync` and `LoadAgentTypeMarkersByRunIdAsync`; proved in-memory agent-type marker reads and application loader still matched a single `RunId` string while markers lived under legacy uppercase hex keys, so run-detail enrichment omitted agent types when only the canonical key was queried; merge markers across `TechnologyLedgerRunIdLookup` keys in-memory and delegate loader to canonical repository call; regressions `CompareQuality_GetAgentTypeMarkersByRunIdAsync_merges_markers_when_stored_under_legacy_run_id_key` and `CompareQuality_BuildAsync_includes_legacy_keyed_trace_count_on_trust_card`; seeded five follow-on rows; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` filter 390/390 (`RunAnalyzers=false` on VM build). Private beta: Trust evidence cards and run-detail agent-type markers include legacy-keyed persistence rows without duplicate repository fan-out.
+
+- [ ] (candidate) `InMemoryAgentResultRepository.GetByRunIdAsync` — locus: legacy run-id merge parity for full result rows.
+- [ ] (candidate) `LoadAgentTasksByRunIdAsync` / `LoadAgentResultsByRunIdAsync` — locus: delegate to merging persistence like traces/markers.
+- [ ] (candidate) `RunAgentExecutionLlmCostEstimateAppender` — locus: `LoadLlmCostSlicesByRunIdAsync` for canonical normalization.
+- [ ] (candidate) `RunDetailResultsEnrichmentSlices` — regression guard — locus: marker load stays on canonicalization helper.
+- [ ] (candidate) `AuthorityRunDetailOperatorEnricher` — locus: marker mocks vs single canonical repository call.
+
+- [x] (valid-no-repro) `RunTrustEvidenceCardBuilder` legacy trace count — **cheap-disproof 2026-10-26 seed hunt:** persistence `CountByRunIdAsync` merge; regression above.
+- [x] (valid-no-repro) `RunAgentExecutionLlmCostEstimateAppender` — **cheap-disproof 2026-10-26 seed hunt:** repository slice merge on direct read.
+- [x] (valid-no-repro) `LoadAgentTasksByRunIdAsync` / `LoadAgentResultsByRunIdAsync` — **cheap-disproof 2026-10-26 seed hunt:** SQL guid normalization; app multi-key still required for in-memory until persistence parity.
+- [x] (proven) `GetAgentTypeMarkersByRunIdAsync` legacy-key merge — **hit 2026-10-26 seed hunt:** in-memory merge + loader delegation; regressions above.
+
 2026-10-26 seed hunt (seed→hit): reseeded `application-analysis` with zero hunt-ready rows; cheap-disproof closed three top `(candidate)` regression-guard rows; promoted ledger follow-ons `LoadExecutionTracesByRunIdAsync` and `LoadAgentTypeMarkersByRunIdAsync`; proved execution trace loader still re-queried every lookup key after persistence gained merged `GetByRunIdAsync` (redundant reads) and agent-type marker merge returned unordered `Values` unlike sibling loaders; delegate traces to canonical repository call with stable sort; order markers by `CreatedUtc` descending; regressions `CompareQuality_LoadExecutionTracesByRunIdAsync_returns_empty_when_repository_returns_null`, `CompareQuality_LoadAgentTypeMarkersByRunIdAsync_orders_markers_by_created_utc_descending`, plus in-memory trace merge test; seeded five follow-on rows; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` filter 388/388 (`RunAnalyzers=false` on VM build). Private beta: Evidence chains and LLM audit fallbacks keep seeing legacy-keyed traces via one repository round-trip, and operator marker lists sort predictably.
 
 - [ ] (candidate) `LoadAgentTasksByRunIdAsync` / `LoadAgentResultsByRunIdAsync` — locus: redundant multi-key loops vs persistence merge helpers.
