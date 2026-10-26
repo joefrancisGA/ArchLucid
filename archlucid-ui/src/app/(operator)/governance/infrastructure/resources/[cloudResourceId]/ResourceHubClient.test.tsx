@@ -432,6 +432,22 @@ describe("ResourceHubClient", () => {
     });
   });
 
+  it("uses the last tab query value and canonicalizes duplicate tab params on load", async () => {
+    searchParams = new URLSearchParams(
+      `tab=not-a-real-tab&tab=drift&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}`,
+    );
+    replace.mockClear();
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    await screen.findByTestId("infra-resource-hub-drift-tab-change-change-1-0");
+
+    await waitFor(() => {
+      expect(replace).toHaveBeenCalled();
+      const hrefs = replace.mock.calls.map((call) => String(call[0] ?? ""));
+      expect(hrefs.some((href) => href.includes("tab=drift") && !href.includes("not-a-real-tab"))).toBe(true);
+    });
+  });
+
   it("normalizes whitespace-only tab query param via router on load", async () => {
     searchParams = new URLSearchParams(`tab=%20%20%20&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}`);
     replace.mockClear();

@@ -7223,6 +7223,32 @@ ABQ-09 churn hotspot.
 
 ## Zone: ui-infra-resource-hub
 
+2026-10-26 seed hunt (seed→hit): promoted **duplicate `tab` query keys ignored trailing value** — `URLSearchParams.get` and `activeTab` used the first `tab` entry, so bookmarks like `tab=not-a-real-tab&tab=drift` opened Overview while a valid Drift tab was last; resolve active tab from the last `tab` value via `readResourceHubTabFromSearchParams` and dedupe on load; regression `uses the last tab query value and canonicalizes duplicate tab params on load`; cheap-disproof closed tab casing (normalize effect), empty `tab=` (whitespace normalize), manual Retry (generation guard), and terraform method-without-address (empty-state boundary); scoped ResourceHubClient vitest 140/140 plus filter-url unit test. Private beta: duplicated hub tab query keys in shared links honor the last tab segment and collapse to a single canonical param.
+
+- [x] (proven) `ResourceHubClient` duplicate `tab` query keys — first value won over last — **hit 2026-10-26 seed hunt #120:** `readResourceHubTabFromSearchParams` + dedupe normalize; regression above.
+- [x] (valid-no-repro) `ResourceHubClient` `tab` param casing — **cheap-disproof 2026-10-26 seed hunt #120:** `tab=Findings` covered by tab normalize (`trimmed !== parsed`).
+- [x] (valid-no-repro) `ResourceHubClient` empty-string `tab=` value — **cheap-disproof 2026-10-26 seed hunt #120:** hunt 119 whitespace-only normalize.
+- [x] (valid-no-repro) `ResourceHubClient` manual Retry — concurrent scope change — **cheap-disproof 2026-10-26 seed hunt #120:** generation guard; monitor.
+- [x] (valid-no-repro) `ResourceHubClient` terraform tab — generation method without address — **cheap-disproof 2026-10-26 seed hunt #120:** `hasTerraformMapping` gate; not-mapped empty state.
+
+- [ ] (candidate) `ResourceHubClient` `readResourceHubTabFromSearchParams` — first of two valid tabs — locus: last-wins policy; input: `tab=drift&tab=findings` bookmark intent.
+- [ ] (candidate) `ResourceHubClient` tab normalize — race with snapshot normalize — locus: parallel `router.replace` effects; monitor.
+- [ ] (candidate) `ResourceHubClient` `hubTabs` — badge counts from hub row — locus: saturated `[state-machine-gap]`; monitor.
+- [ ] (candidate) `ResourceHubDriftChangesTable` — drift change ids — locus: defer trim class.
+- [ ] (candidate) `ResourceHubClient` infrastructure Ask — tab param in handoff before dedupe completes — locus: first paint; monitor.
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 120
+- **bugs-found:** 95
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-26
+- **last-bug:** 2026-10-26 — duplicate tab query keys ignored trailing value
+- **code-changed-since:** yes
+
 2026-10-26 seed hunt (seed→hit): promoted **whitespace-only `tab` query left in resource hub URL** — hunt 118 normalized unknown tab tokens but returned early when `tab` trimmed empty, so `tab=%20%20%20` deep links kept a useless query key while Overview rendered; extend tab normalize effect to rewrite whitespace-only `tab` params; regression `normalizes whitespace-only tab query param via router on load`; cheap-disproof closed Ask handoff stale tab (normalize on load), busy id on tab switch (monitor), hub tab badges (saturated), drift change ids (defer); scoped ResourceHubClient vitest 139/139. Private beta: whitespace-only hub tab query noise is stripped from shared URLs the same way invalid tab typos are.
 
 - [x] (proven) `ResourceHubClient` whitespace-only `tab` query — URL not normalized on load — **hit 2026-10-26 seed hunt #119:** tab normalize effect; regression above.

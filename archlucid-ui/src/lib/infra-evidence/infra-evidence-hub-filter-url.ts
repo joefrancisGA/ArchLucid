@@ -96,6 +96,19 @@ export function parseResourceHubTabFromSearch(raw: string | null | undefined): R
   return "overview";
 }
 
+/** Resolve the active hub tab when bookmarks repeat `tab`; duplicate keys use the last value. */
+export function readResourceHubTabFromSearchParams(
+  params: Pick<URLSearchParams, "getAll">,
+): ResourceHubTab {
+  const tabParams = params.getAll(RESOURCE_HUB_TAB_PARAM);
+
+  if (tabParams.length === 0) {
+    return parseResourceHubTabFromSearch(null);
+  }
+
+  return parseResourceHubTabFromSearch(tabParams[tabParams.length - 1]);
+}
+
 export function parseResourceHubQueryValueFromSearch(raw: string | null | undefined): string {
   if (raw === null || raw === undefined) {
     return "";

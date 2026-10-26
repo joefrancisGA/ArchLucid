@@ -90,6 +90,7 @@ import { buildInfrastructureAskHandoffHref } from "@/lib/infra-evidence/infrastr
 import {
   parseResourceHubQueryValueFromSearch,
   parseResourceHubTabFromSearch,
+  readResourceHubTabFromSearchParams,
   resolveInfrastructureAskAuditContext,
   resourceExplorerFilterHrefFromSearch,
   resourceHubFilterHrefFromSearch,
@@ -396,7 +397,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
   const router = useRouter();
   const pathname = usePathname() ?? "";
   const searchParams = useSearchParams();
-  const activeTab = parseResourceHubTabFromSearch(searchParams.get(RESOURCE_HUB_TAB_PARAM));
+  const activeTab = readResourceHubTabFromSearchParams(searchParams);
   const runId = parseResourceHubQueryValueFromSearch(searchParams.get(RESOURCE_HUB_RUN_ID_PARAM));
   const snapshotId = parseResourceHubQueryValueFromSearch(searchParams.get(RESOURCE_HUB_SNAPSHOT_ID_PARAM));
   const assessmentId = parseResourceHubQueryValueFromSearch(searchParams.get(RESOURCE_HUB_ASSESSMENT_ID_PARAM));
@@ -572,16 +573,19 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
   );
 
   useEffect(() => {
-    const rawTabParam = searchParams.get(RESOURCE_HUB_TAB_PARAM);
+    const tabParams = searchParams.getAll(RESOURCE_HUB_TAB_PARAM);
 
-    if (rawTabParam === null) {
+    if (tabParams.length === 0) {
       return;
     }
 
-    const trimmedTabParam = rawTabParam.trim();
-    const parsedTab = parseResourceHubTabFromSearch(rawTabParam);
+    const effectiveRawTabParam = tabParams[tabParams.length - 1] ?? "";
+    const trimmedTabParam = effectiveRawTabParam.trim();
+    const parsedTab = parseResourceHubTabFromSearch(effectiveRawTabParam);
+    const needsDedupe = tabParams.length > 1;
+    const needsNormalize = trimmedTabParam.length === 0 || trimmedTabParam !== parsedTab;
 
-    if (trimmedTabParam.length === 0 || trimmedTabParam !== parsedTab) {
+    if (needsDedupe || needsNormalize) {
       const nextHref = resourceHubFilterHrefFromSearch(cloudResourceId, searchParams.toString(), {
         tab: parsedTab,
         snapshotId: resolvedSnapshotId.length > 0 ? resolvedSnapshotId : undefined,
