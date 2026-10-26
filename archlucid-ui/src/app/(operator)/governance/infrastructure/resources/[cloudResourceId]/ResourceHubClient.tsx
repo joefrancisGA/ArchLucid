@@ -718,8 +718,13 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
     [hub?.externalResourceId],
   );
 
+  const diagramCorrespondenceIdTrimmed = useMemo(
+    () => hub?.diagramCorrespondence?.correspondenceId?.trim() ?? "",
+    [hub?.diagramCorrespondence?.correspondenceId],
+  );
+
   const diagramCorrespondenceRemediationHref = useMemo(() => {
-    if (hub?.diagramCorrespondence == null) {
+    if (hub?.diagramCorrespondence == null || diagramCorrespondenceIdTrimmed.length === 0) {
       return null;
     }
 
@@ -730,7 +735,14 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
       scopedCloudResourceId: cloudResourceId,
       ...workbenchLinkAuditContext,
     });
-  }, [cloudResourceId, hub?.diagramCorrespondence, resolvedSnapshotId, runId, workbenchLinkAuditContext]);
+  }, [
+    cloudResourceId,
+    diagramCorrespondenceIdTrimmed,
+    hub?.diagramCorrespondence,
+    resolvedSnapshotId,
+    runId,
+    workbenchLinkAuditContext,
+  ]);
 
   const runCreateRemediationFromFinding = async (findingId: string) => {
     const trimmedFindingId = findingId.trim();
@@ -1556,42 +1568,48 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                 <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
                   Reconciliation records correspondence work; it does not change the diagram or Azure.
                 </p>
-                <div className="mt-3 flex flex-wrap gap-2">
-                  <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-diagram-reconcile">
-                    <Link
-                      href={buildResourceHubDiagramReconcileWorkbenchHref(
-                        resolvedSnapshotId,
-                        runId,
-                        hub.diagramCorrespondence.correspondenceId,
-                        cloudResourceId,
-                        workbenchLinkAuditContext,
-                      )}
-                    >
-                      Open in reconciliation workbench
-                    </Link>
-                  </Button>
-                  {diagramCorrespondenceRemediationHref != null ? (
-                    <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-diagram-remediation">
-                      <Link href={diagramCorrespondenceRemediationHref}>Open in remediation factory</Link>
+                {diagramCorrespondenceIdTrimmed.length > 0 ? (
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-diagram-reconcile">
+                      <Link
+                        href={buildResourceHubDiagramReconcileWorkbenchHref(
+                          resolvedSnapshotId,
+                          runId,
+                          diagramCorrespondenceIdTrimmed,
+                          cloudResourceId,
+                          workbenchLinkAuditContext,
+                        )}
+                      >
+                        Open in reconciliation workbench
+                      </Link>
                     </Button>
-                  ) : null}
-                  <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-diagram-ask">
-                    <Link
-                      href={buildHubDiagramCorrespondenceAskHref(
-                        pathname,
-                        infrastructureAskHandoffSearch,
-                        cloudResourceId,
-                        resolvedSnapshotId,
-                        runId,
-                        hub.diagramCorrespondence.correspondenceId,
-                        askAuditContext,
-                        workQueue,
-                      )}
-                    >
-                      Ask about this correspondence
-                    </Link>
-                  </Button>
-                </div>
+                    {diagramCorrespondenceRemediationHref != null ? (
+                      <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-diagram-remediation">
+                        <Link href={diagramCorrespondenceRemediationHref}>Open in remediation factory</Link>
+                      </Button>
+                    ) : null}
+                    <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-diagram-ask">
+                      <Link
+                        href={buildHubDiagramCorrespondenceAskHref(
+                          pathname,
+                          infrastructureAskHandoffSearch,
+                          cloudResourceId,
+                          resolvedSnapshotId,
+                          runId,
+                          diagramCorrespondenceIdTrimmed,
+                          askAuditContext,
+                          workQueue,
+                        )}
+                      >
+                        Ask about this correspondence
+                      </Link>
+                    </Button>
+                  </div>
+                ) : (
+                  <p className={cn("m-0 mt-3", OPERATOR_TYPOGRAPHY.helper)}>
+                    Correspondence id was not stored.
+                  </p>
+                )}
               </section>
             ) : (
               <>

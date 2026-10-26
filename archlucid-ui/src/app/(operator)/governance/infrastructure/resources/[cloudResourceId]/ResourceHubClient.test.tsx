@@ -1419,6 +1419,41 @@ describe("ResourceHubClient", () => {
     expect(await screen.findByText("Findings stream label was not stored.")).toBeInTheDocument();
   });
 
+  it("shows correspondence id omission copy and hides diagram actions when correspondenceId is whitespace-only", async () => {
+    fetchCachedInfraEvidenceResourceHub.mockImplementation(async () =>
+      buildResourceHubTestMockHub({
+        diagramCorrespondence: {
+          ...buildResourceHubTestMockHub().diagramCorrespondence!,
+          correspondenceId: "   ",
+        },
+      }),
+    );
+    searchParams = new URLSearchParams(`tab=diagram&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}`);
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    expect(await screen.findByText("Correspondence id was not stored.")).toBeInTheDocument();
+    expect(screen.queryByTestId("infra-resource-hub-diagram-reconcile")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("infra-resource-hub-diagram-remediation")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("infra-resource-hub-diagram-ask")).not.toBeInTheDocument();
+  });
+
+  it("uses trimmed correspondence id in diagram ask handoff when correspondenceId is padded", async () => {
+    fetchCachedInfraEvidenceResourceHub.mockImplementation(async () =>
+      buildResourceHubTestMockHub({
+        diagramCorrespondence: {
+          ...buildResourceHubTestMockHub().diagramCorrespondence!,
+          correspondenceId: "  corr-padded  ",
+        },
+      }),
+    );
+    searchParams = new URLSearchParams(`tab=diagram&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}`);
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    const askLink = await screen.findByTestId("infra-resource-hub-diagram-ask");
+    expect(askLink).toHaveAttribute("href", expect.stringContaining("correspondenceId=corr-padded"));
+    expect(askLink.getAttribute("href")).not.toMatch(/correspondenceId=%20/);
+  });
+
   it("shows diagram match kind omission copy when matchKind is whitespace-only", async () => {
     fetchCachedInfraEvidenceResourceHub.mockImplementation(async () =>
       buildResourceHubTestMockHub({
