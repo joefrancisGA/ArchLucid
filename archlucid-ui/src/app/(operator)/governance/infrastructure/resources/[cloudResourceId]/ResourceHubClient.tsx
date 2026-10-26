@@ -178,6 +178,24 @@ function isEmptyHubFetchAuditScope(scope: typeof EMPTY_HUB_FETCH_AUDIT_SCOPE): b
   return scope.assessmentId === "" && scope.auditEvidenceSnapshotId === "" && scope.controlId === "";
 }
 
+function buildResourceHubClientScopeKey(parts: {
+  readonly cloudResourceId: string;
+  readonly snapshotId: string;
+  readonly runId: string;
+  readonly assessmentId: string;
+  readonly auditEvidenceSnapshotId: string;
+  readonly controlId: string;
+}): string {
+  return [
+    parts.cloudResourceId,
+    parts.snapshotId,
+    parts.runId,
+    parts.assessmentId,
+    parts.auditEvidenceSnapshotId,
+    parts.controlId,
+  ].join("\u0000");
+}
+
 function infraEvidenceAuditScopesEqual(
   left: InfraEvidenceWorkbenchAuditScope,
   right: InfraEvidenceWorkbenchAuditScope,
@@ -412,6 +430,24 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
   const suppressLinkedAuditScopeRefetchRef = useRef(false);
   const linkedAuditInlineHydratedScopeRef = useRef<InfraEvidenceWorkbenchAuditScope | null>(null);
   const activeCloudResourceIdRef = useRef(cloudResourceId);
+  const hubClientScopeKeyRef = useRef(
+    buildResourceHubClientScopeKey({
+      cloudResourceId,
+      snapshotId,
+      runId,
+      assessmentId,
+      auditEvidenceSnapshotId,
+      controlId,
+    }),
+  );
+  hubClientScopeKeyRef.current = buildResourceHubClientScopeKey({
+    cloudResourceId,
+    snapshotId,
+    runId,
+    assessmentId,
+    auditEvidenceSnapshotId,
+    controlId,
+  });
 
   useEffect(() => {
     if (activeCloudResourceIdRef.current === cloudResourceId) {
@@ -979,6 +1015,16 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
     }
 
     const cloudResourceIdAtStart = cloudResourceId;
+    const hubScopeKeyAtStart = buildResourceHubClientScopeKey({
+      cloudResourceId,
+      snapshotId,
+      runId,
+      assessmentId,
+      auditEvidenceSnapshotId,
+      controlId,
+    });
+
+    const isHubScopeStillCurrent = () => hubScopeKeyAtStart === hubClientScopeKeyRef.current;
 
     setFindingActionBusyId(trimmedFindingId);
     setFindingActionMessages((current) => {
@@ -990,17 +1036,21 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
     try {
       await matchOperationalFinding(trimmedFindingId);
 
-      if (activeCloudResourceIdRef.current !== cloudResourceIdAtStart) {
+      if (!isHubScopeStillCurrent()) {
         return;
       }
 
       const result = await createRemediationInstance(trimmedFindingId);
 
-      if (activeCloudResourceIdRef.current !== cloudResourceIdAtStart) {
+      if (!isHubScopeStillCurrent()) {
         return;
       }
 
       if (!result.succeeded) {
+        if (!isHubScopeStillCurrent()) {
+          return;
+        }
+
         const blockerMessage = result.blockers
           .map((blocker) => blocker.trim())
           .filter((blocker) => blocker.length > 0)
@@ -1025,6 +1075,10 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
 
       const trimmedCreatedInstanceId = result.instanceId?.trim() ?? "";
 
+      if (!isHubScopeStillCurrent()) {
+        return;
+      }
+
       setFindingActionMessages((current) => ({
         ...current,
         [trimmedFindingId]: {
@@ -1035,11 +1089,11 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
 
       invalidateInfraEvidenceResourceHubCacheForResource(cloudResourceIdAtStart);
 
-      if (activeCloudResourceIdRef.current === cloudResourceIdAtStart) {
+      if (isHubScopeStillCurrent()) {
         await loadHub({ retainFindingMessages: true });
       }
     } catch (error: unknown) {
-      if (activeCloudResourceIdRef.current !== cloudResourceIdAtStart) {
+      if (!isHubScopeStillCurrent()) {
         return;
       }
 
@@ -1051,7 +1105,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
         },
       }));
     } finally {
-      if (activeCloudResourceIdRef.current === cloudResourceIdAtStart) {
+      if (isHubScopeStillCurrent()) {
         setFindingActionBusyId(null);
         setPendingRemediationFinding(null);
       }
