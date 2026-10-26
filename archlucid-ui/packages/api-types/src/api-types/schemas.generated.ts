@@ -1434,7 +1434,7 @@ export interface components {
             proposedChange?: string;
             provenance?: components["schemas"]["ClaimProvenance"];
             recommendationId?: string;
-            requiresHumanApproval?: boolean;
+            requiresHumanApproval?: null | boolean;
             riskReduction?: components["schemas"]["RiskReductionEstimate"];
             tradeOffs?: components["schemas"]["TradeOffObject"][];
             validationMethod?: string;
