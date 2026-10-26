@@ -139,6 +139,36 @@ public sealed class AzureInventoryEventGridDestinationExtractorTests
     }
 
     [Fact]
+    public void Extract_reads_hybrid_connection_destination_resource_id_when_properties_resource_id_is_percent_encoded_json_reference_scalar()
+    {
+        const string hybridId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Relay/namespaces/relay1/hybridConnections/hc1";
+        string referenceJson = JsonSerializer.Serialize(new { resourceId = hybridId });
+        string encodedReference = Uri.EscapeDataString(referenceJson);
+
+        using JsonDocument document = JsonDocument.Parse(
+            $$"""
+            {
+              "destination": {
+                "endpointType": "HybridConnection",
+                "properties": {
+                  "resourceId": {{JsonSerializer.Serialize(encodedReference)}}
+                }
+              }
+            }
+            """);
+
+        (
+            string destinationKind,
+            string? destinationResourceId,
+            _,
+            _) = AzureInventoryEventGridDestinationExtractor.Extract(document.RootElement);
+
+        destinationKind.Should().Be("HybridConnection");
+        destinationResourceId.Should().Be(hybridId.ToLowerInvariant());
+    }
+
+    [Fact]
     public void Extract_reads_hybrid_connection_destination_resource_id_from_nested_properties_object_with_resource_id_key_only()
     {
         const string hybridId =
