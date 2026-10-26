@@ -118,6 +118,13 @@ public static class AzureInventoryArmNestedObjectPropertyReader
 
             string? armId = property.Value.GetString();
 
+            if (string.IsNullOrWhiteSpace(armId))
+            {
+                return null;
+            }
+
+            armId = UnwrapJsonEncodedArmId(armId);
+
             if (string.IsNullOrWhiteSpace(armId)
                 || !armId.Contains("/subscriptions/", StringComparison.OrdinalIgnoreCase))
             {
@@ -128,5 +135,17 @@ public static class AzureInventoryArmNestedObjectPropertyReader
         }
 
         return null;
+    }
+
+    private static string UnwrapJsonEncodedArmId(string armId)
+    {
+        string trimmed = armId.Trim();
+
+        if (trimmed.Length >= 2 && trimmed[0] == '"' && trimmed[^1] == '"')
+        {
+            return trimmed[1..^1].Trim();
+        }
+
+        return trimmed;
     }
 }

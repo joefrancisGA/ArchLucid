@@ -34,6 +34,14 @@ public sealed class AzureInventoryEventGridWebhookHostExtractorTests
             .Be("hooks.example.com");
     }
 
+    [Fact]
+    public void TryExtractHost_reads_host_when_webhook_url_is_protocol_relative()
+    {
+        AzureInventoryEventGridWebhookHostExtractor.TryExtractHost("//hooks.example.com/callback?token=x")
+            .Should()
+            .Be("hooks.example.com");
+    }
+
     [Theory]
     [InlineData(null)]
     [InlineData("")]

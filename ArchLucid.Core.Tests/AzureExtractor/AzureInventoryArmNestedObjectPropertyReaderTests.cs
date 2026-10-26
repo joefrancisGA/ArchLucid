@@ -90,4 +90,19 @@ public sealed class AzureInventoryArmNestedObjectPropertyReaderTests
             .Should()
             .Be(armId);
     }
+
+    [Fact]
+    public void TryReadScalarString_strips_surrounding_quotes_from_json_encoded_string_arm_id_on_reference_object()
+    {
+        const string armId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/store";
+
+        string idValueWithSurroundingQuotes = "\"" + armId + "\"";
+        using JsonDocument document = JsonDocument.Parse(
+            $"{{\"id\":{JsonSerializer.Serialize(idValueWithSurroundingQuotes)}}}");
+
+        AzureInventoryArmNestedObjectPropertyReader.TryReadScalarString(document.RootElement)
+            .Should()
+            .Be(armId);
+    }
 }

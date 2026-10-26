@@ -6358,6 +6358,16 @@
 
 ## Zone: core-azure-extractor
 
+2026-10-26 seed hunt (seed→hit): reseeded `core-azure-extractor` after picker `seedHunt`; promoted hunt-ready JSON `id` property whose value is a JSON-encoded string ARM id (surrounding quote characters); `TryReadArmIdFromReferenceObject` returned the quoted blob so capture and Event Grid destination ARM ids failed normalization; unwrap surrounding `"` via `UnwrapJsonEncodedArmId`; regression `TryReadScalarString_strips_surrounding_quotes_from_json_encoded_string_arm_id_on_reference_object`; cheap-disproof closed protocol-relative webhook `//hooks.example.com/path` (`TryExtractHost_reads_host_when_webhook_url_is_protocol_relative`); retained three open `(candidate)` rows from prior seed and added two fresh mechanism-backed rows; 15 scoped ARM nested reader + Event Grid webhook host tests passed (Release). Private beta: invited operators keep Event Hub capture and Event Grid destination edges when package serialization double-encodes ARM `id` values with JSON string quote characters.
+
+- [x] (valid-no-repro) `AzureInventoryEventGridWebhookHostExtractor` — protocol-relative webhook `endpointUrl` (`//hooks.example.com/path`) — **cheap-disproof 2026-10-26 seed hunt:** `Uri.TryCreate` accepts protocol-relative absolute form; regression `TryExtractHost_reads_host_when_webhook_url_is_protocol_relative`.
+- [x] (proven) `AzureInventoryArmNestedObjectPropertyReader.TryReadScalarString` — JSON `id` property value is a JSON-encoded string ARM id (escaped quotes inside object) — **hit 2026-10-26 seed hunt:** `UnwrapJsonEncodedArmId`; regression `TryReadScalarString_strips_surrounding_quotes_from_json_encoded_string_arm_id_on_reference_object`. [class:fail-open-validation]
+- [ ] (candidate) `AzureInventoryLogicAppConnectionExtractor` — `apiId` connection string without `https://` scheme — locus: shared webhook host extractor; input: `management.azure.com/...`; wrong outcome: host-only row null.
+- [ ] (candidate) `AzureInventoryEventGridDestinationExtractor` — `AzureFunction` destination `resourceId` as JSON string scalar — locus: `TryReadScalarString`; input: serialized function ARM reference in companion row; wrong outcome: destination ARM id null.
+- [ ] (candidate) `AzureInventoryAdfLinkedServiceTargetResolver.BuildHostIndex` — storage account host index when account name differs only by case across subscriptions — locus: `StringComparer.OrdinalIgnoreCase` host keys; input: `SA1` vs `sa1` blob hosts; wrong outcome: verify ambiguity handling.
+- [ ] (candidate) `AzureInventoryRouteTableRouteParser` — explicit flattened `nextHopArmId` JSON object with quoted-string `id` — locus: shared `TryReadScalarString`; input: flattened suffix value `{"id":"\"/subscriptions/...\""}`; wrong outcome: next hop ARM id null on edge-control diagram.
+- [ ] (candidate) `AzureInventoryMessagingAssociationParser.TryParse` — companion `captureStorageAccountId` with quoted-string JSON `id` object — locus: `TryReadScalarString`; input: messaging companion row with double-encoded id; wrong outcome: capture storage edge dropped.
+
 2026-10-26 thorough hunt (hit): promoted five open `(candidate)` rows including Event Grid `WebHook` `endpointUrl` without scheme; scheme-less webhook paste values like `hooks.example.com/callback` returned null host because `Uri.TryCreate` requires an absolute URI; prepend `https://` when the value has no scheme and contains a hostname dot; regressions `TryExtractHost_reads_host_when_webhook_url_omits_scheme` and `Extract_reads_webhook_host_when_endpoint_url_omits_scheme`; cheap-disproof closed JSON string scalar wrapping subscription ARM reference object (`TryReadScalarString_reads_subscription_arm_id_from_json_string_scalar_wrapping_reference_object`), ambiguous duplicate storage hosts in `BuildHostIndex` (`BuildHostIndex_omits_ambiguous_storage_hosts`), Service Bus topic `forwardTo` name capture (`TryExtractServiceBusChild_maps_forward_targets_on_topic`), and package `ReadProperties` `GetRawText()` bypass (companion messaging and Event Grid paths already normalize via `TryReadScalarString` after 2026-10-25 hits); seeded five follow-on `(candidate)` rows; 1604 scoped `AzureExtractor` tests passed (15 unrelated pre-existing `InventoryDiagramOrphanedStateClassifier` failures). Private beta: invited operators reviewing Event Grid webhook destinations in infra evidence see the callback hostname when inventory stores `endpointUrl` without an `https://` prefix.
 
 - [x] (valid-no-repro) `AzureInventoryArmNestedObjectPropertyReader.TryReadScalarString` — JSON string scalar wrapping subscription ARM reference object — **cheap-disproof 2026-10-26 thorough hunt:** `TryResolveArmReferenceScalar` unwraps serialized `{"id":"/subscriptions/..."}`; regression `TryReadScalarString_reads_subscription_arm_id_from_json_string_scalar_wrapping_reference_object`.
@@ -6366,12 +6376,6 @@
 - [x] (valid-no-repro) `AzureInventoryMessagingAssociationExtractor.TryExtractServiceBusChild` — `forwardTo` on topic resources — **cheap-disproof 2026-10-26 thorough hunt:** topic rows read the same `properties.forwardTo` fields as queues; regression `TryExtractServiceBusChild_maps_forward_targets_on_topic`.
 - [x] (valid-no-repro) `AzureInventoryPackageInventoryReader.ReadProperties` — object-valued ARM reference `GetRawText()` persistence — **cheap-disproof 2026-10-26 thorough hunt:** downstream extractors call `TryReadScalarString` on companion and nested destination shapes (2026-10-25 capture/Event Grid hits); no reachable raw-JSON leak on hosted inventory path.
 
-- [ ] (candidate) `AzureInventoryEventGridWebhookHostExtractor` — protocol-relative webhook `endpointUrl` (`//hooks.example.com/path`) — locus: `TryExtractHost`; input: scheme-less paste with leading `//`; wrong outcome: host null.
-- [ ] (candidate) `AzureInventoryArmNestedObjectPropertyReader.TryReadScalarString` — JSON `id` property value is a JSON-encoded string ARM id (escaped quotes inside object) — locus: `TryReadArmIdFromReferenceObject`; input: `{"id":"\"/subscriptions/...\""}`; wrong outcome: capture storage id null.
-- [ ] (candidate) `AzureInventoryLogicAppConnectionExtractor` — `apiId` connection string without `https://` scheme — locus: shared webhook host extractor; input: `management.azure.com/...`; wrong outcome: host-only row null.
-- [ ] (candidate) `AzureInventoryEventGridDestinationExtractor` — `AzureFunction` destination `resourceId` as JSON string scalar — locus: `TryReadScalarString`; input: serialized function ARM reference in companion row; wrong outcome: destination ARM id null.
-- [ ] (candidate) `AzureInventoryAdfLinkedServiceTargetResolver.BuildHostIndex` — storage account host index when account name differs only by case across subscriptions — locus: `StringComparer.OrdinalIgnoreCase` host keys; input: `SA1` vs `sa1` blob hosts; wrong outcome: verify ambiguity handling.
-
 - **id:** core-azure-extractor
 - **split-from:** archlucid-core
 - **status:** open
@@ -6379,11 +6383,11 @@
 - **aliases:** azure extractor; manifest schema; split from archlucid-core
 - **paths:** ArchLucid.Core/AzureExtractor/
 - **test-filter:** FullyQualifiedName~AzureExtractor
-- **hunts:** 63
-- **bugs-found:** 42
+- **hunts:** 64
+- **bugs-found:** 43
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-26
-- **last-bug:** 2026-10-26 — Event Grid webhook host when endpointUrl omits scheme
+- **last-bug:** 2026-10-26 — quoted-string JSON ARM `id` on reference objects
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
