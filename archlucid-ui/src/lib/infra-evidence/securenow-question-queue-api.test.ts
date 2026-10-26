@@ -218,6 +218,47 @@ describe("secureNowQuestionDispositionResponseIsUsable", () => {
     ).toBe(false);
   });
 
+  it("rejects dispositions with audit entries whose action is blank after trim", () => {
+    expect(
+      secureNowQuestionDispositionResponseIsUsable({
+        ...baseDisposition,
+        auditEntries: [
+          {
+            action: "   ",
+            actorKey: "reviewer",
+            occurredUtc: "2026-11-01T00:00:00.000Z",
+            reason: "",
+          },
+        ],
+      }),
+    ).toBe(false);
+  });
+
+  it("rejects dispositions with audit entries whose actor key is blank after trim", () => {
+    expect(
+      secureNowQuestionDispositionResponseIsUsable({
+        ...baseDisposition,
+        auditEntries: [
+          {
+            action: "Answered",
+            actorKey: "   ",
+            occurredUtc: "2026-11-01T00:00:00.000Z",
+            reason: "",
+          },
+        ],
+      }),
+    ).toBe(false);
+  });
+
+  it("allows dispositions with empty audit entry lists", () => {
+    expect(
+      secureNowQuestionDispositionResponseIsUsable({
+        ...baseDisposition,
+        auditEntries: [],
+      }),
+    ).toBe(true);
+  });
+
   it("rejects POST disposition statuses outside open, answered, and dismissed", () => {
     expect(
       secureNowQuestionDispositionResponseIsUsable({
@@ -1165,6 +1206,49 @@ describe("securenow-question-queue-api", () => {
       actorKey: "reviewer",
       updatedUtc: "2026-11-01T00:00:00.000Z",
       auditEntries: [],
+    });
+
+    const disposition = await answerSecureNowQuestion("snapshot-1", {
+      subscriptionId: "sub-1",
+      resourceId: "",
+      questionKey: "subscription-ownership@v1",
+      source: "PolicyPack",
+      scopeKind: "Subscription",
+      answerCode: "Owner",
+      answerText: "Owner",
+      reason: "Reviewed.",
+      evidenceFingerprint: "fingerprint",
+    });
+
+    expect(disposition).toBeUndefined();
+  });
+
+  it("returns undefined when POST answer response has audit entries with blank action after trim", async () => {
+    vi.mocked(proxyJsonPost).mockResolvedValueOnce({
+      dispositionId: "00000000-0000-0000-0000-000000000001",
+      snapshotId: "snapshot-1",
+      subscriptionId: "sub-1",
+      resourceId: "sub-1",
+      questionKey: "subscription-ownership@v1",
+      source: "PolicyPack",
+      scopeKind: "Subscription",
+      status: "Answered",
+      answerCode: "Owner",
+      answerText: "Owner",
+      reason: "Reviewed.",
+      expirationUtc: "2026-12-01T00:00:00.000Z",
+      isExpired: false,
+      evidenceFingerprint: "fingerprint",
+      actorKey: "reviewer",
+      updatedUtc: "2026-11-01T00:00:00.000Z",
+      auditEntries: [
+        {
+          action: "   ",
+          actorKey: "reviewer",
+          occurredUtc: "2026-11-01T00:00:00.000Z",
+          reason: "Reviewed.",
+        },
+      ],
     });
 
     const disposition = await answerSecureNowQuestion("snapshot-1", {

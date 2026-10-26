@@ -177,6 +177,22 @@ function secureNowQuestionDispositionAnswerMetadataPresent(
   return answerCode.length > 0 || answerText.length > 0;
 }
 
+const secureNowQuestionDispositionAuditEntryRequiredStringFields = [
+  "action",
+  "actorKey",
+  "occurredUtc",
+] as const satisfies readonly (keyof SecureNowQuestionDispositionAudit)[];
+
+function secureNowQuestionDispositionAuditEntriesAreUsable(
+  auditEntries: readonly SecureNowQuestionDispositionAudit[],
+): boolean {
+  return auditEntries.every((entry) =>
+    secureNowQuestionDispositionAuditEntryRequiredStringFields.every(
+      (field) => entry[field].trim().length > 0,
+    ),
+  );
+}
+
 export function secureNowQuestionDispositionResponseIsUsable(
   disposition: SecureNowQuestionDisposition,
 ): boolean {
@@ -226,6 +242,10 @@ export function secureNowQuestionDispositionResponseIsUsable(
     && !secureNowQuestionDispositionIsDismissed(disposition.status)
     && !secureNowQuestionDispositionIsOpen(disposition.status)
   ) {
+    return false;
+  }
+
+  if (!secureNowQuestionDispositionAuditEntriesAreUsable(disposition.auditEntries)) {
     return false;
   }
 
