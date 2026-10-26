@@ -3,7 +3,10 @@ import {
   secureNowQuestionDispositionIsDismissed,
   secureNowQuestionDispositionIsOpen,
 } from "@/lib/infra-evidence/securenow-question-disposition-status";
-import { secureNowQuestionDispositionPostExpirationContradicts } from "@/lib/infra-evidence/securenow-question-expiration";
+import {
+  secureNowQuestionDispositionPostExpirationContradicts,
+  secureNowQuestionDispositionPostExpirationUnderReports,
+} from "@/lib/infra-evidence/securenow-question-expiration";
 import {
   secureNowQuestionDispositionMutationEvidenceFingerprint,
   secureNowQuestionDispositionMutationQuestionKey,
@@ -386,6 +389,17 @@ export function secureNowQuestionDispositionResponseIsUsable(
     (secureNowQuestionDispositionIsAnswered(disposition.status)
       || secureNowQuestionDispositionIsDismissed(disposition.status))
     && secureNowQuestionDispositionPostExpirationContradicts(
+      disposition.expirationUtc,
+      disposition.isExpired,
+    )
+  ) {
+    return false;
+  }
+
+  if (
+    (secureNowQuestionDispositionIsAnswered(disposition.status)
+      || secureNowQuestionDispositionIsDismissed(disposition.status))
+    && secureNowQuestionDispositionPostExpirationUnderReports(
       disposition.expirationUtc,
       disposition.isExpired,
     )

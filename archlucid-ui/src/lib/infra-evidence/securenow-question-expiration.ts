@@ -54,6 +54,33 @@ export function secureNowQuestionDispositionPostExpirationContradicts(
   return parsed > nowMs;
 }
 
+/**
+ * Whether a mutation POST disposition under-reports expiry: `isExpired` is false while
+ * `expirationUtc` is already in the past. List payloads may keep stale false flags; fresh
+ * POST saves should not.
+ */
+export function secureNowQuestionDispositionPostExpirationUnderReports(
+  expirationUtc: string,
+  isExpired: boolean,
+  nowMs: number = Date.now(),
+): boolean {
+  if (isExpired) {
+    return false;
+  }
+
+  const trimmed = expirationUtc.trim();
+  if (trimmed.length === 0) {
+    return false;
+  }
+
+  const parsed = Date.parse(trimmed);
+  if (Number.isNaN(parsed)) {
+    return false;
+  }
+
+  return parsed <= nowMs;
+}
+
 export function secureNowQuestionReviewerExpirationUtcStamp(
   expirationUtc: string | null | undefined,
 ): string | null {

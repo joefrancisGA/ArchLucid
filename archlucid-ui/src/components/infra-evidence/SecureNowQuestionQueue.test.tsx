@@ -2333,6 +2333,31 @@ describe("SecureNowQuestionQueue", () => {
     });
   });
 
+  it("passes expectedListedDispositionId when the focused question already has a disposition id", async () => {
+    const listedDispositionId = "00000000-0000-0000-0000-000000000099";
+    mocks.listQuestions.mockResolvedValue([
+      {
+        ...question,
+        dispositionId: listedDispositionId,
+      },
+    ]);
+
+    render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
+    fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
+    fireEvent.click(screen.getByRole("button", { name: "Name the peer" }));
+    fireEvent.click(screen.getByRole("button", { name: "Save answer" }));
+
+    await waitFor(() => {
+      expect(mocks.answerQuestion).toHaveBeenCalledWith(
+        "snapshot-1",
+        expect.objectContaining({
+          answerCode: "NamePeer",
+        }),
+        { expectedListedDispositionId: listedDispositionId },
+      );
+    });
+  });
+
   it("does not post an answer when the listed snapshot id is whitespace only", async () => {
     mocks.listQuestions.mockResolvedValue([
       {
