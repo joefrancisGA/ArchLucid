@@ -132,6 +132,12 @@ export const ARCHITECTURE_DIAGRAM_VIEWPORT_HINT =
 
 export const ARCHITECTURE_DIAGRAM_COMPONENT_NAME_NOT_STORED = "Component name was not stored." as const;
 
+export const ARCHITECTURE_DIAGRAM_SECTION_ENTITIES_NOT_STORED =
+  "Entities were not stored." as const;
+
+export const ARCHITECTURE_DIAGRAM_SECTION_ENTITIES_STORED_EMPTY =
+  "Entities were stored empty." as const;
+
 export const ARCHITECTURE_DIAGRAM_DATA_FLOW_NOT_MATCHED_PREFIX =
   "Data flow was not matched to diagram components:" as const;
 
