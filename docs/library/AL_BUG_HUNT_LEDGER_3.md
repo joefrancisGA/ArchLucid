@@ -9573,6 +9573,20 @@ ABQ-09 churn hotspot.
 
 ## Zone: securenow-question-queue
 
+2026-10-26 seed hunt (seed→hit): promoted `securenow-question-queue-api.secureNowQuestionDispositionResponseIsUsable` **accepted POST mutation JSON with blank source or scope kind after trim** — whitespace-only `source` on answer POST responses still passed the fingerprint/identity gate even though the provider requires stored source/scope metadata for inventory answer and ignore mutations; require non-empty `source` and `scopeKind` before returning mapped POST dispositions; regressions `returns undefined when POST answer response has whitespace-only source` and `returns undefined when POST reopen response has whitespace-only question key` (shared post mapper); cheap-disproof closed reopen-only metadata (reopen uses same gate), mutation error kind filter at submit (prior hit #113), SQL MERGE deferred, optimistic merge future-risk; scoped SecureNow queue vitest 149/149. Private beta: no direct pilot-path change today; invalid mutation POST metadata is dropped before client reuse.
+
+- [x] (proven) `securenow-question-queue-api.secureNowQuestionDispositionResponseIsUsable` — blank source or scope kind after trim — **hit 2026-10-26 seed hunt:** extended usability gate; regressions above.
+- [x] (valid-no-repro) `securenow-question-queue-api.reopenSecureNowQuestion` — POST usability gate on reopen responses — **cheap-disproof 2026-10-26 seed hunt:** shared `postSecureNowQuestionDisposition`; reopen whitespace question-key regression above.
+- [x] (valid-no-repro) `SecureNowQuestionQueueProvider` — mutation error clears only on mutation kind at submit start — **cheap-disproof 2026-10-26 seed hunt:** prior hit #113 `setError` filter; monitor.
+- [x] (invalid) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` — **cheap-disproof 2026-10-26 seed hunt:** integration host unavailable; candidate reseeded below.
+- [x] (invalid) `securenow-question-queue-provider` — optimistic merge from disposition JSON — **cheap-disproof 2026-10-26 seed hunt:** reload-only provider; candidate reseeded below.
+
+- [ ] (candidate) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` identity hash collision — locus: SQL repository; input: integration repro when SQL host available.
+- [ ] (candidate) `securenow-question-queue-provider` — optimistic merge from disposition JSON — locus: future post-mutation path; input: must treat `undefined` POST disposition as reload-only success.
+- [ ] (candidate) `securenow-question-queue-api.secureNowQuestionDispositionResponseIsUsable` — reject blank `status` after trim — locus: POST mapper; input: return undefined when disposition status missing.
+- [ ] (candidate) `securenow-question-queue-api.mapQuestion` — list rows with whitespace-only `source`/`scopeKind` — locus: list mapper; input: null optional fields vs POST required metadata.
+- [ ] (candidate) `InfraEvidenceSecureNowQuestionsController` — write request mapping rejects padded subscription id — locus: API `TryMapWriteRequest`; input: trim parity with Application `Normalize`.
+
 2026-10-26 seed hunt (seed→hit): promoted `securenow-question-queue-api.secureNowQuestionDispositionResponseIsUsable` **accepted POST mutation JSON with blank evidence fingerprint after trim** — whitespace-only `evidenceFingerprint` on answer/ignore POST responses still passed the identity gate even though the provider refuses answer/ignore mutations without a stored fingerprint; require non-empty `evidenceFingerprint` before returning mapped POST dispositions; regressions `returns undefined when POST answer response has whitespace-only evidence fingerprint`, `returns undefined when POST ignore response has whitespace-only disposition id` (shared post mapper), and usability unit check; cheap-disproof closed empty `resourceId` on subscription-scope writes (valid empty request body vs response identity), ignore ApiLoadFailure surfacing (governance-mutation regression lock), SQL MERGE deferred, optimistic merge future-risk; scoped SecureNow queue vitest 145/145. Private beta: no direct pilot-path change today; invalid mutation POST evidence identity is dropped before client reuse.
 
 - [x] (proven) `securenow-question-queue-api.postSecureNowQuestionDisposition` — blank evidence fingerprint after trim — **hit 2026-10-26 seed hunt:** extended usability gate; regressions above.
@@ -9846,11 +9860,11 @@ ABQ-09 churn hotspot.
 - **aliases:** securenow question queue; question disposition
 - **paths:** archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx; archlucid-ui/src/lib/infra-evidence/securenow-question-queue-api.ts
 - **test-filter:** SecureNowQuestion
-- **hunts:** 118
-- **bugs-found:** 90
+- **hunts:** 119
+- **bugs-found:** 91
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-26
-- **last-bug:** 2026-10-26 — blank evidence fingerprint on POST mutation response
+- **last-bug:** 2026-10-26 — blank source/scopeKind on POST mutation response
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
