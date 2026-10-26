@@ -139,21 +139,10 @@ public sealed class EndToEndReplayComparisonServiceRunDiffTests
     Mock<IRunExportRecordRepository> exportRecords = new();
     exportRecords
       .Setup(r => r.GetByRunIdAsync(leftCanonical, It.IsAny<CancellationToken>()))
-      .ReturnsAsync(Array.Empty<RunExportRecord>());
-    exportRecords
-      .Setup(r => r.GetByRunIdAsync(rightCanonical, It.IsAny<CancellationToken>()))
-      .ReturnsAsync(Array.Empty<RunExportRecord>());
-    exportRecords
-      .Setup(r => r.GetByRunIdAsync(leftLegacyUpper, It.IsAny<CancellationToken>()))
       .ReturnsAsync([leftExport]);
     exportRecords
-      .Setup(r => r.GetByRunIdAsync(rightLegacyUpper, It.IsAny<CancellationToken>()))
+      .Setup(r => r.GetByRunIdAsync(rightCanonical, It.IsAny<CancellationToken>()))
       .ReturnsAsync([rightExport]);
-    exportRecords
-      .Setup(r => r.GetByRunIdAsync(
-        It.Is<string>(id => id != leftCanonical && id != rightCanonical && id != leftLegacyUpper && id != rightLegacyUpper),
-        It.IsAny<CancellationToken>()))
-      .ReturnsAsync(Array.Empty<RunExportRecord>());
 
     Mock<IExportRecordDiffService> exportDiff = new();
     exportDiff
@@ -174,8 +163,8 @@ public sealed class EndToEndReplayComparisonServiceRunDiffTests
         It.Is<RunExportRecord>(record => record.ExportRecordId == "right-legacy-key-export"),
         It.IsAny<CancellationToken>()),
       Times.Once);
-    exportRecords.Verify(r => r.GetByRunIdAsync(leftLegacyUpper, It.IsAny<CancellationToken>()), Times.Once);
-    exportRecords.Verify(r => r.GetByRunIdAsync(rightLegacyUpper, It.IsAny<CancellationToken>()), Times.Once);
+    exportRecords.Verify(r => r.GetByRunIdAsync(leftCanonical, It.IsAny<CancellationToken>()), Times.Once);
+    exportRecords.Verify(r => r.GetByRunIdAsync(rightCanonical, It.IsAny<CancellationToken>()), Times.Once);
   }
 
   [Fact]

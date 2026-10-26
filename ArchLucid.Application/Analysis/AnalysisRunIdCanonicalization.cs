@@ -321,32 +321,13 @@ internal static class AnalysisRunIdCanonicalization
     {
         ArgumentNullException.ThrowIfNull(runExportRecordRepository);
 
-        Dictionary<string, RunExportRecord> merged = new(StringComparer.OrdinalIgnoreCase);
+        string lookupRunId = CanonicalRunIdForLookup(primaryRunId);
 
-        foreach (string lookupKey in EnumerateRunIdRepositoryLookupKeys(primaryRunId))
-        {
-            IReadOnlyList<RunExportRecord> records = await runExportRecordRepository
-                .GetByRunIdAsync(lookupKey, cancellationToken)
-                .ConfigureAwait(false);
+        IReadOnlyList<RunExportRecord> records = await runExportRecordRepository
+            .GetByRunIdAsync(lookupRunId, cancellationToken)
+            .ConfigureAwait(false);
 
-            if (records is not { Count: > 0 })
-                continue;
-
-            foreach (RunExportRecord record in records)
-            {
-                if (record is null || string.IsNullOrWhiteSpace(record.ExportRecordId))
-                    continue;
-
-                PreferNewerByCreatedUtc(merged, record.ExportRecordId, record, static r => r.CreatedUtc);
-            }
-        }
-
-        return merged.Count == 0
-            ? []
-            : merged.Values
-                .OrderByDescending(static record => record.CreatedUtc)
-                .ThenBy(static record => record.ExportRecordId, StringComparer.OrdinalIgnoreCase)
-                .ToList();
+        return records ?? [];
     }
 
     internal static async Task<IReadOnlyList<ComparisonRecord>> LoadComparisonRecordsByRunIdAsync(

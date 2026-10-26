@@ -3,6 +3,7 @@ using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Persistence.Decisions;
 using ArchLucid.Contracts.Governance;
+using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Persistence.TechnologyLedger;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Core.Persistence;
@@ -603,6 +604,34 @@ public sealed class AnalysisRunIdCanonicalizationTests
             await activationRepository.GetByRunIdAsync(canonicalRunId, CancellationToken.None);
 
         activations.Should().ContainSingle(act => act.ActivationId == "activation-legacy-only");
+    }
+
+    [Fact]
+    public async Task CompareQuality_LoadRunExportRecordsByRunIdAsync_merges_exports_when_stored_under_legacy_run_id_key()
+    {
+        Guid runGuid = Guid.Parse("69696969-6969-6969-6969-696969696969");
+        string canonicalRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(runGuid.ToString());
+        string legacyUpperRunId = canonicalRunId.ToUpperInvariant();
+
+        InMemoryRunExportRecordRepository exportRepository = new();
+        await exportRepository.CreateAsync(
+            new RunExportRecord
+            {
+                ExportRecordId = "export-legacy-only",
+                RunId = legacyUpperRunId,
+                ExportType = "analysis-report",
+                Format = "pdf",
+                FileName = "legacy.pdf",
+                CreatedUtc = DateTime.UtcNow,
+            });
+
+        IReadOnlyList<RunExportRecord> exports =
+            await AnalysisRunIdCanonicalization.LoadRunExportRecordsByRunIdAsync(
+                exportRepository,
+                canonicalRunId,
+                CancellationToken.None);
+
+        exports.Should().ContainSingle(export => export.ExportRecordId == "export-legacy-only");
     }
 
     [Fact]
