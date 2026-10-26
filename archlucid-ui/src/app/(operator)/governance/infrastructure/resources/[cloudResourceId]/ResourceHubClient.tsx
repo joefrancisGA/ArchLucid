@@ -407,6 +407,23 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
   const loadRequestGeneration = useRef(0);
   const suppressLinkedAuditScopeRefetchRef = useRef(false);
   const linkedAuditInlineHydratedScopeRef = useRef<InfraEvidenceWorkbenchAuditScope | null>(null);
+  const activeCloudResourceIdRef = useRef(cloudResourceId);
+
+  useEffect(() => {
+    if (activeCloudResourceIdRef.current === cloudResourceId) {
+      return;
+    }
+
+    activeCloudResourceIdRef.current = cloudResourceId;
+    loadRequestGeneration.current += 1;
+    suppressLinkedAuditScopeRefetchRef.current = false;
+    linkedAuditInlineHydratedScopeRef.current = null;
+    setHub(null);
+    setLoadError(null);
+    setFindingActionMessages({});
+    setLoading(true);
+  }, [cloudResourceId]);
+
   const [pendingRemediationFinding, setPendingRemediationFinding] = useState<{
     readonly id: string;
     readonly title: string;

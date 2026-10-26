@@ -183,6 +183,49 @@ describe("ResourceHubClient", () => {
     expect(screen.queryByTestId("infra-resource-hub-tabs")).not.toBeInTheDocument();
   });
 
+  it("clears prior hub evidence when cloudResourceId changes", async () => {
+    const otherCloudResourceId = "33333333-3333-3333-3333-333333333333";
+
+    fetchCachedInfraEvidenceResourceHub.mockImplementation(
+      async (resourceId: string) =>
+        new Promise((resolve) => {
+          setTimeout(() => {
+            resolve(
+              buildResourceHubTestMockHub({
+                cloudResourceId: resourceId,
+                externalResourceId:
+                  resourceId === otherCloudResourceId
+                    ? "/subscriptions/sub/resourceGroups/rg-net/providers/Microsoft.Network/publicIPAddresses/other-gateway"
+                    : "/subscriptions/sub/resourceGroups/rg-net/providers/Microsoft.Network/publicIPAddresses/gateway",
+                currentConfiguration: {
+                  ...buildResourceHubTestMockHub().currentConfiguration,
+                  azureResourceId:
+                    resourceId === otherCloudResourceId
+                      ? "/subscriptions/sub/resourceGroups/rg-net/providers/Microsoft.Network/publicIPAddresses/other-gateway"
+                      : "/subscriptions/sub/resourceGroups/rg-net/providers/Microsoft.Network/publicIPAddresses/gateway",
+                },
+              }),
+            );
+          }, 40);
+        }),
+    );
+
+    const { rerender } = render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("infra-resource-hub-page-title")).toHaveTextContent("gateway");
+    });
+
+    rerender(<ResourceHubClient cloudResourceId={otherCloudResourceId} />);
+
+    expect(screen.getByTestId("infra-resource-hub-page-title")).toHaveTextContent("Resource name was not stored.");
+    expect(screen.queryByText("Peering")).not.toBeInTheDocument();
+
+    await waitFor(() => {
+      expect(screen.getByTestId("infra-resource-hub-page-title")).toHaveTextContent("other-gateway");
+    });
+  });
+
   it("does not let a stale resource request overwrite a newer URL selection", async () => {
     let resolveFirstRequest: ((hub: ReturnType<typeof buildResourceHubTestMockHub>) => void) | undefined;
     let resolveSecondRequest: ((hub: ReturnType<typeof buildResourceHubTestMockHub>) => void) | undefined;
