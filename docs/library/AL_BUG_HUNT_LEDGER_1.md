@@ -6868,6 +6868,18 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-26 seed hunt (seed→hit): proved hunt 306 hardened HTTP compare-agents reload but `ConsultingDocxExportWhitelabelPrefill` still called `IRunExportRecordRepository.GetByRunIdAsync` once with canonical run id only, so strict repository adapters that match only alternate legacy keys (for example uppercase hex) returned no prior export rows and consulting DOCX replay omitted review-board whitelabel hints; iterate `EnumerateRunIdRepositoryLookupKeys` when scanning prior exports; regression `CompareQuality_ApplyMissingFromPriorExportsAsync_finds_prior_export_when_repository_matches_only_alternate_run_id_key`; cheap-disproof closed compare-agents facade reload (hunt 306), replay slice empty-hydrated reload (`CompareQuality_ApplyAsync_reloads_agent_results_when_hydrated_lists_are_empty`); seeded five follow-on rows; scoped application-analysis + replay filter 423/423. Private beta: consulting DOCX replay copies review-board whitelabel hints from prior exports when export rows use legacy run-id key strings.
+
+- [ ] (candidate) `RunDetailRetrievalGroundingEnrichmentSlice` — retrieval trace run key — locus: Guid-scoped reader; input: defer unless string RunId ordinal store proven.
+- [ ] (candidate) `ComparisonRecordRepository.GetByRunIdAsync` — SQL list-by-run dashed stored — locus: UNIQUEIDENTIFIER column; input: already matches N/D lookup via guid param.
+- [ ] (candidate) `ComparisonRecordRepositoryCore.SerializeTagsForUpdate` — JSON tag order — locus: cosmetic; input: defer.
+- [ ] (candidate) `ComparisonRecordSearchPredicateBuilder` — notes column search — locus: no notes filter today; input: defer.
+- [ ] (candidate) `ApiPaging.TryParseUtcTicksIdCursor` — cursor id segment without trim — locus: HTTP cursor parse; input: padded id after ticks delimiter (alerts inbox and other API surfaces).
+
+- [x] (proven) `ConsultingDocxExportWhitelabelPrefill` — single-key prior export lookup — **hit 2026-10-26 seed hunt:** multi-key `GetByRunIdAsync`; regression above.
+- [x] (valid-no-repro) `ReplayComparisonAgentResultsDiffSlice` — empty hydrated results skip reload — **cheap-disproof 2026-10-26 seed hunt:** empty-list reload regression passes (hunt 305 behavior).
+- [x] (invalid) `ApiPaging.TryParseUtcTicksIdCursor` — HTTP cursor id trim — **cheap-disproof 2026-10-26 seed hunt:** comparison search normalizes at application layer.
+
 2026-10-26 seed hunt (seed→hit): proved hunt 305 aligned end-to-end replay agent diffs with `AgentResultsAppearAnchoredToRun` but `CompareRunsApplicationFacade.CompareAgentResults` still forwarded hydrated rollup `Results` directly to `IAgentResultDiffService` on HTTP compare-agents routes, so placeholder rows without `RunId` skipped repository retry; add `ResolveAgentResultsForCompareReadAsync`, async `CompareAgentResultsAsync`, and rollup reload in the facade; regression `CompareQuality_CompareAgentResultsAsync_reloads_when_hydrated_rows_lack_run_anchor`; cheap-disproof closed replay slice unanchored reload (hunt 305), architecture analysis unanchored compare (hunt 304); seeded five follow-on rows; scoped application-analysis + replay filter 411/411. Private beta: review compare agents endpoints return agent-result diffs when hydrated rollup detail rows lack run anchors.
 
 - [ ] (candidate) `RunDetailRetrievalGroundingEnrichmentSlice` — retrieval trace run key — locus: Guid-scoped reader; input: defer unless string RunId ordinal store proven.
