@@ -208,6 +208,31 @@ public sealed class AzureInventoryLogicAppConnectionExtractorTests
     }
 
     [Fact]
+    public void ExtractFromWebConnection_leaves_target_host_null_when_api_id_is_percent_encoded_arm_path_without_hostname()
+    {
+        string apiId = Uri.EscapeDataString(
+            "/subscriptions/sub/providers/Microsoft.Web/locations/eastus/managedApis/office365");
+
+        string json = $$"""
+            {
+              "id": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Web/connections/office365",
+              "name": "office365",
+              "properties": {
+                "apiId": "{{apiId}}"
+              }
+            }
+            """;
+
+        using JsonDocument document = JsonDocument.Parse(json);
+
+        AzureInventoryLogicAppConnectionRow? row =
+            AzureInventoryLogicAppConnectionExtractor.ExtractFromWebConnection(document.RootElement);
+
+        row.Should().NotBeNull();
+        row!.TargetHost.Should().BeNull();
+    }
+
+    [Fact]
     public void ExtractFromWebConnection_leaves_target_host_null_when_api_id_is_arm_path_without_hostname()
     {
         string json = """

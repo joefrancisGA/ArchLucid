@@ -11,6 +11,22 @@ namespace ArchLucid.Core.Tests.AzureExtractor;
 public sealed class AzureInventoryAdfLinkedServiceTargetExtractorTests
 {
     [Fact]
+    public void Extract_reads_table_storage_host_from_percent_encoded_table_endpoint_url()
+    {
+        const string host = "sa1.table.core.windows.net";
+        string encodedEndpoint = Uri.EscapeDataString($"https://{host}/");
+
+        using JsonDocument document = JsonDocument.Parse(
+            $$"""{ "tableEndpoint": "{{encodedEndpoint}}" }""");
+
+        (string? targetResourceId, string? targetHost) =
+            AzureInventoryAdfLinkedServiceTargetExtractor.Extract(document.RootElement, "AzureTableStorage");
+
+        targetResourceId.Should().BeNull();
+        targetHost.Should().Be(host);
+    }
+
+    [Fact]
     public void Extract_reads_cosmos_host_from_percent_encoded_account_endpoint_url()
     {
         const string host = "acct.documents.azure.com";

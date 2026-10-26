@@ -36,7 +36,8 @@ public static class AzureInventoryEventGridWebhookHostExtractor
             uri = absoluteUri;
         }
         else if (!trimmed.Contains("://", StringComparison.Ordinal)
-                 && trimmed.Contains('.', StringComparison.Ordinal)
+                 && (trimmed.Contains('.', StringComparison.Ordinal)
+                     || trimmed.StartsWith("[", StringComparison.Ordinal))
                  && Uri.TryCreate("https://" + trimmed, UriKind.Absolute, out absoluteUri))
         {
             uri = absoluteUri;
@@ -48,6 +49,11 @@ public static class AzureInventoryEventGridWebhookHostExtractor
         }
 
         string host = uri.Host.Trim().ToLowerInvariant();
+
+        if (host.Length >= 2 && host[0] == '[' && host[^1] == ']')
+        {
+            host = host[1..^1];
+        }
 
         if (host.Length > 0 && host[^1] == '.')
         {
