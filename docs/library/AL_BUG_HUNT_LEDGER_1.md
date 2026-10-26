@@ -6868,6 +6868,20 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-26 seed hunt (seed-only): re-read `ArchLucid.Application/Analysis/` after hunt 328 commit-output trace merge; confirmed in-zone compare/export/replay surfaces already canonicalize run ids and use merge loaders (evidence packages, traces, agent results, exports, comparisons); no new hunt-ready wrong outcome without repeating saturated run-id merge wiring (remaining single-key callers are out-of-zone: pilots, replay prepare, commit orchestrator, IaC stub); cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on rows; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` filter 320/320 (`RunAnalyzers=false`); no production code changed. Private beta: n/a.
+
+- [ ] (candidate) `ReplayRunPrepareStage` / `ReplayRunExecutePreparedStage` — evidence package single-key — locus: `Replay/`; input: package only under legacy key (wire `LoadEvidencePackageByRunIdAsync`).
+- [ ] (candidate) `AuthorityDrivenArchitectureRunCommitOrchestrator` — commit-ready agent results single-key — locus: pre-commit gate; input: rollup rows under legacy key only (`LoadAgentResultsByRunIdAsync`).
+- [ ] (candidate) `PilotRunDeltaComputer` — trace delta single-key — locus: `Pilots/`; input: pilot diff when traces only on legacy key.
+- [ ] (candidate) `DecisionEngineV2NodeMaterializer` — multi-repository single-key — locus: decision graph materialization; input: split keys across tasks/results/evidence/nodes.
+- [ ] (candidate) `CompareInputFingerprintsNormalizer.NormalizeOptionalHash` — uppercase hex hashes — locus: fingerprint persist; input: already lowercases valid 64-char hex (verify cross-run pin compare only if mismatch reported).
+
+- [x] (valid-no-repro) `CommitOutputIntegrityService` — trace merge at commit — **cheap-disproof 2026-10-26 seed hunt:** hunt 328 shipped `LoadExecutionTracesByRunIdAsync`.
+- [x] (valid-no-repro) `PilotRunDeltaComputer` — pilot zone — **cheap-disproof 2026-10-26 seed hunt:** defer to `application-pilots` / non-Analysis path.
+- [x] (valid-no-repro) `DecisionEngineV2NodeMaterializer` — orchestration — **cheap-disproof 2026-10-26 seed hunt:** `decisioning` / commit orchestration zone; batch merge helper reuse when promoted.
+- [x] (valid-no-repro) `AuthorityDrivenArchitectureRunCommitOrchestrator` — agent load — **cheap-disproof 2026-10-26 seed hunt:** mechanism documented; not in `Analysis/` paths.
+- [x] (invalid) `FindingIacStubGenerator` — IaC stub — **cheap-disproof 2026-10-26 seed hunt:** `application-agents` zone.
+
 2026-10-26 seed hunt (seed→hit): reseeded `application-analysis` with zero hunt-ready rows; promoted ledger follow-on `CommitOutputIntegrityService` trace load (commit path parity with hunt 327 finalize readiness); proved `EnsurePassOrThrowAsync` still called `GetByRunIdAsync` with the route run id only, so Real PilotStrict commit failed with “no agent execution traces to prove quality-gate evaluation” when accepted traces lived under legacy uppercase hex keys; route through `AnalysisRunIdCanonicalization.LoadExecutionTracesByRunIdAsync`; regression `CompareQuality_EnsurePassOrThrowAsync_merges_traces_when_stored_under_legacy_run_id_key`; cheap-disproof closed in-zone Analysis repo reads (prior seed-only), finalize readiness merge (hunt 327); seeded five follow-on rows; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` filter 320/320. Private beta: direct API commit no longer blocks on false agent-output-quality when execution traces use legacy run-id key formats.
 
 - [ ] (candidate) `PilotRunDeltaComputer` — trace delta single-key — locus: `Pilots/`; input: pilot diff when traces only on legacy key.
