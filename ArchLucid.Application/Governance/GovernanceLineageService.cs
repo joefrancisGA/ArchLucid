@@ -1,3 +1,4 @@
+using ArchLucid.Application.Analysis;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Scoping;
@@ -46,7 +47,12 @@ public sealed class GovernanceLineageService(
                 CompletedUtc = coordinatorDetail.Run.CompletedUtc,
                 CurrentManifestVersion = coordinatorDetail.Run.CurrentManifestVersion
             };
-        IReadOnlyList<GovernancePromotionRecord> promotions = await _promotionRepo.GetByRunIdAsync(approval.RunId, cancellationToken);
+        string promotionLookupRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(approval.RunId);
+        IReadOnlyList<GovernancePromotionRecord> promotions =
+            await AnalysisRunIdCanonicalization.LoadGovernancePromotionRecordsByRunIdAsync(
+                _promotionRepo,
+                promotionLookupRunId,
+                cancellationToken).ConfigureAwait(false);
         GovernanceLineageManifestSummary? manifestSummary = null;
         List<GovernanceLineageFindingSummary> topFindings = [];
         string? riskPosture = null;
