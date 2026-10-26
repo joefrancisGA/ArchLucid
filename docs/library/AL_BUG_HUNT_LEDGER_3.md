@@ -7174,6 +7174,34 @@ ABQ-09 churn hotspot.
 
 ## Zone: ui-infra-resource-hub
 
+2026-10-26 seed hunt (seed→hit): promoted whitespace-only **`azureResourceId`** blocking external name fallback in `resourceTitle` — last path segment kept whitespace so coalescing preferred blank config segment over external `gateway`; trim segments in `lastCapturedResourcePathSegment`; regression `falls back to the external resource name when the configuration azureResourceId is whitespace-only`; cheap-disproof closed diagram `correspondenceId` href whitespace (workbench/ask URL builders already trim), finding `id` whitespace (`runCreateRemediationFromFinding` no-ops on empty trim), and correspondence id display (not surfaced); scoped ResourceHubClient vitest 95/95. Private beta: resource hub page title falls back to the external ARM resource name when captured configuration id is only whitespace.
+
+- [x] (proven) `ResourceHubClient.resourceTitle` — whitespace-only `azureResourceId` segment — **hit 2026-10-26 seed hunt:** trim last path segment before title coalesce; regression whitespace config id fixture.
+- [x] (valid-no-repro) `ResourceHubClient` diagram correspondence — `correspondenceId` whitespace in workbench/ask hrefs — **cheap-disproof 2026-10-26 seed hunt:** `buildDiagramReconcileWorkbenchHref` and ask scope omit trimmed-empty ids.
+- [x] (valid-no-repro) `ResourceHubClient` findings — `id` whitespace-only for remediation actions — **cheap-disproof 2026-10-26 seed hunt:** `runCreateRemediationFromFinding` returns early when trim empty.
+- [x] (valid-no-repro) `ResourceHubClient` identifier strip — `externalResourceId` whitespace-only — **cheap-disproof 2026-10-26 seed hunt:** prior hit; regression lock retained.
+- [x] (valid-no-repro) `InfraEvidenceAuditScopeBar` — control label props whitespace-only — **cheap-disproof 2026-10-26 seed hunt:** not promoted; seeded below.
+
+- [ ] (candidate) `InfraEvidenceAuditScopeBar` — `controlNumber` / `controlTitle` props whitespace-only — locus: scope bar chrome when passed from hub defaults.
+- [ ] (candidate) `ResourceHubClient` hub load error — `loadError` message whitespace-only — locus: error banner; input: blank operator-facing error string.
+- [ ] (candidate) `ResourceHubClient` diagram tab — `diagramNodeLabel` surfaced in UI — locus: add display + omission copy if product adds label row.
+- [ ] (candidate) `ResourceHubClient` findings stream — `item.id` visible label — locus: if id column added; input: whitespace id display.
+- [ ] (candidate) `ResourceHubClient` stale audit scope banner — message whitespace-only — locus: stale scope copy; input: blank banner text.
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **aliases:** resource hub; infrastructure resource detail
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 67
+- **bugs-found:** 46
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-26
+- **last-bug:** 2026-10-26 — whitespace-only config ARM id blocked external title fallback
+- **related-pd-tb:** none
+- **code-changed-since:** yes
+
 2026-10-26 seed hunt (seed→hit): promoted whitespace-only **`externalResourceId`** in ARM path disclosure — identifier strip and buyer-polished ARM collapsible rendered raw path while page title already normalized whitespace via `normalizeSecureNowResourceNameForDisplay`; add `externalResourceIdDisplayLabel`; regression `shows ARM resource path omission copy when externalResourceId is whitespace-only`; cheap-disproof closed audit other-linked labels (prior hit), scope bar default control props (delegated to `InfraEvidenceAuditScopeBar`; not promoted), and correspondence id hrefs (seeded below); scoped ResourceHubClient vitest 94/94. Private beta: resource hub identifier chrome shows “ARM resource path was not stored.” instead of a blank path when capture stored only whitespace.
 
 - [x] (proven) `ResourceHubClient` identifier strip — `externalResourceId` whitespace-only — **hit 2026-10-26 seed hunt:** `externalResourceIdDisplayLabel` via `formatStoredInfraEvidenceHubField`; regression whitespace ARM path fixture.

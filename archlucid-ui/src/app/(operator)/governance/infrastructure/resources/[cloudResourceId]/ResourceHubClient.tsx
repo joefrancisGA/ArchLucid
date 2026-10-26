@@ -481,13 +481,19 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
       return isUuidLike(cloudResourceId) ? "Resource name was not stored." : cloudResourceId;
     }
 
-    const configResourceId = hub.currentConfiguration?.azureResourceId;
-    const configName =
-      configResourceId != null && !configResourceId.endsWith("/")
-        ? configResourceId.split("/").filter(Boolean).pop()
-        : undefined;
-    const externalResourceName =
-      !hub.externalResourceId.endsWith("/") ? hub.externalResourceId.split("/").filter(Boolean).pop() : undefined;
+    const lastCapturedResourcePathSegment = (resourceId: string | null | undefined): string | undefined => {
+      if (resourceId == null || resourceId.endsWith("/")) {
+        return undefined;
+      }
+
+      const segment = resourceId.split("/").filter(Boolean).pop();
+      const trimmed = segment?.trim() ?? "";
+
+      return trimmed.length > 0 ? trimmed : undefined;
+    };
+
+    const configName = lastCapturedResourcePathSegment(hub.currentConfiguration?.azureResourceId);
+    const externalResourceName = lastCapturedResourcePathSegment(hub.externalResourceId);
     const rawTitle = configName ?? externalResourceName ?? cloudResourceId;
 
     if (rawTitle === cloudResourceId && isUuidLike(rawTitle)) {

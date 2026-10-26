@@ -120,6 +120,23 @@ describe("ResourceHubClient", () => {
     expect(await screen.findByText("ARM resource path was not stored.")).toBeInTheDocument();
   });
 
+  it("falls back to the external resource name when the configuration azureResourceId is whitespace-only", async () => {
+    fetchCachedInfraEvidenceResourceHub.mockImplementationOnce(async () =>
+      buildResourceHubTestMockHub({
+        currentConfiguration: {
+          ...buildResourceHubTestMockHub().currentConfiguration,
+          azureResourceId: "   ",
+        },
+        externalResourceId:
+          "/subscriptions/sub/resourceGroups/rg-net/providers/Microsoft.Network/publicIPAddresses/gateway",
+      }),
+    );
+
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    expect(await screen.findByTestId("infra-resource-hub-page-title")).toHaveTextContent("gateway");
+  });
+
   it("falls back to the external resource name when the configuration id has a trailing slash", async () => {
     fetchCachedInfraEvidenceResourceHub.mockImplementationOnce(async () =>
       buildResourceHubTestMockHub({
