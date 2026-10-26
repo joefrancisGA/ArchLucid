@@ -122,23 +122,14 @@ public sealed class AgentExecuteIdempotentPersistReconciliationTests
         Guid runGuid = Guid.Parse("54545454-5454-5454-5454-545454545454");
         string runId = runGuid.ToString("N");
         string legacyUpper = runId.ToUpperInvariant();
-        Mock<IAgentEvidencePackageRepository> evidenceRepo = new();
-        AgentEvidencePackage existing = new() { RunId = legacyUpper, EvidencePackageId = "pkg-legacy" };
+        InMemoryAgentEvidencePackageRepository evidenceRepo = new();
 
-        evidenceRepo
-            .Setup(repository => repository.GetByRunIdAsync(runId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync((AgentEvidencePackage?)null);
-        evidenceRepo
-            .Setup(repository => repository.GetByRunIdAsync(legacyUpper, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(existing);
-        evidenceRepo
-            .Setup(repository => repository.GetByRunIdAsync(
-                It.Is<string>(id => id != runId && id != legacyUpper),
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync((AgentEvidencePackage?)null);
+        await evidenceRepo.CreateAsync(
+            new AgentEvidencePackage { RunId = legacyUpper, EvidencePackageId = "pkg-legacy" },
+            CancellationToken.None);
 
         bool shouldInsert = await AgentExecuteIdempotentPersistReconciliation.ShouldInsertEvidencePackageAsync(
-            evidenceRepo.Object,
+            evidenceRepo,
             new AgentEvidencePackage { RunId = runId, EvidencePackageId = "pkg-new" },
             CancellationToken.None);
 

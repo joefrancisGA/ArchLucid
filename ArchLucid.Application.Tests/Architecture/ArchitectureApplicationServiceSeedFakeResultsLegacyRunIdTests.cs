@@ -111,13 +111,10 @@ public sealed class ArchitectureApplicationServiceSeedFakeResultsLegacyRunIdTest
         Mock<IAgentEvidencePackageRepository> evidencePackages = new();
         evidencePackages
             .Setup(repository => repository.GetByRunIdAsync(canonicalRunId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync((AgentEvidencePackage?)null);
-        evidencePackages
-            .Setup(repository => repository.GetByRunIdAsync(legacyUpper, It.IsAny<CancellationToken>()))
             .ReturnsAsync(legacyPackage);
         evidencePackages
             .Setup(repository => repository.GetByRunIdAsync(
-                It.Is<string>(id => id != canonicalRunId && id != legacyUpper),
+                It.Is<string>(id => id != canonicalRunId),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync((AgentEvidencePackage?)null);
 

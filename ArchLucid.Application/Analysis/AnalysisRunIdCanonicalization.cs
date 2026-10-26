@@ -310,29 +310,11 @@ internal static class AnalysisRunIdCanonicalization
     {
         ArgumentNullException.ThrowIfNull(evidencePackageRepository);
 
-        Dictionary<string, AgentEvidencePackage> merged = new(StringComparer.OrdinalIgnoreCase);
+        string lookupRunId = CanonicalRunIdForLookup(primaryRunId);
 
-        foreach (string lookupKey in EnumerateRunIdRepositoryLookupKeys(primaryRunId))
-        {
-            AgentEvidencePackage? evidence = await evidencePackageRepository
-                .GetByRunIdAsync(lookupKey, cancellationToken)
-                .ConfigureAwait(false);
-
-            if (evidence is null || string.IsNullOrWhiteSpace(evidence.EvidencePackageId))
-                continue;
-
-            if (!merged.TryGetValue(evidence.EvidencePackageId, out AgentEvidencePackage? existing)
-                || evidence.CreatedUtc > existing.CreatedUtc)
-                merged[evidence.EvidencePackageId] = evidence;
-        }
-
-        if (merged.Count == 0)
-            return null;
-
-        return merged.Values
-            .OrderByDescending(static package => package.CreatedUtc)
-            .ThenBy(static package => package.EvidencePackageId, StringComparer.OrdinalIgnoreCase)
-            .First();
+        return await evidencePackageRepository
+            .GetByRunIdAsync(lookupRunId, cancellationToken)
+            .ConfigureAwait(false);
     }
 
     internal static async Task<IReadOnlyList<DecisionNodeRecord>> LoadDecisionNodesByRunIdAsync(

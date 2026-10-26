@@ -628,46 +628,64 @@ public sealed class AnalysisRunIdCanonicalizationTests
     [Fact]
     public async Task CompareQuality_LoadEvidencePackageByRunIdAsync_prefers_newer_package_when_rows_are_split_across_alternate_run_id_keys()
     {
-        const string canonicalRunId = "ffffffffffffffffffffffffffffffff";
-        const string legacyUpperRunId = "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF";
+        Guid runGuid = Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff");
+        string canonicalRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(runGuid.ToString());
+        string legacyUpperRunId = canonicalRunId.ToUpperInvariant();
 
-        AgentEvidencePackage olderCanonical = new()
-        {
-            EvidencePackageId = "pkg-canonical-repo-key",
-            RunId = canonicalRunId,
-            SystemName = "older",
-            CreatedUtc = new DateTime(2026, 1, 1, 8, 0, 0, DateTimeKind.Utc),
-        };
-        AgentEvidencePackage newerLegacy = new()
-        {
-            EvidencePackageId = "pkg-legacy-repo-key",
-            RunId = legacyUpperRunId,
-            SystemName = "newer",
-            CreatedUtc = new DateTime(2026, 1, 2, 8, 0, 0, DateTimeKind.Utc),
-        };
+        InMemoryAgentEvidencePackageRepository evidenceRepository = new();
 
-        Mock<IAgentEvidencePackageRepository> evidenceRepository = new();
-        evidenceRepository
-            .Setup(r => r.GetByRunIdAsync(canonicalRunId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(olderCanonical);
-        evidenceRepository
-            .Setup(r => r.GetByRunIdAsync(legacyUpperRunId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(newerLegacy);
-        evidenceRepository
-            .Setup(r => r.GetByRunIdAsync(
-                It.Is<string>(id => id != canonicalRunId && id != legacyUpperRunId),
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync((AgentEvidencePackage?)null);
+        await evidenceRepository.CreateAsync(
+            new AgentEvidencePackage
+            {
+                EvidencePackageId = "pkg-canonical-repo-key",
+                RunId = canonicalRunId,
+                SystemName = "older",
+                CreatedUtc = new DateTime(2026, 1, 1, 8, 0, 0, DateTimeKind.Utc),
+            },
+            CancellationToken.None);
+        await evidenceRepository.CreateAsync(
+            new AgentEvidencePackage
+            {
+                EvidencePackageId = "pkg-legacy-repo-key",
+                RunId = legacyUpperRunId,
+                SystemName = "newer",
+                CreatedUtc = new DateTime(2026, 1, 2, 8, 0, 0, DateTimeKind.Utc),
+            },
+            CancellationToken.None);
 
         AgentEvidencePackage? loaded =
             await AnalysisRunIdCanonicalization.LoadEvidencePackageByRunIdAsync(
-                evidenceRepository.Object,
+                evidenceRepository,
                 canonicalRunId,
                 CancellationToken.None);
 
         loaded.Should().NotBeNull();
         loaded!.EvidencePackageId.Should().Be("pkg-legacy-repo-key");
         loaded.SystemName.Should().Be("newer");
+    }
+
+    [Fact]
+    public async Task CompareQuality_GetByRunIdAsync_merges_evidence_package_when_stored_under_legacy_run_id_key()
+    {
+        Guid runGuid = Guid.Parse("12121212-1212-1212-1212-121212121212");
+        string canonicalRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(runGuid.ToString());
+        string legacyUpperRunId = canonicalRunId.ToUpperInvariant();
+
+        InMemoryAgentEvidencePackageRepository evidenceRepository = new();
+        await evidenceRepository.CreateAsync(
+            new AgentEvidencePackage
+            {
+                EvidencePackageId = "pkg-legacy-only",
+                RunId = legacyUpperRunId,
+                SystemName = "legacy",
+            },
+            CancellationToken.None);
+
+        AgentEvidencePackage? loaded =
+            await evidenceRepository.GetByRunIdAsync(canonicalRunId, CancellationToken.None);
+
+        loaded.Should().NotBeNull();
+        loaded!.EvidencePackageId.Should().Be("pkg-legacy-only");
     }
 
     [Fact]
