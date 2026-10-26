@@ -573,6 +573,24 @@ describe("ResourceHubClient", () => {
     expect(screen.getByTestId("infra-resource-hub-page-title")).toHaveTextContent("newer-gateway");
   });
 
+  it("omits stale runId on remediation workbench link after cloudResourceId changes", async () => {
+    const otherCloudResourceId = "88888888-8888-8888-8888-888888888888";
+    const staleRunId = "run-from-prior-resource";
+
+    searchParams = new URLSearchParams(
+      `tab=overview&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}&runId=${staleRunId}`,
+    );
+    const { rerender } = render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+    await screen.findByTestId("infra-resource-hub-open-remediation-work");
+
+    rerender(<ResourceHubClient cloudResourceId={otherCloudResourceId} />);
+
+    const href = (await screen.findByTestId("infra-resource-hub-open-remediation-work")).getAttribute("href") ?? "";
+    expect(href).toContain(otherCloudResourceId);
+    expect(href).not.toContain(staleRunId);
+    expect(href).not.toContain("runId=");
+  });
+
   it("renders cross-workbench overview links without hub tab switchers", async () => {
     render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
 

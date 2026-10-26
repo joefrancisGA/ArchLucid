@@ -612,13 +612,13 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
           pathname,
           {
             snapshotId: resolvedSnapshotId.length > 0 ? resolvedSnapshotId : undefined,
-            runId: runId.length > 0 ? runId : undefined,
+            runId: resolvedRunId.length > 0 ? resolvedRunId : undefined,
           },
         ),
         { scroll: false },
       );
     },
-    [cloudResourceId, pathname, resolvedSnapshotId, router, runId, searchParams],
+    [cloudResourceId, pathname, resolvedRunId, resolvedSnapshotId, router, searchParams],
   );
 
   const setInfraResourceHubTechnicalKey = useCallback(
@@ -640,10 +640,10 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
     const nextHref = resourceHubFilterHrefFromSearch(cloudResourceId, sanitizedSearch, {
       tab,
       snapshotId: resolvedSnapshotId.length > 0 ? resolvedSnapshotId : undefined,
-      runId: runId.length > 0 ? runId : undefined,
+      runId: resolvedRunId.length > 0 ? resolvedRunId : undefined,
     });
     router.replace(nextHref);
-  }, [cloudResourceId, resolvedSnapshotId, router, runId, searchParams]);
+  }, [cloudResourceId, resolvedRunId, resolvedSnapshotId, router, searchParams]);
 
   useResourceHubShortcuts({
     enabled: hub != null,
@@ -765,7 +765,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
     const nextHref = resourceHubFilterHrefFromSearch(cloudResourceId, searchParams.toString(), {
       tab: activeTab,
       snapshotId: resolvedSnapshotId.length > 0 ? resolvedSnapshotId : undefined,
-      runId: runId.length > 0 ? runId : undefined,
+      runId: resolvedRunId.length > 0 ? resolvedRunId : undefined,
       assessmentId: match.assessmentId,
       auditEvidenceSnapshotId: match.auditEvidenceSnapshotId,
       controlId: match.controlId,
@@ -909,7 +909,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
 
       setLoading(false);
     }
-  }, [cloudResourceId, hubFetchAuditScope, resolvedRunId, resolvedSnapshotId, runId, searchParams, snapshotId]);
+  }, [cloudResourceId, hubFetchAuditScope, resolvedRunId, resolvedSnapshotId, searchParams, snapshotId]);
 
   useEffect(() => {
     void loadHub();
@@ -997,7 +997,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
     return resourceHubFilterHrefFromSearch(cloudResourceId, searchParams.toString(), {
       tab: "audit",
       snapshotId: resolvedSnapshotId.length > 0 ? resolvedSnapshotId : undefined,
-      runId: runId.length > 0 ? runId : undefined,
+      runId: resolvedRunId.length > 0 ? resolvedRunId : undefined,
       assessmentId: workbenchLinkAuditContext?.assessmentId,
       auditEvidenceSnapshotId: workbenchLinkAuditContext?.auditEvidenceSnapshotId,
       controlId: workbenchLinkAuditContext?.controlId,
@@ -1006,8 +1006,8 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
   }, [
     auditScopeActive,
     cloudResourceId,
+    resolvedRunId,
     resolvedSnapshotId,
-    runId,
     searchParams,
     workQueue,
     workbenchLinkAuditContext,
@@ -1063,8 +1063,8 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
   const hasTerraformMapping = terraformAddressDisplayLabel !== "Terraform address was not stored.";
 
   const terraformDriftExportHref = useMemo(
-    () => buildResourceHubDriftWorkbenchHref(resolvedSnapshotId, cloudResourceId, workbenchLinkAuditContext, runId),
-    [cloudResourceId, resolvedSnapshotId, runId, workbenchLinkAuditContext],
+    () => buildResourceHubDriftWorkbenchHref(resolvedSnapshotId, cloudResourceId, workbenchLinkAuditContext, resolvedRunId),
+    [cloudResourceId, resolvedSnapshotId, resolvedRunId, workbenchLinkAuditContext],
   );
 
   const terraformGenerationMethodDisplayLabel = useMemo(
@@ -1119,7 +1119,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
 
     return buildDiagramReconcileRemediationHref({
       row: hub.diagramCorrespondence,
-      runId,
+      runId: resolvedRunId,
       snapshotId: resolvedSnapshotId,
       scopedCloudResourceId: cloudResourceId,
       ...workbenchLinkAuditContext,
@@ -1128,8 +1128,8 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
     cloudResourceId,
     diagramCorrespondenceIdTrimmed,
     hub?.diagramCorrespondence,
+    resolvedRunId,
     resolvedSnapshotId,
-    runId,
     workbenchLinkAuditContext,
   ]);
 
@@ -1354,7 +1354,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
           currentSearch={searchParams.toString()}
           activeTab={activeTab}
           snapshotId={resolvedSnapshotId}
-          runId={runId}
+          runId={resolvedRunId}
           controlNumber={hub?.auditLineageLink.controlNumber}
           controlTitle={hub?.auditLineageLink.controlTitle}
           auditControlOptions={auditControlOptions}
@@ -1370,7 +1370,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
           auditTabHref={resourceHubFilterHrefFromSearch(cloudResourceId, searchParams.toString(), {
             tab: "audit",
             snapshotId: resolvedSnapshotId.length > 0 ? resolvedSnapshotId : undefined,
-            runId: runId.length > 0 ? runId : undefined,
+            runId: resolvedRunId.length > 0 ? resolvedRunId : undefined,
             assessmentId: workbenchLinkAuditContext?.assessmentId ?? "",
             auditEvidenceSnapshotId: workbenchLinkAuditContext?.auditEvidenceSnapshotId ?? "",
             controlId: workbenchLinkAuditContext?.controlId ?? "",
@@ -1380,7 +1380,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
             searchParams.toString(),
             activeTab,
             resolvedSnapshotId,
-            runId,
+            resolvedRunId,
           )}
         />
       ) : null}
@@ -1485,7 +1485,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                   href={buildInfrastructureAskHandoffHref(pathname, infrastructureAskHandoffSearch, {
                     cloudResourceId,
                     snapshotId: resolvedSnapshotId,
-                    runId,
+                    runId: resolvedRunId.length > 0 ? resolvedRunId : undefined,
                     hubTab: "overview",
                     workQueue: infrastructureAskWorkQueueForExplorer(workQueue),
                     ...askAuditContext,
@@ -1507,7 +1507,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
               <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1">
                 <Link
                   className={OPERATOR_LINK.inline}
-                  href={buildResourceScopedWorkbenchHref(cloudResourceId, "remediation", resolvedSnapshotId, workbenchLinkAuditContext, runId)}
+                  href={buildResourceScopedWorkbenchHref(cloudResourceId, "remediation", resolvedSnapshotId, workbenchLinkAuditContext, resolvedRunId)}
                   data-testid="infra-resource-hub-open-remediation-work"
                 >
                   Open remediation factory
@@ -1517,7 +1517,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                   href={buildDriftWorkbenchHref({
                     cloudResourceId,
                     snapshotId: resolvedSnapshotId,
-                    runId: runId.length > 0 ? runId : undefined,
+                    runId: resolvedRunId.length > 0 ? resolvedRunId : undefined,
                     ...workbenchLinkAuditContext,
                   })}
                   data-testid="infra-resource-hub-open-drift-work"
@@ -1531,7 +1531,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                     cloudResourceId,
                     hub.externalResourceId,
                     workbenchLinkAuditContext,
-                    runId,
+                    resolvedRunId,
                   )}
                   data-testid="infra-resource-hub-open-diagrams-work"
                 >
@@ -1541,7 +1541,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                   className={OPERATOR_LINK.inline}
                   href={buildResourceHubDiagramReconcileWorkbenchHref(
                     resolvedSnapshotId,
-                    runId,
+                    resolvedRunId,
                     undefined,
                     cloudResourceId,
                     workbenchLinkAuditContext,
@@ -1553,7 +1553,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                 {resolvedAuditLineage != null ? (
                   <Link
                     className={OPERATOR_LINK.inline}
-                    href={buildHubAuditLineageTabHref(cloudResourceId, resolvedSnapshotId, runId, {
+                    href={buildHubAuditLineageTabHref(cloudResourceId, resolvedSnapshotId, resolvedRunId, {
                       assessmentId: resolvedAuditLineage.assessmentId,
                       auditEvidenceSnapshotId: resolvedAuditLineage.auditEvidenceSnapshotId,
                       controlId: resolvedAuditLineage.controlId,
@@ -1876,7 +1876,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                     <div className="flex flex-col items-end gap-1">
                       <Link
                         className={OPERATOR_LINK.inline}
-                        href={buildHubScopedTabHref(cloudResourceId, "drift", resolvedSnapshotId, runId, workbenchLinkAuditContext, workQueue)}
+                        href={buildHubScopedTabHref(cloudResourceId, "drift", resolvedSnapshotId, resolvedRunId, workbenchLinkAuditContext, workQueue)}
                         data-testid="infra-resource-hub-overview-view-all-drift"
                       >
                         View all {hub.recentChanges.length} in Drift
@@ -1891,12 +1891,12 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                   changes={hub.recentChanges.slice(0, 5)}
                   cloudResourceId={cloudResourceId}
                   resolvedSnapshotId={resolvedSnapshotId}
-                  runId={runId}
+                  runId={resolvedRunId}
                   askAuditContext={askAuditContext}
                   buildChangeWorkbenchHref={(change) =>
-                    buildHubDriftChangeWorkbenchHref(cloudResourceId, resolvedSnapshotId, runId, change, askAuditContext)}
+                    buildHubDriftChangeWorkbenchHref(cloudResourceId, resolvedSnapshotId, resolvedRunId, change, askAuditContext)}
                   buildChangeAskHref={(change) =>
-                    buildHubDriftChangeAskHref(pathname, infrastructureAskHandoffSearch, cloudResourceId, resolvedSnapshotId, runId, change, askAuditContext, workQueue)}
+                    buildHubDriftChangeAskHref(pathname, infrastructureAskHandoffSearch, cloudResourceId, resolvedSnapshotId, resolvedRunId, change, askAuditContext, workQueue)}
                   testIdPrefix="infra-resource-hub-drift"
                 />
               </section>
@@ -1909,7 +1909,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
             </p>
             <Link
               className={OPERATOR_LINK.inline}
-              href={buildResourceHubDriftWorkbenchHref(resolvedSnapshotId, cloudResourceId, workbenchLinkAuditContext, runId)}
+              href={buildResourceHubDriftWorkbenchHref(resolvedSnapshotId, cloudResourceId, workbenchLinkAuditContext, resolvedRunId)}
               data-testid="infra-resource-hub-open-drift"
             >
               Open drift workbench
@@ -1919,12 +1919,12 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                 changes={hub.recentChanges}
                 cloudResourceId={cloudResourceId}
                 resolvedSnapshotId={resolvedSnapshotId}
-                runId={runId}
+                runId={resolvedRunId}
                 askAuditContext={askAuditContext}
                 buildChangeWorkbenchHref={(change) =>
-                  buildHubDriftChangeWorkbenchHref(cloudResourceId, resolvedSnapshotId, runId, change, askAuditContext)}
+                  buildHubDriftChangeWorkbenchHref(cloudResourceId, resolvedSnapshotId, resolvedRunId, change, askAuditContext)}
                 buildChangeAskHref={(change) =>
-                  buildHubDriftChangeAskHref(pathname, infrastructureAskHandoffSearch, cloudResourceId, resolvedSnapshotId, runId, change, askAuditContext, workQueue)}
+                  buildHubDriftChangeAskHref(pathname, infrastructureAskHandoffSearch, cloudResourceId, resolvedSnapshotId, resolvedRunId, change, askAuditContext, workQueue)}
                 testIdPrefix="infra-resource-hub-drift-tab"
               />
             ) : (
@@ -1951,7 +1951,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                   cloudResourceId,
                   hub.externalResourceId,
                   workbenchLinkAuditContext,
-                  runId,
+                  resolvedRunId,
                 )}
                 data-testid="infra-resource-hub-diagrams-workbench"
               >
@@ -1961,7 +1961,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                 className={OPERATOR_LINK.inline}
                 href={buildResourceHubDiagramReconcileWorkbenchHref(
                   resolvedSnapshotId,
-                  runId,
+                  resolvedRunId,
                   undefined,
                   cloudResourceId,
                   workbenchLinkAuditContext,
@@ -2004,7 +2004,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                       <Link
                         href={buildResourceHubDiagramReconcileWorkbenchHref(
                           resolvedSnapshotId,
-                          runId,
+                          resolvedRunId,
                           diagramCorrespondenceIdTrimmed,
                           cloudResourceId,
                           workbenchLinkAuditContext,
@@ -2025,7 +2025,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                           infrastructureAskHandoffSearch,
                           cloudResourceId,
                           resolvedSnapshotId,
-                          runId,
+                          resolvedRunId,
                           diagramCorrespondenceIdTrimmed,
                           askAuditContext,
                           workQueue,
@@ -2119,7 +2119,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                     href={buildTerraformWorkbenchHref({
                       cloudResourceId,
                       snapshotId: resolvedSnapshotId,
-                      runId: runId.length > 0 ? runId : undefined,
+                      runId: resolvedRunId.length > 0 ? resolvedRunId : undefined,
                       assessmentId: workbenchLinkAuditContext?.assessmentId ?? null,
                       auditEvidenceSnapshotId: workbenchLinkAuditContext?.auditEvidenceSnapshotId ?? null,
                       controlId: workbenchLinkAuditContext?.controlId ?? null,
@@ -2161,7 +2161,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                         stream.streamKind === "ArchitectureReview" ? "findings" : "remediation",
                         resolvedSnapshotId,
                         workbenchLinkAuditContext,
-                        runId,
+                        resolvedRunId,
                       )}
                       data-testid={`infra-resource-hub-findings-stream-more-${stream.streamKind}`}
                     >
@@ -2249,7 +2249,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                                           instanceId:
                                             findingActionMessages[findingIdTrimmed].instanceId?.trim() ?? undefined,
                                           snapshotId: resolvedSnapshotId,
-                                          runId: runId.length > 0 ? runId : undefined,
+                                          runId: resolvedRunId.length > 0 ? resolvedRunId : undefined,
                                           ...workbenchLinkAuditContext,
                                         })}
                                         data-testid={`infra-resource-hub-finding-created-factory-${findingIdTrimmed}`}
@@ -2286,7 +2286,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                                       cloudResourceId,
                                       findingId: findingIdTrimmed,
                                       snapshotId: resolvedSnapshotId,
-                                      runId: runId.length > 0 ? runId : undefined,
+                                      runId: resolvedRunId.length > 0 ? resolvedRunId : undefined,
                                       ...workbenchLinkAuditContext,
                                     })}
                                     data-testid={`infra-resource-hub-finding-factory-${findingIdTrimmed}`}
@@ -2308,7 +2308,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                                 </Button>
                                 <Button asChild size="sm" variant="outline">
                                   <Link
-                                    href={buildHubFindingAskHref(pathname, infrastructureAskHandoffSearch, cloudResourceId, resolvedSnapshotId, runId, findingIdTrimmed, askAuditContext, workQueue)}
+                                    href={buildHubFindingAskHref(pathname, infrastructureAskHandoffSearch, cloudResourceId, resolvedSnapshotId, resolvedRunId, findingIdTrimmed, askAuditContext, workQueue)}
                                     data-testid={`infra-resource-hub-finding-ask-${findingIdTrimmed}`}
                                   >
                                     Ask
@@ -2326,7 +2326,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                                     infrastructureAskHandoffSearch,
                                     cloudResourceId,
                                     resolvedSnapshotId,
-                                    runId,
+                                    resolvedRunId,
                                     findingIdTrimmed,
                                     askAuditContext,
                                     workQueue,
@@ -2354,7 +2354,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
           <EnterpriseTabsContent value="remediation" className="mt-4 space-y-3">
             <Link
               className={OPERATOR_LINK.inline}
-              href={buildRemediationWorkbenchHref({ cloudResourceId, snapshotId: resolvedSnapshotId, runId: runId.length > 0 ? runId : undefined, ...workbenchLinkAuditContext })}
+              href={buildRemediationWorkbenchHref({ cloudResourceId, snapshotId: resolvedSnapshotId, runId: resolvedRunId.length > 0 ? resolvedRunId : undefined, ...workbenchLinkAuditContext })}
               data-testid="infra-resource-hub-open-remediation-factory"
             >
               Open remediation factory
@@ -2436,7 +2436,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                                   cloudResourceId,
                                   instanceId: remediationInstanceId,
                                   snapshotId: resolvedSnapshotId,
-                                  runId: runId.length > 0 ? runId : undefined,
+                                  runId: resolvedRunId.length > 0 ? resolvedRunId : undefined,
                                   ...workbenchLinkAuditContext,
                                 })}
                                 data-testid={`infra-resource-hub-remediation-factory-${remediationInstanceId}`}
@@ -2451,7 +2451,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                                   infrastructureAskHandoffSearch,
                                   cloudResourceId,
                                   resolvedSnapshotId,
-                                  runId,
+                                  resolvedRunId,
                                   remediationInstanceId,
                                   askAuditContext,
                                   workQueue,
@@ -2500,7 +2500,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                   </Link>
                   <Link
                     className={OPERATOR_LINK.inline}
-                    href={buildHubAuditLineageAskHref(pathname, infrastructureAskHandoffSearch, cloudResourceId, resolvedSnapshotId, runId, {
+                    href={buildHubAuditLineageAskHref(pathname, infrastructureAskHandoffSearch, cloudResourceId, resolvedSnapshotId, resolvedRunId, {
                       assessmentId: resolvedAuditLineage.assessmentId,
                       auditEvidenceSnapshotId: resolvedAuditLineage.auditEvidenceSnapshotId,
                       controlId: resolvedAuditLineage.controlId,
@@ -2536,7 +2536,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                             </Link>
                             <Link
                               className="text-sm text-al-link hover:underline"
-                              href={buildHubAuditLineageAskHref(pathname, infrastructureAskHandoffSearch, cloudResourceId, resolvedSnapshotId, runId, {
+                              href={buildHubAuditLineageAskHref(pathname, infrastructureAskHandoffSearch, cloudResourceId, resolvedSnapshotId, resolvedRunId, {
                                 assessmentId: match.assessmentId,
                                 auditEvidenceSnapshotId: match.auditEvidenceSnapshotId,
                                 controlId: match.controlId,
