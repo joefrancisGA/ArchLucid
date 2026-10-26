@@ -15,6 +15,9 @@ export type InsightDensityCurationCounts = {
 export const FINDINGS_SNAPSHOT_CHECKLIST_FINDING_TITLE_NOT_STORED =
   "Finding title was not stored." as const;
 
+export const INSIGHT_DENSITY_CURATION_COUNTS_NOT_STORED =
+  "Curation counts were not stored." as const;
+
 export type FindingsSnapshotInsightDensityView = {
   readonly checklistCoverage: readonly ChecklistCoverageItem[];
   readonly curation: InsightDensityCurationCounts | null;

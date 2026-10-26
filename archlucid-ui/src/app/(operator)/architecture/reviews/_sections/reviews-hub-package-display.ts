@@ -29,8 +29,8 @@ import {
   reviewsHubLifecycleStage,
   reviewsHubNeedsAttention,
   reviewsHubOverallStatus,
-  type ReviewsHubLifecycleStage,
-  type ReviewsHubOverallStatus,
+  type ReviewsHubLifecycleStageDisplay,
+  type ReviewsHubOverallStatusDisplay,
 } from "./reviews-hub-review-status";
 
 export type ReviewsHubReviewRowDisplay = {
@@ -39,8 +39,8 @@ export type ReviewsHubReviewRowDisplay = {
   readonly reviewTitlePrimary: string;
   readonly reviewTitleKindLabel: string | null;
   readonly architectureName: string;
-  readonly overallStatus: ReviewsHubOverallStatus;
-  readonly lifecycleStage: ReviewsHubLifecycleStage;
+  readonly overallStatus: ReviewsHubOverallStatusDisplay;
+  readonly lifecycleStage: ReviewsHubLifecycleStageDisplay;
   readonly ownerLabel: string;
   readonly lastUpdated: string;
   readonly lastUpdatedAbsolute: string;

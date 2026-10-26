@@ -260,7 +260,10 @@ export function useAskPage(options: UseAskPageOptions = {}) {
         lastAskReferencedArtifacts.length > 0
           ? lastAskReferencedArtifacts
           : (fromMetadata?.referencedArtifacts ?? []),
-      groundingLinks: askAssistantGroundingLinks,
+      groundingLinks: (askAssistantGroundingLinks ?? []).filter(
+        (link): link is { readonly label: string; readonly href: string } =>
+          typeof link.href === "string" && link.href.trim().length > 0,
+      ),
       inspectHrefOptions,
     });
   }, [

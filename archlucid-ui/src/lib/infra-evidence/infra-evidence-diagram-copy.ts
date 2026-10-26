@@ -57,6 +57,12 @@ export const INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED_AI =
 export const INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED_HOSTNAME_AND_AI =
   "Dotted — inferred hostname or AI inference (confirm in configuration)";
 
+export const INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED_LINKED_SERVICE =
+  "Dotted — linked-service text was inferred (confirm in configuration)";
+
+export const INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED_LINKED_SERVICE_AND_AI =
+  "Dotted — linked-service text was inferred or AI inference (confirm in configuration)";
+
 export const INFRA_EVIDENCE_DIAGRAM_LEGEND_HOSTNAME_FOOTNOTE =
   "Dotted hostname edges are inferred. They are not observed connections.";
 
@@ -74,6 +80,12 @@ export const INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED_AI_FOOTNOTE =
 
 export const INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED_HOSTNAME_AND_AI_FOOTNOTE =
   "Dotted hostname and AI inference edges are inferred. They are not observed connections.";
+
+export const INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED_LINKED_SERVICE_FOOTNOTE =
+  "Dotted linked-service edges are inferred. They are not observed connections.";
+
+export const INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED_LINKED_SERVICE_AND_AI_FOOTNOTE =
+  "Dotted linked-service and AI inference edges are inferred. They are not observed connections.";
 
 export const INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED_SOURCE_UNKNOWN_FOOTNOTE =
   "Dotted inferred edges are inferred. They are not observed connections.";

@@ -5,7 +5,7 @@ export type SecureNowQuestionDispositionChromeFields = {
   readonly status: string | null;
   readonly answerCode: string | null;
   readonly answerText: string | null;
-  readonly reason: string | null;
+  readonly reason: string | null | undefined;
 };
 
 export type SecureNowQuestionOpenQueueRowFields = SecureNowQuestionDispositionChromeFields & {
@@ -15,7 +15,7 @@ export type SecureNowQuestionOpenQueueRowFields = SecureNowQuestionDispositionCh
 
 function secureNowQuestionDispositionFieldWasStored(
   value: string | null | undefined,
-): boolean {
+): value is string {
   return value !== null && value !== undefined;
 }
 

@@ -34,7 +34,7 @@ function readStringList(record: Record<string, unknown>, ...keys: string[]): str
 function resolveCloudProviderFromPaste(
   record: Record<string, unknown>,
   defaults: WizardFormValues,
-): SecondRunPasteResult | { ok: true; cloudProvider: WizardFormValues["cloudProvider"] } {
+): { ok: true; cloudProvider: WizardFormValues["cloudProvider"] } | { ok: false; error: string } {
   const keys = ["cloud_provider", "cloudProvider", "CloudProvider"] as const;
 
   for (const key of keys) {

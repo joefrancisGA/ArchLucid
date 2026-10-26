@@ -81,6 +81,14 @@ export function formatGovernanceQueueRecordKind(
   return buyerPolishedShell ? BUYER_SURFACE_VOCABULARY.finding : "Finding";
 }
 
+/** Queue honesty: recorded decisions are not findings and do not carry finding severity. */
+export const GOVERNANCE_QUEUE_RECORD_ROLE_DECISION_HONESTY =
+  "This row is a recorded architecture decision. Finding severity and confidence do not apply.";
+
+/** Queue honesty: findings keep severity and confidence as finding attributes. */
+export const GOVERNANCE_QUEUE_RECORD_ROLE_FINDING_HONESTY =
+  "This row is a finding. Severity and confidence describe this finding.";
+
 export function formatGovernanceQueueRecordRoleHonesty(
   kind: GovernanceFindingQueueRecordKind,
 ): string {

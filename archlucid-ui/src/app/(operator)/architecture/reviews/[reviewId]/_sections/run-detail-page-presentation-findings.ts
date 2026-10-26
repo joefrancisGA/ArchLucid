@@ -58,6 +58,7 @@ export function buildRunDetailFindingsPresentation(
   });
 
   const withheldFindings = resolveFindingsWithheldRows(model.resolvedDetail);
+  const withheldListLoadState = describeFindingsWithheldListLoadState(model.resolvedDetail);
   const unresolvedForSeverity = workspaceDerive.filterUnresolvedFindings(quickDecisionFindings);
   const materialSeverityTotal = severityCounts.critical + severityCounts.high;
   const materialSeverityLine =
