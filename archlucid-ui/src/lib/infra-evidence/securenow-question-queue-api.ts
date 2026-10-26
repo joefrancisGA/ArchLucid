@@ -10,6 +10,7 @@ import {
 import {
   secureNowQuestionDispositionMutationEvidenceFingerprint,
   secureNowQuestionDispositionMutationQuestionKey,
+  secureNowQuestionDispositionMutationResourceId,
   secureNowQuestionDispositionMutationSubscriptionId,
 } from "@/lib/infra-evidence/securenow-question-mutation-resource-id";
 import { proxyJsonGet, proxyJsonPost } from "@/lib/proxy-json-client";
@@ -491,6 +492,24 @@ export function secureNowListedQuestionRowHasStoredIdentity(
   return dispositionId.length > 0;
 }
 
+/**
+ * Rows with a stored question key must also carry subscription and resource ids the mutation
+ * helpers accept; disposition-only rows without a key may still render closed outcomes.
+ */
+export function secureNowListedQuestionRowPassesOpenMutationPreflight(
+  question: SecureNowQuestion,
+): boolean {
+  if (secureNowQuestionDispositionMutationQuestionKey(question.questionKey) === null) {
+    return true;
+  }
+
+  if (secureNowQuestionDispositionMutationSubscriptionId(question.subscriptionId) === null) {
+    return false;
+  }
+
+  return secureNowQuestionDispositionMutationResourceId(question) !== null;
+}
+
 function mapQuestion(raw: Record<string, unknown>): SecureNowQuestion {
   const questionText = stringOrDefault(raw.questionText);
 
@@ -542,6 +561,7 @@ export async function listSecureNowQuestions(snapshotId: string): Promise<Secure
       .filter((question) =>
         secureNowQuestionListedSnapshotMatchesContext(question.snapshotId, contextSnapshotId))
       .filter(secureNowListedQuestionRowHasStoredIdentity)
+      .filter(secureNowListedQuestionRowPassesOpenMutationPreflight)
     : [];
 }
 

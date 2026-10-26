@@ -13,6 +13,7 @@ import {
   secureNowQuestionDispositionPostResponseBodyIsUsable,
   secureNowListedQuestionRowShapeIsUsable,
   secureNowListedQuestionRowHasStoredIdentity,
+  secureNowListedQuestionRowPassesOpenMutationPreflight,
   secureNowQuestionDispositionResponseAuditEntriesShapeIsUsable,
   secureNowQuestionListedSnapshotMatchesContext,
   secureNowQuestionDispositionResponseListedDispositionIdMatches,
@@ -702,6 +703,58 @@ describe("secureNowListedQuestionRowHasStoredIdentity", () => {
   });
 });
 
+describe("secureNowListedQuestionRowPassesOpenMutationPreflight", () => {
+  const baseRow = {
+    dispositionId: null,
+    snapshotId: "snapshot-1",
+    subscriptionId: "sub-1",
+    resourceId: "/subscriptions/sub-1/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa",
+    questionKey: "unknown-evidence@v1",
+    source: "InventoryEvidence",
+    scopeKind: "Resource",
+    status: "Open",
+    questionText: "Should this resource connect?",
+    resourceType: null,
+    resourceName: null,
+    reasonText: "",
+    sourceLine: "",
+    answerCodes: ["NamePeer"],
+    evidenceFingerprint: "fingerprint",
+    expirationUtc: null,
+    isExpired: null,
+    answerCode: null,
+    answerText: null,
+    reason: null,
+  };
+
+  it("requires subscription and resource ids when a question key is stored", () => {
+    expect(secureNowListedQuestionRowPassesOpenMutationPreflight({
+      ...baseRow,
+      subscriptionId: null,
+    })).toBe(false);
+    expect(secureNowListedQuestionRowPassesOpenMutationPreflight({
+      ...baseRow,
+      resourceId: null,
+      source: "InventoryEvidence",
+      scopeKind: "Resource",
+    })).toBe(false);
+    expect(secureNowListedQuestionRowPassesOpenMutationPreflight(baseRow)).toBe(true);
+  });
+
+  it("skips subscription and resource checks for disposition-only rows", () => {
+    expect(secureNowListedQuestionRowPassesOpenMutationPreflight({
+      ...baseRow,
+      questionKey: null,
+      dispositionId: "00000000-0000-0000-0000-000000000001",
+      subscriptionId: null,
+      resourceId: null,
+      status: "Answered",
+      answerCode: "Owner",
+      answerText: "Owner",
+    })).toBe(true);
+  });
+});
+
 describe("secureNowQuestionListedSnapshotMatchesContext", () => {
   it("treats padded listed snapshot ids as matching the active context", () => {
     expect(secureNowQuestionListedSnapshotMatchesContext("  snapshot-1  ", "snapshot-1")).toBe(true);
@@ -731,6 +784,38 @@ describe("securenow-question-queue-api", () => {
     expect(questions).toEqual([]);
   });
 
+  it("omits open list rows missing subscription id when a question key is stored", async () => {
+    vi.mocked(proxyJsonGet).mockResolvedValueOnce([
+      {
+        snapshotId: "snapshot-1",
+        subscriptionId: null,
+        resourceId: "/subscriptions/sub-1/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa",
+        questionKey: "unknown-evidence@v1",
+        questionText: "Should this resource connect?",
+        source: "InventoryEvidence",
+        scopeKind: "Resource",
+        answerCodes: ["NamePeer"],
+        evidenceFingerprint: "fingerprint",
+      },
+      {
+        snapshotId: "snapshot-1",
+        subscriptionId: "sub-1",
+        resourceId: "",
+        questionKey: "subscription-ownership@v1",
+        questionText: "Who owns this subscription?",
+        source: "PolicyPack",
+        scopeKind: "Subscription",
+        answerCodes: ["Owner"],
+        evidenceFingerprint: "fingerprint-2",
+      },
+    ]);
+
+    const questions = await listSecureNowQuestions("snapshot-1");
+
+    expect(questions).toHaveLength(1);
+    expect(questions[0].questionKey).toBe("subscription-ownership@v1");
+  });
+
   it("omits list rows that only carry an evidence fingerprint without a question key", async () => {
     vi.mocked(proxyJsonGet).mockResolvedValueOnce([
       {
@@ -740,6 +825,10 @@ describe("securenow-question-queue-api", () => {
       },
       {
         snapshotId: "snapshot-1",
+        subscriptionId: "sub-1",
+        resourceId: "",
+        source: "PolicyPack",
+        scopeKind: "Subscription",
         questionKey: "unknown-evidence@v1",
         questionText: "Should this resource connect?",
         answerCodes: ["NamePeer"],
@@ -758,6 +847,10 @@ describe("securenow-question-queue-api", () => {
       { snapshotId: "snapshot-1" },
       {
         snapshotId: "snapshot-1",
+        subscriptionId: "sub-1",
+        resourceId: "",
+        source: "PolicyPack",
+        scopeKind: "Subscription",
         questionKey: "unknown-evidence@v1",
         questionText: "Should this resource connect?",
         answerCodes: ["NamePeer"],
@@ -782,6 +875,10 @@ describe("securenow-question-queue-api", () => {
       },
       {
         snapshotId: "snapshot-1",
+        subscriptionId: "sub-1",
+        resourceId: "",
+        source: "PolicyPack",
+        scopeKind: "Subscription",
         questionKey: "unknown-evidence@v1",
         questionText: "Should this resource connect?",
         answerCodes: ["NamePeer"],
@@ -799,6 +896,10 @@ describe("securenow-question-queue-api", () => {
     vi.mocked(proxyJsonGet).mockResolvedValueOnce([
       {
         snapshotId: "  snapshot-1  ",
+        subscriptionId: "sub-1",
+        resourceId: "",
+        source: "PolicyPack",
+        scopeKind: "Subscription",
         questionKey: "unknown-evidence@v1",
         questionText: "Should this resource connect?",
         answerCodes: ["NamePeer"],
@@ -819,6 +920,10 @@ describe("securenow-question-queue-api", () => {
       "not-a-row",
       {
         snapshotId: "snapshot-1",
+        subscriptionId: "sub-1",
+        resourceId: "",
+        source: "PolicyPack",
+        scopeKind: "Subscription",
         questionKey: "unknown-evidence@v1",
         questionText: "Should this resource connect?",
         answerCodes: ["NamePeer"],
@@ -836,6 +941,10 @@ describe("securenow-question-queue-api", () => {
     vi.mocked(proxyJsonGet).mockResolvedValueOnce([
       {
         snapshotId: "snapshot-1",
+        subscriptionId: "sub-1",
+        resourceId: "",
+        source: "PolicyPack",
+        scopeKind: "Subscription",
         questionKey: "unknown-evidence@v1",
         questionText: "Should this resource connect?",
         reasonText: 404,
@@ -887,6 +996,10 @@ describe("securenow-question-queue-api", () => {
     vi.mocked(proxyJsonGet).mockResolvedValueOnce([
       {
         snapshotId: "snapshot-1",
+        subscriptionId: "sub-1",
+        resourceId: "",
+        source: "PolicyPack",
+        scopeKind: "Subscription",
         questionKey: "unknown-evidence@v1",
         questionText: "Should this resource connect?",
         answerCodes: null,
@@ -903,6 +1016,10 @@ describe("securenow-question-queue-api", () => {
     vi.mocked(proxyJsonGet).mockResolvedValueOnce([
       {
         snapshotId: "snapshot-1",
+        subscriptionId: "sub-1",
+        resourceId: "",
+        source: "PolicyPack",
+        scopeKind: "Subscription",
         questionKey: "unknown-evidence@v1",
         questionText: "Should this resource connect?",
         answerCodes: [1, 2],
@@ -919,6 +1036,10 @@ describe("securenow-question-queue-api", () => {
     vi.mocked(proxyJsonGet).mockResolvedValueOnce([
       {
         snapshotId: "snapshot-1",
+        subscriptionId: "sub-1",
+        resourceId: "",
+        source: "PolicyPack",
+        scopeKind: "Subscription",
         questionKey: "unknown-evidence@v1",
         questionText: "Should this resource connect?",
         answerCodes: [1, "NamePeer", null, "StandsAlone"],
@@ -935,6 +1056,10 @@ describe("securenow-question-queue-api", () => {
     vi.mocked(proxyJsonGet).mockResolvedValueOnce([
       {
         snapshotId: "snapshot-1",
+        subscriptionId: "sub-1",
+        resourceId: "",
+        source: "PolicyPack",
+        scopeKind: "Subscription",
         questionKey: "unknown-evidence@v1",
         questionText: 123,
         answerCodes: ["NamePeer"],
@@ -969,9 +1094,10 @@ describe("securenow-question-queue-api", () => {
     vi.mocked(proxyJsonGet).mockResolvedValueOnce([
       {
         snapshotId: "snapshot-1",
+        dispositionId: "00000000-0000-0000-0000-000000000001",
         subscriptionId: "  ",
         resourceId: "   ",
-        questionKey: "unknown-evidence@v1",
+        questionKey: null,
         questionText: "Should this resource connect?",
         answerCodes: ["NamePeer"],
         evidenceFingerprint: "   ",
@@ -1016,6 +1142,8 @@ describe("securenow-question-queue-api", () => {
         snapshotId: "snapshot-1",
         subscriptionId: "subscription-1",
         resourceId: 12345,
+        source: "PolicyPack",
+        scopeKind: "Subscription",
         questionKey: "unknown-evidence@v1",
         questionText: "Should this resource connect?",
         answerCodes: ["NamePeer"],
@@ -1032,8 +1160,9 @@ describe("securenow-question-queue-api", () => {
     vi.mocked(proxyJsonGet).mockResolvedValueOnce([
       {
         snapshotId: "snapshot-1",
+        dispositionId: "00000000-0000-0000-0000-000000000001",
         subscriptionId: 12345,
-        questionKey: "unknown-evidence@v1",
+        questionKey: null,
         questionText: "Should this resource connect?",
         answerCodes: ["NamePeer"],
         evidenceFingerprint: "fingerprint",
@@ -1049,6 +1178,10 @@ describe("securenow-question-queue-api", () => {
     vi.mocked(proxyJsonGet).mockResolvedValueOnce([
       {
         snapshotId: "snapshot-1",
+        subscriptionId: "sub-1",
+        resourceId: "",
+        source: "PolicyPack",
+        scopeKind: "Subscription",
         questionKey: "unknown-evidence@v1",
         questionText: "Should this resource connect?",
         evidenceFingerprint: 12345,
@@ -1065,6 +1198,10 @@ describe("securenow-question-queue-api", () => {
     vi.mocked(proxyJsonGet).mockResolvedValueOnce([
       {
         snapshotId: "snapshot-1",
+        subscriptionId: "sub-1",
+        resourceId: "",
+        source: "PolicyPack",
+        scopeKind: "Subscription",
         questionKey: "unknown-evidence@v1",
         questionText: "Should this resource connect?",
         evidenceFingerprint: null,
@@ -1081,6 +1218,10 @@ describe("securenow-question-queue-api", () => {
     vi.mocked(proxyJsonGet).mockResolvedValueOnce([
       {
         snapshotId: "snapshot-1",
+        subscriptionId: "sub-1",
+        resourceId: "",
+        source: "PolicyPack",
+        scopeKind: "Subscription",
         questionKey: "unknown-evidence@v1",
         questionText: "Should this resource connect?",
         resourceName: null,
@@ -1100,6 +1241,10 @@ describe("securenow-question-queue-api", () => {
     vi.mocked(proxyJsonGet).mockResolvedValueOnce([
       {
         snapshotId: "snapshot-1",
+        subscriptionId: "sub-1",
+        resourceId: "",
+        source: "PolicyPack",
+        scopeKind: "Subscription",
         questionKey: "unknown-evidence@v1",
         questionText: "",
         resourceName: null,
@@ -1120,6 +1265,10 @@ describe("securenow-question-queue-api", () => {
     vi.mocked(proxyJsonGet).mockResolvedValueOnce([
       {
         snapshotId: "snapshot-1",
+        subscriptionId: "sub-1",
+        resourceId: "",
+        source: "PolicyPack",
+        scopeKind: "Subscription",
         questionKey: "unknown-evidence@v1",
         questionText: "Should this resource connect?",
         answerCodes: ["NamePeer"],
@@ -1138,6 +1287,10 @@ describe("securenow-question-queue-api", () => {
     vi.mocked(proxyJsonGet).mockResolvedValueOnce([
       {
         snapshotId: "snapshot-1",
+        subscriptionId: "sub-1",
+        resourceId: "",
+        source: "PolicyPack",
+        scopeKind: "Subscription",
         questionKey: "unknown-evidence@v1",
         questionText: "Should this resource connect?",
         answerCodes: ["NamePeer"],
@@ -1156,6 +1309,10 @@ describe("securenow-question-queue-api", () => {
     vi.mocked(proxyJsonGet).mockResolvedValueOnce([
       {
         snapshotId: "snapshot-1",
+        subscriptionId: "sub-1",
+        resourceId: "",
+        source: "PolicyPack",
+        scopeKind: "Subscription",
         questionKey: "unknown-evidence@v1",
         questionText: "Should this resource connect?",
         answerCodes: ["NamePeer"],
@@ -1173,6 +1330,10 @@ describe("securenow-question-queue-api", () => {
     vi.mocked(proxyJsonGet).mockResolvedValueOnce([
       {
         snapshotId: "snapshot-1",
+        subscriptionId: "sub-1",
+        resourceId: "",
+        source: "PolicyPack",
+        scopeKind: "Subscription",
         questionKey: "unknown-evidence@v1",
         questionText: "Should this resource connect?",
         answerCodes: ["NamePeer"],
@@ -1198,6 +1359,10 @@ describe("securenow-question-queue-api", () => {
     vi.mocked(proxyJsonGet).mockResolvedValueOnce([
       {
         snapshotId: "snapshot-1",
+        subscriptionId: "sub-1",
+        resourceId: "",
+        source: "PolicyPack",
+        scopeKind: "Subscription",
         questionKey: "unknown-evidence@v1",
         questionText: "Should this resource connect?",
         answerCodes: ["NamePeer"],
@@ -1219,6 +1384,10 @@ describe("securenow-question-queue-api", () => {
     vi.mocked(proxyJsonGet).mockResolvedValueOnce([
       {
         snapshotId: "snapshot-1",
+        subscriptionId: "sub-1",
+        resourceId: "",
+        source: "PolicyPack",
+        scopeKind: "Subscription",
         questionKey: "unknown-evidence@v1",
         questionText: "Should this resource connect?",
         answerCodes: ["NamePeer"],
@@ -1310,6 +1479,10 @@ describe("securenow-question-queue-api", () => {
     vi.mocked(proxyJsonGet).mockResolvedValueOnce([
       {
         snapshotId: "snapshot-1",
+        subscriptionId: "sub-1",
+        resourceId: "",
+        source: "PolicyPack",
+        scopeKind: "Subscription",
         questionKey: "unknown-evidence@v1",
         questionText: "Should this resource connect?",
         answerCodes: ["  NamePeer  ", " StandsAlone "],
