@@ -2253,4 +2253,20 @@ describe("ResourceHubClient", () => {
     expect(screen.queryByTestId("infra-resource-hub-audit-scope-chip")).not.toBeInTheDocument();
   });
 
+  it("never passes unlinked URL audit controlId to hub fetch", async () => {
+    fetchCachedInfraEvidenceResourceHub.mockClear();
+    searchParams = new URLSearchParams(
+      `tab=overview&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}&assessmentId=aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa&auditEvidenceSnapshotId=bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb&controlId=eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee`,
+    );
+
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    await screen.findByTestId("infra-resource-hub-stale-audit-scope");
+    for (const call of fetchCachedInfraEvidenceResourceHub.mock.calls) {
+      const options = call[1] as { controlId?: string };
+
+      expect(options.controlId).not.toBe("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+    }
+  });
+
 });

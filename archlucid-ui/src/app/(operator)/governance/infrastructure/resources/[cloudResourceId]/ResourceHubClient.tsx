@@ -167,6 +167,12 @@ const cnCard =
 const cnCardDashed =
   "rounded-md border border-dashed border-neutral-300 bg-neutral-50 p-4 dark:border-neutral-700 dark:bg-neutral-900/20";
 
+const EMPTY_HUB_FETCH_AUDIT_SCOPE = {
+  assessmentId: "",
+  auditEvidenceSnapshotId: "",
+  controlId: "",
+};
+
 type ResourceHubClientProps = {
   readonly cloudResourceId: string;
 };
@@ -583,11 +589,12 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
     const urlScope = parseInfraEvidenceWorkbenchAuditScopeFromSearch(searchParams);
 
     if (urlScope == null || hasUnlinkedAuditScopeInUrl) {
-      return {
-        assessmentId: "",
-        auditEvidenceSnapshotId: "",
-        controlId: "",
-      };
+      return EMPTY_HUB_FETCH_AUDIT_SCOPE;
+    }
+
+    // Lineage must load before an in-URL audit triple can be confirmed linked; skip it on the first fetch.
+    if (hub == null) {
+      return EMPTY_HUB_FETCH_AUDIT_SCOPE;
     }
 
     return {
@@ -595,7 +602,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
       auditEvidenceSnapshotId: urlScope.auditEvidenceSnapshotId,
       controlId: urlScope.controlId,
     };
-  }, [hasUnlinkedAuditScopeInUrl, searchParams]);
+  }, [hasUnlinkedAuditScopeInUrl, hub, searchParams]);
 
   const loadHub = useCallback(async (options?: { retainFindingMessages?: boolean }) => {
     const requestGeneration = loadRequestGeneration.current + 1;
