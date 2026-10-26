@@ -11,6 +11,8 @@ import {
   secureNowQuestionDispositionMutationEvidenceFingerprint,
   secureNowQuestionDispositionMutationQuestionKey,
   secureNowQuestionDispositionMutationResourceId,
+  secureNowQuestionDispositionMutationScopeKind,
+  secureNowQuestionDispositionMutationSource,
   secureNowQuestionDispositionMutationSubscriptionId,
 } from "@/lib/infra-evidence/securenow-question-mutation-resource-id";
 import { proxyJsonGet, proxyJsonPost } from "@/lib/proxy-json-client";
@@ -507,7 +509,18 @@ export function secureNowListedQuestionRowPassesOpenMutationPreflight(
     return false;
   }
 
-  return secureNowQuestionDispositionMutationResourceId(question) !== null;
+  if (secureNowQuestionDispositionMutationResourceId(question) === null) {
+    return false;
+  }
+
+  if (!secureNowQuestionDispositionIsOpen(question.status)) {
+    return true;
+  }
+
+  const mutationSource = secureNowQuestionDispositionMutationSource(question);
+  const mutationScopeKind = secureNowQuestionDispositionMutationScopeKind(question);
+
+  return mutationSource !== null && mutationScopeKind !== null;
 }
 
 function mapQuestion(raw: Record<string, unknown>): SecureNowQuestion {

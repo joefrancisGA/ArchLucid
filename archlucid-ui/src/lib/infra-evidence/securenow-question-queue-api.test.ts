@@ -741,6 +741,21 @@ describe("secureNowListedQuestionRowPassesOpenMutationPreflight", () => {
     expect(secureNowListedQuestionRowPassesOpenMutationPreflight(baseRow)).toBe(true);
   });
 
+  it("requires resolvable source and scope on open keyed rows", () => {
+    expect(secureNowListedQuestionRowPassesOpenMutationPreflight({
+      ...baseRow,
+      source: null,
+      scopeKind: null,
+    })).toBe(false);
+    expect(secureNowListedQuestionRowPassesOpenMutationPreflight({
+      ...baseRow,
+      status: "Ignored",
+      source: null,
+      scopeKind: null,
+      reason: "Dismissed.",
+    })).toBe(true);
+  });
+
   it("skips subscription and resource checks for disposition-only rows", () => {
     expect(secureNowListedQuestionRowPassesOpenMutationPreflight({
       ...baseRow,
@@ -782,6 +797,38 @@ describe("securenow-question-queue-api", () => {
     const questions = await listSecureNowQuestions("snapshot-1");
 
     expect(questions).toEqual([]);
+  });
+
+  it("omits open list rows missing source or scope when a question key is stored", async () => {
+    vi.mocked(proxyJsonGet).mockResolvedValueOnce([
+      {
+        snapshotId: "snapshot-1",
+        subscriptionId: "sub-1",
+        resourceId: "",
+        questionKey: "unknown-evidence@v1",
+        status: "Open",
+        questionText: "Should this resource connect?",
+        answerCodes: ["NamePeer"],
+        evidenceFingerprint: "fingerprint",
+      },
+      {
+        snapshotId: "snapshot-1",
+        subscriptionId: "sub-1",
+        resourceId: "",
+        source: "PolicyPack",
+        scopeKind: "Subscription",
+        questionKey: "subscription-ownership@v1",
+        status: "Open",
+        questionText: "Who owns this subscription?",
+        answerCodes: ["Owner"],
+        evidenceFingerprint: "fingerprint-2",
+      },
+    ]);
+
+    const questions = await listSecureNowQuestions("snapshot-1");
+
+    expect(questions).toHaveLength(1);
+    expect(questions[0].questionKey).toBe("subscription-ownership@v1");
   });
 
   it("omits open list rows missing subscription id when a question key is stored", async () => {
