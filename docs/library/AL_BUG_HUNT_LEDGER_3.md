@@ -6501,6 +6501,8 @@ ABQ-09 churn hotspot; review detail route tree.
 ---
 
 ## Zone: ui-review-intake-wizards
+2026-10-26 thorough hunt (hit): promoted `useNewRunWizardSubmit.recheckUnresolvedRun` **over-broad catch** — the recheck `try/catch` wrapped post-resume `clearWizardSession` and pending-evidence upload, so storage cleanup or upload exceptions after `markResumed()` called `creationProgress.fail()` even though the run had resumed; narrow the catch to the unresolved replay request only and best-effort session cleanup on submit/recheck success paths; regressions `still resumes unresolved create when clearing wizard session throws on recheck` and `reports recheck failure only when the unresolved replay request throws`; 6/6 `use-new-run-wizard-submit` tests. Cheap-disproof closed picker template-restore vs query-prefill ordering and guided-intake popstate race (prior pass). Private beta: full guided wizard “check again” recovery no longer shows a false creation failure after the run is found when session cleanup fails.
+
 2026-10-26 thorough hunt (hit): promoted `useFirstPilotIntakeSubmit` post-create **`clearWizardSession` throw** — after `creationProgress.succeed()`, a storage failure from session cleanup fell into the outer `catch` and called `creationProgress.fail`, so operators saw a failed start even though the architecture run was created; wrap cleanup in best-effort try/catch on submit and unresolved-recheck resume paths; regression `still navigates after successful create when clearing the wizard session throws`; 3/3 `use-first-pilot-intake-submit` tests. Cheap-disproof closed picker `NewRunWizardTemplateRestore` vs query-prefill ordering (restore is user-driven; `data-wizard-ready` is intentional mount signal) and guided-intake `popstate` vs `useSearchParams` (existing URL-sync regressions). Private beta: quick-start review creation still navigates to generation when browser session cleanup fails after a successful create.
 
 2026-10-25 thorough hunt (hit): `useFirstPilotIntakeWizard` applied inherited run title from `useRunSummaryQuery` before the active `rerun=` summary fetch settled, so placeholder or in-flight cache rows could prefill the wrong prior review name on revised-clone quick start; title prefill now waits for `isFetched`; regression `does not apply stale run summary data while the new prior run summary is still fetching`; 10/10 first-pilot wizard tests. Cheap-disproof closed picker candidates for pending-evidence generation, post-create upload state, semantic-count races (existing regressions), template-restore ordering, and guided-intake popstate sync.
@@ -6509,6 +6511,7 @@ ABQ-09 churn hotspot; review detail route tree.
 
 2026-10-16 thorough hunt (hit): promoted pending document upload generation on `setPendingDocumentFiles`; 10/10 pending-evidence tests.
 
+- [x] (proven) `useNewRunWizardSubmit.recheckUnresolvedRun` — post-resume cleanup/upload errors reported as create failure — **hit 2026-10-26 thorough hunt:** narrow recheck catch; best-effort `clearWizardSession`; regressions recheck clear throw + API-only fail.
 - [x] (proven) `useFirstPilotIntakeSubmit` — `clearWizardSession` throw after successful create — **hit 2026-10-26 thorough hunt:** best-effort cleanup; regression storage-throw fixture.
 - [x] (valid-no-repro) `NewRunWizardTemplateRestore` / `useNewRunWizardQueryPrefill` — restored step before policy deeplink prefill — **cheap-disproof 2026-10-26 thorough hunt:** template restore via explicit accept; policy prefill one-shot on mount; prior policy-after-reset hit retained.
 - [x] (valid-no-repro) `useGuidedIntakeWizard.setStep` — popstate races `useSearchParams` intakeStep sync — **cheap-disproof 2026-10-26 thorough hunt:** `use-guided-intake-wizard.intake-step-url.test.ts` covers URL clears without popstate; no flaky dual-listener repro.
@@ -6526,14 +6529,14 @@ ABQ-09 churn hotspot; review detail route tree.
 - **impact:** high
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/new/
 - **test-filter:** FullyQualifiedName~reviews/new
-- **hunts:** 64
-- **bugs-found:** 35
+- **hunts:** 65
+- **bugs-found:** 36
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-26
-- **last-bug:** 2026-10-26 — post-create wizard session clear throw misreported failure
+- **last-bug:** 2026-10-26 — recheck resume misreported failure after session cleanup throw
 - **code-changed-since:** yes
 
-**Hunts:** 64 · **Bugs found:** 35 · **Consecutive dry hunts:** 0
+**Hunts:** 65 · **Bugs found:** 36 · **Consecutive dry hunts:** 0
 
 2026-10-09 seed hunt (seed-only): `ui-review-intake-wizards` — re-read full and quick submit orchestration, draft admission, evidence handoff, and scope-gate URL synchronization; no new hypothesis met the same-run failing-repro bar without repeating a saturated unhandled-rejection or post-create handoff class. Seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
 
