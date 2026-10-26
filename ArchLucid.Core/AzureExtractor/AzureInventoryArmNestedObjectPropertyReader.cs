@@ -64,6 +64,13 @@ public static class AzureInventoryArmNestedObjectPropertyReader
                 return TryResolveArmReferenceScalar(trimmed);
             }
 
+            string unwrapped = UnwrapJsonEncodedArmId(trimmed);
+
+            if (unwrapped.Contains("/subscriptions/", StringComparison.OrdinalIgnoreCase))
+            {
+                return unwrapped.Trim();
+            }
+
             return text;
         }
 

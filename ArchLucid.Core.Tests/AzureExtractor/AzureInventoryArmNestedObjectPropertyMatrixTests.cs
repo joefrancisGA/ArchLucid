@@ -41,6 +41,17 @@ public sealed class AzureInventoryArmNestedObjectPropertyMatrixTests
                 {
                   "destination": {
                     "endpointType": "StorageQueue",
+                    "resourceId": {{JsonSerializer.Serialize("\"" + StorageAccountId + "\"")}}
+                  }
+                }
+                """,
+                StorageAccountId
+            },
+            {
+                $$"""
+                {
+                  "destination": {
+                    "endpointType": "StorageQueue",
                     "properties": {
                       "resourceId": "{{StorageAccountId}}",
                       "queueName": "orders"
