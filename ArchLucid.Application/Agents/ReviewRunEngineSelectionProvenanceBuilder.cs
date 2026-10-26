@@ -18,6 +18,7 @@ public static class ReviewRunEngineSelectionProvenanceBuilder
         {
             ModelAliasId = modelAliasId.Trim(),
             TaskEvaluationSnapshotsAtSelection = entry.TaskEvaluations
+                .Where(static evaluation => evaluation is not null)
                 .Select(
                     evaluation => new ReviewRunEngineTaskEvaluationSnapshot
                     {
