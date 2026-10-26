@@ -7209,6 +7209,32 @@ ABQ-09 churn hotspot.
 
 ## Zone: ui-infra-resource-hub
 
+2026-10-26 seed hunt (seed→hit): promoted whitespace-only **finding title** in create-remediation confirm dialog — table row already used omission copy but `findingTitle` prop passed raw `title` so dialog `<dd>` showed whitespace; `formatStoredInfraEvidenceHubField` on confirm payload; regression `shows finding title omission copy in create-remediation confirm dialog when title is whitespace-only`; cheap-disproof closed drift `changeType` (normalize already maps to “Change type was not stored.”), blocker-join failure message (display formatter covers), and network `relationshipType` (prior regression); scoped ResourceHubClient vitest 100/100. Private beta: confirming remediation create from a finding with a blank stored title shows “Finding title was not stored.” in the dialog instead of an empty Finding line.
+
+- [x] (proven) `ResourceHubCreateRemediationConfirmDialog` via `ResourceHubClient` — finding `title` whitespace-only — **hit 2026-10-26 seed hunt:** format title before dialog prop; regression whitespace-title confirm dialog fixture.
+- [x] (valid-no-repro) `ResourceHubDriftChangesTable` — `changeType` whitespace-only — **cheap-disproof 2026-10-26 seed hunt:** `normalizeInfraEvidenceChangeTypeKey` maps trim-empty to stored label.
+- [x] (valid-no-repro) `ResourceHubClient` finding action messages — whitespace-only blocker join — **cheap-disproof 2026-10-26 seed hunt:** `formatStoredInfraEvidenceHubField` on status paragraph.
+- [x] (valid-no-repro) `ResourceHubClient` network tab — `relationshipType` whitespace — **cheap-disproof 2026-10-26 seed hunt:** prior regression lock.
+- [x] (valid-no-repro) `ResourceHubDriftChangesTable` — `riskClassification` whitespace — **cheap-disproof 2026-10-26 seed hunt:** prior hit retained.
+
+- [ ] (candidate) `ResourceHubClient` remediation failure message — whitespace-only `blockers.join` without `errorMessage` — locus: `runCreateRemediationFromFinding` message assembly; input: blockers array of whitespace strings only.
+- [ ] (candidate) `ResourceHubClient` pending dialog — `resourceTitle` when captured name segments are whitespace — locus: confirm dialog resource line vs `resourceTitle` memo edge.
+- [ ] (candidate) `ResourceHubDriftChangesTable` — unknown non-empty gibberish `changeType` StatusTag kind — locus: default neutral kind for unrecognized keys; input: exotic change type token.
+- [ ] (candidate) `ResourceHubClient` overview — `resourceGroup` / `region` parity with `formatStoredInfraEvidenceHubField` helper — locus: inline trim vs shared formatter copy drift.
+- [ ] (candidate) `ResourceHubClient` audit overview — future banner using `degradedReason` on overview tab when audit tab unavailable — locus: cross-tab degraded copy parity.
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 72
+- **bugs-found:** 51
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-26
+- **last-bug:** 2026-10-26 — whitespace-only finding title in remediation confirm dialog
+- **code-changed-since:** yes
+
 2026-10-26 seed hunt (seed→hit): promoted whitespace-only **drift riskClassification** on drift tab — `riskClassification != null` let whitespace-only values render an empty `SeverityTag` instead of omission copy; trim gate before tag vs “Risk classification was not stored.”; regression `shows drift risk omission copy when riskClassification is whitespace-only`; cheap-disproof closed finding blocker-join (display formatter covers), pending dialog title (trim gate), and work queue banner (no repro); scoped ResourceHubClient vitest 99/99. Private beta: drift rows show “Risk classification was not stored.” when capture stored only whitespace in `riskClassification`.
 
 - [x] (proven) `ResourceHubDriftChangesTable` — `riskClassification` whitespace-only — **hit 2026-10-26 seed hunt:** trim before `SeverityTag`; regression whitespace risk fixture.

@@ -532,6 +532,32 @@ describe("ResourceHubClient", () => {
     });
   });
 
+  it("shows finding title omission copy in create-remediation confirm dialog when title is whitespace-only", async () => {
+    fetchCachedInfraEvidenceResourceHub.mockImplementation(async () =>
+      buildResourceHubTestMockHub({
+        operationalSecurityFindings: {
+          ...buildResourceHubTestMockHub().operationalSecurityFindings,
+          items: [
+            {
+              id: "finding-whitespace-title",
+              title: "   ",
+              severity: "High",
+              status: "Open",
+              streamKind: "OperationalSecurity",
+              streamLabel: "Operational security",
+            },
+          ],
+        },
+      }),
+    );
+    searchParams = new URLSearchParams(`tab=findings&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}`);
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    fireEvent.click(await screen.findByTestId("infra-resource-hub-create-remediation-finding-whitespace-title"));
+    const dialog = await screen.findByTestId("infra-resource-hub-create-remediation-dialog");
+    expect(within(dialog).getByText("Finding title was not stored.")).toBeInTheDocument();
+  });
+
   it("shows remediation action omission copy when create remediation returns whitespace-only errorMessage", async () => {
     searchParams = new URLSearchParams(`tab=findings&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}`);
     createRemediationInstance.mockResolvedValueOnce({

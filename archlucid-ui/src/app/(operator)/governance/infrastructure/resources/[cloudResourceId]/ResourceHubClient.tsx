@@ -2055,7 +2055,14 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
             setPendingRemediationFinding(null);
           }
         }}
-        findingTitle={pendingRemediationFinding?.title ?? ""}
+        findingTitle={
+          pendingRemediationFinding != null
+            ? formatStoredInfraEvidenceHubField(
+                pendingRemediationFinding.title,
+                "Finding title was not stored.",
+              )
+            : ""
+        }
         resourceTitle={resourceTitle}
         busy={pendingRemediationFinding != null && findingActionBusyId === pendingRemediationFinding.id}
         onConfirm={() => {
