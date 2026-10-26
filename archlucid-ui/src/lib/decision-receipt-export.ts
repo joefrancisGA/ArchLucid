@@ -21,6 +21,13 @@ export const DECISION_RECEIPT_COST_ESTIMATE_LABEL =
 export const DECISION_RECEIPT_COST_FIGURES_NOT_STORED =
   "Cost figures were not stored for this review.";
 
+export const DECISION_RECEIPT_SESSION_COST_NOT_STORED = "Session cost was not stored.";
+
+export const DECISION_RECEIPT_AVOIDED_ARCHITECT_COST_NOT_STORED =
+  "Avoided human architect cost was not stored.";
+
+export const DECISION_RECEIPT_AVOIDED_CALENDAR_WEEKS_NOT_STORED = "Avoided calendar time was not stored.";
+
 export type DecisionReceiptSource = "draft-admission" | "committed-run";
 
 export type DecisionReceiptContext = {
@@ -98,9 +105,9 @@ export function buildDecisionReceiptDocument(context: DecisionReceiptContext): D
     transparencyTrail: buildTransparencyTrailExportSection(context.verdict.transparencyTrail),
     costStory: {
       label: DECISION_RECEIPT_COST_ESTIMATE_LABEL,
-      sessionCostUsdEstimate: 0,
-      avoidedHumanArchitectCostUsdEstimate: 0,
-      avoidedCalendarWeeksEstimate: "",
+      sessionCostUsdEstimate: DECISION_RECEIPT_SESSION_COST_NOT_STORED,
+      avoidedHumanArchitectCostUsdEstimate: DECISION_RECEIPT_AVOIDED_ARCHITECT_COST_NOT_STORED,
+      avoidedCalendarWeeksEstimate: DECISION_RECEIPT_AVOIDED_CALENDAR_WEEKS_NOT_STORED,
       narrative: DECISION_RECEIPT_COST_FIGURES_NOT_STORED,
     },
     careerPosture,

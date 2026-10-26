@@ -131,13 +131,9 @@ export function buildRunDetailDecisionDeltaRow(
       typeof finding.evidenceRefCount === "number" && Number.isFinite(finding.evidenceRefCount)
         ? Math.trunc(finding.evidenceRefCount)
         : null,
-<<<<<<< HEAD
-    evidenceAnchorHint: resolveEvidenceAnchorHint(finding),
+    evidenceAnchorHint,
     evidenceRefCountNotStored:
       finding.evidenceRefCount === null || finding.evidenceRefCount === undefined,
-=======
-    evidenceAnchorHint,
->>>>>>> origin/master
     trustChipSet: trustPresentation.chipSet,
     compareDeltaTrustLabels: formatFindingTrustCompareDeltaLabels(trustPresentation.chipSet),
   };
