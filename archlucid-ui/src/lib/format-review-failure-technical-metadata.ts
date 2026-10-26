@@ -46,12 +46,18 @@ function formatAssessmentProgressValue(summary: RunSummary | null | undefined): 
     return "Assessment progress was not stored.";
   }
 
-  const completed = [
-    summary.hasContextSnapshot === true,
-    summary.hasGraphSnapshot === true,
-    summary.hasFindingsSnapshot === true,
-    summary.hasGoldenManifest === true,
-  ].filter(Boolean).length;
+  const flags = [
+    summary.hasContextSnapshot,
+    summary.hasGraphSnapshot,
+    summary.hasFindingsSnapshot,
+    summary.hasGoldenManifest,
+  ];
+
+  if (flags.some((flag) => flag === null || flag === undefined)) {
+    return "Assessment step completion was not stored.";
+  }
+
+  const completed = flags.filter((flag) => flag === true).length;
 
   return `${completed} / 4 assessment steps`;
 }
@@ -72,7 +78,7 @@ function formatPipelineStageFlags(summary: RunSummary | null | undefined): strin
 function resolveLikelyCauseSentence(input: {
   readonly failureClass: string;
   readonly reasonCode: string;
-  readonly completedStages: number;
+  readonly completedStages: number | null;
 }): string | null {
   if (input.reasonCode === "NoScheduledAgentTasks") {
     return "Execute ran before any agent tasks were scheduled — typical deferred authority-pipeline timing miss. Re-run should resume the queued pipeline on current builds.";
@@ -86,8 +92,14 @@ function resolveLikelyCauseSentence(input: {
     return "Execute worker lost its ownership lease before finishing — reopen or retry execute; retry skips persisted agents but may rebill unpersisted LLM spend.";
   }
 
-  if (input.failureClass === "invalidOperation" && input.completedStages === 0) {
-    return "Pre-stage invalid operation — processing stopped before pipeline stage 1. Often the same deferred-pipeline scheduling miss when reasonCode is absent on older failure records.";
+  if (input.failureClass === "invalidOperation") {
+    if (input.completedStages === null) {
+      return "Completed stage count was not stored.";
+    }
+
+    if (input.completedStages === 0) {
+      return "Pre-stage invalid operation — processing stopped before pipeline stage 1. Often the same deferred-pipeline scheduling miss when reasonCode is absent on older failure records.";
+    }
   }
 
   if (input.failureClass === "pipelineDeadLetter") {
@@ -101,11 +113,12 @@ function resolveLikelyCauseSentence(input: {
 export function resolveReviewFailureLikelyCause(input: {
   readonly failureClass?: string | null;
   readonly reasonCode?: string | null;
-  readonly completedStages?: number;
+  readonly completedStages?: number | null;
 }): string | null {
   const failureClass = normalize(input.failureClass);
   const reasonCode = normalize(input.reasonCode);
-  const completedStages = input.completedStages ?? 0;
+  const completedStages =
+    input.completedStages === null || input.completedStages === undefined ? null : input.completedStages;
 
   if (failureClass.length === 0 && reasonCode.length === 0) {
     return null;
@@ -219,7 +232,7 @@ export function formatReviewFailureTechnicalMetadataRows(
   const likelyCause = resolveLikelyCauseSentence({
     failureClass,
     reasonCode,
-    completedStages: completedStages ?? 0,
+    completedStages,
   });
 
   pushRow(rows, "Likely cause", likelyCause ?? undefined);

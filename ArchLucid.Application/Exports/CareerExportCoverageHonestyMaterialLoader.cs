@@ -1,3 +1,4 @@
+using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Operator;
 using ArchLucid.Application.Pilots;
 using ArchLucid.Contracts.Agents;
@@ -82,13 +83,15 @@ public static class CareerExportCoverageHonestyMaterialLoader
             ruleSetId = exportDetail?.GoldenManifest?.RuleSetId?.Trim();
             ruleSetVersion = exportDetail?.GoldenManifest?.RuleSetVersion?.Trim();
 
-            IReadOnlyList<AgentExecutionTrace>? traces = await agentExecutionTraceRepository
-                .GetByRunIdAsync(scope, detail.Run.RunId.Trim(), cancellationToken)
+            IReadOnlyList<AgentExecutionTrace> traces = await AnalysisRunIdCanonicalization
+                .LoadExecutionTracesByRunIdAsync(
+                    agentExecutionTraceRepository,
+                    scope,
+                    detail.Run.RunId.Trim(),
+                    cancellationToken)
                 .ConfigureAwait(false);
-            recordedQualityGateMode = CareerExportQualityGateHonestyResolver.ResolveRecordedGateMode(
-                traces ?? Array.Empty<AgentExecutionTrace>());
-            aggregateQualityGateOutcome = CareerExportQualityGateHonestyResolver.ResolveAggregateOutcome(
-                traces ?? Array.Empty<AgentExecutionTrace>());
+            recordedQualityGateMode = CareerExportQualityGateHonestyResolver.ResolveRecordedGateMode(traces);
+            aggregateQualityGateOutcome = CareerExportQualityGateHonestyResolver.ResolveAggregateOutcome(traces);
         }
 
         bool? architectureInventoryBound = await ResolveArchitectureInventoryBoundAsync(

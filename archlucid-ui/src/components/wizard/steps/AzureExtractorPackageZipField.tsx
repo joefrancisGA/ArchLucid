@@ -127,7 +127,12 @@ export function AzureExtractorPackageZipField(props: AzureExtractorPackageZipFie
 
   function markZipReady(file: File): void {
     const sizeKb = Math.max(1, Math.round(file.size / 1024));
-    setAcceptedFileLabel(`${file.name} (${sizeKb} KB)`);
+    const trimmedName = file.name.trim();
+    setAcceptedFileLabel(
+      trimmedName.length === 0
+        ? `File name was not stored. (${sizeKb} KB)`
+        : `${trimmedName} (${sizeKb} KB)`,
+    );
     onPendingZipFileChange?.(file);
   }
 

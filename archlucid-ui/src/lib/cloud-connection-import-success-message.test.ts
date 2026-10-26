@@ -6,11 +6,11 @@ import {
 } from "./cloud-connection-import-success-message";
 
 describe("formatCloudConnectionImportSuccessMessage", () => {
-  it("states when resource count or package id were not stored", () => {
+  it("states when resource count or architecture package identifier were not stored", () => {
     const message = formatCloudConnectionImportSuccessMessage("Validation", undefined, "");
 
     expect(message).toContain("Resource count was not stored.");
-    expect(message).toContain("Package id was not stored.");
+    expect(message).toContain("Architecture package identifier was not stored.");
     expect(message).not.toContain("undefined");
   });
 
@@ -20,10 +20,10 @@ describe("formatCloudConnectionImportSuccessMessage", () => {
 });
 
 describe("formatTier2ConnectionValidationPackageLine", () => {
-  it("states when package id or resource count were not stored", () => {
+  it("states when architecture package identifier or resource count were not stored", () => {
     const line = formatTier2ConnectionValidationPackageLine("Accepted.", null, null);
 
-    expect(line).toContain("Package id was not stored.");
+    expect(line).toContain("Architecture package identifier was not stored.");
     expect(line).toContain("Resource count was not stored.");
   });
 });

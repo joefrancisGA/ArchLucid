@@ -118,7 +118,8 @@ export function RunDetailFindingsDenseTableRow(props: RunDetailFindingsDenseTabl
           <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>Classification was not stored</p>
         )}
         <p className={cn("m-0 mt-0.5 font-mono text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>
-          Finding id: {finding.findingId}
+          Finding id:{" "}
+          {finding.findingId.trim().length > 0 ? finding.findingId : "Finding id was not stored."}
         </p>
       </EnterpriseTableCell>
       {showDensityScore ? (

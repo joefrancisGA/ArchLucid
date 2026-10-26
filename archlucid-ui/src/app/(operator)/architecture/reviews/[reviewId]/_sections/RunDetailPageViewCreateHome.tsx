@@ -198,6 +198,7 @@ export function RunDetailPageViewCreateHome(props: RunDetailPageViewCreateHomePr
                 artifacts={m.artifacts}
                 runId={m.resolvedDetail.run.runId}
                 buyerPolished={m.buyerPolishedArtifactTable ?? false}
+                architectureDiagramStored={m.resolvedDetail.run.hasGraphSnapshot === true}
               />
             ),
             governance: (
@@ -215,7 +216,7 @@ export function RunDetailPageViewCreateHome(props: RunDetailPageViewCreateHomePr
                   governanceGateOperatorLabel={m.governanceGateOperatorLabel}
                   blockingFindingCount={blockingApprovalCount}
                   manifestUnresolvedIssueCount={m.manifestSummary?.unresolvedIssueCount ?? null}
-                  hasGovernanceWarnings={m.resolvedDetail.run.hasGovernanceWarnings === true}
+                  hasGovernanceWarnings={m.resolvedDetail.run.hasGovernanceWarnings}
                   pagePrimaryOwnedElsewhere
                 />
                 {m.manifestId ? (

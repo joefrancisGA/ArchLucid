@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   ARCHITECTURE_DIAGRAM_MERMAID_LIGHT_NODE,
 } from "@/lib/architecture/architecture-diagram-mermaid-config";
+import { ARCHITECTURE_DIAGRAM_NODE_LABEL_NOT_STORED } from "@/lib/architecture/architecture-diagram-provenance";
 import {
   replaceMermaidForeignObjectLabelsWithSvgText,
   sanitizeArchitectureDiagramSvg,
@@ -38,6 +39,14 @@ describe("architecture-diagram-svg", () => {
 
     expect(converted).toContain("vnet-eastus");
     expect(converted).toContain("nodeLabel");
+    expect(converted).not.toContain("foreignObject");
+  });
+
+  it("renders omission copy when a foreignObject label is empty", () => {
+    const emptyLabelSvg = LABELED_FOREIGN_OBJECT_SVG.replace("vnet-eastus", "   ");
+    const converted = replaceMermaidForeignObjectLabelsWithSvgText(emptyLabelSvg);
+
+    expect(converted).toContain(ARCHITECTURE_DIAGRAM_NODE_LABEL_NOT_STORED);
     expect(converted).not.toContain("foreignObject");
   });
 

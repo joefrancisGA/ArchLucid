@@ -1,8 +1,6 @@
 import { BUYER_SPONSOR_SUMMARY_VOCABULARY, BUYER_SURFACE_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 import { evidenceGraphHref } from "@/lib/evidence-graph-route";
 import { resolveQuickDecisionFindingInspectHref } from "@/lib/findings/finding-evidence-navigation";
-import { GOVERNANCE_DECISION_REGISTER_PATH } from "@/lib/governance/governance-route-paths";
-import { ARCHITECTURE_DECISION_LABEL } from "@/lib/usability/canonical-product-terms";
 import {
   getShowcaseCompareHref,
   getShowcaseSponsorHref,
@@ -19,7 +17,8 @@ import {
 
 export type BuyerAskGroundingLink = {
   readonly label: string;
-  readonly href: string;
+  /** Omitted when no stored deep link exists for the cited id. */
+  readonly href?: string;
 };
 
 function baselineGroundingLinksForRun(runId: string): readonly BuyerAskGroundingLink[] {
@@ -109,6 +108,7 @@ export function buildAskAnswerCitationSourceLinks(
     const trimmed = findingId.trim();
 
     if (trimmed.length === 0) {
+      links.push({ label: "Finding citation was stored empty." });
       continue;
     }
 
@@ -126,8 +126,7 @@ export function buildAskAnswerCitationSourceLinks(
     }
 
     links.push({
-      label: `Open ${ARCHITECTURE_DECISION_LABEL.toLowerCase()} ${trimmed}`,
-      href: GOVERNANCE_DECISION_REGISTER_PATH,
+      label: `Decision id ${trimmed}. A link to that decision was not stored.`,
     });
   }
 
@@ -147,8 +146,7 @@ export function buildAskAnswerCitationSourceLinks(
     }
 
     links.push({
-      label: `${BUYER_SURFACE_VOCABULARY.evidenceGraph} (${trimmed})`,
-      href: evidenceGraphHref({ runId }),
+      label: `Artifact id ${trimmed}. A link to that artifact was not stored.`,
     });
   }
 

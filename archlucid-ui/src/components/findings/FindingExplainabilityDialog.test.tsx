@@ -5,6 +5,15 @@ import { FindingExplainabilityDialog } from "@/components/findings/FindingExplai
 import * as api from "@/lib/api";
 import type { FindingExplainability } from "@/types/explanation";
 
+vi.mock("@/lib/demo-ui-env", () => ({
+  isBuyerPolishedOperatorShellEnv: () => true,
+}));
+
+vi.mock("@/lib/findings/finding-explainability-technical-disclosure-url", () => ({
+  parseFindingExplainabilityTechnicalOpenFromSearch: () => true,
+  findingExplainabilityTechnicalDisclosureHrefFromSearch: () => "/",
+}));
+
 vi.mock("@/components/findings/FindingEvidenceGraphLazy", () => ({
   FindingEvidenceGraph: () => <div data-testid="finding-evidence-graph">Evidence graph mock</div>,
 }));

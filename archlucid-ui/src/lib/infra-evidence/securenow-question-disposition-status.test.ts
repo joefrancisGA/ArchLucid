@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   secureNowQuestionCountsAsAnsweredFilterRow,
+  secureNowQuestionCountsAsMissingStatusFilterRow,
   secureNowQuestionCountsAsOpenQueueRow,
   secureNowQuestionQueueInitialReviewFilter,
   secureNowQuestionDispositionIsAnswered,
@@ -37,9 +38,9 @@ describe("secureNowQuestionDispositionIsAnswered", () => {
 });
 
 describe("secureNowQuestionDispositionIsOpen", () => {
-  it("treats omitted status as open for answer chrome", () => {
-    expect(secureNowQuestionDispositionIsOpen(null)).toBe(true);
-    expect(secureNowQuestionDispositionIsOpen("   ")).toBe(true);
+  it("does not treat omitted status as open", () => {
+    expect(secureNowQuestionDispositionIsOpen(null)).toBe(false);
+    expect(secureNowQuestionDispositionIsOpen("   ")).toBe(false);
   });
 
   it("treats padded Open status as open", () => {
@@ -48,6 +49,27 @@ describe("secureNowQuestionDispositionIsOpen", () => {
 
   it("treats case-variant open status as open", () => {
     expect(secureNowQuestionDispositionIsOpen("  open  ")).toBe(true);
+  });
+});
+
+describe("secureNowQuestionCountsAsMissingStatusFilterRow", () => {
+  it("includes rows with omitted status that are not inferred answered or dismissed", () => {
+    expect(
+      secureNowQuestionCountsAsMissingStatusFilterRow({
+        status: null,
+        answerCode: null,
+        answerText: null,
+        reason: null,
+      }),
+    ).toBe(true);
+    expect(
+      secureNowQuestionCountsAsMissingStatusFilterRow({
+        status: null,
+        answerCode: "Yes",
+        answerText: null,
+        reason: null,
+      }),
+    ).toBe(false);
   });
 });
 
@@ -81,13 +103,13 @@ describe("secureNowQuestionDispositionShowsStoredAnswerMetadata", () => {
 });
 
 describe("secureNowQuestionDispositionShowsAnswerActions", () => {
-  it("shows answer actions when omitted status only has whitespace disposition fields", () => {
+  it("hides answer actions when status was not stored even with whitespace disposition fields", () => {
     expect(secureNowQuestionDispositionShowsAnswerActions({
       status: null,
       answerCode: "   ",
       answerText: "",
       reason: "   ",
-    })).toBe(true);
+    })).toBe(false);
   });
 
   it("hides answer actions when omitted status still carries stored answer metadata", () => {
@@ -155,6 +177,17 @@ describe("secureNowQuestionCountsAsOpenQueueRow", () => {
       reason: null,
       expirationUtc: "2099-01-01T00:00:00Z",
       isExpired: false,
+    })).toBe(false);
+  });
+
+  it("excludes open rows with past expirationUtc when isExpired is omitted", () => {
+    expect(secureNowQuestionCountsAsOpenQueueRow({
+      status: "Open",
+      answerCode: null,
+      answerText: null,
+      reason: null,
+      expirationUtc: "2020-01-01T00:00:00.000Z",
+      isExpired: null,
     })).toBe(false);
   });
 });

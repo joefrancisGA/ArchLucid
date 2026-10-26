@@ -17,6 +17,13 @@ function inferredConnectionIdFromQuestionKey(questionKey: string | null | undefi
   return suffix.replace(/-/g, "").toLowerCase();
 }
 
+/** Whether the listed question key suffix encodes an inferred-connection identity. */
+export function secureNowQuestionDispositionQuestionKeyImpliesInferredConnection(
+  questionKey: string | null | undefined,
+): boolean {
+  return inferredConnectionIdFromQuestionKey(questionKey) !== null;
+}
+
 export function secureNowQuestionHasPackStyleDispositionScope(
   scopeKind: string | null | undefined,
 ): boolean {
@@ -162,30 +169,12 @@ function secureNowQuestionReviewerScopeLabelFromKind(scopeKind: string): string 
 
 export function secureNowQuestionReviewerScopeLabel(
   question: Pick<SecureNowQuestion, "source" | "scopeKind" | "questionKey" | "questionText">,
-  matchesInferredConnection: boolean,
+  _matchesInferredConnection: boolean,
 ): string {
-  if (matchesInferredConnection) {
-    return "This resource.";
-  }
-
   const trimmedScope = question.scopeKind?.trim() ?? "";
   if (trimmedScope.length > 0) {
     const knownLabel = secureNowQuestionReviewerScopeLabelFromKind(trimmedScope);
     return knownLabel ?? `Question scope code ${trimmedScope} has no reviewer label.`;
-  }
-
-  if (secureNowQuestionIsPolicyPackDispositionRow(question)) {
-    return secureNowQuestionPackScopeKindFromPrompt(question.questionText) === "ResourceGroup"
-      ? "This resource group."
-      : "This subscription.";
-  }
-
-  const resolvedScope = secureNowQuestionDispositionMutationScopeKind(question);
-  if (resolvedScope) {
-    const mutationLabel = secureNowQuestionReviewerScopeLabelFromKind(resolvedScope);
-    if (mutationLabel) {
-      return mutationLabel;
-    }
   }
 
   return "Question scope was not stored.";
@@ -241,32 +230,11 @@ export function secureNowQuestionReviewerEvidenceFingerprintLine(
 
 export function secureNowQuestionReviewerSourceLabel(
   question: Pick<SecureNowQuestion, "source" | "scopeKind" | "questionKey">,
-  matchesInferredConnection: boolean,
+  _matchesInferredConnection: boolean,
 ): string {
-  if (secureNowQuestionShowsInferredConnectionReviewerCopy(question, matchesInferredConnection)) {
-    return "Asked because a connection was inferred. Answering does not store a link.";
-  }
-
-  const resolvedSource = secureNowQuestionDispositionMutationSource(question);
-  if (resolvedSource) {
-    if (resolvedSource === "InventoryEvidence") {
-      return "Asked from inventory evidence.";
-    }
-
-    if (resolvedSource === "InferredConnection") {
-      return "Asked because a connection was inferred. Answering does not store a link.";
-    }
-
-    if (resolvedSource === "PolicyPack") {
-      return "Asked from an assigned policy pack.";
-    }
-
-    return `Question source code ${resolvedSource} has no reviewer label.`;
-  }
-
   const source = question.source;
 
-  if (source === null) {
+  if (source === null || source === undefined) {
     return "Question source was not stored.";
   }
 

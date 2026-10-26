@@ -103,6 +103,8 @@ public sealed class ExportReplayService(
         if (record is null)
             throw new InvalidOperationException($"Export record '{exportRecordId}' was not found.");
 
+        RunExportRecordScopedReadNormalizer.NormalizeInPlace(record);
+
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
 
         await RunExportSealedManifestHashGuard.EnsureRunSealedManifestHashOrThrowAsync(
@@ -124,9 +126,8 @@ public sealed class ExportReplayService(
             }
         }
 
-        string canonicalRunId = CanonicalRunIdForLookup(record.RunId);
         ArchitectureRunDetail? architectureDetail =
-            await _runDetailQueryService.GetRunDetailAsync(canonicalRunId, cancellationToken);
+            await _runDetailQueryService.GetRunDetailAsync(record.RunId, cancellationToken);
 
         if (architectureDetail is not null)
         {
@@ -223,7 +224,8 @@ public sealed class ExportReplayService(
             record.TemplateProfile, record.TemplateProfileDisplayName, record.WasAutoSelected, record.ResolutionReason,
             report.Manifest?.Metadata.ManifestVersion, persistedRequest, $"Replay generated from export record {record.ExportRecordId}.",
             emitArchitectureDocxExportGeneratedAudit: false, cancellationToken);
-        recordedReplayExportRecordId = persisted.ExportRecordId;
+        recordedReplayExportRecordId =
+            RunExportRecordIdNormalizer.NormalizeRequired(persisted.ExportRecordId);
         return new ReplayExportResult
         {
             ExportRecordId = record.ExportRecordId,
@@ -253,6 +255,4 @@ public sealed class ExportReplayService(
         return $"{baseName}_replay{extension}";
     }
 
-    private static string CanonicalRunIdForLookup(string runId) =>
-        Guid.TryParse(runId, out Guid guid) ? guid.ToString("N") : runId;
 }

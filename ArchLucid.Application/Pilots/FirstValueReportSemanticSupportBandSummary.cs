@@ -96,7 +96,7 @@ public static class FirstValueReportSemanticSupportBandSummary
             FormatBandCountSegment("Unsupported", counts.Unsupported),
         ];
 
-        if (!compact && counts.NotScored > 0)
+        if (counts.NotScored > 0)
         {
             segments.Add(FormatBandCountSegment("Not scored", counts.NotScored));
         }

@@ -29,9 +29,10 @@ describe("AskMessageThreadPanel", () => {
     );
 
     expect(screen.getByTestId("ask-empty-thread-starters")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "What is the top risk?" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "What is blocking finalize?" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "What findings are on this review?" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "What is still open before finalize?" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Summarize for a sponsor." })).toBeInTheDocument();
+    expect(screen.getByTestId("ask-review-id")).toHaveTextContent("run-001");
   });
 
   it("hides starter chips when no review is selected", () => {
@@ -87,7 +88,7 @@ describe("AskMessageThreadPanel", () => {
       />,
     );
 
-    expect(screen.getByTestId("ask-uncited-assistant-marker")).toHaveTextContent(/No cited findings linked/i);
+    expect(screen.getByTestId("ask-uncited-assistant-marker")).toHaveTextContent(/No cited findings linked to this answer/i);
   });
 
   it("shows streaming provisional marker", () => {

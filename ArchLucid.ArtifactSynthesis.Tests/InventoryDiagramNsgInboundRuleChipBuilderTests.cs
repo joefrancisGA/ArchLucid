@@ -94,6 +94,6 @@ public sealed class InventoryDiagramNsgInboundRuleChipBuilderTests
             [listed, missingPriority]);
 
         chips.Should().HaveCount(2);
-        chips[^1].Text.Should().Be("1 inbound rules are not listed because priority was not stored.");
+        chips[^1].Text.Should().Be("Priority was not stored for 1 inbound rules.");
     }
 }

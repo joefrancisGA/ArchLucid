@@ -106,7 +106,7 @@ function sectionProvenanceLabel(section: ArchitectureStructuredSection): string 
     return "Operator-asserted";
   }
 
-  return "Inferred from submitted text.";
+  return "Submitted text was not marked operator-asserted.";
 }
 
 function findSection(

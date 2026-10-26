@@ -1,4 +1,5 @@
 using ArchLucid.Application;
+using ArchLucid.Application.Analysis;
 using ArchLucid.Application.ArchitectureIntelligence;
 using ArchLucid.Application.Governance;
 using ArchLucid.Application.Runs;
@@ -69,6 +70,56 @@ public sealed class PreFinalizeChecklistServiceTests
             new TechnologyLedgerEntry
             {
                 RunId = canonicalRunId,
+                Status = TechnologyLedgerStatus.Assumed,
+                TechnologyName = "Azure SQL",
+                Role = TechnologyLedgerRole.CloudPlatform,
+                ProviderFamily = CloudProvider.Azure,
+                Source = TechnologyLedgerSource.User,
+                CreatedUtc = DateTime.UtcNow,
+                UpdatedUtc = DateTime.UtcNow,
+            },
+            CancellationToken.None);
+
+        PreFinalizeChecklistService sut = CreateSut(
+            runRepository: runs,
+            ledger: ledgerRepository);
+
+        PreFinalizeChecklistResult result = await sut.BuildAsync(dashedRunId, CancellationToken.None);
+
+        result.ReadyToFinalize.Should().BeFalse();
+        result.Items.Should().Contain(item =>
+            item.ItemId == "technology-baseline-assumed"
+            && item.Status == PreFinalizeChecklistItemStatus.Blocking
+            && item.Count == 1);
+    }
+
+    [Fact]
+    public async Task CompareQuality_BuildAsync_marks_not_ready_when_assumed_technology_rows_use_legacy_upper_run_id_key()
+    {
+        Guid runKey = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
+        string dashedRunId = runKey.ToString("D");
+        string legacyUpper = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(runKey.ToString()).ToUpperInvariant();
+
+        InMemoryRunRepository runs = new();
+        await runs.SaveAsync(
+            new RunRecord
+            {
+                RunId = runKey,
+                TenantId = TestScope.TenantId,
+                WorkspaceId = TestScope.WorkspaceId,
+                ScopeProjectId = TestScope.ProjectId,
+                ProjectId = "default",
+                LegacyRunStatus = "ReadyForCommit",
+                PinnedPolicyPackIdsJson = "[]",
+                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+            },
+            CancellationToken.None);
+
+        InMemoryTechnologyLedgerRepository ledgerRepository = new();
+        await ledgerRepository.AddAsync(
+            new TechnologyLedgerEntry
+            {
+                RunId = legacyUpper,
                 Status = TechnologyLedgerStatus.Assumed,
                 TechnologyName = "Azure SQL",
                 Role = TechnologyLedgerRole.CloudPlatform,

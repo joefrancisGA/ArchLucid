@@ -19,6 +19,20 @@ public sealed class RunExplanationConfidenceCalloutBuilderTests
     }
 
     [Fact]
+    public void Missing_signals_hold_and_describe_uncollected_aggregate()
+    {
+        RunExplanationConfidenceCalloutBuilder.ResolveDisposition(null).Should().Be("HOLD");
+
+        string? line = RunExplanationConfidenceCalloutBuilder.BuildLimitationsLine(null);
+        line.Should().Be(
+            "**Explanation confidence:** aggregate narrative was not collected — verify review detail before sponsor send.");
+
+        string? export = RunExplanationConfidenceCalloutBuilder.BuildExportCallout(null);
+        export.Should().Be(
+            "Explanation confidence: aggregate narrative was not collected — verify review detail before sponsor send.");
+    }
+
+    [Fact]
     public void FromAggregateJson_maps_numeric_citation_count()
     {
         RunExplanationConfidenceSignals? signals = RunExplanationConfidenceCalloutBuilder.FromAggregateJson(

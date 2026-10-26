@@ -94,6 +94,33 @@ describe("RunWizardCostPreviewCard", () => {
     expect(screen.getByTestId("run-cost-preview-headline")).toHaveTextContent("=1024");
     expect(screen.getByTestId("run-cost-preview-headline")).toHaveTextContent("gpt-test");
     expect(screen.getByText(/Illustrative USD rates are still set from defaults/i)).toBeInTheDocument();
+  });
+
+  it("labels stored-empty deployment name", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => ({
+        ok: true,
+        json: async () => ({
+          mode: "Real",
+          maxCompletionTokens: 1024,
+          estimatedCostUsd: 0.1,
+          estimatedCostUsdLow: 0.05,
+          estimatedCostUsdHigh: 0.1,
+          estimatedCostBasis: "Starter run = 4 parallel agents.",
+          pricingUsesIllustrativeUsdRates: false,
+          deploymentName: "",
+        }),
+      })),
+    );
+
+    render(<RunWizardCostPreviewCard previewUrl="/api/proxy/v1/agent-execution/cost-preview" />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("run-cost-preview-deployment-stored-empty")).toHaveTextContent(
+        "Deployment name was stored empty.",
+      );
+    });
     expect(screen.getByRole("link", { name: /PER_TENANT_COST_MODEL/i })).toHaveAttribute(
       "href",
       expect.stringMatching(/\/help\/|PER_TENANT_COST_MODEL/),

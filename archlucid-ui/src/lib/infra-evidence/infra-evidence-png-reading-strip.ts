@@ -112,6 +112,7 @@ function hasStoredObservedFactEdges(outline: InfraEvidenceMermaidOutline | null 
 }
 
 const CONFIGURATION_RELATIONSHIP_INFERENCE_SOURCES = new Set([
+  "inventory-container-image",
   "inventory-static-site-backend",
   "inventory-fabric-capacity-workspace",
   "inventory-diagnostic-setting-storage",

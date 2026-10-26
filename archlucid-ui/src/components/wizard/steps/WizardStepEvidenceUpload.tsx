@@ -252,7 +252,7 @@ export function WizardStepEvidenceUpload(props: WizardStepEvidenceUploadProps) {
               }
               description={
                 selectedSourceId === "diagrams"
-                  ? "PNG, JPG, or SVG architecture diagrams upload after the review is created."
+                  ? "PNG, JPG, or SVG files are stored with the review. They are not read into the architecture diagram."
                   : selectedSourceId === "iac"
                     ? "JSON, YAML, or Terraform-style declarations upload after the review is created."
                     : "PDF, DOCX, Markdown, text, or JSON uploads after the review is created."
@@ -321,7 +321,7 @@ export function WizardStepEvidenceUpload(props: WizardStepEvidenceUploadProps) {
                 onClick={onSkipDemoData}
               >
                 <BadgeCheck className="mr-1.5 h-3.5 w-3.5" aria-hidden />
-                Skip and use demo data
+                Continue without demo data
               </Button>
             </div>
           </div>
@@ -333,8 +333,8 @@ export function WizardStepEvidenceUpload(props: WizardStepEvidenceUploadProps) {
               className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
               data-testid="wizard-evidence-upload-skip-context"
             >
-              Skipping evidence is OK — you can add files or cloud inventory from the review detail page after the
-              review is created. Findings without evidence may have lower confidence.
+              Skipping evidence does not store a confidence level on this step. You can add files or cloud inventory
+              from the review after it is created.
             </p>
             <div className="flex flex-wrap gap-2">
               <Button type="button" variant="outline" data-testid="wizard-evidence-upload-skip-step" onClick={onSkipDemoData}>

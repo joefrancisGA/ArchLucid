@@ -16,7 +16,7 @@ export const RUN_DETAIL_DECISION_DELTA_TOP_N = 3;
 export const RUN_DETAIL_DECISION_DELTA_MESSAGE_TRUNCATE = 180;
 
 export const RUN_DETAIL_DECISION_DELTA_EMPTY_MESSAGE =
-  "No open finding titles are listed on this card — the sealed manifest decision count is not repeated here.";
+  "No open finding titles are listed on this card — the sealed decision count is not repeated here.";
 
 export type RunDetailDecisionDeltaRow = {
   readonly rank: number;
@@ -131,13 +131,9 @@ export function buildRunDetailDecisionDeltaRow(
       typeof finding.evidenceRefCount === "number" && Number.isFinite(finding.evidenceRefCount)
         ? Math.trunc(finding.evidenceRefCount)
         : null,
-<<<<<<< HEAD
-    evidenceAnchorHint: resolveEvidenceAnchorHint(finding),
+    evidenceAnchorHint,
     evidenceRefCountNotStored:
       finding.evidenceRefCount === null || finding.evidenceRefCount === undefined,
-=======
-    evidenceAnchorHint,
->>>>>>> origin/master
     trustChipSet: trustPresentation.chipSet,
     compareDeltaTrustLabels: formatFindingTrustCompareDeltaLabels(trustPresentation.chipSet),
   };

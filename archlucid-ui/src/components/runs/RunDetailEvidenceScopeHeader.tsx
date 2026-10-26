@@ -16,8 +16,7 @@ export type RunDetailEvidenceScopeHeaderProps = {
 };
 
 export function RunDetailEvidenceScopeHeader(props: RunDetailEvidenceScopeHeaderProps): ReactElement {
-  const readinessVerdict: TrustEvidenceReadinessVerdict =
-    props.evidenceItemCount === 0 ? "gaps" : props.readinessVerdict;
+  const readinessVerdict: TrustEvidenceReadinessVerdict = props.readinessVerdict;
   const readinessKind = readinessVerdict === "complete" ? "ready" : "needs-attention";
   const coverageLine = props.evidenceCoverageLine?.trim() ?? "";
   const showEvidenceItems = props.evidenceItemCount > 0;

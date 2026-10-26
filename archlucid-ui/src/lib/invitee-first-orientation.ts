@@ -29,7 +29,7 @@ export function resolveInviteeFirstOrientationCopy(input: {
   const ownerPhrase =
     input.packageOwnerLabel !== null && input.packageOwnerLabel.trim().length > 0
       ? input.packageOwnerLabel
-      : "Package owner was not stored.";
+      : "Review owner was not stored.";
 
   return {
     jobSentence: `Your job is to review findings from ${ownerPhrase}, record dispositions, and add comments — not to run intake or start a new review.`,

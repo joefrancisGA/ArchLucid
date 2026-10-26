@@ -1,6 +1,7 @@
 export const INFRA_EVIDENCE_DIAGRAM_LEGEND_HEADING = "Diagram legend";
 
-export const INFRA_EVIDENCE_DIAGRAM_LEGEND_OBSERVED = "Solid — observed in Azure inventory";
+export const INFRA_EVIDENCE_DIAGRAM_LEGEND_OBSERVED =
+  "Solid — relationship stored on this inventory snapshot";
 
 export const INFRA_EVIDENCE_DIAGRAM_LEGEND_DECLARED =
   "Dashed — declared (human assertion; not an ARM fact)";
@@ -56,6 +57,12 @@ export const INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED_AI =
 export const INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED_HOSTNAME_AND_AI =
   "Dotted — inferred hostname or AI inference (confirm in configuration)";
 
+export const INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED_LINKED_SERVICE =
+  "Dotted — linked-service text was inferred (confirm in configuration)";
+
+export const INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED_LINKED_SERVICE_AND_AI =
+  "Dotted — linked-service text was inferred or AI inference (confirm in configuration)";
+
 export const INFRA_EVIDENCE_DIAGRAM_LEGEND_HOSTNAME_FOOTNOTE =
   "Dotted hostname edges are inferred. They are not observed connections.";
 
@@ -74,6 +81,12 @@ export const INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED_AI_FOOTNOTE =
 export const INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED_HOSTNAME_AND_AI_FOOTNOTE =
   "Dotted hostname and AI inference edges are inferred. They are not observed connections.";
 
+export const INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED_LINKED_SERVICE_FOOTNOTE =
+  "Dotted linked-service edges are inferred. They are not observed connections.";
+
+export const INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED_LINKED_SERVICE_AND_AI_FOOTNOTE =
+  "Dotted linked-service and AI inference edges are inferred. They are not observed connections.";
+
 export const INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED_SOURCE_UNKNOWN_FOOTNOTE =
   "Dotted inferred edges are inferred. They are not observed connections.";
 
@@ -82,12 +95,6 @@ export const INFRA_EVIDENCE_DIAGRAM_LEGEND_UNCLASSIFIED_PROVENANCE =
 
 export const INFRA_EVIDENCE_DIAGRAM_LEGEND_PRIVATE_ENDPOINT =
   "Private endpoint access in inventory. This is not observed traffic.";
-
-export const INFRA_EVIDENCE_DIAGRAM_DATA_ARCHITECTURE_READING_LEGEND =
-  "Inventory of data platforms in this snapshot. Not a data-flow diagram.";
-
-export const INFRA_EVIDENCE_DIAGRAM_BUSINESS_CONTINUITY_READING_LEGEND =
-  "Lines are backup or replication items collected from the vault. Resources with no line have no collected protection item in this snapshot.";
 
 export const INFRA_EVIDENCE_DIAGRAM_PNG_DATA_ARCHITECTURE_INVENTORY_NOTE =
   "This diagram shows how data stores relate in inventory. It is not a data-movement map.";

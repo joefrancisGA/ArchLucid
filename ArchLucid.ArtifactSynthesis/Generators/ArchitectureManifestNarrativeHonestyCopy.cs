@@ -2,6 +2,10 @@ namespace ArchLucid.ArtifactSynthesis.Generators;
 
 internal static class ArchitectureManifestNarrativeHonestyCopy
 {
+    internal const string RequirementNameNotStored = "Requirement name was not stored.";
+
+    internal const string CoverageStatusNotStored = "Coverage status was not stored.";
+
     internal const string ImpactNotStored = "Impact was not stored.";
 
     internal const string StatusNotStored = "Status was not stored.";
@@ -19,6 +23,12 @@ internal static class ArchitectureManifestNarrativeHonestyCopy
     internal const string IssueDescriptionNotStored = "Issue description was not stored.";
 
     internal const string MaxMonthlyCostNotStored = "Max monthly cost was not stored.";
+
+    internal const string NoSourceFindingIdsStored = "No source finding ids were stored.";
+
+    internal const string NoSourceGraphNodeIdsStored = "No source graph node ids were stored.";
+
+    internal const string NoAppliedRuleIdsStored = "No applied rule ids were stored.";
 
     internal static string FormatOptionalField(string? value, string missingCopy) =>
         string.IsNullOrWhiteSpace(value) ? missingCopy : value.Trim();
