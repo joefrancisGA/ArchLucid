@@ -76,6 +76,15 @@ public sealed record PilotRunDeltas
         init;
     }
 
+    /// <summary>
+    ///     <see langword="false" /> when the audit repository query failed — <see cref="AuditRowCount" /> is not attested.
+    /// </summary>
+    public bool AuditRowCountResolved
+    {
+        get;
+        init;
+    } = true;
+
     /// <summary>Persisted <c>AgentExecutionTrace</c> rows for this run; one row per LLM completion call.</summary>
     public int LlmCallCount
     {

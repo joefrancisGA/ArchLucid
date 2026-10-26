@@ -78,7 +78,7 @@ public static class FirstValueReportSponsorStatusSectionFormatter
         ProofPackageCompletenessResponse proof,
         SponsorRoiClaimDispositionResult roiClaimGate)
     {
-        string label = FirstValueReportMarkdownFormatting.EscapeMarkdownTableCell(proof.RoiConfidenceLabel);
+        string label = FirstValueReportMarkdownFormatting.EscapeMarkdownTableCell(FormatRoiConfidenceLabel(proof.RoiConfidenceLabel));
         string inputsSummary = proof.RoiBaselineInputs is null
             ? string.Empty
             : $" Per-field inputs: {FirstValueReportMarkdownFormatting.EscapeMarkdownTableCell(PilotRoiBaselineInputsStatusResolver.FormatInputsSummary(proof.RoiBaselineInputs))}.";
@@ -138,9 +138,17 @@ public static class FirstValueReportSponsorStatusSectionFormatter
     {
         string trimmed = value.Trim();
 
+        if (trimmed.Length == 0)
+            return "Finding text was not stored.";
+
         if (trimmed.Length <= 96)
             return trimmed;
 
         return string.Concat(trimmed.AsSpan(0, 93), "...");
+    }
+
+    private static string FormatRoiConfidenceLabel(string? label)
+    {
+        return string.IsNullOrWhiteSpace(label) ? "ROI confidence label was not stored." : label.Trim();
     }
 }
