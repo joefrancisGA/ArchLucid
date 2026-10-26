@@ -7209,30 +7209,30 @@ ABQ-09 churn hotspot.
 
 ## Zone: ui-infra-resource-hub
 
-2026-10-26 seed hunt (seed→hit): promoted **in-flight create remediation** after `cloudResourceId` navigation — the resource-id reset effect cleared dialog state but an async `runCreateRemediationFromFinding` could still complete for the prior resource, re-applying finding success messages and calling `loadHub` with the old `cloudResourceId`, overwriting the next hub’s evidence; capture `cloudResourceIdAtStart` and bail (including post-`loadHub`) when `activeCloudResourceIdRef` no longer matches; regression `ignores in-flight create remediation when cloudResourceId changes before the API returns`; cheap-disproof closed terraform tab quick link (polish), drift change-id trim (deferred), technical disclosure carryover (URL sync), buyer-polished ARM copy (polish), and unlinked double-fetch (intentional); scoped ResourceHubClient vitest 126/126. Private beta: navigating to another resource hub while remediation create is in flight no longer shows the prior resource’s success banner or reloads the wrong hub payload on the new page.
+2026-10-26 seed hunt (seed→hit): promoted **in-flight create remediation** after hub URL scope change (snapshot / run / audit params) — the prior `cloudResourceId`-only guard missed snapshot-scope navigation on the same resource, so a completing remediation could still apply success messages and call a stale `loadHub` closure for the old snapshot; capture `buildResourceHubClientScopeKey` at confirm time and compare against `hubClientScopeKeyRef` after each await; regression `ignores in-flight create remediation when snapshot scope changes before the API returns`; cheap-disproof closed terraform tab quick link (polish), drift change-id trim (deferred), double-fetch on unlinked audit (intentional), retainFindingMessages-only snapshot reload (covered by scope key), and terraform workbench row (omitted per regression); scoped ResourceHubClient vitest 127/127. Private beta: changing pinned snapshot or audit scope on a resource hub during remediation create no longer shows a success banner for the prior scope or reloads evidence for the wrong snapshot.
 
-- [x] (proven) `ResourceHubClient` `runCreateRemediationFromFinding` — stale async after navigation — **hit 2026-10-26 seed hunt:** resource-id guard + skip post-success `loadHub`; regression above.
+- [x] (proven) `ResourceHubClient` `runCreateRemediationFromFinding` — stale async after URL scope change — **hit 2026-10-26 seed hunt:** hub scope key ref guard; regression above.
 - [x] (valid-no-repro) `ResourceHubClient` overview — terraform tab quick link — **cheap-disproof 2026-10-26 seed hunt:** navigation polish.
 - [x] (valid-no-repro) `ResourceHubDriftChangesTable` — drift change ids — **cheap-disproof 2026-10-26 seed hunt:** saturated trim class; deferred.
-- [x] (valid-no-repro) `ResourceHubClient` `infraResourceHubTechnicalKey` — cross-route carryover — **cheap-disproof 2026-10-26 seed hunt:** URL param drives disclosure state via `useEffect`.
-- [x] (valid-no-repro) `ResourceHubClient` buyer-polished disclosures — ARM copy — **cheap-disproof 2026-10-26 seed hunt:** polish; buyer-polished tests cover omission copy.
+- [x] (valid-no-repro) `ResourceHubClient` hub fetch — double fetch on unlinked audit — **cheap-disproof 2026-10-26 seed hunt:** intentional refetch after lineage.
+- [x] (valid-no-repro) `ResourceHubClient` overview — terraform workbench row — **cheap-disproof 2026-10-26 seed hunt:** intentionally omitted per regression.
 
 - [ ] (candidate) `ResourceHubClient` overview — quick link to terraform tab when mapped — locus: navigation polish.
-- [ ] (candidate) `ResourceHubClient` overview — terraform workbench in cross-workbench row — locus: intentionally omitted per regression.
+- [ ] (candidate) `ResourceHubClient` buyer-polished identifier disclosures — ARM copy affordance — locus: disclosures omit copy today.
+- [ ] (candidate) `ResourceHubClient` `infraResourceHubTechnicalKey` — disclosure open state on resource navigation — locus: URL-driven; input: same query string on different `cloudResourceId`.
+- [ ] (candidate) `ResourceHubClient` manual Retry — `loadHub` race with URL scope change — locus: retry button; input: scope changes while retry in flight.
 - [ ] (candidate) `ResourceHubDriftChangesTable` — drift actions without change ids — locus: saturated trim class; defer.
-- [ ] (candidate) `ResourceHubClient` hub fetch — double fetch on unlinked audit scope — locus: intentional refetch after lineage; monitor API load.
-- [ ] (candidate) `ResourceHubClient` `loadHub` — stale remediation `loadHub` without navigation — locus: generation guard; input: verify retainFindingMessages path when only snapshot scope changes.
 
 - **id:** ui-infra-resource-hub
 - **status:** open
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 100
-- **bugs-found:** 79
+- **hunts:** 101
+- **bugs-found:** 80
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-26
-- **last-bug:** 2026-10-26 — in-flight create remediation after cloudResourceId navigation
+- **last-bug:** 2026-10-26 — in-flight remediation after hub URL scope change
 - **code-changed-since:** no
 
 2026-10-26 seed hunt (seed→hit): promoted **stale hub evidence** when `cloudResourceId` changes without remount — client state (`hub`, audit inline-hydrate refs) stayed on the prior resource while the Next.js client reused `ResourceHubClient`, so operators could briefly see the previous resource title, tables, and scoped counts after navigating to another cloud resource id; reset hub/load error/finding messages, bump in-flight generation, and clear audit hydrate suppress refs when `cloudResourceId` changes; regression `clears prior hub evidence when cloudResourceId changes`; cheap-disproof closed terraform tab quick link (polish), drift change-id trim (deferred), and inline probe+scoped fetch cost (monitor); scoped ResourceHubClient vitest 124/124. Private beta: switching between resource hub routes no longer flashes the prior resource evidence while the new hub loads.
