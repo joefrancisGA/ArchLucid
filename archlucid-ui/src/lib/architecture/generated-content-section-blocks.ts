@@ -1,3 +1,4 @@
+import { formatPeopleAndSystemsActorKindOmissionNote } from "@/lib/architecture/architecture-diagram-copy";
 import { demoteOpenQuestionsStructuredSectionProvenance } from "@/lib/architecture/architecture-open-questions-export-honesty";
 import {
   appendEntity,
@@ -152,12 +153,20 @@ export function splitSourceIntoSectionBlocks(sourceText: string): Array<{ readon
   return blocks;
 }
 
+function isStoredPeopleAndSystemsKind(kind: string): boolean {
+  const trimmed = kind.trim();
+
+  return trimmed === "Human" || trimmed === "Machine" || trimmed === "Both";
+}
+
 export function mergeUserAssertions(
   drafts: Map<ArchitectureStructuredSectionKey, MutableSectionDraft>,
   assertions: ArchitectureCreationUserAssertions | null,
-): void {
+): readonly string[] {
+  const diagramHonestyNotes: string[] = [];
+
   if (assertions === null) {
-    return;
+    return diagramHonestyNotes;
   }
 
   const overview = assertions.architectureOverview.trim();
@@ -197,6 +206,11 @@ export function mergeUserAssertions(
       continue;
     }
 
+    if (!isStoredPeopleAndSystemsKind(kind)) {
+      diagramHonestyNotes.push(formatPeopleAndSystemsActorKindOmissionNote(label));
+      continue;
+    }
+
     const entity: ArchitectureStructuredEntity = {
       label,
       detail: kind.length > 0 ? kind : null,
@@ -222,14 +236,7 @@ export function mergeUserAssertions(
     }
   }
 
-  if (name.length > 0 && name.toLowerCase() !== "untitled architecture") {
-    const systemsDraft = drafts.get("systems-and-services")!;
-
-    if (!systemsDraft.entities.some((entity) => entity.label.toLowerCase() === name.toLowerCase())) {
-      appendEntity(systemsDraft, { label: name, detail: "Detail was not stored.", provenance: "asserted" });
-      systemsDraft.provenance = "asserted";
-    }
-  }
+  return diagramHonestyNotes;
 }
 
 export function finalizeSections(drafts: Map<ArchitectureStructuredSectionKey, MutableSectionDraft>): ArchitectureStructuredSection[] {

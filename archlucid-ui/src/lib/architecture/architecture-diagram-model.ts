@@ -417,6 +417,10 @@ export function buildArchitectureDiagramModel(
     addEntityNodes(external.entities, "external", nodes, usedIds, skippedUnlabeled);
   }
 
+  for (const note of parseResult.assertionDiagramHonestyNotes ?? []) {
+    diagramHonestyNotes.push(note);
+  }
+
   if (architectureNameAddsDiagramNode(architectureName, nodes.map((node) => node.label))) {
     diagramHonestyNotes.push(formatReviewTitleNotCollectedSystemNote(architectureName.trim()));
   }

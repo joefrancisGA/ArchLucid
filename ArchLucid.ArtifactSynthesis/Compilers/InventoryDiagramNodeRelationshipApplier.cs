@@ -504,7 +504,7 @@ internal static class InventoryDiagramNodeRelationshipApplier
 
         if (firstRule is null)
         {
-            return "NSG attached";
+            return "NSG attached. Security rules were not stored.";
         }
 
         string protocol = string.IsNullOrWhiteSpace(firstRule.Protocol)

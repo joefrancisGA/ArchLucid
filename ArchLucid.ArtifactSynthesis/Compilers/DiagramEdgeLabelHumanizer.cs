@@ -135,7 +135,12 @@ internal static class DiagramEdgeLabelHumanizer
                 GraphEdgeInferenceSources.InventoryLogicAppConnection,
                 StringComparison.OrdinalIgnoreCase))
         {
-            return "API connection";
+            if (!string.IsNullOrWhiteSpace(storedLabel))
+            {
+                return storedLabel.Trim();
+            }
+
+            return "API connection name was not stored.";
         }
 
         if (TryResolveDiagnosticSettingStorageLabel(inferenceSource, out string diagnosticStorageLabel))
@@ -426,7 +431,7 @@ internal static class DiagramEdgeLabelHumanizer
         if (string.Equals(value, GraphEdgeInferenceSources.InventoryLogicAppConnection, StringComparison.OrdinalIgnoreCase)
             || string.Equals(value, AzureInventoryRelationshipAssociationTypes.LogicAppConnection, StringComparison.OrdinalIgnoreCase))
         {
-            humanized = "API connection";
+            humanized = "API connection name was not stored.";
 
             return true;
         }

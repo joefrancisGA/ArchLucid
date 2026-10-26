@@ -155,6 +155,14 @@ export function formatReviewTitleNotCollectedSystemNote(reviewTitle: string): st
   return `Review title: ${reviewTitle}. This title is not a collected system.`;
 }
 
+export function formatPeopleAndSystemsActorKindOmissionNote(actorLabel: string): string {
+  const label = actorLabel.trim();
+
+  return label.length > 0
+    ? `People and systems: ${label} was not drawn because actor kind was not stored.`
+    : "People and systems: Actor kind was not stored — not drawn on the diagram.";
+}
+
 export function formatUnmatchedArchitectureDataFlowLine(flow: string): string {
   return `${ARCHITECTURE_DIAGRAM_DATA_FLOW_NOT_MATCHED_PREFIX} ${flow}`;
 }

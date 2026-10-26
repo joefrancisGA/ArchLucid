@@ -11,6 +11,17 @@ import { wrapArchitectureDiagramLabelForMermaidSource } from "@/lib/architecture
 
 const NO_ARCHITECTURE_COMPONENTS_RECORDED = "No architecture components were recorded.";
 
+const ARCHITECTURE_DIAGRAM_TEXT_ALT_SECTION_BY_KIND: Record<ArchitectureDiagramNode["kind"], string> = {
+  user: "Users and stakeholders:",
+  system: "Systems and services:",
+  external: "External integrations:",
+  boundary: "Trust boundaries:",
+};
+
+function architectureDiagramTextAlternativeSectionPrefix(kind: ArchitectureDiagramNode["kind"]): string {
+  return ARCHITECTURE_DIAGRAM_TEXT_ALT_SECTION_BY_KIND[kind];
+}
+
 const RECORDED_COMPONENTS_REMOVED_FROM_DIAGRAM =
   "Recorded architecture components were removed from this diagram." as const;
 
@@ -136,7 +147,7 @@ export function architectureDiagramModelToTextAlternative(model: ArchitectureDia
     const inferred = node.provenance === "inferred" && !node.accepted ? " (inferred)" : "";
     const displayLabel = resolveArchitectureDiagramNodeDisplayLabel(node.label);
 
-    return `${node.kind}: ${displayLabel}${inferred}`;
+    return `${architectureDiagramTextAlternativeSectionPrefix(node.kind)} ${displayLabel}${inferred}`;
   });
   const edgeLines = activeEdges.map((edge) => {
     const sourceLabel = resolveArchitectureDiagramNodeDisplayLabel(
