@@ -148,6 +148,8 @@ internal static class AnalysisRunIdCanonicalization
     {
         ArgumentNullException.ThrowIfNull(resultRepository);
 
+        Dictionary<string, AgentResult> merged = new(StringComparer.OrdinalIgnoreCase);
+
         foreach (string lookupKey in EnumerateRunIdRepositoryLookupKeys(primaryRunId))
         {
             IReadOnlyList<AgentResult> results = useRollupProjection
@@ -158,11 +160,28 @@ internal static class AnalysisRunIdCanonicalization
                     .GetByRunIdAsync(scope, lookupKey, cancellationToken)
                     .ConfigureAwait(false);
 
-            if (results is { Count: > 0 })
-                return results;
+            if (results is not { Count: > 0 })
+                continue;
+
+            foreach (AgentResult result in results)
+            {
+                if (result is null)
+                    continue;
+
+                string mergeKey = string.IsNullOrWhiteSpace(result.ResultId)
+                    ? $"{result.AgentType}:{result.TaskId}"
+                    : result.ResultId;
+
+                merged.TryAdd(mergeKey, result);
+            }
         }
 
-        return [];
+        return merged.Count == 0
+            ? []
+            : merged.Values
+                .OrderByDescending(static result => result.CreatedUtc)
+                .ThenBy(static result => result.ResultId, StringComparer.OrdinalIgnoreCase)
+                .ToList();
     }
 
     internal static async Task<IReadOnlyList<AgentExecutionTrace>> LoadExecutionTracesByRunIdAsync(
@@ -173,17 +192,27 @@ internal static class AnalysisRunIdCanonicalization
     {
         ArgumentNullException.ThrowIfNull(traceRepository);
 
+        Dictionary<string, AgentExecutionTrace> merged = new(StringComparer.OrdinalIgnoreCase);
+
         foreach (string lookupKey in EnumerateRunIdRepositoryLookupKeys(primaryRunId))
         {
             IReadOnlyList<AgentExecutionTrace> traces = await traceRepository
                 .GetByRunIdAsync(scope, lookupKey, cancellationToken)
                 .ConfigureAwait(false);
 
-            if (traces is { Count: > 0 })
-                return traces;
+            if (traces is not { Count: > 0 })
+                continue;
+
+            foreach (AgentExecutionTrace trace in traces)
+            {
+                if (trace is null || string.IsNullOrWhiteSpace(trace.TraceId))
+                    continue;
+
+                merged.TryAdd(trace.TraceId, trace);
+            }
         }
 
-        return [];
+        return merged.Count == 0 ? [] : merged.Values.ToList();
     }
 
     internal static async Task<IReadOnlyList<AgentExecutionTraceLlmCostSlice>> LoadLlmCostSlicesByRunIdAsync(
@@ -194,6 +223,8 @@ internal static class AnalysisRunIdCanonicalization
     {
         ArgumentNullException.ThrowIfNull(traceRepository);
 
+        List<AgentExecutionTraceLlmCostSlice> merged = [];
+
         foreach (string lookupKey in EnumerateRunIdRepositoryLookupKeys(primaryRunId))
         {
             IReadOnlyList<AgentExecutionTraceLlmCostSlice> slices = await traceRepository
@@ -201,10 +232,10 @@ internal static class AnalysisRunIdCanonicalization
                 .ConfigureAwait(false);
 
             if (slices is { Count: > 0 })
-                return slices;
+                merged.AddRange(slices);
         }
 
-        return [];
+        return merged;
     }
 
     internal static async Task<IReadOnlyList<AgentResult>> LoadAgentTypeMarkersByRunIdAsync(
@@ -215,17 +246,31 @@ internal static class AnalysisRunIdCanonicalization
     {
         ArgumentNullException.ThrowIfNull(resultRepository);
 
+        Dictionary<string, AgentResult> merged = new(StringComparer.OrdinalIgnoreCase);
+
         foreach (string lookupKey in EnumerateRunIdRepositoryLookupKeys(primaryRunId))
         {
             IReadOnlyList<AgentResult> markers = await resultRepository
                 .GetAgentTypeMarkersByRunIdAsync(scope, lookupKey, cancellationToken)
                 .ConfigureAwait(false);
 
-            if (markers is { Count: > 0 })
-                return markers;
+            if (markers is not { Count: > 0 })
+                continue;
+
+            foreach (AgentResult marker in markers)
+            {
+                if (marker is null)
+                    continue;
+
+                string mergeKey = string.IsNullOrWhiteSpace(marker.ResultId)
+                    ? marker.AgentType.ToString()
+                    : marker.ResultId;
+
+                merged.TryAdd(mergeKey, marker);
+            }
         }
 
-        return [];
+        return merged.Count == 0 ? [] : merged.Values.ToList();
     }
 
     internal static async Task<AgentEvidencePackage?> LoadEvidencePackageByRunIdAsync(

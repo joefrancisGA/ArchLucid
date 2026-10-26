@@ -2,8 +2,12 @@ using ArchLucid.Application.Analysis;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Core.AgentEvaluation;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Data.Repositories;
 
 using FluentAssertions;
+
+using Moq;
 
 namespace ArchLucid.Application.Tests.Analysis;
 
@@ -83,5 +87,169 @@ public sealed class AnalysisRunIdCanonicalizationTests
                 canonical)
             .Should()
             .BeTrue();
+    }
+
+    [Fact]
+    public async Task CompareQuality_LoadAgentResultsByRunIdAsync_merges_results_when_rows_are_split_across_alternate_run_id_keys()
+    {
+        const string canonicalRunId = "cccccccccccccccccccccccccccccccc";
+        const string legacyUpperRunId = "CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC";
+
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+            WorkspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+            ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
+        };
+
+        AgentResult canonicalKeyed = new()
+        {
+            ResultId = "result-canonical-repo-key",
+            RunId = canonicalRunId,
+            TaskId = "task-canonical",
+            AgentType = AgentType.Compliance,
+            CreatedUtc = DateTime.UtcNow,
+        };
+        AgentResult legacyKeyed = new()
+        {
+            ResultId = "result-legacy-repo-key",
+            RunId = legacyUpperRunId,
+            TaskId = "task-legacy",
+            AgentType = AgentType.Topology,
+            CreatedUtc = DateTime.UtcNow,
+        };
+
+        Mock<IAgentResultRepository> resultRepository = new();
+        resultRepository
+            .Setup(r => r.GetByRunIdAsync(scope, canonicalRunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([canonicalKeyed]);
+        resultRepository
+            .Setup(r => r.GetByRunIdAsync(scope, legacyUpperRunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([legacyKeyed]);
+        resultRepository
+            .Setup(r => r.GetByRunIdAsync(
+                scope,
+                It.Is<string>(id => id != canonicalRunId && id != legacyUpperRunId),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        IReadOnlyList<AgentResult> merged =
+            await AnalysisRunIdCanonicalization.LoadAgentResultsByRunIdAsync(
+                resultRepository.Object,
+                scope,
+                canonicalRunId,
+                useRollupProjection: false,
+                CancellationToken.None);
+
+        merged.Should().Contain(r => r.ResultId == "result-canonical-repo-key");
+        merged.Should().Contain(r => r.ResultId == "result-legacy-repo-key");
+    }
+
+    [Fact]
+    public async Task CompareQuality_LoadAgentResultsByRunIdAsync_orders_merged_results_by_created_utc_descending()
+    {
+        const string canonicalRunId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb";
+        const string legacyUpperRunId = "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB";
+
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+            WorkspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+            ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
+        };
+
+        AgentResult older = new()
+        {
+            ResultId = "result-older-canonical-key",
+            RunId = canonicalRunId,
+            TaskId = "task-older",
+            AgentType = AgentType.Compliance,
+            CreatedUtc = new DateTime(2026, 1, 1, 8, 0, 0, DateTimeKind.Utc),
+        };
+        AgentResult newer = new()
+        {
+            ResultId = "result-newer-legacy-key",
+            RunId = legacyUpperRunId,
+            TaskId = "task-newer",
+            AgentType = AgentType.Topology,
+            CreatedUtc = new DateTime(2026, 1, 2, 8, 0, 0, DateTimeKind.Utc),
+        };
+
+        Mock<IAgentResultRepository> resultRepository = new();
+        resultRepository
+            .Setup(r => r.GetByRunIdAsync(scope, canonicalRunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([older]);
+        resultRepository
+            .Setup(r => r.GetByRunIdAsync(scope, legacyUpperRunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([newer]);
+        resultRepository
+            .Setup(r => r.GetByRunIdAsync(
+                scope,
+                It.Is<string>(id => id != canonicalRunId && id != legacyUpperRunId),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        IReadOnlyList<AgentResult> merged =
+            await AnalysisRunIdCanonicalization.LoadAgentResultsByRunIdAsync(
+                resultRepository.Object,
+                scope,
+                canonicalRunId,
+                useRollupProjection: false,
+                CancellationToken.None);
+
+        merged.Should().HaveCount(2);
+        merged[0].ResultId.Should().Be("result-newer-legacy-key");
+        merged[1].ResultId.Should().Be("result-older-canonical-key");
+    }
+
+    [Fact]
+    public async Task CompareQuality_LoadExecutionTracesByRunIdAsync_merges_traces_when_rows_are_split_across_alternate_run_id_keys()
+    {
+        const string canonicalRunId = "dddddddddddddddddddddddddddddddd";
+        const string legacyUpperRunId = "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD";
+
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+            WorkspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+            ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
+        };
+
+        AgentExecutionTrace canonicalKeyed = new()
+        {
+            TraceId = "trace-canonical-repo-key",
+            RunId = canonicalRunId,
+            AgentType = AgentType.Compliance,
+        };
+        AgentExecutionTrace legacyKeyed = new()
+        {
+            TraceId = "trace-legacy-repo-key",
+            RunId = legacyUpperRunId,
+            AgentType = AgentType.Topology,
+        };
+
+        Mock<IAgentExecutionTraceRepository> traceRepository = new();
+        traceRepository
+            .Setup(r => r.GetByRunIdAsync(scope, canonicalRunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([canonicalKeyed]);
+        traceRepository
+            .Setup(r => r.GetByRunIdAsync(scope, legacyUpperRunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([legacyKeyed]);
+        traceRepository
+            .Setup(r => r.GetByRunIdAsync(
+                scope,
+                It.Is<string>(id => id != canonicalRunId && id != legacyUpperRunId),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        IReadOnlyList<AgentExecutionTrace> merged =
+            await AnalysisRunIdCanonicalization.LoadExecutionTracesByRunIdAsync(
+                traceRepository.Object,
+                scope,
+                canonicalRunId,
+                CancellationToken.None);
+
+        merged.Should().Contain(t => t.TraceId == "trace-canonical-repo-key");
+        merged.Should().Contain(t => t.TraceId == "trace-legacy-repo-key");
     }
 }
