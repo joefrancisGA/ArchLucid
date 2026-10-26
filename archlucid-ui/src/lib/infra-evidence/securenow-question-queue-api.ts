@@ -413,6 +413,22 @@ export function secureNowQuestionDispositionResponseIsUsable(
   return true;
 }
 
+/** POST JSON must omit auditEntries or send an array; other shapes are not usable. */
+export function secureNowQuestionDispositionResponseAuditEntriesShapeIsUsable(
+  raw: Record<string, unknown>,
+): boolean {
+  if (!("auditEntries" in raw)) {
+    return true;
+  }
+
+  const auditEntries = raw.auditEntries;
+  if (auditEntries === null || auditEntries === undefined) {
+    return false;
+  }
+
+  return Array.isArray(auditEntries);
+}
+
 export function mapSecureNowQuestionDisposition(raw: Record<string, unknown>): SecureNowQuestionDisposition {
   return {
     dispositionId: mapDispositionRequiredString(raw.dispositionId),
@@ -505,7 +521,12 @@ async function postSecureNowQuestionDisposition(
     return undefined;
   }
 
-  const disposition = mapSecureNowQuestionDisposition((raw ?? {}) as Record<string, unknown>);
+  const record = (raw ?? {}) as Record<string, unknown>;
+  if (!secureNowQuestionDispositionResponseAuditEntriesShapeIsUsable(record)) {
+    return undefined;
+  }
+
+  const disposition = mapSecureNowQuestionDisposition(record);
   if (!secureNowQuestionListedSnapshotMatchesContext(disposition.snapshotId, contextSnapshotId)) {
     return undefined;
   }

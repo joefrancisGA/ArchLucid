@@ -10,6 +10,7 @@ import {
   secureNowQuestionDispositionResponseRequiredStringFields,
   secureNowQuestionDispositionResponseRequiredOperatorMetadataFields,
   secureNowQuestionDispositionScopeRequiresResourceId,
+  secureNowQuestionDispositionResponseAuditEntriesShapeIsUsable,
   secureNowQuestionListedSnapshotMatchesContext,
   secureNowQuestionDispositionResponseListedDispositionIdMatches,
   secureNowQuestionDispositionResponseQuestionKeyMatchesRequest,
@@ -605,6 +606,33 @@ describe("secureNowQuestionDispositionResponseQuestionKeyMatchesRequest", () => 
   it("rejects blank question keys after trim", () => {
     expect(
       secureNowQuestionDispositionResponseQuestionKeyMatchesRequest("   ", "subscription-ownership@v1"),
+    ).toBe(false);
+  });
+});
+
+describe("secureNowQuestionDispositionResponseAuditEntriesShapeIsUsable", () => {
+  it("allows POST JSON that omits auditEntries", () => {
+    expect(secureNowQuestionDispositionResponseAuditEntriesShapeIsUsable({})).toBe(true);
+  });
+
+  it("allows POST JSON with an auditEntries array", () => {
+    expect(
+      secureNowQuestionDispositionResponseAuditEntriesShapeIsUsable({
+        auditEntries: [],
+      }),
+    ).toBe(true);
+  });
+
+  it("rejects POST JSON with non-array auditEntries", () => {
+    expect(
+      secureNowQuestionDispositionResponseAuditEntriesShapeIsUsable({
+        auditEntries: "not-an-array",
+      }),
+    ).toBe(false);
+    expect(
+      secureNowQuestionDispositionResponseAuditEntriesShapeIsUsable({
+        auditEntries: null,
+      }),
     ).toBe(false);
   });
 });
@@ -2272,6 +2300,42 @@ describe("securenow-question-queue-api", () => {
       actorKey: "reviewer",
       updatedUtc: "not-a-date",
       auditEntries: [],
+    });
+
+    const disposition = await answerSecureNowQuestion("snapshot-1", {
+      subscriptionId: "sub-1",
+      resourceId: "",
+      questionKey: "subscription-ownership@v1",
+      source: "PolicyPack",
+      scopeKind: "Subscription",
+      answerCode: "Owner",
+      answerText: "Owner",
+      reason: "Reviewed.",
+      evidenceFingerprint: "fingerprint",
+    });
+
+    expect(disposition).toBeUndefined();
+  });
+
+  it("returns undefined when POST answer response auditEntries is not an array", async () => {
+    vi.mocked(proxyJsonPost).mockResolvedValueOnce({
+      dispositionId: "00000000-0000-0000-0000-000000000001",
+      snapshotId: "snapshot-1",
+      subscriptionId: "sub-1",
+      resourceId: "",
+      questionKey: "subscription-ownership@v1",
+      source: "PolicyPack",
+      scopeKind: "Subscription",
+      status: "Answered",
+      answerCode: "Owner",
+      answerText: "Owner",
+      reason: "Reviewed.",
+      expirationUtc: "2026-12-01T00:00:00.000Z",
+      isExpired: false,
+      evidenceFingerprint: "fingerprint",
+      actorKey: "reviewer",
+      updatedUtc: "2026-11-01T00:00:00.000Z",
+      auditEntries: "not-an-array",
     });
 
     const disposition = await answerSecureNowQuestion("snapshot-1", {
