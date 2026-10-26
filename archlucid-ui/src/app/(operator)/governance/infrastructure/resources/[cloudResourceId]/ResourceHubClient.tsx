@@ -508,8 +508,10 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
       return null;
     }
 
-    const urlSpecifiesAuditScope =
-      assessmentId.length > 0 || auditEvidenceSnapshotId.length > 0 || controlId.length > 0;
+    const urlSpecifiesFullAuditScope =
+      assessmentId.length > 0
+      && auditEvidenceSnapshotId.length > 0
+      && controlId.length > 0;
 
     let resolvedAssessmentId = (
       assessmentId.length > 0 ? assessmentId : hub.auditLineageLink.assessmentId ?? ""
@@ -524,7 +526,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
     ).trim();
 
     if (
-      !urlSpecifiesAuditScope
+      !urlSpecifiesFullAuditScope
       && hub.auditLineageLink.matches.length > 0
       && (
         resolvedAssessmentId.length === 0

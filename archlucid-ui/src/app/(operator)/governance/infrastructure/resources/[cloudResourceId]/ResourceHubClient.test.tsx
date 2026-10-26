@@ -1139,6 +1139,26 @@ describe("ResourceHubClient", () => {
     expect(await screen.findByText("AE-10 chain of custody for AC-9 · Second control.")).toBeInTheDocument();
   });
 
+  it("resolves audit lineage when URL has only assessmentId and hub link audit ids are whitespace-only", async () => {
+    fetchCachedInfraEvidenceResourceHub.mockImplementation(async () =>
+      buildResourceHubTestMockHub({
+        auditLineageLink: {
+          ...buildResourceHubTestMockHub().auditLineageLink,
+          assessmentId: "   ",
+          auditEvidenceSnapshotId: "   ",
+          controlId: "   ",
+        },
+      }),
+    );
+    searchParams = new URLSearchParams(
+      `tab=audit&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}&assessmentId=aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa`,
+    );
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    expect(await screen.findByText("AE-10 chain of custody for AC-2 · Account management.")).toBeInTheDocument();
+    expect(screen.getByTestId("infra-resource-hub-audit-lineage-link")).toBeInTheDocument();
+  });
+
   it("includes resolved audit scope on overview remediation link when hub link audit ids are whitespace-only", async () => {
     fetchCachedInfraEvidenceResourceHub.mockImplementation(async () =>
       buildResourceHubTestMockHub({
