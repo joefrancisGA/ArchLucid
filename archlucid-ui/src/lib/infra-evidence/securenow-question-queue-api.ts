@@ -147,6 +147,12 @@ export function secureNowQuestionListedSnapshotMatchesContext(
   return listed === context;
 }
 
+export function secureNowQuestionDispositionResponseIsUsable(
+  disposition: SecureNowQuestionDisposition,
+): boolean {
+  return disposition.dispositionId.length > 0;
+}
+
 export function mapSecureNowQuestionDisposition(raw: Record<string, unknown>): SecureNowQuestionDisposition {
   return {
     dispositionId: mapDispositionRequiredString(raw.dispositionId),
@@ -237,7 +243,8 @@ async function postSecureNowQuestionDisposition(
     return undefined;
   }
 
-  return mapSecureNowQuestionDisposition((raw ?? {}) as Record<string, unknown>);
+  const disposition = mapSecureNowQuestionDisposition((raw ?? {}) as Record<string, unknown>);
+  return secureNowQuestionDispositionResponseIsUsable(disposition) ? disposition : undefined;
 }
 
 export function answerSecureNowQuestion(

@@ -9573,6 +9573,20 @@ ABQ-09 churn hotspot.
 
 ## Zone: securenow-question-queue
 
+2026-10-26 seed hunt (seed→hit): promoted `securenow-question-queue-api.postSecureNowQuestionDisposition` **accepted mutation JSON with blank disposition id after trim** — whitespace-only `dispositionId` on POST `/answer` mapped to an empty string and still returned as a usable disposition, so a future optimistic merge could treat the save as successful without a stable id; gate POST mapping with `secureNowQuestionDispositionResponseIsUsable` and return `undefined` when `dispositionId` is empty after trim; regression `returns undefined when POST answer response has whitespace-only disposition id`; cheap-disproof closed malformed `auditEntries` (null elements map safely), mutation ApiLoadFailure UI (added governance-mutation regression lock), SQL MERGE deferred, optimistic merge future-risk; scoped SecureNow queue vitest 135/135. Private beta: no direct pilot-path change today; invalid disposition POST bodies are dropped before any client path reuses them.
+
+- [x] (proven) `securenow-question-queue-api.postSecureNowQuestionDisposition` — blank disposition id after trim — **hit 2026-10-26 seed hunt:** usability gate after map; regression above.
+- [x] (valid-no-repro) `securenow-question-queue-api.mapSecureNowQuestionDisposition` — malformed `auditEntries` element shapes — **cheap-disproof 2026-10-26 seed hunt:** `(entry ?? {})` coercion; regression `maps malformed auditEntries elements without throwing`.
+- [x] (valid-no-repro) `SecureNowQuestionQueue` — mutation ApiLoadFailureState inline error — **cheap-disproof 2026-10-26 seed hunt:** existing catch path; regression `keeps governance-mutation recovery when save answer throws ApiLoadFailureState`.
+- [x] (invalid) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` — **cheap-disproof 2026-10-26 seed hunt:** integration host unavailable; candidate reseeded below.
+- [x] (invalid) `securenow-question-queue-provider` — optimistic merge from disposition JSON — **cheap-disproof 2026-10-26 seed hunt:** reload-only provider; candidate reseeded below.
+
+- [ ] (candidate) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` identity hash collision — locus: SQL repository; input: integration repro when SQL host available.
+- [ ] (candidate) `securenow-question-queue-provider` — optimistic merge from disposition JSON — locus: future post-mutation path; input: must honor `undefined` POST disposition responses.
+- [ ] (candidate) `securenow-question-queue-api.postSecureNowQuestionDisposition` — reject empty `questionKey` after trim — locus: POST mapper; input: return undefined when identity fields blank.
+- [ ] (candidate) `SecureNowQuestionDispositionService` — foreign snapshot write error copy vs UI load failures — locus: Application service; input: align API message with listed-snapshot guard copy.
+- [ ] (candidate) `securenow-question-queue-api.listSecureNowQuestions` — distinguish proxy 5xx throw from empty non-array 200 — locus: `proxyJsonGet`; input: operator-visible failure vs silent empty.
+
 2026-10-26 seed hunt (seed→hit): promoted `securenow-question-queue-api.mapSecureNowQuestionDisposition` **mutation response mapper left padded disposition fields untrimmed** — POST `/answer` JSON with whitespace-padded ids and answer codes mapped verbatim while list responses trim the same fields, so any consumer comparing mutation payloads to listed rows could treat padded and trimmed values as different dispositions; trim required disposition strings and map optional answer fields with the same `mapListedOptionalString` helper as list rows; regressions `trims padded disposition id on mutation responses` and `maps whitespace-only answerCode on disposition responses to null`; cheap-disproof closed padded listed `snapshotId` guard (existing trim + mismatch regressions), SQL MERGE deferred, optimistic merge future-risk, service validation copy (shared `operatorInferredConnectionPanelErrorFromUnknown`); scoped SecureNow queue vitest 132/132. Private beta: no direct pilot-path change today; hardens disposition POST mapping before any optimistic merge reuses mutation JSON.
 
 - [x] (proven) `securenow-question-queue-api.mapSecureNowQuestionDisposition` — padded mutation response fields — **hit 2026-10-26 seed hunt:** `mapDispositionRequiredString` + optional trim parity; regressions above.
@@ -9790,11 +9804,11 @@ ABQ-09 churn hotspot.
 - **aliases:** securenow question queue; question disposition
 - **paths:** archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx; archlucid-ui/src/lib/infra-evidence/securenow-question-queue-api.ts
 - **test-filter:** SecureNowQuestion
-- **hunts:** 114
-- **bugs-found:** 86
+- **hunts:** 115
+- **bugs-found:** 87
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-26
-- **last-bug:** 2026-10-26 — mutation response mapper trim parity
+- **last-bug:** 2026-10-26 — blank disposition id on POST answer response
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 

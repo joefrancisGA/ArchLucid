@@ -8,6 +8,7 @@ import {
   SecureNowQuestionQueueSnapshotPromo,
   useSecureNowQuestionQueue,
 } from "@/components/infra-evidence/SecureNowQuestionQueue";
+import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 
 const mocks = vi.hoisted(() => ({
   listQuestions: vi.fn(),
@@ -35,6 +36,16 @@ vi.mock("@/lib/infra-evidence/operator-inferred-connection-api", () => ({
   confirmOperatorInferredConnection: mocks.confirmConnection,
   dismissOperatorInferredConnection: mocks.dismissConnection,
 }));
+
+function apiLoadFailure(message: string): ApiLoadFailureState {
+  return {
+    message,
+    problem: { title: "Bad Request", status: 400 },
+    correlationId: "corr-test",
+    httpStatus: 400,
+    retryAfterSeconds: null,
+  };
+}
 
 const question = {
   dispositionId: null,
@@ -1315,6 +1326,25 @@ describe("SecureNowQuestionQueue", () => {
       "Your SecureNow question list was refreshed after the update",
     );
     expect(screen.getByTestId("infra-diagrams-question-disposition-status")).toHaveTextContent("Answered");
+  });
+
+  it("keeps governance-mutation recovery when save answer throws ApiLoadFailureState", async () => {
+    mocks.listQuestions.mockResolvedValue([question]);
+    mocks.answerQuestion.mockRejectedValue(
+      apiLoadFailure("Compiled question validation failed: answer not in set."),
+    );
+
+    render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
+    fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
+    fireEvent.click(screen.getByRole("button", { name: "Name the peer" }));
+    fireEvent.click(screen.getByRole("button", { name: "Save answer" }));
+
+    expect(await screen.findByTestId("operator-mutation-inline-error")).toHaveTextContent(
+      "Compiled question validation failed: answer not in set.",
+    );
+    expect(screen.getByTestId("operator-error-recovery-what-failed")).toHaveTextContent(
+      "The governance change did not save.",
+    );
   });
 
   it("keeps questions saveable when a post-answer reload fails", async () => {
