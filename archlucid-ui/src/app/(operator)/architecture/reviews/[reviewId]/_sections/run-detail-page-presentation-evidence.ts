@@ -73,6 +73,7 @@ export function buildRunDetailEvidencePresentation(
     runCreatedUtc: model.resolvedDetail.run.createdUtc,
     submittedArchitecturePresent: submittedArchitectureText !== null,
     attachedFileNames,
+    hasFindingsSnapshot: input.hasFindingsSnapshot,
   });
   const derivedGapBaseline = deriveArchitectureGapBaselineFromSubmittedText(submittedArchitectureText);
   const packageOrigin = resolveRunSummaryPackageOrigin(input.runSummaryForBadge);

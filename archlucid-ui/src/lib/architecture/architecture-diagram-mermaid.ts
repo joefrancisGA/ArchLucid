@@ -23,7 +23,10 @@ function architectureDiagramTextAlternativeSectionPrefix(kind: ArchitectureDiagr
 }
 
 const RECORDED_COMPONENTS_REMOVED_FROM_DIAGRAM =
-  "Recorded architecture components were removed from this diagram." as const;
+  "Recorded components were removed from this diagram." as const;
+
+export const ARCHITECTURE_DIAGRAM_DANGLING_CONNECTION_OMITTED =
+  "A connection was left off this diagram because an endpoint was not on the diagram." as const;
 
 function resolveEmptyArchitectureDiagramMessage(model: ArchitectureDiagramModel): string {
   if (model.nodes.length > 0 && model.nodes.every((node) => node.removed)) {
@@ -136,8 +139,12 @@ export function architectureDiagramModelToMermaid(
 export function architectureDiagramModelToTextAlternative(model: ArchitectureDiagramModel): string {
   const activeNodes = model.nodes.filter((node) => !node.removed);
   const nodeLabelById = new Map(activeNodes.map((node) => [node.id, node.label]));
-  const activeEdges = model.edges.filter(
-    (edge) => !edge.removed && nodeLabelById.has(edge.sourceId) && nodeLabelById.has(edge.targetId),
+  const activeEdges = model.edges.filter((edge) => !edge.removed);
+  const renderedEdges = activeEdges.filter(
+    (edge) => nodeLabelById.has(edge.sourceId) && nodeLabelById.has(edge.targetId),
+  );
+  const danglingEdgeOmitted = activeEdges.some(
+    (edge) => !nodeLabelById.has(edge.sourceId) || !nodeLabelById.has(edge.targetId),
   );
   if (activeNodes.length === 0) {
     return resolveEmptyArchitectureDiagramMessage(model);
@@ -149,7 +156,7 @@ export function architectureDiagramModelToTextAlternative(model: ArchitectureDia
 
     return `${architectureDiagramTextAlternativeSectionPrefix(node.kind)} ${displayLabel}${inferred}`;
   });
-  const edgeLines = activeEdges.map((edge) => {
+  const edgeLines = renderedEdges.map((edge) => {
     const sourceLabel = resolveArchitectureDiagramNodeDisplayLabel(
       nodeLabelById.get(edge.sourceId) ?? edge.sourceId,
     );
@@ -176,11 +183,14 @@ export function architectureDiagramModelToTextAlternative(model: ArchitectureDia
       ? formatArchitectureDiagramUnlabeledComponentsNotice(model.skippedUnlabeledEntityCount)
       : null;
 
+  const danglingEdgeLine = danglingEdgeOmitted ? ARCHITECTURE_DIAGRAM_DANGLING_CONNECTION_OMITTED : null;
+
   return [
     nodeLines.join("; "),
     edgeLines.join("; "),
     boundaryLine,
     skippedUnlabeledLine,
+    danglingEdgeLine,
     ...(model.entitySectionHonestyLines ?? []),
     ...(model.diagramHonestyNotes ?? []),
     ...unmatchedLines,

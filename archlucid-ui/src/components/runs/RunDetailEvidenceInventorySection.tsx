@@ -21,7 +21,10 @@ import {
 import { useRunStoredEvidenceCatalogQuery } from "@/hooks/use-run-stored-evidence-catalog-query";
 import { formatInstantForLocale } from "@/lib/locale-datetime";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import type { RunDetailEvidenceInventoryItem } from "@/lib/runs/run-detail-evidence-inventory";
+import {
+  formatRunDetailEvidenceCitingFindingCount,
+  type RunDetailEvidenceInventoryItem,
+} from "@/lib/runs/run-detail-evidence-inventory";
 import { enrichRunDetailEvidenceInventoryWithCatalog } from "@/lib/runs/run-stored-evidence-inventory-enrich";
 
 export type RunDetailEvidenceInventorySectionProps = {
@@ -41,21 +44,6 @@ function formatIngestedLabel(iso: string | null): string {
   const formatted = formatInstantForLocale(iso);
 
   return formatted.length > 0 ? formatted : iso;
-}
-
-export const RUN_DETAIL_EVIDENCE_CITING_FINDING_COUNT_NOT_STORED =
-  "Cited-by finding count was not stored." as const;
-
-function formatCitingFindingsCount(count: number | null | undefined): string {
-  if (count === null || count === undefined) {
-    return RUN_DETAIL_EVIDENCE_CITING_FINDING_COUNT_NOT_STORED;
-  }
-
-  if (count === 0) {
-    return "0 findings cite this source.";
-  }
-
-  return count === 1 ? "1 finding cites this source." : `${count} findings cite this source.`;
 }
 
 function resolveCatalogContentType(
@@ -192,7 +180,10 @@ export function RunDetailEvidenceInventorySection(props: RunDetailEvidenceInvent
                     {formatIngestedLabel(item.ingestedUtc)}
                   </EnterpriseTableCell>
                   <EnterpriseTableCell className="tabular-nums text-al-text-secondary">
-                    {formatCitingFindingsCount(item.citingFindingCount)}
+                    {formatRunDetailEvidenceCitingFindingCount(
+                      item.citingFindingCount,
+                      item.citingFindingCountStored,
+                    )}
                   </EnterpriseTableCell>
                 </EnterpriseTableRow>
               ))}

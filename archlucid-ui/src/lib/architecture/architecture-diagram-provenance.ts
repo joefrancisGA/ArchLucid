@@ -140,6 +140,15 @@ export const ARCHITECTURE_DIAGRAM_NODE_LABEL_STORED_EMPTY = "Node label was stor
 export const ARCHITECTURE_DIAGRAM_REVIEW_ID_NOT_STORED_EVIDENCE_LINK =
   "Review id was not stored, so the evidence link is not available." as const;
 
+export const ARCHITECTURE_DIAGRAM_EVIDENCE_ITEM_ID_NOT_STORED_ON_COMPONENT =
+  "No evidence item id was stored on this component." as const;
+
+export const ARCHITECTURE_DIAGRAM_OPEN_SUBMITTED_EVIDENCE_LINK_LABEL =
+  "Open submitted evidence for this review." as const;
+
+export const ARCHITECTURE_DIAGRAM_VERSION_SOURCE_NOT_STORED =
+  "Diagram version source was not stored." as const;
+
 export function resolveArchitectureDiagramNodeDisplayLabel(label: string): string {
   if (label.length === 0) {
     return ARCHITECTURE_DIAGRAM_NODE_LABEL_NOT_STORED;

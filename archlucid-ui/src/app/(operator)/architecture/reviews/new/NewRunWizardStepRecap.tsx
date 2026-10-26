@@ -54,7 +54,12 @@ export function NewRunWizardStepRecap(props: NewRunWizardStepRecapProps): React.
           {identityStepReached ? (
             <>
               {" "}
-              · <span className="text-neutral-600 dark:text-neutral-400">Env</span> {environment}
+              · <span className="text-neutral-600 dark:text-neutral-400">Env</span>{" "}
+              {environment.length > 0 ? (
+                environment
+              ) : (
+                <span className="text-neutral-600 dark:text-neutral-400">Environment was not stored.</span>
+              )}
             </>
           ) : (
             <>

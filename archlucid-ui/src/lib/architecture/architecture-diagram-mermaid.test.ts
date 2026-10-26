@@ -245,6 +245,61 @@ describe("architectureDiagramModelToMermaid", () => {
     expect(architectureDiagramModelToTextAlternative(modelWithBoundary)).not.toContain("Skipped");
   });
 
+  it("notes dangling connections in the text alternative (P-05)", () => {
+    const dangling: ArchitectureDiagramModel = {
+      nodes: [
+        {
+          id: "system_api",
+          label: "Claims API",
+          kind: "system",
+          provenance: "asserted",
+          removed: false,
+          accepted: true,
+        },
+      ],
+      edges: [
+        {
+          id: "edge_dangling",
+          sourceId: "system_api",
+          targetId: "missing_node",
+          label: "call",
+          provenance: "asserted",
+          removed: false,
+        },
+      ],
+      trustBoundaryLabels: [],
+      skippedUnlabeledEntityCount: 0,
+      unmatchedDataFlows: [],
+    };
+
+    expect(architectureDiagramModelToTextAlternative(dangling)).toContain(
+      "A connection was left off this diagram because an endpoint was not on the diagram.",
+    );
+  });
+
+  it("distinguishes all-removed models from never-recorded models (P-06)", () => {
+    const allRemoved: ArchitectureDiagramModel = {
+      nodes: [
+        {
+          id: "system_api",
+          label: "Claims API",
+          kind: "system",
+          provenance: "asserted",
+          removed: true,
+          accepted: true,
+        },
+      ],
+      edges: [],
+      trustBoundaryLabels: [],
+      skippedUnlabeledEntityCount: 0,
+      unmatchedDataFlows: [],
+    };
+
+    expect(architectureDiagramModelToTextAlternative(allRemoved)).toBe(
+      "Recorded components were removed from this diagram.",
+    );
+  });
+
   it("inserts mermaid line breaks so long human names wrap inside wrappingWidth boxes", () => {
     const longLabel =
       "Azure Kubernetes Service (AKS) Cluster with extended operations and governance description";
