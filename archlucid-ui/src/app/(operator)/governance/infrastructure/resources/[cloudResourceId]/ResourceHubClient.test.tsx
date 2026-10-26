@@ -2253,6 +2253,61 @@ describe("ResourceHubClient", () => {
     expect(screen.queryByTestId("infra-resource-hub-audit-scope-chip")).not.toBeInTheDocument();
   });
 
+  it("refetches hub evidence when linked audit control in the URL changes", async () => {
+    fetchCachedInfraEvidenceResourceHub.mockImplementation(async (_id, options) => {
+      const hub = buildResourceHubTestMockHub({
+        auditLineageLink: {
+          ...buildResourceHubTestMockHub().auditLineageLink,
+          matches: [
+            buildResourceHubTestMockHub().auditLineageLink.matches[0],
+            {
+              assessmentId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+              auditEvidenceSnapshotId: "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+              controlId: "dddddddd-dddd-dddd-dddd-dddddddddddd",
+              controlNumber: "AC-9",
+              controlTitle: "Alternate control",
+              snapshotCreatedUtc: "2026-01-02T00:00:00Z",
+            },
+          ],
+        },
+      });
+      const controlId = (options as { controlId?: string }).controlId ?? "";
+      const totalCount =
+        controlId === "dddddddd-dddd-dddd-dddd-dddddddddddd"
+          ? 9
+          : controlId === "cccccccc-cccc-cccc-cccc-cccccccccccc"
+            ? 5
+            : 99;
+
+      return buildResourceHubTestMockHub({
+        auditLineageLink: hub.auditLineageLink,
+        operationalSecurityFindings: {
+          ...hub.operationalSecurityFindings,
+          totalCount,
+        },
+        architectureReviewFindings: {
+          ...hub.architectureReviewFindings,
+          totalCount: 0,
+        },
+      });
+    });
+    searchParams = new URLSearchParams(
+      `tab=overview&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}${RESOURCE_HUB_TEST_AUDIT_SUFFIX}`,
+    );
+    const { rerender } = render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    expect(await screen.findByTestId("infra-resource-hub-tab-findings")).toHaveTextContent("Findings (5)");
+
+    searchParams = new URLSearchParams(
+      `tab=overview&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}&assessmentId=aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa&auditEvidenceSnapshotId=bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb&controlId=dddddddd-dddd-dddd-dddd-dddddddddddd`,
+    );
+    rerender(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("infra-resource-hub-tab-findings")).toHaveTextContent("Findings (9)");
+    });
+  });
+
   it("presents audit-scoped hub counts when URL carries linked audit scope", async () => {
     fetchCachedInfraEvidenceResourceHub.mockImplementation(async (_id, options) => {
       const hub = buildResourceHubTestMockHub();

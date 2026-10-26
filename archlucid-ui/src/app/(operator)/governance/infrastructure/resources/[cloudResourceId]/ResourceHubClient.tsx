@@ -178,6 +178,15 @@ function isEmptyHubFetchAuditScope(scope: typeof EMPTY_HUB_FETCH_AUDIT_SCOPE): b
   return scope.assessmentId === "" && scope.auditEvidenceSnapshotId === "" && scope.controlId === "";
 }
 
+function infraEvidenceAuditScopesEqual(
+  left: InfraEvidenceWorkbenchAuditScope,
+  right: InfraEvidenceWorkbenchAuditScope,
+): boolean {
+  return left.assessmentId.trim() === right.assessmentId.trim()
+    && left.auditEvidenceSnapshotId.trim() === right.auditEvidenceSnapshotId.trim()
+    && left.controlId.trim() === right.controlId.trim();
+}
+
 function isInfraEvidenceUrlAuditScopeLinkedOnHub(
   urlScope: InfraEvidenceWorkbenchAuditScope,
   hubResponse: CloudResourceEvidenceHubResponse,
@@ -397,6 +406,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
   >({});
   const loadRequestGeneration = useRef(0);
   const suppressLinkedAuditScopeRefetchRef = useRef(false);
+  const linkedAuditInlineHydratedScopeRef = useRef<InfraEvidenceWorkbenchAuditScope | null>(null);
   const [pendingRemediationFinding, setPendingRemediationFinding] = useState<{
     readonly id: string;
     readonly title: string;
@@ -631,22 +641,35 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
   }, [hasUnlinkedAuditScopeInUrl, hub, searchParams]);
 
   const loadHub = useCallback(async (options?: { retainFindingMessages?: boolean }) => {
-    const requestGeneration = loadRequestGeneration.current + 1;
-    loadRequestGeneration.current = requestGeneration;
     if (!options?.retainFindingMessages) {
       setFindingActionMessages({});
     }
     setLoading(true);
     setLoadError(null);
 
+    const urlAuditScopeAtRequestStart = parseInfraEvidenceWorkbenchAuditScopeFromSearch(searchParams);
+
     if (
       suppressLinkedAuditScopeRefetchRef.current
       && !isEmptyHubFetchAuditScope(hubFetchAuditScope)
+      && linkedAuditInlineHydratedScopeRef.current != null
+      && urlAuditScopeAtRequestStart != null
+      && infraEvidenceAuditScopesEqual(
+        linkedAuditInlineHydratedScopeRef.current,
+        urlAuditScopeAtRequestStart,
+      )
     ) {
       suppressLinkedAuditScopeRefetchRef.current = false;
+      linkedAuditInlineHydratedScopeRef.current = null;
       setLoading(false);
       return;
     }
+
+    suppressLinkedAuditScopeRefetchRef.current = false;
+    linkedAuditInlineHydratedScopeRef.current = null;
+
+    const requestGeneration = loadRequestGeneration.current + 1;
+    loadRequestGeneration.current = requestGeneration;
 
     try {
       const snapshotForFetch = resolvedSnapshotId.length > 0 ? resolvedSnapshotId : snapshotId;
@@ -685,6 +708,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
           return;
         }
 
+        linkedAuditInlineHydratedScopeRef.current = urlAuditScope;
         suppressLinkedAuditScopeRefetchRef.current = true;
       }
 
