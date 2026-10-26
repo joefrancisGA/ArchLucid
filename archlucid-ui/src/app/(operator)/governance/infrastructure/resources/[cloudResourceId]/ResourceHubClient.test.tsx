@@ -577,6 +577,33 @@ describe("ResourceHubClient", () => {
     expect(screen.getByTestId("infra-resource-hub-page-title")).toHaveTextContent("newer-gateway");
   });
 
+  it("omits stale URL audit scope on drift workbench link after cloudResourceId changes", async () => {
+    const otherCloudResourceId = "88888888-8888-8888-8888-888888888888";
+
+    fetchCachedInfraEvidenceResourceHub.mockImplementation(async (resourceId: string) =>
+      buildResourceHubTestMockHub({
+        cloudResourceId: resourceId,
+        auditLineageLink: {
+          ...buildResourceHubTestMockHub().auditLineageLink,
+          available: resourceId !== otherCloudResourceId,
+          matches: resourceId === otherCloudResourceId ? [] : buildResourceHubTestMockHub().auditLineageLink.matches,
+        },
+      }),
+    );
+
+    searchParams = new URLSearchParams(
+      `tab=overview&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}${RESOURCE_HUB_TEST_AUDIT_SUFFIX}`,
+    );
+    const { rerender } = render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+    await screen.findByTestId("infra-resource-hub-open-drift-work");
+
+    rerender(<ResourceHubClient cloudResourceId={otherCloudResourceId} />);
+
+    const href = (await screen.findByTestId("infra-resource-hub-open-drift-work")).getAttribute("href") ?? "";
+    expect(href).toContain(otherCloudResourceId);
+    expect(href).not.toMatch(/assessmentId=|auditEvidenceSnapshotId=|controlId=/);
+  });
+
   it("omits stale snapshotId on drift workbench link after cloudResourceId changes", async () => {
     const otherCloudResourceId = "88888888-8888-8888-8888-888888888888";
     const otherSnapshotId = "33333333-3333-3333-3333-333333333333";

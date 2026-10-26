@@ -7223,6 +7223,32 @@ ABQ-09 churn hotspot.
 
 ## Zone: ui-infra-resource-hub
 
+2026-10-26 seed hunt (seed→hit): promoted **stale URL audit scope on cross-workbench drift link** after `cloudResourceId` change — workbench/Ask audit context still trusted URL triples and prior-resource `hub.auditLineageLink` while the in-memory hub row or loading gap did not match the new `cloudResourceId`; add `hubMatchesActiveResource`, treat mismatched or unavailable lineage as unlinked, and defer URL audit params on workbench exits until the matching hub row loads; regression `omits stale URL audit scope on drift workbench link after cloudResourceId changes`; cheap-disproof closed terraform workbench row omission (intentional), `switchActiveAuditControl` deps (fixed hunt 113), ARM copy (polish), and drift change-id trim (defer); scoped ResourceHubClient vitest 136/136. Private beta: switching resource hubs no longer opens drift workbench pre-filtered to another resource’s audit control ids carried in the query string.
+
+- [x] (proven) `ResourceHubClient` cross-workbench links — stale URL audit scope after resource switch — **hit 2026-10-26 seed hunt:** hub match + unlinked/defer guards; regression above.
+- [x] (valid-no-repro) `ResourceHubClient` overview — terraform workbench in cross-workbench row — **cheap-disproof 2026-10-26 seed hunt:** intentionally omitted per regression.
+- [x] (valid-no-repro) `ResourceHubClient` `switchActiveAuditControl` — missing `resolvedRunId` in deps — **cheap-disproof 2026-10-26 seed hunt:** fixed hunt 113.
+- [x] (valid-no-repro) `ResourceHubClient` buyer-polished identifier disclosures — ARM copy affordance — **cheap-disproof 2026-10-26 seed hunt:** polish.
+- [x] (valid-no-repro) `ResourceHubDriftChangesTable` — drift actions without change ids — **cheap-disproof 2026-10-26 seed hunt:** defer.
+
+- [ ] (candidate) `ResourceHubClient` overview — quick link to terraform tab when mapped — locus: navigation polish.
+- [ ] (candidate) `ResourceHubClient` `resourceTitle` — uses stale hub display name until fetch when `cloudResourceId` changes — locus: `resourceTitle` useMemo; input: hub row match guard parity with snapshot.
+- [ ] (candidate) `ResourceHubClient` manual Retry — concurrent scope change — locus: generation guard; monitor.
+- [ ] (candidate) `ResourceHubClient` cold navigation — wrong snapshot bookmark on remount — locus: init pin; monitor.
+- [ ] (candidate) `ResourceHubDriftChangesTable` — drift change ids — locus: saturated trim class; defer.
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 114
+- **bugs-found:** 91
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-26
+- **last-bug:** 2026-10-26 — stale URL audit scope on cross-workbench links after cloudResourceId change
+- **code-changed-since:** yes
+
 2026-10-26 seed hunt (seed→hit): promoted **prior resource hub snapshot on cross-workbench drift link** after `cloudResourceId` change — `resolvedSnapshotId` read `hub.currentConfiguration.snapshotId` before the in-memory hub row matched the new `cloudResourceId`, so drift (and sibling) workbench exits could carry the previous resource’s inventory snapshot until fetch settled; gate hub-derived snapshot resolution on `hub.cloudResourceId === cloudResourceId` and align snapshot ref updates; regression `omits stale snapshotId on drift workbench link after cloudResourceId changes`; cheap-disproof closed terraform quick link (polish), Ask handoff monitor row, manual Retry (generation guard), and drift change-id trim (defer); scoped ResourceHubClient vitest 135/135. Private beta: switching resource hubs no longer opens drift workbench with another resource’s snapshot id while the hub panel is still showing stale evidence.
 
 - [x] (proven) `ResourceHubClient` `resolvedSnapshotId` — hub snapshot before `cloudResourceId` alignment — **hit 2026-10-26 seed hunt:** hub row match guard; regression above.
@@ -7231,11 +7257,11 @@ ABQ-09 churn hotspot.
 - [x] (valid-no-repro) `ResourceHubClient` manual Retry — concurrent scope change — **cheap-disproof 2026-10-26 seed hunt:** generation guard on `loadHub`.
 - [x] (valid-no-repro) `ResourceHubDriftChangesTable` — drift change ids — **cheap-disproof 2026-10-26 seed hunt:** defer.
 
-- [ ] (candidate) `ResourceHubClient` overview — terraform workbench in cross-workbench row — locus: intentionally omitted per regression.
-- [ ] (candidate) `ResourceHubClient` cross-workbench links — stale URL audit scope after resource switch when hub lineage still loading — locus: `workbenchLinkAuditContext` until unlinked banner; input: monitor.
-- [ ] (candidate) `ResourceHubClient` `switchActiveAuditControl` — audit picker `router.replace` without `resolvedRunId` in callback deps — locus: useCallback deps; input: pin re-bootstrap after resource switch.
-- [ ] (candidate) `ResourceHubClient` buyer-polished identifier disclosures — ARM copy affordance — locus: polish.
-- [ ] (candidate) `ResourceHubDriftChangesTable` — drift actions without change ids — locus: saturated trim class; defer.
+- [x] (proven) `ResourceHubClient` cross-workbench links — stale URL audit scope after resource switch — **hit 2026-10-26 seed hunt #114:** hub match + defer/unlinked guards; regression `omits stale URL audit scope on drift workbench link after cloudResourceId changes`.
+- [x] (valid-no-repro) `ResourceHubClient` overview — terraform workbench in cross-workbench row — **cheap-disproof 2026-10-26 seed hunt #114:** intentional omission per regression.
+- [x] (valid-no-repro) `ResourceHubClient` `switchActiveAuditControl` — `resolvedRunId` callback deps — **cheap-disproof 2026-10-26 seed hunt #114:** fixed hunt 113.
+- [x] (valid-no-repro) `ResourceHubClient` buyer-polished identifier disclosures — ARM copy affordance — **cheap-disproof 2026-10-26 seed hunt #114:** polish.
+- [x] (valid-no-repro) `ResourceHubDriftChangesTable` — drift actions without change ids — **cheap-disproof 2026-10-26 seed hunt #114:** defer.
 
 - **id:** ui-infra-resource-hub
 - **status:** open

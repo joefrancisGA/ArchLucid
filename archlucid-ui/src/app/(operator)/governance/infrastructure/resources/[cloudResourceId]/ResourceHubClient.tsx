@@ -684,8 +684,13 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
     return normalizeSecureNowResourceNameForDisplay(rawTitle);
   }, [cloudResourceId, hub]);
 
+  const hubMatchesActiveResource = useMemo(
+    () => hub != null && hub.cloudResourceId?.trim() === cloudResourceId,
+    [cloudResourceId, hub?.cloudResourceId],
+  );
+
   const resolvedAuditLineage = useMemo(() => {
-    if (hub?.auditLineageLink.available !== true) {
+    if (!hubMatchesActiveResource || hub?.auditLineageLink.available !== true) {
       return null;
     }
 
@@ -760,11 +765,11 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
       label: filteredLabelParts.length > 0 ? filteredLabelParts.join(" · ") : "Open audit control lineage",
       matches: hub.auditLineageLink.matches,
     };
-  }, [assessmentId, auditEvidenceSnapshotId, controlId, hub]);
+  }, [assessmentId, auditEvidenceSnapshotId, cloudResourceId, controlId, hub, hubMatchesActiveResource]);
 
   const auditControlOptions = useMemo(
-    () => buildInfraEvidenceAuditControlOptions(hub),
-    [hub],
+    () => (hubMatchesActiveResource ? buildInfraEvidenceAuditControlOptions(hub) : []),
+    [hub, hubMatchesActiveResource],
   );
 
   const switchActiveAuditControl = useCallback((match: CloudResourceAuditLineageMatch) => {
@@ -789,8 +794,16 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
   const hasUnlinkedAuditScopeInUrl = useMemo(() => {
     const auditScope = parseInfraEvidenceWorkbenchAuditScopeFromSearch(searchParams);
 
-    if (auditScope == null || hub?.auditLineageLink.available !== true) {
+    if (auditScope == null) {
       return false;
+    }
+
+    if (hub != null && !hubMatchesActiveResource) {
+      return true;
+    }
+
+    if (hub?.auditLineageLink.available !== true) {
+      return true;
     }
 
     return !hub.auditLineageLink.matches.some(
@@ -799,9 +812,18 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
         && match.auditEvidenceSnapshotId.trim() === auditScope.auditEvidenceSnapshotId.trim()
         && match.controlId.trim() === auditScope.controlId.trim(),
     );
-  }, [hub, searchParams]);
+  }, [hub, hubMatchesActiveResource, searchParams]);
 
-  const showStaleAuditScopeBanner = hasStaleAuditUrlParams || hasUnlinkedAuditScopeInUrl;
+  const deferUrlAuditScopeUntilHubLoads = useMemo(
+    () =>
+      loading
+      && hub == null
+      && parseInfraEvidenceWorkbenchAuditScopeFromSearch(searchParams) != null,
+    [hub, loading, searchParams],
+  );
+
+  const showStaleAuditScopeBanner =
+    hasStaleAuditUrlParams || hasUnlinkedAuditScopeInUrl || deferUrlAuditScopeUntilHubLoads;
 
   const hubFetchAuditScope = useMemo(() => {
     const urlScope = parseInfraEvidenceWorkbenchAuditScopeFromSearch(searchParams);
@@ -946,7 +968,8 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
       };
     }
 
-    let payloadContext: InfrastructureAskAuditContext | null = hub?.auditLineageLink.available === true
+    let payloadContext: InfrastructureAskAuditContext | null =
+      hubMatchesActiveResource && hub?.auditLineageLink.available === true
       ? {
           assessmentId: hub.auditLineageLink.assessmentId ?? undefined,
           auditEvidenceSnapshotId: hub.auditLineageLink.auditEvidenceSnapshotId ?? undefined,
@@ -956,6 +979,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
 
     if (
       showStaleAuditScopeBanner
+      && hubMatchesActiveResource
       && hub?.auditLineageLink.available === true
       && hub.auditLineageLink.matches.length > 0
     ) {
@@ -988,7 +1012,15 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
         };
 
     return resolveInfrastructureAskAuditContext(urlAuditContext, payloadContext);
-  }, [assessmentId, auditEvidenceSnapshotId, controlId, hub, resolvedAuditLineage, showStaleAuditScopeBanner]);
+  }, [
+    assessmentId,
+    auditEvidenceSnapshotId,
+    controlId,
+    hub,
+    hubMatchesActiveResource,
+    resolvedAuditLineage,
+    showStaleAuditScopeBanner,
+  ]);
 
   const workbenchLinkAuditContext = useMemo(
     () => toWorkbenchLinkAuditContext(askAuditContext),
