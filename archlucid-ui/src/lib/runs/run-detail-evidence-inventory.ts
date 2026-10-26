@@ -45,6 +45,24 @@ function resolveIngestedUtcForEvidenceItem(
   return createdUtc.length > 0 ? createdUtc : null;
 }
 
+function inferEvidenceKind(sourceName: string): string {
+  const lower = sourceName.toLowerCase();
+
+  if (lower.includes(".bicep") || lower.includes(".tf") || lower.includes("terraform")) {
+    return "Infrastructure as code";
+  }
+
+  if (lower.includes("inventory")) {
+    return "Submitted evidence";
+  }
+
+  if (lower.endsWith(".docx") || lower.endsWith(".doc")) {
+    return RUN_DETAIL_EVIDENCE_KIND_NOT_STORED;
+  }
+
+  return "Document";
+}
+
 export function findingsCiteEvidenceWithoutStoredSourceNames(
   findings: readonly QuickDecisionFinding[],
 ): boolean {
@@ -181,7 +199,7 @@ export function deriveRunDetailEvidenceInventory(input: {
 
     map.set(key, {
       sourceName,
-      kind: RUN_DETAIL_EVIDENCE_KIND_NOT_STORED,
+      kind: inferEvidenceKind(sourceName),
       inventoryKind: inspectKind.inventoryKind,
       evidenceItemId: inspectKind.evidenceItemId,
       findingIds: new Set(),
@@ -190,7 +208,6 @@ export function deriveRunDetailEvidenceInventory(input: {
 
   for (const finding of input.findings) {
     const snippets = finding.evidenceRefSnippets ?? [];
-
     const refCount = finding.evidenceRefCount;
 
     if (

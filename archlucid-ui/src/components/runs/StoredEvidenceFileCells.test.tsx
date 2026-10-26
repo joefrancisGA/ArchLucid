@@ -88,6 +88,25 @@ describe("StoredEvidenceFileCells", () => {
     expect(screen.getByRole("button", { name: "Download diagram.png" })).toBeInTheDocument();
   });
 
+  it("shows content-type omission and blocks preview when content type was not stored (P-09)", () => {
+    render(
+      <StoredEvidenceFileCells
+        runId="run-1"
+        evidenceItemId="ev-3"
+        fileName="diagram.png"
+        contentType={null}
+        handlers={{
+          onOpen: vi.fn(),
+          onDownload: vi.fn(),
+        }}
+      />,
+    );
+
+    expect(screen.getByText("Content type was not stored.")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "diagram.png" })).not.toBeInTheDocument();
+    expect(screen.getByText("diagram.png")).toBeInTheDocument();
+  });
+
   it("renders download-only label for SVG without an open link", () => {
     render(
       <StoredEvidenceFileCells

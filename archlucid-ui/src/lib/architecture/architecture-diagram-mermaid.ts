@@ -170,6 +170,7 @@ export function architectureDiagramModelToTextAlternative(model: ArchitectureDia
     edgeLines.join("; "),
     boundaryLine,
     skippedUnlabeledLine,
+    ...(model.entitySectionHonestyLines ?? []),
     ...(model.diagramHonestyNotes ?? []),
     ...unmatchedLines,
   ]
