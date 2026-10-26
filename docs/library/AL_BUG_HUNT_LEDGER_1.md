@@ -6868,6 +6868,16 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-26 seed hunt (seed→hit): reseeded `application-analysis` with zero hunt-ready rows; cheap-disproof closed dashboard token-aggregator regression guard (still on `LoadLlmCostSlicesByRunIdAsync`); promoted ledger follow-on `TenantLlmCostTopRunRanker` tenant LLM top-run ranking; proved ranker still batched `GetLlmCostSlicesByRunIdsAsync` with ordinal per-run keys, so runs whose traces persisted under legacy uppercase hex run-id keys were omitted from tenant LLM cost leaderboards; load slices per scanned run via `AnalysisRunIdCanonicalization.LoadLlmCostSlicesByRunIdAsync`; regression `CompareQuality_RankAsync_includes_run_when_traces_use_legacy_run_id_key`; seeded five follow-on rows; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` filter 379/379 (`RunAnalyzers=false` on VM build). Private beta: Tenant LLM cost top-run reports include runs whose execution traces use legacy run-id key formats.
+
+- [ ] (candidate) `TenantLlmCostTopRunRanker` — regression guard — locus: per-run slice load stays on merge helper.
+- [ ] (candidate) `GovernanceDashboardRecentRunTokenAggregator` — regression guard — locus: token sum stays on merge helper.
+- [ ] (candidate) `GetLlmCostSlicesByRunIdsAsync` — persistence batch API — locus: ordinal trace `RunId` vs legacy storage (callers outside ranker/dashboard).
+- [ ] (candidate) `LoadGovernanceApprovalRequestsByRunIdAsync` — regression guard — locus: facade legacy tests.
+- [ ] (candidate) `GovernanceMutationCorrectionService` — regression guard — locus: promote/activate validation merge helpers.
+
+- [x] (proven) `TenantLlmCostTopRunRanker` — batch LLM slice load — **hit 2026-10-26 seed hunt:** `LoadLlmCostSlicesByRunIdAsync` per run; regression above.
+
 2026-10-26 seed hunt (seed→hit): reseeded `application-analysis` with zero hunt-ready rows; cheap-disproof closed five regression-guard candidate rows (facade/lineage/correction paths still on merge helpers); promoted follow-on `GovernanceDashboardRecentRunTokenAggregator` recent-run LLM totals; proved dashboard token aggregation still called `GetLlmCostSlicesByRunIdsAsync` with ordinal per-run keys, so traces persisted under legacy uppercase hex run-id keys contributed zero prompt/completion totals on the governance dashboard; route each recent run through `AnalysisRunIdCanonicalization.LoadLlmCostSlicesByRunIdAsync`; regression `CompareQuality_GetDashboardAsync_includes_llm_cost_when_traces_use_legacy_run_id_key`; seeded five follow-on rows; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` filter 378/378 (`RunAnalyzers=false` on VM build). Private beta: Governance dashboard LLM token rollups include committed runs whose execution traces use legacy run-id key formats.
 
 - [ ] (candidate) `TenantLlmCostTopRunRanker` — batch LLM slice load — locus: `GetLlmCostSlicesByRunIdsAsync` ordinal keys vs legacy trace storage.
