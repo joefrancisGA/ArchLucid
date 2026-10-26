@@ -339,6 +339,22 @@ public sealed class AzureInventoryAdfLinkedServiceTargetExtractorTests
     }
 
     [Fact]
+    public void Extract_reads_key_vault_host_from_percent_encoded_base_url_when_vault_name_is_whitespace_only()
+    {
+        const string host = "kv1.vault.azure.net";
+        string encodedBaseUrl = Uri.EscapeDataString($"https://{host}.");
+
+        using JsonDocument document = JsonDocument.Parse(
+            $$"""{ "vaultName": "   ", "baseUrl": {{JsonSerializer.Serialize(encodedBaseUrl)}} }""");
+
+        (string? targetResourceId, string? targetHost) =
+            AzureInventoryAdfLinkedServiceTargetExtractor.Extract(document.RootElement, "AzureKeyVault");
+
+        targetResourceId.Should().BeNull();
+        targetHost.Should().Be(host);
+    }
+
+    [Fact]
     public void Extract_reads_blob_host_from_percent_encoded_service_endpoint_url()
     {
         const string host = "sa1.blob.core.windows.net";
