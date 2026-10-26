@@ -342,6 +342,24 @@ describe("ResourceHubClient", () => {
     expect(screen.getAllByText("inventory")).toHaveLength(2);
   });
 
+  it("shows drift risk omission copy when riskClassification is whitespace-only", async () => {
+    const baseChange = buildResourceHubTestMockHub().recentChanges[0];
+    fetchCachedInfraEvidenceResourceHub.mockImplementation(async () =>
+      buildResourceHubTestMockHub({
+        recentChanges: [
+          {
+            ...baseChange,
+            riskClassification: "   ",
+          },
+        ],
+      }),
+    );
+    searchParams = new URLSearchParams(`tab=drift&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}`);
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    expect(await screen.findByText("Risk classification was not stored.")).toBeInTheDocument();
+  });
+
   it("shows drift omission copy when property and old/new values are whitespace-only", async () => {
     const baseChange = buildResourceHubTestMockHub().recentChanges[0];
     fetchCachedInfraEvidenceResourceHub.mockImplementation(async () =>

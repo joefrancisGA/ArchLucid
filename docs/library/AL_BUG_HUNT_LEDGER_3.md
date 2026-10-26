@@ -7209,6 +7209,32 @@ ABQ-09 churn hotspot.
 
 ## Zone: ui-infra-resource-hub
 
+2026-10-26 seed hunt (seed→hit): promoted whitespace-only **drift riskClassification** on drift tab — `riskClassification != null` let whitespace-only values render an empty `SeverityTag` instead of omission copy; trim gate before tag vs “Risk classification was not stored.”; regression `shows drift risk omission copy when riskClassification is whitespace-only`; cheap-disproof closed finding blocker-join (display formatter covers), pending dialog title (trim gate), and work queue banner (no repro); scoped ResourceHubClient vitest 99/99. Private beta: drift rows show “Risk classification was not stored.” when capture stored only whitespace in `riskClassification`.
+
+- [x] (proven) `ResourceHubDriftChangesTable` — `riskClassification` whitespace-only — **hit 2026-10-26 seed hunt:** trim before `SeverityTag`; regression whitespace risk fixture.
+- [x] (valid-no-repro) `ResourceHubClient` finding action messages — whitespace-only blocker join — **cheap-disproof 2026-10-26 seed hunt:** `formatStoredInfraEvidenceHubField` on display covers joined whitespace.
+- [x] (valid-no-repro) `ResourceHubClient` pending remediation dialog — finding title whitespace — **cheap-disproof 2026-10-26 seed hunt:** confirm body uses trim gate; empty title shows omission path.
+- [x] (valid-no-repro) `ResourceHubClient` work queue banner — `workQueueLabel` whitespace — **cheap-disproof 2026-10-26 seed hunt:** label builder trims; no blank banner repro.
+- [x] (valid-no-repro) `ResourceHubClient` finding action messages — prior remediation message hit — **cheap-disproof 2026-10-26 seed hunt:** prior hit retained.
+
+- [ ] (candidate) `ResourceHubDriftChangesTable` — `changeType` whitespace-only label — locus: drift change type StatusTag; input: whitespace change type string.
+- [ ] (candidate) `ResourceHubClient` remediation tab — `patternKey` whitespace on overview vs tab parity — locus: cross-surface pattern display; input: whitespace pattern key on remediation list only.
+- [ ] (candidate) `ResourceHubClient` network tab — `relationshipType` whitespace-only — locus: network relationship row; input: whitespace relationship type label.
+- [ ] (candidate) `ResourceHubClient` findings stream — `severity` whitespace on stream section header edge — locus: stream label formatter; input: whitespace severity in stream metadata.
+- [ ] (candidate) `ResourceHubClient` audit overview — future `degradedReason` banner body whitespace — locus: overview tab when audit unavailable copy expands; input: whitespace-only reason in overview banner.
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 71
+- **bugs-found:** 50
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-26
+- **last-bug:** 2026-10-26 — whitespace-only drift riskClassification
+- **code-changed-since:** yes
+
 2026-10-26 seed hunt (seed→hit): promoted whitespace-only **finding remediation action message** on findings tab — per-finding status paragraph rendered `findingActionMessages[id].message` raw so whitespace-only `errorMessage` / blocker join produced an empty `<p role="status">`; use `formatStoredInfraEvidenceHubField`; regression `shows remediation action omission copy when create remediation returns whitespace-only errorMessage`; cheap-disproof closed hub load error (prior hit), drift `riskClassification` (seeded below), and pending dialog title trim (already gated); scoped ResourceHubClient vitest 98/98. Private beta: after create-remediation from a finding, operators see “Remediation action message was not stored.” instead of a blank status line when the API returns only whitespace.
 
 - [x] (proven) `ResourceHubClient` finding action messages — remediation error message whitespace-only — **hit 2026-10-26 seed hunt:** `formatStoredInfraEvidenceHubField` on findings tab status paragraph; regression failed-create whitespace `errorMessage` fixture.

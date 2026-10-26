@@ -118,8 +118,8 @@ export function ResourceHubDriftChangesTable(props: ResourceHubDriftChangesTable
             ) : null}
             {showRisk ? (
               <EnterpriseTableCell>
-                {change.riskClassification != null ? (
-                  <SeverityTag severity={change.riskClassification} />
+                {(change.riskClassification?.trim() ?? "").length > 0 ? (
+                  <SeverityTag severity={change.riskClassification!.trim()} />
                 ) : (
                   "Risk classification was not stored."
                 )}
