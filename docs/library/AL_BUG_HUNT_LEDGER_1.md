@@ -6872,9 +6872,9 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 - [ ] (candidate) `SelectiveExecuteIncrementalReReviewCoordinator` — task preload — locus: architecture intelligence; input: incremental re-review misses legacy-keyed tasks.
 - [ ] (candidate) `RecommendationImproveLoopCoordinator` — technology ledger load — locus: recommendation loop; input: `runId.ToString("D")` ledger rows missed.
-- [ ] (candidate) `RunOperationListQueryService` — run operation list — locus: operations hub; input: batch task preload may single-key agent tasks.
-- [ ] (candidate) `BackgroundRunOperationHeartbeatService` — run heartbeat — locus: long-running run ops; input: task snapshot may miss legacy keys.
-- [ ] (candidate) `AgentTaskProgressNotificationService` — progress notifications — locus: operator notifications; input: task load may single-key run id.
+- [ ] (candidate) `AuthorityPipelineArtifactsStage` — technology ledger preload — locus: authority pipeline; input: `run.RunId.ToString("D")` ledger rows missed.
+- [ ] (candidate) `AuthorityPipelineFindingsStage` — agent task preload — locus: authority pipeline; input: dashed-only task load misses legacy keys.
+- [ ] (candidate) `OperationQueryService` — draft/job paths — locus: operations; input: verify no other run-id keyed reads on operation detail surfaces.
 
 - [x] (proven) `OperationQueryService` — run operation agent task load `ToString("D")` — **hit 2026-10-26 seed hunt:** `LoadAgentTasksByRunIdAsync`; regression above.
 - [x] (valid-no-repro) `ArchitectureRunExecuteOrchestrator` — full execute task preload — **cheap-disproof 2026-10-26 seed hunt:** `LoadScheduledTasksForExecuteAsync` already uses merge loader.
