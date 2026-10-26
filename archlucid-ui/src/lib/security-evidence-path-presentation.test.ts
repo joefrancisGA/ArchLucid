@@ -15,10 +15,14 @@ describe("security-evidence-path-presentation", () => {
     expect(formatSecurityEvidenceProvenanceKindLabel("AiInference")).toBe("AI inference");
     expect(formatSecurityEvidencePathConfidenceBandLabel("HighlyLikely")).toBe("Highly likely");
     expect(formatSecurityEvidencePathConfidenceBandLabel("InsufficientEvidence")).toBe("Insufficient evidence");
-    expect(formatSecurityEvidenceProvenanceKindLabel("")).toBe("Provenance was not stored.");
+    expect(formatSecurityEvidenceProvenanceKindLabel("")).toBe("Provenance kind was not stored.");
     expect(formatSecurityEvidencePathConfidenceBandLabel("")).toBe("Confidence band was not stored.");
-    expect(formatSecurityEvidencePathConfidenceBandLabel("UnknownBand")).toBe("Guessed");
-    expect(formatSecurityEvidenceProvenanceKindLabel("UnknownKind")).toBe("Guessed");
+    expect(formatSecurityEvidencePathConfidenceBandLabel("UnknownBand")).toBe(
+      "Confidence band was not recognized.",
+    );
+    expect(formatSecurityEvidenceProvenanceKindLabel("UnknownKind")).toBe(
+      "Provenance kind was not recognized.",
+    );
   });
 
   it("labels missing band and provenance honestly (P-13, P-14)", () => {
@@ -40,6 +44,18 @@ describe("security-evidence-path-presentation", () => {
   it("maps confidence bands to enterprise status kinds without percentages", () => {
     expect(securityEvidencePathConfidenceBandStatusKind("Confirmed")).toBe("ready");
     expect(securityEvidencePathConfidenceBandStatusKind("Possible")).toBe("needs-attention");
+  });
+
+  it("maps hop relationship labels with configured-not-observed honesty", () => {
+    expect(formatSecurityEvidencePathRelationshipLabel("USES_IDENTITY")).toBe(
+      "Identity is assigned. Use of that identity was not stored.",
+    );
+    expect(formatSecurityEvidencePathRelationshipLabel("MEMBER_OF")).toBe(
+      "Group membership was stored. Observed use of that membership was not stored.",
+    );
+    expect(formatSecurityEvidencePathRelationshipLabel("PossibleMovement")).toBe(
+      "Possible movement. An observed move was not stored.",
+    );
   });
 
   it("uses an explicit absence label when a relationship is not stored", () => {

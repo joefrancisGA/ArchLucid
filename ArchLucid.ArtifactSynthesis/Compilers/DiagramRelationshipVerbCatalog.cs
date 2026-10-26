@@ -140,7 +140,7 @@ internal static class DiagramRelationshipVerbCatalog
 
         if (normalized.Equals(GraphEdgeInferenceSources.InventoryAppKeyVaultRef, StringComparison.OrdinalIgnoreCase))
         {
-            label = "likely · in";
+            label = InventoryDiagramRelationshipLabelTexts.AppToKeyVaultRefLabel;
             return true;
         }
 

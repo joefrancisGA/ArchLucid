@@ -81,9 +81,16 @@ public class ArchitectureNarrativeArtifactGenerator : IArtifactGenerator
         else
 
             foreach (SecurityPostureItem control in manifest.Security.Controls)
-
+            {
+                string impact = ArchitectureManifestNarrativeHonestyCopy.FormatOptionalField(
+                    control.Impact,
+                    ArchitectureManifestNarrativeHonestyCopy.ImpactNotStored);
+                string status = ArchitectureManifestNarrativeHonestyCopy.FormatOptionalField(
+                    control.Status,
+                    ArchitectureManifestNarrativeHonestyCopy.StatusNotStored);
                 sb.AppendLine(
-                    $"- {control.ControlId} {control.ControlName} ({control.Impact}): {control.Status}");
+                    $"- {control.ControlId} {control.ControlName} ({impact}): {status}");
+            }
 
         foreach (string gap in manifest.Security.Gaps)
 
@@ -178,16 +185,37 @@ public class ArchitectureNarrativeArtifactGenerator : IArtifactGenerator
                     ? string.Empty
                     : $" (supporting findings: {string.Join(", ", issue.SupportingFindingIds)})";
 
+                string severity = ArchitectureManifestNarrativeHonestyCopy.FormatOptionalField(
+                    issue.Severity,
+                    ArchitectureManifestNarrativeHonestyCopy.IssueSeverityNotStored);
+                string issueType = ArchitectureManifestNarrativeHonestyCopy.FormatOptionalField(
+                    issue.IssueType,
+                    ArchitectureManifestNarrativeHonestyCopy.IssueTypeNotStored);
+                string title = ArchitectureManifestNarrativeHonestyCopy.FormatOptionalField(
+                    issue.Title,
+                    ArchitectureManifestNarrativeHonestyCopy.IssueTitleNotStored);
+                string description = ArchitectureManifestNarrativeHonestyCopy.FormatOptionalField(
+                    issue.Description,
+                    ArchitectureManifestNarrativeHonestyCopy.IssueDescriptionNotStored);
                 sb.AppendLine(
-                    $"- [{issue.Severity}] {issue.IssueType} {issue.Title}: {issue.Description}{findingSuffix}");
+                    $"- [{severity}] {issueType} {title}: {description}{findingSuffix}");
             }
 
         sb.AppendLine();
 
         sb.AppendLine("## Provenance");
-        sb.AppendLine($"- Source Findings: {manifest.Provenance.SourceFindingIds.Count}");
-        sb.AppendLine($"- Source Graph Nodes: {manifest.Provenance.SourceGraphNodeIds.Count}");
-        sb.AppendLine($"- Applied Rules: {manifest.Provenance.AppliedRuleIds.Count}");
+        sb.AppendLine(
+            manifest.Provenance.SourceFindingIds.Count > 0
+                ? $"- Source Findings: {manifest.Provenance.SourceFindingIds.Count}"
+                : $"- {ArchitectureManifestNarrativeHonestyCopy.NoSourceFindingIdsStored}");
+        sb.AppendLine(
+            manifest.Provenance.SourceGraphNodeIds.Count > 0
+                ? $"- Source Graph Nodes: {manifest.Provenance.SourceGraphNodeIds.Count}"
+                : $"- {ArchitectureManifestNarrativeHonestyCopy.NoSourceGraphNodeIdsStored}");
+        sb.AppendLine(
+            manifest.Provenance.AppliedRuleIds.Count > 0
+                ? $"- Applied Rules: {manifest.Provenance.AppliedRuleIds.Count}"
+                : $"- {ArchitectureManifestNarrativeHonestyCopy.NoAppliedRuleIdsStored}");
         sb.AppendLine();
 
         string content = LlmArtifactFreeTextSanitizer.Sanitize(sb.ToString());
@@ -217,8 +245,14 @@ public class ArchitectureNarrativeArtifactGenerator : IArtifactGenerator
 
     private static string FormatRequirementLine(string prefix, RequirementCoverageItem item)
     {
+        string requirementName = ArchitectureManifestNarrativeHonestyCopy.FormatOptionalField(
+            item.RequirementName,
+            ArchitectureManifestNarrativeHonestyCopy.RequirementNameNotStored);
+        string coverageStatus = ArchitectureManifestNarrativeHonestyCopy.FormatOptionalField(
+            item.CoverageStatus,
+            ArchitectureManifestNarrativeHonestyCopy.CoverageStatusNotStored);
         string line =
-            $"- {prefix}: {item.RequirementName} ({item.CoverageStatus}; mandatory: {(item.IsMandatory ? "yes" : "no")})";
+            $"- {prefix}: {requirementName} ({coverageStatus}; mandatory: {(item.IsMandatory ? "yes" : "no")})";
 
         if (string.IsNullOrWhiteSpace(item.RequirementText))
             return line;

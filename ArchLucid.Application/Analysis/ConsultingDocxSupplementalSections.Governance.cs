@@ -29,8 +29,12 @@ internal static partial class ConsultingDocxSupplementalSections
             foreach (ManifestService service in report.Manifest.Services.OrderBy(x => x.ServiceName))
             {
                 ConsultingDocxOpenXmlPrimitives.AddStyledParagraph(body, service.ServiceName, "Strong");
-                ConsultingDocxOpenXmlPrimitives.AddBullet(body, $"Type: {service.ServiceType}");
-                ConsultingDocxOpenXmlPrimitives.AddBullet(body, $"Platform: {service.RuntimePlatform}");
+                ConsultingDocxOpenXmlPrimitives.AddBullet(
+                    body,
+                    $"Type: {FormatConsultingServiceType(service.ServiceType)}");
+                ConsultingDocxOpenXmlPrimitives.AddBullet(
+                    body,
+                    $"Platform: {FormatConsultingRuntimePlatform(service.RuntimePlatform)}");
 
                 if (!string.IsNullOrWhiteSpace(service.Purpose))
 
@@ -101,11 +105,24 @@ internal static partial class ConsultingDocxSupplementalSections
         ConsultingDocxOpenXmlPrimitives.AddKeyValueTable(body, [
             ("Risk Classification", ArchitectureManifestGovernanceExport.FormatRiskClassificationForExport(gov)),
             ("Cost Classification", ArchitectureManifestGovernanceExport.FormatCostClassificationForExport(gov)),
-            ("Required Controls", gov.RequiredControls.Count > 0 ? string.Join(", ", gov.RequiredControls) : "None"),
-            ("Compliance Tags", gov.ComplianceTags.Count > 0 ? string.Join(", ", gov.ComplianceTags) : "None"),
-            ("Policy Constraints", gov.PolicyConstraints.Count > 0 ? string.Join(", ", gov.PolicyConstraints) : "None")
+            ("Required Controls", FormatConsultingGovernanceList(gov.RequiredControls, ConsultingDocxGovernanceHonestyCopy.RequiredControlsNotStored)),
+            ("Compliance Tags", FormatConsultingGovernanceList(gov.ComplianceTags, ConsultingDocxGovernanceHonestyCopy.ComplianceTagsNotStored)),
+            ("Policy Constraints", FormatConsultingGovernanceList(gov.PolicyConstraints, ConsultingDocxGovernanceHonestyCopy.PolicyConstraintsNotStored))
         ]);
     }
+
+    private static string FormatConsultingGovernanceList(IReadOnlyList<string> items, string emptyCopy) =>
+        items.Count > 0 ? string.Join(", ", items) : emptyCopy;
+
+    private static string FormatConsultingServiceType(ServiceType serviceType) =>
+        serviceType == ServiceType.Unknown
+            ? ConsultingDocxGovernanceHonestyCopy.ServiceTypeNotStored
+            : serviceType.ToString();
+
+    private static string FormatConsultingRuntimePlatform(RuntimePlatform runtimePlatform) =>
+        runtimePlatform == RuntimePlatform.Unknown
+            ? ConsultingDocxGovernanceHonestyCopy.RuntimePlatformNotStored
+            : runtimePlatform.ToString();
 
     public static void AddExplainabilitySection(
         Body body,
