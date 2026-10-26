@@ -11,6 +11,22 @@ namespace ArchLucid.Core.Tests.AzureExtractor;
 public sealed class AzureInventoryAdfLinkedServiceTargetExtractorTests
 {
     [Fact]
+    public void Extract_reads_databricks_host_from_percent_encoded_workspace_url()
+    {
+        const string host = "adb-1234567890123456.7.azuredatabricks.net";
+        string encodedUrl = Uri.EscapeDataString($"https://{host}/");
+
+        using JsonDocument document = JsonDocument.Parse(
+            $$"""{ "workspaceUrl": "{{encodedUrl}}" }""");
+
+        (string? targetResourceId, string? targetHost) =
+            AzureInventoryAdfLinkedServiceTargetExtractor.Extract(document.RootElement, "AzureDatabricks");
+
+        targetResourceId.Should().BeNull();
+        targetHost.Should().Be(host);
+    }
+
+    [Fact]
     public void Extract_reads_event_hub_host_from_percent_encoded_fully_qualified_namespace_with_trailing_dot()
     {
         const string host = "eh1.servicebus.windows.net";

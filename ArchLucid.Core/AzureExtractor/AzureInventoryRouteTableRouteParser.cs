@@ -464,7 +464,7 @@ public static class AzureInventoryRouteTableRouteParser
 
         if (valueElement.ValueKind is JsonValueKind.String)
         {
-            return NormalizeArmId(valueElement.GetString());
+            return TryParseFlattenedArmIdValue(valueElement.GetString());
         }
 
         if (valueElement.ValueKind is JsonValueKind.Object)
