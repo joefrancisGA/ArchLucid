@@ -355,6 +355,27 @@ public sealed class AzureInventoryArmNestedObjectPropertyReaderTests
     }
 
     [Fact]
+    public void TryReadScalarString_reads_percent_encoded_json_string_scalar_wrapping_dual_key_reference_with_doubly_percent_encoded_arm_paths()
+    {
+        const string armPath1 =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1";
+        const string armPath2 =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa2";
+        string encodedOnce1 = Uri.EscapeDataString(armPath1);
+        string encodedTwice1 = Uri.EscapeDataString(encodedOnce1);
+        string encodedOnce2 = Uri.EscapeDataString(armPath2);
+        string encodedTwice2 = Uri.EscapeDataString(encodedOnce2);
+        string referenceJson = JsonSerializer.Serialize(new { id = encodedTwice1, resourceId = encodedTwice2 });
+        string encodedReference = Uri.EscapeDataString(referenceJson);
+        using JsonDocument document = JsonDocument.Parse(
+            $"{{\"resourceId\":{JsonSerializer.Serialize(encodedReference)}}}");
+
+        AzureInventoryArmNestedObjectPropertyReader.TryReadString(document.RootElement, "resourceId")
+            .Should()
+            .Be("/subscriptions/sub/resourcegroups/rg/providers/microsoft.storage/storageaccounts/sa1");
+    }
+
+    [Fact]
     public void TryReadScalarString_reads_percent_encoded_json_string_scalar_wrapping_id_only_reference_with_doubly_percent_encoded_arm_path()
     {
         const string armPath =

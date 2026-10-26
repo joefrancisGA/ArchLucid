@@ -109,6 +109,36 @@ public sealed class AzureInventoryEventGridDestinationExtractorTests
     }
 
     [Fact]
+    public void Extract_reads_azure_function_destination_resource_id_when_properties_resource_id_is_percent_encoded_json_reference_scalar()
+    {
+        const string functionId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Web/sites/fn1/functions/f1";
+        string referenceJson = JsonSerializer.Serialize(new { resourceId = functionId });
+        string encodedReference = Uri.EscapeDataString(referenceJson);
+
+        using JsonDocument document = JsonDocument.Parse(
+            $$"""
+            {
+              "destination": {
+                "endpointType": "AzureFunction",
+                "properties": {
+                  "resourceId": {{JsonSerializer.Serialize(encodedReference)}}
+                }
+              }
+            }
+            """);
+
+        (
+            string destinationKind,
+            string? destinationResourceId,
+            _,
+            _) = AzureInventoryEventGridDestinationExtractor.Extract(document.RootElement);
+
+        destinationKind.Should().Be("AzureFunction");
+        destinationResourceId.Should().Be(functionId.ToLowerInvariant());
+    }
+
+    [Fact]
     public void Extract_reads_azure_function_destination_resource_id_from_nested_properties_object_with_resource_id_key_only()
     {
         const string functionId =
