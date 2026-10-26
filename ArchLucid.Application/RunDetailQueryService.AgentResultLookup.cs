@@ -48,21 +48,13 @@ public sealed partial class RunDetailQueryService
         return [];
     }
 
-    private async Task<IReadOnlyList<AgentExecutionTraceLlmCostSlice>> LoadLlmCostSlicesForRunLookupAsync(
+    private Task<IReadOnlyList<AgentExecutionTraceLlmCostSlice>> LoadLlmCostSlicesForRunLookupAsync(
         ScopeContext scope,
         string primaryLookupRunId,
-        CancellationToken cancellationToken)
-    {
-        foreach (string lookupKey in AnalysisRunIdCanonicalization.EnumerateRunIdRepositoryLookupKeys(primaryLookupRunId))
-        {
-            IReadOnlyList<AgentExecutionTraceLlmCostSlice> slices = await _agentExecutionTraceRepository
-                .GetLlmCostSlicesByRunIdAsync(scope, lookupKey, cancellationToken)
-                .ConfigureAwait(false);
-
-            if (slices is { Count: > 0 })
-                return slices;
-        }
-
-        return [];
-    }
+        CancellationToken cancellationToken) =>
+        AnalysisRunIdCanonicalization.LoadLlmCostSlicesByRunIdAsync(
+            _agentExecutionTraceRepository,
+            scope,
+            primaryLookupRunId,
+            cancellationToken);
 }

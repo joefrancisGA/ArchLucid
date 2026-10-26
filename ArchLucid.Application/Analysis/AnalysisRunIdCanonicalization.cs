@@ -1,4 +1,5 @@
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
 
@@ -77,6 +78,27 @@ internal static class AnalysisRunIdCanonicalization
 
             if (traces is { Count: > 0 })
                 return traces;
+        }
+
+        return [];
+    }
+
+    internal static async Task<IReadOnlyList<AgentExecutionTraceLlmCostSlice>> LoadLlmCostSlicesByRunIdAsync(
+        IAgentExecutionTraceRepository traceRepository,
+        ScopeContext scope,
+        string primaryRunId,
+        CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(traceRepository);
+
+        foreach (string lookupKey in EnumerateRunIdRepositoryLookupKeys(primaryRunId))
+        {
+            IReadOnlyList<AgentExecutionTraceLlmCostSlice> slices = await traceRepository
+                .GetLlmCostSlicesByRunIdAsync(scope, lookupKey, cancellationToken)
+                .ConfigureAwait(false);
+
+            if (slices is { Count: > 0 })
+                return slices;
         }
 
         return [];
