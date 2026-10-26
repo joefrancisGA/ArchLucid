@@ -2566,6 +2566,17 @@ public sealed class ConfigurationEmbeddedCredentialRedactionMatrixTests
     }
 
     [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_client_secret_pair_is_three_thousand_four_hundred_thirty_two_layer_percent_encoded_in_query()
+    {
+        string encodedEquals = Uri.EscapeDataString("=");
+        for (int layer = 1; layer < 3432; layer++)
+            encodedEquals = Uri.EscapeDataString(encodedEquals);
+
+        string effectiveValue = "redirect=https://x?ClientSecret" + encodedEquals + "abc";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
     public void Resolve_redacts_embedded_credential_material_when_password_pair_is_presentation_form_yen_sign_delimited()
     {
         string effectiveValue = "Server=prod" + '\uFE6D' + "Password=secret";
@@ -3409,6 +3420,13 @@ public sealed class ConfigurationEmbeddedCredentialRedactionMatrixTests
     public void Resolve_redacts_embedded_credential_material_when_token_pair_is_arabic_teh_marbuta_isolated_form_twenty_seven_delimited()
     {
         string effectiveValue = "Server=prod" + '\uFEEC' + "Token=secret";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_api_key_pair_is_arabic_teh_marbuta_medial_form_thirty_one_delimited()
+    {
+        string effectiveValue = "Server=prod" + '\uFEED' + "ApiKey=secret";
         AssertRedacts(effectiveValue);
     }
 
