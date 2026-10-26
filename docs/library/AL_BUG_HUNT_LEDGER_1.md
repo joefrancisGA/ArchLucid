@@ -6868,6 +6868,18 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-26 seed hunt (seed→hit): reseeded `application-analysis` with zero open hunt-ready rows; promoted anchor-gate follow-on after hunt 318 merge freshness; proved `AgentResultsAppearAnchoredToRun` returned true when hydrated compare/replay `Results` contained only null slots (non-zero `Count`), so `ResolveAgentResultsForCompareReadAsync` skipped repository reload and compare-quality paths kept empty agent diffs; require at least one non-null result anchored to the expected run id; regressions `CompareQuality_AgentResultsAppearAnchoredToRun_returns_false_when_all_results_are_null` and `CompareQuality_ResolveAgentResultsForCompareReadAsync_reloads_when_hydrated_rows_are_all_null`; cheap-disproof closed prefer-newer merge (hunt 318), unanchored empty `RunId` (existing test); seeded five follow-on rows; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` filter 310/310. Private beta: architecture compare, HTTP compare-agents, and end-to-end replay reload agent results when hydrated rollup lists contain only null placeholders.
+
+- [ ] (candidate) `RunDetailRetrievalGroundingEnrichmentSlice` — retrieval trace run key — locus: Guid-scoped reader; input: defer unless string RunId ordinal store proven.
+- [ ] (candidate) `ComparisonRecordRepository.GetByRunIdAsync` — SQL list-by-run dashed stored — locus: UNIQUEIDENTIFIER column; input: already matches N/D lookup via guid param.
+- [ ] (candidate) `ComparisonRecordRepositoryCore.SerializeTagsForUpdate` — JSON tag order — locus: cosmetic; input: defer.
+- [ ] (candidate) `ComparisonRecordSearchPredicateBuilder` — notes column search — locus: no notes filter today; input: defer.
+- [ ] (candidate) `ApiPaging.TryParseUtcTicksIdCursor` — cursor id segment without trim — locus: HTTP cursor parse; input: padded id after ticks delimiter (alerts inbox and other API surfaces).
+
+- [x] (proven) `AgentResultsAppearAnchoredToRun` — all-null hydrated rows — **hit 2026-10-26 seed hunt:** `sawAnchoredResult`; regressions above.
+- [x] (valid-no-repro) `AnalysisRunIdCanonicalization` merge loaders — stale duplicate ids — **cheap-disproof 2026-10-26 seed hunt:** hunt 318 `PreferNewerByCreatedUtc`.
+- [x] (invalid) `ApiPaging.TryParseUtcTicksIdCursor` — HTTP cursor id trim — **cheap-disproof 2026-10-26 seed hunt:** comparison search normalizes at application layer.
+
 2026-10-26 seed hunt (seed→hit): reseeded `application-analysis` with zero open hunt-ready rows; promoted follow-on after hunt 317 LLM slice dedupe; proved multi-key merge loaders used `TryAdd` so when canonical and legacy keys returned the same entity id the **first** key won even when a later key had a newer `CreatedUtc`, leaving stale agent results (and the same pattern on tasks, traces, markers, decision nodes, exports, comparisons); centralize `PreferNewerByCreatedUtc` across merge loaders; regression `CompareQuality_LoadAgentResultsByRunIdAsync_prefers_newer_row_when_alternate_keys_repeat_result_id`; cheap-disproof closed LLM slice fingerprint dedupe (hunt 317), split-bucket-only merges (hunt 313–315); seeded five follow-on rows; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` filter 308/308. Private beta: compare-quality and run detail surfaces show the newest persisted rows when repositories echo the same ids on multiple legacy run-id lookup keys.
 
 - [ ] (candidate) `RunDetailRetrievalGroundingEnrichmentSlice` — retrieval trace run key — locus: Guid-scoped reader; input: defer unless string RunId ordinal store proven.
