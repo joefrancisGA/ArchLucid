@@ -43,6 +43,12 @@ describe("finding-detail-route-display buyer summary copy", () => {
     );
   });
 
+  it("does not invent High severity for PHI showcase finding id without payload", () => {
+    const summary = deriveFindingDecisionSummary(null, "sensitive-data-minimization-risk");
+
+    expect(summary.severity).toBe("Severity was not stored");
+  });
+
   it("does not invent owner, status, or monitoring for PHI showcase finding id without payload", () => {
     const summary = deriveFindingDecisionSummary(null, "sensitive-data-minimization-risk");
 

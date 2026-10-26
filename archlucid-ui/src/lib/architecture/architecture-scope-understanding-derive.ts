@@ -12,7 +12,9 @@ import type {
   ScopeUnderstandingBulletKind,
 } from "./architecture-scope-understanding-shared";
 
-/** Labels each actor for scope mirroring — falls back to kind/trust when the label field is empty. */
+export const ACTOR_SCOPE_DISPLAY_NAME_NOT_STORED = "Actor name was not stored." as const;
+
+/** Labels each actor for scope mirroring — never substitutes kind for a missing name. */
 export function actorScopeDisplayLabel(actor: ScopeActorInput): string {
   const trimmedLabel = actor.label?.trim() ?? "";
 
@@ -20,19 +22,7 @@ export function actorScopeDisplayLabel(actor: ScopeActorInput): string {
     return trimmedLabel;
   }
 
-  const kind = actor.kind.trim();
-
-  if (kind.length === 0) {
-    return "";
-  }
-
-  const trustOrigin = actor.trustOrigin?.trim() ?? "";
-
-  if (trustOrigin.length > 0 && trustOrigin !== "Internal") {
-    return `${kind} (${trustOrigin})`;
-  }
-
-  return kind;
+  return ACTOR_SCOPE_DISPLAY_NAME_NOT_STORED;
 }
 
 function uniqueScopeLabels(labels: readonly string[]): string[] {

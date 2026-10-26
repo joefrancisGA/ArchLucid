@@ -77,6 +77,15 @@ describe("deriveScopeUnderstandingBullets", () => {
     expect(bullets.find((entry) => entry.kind === "systems")?.value).toBe("Policy API");
   });
 
+  it("labels actors without stored names instead of substituting kind", () => {
+    const bullets = deriveScopeUnderstandingBullets({
+      architectureName: "Vertex",
+      peopleAndSystems: [{ label: "", kind: "Human", trustOrigin: "External" }],
+    });
+
+    expect(bullets.find((entry) => entry.kind === "people")?.value).toBe("Actor name was not stored.");
+  });
+
   it("lists every confirmed actor in the mirrored people and systems rows", () => {
     const bullets = deriveScopeUnderstandingBullets({
       architectureName: "Vertex",

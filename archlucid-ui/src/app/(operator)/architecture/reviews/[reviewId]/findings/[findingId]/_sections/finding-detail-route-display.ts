@@ -166,10 +166,6 @@ export function fallbackSeverity(payload: FindingInspectPayload | null, findingI
     if (severity !== null && severity.trim().length > 0) {
       return severity;
     }
-
-    if (isPhiMinimizationSampleFinding(payload)) {
-      return "High";
-    }
   }
 
   return SEVERITY_NOT_STORED;
