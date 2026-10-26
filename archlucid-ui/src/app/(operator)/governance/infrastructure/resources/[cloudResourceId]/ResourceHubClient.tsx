@@ -454,6 +454,10 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
   );
   const urlSnapshotPinBootstrappedForResourceRef = useRef<string | null>(null);
   const urlSnapshotPinBootstrapIsResourceSwitchRef = useRef(false);
+  const committedUrlRunPinRef = useRef(runId);
+  const urlRunPinForCloudResourceIdRef = useRef<string | null>(
+    runId.length > 0 ? cloudResourceId : null,
+  );
 
   useEffect(() => {
     if (skipInitialHubScopeResetRef.current) {
@@ -471,6 +475,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
     if (previousCloudResourceId !== cloudResourceId) {
       lastResolvedHubSnapshotIdRef.current = "";
       urlSnapshotPinForCloudResourceIdRef.current = null;
+      urlRunPinForCloudResourceIdRef.current = null;
       urlSnapshotPinBootstrappedForResourceRef.current = null;
       urlSnapshotPinBootstrapIsResourceSwitchRef.current = true;
     }
@@ -494,20 +499,25 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
       urlSnapshotPinBootstrapIsResourceSwitchRef.current = false;
       urlSnapshotPinBootstrappedForResourceRef.current = cloudResourceId;
       committedUrlSnapshotPinRef.current = snapshotId;
+      committedUrlRunPinRef.current = runId;
       if (isResourceSwitch) {
         urlSnapshotPinForCloudResourceIdRef.current = null;
+        urlRunPinForCloudResourceIdRef.current = null;
       }
 
       return;
     }
 
-    if (snapshotId === committedUrlSnapshotPinRef.current) {
-      return;
+    if (snapshotId !== committedUrlSnapshotPinRef.current) {
+      committedUrlSnapshotPinRef.current = snapshotId;
+      urlSnapshotPinForCloudResourceIdRef.current = snapshotId.length > 0 ? cloudResourceId : null;
     }
 
-    committedUrlSnapshotPinRef.current = snapshotId;
-    urlSnapshotPinForCloudResourceIdRef.current = snapshotId.length > 0 ? cloudResourceId : null;
-  }, [cloudResourceId, snapshotId]);
+    if (runId !== committedUrlRunPinRef.current) {
+      committedUrlRunPinRef.current = runId;
+      urlRunPinForCloudResourceIdRef.current = runId.length > 0 ? cloudResourceId : null;
+    }
+  }, [cloudResourceId, runId, snapshotId]);
 
   const resolvedSnapshotId = useMemo(() => {
     if (
@@ -532,6 +542,22 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
     }
   }, [hub?.currentConfiguration?.snapshotId]);
 
+  const resolvedRunId = useMemo(() => {
+    if (runId.length === 0) {
+      return "";
+    }
+
+    if (urlRunPinForCloudResourceIdRef.current === cloudResourceId) {
+      return runId;
+    }
+
+    if (runId !== committedUrlRunPinRef.current) {
+      return runId;
+    }
+
+    return "";
+  }, [cloudResourceId, runId]);
+
   const snapshotPinned = useMemo(
     () =>
       snapshotId.length > 0
@@ -544,23 +570,31 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
       return;
     }
 
-    if (snapshotId.length === 0) {
-      return;
-    }
+    const snapshotNeedsNormalize =
+      snapshotId.length > 0
+      && urlSnapshotPinForCloudResourceIdRef.current !== cloudResourceId;
+    const runNeedsNormalize =
+      runId.length > 0
+      && urlRunPinForCloudResourceIdRef.current !== cloudResourceId;
 
-    if (urlSnapshotPinForCloudResourceIdRef.current === cloudResourceId) {
+    if (!snapshotNeedsNormalize && !runNeedsNormalize) {
       return;
     }
 
     const nextHref = resourceHubFilterHrefFromSearch(cloudResourceId, searchParams.toString(), {
       tab: activeTab,
-      snapshotId: resolvedSnapshotId.length > 0 ? resolvedSnapshotId : "",
-      runId: runId.length > 0 ? runId : undefined,
+      snapshotId: snapshotNeedsNormalize
+        ? (resolvedSnapshotId.length > 0 ? resolvedSnapshotId : "")
+        : undefined,
+      runId: runNeedsNormalize
+        ? (resolvedRunId.length > 0 ? resolvedRunId : "")
+        : undefined,
     });
     router.replace(nextHref, { scroll: false });
   }, [
     activeTab,
     cloudResourceId,
+    resolvedRunId,
     resolvedSnapshotId,
     router,
     runId,
@@ -823,7 +857,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
       const staleAuditUrlParams = hasStaleInfraEvidenceAuditUrlParams(searchParams);
 
       let response = await fetchCachedInfraEvidenceResourceHub(cloudResourceId, {
-        runId,
+        runId: resolvedRunId,
         snapshotId: snapshotForFetch,
         ...hubFetchAuditScope,
       });
@@ -843,7 +877,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
           snapshotForFetch.length > 0 ? snapshotForFetch : response.currentConfiguration?.snapshotId ?? "";
 
         response = await fetchCachedInfraEvidenceResourceHub(cloudResourceId, {
-          runId,
+          runId: resolvedRunId,
           snapshotId: resolvedSnapshotForAuditFetch,
           assessmentId: urlAuditScope.assessmentId,
           auditEvidenceSnapshotId: urlAuditScope.auditEvidenceSnapshotId,
@@ -875,7 +909,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
 
       setLoading(false);
     }
-  }, [cloudResourceId, hubFetchAuditScope, resolvedSnapshotId, runId, searchParams, snapshotId]);
+  }, [cloudResourceId, hubFetchAuditScope, resolvedRunId, resolvedSnapshotId, runId, searchParams, snapshotId]);
 
   useEffect(() => {
     void loadHub();
@@ -1243,7 +1277,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
       <ResourceHubSnapshotScopeStrip
         snapshotId={resolvedSnapshotId}
         snapshotPinned={snapshotPinned}
-        runId={runId}
+        runId={resolvedRunId}
       />
 
       <main

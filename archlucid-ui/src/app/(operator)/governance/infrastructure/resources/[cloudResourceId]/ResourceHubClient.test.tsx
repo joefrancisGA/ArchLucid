@@ -375,6 +375,33 @@ describe("ResourceHubClient", () => {
     });
   });
 
+  it("ignores stale runId on hub fetch after cloudResourceId changes", async () => {
+    const otherCloudResourceId = "88888888-8888-8888-8888-888888888888";
+    const staleRunId = "run-from-prior-resource";
+
+    searchParams = new URLSearchParams(
+      `tab=overview&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}&runId=${staleRunId}`,
+    );
+    const { rerender } = render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    await waitFor(() => {
+      expect(fetchCachedInfraEvidenceResourceHub).toHaveBeenCalledWith(
+        RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID,
+        expect.objectContaining({ runId: staleRunId }),
+      );
+    });
+
+    fetchCachedInfraEvidenceResourceHub.mockClear();
+    rerender(<ResourceHubClient cloudResourceId={otherCloudResourceId} />);
+
+    await waitFor(() => {
+      expect(fetchCachedInfraEvidenceResourceHub).toHaveBeenCalledWith(
+        otherCloudResourceId,
+        expect.objectContaining({ runId: "" }),
+      );
+    });
+  });
+
   it("normalizes stale URL snapshotId via router after cloudResourceId changes", async () => {
     const otherCloudResourceId = "88888888-8888-8888-8888-888888888888";
     const staleSnapshotId = "99999999-9999-9999-9999-999999999999";
