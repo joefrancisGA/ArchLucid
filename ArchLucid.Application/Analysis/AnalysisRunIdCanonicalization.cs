@@ -423,32 +423,13 @@ internal static class AnalysisRunIdCanonicalization
     {
         ArgumentNullException.ThrowIfNull(environmentActivationRepository);
 
-        Dictionary<string, GovernanceEnvironmentActivation> merged = new(StringComparer.OrdinalIgnoreCase);
+        string lookupRunId = CanonicalRunIdForLookup(primaryRunId);
 
-        foreach (string lookupKey in EnumerateRunIdRepositoryLookupKeys(primaryRunId))
-        {
-            IReadOnlyList<GovernanceEnvironmentActivation> records = await environmentActivationRepository
-                .GetByRunIdAsync(lookupKey, cancellationToken)
-                .ConfigureAwait(false);
+        IReadOnlyList<GovernanceEnvironmentActivation> records = await environmentActivationRepository
+            .GetByRunIdAsync(lookupRunId, cancellationToken)
+            .ConfigureAwait(false);
 
-            if (records is not { Count: > 0 })
-                continue;
-
-            foreach (GovernanceEnvironmentActivation record in records)
-            {
-                if (record is null || string.IsNullOrWhiteSpace(record.ActivationId))
-                    continue;
-
-                PreferNewerByCreatedUtc(merged, record.ActivationId, record, static r => r.ActivatedUtc);
-            }
-        }
-
-        return merged.Count == 0
-            ? []
-            : merged.Values
-                .OrderByDescending(static record => record.ActivatedUtc)
-                .ThenBy(static record => record.ActivationId, StringComparer.OrdinalIgnoreCase)
-                .ToList();
+        return records ?? [];
     }
 
     private static void PreferNewerByCreatedUtc<T>(
