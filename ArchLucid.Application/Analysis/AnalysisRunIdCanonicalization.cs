@@ -319,32 +319,19 @@ internal static class AnalysisRunIdCanonicalization
     {
         ArgumentNullException.ThrowIfNull(traceRepository);
 
-        Dictionary<string, AgentExecutionTrace> merged = new(StringComparer.OrdinalIgnoreCase);
+        string lookupRunId = CanonicalRunIdForLookup(primaryRunId);
 
-        foreach (string lookupKey in EnumerateRunIdRepositoryLookupKeys(primaryRunId))
-        {
-            IReadOnlyList<AgentExecutionTrace> traces = await traceRepository
-                .GetByRunIdAsync(scope, lookupKey, cancellationToken)
-                .ConfigureAwait(false);
+        IReadOnlyList<AgentExecutionTrace> traces = await traceRepository
+            .GetByRunIdAsync(scope, lookupRunId, cancellationToken)
+            .ConfigureAwait(false);
 
-            if (traces is not { Count: > 0 })
-                continue;
+        if (traces is not { Count: > 0 })
+            return [];
 
-            foreach (AgentExecutionTrace trace in traces)
-            {
-                if (trace is null || string.IsNullOrWhiteSpace(trace.TraceId))
-                    continue;
-
-                PreferNewerByCreatedUtc(merged, trace.TraceId, trace, static t => t.CreatedUtc);
-            }
-        }
-
-        return merged.Count == 0
-            ? []
-            : merged.Values
-                .OrderBy(static trace => trace.CreatedUtc)
-                .ThenBy(static trace => trace.TraceId, StringComparer.OrdinalIgnoreCase)
-                .ToList();
+        return traces
+            .OrderBy(static trace => trace.CreatedUtc)
+            .ThenBy(static trace => trace.TraceId, StringComparer.OrdinalIgnoreCase)
+            .ToList();
     }
 
     internal static async Task<IReadOnlyList<AgentExecutionTraceLlmCostSlice>> LoadLlmCostSlicesByRunIdAsync(
@@ -396,7 +383,12 @@ internal static class AnalysisRunIdCanonicalization
             }
         }
 
-        return merged.Count == 0 ? [] : merged.Values.ToList();
+        return merged.Count == 0
+            ? []
+            : merged.Values
+                .OrderByDescending(static marker => marker.CreatedUtc)
+                .ThenBy(static marker => marker.ResultId, StringComparer.OrdinalIgnoreCase)
+                .ToList();
     }
 
     internal static async Task<AgentEvidencePackage?> LoadEvidencePackageByRunIdAsync(
