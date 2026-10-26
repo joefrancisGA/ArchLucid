@@ -7209,6 +7209,32 @@ ABQ-09 churn hotspot.
 
 ## Zone: ui-infra-resource-hub
 
+2026-10-26 seed hunt (seed-only): re-read `ResourceHubClient` after per-resource URL snapshot pin + scope-strip label fixes (hunts 106–107); no new hunt-ready defect without another saturated `[state-machine-gap]` async-guard synonym; cheap-disproof closed cross-workbench remediation/drift hrefs (`resolvedSnapshotId`), tab `setActiveTab` URL rewrite, technical disclosure URL sync (`resourceHubFilterHrefFromSearch` overlay), manual Retry (`loadRequestGeneration`), and terraform quick link (polish); seeded five follow-on `(candidate)` rows; scoped ResourceHubClient vitest 131/131; no production code changed. Private beta: n/a.
+
+- [x] (valid-no-repro) `ResourceHubClient` cross-workbench links — stale URL `snapshotId` after resource navigation — **cheap-disproof 2026-10-26 seed hunt:** href builders use `resolvedSnapshotId`; hunts 106–107 cover fetch/label.
+- [x] (valid-no-repro) `ResourceHubClient` `setActiveTab` — stale snapshot in browser URL — **cheap-disproof 2026-10-26 seed hunt:** tab replace passes `resolvedSnapshotId` into `resourceHubFilterHrefFromSearch`.
+- [x] (valid-no-repro) `ResourceHubClient` `syncInfraResourceHubTechnicalKeyToUrl` — stale query snapshot — **cheap-disproof 2026-10-26 seed hunt:** scoped href overlay uses `resolvedSnapshotId`.
+- [x] (valid-no-repro) `ResourceHubClient` manual Retry — concurrent scope change — **cheap-disproof 2026-10-26 seed hunt:** generation guard + scope effect.
+- [x] (valid-no-repro) `ResourceHubClient` overview — terraform tab quick link — **cheap-disproof 2026-10-26 seed hunt:** navigation polish.
+
+- [ ] (candidate) `ResourceHubClient` router URL — normalize inactive URL `snapshotId` after `cloudResourceId` change — locus: bookmark/copy URL still shows prior resource pin until operator changes tab; input: `router.replace` when pin ref cleared.
+- [ ] (candidate) `ResourceHubClient` `buildResourceHubClientScopeKey` — raw URL snapshot vs fetch scope — locus: scope key still encodes stale query snapshot while fetch uses `resolvedSnapshotId`; input: monitor for spurious scope resets if key ever switches to resolved id.
+- [ ] (candidate) `ResourceHubClient` overview — quick link to terraform tab when mapped — locus: navigation polish.
+- [ ] (candidate) `ResourceHubClient` buyer-polished identifier disclosures — ARM copy affordance — locus: polish.
+- [ ] (candidate) `ResourceHubDriftChangesTable` — drift actions without change ids — locus: saturated trim class; defer.
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 108
+- **bugs-found:** 85
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-26
+- **last-bug:** 2026-10-26 — misleading pinned snapshot label after cloudResourceId change
+- **code-changed-since:** no
+
 2026-10-26 seed hunt (seed→hit): promoted **misleading pinned snapshot label** after `cloudResourceId` change — hunt 106 stopped honoring a carried URL `snapshotId` on hub fetch, but `snapshotPinned` still keyed only on raw query length, so the scope strip kept showing **Pinned snapshot** and copy implying URL intent while evidence loaded unpinned; align `snapshotPinned` with the same per-resource URL pin ref as `resolvedSnapshotId`; regression `shows latest snapshot label when URL snapshotId is stale after cloudResourceId changes`; cheap-disproof closed technical disclosure carryover (URL-synced), terraform tab quick link (polish), drift change-id trim (deferred), and hub fetch pin (prior hit); scoped ResourceHubClient vitest 131/131. Private beta: switching resource hubs no longer tells operators their snapshot is URL-pinned when the hub is actually showing latest inventory for the new resource.
 
 - [x] (proven) `ResourceHubClient` `snapshotPinned` — stale URL pin label after resource navigation — **hit 2026-10-26 seed hunt:** matches `urlSnapshotPinForCloudResourceIdRef`; regression above.
