@@ -50,7 +50,10 @@ public sealed partial class ComparisonsApplicationService(
             return null;
 
         IReadOnlyList<ComparisonRecord> records =
-            await _comparisonRecordRepository.GetByRunIdAsync(lookupRunId, ct);
+            await AnalysisRunIdCanonicalization.LoadComparisonRecordsByRunIdAsync(
+                _comparisonRecordRepository,
+                lookupRunId,
+                ct).ConfigureAwait(false);
         ComparisonRecordScopedReadNormalizer.NormalizeListInPlace(records);
         return records;
     }

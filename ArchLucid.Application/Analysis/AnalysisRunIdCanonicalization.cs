@@ -287,4 +287,24 @@ internal static class AnalysisRunIdCanonicalization
 
         return [];
     }
+
+    internal static async Task<IReadOnlyList<ComparisonRecord>> LoadComparisonRecordsByRunIdAsync(
+        IComparisonRecordRepository comparisonRecordRepository,
+        string primaryRunId,
+        CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(comparisonRecordRepository);
+
+        foreach (string lookupKey in EnumerateRunIdRepositoryLookupKeys(primaryRunId))
+        {
+            IReadOnlyList<ComparisonRecord> records = await comparisonRecordRepository
+                .GetByRunIdAsync(lookupKey, cancellationToken)
+                .ConfigureAwait(false);
+
+            if (records is { Count: > 0 })
+                return records;
+        }
+
+        return [];
+    }
 }
