@@ -136,7 +136,12 @@ export function RunWizardCostPreviewCard(props: RunWizardCostPreviewCardProps = 
             {" "}
             · deployment <code className={cn("rounded bg-neutral-100 px-1 dark:bg-neutral-800", OPERATOR_TYPOGRAPHY.helper)}>{data.deploymentName}</code>
           </>
-        ) : null}
+        ) : (
+          <>
+            {" "}
+            · <span data-testid="run-cost-preview-deployment-stored-empty">Deployment name was stored empty.</span>
+          </>
+        )}
       </p>
       {data.pricingUsesIllustrativeUsdRates === true ? (
         <p className={cn("mt-2 mb-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.helper)}>

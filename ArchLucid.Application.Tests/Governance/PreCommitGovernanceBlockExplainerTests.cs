@@ -32,4 +32,32 @@ public sealed class PreCommitGovernanceBlockExplainerTests
 
         explanation.Should().Be("Explanation text.");
     }
+
+    [Fact]
+    public async Task ExplainAsync_uses_honest_gate_field_labels_in_user_prompt()
+    {
+        Mock<IAgentCompletionClient> completionClient = new();
+        string? capturedUserPrompt = null;
+        completionClient
+            .Setup(c => c.CompleteJsonAsync(It.IsAny<string>(), It.IsAny<string>(), null, null, It.IsAny<CancellationToken>()))
+            .Callback<string, string, int?, float?, CancellationToken>((_, userPrompt, _, _, _) => capturedUserPrompt = userPrompt)
+            .ReturnsAsync("Explanation text.");
+
+        PreCommitGovernanceBlockExplainer sut = new(completionClient.Object);
+        PreCommitGateResult gateResult = new()
+        {
+            Blocked = true,
+            Reason = null,
+            PolicyPackId = "",
+            MinimumBlockingSeverity = null,
+            BlockingFindingIds = [],
+        };
+
+        await sut.ExplainAsync(gateResult, "{ \"manifestVersion\": \"v1\" }", CancellationToken.None);
+
+        capturedUserPrompt.Should().Contain("Gate reason was not stored.");
+        capturedUserPrompt.Should().Contain("Policy pack id was stored empty.");
+        capturedUserPrompt.Should().Contain("Minimum blocking severity was not stored.");
+        capturedUserPrompt.Should().Contain("No blocking finding ids were stored on this gate result.");
+    }
 }
