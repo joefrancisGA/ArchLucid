@@ -1542,3 +1542,5 @@
 {"at":"2026-10-26T04:06:09.3129164Z","zoneId":"ui-infra-resource-hub","outcome":"hit","productLine":"securenow"}
 {"at":"2026-10-26T04:09:53.0000000Z","zoneId":"ui-infra-resource-hub","outcome":"seed-only","productLine":"securenow"}
 {"at":"2026-10-26T04:09:53.3436592Z","zoneId":"ui-infra-resource-hub","outcome":"seed-only","productLine":"securenow"}
+{"at":"2026-10-26T04:13:01.0000000Z","zoneId":"ui-infra-resource-hub","outcome":"hit","productLine":"securenow"}
+{"at":"2026-10-26T04:13:01.8100565Z","zoneId":"ui-infra-resource-hub","outcome":"hit","productLine":"securenow"}

@@ -7223,6 +7223,32 @@ ABQ-09 churn hotspot.
 
 ## Zone: ui-infra-resource-hub
 
+2026-10-26 seed hunt (seed→hit): promoted **invalid `tab` query left in resource hub URL** — `parseResourceHubTabFromSearch` rendered overview for typos like `tab=not-a-real-tab` but never rewrote the query string, so copied links and workbench exits kept a non-tab value while the UI showed Overview; normalize invalid tab params via `router.replace` on load; regression `normalizes invalid tab query param via router on load`; cheap-disproof closed in-flight create busy on tab switch (monitor), dismiss dialog while busy (Radix blocks cancel), concurrent two-finding create (single busy id by design), and drift badge vs preview slice (intentional); scoped ResourceHubClient vitest 138/138. Private beta: mistyped or stale hub tab query strings no longer linger in the address bar after the hub opens on Overview.
+
+- [x] (proven) `ResourceHubClient` invalid `tab` query — URL not normalized on load — **hit 2026-10-26 seed hunt #118:** tab param rewrite effect; regression above.
+- [x] (valid-no-repro) `ResourceHubClient` `setActiveTab` — in-flight create remediation on tab switch — **cheap-disproof 2026-10-26 seed hunt #118:** `findingActionBusyId` intentionally retained until request completes; monitor.
+- [x] (valid-no-repro) `ResourceHubCreateRemediationConfirmDialog` — dismiss while `busy` — **cheap-disproof 2026-10-26 seed hunt #118:** cancel/confirm disabled while busy.
+- [x] (valid-no-repro) `ResourceHubClient` operational findings — concurrent create on two finding ids — **cheap-disproof 2026-10-26 seed hunt #118:** per-finding busy gate; no product block on second id.
+- [x] (valid-no-repro) `ResourceHubClient` overview drift preview — tab badge count vs `slice(0, 5)` — **cheap-disproof 2026-10-26 seed hunt #118:** badge shows total drift count by design.
+
+- [ ] (candidate) `ResourceHubClient` whitespace-only `tab` query — locus: invalid-tab normalize effect; input: `tab=%20%20%20` deep link.
+- [ ] (candidate) `ResourceHubClient` `setActiveTab` — clear `findingActionBusyId` on tab switch — locus: scope effect vs tab change; monitor.
+- [ ] (candidate) `ResourceHubClient` Ask handoff — invalid tab in serialized search — locus: `infrastructureAskHandoffSearch`; input: typo tab before normalize runs.
+- [ ] (candidate) `ResourceHubClient` `hubTabs` — badge counts from hub row — locus: saturated `[state-machine-gap]`; monitor.
+- [ ] (candidate) `ResourceHubDriftChangesTable` — drift change ids — locus: defer trim class.
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 118
+- **bugs-found:** 93
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-26
+- **last-bug:** 2026-10-26 — invalid tab query left in resource hub URL
+- **code-changed-since:** yes
+
 2026-10-26 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below (keyboard tab shortcuts share `setActiveTab` with hunt 116 dialog dismiss, audit scope chip hidden when `hasUnlinkedAuditScopeInUrl` during defer load, finding action messages intentionally cleared on tab change, diagram whitespace correspondence id covered by regression, workQueue on audit clear covered by regressions); seeded five follow-on `(candidate)` rows; scoped ResourceHubClient vitest 137/137; no production or test code changed.
 
 - [x] (valid-no-repro) `ResourceHubClient` `setActiveTab` — keyboard shortcut tab jumps — **cheap-disproof 2026-10-26 seed hunt #117:** Alt+number handlers call `setActiveTab` (clears `pendingRemediationFinding` since hunt 116).

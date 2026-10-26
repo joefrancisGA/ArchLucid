@@ -572,6 +572,33 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
   );
 
   useEffect(() => {
+    const rawTabParam = searchParams.get(RESOURCE_HUB_TAB_PARAM);
+
+    if (rawTabParam === null) {
+      return;
+    }
+
+    const trimmedTabParam = rawTabParam.trim();
+
+    if (trimmedTabParam.length === 0) {
+      return;
+    }
+
+    const parsedTab = parseResourceHubTabFromSearch(rawTabParam);
+
+    if (trimmedTabParam === parsedTab) {
+      return;
+    }
+
+    const nextHref = resourceHubFilterHrefFromSearch(cloudResourceId, searchParams.toString(), {
+      tab: parsedTab,
+      snapshotId: resolvedSnapshotId.length > 0 ? resolvedSnapshotId : undefined,
+      runId: resolvedRunId.length > 0 ? resolvedRunId : undefined,
+    });
+    router.replace(nextHref, { scroll: false });
+  }, [cloudResourceId, resolvedRunId, resolvedSnapshotId, router, searchParams]);
+
+  useEffect(() => {
     if (urlSnapshotPinBootstrappedForResourceRef.current !== cloudResourceId) {
       return;
     }
