@@ -130,7 +130,8 @@ export function architectureDiagramModelToTextAlternative(model: ArchitectureDia
     const sourceLabel = nodeLabelById.get(edge.sourceId) ?? edge.sourceId;
     const targetLabel = nodeLabelById.get(edge.targetId) ?? edge.targetId;
     const inferred = edge.provenance === "inferred" ? " (inferred)" : "";
-    const detail = edge.label.length > 0 ? ` (${edge.label})` : "";
+    const detail =
+      edge.label.length > 0 ? ` (${edge.label})` : " (relationship label was not stored)";
 
     return `${sourceLabel} to ${targetLabel}${detail}${inferred}`;
   });
@@ -139,8 +140,20 @@ export function architectureDiagramModelToTextAlternative(model: ArchitectureDia
   const unmatchedLines = model.unmatchedDataFlows.map(
     (flow) => `${ARCHITECTURE_DIAGRAM_DATA_FLOW_NOT_MATCHED_PREFIX} ${flow}`,
   );
+  const skippedUnlabeledLine =
+    model.skippedUnlabeledEntityCount > 0
+      ? `Skipped ${model.skippedUnlabeledEntityCount} unlabeled ${
+          model.skippedUnlabeledEntityCount === 1 ? "entity" : "entities"
+        } — diagram labels were not stored on the structured brief.`
+      : null;
 
-  return [nodeLines.join("; "), edgeLines.join("; "), boundaryLine, ...unmatchedLines]
+  return [
+    nodeLines.join("; "),
+    edgeLines.join("; "),
+    boundaryLine,
+    skippedUnlabeledLine,
+    ...unmatchedLines,
+  ]
     .filter((line) => line !== null && line.length > 0)
     .join(". ");
 }

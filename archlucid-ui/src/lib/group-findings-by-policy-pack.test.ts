@@ -42,12 +42,14 @@ describe("group-findings-by-policy-pack", () => {
         packDisplayName: "Security Architecture Baseline",
         findingCount: 2,
         packHref: "/governance/policy-packs?ruleId=sec-base-001",
+        packNameInferredFromRuleKey: true,
       },
       {
         groupKey: "azure well-architected framework",
         packDisplayName: "Azure Well-Architected Framework",
         findingCount: 1,
         packHref: "/governance/policy-packs?ruleId=waf-az-004",
+        packNameInferredFromRuleKey: true,
       },
     ]);
     expect(grouped).toHaveLength(2);

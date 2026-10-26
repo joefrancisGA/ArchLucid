@@ -1182,14 +1182,15 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
       }
 
       const title = node.querySelector('title')?.textContent?.trim() ?? "";
-      const rawMemberNames = (node.getAttribute('data-member-names') ?? '').split('|');
-      const memberNames = rawMemberNames.length > 0
-        ? rawMemberNames.map((member) => {
-          const trimmed = member.trim();
+      const memberNamesAttribute = node.getAttribute('data-member-names');
+      const memberNames =
+        memberNamesAttribute !== null
+          ? memberNamesAttribute.split('|').map((member) => {
+            const trimmed = member.trim();
 
-          return trimmed.length > 0 ? trimmed : DIAGRAM_MEMBER_NAME_NOT_STORED;
-        })
-        : undefined;
+            return trimmed.length > 0 ? trimmed : DIAGRAM_MEMBER_NAME_NOT_STORED;
+          })
+          : undefined;
       setClickFocus({
         id,
         name: title,

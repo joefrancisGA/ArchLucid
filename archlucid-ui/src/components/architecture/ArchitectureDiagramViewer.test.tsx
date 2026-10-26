@@ -425,6 +425,29 @@ describe('ArchitectureDiagramViewer', () => {
     );
   });
 
+  it('does not show member-name omission when data-member-names is absent', async () => {
+    const forestLayoutSvg = [
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 120">',
+      '  <g class="node" id="node-plain"><title>App tier</title><rect class="node-card" width="80" height="20"/></g>',
+      '</svg>',
+    ].join('');
+
+    render(
+      <ArchitectureDiagramViewer
+        mermaidSource={'flowchart TD\n  a["A"]'}
+        layoutSvg={forestLayoutSvg}
+        outline={{ nodes: [], edges: [] }}
+        textAlternative="Inventory topology"
+      />,
+    );
+
+    const host = await screen.findByTestId('architecture-diagram-svg-host');
+    fireEvent.click(host.querySelector('#node-plain')!);
+
+    const status = await screen.findByTestId('diagram-click-focus-status');
+    expect(status).not.toHaveTextContent('Diagram member name was not stored.');
+  });
+
   it('labels blank rollup member names as not stored', async () => {
     const forestLayoutSvg = [
       '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 120">',

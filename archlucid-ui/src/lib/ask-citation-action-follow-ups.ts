@@ -7,8 +7,6 @@ import {
   resolveQuickDecisionFindingInspectHref,
 } from "@/lib/findings/finding-evidence-navigation";
 import { evidenceGraphHref } from "@/lib/evidence-graph-route";
-import { GOVERNANCE_DECISION_REGISTER_PATH } from "@/lib/governance/governance-route-paths";
-import { ARCHITECTURE_DECISION_LABEL } from "@/lib/usability/canonical-product-terms";
 import { BUYER_SURFACE_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 
 /** Chip kinds for post-answer Ask citation follow-ups (TB-2219). */
@@ -160,16 +158,6 @@ function findingHasEvidenceTraceCitation(input: AskCitationActionFollowUpsInput,
       }
     } catch {
       continue;
-    }
-  }
-
-  for (const citation of input.citations ?? []) {
-    if (citation.kind !== "EvidenceBundle" && citation.kind !== "GraphSnapshot") {
-      continue;
-    }
-
-    if (trimId(citation.id).length > 0) {
-      return true;
     }
   }
 

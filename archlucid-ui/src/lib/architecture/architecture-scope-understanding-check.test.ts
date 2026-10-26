@@ -114,7 +114,12 @@ describe("deriveScopeUnderstandingBullets", () => {
 
     expect(systemRow?.value).toBe("Vertex");
     expect(systemRow?.value).not.toContain(":");
-    expect(scopeBulletText(systemRow!)).toBe("Primary System or Architecture: Vertex");
+    expect(scopeBulletText(systemRow!)).toBe(
+      "Inferred from the brief, not separately confirmed: Primary System or Architecture: Vertex",
+    );
+    expect(scopeBulletText(bullet({ source: "user", label: "People in Scope", value: "Analysts" }))).toBe(
+      "People in Scope: Analysts",
+    );
   });
 
   it("marks derived rows as inferred so callers can tell edited scope from untouched scope", () => {
@@ -231,8 +236,8 @@ describe("scope persistence helpers", () => {
     );
 
     expect(extractScopeUnderstandingLinesFromBrief(merged)).toEqual([
-      "Primary System or Architecture: Vertex",
-      `${GUIDED_INTAKE_CREATION_BUSINESS_OUTCOME_LABEL}: Faster`,
+      "Inferred from the brief, not separately confirmed: Primary System or Architecture: Vertex",
+      `Inferred from the brief, not separately confirmed: ${GUIDED_INTAKE_CREATION_BUSINESS_OUTCOME_LABEL}: Faster`,
     ]);
   });
 
@@ -279,7 +284,9 @@ describe("mergeScopeBulletsIntoBrief", () => {
 
     expect(merged).toContain("Base operator brief.");
     expect(merged).toContain(SCOPE_UNDERSTANDING_SECTION_HEADER);
-    expect(merged).toContain("- Primary System or Architecture: Payments hub");
+    expect(merged).toContain(
+      "- Inferred from the brief, not separately confirmed: Primary System or Architecture: Payments hub",
+    );
   });
 
   it("never merges the architecture context preview back into the brief it came from", () => {
