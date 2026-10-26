@@ -1,6 +1,7 @@
 using ArchLucid.Application.Analysis;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Persistence.Decisions;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
@@ -251,5 +252,47 @@ public sealed class AnalysisRunIdCanonicalizationTests
 
         merged.Should().Contain(t => t.TraceId == "trace-canonical-repo-key");
         merged.Should().Contain(t => t.TraceId == "trace-legacy-repo-key");
+    }
+
+    [Fact]
+    public async Task CompareQuality_LoadDecisionNodesByRunIdAsync_merges_nodes_when_rows_are_split_across_alternate_run_id_keys()
+    {
+        const string canonicalRunId = "dddddddddddddddddddddddddddddddd";
+        const string legacyUpperRunId = "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD";
+
+        DecisionNodeRecord canonicalKeyed = new()
+        {
+            DecisionId = "decision-canonical-repo-key",
+            RunId = canonicalRunId,
+            Topic = "TopologyAcceptance",
+        };
+        DecisionNodeRecord legacyKeyed = new()
+        {
+            DecisionId = "decision-legacy-repo-key",
+            RunId = legacyUpperRunId,
+            Topic = "SecurityGate",
+        };
+
+        Mock<IDecisionNodeRepository> decisionNodes = new();
+        decisionNodes
+            .Setup(r => r.GetByRunIdAsync(canonicalRunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([canonicalKeyed]);
+        decisionNodes
+            .Setup(r => r.GetByRunIdAsync(legacyUpperRunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([legacyKeyed]);
+        decisionNodes
+            .Setup(r => r.GetByRunIdAsync(
+                It.Is<string>(id => id != canonicalRunId && id != legacyUpperRunId),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        IReadOnlyList<DecisionNodeRecord> merged =
+            await AnalysisRunIdCanonicalization.LoadDecisionNodesByRunIdAsync(
+                decisionNodes.Object,
+                canonicalRunId,
+                CancellationToken.None);
+
+        merged.Should().Contain(n => n.DecisionId == "decision-canonical-repo-key");
+        merged.Should().Contain(n => n.DecisionId == "decision-legacy-repo-key");
     }
 }

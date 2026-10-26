@@ -300,17 +300,32 @@ internal static class AnalysisRunIdCanonicalization
     {
         ArgumentNullException.ThrowIfNull(decisionNodeRepository);
 
+        Dictionary<string, DecisionNodeRecord> merged = new(StringComparer.OrdinalIgnoreCase);
+
         foreach (string lookupKey in EnumerateRunIdRepositoryLookupKeys(primaryRunId))
         {
             IReadOnlyList<DecisionNodeRecord> nodes = await decisionNodeRepository
                 .GetByRunIdAsync(lookupKey, cancellationToken)
                 .ConfigureAwait(false);
 
-            if (nodes is { Count: > 0 })
-                return nodes;
+            if (nodes is not { Count: > 0 })
+                continue;
+
+            foreach (DecisionNodeRecord node in nodes)
+            {
+                if (node is null || string.IsNullOrWhiteSpace(node.DecisionId))
+                    continue;
+
+                merged.TryAdd(node.DecisionId, node);
+            }
         }
 
-        return [];
+        return merged.Count == 0
+            ? []
+            : merged.Values
+                .OrderByDescending(static node => node.CreatedUtc)
+                .ThenBy(static node => node.DecisionId, StringComparer.OrdinalIgnoreCase)
+                .ToList();
     }
 
     internal static async Task<IReadOnlyList<RunExportRecord>> LoadRunExportRecordsByRunIdAsync(
