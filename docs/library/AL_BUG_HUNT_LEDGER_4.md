@@ -6380,12 +6380,6 @@
 - [x] (valid-no-repro) `AzureInventoryEventGridDestinationExtractor` — Azure Function destination `resourceId` nested under `properties` as object — **cheap-disproof 2026-10-26 seed hunt:** nested bag `TryReadString`; regression `Extract_reads_azure_function_destination_resource_id_from_nested_properties_object_with_resource_id_key_only`.
 - [x] (valid-no-repro) `AzureInventoryArmNestedObjectPropertyReader.TryReadScalarString` — triply percent-encoded subscription ARM plain scalar — **cheap-disproof 2026-10-26 seed hunt:** bounded decode + normalize; regression `TryReadScalarString_reads_triply_percent_encoded_subscription_prefix_plain_scalar`.
 
-- [ ] (candidate) `AzureInventoryRouteTableRouteParser` — `routes` JSON `nextHopReference` percent-encoded plain ARM scalar on nested properties — locus: `TryReadNestedArmId`; input: encoded reference on `nextHopReference`; wrong outcome: null next-hop ARM id.
-- [ ] (candidate) `AzureInventoryEventGridDestinationExtractor` — WebHook destination `resourceId` nested under `properties` as object — locus: nested bag; input: properties.resourceId object on WebHook; wrong outcome: null.
-- [ ] (candidate) `AzureInventoryEventGridWebhookHostExtractor` — scheme-less webhook with percent-encoded userinfo prefix (`user%40hooks.example.com/callback`) — locus: `TryExtractHost`; input: encoded `@`; wrong outcome: host null.
-- [ ] (candidate) `AzureInventoryAdfLinkedServiceTargetExtractor` — Azure SQL MI `connectionString` `Server=` host percent-encoded with trailing dot — locus: `NormalizeHost`; input: encoded host in SQL MI connection string; wrong outcome: host null.
-- [ ] (candidate) `AzureInventoryArmNestedObjectPropertyReader.TryReadScalarString` — percent-encoded JSON string scalar wrapping plain subscription ARM path with trailing slash — locus: `TryResolveArmReferenceScalarAfterPercentDecode`; input: encoded `{"id":"/subscriptions/sub/"}`; wrong outcome: null.
-
 2026-10-26 seed hunt (seed→hit): reseeded `core-azure-extractor` after picker `seedHunt`; promoted five open `(candidate)` rows from prior seed; `AzureSqlDatabase` linked services ignored `connectionString` when `server` was absent because only MySQL/PostgreSQL read connection strings; fall back to `connectionString` for all SQL-family types after `server`; regression `Extract_reads_sql_host_from_percent_encoded_connection_string_server_with_encoded_trailing_dot`; cheap-disproof closed explicit flattened `nextHopArmId` plain JSON with `resourceId` only (`Parse_reads_next_hop_arm_id_when_explicit_flattened_next_hop_arm_id_is_json_object_with_resource_id_only`), Hybrid Connection nested `properties.resourceId` object (`Extract_reads_hybrid_connection_destination_resource_id_from_nested_properties_object_with_resource_id_key_only`), percent-encoded HTTPS webhook URL with trailing dot on hostname (`TryExtractHost_reads_host_when_full_https_webhook_url_percent_encodes_trailing_dot_on_hostname`), and doubly percent-encoded subscription ARM path with trailing slash (`TryReadScalarString_reads_doubly_percent_encoded_subscription_arm_path_with_trailing_slash`); seeded five follow-on `(candidate)` rows; hunt regressions passed (Release). Private beta: invited operators keep Azure SQL linked-service host indexing when ADF stores hosts only in percent-encoded `connectionString` `Server=tcp:` segments.
 
 - [x] (proven) `AzureInventoryAdfLinkedServiceTargetExtractor` — Azure SQL `connectionString` `Server=` host percent-encoded with trailing dot — **hit 2026-10-26 seed hunt:** `connectionString` fallback for `AzureSqlDatabase`; regression `Extract_reads_sql_host_from_percent_encoded_connection_string_server_with_encoded_trailing_dot`. [class:fail-open-validation]
@@ -6605,11 +6599,11 @@
 - **aliases:** azure extractor; manifest schema; split from archlucid-core
 - **paths:** ArchLucid.Core/AzureExtractor/
 - **test-filter:** FullyQualifiedName~AzureExtractor
-- **hunts:** 89
-- **bugs-found:** 77
+- **hunts:** 90
+- **bugs-found:** 80
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-26
-- **last-bug:** 2026-10-26 — routes nextHopArmId + Synapse CS + webhook dot
+- **last-bug:** 2026-10-26 — nextHopReference + WebHook resourceId + SQL MI CS
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
