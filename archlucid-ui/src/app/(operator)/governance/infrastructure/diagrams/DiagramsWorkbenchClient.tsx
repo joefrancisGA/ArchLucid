@@ -1988,7 +1988,7 @@ export function DiagramsWorkbenchClient() {
       const readingStrip = {
         mode: selectedMode,
         outline: familyFilteredOutline,
-        completenessWarnings,
+        completenessWarnings: completenessWarnings ?? [],
         snapshotLabel:
           selectedSnapshot != null ? formatSnapshotPickerLabel(selectedSnapshot) : null,
         ...(isInfraDiagramsResourceGroupMode(selectedMode)

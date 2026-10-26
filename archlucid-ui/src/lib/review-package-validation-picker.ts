@@ -10,6 +10,7 @@ import { buyerDemoPackageCardMeta } from "@/lib/buyer/buyer-demo-package-card-me
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import type { ReplayValidationOutcome } from "@/lib/replay-validation-workflow";
 import { replayValidationOutcomeLabel } from "@/lib/replay-validation-workflow";
+import { formatRecurrenceScheduleUtcLabel } from "@/lib/recurrence-schedule-utc-format";
 
 export type ReviewPackageValidationRow = {
   readonly run: RunSummary;

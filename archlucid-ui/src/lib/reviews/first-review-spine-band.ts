@@ -164,6 +164,7 @@ export function deriveFirstReviewSpineBandSummary(input: {
       uncitedCount: 0,
       evidenceReferenceCountNotStored: true,
       topFindingTitle: null,
+      topFindingRankLabel: null,
       topFindingId: null,
       showTopFindingRow: false,
       topFindingPolicyMapped: false,

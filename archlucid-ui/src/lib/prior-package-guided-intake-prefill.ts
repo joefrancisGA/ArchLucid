@@ -112,10 +112,6 @@ function resolveBusinessOutcome(
     return inlineOutcome;
   }
 
-  if (generatedBrief) {
-    return "";
-  }
-
   return "";
 }
 

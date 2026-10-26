@@ -247,7 +247,7 @@ export function RunDetailFindingsToolbar(props: RunDetailFindingsToolbarProps): 
                 severity={label}
                 kind={
                   entry.severityValue === null
-                    ? "neutral"
+                    ? "unknown"
                     : severityKindFromNumericValue(entry.severityValue)
                 }
                 label={`${label} ${entry.count}`}
