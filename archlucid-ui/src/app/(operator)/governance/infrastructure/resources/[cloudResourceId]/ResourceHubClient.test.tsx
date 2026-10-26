@@ -183,6 +183,22 @@ describe("ResourceHubClient", () => {
     expect(screen.queryByTestId("infra-resource-hub-tabs")).not.toBeInTheDocument();
   });
 
+  it("closes create-remediation dialog when cloudResourceId changes", async () => {
+    const otherCloudResourceId = "44444444-4444-4444-4444-444444444444";
+
+    searchParams = new URLSearchParams(`tab=findings&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}`);
+    const { rerender } = render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    fireEvent.click(await screen.findByTestId("infra-resource-hub-create-remediation-finding-1"));
+    expect(await screen.findByTestId("infra-resource-hub-create-remediation-dialog")).toBeInTheDocument();
+
+    rerender(<ResourceHubClient cloudResourceId={otherCloudResourceId} />);
+
+    await waitFor(() => {
+      expect(screen.queryByTestId("infra-resource-hub-create-remediation-dialog")).not.toBeInTheDocument();
+    });
+  });
+
   it("clears prior hub evidence when cloudResourceId changes", async () => {
     const otherCloudResourceId = "33333333-3333-3333-3333-333333333333";
 

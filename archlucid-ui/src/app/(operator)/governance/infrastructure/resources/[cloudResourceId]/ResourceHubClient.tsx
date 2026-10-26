@@ -404,6 +404,10 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
   const [findingActionMessages, setFindingActionMessages] = useState<
     Record<string, { readonly message: string; readonly instanceId: string | null }>
   >({});
+  const [pendingRemediationFinding, setPendingRemediationFinding] = useState<{
+    readonly id: string;
+    readonly title: string;
+  } | null>(null);
   const loadRequestGeneration = useRef(0);
   const suppressLinkedAuditScopeRefetchRef = useRef(false);
   const linkedAuditInlineHydratedScopeRef = useRef<InfraEvidenceWorkbenchAuditScope | null>(null);
@@ -421,13 +425,10 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
     setHub(null);
     setLoadError(null);
     setFindingActionMessages({});
+    setFindingActionBusyId(null);
+    setPendingRemediationFinding(null);
     setLoading(true);
   }, [cloudResourceId]);
-
-  const [pendingRemediationFinding, setPendingRemediationFinding] = useState<{
-    readonly id: string;
-    readonly title: string;
-  } | null>(null);
 
   const resolvedSnapshotId = useMemo(() => {
     if (snapshotId.length > 0) {
