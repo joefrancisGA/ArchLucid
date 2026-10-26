@@ -706,6 +706,47 @@ describe("securenow-question-queue-api", () => {
     expect(questions).toEqual([]);
   });
 
+  it("omits list rows whose snapshot id does not match the requested snapshot", async () => {
+    vi.mocked(proxyJsonGet).mockResolvedValueOnce([
+      {
+        snapshotId: "snapshot-2",
+        questionKey: "other@v1",
+        questionText: "Wrong snapshot row",
+        answerCodes: ["NamePeer"],
+        evidenceFingerprint: "fingerprint-other",
+      },
+      {
+        snapshotId: "snapshot-1",
+        questionKey: "unknown-evidence@v1",
+        questionText: "Should this resource connect?",
+        answerCodes: ["NamePeer"],
+        evidenceFingerprint: "fingerprint",
+      },
+    ]);
+
+    const questions = await listSecureNowQuestions("snapshot-1");
+
+    expect(questions).toHaveLength(1);
+    expect(questions[0].questionKey).toBe("unknown-evidence@v1");
+  });
+
+  it("keeps list rows when the listed snapshot id matches after trim", async () => {
+    vi.mocked(proxyJsonGet).mockResolvedValueOnce([
+      {
+        snapshotId: "  snapshot-1  ",
+        questionKey: "unknown-evidence@v1",
+        questionText: "Should this resource connect?",
+        answerCodes: ["NamePeer"],
+        evidenceFingerprint: "fingerprint",
+      },
+    ]);
+
+    const questions = await listSecureNowQuestions("snapshot-1");
+
+    expect(questions).toHaveLength(1);
+    expect(questions[0].snapshotId).toBe("snapshot-1");
+  });
+
   it("skips primitive and null elements when the proxy returns a mixed array", async () => {
     vi.mocked(proxyJsonGet).mockResolvedValueOnce([
       null,
@@ -745,7 +786,7 @@ describe("securenow-question-queue-api", () => {
     expect(questions[0].sourceLine).toBe("");
   });
 
-  it("maps whitespace-only snapshotId to empty string without throwing", async () => {
+  it("omits list rows when snapshotId is whitespace-only after map", async () => {
     vi.mocked(proxyJsonGet).mockResolvedValueOnce([
       {
         snapshotId: "   ",
@@ -758,10 +799,10 @@ describe("securenow-question-queue-api", () => {
 
     const questions = await listSecureNowQuestions("snapshot-1");
 
-    expect(questions[0].snapshotId).toBe("");
+    expect(questions).toEqual([]);
   });
 
-  it("maps non-string snapshotId to empty string without throwing", async () => {
+  it("omits list rows when snapshotId is non-string after map", async () => {
     vi.mocked(proxyJsonGet).mockResolvedValueOnce([
       {
         snapshotId: 123,
@@ -774,7 +815,7 @@ describe("securenow-question-queue-api", () => {
 
     const questions = await listSecureNowQuestions("snapshot-1");
 
-    expect(questions[0].snapshotId).toBe("");
+    expect(questions).toEqual([]);
   });
 
   it("maps explicit null answerCodes to null instead of an empty array", async () => {

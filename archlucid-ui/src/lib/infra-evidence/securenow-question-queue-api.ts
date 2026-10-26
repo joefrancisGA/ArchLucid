@@ -522,10 +522,13 @@ function questionPath(snapshotId: string): string {
 
 export async function listSecureNowQuestions(snapshotId: string): Promise<SecureNowQuestion[]> {
   const raw = await proxyJsonGet<unknown>(questionPath(snapshotId));
+  const contextSnapshotId = snapshotId.trim();
   return Array.isArray(raw)
     ? raw
       .filter(secureNowListedQuestionRowShapeIsUsable)
       .map((item) => mapQuestion(item as Record<string, unknown>))
+      .filter((question) =>
+        secureNowQuestionListedSnapshotMatchesContext(question.snapshotId, contextSnapshotId))
     : [];
 }
 
