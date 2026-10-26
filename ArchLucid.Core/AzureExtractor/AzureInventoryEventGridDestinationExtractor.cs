@@ -25,9 +25,16 @@ public static class AzureInventoryEventGridDestinationExtractor
 
         if (destinationKind.Equals("WebHook", StringComparison.OrdinalIgnoreCase))
         {
-            string? endpointUrl = AzureInventoryArmNestedObjectPropertyReader.TryReadString(destinationElement, "endpointUrl")
-                                  ?? AzureInventoryArmNestedObjectPropertyReader.TryReadString(destinationElement, "endpointBaseUrl");
+            string? endpointUrl =
+                AzureInventoryArmNestedObjectPropertyReader.TryReadString(destinationElement, "endpointUrl");
+            string? endpointBaseUrl =
+                AzureInventoryArmNestedObjectPropertyReader.TryReadString(destinationElement, "endpointBaseUrl");
             string? host = AzureInventoryEventGridWebhookHostExtractor.TryExtractHost(endpointUrl);
+
+            if (string.IsNullOrWhiteSpace(host))
+            {
+                host = AzureInventoryEventGridWebhookHostExtractor.TryExtractHost(endpointBaseUrl);
+            }
 
             if (string.IsNullOrWhiteSpace(host))
             {

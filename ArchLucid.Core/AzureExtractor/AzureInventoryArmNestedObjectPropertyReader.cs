@@ -8,6 +8,8 @@ namespace ArchLucid.Core.AzureExtractor;
 /// </summary>
 public static class AzureInventoryArmNestedObjectPropertyReader
 {
+    private const int MaxSubscriptionArmPercentDecodePasses = 8;
+
     public static JsonElement ResolvePropertyBag(JsonElement armObject)
     {
         if (armObject.ValueKind is JsonValueKind.Object
@@ -64,6 +66,13 @@ public static class AzureInventoryArmNestedObjectPropertyReader
                 return TryResolveArmReferenceScalar(trimmed);
             }
 
+            string? fromPercentEncodedReference = TryResolveArmReferenceScalarAfterPercentDecode(trimmed);
+
+            if (!string.IsNullOrWhiteSpace(fromPercentEncodedReference))
+            {
+                return fromPercentEncodedReference;
+            }
+
             string? normalized = TryNormalizePlainArmStringScalar(trimmed);
 
             return normalized ?? text;
@@ -75,6 +84,35 @@ public static class AzureInventoryArmNestedObjectPropertyReader
         }
 
         return value.GetRawText().Trim('"');
+    }
+
+    private static string? TryResolveArmReferenceScalarAfterPercentDecode(string trimmed)
+    {
+        string working = trimmed;
+
+        for (int pass = 0; pass < MaxSubscriptionArmPercentDecodePasses && working.Contains('%', StringComparison.Ordinal); pass++)
+        {
+            string decoded = Uri.UnescapeDataString(working);
+
+            if (string.Equals(decoded, working, StringComparison.Ordinal))
+            {
+                break;
+            }
+
+            working = decoded;
+
+            if (working.StartsWith("{", StringComparison.Ordinal))
+            {
+                string? armId = TryResolveArmReferenceScalar(working);
+
+                if (!string.IsNullOrWhiteSpace(armId))
+                {
+                    return armId;
+                }
+            }
+        }
+
+        return null;
     }
 
     private static string? TryResolveArmReferenceScalar(string? text)
@@ -110,9 +148,21 @@ public static class AzureInventoryArmNestedObjectPropertyReader
 
     private static string? TryReadArmIdFromReferenceObject(JsonElement referenceObject)
     {
+        string? fromId = TryReadArmIdFromReferenceProperty(referenceObject, "id");
+
+        if (!string.IsNullOrWhiteSpace(fromId))
+        {
+            return fromId;
+        }
+
+        return TryReadArmIdFromReferenceProperty(referenceObject, "resourceId");
+    }
+
+    private static string? TryReadArmIdFromReferenceProperty(JsonElement referenceObject, string propertyName)
+    {
         foreach (JsonProperty property in referenceObject.EnumerateObject())
         {
-            if (!property.Name.Equals("id", StringComparison.OrdinalIgnoreCase)
+            if (!property.Name.Equals(propertyName, StringComparison.OrdinalIgnoreCase)
                 || property.Value.ValueKind is not JsonValueKind.String)
             {
                 continue;
@@ -125,42 +175,55 @@ public static class AzureInventoryArmNestedObjectPropertyReader
                 return null;
             }
 
-            armId = UnwrapJsonEncodedArmId(armId);
-
-            if (string.IsNullOrWhiteSpace(armId)
-                || !armId.Contains("/subscriptions/", StringComparison.OrdinalIgnoreCase))
-            {
-                return null;
-            }
-
-            return armId.Trim();
+            return TryNormalizePlainArmStringScalar(armId);
         }
 
         return null;
     }
 
+    public static string? TryNormalizeSubscriptionArmPathScalar(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return null;
+        }
+
+        return TryNormalizePlainArmStringScalar(value.Trim());
+    }
+
     private static string? TryNormalizePlainArmStringScalar(string trimmed)
     {
-        string unwrapped = UnwrapJsonEncodedArmId(trimmed);
+        string working = UnwrapJsonEncodedArmId(trimmed);
 
-        if (unwrapped.Contains("/subscriptions/", StringComparison.OrdinalIgnoreCase))
+        for (int pass = 0; pass < MaxSubscriptionArmPercentDecodePasses; pass++)
         {
-            return unwrapped.Trim();
+            working = UnwrapJsonEncodedArmId(working);
+
+            if (working.Contains("/subscriptions/", StringComparison.OrdinalIgnoreCase))
+            {
+                return working.Trim();
+            }
+
+            if (!working.Contains('%', StringComparison.Ordinal))
+            {
+                return null;
+            }
+
+            string decoded = Uri.UnescapeDataString(working);
+
+            if (string.Equals(decoded, working, StringComparison.Ordinal))
+            {
+                return null;
+            }
+
+            working = decoded;
         }
 
-        if (!unwrapped.Contains('%', StringComparison.Ordinal))
-        {
-            return null;
-        }
+        working = UnwrapJsonEncodedArmId(working);
 
-        string decoded = Uri.UnescapeDataString(unwrapped);
-
-        if (!decoded.Contains("/subscriptions/", StringComparison.OrdinalIgnoreCase))
-        {
-            return null;
-        }
-
-        return decoded.Trim();
+        return working.Contains("/subscriptions/", StringComparison.OrdinalIgnoreCase)
+            ? working.Trim()
+            : null;
     }
 
     private static string UnwrapJsonEncodedArmId(string armId)

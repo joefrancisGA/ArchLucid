@@ -421,6 +421,7 @@ public static class AzureInventoryRouteTableRouteParser
         }
 
         string trimmed = rawValue.Trim();
+        trimmed = PercentDecodeUntilStable(trimmed);
 
         try
         {
@@ -463,7 +464,7 @@ public static class AzureInventoryRouteTableRouteParser
 
         if (valueElement.ValueKind is JsonValueKind.String)
         {
-            return NormalizeArmId(valueElement.GetString());
+            return TryParseFlattenedArmIdValue(valueElement.GetString());
         }
 
         if (valueElement.ValueKind is JsonValueKind.Object)
@@ -476,10 +477,21 @@ public static class AzureInventoryRouteTableRouteParser
 
     private static string? TryReadArmIdFromReferenceObject(JsonElement referenceObject)
     {
+        string? fromId = TryReadArmIdFromReferenceProperty(referenceObject, "id");
+
+        if (!string.IsNullOrWhiteSpace(fromId))
+        {
+            return fromId;
+        }
+
+        return TryReadArmIdFromReferenceProperty(referenceObject, "resourceId");
+    }
+
+    private static string? TryReadArmIdFromReferenceProperty(JsonElement referenceObject, string propertyName)
+    {
         foreach (JsonProperty property in referenceObject.EnumerateObject())
         {
-
-            if (!property.Name.Equals("id", StringComparison.OrdinalIgnoreCase)
+            if (!property.Name.Equals(propertyName, StringComparison.OrdinalIgnoreCase)
                 || property.Value.ValueKind is not JsonValueKind.String)
             {
                 continue;
@@ -489,13 +501,32 @@ public static class AzureInventoryRouteTableRouteParser
 
             if (string.IsNullOrWhiteSpace(armId))
             {
-                continue;
+                return null;
             }
 
             return NormalizeArmId(UnwrapJsonEncodedArmId(armId));
         }
 
         return null;
+    }
+
+    private static string PercentDecodeUntilStable(string trimmed)
+    {
+        string working = trimmed;
+
+        for (int pass = 0; pass < 8 && working.Contains('%', StringComparison.Ordinal); pass++)
+        {
+            string decoded = Uri.UnescapeDataString(working);
+
+            if (string.Equals(decoded, working, StringComparison.Ordinal))
+            {
+                break;
+            }
+
+            working = decoded;
+        }
+
+        return working;
     }
 
     private static string UnwrapJsonEncodedArmId(string armId)
@@ -517,14 +548,14 @@ public static class AzureInventoryRouteTableRouteParser
             return null;
         }
 
-        armId = UnwrapJsonEncodedArmId(armId);
+        string? normalized = AzureInventoryArmNestedObjectPropertyReader.TryNormalizeSubscriptionArmPathScalar(armId);
 
-        if (!armId.Contains("/subscriptions/", StringComparison.OrdinalIgnoreCase))
+        if (string.IsNullOrWhiteSpace(normalized))
         {
             return null;
         }
 
-        return ArmResourceIdNormalizer.Normalize(armId);
+        return ArmResourceIdNormalizer.Normalize(normalized);
     }
 
     private static bool TryGetPropertyIgnoreCase(
