@@ -2,7 +2,14 @@ import {
   ARCHITECTURE_DIAGRAM_DATA_FLOW_NOT_MATCHED_PREFIX,
 } from "@/lib/architecture/architecture-diagram-copy";
 import type { ArchitectureDiagramModel, ArchitectureDiagramNode } from "@/lib/architecture/architecture-diagram-types";
+import {
+  resolveArchitectureDiagramEdgeDisplayLabel,
+  resolveArchitectureDiagramNodeDisplayLabel,
+} from "@/lib/architecture/architecture-diagram-provenance";
 import { wrapArchitectureDiagramLabelForMermaidSource } from "@/lib/architecture/wrap-architecture-diagram-label";
+
+const TRUST_BOUNDARY_LABEL_NOT_STORED = "Trust boundary label was not stored.";
+const NO_ARCHITECTURE_COMPONENTS_RECORDED = "No architecture components were recorded.";
 
 export type ArchitectureDiagramMermaidOptions = {
   readonly dark?: boolean;
@@ -43,7 +50,7 @@ function formatTrustBoundarySubgraphLabel(labels: readonly string[], peerResourc
     .filter((label) => label.length > 0)
     .join(" / ");
 
-  return joined.length > 0 ? joined : "Trust boundary";
+  return joined.length > 0 ? joined : TRUST_BOUNDARY_LABEL_NOT_STORED;
 }
 
 function renderNodeLine(
@@ -53,7 +60,8 @@ function renderNodeLine(
 ): string {
   const className = nodeClassNames(node);
   const suffix = node.provenance === "inferred" && !node.accepted ? " (inferred)" : "";
-  const label = escapeMermaidLabel(`${node.label}${suffix}`, peerResourceNames);
+  const displayLabel = resolveArchitectureDiagramNodeDisplayLabel(node.label);
+  const label = escapeMermaidLabel(`${displayLabel}${suffix}`, peerResourceNames);
 
   return `${indent}${node.id}["${label}"]:::${className}`;
 }
@@ -68,7 +76,8 @@ export function architectureDiagramModelToMermaid(
   const peerResourceNames = activeNodes.map((node) => node.label);
 
   if (activeNodes.length === 0) {
-    return "flowchart TB\n";
+    const emptyLabel = escapeMermaidLabel(NO_ARCHITECTURE_COMPONENTS_RECORDED, []);
+    return `flowchart TB\n  empty["${emptyLabel}"]\n`;
   }
 
   lines.push(...mermaidClassDefLines(dark));
@@ -106,7 +115,8 @@ export function architectureDiagramModelToMermaid(
     }
 
     const inferredSuffix = edge.provenance === "inferred" ? " (inferred)" : "";
-    const label = escapeMermaidLabel(`${edge.label}${inferredSuffix}`, peerResourceNames);
+    const displayLabel = resolveArchitectureDiagramEdgeDisplayLabel(edge);
+    const label = escapeMermaidLabel(`${displayLabel}${inferredSuffix}`, peerResourceNames);
     const edgeStyle = edge.provenance === "inferred" ? "-.->" : "-->";
 
     lines.push(`  ${edge.sourceId} ${edgeStyle}|"${label}"| ${edge.targetId}`);
@@ -121,17 +131,32 @@ export function architectureDiagramModelToTextAlternative(model: ArchitectureDia
   const activeEdges = model.edges.filter(
     (edge) => !edge.removed && nodeLabelById.has(edge.sourceId) && nodeLabelById.has(edge.targetId),
   );
+  if (activeNodes.length === 0) {
+    return NO_ARCHITECTURE_COMPONENTS_RECORDED;
+  }
+
   const nodeLines = activeNodes.map((node) => {
     const inferred = node.provenance === "inferred" && !node.accepted ? " (inferred)" : "";
+    const displayLabel = resolveArchitectureDiagramNodeDisplayLabel(node.label);
 
-    return `${node.kind}: ${node.label}${inferred}`;
+    return `${node.kind}: ${displayLabel}${inferred}`;
   });
   const edgeLines = activeEdges.map((edge) => {
-    const sourceLabel = nodeLabelById.get(edge.sourceId) ?? edge.sourceId;
-    const targetLabel = nodeLabelById.get(edge.targetId) ?? edge.targetId;
+    const sourceLabel = resolveArchitectureDiagramNodeDisplayLabel(
+      nodeLabelById.get(edge.sourceId) ?? edge.sourceId,
+    );
+    const targetLabel = resolveArchitectureDiagramNodeDisplayLabel(
+      nodeLabelById.get(edge.targetId) ?? edge.targetId,
+    );
     const inferred = edge.provenance === "inferred" ? " (inferred)" : "";
+    const displayEdgeLabel = resolveArchitectureDiagramEdgeDisplayLabel(edge);
     const detail =
-      edge.label.length > 0 ? ` (${edge.label})` : " (relationship label was not stored)";
+      displayEdgeLabel === "Connection label was not stored." ||
+      displayEdgeLabel === "Connection label was stored empty."
+        ? ` (${displayEdgeLabel})`
+        : displayEdgeLabel.length > 0
+          ? ` (${displayEdgeLabel})`
+          : "";
 
     return `${sourceLabel} to ${targetLabel}${detail}${inferred}`;
   });
