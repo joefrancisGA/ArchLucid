@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import { usePathname } from "next/navigation";
 
 import { cn } from "@/lib/utils";
@@ -27,7 +28,10 @@ import { AskThreadHistoryPanel } from "@/app/(operator)/insights/ask-review-ques
 import { AskContinueLastThreadRow } from "@/app/(operator)/insights/ask-review-questions/_sections/AskContinueLastThreadRow";
 import { AskNextReviewFooterClient } from "@/app/(operator)/insights/ask-review-questions/_sections/AskNextReviewFooterClient";
 import { useAskPage } from "@/app/(operator)/insights/ask-review-questions/_sections/use-ask-page";
-import { ASK_REVIEW_QUESTIONS_CLAIM_DISCIPLINE } from "@/lib/ask-review-questions-evidence-copy";
+import { resolveAskReviewQuestionsHeaderClaimDiscipline } from "@/lib/ask-review-questions-evidence-copy";
+import { resolveAskReviewArtifactStatus } from "@/lib/ask-review-artifact-status-copy";
+import { isReviewManifestFinalized } from "@/lib/manifest-status-display";
+import { useAskRunCoverageHonestyQuery } from "@/hooks/use-ask-run-coverage-honesty-query";
 import {
   ASK_REVIEW_QUESTIONS_FIRST_VIEWPORT_TEST_ID,
   ASK_REVIEW_QUESTIONS_HEADER_CLAIM_DISCIPLINE_TEST_ID,
@@ -93,6 +97,27 @@ export function AskPageContent(props: AskPageContentProps = {}) {
     pinnedArchitectureId: props.pinnedArchitectureId,
   });
   const buyerPolishedShell = ask.buyerPolishedShell;
+  const coverageHonestyQuery = useAskRunCoverageHonestyQuery(ask.runId, {
+    enabled: buyerPolishedShell && ask.runId.trim().length > 0,
+  });
+  const headerClaimDiscipline = useMemo(() => {
+    if (!buyerPolishedShell) {
+      return undefined;
+    }
+
+    const runMissing = ask.runId.trim().length === 0;
+    const isFinalized =
+      runMissing || coverageHonestyQuery.data === undefined
+        ? undefined
+        : isReviewManifestFinalized(coverageHonestyQuery.data.manifestSummary?.status);
+
+    return resolveAskReviewQuestionsHeaderClaimDiscipline(
+      resolveAskReviewArtifactStatus({
+        runMissing,
+        isFinalized,
+      }),
+    );
+  }, [ask.runId, buyerPolishedShell, coverageHonestyQuery.data]);
   const showUnscopedWorkingAskEmpty =
     workspaceMounted &&
     resolveSystemNotJobWorkingAskShowsUnscopedPeerEmpty({
@@ -121,7 +146,7 @@ export function AskPageContent(props: AskPageContentProps = {}) {
           headingLevel="h1"
           helpKey="ask-archlucid"
           subtitle={buyerPolishedShell ? BUYER_ASK_PAGE_HERO : ASK_PAGE_SUBTITLE}
-          claimDiscipline={buyerPolishedShell ? ASK_REVIEW_QUESTIONS_CLAIM_DISCIPLINE : undefined}
+          claimDiscipline={headerClaimDiscipline}
           claimDisciplineTestId={
             buyerPolishedShell ? ASK_REVIEW_QUESTIONS_HEADER_CLAIM_DISCIPLINE_TEST_ID : undefined
           }

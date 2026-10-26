@@ -48,26 +48,20 @@ function resolveIngestedUtcForEvidenceItem(
   return createdUtc.length > 0 ? createdUtc : null;
 }
 
-function inferEvidenceKind(sourceName: string): string {
-  const lower = sourceName.toLowerCase();
+function resolveStoredEvidenceKindFromCatalog(
+  sourceName: string,
+  catalog: readonly RunStoredEvidenceCatalogEntry[] | undefined,
+): string {
+  const catalogMatch = resolveStoredEvidenceCatalogMatch(sourceName, catalog);
 
-  if (lower.includes("inventory")) {
-    return "Submitted evidence";
-  }
-
-  if (lower.includes(".bicep") || lower.includes(".tf") || lower.includes("terraform")) {
-    return "Infrastructure as code";
-  }
-
-  if (lower.endsWith(".zip")) {
-    return "Document";
-  }
-
-  if (lower.endsWith(".docx") || lower.endsWith(".doc")) {
+  if (catalogMatch === null || catalog === undefined) {
     return RUN_DETAIL_EVIDENCE_KIND_NOT_STORED;
   }
 
-  return "Document";
+  const entry = catalog.find((row) => row.evidenceItemId === catalogMatch.evidenceItemId);
+  const contentType = entry?.contentType?.trim() ?? "";
+
+  return contentType.length > 0 ? contentType : RUN_DETAIL_EVIDENCE_KIND_NOT_STORED;
 }
 
 export function formatRunDetailEvidenceCitingFindingCount(
@@ -225,7 +219,7 @@ export function deriveRunDetailEvidenceInventory(input: {
 
     map.set(key, {
       sourceName,
-      kind: inferEvidenceKind(sourceName),
+      kind: resolveStoredEvidenceKindFromCatalog(sourceName, input.storedEvidenceCatalog),
       inventoryKind: inspectKind.inventoryKind,
       evidenceItemId: inspectKind.evidenceItemId,
       findingIds: new Set(),
@@ -328,18 +322,24 @@ export function deriveEvidenceScopeReadiness(input: {
     };
   }
 
-  if (input.inventoryCount === 0) {
+  const emptyInventoryHeadline = "Submitted evidence inventory is empty." as const;
 
-    if (input.trustReadiness !== null && input.trustReadiness.verdict === "gaps") {
+  if (input.inventoryCount === 0) {
+    if (input.trustReadiness !== null) {
+      const trustHeadline = input.trustReadiness.headline.trim();
+
       return {
-        verdict: "gaps",
-        headline: input.trustReadiness.headline,
+        verdict: input.trustReadiness.verdict,
+        headline:
+          trustHeadline.length > 0
+            ? `${trustHeadline} ${emptyInventoryHeadline}`
+            : emptyInventoryHeadline,
       };
     }
 
     return {
       verdict: "gaps",
-      headline: "Submitted evidence inventory is empty.",
+      headline: emptyInventoryHeadline,
     };
   }
 

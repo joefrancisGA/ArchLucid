@@ -216,7 +216,7 @@ function inferCloudTargetAnswer(corpus: string): string | null {
   const lower = corpus.toLowerCase();
 
   if (/\b(?:cloud[- ]neutral|cloud[- ]agnostic|provider[- ]agnostic|multi[- ]cloud)\b/.test(lower)) {
-    return "None";
+    return "Cloud target was described as multi-cloud or cloud-neutral. A single cloud was not stored.";
   }
 
   const scores = {

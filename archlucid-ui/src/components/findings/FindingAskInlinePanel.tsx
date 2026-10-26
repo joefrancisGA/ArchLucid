@@ -208,6 +208,7 @@ export function FindingAskInlinePanel(props: FindingAskInlinePanelProps) {
               props.findingId,
               props.semanticSupportBand,
             )}
+            openFindingContext
           />
           <AskVsFrontierAiDifferentiationStrip variant="compact" />
           <p
@@ -259,6 +260,7 @@ export function FindingAskInlinePanel(props: FindingAskInlinePanelProps) {
                       props.findingId,
                       props.semanticSupportBand,
                     )}
+                    openFindingContext
                   />
                 </li>
               ))}
