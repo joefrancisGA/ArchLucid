@@ -209,23 +209,6 @@ public static class InventoryDiagramRelationshipLabelTexts
 
     public const string DiagnosticSettingStorageNamesNotListedQualifier = "names-not-listed";
 
-    public static string FormatBackendPoolMembershipConfigured(int? backendPort)
-    {
-        if (backendPort is null)
-        {
-            return BackendPoolMembershipConfiguredObservedTrafficNotStored;
-        }
-
-        return $"Backend pool membership is configured on port {backendPort.Value}. Observed traffic was not stored.";
-    }
-
-    public static string FormatSendsTrafficToBackend(int? backendPort)
-    {
-        return backendPort is null
-            ? "Configured backend pool member. Backend port was not stored."
-            : $"Configured backend pool member on port {backendPort.Value}.";
-    }
-
     public static string FormatDiagnosticSettingStorageLabel(string? settingName)
     {
         if (string.IsNullOrWhiteSpace(settingName))
@@ -251,10 +234,37 @@ public static class InventoryDiagramRelationshipLabelTexts
         return $"Role assignment: {roleName.Trim()}. {RoleAssignmentObservedUseNotStoredSuffix}";
     }
 
+    public static string FormatBackendPoolMembershipConfigured(int? backendPort)
+    {
+        if (backendPort is null)
+        {
+            return BackendPoolMembershipConfiguredObservedTrafficNotStored;
+        }
+
+        return $"Backend pool membership is configured on port {backendPort.Value}. Observed traffic was not stored.";
+    }
+
+    public static string FormatSendsTrafficToBackend(int? backendPort)
+    {
+        return backendPort is null
+            ? "Configured backend pool member. Backend port was not stored."
+            : $"Configured backend pool member on port {backendPort.Value}.";
+    }
+
     public static string FormatBackendOffCanvasOutline(string backendName)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(backendName);
 
         return $"Backend {backendName.Trim()} is not on this diagram.";
+    }
+
+    public static string FormatRecoveryServicesReplicatesLabel(string? targetRegion)
+    {
+        if (string.IsNullOrWhiteSpace(targetRegion))
+        {
+            return $"{AzureInventoryRecoveryServices.ReplicateEdgeLabel}. Replication target region was not stored.";
+        }
+
+        return $"{AzureInventoryRecoveryServices.ReplicateEdgeLabel} to {targetRegion.Trim()}.";
     }
 }

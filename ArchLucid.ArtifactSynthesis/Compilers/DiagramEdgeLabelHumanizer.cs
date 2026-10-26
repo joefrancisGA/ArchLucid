@@ -390,6 +390,13 @@ internal static class DiagramEdgeLabelHumanizer
 
     private static bool TryHumanizeGraphEdgeType(string value, out string humanized)
     {
+        if (string.Equals(value, "in", StringComparison.OrdinalIgnoreCase))
+        {
+            humanized = "Subnet placement.";
+
+            return true;
+        }
+
         if (string.Equals(value, AzureInventoryRelationshipAssociationTypes.NicToSubnet, StringComparison.OrdinalIgnoreCase)
             || string.Equals(value, AzureInventoryRelationshipAssociationTypes.PeToSubnet, StringComparison.OrdinalIgnoreCase)
             || string.Equals(value, AzureInventoryRelationshipAssociationTypes.AppServiceToSubnet, StringComparison.OrdinalIgnoreCase)

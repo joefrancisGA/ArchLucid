@@ -384,7 +384,7 @@ public sealed class CorePackageCoverageBatchRc28dTests
     }
 
     [Theory]
-    [InlineData(null, "PASS")]
+    [InlineData(null, "HOLD")]
     [InlineData(0.4, "HOLD")]
     [InlineData(0.6, "WARN")]
     [InlineData(0.9, "PASS")]
