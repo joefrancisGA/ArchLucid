@@ -6868,6 +6868,19 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-26 seed hunt (seed→hit): proved hunt 299 retried buyer agent markers but `RunDetailDecisionExplainabilityEnrichmentSlice` still called `IDecisionNodeRepository.GetByRunIdAsync` with a single canonical key, so in-memory coordinator decision rows whose persisted `RunId` used legacy uppercase hex left decision explainability without coordinator nodes; centralize retry in `AnalysisRunIdCanonicalization.LoadDecisionNodesByRunIdAsync`; regression `CompareQuality_EnrichAsync_loads_coordinator_nodes_when_stored_run_id_differs_only_by_casing`; cheap-disproof closed buyer agent marker casing (hunt 299), operator LLM cost trace casing (hunt 298), career export trace casing (hunt 297), batch zip manifest echo (cosmetic); seeded five follow-on rows; scoped application-analysis + replay filter 401/401. Private beta: run decision explainability includes coordinator nodes when persisted decision rows use run anchors that differ only by hex letter casing from the canonical lookup key.
+
+- [ ] (candidate) `RunDetailRetrievalGroundingEnrichmentSlice` — retrieval trace run key — locus: Guid-scoped reader; input: defer unless string RunId ordinal store proven.
+- [ ] (candidate) `ComparisonRecordRepository.GetByRunIdAsync` — SQL list-by-run dashed stored — locus: UNIQUEIDENTIFIER column; input: already matches N/D lookup via guid param.
+- [ ] (candidate) `ComparisonRecordRepositoryCore.SerializeTagsForUpdate` — JSON tag order — locus: cosmetic; input: defer.
+- [ ] (candidate) `ComparisonRecordSearchPredicateBuilder` — notes column search — locus: no notes filter today; input: defer.
+- [ ] (candidate) `ApiPaging.TryParseUtcTicksIdCursor` — cursor id segment without trim — locus: HTTP cursor parse; input: padded id after ticks delimiter (alerts inbox and other API surfaces).
+
+- [x] (proven) `RunDetailDecisionExplainabilityEnrichmentSlice` — coordinator decision stored `RunId` casing — **hit 2026-10-26 seed hunt:** shared `LoadDecisionNodesByRunIdAsync`; regression above.
+- [x] (valid-no-repro) `RunDetailBuyerResultsEnrichmentSlice` — agent type marker stored `RunId` casing — **cheap-disproof 2026-10-26 seed hunt:** hunt 299.
+- [x] (invalid) `ApiPaging.TryParseUtcTicksIdCursor` — HTTP cursor id trim — **cheap-disproof 2026-10-26 seed hunt:** comparison search normalizes at application layer.
+- [x] (invalid) `ComparisonBatchReplayZipSupport` — manifest id echo — **cheap-disproof 2026-10-26 seed hunt:** cosmetic only.
+
 2026-10-26 seed hunt (seed→hit): proved hunt 298 retried LLM cost on operator enrich but `RunDetailBuyerResultsEnrichmentSlice` still called `GetAgentTypeMarkersByRunIdAsync` with a single canonical key, so in-memory agent results whose persisted `RunId` used legacy uppercase hex left buyer summaries without execution-outcome markers; centralize retry in `AnalysisRunIdCanonicalization.LoadAgentTypeMarkersByRunIdAsync`; regression `CompareQuality_EnrichAsync_loads_agent_markers_when_stored_run_id_differs_only_by_casing`; cheap-disproof closed operator LLM cost trace casing (hunt 298), career export trace casing (hunt 297), stored agent-result run detail casing (hunt 294), architecture run-detail trace cost casing (hunt 295), batch zip manifest echo (cosmetic); seeded five follow-on rows; scoped application-analysis + replay filter 400/400. Private beta: buyer-facing run summaries include agent execution markers when persisted results use run anchors that differ only by hex letter casing from the canonical lookup key.
 
 - [ ] (candidate) `ComparisonRecordRepository.GetByRunIdAsync` — SQL list-by-run dashed stored — locus: UNIQUEIDENTIFIER column; input: already matches N/D lookup via guid param.
