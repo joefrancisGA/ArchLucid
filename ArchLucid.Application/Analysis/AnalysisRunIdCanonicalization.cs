@@ -1,5 +1,6 @@
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
+using ArchLucid.Core.Persistence.ApplicationPorts.Data.Repositories;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
 
@@ -99,6 +100,27 @@ internal static class AnalysisRunIdCanonicalization
 
             if (slices is { Count: > 0 })
                 return slices;
+        }
+
+        return [];
+    }
+
+    internal static async Task<IReadOnlyList<AgentResult>> LoadAgentTypeMarkersByRunIdAsync(
+        IAgentResultRepository resultRepository,
+        ScopeContext scope,
+        string primaryRunId,
+        CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(resultRepository);
+
+        foreach (string lookupKey in EnumerateRunIdRepositoryLookupKeys(primaryRunId))
+        {
+            IReadOnlyList<AgentResult> markers = await resultRepository
+                .GetAgentTypeMarkersByRunIdAsync(scope, lookupKey, cancellationToken)
+                .ConfigureAwait(false);
+
+            if (markers is { Count: > 0 })
+                return markers;
         }
 
         return [];
