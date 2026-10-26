@@ -788,6 +788,20 @@ describe("ResourceHubClient", () => {
     );
   });
 
+  it("passes resolved snapshot id to hub fetch when URL omits snapshotId", async () => {
+    fetchCachedInfraEvidenceResourceHub.mockClear();
+    searchParams = new URLSearchParams("tab=overview");
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    await screen.findByTestId("infra-resource-hub-tabs");
+    await waitFor(() => {
+      expect(fetchCachedInfraEvidenceResourceHub).toHaveBeenCalledWith(
+        RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID,
+        expect.objectContaining({ snapshotId: RESOURCE_HUB_TEST_SNAPSHOT_ID }),
+      );
+    });
+  });
+
   it("omits partial stale URL assessmentId from hub fetch", async () => {
     fetchCachedInfraEvidenceResourceHub.mockClear();
     searchParams = new URLSearchParams(

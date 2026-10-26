@@ -609,7 +609,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
     try {
       const response = await fetchCachedInfraEvidenceResourceHub(cloudResourceId, {
         runId,
-        snapshotId,
+        snapshotId: resolvedSnapshotId.length > 0 ? resolvedSnapshotId : snapshotId,
         ...hubFetchAuditScope,
       });
 
@@ -635,7 +635,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
 
       setLoading(false);
     }
-  }, [cloudResourceId, hubFetchAuditScope, runId, snapshotId]);
+  }, [cloudResourceId, hubFetchAuditScope, resolvedSnapshotId, runId, snapshotId]);
 
   useEffect(() => {
     void loadHub();
