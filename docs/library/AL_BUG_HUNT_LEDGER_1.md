@@ -13475,6 +13475,19 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: architecture-intelligence-orchestrator
 
+2026-10-26 seed hunt (seed-only): cheap-disproof closed five `(candidate)` rows from prior pass today; regressions `CoalesceAsync_runs_in_parallel_with_review_cache_coalesce_for_same_continue_manifest`, `CoalesceAsync_follower_cancel_does_not_cancel_leader_flight`, and `Build_partitions_content_hash_when_client_run_id_omitted_vs_supplied_with_same_sources`; re-read pinned-expired tombstone `TryGet`, publish pre-coalesce bypass, and continue vs review in-flight maps; seeded five mechanism-backed `(candidate)` rows below; 540 scoped orchestrator/cache/manifest/continue-flight/single-flight/cloner/publish-guard tests passed.
+
+- [x] (valid-no-repro) `ReviewResultCache.TryGet` — pinned expiry refresh vs tombstone miss — **cheap-disproof 2026-10-26 seed hunt:** `TryGet_returns_pinned_expired_entry_and_refreshes_ttl` and `TryGet_misses_tombstoned_pinned_expired_entry_without_refreshing_ttl`.
+- [x] (valid-no-repro) `ClosedLoopArchitectureReasoningOrchestrator.RunAsync` — `PublishToProduct` bypasses pre-coalesce `TryGet` — **cheap-disproof 2026-10-26 seed hunt:** intentional; `RunAsync_publish_request_bypasses_review_cache_hit`.
+- [x] (valid-no-repro) `ReviewSingleFlightCoordinator.CoalesceAsync` — follower cancel vs leader abort retry — **cheap-disproof 2026-10-26 seed hunt:** `CoalesceAsync_follower_cancel_does_not_cancel_leader_flight` plus `CoalesceAsync_leader_cancel_lets_waiters_retry_with_live_token`.
+- [x] (valid-no-repro) `ReviewCacheManifestBuilder.HashContent` — `modelfp` gate when `RunId` omitted then supplied — **cheap-disproof 2026-10-26 seed hunt:** intentional cache partition; `Build_partitions_content_hash_when_client_run_id_omitted_vs_supplied_with_same_sources`.
+- [x] (valid-no-repro) `ClosedLoopContinueRunSingleFlight` — separate in-flight map from review cache — **cheap-disproof 2026-10-26 seed hunt:** `CoalesceAsync_runs_in_parallel_with_review_cache_coalesce_for_same_continue_manifest` and `BuildCoalesceKey_differs_from_review_cache_storage_key_for_same_manifest`.
+- [ ] (candidate) `ReviewResultCache.CoalesceAsync` — outer pin scope required for coalesce eviction survival — locus: `CoalesceAsync_does_not_pin_storage_key_without_outer_pin_scope`; input: fill cache during slow leader without `PinScope`.
+- [ ] (candidate) `ClosedLoopArchitectureReasoningOrchestrator.FinalizeCoalescedReviewResult` — cache-hit policy application on coalesced continue vs fresh run — locus: `CreateCoalescedCacheHitResult`; input: publish intent on cached continue result.
+- [ ] (candidate) `ReviewCacheManifestBuilder.HashPriorities` — declared priorities whitespace-only vs empty list on continue coalesce manifest — locus: `DeclaredPrioritiesHash`; input: continue request with whitespace priorities only.
+- [ ] (candidate) `ReviewSingleFlightCoordinator` — `OperationCanceledException` on follower `WaitAsync` vs `ReviewCacheSingleFlightLeaderAbortedException` retry path — locus: catch filter `IsLeaderAborted`; input: cancel follower token while leader still running (distinct from leader abort).
+- [ ] (candidate) `ClosedLoopPublishStage` — `storageManifest` rebuild uses persisted baseline when `persistModel` false — locus: baseline swap before `BuildContinueFromExistingRunCoalesceManifest`; input: publish-blocked continue with mutated in-memory model.
+
 2026-10-26 seed hunt (seed-only): cheap-disproof closed five `(candidate)` rows from prior pass today; regressions `Set_skips_insert_for_tombstoned_run_id_while_pin_holds_storage_key` and extended `CoalesceAsync_concurrent_waiters_all_receive_cache_hit_metadata` (stored entry keeps `CacheHit` false after leader `TryGet` mutation); re-read budget gate ordering, continue workspace coalesce partitioning, and publish-blocked cache persist guard; seeded five mechanism-backed `(candidate)` rows below; 537 scoped orchestrator/cache/manifest/continue-flight/single-flight/cloner/publish-guard tests passed.
 
 - [x] (valid-no-repro) `ReviewResultCache.Set` — tombstone blocks insert while pinned entry held — **cheap-disproof 2026-10-26 seed hunt:** `Set_skips_insert_for_tombstoned_run_id_while_pin_holds_storage_key` plus `InvalidateForRun_defers_removal_while_pinned_then_flushes_on_unpin`.
@@ -13482,11 +13495,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - [x] (valid-no-repro) `ReviewResultCache.CoalesceAsync` — leader `TryGet` mutation visible in cache storage — **cheap-disproof 2026-10-26 seed hunt:** `TryGet` clones; coalesce test asserts stored entry unchanged after leader metadata mutation.
 - [x] (valid-no-repro) `ReviewCacheManifestBuilder.BuildContinueFromExistingRunCoalesceManifest` — workspace vs tenant partition — **cheap-disproof 2026-10-26 seed hunt:** `BuildCoalesceKey_matches_across_workspace_when_continue_content_matches` (in-flight key uses coalesce `ContentHash`, not workspace tenant-config hash).
 - [x] (valid-no-repro) `ClosedLoopPublishStage` — `persistModel` false publish-blocked cache `Set` guard — **cheap-disproof 2026-10-26 seed hunt:** analysis path `!PublishToProduct` still persists; `RunAsync_second_identical_continue_with_publish_blocked_is_cache_hit` and `RunAsync_second_identical_rerun_with_existing_run_id_and_publish_blocked_is_cache_hit`.
-- [ ] (candidate) `ReviewResultCache.TryGet` — expired pinned entry TTL refresh vs tombstone `TryGet` miss on same storage key — locus: pinned expiry branch in `TryGet`; input: pin + invalidate + advance `TimeProvider` past TTL.
-- [ ] (candidate) `ClosedLoopArchitectureReasoningOrchestrator.RunAsync` — `PublishToProduct` true bypasses pre-coalesce `TryGet` while analysis cache populated — locus: `if (!effectiveRequest.PublishToProduct && TryGet)`; input: publish request after analysis cache warm.
-- [ ] (candidate) `ReviewSingleFlightCoordinator.CoalesceAsync` — cancellation on follower `WaitAsync` vs leader abort retry — locus: follower `cancellationToken` on `existing.Completion.Task.WaitAsync`; input: cancel follower while leader in flight.
-- [ ] (candidate) `ReviewCacheManifestBuilder.HashContent` — `modelfp` omitted when client `RunId` blank on first request but assigned on rerun with same sources — locus: `NormalizeOptional(request.RunId)` gate; input: second request supplies run id after first omit.
-- [ ] (candidate) `ClosedLoopContinueRunSingleFlight` — continue coalesce shares coordinator with review cache in-flight map — locus: separate `_coordinator` instances; input: document no cross-map collision (regression-only).
+- [x] (valid-no-repro) `ReviewResultCache.TryGet` — expired pinned entry TTL refresh vs tombstone `TryGet` miss on same storage key — **cheap-disproof 2026-10-26 seed hunt:** see zone-header note above.
+- [x] (valid-no-repro) `ClosedLoopArchitectureReasoningOrchestrator.RunAsync` — `PublishToProduct` true bypasses pre-coalesce `TryGet` while analysis cache populated — **cheap-disproof 2026-10-26 seed hunt:** see zone-header note above.
+- [x] (valid-no-repro) `ReviewSingleFlightCoordinator.CoalesceAsync` — cancellation on follower `WaitAsync` vs leader abort retry — **cheap-disproof 2026-10-26 seed hunt:** see zone-header note above.
+- [x] (valid-no-repro) `ReviewCacheManifestBuilder.HashContent` — `modelfp` omitted when client `RunId` blank on first request but assigned on rerun with same sources — **cheap-disproof 2026-10-26 seed hunt:** see zone-header note above.
+- [x] (valid-no-repro) `ClosedLoopContinueRunSingleFlight` — continue coalesce shares coordinator with review cache in-flight map — **cheap-disproof 2026-10-26 seed hunt:** see zone-header note above.
 
 2026-10-26 seed hunt (seed-only): cheap-disproof closed five `(candidate)` rows from prior pass today; regressions `BuildInFlight_appends_publish_suffix_to_storage_key_without_ambiguity` and `CoalesceAsync_waiters_receive_leader_result_when_invalidate_tombstones_pinned_run_during_flight`; re-read tombstone deferral, `SanitizeForStorage` vs coalesce follower strip, and continue publish coalesce partitioning; seeded five mechanism-backed `(candidate)` rows below; 536 scoped orchestrator/cache/manifest/continue-flight/single-flight/cloner/publish-guard tests passed.
 
@@ -14316,9 +14329,9 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** closed-loop orchestrator; review result cache; architecture intelligence
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.cs; ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.Cache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewResultCache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewCacheManifestBuilder.cs
 - **test-filter:** FullyQualifiedName~ClosedLoopArchitectureReasoningOrchestrator|FullyQualifiedName~ReviewResultCache|FullyQualifiedName~ReviewCacheManifestBuilder
-- **hunts:** 116
+- **hunts:** 117
 - **bugs-found:** 95
-- **consecutive-dry-hunts:** 8
+- **consecutive-dry-hunts:** 9
 - **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-23 — white-bullet and triangular-bullet alternate path separators split review-cache `ContentHash`
 - **related-pd-tb:** none

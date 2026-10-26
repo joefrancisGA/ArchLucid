@@ -173,6 +173,50 @@ public sealed class ReviewResultCacheSingleFlightTests
     }
 
     [Fact]
+    public async Task CoalesceAsync_follower_cancel_does_not_cancel_leader_flight()
+    {
+        ReviewSingleFlightCoordinator coordinator = new();
+        using CancellationTokenSource leaderToken = new();
+        using CancellationTokenSource followerToken = new();
+        TaskCompletionSource leaderEntered = new(TaskCreationOptions.RunContinuationsAsynchronously);
+
+        Task<ClosedLoopReasoningResult> leader = Task.Run(async () =>
+        {
+            return await coordinator.CoalesceAsync(
+                "follower-cancel-key",
+                async cancellationToken =>
+                {
+                    leaderEntered.TrySetResult();
+
+                    await Task.Delay(Timeout.InfiniteTimeSpan, cancellationToken);
+
+                    return new ClosedLoopReasoningResult { RunId = "leader-survives" };
+                },
+                leaderToken.Token);
+        });
+
+        await leaderEntered.Task;
+
+        Task<ClosedLoopReasoningResult> follower = Task.Run(async () =>
+        {
+            return await coordinator.CoalesceAsync(
+                "follower-cancel-key",
+                _ => Task.FromException<ClosedLoopReasoningResult>(new InvalidOperationException("not leader")),
+                followerToken.Token);
+        });
+
+        followerToken.Cancel();
+
+        Func<Task> act = async () => await follower;
+        await act.Should().ThrowAsync<OperationCanceledException>();
+
+        leaderToken.Cancel();
+
+        Func<Task> leaderAct = async () => await leader;
+        await leaderAct.Should().ThrowAsync<OperationCanceledException>();
+    }
+
+    [Fact]
     public async Task CoalesceAsync_does_not_share_flight_across_publish_intent()
     {
         ReviewResultCache cache = new();
