@@ -1880,7 +1880,9 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
 
                     return (
                     <EnterpriseTableRow key={item.instanceId}>
-                      <EnterpriseTableCell className="font-mono text-xs">{item.patternKey}</EnterpriseTableCell>
+                      <EnterpriseTableCell className="font-mono text-xs">
+                        {formatStoredInfraEvidenceHubField(item.patternKey, "Remediation pattern was not stored.")}
+                      </EnterpriseTableCell>
                       <EnterpriseTableCell>
                         {remediationStatusLabel.length > 0 ? (
                           <StatusTag

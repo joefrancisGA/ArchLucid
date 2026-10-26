@@ -1096,6 +1096,27 @@ describe("ResourceHubClient", () => {
     expect(await screen.findByText("Correspondence explanation was not stored.")).toBeInTheDocument();
   });
 
+  it("shows remediation pattern omission copy when patternKey is whitespace-only", async () => {
+    fetchCachedInfraEvidenceResourceHub.mockImplementation(async () =>
+      buildResourceHubTestMockHub({
+        remediationInstances: {
+          ...buildResourceHubTestMockHub().remediationInstances,
+          items: [
+            {
+              instanceId: "instance-whitespace-pattern",
+              patternKey: "   ",
+              status: "Draft",
+            },
+          ],
+        },
+      }),
+    );
+    searchParams = new URLSearchParams(`tab=remediation&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}`);
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    expect(await screen.findByText("Remediation pattern was not stored.")).toBeInTheDocument();
+  });
+
   it("treats whitespace-only remediation instance status as not stored", async () => {
     fetchCachedInfraEvidenceResourceHub.mockImplementation(async () =>
       buildResourceHubTestMockHub({

@@ -7174,6 +7174,34 @@ ABQ-09 churn hotspot.
 
 ## Zone: ui-infra-resource-hub
 
+2026-10-26 seed hunt (seed→hit): promoted whitespace-only remediation **`patternKey`** shown as blank pattern cells — pattern key rendered raw while remediation `status` already trimmed to omission copy; regression `shows remediation pattern omission copy when patternKey is whitespace-only`; cheap-disproof closed drift field whitespace (prior hit), diagram label/band whitespace (seeded below), and remediation status whitespace (prior hit; regression lock retained); scoped ResourceHubClient vitest 91/91. Private beta: remediation instance tables show “Remediation pattern was not stored.” instead of a blank pattern cell when capture stored only whitespace.
+
+- [x] (proven) `ResourceHubClient` remediation instances — `patternKey` whitespace-only — **hit 2026-10-26 seed hunt:** `formatStoredInfraEvidenceHubField` on pattern column; regression whitespace pattern fixture.
+- [x] (valid-no-repro) `ResourceHubClient` remediation instances — `status` whitespace-only — **cheap-disproof 2026-10-26 seed hunt:** prior hit; regression lock retained.
+- [x] (valid-no-repro) `ResourceHubDriftChangesTable` — property/old/new whitespace-only — **cheap-disproof 2026-10-26 seed hunt:** prior hit; regression lock retained.
+- [x] (valid-no-repro) `ResourceHubClient` diagram correspondence — `diagramNodeLabel` whitespace-only — **cheap-disproof 2026-10-26 seed hunt:** not yet trimmed; seeded below.
+- [x] (valid-no-repro) `ResourceHubClient` diagram correspondence — `confidenceBand` whitespace-only — **cheap-disproof 2026-10-26 seed hunt:** formatDiagramCorrespondenceConfidenceBandLabel may handle empty; seeded below.
+
+- [ ] (candidate) `ResourceHubClient` diagram correspondence — `diagramNodeLabel` whitespace-only — locus: diagram tab label; input: blank node label.
+- [ ] (candidate) `ResourceHubClient` diagram correspondence — `confidenceBand` whitespace-only — locus: confidence tag label; input: whitespace band shown as real value.
+- [ ] (candidate) `ResourceHubDriftChangesTable` — `changeType` whitespace-only — locus: change type tag; input: blank or invalid change label.
+- [ ] (candidate) `ResourceHubClient` overview metadata — `resourceGroup` / `region` whitespace-only — locus: overview strip; input: blank vs omission copy parity with null.
+- [ ] (candidate) `ResourceHubClient` terraform tab — `diagramNodeId` whitespace-only — locus: diagram correspondence ids; input: blank id display if surfaced.
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **aliases:** resource hub; infrastructure resource detail
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 63
+- **bugs-found:** 42
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-26
+- **last-bug:** 2026-10-26 — whitespace-only remediation pattern key
+- **related-pd-tb:** none
+- **code-changed-since:** yes
+
 2026-10-26 seed hunt (seed→hit): promoted whitespace-only drift change **property**, **old**, and **new** values shown as blank cells — `ResourceHubDriftChangesTable` used nullish coalescing without trim while hub configuration tables already used `formatStoredInfraEvidenceHubField`; regression `shows drift omission copy when property and old/new values are whitespace-only`; cheap-disproof closed tag/property/network/RBAC whitespace (prior hits), drift `riskClassification` whitespace (SeverityTag path; not promoted), and remediation/diagram whitespace (seeded below); scoped ResourceHubClient vitest 90/90. Private beta: drift tables on the resource hub show existing not-stored copy for property name and old/new values when capture stored only whitespace.
 
 - [x] (proven) `ResourceHubDriftChangesTable` — `property` / `oldValue` / `newValue` whitespace-only — **hit 2026-10-26 seed hunt:** `formatStoredInfraEvidenceHubField` on drift columns; regression drift-tab fixture.
