@@ -255,6 +255,36 @@ describe("SecureNowQuestionQueue", () => {
     expect(screen.getByText("Inventory evidence")).toBeInTheDocument();
   });
 
+  it("does not skip via Not sure while a save answer mutation is in flight", async () => {
+    const secondQuestion = {
+      ...question,
+      questionKey: "other-evidence@v1",
+      questionText: "Second question in the queue?",
+    };
+    let resolveAnswer!: () => void;
+    mocks.listQuestions.mockResolvedValue([question, secondQuestion]);
+    mocks.answerQuestion.mockImplementation(
+      () =>
+        new Promise<void>((resolve) => {
+          resolveAnswer = () => resolve();
+        }),
+    );
+
+    render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
+    fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
+    fireEvent.click(screen.getByRole("button", { name: "Name the peer" }));
+    fireEvent.click(screen.getByRole("button", { name: "Save answer" }));
+
+    const notSureButton = screen.getByRole("button", { name: "Not sure. This does not store an answer." });
+    expect(notSureButton).toBeDisabled();
+    fireEvent.click(notSureButton);
+
+    expect(screen.getByTestId("infra-diagrams-question-text")).toHaveTextContent(question.questionText);
+
+    resolveAnswer();
+    await waitFor(() => expect(mocks.answerQuestion).toHaveBeenCalledTimes(1));
+  });
+
   it("skips only one row when omitted keys share text but fingerprints differ", async () => {
     mocks.listQuestions.mockResolvedValue([
       {

@@ -338,6 +338,7 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
                     type="button"
                     size="sm"
                     variant={selectedAnswer === normalizedAnswerCode ? "primary" : "outline"}
+                    disabled={busy}
                     onClick={() => {
                       if (normalizedAnswerCode === "NotSure") {
                         advanceWithoutPersistence();
@@ -426,7 +427,7 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
               type="button"
               size="sm"
               variant="outline"
-              disabled={currentIndex === 0}
+              disabled={busy || currentIndex === 0}
               onClick={() => setCurrentIndex((current) => Math.max(current - 1, 0))}
             >
               Previous
@@ -438,7 +439,11 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
               type="button"
               size="sm"
               variant="outline"
-              disabled={currentIndex >= filteredQuestions.length - 1 || visitedQuestionKeys.size >= VISIT_CAP}
+              disabled={
+                busy
+                || currentIndex >= filteredQuestions.length - 1
+                || visitedQuestionKeys.size >= VISIT_CAP
+              }
               onClick={() => setCurrentIndex((current) => Math.min(current + 1, filteredQuestions.length - 1))}
             >
               Next

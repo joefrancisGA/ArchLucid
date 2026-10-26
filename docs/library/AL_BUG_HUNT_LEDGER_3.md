@@ -9573,6 +9573,21 @@ ABQ-09 churn hotspot.
 
 ## Zone: securenow-question-queue
 
+2026-10-26 seed hunt (seed→hit): promoted `SecureNowQuestionQueue` **Not sure skip during in-flight save** — answer-choice buttons stayed enabled while `busy`, so operators could trigger `advanceWithoutPersistence` during an answer mutation and skip a row that was still saving; disable choices and drawer navigation while `busy` and guard `advanceWithoutPersistence`; regression `does not skip via Not sure while a save answer mutation is in flight`; cheap-disproof closed malformed list envelope (array-only contract), SQL MERGE deferred, optimistic merge future-risk, silent answer-action early return (saturated state-machine-gap monitor); scoped SecureNow queue vitest 121/121. Private beta: SecureNow question review blocks skip/advance controls while a save is still running.
+
+- [x] (proven) `SecureNowQuestionQueue` / `advanceWithoutPersistence` — Not sure skip during in-flight save — **hit 2026-10-26 seed hunt:** `disabled={busy}` on choices and prev/next; provider busy guard; regression above.
+- [x] (valid-no-repro) `securenow-question-queue-api.listSecureNowQuestions` — malformed list envelope — **cheap-disproof 2026-10-26 seed hunt:** API returns array; non-array maps to empty list by contract.
+- [x] (valid-no-repro) `SecureNowQuestionQueueProvider` — load vs mutation error on reload — **cheap-disproof 2026-10-26 seed hunt:** `loadQuestions` clears errors at start; prior mutation clear on question change hit retained.
+- [x] (valid-no-repro) `SecureNowQuestionQueueProvider.submitAction` — silent return when answer actions hidden — **cheap-disproof 2026-10-26 seed hunt:** saturated `[state-machine-gap]` monitor.
+- [x] (invalid) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` — **cheap-disproof 2026-10-26 seed hunt:** integration host unavailable; candidate reseeded below.
+- [x] (invalid) `securenow-question-queue-provider` — optimistic merge from disposition JSON — **cheap-disproof 2026-10-26 seed hunt:** reload-only provider; candidate reseeded below.
+
+- [ ] (candidate) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` identity hash collision — locus: SQL repository; input: integration repro when SQL host available.
+- [ ] (candidate) `securenow-question-queue-provider` — optimistic merge from disposition JSON — locus: future post-mutation path; input: must use `mapSecureNowQuestionDisposition` only.
+- [ ] (candidate) `SecureNowQuestionQueue` — filter tab changes during `busy` — locus: filter buttons; input: should ignore filter changes while mutation in flight.
+- [ ] (candidate) `SecureNowQuestionQueueProvider` — drawer close during `busy` — locus: close affordance; input: cancel vs wait for mutation completion.
+- [ ] (candidate) `securenow-question-queue-api.listSecureNowQuestions` — proxy wraps list in `{ items }` envelope — locus: contract drift; input: only if API shape changes.
+
 2026-10-26 seed hunt (seed→hit): promoted `SecureNowQuestionQueueProvider` **stale mutation inline error after changing questions** — snapshot-guard and other mutation failures left `operator-mutation-inline-error` mounted when the operator advanced to another row in the drawer; clear mutation-kind errors when `currentQuestionIdentity` changes; regression `clears a mutation inline error when advancing to another question in the drawer`; cheap-disproof closed non-array list proxy shape (maps to empty list by design), SQL MERGE deferred, optimistic merge future-risk; regression lock `focuses the embedded-connection question after confirm when another open inferred row exists`; scoped SecureNow queue vitest 120/120 across queue component + API tests. Private beta: SecureNow question review no longer shows a prior row’s save error after moving to the next question.
 
 - [x] (proven) `SecureNowQuestionQueueProvider.submitAction` — mutation error persists after advancing to another question — **hit 2026-10-26 seed hunt:** clear mutation error on question identity change; regression above.
@@ -9607,11 +9622,11 @@ ABQ-09 churn hotspot.
 - **aliases:** securenow question queue; question disposition
 - **paths:** archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx; archlucid-ui/src/lib/infra-evidence/securenow-question-queue-api.ts
 - **test-filter:** SecureNowQuestion
-- **hunts:** 101
-- **bugs-found:** 73
+- **hunts:** 102
+- **bugs-found:** 74
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-26
-- **last-bug:** 2026-10-26 — stale mutation inline error after changing questions
+- **last-bug:** 2026-10-26 — Not sure skip during in-flight save
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 

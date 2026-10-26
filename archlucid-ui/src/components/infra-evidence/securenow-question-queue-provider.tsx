@@ -376,12 +376,12 @@ export function SecureNowQuestionQueueProvider(
   }, [currentQuestionIdentity, drawerOpen]);
 
   const advanceWithoutPersistence = useCallback(() => {
-    if (currentQuestion == null) return;
+    if (currentQuestion == null || busy) return;
     setSessionSkippedQuestionKeys((current) => new Set(current).add(questionIdentity(currentQuestion)));
     setSelectedAnswer(null);
     setReason("");
     setCurrentIndex((current) => Math.min(current, Math.max(filteredQuestions.length - 2, 0)));
-  }, [currentQuestion, filteredQuestions.length]);
+  }, [busy, currentQuestion, filteredQuestions.length]);
 
   const beginQuestionReview = useCallback(() => {
     setSessionSkippedQuestionKeys(new Set());
