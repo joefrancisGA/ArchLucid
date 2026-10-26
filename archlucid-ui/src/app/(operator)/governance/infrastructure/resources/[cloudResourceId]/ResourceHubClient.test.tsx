@@ -336,6 +336,45 @@ describe("ResourceHubClient", () => {
     );
   });
 
+  it("clears prior hub evidence when pinned snapshotId changes", async () => {
+    const alternateSnapshotId = "77777777-7777-7777-7777-777777777777";
+
+    fetchCachedInfraEvidenceResourceHub.mockImplementation(async (_id, options) => {
+      const snapshot = (options as { snapshotId?: string }).snapshotId ?? "";
+      await new Promise((resolve) => {
+        setTimeout(resolve, 40);
+      });
+      const gatewaySuffix = snapshot === alternateSnapshotId ? "snap-b-gateway" : "snap-a-gateway";
+
+      return buildResourceHubTestMockHub({
+        externalResourceId: `/subscriptions/sub/resourceGroups/rg-net/providers/Microsoft.Network/publicIPAddresses/${gatewaySuffix}`,
+        currentConfiguration: {
+          ...buildResourceHubTestMockHub().currentConfiguration,
+          snapshotId: snapshot.length > 0 ? snapshot : RESOURCE_HUB_TEST_SNAPSHOT_ID,
+          azureResourceId: `/subscriptions/sub/resourceGroups/rg-net/providers/Microsoft.Network/publicIPAddresses/${gatewaySuffix}`,
+        },
+      });
+    });
+
+    searchParams = new URLSearchParams(`tab=overview&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}`);
+    const { rerender } = render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("infra-resource-hub-page-title")).toHaveTextContent("snap-a-gateway");
+    });
+    expect(screen.getByText("Peering")).toBeInTheDocument();
+
+    searchParams = new URLSearchParams(`tab=overview&snapshotId=${alternateSnapshotId}`);
+    rerender(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    expect(screen.queryByText("Peering")).not.toBeInTheDocument();
+    expect(screen.getByTestId("infra-resource-hub-page-title")).toHaveTextContent("Resource name was not stored.");
+
+    await waitFor(() => {
+      expect(screen.getByTestId("infra-resource-hub-page-title")).toHaveTextContent("snap-b-gateway");
+    });
+  });
+
   it("clears prior hub evidence when cloudResourceId changes", async () => {
     const otherCloudResourceId = "33333333-3333-3333-3333-333333333333";
 

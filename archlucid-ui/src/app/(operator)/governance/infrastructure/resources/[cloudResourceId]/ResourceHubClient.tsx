@@ -430,30 +430,37 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
   const suppressLinkedAuditScopeRefetchRef = useRef(false);
   const linkedAuditInlineHydratedScopeRef = useRef<InfraEvidenceWorkbenchAuditScope | null>(null);
   const activeCloudResourceIdRef = useRef(cloudResourceId);
-  const hubClientScopeKeyRef = useRef(
-    buildResourceHubClientScopeKey({
-      cloudResourceId,
-      snapshotId,
-      runId,
-      assessmentId,
-      auditEvidenceSnapshotId,
-      controlId,
-    }),
+  const hubClientScopeKey = useMemo(
+    () =>
+      buildResourceHubClientScopeKey({
+        cloudResourceId,
+        snapshotId,
+        runId,
+        assessmentId,
+        auditEvidenceSnapshotId,
+        controlId,
+      }),
+    [assessmentId, auditEvidenceSnapshotId, cloudResourceId, controlId, runId, snapshotId],
   );
-  hubClientScopeKeyRef.current = buildResourceHubClientScopeKey({
-    cloudResourceId,
-    snapshotId,
-    runId,
-    assessmentId,
-    auditEvidenceSnapshotId,
-    controlId,
-  });
+  const hubClientScopeKeyRef = useRef(hubClientScopeKey);
+  hubClientScopeKeyRef.current = hubClientScopeKey;
+
+  const committedHubClientScopeKeyRef = useRef(hubClientScopeKey);
+  const skipInitialHubScopeResetRef = useRef(true);
 
   useEffect(() => {
-    if (activeCloudResourceIdRef.current === cloudResourceId) {
+    if (skipInitialHubScopeResetRef.current) {
+      skipInitialHubScopeResetRef.current = false;
+      committedHubClientScopeKeyRef.current = hubClientScopeKey;
+      activeCloudResourceIdRef.current = cloudResourceId;
       return;
     }
 
+    if (committedHubClientScopeKeyRef.current === hubClientScopeKey) {
+      return;
+    }
+
+    committedHubClientScopeKeyRef.current = hubClientScopeKey;
     activeCloudResourceIdRef.current = cloudResourceId;
     loadRequestGeneration.current += 1;
     suppressLinkedAuditScopeRefetchRef.current = false;
@@ -464,7 +471,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
     setFindingActionBusyId(null);
     setPendingRemediationFinding(null);
     setLoading(true);
-  }, [cloudResourceId]);
+  }, [cloudResourceId, hubClientScopeKey]);
 
   const resolvedSnapshotId = useMemo(() => {
     if (snapshotId.length > 0) {
