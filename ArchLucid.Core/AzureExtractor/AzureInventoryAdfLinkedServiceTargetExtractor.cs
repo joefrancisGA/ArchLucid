@@ -63,9 +63,18 @@ public static class AzureInventoryAdfLinkedServiceTargetExtractor
     {
         if (linkedServiceType.Equals("AzureBlobStorage", StringComparison.OrdinalIgnoreCase))
         {
-            return NormalizeHost(
-                TryReadHostFromUrl(AzureInventoryAdfTypePropertyReader.TryReadAllowedScalar(typePropertiesElement, "serviceEndpoint"))
-                ?? TryReadHostFromUrl(AzureInventoryAdfTypePropertyReader.TryReadAllowedScalar(typePropertiesElement, "accountUri")));
+            string? serviceEndpoint =
+                AzureInventoryAdfTypePropertyReader.TryReadAllowedScalar(typePropertiesElement, "serviceEndpoint");
+            string? accountUri =
+                AzureInventoryAdfTypePropertyReader.TryReadAllowedScalar(typePropertiesElement, "accountUri");
+            string? host = TryReadHostFromUrl(serviceEndpoint);
+
+            if (host is null || !host.Contains('.', StringComparison.Ordinal))
+            {
+                host = TryReadHostFromUrl(accountUri);
+            }
+
+            return NormalizeHost(host);
         }
 
         if (linkedServiceType.Equals("AzureBlobFS", StringComparison.OrdinalIgnoreCase))

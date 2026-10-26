@@ -96,6 +96,58 @@ public sealed class AzureInventoryEventGridDestinationExtractorTests
     }
 
     [Fact]
+    public void Extract_reads_webhook_host_from_percent_encoded_endpoint_base_url_when_endpoint_url_is_whitespace()
+    {
+        string encodedBaseUrl = Uri.EscapeDataString("hooks.example.com/callback?token=x");
+
+        using JsonDocument document = JsonDocument.Parse(
+            $$"""
+              {
+                "destination": {
+                  "endpointType": "WebHook",
+                  "endpointUrl": "   ",
+                  "endpointBaseUrl": "{{encodedBaseUrl}}"
+                }
+              }
+              """);
+
+        (
+            _,
+            string? destinationResourceId,
+            string? destinationHost,
+            string? warningCode) = AzureInventoryEventGridDestinationExtractor.Extract(document.RootElement);
+
+        destinationResourceId.Should().BeNull();
+        destinationHost.Should().Be("hooks.example.com");
+        warningCode.Should().BeNull();
+    }
+
+    [Fact]
+    public void Extract_reads_webhook_host_from_endpoint_url_when_endpoint_base_url_has_longer_path()
+    {
+        using JsonDocument document = JsonDocument.Parse(
+            """
+            {
+              "destination": {
+                "endpointType": "WebHook",
+                "endpointUrl": "hooks.example.com/short",
+                "endpointBaseUrl": "hooks.example.com/tenant/long/path?token=x"
+              }
+            }
+            """);
+
+        (
+            _,
+            string? destinationResourceId,
+            string? destinationHost,
+            string? warningCode) = AzureInventoryEventGridDestinationExtractor.Extract(document.RootElement);
+
+        destinationResourceId.Should().BeNull();
+        destinationHost.Should().Be("hooks.example.com");
+        warningCode.Should().BeNull();
+    }
+
+    [Fact]
     public void Extract_reads_webhook_host_from_endpoint_base_url_when_endpoint_url_does_not_yield_host()
     {
         using JsonDocument document = JsonDocument.Parse(
