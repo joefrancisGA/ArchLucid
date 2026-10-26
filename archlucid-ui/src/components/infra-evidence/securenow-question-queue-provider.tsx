@@ -56,6 +56,7 @@ type DrawerAction = "answer" | "ignore" | "reopen";
 type LoadQuestionsOptions = {
   readonly preferredFilter?: QueueFilter;
   readonly focusQuestionIdentity?: string;
+  readonly reloadAfterMutation?: boolean;
 };
 
 const VISIT_CAP = 10;
@@ -336,13 +337,18 @@ export function SecureNowQuestionQueueProvider(
       if (affectsActiveSnapshot && requestSequence !== loadSequence.current) return;
       if (!secureNowQueueLoadAffectsActiveSnapshot(loadingSnapshotId, snapshotIdRef.current)) return;
 
-      setError(
-        operatorInferredConnectionPanelErrorFromUnknown(
+      setError({
+        ...operatorInferredConnectionPanelErrorFromUnknown(
           loadError,
-          "Could not load SecureNow questions.",
+          options?.reloadAfterMutation
+            ? "Could not refresh the SecureNow question list."
+            : "Could not load SecureNow questions.",
           "load",
         ),
-      );
+        ...(options?.reloadAfterMutation
+          ? { recoveryScenario: "securenow-queue-reload-after-mutation" as const }
+          : {}),
+      });
       if (hadListedQuestionsBeforeLoad) {
         setQuestionsLoaded(true);
       }
@@ -597,6 +603,7 @@ export function SecureNowQuestionQueueProvider(
       await loadQuestions({
         preferredFilter,
         focusQuestionIdentity: questionIdentity(currentQuestion),
+        reloadAfterMutation: true,
       });
       setSelectedAnswer(null);
       setReason("");
@@ -691,7 +698,10 @@ export function SecureNowQuestionQueueProvider(
         {error != null ? (
           <OperatorMutationInlineError
             message={error.message}
-            recoveryScenario={operatorInferredConnectionPanelErrorRecoveryScenario(error.kind)}
+            recoveryScenario={
+              error.recoveryScenario
+              ?? operatorInferredConnectionPanelErrorRecoveryScenario(error.kind)
+            }
           />
         ) : null}
         {children}

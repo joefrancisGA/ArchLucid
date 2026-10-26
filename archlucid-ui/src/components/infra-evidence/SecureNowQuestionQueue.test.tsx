@@ -1278,6 +1278,9 @@ describe("SecureNowQuestionQueue", () => {
     fireEvent.click(screen.getByRole("button", { name: "Save answer" }));
 
     await waitFor(() => expect(screen.getByText("reload failed")).toBeInTheDocument());
+    expect(screen.getByTestId("operator-error-recovery-intact")).toHaveTextContent(
+      "Your disposition update may already be saved on the server",
+    );
     expect(screen.getByTestId("questions-loaded-probe")).toHaveTextContent("loaded");
 
     fireEvent.click(screen.getByRole("button", { name: "Name the peer" }));

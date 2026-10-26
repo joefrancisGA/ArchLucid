@@ -17,7 +17,8 @@ export type ErrorRecoveryContractScenario =
   | "architecture-draft-offline-replay-conflict"
   | "livelihood-mutation-resume-failed"
   | "in-flight-cancel-failure"
-  | "review-detail-segment-error";
+  | "review-detail-segment-error"
+  | "securenow-queue-reload-after-mutation";
 
 export const ERROR_RECOVERY_CONTRACT_MARKERS = {
   root: "operator-error-recovery-contract",
@@ -104,6 +105,13 @@ const LIVELIHOOD_MUTATION_RESUME_FAILED_RECOVERY: ErrorRecoveryContractPresentat
   nextStep: "Retry once, discard the saved action, or re-run the change manually from this page.",
 };
 
+const SECURENOW_QUEUE_RELOAD_AFTER_MUTATION_RECOVERY: ErrorRecoveryContractPresentation = {
+  whatFailed: "The SecureNow question list could not be refreshed after your update.",
+  whatIsIntact:
+    "Your disposition update may already be saved on the server; only the follow-up list reload failed.",
+  nextStep: "Retry the action or refresh the evidence snapshot if the queue still looks out of date.",
+};
+
 export const GOVERNANCE_CONCURRENCY_CONFLICT_RECOVERY: ErrorRecoveryContractPresentation = {
   whatFailed: "Another session saved a newer version of this record first.",
   whatIsIntact: "The server copy is unchanged by this attempt; your unsaved form edits are still on screen.",
@@ -185,6 +193,8 @@ export function errorRecoveryContractForScenario(
 
       return LIVELIHOOD_MUTATION_RESUME_FAILED_RECOVERY;
     }
+    case "securenow-queue-reload-after-mutation":
+      return SECURENOW_QUEUE_RELOAD_AFTER_MUTATION_RECOVERY;
     default: {
       const exhaustive: never = scenario;
 
