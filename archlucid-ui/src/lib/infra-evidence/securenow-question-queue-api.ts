@@ -53,6 +53,10 @@ export type SecureNowQuestionReopen = {
   readonly reason: string;
 };
 
+export type SecureNowQuestionDispositionPostOptions = {
+  readonly expectedListedDispositionId?: string | null;
+};
+
 export type SecureNowQuestionDispositionAudit = {
   readonly action: string;
   readonly actorKey: string;
@@ -140,6 +144,22 @@ function mapJsonBoolean(value: unknown): boolean {
 
 function mapJsonBooleanOrNull(value: unknown): boolean | null {
   return parseJsonBooleanOrNull(value);
+}
+
+/**
+ * When the listed row already has a stored disposition id, the POST response must match after trim.
+ * Open rows with no listed id skip this check.
+ */
+export function secureNowQuestionDispositionResponseListedDispositionIdMatches(
+  responseDispositionId: string,
+  listedDispositionId: string | null | undefined,
+): boolean {
+  const listed = listedDispositionId?.trim() ?? "";
+  if (listed.length === 0) {
+    return true;
+  }
+
+  return responseDispositionId.trim() === listed;
 }
 
 /** Whether a listed question's snapshot id matches the active queue context after trim. */
@@ -440,6 +460,7 @@ async function postSecureNowQuestionDisposition(
   path: string,
   contextSnapshotId: string,
   request: SecureNowQuestionWrite | SecureNowQuestionReopen,
+  options?: SecureNowQuestionDispositionPostOptions,
 ): Promise<SecureNowQuestionDisposition | undefined> {
   const raw = await proxyJsonPost<unknown>(path, request);
 
@@ -449,6 +470,15 @@ async function postSecureNowQuestionDisposition(
 
   const disposition = mapSecureNowQuestionDisposition((raw ?? {}) as Record<string, unknown>);
   if (!secureNowQuestionListedSnapshotMatchesContext(disposition.snapshotId, contextSnapshotId)) {
+    return undefined;
+  }
+
+  if (
+    !secureNowQuestionDispositionResponseListedDispositionIdMatches(
+      disposition.dispositionId,
+      options?.expectedListedDispositionId,
+    )
+  ) {
     return undefined;
   }
 
@@ -515,20 +545,38 @@ async function postSecureNowQuestionDisposition(
 export function answerSecureNowQuestion(
   snapshotId: string,
   request: SecureNowQuestionWrite,
+  options?: SecureNowQuestionDispositionPostOptions,
 ): Promise<SecureNowQuestionDisposition | undefined> {
-  return postSecureNowQuestionDisposition(`${questionPath(snapshotId)}/answer`, snapshotId, request);
+  return postSecureNowQuestionDisposition(
+    `${questionPath(snapshotId)}/answer`,
+    snapshotId,
+    request,
+    options,
+  );
 }
 
 export function ignoreSecureNowQuestion(
   snapshotId: string,
   request: SecureNowQuestionWrite,
+  options?: SecureNowQuestionDispositionPostOptions,
 ): Promise<SecureNowQuestionDisposition | undefined> {
-  return postSecureNowQuestionDisposition(`${questionPath(snapshotId)}/ignore`, snapshotId, request);
+  return postSecureNowQuestionDisposition(
+    `${questionPath(snapshotId)}/ignore`,
+    snapshotId,
+    request,
+    options,
+  );
 }
 
 export function reopenSecureNowQuestion(
   snapshotId: string,
   request: SecureNowQuestionReopen,
+  options?: SecureNowQuestionDispositionPostOptions,
 ): Promise<SecureNowQuestionDisposition | undefined> {
-  return postSecureNowQuestionDisposition(`${questionPath(snapshotId)}/reopen`, snapshotId, request);
+  return postSecureNowQuestionDisposition(
+    `${questionPath(snapshotId)}/reopen`,
+    snapshotId,
+    request,
+    options,
+  );
 }
