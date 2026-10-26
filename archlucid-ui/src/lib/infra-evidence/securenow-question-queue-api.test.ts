@@ -10,6 +10,7 @@ import {
   secureNowQuestionDispositionResponseRequiredStringFields,
   secureNowQuestionDispositionScopeRequiresResourceId,
   secureNowQuestionListedSnapshotMatchesContext,
+  secureNowQuestionDispositionResponseQuestionKeyMatchesRequest,
 } from "@/lib/infra-evidence/securenow-question-queue-api";
 import { proxyJsonGet, proxyJsonPost } from "@/lib/proxy-json-client";
 
@@ -271,6 +272,32 @@ describe("secureNowQuestionDispositionResponseIsUsable", () => {
         ...baseDisposition,
         status: "  Pending  ",
       }),
+    ).toBe(false);
+  });
+});
+
+describe("secureNowQuestionDispositionResponseQuestionKeyMatchesRequest", () => {
+  it("treats padded question keys as matching the submitted request", () => {
+    expect(
+      secureNowQuestionDispositionResponseQuestionKeyMatchesRequest(
+        "  subscription-ownership@v1  ",
+        "subscription-ownership@v1",
+      ),
+    ).toBe(true);
+  });
+
+  it("rejects a different question key after trim", () => {
+    expect(
+      secureNowQuestionDispositionResponseQuestionKeyMatchesRequest(
+        "unknown-evidence@v1",
+        "subscription-ownership@v1",
+      ),
+    ).toBe(false);
+  });
+
+  it("rejects blank question keys after trim", () => {
+    expect(
+      secureNowQuestionDispositionResponseQuestionKeyMatchesRequest("   ", "subscription-ownership@v1"),
     ).toBe(false);
   });
 });
@@ -1249,6 +1276,42 @@ describe("securenow-question-queue-api", () => {
           reason: "Reviewed.",
         },
       ],
+    });
+
+    const disposition = await answerSecureNowQuestion("snapshot-1", {
+      subscriptionId: "sub-1",
+      resourceId: "",
+      questionKey: "subscription-ownership@v1",
+      source: "PolicyPack",
+      scopeKind: "Subscription",
+      answerCode: "Owner",
+      answerText: "Owner",
+      reason: "Reviewed.",
+      evidenceFingerprint: "fingerprint",
+    });
+
+    expect(disposition).toBeUndefined();
+  });
+
+  it("returns undefined when POST answer response question key differs from the submitted request", async () => {
+    vi.mocked(proxyJsonPost).mockResolvedValueOnce({
+      dispositionId: "00000000-0000-0000-0000-000000000001",
+      snapshotId: "snapshot-1",
+      subscriptionId: "sub-1",
+      resourceId: "sub-1",
+      questionKey: "unknown-evidence@v1",
+      source: "PolicyPack",
+      scopeKind: "Subscription",
+      status: "Answered",
+      answerCode: "Owner",
+      answerText: "Owner",
+      reason: "Reviewed.",
+      expirationUtc: "2026-12-01T00:00:00.000Z",
+      isExpired: false,
+      evidenceFingerprint: "fingerprint",
+      actorKey: "reviewer",
+      updatedUtc: "2026-11-01T00:00:00.000Z",
+      auditEntries: [],
     });
 
     const disposition = await answerSecureNowQuestion("snapshot-1", {

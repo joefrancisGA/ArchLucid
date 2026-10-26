@@ -3,6 +3,7 @@ import {
   secureNowQuestionDispositionIsDismissed,
   secureNowQuestionDispositionIsOpen,
 } from "@/lib/infra-evidence/securenow-question-disposition-status";
+import { secureNowQuestionDispositionMutationQuestionKey } from "@/lib/infra-evidence/securenow-question-mutation-resource-id";
 import { proxyJsonGet, proxyJsonPost } from "@/lib/proxy-json-client";
 
 export type SecureNowQuestion = {
@@ -150,6 +151,21 @@ export function secureNowQuestionListedSnapshotMatchesContext(
   }
 
   return listed === context;
+}
+
+/** Whether a POST disposition's question key matches the submitted mutation request after trim. */
+export function secureNowQuestionDispositionResponseQuestionKeyMatchesRequest(
+  dispositionQuestionKey: string,
+  requestQuestionKey: string,
+): boolean {
+  const responseKey = secureNowQuestionDispositionMutationQuestionKey(dispositionQuestionKey);
+  const requestKey = secureNowQuestionDispositionMutationQuestionKey(requestQuestionKey);
+
+  if (responseKey === null || requestKey === null) {
+    return false;
+  }
+
+  return responseKey === requestKey;
 }
 
 export const secureNowQuestionDispositionResponseRequiredStringFields = [
@@ -345,6 +361,15 @@ async function postSecureNowQuestionDisposition(
 
   const disposition = mapSecureNowQuestionDisposition((raw ?? {}) as Record<string, unknown>);
   if (!secureNowQuestionListedSnapshotMatchesContext(disposition.snapshotId, contextSnapshotId)) {
+    return undefined;
+  }
+
+  if (
+    !secureNowQuestionDispositionResponseQuestionKeyMatchesRequest(
+      disposition.questionKey,
+      request.questionKey,
+    )
+  ) {
     return undefined;
   }
 
