@@ -1328,6 +1328,35 @@ describe("SecureNowQuestionQueue", () => {
     expect(screen.getByTestId("infra-diagrams-question-disposition-status")).toHaveTextContent("Answered");
   });
 
+  it("keeps governance-mutation recovery when reopen throws ApiLoadFailureState", async () => {
+    mocks.listQuestions.mockResolvedValue([
+      {
+        ...question,
+        status: "Ignored",
+        answerCode: null,
+        answerText: null,
+        reason: "Operator chose not to answer.",
+      },
+    ]);
+    mocks.reopenQuestion.mockRejectedValue(
+      apiLoadFailure("Question disposition was not found."),
+    );
+
+    render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
+    fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
+    fireEvent.change(screen.getByRole("textbox", { name: "Reason for reopening" }), {
+      target: { value: "Needs another look." },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Reopen" }));
+
+    expect(await screen.findByTestId("operator-mutation-inline-error")).toHaveTextContent(
+      "Question disposition was not found.",
+    );
+    expect(screen.getByTestId("operator-error-recovery-what-failed")).toHaveTextContent(
+      "The governance change did not save.",
+    );
+  });
+
   it("keeps governance-mutation recovery when save answer throws ApiLoadFailureState", async () => {
     mocks.listQuestions.mockResolvedValue([question]);
     mocks.answerQuestion.mockRejectedValue(

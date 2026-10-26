@@ -150,7 +150,9 @@ export function secureNowQuestionListedSnapshotMatchesContext(
 export function secureNowQuestionDispositionResponseIsUsable(
   disposition: SecureNowQuestionDisposition,
 ): boolean {
-  return disposition.dispositionId.length > 0 && disposition.questionKey.length > 0;
+  return disposition.dispositionId.length > 0
+    && disposition.questionKey.length > 0
+    && disposition.snapshotId.length > 0;
 }
 
 export function mapSecureNowQuestionDisposition(raw: Record<string, unknown>): SecureNowQuestionDisposition {
