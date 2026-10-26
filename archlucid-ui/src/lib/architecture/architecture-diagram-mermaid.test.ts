@@ -194,7 +194,9 @@ describe("architectureDiagramModelToMermaid", () => {
 
     const mermaid = architectureDiagramModelToMermaid(longInferred);
 
-    expect(mermaid.replace(/\n/g, " ")).toContain("(submitted text, not operator-asserted)");
+    expect(mermaid.replace(/\\n/g, " ").replace(/\s+/g, " ")).toContain(
+      "(submitted text, not operator-asserted)",
+    );
     expect(mermaid).toMatch(/\.\.\./);
   });
 
