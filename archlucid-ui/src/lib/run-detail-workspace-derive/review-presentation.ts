@@ -268,9 +268,13 @@ export function deriveReviewHeaderPresentation(input: {
   }
 
   if (hasManifest && templateLabel.length > 0) {
+    const templateEyebrow = templateLabel.startsWith("Review template:")
+      ? templateLabel
+      : `Review template: ${templateLabel}`;
+
     return {
-      h1Title: formatReviewPageH1Title(templateLabel),
-      eyebrowLabel: "Architecture review",
+      h1Title: "Architecture review",
+      eyebrowLabel: templateEyebrow,
       reviewIdentifierLabel: runId,
     };
   }

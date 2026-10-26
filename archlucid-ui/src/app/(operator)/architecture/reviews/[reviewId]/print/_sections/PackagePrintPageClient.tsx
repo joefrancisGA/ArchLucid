@@ -189,6 +189,16 @@ export function PackagePrintPageClient(props: PackagePrintPageClientProps): Reac
     );
   }
 
+  const actorNodeCount =
+    workingDesk && coverageHonestyQuery.data !== undefined
+      ? countActorNodesInGraphSnapshot(coverageHonestyQuery.data.buyerSummary.graphSnapshot ?? null)
+      : null;
+  const showActorQuietEnginesHint =
+    workingDesk
+    && coverageHonestyQuery.data !== undefined
+    && analysisStagesCompleteOnSummary(summaryQuery.data)
+    && (actorNodeCount === 0 || actorNodeCount === null);
+
   const presentation = buildPackagePrintPresentation(summaryQuery.data, {
     meetingCaptureEntries:
       meetingCaptureBlockedReason !== null ? null : (meetingCaptureQuery.data?.entries ?? null),
@@ -201,11 +211,8 @@ export function PackagePrintPageClient(props: PackagePrintPageClientProps): Reac
       workingDesk && coverageHonestyQuery.data !== undefined
         ? coverageHonestyQuery.data.manifestSummary?.feasibilityVerdict?.transparencyTrail ?? null
         : undefined,
-    showQuietEnginesHint:
-      workingDesk
-      && coverageHonestyQuery.data !== undefined
-      && analysisStagesCompleteOnSummary(summaryQuery.data)
-      && countActorNodesInGraphSnapshot(coverageHonestyQuery.data.buyerSummary.graphSnapshot ?? null) === 0,
+    showQuietEnginesHint: showActorQuietEnginesHint,
+    quietEnginesHintKind: actorNodeCount === null ? "actor-count-not-stored" : "quiet-engines",
     rehearsalHonestyStrip,
 
   });
