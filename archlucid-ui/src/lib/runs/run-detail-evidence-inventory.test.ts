@@ -5,6 +5,7 @@ import {
   deriveEvidenceScopeCoverageLine,
   deriveEvidenceScopeReadiness,
   deriveRunDetailEvidenceInventory,
+  formatRunDetailEvidenceCitingFindingCount,
   findingsCiteEvidenceWithoutStoredSourceNames,
   FINDINGS_CITE_EVIDENCE_WITHOUT_SOURCE_NAMES_HEADLINE,
   RUN_DETAIL_EVIDENCE_KIND_NOT_STORED,
@@ -26,6 +27,21 @@ function finding(partial: Partial<QuickDecisionFinding> & Pick<QuickDecisionFind
 }
 
 describe("run-detail-evidence-inventory", () => {
+  it("withholds citing finding counts when findings snapshot was not stored (P-09)", () => {
+    const items = deriveRunDetailEvidenceInventory({
+      findings: [],
+      runCreatedUtc: "2026-08-09T12:00:00Z",
+      submittedArchitecturePresent: false,
+      attachedFileNames: ["policy.pdf"],
+      hasFindingsSnapshot: false,
+    });
+
+    expect(items[0]?.citingFindingCountStored).toBe(false);
+    expect(
+      formatRunDetailEvidenceCitingFindingCount(items[0]?.citingFindingCount ?? 0, items[0]?.citingFindingCountStored ?? false),
+    ).toBe("Citing finding count was not stored.");
+  });
+
   it("does not invent a persisted citation row when only evidence counts are stored", () => {
     const items = deriveRunDetailEvidenceInventory({
       findings: [
@@ -74,7 +90,7 @@ describe("run-detail-evidence-inventory", () => {
       attachedFileNames: ["notes.zip", "inventory-brief.pdf"],
     });
 
-    expect(items.map((item) => item.kind)).toEqual(["Document", "Submitted evidence"]);
+    expect(items.map((item) => item.kind)).toEqual(["Submitted evidence", "Document"]);
   });
 
   it("includes submitted architecture brief as an inventory row", () => {

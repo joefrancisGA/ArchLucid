@@ -84,7 +84,7 @@ describe("PackagePrintPageView (TB-2205)", () => {
     );
 
     expect(screen.getByTestId("package-print-semantic-support-band-line")).toHaveTextContent(
-      "No decision-grade findings were stored for semantic support.",
+      "Semantic support line was not stored.",
     );
   });
 

@@ -189,24 +189,26 @@ export function FindingsWhatIfAnalysisPanel(props: FindingsWhatIfAnalysisPanelPr
         </div>
       </div>
 
-      {baseline !== null ? (
-        <dl className="mt-4 grid gap-3 sm:grid-cols-2">
-          <div>
-            <dt className={cn("font-medium uppercase text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>Baseline annual cost</dt>
-            <dd className="mt-1 text-lg font-semibold tabular-nums">{formatUsd(baseline)}</dd>
-          </div>
-          <div>
-            <dt className={cn("font-medium uppercase text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>Projected new cost</dt>
-            <dd className="mt-1 text-lg font-semibold tabular-nums text-al-text-secondary dark:text-neutral-200">
-              {projected !== null
+      <dl className="mt-4 grid gap-3 sm:grid-cols-2">
+        <div>
+          <dt className={cn("font-medium uppercase text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>Baseline annual cost</dt>
+          <dd className="mt-1 text-lg font-semibold tabular-nums">
+            {baseline !== null ? formatUsd(baseline) : "Baseline annual cost was not stored."}
+          </dd>
+        </div>
+        <div>
+          <dt className={cn("font-medium uppercase text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>Projected new cost</dt>
+          <dd className="mt-1 text-lg font-semibold tabular-nums text-al-text-secondary dark:text-neutral-200">
+            {baseline === null
+              ? "Baseline annual cost was not stored."
+              : projected !== null
                 ? formatUsd(projected)
                 : enabled && selectedIds.size === 0
                   ? "Select findings to project a cost"
                   : "Cost not returned"}
-            </dd>
-          </div>
-        </dl>
-      ) : null}
+          </dd>
+        </div>
+      </dl>
 
       {enabled ? (
         <ul className="m-0 mt-4 list-none space-y-2 p-0">

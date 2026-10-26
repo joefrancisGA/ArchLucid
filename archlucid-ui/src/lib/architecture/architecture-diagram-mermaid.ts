@@ -10,6 +10,21 @@ import { wrapArchitectureDiagramLabelForMermaidSource } from "@/lib/architecture
 
 const NO_ARCHITECTURE_COMPONENTS_RECORDED = "No architecture components were recorded.";
 
+const RECORDED_COMPONENTS_REMOVED_FROM_DIAGRAM = "Recorded components were removed from this diagram.";
+
+export const ARCHITECTURE_DIAGRAM_DANGLING_CONNECTION_OMITTED =
+  "A connection was left off this diagram because an endpoint was not on the diagram." as const;
+
+function resolveEmptyDiagramLabel(model: ArchitectureDiagramModel): string {
+  const hasRecordedNodes = model.nodes.length > 0;
+
+  if (hasRecordedNodes) {
+    return RECORDED_COMPONENTS_REMOVED_FROM_DIAGRAM;
+  }
+
+  return NO_ARCHITECTURE_COMPONENTS_RECORDED;
+}
+
 export type ArchitectureDiagramMermaidOptions = {
   readonly dark?: boolean;
 };
@@ -79,7 +94,7 @@ export function architectureDiagramModelToMermaid(
   const peerResourceNames = activeNodes.map((node) => node.label);
 
   if (activeNodes.length === 0) {
-    const emptyLabel = escapeMermaidLabel(NO_ARCHITECTURE_COMPONENTS_RECORDED, []);
+    const emptyLabel = escapeMermaidLabel(resolveEmptyDiagramLabel(model), []);
     return `flowchart TB\n  empty["${emptyLabel}"]\n`;
   }
 
@@ -113,11 +128,15 @@ export function architectureDiagramModelToMermaid(
 export function architectureDiagramModelToTextAlternative(model: ArchitectureDiagramModel): string {
   const activeNodes = model.nodes.filter((node) => !node.removed);
   const nodeLabelById = new Map(activeNodes.map((node) => [node.id, node.label]));
-  const activeEdges = model.edges.filter(
-    (edge) => !edge.removed && nodeLabelById.has(edge.sourceId) && nodeLabelById.has(edge.targetId),
+  const activeEdges = model.edges.filter((edge) => !edge.removed);
+  const renderedEdges = activeEdges.filter(
+    (edge) => nodeLabelById.has(edge.sourceId) && nodeLabelById.has(edge.targetId),
+  );
+  const danglingEdgeOmitted = activeEdges.some(
+    (edge) => !nodeLabelById.has(edge.sourceId) || !nodeLabelById.has(edge.targetId),
   );
   if (activeNodes.length === 0) {
-    return NO_ARCHITECTURE_COMPONENTS_RECORDED;
+    return resolveEmptyDiagramLabel(model);
   }
 
   const nodeLines = activeNodes.map((node) => {
@@ -126,7 +145,7 @@ export function architectureDiagramModelToTextAlternative(model: ArchitectureDia
 
     return `${node.kind}: ${displayLabel}${inferred}`;
   });
-  const edgeLines = activeEdges.map((edge) => {
+  const edgeLines = renderedEdges.map((edge) => {
     const sourceLabel = resolveArchitectureDiagramNodeDisplayLabel(
       nodeLabelById.get(edge.sourceId) ?? edge.sourceId,
     );
@@ -155,11 +174,14 @@ export function architectureDiagramModelToTextAlternative(model: ArchitectureDia
         } — diagram labels were not stored on the structured brief.`
       : null;
 
+  const danglingEdgeLine = danglingEdgeOmitted ? ARCHITECTURE_DIAGRAM_DANGLING_CONNECTION_OMITTED : null;
+
   return [
     nodeLines.join("; "),
     edgeLines.join("; "),
     boundaryLine,
     skippedUnlabeledLine,
+    danglingEdgeLine,
     ...(model.diagramHonestyNotes ?? []),
     ...unmatchedLines,
   ]

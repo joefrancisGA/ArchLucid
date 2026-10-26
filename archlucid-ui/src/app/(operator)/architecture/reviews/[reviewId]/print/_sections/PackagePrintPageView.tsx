@@ -186,7 +186,7 @@ export function PackagePrintPageView(props: PackagePrintPageViewProps): React.JS
         >
           {presentation.semanticSupportBandStampLine?.trim().length
             ? presentation.semanticSupportBandStampLine
-            : "No decision-grade findings were stored for semantic support."}
+            : "Semantic support line was not stored."}
         </p>
       </section>
 

@@ -47,7 +47,7 @@ export function composeRunDetailGovernanceTab(
       governanceGateLabel={m.governanceGateLabel}
       blockingFindingCount={blockingApprovalCount}
       manifestUnresolvedIssueCount={m.manifestSummary?.unresolvedIssueCount ?? null}
-      hasGovernanceWarnings={m.resolvedDetail.run.hasGovernanceWarnings === true}
+      hasGovernanceWarnings={m.resolvedDetail.run.hasGovernanceWarnings}
       pagePrimaryOwnedElsewhere
     />
   );

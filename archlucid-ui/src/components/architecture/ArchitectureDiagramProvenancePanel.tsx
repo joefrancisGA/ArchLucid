@@ -6,8 +6,11 @@ import { cn } from "@/lib/utils";
 
 import { StatusTag } from "@/components/ui/status-tag";
 import {
+  ARCHITECTURE_DIAGRAM_EVIDENCE_ITEM_ID_NOT_STORED_ON_COMPONENT,
+  ARCHITECTURE_DIAGRAM_OPEN_SUBMITTED_EVIDENCE_LINK_LABEL,
   ARCHITECTURE_DIAGRAM_REVIEW_ID_NOT_STORED_EVIDENCE_LINK,
   ARCHITECTURE_DIAGRAM_USER_EDIT_VERSION_HONESTY,
+  ARCHITECTURE_DIAGRAM_VERSION_SOURCE_NOT_STORED,
   buildArchitectureDiagramEdgeProvenanceDetail,
   buildArchitectureDiagramNodeProvenanceDetail,
   listSelectableArchitectureDiagramElements,
@@ -96,6 +99,13 @@ export function ArchitectureDiagramProvenancePanel(props: ArchitectureDiagramPro
         >
           {ARCHITECTURE_DIAGRAM_USER_EDIT_VERSION_HONESTY}
         </p>
+      ) : props.diagramVersionSource === null ? (
+        <p
+          className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="architecture-diagram-version-source-not-stored"
+        >
+          {ARCHITECTURE_DIAGRAM_VERSION_SOURCE_NOT_STORED}
+        </p>
       ) : null}
       <div className="flex flex-wrap gap-1" role="group" aria-label="Diagram nodes and connections">
         {selectable.map((entry) => {
@@ -137,11 +147,23 @@ export function ArchitectureDiagramProvenancePanel(props: ArchitectureDiagramPro
           </div>
           <p className={cn("m-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>{detail.sentence}</p>
           {detail.sourceHref !== null ? (
-            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
-              <Link className={OPERATOR_LINK.inline} href={detail.sourceHref} data-testid="architecture-diagram-provenance-source-link">
-                Open source evidence
-              </Link>
-            </p>
+            <div className="space-y-1">
+              {detail.provenanceClass === "evidence-backed" ? (
+                <p
+                  className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+                  data-testid="architecture-diagram-evidence-item-id-not-stored"
+                >
+                  {ARCHITECTURE_DIAGRAM_EVIDENCE_ITEM_ID_NOT_STORED_ON_COMPONENT}
+                </p>
+              ) : null}
+              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+                <Link className={OPERATOR_LINK.inline} href={detail.sourceHref} data-testid="architecture-diagram-provenance-source-link">
+                  {detail.provenanceClass === "evidence-backed"
+                    ? ARCHITECTURE_DIAGRAM_OPEN_SUBMITTED_EVIDENCE_LINK_LABEL
+                    : "Open source evidence"}
+                </Link>
+              </p>
+            </div>
           ) : detail.provenanceClass === "evidence-backed" ? (
             <p
               className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
