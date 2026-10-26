@@ -1241,6 +1241,33 @@ describe("SecureNowQuestionQueue", () => {
     ).toBeInTheDocument();
   });
 
+  it("clears a stale list-load error after a post-answer question reload succeeds", async () => {
+    mocks.listQuestions
+      .mockResolvedValueOnce([question])
+      .mockRejectedValueOnce({
+        message: "list refresh failed",
+        problem: null,
+        correlationId: null,
+        httpStatus: 500,
+        retryAfterSeconds: null,
+      })
+      .mockResolvedValueOnce([{ ...question, status: "Answered", answerCode: "NamePeer" }]);
+    mocks.listConnections.mockResolvedValue([]);
+
+    render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
+    fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
+    fireEvent.click(screen.getByRole("button", { name: "Name the peer" }));
+    fireEvent.click(screen.getByRole("button", { name: "Save answer" }));
+
+    await waitFor(() => expect(screen.getByText("list refresh failed")).toBeInTheDocument());
+
+    fireEvent.click(screen.getByRole("button", { name: "Name the peer" }));
+    fireEvent.click(screen.getByRole("button", { name: "Save answer" }));
+
+    await waitFor(() => expect(screen.queryByText("list refresh failed")).not.toBeInTheDocument());
+    expect(screen.getByTestId("infra-diagrams-question-disposition-status")).toHaveTextContent("Answered");
+  });
+
   it("shows honest recovery when inferred connections fail after a post-answer reload", async () => {
     mocks.listQuestions
       .mockResolvedValueOnce([question])

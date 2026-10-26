@@ -9573,6 +9573,20 @@ ABQ-09 churn hotspot.
 
 ## Zone: securenow-question-queue
 
+2026-10-26 seed hunt (seed→hit): promoted `SecureNowQuestionQueueProvider.loadQuestions` **stale list-load error after successful post-mutation question reload** — a failed post-save question-list refresh left the inline error visible even after a later reload applied fresh rows; clear the error when `reloadAfterMutation` applies an updated list and again when inferred connections refresh succeeds; regression `clears a stale list-load error after a post-answer question reload succeeds`; cheap-disproof closed blank disposition id mapper (reload-only provider), SQL MERGE deferred, optimistic merge future-risk, service validation copy (API-only); scoped SecureNow queue vitest 129/129. Private beta: operators who recover from a SecureNow refresh error no longer see the old failure banner after the queue successfully reloads.
+
+- [x] (proven) `SecureNowQuestionQueueProvider.loadQuestions` — stale list error after post-mutation reload success — **hit 2026-10-26 seed hunt:** clear error on `reloadAfterMutation` success + connections fulfilled; regression above.
+- [x] (valid-no-repro) `securenow-question-queue-api.mapSecureNowQuestionDisposition` — reject blank disposition id on write responses — **cheap-disproof 2026-10-26 seed hunt:** mutation return unused; monitor mapper hardening.
+- [x] (valid-no-repro) `SecureNowQuestionDispositionService` — compiled question validation message parity — **cheap-disproof 2026-10-26 seed hunt:** API ProblemDetails path; UI maps server detail on mutation catch.
+- [x] (invalid) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` — **cheap-disproof 2026-10-26 seed hunt:** integration host unavailable; candidate reseeded below.
+- [x] (invalid) `securenow-question-queue-provider` — optimistic merge from disposition JSON — **cheap-disproof 2026-10-26 seed hunt:** reload-only provider; candidate reseeded below.
+
+- [ ] (candidate) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` identity hash collision — locus: SQL repository; input: integration repro when SQL host available.
+- [ ] (candidate) `securenow-question-queue-provider` — optimistic merge from disposition JSON — locus: future post-mutation path; input: must use `mapSecureNowQuestionDisposition` only.
+- [ ] (candidate) `securenow-question-queue-api.mapSecureNowQuestionDisposition` — reject blank disposition id on write responses — locus: post mapper; input: return undefined for invalid payloads.
+- [ ] (candidate) `SecureNowQuestionQueueProvider` — preserve connection warning when a later list reload fails — locus: error slot; input: do not clear connection error before a failed post-mutation list fetch.
+- [ ] (candidate) `securenow-question-queue-api.mapQuestion` — padded listed `snapshotId` vs active context — locus: list identity; input: trim parity with save guard regressions.
+
 2026-10-26 seed hunt (seed→hit): promoted `SecureNowQuestionQueueProvider` **post-save inferred-connection refresh showed misleading recovery copy** — after a successful disposition mutation and question-list reload, a failed inferred-connections fetch still used api-problem recovery implying nothing changed; apply `securenow-inferred-connections-refresh-failed` when `reloadAfterMutation` and only connections fail; regression `shows honest recovery when inferred connections fail after a post-answer reload`; cheap-disproof closed numeric snapshotId save guard (existing mapper + mismatch error), blank disposition id mapper (reload-only), SQL MERGE deferred, optimistic merge future-risk; scoped SecureNow queue vitest 128/128. Private beta: operators who save a SecureNow answer and only lose the inferred-connection overlay see copy that the question list already refreshed.
 
 - [x] (proven) `SecureNowQuestionQueueProvider.loadQuestions` — connections-only failure after post-mutation reload — **hit 2026-10-26 seed hunt:** recovery scenario override on partial reload success; regression above.

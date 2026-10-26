@@ -312,8 +312,12 @@ export function SecureNowQuestionQueueProvider(
         options?.preferredFilter,
       );
       setFilter(nextFilter);
+      if (options?.reloadAfterMutation) {
+        setError(null);
+      }
       if (connectionsResult.status === "fulfilled") {
         setInferredConnections(connectionsResult.value);
+        setError(null);
       } else {
         setInferredConnections([]);
         setError({
