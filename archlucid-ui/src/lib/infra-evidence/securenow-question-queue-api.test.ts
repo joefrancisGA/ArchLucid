@@ -11,6 +11,7 @@ import {
   secureNowQuestionDispositionScopeRequiresResourceId,
   secureNowQuestionListedSnapshotMatchesContext,
   secureNowQuestionDispositionResponseQuestionKeyMatchesRequest,
+  secureNowQuestionDispositionResponseEvidenceFingerprintMatchesRequest,
 } from "@/lib/infra-evidence/securenow-question-queue-api";
 import { proxyJsonGet, proxyJsonPost } from "@/lib/proxy-json-client";
 
@@ -272,6 +273,35 @@ describe("secureNowQuestionDispositionResponseIsUsable", () => {
         ...baseDisposition,
         status: "  Pending  ",
       }),
+    ).toBe(false);
+  });
+});
+
+describe("secureNowQuestionDispositionResponseEvidenceFingerprintMatchesRequest", () => {
+  it("treats padded evidence fingerprints as matching the submitted request", () => {
+    expect(
+      secureNowQuestionDispositionResponseEvidenceFingerprintMatchesRequest(
+        "  fingerprint-1  ",
+        "fingerprint-1",
+      ),
+    ).toBe(true);
+  });
+
+  it("rejects a different evidence fingerprint after trim", () => {
+    expect(
+      secureNowQuestionDispositionResponseEvidenceFingerprintMatchesRequest(
+        "fingerprint-2",
+        "fingerprint-1",
+      ),
+    ).toBe(false);
+  });
+
+  it("rejects blank evidence fingerprints after trim", () => {
+    expect(
+      secureNowQuestionDispositionResponseEvidenceFingerprintMatchesRequest(
+        "   ",
+        "fingerprint-1",
+      ),
     ).toBe(false);
   });
 });
@@ -1276,6 +1306,42 @@ describe("securenow-question-queue-api", () => {
           reason: "Reviewed.",
         },
       ],
+    });
+
+    const disposition = await answerSecureNowQuestion("snapshot-1", {
+      subscriptionId: "sub-1",
+      resourceId: "",
+      questionKey: "subscription-ownership@v1",
+      source: "PolicyPack",
+      scopeKind: "Subscription",
+      answerCode: "Owner",
+      answerText: "Owner",
+      reason: "Reviewed.",
+      evidenceFingerprint: "fingerprint",
+    });
+
+    expect(disposition).toBeUndefined();
+  });
+
+  it("returns undefined when POST answer response evidence fingerprint differs from the submitted request", async () => {
+    vi.mocked(proxyJsonPost).mockResolvedValueOnce({
+      dispositionId: "00000000-0000-0000-0000-000000000001",
+      snapshotId: "snapshot-1",
+      subscriptionId: "sub-1",
+      resourceId: "sub-1",
+      questionKey: "subscription-ownership@v1",
+      source: "PolicyPack",
+      scopeKind: "Subscription",
+      status: "Answered",
+      answerCode: "Owner",
+      answerText: "Owner",
+      reason: "Reviewed.",
+      expirationUtc: "2026-12-01T00:00:00.000Z",
+      isExpired: false,
+      evidenceFingerprint: "other-fingerprint",
+      actorKey: "reviewer",
+      updatedUtc: "2026-11-01T00:00:00.000Z",
+      auditEntries: [],
     });
 
     const disposition = await answerSecureNowQuestion("snapshot-1", {

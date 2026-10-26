@@ -3,7 +3,10 @@ import {
   secureNowQuestionDispositionIsDismissed,
   secureNowQuestionDispositionIsOpen,
 } from "@/lib/infra-evidence/securenow-question-disposition-status";
-import { secureNowQuestionDispositionMutationQuestionKey } from "@/lib/infra-evidence/securenow-question-mutation-resource-id";
+import {
+  secureNowQuestionDispositionMutationEvidenceFingerprint,
+  secureNowQuestionDispositionMutationQuestionKey,
+} from "@/lib/infra-evidence/securenow-question-mutation-resource-id";
 import { proxyJsonGet, proxyJsonPost } from "@/lib/proxy-json-client";
 
 export type SecureNowQuestion = {
@@ -166,6 +169,25 @@ export function secureNowQuestionDispositionResponseQuestionKeyMatchesRequest(
   }
 
   return responseKey === requestKey;
+}
+
+/** Whether a POST disposition's evidence fingerprint matches the submitted write request after trim. */
+export function secureNowQuestionDispositionResponseEvidenceFingerprintMatchesRequest(
+  dispositionEvidenceFingerprint: string,
+  requestEvidenceFingerprint: string,
+): boolean {
+  const responseFingerprint = secureNowQuestionDispositionMutationEvidenceFingerprint(
+    dispositionEvidenceFingerprint,
+  );
+  const requestFingerprint = secureNowQuestionDispositionMutationEvidenceFingerprint(
+    requestEvidenceFingerprint,
+  );
+
+  if (responseFingerprint === null || requestFingerprint === null) {
+    return false;
+  }
+
+  return responseFingerprint === requestFingerprint;
 }
 
 export const secureNowQuestionDispositionResponseRequiredStringFields = [
@@ -368,6 +390,16 @@ async function postSecureNowQuestionDisposition(
     !secureNowQuestionDispositionResponseQuestionKeyMatchesRequest(
       disposition.questionKey,
       request.questionKey,
+    )
+  ) {
+    return undefined;
+  }
+
+  if (
+    "evidenceFingerprint" in request
+    && !secureNowQuestionDispositionResponseEvidenceFingerprintMatchesRequest(
+      disposition.evidenceFingerprint,
+      request.evidenceFingerprint,
     )
   ) {
     return undefined;
