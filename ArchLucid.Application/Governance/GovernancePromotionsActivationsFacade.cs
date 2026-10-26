@@ -130,7 +130,10 @@ public sealed class GovernancePromotionsActivationsFacade(
             runId,
             ct);
 
-        return await _approvalRepo.GetByRunIdAsync(normalizedRunId, ct);
+        return await AnalysisRunIdCanonicalization.LoadGovernanceApprovalRequestsByRunIdAsync(
+            _approvalRepo,
+            normalizedRunId,
+            ct).ConfigureAwait(false);
     }
 
     /// <inheritdoc />
@@ -161,6 +164,9 @@ public sealed class GovernancePromotionsActivationsFacade(
             runId,
             ct);
 
-        return await _activationRepo.GetByRunIdAsync(normalizedRunId, ct);
+        return await AnalysisRunIdCanonicalization.LoadGovernanceEnvironmentActivationsByRunIdAsync(
+            _activationRepo,
+            normalizedRunId,
+            ct).ConfigureAwait(false);
     }
 }

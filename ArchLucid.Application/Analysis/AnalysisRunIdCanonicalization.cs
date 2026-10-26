@@ -589,6 +589,76 @@ internal static class AnalysisRunIdCanonicalization
                 .ToList();
     }
 
+    internal static async Task<IReadOnlyList<GovernanceApprovalRequest>> LoadGovernanceApprovalRequestsByRunIdAsync(
+        IGovernanceApprovalRequestRepository approvalRequestRepository,
+        string primaryRunId,
+        CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(approvalRequestRepository);
+
+        Dictionary<string, GovernanceApprovalRequest> merged = new(StringComparer.OrdinalIgnoreCase);
+
+        foreach (string lookupKey in EnumerateRunIdRepositoryLookupKeys(primaryRunId))
+        {
+            IReadOnlyList<GovernanceApprovalRequest> records = await approvalRequestRepository
+                .GetByRunIdAsync(lookupKey, cancellationToken)
+                .ConfigureAwait(false);
+
+            if (records is not { Count: > 0 })
+                continue;
+
+            foreach (GovernanceApprovalRequest record in records)
+            {
+                if (record is null || string.IsNullOrWhiteSpace(record.ApprovalRequestId))
+                    continue;
+
+                PreferNewerByCreatedUtc(merged, record.ApprovalRequestId, record, static r => r.RequestedUtc);
+            }
+        }
+
+        return merged.Count == 0
+            ? []
+            : merged.Values
+                .OrderByDescending(static record => record.RequestedUtc)
+                .ThenBy(static record => record.ApprovalRequestId, StringComparer.OrdinalIgnoreCase)
+                .ToList();
+    }
+
+    internal static async Task<IReadOnlyList<GovernanceEnvironmentActivation>> LoadGovernanceEnvironmentActivationsByRunIdAsync(
+        IGovernanceEnvironmentActivationRepository environmentActivationRepository,
+        string primaryRunId,
+        CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(environmentActivationRepository);
+
+        Dictionary<string, GovernanceEnvironmentActivation> merged = new(StringComparer.OrdinalIgnoreCase);
+
+        foreach (string lookupKey in EnumerateRunIdRepositoryLookupKeys(primaryRunId))
+        {
+            IReadOnlyList<GovernanceEnvironmentActivation> records = await environmentActivationRepository
+                .GetByRunIdAsync(lookupKey, cancellationToken)
+                .ConfigureAwait(false);
+
+            if (records is not { Count: > 0 })
+                continue;
+
+            foreach (GovernanceEnvironmentActivation record in records)
+            {
+                if (record is null || string.IsNullOrWhiteSpace(record.ActivationId))
+                    continue;
+
+                PreferNewerByCreatedUtc(merged, record.ActivationId, record, static r => r.ActivatedUtc);
+            }
+        }
+
+        return merged.Count == 0
+            ? []
+            : merged.Values
+                .OrderByDescending(static record => record.ActivatedUtc)
+                .ThenBy(static record => record.ActivationId, StringComparer.OrdinalIgnoreCase)
+                .ToList();
+    }
+
     private static void PreferNewerByCreatedUtc<T>(
         Dictionary<string, T> merged,
         string mergeKey,
