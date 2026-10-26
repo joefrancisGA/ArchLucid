@@ -1,5 +1,6 @@
 using ArchLucid.Application.Analysis;
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
@@ -94,5 +95,56 @@ public sealed class InMemoryAgentExecutionTraceLlmCostLegacyRunIdTests
                 CancellationToken.None);
 
         slices.Should().ContainSingle(slice => slice.InputTokenCount == 77);
+    }
+
+    [Fact]
+    public async Task CompareQuality_GetByRunIdAsync_merges_traces_when_stored_under_legacy_run_id_key()
+    {
+        Guid runGuid = Guid.Parse("18181818-1818-1818-1818-181818181818");
+        string canonicalRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(runGuid.ToString());
+        string legacyUpper = canonicalRunId.ToUpperInvariant();
+        ScopeContext scope = new();
+
+        InMemoryAgentExecutionTraceRepository traces = new();
+        await traces.CreateAsync(
+            new AgentExecutionTrace
+            {
+                TraceId = "trace-get-by-run-legacy",
+                RunId = legacyUpper,
+                AgentType = AgentType.Topology,
+            },
+            CancellationToken.None);
+
+        IReadOnlyList<AgentExecutionTrace> list =
+            await traces.GetByRunIdAsync(scope, canonicalRunId, CancellationToken.None);
+
+        list.Should().ContainSingle(trace => trace.TraceId == "trace-get-by-run-legacy");
+    }
+
+    [Fact]
+    public async Task CompareQuality_LoadMergedTracesByRunIdAsync_merges_traces_when_loader_returns_rows_on_legacy_key_only()
+    {
+        Guid runGuid = Guid.Parse("19191919-1919-1919-1919-191919191919");
+        string canonicalRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(runGuid.ToString());
+        string legacyUpper = canonicalRunId.ToUpperInvariant();
+
+        IReadOnlyList<AgentExecutionTrace> merged =
+            await AgentExecutionTraceQueryPatchCore.LoadMergedTracesByRunIdAsync(
+                canonicalRunId,
+                (lookupKey, _) => Task.FromResult<IReadOnlyList<AgentExecutionTrace>>(
+                    string.Equals(lookupKey, legacyUpper, StringComparison.Ordinal)
+                        ?
+                        [
+                            new AgentExecutionTrace
+                            {
+                                TraceId = "trace-cosmos-merge",
+                                RunId = legacyUpper,
+                                AgentType = AgentType.Topology,
+                            },
+                        ]
+                        : []),
+                CancellationToken.None);
+
+        merged.Should().ContainSingle(trace => trace.TraceId == "trace-cosmos-merge");
     }
 }

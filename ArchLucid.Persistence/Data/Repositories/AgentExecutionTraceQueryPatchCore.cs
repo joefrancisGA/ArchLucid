@@ -99,6 +99,79 @@ internal static class AgentExecutionTraceQueryPatchCore
         return merged.Values.ToList();
     }
 
+    internal static IReadOnlyList<AgentExecutionTrace> CollectMergedTracesByRunId(
+        IEnumerable<AgentExecutionTrace> traces,
+        string primaryRunId)
+    {
+        ArgumentNullException.ThrowIfNull(traces);
+        ArgumentException.ThrowIfNullOrWhiteSpace(primaryRunId);
+
+        Dictionary<string, AgentExecutionTrace> merged = new(StringComparer.Ordinal);
+
+        foreach (string lookupKey in TechnologyLedgerRunIdLookup.EnumerateRunIdRepositoryLookupKeys(primaryRunId))
+        {
+            foreach (AgentExecutionTrace trace in traces
+                         .Where(trace => string.Equals(trace.RunId, lookupKey, StringComparison.Ordinal))
+                         .OrderBy(trace => trace.CreatedUtc))
+            {
+                if (trace is null || string.IsNullOrWhiteSpace(trace.TraceId))
+                    continue;
+
+                merged.TryAdd(trace.TraceId, trace);
+            }
+        }
+
+        return merged.Values.OrderBy(trace => trace.CreatedUtc).ToList();
+    }
+
+    internal static async Task<IReadOnlyList<AgentExecutionTrace>> LoadMergedTracesByRunIdAsync(
+        string primaryRunId,
+        Func<string, CancellationToken, Task<IReadOnlyList<AgentExecutionTrace>>> loadTracesForKeyAsync,
+        CancellationToken cancellationToken)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(primaryRunId);
+        ArgumentNullException.ThrowIfNull(loadTracesForKeyAsync);
+
+        Dictionary<string, AgentExecutionTrace> merged = new(StringComparer.Ordinal);
+
+        foreach (string lookupKey in TechnologyLedgerRunIdLookup.EnumerateRunIdRepositoryLookupKeys(primaryRunId))
+        {
+            IReadOnlyList<AgentExecutionTrace> traces =
+                await loadTracesForKeyAsync(lookupKey, cancellationToken).ConfigureAwait(false);
+
+            if (traces is not { Count: > 0 })
+                continue;
+
+            foreach (AgentExecutionTrace trace in traces.OrderBy(static trace => trace.CreatedUtc))
+            {
+                if (trace is null || string.IsNullOrWhiteSpace(trace.TraceId))
+                    continue;
+
+                merged.TryAdd(trace.TraceId, trace);
+            }
+        }
+
+        return merged.Values.OrderBy(static trace => trace.CreatedUtc).ToList();
+    }
+
+    internal static async Task<int> LoadMergedTraceCountByRunIdAsync(
+        string primaryRunId,
+        Func<string, CancellationToken, Task<int>> countTracesForKeyAsync,
+        CancellationToken cancellationToken)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(primaryRunId);
+        ArgumentNullException.ThrowIfNull(countTracesForKeyAsync);
+
+        int total = 0;
+
+        foreach (string lookupKey in TechnologyLedgerRunIdLookup.EnumerateRunIdRepositoryLookupKeys(primaryRunId))
+        {
+            total += await countTracesForKeyAsync(lookupKey, cancellationToken).ConfigureAwait(false);
+        }
+
+        return total;
+    }
+
     public static (IReadOnlyList<T> Page, int TotalCount) PageInMemory<T>(
         IReadOnlyList<T> ordered,
         int offset,
