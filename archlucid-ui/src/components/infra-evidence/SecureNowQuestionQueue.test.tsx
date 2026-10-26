@@ -1240,6 +1240,20 @@ describe("SecureNowQuestionQueue", () => {
     ).toBeInTheDocument();
   });
 
+  it("closes the question drawer when the active snapshot changes", async () => {
+    mocks.listQuestions.mockResolvedValue([question]);
+
+    const view = render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
+    fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
+    expect(screen.getByTestId("infra-diagrams-question-bar")).toBeInTheDocument();
+
+    view.rerender(<SecureNowQuestionQueue snapshotId="snapshot-2" />);
+
+    await waitFor(() => {
+      expect(screen.queryByTestId("infra-diagrams-question-bar")).not.toBeInTheDocument();
+    });
+  });
+
   it("clears skipped question state when the snapshot changes", async () => {
     mocks.listQuestions.mockResolvedValue([question]);
 

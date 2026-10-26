@@ -251,6 +251,9 @@ export function SecureNowQuestionQueueProvider(
     setCurrentIndex(0);
     setSelectedAnswer(null);
     setReason("");
+    setDrawerAction("answer");
+    setDrawerOpen(false);
+    setError(null);
   }, [snapshotId]);
 
   useEffect(() => {

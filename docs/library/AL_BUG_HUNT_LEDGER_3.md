@@ -9573,6 +9573,20 @@ ABQ-09 churn hotspot.
 
 ## Zone: securenow-question-queue
 
+2026-10-26 seed hunt (seed→hit): promoted `SecureNowQuestionQueueProvider` **question drawer stayed open across snapshot navigation** — changing `snapshotId` cleared queue rows but left `drawerOpen` true, so operators could see empty or stale review chrome for the prior snapshot while the next list loaded; close the drawer and reset drawer action on snapshot change; regression `closes the question drawer when the active snapshot changes`; cheap-disproof closed ignore/reopen reason inputs during `busy` (save disabled), overlapping mutation monitor (saturated state-machine-gap), SQL MERGE deferred; scoped SecureNow queue vitest 123/123. Private beta: switching infrastructure evidence snapshots closes an open SecureNow question review so actions target the active snapshot only.
+
+- [x] (proven) `SecureNowQuestionQueueProvider` — drawer open after `snapshotId` change — **hit 2026-10-26 seed hunt:** `setDrawerOpen(false)` on snapshot reset; regression above.
+- [x] (valid-no-repro) `SecureNowQuestionQueue` — ignore/reopen reason inputs during `busy` — **cheap-disproof 2026-10-26 seed hunt:** mutation buttons disabled; inputs harmless until save re-enabled.
+- [x] (valid-no-repro) `SecureNowQuestionQueueProvider.submitAction` — overlapping mutations — **cheap-disproof 2026-10-26 seed hunt:** `busy` guard; saturated `[state-machine-gap]` monitor.
+- [x] (invalid) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` — **cheap-disproof 2026-10-26 seed hunt:** integration host unavailable; candidate reseeded below.
+- [x] (invalid) `securenow-question-queue-provider` — optimistic merge from disposition JSON — **cheap-disproof 2026-10-26 seed hunt:** reload-only provider; candidate reseeded below.
+
+- [ ] (candidate) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` identity hash collision — locus: SQL repository; input: integration repro when SQL host available.
+- [ ] (candidate) `securenow-question-queue-provider` — optimistic merge from disposition JSON — locus: future post-mutation path; input: must use `mapSecureNowQuestionDisposition` only.
+- [ ] (candidate) `securenow-question-queue-api.listSecureNowQuestions` — distinguish empty queue from proxy 200 non-array — locus: operator-visible load error vs silent empty.
+- [ ] (candidate) `SecureNowQuestionQueueProvider` — mutation error cleared when snapshot changes — locus: shared error state; input: should snapshot reset clear mutation errors.
+- [ ] (candidate) `SecureNowQuestionQueueProvider` — `beginQuestionReview` before first list settles — locus: promo gating; monitor reviewableQuestions guard.
+
 2026-10-26 seed hunt (seed→hit): promoted `SecureNowQuestionQueue` **filter and drawer chrome during in-flight save** — filter tabs, Don’t ask again, and Close stayed enabled while `busy`, so operators could change queue slice or dismiss the drawer mid-mutation; disable those controls while `busy` alongside prior skip/nav locks; regression `does not change question filter while a save answer mutation is in flight`; cheap-disproof closed drawer-close cancel semantics (disable-until-complete policy), SQL MERGE deferred, optimistic merge future-risk; scoped SecureNow queue vitest 122/122. Private beta: SecureNow question review keeps filter and close controls inactive until the in-flight save finishes.
 
 - [x] (proven) `SecureNowQuestionQueue` — filter tab changes during `busy` — **hit 2026-10-26 seed hunt:** `disabled={busy}` on filter tabs, ignore entry, and Close; regression filter-during-save fixture.
@@ -9636,11 +9650,11 @@ ABQ-09 churn hotspot.
 - **aliases:** securenow question queue; question disposition
 - **paths:** archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx; archlucid-ui/src/lib/infra-evidence/securenow-question-queue-api.ts
 - **test-filter:** SecureNowQuestion
-- **hunts:** 103
-- **bugs-found:** 75
+- **hunts:** 104
+- **bugs-found:** 76
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-26
-- **last-bug:** 2026-10-26 — filter and drawer chrome during in-flight save
+- **last-bug:** 2026-10-26 — question drawer open across snapshot navigation
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
