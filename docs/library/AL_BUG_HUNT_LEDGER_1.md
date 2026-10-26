@@ -6868,6 +6868,17 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-26 seed hunt (seed→hit): reseeded `application-analysis` with zero hunt-ready rows; promoted ledger follow-on `AuthorityCommitDecisionMaterializationStage` evidence and agent-result load; proved commit materialization still called `GetByRunIdAsync` with `runGuid.ToString("N")` only, so authority commit returned HTTP 409 “no evidence package” or built decision graph without legacy-keyed agent results when evidence/results lived under legacy uppercase hex keys; route through `AnalysisRunIdCanonicalization.LoadEvidencePackageByRunIdAsync` and `LoadAgentResultsByRunIdAsync`; regression `CompareQuality_MaterializeAsync_merges_evidence_and_agent_results_when_stored_under_legacy_run_id_key`; cheap-disproof closed in-zone Analysis merge saturation (prior seed-only); seeded five follow-on rows; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` filter 323/323. Private beta: authority commit materialization succeeds when persisted evidence packages and agent results use legacy run-id key formats.
+
+- [ ] (candidate) `DecisionEngineV2NodeMaterializer` — tasks/results/evidence/nodes single-key — locus: `Runs/Orchestration`; input: decision graph commit with rows split across dashed vs `N` vs legacy hex keys.
+- [ ] (candidate) `PilotRunDeltaComputer` — trace delta single-key — locus: `Pilots/`; input: pilot before/after diff when traces exist only under legacy uppercase hex.
+- [ ] (candidate) `AgentExecuteIdempotentPersistReconciliation` — evidence package single-key — locus: `Runs/` execute persist; input: idempotent reconcile misses package row stored under alternate run-id key.
+- [ ] (candidate) `RunExecuteOwnershipReconciliationService` — agent result load — locus: execute ownership; input: reconciliation uses `runId.ToString("D")` while rows keyed legacy hex only.
+- [ ] (candidate) `ReRunExecuteSealedManifestPinGuard` — agent result load — locus: re-run execute guard; input: sealed pin check misses commit-ready results under legacy key only.
+
+- [x] (proven) `AuthorityCommitDecisionMaterializationStage` — evidence + agent results single-key — **hit 2026-10-26 seed hunt:** merge loaders; regression above.
+- [x] (valid-no-repro) `AuthorityDrivenArchitectureRunCommitOrchestrator` — commit-ready gate — **cheap-disproof 2026-10-26 seed hunt:** hunt 330.
+
 2026-10-26 seed hunt (seed-only): re-read `ArchLucid.Application/Analysis/` after consecutive seed-only pass; confirmed export replay still normalizes `RunExportRecord.RunId` via `RunExportRecordScopedReadNormalizer` before sealed-hash and career gates; E2E replay comparison export slices pair on canonical compare-run ids; no hunt-ready in-zone mechanism beyond saturated legacy-key merge class; cheap-disproof closed five open `(candidate)` rows below; re-seeded five cross-zone follow-ons; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` filter 322/322 (`RunAnalyzers=false`); no production code changed. Private beta: n/a.
 
 - [ ] (candidate) `AuthorityCommitDecisionMaterializationStage` — evidence + agent results single-key — locus: `Runs/Orchestration/Commit`; input: commit materialization uses `runGuid.ToString("N")` only while evidence/results rows exist under legacy uppercase hex (`LoadEvidencePackageByRunIdAsync` / `LoadAgentResultsByRunIdAsync`).
