@@ -162,6 +162,16 @@ public sealed class InventoryDiagramParentAttachmentApplierTests
     }
 
     [Fact]
+    public void Parent_attachment_detail_labels_stored_empty_resource_names()
+    {
+        string label = InventoryDiagramParentAttachmentApplier.BuildChildDetailLabel(
+            new DiagramNode { Label = "   ", ArmResourceType = "Microsoft.Network/publicIPAddresses" },
+            InventoryDiagramParentAttachmentCategory.PublicIp);
+
+        label.Should().Be("Public IP: Resource name was stored empty.");
+    }
+
+    [Fact]
     public void Human_caption_includes_parent_attachment_details()
     {
         DiagramNode parent = new()

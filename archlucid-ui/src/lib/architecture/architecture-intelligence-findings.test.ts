@@ -4,7 +4,9 @@ import {
   ARCHITECTURE_INTELLIGENCE_FINDING_CONCLUSION_NOT_STORED,
   ARCHITECTURE_INTELLIGENCE_FINDING_SEVERITY_NOT_STORED,
   ARCHITECTURE_INTELLIGENCE_FINDING_TITLE_NOT_STORED,
+  ARCHITECTURE_INTELLIGENCE_INTEGRITY_PASSED_COUNT_NOT_STORED,
   countIntegrityPassedFindings,
+  formatIntegrityPassedFindingCountDisplay,
   flattenArchitectureIntelligenceFindings,
   listIntegrityPassedFindingPreviews,
   resolveIntegrityPassedFindingIdsPresence,
@@ -64,6 +66,14 @@ describe("architecture-intelligence-findings", () => {
     expect(findings[0]?.title).toBe(ARCHITECTURE_INTELLIGENCE_FINDING_TITLE_NOT_STORED);
     expect(findings[0]?.severity).toBeNull();
     expect(findings[0]?.conclusion).toBe(ARCHITECTURE_INTELLIGENCE_FINDING_CONCLUSION_NOT_STORED);
+  });
+
+  it("reports not stored when integrity-passed ids are omitted", () => {
+    expect(
+      formatIntegrityPassedFindingCountDisplay({
+        specialistReviews: [{ findings: [{ findingId: "f1", title: "A", severity: "Low", conclusion: "B" }] }],
+      }),
+    ).toBe(ARCHITECTURE_INTELLIGENCE_INTEGRITY_PASSED_COUNT_NOT_STORED);
   });
 
   it("distinguishes omitted integrity id lists from stored empty lists", () => {

@@ -48,7 +48,7 @@ export function resolveSourcePackLabel(
     return showcaseSeed.sourcePolicyPack;
   }
 
-  return inferPolicyPackDisplayNameFromComplianceRuleKey(ruleKey) ?? "Workspace policy";
+  return "Policy pack name was not stored.";
 }
 
 export function resolveSourcePackHref(

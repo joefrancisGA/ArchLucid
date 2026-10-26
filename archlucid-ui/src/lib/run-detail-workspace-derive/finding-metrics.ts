@@ -53,8 +53,6 @@ export function countFindingsBySeverity(findings: readonly QuickDecisionFinding[
       medium += 1;
     } else if (finding.severityValue === 0) {
       info += 1;
-    } else {
-      low += 1;
     }
   }
 

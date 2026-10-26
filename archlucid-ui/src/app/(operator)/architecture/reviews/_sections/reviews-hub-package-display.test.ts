@@ -28,6 +28,20 @@ describe("toReviewsHubReviewRowDisplay", () => {
     expect(row.primaryAction.href).toContain(SHOWCASE_STATIC_DEMO_RUN_ID);
   });
 
+  it("does not fabricate evidence count for showcase when artifact count is missing", () => {
+    const row = toReviewsHubReviewRowDisplay({
+      runId: SHOWCASE_STATIC_DEMO_RUN_ID,
+      projectId: "default",
+      createdUtc: "2026-01-14T12:00:00.000Z",
+      hasGoldenManifest: true,
+      hasFindingsSnapshot: true,
+      findingCount: 9,
+      warningCount: 1,
+    } satisfies RunSummary);
+
+    expect(row.evidenceCount).toBeNull();
+  });
+
   it("describes active in-progress reviews with evaluation stage", () => {
     const row = toReviewsHubReviewRowDisplay({
       runId: "draft-review",

@@ -39,7 +39,7 @@ describe("decisionReceiptExport", () => {
     expect(receipt.verdict.kind).toBe("SoftInfeasible");
     expect(receipt.intake?.freeTextIntent).toBe("Build a workflow.");
     expect(receipt.costStory.narrative).toBe(DECISION_RECEIPT_COST_FIGURES_NOT_STORED);
-    expect(receipt.costStory.sessionCostUsdEstimate).toBe(0);
+    expect(receipt.costStory.avoidedCalendarWeeksEstimate).toBe("Avoided calendar time was not stored.");
     expect(JSON.stringify(receipt)).not.toContain("25000");
     expect(JSON.stringify(receipt)).not.toContain("2–4");
   });

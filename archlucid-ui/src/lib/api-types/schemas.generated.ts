@@ -1434,7 +1434,7 @@ export interface components {
             proposedChange?: string;
             provenance?: components["schemas"]["ClaimProvenance"];
             recommendationId?: string;
-            requiresHumanApproval?: boolean;
+            requiresHumanApproval?: null | boolean;
             riskReduction?: components["schemas"]["RiskReductionEstimate"];
             tradeOffs?: components["schemas"]["TradeOffObject"][];
             validationMethod?: string;
@@ -8819,6 +8819,7 @@ export interface components {
             recurrenceControl?: null | components["schemas"]["RemediationPatternRecurrenceControlDefinition"];
             requiredApprovals?: string[];
             rollback?: null | components["schemas"]["RemediationPatternRollbackDefinition"];
+            safeRolloutSteps?: string[];
         };
         RemediationPatternVersionRecord: {
             approvedByActorKey?: null | string;

@@ -36,6 +36,6 @@ public sealed class TransparencyTrailMarkdownFormatterHonestyTests
 
         markdown.Should().Contain(InferredTrailEntry.ConfidenceNotStoredLabel);
         markdown.Should().Contain(InferredTrailEntry.ValueStoredEmptyLabel);
-        markdown.Should().Contain(TransparencyTrailMarkdownFormatter.SkippedQuestionsNotRecordedLabel);
+        markdown.Should().Contain(TransparencyTrailMarkdownFormatter.SkippedQuestionsNotRecordedCopy);
     }
 }

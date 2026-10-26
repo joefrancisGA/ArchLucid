@@ -38,7 +38,7 @@ public sealed class MarkdownManifestSummaryGenerator(IEvidenceSummaryFormatter e
         sb.AppendLine();
         sb.AppendLine("---");
         sb.AppendLine();
-        sb.AppendLine(evidenceFormatter.FormatMarkdown(evidence).Trim());
+        sb.AppendLine(_evidenceFormatter.FormatMarkdown(evidence).Trim());
         sb.AppendLine();
         return sb.ToString();
     }
@@ -46,11 +46,12 @@ public sealed class MarkdownManifestSummaryGenerator(IEvidenceSummaryFormatter e
     private static void AppendOverview(StringBuilder sb, GoldenManifest manifest, IReadOnlyList<ManifestService> services,
         IReadOnlyList<ManifestDatastore> datastores, IReadOnlyList<ManifestRelationship> relationships)
     {
-        sb.AppendLine($"# Architecture Summary: {manifest.SystemName}");
+        string systemName = ArchitectureManifestMarkdownSummaryExport.FormatSystemNameForSummary(manifest.SystemName);
+        sb.AppendLine($"# Architecture Summary: {systemName}");
         sb.AppendLine();
         sb.AppendLine("## Overview");
         sb.AppendLine();
-        sb.AppendLine($"{manifest.SystemName} is represented by a GoldenManifest containing " +
+        sb.AppendLine($"{systemName} is represented by a GoldenManifest containing " +
                       $"{services.Count} service(s), {datastores.Count} datastore(s), " + $"and {relationships.Count} relationship(s).");
         sb.AppendLine();
     }
@@ -66,8 +67,10 @@ public sealed class MarkdownManifestSummaryGenerator(IEvidenceSummaryFormatter e
             sb.AppendLine($"- **{service.ServiceName}**");
             sb.AppendLine($"  - Type: {ArchitectureManifestTopologyExport.FormatServiceTypeForExport(service.ServiceType)}");
             sb.AppendLine($"  - Platform: {ArchitectureManifestTopologyExport.FormatRuntimePlatformForExport(service.RuntimePlatform)}");
-            if (!string.IsNullOrWhiteSpace(service.Purpose))
-                sb.AppendLine($"  - Purpose: {service.Purpose}");
+            sb.AppendLine(
+                string.IsNullOrWhiteSpace(service.Purpose)
+                    ? $"  - Purpose: {ArchitectureManifestMarkdownSummaryExport.PurposeNotRecorded}"
+                    : $"  - Purpose: {service.Purpose}");
             List<string> controls = service.RequiredControls;
             if (controls.Count > 0)
                 sb.AppendLine($"  - Required Controls: {string.Join(", ", controls)}");
@@ -90,8 +93,10 @@ public sealed class MarkdownManifestSummaryGenerator(IEvidenceSummaryFormatter e
             sb.AppendLine($"- **{datastore.DatastoreName}**");
             sb.AppendLine($"  - Type: {ArchitectureManifestTopologyExport.FormatDatastoreTypeForExport(datastore.DatastoreType)}");
             sb.AppendLine($"  - Platform: {ArchitectureManifestTopologyExport.FormatRuntimePlatformForExport(datastore.RuntimePlatform)}");
-            if (!string.IsNullOrWhiteSpace(datastore.Purpose))
-                sb.AppendLine($"  - Purpose: {datastore.Purpose}");
+            sb.AppendLine(
+                string.IsNullOrWhiteSpace(datastore.Purpose)
+                    ? $"  - Purpose: {ArchitectureManifestMarkdownSummaryExport.PurposeNotRecorded}"
+                    : $"  - Purpose: {datastore.Purpose}");
             sb.AppendLine($"  - Private Endpoint Required: {ArchitectureManifestDatastoreExport.FormatPrivateEndpointRequiredForExport(datastore.PrivateEndpointRequired)}");
             sb.AppendLine($"  - Encryption At Rest Required: {ArchitectureManifestDatastoreExport.FormatEncryptionAtRestRequiredForExport(datastore.EncryptionAtRestRequired)}");
         }
@@ -119,22 +124,25 @@ public sealed class MarkdownManifestSummaryGenerator(IEvidenceSummaryFormatter e
     {
         sb.AppendLine("## Governance");
         sb.AppendLine();
-        List<string> controls = governance?.RequiredControls ?? [];
-        sb.AppendLine(controls.Count > 0 ? $"- Required Controls: {string.Join(", ", controls)}" : "- Required Controls: None recorded");
-        List<string> tags = governance?.ComplianceTags ?? [];
-        sb.AppendLine(tags.Count > 0 ? $"- Compliance Tags: {string.Join(", ", tags)}" : "- Compliance Tags: None recorded");
-        List<string> constraints = governance?.PolicyConstraints ?? [];
-        sb.AppendLine(constraints.Count > 0 ? $"- Policy Constraints: {string.Join(", ", constraints)}" : "- Policy Constraints: None recorded");
         if (governance is null)
         {
+            sb.AppendLine("- Required Controls: None recorded");
+            sb.AppendLine("- Compliance Tags: None recorded");
+            sb.AppendLine("- Policy Constraints: None recorded");
             sb.AppendLine($"- Risk Classification: {ArchitectureManifestGovernanceExport.RiskClassificationNotStoredLabel}");
             sb.AppendLine($"- Cost Classification: {ArchitectureManifestGovernanceExport.CostClassificationNotStoredLabel}");
+            sb.AppendLine();
+            return;
         }
-        else
-        {
-            sb.AppendLine($"- Risk Classification: {ArchitectureManifestGovernanceExport.FormatRiskClassificationForExport(governance)}");
-            sb.AppendLine($"- Cost Classification: {ArchitectureManifestGovernanceExport.FormatCostClassificationForExport(governance)}");
-        }
+
+        List<string> controls = governance.RequiredControls;
+        sb.AppendLine(controls.Count > 0 ? $"- Required Controls: {string.Join(", ", controls)}" : "- Required Controls: None recorded");
+        List<string> tags = governance.ComplianceTags;
+        sb.AppendLine(tags.Count > 0 ? $"- Compliance Tags: {string.Join(", ", tags)}" : "- Compliance Tags: None recorded");
+        List<string> constraints = governance.PolicyConstraints;
+        sb.AppendLine(constraints.Count > 0 ? $"- Policy Constraints: {string.Join(", ", constraints)}" : "- Policy Constraints: None recorded");
+        sb.AppendLine($"- Risk Classification: {ArchitectureManifestGovernanceExport.FormatRiskClassificationForExport(governance)}");
+        sb.AppendLine($"- Cost Classification: {ArchitectureManifestGovernanceExport.FormatCostClassificationForExport(governance)}");
         sb.AppendLine();
     }
 
@@ -142,7 +150,10 @@ public sealed class MarkdownManifestSummaryGenerator(IEvidenceSummaryFormatter e
     {
         sb.AppendLine("## Metadata");
         sb.AppendLine();
-        sb.AppendLine($"- Manifest Version: {metadata?.ManifestVersion}");
+        string manifestVersion = string.IsNullOrWhiteSpace(metadata?.ManifestVersion)
+            ? ArchitectureManifestMarkdownSummaryExport.ManifestVersionNotStored
+            : metadata!.ManifestVersion;
+        sb.AppendLine($"- Manifest Version: {manifestVersion}");
         if (!string.IsNullOrWhiteSpace(metadata?.ParentManifestVersion))
             sb.AppendLine($"- Parent Manifest Version: {metadata.ParentManifestVersion}");
         if (!string.IsNullOrWhiteSpace(metadata?.ChangeDescription))
@@ -154,22 +165,6 @@ public sealed class MarkdownManifestSummaryGenerator(IEvidenceSummaryFormatter e
             sb.AppendLine($"- Decision Trace Count: {traceIds.Count}");
     }
 
-    /// <summary>
-    ///     Returns a prose-style label for a relationship (e.g. "reads from", "writes to").
-    ///     Intentionally uses fuller prose labels rather than the terse diagram labels in
-    ///     <see cref = "ArchLucid.Application.Manifests.ManifestPresentation.RelationshipLabel"/>.
-    /// </summary>
-    private static string FormatRelationshipType(ManifestRelationship relationship)
-    {
-        return relationship.RelationshipType switch
-        {
-            RelationshipType.Calls => "calls",
-            RelationshipType.ReadsFrom => "reads from",
-            RelationshipType.WritesTo => "writes to",
-            RelationshipType.PublishesTo => "publishes to",
-            RelationshipType.SubscribesTo => "subscribes to",
-            RelationshipType.AuthenticatesWith => "authenticates with",
-            _ => relationship.RelationshipType.ToString()
-        };
-    }
+    private static string FormatRelationshipType(ManifestRelationship relationship) =>
+        ArchitectureManifestMarkdownSummaryExport.FormatRelationshipTypeForSummary(relationship.RelationshipType);
 }

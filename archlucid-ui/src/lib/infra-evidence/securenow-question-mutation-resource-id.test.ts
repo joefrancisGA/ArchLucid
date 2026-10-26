@@ -146,7 +146,7 @@ describe("secureNowQuestionShowsInferredConnectionReviewerCopy", () => {
 });
 
 describe("secureNowQuestionReviewerScopeLabel", () => {
-  it("infers resource scope in details when scopeKind is omitted but source is inventory evidence", () => {
+  it("does not infer scope from inventory source when scopeKind is omitted", () => {
     expect(
       secureNowQuestionReviewerScopeLabel(
         {
@@ -157,7 +157,21 @@ describe("secureNowQuestionReviewerScopeLabel", () => {
         },
         false,
       ),
-    ).toBe("This resource.");
+    ).toBe("Question scope was not stored.");
+  });
+
+  it("does not infer pack scope from question text when scopeKind is omitted", () => {
+    expect(
+      secureNowQuestionReviewerScopeLabel(
+        {
+          source: "PolicyPack",
+          scopeKind: null,
+          questionKey: "rg-scope@v1",
+          questionText: "Which resource group owns this workload?",
+        },
+        false,
+      ),
+    ).toBe("Question scope was not stored.");
   });
 });
 

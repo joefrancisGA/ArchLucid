@@ -476,8 +476,7 @@ describe("SecureNowQuestionQueue", () => {
     render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
     fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
 
-    expect(screen.getByText("Scope: This resource.")).toBeInTheDocument();
-    expect(screen.queryByText("Scope: Question scope was not stored.")).not.toBeInTheDocument();
+    expect(screen.getByText("Scope: Question scope was not stored.")).toBeInTheDocument();
   });
 
   it("shows omitted question source and scope in details", async () => {
@@ -575,8 +574,7 @@ describe("SecureNowQuestionQueue", () => {
     render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
     fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
 
-    expect(screen.getByText("Scope: This resource group.")).toBeInTheDocument();
-    expect(screen.queryByText("Scope: Question scope was not stored.")).not.toBeInTheDocument();
+    expect(screen.getByText("Scope: Question scope was not stored.")).toBeInTheDocument();
   });
 
   it("labels policy pack source and subscription scope in details", async () => {
@@ -600,11 +598,11 @@ describe("SecureNowQuestionQueue", () => {
   });
 
   it("preserves missing and unexpected stored question status", async () => {
-    mocks.listQuestions.mockResolvedValue([question, { ...question, status: null, resourceName: "" }]);
+    mocks.listQuestions.mockResolvedValue([{ ...question, status: null, resourceName: "" }]);
 
     render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
     fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
-    fireEvent.click(screen.getByRole("button", { name: "Next" }));
+    fireEvent.click(screen.getByRole("button", { name: "Status not stored" }));
 
     expect(screen.getByTestId("infra-diagrams-question-resource-name")).toHaveTextContent(
       "Resource name was stored empty.",
@@ -612,14 +610,14 @@ describe("SecureNowQuestionQueue", () => {
     expect(screen.getByText("Question status was not stored")).toBeInTheDocument();
   });
 
-  it("shows answer actions when list JSON omits question status on an open row", async () => {
+  it("does not show open answer actions when list JSON omits question status", async () => {
     mocks.listQuestions.mockResolvedValue([{ ...question, status: null }]);
 
     render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
     fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
+    fireEvent.click(screen.getByRole("button", { name: "Status not stored" }));
 
-    expect(screen.getByRole("button", { name: "Name the peer" })).toBeInTheDocument();
-    expect(screen.queryByPlaceholderText("Reason required to reopen")).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Name the peer" })).not.toBeInTheDocument();
   });
 
   it("shows answer actions when list JSON stores lowercase open status", async () => {
@@ -654,7 +652,7 @@ describe("SecureNowQuestionQueue", () => {
     expect(screen.getByTestId("infra-diagrams-question-disposition-status")).toHaveTextContent("Answered");
   });
 
-  it("keeps open answer chrome when list JSON omits status but stores whitespace-only disposition fields", async () => {
+  it("hides open answer chrome when list JSON omits status even with whitespace-only disposition fields", async () => {
     mocks.listQuestions.mockResolvedValue([{
       ...question,
       status: null,
@@ -665,8 +663,9 @@ describe("SecureNowQuestionQueue", () => {
 
     render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
     fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
+    fireEvent.click(screen.getByRole("button", { name: "Status not stored" }));
 
-    expect(screen.getByRole("button", { name: "Name the peer" })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Name the peer" })).not.toBeInTheDocument();
     expect(screen.queryByTestId("infra-diagrams-question-answer")).not.toBeInTheDocument();
   });
 
@@ -914,10 +913,9 @@ describe("SecureNowQuestionQueue", () => {
     render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
     fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
 
-    expect(screen.getByText("Scope: This resource.")).toBeInTheDocument();
-    expect(screen.queryByText("Scope: Question scope was not stored.")).not.toBeInTheDocument();
-    expect(screen.getByText("Source: Asked because a connection was inferred. Answering does not store a link.")).toBeInTheDocument();
-    expect(screen.getByText("Asked because a connection was inferred. Answering does not store a link.")).toBeInTheDocument();
+    expect(screen.getByText("Scope: Question scope was not stored.")).toBeInTheDocument();
+    expect(screen.getByText("Source: Question source was not stored.")).toBeInTheDocument();
+    expect(screen.queryByText("Source: Asked because a connection was inferred. Answering does not store a link.")).not.toBeInTheDocument();
     expect(screen.queryByText("Source: Asked from inventory evidence.")).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: "Yes" }));
@@ -2004,8 +2002,8 @@ describe("SecureNowQuestionQueue", () => {
     render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
     fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
 
-    expect(screen.getByText("Source: Asked from an assigned policy pack.")).toBeInTheDocument();
-    expect(screen.queryByText("Source: Question source was not stored.")).not.toBeInTheDocument();
+    expect(screen.getByText("Source: Question source was not stored.")).toBeInTheDocument();
+    expect(screen.queryByText("Source: Asked from an assigned policy pack.")).not.toBeInTheDocument();
   });
 
   it("labels policy pack source in details when source is omitted on subscription-scope rows", async () => {
@@ -2024,8 +2022,8 @@ describe("SecureNowQuestionQueue", () => {
     render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
     fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
 
-    expect(screen.getByText("Source: Asked from an assigned policy pack.")).toBeInTheDocument();
-    expect(screen.queryByText("Source: Question source was not stored.")).not.toBeInTheDocument();
+    expect(screen.getByText("Source: Question source was not stored.")).toBeInTheDocument();
+    expect(screen.queryByText("Source: Asked from an assigned policy pack.")).not.toBeInTheDocument();
   });
 
   it("answers a subscription-scope pack question when source is null", async () => {
