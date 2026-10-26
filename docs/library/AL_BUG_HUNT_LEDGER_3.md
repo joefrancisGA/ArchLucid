@@ -7209,6 +7209,32 @@ ABQ-09 churn hotspot.
 
 ## Zone: ui-infra-resource-hub
 
+2026-10-26 seed hunt (seed→hit): promoted **workbench/Ask audit context** missing after whitespace-only hub link ids — `resolvedAuditLineage` backfilled ids from `matches` but `askAuditContext` still read raw link fields through `resolveInfrastructureAskAuditContext`, so overview remediation and other workbench exits dropped audit query params when link ids trimmed empty; prefer `resolvedAuditLineage` ids when lineage resolves; regression `includes resolved audit scope on overview remediation link when hub link audit ids are whitespace-only`; cheap-disproof closed primary-match backfill (prior hit), audit scope chip path, and `resourceHubFilterHrefFromSearch` trim; scoped ResourceHubClient vitest 114/114. Private beta: cross-workbench links keep assessment audit scope when capture stored whitespace-only link ids but valid match rows still resolve lineage.
+
+- [x] (proven) `ResourceHubClient` `askAuditContext` — whitespace-only link ids with resolved lineage — **hit 2026-10-26 seed hunt:** derive context from `resolvedAuditLineage` when non-null; regression overview remediation href with audit suffix.
+- [x] (valid-no-repro) `ResourceHubClient` `resolvedAuditLineage` — primary match backfill — **cheap-disproof 2026-10-26 seed hunt:** prior hit retained.
+- [x] (valid-no-repro) `InfraEvidenceAuditScopeChip` — chip when lineage null — **cheap-disproof 2026-10-26 seed hunt:** `auditScopeActive` requires URL scope params.
+- [x] (valid-no-repro) `resourceHubFilterHrefFromSearch` — audit patch trim — **cheap-disproof 2026-10-26 seed hunt:** trims assessment/snapshot/control ids.
+- [x] (valid-no-repro) `ResourceHubClient` overview — `resourceGroup` / `region` whitespace — **cheap-disproof 2026-10-26 seed hunt:** inline trim omission copy.
+
+- [ ] (candidate) `ResourceHubClient` overview — `resourceGroup` / `region` via `formatStoredInfraEvidenceHubField` — locus: DRY only.
+- [ ] (candidate) `ResourceHubClient` overview — `hasTerraformMapping` quick link — locus: unused computed flag.
+- [ ] (candidate) `ResourceHubClient` Ask handoff — audit context when URL specifies partial audit params only — locus: resolve precedence edge cases.
+- [ ] (candidate) `ResourceHubDriftChangesTable` — drift actions without change ids — locus: saturated trim class; defer.
+- [ ] (candidate) `ResourceHubClient` audit tab — `resolvedAuditLineage` when URL scope invalid but matches exist — locus: stale banner vs lineage precedence.
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 82
+- **bugs-found:** 61
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-26
+- **last-bug:** 2026-10-26 — ask/workbench audit context vs resolved lineage
+- **code-changed-since:** yes
+
 2026-10-26 seed hunt (seed→hit): promoted whitespace-only **hub link audit ids** with valid `matches` — after trim, link-level `assessmentId` / snapshot / `controlId` were empty while `matches` held real rows, so `resolvedAuditLineage` returned null and the audit tab showed degraded copy; when URL omits audit scope, backfill empty trimmed link ids from the first match row before lookup; regression `resolves audit lineage from the first match when hub link audit ids are whitespace-only`; cheap-disproof closed padded link id trim (prior hit), `switchActiveAuditControl` href writer trim in `resourceHubFilterHrefFromSearch`, and findings pagination empty caption; scoped ResourceHubClient vitest 113/113. Private beta: operators still see audit lineage on the resource hub when capture stored whitespace-only link ids but listed valid match rows.
 
 - [x] (proven) `ResourceHubClient` `resolvedAuditLineage` — whitespace-only link ids + non-empty `matches` — **hit 2026-10-26 seed hunt:** primary-match backfill when URL omits scope; regression whitespace-only link fixture.
