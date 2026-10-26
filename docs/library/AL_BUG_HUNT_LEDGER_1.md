@@ -6868,6 +6868,20 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-25 seed hunt (seed→hit): proved hunt 295 retried LLM cost slices on architecture run detail but `RunDetailLlmCostEnrichmentSlice` (operator `RunDetailDto` enrich) still called `GetLlmCostSlicesByRunIdAsync` with a single canonical key, so in-memory traces whose persisted `RunId` used legacy uppercase hex left `AgentExecutionLlmCostEstimate` at zero on operator surfaces; centralize retry in `AnalysisRunIdCanonicalization.LoadLlmCostSlicesByRunIdAsync` and route run detail + operator enrich through it; regression `CompareQuality_EnrichAsync_loads_llm_cost_when_trace_run_id_differs_only_by_casing`; cheap-disproof closed career export trace casing (hunt 297), architecture run-detail trace cost casing (hunt 295), stored agent-result `RunId` casing (hunt 294), agent task stored `RunId` casing (hunt 296), batch zip manifest echo (cosmetic); seeded five follow-on rows; scoped application-analysis + replay filter 399/399. Private beta: operator run detail shows agent LLM cost estimates when execution traces use run anchors that differ only by hex letter casing from the canonical lookup key.
+
+- [ ] (candidate) `ComparisonRecordRepository.GetByRunIdAsync` — SQL list-by-run dashed stored — locus: UNIQUEIDENTIFIER column; input: already matches N/D lookup via guid param.
+- [ ] (candidate) `ComparisonRecordRepositoryCore.SerializeTagsForUpdate` — JSON tag order — locus: cosmetic; input: defer.
+- [ ] (candidate) `ComparisonRecordSearchPredicateBuilder` — notes column search — locus: no notes filter today; input: defer.
+- [ ] (candidate) `ApiPaging.TryParseUtcTicksIdCursor` — cursor id segment without trim — locus: HTTP cursor parse; input: padded id after ticks delimiter (alerts inbox and other API surfaces).
+- [ ] (candidate) `ComparisonBatchReplayZipSupport` — manifest failure entries echo pre-trim batch tokens — locus: zip manifest; input: cosmetic id echo only.
+
+- [x] (proven) `RunDetailLlmCostEnrichmentSlice` — trace LLM cost stored `RunId` casing — **hit 2026-10-25 seed hunt:** shared `LoadLlmCostSlicesByRunIdAsync`; regression above.
+- [x] (valid-no-repro) `RunDetailQueryService.LoadRunDetailAsync` — trace LLM cost stored `RunId` casing — **cheap-disproof 2026-10-25 seed hunt:** hunt 295; consolidated to shared helper in this hunt.
+- [x] (valid-no-repro) `CareerExportCoverageHonestyMaterialLoader` — execution trace stored `RunId` casing — **cheap-disproof 2026-10-25 seed hunt:** hunt 297.
+- [x] (invalid) `ApiPaging.TryParseUtcTicksIdCursor` — HTTP cursor id trim — **cheap-disproof 2026-10-25 seed hunt:** comparison search normalizes at application layer.
+- [x] (invalid) `ComparisonBatchReplayZipSupport` — manifest id echo — **cheap-disproof 2026-10-25 seed hunt:** cosmetic only.
+
 2026-10-25 seed hunt (seed→hit): proved hunts 292–296 retried run-detail child lookups but `CareerExportCoverageHonestyMaterialLoader` (export replay career gate) still called `GetByRunIdAsync` for execution traces with a single canonical key, so in-memory traces whose persisted `RunId` used legacy uppercase hex skipped recorded quality-gate resolution; centralize trace retry in `AnalysisRunIdCanonicalization.LoadExecutionTracesByRunIdAsync` and route architecture analysis + career honesty through it; regression `CompareQuality_LoadAsync_resolves_recorded_quality_gate_when_trace_run_id_differs_only_by_casing`; cheap-disproof closed agent task stored `RunId` casing (hunt 296), trace LLM cost stored `RunId` casing (hunt 295), stored agent-result `RunId` casing (hunt 294), run-detail child lookup caller casing (hunt 289), batch zip manifest echo (cosmetic); seeded five follow-on rows; scoped application-analysis + replay filter 398/398. Private beta: export replay career gates read recorded agent quality-gate mode when execution traces use run anchors that differ only by hex letter casing from the canonical lookup key.
 
 - [ ] (candidate) `ComparisonRecordRepository.GetByRunIdAsync` — SQL list-by-run dashed stored — locus: UNIQUEIDENTIFIER column; input: already matches N/D lookup via guid param.
