@@ -6868,6 +6868,16 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-26 seed hunt (seed→hit): reseeded `application-analysis` with zero hunt-ready rows; cheap-disproof closed ranker/dashboard regression guards (still on per-run merge helper); promoted ledger follow-on in-memory `GetLlmCostSlicesByRunIdsAsync` / `GetLlmCostSlicesByRunIdAsync` batch and single-key reads; proved in-memory trace repository still matched trace rows with ordinal `RunId` equality only, so batch and direct slice queries returned empty when traces used legacy uppercase hex keys (even though application callers now merge via `LoadLlmCostSlicesByRunIdAsync`); centralize legacy-key merge in `AgentExecutionTraceQueryPatchCore.CollectMergedLlmCostSlices` using `TechnologyLedgerRunIdLookup.EnumerateRunIdRepositoryLookupKeys`; regressions `CompareQuality_GetLlmCostSlicesByRunIdsAsync_merges_slices_when_traces_use_legacy_run_id_key` and `CompareQuality_GetLlmCostSlicesByRunIdAsync_merges_slices_when_traces_use_legacy_run_id_key`; seeded five follow-on rows; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` filter 381/381 (`RunAnalyzers=false` on VM build). Private beta: In-memory dev and test hosts return LLM cost slices for legacy-keyed traces on direct repository batch reads, keeping cost tooling consistent with production merge helpers.
+
+- [ ] (candidate) `AgentExecutionTraceRepository` SQL batch — locus: `GetLlmCostSlicesByRunIdsAsync` ordinal `IN` list vs legacy trace storage.
+- [ ] (candidate) `CosmosAgentExecutionTraceRepository` batch — locus: same batch slice path.
+- [ ] (candidate) `TenantLlmCostTopRunRanker` — regression guard — locus: per-run merge helper.
+- [ ] (candidate) `GovernanceDashboardRecentRunTokenAggregator` — regression guard — locus: per-run merge helper.
+- [ ] (candidate) `AgentExecutionTraceQueryPatchCore.CollectMergedLlmCostSlices` — regression guard — locus: fingerprint dedupe across keys.
+
+- [x] (proven) `GetLlmCostSlicesByRunIdsAsync` — in-memory persistence batch API — **hit 2026-10-26 seed hunt:** `CollectMergedLlmCostSlices`; regressions above.
+
 2026-10-26 seed hunt (seed→hit): reseeded `application-analysis` with zero hunt-ready rows; cheap-disproof closed dashboard token-aggregator regression guard (still on `LoadLlmCostSlicesByRunIdAsync`); promoted ledger follow-on `TenantLlmCostTopRunRanker` tenant LLM top-run ranking; proved ranker still batched `GetLlmCostSlicesByRunIdsAsync` with ordinal per-run keys, so runs whose traces persisted under legacy uppercase hex run-id keys were omitted from tenant LLM cost leaderboards; load slices per scanned run via `AnalysisRunIdCanonicalization.LoadLlmCostSlicesByRunIdAsync`; regression `CompareQuality_RankAsync_includes_run_when_traces_use_legacy_run_id_key`; seeded five follow-on rows; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` filter 379/379 (`RunAnalyzers=false` on VM build). Private beta: Tenant LLM cost top-run reports include runs whose execution traces use legacy run-id key formats.
 
 - [ ] (candidate) `TenantLlmCostTopRunRanker` — regression guard — locus: per-run slice load stays on merge helper.
