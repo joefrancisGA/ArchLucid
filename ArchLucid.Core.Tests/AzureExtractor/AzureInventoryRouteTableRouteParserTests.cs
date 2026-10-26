@@ -1056,6 +1056,27 @@ public sealed class AzureInventoryRouteTableRouteParserTests
     }
 
     [Fact]
+    public void Parse_reads_next_hop_ip_address_when_explicit_flattened_next_hop_is_percent_encoded_plain_ipv6_scalar()
+    {
+        const string nextHopIp = "2001:db8::1";
+        string routePrefix = $"{InventoryDiagramNodeRelationshipPropertyKeys.RoutePrefix}0";
+        string encodedIp = Uri.EscapeDataString(nextHopIp);
+
+        Dictionary<string, string> properties = new(StringComparer.Ordinal)
+        {
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteAddressPrefixSuffix}"] = "10.1.0.0/24",
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopTypeSuffix}"] = "VirtualAppliance",
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopReferenceSuffix}"] = encodedIp,
+        };
+
+        IReadOnlyList<AzureInventoryRouteTableRoute> routes = AzureInventoryRouteTableRouteParser.Parse(properties);
+
+        routes.Should().ContainSingle();
+        routes[0].NextHopArmId.Should().BeNull();
+        routes[0].NextHopIpAddress.Should().Be(nextHopIp);
+    }
+
+    [Fact]
     public void Parse_reads_next_hop_arm_id_when_explicit_flattened_next_hop_reference_is_percent_encoded_plain_scalar()
     {
         const string nvaArmId =

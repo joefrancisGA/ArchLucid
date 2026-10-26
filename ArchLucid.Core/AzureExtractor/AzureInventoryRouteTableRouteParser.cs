@@ -316,6 +316,22 @@ public static class AzureInventoryRouteTableRouteParser
 
         if (string.IsNullOrWhiteSpace(raw))
         {
+            string? referenceRaw = ReadRouteProperty(
+                properties,
+                index,
+                InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopReferenceSuffix);
+
+            if (string.IsNullOrWhiteSpace(referenceRaw)
+                || !string.IsNullOrWhiteSpace(TryParseFlattenedArmIdValue(referenceRaw)))
+            {
+                return null;
+            }
+
+            raw = referenceRaw;
+        }
+
+        if (string.IsNullOrWhiteSpace(raw))
+        {
             return null;
         }
 

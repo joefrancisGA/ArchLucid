@@ -323,6 +323,22 @@ public sealed class AzureInventoryAdfLinkedServiceTargetExtractorTests
     }
 
     [Fact]
+    public void Extract_reads_blob_fs_host_from_percent_encoded_url_when_account_name_is_whitespace_only()
+    {
+        const string host = "sa1.dfs.core.windows.net";
+        string encodedUrl = Uri.EscapeDataString($"https://{host}.");
+
+        using JsonDocument document = JsonDocument.Parse(
+            $$"""{ "accountName": "   ", "url": {{JsonSerializer.Serialize(encodedUrl)}} }""");
+
+        (string? targetResourceId, string? targetHost) =
+            AzureInventoryAdfLinkedServiceTargetExtractor.Extract(document.RootElement, "AzureBlobFS");
+
+        targetResourceId.Should().BeNull();
+        targetHost.Should().Be(host);
+    }
+
+    [Fact]
     public void Extract_reads_blob_host_from_percent_encoded_service_endpoint_url()
     {
         const string host = "sa1.blob.core.windows.net";
