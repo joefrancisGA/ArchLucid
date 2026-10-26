@@ -1897,11 +1897,14 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                   </EnterpriseTableRow>
                 </EnterpriseTableHead>
                 <EnterpriseTableBody>
-                  {hub.remediationInstances.items.map((item) => {
+                  {hub.remediationInstances.items.map((item, itemIndex) => {
                     const remediationStatusLabel = item.status?.trim() ?? "";
+                    const remediationInstanceId = item.instanceId?.trim() ?? "";
 
                     return (
-                    <EnterpriseTableRow key={item.instanceId}>
+                    <EnterpriseTableRow
+                      key={remediationInstanceId.length > 0 ? remediationInstanceId : `remediation-row-${itemIndex}`}
+                    >
                       <EnterpriseTableCell className="font-mono text-xs">
                         {formatStoredInfraEvidenceHubField(item.patternKey, "Remediation pattern was not stored.")}
                       </EnterpriseTableCell>
@@ -1916,30 +1919,43 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                         )}
                       </EnterpriseTableCell>
                       <EnterpriseTableCell>
-                        <div className="flex flex-wrap gap-2">
-                          <Button asChild size="sm" variant="outline">
-                            <Link
-                              href={buildRemediationWorkbenchHref({
-                                cloudResourceId,
-                                instanceId: item.instanceId,
-                                snapshotId: resolvedSnapshotId,
-                                runId: runId.length > 0 ? runId : undefined,
-                                ...workbenchLinkAuditContext,
-                              })}
-                              data-testid={`infra-resource-hub-remediation-factory-${item.instanceId}`}
-                            >
-                              Open in factory
-                            </Link>
-                          </Button>
-                          <Button asChild size="sm" variant="outline">
-                            <Link
-                              href={buildHubRemediationAskHref(pathname, infrastructureAskHandoffSearch, cloudResourceId, resolvedSnapshotId, runId, item.instanceId, askAuditContext, workQueue)}
-                              data-testid={`infra-resource-hub-remediation-ask-${item.instanceId}`}
-                            >
-                              Ask
-                            </Link>
-                          </Button>
-                        </div>
+                        {remediationInstanceId.length > 0 ? (
+                          <div className="flex flex-wrap gap-2">
+                            <Button asChild size="sm" variant="outline">
+                              <Link
+                                href={buildRemediationWorkbenchHref({
+                                  cloudResourceId,
+                                  instanceId: remediationInstanceId,
+                                  snapshotId: resolvedSnapshotId,
+                                  runId: runId.length > 0 ? runId : undefined,
+                                  ...workbenchLinkAuditContext,
+                                })}
+                                data-testid={`infra-resource-hub-remediation-factory-${remediationInstanceId}`}
+                              >
+                                Open in factory
+                              </Link>
+                            </Button>
+                            <Button asChild size="sm" variant="outline">
+                              <Link
+                                href={buildHubRemediationAskHref(
+                                  pathname,
+                                  infrastructureAskHandoffSearch,
+                                  cloudResourceId,
+                                  resolvedSnapshotId,
+                                  runId,
+                                  remediationInstanceId,
+                                  askAuditContext,
+                                  workQueue,
+                                )}
+                                data-testid={`infra-resource-hub-remediation-ask-${remediationInstanceId}`}
+                              >
+                                Ask
+                              </Link>
+                            </Button>
+                          </div>
+                        ) : (
+                          "Remediation instance id was not stored."
+                        )}
                       </EnterpriseTableCell>
                     </EnterpriseTableRow>
                     );

@@ -7209,6 +7209,32 @@ ABQ-09 churn hotspot.
 
 ## Zone: ui-infra-resource-hub
 
+2026-10-26 seed hunt (seed→hit): promoted whitespace-only **remediation tab instanceId** on listed instances — remediation rows always rendered factory/Ask links using raw `item.instanceId` so whitespace-only ids produced broken workbench handoffs; trim gate hides actions and shows omission copy; regression `does not show remediation tab factory links when instanceId is whitespace-only`; cheap-disproof closed create-from-finding `instanceId` (prior hit), failure `blockers.join` (status formatter), and overview `resourceGroup` inline trim; scoped ResourceHubClient vitest 102/102. Private beta: on the resource hub remediation tab, operators see “Remediation instance id was not stored.” instead of misleading factory links when capture stored only whitespace in `instanceId`.
+
+- [x] (proven) `ResourceHubClient` remediation tab — `instanceId` whitespace-only — **hit 2026-10-26 seed hunt:** trim before links; regression whitespace instance row fixture.
+- [x] (valid-no-repro) `ResourceHubClient` create-from-finding success — `instanceId` whitespace — **cheap-disproof 2026-10-26 seed hunt:** prior hit retained.
+- [x] (valid-no-repro) `ResourceHubClient` remediation failure — whitespace-only `blockers.join` — **cheap-disproof 2026-10-26 seed hunt:** status paragraph uses `formatStoredInfraEvidenceHubField`.
+- [x] (valid-no-repro) `ResourceHubClient` overview — `resourceGroup` / `region` whitespace — **cheap-disproof 2026-10-26 seed hunt:** inline `.trim() ||` omission copy matches formatter behavior.
+- [x] (valid-no-repro) `ResourceHubDriftChangesTable` — `changeType` whitespace — **cheap-disproof 2026-10-26 seed hunt:** normalize maps trim-empty to stored label.
+
+- [ ] (candidate) `ResourceHubClient` remediation failure message — trim/filter `blockers` before join so stored message prefers real text or generic fallback — locus: `runCreateRemediationFromFinding` assembly.
+- [ ] (candidate) `ResourceHubClient` overview — align `resourceGroup` / `region` with `formatStoredInfraEvidenceHubField` for copy parity — locus: overview configuration dl.
+- [ ] (candidate) `ResourceHubDriftChangesTable` — exotic unknown `changeType` StatusTag — locus: neutral kind for unrecognized keys.
+- [ ] (candidate) `ResourceHubClient` confirm dialog — `resourceTitle` when both path segments missing but non-uuid slug id — locus: dialog resource line edge cases.
+- [ ] (candidate) `ResourceHubClient` audit overview — `degradedReason` banner parity across tabs — locus: overview vs audit tab copy.
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 74
+- **bugs-found:** 53
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-26
+- **last-bug:** 2026-10-26 — whitespace-only remediation tab instanceId
+- **code-changed-since:** yes
+
 2026-10-26 seed hunt (seed→hit): promoted whitespace-only **remediation instanceId** after successful create-from-finding — `instanceId != null` let whitespace-only ids render a broken “Open in factory” link without a usable `instanceId` query param; trim gate when storing success message and before link; regression `does not show Open in factory when create remediation returns whitespace-only instanceId`; cheap-disproof closed blocker-join failure text (status formatter), confirm `resourceTitle` (path segment trim + display normalizer), and drift `changeType` whitespace; scoped ResourceHubClient vitest 101/101. Private beta: after creating remediation from a finding, operators no longer see a factory link when the API returns only whitespace in `instanceId`.
 
 - [x] (proven) `ResourceHubClient` `runCreateRemediationFromFinding` — success `instanceId` whitespace-only — **hit 2026-10-26 seed hunt:** trim before persisting message + link gate; regression whitespace `instanceId` success fixture.
