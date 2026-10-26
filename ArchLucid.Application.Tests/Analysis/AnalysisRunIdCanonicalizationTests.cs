@@ -635,6 +635,33 @@ public sealed class AnalysisRunIdCanonicalizationTests
     }
 
     [Fact]
+    public async Task CompareQuality_LoadComparisonRecordsByRunIdAsync_lists_comparisons_when_left_run_id_uses_legacy_key()
+    {
+        Guid runGuid = Guid.Parse("70707070-7070-7070-7070-707070707070");
+        string canonicalRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(runGuid.ToString());
+        string legacyUpperRunId = canonicalRunId.ToUpperInvariant();
+
+        InMemoryComparisonRecordRepository comparisonRepository = new();
+        await comparisonRepository.CreateAsync(
+            new ComparisonRecord
+            {
+                ComparisonRecordId = "cmp-legacy-left-run",
+                ComparisonType = "end-to-end-replay",
+                LeftRunId = legacyUpperRunId,
+                RightRunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                CreatedUtc = DateTime.UtcNow,
+            });
+
+        IReadOnlyList<ComparisonRecord> records =
+            await AnalysisRunIdCanonicalization.LoadComparisonRecordsByRunIdAsync(
+                comparisonRepository,
+                canonicalRunId,
+                CancellationToken.None);
+
+        records.Should().ContainSingle(record => record.ComparisonRecordId == "cmp-legacy-left-run");
+    }
+
+    [Fact]
     public async Task CompareQuality_GetByRunIdAsync_prefers_newer_task_when_alternate_keys_repeat_task_id()
     {
         Guid runGuid = Guid.Parse("77777777-7777-7777-7777-777777777777");

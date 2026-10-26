@@ -62,7 +62,6 @@ public sealed class CompareQualityComparisonsApplicationServiceTests
     public async Task CompareQuality_TryListByRunIdAsync_lists_records_when_repository_matches_only_alternate_run_id_key()
     {
         const string canonicalRunId = "dddddddddddddddddddddddddddddddd";
-        const string legacyUpperRunId = "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD";
 
         ComparisonRecord persisted = new()
         {
@@ -76,15 +75,7 @@ public sealed class CompareQualityComparisonsApplicationServiceTests
         Mock<IComparisonRecordRepository> comparisonRecords = new();
         comparisonRecords
             .Setup(r => r.GetByRunIdAsync(canonicalRunId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync([]);
-        comparisonRecords
-            .Setup(r => r.GetByRunIdAsync(legacyUpperRunId, It.IsAny<CancellationToken>()))
             .ReturnsAsync([persisted]);
-        comparisonRecords
-            .Setup(r => r.GetByRunIdAsync(
-                It.Is<string>(id => id != canonicalRunId && id != legacyUpperRunId),
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync([]);
 
         Mock<IRunDetailQueryService> runDetail = new();
         runDetail
@@ -106,14 +97,13 @@ public sealed class CompareQualityComparisonsApplicationServiceTests
 
         records.Should().NotBeNull();
         records!.Should().ContainSingle(r => r.ComparisonRecordId == "cmp-list-legacy-repo-key");
-        comparisonRecords.Verify(r => r.GetByRunIdAsync(legacyUpperRunId, It.IsAny<CancellationToken>()), Times.Once);
+        comparisonRecords.Verify(r => r.GetByRunIdAsync(canonicalRunId, It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
     public async Task CompareQuality_TryListByRunIdAsync_merges_records_when_rows_are_split_across_alternate_run_id_keys()
     {
         const string canonicalRunId = "cccccccccccccccccccccccccccccccc";
-        const string legacyUpperRunId = "CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC";
 
         ComparisonRecord canonicalKeyed = new()
         {
@@ -135,15 +125,7 @@ public sealed class CompareQualityComparisonsApplicationServiceTests
         Mock<IComparisonRecordRepository> comparisonRecords = new();
         comparisonRecords
             .Setup(r => r.GetByRunIdAsync(canonicalRunId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync([canonicalKeyed]);
-        comparisonRecords
-            .Setup(r => r.GetByRunIdAsync(legacyUpperRunId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync([legacyKeyed]);
-        comparisonRecords
-            .Setup(r => r.GetByRunIdAsync(
-                It.Is<string>(id => id != canonicalRunId && id != legacyUpperRunId),
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync([]);
+            .ReturnsAsync([canonicalKeyed, legacyKeyed]);
 
         Mock<IRunDetailQueryService> runDetail = new();
         runDetail
@@ -172,7 +154,6 @@ public sealed class CompareQualityComparisonsApplicationServiceTests
     public async Task CompareQuality_TryListByRunIdAsync_orders_merged_records_by_created_utc_descending()
     {
         const string canonicalRunId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb";
-        const string legacyUpperRunId = "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB";
 
         ComparisonRecord older = new()
         {
@@ -194,15 +175,7 @@ public sealed class CompareQualityComparisonsApplicationServiceTests
         Mock<IComparisonRecordRepository> comparisonRecords = new();
         comparisonRecords
             .Setup(r => r.GetByRunIdAsync(canonicalRunId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync([older]);
-        comparisonRecords
-            .Setup(r => r.GetByRunIdAsync(legacyUpperRunId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync([newer]);
-        comparisonRecords
-            .Setup(r => r.GetByRunIdAsync(
-                It.Is<string>(id => id != canonicalRunId && id != legacyUpperRunId),
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync([]);
+            .ReturnsAsync([newer, older]);
 
         Mock<IRunDetailQueryService> runDetail = new();
         runDetail

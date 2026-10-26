@@ -337,32 +337,13 @@ internal static class AnalysisRunIdCanonicalization
     {
         ArgumentNullException.ThrowIfNull(comparisonRecordRepository);
 
-        Dictionary<string, ComparisonRecord> merged = new(StringComparer.OrdinalIgnoreCase);
+        string lookupRunId = CanonicalRunIdForLookup(primaryRunId);
 
-        foreach (string lookupKey in EnumerateRunIdRepositoryLookupKeys(primaryRunId))
-        {
-            IReadOnlyList<ComparisonRecord> records = await comparisonRecordRepository
-                .GetByRunIdAsync(lookupKey, cancellationToken)
-                .ConfigureAwait(false);
+        IReadOnlyList<ComparisonRecord> records = await comparisonRecordRepository
+            .GetByRunIdAsync(lookupRunId, cancellationToken)
+            .ConfigureAwait(false);
 
-            if (records is not { Count: > 0 })
-                continue;
-
-            foreach (ComparisonRecord record in records)
-            {
-                if (record is null || string.IsNullOrWhiteSpace(record.ComparisonRecordId))
-                    continue;
-
-                PreferNewerByCreatedUtc(merged, record.ComparisonRecordId, record, static r => r.CreatedUtc);
-            }
-        }
-
-        return merged.Count == 0
-            ? []
-            : merged.Values
-                .OrderByDescending(static record => record.CreatedUtc)
-                .ThenBy(static record => record.ComparisonRecordId, StringComparer.OrdinalIgnoreCase)
-                .ToList();
+        return records ?? [];
     }
 
     internal static async Task<IReadOnlyList<GovernancePromotionRecord>> LoadGovernancePromotionRecordsByRunIdAsync(
@@ -411,18 +392,5 @@ internal static class AnalysisRunIdCanonicalization
             .ConfigureAwait(false);
 
         return records ?? [];
-    }
-
-    private static void PreferNewerByCreatedUtc<T>(
-        Dictionary<string, T> merged,
-        string mergeKey,
-        T candidate,
-        Func<T, DateTime> readCreatedUtc)
-    {
-        if (merged.TryGetValue(mergeKey, out T? existing)
-            && readCreatedUtc(candidate) <= readCreatedUtc(existing))
-            return;
-
-        merged[mergeKey] = candidate;
     }
 }
