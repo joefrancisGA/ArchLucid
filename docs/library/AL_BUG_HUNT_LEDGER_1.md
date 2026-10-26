@@ -6868,6 +6868,18 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-26 seed hunt (seed→hit): reseeded `application-analysis` with zero hunt-ready rows; promoted ledger follow-on `AuthorityDrivenArchitectureRunCommitOrchestrator` commit-ready agent load; proved `CommitRunAsync` still called `GetByRunIdAsync` with the route run id only, so commit blocked with “cannot be committed until all required agents succeed” when commit-ready agent results lived under legacy uppercase hex keys; route through `AnalysisRunIdCanonicalization.LoadAgentResultsByRunIdAsync`; regression `CompareQuality_CommitRunAsync_merges_agent_results_when_stored_under_legacy_run_id_key`; cheap-disproof closed replay evidence merge (hunt 329), in-zone Analysis loaders (prior seed-only); seeded five follow-on rows; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` filter 322/322. Private beta: authority commit no longer fails the required-agent gate when persisted agent results use legacy run-id key formats.
+
+- [ ] (candidate) `PilotRunDeltaComputer` — trace delta single-key — locus: `Pilots/`; input: pilot diff when traces only on legacy key.
+- [ ] (candidate) `DecisionEngineV2NodeMaterializer` — multi-repository single-key — locus: decision graph materialization; input: split keys across tasks/results/evidence/nodes.
+- [ ] (candidate) `AgentExecuteIdempotentPersistReconciliation` — evidence package single-key — locus: execute persist reconciliation; input: package under legacy key only.
+- [ ] (candidate) `RunExecuteOwnershipReconciliationService` — agent result load — locus: ownership reconciliation; input: dashed vs `N` route id with legacy-stored rows.
+- [ ] (candidate) `ArchitectureRunExecuteIdempotencyStage` — result/task reload — locus: execute idempotency; input: partial rows under alternate keys.
+
+- [x] (proven) `AuthorityDrivenArchitectureRunCommitOrchestrator` — commit-ready agent results single-key — **hit 2026-10-26 seed hunt:** `LoadAgentResultsByRunIdAsync`; regression above.
+- [x] (valid-no-repro) `ReplayRunPrepareStage` — evidence package merge — **cheap-disproof 2026-10-26 seed hunt:** hunt 329.
+- [x] (invalid) `CompareInputFingerprintsNormalizer.NormalizeOptionalHash` — uppercase hex — **cheap-disproof 2026-10-26 seed hunt:** already lowercases valid hashes.
+
 2026-10-26 seed hunt (seed-only): repaired committed merge-conflict markers in set-1 ledger/run log, then re-read `ArchLucid.Application/Analysis/` after hunt 329 replay evidence-package merge; confirmed in-zone compare/export/replay paths still canonicalize run ids and route persistence reads through `AnalysisRunIdCanonicalization` merge helpers; no new hunt-ready wrong outcome without duplicating saturated legacy-key merge work; cheap-disproof closed five post-329 `(candidate)` rows below; seeded five follow-on rows; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` filter 320/320 (`RunAnalyzers=false`); no production code changed. Private beta: n/a.
 
 - [ ] (candidate) `ExportReplayService.ReplayAsync` — career honesty trace load — locus: `CareerExportCoverageHonestyMaterialLoader.LoadAsync` with `IAgentExecutionTraceRepository`; input: accepted traces only under legacy run-id key (compare with `ArchitectureAnalysisService` merge path).
@@ -6876,23 +6888,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - [ ] (candidate) `ComparisonsApplicationService.TryBuildBatchReplayZipAsync` — batch comparison id list — locus: batch replay ZIP builder; input: duplicate comparison ids differing only by padding/line breaks in one batch request.
 - [ ] (candidate) `MarkdownArchitectureAnalysisExportService` — evidence section — locus: markdown export evidence slice; input: evidence package loaded via merge helper when `IncludeEvidence` true on uppercase route run id.
 
-- [x] (valid-no-repro) `AuthorityDrivenArchitectureRunCommitOrchestrator` — commit-ready agent results — **cheap-disproof 2026-10-26 seed hunt:** `commit-output-integrity` zone; not in `Analysis/` paths.
+- [x] (valid-no-repro) `AuthorityDrivenArchitectureRunCommitOrchestrator` — commit-ready agent results — **cheap-disproof 2026-10-26 seed hunt (pre-hit):** orchestration zone; superseded by hunt above.
 - [x] (valid-no-repro) `PilotRunDeltaComputer` — trace delta — **cheap-disproof 2026-10-26 seed hunt:** `application-pilots` zone.
 - [x] (valid-no-repro) `DecisionEngineV2NodeMaterializer` — multi-repository — **cheap-disproof 2026-10-26 seed hunt:** `decisioning` zone.
 - [x] (valid-no-repro) `ReplayRunExecutePreparedStage` — authority-only replay — **cheap-disproof 2026-10-26 seed hunt:** hunt 329 `LoadEvidencePackageByRunIdAsync` on execute-prepared.
 - [x] (valid-no-repro) `AgentExecuteIdempotentPersistReconciliation` — evidence package — **cheap-disproof 2026-10-26 seed hunt:** `application-agents` execute reconciliation zone.
-
-- **id:** application-analysis
-- **status:** open
-- **impact:** medium
-- **paths:** ArchLucid.Application/Analysis/
-- **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 67
-- **bugs-found:** 61
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
-- **last-bug:** 2026-10-26 — replay prepare evidence package legacy run-id merge (hunt 329)
-- **code-changed-since:** no
 
 2026-10-26 seed hunt (seed→hit): reseeded `application-analysis` with zero hunt-ready rows; promoted ledger follow-on `ReplayRunPrepareStage` / `ReplayRunExecutePreparedStage` evidence package load; proved replay prepare still called `GetByRunIdAsync` with the route run id only, so end-to-end replay and compare-quality replay paths failed with “Evidence package not found” when the package lived under legacy uppercase hex keys; route through `AnalysisRunIdCanonicalization.LoadEvidencePackageByRunIdAsync` (prepare + execute-prepared); regression `CompareQuality_PrepareAsync_loads_evidence_package_when_stored_under_legacy_run_id_key`; cheap-disproof closed in-zone Analysis merge loaders (prior seed-only), commit trace merge (hunt 328); seeded five follow-on rows; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` filter 321/321. Private beta: run replay and comparison replay prepare succeed when agent evidence packages use legacy run-id key formats.
 
