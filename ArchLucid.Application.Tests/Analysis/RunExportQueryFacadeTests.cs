@@ -160,6 +160,66 @@ public sealed class RunExportQueryFacadeTests
     }
 
     [Fact]
+    public async Task CompareQuality_GetRunExportHistoryAsync_orders_merged_exports_by_created_utc_descending()
+    {
+        Guid runGuid = Guid.Parse(RunId);
+        string legacyUpperRunId = RunId.ToUpperInvariant();
+        ArchitectureRunDetail scopedDetail = CreateScopedRunDetail();
+        RunDetailDto authorityDetail = CreateAuthorityDetailWithCompleteLifecycle(runGuid);
+        RunExportRecord older = new()
+        {
+            ExportRecordId = "export-older-canonical-key",
+            RunId = RunId,
+            ExportType = "analysis-report",
+            Format = "pdf",
+            FileName = "older.pdf",
+            CreatedUtc = new DateTime(2026, 1, 1, 8, 0, 0, DateTimeKind.Utc),
+        };
+        RunExportRecord newer = new()
+        {
+            ExportRecordId = "export-newer-legacy-key",
+            RunId = legacyUpperRunId,
+            ExportType = "analysis-report",
+            Format = "pdf",
+            FileName = "newer.pdf",
+            CreatedUtc = new DateTime(2026, 1, 2, 8, 0, 0, DateTimeKind.Utc),
+        };
+
+        Mock<IRunDetailQueryService> runDetails = new();
+        runDetails
+            .Setup(r => r.GetRunDetailAsync(RunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(scopedDetail);
+
+        Mock<IRunExportRecordRepository> exportRecords = new();
+        exportRecords
+            .Setup(r => r.GetByRunIdAsync(RunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([older]);
+        exportRecords
+            .Setup(r => r.GetByRunIdAsync(legacyUpperRunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([newer]);
+        exportRecords
+            .Setup(r => r.GetByRunIdAsync(It.Is<string>(id => id != RunId && id != legacyUpperRunId), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        ArchLucid.Decisioning.Services.ManifestHashService manifestHashService = new();
+        Mock<IAuthorityQueryService> authority = new();
+        SealedExportReceiptTestSupport.ConfigureVerifiedSealedExport(authority, runGuid, manifestHashService);
+        authority
+            .Setup(a => a.GetRunDetailAsync(It.IsAny<ScopeContext>(), runGuid, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(authorityDetail);
+
+        RunExportQueryFacade sut = CreateFacade(runDetails, exportRecords, authority, manifestHashService);
+
+        RunExportHistoryQueryResult result =
+            await sut.GetRunExportHistoryAsync(RunId, CancellationToken.None);
+
+        result.Outcome.Should().Be(ExportRecordLoadOutcome.Success);
+        result.Exports.Should().HaveCount(2);
+        result.Exports![0].ExportRecordId.Should().Be("export-newer-legacy-key");
+        result.Exports[1].ExportRecordId.Should().Be("export-older-canonical-key");
+    }
+
+    [Fact]
     public async Task CompareQuality_GetRunExportHistoryAsync_trims_padded_run_id_before_history_load()
     {
         Guid runGuid = Guid.Parse(RunId);

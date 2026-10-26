@@ -295,7 +295,12 @@ internal static class AnalysisRunIdCanonicalization
             }
         }
 
-        return merged.Count == 0 ? [] : merged.Values.ToList();
+        return merged.Count == 0
+            ? []
+            : merged.Values
+                .OrderByDescending(static record => record.CreatedUtc)
+                .ThenBy(static record => record.ExportRecordId, StringComparer.OrdinalIgnoreCase)
+                .ToList();
     }
 
     internal static async Task<IReadOnlyList<ComparisonRecord>> LoadComparisonRecordsByRunIdAsync(
@@ -325,6 +330,11 @@ internal static class AnalysisRunIdCanonicalization
             }
         }
 
-        return merged.Count == 0 ? [] : merged.Values.ToList();
+        return merged.Count == 0
+            ? []
+            : merged.Values
+                .OrderByDescending(static record => record.CreatedUtc)
+                .ThenBy(static record => record.ComparisonRecordId, StringComparer.OrdinalIgnoreCase)
+                .ToList();
     }
 }
