@@ -138,9 +138,10 @@ public sealed partial class GetOnlyHostedAzureArmReadClient
     {
         List<string> scoreNames = [];
         bool scoresFailed = false;
+        bool scoreNamesTruncated = false;
         string scoresPath = $"subscriptions/{subscriptionId}/providers/Microsoft.Security/secureScores";
 
-        await ReadDefenderPagesAsync(
+        bool scoresPageTruncated = await ReadDefenderPagesAsync(
             accessToken,
             subscriptionId,
             scoresPath,
@@ -151,11 +152,19 @@ public sealed partial class GetOnlyHostedAzureArmReadClient
             {
                 string? name = TryReadName(item);
 
-                if (!string.IsNullOrWhiteSpace(name)
-                    && scoreNames.FindIndex(existing => string.Equals(existing, name, StringComparison.OrdinalIgnoreCase)) < 0
-                    && scoreNames.Count < DefenderScoreNameCap)
+                if (string.IsNullOrWhiteSpace(name)
+                    || scoreNames.FindIndex(existing => string.Equals(existing, name, StringComparison.OrdinalIgnoreCase)) >= 0)
+                {
+                    return;
+                }
+
+                if (scoreNames.Count < DefenderScoreNameCap)
                 {
                     scoreNames.Add(name);
+                }
+                else
+                {
+                    scoreNamesTruncated = true;
                 }
             },
             () => scoresFailed = true,
@@ -165,6 +174,11 @@ public sealed partial class GetOnlyHostedAzureArmReadClient
         {
             scoreControls.Clear();
             return;
+        }
+
+        if (scoresPageTruncated || scoreNamesTruncated)
+        {
+            warnings.Add("defender-score-controls-truncated");
         }
 
         if (scoreNames.FindIndex(name => string.Equals(name, "ascScore", StringComparison.OrdinalIgnoreCase)) < 0)

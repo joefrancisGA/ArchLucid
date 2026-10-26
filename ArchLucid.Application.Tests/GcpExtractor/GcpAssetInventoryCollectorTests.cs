@@ -74,6 +74,25 @@ public sealed class GcpAssetInventoryCollectorTests
     }
 
     [Fact]
+    public async Task CollectFromRawPagesAsync_retains_resource_when_name_is_only_path_separators()
+    {
+        SearchAllResourcesResponse page = new();
+        page.Results.Add(new ResourceSearchResult
+        {
+            Name = "///",
+            AssetType = "compute.googleapis.com/Instance",
+            Location = "us-central1-a"
+        });
+
+        List<GcpInventoryResourceEntry> resources = await GcpAssetInventoryCollector.CollectFromRawPagesAsync(
+            SinglePageAsync(page),
+            CancellationToken.None);
+
+        resources.Should().ContainSingle();
+        resources[0].Name.Should().Be("///");
+    }
+
+    [Fact]
     public async Task CollectFromRawPagesAsync_retains_resources_when_max_pagination_limit_reached()
     {
         List<GcpInventoryResourceEntry> resources = await GcpAssetInventoryCollector.CollectFromRawPagesAsync(

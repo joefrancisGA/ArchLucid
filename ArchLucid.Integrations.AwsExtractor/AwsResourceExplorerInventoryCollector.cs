@@ -82,7 +82,7 @@ internal static class AwsResourceExplorerInventoryCollector
     {
         if (!string.IsNullOrWhiteSpace(resource.Region))
         {
-            return resource.Region;
+            return resource.Region.Trim();
         }
 
         return connectionRegionSystemName;

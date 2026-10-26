@@ -255,6 +255,36 @@ public sealed class AwsResourceExplorerInventoryCollectorTests
     }
 
     [Fact]
+    public async Task CollectAsync_trims_resource_region_when_region_has_bounding_whitespace()
+    {
+        Mock<IAmazonResourceExplorer2> explorerClient = new();
+
+        explorerClient
+            .Setup(c => c.SearchAsync(It.IsAny<SearchRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new SearchResponse
+            {
+                Resources =
+                [
+                    new Resource
+                    {
+                        Arn = "arn:aws:ec2:eu-west-1:123456789012:instance/i-abc",
+                        ResourceType = "AWS::EC2::Instance",
+                        Region = " eu-west-1 "
+                    }
+                ],
+                NextToken = null
+            });
+
+        List<AwsInventoryResourceEntry> resources = await AwsResourceExplorerInventoryCollector.CollectAsync(
+            explorerClient.Object,
+            "us-east-1",
+            CancellationToken.None);
+
+        resources.Should().ContainSingle();
+        resources[0].Location.Should().Be("eu-west-1");
+    }
+
+    [Fact]
     public async Task CollectAsync_retains_resources_when_max_pagination_limit_reached()
     {
         Mock<IAmazonResourceExplorer2> explorerClient = new();
