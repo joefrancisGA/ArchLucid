@@ -375,6 +375,25 @@ describe("ResourceHubClient", () => {
     });
   });
 
+  it("shows latest snapshot label when URL snapshotId is stale after cloudResourceId changes", async () => {
+    const otherCloudResourceId = "88888888-8888-8888-8888-888888888888";
+    const staleSnapshotId = "99999999-9999-9999-9999-999999999999";
+
+    searchParams = new URLSearchParams(`tab=overview&snapshotId=${staleSnapshotId}`);
+    const { rerender } = render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Pinned snapshot")).toBeInTheDocument();
+    });
+
+    rerender(<ResourceHubClient cloudResourceId={otherCloudResourceId} />);
+
+    await waitFor(() => {
+      expect(screen.queryByText("Pinned snapshot")).not.toBeInTheDocument();
+      expect(screen.getByText("Latest inventory")).toBeInTheDocument();
+    });
+  });
+
   it("ignores URL snapshotId pin on hub fetch immediately after cloudResourceId changes", async () => {
     const otherCloudResourceId = "88888888-8888-8888-8888-888888888888";
     const staleSnapshotId = "99999999-9999-9999-9999-999999999999";

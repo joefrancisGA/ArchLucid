@@ -516,7 +516,12 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
     }
   }, [hub?.currentConfiguration?.snapshotId]);
 
-  const snapshotPinned = snapshotId.length > 0;
+  const snapshotPinned = useMemo(
+    () =>
+      snapshotId.length > 0
+      && urlSnapshotPinForCloudResourceIdRef.current === cloudResourceId,
+    [cloudResourceId, hub?.currentConfiguration?.snapshotId, snapshotId],
+  );
 
   const syncInfraResourceHubTechnicalKeyToUrl = useCallback(
     (technicalKey: string | null) => {

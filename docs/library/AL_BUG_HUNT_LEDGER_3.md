@@ -7209,6 +7209,32 @@ ABQ-09 churn hotspot.
 
 ## Zone: ui-infra-resource-hub
 
+2026-10-26 seed hunt (seed→hit): promoted **misleading pinned snapshot label** after `cloudResourceId` change — hunt 106 stopped honoring a carried URL `snapshotId` on hub fetch, but `snapshotPinned` still keyed only on raw query length, so the scope strip kept showing **Pinned snapshot** and copy implying URL intent while evidence loaded unpinned; align `snapshotPinned` with the same per-resource URL pin ref as `resolvedSnapshotId`; regression `shows latest snapshot label when URL snapshotId is stale after cloudResourceId changes`; cheap-disproof closed technical disclosure carryover (URL-synced), terraform tab quick link (polish), drift change-id trim (deferred), and hub fetch pin (prior hit); scoped ResourceHubClient vitest 131/131. Private beta: switching resource hubs no longer tells operators their snapshot is URL-pinned when the hub is actually showing latest inventory for the new resource.
+
+- [x] (proven) `ResourceHubClient` `snapshotPinned` — stale URL pin label after resource navigation — **hit 2026-10-26 seed hunt:** matches `urlSnapshotPinForCloudResourceIdRef`; regression above.
+- [x] (valid-no-repro) `ResourceHubClient` `infraResourceHubTechnicalKey` — disclosure on resource navigation — **cheap-disproof 2026-10-26 seed hunt:** state follows URL param; tab switches clear invalid keys.
+- [x] (valid-no-repro) `ResourceHubClient` overview — terraform tab quick link — **cheap-disproof 2026-10-26 seed hunt:** navigation polish.
+- [x] (valid-no-repro) `ResourceHubDriftChangesTable` — drift change ids — **cheap-disproof 2026-10-26 seed hunt:** saturated trim class; deferred.
+- [x] (valid-no-repro) `ResourceHubClient` `loadHub` — stale URL snapshot fetch — **cheap-disproof 2026-10-26 seed hunt:** prior hit.
+
+- [ ] (candidate) `ResourceHubClient` overview — quick link to terraform tab when mapped — locus: navigation polish.
+- [ ] (candidate) `ResourceHubClient` overview — terraform workbench in cross-workbench row — locus: intentionally omitted per regression.
+- [ ] (candidate) `ResourceHubClient` buyer-polished identifier disclosures — ARM copy affordance — locus: polish.
+- [ ] (candidate) `ResourceHubDriftChangesTable` — drift actions without change ids — locus: saturated trim class; defer.
+- [ ] (candidate) `ResourceHubClient` manual Retry — concurrent scope change — locus: generation guard; monitor.
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 107
+- **bugs-found:** 85
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-26
+- **last-bug:** 2026-10-26 — misleading pinned snapshot label after cloudResourceId change
+- **code-changed-since:** yes
+
 2026-10-26 seed hunt (seed→hit): promoted **stale URL `snapshotId` pin** after `cloudResourceId` change — Next.js reused `ResourceHubClient` with the prior resource’s `snapshotId` still in the query string, and `loadHub` fell back to raw URL `snapshotId` when the resolved pin was empty, so the hub API loaded the wrong snapshot for the new cloud resource; honor URL snapshot pins only for the resource that introduced or last changed the pin, clear the pin on `cloudResourceId` change, and fetch with `resolvedSnapshotId` only; regression `ignores URL snapshotId pin on hub fetch immediately after cloudResourceId changes`; cheap-disproof closed implicit snapshot retention (prior hit), scope-key hub reset (prior hit), terraform tab quick link (polish), drift change-id trim (deferred), and manual Retry generation guard; scoped ResourceHubClient vitest 130/130. Private beta: navigating from one resource hub to another no longer reuses the previous resource’s pinned snapshot id from the URL when loading evidence for the new resource.
 
 - [x] (proven) `ResourceHubClient` `resolvedSnapshotId` / `loadHub` — stale URL snapshot after resource navigation — **hit 2026-10-26 seed hunt:** `urlSnapshotPinForCloudResourceIdRef` + no raw URL fallback on fetch; regression above.
