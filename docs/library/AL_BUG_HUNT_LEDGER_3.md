@@ -9573,6 +9573,20 @@ ABQ-09 churn hotspot.
 
 ## Zone: securenow-question-queue
 
+2026-10-26 seed hunt (seed→hit): promoted `SecureNowQuestionQueueProvider` **stale mutation inline error after changing questions** — snapshot-guard and other mutation failures left `operator-mutation-inline-error` mounted when the operator advanced to another row in the drawer; clear mutation-kind errors when `currentQuestionIdentity` changes; regression `clears a mutation inline error when advancing to another question in the drawer`; cheap-disproof closed non-array list proxy shape (maps to empty list by design), SQL MERGE deferred, optimistic merge future-risk; regression lock `focuses the embedded-connection question after confirm when another open inferred row exists`; scoped SecureNow queue vitest 120/120 across queue component + API tests. Private beta: SecureNow question review no longer shows a prior row’s save error after moving to the next question.
+
+- [x] (proven) `SecureNowQuestionQueueProvider.submitAction` — mutation error persists after advancing to another question — **hit 2026-10-26 seed hunt:** clear mutation error on question identity change; regression above.
+- [x] (valid-no-repro) `securenow-question-queue-api.listSecureNowQuestions` — proxy error when list JSON is not an array — **cheap-disproof 2026-10-26 seed hunt:** non-array maps to `[]`; monitor malformed envelope separately.
+- [x] (valid-no-repro) `SecureNowQuestionQueueProvider` — embedded connection-id confirm focus with two open rows — **cheap-disproof 2026-10-26 seed hunt:** regression lock confirm path mirrors dismiss.
+- [x] (invalid) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` — **cheap-disproof 2026-10-26 seed hunt:** integration host unavailable; candidate reseeded below.
+- [x] (invalid) `securenow-question-queue-provider` — optimistic merge from disposition JSON — **cheap-disproof 2026-10-26 seed hunt:** reload-only provider; candidate reseeded below.
+
+- [ ] (candidate) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` identity hash collision — locus: SQL repository; input: integration repro when SQL host available.
+- [ ] (candidate) `securenow-question-queue-provider` — optimistic merge from disposition JSON — locus: future post-mutation path; input: must use `mapSecureNowQuestionDisposition` only.
+- [ ] (candidate) `securenow-question-queue-api.listSecureNowQuestions` — distinguish malformed list envelope from empty queue — locus: proxy JSON shape; input: operator-visible load error vs silent empty.
+- [ ] (candidate) `SecureNowQuestionQueueProvider` — load error vs mutation error precedence on reload — locus: `loadQuestions` clears all errors; monitor dual failure paths.
+- [ ] (candidate) `SecureNowQuestionQueueProvider.submitAction` — silent early return when answer actions hidden — locus: `secureNowQuestionDispositionShowsAnswerActions`; monitor saturated state-machine-gap.
+
 2026-10-25 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows (SQL MERGE deferred, optimistic merge future-risk, non-string `snapshotId` coercion + guard/error, ignore/reopen snapshot guard parity, embedded-connection-id dismiss reload focus); added three regression locks; seeded five follow-on `(candidate)` rows below; scoped SecureNow queue vitest 182/182; no production code changed.
 
 - [x] (invalid) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` — **cheap-disproof 2026-10-25 seed hunt:** integration host unavailable; candidate reseeded below.
@@ -9593,11 +9607,11 @@ ABQ-09 churn hotspot.
 - **aliases:** securenow question queue; question disposition
 - **paths:** archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx; archlucid-ui/src/lib/infra-evidence/securenow-question-queue-api.ts
 - **test-filter:** SecureNowQuestion
-- **hunts:** 100
-- **bugs-found:** 72
+- **hunts:** 101
+- **bugs-found:** 73
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-25
-- **last-bug:** 2026-10-25 — silent snapshot guard on SecureNow save
+- **last-hunt:** 2026-10-26
+- **last-bug:** 2026-10-26 — stale mutation inline error after changing questions
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 

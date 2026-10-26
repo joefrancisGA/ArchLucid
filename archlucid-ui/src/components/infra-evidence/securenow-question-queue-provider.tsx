@@ -372,6 +372,7 @@ export function SecureNowQuestionQueueProvider(
     setSelectedAnswer(null);
     setReason("");
     setDrawerAction("answer");
+    setError((current) => (current?.kind === "mutation" ? null : current));
   }, [currentQuestionIdentity, drawerOpen]);
 
   const advanceWithoutPersistence = useCallback(() => {
