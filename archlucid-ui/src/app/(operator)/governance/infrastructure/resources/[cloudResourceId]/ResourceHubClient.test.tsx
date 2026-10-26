@@ -199,6 +199,72 @@ describe("ResourceHubClient", () => {
     });
   });
 
+  it("ignores in-flight create remediation when cloudResourceId changes before the API returns", async () => {
+    const otherCloudResourceId = "55555555-5555-5555-5555-555555555555";
+    let resolveCreate: (() => void) | undefined;
+    const createDeferred = new Promise<{
+      succeeded: boolean;
+      instanceId: string;
+      blockers: string[];
+      errorMessage: string | null;
+    }>((resolve) => {
+      resolveCreate = () =>
+        resolve({
+          succeeded: true,
+          instanceId: "new-instance-1",
+          blockers: [],
+          errorMessage: null,
+        });
+    });
+
+    createRemediationInstance.mockImplementationOnce(async () => createDeferred);
+
+    fetchCachedInfraEvidenceResourceHub.mockImplementation(async (resourceId: string) =>
+      buildResourceHubTestMockHub({
+        externalResourceId:
+          resourceId === otherCloudResourceId
+            ? "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/publicIPAddresses/other-after-nav"
+            : "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/publicIPAddresses/gateway",
+        currentConfiguration: {
+          ...buildResourceHubTestMockHub().currentConfiguration,
+          azureResourceId:
+            resourceId === otherCloudResourceId
+              ? "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/publicIPAddresses/other-after-nav"
+              : "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/publicIPAddresses/gateway",
+        },
+      }),
+    );
+
+    searchParams = new URLSearchParams(`tab=findings&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}`);
+    const { rerender } = render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    fireEvent.click(await screen.findByTestId("infra-resource-hub-create-remediation-finding-1"));
+    fireEvent.click(screen.getByTestId("infra-resource-hub-create-remediation-confirm"));
+
+    await waitFor(() => {
+      expect(createRemediationInstance).toHaveBeenCalled();
+    });
+
+    rerender(<ResourceHubClient cloudResourceId={otherCloudResourceId} />);
+
+    await act(async () => {
+      resolveCreate?.();
+      await createDeferred;
+    });
+
+    await waitFor(() => {
+      expect(screen.getByTestId("infra-resource-hub-page-title")).toHaveTextContent("other-after-nav");
+    });
+
+    expect(screen.queryByTestId("infra-resource-hub-finding-message-finding-1")).not.toBeInTheDocument();
+
+    const fetchesForPriorResource = fetchCachedInfraEvidenceResourceHub.mock.calls.filter(
+      (call) => call[0] === RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID,
+    ).length;
+    expect(fetchesForPriorResource).toBe(1);
+    expect(fetchCachedInfraEvidenceResourceHub.mock.calls.at(-1)?.[0]).toBe(otherCloudResourceId);
+  });
+
   it("clears prior hub evidence when cloudResourceId changes", async () => {
     const otherCloudResourceId = "33333333-3333-3333-3333-333333333333";
 

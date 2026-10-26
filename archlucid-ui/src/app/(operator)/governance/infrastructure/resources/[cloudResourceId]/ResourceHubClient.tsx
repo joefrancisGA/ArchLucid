@@ -978,6 +978,8 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
       return;
     }
 
+    const cloudResourceIdAtStart = cloudResourceId;
+
     setFindingActionBusyId(trimmedFindingId);
     setFindingActionMessages((current) => {
       const next = { ...current };
@@ -987,7 +989,16 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
 
     try {
       await matchOperationalFinding(trimmedFindingId);
+
+      if (activeCloudResourceIdRef.current !== cloudResourceIdAtStart) {
+        return;
+      }
+
       const result = await createRemediationInstance(trimmedFindingId);
+
+      if (activeCloudResourceIdRef.current !== cloudResourceIdAtStart) {
+        return;
+      }
 
       if (!result.succeeded) {
         const blockerMessage = result.blockers
@@ -1022,9 +1033,16 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
         },
       }));
 
-      invalidateInfraEvidenceResourceHubCacheForResource(cloudResourceId);
-      await loadHub({ retainFindingMessages: true });
+      invalidateInfraEvidenceResourceHubCacheForResource(cloudResourceIdAtStart);
+
+      if (activeCloudResourceIdRef.current === cloudResourceIdAtStart) {
+        await loadHub({ retainFindingMessages: true });
+      }
     } catch (error: unknown) {
+      if (activeCloudResourceIdRef.current !== cloudResourceIdAtStart) {
+        return;
+      }
+
       setFindingActionMessages((current) => ({
         ...current,
         [trimmedFindingId]: {
@@ -1033,8 +1051,10 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
         },
       }));
     } finally {
-      setFindingActionBusyId(null);
-      setPendingRemediationFinding(null);
+      if (activeCloudResourceIdRef.current === cloudResourceIdAtStart) {
+        setFindingActionBusyId(null);
+        setPendingRemediationFinding(null);
+      }
     }
   };
 
