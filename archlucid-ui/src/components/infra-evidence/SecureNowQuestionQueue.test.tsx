@@ -1241,6 +1241,51 @@ describe("SecureNowQuestionQueue", () => {
     ).toBeInTheDocument();
   });
 
+  it("keeps questions saveable when a post-answer reload fails", async () => {
+    mocks.listQuestions
+      .mockResolvedValueOnce([question])
+      .mockRejectedValueOnce({
+        message: "reload failed",
+        problem: null,
+        correlationId: null,
+        httpStatus: 500,
+        retryAfterSeconds: null,
+      })
+      .mockResolvedValueOnce([{ ...question, status: "Answered" }]);
+
+    function QuestionsLoadedProbe() {
+      const { questionsLoaded } = useSecureNowQuestionQueue();
+      return (
+        <div data-testid="questions-loaded-probe">{questionsLoaded ? "loaded" : "pending"}</div>
+      );
+    }
+
+    function QueueWithLoadedProbe({ snapshotId }: { snapshotId: string }) {
+      return (
+        <SecureNowQuestionQueueProvider snapshotId={snapshotId}>
+          <QuestionsLoadedProbe />
+          <SecureNowQuestionQueueSnapshotPromo />
+          <SecureNowQuestionQueueBar outline={null} />
+        </SecureNowQuestionQueueProvider>
+      );
+    }
+
+    render(<QueueWithLoadedProbe snapshotId="snapshot-1" />);
+    await waitFor(() => expect(screen.getByTestId("questions-loaded-probe")).toHaveTextContent("loaded"));
+
+    fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
+    fireEvent.click(screen.getByRole("button", { name: "Name the peer" }));
+    fireEvent.click(screen.getByRole("button", { name: "Save answer" }));
+
+    await waitFor(() => expect(screen.getByText("reload failed")).toBeInTheDocument());
+    expect(screen.getByTestId("questions-loaded-probe")).toHaveTextContent("loaded");
+
+    fireEvent.click(screen.getByRole("button", { name: "Name the peer" }));
+    fireEvent.click(screen.getByRole("button", { name: "Save answer" }));
+
+    await waitFor(() => expect(mocks.answerQuestion).toHaveBeenCalledTimes(2));
+  });
+
   it("keeps the active snapshot loading state when a stale snapshot reload finishes first", async () => {
     const snapshotOneQuestion = {
       ...question,

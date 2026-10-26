@@ -231,6 +231,8 @@ export function SecureNowQuestionQueueProvider(
 
   const { snapshotId, children } = props;
   const [questions, setQuestions] = useState<SecureNowQuestion[]>([]);
+  const questionsRef = useRef(questions);
+  questionsRef.current = questions;
   const [inferredConnections, setInferredConnections] = useState<OperatorInferredConnectionRow[]>([]);
   const [filter, setFilter] = useState<QueueFilter>("Open");
   const filterRef = useRef<QueueFilter>(filter);
@@ -279,6 +281,7 @@ export function SecureNowQuestionQueueProvider(
     const requestSequence = affectsActiveSnapshot
       ? ++loadSequence.current
       : loadSequence.current;
+    const hadListedQuestionsBeforeLoad = questionsRef.current.length > 0;
     if (affectsActiveSnapshot) {
       setLoading(true);
       setQuestionsLoaded(false);
@@ -340,6 +343,9 @@ export function SecureNowQuestionQueueProvider(
           "load",
         ),
       );
+      if (hadListedQuestionsBeforeLoad) {
+        setQuestionsLoaded(true);
+      }
     } finally {
       if (
         affectsActiveSnapshot
