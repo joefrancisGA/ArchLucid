@@ -523,6 +523,31 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
     [cloudResourceId, hub?.currentConfiguration?.snapshotId, snapshotId],
   );
 
+  useEffect(() => {
+    if (snapshotId.length === 0) {
+      return;
+    }
+
+    if (urlSnapshotPinForCloudResourceIdRef.current === cloudResourceId) {
+      return;
+    }
+
+    const nextHref = resourceHubFilterHrefFromSearch(cloudResourceId, searchParams.toString(), {
+      tab: activeTab,
+      snapshotId: resolvedSnapshotId.length > 0 ? resolvedSnapshotId : "",
+      runId: runId.length > 0 ? runId : undefined,
+    });
+    router.replace(nextHref, { scroll: false });
+  }, [
+    activeTab,
+    cloudResourceId,
+    resolvedSnapshotId,
+    router,
+    runId,
+    searchParams,
+    snapshotId,
+  ]);
+
   const syncInfraResourceHubTechnicalKeyToUrl = useCallback(
     (technicalKey: string | null) => {
       router.replace(

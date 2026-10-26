@@ -375,6 +375,25 @@ describe("ResourceHubClient", () => {
     });
   });
 
+  it("normalizes stale URL snapshotId via router after cloudResourceId changes", async () => {
+    const otherCloudResourceId = "88888888-8888-8888-8888-888888888888";
+    const staleSnapshotId = "99999999-9999-9999-9999-999999999999";
+
+    searchParams = new URLSearchParams(`tab=overview&snapshotId=${staleSnapshotId}`);
+    const { rerender } = render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+    await screen.findByTestId("infra-resource-hub-tabs");
+
+    replace.mockClear();
+    rerender(<ResourceHubClient cloudResourceId={otherCloudResourceId} />);
+
+    await waitFor(() => {
+      expect(replace).toHaveBeenCalled();
+      const lastHref = String(replace.mock.calls[replace.mock.calls.length - 1]?.[0] ?? "");
+      expect(lastHref).not.toContain(staleSnapshotId);
+      expect(lastHref).toContain(`snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}`);
+    });
+  });
+
   it("shows latest snapshot label when URL snapshotId is stale after cloudResourceId changes", async () => {
     const otherCloudResourceId = "88888888-8888-8888-8888-888888888888";
     const staleSnapshotId = "99999999-9999-9999-9999-999999999999";
