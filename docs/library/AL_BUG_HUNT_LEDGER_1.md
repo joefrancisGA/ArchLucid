@@ -6868,6 +6868,20 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-26 seed hunt (seed-only): re-read `ArchLucid.Application/Analysis/` and compare-quality regressions after parallel hits on execution-trace merge; no hunt-ready mechanism-backed wrong outcome met the bar (multi-key merge loaders, compare reload, export/comparison history, and governance recurrence paths remain covered by existing `CompareQuality_*` / `ArchitectureAnalysis*` tests); cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on rows; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` filter 316/316 (`RunAnalyzers=false`); no production code changed. Private beta: n/a.
+
+- [ ] (candidate) `AnalysisRunIdCanonicalization.ResolveAgentResultsForCompareReadAsync` — repository-empty fallback to anchored hydration — locus: compare read always reloads from repository; input: defer unless offline/demo path without persistence is in scope.
+- [ ] (candidate) `AnalysisRunIdCanonicalization.LoadExecutionTracesByRunIdAsync` — merged trace list ordering — locus: unsorted dictionary values; input: downstream export sorts traces (cosmetic).
+- [ ] (candidate) `Agents.IaC.FindingIacStubGenerator` — single-key `GetByRunIdAsync` — locus: outside `Analysis/` zone path; input: pick up under `application-agents` if promoted.
+- [ ] (candidate) `RunDetailRetrievalGroundingEnrichmentSlice` — retrieval trace run key — locus: Guid-scoped reader; input: defer unless string RunId ordinal store proven.
+- [ ] (candidate) `ComparisonRecordSearchPredicateBuilder` — notes column search — locus: no notes filter today; input: defer.
+
+- [x] (valid-no-repro) `RunDetailRetrievalGroundingEnrichmentSlice` — retrieval trace run key — **cheap-disproof 2026-10-26 seed hunt:** Guid-scoped `IRetrievalGroundingTraceReader`; defer until ordinal string store proven.
+- [x] (valid-no-repro) `ComparisonRecordRepository.GetByRunIdAsync` — SQL list-by-run dashed stored — **cheap-disproof 2026-10-26 seed hunt:** UNIQUEIDENTIFIER param + `LoadComparisonRecordsByRunIdAsync` multi-key merge.
+- [x] (valid-no-repro) `ComparisonRecordRepositoryCore.SerializeTagsForUpdate` — JSON tag order — **cheap-disproof 2026-10-26 seed hunt:** cosmetic only; defer.
+- [x] (invalid) `ComparisonRecordSearchPredicateBuilder` — notes column search — **cheap-disproof 2026-10-26 seed hunt:** no notes filter in search API today.
+- [x] (invalid) `ApiPaging.TryParseUtcTicksIdCursor` — HTTP cursor id trim — **cheap-disproof 2026-10-26 seed hunt:** comparison search normalizes at application layer (prior hunts).
+
 2026-10-26 seed hunt (seed→hit): reseeded `application-analysis` with zero open hunt-ready rows; promoted execution-trace merge follow-on after hunt 325 finding LLM audit; proved `FindingEvidenceChainService.BuildAsync` still called `GetByRunIdAsync` with the route run id string only, so finding evidence chains omitted agent execution trace pointers when traces lived under legacy uppercase hex keys; canonicalize the run id and load through `AnalysisRunIdCanonicalization.LoadExecutionTracesByRunIdAsync`; regression `CompareQuality_BuildAsync_merges_execution_traces_when_stored_under_legacy_run_id_key`; cheap-disproof closed finding LLM audit fallback (hunt 325), career export trace casing test; seeded five follow-on rows; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` filter 318/318. Private beta: finding evidence chain drill-down lists agent execution trace pointers when traces use legacy run-id key formats.
 
 - [ ] (candidate) `RunDetailRetrievalGroundingEnrichmentSlice` — retrieval trace run key — locus: Guid-scoped reader; input: defer unless string RunId ordinal store proven.
@@ -10350,11 +10364,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 58
-- **bugs-found:** 57
+- **hunts:** 61
+- **bugs-found:** 59
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 — export compare/replay skipped career metadata gate
+- **last-hunt:** 2026-10-26
+- **last-bug:** 2026-10-26 — finding evidence chain execution-trace legacy run-id merge
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
