@@ -8,6 +8,7 @@ namespace ArchLucid.Core.AzureExtractor;
 public static class AzureInventoryAdfLinkedServiceTargetExtractor
 {
     private const int MaxHostLength = 253;
+    private const int MaxUrlPercentDecodePasses = 8;
 
     public static (string? TargetResourceId, string? TargetHost) Extract(
         JsonElement typePropertiesElement,
@@ -260,9 +261,23 @@ public static class AzureInventoryAdfLinkedServiceTargetExtractor
             return null;
         }
 
-        if (!Uri.TryCreate(value.Trim(), UriKind.Absolute, out Uri? uri))
+        string trimmed = value.Trim();
+
+        for (int pass = 0; pass < MaxUrlPercentDecodePasses && trimmed.Contains('%', StringComparison.Ordinal); pass++)
         {
-            return NormalizeHost(value);
+            string decoded = Uri.UnescapeDataString(trimmed);
+
+            if (string.Equals(decoded, trimmed, StringComparison.Ordinal))
+            {
+                break;
+            }
+
+            trimmed = decoded;
+        }
+
+        if (!Uri.TryCreate(trimmed, UriKind.Absolute, out Uri? uri))
+        {
+            return NormalizeHost(trimmed);
         }
 
         return NormalizeHost(uri.Host);

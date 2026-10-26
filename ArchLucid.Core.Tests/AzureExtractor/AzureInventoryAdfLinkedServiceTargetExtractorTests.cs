@@ -11,6 +11,38 @@ namespace ArchLucid.Core.Tests.AzureExtractor;
 public sealed class AzureInventoryAdfLinkedServiceTargetExtractorTests
 {
     [Fact]
+    public void Extract_reads_blob_host_from_percent_encoded_service_endpoint_url()
+    {
+        const string host = "sa1.blob.core.windows.net";
+        string encodedUrl = Uri.EscapeDataString($"https://{host}/");
+
+        using JsonDocument document = JsonDocument.Parse(
+            $$"""{ "serviceEndpoint": "{{encodedUrl}}" }""");
+
+        (string? targetResourceId, string? targetHost) =
+            AzureInventoryAdfLinkedServiceTargetExtractor.Extract(document.RootElement, "AzureBlobStorage");
+
+        targetResourceId.Should().BeNull();
+        targetHost.Should().Be(host);
+    }
+
+    [Fact]
+    public void Extract_reads_sql_host_from_percent_encoded_server_property()
+    {
+        string host = "sql1.database.windows.net";
+        string encodedHost = Uri.EscapeDataString(host);
+
+        using JsonDocument document = JsonDocument.Parse(
+            $$"""{ "server": "{{encodedHost}}" }""");
+
+        (string? targetResourceId, string? targetHost) =
+            AzureInventoryAdfLinkedServiceTargetExtractor.Extract(document.RootElement, "AzureSqlDatabase");
+
+        targetResourceId.Should().BeNull();
+        targetHost.Should().Be(host);
+    }
+
+    [Fact]
     public void Extract_reads_sql_host_from_percent_encoded_connection_string_server_segment()
     {
         string host = "sql1.database.windows.net";

@@ -51,6 +51,14 @@ public sealed class AzureInventoryEventGridWebhookHostExtractorTests
     }
 
     [Fact]
+    public void TryExtractHost_reads_host_when_scheme_less_webhook_url_percent_encodes_userinfo_prefix()
+    {
+        AzureInventoryEventGridWebhookHostExtractor.TryExtractHost("user%40hooks.example.com%2Fpath")
+            .Should()
+            .Be("hooks.example.com");
+    }
+
+    [Fact]
     public void TryExtractHost_reads_host_when_scheme_less_webhook_url_percent_encodes_path_segment()
     {
         AzureInventoryEventGridWebhookHostExtractor.TryExtractHost("hooks.example.com%2Fcallback?token=x")
