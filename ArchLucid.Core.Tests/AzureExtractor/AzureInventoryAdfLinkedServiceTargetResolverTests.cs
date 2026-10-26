@@ -436,4 +436,47 @@ public sealed class AzureInventoryAdfLinkedServiceTargetResolverTests
         targetArmId.Should().Be(ArmResourceIdNormalizer.Normalize(mysqlArmId));
         provenanceKind.Should().Be(ProvenanceKind.DeterministicInference);
     }
+
+    [Fact]
+    public void TryResolveTargetArmId_resolves_mysql_linked_service_when_host_uses_uppercase_domain()
+    {
+        const string factoryArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.DataFactory/factories/adf1";
+        const string mysqlArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.DBforMySQL/flexibleServers/mysql-edw";
+
+        List<AzureExtractorExtendedResourceRow> resources =
+        [
+            new AzureExtractorExtendedResourceRow
+            {
+                AzureResourceId = mysqlArmId,
+                ResourceType = "Microsoft.DBforMySQL/flexibleServers",
+                Name = "mysql-edw",
+            },
+        ];
+
+        Dictionary<string, string> visibleArmIds =
+            AzureInventoryAdfLinkedServiceTargetResolver.BuildVisibleArmIdSet(resources);
+        Dictionary<string, string> hostIndex =
+            AzureInventoryAdfLinkedServiceTargetResolver.BuildHostIndex(resources);
+        AzureInventoryAdfLinkedServiceRow row = new()
+        {
+            FactoryResourceId = factoryArmId,
+            LinkedServiceName = "MySqlLinkedService",
+            LinkedServiceType = "AzureMySql",
+            TargetHost = "mysql-edw.MYSQL.DATABASE.AZURE.COM",
+        };
+
+        bool resolved = AzureInventoryAdfLinkedServiceTargetResolver.TryResolveTargetArmId(
+            row,
+            visibleArmIds,
+            hostIndex,
+            out string? targetArmId,
+            out ProvenanceKind provenanceKind,
+            out _);
+
+        resolved.Should().BeTrue();
+        targetArmId.Should().Be(ArmResourceIdNormalizer.Normalize(mysqlArmId));
+        provenanceKind.Should().Be(ProvenanceKind.DeterministicInference);
+    }
 }

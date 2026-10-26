@@ -27,6 +27,14 @@ public sealed class AzureInventoryEventGridWebhookHostExtractorTests
     }
 
     [Fact]
+    public void TryExtractHost_reads_host_when_webhook_url_uses_uppercase_http_scheme()
+    {
+        AzureInventoryEventGridWebhookHostExtractor.TryExtractHost("HTTP://hooks.example.com/path")
+            .Should()
+            .Be("hooks.example.com");
+    }
+
+    [Fact]
     public void TryExtractHost_reads_host_when_webhook_url_omits_scheme()
     {
         AzureInventoryEventGridWebhookHostExtractor.TryExtractHost("hooks.example.com/callback?token=x")

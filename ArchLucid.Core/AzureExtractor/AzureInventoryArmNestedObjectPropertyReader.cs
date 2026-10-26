@@ -152,7 +152,7 @@ public static class AzureInventoryArmNestedObjectPropertyReader
             return null;
         }
 
-        return decoded.Trim();
+        return UnwrapJsonEncodedArmId(decoded).Trim();
     }
 
     private static string UnwrapJsonEncodedArmId(string armId)
