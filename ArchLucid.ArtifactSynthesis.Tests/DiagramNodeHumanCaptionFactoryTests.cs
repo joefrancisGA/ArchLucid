@@ -147,7 +147,7 @@ public sealed class DiagramNodeHumanCaptionFactoryTests
         };
 
         DiagramNodeHumanCaptionFactory.Create(usedWithMessage).CombinedPlainText.Should()
-            .Contain("In use off the diagram: attached to subnet-a.");
+            .Contain("In use off the diagram: attached to subnet-a");
 
         DiagramNode usedWithoutMessage = new()
         {
