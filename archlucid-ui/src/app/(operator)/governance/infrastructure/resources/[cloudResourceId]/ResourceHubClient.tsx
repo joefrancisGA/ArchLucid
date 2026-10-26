@@ -597,6 +597,14 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
   }, [activeTab, cloudResourceId, resolvedSnapshotId, router, runId, searchParams]);
 
   const askAuditContext = useMemo((): InfrastructureAskAuditContext => {
+    if (resolvedAuditLineage != null) {
+      return {
+        assessmentId: resolvedAuditLineage.assessmentId,
+        auditEvidenceSnapshotId: resolvedAuditLineage.auditEvidenceSnapshotId,
+        controlId: resolvedAuditLineage.controlId,
+      };
+    }
+
     const payloadContext = hub?.auditLineageLink.available === true
       ? {
           assessmentId: hub.auditLineageLink.assessmentId ?? undefined,
@@ -613,7 +621,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
       },
       payloadContext,
     );
-  }, [assessmentId, auditEvidenceSnapshotId, controlId, hub]);
+  }, [assessmentId, auditEvidenceSnapshotId, controlId, hub, resolvedAuditLineage]);
 
   const workbenchLinkAuditContext = useMemo(
     () => toWorkbenchLinkAuditContext(askAuditContext),
