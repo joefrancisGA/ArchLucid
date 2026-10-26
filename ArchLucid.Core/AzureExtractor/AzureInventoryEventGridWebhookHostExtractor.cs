@@ -128,8 +128,13 @@ public static class AzureInventoryEventGridWebhookHostExtractor
     {
         if (trimmed.Contains("://", StringComparison.Ordinal)
             || trimmed.StartsWith("[", StringComparison.Ordinal)
-            || trimmed.Contains('.', StringComparison.Ordinal)
             || !trimmed.Contains("::", StringComparison.Ordinal))
+        {
+            return trimmed;
+        }
+
+        if (trimmed.Contains('.', StringComparison.Ordinal)
+            && !trimmed.Contains("::", StringComparison.Ordinal))
         {
             return trimmed;
         }
@@ -137,6 +142,8 @@ public static class AzureInventoryEventGridWebhookHostExtractor
         int pathIndex = trimmed.IndexOf('/');
         string authority = pathIndex >= 0 ? trimmed[..pathIndex] : trimmed;
         string pathSuffix = pathIndex >= 0 ? trimmed[pathIndex..] : string.Empty;
+
+        authority = TrimTrailingDotBeforePortInAuthoritySegment(authority).TrimEnd('.');
 
         if (TrySplitTrailingNumericPort(authority, out string hostAuthority, out string? portSuffix))
         {

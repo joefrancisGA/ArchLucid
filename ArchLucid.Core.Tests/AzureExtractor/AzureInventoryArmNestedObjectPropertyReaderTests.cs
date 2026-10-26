@@ -355,6 +355,25 @@ public sealed class AzureInventoryArmNestedObjectPropertyReaderTests
     }
 
     [Fact]
+    public void TryReadScalarString_reads_percent_encoded_plain_arm_path_scalar_with_trailing_slash_from_nested_properties_bag()
+    {
+        const string armPath = "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1/";
+        string encodedPath = Uri.EscapeDataString(armPath);
+        using JsonDocument document = JsonDocument.Parse(
+            $$"""
+            {
+              "properties": {
+                "resourceId": {{JsonSerializer.Serialize(encodedPath)}}
+              }
+            }
+            """);
+
+        AzureInventoryArmNestedObjectPropertyReader.TryReadString(document.RootElement, "resourceId")
+            .Should()
+            .Be("/subscriptions/sub/resourcegroups/rg/providers/microsoft.storage/storageaccounts/sa1");
+    }
+
+    [Fact]
     public void TryReadScalarString_reads_percent_encoded_plain_subscription_arm_path_scalar_with_trailing_slash()
     {
         const string armPath = "/subscriptions/sub/resourceGroups/rg/";

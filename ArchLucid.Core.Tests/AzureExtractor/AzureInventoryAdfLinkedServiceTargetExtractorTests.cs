@@ -56,6 +56,22 @@ public sealed class AzureInventoryAdfLinkedServiceTargetExtractorTests
     }
 
     [Fact]
+    public void Extract_reads_synapse_host_from_percent_encoded_server_when_connection_string_is_whitespace_only()
+    {
+        const string host = "mysynapse.sql.azuresynapse.net";
+        string encodedHost = Uri.EscapeDataString(host + ".%2E");
+
+        using JsonDocument document = JsonDocument.Parse(
+            $$"""{ "server": {{JsonSerializer.Serialize(encodedHost)}}, "connectionString": "   " }""");
+
+        (string? targetResourceId, string? targetHost) =
+            AzureInventoryAdfLinkedServiceTargetExtractor.Extract(document.RootElement, "AzureSynapseAnalytics");
+
+        targetResourceId.Should().BeNull();
+        targetHost.Should().Be(host);
+    }
+
+    [Fact]
     public void Extract_reads_synapse_host_from_percent_encoded_endpoint_host_only_with_encoded_trailing_dot()
     {
         const string host = "mysynapse.sql.azuresynapse.net";
