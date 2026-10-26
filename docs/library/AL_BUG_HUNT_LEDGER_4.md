@@ -17462,15 +17462,23 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 2026-10-20 thorough hunt (hit): cloud-extractors — ListChildResourcesWithStatusAsync PartialCollection + NR-40/NR-42 partial-enumeration warnings; regressions ListChildResourcesWithStatusAsync_retains_children_and_marks_partial_when_later_page_fails, CollectAsync_warns_when_static_site_linked_backend_list_is_partially_collected, CollectAsync_warns_when_fabric_workspace_list_is_partially_collected; 21 tests passed.
 
 ## Zone: cloud-extractors
+2026-10-26 seed hunt #149 (seed→hit): promoted five open `(candidate)` rows from prior seed; `AwsResourceExplorerInventoryCollector` trimmed partition query strings but left padded `regionSystemName` on location fallback; trim connection region at collect entry; regression `CollectAsync_trims_connection_region_when_resource_region_missing`; `ReadDefenderPricingsAsync` ignored `ReadDefenderPagesAsync` page-cap truncation; emit `defender-pricings-truncated` warning; regression `CollectSubscriptionDefenderCompanionsAsync_warns_when_defender_pricings_pagination_hits_page_cap`; first-page invalid JSON on defender listings threw before `onFailed` when zero rows accepted; catch `JsonException` and invoke failure callback; regression `CollectSubscriptionDefenderCompanionsAsync_clears_pricings_when_first_pricings_page_is_invalid_json`; cheap-disproof closed diagnostic settings cross-resource next link parity (`ListDiagnosticSettingsAsync_continues_after_cross_resource_next_link_for_one_resource`) and padded GCP `ProjectId` vs service-account project match (`EnsureProjectMatches_accepts_padded_project_id_when_service_account_matches_trimmed_project`); seeded five follow-on `(candidate)` rows; hunt regressions passed (Release). Private beta: invited operators keep accurate AWS Resource Explorer location metadata on padded regions, Defender pricing companion truncation warnings when pagination hits the page cap, and empty defender pricing rows when the first listing page is malformed JSON.
+
+- [x] (proven) `AwsResourceExplorerInventoryCollector.CollectAsync` — untrimmed `regionSystemName` on location fallback while query partition resolution trims — **hit 2026-10-26 seed hunt #149:** trim connection region at collect entry; regression `CollectAsync_trims_connection_region_when_resource_region_missing`. [class:fail-open-validation]
+- [x] (proven) `ReadDefenderPricingsAsync` / `ReadDefenderPagesAsync` — page-cap truncation not surfaced for defender pricings — **hit 2026-10-26 seed hunt #149:** `defender-pricings-truncated` warning; regression `CollectSubscriptionDefenderCompanionsAsync_warns_when_defender_pricings_pagination_hits_page_cap`. [class:fail-open-validation]
+- [x] (proven) `ReadDefenderPagesAsync` — invalid JSON on first page left `onFailed` unset when `accepted==0` — **hit 2026-10-26 seed hunt #149:** catch `JsonException` and clear pricings via failure callback; regression `CollectSubscriptionDefenderCompanionsAsync_clears_pricings_when_first_pricings_page_is_invalid_json`. [class:fail-open-validation]
+- [x] (valid-no-repro) `GetOnlyHostedAzureArmReadClient.ListDiagnosticSettingsForResourceAsync` — cross-resource diagnostic-settings `nextLink` after partial collection — **cheap-disproof 2026-10-26 seed hunt #149:** regression `ListDiagnosticSettingsAsync_continues_after_cross_resource_next_link_for_one_resource`.
+- [x] (valid-no-repro) `GcpServiceAccountEmail.EnsureProjectMatches` — padded hosted `ProjectId` vs service-account project segment — **cheap-disproof 2026-10-26 seed hunt #149:** trim on both sides; regression `EnsureProjectMatches_accepts_padded_project_id_when_service_account_matches_trimmed_project`.
+
+- [ ] (candidate) `AwsResourceExplorerInventoryCollector.CollectAsync` — Resource Explorer row `Arn` with bounding whitespace omitted vs trimmed — locus: `Arn.Trim()` gate; input: padded ARN string; wrong outcome: dropped resource row; reachability: hosted AWS extract ZIP.
+- [ ] (candidate) `ReadDefenderAssessmentsAsync` — assessment detail cap truncation without `defender-assessments-truncated` when page cap also hit — locus: combined truncation flags; input: >64 assessment pages plus detail cap; wrong outcome: missing warning; reachability: defender companion ZIP.
+- [ ] (candidate) `ReadDefenderPagesAsync` — invalid JSON on follow-up page with accepted rows leaves collection without `onFailed` — locus: follow-up malformed body; input: one pricing row then invalid JSON page; wrong outcome: verify retain + warning only; reachability: defender companions.
+- [ ] (candidate) `HostedAzureArmNextLinkValidator` — defender pricings `nextLink` with diagnostic-settings prefix collision — locus: path prefix validation; input: malicious nextLink path; wrong outcome: follow wrong collection; reachability: defender pricings pagination.
+- [ ] (candidate) `GcpAssetInventoryCollector.CollectFromRawPagesAsync` — asset `Name` with internal whitespace-only segments after trim — locus: name gate; input: `"//compute.../instances/ "`; wrong outcome: empty name row emitted; reachability: GCP extract ZIP.
+
 2026-10-22 seed hunt #148 (seed->hit): promoted `AwsResourceExplorerQueryString.ResolveForRegion` bounding-whitespace gap; padded `cn-north-1` resolved to commercial `arn:aws:*` so Resource Explorer inventory missed China partition resources; trim before prefix checks; regression `ResolveForRegion_trims_bounding_whitespace_before_partition_resolution`; 88 scoped Aws/Gcp/Azure extractor Application tests passed.
 
 - [x] (proven) `AwsResourceExplorerQueryString.ResolveForRegion` — region system name with bounding whitespace skipped `cn-`/`us-gov-`/`us-iso-` prefix checks — **hit 2026-10-22 seed hunt #148:** `regionSystemName.Trim()` before partition resolution; regression above. [class:fail-open-validation]
-
-- [ ] (candidate) `AwsResourceExplorerInventoryCollector.CollectAsync` — passes untrimmed `regionSystemName` into `ResolveResourceLocation` while query string now trims for partition — locus: location fallback vs query; input: padded region label; wrong outcome: mismatched location metadata; reachability: hosted AWS extract ZIP.
-- [ ] (candidate) `ReadDefenderPagesAsync` — page-cap truncation returns `truncated=true` but `ReadDefenderPricingsAsync` ignores it — locus: defender pricings pagination; input: >64 pricing pages; wrong outcome: silent partial pricings without warning; reachability: defender companion ZIP.
-- [ ] (candidate) `ReadDefenderPagesAsync` — invalid JSON on follow-up page adds warning but leaves `onFailed` unset when `accepted==0` — locus: first-page malformed body; input: empty value array then invalid JSON page; wrong outcome: empty pricings without failed callback; reachability: defender companions.
-- [ ] (candidate) `HostedAzureArmNextLinkValidator` — diagnostic settings cross-resource next link after partial settings collected — locus: parity with 2026-10-13 hits; input: verify no regression on malformed second page; reachability: diagnostic settings collector.
-- [ ] (candidate) `GcpAssetInventoryCollector` — asset name trim vs partition-scoped project id on malformed emails — locus: project match guard; input: padded `ProjectId` in hosted request; wrong outcome: false reject or accept; reachability: GCP extract ZIP.
 
 
 
@@ -17480,13 +17488,13 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** aws extractor; gcp extractor; azure extractor
 - **paths:** ArchLucid.Integrations.AwsExtractor/; ArchLucid.Integrations.GcpExtractor/; ArchLucid.Integrations.AzureExtractor/
 - **test-filter:** FullyQualifiedName~AwsExtractor|FullyQualifiedName~GcpExtractor|FullyQualifiedName~AzureExtractor
-- **hunts:** 147
-- **bugs-found:** 93
+- **hunts:** 148
+- **bugs-found:** 96
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-21
+- **last-hunt:** 2026-10-26
 
 2026-10-21 seed hunt (seed→hit): cloud-extractors — Paas child listings dropped PartialCollection via ListChildJsonElementsAsync; fixed with ListChildResourcesWithStatusAsync and partial-child-enumeration warnings; regression CollectAsync_warns_when_sql_database_list_is_partially_collected.
-- **last-bug:** 2026-10-20 — Child ARM listing partial enumeration omitted completeness warnings
+- **last-bug:** 2026-10-26 — AWS Resource Explorer location fallback trim; Defender pricings pagination warnings
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
