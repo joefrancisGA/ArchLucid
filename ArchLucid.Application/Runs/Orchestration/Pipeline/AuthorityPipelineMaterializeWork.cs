@@ -1,4 +1,5 @@
 using ArchLucid.Application.Agents;
+using ArchLucid.Application.Analysis;
 using ArchLucid.Application.AzureExtractor;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Coordination;
@@ -83,10 +84,13 @@ public static class AuthorityPipelineMaterializeWork
 
         await SeedTechnologyLedgerAsync(scope, runIdN, architectureRequest, cancellationToken).ConfigureAwait(false);
 
+        string canonicalRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(runIdN);
         IReadOnlyList<TechnologyLedgerEntry> ledgerEntries =
-            await scope.ServiceProvider.GetRequiredService<ITechnologyLedgerRepository>()
-                .GetByRunIdAsync(materializedScope, runIdN, cancellationToken)
-                .ConfigureAwait(false);
+            await AnalysisRunIdCanonicalization.LoadTechnologyLedgerEntriesByRunIdAsync(
+                scope.ServiceProvider.GetRequiredService<ITechnologyLedgerRepository>(),
+                materializedScope,
+                canonicalRunId,
+                cancellationToken).ConfigureAwait(false);
 
         IModelExecutionProfileResolver profileResolver =
             scope.ServiceProvider.GetRequiredService<IModelExecutionProfileResolver>();

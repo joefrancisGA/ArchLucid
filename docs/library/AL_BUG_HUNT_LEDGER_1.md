@@ -6868,6 +6868,16 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-26 seed hunt (seed→hit): reseeded `application-analysis` with zero hunt-ready rows; cheap-disproof closed authority replay rebuild merge (prior hunt); promoted ledger follow-on `AuthorityPipelineMaterializeWork` deferred materialize starter tasks; proved post-seed ledger preload for `RunStarterTaskFactory.BuildStarterTasks` still used single-key `GetByRunIdAsync` with lowercase `N`, so user-chosen cloud platform rows stored only under legacy uppercase hex keys were omitted and topology starter objectives followed intake `CloudProvider` instead of persisted ledger; route through `AnalysisRunIdCanonicalization.LoadTechnologyLedgerEntriesByRunIdAsync`; regression `CompareQuality_MaterializeAgentTasksAsync_merges_technology_ledger_when_stored_under_legacy_run_id_key`; cheap-disproof closed replay artifact path (prior hunt); seeded five follow-on rows; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` filter 361/361 (`RunAnalyzers=false` on VM build). Private beta: deferred authority materialization builds starter agent objectives from the full technology ledger when rows use legacy run-id key formats.
+
+- [ ] (candidate) `CostAgentHandler` — cost agent execute — locus: ledger preload via `TechnologyLedgerUserPromptInjection` parity check.
+- [ ] (candidate) `ComplianceAgentHandler` — compliance agent execute — locus: same ledger preload path.
+- [ ] (candidate) `CriticAgentHandler` — critic agent execute — locus: same ledger preload path.
+- [ ] (candidate) `PreCommitGovernanceGate` — live gate — locus: spot-check direct ledger reads bypassing merge helper.
+- [ ] (candidate) `TechnologyLedgerEvidenceSeeder` — evidence seed loop — locus: in-memory working list vs re-query parity.
+
+- [x] (proven) `AuthorityPipelineMaterializeWork` — materialize ledger preload — **hit 2026-10-26 seed hunt:** `LoadTechnologyLedgerEntriesByRunIdAsync`; regression above.
+
 2026-10-26 seed hunt (seed→hit): reseeded `application-analysis` with zero hunt-ready rows; cheap-disproof closed topology agent execute merge (prior hunt); promoted ledger follow-on `AuthorityReplayService` authority replay rebuild-artifacts path; proved `RebuildArtifacts` still used single-key `GetByRunIdAsync` with dashed run id, so technology ledger rows stored only under legacy uppercase hex keys were omitted from artifact synthesis on replay; add `TechnologyLedgerRunIdLookup.LoadEntriesByRunIdAsync` in Persistence (Application layer not referenced) and route replay ledger preload through canonical merge; regression `CompareQuality_ReplayAsync_RebuildArtifacts_merges_technology_ledger_when_stored_under_legacy_run_id_key` in Decisioning.Tests; cheap-disproof closed coordination and pipeline artifact stages (prior hunts); seeded five follow-on rows; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` filter 360/360 plus AuthorityReplayService suite 6/6 (`RunAnalyzers=false` on VM build). Private beta: authority replay rebuild-artifacts includes technology ledger facts when rows use legacy run-id key formats.
 
 - [ ] (candidate) `AuthorityPipelineMaterializeWork` — deferred materialize — locus: starter task build; input: verify ledger merge on materialize path.
