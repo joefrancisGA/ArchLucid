@@ -2,7 +2,7 @@ import type { TrustEvidenceFieldSnapshot } from "@/types/authority";
 
 export type ResolvedTrustEvidenceFieldSnapshot = {
   readonly title: string;
-  readonly status: string;
+  readonly status: string | null;
   readonly detail?: string | null;
 };
 
@@ -21,7 +21,7 @@ export function trustEvidenceFieldOrUnavailable(
 
   return {
     title: snapshot.title ?? fallbackTitle,
-    status: snapshot.status ?? "Unavailable",
+    status: snapshot.status ?? null,
     detail: snapshot.detail ?? null,
   };
 }

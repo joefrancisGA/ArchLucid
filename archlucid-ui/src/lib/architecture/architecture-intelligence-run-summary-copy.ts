@@ -118,10 +118,16 @@ export function listArchitectureIntelligenceRunTechnicalDetails(
 }
 
 function describeArchitectureIntelligenceResultSource(result: ClosedLoopReasoningResult): string {
+  if (result.cacheHit === undefined || result.cacheHit === null) {
+    return "Analysis reuse was not stored.";
+  }
+
   if (result.cacheHit) {
-    return result.cacheReuseReason
-      ? `Reused prior analysis (${result.cacheReuseReason})`
-      : "Reused prior analysis";
+    const reuseReason = result.cacheReuseReason?.trim() ?? "";
+
+    return reuseReason.length > 0
+      ? `Reused prior analysis (${reuseReason})`
+      : "Reused prior analysis. Reuse reason was not stored.";
   }
 
   return "Fresh analysis run";

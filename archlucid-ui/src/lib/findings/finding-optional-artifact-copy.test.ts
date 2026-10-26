@@ -13,6 +13,16 @@ function notFoundFailure(): ApiLoadFailureState {
 }
 
 describe("resolveFindingOptionalArtifactUnavailableCopy", () => {
+  it("does not call a non-sample buyer review a sample on explainability 404", () => {
+    const copy = resolveFindingOptionalArtifactUnavailableCopy("explainability-trace", notFoundFailure(), {
+      buyerPolishedShell: true,
+      sampleReview: false,
+    });
+
+    expect(copy.body).toContain("Explainability was not generated");
+    expect(copy.body).not.toContain("sample review");
+  });
+
   it("returns sample-review copy for explainability 404 without retry", () => {
     const copy = resolveFindingOptionalArtifactUnavailableCopy("explainability-trace", notFoundFailure(), {
       buyerPolishedShell: true,
