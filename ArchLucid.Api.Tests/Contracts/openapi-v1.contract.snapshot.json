@@ -30071,6 +30071,12 @@
                 "$ref": "#/components/schemas/RemediationPatternRollbackDefinition"
               }
             ]
+          },
+          "safeRolloutSteps": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
           }
         },
         "type": "object"

@@ -83,6 +83,7 @@ import {
 import {
   applySecureNowQuestionSubjectHighlight,
   ARCHITECTURE_DIAGRAM_QUESTION_SUBJECT_NOT_FOUND,
+  ARCHITECTURE_DIAGRAM_QUESTION_SUBJECT_NOT_STORED,
 } from '@/lib/architecture/architecture-diagram-question-subject';
 import { renderMermaidSvgMarkup } from '@/lib/mermaid/mermaid-safe-render';
 import { formatUnmatchedArchitectureDataFlowLine } from '@/lib/architecture/architecture-diagram-copy';
@@ -635,7 +636,9 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
       new URLSearchParams(typeof window === 'undefined' ? '' : window.location.search).get('diagFullscreen'),
     );
   const [svgMarkup, setSvgMarkup] = useState<string | null>(null);
-  const [questionSubjectNotOnDiagram, setQuestionSubjectNotOnDiagram] = useState(false);
+  const [questionSubjectBanner, setQuestionSubjectBanner] = useState<
+    "not-stored" | "not-found" | null
+  >(null);
   const [renderError, setRenderError] = useState<string | null>(null);
   const [clickFocus, setClickFocus] = useState<{
     id: string;
@@ -829,8 +832,19 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
       return;
     }
 
+    if (questionSubjectNodeId === null || questionSubjectNodeId === undefined) {
+      setQuestionSubjectBanner(null);
+      return;
+    }
+
+    if (questionSubjectNodeId.length === 0) {
+      applySecureNowQuestionSubjectHighlight(svg, questionSubjectNodeId);
+      setQuestionSubjectBanner("not-stored");
+      return;
+    }
+
     const subjectFound = applySecureNowQuestionSubjectHighlight(svg, questionSubjectNodeId);
-    setQuestionSubjectNotOnDiagram(!subjectFound);
+    setQuestionSubjectBanner(subjectFound ? null : "not-found");
   }, [questionSubjectNodeId, sanitizedSvg, focusNonce]);
 
   const syncInlineViewportCamera = useCallback((): boolean => {
@@ -1509,12 +1523,14 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
         <DiagramNeighborhoodMapView map={neighborhoodMap} onOpenNeighborhood={openNeighborhood} />
       ) : null}
 
-      {questionSubjectNotOnDiagram ? (
+      {questionSubjectBanner !== null ? (
         <p
           className={cn('mb-2 text-al-text-secondary', OPERATOR_TYPOGRAPHY.helper)}
           data-testid="architecture-diagram-question-subject-missing"
         >
-          {ARCHITECTURE_DIAGRAM_QUESTION_SUBJECT_NOT_FOUND}
+          {questionSubjectBanner === "not-stored"
+            ? ARCHITECTURE_DIAGRAM_QUESTION_SUBJECT_NOT_STORED
+            : ARCHITECTURE_DIAGRAM_QUESTION_SUBJECT_NOT_FOUND}
         </p>
       ) : null}
 
