@@ -1096,7 +1096,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                 </p>
               </div>
             ) : null}
-            {auditScopeActive ? (
+            {auditScopeActive && workbenchLinkAuditContext != null && !hasUnlinkedAuditScopeInUrl ? (
               <InfraEvidenceAuditScopeChip
                 controlLabel={resolvedAuditLineage?.label}
                 href={auditScopeChipHref}

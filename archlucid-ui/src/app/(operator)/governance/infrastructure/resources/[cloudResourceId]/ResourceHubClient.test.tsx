@@ -2144,4 +2144,15 @@ describe("ResourceHubClient", () => {
     ).not.toBeInTheDocument();
   });
 
+  it("hides audit scope chip when URL audit scope is unlinked in hub matches", async () => {
+    searchParams = new URLSearchParams(
+      `tab=overview&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}&assessmentId=aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa&auditEvidenceSnapshotId=bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb&controlId=eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee`,
+    );
+
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    await screen.findByTestId("infra-resource-hub-stale-audit-scope");
+    expect(screen.queryByTestId("infra-resource-hub-audit-scope-chip")).not.toBeInTheDocument();
+  });
+
 });
