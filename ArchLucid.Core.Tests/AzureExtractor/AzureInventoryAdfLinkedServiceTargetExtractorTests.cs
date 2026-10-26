@@ -11,6 +11,19 @@ namespace ArchLucid.Core.Tests.AzureExtractor;
 public sealed class AzureInventoryAdfLinkedServiceTargetExtractorTests
 {
     [Fact]
+    public void Extract_reads_sql_host_from_server_property_with_trailing_dot()
+    {
+        using JsonDocument document = JsonDocument.Parse(
+            """{ "server": "sql1.database.windows.net." }""");
+
+        (string? targetResourceId, string? targetHost) =
+            AzureInventoryAdfLinkedServiceTargetExtractor.Extract(document.RootElement, "AzureSqlDatabase");
+
+        targetResourceId.Should().BeNull();
+        targetHost.Should().Be("sql1.database.windows.net");
+    }
+
+    [Fact]
     public void Extract_reads_sql_host_from_percent_encoded_server_property_with_trailing_dot()
     {
         const string host = "sql1.database.windows.net";

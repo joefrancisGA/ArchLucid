@@ -69,7 +69,7 @@ public static class AzureInventoryRouteTableRouteParser
             {
                 AddressPrefix = ReadRouteProperty(properties, index, InventoryDiagramNodeRelationshipPropertyKeys.RouteAddressPrefixSuffix),
                 NextHopType = ReadRouteProperty(properties, index, InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopTypeSuffix),
-                NextHopIpAddress = ReadRouteProperty(properties, index, InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopIpAddressSuffix),
+                NextHopIpAddress = ReadRouteNextHopIpAddress(properties, index),
                 NextHopArmId = TryParseFlattenedNextHopArmId(properties, index),
             };
 
@@ -305,6 +305,25 @@ public static class AzureInventoryRouteTableRouteParser
         string keyPrefix = $"{InventoryDiagramNodeRelationshipPropertyKeys.RoutePrefix}{index}";
 
         return ReadFlattenedPropertyValue(properties, keyPrefix, suffix);
+    }
+
+    private static string? ReadRouteNextHopIpAddress(IReadOnlyDictionary<string, string> properties, string index)
+    {
+        string? raw = ReadRouteProperty(
+            properties,
+            index,
+            InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopIpAddressSuffix);
+
+        if (string.IsNullOrWhiteSpace(raw))
+        {
+            return null;
+        }
+
+        string? normalizedArmOrReference = TryParseFlattenedArmIdValue(raw);
+
+        return !string.IsNullOrWhiteSpace(normalizedArmOrReference)
+            ? normalizedArmOrReference
+            : raw.Trim();
     }
 
     private static string? ReadFlattenedPropertyValue(

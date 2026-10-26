@@ -51,6 +51,14 @@ public static class AzureInventoryEventGridDestinationExtractor
             return (destinationKind, resourceId.Trim(), null, null);
         }
 
+        string? eventHubResourceId =
+            AzureInventoryArmNestedObjectPropertyReader.TryReadString(destinationElement, "eventHubResourceId");
+
+        if (!string.IsNullOrWhiteSpace(eventHubResourceId))
+        {
+            return (destinationKind, eventHubResourceId.Trim(), null, null);
+        }
+
         return (destinationKind, null, null, null);
     }
 }

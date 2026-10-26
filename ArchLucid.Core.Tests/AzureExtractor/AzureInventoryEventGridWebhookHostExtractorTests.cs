@@ -109,6 +109,14 @@ public sealed class AzureInventoryEventGridWebhookHostExtractorTests
     }
 
     [Fact]
+    public void TryExtractHost_reads_host_when_scheme_less_unbracketed_link_local_ipv6_has_explicit_port_and_path()
+    {
+        AzureInventoryEventGridWebhookHostExtractor.TryExtractHost("fe80::1:443/callback")
+            .Should()
+            .Be("fe80::1");
+    }
+
+    [Fact]
     public void TryExtractHost_reads_host_when_scheme_less_webhook_url_percent_encodes_link_local_ipv6_with_port()
     {
         AzureInventoryEventGridWebhookHostExtractor.TryExtractHost("fe80%3A%3A1%3A443/callback")
