@@ -68,6 +68,30 @@ describe("architectureDiagramModelToMermaid", () => {
     expect(subgraphBody).not.toContain("user_analyst");
   });
 
+  it("labels empty edge connections in mermaid and text alternative", () => {
+    const emptyEdgeModel: ArchitectureDiagramModel = {
+      ...modelWithBoundary,
+      edges: [
+        {
+          id: "edge_empty",
+          sourceId: "user_analyst",
+          targetId: "system_api",
+          label: "",
+          provenance: "asserted",
+          removed: false,
+        },
+      ],
+    };
+
+    const mermaid = architectureDiagramModelToMermaid(emptyEdgeModel);
+    const alt = architectureDiagramModelToTextAlternative(emptyEdgeModel);
+
+    expect(mermaid.replace(/\\n/g, " ").replace(/\s+/g, " ")).toContain(
+      "Connection label was not stored.",
+    );
+    expect(alt).toContain("Connection label was not stored.");
+  });
+
   it("marks inferred edges in labels and text alternative with human names", () => {
     const mermaid = architectureDiagramModelToMermaid(modelWithBoundary);
     const alt = architectureDiagramModelToTextAlternative(modelWithBoundary);
@@ -139,6 +163,23 @@ describe("architectureDiagramModelToMermaid", () => {
 
     expect(alternative).not.toContain("removed_system");
     expect(alternative).not.toContain("old flow");
+  });
+
+  it("renders an explicit empty diagram placeholder", () => {
+    const empty: ArchitectureDiagramModel = {
+      nodes: [],
+      edges: [],
+      trustBoundaryLabels: [],
+      skippedUnlabeledEntityCount: 0,
+      unmatchedDataFlows: [],
+    };
+
+    expect(
+      architectureDiagramModelToMermaid(empty).replace(/\\n/g, " ").replace(/\s+/g, " "),
+    ).toContain("No architecture components were recorded.");
+    expect(architectureDiagramModelToTextAlternative(empty)).toBe(
+      "No architecture components were recorded.",
+    );
   });
 
   it("inserts mermaid line breaks so long human names wrap inside wrappingWidth boxes", () => {
