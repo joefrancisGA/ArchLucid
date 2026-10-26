@@ -794,6 +794,14 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
     [hub?.externalResourceId],
   );
 
+  const externalResourceIdCopyValue = useMemo(() => {
+    if (hub == null) {
+      return cloudResourceId.trim();
+    }
+
+    return hub.externalResourceId?.trim() ?? "";
+  }, [cloudResourceId, hub]);
+
   const diagramCorrespondenceIdTrimmed = useMemo(
     () => hub?.diagramCorrespondence?.correspondenceId?.trim() ?? "",
     [hub?.diagramCorrespondence?.correspondenceId],
@@ -982,10 +990,12 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
               <dt className="font-medium">{GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_ARM_RESOURCE_PATH_LABEL}</dt>
               <dd className="m-0 inline-flex items-center gap-1 font-mono text-xs break-all text-al-text-secondary">
                 {hub != null ? externalResourceIdDisplayLabel : cloudResourceId}
-                <CopyIdButton
-                  value={hub?.externalResourceId ?? cloudResourceId}
-                  aria-label="Copy ARM resource path"
-                />
+                {externalResourceIdCopyValue.length > 0 ? (
+                  <CopyIdButton
+                    value={externalResourceIdCopyValue}
+                    aria-label="Copy ARM resource path"
+                  />
+                ) : null}
               </dd>
             </div>
           </dl>

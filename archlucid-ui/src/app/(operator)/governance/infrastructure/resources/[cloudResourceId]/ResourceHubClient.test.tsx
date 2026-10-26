@@ -118,6 +118,7 @@ describe("ResourceHubClient", () => {
     render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
 
     expect(await screen.findByText("ARM resource path was not stored.")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Copy ARM resource path" })).not.toBeInTheDocument();
   });
 
   it("falls back to the external resource name when the configuration azureResourceId is whitespace-only", async () => {
