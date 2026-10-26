@@ -25,7 +25,16 @@
 
 **Review ID:** `claims-intake-modernization`
 
-## Findings by severity
+## Deterministic findings (sealed)
+
+No sealed findings snapshot on this run yet — deterministic engines have not produced a sealed record.
+
+## Agent findings (advisory)
+
+
+> **Simulator mode — not live AI output** This result was produced by rule-based analysis in simulator mode. Treat findings and rewrites as rehearsal only until you switch to Real mode.
+
+### Findings by severity
 
 | Severity | Count |
 |----------|------:|
@@ -34,19 +43,20 @@
 | Medium | 1 |
 | Low | 0 |
 
-## Sponsor report
+### Sponsor report
 
-Proceed with claims intake modernization under monitored PHI minimization controls &#8212; sponsor-facing KPIs remain on track.
+Proceed with claims intake modernization under monitored PHI minimization controls — sponsor-facing KPIs remain on track.
 
-## Top findings
+### Top findings
 
 - PHI minimization risk at intake boundary
 - Under-provisioned OCR worker autoscale floor
 - Missing regional failover documentation
 
+
 ---
 
-_This Sponsor report was generated with AI assistance from review findings and severity counts. Review before sharing with sponsors._
+_This Sponsor report was generated with AI assistance from agent-stream findings and severity counts. Review before sharing with sponsors._
 
 ## Portfolio signals (live)
 
