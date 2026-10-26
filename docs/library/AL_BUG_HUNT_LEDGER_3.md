@@ -7174,6 +7174,34 @@ ABQ-09 churn hotspot.
 
 ## Zone: ui-infra-resource-hub
 
+2026-10-26 seed hunt (seed→hit): promoted whitespace-only network relationship **from** and **to** endpoint ids — `fromAzureResourceId` and `toAzureResourceId` rendered raw while relationship type already used `formatStoredInfraEvidenceHubField`; regressions `shows network relationship from omission copy when fromAzureResourceId is whitespace-only` and `shows network relationship to omission copy when toAzureResourceId is whitespace-only`; cheap-disproof closed RBAC identity and property/pointer whitespace (prior hits), tag key whitespace (seeded below), and drift/remediation whitespace (seeded); scoped ResourceHubClient vitest 88/88. Private beta: network relationship tables show not-stored copy for blank from/to endpoint cells when capture stored only whitespace.
+
+- [x] (proven) `ResourceHubClient` network relationships — `fromAzureResourceId` whitespace-only — **hit 2026-10-26 seed hunt:** `formatStoredInfraEvidenceHubField` on from column; regression whitespace-from fixture.
+- [x] (proven) `ResourceHubClient` network relationships — `toAzureResourceId` whitespace-only — **hit 2026-10-26 seed hunt:** same helper on to column; regression whitespace-to fixture.
+- [x] (valid-no-repro) `ResourceHubClient` network relationships — `relationshipType` whitespace-only — **cheap-disproof 2026-10-26 seed hunt:** prior hit; regression lock retained.
+- [x] (valid-no-repro) `ResourceHubClient` configuration tags — tag key whitespace-only — **cheap-disproof 2026-10-26 seed hunt:** key column still raw; seeded below.
+- [x] (valid-no-repro) `ResourceHubClient` RBAC assignments — principal/role/scope whitespace-only — **cheap-disproof 2026-10-26 seed hunt:** prior hits; regression locks retained.
+
+- [ ] (candidate) `ResourceHubClient` configuration tags — tag key whitespace-only — locus: tag name column; input: blank tag key display.
+- [ ] (candidate) `ResourceHubClient` drift recent changes — `property` or value whitespace-only — locus: drift preview table; input: blank drift field cells.
+- [ ] (candidate) `ResourceHubClient` remediation instances — `patternKey` whitespace-only — locus: remediation table pattern column; input: blank pattern label.
+- [ ] (candidate) `ResourceHubClient` diagram correspondence — `diagramNodeLabel` whitespace-only — locus: diagram tab label; input: blank node label.
+- [ ] (candidate) `ResourceHubClient` configuration tags — tag value whitespace-only re-check — locus: tags table; input: confirm parity after tag key fix ships.
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **aliases:** resource hub; infrastructure resource detail
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 60
+- **bugs-found:** 39
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-26
+- **last-bug:** 2026-10-26 — whitespace-only network relationship endpoint ids
+- **related-pd-tb:** none
+- **code-changed-since:** yes
+
 2026-10-25 seed hunt (seed→hit): promoted whitespace-only RBAC **principal** and **role** identity cells — `principalId` and `roleDefinitionId` rendered raw while scope already used `formatStoredInfraEvidenceHubField`; regressions `shows RBAC principal omission copy when principalId is whitespace-only` and `shows RBAC role omission copy when roleDefinitionId is whitespace-only`; cheap-disproof closed property key/value and evidence pointer whitespace (prior hits), network endpoint id whitespace (seeded below), and tag key whitespace (seeded); scoped ResourceHubClient vitest 86/86. Private beta: RBAC tables show “RBAC principal was not stored.” and “RBAC role was not stored.” instead of blank principal or role cells when capture stored only whitespace.
 
 - [x] (proven) `ResourceHubClient` RBAC assignments — `principalId` whitespace-only — **hit 2026-10-25 seed hunt:** `formatStoredInfraEvidenceHubField` on principal column; regression whitespace principal fixture.

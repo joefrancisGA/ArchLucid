@@ -1331,6 +1331,44 @@ describe("ResourceHubClient", () => {
     expect(screen.getByText("inventory")).toBeInTheDocument();
   });
 
+  it("shows network relationship from omission copy when fromAzureResourceId is whitespace-only", async () => {
+    fetchCachedInfraEvidenceResourceHub.mockImplementation(async () =>
+      buildResourceHubTestMockHub({
+        networkRelationships: [
+          {
+            relationshipType: "Peering",
+            fromAzureResourceId: "   ",
+            toAzureResourceId:
+              "/subscriptions/sub/resourceGroups/rg-net/providers/Microsoft.Network/virtualNetworks/vnet-b-whitespace-from-test",
+          },
+        ],
+      }),
+    );
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    expect(await screen.findByText("Network relationship from resource was not stored.")).toBeInTheDocument();
+    expect(screen.getByText(/vnet-b-whitespace-from-test/)).toBeInTheDocument();
+  });
+
+  it("shows network relationship to omission copy when toAzureResourceId is whitespace-only", async () => {
+    fetchCachedInfraEvidenceResourceHub.mockImplementation(async () =>
+      buildResourceHubTestMockHub({
+        networkRelationships: [
+          {
+            relationshipType: "Peering",
+            fromAzureResourceId:
+              "/subscriptions/sub/resourceGroups/rg-net/providers/Microsoft.Network/virtualNetworks/vnet-a-whitespace-to-test",
+            toAzureResourceId: "   ",
+          },
+        ],
+      }),
+    );
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    expect(await screen.findByText("Network relationship to resource was not stored.")).toBeInTheDocument();
+    expect(screen.getByText(/vnet-a-whitespace-to-test/)).toBeInTheDocument();
+  });
+
   it("shows network relationship type omission copy when relationshipType is whitespace-only", async () => {
     fetchCachedInfraEvidenceResourceHub.mockImplementation(async () =>
       buildResourceHubTestMockHub({

@@ -1317,8 +1317,18 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                                 "Network relationship type was not stored.",
                               )}
                             </EnterpriseTableCell>
-                            <EnterpriseTableCell className="font-mono text-xs">{relationship.fromAzureResourceId}</EnterpriseTableCell>
-                            <EnterpriseTableCell className="font-mono text-xs">{relationship.toAzureResourceId}</EnterpriseTableCell>
+                            <EnterpriseTableCell className="font-mono text-xs">
+                              {formatStoredInfraEvidenceHubField(
+                                relationship.fromAzureResourceId,
+                                "Network relationship from resource was not stored.",
+                              )}
+                            </EnterpriseTableCell>
+                            <EnterpriseTableCell className="font-mono text-xs">
+                              {formatStoredInfraEvidenceHubField(
+                                relationship.toAzureResourceId,
+                                "Network relationship to resource was not stored.",
+                              )}
+                            </EnterpriseTableCell>
                           </EnterpriseTableRow>
                         ))}
                       </EnterpriseTableBody>
