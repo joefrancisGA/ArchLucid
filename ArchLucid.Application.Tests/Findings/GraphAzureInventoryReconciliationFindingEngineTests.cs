@@ -112,6 +112,7 @@ public sealed class GraphAzureInventoryReconciliationFindingEngineTests
         IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, context, CancellationToken.None);
 
         Finding finding = findings.Should().ContainSingle().Subject;
+        finding.Title.Should().Be("Azure inventory package was not stored");
         finding.RelatedNodeIds.Should().ContainSingle().Which.Should().Be("t1");
         InventoryReconciliationFindingPayload payload =
             finding.Payload.Should().BeOfType<InventoryReconciliationFindingPayload>().Subject;

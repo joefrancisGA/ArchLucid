@@ -146,7 +146,7 @@ public sealed class ArchitectureRequiredMarkdownSectionsTests
         ArchitectureRequiredMarkdownSections.AppendRequiredProductSections(sb, manifest);
 
         string markdown = sb.ToString();
-        markdown.Should().Contain("No objective was recorded.");
+        markdown.Should().Contain("Objective was stored empty.");
         markdown.Should().Contain("Orders API (Api) — Accepts checkout commands.");
         markdown.Should().Contain("Orders Database (Sql, SqlServer)");
         markdown.Should().Contain("svc-orders -> db-orders (WritesTo) — Persists orders.");

@@ -32,7 +32,7 @@ describe("sponsor-rehearsal-preview (TB-2208)", () => {
     expect(byId["key-findings-plain-english"].isEmpty).toBe(true);
     expect(byId["residual-risks"].isEmpty).toBe(true);
     expect(byId["what-is-excluded"].isEmpty).toBe(true);
-    expect(byId["what-is-excluded"].body).toContain("Exclusion notes were not stored");
+    expect(byId["what-is-excluded"].body).toBe("Excluded notes were not stored for this rehearsal.");
   });
 
   it("reuses synopsis and plain-English finding builder content when present", () => {

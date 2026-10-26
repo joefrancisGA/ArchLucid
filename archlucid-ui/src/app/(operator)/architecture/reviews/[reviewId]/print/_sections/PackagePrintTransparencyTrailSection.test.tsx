@@ -16,7 +16,7 @@ describe("PackagePrintTransparencyTrailSection", () => {
       <PackagePrintTransparencyTrailSection
         trail={{
           asserted: [{ key: "businessOutcome", value: "Reduce triage time" }],
-          inferred: [{ key: "policy.violation.foo", value: "", confidence: 80 }],
+          inferred: [{ key: "policy.violation.foo", value: "", confidence: 0 }],
           skipped: [],
         }}
       />,
@@ -28,6 +28,7 @@ describe("PackagePrintTransparencyTrailSection", () => {
       screen.getByText("Skipped questions were not recorded on this transparency trail."),
     ).toBeInTheDocument();
     expect(screen.getByText(/Inferred value was stored empty\./)).toBeInTheDocument();
+    expect(screen.getByText(/Confidence was not stored\./)).toBeInTheDocument();
     expect(screen.getByText(/not a signed export artifact/i)).toBeInTheDocument();
   });
 });

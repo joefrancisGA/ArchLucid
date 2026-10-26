@@ -29,6 +29,10 @@ internal static class SharedControlBlastRadiusNarrative
     {
         int lastSlash = nodeId.LastIndexOf('/');
 
-        return lastSlash >= 0 ? nodeId[(lastSlash + 1)..] : nodeId;
+        string segment = lastSlash >= 0 ? nodeId[(lastSlash + 1)..] : nodeId;
+
+        return string.IsNullOrWhiteSpace(segment)
+            ? FourRealityDriftNarrative.NodeNameNotStoredLabel
+            : segment;
     }
 }

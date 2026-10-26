@@ -124,9 +124,7 @@ export function RunDetailFeasibilityVerdictSection(
             </ul>
           </div>
         ) : (
-          <p className={cn("mt-3", OPERATOR_TYPOGRAPHY.body)}>
-            No proposed relaxations were stored on this verdict.
-          </p>
+          <p className={cn("mt-3", OPERATOR_TYPOGRAPHY.body)}>Proposed relaxations were stored empty.</p>
         )}
 
         {verdict.unsatCoreInvariantKeys === null || verdict.unsatCoreInvariantKeys === undefined ? (

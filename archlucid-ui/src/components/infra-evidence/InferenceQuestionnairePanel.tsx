@@ -336,22 +336,27 @@ export function InferenceQuestionnairePanel(
             )}
 
             {choice === "yes" && requiresCatalogChoice ? (
-              <div className="flex flex-col gap-2">
-                <Label htmlFor="inference-questionnaire-catalog">Database choice</Label>
-                <select
-                  id="inference-questionnaire-catalog"
-                  className="rounded-md border border-al-border bg-al-surface px-3 py-2 text-sm"
-                  value={selectedCatalog}
-                  onChange={(event) => setSelectedCatalog(event.target.value)}
-                  data-testid="inference-questionnaire-catalog"
-                >
-                  <option value="">Database name was not stored.</option>
-                  {currentItem.toCatalog != null ? (
+              currentItem.toCatalog != null ? (
+                <div className="flex flex-col gap-2">
+                  <Label htmlFor="inference-questionnaire-catalog">Database choice</Label>
+                  <select
+                    id="inference-questionnaire-catalog"
+                    className="rounded-md border border-al-border bg-al-surface px-3 py-2 text-sm"
+                    value={selectedCatalog}
+                    onChange={(event) => setSelectedCatalog(event.target.value)}
+                    data-testid="inference-questionnaire-catalog"
+                  >
                     <option value={currentItem.toCatalog}>{currentItem.toCatalog}</option>
-                  ) : null}
-                  <option value="server-only">Server only</option>
-                </select>
-              </div>
+                  </select>
+                </div>
+              ) : (
+                <p
+                  className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                  data-testid="inference-questionnaire-catalog-missing"
+                >
+                  Database name was not stored.
+                </p>
+              )
             ) : null}
 
             <Button

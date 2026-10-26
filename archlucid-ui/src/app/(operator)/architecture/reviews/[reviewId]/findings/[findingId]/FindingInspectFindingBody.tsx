@@ -193,7 +193,7 @@ export function FindingInspectFindingBody({
           reviewContextHref={reviewContextHref}
           reviewContextLabel={reviewContextLabel}
           evidence={payload.evidence}
-          evidenceListReturned={payload.evidenceListReturned ?? true}
+          evidenceListReturned={payload.evidenceListReturned}
           citationModel={citationModel}
         />
   );

@@ -93,6 +93,9 @@ public static class FirstValueReportDeltasSectionFormatter
 
     private static string FormatAuditRowCount(PilotRunDeltas deltas)
     {
+        if (!deltas.AuditRowCountResolved)
+            return "Audit row count was not attested.";
+
         if (deltas.AuditRowCount == 0)
             return "0";
         return deltas.AuditRowCountTruncated

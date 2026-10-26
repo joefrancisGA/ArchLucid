@@ -16,6 +16,8 @@ describe("toReviewsHubReviewRowDisplay", () => {
       hasGraphSnapshot: true,
       hasContextSnapshot: true,
       isSample: true,
+      findingCount: 9,
+      warningCount: 1,
     } satisfies RunSummary);
 
     expect(row.isSampleReview).toBe(true);
@@ -24,6 +26,20 @@ describe("toReviewsHubReviewRowDisplay", () => {
     expect(row.overallStatus).toBe("Finalized");
     expect(row.primaryAction.label).toBe("View finalized review");
     expect(row.primaryAction.href).toContain(SHOWCASE_STATIC_DEMO_RUN_ID);
+  });
+
+  it("does not fabricate evidence count for showcase when artifact count is missing", () => {
+    const row = toReviewsHubReviewRowDisplay({
+      runId: SHOWCASE_STATIC_DEMO_RUN_ID,
+      projectId: "default",
+      createdUtc: "2026-01-14T12:00:00.000Z",
+      hasGoldenManifest: true,
+      hasFindingsSnapshot: true,
+      findingCount: 9,
+      warningCount: 1,
+    } satisfies RunSummary);
+
+    expect(row.evidenceCount).toBeNull();
   });
 
   it("describes active in-progress reviews with evaluation stage", () => {
@@ -47,6 +63,10 @@ describe("toReviewsHubReviewRowDisplay", () => {
       runId: "new-review",
       projectId: "default",
       createdUtc: "2026-01-21T12:00:00.000Z",
+      hasGoldenManifest: false,
+      hasFindingsSnapshot: false,
+      hasGraphSnapshot: false,
+      hasContextSnapshot: false,
     } satisfies RunSummary);
 
     expect(row.overallStatus).toBe("Draft");
@@ -146,6 +166,42 @@ describe("toReviewsHubReviewRowDisplay", () => {
     expect(row.findingsCount).toBeNull();
     expect(row.riskCount).toBeNull();
     expect(row.evidenceCount).toBeNull();
+  });
+
+  it("does not guess governance outcome when warning flag is omitted on a sealed review", () => {
+    const row = toReviewsHubReviewRowDisplay({
+      runId: "sealed-unknown-governance",
+      projectId: "default",
+      createdUtc: "2026-01-20T12:00:00.000Z",
+      hasGoldenManifest: true,
+    } satisfies RunSummary);
+
+    expect(row.governanceState).toBe("Governance outcome was not stored.");
+  });
+
+  it("uses stored operator governance decision when present", () => {
+    const row = toReviewsHubReviewRowDisplay({
+      runId: "governed-review",
+      projectId: "default",
+      createdUtc: "2026-01-20T12:00:00.000Z",
+      hasGoldenManifest: true,
+      operatorGovernanceDecision: "Approved with conditions",
+    } satisfies RunSummary);
+
+    expect(row.governanceState).toBe("Approved with conditions");
+  });
+
+  it("labels finalized recency from completedUtc when stored", () => {
+    const row = toReviewsHubReviewRowDisplay({
+      runId: "finalized-review",
+      projectId: "default",
+      createdUtc: "2026-01-10T12:00:00.000Z",
+      completedUtc: "2026-01-20T15:00:00.000Z",
+      hasGoldenManifest: true,
+    } satisfies RunSummary);
+
+    expect(row.lastUpdatedKind).toBe("finalized");
+    expect(row.lastUpdatedAbsolute).toContain("Finalized");
   });
 
   it("keeps stored zero finding and risk counts", () => {

@@ -20,6 +20,10 @@ export function buyerLabelForAgentType(agentType: string | number | null | undef
       return AGENT_TYPE_NOT_STORED_LABEL;
     }
 
+    if (trimmed === "Unknown") {
+      return AGENT_TYPE_NOT_STORED_LABEL;
+    }
+
     switch (trimmed) {
       case "Topology":
         return ARCHITECTURE_STRUCTURE_BUYER_LABEL;

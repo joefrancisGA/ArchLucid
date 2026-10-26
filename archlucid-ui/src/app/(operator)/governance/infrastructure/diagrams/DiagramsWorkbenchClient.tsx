@@ -535,7 +535,9 @@ export function DiagramsWorkbenchClient() {
   const [dependencySeedBlockedDialog, setDependencySeedBlockedDialog] =
     useState<DependencyNeighborhoodSeedBlockedReason | null>(null);
   const [modePreviews, setModePreviews] = useState<InfraEvidenceMermaidModePreview[]>([]);
-  const [snapshotCompletenessWarnings, setSnapshotCompletenessWarnings] = useState<string[]>([]);
+  const [snapshotCompletenessWarnings, setSnapshotCompletenessWarnings] = useState<string[] | undefined>(
+    undefined,
+  );
   const [renderResult, setRenderResult] = useState<InfraEvidenceMermaidRenderResponse | null>(null);
   const [loadingSnapshots, setLoadingSnapshots] = useState(true);
   const [loadingPreview, setLoadingPreview] = useState(false);
@@ -1024,10 +1026,13 @@ export function DiagramsWorkbenchClient() {
 
   const renderStatus = renderResult?.status ?? activeModePreview?.status ?? "";
 
-  const completenessWarnings = useMemo(
-    () => renderResult?.completenessWarnings ?? snapshotCompletenessWarnings,
-    [renderResult?.completenessWarnings, snapshotCompletenessWarnings],
-  );
+  const completenessWarnings = useMemo(() => {
+    if (renderResult?.completenessWarnings !== undefined) {
+      return renderResult.completenessWarnings;
+    }
+
+    return snapshotCompletenessWarnings;
+  }, [renderResult?.completenessWarnings, snapshotCompletenessWarnings]);
   const completenessSummary = renderResult?.completenessSummary ?? null;
 
   const renderStatusPresentation = useMemo(() => {
@@ -1344,14 +1349,18 @@ export function DiagramsWorkbenchClient() {
       parts.push(`Snapshot ${selectedSnapshotDisplayLabel}`);
     }
 
-    parts.push(selectedModeLabel);
+    if (!diagramTypeSelected) {
+      parts.push("Diagram type was not selected.");
+    } else {
+      parts.push(selectedModeLabel);
+    }
 
     if (urlCloudResourceId.length > 0) {
       parts.push(`resource ${urlCloudResourceId}`);
     }
 
     return parts.join(" · ");
-  }, [selectedModeLabel, selectedSnapshotDisplayLabel, urlCloudResourceId]);
+  }, [diagramTypeSelected, selectedModeLabel, selectedSnapshotDisplayLabel, urlCloudResourceId]);
 
   const renderQuery = useMemo((): InfraEvidenceMermaidRenderQuery | null => {
     if (!diagramsSubscriptionChosen || !diagramTypeSelected) {
@@ -2999,12 +3008,14 @@ export function DiagramsWorkbenchClient() {
               {GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_RESOURCE_GROUP_MAP_CAPTION}
             </p>
           ) : null}
-          {isInfraDiagramsResourceGroupMode(selectedMode) && selectedResourceGroupName.length > 0 && !isResourceGroupMapDiagram ? (
+          {isInfraDiagramsResourceGroupMode(selectedMode) && !isResourceGroupMapDiagram ? (
             <p
               className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
               data-testid="infra-diagrams-one-resource-group-caption"
             >
-              This diagram shows one resource group.
+              {selectedResourceGroupName.length > 0
+                ? `This diagram shows resources in ${selectedResourceGroupName}. Other resource groups in this snapshot are not on this canvas.`
+                : "Resource group name was not stored. Other resource groups in this snapshot are not on this canvas."}
             </p>
           ) : null}
           {isBackboneKeepDiagram ? (

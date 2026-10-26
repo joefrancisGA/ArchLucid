@@ -46,6 +46,15 @@ function dimensionScoreIsStored(score: number | null): score is number {
 export function formatSecurityEvidencePathRankReaderSentence(
   input: SecurityEvidencePathRankReaderInput,
 ): string {
+  if (
+    input.technicalExposureScore === null
+    && input.privilegeDepthScore === null
+    && input.blastRadiusScore === null
+    && input.businessConsequenceScore === null
+  ) {
+    return "Path rank scores were not stored.";
+  }
+
   const leading = PATH_RANK_DIMENSION_TIE_ORDER
     .filter((key) => isEligibleDimension(input, key))
     .map((key, tieOrder) => toRankedDimension(input, key, tieOrder))

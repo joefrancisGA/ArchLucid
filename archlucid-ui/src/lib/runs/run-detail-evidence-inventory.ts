@@ -45,10 +45,10 @@ export function findingsCiteEvidenceWithoutStoredSourceNames(
   findings: readonly QuickDecisionFinding[],
 ): boolean {
   return findings.some((finding) => {
-    const refCount = finding.evidenceRefCount ?? 0;
+    const refCount = finding.evidenceRefCount;
     const snippets = finding.evidenceRefSnippets ?? [];
 
-    return refCount > 0 && snippets.length === 0;
+    return typeof refCount === "number" && Number.isFinite(refCount) && refCount > 0 && snippets.length === 0;
   });
 }
 
@@ -187,7 +187,14 @@ export function deriveRunDetailEvidenceInventory(input: {
   for (const finding of input.findings) {
     const snippets = finding.evidenceRefSnippets ?? [];
 
-    if (snippets.length === 0 && (finding.evidenceRefCount ?? 0) > 0) {
+    const refCount = finding.evidenceRefCount;
+
+    if (
+      snippets.length === 0
+      && typeof refCount === "number"
+      && Number.isFinite(refCount)
+      && refCount > 0
+    ) {
       continue;
     }
 
@@ -266,13 +273,14 @@ export function deriveEvidenceScopeReadiness(input: {
   readonly trustReadiness: TrustEvidenceReadiness | null;
   readonly findingsCiteEvidenceWithoutSourceNames?: boolean;
 }): { readonly verdict: TrustEvidenceReadinessVerdict; readonly headline: string } {
+  if (input.findingsCiteEvidenceWithoutSourceNames === true) {
+    return {
+      verdict: "gaps",
+      headline: FINDINGS_CITE_EVIDENCE_WITHOUT_SOURCE_NAMES_HEADLINE,
+    };
+  }
+
   if (input.inventoryCount === 0) {
-    if (input.findingsCiteEvidenceWithoutSourceNames === true) {
-      return {
-        verdict: "gaps",
-        headline: FINDINGS_CITE_EVIDENCE_WITHOUT_SOURCE_NAMES_HEADLINE,
-      };
-    }
 
     if (input.trustReadiness !== null && input.trustReadiness.verdict === "gaps") {
       return {
@@ -295,7 +303,7 @@ export function deriveEvidenceScopeReadiness(input: {
   }
 
   return {
-    verdict: "complete",
-    headline: "Evidence is available for review.",
+    verdict: "gaps",
+    headline: "Trust evidence was not stored.",
   };
 }

@@ -1,8 +1,11 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  deriveEvidenceAttachmentHonestyNotices,
   deriveEvidenceGapForecast,
   deriveEvidencePresenceFromFileNames,
+  EVIDENCE_STORED_IMAGE_DIAGRAM_NOT_READ,
+  EVIDENCE_STORED_ZIP_INVENTORY_NOT_IDENTIFIED,
   deriveEvidencePresenceFromInventoryKinds,
   EVIDENCE_COVERAGE_CLASS_COUNT,
   EVIDENCE_COVERAGE_DOCUMENT_ATTACHED_SUMMARY,
@@ -168,10 +171,31 @@ describe("deriveEvidencePresenceFromFileNames", () => {
       "architecture-brief.md",
     ]);
 
-    expect(presence.hasCloudInventory).toBe(true);
+    expect(presence.hasCloudInventory).toBe(false);
     expect(presence.hasInfrastructureAsCode).toBe(true);
     expect(presence.hasArchitectureBrief).toBe(true);
     expect(presence.hasArchitectureDiagram).toBe(false);
+  });
+
+  it("does not treat image or zip file names alone as specialist evidence classes (P-01)", () => {
+    const sketchOnly = deriveEvidencePresenceFromFileNames(["sketch.png"]);
+    const zipOnly = deriveEvidencePresenceFromFileNames(["attachments-bundle.zip"]);
+
+    expect(sketchOnly.hasArchitectureDiagram).toBe(false);
+    expect(zipOnly.hasCloudInventory).toBe(false);
+    expect(deriveEvidenceGapForecast(sketchOnly).some((entry) => entry.missingClass === "architecture-diagram")).toBe(
+      true,
+    );
+    expect(deriveEvidenceGapForecast(zipOnly).some((entry) => entry.missingClass === "cloud-inventory")).toBe(true);
+  });
+
+  it("surfaces attachment honesty notices for stored images and zips", () => {
+    expect(deriveEvidenceAttachmentHonestyNotices(["sketch.png"])).toEqual([
+      EVIDENCE_STORED_IMAGE_DIAGRAM_NOT_READ,
+    ]);
+    expect(deriveEvidenceAttachmentHonestyNotices(["bundle.zip"])).toEqual([
+      EVIDENCE_STORED_ZIP_INVENTORY_NOT_IDENTIFIED,
+    ]);
   });
 
   it("treats generic architecture documents as the architecture-brief class", () => {

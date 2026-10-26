@@ -178,6 +178,7 @@ import {
   buildDiagramReconcileCsv,
   buildDiagramReconcileDenominatorSentence,
   buildDiagramReconcileScorecard,
+  formatDiagramReconcileConnectorGapsLabel,
   groupDiagramReconcileInventoryOnlyRows,
 } from "@/lib/infra-evidence/diagram-reconcile-scorecard";
 
@@ -2007,7 +2008,10 @@ export function DiagramReconcileWorkbenchClient() {
                 <StatusTag kind="needs-attention" label={`Diagram only: ${scorecard.diagramOnly}`} />
                 <StatusTag kind="needs-attention" label={`Inventory only: ${scorecard.inventoryOnly}`} />
                 <StatusTag kind="blocked" label={`Conflicts: ${scorecard.conflicts}`} />
-                <StatusTag kind="needs-attention" label={`Connector gaps: ${scorecard.connectorGaps}`} />
+                <StatusTag
+                  kind="needs-attention"
+                  label={formatDiagramReconcileConnectorGapsLabel(scorecard.connectorGaps)}
+                />
               </div>
               <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="infra-diagram-reconcile-denominator">
                 {buildDiagramReconcileDenominatorSentence(reconciliation.inventoryResourceCount)}

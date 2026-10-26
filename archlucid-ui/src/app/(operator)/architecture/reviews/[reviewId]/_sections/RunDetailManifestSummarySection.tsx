@@ -126,6 +126,15 @@ export function RunDetailManifestSummarySection(
             <dd className={cn("m-0", definitionValueClass)}>
               {policyPackBuyerLabel(manifestSummary.ruleSetId, manifestSummary.ruleSetVersion)}
             </dd>
+            {manifestSummary.effectiveGovernanceAtCommit === undefined ||
+            manifestSummary.effectiveGovernanceAtCommit === null ? (
+              <>
+                <dt className={definitionLabelClass}>Policy at commit</dt>
+                <dd className={cn("m-0", definitionValueClass)} data-testid="run-detail-policy-at-commit-missing">
+                  Effective governance at commit was not stored on this summary.
+                </dd>
+              </>
+            ) : null}
             {manifestSummary.effectiveGovernanceAtCommit !== undefined &&
             manifestSummary.effectiveGovernanceAtCommit !== null ? (
               <>
@@ -178,6 +187,18 @@ export function RunDetailManifestSummarySection(
                   ) : (
                     <p className="m-0">No effective policy assignments or compliance rule keys at commit.</p>
                   )}
+                </dd>
+              </>
+            ) : null}
+            {manifestSummary.reviewStandardsAtCommit === undefined ||
+            manifestSummary.reviewStandardsAtCommit === null ? (
+              <>
+                <dt className={definitionLabelClass}>Review standards at commit</dt>
+                <dd
+                  className={cn("m-0", definitionValueClass)}
+                  data-testid="run-detail-review-standards-at-commit-missing"
+                >
+                  Review standards at commit were not stored.
                 </dd>
               </>
             ) : null}

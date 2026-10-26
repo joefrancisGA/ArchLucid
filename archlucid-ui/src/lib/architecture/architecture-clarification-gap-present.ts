@@ -52,16 +52,21 @@ export function buildClarificationGapSourcePresentation(input: {
   readonly findingsDerived?: boolean;
   readonly heuristicDerived?: boolean;
 }): ClarificationGapSourcePresentation {
-  const label =
-    input.findingsDerived === true
-      ? "From assessment findings"
-      : input.heuristicDerived === true
-        ? ARCHITECTURE_INTAKE_HEURISTIC_GAP_SOURCE_LABEL
-        : ARCHITECTURE_STRUCTURED_ASSERTED_LABEL;
+  const capturedAtLabel =
+    input.findingsDerived === true && input.capturedAtUtc === null
+      ? null
+      : formatGapCapturedAtLabel(input.capturedAtUtc);
+
+  if (input.heuristicDerived === true) {
+    return {
+      label: ARCHITECTURE_INTAKE_HEURISTIC_GAP_SOURCE_LABEL,
+      capturedAtLabel,
+    };
+  }
 
   return {
-    label,
-    capturedAtLabel: formatGapCapturedAtLabel(input.capturedAtUtc),
+    label: input.findingsDerived === true ? "From assessment findings" : ARCHITECTURE_STRUCTURED_ASSERTED_LABEL,
+    capturedAtLabel,
   };
 }
 
