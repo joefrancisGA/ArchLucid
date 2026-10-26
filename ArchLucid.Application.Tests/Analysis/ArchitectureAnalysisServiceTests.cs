@@ -784,13 +784,13 @@ public sealed class ArchitectureAnalysisServiceTests
 
         Mock<IAgentResultRepository> resultRepository = new();
         resultRepository
-            .Setup(repository => repository.GetByRunIdAsync(
+            .Setup(repository => repository.GetRollupProjectionByRunIdAsync(
                 scope,
                 primaryRunId.ToString("N"),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(persistedPrimaryResults);
         resultRepository
-            .Setup(repository => repository.GetByRunIdAsync(
+            .Setup(repository => repository.GetRollupProjectionByRunIdAsync(
                 scope,
                 compareRunId.ToString("N"),
                 It.IsAny<CancellationToken>()))
@@ -874,7 +874,7 @@ public sealed class ArchitectureAnalysisServiceTests
 
         report.AgentResultDiff.Should().BeSameAs(diffResult);
         resultRepository.Verify(
-            repository => repository.GetByRunIdAsync(scope, primaryRunId.ToString("N"), It.IsAny<CancellationToken>()),
+            repository => repository.GetRollupProjectionByRunIdAsync(scope, primaryRunId.ToString("N"), It.IsAny<CancellationToken>()),
             Times.Once);
         agentResultDiff.Verify(
             service => service.Compare(
@@ -921,7 +921,7 @@ public sealed class ArchitectureAnalysisServiceTests
 
         Mock<IAgentResultRepository> resultRepository = new();
         resultRepository
-            .Setup(repository => repository.GetByRunIdAsync(
+            .Setup(repository => repository.GetRollupProjectionByRunIdAsync(
                 scope,
                 compareRunId.ToString("N"),
                 It.IsAny<CancellationToken>()))
@@ -1005,7 +1005,7 @@ public sealed class ArchitectureAnalysisServiceTests
 
         report.AgentResultDiff.Should().BeSameAs(diffResult);
         resultRepository.Verify(
-            repository => repository.GetByRunIdAsync(scope, compareRunId.ToString("N"), It.IsAny<CancellationToken>()),
+            repository => repository.GetRollupProjectionByRunIdAsync(scope, compareRunId.ToString("N"), It.IsAny<CancellationToken>()),
             Times.Once);
         agentResultDiff.Verify(
             service => service.Compare(
@@ -1409,13 +1409,13 @@ public sealed class ArchitectureAnalysisServiceTests
 
         Mock<IAgentResultRepository> resultRepository = new();
         resultRepository
-            .Setup(repository => repository.GetByRunIdAsync(
+            .Setup(repository => repository.GetRollupProjectionByRunIdAsync(
                 scope,
                 It.Is<string>(id => id != compareBracedUpper),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
         resultRepository
-            .Setup(repository => repository.GetByRunIdAsync(
+            .Setup(repository => repository.GetRollupProjectionByRunIdAsync(
                 scope,
                 compareBracedUpper,
                 It.IsAny<CancellationToken>()))
@@ -1543,7 +1543,7 @@ public sealed class ArchitectureAnalysisServiceTests
 
         Mock<IAgentResultRepository> resultRepository = new();
         resultRepository
-            .Setup(repository => repository.GetByRunIdAsync(
+            .Setup(repository => repository.GetRollupProjectionByRunIdAsync(
                 scope,
                 compareRunId.ToString("N"),
                 It.IsAny<CancellationToken>()))
@@ -1627,7 +1627,7 @@ public sealed class ArchitectureAnalysisServiceTests
 
         report.AgentResultDiff.Should().BeSameAs(diffResult);
         resultRepository.Verify(
-            repository => repository.GetByRunIdAsync(scope, compareRunId.ToString("N"), It.IsAny<CancellationToken>()),
+            repository => repository.GetRollupProjectionByRunIdAsync(scope, compareRunId.ToString("N"), It.IsAny<CancellationToken>()),
             Times.Once);
         agentResultDiff.Verify(
             service => service.Compare(

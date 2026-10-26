@@ -188,14 +188,21 @@ public sealed class ArchitectureAnalysisService(
                     cancellationToken);
 
                 IReadOnlyList<AgentResult> leftResults =
-                    primaryDetail is not null
-                    && AnalysisRunIdCanonicalization.AgentResultsAppearAnchoredToRun(primaryDetail.Results, primaryRunId)
-                        ? primaryDetail.Results
-                        : await TryLoadAgentResultsAsync(scope, primaryRunId, cancellationToken);
+                    await AnalysisRunIdCanonicalization.ResolveAgentResultsForCompareReadAsync(
+                        resultRepository,
+                        scope,
+                        primaryDetail?.Results ?? [],
+                        primaryRunId,
+                        useRollupProjection: true,
+                        cancellationToken).ConfigureAwait(false);
                 IReadOnlyList<AgentResult> rightResults =
-                    AnalysisRunIdCanonicalization.AgentResultsAppearAnchoredToRun(compareDetail.Results, compareRunId)
-                        ? compareDetail.Results
-                        : await TryLoadAgentResultsAsync(scope, compareRunId, cancellationToken);
+                    await AnalysisRunIdCanonicalization.ResolveAgentResultsForCompareReadAsync(
+                        resultRepository,
+                        scope,
+                        compareDetail.Results,
+                        compareRunId,
+                        useRollupProjection: true,
+                        cancellationToken).ConfigureAwait(false);
                 report.AgentResultDiff = agentResultDiffService.Compare(primaryRunId, leftResults, compareRunId, rightResults);
             }
         }
@@ -225,17 +232,6 @@ public sealed class ArchitectureAnalysisService(
 
         return traces.ToList();
     }
-
-    private Task<IReadOnlyList<AgentResult>> TryLoadAgentResultsAsync(
-        ScopeContext scope,
-        string primaryRunId,
-        CancellationToken cancellationToken) =>
-        AnalysisRunIdCanonicalization.LoadAgentResultsByRunIdAsync(
-            resultRepository,
-            scope,
-            primaryRunId,
-            useRollupProjection: false,
-            cancellationToken);
 
     private static string CanonicalRunIdForLookup(string runId) =>
         AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(runId);

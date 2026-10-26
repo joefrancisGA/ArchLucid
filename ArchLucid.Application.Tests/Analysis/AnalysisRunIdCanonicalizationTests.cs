@@ -55,6 +55,18 @@ public sealed class AnalysisRunIdCanonicalizationTests
     }
 
     [Fact]
+    public void EnumerateRunIdRepositoryLookupKeys_includes_parentheses_guid()
+    {
+        Guid runKey = Guid.Parse("36363636-3636-3636-3636-363636363636");
+        string canonical = runKey.ToString("N");
+        string parentheses = runKey.ToString("P");
+
+        AnalysisRunIdCanonicalization.EnumerateRunIdRepositoryLookupKeys(canonical)
+            .Should()
+            .Contain(parentheses);
+    }
+
+    [Fact]
     public void AgentResultsAppearAnchoredToRun_returns_false_when_any_result_lacks_run_anchor()
     {
         Guid runKey = Guid.Parse("19191919-1919-1919-1919-191919191919");

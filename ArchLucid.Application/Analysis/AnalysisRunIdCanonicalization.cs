@@ -107,6 +107,16 @@ internal static class AnalysisRunIdCanonicalization
         string bracedUpper = braced.ToUpperInvariant();
         if (!string.Equals(bracedUpper, braced, StringComparison.Ordinal))
             yield return bracedUpper;
+
+        string parentheses = guid.ToString("P");
+        if (!string.Equals(parentheses, canonical, StringComparison.Ordinal)
+            && !string.Equals(parentheses, dashed, StringComparison.Ordinal)
+            && !string.Equals(parentheses, braced, StringComparison.Ordinal))
+            yield return parentheses;
+
+        string parenthesesUpper = parentheses.ToUpperInvariant();
+        if (!string.Equals(parenthesesUpper, parentheses, StringComparison.Ordinal))
+            yield return parenthesesUpper;
     }
 
     internal static async Task<IReadOnlyList<AgentResult>> ResolveAgentResultsForCompareReadAsync(
