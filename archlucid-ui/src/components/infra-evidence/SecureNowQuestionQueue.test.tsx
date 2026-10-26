@@ -1328,6 +1328,28 @@ describe("SecureNowQuestionQueue", () => {
     expect(screen.getByTestId("infra-diagrams-question-disposition-status")).toHaveTextContent("Answered");
   });
 
+  it("keeps governance-mutation recovery when ignore throws ApiLoadFailureState", async () => {
+    mocks.listQuestions.mockResolvedValue([question]);
+    mocks.ignoreQuestion.mockRejectedValue(
+      apiLoadFailure("Compiled question validation failed: reason required."),
+    );
+
+    render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
+    fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
+    fireEvent.click(screen.getByRole("button", { name: "Don't ask again" }));
+    fireEvent.change(screen.getByRole("textbox", { name: "Reason for not asking again" }), {
+      target: { value: "Already covered in runbook." },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Save" }));
+
+    expect(await screen.findByTestId("operator-mutation-inline-error")).toHaveTextContent(
+      "Compiled question validation failed: reason required.",
+    );
+    expect(screen.getByTestId("operator-error-recovery-what-failed")).toHaveTextContent(
+      "The governance change did not save.",
+    );
+  });
+
   it("keeps governance-mutation recovery when reopen throws ApiLoadFailureState", async () => {
     mocks.listQuestions.mockResolvedValue([
       {
