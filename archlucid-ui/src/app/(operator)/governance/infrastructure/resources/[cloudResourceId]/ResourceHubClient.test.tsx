@@ -304,6 +304,28 @@ describe("ResourceHubClient", () => {
     expect(screen.getAllByText("inventory")).toHaveLength(2);
   });
 
+  it("shows drift omission copy when property and old/new values are whitespace-only", async () => {
+    const baseChange = buildResourceHubTestMockHub().recentChanges[0];
+    fetchCachedInfraEvidenceResourceHub.mockImplementation(async () =>
+      buildResourceHubTestMockHub({
+        recentChanges: [
+          {
+            ...baseChange,
+            property: "   ",
+            oldValue: "   ",
+            newValue: "   ",
+          },
+        ],
+      }),
+    );
+    searchParams = new URLSearchParams(`tab=drift&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}`);
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    expect(await screen.findByText("Property name was not stored.")).toBeInTheDocument();
+    expect(screen.getByText("Previous value was not stored.")).toBeInTheDocument();
+    expect(screen.getByText("Updated value was not stored.")).toBeInTheDocument();
+  });
+
   it("renders drift rows that share changeId but differ in property", async () => {
     const baseChange = buildResourceHubTestMockHub().recentChanges[0];
     fetchCachedInfraEvidenceResourceHub.mockImplementation(async () =>

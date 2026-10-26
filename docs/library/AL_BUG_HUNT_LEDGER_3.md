@@ -7174,6 +7174,34 @@ ABQ-09 churn hotspot.
 
 ## Zone: ui-infra-resource-hub
 
+2026-10-26 seed hunt (seed→hit): promoted whitespace-only drift change **property**, **old**, and **new** values shown as blank cells — `ResourceHubDriftChangesTable` used nullish coalescing without trim while hub configuration tables already used `formatStoredInfraEvidenceHubField`; regression `shows drift omission copy when property and old/new values are whitespace-only`; cheap-disproof closed tag/property/network/RBAC whitespace (prior hits), drift `riskClassification` whitespace (SeverityTag path; not promoted), and remediation/diagram whitespace (seeded below); scoped ResourceHubClient vitest 90/90. Private beta: drift tables on the resource hub show existing not-stored copy for property name and old/new values when capture stored only whitespace.
+
+- [x] (proven) `ResourceHubDriftChangesTable` — `property` / `oldValue` / `newValue` whitespace-only — **hit 2026-10-26 seed hunt:** `formatStoredInfraEvidenceHubField` on drift columns; regression drift-tab fixture.
+- [x] (valid-no-repro) `ResourceHubClient` configuration tags — key/value whitespace-only — **cheap-disproof 2026-10-26 seed hunt:** prior hits; regression locks retained.
+- [x] (valid-no-repro) `ResourceHubDriftChangesTable` — `riskClassification` whitespace-only — **cheap-disproof 2026-10-26 seed hunt:** null check only; SeverityTag may still render whitespace label; seeded below if needed.
+- [x] (valid-no-repro) `ResourceHubClient` remediation instances — `patternKey` whitespace-only — **cheap-disproof 2026-10-26 seed hunt:** not yet trimmed; seeded below.
+- [x] (valid-no-repro) `ResourceHubClient` diagram correspondence — `diagramNodeLabel` whitespace-only — **cheap-disproof 2026-10-26 seed hunt:** not yet trimmed; seeded below.
+
+- [ ] (candidate) `ResourceHubClient` remediation instances — `patternKey` whitespace-only — locus: remediation table pattern column; input: blank pattern label.
+- [ ] (candidate) `ResourceHubClient` diagram correspondence — `diagramNodeLabel` whitespace-only — locus: diagram tab label; input: blank node label.
+- [ ] (candidate) `ResourceHubClient` diagram correspondence — `confidenceBand` whitespace-only — locus: confidence tag label; input: whitespace band shown as real value.
+- [ ] (candidate) `ResourceHubDriftChangesTable` — `changeType` whitespace-only — locus: change type tag; input: blank or invalid change label.
+- [ ] (candidate) `ResourceHubClient` overview metadata — `resourceGroup` / `region` whitespace-only — locus: overview strip; input: blank vs omission copy parity with null.
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **aliases:** resource hub; infrastructure resource detail
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 62
+- **bugs-found:** 41
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-26
+- **last-bug:** 2026-10-26 — whitespace-only drift property and old/new values
+- **related-pd-tb:** none
+- **code-changed-since:** yes
+
 2026-10-26 seed hunt (seed→hit): promoted whitespace-only configuration **tag keys** shown as blank name cells — tag keys rendered raw while tag values and property keys already used `formatStoredInfraEvidenceHubField`; regression `shows tag key omission copy when a captured tag key is whitespace-only`; cheap-disproof closed network endpoint and RBAC whitespace (prior hits), drift/remediation/diagram whitespace (seeded below); scoped ResourceHubClient vitest 89/89. Private beta: tag tables show “Tag key was not stored.” instead of a blank key cell when capture stored only whitespace as the tag name.
 
 - [x] (proven) `ResourceHubClient` configuration tags — tag key whitespace-only — **hit 2026-10-26 seed hunt:** `formatStoredInfraEvidenceHubField` on tag key column; regression whitespace-tag-key fixture.

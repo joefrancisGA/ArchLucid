@@ -23,6 +23,7 @@ import type {
 } from "@/lib/infra-evidence/infra-evidence-hub-types";
 import type { InfrastructureAskAuditContext } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { formatStoredInfraEvidenceHubField } from "@/lib/infra-evidence/infra-evidence-resource-hub-display";
 
 export type ResourceHubDriftChangesTableProps = {
   readonly changes: readonly CloudResourceInventoryChangeSummary[];
@@ -104,7 +105,7 @@ export function ResourceHubDriftChangesTable(props: ResourceHubDriftChangesTable
                 href={buildChangeWorkbenchHref(change)}
                 data-testid={`${testIdPrefix}-change-${change.changeId}-${changeIndex}`}
               >
-                {change.property ?? "Property name was not stored."}
+                {formatStoredInfraEvidenceHubField(change.property, "Property name was not stored.")}
               </Link>
             </EnterpriseTableCell>
             {showChangeType ? (
@@ -125,10 +126,14 @@ export function ResourceHubDriftChangesTable(props: ResourceHubDriftChangesTable
               </EnterpriseTableCell>
             ) : null}
             {showOldNew ? (
-              <EnterpriseTableCell className="font-mono text-xs">{change.oldValue ?? "Previous value was not stored."}</EnterpriseTableCell>
+              <EnterpriseTableCell className="font-mono text-xs">
+                {formatStoredInfraEvidenceHubField(change.oldValue, "Previous value was not stored.")}
+              </EnterpriseTableCell>
             ) : null}
             {showOldNew ? (
-              <EnterpriseTableCell className="font-mono text-xs">{change.newValue ?? "Updated value was not stored."}</EnterpriseTableCell>
+              <EnterpriseTableCell className="font-mono text-xs">
+                {formatStoredInfraEvidenceHubField(change.newValue, "Updated value was not stored.")}
+              </EnterpriseTableCell>
             ) : null}
             <EnterpriseTableCell>
               <Button asChild size="sm" variant="outline">
