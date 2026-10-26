@@ -6515,6 +6515,8 @@ ABQ-09 churn hotspot; review detail route tree.
 ---
 
 ## Zone: ui-review-intake-wizards
+2026-10-26 thorough hunt (hit): promoted `useFirstPilotIntakeWizard` **example template prefill clobbering session restore** — `?template=` example prefill ran in a later effect than wizard session auto-restore, so a saved quick-start title/brief could be overwritten by the example copy on the same mount; mark example prefill applied when restoring and skip example prefill when title/brief already have text; regression `keeps restored quick-start title when template= deeplink and session auto-restore run on the same mount`; 11/11 `use-first-pilot-intake-wizard` tests. Cheap-disproof closed recheck pending-upload asymmetry (markResumed clears recheck chrome; parity with submit throw path) and scope-gate ref/state URL monitor. Private beta: quick start with both an example template deeplink and an auto-resumed session keeps the operator’s saved review title and brief.
+
 2026-10-26 thorough hunt (hit): promoted `useGuidedIntakeWizard` **rerun auto-submit guard** — `rerunAutoSubmitStartedRef` was one-shot for the mount, so changing `priorRunId` in place without remounting skipped the eligible auto-submit path for the second rerun deeplink; track auto-submit per `priorRunId` instead; regression `auto-submits again when priorRunId changes without remounting the wizard`; 1/1 rerun auto-submit test. Cheap-disproof closed picker template-restore vs query-prefill and guided-intake popstate race (prior passes). Private beta: guided intake rerun deeplinks each trigger auto-submit when clarifications are complete, not only the first prior run id seen in the session.
 
 2026-10-26 thorough hunt (hit): promoted `useGuidedIntakeDraftSubmit` **operator-home cache invalidation failure** after successful draft submit — `await invalidateOperatorHomeRunsCaches()` sat in the submit `try`, so a rejected invalidation hit the outer `catch`, set `submitError`, and skipped navigation even though the run was created; wrap invalidation in best-effort try/catch; regression `still navigates to generation when operator-home cache invalidation fails after draft submit`; 1/1 `use-guided-intake-draft-submit` test. Cheap-disproof closed picker template-restore ordering and guided-intake popstate (prior passes). Private beta: guided intake draft submit still hands off to review generation when operator-home cache refresh fails.
@@ -6537,8 +6539,8 @@ ABQ-09 churn hotspot; review detail route tree.
 - [x] (valid-no-repro) `useNewRunWizardClient` — `data-wizard-ready` before query prefill settles — **cheap-disproof 2026-10-26 thorough hunt:** readiness marks shell mount for e2e; prefills are effect-driven after form exists.
 - [x] (valid-no-repro) `useFirstPilotIntakeWizard.setScopeGateOpen` — rapid double functional toggle — **cheap-disproof 2026-10-26 thorough hunt:** React 18 batches functional updaters; URL commits remain consistent.
 
-- [ ] (candidate) `useFirstPilotIntakeWizard` — example-template prefill overwrites restored quick-start title when both apply on one mount — locus: example effect vs `onRestore`; input: `template=` deeplink plus accepted session restore.
-- [ ] (candidate) `useNewRunWizardSubmit.recheckUnresolvedRun` — pending evidence upload rejection after resume — locus: `recheckUnresolvedRun` await upload; input: compare submitRun upload throw handling.
+- [x] (proven) `useFirstPilotIntakeWizard` — example-template prefill overwrites restored quick-start title when both apply on one mount — **hit 2026-10-26 thorough hunt:** restore marks example prefill applied; skip when title/brief populated; regression template+auto-restore fixture.
+- [x] (valid-no-repro) `useNewRunWizardSubmit.recheckUnresolvedRun` — pending evidence upload rejection after resume — **cheap-disproof 2026-10-26 thorough hunt:** `markResumed` clears recheck UI; upload throw matches submitRun await semantics; monitor.
 - [x] (valid-no-repro) `useGuidedIntakeDraftSubmit` — cache invalidation failure after draft admission — **cheap-disproof 2026-10-26 thorough hunt:** prior hit; regression lock retained.
 - [ ] (candidate) `useFirstPilotIntakeWizard.setScopeGateOpen` — URL write skipped when ref matches resolved but React state lags — locus: ref vs state divergence on external URL edits.
 - [x] (proven) `useGuidedIntakeWizard` — `rerunAutoSubmitStartedRef` suppresses second eligible rerun without remount — **hit 2026-10-26 thorough hunt:** per-`priorRunId` guard; regression priorRunId swap fixture.
@@ -6550,14 +6552,14 @@ ABQ-09 churn hotspot; review detail route tree.
 - **impact:** high
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/new/
 - **test-filter:** FullyQualifiedName~reviews/new
-- **hunts:** 67
-- **bugs-found:** 38
+- **hunts:** 68
+- **bugs-found:** 39
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-26
-- **last-bug:** 2026-10-26 — rerun auto-submit skipped second priorRunId deeplink
+- **last-bug:** 2026-10-26 — example template prefill clobbered quick-start session restore
 - **code-changed-since:** yes
 
-**Hunts:** 67 · **Bugs found:** 38 · **Consecutive dry hunts:** 0
+**Hunts:** 68 · **Bugs found:** 39 · **Consecutive dry hunts:** 0
 
 2026-10-09 seed hunt (seed-only): `ui-review-intake-wizards` — re-read full and quick submit orchestration, draft admission, evidence handoff, and scope-gate URL synchronization; no new hypothesis met the same-run failing-repro bar without repeating a saturated unhandled-rejection or post-create handoff class. Seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
 
