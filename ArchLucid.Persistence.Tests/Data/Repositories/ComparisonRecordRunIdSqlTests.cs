@@ -32,6 +32,26 @@ public sealed class ComparisonRecordRunIdSqlTests
     }
 
     [Fact]
+    public void ToNullableSqlGuid_trims_surrounding_whitespace_before_parse()
+    {
+        Guid g = Guid.Parse("1c1d6210-6767-47c1-8bc6-08dd8a6b2c01");
+        string padded = $"{g:D}\r\n";
+
+        ComparisonRecordRunIdSql.ToNullableSqlGuid(padded).Should().Be(g);
+    }
+
+    [Fact]
+    public void ThrowIfNonEmptyButNotGuid_accepts_padded_guid()
+    {
+        Guid g = Guid.NewGuid();
+
+        Action act = () =>
+            ComparisonRecordRunIdSql.ThrowIfNonEmptyButNotGuid($"  {g:D}  ", "runId");
+
+        act.Should().NotThrow();
+    }
+
+    [Fact]
     public void NormalizeRunIdsForRead_canonicalizes_both_ids()
     {
         Guid left = Guid.NewGuid();

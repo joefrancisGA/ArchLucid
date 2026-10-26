@@ -1,8 +1,9 @@
 using ArchLucid.ArtifactSynthesis.Interfaces;
-using ArchLucid.Contracts.Persistence.DecisionTraces;
-using ArchLucid.Contracts.Persistence.Context;
-using ArchLucid.Contracts.Persistence.TechnologyLedger;
 using ArchLucid.ArtifactSynthesis.Models;
+using ArchLucid.Contracts.Persistence.Context;
+using ArchLucid.Contracts.Persistence.DecisionTraces;
+using ArchLucid.Contracts.Persistence.TechnologyLedger;
+using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
@@ -47,6 +48,16 @@ public sealed class AuthorityReplayServiceTests
         dto.ContextSnapshot = new ContextSnapshot { SnapshotId = Guid.NewGuid() };
         dto.GraphSnapshot = new GraphSnapshot { GraphSnapshotId = Guid.NewGuid() };
         dto.FindingsSnapshot = new FindingsSnapshot { FindingsSnapshotId = Guid.NewGuid() };
+        dto.GoldenManifest = new ManifestDocument
+        {
+            ManifestId = Guid.NewGuid(),
+            RunId = runId,
+            ManifestHash = "abc123",
+            CreatedUtc = DateTime.UtcNow,
+            RuleSetId = "rules",
+            RuleSetVersion = "1",
+            RuleSetHash = "rule-hash",
+        };
         return dto;
     }
 
@@ -54,7 +65,8 @@ public sealed class AuthorityReplayServiceTests
         Mock<IAuthorityQueryService> Query,
         Mock<IDecisionEngine> DecisionEngine,
         Mock<IArtifactSynthesisService> ArtifactSvc,
-        Mock<IManifestHashService> HashSvc)
+        Mock<IManifestHashService> HashSvc,
+        Mock<ITechnologyLedgerRepository> LedgerRepo)
         Build(RunDetailDto? returnedDto = null)
     {
         Mock<IAuthorityQueryService> query = new();
@@ -130,7 +142,7 @@ public sealed class AuthorityReplayServiceTests
             artifactRepo.Object,
             ledgerRepo.Object);
 
-        return (sut, query, decisionEngine, artifactSvc, hashSvc);
+        return (sut, query, decisionEngine, artifactSvc, hashSvc, ledgerRepo);
     }
 
     // ──────────────────────────────────────────────────────────────────────────
@@ -140,7 +152,7 @@ public sealed class AuthorityReplayServiceTests
     [Fact]
     public async Task ReplayAsync_UnknownRunId_ReturnsNull()
     {
-        (AuthorityReplayService sut, _, _, _, _) = Build(returnedDto: null);
+        (AuthorityReplayService sut, _, _, _, _, _) = Build(returnedDto: null);
 
         ReplayResult? result = await sut.ReplayAsync(
             new ReplayRequest { RunId = Guid.NewGuid(), Mode = ReplayMode.ReconstructOnly },
@@ -157,7 +169,7 @@ public sealed class AuthorityReplayServiceTests
     public async Task ReplayAsync_ReconstructOnly_DoesNotCallDecisionEngine()
     {
         Guid runId = Guid.NewGuid();
-        (AuthorityReplayService sut, _, Mock<IDecisionEngine> engine, Mock<IArtifactSynthesisService> artifactSvc, _)
+        (AuthorityReplayService sut, _, Mock<IDecisionEngine> engine, Mock<IArtifactSynthesisService> artifactSvc, _, _)
             = Build(MakeDetailDto(runId));
 
         ReplayResult? result = await sut.ReplayAsync(
@@ -186,7 +198,7 @@ public sealed class AuthorityReplayServiceTests
     public async Task ReplayAsync_RebuildManifest_CallsDecisionEngineButNotArtifactSynthesis()
     {
         Guid runId = Guid.NewGuid();
-        (AuthorityReplayService sut, _, Mock<IDecisionEngine> engine, Mock<IArtifactSynthesisService> artifactSvc, _)
+        (AuthorityReplayService sut, _, Mock<IDecisionEngine> engine, Mock<IArtifactSynthesisService> artifactSvc, _, _)
             = Build(MakeFullDetailDto(runId));
 
         ReplayResult? result = await sut.ReplayAsync(
@@ -215,7 +227,7 @@ public sealed class AuthorityReplayServiceTests
     public async Task ReplayAsync_RebuildArtifacts_CallsBothDecisionEngineAndArtifactSynthesis()
     {
         Guid runId = Guid.NewGuid();
-        (AuthorityReplayService sut, _, Mock<IDecisionEngine> engine, Mock<IArtifactSynthesisService> artifactSvc, _)
+        (AuthorityReplayService sut, _, Mock<IDecisionEngine> engine, Mock<IArtifactSynthesisService> artifactSvc, _, _)
             = Build(MakeFullDetailDto(runId));
 
         ReplayResult? result = await sut.ReplayAsync(
@@ -240,7 +252,7 @@ public sealed class AuthorityReplayServiceTests
     public async Task ReplayAsync_unknown_mode_throws_and_does_not_call_decision_engine()
     {
         Guid runId = Guid.NewGuid();
-        (AuthorityReplayService sut, _, Mock<IDecisionEngine> engine, Mock<IArtifactSynthesisService> artifactSvc, _)
+        (AuthorityReplayService sut, _, Mock<IDecisionEngine> engine, Mock<IArtifactSynthesisService> artifactSvc, _, _)
             = Build(MakeFullDetailDto(runId));
 
         Func<Task> act = () => sut.ReplayAsync(
@@ -262,5 +274,64 @@ public sealed class AuthorityReplayServiceTests
                 It.IsAny<IReadOnlyList<TechnologyLedgerEntry>>(),
                 It.IsAny<CancellationToken>()),
             Times.Never);
+    }
+
+    [Fact]
+    public async Task CompareQuality_ReplayAsync_RebuildArtifacts_merges_technology_ledger_when_stored_under_legacy_run_id_key()
+    {
+        Guid runGuid = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
+        string canonicalRunId = runGuid.ToString("N");
+        string legacyUpper = canonicalRunId.ToUpperInvariant();
+
+        RunDetailDto detail = MakeFullDetailDto(runGuid);
+
+        TechnologyLedgerEntry legacyEntry = new()
+        {
+            EntryId = "ledger-replay-legacy",
+            RunId = legacyUpper,
+            Role = TechnologyLedgerRole.CloudPlatform,
+            TechnologyName = "Amazon Web Services",
+            Status = TechnologyLedgerStatus.Chosen,
+            Source = TechnologyLedgerSource.User,
+        };
+
+        (AuthorityReplayService sut, _, _, Mock<IArtifactSynthesisService> artifactSvc, _, Mock<ITechnologyLedgerRepository> ledgerRepo)
+            = Build(detail);
+
+        ledgerRepo.Reset();
+        ledgerRepo
+            .Setup(repository => repository.GetByRunIdAsync(It.IsAny<ScopeContext>(), canonicalRunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+        ledgerRepo
+            .Setup(repository => repository.GetByRunIdAsync(It.IsAny<ScopeContext>(), legacyUpper, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([legacyEntry]);
+        ledgerRepo
+            .Setup(repository => repository.GetByRunIdAsync(
+                It.IsAny<ScopeContext>(),
+                It.Is<string>(id => id != canonicalRunId && id != legacyUpper),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        IReadOnlyList<TechnologyLedgerEntry>? capturedLedger = null;
+        artifactSvc
+            .Setup(service => service.SynthesizeAsync(
+                It.IsAny<ManifestDocument>(),
+                It.IsAny<IReadOnlyList<TechnologyLedgerEntry>>(),
+                It.IsAny<CancellationToken>()))
+            .Callback<ManifestDocument, IReadOnlyList<TechnologyLedgerEntry>, CancellationToken>(
+                (_, ledger, _) => capturedLedger = ledger)
+            .ReturnsAsync(new ArtifactBundle { BundleId = Guid.NewGuid() });
+
+        ReplayResult? result = await sut.ReplayAsync(
+            new ReplayRequest { RunId = runGuid, Mode = ReplayMode.RebuildArtifacts },
+            CancellationToken.None);
+
+        result.Should().NotBeNull();
+        result!.RebuiltArtifactBundle.Should().NotBeNull();
+        capturedLedger.Should().NotBeNull();
+        capturedLedger!.Should().ContainSingle(entry => entry.EntryId == "ledger-replay-legacy");
+        ledgerRepo.Verify(
+            repository => repository.GetByRunIdAsync(It.IsAny<ScopeContext>(), legacyUpper, It.IsAny<CancellationToken>()),
+            Times.AtLeastOnce);
     }
 }

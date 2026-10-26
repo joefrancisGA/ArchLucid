@@ -1,3 +1,5 @@
+using System.Data;
+
 using ArchLucid.Application.Runs;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
@@ -111,6 +113,110 @@ public sealed class AgentExecuteIdempotentPersistReconciliationTests
         stored.Should().ContainSingle();
         stored[0].ResultId.Should().Be("replacement-topo");
         stored[0].Claims.Should().Contain("recovered");
+    }
+
+    [Fact]
+    public async Task CompareQuality_ShouldInsertEvidencePackageAsync_returns_false_when_package_stored_under_legacy_run_id_key()
+    {
+        Guid runGuid = Guid.Parse("54545454-5454-5454-5454-545454545454");
+        string runId = runGuid.ToString("N");
+        string legacyUpper = runId.ToUpperInvariant();
+        Mock<IAgentEvidencePackageRepository> evidenceRepo = new();
+        AgentEvidencePackage existing = new() { RunId = legacyUpper, EvidencePackageId = "pkg-legacy" };
+
+        evidenceRepo
+            .Setup(repository => repository.GetByRunIdAsync(runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((AgentEvidencePackage?)null);
+        evidenceRepo
+            .Setup(repository => repository.GetByRunIdAsync(legacyUpper, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(existing);
+        evidenceRepo
+            .Setup(repository => repository.GetByRunIdAsync(
+                It.Is<string>(id => id != runId && id != legacyUpper),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync((AgentEvidencePackage?)null);
+
+        bool shouldInsert = await AgentExecuteIdempotentPersistReconciliation.ShouldInsertEvidencePackageAsync(
+            evidenceRepo.Object,
+            new AgentEvidencePackage { RunId = runId, EvidencePackageId = "pkg-new" },
+            CancellationToken.None);
+
+        shouldInsert.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task CompareQuality_PersistAgentResultsAsync_skips_insert_when_persisted_task_under_legacy_run_id_key()
+    {
+        Guid runGuid = Guid.Parse("55555555-5555-5555-5555-555555555555");
+        string runId = runGuid.ToString("N");
+        string legacyUpper = runId.ToUpperInvariant();
+
+        AgentResult persisted = new()
+        {
+            ResultId = "existing-topo",
+            TaskId = "task-topo",
+            RunId = legacyUpper,
+            AgentType = AgentType.Topology,
+            Claims = ["done"],
+            Confidence = 0.9,
+        };
+
+        AgentResult retryCandidate = new()
+        {
+            ResultId = "new-topo",
+            TaskId = "task-topo",
+            RunId = runId,
+            AgentType = AgentType.Topology,
+            Claims = ["retry"],
+            Confidence = 0.9,
+        };
+
+        Mock<IAgentResultRepository> repository = new();
+        repository
+            .Setup(r => r.GetByRunIdAsync(
+                TestScope,
+                runId,
+                It.IsAny<CancellationToken>(),
+                It.IsAny<IDbConnection?>(),
+                It.IsAny<IDbTransaction?>()))
+            .ReturnsAsync([]);
+        repository
+            .Setup(r => r.GetByRunIdAsync(
+                TestScope,
+                legacyUpper,
+                It.IsAny<CancellationToken>(),
+                It.IsAny<IDbConnection?>(),
+                It.IsAny<IDbTransaction?>()))
+            .ReturnsAsync([persisted]);
+        repository
+            .Setup(r => r.GetByRunIdAsync(
+                TestScope,
+                It.Is<string>(id => id != runId && id != legacyUpper),
+                It.IsAny<CancellationToken>(),
+                It.IsAny<IDbConnection?>(),
+                It.IsAny<IDbTransaction?>()))
+            .ReturnsAsync([]);
+
+        await AgentExecuteIdempotentPersistReconciliation.PersistAgentResultsAsync(
+            repository.Object,
+            TestScope,
+            [retryCandidate],
+            CancellationToken.None);
+
+        repository.Verify(
+            r => r.CreateManyAsync(
+                It.IsAny<IReadOnlyList<AgentResult>>(),
+                It.IsAny<CancellationToken>(),
+                It.IsAny<IDbConnection?>(),
+                It.IsAny<IDbTransaction?>()),
+            Times.Never);
+        repository.Verify(
+            r => r.ReplaceForRunTaskAsync(
+                It.IsAny<AgentResult>(),
+                It.IsAny<CancellationToken>(),
+                It.IsAny<IDbConnection?>(),
+                It.IsAny<IDbTransaction?>()),
+            Times.Never);
     }
 
     [Fact]
