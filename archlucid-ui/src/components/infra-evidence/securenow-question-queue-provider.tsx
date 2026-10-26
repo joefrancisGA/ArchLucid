@@ -56,6 +56,7 @@ type DrawerAction = "answer" | "ignore" | "reopen";
 type LoadQuestionsOptions = {
   readonly preferredFilter?: QueueFilter;
   readonly focusQuestionIdentity?: string;
+  readonly reloadAfterMutation?: boolean;
 };
 
 const VISIT_CAP = 10;
@@ -187,15 +188,33 @@ function resolveQueueFilterAfterReload(
   return secureNowQuestionQueueInitialReviewFilter(loadedQuestions);
 }
 
-function indexInFilterForIdentity(
-  questions: readonly SecureNowQuestion[],
+function resolveFocusAfterReload(
+  loadedQuestions: readonly SecureNowQuestion[],
   queueFilter: QueueFilter,
-  identity: string,
-): number {
-  const index = filterQuestions(questions, queueFilter).findIndex(
-    (question) => questionIdentity(question) === identity,
+  focusIdentity?: string,
+): { filter: QueueFilter; index: number } {
+  if (focusIdentity == null) {
+    return { filter: queueFilter, index: 0 };
+  }
+
+  const rowsInCurrentFilter = filterQuestions(loadedQuestions, queueFilter);
+  const indexInCurrent = rowsInCurrentFilter.findIndex(
+    (question) => questionIdentity(question) === focusIdentity,
   );
-  return index >= 0 ? index : 0;
+  if (indexInCurrent >= 0) {
+    return { filter: queueFilter, index: indexInCurrent };
+  }
+
+  const filters: QueueFilter[] = ["Open", "Answered", "Dismissed", "Status not stored"];
+  for (const candidateFilter of filters) {
+    const rows = filterQuestions(loadedQuestions, candidateFilter);
+    const index = rows.findIndex((question) => questionIdentity(question) === focusIdentity);
+    if (index >= 0) {
+      return { filter: candidateFilter, index };
+    }
+  }
+
+  return { filter: queueFilter, index: 0 };
 }
 
 function findInferredConnection(
@@ -231,6 +250,8 @@ export function SecureNowQuestionQueueProvider(
 
   const { snapshotId, children } = props;
   const [questions, setQuestions] = useState<SecureNowQuestion[]>([]);
+  const questionsRef = useRef(questions);
+  questionsRef.current = questions;
   const [inferredConnections, setInferredConnections] = useState<OperatorInferredConnectionRow[]>([]);
   const [filter, setFilter] = useState<QueueFilter>("Open");
   const filterRef = useRef<QueueFilter>(filter);
@@ -279,10 +300,13 @@ export function SecureNowQuestionQueueProvider(
     const requestSequence = affectsActiveSnapshot
       ? ++loadSequence.current
       : loadSequence.current;
+    const hadListedQuestionsBeforeLoad = questionsRef.current.length > 0;
     if (affectsActiveSnapshot) {
       setLoading(true);
       setQuestionsLoaded(false);
-      setError(null);
+      if (!options?.reloadAfterMutation) {
+        setError(null);
+      }
     }
     try {
       const [questionsResult, connectionsResult] = await Promise.allSettled([
@@ -307,25 +331,32 @@ export function SecureNowQuestionQueueProvider(
         filterRef.current,
         options?.preferredFilter,
       );
-      setFilter(nextFilter);
+      const focusPlacement = resolveFocusAfterReload(
+        loadedQuestions,
+        nextFilter,
+        options?.focusQuestionIdentity,
+      );
+      setFilter(focusPlacement.filter);
+      if (options?.reloadAfterMutation) {
+        setError(null);
+      }
       if (connectionsResult.status === "fulfilled") {
         setInferredConnections(connectionsResult.value);
+        setError(null);
       } else {
         setInferredConnections([]);
-        setError(
-          operatorInferredConnectionPanelErrorFromUnknown(
+        setError({
+          ...operatorInferredConnectionPanelErrorFromUnknown(
             connectionsResult.reason,
             "Could not load inferred connections.",
             "load",
           ),
-        );
+          ...(options?.reloadAfterMutation
+            ? { recoveryScenario: "securenow-inferred-connections-refresh-failed" as const }
+            : {}),
+        });
       }
-      const focusIdentity = options?.focusQuestionIdentity;
-      setCurrentIndex(
-        focusIdentity != null
-          ? indexInFilterForIdentity(loadedQuestions, nextFilter, focusIdentity)
-          : 0,
-      );
+      setCurrentIndex(focusPlacement.index);
       setSelectedAnswer(null);
       setReason("");
       setDrawerAction("answer");
@@ -333,13 +364,21 @@ export function SecureNowQuestionQueueProvider(
       if (affectsActiveSnapshot && requestSequence !== loadSequence.current) return;
       if (!secureNowQueueLoadAffectsActiveSnapshot(loadingSnapshotId, snapshotIdRef.current)) return;
 
-      setError(
-        operatorInferredConnectionPanelErrorFromUnknown(
+      setError({
+        ...operatorInferredConnectionPanelErrorFromUnknown(
           loadError,
-          "Could not load SecureNow questions.",
+          options?.reloadAfterMutation
+            ? "Could not refresh the SecureNow question list."
+            : "Could not load SecureNow questions.",
           "load",
         ),
-      );
+        ...(options?.reloadAfterMutation
+          ? { recoveryScenario: "securenow-queue-reload-after-mutation" as const }
+          : {}),
+      });
+      if (hadListedQuestionsBeforeLoad) {
+        setQuestionsLoaded(true);
+      }
     } finally {
       if (
         affectsActiveSnapshot
@@ -535,7 +574,7 @@ export function SecureNowQuestionQueueProvider(
       dispositionInferredConnection != null ? "Resource" : mutationScopeKind!;
 
     setBusy(true);
-    setError(null);
+    setError((current) => (current?.kind === "mutation" ? null : current));
     try {
       if (action === "ignore") {
         await ignoreSecureNowQuestion(snapshotId, {
@@ -591,6 +630,7 @@ export function SecureNowQuestionQueueProvider(
       await loadQuestions({
         preferredFilter,
         focusQuestionIdentity: questionIdentity(currentQuestion),
+        reloadAfterMutation: true,
       });
       setSelectedAnswer(null);
       setReason("");
@@ -685,7 +725,10 @@ export function SecureNowQuestionQueueProvider(
         {error != null ? (
           <OperatorMutationInlineError
             message={error.message}
-            recoveryScenario={operatorInferredConnectionPanelErrorRecoveryScenario(error.kind)}
+            recoveryScenario={
+              error.recoveryScenario
+              ?? operatorInferredConnectionPanelErrorRecoveryScenario(error.kind)
+            }
           />
         ) : null}
         {children}

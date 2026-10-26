@@ -8,6 +8,7 @@ import {
   SecureNowQuestionQueueSnapshotPromo,
   useSecureNowQuestionQueue,
 } from "@/components/infra-evidence/SecureNowQuestionQueue";
+import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 
 const mocks = vi.hoisted(() => ({
   listQuestions: vi.fn(),
@@ -35,6 +36,16 @@ vi.mock("@/lib/infra-evidence/operator-inferred-connection-api", () => ({
   confirmOperatorInferredConnection: mocks.confirmConnection,
   dismissOperatorInferredConnection: mocks.dismissConnection,
 }));
+
+function apiLoadFailure(message: string): ApiLoadFailureState {
+  return {
+    message,
+    problem: { title: "Bad Request", status: 400 },
+    correlationId: "corr-test",
+    httpStatus: 400,
+    retryAfterSeconds: null,
+  };
+}
 
 const question = {
   dispositionId: null,
@@ -1241,6 +1252,200 @@ describe("SecureNowQuestionQueue", () => {
     ).toBeInTheDocument();
   });
 
+  it("keeps a prior connection load warning visible while a post-answer reload is in flight", async () => {
+    let resolvePostSaveQuestions!: (value: typeof question[]) => void;
+    const postSaveQuestionsLoad = new Promise<typeof question[]>((resolve) => {
+      resolvePostSaveQuestions = resolve;
+    });
+
+    mocks.listQuestions
+      .mockResolvedValueOnce([question])
+      .mockImplementationOnce(() => postSaveQuestionsLoad);
+    mocks.listConnections
+      .mockRejectedValueOnce(new Error("connections unavailable"))
+      .mockResolvedValueOnce([]);
+
+    render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
+    await waitFor(() => expect(screen.getByText("connections unavailable")).toBeInTheDocument());
+
+    fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
+    fireEvent.click(screen.getByRole("button", { name: "Name the peer" }));
+    fireEvent.click(screen.getByRole("button", { name: "Save answer" }));
+
+    expect(screen.getByText("connections unavailable")).toBeInTheDocument();
+
+    resolvePostSaveQuestions([{ ...question, status: "Answered", answerCode: "NamePeer" }]);
+    await waitFor(() => {
+      expect(screen.queryByText("connections unavailable")).not.toBeInTheDocument();
+    });
+  });
+
+  it("clears a stale list-load error after a post-answer question reload succeeds", async () => {
+    mocks.listQuestions
+      .mockResolvedValueOnce([question])
+      .mockRejectedValueOnce({
+        message: "list refresh failed",
+        problem: null,
+        correlationId: null,
+        httpStatus: 500,
+        retryAfterSeconds: null,
+      })
+      .mockResolvedValueOnce([{ ...question, status: "Answered", answerCode: "NamePeer" }]);
+    mocks.listConnections.mockResolvedValue([]);
+
+    render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
+    fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
+    fireEvent.click(screen.getByRole("button", { name: "Name the peer" }));
+    fireEvent.click(screen.getByRole("button", { name: "Save answer" }));
+
+    await waitFor(() => expect(screen.getByText("list refresh failed")).toBeInTheDocument());
+
+    fireEvent.click(screen.getByRole("button", { name: "Name the peer" }));
+    fireEvent.click(screen.getByRole("button", { name: "Save answer" }));
+
+    await waitFor(() => expect(screen.queryByText("list refresh failed")).not.toBeInTheDocument());
+    expect(screen.getByTestId("infra-diagrams-question-disposition-status")).toHaveTextContent("Answered");
+  });
+
+  it("shows honest recovery when inferred connections fail after a post-answer reload", async () => {
+    mocks.listQuestions
+      .mockResolvedValueOnce([question])
+      .mockResolvedValueOnce([{ ...question, status: "Answered", answerCode: "NamePeer" }]);
+    mocks.listConnections
+      .mockResolvedValueOnce([])
+      .mockRejectedValueOnce(new Error("connections refresh failed"));
+
+    render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
+    fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
+    fireEvent.click(screen.getByRole("button", { name: "Name the peer" }));
+    fireEvent.click(screen.getByRole("button", { name: "Save answer" }));
+
+    await waitFor(() => expect(mocks.answerQuestion).toHaveBeenCalled());
+    expect(await screen.findByText("connections refresh failed")).toBeInTheDocument();
+    expect(screen.getByTestId("operator-error-recovery-intact")).toHaveTextContent(
+      "Your SecureNow question list was refreshed after the update",
+    );
+    expect(screen.getByTestId("infra-diagrams-question-disposition-status")).toHaveTextContent("Answered");
+  });
+
+  it("keeps governance-mutation recovery when ignore throws ApiLoadFailureState", async () => {
+    mocks.listQuestions.mockResolvedValue([question]);
+    mocks.ignoreQuestion.mockRejectedValue(
+      apiLoadFailure("Compiled question validation failed: reason required."),
+    );
+
+    render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
+    fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
+    fireEvent.click(screen.getByRole("button", { name: "Don't ask again" }));
+    fireEvent.change(screen.getByRole("textbox", { name: "Reason for not asking again" }), {
+      target: { value: "Already covered in runbook." },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Save" }));
+
+    expect(await screen.findByTestId("operator-mutation-inline-error")).toHaveTextContent(
+      "Compiled question validation failed: reason required.",
+    );
+    expect(screen.getByTestId("operator-error-recovery-what-failed")).toHaveTextContent(
+      "The governance change did not save.",
+    );
+  });
+
+  it("keeps governance-mutation recovery when reopen throws ApiLoadFailureState", async () => {
+    mocks.listQuestions.mockResolvedValue([
+      {
+        ...question,
+        status: "Ignored",
+        answerCode: null,
+        answerText: null,
+        reason: "Operator chose not to answer.",
+      },
+    ]);
+    mocks.reopenQuestion.mockRejectedValue(
+      apiLoadFailure("Question disposition was not found."),
+    );
+
+    render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
+    fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
+    fireEvent.change(screen.getByRole("textbox", { name: "Reason for reopening" }), {
+      target: { value: "Needs another look." },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Reopen" }));
+
+    expect(await screen.findByTestId("operator-mutation-inline-error")).toHaveTextContent(
+      "Question disposition was not found.",
+    );
+    expect(screen.getByTestId("operator-error-recovery-what-failed")).toHaveTextContent(
+      "The governance change did not save.",
+    );
+  });
+
+  it("keeps governance-mutation recovery when save answer throws ApiLoadFailureState", async () => {
+    mocks.listQuestions.mockResolvedValue([question]);
+    mocks.answerQuestion.mockRejectedValue(
+      apiLoadFailure("Compiled question validation failed: answer not in set."),
+    );
+
+    render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
+    fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
+    fireEvent.click(screen.getByRole("button", { name: "Name the peer" }));
+    fireEvent.click(screen.getByRole("button", { name: "Save answer" }));
+
+    expect(await screen.findByTestId("operator-mutation-inline-error")).toHaveTextContent(
+      "Compiled question validation failed: answer not in set.",
+    );
+    expect(screen.getByTestId("operator-error-recovery-what-failed")).toHaveTextContent(
+      "The governance change did not save.",
+    );
+  });
+
+  it("keeps questions saveable when a post-answer reload fails", async () => {
+    mocks.listQuestions
+      .mockResolvedValueOnce([question])
+      .mockRejectedValueOnce({
+        message: "reload failed",
+        problem: null,
+        correlationId: null,
+        httpStatus: 500,
+        retryAfterSeconds: null,
+      })
+      .mockResolvedValueOnce([{ ...question, status: "Answered" }]);
+
+    function QuestionsLoadedProbe() {
+      const { questionsLoaded } = useSecureNowQuestionQueue();
+      return (
+        <div data-testid="questions-loaded-probe">{questionsLoaded ? "loaded" : "pending"}</div>
+      );
+    }
+
+    function QueueWithLoadedProbe({ snapshotId }: { snapshotId: string }) {
+      return (
+        <SecureNowQuestionQueueProvider snapshotId={snapshotId}>
+          <QuestionsLoadedProbe />
+          <SecureNowQuestionQueueSnapshotPromo />
+          <SecureNowQuestionQueueBar outline={null} />
+        </SecureNowQuestionQueueProvider>
+      );
+    }
+
+    render(<QueueWithLoadedProbe snapshotId="snapshot-1" />);
+    await waitFor(() => expect(screen.getByTestId("questions-loaded-probe")).toHaveTextContent("loaded"));
+
+    fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
+    fireEvent.click(screen.getByRole("button", { name: "Name the peer" }));
+    fireEvent.click(screen.getByRole("button", { name: "Save answer" }));
+
+    await waitFor(() => expect(screen.getByText("reload failed")).toBeInTheDocument());
+    expect(screen.getByTestId("operator-error-recovery-intact")).toHaveTextContent(
+      "Your disposition update may already be saved on the server",
+    );
+    expect(screen.getByTestId("questions-loaded-probe")).toHaveTextContent("loaded");
+
+    fireEvent.click(screen.getByRole("button", { name: "Name the peer" }));
+    fireEvent.click(screen.getByRole("button", { name: "Save answer" }));
+
+    await waitFor(() => expect(mocks.answerQuestion).toHaveBeenCalledTimes(2));
+  });
+
   it("keeps the active snapshot loading state when a stale snapshot reload finishes first", async () => {
     const snapshotOneQuestion = {
       ...question,
@@ -1853,6 +2058,105 @@ describe("SecureNowQuestionQueue", () => {
     expect(screen.getByTestId("infra-diagrams-question-disposition-status")).toHaveTextContent("Dismissed");
     expect(screen.getByTestId("infra-diagrams-question-text")).toHaveTextContent(otherOpen.questionText);
     expect(screen.queryByText(question.questionText)).not.toBeInTheDocument();
+  });
+
+  it("keeps focus on the saved question when the answered filter omits a stale open row after save", async () => {
+    const answeredRow = {
+      ...question,
+      resourceId:
+        "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.DataFactory/factories/other-resource",
+      resourceName: "other-resource",
+      questionText: "Should other-resource connect to a peer, or stand alone?",
+      reasonText:
+        "SecureNow found no connection to or from other-resource. Data factory is not treated as a shared service that can stand alone.",
+      status: "Answered",
+      answerCode: "NamePeer",
+      answerText: "Name the peer",
+      reason: "Operator selected the peer.",
+    };
+
+    mocks.listQuestions
+      .mockResolvedValueOnce([question, answeredRow])
+      .mockResolvedValueOnce([question, answeredRow]);
+
+    render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
+    fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
+    fireEvent.click(screen.getByRole("button", { name: "Name the peer" }));
+    fireEvent.click(screen.getByRole("button", { name: "Save answer" }));
+
+    await waitFor(() => expect(mocks.answerQuestion).toHaveBeenCalled());
+    expect(screen.getByRole("button", { name: "Open" }).className).toContain("al-primary-action-bg");
+    expect(screen.getByTestId("infra-diagrams-question-text")).toHaveTextContent(question.questionText);
+    expect(screen.queryByText(answeredRow.questionText)).not.toBeInTheDocument();
+  });
+
+  it("keeps focus on the ignored question when the dismissed filter omits a stale open row after save", async () => {
+    const dismissedRow = {
+      ...question,
+      resourceId:
+        "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.DataFactory/factories/other-resource",
+      resourceName: "other-resource",
+      questionText: "Should other-resource connect to a peer, or stand alone?",
+      reasonText:
+        "SecureNow found no connection to or from other-resource. Data factory is not treated as a shared service that can stand alone.",
+      status: "Ignored",
+      answerCode: null,
+      answerText: null,
+      reason: "Operator chose not to answer earlier.",
+    };
+
+    mocks.listQuestions
+      .mockResolvedValueOnce([question, dismissedRow])
+      .mockResolvedValueOnce([question, dismissedRow]);
+
+    render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
+    fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
+    fireEvent.click(screen.getByRole("button", { name: "Don't ask again" }));
+    fireEvent.change(screen.getByRole("textbox", { name: "Reason for not asking again" }), {
+      target: { value: "Operator chose not to answer." },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Save" }));
+
+    await waitFor(() => expect(mocks.ignoreQuestion).toHaveBeenCalled());
+    expect(screen.getByRole("button", { name: "Open" }).className).toContain("al-primary-action-bg");
+    expect(screen.getByTestId("infra-diagrams-question-text")).toHaveTextContent(question.questionText);
+    expect(screen.queryByText(dismissedRow.questionText)).not.toBeInTheDocument();
+  });
+
+  it("keeps focus on the reopened question when the open filter omits a stale ignored row after save", async () => {
+    const otherOpen = {
+      ...question,
+      resourceId:
+        "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.DataFactory/factories/other-resource",
+      resourceName: "other-resource",
+      questionText: "Should other-resource connect to a peer, or stand alone?",
+      reasonText:
+        "SecureNow found no connection to or from other-resource. Data factory is not treated as a shared service that can stand alone.",
+    };
+    const dismissedRow = {
+      ...question,
+      status: "Ignored",
+      answerCode: null,
+      answerText: null,
+      reason: "Operator chose not to answer.",
+    };
+
+    mocks.listQuestions
+      .mockResolvedValueOnce([otherOpen, dismissedRow])
+      .mockResolvedValueOnce([otherOpen, dismissedRow]);
+
+    render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
+    fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
+    fireEvent.click(screen.getByRole("button", { name: "Dismissed" }));
+    fireEvent.change(screen.getByRole("textbox", { name: "Reason for reopening" }), {
+      target: { value: "Still needs review." },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Reopen" }));
+
+    await waitFor(() => expect(mocks.reopenQuestion).toHaveBeenCalled());
+    expect(screen.getByRole("button", { name: "Dismissed" }).className).toContain("al-primary-action-bg");
+    expect(screen.getByTestId("infra-diagrams-question-text")).toHaveTextContent(question.questionText);
+    expect(screen.queryByText(otherOpen.questionText)).not.toBeInTheDocument();
   });
 
   it("focuses the answered question after reload when another answered row exists", async () => {

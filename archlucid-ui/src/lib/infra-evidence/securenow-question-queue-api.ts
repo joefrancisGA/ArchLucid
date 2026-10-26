@@ -1,3 +1,9 @@
+import {
+  secureNowQuestionDispositionIsAnswered,
+  secureNowQuestionDispositionIsDismissed,
+  secureNowQuestionDispositionIsOpen,
+} from "@/lib/infra-evidence/securenow-question-disposition-status";
+import { secureNowQuestionDispositionMutationQuestionKey } from "@/lib/infra-evidence/securenow-question-mutation-resource-id";
 import { proxyJsonGet, proxyJsonPost } from "@/lib/proxy-json-client";
 
 export type SecureNowQuestion = {
@@ -72,6 +78,14 @@ export type SecureNowQuestionDisposition = {
 
 function stringOrDefault(value: unknown, fallback = ""): string {
   return typeof value === "string" ? value : fallback;
+}
+
+function mapDispositionRequiredString(value: unknown, fallback = ""): string {
+  if (typeof value !== "string") {
+    return fallback;
+  }
+
+  return value.trim();
 }
 
 function mapListedOptionalStringPreservingEmpty(value: unknown): string | null {
@@ -162,32 +176,147 @@ export function secureNowQuestionListedSnapshotMatchesContext(
   return listed === context;
 }
 
+/** Whether a POST disposition's question key matches the submitted mutation request after trim. */
+export function secureNowQuestionDispositionResponseQuestionKeyMatchesRequest(
+  dispositionQuestionKey: string,
+  requestQuestionKey: string,
+): boolean {
+  const responseKey = secureNowQuestionDispositionMutationQuestionKey(dispositionQuestionKey);
+  const requestKey = secureNowQuestionDispositionMutationQuestionKey(requestQuestionKey);
+
+  if (responseKey === null || requestKey === null) {
+    return false;
+  }
+
+  return responseKey === requestKey;
+}
+
+export const secureNowQuestionDispositionResponseRequiredStringFields = [
+  "dispositionId",
+  "snapshotId",
+  "subscriptionId",
+  "questionKey",
+  "evidenceFingerprint",
+  "source",
+  "scopeKind",
+  "status",
+] as const satisfies readonly (keyof SecureNowQuestionDisposition)[];
+
+export function secureNowQuestionDispositionScopeRequiresResourceId(
+  scopeKind: string,
+): boolean {
+  return scopeKind.trim().toLowerCase() === "resource";
+}
+
+function secureNowQuestionDispositionAnswerMetadataPresent(
+  disposition: SecureNowQuestionDisposition,
+): boolean {
+  const answerCode = disposition.answerCode?.trim() ?? "";
+  const answerText = disposition.answerText?.trim() ?? "";
+  return answerCode.length > 0 || answerText.length > 0;
+}
+
+const secureNowQuestionDispositionAuditEntryRequiredStringFields = [
+  "action",
+  "actorKey",
+  "occurredUtc",
+] as const satisfies readonly (keyof SecureNowQuestionDispositionAudit)[];
+
+function secureNowQuestionDispositionAuditEntriesAreUsable(
+  auditEntries: readonly SecureNowQuestionDispositionAudit[],
+): boolean {
+  return auditEntries.every((entry) =>
+    secureNowQuestionDispositionAuditEntryRequiredStringFields.every(
+      (field) => entry[field].trim().length > 0,
+    ),
+  );
+}
+
+export function secureNowQuestionDispositionResponseIsUsable(
+  disposition: SecureNowQuestionDisposition,
+): boolean {
+  if (!secureNowQuestionDispositionResponseRequiredStringFields.every(
+    (field) => disposition[field].length > 0,
+  )) {
+    return false;
+  }
+
+  if (
+    secureNowQuestionDispositionScopeRequiresResourceId(disposition.scopeKind)
+    && disposition.resourceId.length === 0
+  ) {
+    return false;
+  }
+
+  if (
+    secureNowQuestionDispositionIsAnswered(disposition.status)
+    && !secureNowQuestionDispositionAnswerMetadataPresent(disposition)
+  ) {
+    return false;
+  }
+
+  if (
+    secureNowQuestionDispositionIsDismissed(disposition.status)
+    && disposition.reason.trim().length === 0
+  ) {
+    return false;
+  }
+
+  if (
+    secureNowQuestionDispositionIsDismissed(disposition.status)
+    && secureNowQuestionDispositionAnswerMetadataPresent(disposition)
+  ) {
+    return false;
+  }
+
+  if (
+    secureNowQuestionDispositionIsOpen(disposition.status)
+    && secureNowQuestionDispositionAnswerMetadataPresent(disposition)
+  ) {
+    return false;
+  }
+
+  if (
+    !secureNowQuestionDispositionIsAnswered(disposition.status)
+    && !secureNowQuestionDispositionIsDismissed(disposition.status)
+    && !secureNowQuestionDispositionIsOpen(disposition.status)
+  ) {
+    return false;
+  }
+
+  if (!secureNowQuestionDispositionAuditEntriesAreUsable(disposition.auditEntries)) {
+    return false;
+  }
+
+  return true;
+}
+
 export function mapSecureNowQuestionDisposition(raw: Record<string, unknown>): SecureNowQuestionDisposition {
   return {
-    dispositionId: stringOrDefault(raw.dispositionId),
-    snapshotId: stringOrDefault(raw.snapshotId),
-    subscriptionId: stringOrDefault(raw.subscriptionId),
-    resourceId: stringOrDefault(raw.resourceId),
-    questionKey: stringOrDefault(raw.questionKey),
-    source: stringOrDefault(raw.source),
-    scopeKind: stringOrDefault(raw.scopeKind),
-    status: stringOrDefault(raw.status),
-    answerCode: typeof raw.answerCode === "string" ? raw.answerCode : null,
-    answerText: typeof raw.answerText === "string" ? raw.answerText : null,
-    reason: stringOrDefault(raw.reason),
-    expirationUtc: stringOrDefault(raw.expirationUtc),
+    dispositionId: mapDispositionRequiredString(raw.dispositionId),
+    snapshotId: mapDispositionRequiredString(raw.snapshotId),
+    subscriptionId: mapDispositionRequiredString(raw.subscriptionId),
+    resourceId: mapDispositionRequiredString(raw.resourceId),
+    questionKey: mapDispositionRequiredString(raw.questionKey),
+    source: mapDispositionRequiredString(raw.source),
+    scopeKind: mapDispositionRequiredString(raw.scopeKind),
+    status: mapDispositionRequiredString(raw.status),
+    answerCode: mapListedOptionalString(raw.answerCode),
+    answerText: mapListedOptionalString(raw.answerText),
+    reason: mapDispositionRequiredString(raw.reason),
+    expirationUtc: mapDispositionRequiredString(raw.expirationUtc),
     isExpired: mapJsonBoolean(raw.isExpired),
-    evidenceFingerprint: stringOrDefault(raw.evidenceFingerprint),
-    actorKey: stringOrDefault(raw.actorKey),
-    updatedUtc: stringOrDefault(raw.updatedUtc),
+    evidenceFingerprint: mapDispositionRequiredString(raw.evidenceFingerprint),
+    actorKey: mapDispositionRequiredString(raw.actorKey),
+    updatedUtc: mapDispositionRequiredString(raw.updatedUtc),
     auditEntries: Array.isArray(raw.auditEntries)
       ? raw.auditEntries.map((entry) => {
           const audit = (entry ?? {}) as Record<string, unknown>;
           return {
-            action: stringOrDefault(audit.action),
-            actorKey: stringOrDefault(audit.actorKey),
-            occurredUtc: stringOrDefault(audit.occurredUtc),
-            reason: stringOrDefault(audit.reason),
+            action: mapDispositionRequiredString(audit.action),
+            actorKey: mapDispositionRequiredString(audit.actorKey),
+            occurredUtc: mapDispositionRequiredString(audit.occurredUtc),
+            reason: mapDispositionRequiredString(audit.reason),
           };
         })
       : [],
@@ -244,6 +373,7 @@ export async function listSecureNowQuestions(snapshotId: string): Promise<Secure
 
 async function postSecureNowQuestionDisposition(
   path: string,
+  contextSnapshotId: string,
   request: SecureNowQuestionWrite | SecureNowQuestionReopen,
 ): Promise<SecureNowQuestionDisposition | undefined> {
   const raw = await proxyJsonPost<unknown>(path, request);
@@ -252,26 +382,40 @@ async function postSecureNowQuestionDisposition(
     return undefined;
   }
 
-  return mapSecureNowQuestionDisposition((raw ?? {}) as Record<string, unknown>);
+  const disposition = mapSecureNowQuestionDisposition((raw ?? {}) as Record<string, unknown>);
+  if (!secureNowQuestionListedSnapshotMatchesContext(disposition.snapshotId, contextSnapshotId)) {
+    return undefined;
+  }
+
+  if (
+    !secureNowQuestionDispositionResponseQuestionKeyMatchesRequest(
+      disposition.questionKey,
+      request.questionKey,
+    )
+  ) {
+    return undefined;
+  }
+
+  return secureNowQuestionDispositionResponseIsUsable(disposition) ? disposition : undefined;
 }
 
 export function answerSecureNowQuestion(
   snapshotId: string,
   request: SecureNowQuestionWrite,
 ): Promise<SecureNowQuestionDisposition | undefined> {
-  return postSecureNowQuestionDisposition(`${questionPath(snapshotId)}/answer`, request);
+  return postSecureNowQuestionDisposition(`${questionPath(snapshotId)}/answer`, snapshotId, request);
 }
 
 export function ignoreSecureNowQuestion(
   snapshotId: string,
   request: SecureNowQuestionWrite,
 ): Promise<SecureNowQuestionDisposition | undefined> {
-  return postSecureNowQuestionDisposition(`${questionPath(snapshotId)}/ignore`, request);
+  return postSecureNowQuestionDisposition(`${questionPath(snapshotId)}/ignore`, snapshotId, request);
 }
 
 export function reopenSecureNowQuestion(
   snapshotId: string,
   request: SecureNowQuestionReopen,
 ): Promise<SecureNowQuestionDisposition | undefined> {
-  return postSecureNowQuestionDisposition(`${questionPath(snapshotId)}/reopen`, request);
+  return postSecureNowQuestionDisposition(`${questionPath(snapshotId)}/reopen`, snapshotId, request);
 }
