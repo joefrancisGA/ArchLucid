@@ -30,6 +30,7 @@ public static class AzureInventoryEventGridWebhookHostExtractor
             trimmed = decoded;
         }
 
+        trimmed = TrimTrailingDotFromSchemeLessAuthority(trimmed);
         trimmed = TryBracketUnbracketedIpv6Authority(trimmed);
 
         Uri? uri = null;
@@ -70,6 +71,24 @@ public static class AzureInventoryEventGridWebhookHostExtractor
         }
 
         return host;
+    }
+
+    private static string TrimTrailingDotFromSchemeLessAuthority(string trimmed)
+    {
+        if (trimmed.Contains("://", StringComparison.Ordinal))
+        {
+            return trimmed;
+        }
+
+        int pathIndex = trimmed.IndexOf('/');
+        if (pathIndex <= 0)
+        {
+            return trimmed.TrimEnd('.');
+        }
+
+        string authority = trimmed[..pathIndex].TrimEnd('.');
+
+        return authority + trimmed[pathIndex..];
     }
 
     private static string TryBracketUnbracketedIpv6Authority(string trimmed)

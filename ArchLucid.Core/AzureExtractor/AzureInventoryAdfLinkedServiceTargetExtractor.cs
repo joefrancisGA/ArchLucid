@@ -111,9 +111,22 @@ public static class AzureInventoryAdfLinkedServiceTargetExtractor
 
         if (linkedServiceType.Equals("AzureSynapseAnalytics", StringComparison.OrdinalIgnoreCase))
         {
-            return NormalizeHost(
+            string? host = NormalizeHost(
                 TryReadHostFromUrl(AzureInventoryAdfTypePropertyReader.TryReadAllowedScalar(typePropertiesElement, "endpoint"))
                 ?? AzureInventoryAdfTypePropertyReader.TryReadAllowedScalar(typePropertiesElement, "server"));
+
+            if (!string.IsNullOrWhiteSpace(host))
+            {
+                return host;
+            }
+
+            if (typePropertiesElement.TryGetProperty("connectionString", out JsonElement connectionString)
+                && connectionString.ValueKind is JsonValueKind.String)
+            {
+                return TryExtractConnectionStringHost(connectionString.GetString());
+            }
+
+            return null;
         }
 
         if (linkedServiceType.Equals("AzureDataLakeStore", StringComparison.OrdinalIgnoreCase))

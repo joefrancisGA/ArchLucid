@@ -386,7 +386,8 @@ public static class AzureInventoryRouteTableRouteParser
             AddressPrefix = TryReadString(propertiesElement, "addressPrefix"),
             NextHopType = TryReadString(propertiesElement, "nextHopType"),
             NextHopIpAddress = TryReadNextHopIpAddress(propertiesElement, "nextHopIpAddress"),
-            NextHopArmId = TryReadNestedArmId(propertiesElement, "nextHop"),
+            NextHopArmId = TryReadNestedArmId(propertiesElement, "nextHop")
+                ?? TryReadNestedArmId(propertiesElement, "nextHopArmId"),
         };
 
         return true;
