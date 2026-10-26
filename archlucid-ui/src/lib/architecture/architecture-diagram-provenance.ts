@@ -33,6 +33,9 @@ export type ArchitectureDiagramProvenanceSummary = {
 export const ARCHITECTURE_DIAGRAM_USER_EDIT_VERSION_HONESTY =
   "This diagram version was edited by an architect. That edit does not by itself show that this component was drawn by hand." as const;
 
+export const ARCHITECTURE_DIAGRAM_PROVENANCE_MODEL_NOT_LOADED =
+  "Diagram provenance was not loaded — counts are not available on this surface." as const;
+
 export function summarizeArchitectureDiagramProvenance(
   model: ArchitectureDiagramModel | null,
 ): ArchitectureDiagramProvenanceSummary {
@@ -153,7 +156,7 @@ export function resolveArchitectureDiagramNodeDisplayLabel(label: string): strin
   return label;
 }
 
-function resolveArchitectureDiagramEdgeDisplayLabel(edge: ArchitectureDiagramEdge): string {
+export function resolveArchitectureDiagramEdgeDisplayLabel(edge: ArchitectureDiagramEdge): string {
   if (edge.label.length === 0) {
     return ARCHITECTURE_DIAGRAM_CONNECTION_LABEL_NOT_STORED;
   }
@@ -199,11 +202,11 @@ function buildProvenanceSentence(
   let core: string;
 
   if (provenanceClass === "accepted-inference") {
-    core = `${subject} (${label}) was inferred from the brief and accepted for this review.`;
+    core = `${subject} (${label}) was marked inferred and accepted for this review. An inference source was not stored on the element.`;
   } else if (provenanceClass === "evidence-backed") {
     core = `${subject} (${label}) is backed by asserted architecture content or evidence on this review.`;
   } else {
-    core = `${subject} (${label}) was inferred from the architecture brief and still needs architect confirmation before export.`;
+    core = `${subject} (${label}) was marked inferred and still needs architect confirmation before export. An inference source was not stored on the element.`;
   }
 
   if (diagramVersionSource === "regenerated") {

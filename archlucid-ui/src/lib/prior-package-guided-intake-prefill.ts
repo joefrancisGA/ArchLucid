@@ -5,6 +5,7 @@ import {
   stripScopeUnderstandingSection,
   type ScopeUnderstandingBullet,
 } from "@/lib/architecture/architecture-scope-understanding-check";
+import { buildMissingDraftActorsPlaceholderSet } from "@/lib/draft-intake/draft-intake-actor-honesty";
 import { extractAttachedIntakeFileNames } from "@/lib/intake-attached-file-names";
 import {
   extractGeneratedIntakeBriefTitle,
@@ -111,6 +112,10 @@ function resolveBusinessOutcome(
     return inlineOutcome;
   }
 
+  if (generatedBrief) {
+    return "";
+  }
+
   return "";
 }
 
@@ -118,6 +123,10 @@ function actorSetFromDraftActors(draftActors: readonly ApiActorDescriptor[] | nu
   const actors = (draftActors ?? [])
     .map(toActorDescriptor)
     .filter((actor): actor is ActorDescriptor => actor !== null);
+
+  if (actors.length === 0) {
+    return buildMissingDraftActorsPlaceholderSet();
+  }
 
   return { actors: [...actors] };
 }

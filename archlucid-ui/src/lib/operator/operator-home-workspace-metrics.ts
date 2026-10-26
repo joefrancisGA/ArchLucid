@@ -1,3 +1,5 @@
+import { filterTenantOverviewRuns } from "@/lib/operator/operator-home-recent-reviews-outcome";
+import { resolveOperatorHomeTenantScopedReviewTotalCount } from "@/lib/operator/operator-home-review-total-resolution";
 import { resolveRunFindingCountDisplay } from "@/lib/operator/operator-home-run-list-insight";
 import { formatOperatorHomeApprovalCheckWarningCount } from "@/lib/operator/operator-home-approval-check-warning-copy";
 import { normalizeOperatorHomeNonNegativeCount, resolveRunHomeStatusTag } from "@/lib/operator/run-home-status";
@@ -17,6 +19,24 @@ export type OperatorHomeWorkspaceMetricsSnapshot = {
   readonly evidenceSources: number;
   readonly hasReviews: boolean;
 };
+
+/** Fail-closed numeric fields before operator home copy interpolates metrics snapshots. */
+export function normalizeOperatorHomeWorkspaceMetricsForDisplay(
+  metrics: OperatorHomeWorkspaceMetricsSnapshot,
+): OperatorHomeWorkspaceMetricsSnapshot {
+  return {
+    reviewPackagesTotal: normalizeOperatorHomeNonNegativeCount(metrics.reviewPackagesTotal),
+    reviewPackagesCommitted: normalizeOperatorHomeNonNegativeCount(metrics.reviewPackagesCommitted),
+    reviewPackagesActive: normalizeOperatorHomeNonNegativeCount(metrics.reviewPackagesActive),
+    reviewPackagesAwaitingApproval: normalizeOperatorHomeNonNegativeCount(
+      metrics.reviewPackagesAwaitingApproval,
+    ),
+    openFindings: normalizeOperatorHomeNonNegativeCount(metrics.openFindings),
+    governanceWarnings: normalizeOperatorHomeNonNegativeCount(metrics.governanceWarnings),
+    evidenceSources: normalizeOperatorHomeNonNegativeCount(metrics.evidenceSources),
+    hasReviews: metrics.hasReviews,
+  };
+}
 
 function runHasEvidenceSource(run: RunSummary): boolean {
   return (
@@ -43,15 +63,26 @@ export type DeriveOperatorHomeWorkspaceMetricsInput = {
   readonly awaitingApprovalCount?: number;
 };
 
+/** Tenant-scoped metrics from full overview runs (filters demo/showcase rows; TB-1039 totals). */
+export function deriveOperatorHomeWorkspaceMetricsFromOverviewRuns(
+  overviewItems: readonly RunSummary[],
+  reportedTotalCount?: number,
+  awaitingApprovalCount = 0,
+): OperatorHomeWorkspaceMetricsSnapshot {
+  return deriveOperatorHomeWorkspaceMetrics(overviewItems, reportedTotalCount, awaitingApprovalCount);
+}
+
 /** Aggregates workspace metrics from operator-home runs dashboard data already on the page. */
 export function deriveOperatorHomeWorkspaceMetrics(
   items: readonly RunSummary[],
-  totalCount: number,
+  reportedTotalCount?: number,
   awaitingApprovalCount = 0,
 ): OperatorHomeWorkspaceMetricsSnapshot {
-  const reviewPackagesTotal = Number.isFinite(totalCount)
-    ? Math.max(0, Math.trunc(totalCount))
-    : 0;
+  const tenantItems = filterTenantOverviewRuns(items);
+  const reviewPackagesTotal = resolveOperatorHomeTenantScopedReviewTotalCount(
+    items,
+    reportedTotalCount,
+  );
 
   let reviewPackagesCommitted = 0;
   let reviewPackagesActive = 0;
@@ -59,7 +90,7 @@ export function deriveOperatorHomeWorkspaceMetrics(
   let governanceWarnings = 0;
   let evidenceSources = 0;
 
-  for (const run of items) {
+  for (const run of tenantItems) {
 
     if (run.isArchived === true) {
       continue;

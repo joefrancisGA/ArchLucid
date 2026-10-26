@@ -26,6 +26,11 @@ export function normalizeOidcDisplayString(value: string): string {
     .trim();
 }
 
+/** Normalizes opaque OAuth strings (PKCE state, nonce claims) before equality checks. */
+export function normalizeOidcOpaqueOAuthString(value: string): string {
+  return normalizeOidcDisplayString(stripOAuthInvisibleFormatChars(value.trim()).trim());
+}
+
 function isOAuthInvisibleFormatChar(char: string): boolean {
   if (char.length === 0) {
     return false;

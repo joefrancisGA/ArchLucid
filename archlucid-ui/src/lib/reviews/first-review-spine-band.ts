@@ -128,11 +128,45 @@ function resolveTopFindingTitleForSpine(finding: QuickDecisionFinding): string {
 }
 
 /** Compact first-viewport spine: gate outcome, execution mode, classification counts, top finding. */
+export const FIRST_REVIEW_SPINE_FINDINGS_SNAPSHOT_NOT_STORED =
+  "Findings snapshot was not stored — classification counts are withheld." as const;
+
 export function deriveFirstReviewSpineBandSummary(input: {
   readonly feasibilityVerdict: ManifestFeasibilityVerdict | null | undefined;
   readonly structuralExecutionMode: StructuralExecutionModeInput;
   readonly findings: readonly QuickDecisionFinding[];
+  readonly hasFindingsSnapshot?: boolean;
 }): FirstReviewSpineBandSummary | null {
+  if (input.hasFindingsSnapshot === false) {
+    const feasibilityVerdict = input.feasibilityVerdict ?? null;
+
+    return {
+      gateOutcomeLabel:
+        feasibilityVerdict !== null ? feasibilityVerdictKindLabel(feasibilityVerdict.kind) : "Gate outcome was not stored",
+      gateOutcomeTone: feasibilityVerdict !== null ? feasibilityVerdictTone(feasibilityVerdict.kind) : "warning",
+      gateOutcomeDetail: FIRST_REVIEW_SPINE_FINDINGS_SNAPSHOT_NOT_STORED,
+      executionModeLabel:
+        input.structuralExecutionMode === null || input.structuralExecutionMode === undefined
+          ? "Execution mode was not stored"
+          : formatStructuralExecutionModeLabel(input.structuralExecutionMode),
+      decisionGradeCount: 0,
+      checklistCount: 0,
+      uncitedCount: 0,
+      evidenceReferenceCountNotStored: true,
+      topFindingTitle: null,
+      topFindingId: null,
+      showTopFindingRow: false,
+      topFindingPolicyMapped: false,
+      topFindingSeverityLabel: null,
+      semanticSupportLine: null,
+      showLaneBHonesty: false,
+      treatmentSummaryLine: null,
+      recordedDispositionCount: 0,
+      openDecisionGradeDispositionCount: 0,
+      showDispositionNextAction: false,
+    };
+  }
+
   const findings = input.findings;
   const classificationCounts = countFindingsByClassificationBand(findings);
   const uncitedCount = countUncitedFindings(findings);

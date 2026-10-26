@@ -108,16 +108,19 @@ export function RunDetailEngineProvenanceRow(props: RunDetailEngineProvenanceRow
   return (
     <CollapsibleSection title="Engine & model" open={open} onToggle={setOpen}>
       <dl className={cn("m-0 grid gap-3 sm:grid-cols-2", OPERATOR_TYPOGRAPHY.body)}>
-        {provenance.modelAliasId ? (
-          <ProvenanceField label="Catalog alias" value={provenance.modelAliasId} />
-        ) : null}
+        <ProvenanceField
+          label="Catalog alias"
+          value={provenance.modelAliasId?.trim() || "Catalog alias was not stored."}
+        />
         <ProvenanceField label="Engine" value={engineLabel} />
-        {provenance.promptPackVersion ? (
-          <ProvenanceField label="Prompt pack" value={provenance.promptPackVersion} />
-        ) : null}
-        {provenance.policyPackVersion ? (
-          <ProvenanceField label="Policy pack" value={provenance.policyPackVersion} />
-        ) : null}
+        <ProvenanceField
+          label="Prompt pack"
+          value={provenance.promptPackVersion?.trim() || "Prompt pack version was not stored."}
+        />
+        <ProvenanceField
+          label="Policy pack"
+          value={provenance.policyPackVersion?.trim() || "Policy pack version was not stored."}
+        />
         <ProvenanceField
           label="Output schema"
           value={provenance.outputSchemaVersion ?? "Output schema version was not stored."}
@@ -142,7 +145,10 @@ export function RunDetailEngineProvenanceRow(props: RunDetailEngineProvenanceRow
           label="Run"
           value={formatReviewEngineRunTimestamp(provenance.runTimestampUtc)}
         />
-        {costLabel ? <ProvenanceField label="Est. cost" value={costLabel} /> : null}
+        <ProvenanceField
+          label="Est. cost"
+          value={costLabel ?? "Estimated cost was not stored."}
+        />
       </dl>
     </CollapsibleSection>
   );

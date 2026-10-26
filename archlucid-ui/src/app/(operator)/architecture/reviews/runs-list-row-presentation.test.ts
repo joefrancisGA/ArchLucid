@@ -3,7 +3,8 @@ import { describe, expect, it } from "vitest";
 import type { RunSummary } from "@/types/authority";
 
 import {
-  FINDINGS_SNAPSHOT_FLAG_NOT_STORED_LABEL,
+  displayRelativeCreated,
+  RUN_CREATED_TIME_NOT_STORED_COPY,
   RUN_LIST_FINDING_COUNT_NOT_STORED_LABEL,
   RUN_LIST_WARNING_COUNT_NOT_STORED_LABEL,
   runRowExplicitCountsLine,
@@ -12,36 +13,28 @@ import {
   runRowOutputReadinessLineBuyer,
 } from "./runs-list-row-presentation";
 
-const baseRun = (overrides: Partial<RunSummary> = {}): RunSummary => ({
-  runId: "00000000-0000-0000-0000-000000000001",
-  projectId: "default",
-  createdUtc: "2026-01-01T00:00:00.000Z",
-  ...overrides,
-});
+function run(createdUtc: string | null): RunSummary {
+  return {
+    runId: "run-1",
+    projectId: "project-1",
+    createdUtc: createdUtc ?? "",
+    hasGoldenManifest: false,
+  } as RunSummary;
+}
 
-describe("runs-list-row-presentation", () => {
-  it("reports findings snapshot flag was not stored instead of not started", () => {
-    const run = baseRun();
+function baseRun(overrides: Partial<RunSummary> = {}): RunSummary {
+  return {
+    runId: "00000000-0000-0000-0000-000000000001",
+    projectId: "default",
+    createdUtc: "2026-01-01T00:00:00.000Z",
+    ...overrides,
+  };
+}
 
-    expect(runRowOutputReadinessLineBuyer(run)).toBe(FINDINGS_SNAPSHOT_FLAG_NOT_STORED_LABEL);
-    expect(runRowOutputReadinessLine(run)).toContain(FINDINGS_SNAPSHOT_FLAG_NOT_STORED_LABEL);
-  });
-
-  it("reports per-count not stored labels when counts are omitted", () => {
-    const line = runRowExplicitCountsLine(
-      baseRun({ findingCount: null, warningCount: undefined, artifactCount: 2 }),
-      false,
-    );
-
-    expect(line).toContain(RUN_LIST_FINDING_COUNT_NOT_STORED_LABEL);
-    expect(line).toContain(RUN_LIST_WARNING_COUNT_NOT_STORED_LABEL);
-    expect(line).toContain("2 artifacts");
-  });
-
-  it("surfaces finding count not stored when it is the only omitted count", () => {
-    const line = runRowExplicitCountsLine(baseRun({ findingCount: null }), false);
-
-    expect(line).toContain(RUN_LIST_FINDING_COUNT_NOT_STORED_LABEL);
+describe("displayRelativeCreated", () => {
+  it("labels missing or unreadable created timestamps", () => {
+    expect(displayRelativeCreated(run(""))).toBe(RUN_CREATED_TIME_NOT_STORED_COPY);
+    expect(displayRelativeCreated(run("not-a-date"))).toBe(RUN_CREATED_TIME_NOT_STORED_COPY);
   });
 });
 

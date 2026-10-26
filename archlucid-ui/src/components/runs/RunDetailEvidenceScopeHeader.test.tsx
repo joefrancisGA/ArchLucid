@@ -19,5 +19,6 @@ describe("RunDetailEvidenceScopeHeader", () => {
 
     expect(screen.getByText("No submitted source documents are listed for this review.")).toBeInTheDocument();
     expect(screen.getByText("Evidence is complete for sponsor handoff.")).toBeInTheDocument();
+    expect(screen.getByText("No submitted source documents are listed.")).toBeInTheDocument();
   });
 });

@@ -49,6 +49,9 @@ export const PACKAGE_PRINT_META_CREATED_LABEL = "Created";
 export const PACKAGE_PRINT_LOADING_LABEL = "Loading review for print…";
 export const PACKAGE_PRINT_ERROR_FALLBACK = "This architecture review could not be loaded for print.";
 
+export const PACKAGE_PRINT_PIPELINE_STAGE_FLAGS_OMITTED_LINE =
+  "Assessment step flags were not stored on this summary — package status may not reflect pipeline progress.";
+
 export type PackagePrintStatusLabel =
   | "Draft"
   | "Active"
@@ -111,8 +114,26 @@ export type PackagePrintPresentation = {
   readonly meetingCaptureEntries?: readonly ReviewMeetingCaptureEntry[] | null;
   readonly transparencyTrail?: TransparencyTrail | null;
   readonly showQuietEnginesHint?: boolean;
+  readonly quietEnginesHintKind?: "quiet-engines" | "actor-count-not-stored";
   readonly rehearsalHonestyStrip?: PackagePrintRehearsalHonestyStrip | null;
+  readonly pipelineStageFlagsOmittedLine?: string | null;
 };
+
+function pipelineStageFlagIsKnown(value: boolean | null | undefined): boolean {
+  return value !== null && value !== undefined;
+}
+
+export function packagePrintPipelineStageFlagsOmitted(summary: RunSummary): boolean {
+  if (summary.hasGoldenManifest === true) {
+    return false;
+  }
+
+  return (
+    !pipelineStageFlagIsKnown(summary.hasContextSnapshot)
+    && !pipelineStageFlagIsKnown(summary.hasGraphSnapshot)
+    && !pipelineStageFlagIsKnown(summary.hasFindingsSnapshot)
+  );
+}
 
 function finiteCount(value: number | null | undefined): number | null {
   if (typeof value !== "number" || !Number.isFinite(value)) {
@@ -201,6 +222,8 @@ export function buildPackagePrintFindingsSummary(summary: RunSummary): string {
 
   if (warnings !== null && warnings > 0) {
     parts.push(`${warnings} warning${warnings === 1 ? "" : "s"}`);
+  } else if (warnings === 0) {
+    parts.push("0 warnings were stored.");
   } else if (warnings === null) {
     parts.push("Warning count was not stored.");
   }
@@ -253,15 +276,21 @@ export function resolvePackagePrintSynopsisHeading(statusLabel: PackagePrintStat
 }
 
 export function resolvePackagePrintSynopsisBody(presentation: PackagePrintPresentation): string {
+  const storedSynopsis = presentation.sponsorSynopsis?.trim() ?? "";
+
+  if (storedSynopsis.length > 0) {
+    return storedSynopsis;
+  }
+
   if (
     presentation.statusLabel === "Draft"
     || presentation.statusLabel === "Active"
     || presentation.statusLabel === "Awaiting approval"
   ) {
-    return formatPackagePrintDraftSynopsisBody(presentation.draftWorkingSynopsisParagraph);
+    return "Sponsor synopsis was not stored on this print.";
   }
 
-  return presentation.sponsorSynopsis ?? "Sponsor synopsis was not stored on this print.";
+  return "Sponsor synopsis was not stored on this print.";
 }
 
 export function buildPackagePrintSponsorSynopsis(summary: RunSummary): string | null {
@@ -304,6 +333,7 @@ export function buildPackagePrintPresentation(
     readonly meetingCaptureEntries?: readonly ReviewMeetingCaptureEntry[] | null;
     readonly transparencyTrail?: TransparencyTrail | null;
     readonly showQuietEnginesHint?: boolean;
+  readonly quietEnginesHintKind?: "quiet-engines" | "actor-count-not-stored";
     readonly rehearsalHonestyStrip?: PackagePrintRehearsalHonestyStrip | null;
     readonly draftWorkingSynopsisParagraph?: string | null;
   },
@@ -349,7 +379,11 @@ export function buildPackagePrintPresentation(
     meetingCaptureEntries: options?.meetingCaptureEntries ?? null,
     transparencyTrail: options?.transparencyTrail ?? null,
     showQuietEnginesHint: options?.showQuietEnginesHint ?? false,
+    quietEnginesHintKind: options?.quietEnginesHintKind ?? "quiet-engines",
     rehearsalHonestyStrip: options?.rehearsalHonestyStrip ?? null,
+    pipelineStageFlagsOmittedLine: packagePrintPipelineStageFlagsOmitted(summary)
+      ? PACKAGE_PRINT_PIPELINE_STAGE_FLAGS_OMITTED_LINE
+      : null,
     manifestVersionForGuard:
       summary.currentManifestVersion?.trim()
       ?? summary.goldenManifestId?.trim()

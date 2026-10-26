@@ -56,7 +56,7 @@ describe("policy-rule-preview-lookup", () => {
     expect(preview?.packId).toBe("sec-baseline-pack");
   });
 
-  it("buildPolicyRulePreviewFallback uses rule label and inferred pack name", () => {
+  it("buildPolicyRulePreviewFallback uses rule label without inferring pack name from rule id", () => {
     const preview = buildPolicyRulePreviewFallback({
       ruleId: "sec-base-010",
       ruleLabel: "Encrypt data at rest",
@@ -64,7 +64,24 @@ describe("policy-rule-preview-lookup", () => {
     });
 
     expect(preview.ruleTitle).toBe("Encrypt data at rest");
-    expect(preview.packName).toBe("Security Architecture Baseline");
+    expect(preview.packName).toBe("sec-baseline-pack");
     expect(preview.hasCuratedRuleText).toBe(false);
+    expect(preview.description).toContain(
+      "Curated rule text was not stored on the effective policy pack.",
+    );
+  });
+
+  it("labels missing pack name and version on fallback preview (P-02, P-03)", () => {
+    const preview = buildPolicyRulePreviewFallback({
+      ruleId: "",
+      ruleLabel: null,
+      packId: null,
+      packName: null,
+      packVersion: null,
+    });
+
+    expect(preview.ruleId).toBe("Rule id was not stored.");
+    expect(preview.packName).toBe("Pack name was not stored.");
+    expect(preview.packVersion).toBe("Policy pack version was not stored.");
   });
 });

@@ -33,6 +33,8 @@ public sealed class ExecDigestComposer(
     private const int MaxRunDetailLookups = 40;
     private const int RunDetailLookupMaxConcurrent = 6;
     private const int TopRunCount = 3;
+
+    internal const string ComplianceDriftTopChangeTypesNotStoredLabel = "Top change types were not stored.";
     private readonly IAuthorityQueryService _authorityQueryService = authorityQueryService ?? throw new ArgumentNullException(nameof(authorityQueryService));
 
     private readonly IComplianceDriftTrendService _complianceDriftTrendService =
@@ -105,7 +107,7 @@ public sealed class ExecDigestComposer(
             foreach (ComplianceDriftTrendPoint p in points)
             {
                 string topTypes = p.ChangesByType.Count == 0
-                    ? "—"
+                    ? ComplianceDriftTopChangeTypesNotStoredLabel
                     : string.Join(", ", p.ChangesByType.OrderByDescending(static kv => kv.Value).Take(3).Select(static kv => $"`{kv.Key}`: {kv.Value}"));
                 sb.AppendLine($"| {p.BucketUtc:yyyy-MM-dd} | {p.ChangeCount} | {topTypes} |");
             }

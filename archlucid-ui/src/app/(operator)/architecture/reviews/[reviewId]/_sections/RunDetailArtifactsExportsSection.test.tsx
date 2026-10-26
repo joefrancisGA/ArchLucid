@@ -159,8 +159,8 @@ describe("RunDetailArtifactsExportsSection", () => {
     );
 
     expect(screen.queryByTestId("decision-receipt-export")).not.toBeInTheDocument();
-    expect(screen.getByTestId("run-deliverables-pending-finalize-empty-state")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Finalize this review" })).toHaveAttribute("href", "#finalize-review");
+    expect(screen.getByTestId("run-deliverables-sealed-empty-state")).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "Finalize this review" })).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Reload" })).toBeInTheDocument();
     expect(screen.getByTestId("run-scoped-audit-export")).toHaveAttribute("data-run-id", "run-1");
   });
@@ -194,6 +194,7 @@ describe("RunDetailArtifactsExportsSection", () => {
   it("demotes pending-finalize deliverables CTA when Do this next owns the page primary", () => {
     const feasibleSummary: ManifestSummary = {
       ...manifestSummary,
+      status: "Draft",
       feasibilityVerdict: {
         kind: "Feasible",
         summary: "All required controls satisfied.",
@@ -261,6 +262,26 @@ describe("RunDetailArtifactsExportsSection", () => {
 
     expect(screen.getByTestId("fatal-page-report-problem-row")).toBeInTheDocument();
     expect(screen.getByTestId("report-problem-trigger")).toBeInTheDocument();
+  });
+
+  it("labels missing architecture request JSON without a download button", () => {
+    render(
+      <RunDetailArtifactsExportsSection
+        manifestId="manifest-1"
+        runId="run-1"
+        buyerPolishedArtifactTable={false}
+        artifacts={[]}
+        artifactsFailure={null}
+        artifactsMalformed={null}
+        goldenManifestJsonForExport={null}
+        manifestSummaryForUi={manifestSummary}
+        manifestSummary={manifestSummary}
+        trustEvidenceCard={null}
+      />,
+    );
+
+    expect(screen.getByTestId("run-detail-architecture-request-json-not-stored")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /Download Request JSON/i })).not.toBeInTheDocument();
   });
 
   it("disables architecture review report download for curated sample reviews", () => {

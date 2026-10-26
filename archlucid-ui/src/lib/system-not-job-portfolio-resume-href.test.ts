@@ -38,6 +38,14 @@ describe("SN-012 portfolio resume href resolver", () => {
     ).toBe("/architecture/reviews/run-42");
   });
 
+  it("parses run id from Working architecture desk highlightReviewId query (SN-012)", () => {
+    expect(
+      resolveRunIdFromWorkingReviewHref(
+        "/architecture/architectures/architecture-identity-001?highlightReviewId=run-42",
+      ),
+    ).toBe("run-42");
+  });
+
   it("parses run id from nested and peer review hrefs", () => {
     expect(
       resolveRunIdFromWorkingReviewHref(

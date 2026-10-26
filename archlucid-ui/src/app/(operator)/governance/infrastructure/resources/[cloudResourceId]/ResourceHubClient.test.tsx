@@ -237,6 +237,32 @@ describe("ResourceHubClient", () => {
     expect(await screen.findByTestId("infra-resource-hub-findings-stream-more-OperationalSecurity")).toHaveTextContent(
       "Showing 1 of 40",
     );
+    expect(screen.getByTestId("infra-resource-hub-findings-stream-more-OperationalSecurity")).toHaveAttribute(
+      "href",
+      expect.stringContaining("/governance/infrastructure/remediation"),
+    );
+  });
+
+  it("links architecture review pagination to the resource hub findings tab", async () => {
+    fetchCachedInfraEvidenceResourceHub.mockImplementation(async () =>
+      buildResourceHubTestMockHub({
+        architectureReviewFindings: {
+          ...buildResourceHubTestMockHub().architectureReviewFindings,
+          totalCount: 40,
+          hasMore: true,
+        },
+      }),
+    );
+    searchParams = new URLSearchParams(`tab=findings&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}`);
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    const moreLink = await screen.findByTestId("infra-resource-hub-findings-stream-more-ArchitectureReview");
+    expect(moreLink).toHaveTextContent("Showing 1 of 40");
+    expect(moreLink).toHaveAttribute(
+      "href",
+      `/governance/infrastructure/resources/${RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID}?tab=findings&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}`,
+    );
+    expect(moreLink.getAttribute("href")).not.toContain("/governance/infrastructure/remediation");
   });
 
   it("derives diagram correspondence status from match kind", async () => {
@@ -261,16 +287,138 @@ describe("ResourceHubClient", () => {
     expect(screen.getByText("snapshots/222/properties.json")).toBeInTheDocument();
   });
 
+  it("renders evidence pointers that share kind and relative path", async () => {
+    const sharedPath = "snapshots/222/properties.json";
+    fetchCachedInfraEvidenceResourceHub.mockImplementation(async () =>
+      buildResourceHubTestMockHub({
+        evidencePointers: [
+          { kind: "inventory", relativePath: sharedPath },
+          { kind: "inventory", relativePath: sharedPath },
+        ],
+      }),
+    );
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    await screen.findByText("Evidence pointers");
+    expect(screen.getAllByText(sharedPath)).toHaveLength(2);
+    expect(screen.getAllByText("inventory")).toHaveLength(2);
+  });
+
+  it("renders drift rows that share changeId but differ in property", async () => {
+    const baseChange = buildResourceHubTestMockHub().recentChanges[0];
+    fetchCachedInfraEvidenceResourceHub.mockImplementation(async () =>
+      buildResourceHubTestMockHub({
+        recentChanges: [
+          { ...baseChange, property: "sku" },
+          { ...baseChange, property: "tier" },
+        ],
+      }),
+    );
+    searchParams = new URLSearchParams(`tab=drift&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}`);
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    await screen.findByTestId("infra-resource-hub-drift-tab-change-change-1-0");
+    expect(screen.getByTestId("infra-resource-hub-drift-tab-change-change-1-1")).toHaveTextContent("tier");
+    expect(screen.getByTestId("infra-resource-hub-drift-tab-change-change-1-0")).toHaveTextContent("sku");
+  });
+
+  it("renders RBAC rows that share principal and role but differ in scope", async () => {
+    fetchCachedInfraEvidenceResourceHub.mockImplementation(async () =>
+      buildResourceHubTestMockHub({
+        rbacAssignments: [
+          {
+            principalId: "principal-1",
+            roleDefinitionId: "role-reader",
+            scope: "/subscriptions/sub",
+          },
+          {
+            principalId: "principal-1",
+            roleDefinitionId: "role-reader",
+            scope: "/subscriptions/sub/resourceGroups/rg-net",
+          },
+        ],
+      }),
+    );
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    await screen.findByText("RBAC assignments");
+    expect(screen.getByText("/subscriptions/sub")).toBeInTheDocument();
+    expect(screen.getByText("/subscriptions/sub/resourceGroups/rg-net")).toBeInTheDocument();
+  });
+
+  it("renders network relationships that share endpoints but differ in type", async () => {
+    const sharedFrom =
+      "/subscriptions/sub/resourceGroups/rg-net/providers/Microsoft.Network/virtualNetworks/vnet-a";
+    const sharedTo =
+      "/subscriptions/sub/resourceGroups/rg-net/providers/Microsoft.Network/virtualNetworks/vnet-b";
+    fetchCachedInfraEvidenceResourceHub.mockImplementation(async () =>
+      buildResourceHubTestMockHub({
+        networkRelationships: [
+          {
+            relationshipType: "Peering",
+            fromAzureResourceId: sharedFrom,
+            toAzureResourceId: sharedTo,
+          },
+          {
+            relationshipType: "PrivateEndpoint",
+            fromAzureResourceId: sharedFrom,
+            toAzureResourceId: sharedTo,
+          },
+        ],
+      }),
+    );
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    await screen.findByText("Network relationships");
+    expect(screen.getByText("Peering")).toBeInTheDocument();
+    expect(screen.getByText("PrivateEndpoint")).toBeInTheDocument();
+  });
+
+  it("lists cross-assessment audit controls that share control and snapshot ids", async () => {
+    fetchCachedInfraEvidenceResourceHub.mockImplementation(async () =>
+      buildResourceHubTestMockHub({
+        auditLineageLink: {
+          ...buildResourceHubTestMockHub().auditLineageLink,
+          matches: [
+            {
+              assessmentId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+              auditEvidenceSnapshotId: "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+              controlId: "cccccccc-cccc-cccc-cccc-cccccccccccc",
+              controlNumber: "AC-2",
+              controlTitle: "Account management",
+              snapshotCreatedUtc: "2026-01-01T00:00:00Z",
+            },
+            {
+              assessmentId: "eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee",
+              auditEvidenceSnapshotId: "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+              controlId: "cccccccc-cccc-cccc-cccc-cccccccccccc",
+              controlNumber: "AC-2",
+              controlTitle: "Account management (other assessment)",
+              snapshotCreatedUtc: "2026-01-02T00:00:00Z",
+            },
+          ],
+        },
+      }),
+    );
+    searchParams = new URLSearchParams(
+      `tab=audit&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}${RESOURCE_HUB_TEST_AUDIT_SUFFIX}`,
+    );
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    expect(await screen.findByText("Other linked controls")).toBeInTheDocument();
+    expect(screen.getByText("AC-2 · Account management (other assessment)")).toBeInTheDocument();
+  });
+
   it("uses shared drift table with old and new values on overview and drift tab", async () => {
     render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
 
-    expect(await screen.findByTestId("infra-resource-hub-drift-change-change-1")).toBeInTheDocument();
+    expect(await screen.findByTestId("infra-resource-hub-drift-change-change-1-0")).toBeInTheDocument();
     expect(screen.getAllByText("Basic").length).toBeGreaterThan(0);
     expect(screen.getAllByText("Standard").length).toBeGreaterThan(0);
 
     searchParams = new URLSearchParams(`tab=drift&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}`);
     const { unmount } = render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
-    expect(await screen.findByTestId("infra-resource-hub-drift-tab-change-change-1")).toBeInTheDocument();
+    expect(await screen.findByTestId("infra-resource-hub-drift-tab-change-change-1-0")).toBeInTheDocument();
     unmount();
   });
 
@@ -318,6 +466,31 @@ describe("ResourceHubClient", () => {
 
     fireEvent.click(screen.getByTestId("infra-resource-hub-tab-overview"));
     expect(replace).toHaveBeenCalled();
+    expect(screen.queryByTestId("infra-resource-hub-finding-message-finding-1")).not.toBeInTheDocument();
+  });
+
+  it("clears per-finding remediation message when the hub reloads for a new snapshot scope", async () => {
+    const alternateSnapshotId = "snapshot-scope-2";
+    searchParams = new URLSearchParams(`tab=findings&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}`);
+    const { rerender } = render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    fireEvent.click(await screen.findByTestId("infra-resource-hub-create-remediation-finding-1"));
+    fireEvent.click(screen.getByTestId("infra-resource-hub-create-remediation-confirm"));
+    await waitFor(() => {
+      expect(screen.getByTestId("infra-resource-hub-finding-message-finding-1")).toHaveTextContent(
+        "Remediation instance created.",
+      );
+    });
+
+    searchParams = new URLSearchParams(`tab=findings&snapshotId=${alternateSnapshotId}`);
+    rerender(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    await waitFor(() => {
+      expect(fetchCachedInfraEvidenceResourceHub).toHaveBeenCalledWith(
+        RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID,
+        expect.objectContaining({ snapshotId: alternateSnapshotId }),
+      );
+    });
     expect(screen.queryByTestId("infra-resource-hub-finding-message-finding-1")).not.toBeInTheDocument();
   });
 
@@ -373,7 +546,7 @@ describe("ResourceHubClient", () => {
     );
     render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
 
-    expect(await screen.findByTestId("infra-resource-hub-drift-ask-change-1")).toHaveAttribute(
+    expect(await screen.findByTestId("infra-resource-hub-drift-ask-change-1-0")).toHaveAttribute(
       "href",
       expect.stringContaining("runId=run-1"),
     );
@@ -397,7 +570,7 @@ describe("ResourceHubClient", () => {
     );
     render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
 
-    expect(await screen.findByTestId("infra-resource-hub-drift-ask-change-1")).toHaveAttribute(
+    expect(await screen.findByTestId("infra-resource-hub-drift-ask-change-1-0")).toHaveAttribute(
       "href",
       expect.stringContaining("workQueue=open-findings"),
     );
@@ -421,7 +594,7 @@ describe("ResourceHubClient", () => {
     );
     render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
 
-    expect(await screen.findByTestId("infra-resource-hub-drift-change-change-1")).toHaveAttribute(
+    expect(await screen.findByTestId("infra-resource-hub-drift-change-change-1-0")).toHaveAttribute(
       "href",
       expect.stringContaining("runId=run-1"),
     );
@@ -876,6 +1049,254 @@ describe("ResourceHubClient", () => {
     );
   });
 
+  it("treats whitespace-only terraform generation method as not stored", async () => {
+    fetchCachedInfraEvidenceResourceHub.mockImplementation(async () =>
+      buildResourceHubTestMockHub({ terraformGenerationMethod: "  \t " }),
+    );
+    searchParams = new URLSearchParams(`tab=terraform&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}`);
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    expect(await screen.findByText("Terraform generation method was not stored.")).toBeInTheDocument();
+  });
+
+  it("treats whitespace-only diagram correspondence explanation as not stored", async () => {
+    fetchCachedInfraEvidenceResourceHub.mockImplementation(async () =>
+      buildResourceHubTestMockHub({
+        diagramCorrespondence: {
+          ...buildResourceHubTestMockHub().diagramCorrespondence!,
+          explainText: "   ",
+        },
+      }),
+    );
+    searchParams = new URLSearchParams(`tab=diagram&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}`);
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    expect(await screen.findByText("Correspondence explanation was not stored.")).toBeInTheDocument();
+  });
+
+  it("treats whitespace-only remediation instance status as not stored", async () => {
+    fetchCachedInfraEvidenceResourceHub.mockImplementation(async () =>
+      buildResourceHubTestMockHub({
+        remediationInstances: {
+          ...buildResourceHubTestMockHub().remediationInstances,
+          items: [
+            {
+              instanceId: "instance-1",
+              patternKey: "public-ip-restrict",
+              status: "   ",
+            },
+          ],
+        },
+      }),
+    );
+    searchParams = new URLSearchParams(`tab=remediation&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}`);
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    expect(await screen.findByText("Remediation status was not stored.")).toBeInTheDocument();
+  });
+
+  it("shows findings stream section label omission copy when streamLabel is whitespace-only", async () => {
+    fetchCachedInfraEvidenceResourceHub.mockImplementation(async () =>
+      buildResourceHubTestMockHub({
+        operationalSecurityFindings: {
+          ...buildResourceHubTestMockHub().operationalSecurityFindings,
+          streamLabel: "   ",
+        },
+      }),
+    );
+    searchParams = new URLSearchParams(`tab=findings&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}`);
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    expect(await screen.findByText("Findings stream label was not stored.")).toBeInTheDocument();
+  });
+
+  it("shows diagram match kind omission copy when matchKind is whitespace-only", async () => {
+    fetchCachedInfraEvidenceResourceHub.mockImplementation(async () =>
+      buildResourceHubTestMockHub({
+        diagramCorrespondence: {
+          ...buildResourceHubTestMockHub().diagramCorrespondence!,
+          matchKind: "  ",
+        },
+      }),
+    );
+    searchParams = new URLSearchParams(`tab=diagram&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}`);
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    expect(await screen.findByText("Match kind was not stored.")).toBeInTheDocument();
+  });
+
+  it("shows severity omission copy when the captured severity is whitespace-only", async () => {
+    fetchCachedInfraEvidenceResourceHub.mockImplementation(async () =>
+      buildResourceHubTestMockHub({
+        operationalSecurityFindings: {
+          ...buildResourceHubTestMockHub().operationalSecurityFindings,
+          items: [
+            {
+              id: "finding-whitespace-severity",
+              title: "Public endpoint",
+              severity: "   ",
+              status: "Open",
+              streamKind: "OperationalSecurity",
+              streamLabel: "Operational security",
+            },
+          ],
+        },
+      }),
+    );
+    searchParams = new URLSearchParams(`tab=findings&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}`);
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    expect(await screen.findByText("Severity was not stored.")).toBeInTheDocument();
+  });
+
+  it("shows finding status omission copy on architecture review rows when status is whitespace-only", async () => {
+    fetchCachedInfraEvidenceResourceHub.mockImplementation(async () =>
+      buildResourceHubTestMockHub({
+        architectureReviewFindings: {
+          ...buildResourceHubTestMockHub().architectureReviewFindings,
+          items: [
+            {
+              id: "arch-finding-whitespace-status",
+              title: "Missing subnet segmentation",
+              severity: "Medium",
+              status: "   ",
+              streamKind: "ArchitectureReview",
+              streamLabel: "Architecture review",
+            },
+          ],
+        },
+      }),
+    );
+    searchParams = new URLSearchParams(`tab=findings&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}`);
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    expect(await screen.findByText("Finding status was not stored.")).toBeInTheDocument();
+  });
+
+  it("shows finding title omission copy when the captured title is whitespace-only", async () => {
+    fetchCachedInfraEvidenceResourceHub.mockImplementation(async () =>
+      buildResourceHubTestMockHub({
+        operationalSecurityFindings: {
+          ...buildResourceHubTestMockHub().operationalSecurityFindings,
+          items: [
+            {
+              id: "finding-whitespace-title",
+              title: "   ",
+              severity: "High",
+              status: "Open",
+              streamKind: "OperationalSecurity",
+              streamLabel: "Operational security",
+            },
+          ],
+        },
+      }),
+    );
+    searchParams = new URLSearchParams(`tab=findings&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}`);
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    expect(await screen.findByText("Finding title was not stored.")).toBeInTheDocument();
+  });
+
+  it("does not show paginated caption on remediation tab when the instance list is empty", async () => {
+    fetchCachedInfraEvidenceResourceHub.mockImplementation(async () =>
+      buildResourceHubTestMockHub({
+        remediationInstances: {
+          items: [],
+          totalCount: 50,
+          page: 1,
+          pageSize: 25,
+          hasMore: true,
+        },
+      }),
+    );
+    searchParams = new URLSearchParams(`tab=remediation&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}`);
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    await screen.findByTestId("infra-resource-hub-remediation-empty");
+    expect(screen.queryByText("Showing 0 of 50")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("infra-resource-hub-remediation-stream-caption")).not.toBeInTheDocument();
+  });
+
+  it("shows remediation stream caption when instances are visible and more exist off-page", async () => {
+    searchParams = new URLSearchParams(`tab=remediation&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}`);
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    expect(await screen.findByTestId("infra-resource-hub-remediation-stream-caption")).toHaveTextContent(
+      "Showing 1 of 50",
+    );
+  });
+
+  it("does not show findings stream pagination link when the stream has no rows", async () => {
+    fetchCachedInfraEvidenceResourceHub.mockImplementation(async () =>
+      buildResourceHubTestMockHub({
+        operationalSecurityFindings: {
+          ...buildResourceHubTestMockHub().operationalSecurityFindings,
+          items: [],
+          totalCount: 40,
+          hasMore: true,
+        },
+      }),
+    );
+    searchParams = new URLSearchParams(`tab=findings&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}`);
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    await screen.findByTestId("infra-resource-hub-findings-empty-OperationalSecurity");
+    expect(screen.queryByTestId("infra-resource-hub-findings-stream-more-OperationalSecurity")).not.toBeInTheDocument();
+  });
+
+  it("treats whitespace-only terraform address as not stored on the terraform tab", async () => {
+    fetchCachedInfraEvidenceResourceHub.mockImplementation(async () =>
+      buildResourceHubTestMockHub({ terraformAddress: "   \t  " }),
+    );
+    searchParams = new URLSearchParams(`tab=terraform&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}`);
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    const labels = await screen.findAllByText("Terraform address was not stored.");
+    expect(labels.length).toBeGreaterThan(0);
+    expect(screen.queryByText(/\s{3,}/)).not.toBeInTheDocument();
+  });
+
+  it("renders the same finding id in both operational and architecture review streams", async () => {
+    const sharedFindingId = "shared-finding-id";
+    fetchCachedInfraEvidenceResourceHub.mockImplementation(async () =>
+      buildResourceHubTestMockHub({
+        operationalSecurityFindings: {
+          ...buildResourceHubTestMockHub().operationalSecurityFindings,
+          items: [
+            {
+              id: sharedFindingId,
+              title: "Operational title for shared id",
+              severity: "High",
+              status: "Open",
+              streamKind: "OperationalSecurity",
+              streamLabel: "Operational security",
+            },
+          ],
+        },
+        architectureReviewFindings: {
+          ...buildResourceHubTestMockHub().architectureReviewFindings,
+          items: [
+            {
+              id: sharedFindingId,
+              title: "Architecture title for shared id",
+              severity: "Medium",
+              status: "Open",
+              streamKind: "ArchitectureReview",
+              streamLabel: "Architecture review",
+            },
+          ],
+        },
+      }),
+    );
+    searchParams = new URLSearchParams(`tab=findings&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}`);
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    expect(await screen.findByText("Operational title for shared id")).toBeInTheDocument();
+    expect(screen.getByText("Architecture title for shared id")).toBeInTheDocument();
+    expect(screen.getByTestId(`infra-resource-hub-create-remediation-${sharedFindingId}`)).toBeInTheDocument();
+    expect(screen.getByTestId(`infra-resource-hub-architecture-finding-ask-${sharedFindingId}`)).toBeInTheDocument();
+  });
+
   it("omits terraform mapping from overview when address is absent", async () => {
     fetchCachedInfraEvidenceResourceHub.mockImplementation(async () =>
       buildResourceHubTestMockHub({ terraformAddress: null, terraformGenerationMethod: null }),
@@ -884,6 +1305,23 @@ describe("ResourceHubClient", () => {
 
     await screen.findByTestId("infra-resource-hub-open-remediation-work");
     expect(screen.queryByTestId("infra-resource-hub-open-terraform-work")).not.toBeInTheDocument();
+  });
+
+  it("shows property value omission copy when a captured property value is whitespace-only", async () => {
+    fetchCachedInfraEvidenceResourceHub.mockImplementation(async () =>
+      buildResourceHubTestMockHub({
+        currentConfiguration: {
+          ...buildResourceHubTestMockHub().currentConfiguration,
+          properties: {
+            skuName: "   ",
+          },
+        },
+      }),
+    );
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    expect(await screen.findByText("Property value was not stored.")).toBeInTheDocument();
+    expect(screen.getByText("skuName")).toBeInTheDocument();
   });
 
   it("labels missing resource group and region with omission copy (P-13)", async () => {

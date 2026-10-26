@@ -427,7 +427,9 @@ export function useFindingInspectGovernanceStickinessDispositions({
     [history],
   );
   const sponsorSynopsisPackageTitle =
-    packageTitle !== null && packageTitle.trim().length > 0 ? packageTitle.trim() : runId;
+    packageTitle !== null && packageTitle.trim().length > 0
+      ? packageTitle.trim()
+      : "Review title was not stored.";
   const recentDispositionActors = useMemo(
     () => collabRecentActorsFromDispositionHistory(history, { take: 3 }),
     [history],

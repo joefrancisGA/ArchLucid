@@ -11,8 +11,10 @@ function summary(
     visibleNodeCount: partial.visibleNodeCount ?? 10,
     visibleEdgeCount: partial.visibleEdgeCount ?? 4,
     connectedComponentCount: partial.connectedComponentCount ?? 3,
-    hiddenHopsUsedCount: partial.hiddenHopsUsedCount ?? 0,
-    likelyInCollocationEdgeCount: partial.likelyInCollocationEdgeCount ?? 0,
+    hiddenHopsUsedCount:
+      partial.hiddenHopsUsedCount === undefined ? 0 : partial.hiddenHopsUsedCount,
+    likelyInCollocationEdgeCount:
+      partial.likelyInCollocationEdgeCount === undefined ? 0 : partial.likelyInCollocationEdgeCount,
     collectedClasses: partial.collectedClasses ?? [],
     missingClasses: partial.missingClasses ?? [],
   };
@@ -25,6 +27,8 @@ describe("formatInfraEvidenceCompletenessSummaryBannerLine", () => {
     );
 
     expect(line).toContain("10 resources in 3 connected components.");
+    expect(line).toContain("4 lines on the diagram");
+    expect(line).not.toContain("visible relationships");
     expect(line).toContain("Missing: Missing NIC subnet ids.");
   });
 
@@ -36,12 +40,43 @@ describe("formatInfraEvidenceCompletenessSummaryBannerLine", () => {
     expect(line).toContain("(2 from hidden attachment hops)");
   });
 
+  it("labels omitted missing resource classes as not stored", () => {
+    const line = formatInfraEvidenceCompletenessSummaryBannerLine({
+      mode: "network",
+      visibleNodeCount: 10,
+      visibleEdgeCount: 4,
+      connectedComponentCount: 3,
+      hiddenHopsUsedCount: 0,
+      likelyInCollocationEdgeCount: 0,
+      collectedClasses: [],
+      missingClasses: null,
+    });
+
+    expect(line).toContain("Missing resource classes were not stored.");
+  });
+
+  it("labels null collocation count as not stored on the diagram line", () => {
+    const line = formatInfraEvidenceCompletenessSummaryBannerLine({
+      mode: "network",
+      visibleNodeCount: 10,
+      visibleEdgeCount: 4,
+      connectedComponentCount: 3,
+      hiddenHopsUsedCount: 0,
+      likelyInCollocationEdgeCount: null,
+      collectedClasses: [],
+      missingClasses: [],
+    });
+
+    expect(line).toContain("4 lines on the diagram");
+    expect(line).toContain("likely-in collocation count was not stored");
+  });
+
   it("labels null hidden-hop and collocation counts as not stored (P-19)", () => {
     const line = formatInfraEvidenceCompletenessSummaryBannerLine(
       summary({ hiddenHopsUsedCount: null, likelyInCollocationEdgeCount: null }),
     );
 
-    expect(line).toContain("Hidden attachment hop count was not stored.");
-    expect(line).toContain("Likely-in collocation count was not stored.");
+    expect(line).toContain("4 lines on the diagram");
+    expect(line).toContain("likely-in collocation count was not stored");
   });
 });

@@ -180,7 +180,7 @@ public static class DiagramForestLegendSvgEmitter
             DiagramInventoryPictogramKind.Data => "Data",
             DiagramInventoryPictogramKind.Storage => "Storage",
             DiagramInventoryPictogramKind.Identity => "Identity",
-            _ => "Generic",
+            _ => "Resource category was not stored.",
         };
     }
 

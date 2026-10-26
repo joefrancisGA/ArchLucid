@@ -2,9 +2,20 @@ import {
   extractCuratedRulesFromPackMetadata,
   type CuratedRuleRow,
 } from "@/lib/policy/policy-pack-curated-rules-v1";
-import { inferPolicyPackDisplayNameFromComplianceRuleKey } from "@/lib/policy/policy-pack-rule-key-prefix-catalog";
 import type { PolicyPackContentDocument } from "@/types/policy-packs";
 import type { ResolvedPolicyPack } from "@/types/policy-packs";
+
+export const POLICY_RULE_ID_NOT_STORED = "Rule id was not stored." as const;
+
+export const POLICY_PACK_NAME_NOT_STORED = "Pack name was not stored." as const;
+
+export const POLICY_REMEDIATION_GUIDANCE_NOT_STORED = "Remediation guidance was not stored." as const;
+
+export function isStoredPolicyRuleId(ruleId: string): boolean {
+  const trimmed = ruleId.trim();
+
+  return trimmed.length > 0 && trimmed !== POLICY_RULE_ID_NOT_STORED && trimmed !== "unknown-rule";
+}
 
 export type PolicyRulePreview = {
   readonly ruleId: string;
@@ -99,19 +110,19 @@ export function buildPolicyRulePreviewFallback(input: {
   readonly packName?: string | null;
   readonly packVersion?: string | null;
 }): PolicyRulePreview {
-  const ruleId = nonEmptyString(input.ruleId) ?? "unknown-rule";
+  const storedRuleId = nonEmptyString(input.ruleId);
+  const ruleId = storedRuleId ?? POLICY_RULE_ID_NOT_STORED;
   const ruleLabel = nonEmptyString(input.ruleLabel);
   const packId = nonEmptyString(input.packId);
   const explicitPackName = nonEmptyString(input.packName);
-  const inferredPackName = inferPolicyPackDisplayNameFromComplianceRuleKey(ruleId);
-  const packName = explicitPackName ?? inferredPackName ?? packId ?? "Policy pack";
-  const packVersion = nonEmptyString(input.packVersion) ?? "";
+  const packName = explicitPackName ?? packId ?? POLICY_PACK_NAME_NOT_STORED;
+  const packVersion = nonEmptyString(input.packVersion) ?? "Policy pack version was not stored.";
 
   return {
     ruleId,
-    ruleTitle: ruleLabel ?? ruleId,
+    ruleTitle: ruleLabel ?? (storedRuleId ?? POLICY_RULE_ID_NOT_STORED),
     description:
-      "Full rule text is stored in the assigned policy pack. Open policy packs to inspect the rule definition and thresholds.",
+      "Curated rule text was not stored on the effective policy pack. Open policy packs to inspect the rule definition and thresholds.",
     remediationGuidance: "",
     severity: null,
     packId: packId ?? packName,

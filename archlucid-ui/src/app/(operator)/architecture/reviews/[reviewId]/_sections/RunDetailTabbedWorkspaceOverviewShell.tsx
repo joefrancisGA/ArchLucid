@@ -17,7 +17,10 @@ import type { RunDetailPresentation } from "./run-detail-page-presentation";
 import { RunDetailDetailedOutcomeCardsDisclosure } from "./RunDetailDetailedOutcomeCardsDisclosure";
 import { deriveDecisionSnapshotSuppressedReason, isReviewPipelineIncomplete } from "@/lib/run-detail-workspace-derive";
 import { isAssertedTransparencyTrailEmpty } from "@/lib/feasibility/transparency-trail-completeness";
-import { resolveRunDetailOutcomeCardsFindingCountDisplay } from "./run-detail-outcome-cards-finding-count";
+import {
+  resolveRunDetailOutcomeCardsFindingCountDisplay,
+  resolveRunDetailOutcomeCardsMaterialFindingTitleDisplay,
+} from "./run-detail-outcome-cards-finding-count";
 import { shouldShowOverviewDemotedSponsorReportCta } from "./run-detail-overview-demoted-sponsor-cta";
 
 export type RunDetailTabbedWorkspaceOverviewShellInput = {
@@ -46,6 +49,7 @@ export function composeRunDetailTabbedWorkspaceOverviewShell(
     reviewDisplayTitle,
     reviewOwnerLabel,
     reviewStatusSummary,
+    hasFindingsSnapshot,
     quickDecisionFindings,
     severityCounts,
     submittedArchitectureText,
@@ -56,6 +60,8 @@ export function composeRunDetailTabbedWorkspaceOverviewShell(
     m.findingCountDisplay,
     quickDecisionFindings,
   );
+  const outcomeCardsMaterialFindingTitleDisplay =
+    resolveRunDetailOutcomeCardsMaterialFindingTitleDisplay(quickDecisionFindings);
 
   const outcomeCardsEl = (
     <RunDetailOutcomeCardsDeferred
@@ -63,6 +69,7 @@ export function composeRunDetailTabbedWorkspaceOverviewShell(
       manifestId={m.manifestId}
       artifactCount={m.artifacts.length}
       findingCountDisplay={outcomeCardsFindingCountDisplay}
+      materialFindingTitleDisplay={outcomeCardsMaterialFindingTitleDisplay}
       warningCountDisplay={m.warningCountDisplay}
       hasGoldenManifest={Boolean(m.manifestId)}
       unresolvedIssueCountDisplay={m.manifestSummary?.unresolvedIssueCount ?? null}
@@ -107,6 +114,7 @@ export function composeRunDetailTabbedWorkspaceOverviewShell(
         evidenceCoverageLine={p.evidenceCoverageSummary.summaryLine}
         primaryConcern={reviewStatusSummary.primaryConcern}
         materialSeverityLine={materialSeverityLine}
+        hasFindingsSnapshot={hasFindingsSnapshot}
         suppressedReason={decisionSnapshotSuppressedReason}
       />
       {executiveBottomLineEl}

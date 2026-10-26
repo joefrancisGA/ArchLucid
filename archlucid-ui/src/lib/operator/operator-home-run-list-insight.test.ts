@@ -71,6 +71,34 @@ describe("operator-home-run-list-insight", () => {
     vi.useRealTimers();
   });
 
+  it("returns null when both timestamps are unparseable", () => {
+    const run = stubRun({
+      lastModifiedUtc: "not-an-instant",
+      createdUtc: "also-not-an-instant",
+    });
+
+    expect(formatRunHomeListUpdatedLabel(run)).toBeNull();
+  });
+
+  it("falls back to createdUtc when lastModifiedUtc is unparseable", () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-06-16T12:00:00Z"));
+
+    const run = stubRun({
+      lastModifiedUtc: "not-an-instant",
+      createdUtc: "2026-06-15T12:00:00Z",
+    });
+
+    expect(formatRunHomeListUpdatedLabel(run)).toEqual({
+      isoUtc: "2026-06-15T12:00:00Z",
+      absoluteLabel: expect.any(String),
+      relativeLabel: expect.any(String),
+      usedCreatedFallback: true,
+    });
+
+    vi.useRealTimers();
+  });
+
   it("falls back to createdUtc when lastModifiedUtc is absent", () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date("2026-06-16T12:00:00Z"));

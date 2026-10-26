@@ -109,7 +109,13 @@ export const ARCHITECTURE_DIAGRAM_ZOOM_PERCENT_LABEL = "Diagram zoom percentage"
 
 export const ARCHITECTURE_DIAGRAM_FIT_IN_VIEW_LABEL = "Fit in view" as const;
 
-export const ARCHITECTURE_DIAGRAM_SUBSCRIPTION_MAP_LABEL = "Subscription map" as const;
+export const ARCHITECTURE_DIAGRAM_NEIGHBORHOOD_MAP_LABEL = "Neighborhood map" as const;
+
+export const ARCHITECTURE_DIAGRAM_SUBSCRIPTION_NAME_NOT_STORED_ON_MAP =
+  "Subscription name was not stored on this map." as const;
+
+/** @deprecated Use {@link ARCHITECTURE_DIAGRAM_NEIGHBORHOOD_MAP_LABEL}. */
+export const ARCHITECTURE_DIAGRAM_SUBSCRIPTION_MAP_LABEL = ARCHITECTURE_DIAGRAM_NEIGHBORHOOD_MAP_LABEL;
 
 export const ARCHITECTURE_DIAGRAM_MAP_LABEL = "Map" as const;
 
@@ -122,6 +128,24 @@ export const ARCHITECTURE_DIAGRAM_COMPONENT_NAME_NOT_STORED = "Component name wa
 
 export const ARCHITECTURE_DIAGRAM_DATA_FLOW_NOT_MATCHED_PREFIX =
   "Data flow was not matched to diagram components:" as const;
+
+export function formatArchitectureDiagramUnlabeledComponentsNotice(entityCount: number): string {
+  const noun = entityCount === 1 ? "component" : "components";
+
+  return `The diagram includes ${entityCount} ${noun} whose names were not stored.`;
+}
+
+export function formatTrustBoundaryWithoutMembershipNote(boundaryNames: readonly string[]): string {
+  return `Trust boundary names were stored without component membership: ${boundaryNames.join(", ")}.`;
+}
+
+export function formatReviewTitleNotCollectedSystemNote(reviewTitle: string): string {
+  return `Review title: ${reviewTitle}. This title is not a collected system.`;
+}
+
+export function formatUnmatchedArchitectureDataFlowLine(flow: string): string {
+  return `${ARCHITECTURE_DIAGRAM_DATA_FLOW_NOT_MATCHED_PREFIX} ${flow}`;
+}
 
 export const ARCHITECTURE_DIAGRAM_NOT_GENERATED_MESSAGE =
   "Architecture diagram was not generated." as const;

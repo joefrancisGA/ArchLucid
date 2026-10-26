@@ -108,6 +108,11 @@ public static class DiagramResourceGroupPacker
                     continue;
                 }
 
+                if (DiagramSharedServiceCatalog.IsSharedService(node.ArmResourceType))
+                {
+                    continue;
+                }
+
                 suppressed.Add(node.NodeId);
             }
         }
@@ -149,7 +154,7 @@ public static class DiagramResourceGroupPacker
 
             DiagramNode anchorNode = members[0].Node;
             string? groupName = string.Equals(frameCellId, "shared-services", StringComparison.Ordinal)
-                ? "Shared services"
+                ? "Shared service types. This frame is not a resource group."
                 : DiagramForestCollapsedSingletonTailLabels.ResolveResourceGroupCaption(anchorNode, frameCellId);
 
             if (groupName is null)

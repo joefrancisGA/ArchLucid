@@ -8,6 +8,8 @@ import { resolveProductionEvalChromeFromStorage } from "@/lib/resolve-production
 import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
+export const FINDING_INSPECT_AUDIT_RECORD_NOT_STORED = "Audit record was not stored." as const;
+
 export type FindingInspectAuditSectionProps = {
   readonly auditRowId: string | null | undefined;
   readonly demoFillGaps: boolean;
@@ -16,7 +18,6 @@ export type FindingInspectAuditSectionProps = {
 /** Human-readable audit linkage — shown on both detail and inspect. */
 export function FindingInspectAuditSection({
   auditRowId,
-  demoFillGaps,
 }: FindingInspectAuditSectionProps): ReactElement {
   const buyerPolishedShell = resolveProductionEvalChromeFromStorage();
 
@@ -42,17 +43,9 @@ export function FindingInspectAuditSection({
             </span>
           </p>
         )
-      ) : demoFillGaps && !buyerPolishedShell ? (
-        <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-          Audit record was not stored.
-        </p>
-      ) : buyerPolishedShell ? (
-        <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-          No linked audit event for this finding.
-        </p>
       ) : (
         <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-          Audit record not available in this environment (SQL-backed audit logging may be disabled).
+          {FINDING_INSPECT_AUDIT_RECORD_NOT_STORED}
         </p>
       )}
     </section>

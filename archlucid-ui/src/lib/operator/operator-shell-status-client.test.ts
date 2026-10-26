@@ -217,7 +217,7 @@ describe("operator shell status client", () => {
     });
   });
 
-  it("treats stickinessSnapshot pilotFunnel null as absent without throwing", async () => {
+  it("treats stickinessSnapshot pilotFunnel null as absent when no top-level metrics exist", async () => {
     vi.stubGlobal(
       "fetch",
       vi.fn(async () =>
@@ -231,6 +231,46 @@ describe("operator shell status client", () => {
     const payload = await fetchOperatorShellStatus();
 
     expect(payload.stickinessSnapshot).toBeNull();
+  });
+
+  it("maps top-level stickiness metrics when pilotFunnel is null", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        new Response(
+          JSON.stringify({
+            stickinessSnapshot: {
+              pilotFunnel: null,
+              pendingGovernanceApprovals: 2,
+              comparisonEventsLast30Days: 1,
+              latestRunId: "run-top-level",
+            },
+          }),
+          {
+            status: 200,
+            headers: { "Content-Type": "application/json" },
+          },
+        ),
+      ),
+    );
+
+    const payload = await fetchOperatorShellStatus();
+
+    expect(payload.stickinessSnapshot).toEqual({
+      pilotFunnel: {
+        firstRunCreatedUtc: null,
+        firstGoldenManifestUtc: null,
+        firstComparisonUtc: null,
+        firstArtifactOrBundleDownloadUtc: null,
+        firstReplayUtc: null,
+        totalRunsInScope: 0,
+        committedRunsInScope: 0,
+        productLearningSignalsLast90Days: 0,
+      },
+      latestRunId: "run-top-level",
+      comparisonEventsLast30Days: 1,
+      pendingGovernanceApprovals: 2,
+    });
   });
 
   it("clears scope-agnostic caches when a later hydrate payload omits a concern", () => {

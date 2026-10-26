@@ -151,6 +151,14 @@ export function countEngineFailureAdvisoryWithheldRows(rows: readonly WithheldFi
   return rows.filter((row) => row.reason === "engine-failure-advisory").length;
 }
 
+export function formatWithheldFindingOpenLinkLabel(row: WithheldFindingRow): string {
+  if (row.traceTargetId === null && row.conflictFindingId === null) {
+    return "Open findings. A trace target was not stored.";
+  }
+
+  return "Open trace or conflict resolution";
+}
+
 export function buildWithheldFindingDeepLink(runId: string, row: WithheldFindingRow): string {
   if (row.reason === "engine-failure-advisory") {
     return `/architecture/reviews/${encodeURIComponent(runId)}?reviewTab=findings`;

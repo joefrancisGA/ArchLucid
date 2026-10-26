@@ -240,8 +240,9 @@ export function ReviewPackageValidationPicker(props: ReviewPackageValidationPick
                       {row.architectureName} · {row.reviewName}
                     </span>
                     <span className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-                      Finalized {row.finalizedDateLabel} · {row.statusLabel} · Owner {row.ownerLabel} · Last validation{" "}
-                      {row.lastValidationLabel}
+                      {row.statusLabel}
+                      {row.finalizedDateLabel.length > 0 ? ` · ${row.finalizedDateLabel}` : ""} · Owner {row.ownerLabel}{" "}
+                      · Last validation {row.lastValidationLabel}
                     </span>
                     <span className="sr-only">Review ID {row.run.runId}</span>
                   </button>

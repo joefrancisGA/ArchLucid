@@ -3,7 +3,6 @@ import {
   typedPayloadLookupString,
   isPhiMinimizationFindingId,
   isPhiMinimizationSampleFinding,
-  phiMinimizationApprovalNarrative,
   phiMinimizationRecommendedActionFallback,
 } from "@/lib/findings/finding-display-from-inspect";
 import { buyerFindingSeverityDisplayLabel } from "@/lib/buyer/buyer-finding-severity-display";
@@ -112,20 +111,25 @@ export function summarizeEvidenceBasis(payload: FindingInspectPayload | null): s
     return "Finding detail has not loaded.";
   }
 
-  if (payload.evidenceListReturned === false) {
-    return "Evidence list was not returned.";
+  if (payload.evidenceListReturned !== true) {
+    return "Evidence list was not stored.";
   }
 
   const evidenceCount = payload.evidence.length;
-  const ruleLabel = payload.decisionRuleName ?? payload.decisionRuleId;
+  const ruleName = payload.decisionRuleName?.trim() ?? "";
+  const ruleId = payload.decisionRuleId?.trim() ?? "";
   const citationLabel = evidenceCount === 1 ? "citation" : "citations";
 
   if (evidenceCount === 0) {
     return "0 evidence citations were stored.";
   }
 
-  if (ruleLabel !== null && ruleLabel.trim().length > 0) {
-    return `${evidenceCount} evidence ${citationLabel} tied to ${ruleLabel}.`;
+  if (ruleName.length > 0) {
+    return `${evidenceCount} evidence ${citationLabel} tied to ${ruleName}.`;
+  }
+
+  if (ruleId.length > 0) {
+    return `${evidenceCount} evidence ${citationLabel}. Rule name was not stored. Rule id ${ruleId}.`;
   }
 
   return `${evidenceCount} evidence ${citationLabel}. Rule was not stored.`;
@@ -173,10 +177,6 @@ export function fallbackSeverity(payload: FindingInspectPayload | null, findingI
     }
   }
 
-  if (isPhiMinimizationFindingId(findingId)) {
-    return resolveProductionEvalChromeFromStorage() ? "High" : "High severity";
-  }
-
   return SEVERITY_NOT_STORED;
 }
 
@@ -209,7 +209,7 @@ export function buyerFindingDecisionPanelCopy(payload: FindingInspectPayload | n
   const status = fallbackStatus(payload, findingId);
 
   if (status === STATUS_NOT_STORED) {
-    return "No disposition recorded for this finding.";
+    return "Disposition was not stored.";
   }
 
   return `Disposition: ${status}.`;
@@ -278,28 +278,12 @@ export function buyerFindingNextStepCopy(payload: FindingInspectPayload | null, 
     if (action !== null && action.trim().length > 0) {
       return action;
     }
-
-    if (isPhiMinimizationSampleFinding(payload)) {
-      return phiMinimizationRecommendedActionFallback();
-    }
-  }
-
-  if (isPhiMinimizationFindingId(findingId)) {
-    return phiMinimizationRecommendedActionFallback();
   }
 
   return mitigationPosture(payload, findingId);
 }
 
-export function validationRequirement(payload: FindingInspectPayload | null, findingId: string): string {
-  if (payload !== null && isPhiMinimizationSampleFinding(payload)) {
-    return phiMinimizationApprovalNarrative();
-  }
-
-  if (isPhiMinimizationFindingId(findingId)) {
-    return phiMinimizationApprovalNarrative();
-  }
-
+export function validationRequirement(_payload: FindingInspectPayload | null, _findingId: string): string {
   return "No audit requirement was stored on this finding.";
 }
 

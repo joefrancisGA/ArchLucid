@@ -40,6 +40,9 @@ const FAMILY_BY_INFERENCE_SOURCE: Readonly<Record<string, InfraEvidenceDiagramFa
   "inventory-pe-reachable-target": "StructuralNetworkPath",
   "inventory-private-endpoint": "StructuralNetworkPath",
   "inventory-service-connector-link": "DeclaredMovement",
+  "inventory-static-site-backend": "DeclaredMovement",
+  "inventory-fabric-capacity-workspace": "DeclaredMovement",
+  "inventory-diagnostic-setting-storage": "DeclaredMovement",
 };
 
 function resolveFamilyFromLabel(label: string): InfraEvidenceDiagramFamily | null {
@@ -74,6 +77,14 @@ function resolveFamilyFromLabel(label: string): InfraEvidenceDiagramFamily | nul
   }
 
   if (normalized.includes("service connector is configured")) {
+    return "DeclaredMovement";
+  }
+
+  if (
+    normalized === "linked backend"
+    || normalized === "assigned workspace"
+    || normalized.includes("diagnostic setting")
+  ) {
     return "DeclaredMovement";
   }
 
@@ -114,6 +125,18 @@ export function resolveInfraEvidenceDiagramFamily(
   }
 
   return resolveFamilyFromLabel(edge.label ?? "") ?? INFRA_EVIDENCE_DIAGRAM_FAMILY_ALL;
+}
+
+/** Keeps deep-linked family chips from stranding the workbench when the current diagram has no edges in that family. */
+export function resolveSelectableInfraEvidenceDiagramFamily(
+  selected: InfraEvidenceDiagramFamily,
+  availableFamilies: readonly InfraEvidenceDiagramFamily[],
+): InfraEvidenceDiagramFamily {
+  if (selected === INFRA_EVIDENCE_DIAGRAM_FAMILY_ALL) {
+    return selected;
+  }
+
+  return availableFamilies.includes(selected) ? selected : INFRA_EVIDENCE_DIAGRAM_FAMILY_ALL;
 }
 
 export function filterInfraEvidenceDiagramOutlineByFamily(
